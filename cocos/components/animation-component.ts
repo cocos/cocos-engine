@@ -13,38 +13,38 @@ import { ccenum } from '../core/value-types/enum';
 import { Component } from './component';
 
 /**
- * !#en The event type supported by Animation
- * !#zh Animation 支持的事件类型
+ * @en The event type supported by Animation
+ * @zh Animation 支持的事件类型
  */
 export enum EventType {
     /**
-     * !#en Emit when begin playing animation
-     * !#zh 开始播放时触发
+     * @en Emit when begin playing animation
+     * @zh 开始播放时触发
      */
     PLAY = 'play',
     /**
-     * !#en Emit when stop playing animation
-     * !#zh 停止播放时触发
+     * @en Emit when stop playing animation
+     * @zh 停止播放时触发
      */
     STOP = 'stop',
     /**
-     * !#en Emit when pause animation
-     * !#zh 暂停播放时触发
+     * @en Emit when pause animation
+     * @zh 暂停播放时触发
      */
     PAUSE = 'pause',
     /**
-     * !#en Emit when resume animation
-     * !#zh 恢复播放时触发
+     * @en Emit when resume animation
+     * @zh 恢复播放时触发
      */
     RESUME = 'resume',
     /**
-     * !#en If animation repeat count is larger than 1, emit when animation play to the last frame
-     * !#zh 假如动画循环次数大于 1，当动画播放到最后一帧时触发
+     * @en If animation repeat count is larger than 1, emit when animation play to the last frame
+     * @zh 假如动画循环次数大于 1，当动画播放到最后一帧时触发
      */
     LASTFRAME = 'lastframe',
     /**
-     * !#en Emit when finish playing animation
-     * !#zh 动画播放完成时触发
+     * @en Emit when finish playing animation
+     * @zh 动画播放完成时触发
      */
     FINISHED = 'finished',
 }
@@ -196,15 +196,17 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     /**
-     * !#en Plays an animation and stop other animations.
-     * !#zh 播放指定的动画，并且停止当前正在播放动画。如果没有指定动画，则播放默认动画。
-     * @param [name] - The name of animation to play. If no name is supplied then the default animation will be played.
-     * @param [startTime] - play an animation from startTime
-     * @return The AnimationState of playing animation. In cases where the animation can't be played
-     * (ie, there is no default animation or no animation with the specified name), the function will return null.
+     * @en Plays an animation and stop other animations.
+     * @zh 播放指定的动画，并且停止当前正在播放动画。如果没有指定动画，则播放默认动画。
+     * @param name - 要播放的动画的名称。 如果未提供名称，则将播放默认动画。
+     * @param startTime - 开始播放动画的时间
+     * @return
+     * 播放动画的动画状态。 在无法播放动画的情况下（即没有默认动画或没有指定名称的动画），该函数将返回null。
      * @example
+     * ```typescript
      * var animCtrl = this.node.getComponent(cc.Animation);
      * animCtrl.play("linear");
+     * ```
      */
     public play (name?: string, startTime = 0) {
         if (!name) {
@@ -297,11 +299,11 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     /**
-     * !#en
-     * Remove clip from the animation list. This will remove the clip and any animation states based on it.
-     * If there are animation states depand on the clip are playing or clip is defaultClip, it will not delete the clip.
+     * @en
+     * Remove clip from the animation list. This will remove the clip and any animation states based on it.<br>
+     * If there are animation states depand on the clip are playing or clip is defaultClip, it will not delete the clip.<br>
      * But if force is true, then will always remove the clip and any animation states based on it. If clip is defaultClip, defaultClip will be reset to null
-     * !#zh
+     * @zh
      * 从动画列表中移除指定的动画剪辑，<br/>
      * 如果依赖于 clip 的 AnimationState 正在播放或者 clip 是 defaultClip 的话，默认是不会删除 clip 的。
      * 但是如果 force 参数为 true，则会强制停止该动画，然后移除该动画剪辑和相关的动画。这时候如果 clip 是 defaultClip，defaultClip 将会被重置为 null。
@@ -342,30 +344,29 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     /**
-     * !#en
-     * Register animation event callback.
-     * The event arguments will provide the AnimationState which emit the event.
-     * When play an animation, will auto register the event callback to the AnimationState,
+     * @en
+     * Register animation event callback.<bg>
+     * The event arguments will provide the AnimationState which emit the event.<bg>
+     * When play an animation, will auto register the event callback to the AnimationState,<bg>
      * and unregister the event callback from the AnimationState when animation stopped.
-     * !#zh
-     * 注册动画事件回调。
-     * 回调的事件里将会附上发送事件的 AnimationState。
+     * @zh
+     * 注册动画事件回调。<bg>
+     * 回调的事件里将会附上发送事件的 AnimationState。<bg>
      * 当播放一个动画时，会自动将事件注册到对应的 AnimationState 上，停止播放时会将事件从这个 AnimationState 上取消注册。
-     * @param type - A string representing the event type to listen for.
-     * @param callback - The callback that will be invoked when the event is dispatched.
-     *                              The callback is ignored if it is a duplicate (the callbacks are unique).
-     * @param [target] - The target (this object) to invoke the callback, can be null
-     * @return Just returns the incoming callback so you can save the anonymous function easier.
-     * @typescript
-     * on(type: string, callback: (event: Event.EventCustom) => void, target?: any, useCapture?: boolean): (event: Event.EventCustom) => void
-     * on<T>(type: string, callback: (event: T) => void, target?: any, useCapture?: boolean): (event: T) => void
+     * @param type - 表示要侦听的事件类型的字符串。
+     * @param callback - 调度事件时将调用的回调。
+     *                   如果回调是重复的（回调是唯一的），则忽略回调。
+     * @param target - 调用回调的目标（此对象）可以为null
+     * @return 只返回传入的回调，以便可以更轻松地保存匿名函数。
      * @example
+     * ```typescript
      * onPlay: function (type, state) {
      *     // callback
      * }
      *
      * // register event to all animation
      * animation.on('play', this.onPlay, this);
+     * ```
      */
     public on (type: string, callback: (state: AnimationState) => void, target?: Object) {
         const ret = EventTarget.prototype.on.call(this, type, callback, target);
@@ -378,17 +379,18 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     /**
-     * !#en
+     * @en
      * Unregister animation event callback.
-     * !#zh
+     * @zh
      * 取消注册动画事件回调。
-     * @method off
-     * @param {String} type - A string representing the event type being removed.
-     * @param {Function} [callback] - The callback to remove.
-     * @param {Object} [target] - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
+     * @param {String} type - 要删除的事件类型的字符串。
+     * @param {Function} callback - 要删除的回调
+     * @param {Object} target - 调用回调的目标（此对象），如果没有给出，则只删除没有目标的回调
      * @example
+     * ```typescript
      * // unregister event to all animation
      * animation.off('play', this.onPlay, this);
+     * ```
      */
     public off (type: string, callback: Function, target?: Object) {
         if (type === 'lastframe') {

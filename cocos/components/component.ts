@@ -44,12 +44,12 @@ const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
 const NullNode = null as unknown as Node;
 
 /**
- * !#en
+ * @en
  * Base class for everything attached to Node(Entity).<br/>
  * <br/>
  * NOTE: Not allowed to use construction parameters for Component's subclasses,
  *       because Component is created by the engine.
- * !#zh
+ * @zh
  * 所有附加到节点的基类。<br/>
  * <br/>
  * 注意：不允许使用组件的子类构造参数，因为组件是由引擎创建的。
@@ -79,13 +79,15 @@ class Component extends CCObject {
     }
 
     /**
-     * !#en The uuid for editor.
-     * !#zh 组件的 uuid，用于编辑器。
+     * @en The uuid for editor.
+     * @zh 组件的 uuid，用于编辑器。
      * @property uuid
      * @type {String}
      * @readOnly
      * @example
+     * ```typescript
      * cc.log(comp.uuid);
+     * ```
      */
     @property({
         visible: false,
@@ -102,14 +104,16 @@ class Component extends CCObject {
     get __scriptAsset () { return null; }
 
     /**
-     * !#en indicates whether this component is enabled or not.
-     * !#zh 表示该组件自身是否启用。
+     * @en indicates whether this component is enabled or not.
+     * @zh 表示该组件自身是否启用。
      * @property enabled
      * @type {Boolean}
      * @default true
      * @example
+     * ```typescript
      * comp.enabled = true;
      * cc.log(comp.enabled);
+     * ```
      */
     @property({
         visible: false,
@@ -133,13 +137,15 @@ class Component extends CCObject {
     }
 
     /**
-     * !#en indicates whether this component is enabled and its node is also active in the hierarchy.
-     * !#zh 表示该组件是否被启用并且所在的节点也处于激活状态。
+     * @en indicates whether this component is enabled and its node is also active in the hierarchy.
+     * @zh 表示该组件是否被启用并且所在的节点也处于激活状态。
      * @property enabledInHierarchy
      * @type {Boolean}
      * @readOnly
      * @example
+     * ```typescript
      * cc.log(comp.enabledInHierarchy);
+     * ```
      */
     @property({
         visible: false,
@@ -149,13 +155,15 @@ class Component extends CCObject {
     }
 
     /**
-     * !#en Returns a value which used to indicate the onLoad get called or not.
-     * !#zh 返回一个值用来判断 onLoad 是否被调用过，不等于 0 时调用过，等于 0 时未调用。
+     * @en Returns a value which used to indicate the onLoad get called or not.
+     * @zh 返回一个值用来判断 onLoad 是否被调用过，不等于 0 时调用过，等于 0 时未调用。
      * @property _isOnLoadCalled
      * @type {Number}
      * @readOnly
      * @example
+     * ```typescript
      * cc.log(this._isOnLoadCalled > 0);
+     * ```
      */
     get _isOnLoadCalled () {
         return this._objFlags & IsOnLoadCalled;
@@ -163,12 +171,14 @@ class Component extends CCObject {
 
     public static system = null;
     /**
-     * !#en The node this component is attached to. A component is always attached to a node.
-     * !#zh 该组件被附加到的节点。组件总会附加到一个节点。
+     * @en The node this component is attached to. A component is always attached to a node.
+     * @zh 该组件被附加到的节点。组件总会附加到一个节点。
      * @property node
      * @type {Node}
      * @example
+     * ```typescript
      * cc.log(comp.node);
+     * ```
      */
     @property({
         visible: false,
@@ -243,18 +253,22 @@ class Component extends CCObject {
     // PUBLIC
 
     /**
-     * !#en Adds a component class to the node. You can also add component to node by passing in the name of the script.
-     * !#zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
+     * @en Adds a component class to the node. You can also add component to node by passing in the name of the script.
+     * @zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
      * @example
+     * ```typescript
      * var sprite = node.addComponent(cc.Sprite);
+     * ```
      */
     public addComponent<T extends Component> (classConstructor: Constructor<T>): T | null;
 
     /**
-     * !#en Adds a component class to the node. You can also add component to node by passing in the name of the script.
-     * !#zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
+     * @en Adds a component class to the node. You can also add component to node by passing in the name of the script.
+     * @zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
      * @example
+     * ```typescript
      * var test = node.addComponent("Test");
+     * ```
      */
     public addComponent (className: string): Component | null;
 
@@ -263,28 +277,32 @@ class Component extends CCObject {
     }
 
     /**
-     * !#en
+     * @en
      * Returns the component of supplied type if the node has one attached, null if it doesn't.<br/>
      * You can also get component in the node by passing in the name of the script.
-     * !#zh
+     * @zh
      * 获取节点上指定类型的组件，如果节点有附加指定类型的组件，则返回，如果没有则为空。<br/>
      * 传入参数也可以是脚本的名称。
      * @example
+     * ```typescript
      * // get sprite component.
      * var sprite = node.getComponent(cc.Sprite);
+     * ```
      */
     public getComponent<T extends Component> (classConstructor: Constructor<T>): T | null;
 
     /**
-     * !#en
+     * @en
      * Returns the component of supplied type if the node has one attached, null if it doesn't.<br/>
      * You can also get component in the node by passing in the name of the script.
-     * !#zh
+     * @zh
      * 获取节点上指定类型的组件，如果节点有附加指定类型的组件，则返回，如果没有则为空。<br/>
      * 传入参数也可以是脚本的名称。
      * @example
+     * ```typescript
      * // get custom test calss.
      * var test = node.getComponent("Test");
+     * ```
      */
     public getComponent (className: string): Component | null;
 
@@ -293,18 +311,22 @@ class Component extends CCObject {
     }
 
     /**
-     * !#en Returns all components of supplied type in the node.
-     * !#zh 返回节点上指定类型的所有组件。
+     * @en Returns all components of supplied type in the node.
+     * @zh 返回节点上指定类型的所有组件。
      * @example
+     * ```typescript
      * var sprites = node.getComponents(cc.Sprite);
+     * ```
      */
     public getComponents<T extends Component> (classConstructor: Constructor<T>): T[];
 
     /**
-     * !#en Returns all components of supplied type in the node.
-     * !#zh 返回节点上指定类型的所有组件。
+     * @en Returns all components of supplied type in the node.
+     * @zh 返回节点上指定类型的所有组件。
      * @example
+     * ```typescript
      * var tests = node.getComponents("Test");
+     * ```
      */
     public getComponents (className: string): Component[];
 
@@ -313,18 +335,22 @@ class Component extends CCObject {
     }
 
     /**
-     * !#en Returns the component of supplied type in any of its children using depth first search.
-     * !#zh 递归查找所有子节点中第一个匹配指定类型的组件。
+     * @en Returns the component of supplied type in any of its children using depth first search.
+     * @zh 递归查找所有子节点中第一个匹配指定类型的组件。
      * @example
+     * ```typescript
      * var sprite = node.getComponentInChildren(cc.Sprite);
+     * ```
      */
     public getComponentInChildren<T extends Component> (classConstructor: Constructor<T>): T | null;
 
     /**
-     * !#en Returns the component of supplied type in any of its children using depth first search.
-     * !#zh 递归查找所有子节点中第一个匹配指定类型的组件。
+     * @en Returns the component of supplied type in any of its children using depth first search.
+     * @zh 递归查找所有子节点中第一个匹配指定类型的组件。
      * @example
+     * ```typescript
      * var Test = node.getComponentInChildren("Test");
+     * ```
      */
     public getComponentInChildren (className: string): Component | null;
 
@@ -333,18 +359,22 @@ class Component extends CCObject {
     }
 
     /**
-     * !#en Returns all components of supplied type in self or any of its children.
-     * !#zh 递归查找自身或所有子节点中指定类型的组件
+     * @en Returns all components of supplied type in self or any of its children.
+     * @zh 递归查找自身或所有子节点中指定类型的组件
      * @example
+     * ```typescript
      * var sprites = node.getComponentsInChildren(cc.Sprite);
+     * ```
      */
     public getComponentsInChildren<T extends Component> (classConstructor: Constructor<T>): T[];
 
     /**
-     * !#en Returns all components of supplied type in self or any of its children.
-     * !#zh 递归查找自身或所有子节点中指定类型的组件
+     * @en Returns all components of supplied type in self or any of its children.
+     * @zh 递归查找自身或所有子节点中指定类型的组件
      * @example
+     * ```typescript
      * var tests = node.getComponentsInChildren("Test");
+     * ```
      */
     public getComponentsInChildren (className: string): Component[];
 
@@ -406,24 +436,26 @@ class Component extends CCObject {
     // Scheduler
 
     /**
-     * !#en
+     * @en
      * Schedules a custom selector.<br/>
      * If the selector is already scheduled, then the interval parameter will be updated without scheduling it again.
-     * !#zh
+     * @zh
      * 调度一个自定义的回调函数。<br/>
      * 如果回调函数已调度，那么将不会重复调度它，只会更新时间间隔参数。
      * @method schedule
-     * @param {function} callback The callback function
-     * @param {Number} [interval=0]  Tick interval in seconds. 0 means tick every frame.
-     * @param {Number} [repeat=cc.macro.REPEAT_FOREVER]    The selector will be executed (repeat + 1) times, you can use cc.macro.REPEAT_FOREVER for tick infinitely.
-     * @param {Number} [delay=0]     The amount of time that the first tick will wait before execution.
+     * @param {function} callback 回调函数
+     * @param {Number} interval  时间间隔，0 表示每帧都重复
+     * @param {Number} repeat    将被重复执行（repeat+ 1）次，您可以使用 cc.macro.REPEAT_FOREVER 进行无限次循环。
+     * @param {Number} delay     第一次执行前等待的时间（延时执行）。
      * @example
+     * ```typescript
      * var timeCallback = function (dt) {
      *   cc.log("time: " + dt);
      * }
      * this.schedule(timeCallback, 1);
+     * ```
      */
-    public schedule (callback, interval, repeat, delay) {
+    public schedule (callback, interval: Number = 0, repeat: number = cc.macro.REPEAT_FOREVER, delay: Number = 0) {
         cc.assertID(callback, 1619);
         cc.assertID(interval >= 0, 1620);
 
@@ -443,30 +475,34 @@ class Component extends CCObject {
     }
 
     /**
-     * !#en Schedules a callback function that runs only once, with a delay of 0 or larger.
-     * !#zh 调度一个只运行一次的回调函数，可以指定 0 让回调函数在下一帧立即执行或者在一定的延时之后执行。
+     * @en Schedules a callback function that runs only once, with a delay of 0 or larger.
+     * @zh 调度一个只运行一次的回调函数，可以指定 0 让回调函数在下一帧立即执行或者在一定的延时之后执行。
      * @method scheduleOnce
-     * @see cc.Node#schedule
-     * @param {function} callback  A function wrapped as a selector
-     * @param {Number} [delay=0]  The amount of time that the first tick will wait before execution.
+     * @see [[cc.Node.schedule]]
+     * @param {function} callback  回调函数
+     * @param {Number} delay  第一次执行前等待的时间（延时执行）。
      * @example
+     * ```typescript
      * var timeCallback = function (dt) {
      *   cc.log("time: " + dt);
      * }
      * this.scheduleOnce(timeCallback, 2);
+     * ```
      */
-    public scheduleOnce (callback, delay) {
+    public scheduleOnce (callback, delay: Number = 0) {
         this.schedule(callback, 0, 0, delay);
     }
 
     /**
-     * !#en Unschedules a custom callback function.
-     * !#zh 取消调度一个自定义的回调函数。
+     * @en Unschedules a custom callback function.
+     * @zh 取消调度一个自定义的回调函数。
      * @method unschedule
-     * @see cc.Node#schedule
-     * @param {function} callback_fn  A function wrapped as a selector
+     * @see [[cc.Node.schedule]]
+     * @param {function} callback_fn  回调函数
      * @example
+     * ```typescript
      * this.unschedule(_callback);
+     * ```
      */
     public unschedule (callback_fn) {
         if (!callback_fn) {
@@ -477,13 +513,15 @@ class Component extends CCObject {
     }
 
     /**
-     * !#en
+     * @en
      * unschedule all scheduled callback functions: custom callback functions, and the 'update' callback function.<br/>
      * Actions are not affected by this method.
-     * !#zh 取消调度所有已调度的回调函数：定制的回调函数以及 'update' 回调函数。动作不受此方法影响。
+     * @zh 取消调度所有已调度的回调函数：定制的回调函数以及 'update' 回调函数。动作不受此方法影响。
      * @method unscheduleAllCallbacks
      * @example
+     * ```typescript
      * this.unscheduleAllCallbacks();
+     * ```
      */
     public unscheduleAllCallbacks () {
         cc.director.getScheduler().unscheduleAllForTarget(this);
@@ -495,20 +533,20 @@ class Component extends CCObject {
     // We provide Pre methods, which are called right before something happens, and Post methods which are called right after something happens.
 
     /**
-     * !#en Update is called every frame, if the Component is enabled.<br/>
-     * This is a lifecycle method. It may not be implemented in the super class.
+     * @en Update is called every frame, if the Component is enabled.<br/>
+     * This is a lifecycle method. It may not be implemented in the super class.<br/>
      * You can only call its super class method inside it. It should not be called manually elsewhere.
-     * !#zh 如果该组件启用，则每帧调用 update。<br/>
+     * @zh 如果该组件启用，则每帧调用 update。<br/>
      * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      * @param dt - the delta time in seconds it took to complete the last frame
      */
     protected update? (dt: number): void;
 
     /**
-     * !#en LateUpdate is called every frame, if the Component is enabled.<br/>
-     * This is a lifecycle method. It may not be implemented in the super class.
+     * @en LateUpdate is called every frame, if the Component is enabled.<br/>
+     * This is a lifecycle method. It may not be implemented in the super class.<br/>
      * You can only call its super class method inside it. It should not be called manually elsewhere.
-     * !#zh 如果该组件启用，则每帧调用 LateUpdate。<br/>
+     * @zh 如果该组件启用，则每帧调用 LateUpdate。<br/>
      * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      */
     protected lateUpdate? (): void;
@@ -523,52 +561,52 @@ class Component extends CCObject {
     protected __preload? (): void;
 
     /**
-     * !#en
-     * When attaching to an active node or its node first activated.
+     * @en
+     * When attaching to an active node or its node first activated.<br/>
      * onLoad is always called before any start functions, this allows you to order initialization of scripts.<br/>
-     * This is a lifecycle method. It may not be implemented in the super class.
+     * This is a lifecycle method. It may not be implemented in the super class.<br/>
      * You can only call its super class method inside it. It should not be called manually elsewhere.
-     * !#zh
+     * @zh
      * 当附加到一个激活的节点上或者其节点第一次激活时候调用。onLoad 总是会在任何 start 方法调用前执行，这能用于安排脚本的初始化顺序。<br/>
      * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      */
     protected onLoad? (): void;
 
     /**
-     * !#en
-     * Called before all scripts' update if the Component is enabled the first time.
+     * @en
+     * Called before all scripts' update if the Component is enabled the first time.<br/>
      * Usually used to initialize some logic which need to be called after all components' `onload` methods called.<br/>
-     * This is a lifecycle method. It may not be implemented in the super class.
+     * This is a lifecycle method. It may not be implemented in the super class.<br/>
      * You can only call its super class method inside it. It should not be called manually elsewhere.
-     * !#zh
+     * @zh
      * 如果该组件第一次启用，则在所有组件的 update 之前调用。通常用于需要在所有组件的 onLoad 初始化完毕后执行的逻辑。<br/>
      * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      */
     protected start? (): void;
 
     /**
-     * !#en Called when this component becomes enabled and its node is active.<br/>
+     * @en Called when this component becomes enabled and its node is active.<br/>
      * This is a lifecycle method. It may not be implemented in the super class.
      * You can only call its super class method inside it. It should not be called manually elsewhere.
-     * !#zh 当该组件被启用，并且它的节点也激活时。<br/>
+     * @zh 当该组件被启用，并且它的节点也激活时。<br/>
      * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      */
     protected onEnable? (): void;
 
     /**
-     * !#en Called when this component becomes disabled or its node becomes inactive.<br/>
+     * @en Called when this component becomes disabled or its node becomes inactive.<br/>
      * This is a lifecycle method. It may not be implemented in the super class.
      * You can only call its super class method inside it. It should not be called manually elsewhere.
-     * !#zh 当该组件被禁用或节点变为无效时调用。<br/>
+     * @zh 当该组件被禁用或节点变为无效时调用。<br/>
      * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      */
     protected onDisable? (): void;
 
     /**
-     * !#en Called when this component will be destroyed.<br/>
-     * This is a lifecycle method. It may not be implemented in the super class.
+     * @en Called when this component will be destroyed.<br/>
+     * This is a lifecycle method. It may not be implemented in the super class.<br/>
      * You can only call its super class method inside it. It should not be called manually elsewhere.
-     * !#zh 当该组件被销毁时调用<br/>
+     * @zh 当该组件被销毁时调用<br/>
      * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      */
     protected onDestroy? (): void;
@@ -578,27 +616,27 @@ class Component extends CCObject {
     protected onLostFocusInEditor? (): void;
 
     /**
-     * !#en Called to initialize the component or node’s properties when adding the component the first time or when the Reset command is used.
-     * This function is only called in editor.
-     * !#zh 用来初始化组件或节点的一些属性，当该组件被第一次添加到节点上或用户点击了它的 Reset 菜单时调用。这个回调只会在编辑器下调用。
+     * @en Called to initialize the component or node’s properties when adding the component the first time or when the Reset command is used.
+     * This function is only called in editor.<br/>
+     * @zh 用来初始化组件或节点的一些属性，当该组件被第一次添加到节点上或用户点击了它的 Reset 菜单时调用。这个回调只会在编辑器下调用。
      */
     protected resetInEditor? (): void;
 
     // VIRTUAL
 
     /**
-     * !#en
+     * @en
      * If the component's bounding box is different from the node's, you can implement this method to supply
      * a custom axis aligned bounding box (AABB), so the editor's scene view can perform hit test properly.
-     * !#zh
+     * @zh
      * 如果组件的包围盒与节点不同，您可以实现该方法以提供自定义的轴向对齐的包围盒（AABB），
      * 以便编辑器的场景视图可以正确地执行点选测试。
-     * @param out_rect - the Rect to receive the bounding box
+     * @param out_rect - 提供包围盒的 Rect
      */
     protected _getLocalBounds? (out_rect: Rect): void;
 
     /**
-     * !#en
+     * @en
      * onRestore is called after the user clicks the Reset item in the Inspector's context menu or performs
      * an undo operation on this component.<br/>
      * <br/>
@@ -619,7 +657,7 @@ class Component extends CCObject {
      * will be reset by editor.
      *
      * This function is only called in editor mode.
-     * !#zh
+     * @zh
      * onRestore 是用户在检查器菜单点击 Reset 时，对此组件执行撤消操作后调用的。<br/>
      * <br/>
      * 如果组件包含了“内部状态”（不在 CCClass 属性中定义的临时成员变量），那么你可能需要实现该方法。<br/>

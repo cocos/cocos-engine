@@ -29,8 +29,11 @@ import {_getClassById} from '../core/utils/js';
 import {BUILTIN_CLASSID_RE} from '../core/utils/misc';
 import { Component } from './component';
 
-/*
+/**
+ * @en
  * A temp fallback to contain the original serialized data which can not be loaded.
+ * @zh
+ * 包含无法加载的原始序列化数据的临时回退。
  */
 @ccclass('cc.MissingClass')
 class MissingClass {
@@ -42,8 +45,11 @@ class MissingClass {
     public _$erialized = null;
 }
 
-/*
+/**
+ * @en
  * A temp fallback to contain the original component which can not be loaded.
+ * @zh
+ * 包含无法加载的原始组件的临时回退。
  */
 @ccclass('cc.MissingScript')
 @inspector('packages://inspector/inspectors/comps/missing-script.js')
@@ -82,7 +88,7 @@ export default class MissingScript extends Component {
      * @param {string} id
      * @return {function} constructor
      */
-    public static safeFindClass (id, data) {
+    public static safeFindClass (id: string, data) {
         const cls = _getClassById(id);
         if (cls) {
             return cls;
