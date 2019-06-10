@@ -287,6 +287,16 @@ Object.assign(WebEditBoxImpl.prototype, {
 
     _scrollBackWindow () {
         setTimeout(function () {
+            // FIX: wechat browser bug on iOS
+            // If gameContainer is included in iframe,
+            // Need to scroll the top window, not the one in the iframe
+            // Reference: https://developer.mozilla.org/en-US/docs/Web/API/Window/top
+            let sys = cc.sys;
+            if (sys.browserType === sys.BROWSER_TYPE_WECHAT && sys.os === sys.OS_IOS) {
+                window.top && window.top.scrollTo(0, 0);
+                return;
+            }
+
             window.scrollTo(0, 0);
         }, DELAY_TIME);
     },
