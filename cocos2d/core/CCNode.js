@@ -746,7 +746,7 @@ let NodeDefines = {
             },
             set (value) {
                 vec3.set(this._eulerAngles, 0, 0, value);
-                this._fromEuler();
+                quat.fromAngleZ(this._quat, value);
                 this.setLocalDirty(LocalDirtyFlag.ROTATION);
                 this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
@@ -787,7 +787,7 @@ let NodeDefines = {
                     this._eulerAngles.x = value;
                     // Update quaternion from rotation
                     if (this._eulerAngles.x === this._eulerAngles.y) {
-                        quat.fromEuler(this._quat, 0, 0, -value);
+                        quat.fromAngleZ(this._quat, -value);
                     }
                     else {
                         quat.fromEuler(this._quat, value, this._eulerAngles.y, 0);
@@ -822,7 +822,7 @@ let NodeDefines = {
                     this._eulerAngles.y = value;
                     // Update quaternion from rotation
                     if (this._eulerAngles.x === this._eulerAngles.y) {
-                        quat.fromEuler(this._quat, 0, 0, -value);
+                        quat.fromAngleZ(this._quat, -value);
                     }
                     else {
                         quat.fromEuler(this._quat, this._eulerAngles.x, value, 0);
@@ -1305,7 +1305,7 @@ let NodeDefines = {
             this._quat.fromEuler(this._eulerAngles);
         }
         else {
-            quat.fromEuler(this._quat, 0, 0, this._eulerAngles.z);
+            quat.fromAngleZ(this._quat, this._eulerAngles.z);
         }
     },
 

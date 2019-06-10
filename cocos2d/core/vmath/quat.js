@@ -3,7 +3,7 @@ import vec4 from './vec4';
 import mat3 from './mat3';
 import { toDegree } from './utils';
 
-let halfToRad = 0.5 * Math.PI / 180.0;
+const halfToRad = 0.5 * Math.PI / 180.0;
 
 /**
  * Mathematical quaternion.
@@ -731,6 +731,20 @@ class quat {
     out.w = cx * cy * cz - sx * sy * sz;
 
     return out;
+  }
+
+  /**
+   * Set a quaternion from the given euler angle 0, 0, z.
+   *
+   * @param {quat} out - Quaternion to store result.
+   * @param {number} z - Angle to rotate around Z axis in degrees.
+   * @function
+   */
+  static fromAngleZ(out, z) {
+    z *= halfToRad;
+    out.x = out.y = 0;
+    out.z = Math.sin(z);
+    out.w = Math.cos(z);
   }
 
   /**
