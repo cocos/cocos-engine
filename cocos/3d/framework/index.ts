@@ -95,7 +95,7 @@ cc.ParticleSystemComponent = ParticleSystemComponent;
 cc.BillboardComponent = BillboardComponent;
 cc.LineComponent = LineComponent;
 
-cc.ColliderComponentBase = ColliderComponent;
+cc.ColliderComponent = ColliderComponent;
 cc.BoxColliderComponent = BoxColliderComponent;
 cc.SphereColliderComponent = SphereColliderComponent;
 cc.RigidBodyComponent = RigidBodyComponent;
