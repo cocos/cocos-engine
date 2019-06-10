@@ -18,6 +18,10 @@ import { GFXPipelineLayout } from './pipeline-layout';
 import { GFXRenderPass } from './render-pass';
 import { GFXShader } from './shader';
 
+/**
+ * @zh
+ * GFX光栅化状态
+ */
 export class GFXRasterizerState {
     public isDiscard: boolean = false;
     public polygonMode: GFXPolygonMode = GFXPolygonMode.FILL;
@@ -31,6 +35,11 @@ export class GFXRasterizerState {
     public isMultisample: boolean = false;
     public lineWidth: number = 1.0;
 
+    /**
+     * @zh
+     * 比较函数
+     * @param state GFX光栅化状态
+     */
     public compare (state: GFXRasterizerState): boolean {
         return (this.isDiscard === state.isDiscard) &&
             (this.polygonMode === state.polygonMode) &&
@@ -46,6 +55,10 @@ export class GFXRasterizerState {
     }
 }
 
+/**
+ * @zh
+ * GFX深度模板状态
+ */
 export class GFXDepthStencilState {
     public depthTest: boolean = true;
     public depthWrite: boolean = true;
@@ -67,6 +80,11 @@ export class GFXDepthStencilState {
     public stencilPassOpBack: GFXStencilOp = GFXStencilOp.KEEP;
     public stencilRefBack: number = 1;
 
+    /**
+     * @zh
+     * 比较函数
+     * @param state GFX深度模板状态
+     */
     public compare (state: GFXDepthStencilState): boolean {
         return (this.depthTest === state.depthTest) &&
             (this.depthWrite === state.depthWrite) &&
@@ -90,6 +108,10 @@ export class GFXDepthStencilState {
     }
 }
 
+/**
+ * @zh
+ * GFX混合目标
+ */
 export class GFXBlendTarget {
     public blend: boolean = false;
     public blendSrc: GFXBlendFactor = GFXBlendFactor.ONE;
@@ -100,18 +122,27 @@ export class GFXBlendTarget {
     public blendAlphaEq: GFXBlendOp = GFXBlendOp.ADD;
     public blendColorMask: GFXColorMask = GFXColorMask.ALL;
 
-    public compare (state: GFXBlendTarget): boolean {
-        return (this.blend === state.blend) &&
-            (this.blendSrc === state.blendSrc) &&
-            (this.blendDst === state.blendDst) &&
-            (this.blendEq === state.blendEq) &&
-            (this.blendSrcAlpha === state.blendSrcAlpha) &&
-            (this.blendDstAlpha === state.blendDstAlpha) &&
-            (this.blendAlphaEq === state.blendAlphaEq) &&
-            (this.blendColorMask === state.blendColorMask);
+    /**
+     * @zh
+     * 比较函数
+     * @param target GFX混合目标
+     */
+    public compare (target: GFXBlendTarget): boolean {
+        return (this.blend === target.blend) &&
+            (this.blendSrc === target.blendSrc) &&
+            (this.blendDst === target.blendDst) &&
+            (this.blendEq === target.blendEq) &&
+            (this.blendSrcAlpha === target.blendSrcAlpha) &&
+            (this.blendDstAlpha === target.blendDstAlpha) &&
+            (this.blendAlphaEq === target.blendAlphaEq) &&
+            (this.blendColorMask === target.blendColorMask);
     }
 }
 
+/**
+ * @zh
+ * GFX混合状态
+ */
 export class GFXBlendState {
     public isA2C: boolean = false;
     public isIndepend: boolean = false;
@@ -119,10 +150,18 @@ export class GFXBlendState {
     public targets: GFXBlendTarget[] = [new GFXBlendTarget()];
 }
 
+/**
+ * @zh
+ * GFX输入状态
+ */
 export class GFXInputState {
     public attributes: IGFXAttribute[] = [];
 }
 
+/**
+ * @zh
+ * GFX管线状态描述信息
+ */
 export interface IGFXPipelineStateInfo {
     primitive: GFXPrimitiveMode;
     shader: GFXShader;
@@ -135,56 +174,156 @@ export interface IGFXPipelineStateInfo {
     renderPass: GFXRenderPass;
 }
 
+/**
+ * @zh
+ * GFX管线状态
+ */
 export abstract class GFXPipelineState extends GFXObject {
 
+    /**
+     * @zh
+     * GFX着色器
+     */
     public get shader (): GFXShader {
         return  this._shader as GFXShader;
     }
 
+    /**
+     * @zh
+     * GFX图元模式
+     */
     public get primitive (): GFXPrimitiveMode {
         return this._primitive;
     }
 
+    /**
+     * @zh
+     * GFX光栅化状态
+     */
     public get rasterizerState (): GFXRasterizerState {
         return  this._rs as GFXRasterizerState;
     }
 
+    /**
+     * @zh
+     * GFX深度模板状态
+     */
     public get depthStencilState (): GFXDepthStencilState {
         return  this._dss as GFXDepthStencilState;
     }
 
+    /**
+     * @zh
+     * GFX混合状态
+     */
     public get blendState (): GFXBlendState {
         return  this._bs as GFXBlendState;
     }
 
+    /**
+     * @zh
+     * GFX动态状态数组
+     */
     public get dynamicStates (): GFXDynamicState[] {
         return this._dynamicStates;
     }
 
+    /**
+     * @zh
+     * GFX管线布局
+     */
     public get pipelineLayout (): GFXPipelineLayout {
         return this._layout as GFXPipelineLayout;
     }
 
+    /**
+     * @zh
+     * GFX渲染过程
+     */
     public get renderPass (): GFXRenderPass {
         return this._renderPass as GFXRenderPass;
     }
 
+    /**
+     * @zh
+     * GFX设备
+     */
     protected _device: GFXDevice;
+
+    /**
+     * @zh
+     * GFX着色器
+     */
     protected _shader: GFXShader | null = null;
+
+    /**
+     * @zh
+     * GFX图元模式
+     */
     protected _primitive: GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
+
+    /**
+     * @zh
+     * GFX输入状态
+     */
     protected _is: GFXInputState | null = null;
+
+    /**
+     * @zh
+     * GFX光栅化状态
+     */
     protected _rs: GFXRasterizerState | null = null;
+
+    /**
+     * @zh
+     * GFX深度模板状态
+     */
     protected _dss: GFXDepthStencilState | null = null;
+
+    /**
+     * @zh
+     * GFX混合状态
+     */
     protected _bs: GFXBlendState | null = null;
+
+    /**
+     * @zh
+     * GFX动态状态数组
+     */
     protected _dynamicStates: GFXDynamicState[] = [];
+
+    /**
+     * @zh
+     * GFX管线布局
+     */
     protected _layout: GFXPipelineLayout | null = null;
+
+    /**
+     * @zh
+     * GFX渲染过程
+     */
     protected _renderPass: GFXRenderPass | null = null;
 
+    /**
+     * @zh
+     * 构造函数
+     * @param device GFX设备
+     */
     constructor (device: GFXDevice) {
         super(GFXObjectType.PIPELINE_STATE);
         this._device = device;
     }
 
+    /**
+     * @zh
+     * 初始化函数
+     * @param info GFX管线状态描述信息
+     */
     public abstract initialize (info: IGFXPipelineStateInfo): boolean;
+
+    /**
+     * @zh
+     * 销毁函数
+     */
     public abstract destroy (): void;
 }
