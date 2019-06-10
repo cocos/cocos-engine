@@ -124,6 +124,11 @@ public:
      */
     NodeProxy* getChildByName(std::string childName);
     /**
+     *  @brief Gets a child node by runtime id.
+     *  @return Child node.
+     */
+    NodeProxy* getChildByID(std::string id);
+    /**
      *  @brief Sets the node proxy's local zorder.
      *  @param[in] zOrder The value of zorder.
      */
@@ -186,7 +191,6 @@ public:
     /**
      *  @brief Gets the node's realOpacity.
      */
-
     inline const uint8_t getRealOpacity() const {return _realOpacity;};
     /**
      *  @brief Gets the node's group id, this controls which camera can see the node.
@@ -272,7 +276,25 @@ public:
     /*
      *  @brief Disables calc world matrix.
      */
-    void disaleUpdateWorldMatrix() { _updateWorldMatrix = true; }
+    void disaleUpdateWorldMatrix() { _updateWorldMatrix = false; }
+    
+    /*
+     *  @brief Sets node runtime id
+     */
+    void setID(const std::string& id) { _id = id; }
+    /*
+     *  @brief Gets node runtime id
+     */
+    std::string getID() { return _id; }
+    
+    /*
+     *  @brief Adds world matrix dirty count
+     */
+    void addWorldMatDirty() { _worldMatDirty++; }
+    /*
+     *  @brief Subs world matrix dirty count
+     */
+    void subWorldMatDirty() { _worldMatDirty--; }
 protected:
     void childrenAlloc();
     void detachChild(NodeProxy* child, ssize_t childIndex);
@@ -298,7 +320,8 @@ private:
     uint8_t _realOpacity = 255;
     int _localZOrder = 0;
     int _cullingMask = 1;
-
+    std::string _id = "";
+    
     cocos2d::Mat4 _localMat;
     cocos2d::Mat4 _worldMat;
     

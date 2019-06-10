@@ -361,6 +361,16 @@ removeAllChildren : function (
 },
 
 /**
+ * @method getID
+ * @return {String}
+ */
+getID : function (
+)
+{
+    return ;
+},
+
+/**
  * @method getChildren
  * @return {Array}
  */
@@ -368,6 +378,14 @@ getChildren : function (
 )
 {
     return new Array();
+},
+
+/**
+ * @method subWorldMatDirty
+ */
+subWorldMatDirty : function (
+)
+{
 },
 
 /**
@@ -384,6 +402,16 @@ disableVisit : function (
  */
 setCullingMask : function (
 int 
+)
+{
+},
+
+/**
+ * @method setID
+ * @param {String} arg0
+ */
+setID : function (
+str 
 )
 {
 },
@@ -470,6 +498,14 @@ scene
  */
 setOpacity : function (
 char 
+)
+{
+},
+
+/**
+ * @method addWorldMatDirty
+ */
+addWorldMatDirty : function (
 )
 {
 },
@@ -569,6 +605,18 @@ reset : function (
  * @return {cc.renderer::NodeProxy}
  */
 getParent : function (
+)
+{
+    return cc.renderer::NodeProxy;
+},
+
+/**
+ * @method getChildByID
+ * @param {String} arg0
+ * @return {cc.renderer::NodeProxy}
+ */
+getChildByID : function (
+str 
 )
 {
     return cc.renderer::NodeProxy;
@@ -1780,6 +1828,16 @@ effect
  * @method enableOpacityAlwaysDirty
  */
 enableOpacityAlwaysDirty : function (
+)
+{
+},
+
+/**
+ * @method beforeFillBuffers
+ * @param {unsigned int} arg0
+ */
+beforeFillBuffers : function (
+int 
 )
 {
 },

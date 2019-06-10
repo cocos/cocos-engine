@@ -162,8 +162,19 @@ NodeProxy* NodeProxy::getChildByName(std::string childName)
 {
     for (auto child : _children)
     {
-        // set parent nil at the end
         if (child->_name == childName)
+        {
+            return child;
+        }
+    }
+    return nullptr;
+}
+
+NodeProxy* NodeProxy::getChildByID(std::string id)
+{
+    for (auto child : _children)
+    {
+        if (child->_id == id)
         {
             return child;
         }
