@@ -37,7 +37,8 @@ if (!CC_EDITOR && !CC_WECHATGAME) {
 }
 else {
     /**
-     * !#en WXSubContextView is a view component which controls open data context viewport in Wechat game platform.<br/>
+     * @en
+     * WXSubContextView is a view component which controls open data context viewport in Wechat game platform.<br/>
      * The component's node size decide the viewport of the sub context content in main context,
      * the entire sub context texture will be scaled to the node's bounding box area.<br/>
      * This component provides multiple important features:<br/>
@@ -48,7 +49,8 @@ else {
      * 5. Texture update is handled by this component. User don't need to worry.<br/>
      * One important thing to be noted, whenever the node's bounding box change,
      * you need to manually reset the viewport of sub context using updateSubContextViewport.
-     * !#zh WXSubContextView 可以用来控制微信小游戏平台开放数据域在主域中的视窗的位置。<br/>
+     * @zh
+     * WXSubContextView 可以用来控制微信小游戏平台开放数据域在主域中的视窗的位置。<br/>
      * 这个组件的节点尺寸决定了开放数据域内容在主域中的尺寸，整个开放数据域会被缩放到节点的包围盒范围内。<br/>
      * 在这个组件的控制下，用户可以更自由得控制开放数据域：<br/>
      * 1. 子域中可以使用独立的设计分辨率和适配模式<br/>
@@ -112,8 +114,8 @@ else {
         },
 
         /**
-         * !#en Update the sub context viewport manually, it should be called whenever the node's bounding box changes.
-         * !#zh 更新开放数据域相对于主域的 viewport，这个函数应该在节点包围盒改变时手动调用。
+         * @en Update the sub context viewport manually, it should be called whenever the node's bounding box changes.
+         * @zh 更新开放数据域相对于主域的 viewport，这个函数应该在节点包围盒改变时手动调用。
          * @method updateSubContextViewport
          */
         updateSubContextViewport () {
