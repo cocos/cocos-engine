@@ -95,7 +95,7 @@ export interface BuiltInRigidBodyBase{
      */
     removeMask (v: number): void;
 
-    addShape (shape: ShapeBase): void;
+    addShape (shape: ShapeBase, offset?: Vec3): void;
 
     removeShape (shape: ShapeBase): void;
 
@@ -174,10 +174,6 @@ export interface RigidBodyBase extends BuiltInRigidBodyBase{
     getFreezeRotation (): boolean;
 
     setFreezeRotation (value: boolean): void;
-
-    commitShapeUpdates (): void;
-
-    isPhysicsManagedTransform (): boolean;
 }
 
 export interface ShapeBase {
