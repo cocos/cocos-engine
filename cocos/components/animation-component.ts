@@ -1,6 +1,7 @@
 
 import { AnimationClip, AnimationState } from '../animation';
 import { CrossFade } from '../animation/cross-fade';
+import { Playable } from '../animation/playable';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../core/data/class-decorator';
 import { Event, EventTarget } from '../core/event';
 import { CallbacksInvoker, ICallbackTable } from '../core/event/callbacks-invoker';
@@ -50,19 +51,8 @@ export enum EventType {
 ccenum(EventType);
 
 /**
- * !#en The animation component is used to play back animations.
- *
- * Animation provide several events to register：
- *  - play : Emit when begin playing animation
- *  - stop : Emit when stop playing animation
- *  - pause : Emit when pause animation
- *  - resume : Emit when resume animation
- *  - lastframe : If animation repeat count is larger than 1, emit when animation play to the last frame
- *  - finished : Emit when finish playing animation
- *
- * !#zh Animation 组件用于播放动画。
- *
- * Animation 提供了一系列可注册的事件：
+ * 动画组件管理动画状态来控制动画的播放。
+ * 它提供了方便的接口用来预创建指定动画剪辑的动画状态，并提供了一系列事件：
  *  - play : 开始播放时
  *  - stop : 停止播放时
  *  - pause : 暂停播放时
@@ -75,110 +65,111 @@ ccenum(EventType);
 @executeInEditMode
 @menu('Components/AnimationComponent')
 export class AnimationComponent extends Component implements IEventTarget {
-
     /**
-     * !#en Animation will play the default clip when start game.
-     * !#zh 在勾选自动播放或调用 play() 时默认播放的动画剪辑。
-     */
-    @property({ type: AnimationClip })
-    get defaultClip () {
-        return this._defaultClip;
-    }
-
-    set defaultClip (value) {
-        if (!CC_EDITOR || (cc.engine && cc.engine.isPlaying)) {
-            return;
-        }
-
-        this._defaultClip = value;
-
-        if (!value) {
-            return;
-        }
-
-        const clips = this._clips;
-
-        for (let i = 0, l = clips.length; i < l; i++) {
-            if (equalClips(value, clips[i])) {
-                return;
-            }
-        }
-
-        this.addClip(value);
-    }
-
-    /**
-     * !#en Current played clip.
-     * !#zh 当前播放的动画剪辑。
-     */
-    get currentClip () {
-        return this._currentClip;
-    }
-
-    set currentClip (value) {
-        this._currentClip = value;
-    }
-
-    /**
-     * Get or (re)set all the clips can be used in this animation.
-     * Once clips are (re)set, old animation states will be stoped.
-     * You shall no longer operate on them.
+     * 获取此动画组件的自有动画剪辑。
+     * 动画组件开始运行时会为每个自有动画剪辑创建动画状态。
      */
     @property({ type: [AnimationClip] })
     get clips () {
         return this._clips;
     }
 
+    /**
+     * 设置此动画组件的自有动画剪辑。
+     * 设置时将移除已有的动画剪辑，并将其动画状态设为停止；若默认动画剪辑不在新的自有动画剪辑中，将被重置为空。
+     */
     set clips (value) {
         if (this._crossFade) {
             this._crossFade.clear();
         }
-        for (const key of Object.keys(this._nameToState)) {
-            const state = this._nameToState[key];
-            state.stop();
+        // Remove state for old automatic clips.
+        for (const clip of this._clips) {
+            if (clip) {
+                this._removeStateOfAutomaticClip(clip);
+            }
         }
-        this._nameToState = {};
-        this._currentClip = null;
+        // Create state for new clips.
+        for (const clip of value) {
+            if (clip) {
+                this.createState(clip);
+            }
+        }
+        // Default clip should be in the list of automatic clips.
         const newDefaultClip = value.find((clip) => equalClips(clip, this._defaultClip));
-        if (newDefaultClip !== undefined) {
+        if (newDefaultClip) {
             this._defaultClip = newDefaultClip;
+        } else {
+            this._defaultClip = null;
         }
+
         this._clips = value;
-        this._createStates();
+    }
+
+    /**
+     * 获取默认动画剪辑。
+     * @see [[playOnLoad]]
+     */
+    @property({ type: AnimationClip })
+    get defaultClip () {
+        return this._defaultClip;
+    }
+
+    /**
+     * 设置默认动画剪辑。当指定的剪辑不在 `this.clips` 中时会被自动添加至 `this.clips`。
+     */
+    set defaultClip (value) {
+        this._defaultClip = value;
+        if (!value) {
+            return;
+        }
+        const isBoundedDefaultClip = this._clips.findIndex((clip) => equalClips(clip, value)) >= 0;
+        if (!isBoundedDefaultClip) {
+            this._clips.push(value);
+            this.createState(value);
+        }
+    }
+
+    get currentPlaying () {
+        return this._currentPlaying;
     }
 
     public static EventType = EventType;
-    public _callbackTable: ICallbackTable = createMap(true);
 
     /**
-     * !#en Whether the animation should auto play the default clip when start game.
-     * !#zh 是否在运行游戏后自动播放默认动画剪辑。
+     * 是否在动画组件开始运行时自动播放默认动画剪辑。
      */
     @property
     public playOnLoad = false;
 
-    private _crossFade: CrossFade | null = null;
-    private _nameToState: { [name: string]: AnimationState; } = createMap(true);
-    private _didInit = false;
-    private _currentClip: AnimationClip | null = null;
+    public _callbackTable: ICallbackTable = createMap(true);
 
-    /**
-     * !#en All the clips used in this animation.
-     * !#zh 通过脚本可以访问并播放的 AnimationClip 列表。
-     */
+    private _crossFade = new CrossFade();
+
+    private _nameToState: { [name: string]: AnimationState; } = createMap(true);
+
     @property({ type: [AnimationClip] })
     private _clips: Array<(AnimationClip | null)> = [];
 
     @property
     private _defaultClip: AnimationClip | null = null;
 
+    private _currentPlaying: Playable = this._crossFade;
+
     constructor () {
         super();
     }
 
+    public onLoad () {
+        this.clips = this._clips;
+    }
+
     public start () {
-        this._init();
-        this._startCrossFade();
+        for (const stateName of Object.keys(this._nameToState)) {
+            const state = this._nameToState[stateName];
+            state.initialize(this.node);
+        }
+        cc.director.getAnimationManager().addCrossFade(this._crossFade);
+        this._crossFade.play();
         if (!CC_EDITOR && this.playOnLoad && this._defaultClip) {
             this.crossFade(this._defaultClip.name, 0);
         }
@@ -201,7 +192,6 @@ export class AnimationComponent extends Component implements IEventTarget {
             this._crossFade.stop();
             cc.director.getAnimationManager().removeCrossFade(this._crossFade);
             this._crossFade.stop();
-            this._crossFade = null;
         }
     }
 
@@ -217,25 +207,48 @@ export class AnimationComponent extends Component implements IEventTarget {
      * animCtrl.play("linear");
      */
     public play (name?: string, startTime = 0) {
-        const state = this.crossFade(name);
+        if (!name) {
+            if (!this._defaultClip) {
+                return null;
+            } else {
+                name = this._defaultClip.name;
+            }
+        }
+        const state = this._nameToState[name];
         if (state) {
-            state.time = startTime;
+            this._currentPlaying.stop();
+            this._currentPlaying = state;
+            state.setTime(startTime);
+            state.play();
         }
         return state;
     }
 
-    public crossFade (name?: string, duration = 0.3) {
-        const state = this.getAnimationState(name || (this._defaultClip && this._defaultClip.name) || '');
-        this._crossFade!.crossFade(state, duration);
-        return state;
+    public crossFade (name: string, duration = 0.3) {
+        const state = this._nameToState[name];
+        if (state) {
+            if (this._currentPlaying !== this._crossFade) {
+                this._currentPlaying.stop();
+            }
+            this._currentPlaying = this._crossFade;
+            this._crossFade.crossFade(state, duration);
+        }
     }
 
     /**
-     * !#en Returns the animation state named name. If no animation with the specified name, the function will return null.
-     * !#zh 获取当前或者指定的动画状态，如果未找到指定动画剪辑则返回 null。
+     * 获取指定的动画状态。
+     * @deprecated 请使用 `this.getState`。
      */
     public getAnimationState (name: string) {
-        this._init();
+        return this.getState(name);
+    }
+
+    /**
+     * 获取指定的动画状态。
+     * @param name 动画状态的名称。
+     * @returns 不存在指定名称的动画状态时返回空，否则返回指定的动画状态。
+     */
+    public getState (name: string) {
         const state = this._nameToState[name];
         if (state && !state.curveLoaded) {
             state.initialize(this.node);
@@ -244,42 +257,43 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     /**
-     * !#en Adds a clip to the animation with name newName. If a clip with that name already exists it will be replaced with the new clip.
-     * !#zh 添加动画剪辑，并且可以重新设置该动画剪辑的名称。
-     * @param clip the clip to add
-     * @return The AnimationState which gives full control over the animation clip.
+     * 使用指定的动画剪辑创建一个动画状态，并将其命名为指定的名称。
+     * 若指定名称的动画状态已存在，已存在的动画状态将先被设为停止并被移除。
+     * @param clip 动画剪辑。
+     * @param name 动画状态的名称，若未指定，则使用动画剪辑的名称。
+     * @returns 新创建的动画状态。
      */
-    public addClip (clip: AnimationClip, newName?: string): AnimationState | undefined {
-        if (!clip) {
-            warnID(3900);
-            return;
-        }
-        this._init();
+    public createState (clip: AnimationClip, name?: string) {
+        name = name || clip.name;
+        this.removeState(name);
 
-        // add clip
+        return this._doCreateState(clip, name);
+    }
+
+    /**
+     * 停止并移除指定名称的动画状态。
+     * @param name 动画状态的名称。
+     */
+    public removeState (name: string) {
+        const state = this._nameToState[name];
+        if (state) {
+            state.stop();
+            delete this._nameToState[name];
+        }
+    }
+
+    /**
+     * 添加一个动画剪辑到 `this.clips`中并以此剪辑创建动画状态。
+     * @param clip 动画剪辑。
+     * @param name 动画状态的名称，若未指定，则使用动画剪辑的名称。
+     * @returns 新创建的动画状态。
+     * @deprecated 请使用 `this.createState`.
+     */
+    public addClip (clip: AnimationClip, name?: string): AnimationState {
         if (!ArrayUtils.contains(this._clips, clip)) {
             this._clips.push(clip);
         }
-
-        // replace same name clip
-        newName = newName || clip.name;
-        const oldState = this._nameToState[newName];
-        if (oldState) {
-            if (oldState.clip === clip) {
-                return oldState;
-            }
-            else {
-                const index = this._clips.indexOf(oldState.clip);
-                if (index !== -1) {
-                    this._clips.splice(index, 1);
-                }
-            }
-        }
-
-        // replace state
-        const newState = new AnimationState(clip, newName);
-        this._nameToState[newName] = newState;
-        return newState;
+        return this.createState(clip, name);
     }
 
     /**
@@ -292,14 +306,9 @@ export class AnimationComponent extends Component implements IEventTarget {
      * 如果依赖于 clip 的 AnimationState 正在播放或者 clip 是 defaultClip 的话，默认是不会删除 clip 的。
      * 但是如果 force 参数为 true，则会强制停止该动画，然后移除该动画剪辑和相关的动画。这时候如果 clip 是 defaultClip，defaultClip 将会被重置为 null。
      * @param {Boolean} [force=false] - If force is true, then will always remove the clip and any animation states based on it.
+     * @deprecated 请使用 `this.removeState`.
      */
     public removeClip (clip: AnimationClip, force?: boolean) {
-        if (!clip) {
-            warnID(3901);
-            return;
-        }
-        this._init();
-
         let state: AnimationState | undefined;
         for (const name of Object.keys(this._nameToState)) {
             state = this._nameToState[name];
@@ -359,7 +368,6 @@ export class AnimationComponent extends Component implements IEventTarget {
      * animation.on('play', this.onPlay, this);
      */
     public on (type: string, callback: (state: AnimationState) => void, target?: Object) {
-        this._init();
         const ret = EventTarget.prototype.on.call(this, type, callback, target);
         if (type === 'lastframe') {
             for (const stateName of Object.keys(this._nameToState)) {
@@ -383,8 +391,6 @@ export class AnimationComponent extends Component implements IEventTarget {
      * animation.off('play', this.onPlay, this);
      */
     public off (type: string, callback: Function, target?: Object) {
-        this._init();
-
         if (type === 'lastframe') {
             const nameToState = this._nameToState;
             for (const name of Object.keys(nameToState)) {
@@ -410,53 +416,36 @@ export class AnimationComponent extends Component implements IEventTarget {
     public removeAll (keyOrTarget?: string | Object | undefined): void {}
     public emit (key: string, ...args: any[]): void {}
 
-    ///////////////////////////////////////////////////////////////////////////////
-    // Internal Methods
-    ///////////////////////////////////////////////////////////////////////////////
-
-    // Dont forget to call _init before every actual process in public methods.
-    // Just invoking _init by onLoad is not enough because onLoad is called only if the entity is active.
-
-    private _init () {
-        if (this._didInit) {
-            return;
-        }
-        this._didInit = true;
-        this._crossFade = new CrossFade(this.node);
-        this._createStates();
-    }
-
-    private _startCrossFade () {
-        if (!this._crossFade) {
-            return;
-        }
-        cc.director.getAnimationManager().addCrossFade(this._crossFade);
-        this._crossFade.play();
-    }
-
-    private _createStates () {
-        this._nameToState = createMap(true);
-        // Create animation states.
-        for (const clip of this._clips) {
-            if (clip) {
-                const state = this._createState(clip);
-                if (CC_EDITOR) {
-                    state.initialize(this.node);
-                }
+    private _getStateByNameOrDefaultClip (name?: string) {
+        if (!name) {
+            if (!this._defaultClip) {
+                return null;
+            } else {
+                name = this._defaultClip.name;
             }
         }
-        const isDefaultClipBounded = this._clips.findIndex((clip) => equalClips(clip, this._defaultClip)) >= 0;
-        if (this._defaultClip && !isDefaultClipBounded) {
-            const state = this._createState(this._defaultClip);
-            if (CC_EDITOR) {
-                state.initialize(this.node);
-            }
+        const state = this._nameToState[name];
+        if (state) {
+            return state;
+        } else {
+            return null;
         }
     }
 
-    private _createState (clip: AnimationClip, name?: string) {
+    private _removeStateOfAutomaticClip (clip: AnimationClip) {
+        const state = this._nameToState[name];
+        if (state && equalClips(clip, state.clip)) {
+            state.stop();
+            delete this._nameToState[name];
+        }
+    }
+
+    private _doCreateState (clip: AnimationClip, name: string) {
         const state = new AnimationState(clip, name);
         state._setEventTarget(this);
+        if (this.node) {
+            state.initialize(this.node);
+        }
         this._nameToState[state.name] = state;
         return state;
     }
