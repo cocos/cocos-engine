@@ -86,6 +86,7 @@ void Texture2D::setTexParameters(const TexParams& texParams)
 
 void Texture2D::setNativeTexture(Texture* texture)
 {
+	if (_texture == texture) return;
     CC_SAFE_RELEASE(_texture);
     _texture = texture;
     CC_SAFE_RETAIN(_texture);
