@@ -29,40 +29,41 @@ import { ValueType } from './value-type';
 import Vec3 from './vec3';
 
 /**
- * !#en Representation of 2D vectors and points.
- * !#zh 表示 2D 向量和坐标
+ * 四元数。
  */
 export default class Quat extends ValueType {
+    /**
+     * x 分量。
+     */
     public x: number;
 
+    /**
+     * y 分量。
+     */
     public y: number;
 
+    /**
+     * z 分量。
+     */
     public z: number;
 
+    /**
+     * w 分量。
+     */
     public w: number;
 
     /**
-     * !#en
-     * Constructor
-     * see {{#crossLink "cc/quat:method"}}cc.quat{{/crossLink}}
-     * !#zh
-     * 构造函数，可查看 {{#crossLink "cc/quat:method"}}cc.quat{{/crossLink}}
-     *
-     * @param other
+     * 构造与指定四元数相等的四元数。
+     * @param other 相比较的四元数。
      */
     constructor (other: Quat);
 
     /**
-     * !#en
-     * Constructor
-     * see {{#crossLink "cc/quat:method"}}cc.quat{{/crossLink}}
-     * !#zh
-     * 构造函数，可查看 {{#crossLink "cc/quat:method"}}cc.quat{{/crossLink}}
-     *
-     * @param [x=0]
-     * @param [y=0]
-     * @param [z=0]
-     * @param [w=1]
+     * 构造具有指定分量的四元数。
+     * @param [x=0] 指定的 x 分量。
+     * @param [y=0] 指定的 y 分量。
+     * @param [z=0] 指定的 z 分量。
+     * @param [w=1] 指定的 w 分量。
      */
     constructor (x?: number, y?: number, z?: number, w?: number);
 
@@ -82,47 +83,51 @@ export default class Quat extends ValueType {
     }
 
     /**
-     * !#en clone a Quat object and return the new object
-     * !#zh 克隆一个四元数并返回
-     *
-     * @return
+     * 克隆当前四元数。
      */
     public clone () {
         return new Quat(this.x, this.y, this.z, this.w);
     }
 
     /**
-     * !#en Set values with another quaternion
-     * !#zh 用另一个四元数的值设置到当前对象上。
-     *
-     * @param newValue - !#en new value to set. !#zh 要设置的新值
-     * @return returns this
-     * @chainable
+     * 设置当前四元数使其与指定四元数相等。
+     * @param other 相比较的四元数。
+     * @returns `this`
      */
-    public set (newValue: Quat) {
-        this.x = newValue.x;
-        this.y = newValue.y;
-        this.z = newValue.z;
-        this.w = newValue.w;
+    public set (other: Quat) {
+        this.x = other.x;
+        this.y = other.y;
+        this.z = other.z;
+        this.w = other.w;
         return this;
     }
 
     /**
-     * !#en Check whether current quaternion equals another
-     * !#zh 当前的四元数是否与指定的四元数相等。
-     *
-     * @param other
-     * @return
+     * 判断当前四元数是否与指定四元数相等。
+     * @param other 相比较的四元数。
+     * @returns 两四元数的各分量都相等时返回 `true`；否则返回 `false`。
      */
     public equals (other: Quat) {
         return other && this.x === other.x && this.y === other.y && this.z === other.z && this.w === other.w;
     }
 
+    /**
+     * 将当前四元数转化为欧拉角（x-y-z）并赋值给出口向量。
+     * @param out [out] 出口向量，当未指定时将创建为新的向量。
+     * @returns `out`
+     */
     public getEulerAngles (out?: Vec3) {
         out = out || new Vec3();
         return xquat.toEuler(out, this);
     }
 
+    /**
+     * 根据指定的插值比率，从当前四元数到目标四元数之间做插值。
+     * @param to 目标四元数。
+     * @param ratio 插值比率，范围为 [0,1]。
+     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
+     * @returns 当前四元数到目标四元数之间的**球形插值**结果。
+     */
     public lerp (to: Quat, ratio: number, out?: Quat) {
         out = out || new Quat();
         xquat.slerp(out, this, to, ratio);
@@ -133,23 +138,19 @@ export default class Quat extends ValueType {
 CCClass.fastDefine('cc.Quat', Quat, { x: 0, y: 0, z: 0, w: 1 });
 
 /**
- * !#en The convenience method to create a new {{#crossLink "Quat"}}cc.Quat{{/crossLink}}.
- * !#zh 通过该简便的函数进行创建 {{#crossLink "Quat"}}cc.Quat{{/crossLink}} 对象。
- *
- * @param other
- * @return
+ * 构造与指定四元数相等的四元数。等价于 `new Quat(other)`。
+ * @param other 相比较的四元数。
+ * @returns `new Quat(other)`
  */
 export function quat (other: Quat): Quat;
 
 /**
- * !#en The convenience method to create a new {{#crossLink "Quat"}}cc.Quat{{/crossLink}}.
- * !#zh 通过该简便的函数进行创建 {{#crossLink "Quat"}}cc.Quat{{/crossLink}} 对象。
- *
- * @param [x=0]
- * @param [y=0]
- * @param [z=0]
- * @param [w=1]
- * @return
+ * 构造具有指定分量的四元数。等价于 `new Quat(x, y, z, w)`。
+ * @param [x=0] 指定的 x 分量。
+ * @param [y=0] 指定的 y 分量。
+ * @param [z=0] 指定的 z 分量。
+ * @param [w=0] 指定的 w 分量。
+ * @returns `new Quat(x, y, z)`
  */
 export function quat (x?: number, y?: number, z?: number, w?: number): Quat;
 

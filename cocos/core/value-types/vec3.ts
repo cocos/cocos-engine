@@ -30,35 +30,35 @@ import Mat4 from './mat4';
 import { ValueType } from './value-type';
 
 /**
- * !#en Representation of 3D vectors and points.
- * !#zh 表示 3D 向量和坐标
+ * 三维向量。
  */
 export default class Vec3 extends ValueType {
+    /**
+     * x 分量。
+     */
     public x: number;
 
+    /**
+     * y 分量。
+     */
     public y: number;
 
+    /**
+     * z 分量。
+     */
     public z: number;
 
     /**
-     * !#en
-     * Constructor
-     * see {{#crossLink "cc/vec3:method"}}cc.v3{{/crossLink}}
-     * !#zh
-     * 构造函数，可查看 {{#crossLink "cc/vec3:method"}}cc.v3{{/crossLink}}
-     * @param v
+     * 构造与指定向量相等的向量。
+     * @param v 相比较的向量。
      */
     constructor (v: Vec3);
 
     /**
-     * !#en
-     * Constructor
-     * see {{#crossLink "cc/vec3:method"}}cc.v3{{/crossLink}}
-     * !#zh
-     * 构造函数，可查看 {{#crossLink "cc/vec3:method"}}cc.v3{{/crossLink}}
-     * @param [x=0]
-     * @param [y=0]
-     * @param [z=0]
+     * 构造具有指定分量的向量。
+     * @param [x=0] 指定的 x 分量。
+     * @param [y=0] 指定的 y 分量。
+     * @param [z=0] 指定的 z 分量。
      */
     constructor (x?: number, y?: number, z?: number);
 
@@ -76,48 +76,38 @@ export default class Vec3 extends ValueType {
     }
 
     /**
-     * !#en clone a Vec3 value
-     * !#zh 克隆一个 Vec3 值
+     * 克隆当前向量。
      */
     public clone () {
         return new Vec3(this.x, this.y, this.z);
     }
 
     /**
-     * !#en Set the current vector value with the given vector.
-     * !#zh 用另一个向量设置当前的向量对象值。
-     *
-     * @param newValue - !#en new value to set. !#zh 要设置的新值
-     * @return returns this
-     * @chainable
+     * 设置当前向量使其与指定向量相等。
+     * @param other 相比较的向量。
+     * @returns `this`
      */
-    public set (newValue: Vec3) {
-        this.x = newValue.x;
-        this.y = newValue.y;
-        this.z = newValue.z;
+    public set (other: Vec3) {
+        this.x = other.x;
+        this.y = other.y;
+        this.z = other.z;
         return this;
     }
 
     /**
-     * !#en Check whether the vector equals another one
-     * !#zh 当前的向量是否与指定的向量相等。
-     *
-     * @param other
-     * @return
+     * 判断当前向量是否与指定向量相等。
+     * @param other 相比较的向量。
+     * @returns 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
      */
     public equals (other: Vec3) {
         return this.x === other.x && this.y === other.y && this.z === other.z;
     }
 
     /**
-     * !#en Check whether two vector equal with some degree of variance.
-     * !#zh
-     * 近似判断两个点是否相等。<br/>
-     * 判断 2 个向量是否在指定数值的范围之内，如果在则返回 true，反之则返回 false。
-     *
-     * @param other
-     * @param variance
-     * @return
+     * 判断当前向量是否在误差范围 [-variance, variance] 内与指定向量相等。
+     * @param other 相比较的向量。
+     * @param variance 允许的误差，应为非负数。
+     * @returns 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
      */
     public fuzzyEquals (other: Vec3, variance: number) {
         if (this.x - variance <= other.x && other.x <= this.x + variance) {
@@ -131,23 +121,19 @@ export default class Vec3 extends ValueType {
     }
 
     /**
-     * !#en Transform to string with vector informations
-     * !#zh 转换为方便阅读的字符串。
-     *
-     * @return
+     * 返回当前向量的字符串表示。
+     * @returns 当前向量的字符串表示。
      */
     public toString () {
         return `(${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.z.toFixed(2)})`;
     }
 
     /**
-     * !#en Calculate linear interpolation result between this vector and another one with given ratio
-     * !#zh 线性插值。
-     *
-     * @param to
-     * @param ratio - the interpolation coefficient
-     * @param [out] - The receiving vector, can be `this`; if absent, a new vector would be created.
-     * @return
+     * 根据指定的插值比率，从当前向量到目标向量之间做插值。
+     * @param to 目标向量。
+     * @param ratio 插值比率，范围为 [0,1]。
+     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
+     * @returns 当前向量各个分量到目标向量对应的各个分量之间按指定插值比率进行线性插值构成的向量。
      */
     public lerp (to: Vec3, ratio: number, out?: Vec3) {
         out = out || new Vec3();
@@ -156,185 +142,151 @@ export default class Vec3 extends ValueType {
     }
 
     /**
-     * !#en Clamp the vector between from float and to float.
-     * !#zh
-     * 返回指定限制区域后的向量。<br/>
-     * 向量大于 max_inclusive 则返回 max_inclusive。<br/>
-     * 向量小于 min_inclusive 则返回 min_inclusive。<br/>
-     * 否则返回自身。
-     *
-     * @param min_inclusive
-     * @param max_inclusive
-     * @return
+     * 设置当前向量的值，使其各个分量都处于指定的范围内。
+     * @param minInclusive 每个分量都代表了对应分量允许的最小值。
+     * @param maxInclusive 每个分量都代表了对应分量允许的最大值。
+     * @returns `this`
      */
-    public clampf (min_inclusive: Vec3, max_inclusive: Vec3) {
-        this.x = clamp(this.x, min_inclusive.x, max_inclusive.x);
-        this.y = clamp(this.y, min_inclusive.y, max_inclusive.y);
-        this.z = clamp(this.z, min_inclusive.z, max_inclusive.z);
+    public clampf (minInclusive: Vec3, maxInclusive: Vec3) {
+        this.x = clamp(this.x, minInclusive.x, maxInclusive.x);
+        this.y = clamp(this.y, minInclusive.y, maxInclusive.y);
+        this.z = clamp(this.z, minInclusive.z, maxInclusive.z);
         return this;
     }
 
     /**
-     * !#en Adds this vector. If you want to save result to another vector, use add() instead.
-     * !#zh 向量加法。如果你想保存结果到另一个向量，使用 add() 代替。
-     *
-     * @param vector
-     * @return returns this
-     * @chainable
+     * 向量加法。将当前向量加上指定向量。
+     * @param other 指定的向量。
+     * @returns `this`
      */
-    public addSelf (vector: Vec3) {
-        this.x += vector.x;
-        this.y += vector.y;
-        this.z += vector.z;
+    public addSelf (other: Vec3) {
+        this.x += other.x;
+        this.y += other.y;
+        this.z += other.z;
         return this;
     }
 
     /**
-     * !#en Adds two vectors, and returns the new result.
-     * !#zh 向量加法，并返回新结果。
-     *
-     * @param vector
-     * @param [out] - The receiving vector, can be `this`; if absent, a new vector would be created.
-     * @return the result
+     * 向量加法。将当前向量与指定向量的相加结果赋值给出口向量。
+     * @param other 指定的向量。
+     * @param [out] 出口向量，当未指定时将创建为新的向量。
+     * @returns `out`
      */
-    public add (vector: Vec3, out?: Vec3) {
+    public add (other: Vec3, out?: Vec3) {
         out = out || new Vec3();
-        out.x = this.x + vector.x;
-        out.y = this.y + vector.y;
-        out.z = this.z + vector.z;
+        out.x = this.x + other.x;
+        out.y = this.y + other.y;
+        out.z = this.z + other.z;
         return out;
     }
 
     /**
-     * !#en Subtracts one vector from this. If you want to save result to another vector, use sub() instead.
-     * !#zh 向量减法。如果你想保存结果到另一个向量，可使用 sub() 代替。
-     *
-     * @param vector
-     * @return returns this
-     * @chainable
+     * 向量减法。将当前向量减去指定向量。
+     * @param other 减数向量。
+     * @returns `this`
      */
-    public subSelf (vector: Vec3) {
-        this.x -= vector.x;
-        this.y -= vector.y;
-        this.z -= vector.z;
+    public subSelf (other: Vec3) {
+        this.x -= other.x;
+        this.y -= other.y;
+        this.z -= other.z;
         return this;
     }
 
     /**
-     * !#en Subtracts one vector from this, and returns the new result.
-     * !#zh 向量减法，并返回新结果。
-     *
-     * @param vector
-     * @param [out] - The receiving vector, can be `this`; if absent, a new vector would be created.
-     * @return the result
+     * 向量减法。将当前向量减去指定向量的结果赋值给出口向量。
+     * @param other 减数向量。
+     * @param [out] 出口向量，当未指定时将创建为新的向量。
+     * @returns `out`
      */
-    public sub (vector: Vec3, out?: Vec3) {
+    public sub (other: Vec3, out?: Vec3) {
         out = out || new Vec3();
-        out.x = this.x - vector.x;
-        out.y = this.y - vector.y;
-        out.z = this.z - vector.z;
+        out.x = this.x - other.x;
+        out.y = this.y - other.y;
+        out.z = this.z - other.z;
         return out;
     }
 
     /**
-     * !#en Multiplies this by a number. If you want to save result to another vector, use mul() instead.
-     * !#zh 缩放当前向量。如果你想结果保存到另一个向量，可使用 mul() 代替。
-     *
-     * @param num
-     * @return returns this
-     * @chainable
+     * 向量数乘。将当前向量数乘指定标量。
+     * @param scalar 标量乘数。
+     * @returns `this`
      */
-    public mulSelf (num: number) {
-        this.x *= num;
-        this.y *= num;
-        this.z *= num;
+    public mulSelf (scalar: number) {
+        this.x *= scalar;
+        this.y *= scalar;
+        this.z *= scalar;
         return this;
     }
 
     /**
-     * !#en Multiplies by a number, and returns the new result.
-     * !#zh 缩放向量，并返回新结果。
-     *
-     * @param num
-     * @param [out] - The receiving vector, can be `this`; if absent, a new vector would be created.
-     * @return the result
+     * 向量数乘。将当前向量数乘指定标量的结果赋值给出口向量。
+     * @param scalar 标量乘数。
+     * @param [out] 出口向量，当未指定时将创建为新的向量。
+     * @returns `out`
      */
-    public mul (num: number, out?: Vec3) {
+    public mul (scalar: number, out?: Vec3) {
         out = out || new Vec3();
-        out.x = this.x * num;
-        out.y = this.y * num;
-        out.z = this.z * num;
+        out.x = this.x * scalar;
+        out.y = this.y * scalar;
+        out.z = this.z * scalar;
         return out;
     }
 
     /**
-     * !#en Multiplies two vectors.
-     * !#zh 分量相乘。
-     *
-     * @param vector
-     * @return returns this
-     * @chainable
+     * 向量乘法。将当前向量乘以与指定向量。
+     * @param other 指定的向量。
+     * @returns `this`
      */
-    public scaleSelf (vector: Vec3) {
-        this.x *= vector.x;
-        this.y *= vector.y;
-        this.z *= vector.z;
+    public scaleSelf (other: Vec3) {
+        this.x *= other.x;
+        this.y *= other.y;
+        this.z *= other.z;
         return this;
     }
 
     /**
-     * !#en Multiplies two vectors, and returns the new result.
-     * !#zh 分量相乘，并返回新的结果。
-     *
-     * @param vector
-     * @param [out] - The receiving vector, can be `this`; if absent, a new vector would be created.
-     * @return the result
+     * 向量乘法。将当前向量乘以与指定向量的结果赋值给当前向量。
+     * @param other 指定的向量。
+     * @param [out] 出口向量，当未指定时将创建为新的向量。
+     * @returns `out`
      */
-    public scale (vector: Vec3, out?: Vec3) {
+    public scale (other: Vec3, out?: Vec3) {
         out = out || new Vec3();
-        out.x = this.x * vector.x;
-        out.y = this.y * vector.y;
-        out.z = this.z * vector.z;
+        out.x = this.x * other.x;
+        out.y = this.y * other.y;
+        out.z = this.z * other.z;
         return out;
     }
 
     /**
-     * !#en Divides by a number. If you want to save result to another vector, use div() instead.
-     * !#zh 向量除法。如果你想结果保存到另一个向量，可使用 div() 代替。
-     *
-     * @param vector
-     * @return returns this
-     * @chainable
+     * 将当前向量的各个分量除以指定标量。相当于 `this.mulSelf(1 / scalar)`。
+     * @param scalar 标量除数。
+     * @returns `this`
      */
-    public divSelf (num: number) {
-        this.x /= num;
-        this.y /= num;
-        this.z /= num;
+    public divSelf (scalar: number) {
+        this.x /= scalar;
+        this.y /= scalar;
+        this.z /= scalar;
         return this;
     }
 
     /**
-     * !#en Divides by a number, and returns the new result.
-     * !#zh 向量除法，并返回新的结果。
-     *
-     * @param vector
-     * @param [out] - The receiving vector, can be `this`; if absent, a new vector would be created.
-     * @return the result
+     * 将当前向量的各个分量除以指定标量的结果赋值给出口向量。相当于 `this.mul(1 / scalar, out)`。
+     * @param scalar 标量除数。
+     * @param [out] 出口向量，当未指定时将创建为新的向量。
+     * @returns `out`
      */
-    public div (num: number, out?: Vec3) {
+    public div (scalar: number, out?: Vec3) {
         out = out || new Vec3();
-        out.x = this.x / num;
-        out.y = this.y / num;
-        out.z = this.z / num;
+        out.x = this.x / scalar;
+        out.y = this.y / scalar;
+        out.z = this.z / scalar;
         return out;
     }
 
     /**
-     * !#en Negates the components. If you want to save result to another vector, use neg() instead.
-     * !#zh 向量取反。如果你想结果保存到另一个向量，可使用 neg() 代替。
-     *
-     * @return returns this
-     * @chainable
+     * 将当前向量的各个分量取反。
+     * @returns `this`
      */
     public negSelf () {
         this.x = -this.x;
@@ -344,11 +296,9 @@ export default class Vec3 extends ValueType {
     }
 
     /**
-     * !#en Negates the components, and returns the new result.
-     * !#zh 返回取反后的新向量。
-     *
-     * @param [out] - The receiving vector, can be `this`; if absent, a new vector would be created.
-     * @return the result
+     * 将当前向量的各个分量取反的结果赋值给出口向量。
+     * @param [out] 出口向量，当未指定时将创建为新的向量。
+     * @returns `out`
      */
     public neg (out?: Vec3) {
         out = out || new Vec3();
@@ -359,59 +309,44 @@ export default class Vec3 extends ValueType {
     }
 
     /**
-     * !#en Dot product
-     * !#zh 当前向量与指定向量进行点乘。
-     *
-     * @param [vector]
-     * @return the result
+     * 向量点乘。
+     * @param other 指定的向量。
+     * @returns 当前向量与指定向量点乘的结果。
      */
-    public dot (vector: Vec3) {
-        return this.x * vector.x + this.y * vector.y + this.z * vector.z;
+    public dot (other: Vec3) {
+        return this.x * other.x + this.y * other.y + this.z * other.z;
     }
 
     /**
-     * !#en Cross product
-     * !#zh 当前向量与指定向量进行叉乘。
-     *
-     * @param vector
-     * @param [out]
-     * @return the result
+     * 向量叉乘。将当前向量左叉乘指定向量的结果赋值给出口向量。
+     * @param other 指定的向量。
+     * @param [out] 出口向量，当未指定时将创建为新的向量。
+     * @returns 当前向量左叉乘指定向量的结果。
      */
-    public cross (vector: Vec3, out?: Vec3) {
+    public cross (other: Vec3, out?: Vec3) {
         out = out || new Vec3();
-        vec3.cross(out, this, vector);
+        vec3.cross(out, this, other);
         return out;
     }
 
     /**
-     * !#en Returns the length of this vector.
-     * !#zh 返回该向量的长度。
-     *
-     * @return the result
-     * @example
-     * var v = cc.v2(10, 10);
-     * v.mag(); // return 14.142135623730951;
+     * 计算向量的长度（模）。
+     * @returns 向量的长度（模）。
      */
     public mag () {
         return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
     }
 
     /**
-     * !#en Returns the squared length of this vector.
-     * !#zh 返回该向量的长度平方。
-     *
-     * @return the result
+     * 计算向量长度（模）的平方。
+     * @returns 向量长度（模）的平方。
      */
     public magSqr () {
         return this.x * this.x + this.y * this.y + this.z * this.z;
     }
 
     /**
-     * !#en Make the length of this vector to 1.
-     * !#zh 向量归一化，让这个向量的长度为 1。
-     *
-     * @return returns this
-     * @chainable
+     * 归一化当前向量，以使其长度（模）为 1。
      */
     public normalizeSelf () {
         vec3.normalize(this, this);
@@ -419,18 +354,9 @@ export default class Vec3 extends ValueType {
     }
 
     /**
-     * !#en
-     * Returns this vector with a magnitude of 1.<br/>
-     * <br/>
-     * Note that the current vector is unchanged and a new normalized vector is returned.
-     * If you want to normalize the current vector, use normalizeSelf function.
-     * !#zh
-     * 返回归一化后的向量。<br/>
-     * <br/>
-     * 注意，当前向量不变，并返回一个新的归一化向量。如果你想来归一化当前向量，可使用 normalizeSelf 函数。
-     *
-     * @param [out] - The receiving vector, can be `this`; if absent, a new vector would be created.
-     * @return result
+     * 将当前向量归一化的结果赋值给出口向量。
+     * @param [out] 出口向量，当未指定时将创建为新的向量。
+     * @returns `out`
      */
     public normalize (out?: Vec3) {
         out = out || new Vec3();
@@ -439,15 +365,14 @@ export default class Vec3 extends ValueType {
     }
 
     /**
-     * Transforms the vec3 with a mat4. 4th vector component is implicitly '1'
-     *
-     * @param m matrix to transform with
-     * @param [out] The receiving vector, can be `this`; if absent, a new vector would be created.
-     * @returns out
+     * 将当前向量视为 w 分量为 1 的四维向量，
+     * 应用四维矩阵变换到当前矩阵，结果的 x、y、z 分量赋值给出口向量。
+     * @param matrix 变换矩阵。
+     * @param [out] 出口向量，当未指定时将创建为新的向量。
      */
-    public transformMat4 (m: Mat4, out?: Vec3) {
+    public transformMat4 (matrix: Mat4, out?: Vec3) {
         out = out || new Vec3();
-        vec3.transformMat4(out, this, m);
+        vec3.transformMat4(out, this, matrix);
         return out;
     }
 }
@@ -456,30 +381,18 @@ CCClass.fastDefine('cc.Vec3', Vec3, { x: 0, y: 0, z: 0 });
 cc.Vec3 = Vec3;
 
 /**
- * !#en The convenience method to create a new {{#crossLink "Vec3"}}cc.Vec3{{/crossLink}}.
- * !#zh 通过该简便的函数进行创建 {{#crossLink "Vec3"}}cc.Vec3{{/crossLink}} 对象。
- * @param v
- * @return
- * @example
- * var v1 = cc.v3();
- * var v2 = cc.v3(0, 0, 0);
- * var v3 = cc.v3(v2);
- * var v4 = cc.v3({x: 100, y: 100, z: 0});
+ * 等价于 `new Vec3(other)`。
+ * @param other 相比较的向量。
+ * @returns `new Vec3(other)`
  */
-export function v3 (v: Vec3): Vec3;
+export function v3 (other: Vec3): Vec3;
 
 /**
- * !#en The convenience method to create a new {{#crossLink "Vec3"}}cc.Vec3{{/crossLink}}.
- * !#zh 通过该简便的函数进行创建 {{#crossLink "Vec3"}}cc.Vec3{{/crossLink}} 对象。
- * @param [x=0]
- * @param [y=0]
- * @param [z=0]
- * @return
- * @example
- * var v1 = cc.v3();
- * var v2 = cc.v3(0, 0, 0);
- * var v3 = cc.v3(v2);
- * var v4 = cc.v3({x: 100, y: 100, z: 0});
+ * 等价于 `new Vec3(x, y, z)`。
+ * @param [x=0] 指定的 x 分量。
+ * @param [y=0] 指定的 y 分量。
+ * @param [z=0] 指定的 z 分量。
+ * @returns `new Vec3(x, y, z)`
  */
 export function v3 (x?: number, y?: number, z?: number): Vec3;
 

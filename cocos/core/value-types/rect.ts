@@ -31,124 +31,140 @@ import { ValueType } from './value-type';
 import Vec2 from './vec2';
 
 /**
- * !#en A 2D rectangle defined by x, y position and width, height.
- * !#zh 通过位置和宽高定义的 2D 矩形。
- * @class Rect
- * @extends ValueType
+ * 轴对齐矩形。
+ * 矩形内的所有点都大于等于矩形的最小点 (xMin, yMin) 并且小于等于矩形的最大点 (xMax, yMax)。
+ * 矩形的宽度定义为 xMax - xMin；高度定义为 yMax - yMin。
  */
 export default class Rect extends ValueType {
-
     /**
-     * !#en The minimum x value, equals to rect.x
-     * !#zh 矩形 x 轴上的最小值，等价于 rect.x。
+     * 获取或设置矩形在 x 轴上的最小值。
      */
-    get xMin () { return this.x; }
+    get xMin () {
+        return this.x;
+    }
+
     set xMin (value) {
         this.width += this.x - value;
         this.x = value;
     }
 
     /**
-     * !#en The minimum y value, equals to rect.y
-     * !#zh 矩形 y 轴上的最小值。
+     * 获取或设置矩形在 y 轴上的最小值。
      */
-    get yMin () { return this.y; }
+    get yMin () {
+        return this.y;
+    }
+
     set yMin (value) {
         this.height += this.y - value;
         this.y = value;
     }
 
     /**
-     * !#en The maximum x value.
-     * !#zh 矩形 x 轴上的最大值。
+     * 获取或设置矩形在 x 轴上的最大值。
      */
-    get xMax () { return this.x + this.width; }
-    set xMax (value) { this.width = value - this.x; }
+    get xMax () {
+        return this.x + this.width;
+    }
+
+    set xMax (value) {
+        this.width = value - this.x;
+    }
 
     /**
-     * !#en The maximum y value.
-     * !#zh 矩形 y 轴上的最大值。
+     * 获取或设置矩形在 y 轴上的最大值。
      */
-    get yMax () { return this.y + this.height; }
-    set yMax (value) { this.height = value - this.y; }
+    get yMax () {
+        return this.y + this.height;
+    }
+
+    set yMax (value) {
+        this.height = value - this.y;
+    }
 
     /**
-     * !#en The position of the center of the rectangle.
-     * !#zh 矩形的中心点。
+     * 获取或设置矩形中心点的坐标。
      */
     get center () {
-        return new cc.Vec2(this.x + this.width * 0.5,
+        return new Vec2(this.x + this.width * 0.5,
             this.y + this.height * 0.5);
     }
+
     set center (value) {
         this.x = value.x - this.width * 0.5;
         this.y = value.y - this.height * 0.5;
     }
 
     /**
-     * !#en The X and Y position of the rectangle.
-     * !#zh 矩形的 x 和 y 坐标。
+     * 获取或设置矩形最小点的坐标。
      */
     get origin () {
         return new cc.Vec2(this.x, this.y);
     }
+
     set origin (value) {
         this.x = value.x;
         this.y = value.y;
     }
 
     /**
-     * !#en Width and height of the rectangle.
-     * !#zh 矩形的大小。
+     * 获取或设置矩形的尺寸。
      */
     get size () {
         return new Size(this.width, this.height);
     }
+
     set size (value) {
         this.width = value.width;
         this.height = value.height;
     }
 
     /**
-     * !#en Creates a rectangle from two coordinate values.
-     * !#zh 根据指定 2 个坐标创建出一个矩形区域。
-     * @param v1
-     * @param v2
-     * @return
-     * @example
-     * cc.Rect.fromMinMax(cc.v2(10, 10), cc.v2(20, 20)); // Rect {x: 10, y: 10, width: 10, height: 10};
+     * 由任意两个点创建一个矩形，目标矩形即是这两个点各向 x、y 轴作线所得到的矩形。
+     * @param v1 指定的点。
+     * @param v2 指定的点。
+     * @returns 目标矩形。
      */
     public static fromMinMax (v1: Vec2, v2: Vec2) {
-        const min_x = Math.min(v1.x, v2.x);
-        const min_y = Math.min(v1.y, v2.y);
-        const max_x = Math.max(v1.x, v2.x);
-        const max_y = Math.max(v1.y, v2.y);
-
-        return new Rect(min_x, min_y, max_x - min_x, max_y - min_y);
+        const minX = Math.min(v1.x, v2.x);
+        const minY = Math.min(v1.y, v2.y);
+        const maxX = Math.max(v1.x, v2.x);
+        const maxY = Math.max(v1.y, v2.y);
+        return new Rect(minX, minY, maxX - minX, maxY - minY);
     }
+
+    /**
+     * 获取或设置矩形最小点的 x 坐标。
+     */
     public x: number;
 
+    /**
+     * 获取或设置矩形最小点的 y 坐标。
+     */
     public y: number;
 
+    /**
+     * 获取或设置矩形的宽度。
+     */
     public width: number;
 
+    /**
+     * 获取或设置矩形的高度。
+     */
     public height: number;
 
     /**
-     * !#en
-     * Constructor of Rect class.
-     * see {{#crossLink "cc/rect:method"}} cc.rect {{/crossLink}} for convenience method.
-     * !#zh
-     * Rect类的构造函数。可以通过 {{#crossLink "cc/rect:method"}} cc.rect {{/crossLink}} 简便方法进行创建。
+     * 构造与指定矩形相等的矩形。
+     * @param other 相比较的矩形。
      */
-    constructor (rect: Rect);
+    constructor (other: Rect);
 
     /**
-     * !#en
-     * Constructor of Rect class.
-     * see {{#crossLink "cc/rect:method"}} cc.rect {{/crossLink}} for convenience method.
-     * !#zh
-     * Rect类的构造函数。可以通过 {{#crossLink "cc/rect:method"}} cc.rect {{/crossLink}} 简便方法进行创建。
+     * 构造具有指定的最小值和尺寸的矩形。
+     * @param x 矩形在 x 轴上的最小值。
+     * @param y 矩形在 y 轴上的最小值。
+     * @param width 矩形的宽度。
+     * @param height 矩形的高度。
      */
     constructor (x?: number, y?: number, width?: number, height?: number);
 
@@ -168,24 +184,28 @@ export default class Rect extends ValueType {
     }
 
     /**
-     * !#en TODO
-     * !#zh 克隆一个新的 Rect。
-     * @example
-     * var a = new cc.Rect(0, 0, 10, 10);
-     * a.clone();// Rect {x: 0, y: 0, width: 10, height: 10}
+     * 克隆当前矩形。
      */
     public clone () {
         return new Rect(this.x, this.y, this.width, this.height);
     }
 
     /**
-     * !#en TODO
-     * !#zh 是否等于指定的矩形。
-     * @param other
-     * @example
-     * var a = new cc.Rect(0, 0, 10, 10);
-     * var b = new cc.Rect(0, 0, 10, 10);
-     * a.equals(b);// true;
+     * 设置当前矩形使其与指定矩形相等。
+     * @param other 相比较的矩形。
+     * @returns `this`
+     */
+    public set (other: Rect) {
+        this.x = other.x;
+        this.y = other.y;
+        this.width = other.width;
+        this.height = other.height;
+    }
+
+    /**
+     * 判断当前矩形是否与指定矩形相等。
+     * @param other 相比较的矩形。
+     * @returns 两矩阵的最小值和最大值都分别相等时返回 `true`；否则返回 `false`。
      */
     public equals (other: Rect) {
         return this.x === other.x &&
@@ -195,21 +215,11 @@ export default class Rect extends ValueType {
     }
 
     /**
-     * !#en TODO
-     * !#zh 线性插值
-     *
-     * @param to
-     * @param ratio - the interpolation coefficient.
-     * @param out - optional, the receiving vector.
-     * @example
-     * var a = new cc.Rect(0, 0, 10, 10);
-     * var b = new cc.Rect(50, 50, 100, 100);
-     * update (dt) {
-     *    // method 1;
-     *    var c = a.lerp(b, dt * 0.1);
-     *    // method 2;
-     *    a.lerp(b, dt * 0.1, c);
-     * }
+     * 根据指定的插值比率，从当前矩形到目标矩形之间做插值。
+     * @param to 目标矩形。
+     * @param ratio 插值比率，范围为 [0,1]。
+     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
+     * @returns 当前矩形最小值到目标矩形最小值之间，以及当前矩阵尺寸到目标矩形尺寸之间，按指定插值比率进行线性插值构成的矩形。
      */
     public lerp (to: Rect, ratio: number, out?: Rect) {
         out = out || new Rect();
@@ -224,23 +234,18 @@ export default class Rect extends ValueType {
         return out;
     }
 
-    public set (source: Rect) {
-        this.x = source.x;
-        this.y = source.y;
-        this.width = source.width;
-        this.height = source.height;
+    /**
+     * 返回当前矩形的字符串表示。
+     * @returns 当前矩形的字符串表示。
+     */
+    public toString () {
+        return `(${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.width.toFixed(2)}, ${this.height.toFixed(2)})`;
     }
 
     /**
-     * !#en Check whether the current rectangle intersects with the given one
-     * !#zh 当前矩形与指定矩形是否相交。
-     *
-     * @param other
-     * @return
-     * @example
-     * var a = new cc.Rect(0, 0, 10, 10);
-     * var b = new cc.Rect(0, 0, 20, 20);
-     * a.intersects(b);// true
+     * 判断当前矩形是否与指定矩形相交。
+     * @param other 相比较的矩形。
+     * @returns 相交则返回 `true`，否则返回 `false`。
      */
     public intersects (other: Rect) {
         const maxax = this.x + this.width;
@@ -251,27 +256,20 @@ export default class Rect extends ValueType {
     }
 
     /**
-     * !#en Returns the overlapping portion of 2 rectangles.
-     * !#zh 返回 2 个矩形重叠的部分。
-     *
-     * @param out Stores the result
-     * @param rectB
-     * @return Returns the out parameter
-     * @example
-     * var a = new cc.Rect(0, 10, 20, 20);
-     * var b = new cc.Rect(0, 10, 10, 10);
-     * var intersection = new cc.Rect();
-     * a.intersection(intersection, b); // intersection {x: 0, y: 10, width: 10, height: 10};
+     * 计算当前矩形与指定矩形重叠部分的矩形，将其赋值给出口矩形。
+     * @param out 出口矩形。
+     * @param other 指定的矩形。
+     * @returns `out`
      */
-    public intersection (out: Rect, rectB: Rect) {
+    public intersection (out: Rect, other: Rect) {
         const axMin = this.x;
         const ayMin = this.y;
         const axMax = this.x + this.width;
         const ayMax = this.y + this.height;
-        const bxMin = rectB.x;
-        const byMin = rectB.y;
-        const bxMax = rectB.x + rectB.width;
-        const byMax = rectB.y + rectB.height;
+        const bxMin = other.x;
+        const byMin = other.y;
+        const bxMax = other.x + other.width;
+        const byMax = other.y + other.height;
         out.x = Math.max(axMin, bxMin);
         out.y = Math.max(ayMin, byMin);
         out.width = Math.min(axMax, bxMax) - out.x;
@@ -280,14 +278,9 @@ export default class Rect extends ValueType {
     }
 
     /**
-     * !#en Check whether the current rect contains the given point
-     * !#zh 当前矩形是否包含指定坐标点。
-     * Returns true if the point inside this rectangle.
-     * @param point
-     * @example
-     * var a = new cc.Rect(0, 0, 10, 10);
-     * var b = new cc.Vec2(0, 5);
-     * a.contains(b);// true
+     * 判断当前矩形是否包含指定的点。
+     * @param point 指定的点。
+     * @returns 指定的点包含在矩形内则返回 `true`，否则返回 `false`。
      */
     public contains (point: Vec2) {
         return (this.x <= point.x &&
@@ -297,13 +290,9 @@ export default class Rect extends ValueType {
     }
 
     /**
-     * !#en Returns true if the other rect totally inside this rectangle.
-     * !#zh 当前矩形是否包含指定矩形。
-     * @param other
-     * @example
-     * var a = new cc.Rect(0, 0, 20, 20);
-     * var b = new cc.Rect(0, 0, 10, 10);
-     * a.containsRect(b);// true
+     * 判断当前矩形是否包含指定矩形。
+     * @param other 指定的矩形。
+     * @returns 指定矩形所有的点都包含在当前矩形内则返回 `true`，否则返回 `false`。
      */
     public containsRect (other: Rect) {
         return (this.x <= other.x &&
@@ -313,26 +302,20 @@ export default class Rect extends ValueType {
     }
 
     /**
-     * !#en Returns the smallest rectangle that contains the current rect and the given rect.
-     * !#zh 返回一个包含当前矩形和指定矩形的最小矩形。
-     * @param out Stores the result
-     * @param rectB
-     * @return Returns the out parameter
-     * @example
-     * var a = new cc.Rect(0, 10, 20, 20);
-     * var b = new cc.Rect(0, 10, 10, 10);
-     * var union = new cc.Rect();
-     * a.union(union, b); // union {x: 0, y: 10, width: 20, height: 20};
+     * 创建同时包含当前矩形和指定矩形的最小矩形，将其赋值给出口矩形。
+     * @param out 出口矩形。
+     * @param other 指定的矩形。
+     * @returns `out`
      */
-    public union (out: Rect, rectB: Rect) {
+    public union (out: Rect, other: Rect) {
         const ax = this.x;
         const ay = this.y;
         const aw = this.width;
         const ah = this.height;
-        const bx = rectB.x;
-        const by = rectB.y;
-        const bw = rectB.width;
-        const bh = rectB.height;
+        const bx = other.x;
+        const by = other.y;
+        const bw = other.width;
+        const bh = other.height;
         out.x = Math.min(ax, bx);
         out.y = Math.min(ay, by);
         out.width = Math.max(ax + aw, bx + bw) - out.x;
@@ -341,10 +324,13 @@ export default class Rect extends ValueType {
     }
 
     /**
-     * !#en Apply matrix4 to the rect.
-     * !#zh 使用 mat4 对矩形进行矩阵转换。
-     * @param out The output rect
-     * @param mat The matrix4
+     * 应用矩阵变换到当前矩形：
+     * 应用矩阵变换到当前矩形的最小点得到新的最小点，
+     * 将当前矩形的尺寸视为二维向量应用矩阵变换得到新的尺寸；
+     * 并将如此构成的新矩形赋值给出口矩形。
+     * @param out 出口矩形。
+     * @param matrix 变换矩阵。
+     * @returns `out`
      */
     public transformMat4 (out: Rect, mat: Mat4) {
         const ol = this.x;
@@ -371,17 +357,6 @@ export default class Rect extends ValueType {
         out.height = maxY - minY;
         return out;
     }
-
-    /**
-     * !#en Output rect informations to string
-     * !#zh 转换为方便阅读的字符串
-     * @example
-     * var a = new cc.Rect(0, 0, 10, 10);
-     * a.toString();// "(0.00, 0.00, 10.00, 10.00)";
-     */
-    public toString () {
-        return `(${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.width.toFixed(2)}, ${this.height.toFixed(2)})`;
-    }
 }
 
 CCClass.fastDefine('cc.Rect', Rect, { x: 0, y: 0, width: 0, height: 0 });
@@ -389,30 +364,19 @@ CCClass.fastDefine('cc.Rect', Rect, { x: 0, y: 0, width: 0, height: 0 });
 cc.Rect = Rect;
 
 /**
- * !#en
- * The convenience method to create a new Rect.
- * see {{#crossLink "Rect/Rect:method"}}cc.Rect{{/crossLink}}
- * !#zh
- * 该方法用来快速创建一个新的矩形。{{#crossLink "Rect/Rect:method"}}cc.Rect{{/crossLink}}
- * @param rect
- * @example
- * var a = cc.rect(new Rect(0, 0, 10, 0));
+ * 构造与指定矩形相等的矩形。等价于 `new Rect(rect)`。
+ * @param rect 相比较的矩形。
+ * @returns `new Rect(rect)`
  */
 export function rect (rect: Rect): Rect;
 
 /**
- * !#en
- * The convenience method to create a new Rect.
- * see {{#crossLink "Rect/Rect:method"}}cc.Rect{{/crossLink}}
- * !#zh
- * 该方法用来快速创建一个新的矩形。{{#crossLink "Rect/Rect:method"}}cc.Rect{{/crossLink}}
- * @param rect
- * @param x
- * @param y
- * @param width
- * @param height
- * @example
- * var a = cc.rect(0, 0, 10, 0);
+ * 构造具有指定的最小值和尺寸的矩形，等价于`new Rect(x, y, width, height)`。
+ * @param x 矩形在 x 轴上的最小值。
+ * @param y 矩形在 y 轴上的最小值。
+ * @param width 矩形的宽度。
+ * @param height 矩形的高度。
+ * @returns `new Rect(x, y, width, height)`
  */
 export function rect (x?: number, y?: number, width?: number, height?: number): Rect;
 
