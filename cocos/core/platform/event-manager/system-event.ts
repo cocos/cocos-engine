@@ -33,7 +33,7 @@ import eventManager from './event-manager';
 import inputManager from './input-manager';
 
 /**
- * !#en
+ * @en
  * The System event, it currently supports keyboard events and accelerometer events.<br>
  * You can get the SystemEvent instance with cc.systemEvent.<br>
  * example:
@@ -41,7 +41,7 @@ import inputManager from './input-manager';
  * cc.systemEvent.on(cc.SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
  * cc.systemEvent.off(cc.SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
  * ```
- * !#zh
+ * @zh
  * 系统事件，它目前支持按键事件和重力感应事件。<br>
  * 你可以通过 cc.systemEvent 获取到 SystemEvent 的实例。<br>
  * 参考示例：
@@ -63,9 +63,12 @@ export class SystemEvent extends EventTarget {
         super();
     }
     /**
-     * !#en whether enable accelerometer event
-     * !#zh 是否启用加速度计事件
-     * @method setAccelerometerEnabled
+     * @en
+     * whether enable accelerometer event.
+     *
+     * @zh
+     * 是否启用加速度计事件。
+     *
      * @param {Boolean} isEnable
      */
     public setAccelerometerEnabled (isEnable: boolean) {
@@ -76,8 +79,12 @@ export class SystemEvent extends EventTarget {
     }
 
     /**
-     * !#en set accelerometer interval value
-     * !#zh 设置加速度计间隔值
+     * @en
+     * set accelerometer interval value.
+     *
+     * @zh
+     * 设置加速度计间隔值。
+     *
      * @method setAccelerometerInterval
      * @param {Number} interval
      */
@@ -88,8 +95,16 @@ export class SystemEvent extends EventTarget {
         inputManager.setAccelerometerInterval(interval);
     }
 
-    public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback: (event: EventKeyboard) => void);
+    public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback: (event: EventKeyboard) => void, target?: Object);
 
+    /**
+     * @zh
+     * 系统事件注册。
+     *
+     * @param type - 事件名。
+     * @param callback - 事件回调。
+     * @param target - 接收事件目标。
+     */
     public on (type: string, callback: Function, target?: Object) {
         if (CC_EDITOR) {
             return;
@@ -196,6 +211,14 @@ export class SystemEvent extends EventTarget {
         return callback;
     }
 
+    /**
+     * @zh
+     * 注销事件。
+     *
+     * @param type - 事件名。
+     * @param callback - 事件回调。
+     * @param target - 回调接收对象。
+     */
     public off (type: string, callback?: Function, target?: Object) {
         if (CC_EDITOR) {
             return;
@@ -224,8 +247,8 @@ cc.SystemEvent = SystemEvent;
  */
 
 /**
- * !#en The System event singleton for global usage
- * !#zh 系统事件单例，方便全局使用
+ * @en The System event singleton for global usage
+ * @zh 系统事件单例，方便全局使用
  */
 export const systemEvent = new SystemEvent();
 cc.systemEvent = systemEvent;

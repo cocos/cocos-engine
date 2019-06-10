@@ -6,7 +6,6 @@ export { addStage };
 
 export { RenderQueue, PassStage } from './core/constants';
 export { Pass } from './core/pass';
-export { Effect } from './core/effect';
 export { programLib } from './core/program-lib';
 import { samplerLib } from './core/sampler-lib';
 cc.samplerLib = samplerLib;

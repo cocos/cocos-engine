@@ -28,8 +28,7 @@ import { ccclass, property } from '../../core/data/class-decorator';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { GFXBindingType } from '../../gfx/define';
 import { GFXTextureView } from '../../gfx/texture-view';
-import { Effect } from '../../renderer/core/effect';
-import { IDefineMap, Pass, PassOverrides } from '../../renderer/core/pass';
+import { IDefineMap, IPassInfoFull, Pass, PassOverrides } from '../../renderer/core/pass';
 import { samplerLib } from '../../renderer/core/sampler-lib';
 import { builtinResMgr } from '../builtin';
 import { RenderableComponent } from '../framework/renderable-component';
@@ -39,7 +38,7 @@ import { EffectAsset } from './effect-asset';
  * @zh
  * 用来初始化材质的基本信息结构体
  */
-export interface IMaterialInfo {
+interface IMaterialInfo {
     /**
      * @zh
      * 这个材质将使用的 EffectAsset，直接提供资源引用，和 effectName 至少要指定一个。
@@ -62,7 +61,7 @@ export interface IMaterialInfo {
     defines?: IDefineMap | IDefineMap[];
     /**
      * @zh
-     * 这个材质的自定义管线状态，将覆盖 effect 中的属性。
+     * 这个材质的自定义管线状态，将覆盖 effect 中的属性。<br>
      * 注意在可能的情况下请尽量少的自定义管线状态，以减小对渲染效率的影响。
      */
     states?: PassOverrides | PassOverrides[];
@@ -169,15 +168,16 @@ export class Material extends Asset {
      * 销毁材质，注意这并不会清除材质本身的数据，只会销毁运行时的渲染资源。
      */
     public destroy () {
-        if (!this._effectAsset) { return false; }
-        if (this._passes) {
-            for (const pass of this._passes) {
-                pass.destroy();
+        if (this._effectAsset) {
+            if (this._passes) {
+                for (const pass of this._passes) {
+                    pass.destroy();
+                }
+                this._passes.length = 0;
             }
-            this._passes.length = 0;
+            this._effectAsset = null;
         }
-        this._effectAsset = null;
-        return true;
+        return super.destroy();
     }
 
     /**
@@ -220,7 +220,7 @@ export class Material extends Asset {
      */
     public overridePipelineStates (overrides: PassOverrides, passIdx?: number) {
         if (!this._passes || !this._effectAsset) { return; }
-        const passInfos = Effect.getPassesInfo(this._effectAsset, this._techIdx);
+        const passInfos = this._effectAsset.techniques[this._techIdx].passes;
         if (passIdx === undefined) {
             for (const pass of this._passes) {
                 pass.overridePipelineStates(passInfos[pass.idxInTech], overrides);
@@ -243,11 +243,11 @@ export class Material extends Asset {
 
     /**
      * @en
-     * Convenient property setter provided for quick material setup.
-     * [[Pass.setUniform]] should be used instead
+     * Convenient property setter provided for quick material setup.<br>
+     * [[Pass.setUniform]] should be used instead<br>
      * if you need to do per-frame property update.
      * @zh
-     * 设置材质 uniform 参数的统一入口。
+     * 设置材质 uniform 参数的统一入口。<br>
      * 注意如果需要每帧更新 uniform，建议使用 [[Pass.setUniform]] 以获得更好的性能。
      * @param name 要设置的 uniform 名字
      * @param val 要设置的 uniform 值
@@ -329,7 +329,7 @@ export class Material extends Asset {
 
     protected _prepareInfo (patch: object | object[], cur: object[]) {
         if (!Array.isArray(patch)) { // fill all the passes if not specified
-            const len = this._effectAsset ? Effect.getPassesInfo(this._effectAsset, this._techIdx).length : 1;
+            const len = this._effectAsset ? this._effectAsset.techniques[this._techIdx].passes.length : 1;
             patch = Array(len).fill(patch);
         }
         for (let i = 0; i < (patch as object[]).length; i++) {
@@ -340,8 +340,7 @@ export class Material extends Asset {
     protected _update (keepProps: boolean = true) {
         const asset = this._effectAsset;
         if (asset) {
-            // create passes
-            this._passes = Effect.parseEffect(asset, {
+            this._passes = createPasses(asset, {
                 techIdx: this._techIdx,
                 defines: this._defines,
                 states: this._states,
@@ -407,5 +406,30 @@ export class Material extends Asset {
         }
     }
 }
+
+interface IEffectInfo {
+    techIdx: number;
+    defines: IDefineMap[];
+    states: PassOverrides[];
+}
+
+const createPasses = (effect: EffectAsset, info: IEffectInfo) => {
+    if (!effect.techniques) { return []; }
+    const { techIdx, defines, states } = info;
+    const tech = effect.techniques[techIdx || 0];
+    const passNum = tech.passes.length;
+    const passes: Pass[] = [];
+    for (let k = 0; k < passNum; ++k) {
+        const passInfo = tech.passes[k] as IPassInfoFull;
+        const defs = passInfo.curDefs = defines.length > k ? defines[k] : {};
+        if (passInfo.switch && !defs[passInfo.switch]) { continue; }
+        passInfo.states = states.length > k ? states[k] : {};
+        passInfo.idxInTech = k;
+        const pass = new Pass(cc.game._gfxDevice);
+        pass.initialize(passInfo);
+        passes.push(pass);
+    }
+    return passes;
+};
 
 cc.Material = Material;

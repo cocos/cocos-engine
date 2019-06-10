@@ -25,21 +25,40 @@
 
 import { Asset } from '../../../assets/asset';
 import { ccclass, property } from '../../../core/data/class-decorator';
+import { Enum } from '../../../core/value-types';
 import { AudioPlayer, PlayingState } from './player';
 import { AudioPlayerDOM } from './player-dom';
 import { AudioPlayerWeb } from './player-web';
-import { ccenum } from '../../../core/value-types/enum';
+import { AudioPlayerWX } from './player-wx';
 
-export enum AudioType {
-    UNKNOWN_AUDIO = -1,
-    WEB_AUDIO,
-    DOM_AUDIO,
-    WX_GAME_AUDIO,
-};
-ccenum(AudioType);
+export const AudioType = Enum({
+    UNKNOWN_AUDIO: -1,
+    WEB_AUDIO: 0,
+    DOM_AUDIO: 1,
+    WX_GAME_AUDIO: 2,
+});
 
 @ccclass('cc.AudioClip')
 export class AudioClip extends Asset {
+
+    public static PlayingState = PlayingState;
+    public static AudioType = AudioType;
+    public static preventDeferredLoadDependents = true;
+
+    @property // we serialize this because it's unavailable at runtime on some platforms
+    protected _duration = 0;
+    @property({
+        type: AudioType,
+    })
+    protected _loadMode = AudioType.UNKNOWN_AUDIO;
+
+    protected _audio: any = null;
+    private _player: AudioPlayer | null = null;
+
+    constructor () {
+        super();
+        this.loaded = false;
+    }
 
     public set _nativeAsset (clip: any) {
         this._audio = clip;
@@ -48,6 +67,9 @@ export class AudioClip extends Asset {
             if (clip instanceof AudioBuffer) {
                 ctor = AudioPlayerWeb;
                 this._loadMode = AudioType.WEB_AUDIO;
+            } else if (CC_WECHATGAME) {
+                ctor = AudioPlayerWX;
+                this._loadMode = AudioType.WX_GAME_AUDIO;
             } else {
                 ctor = AudioPlayerDOM;
                 this._loadMode = AudioType.DOM_AUDIO;
@@ -67,30 +89,17 @@ export class AudioClip extends Asset {
         return this._audio;
     }
 
+    public destroy () {
+        if (this._player) { this._player.destroy(); }
+        return super.destroy();
+    }
+
     get loadMode () {
         return this._loadMode;
     }
 
     get state () {
         return this._player ? this._player.getState() : PlayingState.INITIALIZING;
-    }
-
-    public static PlayingState = PlayingState;
-    public static AudioType = AudioType;
-    public static preventDeferredLoadDependents = true;
-    @property // we serialize this because it's unavailable at runtime on some platforms
-    protected _duration = 0;
-    @property({
-        type: AudioType,
-    })
-    protected _loadMode = AudioType.UNKNOWN_AUDIO;
-
-    protected _audio: any = null;
-    private _player: AudioPlayer | null = null;
-
-    public constructor () {
-        super();
-        this.loaded = false;
     }
 
     public play () { if (this._player) { this._player.play(); } }

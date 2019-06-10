@@ -1027,7 +1027,7 @@ function CCClass (options) {
  * @private
  */
 CCClass._isCCClass = function (constructor) {
-    return constructor &&
+    return constructor && constructor.hasOwnProperty &&
         constructor.hasOwnProperty('__ctors__');     // is not inherited __ctors__
 };
 

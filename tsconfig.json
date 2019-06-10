@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-      "target": "es6",
+      "target": "es5",
       "lib": ["es2015", "es2017", "dom"],
       "module": "commonjs",
       "allowJs": true,
@@ -9,6 +9,7 @@
       "rootDir": "./",
       "strict": true,
       "noImplicitAny": false,
+      "downlevelIteration": true,
       "esModuleInterop": true,
       "experimentalDecorators": true,
       "types": [

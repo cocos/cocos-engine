@@ -24,13 +24,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { createMap, array } from '../utils/js';
 import Pool from '../../3d/memop/pool';
+import { array, createMap } from '../utils/js';
 const fastRemoveAt = array.fastRemoveAt;
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
-function empty (){};
+function empty (){}
 
 class CallbackInfo {
     public callback: Function = empty;
@@ -56,6 +56,7 @@ export class CallbackList {
     /**
      * @zh
      * 从列表中移除与指定目标相同回调函数的事件。
+     *
      * @param cb - 指定回调函数
      */
     public removeByCallback (cb: Function) {
@@ -71,6 +72,7 @@ export class CallbackList {
     /**
      * @zh
      * 从列表中移除与指定目标相同调用者的事件。
+     *
      * @param target - 指定调用者
      */
     public removeByTarget (target: Object) {
@@ -114,7 +116,10 @@ export class CallbackList {
         this.containCanceled = true;
     }
 
-    // filter all removed callbacks and compact array
+    /**
+     * @zh
+     * 取消所有回调。（在移除过程中会更加紧凑的排列数组）
+     */
     public purgeCanceled () {
         for (let i = this.callbackInfos.length - 1; i >= 0; --i) {
             const info = this.callbackInfos[i];
@@ -125,6 +130,10 @@ export class CallbackList {
         this.containCanceled = false;
     }
 
+    /**
+     * @zh
+     * 清除并重置所有数据。
+     */
     public clear () {
         this.cancelAll();
         this.callbackInfos.length = 0;
@@ -153,6 +162,7 @@ export class CallbacksInvoker {
     /**
      * @zh
      * 事件添加管理
+     *
      * @param key - 一个监听事件类型的字符串。
      * @param callback - 事件分派时将被调用的回调函数。
      * @param arget - 调用回调的目标。可以为空。
@@ -163,7 +173,7 @@ export class CallbacksInvoker {
         if (!list) {
             list = this._callbackTable[key] = callbackListPool.alloc();
         }
-        let info = callbackInfoPool.alloc();
+        const info = callbackInfoPool.alloc();
         info.set(callback, target, once);
         list.callbackInfos.push(info);
     }
@@ -200,8 +210,7 @@ export class CallbacksInvoker {
             }
         }
 
-        for (let i = 0; i < infos.length; ++i) {
-            const info = infos[i];
+        for (const info of infos) {
             if (info && info.callback === callback && info.target === target) {
                 return true;
             }

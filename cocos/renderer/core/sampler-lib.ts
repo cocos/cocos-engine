@@ -35,9 +35,19 @@ const defaultInfo = [
 
 const gfxInfo: IGFXSamplerInfo = {};
 
+/**
+ * @zh
+ * 维护 sampler 资源实例的全局管理器。
+ */
 class SamplerLib {
     protected _cache: Record<string, GFXSampler> = {};
 
+    /**
+     * @zh
+     * 获取指定属性的 sampler 资源。
+     * @param device 渲染设备 [[GFXDevice]]
+     * @param info 目标 sampler 属性
+     */
     public getSampler (device: GFXDevice, info: number[]) {
         let hash = '';
         for (let i = 0; i < defaultInfo.length; i++) {

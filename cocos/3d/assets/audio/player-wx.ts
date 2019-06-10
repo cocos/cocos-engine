@@ -22,102 +22,65 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
 import { _decorator } from '../../../core/data/index';
 const { ccclass } = _decorator;
-import { AudioClip, AudioType } from './clip';
-import { PlayingState } from './player';
+import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 
-/**
- * WeChat audio to port. https://developers.weixin.qq.com/minigame/dev/document/media/audio/InnerAudioContext.html
- */
-@ccclass('cc.WxGameAudioClip')
-export default class WxGameAudioClip extends AudioClip {
-    private _volume: number;
-    private _loop: boolean;
-    private _oneShoting: boolean;
-    private _currentTime: number;
-    private _state = PlayingState.STOPPED;
-    constructor () {
-        super();
-        this._loadMode = AudioType.WX_GAME_AUDIO;
-        this._volume = 1;
-        this._loop = false;
-        this._oneShoting = false;
-        this._currentTime = 0.0;
-    }
+@ccclass('cc.AudioPlayerWX')
+export class AudioPlayerWX extends AudioPlayer {
+    protected _volume = 1;
+    protected _loop = false;
+    protected _oneShoting = false;
+    protected _audio: InnerAudioContext;
 
-    public setNativeAsset (clip, info) {
-        // typeof clip === innerAudioContext
-        if (!clip) {
-            console.warn('There is no audio in the current clip');
-            return;
-        }
-
-        super.setNativeAsset(clip, info);
-        this._initEventsListener();
-        clip.volume = this._volume;
-        clip.loop = this._loop;
-    }
-
-    public _initEventsListener () {
+    constructor (info: IAudioInfo) {
+        super(info);
+        this._audio = info.clip;
+        this._audio.obeyMuteSwitch = false;
         this._audio.onPlay(() => {
             this._state = PlayingState.PLAYING;
-            this._currentTime = this._audio.currentTime;
-            // @ts-ignore
-            this.emit('started');
+            this._eventTarget.emit('started');
         });
-
         this._audio.onPause(() => {
             this._state = PlayingState.STOPPED;
             this._oneShoting = false;
         });
-
         this._audio.onStop(() => {
             this._state = PlayingState.STOPPED;
             this._oneShoting = false;
-            this._currentTime = 0;
         });
-
         this._audio.onEnded(() => {
             this._state = PlayingState.STOPPED;
-            this._currentTime = 0;
-            // @ts-ignore
-            this.emit('ended');
+            this._eventTarget.emit('ended');
             if (this._oneShoting) {
                 this._audio.volume = this._volume;
                 this._audio.loop = this._loop;
                 this._oneShoting = false;
             }
         });
+        wx.onShow(() => this._audio.play());
+        wx.onAudioInterruptionEnd(() => this._audio.play());
     }
 
     public play () {
-        if (!this._audio || this._state === PlayingState.PLAYING) {
-            return;
-        }
-
+        if (!this._audio || this._state === PlayingState.PLAYING) { return; }
         this._audio.play();
     }
 
     public pause () {
-        if (this._state !== PlayingState.PLAYING) {
-            return;
-        }
-
+        if (!this._audio || this._state !== PlayingState.PLAYING) { return; }
         this._audio.pause();
     }
 
     public stop () {
-        if (this._state === PlayingState.STOPPED) {
-            return;
-        }
-
+        if (!this._audio) { return; }
         this._audio.stop();
     }
 
     public playOneShot (volume = 1) {
-        /* HTMLMediaElement doesn't support multiple playback at the
-           same time so here we fall back to re-start style cc.gameroach */
+        /* InnerAudioContext doesn't support multiple playback at the
+           same time so here we fall back to re-start style approach */
         if (!this._audio) { return; }
         this._audio.volume = volume;
         if (this._oneShoting) { return; }
@@ -127,12 +90,12 @@ export default class WxGameAudioClip extends AudioClip {
     }
 
     public getCurrentTime () {
-        return this._currentTime;
+        return this._audio ? this._audio.currentTime : 0;
     }
 
-    public setCurrentTime (val) {
-        this._currentTime = val;
-        this._audio.seek(this._currentTime);
+    public setCurrentTime (val: number) {
+        if (!this._audio) { return; }
+        this._audio.seek(val);
     }
 
     public getDuration () {
@@ -143,19 +106,24 @@ export default class WxGameAudioClip extends AudioClip {
         return this._audio ? this._audio.volume : this._volume;
     }
 
-    public setVolume (val) {
+    public setVolume (val: number, immediate: boolean) {
         this._volume = val;
-        if (this._audio) { this._audio.volume = val; }
+        if (this._audio && this._audio.volume !== undefined) { this._audio.volume = val; }
     }
 
     public getLoop () {
         return this._loop;
     }
 
-    public setLoop (val) {
+    public setLoop (val: boolean) {
         this._loop = val;
         if (this._audio) { this._audio.loop = val; }
     }
+
+    public destroy () {
+        if (this._audio) { this._audio.destroy(); return true; }
+        return false;
+    }
 }
 
-cc.WxGameAudioClip = WxGameAudioClip;
+cc.AudioPlayerWX = AudioPlayerWX;

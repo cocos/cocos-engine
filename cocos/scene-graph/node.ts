@@ -214,11 +214,7 @@ class Node extends BaseNode {
         vec3.copy(this._pos, this._lpos);
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
-            if (CC_EDITOR) {
-                this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART, v3_a);
-            } else {
-                this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
-            }
+            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
         }
     }
 
@@ -420,11 +416,7 @@ class Node extends BaseNode {
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
-            if (CC_EDITOR) {
-                this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART, v3_a);
-            } else {
-                this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
-            }
+            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
         }
     }
 
@@ -601,11 +593,7 @@ class Node extends BaseNode {
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
-            if (CC_EDITOR) {
-                this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART, v3_a);
-            } else {
-                this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
-            }
+            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
         }
     }
 
@@ -830,16 +818,26 @@ class Node extends BaseNode {
         return mat4.fromRT(out, this._rot, this._pos);
     }
 
-    public getAnchorPoint () {
-        return this.uiTransfromComp!.anchorPoint;
+    public getAnchorPoint (out?: Vec2) {
+        if (!out) {
+            out = new Vec2();
+        }
+
+        out.set(this.uiTransfromComp!.anchorPoint);
+        return out;
     }
 
     public setAnchorPoint (point: Vec2 | number, y?: number) {
         this.uiTransfromComp!.setAnchorPoint(point, y);
     }
 
-    public getContentSize () {
-        return this.uiTransfromComp!.contentSize;
+    public getContentSize (out?: Size) {
+        if (!out){
+            out = new Size();
+        }
+
+        out.set(this.uiTransfromComp!.contentSize);
+        return out;
     }
 
     public setContentSize (size: Size | number, height?: number) {

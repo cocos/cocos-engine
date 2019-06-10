@@ -43,14 +43,26 @@ export class BitmapFont extends Font {
     @property
     public fntDataStr = '';
 
+    /**
+     * @zh
+     * bitmap font 依赖精灵。
+     */
     @property({
         type: SpriteFrame,
     })
     public spriteFrame: SpriteFrame | null = null;
 
+    /**
+     * @zh
+     * 文字尺寸
+     */
     @property
     public fontSize = -1;
 
+    /**
+     * @zh
+     * 文字配置。
+     */
     @property
     public fntConfig: IConfig | null = null;
 }

@@ -10,7 +10,7 @@ export default class Burst {
     private _time: number = 0;
 
     /**
-     * 粒子系统开始运行到触发此次 Brust 的时间
+     * @zh 粒子系统开始运行到触发此次 Brust 的时间
      */
     @property
     get time () {
@@ -23,13 +23,13 @@ export default class Burst {
     }
 
     /**
-     * 发射粒子的最小数量
+     * @zh 发射粒子的最小数量
      */
     @property
     public minCount: number = 30;
 
     /**
-     * 发射粒子的最大数量
+     * @zh 发射粒子的最大数量
      */
     @property
     public maxCount: number = 30;
@@ -38,7 +38,7 @@ export default class Burst {
     private _repeatCount: number = 1;
 
     /**
-     * Burst 的触发次数
+     * @zh Burst 的触发次数
      */
     @property
     get repeatCount () {
@@ -51,13 +51,13 @@ export default class Burst {
     }
 
     /**
-     * 每次触发的间隔时间
+     * @zh 每次触发的间隔时间
      */
     @property
     public repeatInterval: number = 1;
 
     /**
-     * 发射的粒子的数量
+     * @zh 发射的粒子的数量
      */
     @property({
         type: CurveRange,

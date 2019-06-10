@@ -33,6 +33,7 @@ import { Node } from '../../scene-graph/node';
 import { Mesh } from '../assets';
 import { Material } from '../assets/material';
 import { Skeleton } from '../assets/skeleton';
+import { builtinResMgr } from '../builtin';
 import { aabb } from '../geom-utils';
 import { calculateBoneSpaceBounds } from '../misc/utils';
 import { ModelComponent } from './model-component';
@@ -161,7 +162,7 @@ export class SkinningModelComponent extends ModelComponent {
 
         const skinningModel = this._model as SkinningModel;
         const skeleton = this._skeleton;
-        const len = this._joints.length;
+        const len = this._jointCount;
 
         for (let i = 0; i < len; ++i) {
             const cur = this._joints[i];
@@ -235,28 +236,30 @@ export class SkinningModelComponent extends ModelComponent {
     protected _onMaterialModified (index: number, material: Material | null) {
         const device: GFXDevice = cc.director.root && cc.director.root.device;
         const type = selectJointsMediumType(device, this._jointCount);
-        const mat = this.getMaterial(index, CC_EDITOR);
-        if (mat) {
-            mat.recompileShaders({ CC_USE_SKINNING: type });
-        }
+        const mat = this.getMaterial(index, CC_EDITOR) || this._getBuiltinMaterial();
+        mat.recompileShaders({ CC_USE_SKINNING: type });
         super._onMaterialModified(index, mat);
     }
 
+    protected _getBuiltinMaterial () {
+        // classic ugly pink indicating missing material
+        return builtinResMgr.get<Material>('missing-skinning-material');
+    }
+
     private _bindSkeleton () {
-        if (!this._skeleton) { return; }
-        this._jointCount = this._skeleton.joints.length;
-        this._materials.forEach((material, index) => material && this._onMaterialModified(index, material));
+        this._jointCount = this._skeleton && this._skeleton.joints.length || 0;
         if (this._model) {
             (this._model as SkinningModel).bindSkeleton(this._skeleton);
         }
+        this._materials.forEach((material, index) => material && this._onMaterialModified(index, material));
     }
 
     private _resetSkinningTarget () {
+        this._joints.length = 0;
         if (!this._skeleton || !this._skinningRoot) { return; }
         const root = LCA(this.node, this._skinningRoot);
         if (!root) { return; }
 
-        this._joints.length = 0;
         const rootNode = this._skinningRoot;
         this._skeleton.joints.forEach((path) => {
             const targetNode = rootNode.getChildByPath(path);

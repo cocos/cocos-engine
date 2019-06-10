@@ -26,15 +26,18 @@
 
 // tslint:disable:max-line-length
 
+import { Node } from '../../../scene-graph';
+import { Event } from '../../event';
 import * as js from '../../utils/js';
-import { EventListener } from './event-listener';
+import { EventTouch } from './CCEvent';
+import { EventListener, TouchOneByOne } from './event-listener';
 const ListenerID = EventListener.ListenerID;
 
 // tslint:disable-next-line
 class _EventListenerVector {
+    public gt0Index = 0;
     private _fixedListeners: EventListener[] = [];
     private _sceneGraphListeners: EventListener[] = [];
-    private gt0Index = 0;
 
     public size () {
         return this._fixedListeners.length + this._sceneGraphListeners.length;
@@ -74,8 +77,8 @@ class _EventListenerVector {
     }
 }
 
-function __getListenerID (event) {
-    const eventType = cc.Event;
+function __getListenerID (event: Event) {
+    const eventType = Event;
     const type = event.type;
     if (type === eventType.ACCELERATION) {
         return ListenerID.ACCELERATION;
@@ -101,32 +104,44 @@ const DIRTY_FIXED_PRIORITY = 1 << 0;
 const DIRTY_SCENE_GRAPH_PRIORITY = 1 << 1;
 const DIRTY_ALL = 3;
 
+interface IListenersMap{
+    [key: string]: _EventListenerVector;
+}
+
+interface IPriorityFlag{
+    [key: string]: number;
+}
+
+interface INodeListener {
+    [key: string]: EventListener[];
+}
+
 class EventManager {
-    private _listenersMap = {};
-    private _priorityDirtyFlagMap = {};
-    private _nodeListenersMap = {};
+    private _listenersMap: IListenersMap = {};
+    private _priorityDirtyFlagMap: IPriorityFlag = {};
+    private _nodeListenersMap: INodeListener = {};
     private _nodePriorityMap = js.createMap(true);
     private _globalZOrderNodeMap: string[] = [];
     private _toAddedListeners: EventListener[] = [];
     private _toRemovedListeners: EventListener[] = [];
-    private _dirtyNodes: any[] = [];
+    private _dirtyNodes: Node[] = [];
     private _inDispatch = 0;
     private _isEnabled = false;
     private _nodePriorityIndex = 0;
     private _internalCustomListenerIDs: string[] = [];
 
     /**
-     * !#en Pauses all listeners which are associated the specified target.
-     * !#zh 暂停传入的 node 相关的所有监听器的事件响应。
-     * @param {Node} node
-     * @param [recursive=false]
+     * @en Pauses all listeners which are associated the specified target.
+     * @zh 暂停传入的 node 相关的所有监听器的事件响应。
+     * @param node - 暂停目标节点
+     * @param recursive - 是否往子节点递归暂停。默认为 false。
      */
-    public pauseTarget (node: any, recursive = false) {
+    public pauseTarget (node: Node, recursive = false) {
         if (!(node instanceof cc._BaseNode)) {
             cc.warnID(3506);
             return;
         }
-        const listeners = this._nodeListenersMap[node._id];
+        const listeners = this._nodeListenersMap[node.uuid];
         if (listeners) {
             for (const listener of listeners) {
                 listener._setPaused(true);
@@ -143,17 +158,21 @@ class EventManager {
     }
 
     /**
-     * !#en Resumes all listeners which are associated the specified target.
-     * !#zh 恢复传入的 node 相关的所有监听器的事件响应。
-     * @param {Node} node
-     * @param [recursive=false]
+     * @en
+     * Resumes all listeners which are associated the specified target.
+     *
+     * @zh
+     * 恢复传入的 node 相关的所有监听器的事件响应。
+     *
+     * @param node - 监听器节点。
+     * @param recursive - 是否往子节点递归。默认为 false。
      */
-    public resumeTarget (node: any, recursive = false) {
+    public resumeTarget (node: Node, recursive = false) {
         if (!(node instanceof cc._BaseNode)) {
             cc.warnID(3506);
             return;
         }
-        const listeners = this._nodeListenersMap[node._id];
+        const listeners = this._nodeListenersMap[node.uuid];
         if (listeners) {
             for (const listener of listeners) {
                 listener._setPaused(false);
@@ -193,17 +212,21 @@ class EventManager {
     }
 
     /**
-     * !#en Query whether the specified event listener id has been added.
-     * !#zh 查询指定的事件 ID 是否存在
-     * @param listenerID - The listener id.
-     * @return true or false
+     * @en
+     * Query whether the specified event listener id has been added.
+     *
+     * @zh
+     * 查询指定的事件 ID 是否存在。
+     *
+     * @param listenerID - 查找监听器 ID。
+     * @returns 是否已查找到。
      */
-    public hasEventListener (listenerID: string | number) {
+    public hasEventListener (listenerID: string) {
         return !!this._getListeners(listenerID);
     }
 
     /**
-     * !#en
+     * @en
      * <p>
      * Adds a event listener for a specified event.<br/>
      * if the parameter "nodeOrPriority" is a node,
@@ -211,19 +234,15 @@ class EventManager {
      * if the parameter "nodeOrPriority" is a Number,
      * it means to add a event listener for a specified event with the fixed priority.<br/>
      * </p>
-     * !#zh
+     *
+     * @zh
      * 将事件监听器添加到事件管理器中。<br/>
      * 如果参数 “nodeOrPriority” 是节点，优先级由 node 的渲染顺序决定，显示在上层的节点将优先收到事件。<br/>
      * 如果参数 “nodeOrPriority” 是数字，优先级则固定为该参数的数值，数字越小，优先级越高。<br/>
      *
-     * @method addListener
-     * @param listener - The listener of a specified event or a object of some event parameters.
-     * @param nodeOrPriority - The priority of the listener is based on the draw order of this node or fixedPriority The fixed priority of the listener.
-     * @note  The priority of scene graph will be fixed value 0. So the order of listener item in the vector will be ' <0, scene graph (0 priority), >0'.
-     *         A lower priority will be called before the ones that have a higher value. 0 priority is forbidden for fixed priority since it's used for scene graph based priority.
-     *         The listener must be a cc.EventListener object when adding a fixed priority listener, because we can't remove a fixed priority listener without the listener handler,
-     *         except calls removeAllListeners().
-     * @return {EventListener} Return the listener. Needed in order to remove the event from the dispatcher.
+     * @param listener - 指定事件监听器。
+     * @param nodeOrPriority - 监听程序的优先级。
+     * @returns
      */
     public addListener (listener: EventListener, nodeOrPriority: any | number): any {
         cc.assertID(listener && nodeOrPriority, 3503);
@@ -267,11 +286,15 @@ class EventManager {
     }
 
     /**
-     * !#en Adds a Custom event listener. It will use a fixed priority of 1.
-     * !#zh 向事件管理器添加一个自定义事件监听器。
-     * @param eventName
-     * @param callback
-     * @return the generated event. Needed in order to remove the event from the dispatcher
+     * @en
+     * Adds a Custom event listener. It will use a fixed priority of 1.
+     *
+     * @zh
+     * 向事件管理器添加一个自定义事件监听器。
+     *
+     * @param eventName - 自定义事件名。
+     * @param callback - 事件回调。
+     * @returns 返回自定义监听器。
      */
     public addCustomListener (eventName: string, callback: Function) {
         const listener = EventListener.create({
@@ -284,10 +307,13 @@ class EventManager {
     }
 
     /**
-     * !#en Remove a listener.
-     * !#zh 移除一个已添加的监听器。
-     * @param listener - an event listener or a registered node target
-     * @example {@link cocos2d/core/event-manager/CCEventManager/removeListener.js}
+     * @en
+     * Remove a listener.
+     *
+     * @zh
+     * 移除一个已添加的监听器。
+     *
+     * @param listener - 需要移除的监听器。
      */
     public removeListener (listener: EventListener) {
         if (listener == null) {
@@ -336,8 +362,10 @@ class EventManager {
     }
 
     /**
-     * !#en Removes all listeners with the same event listener type or removes all listeners of a node.
-     * !#zh
+     * @en
+     * Removes all listeners with the same event listener type or removes all listeners of a node.
+     *
+     * @zh
      * 移除注册到 eventManager 中指定类型的所有事件监听器。<br/>
      * 1. 如果传入的第一个参数类型是 Node，那么事件管理器将移除与该对象相关的所有事件监听器。
      * （如果第二参数 recursive 是 true 的话，就会连同该对象的子控件上所有的事件监听器也一并移除）<br/>
@@ -349,9 +377,8 @@ class EventManager {
      * cc.EventListener.KEYBOARD      <br/>
      * cc.EventListener.ACCELERATION，<br/>
      *
-     * @method removeListeners
-     * @param {Number|Node} listenerType - listenerType or a node
-     * @param [recursive=false]
+     * @param listenerType - 监听器类型。
+     * @param recursive - 递归子节点的同类型监听器一并移除。默认为 false。
      */
     public removeListeners (listenerType: number | any, recursive = false) {
         if (!(cc.js.isNumber(listenerType) || listenerType instanceof cc._BaseNode)) {
@@ -413,20 +440,25 @@ class EventManager {
         }
     }
 
-    /*
-     * !#en Removes all custom listeners with the same event name.
-     * !#zh 移除同一事件名的自定义事件监听器。
-     * @method removeCustomListeners
-     * @param {String} customEventName
+    /**
+     * @en
+     * Removes all custom listeners with the same event name.
+     *
+     * @zh
+     * 移除同一事件名的自定义事件监听器。
+     *
+     * @param customEventName - 自定义事件监听器名。
      */
     public removeCustomListeners (customEventName) {
         this._removeListenersForListenerID(customEventName);
     }
 
     /**
-     * !#en Removes all listeners
-     * !#zh 移除所有事件监听器。
-     * @method removeAllListeners
+     * @en
+     * Removes all listeners.
+     *
+     * @zh
+     * 移除所有事件监听器。
      */
     public removeAllListeners () {
         const locListeners = this._listenersMap;
@@ -439,13 +471,16 @@ class EventManager {
     }
 
     /**
-     * !#en Sets listener's priority with fixed value.
-     * !#zh 设置 FixedPriority 类型监听器的优先级。
-     * @method setPriority
-     * @param {EventListener} listener
-     * @param {Number} fixedPriority
+     * @en
+     * Sets listener's priority with fixed value.
+     *
+     * @zh
+     * 设置 FixedPriority 类型监听器的优先级。
+     *
+     * @param listener - 监听器。
+     * @param fixedPriority - 优先级。
      */
-    public setPriority (listener, fixedPriority) {
+    public setPriority (listener: EventListener, fixedPriority: number) {
         if (listener == null) {
             return;
         }
@@ -471,32 +506,40 @@ class EventManager {
     }
 
     /**
-     * !#en Whether to enable dispatching events
-     * !#zh 启用或禁用事件管理器，禁用后不会分发任何事件。
-     * @method setEnabled
-     * @param {Boolean} enabled
+     * @en
+     * Whether to enable dispatching events.
+     *
+     * @zh
+     * 启用或禁用事件管理器，禁用后不会分发任何事件。
+     *
+     * @param enabled - 是否启用事件管理器。
      */
-    public setEnabled (enabled) {
+    public setEnabled (enabled: boolean) {
         this._isEnabled = enabled;
     }
 
     /**
-     * !#en Checks whether dispatching events is enabled
-     * !#zh 检测事件管理器是否启用。
-     * @method isEnabled
-     * @returns {Boolean}
+     * @en
+     * Checks whether dispatching events is enabled.
+     *
+     * @zh 检测事件管理器是否启用。
+     *
+     * @returns
      */
     public isEnabled () {
         return this._isEnabled;
     }
 
-    /*
-     * !#en Dispatches the event, also removes all EventListeners marked for deletion from the event dispatcher list.
-     * !#zh 分发事件。
-     * @method dispatchEvent
-     * @param {Event} event
+    /**
+     * @en
+     * Dispatches the event, also removes all EventListeners marked for deletion from the event dispatcher list.
+     *
+     * @zh
+     * 分发事件。
+     *
+     * @param event - 分发事件。
      */
-    public dispatchEvent (event) {
+    public dispatchEvent (event: Event) {
         if (!this._isEnabled) {
             return;
         }
@@ -508,7 +551,7 @@ class EventManager {
             return;
         }
         if (event.getType().startsWith(cc.Event.TOUCH)) {
-            this._dispatchTouchEvent(event);
+            this._dispatchTouchEvent(event as EventTouch);
             this._inDispatch--;
             return;
         }
@@ -524,7 +567,7 @@ class EventManager {
         this._inDispatch--;
     }
 
-    public _onListenerCallback (listener: EventListener, event) {
+    public _onListenerCallback (listener: EventListener, event: Event) {
         event.currentTarget = listener._target;
         const onEvent = listener.onEvent;
         if (onEvent) {
@@ -533,12 +576,15 @@ class EventManager {
         return event.isStopped();
     }
 
-    /*
-     * !#en Dispatches a Custom Event with a event name an optional user data
-     * !#zh 分发自定义事件。
-     * @method dispatchCustomEvent
-     * @param {String} eventName
-     * @param {*} optionalUserData
+    /**
+     * @en
+     * Dispatches a Custom Event with a event name an optional user data.
+     *
+     * @zh
+     * 分发自定义事件。
+     *
+     * @param eventName - 自定义事件名。
+     * @param optionalUserData
      */
     public dispatchCustomEvent (eventName, optionalUserData) {
         const ev = new cc.Event.EventCustom(eventName);
@@ -546,9 +592,9 @@ class EventManager {
         this.dispatchEvent(ev);
     }
 
-    private _setDirtyForNode (node) {
+    private _setDirtyForNode (node: Node) {
         // Mark the node dirty only when there is an event listener associated with it.
-        if (this._nodeListenersMap[node._id] !== undefined) {
+        if (this._nodeListenersMap[node.uuid] !== undefined) {
             this._dirtyNodes.push(node);
         }
         if (node.children.length > 0) {
@@ -559,7 +605,7 @@ class EventManager {
         }
     }
 
-    private _addListener (listener) {
+    private _addListener (listener: EventListener) {
         if (this._inDispatch === 0) {
             this._forceAddEventListener(listener);
         } else {
@@ -567,7 +613,7 @@ class EventManager {
         }
     }
 
-    private _forceAddEventListener (listener) {
+    private _forceAddEventListener (listener: EventListener) {
         const listenerID = listener._getListenerID();
         let listeners = this._listenersMap[listenerID];
         if (!listeners) {
@@ -593,7 +639,7 @@ class EventManager {
         }
     }
 
-    private _getListeners (listenerID) {
+    private _getListeners (listenerID: string) {
         return this._listenersMap[listenerID];
     }
 
@@ -618,7 +664,7 @@ class EventManager {
         this._dirtyNodes.length = 0;
     }
 
-    private _removeAllListenersInVector (listenerVector) {
+    private _removeAllListenersInVector (listenerVector: EventListener[]) {
         if (!listenerVector) {
             return;
         }
@@ -639,7 +685,7 @@ class EventManager {
         }
     }
 
-    private _removeListenersForListenerID (listenerID) {
+    private _removeListenersForListenerID (listenerID: string) {
         const listeners = this._listenersMap[listenerID];
         if (listeners) {
             const fixedPriorityListeners = listeners.getFixedPriorityListeners();
@@ -669,7 +715,7 @@ class EventManager {
         }
     }
 
-    private _sortEventListeners (listenerID) {
+    private _sortEventListeners (listenerID: string) {
         let dirtyFlag = DIRTY_NONE;
         const locFlagMap = this._priorityDirtyFlagMap;
         if (locFlagMap[listenerID]) {
@@ -693,7 +739,7 @@ class EventManager {
         }
     }
 
-    private _sortListenersOfSceneGraphPriority (listenerID, rootNode) {
+    private _sortListenersOfSceneGraphPriority (listenerID: string, rootNode: any) {
         const listeners = this._getListeners(listenerID);
         if (!listeners) {
             return;
@@ -726,7 +772,7 @@ class EventManager {
         return locNodePriorityMap[node2._id] - locNodePriorityMap[node1._id];
     }
 
-    private _sortListenersOfFixedPriority (listenerID) {
+    private _sortListenersOfFixedPriority (listenerID: string) {
         const listeners = this._listenersMap[listenerID];
         if (!listeners) {
             return;
@@ -750,11 +796,11 @@ class EventManager {
         listeners.gt0Index = index;
     }
 
-    private _sortListenersOfFixedPriorityAsc (l1, l2) {
+    private _sortListenersOfFixedPriorityAsc (l1: EventListener, l2: EventListener) {
         return l1._getFixedPriority() - l2._getFixedPriority();
     }
 
-    private _onUpdateListeners (listeners) {
+    private _onUpdateListeners (listeners: _EventListenerVector) {
         const fixedPriorityListeners = listeners.getFixedPriorityListeners();
         const sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
         const toRemovedListeners = this._toRemovedListeners;
@@ -861,24 +907,24 @@ class EventManager {
         toRemovedListeners.length = 0;
     }
 
-    private _onTouchEventCallback (listener, argsObj) {
+    private _onTouchEventCallback (listener: TouchOneByOne, argsObj) {
         // Skip if the listener was removed.
-        if (!listener._isRegistered) {
+        if (!listener._isRegistered()) {
             return false;
         }
 
         const event = argsObj.event;
         const selTouch = event.currentTouch;
-        event.currentTarget = listener._node;
+        event.currentTarget = listener._getSceneGraphPriority();
 
         let isClaimed = false;
         let removedIdx;
         const getCode = event.getEventCode();
-        const EventTouch = cc.Event.EventTouch;
+        // const EventTouch = cc.Event.EventTouch;
         if (getCode === EventTouch.BEGAN) {
             if (listener.onTouchBegan) {
                 isClaimed = listener.onTouchBegan(selTouch, event);
-                if (isClaimed && listener._registered) {
+                if (isClaimed && listener._isRegistered()) {
                     listener._claimedTouches.push(selTouch);
                 }
             }
@@ -892,14 +938,14 @@ class EventManager {
                     if (listener.onTouchEnded) {
                         listener.onTouchEnded(selTouch, event);
                     }
-                    if (listener._registered) {
+                    if (listener._isRegistered()) {
                         listener._claimedTouches.splice(removedIdx, 1);
                     }
                 } else if (getCode === EventTouch.CANCELLED) {
                     if (listener.onTouchCancelled) {
                         listener.onTouchCancelled(selTouch, event);
                     }
-                    if (listener._registered) {
+                    if (listener._isRegistered()) {
                         listener._claimedTouches.splice(removedIdx, 1);
                     }
                 }
@@ -912,7 +958,7 @@ class EventManager {
             return true;
         }
 
-        if (isClaimed && listener._registered && listener.swallowTouches) {
+        if (isClaimed && listener._isRegistered() && listener.swallowTouches) {
             if (argsObj.needsMutableSet) {
                 argsObj.touches.splice(selTouch, 1);
             }
@@ -921,7 +967,7 @@ class EventManager {
         return false;
     }
 
-    private _dispatchTouchEvent (event) {
+    private _dispatchTouchEvent (event: EventTouch) {
         this._sortEventListeners(ListenerID.TOUCH_ONE_BY_ONE);
         this._sortEventListeners(ListenerID.TOUCH_ALL_AT_ONCE);
 
@@ -943,7 +989,7 @@ class EventManager {
         if (oneByOneListeners) {
             for (const originalTouch of originalTouches) {
                 event.currentTouch = originalTouch;
-                event._propagationStopped = event._propagationImmediateStopped = false;
+                event.propagationStopped = event.propagationImmediateStopped = false;
                 this._dispatchEventToListeners(oneByOneListeners, this._onTouchEventCallback, oneByOneArgsObj);
             }
         }
@@ -960,17 +1006,17 @@ class EventManager {
         this._updateTouchListeners(event);
     }
 
-    private _onTouchesEventCallback (listener, callbackParams) {
+    private _onTouchesEventCallback (listener: any, callbackParams) {
         // Skip if the listener was removed.
-        if (!listener._registered) {
+        if (!listener._isRegistered()) {
             return false;
         }
 
-        const EventTouch = cc.Event.EventTouch;
+        // const EventTouch = cc.Event.EventTouch;
         const event = callbackParams.event;
         const touches = callbackParams.touches;
         const getCode = event.getEventCode();
-        event.currentTarget = listener._node;
+        event.currentTarget = listener._getSceneGraphPriority();
         if (getCode === EventTouch.BEGAN && listener.onTouchesBegan) {
             listener.onTouchesBegan(touches, event);
         } else if (getCode === EventTouch.MOVED && listener.onTouchesMoved) {
@@ -989,26 +1035,26 @@ class EventManager {
         return false;
     }
 
-    private _associateNodeAndEventListener (node, listener) {
-        let listeners = this._nodeListenersMap[node._id];
+    private _associateNodeAndEventListener (node: Node, listener: EventListener) {
+        let listeners = this._nodeListenersMap[node.uuid];
         if (!listeners) {
             listeners = [];
-            this._nodeListenersMap[node._id] = listeners;
+            this._nodeListenersMap[node.uuid] = listeners;
         }
         listeners.push(listener);
     }
 
-    private _dissociateNodeAndEventListener (node, listener) {
-        const listeners = this._nodeListenersMap[node._id];
+    private _dissociateNodeAndEventListener (node: Node, listener: EventListener) {
+        const listeners = this._nodeListenersMap[node.uuid];
         if (listeners) {
             cc.js.array.remove(listeners, listener);
             if (listeners.length === 0) {
-                delete this._nodeListenersMap[node._id];
+                delete this._nodeListenersMap[node.uuid];
             }
         }
     }
 
-    private _dispatchEventToListeners (listeners, onEvent, eventOrArgs) {
+    private _dispatchEventToListeners (listeners: _EventListenerVector, onEvent: Function, eventOrArgs: any) {
         let shouldStopPropagation = false;
         const fixedPriorityListeners = listeners.getFixedPriorityListeners();
         const sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
@@ -1046,7 +1092,7 @@ class EventManager {
         }
     }
 
-    private _setDirty (listenerID, flag) {
+    private _setDirty (listenerID: string, flag) {
         const locDirtyFlagMap = this._priorityDirtyFlagMap;
         if (locDirtyFlagMap[listenerID] == null) {
             locDirtyFlagMap[listenerID] = flag;
@@ -1055,7 +1101,7 @@ class EventManager {
         }
     }
 
-    private _visitTarget (node, isRootNode) {
+    private _visitTarget (node: any, isRootNode: boolean) {
         // sortAllChildren is performed the next frame, but the event is executed immediately.
         if (node._reorderChildDirty) {
             node.sortAllChildren();
@@ -1099,7 +1145,7 @@ class EventManager {
         }
     }
 
-    private _sortNumberAsc (a, b) {
+    private _sortNumberAsc (a: number, b: number) {
         return a - b;
     }
 
@@ -1158,7 +1204,7 @@ class EventManager {
 }
 
 /**
- * !#en
+ * @en
  * This class has been deprecated, please use cc.systemEvent or cc.EventTarget instead.
  * See [Listen to and launch events](../../../manual/en/scripting/events.md) for details.<br>
  * <br>
@@ -1166,7 +1212,7 @@ class EventManager {
  * The EventListener list is managed in such way so that event listeners can be added and removed
  * while events are being dispatched.
  *
- * !#zh
+ * @zh
  * 该类已废弃，请使用 cc.systemEvent 或 cc.EventTarget 代替，详见 [监听和发射事件](../../../manual/zh/scripting/events.md)。<br>
  * <br>
  * 事件管理器，它主要管理事件监听器注册和派发系统事件。

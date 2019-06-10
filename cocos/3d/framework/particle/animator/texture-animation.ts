@@ -48,7 +48,7 @@ export default class TextureAnimationModule {
     private _enable = false;
 
     /**
-     * 是否启用
+     * @zh 是否启用
      */
     @property({
         displayOrder: 0,
@@ -68,7 +68,7 @@ export default class TextureAnimationModule {
     private _mode = Mode.Grid;
 
     /**
-     * 设定粒子贴图动画的类型（暂只支持 Grid 模式）
+     * @zh 设定粒子贴图动画的类型（暂只支持 Grid 模式）[[Mode]]
      */
     @property({
         type: Mode,
@@ -86,7 +86,7 @@ export default class TextureAnimationModule {
     }
 
     /**
-     * X 方向动画帧数
+     * @zh X 方向动画帧数
      */
     @property({
         displayOrder: 2,
@@ -94,7 +94,7 @@ export default class TextureAnimationModule {
     public numTilesX = 0;
 
     /**
-     * Y 方向动画帧数
+     * @zh Y 方向动画帧数
      */
     @property({
         displayOrder: 3,
@@ -102,7 +102,7 @@ export default class TextureAnimationModule {
     public numTilesY = 0;
 
     /**
-     * 动画播放方式
+     * @zh 动画播放方式 [[Animation]]
      */
     @property({
         type: Animation,
@@ -111,7 +111,7 @@ export default class TextureAnimationModule {
     public animation = Animation.WholeSheet;
 
     /**
-     * 一个周期内动画播放的帧与时间变化曲线
+     * @zh 一个周期内动画播放的帧与时间变化曲线
      */
     @property({
         type: CurveRange,
@@ -120,7 +120,7 @@ export default class TextureAnimationModule {
     public frameOverTime = new CurveRange();
 
     /**
-     * 从第几帧开始播放，时间为整个粒子系统的生命周期
+     * @zh 从第几帧开始播放，时间为整个粒子系统的生命周期
      */
     @property({
         type: CurveRange,
@@ -129,7 +129,7 @@ export default class TextureAnimationModule {
     public startFrame = new CurveRange();
 
     /**
-     * 一个生命周期内播放循环的次数
+     * @zh 一个生命周期内播放循环的次数
      */
     @property({
         displayOrder: 9,
@@ -139,6 +139,9 @@ export default class TextureAnimationModule {
     @property
     private _flipU = 0;
 
+    /**
+     * @ignore
+     */
     get flipU () {
         return this._flipU;
     }
@@ -170,7 +173,7 @@ export default class TextureAnimationModule {
     }
 
     /**
-     * 随机从动画贴图中选择一行以生成动画
+     * @zh 随机从动画贴图中选择一行以生成动画
      * 此选项仅在动画播放方式为 SingleRow 时生效
      */
     @property({
@@ -179,7 +182,7 @@ export default class TextureAnimationModule {
     public randomRow = false;
 
     /**
-     * 从动画贴图中选择特定行以生成动画
+     * @zh 从动画贴图中选择特定行以生成动画
      * 此选项仅在动画播放方式为 SingleRow 时且禁用 randomRow 时可用
      */
     @property({

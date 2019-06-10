@@ -81,7 +81,7 @@ export class UIRenderComponent extends UIComponent {
      * @param value 原图混合模式。
      * @example
      * ```ts
-     * sprite.srcBlendFactor = macro.BlendFactor.ONE;
+     * sprite.srcBlendFactor = GFXBlendFactor.ONE;
      * ```
      */
     @property({

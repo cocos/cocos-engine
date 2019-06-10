@@ -21,6 +21,9 @@ export class LineComponent extends Component {
     })
     private _texture = null;
 
+    /**
+     * @zh 显示的纹理
+     */
     @property({
         type: Texture2D,
         displayOrder: 0,
@@ -41,6 +44,9 @@ export class LineComponent extends Component {
     @property
     private _worldSpace = false;
 
+    /**
+     * @zh positions是否为世界空间坐标
+     */
     @property({
         displayOrder: 1,
     })
@@ -64,6 +70,9 @@ export class LineComponent extends Component {
     })
     private _positions = [];
 
+    /**
+     * 每段折线的拐点坐标
+     */
     @property({
         type: [Vec3],
         displayOrder: 2,
@@ -84,6 +93,9 @@ export class LineComponent extends Component {
     })
     private _width = new CurveRange();
 
+    /**
+     * @zh 线段的宽度
+     */
     @property({
         type: CurveRange,
         displayOrder: 3,
@@ -102,6 +114,9 @@ export class LineComponent extends Component {
     @property
     private _tile = cc.v2(1, 1);
 
+    /**
+     * @zh 图块数
+     */
     @property({
         type: Vec2,
         displayOrder: 4,
@@ -144,6 +159,9 @@ export class LineComponent extends Component {
     })
     private _color = new GradientRange();
 
+    /**
+     * @zh 线段颜色
+     */
     @property({
         type: GradientRange,
         displayOrder: 6,
@@ -159,6 +177,9 @@ export class LineComponent extends Component {
         }
     }
 
+    /**
+     * @ignore
+     */
     private _model: LineModel | null = null;
     private _tile_offset: Vec4 = cc.v4();
 

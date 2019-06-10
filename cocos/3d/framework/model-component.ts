@@ -251,6 +251,11 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
+    protected _getBuiltinMaterial () {
+        // classic ugly pink indicating missing material
+        return builtinResMgr.get<Material>('missing-material');
+    }
+
     private _updateCastShadow () {
         if (!this.enabledInHierarchy || !this._model) {
             return;
@@ -281,10 +286,4 @@ export class ModelComponent extends RenderableComponent {
         //     }
         // }
     }
-
-    private _getBuiltinMaterial () {
-        // classic ugly pink indicating missing material
-        return builtinResMgr.get<Material>('missing-material');
-    }
-
 }

@@ -14,7 +14,7 @@ const _temp_v3 = cc.v3();
 export default class LimitVelocityOvertimeModule {
 
     /**
-     * 是否启用
+     * @zh 是否启用
      */
     @property({
         displayOrder: 0,
@@ -22,7 +22,7 @@ export default class LimitVelocityOvertimeModule {
     public enable = false;
 
     /**
-     * X 轴方向上的速度下限
+     * @zh X 轴方向上的速度下限
      */
     @property({
         type: CurveRange,
@@ -32,7 +32,7 @@ export default class LimitVelocityOvertimeModule {
     public limitX = new CurveRange();
 
     /**
-     * Y 轴方向上的速度下限
+     * @zh Y 轴方向上的速度下限
      */
     @property({
         type: CurveRange,
@@ -42,7 +42,7 @@ export default class LimitVelocityOvertimeModule {
     public limitY = new CurveRange();
 
     /**
-     * Z 轴方向上的速度下限
+     * @zh Z 轴方向上的速度下限
      */
     @property({
         type: CurveRange,
@@ -52,7 +52,7 @@ export default class LimitVelocityOvertimeModule {
     public limitZ = new CurveRange();
 
     /**
-     * 速度下限
+     * @zh 速度下限
      */
     @property({
         type: CurveRange,
@@ -62,7 +62,7 @@ export default class LimitVelocityOvertimeModule {
     public limit = new CurveRange();
 
     /**
-     * 当前速度与速度下限的插值
+     * @zh 当前速度与速度下限的插值
      */
     @property({
         displayOrder: 7,
@@ -70,7 +70,7 @@ export default class LimitVelocityOvertimeModule {
     public dampen = 3;
 
     /**
-     * 是否三个轴分开限制
+     * @zh 是否三个轴分开限制
      */
     @property({
         displayOrder: 2,
@@ -78,7 +78,7 @@ export default class LimitVelocityOvertimeModule {
     public separateAxes = false;
 
     /**
-     * 计算速度下限时采用的坐标系
+     * @zh 计算速度下限时采用的坐标系 [[Space]]
      */
     @property({
         type: Space,
