@@ -427,8 +427,11 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     private _startCrossFade () {
-        cc.director.getAnimationManager().addCrossFade(this._crossFade!);
-        this._crossFade!.play();
+        if (!this._crossFade) {
+            return;
+        }
+        cc.director.getAnimationManager().addCrossFade(this._crossFade);
+        this._crossFade.play();
     }
 
     private _createStates () {

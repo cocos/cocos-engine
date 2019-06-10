@@ -113,10 +113,10 @@ async function _doBundle (options: IBuildOptions) {
             // side_effects  : true,  // drop side-effect-free statements
             // warnings      : true,  // warn about potentially dangerous optimizations/code
         },
-        mangle: false,
+        mangle: true,
         keep_fnames: true,
         output: {
-            beautify: true,
+            beautify: false,
         },
         sourceMap: true,
     });

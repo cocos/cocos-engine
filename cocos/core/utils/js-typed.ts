@@ -1,7 +1,7 @@
 import { warnID } from '../platform/CCDebug';
 
-const tempCIDGenerator = new IDGenerator('TmpCId.');
 import IDGenerator from './id-generator';
+const tempCIDGenerator = new IDGenerator('TmpCId.');
 
 type Getter = () => any;
 

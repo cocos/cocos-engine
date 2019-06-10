@@ -43,7 +43,7 @@ export * from './cocos/load-pipeline';
 export * from './cocos/components';
 export * from './cocos/3d';
 export * from './cocos/gfx';
-export * from './cocos/pipeline';
+import './cocos/pipeline';
 export * from './extensions/ccpool/node-pool';
 
 const cclegacy = cc;
