@@ -273,7 +273,19 @@
   {
     "name": "3D",
     "entries": [
-      "./cocos2d/core/3d/index.js"
+      "./cocos2d/core/3d/index.js",
+      "./cocos2d/core/mesh/index.js",
+
+      "./cocos2d/core/renderer/webgl/assemblers/label/3d/bmfont.js",
+      "./cocos2d/core/renderer/webgl/assemblers/label/3d/letter.js",
+      "./cocos2d/core/renderer/webgl/assemblers/label/3d/ttf.js",
+
+      "./cocos2d/core/renderer/webgl/assemblers/sprite/3d/bar-filled.js",
+      "./cocos2d/core/renderer/webgl/assemblers/sprite/3d/mesh.js",
+      "./cocos2d/core/renderer/webgl/assemblers/sprite/3d/radial-filled.js",
+      "./cocos2d/core/renderer/webgl/assemblers/sprite/3d/simple.js",
+      "./cocos2d/core/renderer/webgl/assemblers/sprite/3d/sliced.js",
+      "./cocos2d/core/renderer/webgl/assemblers/sprite/3d/tiled.js"
     ],
     "dependencies": ["Mesh", "WebGL Renderer", "Geom Utils"]
   },
@@ -283,11 +295,5 @@
       "./cocos2d/core/3d/primitive/index.js"
     ],
     "dependencies": ["3D"]
-  },
-  {
-    "name": "Mesh",
-    "entries": [
-      "./cocos2d/core/mesh/index.js"
-    ]
   }
 ]
