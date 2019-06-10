@@ -36,8 +36,8 @@ import * as js from '../utils/js';
 import { getSuper } from '../utils/js';
 import { cloneable_DEV, isPlainEmptyObj_DEV } from '../utils/misc';
 import Enum from '../value-types/enum';
-import { IAcceptableAttributes } from './utils/attribute-defines';
 import * as Attr from './utils/attribute';
+import { IAcceptableAttributes } from './utils/attribute-defines';
 import { preprocessAttrs, validateMethodWithProps } from './utils/preprocess-class';
 import * as RF from './utils/requiring-frame';
 
@@ -351,6 +351,13 @@ function doDefine (className, baseClass, mixins, options) {
 function define (className, baseClass, mixins, options) {
     const Component = cc.Component;
     const frame = RF.peek();
+
+    // @ts-ignore
+    if (CC_EDITOR && frame && window.EditorExtends && window.EditorExtends.Script) {
+        // @ts-ignore
+        EditorExtends.Script.add(frame.uuid, options.ctor);
+    }
+
     if (frame && js.isChildClassOf(baseClass, Component)) {
         // project component
         if (js.isChildClassOf(frame.cls, Component)) {
