@@ -51,4 +51,9 @@ void RenderFlow::render(NodeProxy* scene)
     }
 }
 
+void RenderFlow::visit(NodeProxy* rootNode)
+{
+    rootNode->visit(_batcher, _scene);
+}
+
 RENDERER_END

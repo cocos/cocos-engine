@@ -35,15 +35,15 @@ StencilManager* StencilManager::_instance = nullptr;
 StencilManager::StencilManager ()
 : _stage(Stage::DISABLED)
 {
-};
+}
 
 void StencilManager::reset ()
 {
     // reset stack and stage
     _maskStack.clear();
     _stage = Stage::DISABLED;
-};
-    
+}
+
 Effect* StencilManager::handleEffect (Effect* effect)
 {
     Technique* tech = effect->getTechnique(techStage);
@@ -60,7 +60,8 @@ Effect* StencilManager::handleEffect (Effect* effect)
         return effect;
     }
     
-    if (_maskStack.size() == 0)
+    auto size = _maskStack.size();
+    if (size == 0 || size == size_t(-1))
     {
         return effect;
     }
@@ -107,8 +108,8 @@ Effect* StencilManager::handleEffect (Effect* effect)
         pass->setStencilBack(func, ref, stencilMask, failOp, zFailOp, zPassOp, writeMask);
     }
     return effect;
-};
-    
+}
+
 void StencilManager::pushMask (bool mask)
 {
     if (_maskStack.size() + 1 > _maxLevel)
@@ -116,22 +117,22 @@ void StencilManager::pushMask (bool mask)
         cocos2d::log("StencilManager:pushMask _maxLevel:%d is out of range", _maxLevel);
     }
     _maskStack.push_back(mask);
-};
+}
     
 void StencilManager::clear ()
 {
     _stage = Stage::CLEAR;
-};
+}
     
 void StencilManager::enterLevel ()
 {
     _stage = Stage::ENTER_LEVEL;
-};
+}
     
 void StencilManager::enableMask ()
 {
     _stage = Stage::ENABLED;
-};
+}
     
 void StencilManager::exitMask ()
 {
@@ -145,17 +146,17 @@ void StencilManager::exitMask ()
     else {
         _stage = Stage::ENABLED;
     }
-};
+}
 
 uint8_t StencilManager::getWriteMask ()
 {
     return 0x01 << (_maskStack.size() - 1);
-};
+}
     
 uint8_t StencilManager::getExitWriteMask ()
 {
     return 0x01 << _maskStack.size();
-};
+}
     
 uint32_t StencilManager::getStencilRef ()
 {
@@ -165,7 +166,7 @@ uint32_t StencilManager::getStencilRef ()
         result += (0x01 << i);
     }
     return result;
-};
+}
     
 uint32_t StencilManager::getInvertedRef ()
 {
@@ -176,6 +177,6 @@ uint32_t StencilManager::getInvertedRef ()
         result += (0x01 << i);
     }
     return result;
-};
+}
 
 RENDERER_END

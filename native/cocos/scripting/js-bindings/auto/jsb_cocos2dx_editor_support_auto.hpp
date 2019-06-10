@@ -31,11 +31,4 @@ SE_DECLARE_FUNC(js_cocos2dx_editor_support_MiddlewareManager_destroyInstance);
 SE_DECLARE_FUNC(js_cocos2dx_editor_support_MiddlewareManager_getInstance);
 SE_DECLARE_FUNC(js_cocos2dx_editor_support_MiddlewareManager_MiddlewareManager);
 
-extern se::Object* __jsb_cocos2d_middleware_MiddlewareRenderHandle_proto;
-extern se::Class* __jsb_cocos2d_middleware_MiddlewareRenderHandle_class;
-
-bool js_register_cocos2d_middleware_MiddlewareRenderHandle(se::Object* obj);
-bool register_all_cocos2dx_editor_support(se::Object* obj);
-SE_DECLARE_FUNC(js_cocos2dx_editor_support_MiddlewareRenderHandle_MiddlewareRenderHandle);
-
 #endif //#if USE_MIDDLEWARE > 0

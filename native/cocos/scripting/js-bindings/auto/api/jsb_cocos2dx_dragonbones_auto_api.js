@@ -2354,16 +2354,6 @@ getAnimation : function (
 },
 
 /**
- * @method setColor
- * @param {color4b_object} arg0
- */
-setColor : function (
-color4b 
-)
-{
-},
-
-/**
  * @method hasDBEventListener
  * @param {String} arg0
  * @return {bool}
@@ -2441,6 +2431,16 @@ eventobject
  * @method dispose
  */
 dispose : function (
+)
+{
+},
+
+/**
+ * @method setEffect
+ * @param {cc.renderer::Effect} arg0
+ */
+setEffect : function (
+effect 
 )
 {
 },
@@ -2528,11 +2528,11 @@ getDebugData : function (
 },
 
 /**
- * @method setNativeEffect
- * @param {cc.renderer::Effect} arg0
+ * @method setColor
+ * @param {color4b_object} arg0
  */
-setNativeEffect : function (
-effect 
+setColor : function (
+color4b 
 )
 {
 },

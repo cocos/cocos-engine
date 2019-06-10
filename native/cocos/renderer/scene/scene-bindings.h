@@ -25,9 +25,10 @@
 #pragma once
 
 #include "NodeProxy.hpp"
-#include "RenderHandle.hpp"
 #include "ModelBatcher.hpp"
 #include "RenderFlow.hpp"
 #include "MeshBuffer.hpp"
-#include "GraphicsRenderHandle.hpp"
-#include "MaskRenderHandle.hpp"
+
+#include "assembler/Assembler.hpp"
+#include "assembler/MaskAssembler.hpp"
+#include "assembler/TiledMapAssembler.hpp"

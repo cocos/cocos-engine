@@ -276,7 +276,7 @@ bool Vec3_to_seval(const cocos2d::Vec3& v, se::Value* ret);
 bool Vec4_to_seval(const cocos2d::Vec4& v, se::Value* ret);
 bool Mat4_to_seval(const cocos2d::Mat4& v, se::Value* ret);
 bool Size_to_seval(const cocos2d::Size& v, se::Value* ret);
-//bool Rect_to_seval(const cocos2d::Rect& v, se::Value* ret);
+bool Rect_to_seval(const cocos2d::Rect& v, se::Value* ret);
 bool Color3B_to_seval(const cocos2d::Color3B& v, se::Value* ret);
 bool Color4B_to_seval(const cocos2d::Color4B& v, se::Value* ret);
 bool Color3F_to_seval(const cocos2d::Color3F& v, se::Value* ret);
@@ -587,18 +587,91 @@ bool Vector_to_seval(const cocos2d::Vector<T*>& v, se::Value* ret)
 
 // Spine conversions
 #if USE_SPINE
-bool speventdata_to_seval(const spEventData* v, se::Value* ret);
-bool spevent_to_seval(const spEvent* v, se::Value* ret);
-bool spbonedata_to_seval(const spBoneData* v, se::Value* ret);
-bool spbone_to_seval(const spBone* v, se::Value* ret);
-bool spskeleton_to_seval(const spSkeleton* v, se::Value* ret);
-bool spattachment_to_seval(const spAttachment* v, se::Value* ret);
-bool spslotdata_to_seval(const spSlotData* v, se::Value* ret);
-bool spslot_to_seval(const spSlot* v, se::Value* ret);
-bool sptimeline_to_seval(const spTimeline* v, se::Value* ret);
-bool spanimationstate_to_seval(const spAnimationState* v, se::Value* ret);
-bool spanimation_to_seval(const spAnimation* v, se::Value* ret);
-bool sptrackentry_to_seval(const spTrackEntry* v, se::Value* ret);
+
+template<typename T>
+bool spine_Vector_T_to_seval(const spine::Vector<T>& v, se::Value* ret)
+{
+    assert(ret != nullptr);
+    se::HandleObject obj(se::Object::createArrayObject(v.size()));
+    bool ok = true;
+    
+    spine::Vector<T> tmpv = v;
+    for (uint32_t i = 0, count = (uint32_t)tmpv.size(); i < count; i++)
+    {
+        if (!obj->setArrayElement(i, se::Value(tmpv[i])))
+        {
+            ok = false;
+            ret->setUndefined();
+            break;
+        }
+    }
+    
+    if (ok)
+    ret->setObject(obj);
+    
+    return ok;
+}
+
+template<typename T>
+bool spine_Vector_T_ptr_to_seval(const spine::Vector<T*>& v, se::Value* ret)
+{
+    assert(ret != nullptr);
+    se::HandleObject obj(se::Object::createArrayObject(v.size()));
+    bool ok = true;
+    
+    spine::Vector<T*> tmpv = v;
+    for (uint32_t i = 0, count = (uint32_t)tmpv.size(); i < count; i++)
+    {
+        se::Value tmp;
+        ok = native_ptr_to_rooted_seval<T>(tmpv[i], &tmp);
+        if (!ok || !obj->setArrayElement(i, tmp))
+        {
+            ok = false;
+            ret->setUndefined();
+            break;
+        }
+    }
+    
+    if (ok) ret->setObject(obj);
+    return ok;
+}
+
+template<typename T>
+bool seval_to_spine_Vector_T_ptr(const se::Value& v, spine::Vector<T*>* ret)
+{
+    assert(ret != nullptr);
+    assert(v.isObject());
+    se::Object* obj = v.toObject();
+    assert(obj->isArray());
+    
+    bool ok = true;
+    uint32_t len = 0;
+    ok = obj->getArrayLength(&len);
+    if (!ok)
+    {
+        ret->clear();
+        return false;
+    }
+    
+    se::Value tmp;
+    for (uint32_t i = 0; i < len; ++i)
+    {
+        ok = obj->getArrayElement(i, &tmp);
+        if (!ok || !tmp.isObject())
+        {
+            ret->clear();
+            return false;
+        }
+        
+        T* nativeObj = (T*)tmp.toObject()->getPrivateData();
+        ret->add(nativeObj);
+    }
+    
+    return true;
+}
+
+bool seval_to_spine_Vector_String(const se::Value& v, spine::Vector<spine::String>* ret);
+bool spine_Vector_String_to_seval(const spine::Vector<spine::String>& v, se::Value* ret);
 #endif
 
 //

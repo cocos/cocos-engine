@@ -45,6 +45,25 @@ static bool js_cocos2dx_particle_ParticleSimulator_setGravity(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_setGravity)
 
+static bool js_cocos2dx_particle_ParticleSimulator_setEffect(se::State& s)
+{
+    cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_setEffect : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        cocos2d::renderer::Effect* arg0 = nullptr;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_particle_ParticleSimulator_setEffect : Error processing arguments");
+        cobj->setEffect(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_setEffect)
+
 static bool js_cocos2dx_particle_ParticleSimulator_setPosVar(se::State& s)
 {
     cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
@@ -82,25 +101,6 @@ static bool js_cocos2dx_particle_ParticleSimulator_onDisable(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_onDisable)
-
-static bool js_cocos2dx_particle_ParticleSimulator_setNativeEffect(se::State& s)
-{
-    cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_setNativeEffect : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        cocos2d::renderer::Effect* arg0 = nullptr;
-        ok &= seval_to_native_ptr(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_particle_ParticleSimulator_setNativeEffect : Error processing arguments");
-        cobj->setNativeEffect(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_setNativeEffect)
 
 static bool js_cocos2dx_particle_ParticleSimulator_bindNodeProxy(se::State& s)
 {
@@ -1362,9 +1362,9 @@ bool js_register_cocos2dx_particle_ParticleSimulator(se::Object* obj)
     cls->defineProperty("rotatePerSVar", _SE(js_cocos2dx_particle_ParticleSimulator_get_rotatePerSVar), _SE(js_cocos2dx_particle_ParticleSimulator_set_rotatePerSVar));
     cls->defineFunction("reset", _SE(js_cocos2dx_particle_ParticleSimulator_reset));
     cls->defineFunction("setGravity", _SE(js_cocos2dx_particle_ParticleSimulator_setGravity));
+    cls->defineFunction("setEffect", _SE(js_cocos2dx_particle_ParticleSimulator_setEffect));
     cls->defineFunction("setPosVar", _SE(js_cocos2dx_particle_ParticleSimulator_setPosVar));
     cls->defineFunction("onDisable", _SE(js_cocos2dx_particle_ParticleSimulator_onDisable));
-    cls->defineFunction("setNativeEffect", _SE(js_cocos2dx_particle_ParticleSimulator_setNativeEffect));
     cls->defineFunction("bindNodeProxy", _SE(js_cocos2dx_particle_ParticleSimulator_bindNodeProxy));
     cls->defineFunction("setStartColorVar", _SE(js_cocos2dx_particle_ParticleSimulator_setStartColorVar));
     cls->defineFunction("emitParticle", _SE(js_cocos2dx_particle_ParticleSimulator_emitParticle));

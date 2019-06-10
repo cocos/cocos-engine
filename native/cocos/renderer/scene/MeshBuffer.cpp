@@ -90,7 +90,8 @@ bool MeshBuffer::request(uint32_t vertexCount, uint32_t indexCount, OffsetInfo* 
 bool MeshBuffer::requestStatic(uint32_t vertexCount, uint32_t indexCount, OffsetInfo* offset)
 {
     uint32_t byteOffset = _byteOffset + vertexCount * _bytesPerVertex;
-    if (MAX_VB_SIZE < byteOffset) {
+    if (MAX_VB_SIZE < byteOffset)
+    {
         // Finish pre data.
         _batcher->flush();
         _vb->update(0, vData.data(), _byteOffset);

@@ -25,6 +25,7 @@
 #include "ModelBatcher.hpp"
 #include "RenderFlow.hpp"
 #include "StencilManager.hpp"
+#include "assembler/RenderDataList.hpp"
 
 RENDERER_BEGIN
 
@@ -39,6 +40,7 @@ ModelBatcher::ModelBatcher(RenderFlow* flow)
 , _walking(false)
 , _currEffect(nullptr)
 , _buffer(nullptr)
+, _useModel(false)
 {
     for (int i = 0; i < INIT_IA_LENGTH; i++)
     {
@@ -98,43 +100,53 @@ void ModelBatcher::reset()
     }
     _buffer = nullptr;
     
+    CC_SAFE_RELEASE_NULL(_currEffect);
     _cullingMask = 0;
-    _currEffect = nullptr;
     _walking = false;
+    _useModel = false;
     
     _modelMat.set(Mat4::IDENTITY);
     
     _stencilMgr->reset();
 }
 
-void ModelBatcher::commit(NodeProxy* node, RenderHandle* handle)
+void ModelBatcher::commit(NodeProxy* node, Assembler* assembler)
 {
-    // pre check
-    VertexFormat* vfmt = handle->getVertexFormat();
-    if (vfmt == nullptr)
+    VertexFormat* vfmt = assembler->getVertexFormat();
+    if (!vfmt)
     {
         return;
     }
-    bool useModel = handle->getUseModel();
-    for (uint32_t i = 0, l = handle->getMeshCount(); i < l; ++i)
+    
+    bool useModel = assembler->getUseModel();
+    bool ignoreWorldMatrix = assembler->isIgnoreWorldMatrix();
+    const Mat4& nodeWorldMat = node->getWorldMatrix();
+    const Mat4& worldMat = useModel && !ignoreWorldMatrix ? nodeWorldMat : Mat4::IDENTITY;
+    
+    for (std::size_t i = 0, l = assembler->getIACount(); i < l; ++i)
     {
-        Effect* effect = handle->getEffect((uint32_t)i);
+        Effect* effect = assembler->getEffect((uint32_t)i);
         if (!effect) continue;
         int cullingMask = node->getCullingMask();
-        const Mat4& worldMat = useModel ? Mat4::IDENTITY : node->getWorldMatrix();
+
         if (_currEffect == nullptr ||
             _currEffect->getHash() != effect->getHash() ||
-            _cullingMask != cullingMask)
+            _cullingMask != cullingMask ||
+            _useModel != useModel)
         {
             // Break auto batch
             flush();
             
-            if (useModel)
-            {
-                _modelMat.set(worldMat);
-            }
-            _currEffect = effect;
+            setCurrentEffect(effect);
+            _modelMat.set(worldMat);
+            _useModel = useModel;
             _cullingMask = cullingMask;
+        }
+        
+        auto dirtyFlag = assembler->getDirtyFlag();
+        if (dirtyFlag & AssemblerBase::OPACITY || assembler->isOpacityAlwaysDirty())
+        {
+            assembler->updateOpacity(i, node->getRealOpacity());
         }
         
         MeshBuffer* buffer = _buffer;
@@ -142,28 +154,23 @@ void ModelBatcher::commit(NodeProxy* node, RenderHandle* handle)
         {
             buffer = getBuffer(vfmt);
         }
-        auto dirtyFlag = handle->getDirtyFlag();
-        if (dirtyFlag & SystemHandle::OPACITY)
-        {
-            handle->updateOpacity(i, node->getRealOpacity());
-        }
-        handle->fillBuffers(buffer, i, worldMat);
+        assembler->fillBuffers(buffer, i, nodeWorldMat);
     }
 }
 
-void ModelBatcher::commitIA(NodeProxy* node, CustomRenderHandle* handle)
+void ModelBatcher::commitIA(NodeProxy* node, CustomAssembler* assembler)
 {
     flush();
     
-    for (std::size_t i = 0, n = handle->getIACount(); i < n; i++ )
+    for (std::size_t i = 0, n = assembler->getIACount(); i < n; i++ )
     {
-        const Mat4& worldMat = handle->getUseModel() ? node->getWorldMatrix() : Mat4::IDENTITY;
-        Effect* effect = handle->getEffect((uint32_t)i);
+        const Mat4& worldMat = assembler->getUseModel() ? node->getWorldMatrix() : Mat4::IDENTITY;
+        Effect* effect = assembler->getEffect((uint32_t)i);
         if (!effect) continue;
-        _currEffect = effect;
+        setCurrentEffect(effect);
         _cullingMask = node->getCullingMask();
         _modelMat.set(worldMat);
-        handle->renderIA(i, this, node);
+        assembler->renderIA(i, this, node);
     }
 }
 
@@ -228,6 +235,7 @@ void ModelBatcher::flush()
     {
         return;
     }
+    
     int indexStart = _buffer->getIndexStart();
     int indexOffset = _buffer->getIndexOffset();
     int indexCount = indexOffset - indexStart;
@@ -291,6 +299,17 @@ void ModelBatcher::terminateBatch()
     
     _walking = false;
 }
+
+void ModelBatcher::setCurrentEffect(Effect* effect)
+{
+    if (_currEffect == effect)
+    {
+        return;
+    }
+    CC_SAFE_RELEASE(_currEffect);
+    _currEffect = effect;
+    CC_SAFE_RETAIN(_currEffect);
+};
 
 MeshBuffer* ModelBatcher::getBuffer(VertexFormat* fmt)
 {

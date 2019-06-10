@@ -101,12 +101,12 @@ void CCArmatureDisplay::dbUpdate()
         return;
     }
     
-    _renderHandle = (MiddlewareRenderHandle*)_nodeProxy->getHandle("render");
-    if (_renderHandle == nullptr)
+    _assembler = (CustomAssembler*)_nodeProxy->getAssembler("render");
+    if (_assembler == nullptr)
     {
         return;
     }
-    _renderHandle->reset();
+    _assembler->reset();
     
     _preBlendMode = -1;
     _preTextureIndex = -1;
@@ -121,7 +121,7 @@ void CCArmatureDisplay::dbUpdate()
     traverseArmature(_armature);
     if (_preISegWritePos != -1)
     {
-		_renderHandle->updateIARange(_materialLen - 1, _preISegWritePos, _curISegLen);
+		_assembler->updateIARange(_materialLen - 1, _preISegWritePos, _curISegLen);
     }
     
     if (_debugDraw)
@@ -218,7 +218,7 @@ void CCArmatureDisplay::traverseArmature(Armature* armature, float parentOpacity
         // fill pre segment count field
         if (_preISegWritePos != -1)
         {
-			_renderHandle->updateIARange(_materialLen - 1, _preISegWritePos, _curISegLen);
+			_assembler->updateIARange(_materialLen - 1, _preISegWritePos, _curISegLen);
         }
         
         // prepare to fill new segment field
@@ -244,7 +244,7 @@ void CCArmatureDisplay::traverseArmature(Armature* armature, float parentOpacity
         
         double curHash = _curTextureIndex + (int)_curBlendSrc + (int)_curBlendDst;
         
-        Effect* renderEffect = _renderHandle->getEffect(_materialLen);
+        Effect* renderEffect = _assembler->getEffect(_materialLen);
         Technique::Parameter* param = nullptr;
         Pass* pass = nullptr;
         
@@ -264,7 +264,7 @@ void CCArmatureDisplay::traverseArmature(Armature* armature, float parentOpacity
             if (_effect == nullptr)
             {
                 cocos2d::log("ArmatureDisplay:update get effect failed");
-                _renderHandle->reset();
+                _assembler->reset();
                 return;
             }
             auto effect = new cocos2d::renderer::Effect();
@@ -275,7 +275,7 @@ void CCArmatureDisplay::traverseArmature(Armature* armature, float parentOpacity
             Vector<Pass*>& passes = (Vector<Pass*>&)tech->getPasses();
             pass = *(passes.begin());
             
-            _renderHandle->updateNativeEffect(_materialLen, effect);
+            _assembler->updateEffect(_materialLen, effect);
             renderEffect = effect;
             param = (Technique::Parameter*)&(renderEffect->getProperty(textureKey));
         }
@@ -296,7 +296,7 @@ void CCArmatureDisplay::traverseArmature(Armature* armature, float parentOpacity
 		// save new segment count pos field
         _preISegWritePos = (int)ib.getCurPos()/sizeof(unsigned short);
         // save new segment vb and ib
-        _renderHandle->updateIABuffer(_materialLen, mb->getGLVB(), mb->getGLIB());
+        _assembler->updateIABuffer(_materialLen, mb->getGLVB(), mb->getGLIB());
         // reset pre blend mode to current
         _preBlendMode = (int)slot->_blendMode;  
         // reset pre texture index to current      

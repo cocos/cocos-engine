@@ -1,23 +1,25 @@
 /****************************************************************************
- LICENSING AGREEMENT
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos2d-x.org
  
- Xiamen Yaji Software Co., Ltd., (the “Licensor”) grants the user (the “Licensee”) non-exclusive and non-transferable rights to use the software according to the following conditions:
- a.  The Licensee shall pay royalties to the Licensor, and the amount of those royalties and the payment method are subject to separate negotiations between the parties.
- b.  The software is licensed for use rather than sold, and the Licensor reserves all rights over the software that are not expressly granted (whether by implication, reservation or prohibition).
- c.  The open source codes contained in the software are subject to the MIT Open Source Licensing Agreement (see the attached for the details);
- d.  The Licensee acknowledges and consents to the possibility that errors may occur during the operation of the software for one or more technical reasons, and the Licensee shall take precautions and prepare remedies for such events. In such circumstance, the Licensor shall provide software patches or updates according to the agreement between the two parties. The Licensor will not assume any liability beyond the explicit wording of this Licensing Agreement.
- e.  Where the Licensor must assume liability for the software according to relevant laws, the Licensor’s entire liability is limited to the annual royalty payable by the Licensee.
- f.  The Licensor owns the portions listed in the root directory and subdirectory (if any) in the software and enjoys the intellectual property rights over those portions. As for the portions owned by the Licensor, the Licensee shall not:
- - i. Bypass or avoid any relevant technical protection measures in the products or services;
- - ii. Release the source codes to any other parties;
- - iii. Disassemble, decompile, decipher, attack, emulate, exploit or reverse-engineer these portion of code;
- - iv. Apply it to any third-party products or services without Licensor’s permission;
- - v. Publish, copy, rent, lease, sell, export, import, distribute or lend any products containing these portions of code;
- - vi. Allow others to use any services relevant to the technology of these codes;
- - vii. Conduct any other act beyond the scope of this Licensing Agreement.
- g.  This Licensing Agreement terminates immediately if the Licensee breaches this Agreement. The Licensor may claim compensation from the Licensee where the Licensee’s breach causes any damage to the Licensor.
- h.  The laws of the People's Republic of China apply to this Licensing Agreement.
- i.  This Agreement is made in both Chinese and English, and the Chinese version shall prevail the event of conflict.
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  ****************************************************************************/
 
 #pragma once
@@ -29,8 +31,9 @@
 #include "base/CCRef.h"
 #include "base/ccTypes.h"
 #include "base/CCVector.h"
+#include "base/CCMap.h"
 #include "math/CCMath.h"
-#include "SystemHandle.hpp"
+#include "assembler/AssemblerBase.hpp"
 
 namespace se {
     class Object;
@@ -116,6 +119,11 @@ public:
      */
     inline size_t getChildrenCount() const { return _children.size(); };
     /**
+     *  @brief Gets a child node by name.
+     *  @return Child node.
+     */
+    NodeProxy* getChildByName(std::string childName);
+    /**
      *  @brief Sets the node proxy's local zorder.
      *  @param[in] zOrder The value of zorder.
      */
@@ -137,7 +145,6 @@ public:
      *  @return World matrix.
      */
     inline const cocos2d::Mat4& getWorldMatrix() const { return _worldMat; };
-    
     /*
      *  @brief Gets the position.
      *  @param[out] out The position vector
@@ -215,33 +222,61 @@ public:
      *  @param[in] sysid The system id.
      *  @param[in] handle The system handle pointer.
      */
-    void addHandle(const std::string& sysid, SystemHandle* handle);
+    void addAssembler(const std::string& assemblerName, AssemblerBase* assembler);
     /**
      *  @brief Removes a system handle from node proxy by system id.
      *  @param[in] sysid The system id.
      */
-    void removeHandle(const std::string& sysid);
+    void removeAssembler(const std::string& assemblerName);
     /**
      *  @brief Gets the system handle by system id.
      *  @param[in] sysid The system id.
      *  @return The system handle object or nullptr if not exist
      */
-    SystemHandle* getHandle(const std::string& sysid);
+    AssemblerBase* getAssembler(const std::string& assemblerName);
     
     /*
      *  @brief Traverse all node proxy in the current node tree.
      */
     void visitAsRoot(ModelBatcher* batcher, Scene* scene);
-    
-protected:
+    /*
+     *  @brief Visit the node as a ordinary node but not a root node.
+     */
     void visit(ModelBatcher* batcher, Scene* scene);
+    /*
+     *  @brief Enables visit.
+     */
+    void enableVisit() { _needVisit = true; }
+    
+    /*
+     *  @brief Disables visit.
+     */
+    void disableVisit() { _needVisit = false; }
+    
+    /*
+     *  @brief Updates local matrix.
+     */
+    void updateFromJS();
+    /*
+     *  @brief Updates world matrix.
+     */
+    void updateMatrix();
+    /*
+     *  @brief Updates the world matrix with parent matrix.
+     */
+    void updateMatrix(const cocos2d::Mat4& parentMatrix);
+    /*
+     *  @brief Enables calc world matrix.
+     */
+    void enableUpdateWorldMatrix() { _updateWorldMatrix = true; }
+    /*
+     *  @brief Disables calc world matrix.
+     */
+    void disaleUpdateWorldMatrix() { _updateWorldMatrix = true; }
+protected:
     void childrenAlloc();
     void detachChild(NodeProxy* child, ssize_t childIndex);
     void reorderChildren();
-    
-    void updateFromJS();
-    void updateMatrix();
-
 private:
     static int _worldMatDirty;
     static int _parentOpacityDirty;
@@ -256,6 +291,8 @@ private:
     bool _matrixUpdated = false;
     bool _opacityUpdated = false;
     bool _is3DNode = false;
+    bool _needVisit = true;
+    bool _updateWorldMatrix = true;
     
     uint8_t _opacity = 255;
     uint8_t _realOpacity = 255;
@@ -272,7 +309,7 @@ private:
     NodeProxy* _parent;                  ///< weak reference to parent node
     cocos2d::Vector<NodeProxy*> _children;        ///< array of children nodes
     
-    std::map<std::string, SystemHandle*> _handles;
+    cocos2d::Map<std::string, AssemblerBase*> _assemblers;
 };
 
 // end of scene group

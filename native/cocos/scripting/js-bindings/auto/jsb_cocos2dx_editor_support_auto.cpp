@@ -4,7 +4,6 @@
 #include "scripting/js-bindings/manual/jsb_global.h"
 #include "editor-support/middleware-adapter.h"
 #include "editor-support/MiddlewareManager.h"
-#include "editor-support/MiddlewareRenderHandle.h"
 
 se::Object* __jsb_cocos2d_middleware_Texture2D_proto = nullptr;
 se::Class* __jsb_cocos2d_middleware_Texture2D_class = nullptr;
@@ -373,53 +372,6 @@ bool js_register_cocos2dx_editor_support_MiddlewareManager(se::Object* obj)
     return true;
 }
 
-se::Object* __jsb_cocos2d_middleware_MiddlewareRenderHandle_proto = nullptr;
-se::Class* __jsb_cocos2d_middleware_MiddlewareRenderHandle_class = nullptr;
-
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_middleware_MiddlewareRenderHandle_finalize)
-
-static bool js_cocos2dx_editor_support_MiddlewareRenderHandle_constructor(se::State& s)
-{
-    cocos2d::middleware::MiddlewareRenderHandle* cobj = new (std::nothrow) cocos2d::middleware::MiddlewareRenderHandle();
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-    return true;
-}
-SE_BIND_CTOR(js_cocos2dx_editor_support_MiddlewareRenderHandle_constructor, __jsb_cocos2d_middleware_MiddlewareRenderHandle_class, js_cocos2d_middleware_MiddlewareRenderHandle_finalize)
-
-
-
-extern se::Object* __jsb_cocos2d_renderer_CustomRenderHandle_proto;
-
-static bool js_cocos2d_middleware_MiddlewareRenderHandle_finalize(se::State& s)
-{
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::middleware::MiddlewareRenderHandle)", s.nativeThisObject());
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::middleware::MiddlewareRenderHandle* cobj = (cocos2d::middleware::MiddlewareRenderHandle*)s.nativeThisObject();
-        delete cobj;
-    }
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cocos2d_middleware_MiddlewareRenderHandle_finalize)
-
-bool js_register_cocos2dx_editor_support_MiddlewareRenderHandle(se::Object* obj)
-{
-    auto cls = se::Class::create("MiddlewareRenderHandle", obj, __jsb_cocos2d_renderer_CustomRenderHandle_proto, _SE(js_cocos2dx_editor_support_MiddlewareRenderHandle_constructor));
-
-    cls->defineFinalizeFunction(_SE(js_cocos2d_middleware_MiddlewareRenderHandle_finalize));
-    cls->install();
-    JSBClassType::registerClass<cocos2d::middleware::MiddlewareRenderHandle>(cls);
-
-    __jsb_cocos2d_middleware_MiddlewareRenderHandle_proto = cls->getProto();
-    __jsb_cocos2d_middleware_MiddlewareRenderHandle_class = cls;
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
 bool register_all_cocos2dx_editor_support(se::Object* obj)
 {
     // Get the ns
@@ -432,7 +384,6 @@ bool register_all_cocos2dx_editor_support(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
-    js_register_cocos2dx_editor_support_MiddlewareRenderHandle(ns);
     js_register_cocos2dx_editor_support_MiddlewareManager(ns);
     js_register_cocos2dx_editor_support_Texture2D(ns);
     return true;

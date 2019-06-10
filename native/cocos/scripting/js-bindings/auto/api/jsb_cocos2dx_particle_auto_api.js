@@ -31,6 +31,16 @@ float
 },
 
 /**
+ * @method setEffect
+ * @param {cc.renderer::Effect} arg0
+ */
+setEffect : function (
+effect 
+)
+{
+},
+
+/**
  * @method setPosVar
  * @param {float} arg0
  * @param {float} arg1
@@ -48,16 +58,6 @@ float
  * @method onDisable
  */
 onDisable : function (
-)
-{
-},
-
-/**
- * @method setNativeEffect
- * @param {cc.renderer::Effect} arg0
- */
-setNativeEffect : function (
-effect 
 )
 {
 },
