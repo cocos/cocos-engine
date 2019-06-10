@@ -134,6 +134,10 @@ let RenderComponent = cc.Class({
         }
         this._uniforms = null;
         this._defines = null;
+        
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this._renderHandle && this._renderHandle.destroy();
+        }
     },
 
     setVertsDirty () {

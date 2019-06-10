@@ -1184,6 +1184,7 @@ let NodeDefines = {
         // Proxy
         if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy = new renderer.NodeProxy();
+            this._proxy.setID(this._id);
             this._proxy.bind(this);
             this._proxy.updateOpacity();
         }
