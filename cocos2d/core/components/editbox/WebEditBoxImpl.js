@@ -28,6 +28,7 @@ const utils = require('../../platform/utils');
 const macro = require('../../platform/CCMacro');
 const Types = require('./types');
 const Label = require('../CCLabel');
+const tabIndexUtil = require('./tabIndexUtil');
 
 const EditBox = cc.EditBox;
 const js = cc.js;
@@ -123,6 +124,7 @@ Object.assign(WebEditBoxImpl.prototype, {
         else {
             this._createInput();
         }
+        tabIndexUtil.add(this);
         this.setTabIndex(delegate.tabIndex);
         this._initStyleSheet();
         this._registerEventListeners();
@@ -146,6 +148,13 @@ Object.assign(WebEditBoxImpl.prototype, {
     clear () {
         this._removeEventListeners();
         this._removeDomFromGameContainer();
+
+        tabIndexUtil.remove(this);
+
+        // clear while editing
+        if (_currentEditBoxImpl === this) {
+            _currentEditBoxImpl = null;
+        }
     },
 
     update () {
@@ -154,6 +163,7 @@ Object.assign(WebEditBoxImpl.prototype, {
 
     setTabIndex (index) {
         this._elem.tabIndex = index;
+        tabIndexUtil.resort();
     },
 
     setSize (width, height) {
@@ -661,7 +671,7 @@ Object.assign(WebEditBoxImpl.prototype, {
             }
         };
         
-        cbs.onKeypress = function (e) {
+        cbs.onKeydown = function (e) {
             if (e.keyCode === macro.KEY.enter) {
                 e.stopPropagation();
                 impl._delegate.editBoxEditingReturn();
@@ -669,6 +679,12 @@ Object.assign(WebEditBoxImpl.prototype, {
                 if (!impl._isTextArea) {
                     elem.blur();
                 }
+            }
+            else if (e.keyCode === macro.KEY.tab) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                tabIndexUtil.next(impl);
             }
         };
 
@@ -683,7 +699,7 @@ Object.assign(WebEditBoxImpl.prototype, {
         elem.addEventListener('compositionstart', cbs.compositionStart);
         elem.addEventListener('compositionend', cbs.compositionEnd);
         elem.addEventListener('input', cbs.onInput);
-        elem.addEventListener('keypress', cbs.onKeypress);
+        elem.addEventListener('keydown', cbs.onKeydown);
         elem.addEventListener('blur', cbs.onBlur);
         elem.addEventListener('touchstart', cbs.onClick);
     },
@@ -695,14 +711,14 @@ Object.assign(WebEditBoxImpl.prototype, {
         elem.removeEventListener('compositionstart', cbs.compositionStart);
         elem.removeEventListener('compositionend', cbs.compositionEnd);
         elem.removeEventListener('input', cbs.onInput);
-        elem.removeEventListener('keypress', cbs.onKeypress);
+        elem.removeEventListener('keydown', cbs.onKeydown);
         elem.removeEventListener('blur', cbs.onBlur);
         elem.removeEventListener('touchstart', cbs.onClick);
         
         cbs.compositionStart = null;
         cbs.compositionEnd = null;
         cbs.onInput = null;
-        cbs.onKeypress = null;
+        cbs.onKeydown = null;
         cbs.onBlur = null;
         cbs.onClick = null;
     },
