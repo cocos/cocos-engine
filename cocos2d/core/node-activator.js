@@ -165,6 +165,7 @@ var NodeActivator = cc.Class({
                 --originCount;
             }
         }
+        node._childArrivalOrder = node._children.length;
         // activate children recursively
         for (let i = 0, len = node._children.length; i < len; ++i) {
             let child = node._children[i];
@@ -173,7 +174,6 @@ var NodeActivator = cc.Class({
                 this._activateNodeRecursively(child, preloadInvoker, onLoadInvoker, onEnableInvoker);
             }
         }
-
         node._onPostActivated(true);
     },
 
