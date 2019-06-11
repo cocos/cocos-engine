@@ -124,16 +124,17 @@ let Mask = cc.Class({
                 return this._type;
             },
             set: function (value) {
+                if (this._type !== value) {
+                    this._resetAssembler();
+                }
+
                 this._type = value;
                 if (this._type !== MaskType.IMAGE_STENCIL) {
                     this.spriteFrame = null;
                     this.alphaThreshold = 0;
                     this._updateGraphics();
                 }
-                if (this._renderData) {
-                    this.destroyRenderData(this._renderData);
-                    this._renderData = null;
-                }
+                
                 this._activateMaterial();
             },
             type: MaskType,
@@ -417,6 +418,7 @@ let Mask = cc.Class({
     _createGraphics () {
         if (!this._graphics) {
             this._graphics = new Graphics();
+            this._graphics._resetAssembler();
             this._graphics.node = this.node;
             this._graphics.lineWidth = 0;
             this._graphics.strokeColor = cc.color(0, 0, 0, 0);
@@ -427,6 +429,7 @@ let Mask = cc.Class({
         
         if (!this._clearGraphics) {
             this._clearGraphics = new Graphics();
+            this._clearGraphics._resetAssembler();
             this._clearGraphics.node = new Node();
             this._clearGraphics._activateMaterial();
             this._clearGraphics.lineWidth = 0;

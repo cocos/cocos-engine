@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Assembler2D from '../../assembler-2d';
+
 let textUtils = require('../../../utils/text-utils');
 const macro = require('../../../platform/CCMacro');
 const Component = require('../../../components/CCComponent');
@@ -75,21 +77,22 @@ let _drawUnderlineWidth = 0;
 
 let _sharedLabelData;
 
-textUtils.ttf = module.exports = {
-
+export default class TTFAssembler extends Assembler2D {
     _getAssemblerData () {
         _sharedLabelData = Label._canvasPool.get();
         _sharedLabelData.canvas.width = _sharedLabelData.canvas.height = 1;
         return _sharedLabelData;
-    },
+    }
 
     _resetAssemblerData (assemblerData) {
         if (assemblerData) {
             Label._canvasPool.put(assemblerData);
         }
-    },
+    }
 
     updateRenderData (comp) {
+        super.updateRenderData(comp);
+        
         if (!comp._vertsDirty) return;
 
         this._updateFontFamily(comp);
@@ -111,10 +114,10 @@ textUtils.ttf = module.exports = {
         _context = null;
         _canvas = null;
         _texture = null;
-    },
+    }
 
     updateVerts () {
-    },
+    }
 
     _updateFontFamily (comp) {
         if (!comp.useSystemFont) {
@@ -140,7 +143,7 @@ textUtils.ttf = module.exports = {
         else {
             _fontFamily = comp.fontFamily;
         }
-    },
+    }
 
     _updatePaddingRect () {
         let top = 0, bottom = 0, left = 0, right = 0;
@@ -168,7 +171,7 @@ textUtils.ttf = module.exports = {
         _canvasPadding.y = top;
         _canvasPadding.width = left + right;
         _canvasPadding.height = top + bottom;
-    },
+    }
 
     _updateProperties (comp) {
         let assemblerData = comp._assemblerData;
@@ -221,7 +224,7 @@ textUtils.ttf = module.exports = {
         }
 
         this._updatePaddingRect();
-    },
+    }
 
     _calculateFillTextStartPosition () {
         let labelX = 0;
@@ -246,21 +249,21 @@ textUtils.ttf = module.exports = {
         }
 
         return cc.v2(labelX + _canvasPadding.x, firstLinelabelY + _canvasPadding.y);
-    },
+    }
 
     _setupOutline () {
         _context.strokeStyle = `rgba(${_outlineColor.r}, ${_outlineColor.g}, ${_outlineColor.b}, ${_outlineColor.a / 255})`;
         _context.lineWidth = _outlineComp.width * 2;
-    },
+    }
 
-    _setupShadow: function () {
+    _setupShadow () {
         _context.shadowColor = `rgba(${_shadowColor.r}, ${_shadowColor.g}, ${_shadowColor.b}, ${_shadowColor.a / 255})`;
         _context.shadowBlur = _shadowComp.blur;
         _context.shadowOffsetX = _shadowComp.offset.x;
         _context.shadowOffsetY = -_shadowComp.offset.y;
-    },
+    }
 
-    _drawUnderline: function (underlinewidth) {
+    _drawUnderline (underlinewidth) {
         if (_outlineComp) {
             this._setupOutline();
             _context.strokeRect(_drawUnderlinePos.x, _drawUnderlinePos.y, underlinewidth, _underlineThickness);
@@ -268,7 +271,7 @@ textUtils.ttf = module.exports = {
         _context.lineWidth = _underlineThickness;
         _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255})`;
         _context.fillRect(_drawUnderlinePos.x, _drawUnderlinePos.y, underlinewidth, _underlineThickness);
-    },
+    }
 
     _updateTexture () {
         _context.clearRect(0, 0, _canvas.width, _canvas.height);
@@ -348,7 +351,7 @@ textUtils.ttf = module.exports = {
         }
 
         _texture.handleLoadedTexture();
-    },
+    }
 
     _calDynamicAtlas (comp) {
         if(comp.cacheMode !== Label.CacheMode.BITMAP) return;
@@ -359,7 +362,7 @@ textUtils.ttf = module.exports = {
         }
         // Add font images to the dynamic atlas for batch rendering.
         packToDynamicAtlas(comp, frame);
-    },
+    }
 
     _updateLabelDimensions () {
         let paragraphedStrings = _string.split('\n');
@@ -397,7 +400,7 @@ textUtils.ttf = module.exports = {
         if (_canvas.height !== _canvasSize.height) {
             _canvas.height = _canvasSize.height;
         }
-    },
+    }
 
     _calculateTextBaseline () {
         let node = this._node;
@@ -414,7 +417,7 @@ textUtils.ttf = module.exports = {
         }
         _context.textAlign = hAlign;
         _context.textBaseline = 'alphabetic';
-    },
+    }
 
     _calculateSplitedStrings () {
         let paragraphedStrings = _string.split('\n');
@@ -435,7 +438,7 @@ textUtils.ttf = module.exports = {
             _splitedStrings = paragraphedStrings;
         }
 
-    },
+    }
 
     _getFontDesc () {
         let fontDesc = _fontSize.toString() + 'px ';
@@ -447,7 +450,7 @@ textUtils.ttf = module.exports = {
             fontDesc = "italic " + fontDesc;
         }
         return fontDesc;
-    },
+    }
 
     _getLineHeight () {
         let nodeSpacingY = _lineHeight;
@@ -458,7 +461,7 @@ textUtils.ttf = module.exports = {
         }
 
         return nodeSpacingY | 0;
-    },
+    }
 
     _calculateParagraphLength (paragraphedStrings, ctx) {
         let paragraphLength = [];
@@ -469,13 +472,13 @@ textUtils.ttf = module.exports = {
         }
 
         return paragraphLength;
-    },
+    }
 
     _measureText (ctx) {
         return function (string) {
             return textUtils.safeMeasureText(ctx, string);
         };
-    },
+    }
 
     _calculateLabelFont () {
         _fontDesc = this._getFontDesc();
@@ -560,5 +563,6 @@ textUtils.ttf = module.exports = {
                 _context.font = _fontDesc;
             }
         }
-    },
-};
+    }
+}
+

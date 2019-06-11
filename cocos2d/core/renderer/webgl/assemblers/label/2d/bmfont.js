@@ -23,35 +23,34 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const labelAssembler = require('../label');
-const js = require('../../../../../platform/js');
-const bmfontUtls = require('../../../../utils/label/bmfont');
-const base = require('../../base/2d');
+import BmfontAssembler from '../../../../utils/label/bmfont';
 
 let _dataOffset = 0;
 
-module.exports = labelAssembler.bmfont = js.addon({
-    createData (comp) {
-    },
+export default class WebglBmfontAssembler extends BmfontAssembler {
+    initData (comp) {
+    }
 
     _reserveQuads (comp, count) {
-        let renderHandle = comp._renderHandle;
 
-        let vBytes = count * 4 * this.verticesFloats;
+        let renderData = this._renderData;
+
+        this.verticesCount = count * 4;
+        let vBytes = 4 * this.verticesFloats;
         let iBytes = count * 6 * 2;
         let bytes = vBytes + iBytes;
         let needUpdateArray = false;
 
-        if (!renderHandle.flexBuffer) {
-            renderHandle.flexBuffer = new cc.FlexBuffer(bytes);
+        if (!renderData.flexBuffer) {
+            renderData.flexBuffer = new cc.FlexBuffer(bytes);
             needUpdateArray = true;
         }
         else {
-            needUpdateArray = renderHandle.flexBuffer.reserve(bytes);
+            needUpdateArray = renderData.flexBuffer.reserve(bytes);
         }
 
-        let buffer = renderHandle.flexBuffer.buffer;
-        let vData = renderHandle.vDatas[0];
+        let buffer = renderData.flexBuffer.buffer;
+        let vData = renderData.vDatas[0];
         if (needUpdateArray || !vData || vData.length != count) {
             let vertices = new Float32Array(buffer, 0, vBytes / 4);
             let indices = new Uint16Array(buffer, vBytes, iBytes / 2);
@@ -63,19 +62,19 @@ module.exports = labelAssembler.bmfont = js.addon({
                 indices[i + 4] = vid + 3;
                 indices[i + 5] = vid + 2;
             }
-            renderHandle.updateMesh(0, vertices, indices);
+            renderData.updateMesh(0, vertices, indices);
         }
         _dataOffset = 0;
-    },
+    }
 
     _quadsUpdated (comp) {
         _dataOffset = 0;
-    },
+    }
 
     appendQuad (comp, texture, rect, rotated, x, y, scale) {
-        let renderHandle = comp._renderHandle;
-        let verts = renderHandle.vDatas[0],
-            uintVerts = renderHandle.uintVDatas[0];
+        let renderData = this._renderData;
+        let verts = renderData.vDatas[0],
+            uintVerts = renderData.uintVDatas[0];
 
         let texw = texture.width,
             texh = texture.height,
@@ -142,11 +141,11 @@ module.exports = labelAssembler.bmfont = js.addon({
             colorOffset += floatsPerVert;
         }
 
-        _dataOffset += this.verticesFloats;
-    },
+        _dataOffset += this.floatsPerVert * 4;
+    }
 
     appendVerts (comp, offset, l, r, b, t) {
-        let local = comp._renderHandle._local;
+        let local = this._renderData._local;
         let floatsPerVert = this.floatsPerVert;
 
         local[offset] = l;
@@ -163,7 +162,7 @@ module.exports = labelAssembler.bmfont = js.addon({
         offset += floatsPerVert;
         local[offset] = r;
         local[offset + 1] = t;
-    },
+    }
 
     updateWorldVerts (comp) {
         let node = comp.node;
@@ -172,8 +171,8 @@ module.exports = labelAssembler.bmfont = js.addon({
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
 
-        let local = comp._renderHandle._local;
-        let world = comp._renderHandle.vDatas[0];
+        let local = this._renderData._local;
+        let world = this._renderData.vDatas[0];
         let floatsPerVert = this.floatsPerVert;
         for (let offset = 0; offset < local.length; offset += floatsPerVert) {
             let x = local[offset];
@@ -182,4 +181,5 @@ module.exports = labelAssembler.bmfont = js.addon({
             world[offset+1] = x * b + y * d + ty;
         }
     }
-}, base, bmfontUtls);
+}
+

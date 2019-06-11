@@ -23,16 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const labelAssembler = require('../label');
-const js = require('../../../../../platform/js');
-const ttfUtls = require('../../../../utils/label/ttf');
+import TTFAssembler from '../../../../utils/label/ttf';
+
 const LabelShadow = require('../../../../../components/CCLabelShadow');
 const WHITE = cc.color(255, 255, 255, 255);
-const base = require('../../base/2d');
 
-module.exports = labelAssembler.ttf = js.addon({
+export default class WebglTTFAssembler extends TTFAssembler {
     updateUVs (comp) {
-        let verts = comp._renderHandle.vDatas[0];
+        let verts = this._renderData.vDatas[0];
         let uv = comp._frame.uv;
         let uvOffset = this.uvOffset;
         let floatsPerVert = this.floatsPerVert;
@@ -42,14 +40,14 @@ module.exports = labelAssembler.ttf = js.addon({
             verts[dstOffset] = uv[srcOffset];
             verts[dstOffset + 1] = uv[srcOffset + 1];
         }
-    },
+    }
 
     updateColor (comp) {
         WHITE._fastSetA(comp.node.color.a);
         let color = WHITE._val;
 
-        base.updateColor.call(this, comp, color);
-    },
+        super.updateColor(comp, color);
+    }
 
     updateVerts (comp) {
         let node = comp.node,
@@ -90,7 +88,7 @@ module.exports = labelAssembler.ttf = js.addon({
             }
         }
 
-        let local = comp._renderHandle._local;
+        let local = this._renderData._local;
         local[0] = -appx;
         local[1] = -appy;
         local[2] = canvasWidth - appx;
@@ -99,4 +97,5 @@ module.exports = labelAssembler.ttf = js.addon({
         this.updateUVs(comp);
         this.updateWorldVerts(comp);
     }
-}, base, ttfUtls);
+}
+

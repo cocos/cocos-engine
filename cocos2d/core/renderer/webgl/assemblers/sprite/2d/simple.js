@@ -23,12 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const spriteAssembler = require('../sprite');
+import Assembler2D from '../../../../assembler-2d';
 const { packToDynamicAtlas } = require('../../../../utils/utils');
-const base = require('../../base/2d');
 
-module.exports = spriteAssembler.simple = cc.js.addon({
+export default class SimpleSpriteAssembler extends Assembler2D {
     updateRenderData (sprite) {
+        super.updateRenderData();
+
         let frame = sprite._spriteFrame;
         if (!frame) return;
 
@@ -39,20 +40,20 @@ module.exports = spriteAssembler.simple = cc.js.addon({
             this.updateVerts(sprite);
             sprite._vertsDirty = false;
         }
-    },
+    }
 
     updateUVs (sprite) {
-        let verts = sprite._renderHandle.vDatas[0];
         let uv = sprite._spriteFrame.uv;
         let uvOffset = this.uvOffset;
         let floatsPerVert = this.floatsPerVert;
+        let verts = this._renderData.vDatas[0];
         for (let i = 0; i < 4; i++) {
             let srcOffset = i * 2;
             let dstOffset = floatsPerVert * i + uvOffset;
             verts[dstOffset] = uv[srcOffset];
             verts[dstOffset + 1] = uv[srcOffset + 1];
         }
-    },
+    }
 
     updateVerts (sprite) {
         let node = sprite.node,
@@ -81,11 +82,11 @@ module.exports = spriteAssembler.simple = cc.js.addon({
             t = ch + trimTop * scaleY - appy;
         }
 
-        let local = sprite._renderHandle._local;
+        let local = this._renderData._local;
         local[0] = l;
         local[1] = b;
         local[2] = r;
         local[3] = t;
         this.updateWorldVerts(sprite);
-    },
-}, base);
+    }
+}

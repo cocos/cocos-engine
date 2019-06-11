@@ -169,14 +169,12 @@ ModelBatcher.prototype = {
         buffer.vertexStart = buffer.vertexOffset;
     },
 
-    _flushIA (iaRenderData) {
-        let material = iaRenderData.material;
-        
-        if (!iaRenderData.ia || !material) {
+    _flushIA (ia) {
+        if (!ia) {
             return;
         }
 
-        this.material = material;
+        let material = this.material;
         let effect = material.effect;
         if (!effect) return;
         
@@ -187,12 +185,12 @@ ModelBatcher.prototype = {
         model._cullingMask = this.cullingMask;
         model.setNode(this.node);
         model.setEffect(effect, this.customProperties);
-        model.setInputAssembler(iaRenderData.ia);
+        model.setInputAssembler(ia);
         
         this._renderScene.addModel(model);
     },
 
-    _commitComp (comp, assembler, cullingMask) {
+    _switchComp (comp, cullingMask) {
         let material = comp.sharedMaterials[0];
         if ((material && material.getHash() !== this.material.getHash()) || 
             this.cullingMask !== cullingMask) {
@@ -201,18 +199,7 @@ ModelBatcher.prototype = {
             this.node = material.getDefine('CC_USE_MODEL') ? comp.node : this._dummyNode;
             this.material = material;
             this.cullingMask = cullingMask;
-        }
-    
-        assembler.fillBuffers(comp, this);
-    },
-
-    _commitIA (comp, assembler, cullingMask) {
-        this._flush();
-        this.cullingMask = cullingMask;
-        this.material = comp.sharedMaterials[0] || empty_material;
-        this.node = this.material.getDefine('CC_USE_MODEL') ? comp.node : this._dummyNode;
-
-        assembler.renderIA(comp, this);
+        }    
     },
 
     terminate () {

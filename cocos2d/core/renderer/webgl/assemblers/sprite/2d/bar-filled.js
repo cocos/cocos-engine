@@ -23,14 +23,16 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const base = require('../../base/2d');
+import Assembler2D from '../../../../assembler-2d';
+
 const Sprite = require('../../../../../components/CCSprite');
-const spriteAssembler = require('../sprite');
 const FillType = Sprite.FillType;
 const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 
-module.exports = spriteAssembler.barFilled = cc.js.addon({
+export default class BarFilledAssembler extends Assembler2D {
     updateRenderData (sprite) {
+        super.updateRenderData();
+
         let frame = sprite._spriteFrame;
         if (!frame) return;
 
@@ -65,7 +67,7 @@ module.exports = spriteAssembler.barFilled = cc.js.addon({
         this.updateVerts(sprite, fillStart, fillEnd);
 
         sprite._vertsDirty = false;
-    },
+    }
 
     updateUVs (sprite, fillStart, fillEnd) {
         let spriteFrame = sprite._spriteFrame;
@@ -100,7 +102,7 @@ module.exports = spriteAssembler.barFilled = cc.js.addon({
             quadUV5 = quadUV7 = vt;
         }
 
-        let verts = sprite._renderHandle.vDatas[0];
+        let verts = this._renderData.vDatas[0];
         let uvOffset = this.uvOffset;
         let floatsPerVert = this.floatsPerVert;
         switch (sprite._fillType) {
@@ -128,7 +130,7 @@ module.exports = spriteAssembler.barFilled = cc.js.addon({
                 cc.errorID(2626);
                 break;
         }
-    },
+    }
 
     updateVerts (sprite, fillStart, fillEnd) {
         let node = sprite.node,
@@ -159,7 +161,7 @@ module.exports = spriteAssembler.barFilled = cc.js.addon({
                 break;
         }
 
-        let local = sprite._renderHandle._local;
+        let local = this._renderData._local;
         local[0] = l;
         local[1] = b;
         local[2] = r;
@@ -167,4 +169,4 @@ module.exports = spriteAssembler.barFilled = cc.js.addon({
 
         this.updateWorldVerts(sprite);
     }
-}, base);
+}

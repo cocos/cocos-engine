@@ -25,7 +25,8 @@
 
 import gfx from '../../renderer/gfx';
 import RenderData from '../../renderer/render-data/render-data';
-import RenderHandle from '../renderer/render-handle';
+import RenderHandle from '../renderer/render-data';
+import Assembler from '../renderer/assembler';
 
 const Component = require('./CCComponent');
 const RenderFlow = require('../renderer/render-flow');
@@ -74,20 +75,31 @@ let RenderComponent = cc.Class({
         this._vertsDirty = true;
         this._material = null;
         this._vertexFormat = gfx.VertexFormat.XY_UV_Color;
-        this._assembler = this.constructor._assembler;
-        this._postAssembler = this.constructor._postAssembler;
+        
+        this._assembler = null;
+        // this._postAssembler = null;
+        
+        // if (CC_JSB && CC_NATIVERENDERER) {
+        //     this._initNativeHandle();   
+        // }
+        // else {
+        //     this._renderHandle = new RenderHandle();
+        // }
+    },
 
-        if (CC_JSB && CC_NATIVERENDERER) {
-            this._initNativeHandle();   
-        }
-        else {
-            this._renderHandle = new RenderHandle();
-        }
+    _resetAssembler () {
+        Assembler.init(this);
+        // this._assembler = this.constructor.createAssembler && this.constructor.createAssembler();
+        // this._postAssembler = this.constructor.createPostAssembler && this.constructor.createPostAssembler();
     },
 
     _initNativeHandle () {
         this._renderHandle = new renderer.RenderHandle();
         this._renderHandle.bind(this);
+    },
+
+    __preload () {
+        this._resetAssembler();
     },
 
     onEnable () {
@@ -127,6 +139,7 @@ let RenderComponent = cc.Class({
 
     setVertsDirty () {
         this._vertsDirty = true;
+        this.markForUpdateRenderData(true);
     },
 
     _onNodeSizeDirty () {
@@ -231,7 +244,5 @@ let RenderComponent = cc.Class({
         }
     }
 });
-RenderComponent._assembler = null;
-RenderComponent._postAssembler = null;
 
 cc.RenderComponent = module.exports = RenderComponent;

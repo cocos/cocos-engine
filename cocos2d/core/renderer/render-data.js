@@ -1,18 +1,5 @@
 
-function initQuadIndices(indices) {
-    let count = indices.length / 6;
-    for (let i = 0, idx = 0; i < count; i++) {
-        let vertextID = i * 4;
-        indices[idx++] = vertextID;
-        indices[idx++] = vertextID+1;
-        indices[idx++] = vertextID+2;
-        indices[idx++] = vertextID+1;
-        indices[idx++] = vertextID+3;
-        indices[idx++] = vertextID+2;
-    }
-}
-
-export default function RenderHandle () {
+export default function RenderData () {
     this.vDatas = [];
     this.uintVDatas = [];
     this.iDatas = [];
@@ -23,7 +10,7 @@ export default function RenderHandle () {
     this._flexBuffer = null;
 }
 
-cc.js.mixin(RenderHandle.prototype, {
+cc.js.mixin(RenderData.prototype, {
     reset () {
         this.vDatas.length = 0;
         this.iDatas.length = 0;
@@ -54,9 +41,22 @@ cc.js.mixin(RenderHandle.prototype, {
     
     createQuadData (index, verticesFloats, indicesCount) {
         this.createData(index, verticesFloats, indicesCount);
-        initQuadIndices(this.iDatas[index]);
+        this.initQuadIndices(this.iDatas[index]);
+    },
+
+    initQuadIndices(indices) {
+        let count = indices.length / 6;
+        for (let i = 0, idx = 0; i < count; i++) {
+            let vertextID = i * 4;
+            indices[idx++] = vertextID;
+            indices[idx++] = vertextID+1;
+            indices[idx++] = vertextID+2;
+            indices[idx++] = vertextID+1;
+            indices[idx++] = vertextID+3;
+            indices[idx++] = vertextID+2;
+        }
     }
 })
 
-cc.RenderHandle = RenderHandle;
+cc.RenderData = RenderData;
 

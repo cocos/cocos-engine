@@ -23,21 +23,17 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const base = require('../../base/2d');
-const spriteAssembler = require('../sprite');
+import Assembler2D from '../../../../assembler-2d';
+
 const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 
-module.exports = spriteAssembler.sliced = cc.js.addon({
-    verticesCount: 16,
-    verticesFloats: 16 * base.floatsPerVert,
-    indicesCount: 54,
+export default class SlicedFilledAssembler extends Assembler2D {
+    initData (sprite) {
+        if (this._renderData.meshCount > 0) return;
+        this._renderData.createData(0, this.verticesFloats, this.indicesCount);
+        this._renderData._local.length = 8;
 
-    createData (sprite) {
-        if (sprite._renderHandle.meshCount > 0) return;
-        sprite._renderHandle.createData(0, this.verticesFloats, this.indicesCount);
-        sprite._renderHandle._local.length = 8;
-
-        let indices = sprite._renderHandle.iDatas[0];
+        let indices = this._renderData.iDatas[0];
         let indexOffset = 0;
         for (let r = 0; r < 3; ++r) {
             for (let c = 0; c < 3; ++c) {
@@ -50,9 +46,11 @@ module.exports = spriteAssembler.sliced = cc.js.addon({
                 indices[indexOffset++] = start + 4;
             }
         }
-    },
+    }
 
     updateRenderData (sprite) {
+        super.updateRenderData();
+
         let frame = sprite._spriteFrame;
         if (!frame) return;
         packToDynamicAtlas(sprite, frame);
@@ -62,7 +60,7 @@ module.exports = spriteAssembler.sliced = cc.js.addon({
             this.updateVerts(sprite);
             sprite._vertsDirty = false;
         }
-    },
+    }
 
     updateVerts (sprite) {
         let node = sprite.node,
@@ -85,7 +83,7 @@ module.exports = spriteAssembler.sliced = cc.js.addon({
         sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
 
         // update local
-        let local = sprite._renderHandle._local;
+        let local = this._renderData._local;
         local[0] = -appx;
         local[1] = -appy;
         local[2] = leftWidth * xScale - appx;
@@ -96,10 +94,10 @@ module.exports = spriteAssembler.sliced = cc.js.addon({
         local[7] = height - appy;
 
         this.updateWorldVerts(sprite);
-    },
+    }
 
     updateUVs (sprite) {
-        let verts = sprite._renderHandle.vDatas[0];
+        let verts = this._renderData.vDatas[0];
         let uvSliced = sprite.spriteFrame.uvSliced;
         let uvOffset = this.uvOffset;
         let floatsPerVert = this.floatsPerVert;
@@ -112,16 +110,16 @@ module.exports = spriteAssembler.sliced = cc.js.addon({
                 verts[voffset + uvOffset + 1] = uv.v;
             }
         }
-    },
+    }
 
     updateWorldVerts (sprite) {
         let matrix = sprite.node._worldMatrix,
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
 
-        let renderHandle = sprite._renderHandle;
-        let local = renderHandle._local;
-        let world = renderHandle.vDatas[0];
+        let renderData = this._renderData;
+        let local = renderData._local;
+        let world = renderData.vDatas[0];
 
         let floatsPerVert = this.floatsPerVert;
         for (let row = 0; row < 4; ++row) {
@@ -133,5 +131,10 @@ module.exports = spriteAssembler.sliced = cc.js.addon({
                 world[worldIndex + 1] = localColX * b + localRowY * d + ty;
             }
         }
-    },
-}, base);
+    }
+}
+
+Object.assign(SlicedFilledAssembler.prototype, {
+    verticesCount: 16,
+    indicesCount: 54
+});

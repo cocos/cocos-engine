@@ -23,12 +23,64 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./label');
+import Assembler from '../../../assembler';
+import Label from '../../../../components/CCLabel';
 
-require('./2d/ttf');
-require('./2d/bmfont');
-require('./2d/letter');
+import TTF from './2d/ttf';
+import Bmfont from './2d/bmfont';
+// import Letter from './2d/letter';
 
-require('./3d/ttf');
-require('./3d/bmfont');
-require('./3d/letter');
+// import TTF3D from './3d/ttf';
+// import Bmfont3D from './3d/bmfont';
+// import Letter3D from './3d/letter';
+
+Label._canvasPool = {
+    pool: [],
+    get () {
+        let data = this.pool.pop();
+
+        if (!data) {
+            let canvas = document.createElement("canvas");
+            let context = canvas.getContext("2d");
+            data = {
+                canvas: canvas,
+                context: context
+            }
+        }
+
+        return data;
+    },
+    put (canvas) {
+        if (this.pool.length >= 32) {
+            return;
+        }
+        this.pool.push(canvas);
+    }
+};
+
+Assembler.register(cc.Label, {
+    getConstructor(label) {
+        let is3DNode = label.node.is3DNode;
+        let ctor = is3DNode ? TTF3D : TTF;
+        
+        if (label.font instanceof cc.BitmapFont) {
+            ctor = is3DNode ? Bmfont3D : Bmfont;
+        } else if (label.cacheMode === Label.CacheMode.CHAR) {
+            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+                cc.warn('sorry, subdomain does not support CHAR mode currently!');
+            } else {
+                ctor = is3DNode ? Letter3D : Letter;
+            }  
+        }
+
+        return ctor;
+    },
+
+    TTF,
+    Bmfont,
+    // Letter,
+
+    // TTF3D,
+    // Bmfont3D,
+    // Letter3D
+});

@@ -23,54 +23,65 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const base = require('../../base/2d');
-const spriteAssembler = require('../sprite');
+import Assembler2D from '../../../../assembler-2d';
+
 const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 const FlexBuffer = require('../../../flex-buffer');
 
-module.exports = spriteAssembler.tiled = cc.js.addon({
-    createData (sprite) {
-        sprite._renderHandle._local = { x: [], y: []};
-        sprite._renderHandle._infos = { lastCount: 0 };
-    },
+export default class TiledFilledAssembler extends Assembler2D {
+    initData (sprite) {
+        this._renderData._local = { x: [], y: []};
+
+        this.verticesCount = 0;
+        this.contentWidth = 0;
+        this.contentHeight = 0;
+        this.rectWidth = 0;
+        this.rectHeight = 0;
+        this.hRepeat = 0;
+        this.vRepeat = 0;
+        this.row = 0;
+        this.col = 0;
+    }
 
     updateRenderData (sprite) {
+        super.updateRenderData(sprite);
+
         let frame = sprite._spriteFrame;
         if (!frame) return;
 
         packToDynamicAtlas(sprite, frame);
 
         let node = sprite.node;
-        let renderHandle = sprite._renderHandle;
-        let infos = renderHandle._infos;
+        let renderData = this._renderData;
 
-        let contentWidth = infos.contentWidth = Math.abs(node.width);
-        let contentHeight = infos.contentHeight = Math.abs(node.height);
+        let contentWidth = this.contentWidth = Math.abs(node.width);
+        let contentHeight = this.contentHeight = Math.abs(node.height);
         let rect = frame._rect;
-        let rectWidth = infos.rectWidth = rect.width;
-        let rectHeight = infos.rectHeight = rect.height;
-        let hRepeat = infos.hRepeat = contentWidth / rectWidth;
-        let vRepeat = infos.vRepeat = contentHeight / rectHeight;
-        let row = infos.row = Math.ceil(vRepeat);
-        let col = infos.col = Math.ceil(hRepeat);
+        let rectWidth = this.rectWidth = rect.width;
+        let rectHeight = this.rectHeight = rect.height;
+        let hRepeat = this.hRepeat = contentWidth / rectWidth;
+        let vRepeat = this.vRepeat = contentHeight / rectHeight;
+        let row = this.row = Math.ceil(vRepeat);
+        let col = this.col = Math.ceil(hRepeat);
 
         // update data property
         let count = row * col;
-        let vBytes = count * 4 * this.floatsPerVert * 4;
+        let verticesCount = count * 4;
+        let vBytes = verticesCount * this.floatsPerVert * 4;
         let iBytes = count * 6 * 2;
         let bytes = vBytes + iBytes;
         let needUpdateArray = false;
-        if (!renderHandle._flexBuffer) {
-            renderHandle._flexBuffer = new FlexBuffer(bytes);
+        if (!renderData._flexBuffer) {
+            renderData._flexBuffer = new FlexBuffer(bytes);
             needUpdateArray = true;
         }
         else {
-            needUpdateArray = renderHandle._flexBuffer.reserve(bytes);
+            needUpdateArray = renderData._flexBuffer.reserve(bytes);
         }
 
-        let buffer = renderHandle._flexBuffer.buffer;
-        if (needUpdateArray || infos.lastCount != count) {
-            infos.lastCount = count;
+        let buffer = renderData._flexBuffer.buffer;
+        if (needUpdateArray || verticesCount != this.verticesCount) {
+            this.verticesCount = verticesCount
             let vertices = new Float32Array(buffer, 0, vBytes / 4);
             let indices = new Uint16Array(buffer, vBytes, iBytes / 2);
             for (let i = 0, vid = 0; i < indices.length; i += 6, vid += 4) {
@@ -81,7 +92,9 @@ module.exports = spriteAssembler.tiled = cc.js.addon({
                 indices[i + 4] = vid + 3;
                 indices[i + 5] = vid + 2;
             }
-            renderHandle.updateMesh(0, vertices, indices);
+            renderData.updateMesh(0, vertices, indices);
+
+            this.updateColor(sprite);
         }
 
         if (sprite._vertsDirty) {
@@ -89,15 +102,15 @@ module.exports = spriteAssembler.tiled = cc.js.addon({
             this.updateVerts(sprite);
             sprite._vertsDirty = false;
         }
-    },
+    }
 
     updateVerts (sprite) {
-        let renderHandle = sprite._renderHandle,
+        let renderData = this._renderData,
             node = sprite.node,
             appx = node.anchorX * node.width, appy = node.anchorY * node.height;
 
-        let { row, col, rectWidth, rectHeight, contentWidth, contentHeight } = renderHandle._infos;
-        let { x, y } = renderHandle._local;
+        let { row, col, rectWidth, rectHeight, contentWidth, contentHeight } = this;
+        let { x, y } = renderData._local;
         x.length = y.length = 0;
         for (let i = 0; i <= col; ++i) {
             x[i] = Math.min(rectWidth * i, contentWidth) - appx;
@@ -107,14 +120,14 @@ module.exports = spriteAssembler.tiled = cc.js.addon({
         }
 
         this.updateWorldVerts(sprite);
-    },
+    }
     
     updateWorldVerts (sprite) {
-        let renderHandle = sprite._renderHandle;
-        let local = renderHandle._local;
+        let renderData = this._renderData;
+        let local = renderData._local;
         let localX = local.x, localY = local.y;
-        let world = renderHandle.vDatas[0];
-        let { row, col } = renderHandle._infos;
+        let world = renderData.vDatas[0];
+        let { row, col } = this;
         let matrix = sprite.node._worldMatrix;
         let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
@@ -147,13 +160,13 @@ module.exports = spriteAssembler.tiled = cc.js.addon({
                 vertexOffset += floatsPerVert;
             }
         }
-    },
+    }
 
     updateUVs (sprite) {
-        let verts = sprite._renderHandle.vDatas[0];
+        let verts = this._renderData.vDatas[0];
         if (!verts) return;
 
-        let { row, col, hRepeat, vRepeat } = sprite._renderHandle._infos;
+        let { row, col, hRepeat, vRepeat } = this;
         let uv = sprite.spriteFrame.uv;
         let rotated = sprite.spriteFrame._rotated;
         let floatsPerVert = this.floatsPerVert, uvOffset = this.uvOffset;
@@ -201,5 +214,6 @@ module.exports = spriteAssembler.tiled = cc.js.addon({
                 }
             }
         }
-    },
-}, base);
+    }
+}
+

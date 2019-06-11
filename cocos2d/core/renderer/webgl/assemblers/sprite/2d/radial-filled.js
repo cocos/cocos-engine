@@ -23,10 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const spriteAssembler = require('../sprite');
+import Assembler2D from '../../../../assembler-2d';
+
 const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 const FlexBuffer = require('../../../flex-buffer');
-const base = require('../../base/2d');
 
 const PI_2 = Math.PI * 2;
 
@@ -172,15 +172,16 @@ function _getVertAngle (start, end) {
     }
 }
 
-
-module.exports = spriteAssembler.radialFilled = cc.js.addon({
-    createData (sprite) {
-        sprite._renderHandle._local = [];
+export default class RadialFilledAssembler extends Assembler2D {
+    initData (sprite) {
+        this._renderData._local = [];
         let bytes = 24 * (this.verticesFloats + 2);
-        sprite._renderHandle._flexBuffer = new FlexBuffer(bytes);
-    },
+        this._renderData._flexBuffer = new FlexBuffer(bytes);
+    }
 
     updateRenderData (sprite) {
+        super.updateRenderData();
+
         let frame = sprite.spriteFrame;
         if (!frame) return;
         packToDynamicAtlas(sprite, frame);
@@ -212,12 +213,12 @@ module.exports = spriteAssembler.radialFilled = cc.js.addon({
 
             sprite._vertsDirty = false;
         }
-    },
+    }
 
     updateVerts (sprite, fillStart, fillRange) {
         let fillEnd = fillStart + fillRange;
         
-        let local = sprite._renderHandle._local;
+        let local = this._renderData._local;
 
         let offset = 0;
         let floatsPerTriangle = 3 * this.floatsPerVert;
@@ -277,32 +278,33 @@ module.exports = spriteAssembler.radialFilled = cc.js.addon({
 
         this.allocWorldVerts(sprite);
         this.updateWorldVerts(sprite);
-    },
+    }
 
     allocWorldVerts(sprite) {
         let color = sprite.node._color._val;
-        let renderHandle = sprite._renderHandle;
+        let renderData = this._renderData;
         let floatsPerVert = this.floatsPerVert;
 
-        let local = renderHandle._local;
+        let local = renderData._local;
         let verticesCount = local.length / floatsPerVert;
         
         let vBytes = local.length * 4;
         let iBytes = verticesCount * 2;
 
-        let vData = renderHandle.vDatas[0];
+        let vData = renderData.vDatas[0];
         if (!vData || vData.length != verticesCount) {
-            let buffer = renderHandle._flexBuffer.buffer;
+            this.verticesCount = verticesCount;
+            let buffer = renderData._flexBuffer.buffer;
             let vertices = new Float32Array(buffer, 0, vBytes / 4);
             let indices = new Uint16Array(buffer, vBytes, iBytes / 2);
             for (let i = 0; i < verticesCount; i ++) {
                 indices[i] = i;
             }
-            renderHandle.updateMesh(0, vertices, indices);
+            renderData.updateMesh(0, vertices, indices);
         }
 
-        let verts = renderHandle.vDatas[0],
-            uintVerts = renderHandle.uintVDatas[0];
+        let verts = renderData.vDatas[0],
+            uintVerts = renderData.uintVDatas[0];
         
         let uvOffset = this.uvOffset;
         for (let offset = 0; offset < local.length; offset += floatsPerVert) {
@@ -311,7 +313,7 @@ module.exports = spriteAssembler.radialFilled = cc.js.addon({
             verts[start + 1] = local[start + 1];
             uintVerts[start + 2] = color;
         }
-    },
+    }
 
     updateWorldVerts (sprite) {
         let node = sprite.node;
@@ -320,8 +322,8 @@ module.exports = spriteAssembler.radialFilled = cc.js.addon({
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
 
-        let local = sprite._renderHandle._local;
-        let world = sprite._renderHandle.vDatas[0];
+        let local = this._renderData._local;
+        let world = this._renderData.vDatas[0];
         let floatsPerVert = this.floatsPerVert;
         for (let offset = 0; offset < world.length; offset += floatsPerVert) {
             let x = local[offset];
@@ -329,7 +331,7 @@ module.exports = spriteAssembler.radialFilled = cc.js.addon({
             world[offset] = x * a + y * c + tx;
             world[offset+1] = x * b + y * d + ty;
         }
-    },
+    }
 
     _generateTriangle (verts, offset, vert0, vert1, vert2) {
         let vertices = _vertices;
@@ -359,7 +361,7 @@ module.exports = spriteAssembler.radialFilled = cc.js.addon({
         progressX = (vert2.x - v0x) / (v1x - v0x);
         progressY = (vert2.y - v0y) / (v1y - v0y);
         this._generateUV(progressX, progressY, verts, offset + floatsPerVert*2 + uvOffset);
-    },
+    }
 
     _generateUV (progressX, progressY, verts, offset) {
         let uvs = _uvs;
@@ -369,6 +371,5 @@ module.exports = spriteAssembler.radialFilled = cc.js.addon({
         let py2 = uvs[5] + (uvs[7] - uvs[5]) * progressX;
         verts[offset] = px1 + (px2 - px1) * progressY;
         verts[offset + 1] = py1 + (py2 - py1) * progressY;
-    },
-
-}, base);
+    }
+}
