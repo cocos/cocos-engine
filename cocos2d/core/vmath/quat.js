@@ -661,9 +661,9 @@ class quat {
   static fromMat3(out, m) {
     // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
     let mm = m.m;
-    let m00 = m.m[0], m01 = m.m[3], m02 = m.m[6],
-      m10 = m.m[1], m11 = m.m[4], m12 = m.m[7],
-      m20 = m.m[2], m21 = m.m[5], m22 = m.m[8];
+    let m00 = mm[0], m01 = mm[3], m02 = mm[6],
+      m10 = mm[1], m11 = mm[4], m12 = mm[7],
+      m20 = mm[2], m21 = mm[5], m22 = mm[8];
 
     let trace = m00 + m11 + m22;
 

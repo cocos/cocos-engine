@@ -158,12 +158,12 @@ AffineTransform.invert = function (out, t) {
  */
 AffineTransform.fromMat4 = function (out, mat) {
     let matm = mat.m;
-    out.a = mat.m[0];
-    out.b = mat.m[1];
-    out.c = mat.m[4];
-    out.d = mat.m[5];
-    out.tx = mat.m[12];
-    out.ty = mat.m[13];
+    out.a = matm[0];
+    out.b = matm[1];
+    out.c = matm[4];
+    out.d = matm[5];
+    out.tx = matm[12];
+    out.ty = matm[13];
     return out;
 };
 

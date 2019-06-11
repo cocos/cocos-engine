@@ -125,8 +125,8 @@ module.exports = {
             verts = renderData.vertices;
         let matrix = node._worldMatrix;
         let matrixm = matrix.m;
-        let a = matrix.m[0], b = matrix.m[1], c = matrix.m[4], d = matrix.m[5],
-            tx = matrix.m[12], ty = matrix.m[13];
+        let a = matrixm[0], b = matrixm[1], c = matrixm[4], d = matrixm[5],
+            tx = matrixm[12], ty = matrixm[13];
         for (let i = 0, l = renderData.vertexCount; i < l; i++) {
             let local = verts[i + l];
             let world = verts[i];

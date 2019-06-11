@@ -309,20 +309,20 @@ Object.assign(WebEditBoxImpl.prototype, {
         let worldMatm = worldMat.m;
 
         // check whether need to update
-        if (this._m00 === worldMat.m[0] && this._m01 === worldMat.m[1] &&
-            this._m04 === worldMat.m[4] && this._m05 === worldMat.m[5] &&
-            this._m12 === worldMat.m[12] && this._m13 === worldMat.m[13] &&
+        if (this._m00 === worldMatm[0] && this._m01 === worldMatm[1] &&
+            this._m04 === worldMatm[4] && this._m05 === worldMatm[5] &&
+            this._m12 === worldMatm[12] && this._m13 === worldMatm[13] &&
             this._w === node._contentSize.width && this._h === node._contentSize.height) {
             return;
         }
 
         // update matrix cache
-        this._m00 = worldMat.m[0];
-        this._m01 = worldMat.m[1];
-        this._m04 = worldMat.m[4];
-        this._m05 = worldMat.m[5];
-        this._m12 = worldMat.m[12];
-        this._m13 = worldMat.m[13];
+        this._m00 = worldMatm[0];
+        this._m01 = worldMatm[1];
+        this._m04 = worldMatm[4];
+        this._m05 = worldMatm[5];
+        this._m12 = worldMatm[12];
+        this._m13 = worldMatm[13];
         this._w = node._contentSize.width;
         this._h = node._contentSize.height;
 
@@ -353,13 +353,13 @@ Object.assign(WebEditBoxImpl.prototype, {
     
         let container = cc.game.container;
         let cameraMatm = cameraMat.m;
-        let a = cameraMat.m[0] * scaleX, b = cameraMat.m[1], c = cameraMat.m[4], d = cameraMat.m[5] * scaleY;
+        let a = cameraMatm[0] * scaleX, b = cameraMatm[1], c = cameraMatm[4], d = cameraMatm[5] * scaleY;
     
         let offsetX = container && container.style.paddingLeft && parseInt(container.style.paddingLeft);
         offsetX += viewport.x / dpr;
         let offsetY = container && container.style.paddingBottom && parseInt(container.style.paddingBottom);
         offsetY += viewport.y / dpr;
-        let tx = cameraMat.m[12] * scaleX + offsetX, ty = cameraMat.m[13] * scaleY + offsetY;
+        let tx = cameraMatm[12] * scaleX + offsetX, ty = cameraMatm[13] * scaleY + offsetY;
     
         if (polyfill.zoomInvalid) {
             this.setSize(node.width * a, node.height * d);

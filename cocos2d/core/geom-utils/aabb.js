@@ -8,9 +8,9 @@ let _m3_tmp = mat3.create();
 // https://zeuxcg.org/2010/10/17/aabb-from-obb-with-component-wise-abs/
 let transform_extent_m4 = function (out, extent, m4) {
     let _m3_tmpm = _m3_tmp.m, m4m = m4.m, 
-    _m3_tmp.m[0] = Math.abs(m4.m[0]); _m3_tmp.m[1] = Math.abs(m4.m[1]); _m3_tmp.m[2] = Math.abs(m4.m[2]);
-    _m3_tmp.m[3] = Math.abs(m4.m[4]); _m3_tmp.m[4] = Math.abs(m4.m[5]); _m3_tmp.m[5] = Math.abs(m4.m[6]);
-    _m3_tmp.m[6] = Math.abs(m4.m[8]); _m3_tmp.m[7] = Math.abs(m4.m[9]); _m3_tmp.m[8] = Math.abs(m4.m[10]);
+    _m3_tmpm[0] = Math.abs(m4m[0]); _m3_tmpm[1] = Math.abs(m4m[1]); _m3_tmpm[2] = Math.abs(m4m[2]);
+    _m3_tmpm[3] = Math.abs(m4m[4]); _m3_tmpm[4] = Math.abs(m4m[5]); _m3_tmpm[5] = Math.abs(m4m[6]);
+    _m3_tmpm[6] = Math.abs(m4m[8]); _m3_tmpm[7] = Math.abs(m4m[9]); _m3_tmpm[8] = Math.abs(m4m[10]);
     vec3.transformMat3(out, extent, _m3_tmp);
 };
 

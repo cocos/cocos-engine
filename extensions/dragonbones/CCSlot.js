@@ -357,23 +357,23 @@ dragonBones.CCSlot = cc.Class({
 
     _mulMat (out, a, b) {
         let am = a.m, bm = b.m, outm = out.m;
-        let aa=a.m[0], ab=a.m[1], ac=a.m[4], ad=a.m[5], atx=a.m[12], aty=a.m[13];
-        let ba=b.m[0], bb=b.m[1], bc=b.m[4], bd=b.m[5], btx=b.m[12], bty=b.m[13];
+        let aa=am[0], ab=am[1], ac=am[4], ad=am[5], atx=am[12], aty=am[13];
+        let ba=bm[0], bb=bm[1], bc=bm[4], bd=bm[5], btx=bm[12], bty=bm[13];
         if (ab !== 0 || ac !== 0) {
-            out.m[0] = ba * aa + bb * ac;
-            out.m[1] = ba * ab + bb * ad;
-            out.m[4] = bc * aa + bd * ac;
-            out.m[5] = bc * ab + bd * ad;
-            out.m[12] = aa * btx + ac * bty + atx;
-            out.m[13] = ab * btx + ad * bty + aty;
+            outm[0] = ba * aa + bb * ac;
+            outm[1] = ba * ab + bb * ad;
+            outm[4] = bc * aa + bd * ac;
+            outm[5] = bc * ab + bd * ad;
+            outm[12] = aa * btx + ac * bty + atx;
+            outm[13] = ab * btx + ad * bty + aty;
         }
         else {
-            out.m[0] = ba * aa;
-            out.m[1] = bb * ad;
-            out.m[4] = bc * aa;
-            out.m[5] = bd * ad;
-            out.m[12] = aa * btx + atx;
-            out.m[13] = ad * bty + aty;
+            outm[0] = ba * aa;
+            outm[1] = bb * ad;
+            outm[4] = bc * aa;
+            outm[5] = bd * ad;
+            outm[12] = aa * btx + atx;
+            outm[13] = ad * bty + aty;
         }
     },
 

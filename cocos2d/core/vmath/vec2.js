@@ -497,8 +497,8 @@ class vec2 {
     let mm = m.m;
     let x = a.x,
       y = a.y;
-    out.x = m.m[0] * x + m.m[2] * y;
-    out.y = m.m[1] * x + m.m[3] * y;
+    out.x = mm[0] * x + mm[2] * y;
+    out.y = mm[1] * x + mm[3] * y;
     return out;
   }
 
@@ -514,8 +514,8 @@ class vec2 {
     let mm = m.m;
     let x = a.x,
       y = a.y;
-    out.x = m.m[0] * x + m.m[2] * y + m.m[4];
-    out.y = m.m[1] * x + m.m[3] * y + m.m[5];
+    out.x = mm[0] * x + mm[2] * y + mm[4];
+    out.y = mm[1] * x + mm[3] * y + mm[5];
     return out;
   }
 
@@ -531,8 +531,8 @@ class vec2 {
     let mm = m.m;
     let x = a.x,
       y = a.y;
-    out.x = m.m[0] * x + m.m[3] * y + m.m[6];
-    out.y = m.m[1] * x + m.m[4] * y + m.m[7];
+    out.x = mm[0] * x + mm[3] * y + mm[6];
+    out.y = mm[1] * x + mm[4] * y + mm[7];
     return out;
   }
 
@@ -550,8 +550,8 @@ class vec2 {
     let mm = m.m;
     let x = a.x,
       y = a.y;
-    out.x = m.m[0] * x + m.m[4] * y + m.m[12];
-    out.y = m.m[1] * x + m.m[5] * y + m.m[13];
+    out.x = mm[0] * x + mm[4] * y + mm[12];
+    out.y = mm[1] * x + mm[5] * y + mm[13];
     return out;
   }
 

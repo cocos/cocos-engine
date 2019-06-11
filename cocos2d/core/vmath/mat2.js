@@ -61,7 +61,7 @@ class mat2 {
    */
   static clone(a) {
     let am = a.m;
-    return new mat2(a.m[0], a.m[1], a.m[2], a.m[3]);
+    return new mat2(am[0], am[1], am[2], am[3]);
   }
 
   /**
@@ -84,10 +84,10 @@ class mat2 {
    */
   static identity(out) {
     let outm = out.m;
-    out.m[0] = 1;
-    out.m[1] = 0;
-    out.m[2] = 0;
-    out.m[3] = 1;
+    outm[0] = 1;
+    outm[1] = 0;
+    outm[2] = 0;
+    outm[3] = 1;
     return out;
   }
 
@@ -103,10 +103,10 @@ class mat2 {
    */
   static set(out, m00, m01, m10, m11) {
     let outm = out.m;
-    out.m[0] = m00;
-    out.m[1] = m01;
-    out.m[2] = m10;
-    out.m[3] = m11;
+    outm[0] = m00;
+    outm[1] = m01;
+    outm[2] = m10;
+    outm[3] = m11;
     return out;
   }
 
@@ -122,14 +122,14 @@ class mat2 {
     // If we are transposing ourselves we can skip a few steps but have to cache some values
     let outm = out.m, am = a.m;
     if (out === a) {
-      let a1 = a.m[1];
-      out.m[1] = a.m[2];
-      out.m[2] = a1;
+      let a1 = am[1];
+      outm[1] = am[2];
+      outm[2] = a1;
     } else {
-      out.m[0] = a.m[0];
-      out.m[1] = a.m[2];
-      out.m[2] = a.m[1];
-      out.m[3] = a.m[3];
+      outm[0] = am[0];
+      outm[1] = am[2];
+      outm[2] = am[1];
+      outm[3] = am[3];
     }
 
     return out;
@@ -144,7 +144,7 @@ class mat2 {
    */
   static invert(out, a) {
     let am = a.m, outm = out.m;
-    let a0 = a.m[0], a1 = a.m[1], a2 = a.m[2], a3 = a.m[3];
+    let a0 = am[0], a1 = am[1], a2 = am[2], a3 = am[3];
 
     // Calculate the determinant
     let det = a0 * a3 - a2 * a1;
@@ -154,10 +154,10 @@ class mat2 {
     }
     det = 1.0 / det;
 
-    out.m[0] = a3 * det;
-    out.m[1] = -a1 * det;
-    out.m[2] = -a2 * det;
-    out.m[3] = a0 * det;
+    outm[0] = a3 * det;
+    outm[1] = -a1 * det;
+    outm[2] = -a2 * det;
+    outm[3] = a0 * det;
 
     return out;
   }
@@ -172,11 +172,11 @@ class mat2 {
   static adjoint(out, a) {
     let outm = out.m, am = a.m;
     // Caching this value is nessecary if out == a
-    let a0 = a.m[0];
-    out.m[0] = a.m[3];
-    out.m[1] = -a.m[1];
-    out.m[2] = -a.m[2];
-    out.m[3] = a0;
+    let a0 = am[0];
+    outm[0] = am[3];
+    outm[1] = -am[1];
+    outm[2] = -am[2];
+    outm[3] = a0;
 
     return out;
   }
@@ -189,7 +189,7 @@ class mat2 {
    */
   static determinant(a) {
     let am = a.m;
-    return a.m[0] * a.m[3] - a.m[2] * a.m[1];
+    return am[0] * am[3] - am[2] * am[1];
   }
 
   /**
@@ -202,12 +202,12 @@ class mat2 {
    */
   static multiply(out, a, b) {
     let am = a.m, outm = out.m;
-    let a0 = a.m[0], a1 = a.m[1], a2 = a.m[2], a3 = a.m[3];
-    let b0 = b.m[0], b1 = b.m[1], b2 = b.m[2], b3 = b.m[3];
-    out.m[0] = a0 * b0 + a2 * b1;
-    out.m[1] = a1 * b0 + a3 * b1;
-    out.m[2] = a0 * b2 + a2 * b3;
-    out.m[3] = a1 * b2 + a3 * b3;
+    let a0 = am[0], a1 = am[1], a2 = am[2], a3 = am[3];
+    let b0 = bm[0], b1 = bm[1], b2 = bm[2], b3 = bm[3];
+    outm[0] = a0 * b0 + a2 * b1;
+    outm[1] = a1 * b0 + a3 * b1;
+    outm[2] = a0 * b2 + a2 * b3;
+    outm[3] = a1 * b2 + a3 * b3;
     return out;
   }
 
@@ -228,13 +228,13 @@ class mat2 {
    */
   static rotate(out, a, rad) {
     let am = a.m, outm = out.m;
-    let a0 = a.m[0], a1 = a.m[1], a2 = a.m[2], a3 = a.m[3],
+    let a0 = am[0], a1 = am[1], a2 = am[2], a3 = am[3],
       s = Math.sin(rad),
       c = Math.cos(rad);
-    out.m[0] = a0 * c + a2 * s;
-    out.m[1] = a1 * c + a3 * s;
-    out.m[2] = a0 * -s + a2 * c;
-    out.m[3] = a1 * -s + a3 * c;
+    outm[0] = a0 * c + a2 * s;
+    outm[1] = a1 * c + a3 * s;
+    outm[2] = a0 * -s + a2 * c;
+    outm[3] = a1 * -s + a3 * c;
     return out;
   }
 
@@ -248,12 +248,12 @@ class mat2 {
    **/
   static scale(out, a, v) {
     let am = a.m, outm = out.m;
-    let a0 = a.m[0], a1 = a.m[1], a2 = a.m[2], a3 = a.m[3],
+    let a0 = am[0], a1 = am[1], a2 = am[2], a3 = am[3],
       v0 = v.x, v1 = v.y;
-    out.m[0] = a0 * v0;
-    out.m[1] = a1 * v0;
-    out.m[2] = a2 * v1;
-    out.m[3] = a3 * v1;
+    outm[0] = a0 * v0;
+    outm[1] = a1 * v0;
+    outm[2] = a2 * v1;
+    outm[3] = a3 * v1;
     return out;
   }
 
@@ -272,10 +272,10 @@ class mat2 {
     let outm = out.m;
     let s = Math.sin(rad),
       c = Math.cos(rad);
-    out.m[0] = c;
-    out.m[1] = s;
-    out.m[2] = -s;
-    out.m[3] = c;
+    outm[0] = c;
+    outm[1] = s;
+    outm[2] = -s;
+    outm[3] = c;
     return out;
   }
 
@@ -292,10 +292,10 @@ class mat2 {
    */
   static fromScaling(out, v) {
     let outm = out.m;
-    out.m[0] = v.x;
-    out.m[1] = 0;
-    out.m[2] = 0;
-    out.m[3] = v.y;
+    outm[0] = v.x;
+    outm[1] = 0;
+    outm[2] = 0;
+    outm[3] = v.y;
     return out;
   }
 
@@ -307,7 +307,7 @@ class mat2 {
    */
   static str(a) {
     let am = a.m;
-    return `mat2(${a.m[0]}, ${a.m[1]}, ${a.m[2]}, ${a.m[3]})`;
+    return `mat2(${am[0]}, ${am[1]}, ${am[2]}, ${am[3]})`;
   }
 
   /**
@@ -319,10 +319,10 @@ class mat2 {
    */
   static array(out, m) {
     let mm = m.m;
-    out[0] = m.m[0];
-    out[1] = m.m[1];
-    out[2] = m.m[2];
-    out[3] = m.m[3];
+    out[0] = mm[0];
+    out[1] = mm[1];
+    out[2] = mm[2];
+    out[3] = mm[3];
 
     return out;
   }
@@ -335,7 +335,7 @@ class mat2 {
    */
   static frob(a) {
     let am = a.m;
-    return (Math.sqrt(Math.pow(a.m[0], 2) + Math.pow(a.m[1], 2) + Math.pow(a.m[2], 2) + Math.pow(a.m[3], 2)));
+    return (Math.sqrt(Math.pow(am[0], 2) + Math.pow(am[1], 2) + Math.pow(am[2], 2) + Math.pow(am[3], 2)));
   }
 
   /**
@@ -347,10 +347,10 @@ class mat2 {
    */
   static LDU(L, D, U, a) {
     let Lm = L.m, Um = U.m, am = a.m;
-    L.m[2] = a.m[2] / a.m[0];
-    U.m[0] = a.m[0];
-    U.m[1] = a.m[1];
-    U.m[3] = a.m[3] - L.m[2] * U.m[1];
+    Lm[2] = am[2] / am[0];
+    Um[0] = am[0];
+    Um[1] = am[1];
+    Um[3] = am[3] - Lm[2] * Um[1];
   }
 
   /**
@@ -363,10 +363,10 @@ class mat2 {
    */
   static add(out, a, b) {
     let am = a.m, bm = b.m, outm = out.m;
-    out.m[0] = a.m[0] + b.m[0];
-    out.m[1] = a.m[1] + b.m[1];
-    out.m[2] = a.m[2] + b.m[2];
-    out.m[3] = a.m[3] + b.m[3];
+    outm[0] = am[0] + bm[0];
+    outm[1] = am[1] + bm[1];
+    outm[2] = am[2] + bm[2];
+    outm[3] = am[3] + bm[3];
     return out;
   }
 
@@ -380,10 +380,10 @@ class mat2 {
    */
   static subtract(out, a, b) {
     let am = a.m, bm = b.m, outm = out.m;
-    out.m[0] = a.m[0] - b.m[0];
-    out.m[1] = a.m[1] - b.m[1];
-    out.m[2] = a.m[2] - b.m[2];
-    out.m[3] = a.m[3] - b.m[3];
+    outm[0] = am[0] - bm[0];
+    outm[1] = am[1] - bm[1];
+    outm[2] = am[2] - bm[2];
+    outm[3] = am[3] - bm[3];
     return out;
   }
 
@@ -403,7 +403,7 @@ class mat2 {
    */
   static exactEquals(a, b) {
     let am = a.m, bm = b.m;
-    return a.m[0] === b.m[0] && a.m[1] === b.m[1] && a.m[2] === b.m[2] && a.m[3] === b.m[3];
+    return am[0] === bm[0] && am[1] === bm[1] && am[2] === bm[2] && am[3] === bm[3];
   }
 
   /**
@@ -415,8 +415,8 @@ class mat2 {
    */
   static equals(a, b) {
     let am = a.m, bm = b.m;
-    let a0 = a.m[0], a1 = a.m[1], a2 = a.m[2], a3 = a.m[3];
-    let b0 = b.m[0], b1 = b.m[1], b2 = b.m[2], b3 = b.m[3];
+    let a0 = am[0], a1 = am[1], a2 = am[2], a3 = am[3];
+    let b0 = bm[0], b1 = bm[1], b2 = bm[2], b3 = bm[3];
     return (
       Math.abs(a0 - b0) <= EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
       Math.abs(a1 - b1) <= EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&
@@ -435,10 +435,10 @@ class mat2 {
    */
   static multiplyScalar(out, a, b) {
     let am = a.m, outm = out.m;
-    out.m[0] = a.m[0] * b;
-    out.m[1] = a.m[1] * b;
-    out.m[2] = a.m[2] * b;
-    out.m[3] = a.m[3] * b;
+    outm[0] = am[0] * b;
+    outm[1] = am[1] * b;
+    outm[2] = am[2] * b;
+    outm[3] = am[3] * b;
     return out;
   }
 
@@ -453,10 +453,10 @@ class mat2 {
    */
   static multiplyScalarAndAdd(out, a, b, scale) {
     let am = a.m, bm = b.m, outm = out.m;
-    out.m[0] = a.m[0] + (b.m[0] * scale);
-    out.m[1] = a.m[1] + (b.m[1] * scale);
-    out.m[2] = a.m[2] + (b.m[2] * scale);
-    out.m[3] = a.m[3] + (b.m[3] * scale);
+    outm[0] = am[0] + (bm[0] * scale);
+    outm[1] = am[1] + (bm[1] * scale);
+    outm[2] = am[2] + (bm[2] * scale);
+    outm[3] = am[3] + (bm[3] * scale);
     return out;
   }
 }

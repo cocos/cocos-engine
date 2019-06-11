@@ -65,22 +65,22 @@ function Mat4 (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, 
     let t = this;
     t.m = new Float32Array(16);
     let tm = t.m;
-    t.m[0] = m00;
-    t.m[1] = m01;
-    t.m[2] = m02;
-    t.m[3] = m03;
-    t.m[4] = m10;
-    t.m[5] = m11;
-    t.m[6] = m12;
-    t.m[7] = m13;
-    t.m[8] = m20;
-    t.m[9] = m21;
-    t.m[10] = m22;
-    t.m[11] = m23;
-    t.m[12] = m30;
-    t.m[13] = m31;
-    t.m[14] = m32;
-    t.m[15] = m33;
+    tm[0] = m00;
+    tm[1] = m01;
+    tm[2] = m02;
+    tm[3] = m03;
+    tm[4] = m10;
+    tm[5] = m11;
+    tm[6] = m12;
+    tm[7] = m13;
+    tm[8] = m20;
+    tm[9] = m21;
+    tm[10] = m22;
+    tm[11] = m23;
+    tm[12] = m30;
+    tm[13] = m31;
+    tm[14] = m32;
+    tm[15] = m33;
 }
 js.extend(Mat4, ValueType);
 CCClass.fastDefine('cc.Mat4', Mat4, { 
@@ -112,10 +112,10 @@ js.mixin(Mat4.prototype, {
         let t = this;
         let tm = t.m;
         return new Mat4(
-            t.m[0], t.m[1], t.m[2], t.m[3],
-            t.m[4], t.m[5], t.m[6], t.m[7],
-            t.m[8], t.m[9], t.m[10], t.m[11],
-            t.m[12], t.m[13], t.m[14], t.m[15]);
+            tm[0], tm[1], tm[2], tm[3],
+            tm[4], tm[5], tm[6], tm[7],
+            tm[8], tm[9], tm[10], tm[11],
+            tm[12], tm[13], tm[14], tm[15]);
     },
 
     /**
@@ -129,22 +129,22 @@ js.mixin(Mat4.prototype, {
     set (s) {
         let t = this;
         let tm = t.m, sm = s.m;
-        t.m[0] = s.m[0];
-        t.m[1] = s.m[1];
-        t.m[2] = s.m[2];
-        t.m[3] = s.m[3];
-        t.m[4] = s.m[4];
-        t.m[5] = s.m[5];
-        t.m[6] = s.m[6];
-        t.m[7] = s.m[7];
-        t.m[8] = s.m[8];
-        t.m[9] = s.m[9];
-        t.m[10] = s.m[10];
-        t.m[11] = s.m[11];
-        t.m[12] = s.m[12];
-        t.m[13] = s.m[13];
-        t.m[14] = s.m[14];
-        t.m[15] = s.m[15];
+        tm[0] = sm[0];
+        tm[1] = sm[1];
+        tm[2] = sm[2];
+        tm[3] = sm[3];
+        tm[4] = sm[4];
+        tm[5] = sm[5];
+        tm[6] = sm[6];
+        tm[7] = sm[7];
+        tm[8] = sm[8];
+        tm[9] = sm[9];
+        tm[10] = sm[10];
+        tm[11] = sm[11];
+        tm[12] = sm[12];
+        tm[13] = sm[13];
+        tm[14] = sm[14];
+        tm[15] = sm[15];
         return this;
     },
 
@@ -182,10 +182,10 @@ js.mixin(Mat4.prototype, {
         let t = this;
         let tm = t.m;
         return "[\n" +
-            t.m[0] + ", " + t.m[1] + ", " + t.m[2] + ", " + t.m[3] + ",\n" +
-            t.m[4] + ", " + t.m[5] + ", " + t.m[6] + ", " + t.m[7] + ",\n" +
-            t.m[8] + ", " + t.m[9] + ", " + t.m[10] + ", " + t.m[11] + ",\n" +
-            t.m[12] + ", " + t.m[13] + ", " + t.m[14] + ", " + t.m[15] + "\n" +
+            tm[0] + ", " + tm[1] + ", " + tm[2] + ", " + tm[3] + ",\n" +
+            tm[4] + ", " + tm[5] + ", " + tm[6] + ", " + tm[7] + ",\n" +
+            tm[8] + ", " + tm[9] + ", " + tm[10] + ", " + tm[11] + ",\n" +
+            tm[12] + ", " + tm[13] + ", " + tm[14] + ", " + tm[15] + "\n" +
             "]"
             ;
     },

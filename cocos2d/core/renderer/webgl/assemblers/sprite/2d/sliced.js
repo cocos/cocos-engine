@@ -134,8 +134,8 @@ module.exports = {
         
         let matrix = node._worldMatrix;
         let matrixm = matrix.m,
-            a = matrix.m[0], b = matrix.m[1], c = matrix.m[4], d = matrix.m[5],
-            tx = matrix.m[12], ty = matrix.m[13];
+            a = matrixm[0], b = matrixm[1], c = matrixm[4], d = matrixm[5],
+            tx = matrixm[12], ty = matrixm[13];
         for (let row = 0; row < 4; ++row) {
             let rowD = verts[row];
             for (let col = 0; col < 4; ++col) {
