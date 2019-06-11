@@ -692,15 +692,8 @@ if (CC_EDITOR || CC_TEST) {
 
     // COMPONENT HELPERS
 
+    // TODO Keep temporarily, compatible with old version
     cc._componentMenuItems = [];
-    // @ts-ignore
-    Component._addMenuItem = function (cls, path, priority) {
-        cc._componentMenuItems.push({
-            component: cls,
-            menuPath: path,
-            priority,
-        });
-    };
 }
 
 // we make this non-enumerable, to prevent inherited by sub classes.
@@ -744,7 +737,7 @@ value(Component, '_registerEditorProps', function (cls, props) {
 
                 case 'menu':
                     // @ts-ignore
-                    Component._addMenuItem(cls, val, props.menuPriority);
+                    window.EditorExtends && window.EditorExtends.Component.addMenu(cls, val, props.menuPriority);
                     break;
 
                 case 'disallowMultiple':
