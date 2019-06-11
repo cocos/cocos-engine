@@ -37,38 +37,6 @@ export type EasingMethodName = keyof (typeof easing);
  */
 export type EasingMethod = EasingMethodName | BezierControlPoints;
 
-/**
- * 动画的插值方式。
- */
-export enum AnimationInterpolation {
-    /**
-     * 曲线值之间进行线性插值。
-     * 当使用此插值方式时，曲线值的类型必须为 `number`、`Number` 或继承自 `ValueType`。
-     */
-    Linear = 0,
-
-    /**
-     * 直接使用起始曲线值作为插值结果。
-     */
-    Step = 1,
-
-    /**
-     * 曲线值之间进行三次样条插值。
-     * 当使用此插值方式时，曲线值的类型必须为 `ICubicSpline<T>`
-     * 并且类型参数 `T` 必须为 `number`、`Number` 或继承自 `ValueType`。
-     */
-    CubicSpline = 2,
-
-    /**
-     * 使用自定义插值方式，插值结果为 `from.lerp.call(from, to, ratio)`，其中
-     * `from` 为起始曲线值；`to` 为结束曲线值；`ratio` 表示插值比例，范围为 `(0,1)`。
-     * 当使用此插值方式时，曲线值的类型必须为 `ILerpable`。
-     */
-    Custom = 3,
-}
-ccenum(AnimationInterpolation);
-cc.AnimationInterpolation = AnimationInterpolation;
-
 type LerpFunction<T = any> = (from: T, to: T, t: number, dt: number) => T;
 
 /**
@@ -102,35 +70,10 @@ export interface IPropertyCurveData {
     motionPaths?: MotionPath | MotionPath[];
 
     /**
-     * 曲线的插值方式。
+     * 是否进行插值。
+     * @default true
      */
-    interpolation?: AnimationInterpolation;
-}
-
-interface ICubicSplineValue<T> {
-    inTangent: T;
-    dataPoint: T;
-    outTangent: T;
-}
-
-function fullfillInterpolationRequirement (interpolation: AnimationInterpolation, value: any) {
-    const isNumberLikeOrValueType = (v: any) => {
-        return typeof v === 'number' ||
-            (typeof v === 'object' && v !== null &&
-                (v instanceof Number || v instanceof ValueType));
-    };
-    switch (interpolation) {
-        case AnimationInterpolation.Linear:
-            return isNumberLikeOrValueType(value);
-        case AnimationInterpolation.CubicSpline:
-            return (typeof value === 'object' && value !== null) &&
-                isNumberLikeOrValueType(value.inTangent) &&
-                isNumberLikeOrValueType(value.outTangent) &&
-                isNumberLikeOrValueType(value.dataPoint);
-        case AnimationInterpolation.Custom:
-            return isLerpable(value);
-    }
-    return true;
+    interpolate?: boolean;
 }
 
 export class RatioSampler {
@@ -205,11 +148,9 @@ export class AnimCurve {
     /**
      * Lerp function used. If undefined, no lerp is performed.
      */
-    private _lerp: LerpFunction | undefined = undefined;
+    private _lerp: undefined | ((from: any, to: any, t: number, dt: number) => any) = undefined;
 
     private _stepfiedValues?: any[];
-
-    private _interpolation: AnimationInterpolation;
 
     constructor (propertyCurveData: IPropertyCurveData, propertyName: string, isNode: boolean, ratioSampler: RatioSampler | null) {
         this._ratioSampler = ratioSampler;
@@ -241,33 +182,12 @@ export class AnimCurve {
 
         const firstValue = propertyCurveData.values[0];
 
-        // If no interpolation is explicit specified, deduce the interpolation.
-        if (propertyCurveData.interpolation !== undefined) {
-            this._interpolation = propertyCurveData.interpolation;
-        } else {
-            this._interpolation = deduceInterpolation(firstValue);
-        }
+        const interpolate = propertyCurveData.interpolate === undefined ?
+            true : propertyCurveData.interpolate;
 
         // Setup the lerp function.
-        if (CC_DEV) {
-            if (!this._values.every(
-                (value) => fullfillInterpolationRequirement(this._interpolation, value))) {
-                error(
-                    `Curve values for which ` +
-                    `${AnimationInterpolation[this._interpolation]} ` +
-                     `is used do not satify the type requirements.`);
-            }
-        }
-        switch (this._interpolation) {
-            case AnimationInterpolation.Custom:
-                this._lerp = customLerpFxInvoker;
-                break;
-            case AnimationInterpolation.Linear:
-                this._lerp = selectLinearLerpFx(firstValue);
-                break;
-            case AnimationInterpolation.CubicSpline:
-                this._lerp = selectCubicSplineLerpFx(firstValue);
-                break;
+        if (interpolate) {
+            this._lerp = selectLerpFx(firstValue);
         }
 
         // Setup the blend function.
@@ -362,10 +282,8 @@ export class AnimCurve {
                 }
             }
         }
-        if (!isLerped) {
-            if (this._interpolation === AnimationInterpolation.CubicSpline) {
-                return value.dataPoint;
-            }
+        if (!isLerped && value && value.getNoLerp) {
+            return value.getNoLerp();
         }
         return value;
     }
@@ -439,20 +357,7 @@ function quickFindIndex (ratios: number[], ratio: number) {
     return ~(floorIndex + 1);
 }
 
-function customLerpFxInvoker (from: ILerpable, to: ILerpable, t: number): any {
-    return from.lerp(to, t);
-}
-
-/**
- * Try deduce interpolation method from curve's value.
- * @param value Any value in the curve.
- */
-function deduceInterpolation (value: any): AnimationInterpolation {
-    // If linear interpolation is valid, use it; or do not do interpolation.
-    return selectLinearLerpFx(value) ? AnimationInterpolation.Linear : AnimationInterpolation.Step;
-}
-
-const selectLinearLerpFx = (() => {
+const selectLerpFx = (() => {
     function makeValueTypeLerpFx<T extends ValueType> (constructor: Constructor<T>) {
         const tempValue = new constructor();
         return (from: T, to: T, ratio: number) => {
@@ -460,10 +365,11 @@ const selectLinearLerpFx = (() => {
         };
     }
 
-    const lerpNumber = vmath.lerp;
+    function callLerpable (from: ILerpable, to: ILerpable, t: number, dt: number): any {
+        return from.lerp(to, t, dt);
+    }
 
-    const builtinLerpFxTable: Map<Object, LerpFunction> = new Map();
-    builtinLerpFxTable.set(Number, lerpNumber);
+    const lerpNumber = vmath.lerp;
 
     return (value: any): LerpFunction<any> | undefined => {
         if (value === null) {
@@ -471,81 +377,13 @@ const selectLinearLerpFx = (() => {
         }
         if (typeof value === 'number') {
             return lerpNumber;
-        } else if (value instanceof ValueType) {
-            return makeValueTypeLerpFx(value.constructor as typeof ValueType);
-        } else if (typeof value === 'object') {
-            const result = builtinLerpFxTable.get(value.constructor);
-            if (result) {
-                return result;
-            }
-        }
-        return undefined;
-    };
-})();
-
-const selectCubicSplineLerpFx = (() => {
-    type ScaleFx<T> = (out: T, v: T, s: number) => T;
-    type ScaleAndAddFx<T> = (out: T, v1: T, v2: T, s: number) => T;
-    function makeValueTypeLerpFx<T> (
-        constructor: Constructor<T>,
-        scaleFx: ScaleFx<T>,
-        scaleAndAdd: ScaleAndAddFx<T>) {
-        let tempValue = new constructor();
-        let m0 = new constructor();
-        let m1 = new constructor();
-        return (from: ICubicSplineValue<T>, to: ICubicSplineValue<T>, t: number, dt: number) => {
-            const p0 = from.dataPoint;
-            const p1 = to.dataPoint;
-            // dt => t_k+1 - t_k
-            m0 = scaleFx(m0, from.outTangent, dt);
-            m1 = scaleFx(m1, to.inTangent, dt);
-            const t_3 = t * t * t;
-            const t_2 = t * t;
-            const f_0 = 2 * t_3 - 3 * t_2 + 1;
-            const f_1 = t_3 - 2 * t_2 + t;
-            const f_2 = -2 * t_3 + 3 * t_2;
-            const f_3 = t_3 - t_2;
-            tempValue = scaleFx(tempValue, p0, f_0);
-            tempValue = scaleAndAdd(tempValue, tempValue, m0, f_1);
-            tempValue = scaleAndAdd(tempValue, tempValue, p1, f_2);
-            tempValue = scaleAndAdd(tempValue, tempValue, m1, f_3);
-            return tempValue;
-        };
-    }
-
-    const lerpNumber = (from: ICubicSplineValue<number>, to: ICubicSplineValue<number>, t: number, dt: number) => {
-        const p0 = from.dataPoint;
-        const p1 = to.dataPoint;
-        // dt => t_k+1 - t_k
-        const m0 = from.outTangent * dt;
-        const m1 = to.inTangent * dt;
-        const t_3 = t * t * t;
-        const t_2 = t * t;
-        const f_0 = 2 * t_3 - 3 * t_2 + 1;
-        const f_1 = t_3 - 2 * t_2 + t;
-        const f_2 = -2 * t_3 + 3 * t_2;
-        const f_3 = t_3 - t_2;
-        return p0 * f_0 + m0 * f_1 + p1 * f_2 + m1 * f_3;
-    };
-
-    const builtinLerpFxTable: Map<Object, LerpFunction> = new Map();
-    builtinLerpFxTable.set(Number, lerpNumber);
-    builtinLerpFxTable.set(Vec2, makeValueTypeLerpFx(Vec2, vmath.vec2.scale, vmath.vec2.scaleAndAdd));
-    builtinLerpFxTable.set(Vec3, makeValueTypeLerpFx(Vec3, vmath.vec3.scale, vmath.vec3.scaleAndAdd));
-    builtinLerpFxTable.set(Vec4, makeValueTypeLerpFx(Vec4, vmath.vec4.scale, vmath.vec4.scaleAndAdd));
-    builtinLerpFxTable.set(Quat, makeValueTypeLerpFx(Quat, vmath.quat.scale, vmath.quat.scaleAndAdd));
-
-    return (value: any): LerpFunction<any> | undefined => {
-        if (value === null || !Reflect.has(value, 'dataPoint')) {
-            return undefined;
-        }
-        const dataValue = value.dataPoint;
-        if (typeof dataValue === 'number') {
-            return lerpNumber;
-        } else if (typeof dataValue === 'object') {
-            const result = builtinLerpFxTable.get(dataValue.constructor);
-            if (result) {
-                return result;
+        } else if (typeof value === 'object' && value.constructor) {
+            if (value instanceof ValueType) {
+                return makeValueTypeLerpFx(value.constructor as typeof ValueType);
+            } else if (value.constructor === Number) {
+                return lerpNumber;
+            } else if (isLerpable(value)) {
+                return callLerpable;
             }
         }
         return undefined;

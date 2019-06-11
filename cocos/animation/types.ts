@@ -90,7 +90,8 @@ export class WrappedInfo {
 }
 
 export interface ILerpable {
-    lerp (to: this, t: number): this;
+    lerp (to: any, t: number, dt: number): any;
+    getNoLerp? (): any;
 }
 
 export function isLerpable (object: any): object is ILerpable {
