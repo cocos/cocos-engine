@@ -192,6 +192,7 @@ export class PlanarShadowInfo {
         this.normal = this._normal;
         this.distance = this._distance;
         this.shadowColor = this._shadowColor;
+        this.enabled = this._enabled;
     }
 }
 cc.PlanarShadowInfo = PlanarShadowInfo;

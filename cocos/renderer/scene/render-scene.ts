@@ -221,10 +221,10 @@ export class RenderScene {
     public raycast (worldRay: ray, mask: number = Layers.RaycastMask): IRaycastResult[] {
         pool.reset();
         for (const m of this._models) {
-            const node = m.node;
-            if (!node || !m.enabled || !cc.Layers.check(node.layer, mask) || !m.modelBounds) { continue; }
+            const transform = m.transform;
+            if (!transform || !m.enabled || !cc.Layers.check(m.node.layer, mask) || !m.modelBounds) { continue; }
             // transform ray back to model space
-            mat4.invert(m4, node.getWorldMatrix(m4));
+            mat4.invert(m4, transform.getWorldMatrix(m4));
             vec3.transformMat4(modelRay.o, worldRay.o, m4);
             vec3.normalize(modelRay.d, vec3.transformMat4Normal(modelRay.d, worldRay.d, m4));
             // broadphase
@@ -238,8 +238,8 @@ export class RenderScene {
                 }
                 if (distance < Infinity) {
                     const r = pool.add();
-                    r.node = node;
-                    r.distance = distance * vec3.magnitude(vec3.mul(v3, modelRay.d, node._scale));
+                    r.node = m.node;
+                    r.distance = distance * vec3.magnitude(vec3.mul(v3, modelRay.d, transform.worldScale));
                     results[pool.length - 1] = r;
                 }
             }

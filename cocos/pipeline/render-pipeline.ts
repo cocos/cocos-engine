@@ -989,7 +989,6 @@ export abstract class RenderPipeline {
 
         const planarShadow = scene.planarShadow;
         if (planarShadow.enabled) {
-            planarShadow.updateDirLight(scene.mainLight);
             this._globalBindings.get(UBOShadow.BLOCK.name)!.buffer!.update(planarShadow.data);
         }
     }
@@ -1004,6 +1003,11 @@ export abstract class RenderPipeline {
         const mainLight = scene.mainLight;
         if (mainLight && mainLight.enabled) {
             mainLight.update();
+        }
+
+        const planarShadow = scene.planarShadow;
+        if (planarShadow.enabled) {
+            planarShadow.updateDirLight(scene.mainLight);
         }
 
         if (scene.skybox.enabled) {

@@ -33,6 +33,7 @@ import { IGFXAttribute } from '../../gfx/input-assembler';
 import { BufferBlob } from '../misc/buffer-blob';
 import { IBufferView } from './utils/buffer-view';
 import { postLoadMesh } from './utils/mesh-utils';
+import { vec3 } from '../../core/vmath';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -297,8 +298,7 @@ export class Mesh extends Asset {
 
             if (prim.geometricInfo) {
                 const info = prim.geometricInfo;
-                let positions: Float32Array | null = null;
-                positions = new Float32Array(buffer, info.view.offset, info.view.length / 4);
+                const positions = new Float32Array(buffer, info.view.offset, info.view.length / 4);
                 subMesh.geometricInfo = {
                     indices: ib,
                     positions,
@@ -557,7 +557,7 @@ export class Mesh extends Asset {
                     view: {
                         offset: bufferBlob.getLength(),
                         length: geomBuffView.length,
-                        count: prim.geometricInfo.view.count,
+                        count: prim.geometricInfo.view.count + dstPrim.geometricInfo.view.count,
                         stride: prim.geometricInfo.view.stride,
                     },
                 };
@@ -574,19 +574,15 @@ export class Mesh extends Asset {
         };
 
         if (meshStruct.minPosition && mesh._struct.minPosition) {
-            meshStruct.minPosition.x = Math.min(meshStruct.minPosition.x, mesh._struct.minPosition.x);
-            meshStruct.minPosition.y = Math.min(meshStruct.minPosition.y, mesh._struct.minPosition.y);
-            meshStruct.minPosition.z = Math.min(meshStruct.minPosition.z, mesh._struct.minPosition.z);
+            vec3.min(meshStruct.minPosition, meshStruct.minPosition, mesh._struct.minPosition);
         }
         if (meshStruct.maxPosition && mesh._struct.maxPosition) {
-            meshStruct.maxPosition.x = Math.max(meshStruct.maxPosition.x, mesh._struct.maxPosition.x);
-            meshStruct.maxPosition.y = Math.max(meshStruct.maxPosition.y, mesh._struct.maxPosition.y);
-            meshStruct.maxPosition.z = Math.max(meshStruct.maxPosition.z, mesh._struct.maxPosition.z);
+            vec3.max(meshStruct.maxPosition, meshStruct.maxPosition, mesh._struct.maxPosition);
         }
 
         // Create mesh.
         this.assign(meshStruct, new Uint8Array(bufferBlob.getCombined()));
-        this.initialize ();
+        this.initialize();
 
         return true;
     }

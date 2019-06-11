@@ -31,18 +31,18 @@ class Node extends BaseNode {
     }
 
     // world transform, don't access this directly
-    public _pos = new Vec3();
-    public _rot = new Quat();
-    public _scale = new Vec3(1, 1, 1);
-    public _mat = new Mat4();
+    protected _pos = new Vec3();
+    protected _rot = new Quat();
+    protected _scale = new Vec3(1, 1, 1);
+    protected _mat = new Mat4();
 
     // local transform
     @property
-    public _lpos = new Vec3();
+    protected _lpos = new Vec3();
     @property
-    public _lrot = new Quat();
+    protected _lrot = new Quat();
     @property
-    public _lscale = new Vec3(1, 1, 1);
+    protected _lscale = new Vec3(1, 1, 1);
     @property
     protected _layer = Layers.Default; // the layer this node belongs to
 

@@ -60,6 +60,7 @@ export class SkinningModel extends Model {
     constructor (scene: RenderScene, node: Node) {
         super(scene, node);
         this._type = 'skinning';
+        if (node.parent) { this._transform = node.parent; }
     }
 
     public bindSkeleton (skeleton: Skeleton | null) {

@@ -210,12 +210,6 @@ export class SkinningModelComponent extends ModelComponent {
         super._updateModelParams();
     }
 
-    protected _createModel () {
-        if (!this.node.scene) { return; }
-        const scene = this._getRenderScene();
-        this._model = scene.createModel(this._getModelConstructor(), this.node.parent!);
-    }
-
     protected _getModelConstructor () {
         return SkinningModel;
     }

@@ -124,6 +124,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         return this._mesh;
     }
     set mesh (val) {
+        // @ts-ignore
         super.mesh = val;
     }
 
@@ -132,6 +133,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         return this._skeleton;
     }
     set skeleton (val) {
+        // @ts-ignore
         super.skeleton = val;
     }
 
@@ -140,6 +142,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         return this._skinningRoot;
     }
     set skinningRoot (val) {
+        // @ts-ignore
         super.skinningRoot = val;
     }
 
@@ -232,6 +235,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         skeleton.joints = skeleton.joints.map((_, idx, arr) => arr[idxMap[idx]]);
         skeleton.bindposes = skeleton.bindposes.map((_, idx, arr) => arr[idxMap[idx]]);
         // apply
+        // @ts-ignore
         super.skeleton = skeleton;
     }
 
