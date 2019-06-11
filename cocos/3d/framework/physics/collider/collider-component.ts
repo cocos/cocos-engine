@@ -1,7 +1,5 @@
-import {
-    ccclass,
-    property,
-} from '../../../../core/data/class-decorator';
+import { EventTarget } from '../../../../core';
+import { ccclass, property } from '../../../../core/data/class-decorator';
 import { CallbacksInvoker, ICallbackTable } from '../../../../core/event/callbacks-invoker';
 import { applyMixins, IEventTarget } from '../../../../core/event/event-target-factory';
 import { createMap } from '../../../../core/utils/js';
@@ -39,7 +37,11 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
     }
 
     /**
-     * The center of the collider, in local space.
+     * @en
+     * get the center of the collider, in local space.
+     * @zh
+     * 获取碰撞器的中心点
+     *
      */
     @property({
         type: Vec3,
@@ -50,6 +52,10 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
         return this._center;
     }
 
+    /**
+     * @zh
+     * 设置碰撞器的中心点
+     */
     public set center (value: Vec3) {
         vec3.copy(this._center, value);
 
@@ -88,7 +94,7 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
      * @param target - 可选参数，执行回调函数的目标
      * @param useCapture - 可选参数，当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
      */
-    public on (type: CollisionEventType, callback: CollisionCallback, target?: Object, useCapture?: any): any{
+    public on (type: CollisionEventType, callback: CollisionCallback, target?: Object, useCapture?: any): any {
     }
 
     /**
@@ -125,6 +131,7 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
     public hasEventListener (key: CollisionEventType, callback?: CollisionCallback, target?: Object): boolean {
         return false;
     }
+
     public removeAll (keyOrTarget?: CollisionEventType | Object): void {
     }
 

@@ -11,14 +11,27 @@ export class PhysicsSystem {
         this._world = createPhysicsWorld();
     }
 
+    /**
+     * @zh
+     * 设置是否只运行一步
+     * @param b - 布尔值
+     */
     public setSingleStep (b: boolean) {
         this._singleStep = b;
     }
 
+    /**
+     * @zh
+     * 继续
+     */
     public resume () {
         this._paused = false;
     }
 
+    /**
+     * @zh
+     * 暂停
+     */
     public pause () {
         this._paused = true;
     }
