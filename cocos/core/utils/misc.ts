@@ -145,11 +145,12 @@ export function clampf(value: number, min_inclusive: number, max_inclusive: numb
  * 限定浮点数的取值范围为 0 ~ 1 之间。
  *
  * @param value
- * @return
  * @example
- * var v1 = cc.misc.clamp01(20);  // 1;
- * var v2 = cc.misc.clamp01(-1);  // 0;
- * var v3 = cc.misc.clamp01(0.5); // 0.5;
+ * ```typescript
+ * let v1 = cc.misc.clamp01(20);  // 1;
+ * let v2 = cc.misc.clamp01(-1);  // 0;
+ * let v3 = cc.misc.clamp01(0.5); // 0.5;
+ * ```
  */
 export function clamp01 (value: number) {
     return clampValue01(value);
@@ -163,7 +164,11 @@ export function clamp01 (value: number) {
  * @param b number B
  * @param r ratio between 0 and 1
  * @return
- * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCMacro/lerp.js}
+ * @example
+ * ```
+ * let v1 = cc.misc.lerp(2,10,0.5); // 6;
+ * let v2 = cc.misc.lerp(2,10,0.2); // 3.6;
+ * ```
  */
 export function lerp (a: number, b: number, r: number) {
     return lerpUtil(a, b, r);

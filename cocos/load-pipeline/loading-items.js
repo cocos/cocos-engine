@@ -369,7 +369,6 @@ export default class LoadingItems extends CallbacksInvoker {
      * !#en Complete an item in the LoadingItems queue, please do not call this method unless you know what's happening.
      * !#zh 通知 LoadingItems 队列一个 item 对象已完成，请不要调用这个函数，除非你知道自己在做什么。
      * @method itemComplete
-     * @static
      * @param {Object} item The item which has completed
      */
     static itemComplete (item) {
