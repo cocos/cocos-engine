@@ -220,12 +220,12 @@ class Component extends CCObject {
         super();
         if (CC_EDITOR) {
             // @ts-ignore
-            if (window._Scene && _Scene.AssetsWatcher) {
-                // @ts-ignore
-                _Scene.AssetsWatcher.initComponent(this);
-            }
-            // @ts-ignore
             this._id = Editor.Utils.UuidUtils.uuid();
+            // @ts-ignore
+            if (window.EditorExtends && window.EditorExtends.Component) {
+                // @ts-ignore
+                EditorExtends.Component.add(this._id, this);
+            }
         }
         else {
             this._id = idGenerator.getNewId();

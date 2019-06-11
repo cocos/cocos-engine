@@ -369,6 +369,12 @@ export class BaseNode extends CCObject {
         if (cc.director._scheduler) {
             cc.director._scheduler.enableForTarget(this);
         }
+
+        // @ts-ignore
+        if (CC_EDITOR && window.EditorExtends) {
+            // @ts-ignore
+            EditorExtends.Node.add(this._id, this);
+        }
     }
 
     /**
