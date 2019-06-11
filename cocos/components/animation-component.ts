@@ -238,8 +238,9 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     /**
-     * 获取指定的动画状态。
-     * @deprecated 请使用 `this.getState`。
+     * @zh
+     * 获取指定的动画状态。<br>
+     * **即将弃用**，请使用 [[getState]]。
      */
     public getAnimationState (name: string) {
         return this.getState(name);
@@ -285,11 +286,12 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     /**
-     * 添加一个动画剪辑到 `this.clips`中并以此剪辑创建动画状态。
+     * @zh
+     * 添加一个动画剪辑到 `this.clips`中并以此剪辑创建动画状态。<br>
+     * **即将弃用**，请使用 [[createState]]
      * @param clip 动画剪辑。
      * @param name 动画状态的名称，若未指定，则使用动画剪辑的名称。
      * @returns 新创建的动画状态。
-     * @deprecated 请使用 `this.createState`.
      */
     public addClip (clip: AnimationClip, name?: string): AnimationState {
         if (!ArrayUtils.contains(this._clips, clip)) {
@@ -305,10 +307,10 @@ export class AnimationComponent extends Component implements IEventTarget {
      * But if force is true, then will always remove the clip and any animation states based on it. If clip is defaultClip, defaultClip will be reset to null
      * @zh
      * 从动画列表中移除指定的动画剪辑，<br/>
-     * 如果依赖于 clip 的 AnimationState 正在播放或者 clip 是 defaultClip 的话，默认是不会删除 clip 的。
-     * 但是如果 force 参数为 true，则会强制停止该动画，然后移除该动画剪辑和相关的动画。这时候如果 clip 是 defaultClip，defaultClip 将会被重置为 null。
+     * 如果依赖于 clip 的 AnimationState 正在播放或者 clip 是 defaultClip 的话，默认是不会删除 clip 的。<br/>
+     * 但是如果 force 参数为 true，则会强制停止该动画，然后移除该动画剪辑和相关的动画。这时候如果 clip 是 defaultClip，defaultClip 将会被重置为 null。<br/>
+     * **即将弃用**，请使用 [[removeState]]
      * @param {Boolean} [force=false] - If force is true, then will always remove the clip and any animation states based on it.
-     * @deprecated 请使用 `this.removeState`.
      */
     public removeClip (clip: AnimationClip, force?: boolean) {
         let state: AnimationState | undefined;
