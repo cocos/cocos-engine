@@ -76,7 +76,7 @@ module.exports = function createBundler(entryFiles, options) {
             'env',
             {
                 "loose": true,
-                "exclude": ['babel-plugin-transform-es2015-typeof-symbol']
+                "exclude": ['transform-es2015-typeof-symbol']
             }
         ]
 
