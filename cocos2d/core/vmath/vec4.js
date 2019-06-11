@@ -562,11 +562,12 @@ class vec4 {
    * @returns {vec4} out.
    */
   static transformMat4(out, a, m) {
+    let mm = m.m;
     let x = a.x, y = a.y, z = a.z, w = a.w;
-    out.x = m.m00 * x + m.m04 * y + m.m08 * z + m.m12 * w;
-    out.y = m.m01 * x + m.m05 * y + m.m09 * z + m.m13 * w;
-    out.z = m.m02 * x + m.m06 * y + m.m10 * z + m.m14 * w;
-    out.w = m.m03 * x + m.m07 * y + m.m11 * z + m.m15 * w;
+    out.x = m.m[0] * x + m.m[4] * y + m.m[8] * z + m.m[12] * w;
+    out.y = m.m[1] * x + m.m[5] * y + m.m[9] * z + m.m[13] * w;
+    out.z = m.m[2] * x + m.m[6] * y + m.m[10] * z + m.m[14] * w;
+    out.w = m.m[3] * x + m.m[7] * y + m.m[11] * z + m.m[15] * w;
     return out;
   }
 

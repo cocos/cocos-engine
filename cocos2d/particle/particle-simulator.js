@@ -282,8 +282,9 @@ Simulator.prototype.step = function (dt) {
     node._updateWorldMatrix();
     _trans = AffineTrans.identity();
     if (psys.positionType === cc.ParticleSystem.PositionType.FREE) {
-        _trans.tx = node._worldMatrix.m12;
-        _trans.ty = node._worldMatrix.m13;
+        let m =  node._worldMatrix.m;
+        _trans.tx = m[12];
+        _trans.ty = m[13];
         AffineTrans.transformVec2(_pos, ZERO_VEC2, _trans);
     } else if (psys.positionType === cc.ParticleSystem.PositionType.RELATIVE) {
         let angle = misc.degreesToRadians(-node.angle);

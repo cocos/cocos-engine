@@ -72,8 +72,9 @@ module.exports = {
     },
 
     fillVertices (vbuf, vertexOffset, matrix, row, col, verts) {
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
+        let matrixm = matrix.m;
+        let a = matrix.m[0], b = matrix.m[1], c = matrix.m[4], d = matrix.m[5],
+            tx = matrix.m[12], ty = matrix.m[13];
 
         let x, x1, y, y1;
         for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {

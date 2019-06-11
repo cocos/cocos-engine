@@ -188,9 +188,10 @@ module.exports = {
         let node = sprite.node,
             verts = sprite._renderData.vertices;
         
-        let matrix = node._worldMatrix,
-            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
+        let matrix = node._worldMatrix;
+        let matrixm = matrix.m;
+        let a = matrix.m[0], b = matrix.m[1], c = matrix.m[4], d = matrix.m[5],
+            tx = matrix.m[12], ty = matrix.m[13];
 
         for (let i = 0; i < 4; i++) {
             let local = verts[i + 4];

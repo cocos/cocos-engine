@@ -620,17 +620,18 @@ let Camera = cc.Class({
         this.node.getWorldRT(_mat4_temp_1);
 
         let zoomRatio = this.zoomRatio;
-        _mat4_temp_1.m00 *= zoomRatio;
-        _mat4_temp_1.m01 *= zoomRatio;
-        _mat4_temp_1.m04 *= zoomRatio;
-        _mat4_temp_1.m05 *= zoomRatio;
+        let _mat4_temp_1m = _mat4_temp_1.m;
+        _mat4_temp_1m[0] *= zoomRatio;
+        _mat4_temp_1m[1] *= zoomRatio;
+        _mat4_temp_1m[4] *= zoomRatio;
+        _mat4_temp_1m[5] *= zoomRatio;
 
-        let m12 = _mat4_temp_1.m12;
-        let m13 = _mat4_temp_1.m13;
+        let m12 = _mat4_temp_1m[12];
+        let m13 = _mat4_temp_1m[13];
 
         let center = cc.visibleRect.center;
-        _mat4_temp_1.m12 = center.x - (_mat4_temp_1.m00 * m12 + _mat4_temp_1.m04 * m13);
-        _mat4_temp_1.m13 = center.y - (_mat4_temp_1.m01 * m12 + _mat4_temp_1.m05 * m13);
+        _mat4_temp_1m[12] = center.x - (_mat4_temp_1m[0] * m12 + _mat4_temp_1m[4] * m13);
+        _mat4_temp_1m[13] = center.y - (_mat4_temp_1m[1] * m12 + _mat4_temp_1m[5] * m13);
 
         if (out !== _mat4_temp_1) {
             mat4.copy(out, _mat4_temp_1);

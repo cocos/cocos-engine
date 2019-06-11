@@ -494,10 +494,11 @@ class vec2 {
    * @returns {vec2} out.
    */
   static transformMat2(out, a, m) {
+    let mm = m.m;
     let x = a.x,
       y = a.y;
-    out.x = m.m00 * x + m.m02 * y;
-    out.y = m.m01 * x + m.m03 * y;
+    out.x = m.m[0] * x + m.m[2] * y;
+    out.y = m.m[1] * x + m.m[3] * y;
     return out;
   }
 
@@ -510,10 +511,11 @@ class vec2 {
    * @returns {vec2} out.
    */
   static transformMat23(out, a, m) {
+    let mm = m.m;
     let x = a.x,
       y = a.y;
-    out.x = m.m00 * x + m.m02 * y + m.m04;
-    out.y = m.m01 * x + m.m03 * y + m.m05;
+    out.x = m.m[0] * x + m.m[2] * y + m.m[4];
+    out.y = m.m[1] * x + m.m[3] * y + m.m[5];
     return out;
   }
 
@@ -526,10 +528,11 @@ class vec2 {
    * @returns {vec2} out.
    */
   static transformMat3(out, a, m) {
+    let mm = m.m;
     let x = a.x,
       y = a.y;
-    out.x = m.m00 * x + m.m03 * y + m.m06;
-    out.y = m.m01 * x + m.m04 * y + m.m07;
+    out.x = m.m[0] * x + m.m[3] * y + m.m[6];
+    out.y = m.m[1] * x + m.m[4] * y + m.m[7];
     return out;
   }
 
@@ -544,10 +547,11 @@ class vec2 {
    * @returns {vec2} out.
    */
   static transformMat4(out, a, m) {
+    let mm = m.m;
     let x = a.x,
       y = a.y;
-    out.x = m.m00 * x + m.m04 * y + m.m12;
-    out.y = m.m01 * x + m.m05 * y + m.m13;
+    out.x = m.m[0] * x + m.m[4] * y + m.m[12];
+    out.y = m.m[1] * x + m.m[5] * y + m.m[13];
     return out;
   }
 

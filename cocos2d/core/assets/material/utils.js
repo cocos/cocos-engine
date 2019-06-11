@@ -85,7 +85,7 @@ function serializeUniforms (uniforms) {
                 hashData += prop.r + ',' + prop.g + ',' + prop.b + ',' + prop.a + ';';
                 break;
             case enums.PARAM_MAT2:
-                hashData += prop.m00 + ',' + prop.m01 + ',' + prop.m02 + ',' + prop.m03 + ';';
+                hashData += prop.m[0] + ',' + prop.m[1] + ',' + prop.m[2] + ',' + prop.m[3] + ';';
                 break;
             case enums.PARAM_TEXTURE_2D:
             case enums.PARAM_TEXTURE_CUBE:

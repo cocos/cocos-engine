@@ -229,10 +229,7 @@ let _type2uniformArrayValue = {
       let result = _float64_pool.add();
       for (let i = 0; i < values.length; ++i) {
         let v = values[i];
-        result[4 * i] = v.m00;
-        result[4 * i + 1] = v.m01;
-        result[4 * i + 2] = v.m02;
-        result[4 * i + 3] = v.m03;
+        result.set(v.m, 4 * i);
       }
       return result;
     },
@@ -250,22 +247,7 @@ let _type2uniformArrayValue = {
       let result = _float64_pool.add();
       for (let i = 0; i < values.length; ++i) {
         let v = values[i];
-        result[16 * i] = v.m00;
-        result[16 * i + 1] = v.m01;
-        result[16 * i + 2] = v.m02;
-        result[16 * i + 3] = v.m03;
-        result[16 * i + 4] = v.m04;
-        result[16 * i + 5] = v.m05;
-        result[16 * i + 6] = v.m06;
-        result[16 * i + 7] = v.m07;
-        result[16 * i + 8] = v.m08;
-        result[16 * i + 9] = v.m09;
-        result[16 * i + 10] = v.m10;
-        result[16 * i + 11] = v.m11;
-        result[16 * i + 12] = v.m12;
-        result[16 * i + 13] = v.m13;
-        result[16 * i + 14] = v.m14;
-        result[16 * i + 15] = v.m15;
+        result.set(v.m, 16 * i);
       }
       return result;
     },

@@ -297,6 +297,7 @@ var spineAssembler = {
         let isRegion, isMesh, isClip;
         let offsetInfo;
         let slot;
+        let worldMatm;
 
         _slotRangeStart = _comp._startSlotIndex;
         _slotRangeEnd = _comp._endSlotIndex;
@@ -455,12 +456,13 @@ var spineAssembler = {
                 }
 
                 if (worldMat) {
-                    _m00 = worldMat.m00;
-                    _m04 = worldMat.m04;
-                    _m12 = worldMat.m12;
-                    _m01 = worldMat.m01;
-                    _m05 = worldMat.m05;
-                    _m13 = worldMat.m13;
+                    worldMatm = worldMat.m;
+                    _m00 = worldMatm[0];
+                    _m04 = worldMatm[4];
+                    _m12 = worldMatm[12];
+                    _m01 = worldMatm[1];
+                    _m05 = worldMatm[5];
+                    _m13 = worldMatm[13];
                     for (let ii = _vertexFloatOffset, nn = _vertexFloatOffset + _vertexFloatCount; ii < nn; ii += _perVertexSize) {
                         _x = vbuf[ii];
                         _y = vbuf[ii + 1];
@@ -515,15 +517,17 @@ var spineAssembler = {
         let vertices = frame.vertices;
         let indices = frame.indices;
         let uintVert = frame.uintVert;
+        let worldMatm;
 
         let frameVFOffset = 0, frameIndexOffset = 0, segVFCount = 0;
         if (worldMat) {
-            _m00 = worldMat.m00;
-            _m04 = worldMat.m04;
-            _m12 = worldMat.m12;
-            _m01 = worldMat.m01;
-            _m05 = worldMat.m05;
-            _m13 = worldMat.m13;
+            worldMatm = worldMat.m;
+            _m00 = worldMatm[0];
+            _m04 = worldMatm[4];
+            _m12 = worldMatm[12];
+            _m01 = worldMatm[1];
+            _m05 = worldMatm[5];
+            _m13 = worldMatm[13];
         }
 
         let colorOffset = 0;

@@ -421,12 +421,13 @@ let tmxAssembler = {
         mat4.copy(_mat4_temp, tiledNode._matrix);
         vec3.set(_vec3_temp, -(left + _moveX), -(bottom + _moveY), 0);
         mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
-        let a = _mat4_temp.m00;
-        let b = _mat4_temp.m01;
-        let c = _mat4_temp.m04;
-        let d = _mat4_temp.m05;
-        let tx = _mat4_temp.m12;
-        let ty = _mat4_temp.m13;
+        let m = _mat4_temp.m;
+        let a = m[0];
+        let b = m[1];
+        let c = m[4];
+        let d = m[5];
+        let tx = m[12];
+        let ty = m[13];
         let color = tiledNode._color._val;
 
         // tl
