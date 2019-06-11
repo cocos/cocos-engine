@@ -155,6 +155,9 @@ export class Material extends Asset {
      * @param info 初始化材质需要的基本信息
      */
     public initialize (info: IMaterialInfo) {
+        if (!this._defines) { this._defines = []; }
+        if (!this._states) { this._states = []; }
+        if (!this._props) { this._props = []; }
         if (info.technique !== undefined) { this._techIdx = info.technique; }
         if (info.effectAsset) { this._effectAsset = info.effectAsset; }
         else if (info.effectName) { this._effectAsset = EffectAsset.get(info.effectName); }
@@ -165,32 +168,36 @@ export class Material extends Asset {
 
     /**
      * @zh
-     * 销毁材质，注意这并不会清除材质本身的数据，只会销毁运行时的渲染资源。
+     * 彻底销毁材质，注意销毁后无法重新初始化。
+     * 如需重新初始化材质，不必先调用 destroy。
      */
     public destroy () {
-        if (this._effectAsset) {
-            if (this._passes) {
-                for (const pass of this._passes) {
-                    pass.destroy();
-                }
-                this._passes.length = 0;
+        if (this._passes && this._passes.length) {
+            for (const pass of this._passes) {
+                pass.destroy();
             }
-            this._effectAsset = null;
         }
-        return false; // super.destroy();
+        this._passes = [];
+        this._effectAsset = null;
+
+        this._props = [];
+        this._defines = [];
+        this._states = [];
+        return super.destroy();
     }
 
     /**
      * @zh
-     * 重置材质的所有 uniform 参数数据。
-     * @param reinitPass 是否要直接重新创建 pass 数组。
+     * 重置材质的所有 uniform 参数数据为 effect 默认初始值。
+     * @param clearPasses 是否同时重置当前正在用于渲染的 pass 数组内的信息
      */
-    public reset (reinitPass = true) {
-        if (reinitPass) {
-            this._update(false);
-        } else {
-            this._props.length = this._passes.length;
-            this._props.fill({});
+    public resetUniforms (clearPasses = true) {
+        this._props.length = this._passes.length;
+        this._props.fill({});
+        if (!clearPasses) { return; }
+        for (const pass of this._passes) {
+            pass.resetUBOs();
+            pass.resetTextures();
         }
     }
 
@@ -338,9 +345,13 @@ export class Material extends Asset {
     }
 
     protected _update (keepProps: boolean = true) {
-        const asset = this._effectAsset;
-        if (asset) {
-            this._passes = createPasses(asset, {
+        if (this._effectAsset) {
+            if (this._passes && this._passes.length) {
+                for (const pass of this._passes) {
+                    pass.destroy();
+                }
+            }
+            this._passes = createPasses(this._effectAsset, {
                 techIdx: this._techIdx,
                 defines: this._defines,
                 states: this._states,

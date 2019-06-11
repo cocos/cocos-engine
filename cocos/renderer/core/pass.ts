@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { IPassInfo, IPassStates, IShaderInfo } from '../../3d/assets/effect-asset';
+import { IPassInfo, IPassStates, IPropertyInfo, IShaderInfo } from '../../3d/assets/effect-asset';
 import { builtinResMgr } from '../../3d/builtin';
 import { TextureBase } from '../../assets/texture-base';
 import { mat2, mat3, mat4, vec2, vec3, vec4 } from '../../core/vmath';
@@ -119,6 +119,7 @@ export class Pass {
     protected _textureViews: Record<number, GFXTextureView> = {};
     protected _resources: IPassResources[] = [];
     // internal data
+    protected _phase: number = 0;
     protected _idxInTech = 0;
     protected _programName = '';
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
@@ -135,7 +136,7 @@ export class Pass {
     protected _blocks: IBlock[] = [];
     protected _shaderInfo: IShaderInfo = null!;
     protected _defines: IDefineMap = {};
-    protected _phase: number = 0;
+    protected _properties: Record<string, IPropertyInfo> = {};
     // external references
     protected _device: GFXDevice;
     protected _renderPass: GFXRenderPass | null = null;
@@ -153,16 +154,17 @@ export class Pass {
         this._idxInTech = info.idxInTech;
         this._programName = info.program;
         this._defines = info.curDefs;
-        const shaderInfo = this._shaderInfo = programLib.getTemplate(info.program);
+        this._shaderInfo = programLib.getTemplate(info.program);
+        this._properties = info.properties || this._properties;
         // pipeline state
         const device = this._device;
         this._fillinPipelineInfo(info);
         this._fillinPipelineInfo(info.states);
 
-        for (const u of shaderInfo.blocks) {
+        for (const u of this._shaderInfo.blocks) {
             if (u.name.startsWith('CC')) { continue; }
             // create gfx buffer resource
-            const buffer = this._buffers[u.binding] = device.createBuffer({
+            this._buffers[u.binding] = device.createBuffer({
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: u.size,
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
@@ -177,33 +179,18 @@ export class Pass {
                 // create property-specific buffer views
                 const view = new Float32Array(block.buffer, acc, cur.size / Float32Array.BYTES_PER_ELEMENT);
                 block.views.push(view);
-                // store handle map, type and initial value
-                const inf = info.properties && info.properties[cur.name];
-                const type = inf && inf.type || cur.type; // property overloads
-                const givenDefault = inf && inf.value;
-                const value: number[] = givenDefault ? givenDefault : _type2default[type];
-                for (let i = 0; i < cur.count; i++) { view.set(value, i * value.length); }
-                this._handleMap[cur.name] = genHandle(GFXBindingType.UNIFORM_BUFFER, type, u.binding, idx);
+                // store handle map
+                this._handleMap[cur.name] = genHandle(GFXBindingType.UNIFORM_BUFFER, cur.type, u.binding, idx);
                 // proceed the counter
                 return acc + cur.size;
             }, 0); // === u.size
-            buffer.update(block.buffer);
         }
-
-        for (const u of shaderInfo.samplers) {
+        for (const u of this._shaderInfo.samplers) {
             this._handleMap[u.name] = genHandle(GFXBindingType.SAMPLER, u.type, u.binding);
-            const inf = info.properties && info.properties[u.name];
-            if (inf && inf.sampler) { this._samplers[u.binding] = samplerLib.getSampler(device, inf.sampler); }
-            const texName = inf && inf.value ? inf.value + '-texture' : _type2default[u.type];
-            const texture = builtinResMgr.get<TextureBase>(texName);
-            if (texture) {
-                this._textureViews[u.binding] = texture.getGFXTextureView()!;
-                const samplerInfo = texture.getGFXSamplerInfo();
-                if (!this._samplers[u.binding] || samplerInfo.length) { this._samplers[u.binding] = samplerLib.getSampler(device, samplerInfo); }
-            }
-            else { console.warn('illegal texture default value ' + texName); }
         }
 
+        this.resetUBOs();
+        this.resetTextures();
         this.tryCompile();
     }
 
@@ -354,6 +341,45 @@ export class Pass {
         if (samplers.length) {
             // samplers are reused
             this._samplers = {};
+        }
+    }
+
+    /**
+     * @zh
+     * 重置所有 UBO 为初始默认值。
+     */
+    public resetUBOs () {
+        for (const u of this._shaderInfo.blocks) {
+            if (u.name.startsWith('CC')) { continue; }
+            const block: IBlock = this._blocks[u.binding];
+            for (let i = 0; i < u.members.length; i++) {
+                const cur = u.members[i];
+                const view = block.views[i];
+                const inf = this._properties[cur.name];
+                const givenDefault = inf && inf.value;
+                const value: number[] = givenDefault ? givenDefault : _type2default[cur.type];
+                for (let j = 0; j < cur.count; j++) { view.set(value, j * value.length); }
+            }
+            block.dirty = true;
+        }
+    }
+
+    /**
+     * @zh
+     * 重置所有 texture 和 sampler 为初始默认值。
+     */
+    public resetTextures () {
+        const device = this._device;
+        for (const u of this._shaderInfo.samplers) {
+            const inf = this._properties[u.name];
+            if (inf && inf.sampler) { this._samplers[u.binding] = samplerLib.getSampler(device, inf.sampler); }
+            const texName = inf && inf.value ? inf.value + '-texture' : _type2default[u.type];
+            const texture = builtinResMgr.get<TextureBase>(texName);
+            if (texture) {
+                this._textureViews[u.binding] = texture.getGFXTextureView()!;
+                const samplerInfo = texture.getGFXSamplerInfo();
+                if (!this._samplers[u.binding] || samplerInfo.length) { this._samplers[u.binding] = samplerLib.getSampler(device, samplerInfo); }
+            } else { console.warn('illegal texture default value ' + texName); }
         }
     }
 
