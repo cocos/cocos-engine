@@ -62,9 +62,8 @@ import { mat4 } from '../vmath';
  * @param {Number} m33 Component in column 3, row 3 position (index 15)
  */
 function Mat4 (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
-    let t = this;
-    t.m = new Float32Array(16);
-    let tm = t.m;
+    this.m = new Float32Array(16);
+    let tm = this.m;
     tm[0] = m00;
     tm[1] = m01;
     tm[2] = m02;
@@ -179,15 +178,22 @@ js.mixin(Mat4.prototype, {
      * @return {string}
      */
     toString () {
-        let t = this;
-        let tm = t.m;
-        return "[\n" +
+        let tm = this.m;
+        if (tm) {
+            return "[\n" +
             tm[0] + ", " + tm[1] + ", " + tm[2] + ", " + tm[3] + ",\n" +
             tm[4] + ", " + tm[5] + ", " + tm[6] + ", " + tm[7] + ",\n" +
             tm[8] + ", " + tm[9] + ", " + tm[10] + ", " + tm[11] + ",\n" +
             tm[12] + ", " + tm[13] + ", " + tm[14] + ", " + tm[15] + "\n" +
-            "]"
-            ;
+            "]";
+        } else {
+            return "[\n" +
+            "1, 0, 0, 0\n"+
+            "0, 1, 0, 0\n" +
+            "0, 0, 1, 0\n" +
+            "0, 0, 0, 1\n" +
+            "]";
+        }
     },
 
     /**
