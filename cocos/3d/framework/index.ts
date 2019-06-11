@@ -37,7 +37,7 @@ import { LineComponent } from './particle/line-component';
 import { ParticleSystemComponent } from './particle/particle-system-component';
 import { ParticleUtils } from './particle/particle-utils';
 import { BoxColliderComponent } from './physics/collider/box-collider-component';
-import { ColliderComponentBase } from './physics/collider/collider-component';
+import { ColliderComponent } from './physics/collider/collider-component';
 import { SphereColliderComponent } from './physics/collider/sphere-collider-component';
 import { RigidBodyComponent } from './physics/rigid-body-component';
 import { RenderableComponent } from './renderable-component';
@@ -57,14 +57,20 @@ export {
     BatchedSkinningModelComponent,
     SkinningModelUnit,
 
-    BoxColliderComponent,
     ParticleSystemComponent,
     BillboardComponent,
     LineComponent,
-    RigidBodyComponent,
+    RenderableComponent,
+};
+
+/// PHYSICS EXPORT ///
+
+export {
+    ColliderComponent,
+    BoxColliderComponent,
     SphereColliderComponent,
 
-    RenderableComponent,
+    RigidBodyComponent,
 };
 
 // cc.AnimationComponent = AnimationComponent;
@@ -89,7 +95,7 @@ cc.ParticleSystemComponent = ParticleSystemComponent;
 cc.BillboardComponent = BillboardComponent;
 cc.LineComponent = LineComponent;
 
-cc.ColliderComponentBase = ColliderComponentBase;
+cc.ColliderComponent = ColliderComponent;
 cc.BoxColliderComponent = BoxColliderComponent;
 cc.SphereColliderComponent = SphereColliderComponent;
 cc.RigidBodyComponent = RigidBodyComponent;

@@ -25,60 +25,6 @@ const NonRigidBodyProperties = {
 @executeInEditMode
 export class RigidBodyComponent extends PhysicsBasedComponent {
 
-    /// PRIVATE PROPERTY ///
-
-    @property
-    private _material: PhysicsMaterial | null = null;
-
-    @property
-    private _mass: number = NonRigidBodyProperties.mass;
-
-    @property
-    private _linearDamping: number = NonRigidBodyProperties.linearDamping;
-
-    @property
-    private _angularDamping: number = NonRigidBodyProperties.angularDamping;
-
-    @property
-    private _fixedRotation: boolean = false;
-
-    @property
-    private _isTrigger: boolean = false;
-
-    @property
-    private _isKinematic: boolean = false;
-
-    @property
-    private _useGravity: boolean = true;
-
-    private _velocity: Vec3 = new Vec3();
-
-    constructor () {
-        super();
-    }
-
-    /// COMPONENT LIFECYCLE ///
-
-    public onLoad () {
-        if (!CC_PHYSICS_BUILT_IN) {
-            /**
-             * 此处设置刚体属性是因为__preload不受executionOrder的顺序影响，
-             * 从而导致ColliderComponent后添加会导致刚体的某些属性被重写
-             */
-            if (this.sharedBody) {
-                this.sharedBody.transfromSource = ETransformSource.PHYSIC;
-                this.mass = this._mass;
-                this.linearDamping = this._linearDamping;
-                this.angularDamping = this._angularDamping;
-                // this.material = this._material;
-                this.useGravity = this._useGravity;
-                this.velocity = this._velocity;
-                this.isKinematic = this._isKinematic;
-                this.fixedRotation = this._fixedRotation;
-            }
-        }
-    }
-
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
     // Shielding physics material for alpha version
@@ -204,6 +150,38 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         }
     }
 
+    /// PRIVATE PROPERTY ///
+
+    @property
+    private _material: PhysicsMaterial | null = null;
+
+    @property
+    private _mass: number = NonRigidBodyProperties.mass;
+
+    @property
+    private _linearDamping: number = NonRigidBodyProperties.linearDamping;
+
+    @property
+    private _angularDamping: number = NonRigidBodyProperties.angularDamping;
+
+    @property
+    private _fixedRotation: boolean = false;
+
+    @property
+    private _isTrigger: boolean = false;
+
+    @property
+    private _isKinematic: boolean = false;
+
+    @property
+    private _useGravity: boolean = true;
+
+    private _velocity: Vec3 = new Vec3();
+
+    constructor () {
+        super();
+    }
+
     /// PUBLIC METHOD ///
 
     public applyForce (force: Vec3, position?: Vec3) {
@@ -233,6 +211,28 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     public setCollisionFilter (group: number, mask: number) {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             this._body!.setCollisionFilter(group, mask);
+        }
+    }
+
+    /// COMPONENT LIFECYCLE ///
+
+    protected onLoad () {
+        if (!CC_PHYSICS_BUILT_IN) {
+            /**
+             * 此处设置刚体属性是因为__preload不受executionOrder的顺序影响，
+             * 从而导致ColliderComponent后添加会导致刚体的某些属性被重写
+             */
+            if (this.sharedBody) {
+                this.sharedBody.transfromSource = ETransformSource.PHYSIC;
+                this.mass = this._mass;
+                this.linearDamping = this._linearDamping;
+                this.angularDamping = this._angularDamping;
+                // this.material = this._material;
+                this.useGravity = this._useGravity;
+                this.velocity = this._velocity;
+                this.isKinematic = this._isKinematic;
+                this.fixedRotation = this._fixedRotation;
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 import { Quat, Vec3 } from '../../core/value-types';
 import { mat4, quat } from '../../core/vmath';
+import { Node } from '../../scene-graph/node';
 import { ERigidBodyType } from './physic-enum';
 import { RaycastResult } from './raycast-result';
 

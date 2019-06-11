@@ -34,47 +34,6 @@ export class PhysicsBasedComponent extends Component {
         super();
     }
 
-    public __preload () {
-        if (!CC_EDITOR) {
-            if (this._sharedBody == null) {
-                const physicsBasedComponents = this.node.getComponents(PhysicsBasedComponent);
-                let sharedBody: SharedRigidBody | null = null;
-                for (const physicsBasedComponent of physicsBasedComponents) {
-                    if (physicsBasedComponent._sharedBody) {
-                        sharedBody = physicsBasedComponent._sharedBody;
-                        break;
-                    }
-                }
-                if (!sharedBody) {
-                    sharedBody = new SharedRigidBody(this.node, cc.director._physicsSystem.world);
-                }
-                sharedBody.ref();
-                this._sharedBody = sharedBody;
-            }
-
-            this._isPreLoaded = true;
-        }
-    }
-
-    public onEnable () {
-        if (!CC_EDITOR) {
-            this.sharedBody.enable();
-        }
-    }
-
-    public onDisable () {
-        if (!CC_EDITOR) {
-            this.sharedBody.disable();
-        }
-    }
-
-    public onDestroy () {
-        if (!CC_EDITOR) {
-            this._sharedBody.deref();
-            (this._sharedBody as any) = null;
-        }
-    }
-
     /**
      *  @return group ∈ [0, 31] (int)
      */
@@ -123,6 +82,49 @@ export class PhysicsBasedComponent extends Component {
             return this._body!.addMask(v);
         }
     }
+
+    /// COMPONENT LIFECYCLE ///
+
+    protected __preload () {
+        if (!CC_EDITOR) {
+            if (this._sharedBody == null) {
+                const physicsBasedComponents = this.node.getComponents(PhysicsBasedComponent);
+                let sharedBody: SharedRigidBody | null = null;
+                for (const physicsBasedComponent of physicsBasedComponents) {
+                    if (physicsBasedComponent._sharedBody) {
+                        sharedBody = physicsBasedComponent._sharedBody;
+                        break;
+                    }
+                }
+                if (!sharedBody) {
+                    sharedBody = new SharedRigidBody(this.node, cc.director._physicsSystem.world);
+                }
+                sharedBody.ref();
+                this._sharedBody = sharedBody;
+            }
+
+            this._isPreLoaded = true;
+        }
+    }
+
+    protected onEnable () {
+        if (!CC_EDITOR) {
+            this.sharedBody.enable();
+        }
+    }
+
+    protected onDisable () {
+        if (!CC_EDITOR) {
+            this.sharedBody.disable();
+        }
+    }
+
+    protected onDestroy () {
+        if (!CC_EDITOR) {
+            this._sharedBody.deref();
+            (this._sharedBody as any) = null;
+        }
+    }
 }
 
 class SharedRigidBody {
@@ -163,8 +165,6 @@ class SharedRigidBody {
 
     private _afterStepCallback!: AfterStepCallback;
 
-    private _onCollidedCallback!: ICollisionCallback;
-
     private _transformInitialized: boolean = false;
 
     /** 是否只有Collider组件 */
@@ -182,7 +182,6 @@ class SharedRigidBody {
         this._body.setUserData(this._node);
         this._beforeStepCallback = this._beforeStep.bind(this);
         this._afterStepCallback = this._afterStep.bind(this);
-        this._onCollidedCallback = this._onCollided.bind(this);
     }
 
     public ref () {
@@ -209,7 +208,6 @@ class SharedRigidBody {
         (this._body as any) = null;
         (this._beforeStepCallback as any) = null;
         (this._afterStepCallback as any) = null;
-        (this._onCollidedCallback as any) = null;
         (this._world as any) = null;
         (this._node as any) = null;
     }
@@ -251,7 +249,6 @@ class SharedRigidBody {
 
         this._actived = true;
         this._body.setWorld(this._world);
-        this._body.addCollisionCallback(this._onCollidedCallback);
         this._world.addBeforeStep(this._beforeStepCallback);
         this._world.addAfterStep(this._afterStepCallback);
         this._body.wakeUp();
@@ -264,19 +261,8 @@ class SharedRigidBody {
         this._actived = false;
         this._world.removeBeforeStep(this._beforeStepCallback);
         this._world.removeAfterStep(this._afterStepCallback);
-        this._body.removeCollisionCllback(this._onCollidedCallback);
         this._body.sleep();
         this._body.setWorld(null);
-    }
-
-    private _onCollided (type: ICollisionEventType, event: ICollisionEvent) {
-        if (!this._node) {
-            return;
-        }
-        this._node.emit(type, {
-            source: event.source.getUserData() as Node,
-            target: event.target.getUserData() as Node,
-        });
     }
 
     private _beforeStep () {

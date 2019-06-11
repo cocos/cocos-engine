@@ -9,13 +9,13 @@ import Vec3 from '../../../../core/value-types/vec3';
 import { vec3 } from '../../../../core/vmath';
 import { BoxShapeBase } from '../../../physics/api';
 import { createBoxShape } from '../../../physics/instance';
-import { ColliderComponentBase } from './collider-component';
+import { ColliderComponent } from './collider-component';
 
 @ccclass('cc.BoxColliderComponent')
 @executionOrder(98)
 @menu('Components/BoxColliderComponent')
 @executeInEditMode
-export class BoxColliderComponent extends ColliderComponentBase {
+export class BoxColliderComponent extends ColliderComponent {
 
     private _shape!: BoxShapeBase;
 
@@ -35,7 +35,7 @@ export class BoxColliderComponent extends ColliderComponentBase {
 
     /// COMPONENT LIFECYCLE ///
 
-    public onLoad () {
+    protected onLoad () {
         super.onLoad();
 
         if (!CC_EDITOR) {
@@ -51,11 +51,11 @@ export class BoxColliderComponent extends ColliderComponentBase {
      * @note Shall not specify size with component 0.
      */
     @property({ type: Vec3 })
-    get size () {
+    public get size () {
         return this._size;
     }
 
-    set size (value) {
+    public set size (value) {
         vec3.copy(this._size, value);
 
         if (!CC_EDITOR) {

@@ -8,7 +8,7 @@ export function createPhysicsWorld (): PhysicsWorldBase {
 }
 
 export function createRigidBody (options?: ICreateBodyOptions): RigidBodyBase {
-    return new RigidBody(options);
+    return new RigidBody(options) as RigidBodyBase;
 }
 
 export function createBoxShape (size: Vec3): BoxShapeBase {
