@@ -134,7 +134,7 @@ export default class aabb {
      * @param m - the transform matrix
      * @param out - the target shape
      */
-    public transform (m: mat4, pos: vec3 | null, rot: quat | null, scale: vec3 | null, out: aabb){
+    public transform (m: mat4, pos: vec3 | null, rot: quat | null, scale: vec3 | null, out: aabb) {
         if (!out) { out = this; }
         vec3.transformMat4(out.center, this.center, m);
         transform_extent_m4(out.halfExtents, this.halfExtents, m);

@@ -170,9 +170,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     public cookMaterials () {
         const mat = this.getMaterial(0);
         if (!mat) { console.warn('batch material not specified!'); return; }
-        // for now don't copy properties because array uniforms are not well-supported on inspector
-        // mat.copy(this._batchMaterial!);
-        mat.reset(); this.resizeAtlases();
+        mat.copy(this._batchMaterial!); this.resizeAtlases();
         const tech = mat.effectAsset!.techniques[mat.technique];
         for (let i = 0; i < tech.passes.length; i++) {
             const pass = tech.passes[i];

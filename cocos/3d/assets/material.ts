@@ -177,7 +177,7 @@ export class Material extends Asset {
             }
             this._effectAsset = null;
         }
-        return super.destroy();
+        return false; // super.destroy();
     }
 
     /**
