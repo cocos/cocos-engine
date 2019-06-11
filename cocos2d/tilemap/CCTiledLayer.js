@@ -41,7 +41,6 @@ let TiledUserNodeData = cc.Class({
         this._index = -1;
         this._row = -1;
         this._col = -1;
-        this._dataId = -1;
         this._tiledLayer = null;
     }
 
@@ -67,7 +66,6 @@ let TiledLayer = cc.Class({
     ctor () {
         this._userNodeGrid = {};// [row][col] = {count: 0, nodesList: []};
         this._userNodeMap = {};// [id] = node;
-        this._userDataId = 1;
         this._userNodeDirty = false;
 
         // store the layer tiles node, index is caculated by 'x + width * y', format likes '[0]=tileNode0,[1]=tileNode1, ...'
@@ -161,9 +159,8 @@ let TiledLayer = cc.Class({
         dataComp = node.addComponent(TiledUserNodeData);
         node.parent = this.node;
         node._renderFlag |= RenderFlow.FLAG_BREAK_FLOW;
-        this._userNodeMap[this._userDataId] = dataComp;
+        this._userNodeMap[node._id] = dataComp;
 
-        dataComp._dataId = this._userDataId;
         dataComp._row = -1;
         dataComp._col = -1;
         dataComp._tiledLayer = this;
@@ -173,11 +170,6 @@ let TiledLayer = cc.Class({
         this._updateCullingOffsetByUserNode(node);
         node.on(cc.Node.EventType.POSITION_CHANGED, this._userNodePosChange, dataComp);
         node.on(cc.Node.EventType.SIZE_CHANGED, this._userNodeSizeChange, dataComp);
-        this._userDataId++;
-        // user data Id is too large
-        if (this._userDataId >= Number.MAX_SAFE_INTEGER) {
-            this._updateAllUserNode();
-        }
         return true;
     },
 
@@ -197,7 +189,7 @@ let TiledLayer = cc.Class({
         node.off(cc.Node.EventType.POSITION_CHANGED, this._userNodePosChange, dataComp);
         node.off(cc.Node.EventType.SIZE_CHANGED, this._userNodeSizeChange, dataComp);
         this._removeUserNodeFromGrid(dataComp);
-        delete this._userNodeMap[dataComp._dataId];
+        delete this._userNodeMap[node._id];
         node.removeComponent(dataComp);
         node.removeFromParent(true);
         node._renderFlag &= ~RenderFlow.FLAG_BREAK_FLOW;
@@ -228,16 +220,9 @@ let TiledLayer = cc.Class({
     },
 
     _updateAllUserNode () {
-        let oldUserNodeMap = this._userNodeMap;
         this._userNodeGrid = {};
-        let newUserNodeMap = this._userNodeMap = {};
-        this._userDataId = 1;
-        for (let dataId in oldUserNodeMap) {
-            let dataComp = oldUserNodeMap[dataId];
-            dataComp._dataId = this._userDataId;
-            this._userDataId ++;
-            newUserNodeMap[dataComp._dataId] = dataComp;
-
+        for (let dataId in this._userNodeMap) {
+            let dataComp = this._userNodeMap[dataId];
             this._positionToRowCol(dataComp.node.x, dataComp.node.y, _tempRowCol);
             this._addUserNodeToGrid(dataComp, _tempRowCol);
             this._updateCullingOffsetByUserNode(dataComp.node);
