@@ -3,6 +3,10 @@ import { GFXBuffer, GFXBufferSource, IGFXDrawInfo } from './buffer';
 import { GFXFormat, GFXFormatInfos, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 
+/**
+ * @zh
+ * GFX顶点属性
+ */
 export interface IGFXAttribute {
     name: string;
     format: GFXFormat;
@@ -11,6 +15,10 @@ export interface IGFXAttribute {
     isInstanced?: boolean;
 }
 
+/**
+ * @zh
+ * GFX输入汇集器描述信息
+ */
 export interface IGFXInputAssemblerInfo {
     attributes: IGFXAttribute[];
     vertexBuffers: GFXBuffer[];
@@ -18,6 +26,10 @@ export interface IGFXInputAssemblerInfo {
     indirectBuffer?: GFXBuffer;
 }
 
+/**
+ * @zh
+ * GFX输入汇集器
+ */
 export abstract class GFXInputAssembler extends GFXObject {
 
     public get vertexBuffers (): GFXBuffer[] {
@@ -96,28 +108,112 @@ export abstract class GFXInputAssembler extends GFXObject {
         return this._indirectBuffer;
     }
 
+    /**
+     * @zh
+     * GFX设备
+     */
     protected _device: GFXDevice;
+
+    /**
+     * @zh
+     * 顶点属性数组
+     */
     protected _attributes: IGFXAttribute[] = [];
+
+    /**
+     * @zh
+     * 顶点缓冲数组
+     */
     protected _vertexBuffers: GFXBuffer[] = [];
+
+    /**
+     * @zh
+     * 索引缓冲
+     */
     protected _indexBuffer: GFXBuffer | null = null;
+
+    /**
+     * @zh
+     * 顶点数量
+     */
     protected _vertexCount: number = 0;
+
+    /**
+     * @zh
+     * 起始顶点
+     */
     protected _firstVertex: number = 0;
+
+    /**
+     * @zh
+     * 索引数量
+     */
     protected _indexCount: number = 0;
+
+    /**
+     * @zh
+     * 起始索引
+     */
     protected _firstIndex: number = 0;
+
+    /**
+     * @zh
+     * 顶点偏移量
+     */
     protected _vertexOffset: number = 0;
+
+    /**
+     * @zh
+     * 实例数量
+     */
     protected _instanceCount: number = 0;
+
+    /**
+     * @zh
+     * 起始实例
+     */
     protected _firstInstance: number = 0;
+
+    /**
+     * @zh
+     * 是否间接绘制
+     */
     protected _isIndirect: boolean = false;
+
+    /**
+     * @zh
+     * 间接绘制缓冲
+     */
     protected _indirectBuffer: GFXBuffer | null = null;
 
+    /**
+     * @zh
+     * 构造函数
+     * @param device GFX设备
+     */
     constructor (device: GFXDevice) {
         super(GFXObjectType.INPUT_ASSEMBLER);
         this._device = device;
     }
 
+    /**
+     * @zh
+     * 初始化函数
+     * @param info GFX汇集器描述信息
+     */
     public abstract initialize (info: IGFXInputAssemblerInfo): boolean;
+
+    /**
+     * @zh
+     * 销毁函数
+     */
     public abstract destroy (): void;
 
+    /**
+     * @zh
+     * 得到顶点缓冲
+     * @param stream 顶点流索引
+     */
     public getVertexBuffer (stream: number = 0): GFXBuffer | null {
         if (stream < this._vertexBuffers.length) {
             return this._vertexBuffers[stream];
@@ -126,6 +222,11 @@ export abstract class GFXInputAssembler extends GFXObject {
         }
     }
 
+    /**
+     * @zh
+     * 提取绘制信息
+     * @param drawInfo 绘制信息
+     */
     public extractDrawInfo (drawInfo: IGFXDrawInfo) {
         drawInfo.vertexCount = this._vertexCount;
         drawInfo.firstVertex = this._firstVertex;
@@ -137,6 +238,7 @@ export abstract class GFXInputAssembler extends GFXObject {
     }
 
     /**
+     * @en
      * update VB data on the fly.
      * @param vbuffer - an ArrayBuffer containing the full VB
      * @param attr - name of the attribute to update (default names are specified in GFXAttributeName)
@@ -148,6 +250,11 @@ export abstract class GFXInputAssembler extends GFXObject {
      * const submodel = someModelComponent.model.getSubModel(0);
      * // say the new positions is stored in 'data' as a plain array
      * submodel.inputAssembler.updateVertexBuffer(vbuffer, cc.GFXAttributeName.ATTR_POSITION, data);
+     * @zh
+     * 根据顶点属性名称更新顶点缓冲数据
+     * @param vbuffer 缓冲数据源
+     * @param attr 属性名
+     * @param data 更新数据
      */
     public updateVertexAttr (vbuffer: GFXBufferSource, attr: string, data: number[]) {
         let offset = 0;
@@ -174,6 +281,10 @@ export abstract class GFXInputAssembler extends GFXObject {
      * const submodel = someModelComponent.model.getSubModel(0);
      * submodel.inputAssembler.updateIndexBuffer(ibuffer, [0, 1, 2]);
      * submodel.updateCommandBuffer(); // index count changed
+     * @zh
+     * 更新索引缓冲数据
+     * @param ibuffer 缓冲数据源
+     * @param data 更新数据
      */
     public updateIndexBuffer (ibuffer: GFXBufferSource, data: number[]) {
         const count = this._indexCount;

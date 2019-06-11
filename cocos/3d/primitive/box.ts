@@ -2,42 +2,68 @@ import { Vec3 } from '../../core/value-types';
 import { vec3 } from '../../core/vmath';
 import { IGeometry, IGeometryOptions } from './define';
 
+/**
+ * @zh
+ * 立方体参数选项
+ */
 interface IBoxOptions extends RecursivePartial<IGeometryOptions> {
     /**
+     * @en
      * Box extent on X-axis.
+     * @zh
+     * 立方体宽度
      */
     width?: number;
 
     /**
+     * @en
      * Box extent on Y-axis.
+     * @zh
+     * 立方体高度
      */
     height?: number;
 
     /**
+     * @en
      * Box extent on Z-axis.
+     * @zh
+     * 立方体长度
      */
     length?: number;
 
     /**
+     * @en
      * Segment count on X-axis.
+     * @zh
+     * 宽度线段数
      */
     widthSegments?: number;
 
     /**
+     * @en
      * Segment count on Y-axis.
+     * @zh
+     * 高度线段数
      */
     heightSegments?: number;
 
     /**
+     * @en
      * Segment count on Z-axis.
+     * @zh
+     * 长度线段数
      */
     lengthSegments?: number;
 }
 
 /**
+ * @en
  * This function generates a box with specified extents and centered at origin,
  * but may be repositioned through `center` option).
  * @param options Options.
+ * @zh
+ * 生成一个立方体，其大小是定义的范围且中心在原点
+ * @param options 参数选项.
  */
 export default function box (options?: IBoxOptions): IGeometry {
     options = options || {};

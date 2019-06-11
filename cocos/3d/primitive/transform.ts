@@ -1,6 +1,12 @@
 import { GFXPrimitiveMode } from '../../gfx/define';
 import { IGeometry } from './define';
 
+/**
+ * @zh
+ * 平移几何体
+ * @param geometry 几何体信息
+ * @param offset 偏移量
+ */
 export function translate (geometry: IGeometry, offset: { x?: number; y?: number; z?: number; }) {
     const x = offset.x || 0;
     const y = offset.y || 0;
@@ -27,6 +33,12 @@ export function translate (geometry: IGeometry, offset: { x?: number; y?: number
     return geometry;
 }
 
+/**
+ * @zh
+ * 缩放几何体
+ * @param geometry 几何体信息
+ * @param value 缩放量
+ */
 export function scale (geometry: IGeometry, value: { x?: number; y?: number; z?: number }) {
     const x = value.x || 0;
     const y = value.y || 0;
@@ -54,6 +66,11 @@ export function scale (geometry: IGeometry, value: { x?: number; y?: number; z?:
     return geometry;
 }
 
+/**
+ * @zh
+ * 将几何体转换为线框模式，仅支持三角形拓扑的几何体
+ * @param geometry 几何体信息
+ */
 export function wireframed (geometry: IGeometry) {
     const { indices } = geometry;
     if (!indices) {

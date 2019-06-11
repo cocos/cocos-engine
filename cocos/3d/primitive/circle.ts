@@ -1,11 +1,20 @@
 import { GFXPrimitiveMode } from '../../gfx/define';
 import { applyDefaultGeometryOptions, IGeometry, IGeometryOptions } from './define';
 
+/**
+ * @zh
+ * 圆形参数选项
+ */
 interface ICircleOptions extends IGeometryOptions {
     // The segments. Default to 64.
     segments: number;
 }
 
+/**
+ * @zh
+ * 应用默认圆参数
+ * @param options 圆参数
+ */
 function applyDefaultCircleOptions (options?: RecursivePartial<ICircleOptions>): ICircleOptions {
     options = applyDefaultGeometryOptions<ICircleOptions>(options);
     options.segments = 64;
@@ -15,6 +24,9 @@ function applyDefaultCircleOptions (options?: RecursivePartial<ICircleOptions>):
 /**
  * Generate a circle with radius 1, centered at origin.
  * @param options Options.
+ * @zh
+ * 生成一个圆，其半径是单位1，中心点在原点
+ * @param options 参数选项
  */
 export default function circle (options?: RecursivePartial<ICircleOptions> | ICircleOptions): IGeometry {
     const normalizedOptions = applyDefaultCircleOptions(options);
