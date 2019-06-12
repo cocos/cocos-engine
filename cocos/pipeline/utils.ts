@@ -5,15 +5,14 @@ import { Node } from '../scene-graph';
 const _temp_vec3_1 = new Vec3();
 
 /**
- * !#en
+ * @en
  * Conversion of non-UI nodes to UI Node (Local) Space coordinate system.
- * !#zh
+ * @zh
  * 非 UI 节点转换到 UI 节点(局部) 空间坐标系
- * @method convertToNodeSpaceAR
- * @param {CameraComponent} mainCamera
- * @param {Vec3} wpos
- * @param {Node} uiNode
- * @return {Vec3}
+ * @param mainCamera 主相机
+ * @param wpos 世界空间位置
+ * @param uiNode UI节点
+ * @param out 返回局部坐标
  */
 export function WorldNode3DToLocalNodeUI (mainCamera: CameraComponent, wpos: Vec3, uiNode: Node, out?: Vec3) {
     if (!out) {
@@ -36,6 +35,15 @@ export function WorldNode3DToLocalNodeUI (mainCamera: CameraComponent, wpos: Vec
     return out;
 }
 
+/**
+ * @en
+ * Conversion of non-UI nodes to UI Node (World) Space coordinate system.
+ * @zh
+ * 非 UI 节点转换到 UI 节点(世界) 空间坐标系
+ * @param mainCamera 主相机
+ * @param wpos 世界空间位置
+ * @param out 返回世界坐标
+ */
 export function WorldNode3DToWorldNodeUI (mainCamera: CameraComponent, wpos: Vec3, out?: Vec3){
     if (!out) {
         out = new Vec3();

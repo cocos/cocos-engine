@@ -7,6 +7,10 @@ import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 
+/**
+ * @zh
+ * SMAA混合权重计算渲染阶段
+ */
 export class SMAABlendStage extends RenderStage {
 
     private _areaTexImage = new Image();
