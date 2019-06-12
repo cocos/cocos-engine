@@ -42,20 +42,29 @@ export class BuiltInBody implements BuiltInRigidBodyBase {
     constructor (options) {
         this._id = BuiltInBody.idCounter++;
     }
+
     public getGroup (): number {
         return this._group;
     }
+
     public setGroup (v: number): void {
         this._group = clamp(Math.floor(v), 0, 31);
-        this._collisionFilterGroup = 1 << v;
+        this._collisionFilterGroup = 1 << this._group;
     }
-    public getMask (): number {
-        return this._collisionFilterMask;
+
+    public getCollisionFilterGroup (): number {
+        return this._collisionFilterGroup;
     }
+
+    public setCollisionFilterGroup (group: number): void {
+        this._collisionFilterGroup = group;
+    }
+
     public setMask (v: number): void {
         v = clamp(Math.floor(v), 0, 31);
         this._collisionFilterMask = 1 << v;
     }
+
     public addMask (v: number): void {
         v = clamp(Math.floor(v), 0, 31);
         this._collisionFilterMask += 1 << v;
@@ -64,6 +73,14 @@ export class BuiltInBody implements BuiltInRigidBodyBase {
     public removeMask (v: number): void {
         v = clamp(Math.floor(v), 0, 31);
         this._collisionFilterMask -= 1 << v;
+    }
+
+    public getCollisionFilterMask (): number {
+        return this._collisionFilterMask;
+    }
+
+    public setCollisionFilterMask (v: number): void {
+        this._collisionFilterMask = v;
     }
 
     public intersects (body: BuiltInBody): boolean {
@@ -80,11 +97,13 @@ export class BuiltInBody implements BuiltInRigidBodyBase {
         }
         return false;
     }
+
     public onCollision (type: ICollisionEventType, event: ICollisionEvent) {
         for (const callback of this._collisionCB) {
             callback(type, event);
         }
     }
+
     public onTrigger (type: ICollisionEventType, event: ICollisionEvent) {
         for (const callback of this._collisionCB) {
             callback(type, event);
@@ -94,22 +113,27 @@ export class BuiltInBody implements BuiltInRigidBodyBase {
     public wakeUp (): void {
 
     }
+
     public sleep (): void {
 
     }
+
     public addShape (shape: BuiltinShape): void {
         this._shapes.push(shape);
     }
+
     public removeShape (shape: BuiltinShape): void {
         const i = this._shapes.indexOf(shape);
         if (i >= 0) {
             this._shapes.splice(i, 1);
         }
     }
+
     public setCollisionFilter (group: number, mask: number): void {
         this._collisionFilterGroup = group;
         this._collisionFilterMask = mask;
     }
+
     public setWorld (world: PhysicsWorldBase | null): void {
 
         const cworld = world as unknown as (BuiltInWorld | null);
@@ -123,41 +147,50 @@ export class BuiltInBody implements BuiltInRigidBodyBase {
 
         this._world = cworld;
     }
+
     public getPosition (out: Vec3): void {
 
     }
+
     public setPosition (pos: Vec3): void {
         /** 更新所有形状的位置 */
         for (const shape of this._shapes) {
             shape.setPosition(pos);
         }
     }
+
     public getRotation (out: Quat): void {
 
     }
+
     public setRotation (rot: Quat): void {
         /** 更新所有形状的方向 */
         for (const shape of this._shapes) {
             shape.setRotation(rot);
         }
     }
+
     public scaleAllShapes (scale: Vec3): void {
         for (const shape of this._shapes) {
             shape.setScale(scale);
         }
     }
+
     public addCollisionCallback (callback: ICollisionCallback): void {
         this._collisionCB.push(callback);
     }
+
     public removeCollisionCllback (callback: ICollisionCallback): void {
         const i = this._collisionCB.indexOf(callback);
         if (i >= 0) {
             this._collisionCB.splice(i, 1);
         }
     }
+
     public getUserData () {
         return this.userData;
     }
+
     public setUserData (data: any): void {
         this.userData = data;
     }

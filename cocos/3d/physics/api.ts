@@ -62,38 +62,31 @@ export interface PhysicsWorldBase {
 }
 
 export interface BuiltInRigidBodyBase{
-    /**
-     * @return group ∈ [0, 31] (int)
-     */
+
     getGroup (): number;
 
-    /**
-     * @param v ∈ [0, 31] (int)
-     */
     setGroup (v: number): void;
 
-    /**
-     * @return (int)
-     */
-    getMask (): number;
+    setCollisionFilterGroup (group: number): void;
 
-    /**
-     * this will reset the mask
-     * @param v ∈ [0, 31] (int)
-     */
+    getCollisionFilterGroup (): number;
+
     setMask (v: number): void;
 
-    /**
-     * this will add a mask
-     * @param v ∈ [0, 31] (int)
-     */
     addMask (v: number): void;
 
-    /**
-     * this will remove a mask
-     * @param v ∈ [0, 31] (int)
-     */
     removeMask (v: number): void;
+
+    getCollisionFilterMask (): number;
+
+    setCollisionFilterMask (v: number): void;
+
+    /**
+     * Set the collision filter of this body, remember that they are tested bitwise.
+     * @param group The group which this body will be put into.
+     * @param mask The groups which this body can collide with.
+     */
+    setCollisionFilter (group: number, mask: number): void;
 
     addShape (shape: ShapeBase, offset?: Vec3): void;
 
@@ -118,13 +111,6 @@ export interface BuiltInRigidBodyBase{
     getUserData (): any;
 
     setUserData (data: any): void;
-
-    /**
-     * Set the collision filter of this body, remember that they are tested bitwise.
-     * @param group The group which this body will be put into.
-     * @param mask The groups which this body can collide with.
-     */
-    setCollisionFilter (group: number, mask: number): void;
 
     setWorld (world: PhysicsWorldBase | null): void;
 }

@@ -36,7 +36,8 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 获取所在的组, 返回的是移动的位数，即 “ 1 << v ” 中的 v
+     * 获取分组位, 返回的是移动的位数，即 “ 1 << v ” 中的 v
+     * @note 注：使用此接口表示只在一个组
      * @returns 整数，范围为 0 到 31
      */
     public getGroup (): number {
@@ -48,7 +49,8 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 设置所在的组，将会进行移位操作，即 1 << v
+     * 设置分组位，将会进行位操作，即 1 << v
+     * @note 注：使用此接口表示只在一个组
      * @param v - 整数，范围为 0 到 31
      */
     public setGroup (v: number) {
@@ -59,19 +61,30 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 返回检测的掩码，范围为 2 的 0 次方 到 2 的 31 次方
+     * 获取分组值
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public setCollisionFilterGroup (v: number): void {
+        if (this._assertPreload) {
+            return this._body!.setCollisionFilterGroup(v);
+        }
+    }
+
+    /**
+     * @zh
+     * 直接设置分组值
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
-    public getMask (): number {
+    public getCollisionFilterGroup (): number {
         if (this._assertPreload) {
-            return this._body!.getMask();
+            return this._body!.getCollisionFilterGroup();
         }
         return 0;
     }
 
     /**
      * @zh
-     * 设置掩码, 将会把 v 位写为 1 ，其它位改为 0
+     * 设置掩码位，将会把掩码值的第 v 位写为 1，其它位写位 0
      * @param v - 整数，范围为 0 到 31
      */
     public setMask (v: number) {
@@ -93,7 +106,41 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 直接设置碰撞分组和掩码值
+     * 移除掩码位，将会把掩码值的第 v 位写为 0，可填入不需要检查的 group
+     * @param v - 整数，范围为 0 到 31
+     */
+    public removeMask (v: number) {
+        if (this._assertPreload) {
+            return this._body!.removeMask(v);
+        }
+    }
+
+    /**
+     * @zh
+     * 获取掩码值
+     * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public getCollisionFilterMask (): number {
+        if (this._assertPreload) {
+            return this._body!.getCollisionFilterMask();
+        }
+        return 0;
+    }
+
+    /**
+     * @zh
+     * 直接设置掩码值
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public setCollisionFilterMask (v: number) {
+        if (this._assertPreload) {
+            return this._body!.setCollisionFilterMask(v);
+        }
+    }
+
+    /**
+     * @zh
+     * 直接设置分组值和掩码值
      * @param group - 分组值
      * @param mask - 掩码值
      */
