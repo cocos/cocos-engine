@@ -37,7 +37,7 @@ async function _doBundle (options: IBuildOptions) {
     let code = '';
     const rollupPlugins = [
         excludes({
-            modules: options.excludes
+            modules: options.excludes,
         }),
 
         resolve({
@@ -61,6 +61,9 @@ async function _doBundle (options: IBuildOptions) {
                     legacy: true,
                 }],
                 ['@babel/plugin-proposal-class-properties', {
+                    loose: true,
+                }],
+                ['@babel/plugin-transform-for-of', {
                     loose: true,
                 }],
             ],
@@ -90,41 +93,43 @@ async function _doBundle (options: IBuildOptions) {
 
     code = generated.code;
 
-    console.log(`Doing uglify...`);
+    if (options.compress) {
+        console.log(`Doing uglify...`);
 
-    const minifyOutput = minify(code, {
-        compress: {
-            global_defs: options.globalDefines,
-            // sequences     : true,  // join consecutive statemets with the “comma operator”
-            // properties    : true,  // optimize property access: a["foo"] → a.foo
-            // dead_code     : true,  // discard unreachable code
-            // drop_debugger : true,  // discard “debugger” statements
-            // unsafe        : false, // some unsafe optimizations (see below)
-            // conditionals  : true,  // optimize if-s and conditional expressions
-            // comparisons   : true,  // optimize comparisons
-            // evaluate      : true,  // evaluate constant expressions
-            // booleans      : true,  // optimize boolean expressions
-            // loops         : true,  // optimize loops
-            // unused        : true,  // drop unused variables/functions
-            // hoist_funs    : true,  // hoist function declarations
-            // hoist_vars    : false, // hoist variable declarations
-            // if_return     : true,  // optimize if-s followed by return/continue
-            // join_vars     : true,  // join var declarations
-            // side_effects  : true,  // drop side-effect-free statements
-            // warnings      : true,  // warn about potentially dangerous optimizations/code
-        },
-        mangle: true,
-        keep_fnames: true,
-        output: {
-            beautify: false,
-        },
-        sourceMap: true,
-    });
-    if (minifyOutput.error) {
-        console.error(minifyOutput.error.stack);
-        return null;
-    } else {
-        code = minifyOutput.code;
+        const minifyOutput = minify(code, {
+            compress: {
+                global_defs: options.globalDefines,
+                // sequences     : true,  // join consecutive statemets with the “comma operator”
+                // properties    : true,  // optimize property access: a["foo"] → a.foo
+                // dead_code     : true,  // discard unreachable code
+                // drop_debugger : true,  // discard “debugger” statements
+                // unsafe        : false, // some unsafe optimizations (see below)
+                // conditionals  : true,  // optimize if-s and conditional expressions
+                // comparisons   : true,  // optimize comparisons
+                // evaluate      : true,  // evaluate constant expressions
+                // booleans      : true,  // optimize boolean expressions
+                // loops         : true,  // optimize loops
+                // unused        : true,  // drop unused variables/functions
+                // hoist_funs    : true,  // hoist function declarations
+                // hoist_vars    : false, // hoist variable declarations
+                // if_return     : true,  // optimize if-s followed by return/continue
+                // join_vars     : true,  // join var declarations
+                // side_effects  : true,  // drop side-effect-free statements
+                // warnings      : true,  // warn about potentially dangerous optimizations/code
+            },
+            mangle: true,
+            keep_fnames: true,
+            output: {
+                beautify: false,
+            },
+            sourceMap: true,
+        });
+        if (minifyOutput.error) {
+            console.error(minifyOutput.error.stack);
+            return null;
+        } else {
+            code = minifyOutput.code;
+        }
     }
 
     return {
