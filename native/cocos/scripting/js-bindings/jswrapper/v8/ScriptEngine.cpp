@@ -23,6 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 #include "ScriptEngine.hpp"
+#include "platform/CCPlatformConfig.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
@@ -33,7 +34,7 @@
 #include "../MappingUtils.hpp"
 
 #if SE_ENABLE_INSPECTOR
-//#include "debugger/inspector_agent.h"
+#include "debugger/inspector_agent.h"
 #include "debugger/env.h"
 #include "debugger/node.h"
 #endif
@@ -331,7 +332,6 @@ namespace se {
     : _platform(nullptr)
     , _isolate(nullptr)
     , _handleScope(nullptr)
-    , _allocator(nullptr)
     , _globalObj(nullptr)
     , _exceptionCallback(nullptr)
 #if SE_ENABLE_INSPECTOR
@@ -347,8 +347,8 @@ namespace se {
     {
         //        RETRUN_VAL_IF_FAIL(v8::V8::InitializeICUDefaultLocation(nullptr, "/Users/james/Project/v8/out.gn/x64.debug/icudtl.dat"), false);
         //        v8::V8::InitializeExternalStartupData("/Users/james/Project/v8/out.gn/x64.debug/natives_blob.bin", "/Users/james/Project/v8/out.gn/x64.debug/snapshot_blob.bin"); //REFINE
-        _platform = v8::platform::NewDefaultPlatform();
-        v8::V8::InitializePlatform(_platform.get());
+        _platform = v8::platform::NewDefaultPlatform().release();
+        v8::V8::InitializePlatform(_platform);
         bool ok = v8::V8::Initialize();
         assert(ok);
     }
@@ -358,7 +358,7 @@ namespace se {
         cleanup();
         v8::V8::Dispose();
         v8::V8::ShutdownPlatform();
-        _platform.reset(nullptr);
+        delete _platform;
     }
 
     bool ScriptEngine::init()
@@ -373,13 +373,12 @@ namespace se {
         }
         _beforeInitHookArray.clear();
 
-        assert(_allocator == nullptr);
-//        _allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
-//        // Create a new Isolate and make it the current one.
-//        _createParams.array_buffer_allocator = _allocator;
-v8::Isolate::CreateParams create_params;
-  create_params.array_buffer_allocator =
-      v8::ArrayBuffer::Allocator::NewDefaultAllocator();
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+        std::string flags("--jitless");
+        v8::V8::SetFlagsFromString(flags.c_str(), (int)flags.length());
+#endif
+        v8::Isolate::CreateParams create_params;
+        create_params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
         _isolate = v8::Isolate::New(create_params);
         v8::HandleScope hs(_isolate);
         _isolate->Enter();
@@ -496,8 +495,6 @@ v8::Isolate::CreateParams create_params;
         }
         _isolate->Dispose();
 
-        delete _allocator;
-        _allocator = nullptr;
         _isolate = nullptr;
         _globalObj = nullptr;
         _isValid = false;
