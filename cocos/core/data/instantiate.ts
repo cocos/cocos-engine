@@ -57,7 +57,7 @@ const objsToClearTmpVar: any = [];   // used to reset _iN$t variable
  * var node = cc.instantiate(targetNode);
  * node.parent = scene;
  */
-export default function instantiate (original, internal_force) {
+export default function instantiate (original, internal_force?) {
     if (!internal_force) {
         if (typeof original !== 'object' || Array.isArray(original)) {
             if (CC_DEV) {
