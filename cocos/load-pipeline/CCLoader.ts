@@ -285,7 +285,7 @@ class CCLoader extends Pipeline {
      * @param {Object} progressCallback.item - The latest item which flow out the pipeline
      * @param {Function} completeCallback - 当所有资源加载完毕后调用的回调函数
      */
-    public load (resources, progressCallback, completeCallback) {
+    public load (resources, progressCallback, completeCallback?) {
         if (CC_DEV && !resources) {
             return cc.error('[cc.loader.load] resources must be non-nil.');
         }
@@ -658,7 +658,7 @@ class CCLoader extends Pipeline {
      * @param {Function} type - 如果提供此参数，则将仅返回此类型的资源。
      * @returns {*}
      */
-    public getRes (url: string, type?: Function) {
+    public getRes<T = any> (url: string, type?: Function): T | null {
         let item = this._cache[url];
         if (!item) {
             const uuid = this._getResUuid(url, type, null, true);

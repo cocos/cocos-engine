@@ -29,6 +29,9 @@ import { GFXDevice, GFXFeature } from '../gfx/device';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 
+/**
+ * 内存图像源。
+ */
 export interface IMemoryImageSource {
     _data: ArrayBufferView | null;
     _compressed: boolean;
@@ -37,6 +40,9 @@ export interface IMemoryImageSource {
     format: number;
 }
 
+/**
+ * 图像资源的原始图像源。可以来源于 HTML 元素也可以来源于内存。
+ */
 export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource;
 
 function fetchImageSource (imageSource: ImageSource) {
@@ -44,7 +50,7 @@ function fetchImageSource (imageSource: ImageSource) {
 }
 
 /**
- * Class ImageAsset.
+ * 图像资源。
  */
 @ccclass('cc.ImageAsset')
 export class ImageAsset extends Asset {
@@ -59,32 +65,45 @@ export class ImageAsset extends Asset {
         this.reset(value);
     }
 
+    /**
+     * 此图像资源的图像数据。
+     */
     get data () {
         return '_data' in this._nativeData ? this._nativeData._data : this._nativeData;
     }
 
+    /**
+     * 此图像资源的像素宽度。
+     */
     get width () {
         return this._nativeData.width || this._width;
     }
 
+    /**
+     * 此图像资源的像素高度。
+     */
     get height () {
         return this._nativeData.height || this._height;
     }
 
+    /**
+     * 此图像资源的像素格式。
+     */
     get format () {
         return this._format;
     }
 
+    /**
+     * 此图像资源是否为压缩像素格式。
+     */
     get isCompressed () {
         return this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
     }
+
     /**
-     * !#en
-     * The url of the texture, this could be empty if the texture wasn't created via a file.
-     * !#zh
-     * 图像文件的 url，当图像不是由文件创建时值可能为空
+     * 此图像资源的原始图像源的 URL。当原始图像元不是 HTML 文件时可能为空。
+     * @deprecated 请转用 `this.nativeUrl`。
      */
-    // TODO - use nativeUrl directly
     get url () {
         return this._url;
     }
@@ -129,6 +148,10 @@ export class ImageAsset extends Asset {
         }
     }
 
+    /**
+     * 重置此图像资源使用的原始图像源。
+     * @param data 新的原始图像源。
+     */
     public reset (data: ImageSource) {
         if (!(data instanceof HTMLElement)) {
             // this._nativeData = Object.create(data);
