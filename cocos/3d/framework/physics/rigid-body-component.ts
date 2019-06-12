@@ -42,6 +42,10 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     //     // }
     // }
 
+    /**
+     * @zh
+     * 获取刚体的质量
+     */
     @property({
         displayOrder: 0,
     })
@@ -49,6 +53,10 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         return this._mass;
     }
 
+    /**
+     * @zh
+     * 设置刚体的质量
+     */
     public set mass (value) {
         this._mass = value;
         if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
@@ -56,6 +64,10 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         }
     }
 
+    /**
+     * @zh
+     * 获取线性阻尼
+     */
     @property({
         displayOrder: 1,
     })
@@ -63,6 +75,10 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         return this._linearDamping;
     }
 
+    /**
+     * @zh
+     * 设置线性阻尼
+     */
     public set linearDamping (value) {
         this._linearDamping = value;
         if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
@@ -70,6 +86,10 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         }
     }
 
+    /**
+     * @zh
+     * 获取角阻尼
+     */
     @property({
         displayOrder: 2,
     })
@@ -77,6 +97,10 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         return this._angularDamping;
     }
 
+    /**
+     * @zh
+     * 设置角阻尼
+     */
     public set angularDamping (value) {
         this._angularDamping = value;
         if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
@@ -84,6 +108,10 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         }
     }
 
+    /**
+     * @zh
+     * 获取刚体是否由物理系统控制运动
+     */
     @property({
         displayOrder: 3,
     })
@@ -91,6 +119,10 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         return this._isKinematic;
     }
 
+    /**
+     * @zh
+     * 设置刚体是否由自己控制运动
+     */
     public set isKinematic (value) {
         this._isKinematic = value;
         if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
@@ -98,6 +130,10 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         }
     }
 
+    /**
+     * @zh
+     * 获取刚体是否使用重力
+     */
     @property({
         displayOrder: 4,
     })
@@ -105,6 +141,10 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         return this._useGravity;
     }
 
+    /**
+     * @zh
+     * 设置刚体是否使用重力
+     */
     public set useGravity (value) {
         this._useGravity = value;
         if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
@@ -112,6 +152,10 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         }
     }
 
+    /**
+     * @zh
+     * 获取刚体是否固定旋转
+     */
     @property({
         displayOrder: 5,
     })
@@ -119,6 +163,10 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         return this._fixedRotation;
     }
 
+    /**
+     * @zh
+     * 设置刚体是否固定旋转
+     */
     public set fixedRotation (value) {
         this._fixedRotation = value;
         if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
@@ -128,27 +176,27 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /// PUBLIC GETTER\SETTER ///
 
-    public get isTrigger () {
-        return this._isTrigger;
-    }
+    // public get isTrigger () {
+    //     return this._isTrigger;
+    // }
 
-    public set isTrigger (value) {
-        this._isTrigger = value;
-        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
-            this._body.setIsTrigger(value);
-        }
-    }
+    // public set isTrigger (value) {
+    //     this._isTrigger = value;
+    //     if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
+    //         this._body.setIsTrigger(value);
+    //     }
+    // }
 
-    public get velocity () {
-        return this._velocity;
-    }
+    // public get velocity () {
+    //     return this._velocity;
+    // }
 
-    public set velocity (value: Vec3) {
-        vec3.copy(this._velocity, value);
-        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
-            this._body.setVelocity(this._velocity);
-        }
-    }
+    // public set velocity (value: Vec3) {
+    //     vec3.copy(this._velocity, value);
+    //     if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
+    //         this._body.setVelocity(this._velocity);
+    //     }
+    // }
 
     /// PRIVATE PROPERTY ///
 
@@ -167,8 +215,8 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     @property
     private _fixedRotation: boolean = false;
 
-    @property
-    private _isTrigger: boolean = false;
+    // @property
+    // private _isTrigger: boolean = false;
 
     @property
     private _isKinematic: boolean = false;
@@ -176,7 +224,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     @property
     private _useGravity: boolean = true;
 
-    private _velocity: Vec3 = new Vec3();
+    // private _velocity: Vec3 = new Vec3();
 
     constructor () {
         super();
@@ -184,30 +232,56 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /// PUBLIC METHOD ///
 
+    /**
+     * @zh
+     * 在某点上对刚体施加一个作用力
+     * @param force - 作用力
+     * @param position - 作用点
+     */
     public applyForce (force: Vec3, position?: Vec3) {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             this._body!.applyForce(force, position);
         }
     }
 
+    /**
+     * @zh
+     * 在某点上对刚体施加一个冲量
+     * @param impulse - 冲量
+     * @param position - 作用点
+     */
     public applyImpulse (impulse: Vec3, position?: Vec3) {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             this._body!.applyImpulse(impulse, position);
         }
     }
 
+    /**
+     * @zh
+     * 唤醒刚体
+     */
     public wakeUp () {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             this._body!.wakeUp();
         }
     }
 
+    /**
+     * @zh
+     * 休眠刚体
+     */
     public sleep () {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             this._body!.sleep();
         }
     }
 
+    /**
+     * @zh
+     * 直接设置碰撞分组和掩码值
+     * @param group - 分组值
+     * @param mask - 掩码值
+     */
     public setCollisionFilter (group: number, mask: number) {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             this._body!.setCollisionFilter(group, mask);
@@ -229,7 +303,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
                 this.angularDamping = this._angularDamping;
                 // this.material = this._material;
                 this.useGravity = this._useGravity;
-                this.velocity = this._velocity;
+                // this.velocity = this._velocity;
                 this.isKinematic = this._isKinematic;
                 this.fixedRotation = this._fixedRotation;
             }
