@@ -25,8 +25,8 @@
  ****************************************************************************/
 
 import { Component} from '../../../components';
-import { Size, SystemEventType, Vec3 } from '../../../core';
 import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
+import { Size, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import { Node } from '../../../scene-graph/node';
 import { UITransformComponent } from './ui-transfrom-component';

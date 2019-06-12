@@ -1,5 +1,5 @@
-import { EventTarget } from '../../../../core';
 import { ccclass, property } from '../../../../core/data/class-decorator';
+import { EventTarget } from '../../../../core/event';
 import { CallbacksInvoker, ICallbackTable } from '../../../../core/event/callbacks-invoker';
 import { applyMixins, IEventTarget } from '../../../../core/event/event-target-factory';
 import { createMap } from '../../../../core/utils/js';
