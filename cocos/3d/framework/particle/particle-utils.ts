@@ -31,11 +31,11 @@ export class ParticleUtils {
     }
 
     private static onSceneUnload () {
-        for (const p of this.particleSystemPool.values()) {
-            p.clear((prefab) => {
+        this.particleSystemPool.forEach((value) => {
+            value.clear((prefab) => {
                 prefab.destroy();
             });
-        }
+        });
         this.particleSystemPool.clear();
     }
 

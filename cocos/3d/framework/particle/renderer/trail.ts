@@ -340,8 +340,11 @@ export default class TrailModule {
 
     public clear () {
         if (this.enable) {
-            for (const trail of this._particleTrail.values()) {
-                trail.clear();
+            const trailIter = this._particleTrail.values();
+            let trail = trailIter.next();
+            while (!trail.done) {
+                trail.value.clear();
+                trail = trailIter.next();
             }
             this._particleTrail.clear();
             this.updateRenderData();

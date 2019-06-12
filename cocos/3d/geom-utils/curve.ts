@@ -12,14 +12,29 @@ const WrapMode = Enum({
     ClampForever: 4,
 });
 
+/**
+ * @zh 曲线中的一个关键帧
+ */
 export class Keyframe {
 
+    /**
+     * @zh 当前帧时间
+     */
     public time = 0;
 
+    /**
+     * @zh 当前帧的值
+     */
     public value = 0;
 
+    /**
+     * @zh 左切线
+     */
     public inTangent = 0;
 
+    /**
+     * @zh 右切线
+     */
     public outTangent = 0;
 }
 
@@ -52,12 +67,24 @@ export function evalOptCurve (t: number, coefs: Float32Array | number[]) {
     return (t * (t * (t * coefs[0] + coefs[1]) + coefs[2])) + coefs[3];
 }
 
+/**
+ * @zh 描述一条曲线，其中每个相邻关键帧采用三次hermite插值计算
+ */
 export class AnimationCurve {
 
+    /**
+     * @zh 曲线的关键帧
+     */
     public keyFrames: Keyframe[] | null;
 
+    /**
+     * @zh 当采样时间超出左端时采用的循环模式[[WrapMode]]
+     */
     public preWrapMode: number = WrapMode.Loop;
 
+    /**
+     * @zh 当采样时间超出右端时采用的循环模式[[WrapMode]]
+     */
     public postWrapMode: number = WrapMode.Loop;
 
     private cachedKey: OptimizedKey;
@@ -74,11 +101,19 @@ export class AnimationCurve {
         outTangent: 0,
     }];
 
+    /**
+     * 构造函数
+     * @param keyFrames 关键帧
+     */
     constructor (keyFrames: Keyframe[] | null = null) {
         this.keyFrames = keyFrames || ([] as Keyframe[]).concat(AnimationCurve.defaultKF);
         this.cachedKey = new OptimizedKey();
     }
 
+    /**
+     * @zh 添加一个关键帧
+     * @param keyFrame 关键帧
+     */
     public addKey (keyFrame: Keyframe) {
         if (this.keyFrames == null) {
             this.keyFrames = [];
@@ -86,7 +121,10 @@ export class AnimationCurve {
         this.keyFrames.push(keyFrame);
     }
 
-    // cubic Hermite spline
+    /**
+     * @ignore
+     * @param time
+     */
     public evaluate_slow (time: number) {
         let wrappedTime = time;
         const wrapMode = time < 0 ? this.preWrapMode : this.postWrapMode;
@@ -137,6 +175,10 @@ export class AnimationCurve {
         return a * keyframe0.value + b * m0 + c * m1 + d * keyframe1.value;
     }
 
+    /**
+     * @zh 计算给定时间点的曲线插值
+     * @param time 时间
+     */
     public evaluate (time: number) {
         let wrappedTime = time;
         const wrapMode = time < 0 ? this.preWrapMode : this.postWrapMode;
@@ -166,6 +208,12 @@ export class AnimationCurve {
         }
     }
 
+    /**
+     * @ignore
+     * @param optKey
+     * @param leftIndex
+     * @param rightIndex
+     */
     public calcOptimizedKey (optKey: OptimizedKey, leftIndex: number, rightIndex: number) {
         const lhs = this.keyFrames![leftIndex];
         const rhs = this.keyFrames![rightIndex];
@@ -185,6 +233,11 @@ export class AnimationCurve {
         optKey.coefficient[3] = lhs.value;
     }
 
+    /**
+     * @ignore
+     * @param optKey
+     * @param t
+     */
     private findIndex (optKey: OptimizedKey, t: number) {
         const cachedIndex = optKey.index;
         if (cachedIndex !== -1) {

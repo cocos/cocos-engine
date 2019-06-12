@@ -162,8 +162,12 @@ export class UI {
         }
         this._meshBuffers.splice(0);
 
-        for (const uiMat of this._uiMaterials.values()) {
+        const matIter = this._uiMaterials.values();
+        let result = matIter.next();
+        while (!result.done) {
+            const uiMat = result.value;
             uiMat.destroy();
+            result = matIter.next();
         }
 
         if (this._cmdBuff) {
@@ -426,8 +430,13 @@ export class UI {
     }
 
     private _destroyUIMaterials () {
-        for (const uiMat of this._uiMaterials.values()) {
+        const matIter = this._uiMaterials.values();
+        let result = matIter.next();
+        while (!result.done) {
+            console.log('111111111');
+            const uiMat = result.value;
             uiMat.destroy();
+            result = matIter.next();
         }
         this._uiMaterials.clear();
     }

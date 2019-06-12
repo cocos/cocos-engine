@@ -168,11 +168,15 @@ export class Model {
             subModel.destroy();
             _subMeshPool.free(subModel);
         }
-        for (const localBinding of this._localBindings.values()) {
+        const lbIter = this._localBindings.values();
+        let lbResult = lbIter.next();
+        while (!lbResult.done) {
+            const localBinding = lbResult.value;
             if (localBinding.buffer) {
                 localBinding.buffer.destroy();
                 localBinding.buffer = undefined;
             }
+            lbResult = lbIter.next();
         }
         if (this._localBindings.has(UBOForwardLight.BLOCK.name)) {
             this._localBindings.delete(UBOForwardLight.BLOCK.name);
@@ -353,7 +357,10 @@ export class Model {
     protected initLocalBindings (mat: Material|null) {
         if (mat) {
             this.onSetLocalBindings(mat);
-            for (const localBinding of this._localBindings.values()) {
+            const lbIter = this._localBindings.values();
+            let lbResult = lbIter.next();
+            while (!lbResult.done) {
+                const localBinding = lbResult.value;
                 if (!localBinding.buffer) {
                     localBinding.buffer = this._device.createBuffer({
                         usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
@@ -361,6 +368,7 @@ export class Model {
                         size: getUniformBlockSize(localBinding.blockInfo!),
                     });
                 }
+                lbResult = lbIter.next();
             }
         }
     }
