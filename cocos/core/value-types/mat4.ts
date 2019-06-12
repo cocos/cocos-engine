@@ -30,61 +30,113 @@ import { ValueType } from './value-type';
 import Vec3 from './vec3';
 
 /**
- * !#en Representation of 4*4 matrix.
- * !#zh 表示 4*4 矩阵
+ * 表示四维（4x4）矩阵。
  */
 export default class Mat4 extends ValueType {
+    /**
+     * 矩阵第 0 列第 0 行的元素。
+     */
     public m00: number;
+
+    /**
+     * 矩阵第 0 列第 1 行的元素。
+     */
     public m01: number;
+
+    /**
+     * 矩阵第 0 列第 2 行的元素。
+     */
     public m02: number;
+
+    /**
+     * 矩阵第 0 列第 3 行的元素。
+     */
     public m03: number;
+
+    /**
+     * 矩阵第 1 列第 0 行的元素。
+     */
     public m04: number;
+
+    /**
+     * 矩阵第 1 列第 1 行的元素。
+     */
     public m05: number;
+
+    /**
+     * 矩阵第 1 列第 2 行的元素。
+     */
     public m06: number;
+
+    /**
+     * 矩阵第 1 列第 3 行的元素。
+     */
     public m07: number;
+
+    /**
+     * 矩阵第 2 列第 0 行的元素。
+     */
     public m08: number;
+
+    /**
+     * 矩阵第 2 列第 1 行的元素。
+     */
     public m09: number;
+
+    /**
+     * 矩阵第 2 列第 2 行的元素。
+     */
     public m10: number;
+
+    /**
+     * 矩阵第 2 列第 3 行的元素。
+     */
     public m11: number;
+
+    /**
+     * 矩阵第 3 列第 0 行的元素。
+     */
     public m12: number;
+
+    /**
+     * 矩阵第 3 列第 1 行的元素。
+     */
     public m13: number;
+
+    /**
+     * 矩阵第 3 列第 2 行的元素。
+     */
     public m14: number;
+
+    /**
+     * 矩阵第 3 列第 3 行的元素。
+     */
     public m15: number;
 
     /**
-     * !#en
-     * Constructor
-     * see {{#crossLink "cc/mat4:method"}}cc.mat4{{/crossLink}}
-     * !#zh
-     * 构造函数，可查看 {{#crossLink "cc/mat4:method"}}cc.mat4{{/crossLink}}
-     *
-     * @param other
+     * 构造与指定矩阵相等的矩阵。
+     * @param other 相比较的矩阵。
      */
     constructor (other: Mat4);
 
     /**
-     * !#en
-     * Constructor
-     * see {{#crossLink "cc/mat4:method"}}cc.mat4{{/crossLink}}
-     * !#zh
-     * 构造函数，可查看 {{#crossLink "cc/mat4:method"}}cc.mat4{{/crossLink}}
-     *
-     * @param m00 Component in column 0, row 0 position (index 0)
-     * @param m01 Component in column 0, row 1 position (index 1)
-     * @param m02 Component in column 0, row 2 position (index 2)
-     * @param m03 Component in column 0, row 3 position (index 3)
-     * @param m10 Component in column 1, row 0 position (index 4)
-     * @param m11 Component in column 1, row 1 position (index 5)
-     * @param m12 Component in column 1, row 2 position (index 6)
-     * @param m13 Component in column 1, row 3 position (index 7)
-     * @param m20 Component in column 2, row 0 position (index 8)
-     * @param m21 Component in column 2, row 1 position (index 9)
-     * @param m22 Component in column 2, row 2 position (index 10)
-     * @param m23 Component in column 2, row 3 position (index 11)
-     * @param m30 Component in column 3, row 0 position (index 12)
-     * @param m31 Component in column 3, row 1 position (index 13)
-     * @param m32 Component in column 3, row 2 position (index 14)
-     * @param m33 Component in column 3, row 3 position (index 15)
+     * 构造具有指定元素的矩阵。
+     * @param m00 矩阵第 0 列第 0 行的元素。
+     * @param m01 矩阵第 0 列第 1 行的元素。
+     * @param m02 矩阵第 0 列第 2 行的元素。
+     * @param m03 矩阵第 0 列第 3 行的元素。
+     * @param m04 矩阵第 1 列第 0 行的元素。
+     * @param m05 矩阵第 1 列第 1 行的元素。
+     * @param m06 矩阵第 1 列第 2 行的元素。
+     * @param m07 矩阵第 1 列第 3 行的元素。
+     * @param m08 矩阵第 2 列第 0 行的元素。
+     * @param m09 矩阵第 2 列第 1 行的元素。
+     * @param m10 矩阵第 2 列第 2 行的元素。
+     * @param m11 矩阵第 2 列第 3 行的元素。
+     * @param m12 矩阵第 3 列第 0 行的元素。
+     * @param m13 矩阵第 3 列第 1 行的元素。
+     * @param m14 矩阵第 3 列第 2 行的元素。
+     * @param m15 矩阵第 3 列第 3 行的元素。
      */
     constructor (
         m00?: number, m01?: number, m02?: number, m03?: number,
@@ -112,10 +164,7 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * !#en clone a Mat4 object
-     * !#zh 克隆一个 Mat4 对象
-     *
-     * @return
+     * 克隆当前矩阵。
      */
     public clone () {
         const t = this;
@@ -127,12 +176,9 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * !#en Sets the matrix with another one's value
-     * !#zh 用另一个矩阵设置这个矩阵的值。
-     *
-     * @param srcObj
-     * @return returns this
-     * @chainable
+     * 设置当前矩阵使其与指定矩阵相等。
+     * @param other 相比较的矩阵。
+     * @returns `this`
      */
     public set (other: Mat4) {
         const t = this;
@@ -156,34 +202,26 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * !#en Check whether two matrix equal
-     * !#zh 当前的矩阵是否与指定的矩阵相等。
-     *
-     * @param other
-     * @return
+     * 判断当前矩阵是否与指定矩阵相等。
+     * @param other 相比较的矩阵。
+     * @returns 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
      */
     public equals (other: Mat4) {
         return xmat4.exactEquals(this, other);
     }
 
     /**
-     * !#en Check whether two matrix equal with default degree of variance.
-     * !#zh
-     * 近似判断两个矩阵是否相等。<br/>
-     * 判断 2 个矩阵是否在默认误差范围之内，如果在则返回 true，反之则返回 false。
-     *
-     * @param other
-     * @return
+     * 判断当前矩阵是否与指定矩阵相等。
+     * @param other 相比较的矩阵。
+     * @returns 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
      */
     public fuzzyEquals (other: Mat4) {
         return xmat4.equals(this, other);
     }
 
     /**
-     * !#en Transform to string with matrix informations
-     * !#zh 转换为方便阅读的字符串。
-     *
-     * @return
+     * 返回当前矩阵的字符串表示。
+     * @returns 当前矩阵的字符串表示。
      */
     public toString () {
         const t = this;
@@ -197,20 +235,17 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * Set the matrix to the identity matrix
-     *
-     * @return self
-     * @chainable
+     * 将当前矩阵设为单位矩阵。
+     * @returns `this`
      */
     public identity () {
         return xmat4.identity(this);
     }
 
     /**
-     * Transpose the values of a mat4
-     *
-     * @param [out] The receiving matrix, can be `this`; if absent, a new matrix would be created.
-     * @return out
+     * 将当前矩阵的转置矩阵赋值给出口矩阵。
+     * @param [out] 出口矩阵，当未指定时将创建为新的矩阵。
+     * @returns `out`
      */
     public transpose (out?: Mat4) {
         out = out || new cc.Mat4();
@@ -218,10 +253,9 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * Inverts a mat4
-     *
-     * @param [out] The receiving matrix, can be `this`; if absent, a new matrix would be created.
-     * @return out
+     * 将当前矩阵的逆矩阵赋值给出口矩阵。
+     * @param [out] 出口矩阵，当未指定时将创建为新的矩阵。
+     * @returns `out`
      */
     public invert (out?: Mat4) {
         out = out || new cc.Mat4();
@@ -229,10 +263,9 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * Calculates the adjugate of a mat4
-     *
-     * @param [out] The receiving matrix, can be `this`; if absent, a new matrix would be created.
-     * @return out
+     * 将当前矩阵的伴随矩阵赋值给出口矩阵。
+     * @param [out] 出口矩阵，当未指定时将创建为新的矩阵。
+     * @returns `out`
      */
     public adjoint (out?: Mat4) {
         out = out || new cc.Mat4();
@@ -240,20 +273,18 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * Calculates the determinant of a mat4
-     *
-     * @return determinant of a
+     * 计算当前矩阵的行列式。
+     * @returns 当前矩阵的行列式。
      */
     public determinant () {
         return xmat4.determinant(this);
     }
 
     /**
-     * Adds two Mat4
-     *
-     * @param other the second operand
-     * @param [out] The receiving matrix, can be `this`; if absent, a new matrix would be created.
-     * @return out
+     * 矩阵加法。将当前矩阵与指定矩阵的相加结果赋值给出口矩阵。
+     * @param other 指定的矩阵。
+     * @param [out] 出口矩阵，当未指定时将创建为新的矩阵。
+     * @returns `out`
      */
     public add (other: Mat4, out?: Mat4) {
         out = out || new cc.Mat4();
@@ -261,11 +292,10 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * Subtracts the current matrix with another one
-     *
-     * @param other the second operand
-     * @param [out] The receiving matrix, can be `this`; if absent, a new matrix would be created.
-     * @return out
+     * 矩阵减法。将当前矩阵减去指定矩阵的结果赋值给出口矩阵。
+     * @param other 减数矩阵。
+     * @param [out] 出口矩阵，当未指定时将创建为新的矩阵。
+     * @returns `out`
      */
     public sub (other: Mat4, out?: Mat4) {
         out = out || new cc.Mat4();
@@ -273,11 +303,10 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * Subtracts the current matrix with another one
-     *
-     * @param other the second operand
-     * @param [out] The receiving matrix, can be `this`; if absent, a new matrix would be created.
-     * @return out
+     * 矩阵乘法。将当前矩阵左乘指定矩阵的结果赋值给出口矩阵。
+     * @param other 指定的矩阵。
+     * @param [out] 出口矩阵，当未指定时将创建为新的矩阵。
+     * @returns `out`
      */
     public mul (other: Mat4, out?: Mat4) {
         out = out || new cc.Mat4();
@@ -285,23 +314,21 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * Multiply each element of the matrix by a scalar.
-     *
-     * @param number amount to scale the matrix's elements by
-     * @param [out] The receiving matrix, can be `this`; if absent, a new matrix would be created.
-     * @return out
+     * 矩阵数乘。将当前矩阵与指定标量的数乘结果赋值给出口矩阵。
+     * @param scalar 指定的标量。
+     * @param [out] 出口矩阵，当未指定时将创建为新的矩阵。
+     * @returns `out`
      */
-    public mulScalar (num: number, out?: Mat4) {
+    public mulScalar (scalar: number, out?: Mat4) {
         out = out || new cc.Mat4();
-        return xmat4.scale(out, this, num);
+        return xmat4.scale(out, this, scalar);
     }
 
     /**
-     * Translate a mat4 by the given vector
-     *
-     * @param v vector to translate by
-     * @param [out] The receiving matrix, can be `this`; if absent, a new matrix would be created.
-     * @return out
+     * 将当前矩阵左乘位移矩阵的结果赋值给出口矩阵，位移矩阵由各个轴的位移给出。
+     * @param v 各个轴的位移。
+     * @param [out] 出口矩阵，当未指定时将创建为新的矩阵。
+     * @returns `out`
      */
     public translate (v: Vec3, out?: Mat4) {
         out = out || new cc.Mat4();
@@ -309,11 +336,10 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * Scales the mat4 by the dimensions in the given vec3
-     *
-     * @param v vector to scale by
-     * @param [out] The receiving matrix, can be `this`; if absent, a new matrix would be created.
-     * @return out
+     * 将当前矩阵左乘缩放矩阵的结果赋值给出口矩阵，缩放矩阵由各个轴的缩放给出。
+     * @param v 各个轴的缩放。
+     * @param [out] 出口矩阵，当未指定时将创建为新的矩阵。
+     * @returns `out`
      */
     public scale (v: Vec3, out?: Mat4) {
         out = out || new cc.Mat4();
@@ -321,12 +347,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * Rotates a mat4 by the given angle around the given axis
-     *
-     * @param rad the angle to rotate the matrix by
-     * @param axis the axis to rotate around
-     * @param [out] The receiving matrix, can be `this`; if absent, a new matrix would be created.
-     * @return out
+     * 将当前矩阵左乘旋转矩阵的结果赋值给出口矩阵，旋转矩阵由旋转轴和旋转角度给出。
+     * @param 旋转角度（弧度制）。
+     * @param 旋转轴。
+     * @param [out] 出口矩阵，当未指定时将创建为新的矩阵。
+     * @returns `out`
      */
     public rotate (rad: number, axis: Vec3, out?: Mat4) {
         out = out || new cc.Mat4();
@@ -334,10 +359,8 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * Returns the translation vector component of a transformation matrix.
-     *
-     * @param  {Vec3} out Vector to receive translation component, if not provided, a new vec3 will be created
-     * @return out
+     * 从当前矩阵中计算出位移变换的部分，并以各个轴上位移的形式赋值给出口向量。
+     * @param [out] 出口向量，当未指定时将创建为新的向量。
      */
     public getTranslation (out?: Mat4) {
         out = out || new cc.Vec3();
@@ -345,10 +368,8 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * Returns the scale factor component of a transformation matrix
-     *
-     * @param out Vector to receive scale component, if not provided, a new vec3 will be created
-     * @return out
+     * 从当前矩阵中计算出缩放变换的部分，并以各个轴上缩放的形式赋值给出口向量。
+     * @param [out] 出口向量，当未指定时将创建为新的向量。
      */
     public getScale (out: Vec3) {
         out = out || new cc.Vec3();
@@ -356,10 +377,8 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * Returns the rotation factor component of a transformation matrix
-     *
-     * @param out Vector to receive rotation component, if not provided, a new quaternion object will be created
-     * @return out
+     * 从当前矩阵中计算出旋转变换的部分，并以四元数的形式赋值给出口四元数。
+     * @param [out] 出口四元数，当未指定时将创建为新的四元数。
      */
     public getRotation (out: Quat) {
         out = out || new Quat();
@@ -367,24 +386,22 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * Restore the matrix values from a quaternion rotation, vector translation and vector scale
-     *
-     * @param q Rotation quaternion
-     * @param v Translation vector
-     * @param s Scaling vector
-     * @return the current mat4 object
-     * @chainable
+     * 重置当前矩阵的值，使其表示指定的旋转、缩放、位移依次组合的变换。
+     * @param q 四元数表示的旋转变换。
+     * @param v 位移变换，表示为各个轴的位移。
+     * @param s 缩放变换，表示为各个轴的缩放。
+     * @returns `this`
      */
     public fromRTS (q: Quat, v: Vec3, s: Vec3) {
         return xmat4.fromRTS(this, q, v, s);
     }
 
     /**
-     * Restore the matrix values from a quaternion rotation
-     *
-     * @param q Rotation quaternion
-     * @return the current mat4 object
-     * @chainable
+     * 重置当前矩阵的值，使其表示指定四元数表示的旋转变换。
+     * @param q 四元数表示的旋转变换。
+     * @param v 位移变换，表示为各个轴的位移。
+     * @param s 缩放变换，表示为各个轴的缩放。
+     * @returns `this`
      */
     public fromQuat (quat: Quat) {
         return xmat4.fromQuat(this, quat);
@@ -400,35 +417,31 @@ CCClass.fastDefine('cc.Mat4', Mat4, {
 cc.Mat4 = Mat4;
 
 /**
- * !#en The convenience method to create a new {{#crossLink "Mat4"}}cc.Mat4{{/crossLink}}.
- * !#zh 通过该简便的函数进行创建 {{#crossLink "Mat4"}}cc.Mat4{{/crossLink}} 对象。
- *
- * @param other
- * @return
+ * 构造与指定矩阵相等的矩阵。等价于 `new Mat4(other)`。
+ * @param other 相比较的矩阵。
+ * @returns `new Mat4(other)`
  */
 export function mat4 (other: Mat4): Mat4;
 
 /**
- * !#en The convenience method to create a new {{#crossLink "Mat4"}}cc.Mat4{{/crossLink}}.
- * !#zh 通过该简便的函数进行创建 {{#crossLink "Mat4"}}cc.Mat4{{/crossLink}} 对象。
- *
- * @param m00 Component in column 0, row 0 position (index 0)
- * @param m01 Component in column 0, row 1 position (index 1)
- * @param m02 Component in column 0, row 2 position (index 2)
- * @param m03 Component in column 0, row 3 position (index 3)
- * @param m10 Component in column 1, row 0 position (index 4)
- * @param m11 Component in column 1, row 1 position (index 5)
- * @param m12 Component in column 1, row 2 position (index 6)
- * @param m13 Component in column 1, row 3 position (index 7)
- * @param m20 Component in column 2, row 0 position (index 8)
- * @param m21 Component in column 2, row 1 position (index 9)
- * @param m22 Component in column 2, row 2 position (index 10)
- * @param m23 Component in column 2, row 3 position (index 11)
- * @param m30 Component in column 3, row 0 position (index 12)
- * @param m31 Component in column 3, row 1 position (index 13)
- * @param m32 Component in column 3, row 2 position (index 14)
- * @param m33 Component in column 3, row 3 position (index 15)
- * @return
+ * 构造具有指定元素的矩阵。等价于 `new Mat4(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33)`
+ * @param m00 矩阵第 0 列第 0 行的元素。
+ * @param m01 矩阵第 0 列第 1 行的元素。
+ * @param m02 矩阵第 0 列第 2 行的元素。
+ * @param m03 矩阵第 0 列第 3 行的元素。
+ * @param m04 矩阵第 1 列第 0 行的元素。
+ * @param m05 矩阵第 1 列第 1 行的元素。
+ * @param m06 矩阵第 1 列第 2 行的元素。
+ * @param m07 矩阵第 1 列第 3 行的元素。
+ * @param m08 矩阵第 2 列第 0 行的元素。
+ * @param m09 矩阵第 2 列第 1 行的元素。
+ * @param m10 矩阵第 2 列第 2 行的元素。
+ * @param m11 矩阵第 2 列第 3 行的元素。
+ * @param m12 矩阵第 3 列第 0 行的元素。
+ * @param m13 矩阵第 3 列第 1 行的元素。
+ * @param m14 矩阵第 3 列第 2 行的元素。
+ * @param m15 矩阵第 3 列第 3 行的元素。
+ * @returns `new Mat4(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33)`
  */
 export function mat4 (
     m00?: number, m01?: number, m02?: number, m03?: number,

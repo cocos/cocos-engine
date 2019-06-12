@@ -24,65 +24,64 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import { errorID } from '../platform/CCDebug';
 import * as js from '../utils/js';
 
 /**
- * !#en The base class of all value types.
- * !#zh 所有值类型的基类。
- * @class ValueType
- *
+ * 所有值类型的基类。
  */
 export class ValueType {
     /**
-     * !#en This method returns an exact copy of current value.
-     * !#zh 克隆当前值，该方法返回一个新对象，新对象的值和原对象相等。
+     * 克隆当前值。克隆的结果值应与当前值相等，即满足 `this.equals(this, value.clone())`。
      *
+     * 本方法的基类版本简单地返回 `this`；
+     * 派生类**必须**重写本方法，并且返回的对象不应当为 `this`，即满足 `this !== this.clone()`。
+     * @returns 克隆结果值。
      */
     public clone (): ValueType {
-        cc.errorID('0100', js.getClassName(this) + '.clone');
+        errorID(100, js.getClassName(this) + '.clone');
         return this;
     }
 
     /**
-     * !#en Compares this object with the other one.
-     * !#zh 当前对象是否等于指定对象。
-     * @param other
+     * 判断当前值是否与指定值相等。此判断应当具有交换性，即满足 `this.equals(other) === other.equals(this)`。
+     * 本方法的基类版本简单地返回 `false`。
+     * @param other 相比较的值。
+     * @returns 相等则返回 `true`，否则返回 `false`。
      */
     public equals (other: this) {
-        cc.errorID('0100', js.getClassName(this) + '.equals');
+        // errorID(100, js.getClassName(this) + '.equals');
         return false;
     }
 
     /**
-     * !#en
-     * Linearly interpolates between this value to to value by ratio which is in the range [0, 1].
-     * When ratio = 0 returns this. When ratio = 1 return to. When ratio = 0.5 returns the average of this and to.
-     * !#zh
-     * 线性插值。<br/>
-     * 当 ratio = 0 时返回自身，ratio = 1 时返回目标，ratio = 0.5 返回自身和目标的平均值。。
-     * @param to - the to value
-     * @param ratio - the interpolation coefficient
-     * @returns
+     * 根据指定的插值比率，从当前值到目标值之间做插值。
+     * 当插值比率为 `0` 时，此方法的返回值应和当前值相等，即满足 `this.lerp(other, 0, out).equals(this)`；
+     * 当插值比率为 `1` 时，此方法的返回值应和目标值相等，即满足 `this.lerp(other, 1, out).equals(other)`。
+     * 本方法的基类版本在插值比率为 `1` 时将目标值的克隆作为插值结果，在其它情况下将当前值的克隆作为插值结果。
+     * @param to 目标值。
+     * @param ratio 插值比率，范围为 [0,1]。
+     * @param out 当此参数定义时，本方法允许将插值结果赋值给此参数并返回此参数。
+     * @returns 插值结果。
      */
     public lerp (to: this, ratio: number, out?: this) {
-        cc.errorID('0100', js.getClassName(this) + '.lerp');
-        return this.clone();
+        // errorID(100, js.getClassName(this) + '.lerp');
+        return ratio === 1 ? to.clone() : this.clone();
     }
 
     /**
-     * !#en
-     * Copys all the properties from another given object to this value.
-     * !#zh
-     * 从其它对象把所有属性复制到当前对象。
-     * @param source - the source to copy
+     * 赋值当前值使其与指定值相等，即在 `this.set(other)` 之后应有 `this.equals(other)`。
+     * 本方法的基类版本简单地返回 `this`，派生类**必须**重写本方法。
+     * @param other 相比较的值。
      */
-    public set (source: this) {
-        cc.errorID('0100', js.getClassName(this) + '.set');
+    public set (other: this) {
+        errorID(100, js.getClassName(this) + '.set');
     }
 
     /**
-     * !#en TODO
-     * !#zh 转换为方便阅读的字符串。
+     * 返回当前值的字符串表示。
+     * 本方法的基类版本返回空字符串。
+     * @returns 当前值的字符串表示。
      */
     public toString () {
         return '' + {};

@@ -28,27 +28,30 @@ import CCClass from '../data/class';
 import { ValueType } from './value-type';
 
 /**
- * !#en
- * cc.Size is the class for size object,<br/>
- * please do not use its constructor to create sizes,<br/>
- * use {{#crossLink "cc/size:method"}}{{/crossLink}} alias function instead.<br/>
- * It will be deprecated soon, please use cc.Vec2 instead.
- *
- * !#zh
- * cc.Size 是 size 对象的类。<br/>
- * 请不要使用它的构造函数创建的 size，<br/>
- * 使用 {{#crossLink "cc/size:method"}}{{/crossLink}} 别名函数。<br/>
- * 它不久将被取消，请使用cc.Vec2代替。
- *
- * @class Size
+ * 二维尺寸。
  */
 export default class Size extends ValueType {
+    /**
+     * 宽度。
+     */
     public width: number;
 
+    /**
+     * 高度。
+     */
     public height: number;
 
-    constructor (size: Size);
+    /**
+     * 构造与指定尺寸相等的尺寸。
+     * @param other 相比较的尺寸。
+     */
+    constructor (other: Size);
 
+    /**
+     * 构造具有指定宽度和高度的尺寸。
+     * @param [width=0] 指定的宽度。
+     * @param [height=0] 指定的高度。
+     */
     constructor (width?: number, height?: number);
 
     constructor (width?: Size | number, height?: number) {
@@ -63,30 +66,26 @@ export default class Size extends ValueType {
     }
 
     /**
-     * !#en return a Size object with width = 0 and height = 0.
-     * !#zh 返回一个宽度为 0 和高度为 0 的 Size 对象。
-     */
-    static get ZERO () {
-        return new Size(0.0, 0.0);
-    }
-
-    /**
-     * !#en Clone a new size object from this one.
-     * !#zh 克隆 size 对象。
-     * @example
-     * var a = new cc.size(10, 10);
-     * a.clone();// return Size {width: 0, height: 0};
+     * 克隆当前尺寸。
      */
     public clone () {
         return new Size(this.width, this.height);
     }
 
     /**
-     * !#en TODO
-     * !#zh 当前 Size 对象是否等于指定 Size 对象。
-     * @example
-     * var a = new cc.size(10, 10);
-     * a.equals(new cc.size(10, 10));// return true;
+     * 设置当前尺寸使其与指定的尺寸相等。
+     * @param other 相比较的尺寸。
+     * @returns `this`
+     */
+    public set (other: Size) {
+        this.width = other.width;
+        this.height = other.height;
+    }
+
+    /**
+     * 判断当前尺寸是否与指定尺寸的相等。
+     * @param other 相比较的尺寸。
+     * @returns 两尺寸的宽和高都分别相等时返回 `true`；否则返回 `false`。
      */
     public equals (other: Size) {
         return this.width === other.width &&
@@ -94,20 +93,11 @@ export default class Size extends ValueType {
     }
 
     /**
-     * !#en TODO
-     * !#zh 线性插值。
-     * @param to
-     * @param ratio - the interpolation coefficient.
-     * @param out - optional, the receiving vector.
-     * @example
-     * var a = new cc.size(10, 10);
-     * var b = new cc.rect(50, 50, 100, 100);
-     * update (dt) {
-     *    // method 1;
-     *    var c = a.lerp(b, dt * 0.1);
-     *    // method 2;
-     *    a.lerp(b, dt * 0.1, c);
-     * }
+     * 根据指定的插值比率，从当前尺寸到目标尺寸之间做插值。
+     * @param to 目标尺寸。
+     * @param ratio 插值比率，范围为 [0,1]。
+     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
+     * @returns 当前尺寸的宽和高到目标尺寸的宽和高分别按指定插值比率进行线性插值构成的向量。
      */
     public lerp (to: Size, ratio: number, out?: Size) {
         out = out || new Size();
@@ -118,51 +108,36 @@ export default class Size extends ValueType {
         return out;
     }
 
-    public set (source: Size) {
-        this.width = source.width;
-        this.height = source.height;
-    }
-
     /**
-     * !#en TODO
-     * !#zh 转换为方便阅读的字符串。
-     * @example
-     * var a = new cc.size(10, 10);
-     * a.toString();// return "(10.00, 10.00)";
+     * 返回当前尺寸的字符串表示。
+     * @returns 当前尺寸的字符串表示。
      */
     public toString () {
         return `(${this.width.toFixed(2)}, ${this.height.toFixed(2)})`;
+    }
+
+    /**
+     * 创建宽和高都为 0 的尺寸并返回。
+     */
+    static get ZERO () {
+        return new Size(0.0, 0.0);
     }
 }
 
 CCClass.fastDefine('cc.Size', Size, { width: 0, height: 0 });
 
 /**
- * !#en
- * Helper function that creates a cc.Size.<br/>
- * Please use cc.p or cc.v2 instead, it will soon replace cc.Size.
- * !#zh
- * 创建一个 cc.Size 对象的帮助函数。<br/>
- * 注意：可以使用 cc.p 或者是 cc.v2 代替，它们将很快取代 cc.Size。
- *
- * @param size
- * @return
- * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCSize/size.js}
+ * 等价于 `new Size(other)`。
+ * @param other 相比较的尺寸。
+ * @returns `new Size(other)`
  */
-export function size (size: Size): Size;
+export function size (other: Size): Size;
 
 /**
- * !#en
- * Helper function that creates a cc.Size.<br/>
- * Please use cc.p or cc.v2 instead, it will soon replace cc.Size.
- * !#zh
- * 创建一个 cc.Size 对象的帮助函数。<br/>
- * 注意：可以使用 cc.p 或者是 cc.v2 代替，它们将很快取代 cc.Size。
- *
- * @param [w] - width
- * @param [h] - height
- * @return
- * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCSize/size.js}
+ * 等价于 `new Size(x, y)`。
+ * @param [x=0] 指定的宽度。
+ * @param [y=0] 指定的高度。
+ * @returns `new Size(x, y)`
  */
 export function size (width?: number, height?: number): Size;
 

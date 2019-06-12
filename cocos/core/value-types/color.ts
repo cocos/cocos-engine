@@ -28,39 +28,27 @@ import CCClass from '../data/class';
 import { color4 } from '../vmath';
 import { ValueType } from './value-type';
 
-const to_float = 1 / 255;
+const toFloat = 1 / 255;
 
 /**
- * !#en
- * Representation of RGBA colors.
- *
- * Each color component is a floating point value with a range from 0 to 255.
- *
- * You can also use the convenience method {{#crossLink "cc/color:method"}}cc.color{{/crossLink}} to create a new Color.
- *
- * !#zh
- * cc.Color 用于表示颜色。
- *
- * 它包含 RGBA 四个以浮点数保存的颜色分量，每个的值都在 0 到 255 之间。
- *
- * 您也可以通过使用 {{#crossLink "cc/color:method"}}cc.color{{/crossLink}} 的便捷方法来创建一个新的 Color。
- *
- * @class Color
- * @extends ValueType
+ * 通过 Red、Green、Blue 颜色通道表示颜色，并通过 Alpha 通道表示不透明度。
+ * 每个通道都为取值范围 [0, 255] 的整数。
  */
 export default class Color extends ValueType {
     private _val: number;
 
     /**
-     * @param other
+     * 构造与指定颜色相等的颜色。
+     * @param other 相比较的颜色。
      */
     constructor (other: Color);
 
     /**
-     * @param [r=0] - red component of the color, default value is 0.
-     * @param [g=0] - green component of the color, defualt value is 0.
-     * @param [b=0] - blue component of the color, default value is 0.
-     * @param [a=255] - alpha component of the color, default value is 255.
+     * 构造具有指定通道的颜色。
+     * @param [r=0] 指定的 Red 通道。
+     * @param [g=0] 指定的 Green 通道。
+     * @param [b=0] 指定的 Blue 通道。
+     * @param [a=255] 指定的 Alpha 通道。
      */
     constructor (r?: number, g?: number, b?: number, a?: number);
 
@@ -79,151 +67,133 @@ export default class Color extends ValueType {
         this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
     }
 
-    // color: [r, g, b, a]
     /**
-     * !#en Solid white, RGBA is [255, 255, 255, 255].
-     * !#zh 纯白色，RGBA 是 [255, 255, 255, 255]。
+     * 创建并获取（不透明的）纯白色，各通道值依次为 (255, 255, 255, 255)。
      */
     static get WHITE () {
         return new Color(255, 255, 255, 255);
     }
 
     /**
-     * !#en Solid black, RGBA is [0, 0, 0, 255].
-     * !#zh 纯黑色，RGBA 是 [0, 0, 0, 255]。
+     * 创建并获取（不透明的）纯黑色，各通道值依次为 (0, 0, 0, 255)。
      */
     static get BLACK () {
         return new Color(0, 0, 0, 255);
     }
 
     /**
-     * !#en Transparent, RGBA is [0, 0, 0, 0].
-     * !#zh 透明，RGBA 是 [0, 0, 0, 0]。
+     * 创建并获取全透明的纯黑色，各通道值依次为 (0, 0, 0, 0)。
      */
     static get TRANSPARENT () {
          return new Color(0, 0, 0, 0);
     }
 
     /**
-     * !#en Grey, RGBA is [127.5, 127.5, 127.5].
-     * !#zh 灰色，RGBA 是 [127.5, 127.5, 127.5]。
+     * 创建并获取（不透明的）灰色，各通道值依次为 (127.5, 127.5, 127.5, 255)。
      */
     static get GRAY () {
         return new Color(127.5, 127.5, 127.5, 255);
     }
 
     /**
-     * !#en Solid red, RGBA is [255, 0, 0].
-     * !#zh 纯红色，RGBA 是 [255, 0, 0]。
+     * 创建并获取（不透明的）纯红色，各通道值依次为 (255, 0, 0, 255)。
      */
     static get RED () {
         return new Color(255, 0, 0, 255);
     }
 
     /**
-     * !#en Solid green, RGBA is [0, 255, 0].
-     * !#zh 纯绿色，RGBA 是 [0, 255, 0]。
+     * 创建并获取（不透明的）纯绿色，各通道值依次为 (0, 255, 0, 255)。
      */
     static get GREEN () {
         return new Color(0, 255, 0, 255);
     }
 
     /**
-     * !#en Solid blue, RGBA is [0, 0, 255].
-     * !#zh 纯蓝色，RGBA 是 [0, 0, 255]。
+     * 创建并获取（不透明的）纯蓝色，各通道值依次为 (0, 0, 255, 255)。
      */
     static get BLUE () {
         return new Color(0, 0, 255, 255);
     }
 
     /**
-     * !#en Yellow, RGBA is [255, 235, 4].
-     * !#zh 黄色，RGBA 是 [255, 235, 4]。
+     * 创建并获取（不透明的）黄色，各通道值依次为 (255, 235, 4, 255)。
      */
     static get YELLOW () {
         return new Color(255, 235, 4, 255);
     }
 
     /**
-     * !#en Orange, RGBA is [255, 127, 0].
-     * !#zh 橙色，RGBA 是 [255, 127, 0]。
+     * 创建并获取（不透明的）橙色，各通道值依次为 (255, 127, 0, 255)。
      */
     static get ORANGE () {
         return new Color(255, 127, 0, 255);
     }
 
     /**
-     * !#en Cyan, RGBA is [0, 255, 255].
-     * !#zh 青色，RGBA 是 [0, 255, 255]。
+     * 创建并获取（不透明的）青色，各通道值依次为 (0, 255, 255, 255)。
      */
     static get CYAN () {
         return new Color(0, 255, 255, 255);
     }
 
     /**
-     * !#en Magenta, RGBA is [255, 0, 255].
-     * !#zh 洋红色（品红色），RGBA 是 [255, 0, 255]。
+     * 创建并获取（不透明的）洋红色（品红色），各通道值依次为 (255, 0, 255, 255)。
      */
     static get MAGENTA () {
         return new Color(255, 0, 255, 255);
     }
 
     /**
-     * !#en red channel value
-     * !#zh 红色通道值
+     * 获取或设置当前颜色的 Red 通道。
      */
     get r () {
         return this._val & 0x000000ff;
     }
+
     set r (red) {
         red = ~~cc.misc.clampf(red, 0, 255);
         this._val = ((this._val & 0xffffff00) | red) >>> 0;
     }
 
     /**
-     * !#en green channel value
-     * !#zh 绿色通道值
+     * 获取或设置当前颜色的 Green 通道。
      */
     get g () {
         return (this._val & 0x0000ff00) >> 8;
     }
+
     set g (green) {
         green = ~~cc.misc.clampf(green, 0, 255);
         this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
     }
 
     /**
-     * !#en blue channel value
-     * !#zh 蓝色通道值
+     * 获取或设置当前颜色的 Blue 通道。
      */
     get b () {
         return (this._val & 0x00ff0000) >> 16;
     }
+
     set b (blue) {
         blue = ~~cc.misc.clampf(blue, 0, 255);
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
     }
 
     /**
-     * !#en alpha channel value
-     * !#zh 透明度通道值
+     * 获取或设置当前颜色的 Alpha 通道。
      */
     get a () {
         return (this._val & 0xff000000) >>> 24;
     }
+
     set a (alpha) {
         alpha = ~~cc.misc.clampf(alpha, 0, 255);
         this._val = ((this._val & 0x00ffffff) | ((alpha << 24) >>> 0)) >>> 0;
     }
 
     /**
-     * !#en Clone a new color from the current color.
-     * !#zh 克隆当前颜色。
-     *
-     * @return Newly created color.
-     * @example
-     * var color = new cc.Color();
-     * var newColor = color.clone();// Color {r: 0, g: 0, b: 0, a: 255}
+     * 克隆当前颜色。
      */
     public clone () {
         const ret = new Color();
@@ -232,31 +202,20 @@ export default class Color extends ValueType {
     }
 
     /**
-     * !#en TODO
-     * !#zh 判断两个颜色是否相等。
-     *
-     * @param other
-     * @return
-     * @example
-     * var color1 = cc.Color.WHITE;
-     * var color2 = new cc.Color(255, 255, 255);
-     * cc.log(color1.equals(color2)); // true;
-     * color2 = cc.Color.RED;
-     * cc.log(color2.equals(color1)); // false;
+     * 判断当前颜色是否与指定颜色相等。
+     * @param other 相比较的颜色。
+     * @returns 两颜色的各通道都相等时返回 `true`；否则返回 `false`。
      */
     public equals (other: Color) {
         return other && this._val === other._val;
     }
 
     /**
-     * !#en TODO
-     * !#zh 线性插值
-     *
-     * @param to
-     * @param ratio - the interpolation coefficient.
-     * @param [out] - optional, the receiving vector.
-     * @return
-     * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCColor/lerp.js}
+     * 根据指定的插值比率，从当前颜色到目标颜色之间做插值。
+     * @param to 目标颜色。
+     * @param ratio 插值比率，范围为 [0,1]。
+     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
+     * @returns 当前颜色各个通道到目标颜色对应的各个通道之间按指定插值比率进行线性插值构成的颜色。
      */
     public lerp (to: Color, ratio: number, out?: Color) {
         out = out || new Color();
@@ -272,13 +231,8 @@ export default class Color extends ValueType {
     }
 
     /**
-     * !#en TODO
-     * !#zh 转换为方便阅读的字符串。
-     *
-     * @return
-     * @example
-     * var color = cc.Color.WHITE;
-     * color.toString(); // "rgba(255, 255, 255, 255)"
+     * 返回当前颜色的字符串表示。
+     * @returns 当前颜色的字符串表示。
      */
     public toString () {
         return 'rgba(' +
@@ -289,20 +243,17 @@ export default class Color extends ValueType {
     }
 
     /**
-     * !#en Convert color to css format.
-     * !#zh 转换为 CSS 格式。
-     *
-     * @param opt - "rgba", "rgb", "#rgb" or "#rrggbb".
-     * @return
-     * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCColor/toCSS.js}
+     * 将当前颜色转换为 CSS 格式。
+     * @param opt 格式选项。
+     * @returns 当前颜色的 CSS 格式。
      */
-    public toCSS (opt: 'rgba' | 'rgb' | '#rgb' | '#rrggbb') {
+    public toCSS (opt: 'rgba' | 'rgb' | '#rrggbb') {
         if ( opt === 'rgba' ) {
             return 'rgba(' +
                 (this.r | 0 ) + ',' +
                 (this.g | 0 ) + ',' +
                 (this.b | 0 ) + ',' +
-                (this.a * to_float).toFixed(2) + ')'
+                (this.a * toFloat).toFixed(2) + ')'
             ;
         } else if ( opt === 'rgb' ) {
             return 'rgb(' +
@@ -316,16 +267,12 @@ export default class Color extends ValueType {
     }
 
     /**
-     * !#en Read hex string and store color data into the current color object,
-     * the hex string must be formated as rgba or rgb.
-     * !#zh 读取 16 进制颜色。
-     *
-     * @param hexString
-     * @return
-     * @chainable
-     * @example
-     * var color = cc.Color.BLACK;
-     * color.fromHEX("#FFFF33"); // Color {r: 255, g: 255, b: 51, a: 255};
+     * 从十六进制颜色字符串中读入当前颜色。
+     * 十六进制颜色字符串应该以可选的 "#" 开头，紧跟最多 8 个代表十六进制数字的字符；
+     * 每两个连续字符代表的数值依次作为 Red、Green、Blue 和 Alpha 通道；
+     * 缺省的颜色通道将视为 0；缺省的透明通道将视为 255。
+     * @param hexString 十六进制颜色字符串。
+     * @returns `this`
      */
     public fromHEX (hexString: string) {
         hexString = (hexString.indexOf('#') === 0) ? hexString.substring(1) : hexString;
@@ -338,31 +285,24 @@ export default class Color extends ValueType {
     }
 
     /**
-     * !#en convert Color to HEX color string.
-     * e.g.  cc.color(255,6,255)  to : "#ff06ff"
-     * !#zh 转换为 16 进制。
-     *
-     * @param fmt - "#rgb", "#rrggbb" or "#rrggbbaa".
-     * @return
+     * 转换当前颜色为十六进制颜色字符串。
+     * @param fmt 格式选项。
+     * - `'#rrggbbaa'` 获取Red、Green、Blue、Alpha通道的十六进制值（**两位**，高位补 0）并依次连接；
+     * - `'#rrggbb` 与 `'#rrggbbaa'` 类似但不包括 Alpha 通道。
+     * @returns 十六进制颜色字符串。
      * @example
-     * var color = cc.Color.BLACK;
-     * color.toHEX("#rgb");     // "000";
-     * color.toHEX("#rrggbb");  // "000000";
+     * const color = new Color(255, 14, 0, 255);
+     * color.toHex("rrggbbaa"); // "FF0E00FF"
+     * color.toHex("rrggbb"); // "FF0E00"
      */
-    public toHEX (fmt: '#rgb' | '#rrggbb' | '#rrggbbaa') {
+    public toHEX (fmt: '#rrggbb' | '#rrggbbaa') {
         const hex = [
             (this.r | 0 ).toString(16),
             (this.g | 0 ).toString(16),
             (this.b | 0 ).toString(16),
         ];
         let i = -1;
-        if ( fmt === '#rgb' ) {
-            for ( i = 0; i < hex.length; ++i ) {
-                if ( hex[i].length > 1 ) {
-                    hex[i] = hex[i][0];
-                }
-            }
-        } else if ( fmt === '#rrggbb' ) {
+        if ( fmt === '#rrggbb' ) {
             for ( i = 0; i < hex.length; ++i ) {
                 if ( hex[i].length === 1 ) {
                     hex[i] = '0' + hex[i];
@@ -380,29 +320,24 @@ export default class Color extends ValueType {
     }
 
     /**
-     * !#en Convert to 24bit rgb value.
-     * !#zh 转换为 24bit 的 RGB 值。
-     *
-     * @return
+     * 将当前颜色转换为 RGB 整数值。
+     * @returns RGB 整数值。从最低有效位开始，每8位分别是 Red、Green、Blue 通道的值。
      * @example
-     * var color = cc.Color.YELLOW;
-     * color.toRGBValue(); // 16771844;
+     * const color = Color.YELLOW;
+     * color.toRGBValue();
      */
     public toRGBValue () {
         return this._val & 0x00ffffff;
     }
 
     /**
-     * !#en Read HSV model color and convert to RGB color
-     * !#zh 读取 HSV（色彩模型）格式。
-     *
-     * @param h
-     * @param s
-     * @param v
-     * @return
-     * @chainable
+     * 从 HSV 颜色中读入当前颜色。
+     * @param h H 通道。
+     * @param s S 通道。
+     * @param v V 通道。
+     * @returns `this`
      * @example
-     * var color = cc.Color.YELLOW;
+     * const color = Color.YELLOW;
      * color.fromHSV(0, 0, 1); // Color {r: 255, g: 255, b: 255, a: 255};
      */
     public fromHSV (h: number, s: number, v: number) {
@@ -471,18 +406,16 @@ export default class Color extends ValueType {
     }
 
     /**
-     * !#en Transform to HSV model color
-     * !#zh 转换为 HSV（色彩模型）格式。
-     *
-     * @return - {h: number, s: number, v: number}.
+     * 转换当前颜色为 HSV 颜色。
+     * @returns HSV 颜色。成员 `h`、`s`、`v` 分别代表 HSV 颜色的 H、S、V 通道。
      * @example
-     * var color = cc.Color.YELLOW;
-     * color.toHSV(); // Object {h: 0.1533864541832669, s: 0.9843137254901961, v: 1};
+     * const color = cc.Color.YELLOW;
+     * color.toHSV(); // {h: 0.1533864541832669, s: 0.9843137254901961, v: 1}
      */
     public toHSV () {
-        const r = this.r * to_float;
-        const g = this.g * to_float;
-        const b = this.b * to_float;
+        const r = this.r * toFloat;
+        const g = this.g * toFloat;
+        const b = this.b * toFloat;
         const hsv = { h: 0, s: 0, v: 0 };
         const max = Math.max(r, g, b);
         const min = Math.min(r, g, b);
@@ -504,77 +437,120 @@ export default class Color extends ValueType {
         return hsv;
     }
 
-    public set (c: Color) {
-        if (c._val) {
-            this._val = c._val;
+    /**
+     * 设置当前颜色使其与指定颜色相等。
+     * @param other 相比较的颜色。
+     * @returns 当前颜色。
+     */
+    public set (other: Color) {
+        if (other._val) {
+            this._val = other._val;
         } else {
-            this._val = ((c.a << 24) >>> 0) + (c.b << 16) + (c.g << 8) + c.r;
+            this._val = ((other.a << 24) >>> 0) + (other.b << 16) + (other.g << 8) + other.r;
         }
     }
 
-    public mulSelf (c: Color) {
-        const r = ((this._val & 0x000000ff) * c.r) >> 8;
-        const g = ((this._val & 0x0000ff00) * c.g) >> 8;
-        const b = ((this._val & 0x00ff0000) * c.b) >> 8;
-        const a = ((this._val & 0xff000000) >>> 8) * c.a;
+    /**
+     * 将当前颜色乘以与指定颜色：当前颜色的每个通道都乘以指定颜色对应的通道。
+     * @param other 指定的颜色。
+     * @returns `this`
+     */
+    public mulSelf (other: Color) {
+        const r = ((this._val & 0x000000ff) * other.r) >> 8;
+        const g = ((this._val & 0x0000ff00) * other.g) >> 8;
+        const b = ((this._val & 0x00ff0000) * other.b) >> 8;
+        const a = ((this._val & 0xff000000) >>> 8) * other.a;
         this._val = (a & 0xff000000) | (b & 0x00ff0000) | (g & 0x0000ff00) | (r & 0x000000ff);
         return this;
     }
 
-    public mul (c: Color, out?: Color) {
+    /**
+     * 将当前颜色乘以与指定颜色的结果赋值给出口颜色。
+     * @param other 指定的颜色。
+     * @param [out] 出口颜色，当未指定时将创建为新的颜色。
+     */
+    public mul (other: Color, out?: Color) {
         out = out || new Color();
-        const r = ((this._val & 0x000000ff) * c.r) >> 8;
-        const g = ((this._val & 0x0000ff00) * c.g) >> 8;
-        const b = ((this._val & 0x00ff0000) * c.b) >> 8;
-        const a = ((this._val & 0xff000000) >>> 8) * c.a;
+        const r = ((this._val & 0x000000ff) * other.r) >> 8;
+        const g = ((this._val & 0x0000ff00) * other.g) >> 8;
+        const b = ((this._val & 0x00ff0000) * other.b) >> 8;
+        const a = ((this._val & 0xff000000) >>> 8) * other.a;
         out._val = (a & 0xff000000) | (b & 0x00ff0000) | (g & 0x0000ff00) | (r & 0x000000ff);
         return out;
     }
 
-    get x () { return this.r * to_float; }
-    set x (val) { this.r = val * 255; }
-    get y () { return this.g * to_float; }
-    set y (val) { this.g = val * 255; }
-    get z () { return this.b * to_float; }
-    set z (val) { this.b = val * 255; }
-    get w () { return this.a * to_float; }
-    set w (val) { this.a = val * 255; }
+    /**
+     * 通过除以 255，将当前颜色的各个通道都视为范围 [0, 1] 内，设置 Red 通道的值。
+     */
+    get x () {
+        return this.r * toFloat;
+    }
+
+    set x (value) {
+        this.r = value * 255;
+    }
+
+    /**
+     * 通过除以 255，将当前颜色的各个通道都视为范围 [0, 1] 内，设置 Green 通道的值。
+     */
+    get y () {
+        return this.g * toFloat;
+    }
+
+    set y (value) {
+        this.g = value * 255;
+    }
+
+    /**
+     * 通过除以 255，将当前颜色的各个通道都视为范围 [0, 1] 内，设置 Blue 通道的值。
+     */
+    get z () {
+        return this.b * toFloat;
+    }
+
+    set z (value) {
+        this.b = value * 255;
+    }
+
+    /**
+     * 通过除以 255，将当前颜色的各个通道都视为范围 [0, 1] 内，设置 Alpha 通道的值。
+     */
+    get w () {
+        return this.a * toFloat;
+    }
+
+    set w (value) {
+        this.a = value * 255;
+    }
 }
 
 CCClass.fastDefine('cc.Color', Color, {r: 0, g: 0, b: 0, a: 255});
 
 /**
- * !#en
- * The convenience method to create a new {{#crossLink "Color/Color:method"}}cc.Color{{/crossLink}}
- * Alpha channel is optional. Default value is 255.
- *
- * !#zh
- * 通过该方法来创建一个新的 {{#crossLink "Color/Color:method"}}cc.Color{{/crossLink}} 对象。
- * Alpha 通道是可选的。默认值是 255。
- *
- *
- * @param other
- * @return
- * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCColor/color.js}
+ * 构造与指定颜色相等的颜色。相当于 `new Color(other)`。
+ * @param other 相比较的颜色。
+ * @returns `new Color(other)`
  */
-export function color (other: Color | string): Color;
+export function color (other: Color): Color;
+
+// tslint:disable:unified-signatures
 
 /**
- * !#en
- * The convenience method to create a new {{#crossLink "Color/Color:method"}}cc.Color{{/crossLink}}
- * Alpha channel is optional. Default value is 255.
- *
- * !#zh
- * 通过该方法来创建一个新的 {{#crossLink "Color/Color:method"}}cc.Color{{/crossLink}} 对象。
- * Alpha 通道是可选的。默认值是 255。
- *
- *
- * @param [r=0]
- * @param [g=0]
- * @param [b=0]
- * @param [a=255]
- * @return
- * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCColor/color.js}
+ * 从十六进制字符串中构造颜色。相当于 `(new Color()).fromHex(hexString)`。
+ * @param other 相比较的颜色。
+ * @returns `(new Color()).fromHex(hexString)`
+ */
+export function color (hexString: string): Color;
+
+// tslint:enable:unified-signatures
+
+/**
+ * 构造具有指定通道的颜色。相当于 `new Color(r, g, b, a)`。
+ * @param [r=0] 指定的 Red 通道。
+ * @param [g=0] 指定的 Green 通道。
+ * @param [b=0] 指定的 Blue 通道。
+ * @param [a=255] 指定的 Alpha 通道。
+ * @returns `new Color(r, g, b, a)`
  */
 export function color (r?: number, g?: number, b?: number, a?: number): Color;
 
