@@ -29,6 +29,9 @@ import { TextureBase } from '../../assets/texture-base';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { GFXTextureFlagBit, GFXTextureViewType } from '../../gfx/define';
 
+/**
+ * 立方体贴图的 Mipmap。
+ */
 interface ITextureCubeMipmap {
     front: ImageAsset;
     back: ImageAsset;
@@ -38,19 +41,34 @@ interface ITextureCubeMipmap {
     bottom: ImageAsset;
 }
 
+/**
+ * 立方体每个面的约定索引。
+ */
+enum FaceIndex {
+    right = 0,
+    left = 1,
+    top = 2,
+    bottom = 3,
+    front = 4,
+    back = 5,
+}
+
+/**
+ * 立方体贴图资源。
+ * 立方体贴图资源的每个 Mipmap 层级都为 6 张图像资源，分别代表了立方体贴图的 6 个面。
+ */
 @ccclass('cc.TextureCube')
 export class TextureCube extends TextureBase {
+    public static FaceIndex = FaceIndex;
+
     /**
-     * Gets the mipmap images.
-     * Note that the result do not contains the auto generated mipmaps.
+     * 所有层级 Mipmap，注意，这里不包含自动生成的 Mipmap。
+     * 当设置 Mipmap 时，贴图的尺寸以及像素格式可能会改变。
      */
     get mipmaps () {
         return this._mipmaps;
     }
 
-    /**
-     * Sets the mipmaps images.
-     */
     set mipmaps (value) {
         this._mipmaps = value;
         if (this._mipmaps.length > 0) {
@@ -67,23 +85,33 @@ export class TextureCube extends TextureBase {
     }
 
     /**
-     * Gets the mipmap image at level 0.
+     * 0 级 Mipmap。
+     * 注意，`this.image = i` 等价于 `this.mipmaps = [i]`，
+     * 也就是说，通过 `this.image` 设置 0 级 Mipmap 时将隐式地清除之前的所有 Mipmap。
      */
     get image () {
         return this._mipmaps.length === 0 ? null : this._mipmaps[0];
     }
 
-    /**
-     * Sets the mipmap images as a single mipmap image.
-     */
     set image (value) {
         this.mipmaps = value ? [value] : [];
     }
 
     /**
-     * convenient util for cubemap creation (even with custom mipmaps)
-     * @param texture - texture asset array containing six faces in a row
-     * @param out - the resulting texture cube asset
+     * 通过二维贴图指定每个 Mipmap 的每个面创建立方体贴图。
+     * @param textures 数组长度必须是6的倍数。
+     * 每 6 个二维贴图依次构成立方体贴图的 Mipmap。6 个面应该按 `FaceIndex` 规定顺序排列。
+     * @param out 出口立方体贴图，若未定义则将创建为新的立方体贴图。
+     * @returns `out`
+     * @example
+     * const textures = new Array<Texture2D>(6);
+     * textures[TextureCube.FaceIndex.front] = frontImage;
+     * textures[TextureCube.FaceIndex.back] = backImage;
+     * textures[TextureCube.FaceIndex.left] = leftImage;
+     * textures[TextureCube.FaceIndex.right] = rightImage;
+     * textures[TextureCube.FaceIndex.top] = topImage;
+     * textures[TextureCube.FaceIndex.bottom] = bottomImage;
+     * const textureCube = TextureCube.fromTexture2DArray(textures);
      */
     public static fromTexture2DArray (textures: Texture2D[], out?: TextureCube) {
         const mipmaps: ITextureCubeMipmap[] = [];
@@ -99,7 +127,7 @@ export class TextureCube extends TextureBase {
                 bottom: textures[x + FaceIndex.bottom].image!,
             });
         }
-        if (!out) { out = new TextureCube(); }
+        out = out || new TextureCube();
         out.mipmaps = mipmaps;
         return out;
     }
@@ -117,14 +145,6 @@ export class TextureCube extends TextureBase {
         this.emit('load');
     }
 
-    /**
-     * Updates mipmaps at specified range of levels.
-     * @param firstLevel The first level from which the sources update.
-     * @description
-     * If the range specified by [firstLevel, firstLevel + sources.length) exceeds
-     * the actually range of mipmaps this texture contains, only overlaped mipmaps are updated.
-     * Use this method if your mipmap data are modified.
-     */
     public updateMipmaps (firstLevel: number = 0, count?: number) {
         if (firstLevel >= this._mipmaps.length) {
             return;
@@ -143,13 +163,7 @@ export class TextureCube extends TextureBase {
     }
 
     /**
-     * !#en
-     * Destory this texture and immediately release its video memory. (Inherit from cc.Object.destroy)<br>
-     * After destroy, this object is not usable any more.
-     * You can use cc.isValid(obj) to check whether the object is destroyed before accessing it.
-     * !#zh
-     * 销毁该贴图，并立即释放它对应的显存。（继承自 cc.Object.destroy）<br/>
-     * 销毁后，该对象不再可用。您可以在访问对象之前使用 cc.isValid(obj) 来检查对象是否已被销毁。
+     * 销毁此贴图，清空所有 Mipmap 并释放占用的 GPU 资源。
      */
     public destroy () {
         this._mipmaps = [];
@@ -157,10 +171,8 @@ export class TextureCube extends TextureBase {
     }
 
     /**
-     * !#en
-     * Release texture, please use destroy instead.
-     * !#zh 释放纹理，请使用 destroy 替代。
-     * @deprecated Since v2.0.
+     * 释放占用的 GPU 资源。
+     * @deprecated 请转用 `this.destroy()`。
      */
     public releaseTexture () {
         this.mipmaps = [];
@@ -241,15 +253,6 @@ interface ITextureCubeSerializeData {
         top: string;
         bottom: string;
     }>;
-}
-
-enum FaceIndex {
-    right = 0,
-    left = 1,
-    top = 2,
-    bottom = 3,
-    front = 4,
-    back = 5,
 }
 
 /**

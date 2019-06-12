@@ -62,38 +62,31 @@ const _regions: GFXBufferTextureCopy[] = [{
     },
 }];
 
+/**
+ * 贴图资源基类。它定义了所有贴图共用的概念。
+ */
 @ccclass('cc.TextureBase')
 export class TextureBase extends Asset {
-
     /**
-     * !#en
-     * Texture width, in pixels.
-     * For 2D texture, the width of texture is equal to its very first mipmap's width;
-     * For Cubemap texture, the width of texture is equal to its every sides's very first mipmaps's width.
-     * !#zh
-     * 贴图像素宽度
+     * 此贴图的像素宽度。
+     * 对于二维贴图来说，贴图的像素宽度等于它 0 级 Mipmap 的宽度；
+     * 对于二维贴图来说，贴图的像素宽度等于它 0 级 Mipmap 任何面的宽度；
      */
     public get width (): number {
         return this._texture ? this._texture.width : 0;
     }
 
     /**
-     * !#en
-     * Texture height, in pixels.
-     * For 2D texture, the height of texture is equal to its very first mipmap's height;
-     * For Cubemap texture, the height of texture is equal to its every sides's very first mipmaps's height.
-     * !#zh
-     * 贴图像素高度
+     * 此贴图的像素高度。
+     * 对于二维贴图来说，贴图的像素高度等于它 0 级 Mipmap 的高度；
+     * 对于二维贴图来说，贴图的像素高度等于它 0 级 Mipmap 任何面的高度；
      */
     public get height (): number {
         return this._texture ? this._texture.height : 0;
     }
 
     /**
-     * !#en
-     * Indicate that whether it's a compressed texture or not
-     * !#zh
-     * 是否是压缩纹理
+     * 此贴图是否为压缩的像素格式。
      */
     public get isCompressed (): boolean {
         return this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
@@ -166,6 +159,13 @@ export class TextureBase extends Asset {
         this.loaded = false;
     }
 
+    /**
+     * 将当且贴图重置为指定尺寸、像素格式以及指定 mipmap 层级的贴图。重置后，贴图的像素数据将变为未定义。
+     * @param width 像素宽度。
+     * @param height 像素高度。
+     * @param format 像素格式。
+     * @param mipmapLevel mipmap 层级。
+     */
     public create (width: number, height: number, format = PixelFormat.RGBA8888, mipmapLevel = 1) {
         this._potientialWidth = width;
         this._potientialHeight = height;
@@ -175,22 +175,25 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * Gets the underlying texture object.
-     * @deprecated Use getGfxTexture() instead.
+     * 获取底层贴图对象。
+     * @returns 此贴图的底层贴图对象。
+     * @deprecated 请转用 `getGfxTexture()`。
      */
     public getImpl () {
         return this._texture;
     }
 
+    /**
+     * 获取标识符。
+     * @returns 此贴图的标识符。
+     */
     public getId () {
         return this._id;
     }
 
     /**
-     * !#en
-     * Pixel format of the texture.
-     * !#zh 获取纹理的像素格式。
-     * @return
+     * 获取像素格式。
+     * @returns 此贴图的像素格式。
      */
     public getPixelFormat () {
         // support only in WebGl rendering mode
@@ -198,32 +201,27 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * !#en
-     * Whether or not the texture has their Alpha premultiplied.
-     * !#zh 检查纹理在上传 GPU 时预乘选项是否开启。
-     * @return
+     * 返回是否开启了预乘透明通道功能。
+     * @returns 此贴图是否开启了预乘透明通道功能。
      */
     public hasPremultipliedAlpha () {
         return this._premultiplyAlpha || false;
     }
 
     /**
-     * !#en Anisotropy of the texture.
-     * !#zh 获取纹理的各向异性。
-     * @return
+     * 获取各向异性。
+     * @returns 此贴图的各向异性。
      */
     public getAnisotropy () {
         return this._anisotropy;
     }
 
     /**
-     * !#en Sets the wrap s and wrap t options. <br/>
-     * If the texture size is NPOT (non power of 2), then in can only use gl.CLAMP_TO_EDGE in gl.TEXTURE_WRAP_{S,T}.
-     * !#zh 设置纹理包装模式。
-     * 若纹理贴图尺寸是 NPOT（non power of 2），则只能使用 Texture2D.WrapMode.CLAMP_TO_EDGE。
-     * @param wrapS
-     * @param wrapT
-     * @param wrapR
+     * 设置此贴图的缠绕模式。
+     * 注意，若贴图尺寸不是 2 的整数幂，缠绕模式仅允许 `WrapMode.CLAMP_TO_EDGE`。
+     * @param wrapS S(U) 坐标的采样模式。
+     * @param wrapT T(V) 坐标的采样模式。
+     * @param wrapR R(W) 坐标的采样模式。
      */
     public setWrapMode (wrapS: WrapMode, wrapT: WrapMode, wrapR?: WrapMode) {
         this._wrapS = wrapS; this._samplerInfo[SamplerInfoIndex.addressU] = wrapS;
@@ -233,10 +231,9 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * !#en Sets the minFilter and magFilter options
-     * !#zh 设置纹理贴图缩小和放大过滤器算法选项。
-     * @param minFilter
-     * @param magFilter
+     * 设置此贴图的过滤算法。
+     * @param minFilter 缩小过滤算法。
+     * @param magFilter 放大过滤算法。
      */
     public setFilters (minFilter: Filter, magFilter: Filter) {
         this._minFilter = minFilter; this._samplerInfo[SamplerInfoIndex.minFilter] = minFilter;
@@ -244,9 +241,8 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * !#en Sets the mipFilter options
-     * !#zh 设置纹理Mipmap过滤算法选项。
-     * @param mipFilter
+     * 设置此贴图的 mip 过滤算法。
+     * @param mipFilter mip 过滤算法。
      */
     public setMipFilter (mipFilter: Filter) {
         this._mipFilter = mipFilter; this._samplerInfo[SamplerInfoIndex.mipFilter] = mipFilter;
@@ -254,19 +250,15 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * !#en
-     * Sets the flipY options
-     * !#zh 设置贴图的纵向翻转选项。
-     * @param flipY
+     * 设置渲染时是否运行将此贴图进行翻转。
+     * @param flipY 翻转则为 `true`，否则为 `false`。
      */
     public setFlipY (flipY: boolean) {
         this._flipY = flipY;
     }
 
     /**
-     * !#en
-     * Sets the premultiply alpha options
-     * !#zh 设置贴图的预乘选项。
+     * 设置此贴图是否预乘透明通道。
      * @param premultiply
      */
     public setPremultiplyAlpha (premultiply: boolean) {
@@ -274,27 +266,39 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * !#en Sets the anisotropy of the texture
-     * !#zh 设置贴图的各向异性。
-     * @param anisotropy
+     * 设置此贴图的各向异性。
+     * @param anisotropy 各向异性。
      */
     public setAnisotropy (anisotropy: number) {
         this._anisotropy = anisotropy; this._samplerInfo[SamplerInfoIndex.maxAnisotropy] = anisotropy;
     }
 
+    /**
+     * 销毁此贴图，并释放占有的所有 GPU 资源。
+     */
     public destroy () {
         this._destroyTexture();
         return super.destroy();
     }
 
+    /**
+     * 获取此贴图底层的 GFX 贴图对象。
+     */
     public getGFXTexture () {
         return this._texture;
     }
 
+    /**
+     * 获取此贴图底层的 GFX 贴图视图对象。
+     */
     public getGFXTextureView () {
         return this._textureView;
     }
 
+    /**
+     * 获取此贴图内部使用的 GFX 采样器信息。
+     * @private
+     */
     public getGFXSamplerInfo () {
         return this._samplerInfo;
     }
@@ -338,24 +342,28 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * Updates mipmaps at level 0.
+     * 更新 0 级 Mipmap。
      */
     public updateImage () {
         this.updateMipmaps(0);
     }
 
     /**
-     * Updates mipmaps at specified range of levels.
-     * @param firstLevel The first level from which the sources update.
-     * @description
-     * If the range specified by [firstLevel, firstLevel + sources.length) exceeds
-     * the actually range of mipmaps this texture contains, only overlaped mipmaps are updated.
-     * Use this method if your mipmap data are modified.
+     * 更新指定层级范围内的 Mipmap。当 Mipmap 数据发生了改变时应调用此方法提交更改。
+     * 若指定的层级范围超出了实际已有的层级范围，只有覆盖的那些层级范围会被更新。
+     * @param firstLevel 起始层级。
+     * @param count 层级数量。
      */
     public updateMipmaps (firstLevel: number = 0, count?: number) {
 
     }
 
+    /**
+     * 上传图像数据到指定层级的 Mipmap 中。
+     * @param source 图像数据源。
+     * @param level Mipmap 层级。
+     * @param arrayIndex 数组索引。
+     */
     public uploadData (source: HTMLCanvasElement | HTMLImageElement | ArrayBuffer, level: number = 0, arrayIndex: number = 0) {
         if (!this._texture || this._texture.mipLevel <= level) { return; }
         const gfxDevice = this._getGlobalDevice();
