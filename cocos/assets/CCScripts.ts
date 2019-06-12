@@ -28,12 +28,7 @@ import {ccclass} from '../core/data/class-decorator';
 import { Asset } from './asset';
 
 /**
- * !#en Class for script handling.
- * !#zh Script 资源类。
- * @class _Script
- * @extends Asset
- *
- * @private
+ * 脚本资源基类。
  */
 @ccclass('cc.Script')
 export class Script extends Asset {
@@ -41,11 +36,7 @@ export class Script extends Asset {
 cc._Script = Script;
 
 /**
- * !#en Class for JavaScript handling.
- * !#zh JavaScript 资源类。
- * @class _JavaScript
- * @extends Asset
- *
+ * JavaScript 脚本资源。
  */
 @ccclass('cc.JavaScript')
 export class JavaScript extends Script {
@@ -53,11 +44,7 @@ export class JavaScript extends Script {
 cc._JavaScript = JavaScript;
 
 /**
- * !#en Class for TypeScript handling.
- * !#zh TypeScript 资源类。
- * @class TypeScript
- * @extends Asset
- *
+ * Typescript 脚本资源。
  */
 @ccclass('cc.TypeScript')
 export class TypeScript extends Script {

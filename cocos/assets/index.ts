@@ -40,3 +40,5 @@ export { TTFFont } from './ttf-font';
 export { LabelAtlas } from './label-atlas';
 export { BitmapFont } from './bitmap-font';
 export { Font } from './font';
+import * as textureUtil from './texture-util';
+export { textureUtil };

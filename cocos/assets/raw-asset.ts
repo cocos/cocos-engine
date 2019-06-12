@@ -29,25 +29,20 @@ import { CCObject } from '../core/data/object';
 import { isChildClassOf } from '../core/utils/js';
 
 /**
- * !#en
- * The base class for registering asset types.
- * !#zh
- * 注册用的资源基类。
- *
- * @class RawAsset
- * @extends Object
+ * 原生资源的基类。内部使用。
+ * @private
  */
 @ccclass('cc.RawAsset')
 export class RawAsset extends CCObject {
     /**
-     * For internal usage.
+     * 内部使用。
      */
     public static isRawAssetType (ctor: Function) {
         return isChildClassOf(ctor, cc.RawAsset) && !isChildClassOf(ctor, cc.Asset);
     }
 
     /**
-     * For internal usage.
+     * 内部使用。
      */
     // @ts-ignore
     public _uuid: string;
