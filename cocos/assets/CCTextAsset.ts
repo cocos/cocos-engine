@@ -28,7 +28,8 @@ import {ccclass, property} from '../core/data/class-decorator';
 import { Asset } from './asset';
 
 /**
- * 文本资源。
+ * @en Class for text file.
+ * @zh 文本资源。
  */
 @ccclass('cc.TextAsset')
 export default class TextAsset extends Asset {
@@ -39,6 +40,7 @@ export default class TextAsset extends Asset {
     public text = '';
 
     /**
+     * @zh
      * 重载标准的 `toString()` 方法。
      */
     public toString () {

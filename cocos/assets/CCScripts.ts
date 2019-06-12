@@ -28,6 +28,7 @@ import {ccclass} from '../core/data/class-decorator';
 import { Asset } from './asset';
 
 /**
+ * @zh
  * 脚本资源基类。
  */
 @ccclass('cc.Script')
@@ -36,6 +37,7 @@ export class Script extends Asset {
 cc._Script = Script;
 
 /**
+ * @zh
  * JavaScript 脚本资源。
  */
 @ccclass('cc.JavaScript')
@@ -44,6 +46,7 @@ export class JavaScript extends Script {
 cc._JavaScript = JavaScript;
 
 /**
+ * @zh
  * Typescript 脚本资源。
  */
 @ccclass('cc.TypeScript')

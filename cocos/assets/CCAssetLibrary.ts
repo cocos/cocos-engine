@@ -36,13 +36,6 @@ import { Asset } from './asset';
 
 // tslint:disable: max-line-length
 
-/**
- * The asset library which managing loading/unloading assets in project.
- *
- * @class AssetLibrary
- * @static
- */
-
 // configs
 
 let _libraryBase = '';
@@ -62,11 +55,14 @@ function RawAssetEntry (url, type) {
 
 // publics
 
+/**
+ * 管理项目中加载/卸载资源的资源库。
+ * @class AssetLibrary
+ * @static
+ */
 const AssetLibrary = {
     /**
-     * !#en Caches uuid to all loaded assets in scenes.
-     *
-     * !#zh 这里保存所有已经加载的场景资源，防止同一个资源在内存中加载出多份拷贝。
+     * 这里保存所有已经加载的场景资源，防止同一个资源在内存中加载出多份拷贝。
      *
      * 这里用不了WeakMap，在浏览器中所有加载过的资源都只能手工调用 unloadAsset 释放。
      *
@@ -86,16 +82,17 @@ const AssetLibrary = {
      */
 
     /**
+     * @zh
+     * 加载资源
      * @method loadAsset
      * @param {String} uuid
-     * @param {loadCallback} callback - the callback function once load finished
+     * @param {loadCallback} callback - 加载完成后执行的回调函数
      * @param {Object} options
-     * @param {Boolean} options.readMainCache - Default is true. If false, the asset and all its depends assets will reload and create new instances from library.
-     * @param {Boolean} options.writeMainCache - Default is true. If true, the result will cache to AssetLibrary, and MUST be unload by user manually.
-     * @param {Asset} options.existingAsset - load to existing asset, this argument is only available in editor
-     * @private
+     * @param {Boolean} options.readMainCache - 默认为true。如果为false，则资源及其所有依赖资源将重新加载并从库中创建新实例。
+     * @param {Boolean} options.writeMainCache - 默认为true。如果为true，则结果将缓存到 AssetLibrary，并且必须由用户手动卸载。
+     * @param {Asset} options.existingAsset - 加载现有资源，此参数仅在编辑器中可用
      */
-    loadAsset (uuid, callback, options) {
+    loadAsset (uuid: String, callback: Function, options) {
         if (typeof uuid !== 'string') {
             return callInNextTick(callback, new Error('[AssetLibrary] uuid must be string'), null);
         }
@@ -129,6 +126,10 @@ const AssetLibrary = {
         });
     },
 
+    /**
+     * @zh
+     * 获取资源的 url
+     */
     getLibUrlNoExt (uuid, inRawAssetsDir?: boolean) {
         if (CC_BUILD) {
             uuid = decodeUuid(uuid);
@@ -137,6 +138,12 @@ const AssetLibrary = {
         return base + uuid.slice(0, 2) + '/' + uuid;
     },
 
+    /**
+     * @zh
+     * 在编辑器中查询资源信息
+     * @param uuid 资源的 uuid
+     * @protected
+     */
     _queryAssetInfoInEditor (uuid, callback) {
         if (CC_EDITOR) {
             Editor.Ipc.sendToMain('scene:query-asset-info-by-uuid', uuid, (err, info) => {
@@ -160,6 +167,10 @@ const AssetLibrary = {
         }
     },
 
+    /**
+     * @zh
+     * 在运行时获取资源信息
+     */
     _getAssetInfoInRuntime (uuid, result?: any) {
         result = result || {url: null, raw: false};
         const info = _uuidToRawAsset[uuid];
@@ -175,13 +186,18 @@ const AssetLibrary = {
         return result;
     },
 
+    /**
+     * @zh
+     * 在 setting 中的 uuid
+     */
     _uuidInSettings (uuid) {
         return uuid in _uuidToRawAsset;
     },
 
     /**
-     * @method queryAssetInfo
-     * @param {String} uuid
+     * @zh
+     * 获取资源信息
+     * @param {String} uuid 资源的 uuid
      * @param {Function} callback
      * @param {Error} callback.error
      * @param {String} callback.url - the url of raw asset or imported asset
@@ -198,7 +214,13 @@ const AssetLibrary = {
         }
     },
 
-    // parse uuid out of url
+    /**
+     * @en
+     * parse uuid out of url
+     * @zh
+     * 从 url 解析 uuid
+     * @param url 资源地址
+     */
     parseUuidInEditor (url) {
         if (CC_EDITOR) {
             let uuid = '';
@@ -226,7 +248,8 @@ const AssetLibrary = {
     },
 
     /**
-     * @method loadJson
+     * @zh
+     * 加载 json
      * @param {String} json
      * @param {loadCallback} callback
      * @return {LoadingHandle}
@@ -262,11 +285,13 @@ const AssetLibrary = {
     },
 
     /**
+     * @en
      * Get the exists asset by uuid.
-     *
+     * @zh
+     * 根据 uuid 获取存在的资源
      * @method getAssetByUuid
      * @param {String} uuid
-     * @return {Asset} - the existing asset, if not loaded, just returns null.
+     * @return {Asset} - 返回存在的资源，若没有加载则返回 null
      * @private
      */
     getAssetByUuid (uuid) {
@@ -275,8 +300,10 @@ const AssetLibrary = {
 
     // tslint:disable: no-shadowed-variable
     /**
+     * @en
      * init the asset library
-     *
+     * @zh
+     * 初始化 AssetLibrary
      * @method init
      * @param {Object} options
      * @param {String} options.libraryPath - 能接收的任意类型的路径，通常在编辑器里使用绝对的，在网页里使用相对的。
