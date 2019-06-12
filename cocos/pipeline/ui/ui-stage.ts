@@ -8,6 +8,10 @@ import { RenderView } from '../render-view';
 
 const bufs: GFXCommandBuffer[] = [];
 
+/**
+ * @zh
+ * UI渲阶段
+ */
 export class UIStage extends RenderStage {
 
     private _uiQueue: RenderQueue;

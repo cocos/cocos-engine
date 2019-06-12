@@ -11,21 +11,37 @@ export const PIPELINE_FLOW_FORWARD: string = 'ForwardFlow';
 export const PIPELINE_FLOW_SMAA: string = 'SMAAFlow';
 export const PIPELINE_FLOW_TONEMAP: string = 'ToneMapFlow';
 
+/**
+ * @zh
+ * 渲染过程阶段
+ */
 export enum RenderPassStage {
     DEFAULT = 100,
 }
 
+/**
+ * @zh
+ * 渲染优先级
+ */
 export enum RenderPriority {
     MIN = 0,
     MAX = 0xff,
     DEFAULT = 0x80,
 }
 
+/**
+ * @zh
+ * 渲染对象
+ */
 export interface IRenderObject {
     model: Model;
     depth: number;
 }
 
+/**
+ * @zh
+ * 渲染过程
+ */
 export interface IRenderPass {
     hash: number;
     depth: number;
@@ -34,6 +50,10 @@ export interface IRenderPass {
     cmdBuff: GFXCommandBuffer;
 }
 
+/**
+ * @zh
+ * 渲染队列描述
+ */
 export interface IRenderQueueDesc {
     isTransparent: boolean;
     phases: number;
@@ -41,6 +61,11 @@ export interface IRenderQueueDesc {
 }
 
 const MAX_BINDING_SUPPORTED = 24; // from WebGL 2 spec
+
+/**
+ * @zh
+ * Uniform参数绑定
+ */
 export enum UniformBinding {
     // UBOs
     UBO_GLOBAL = MAX_BINDING_SUPPORTED - 1,
@@ -55,7 +80,12 @@ export enum UniformBinding {
     SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
 }
 
+/**
+ * @zh
+ * 全局UBO
+ */
 export class UBOGlobal {
+
     public static TIME_OFFSET: number = 0;
     public static SCREEN_SIZE_OFFSET: number = UBOGlobal.TIME_OFFSET + 4;
     public static SCREEN_SCALE_OFFSET: number = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
@@ -99,6 +129,10 @@ export class UBOGlobal {
     public view: Float32Array = new Float32Array(UBOGlobal.COUNT);
 }
 
+/**
+ * @zh
+ * 阴影UBO
+ */
 export class UBOShadow {
     public static MAT_LIGHT_PLANE_PROJ_OFFSET: number = 0;
     public static SHADOW_COLOR_OFFSET: number = UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
@@ -117,6 +151,10 @@ export class UBOShadow {
 
 export const localBindingsDesc: Map<string, IInternalBindingDesc> = new Map<string, IInternalBindingDesc>();
 
+/**
+ * @zh
+ * 本地UBO
+ */
 export class UBOLocal {
     public static MAT_WORLD_OFFSET: number = 0;
     public static MAT_WORLD_IT_OFFSET: number = UBOLocal.MAT_WORLD_OFFSET + 16;
@@ -137,6 +175,10 @@ localBindingsDesc.set(UBOLocal.BLOCK.name, {
     blockInfo: UBOLocal.BLOCK,
 });
 
+/**
+ * @zh
+ * 前向灯光UBO
+ */
 export class UBOForwardLight {
     public static MAX_SPHERE_LIGHTS = 2;
     public static MAX_SPOT_LIGHTS = 2;
@@ -177,6 +219,10 @@ localBindingsDesc.set(UBOForwardLight.BLOCK.name, {
 // and the JOINT_UNIFORM_CAPACITY macro in cc-skinning shader header.
 export const JointUniformCapacity = 30;
 
+/**
+ * @zh
+ * 蒙皮UBO
+ */
 export class UBOSkinning {
     public static MAT_JOINT_OFFSET: number = 0;
     public static COUNT: number = JointUniformCapacity * 12;
@@ -193,6 +239,10 @@ localBindingsDesc.set(UBOSkinning.BLOCK.name, {
     blockInfo: UBOSkinning.BLOCK,
 });
 
+/**
+ * @zh
+ * 蒙皮纹理信息UBO
+ */
 export class UBOSkinningTexture {
     public static JOINTS_TEXTURE_SIZE_INV_OFFSET: number = 0;
     public static COUNT: number = 4;
@@ -209,6 +259,10 @@ localBindingsDesc.set(UBOSkinningTexture.BLOCK.name, {
     blockInfo: UBOSkinningTexture.BLOCK,
 });
 
+/**
+ * @zh
+ * 骨骼纹理采样器
+ */
 export const UNIFORM_JOINTS_TEXTURE: GFXUniformSampler = {
     binding: UniformBinding.SAMPLER_JOINTS, name: 'cc_jointsTexture', type: GFXType.SAMPLER2D, count: 1,
 };

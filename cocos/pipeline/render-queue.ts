@@ -1,13 +1,13 @@
 import { CachedArray } from '../core/memop/cached-array';
-import { Vec3 } from '../core/value-types';
-import { vec3 } from '../core/vmath';
 import { GFXCommandBuffer } from '../gfx/command-buffer';
-import { Camera } from '../renderer/scene/camera';
-import { Model } from '../renderer/scene/model';
-import { SubModel } from '../renderer/scene/submodel';
 import { IRenderObject, IRenderPass, IRenderQueueDesc } from './define';
 
-// Opaque objects are sorted by depth priority -> depth front to back -> shader id.
+/**
+ * @en
+ * Comparison sorting function. Opaque objects are sorted by depth priority -> depth front to back -> shader id.
+ * @zh
+ * 比较排序函数。不透对象按优先级 -> 深度由前向后 -> ShaderId 顺序排序
+ */
 export function opaqueCompareFn (a: IRenderPass, b: IRenderPass) {
     if (a.hash === b.hash) {
         if (a.depth === b.depth) {
@@ -20,7 +20,12 @@ export function opaqueCompareFn (a: IRenderPass, b: IRenderPass) {
     }
 }
 
-// Transparent objects are sorted by pass priority -> depth back to front -> shader id.
+/**
+ * @en
+ * Comparison sorting function. Transparent objects are sorted by pass priority -> depth back to front -> shader id.
+ * @zh
+ * 比较排序函数。半透对象按优先级 -> 深度由后向前 -> ShaderId 顺序排序
+ */
 export function transparentCompareFn (a: IRenderPass, b: IRenderPass) {
     if (a.hash === b.hash) {
         if (a.depth === b.depth) {
@@ -33,24 +38,60 @@ export function transparentCompareFn (a: IRenderPass, b: IRenderPass) {
     }
 }
 
+/**
+ * @zh
+ * 渲染队列
+ */
 export class RenderQueue {
+
+    /**
+     * @zh
+     * 基于缓存数组的队列
+     */
     public queue: CachedArray<IRenderPass>;
+
+    /**
+     * @zh
+     * 基于缓存数组的命令缓冲
+     */
     public cmdBuffs: CachedArray<GFXCommandBuffer>;
+
+    /**
+     * @zh
+     * 命令缓冲数量
+     */
     public cmdBuffCount: number = 0;
+
+    /**
+     * @zh
+     * 渲染队列描述
+     */
     private _passDesc: IRenderQueueDesc;
 
+    /**
+     * @zh
+     * 构造函数
+     * @param desc 渲染队列描述
+     */
     constructor (desc: IRenderQueueDesc) {
-
         this._passDesc = desc;
         this.cmdBuffs = new CachedArray(64);
         this.queue = new CachedArray(64, this._passDesc.sortFunc);
     }
 
+    /**
+     * @zh
+     * 清空渲染队列
+     */
     public clear () {
         this.queue.clear();
         this.cmdBuffCount = 0;
     }
 
+    /**
+     * @zh
+     * 插入渲染过程
+     */
     public insertRenderPass (renderObj: IRenderObject, modelIdx: number, passIdx: number): boolean {
         const subModel = renderObj.model.getSubModel(modelIdx);
         const pass = subModel.passes[passIdx];
@@ -104,6 +145,10 @@ export class RenderQueue {
     //     }
     // }
 
+    /**
+     * @zh
+     * 排序渲染队列
+     */
     public sort () {
 
         this.queue.sort();
