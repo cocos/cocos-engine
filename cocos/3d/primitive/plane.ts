@@ -2,6 +2,13 @@ import { Vec3 } from '../../core/value-types';
 import { vec3 } from '../../core/vmath';
 import { applyDefaultGeometryOptions, IGeometry, IGeometryOptions } from './define';
 
+/**
+ * @zh
+ * 生成一个圆锥
+ * @param radius 圆锥半径
+ * @param height 圆锥高度
+ * @param opts 圆锥参数选项
+ */
 interface IPlaneOptions extends RecursivePartial<IGeometryOptions> {
     /**
      * Plane extent on X-axis.
@@ -24,6 +31,11 @@ interface IPlaneOptions extends RecursivePartial<IGeometryOptions> {
     lengthSegments: number;
 }
 
+/**
+ * @zh
+ * 应用默认的平面参数选项
+ * @param options 平面参数选项
+ */
 function applyDefaultPlaneOptions (options?: RecursivePartial<IPlaneOptions>): IPlaneOptions {
     options = applyDefaultGeometryOptions<IPlaneOptions>(options);
     options.width = options.width || 10;
@@ -42,8 +54,12 @@ const c10 = vec3.create(0, 0, 0);
 const c01 = vec3.create(0, 0, 0);
 
 /**
+ * @en
  * This function generates a plane on XOZ plane with positive Y direction.
  * @param options Options.
+ * @zh
+ * 生成一个平面，其位于XOZ平面，方向为Y轴正方向
+ * @param options 平面参数选项
  */
 export default function (options?: IPlaneOptions): IGeometry {
     const normalizedOptions = applyDefaultPlaneOptions(options);

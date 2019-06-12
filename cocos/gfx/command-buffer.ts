@@ -105,7 +105,7 @@ export abstract class GFXCommandBuffer extends GFXObject {
 
     /**
      * @zh
-     * GFX命令缓冲分配器
+     * GFX命令分配器
      */
     protected _allocator: GFXCommandAllocator | null = null;
 

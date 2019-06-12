@@ -3,6 +3,10 @@ export const GFX_MAX_TEXTURE_UNITS: number = 16;
 export const GFX_MAX_ATTACHMENTS: number = 4;
 export const GFX_MAX_BUFFER_BINDINGS: number = 24;
 
+/**
+ * @zh
+ * GFX对象类型
+ */
 export enum GFXObjectType {
     UNKNOWN,
     BUFFER,
@@ -22,12 +26,20 @@ export enum GFXObjectType {
     WINDOW,
 }
 
+/**
+ * @zh
+ * GFX状态
+ */
 export enum GFXStatus {
     UNREADY,
     FAILED,
     SUCCESS,
 }
 
+/**
+ * @zh
+ * GFX对象
+ */
 export class GFXObject {
 
     public get gfxType (): GFXObjectType {
@@ -38,14 +50,32 @@ export class GFXObject {
         return this._status;
     }
 
+    /**
+     * @zh
+     * 对象类型
+     */
     protected _gfxType = GFXObjectType.UNKNOWN;
+
+    /**
+     * @zh
+     * 对象状态
+     */
     protected _status = GFXStatus.UNREADY;
 
+    /**
+     * @zh
+     * 构造函数
+     * @param gfxType GFX对象类型
+     */
     constructor (gfxType: GFXObjectType) {
         this._gfxType = gfxType;
     }
 }
 
+/**
+ * @zh
+ * GFX顶点属性名
+ */
 export enum GFXAttributeName {
     ATTR_POSITION = 'a_position',
     ATTR_NORMAL = 'a_normal',
@@ -69,6 +99,10 @@ export enum GFXAttributeName {
     ATTR_BATCH_UV = 'a_batch_uv',
 }
 
+/**
+ * @zh
+ * GFX数据类型
+ */
 export enum GFXType {
     UNKNOWN,
     // vectors
@@ -107,6 +141,10 @@ export enum GFXType {
     COUNT,
 }
 
+/**
+ * @zh
+ * GFX格式
+ */
 export enum GFXFormat {
 
     UNKNOWN,
@@ -229,6 +267,10 @@ export enum GFXFormat {
     PVRTC2_4BPP,
 }
 
+/**
+ * @zh
+ * GFX缓冲使用方式标识位
+ */
 export enum GFXBufferUsageBit {
     NONE = 0,
     TRANSFER_SRC = 0x1,
@@ -242,6 +284,10 @@ export enum GFXBufferUsageBit {
 
 export type GFXBufferUsage = GFXBufferUsageBit;
 
+/**
+ * @zh
+ * GFX内存使用方式标识位
+ */
 export enum GFXMemoryUsageBit {
     NONE = 0,
     DEVICE = 0x1,
@@ -250,6 +296,10 @@ export enum GFXMemoryUsageBit {
 
 export type GFXMemoryUsage = GFXMemoryUsageBit;
 
+/**
+ * @zh
+ * GFX缓冲访问标识位
+ */
 export enum GFXBufferAccessBit {
     NONE = 0,
     READ = 0x1,
@@ -258,6 +308,10 @@ export enum GFXBufferAccessBit {
 
 export type GFXBufferAccess = GFXBufferAccessBit;
 
+/**
+ * @zh
+ * GFX图元模式标识位
+ */
 export enum GFXPrimitiveMode {
     POINT_LIST,
     LINE_LIST,
@@ -276,23 +330,39 @@ export enum GFXPrimitiveMode {
     QUAD_PATCH_LIST,
 }
 
+/**
+ * @zh
+ * GFX三角形填充模式
+ */
 export enum GFXPolygonMode {
     FILL,
     POINT,
     LINE,
 }
 
+/**
+ * @zh
+ * GFX着色模式
+ */
 export enum GFXShadeModel {
     GOURAND,
     FLAT,
 }
 
+/**
+ * @zh
+ * GFX裁剪模式
+ */
 export enum GFXCullMode {
     NONE,
     FRONT,
     BACK,
 }
 
+/**
+ * @zh
+ * GFX比较函数
+ */
 export enum GFXComparisonFunc {
     NEVER,
     LESS,
@@ -304,6 +374,10 @@ export enum GFXComparisonFunc {
     ALWAYS,
 }
 
+/**
+ * @zh
+ * GFX模板操作
+ */
 export enum GFXStencilOp {
     ZERO,
     KEEP,
@@ -315,6 +389,10 @@ export enum GFXStencilOp {
     DECR_WRAP,
 }
 
+/**
+ * @zh
+ * GFX混合操作
+ */
 export enum GFXBlendOp {
     ADD,
     SUB,
@@ -323,6 +401,10 @@ export enum GFXBlendOp {
     MAX,
 }
 
+/**
+ * @zh
+ * GFX混合因子
+ */
 export enum GFXBlendFactor {
     ZERO,
     ONE,
@@ -341,6 +423,10 @@ export enum GFXBlendFactor {
     ONE_MINUS_CONSTANT_ALPHA,
 }
 
+/**
+ * @zh
+ * GFX颜色掩码
+ */
 export enum GFXColorMask {
     NONE = 0x0,
     R = 0x1,
@@ -350,6 +436,10 @@ export enum GFXColorMask {
     ALL = R | G | B | A,
 }
 
+/**
+ * @zh
+ * GFX过滤模式
+ */
 export enum GFXFilter {
     NONE,
     POINT,
@@ -357,6 +447,10 @@ export enum GFXFilter {
     ANISOTROPIC,
 }
 
+/**
+ * @zh
+ * GFX寻址模式
+ */
 export enum GFXAddress {
     WRAP,
     MIRROR,
@@ -364,12 +458,20 @@ export enum GFXAddress {
     BORDER,
 }
 
+/**
+ * @zh
+ * GFX纹理类型
+ */
 export enum GFXTextureType {
     TEX1D,
     TEX2D,
     TEX3D,
 }
 
+/**
+ * @zh
+ * GFX纹理使用方式标识位
+ */
 export enum GFXTextureUsageBit {
     NONE = 0,
     TRANSFER_SRC = 0x1,
@@ -384,6 +486,10 @@ export enum GFXTextureUsageBit {
 
 export type GFXTextureUsage = GFXTextureUsageBit;
 
+/**
+ * @zh
+ * GFX采样数量
+ */
 export enum GFXSampleCount {
     X1,
     X2,
@@ -394,6 +500,10 @@ export enum GFXSampleCount {
     X64,
 }
 
+/**
+ * @zh
+ * GFX纹理标识位
+ */
 export enum GFXTextureFlagBit {
     NONE = 0,
     GEN_MIPMAP = 0x1,
@@ -403,6 +513,10 @@ export enum GFXTextureFlagBit {
 
 export type GFXTextureFlags = GFXTextureFlagBit;
 
+/**
+ * @zh
+ * GFX纹理视图类型
+ */
 export enum GFXTextureViewType {
     TV1D,
     TV2D,
@@ -412,6 +526,10 @@ export enum GFXTextureViewType {
     TV2D_ARRAY,
 }
 
+/**
+ * @zh
+ * GFX Shader类型
+ */
 export enum GFXShaderType {
     VERTEX,
     HULL,
@@ -422,6 +540,10 @@ export enum GFXShaderType {
     COUNT,
 }
 
+/**
+ * @zh
+ * GFX绑定类型
+ */
 export enum GFXBindingType {
     UNKNOWN,
     UNIFORM_BUFFER,
@@ -429,24 +551,38 @@ export enum GFXBindingType {
     STORAGE_BUFFER,
 }
 
+/**
+ * @zh
+ * GFX命令缓冲类型
+ */
 export enum GFXCommandBufferType {
     PRIMARY,
     SECONDARY,
 }
 
-// Enumeration all possible values of operations to be performed on initially Loading a Framebuffer Object.
+/**
+ * @zh
+ * 初始载入帧缓冲时的内存操作
+ */
 export enum GFXLoadOp {
     LOAD,		// Load the contents from the fbo from previous
     CLEAR,		// Clear the fbo
     DISCARD,	// Ignore writing to the fbo and keep old data
 }
 
-// Enumerates all possible values of operations to be performed when Storing to a Framebuffer Object.
+/**
+ * @zh
+ * 存储到帧缓冲时的内存操作
+ */
 export enum GFXStoreOp {
     STORE,		// Write the source to the destination
     DISCARD,	// Don't write the source to the destination
 }
 
+/**
+ * @zh
+ * GFX纹理布局
+ */
 export enum GFXTextureLayout {
     UNDEFINED,
     GENERAL,
@@ -460,12 +596,20 @@ export enum GFXTextureLayout {
     PRESENT_SRC,
 }
 
+/**
+ * @zh
+ * GFX管线绑定点
+ */
 export enum GFXPipelineBindPoint {
     GRAPHICS,
     COMPUTE,
     RAY_TRACING,
 }
 
+/**
+ * @zh
+ * GFX动态状态
+ */
 export enum GFXDynamicState {
     VIEWPORT,
     SCISSOR,
@@ -477,20 +621,30 @@ export enum GFXDynamicState {
     STENCIL_COMPARE_MASK,
 }
 
+/**
+ * @zh
+ * GFX模板操作面朝向
+ */
 export enum GFXStencilFace {
     FRONT,
     BACK,
     ALL,
 }
 
+/**
+ * @zh
+ * GFX队列类型
+ */
 export enum GFXQueueType {
     GRAPHICS,
     COMPUTE,
     TRANSFER,
 }
 
-// Interfaces
-
+/**
+ * @zh
+ * GFX矩形
+ */
 export interface IGFXRect {
     x: number;
     y: number;
@@ -498,6 +652,10 @@ export interface IGFXRect {
     height: number;
 }
 
+/**
+ * @zh
+ * GFX视口
+ */
 export interface IGFXViewport {
     left: number;
     top: number;
@@ -507,6 +665,10 @@ export interface IGFXViewport {
     maxDepth: number;
 }
 
+/**
+ * @zh
+ * GFX颜色
+ */
 export interface IGFXColor {
     r: number;
     g: number;
@@ -514,6 +676,10 @@ export interface IGFXColor {
     a: number;
 }
 
+/**
+ * @zh
+ * GFX清空标识
+ */
 export enum GFXClearFlag {
     NONE = 0,
     COLOR = 1,
@@ -523,18 +689,30 @@ export enum GFXClearFlag {
     ALL = COLOR | DEPTH | STENCIL,
 }
 
+/**
+ * @zh
+ * GFX偏移量
+ */
 export interface IGFXOffset {
     x: number;
     y: number;
     z: number;
 }
 
+/**
+ * @zh
+ * GFX范围
+ */
 export interface IGFXExtent {
     width: number;
     height: number;
     depth: number;
 }
 
+/**
+ * @zh
+ * GFX纹理子资源信息
+ */
 export class GFXTextureSubres {
     public baseMipLevel: number = 0;
     public levelCount: number = 1;
@@ -542,6 +720,10 @@ export class GFXTextureSubres {
     public layerCount: number = 1;
 }
 
+/**
+ * @zh
+ * GFX纹理拷贝信息
+ */
 export class GFXTextureCopy {
     public srcSubres: GFXTextureSubres = new GFXTextureSubres();
     public srcOffset: IGFXOffset = { x: 0, y: 0, z: 0 };
@@ -550,6 +732,10 @@ export class GFXTextureCopy {
     public extent: IGFXExtent = { width: 0, height: 0, depth: 0 };
 }
 
+/**
+ * @zh
+ * GFX缓冲纹理拷贝信息
+ */
 export class GFXBufferTextureCopy {
     public buffOffset: number = 0;
     public buffStride: number = 0;
@@ -559,6 +745,10 @@ export class GFXBufferTextureCopy {
     public texSubres: GFXTextureSubres = new GFXTextureSubres();
 }
 
+/**
+ * @zh
+ * GFX格式数据类型
+ */
 export enum GFXFormatType {
     NONE,
     UNORM,
@@ -569,6 +759,10 @@ export enum GFXFormatType {
     FLOAT,
 }
 
+/**
+ * @zh
+ * GFX格式信息
+ */
 export interface IGFXFormatInfo {
     readonly name: string;
     readonly size: number;
@@ -580,6 +774,10 @@ export interface IGFXFormatInfo {
     readonly isCompressed: boolean;
 }
 
+/**
+ * @zh
+ * GFX格式信息数组
+ */
 // tslint:disable: max-line-length
 export const GFXFormatInfos: IGFXFormatInfo[] = [
 
@@ -688,6 +886,14 @@ export const GFXFormatInfos: IGFXFormatInfo[] = [
 ];
 // tslint:enable: max-line-length
 
+/**
+ * @zh
+ * GFX格式内存大小
+ * @param format GFX格式
+ * @param width 像素宽度
+ * @param height 像素高度
+ * @param depth 像素深度
+ */
 export function GFXFormatSize (format: GFXFormat, width: number, height: number, depth: number): number {
 
     if (!GFXFormatInfos[format].isCompressed) {
@@ -742,6 +948,15 @@ export function GFXFormatSize (format: GFXFormat, width: number, height: number,
     }
 }
 
+/**
+ * @zh
+ * GFX格式表面内存大小
+ * @param format GFX格式
+ * @param width 像素宽度
+ * @param height 像素高度
+ * @param depth 像素深度
+ * @param mips mip层数
+ */
 export function GFXFormatSurfaceSize (
     format: GFXFormat, width: number, height: number,
     depth: number, mips: number): number {
@@ -758,6 +973,11 @@ export function GFXFormatSurfaceSize (
     return size;
 }
 
+/**
+ * @zh
+ * 得到GFX数据类型的大小
+ * @param type GFX数据类型
+ */
 export function GFXGetTypeSize (type: GFXType): number {
     switch (type) {
         case GFXType.BOOL:
