@@ -111,7 +111,7 @@ export default class Octree {
     public static createBlocks (worldMin, worldMax, entries, blockCapacity, curDepth, maxDepth, getBoundingShape) {
         const blocks: OctreeBlock[] = [];
         const blockSize = vec3.create();
-        vec3.scale(blockSize, vec3.sub(blockSize, worldMax, worldMin), 0.5);
+        vec3.scale(blockSize, vec3.subtract(blockSize, worldMax, worldMin), 0.5);
         for (let x = 0; x < 2; x++) {
             for (let y = 0; y < 2; y++) {
                 for (let z = 0; z < 2; z++) {

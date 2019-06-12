@@ -36,7 +36,7 @@ export function point_plane (point: vec3, plane_: plane) {
  */
 export function pt_point_plane (out: vec3, point: vec3, plane_: plane) {
     const t = point_plane(point, plane_);
-    return vec3.sub(out, point, vec3.scale(out, plane_.n, t));
+    return vec3.subtract(out, point, vec3.scale(out, plane_.n, t));
 }
 
 /**
@@ -51,7 +51,7 @@ export function pt_point_plane (out: vec3, point: vec3, plane_: plane) {
  */
 export function pt_point_aabb (out: vec3, point: vec3, aabb_: aabb): vec3 {
     vec3.copy(out, point);
-    vec3.sub(min, aabb_.center, aabb_.halfExtents);
+    vec3.subtract(min, aabb_.center, aabb_.halfExtents);
     vec3.add(max, aabb_.center, aabb_.halfExtents);
 
     out.x = (out.x < min.x) ? min.x : out.x;

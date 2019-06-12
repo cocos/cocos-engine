@@ -127,7 +127,7 @@ export default function box (options?: IBoxOptions): IGeometry {
 
                 vec3.lerp(temp1, corners[faceAxe[0]], corners[faceAxe[1]], u);
                 vec3.lerp(temp2, corners[faceAxe[0]], corners[faceAxe[2]], v);
-                vec3.sub(temp3, temp2, corners[faceAxe[0]]);
+                vec3.subtract(temp3, temp2, corners[faceAxe[0]]);
                 vec3.add(r, temp1, temp3);
 
                 positions.push(r.x, r.y, r.z);

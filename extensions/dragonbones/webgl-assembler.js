@@ -36,7 +36,7 @@ const vfmtPosUvColor = require('../../cocos2d/core/renderer/webgl/vertex-format'
 let _matrix = math.mat4.create();
 let _v3 = cc.v3();
 
-let _vbuf, _uintbuf, 
+let _vbuf, _uintbuf,
     _vertexId, _ibuf,
     _vertexOffset, _indiceOffset,
     _a, _b, _c, _d, _tx, _ty,
@@ -50,7 +50,7 @@ let armatureAssembler = {
         if (!armature || comp._isChildArmature) {
             return;
         }
-        
+
         let renderData = comp._renderData;
         if (!renderData) {
             renderData = comp._renderData = comp.requestRenderData();
@@ -127,7 +127,7 @@ let armatureAssembler = {
             if (!slot._visible || !slot._displayData) continue;
 
             if (slot.childArmature) {
-                math.mat4.mul(_matrix, _worldMatrix, slot._matrix);
+                math.mat4.multiply(_matrix, _worldMatrix, slot._matrix);
                 _a = _matrix.m00; _b = _matrix.m01; _c = _matrix.m04; _d = _matrix.m05;
                 _tx = _matrix.m12; _ty = _matrix.m13;
                 this.fillVertexBufferWithArmature(slot.childArmature);

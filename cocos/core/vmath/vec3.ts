@@ -1,5 +1,5 @@
 import mat3 from './mat3';
-import mat4 from './mat4';
+import { mat4 } from './mat4';
 import quat from './quat';
 import { EPSILON, random } from './utils';
 
@@ -804,7 +804,7 @@ export default class vec3 {
      * @param n The plane's normal.
      */
     public static projectOnPlane<Out extends vec3> (out: Out, a: vec3, n: vec3) {
-        return vec3.sub(out, a, vec3.project(out, a, n));
+        return vec3.subtract(out, a, vec3.project(out, a, n));
     }
 
     /**

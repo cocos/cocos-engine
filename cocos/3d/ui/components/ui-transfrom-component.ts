@@ -415,7 +415,7 @@ export class UITransformComponent extends Component {
             width,
             height);
 
-        vmath.mat4.mul(_worldMatrix, parentMat, _matrix);
+        vmath.mat4.multiply(_worldMatrix, parentMat, _matrix);
         rect.transformMat4(rect, _worldMatrix);
 
         // query child's BoundingBox

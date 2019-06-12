@@ -104,7 +104,7 @@ export default class obb {
      */
     public static fromPoints (out: obb, minPos: vec3, maxPos: vec3): obb {
         vec3.scale(out.center, vec3.add(_v3_tmp, minPos, maxPos), 0.5);
-        vec3.scale(out.halfExtents, vec3.sub(_v3_tmp2, maxPos, minPos), 0.5);
+        vec3.scale(out.halfExtents, vec3.subtract(_v3_tmp2, maxPos, minPos), 0.5);
         mat3.identity(out.orientation);
         return out;
     }
@@ -185,7 +185,7 @@ export default class obb {
      */
     public getBoundary (minPos: vec3, maxPos: vec3) {
         transform_extent_m3(_v3_tmp, this.halfExtents, this.orientation);
-        vec3.sub(minPos, this.center, _v3_tmp);
+        vec3.subtract(minPos, this.center, _v3_tmp);
         vec3.add(maxPos, this.center, _v3_tmp);
     }
 
@@ -203,7 +203,7 @@ export default class obb {
         vec3.transformMat4(out.center, this.center, m);
         // parent shape doesn't contain rotations for now
         mat3.fromQuat(out.orientation, rot);
-        vec3.mul(out.halfExtents, this.halfExtents, scale);
+        vec3.multiply(out.halfExtents, this.halfExtents, scale);
     }
 
     /**
@@ -226,6 +226,6 @@ export default class obb {
      * @param out 缩放的目标。
      */
     public setScale (scale: vec3, out: obb) {
-        vec3.mul(out.halfExtents, this.halfExtents, scale);
+        vec3.multiply(out.halfExtents, this.halfExtents, scale);
     }
 }

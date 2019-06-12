@@ -10,40 +10,13 @@ const v3_1 = new vec3();
 const m3_1 = new mat3();
 
 /**
- * Mathematical 4x4 matrix.
- *
- * NOTE: we use column-major matrix for all matrix calculation.
- *
- * This may lead to some confusion when referencing OpenGL documentation,
- * however, which represents out all matricies in column-major format.
- * This means that while in code a matrix may be typed out as:
- *
- * [1, 0, 0, 0,
- *  0, 1, 0, 0,
- *  0, 0, 1, 0,
- *  x, y, z, 0]
- *
- * The same matrix in the [OpenGL documentation](https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glTranslate.xml)
- * is written as:
- *
- *  1 0 0 x
- *  0 1 0 y
- *  0 0 1 z
- *  0 0 0 0
- *
- * Please rest assured, however, that they are the same thing!
- * This is not unique to glMatrix, either, as OpenGL developers have long been confused by the
- * apparent lack of consistency between the memory layout and the documentation.
+ * @zh 四维矩阵
  */
 // tslint:disable-next-line:class-name
-class mat4 {
+export class mat4 {
 
     /**
-     * Inverts a matrix.
-     *
-     * @param out - Matrix to store result.
-     * @param a - Matrix to invert.
-     * @return out.
+     * @zh 矩阵求逆
      */
     public static invert = (() => {
         // cache temps due to the high frequency invocations of this function
@@ -55,7 +28,7 @@ class mat4 {
         let b04 = 0, b05 = 0, b06 = 0, b07 = 0;
         let b08 = 0, b09 = 0, b10 = 0, b11 = 1;
         let det = 1;
-        return (out, a) => {
+        return (out: mat4, a: mat4) => {
             a00 = a.m00; a01 = a.m01; a02 = a.m02; a03 = a.m03;
             a10 = a.m04; a11 = a.m05; a12 = a.m06; a13 = a.m07;
             a20 = a.m08; a21 = a.m09; a22 = a.m10; a23 = a.m11;
@@ -102,25 +75,7 @@ class mat4 {
     })();
 
     /**
-     * Creates a matrix, with elements specified separately.
-     *
-     * @param m00 - Value assigned to element at column 0 row 0.
-     * @param m01 - Value assigned to element at column 0 row 1.
-     * @param m02 - Value assigned to element at column 0 row 2.
-     * @param m03 - Value assigned to element at column 0 row 3.
-     * @param m04 - Value assigned to element at column 1 row 0.
-     * @param m05 - Value assigned to element at column 1 row 1.
-     * @param m06 - Value assigned to element at column 1 row 2.
-     * @param m07 - Value assigned to element at column 1 row 3.
-     * @param m08 - Value assigned to element at column 2 row 0.
-     * @param m09 - Value assigned to element at column 2 row 1.
-     * @param m10 - Value assigned to element at column 2 row 2.
-     * @param m11 - Value assigned to element at column 2 row 3.
-     * @param m12 - Value assigned to element at column 3 row 0.
-     * @param m13 - Value assigned to element at column 3 row 1.
-     * @param m14 - Value assigned to element at column 3 row 2.
-     * @param m15 - Value assigned to element at column 3 row 3.
-     * @return The newly created matrix.
+     * @zh 创建新的实例
      */
     public static create (
         m00 = 1, m01 = 0, m02 = 0, m03 = 0,
@@ -136,12 +91,9 @@ class mat4 {
     }
 
     /**
-     * Clone a matrix.
-     *
-     * @param a - Matrix to clone.
-     * @return The newly created matrix.
+     * @zh 获得指定矩阵的拷贝
      */
-    public static clone (a) {
+    public static clone (a: mat4) {
         return new mat4(
             a.m00, a.m01, a.m02, a.m03,
             a.m04, a.m05, a.m06, a.m07,
@@ -151,13 +103,9 @@ class mat4 {
     }
 
     /**
-     * Copy content of a matrix into another.
-     *
-     * @param out - Matrix to modified.
-     * @param a - The specified matrix.
-     * @return out.
+     * @zh 复制目标矩阵
      */
-    public static copy (out, a) {
+    public static copy (out: mat4, a: mat4) {
         out.m00 = a.m00;
         out.m01 = a.m01;
         out.m02 = a.m02;
@@ -178,54 +126,26 @@ class mat4 {
     }
 
     /**
-     * Sets the elements of a matrix to the given values.
-     *
-     * @param out - The matrix to modified.
-     * @param m00 - Value assigned to element at column 0 row 0.
-     * @param m01 - Value assigned to element at column 0 row 1.
-     * @param m02 - Value assigned to element at column 0 row 2.
-     * @param m03 - Value assigned to element at column 0 row 3.
-     * @param m10 - Value assigned to element at column 1 row 0.
-     * @param m11 - Value assigned to element at column 1 row 1.
-     * @param m12 - Value assigned to element at column 1 row 2.
-     * @param m13 - Value assigned to element at column 1 row 3.
-     * @param m20 - Value assigned to element at column 2 row 0.
-     * @param m21 - Value assigned to element at column 2 row 1.
-     * @param m22 - Value assigned to element at column 2 row 2.
-     * @param m23 - Value assigned to element at column 2 row 3.
-     * @param m30 - Value assigned to element at column 3 row 0.
-     * @param m31 - Value assigned to element at column 3 row 1.
-     * @param m32 - Value assigned to element at column 3 row 2.
-     * @param m33 - Value assigned to element at column 3 row 3.
-     * @return out.
+     * @zh 设置矩阵值
      */
-    public static set (out, m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
-        out.m00 = m00;
-        out.m01 = m01;
-        out.m02 = m02;
-        out.m03 = m03;
-        out.m04 = m10;
-        out.m05 = m11;
-        out.m06 = m12;
-        out.m07 = m13;
-        out.m08 = m20;
-        out.m09 = m21;
-        out.m10 = m22;
-        out.m11 = m23;
-        out.m12 = m30;
-        out.m13 = m31;
-        out.m14 = m32;
-        out.m15 = m33;
+    public static set (
+        out: mat4,
+        m00: number, m01: number, m02: number, m03: number,
+        m10: number, m11: number, m12: number, m13: number,
+        m20: number, m21: number, m22: number, m23: number,
+        m30: number, m31: number, m32: number, m33: number,
+    ) {
+        out.m00 = m00; out.m01 = m01; out.m02 = m02; out.m03 = m03;
+        out.m04 = m10; out.m05 = m11; out.m06 = m12; out.m07 = m13;
+        out.m08 = m20; out.m09 = m21; out.m10 = m22; out.m11 = m23;
+        out.m12 = m30; out.m13 = m31; out.m14 = m32; out.m15 = m33;
         return out;
     }
 
     /**
-     * Sets a matrix as identity matrix.
-     *
-     * @param out - Matrix to modified.
-     * @return out.
+     * @zh 将目标赋值为单位矩阵
      */
-    public static identity (out) {
+    public static identity (out: mat4) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -246,19 +166,12 @@ class mat4 {
     }
 
     /**
-     * Transposes a matrix.
-     *
-     * @param out - Matrix to store result.
-     * @param a - Matrix to transpose.
-     * @return out.
+     * @zh 转置矩阵
      */
-    public static transpose (out, a) {
+    public static transpose (out: mat4, a: mat4) {
         // If we are transposing ourselves we can skip a few steps but have to cache some values
         if (out === a) {
-            const a01 = a.m01, a02 = a.m02, a03 = a.m03,
-                a12 = a.m06, a13 = a.m07,
-                a23 = a.m11;
-
+            const a01 = a.m01, a02 = a.m02, a03 = a.m03, a12 = a.m06, a13 = a.m07, a23 = a.m11;
             out.m01 = a.m04;
             out.m02 = a.m08;
             out.m03 = a.m12;
@@ -289,49 +202,13 @@ class mat4 {
             out.m14 = a.m11;
             out.m15 = a.m15;
         }
-
         return out;
     }
 
     /**
-     * Calculates the adjugate of a matrix.
-     *
-     * @param out - Matrix to store result.
-     * @param a - Matrix to calculate.
-     * @return out.
+     * @zh 矩阵行列式
      */
-    public static adjoint (out, a) {
-        const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
-            a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
-            a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
-            a30 = a.m12, a31 = a.m13, a32 = a.m14, a33 = a.m15;
-
-        out.m00 = (a11 * (a22 * a33 - a23 * a32) - a21 * (a12 * a33 - a13 * a32) + a31 * (a12 * a23 - a13 * a22));
-        out.m01 = -(a01 * (a22 * a33 - a23 * a32) - a21 * (a02 * a33 - a03 * a32) + a31 * (a02 * a23 - a03 * a22));
-        out.m02 = (a01 * (a12 * a33 - a13 * a32) - a11 * (a02 * a33 - a03 * a32) + a31 * (a02 * a13 - a03 * a12));
-        out.m03 = -(a01 * (a12 * a23 - a13 * a22) - a11 * (a02 * a23 - a03 * a22) + a21 * (a02 * a13 - a03 * a12));
-        out.m04 = -(a10 * (a22 * a33 - a23 * a32) - a20 * (a12 * a33 - a13 * a32) + a30 * (a12 * a23 - a13 * a22));
-        out.m05 = (a00 * (a22 * a33 - a23 * a32) - a20 * (a02 * a33 - a03 * a32) + a30 * (a02 * a23 - a03 * a22));
-        out.m06 = -(a00 * (a12 * a33 - a13 * a32) - a10 * (a02 * a33 - a03 * a32) + a30 * (a02 * a13 - a03 * a12));
-        out.m07 = (a00 * (a12 * a23 - a13 * a22) - a10 * (a02 * a23 - a03 * a22) + a20 * (a02 * a13 - a03 * a12));
-        out.m08 = (a10 * (a21 * a33 - a23 * a31) - a20 * (a11 * a33 - a13 * a31) + a30 * (a11 * a23 - a13 * a21));
-        out.m09 = -(a00 * (a21 * a33 - a23 * a31) - a20 * (a01 * a33 - a03 * a31) + a30 * (a01 * a23 - a03 * a21));
-        out.m10 = (a00 * (a11 * a33 - a13 * a31) - a10 * (a01 * a33 - a03 * a31) + a30 * (a01 * a13 - a03 * a11));
-        out.m11 = -(a00 * (a11 * a23 - a13 * a21) - a10 * (a01 * a23 - a03 * a21) + a20 * (a01 * a13 - a03 * a11));
-        out.m12 = -(a10 * (a21 * a32 - a22 * a31) - a20 * (a11 * a32 - a12 * a31) + a30 * (a11 * a22 - a12 * a21));
-        out.m13 = (a00 * (a21 * a32 - a22 * a31) - a20 * (a01 * a32 - a02 * a31) + a30 * (a01 * a22 - a02 * a21));
-        out.m14 = -(a00 * (a11 * a32 - a12 * a31) - a10 * (a01 * a32 - a02 * a31) + a30 * (a01 * a12 - a02 * a11));
-        out.m15 = (a00 * (a11 * a22 - a12 * a21) - a10 * (a01 * a22 - a02 * a21) + a20 * (a01 * a12 - a02 * a11));
-        return out;
-    }
-
-    /**
-     * Calculates the determinant of a matrix.
-     *
-     * @param a - Matrix to calculate.
-     * @return Determinant of a.
-     */
-    public static determinant (a) {
+    public static determinant (a: mat4) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
             a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
             a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
@@ -355,14 +232,9 @@ class mat4 {
     }
 
     /**
-     * Multiply two matrices explicitly.
-     *
-     * @param out - Matrix to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return out.
+     * @zh 矩阵乘法
      */
-    public static multiply (out, a, b) {
+    public static multiply (out: mat4, a: mat4, b: mat4) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
             a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
             a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
@@ -396,35 +268,26 @@ class mat4 {
     }
 
     /**
-     * Alias of {@link mat4.multiply}.
+     * @zh 矩阵乘法
      */
-    public static mul (out, a, b) {
+    public static mul (out: mat4, a: mat4, b: mat4) {
         return mat4.multiply(out, a, b);
     }
 
     /**
-     * Multiply a matrix with a translation matrix given by a translation offset.
-     *
-     * @param out - Matrix to store result.
-     * @param a - Matrix to multiply.
-     * @param v - The translation offset.
-     * @return out.
+     * @zh 在给定矩阵变换基础上加入新位移变换
      */
-    public static translate (out, a, v) {
+    public static translate (out: mat4, a: mat4, v: vec3) {
         const x = v.x, y = v.y, z = v.z;
-        let a00, a01, a02, a03,
-            a10, a11, a12, a13,
-            a20, a21, a22, a23;
-
         if (a === out) {
             out.m12 = a.m00 * x + a.m04 * y + a.m08 * z + a.m12;
             out.m13 = a.m01 * x + a.m05 * y + a.m09 * z + a.m13;
             out.m14 = a.m02 * x + a.m06 * y + a.m10 * z + a.m14;
             out.m15 = a.m03 * x + a.m07 * y + a.m11 * z + a.m15;
         } else {
-            a00 = a.m00; a01 = a.m01; a02 = a.m02; a03 = a.m03;
-            a10 = a.m04; a11 = a.m05; a12 = a.m06; a13 = a.m07;
-            a20 = a.m08; a21 = a.m09; a22 = a.m10; a23 = a.m11;
+            const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03;
+            const a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07;
+            const a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11;
 
             out.m00 = a00; out.m01 = a01; out.m02 = a02; out.m03 = a03;
             out.m04 = a10; out.m05 = a11; out.m06 = a12; out.m07 = a13;
@@ -435,21 +298,14 @@ class mat4 {
             out.m14 = a02 * x + a12 * y + a22 * z + a.m14;
             out.m15 = a03 * x + a13 * y + a23 * z + a.m15;
         }
-
         return out;
     }
 
     /**
-     * Multiply a matrix with a scale matrix given by a scale vector.
-     *
-     * @param out - Matrix to store result.
-     * @param a - Matrix to multiply.
-     * @param v - The scale vector.
-     * @return out
+     * @zh 在给定矩阵变换基础上加入新缩放变换
      */
-    public static scale (out, a, v) {
+    public static scale (out: mat4, a: mat4, v: vec3) {
         const x = v.x, y = v.y, z = v.z;
-
         out.m00 = a.m00 * x;
         out.m01 = a.m01 * x;
         out.m02 = a.m02 * x;
@@ -470,23 +326,12 @@ class mat4 {
     }
 
     /**
-     * Multiply a matrix with a rotation matrix denotes by the rotation around arbitrary axis.
-     *
-     * @param out - Matrix to store result.
-     * @param a - Matrix to multiply.
-     * @param rad - The rotation angle.
-     * @param axis - The rotation axis.
-     * @return out.
+     * @zh 在给定矩阵变换基础上加入新旋转变换
+     * @param rad 旋转角度
+     * @param axis 旋转轴
      */
-    public static rotate (out, a, rad, axis) {
+    public static rotate (out: mat4, a: mat4, rad: number, axis: vec3) {
         let x = axis.x, y = axis.y, z = axis.z;
-        let s, c, t,
-            a00, a01, a02, a03,
-            a10, a11, a12, a13,
-            a20, a21, a22, a23,
-            b00, b01, b02,
-            b10, b11, b12,
-            b20, b21, b22;
 
         let len = Math.sqrt(x * x + y * y + z * z);
 
@@ -499,18 +344,18 @@ class mat4 {
         y *= len;
         z *= len;
 
-        s = Math.sin(rad);
-        c = Math.cos(rad);
-        t = 1 - c;
+        const s = Math.sin(rad);
+        const c = Math.cos(rad);
+        const t = 1 - c;
 
-        a00 = a.m00; a01 = a.m01; a02 = a.m02; a03 = a.m03;
-        a10 = a.m04; a11 = a.m05; a12 = a.m06; a13 = a.m07;
-        a20 = a.m08; a21 = a.m09; a22 = a.m10; a23 = a.m11;
+        const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03;
+        const a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07;
+        const a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11;
 
         // Construct the elements of the rotation matrix
-        b00 = x * x * t + c; b01 = y * x * t + z * s; b02 = z * x * t - y * s;
-        b10 = x * y * t - z * s; b11 = y * y * t + c; b12 = z * y * t + x * s;
-        b20 = x * z * t + y * s; b21 = y * z * t - x * s; b22 = z * z * t + c;
+        const b00 = x * x * t + c, b01 = y * x * t + z * s, b02 = z * x * t - y * s;
+        const b10 = x * y * t - z * s, b11 = y * y * t + c, b12 = z * y * t + x * s;
+        const b20 = x * z * t + y * s, b21 = y * z * t - x * s, b22 = z * z * t + c;
 
         // Perform rotation-specific matrix multiplication
         out.m00 = a00 * b00 + a10 * b01 + a20 * b02;
@@ -538,14 +383,10 @@ class mat4 {
     }
 
     /**
-     * Multiply a matrix with a rotation matrix denotes by the rotation around x-axis.
-     *
-     * @param out - Matrix to store result.
-     * @param a - Matrix to multiply.
-     * @param rad - The rotation angle.
-     * @return out.
+     * @zh 在给定矩阵变换基础上加入绕 X 轴的旋转变换
+     * @param rad 旋转角度
      */
-    public static rotateX (out, a, rad) {
+    public static rotateX (out: mat4, a: mat4, rad: number) {
         const s = Math.sin(rad),
             c = Math.cos(rad),
             a10 = a.m04,
@@ -582,14 +423,10 @@ class mat4 {
     }
 
     /**
-     * Multiply a matrix with a rotation matrix denotes by the rotation around y-axis.
-     *
-     * @param out - Matrix to store result.
-     * @param a - Matrix to multiply.
-     * @param rad - The rotation angle.
-     * @return out.
+     * @zh 在给定矩阵变换基础上加入绕 Y 轴的旋转变换
+     * @param rad 旋转角度
      */
-    public static rotateY (out, a, rad) {
+    public static rotateY (out: mat4, a: mat4, rad: number) {
         const s = Math.sin(rad),
             c = Math.cos(rad),
             a00 = a.m00,
@@ -626,14 +463,10 @@ class mat4 {
     }
 
     /**
-     * Multiply a matrix with a rotation matrix denotes by the rotation around z-axis.
-     *
-     * @param out - Matrix to store result.
-     * @param a - Matrix to multiply.
-     * @param rad - The rotation angle.
-     * @return out.
+     * @zh 在给定矩阵变换基础上加入绕 Z 轴的旋转变换
+     * @param rad 旋转角度
      */
-    public static rotateZ (out, a, rad) {
+    public static rotateZ (out: mat4, a: mat4, rad: number) {
         const s = Math.sin(rad),
             c = Math.cos(rad),
             a00 = a.m00,
@@ -671,17 +504,9 @@ class mat4 {
     }
 
     /**
-     * Create a translation matrix from a translation offset.
-     * This is equivalent to (but much faster than):
-     *
-     *     mat4.identity(dest);
-     *     mat4.translate(dest, dest, vec);
-     *
-     * @param out - Matrix to store result.
-     * @param v - The translation offset.
-     * @return out.
+     * @zh 创建位移矩阵
      */
-    public static fromTranslation (out, v) {
+    public static fromTranslation (out: mat4, v: vec3) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -702,17 +527,9 @@ class mat4 {
     }
 
     /**
-     * Creates a scale matrix from a scale vector.
-     * This is equivalent to (but much faster than):
-     *
-     *     mat4.identity(dest);
-     *     mat4.scale(dest, dest, vec);
-     *
-     * @param out - Matrix to store result.
-     * @param v - The scale vector.
-     * @return out.
+     * @zh 创建缩放矩阵
      */
-    public static fromScaling (out, v) {
+    public static fromScaling (out: mat4, v: vec3) {
         out.m00 = v.x;
         out.m01 = 0;
         out.m02 = 0;
@@ -733,21 +550,11 @@ class mat4 {
     }
 
     /**
-     * Creates a rotation matrix from the rotation around arbitrary axis.
-     * This is equivalent to (but much faster than):
-     *
-     *     mat4.identity(dest);
-     *     mat4.rotate(dest, dest, rad, axis);
-     *
-     * @param out - Matrix to store result.
-     * @param rad - The rotation angle.
-     * @param axis - The rotation axis.
-     * @return out.
+     * @zh 创建旋转矩阵
      */
-    public static fromRotation (out, rad, axis) {
+    public static fromRotation (out: mat4, rad: number, axis: vec3) {
         let x = axis.x, y = axis.y, z = axis.z;
         let len = Math.sqrt(x * x + y * y + z * z);
-        let s, c, t;
 
         if (Math.abs(len) < EPSILON) {
             return null;
@@ -758,9 +565,9 @@ class mat4 {
         y *= len;
         z *= len;
 
-        s = Math.sin(rad);
-        c = Math.cos(rad);
-        t = 1 - c;
+        const s = Math.sin(rad);
+        const c = Math.cos(rad);
+        const t = 1 - c;
 
         // Perform rotation-specific matrix multiplication
         out.m00 = x * x * t + c;
@@ -783,19 +590,10 @@ class mat4 {
     }
 
     /**
-     * Creates a rotation matrix from the rotation around x-axis.
-     * This is equivalent to (but much faster than):
-     *
-     *     mat4.identity(dest);
-     *     mat4.rotateX(dest, dest, rad);
-     *
-     * @param out - Matrix to store result.
-     * @param rad - The rotation angle.
-     * @return out.
+     * @zh 创建绕 X 轴的旋转矩阵
      */
-    public static fromXRotation (out, rad) {
-        const s = Math.sin(rad),
-            c = Math.cos(rad);
+    public static fromXRotation (out: mat4, rad: number) {
+        const s = Math.sin(rad), c = Math.cos(rad);
 
         // Perform axis-specific matrix multiplication
         out.m00 = 1;
@@ -818,19 +616,10 @@ class mat4 {
     }
 
     /**
-     * Creates a rotation matrix from the rotation around y-axis.
-     * This is equivalent to (but much faster than):
-     *
-     *     mat4.identity(dest);
-     *     mat4.rotateY(dest, dest, rad);
-     *
-     * @param out - Matrix to store result.
-     * @param rad - The rotation angle.
-     * @return out.
+     * @zh 创建绕 Y 轴的旋转矩阵
      */
-    public static fromYRotation (out, rad) {
-        const s = Math.sin(rad),
-            c = Math.cos(rad);
+    public static fromYRotation (out: mat4, rad: number) {
+        const s = Math.sin(rad), c = Math.cos(rad);
 
         // Perform axis-specific matrix multiplication
         out.m00 = c;
@@ -853,19 +642,10 @@ class mat4 {
     }
 
     /**
-     * Creates a rotation matrix from the rotation around z-axis.
-     * This is equivalent to (but much faster than):
-     *
-     *     mat4.identity(dest);
-     *     mat4.rotateZ(dest, dest, rad);
-     *
-     * @param out - Matrix to store result.
-     * @param rad - The rotation angle.
-     * @return out.
+     * @zh 创建绕 Z 轴的旋转矩阵
      */
-    public static fromZRotation (out, rad) {
-        const s = Math.sin(rad),
-            c = Math.cos(rad);
+    public static fromZRotation (out: mat4, rad: number) {
+        const s = Math.sin(rad), c = Math.cos(rad);
 
         // Perform axis-specific matrix multiplication
         out.m00 = c;
@@ -888,22 +668,9 @@ class mat4 {
     }
 
     /**
-     * Creates a matrix from a quaternion rotation and a translation offset.
-     * This is equivalent to (but much faster than):
-     *
-     *     mat4.identity(dest);
-     *     mat4.translate(dest, vec);
-     *     let quatMat = mat4.create();
-     *     quat.toMat4(quat, quatMat);
-     *     mat4.multiply(dest, quatMat);
-     *
-     * @param out - Matrix to store result.
-     * @param q - Rotation quaternion.
-     * @param v - Translation vector.
-     * @return out.
+     * @zh 根据旋转和位移信息创建矩阵
      */
-    public static fromRT (out, q, v) {
-        // Quaternion math
+    public static fromRT (out: mat4, q: quat, v: vec3) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -940,15 +707,9 @@ class mat4 {
     }
 
     /**
-     * Returns the translation vector component of a transformation
-     *  matrix. If a matrix is built with fromRT,
-     *  the returned vector will be the same as the translation offset
-     *  originally supplied.
-     * @param  {vec3} out - Vector to store result.
-     * @param  {mat4} mat - Matrix to be decomposed.
-     * @return out.
+     * @zh 提取矩阵的位移信息, 默认矩阵中的变换以 S->R->T 的顺序应用
      */
-    public static getTranslation (out, mat) {
+    public static getTranslation (out: vec3, mat: mat4) {
         out.x = mat.m12;
         out.y = mat.m13;
         out.z = mat.m14;
@@ -957,43 +718,30 @@ class mat4 {
     }
 
     /**
-     * Returns the scale component of a transformation
-     *  matrix. If a matrix is built with fromRTS
-     *  with a normalized Quaternion parameter, the returned vector will be
-     *  the same as the scale vector
-     *  originally supplied.
-     * @param  {vec3} out - Vector to store result.
-     * @param  {mat4} mat - Matrix to be decomposed.
-     * @return out.
+     * @zh 提取矩阵的缩放信息, 默认矩阵中的变换以 S->R->T 的顺序应用
      */
-    public static getScaling (out, mat) {
-        const m11 = mat.m00,
-            m12 = mat.m01,
-            m13 = mat.m02,
-            m21 = mat.m04,
-            m22 = mat.m05,
-            m23 = mat.m06,
-            m31 = mat.m08,
-            m32 = mat.m09,
-            m33 = mat.m10;
-
-        out.x = Math.sqrt(m11 * m11 + m12 * m12 + m13 * m13);
-        out.y = Math.sqrt(m21 * m21 + m22 * m22 + m23 * m23);
-        out.z = Math.sqrt(m31 * m31 + m32 * m32 + m33 * m33);
-
+    public static getScaling (out: vec3, mat: mat4) {
+        const m00 = m3_1.m00 = mat.m00;
+        const m01 = m3_1.m01 = mat.m01;
+        const m02 = m3_1.m02 = mat.m02;
+        const m04 = m3_1.m03 = mat.m04;
+        const m05 = m3_1.m04 = mat.m05;
+        const m06 = m3_1.m05 = mat.m06;
+        const m08 = m3_1.m06 = mat.m08;
+        const m09 = m3_1.m07 = mat.m09;
+        const m10 = m3_1.m08 = mat.m10;
+        out.x = Math.sqrt(m00 * m00 + m01 * m01 + m02 * m02);
+        out.y = Math.sqrt(m04 * m04 + m05 * m05 + m06 * m06);
+        out.y = Math.sqrt(m08 * m08 + m09 * m09 + m10 * m10);
+        // account for refections
+        if (mat3.determinant(m3_1) < 0) { out.x *= -1; }
         return out;
     }
 
     /**
-     * Returns a quaternion representing the rotational component
-     *  of a transformation matrix. If a matrix is built with
-     *  fromRT, the returned quaternion will be the
-     *  same as the quaternion originally supplied.
-     * @param out - Quaternion to store result.
-     * @param mat - Matrix to be decomposed.
-     * @return out.
+     * @zh 提取矩阵的旋转信息, 默认矩阵中的变换以 S->R->T 的顺序应用
      */
-    public static getRotation (out, mat) {
+    public static getRotation (out: quat, mat: mat4) {
         // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
         const trace = mat.m00 + mat.m05 + mat.m10;
         let S = 0;
@@ -1028,13 +776,7 @@ class mat4 {
     }
 
     /**
-     * Decompose an affine matrix to a quaternion rotation, a translation offset and a scale vector.
-     * Assumes the transformation is combined in the order of Scale -> Rotate -> Translate.
-     * Shearing and projective transformations will surely be lost.
-     * @param m - Matrix to decompose.
-     * @param q - Resulting rotation quaternion.
-     * @param v - Resulting translation offset.
-     * @param s - Resulting scale vector.
+     * @zh 提取旋转、位移、缩放信息， 默认矩阵中的变换以 S->R->T 的顺序应用
      */
     public static toRTS (m: mat4, q: quat, v: vec3, s: vec3) {
         s.x = vec3.mag(vec3.set(v3_1, m.m00, m.m01, m.m02));
@@ -1050,32 +792,15 @@ class mat4 {
         m3_1.m07 = m.m09 / s.z;
         m3_1.m08 = m.m10 / s.z;
         const det = mat3.determinant(m3_1);
-        if (det < 0) {
-            s.x *= -1; m3_1.m00 *= -1; m3_1.m01 *= -1; m3_1.m02 *= -1;
-        }
+        if (det < 0) { s.x *= -1; m3_1.m00 *= -1; m3_1.m01 *= -1; m3_1.m02 *= -1; }
         quat.fromMat3(q, m3_1); // already normalized
         vec3.set(v, m.m12, m.m13, m.m14);
     }
 
     /**
-     * Creates a matrix from a quaternion rotation, translation offset and scale vector.
-     * This is equivalent to (but much faster than):
-     *
-     *     mat4.identity(dest);
-     *     mat4.translate(dest, vec);
-     *     let quatMat = mat4.create();
-     *     quat.toMat4(quat, quatMat);
-     *     mat4.multiply(dest, quatMat);
-     *     mat4.scale(dest, scale)
-     *
-     * @param out mat4 - Matrix to store result.
-     * @param q - Rotation quaternion.
-     * @param v - Translation offset.
-     * @param s - Scale vector.
-     * @return out.
+     * @zh 根据旋转、位移、缩放信息创建矩阵，以 S->R->T 的顺序应用
      */
-    public static fromRTS (out, q, v, s) {
-        // Quaternion math
+    public static fromRTS (out: mat4, q: quat, v: vec3, s: vec3) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -1115,28 +840,13 @@ class mat4 {
     }
 
     /**
-     * Creates a matrix from a quaternion rotation, translation offset and scale vector,
-     * rotating and scaling around the given origin.
-     * This is equivalent to (but much faster than):
-     *
-     *     mat4.identity(dest);
-     *     mat4.translate(dest, vec);
-     *     mat4.translate(dest, origin);
-     *     let quatMat = mat4.create();
-     *     quat.toMat4(quat, quatMat);
-     *     mat4.multiply(dest, quatMat);
-     *     mat4.scale(dest, scale)
-     *     mat4.translate(dest, negativeOrigin);
-     *
-     * @param out mat4 - Matrix to store result.
-     * @param q - Rotation quaternion.
-     * @param v - Translation offset.
-     * @param s - Scale vector.
-     * @param o The origin vector around which to scale and rotate.
-     * @return out.
+     * @zh 根据指定的旋转、位移、缩放及变换中心信息创建矩阵，以 S->R->T 的顺序应用
+     * @param q 旋转值
+     * @param v 位移值
+     * @param s 缩放值
+     * @param o 指定变换中心
      */
-    public static fromRTSOrigin (out, q, v, s, o) {
-        // Quaternion math
+    public static fromRTSOrigin (out: mat4, q: quat, v: vec3, s: vec3, o: vec3) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -1181,14 +891,9 @@ class mat4 {
     }
 
     /**
-     * Calculates a 4x4 matrix from the given quaternion.
-     *
-     * @param out mat4 - Matrix to store result.
-     * @param q - Quaternion to create matrix from.
-     *
-     * @return out.
+     * @zh 根据指定的旋转信息创建矩阵
      */
-    public static fromQuat (out, q) {
+    public static fromQuat (out: mat4, q: quat) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -1228,18 +933,15 @@ class mat4 {
     }
 
     /**
-     * Generates a frustum matrix with the given bounds.
-     *
-     * @param out mat4 - Matrix to store result.
-     * @param left - Left bound of the frustum.
-     * @param right - Right bound of the frustum.
-     * @param bottom - Bottom bound of the frustum.
-     * @param top - Top bound of the frustum.
-     * @param near - Near bound of the frustum.
-     * @param far - Far bound of the frustum.
-     * @return out.
+     * @zh 根据指定的视锥体信息创建矩阵
+     * @param left 左平面距离
+     * @param right 右平面距离
+     * @param bottom 下平面距离
+     * @param top 上平面距离
+     * @param near 近平面距离
+     * @param far 远平面距离
      */
-    public static frustum (out, left, right, bottom, top, near, far) {
+    public static frustum (out: mat4, left: number, right: number, bottom: number, top: number, near: number, far: number) {
         const rl = 1 / (right - left);
         const tb = 1 / (top - bottom);
         const nf = 1 / (near - far);
@@ -1264,16 +966,13 @@ class mat4 {
     }
 
     /**
-     * Generates a perspective projection matrix with the given bounds.
-     *
-     * @param out - Matrix to store result.
-     * @param fovy - Vertical field of view in radians.
-     * @param aspect - Aspect ratio. typically viewport width/height.
-     * @param near - Near bound of the frustum.
-     * @param far - Far bound of the frustum.
-     * @return out.
+     * @zh 创建透视投影矩阵
+     * @param fovy 纵向视角高度
+     * @param aspect 长宽比
+     * @param near 近平面距离
+     * @param far 远平面距离
      */
-    public static perspective (out, fovy, aspect, near, far) {
+    public static perspective (out: mat4, fovy: number, aspect: number, near: number, far: number) {
         const f = 1.0 / Math.tan(fovy / 2);
         const nf = 1 / (near - far);
 
@@ -1297,56 +996,15 @@ class mat4 {
     }
 
     /**
-     * Generates a perspective projection matrix with the given field of view.
-     * This is primarily useful for generating projection matrices to be used
-     * with the still experiemental WebVR API.
-     *
-     * @param out - Matrix to store result.
-     * @param fov - Object containing the following values: upDegrees, downDegrees, leftDegrees, rightDegrees.
-     * @param near - Near bound of the frustum.
-     * @param far - Far bound of the frustum.
-     * @return out.
+     * @zh 创建正交投影矩阵
+     * @param left 左平面距离
+     * @param right 右平面距离
+     * @param bottom 下平面距离
+     * @param top 上平面距离
+     * @param near 近平面距离
+     * @param far 远平面距离
      */
-    public static perspectiveFromFieldOfView (out, fov, near, far) {
-        const upTan = Math.tan(fov.upDegrees * Math.PI / 180.0);
-        const downTan = Math.tan(fov.downDegrees * Math.PI / 180.0);
-        const leftTan = Math.tan(fov.leftDegrees * Math.PI / 180.0);
-        const rightTan = Math.tan(fov.rightDegrees * Math.PI / 180.0);
-        const xScale = 2.0 / (leftTan + rightTan);
-        const yScale = 2.0 / (upTan + downTan);
-
-        out.m00 = xScale;
-        out.m01 = 0.0;
-        out.m02 = 0.0;
-        out.m03 = 0.0;
-        out.m04 = 0.0;
-        out.m05 = yScale;
-        out.m06 = 0.0;
-        out.m07 = 0.0;
-        out.m08 = -((leftTan - rightTan) * xScale * 0.5);
-        out.m09 = ((upTan - downTan) * yScale * 0.5);
-        out.m10 = far / (near - far);
-        out.m11 = -1.0;
-        out.m12 = 0.0;
-        out.m13 = 0.0;
-        out.m14 = (far * near) / (near - far);
-        out.m15 = 0.0;
-        return out;
-    }
-
-    /**
-     * Generates a orthogonal projection matrix with the given bounds.
-     *
-     * @param out - Matrix to store result.
-     * @param left - Left bound of the frustum.
-     * @param right - Right bound of the frustum.
-     * @param bottom - Bottom bound of the frustum.
-     * @param top - Top bound of the frustum.
-     * @param near - Near bound of the frustum.
-     * @param far - Far bound of the frustum.
-     * @return out.
-     */
-    public static ortho (out, left, right, bottom, top, near, far) {
+    public static ortho (out: mat4, left: number, right: number, bottom: number, top: number, near: number, far: number) {
         const lr = 1 / (left - right);
         const bt = 1 / (bottom - top);
         const nf = 1 / (near - far);
@@ -1370,17 +1028,12 @@ class mat4 {
     }
 
     /**
-     * Generates a look-at matrix with the given eye position, focal point, and up axis.
-     * `eye - center` mustn't be zero vector or parallel to `up`
-     *
-     * @param out - Matrix to store result.
-     * @param eye - Position of the viewer.
-     * @param center - Point the viewer is looking at.
-     * @param up - Vector pointing up.
-     * @return out
+     * @zh 根据视点创建矩阵，注意 `eye - center` 不能为零向量或与 `up` 向量平行
+     * @param eye 当前位置
+     * @param center 目标视点
+     * @param up 视口上方向
      */
-    public static lookAt (out, eye, center, up) {
-        let x0, x1, x2, y0, y1, y2, z0, z1, z2, len;
+    public static lookAt (out: mat4, eye: vec3, center: vec3, up: vec3) {
         const eyex = eye.x;
         const eyey = eye.y;
         const eyez = eye.z;
@@ -1391,26 +1044,26 @@ class mat4 {
         const centery = center.y;
         const centerz = center.z;
 
-        z0 = eyex - centerx;
-        z1 = eyey - centery;
-        z2 = eyez - centerz;
+        let z0 = eyex - centerx;
+        let z1 = eyey - centery;
+        let z2 = eyez - centerz;
 
-        len = 1 / Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
+        let len = 1 / Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
         z0 *= len;
         z1 *= len;
         z2 *= len;
 
-        x0 = upy * z2 - upz * z1;
-        x1 = upz * z0 - upx * z2;
-        x2 = upx * z1 - upy * z0;
+        let x0 = upy * z2 - upz * z1;
+        let x1 = upz * z0 - upx * z2;
+        let x2 = upx * z1 - upy * z0;
         len = 1 / Math.sqrt(x0 * x0 + x1 * x1 + x2 * x2);
         x0 *= len;
         x1 *= len;
         x2 *= len;
 
-        y0 = z1 * x2 - z2 * x1;
-        y1 = z2 * x0 - z0 * x2;
-        y2 = z0 * x1 - z1 * x0;
+        const y0 = z1 * x2 - z2 * x1;
+        const y1 = z2 * x0 - z0 * x2;
+        const y2 = z0 * x1 - z1 * x0;
 
         out.m00 = x0;
         out.m01 = y0;
@@ -1433,25 +1086,17 @@ class mat4 {
     }
 
     /**
-     * Returns a string representation of a matrix.
-     *
-     * @param a - The matrix.
-     * @return String representation of this matrix.
+     * @zh 此矩阵的字符串表示
      */
-    public static str (a) {
+    public static str (a: mat4) {
         return `mat4(${a.m00}, ${a.m01}, ${a.m02}, ${a.m03}, ${a.m04}, ${a.m05}, ${a.m06}, ${a.m07}, ` +
             `${a.m08}, ${a.m09}, ${a.m10}, ${a.m11}, ${a.m12}, ${a.m13}, ${a.m14}, ${a.m15})`;
     }
 
     /**
-     * Calculates normal matrix (transpose inverse).
-     *
-     * @param out - Matrix to store result.
-     * @param a - A 4x4 matrix to derive the normal matrix from.
-     *
-     * @return out.
+     * @zh 计算逆转置矩阵
      */
-    public static normalMatrix (out, a) {
+    public static inverseTranspose (out: mat4, a: mat4) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
             a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
             a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
@@ -1502,13 +1147,10 @@ class mat4 {
     }
 
     /**
-     * Store elements of a matrix into array.
-     *
-     * @param out - Array to store result.
-     * @param m - The matrix.
-     * @return out.
+     * @zh 矩阵转数组
+     * @param ofs 数组内的起始偏移量
      */
-    public static array (out, m, ofs = 0) {
+    public static array (out: IWritableArrayLike<number>, m: mat4, ofs = 0) {
         out[ofs + 0] = m.m00;
         out[ofs + 1] = m.m01;
         out[ofs + 2] = m.m02;
@@ -1530,27 +1172,9 @@ class mat4 {
     }
 
     /**
-     * Returns Frobenius norm of a matrix.
-     *
-     * @param a - Matrix to calculate Frobenius norm of.
-     * @return - The frobenius norm.
+     * @zh 逐元素矩阵加法
      */
-    public static frob (a) {
-        return (Math.sqrt(Math.pow(a.m00, 2) + Math.pow(a.m01, 2) + Math.pow(a.m02, 2) + Math.pow(a.m03, 2) +
-            Math.pow(a.m04, 2) + Math.pow(a.m05, 2) + Math.pow(a.m06, 2) + Math.pow(a.m07, 2) + Math.pow(a.m08, 2) +
-            Math.pow(a.m09, 2) + Math.pow(a.m10, 2) + Math.pow(a.m11, 2) + Math.pow(a.m12, 2) + Math.pow(a.m13, 2) +
-            Math.pow(a.m14, 2) + Math.pow(a.m15, 2)));
-    }
-
-    /**
-     * Adds two matrices.
-     *
-     * @param out - Matrix to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return out.
-     */
-    public static add (out, a, b) {
+    public static add (out: mat4, a: mat4, b: mat4) {
         out.m00 = a.m00 + b.m00;
         out.m01 = a.m01 + b.m01;
         out.m02 = a.m02 + b.m02;
@@ -1571,14 +1195,9 @@ class mat4 {
     }
 
     /**
-     * Subtracts matrix b from matrix a.
-     *
-     * @param out - Matrix to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return out.
+     * @zh 逐元素矩阵减法
      */
-    public static subtract (out, a, b) {
+    public static subtract (out: mat4, a: mat4, b: mat4) {
         out.m00 = a.m00 - b.m00;
         out.m01 = a.m01 - b.m01;
         out.m02 = a.m02 - b.m02;
@@ -1599,21 +1218,16 @@ class mat4 {
     }
 
     /**
-     * Alias of {@link mat4.subtract}.
+     * @zh 逐元素矩阵减法
      */
-    public static sub (out, a, b) {
+    public static sub (out: mat4, a: mat4, b: mat4) {
         return mat4.subtract(out, a, b);
     }
 
     /**
-     * Multiply each element of a matrix by a scalar number.
-     *
-     * @param out - Matrix to store result.
-     * @param a - Matrix to scale
-     * @param b - The scale number.
-     * @return out.
+     * @zh 矩阵标量乘法
      */
-    public static multiplyScalar (out, a, b) {
+    public static multiplyScalar (out: mat4, a: mat4, b: number) {
         out.m00 = a.m00 * b;
         out.m01 = a.m01 * b;
         out.m02 = a.m02 * b;
@@ -1634,15 +1248,9 @@ class mat4 {
     }
 
     /**
-     * Adds two matrices after multiplying each element of the second operand by a scalar number.
-     *
-     * @param out - Matrix to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @param scale - The scale number.
-     * @return out.
+     * @zh 逐元素矩阵标量乘加: A + B * scale
      */
-    public static multiplyScalarAndAdd (out, a, b, scale) {
+    public static multiplyScalarAndAdd (out: mat4, a: mat4, b: mat4, scale: number) {
         out.m00 = a.m00 + (b.m00 * scale);
         out.m01 = a.m01 + (b.m01 * scale);
         out.m02 = a.m02 + (b.m02 * scale);
@@ -1663,13 +1271,9 @@ class mat4 {
     }
 
     /**
-     * Returns whether the specified matrices are equal. (Compared using ===)
-     *
-     * @param a - The first matrix.
-     * @param b - The second matrix.
-     * @return True if the matrices are equal, false otherwise.
+     * @zh 矩阵等价判断
      */
-    public static exactEquals (a, b) {
+    public static exactEquals (a: mat4, b: mat4) {
         return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 && a.m03 === b.m03 &&
             a.m04 === b.m04 && a.m05 === b.m05 && a.m06 === b.m06 && a.m07 === b.m07 &&
             a.m08 === b.m08 && a.m09 === b.m09 && a.m10 === b.m10 && a.m11 === b.m11 &&
@@ -1677,13 +1281,9 @@ class mat4 {
     }
 
     /**
-     * Returns whether the specified matrices are approximately equal.
-     *
-     * @param a - The first matrix.
-     * @param b - The second matrix.
-     * @return True if the matrices are equal, false otherwise.
+     * @zh 排除浮点数误差的矩阵近似等价判断
      */
-    public static equals (a, b, epsilon = EPSILON) {
+    public static equals (a: mat4, b: mat4, epsilon = EPSILON) {
         const a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03,
             a4 = a.m04, a5 = a.m05, a6 = a.m06, a7 = a.m07,
             a8 = a.m08, a9 = a.m09, a10 = a.m10, a11 = a.m11,
@@ -1731,128 +1331,15 @@ class mat4 {
     public m14: number = 0;
     public m15: number = 1;
 
-    /**
-     * Creates a matrix, with elements specified separately.
-     *
-     * @param m00 - Value assigned to element at column 0 row 0.
-     * @param m01 - Value assigned to element at column 0 row 1.
-     * @param m02 - Value assigned to element at column 0 row 2.
-     * @param m03 - Value assigned to element at column 0 row 3.
-     * @param m04 - Value assigned to element at column 1 row 0.
-     * @param m05 - Value assigned to element at column 1 row 1.
-     * @param m06 - Value assigned to element at column 1 row 2.
-     * @param m07 - Value assigned to element at column 1 row 3.
-     * @param m08 - Value assigned to element at column 2 row 0.
-     * @param m09 - Value assigned to element at column 2 row 1.
-     * @param m10 - Value assigned to element at column 2 row 2.
-     * @param m11 - Value assigned to element at column 2 row 3.
-     * @param m12 - Value assigned to element at column 3 row 0.
-     * @param m13 - Value assigned to element at column 3 row 1.
-     * @param m14 - Value assigned to element at column 3 row 2.
-     * @param m15 - Value assigned to element at column 3 row 3.
-     */
     constructor (
         m00 = 1, m01 = 0, m02 = 0, m03 = 0,
         m04 = 0, m05 = 1, m06 = 0, m07 = 0,
         m08 = 0, m09 = 0, m10 = 1, m11 = 0,
         m12 = 0, m13 = 0, m14 = 0, m15 = 1,
     ) {
-        /**
-         * The element at column 0 row 0.
-         * @type {number}
-         */
-        this.m00 = m00;
-
-        /**
-         * The element at column 0 row 1.
-         * @type {number}
-         */
-        this.m01 = m01;
-
-        /**
-         * The element at column 0 row 2.
-         * @type {number}
-         */
-        this.m02 = m02;
-
-        /**
-         * The element at column 0 row 3.
-         * @type {number}
-         */
-        this.m03 = m03;
-
-        /**
-         * The element at column 1 row 0.
-         * @type {number}
-         */
-        this.m04 = m04;
-
-        /**
-         * The element at column 1 row 1.
-         * @type {number}
-         */
-        this.m05 = m05;
-
-        /**
-         * The element at column 1 row 2.
-         * @type {number}
-         */
-        this.m06 = m06;
-
-        /**
-         * The element at column 1 row 3.
-         * @type {number}
-         */
-        this.m07 = m07;
-
-        /**
-         * The element at column 2 row 0.
-         * @type {number}
-         */
-        this.m08 = m08;
-
-        /**
-         * The element at column 2 row 1.
-         * @type {number}
-         */
-        this.m09 = m09;
-
-        /**
-         * The element at column 2 row 2.
-         * @type {number}
-         */
-        this.m10 = m10;
-
-        /**
-         * The element at column 2 row 3.
-         * @type {number}
-         */
-        this.m11 = m11;
-
-        /**
-         * The element at column 3 row 0.
-         * @type {number}
-         */
-        this.m12 = m12;
-
-        /**
-         * The element at column 3 row 1.
-         * @type {number}
-         */
-        this.m13 = m13;
-
-        /**
-         * The element at column 3 row 2.
-         * @type {number}
-         */
-        this.m14 = m14;
-
-        /**
-         * The element at column 3 row 3.
-         * @type {number}
-         */
-        this.m15 = m15;
+        this.m00 = m00; this.m01 = m01; this.m02 = m02; this.m03 = m03;
+        this.m04 = m04; this.m05 = m05; this.m06 = m06; this.m07 = m07;
+        this.m08 = m08; this.m09 = m09; this.m10 = m10; this.m11 = m11;
+        this.m12 = m12; this.m13 = m13; this.m14 = m14; this.m15 = m15;
     }
 }
-
-export default mat4;

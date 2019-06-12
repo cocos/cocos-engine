@@ -1,7 +1,7 @@
 import mat2 from './mat2';
 import mat23 from './mat23';
 import mat3 from './mat3';
-import mat4 from './mat4';
+import { mat4 } from './mat4';
 import { EPSILON, random } from './utils';
 import vec3 from './vec3';
 

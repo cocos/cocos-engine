@@ -1,7 +1,7 @@
 import mat3 from './mat3';
 import { toDegree } from './utils';
 import vec3 from './vec3';
-import vec4 from './vec4';
+import { vec4 } from './vec4';
 
 const halfToRad = 0.5 * Math.PI / 180.0;
 
@@ -287,7 +287,7 @@ export default class quat {
         vec3.transformQuat(tmpVec3, axis, tmpQuat1);
         // rotate by inv-axis
         quat.fromAxisAngle(tmpQuat1, tmpVec3, rad);
-        quat.mul(out, rot, tmpQuat1);
+        quat.multiply(out, rot, tmpQuat1);
         return out;
     }
 
@@ -302,7 +302,7 @@ export default class quat {
      */
     public static rotateAroundLocal<Out extends quat> (out: Out, rot: quat, axis: vec3, rad: number) {
         quat.fromAxisAngle(tmpQuat1, axis, rad);
-        quat.mul(out, rot, tmpQuat1);
+        quat.multiply(out, rot, tmpQuat1);
         return out;
     }
 

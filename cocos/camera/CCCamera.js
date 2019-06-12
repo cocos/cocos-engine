@@ -26,9 +26,7 @@
 
 import game from '../core/game';
 import AffineTrans from '../core/value-types/affine-transform';
-import mat4 from '../core/vmath/mat4';
-import vec2 from '../core/vmath/vec2';
-import vec3 from '../core/vmath/vec3';
+import { mat4, vec2, vec3 } from '../core/vmath';
 import { Component } from '../components/component';
 // TODO fix import from renderer
 import { Camera as Renderer_Camera} from '../renderer/scene/camera';
@@ -386,7 +384,7 @@ export default class Camera extends Component {
         node.getWorldMatrix(_mat4_temp_2);
         if (this.containsNode(node)) {
             this.getWorldToCameraMatrix(_mat4_temp_1);
-            mat4.mul(_mat4_temp_2, _mat4_temp_2, _mat4_temp_1);
+            mat4.multiply(_mat4_temp_2, _mat4_temp_2, _mat4_temp_1);
         }
         AffineTrans.fromMat4(out, _mat4_temp_2);
         return out;

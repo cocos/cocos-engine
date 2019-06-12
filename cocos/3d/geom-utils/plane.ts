@@ -68,8 +68,8 @@ export default class plane {
      * @return out 接受操作的对象。
      */
     public static fromPoints (out: plane, a: vec3, b: vec3, c: vec3) {
-        vec3.sub(v1, b, a);
-        vec3.sub(v2, c, a);
+        vec3.subtract(v1, b, a);
+        vec3.subtract(v2, c, a);
 
         vec3.normalize(out.n, vec3.cross(out.n, v1, v2));
         out.d = vec3.dot(out.n, a);
