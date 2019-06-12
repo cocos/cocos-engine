@@ -903,6 +903,7 @@ class TimSort<T = {}> {
 }
 
 /**
+ * @zh 对一个数组的区间[lo, hi)使用TimSort排序
  * Sort an array in the range [lo, hi) using TimSort.
  *
  * @param {array} array - The array to sort.

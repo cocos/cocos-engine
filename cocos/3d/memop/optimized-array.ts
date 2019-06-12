@@ -1,9 +1,13 @@
+/**
+ * @zh 可变长数组
+ */
 export class OptimizedArray<T = {}> {
     private _size: number;
     private _data: Array<T | undefined>;
 
     /**
-     * Initialize this array with specified capacity.
+     * @zh 构造函数，指定数组起始大小
+     * @en Initialize this array with specified capacity.
      * @param {Number} [size] The size.
      */
     constructor (size = 0) {
@@ -12,7 +16,8 @@ export class OptimizedArray<T = {}> {
     }
 
     /**
-     * Size of this array.
+     * @zh 数组大小
+     * @en Size of this array.
      * @return {Number}
      */
     get size () {
@@ -20,7 +25,8 @@ export class OptimizedArray<T = {}> {
     }
 
     /**
-     * The underlying Array of this array.
+     * @zh 返回对应的数组实例
+     * @en The underlying Array of this array.
      * @return {Array}
      */
     get data () {
@@ -28,14 +34,16 @@ export class OptimizedArray<T = {}> {
     }
 
     /**
-     * Capacity of this array.
+     * @zh 返回已经分配的数组大小
+     * @en Capacity of this array.
      */
     get capacity () {
         return this._data.length;
     }
 
     /**
-     * Push a value to back of this array.
+     * @zh 在末尾添加一个元素
+     * @en Push a value to back of this array.
      * @param {any} value
      */
     public push (value) {
@@ -47,7 +55,8 @@ export class OptimizedArray<T = {}> {
     }
 
     /**
-     * Remove the last element and return it, if exists.
+     * @zh 删除末尾一个元素
+     * @en Remove the last element and return it, if exists.
      */
     public pop () {
         if (this._size === 0) {
@@ -60,7 +69,8 @@ export class OptimizedArray<T = {}> {
     }
 
     /**
-     * Remove all elements.
+     * @zh 清除所有元素
+     * @en Remove all elements.
      */
     public clear () {
         for (let i = 0; i < this._data.length; ++i) {
@@ -85,6 +95,9 @@ type Allocator<T> = () => T;
 
 type Deallocator<T> = (value: T) => void;
 
+/**
+ * @zh 自动分配内存的数组
+ */
 export class OptimizedValueArray<T = {}> {
     private _size: number;
     private _data: T[];
@@ -92,7 +105,8 @@ export class OptimizedValueArray<T = {}> {
     private _dtor;
 
     /**
-     * Initialize this array with specified capacity.
+     * @zh 构造函数，指定数组元素的构造函数，析构函数，和数组大小
+     * @en Initialize this array with specified capacity.
      * @param {any} ctor The constructor to create the value.
      * @param {Number} [size] The size.
      */
@@ -105,7 +119,8 @@ export class OptimizedValueArray<T = {}> {
     }
 
     /**
-     * Size of this array.
+     * @zh 获取数组长度
+     * @en Size of this array.
      * @return {Number}
      */
     get size () {
@@ -113,7 +128,8 @@ export class OptimizedValueArray<T = {}> {
     }
 
     /**
-     * The underlying Array of this array.
+     * @zh 获取数组对象
+     * @en The underlying Array of this array.
      * @return {Array}
      */
     get data () {
@@ -121,6 +137,7 @@ export class OptimizedValueArray<T = {}> {
     }
 
     /**
+     * @zh 获取已分配数组长度
      * Capacity of this array.
      */
     get capacity () {
@@ -128,7 +145,8 @@ export class OptimizedValueArray<T = {}> {
     }
 
     /**
-     * Push a value to back of this array.
+     * @zh 添加一个元素到数组末尾
+     * @en Push a value to back of this array.
      */
     public push () {
         if (this._size >= this._data.length) {
@@ -140,7 +158,8 @@ export class OptimizedValueArray<T = {}> {
     }
 
     /**
-     * Remove the last element, if exists.
+     * @zh 删除数组中最后一个元素并调用析构函数
+     * @en Remove the last element, if exists.<br>
      * Since that element is not erased, so we cannot return it.
      */
     public pop () {
@@ -152,7 +171,8 @@ export class OptimizedValueArray<T = {}> {
     }
 
     /**
-     * Remove all elements.
+     * @zh 删除所有元素
+     * @en Remove all elements.
      */
     public clear () {
         this._size = 0;
@@ -161,6 +181,11 @@ export class OptimizedValueArray<T = {}> {
         }
     }
 
+    /**
+     * @zh 删除一段区间内的元素
+     * @param from 起始索引
+     * @param number 删除元素的个数
+     */
     public splice (from, number) {
         if (number === 0) {
             return;
@@ -185,12 +210,20 @@ export class OptimizedValueArray<T = {}> {
         }
     }
 
+    /**
+     * @zh 遍历数组
+     * @param fx 遍历函数
+     */
     public forEach (fx) {
         for (let i = 0; i < this.size; ++i) {
             fx(this.data[i], i, this);
         }
     }
 
+    /**
+     * @zh 将数组映射为另一个数组，返回新数组
+     * @param fx 映射函数
+     */
     public map (fx) {
         const result = new Array();
         for (let i = 0; i < this.size; ++i) {
