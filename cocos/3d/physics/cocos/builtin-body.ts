@@ -107,7 +107,8 @@ export class BuiltInBody implements BuiltInRigidBodyBase {
         }
     }
     public setCollisionFilter (group: number, mask: number): void {
-
+        this._collisionFilterGroup = group;
+        this._collisionFilterMask = mask;
     }
     public setWorld (world: PhysicsWorldBase | null): void {
 

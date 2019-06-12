@@ -276,18 +276,6 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         }
     }
 
-    /**
-     * @zh
-     * 直接设置碰撞分组和掩码值
-     * @param group - 分组值
-     * @param mask - 掩码值
-     */
-    public setCollisionFilter (group: number, mask: number) {
-        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
-            this._body!.setCollisionFilter(group, mask);
-        }
-    }
-
     /// COMPONENT LIFECYCLE ///
 
     protected onLoad () {
