@@ -219,10 +219,9 @@ class BuiltinResMgr {
                 const shadow = m.scene.planarShadow;
                 m.updateTransform = () => {
                     const bounds = m.worldBounds;
-                    if (!m.node.hasChanged && !light.node.hasChanged) { return; }
-                    m.node.updateWorldTransformFull();
-                    if (!bounds) { return; }
-                    m.modelBounds!.transform(m.node._mat, null, null, null, bounds);
+                    if (!m.transform.hasChanged && !light.node.hasChanged) { return; }
+                    if (!bounds) { m.transform.updateWorldTransformFull(); return; }
+                    m.modelBounds!.transform(m.transform.worldMatrix, null, null, null, bounds);
                     bounds.transform(shadow.matLight, null, null, null, tmp);
                     aabb.merge(bounds, bounds, tmp);
                 };
