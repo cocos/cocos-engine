@@ -413,33 +413,33 @@ export class Mesh extends Asset {
 
             vbView.set(srcVBView);
 
-            if (bundle.view.stride === dstBundle.view.stride) {
-                vbView.set(dstVBView, bundle.view.length);
-            } else {
-                srcAttrOffset = 0;
-                for (const attr of bundle.attributes) {
-                    dstVBOffset = 0;
-                    hasAttr = false;
-                    for (const dstAttr of dstBundle.attributes) {
-                        if (attr.name === dstAttr.name && attr.format === dstAttr.format) {
-                            hasAttr = true;
-                            break;
-                        }
-                        dstVBOffset += GFXFormatInfos[dstAttr.format].size;
+            // if (bundle.view.stride === dstBundle.view.stride) {
+            //     vbView.set(dstVBView, bundle.view.length);
+            // } else {
+            srcAttrOffset = 0;
+            for (const attr of bundle.attributes) {
+                dstVBOffset = 0;
+                hasAttr = false;
+                for (const dstAttr of dstBundle.attributes) {
+                    if (attr.name === dstAttr.name && attr.format === dstAttr.format) {
+                        hasAttr = true;
+                        break;
                     }
-                    if (hasAttr) {
-                        attrSize = GFXFormatInfos[attr.format].size;
-                        srcVBOffset = bundle.view.length + srcAttrOffset;
-                        for (let v = 0; v < dstBundle.view.count; ++v) {
-                            dstAttrView = dstVBView.subarray(dstVBOffset, dstVBOffset + attrSize);
-                            vbView.set(dstAttrView, srcVBOffset);
-                            srcVBOffset += bundle.view.stride;
-                            dstVBOffset += dstBundle.view.stride;
-                        }
-                    }
-                    srcAttrOffset += GFXFormatInfos[attr.format].size;
+                    dstVBOffset += GFXFormatInfos[dstAttr.format].size;
                 }
+                if (hasAttr) {
+                    attrSize = GFXFormatInfos[attr.format].size;
+                    srcVBOffset = bundle.view.length + srcAttrOffset;
+                    for (let v = 0; v < dstBundle.view.count; ++v) {
+                        dstAttrView = dstVBView.subarray(dstVBOffset, dstVBOffset + attrSize);
+                        vbView.set(dstAttrView, srcVBOffset);
+                        srcVBOffset += bundle.view.stride;
+                        dstVBOffset += dstBundle.view.stride;
+                    }
+                }
+                srcAttrOffset += GFXFormatInfos[attr.format].size;
             }
+            // }
 
             vertexBundles[i] = {
                 attributes: bundle.attributes,

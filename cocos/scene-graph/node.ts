@@ -20,12 +20,31 @@ enum NodeSpace {
 }
 const TRANFORM_ON = 1 << 0;
 
+/**
+ * @zh
+ * 场景树中的基本节点，基本特性有：
+ * * 具有层级关系
+ * * 持有各类组件
+ * * 维护空间变换（位移、旋转、缩放）信息
+ */
 @ccclass('cc.Node')
-class Node extends BaseNode {
+export class Node extends BaseNode {
+    /**
+     * @zh
+     * 节点可能发出的事件类型
+     */
     public static EventType = SystemEventType;
+    /**
+     * @zh
+     * 空间变换操作的坐标系
+     */
     public static NodeSpace = NodeSpace;
 
-    // is node but not scene
+    /**
+     * @zh
+     * 指定对象是否是普通的场景节点？
+     * @param obj 待测试的节点
+     */
     public static isNode (obj: object | null): obj is Node {
         return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
     }
@@ -60,6 +79,10 @@ class Node extends BaseNode {
     protected _eventMask = 0;
     private _uiTransfromComp: UITransformComponent | null = null;
 
+    /**
+     * @zh
+     * 以欧拉角表示的本地旋转值
+     */
     @property({ type: Vec3 })
     set eulerAngles (val: Readonly<Vec3>) {
         this.setRotationFromEuler(val.x, val.y, val.z);
@@ -72,6 +95,10 @@ class Node extends BaseNode {
         return this._euler;
     }
 
+    /**
+     * @zh
+     * 节点所属层，主要影响射线检测、物理碰撞等，参考 [[Layers]]
+     */
     @property
     set layer (l) {
         this._layer = l;
@@ -80,57 +107,12 @@ class Node extends BaseNode {
         return this._layer;
     }
 
+    /**
+     * @zh
+     * 这个节点的空间变换信息在当前帧内是否有变过？
+     */
     get hasChanged () {
         return this._hasChanged;
-    }
-
-    get uiTransfromComp () {
-        if (!this._uiTransfromComp){
-            this._uiTransfromComp = this.getComponent('cc.UITransformComponent') as UITransformComponent;
-        }
-
-        return this._uiTransfromComp;
-    }
-
-    // NOTE: don't set it manually
-    set uiTransfromComp (value: UITransformComponent | null) {
-        this._uiTransfromComp = value;
-    }
-
-    get width () {
-        return this.uiTransfromComp!.width;
-    }
-
-    set width (value: number) {
-        this.uiTransfromComp!.width = value;
-    }
-
-    get height () {
-        return this.uiTransfromComp!.height;
-    }
-
-    set height (value: number) {
-        this.uiTransfromComp!.height = value;
-    }
-
-    get anchorX () {
-        return this.uiTransfromComp!.anchorX;
-    }
-
-    set anchorX (value) {
-        this.uiTransfromComp!.anchorX = value;
-    }
-
-    get anchorY () {
-        return this.uiTransfromComp!.anchorY;
-    }
-
-    set anchorY (value: number) {
-        this.uiTransfromComp!.anchorY = value;
-    }
-
-    get eventProcessor () {
-        return this._eventProcessor;
     }
 
     // ===============================
@@ -138,7 +120,10 @@ class Node extends BaseNode {
     // ===============================
 
     /**
-     * hierarchical events
+     * @zh
+     * 设置父节点
+     * @param value 父节点
+     * @prama keepWorldTransform 是否保留当前世界变换
      */
     public setParent (value: this | null, keepWorldTransform: boolean = false) {
         if (keepWorldTransform) { this.updateWorldTransform(); }
@@ -197,31 +182,27 @@ class Node extends BaseNode {
     // ===============================
 
     /**
-     * Translate the node
-     * @param trans - translation
-     * @param ns - the operating space
+     * @zh
+     * 移动节点
+     * @param trans 位置增量
+     * @param ns 操作空间
      */
     public translate (trans: Vec3, ns?: NodeSpace) {
         const space = ns || NodeSpace.LOCAL;
-        v3_a.set(this._lpos);
+        vec3.copy(v3_a, this._lpos);
         if (space === NodeSpace.LOCAL) {
-            vec3.transformQuat(v3_a, trans, this._lrot);
+            vec3.transformQuat(v3_a, trans, this.worldRotation);
             this.setPosition(vec3.add(v3_a, this._lpos, v3_a));
         } else if (space === NodeSpace.WORLD) {
             this.setPosition(vec3.add(v3_a, this._lpos, trans));
         }
-
-        vec3.copy(this._pos, this._lpos);
-        this.invalidateChildren();
-        if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
-        }
     }
 
     /**
-     * Rotate the node
-     * @param rot - rotation to apply
-     * @param ns - the operating space
+     * @zh
+     * 旋转节点
+     * @param trans 旋转增量
+     * @param ns 操作空间
      */
     public rotate (rot: Quat, ns?: NodeSpace) {
         const space = ns || NodeSpace.LOCAL;
@@ -235,80 +216,31 @@ class Node extends BaseNode {
     }
 
     /**
-     * rotate the node around X axis
-     * @param rad - rotating angle
-     * @param ns - the operating space
+     * @zh
+     * 当前节点面向的前方方向
      */
-    public pitch (rad: number, ns?: NodeSpace) {
-        const space = ns || NodeSpace.LOCAL;
-        if (space === NodeSpace.LOCAL) {
-            this.getWorldRotation(q_a);
-            quat.toAxisX(v3_a, q_a);
-            quat.fromAxisAngle(q_a, v3_a, rad);
-            this.rotate(q_a, ns);
-        } else if (space === NodeSpace.WORLD) {
-            quat.fromAxisAngle(q_a, vec3.UNIT_X, rad);
-            this.rotate(q_a, ns);
-        }
-    }
-
-    /**
-     * rotate the node around Y axis
-     * @param rad - rotating angle
-     * @param ns - the operating space
-     */
-    public yaw (rad: number, ns?: NodeSpace) {
-        const space = ns || NodeSpace.LOCAL;
-        if (space === NodeSpace.LOCAL) {
-            this.getWorldRotation(q_a);
-            quat.toAxisY(v3_a, q_a);
-            quat.fromAxisAngle(q_a, v3_a, rad);
-            this.rotate(q_a, ns);
-        } else if (space === NodeSpace.WORLD) {
-            quat.fromAxisAngle(q_a, vec3.UNIT_Y, rad);
-            this.rotate(q_a, ns);
-        }
-    }
-
-    /**
-     * rotate the node around Z axis
-     * @param rad - rotating angle
-     * @param ns - the operating space
-     */
-    public roll (rad: number, ns?: NodeSpace) {
-        const space = (ns !== undefined ? ns : NodeSpace.LOCAL);
-        if (space === NodeSpace.LOCAL) {
-            this.getWorldRotation(q_a);
-            quat.toAxisZ(v3_a, q_a);
-            quat.fromAxisAngle(q_a, v3_a, rad);
-            this.rotate(q_a, ns);
-        } else if (space === NodeSpace.WORLD) {
-            quat.fromAxisAngle(q_a, vec3.UNIT_Z, rad);
-            this.rotate(q_a, ns);
-        }
-    }
-
-    public get direction (): Vec3 {
-        this.getRotation(q_a);
+    get forward (): Vec3 {
+        this.getWorldRotation(q_a);
         return vec3.transformQuat(new Vec3(), vec3.UNIT_Z, q_a);
     }
-
-    public set direction (dir: Vec3) {
-        quat.rotationTo(q_a, vec3.UNIT_Z, dir);
-        this.setRotation(q_a);
+    set forward (dir: Vec3) {
+        const len = vec3.magnitude(dir);
+        vec3.scale(v3_a, dir, -1 / len); // we use -z for view-dir
+        quat.fromViewUp(q_a, v3_a);
+        this.setWorldRotation(q_a);
     }
 
     /**
-     * Set rotation by lookAt target point
-     * @param pos - target position
-     * @param up - the up vector, default to (0,1,0)
+     * @zh
+     * 设置当前节点旋转为面向目标位置
+     * @param pos 目标位置
+     * @param up 坐标系的上方向
      */
-    public lookAt (pos: Vec3, up: Vec3) {
+    public lookAt (pos: Vec3, up?: Vec3) {
         this.getWorldPosition(v3_a);
-        vec3.sub(v3_a, v3_a, pos); // NOTE: we use -z for view-dir
+        vec3.sub(v3_a, v3_a, pos); // we use -z for view-dir
         vec3.normalize(v3_a, v3_a);
         quat.fromViewUp(q_a, v3_a, up);
-
         this.setWorldRotation(q_a);
     }
 
@@ -317,7 +249,10 @@ class Node extends BaseNode {
     // ===============================
 
     /**
+     * @en
      * Reset the `hasChanged` flag recursively
+     * @zh
+     * 递归重置节点的 hasChanged 标记为 false
      */
     public resetHasChanged () {
         this._hasChanged = false;
@@ -328,8 +263,11 @@ class Node extends BaseNode {
     }
 
     /**
+     * @en
      * invalidate the world transform information
      * for this node and all its children recursively
+     * @zh
+     * 递归标记节点世界变换为 dirty
      */
     public invalidateChildren () {
         if (this._dirty && this._hasChanged) { return; }
@@ -340,9 +278,12 @@ class Node extends BaseNode {
     }
 
     /**
+     * @en
      * update the world transform information if outdated
      * here we assume all nodes are children of a scene node,
      * which is always not dirty, has an identity transform and no parent.
+     * @zh
+     * 更新节点的世界变换信息
      */
     public updateWorldTransform () {
         if (!this._dirty) { return; }
@@ -373,6 +314,10 @@ class Node extends BaseNode {
         }
     }
 
+    /**
+     * @zh
+     * 更新节点的完整世界变换信息
+     */
     public updateWorldTransformFull () {
         this.updateWorldTransform();
         if (!this._matDirty) { return; }
@@ -385,26 +330,22 @@ class Node extends BaseNode {
     // ===============================
 
     /**
-     * Sets local position.
-     * @param position - The new local position.
+     * @zh
+     * 设置本地位移
+     * @param position 目标本地位移
      */
     public setPosition (position: Vec3): void;
 
     /**
-     * Sets local position.
-     * @param x - The x component of the new local position.
-     * @param y - The y component of the new local position.
-     * @param z - The z component of the new local position.
-     * @param w - The w component of the new local position.
+     * @zh
+     * 设置本地位移
+     * @param x 目标本地位移的 X 分量
+     * @param y 目标本地位移的 Y 分量
+     * @param z 目标本地位移的 Z 分量
+     * @param w 目标本地位移的 W 分量
      */
     public setPosition (x: number, y: number, z: number): void;
 
-    /**
-     * set local position
-     * @param val - the new local position, or the x component of it
-     * @param y - the y component of the new local position
-     * @param z - the z component of the new local position
-     */
     public setPosition (val: Vec3 | number, y?: number, z?: number) {
         v3_a.set(this._lpos);
         if (y === undefined || z === undefined) {
@@ -421,9 +362,9 @@ class Node extends BaseNode {
     }
 
     /**
-     * get local position
-     * @param out the receiving vector
-     * @returns the resulting vector
+     * @zh
+     * 获取本地位移
+     * @param out 输出到此目标 vector
      */
     public getPosition (out?: Vec3): Vec3 {
         if (out) {
@@ -433,22 +374,31 @@ class Node extends BaseNode {
         }
     }
 
-    public get localPosition (): Readonly<Vec3> {
+    /**
+     * @zh
+     * 本地位移
+     */
+    public get position (): Readonly<Vec3> {
         return this._lpos;
+    }
+    public set position (val: Readonly<Vec3>) {
+        this.setPosition(val);
     }
 
     /**
-     * Sets local rotation.
-     * @param rotation - The new local rotation.
+     * @zh
+     * 设置本地旋转
+     * @param rotation 目标本地旋转
      */
     public setRotation (rotation: Quat): void;
 
     /**
-     * Sets local rotation.
-     * @param x - The x component of the new local rotation.
-     * @param y - The y component of the new local rotation.
-     * @param z - The z component of the new local rotation.
-     * @param w - The w component of the new local rotation.
+     * @zh
+     * 设置本地旋转
+     * @param x 目标本地旋转的 X 分量
+     * @param y 目标本地旋转的 Y 分量
+     * @param z 目标本地旋转的 Z 分量
+     * @param w 目标本地旋转的 W 分量
      */
     public setRotation (x: number, y: number, z: number, w: number): void;
 
@@ -468,10 +418,11 @@ class Node extends BaseNode {
     }
 
     /**
-     * set local rotation from euler angles
-     * @param x - Angle to rotate around X axis in degrees.
-     * @param y - Angle to rotate around Y axis in degrees.
-     * @param z - Angle to rotate around Z axis in degrees.
+     * @zh
+     * 通过欧拉角设置本地旋转
+     * @param x - 目标欧拉角的 X 分量
+     * @param y - 目标欧拉角的 Y 分量
+     * @param z - 目标欧拉角的 Z 分量
      */
     public setRotationFromEuler (x: number, y: number, z: number) {
         vec3.set(this._euler, x, y, z);
@@ -486,9 +437,9 @@ class Node extends BaseNode {
     }
 
     /**
-     * get local rotation
-     * @param out - the receiving quaternion
-     * @returns the resulting quaternion
+     * @zh
+     * 获取本地旋转
+     * @param out 输出到此目标 quaternion
      */
     public getRotation (out?: Quat): Quat {
         if (out) {
@@ -498,30 +449,33 @@ class Node extends BaseNode {
         }
     }
 
-    public get localRotation (): Readonly<Quat> {
+    /**
+     * @zh
+     * 本地旋转
+     */
+    public get rotation (): Readonly<Quat> {
         return this._lrot;
+    }
+    public set rotation (val: Readonly<Quat>) {
+        this.setRotation(val);
     }
 
     /**
-     * Sets local scale.
-     * @param scale - The new local scale.
+     * @zh
+     * 设置本地缩放
+     * @param scale 目标本地缩放
      */
     public setScale (scale: Vec3): void;
 
     /**
-     * Sets local scale.
-     * @param x - The x component of the new local scale.
-     * @param y - The y component of the new local scale.
-     * @param z - The z component of the new local scale.
+     * @zh
+     * 设置本地缩放
+     * @param x 目标本地缩放的 X 分量
+     * @param y 目标本地缩放的 Y 分量
+     * @param z 目标本地缩放的 Z 分量
      */
     public setScale (x: number, y: number, z: number): void;
 
-    /**
-     * set local scale
-     * @param val - the new local scale, or the x component of it
-     * @param y - the y component of the new local scale
-     * @param z - the z component of the new local scale
-     */
     public setScale (val: Vec3 | number, y?: number, z?: number) {
         if (y === undefined || z === undefined) {
             vec3.copy(this._lscale, val as Vec3);
@@ -537,9 +491,9 @@ class Node extends BaseNode {
     }
 
     /**
-     * get local scale
-     * @param out - the receiving vector
-     * @returns the resulting vector
+     * @zh
+     * 获取本地缩放
+     * @param out 输出到此目标 vector
      */
     public getScale (out?: Vec3): Vec3 {
         if (out) {
@@ -549,30 +503,34 @@ class Node extends BaseNode {
         }
     }
 
-    public get localScale (): Readonly<Vec3> {
+    /**
+     * @zh
+     * 本地缩放
+     */
+    public get scale (): Readonly<Vec3> {
         return this._lscale;
+    }
+    public set scale (val: Readonly<Vec3>) {
+        this.setScale(val);
     }
 
     /**
-     * Sets world position.
-     * @param position - The new world position.
+     * @zh
+     * 设置世界位移
+     * @param position 目标世界位移
      */
     public setWorldPosition (position: Vec3): void;
 
     /**
-     * Sets world position.
-     * @param x - The x component of the new world position.
-     * @param y - The y component of the new world position.
-     * @param z - The z component of the new world position.
+     * @zh
+     * 设置世界位移
+     * @param x 目标世界位移的 X 分量
+     * @param y 目标世界位移的 Y 分量
+     * @param z 目标世界位移的 Z 分量
+     * @param w 目标世界位移的 W 分量
      */
     public setWorldPosition (x: number, y: number, z: number): void;
 
-    /**
-     * set world position
-     * @param val - the new world position, or the x component of it
-     * @param y - the y component of the new world position
-     * @param z - the z component of the new world position
-     */
     public setWorldPosition (val: Vec3 | number, y?: number, z?: number) {
         if (y === undefined || z === undefined) {
             vec3.copy(this._pos, val as Vec3);
@@ -597,16 +555,12 @@ class Node extends BaseNode {
         }
     }
 
-    public getWorldPosition<Out extends vec3 = Vec3> (out: Out): Out;
-
-    public getWorldPosition (): Vec3;
-
     /**
-     * get world position
-     * @param out - the receiving vector
-     * @returns the resulting vector
+     * @zh
+     * 获取世界位移
+     * @param out 输出到此目标 vector
      */
-    public getWorldPosition<Out extends vec3 = Vec3> (out?: Out) {
+    public getWorldPosition (out?: Vec3): Vec3 {
         this.updateWorldTransform();
         if (out) {
             return vec3.copy(out, this._pos);
@@ -615,33 +569,35 @@ class Node extends BaseNode {
         }
     }
 
+    /**
+     * @zh
+     * 世界位移
+     */
     public get worldPosition (): Readonly<Vec3> {
         this.updateWorldTransform();
         return this._pos;
     }
+    public set worldPosition (val: Readonly<Vec3>) {
+        this.setWorldPosition(val);
+    }
 
     /**
-     * Sets world rotation.
-     * @param rotation - The new world rotation.
+     * @zh
+     * 设置世界旋转
+     * @param rotation 目标世界旋转
      */
     public setWorldRotation (rotation: Quat): void;
 
     /**
-     * Sets world rotation.
-     * @param x - The x component of the new world rotation.
-     * @param y - The y component of the new world rotation.
-     * @param z - The z component of the new world rotation.
-     * @param w - The w component of the new world rotation.
+     * @zh
+     * 设置世界旋转
+     * @param x 目标世界旋转的 X 分量
+     * @param y 目标世界旋转的 Y 分量
+     * @param z 目标世界旋转的 Z 分量
+     * @param w 目标世界旋转的 W 分量
      */
     public setWorldRotation (x: number, y: number, z: number, w: number): void;
 
-    /**
-     * set world rotation
-     * @param val - the new world rotation, or the x component of it
-     * @param y - the y component of the new world rotation
-     * @param z - the z component of the new world rotation
-     * @param w - the w component of the new world rotation
-     */
     public setWorldRotation (val: Quat | number, y?: number, z?: number, w?: number) {
         if (y === undefined || z === undefined || w === undefined) {
             quat.copy(this._rot, val as Quat);
@@ -663,10 +619,11 @@ class Node extends BaseNode {
     }
 
     /**
-     * set world rotation from euler angles
-     * @param x - Angle to rotate around X axis in degrees.
-     * @param y - Angle to rotate around Y axis in degrees.
-     * @param z - Angle to rotate around Z axis in degrees.
+     * @zh
+     * 通过欧拉角设置世界旋转
+     * @param x - 目标欧拉角的 X 分量
+     * @param y - 目标欧拉角的 Y 分量
+     * @param z - 目标欧拉角的 Z 分量
      */
     public setWorldRotationFromEuler (x: number, y: number, z: number) {
         quat.fromEuler(this._rot, x, y, z);
@@ -684,14 +641,10 @@ class Node extends BaseNode {
         }
     }
 
-    public getWorldRotation<Out extends quat = Quat> (out: Out): Out;
-
-    public getWorldRotation (): Quat;
-
     /**
-     * get world rotation
-     * @param out - the receiving quaternion
-     * @returns the resulting quaternion
+     * @zh
+     * 获取世界旋转
+     * @param out 输出到此目标 quaternion
      */
     public getWorldRotation (out?: Quat): Quat {
         this.updateWorldTransform();
@@ -702,31 +655,34 @@ class Node extends BaseNode {
         }
     }
 
+    /**
+     * @zh
+     * 世界旋转
+     */
     public get worldRotation (): Readonly<Quat> {
         this.updateWorldTransform();
         return this._rot;
     }
+    public set worldRotation (val: Readonly<Quat>) {
+        this.setWorldRotation(val);
+    }
 
     /**
-     * Sets world scale.
-     * @param scale - The new world scale.
+     * @zh
+     * 设置世界缩放
+     * @param scale 目标世界缩放
      */
     public setWorldScale (scale: Vec3): void;
 
     /**
-     * Sets world scale.
-     * @param x - The x component of the new world scale.
-     * @param y - The y component of the new world scale.
-     * @param z - The z component of the new world scale.
+     * @zh
+     * 设置世界缩放
+     * @param x 目标世界缩放的 X 分量
+     * @param y 目标世界缩放的 Y 分量
+     * @param z 目标世界缩放的 Z 分量
      */
     public setWorldScale (x: number, y: number, z: number): void;
 
-    /**
-     * set world scale
-     * @param val - the new world scale, or the x component of it
-     * @param y - the y component of the new world scale
-     * @param z - the z component of the new world scale
-     */
     public setWorldScale (val: Vec3 | number, y?: number, z?: number) {
         if (y === undefined || z === undefined) {
             vec3.copy(this._scale, val as Vec3);
@@ -746,14 +702,10 @@ class Node extends BaseNode {
         }
     }
 
-    public getWorldScale<Out extends vec3 = Vec3> (out: Out): Out;
-
-    public getWorldScale (): Vec3;
-
     /**
-     * get world scale
-     * @param out - the receiving vector
-     * @returns the resulting vector
+     * @zh
+     * 获取世界缩放
+     * @param out 输出到此目标 vector
      */
     public getWorldScale (out?: Vec3): Vec3 {
         this.updateWorldTransform();
@@ -764,65 +716,114 @@ class Node extends BaseNode {
         }
     }
 
+    /**
+     * @zh
+     * 世界缩放
+     */
     public get worldScale (): Readonly<Vec3> {
         this.updateWorldTransform();
         return this._scale;
     }
-
-    public getWorldMatrix<Out extends mat4> (out?: Out): Out;
-
-    public getWorldMatrix (): Mat4;
+    public set worldScale (val: Readonly<Vec3>) {
+        this.setWorldScale(val);
+    }
 
     /**
-     * get the matrix that transforms a point from local space into world space
-     * @param out - the receiving matrix
-     * @returns the - resulting matrix
+     * @zh
+     * 获取世界变换矩阵
+     * @param out 输出到此目标矩阵
      */
     public getWorldMatrix (out?: Mat4) {
         this.updateWorldTransformFull();
-        if (out) {
-            return mat4.copy(out, this._mat);
-        } else {
-            return mat4.copy(new Mat4(), this._mat);
-        }
+        if (!out) { out = new Mat4(); }
+        return mat4.copy(out, this._mat);
     }
 
+    /**
+     * @zh
+     * 世界变换矩阵
+     */
     public get worldMatrix (): Readonly<Mat4> {
         this.updateWorldTransformFull();
         return this._mat;
     }
 
     /**
-     * get world transform matrix (with only rotation and scale)
-     * @param out - the receiving matrix
-     * @returns the - resulting matrix
+     * @zh
+     * 获取只包含旋转和缩放的世界变换矩阵
+     * @param out 输出到此目标矩阵
      */
     public getWorldRS (out?: Mat4): Mat4 {
         this.updateWorldTransformFull();
-        if (out === undefined) { out = new Mat4(); }
+        if (!out) { out = new Mat4(); }
         mat4.copy(out, this._mat);
         out.m12 = 0; out.m13 = 0; out.m14 = 0;
         return out;
     }
 
     /**
-     * get world transform matrix (with only rotation and translation)
-     * @param out - the receiving matrix
-     * @returns the - resulting matrix
+     * @zh
+     * 获取只包含位移和旋转的世界变换矩阵
+     * @param out 输出到此目标矩阵
      */
     public getWorldRT (out?: Mat4): Mat4 {
         this.updateWorldTransform();
-        if (!out) {
-            out = new Mat4();
-        }
+        if (!out) { out = new Mat4(); }
         return mat4.fromRT(out, this._rot, this._pos);
+    }
+
+    // ===============================
+    // creator-backward-compatible interfaces
+    // ===============================
+
+    // NOTE: don't set it manually
+    get uiTransfromComp () {
+        if (!this._uiTransfromComp) {
+            this._uiTransfromComp = this.getComponent('cc.UITransformComponent') as UITransformComponent;
+        }
+
+        return this._uiTransfromComp;
+    }
+    set uiTransfromComp (value: UITransformComponent | null) {
+        this._uiTransfromComp = value;
+    }
+
+    get width () {
+        return this.uiTransfromComp!.width;
+    }
+    set width (value: number) {
+        this.uiTransfromComp!.width = value;
+    }
+
+    get height () {
+        return this.uiTransfromComp!.height;
+    }
+    set height (value: number) {
+        this.uiTransfromComp!.height = value;
+    }
+
+    get anchorX () {
+        return this.uiTransfromComp!.anchorX;
+    }
+    set anchorX (value) {
+        this.uiTransfromComp!.anchorX = value;
+    }
+
+    get anchorY () {
+        return this.uiTransfromComp!.anchorY;
+    }
+    set anchorY (value: number) {
+        this.uiTransfromComp!.anchorY = value;
+    }
+
+    get eventProcessor () {
+        return this._eventProcessor;
     }
 
     public getAnchorPoint (out?: Vec2) {
         if (!out) {
             out = new Vec2();
         }
-
         out.set(this.uiTransfromComp!.anchorPoint);
         return out;
     }
@@ -902,20 +903,4 @@ class Node extends BaseNode {
     }
 }
 
-Object.defineProperty(Node.prototype, 'position', {
-    get: Node.prototype.getPosition,
-    set: Node.prototype.setPosition,
-});
-
-Object.defineProperty(Node.prototype, 'rotation', {
-    get: Node.prototype.getRotation,
-    set: Node.prototype.setRotation,
-});
-
-Object.defineProperty(Node.prototype, 'scale', {
-    get: Node.prototype.getScale,
-    set: Node.prototype.setScale,
-});
-
 cc.Node = Node;
-export { Node };

@@ -546,7 +546,7 @@ export default class quat {
      *
      * @return out.
      */
-    public static fromViewUp<Out extends quat> (out: Out, view: vec3, up: vec3) {
+    public static fromViewUp<Out extends quat> (out: Out, view: vec3, up?: vec3) {
         mat3.fromViewUp(tmpMat3, view, up);
         return quat.normalize(out, quat.fromMat3(out, tmpMat3));
     }

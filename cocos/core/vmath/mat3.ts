@@ -33,6 +33,46 @@ import vec3 from './vec3';
 class mat3 {
 
     /**
+     * Calculates a 3x3 matrix from view direction and up direction.
+     *
+     * @param out - Matrix to store result.
+     * @param view - View direction (must be normalized).
+     * @param [up] - Up direction, default is (0,1,0) (must be normalized).
+     *
+     * @return out
+     */
+    public static fromViewUp = (() => {
+        const default_up = vec3.create(0, 1, 0);
+        const x = vec3.create(0, 0, 0);
+        const y = vec3.create(0, 0, 0);
+
+        return (out: mat3, view: vec3, up?: vec3) => {
+            if (vec3.sqrMag(view) < EPSILON * EPSILON) {
+                mat3.identity(out);
+                return out;
+            }
+
+            up = up || default_up;
+            vec3.normalize(x, vec3.cross(x, up, view));
+
+            if (vec3.sqrMag(x) < EPSILON * EPSILON) {
+                mat3.identity(out);
+                return out;
+            }
+
+            vec3.cross(y, view, x);
+            mat3.set(
+                out,
+                x.x, x.y, x.z,
+                y.x, y.y, y.z,
+                view.x, view.y, view.z,
+            );
+
+            return out;
+        };
+    })();
+
+    /**
      * Creates a matrix, with elements specified separately.
      *
      * @param m00 - Value assigned to element at column 0 row 0.
@@ -514,49 +554,6 @@ class mat3 {
         out.m08 = 1 - xx - yy;
 
         return out;
-    }
-
-    /**
-     * Calculates a 3x3 matrix from view direction and up direction.
-     *
-     * @param out - Matrix to store result.
-     * @param view - View direction (must be normalized).
-     * @param [up] - Up direction, default is (0,1,0) (must be normalized).
-     *
-     * @return out
-     */
-    public static fromViewUp (_out, _view, _up) {
-        const _fromViewUpIIFE = (() => {
-            const default_up = vec3.create(0, 1, 0);
-            const x = vec3.create(0, 0, 0);
-            const y = vec3.create(0, 0, 0);
-
-            return (out, view, up) => {
-                if (vec3.sqrMag(view) < EPSILON * EPSILON) {
-                    mat3.identity(out);
-                    return out;
-                }
-
-                up = up || default_up;
-                vec3.normalize(x, vec3.cross(x, up, view));
-
-                if (vec3.sqrMag(x) < EPSILON * EPSILON) {
-                    mat3.identity(out);
-                    return out;
-                }
-
-                vec3.cross(y, view, x);
-                mat3.set(
-                    out,
-                    x.x, x.y, x.z,
-                    y.x, y.y, y.z,
-                    view.x, view.y, view.z,
-                );
-
-                return out;
-            };
-        })();
-        return _fromViewUpIIFE(_out, _view, _up);
     }
 
     /**

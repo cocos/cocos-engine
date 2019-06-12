@@ -53,7 +53,6 @@ class Joint {
     protected _lastUpdate = -1;
     constructor (node: Node) { this.node = node; }
     public update () {
-        // if (!this.node.hasChanged) { return; }
         const totalFrames = cc.director.totalFrames;
         if (this._lastUpdate >= totalFrames) { return; }
         this._lastUpdate = totalFrames;
@@ -61,11 +60,11 @@ class Joint {
         const parent = this.parent;
         if (parent) {
             parent.update();
-            vec3.multiply(this.position, this.node.localPosition, parent.scale);
+            vec3.multiply(this.position, this.node.position, parent.scale);
             vec3.transformQuat(this.position, this.position, parent.rotation);
             vec3.add(this.position, this.position, parent.position);
-            quat.multiply(this.rotation, parent.rotation, this.node.localRotation);
-            vec3.multiply(this.scale, parent.scale, this.node.localScale);
+            quat.multiply(this.rotation, parent.rotation, this.node.rotation);
+            vec3.multiply(this.scale, parent.scale, this.node.scale);
         }
     }
 }
@@ -169,11 +168,11 @@ export class SkinningModelComponent extends ModelComponent {
             cur.update();
             const bindpose = skeleton.bindposes[i];
 
-            vec3.multiply(v3_1, bindpose.localPosition, cur.scale);
+            vec3.multiply(v3_1, bindpose.position, cur.scale);
             vec3.transformQuat(v3_1, v3_1, cur.rotation);
             vec3.add(v3_1, v3_1, cur.position);
-            quat.multiply(qt_1, cur.rotation, bindpose.localRotation);
-            vec3.multiply(v3_2, cur.scale, bindpose.localScale);
+            quat.multiply(qt_1, cur.rotation, bindpose.rotation);
+            vec3.multiply(v3_2, cur.scale, bindpose.scale);
 
             skinningModel.updateJointData(i, v3_1, qt_1, v3_2, i === 0);
         }
