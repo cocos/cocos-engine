@@ -28,52 +28,35 @@ import { ccclass, property } from '../../core/data/class-decorator';
 import { Node } from '../../scene-graph/node';
 
 /**
- * CLASS Skeleton
- * The skeleton class represent a kind of deformation.
- * A skeleton consists of a forest hierachy of nodes.
- * Some of the nodes, called joints, have special meanings.
- * Skeletons are not mutable, but they can be instantiated
- * to produce a skeleton instance. Skeleton instances can be modified,
- * for example, be animated.
+ * 骨骼资源。
+ * 骨骼资源记录了每个关节（相对于`SkinningModelComponent.SkinningRoot`）的路径以及它的绑定姿势矩阵。
  */
 @ccclass('cc.Skeleton')
 export class Skeleton extends Asset {
-    /**
-     * The path of joints.
-     */
     @property([String])
     private _joints: string[] = [];
 
-    /**
-     * The inverse bind matrices of joints.
-     */
     @property([Node])
     private _bindposes: Node[] = [];
 
     /**
-     * Gets the bind pose matrices of joints.
+     * 所有关节的绑定姿势矩阵。该数组的长度始终与 `this.joints` 的长度相同。
      */
     get bindposes () {
         return this._bindposes;
     }
 
-    /**
-     * Sets the bind pose matrices of joints.
-     */
     set bindposes (value) {
         this._bindposes = value;
     }
 
     /**
-     * Gets the paths of joints.
+     * 所有关节的路径。该数组的长度始终与 `this.bindposes` 的长度相同。
      */
     get joints () {
         return this._joints;
     }
 
-    /**
-     * Sets the paths of joints.
-     */
     set joints (value) {
         this._joints = value;
     }

@@ -29,21 +29,19 @@ import { ImageAsset, ImageSource } from './image-asset';
 import { TextureBase } from './texture-base';
 
 /**
- * Represents a 2-dimension texture.
+ * 二维贴图资源。
+ * 二维贴图资源的每个 Mipmap 层级都为一张图像资源。
  */
 @ccclass('cc.Texture2D')
 export class Texture2D extends TextureBase {
     /**
-     * Gets the mipmap images.
-     * Note that the result do not contains the auto generated mipmaps.
+     * 所有层级 Mipmap，注意，这里不包含自动生成的 Mipmap。
+     * 当设置 Mipmap 时，贴图的尺寸以及像素格式可能会改变。
      */
     get mipmaps () {
         return this._mipmaps;
     }
 
-    /**
-     * Sets the mipmaps images.
-     */
     set mipmaps (value) {
         this._mipmaps = value;
         if (this._mipmaps.length > 0) {
@@ -58,15 +56,14 @@ export class Texture2D extends TextureBase {
     }
 
     /**
-     * Gets the mipmap image at level 0.
+     * 0 级 Mipmap。
+     * 注意，`this.image = i` 等价于 `this.mipmaps = [i]`，
+     * 也就是说，通过 `this.image` 设置 0 级 Mipmap 时将隐式地清除之前的所有 Mipmap。
      */
     get image () {
         return this._mipmaps.length === 0 ? null : this._mipmaps[0];
     }
 
-    /**
-     * Sets the mipmap images as a single mipmap image.
-     */
     set image (value) {
         this.mipmaps = value ? [value] : [];
     }
@@ -85,20 +82,12 @@ export class Texture2D extends TextureBase {
     }
 
     /**
-     * Returns the string representation of this texture.
+     * 返回此贴图的字符串表示。
      */
     public toString () {
         return this._mipmaps.length !== 0 ? this._mipmaps[0].url : '';
     }
 
-    /**
-     * Updates mipmaps at specified range of levels.
-     * @param firstLevel The first level from which the sources update.
-     * @description
-     * If the range specified by [firstLevel, firstLevel + sources.length) exceeds
-     * the actually range of mipmaps this texture contains, only overlaped mipmaps are updated.
-     * Use this method if your mipmap data are modified.
-     */
     public updateMipmaps (firstLevel: number = 0, count?: number) {
         if (firstLevel >= this._mipmaps.length) {
             return;
@@ -115,25 +104,16 @@ export class Texture2D extends TextureBase {
     }
 
     /**
-     * !#en
-     * HTMLElement Object getter, available only on web.
-     * !#zh 获取当前贴图对应的 HTML Image 或 Canvas 对象，只在 Web 平台下有效。
-     * @method getHtmlElementObj
-     * @return {HTMLImageElement|HTMLCanvasElement}
-     * @deprecated Use this.image.data instead.
+     * 若此贴图 0 级 Mipmap 的图像资源的实际源存在并为 HTML 元素则返回它，否则返回 `null`。
+     * @returns HTML 元素或 `null`。
+     * @deprecated 请转用 `this.image.data`。
      */
     public getHtmlElementObj () {
         return (this._mipmaps[0] && (this._mipmaps[0].data instanceof HTMLElement)) ? this._mipmaps[0].data : null;
     }
 
     /**
-     * !#en
-     * Destory this texture and immediately release its video memory. (Inherit from cc.Object.destroy)<br>
-     * After destroy, this object is not usable any more.
-     * You can use cc.isValid(obj) to check whether the object is destroyed before accessing it.
-     * !#zh
-     * 销毁该贴图，并立即释放它对应的显存。（继承自 cc.Object.destroy）<br/>
-     * 销毁后，该对象不再可用。您可以在访问对象之前使用 cc.isValid(obj) 来检查对象是否已被销毁。
+     * 销毁此贴图，清空所有 Mipmap 并释放占用的 GPU 资源。
      */
     public destroy () {
         this._mipmaps = [];
@@ -141,9 +121,8 @@ export class Texture2D extends TextureBase {
     }
 
     /**
-     * !#en
-     * Description of cc.Texture2D.
-     * !#zh cc.Texture2D 描述。
+     * 返回此贴图的描述。
+     * @returns 此贴图的描述。
      */
     public description () {
         const url = this._mipmaps[0] ? this._mipmaps[0].url : '';
@@ -151,10 +130,8 @@ export class Texture2D extends TextureBase {
     }
 
     /**
-     * !#en
-     * Release texture, please use destroy instead.
-     * !#zh 释放纹理，请使用 destroy 替代。
-     * @deprecated Since v2.0, use destroy instead.
+     * 释放占用的 GPU 资源。
+     * @deprecated 请转用 `this.destroy()`。
      */
     public releaseTexture () {
         this.mipmaps = [];

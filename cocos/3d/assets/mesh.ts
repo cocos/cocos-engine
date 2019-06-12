@@ -43,38 +43,43 @@ function getIndexStrideCtor (stride: number) {
     return Uint8Array;
 }
 
+/**
+ * 顶点块。顶点块描述了一组**交错排列**（interleaved）的顶点属性并存储了顶点属性的实际数据。
+ * 交错排列是指在实际数据的缓冲区中，每个顶点的所有属性总是依次排列，并总是出现在下一个顶点的所有属性之前。
+ */
 export interface IVertexBundle {
     /**
-     * The data view of this bundle.
-     * This range of data is essentially mapped to a GPU vertex buffer.
+     * 所有顶点属性的实际数据块。
      */
     view: IBufferView;
 
     /**
-     * Attributes.
+     * 包含的所有顶点属性。
      */
     attributes: IGFXAttribute[];
 }
 
 /**
- * A primitive is a geometry constituted with a list of
- * same topology primitive graphic(such as points, lines or triangles).
+ * 子网格。子网格由一系列相同类型的图元组成（例如点、线、面等）。
  */
 export interface IPrimitive {
     /**
-     * The vertex bundles that this primitive use.
+     * 此子网格引用的顶点块，索引至网格的顶点块数组。
      */
     vertexBundelIndices: number[];
 
     /**
-     * This primitive's topology.
+     * 此子网格的图元类型。
      */
     primitiveMode: GFXPrimitiveMode;
 
+    /**
+     * 此子网格使用的索引数据。
+     */
     indexView?: IBufferView;
 
     /**
-     * Geometric info for raycast purposes.
+     * （用于射线检测的）几何信息。
      */
     geometricInfo?: {
         doubleSided?: boolean;
@@ -83,64 +88,123 @@ export interface IPrimitive {
 }
 
 /**
- * Describes a mesh.
+ * 描述了网格的结构。
  */
 export interface IMeshStruct {
     /**
-     * The vertex bundles that this mesh owns.
+     * 此网格所有的顶点块。
      */
     vertexBundles: IVertexBundle[];
 
     /**
-     * The primitives that this mesh owns.
+     * 此网格的所有子网格。
      */
     primitives: IPrimitive[];
 
     /**
-     * The min position of this mesh's vertices.
+     * （各分量都）小于等于此网格任何顶点位置的最大位置。
      */
     minPosition?: Vec3;
 
     /**
-     * The max position of this mesh's vertices.
+     * （各分量都）大于等于此网格任何顶点位置的最小位置。
      */
     maxPosition?: Vec3;
 }
 
-// for raycast purpose
+/**
+ * 允许存储索引的数组视图。
+ */
 export type IBArray = Uint8Array | Uint16Array | Uint32Array;
+
+/**
+ * 几何信息。
+ */
 export interface IGeometricInfo {
+    /**
+     * 顶点位置。
+     */
     positions: Float32Array;
+
+    /**
+     * 索引数据。
+     */
     indices: IBArray;
+
+    /**
+     * 是否将图元按双面对待。
+     */
     doubleSided?: boolean;
 }
 
+/**
+ * 渲染子网格。
+ */
 export interface IRenderingSubmesh {
+    /**
+     * 使用的所有顶点缓冲区。
+     */
     vertexBuffers: GFXBuffer[];
+
+    /**
+     * 使用的索引缓冲区，若未使用则为 `null`。
+     */
     indexBuffer: GFXBuffer | null;
+
+    /**
+     * 间接绘制缓冲区。
+     */
     indirectBuffer?: GFXBuffer;
+
+    /**
+     * 所有顶点属性。
+     */
     attributes: IGFXAttribute[];
+
+    /**
+     * 图元类型。
+     */
     primitiveMode: GFXPrimitiveMode;
+
+    /**
+     * （用于射线检测的）几何信息。
+     */
     geometricInfo?: IGeometricInfo;
 }
 
+/**
+ * 渲染网格。
+ */
 export class RenderingMesh {
     public constructor (
         private _subMeshes: IRenderingSubmesh[]) {
     }
 
+    /**
+     * 渲染子网格。
+     */
     public get subMeshes (): IRenderingSubmesh[] {
         return this._subMeshes;
     }
 
+    /**
+     * 渲染子网格的数目。
+     */
     public get subMeshCount () {
         return this._subMeshes.length;
     }
 
+    /**
+     * 获取指定的渲染子网格。
+     * @param index 渲染子网格的索引。
+     */
     public getSubmesh (index: number) {
         return this._subMeshes[index];
     }
 
+    /**
+     * 移除所有渲染子网格。
+     */
     public clearSubMeshes () {
         for (const subMesh of this._subMeshes) {
             for (const vb of subMesh.vertexBuffers) {
@@ -153,12 +217,18 @@ export class RenderingMesh {
         this._subMeshes.splice(0);
     }
 
+    /**
+     * 销毁此渲染网格，移除其所有渲染子网格。
+     */
     public destroy () {
         this.clearSubMeshes();
         this._subMeshes.length = 0;
     }
 }
 
+/**
+ * 网格资源。
+ */
 @ccclass('cc.Mesh')
 export class Mesh extends Asset {
 
@@ -181,8 +251,8 @@ export class Mesh extends Asset {
     }
 
     /**
-     * Submeshes count of this mesh.
-     * @deprecated Use this.renderingMesh.subMeshCount instead.
+     * 此网格的子网格数量。
+     * @deprecated 请使用 `this.renderingMesh.subMeshCount`。
      */
     get subMeshCount () {
         const renderingMesh = this.renderingMesh;
@@ -190,25 +260,31 @@ export class Mesh extends Asset {
     }
 
     /**
-     * Min position of this mesh.
-     * @deprecated Use this.struct.minPosition instead.
+     * （各分量都）小于等于此网格任何顶点位置的最大位置。
+     * @deprecated 请使用 `this.struct.minPosition`。
      */
     get minPosition () {
         return this.struct.minPosition;
     }
 
     /**
-     * Max position of this mesh.
-     * @deprecated Use this.struct.maxPosition instead.
+     * （各分量都）大于等于此网格任何顶点位置的最大位置。
+     * @deprecated 请使用 `this.struct.maxPosition`。
      */
     get maxPosition () {
         return this.struct.maxPosition;
     }
 
+    /**
+     * 此网格的结构。
+     */
     get struct () {
         return this._struct;
     }
 
+    /**
+     * 此网格的数据。
+     */
     get data () {
         return this._data;
     }
@@ -312,13 +388,16 @@ export class Mesh extends Asset {
     }
 
     /**
-     * Destory this mesh and immediately release its GPU resources.
+     * 销毁此网格，并释放它占有的所有 GPU 资源。
      */
     public destroy () {
         this.destroyRenderingMesh();
         return super.destroy();
     }
 
+    /**
+     * 释放此网格占有的所有 GPU 资源。
+     */
     public destroyRenderingMesh () {
         if (this._renderingMesh) {
             this._renderingMesh.destroy();
@@ -329,9 +408,9 @@ export class Mesh extends Asset {
     }
 
     /**
-     * Assigns new mesh struct to this.
-     * @param struct The new mesh's struct.
-     * @param data The new mesh's data.
+     * 重置此网格的结构和数据。
+     * @param struct 新的结构。
+     * @param data 新的数据。
      */
     public assign (struct: IMeshStruct, data: Uint8Array) {
         this.destroyRenderingMesh();
@@ -342,7 +421,7 @@ export class Mesh extends Asset {
     }
 
     /**
-     * Gets the rendering mesh.
+     * 此网格创建的渲染网格。
      */
     public get renderingMesh (): RenderingMesh {
         this.initialize();
@@ -350,21 +429,27 @@ export class Mesh extends Asset {
     }
 
     /**
-     * !#en
-     * Gets the specified submesh.
-     * @param index Index of the specified submesh.
-     * @deprecated Use this.renderingMesh.getSubmesh(index).inputAssembler instead.
+     * 获取此网格创建的渲染子网格。
+     * @param index 渲染子网格的索引。
+     * @returns 指定的渲染子网格。
+     * @deprecated 请使用 `this.renderingMesh.getSubmesh(index)`。
      */
     public getSubMesh (index: number): IRenderingSubmesh {
         return this.renderingMesh.getSubmesh(index);
     }
 
+    /**
+     * 合并指定的网格到此网格中。
+     * @param mesh 合并的网格。
+     * @param [validate=false] 是否进行验证。
+     * @returns 是否验证成功。若验证选项为 `true` 且验证未通过则返回 `false`，否则返回 `true`。
+     */
     public merge (mesh: Mesh, validate?: boolean): boolean {
         if (validate !== undefined && validate) {
             if (!this.loaded || !mesh.loaded || !this.validateMergingMesh(mesh)) {
                 return false;
             }
-        } // if
+        }
 
         if (!this._initialized && mesh._data) {
             const struct = JSON.parse(JSON.stringify(mesh._struct));
@@ -591,6 +676,21 @@ export class Mesh extends Asset {
         return true;
     }
 
+    /**
+     * 验证指定网格是否可以合并至当前网格。
+     *
+     * 当满足以下条件之一时，指定网格可以合并至当前网格：
+     *  - 当前网格无数据而待合并网格有数据；
+     *  - 它们的顶点块数目相同且对应顶点块的布局一致，并且它们的子网格数目相同且对应子网格的布局一致。
+     *
+     * 两个顶点块布局一致当且仅当：
+     *  - 它们具有相同数量的顶点属性且对应的顶点属性具有相同的属性格式。
+     *
+     * 两个子网格布局一致，当且仅当：
+     *  - 它们具有相同的图元类型并且引用相同数量、相同索引的顶点块；并且，
+     *  - 要么都需要索引绘制，要么都不需要索引绘制。
+     * @param mesh 指定的网格。
+     */
     public validateMergingMesh (mesh: Mesh) {
         if (!this._data && mesh._data) {
             return true;
@@ -648,29 +748,27 @@ export class Mesh extends Asset {
         return true;
     }
 
-    public readAttribute (primitiveIndex: number, attributeName: GFXAttributeName) {
-        if (!this._data ||
-            primitiveIndex >= this._struct.primitives.length) {
-            return null;
-        }
-        const primitive = this._struct.primitives[primitiveIndex];
-        for (const vertexBundleIndex of primitive.vertexBundelIndices) {
-            const vertexBundle = this._struct.vertexBundles[vertexBundleIndex];
-            const iAttribute = vertexBundle.attributes.findIndex((a) => a.name === attributeName);
-            if (iAttribute < 0) {
-                continue;
-            }
+    /**
+     * 读取子网格的指定属性。
+     * @param primitiveIndex 子网格索引。
+     * @param attributeName 属性名称。
+     * @returns 不存在指定的子网格、子网格不存在指定的属性或属性无法读取时返回 `null`，
+     * 否则，创建足够大的缓冲区包含指定属性的所有数据，并为该缓冲区创建与属性类型对应的数组视图。
+     */
+    public readAttribute (primitiveIndex: number, attributeName: GFXAttributeName): Storage | null {
+        let result: Storage | null = null;
+        this._accessAttribute(primitiveIndex, attributeName, (vertexBundle, iAttribute) => {
             const format = vertexBundle.attributes[iAttribute].format;
 
-            const offset = getOffset(vertexBundle.attributes, iAttribute);
-            const dataOffset = vertexBundle.view.offset + offset;
-            const view = new DataView(this._data.buffer, dataOffset);
+            const inputView = new DataView(
+                this._data!.buffer,
+                vertexBundle.view.offset + getOffset(vertexBundle.attributes, iAttribute));
 
             const formatInfo = GFXFormatInfos[format];
             const storageConstructor = getStorageConstructor(format);
-            const reader = getReader(view, format);
+            const reader = getReader(inputView, format);
             if (!storageConstructor || !reader) {
-                return null;
+                return;
             }
             const vertexCount = vertexBundle.view.count;
             const componentCount = formatInfo.count;
@@ -681,50 +779,66 @@ export class Mesh extends Asset {
                     storage[componentCount * iVertex + iComponent] = reader(inputStride * iVertex + storage.BYTES_PER_ELEMENT * iComponent);
                 }
             }
-            return storage;
-        }
-        return null;
+            result = storage;
+            return;
+        });
+        return result;
     }
 
+    /**
+     * 读取子网格的指定属性到目标缓冲区中。
+     * @param primitiveIndex 子网格索引。
+     * @param attributeName 属性名称。
+     * @param buffer 目标缓冲区。
+     * @param stride 相邻属性在目标缓冲区的字节间隔。
+     * @param offset 首个属性在目标缓冲区中的偏移。
+     * @returns 不存在指定的子网格、子网格不存在指定的属性或属性无法读取时返回 `false`，否则返回 `true`。
+     */
     public copyAttribute (primitiveIndex: number, attributeName: GFXAttributeName, buffer: ArrayBuffer, stride: number, offset: number) {
-        if (!this._data ||
-            primitiveIndex >= this._struct.primitives.length) {
-            return null;
-        }
-        const primitive = this._struct.primitives[primitiveIndex];
-        for (const vertexBundleIndex of primitive.vertexBundelIndices) {
-            const vertexBundle = this._struct.vertexBundles[vertexBundleIndex];
-            const iAttribute = vertexBundle.attributes.findIndex((a) => a.name === attributeName);
-            if (iAttribute < 0) {
-                continue;
-            }
+        let written = false;
+        this._accessAttribute(primitiveIndex, attributeName, (vertexBundle, iAttribute) => {
             const format = vertexBundle.attributes[iAttribute].format;
 
-            const dataOffset = vertexBundle.view.offset + getOffset(vertexBundle.attributes, iAttribute);
-            const view = new DataView(this._data.buffer, dataOffset);
+            const inputView = new DataView(
+                this._data!.buffer,
+                vertexBundle.view.offset + getOffset(vertexBundle.attributes, iAttribute));
+
+            const outputView = new DataView(buffer, offset);
 
             const formatInfo = GFXFormatInfos[format];
-            const storageConstructor = getStorageConstructor(format);
-            const reader = getReader(view, format);
-            if (!storageConstructor || !reader) {
-                return null;
+
+            const reader = getReader(inputView, format);
+            const writer = getWriter(outputView, format);
+            if (!reader || !writer) {
+                return;
             }
+
             const vertexCount = vertexBundle.view.count;
             const componentCount = formatInfo.count;
-            const storage = new storageConstructor(buffer);
-            const componentStride = stride / storage.BYTES_PER_ELEMENT;
-            offset /= storage.BYTES_PER_ELEMENT;
+
             const inputStride = vertexBundle.view.stride;
+            const inputComponentByteLength = getComponentByteLength(format);
+            const outputStride = stride;
+            const outputComponentByteLength = inputComponentByteLength;
             for (let iVertex = 0; iVertex < vertexCount; ++iVertex) {
                 for (let iComponent = 0; iComponent < componentCount; ++iComponent) {
-                    storage[componentStride * iVertex + iComponent + offset] = reader(inputStride * iVertex + storage.BYTES_PER_ELEMENT * iComponent);
+                    const inputOffset = inputStride * iVertex + inputComponentByteLength * iComponent;
+                    const outputOffset = outputStride * iVertex + outputComponentByteLength * iComponent;
+                    writer(outputOffset, reader(inputOffset));
                 }
             }
-            return storage;
-        }
-        return null;
+            written = true;
+            return;
+        });
+        return written;
     }
 
+    /**
+     * 读取子网格的索引数据。
+     * @param primitiveIndex 子网格索引。
+     * @returns 不存在指定的子网格或子网格不存在索引数据时返回 `null`，
+     * 否则，创建足够大的缓冲区包含所有索引数据，并为该缓冲区创建与索引类型对应的数组视图。
+     */
     public readIndices (primitiveIndex: number) {
         if (!this._data ||
             primitiveIndex >= this._struct.primitives.length) {
@@ -744,21 +858,49 @@ export class Mesh extends Asset {
         return storage;
     }
 
-    public copyIndices (primitiveIndex: number, typedArray: any) {
+    /**
+     * 读取子网格的索引数据到目标数组中。
+     * @param primitiveIndex 子网格索引。
+     * @param outputArray 目标数组。
+     * @returns 不存在指定的子网格或子网格不存在索引数据时返回 `false`，否则返回 `true`。
+     */
+    public copyIndices (primitiveIndex: number, outputArray: number[] | ArrayBufferView) {
         if (!this._data ||
             primitiveIndex >= this._struct.primitives.length) {
-            return null;
+            return false;
         }
         const primitive = this._struct.primitives[primitiveIndex];
         if (!primitive.indexView) {
-            return null;
+            return false;
         }
         const indexCount = primitive.indexView.count;
         const indexFormat = primitive.indexView.stride === 1 ? GFXFormat.R8UI : (primitive.indexView.stride === 2 ? GFXFormat.R16UI : GFXFormat.R32UI);
         const reader = getReader(new DataView(this._data.buffer), indexFormat)!;
         for (let i = 0; i < indexCount; ++i) {
-            typedArray[i] = reader(primitive.indexView.offset + GFXFormatInfos[indexFormat].size * i);
+            outputArray[i] = reader(primitive.indexView.offset + GFXFormatInfos[indexFormat].size * i);
         }
+        return true;
+    }
+
+    private _accessAttribute (
+        primitiveIndex: number,
+        attributeName: GFXAttributeName,
+        accessor: (vertexBundle: IVertexBundle, iAttribute: number) => void) {
+        if (!this._data ||
+            primitiveIndex >= this._struct.primitives.length) {
+            return;
+        }
+        const primitive = this._struct.primitives[primitiveIndex];
+        for (const vertexBundleIndex of primitive.vertexBundelIndices) {
+            const vertexBundle = this._struct.vertexBundles[vertexBundleIndex];
+            const iAttribute = vertexBundle.attributes.findIndex((a) => a.name === attributeName);
+            if (iAttribute < 0) {
+                continue;
+            }
+            accessor(vertexBundle, iAttribute);
+            break;
+        }
+        return;
     }
 
     private _createVertexBuffers (gfxDevice: GFXDevice, data: ArrayBuffer): GFXBuffer[] {
@@ -794,7 +936,9 @@ function getOffset (attributes: IGFXAttribute[], attributeIndex: number) {
     return result;
 }
 
-type StorageConstructor = Constructor<(Uint8Array | Int8Array | Uint16Array | Int16Array | Uint32Array | Int32Array | Float32Array | Float64Array)>;
+type Storage = Uint8Array | Int8Array | Uint16Array | Int16Array | Uint32Array | Int32Array | Float32Array | Float64Array;
+
+type StorageConstructor = Constructor<Storage>;
 
 function getStorageConstructor (format: GFXFormat): StorageConstructor | null {
     const info = GFXFormatInfos[format];
@@ -826,6 +970,11 @@ function getStorageConstructor (format: GFXFormat): StorageConstructor | null {
 }
 
 const isLittleEndian = cc.sys.isLittleEndian;
+
+function getComponentByteLength (format: GFXFormat) {
+    const info = GFXFormatInfos[format];
+    return info.size / info.count;
+}
 
 function getReader (dataView: DataView, format: GFXFormat) {
     const info = GFXFormatInfos[format];
@@ -866,6 +1015,51 @@ function getReader (dataView: DataView, format: GFXFormat) {
         }
         case GFXFormatType.FLOAT: {
             return (offset: number) => dataView.getFloat32(offset, isLittleEndian);
+        }
+    }
+
+    return null;
+}
+
+function getWriter (dataView: DataView, format: GFXFormat) {
+    const info = GFXFormatInfos[format];
+    const stride = info.size / info.count;
+
+    switch (info.type) {
+        case GFXFormatType.UNORM: {
+            switch (stride) {
+                case 1: return (offset: number, value: number) => dataView.setUint8(offset, value);
+                case 2: return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
+                case 4: return (offset: number, value: number) => dataView.setUint32(offset, value, isLittleEndian);
+            }
+            break;
+        }
+        case GFXFormatType.SNORM: {
+            switch (stride) {
+                case 1: return (offset: number, value: number) => dataView.setInt8(offset, value);
+                case 2: return (offset: number, value: number) => dataView.setInt16(offset, value, isLittleEndian);
+                case 4: return (offset: number, value: number) => dataView.setInt32(offset, value, isLittleEndian);
+            }
+            break;
+        }
+        case GFXFormatType.INT: {
+            switch (stride) {
+                case 1: return (offset: number, value: number) => dataView.setInt8(offset, value);
+                case 2: return (offset: number, value: number) => dataView.setInt16(offset, value, isLittleEndian);
+                case 4: return (offset: number, value: number) => dataView.setInt32(offset, value, isLittleEndian);
+            }
+            break;
+        }
+        case GFXFormatType.UINT: {
+            switch (stride) {
+                case 1: return (offset: number, value: number) => dataView.setUint8(offset, value);
+                case 2: return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
+                case 4: return (offset: number, value: number) => dataView.setUint32(offset, value, isLittleEndian);
+            }
+            break;
+        }
+        case GFXFormatType.FLOAT: {
+            return (offset: number, value: number) => dataView.setFloat32(offset, value, isLittleEndian);
         }
     }
 
