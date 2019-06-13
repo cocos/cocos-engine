@@ -1,78 +1,14 @@
-import mat3 from './mat3';
-import quat from './quat';
+import { mat3 } from './mat3';
+import { quat } from './quat';
 import { EPSILON } from './utils';
-import vec3 from './vec3';
-
-// tslint:disable: one-variable-per-declaration
-// tslint:disable: max-line-length
-
-const v3_1 = new vec3();
-const m3_1 = new mat3();
+import { vec3 } from './vec3';
 
 /**
  * @zh 四维矩阵
  */
+// tslint:disable:one-variable-per-declaration
 // tslint:disable-next-line:class-name
 export class mat4 {
-
-    /**
-     * @zh 矩阵求逆
-     */
-    public static invert = (() => {
-        // cache temps due to the high frequency invocations of this function
-        let a00 = 1, a01 = 0, a02 = 0, a03 = 0;
-        let a10 = 0, a11 = 1, a12 = 0, a13 = 0;
-        let a20 = 0, a21 = 0, a22 = 1, a23 = 0;
-        let a30 = 0, a31 = 0, a32 = 0, a33 = 1;
-        let b00 = 1, b01 = 0, b02 = 0, b03 = 0;
-        let b04 = 0, b05 = 0, b06 = 0, b07 = 0;
-        let b08 = 0, b09 = 0, b10 = 0, b11 = 1;
-        let det = 1;
-        return (out: mat4, a: mat4) => {
-            a00 = a.m00; a01 = a.m01; a02 = a.m02; a03 = a.m03;
-            a10 = a.m04; a11 = a.m05; a12 = a.m06; a13 = a.m07;
-            a20 = a.m08; a21 = a.m09; a22 = a.m10; a23 = a.m11;
-            a30 = a.m12; a31 = a.m13; a32 = a.m14; a33 = a.m15;
-
-            b00 = a00 * a11 - a01 * a10;
-            b01 = a00 * a12 - a02 * a10;
-            b02 = a00 * a13 - a03 * a10;
-            b03 = a01 * a12 - a02 * a11;
-            b04 = a01 * a13 - a03 * a11;
-            b05 = a02 * a13 - a03 * a12;
-            b06 = a20 * a31 - a21 * a30;
-            b07 = a20 * a32 - a22 * a30;
-            b08 = a20 * a33 - a23 * a30;
-            b09 = a21 * a32 - a22 * a31;
-            b10 = a21 * a33 - a23 * a31;
-            b11 = a22 * a33 - a23 * a32;
-
-            // Calculate the determinant
-            det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
-
-            if (det === 0) { return null; }
-            det = 1.0 / det;
-
-            out.m00 = (a11 * b11 - a12 * b10 + a13 * b09) * det;
-            out.m01 = (a02 * b10 - a01 * b11 - a03 * b09) * det;
-            out.m02 = (a31 * b05 - a32 * b04 + a33 * b03) * det;
-            out.m03 = (a22 * b04 - a21 * b05 - a23 * b03) * det;
-            out.m04 = (a12 * b08 - a10 * b11 - a13 * b07) * det;
-            out.m05 = (a00 * b11 - a02 * b08 + a03 * b07) * det;
-            out.m06 = (a32 * b02 - a30 * b05 - a33 * b01) * det;
-            out.m07 = (a20 * b05 - a22 * b02 + a23 * b01) * det;
-            out.m08 = (a10 * b10 - a11 * b08 + a13 * b06) * det;
-            out.m09 = (a01 * b08 - a00 * b10 - a03 * b06) * det;
-            out.m10 = (a30 * b04 - a31 * b02 + a33 * b00) * det;
-            out.m11 = (a21 * b02 - a20 * b04 - a23 * b00) * det;
-            out.m12 = (a11 * b07 - a10 * b09 - a12 * b06) * det;
-            out.m13 = (a00 * b09 - a01 * b07 + a02 * b06) * det;
-            out.m14 = (a31 * b01 - a30 * b03 - a32 * b00) * det;
-            out.m15 = (a20 * b03 - a21 * b01 + a22 * b00) * det;
-
-            return out;
-        };
-    })();
 
     /**
      * @zh 创建新的实例
@@ -202,6 +138,54 @@ export class mat4 {
             out.m14 = a.m11;
             out.m15 = a.m15;
         }
+        return out;
+    }
+
+    /**
+     * @zh 矩阵求逆
+     */
+    public static invert (out: mat4, a: mat4) {
+        const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03;
+        const a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07;
+        const a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11;
+        const a30 = a.m12, a31 = a.m13, a32 = a.m14, a33 = a.m15;
+
+        const b00 = a00 * a11 - a01 * a10;
+        const b01 = a00 * a12 - a02 * a10;
+        const b02 = a00 * a13 - a03 * a10;
+        const b03 = a01 * a12 - a02 * a11;
+        const b04 = a01 * a13 - a03 * a11;
+        const b05 = a02 * a13 - a03 * a12;
+        const b06 = a20 * a31 - a21 * a30;
+        const b07 = a20 * a32 - a22 * a30;
+        const b08 = a20 * a33 - a23 * a30;
+        const b09 = a21 * a32 - a22 * a31;
+        const b10 = a21 * a33 - a23 * a31;
+        const b11 = a22 * a33 - a23 * a32;
+
+        // Calculate the determinant
+        let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+
+        if (det === 0) { return null; }
+        det = 1.0 / det;
+
+        out.m00 = (a11 * b11 - a12 * b10 + a13 * b09) * det;
+        out.m01 = (a02 * b10 - a01 * b11 - a03 * b09) * det;
+        out.m02 = (a31 * b05 - a32 * b04 + a33 * b03) * det;
+        out.m03 = (a22 * b04 - a21 * b05 - a23 * b03) * det;
+        out.m04 = (a12 * b08 - a10 * b11 - a13 * b07) * det;
+        out.m05 = (a00 * b11 - a02 * b08 + a03 * b07) * det;
+        out.m06 = (a32 * b02 - a30 * b05 - a33 * b01) * det;
+        out.m07 = (a20 * b05 - a22 * b02 + a23 * b01) * det;
+        out.m08 = (a10 * b10 - a11 * b08 + a13 * b06) * det;
+        out.m09 = (a01 * b08 - a00 * b10 - a03 * b06) * det;
+        out.m10 = (a30 * b04 - a31 * b02 + a33 * b00) * det;
+        out.m11 = (a21 * b02 - a20 * b04 - a23 * b00) * det;
+        out.m12 = (a11 * b07 - a10 * b09 - a12 * b06) * det;
+        out.m13 = (a00 * b09 - a01 * b07 + a02 * b06) * det;
+        out.m14 = (a31 * b01 - a30 * b03 - a32 * b00) * det;
+        out.m15 = (a20 * b03 - a21 * b01 + a22 * b00) * det;
+
         return out;
     }
 
@@ -504,7 +488,7 @@ export class mat4 {
     }
 
     /**
-     * @zh 创建位移矩阵
+     * @zh 计算位移矩阵
      */
     public static fromTranslation (out: mat4, v: vec3) {
         out.m00 = 1;
@@ -527,7 +511,7 @@ export class mat4 {
     }
 
     /**
-     * @zh 创建缩放矩阵
+     * @zh 计算缩放矩阵
      */
     public static fromScaling (out: mat4, v: vec3) {
         out.m00 = v.x;
@@ -550,7 +534,7 @@ export class mat4 {
     }
 
     /**
-     * @zh 创建旋转矩阵
+     * @zh 计算旋转矩阵
      */
     public static fromRotation (out: mat4, rad: number, axis: vec3) {
         let x = axis.x, y = axis.y, z = axis.z;
@@ -590,7 +574,7 @@ export class mat4 {
     }
 
     /**
-     * @zh 创建绕 X 轴的旋转矩阵
+     * @zh 计算绕 X 轴的旋转矩阵
      */
     public static fromXRotation (out: mat4, rad: number) {
         const s = Math.sin(rad), c = Math.cos(rad);
@@ -616,7 +600,7 @@ export class mat4 {
     }
 
     /**
-     * @zh 创建绕 Y 轴的旋转矩阵
+     * @zh 计算绕 Y 轴的旋转矩阵
      */
     public static fromYRotation (out: mat4, rad: number) {
         const s = Math.sin(rad), c = Math.cos(rad);
@@ -642,7 +626,7 @@ export class mat4 {
     }
 
     /**
-     * @zh 创建绕 Z 轴的旋转矩阵
+     * @zh 计算绕 Z 轴的旋转矩阵
      */
     public static fromZRotation (out: mat4, rad: number) {
         const s = Math.sin(rad), c = Math.cos(rad);
@@ -668,7 +652,7 @@ export class mat4 {
     }
 
     /**
-     * @zh 根据旋转和位移信息创建矩阵
+     * @zh 根据旋转和位移信息计算矩阵
      */
     public static fromRT (out: mat4, q: quat, v: vec3) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
@@ -798,7 +782,7 @@ export class mat4 {
     }
 
     /**
-     * @zh 根据旋转、位移、缩放信息创建矩阵，以 S->R->T 的顺序应用
+     * @zh 根据旋转、位移、缩放信息计算矩阵，以 S->R->T 的顺序应用
      */
     public static fromRTS (out: mat4, q: quat, v: vec3, s: vec3) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
@@ -840,7 +824,7 @@ export class mat4 {
     }
 
     /**
-     * @zh 根据指定的旋转、位移、缩放及变换中心信息创建矩阵，以 S->R->T 的顺序应用
+     * @zh 根据指定的旋转、位移、缩放及变换中心信息计算矩阵，以 S->R->T 的顺序应用
      * @param q 旋转值
      * @param v 位移值
      * @param s 缩放值
@@ -891,7 +875,7 @@ export class mat4 {
     }
 
     /**
-     * @zh 根据指定的旋转信息创建矩阵
+     * @zh 根据指定的旋转信息计算矩阵
      */
     public static fromQuat (out: mat4, q: quat) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
@@ -933,7 +917,7 @@ export class mat4 {
     }
 
     /**
-     * @zh 根据指定的视锥体信息创建矩阵
+     * @zh 根据指定的视锥体信息计算矩阵
      * @param left 左平面距离
      * @param right 右平面距离
      * @param bottom 下平面距离
@@ -966,7 +950,7 @@ export class mat4 {
     }
 
     /**
-     * @zh 创建透视投影矩阵
+     * @zh 计算透视投影矩阵
      * @param fovy 纵向视角高度
      * @param aspect 长宽比
      * @param near 近平面距离
@@ -996,7 +980,7 @@ export class mat4 {
     }
 
     /**
-     * @zh 创建正交投影矩阵
+     * @zh 计算正交投影矩阵
      * @param left 左平面距离
      * @param right 右平面距离
      * @param bottom 下平面距离
@@ -1028,7 +1012,7 @@ export class mat4 {
     }
 
     /**
-     * @zh 根据视点创建矩阵，注意 `eye - center` 不能为零向量或与 `up` 向量平行
+     * @zh 根据视点计算矩阵，注意 `eye - center` 不能为零向量或与 `up` 向量平行
      * @param eye 当前位置
      * @param center 目标视点
      * @param up 视口上方向
@@ -1086,7 +1070,7 @@ export class mat4 {
     }
 
     /**
-     * @zh 此矩阵的字符串表示
+     * @zh 返回矩阵的字符串表示
      */
     public static str (a: mat4) {
         return `mat4(${a.m00}, ${a.m01}, ${a.m02}, ${a.m03}, ${a.m04}, ${a.m05}, ${a.m06}, ${a.m07}, ` +
@@ -1343,3 +1327,6 @@ export class mat4 {
         this.m12 = m12; this.m13 = m13; this.m14 = m14; this.m15 = m15;
     }
 }
+
+const v3_1 = new vec3();
+const m3_1 = new mat3();

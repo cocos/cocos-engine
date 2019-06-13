@@ -1,40 +1,31 @@
-import mat3 from './mat3';
+import { mat3 } from './mat3';
 import { mat4 } from './mat4';
-import quat from './quat';
+import { quat } from './quat';
 import { EPSILON, random } from './utils';
 
 /**
- * Mathematical 3-dimensional vector.
- *
- * x, y, z is alias of the first, second, third component of vector, respectively.
+ * @zh 三维向量
  */
 // tslint:disable-next-line:class-name
-export default class vec3 {
-    public static UNIT_X = new vec3(1, 0, 0);
-    public static UNIT_Y = new vec3(0, 1, 0);
-    public static UNIT_Z = new vec3(0, 0, 1);
-    public static ZERO = new vec3(0, 0, 0);
-    public static ONE = new vec3(1, 1, 1);
-    public static NEG_ONE = new vec3(-1, -1, -1);
+export class vec3 {
+    public static UNIT_X = Object.freeze(new vec3(1, 0, 0));
+    public static UNIT_Y = Object.freeze(new vec3(0, 1, 0));
+    public static UNIT_Z = Object.freeze(new vec3(0, 0, 1));
+    public static ZERO = Object.freeze(new vec3(0, 0, 0));
+    public static ONE = Object.freeze(new vec3(1, 1, 1));
+    public static NEG_ONE = Object.freeze(new vec3(-1, -1, -1));
 
     /**
-     * Creates a vector, with components specified separately.
-     *
-     * @param x - Value assigned to x component.
-     * @param y - Value assigned to y component.
-     * @param z - Value assigned to z component.
-     * @return The newly created vector.
+     * @zh 创建新的实例
      */
     public static create (x = 0, y = 0, z = 0) {
         return new vec3(x, y, z);
     }
 
     /**
-     * Creates a zero vector.
-     *
-     * @return The newly created vector.
+     * @zh 将目标赋值为零向量
      */
-    public static zero<Out extends vec3> (out: Out) {
+    public static zero (out: vec3) {
         out.x = 0;
         out.y = 0;
         out.z = 0;
@@ -42,23 +33,16 @@ export default class vec3 {
     }
 
     /**
-     * Clone a vector.
-     *
-     * @param a - Vector to clone.
-     * @return The newly created vector.
+     * @zh 获得指定向量的拷贝
      */
     public static clone (a: vec3) {
         return new vec3(a.x, a.y, a.z);
     }
 
     /**
-     * Copy content of a vector into another.
-     *
-     * @param out - The vector to modified.
-     * @param a - The specified vector.
-     * @return out.
+     * @zh 复制目标向量
      */
-    public static copy<Out extends vec3> (out: Out, a: vec3) {
+    public static copy (out: vec3, a: vec3) {
         out.x = a.x;
         out.y = a.y;
         out.z = a.z;
@@ -66,15 +50,9 @@ export default class vec3 {
     }
 
     /**
-     * Sets the components of a vector to the given values.
-     *
-     * @param out - The vector to modified.
-     * @param x - Value set to x component.
-     * @param y - Value set to y component.
-     * @param z - Value set to z component.
-     * @return out.
+     * @zh 设置向量值
      */
-    public static set<Out extends vec3> (out: Out, x: number, y: number, z: number) {
+    public static set (out: vec3, x: number, y: number, z: number) {
         out.x = x;
         out.y = y;
         out.z = z;
@@ -82,16 +60,9 @@ export default class vec3 {
     }
 
     /**
-     * Add two vectors.
-     *
-     * It doesn't matter that any amount of these parameters refer to same vector.
-     *
-     * @param out - Vector to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return out.
+     * @zh 逐元素向量加法
      */
-    public static add<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+    public static add (out: vec3, a: vec3, b: vec3) {
         out.x = a.x + b.x;
         out.y = a.y + b.y;
         out.z = a.z + b.z;
@@ -99,16 +70,9 @@ export default class vec3 {
     }
 
     /**
-     * Subtract two vectors.
-     *
-     * It doesn't matter that any amount of these parameters refer to same vector.
-     *
-     * @param out - Vector to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return out.
+     * @zh 逐元素向量减法
      */
-    public static subtract<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+    public static subtract (out: vec3, a: vec3, b: vec3) {
         out.x = a.x - b.x;
         out.y = a.y - b.y;
         out.z = a.z - b.z;
@@ -116,23 +80,16 @@ export default class vec3 {
     }
 
     /**
-     * Alias of {@link vec3.subtract}.
+     * @zh 逐元素向量减法
      */
-    public static sub<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+    public static sub (out: vec3, a: vec3, b: vec3) {
         return vec3.subtract(out, a, b);
     }
 
     /**
-     * Performs multiply on each component of two vectors respectively.
-     *
-     * It doesn't matter that any amount of these parameters refer to same vector.
-     *
-     * @param out - Vector to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return out.
+     * @zh 逐元素向量乘法
      */
-    public static multiply<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+    public static multiply (out: vec3, a: vec3, b: vec3) {
         out.x = a.x * b.x;
         out.y = a.y * b.y;
         out.z = a.z * b.z;
@@ -140,23 +97,16 @@ export default class vec3 {
     }
 
     /**
-     * Alias of {@link vec3.multiply}.
+     * @zh 逐元素向量乘法
      */
-    public static mul<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+    public static mul (out: vec3, a: vec3, b: vec3) {
         return vec3.multiply(out, a, b);
     }
 
     /**
-     * Performs division on each component of two vectors respectively.
-     *
-     * It doesn't matter that any amount of these parameters refer to same vector.
-     *
-     * @param out - Vector to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return out.
+     * @zh 逐元素向量除法
      */
-    public static divide<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+    public static divide (out: vec3, a: vec3, b: vec3) {
         out.x = a.x / b.x;
         out.y = a.y / b.y;
         out.z = a.z / b.z;
@@ -164,22 +114,16 @@ export default class vec3 {
     }
 
     /**
-     * Alias of {@link vec3.divide}.
+     * @zh 逐元素向量除法
      */
-    public static div<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+    public static div (out: vec3, a: vec3, b: vec3) {
         return vec3.divide(out, a, b);
     }
 
     /**
-     * Performs Math.ceil on each component of a vector.
-     *
-     * It doesn't matter that any amount of these parameters refer to same vector.
-     *
-     * @param out - Vector to store result.
-     * @param a - Vector to perform operation.
-     * @return out.
+     * @zh 逐元素向量向上取整
      */
-    public static ceil<Out extends vec3> (out: Out, a: vec3) {
+    public static ceil (out: vec3, a: vec3) {
         out.x = Math.ceil(a.x);
         out.y = Math.ceil(a.y);
         out.z = Math.ceil(a.z);
@@ -187,15 +131,9 @@ export default class vec3 {
     }
 
     /**
-     * Performs Math.floor on each component of a vector.
-     *
-     * It doesn't matter that any amount of these parameters refer to same vector.
-     *
-     * @param out - Vector to store result.
-     * @param a - Vector to perform operation.
-     * @return out.
+     * @zh 逐元素向量向下取整
      */
-    public static floor<Out extends vec3> (out: Out, a: vec3) {
+    public static floor (out: vec3, a: vec3) {
         out.x = Math.floor(a.x);
         out.y = Math.floor(a.y);
         out.z = Math.floor(a.z);
@@ -203,16 +141,9 @@ export default class vec3 {
     }
 
     /**
-     * Performs Math.min on each component of two vectors respectively.
-     *
-     * It doesn't matter that any amount of these parameters refer to same vector.
-     *
-     * @param out - Vector to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return out.
+     * @zh 逐元素向量最小值
      */
-    public static min<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+    public static min (out: vec3, a: vec3, b: vec3) {
         out.x = Math.min(a.x, b.x);
         out.y = Math.min(a.y, b.y);
         out.z = Math.min(a.z, b.z);
@@ -220,32 +151,18 @@ export default class vec3 {
     }
 
     /**
-     * Performs Math.min on each component of two vectors respectively.
-     *
-     * It doesn't matter that any amount of these parameters refer to same vector.
-     *
-     * @param out - Vector to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return out.
+     * @zh 逐元素向量最大值
      */
-    public static max<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+    public static max (out: vec3, a: vec3, b: vec3) {
         out.x = Math.max(a.x, b.x);
         out.y = Math.max(a.y, b.y);
         out.z = Math.max(a.z, b.z);
         return out;
     }
-
     /**
-     * Performs Math.round on each component of a vector.
-     *
-     * It doesn't matter that any amount of these parameters refer to same vector.
-     *
-     * @param out - Vector to store result.
-     * @param a - Vector to perform operation.
-     * @return out.
+     * @zh 逐元素向量四舍五入取整
      */
-    public static round<Out extends vec3> (out: Out, a: vec3) {
+    public static round (out: vec3, a: vec3) {
         out.x = Math.round(a.x);
         out.y = Math.round(a.y);
         out.z = Math.round(a.z);
@@ -253,14 +170,9 @@ export default class vec3 {
     }
 
     /**
-     * Scales a vector with a number.
-     *
-     * @param out - Vector to store result.
-     * @param a - Vector to scale.
-     * @param b - The scale number.
-     * @return out.
+     * @zh 向量标量乘法
      */
-    public static scale<Out extends vec3> (out: Out, a: vec3, b: number) {
+    public static scale (out: vec3, a: vec3, b: number) {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -268,15 +180,9 @@ export default class vec3 {
     }
 
     /**
-     * Add two vectors after scaling the second operand by a number.
-     *
-     * @param out - Vector to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @param scale - The scale number before adding.
-     * @return out.
+     * @zh 逐元素向量乘加: A + B * scale
      */
-    public static scaleAndAdd<Out extends vec3> (out: Out, a: vec3, b: vec3, scale: number) {
+    public static scaleAndAdd (out: vec3, a: vec3, b: vec3, scale: number) {
         out.x = a.x + b.x * scale;
         out.y = a.y + b.y * scale;
         out.z = a.z + b.z * scale;
@@ -284,11 +190,7 @@ export default class vec3 {
     }
 
     /**
-     * Calculates the euclidian distance between two vectors.
-     *
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return Distance between a and b.
+     * @zh 求两向量的欧氏距离
      */
     public static distance (a: vec3, b: vec3) {
         const x = b.x - a.x;
@@ -298,18 +200,14 @@ export default class vec3 {
     }
 
     /**
-     * Alias of {@link vec3.distance}.
+     * @zh 求两向量的欧氏距离
      */
     public static dist (a: vec3, b: vec3) {
         return vec3.distance(a, b);
     }
 
     /**
-     * Calculates the squared euclidian distance between two vectors.
-     *
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return Squared distance between a and b.
+     * @zh 求两向量的欧氏距离平方
      */
     public static squaredDistance (a: vec3, b: vec3) {
         const x = b.x - a.x;
@@ -319,17 +217,14 @@ export default class vec3 {
     }
 
     /**
-     * Alias of {@link vec3.squaredDistance}.
+     * @zh 求两向量的欧氏距离平方
      */
     public static sqrDist (a: vec3, b: vec3) {
         return vec3.squaredDistance(a, b);
     }
 
     /**
-     * Calculates the length of a vector.
-     *
-     * @param a - The vector.
-     * @return Length of the vector.
+     * @zh 求向量长度
      */
     public static magnitude (a: vec3) {
         const { x, y, z } = a;
@@ -337,17 +232,13 @@ export default class vec3 {
     }
 
     /**
-     * Alias of {@link vec3.magnitude}.
+     * @zh 求向量长度
      */
     public static mag (a: vec3) {
         return vec3.magnitude(a);
     }
-
     /**
-     * Calculates the squared length of a vector.
-     *
-     * @param a - The vector.
-     * @return Squared length of the vector.
+     * @zh 求向量长度平方
      */
     public static squaredMagnitude (a: vec3) {
         const { x, y, z } = a;
@@ -355,20 +246,16 @@ export default class vec3 {
     }
 
     /**
-     * Alias of {@link vec3.squaredMagnitude}
+     * @zh 求向量长度平方
      */
     public static sqrMag (a: vec3) {
         return vec3.squaredMagnitude(a);
     }
 
     /**
-     * Negates each component of a vector.
-     *
-     * @param out - Vector to store result.
-     * @param a - Vector to negate.
-     * @return out.
+     * @zh 逐元素向量取负
      */
-    public static negate<Out extends vec3> (out: Out, a: vec3) {
+    public static negate (out: vec3, a: vec3) {
         out.x = -a.x;
         out.y = -a.y;
         out.z = -a.z;
@@ -376,13 +263,9 @@ export default class vec3 {
     }
 
     /**
-     * Inverts the components of a vector.
-     *
-     * @param out - Vector to store result.
-     * @param a - Vector to invert.
-     * @return out.
+     * @zh 逐元素向量取倒数，接近 0 时返回 Infinity
      */
-    public static invert<Out extends vec3> (out: Out, a: vec3) {
+    public static invert (out: vec3, a: vec3) {
         out.x = 1.0 / a.x;
         out.y = 1.0 / a.y;
         out.z = 1.0 / a.z;
@@ -390,13 +273,9 @@ export default class vec3 {
     }
 
     /**
-     * Safely inverts the components of a vector.
-     *
-     * @param out - Vector to store result.
-     * @param a - Vector to invert.
-     * @return out.
+     * @zh 逐元素向量取倒数，接近 0 时返回 0
      */
-    public static invertSafe<Out extends vec3> (out: Out, a: vec3) {
+    public static invertSafe (out: vec3, a: vec3) {
         const { x, y, z } = a;
 
         if (Math.abs(x) < EPSILON) {
@@ -421,13 +300,9 @@ export default class vec3 {
     }
 
     /**
-     * Normalizes a vector.
-     *
-     * @param out - Vector to store result.
-     * @param a - Vector to normalize.
-     * @return out.
+     * @zh 归一化向量
      */
-    public static normalize<Out extends vec3> (out: Out, a: vec3) {
+    public static normalize (out: vec3, a: vec3) {
         const { x, y, z } = a;
 
         let len = x * x + y * y + z * z;
@@ -442,25 +317,16 @@ export default class vec3 {
     }
 
     /**
-     * Calculates the dot product of two vectors.
-     *
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return Dot product of a and b.
+     * @zh 向量点积（数量积）
      */
     public static dot (a: vec3, b: vec3) {
         return a.x * b.x + a.y * b.y + a.z * b.z;
     }
 
     /**
-     * Calculates the cross product of two vectors.
-     *
-     * @param out - Vector to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return out.
+     * @zh 向量叉积（向量积）
      */
-    public static cross<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+    public static cross (out: vec3, a: vec3, b: vec3) {
         const { x: ax, y: ay, z: az } = a;
         const { x: bx, y: by, z: bz } = b;
 
@@ -471,15 +337,9 @@ export default class vec3 {
     }
 
     /**
-     * Performs a linear interpolation between two vectors.
-     *
-     * @param out - Vector to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @param t - The interpolation coefficient.
-     * @return out.
+     * @zh 逐元素向量线性插值： A + t * (B - A)
      */
-    public static lerp<Out extends vec3> (out: Out, a: vec3, b: vec3, t: number) {
+    public static lerp (out: vec3, a: vec3, b: vec3, t: number) {
         const { x: ax, y: ay, z: az } = a;
         out.x = ax + t * (b.x - ax);
         out.y = ay + t * (b.y - ay);
@@ -488,88 +348,26 @@ export default class vec3 {
     }
 
     /**
-     * Performs a hermite interpolation with two control points.
-     *
-     * @param out - Vector to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @param c - The third operand.
-     * @param d - The fourth operand.
-     * @param t - The interpolation coefficient.
-     * @return out.
+     * @zh 生成一个在单位球体上均匀分布的随机向量
+     * @param scale 生成的向量长度
      */
-    public static hermite<Out extends vec3> (
-        out: Out, a: vec3, b: vec3, c: vec3, d: vec3, t: number) {
-        const factorTimes2 = t * t;
-        const factor1 = factorTimes2 * (2 * t - 3) + 1;
-        const factor2 = factorTimes2 * (t - 2) + t;
-        const factor3 = factorTimes2 * (t - 1);
-        const factor4 = factorTimes2 * (3 - 2 * t);
-
-        out.x = a.x * factor1 + b.x * factor2 + c.x * factor3 + d.x * factor4;
-        out.y = a.y * factor1 + b.y * factor2 + c.y * factor3 + d.y * factor4;
-        out.z = a.z * factor1 + b.z * factor2 + c.z * factor3 + d.z * factor4;
-
-        return out;
-    }
-
-    /**
-     * Performs a bezier interpolation with two control points.
-     *
-     * @param out - Vector to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @param c - The third operand.
-     * @param d - The fourth operand.
-     * @param t - The interpolation coefficient.
-     * @return out.
-     */
-    public static bezier<Out extends vec3> (
-        out: Out, a: vec3, b: vec3, c: vec3, d: vec3, t: number) {
-        const inverseFactor = 1 - t;
-        const inverseFactorTimesTwo = inverseFactor * inverseFactor;
-        const factorTimes2 = t * t;
-        const factor1 = inverseFactorTimesTwo * inverseFactor;
-        const factor2 = 3 * t * inverseFactorTimesTwo;
-        const factor3 = 3 * factorTimes2 * inverseFactor;
-        const factor4 = factorTimes2 * t;
-
-        out.x = a.x * factor1 + b.x * factor2 + c.x * factor3 + d.x * factor4;
-        out.y = a.y * factor1 + b.y * factor2 + c.y * factor3 + d.y * factor4;
-        out.z = a.z * factor1 + b.z * factor2 + c.z * factor3 + d.z * factor4;
-
-        return out;
-    }
-
-    /**
-     * Generates a random vector uniformly distributed on a sphere centered at the origin.
-     *
-     * @param out - Vector to store result.
-     * @param [scale] Length of the resulting vector. If ommitted, a unit length vector will be returned.
-     * @return out.
-     */
-    public static random<Out extends vec3> (out: Out, scale: number) {
+    public static random (out: vec3, scale?: number) {
         scale = scale || 1.0;
 
         const phi = random() * 2.0 * Math.PI;
-        const theta = Math.acos(random() * 2 - 1);
+        const cosTheta = random() * 2 - 1;
+        const sinTheta = Math.sqrt(1 - cosTheta * cosTheta);
 
-        out.x = Math.sin(theta) * Math.cos(phi) * scale;
-        out.y = Math.sin(theta) * Math.sin(phi) * scale;
-        out.z = Math.cos(theta) * scale;
+        out.x = sinTheta * Math.cos(phi) * scale;
+        out.y = sinTheta * Math.sin(phi) * scale;
+        out.z = cosTheta * scale;
         return out;
     }
 
     /**
-     * Transforms a point vector with a 4x4 matrix,
-     * i.e. 4th vector component is implicitly '1'.
-     *
-     * @param out - Vector to store result.
-     * @param a - Vector to transform.
-     * @param {mat4} m - The matrix.
-     * @return out.
+     * @zh 向量与四维矩阵乘法，默认向量第四位为 1。
      */
-    public static transformMat4<Out extends vec3> (out: Out, a: vec3, m: mat4) {
+    public static transformMat4 (out: vec3, a: vec3, m: mat4) {
         const { x, y, z } = a;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z + m.m15;
         rhw = rhw ? 1 / rhw : 1;
@@ -580,15 +378,9 @@ export default class vec3 {
     }
 
     /**
-     * Transforms a normal vector with a 4x4 matrix,
-     * i.e. 4th vector component is implicitly '0'.
-     *
-     * @param out - Vector to store result.
-     * @param a - Vector to transform.
-     * @param {mat4} m - The matrix.
-     * @return out.
+     * @zh 向量与四维矩阵乘法，默认向量第四位为 0。
      */
-    public static transformMat4Normal<Out extends vec3> (out: Out, a: vec3, m: mat4) {
+    public static transformMat4Normal (out: vec3, a: vec3, m: mat4) {
         const { x, y, z } = a;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z;
         rhw = rhw ? 1 / rhw : 1;
@@ -599,14 +391,9 @@ export default class vec3 {
     }
 
     /**
-     * Transforms a vector with a 3x3 matrix.
-     *
-     * @param out - Vector to store result.
-     * @param a - Vector to transform.
-     * @param {mat3} m - The matrix.
-     * @return out.
+     * @zh 向量与三维矩阵乘法
      */
-    public static transformMat3<Out extends vec3> (out: Out, a: vec3, m: mat3) {
+    public static transformMat3 (out: vec3, a: vec3, m: mat3) {
         const { x, y, z } = a;
         out.x = x * m.m00 + y * m.m03 + z * m.m06;
         out.y = x * m.m01 + y * m.m04 + z * m.m07;
@@ -615,14 +402,9 @@ export default class vec3 {
     }
 
     /**
-     * Transforms a vector with a quaternion.
-     *
-     * @param out - Vector to store result.
-     * @param a - Vector to transform.
-     * @param {quat} q - The quaternion.
-     * @return out.
+     * @zh 向量四元数乘法
      */
-    public static transformQuat<Out extends vec3> (out: Out, a: vec3, q: quat) {
+    public static transformQuat (out: vec3, a: vec3, q: quat) {
         // benchmarks: http://jsperf.com/quaternion-transform-vec3-implementations
 
         const { x, y, z } = a;
@@ -642,104 +424,98 @@ export default class vec3 {
     }
 
     /**
-     * Rotates a 3D vector around the x-axis.
-     * @param out - Vector to store result.
-     * @param a - The point to rotate.
-     * @param b - The origin of the rotation.
-     * @param c - The angle of rotation.
-     * @return out.
+     * @zh 绕 X 轴旋转向量指定弧度
+     * @param v 待旋转向量
+     * @param o 旋转中心
+     * @param a 旋转弧度
      */
-    public static rotateX<Out extends vec3> (out: Out, a: vec3, b: vec3, c: number) {
+    public static rotateX (out: vec3, v: vec3, o: vec3, a: number) {
         // Translate point to the origin
-        const px = a.x - b.x;
-        const py = a.y - b.y;
-        const pz = a.z - b.z;
+        const px = v.x - o.x;
+        const py = v.y - o.y;
+        const pz = v.z - o.z;
 
         // perform rotation
+        const cos = Math.cos(a);
+        const sin = Math.sin(a);
         const rx = px;
-        const ry = py * Math.cos(c) - pz * Math.sin(c);
-        const rz = py * Math.sin(c) + pz * Math.cos(c);
+        const ry = py * cos - pz * sin;
+        const rz = py * sin + pz * cos;
 
         // translate to correct position
-        out.x = rx + b.x;
-        out.y = ry + b.y;
-        out.z = rz + b.z;
+        out.x = rx + o.x;
+        out.y = ry + o.y;
+        out.z = rz + o.z;
 
         return out;
     }
 
     /**
-     * Rotates a 3D vector around the y-axis.
-     * @param out - Vector to store result.
-     * @param a - The point to rotate.
-     * @param b - The origin of the rotation.
-     * @param c - The angle of rotation.
-     * @return out.
+     * @zh 绕 Y 轴旋转向量指定弧度
+     * @param v 待旋转向量
+     * @param o 旋转中心
+     * @param a 旋转弧度
      */
-    public static rotateY<Out extends vec3> (out: Out, a: vec3, b: vec3, c: number) {
+    public static rotateY (out: vec3, v: vec3, o: vec3, a: number) {
         // Translate point to the origin
-        const px = a.x - b.x;
-        const py = a.y - b.y;
-        const pz = a.z - b.z;
+        const px = v.x - o.x;
+        const py = v.y - o.y;
+        const pz = v.z - o.z;
 
         // perform rotation
-        const rx = pz * Math.sin(c) + px * Math.cos(c);
+        const cos = Math.cos(a);
+        const sin = Math.sin(a);
+        const rx = pz * sin + px * cos;
         const ry = py;
-        const rz = pz * Math.cos(c) - px * Math.sin(c);
+        const rz = pz * cos - px * sin;
 
         // translate to correct position
-        out.x = rx + b.x;
-        out.y = ry + b.y;
-        out.z = rz + b.z;
+        out.x = rx + o.x;
+        out.y = ry + o.y;
+        out.z = rz + o.z;
 
         return out;
     }
 
     /**
-     * Rotates a 3D vector around the z-axis.
-     * @param out - Vector to store result.
-     * @param a - The point to rotate.
-     * @param b - The origin of the rotation.
-     * @param c - The angle of rotation.
-     * @return out.
+     * @zh 绕 Z 轴旋转向量指定弧度
+     * @param v 待旋转向量
+     * @param o 旋转中心
+     * @param a 旋转弧度
      */
-    public static rotateZ<Out extends vec3> (out: Out, a: vec3, b: vec3, c: number) {
+    public static rotateZ (out: vec3, v: vec3, o: vec3, a: number) {
         // Translate point to the origin
-        const px = a.x - b.x;
-        const py = a.y - b.y;
-        const pz = a.z - b.z;
+        const px = v.x - o.x;
+        const py = v.y - o.y;
+        const pz = v.z - o.z;
 
         // perform rotation
-        const rx = px * Math.cos(c) - py * Math.sin(c);
-        const ry = px * Math.sin(c) + py * Math.cos(c);
+        const cos = Math.cos(a);
+        const sin = Math.sin(a);
+        const rx = px * cos - py * sin;
+        const ry = px * sin + py * cos;
         const rz = pz;
 
         // translate to correct position
-        out.x = rx + b.x;
-        out.y = ry + b.y;
-        out.z = rz + b.z;
+        out.x = rx + o.x;
+        out.y = ry + o.y;
+        out.z = rz + o.z;
 
         return out;
     }
 
     /**
-     * Returns string representation of a vector.
-     *
-     * @param a - The vector.
-     * @return - String representation of this vector.
+     * @zh 返回向量的字符串表示
      */
     public static str (a: vec3) {
         return `vec3(${a.x}, ${a.y}, ${a.z})`;
     }
 
     /**
-     * Store components of a vector into array.
-     *
-     * @param out - Array to store result.
-     * @param v - The vector.
-     * @return out.
+     * @zh 向量转数组
+     * @param ofs 数组起始偏移量
      */
-    public static array<Out extends IWritableArrayLike<number>> (out: Out, v: vec3, ofs = 0) {
+    public static array (out: IWritableArrayLike<number>, v: vec3, ofs = 0) {
         out[ofs + 0] = v.x;
         out[ofs + 1] = v.y;
         out[ofs + 2] = v.z;
@@ -748,22 +524,14 @@ export default class vec3 {
     }
 
     /**
-     * Returns whether the specified vectors are equal. (Compared using ===)
-     *
-     * @param a - The first vector.
-     * @param b - The second vector.
-     * @return True if the vectors are equal, false otherwise.
+     * @zh 向量等价判断
      */
     public static exactEquals (a: vec3, b: vec3) {
         return a.x === b.x && a.y === b.y && a.z === b.z;
     }
 
     /**
-     * Returns whether the specified vectors are approximately equal.
-     *
-     * @param a The first vector.
-     * @param b The second vector.
-     * @return True if the vectors are approximately equal, false otherwise.
+     * @zh 排除浮点数误差的向量近似等价判断
      */
     public static equals (a: vec3, b: vec3, epsilon = EPSILON) {
         const { x: a0, y: a1, z: a2 } = a;
@@ -779,15 +547,12 @@ export default class vec3 {
     }
 
     /**
-     * Gets the angle between two vectors.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return - The angle in radians.
+     * @zh 求两向量夹角弧度
      */
     public static angle (a: vec3, b: vec3) {
-        vec3.normalize(tmpVec3A, a);
-        vec3.normalize(tmpVec3B, b);
-        const cosine = vec3.dot(tmpVec3A, tmpVec3B);
+        vec3.normalize(v3_1, a);
+        vec3.normalize(v3_2, b);
+        const cosine = vec3.dot(v3_1, v3_2);
         if (cosine > 1.0) {
             return 0;
         }
@@ -798,22 +563,20 @@ export default class vec3 {
     }
 
     /**
-     * Projects a vector onto a plane represented by its normal.
-     * @param out The result vector.
-     * @param a The vector.
-     * @param n The plane's normal.
+     * @zh 计算向量在指定平面上的投影
+     * @param a 待投影向量
+     * @param n 指定平面的法线
      */
-    public static projectOnPlane<Out extends vec3> (out: Out, a: vec3, n: vec3) {
+    public static projectOnPlane (out: vec3, a: vec3, n: vec3) {
         return vec3.subtract(out, a, vec3.project(out, a, n));
     }
 
     /**
-     * Projects a vector onto another vector.
-     * @param out The result vector.
-     * @param a The vector to project.
-     * @param b The vector onto which the projection performs.
+     * @zh 计算向量在指定向量上的投影
+     * @param a 待投影向量
+     * @param n 目标向量
      */
-    public static project<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+    public static project (out: vec3, a: vec3, b: vec3) {
         const sqrLen = vec3.squaredMagnitude(b);
         if (sqrLen < 0.000001) {
             return vec3.set(out, 0, 0, 0);
@@ -822,28 +585,10 @@ export default class vec3 {
         }
     }
 
-    /**
-     * The x component.
-     */
     public x: number;
-
-    /**
-     * The y component.
-     */
     public y: number;
-
-    /**
-     * The z component.
-     */
     public z: number;
 
-    /**
-     * Creates a vector, with components specified separately.
-     *
-     * @param x - Value assigned to x component.
-     * @param y - Value assigned to y component.
-     * @param z - Value assigned to z component.
-     */
     constructor (x = 0, y = 0, z = 0) {
         this.x = x;
         this.y = y;
@@ -851,5 +596,5 @@ export default class vec3 {
     }
 }
 
-const tmpVec3A = vec3.create();
-const tmpVec3B = vec3.create();
+const v3_1 = vec3.create();
+const v3_2 = vec3.create();

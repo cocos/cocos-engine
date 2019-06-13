@@ -1,102 +1,26 @@
+import { mat4 } from './mat4';
+import { quat } from './quat';
 import { EPSILON } from './utils';
-import vec3 from './vec3';
-// tslint:disable: one-variable-per-declaration
+import { vec3 } from './vec3';
 
 /**
- * Mathematical 3x3 matrix.
- *
- * NOTE: we use column-major matrix for all matrix calculation.
- *
- * This may lead to some confusion when referencing OpenGL documentation,
- * however, which represents out all matricies in column-major format.
- * This means that while in code a matrix may be typed out as:
- *
- * [1, 0, 0, 0,
- *  0, 1, 0, 0,
- *  0, 0, 1, 0,
- *  x, y, z, 0]
- *
- * The same matrix in the
- * [OpenGL documentation](https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glTranslate.xml)
- * is written as:
- *
- *  1 0 0 x
- *  0 1 0 y
- *  0 0 1 z
- *  0 0 0 0
- *
- * Please rest assured, however, that they are the same thing!
- * This is not unique to glMatrix, either, as OpenGL developers have long been confused by the
- * apparent lack of consistency between the memory layout and the documentation.
+ * @zh 三维矩阵
  */
+// tslint:disable:one-variable-per-declaration
 // tslint:disable-next-line:class-name
-class mat3 {
+export class mat3 {
 
     /**
-     * Calculates a 3x3 matrix from view direction and up direction.
-     *
-     * @param out - Matrix to store result.
-     * @param view - View direction (must be normalized).
-     * @param [up] - Up direction, default is (0,1,0) (must be normalized).
-     *
-     * @return out
-     */
-    public static fromViewUp = (() => {
-        const default_up = vec3.create(0, 1, 0);
-        const x = vec3.create(0, 0, 0);
-        const y = vec3.create(0, 0, 0);
-
-        return (out: mat3, view: vec3, up?: vec3) => {
-            if (vec3.sqrMag(view) < EPSILON * EPSILON) {
-                mat3.identity(out);
-                return out;
-            }
-
-            up = up || default_up;
-            vec3.normalize(x, vec3.cross(x, up, view));
-
-            if (vec3.sqrMag(x) < EPSILON * EPSILON) {
-                mat3.identity(out);
-                return out;
-            }
-
-            vec3.cross(y, view, x);
-            mat3.set(
-                out,
-                x.x, x.y, x.z,
-                y.x, y.y, y.z,
-                view.x, view.y, view.z,
-            );
-
-            return out;
-        };
-    })();
-
-    /**
-     * Creates a matrix, with elements specified separately.
-     *
-     * @param m00 - Value assigned to element at column 0 row 0.
-     * @param m01 - Value assigned to element at column 0 row 1.
-     * @param m02 - Value assigned to element at column 0 row 2.
-     * @param m03 - Value assigned to element at column 1 row 0.
-     * @param m04 - Value assigned to element at column 1 row 1.
-     * @param m05 - Value assigned to element at column 1 row 2.
-     * @param m06 - Value assigned to element at column 2 row 0.
-     * @param m07 - Value assigned to element at column 2 row 1.
-     * @param m08 - Value assigned to element at column 2 row 2.
-     * @return The newly created matrix.
+     * @zh 创建新的实例
      */
     public static create (m00 = 1, m01 = 0, m02 = 0, m03 = 0, m04 = 1, m05 = 0, m06 = 0, m07 = 0, m08 = 1) {
         return new mat3(m00, m01, m02, m03, m04, m05, m06, m07, m08);
     }
 
     /**
-     * Clone a matrix.
-     *
-     * @param a - Matrix to clone.
-     * @return The newly created matrix.
+     * @zh 获得指定矩阵的拷贝
      */
-    public static clone (a) {
+    public static clone (a: mat3) {
         return new mat3(
             a.m00, a.m01, a.m02,
             a.m03, a.m04, a.m05,
@@ -105,13 +29,9 @@ class mat3 {
     }
 
     /**
-     * Copy content of a matrix into another.
-     *
-     * @param out - Matrix to modified.
-     * @param a - The specified matrix.
-     * @return out.
+     * @zh 复制目标矩阵
      */
-    public static copy (out, a) {
+    public static copy (out: mat3, a: mat3) {
         out.m00 = a.m00;
         out.m01 = a.m01;
         out.m02 = a.m02;
@@ -125,39 +45,24 @@ class mat3 {
     }
 
     /**
-     * Sets the elements of a matrix to the given values.
-     *
-     * @param out - The matrix to modified.
-     * @param m00 - Value assigned to element at column 0 row 0.
-     * @param m01 - Value assigned to element at column 0 row 1.
-     * @param m02 - Value assigned to element at column 0 row 2.
-     * @param m10 - Value assigned to element at column 1 row 0.
-     * @param m11 - Value assigned to element at column 1 row 1.
-     * @param m12 - Value assigned to element at column 1 row 2.
-     * @param m20 - Value assigned to element at column 2 row 0.
-     * @param m21 - Value assigned to element at column 2 row 1.
-     * @param m22 - Value assigned to element at column 2 row 2.
-     * @return out.
+     * @zh 设置矩阵值
      */
-    public static set (out, m00, m01, m02, m10, m11, m12, m20, m21, m22) {
-        out.m00 = m00;
-        out.m01 = m01;
-        out.m02 = m02;
-        out.m03 = m10;
-        out.m04 = m11;
-        out.m05 = m12;
-        out.m06 = m20;
-        out.m07 = m21;
-        out.m08 = m22;
+    public static set (
+        out: mat3,
+        m00: number, m01: number, m02: number,
+        m10: number, m11: number, m12: number,
+        m20: number, m21: number, m22: number,
+    ) {
+        out.m00 = m00; out.m01 = m01; out.m02 = m02;
+        out.m03 = m10; out.m04 = m11; out.m05 = m12;
+        out.m06 = m20; out.m07 = m21; out.m08 = m22;
         return out;
     }
 
     /**
-     * return an identity matrix.
-     *
-     * @return out.
+     * @zh 将目标赋值为单位矩阵
      */
-    public static identity (out) {
+    public static identity (out: mat3) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -171,13 +76,9 @@ class mat3 {
     }
 
     /**
-     * Transposes a matrix.
-     *
-     * @param out - Matrix to store result.
-     * @param a - Matrix to transpose.
-     * @return out.
+     * @zh 转置矩阵
      */
-    public static transpose (out, a) {
+    public static transpose (out: mat3, a: mat3) {
         // If we are transposing ourselves we can skip a few steps but have to cache some values
         if (out === a) {
             const a01 = a.m01, a02 = a.m02, a12 = a.m05;
@@ -203,13 +104,9 @@ class mat3 {
     }
 
     /**
-     * Inverts a matrix.
-     *
-     * @param out - Matrix to store result.
-     * @param a - Matrix to invert.
-     * @return out.
+     * @zh 矩阵求逆
      */
-    public static invert (out, a) {
+    public static invert (out: mat3, a: mat3) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -239,36 +136,9 @@ class mat3 {
     }
 
     /**
-     * Calculates the adjugate of a matrix.
-     *
-     * @param out - Matrix to store result.
-     * @param a - Matrix to calculate.
-     * @return out.
+     * @zh 矩阵行列式
      */
-    public static adjoint (out, a) {
-        const a00 = a.m00, a01 = a.m01, a02 = a.m02,
-            a10 = a.m03, a11 = a.m04, a12 = a.m05,
-            a20 = a.m06, a21 = a.m07, a22 = a.m08;
-
-        out.m00 = (a11 * a22 - a12 * a21);
-        out.m01 = (a02 * a21 - a01 * a22);
-        out.m02 = (a01 * a12 - a02 * a11);
-        out.m03 = (a12 * a20 - a10 * a22);
-        out.m04 = (a00 * a22 - a02 * a20);
-        out.m05 = (a02 * a10 - a00 * a12);
-        out.m06 = (a10 * a21 - a11 * a20);
-        out.m07 = (a01 * a20 - a00 * a21);
-        out.m08 = (a00 * a11 - a01 * a10);
-        return out;
-    }
-
-    /**
-     * Calculates the determinant of a matrix.
-     *
-     * @param a - Matrix to calculate.
-     * @return Determinant of a.
-     */
-    public static determinant (a) {
+    public static determinant (a: mat3) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -277,14 +147,9 @@ class mat3 {
     }
 
     /**
-     * Multiply two matrices explicitly.
-     *
-     * @param out - Matrix to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return out.
+     * @zh 矩阵乘法
      */
-    public static multiply (out, a, b) {
+    public static multiply (out: mat3, a: mat3, b: mat3) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -308,21 +173,16 @@ class mat3 {
     }
 
     /**
-     * Alias of {@link mat3.multiply}.
+     * @zh 矩阵乘法
      */
     public static mul (out, a, b) {
         return mat3.multiply(out, a, b);
     }
 
     /**
-     * Multiply a matrix with a translation matrix given by a translation offset.
-     *
-     * @param out - Matrix to store result.
-     * @param a - Matrix to multiply.
-     * @param v - The translation offset.
-     * @return out.
+     * @zh 在给定矩阵变换基础上加入新位移变换
      */
-    public static translate (out, a, v) {
+    public static translate (out: mat3, a: mat3, v: vec3) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -343,14 +203,30 @@ class mat3 {
     }
 
     /**
-     * Rotates a matrix by the given angle.
-     *
-     * @param out - Matrix to store result.
-     * @param a - Matrix to rotate.
-     * @param rad - The rotation angle.
-     * @return out
+     * @zh 在给定矩阵变换基础上加入新缩放变换
      */
-    public static rotate (out, a, rad) {
+    public static scale (out: mat3, a: mat3, v: vec3) {
+        const x = v.x, y = v.y;
+
+        out.m00 = x * a.m00;
+        out.m01 = x * a.m01;
+        out.m02 = x * a.m02;
+
+        out.m03 = y * a.m03;
+        out.m04 = y * a.m04;
+        out.m05 = y * a.m05;
+
+        out.m06 = a.m06;
+        out.m07 = a.m07;
+        out.m08 = a.m08;
+        return out;
+    }
+
+    /**
+     * @zh 在给定矩阵变换基础上加入新旋转变换
+     * @param rad 旋转弧度
+     */
+    public static rotate (out: mat3, a: mat3, rad: number) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -373,38 +249,9 @@ class mat3 {
     }
 
     /**
-     * Multiply a matrix with a scale matrix given by a scale vector.
-     *
-     * @param out - Matrix to store result.
-     * @param a - Matrix to multiply.
-     * @param v - The scale vector.
-     * @return out
+     * @zh 根据指定四维矩阵计算三维矩阵
      */
-    public static scale (out, a, v) {
-        const x = v.x, y = v.y;
-
-        out.m00 = x * a.m00;
-        out.m01 = x * a.m01;
-        out.m02 = x * a.m02;
-
-        out.m03 = y * a.m03;
-        out.m04 = y * a.m04;
-        out.m05 = y * a.m05;
-
-        out.m06 = a.m06;
-        out.m07 = a.m07;
-        out.m08 = a.m08;
-        return out;
-    }
-
-    /**
-     * Copies the upper-left 3x3 values of a 4x4 matrix into a 3x3 matrix.
-     *
-     * @param out - Matrix to store result.
-     * @param a - The 4x4 matrix.
-     * @return out.
-     */
-    public static fromMat4 (out, a) {
+    public static fromMat4 (out: mat3, a: mat4) {
         out.m00 = a.m00;
         out.m01 = a.m01;
         out.m02 = a.m02;
@@ -418,17 +265,39 @@ class mat3 {
     }
 
     /**
-     * Creates a matrix from a translation offset.
-     * This is equivalent to (but much faster than):
-     *
-     *     mat3.identity(dest);
-     *     mat3.translate(dest, dest, vec);
-     *
-     * @param out - Matrix to store result.
-     * @param v - The translation offset.
-     * @return out.
+     * @zh 根据视口前方向和上方向计算矩阵
+     * @param view 视口面向的前方向，必须归一化
+     * @param up 视口的上方向，必须归一化，默认为 (0, 1, 0)
      */
-    public static fromTranslation (out, v) {
+    public static fromViewUp (out: mat3, view: vec3, up?: vec3) {
+        if (vec3.sqrMag(view) < EPSILON * EPSILON) {
+            mat3.identity(out);
+            return out;
+        }
+
+        up = up || vec3.UNIT_Y;
+        vec3.normalize(v3_1, vec3.cross(v3_1, up, view));
+
+        if (vec3.sqrMag(v3_1) < EPSILON * EPSILON) {
+            mat3.identity(out);
+            return out;
+        }
+
+        vec3.cross(v3_2, view, v3_1);
+        mat3.set(
+            out,
+            v3_1.x, v3_1.y, v3_1.z,
+            v3_2.x, v3_2.y, v3_2.z,
+            view.x, view.y, view.z,
+        );
+
+        return out;
+    }
+
+    /**
+     * @zh 计算位移矩阵
+     */
+    public static fromTranslation (out: mat3, v: vec3) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -442,17 +311,27 @@ class mat3 {
     }
 
     /**
-     * Creates a matrix from a given angle.
-     * This is equivalent to (but much faster than):
-     *
-     *     mat3.identity(dest);
-     *     mat3.rotate(dest, dest, rad);
-     *
-     * @param out - Matrix to store result.
-     * @param rad - The rotation angle.
-     * @return out.
+     * @zh 计算缩放矩阵
      */
-    public static fromRotation (out, rad) {
+    public static fromScaling (out: mat3, v: vec3) {
+        out.m00 = v.x;
+        out.m01 = 0;
+        out.m02 = 0;
+
+        out.m03 = 0;
+        out.m04 = v.y;
+        out.m05 = 0;
+
+        out.m06 = 0;
+        out.m07 = 0;
+        out.m08 = 1;
+        return out;
+    }
+
+    /**
+     * @zh 计算旋转矩阵
+     */
+    public static fromRotation (out: mat3, rad: number) {
         const s = Math.sin(rad), c = Math.cos(rad);
 
         out.m00 = c;
@@ -470,62 +349,9 @@ class mat3 {
     }
 
     /**
-     * Creates a matrix from a scale vector.
-     * This is equivalent to (but much faster than):
-     *
-     *     mat3.identity(dest);
-     *     mat3.scale(dest, dest, vec);
-     *
-     * @param out - Matrix to store result.
-     * @param v - Scale vector.
-     * @return out.
+     * @zh 根据四元数旋转信息计算矩阵
      */
-    public static fromScaling (out, v) {
-        out.m00 = v.x;
-        out.m01 = 0;
-        out.m02 = 0;
-
-        out.m03 = 0;
-        out.m04 = v.y;
-        out.m05 = 0;
-
-        out.m06 = 0;
-        out.m07 = 0;
-        out.m08 = 1;
-        return out;
-    }
-
-    /**
-     * Copies the values from a 2x3 matrix into a 3x3 matrix.
-     *
-     * @param out - Matrix to store result.
-     * @param a - The 2x3 matrix.
-     * @return out.
-     */
-    public static fromMat2d (out, a) {
-        out.m00 = a.m00;
-        out.m01 = a.m01;
-        out.m02 = 0;
-
-        out.m03 = a.m02;
-        out.m04 = a.m03;
-        out.m05 = 0;
-
-        out.m06 = a.m04;
-        out.m07 = a.m05;
-        out.m08 = 1;
-        return out;
-    }
-
-    /**
-     * Calculates a 3x3 matrix from the given quaternion.
-     *
-     * @param out - Matrix to store result.
-     * @param q - The quaternion.
-     *
-     * @return out.
-     */
-    public static fromQuat (out, q) {
+    public static fromQuat (out: mat3, q: quat) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -557,14 +383,9 @@ class mat3 {
     }
 
     /**
-     * Calculates a 3x3 normal matrix (transpose inverse) from the 4x4 matrix.
-     *
-     * @param out - Matrix to store result.
-     * @param a - A 4x4 matrix to derive the normal matrix from.
-     *
-     * @return out.
+     * @zh 计算指定四维矩阵的逆转置三维矩阵
      */
-    public static normalFromMat4 (out, a) {
+    public static inverseTransposeMat4 (out: mat3, a: mat4) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
             a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
             a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
@@ -607,23 +428,17 @@ class mat3 {
     }
 
     /**
-     * Returns a string representation of a matrix.
-     *
-     * @param a - The matrix.
-     * @return String representation of this matrix.
+     * @zh 返回矩阵的字符串表示
      */
     public static str (a) {
         return `mat3(${a.m00}, ${a.m01}, ${a.m02}, ${a.m03}, ${a.m04}, ${a.m05}, ${a.m06}, ${a.m07}, ${a.m08})`;
     }
 
     /**
-     * Store elements of a matrix into array.
-     *
-     * @param out - Array to store result.
-     * @param m - The matrix.
-     * @return out.
+     * @zh 矩阵转数组
+     * @param ofs 数组内的起始偏移量
      */
-    public static array (out, m, ofs = 0) {
+    public static array (out: IWritableArrayLike<number>, m: mat4, ofs = 0) {
         out[ofs + 0] = m.m00;
         out[ofs + 1] = m.m01;
         out[ofs + 2] = m.m02;
@@ -638,26 +453,9 @@ class mat3 {
     }
 
     /**
-     * Returns Frobenius norm of a matrix.
-     *
-     * @param a - Matrix to calculate Frobenius norm of.
-     * @return - The frobenius norm.
+     * @zh 逐元素矩阵加法
      */
-    public static frob (a) {
-        return (Math.sqrt(Math.pow(a.m00, 2) + Math.pow(a.m01, 2) + Math.pow(a.m02, 2) +
-            Math.pow(a.m03, 2) + Math.pow(a.m04, 2) + Math.pow(a.m05, 2) + Math.pow(a.m06, 2) +
-            Math.pow(a.m07, 2) + Math.pow(a.m08, 2)));
-    }
-
-    /**
-     * Adds two matrices.
-     *
-     * @param out - Matrix to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return out.
-     */
-    public static add (out, a, b) {
+    public static add (out: mat3, a: mat3, b: mat3) {
         out.m00 = a.m00 + b.m00;
         out.m01 = a.m01 + b.m01;
         out.m02 = a.m02 + b.m02;
@@ -671,14 +469,9 @@ class mat3 {
     }
 
     /**
-     * Subtracts matrix b from matrix a.
-     *
-     * @param out - Matrix to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return out.
+     * @zh 逐元素矩阵减法
      */
-    public static subtract (out, a, b) {
+    public static subtract (out: mat3, a: mat3, b: mat3) {
         out.m00 = a.m00 - b.m00;
         out.m01 = a.m01 - b.m01;
         out.m02 = a.m02 - b.m02;
@@ -692,21 +485,16 @@ class mat3 {
     }
 
     /**
-     * Alias of {@link mat3.subtract}.
+     * @zh 逐元素矩阵减法
      */
-    public static sub (out, a, b) {
+    public static sub (out: mat3, a: mat3, b: mat3) {
         return mat3.subtract(out, a, b);
     }
 
     /**
-     * Multiply each element of a matrix by a scalar number.
-     *
-     * @param out - Matrix to store result.
-     * @param a - Matrix to scale
-     * @param b - The scale number.
-     * @return out.
+     * @zh 矩阵标量乘法
      */
-    public static multiplyScalar (out, a, b) {
+    public static multiplyScalar (out: mat3, a: mat3, b: number) {
         out.m00 = a.m00 * b;
         out.m01 = a.m01 * b;
         out.m02 = a.m02 * b;
@@ -720,15 +508,9 @@ class mat3 {
     }
 
     /**
-     * Adds two matrices after multiplying each element of the second operand by a scalar number.
-     *
-     * @param out - Matrix to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @param scale - The scale number.
-     * @return out.
+     * @zh 逐元素矩阵标量乘加: A + B * scale
      */
-    public static multiplyScalarAndAdd (out, a, b, scale) {
+    public static multiplyScalarAndAdd (out: mat3, a: mat3, b: mat3, scale: number) {
         out.m00 = a.m00 + (b.m00 * scale);
         out.m01 = a.m01 + (b.m01 * scale);
         out.m02 = a.m02 + (b.m02 * scale);
@@ -742,30 +524,20 @@ class mat3 {
     }
 
     /**
-     * Returns whether the specified matrices are equal. (Compared using ===)
-     *
-     * @param a - The first matrix.
-     * @param b - The second matrix.
-     * @return True if the matrices are equal, false otherwise.
+     * @zh 矩阵等价判断
      */
-    public static exactEquals (a, b) {
+    public static exactEquals (a: mat3, b: mat3) {
         return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 &&
             a.m03 === b.m03 && a.m04 === b.m04 && a.m05 === b.m05 &&
             a.m06 === b.m06 && a.m07 === b.m07 && a.m08 === b.m08;
     }
 
     /**
-     * Returns whether the specified matrices are approximately equal.
-     *
-     * @param a - The first matrix.
-     * @param b - The second matrix.
-     * @return True if the matrices are equal, false otherwise.
+     * @zh 排除浮点数误差的矩阵近似等价判断
      */
-    public static equals (a, b) {
-        // tslint:disable: max-line-length
+    public static equals (a: mat3, b: mat3) {
         const a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05, a6 = a.m06, a7 = a.m07, a8 = a.m08;
         const b0 = b.m00, b1 = b.m01, b2 = b.m02, b3 = b.m03, b4 = b.m04, b5 = b.m05, b6 = b.m06, b7 = b.m07, b8 = b.m08;
-        // tslint:enable: max-line-length
         return (
             Math.abs(a0 - b0) <= EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
             Math.abs(a1 - b1) <= EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&
@@ -789,78 +561,22 @@ class mat3 {
     public m07: number;
     public m08: number;
 
-    /**
-     * Creates a matrix, with elements specified separately.
-     *
-     * @param m00 - Value assigned to element at column 0 row 0.
-     * @param m01 - Value assigned to element at column 0 row 1.
-     * @param m02 - Value assigned to element at column 0 row 2.
-     * @param m03 - Value assigned to element at column 1 row 0.
-     * @param m04 - Value assigned to element at column 1 row 1.
-     * @param m05 - Value assigned to element at column 1 row 2.
-     * @param m06 - Value assigned to element at column 2 row 0.
-     * @param m07 - Value assigned to element at column 2 row 1.
-     * @param m08 - Value assigned to element at column 2 row 2.
-     */
     constructor (
         m00 = 1, m01 = 0, m02 = 0,
         m03 = 0, m04 = 1, m05 = 0,
         m06 = 0, m07 = 0, m08 = 1,
     ) {
-        /**
-         * The element at column 0 row 0.
-         * @type {number}
-         */
         this.m00 = m00;
-
-        /**
-         * The element at column 0 row 1.
-         * @type {number}
-         */
         this.m01 = m01;
-
-        /**
-         * The element at column 0 row 2.
-         * @type {number}
-         */
         this.m02 = m02;
-
-        /**
-         * The element at column 1 row 0.
-         * @type {number}
-         */
         this.m03 = m03;
-
-        /**
-         * The element at column 1 row 1.
-         * @type {number}
-         */
         this.m04 = m04;
-
-        /**
-         * The element at column 1 row 2.
-         * @type {number}
-         */
         this.m05 = m05;
-
-        /**
-         * The element at column 2 row 0.
-         * @type {number}
-         */
         this.m06 = m06;
-
-        /**
-         * The element at column 2 row 1.
-         * @type {number}
-         */
         this.m07 = m07;
-
-        /**
-         * The element at column 2 row 2.
-         * @type {number}
-         */
         this.m08 = m08;
     }
 }
 
-export default mat3;
+const v3_1 = vec3.create(0, 0, 0);
+const v3_2 = vec3.create(0, 0, 0);

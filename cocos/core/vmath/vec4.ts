@@ -1,5 +1,5 @@
 import { mat4 } from './mat4';
-import quat from './quat';
+import { quat } from './quat';
 import { EPSILON, random } from './utils';
 
 /**
@@ -7,9 +7,9 @@ import { EPSILON, random } from './utils';
  */
 // tslint:disable-next-line:class-name
 export class vec4 {
-    public static ZERO = new vec4(0, 0, 0, 0);
-    public static ONE = new vec4(1, 1, 1, 1);
-    public static NEG_ONE = new vec4(-1, -1, -1, -1);
+    public static ZERO = Object.freeze(new vec4(0, 0, 0, 0));
+    public static ONE = Object.freeze(new vec4(1, 1, 1, 1));
+    public static NEG_ONE = Object.freeze(new vec4(-1, -1, -1, -1));
 
     /**
      * @zh 创建新的实例
@@ -201,7 +201,7 @@ export class vec4 {
     }
 
     /**
-     * @zh 求向量间距离
+     * @zh 求两向量的欧氏距离
      */
     public static distance (a: vec4, b: vec4) {
         const x = b.x - a.x;
@@ -212,14 +212,14 @@ export class vec4 {
     }
 
     /**
-     * @zh 求向量距离
+     * @zh 求两向量的欧氏距离
      */
     public static dist (a: vec4, b: vec4) {
         return vec4.distance(a, b);
     }
 
     /**
-     * @zh 求向量间距离平方
+     * @zh 求两向量的欧氏距离平方
      */
     public static squaredDistance (a: vec4, b: vec4) {
         const x = b.x - a.x;
@@ -230,7 +230,7 @@ export class vec4 {
     }
 
     /**
-     * @zh 求向量间距离平方
+     * @zh 求两向量的欧氏距离平方
      */
     public static sqrDist (a: vec4, b: vec4) {
         return vec4.squaredDistance(a, b);
@@ -338,14 +338,14 @@ export class vec4 {
     }
 
     /**
-     * @zh 向量点乘
+     * @zh 向量点积（数量积）
      */
     public static dot (a: vec4, b: vec4) {
         return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
     }
 
     /**
-     * @zh 逐元素向量线性插值
+     * @zh 逐元素向量线性插值： A + t * (B - A)
      */
     public static lerp (out: vec4, a: vec4, b: vec4, t: number) {
         const { x: ax, y: ay, z: az, w: aw } = a;
@@ -357,10 +357,10 @@ export class vec4 {
     }
 
     /**
-     * @zh 生成一个随机单位向量，概率为在单位球体上均匀分布
+     * @zh 生成一个在单位球体上均匀分布的随机向量
      * @param scale 生成的向量长度
      */
-    public static random (out: vec4, scale: number) {
+    public static random (out: vec4, scale?: number) {
         scale = scale || 1.0;
 
         const phi = random() * 2.0 * Math.PI;
@@ -408,7 +408,7 @@ export class vec4 {
     }
 
     /**
-     * @zh 此向量的字符串表示
+     * @zh 返回向量的字符串表示
      */
     public static str (a: vec4) {
         return `vec4(${a.x}, ${a.y}, ${a.z}, ${a.w})`;
