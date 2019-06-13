@@ -446,7 +446,7 @@ export class UITransformComponent extends Component {
         const rectWorld = this.getBoundingBoxToWorld();
         const px = rectWorld.center.x;
         const py = rectWorld.center.y;
-        const pz = this.node.getWorldPosition().z;
+        const pz = this.node.worldPosition.z;
         const w = rectWorld.width / 2;
         const h = rectWorld.height / 2;
         const l = 0.01;

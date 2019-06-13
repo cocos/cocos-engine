@@ -214,8 +214,8 @@ export class RenderScene {
 
     /**
      * Cast a ray into the scene, record all the intersected models in the result array
-     * @param worldRay - the testing ray
-     * @param mask - the layer mask to filter the models
+     * @param worldRay the testing ray
+     * @param mask the layer mask to filter the models
      * @returns the results array
      */
     public raycast (worldRay: ray, mask: number = Layers.RaycastMask): IRaycastResult[] {
@@ -234,7 +234,7 @@ export class RenderScene {
                 const subModel = m.getSubModel(i).subMeshData;
                 if (subModel && subModel.geometricInfo) {
                     const { positions: vb, indices: ib, doubleSided: sides } = subModel.geometricInfo;
-                    narrowphase(vb, ib, subModel.primitiveMode, sides);
+                    narrowphase(vb, ib, subModel.primitiveMode, sides as boolean);
                 }
                 if (distance < Infinity) {
                     const r = pool.add();
@@ -250,8 +250,8 @@ export class RenderScene {
 
     /**
      * Cast a ray into the scene, record all the intersected ui aabb in the result array
-     * @param worldRay - the testing ray
-     * @param mask - the layer mask to filter the ui aabb
+     * @param worldRay the testing ray
+     * @param mask the layer mask to filter the ui aabb
      * @returns the results array
      */
     public raycastUI (worldRay: ray, mask: number = Layers.UI): IRaycastResult[] {
@@ -269,16 +269,15 @@ export class RenderScene {
 
     /**
      * Before you raycast the ui node, make sure the node is not null
-     * @param worldRay - the testing ray
-     * @param mask - the layer mask to filter the models
-     * @param uiNode - the ui node
+     * @param worldRay the testing ray
+     * @param mask the layer mask to filter the models
+     * @param uiNode the ui node
      * @returns IRaycastResult | undefined
      */
     public raycastUINode (worldRay: ray, mask: number = Layers.UI, uiNode: Node) {
         const uiTransfrom = uiNode.uiTransfromComp;
         if (uiTransfrom == null || !cc.Layers.check(uiNode.layer, mask)) { return; }
         uiTransfrom.getComputeAABB(aabbUI);
-        // broadphase
         distance = intersect.ray_aabb(worldRay, aabbUI);
 
         if (distance <= 0) {
@@ -320,7 +319,7 @@ const poolUI = new RecyclePool<IRaycastResult>(() => {
 }, 8);
 const resultUIs: IRaycastResult[] = [];
 
-const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides?: boolean) => {
+const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides: boolean) => {
     distance = Infinity;
     if (pm === GFXPrimitiveMode.TRIANGLE_LIST) {
         const cnt = ib.length;
