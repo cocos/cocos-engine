@@ -816,16 +816,16 @@ proto.release = function (asset) {
         if (item) {
             var removed = this.removeItem(id);
             asset = item.content;
-            if (asset instanceof cc.Asset) {
-                let nativeUrl = asset.nativeUrl;
-                if (nativeUrl) {
-                    this.release(nativeUrl);  // uncache loading item of native asset
-                }
-                asset.destroy();
-            }
             if (CC_DEBUG && removed) {
                 this._releasedAssetChecker_DEBUG.setReleased(item, id);
             }
+        }
+        if (asset instanceof cc.Asset) {
+            let nativeUrl = asset.nativeUrl;
+            if (nativeUrl) {
+                this.release(nativeUrl);  // uncache loading item of native asset
+            }
+            asset.destroy();
         }
     }
 };
