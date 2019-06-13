@@ -290,9 +290,9 @@ class SharedRigidBody {
         // 开始物理计算之前，用户脚本或引擎功能有可能改变节点的Transform，所以需要判断并进行更新
         if (this._node.hasChanged) {
             // scale 进行单独判断，因为目前的物理系统处理后不会改变scale的属性
-            if (!vec3.equals(this._prevScale, this._node._scale)) {
-                this._body.scaleAllShapes(this._node._scale);
-                vec3.copy(this._prevScale, this._node._scale);
+            if (!vec3.equals(this._prevScale, this._node.worldScale)) {
+                this._body.scaleAllShapes(this._node.worldScale);
+                vec3.copy(this._prevScale, this._node.worldScale);
             }
             this.syncPhysWithScene(this._node);
         }

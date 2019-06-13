@@ -31,7 +31,9 @@ import * as geometry from './geom-utils';
 import * as utils from './misc/utils';
 import * as primitives from './primitive';
 export * from './ui';
-export { createRaycastResult } from './physics/instance';
+
+// hidden
+// export { createRaycastResult } from './physics/instance';
 
 export {
     utils,
