@@ -185,7 +185,7 @@ function _mouseWheelHandler (this: EventListener, event: EventMouse) {
     }
 }
 
-function _doDispatchEvent (owner: Node, event: EventTouch) {
+function _doDispatchEvent (owner: Node, event: Event) {
     let target: Node;
     let i = 0;
     event.target = owner;
@@ -494,7 +494,7 @@ export class NodeEventProcessor {
      *
      * @param event - 分派到事件流中的事件对象。
      */
-    public dispatchEvent (event: EventTouch) {
+    public dispatchEvent (event: Event) {
         _doDispatchEvent(this._node, event);
         _cachedArray.length = 0;
     }

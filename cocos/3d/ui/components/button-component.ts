@@ -192,7 +192,11 @@ export class ButtonComponent extends Component {
      */
     @property
     get normalColor () {
-        return this._normalColor;
+        if (!CC_USING_TS){
+            return this._normalColor.clone();
+        } else {
+            return this._normalColor;
+        }
     }
 
     set normalColor (value: Color) {
@@ -210,7 +214,11 @@ export class ButtonComponent extends Component {
      */
     @property
     get pressedColor () {
-        return this._pressColor;
+        if (!CC_USING_TS){
+            return this._pressColor.clone();
+        } else {
+            return this._pressColor;
+        }
     }
 
     set pressedColor (value: Color) {
@@ -227,7 +235,11 @@ export class ButtonComponent extends Component {
      */
     @property
     get hoverColor () {
-        return this._hoverColor;
+       if (!CC_USING_TS){
+           return this._hoverColor.clone();
+       } else {
+           return this._hoverColor;
+       }
     }
 
     set hoverColor (value: Color) {
@@ -243,7 +255,11 @@ export class ButtonComponent extends Component {
      */
     @property
     get disabledColor () {
-        return this._disabledColor;
+        if (!CC_USING_TS) {
+            return this._disabledColor.clone();
+        } else {
+            return this._disabledColor;
+        }
     }
 
     set disabledColor (value: Color) {

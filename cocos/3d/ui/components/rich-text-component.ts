@@ -52,16 +52,16 @@ const RichTextChildImageName = 'RICHTEXT_Image_CHILD';
  */
 function debounce (func: Function, wait: number, immediate?: boolean) {
     let timeout;
-    return function (this: any) {
+    return function (this: any, ...args: any[]) {
         const context = this;
         const later = () => {
             timeout = null;
-            if (!immediate) { func.apply(context, arguments); }
+            if (!immediate) { func.apply(context, args); }
         };
         const callNow = immediate && !timeout;
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
-        if (callNow) { func.apply(context, arguments); }
+        if (callNow) { func.apply(context, args); }
     };
 }
 
@@ -85,7 +85,8 @@ const pool = new Pool((labelSeg: ILabelSegment) => {
     return true;
 }, 20);
 
-pool.get = function (string: string, richtext: RichTextComponent) {
+// @ts-ignore
+pool.get = function (string: string, richtext: RichTextComponent): ILabelSegment {
     let labelSeg = this._get();
     if (!labelSeg){
         labelSeg = {
@@ -424,6 +425,7 @@ export class RichTextComponent extends UIComponent {
     }
 
     private _createFontLabel (string: string) {
+        // @ts-ignore
         return pool.get!(string, this);
     }
 

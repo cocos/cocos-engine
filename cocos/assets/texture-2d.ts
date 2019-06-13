@@ -39,7 +39,7 @@ export class Texture2D extends TextureBase {
      * 当设置 Mipmap 时，贴图的尺寸以及像素格式可能会改变。
      */
     get mipmaps () {
-        return this._mipmaps;
+        return this._mipmaps.slice();
     }
 
     set mipmaps (value) {

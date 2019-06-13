@@ -193,8 +193,12 @@ export class CameraComponent extends Component {
      * @zh 相机的颜色缓冲默认值。
      */
     @property
-    get color () {
-        return this._color;
+    get color (){
+        if (!CC_USING_TS) {
+            return this._color.clone();
+        } else {
+            return this._color;
+        }
     }
 
     set color (val) {
@@ -255,7 +259,11 @@ export class CameraComponent extends Component {
      */
     @property
     get rect () {
-        return this._rect;
+        if (!CC_USING_TS) {
+            return this._rect.clone();
+        } else {
+            return this._rect;
+        }
     }
 
     set rect (val) {

@@ -209,12 +209,26 @@ export class MaskComponent extends UIRenderComponent {
         return this._srcBlendFactor;
     }
 
+    // NOTE: maybe can use super.color later
     @property({
         visible: false,
         override: true,
     })
     get color () {
-        return super.color;
+        if (!CC_USING_TS) {
+            return this._color.clone();
+        } else {
+            return this._color;
+        }
+    }
+
+    set color (value) {
+        if (this._color === value) {
+            return;
+        }
+
+        this._color = value;
+        this.markForUpdateRenderData();
     }
 
     public static Type = MaskType;

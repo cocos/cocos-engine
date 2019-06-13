@@ -520,18 +520,7 @@ export class LabelComponent extends UIRenderComponent {
         this.updateRenderData();
     }
 
-    get assemblerData (){
-        return this._assemblerData;
-    }
-
-    get fontAtlas () {
-        return this._fontAtlas;
-    }
-
-    set fontAtlas (value) {
-        this._fontAtlas = value;
-    }
-
+    @property
     get spacingX () {
         return this._spacingX;
     }
@@ -543,6 +532,18 @@ export class LabelComponent extends UIRenderComponent {
 
         this._spacingX = value;
         this.updateRenderData();
+    }
+
+    get assemblerData (){
+        return this._assemblerData;
+    }
+
+    get fontAtlas () {
+        return this._fontAtlas;
+    }
+
+    set fontAtlas (value) {
+        this._fontAtlas = value;
     }
 
     get _bmFontOriginalSize (){

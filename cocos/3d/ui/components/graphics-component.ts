@@ -103,7 +103,11 @@ export class GraphicsComponent extends UIRenderComponent {
      */
     @property
     get strokeColor () {
-        return this._strokeColor;
+        if (!CC_USING_TS){
+            return this._strokeColor.clone();
+        } else {
+            return this._strokeColor;
+        }
     }
 
     set strokeColor (value: Color) {
@@ -120,7 +124,11 @@ export class GraphicsComponent extends UIRenderComponent {
      */
     @property
     get fillColor () {
-        return this._fillColor;
+        if (!CC_USING_TS){
+            return this._fillColor.clone();
+        } else {
+            return this._fillColor;
+        }
     }
 
     set fillColor (value) {

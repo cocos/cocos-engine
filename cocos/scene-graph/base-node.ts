@@ -82,7 +82,11 @@ export class BaseNode extends CCObject {
      * Gets all components attached to this node.
      */
     get components (): ReadonlyArray<Component> {
-        return this._components;
+        if (!CC_USING_TS){
+            return this._components.slice();
+        }else{
+            return this._components;
+        }
     }
 
     /**
@@ -156,7 +160,11 @@ export class BaseNode extends CCObject {
      */
     @property
     get children () {
-        return this._children;
+        if (!CC_USING_TS) {
+            return this._children.slice();
+        } else {
+            return this._children;
+        }
     }
 
     /**
@@ -507,7 +515,7 @@ export class BaseNode extends CCObject {
      */
     public getChildByPath (path: string) {
         const segments = path.split('/');
-        let lastNode: this = this;
+        let lastNode: BaseNode = this;
         for (const segment of segments) {
             if (segment.length === 0) {
                 continue;

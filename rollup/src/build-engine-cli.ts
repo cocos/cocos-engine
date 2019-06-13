@@ -67,6 +67,9 @@ interface IGlobaldefines {
     CC_DEV?: boolean;
     CC_SUPPORT_JIT?: boolean;
 
+    // Language macros
+    CC_USING_TS?: boolean;
+
     // Physics macros
     CC_PHYSICS_CANNON?: boolean;
     CC_PHYSICS_AMMO?: boolean;
@@ -105,6 +108,7 @@ function getGlobalDefs (platform: Platform, physics: Physics, flags?: IFlags): o
     result.CC_DEV = result.CC_EDITOR || result.CC_PREVIEW || result.CC_TEST;
     result.CC_DEBUG = result.CC_DEBUG || result.CC_DEV;
     result.CC_SUPPORT_JIT = !(result.CC_WECHATGAME || result.CC_QQPLAY || result.CC_RUNTIME);
+    result.CC_USING_TS = result.CC_USING_TS;
 
     // default
     result.CC_PHYSICS_CANNON = true;

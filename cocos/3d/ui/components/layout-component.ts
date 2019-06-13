@@ -213,7 +213,11 @@ export class LayoutComponent extends Component {
      */
     @property
     get cellSize () {
-        return this._cellSize;
+        if (!CC_USING_TS){
+            return this._cellSize.clone();
+        } else {
+            return this._cellSize;
+        }
     }
 
     set cellSize (value: Size) {
@@ -440,7 +444,7 @@ export class LayoutComponent extends Component {
     @property
     private _N$padding = 0;
     @property
-    private _cellSize = cc.size(40, 40);
+    private _cellSize = new Size(40, 40);
     @property
     private _startAxis = AxisDirection.HORIZONTAL;
     @property

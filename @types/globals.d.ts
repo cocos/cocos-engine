@@ -43,6 +43,8 @@ declare const CC_PHYSICS_CANNON: boolean;
 declare const CC_PHYSICS_AMMO: boolean;
 declare const CC_PHYSICS_BUILT_IN: boolean;
 
+declare const CC_USING_TS: boolean;
+
 interface Window {
     mozRequestAnimationFrame (callback: any, element?: any): any;
     oRequestAnimationFrame (callback: any, element?: any): any;

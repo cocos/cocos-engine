@@ -63,7 +63,11 @@ export class LabelOutlineComponent extends Component {
      */
     @property
     get color () {
-        return this._color;
+        if (!CC_USING_TS) {
+            return this._color.clone();
+        } else {
+            return this._color;
+        }
     }
 
     set color (value) {

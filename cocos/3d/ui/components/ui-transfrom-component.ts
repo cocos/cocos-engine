@@ -27,7 +27,11 @@ export class UITransformComponent extends Component {
         displayOrder: 0,
     })
     get contentSize () {
-        return this._contentSize;
+        if (!CC_USING_TS) {
+            return this._contentSize.clone();
+        } else {
+            return this._contentSize;
+        }
     }
 
     set contentSize (value) {
@@ -104,7 +108,11 @@ export class UITransformComponent extends Component {
         displayOrder: 1,
     })
     get anchorPoint () {
-        return this._anchorPoint;
+        if (!CC_USING_TS){
+            return this._anchorPoint.clone();
+        } else {
+            return this._anchorPoint;
+        }
     }
 
     set anchorPoint (value) {

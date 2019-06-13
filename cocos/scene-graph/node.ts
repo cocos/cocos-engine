@@ -9,6 +9,7 @@ import Vec2 from '../core/value-types/vec2';
 import { mat4, quat, vec3 } from '../core/vmath';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
+import { NodeEventProcessor } from './node-event-processor';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -75,7 +76,7 @@ export class Node extends BaseNode {
     protected _matDirty = false;
     protected _eulerDirty = false;
 
-    protected _eventProcessor = new cc.NodeEventProcessor(this);
+    protected _eventProcessor: NodeEventProcessor = new cc.NodeEventProcessor(this);
     protected _eventMask = 0;
     private _uiTransfromComp: UITransformComponent | null = null;
 
@@ -84,15 +85,16 @@ export class Node extends BaseNode {
      * 以欧拉角表示的本地旋转值
      */
     @property({ type: Vec3 })
-    set eulerAngles (val: Readonly<Vec3>) {
-        this.setRotationFromEuler(val.x, val.y, val.z);
-    }
     get eulerAngles () {
         if (this._eulerDirty) {
             quat.toEuler(this._euler, this._lrot);
             this._eulerDirty = false;
         }
         return this._euler;
+    }
+
+    set eulerAngles (val: Readonly<Vec3>) {
+        this.setRotationFromEuler(val.x, val.y, val.z);
     }
 
     /**
@@ -379,7 +381,11 @@ export class Node extends BaseNode {
      * 本地位移
      */
     public get position (): Readonly<Vec3> {
-        return this._lpos;
+        if (!CC_USING_TS) {
+            return this.getPosition();
+        } else {
+            return this._lpos;
+        }
     }
     public set position (val: Readonly<Vec3>) {
         this.setPosition(val);
@@ -454,7 +460,11 @@ export class Node extends BaseNode {
      * 本地旋转
      */
     public get rotation (): Readonly<Quat> {
-        return this._lrot;
+        if (!CC_USING_TS) {
+            return this.getRotation();
+        } else {
+            return this._lrot;
+        }
     }
     public set rotation (val: Readonly<Quat>) {
         this.setRotation(val);
@@ -508,7 +518,11 @@ export class Node extends BaseNode {
      * 本地缩放
      */
     public get scale (): Readonly<Vec3> {
-        return this._lscale;
+        if (!CC_USING_TS) {
+            return this.getScale();
+        } else {
+            return this._lscale;
+        }
     }
     public set scale (val: Readonly<Vec3>) {
         this.setScale(val);
