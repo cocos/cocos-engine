@@ -93,6 +93,13 @@ class Component extends CCObject {
         visible: false,
     })
     get uuid () {
+
+        // @ts-ignore
+        if (CC_EDITOR && window.EditorExtends) {
+            // @ts-ignore
+            EditorExtends.Component.add(this._id, this);
+        }
+
         return this._id;
     }
 
@@ -216,7 +223,7 @@ class Component extends CCObject {
     /**
      * For internal usage.
      */
-    public _id: string;
+    public _id: string = idGenerator.getNewId();
 
     /**
      * Register all related EventTargets,
@@ -225,22 +232,6 @@ class Component extends CCObject {
     private _eventTargets: any[] = [];
 
     // private __scriptUuid = '';
-
-    constructor () {
-        super();
-        if (CC_EDITOR) {
-            // @ts-ignore
-            this._id = Editor.Utils.UuidUtils.uuid();
-            // @ts-ignore
-            if (window.EditorExtends && window.EditorExtends.Component) {
-                // @ts-ignore
-                EditorExtends.Component.add(this._id, this);
-            }
-        }
-        else {
-            this._id = idGenerator.getNewId();
-        }
-    }
 
     public _getRenderScene () {
         if (this._sceneGetter) {
