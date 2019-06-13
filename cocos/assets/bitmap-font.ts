@@ -33,10 +33,8 @@ export interface IConfig {
 }
 
 /**
- * !#en Class for BitmapFont handling.
- * !#zh 位图字体资源类。
- * @class BitmapFont
- * @extends Font
+ * @en Class for BitmapFont handling.
+ * @zh 位图字体资源类。
  */
 @ccclass('cc.BitmapFont')
 export class BitmapFont extends Font {

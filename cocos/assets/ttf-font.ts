@@ -31,11 +31,8 @@ import { Font } from './font';
  * @module cc
  */
 /**
- * !#en Class for TTFFont handling.
- * !#zh TTF 字体资源类。
- * @class TTFFont
- * @extends Font
- *
+ * @en Class for TTFFont handling.
+ * @zh TTF 字体资源类。
  */
 @ccclass('cc.TTFFont')
 export class TTFFont extends Font {

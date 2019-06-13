@@ -30,10 +30,8 @@ import { BitmapFont } from './bitmap-font';
  * @module cc
  */
 /**
- * !#en Class for LabelAtlas handling.
- * !#zh 艺术数字字体资源类。
- * @class LabelAtlas
- * @extends BitmapFont
+ * @en Class for LabelAtlas handling.
+ * @zh 艺术数字字体资源类。
  *
  */
 @ccclass('cc.LabelAtlas')

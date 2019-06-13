@@ -27,6 +27,7 @@ import {ccclass, property} from '../core/data/class-decorator';
 import { Asset } from './asset';
 
 /**
+ * @zh
  * Json 资源。
  * Json 资源加载后将直接解析为对象。如果你希望获得 JSON 的原始文本，你需要使用文本资源（使用文件名后缀“.txt”）。
  */
