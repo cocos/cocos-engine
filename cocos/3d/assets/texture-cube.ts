@@ -85,7 +85,7 @@ export class TextureCube extends TextureBase {
     }
 
     /**
-     * 0 级 Mipmap。
+     * 0 级 Mipmap。<br>
      * 注意，`this.image = i` 等价于 `this.mipmaps = [i]`，
      * 也就是说，通过 `this.image` 设置 0 级 Mipmap 时将隐式地清除之前的所有 Mipmap。
      */
@@ -104,6 +104,7 @@ export class TextureCube extends TextureBase {
      * @param out 出口立方体贴图，若未定义则将创建为新的立方体贴图。
      * @returns `out`
      * @example
+     * ```typescript
      * const textures = new Array<Texture2D>(6);
      * textures[TextureCube.FaceIndex.front] = frontImage;
      * textures[TextureCube.FaceIndex.back] = backImage;
@@ -112,6 +113,7 @@ export class TextureCube extends TextureBase {
      * textures[TextureCube.FaceIndex.top] = topImage;
      * textures[TextureCube.FaceIndex.bottom] = bottomImage;
      * const textureCube = TextureCube.fromTexture2DArray(textures);
+     * ```
      */
     public static fromTexture2DArray (textures: Texture2D[], out?: TextureCube) {
         const mipmaps: ITextureCubeMipmap[] = [];

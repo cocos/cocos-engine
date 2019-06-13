@@ -52,7 +52,7 @@ export class BitmapFont extends Font {
 
     /**
      * @zh
-     * 文字尺寸
+     * 文字尺寸。
      */
     @property
     public fontSize = -1;

@@ -3,7 +3,7 @@ import { IGeometry, IGeometryOptions } from './define';
 
 /**
  * @zh
- * 球参数选项
+ * 球参数选项。
  */
 interface ISphereOptions extends IGeometryOptions {
     segments: number;
@@ -11,9 +11,9 @@ interface ISphereOptions extends IGeometryOptions {
 
 /**
  * @zh
- * 生成一个球
- * @param radius 球半径
- * @param options 参数选项
+ * 生成一个球。
+ * @param radius 球半径。
+ * @param options 参数选项。
  */
 export default function (radius = 0.5, opts: RecursivePartial<ISphereOptions> = {}): IGeometry {
   const segments = opts.segments !== undefined ? opts.segments : 32;

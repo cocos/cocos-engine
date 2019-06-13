@@ -78,7 +78,7 @@ export class Asset extends RawAsset implements IEventTarget {
     public static preventPreloadNativeObject = false;
 
     /**
-     * 应 AssetDB 要求提供这个方法
+     * 应 AssetDB 要求提供这个方法。
      * @method deserialize
      * @param {String} data
      * @return {Asset}
@@ -91,7 +91,7 @@ export class Asset extends RawAsset implements IEventTarget {
      * @en
      * Whether the asset is loaded or not
      * @zh
-     * 该资源是否已经成功加载
+     * 该资源是否已经成功加载。
      */
     public loaded = true;
 
@@ -217,7 +217,7 @@ export class Asset extends RawAsset implements IEventTarget {
     }
 
     /**
-     * 应 AssetDB 要求提供这个方法
+     * 应 AssetDB 要求提供这个方法。
      *
      * @method serialize
      * @return {String}
@@ -231,7 +231,7 @@ export class Asset extends RawAsset implements IEventTarget {
      * @en
      * Set native file name for this asset.
      * @zh
-     * 为此资源设置原始文件名
+     * 为此资源设置原始文件名。
      * @seealso nativeUrl
      *
      * @param filename

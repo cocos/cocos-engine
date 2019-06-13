@@ -17,7 +17,7 @@ export default class CurveRange  {
     public static Mode = Mode;
 
     /**
-     * @zh 曲线类型[[Mode]]
+     * @zh 曲线类型[[Mode]]。
      */
     @property({
         type: Mode,
@@ -25,7 +25,7 @@ export default class CurveRange  {
     public mode = Mode.Constant;
 
     /**
-     * @zh 当mode为Curve时，使用的曲线
+     * @zh 当mode为Curve时，使用的曲线。
      */
     @property({
         type: AnimationCurve,
@@ -33,7 +33,7 @@ export default class CurveRange  {
     public curve = new AnimationCurve();
 
     /**
-     * @zh 当mode为TwoCurves时，使用的曲线下限
+     * @zh 当mode为TwoCurves时，使用的曲线下限。
      */
     @property({
         type: AnimationCurve,
@@ -41,7 +41,7 @@ export default class CurveRange  {
     public curveMin = new AnimationCurve();
 
     /**
-     * @zh 当mode为TwoCurves时，使用的曲线上限
+     * @zh 当mode为TwoCurves时，使用的曲线上限。
      */
     @property({
         type: AnimationCurve,
@@ -49,25 +49,25 @@ export default class CurveRange  {
     public curveMax = new AnimationCurve();
 
     /**
-     * @zh 当mode为Constant时，曲线的值
+     * @zh 当mode为Constant时，曲线的值。
      */
     @property
     public constant = 0;
 
     /**
-     * @zh 当mode为TwoConstants时，曲线的上限
+     * @zh 当mode为TwoConstants时，曲线的上限。
      */
     @property
     public constantMin = 0;
 
     /**
-     * @zh 当mode为TwoConstants时，曲线的下限
+     * @zh 当mode为TwoConstants时，曲线的下限。
      */
     @property
     public constantMax = 0;
 
     /**
-     * @zh 应用于曲线插值的系数
+     * @zh 应用于曲线插值的系数。
      */
     @property
     public multiplier = 1;

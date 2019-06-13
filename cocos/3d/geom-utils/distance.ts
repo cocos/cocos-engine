@@ -15,10 +15,10 @@ const e = new Array(3);
  * @en
  * the distance between a point and a plane
  * @zh
- * 计算点和平面之间的距离
- * @param {vec3} point 点
- * @param {plane} plane 平面
- * @return 距离
+ * 计算点和平面之间的距离。
+ * @param {vec3} point 点。
+ * @param {plane} plane 平面。
+ * @return 距离。
  */
 export function point_plane (point: vec3, plane_: plane) {
     return vec3.dot(plane_.n, point) - plane_.d;
@@ -28,11 +28,11 @@ export function point_plane (point: vec3, plane_: plane) {
  * @en
  * the closest point on plane to a given point
  * @zh
- * 计算平面上最接近给定点的点
- * @param out 最近点
- * @param point 给定点
- * @param plane 平面
- * @return 最近点
+ * 计算平面上最接近给定点的点。
+ * @param out 最近点。
+ * @param point 给定点。
+ * @param plane 平面。
+ * @return 最近点。
  */
 export function pt_point_plane (out: vec3, point: vec3, plane_: plane) {
     const t = point_plane(point, plane_);
@@ -43,11 +43,11 @@ export function pt_point_plane (out: vec3, point: vec3, plane_: plane) {
  * @en
  * the closest point on aabb to a given point
  * @zh
- * 计算 aabb 上最接近给定点的点
- * @param {vec3} out 最近点
- * @param {vec3} point 给定点
- * @param {aabb} aabb 轴对齐包围盒
- * @return {vec3} 最近点
+ * 计算 aabb 上最接近给定点的点。
+ * @param {vec3} out 最近点。
+ * @param {vec3} point 给定点。
+ * @param {aabb} aabb 轴对齐包围盒。
+ * @return {vec3} 最近点。
  */
 export function pt_point_aabb (out: vec3, point: vec3, aabb_: aabb): vec3 {
     vec3.copy(out, point);
@@ -68,11 +68,11 @@ export function pt_point_aabb (out: vec3, point: vec3, aabb_: aabb): vec3 {
  * @en
  * the closest point on obb to a given point
  * @zh
- * 计算 obb 上最接近给定点的点
- * @param {vec3} out 最近点
- * @param {vec3} point 给定点
- * @param {obb} obb 方向包围盒
- * @return {vec3} 最近点
+ * 计算 obb 上最接近给定点的点。
+ * @param {vec3} out 最近点。
+ * @param {vec3} point 给定点。
+ * @param {obb} obb 方向包围盒。
+ * @return {vec3} 最近点。
  */
 export function pt_point_obb (out: vec3, point: vec3, obb_: obb): vec3 {
     vec3.set(X, obb_.orientation.m00, obb_.orientation.m01, obb_.orientation.m02);

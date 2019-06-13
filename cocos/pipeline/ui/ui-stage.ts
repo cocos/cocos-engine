@@ -10,7 +10,7 @@ const bufs: GFXCommandBuffer[] = [];
 
 /**
  * @zh
- * UI渲阶段
+ * UI渲阶段。
  */
 export class UIStage extends RenderStage {
 

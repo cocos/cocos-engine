@@ -7,7 +7,7 @@ import { CanvasComponent } from './canvas-component';
 
 /**
  * @zh
- * UI 及 UI 模型渲染基类
+ * UI 及 UI 模型渲染基类。
  */
 @ccclass('cc.UIComponent')
 @executionOrder(110)

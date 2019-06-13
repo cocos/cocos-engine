@@ -52,7 +52,7 @@ export class LightComponent extends Component {
      * @en
      * The light source color
      * @zh
-     * 光源颜色
+     * 光源颜色。
      */
     @property
     get color () {
@@ -71,7 +71,7 @@ export class LightComponent extends Component {
      * @en
      * Whether to enable light color temperature
      * @zh
-     * 是否启用光源色温
+     * 是否启用光源色温。
      */
     @property
     get useColorTemperature () {
@@ -86,7 +86,7 @@ export class LightComponent extends Component {
      * @en
      * The light color temperature
      * @zh
-     * 光源色温
+     * 光源色温。
      */
     @property({
         slide: true,
@@ -105,7 +105,7 @@ export class LightComponent extends Component {
      * @en
      * The light type
      * @zh
-     * 光源类型
+     * 光源类型。
      */
     get type () {
         return this._type;

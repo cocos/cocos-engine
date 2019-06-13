@@ -220,7 +220,7 @@ export class GraphicsComponent extends UIRenderComponent {
 
     /**
      * @zh
-     * 移动路径起点到坐标(x, y)
+     * 移动路径起点到坐标(x, y)。
      *
      * @param x - 移动坐标 x 轴。
      * @param y - 移动坐标 y 轴。
@@ -235,7 +235,7 @@ export class GraphicsComponent extends UIRenderComponent {
 
     /**
      * @zh
-     * 绘制直线路径
+     * 绘制直线路径。
      *
      * @param x - 绘制路径坐标 x 轴。
      * @param y - 绘制路径坐标 y 轴。
@@ -250,7 +250,7 @@ export class GraphicsComponent extends UIRenderComponent {
 
     /**
      * @zh
-     * 绘制三次贝赛尔曲线路径
+     * 绘制三次贝赛尔曲线路径。
      *
      * @param c1x - 第一个控制点的坐标 x 轴。
      * @param c1y - 第一个控制点的坐标 y 轴。
@@ -269,7 +269,7 @@ export class GraphicsComponent extends UIRenderComponent {
 
     /**
      * @zh
-     * 绘制二次贝赛尔曲线路径
+     * 绘制二次贝赛尔曲线路径。
      *
      * @param cx - 起始控制点的坐标 x 轴。
      * @param cy - 起始控制点的坐标 y 轴。
@@ -326,7 +326,7 @@ export class GraphicsComponent extends UIRenderComponent {
      *
      * @param cx - 中心点的坐标 x 轴。
      * @param cy - 中心点的坐标 y 轴。
-     * @param r - 圆半径
+     * @param r - 圆半径。
      */
     public circle (cx: number, cy: number, r: number) {
         if (!this.impl) {

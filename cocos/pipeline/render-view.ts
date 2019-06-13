@@ -5,7 +5,7 @@ import { RenderFlow } from './render-flow';
 
 /**
  * @zh
- * 渲染视图优先级
+ * 渲染视图优先级。
  */
 export enum RenderViewPriority {
     GENERAL = 100,
@@ -13,7 +13,7 @@ export enum RenderViewPriority {
 
 /**
  * @zh
- * 渲染视图描述信息
+ * 渲染视图描述信息。
  */
 export interface IRenderViewInfo {
     camera: Camera;
@@ -25,7 +25,7 @@ export interface IRenderViewInfo {
 
 /**
  * @zh
- * 渲染目标描述信息
+ * 渲染目标描述信息。
  */
 export interface IRenderTargetInfo {
     width?: number;
@@ -34,14 +34,22 @@ export interface IRenderTargetInfo {
 
 /**
  * @zh
- * 渲染视图
+ * 渲染视图。
  */
 export class RenderView {
 
+    /**
+     * @zh
+     * 名称。
+     */
     public get name () {
         return this._name;
     }
 
+    /**
+     * @zh
+     * GFX窗口。
+     */
     public get window () {
         return this._window;
     }
@@ -50,6 +58,10 @@ export class RenderView {
         this._window = val;
     }
 
+    /**
+     * @zh
+     * 优先级。
+     */
     public get priority () {
         return this._priority;
     }
@@ -61,6 +73,10 @@ export class RenderView {
         }
     }
 
+    /**
+     * @zh
+     * 可见性。
+     */
     public set visibility (vis) {
         this._visibility = vis;
     }
@@ -68,18 +84,34 @@ export class RenderView {
         return this._visibility;
     }
 
+    /**
+     * @zh
+     * 相机。
+     */
     public get camera (): Camera {
         return this._camera!;
     }
 
+    /**
+     * @zh
+     * 是否启用。
+     */
     public get isEnable (): boolean {
         return this._isEnable;
     }
 
+    /**
+     * @zh
+     * 是否是UI视图。
+     */
     public get isUI (): boolean {
         return this._isUI;
     }
 
+    /**
+     * @zh
+     * 渲染流程列表。
+     */
     public get flows (): RenderFlow[] {
         return this._flows;
     }
@@ -90,63 +122,63 @@ export class RenderView {
 
     /**
      * @zh
-     * Root类实例
+     * Root类实例。
      */
     private _root: Root;
 
     /**
      * @zh
-     * 名称
+     * 名称。
      */
     private _name: string = '';
 
     /**
      * @zh
-     * GFX窗口
+     * GFX窗口。
      */
     private _window: GFXWindow | null = null;
 
     /**
      * @zh
-     * 优先级
+     * 优先级。
      */
     private _priority: number = 0;
 
     /**
      * @zh
-     * 可见性
+     * 可见性。
      */
     private _visibility: number = 0;
 
     /**
      * @zh
-     * 相机
+     * 相机。
      */
     private _camera: Camera;
 
     /**
      * @zh
-     * 是否启用
+     * 是否启用。
      */
     private _isEnable: boolean = true;
 
     /**
      * @zh
-     * 是否是UI视图
+     * 是否是UI视图。
      */
     private _isUI: boolean = false;
 
     /**
      * @zh
-     * 渲染流程列表
+     * 渲染流程列表。
      */
     private _flows: RenderFlow[] = [];
 
     /**
      * @zh
-     * 构造函数
-     * @param root Root类实例
-     * @param camera 相机
+     * 构造函数。
+     * @param root Root类实例。
+     * @param camera 相机。
      */
     private constructor (root: Root, camera: Camera) {
         this._root = root;
@@ -155,8 +187,8 @@ export class RenderView {
 
     /**
      * @zh
-     * 初始化函数
-     * @param info 渲染视图描述信息
+     * 初始化函数。
+     * @param info 渲染视图描述信息。
      */
     public initialize (info: IRenderViewInfo): boolean {
 
@@ -178,7 +210,7 @@ export class RenderView {
 
     /**
      * @zh
-     * 销毁函数
+     * 销毁函数。
      */
     public destroy () {
         this._window = null;
@@ -187,7 +219,7 @@ export class RenderView {
 
     /**
      * @zh
-     * 启用该渲染视图
+     * 启用该渲染视图。
      */
     public enable (isEnable: boolean) {
         this._isEnable = isEnable;

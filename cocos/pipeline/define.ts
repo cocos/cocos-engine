@@ -13,7 +13,7 @@ export const PIPELINE_FLOW_TONEMAP: string = 'ToneMapFlow';
 
 /**
  * @zh
- * 渲染过程阶段
+ * 渲染过程阶段。
  */
 export enum RenderPassStage {
     DEFAULT = 100,
@@ -21,7 +21,7 @@ export enum RenderPassStage {
 
 /**
  * @zh
- * 渲染优先级
+ * 渲染优先级。
  */
 export enum RenderPriority {
     MIN = 0,
@@ -31,7 +31,7 @@ export enum RenderPriority {
 
 /**
  * @zh
- * 渲染对象
+ * 渲染对象。
  */
 export interface IRenderObject {
     model: Model;
@@ -40,7 +40,7 @@ export interface IRenderObject {
 
 /**
  * @zh
- * 渲染过程
+ * 渲染过程。
  */
 export interface IRenderPass {
     hash: number;
@@ -52,7 +52,7 @@ export interface IRenderPass {
 
 /**
  * @zh
- * 渲染队列描述
+ * 渲染队列描述。
  */
 export interface IRenderQueueDesc {
     isTransparent: boolean;
@@ -64,7 +64,7 @@ const MAX_BINDING_SUPPORTED = 24; // from WebGL 2 spec
 
 /**
  * @zh
- * Uniform参数绑定
+ * Uniform参数绑定。
  */
 export enum UniformBinding {
     // UBOs
@@ -82,7 +82,7 @@ export enum UniformBinding {
 
 /**
  * @zh
- * 全局UBO
+ * 全局UBO。
  */
 export class UBOGlobal {
 
@@ -131,7 +131,7 @@ export class UBOGlobal {
 
 /**
  * @zh
- * 阴影UBO
+ * 阴影UBO。
  */
 export class UBOShadow {
     public static MAT_LIGHT_PLANE_PROJ_OFFSET: number = 0;
@@ -153,7 +153,7 @@ export const localBindingsDesc: Map<string, IInternalBindingDesc> = new Map<stri
 
 /**
  * @zh
- * 本地UBO
+ * 本地UBO。
  */
 export class UBOLocal {
     public static MAT_WORLD_OFFSET: number = 0;
@@ -177,7 +177,7 @@ localBindingsDesc.set(UBOLocal.BLOCK.name, {
 
 /**
  * @zh
- * 前向灯光UBO
+ * 前向灯光UBO。
  */
 export class UBOForwardLight {
     public static MAX_SPHERE_LIGHTS = 2;
@@ -221,7 +221,7 @@ export const JointUniformCapacity = 30;
 
 /**
  * @zh
- * 蒙皮UBO
+ * 蒙皮UBO。
  */
 export class UBOSkinning {
     public static MAT_JOINT_OFFSET: number = 0;
@@ -241,7 +241,7 @@ localBindingsDesc.set(UBOSkinning.BLOCK.name, {
 
 /**
  * @zh
- * 蒙皮纹理信息UBO
+ * 蒙皮纹理信息UBO。
  */
 export class UBOSkinningTexture {
     public static JOINTS_TEXTURE_SIZE_INV_OFFSET: number = 0;
@@ -261,7 +261,7 @@ localBindingsDesc.set(UBOSkinningTexture.BLOCK.name, {
 
 /**
  * @zh
- * 骨骼纹理采样器
+ * 骨骼纹理采样器。
  */
 export const UNIFORM_JOINTS_TEXTURE: GFXUniformSampler = {
     binding: UniformBinding.SAMPLER_JOINTS, name: 'cc_jointsTexture', type: GFXType.SAMPLER2D, count: 1,

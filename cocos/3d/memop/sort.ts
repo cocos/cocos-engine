@@ -141,7 +141,7 @@ function _sort (array, from, to, comparefn) {
 }
 
 /**
- * @zh 对数组一个区间内的元素排序
+ * @zh 对数组一个区间内的元素排序。
  * @en Calls the _quickSort function with it's initial values.
  *
  * @param array The input array which should be sorted

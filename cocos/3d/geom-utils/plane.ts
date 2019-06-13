@@ -8,7 +8,7 @@ const temp_vec4 = cc.v4();
 
 /**
  * @zh
- * 基础几何 plane
+ * 基础几何 plane。
  */
 // tslint:disable-next-line:class-name
 export default class plane {
@@ -17,11 +17,11 @@ export default class plane {
      * @en
      * create a new plane
      * @zh
-     * 创建一个新的 plane
-     * @param nx 法向分量的 x 部分
-     * @param ny 法向分量的 y 部分
-     * @param nz 法向分量的 z 部分
-     * @param d 与原点的距离
+     * 创建一个新的 plane。
+     * @param nx 法向分量的 x 部分。
+     * @param ny 法向分量的 y 部分。
+     * @param nz 法向分量的 z 部分。
+     * @param d 与原点的距离。
      * @return
      */
     public static create (nx: number, ny: number, nz: number, d: number) {
@@ -32,9 +32,9 @@ export default class plane {
      * @en
      * clone a new plane
      * @zh
-     * 克隆一个新的 plane
-     * @param p 克隆的来源
-     * @return 克隆出的对象
+     * 克隆一个新的 plane。
+     * @param p 克隆的来源。
+     * @return 克隆出的对象。
      */
     public static clone (p: plane) {
         return new plane(p.n.x, p.n.y, p.n.z, p.d);
@@ -44,10 +44,10 @@ export default class plane {
      * @en
      * copy the values from one plane to another
      * @zh
-     * 复制一个平面的值到另一个
-     * @param out 接受操作的对象
-     * @param p 复制的来源
-     * @return 接受操作的对象
+     * 复制一个平面的值到另一个。
+     * @param out 接受操作的对象。
+     * @param p 复制的来源。
+     * @return 接受操作的对象。
      */
     public static copy (out: plane, p: plane) {
         vec3.copy(out.n, p.n);
@@ -60,12 +60,12 @@ export default class plane {
      * @en
      * create a plane from three points
      * @zh
-     * 用三个点创建一个平面
-     * @param out 接受操作的对象
-     * @param a 点 a
-     * @param b 点 b
-     * @param c 点 c
-     * @return out 接受操作的对象
+     * 用三个点创建一个平面。
+     * @param out 接受操作的对象。
+     * @param a 点 a。
+     * @param b 点 b。
+     * @param c 点 c。
+     * @return out 接受操作的对象。
      */
     public static fromPoints (out: plane, a: vec3, b: vec3, c: vec3) {
         vec3.sub(v1, b, a);
@@ -81,13 +81,13 @@ export default class plane {
      * @en
      * Set the components of a plane to the given values
      * @zh
-     * 将给定平面的属性设置为给定值
-     * @param out 接受操作的对象
-     * @param nx 法向分量的 x 部分
-     * @param ny 法向分量的 y 部分
-     * @param nz 法向分量的 z 部分
-     * @param d 与原点的距离
-     * @return out 接受操作的对象
+     * 将给定平面的属性设置为给定值。
+     * @param out 接受操作的对象。
+     * @param nx 法向分量的 x 部分。
+     * @param ny 法向分量的 y 部分。
+     * @param nz 法向分量的 z 部分。
+     * @param d 与原点的距离。
+     * @return out 接受操作的对象。
      */
     public static set (out: plane, nx: number, ny: number, nz: number, d: number) {
         out.n.x = nx;
@@ -102,11 +102,11 @@ export default class plane {
      * @en
      * create plane from normal and point
      * @zh
-     * 用一条法线和一个点创建平面
-     * @param out 接受操作的对象
-     * @param normal 平面的法线
-     * @param point 平面上的一点
-     * @return out 接受操作的对象
+     * 用一条法线和一个点创建平面。
+     * @param out 接受操作的对象。
+     * @param normal 平面的法线。
+     * @param point 平面上的一点。
+     * @return out 接受操作的对象。
      */
     public static fromNormalAndPoint (out: plane, normal: vec3, point: vec3) {
         vec3.copy(out.n, normal);
@@ -119,10 +119,10 @@ export default class plane {
      * @en
      * normalize a plane
      * @zh
-     * 归一化一个平面
-     * @param out 接受操作的对象
-     * @param a 操作的源数据
-     * @return out 接受操作的对象
+     * 归一化一个平面。
+     * @param out 接受操作的对象。
+     * @param a 操作的源数据。
+     * @return out 接受操作的对象。
      */
     public static normalize (out: plane, a: plane) {
         const len = vec3.magnitude(a.n);
@@ -135,13 +135,13 @@ export default class plane {
 
     /**
      * @zh
-     * 法线向量
+     * 法线向量。
      */
     public n: vec3;
 
     /**
      * @zh
-     * 原点到平面的距离
+     * 原点到平面的距离。
      */
     public d: number;
 
@@ -149,11 +149,11 @@ export default class plane {
 
     /**
      * @zh
-     * 构造一个平面
-     * @param nx 法向分量的 x 部分
-     * @param ny 法向分量的 y 部分
-     * @param nz 法向分量的 z 部分
-     * @param d 与原点的距离
+     * 构造一个平面。
+     * @param nx 法向分量的 x 部分。
+     * @param ny 法向分量的 y 部分。
+     * @param nz 法向分量的 z 部分。
+     * @param d 与原点的距离。
      */
     constructor (nx = 0, ny = 1, nz = 0, d = 0) {
         this._type = enums.SHAPE_PLANE;
@@ -163,7 +163,7 @@ export default class plane {
 
     /**
      * @zh
-     * 变换一个平面
+     * 变换一个平面。
      * @param mat
      */
     public transform (mat: mat4): void {

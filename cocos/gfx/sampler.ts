@@ -3,7 +3,7 @@ import { GFXDevice } from './device';
 
 /**
  * @zh
- * GFX采样器描述信息
+ * GFX采样器描述信息。
  */
 export interface IGFXSamplerInfo {
     name?: string;
@@ -23,7 +23,7 @@ export interface IGFXSamplerInfo {
 
 /**
  * @zh
- * GFX采样器状态
+ * GFX采样器状态。
  */
 export class GFXSamplerState {
     public name: string = '';
@@ -42,8 +42,8 @@ export class GFXSamplerState {
 
     /**
      * @zh
-     * 比较函数
-     * @param state GFX采样器状态
+     * 比较函数。
+     * @param state GFX采样器状态。
      */
     public compare (state: GFXSamplerState): boolean {
         return (this.minFilter === state.minFilter) &&
@@ -66,13 +66,13 @@ export class GFXSamplerState {
 
 /**
  * @zh
- * GFX采样器
+ * GFX采样器。
  */
 export abstract class GFXSampler extends GFXObject {
 
     /**
      * @zh
-     * GFX采样器状态
+     * GFX采样器状态。
      */
     public get state (): GFXSamplerState {
         return this._state;
@@ -80,19 +80,19 @@ export abstract class GFXSampler extends GFXObject {
 
     /**
      * @zh
-     * GFX设备
+     * GFX设备。
      */
     protected _device: GFXDevice;
 
     /**
      * @zh
-     * GFX采样器状态
+     * GFX采样器状态。
      */
     protected _state: GFXSamplerState = new GFXSamplerState();
 
     /**
      * @zh
-     * 构造函数
+     * 构造函数。
      */
     constructor (device: GFXDevice) {
         super(GFXObjectType.SAMPLER);
@@ -101,14 +101,14 @@ export abstract class GFXSampler extends GFXObject {
 
     /**
      * @zh
-     * 初始化函数
-     * @param info GFX采样器描述信息
+     * 初始化函数。
+     * @param info GFX采样器描述信息。
      */
     public abstract initialize (info: IGFXSamplerInfo): boolean;
 
     /**
      * @zh
-     * 销毁函数
+     * 销毁函数。
      */
     public abstract destroy (): void;
 }

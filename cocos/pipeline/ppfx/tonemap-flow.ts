@@ -4,7 +4,7 @@ import { ToneMapStage } from './tonemap-stage';
 
 /**
  * @zh
- * 色调映射渲染流程
+ * 色调映射渲染流程。
  */
 export class ToneMapFlow extends RenderFlow {
 

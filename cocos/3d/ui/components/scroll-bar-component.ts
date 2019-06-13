@@ -182,9 +182,9 @@ export class ScrollBarComponent extends Component {
 
     /**
      * @zh
-     * 重置滚动条位置
+     * 重置滚动条位置。
      *
-     * @param outOfBoundary - 滚动位移
+     * @param outOfBoundary - 滚动位移。
      */
     public onScroll (outOfBoundary: Vec3) {
         if (!this._scrollView) {
@@ -241,9 +241,9 @@ export class ScrollBarComponent extends Component {
 
     /**
      * @zh
-     * 滚动视窗设置
+     * 滚动视窗设置。
      *
-     * @param scrollView - 滚动视窗
+     * @param scrollView - 滚动视窗。
      */
     public setScrollView (scrollView: ScrollViewComponent) {
         this._scrollView = scrollView;

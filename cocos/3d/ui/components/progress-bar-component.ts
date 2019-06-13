@@ -32,7 +32,7 @@ import { SpriteComponent } from './sprite-component';
 
 /**
  * @zh
- * 进度条模式
+ * 进度条模式。
  */
 enum Mode {
     /**
@@ -133,7 +133,7 @@ export class ProgressBarComponent extends Component {
 
     /**
      * @zh
-     * 进度条实际的总长度
+     * 进度条实际的总长度。
      */
     @property
     get totalLength () {

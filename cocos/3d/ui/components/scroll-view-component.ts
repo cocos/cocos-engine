@@ -147,7 +147,7 @@ const eventMap = {
 
 /**
  * @zh
- * 滚动视图组件
+ * 滚动视图组件。
  */
 
 @ccclass('cc.ScrollViewComponent')
@@ -280,7 +280,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
     /**
      * @zh
-     * 滚动视图的事件回调函数.
+     * 滚动视图的事件回调函数。
      */
     @property({
         type: ComponentEventHandler,
@@ -338,7 +338,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * 视图内容将在规定时间内滚动到视图底部。
      *
      * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
-     * @param attenuated - 滚动加速是否衰减，默认为 true.
+     * @param attenuated - 滚动加速是否衰减，默认为 true。
      * @example
      * ```ts
      * // Scroll to the bottom of the view.
@@ -364,7 +364,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * 视图内容将在规定时间内滚动到视图顶部。
      *
      * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到顶部边界。
-     * @param attenuated - 滚动加速是否衰减，默认为 true.
+     * @param attenuated - 滚动加速是否衰减，默认为 true。
      * @example
      * ```ts
      * // Scroll to the top of the view.
@@ -590,9 +590,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
     /**
      * @zh
-     * 获取滚动视图最大可以滚动的偏移量
+     * 获取滚动视图最大可以滚动的偏移量。
      *
-     * @return - 最大可滚动偏移量.
+     * @return - 最大可滚动偏移量。
      */
     public getMaxScrollOffset () {
         const scrollSize = this.node.getContentSize();
@@ -636,7 +636,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @zh
      * 视图内容在规定时间内进行垂直方向和水平方向的滚动，并且滚动到指定百分比位置上。
      *
-     * @param anchor - 在 new Vec2(0,0) and new Vec2(1,1) 上取差值的一个点.
+     * @param anchor - 在 new Vec2(0,0) and new Vec2(1,1) 上取差值的一个点。
      * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到指定水平或垂直百分比位置。
      * @param attenuated - 滚动加速是否衰减，默认为 true。
      * @example
@@ -666,7 +666,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @zh
      * 视图内容在规定时间内滚动到 ScrollView 垂直方向的百分比位置上。
      *
-     * @param percent - 0 - 1 之间的百分比.
+     * @param percent - 0 - 1 之间的百分比。
      * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到指定垂直百分比位置。
      * @param attenuated - 滚动加速是否衰减，默认为 true。
      * @example
@@ -1591,7 +1591,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
 cc.ScrollViewComponent = ScrollViewComponent;
 
 /**
- * !#en
+ * @en
  * Note: This event is emitted from the node to which the component belongs.
  * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
@@ -1601,7 +1601,7 @@ cc.ScrollViewComponent = ScrollViewComponent;
  */
 
 /**
- * !#en
+ * @en
  * Note: This event is emitted from the node to which the component belongs.
  * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
@@ -1611,7 +1611,7 @@ cc.ScrollViewComponent = ScrollViewComponent;
  */
 
 /**
- * !#en
+ * @en
  * Note: This event is emitted from the node to which the component belongs.
  * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
@@ -1621,7 +1621,7 @@ cc.ScrollViewComponent = ScrollViewComponent;
  */
 
 /**
- * !#en
+ * @en
  * Note: This event is emitted from the node to which the component belongs.
  * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
@@ -1631,7 +1631,7 @@ cc.ScrollViewComponent = ScrollViewComponent;
  */
 
 /**
- * !#en
+ * @en
  * Note: This event is emitted from the node to which the component belongs.
  * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
@@ -1641,7 +1641,7 @@ cc.ScrollViewComponent = ScrollViewComponent;
  */
 
 /**
- * !#en
+ * @en
  * Note: This event is emitted from the node to which the component belongs.
  * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
@@ -1651,7 +1651,7 @@ cc.ScrollViewComponent = ScrollViewComponent;
  */
 
 /**
- * !#en
+ * @en
  * Note: This event is emitted from the node to which the component belongs.
  * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
@@ -1661,7 +1661,7 @@ cc.ScrollViewComponent = ScrollViewComponent;
  */
 
 /**
- * !#en
+ * @en
  * Note: This event is emitted from the node to which the component belongs.
  * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
@@ -1671,7 +1671,7 @@ cc.ScrollViewComponent = ScrollViewComponent;
  */
 
 /**
- * !#en
+ * @en
  * Note: This event is emitted from the node to which the component belongs.
  * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
@@ -1681,7 +1681,7 @@ cc.ScrollViewComponent = ScrollViewComponent;
  */
 
 /**
- * !#en
+ * @en
  * Note: This event is emitted from the node to which the component belongs.
  * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
@@ -1691,7 +1691,7 @@ cc.ScrollViewComponent = ScrollViewComponent;
  */
 
 /**
- * !#en
+ * @en
  * Note: This event is emitted from the node to which the component belongs.
  * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
@@ -1701,7 +1701,7 @@ cc.ScrollViewComponent = ScrollViewComponent;
  */
 
 /**
- * !#en
+ * @en
  * Note: This event is emitted from the node to which the component belongs.
  * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。

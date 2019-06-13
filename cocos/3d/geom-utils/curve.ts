@@ -13,27 +13,27 @@ const WrapMode = Enum({
 });
 
 /**
- * @zh 曲线中的一个关键帧
+ * @zh 曲线中的一个关键帧。
  */
 export class Keyframe {
 
     /**
-     * @zh 当前帧时间
+     * @zh 当前帧时间。
      */
     public time = 0;
 
     /**
-     * @zh 当前帧的值
+     * @zh 当前帧的值。
      */
     public value = 0;
 
     /**
-     * @zh 左切线
+     * @zh 左切线。
      */
     public inTangent = 0;
 
     /**
-     * @zh 右切线
+     * @zh 右切线。
      */
     public outTangent = 0;
 }
@@ -68,22 +68,22 @@ export function evalOptCurve (t: number, coefs: Float32Array | number[]) {
 }
 
 /**
- * @zh 描述一条曲线，其中每个相邻关键帧采用三次hermite插值计算
+ * @zh 描述一条曲线，其中每个相邻关键帧采用三次hermite插值计算。
  */
 export class AnimationCurve {
 
     /**
-     * @zh 曲线的关键帧
+     * @zh 曲线的关键帧。
      */
     public keyFrames: Keyframe[] | null;
 
     /**
-     * @zh 当采样时间超出左端时采用的循环模式[[WrapMode]]
+     * @zh 当采样时间超出左端时采用的循环模式[[WrapMode]]。
      */
     public preWrapMode: number = WrapMode.Loop;
 
     /**
-     * @zh 当采样时间超出右端时采用的循环模式[[WrapMode]]
+     * @zh 当采样时间超出右端时采用的循环模式[[WrapMode]]。
      */
     public postWrapMode: number = WrapMode.Loop;
 
@@ -102,8 +102,8 @@ export class AnimationCurve {
     }];
 
     /**
-     * 构造函数
-     * @param keyFrames 关键帧
+     * 构造函数。
+     * @param keyFrames 关键帧。
      */
     constructor (keyFrames: Keyframe[] | null = null) {
         this.keyFrames = keyFrames || ([] as Keyframe[]).concat(AnimationCurve.defaultKF);
@@ -111,8 +111,8 @@ export class AnimationCurve {
     }
 
     /**
-     * @zh 添加一个关键帧
-     * @param keyFrame 关键帧
+     * @zh 添加一个关键帧。
+     * @param keyFrame 关键帧。
      */
     public addKey (keyFrame: Keyframe) {
         if (this.keyFrames == null) {
@@ -176,8 +176,8 @@ export class AnimationCurve {
     }
 
     /**
-     * @zh 计算给定时间点的曲线插值
-     * @param time 时间
+     * @zh 计算给定时间点的曲线插值。
+     * @param time 时间。
      */
     public evaluate (time: number) {
         let wrappedTime = time;

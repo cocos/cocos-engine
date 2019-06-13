@@ -46,7 +46,7 @@ export class SphereColliderComponent extends ColliderComponent {
      * @en
      * Get the radius of the sphere.
      * @zh
-     * 获取球的半径
+     * 获取球的半径。
      */
     @property
     public get radius () {
@@ -55,7 +55,7 @@ export class SphereColliderComponent extends ColliderComponent {
 
     /**
      * @zh
-     * 设置球的半径
+     * 设置球的半径。
      */
     public set radius (value) {
         this._radius = value;

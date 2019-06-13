@@ -155,7 +155,7 @@ interface ILabelSegment{
 
 /**
  * @zh
- * 富文本组件
+ * 富文本组件。
  */
 @ccclass('cc.RichTextComponent')
 @executionOrder(110)
@@ -224,7 +224,7 @@ export class RichTextComponent extends UIComponent {
 
     /**
      * @zh
-     * 富文本定制字体
+     * 富文本定制字体。
      */
     @property({
         type: TTFFont,
@@ -247,7 +247,7 @@ export class RichTextComponent extends UIComponent {
 
     /**
      * @zh
-     * 富文本的最大宽度
+     * 富文本的最大宽度。
      */
     @property
     get maxWidth () {

@@ -1,5 +1,5 @@
 /**
- * @zh 对象池
+ * @zh 对象池。
  */
 export default class Pool<T> {
 
@@ -8,9 +8,9 @@ export default class Pool<T> {
     private _frees: T[];
 
     /**
-     * @zh 构造函数
-     * @param fn 元素构造函数
-     * @param size 初始大小
+     * @zh 构造函数。
+     * @param fn 元素构造函数。
+     * @param size 初始大小。
      */
     constructor (fn: () => T, size: number) {
         this._fn = fn;
@@ -23,7 +23,7 @@ export default class Pool<T> {
     }
 
     /**
-     * @zh 从对象池中取出一个对象
+     * @zh 从对象池中取出一个对象。
      */
     public alloc (): T {
         // create some more space (expand by 20%, minimum 1)
@@ -39,8 +39,8 @@ export default class Pool<T> {
     }
 
     /**
-     * @zh 将一个对象放回对象池中
-     * @param obj 释放的对象
+     * @zh 将一个对象放回对象池中。
+     * @param obj 释放的对象。
      */
     public free (obj: T) {
         ++this._idx;
@@ -48,8 +48,8 @@ export default class Pool<T> {
     }
 
     /**
-     * 清除对象池
-     * @param fn 清除回调，对每个释放的对象调用一次
+     * 清除对象池。
+     * @param fn 清除回调，对每个释放的对象调用一次。
      */
     public clear (fn: (obj: T) => void) {
         for (let i = 0; i <= this._idx; i++) {

@@ -11,7 +11,7 @@ const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 export default class RotationOvertimeModule {
 
     /**
-     * @zh 是否启用
+     * @zh 是否启用。
      */
     @property({
         displayOrder: 0,
@@ -22,7 +22,7 @@ export default class RotationOvertimeModule {
     private _separateAxes = false;
 
     /**
-     * @zh 是否三个轴分开设定旋转（暂不支持）
+     * @zh 是否三个轴分开设定旋转（暂不支持）。
      */
     @property({
         displayOrder: 1,
@@ -41,7 +41,7 @@ export default class RotationOvertimeModule {
     }
 
     /**
-     * @zh 绕 X 轴设定旋转
+     * @zh 绕 X 轴设定旋转。
      */
     @property({
         type: CurveRange,
@@ -52,7 +52,7 @@ export default class RotationOvertimeModule {
     public x = new CurveRange();
 
     /**
-     * @zh 绕 Y 轴设定旋转
+     * @zh 绕 Y 轴设定旋转。
      */
     @property({
         type: CurveRange,
@@ -63,7 +63,7 @@ export default class RotationOvertimeModule {
     public y = new CurveRange();
 
     /**
-     * @zh 绕 X 轴设定旋转
+     * @zh 绕 X 轴设定旋转。
      */
     @property({
         type: CurveRange,
