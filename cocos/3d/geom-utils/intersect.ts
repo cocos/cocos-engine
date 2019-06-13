@@ -59,6 +59,7 @@ const line_plane = (function () {
  *
  * @param {ray} ray
  * @param {triangle} triangle
+ * @param {boolean} doubleSided
  * @return {number}
  */
 const ray_triangle = (function () {
@@ -68,7 +69,7 @@ const ray_triangle = (function () {
     const tvec = vec3.create(0, 0, 0);
     const qvec = vec3.create(0, 0, 0);
 
-    return function (ray: ray, triangle: triangle, doubleSided: number) {
+    return function (ray: ray, triangle: triangle, doubleSided: boolean) {
         vec3.sub(ab, triangle.b, triangle.a);
         vec3.sub(ac, triangle.c, triangle.a);
 
