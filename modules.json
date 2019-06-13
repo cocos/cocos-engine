@@ -262,5 +262,17 @@
   },
   {
     "name": "Native Socket"
+  },
+  {
+    "name": "WechatSubContext",
+    "entries": [
+      "./cocos2d/core/components/WXSubContextView.js"
+    ]
+  },
+  {
+    "name": "SwanSubContext",
+    "entries": [
+      "./cocos2d/core/components/SwanSubContextView.js"
+    ]
   }
 ]

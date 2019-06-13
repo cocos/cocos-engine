@@ -28,11 +28,8 @@ let settingPlatform;
  if (!CC_EDITOR) {
     settingPlatform = window._CCSettings ? _CCSettings.platform: undefined;
  }
-const isBaiduGame = (settingPlatform === 'baidugame' || settingPlatform === 'baidugame-subcontext');
 const isVivoGame = (settingPlatform === 'qgame');
 const isOppoGame = (settingPlatform === 'quickgame');
-
-var _global = typeof window === 'undefined' ? global : window;
  
 function initSys () {
     /**
@@ -352,17 +349,23 @@ function initSys () {
      */
     sys.WECHAT_GAME = 104;
     /**
-     * @property {Number} QQ_PLAY
+     * @property {Number} WECHAT_GAME_SUB
      * @readOnly
      * @default 105
      */
-    sys.QQ_PLAY = 105;
+    sys.WECHAT_GAME_SUB = 105;
     /**
-     * @property {Number} FB_PLAYABLE_ADS
+     * @property {Number} QQ_PLAY
      * @readOnly
      * @default 106
      */
-    sys.FB_PLAYABLE_ADS = 106;
+    sys.QQ_PLAY = 106;
+    /**
+     * @property {Number} FB_PLAYABLE_ADS
+     * @readOnly
+     * @default 107
+     */
+    sys.FB_PLAYABLE_ADS = 107;
     /**
      * @property {Number} BAIDU_GAME
      * @readOnly
@@ -370,23 +373,29 @@ function initSys () {
      */
     sys.BAIDU_GAME = 107;
     /**
-     * @property {Number} VIVO_GAME
+     * @property {Number} BAIDU_GAME_SUB
      * @readOnly
      * @default 108
      */
-    sys.VIVO_GAME = 108;
+    sys.BAIDU_GAME_SUB = 108;
     /**
-     * @property {Number} OPPO_GAME
+     * @property {Number} VIVO_GAME
      * @readOnly
      * @default 109
      */
-    sys.OPPO_GAME = 109;
+    sys.VIVO_GAME = 109;
     /**
-     * @property {Number} XIAOMI_GAME
+     * @property {Number} OPPO_GAME
      * @readOnly
      * @default 110
      */
-    sys.XIAOMI_GAME = 110;
+    sys.OPPO_GAME = 110;
+    /**
+     * @property {Number} XIAOMI_GAME
+     * @readOnly
+     * @default 111
+     */
+    sys.XIAOMI_GAME = 111;
     /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
@@ -588,27 +597,13 @@ function initSys () {
      * Is web browser ?
      * @property {Boolean} isBrowser
      */
-    sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB && !CC_RUNTIME && !isBaiduGame;
+    sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_JSB && !CC_RUNTIME;
     
-    if (_global.__platform && _global.__platform.getSystemInfo) {
-        let env = _global.__platform.getSystemInfo();
-        sys.isNative = env.isNative;
-        sys.isBrowser = env.isBrowser;
-        sys.platform = env.platform;
-        sys.browserType = env.browserType;
-        sys.isMobile = env.isMobile;
-        sys.language = env.language;
-        sys.languageCode = env.language.toLowerCase();
-        sys.os = env.os;
-        sys.osVersion = env.osVersion;
-        sys.osMainVersion = env.osMainVersion;
-        sys.browserVersion = env.browserVersion;
-        sys.windowPixelResolution = env.windowPixelResolution;
-        sys.localStorage = env.localStorage;
-        sys.capabilities = env.capabilities;
-        sys.__audioSupport = env.audioSupport;
+    const _global = typeof window === 'undefined' ? global : window;
 
-        _global.__platform = undefined;
+    if (_global.__globalAdapter && _global.__globalAdapter.adaptSys) {
+        // init sys info in adapter
+        _global.__globalAdapter.adaptSys(sys);
     }
     else if (CC_EDITOR && Editor.isMainProcess) {
         sys.isMobile = false;
@@ -694,134 +689,6 @@ function initSys () {
             DELAY_CREATE_CTX: false,
             format: ['.mp3']
         };
-    }
-    else if (CC_WECHATGAME) {
-        var env = wx.getSystemInfoSync();
-        sys.isMobile = true;
-        sys.platform = sys.WECHAT_GAME;
-        sys.language = env.language.substr(0, 2);
-        sys.languageCode = env.language.toLowerCase();
-        var system = env.system.toLowerCase();
-        if (env.platform === "android") {
-            sys.os = sys.OS_ANDROID;
-        }
-        else if (env.platform === "ios") {
-            sys.os = sys.OS_IOS;
-        }
-        else if (env.platform === 'devtools') {
-            sys.isMobile = false;
-            if (system.indexOf('android') > -1) {
-                sys.os = sys.OS_ANDROID;
-            }
-            else if (system.indexOf('ios') > -1) {
-                sys.os = sys.OS_IOS;
-            }
-        }
-        // Adaptation to Android P
-        if (system === 'android p') {
-            system = 'android p 9.0';
-        }
-
-        var version = /[\d\.]+/.exec(system);
-        sys.osVersion = version ? version[0] : system;
-        sys.osMainVersion = parseInt(sys.osVersion);
-        // wechagame subdomain
-        if (CC_WECHATGAMESUB) {
-            sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME_SUB;
-        }
-        else {
-            sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME;
-        }
-        sys.browserVersion = env.version;
-
-        var w = env.windowWidth;
-        var h = env.windowHeight;
-        var ratio = env.pixelRatio || 1;
-        sys.windowPixelResolution = {
-            width: ratio * w,
-            height: ratio * h
-        };
-
-        sys.localStorage = window.localStorage;
-
-        var _supportWebGL = _supportWebp = false;
-        try {
-            var _canvas = document.createElement("canvas");
-            _supportWebGL = _canvas.getContext("webgl");
-            _supportWebp = _canvas.toDataURL('image/webp').startsWith('data:image/webp');
-        }
-        catch (err) { }
-
-        sys.capabilities = {
-            "canvas": true,
-            "opengl": !!_supportWebGL,
-            "webp": _supportWebp
-        };
-        sys.__audioSupport = {
-            ONLY_ONE: false,
-            WEB_AUDIO: false,
-            DELAY_CREATE_CTX: false,
-            format: ['.mp3']
-        };
-    }
-    else if (CC_QQPLAY) {
-        var env = window["BK"]["Director"]["queryDeviceInfo"]();
-        sys.isMobile = true;
-        sys.platform = sys.QQ_PLAY;
-        sys.language = sys.LANGUAGE_UNKNOWN;
-        sys.languageCode = undefined;
-        if (env.platform === "android") {
-            sys.os = sys.OS_ANDROID;
-        }
-        else if (env.platform === "ios") {
-            sys.os = sys.OS_IOS;
-        }
-        else {
-            sys.os = sys.OS_UNKNOWN;
-        }
-        sys.osVersion = env.version;
-        sys.osMainVersion = parseInt(sys.osVersion.split('.')[0]);
-        sys.browserType = sys.BROWSER_TYPE_QQ_PLAY;
-        sys.browserVersion = 0;
-
-        var w = env.screenWidth;
-        var h = env.screenHeight;
-        var ratio = env.pixelRatio || 1;
-
-        sys.windowPixelResolution = {
-            width: ratio * w,
-            height: ratio * h
-        };
-
-        sys.localStorage = window.localStorage;
-
-        sys.capabilities = {
-            "canvas": false,
-            "opengl": true,
-            "webp": false
-        };
-        sys.__audioSupport = {
-            ONLY_ONE: false,
-            WEB_AUDIO: false,
-            DELAY_CREATE_CTX: false,
-            format: ['.mp3']
-        };
-    }
-    else if (isBaiduGame) {
-        let env = __device.getSystemInfo();
-        sys.platform = env.platform;
-        sys.browserType = env.browserType;
-        sys.isMobile = env.isMobile;
-        sys.language = env.language;
-        sys.languageCode = env.language.toLowerCase();
-        sys.os = env.os;
-        sys.osVersion = env.osVersion;
-        sys.osMainVersion = env.osMainVersion;
-        sys.browserVersion = env.browserVersion;
-        sys.windowPixelResolution = env.windowPixelResolution;
-        sys.localStorage = env.localStorage;
-        sys.capabilities = env.capabilities;
-        sys.__audioSupport = env.audioSupport;
     }
     else {
         // browser or runtime
@@ -929,11 +796,8 @@ function initSys () {
             if(!browserTypes) browserTypes = typeReg3.exec(ua);
 
             var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
-            if (CC_WECHATGAME)
-                browserType = sys.BROWSER_TYPE_WECHAT_GAME;
-            else if (CC_QQPLAY)
-                browserType = sys.BROWSER_TYPE_QQ_PLAY;
-            else if (browserType === 'micromessenger')
+
+            if (browserType === 'micromessenger')
                 browserType = sys.BROWSER_TYPE_WECHAT;
             else if (browserType === "safari" && isAndroid)
                 browserType = sys.BROWSER_TYPE_ANDROID;
@@ -1029,9 +893,6 @@ function initSys () {
         if (CC_TEST) {
             _supportWebGL = false;
         }
-        else if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
-            _supportWebGL = true;
-        }
         else if (win.WebGLRenderingContext) {
             _supportWebGL = true;
         }
@@ -1077,8 +938,7 @@ function initSys () {
 
             // check if browser supports Web Audio
             // check Web Audio's context
-            var supportWebAudio = sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME &&
-                                !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
+            var supportWebAudio = !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 
             __audioSupport = { ONLY_ONE: false, WEB_AUDIO: supportWebAudio, DELAY_CREATE_CTX: false };
 

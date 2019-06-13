@@ -1,7 +1,7 @@
 let box2d = require('../../../external/box2d/box2d');
 
 window.b2 = {};
-if (CC_QQPLAY) {
+if (cc.sys.platform === cc.sys.QQ_PLAY) {
     // can only define global variable in this way
     b2 = window.b2;
 }
