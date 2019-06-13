@@ -441,7 +441,6 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     protected resizeAtlases () {
         for (const prop of Object.keys(this._textures)) {
             const tex = this._textures[prop];
-            tex.destroy();
             tex.create(this.atlasSize, this.atlasSize, PixelFormat.RGBA8888);
         }
     }
