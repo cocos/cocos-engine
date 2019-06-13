@@ -24,9 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import {Texture2D} from '../assets/texture-2d';
-import {_getClassId} from '../core/utils/js';
-
 export class JsonUnpacker {
     constructor () {
         this.jsons = {};
@@ -54,7 +51,6 @@ export class JsonUnpacker {
 
 
 export class TextureUnpacker {
-    static ID = _getClassId(Texture2D);
     constructor () {
         this.contents = {};
     }
@@ -77,7 +73,7 @@ export class TextureUnpacker {
         var content = this.contents[key];
         if (content) {
             return {
-                __type__: TextureUnpacker.ID,
+                __type__: cc.js._getClassId(cc.Texture2D),
                 content: content
             };
         }

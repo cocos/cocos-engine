@@ -113,7 +113,7 @@ export function _doLoadNewPack (uuid, packUuid, packedJson) {
         if (Array.isArray(packedJson)) {
             unpackerData.unpacker = new JsonUnpacker();
         }
-        else if (packedJson.type === TextureUnpacker.ID) {
+        else if (packedJson.type === cc.js._getClassId(cc.Texture2D)) {
             unpackerData.unpacker = new TextureUnpacker();
         }
         unpackerData.unpacker.load(packIndices[packUuid], packedJson);
