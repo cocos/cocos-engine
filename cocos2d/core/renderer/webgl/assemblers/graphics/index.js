@@ -104,9 +104,6 @@ export default class GraphicsAssembler extends Assembler {
 
         let datas = this._buffers;
         if (clean) {
-            this._paths.length = 0;
-            this._points.length = 0;
-            // manually destroy render datas
             for (let i = 0, l = datas.length; i < l; i++) {
                 let data = datas[i];
                 data.meshbuffer.destroy();

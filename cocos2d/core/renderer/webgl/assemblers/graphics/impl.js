@@ -153,12 +153,17 @@ cc.js.mixin(Impl.prototype, {
         this._curPath.complex = false;
     },
 
-    clear () {
+    clear (clean) {
         this._pathLength = 0;
         this._pathOffset = 0;
         this._pointsOffset = 0;
       
         this._curPath = null;
+
+        if (clean) {
+            this._paths.length = 0;
+            this._points.length = 0;
+        }
     },
 
     close () {

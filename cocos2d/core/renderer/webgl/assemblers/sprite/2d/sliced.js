@@ -25,9 +25,7 @@
 
 import Assembler2D from '../../../../assembler-2d';
 
-const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
-
-export default class SlicedFilledAssembler extends Assembler2D {
+export default class SlicedAssembler extends Assembler2D {
     initData (sprite) {
         if (this._renderData.meshCount > 0) return;
         this._renderData.createData(0, this.verticesFloats, this.indicesCount);
@@ -49,11 +47,9 @@ export default class SlicedFilledAssembler extends Assembler2D {
     }
 
     updateRenderData (sprite) {
-        super.updateRenderData();
-
         let frame = sprite._spriteFrame;
         if (!frame) return;
-        packToDynamicAtlas(sprite, frame);
+        this.packToDynamicAtlas(sprite, frame);
 
         if (sprite._vertsDirty) {
             this.updateUVs(sprite);
@@ -134,7 +130,7 @@ export default class SlicedFilledAssembler extends Assembler2D {
     }
 }
 
-Object.assign(SlicedFilledAssembler.prototype, {
+Object.assign(SlicedAssembler.prototype, {
     verticesCount: 16,
     indicesCount: 54
 });

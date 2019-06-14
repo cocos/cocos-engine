@@ -22,53 +22,46 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+import IARenderData from '../renderer/render-data/ia-render-data';
+import InputAssembler from '../renderer/core/input-assembler';
 
-const MeshBuffer = require('./mesh-buffer');
+let TiledMapRenderDataList = cc.Class({
+    name: 'cc.TiledMapRenderDataList',
 
-let QuadBuffer = cc.Class({
-    name: 'cc.QuadBuffer',
-    extends: MeshBuffer,
-    
-    _fillQuadBuffer () {
-        let count = this._initIDataCount / 6;
-        let buffer = this._iData;
-        for (let i = 0, idx = 0; i < count; i++) {
-            let vertextID = i * 4;
-            buffer[idx++] = vertextID;
-            buffer[idx++] = vertextID+1;
-            buffer[idx++] = vertextID+2;
-            buffer[idx++] = vertextID+1;
-            buffer[idx++] = vertextID+3;
-            buffer[idx++] = vertextID+2;
+    ctor () {
+        this._dataList = [];
+        this._offset = 0;
+    },
+
+    _pushRenderData () {
+        let renderData = new IARenderData();
+        renderData.ia = new InputAssembler();
+        renderData.nodesRenderList = [];
+        this._dataList.push(renderData);
+    },
+
+    popRenderData (buffer) {
+        if (this._offset >= this._dataList.length) {
+            this._pushRenderData();
         }
-
-        let indicesData = new Uint16Array(this._iData.buffer, 0, count * 6);
-        this._ib.update(0, indicesData);
+        let renderData = this._dataList[this._offset];
+        renderData.nodesRenderList.length = 0;
+        let ia = renderData.ia;
+        ia._vertexBuffer = buffer._vb;
+        ia._indexBuffer = buffer._ib;
+        ia._start = buffer.indiceOffset;
+        ia._count = 0;
+        this._offset++;
+        return renderData;
     },
 
-    uploadData () {
-        if (this.byteOffset === 0 || !this._dirty) {
-            return;
-        }
-
-        // update vertext data
-        let vertexsData = new Float32Array(this._vData.buffer, 0, this.byteOffset >> 2);
-        this._vb.update(0, vertexsData);
-
-        this._dirty = false;
+    pushNodesList (renderData, nodesList) {
+        renderData.nodesRenderList.push(nodesList);
     },
 
-    switchBuffer () {
-        this._super();
-        // upload index buffer data
-        let indicesData = new Uint16Array(this._iData.buffer, 0, this._initIDataCount);	        this._ib.update(0, indicesData);
-    },
-
-    _reallocBuffer () {
-        this._reallocVData(true);
-        this._reallocIData();
-        this._fillQuadBuffer();
+    reset () {
+        this._offset = 0;
     }
 });
 
-cc.QuadBuffer = module.exports = QuadBuffer;
+cc.TiledMapRenderDataList = module.exports = TiledMapRenderDataList;

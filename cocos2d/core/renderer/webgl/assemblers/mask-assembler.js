@@ -27,8 +27,8 @@ import Assembler from '../../assembler';
 
 const Mask = require('../../../components/CCMask');
 const RenderFlow = require('../../render-flow');
-const spriteAssembler = require('./sprite/2d/simple');
-const graphicsAssembler = require('./graphics');
+const SimpleSpriteAssembler = require('./sprite/2d/simple');
+const GraphicsAssembler = require('./graphics');
 const gfx = require('../../../../renderer/gfx');
 const vfmtPos = require('../vertex-format').vfmtPos;
 
@@ -132,15 +132,16 @@ function applyAreaMask (mask, renderer) {
     applyStencil(mask.sharedMaterials[0], func, failOp, ref, stencilMask, writeMask);
 
     // vertex buffer
-    renderer.node = mask.node;
     renderer.material = mask.sharedMaterials[0];
 
     if (mask._type === Mask.Type.IMAGE_STENCIL) {
-        spriteAssembler.prototype.fillBuffers(this, mask, renderer);
+        renderer.node = renderer._dummyNode;
+        SimpleSpriteAssembler.prototype.fillBuffers.call(mask._assembler, mask, renderer);
         renderer._flush();
     }
     else {
-        graphicsAssembler.prototype.fillBuffers.call(mask._graphics._assembler, mask._graphics, renderer);
+        renderer.node = mask.node;
+        GraphicsAssembler.prototype.fillBuffers.call(mask._graphics._assembler, mask._graphics, renderer);
     }
 }
 
@@ -156,19 +157,11 @@ function enableMask (renderer) {
     renderer._flushMaterial(mask._enableMaterial);
 }
 
-export class MaskAssembler  extends Assembler {
-    initData () {
-        let data = this._renderData;
-        data.createQuadData(0, 20, 6);
-        // l b r t
-        data._local.length = 4;
-    }
-
+export class MaskAssembler  extends SimpleSpriteAssembler {
     updateRenderData (mask) {
         if (mask._type === Mask.Type.IMAGE_STENCIL) {
             if (mask.spriteFrame) {
-                this.initData();
-                spriteAssembler.prototype.updateRenderData.call(this, mask);
+                SimpleSpriteAssembler.prototype.updateRenderData.call(this, mask);
             }
             else {
                 mask.setMaterial(0, null);
@@ -176,7 +169,7 @@ export class MaskAssembler  extends Assembler {
         }
         else {
             mask._graphics.setMaterial(0, mask.sharedMaterials[0]);
-            graphicsAssembler.prototype.updateRenderData.call(mask._graphics._assembler, mask._graphics, mask._graphics);
+            GraphicsAssembler.prototype.updateRenderData.call(mask._graphics._assembler, mask._graphics, mask._graphics);
         }
     }
 

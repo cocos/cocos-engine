@@ -32,7 +32,6 @@ const Label = require('../../../components/CCLabel');
 const LabelOutline = require('../../../components/CCLabelOutline');
 const LabelShadow = require('../../../components/CCLabelShadow');
 const Overflow = Label.Overflow;
-const packToDynamicAtlas = require('../utils').packToDynamicAtlas;
 
 const MAX_SIZE = 2048;
 const _invisibleAlpha = (1 / 255).toFixed(3);
@@ -361,7 +360,7 @@ export default class TTFAssembler extends Assembler2D {
             frame.setRect(cc.rect(0, 0, _canvas.width, _canvas.height));
         }
         // Add font images to the dynamic atlas for batch rendering.
-        packToDynamicAtlas(comp, frame);
+        this.packToDynamicAtlas(comp, frame);
     }
 
     _updateLabelDimensions () {

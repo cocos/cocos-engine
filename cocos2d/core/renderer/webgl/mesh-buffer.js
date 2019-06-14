@@ -28,6 +28,10 @@ import gfx from '../../../renderer/gfx';
 let MeshBuffer = cc.Class({
     name: 'cc.MeshBuffer',
     ctor (batcher, vertexFormat) {
+        this.init (batcher, vertexFormat);
+    },
+
+    init (batcher, vertexFormat) {
         this.byteStart = 0;
         this.byteOffset = 0;
         this.indiceStart = 0;
@@ -161,6 +165,10 @@ let MeshBuffer = cc.Class({
             this._reallocBuffer();
         }
 
+        this._updateOffset(vertexCount, indiceCount, byteOffset);
+    },
+
+    _updateOffset (vertexCount, indiceCount, byteOffset) {
         let offsetInfo = this._offsetInfo;
         offsetInfo.vertexOffset = this.vertexOffset;
         this.vertexOffset += vertexCount;
@@ -240,6 +248,7 @@ let MeshBuffer = cc.Class({
     },
 
     destroy () {
+        this.reset();
         for (let i = 0; i <  this._vbArr.length; i++) {
             let vb = this._vbArr[i];
             vb.destroy();

@@ -320,11 +320,6 @@ let Mask = cc.Class({
         this._removeGraphics();
     },
 
-    _initNativeHandle () {
-        this._renderHandle = new renderer.MaskRenderHandle();
-        this._renderHandle.bind(this);
-    },
-
     _resizeNodeToTargetNode: CC_EDITOR && function () {
         if(this.spriteFrame) {
             let rect = this.spriteFrame.getRect();
@@ -422,9 +417,6 @@ let Mask = cc.Class({
             this._graphics.node = this.node;
             this._graphics.lineWidth = 0;
             this._graphics.strokeColor = cc.color(0, 0, 0, 0);
-            if (CC_JSB && CC_NATIVERENDERER) {
-                this._renderHandle.setNativeRenderHandle(this._graphics._renderHandle);
-            }
         }
         
         if (!this._clearGraphics) {
@@ -433,11 +425,8 @@ let Mask = cc.Class({
             this._clearGraphics.node = new Node();
             this._clearGraphics._activateMaterial();
             this._clearGraphics.lineWidth = 0;
-            this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
+            this._clearGraphics.rect(-1, -1, 2, 2);
             this._clearGraphics.fill();
-            if (CC_JSB && CC_NATIVERENDERER) {
-                this._renderHandle.setNativeClearHandle(this._clearGraphics._renderHandle);
-            }
         }
     },
 

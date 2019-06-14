@@ -25,7 +25,6 @@
 
 import Assembler2D from '../../../../assembler-2d';
 
-const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 const FlexBuffer = require('../../../flex-buffer');
 
 const PI_2 = Math.PI * 2;
@@ -184,7 +183,7 @@ export default class RadialFilledAssembler extends Assembler2D {
 
         let frame = sprite.spriteFrame;
         if (!frame) return;
-        packToDynamicAtlas(sprite, frame);
+        this.packToDynamicAtlas(sprite, frame);
 
         if (sprite._vertsDirty) {
             let fillStart = sprite._fillStart;

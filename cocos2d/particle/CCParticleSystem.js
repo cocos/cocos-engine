@@ -1213,7 +1213,6 @@ var ParticleSystem = cc.Class({
 
     _activateMaterial: function () {
         if (!this._texture || !this._texture.loaded) {
-            this.markForCustomIARender(false);
             if (this._renderSpriteFrame) {
                 this._applySpriteFrame();
             }
@@ -1235,7 +1234,6 @@ var ParticleSystem = cc.Class({
         material.setProperty('texture', this._texture);
 
         this.setMaterial(0, material);
-        this.markForCustomIARender(true);
     },
     
     _finishedSimulation: function () {

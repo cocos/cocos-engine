@@ -1,11 +1,8 @@
-import RenderData from './render-data';
 import RenderFlow from './render-flow';
 
 export default class Assembler {
-    constructor (renderComp) {
+    init (renderComp) {
         this._renderComp = renderComp;
-        this._renderData = new RenderData();
-
         renderComp._renderFlag |= RenderFlow.FLAG_OPACITY;
     }
     
@@ -37,6 +34,9 @@ Assembler.init = function (renderComp) {
     }
     
     if (!renderComp._assembler || renderComp._assembler.constructor !== assemblerCtor) {
-        renderComp._assembler = new assemblerCtor(renderComp);
+        renderComp._assembler = new assemblerCtor();
+        renderComp._assembler.init(renderComp)
     }
 };
+
+cc.Assembler = Assembler;

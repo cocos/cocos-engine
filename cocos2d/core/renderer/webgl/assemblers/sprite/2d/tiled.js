@@ -25,7 +25,6 @@
 
 import Assembler2D from '../../../../assembler-2d';
 
-const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 const FlexBuffer = require('../../../flex-buffer');
 
 export default class TiledFilledAssembler extends Assembler2D {
@@ -44,12 +43,10 @@ export default class TiledFilledAssembler extends Assembler2D {
     }
 
     updateRenderData (sprite) {
-        super.updateRenderData(sprite);
-
         let frame = sprite._spriteFrame;
         if (!frame) return;
 
-        packToDynamicAtlas(sprite, frame);
+        this.packToDynamicAtlas(sprite, frame);
 
         let node = sprite.node;
         let renderData = this._renderData;

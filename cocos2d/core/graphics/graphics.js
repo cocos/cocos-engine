@@ -187,11 +187,6 @@ let Graphics = cc.Class({
         this._impl = null;
     },
 
-    _initNativeHandle () {
-        this._renderHandle = new renderer.GraphicsRenderHandle();
-        this._renderHandle.bind(this);
-    },
-
     _activateMaterial () {
         // Ignore material in canvas
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {

@@ -1,14 +1,19 @@
 import Assembler from './assembler';
+import dynamicAtlasManager from './utils/dynamic-atlas/manager';
+import RenderData from './render-data';
 
 export default class Assembler2D extends Assembler {
-    get verticesFloats () {
-        return this.verticesCount * this.floatsPerVert;
+    init (comp) {
+        super.init(comp);
+
+        this._renderData = new RenderData();
+        this._renderData.init(this);
+
+        this.initData();
     }
 
-    updateRenderData () {
-        if (this._renderData.meshCount === 0) {
-            this.initData();
-        }
+    get verticesFloats () {
+        return this.verticesCount * this.floatsPerVert;
     }
 
     initData () {
@@ -91,6 +96,25 @@ export default class Assembler2D extends Assembler {
             ibuf[indiceOffset++] = vertexId + iData[i];
         }
     }
+
+    packToDynamicAtlas (comp, frame) {
+        // TODO: Material API design and export from editor could affect the material activation process
+        // need to update the logic here
+        if (frame && !CC_TEST) {
+            if (!frame._original && dynamicAtlasManager) {
+                let packedFrame = dynamicAtlasManager.insertSpriteFrame(frame);
+                if (packedFrame) {
+                    frame._setDynamicAtlasFrame(packedFrame);
+                }
+            }
+            let material = comp.sharedMaterials[0];
+            if (!material) return;
+            
+            if (material.getProperty('texture') !== frame._texture) {
+                comp._activateMaterial();
+            }
+        }
+    }
 }
 
 cc.js.addon(Assembler2D.prototype, {
@@ -102,3 +126,5 @@ cc.js.addon(Assembler2D.prototype, {
     uvOffset: 2,
     colorOffset: 4,
 });
+
+cc.Assembler2D = Assembler2D;

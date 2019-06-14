@@ -355,6 +355,21 @@ sp.Skeleton = cc.Class({
         },
 
         /**
+         * !#en Indicates whether open debug mesh.
+         * !#zh 是否显示 mesh 的 debug 信息。
+         * @property {Boolean} debugMesh
+         * @default false
+         */
+        debugMesh: {
+            default: false,
+            editorOnly: true,
+            tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.debug_mesh',
+            notify () {
+                this._updateDebugDraw();
+            }
+        },
+
+        /**
          * !#en Enabled two color tint.
          * !#zh 是否启用染色效果。
          * @property {Boolean} useTint
@@ -407,6 +422,7 @@ sp.Skeleton = cc.Class({
 
     // CONSTRUCTOR
     ctor () {
+        this._effectDelegate = null;
         this._skeleton = null;
         this._rootBone = null;
         this._listener = null;
@@ -545,6 +561,7 @@ sp.Skeleton = cc.Class({
             this._cacheMode = AnimationCacheMode.REALTIME;
         }
 
+        this._resetAssembler();
         this._updateSkeletonData();
         this._updateDebugDraw();
         this._updateUseTint();
@@ -693,6 +710,16 @@ sp.Skeleton = cc.Class({
     onRestore () {
         // Destroyed and restored in Editor
         this._boundingBox = cc.rect();
+    },
+
+    /**
+     * !#en Sets vertex effect delegate.
+     * !#zh 设置顶点动画代理
+     * @method setVertexEffectDelegate
+     * @param {sp.VertexEffectDelegate} effectDelegate
+     */
+    setVertexEffectDelegate (effectDelegate) {
+        this._effectDelegate = effectDelegate;
     },
 
     // RENDERER

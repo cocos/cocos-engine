@@ -27,16 +27,13 @@ import Assembler2D from '../../../../assembler-2d';
 
 const Sprite = require('../../../../../components/CCSprite');
 const FillType = Sprite.FillType;
-const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 
 export default class BarFilledAssembler extends Assembler2D {
     updateRenderData (sprite) {
-        super.updateRenderData();
-
         let frame = sprite._spriteFrame;
         if (!frame) return;
 
-        packToDynamicAtlas(sprite, frame);
+        this.packToDynamicAtlas(sprite, frame);
 
         if (!sprite._vertsDirty) {
             return;

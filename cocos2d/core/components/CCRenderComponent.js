@@ -77,25 +77,10 @@ let RenderComponent = cc.Class({
         this._vertexFormat = gfx.VertexFormat.XY_UV_Color;
         
         this._assembler = null;
-        // this._postAssembler = null;
-        
-        // if (CC_JSB && CC_NATIVERENDERER) {
-        //     this._initNativeHandle();   
-        // }
-        // else {
-        //     this._renderHandle = new RenderHandle();
-        // }
     },
 
     _resetAssembler () {
         Assembler.init(this);
-        // this._assembler = this.constructor.createAssembler && this.constructor.createAssembler();
-        // this._postAssembler = this.constructor.createPostAssembler && this.constructor.createPostAssembler();
-    },
-
-    _initNativeHandle () {
-        this._renderHandle = new renderer.RenderHandle();
-        this._renderHandle.bind(this);
     },
 
     __preload () {
@@ -115,8 +100,9 @@ let RenderComponent = cc.Class({
         this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
 
         if (CC_JSB && CC_NATIVERENDERER) {
-            this._renderHandle.updateEnabled(true);
             cc.RenderFlow.once(cc.RenderFlow.EventType.BEFORE_RENDER, this._updateColor, this);
+
+            this._assembler.enable();
         }
     },
 
@@ -170,31 +156,21 @@ let RenderComponent = cc.Class({
         if (enable && this._canRender()) {
             this.node._renderFlag |= RenderFlow.FLAG_RENDER;
             if (CC_JSB && CC_NATIVERENDERER) {
-                this._renderHandle.updateEnabled(true);
+                this._assembler && this._assembler.enable();
             }
         }
         else if (!enable) {
             this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
             if (CC_JSB && CC_NATIVERENDERER) {
-                this._renderHandle.updateEnabled(false);
+                this._assembler && this._assembler.disable();
             }
         }
     },
 
-    markForCustomIARender (enable) {
-        if (enable && this._canRender()) {
-            this.node._renderFlag |= RenderFlow.FLAG_CUSTOM_IA_RENDER;
-        }
-        else if (!enable) {
-            this.node._renderFlag &= ~RenderFlow.FLAG_CUSTOM_IA_RENDER;
-        }
-    },
-
     disableRender () {
-        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_CUSTOM_IA_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
-
+        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
         if (CC_JSB && CC_NATIVERENDERER) {
-            this._renderHandle.updateEnabled(false);
+            this._assembler && this._assembler.disable();
         }
     },
 

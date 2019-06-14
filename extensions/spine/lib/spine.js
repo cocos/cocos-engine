@@ -6577,14 +6577,15 @@ var spine;
 var spine;
 (function (spine) {
 	var SwirlEffect = (function () {
-		function SwirlEffect(radius) {
+		function SwirlEffect(radius, interpolation) {
 			this.centerX = 0;
 			this.centerY = 0;
 			this.radius = 0;
 			this.angle = 0;
 			this.worldX = 0;
 			this.worldY = 0;
-			this.radius = radius;
+            this.radius = radius;
+            this.interpolation = interpolation;
 		}
 		SwirlEffect.prototype.begin = function (skeleton) {
 			this.worldX = skeleton.x + this.centerX;
@@ -6596,7 +6597,7 @@ var spine;
 			var y = position.y - this.worldY;
 			var dist = Math.sqrt(x * x + y * y);
 			if (dist < this.radius) {
-				var theta = SwirlEffect.interpolation.apply(0, radAngle, (this.radius - dist) / this.radius);
+				var theta = this.interpolation.apply(0, radAngle, (this.radius - dist) / this.radius);
 				var cos = Math.cos(theta);
 				var sin = Math.sin(theta);
 				position.x = cos * x - sin * y + this.worldX;

@@ -592,7 +592,7 @@ var Sprite = cc.Class({
 
 if (CC_EDITOR) {
     // override __preload
-    Sprite.prototype.__superPreload = cc.Component.prototype.__preload;
+    Sprite.prototype.__superPreload = cc.RenderComponent.prototype.__preload;
     Sprite.prototype.__preload = function () {
         if (this.__superPreload) this.__superPreload();
         this.node.on(NodeEvent.SIZE_CHANGED, this._resized, this);

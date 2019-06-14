@@ -11,7 +11,9 @@ export default function RenderData () {
 }
 
 cc.js.mixin(RenderData.prototype, {
-    reset () {
+    init (assembler) {
+    },
+    clear () {
         this.vDatas.length = 0;
         this.iDatas.length = 0;
         this.uintVDatas.length = 0;
@@ -28,9 +30,7 @@ cc.js.mixin(RenderData.prototype, {
         this.uintVDatas[index] = new Uint32Array(vertices.buffer, 0, vertices.length);
         this.iDatas[index] = indices;
     
-        if (this.meshCount < index+1) {
-            this.meshCount = index+1;
-        }
+        this.meshCount = this.vDatas.length;
     },
     
     createData (index, verticesFloats, indicesCount) {
