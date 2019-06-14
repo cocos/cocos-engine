@@ -159,6 +159,7 @@ export class vec3 {
         out.z = Math.max(a.z, b.z);
         return out;
     }
+
     /**
      * @zh 逐元素向量四舍五入取整
      */
@@ -237,6 +238,7 @@ export class vec3 {
     public static mag (a: vec3) {
         return vec3.magnitude(a);
     }
+
     /**
      * @zh 求向量长度平方
      */
@@ -307,7 +309,6 @@ export class vec3 {
 
         let len = x * x + y * y + z * z;
         if (len > 0) {
-            // TODO: evaluate use of glm_invsqrt here?
             len = 1 / Math.sqrt(len);
             out.x = x * len;
             out.y = y * len;

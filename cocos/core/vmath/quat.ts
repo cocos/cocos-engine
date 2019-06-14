@@ -8,7 +8,7 @@ import { vec4 } from './vec4';
  */
 // tslint:disable-next-line:class-name
 export class quat {
-    public static IDENTITY = new quat();
+    public static IDENTITY = Object.freeze(new quat());
 
     /**
      * @zh 创建新的实例

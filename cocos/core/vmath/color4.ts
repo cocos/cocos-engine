@@ -1,43 +1,28 @@
 import { EPSILON } from './utils';
 
-// tslint:disable: one-variable-per-declaration
-// tslint:disable: class-name
-
 /**
- * Represents a color with red(r), green(g), blue(b) component of that color and
- * and an extra alpha(a) component indicating how opaque this color is.
+ * @zh RGBA 格式的颜色，每个通道取值范围 [0, 1]
  */
-class color4 {
+// tslint:disable:one-variable-per-declaration
+// tslint:disable-next-line:class-name
+export class color4 {
 
     /**
-     * Creates a white color, or components specified separately.
-     *
-     * @param r - Value assigned to r component.
-     * @param g - Value assigned to g component.
-     * @param b - Value assigned to b component.
-     * @param a - Value assigned to a component.
-     * @return The newly created color.
+     * @zh 创建新的实例
      */
     public static create (r = 1, g = 1, b = 1, a = 1) {
         return new color4(r, g, b, a);
     }
 
     /**
-     * Clone a color.
-     *
-     * @param a - Color to clone.
-     * @return The newly created color.
+     * @zh 获得指定颜色的拷贝
      */
     public static clone (a: color4) {
         return new color4(a.r, a.g, a.b, a.a);
     }
 
     /**
-     * Copy content of a color into another.
-     *
-     * @param out - The color to modified.
-     * @param a - The specified color.
-     * @return out.
+     * @zh 复制目标颜色
      */
     public static copy (out: color4, a: color4) {
         out.r = a.r;
@@ -48,14 +33,7 @@ class color4 {
     }
 
     /**
-     * Set the components of a color to the given values.
-     *
-     * @param out - The color to modified.
-     * @param r - Value assigned to r component.
-     * @param g - Value assigned to g component.
-     * @param b - Value assigned to b component.
-     * @param a - Value assigned to a component.
-     * @return out.
+     * @zh 设置颜色值
      */
     public static set (out: color4, r: number, g: number, b: number, a: number) {
         out.r = r;
@@ -66,12 +44,7 @@ class color4 {
     }
 
     /**
-     * Converts the hexadecimal formal color into rgb formal.
-     *
-     * @param out - Color to store result.
-     * @param hex - The color's hexadecimal formal.
-     * @return out.
-     * @function
+     * @zh 根据指定整型数据设置颜色
      */
     public static fromHex (out: color4, hex: number) {
         const r = ((hex >> 24)) / 255.0;
@@ -87,12 +60,7 @@ class color4 {
     }
 
     /**
-     * Add components of two colors, respectively.
-     *
-     * @param out - Color to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return out.
+     * @zh 逐通道颜色加法
      */
     public static add (out: color4, a: color4, b: color4) {
         out.r = a.r + b.r;
@@ -103,12 +71,7 @@ class color4 {
     }
 
     /**
-     * Subtract components of color b from components of color a, respectively.
-     *
-     * @param out - Color to store result.
-     * @param a - The a.
-     * @param b - The b.
-     * @return out.
+     * @zh 逐通道颜色减法
      */
     public static subtract (out: color4, a: color4, b: color4) {
         out.r = a.r - b.r;
@@ -119,19 +82,14 @@ class color4 {
     }
 
     /**
-     * Alias of {@link color4.subtract}.
+     * @zh 逐通道颜色减法
      */
     public static sub (out: color4, a: color4, b: color4) {
         return color4.subtract(out, a, b);
     }
 
     /**
-     * Multiply components of two colors, respectively.
-     *
-     * @param out - Color to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return out.
+     * @zh 逐通道颜色乘法
      */
     public static multiply (out: color4, a: color4, b: color4) {
         out.r = a.r * b.r;
@@ -142,19 +100,14 @@ class color4 {
     }
 
     /**
-     * Alias of {@link color4.multiply}.
+     * @zh 逐通道颜色乘法
      */
     public static mul (out: color4, a: color4, b: color4) {
         return color4.multiply(out, a, b);
     }
 
     /**
-     * Divide components of color a by components of color b, respectively.
-     *
-     * @param out - Color to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return out.
+     * @zh 逐通道颜色除法
      */
     public static divide (out: color4, a: color4, b: color4) {
         out.r = a.r / b.r;
@@ -165,19 +118,14 @@ class color4 {
     }
 
     /**
-     * Alias of {@link color4.divide}.
+     * @zh 逐通道颜色除法
      */
     public static div (out: color4, a: color4, b: color4) {
         return color4.divide(out, a, b);
     }
 
     /**
-     * Scales a color by a number.
-     *
-     * @param out - Color to store result.
-     * @param a - Color to scale.
-     * @param b - The scale number.
-     * @return out.
+     * @zh 全通道统一缩放颜色
      */
     public static scale (out: color4, a: color4, b: number) {
         out.r = a.r * b;
@@ -188,13 +136,7 @@ class color4 {
     }
 
     /**
-     * Performs a linear interpolation between two colors.
-     *
-     * @param out - Color to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @param t - The interpolation coefficient.
-     * @return out.
+     * @zh 逐通道颜色线性插值：A + t * (B - A)
      */
     public static lerp (out: color4, a: color4, b: color4, t: number) {
         const ar = a.r, ag = a.g, ab = a.b, aa = a.a;
@@ -206,21 +148,15 @@ class color4 {
     }
 
     /**
-     * Returns string representation of a color.
-     *
-     * @param a - The color.
-     * @return - String representation of this color.
+     * @zh 返回颜色的字符串表示
      */
     public static str (a: color4) {
         return `color4(${a.r}, ${a.g}, ${a.b}, ${a.a})`;
     }
 
     /**
-     * Store components of a color into array.
-     *
-     * @param out - Array to store result.
-     * @param a - The color.
-     * @return out.
+     * @zh 颜色转数组
+     * @param ofs 数组起始偏移量
      */
     public static array<Out extends IWritableArrayLike<number>> (out: Out, a: color4, ofs = 0) {
         const scale = (a instanceof cc.Color || a.a > 1) ? 1 / 255 : 1;
@@ -233,22 +169,14 @@ class color4 {
     }
 
     /**
-     * Returns whether the specified colors are equal. (Compared using ===)
-     *
-     * @param a - The first color.
-     * @param b - The second color.
-     * @return True if the colors are equal, false otherwise.
+     * @zh 颜色等价判断
      */
     public static exactEquals (a: color4, b: color4) {
         return a.r === b.r && a.g === b.g && a.b === b.b && a.a === b.a;
     }
 
     /**
-     * Returns whether the specified colors are approximately equal.
-     *
-     * @param a - The first color.
-     * @param b - The second color.
-     * @return True if the colors are equal, false otherwise.
+     * @zh 排除浮点数误差的颜色近似等价判断
      */
     public static equals (a: color4, b: color4) {
         const a0 = a.r, a1 = a.g, a2 = a.b, a3 = a.a;
@@ -260,7 +188,7 @@ class color4 {
     }
 
     /**
-     * Converts a color's rgb formal into the hexadecimal one.
+     * @zh 获取指定颜色的整型数据表示
      */
     public static hex (a: color4) {
         return ((a.r * 255) << 24 | (a.g * 255) << 16 | (a.b * 255) << 8 | a.a * 255) >>> 0;
@@ -271,9 +199,6 @@ class color4 {
     public b: number;
     public a: number;
 
-    /**
-     * Creates a color, with components specified separately.
-     */
     constructor (r = 1, g = 1, b = 1, a = 1) {
         this.r = r;
         this.g = g;
@@ -281,5 +206,3 @@ class color4 {
         this.a = a;
     }
 }
-
-export default color4;

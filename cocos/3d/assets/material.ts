@@ -114,6 +114,7 @@ export class Material extends Asset {
     get effectAsset () {
         return this._effectAsset;
     }
+
     /**
      * @zh
      * 当前使用的 EffectAsset 资源名。
@@ -129,6 +130,7 @@ export class Material extends Asset {
     get technique () {
         return this._techIdx;
     }
+
     /**
      * @zh
      * 当前正在使用的 pass 数组。
@@ -136,6 +138,7 @@ export class Material extends Asset {
     get passes () {
         return this._passes;
     }
+
     /**
      * @zh
      * 材质的 hash。
