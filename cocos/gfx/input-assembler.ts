@@ -5,7 +5,7 @@ import { GFXDevice } from './device';
 
 /**
  * @zh
- * GFX顶点属性
+ * GFX顶点属性。
  */
 export interface IGFXAttribute {
     name: string;
@@ -17,7 +17,7 @@ export interface IGFXAttribute {
 
 /**
  * @zh
- * GFX输入汇集器描述信息
+ * GFX输入汇集器描述信息。
  */
 export interface IGFXInputAssemblerInfo {
     attributes: IGFXAttribute[];
@@ -28,22 +28,38 @@ export interface IGFXInputAssemblerInfo {
 
 /**
  * @zh
- * GFX输入汇集器
+ * GFX输入汇集器。
  */
 export abstract class GFXInputAssembler extends GFXObject {
 
+    /**
+     * @zh
+     * 顶点缓冲数组。
+     */
     public get vertexBuffers (): GFXBuffer[] {
         return this._vertexBuffers;
     }
 
+    /**
+     * @zh
+     * 索引缓冲。
+     */
     public get indexBuffer (): GFXBuffer | null {
         return this._indexBuffer;
     }
 
+    /**
+     * @zh
+     * 顶点属性数组。
+     */
     public get attributes (): IGFXAttribute[] {
         return this._attributes;
     }
 
+    /**
+     * @zh
+     * 顶点数量。
+     */
     public get vertexCount (): number {
         return this._vertexCount;
     }
@@ -52,6 +68,10 @@ export abstract class GFXInputAssembler extends GFXObject {
         this._vertexCount = count;
     }
 
+    /**
+     * @zh
+     * 起始顶点。
+     */
     public get firstVertex (): number {
         return this._firstVertex;
     }
@@ -60,6 +80,10 @@ export abstract class GFXInputAssembler extends GFXObject {
         this._firstVertex = first;
     }
 
+    /**
+     * @zh
+     * 索引数量。
+     */
     public get indexCount (): number {
         return this._indexCount;
     }
@@ -68,6 +92,10 @@ export abstract class GFXInputAssembler extends GFXObject {
         this._indexCount = count;
     }
 
+    /**
+     * @zh
+     * 起始索引。
+     */
     public get firstIndex (): number {
         return this._firstIndex;
     }
@@ -76,6 +104,10 @@ export abstract class GFXInputAssembler extends GFXObject {
         this._firstIndex = first;
     }
 
+    /**
+     * @zh
+     * 顶点偏移量。
+     */
     public get vertexOffset (): number {
         return this._vertexOffset;
     }
@@ -84,6 +116,10 @@ export abstract class GFXInputAssembler extends GFXObject {
         this._vertexOffset = offset;
     }
 
+    /**
+     * @zh
+     * 实例数量。
+     */
     public get instanceCount (): number {
         return this._instanceCount;
     }
@@ -92,6 +128,10 @@ export abstract class GFXInputAssembler extends GFXObject {
         this._instanceCount = count;
     }
 
+    /**
+     * @zh
+     * 起始实例。
+     */
     public get firstInstance (): number {
         return this._firstInstance;
     }
@@ -100,96 +140,56 @@ export abstract class GFXInputAssembler extends GFXObject {
         this._firstInstance = first;
     }
 
+    /**
+     * @zh
+     * 是否间接绘制。
+     */
     public get isIndirect (): boolean {
         return this._isIndirect;
     }
 
+    /**
+     * @zh
+     * 间接绘制缓冲。
+     */
     public get indirectBuffer (): GFXBuffer | null {
         return this._indirectBuffer;
     }
 
     /**
      * @zh
-     * GFX设备
+     * GFX设备。
      */
     protected _device: GFXDevice;
 
-    /**
-     * @zh
-     * 顶点属性数组
-     */
     protected _attributes: IGFXAttribute[] = [];
 
-    /**
-     * @zh
-     * 顶点缓冲数组
-     */
     protected _vertexBuffers: GFXBuffer[] = [];
 
-    /**
-     * @zh
-     * 索引缓冲
-     */
     protected _indexBuffer: GFXBuffer | null = null;
 
-    /**
-     * @zh
-     * 顶点数量
-     */
     protected _vertexCount: number = 0;
 
-    /**
-     * @zh
-     * 起始顶点
-     */
     protected _firstVertex: number = 0;
 
-    /**
-     * @zh
-     * 索引数量
-     */
     protected _indexCount: number = 0;
 
-    /**
-     * @zh
-     * 起始索引
-     */
     protected _firstIndex: number = 0;
 
-    /**
-     * @zh
-     * 顶点偏移量
-     */
     protected _vertexOffset: number = 0;
 
-    /**
-     * @zh
-     * 实例数量
-     */
     protected _instanceCount: number = 0;
 
-    /**
-     * @zh
-     * 起始实例
-     */
     protected _firstInstance: number = 0;
 
-    /**
-     * @zh
-     * 是否间接绘制
-     */
     protected _isIndirect: boolean = false;
 
-    /**
-     * @zh
-     * 间接绘制缓冲
-     */
     protected _indirectBuffer: GFXBuffer | null = null;
 
     /**
      * @zh
-     * 构造函数
-     * @param device GFX设备
+     * 构造函数。
+     * @param device GFX设备。
      */
     constructor (device: GFXDevice) {
         super(GFXObjectType.INPUT_ASSEMBLER);
@@ -198,21 +198,21 @@ export abstract class GFXInputAssembler extends GFXObject {
 
     /**
      * @zh
-     * 初始化函数
-     * @param info GFX汇集器描述信息
+     * 初始化函数。
+     * @param info GFX汇集器描述信息。
      */
     public abstract initialize (info: IGFXInputAssemblerInfo): boolean;
 
     /**
      * @zh
-     * 销毁函数
+     * 销毁函数。
      */
     public abstract destroy (): void;
 
     /**
      * @zh
-     * 得到顶点缓冲
-     * @param stream 顶点流索引
+     * 得到顶点缓冲。
+     * @param stream 顶点流索引。
      */
     public getVertexBuffer (stream: number = 0): GFXBuffer | null {
         if (stream < this._vertexBuffers.length) {
@@ -224,8 +224,8 @@ export abstract class GFXInputAssembler extends GFXObject {
 
     /**
      * @zh
-     * 提取绘制信息
-     * @param drawInfo 绘制信息
+     * 提取绘制信息。
+     * @param drawInfo 绘制信息。
      */
     public extractDrawInfo (drawInfo: IGFXDrawInfo) {
         drawInfo.vertexCount = this._vertexCount;
@@ -244,17 +244,19 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @param attr - name of the attribute to update (default names are specified in GFXAttributeName)
      * @param data - the new VB attribute data to be uploaded
      * @example
+     * ```typescript
      * // get VB array buffer from mesh, better to cache this somewhere convenient
      * const vbInfo = mesh.struct.vertexBundles[0].data;
      * const vbuffer = mesh.data.buffer.slice(vbInfo.offset, vbInfo.offset + vbInfo.length);
      * const submodel = someModelComponent.model.getSubModel(0);
      * // say the new positions is stored in 'data' as a plain array
      * submodel.inputAssembler.updateVertexBuffer(vbuffer, cc.GFXAttributeName.ATTR_POSITION, data);
+     * ```
      * @zh
-     * 根据顶点属性名称更新顶点缓冲数据
-     * @param vbuffer 缓冲数据源
-     * @param attr 属性名
-     * @param data 更新数据
+     * 根据顶点属性名称更新顶点缓冲数据。
+     * @param vbuffer 缓冲数据源。
+     * @param attr 属性名。
+     * @param data 更新数据。
      */
     public updateVertexAttr (vbuffer: GFXBufferSource, attr: string, data: number[]) {
         let offset = 0;
@@ -270,21 +272,22 @@ export abstract class GFXInputAssembler extends GFXObject {
     }
 
     /**
+     * @en
      * update IB data on the fly.
      * need to call submodel.updateCommandBuffer after this if index count changed
-     * @param ibuffer - an ArrayBuffer containing the full IB
-     * @param data - the new IB data to be uploaded
      * @example
+     * ```typescript
      * // get IB array buffer from mesh, better to cache this somewhere convenient
      * const ibInfo = mesh.struct.primitives[0].indices.range;
      * const ibuffer = mesh.data.buffer.slice(ibInfo.offset, ibInfo.offset + ibInfo.length);
      * const submodel = someModelComponent.model.getSubModel(0);
      * submodel.inputAssembler.updateIndexBuffer(ibuffer, [0, 1, 2]);
      * submodel.updateCommandBuffer(); // index count changed
+     * ```
      * @zh
-     * 更新索引缓冲数据
-     * @param ibuffer 缓冲数据源
-     * @param data 更新数据
+     * 更新索引缓冲数据。
+     * @param ibuffer 缓冲数据源。
+     * @param data 更新数据。
      */
     public updateIndexBuffer (ibuffer: GFXBufferSource, data: number[]) {
         const count = this._indexCount;

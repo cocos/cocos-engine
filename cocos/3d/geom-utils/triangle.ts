@@ -3,7 +3,7 @@ import enums from './enums';
 
 /**
  * @zh
- * 基础几何 三角形
+ * 基础几何 三角形。
  */
 // tslint:disable-next-line:class-name
 export default class triangle {
@@ -12,17 +12,17 @@ export default class triangle {
      * @en
      * create a new triangle
      * @zh
-     * 创建一个新的 triangle
-     * @param {number} ax a 点的 x 部分
-     * @param {number} ay a 点的 y 部分
-     * @param {number} az a 点的 z 部分
-     * @param {number} bx b 点的 x 部分
-     * @param {number} by b 点的 y 部分
-     * @param {number} bz b 点的 z 部分
-     * @param {number} cx c 点的 x 部分
-     * @param {number} cy c 点的 y 部分
-     * @param {number} cz c 点的 z 部分
-     * @return {triangle} 一个新的 triangle
+     * 创建一个新的 triangle。
+     * @param {number} ax a 点的 x 部分。
+     * @param {number} ay a 点的 y 部分。
+     * @param {number} az a 点的 z 部分。
+     * @param {number} bx b 点的 x 部分。
+     * @param {number} by b 点的 y 部分。
+     * @param {number} bz b 点的 z 部分。
+     * @param {number} cx c 点的 x 部分。
+     * @param {number} cy c 点的 y 部分。
+     * @param {number} cz c 点的 z 部分。
+     * @return {triangle} 一个新的 triangle。
      */
     public static create (ax: number = 1, ay: number = 0, az: number = 0,
                           bx: number = 0, by: number = 0, bz: number = 0,
@@ -34,9 +34,9 @@ export default class triangle {
      * @en
      * clone a new triangle
      * @zh
-     * 克隆一个新的 triangle
-     * @param {triangle} t 克隆的目标
-     * @return {triangle} 克隆出的新对象
+     * 克隆一个新的 triangle。
+     * @param {triangle} t 克隆的目标。
+     * @return {triangle} 克隆出的新对象。
      */
     public static clone (t: triangle): triangle {
         return new triangle(
@@ -50,10 +50,10 @@ export default class triangle {
      * @en
      * copy the values from one triangle to another
      * @zh
-     * 将一个 triangle 的值复制到另一个 triangle
-     * @param {triangle} out 接受操作的 triangle
-     * @param {triangle} t 被复制的 triangle
-     * @return {triangle} out 接受操作的 triangle
+     * 将一个 triangle 的值复制到另一个 triangle。
+     * @param {triangle} out 接受操作的 triangle。
+     * @param {triangle} t 被复制的 triangle。
+     * @return {triangle} out 接受操作的 triangle。
      */
     public static copy (out: triangle, t: triangle): triangle {
         vec3.copy(out.a, t.a);
@@ -67,12 +67,12 @@ export default class triangle {
      * @en
      * Create a triangle from three points
      * @zh
-     * 用三个点创建一个 triangle
-     * @param {triangle} out 接受操作的 triangle
-     * @param {vec3} a a 点
-     * @param {vec3} b b 点
-     * @param {vec3} c c 点
-     * @return {triangle} out 接受操作的 triangle
+     * 用三个点创建一个 triangle。
+     * @param {triangle} out 接受操作的 triangle。
+     * @param {vec3} a a 点。
+     * @param {vec3} b b 点。
+     * @param {vec3} c c 点。
+     * @return {triangle} out 接受操作的 triangle。
      */
     public static fromPoints (out: triangle, a: vec3, b: vec3, c: vec3): triangle {
         vec3.copy(out.a, a);
@@ -85,17 +85,17 @@ export default class triangle {
      * @en
      * Set the components of a triangle to the given values
      * @zh
-     * 将给定三角形的属性设置为给定值
-     * @param {triangle} out 给定的三角形
-     * @param {number} ax a 点的 x 部分
-     * @param {number} ay a 点的 y 部分
-     * @param {number} az a 点的 z 部分
-     * @param {number} bx b 点的 x 部分
-     * @param {number} by b 点的 y 部分
-     * @param {number} bz b 点的 z 部分
-     * @param {number} cx c 点的 x 部分
-     * @param {number} cy c 点的 y 部分
-     * @param {number} cz c 点的 z 部分
+     * 将给定三角形的属性设置为给定值。
+     * @param {triangle} out 给定的三角形。
+     * @param {number} ax a 点的 x 部分。
+     * @param {number} ay a 点的 y 部分。
+     * @param {number} az a 点的 z 部分。
+     * @param {number} bx b 点的 x 部分。
+     * @param {number} by b 点的 y 部分。
+     * @param {number} bz b 点的 z 部分。
+     * @param {number} cx c 点的 x 部分。
+     * @param {number} cy c 点的 y 部分。
+     * @param {number} cz c 点的 z 部分。
      * @return {triangle}
      * @function
      */
@@ -120,19 +120,19 @@ export default class triangle {
 
     /**
      * @zh
-     * 点 a
+     * 点 a。
      */
     public a: vec3;
 
     /**
      * @zh
-     * 点 b
+     * 点 b。
      */
     public b: vec3;
 
     /**
      * @zh
-     * 点 c
+     * 点 c。
      */
     public c: vec3;
 
@@ -140,16 +140,16 @@ export default class triangle {
 
     /**
      * @zh
-     * 构造一个三角形
-     * @param {number} ax a 点的 x 部分
-     * @param {number} ay a 点的 y 部分
-     * @param {number} az a 点的 z 部分
-     * @param {number} bx b 点的 x 部分
-     * @param {number} by b 点的 y 部分
-     * @param {number} bz b 点的 z 部分
-     * @param {number} cx c 点的 x 部分
-     * @param {number} cy c 点的 y 部分
-     * @param {number} cz c 点的 z 部分
+     * 构造一个三角形。
+     * @param {number} ax a 点的 x 部分。
+     * @param {number} ay a 点的 y 部分。
+     * @param {number} az a 点的 z 部分。
+     * @param {number} bx b 点的 x 部分。
+     * @param {number} by b 点的 y 部分。
+     * @param {number} bz b 点的 z 部分。
+     * @param {number} cx c 点的 x 部分。
+     * @param {number} cy c 点的 y 部分。
+     * @param {number} cz c 点的 z 部分。
      */
     constructor (ax: number = 0, ay: number = 0, az: number = 0,
                  bx: number = 1, by: number = 0, bz: number = 0,

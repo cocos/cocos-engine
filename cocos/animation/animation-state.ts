@@ -28,10 +28,10 @@ export interface IAnimationEventDefinitionMap {
 }
 
 /**
- * !#en
+ * @en
  * The AnimationState gives full control over animation playback process.
  * In most cases the Animation Component is sufficient and easier to use. Use the AnimationState if you need full control.
- * !#zh
+ * @zh
  * AnimationState 完全控制动画播放过程。<br/>
  * 大多数情况下 动画组件 是足够和易于使用的。如果您需要更多的动画控制接口，请使用 AnimationState。
  *
@@ -39,16 +39,16 @@ export interface IAnimationEventDefinitionMap {
 export class AnimationState extends Playable {
 
     /**
-     * !#en The clip that is being played by this animation state.
-     * !#zh 此动画状态正在播放的剪辑。
+     * @en The clip that is being played by this animation state.
+     * @zh 此动画状态正在播放的剪辑。
      */
     get clip () {
         return this._clip;
     }
 
     /**
-     * !#en The name of the playing animation.
-     * !#zh 动画的名字
+     * @en The name of the playing animation.
+     * @zh 动画的名字。
      */
     get name () {
         return this._name;
@@ -59,12 +59,12 @@ export class AnimationState extends Playable {
     }
 
     /**
-     * !#en
+     * @en
      * Wrapping mode of the playing animation.
      * Notice : dynamic change wrapMode will reset time and repeatCount property
-     * !#zh
+     * @zh
      * 动画循环方式。
-     * 需要注意的是，动态修改 wrapMode 时，会重置 time 以及 repeatCount
+     * 需要注意的是，动态修改 wrapMode 时，会重置 time 以及 repeatCount。
      * @default: WrapMode.Normal
      */
     get wrapMode () {
@@ -88,7 +88,7 @@ export class AnimationState extends Playable {
     }
 
     /**
-     * !#en The animation's iteration count property.
+     * @en The animation's iteration count property.
      *
      * A real number greater than or equal to zero (including positive infinity) representing the number of times
      * to repeat the animation node.
@@ -96,7 +96,7 @@ export class AnimationState extends Playable {
      * Values less than zero and NaN values are treated as the value 1.0 for the purpose of timing model
      * calculations.
      *
-     * !#zh 迭代次数，指动画播放多少次后结束, normalize time。 如 2.5（2次半）
+     * @zh 迭代次数，指动画播放多少次后结束, normalize time。 如 2.5（2次半）。
      *
      * @property repeatCount
      * @type {Number}
@@ -120,9 +120,9 @@ export class AnimationState extends Playable {
     }
 
     /**
-     * !#en The start delay which represents the number of seconds from an animation's start time to the start of
+     * @en The start delay which represents the number of seconds from an animation's start time to the start of
      * the active interval.
-     * !#zh 延迟多少秒播放。
+     * @zh 延迟多少秒播放。
      * @default 0
      */
     get delay () {
@@ -134,30 +134,30 @@ export class AnimationState extends Playable {
     }
 
     /**
-     * !#en The curves list.
-     * !#zh 曲线列表。
+     * @en The curves list.
+     * @zh 曲线列表。
      */
     // public curves: AnimCurve[] = [];
 
     // http://www.w3.org/TR/web-animations/#idl-def-AnimationTiming
 
     /**
-     * !#en The iteration duration of this animation in seconds. (length)
-     * !#zh 单次动画的持续时间，秒。
+     * @en The iteration duration of this animation in seconds. (length)
+     * @zh 单次动画的持续时间，秒。
      * @readOnly
      */
     public duration = 1;
 
     /**
-     * !#en The animation's playback speed. 1 is normal playback speed.
-     * !#zh 播放速率。
+     * @en The animation's playback speed. 1 is normal playback speed.
+     * @zh 播放速率。
      * @default: 1.0
      */
     public speed = 1;
 
     /**
-     * !#en The current time of this animation in seconds.
-     * !#zh 动画当前的时间，秒。
+     * @en The current time of this animation in seconds.
+     * @zh 动画当前的时间，秒。
      * @default 0
      */
     public time = 0;

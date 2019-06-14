@@ -789,7 +789,7 @@ export class EditBoxComponent extends Component {
 
     /**
      * @en Let the EditBox get focus
-     * @zh 让当前 EditBox 获得焦点
+     * @zh 让当前 EditBox 获得焦点。
      * @method setFocus
      */
     public setFocus () {
@@ -800,7 +800,7 @@ export class EditBoxComponent extends Component {
 
     /**
      * @en Determine whether EditBox is getting focus or not.
-     * @zh 判断 EditBox 是否获得了焦点
+     * @zh 判断 EditBox 是否获得了焦点。
      * Note: only available on Web at the moment.
      * @method isFocused
      */

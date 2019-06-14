@@ -14,37 +14,37 @@ import { Component } from './component';
 
 /**
  * @en The event type supported by Animation
- * @zh Animation 支持的事件类型
+ * @zh Animation 支持的事件类型。
  */
 export enum EventType {
     /**
      * @en Emit when begin playing animation
-     * @zh 开始播放时触发
+     * @zh 开始播放时触发。
      */
     PLAY = 'play',
     /**
      * @en Emit when stop playing animation
-     * @zh 停止播放时触发
+     * @zh 停止播放时触发。
      */
     STOP = 'stop',
     /**
      * @en Emit when pause animation
-     * @zh 暂停播放时触发
+     * @zh 暂停播放时触发。
      */
     PAUSE = 'pause',
     /**
      * @en Emit when resume animation
-     * @zh 恢复播放时触发
+     * @zh 恢复播放时触发。
      */
     RESUME = 'resume',
     /**
      * @en If animation repeat count is larger than 1, emit when animation play to the last frame
-     * @zh 假如动画循环次数大于 1，当动画播放到最后一帧时触发
+     * @zh 假如动画循环次数大于 1，当动画播放到最后一帧时触发。
      */
     LASTFRAME = 'lastframe',
     /**
      * @en Emit when finish playing animation
-     * @zh 动画播放完成时触发
+     * @zh 动画播放完成时触发。
      */
     FINISHED = 'finished',
 }

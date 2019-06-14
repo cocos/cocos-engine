@@ -151,10 +151,10 @@ export class TextureBase extends Asset {
         this._id = idGenerator.getNewId();
 
         /**
-         * !#en
+         * @en
          * Whether the texture is loaded or not
-         * !#zh
-         * 贴图是否已经成功加载
+         * @zh
+         * 贴图是否已经成功加载。
          */
         this.loaded = false;
     }

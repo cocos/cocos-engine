@@ -4,7 +4,7 @@ import { ForwardStage } from './forward-stage';
 
 /**
  * @zh
- * 前向阶段优先级
+ * 前向阶段优先级。
  */
 export enum ForwardStagePriority {
     FORWARD = 0,
@@ -12,14 +12,14 @@ export enum ForwardStagePriority {
 
 /**
  * @zh
- * 前向渲染流程
+ * 前向渲染流程。
  */
 export class ForwardFlow extends RenderFlow {
 
     /**
      * @zh
-     * 构造函数
-     * @param pipeline 渲染管线
+     * 构造函数。
+     * @param pipeline 渲染管线。
      */
     constructor (pipeline: RenderPipeline) {
         super(pipeline);
@@ -27,8 +27,8 @@ export class ForwardFlow extends RenderFlow {
 
     /**
      * @zh
-     * 初始化函数
-     * @param info 渲染流程描述信息
+     * 初始化函数。
+     * @param info 渲染流程描述信息。
      */
     public initialize (info: IRenderFlowInfo): boolean {
 
@@ -48,7 +48,7 @@ export class ForwardFlow extends RenderFlow {
 
     /**
      * @zh
-     * 销毁函数
+     * 销毁函数。
      */
     public destroy () {
         this.destroyStages();
@@ -56,7 +56,7 @@ export class ForwardFlow extends RenderFlow {
 
     /**
      * @zh
-     * 重构函数
+     * 重构函数。
      */
     public rebuild () {
     }

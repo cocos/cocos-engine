@@ -7,7 +7,8 @@ import { RenderView } from '../render-view';
 
 /**
  * @zh
- * 色调映射渲染阶段
+ * 色调映射渲染阶段。
+ *
  */
 export class ToneMapStage extends RenderStage {
 

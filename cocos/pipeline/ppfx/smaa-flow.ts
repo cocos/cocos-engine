@@ -5,7 +5,7 @@ import { SMAAEdgeStage } from './smaa-edge-stage';
 
 /**
  * @zh
- * SMAA边缘检测渲染流程
+ * SMAA边缘检测渲染流程。
  */
 export class SMAAEdgeFlow extends RenderFlow {
 

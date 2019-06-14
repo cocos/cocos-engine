@@ -36,7 +36,7 @@ import { EffectAsset } from './effect-asset';
 
 /**
  * @zh
- * 用来初始化材质的基本信息结构体
+ * 用来初始化材质的基本信息结构体。
  */
 interface IMaterialInfo {
     /**
@@ -51,12 +51,12 @@ interface IMaterialInfo {
     effectName?: string;
     /**
      * @zh
-     * 这个材质将使用第几个 technique，默认为 0
+     * 这个材质将使用第几个 technique，默认为 0。
      */
     technique?: number;
     /**
      * @zh
-     * 这个材质定义的预处理宏，应与 shader 中的声明对应，默认全为 false
+     * 这个材质定义的预处理宏，应与 shader 中的声明对应，默认全为 false。
      */
     defines?: IDefineMap | IDefineMap[];
     /**
@@ -152,7 +152,7 @@ export class Material extends Asset {
     /**
      * @zh
      * 根据所给信息初始化这个材质，初始化正常结束后材质即可立即用于渲染。
-     * @param info 初始化材质需要的基本信息
+     * @param info 初始化材质需要的基本信息。
      */
     public initialize (info: IMaterialInfo) {
         if (!this._defines) { this._defines = []; }
@@ -168,7 +168,7 @@ export class Material extends Asset {
 
     /**
      * @zh
-     * 彻底销毁材质，注意销毁后无法重新初始化。
+     * 彻底销毁材质，注意销毁后无法重新初始化。<br>
      * 如需重新初始化材质，不必先调用 destroy。
      */
     public destroy () {
@@ -256,8 +256,8 @@ export class Material extends Asset {
      * @zh
      * 设置材质 uniform 参数的统一入口。<br>
      * 注意如果需要每帧更新 uniform，建议使用 [[Pass.setUniform]] 以获得更好的性能。
-     * @param name 要设置的 uniform 名字
-     * @param val 要设置的 uniform 值
+     * @param name 要设置的 uniform 名字。
+     * @param val 要设置的 uniform 值。
      * @param passIdx 要设置的 pass 索引，默认设置所有 pass。
      */
     public setProperty (name: string, val: any, passIdx?: number) {
@@ -289,7 +289,7 @@ export class Material extends Asset {
     /**
      * @zh
      * 获取当前材质的指定 uniform 值。
-     * @param name 要获取的 uniform 名字
+     * @param name 要获取的 uniform 名字。
      * @param passIdx 要获取的源 pass 索引，默认遍历所有 pass，返回第一个找到指定名字的 uniform。
      */
     public getProperty (name: string, passIdx?: number) {

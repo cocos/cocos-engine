@@ -98,7 +98,7 @@ export const LCA = (a: Node, b: Node) => {
 
 /**
  * @en The Skinning Model Component
- * @zh 蒙皮模型组件
+ * @zh 蒙皮模型组件。
  */
 @ccclass('cc.SkinningModelComponent')
 @executionOrder(100)
@@ -108,7 +108,7 @@ export class SkinningModelComponent extends ModelComponent {
 
     /**
      * @en The bone nodes
-     * @zh 骨骼节点
+     * @zh 骨骼节点。
      */
     @property({ type: Skeleton })
     get skeleton () {
@@ -124,7 +124,7 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     /**
-     * 骨骼根节点的引用
+     * 骨骼根节点的引用。
      */
     @property({ type: Node })
     get skinningRoot () {

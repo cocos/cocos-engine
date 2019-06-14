@@ -14,7 +14,7 @@ const _temp_v3 = cc.v3();
 export default class ForceOvertimeModule {
 
     /**
-     * @zh 是否启用
+     * @zh 是否启用。
      */
     @property({
         displayOrder: 0,
@@ -22,7 +22,7 @@ export default class ForceOvertimeModule {
     public enable = false;
 
     /**
-     * @zh X 轴方向上的加速度分量
+     * @zh X 轴方向上的加速度分量。
      */
     @property({
         type: CurveRange,
@@ -32,7 +32,7 @@ export default class ForceOvertimeModule {
     public x = new CurveRange();
 
     /**
-     * @zh Y 轴方向上的加速度分量
+     * @zh Y 轴方向上的加速度分量。
      */
     @property({
         type: CurveRange,
@@ -42,7 +42,7 @@ export default class ForceOvertimeModule {
     public y = new CurveRange();
 
     /**
-     * @zh Z 轴方向上的加速度分量
+     * @zh Z 轴方向上的加速度分量。
      */
     @property({
         type: CurveRange,
@@ -52,7 +52,7 @@ export default class ForceOvertimeModule {
     public z = new CurveRange();
 
     /**
-     * @zh 加速度计算时采用的坐标系 [[Space]]
+     * @zh 加速度计算时采用的坐标系 [[Space]]。
      */
     @property({
         type: Space,

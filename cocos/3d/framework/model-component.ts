@@ -32,34 +32,34 @@ import { RenderableComponent } from './renderable-component';
 
 /**
  * @en Shadow projection mode
- * @zh 阴影投射方式
+ * @zh 阴影投射方式。
  * @static
  * @enum ModelComponent.ShadowCastingMode
  */
 const ModelShadowCastingMode = Enum({
     /**
-     * 关闭阴影投射
+     * 关闭阴影投射。
      * @property Off
      * @readonly
      * @type {Number}
      */
     Off: 0,
     /**
-     * 开启阴影投射，当阴影光产生的时候
+     * 开启阴影投射，当阴影光产生的时候。
      * @property On
      * @readonly
      * @type {Number}
      */
     On: 1,
     /**
-     * 可以从网格的任意一边投射出阴影
+     * 可以从网格的任意一边投射出阴影。
      * @property TwoSided
      * @readonly
      * @type {Number}
      */
     TwoSided: 2,
     /**
-     * 只显示阴影
+     * 只显示阴影。
      * @property ShadowsOnly
      * @readonly
      * @type {Number}
@@ -68,7 +68,7 @@ const ModelShadowCastingMode = Enum({
 });
 
 /**
- * 模型组件
+ * 模型组件。
  * @class ModelComponent
  * @extends RenderableComponent
  */
@@ -80,7 +80,7 @@ export class ModelComponent extends RenderableComponent {
 
     /**
      * @en The mesh of the model
-     * @zh 模型网格
+     * @zh 模型网格。
      * @type {Mesh}
      */
     @property({
@@ -99,7 +99,7 @@ export class ModelComponent extends RenderableComponent {
 
     /**
      * @en The shadow casting mode
-     * @zh 投射阴影方式
+     * @zh 投射阴影方式。
      * @type {Number}
      */
     // @property({
@@ -116,7 +116,7 @@ export class ModelComponent extends RenderableComponent {
 
     /**
      * @en Does this model receive shadows?
-     * @zh 是否接受阴影?
+     * @zh 是否接受阴影？
      * @type {Boolean}
      */
     // @property

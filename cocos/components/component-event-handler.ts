@@ -73,13 +73,13 @@ export class EventHandler {
     }
     /**
      * @zh
-     * 目标节点
+     * 目标节点。
      */
     @property(cc.Node)
     public target: Node | null = null;
     /**
      * @zh
-     * 目标组件名
+     * 目标组件名。
      */
     // only for deserializing old project component field
     @property
@@ -90,14 +90,14 @@ export class EventHandler {
 
     /**
      * @zh
-     * 响应事件函数名
+     * 响应事件函数名。
      */
     @property
     public handler = '';
 
     /**
      * @zh
-     * 自定义事件数据
+     * 自定义事件数据。
      */
     @property
     public customEventData = '';
@@ -106,7 +106,7 @@ export class EventHandler {
      * @zh
      * 触发目标组件上的指定 handler 函数，该参数是回调函数的参数值（可不填）。
      *
-     * @param params - 派发参数数组
+     * @param params - 派发参数数组。
      * @example
      * ```ts
      * var eventHandler = new cc.Component.EventHandler();

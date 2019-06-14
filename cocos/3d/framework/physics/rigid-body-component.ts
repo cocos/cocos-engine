@@ -44,7 +44,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 获取刚体的质量
+     * 获取刚体的质量。
      */
     @property({
         displayOrder: 0,
@@ -55,7 +55,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 设置刚体的质量
+     * 设置刚体的质量。
      */
     public set mass (value) {
         this._mass = value;
@@ -66,7 +66,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 获取线性阻尼
+     * 获取线性阻尼。
      */
     @property({
         displayOrder: 1,
@@ -77,7 +77,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 设置线性阻尼
+     * 设置线性阻尼。
      */
     public set linearDamping (value) {
         this._linearDamping = value;
@@ -88,7 +88,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 获取角阻尼
+     * 获取角阻尼。
      */
     @property({
         displayOrder: 2,
@@ -99,7 +99,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 设置角阻尼
+     * 设置角阻尼。
      */
     public set angularDamping (value) {
         this._angularDamping = value;
@@ -110,7 +110,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 获取刚体是否由物理系统控制运动
+     * 获取刚体是否由物理系统控制运动。
      */
     @property({
         displayOrder: 3,
@@ -121,7 +121,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 设置刚体是否由自己控制运动
+     * 设置刚体是否由自己控制运动。
      */
     public set isKinematic (value) {
         this._isKinematic = value;
@@ -132,7 +132,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 获取刚体是否使用重力
+     * 获取刚体是否使用重力。
      */
     @property({
         displayOrder: 4,
@@ -143,7 +143,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 设置刚体是否使用重力
+     * 设置刚体是否使用重力。
      */
     public set useGravity (value) {
         this._useGravity = value;
@@ -154,7 +154,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 获取刚体是否固定旋转
+     * 获取刚体是否固定旋转。
      */
     @property({
         displayOrder: 5,
@@ -165,7 +165,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 设置刚体是否固定旋转
+     * 设置刚体是否固定旋转。
      */
     public set fixedRotation (value) {
         this._fixedRotation = value;
@@ -234,7 +234,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 在某点上对刚体施加一个作用力
+     * 在某点上对刚体施加一个作用力。
      * @param force - 作用力
      * @param position - 作用点
      */
@@ -246,7 +246,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 在某点上对刚体施加一个冲量
+     * 在某点上对刚体施加一个冲量。
      * @param impulse - 冲量
      * @param position - 作用点
      */
@@ -258,7 +258,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 唤醒刚体
+     * 唤醒刚体。
      */
     public wakeUp () {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
@@ -268,7 +268,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 休眠刚体
+     * 休眠刚体。
      */
     public sleep () {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {

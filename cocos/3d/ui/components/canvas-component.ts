@@ -49,7 +49,7 @@ export class CanvasComponent extends Component {
 
     /**
      * @zh
-     * 设计分辨率
+     * 设计分辨率。
      *
      * @param value - 设计分辨率尺寸。
      */

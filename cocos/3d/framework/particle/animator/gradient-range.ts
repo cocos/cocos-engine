@@ -34,7 +34,7 @@ export default class GradientRange {
     private _mode = Mode.Color;
 
     /**
-     * @zh 渐变色类型 [[Mode]]
+     * @zh 渐变色类型 [[Mode]]。
      */
     @property({
         type: Mode,
@@ -58,25 +58,25 @@ export default class GradientRange {
     }
 
     /**
-     * @zh 当mode为Color时的颜色
+     * @zh 当mode为Color时的颜色。
      */
     @property
     public color = cc.Color.WHITE;
 
     /**
-     * @zh 当mode为TwoColors时的颜色下限
+     * @zh 当mode为TwoColors时的颜色下限。
      */
     @property
     public colorMin = cc.Color.WHITE;
 
     /**
-     * @zh 当mode为TwoColors时的颜色上限
+     * @zh 当mode为TwoColors时的颜色上限。
      */
     @property
     public colorMax = cc.Color.WHITE;
 
     /**
-     * @zh 当mode为Gradient时的颜色渐变
+     * @zh 当mode为Gradient时的颜色渐变。
      */
     @property({
         type: Gradient,
@@ -84,7 +84,7 @@ export default class GradientRange {
     public gradient = new Gradient();
 
     /**
-     * @zh 当mode为TwoGradients时的颜色渐变下限
+     * @zh 当mode为TwoGradients时的颜色渐变下限。
      */
     @property({
         type: Gradient,
@@ -92,7 +92,7 @@ export default class GradientRange {
     public gradientMin = new Gradient();
 
     /**
-     * @zh 当mode为TwoGradients时的颜色渐变上限
+     * @zh 当mode为TwoGradients时的颜色渐变上限。
      */
     @property({
         type: Gradient,

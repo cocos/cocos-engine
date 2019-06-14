@@ -280,9 +280,9 @@ function _getGlobalDevice (): GFXDevice | null {
 }
 
 /**
- * !#zh
- * 当该资源加载成功后触发该事件
- * !#en
+ * @zh
+ * 当该资源加载成功后触发该事件。
+ * @en
  * This event is emitted when the asset is loaded
  *
  * @event loads

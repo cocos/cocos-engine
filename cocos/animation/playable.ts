@@ -3,8 +3,8 @@ import { getError } from '../core/platform/CCDebug';
 export class Playable {
 
     /**
-     * !#en Is playing or paused in play mode?
-     * !#zh 当前是否正在播放。
+     * @en Is playing or paused in play mode?
+     * @zh 当前是否正在播放。
      * @default false
      */
     get isPlaying () {
@@ -12,8 +12,8 @@ export class Playable {
     }
 
     /**
-     * !#en Is currently paused? This can be true even if in edit mode(isPlaying == false).
-     * !#zh 当前是否正在暂停
+     * @en Is currently paused? This can be true even if in edit mode(isPlaying == false).
+     * @zh 当前是否正在暂停。
      * @default false
      */
     get isPaused () {
@@ -24,8 +24,8 @@ export class Playable {
     private _stepOnce = false;
 
     /**
-     * !#en Play this animation.
-     * !#zh 播放动画。
+     * @en Play this animation.
+     * @zh 播放动画。
      */
     public play () {
         if (this._isPlaying) {
@@ -42,8 +42,8 @@ export class Playable {
     }
 
     /**
-     * !#en Stop this animation.
-     * !#zh 停止动画播放。
+     * @en Stop this animation.
+     * @zh 停止动画播放。
      */
     public stop () {
         if (this._isPlaying) {
@@ -56,8 +56,8 @@ export class Playable {
     }
 
     /**
-     * !#en Pause this animation.
-     * !#zh 暂停动画。
+     * @en Pause this animation.
+     * @zh 暂停动画。
      */
     public pause () {
         if (this._isPlaying && !this._isPaused) {
@@ -67,8 +67,8 @@ export class Playable {
     }
 
     /**
-     * !#en Resume this animation.
-     * !#zh 重新播放动画。
+     * @en Resume this animation.
+     * @zh 重新播放动画。
      */
     public resume () {
         if (this._isPlaying && this._isPaused) {
@@ -78,8 +78,8 @@ export class Playable {
     }
 
     /**
-     * !#en Perform a single frame step.
-     * !#zh 执行一帧动画。
+     * @en Perform a single frame step.
+     * @zh 执行一帧动画。
      */
     public step () {
         this.pause();

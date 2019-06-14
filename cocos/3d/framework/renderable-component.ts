@@ -38,7 +38,7 @@ export class RenderableComponent extends Component {
 
     /**
      * @en The material of the model
-     * @zh 模型材质
+     * @zh 模型材质。
      * @type {Material[]}
      */
     get materials () {
@@ -62,7 +62,7 @@ export class RenderableComponent extends Component {
 
     /**
      * @en Returns the material corresponding to the sequence number
-     * @zh 返回相对应序号的材质
+     * @zh 返回相对应序号的材质。
      * @param {Number} idx - Look for the material list number
      */
     public getMaterial (idx: number, inEditor: boolean = false, autoUpdate: boolean = false): Material | null {

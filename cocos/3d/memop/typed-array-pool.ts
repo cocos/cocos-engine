@@ -35,8 +35,8 @@ function _free (buf) {
 
 export default {
     /**
-     * @zh 分配一个Int8Array
-     * @param n 数组长度
+     * @zh 分配一个Int8Array。
+     * @param n 数组长度。
      */
     alloc_int8 (n) {
         const result = new Int8Array(_alloc(n), 0, n);
@@ -48,8 +48,8 @@ export default {
     },
 
     /**
-     * @zh 分配一个Uint8Array
-     * @param n 数组长度
+     * @zh 分配一个Uint8Array。
+     * @param n 数组长度。
      */
     alloc_uint8 (n) {
         const result = new Uint8Array(_alloc(n), 0, n);
@@ -61,8 +61,8 @@ export default {
     },
 
     /**
-     * @zh 分配一个Int16Array
-     * @param n 数组长度
+     * @zh 分配一个Int16Array。
+     * @param n 数组长度。
      */
     alloc_int16 (n) {
         const result = new Int16Array(_alloc(2 * n), 0, n);
@@ -74,8 +74,8 @@ export default {
     },
 
     /**
-     * @zh 分配一个Uint16Array
-     * @param n 数组长度
+     * @zh 分配一个Uint16Array。
+     * @param n 数组长度。
      */
     alloc_uint16 (n) {
         const result = new Uint16Array(_alloc(2 * n), 0, n);
@@ -87,8 +87,8 @@ export default {
     },
 
     /**
-     * @zh 分配一个Int32Array
-     * @param n 数组长度
+     * @zh 分配一个Int32Array。
+     * @param n 数组长度。
      */
     alloc_int32 (n) {
         const result = new Int32Array(_alloc(4 * n), 0, n);
@@ -100,8 +100,8 @@ export default {
     },
 
     /**
-     * @zh 分配一个Uint32Array
-     * @param n 数组长度
+     * @zh 分配一个Uint32Array。
+     * @param n 数组长度。
      */
     alloc_uint32 (n) {
         const result = new Uint32Array(_alloc(4 * n), 0, n);
@@ -113,8 +113,8 @@ export default {
     },
 
     /**
-     * @zh 分配一个Float32Array
-     * @param n 数组长度
+     * @zh 分配一个Float32Array。
+     * @param n 数组长度。
      */
     alloc_float32 (n) {
         const result = new Float32Array(_alloc(4 * n), 0, n);
@@ -126,8 +126,8 @@ export default {
     },
 
     /**
-     * @zh 分配一个Float64Array
-     * @param n 数组长度
+     * @zh 分配一个Float64Array。
+     * @param n 数组长度。
      */
     alloc_float64 (n) {
         const result = new Float64Array(_alloc(8 * n), 0, n);
@@ -148,15 +148,15 @@ export default {
     // },
 
     /**
-     * 释放一个TypeArray
-     * @param array 释放的数组
+     * 释放一个TypeArray。
+     * @param array 释放的数组。
      */
     free (array) {
         _free(array.buffer);
     },
 
     /**
-     * @zh 重置TypeArray池
+     * @zh 重置TypeArray池。
      */
     reset () {
         _bufferPools = Array(8);

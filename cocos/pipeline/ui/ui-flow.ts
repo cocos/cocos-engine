@@ -6,7 +6,7 @@ import { UIStage } from './ui-stage';
 
 /**
  * @zh
- * UI渲染流程
+ * UI渲染流程。
  */
 export class UIFlow extends RenderFlow {
 

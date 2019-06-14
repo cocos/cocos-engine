@@ -83,14 +83,14 @@ const AssetLibrary = {
 
     /**
      * @zh
-     * 加载资源
+     * 加载资源。
      * @method loadAsset
      * @param {String} uuid
-     * @param {loadCallback} callback - 加载完成后执行的回调函数
+     * @param {loadCallback} callback - 加载完成后执行的回调函数。
      * @param {Object} options
      * @param {Boolean} options.readMainCache - 默认为true。如果为false，则资源及其所有依赖资源将重新加载并从库中创建新实例。
      * @param {Boolean} options.writeMainCache - 默认为true。如果为true，则结果将缓存到 AssetLibrary，并且必须由用户手动卸载。
-     * @param {Asset} options.existingAsset - 加载现有资源，此参数仅在编辑器中可用
+     * @param {Asset} options.existingAsset - 加载现有资源，此参数仅在编辑器中可用。
      */
     loadAsset (uuid: String, callback: Function, options) {
         if (typeof uuid !== 'string') {
@@ -128,7 +128,7 @@ const AssetLibrary = {
 
     /**
      * @zh
-     * 获取资源的 url
+     * 获取资源的 url。
      */
     getLibUrlNoExt (uuid, inRawAssetsDir?: boolean) {
         if (CC_BUILD) {
@@ -140,8 +140,8 @@ const AssetLibrary = {
 
     /**
      * @zh
-     * 在编辑器中查询资源信息
-     * @param uuid 资源的 uuid
+     * 在编辑器中查询资源信息。
+     * @param uuid 资源的 uuid。
      * @protected
      */
     _queryAssetInfoInEditor (uuid, callback) {
@@ -169,7 +169,7 @@ const AssetLibrary = {
 
     /**
      * @zh
-     * 在运行时获取资源信息
+     * 在运行时获取资源信息。
      */
     _getAssetInfoInRuntime (uuid, result?: any) {
         result = result || {url: null, raw: false};
@@ -188,7 +188,7 @@ const AssetLibrary = {
 
     /**
      * @zh
-     * 在 setting 中的 uuid
+     * 在 setting 中的 uuid。
      */
     _uuidInSettings (uuid) {
         return uuid in _uuidToRawAsset;
@@ -196,8 +196,8 @@ const AssetLibrary = {
 
     /**
      * @zh
-     * 获取资源信息
-     * @param {String} uuid 资源的 uuid
+     * 获取资源信息。
+     * @param {String} uuid 资源的 uuid。
      * @param {Function} callback
      * @param {Error} callback.error
      * @param {String} callback.url - the url of raw asset or imported asset
@@ -218,8 +218,8 @@ const AssetLibrary = {
      * @en
      * parse uuid out of url
      * @zh
-     * 从 url 解析 uuid
-     * @param url 资源地址
+     * 从 url 解析 uuid。
+     * @param url 资源地址。
      */
     parseUuidInEditor (url) {
         if (CC_EDITOR) {
@@ -249,7 +249,7 @@ const AssetLibrary = {
 
     /**
      * @zh
-     * 加载 json
+     * 加载 json。
      * @param {String} json
      * @param {loadCallback} callback
      * @return {LoadingHandle}
@@ -288,7 +288,7 @@ const AssetLibrary = {
      * @en
      * Get the exists asset by uuid.
      * @zh
-     * 根据 uuid 获取存在的资源
+     * 根据 uuid 获取存在的资源。
      * @method getAssetByUuid
      * @param {String} uuid
      * @return {Asset} - 返回存在的资源，若没有加载则返回 null
@@ -303,7 +303,7 @@ const AssetLibrary = {
      * @en
      * init the asset library
      * @zh
-     * 初始化 AssetLibrary
+     * 初始化 AssetLibrary。
      * @method init
      * @param {Object} options
      * @param {String} options.libraryPath - 能接收的任意类型的路径，通常在编辑器里使用绝对的，在网页里使用相对的。

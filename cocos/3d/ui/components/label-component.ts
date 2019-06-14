@@ -35,22 +35,22 @@ import { UIRenderComponent } from './ui-render-component';
 
 /**
  * @zh
- * 文本横向对齐类型
+ * 文本横向对齐类型。
  */
 export enum HorizontalTextAlignment {
     /**
      * @zh
-     * 左对齐
+     * 左对齐。
      */
     LEFT = 0,
     /**
      * @zh
-     * 中心对齐
+     * 中心对齐。
      */
     CENTER = 1,
     /**
      * @zh
-     * 右对齐
+     * 右对齐。
      */
     RIGHT = 2,
 }
@@ -59,22 +59,22 @@ ccenum(HorizontalTextAlignment);
 
 /**
  * @zh
- * 文本垂直对齐类型
+ * 文本垂直对齐类型。
  */
 export enum VerticalTextAlignment {
     /**
      * @zh
-     * 上对齐
+     * 上对齐。
      */
     TOP = 0,
     /**
      * @zh
-     * 中心对齐
+     * 中心对齐。
      */
     CENTER = 1,
     /**
      * @zh
-     * 下对齐
+     * 下对齐。
      */
     BOTTOM = 2,
 }
@@ -83,7 +83,7 @@ ccenum(VerticalTextAlignment);
 
 /**
  * @zh
- * 文本超载类型
+ * 文本超载类型。
  */
 export enum Overflow {
     /**
@@ -112,7 +112,7 @@ ccenum(Overflow);
 
 /**
  * @zh
- * 文本图集缓存类型
+ * 文本图集缓存类型。
  */
 enum CacheMode {
     /**
@@ -138,24 +138,24 @@ ccenum(CacheMode);
 
 /**
  * @zh
- * Type 类型
+ * Type 类型。
  */
 /**
  * @zh
- * TTF字体
+ * TTF字体。
  */
 /**
  * @zh
- * 位图字体
+ * 位图字体。
  */
 /**
  * @zh
- * 系统字体
+ * 系统字体。
  */
 
 /**
  * @zh
- * 文字标签组件
+ * 文字标签组件。
  */
 @ccclass('cc.LabelComponent')
 @executionOrder(110)
@@ -226,7 +226,7 @@ export class LabelComponent extends UIRenderComponent {
 
     /**
      * @zh
-     * SHRINK 模式下面文本实际渲染的字体大小
+     * SHRINK 模式下面文本实际渲染的字体大小。
      */
     @property({
         readonly: true,
@@ -708,7 +708,8 @@ export class LabelComponent extends UIRenderComponent {
 
     /**
      * @zh
-     * 检查是否空字符串，空字符串不渲染
+     * 检查是否空字符串，空字符串不渲染。
+     *
      */
     private _checkStringEmpty () {
         this._renderPermit = !!this.string;

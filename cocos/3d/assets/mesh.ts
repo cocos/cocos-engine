@@ -45,7 +45,8 @@ function getIndexStrideCtor (stride: number) {
 }
 
 /**
- * 顶点块。顶点块描述了一组**交错排列**（interleaved）的顶点属性并存储了顶点属性的实际数据。
+ * @zh
+ * 顶点块。顶点块描述了一组**交错排列**（interleaved）的顶点属性并存储了顶点属性的实际数据。<br>
  * 交错排列是指在实际数据的缓冲区中，每个顶点的所有属性总是依次排列，并总是出现在下一个顶点的所有属性之前。
  */
 export interface IVertexBundle {

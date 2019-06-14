@@ -20,7 +20,7 @@ import { GFXShader } from './shader';
 
 /**
  * @zh
- * GFX光栅化状态
+ * GFX光栅化状态。
  */
 export class GFXRasterizerState {
     public isDiscard: boolean = false;
@@ -37,8 +37,8 @@ export class GFXRasterizerState {
 
     /**
      * @zh
-     * 比较函数
-     * @param state GFX光栅化状态
+     * 比较函数。
+     * @param state GFX光栅化状态。
      */
     public compare (state: GFXRasterizerState): boolean {
         return (this.isDiscard === state.isDiscard) &&
@@ -57,7 +57,7 @@ export class GFXRasterizerState {
 
 /**
  * @zh
- * GFX深度模板状态
+ * GFX深度模板状态。
  */
 export class GFXDepthStencilState {
     public depthTest: boolean = true;
@@ -82,8 +82,8 @@ export class GFXDepthStencilState {
 
     /**
      * @zh
-     * 比较函数
-     * @param state GFX深度模板状态
+     * 比较函数。
+     * @param state GFX深度模板状态。
      */
     public compare (state: GFXDepthStencilState): boolean {
         return (this.depthTest === state.depthTest) &&
@@ -110,7 +110,7 @@ export class GFXDepthStencilState {
 
 /**
  * @zh
- * GFX混合目标
+ * GFX混合目标。
  */
 export class GFXBlendTarget {
     public blend: boolean = false;
@@ -124,8 +124,8 @@ export class GFXBlendTarget {
 
     /**
      * @zh
-     * 比较函数
-     * @param target GFX混合目标
+     * 比较函数。
+     * @param target GFX混合目标。
      */
     public compare (target: GFXBlendTarget): boolean {
         return (this.blend === target.blend) &&
@@ -141,7 +141,7 @@ export class GFXBlendTarget {
 
 /**
  * @zh
- * GFX混合状态
+ * GFX混合状态。
  */
 export class GFXBlendState {
     public isA2C: boolean = false;
@@ -152,7 +152,7 @@ export class GFXBlendState {
 
 /**
  * @zh
- * GFX输入状态
+ * GFX输入状态。
  */
 export class GFXInputState {
     public attributes: IGFXAttribute[] = [];
@@ -160,7 +160,7 @@ export class GFXInputState {
 
 /**
  * @zh
- * GFX管线状态描述信息
+ * GFX管线状态描述信息。
  */
 export interface IGFXPipelineStateInfo {
     primitive: GFXPrimitiveMode;
@@ -176,13 +176,13 @@ export interface IGFXPipelineStateInfo {
 
 /**
  * @zh
- * GFX管线状态
+ * GFX管线状态。
  */
 export abstract class GFXPipelineState extends GFXObject {
 
     /**
      * @zh
-     * GFX着色器
+     * GFX着色器。
      */
     public get shader (): GFXShader {
         return  this._shader as GFXShader;
@@ -190,7 +190,7 @@ export abstract class GFXPipelineState extends GFXObject {
 
     /**
      * @zh
-     * GFX图元模式
+     * GFX图元模式。
      */
     public get primitive (): GFXPrimitiveMode {
         return this._primitive;
@@ -198,7 +198,7 @@ export abstract class GFXPipelineState extends GFXObject {
 
     /**
      * @zh
-     * GFX光栅化状态
+     * GFX光栅化状态。
      */
     public get rasterizerState (): GFXRasterizerState {
         return  this._rs as GFXRasterizerState;
@@ -206,7 +206,7 @@ export abstract class GFXPipelineState extends GFXObject {
 
     /**
      * @zh
-     * GFX深度模板状态
+     * GFX深度模板状态。
      */
     public get depthStencilState (): GFXDepthStencilState {
         return  this._dss as GFXDepthStencilState;
@@ -214,7 +214,7 @@ export abstract class GFXPipelineState extends GFXObject {
 
     /**
      * @zh
-     * GFX混合状态
+     * GFX混合状态。
      */
     public get blendState (): GFXBlendState {
         return  this._bs as GFXBlendState;
@@ -222,7 +222,7 @@ export abstract class GFXPipelineState extends GFXObject {
 
     /**
      * @zh
-     * GFX动态状态数组
+     * GFX动态状态数组。
      */
     public get dynamicStates (): GFXDynamicState[] {
         return this._dynamicStates;
@@ -230,7 +230,7 @@ export abstract class GFXPipelineState extends GFXObject {
 
     /**
      * @zh
-     * GFX管线布局
+     * GFX管线布局。
      */
     public get pipelineLayout (): GFXPipelineLayout {
         return this._layout as GFXPipelineLayout;
@@ -238,7 +238,7 @@ export abstract class GFXPipelineState extends GFXObject {
 
     /**
      * @zh
-     * GFX渲染过程
+     * GFX渲染过程。
      */
     public get renderPass (): GFXRenderPass {
         return this._renderPass as GFXRenderPass;
@@ -246,68 +246,68 @@ export abstract class GFXPipelineState extends GFXObject {
 
     /**
      * @zh
-     * GFX设备
+     * GFX设备。
      */
     protected _device: GFXDevice;
 
     /**
      * @zh
-     * GFX着色器
+     * GFX着色器。
      */
     protected _shader: GFXShader | null = null;
 
     /**
      * @zh
-     * GFX图元模式
+     * GFX图元模式。
      */
     protected _primitive: GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
 
     /**
      * @zh
-     * GFX输入状态
+     * GFX输入状态。
      */
     protected _is: GFXInputState | null = null;
 
     /**
      * @zh
-     * GFX光栅化状态
+     * GFX光栅化状态。
      */
     protected _rs: GFXRasterizerState | null = null;
 
     /**
      * @zh
-     * GFX深度模板状态
+     * GFX深度模板状态。
      */
     protected _dss: GFXDepthStencilState | null = null;
 
     /**
      * @zh
-     * GFX混合状态
+     * GFX混合状态。
      */
     protected _bs: GFXBlendState | null = null;
 
     /**
      * @zh
-     * GFX动态状态数组
+     * GFX动态状态数组。
      */
     protected _dynamicStates: GFXDynamicState[] = [];
 
     /**
      * @zh
-     * GFX管线布局
+     * GFX管线布局。
      */
     protected _layout: GFXPipelineLayout | null = null;
 
     /**
      * @zh
-     * GFX渲染过程
+     * GFX渲染过程。
      */
     protected _renderPass: GFXRenderPass | null = null;
 
     /**
      * @zh
-     * 构造函数
-     * @param device GFX设备
+     * 构造函数。
+     * @param device GFX设备。
      */
     constructor (device: GFXDevice) {
         super(GFXObjectType.PIPELINE_STATE);
@@ -316,14 +316,14 @@ export abstract class GFXPipelineState extends GFXObject {
 
     /**
      * @zh
-     * 初始化函数
-     * @param info GFX管线状态描述信息
+     * 初始化函数。
+     * @param info GFX管线状态描述信息。
      */
     public abstract initialize (info: IGFXPipelineStateInfo): boolean;
 
     /**
      * @zh
-     * 销毁函数
+     * 销毁函数。
      */
     public abstract destroy (): void;
 }

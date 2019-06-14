@@ -64,7 +64,7 @@ ccenum(Type);
 
 /**
  * @zh
- * 缩放模式
+ * 缩放模式。
  */
 enum ResizeMode {
     /**
@@ -151,7 +151,7 @@ const _tempScale = new Vec3();
  * Layout 组件相当于一个容器，能自动对它的所有子节点进行统一排版。<br>
  * 注意：<br>
  * 1.不会考虑子节点的缩放和旋转。<br>
- * 2.对 Layout 设置后结果需要到下一帧才会更新，除非你设置完以后手动调用
+ * 2.对 Layout 设置后结果需要到下一帧才会更新，除非你设置完以后手动调用。
  * @see updateLayout
  */
 @ccclass('cc.LayoutComponent')
@@ -465,7 +465,7 @@ export class LayoutComponent extends Component {
 
     /**
      * @zh
-     * 立即执行更新布局
+     * 立即执行更新布局。
      *
      * @example
      * ```ts

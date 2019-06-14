@@ -36,7 +36,7 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 获取所在的组, 返回的是移动的位数，即 “ 1 << v ” 中的 v
+     * 获取所在的组, 返回的是移动的位数，即 “ 1 << v ” 中的 v。
      * @returns 整数，范围为 0 到 31
      */
     public getGroup (): number {
@@ -48,7 +48,7 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 设置所在的组，将会进行移位操作，即 1 << v
+     * 设置所在的组，将会进行移位操作，即 1 << v。
      * @param v - 整数，范围为 0 到 31
      */
     public setGroup (v: number) {
@@ -59,7 +59,7 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 返回检测的掩码，范围为 2 的 0 次方 到 2 的 31 次方
+     * 返回检测的掩码，范围为 2 的 0 次方 到 2 的 31 次方。
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public getMask (): number {
@@ -71,7 +71,7 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 设置掩码, 将会把 v 位写为 1 ，其它位改为 0
+     * 设置掩码, 将会把 v 位写为 1 ，其它位改为 0。
      * @param v - 整数，范围为 0 到 31
      */
     public setMask (v: number) {
@@ -82,7 +82,7 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 添加掩码位，将会把掩码值的第 v 位写为 1，可填入需要检查的 group
+     * 添加掩码位，将会把掩码值的第 v 位写为 1，可填入需要检查的 group。
      * @param v - 整数，范围为 0 到 31
      */
     public addMask (v: number) {
@@ -93,7 +93,7 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 直接设置碰撞分组和掩码值
+     * 直接设置碰撞分组和掩码值。
      * @param group - 分组值
      * @param mask - 掩码值
      */

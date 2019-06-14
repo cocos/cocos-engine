@@ -50,24 +50,24 @@ function _calculateCircle (center: Vec3, radius: Vec3, segements: number) {
     return _circlepoints;
 }
 /**
- * @zh 遮罩组件类型
+ * @zh 遮罩组件类型。
  */
 export enum MaskType {
     /**
      * @zh
-     * 使用矩形作为遮罩
+     * 使用矩形作为遮罩。
      */
     RECT = 0,
 
     /**
      * @zh
-     * 使用椭圆作为遮罩
+     * 使用椭圆作为遮罩。
      */
     ELLIPSE = 1,
 
     /**
      * @zh
-     * 使用图像模版作为遮罩
+     * 使用图像模版作为遮罩。
      */
     // IMAGE_STENCIL = 2,
 }
@@ -116,7 +116,7 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     /**
-     * @zh 遮罩所需要的贴图
+     * @zh 遮罩所需要的贴图。
      */
     // @property({
     //     type: SpriteFrame,
@@ -250,7 +250,7 @@ export class MaskComponent extends UIRenderComponent {
 
     /**
      * @zh
-     * 图形内容重塑
+     * 图形内容重塑。
      */
     public onRestore () {
         this._createGraphics();
@@ -314,9 +314,9 @@ export class MaskComponent extends UIRenderComponent {
 
     /**
      * @zh
-     * 根据屏幕坐标计算点击事件
+     * 根据屏幕坐标计算点击事件。
      *
-     * @param cameraPt  屏幕点转换到相机坐标系下的点
+     * @param cameraPt  屏幕点转换到相机坐标系下的点。
      */
     public isHit (cameraPt: Vec2){
         const node = this.node;

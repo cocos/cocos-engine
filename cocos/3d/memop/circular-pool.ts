@@ -1,15 +1,15 @@
 
 /**
- * @zh 循环列表
+ * @zh 循环列表。
  */
 export default class CircularPool<T = {}> {
     private _cursor: number;
     private _data: T[];
 
     /**
-     * @zh 构造函数
-     * @param fn 创建对象函数
-     * @param size 列表长度
+     * @zh 构造函数。
+     * @param fn 创建对象函数。
+     * @param size 列表长度。
      */
     constructor (fn: () => T, size: number) {
         this._cursor = 0;
@@ -21,7 +21,7 @@ export default class CircularPool<T = {}> {
     }
 
     /**
-     * @zh 从尾部请求一个对象，超过长度则从头开始
+     * @zh 从尾部请求一个对象，超过长度则从头开始。
      */
     public request () {
         const item = this._data[this._cursor];

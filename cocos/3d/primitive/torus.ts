@@ -3,7 +3,7 @@ import { IGeometryOptions } from './define';
 
 /**
  * @zh
- * 环面参数选项
+ * 环面参数选项。
  */
 interface ITorusOptions extends IGeometryOptions {
     radialSegments: number;
@@ -13,10 +13,11 @@ interface ITorusOptions extends IGeometryOptions {
 
 /**
  * @zh
- * 生成一个环面
- * @param radius 环面半径
- * @param tube 管形大小
- * @param opts 参数选项
+ * 生成一个环面。
+ * @param radius 环面半径。
+ * @param tube 管形大小。
+ * @param opts 参数选项。
+ *
  */
 export default function (radius = 0.4, tube = 0.1, opts: RecursivePartial<ITorusOptions> = {}) {
   const radialSegments = opts.radialSegments || 32;

@@ -124,7 +124,7 @@ export default class Prefab extends Asset {
      * This method will be called automatically before the first time the prefab being instantiated,<br/>
      * but you can re-call to refresh the create function once you modified the original prefab data in script.
      * @zh
-     * 将预制数据动态转换为最小化代码<br/>
+     * 将预制数据动态转换为最小化代码。<br/>
      * 此方法将在第一次实例化预制件之前自动调用，<br/>
      * 但是您可以在脚本中修改原始预制数据后重新调用以刷新创建功能。
      * @method compileCreateFunction

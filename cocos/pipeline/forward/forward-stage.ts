@@ -12,7 +12,7 @@ const bufs: GFXCommandBuffer[] = [];
 
 /**
  * @zh
- * 前向渲染阶段
+ * 前向渲染阶段。
  */
 export class ForwardStage extends RenderStage {
 
@@ -21,8 +21,8 @@ export class ForwardStage extends RenderStage {
 
     /**
      * @zh
-     * 构造函数
-     * @param flow 渲染阶段
+     * 构造函数。
+     * @param flow 渲染阶段。
      */
     constructor (flow: RenderFlow) {
         super(flow);
@@ -41,8 +41,8 @@ export class ForwardStage extends RenderStage {
 
     /**
      * @zh
-     * 初始化函数
-     * @param info 渲染阶段描述信息
+     * 初始化函数。
+     * @param info 渲染阶段描述信息。
      */
     public initialize (info: IRenderStageInfo): boolean {
 
@@ -62,7 +62,7 @@ export class ForwardStage extends RenderStage {
 
     /**
      * @zh
-     * 销毁函数
+     * 销毁函数。
      */
     public destroy () {
         if (this._cmdBuff) {
@@ -73,24 +73,24 @@ export class ForwardStage extends RenderStage {
 
     /**
      * @zh
-     * 重置大小
-     * @param width 屏幕宽度
-     * @param height 屏幕高度
+     * 重置大小。
+     * @param width 屏幕宽度。
+     * @param height 屏幕高度。
      */
     public resize (width: number, height: number) {
     }
 
     /**
      * @zh
-     * 重构函数
+     * 重构函数。
      */
     public rebuild () {
     }
 
     /**
      * @zh
-     * 渲染函数
-     * @param view 渲染视图
+     * 渲染函数。
+     * @param view 渲染视图。
      */
     public render (view: RenderView) {
 

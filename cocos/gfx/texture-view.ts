@@ -4,7 +4,7 @@ import { GFXTexture } from './texture';
 
 /**
  * @zh
- * GFX纹理视图描述信息
+ * GFX纹理视图描述信息。
  */
 export interface IGFXTextureViewInfo {
     texture: GFXTexture;
@@ -18,13 +18,13 @@ export interface IGFXTextureViewInfo {
 
 /**
  * @zh
- * GFX纹理视图
+ * GFX纹理视图。
  */
 export abstract class GFXTextureView extends GFXObject {
 
     /**
      * @zh
-     * GFX纹理
+     * GFX纹理。
      */
     public get texture (): GFXTexture {
         return  this._texture as GFXTexture;
@@ -32,7 +32,7 @@ export abstract class GFXTextureView extends GFXObject {
 
     /**
      * @zh
-     * 纹理视图类型
+     * 纹理视图类型。
      */
     public get type (): GFXTextureViewType {
         return this._type;
@@ -40,7 +40,7 @@ export abstract class GFXTextureView extends GFXObject {
 
     /**
      * @zh
-     * 纹理视图格式
+     * 纹理视图格式。
      */
     public get format (): GFXFormat {
         return this._format;
@@ -48,7 +48,7 @@ export abstract class GFXTextureView extends GFXObject {
 
     /**
      * @zh
-     * 纹理视图基础层级
+     * 纹理视图基础层级。
      */
     public get baseLevel (): number {
         return this._baseLevel;
@@ -56,7 +56,7 @@ export abstract class GFXTextureView extends GFXObject {
 
     /**
      * @zh
-     * 纹理视图层级数量
+     * 纹理视图层级数量。
      */
     public get levelCount (): number {
         return this._levelCount;
@@ -64,7 +64,7 @@ export abstract class GFXTextureView extends GFXObject {
 
     /**
      * @zh
-     * 纹理视图基础图层
+     * 纹理视图基础图层。
      */
     public get baseLayer (): number {
         return this._baseLayer;
@@ -72,7 +72,7 @@ export abstract class GFXTextureView extends GFXObject {
 
     /**
      * @zh
-     * 纹理视图图层数量
+     * 纹理视图图层数量。
      */
     public get layerCount (): number {
         return this._layerCount;
@@ -80,56 +80,56 @@ export abstract class GFXTextureView extends GFXObject {
 
     /**
      * @zh
-     * GFX设备
+     * GFX设备。
      */
     protected _device: GFXDevice;
 
     /**
      * @zh
-     * GFX纹理
+     * GFX纹理。
      */
     protected _texture: GFXTexture | null = null;
 
     /**
      * @zh
-     * 纹理视图类型
+     * 纹理视图类型。
      */
     protected _type: GFXTextureViewType = GFXTextureViewType.TV2D;
 
     /**
      * @zh
-     * 纹理视图格式
+     * 纹理视图格式。
      */
     protected _format: GFXFormat = GFXFormat.UNKNOWN;
 
     /**
      * @zh
-     * 纹理视图基础层级
+     * 纹理视图基础层级。
      */
     protected _baseLevel: number = 0;
 
     /**
      * @zh
-     * 纹理视图层级数量
+     * 纹理视图层级数量。
      */
     protected _levelCount: number = 1;
 
     /**
      * @zh
-     * 纹理视图基础图层
+     * 纹理视图基础图层。
      */
     protected _baseLayer: number = 0;
 
     /**
      * @zh
-     * 纹理视图图层数量
+     * 纹理视图图层数量。
      */
     protected _layerCount: number = 1;
 
     /**
      * @zh
-     * 构造函数
-     * @param device GFX设备
+     * 构造函数。
+     * @param device GFX设备。
      */
     constructor (device: GFXDevice) {
         super(GFXObjectType.TEXTURE_VIEW);
@@ -138,14 +138,14 @@ export abstract class GFXTextureView extends GFXObject {
 
     /**
      * @zh
-     * 初始化函数
-     * @param info GFX纹理视图描述信息
+     * 初始化函数。
+     * @param info GFX纹理视图描述信息。
      */
     public abstract initialize (info: IGFXTextureViewInfo): boolean;
 
     /**
      * @zh
-     * 销毁函数
+     * 销毁函数。
      */
     public abstract destroy (): void;
 }

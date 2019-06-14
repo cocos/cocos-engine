@@ -8,7 +8,7 @@ const _worldPos = new Vec3();
 
 /**
  * @zh
- * 性能显示面板类
+ * 性能显示面板类。
  */
 @ccclass('cc.DebugCanvasComponent')
 @executionOrder(100)

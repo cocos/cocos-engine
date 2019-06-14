@@ -5,10 +5,9 @@ import { applyDefaultGeometryOptions, IGeometry, IGeometryOptions } from './defi
 /**
  * @en
  * Generate a quad with width and height both to 1, centered at origin.
- * @param options Options.
  * @zh
- * 生成一个四边形，宽高都为1，中心在原点
- * @param options 参数选项
+ * 生成一个四边形，宽高都为1，中心在原点。
+ * @param options 参数选项。
  */
 export default function quad (options?: IGeometryOptions): IGeometry {
     const normalizedOptions = applyDefaultGeometryOptions(options);

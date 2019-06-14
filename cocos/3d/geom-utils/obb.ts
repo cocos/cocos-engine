@@ -15,14 +15,14 @@ const transform_extent_m3 = (out: vec3, extent: vec3, m3: mat3) => {
 
 /**
  * @zh
- * 基础几何 方向包围盒
+ * 基础几何  方向包围盒。
  */
 // tslint:disable-next-line:class-name
 export default class obb {
 
     /**
      * @zh
-     * 获取形状的类型
+     * 获取形状的类型。
      */
     get type () {
         return this._type;
@@ -32,23 +32,23 @@ export default class obb {
      * @en
      * create a new obb
      * @zh
-     * 创建一个新的 obb 实例
-     * @param cx 形状的相对于原点的 X 坐标
-     * @param cy 形状的相对于原点的 Y 坐标
-     * @param cz 形状的相对于原点的 Z 坐标
-     * @param hw - obb 宽度的一半
-     * @param hh - obb 高度的一半
-     * @param hl - obb 长度的一半
-     * @param ox_1 方向矩阵参数
-     * @param ox_2 方向矩阵参数
-     * @param ox_3 方向矩阵参数
-     * @param oy_1 方向矩阵参数
-     * @param oy_2 方向矩阵参数
-     * @param oy_3 方向矩阵参数
-     * @param oz_1 方向矩阵参数
-     * @param oz_2 方向矩阵参数
-     * @param oz_3 方向矩阵参数
-     * @return 返回一个 obb
+     * 创建一个新的 obb 实例。
+     * @param cx 形状的相对于原点的 X 坐标。
+     * @param cy 形状的相对于原点的 Y 坐标。
+     * @param cz 形状的相对于原点的 Z 坐标。
+     * @param hw - obb 宽度的一半。
+     * @param hh - obb 高度的一半。
+     * @param hl - obb 长度的一半。
+     * @param ox_1 方向矩阵参数。
+     * @param ox_2 方向矩阵参数。
+     * @param ox_3 方向矩阵参数。
+     * @param oy_1 方向矩阵参数。
+     * @param oy_2 方向矩阵参数。
+     * @param oy_3 方向矩阵参数。
+     * @param oz_1 方向矩阵参数。
+     * @param oz_2 方向矩阵参数。
+     * @param oz_3 方向矩阵参数。
+     * @return 返回一个 obb。
      */
     public static create (
         cx: number, cy: number, cz: number,
@@ -63,9 +63,9 @@ export default class obb {
      * @en
      * clone a new obb
      * @zh
-     * 克隆一个 obb
-     * @param a 克隆的目标
-     * @returns 克隆出的新对象
+     * 克隆一个 obb。
+     * @param a 克隆的目标。
+     * @returns 克隆出的新对象。
      */
     public static clone (a: obb) {
         return new obb(a.center.x, a.center.y, a.center.z,
@@ -79,10 +79,10 @@ export default class obb {
      * @en
      * copy the values from one obb to another
      * @zh
-     * 将从一个 obb 的值复制到另一个 obb
-     * @param {obb} out 接受操作的 obb
-     * @param {obb} a 被复制的 obb
-     * @return {obb} out 接受操作的 obb
+     * 将从一个 obb 的值复制到另一个 obb。
+     * @param {obb} out 接受操作的 obb。
+     * @param {obb} a 被复制的 obb。
+     * @return {obb} out 接受操作的 obb。
      */
     public static copy (out: obb, a: obb): obb {
         vec3.copy(out.center, a.center);
@@ -96,11 +96,11 @@ export default class obb {
      * @en
      * create a new obb from two corner points
      * @zh
-     * 用两个点创建一个新的 obb
-     * @param out - 接受操作的 obb
-     * @param minPos - obb 的最小点
-     * @param maxPos - obb 的最大点
-     * @returns {obb} out 接受操作的 obb
+     * 用两个点创建一个新的 obb。
+     * @param out - 接受操作的 obb。
+     * @param minPos - obb 的最小点。
+     * @param maxPos - obb 的最大点。
+     * @returns {obb} out 接受操作的 obb。
      */
     public static fromPoints (out: obb, minPos: vec3, maxPos: vec3): obb {
         vec3.scale(out.center, vec3.add(_v3_tmp, minPos, maxPos), 0.5);
@@ -113,22 +113,22 @@ export default class obb {
      * @en
      * Set the components of a obb to the given values
      * @zh
-     * 将给定 obb 的属性设置为给定的值
-     * @param cx - obb 的原点的 X 坐标
-     * @param cy - obb 的原点的 Y 坐标
-     * @param cz - obb 的原点的 Z 坐标
-     * @param hw - obb 宽度的一半
-     * @param hh - obb 高度的一半
-     * @param hl - obb 长度的一半
-     * @param ox_1 方向矩阵参数
-     * @param ox_2 方向矩阵参数
-     * @param ox_3 方向矩阵参数
-     * @param oy_1 方向矩阵参数
-     * @param oy_2 方向矩阵参数
-     * @param oy_3 方向矩阵参数
-     * @param oz_1 方向矩阵参数
-     * @param oz_2 方向矩阵参数
-     * @param oz_3 方向矩阵参数
+     * 将给定 obb 的属性设置为给定的值。
+     * @param cx - obb 的原点的 X 坐标。
+     * @param cy - obb 的原点的 Y 坐标。
+     * @param cz - obb 的原点的 Z 坐标。
+     * @param hw - obb 宽度的一半。
+     * @param hh - obb 高度的一半。
+     * @param hl - obb 长度的一半。
+     * @param ox_1 方向矩阵参数。
+     * @param ox_2 方向矩阵参数。
+     * @param ox_3 方向矩阵参数。
+     * @param oy_1 方向矩阵参数。
+     * @param oy_2 方向矩阵参数。
+     * @param oy_3 方向矩阵参数。
+     * @param oz_1 方向矩阵参数。
+     * @param oz_2 方向矩阵参数。
+     * @param oz_3 方向矩阵参数。
      * @return {obb} out
      */
     public static set (
@@ -146,19 +146,19 @@ export default class obb {
 
     /**
      * @zh
-     * 本地坐标的中心点
+     * 本地坐标的中心点。
      */
     public center: vec3;
 
     /**
      * @zh
-     * 长宽高的一半
+     * 长宽高的一半。
      */
     public halfExtents: vec3;
 
     /**
      * @zh
-     * 方向矩阵
+     * 方向矩阵。
      */
     public orientation: mat3;
 
@@ -179,9 +179,9 @@ export default class obb {
      * @en
      * Get the bounding points of this shape
      * @zh
-     * 获取 obb 的最小点和最大点
-     * @param {vec3} minPos 最小点
-     * @param {vec3} maxPos 最大点
+     * 获取 obb 的最小点和最大点。
+     * @param {vec3} minPos 最小点。
+     * @param {vec3} maxPos 最大点。
      */
     public getBoundary (minPos: vec3, maxPos: vec3) {
         transform_extent_m3(_v3_tmp, this.halfExtents, this.orientation);
@@ -192,12 +192,12 @@ export default class obb {
     /**
      * Transform this shape
      * @zh
-     * 将 out 根据这个 obb 的数据进行变换
-     * @param m 变换的矩阵
-     * @param pos 变换的位置部分
-     * @param rot 变换的旋转部分
-     * @param scale 变换的缩放部分
-     * @param out 变换的目标
+     * 将 out 根据这个 obb 的数据进行变换。
+     * @param m 变换的矩阵。
+     * @param pos 变换的位置部分。
+     * @param rot 变换的旋转部分。
+     * @param scale 变换的缩放部分。
+     * @param out 变换的目标。
      */
     public transform (m: mat4, pos: vec3, rot: quat, scale: vec3, out: obb) {
         vec3.transformMat4(out.center, this.center, m);
@@ -208,10 +208,10 @@ export default class obb {
 
     /**
      * @zh
-     * 将 out 根据这个 obb 的数据进行变换
-     * @param m 变换的矩阵
-     * @param rot 变换的旋转部分
-     * @param out 变换的目标
+     * 将 out 根据这个 obb 的数据进行变换。
+     * @param m 变换的矩阵。
+     * @param rot 变换的旋转部分。
+     * @param out 变换的目标。
      */
     public translateAndRotate (m: mat4, rot: quat, out: obb){
         vec3.transformMat4(out.center, this.center, m);
@@ -221,9 +221,9 @@ export default class obb {
 
     /**
      * @zh
-     *  将 out 根据这个 obb 的数据进行缩放
-     * @param scale 缩放值
-     * @param out 缩放的目标
+     *  将 out 根据这个 obb 的数据进行缩放。
+     * @param scale 缩放值。
+     * @param out 缩放的目标。
      */
     public setScale (scale: vec3, out: obb) {
         vec3.mul(out.halfExtents, this.halfExtents, scale);

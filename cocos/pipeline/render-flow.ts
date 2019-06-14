@@ -6,7 +6,7 @@ import { RenderView } from './render-view';
 
 /**
  * @zh
- * 渲染流程描述信息
+ * 渲染流程描述信息。
  */
 export interface IRenderFlowInfo {
     name?: string;
@@ -15,7 +15,7 @@ export interface IRenderFlowInfo {
 
 /**
  * @zh
- * 渲染流程
+ * 渲染流程。
  */
 export abstract class RenderFlow {
 
@@ -45,44 +45,44 @@ export abstract class RenderFlow {
 
     /**
      * @zh
-     * GFX设备
+     * GFX设备。
      */
     protected _device: GFXDevice;
 
     /**
      * @zh
-     * 渲染管线
+     * 渲染管线。
      */
     protected _pipeline: RenderPipeline;
 
     /**
      * @zh
-     * 名称
+     * 名称。
      */
     protected _name: string = '';
 
     /**
      * @zh
-     * 优先级
+     * 优先级。
      */
     protected _priority: number = 0;
 
     /**
      * @zh
-     * 渲染阶段数组
+     * 渲染阶段数组。
      */
     protected _stages: RenderStage[] = [];
 
     /**
      * @zh
-     * 材质
+     * 材质。
      */
     protected _material: Material = new Material();
 
     /**
      * @zh
-     * 构造函数
-     * @param pipeline 渲染管线
+     * 构造函数。
+     * @param pipeline 渲染管线。
      */
     constructor (pipeline: RenderPipeline) {
         this._device = pipeline.device;
@@ -91,28 +91,28 @@ export abstract class RenderFlow {
 
     /**
      * @zh
-     * 初始化函数
-     * @param info 渲染流程描述信息
+     * 初始化函数。
+     * @param info 渲染流程描述信息。
      */
     public abstract initialize (info: IRenderFlowInfo): boolean;
 
     /**
      * @zh
-     * 销毁函数
+     * 销毁函数。
      */
     public abstract destroy ();
 
     /**
      * @zh
-     * 重构函数
+     * 重构函数。
      */
     public abstract rebuild ();
 
     /**
      * @zh
-     * 重置大小
-     * @param width 屏幕宽度
-     * @param height 屏幕高度
+     * 重置大小。
+     * @param width 屏幕宽度。
+     * @param height 屏幕高度。
      */
     public resize (width: number, height: number) {
         for (const stage of this._stages) {
@@ -122,8 +122,8 @@ export abstract class RenderFlow {
 
     /**
      * @zh
-     * 渲染函数
-     * @param view 渲染视图
+     * 渲染函数。
+     * @param view 渲染视图。
      */
     public render (view: RenderView) {
         for (const stage of this._stages) {
@@ -133,9 +133,9 @@ export abstract class RenderFlow {
 
     /**
      * @zh
-     * 创建渲染阶段
-     * @param clazz 渲染阶段类
-     * @param info 渲染阶段描述信息
+     * 创建渲染阶段。
+     * @param clazz 渲染阶段类。
+     * @param info 渲染阶段描述信息。
      */
     public createStage<T extends RenderStage> (
         clazz: new(flow: RenderFlow) => T,
@@ -156,7 +156,7 @@ export abstract class RenderFlow {
 
     /**
      * @zh
-     * 销毁全部渲染阶段
+     * 销毁全部渲染阶段。
      */
     public destroyStages () {
         for (const stage of this._stages) {

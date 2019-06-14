@@ -6,7 +6,7 @@ import { IRenderObject, IRenderPass, IRenderQueueDesc } from './define';
  * @en
  * Comparison sorting function. Opaque objects are sorted by depth priority -> depth front to back -> shader id.
  * @zh
- * 比较排序函数。不透对象按优先级 -> 深度由前向后 -> ShaderId 顺序排序
+ * 比较排序函数。不透对象按优先级 -> 深度由前向后 -> ShaderId 顺序排序。
  */
 export function opaqueCompareFn (a: IRenderPass, b: IRenderPass) {
     if (a.hash === b.hash) {
@@ -24,7 +24,7 @@ export function opaqueCompareFn (a: IRenderPass, b: IRenderPass) {
  * @en
  * Comparison sorting function. Transparent objects are sorted by pass priority -> depth back to front -> shader id.
  * @zh
- * 比较排序函数。半透对象按优先级 -> 深度由后向前 -> ShaderId 顺序排序
+ * 比较排序函数。半透对象按优先级 -> 深度由后向前 -> ShaderId 顺序排序。
  */
 export function transparentCompareFn (a: IRenderPass, b: IRenderPass) {
     if (a.hash === b.hash) {
@@ -40,38 +40,38 @@ export function transparentCompareFn (a: IRenderPass, b: IRenderPass) {
 
 /**
  * @zh
- * 渲染队列
+ * 渲染队列。
  */
 export class RenderQueue {
 
     /**
      * @zh
-     * 基于缓存数组的队列
+     * 基于缓存数组的队列。
      */
     public queue: CachedArray<IRenderPass>;
 
     /**
      * @zh
-     * 基于缓存数组的命令缓冲
+     * 基于缓存数组的命令缓冲。
      */
     public cmdBuffs: CachedArray<GFXCommandBuffer>;
 
     /**
      * @zh
-     * 命令缓冲数量
+     * 命令缓冲数量。
      */
     public cmdBuffCount: number = 0;
 
     /**
      * @zh
-     * 渲染队列描述
+     * 渲染队列描述。
      */
     private _passDesc: IRenderQueueDesc;
 
     /**
      * @zh
-     * 构造函数
-     * @param desc 渲染队列描述
+     * 构造函数。
+     * @param desc 渲染队列描述。
      */
     constructor (desc: IRenderQueueDesc) {
         this._passDesc = desc;
@@ -81,7 +81,7 @@ export class RenderQueue {
 
     /**
      * @zh
-     * 清空渲染队列
+     * 清空渲染队列。
      */
     public clear () {
         this.queue.clear();
@@ -90,7 +90,7 @@ export class RenderQueue {
 
     /**
      * @zh
-     * 插入渲染过程
+     * 插入渲染过程。
      */
     public insertRenderPass (renderObj: IRenderObject, modelIdx: number, passIdx: number): boolean {
         const subModel = renderObj.model.getSubModel(modelIdx);
@@ -147,7 +147,7 @@ export class RenderQueue {
 
     /**
      * @zh
-     * 排序渲染队列
+     * 排序渲染队列。
      */
     public sort () {
 
