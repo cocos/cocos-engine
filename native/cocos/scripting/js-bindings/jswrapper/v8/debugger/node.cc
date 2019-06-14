@@ -388,7 +388,7 @@ Local<Value> ErrnoException(Isolate* isolate,
     Local<String> path_string;
     if (path != nullptr) {
         // IDEA(bnoordhuis) It's questionable to interpret the file path as UTF-8.
-        path_string = String::NewFromUtf8(env->isolate(), path).ToLocalChecked();
+        path_string = String::NewFromUtf8(env->isolate(), path, v8::NewStringType::kNormal).ToLocalChecked();
     }
 
     if (path_string.IsEmpty() == false) {
@@ -424,7 +424,7 @@ static Local<String> StringFromPath(Isolate* isolate, const char* path) {
     }
 #endif
 
-    return String::NewFromUtf8(isolate, path).ToLocalChecked();
+    return String::NewFromUtf8(isolate, path, v8::NewStringType::kNormal).ToLocalChecked();
 }
 
 
@@ -747,7 +747,7 @@ static void ProcessTitleGetter(Local<Name> property,
                                const PropertyCallbackInfo<Value>& info) {
     char buffer[512];
     uv_get_process_title(buffer, sizeof(buffer));
-    info.GetReturnValue().Set(String::NewFromUtf8(info.GetIsolate(), buffer).ToLocalChecked());
+    info.GetReturnValue().Set(String::NewFromUtf8(info.GetIsolate(), buffer, v8::NewStringType::kNormal).ToLocalChecked());
 }
 
 
@@ -908,14 +908,14 @@ void SetupProcessObject(Environment* env,
     // process.argv
     Local<Array> arguments = Array::New(env->isolate(), argc);
     for (int i = 0; i < argc; ++i) {
-        arguments->Set(i, String::NewFromUtf8(env->isolate(), argv[i]).ToLocalChecked());
+        arguments->Set(i, String::NewFromUtf8(env->isolate(), argv[i], v8::NewStringType::kNormal).ToLocalChecked());
     }
     process->Set(FIXED_ONE_BYTE_STRING(env->isolate(), "argv"), arguments);
 
     // process.execArgv
     Local<Array> exec_arguments = Array::New(env->isolate(), exec_argc);
     for (int i = 0; i < exec_argc; ++i) {
-        exec_arguments->Set(i, String::NewFromUtf8(env->isolate(), exec_argv[i]).ToLocalChecked());
+        exec_arguments->Set(i, String::NewFromUtf8(env->isolate(), exec_argv[i], v8::NewStringType::kNormal).ToLocalChecked());
     }
     process->Set(FIXED_ONE_BYTE_STRING(env->isolate(), "execArgv"),
                  exec_arguments);
