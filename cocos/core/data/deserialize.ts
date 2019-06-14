@@ -34,8 +34,8 @@ import * as Attr from './utils/attribute';
 // tslint:disable: no-shadowed-variable
 
 /**
- * !#en Contains information collected during deserialization
- * !#zh 包含反序列化时的一些信息
+ * @en Contains information collected during deserialization
+ * @zh 包含反序列化时的一些信息。
  * @class Details
  *
  */
@@ -83,6 +83,8 @@ class Details {
     }
 
     /**
+     * @zh
+     * 重置。
      * @method reset
      */
     public reset () {
@@ -806,8 +808,8 @@ _Deserializer.pool.get = function (result, target, classFinder, customEnv, ignor
  */
 
 /**
- * !#en Deserialize json to cc.Asset
- * !#zh 将 JSON 反序列化为对象实例。
+ * @en Deserialize json to cc.Asset
+ * @zh 将 JSON 反序列化为对象实例。
  *
  * 当指定了 target 选项时，如果 target 引用的其它 asset 的 uuid 不变，则不会改变 target 对 asset 的引用，
  * 也不会将 uuid 保存到 result 对象中。

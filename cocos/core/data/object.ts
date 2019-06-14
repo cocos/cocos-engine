@@ -145,7 +145,10 @@ function compileDestruct (obj, ctor) {
 }
 
 /**
+ * @en
  * The base class of most of all the objects in Fireball.
+ * @zh
+ * 大部分对象的基类。
  * @class Object
  *
  * @main

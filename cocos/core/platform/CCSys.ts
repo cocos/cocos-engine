@@ -1085,36 +1085,36 @@ else {
 }
 
 /**
- * !#en
+ * @en
  * Network type enumeration
- * !#zh
+ * @zh
  * 网络类型枚举
  *
  * @enum NetworkType
  */
 sys.NetworkType = {
     /**
-     * !#en
+     * @en
      * Network is unreachable.
-     * !#zh
+     * @zh
      * 网络不通
      *
      * @property {Number} NONE
      */
     NONE: 0,
     /**
-     * !#en
+     * @en
      * Network is reachable via WiFi or cable.
-     * !#zh
+     * @zh
      * 通过无线或者有线本地网络连接因特网
      *
      * @property {Number} LAN
      */
     LAN: 1,
     /**
-     * !#en
+     * @en
      * Network is reachable via Wireless Wide Area Network
-     * !#zh
+     * @zh
      * 通过蜂窝移动网络连接因特网
      *
      * @property {Number} WWAN
@@ -1127,9 +1127,9 @@ sys.NetworkType = {
  */
 
 /**
- * !#en
+ * @en
  * Get the network type of current device, return cc.sys.NetworkType.LAN if failure.
- * !#zh
+ * @zh
  * 获取当前设备的网络类型, 如果网络类型无法获取，默认将返回 cc.sys.NetworkType.LAN
  *
  * @method getNetworkType
@@ -1141,9 +1141,9 @@ sys.getNetworkType = function () {
 };
 
 /**
- * !#en
+ * @en
  * Get the battery level of current device, return 1.0 if failure.
- * !#zh
+ * @zh
  * 获取当前设备的电池电量，如果电量无法获取，默认将返回 1
  *
  * @method getBatteryLevel

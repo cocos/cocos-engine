@@ -26,11 +26,11 @@
 type CleanUpFunction<T> = (value: T) => boolean | void;
 
 /**
- * !#en
+ * @en
  * A fixed-length object pool designed for general type.<br>
  * The implementation of this object pool is very simple,
  * it can helps you to improve your game performance for objects which need frequent release and recreate operations<br/>
- * !#zh
+ * @zh
  * 长度固定的对象缓存池，可以用来缓存各种对象类型。<br/>
  * 这个对象池的实现非常精简，它可以帮助您提高游戏性能，适用于优化对象的反复创建和销毁。
  * @class js.Pool
@@ -77,19 +77,19 @@ type CleanUpFunction<T> = (value: T) => boolean | void;
  */
 export default class Pool<T> {
     /**
-     * !#en
+     * @en
      * The current number of available objects, the default is 0, it will gradually increase with the recycle of the object,
      * the maximum will not exceed the size specified when the constructor is called.
-     * !#zh
+     * @zh
      * 当前可用对象数量，一开始默认是 0，随着对象的回收会逐渐增大，最大不会超过调用构造函数时指定的 size。
      * @default 0
      */
     public count: number;
 
     /**
-     * !#en
+     * @en
      * Get and initialize an object from pool. This method defaults to null and requires the user to implement it.
-     * !#zh
+     * @zh
      * 获取并初始化对象池中的对象。这个方法默认为空，需要用户自己实现。
      * @param args - parameters to used to initialize the object
      */
@@ -101,10 +101,10 @@ export default class Pool<T> {
     private _cleanup: CleanUpFunction<T> | null;
 
     /**
-     * !#en
+     * @en
      * Constructor for creating an object pool for the specific object type.
      * You can pass a callback argument for process the cleanup logic when the object is recycled.
-     * !#zh
+     * @zh
      * 使用构造函数来创建一个指定对象类型的对象池，您可以传递一个回调函数，用于处理对象回收时的清理逻辑。
      * @method constructor
      * @param {Function} [cleanupFunc] - the callback method used to process the cleanup logic when the object is recycled.
@@ -114,10 +114,10 @@ export default class Pool<T> {
     constructor (cleanup: CleanUpFunction<T>, size: number);
 
     /**
-     * !#en
+     * @en
      * Constructor for creating an object pool for the specific object type.
      * You can pass a callback argument for process the cleanup logic when the object is recycled.
-     * !#zh
+     * @zh
      * 使用构造函数来创建一个指定对象类型的对象池，您可以传递一个回调函数，用于处理对象回收时的清理逻辑。
      * @method constructor
      * @param {Function} [cleanupFunc] - the callback method used to process the cleanup logic when the object is recycled.
@@ -135,9 +135,9 @@ export default class Pool<T> {
     }
 
     /**
-     * !#en
+     * @en
      * Get an object from pool, if no available object in the pool, null will be returned.
-     * !#zh
+     * @zh
      * 获取对象池中的对象，如果对象池没有可用对象，则返回空。
      */
     public _get () {
@@ -151,8 +151,8 @@ export default class Pool<T> {
     }
 
     /**
-     * !#en Put an object into the pool.
-     * !#zh 向对象池返还一个不再需要的对象。
+     * @en Put an object into the pool.
+     * @zh 向对象池返还一个不再需要的对象。
      */
     public put (obj: T) {
         const pool = this._pool;
@@ -166,8 +166,8 @@ export default class Pool<T> {
     }
 
     /**
-     * !#en Resize the pool.
-     * !#zh 设置对象池容量。
+     * @en Resize the pool.
+     * @zh 设置对象池容量。
      */
     public resize (length: number) {
         if (length >= 0) {

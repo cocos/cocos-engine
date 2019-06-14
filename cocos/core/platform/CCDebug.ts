@@ -43,8 +43,8 @@ function formatString (message?: any, ...optionalParams: any[]) {
 }
 
 /**
- * !#en Outputs a message to the Cocos Creator Console (editor) or Web Console (runtime).
- * !#zh 输出一条消息到 Cocos Creator 编辑器的 Console 或运行时 Web 端的 Console 中。
+ * @en Outputs a message to the Cocos Creator Console (editor) or Web Console (runtime).
+ * @zh 输出一条消息到 Cocos Creator 编辑器的 Console 或运行时 Web 端的 Console 中。
  * @param message - A JavaScript string containing zero or more substitution strings.
  * @param optionalParams - JavaScript objects with which to replace substitution strings within msg.
  * This gives you additional control over the format of the output.
@@ -54,11 +54,11 @@ export function log (message?: any, ...optionalParams: any[]) {
 }
 
 /**
- * !#en
+ * @en
  * Outputs a warning message to the Cocos Creator Console (editor) or Web Console (runtime).
  * - In Cocos Creator, warning is yellow.
  * - In Chrome, warning have a yellow warning icon with the message text.
- * !#zh
+ * @zh
  * 输出警告消息到 Cocos Creator 编辑器的 Console 或运行时 Web 端的 Console 中。<br/>
  * - 在 Cocos Creator 中，警告信息显示是黄色的。<br/>
  * - 在 Chrome 中，警告信息有着黄色的图标以及黄色的消息文本。<br/>
@@ -71,11 +71,11 @@ export function warn (message?: any, ...optionalParams: any[]) {
 }
 
 /**
- * !#en
+ * @en
  * Outputs an error message to the Cocos Creator Console (editor) or Web Console (runtime).<br/>
  * - In Cocos Creator, error is red.<br/>
  * - In Chrome, error have a red icon along with red message text.<br/>
- * !#zh
+ * @zh
  * 输出错误消息到 Cocos Creator 编辑器的 Console 或运行时页面端的 Console 中。<br/>
  * - 在 Cocos Creator 中，错误信息显示是红色的。<br/>
  * - 在 Chrome 中，错误信息有红色的图标以及红色的消息文本。<br/>
@@ -284,72 +284,72 @@ export function assertID (condition: boolean, id: number, ...optionalParams: any
 }
 
 /**
- * !#en Enum for debug modes.
- * !#zh 调试模式
+ * @en Enum for debug modes.
+ * @zh 调试模式
  */
 export enum DebugMode {
     /**
-     * !#en The debug mode none.
-     * !#zh 禁止模式，禁止显示任何日志信息。
+     * @en The debug mode none.
+     * @zh 禁止模式，禁止显示任何日志信息。
      */
     NONE = 0,
 
     /**
-     * !#en The debug mode info.
-     * !#zh 信息模式，在 console 中显示所有日志。
+     * @en The debug mode info.
+     * @zh 信息模式，在 console 中显示所有日志。
      */
     INFO = 1,
 
     /**
-     * !#en The debug mode warn.
-     * !#zh 警告模式，在 console 中只显示 warn 级别以上的（包含 error）日志。
+     * @en The debug mode warn.
+     * @zh 警告模式，在 console 中只显示 warn 级别以上的（包含 error）日志。
      */
     WARN = 2,
 
     /**
-     * !#en The debug mode error.
-     * !#zh 错误模式，在 console 中只显示 error 日志。
+     * @en The debug mode error.
+     * @zh 错误模式，在 console 中只显示 error 日志。
      */
     ERROR = 3,
 
     /**
-     * !#en The debug mode info for web page.
-     * !#zh 信息模式（仅 WEB 端有效），在画面上输出所有信息。
+     * @en The debug mode info for web page.
+     * @zh 信息模式（仅 WEB 端有效），在画面上输出所有信息。
      */
     INFO_FOR_WEB_PAGE = 4,
 
     /**
-     * !#en The debug mode warn for web page.
-     * !#zh 警告模式（仅 WEB 端有效），在画面上输出 warn 级别以上的（包含 error）信息。
+     * @en The debug mode warn for web page.
+     * @zh 警告模式（仅 WEB 端有效），在画面上输出 warn 级别以上的（包含 error）信息。
      */
     WARN_FOR_WEB_PAGE = 5,
 
     /**
-     * !#en The debug mode error for web page.
-     * !#zh 错误模式（仅 WEB 端有效），在画面上输出 error 信息。
+     * @en The debug mode error for web page.
+     * @zh 错误模式（仅 WEB 端有效），在画面上输出 error 信息。
      */
     ERROR_FOR_WEB_PAGE = 6,
 }
 
 /**
- * !#en Gets error message with the error id and possible parameters.
- * !#zh 通过 error id 和必要的参数来获取错误信息。
+ * @en Gets error message with the error id and possible parameters.
+ * @zh 通过 error id 和必要的参数来获取错误信息。
  */
 export function getError (errorId: any, param?: any): string {
     return errorFormatter(errorId, param);
 }
 
 /**
- * !#en Returns whether or not to display the FPS informations.
- * !#zh 是否显示 FPS 信息。
+ * @en Returns whether or not to display the FPS informations.
+ * @zh 是否显示 FPS 信息。
  */
 export function isDisplayStats (): boolean {
     return cc.profiler ? cc.profiler.isShowingStats() : false;
 }
 
 /**
- * !#en Sets whether display the FPS on the bottom-left corner.
- * !#zh 设置是否在左下角显示 FPS。
+ * @en Sets whether display the FPS on the bottom-left corner.
+ * @zh 设置是否在左下角显示 FPS。
  */
 export function setDisplayStats (displayStats: boolean) {
     if (cc.profiler) {

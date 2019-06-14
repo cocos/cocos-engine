@@ -858,8 +858,8 @@ function declareProperties (cls, className, properties, baseClass, mixins, es6?:
  */
 
 /**
- * !#en Defines a CCClass using the given specification, please see [Class](/docs/editors_and_tools/creator-chapters/scripting/class.html) for details.
- * !#zh 定义一个 CCClass，传入参数必须是一个包含类型参数的字面量对象，具体用法请查阅[类型定义](/docs/creator/scripting/class.html)。
+ * @en Defines a CCClass using the given specification, please see [Class](/docs/editors_and_tools/creator-chapters/scripting/class.html) for details.
+ * @zh 定义一个 CCClass，传入参数必须是一个包含类型参数的字面量对象，具体用法请查阅[类型定义](/docs/creator/scripting/class.html)。
  *
  * @method Class
  *
@@ -899,52 +899,52 @@ function declareProperties (cls, className, properties, baseClass, mixins, es6?:
  * @return {Function} - the created class
  *
  * @example
-
- // define base class
- var Node = cc.Class();
-
- // define sub class
- var Sprite = cc.Class({
-     name: 'Sprite',
-     extends: Node,
-
-     ctor: function () {
-         this.url = "";
-         this.id = 0;
-     },
-
-     statics: {
-         // define static members
-         count: 0,
-         getBounds: function (spriteList) {
-             // compute bounds...
-         }
-     },
-
-     properties {
-         width: {
-             default: 128,
-             type: 'Integer',
-             tooltip: 'The width of sprite'
-         },
-         height: 128,
-         size: {
-             get: function () {
-                 return cc.v2(this.width, this.height);
-             }
-         }
-     },
-
-     load: function () {
-         // load this.url...
-     };
- });
-
- // instantiate
-
- var obj = new Sprite();
- obj.url = 'sprite.png';
- obj.load();
+ * ```typescript
+ * // define base class
+ * var Node = cc.Class();
+ * // define sub class
+ * var Sprite = cc.Class({
+ *     name: 'Sprite',
+ *     extends: Node,
+ *
+ *     ctor: function () {
+ *         this.url = "";
+ *         this.id = 0;
+ *     },
+ *
+ *     statics: {
+ *         // define static members
+ *         count: 0,
+ *         getBounds: function (spriteList) {
+ *             // compute bounds...
+ *         }
+ *     },
+ *
+ *     properties {
+ *         width: {
+ *             default: 128,
+ *             type: 'Integer',
+ *             tooltip: 'The width of sprite'
+ *         },
+ *         height: 128,
+ *         size: {
+ *             get: function () {
+ *                 return cc.v2(this.width, this.height);
+ *             }
+ *         }
+ *     },
+ *
+ *     load: function () {
+ *         // load this.url...
+ *     };
+ * });
+ *
+ * // instantiate
+ *
+ * var obj = new Sprite();
+ * obj.url = 'sprite.png';
+ * obj.load();
+ * ```
  */
 function CCClass (options) {
     options = options || {};
@@ -1028,8 +1028,10 @@ function CCClass (options) {
 }
 
 /**
+ * @en
  * Checks whether the constructor is created by cc.Class
- *
+ * @zh
+ * 检查构造函数是否由 cc.Class 创建。
  * @method _isCCClass
  * @param {Function} constructor
  * @return {Boolean}

@@ -45,7 +45,9 @@ const TYPO_TO_CORRECT_DEV = CC_DEV && {
     constructor: 'ctor',
 };
 
-// 预处理 notify 等扩展属性
+/**
+ * 预处理 notify 等扩展属性
+ */
 function parseNotify (val, propName, notify, properties) {
     if (val.get || val.set) {
         if (CC_DEV) {
@@ -86,6 +88,9 @@ function parseNotify (val, propName, notify, properties) {
     }
 }
 
+/**
+ * 检查 url
+ */
 function checkUrl (val, className, propName, url) {
     if (Array.isArray(url)) {
         if (url.length > 0) {
@@ -135,6 +140,9 @@ function checkUrl (val, className, propName, url) {
     val.type = url;
 }
 
+/**
+ * 解析类型
+ */
 function parseType (val, type, className, propName) {
     if (Array.isArray(type)) {
         if (CC_EDITOR && 'default' in val) {
@@ -195,7 +203,7 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
 
 // tslint:disable: no-shadowed-variable
 
-export function getFullFormOfProperty (options, propname_dev, classname_dev) {
+export function getFullFormOfProperty (options, propname_dev?, classname_dev?) {
     const isLiteral = options && options.constructor === Object;
     if ( !isLiteral ) {
         if (Array.isArray(options) && options.length > 0) {

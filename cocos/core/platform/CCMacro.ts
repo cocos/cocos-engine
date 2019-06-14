@@ -28,7 +28,10 @@
 import Vec2 from '../value-types/vec2';
 
 /**
+ * @en
  * Predefined constants
+ * @zh
+ * 预定义常量。
  * @class macro
  * @static
  */
@@ -36,15 +39,15 @@ import Vec2 from '../value-types/vec2';
 const SUPPORT_TEXTURE_FORMATS = ['.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];
 
 /**
- * !#en Key map for keyboard event
- * !#zh 键盘事件的按键值
+ * @en Key map for keyboard event
+ * @zh 键盘事件的按键值。
  * @enum macro.KEY
  * @example {@link cocos2d/core/platform/CCCommon/KEY.js}
  */
 const KEY = {
     /**
-     * !#en None
-     * !#zh 没有分配
+     * @en None
+     * @zh 没有分配
      * @property none
      * @type {Number}
      * @readonly
@@ -53,16 +56,16 @@ const KEY = {
 
     // android
     /**
-     * !#en The back key
-     * !#zh 返回键
+     * @en The back key
+     * @zh 返回键
      * @property back
      * @type {Number}
      * @readonly
      */
     'back': 6,
     /**
-     * !#en The menu key
-     * !#zh 菜单键
+     * @en The menu key
+     * @zh 菜单键
      * @property menu
      * @type {Number}
      * @readonly
@@ -70,8 +73,8 @@ const KEY = {
     'menu': 18,
 
     /**
-     * !#en The backspace key
-     * !#zh 退格键
+     * @en The backspace key
+     * @zh 退格键
      * @property backspace
      * @type {Number}
      * @readonly
@@ -79,8 +82,8 @@ const KEY = {
     'backspace': 8,
 
     /**
-     * !#en The tab key
-     * !#zh Tab 键
+     * @en The tab key
+     * @zh Tab 键
      * @property tab
      * @type {Number}
      * @readonly
@@ -88,8 +91,8 @@ const KEY = {
     'tab': 9,
 
     /**
-     * !#en The enter key
-     * !#zh 回车键
+     * @en The enter key
+     * @zh 回车键
      * @property enter
      * @type {Number}
      * @readonly
@@ -97,8 +100,8 @@ const KEY = {
     'enter': 13,
 
     /**
-     * !#en The shift key
-     * !#zh Shift 键
+     * @en The shift key
+     * @zh Shift 键
      * @property shift
      * @type {Number}
      * @readonly
@@ -106,8 +109,8 @@ const KEY = {
     'shift': 16, // should use shiftkey instead
 
     /**
-     * !#en The ctrl key
-     * !#zh Ctrl 键
+     * @en The ctrl key
+     * @zh Ctrl 键
      * @property ctrl
      * @type {Number}
      * @readonly
@@ -115,8 +118,8 @@ const KEY = {
     'ctrl': 17, // should use ctrlkey
 
     /**
-     * !#en The alt key
-     * !#zh Alt 键
+     * @en The alt key
+     * @zh Alt 键
      * @property alt
      * @type {Number}
      * @readonly
@@ -124,8 +127,8 @@ const KEY = {
     'alt': 18, // should use altkey
 
     /**
-     * !#en The pause key
-     * !#zh 暂停键
+     * @en The pause key
+     * @zh 暂停键
      * @property pause
      * @type {Number}
      * @readonly
@@ -133,8 +136,8 @@ const KEY = {
     'pause': 19,
 
     /**
-     * !#en The caps lock key
-     * !#zh 大写锁定键
+     * @en The caps lock key
+     * @zh 大写锁定键
      * @property capslock
      * @type {Number}
      * @readonly
@@ -142,8 +145,8 @@ const KEY = {
     'capslock': 20,
 
     /**
-     * !#en The esc key
-     * !#zh ESC 键
+     * @en The esc key
+     * @zh ESC 键
      * @property escape
      * @type {Number}
      * @readonly
@@ -151,8 +154,8 @@ const KEY = {
     'escape': 27,
 
     /**
-     * !#en The space key
-     * !#zh 空格键
+     * @en The space key
+     * @zh 空格键
      * @property space
      * @type {Number}
      * @readonly
@@ -160,8 +163,8 @@ const KEY = {
     'space': 32,
 
     /**
-     * !#en The page up key
-     * !#zh 向上翻页键
+     * @en The page up key
+     * @zh 向上翻页键
      * @property pageup
      * @type {Number}
      * @readonly
@@ -169,8 +172,8 @@ const KEY = {
     'pageup': 33,
 
     /**
-     * !#en The page down key
-     * !#zh 向下翻页键
+     * @en The page down key
+     * @zh 向下翻页键
      * @property pagedown
      * @type {Number}
      * @readonly
@@ -178,8 +181,8 @@ const KEY = {
     'pagedown': 34,
 
     /**
-     * !#en The end key
-     * !#zh 结束键
+     * @en The end key
+     * @zh 结束键
      * @property end
      * @type {Number}
      * @readonly
@@ -187,8 +190,8 @@ const KEY = {
     'end': 35,
 
     /**
-     * !#en The home key
-     * !#zh 主菜单键
+     * @en The home key
+     * @zh 主菜单键
      * @property home
      * @type {Number}
      * @readonly
@@ -196,8 +199,8 @@ const KEY = {
     'home': 36,
 
     /**
-     * !#en The left key
-     * !#zh 向左箭头键
+     * @en The left key
+     * @zh 向左箭头键
      * @property left
      * @type {Number}
      * @readonly
@@ -205,8 +208,8 @@ const KEY = {
     'left': 37,
 
     /**
-     * !#en The up key
-     * !#zh 向上箭头键
+     * @en The up key
+     * @zh 向上箭头键
      * @property up
      * @type {Number}
      * @readonly
@@ -214,8 +217,8 @@ const KEY = {
     'up': 38,
 
     /**
-     * !#en The right key
-     * !#zh 向右箭头键
+     * @en The right key
+     * @zh 向右箭头键
      * @property right
      * @type {Number}
      * @readonly
@@ -223,8 +226,8 @@ const KEY = {
     'right': 39,
 
     /**
-     * !#en The down key
-     * !#zh 向下箭头键
+     * @en The down key
+     * @zh 向下箭头键
      * @property down
      * @type {Number}
      * @readonly
@@ -232,8 +235,8 @@ const KEY = {
     'down': 40,
 
     /**
-     * !#en The select key
-     * !#zh Select 键
+     * @en The select key
+     * @zh Select 键
      * @property select
      * @type {Number}
      * @readonly
@@ -241,8 +244,8 @@ const KEY = {
     'select': 41,
 
     /**
-     * !#en The insert key
-     * !#zh 插入键
+     * @en The insert key
+     * @zh 插入键
      * @property insert
      * @type {Number}
      * @readonly
@@ -250,8 +253,8 @@ const KEY = {
     'insert': 45,
 
     /**
-     * !#en The Delete key
-     * !#zh 删除键
+     * @en The Delete key
+     * @zh 删除键
      * @property Delete
      * @type {Number}
      * @readonly
@@ -259,8 +262,8 @@ const KEY = {
     'Delete': 46,
 
     /**
-     * !#en The '0' key on the top of the alphanumeric keyboard.
-     * !#zh 字母键盘上的 0 键
+     * @en The '0' key on the top of the alphanumeric keyboard.
+     * @zh 字母键盘上的 0 键
      * @property 0
      * @type {Number}
      * @readonly
@@ -268,8 +271,8 @@ const KEY = {
     '0': 48,
 
     /**
-     * !#en The '1' key on the top of the alphanumeric keyboard.
-     * !#zh 字母键盘上的 1 键
+     * @en The '1' key on the top of the alphanumeric keyboard.
+     * @zh 字母键盘上的 1 键
      * @property 1
      * @type {Number}
      * @readonly
@@ -277,8 +280,8 @@ const KEY = {
     '1': 49,
 
     /**
-     * !#en The '2' key on the top of the alphanumeric keyboard.
-     * !#zh 字母键盘上的 2 键
+     * @en The '2' key on the top of the alphanumeric keyboard.
+     * @zh 字母键盘上的 2 键
      * @property 2
      * @type {Number}
      * @readonly
@@ -286,8 +289,8 @@ const KEY = {
     '2': 50,
 
     /**
-     * !#en The '3' key on the top of the alphanumeric keyboard.
-     * !#zh 字母键盘上的 3 键
+     * @en The '3' key on the top of the alphanumeric keyboard.
+     * @zh 字母键盘上的 3 键
      * @property 3
      * @type {Number}
      * @readonly
@@ -295,8 +298,8 @@ const KEY = {
     '3': 51,
 
     /**
-     * !#en The '4' key on the top of the alphanumeric keyboard.
-     * !#zh 字母键盘上的 4 键
+     * @en The '4' key on the top of the alphanumeric keyboard.
+     * @zh 字母键盘上的 4 键
      * @property 4
      * @type {Number}
      * @readonly
@@ -304,8 +307,8 @@ const KEY = {
     '4': 52,
 
     /**
-     * !#en The '5' key on the top of the alphanumeric keyboard.
-     * !#zh 字母键盘上的 5 键
+     * @en The '5' key on the top of the alphanumeric keyboard.
+     * @zh 字母键盘上的 5 键
      * @property 5
      * @type {Number}
      * @readonly
@@ -313,8 +316,8 @@ const KEY = {
     '5': 53,
 
     /**
-     * !#en The '6' key on the top of the alphanumeric keyboard.
-     * !#zh 字母键盘上的 6 键
+     * @en The '6' key on the top of the alphanumeric keyboard.
+     * @zh 字母键盘上的 6 键
      * @property 6
      * @type {Number}
      * @readonly
@@ -322,8 +325,8 @@ const KEY = {
     '6': 54,
 
     /**
-     * !#en The '7' key on the top of the alphanumeric keyboard.
-     * !#zh 字母键盘上的 7 键
+     * @en The '7' key on the top of the alphanumeric keyboard.
+     * @zh 字母键盘上的 7 键
      * @property 7
      * @type {Number}
      * @readonly
@@ -331,8 +334,8 @@ const KEY = {
     '7': 55,
 
     /**
-     * !#en The '8' key on the top of the alphanumeric keyboard.
-     * !#zh 字母键盘上的 8 键
+     * @en The '8' key on the top of the alphanumeric keyboard.
+     * @zh 字母键盘上的 8 键
      * @property 8
      * @type {Number}
      * @readonly
@@ -340,8 +343,8 @@ const KEY = {
     '8': 56,
 
     /**
-     * !#en The '9' key on the top of the alphanumeric keyboard.
-     * !#zh 字母键盘上的 9 键
+     * @en The '9' key on the top of the alphanumeric keyboard.
+     * @zh 字母键盘上的 9 键
      * @property 9
      * @type {Number}
      * @readonly
@@ -349,8 +352,8 @@ const KEY = {
     '9': 57,
 
     /**
-     * !#en The a key
-     * !#zh A 键
+     * @en The a key
+     * @zh A 键
      * @property a
      * @type {Number}
      * @readonly
@@ -358,8 +361,8 @@ const KEY = {
     'a': 65,
 
     /**
-     * !#en The b key
-     * !#zh B 键
+     * @en The b key
+     * @zh B 键
      * @property b
      * @type {Number}
      * @readonly
@@ -367,8 +370,8 @@ const KEY = {
     'b': 66,
 
     /**
-     * !#en The c key
-     * !#zh C 键
+     * @en The c key
+     * @zh C 键
      * @property c
      * @type {Number}
      * @readonly
@@ -376,8 +379,8 @@ const KEY = {
     'c': 67,
 
     /**
-     * !#en The d key
-     * !#zh D 键
+     * @en The d key
+     * @zh D 键
      * @property d
      * @type {Number}
      * @readonly
@@ -385,8 +388,8 @@ const KEY = {
     'd': 68,
 
     /**
-     * !#en The e key
-     * !#zh E 键
+     * @en The e key
+     * @zh E 键
      * @property e
      * @type {Number}
      * @readonly
@@ -394,8 +397,8 @@ const KEY = {
     'e': 69,
 
     /**
-     * !#en The f key
-     * !#zh F 键
+     * @en The f key
+     * @zh F 键
      * @property f
      * @type {Number}
      * @readonly
@@ -403,8 +406,8 @@ const KEY = {
     'f': 70,
 
     /**
-     * !#en The g key
-     * !#zh G 键
+     * @en The g key
+     * @zh G 键
      * @property g
      * @type {Number}
      * @readonly
@@ -412,8 +415,8 @@ const KEY = {
     'g': 71,
 
     /**
-     * !#en The h key
-     * !#zh H 键
+     * @en The h key
+     * @zh H 键
      * @property h
      * @type {Number}
      * @readonly
@@ -421,8 +424,8 @@ const KEY = {
     'h': 72,
 
     /**
-     * !#en The i key
-     * !#zh I 键
+     * @en The i key
+     * @zh I 键
      * @property i
      * @type {Number}
      * @readonly
@@ -430,8 +433,8 @@ const KEY = {
     'i': 73,
 
     /**
-     * !#en The j key
-     * !#zh J 键
+     * @en The j key
+     * @zh J 键
      * @property j
      * @type {Number}
      * @readonly
@@ -439,8 +442,8 @@ const KEY = {
     'j': 74,
 
     /**
-     * !#en The k key
-     * !#zh K 键
+     * @en The k key
+     * @zh K 键
      * @property k
      * @type {Number}
      * @readonly
@@ -448,8 +451,8 @@ const KEY = {
     'k': 75,
 
     /**
-     * !#en The l key
-     * !#zh L 键
+     * @en The l key
+     * @zh L 键
      * @property l
      * @type {Number}
      * @readonly
@@ -457,8 +460,8 @@ const KEY = {
     'l': 76,
 
     /**
-     * !#en The m key
-     * !#zh M 键
+     * @en The m key
+     * @zh M 键
      * @property m
      * @type {Number}
      * @readonly
@@ -466,8 +469,8 @@ const KEY = {
     'm': 77,
 
     /**
-     * !#en The n key
-     * !#zh N 键
+     * @en The n key
+     * @zh N 键
      * @property n
      * @type {Number}
      * @readonly
@@ -475,8 +478,8 @@ const KEY = {
     'n': 78,
 
     /**
-     * !#en The o key
-     * !#zh O 键
+     * @en The o key
+     * @zh O 键
      * @property o
      * @type {Number}
      * @readonly
@@ -484,8 +487,8 @@ const KEY = {
     'o': 79,
 
     /**
-     * !#en The p key
-     * !#zh P 键
+     * @en The p key
+     * @zh P 键
      * @property p
      * @type {Number}
      * @readonly
@@ -493,8 +496,8 @@ const KEY = {
     'p': 80,
 
     /**
-     * !#en The q key
-     * !#zh Q 键
+     * @en The q key
+     * @zh Q 键
      * @property q
      * @type {Number}
      * @readonly
@@ -502,8 +505,8 @@ const KEY = {
     'q': 81,
 
     /**
-     * !#en The r key
-     * !#zh R 键
+     * @en The r key
+     * @zh R 键
      * @property r
      * @type {Number}
      * @readonly
@@ -511,8 +514,8 @@ const KEY = {
     'r': 82,
 
     /**
-     * !#en The s key
-     * !#zh S 键
+     * @en The s key
+     * @zh S 键
      * @property s
      * @type {Number}
      * @readonly
@@ -520,8 +523,8 @@ const KEY = {
     's': 83,
 
     /**
-     * !#en The t key
-     * !#zh T 键
+     * @en The t key
+     * @zh T 键
      * @property t
      * @type {Number}
      * @readonly
@@ -529,8 +532,8 @@ const KEY = {
     't': 84,
 
     /**
-     * !#en The u key
-     * !#zh U 键
+     * @en The u key
+     * @zh U 键
      * @property u
      * @type {Number}
      * @readonly
@@ -538,8 +541,8 @@ const KEY = {
     'u': 85,
 
     /**
-     * !#en The v key
-     * !#zh V 键
+     * @en The v key
+     * @zh V 键
      * @property v
      * @type {Number}
      * @readonly
@@ -547,8 +550,8 @@ const KEY = {
     'v': 86,
 
     /**
-     * !#en The w key
-     * !#zh W 键
+     * @en The w key
+     * @zh W 键
      * @property w
      * @type {Number}
      * @readonly
@@ -556,8 +559,8 @@ const KEY = {
     'w': 87,
 
     /**
-     * !#en The x key
-     * !#zh X 键
+     * @en The x key
+     * @zh X 键
      * @property x
      * @type {Number}
      * @readonly
@@ -565,8 +568,8 @@ const KEY = {
     'x': 88,
 
     /**
-     * !#en The y key
-     * !#zh Y 键
+     * @en The y key
+     * @zh Y 键
      * @property y
      * @type {Number}
      * @readonly
@@ -574,8 +577,8 @@ const KEY = {
     'y': 89,
 
     /**
-     * !#en The z key
-     * !#zh Z 键
+     * @en The z key
+     * @zh Z 键
      * @property z
      * @type {Number}
      * @readonly
@@ -583,8 +586,8 @@ const KEY = {
     'z': 90,
 
     /**
-     * !#en The numeric keypad 0
-     * !#zh 数字键盘 0
+     * @en The numeric keypad 0
+     * @zh 数字键盘 0
      * @property num0
      * @type {Number}
      * @readonly
@@ -592,8 +595,8 @@ const KEY = {
     'num0': 96,
 
     /**
-     * !#en The numeric keypad 1
-     * !#zh 数字键盘 1
+     * @en The numeric keypad 1
+     * @zh 数字键盘 1
      * @property num1
      * @type {Number}
      * @readonly
@@ -601,8 +604,8 @@ const KEY = {
     'num1': 97,
 
     /**
-     * !#en The numeric keypad 2
-     * !#zh 数字键盘 2
+     * @en The numeric keypad 2
+     * @zh 数字键盘 2
      * @property num2
      * @type {Number}
      * @readonly
@@ -610,8 +613,8 @@ const KEY = {
     'num2': 98,
 
     /**
-     * !#en The numeric keypad 3
-     * !#zh 数字键盘 3
+     * @en The numeric keypad 3
+     * @zh 数字键盘 3
      * @property num3
      * @type {Number}
      * @readonly
@@ -619,8 +622,8 @@ const KEY = {
     'num3': 99,
 
     /**
-     * !#en The numeric keypad 4
-     * !#zh 数字键盘 4
+     * @en The numeric keypad 4
+     * @zh 数字键盘 4
      * @property num4
      * @type {Number}
      * @readonly
@@ -628,8 +631,8 @@ const KEY = {
     'num4': 100,
 
     /**
-     * !#en The numeric keypad 5
-     * !#zh 数字键盘 5
+     * @en The numeric keypad 5
+     * @zh 数字键盘 5
      * @property num5
      * @type {Number}
      * @readonly
@@ -637,8 +640,8 @@ const KEY = {
     'num5': 101,
 
     /**
-     * !#en The numeric keypad 6
-     * !#zh 数字键盘 6
+     * @en The numeric keypad 6
+     * @zh 数字键盘 6
      * @property num6
      * @type {Number}
      * @readonly
@@ -646,8 +649,8 @@ const KEY = {
     'num6': 102,
 
     /**
-     * !#en The numeric keypad 7
-     * !#zh 数字键盘 7
+     * @en The numeric keypad 7
+     * @zh 数字键盘 7
      * @property num7
      * @type {Number}
      * @readonly
@@ -655,8 +658,8 @@ const KEY = {
     'num7': 103,
 
     /**
-     * !#en The numeric keypad 8
-     * !#zh 数字键盘 8
+     * @en The numeric keypad 8
+     * @zh 数字键盘 8
      * @property num8
      * @type {Number}
      * @readonly
@@ -664,8 +667,8 @@ const KEY = {
     'num8': 104,
 
     /**
-     * !#en The numeric keypad 9
-     * !#zh 数字键盘 9
+     * @en The numeric keypad 9
+     * @zh 数字键盘 9
      * @property num9
      * @type {Number}
      * @readonly
@@ -673,8 +676,8 @@ const KEY = {
     'num9': 105,
 
     /**
-     * !#en The numeric keypad '*'
-     * !#zh 数字键盘 *
+     * @en The numeric keypad '*'
+     * @zh 数字键盘 *
      * @property *
      * @type {Number}
      * @readonly
@@ -682,8 +685,8 @@ const KEY = {
     '*': 106,
 
     /**
-     * !#en The numeric keypad '+'
-     * !#zh 数字键盘 +
+     * @en The numeric keypad '+'
+     * @zh 数字键盘 +
      * @property +
      * @type {Number}
      * @readonly
@@ -691,8 +694,8 @@ const KEY = {
     '+': 107,
 
     /**
-     * !#en The numeric keypad '-'
-     * !#zh 数字键盘 -
+     * @en The numeric keypad '-'
+     * @zh 数字键盘 -
      * @property -
      * @type {Number}
      * @readonly
@@ -700,8 +703,8 @@ const KEY = {
     '-': 109,
 
     /**
-     * !#en The numeric keypad 'delete'
-     * !#zh 数字键盘删除键
+     * @en The numeric keypad 'delete'
+     * @zh 数字键盘删除键
      * @property numdel
      * @type {Number}
      * @readonly
@@ -709,8 +712,8 @@ const KEY = {
     'numdel': 110,
 
     /**
-     * !#en The numeric keypad '/'
-     * !#zh 数字键盘 /
+     * @en The numeric keypad '/'
+     * @zh 数字键盘 /
      * @property /
      * @type {Number}
      * @readonly
@@ -718,8 +721,8 @@ const KEY = {
     '/': 111,
 
     /**
-     * !#en The F1 function key
-     * !#zh F1 功能键
+     * @en The F1 function key
+     * @zh F1 功能键
      * @property f1
      * @type {Number}
      * @readonly
@@ -727,8 +730,8 @@ const KEY = {
     'f1': 112, // f1-f12 dont work on ie
 
     /**
-     * !#en The F2 function key
-     * !#zh F2 功能键
+     * @en The F2 function key
+     * @zh F2 功能键
      * @property f2
      * @type {Number}
      * @readonly
@@ -736,8 +739,8 @@ const KEY = {
     'f2': 113,
 
     /**
-     * !#en The F3 function key
-     * !#zh F3 功能键
+     * @en The F3 function key
+     * @zh F3 功能键
      * @property f3
      * @type {Number}
      * @readonly
@@ -745,8 +748,8 @@ const KEY = {
     'f3': 114,
 
     /**
-     * !#en The F4 function key
-     * !#zh F4 功能键
+     * @en The F4 function key
+     * @zh F4 功能键
      * @property f4
      * @type {Number}
      * @readonly
@@ -754,8 +757,8 @@ const KEY = {
     'f4': 115,
 
     /**
-     * !#en The F5 function key
-     * !#zh F5 功能键
+     * @en The F5 function key
+     * @zh F5 功能键
      * @property f5
      * @type {Number}
      * @readonly
@@ -763,8 +766,8 @@ const KEY = {
     'f5': 116,
 
     /**
-     * !#en The F6 function key
-     * !#zh F6 功能键
+     * @en The F6 function key
+     * @zh F6 功能键
      * @property f6
      * @type {Number}
      * @readonly
@@ -772,8 +775,8 @@ const KEY = {
     'f6': 117,
 
     /**
-     * !#en The F7 function key
-     * !#zh F7 功能键
+     * @en The F7 function key
+     * @zh F7 功能键
      * @property f7
      * @type {Number}
      * @readonly
@@ -781,8 +784,8 @@ const KEY = {
     'f7': 118,
 
     /**
-     * !#en The F8 function key
-     * !#zh F8 功能键
+     * @en The F8 function key
+     * @zh F8 功能键
      * @property f8
      * @type {Number}
      * @readonly
@@ -790,8 +793,8 @@ const KEY = {
     'f8': 119,
 
     /**
-     * !#en The F9 function key
-     * !#zh F9 功能键
+     * @en The F9 function key
+     * @zh F9 功能键
      * @property f9
      * @type {Number}
      * @readonly
@@ -799,8 +802,8 @@ const KEY = {
     'f9': 120,
 
     /**
-     * !#en The F10 function key
-     * !#zh F10 功能键
+     * @en The F10 function key
+     * @zh F10 功能键
      * @property f10
      * @type {Number}
      * @readonly
@@ -808,8 +811,8 @@ const KEY = {
     'f10': 121,
 
     /**
-     * !#en The F11 function key
-     * !#zh F11 功能键
+     * @en The F11 function key
+     * @zh F11 功能键
      * @property f11
      * @type {Number}
      * @readonly
@@ -817,8 +820,8 @@ const KEY = {
     'f11': 122,
 
     /**
-     * !#en The F12 function key
-     * !#zh F12 功能键
+     * @en The F12 function key
+     * @zh F12 功能键
      * @property f12
      * @type {Number}
      * @readonly
@@ -826,8 +829,8 @@ const KEY = {
     'f12': 123,
 
     /**
-     * !#en The numlock key
-     * !#zh 数字锁定键
+     * @en The numlock key
+     * @zh 数字锁定键
      * @property numlock
      * @type {Number}
      * @readonly
@@ -835,8 +838,8 @@ const KEY = {
     'numlock': 144,
 
     /**
-     * !#en The scroll lock key
-     * !#zh 滚动锁定键
+     * @en The scroll lock key
+     * @zh 滚动锁定键
      * @property scrolllock
      * @type {Number}
      * @readonly
@@ -844,8 +847,8 @@ const KEY = {
     'scrolllock': 145,
 
     /**
-     * !#en The ';' key.
-     * !#zh 分号键
+     * @en The ';' key.
+     * @zh 分号键
      * @property ;
      * @type {Number}
      * @readonly
@@ -853,8 +856,8 @@ const KEY = {
     ';': 186,
 
     /**
-     * !#en The ';' key.
-     * !#zh 分号键
+     * @en The ';' key.
+     * @zh 分号键
      * @property semicolon
      * @type {Number}
      * @readonly
@@ -862,8 +865,8 @@ const KEY = {
     'semicolon': 186,
 
     /**
-     * !#en The '=' key.
-     * !#zh 等于号键
+     * @en The '=' key.
+     * @zh 等于号键
      * @property equal
      * @type {Number}
      * @readonly
@@ -871,8 +874,8 @@ const KEY = {
     'equal': 187,
 
     /**
-     * !#en The '=' key.
-     * !#zh 等于号键
+     * @en The '=' key.
+     * @zh 等于号键
      * @property =
      * @type {Number}
      * @readonly
@@ -880,8 +883,8 @@ const KEY = {
     '=': 187,
 
     /**
-     * !#en The ',' key.
-     * !#zh 逗号键
+     * @en The ',' key.
+     * @zh 逗号键
      * @property ,
      * @type {Number}
      * @readonly
@@ -889,8 +892,8 @@ const KEY = {
     ',': 188,
 
     /**
-     * !#en The ',' key.
-     * !#zh 逗号键
+     * @en The ',' key.
+     * @zh 逗号键
      * @property comma
      * @type {Number}
      * @readonly
@@ -898,8 +901,8 @@ const KEY = {
     'comma': 188,
 
     /**
-     * !#en The dash '-' key.
-     * !#zh 中划线键
+     * @en The dash '-' key.
+     * @zh 中划线键
      * @property dash
      * @type {Number}
      * @readonly
@@ -907,8 +910,8 @@ const KEY = {
     'dash': 189,
 
     /**
-     * !#en The '.' key.
-     * !#zh 句号键
+     * @en The '.' key.
+     * @zh 句号键
      * @property .
      * @type {Number}
      * @readonly
@@ -916,8 +919,8 @@ const KEY = {
     '.': 190,
 
     /**
-     * !#en The '.' key
-     * !#zh 句号键
+     * @en The '.' key
+     * @zh 句号键
      * @property period
      * @type {Number}
      * @readonly
@@ -925,8 +928,8 @@ const KEY = {
     'period': 190,
 
     /**
-     * !#en The forward slash key
-     * !#zh 正斜杠键
+     * @en The forward slash key
+     * @zh 正斜杠键
      * @property forwardslash
      * @type {Number}
      * @readonly
@@ -934,8 +937,8 @@ const KEY = {
     'forwardslash': 191,
 
     /**
-     * !#en The grave key
-     * !#zh 按键 `
+     * @en The grave key
+     * @zh 按键 `
      * @property grave
      * @type {Number}
      * @readonly
@@ -943,8 +946,8 @@ const KEY = {
     'grave': 192,
 
     /**
-     * !#en The '[' key
-     * !#zh 按键 [
+     * @en The '[' key
+     * @zh 按键 [
      * @property [
      * @type {Number}
      * @readonly
@@ -952,8 +955,8 @@ const KEY = {
     '[': 219,
 
     /**
-     * !#en The '[' key
-     * !#zh 按键 [
+     * @en The '[' key
+     * @zh 按键 [
      * @property openbracket
      * @type {Number}
      * @readonly
@@ -961,8 +964,8 @@ const KEY = {
     'openbracket': 219,
 
     /**
-     * !#en The '\' key
-     * !#zh 反斜杠键
+     * @en The '\' key
+     * @zh 反斜杠键
      * @property backslash
      * @type {Number}
      * @readonly
@@ -970,8 +973,8 @@ const KEY = {
     'backslash': 220,
 
     /**
-     * !#en The ']' key
-     * !#zh 按键 ]
+     * @en The ']' key
+     * @zh 按键 ]
      * @property ]
      * @type {Number}
      * @readonly
@@ -979,8 +982,8 @@ const KEY = {
     ']': 221,
 
     /**
-     * !#en The ']' key
-     * !#zh 按键 ]
+     * @en The ']' key
+     * @zh 按键 ]
      * @property closebracket
      * @type {Number}
      * @readonly
@@ -988,8 +991,8 @@ const KEY = {
     'closebracket': 221,
 
     /**
-     * !#en The quote key
-     * !#zh 单引号键
+     * @en The quote key
+     * @zh 单引号键
      * @property quote
      * @type {Number}
      * @readonly
@@ -999,8 +1002,8 @@ const KEY = {
     // gamepad controll
 
     /**
-     * !#en The dpad left key
-     * !#zh 导航键 向左
+     * @en The dpad left key
+     * @zh 导航键 向左
      * @property dpadLeft
      * @type {Number}
      * @readonly
@@ -1008,8 +1011,8 @@ const KEY = {
     'dpadLeft': 1000,
 
     /**
-     * !#en The dpad right key
-     * !#zh 导航键 向右
+     * @en The dpad right key
+     * @zh 导航键 向右
      * @property dpadRight
      * @type {Number}
      * @readonly
@@ -1017,8 +1020,8 @@ const KEY = {
     'dpadRight': 1001,
 
     /**
-     * !#en The dpad up key
-     * !#zh 导航键 向上
+     * @en The dpad up key
+     * @zh 导航键 向上
      * @property dpadUp
      * @type {Number}
      * @readonly
@@ -1026,8 +1029,8 @@ const KEY = {
     'dpadUp': 1003,
 
     /**
-     * !#en The dpad down key
-     * !#zh 导航键 向下
+     * @en The dpad down key
+     * @zh 导航键 向下
      * @property dpadDown
      * @type {Number}
      * @readonly
@@ -1035,8 +1038,8 @@ const KEY = {
     'dpadDown': 1004,
 
     /**
-     * !#en The dpad center key
-     * !#zh 导航键 确定键
+     * @en The dpad center key
+     * @zh 导航键 确定键
      * @property dpadCenter
      * @type {Number}
      * @readonly
@@ -1118,72 +1121,72 @@ const ImageFormat = cc.Enum({
 });
 
 // /**
-//  * !#en
+//  * @en
 //  * Enum for blend factor
 //  * Refer to: http://www.andersriggelsen.dk/glblendfunc.php
-//  * !#zh
+//  * @zh
 //  * 混合因子
 //  * 可参考: http://www.andersriggelsen.dk/glblendfunc.php
 //  * @enum macro.BlendFactor
 //  */
 // const BlendFactor = cc.Enum({
 //     /**
-//      * !#en All use
-//      * !#zh 全部使用
+//      * @en All use
+//      * @zh 全部使用
 //      * @property {Number} ONE
 //      */
 //     ONE: 1,  // cc.macro.ONE
 //     /**
-//      * !#en Not all
-//      * !#zh 全部不用
+//      * @en Not all
+//      * @zh 全部不用
 //      * @property {Number} ZERO
 //      */
 //     ZERO: 0,      // cc.ZERO
 //     /**
-//      * !#en Using the source alpha
-//      * !#zh 使用源颜色的透明度
+//      * @en Using the source alpha
+//      * @zh 使用源颜色的透明度
 //      * @property {Number} SRC_ALPHA
 //      */
 //     SRC_ALPHA: 0x302,  // cc.SRC_ALPHA
 //     /**
-//      * !#en Using the source color
-//      * !#zh 使用源颜色
+//      * @en Using the source color
+//      * @zh 使用源颜色
 //      * @property {Number} SRC_COLOR
 //      */
 //     SRC_COLOR: 0x300,  // cc.SRC_COLOR
 //     /**
-//      * !#en Using the target alpha
-//      * !#zh 使用目标颜色的透明度
+//      * @en Using the target alpha
+//      * @zh 使用目标颜色的透明度
 //      * @property {Number} DST_ALPHA
 //      */
 //     DST_ALPHA: 0x304,  // cc.DST_ALPHA
 //     /**
-//      * !#en Using the target color
-//      * !#zh 使用目标颜色
+//      * @en Using the target color
+//      * @zh 使用目标颜色
 //      * @property {Number} DST_COLOR
 //      */
 //     DST_COLOR: 0x306,  // cc.DST_COLOR
 //     /**
-//      * !#en Minus the source alpha
-//      * !#zh 减去源颜色的透明度
+//      * @en Minus the source alpha
+//      * @zh 减去源颜色的透明度
 //      * @property {Number} ONE_MINUS_SRC_ALPHA
 //      */
 //     ONE_MINUS_SRC_ALPHA: 0x303,  // cc.ONE_MINUS_SRC_ALPHA
 //     /**
-//      * !#en Minus the source color
-//      * !#zh 减去源颜色
+//      * @en Minus the source color
+//      * @zh 减去源颜色
 //      * @property {Number} ONE_MINUS_SRC_COLOR
 //      */
 //     ONE_MINUS_SRC_COLOR: 0x301,  // cc.ONE_MINUS_SRC_COLOR
 //     /**
-//      * !#en Minus the target alpha
-//      * !#zh 减去目标颜色的透明度
+//      * @en Minus the target alpha
+//      * @zh 减去目标颜色的透明度
 //      * @property {Number} ONE_MINUS_DST_ALPHA
 //      */
 //     ONE_MINUS_DST_ALPHA: 0x305,  // cc.ONE_MINUS_DST_ALPHA
 //     /**
-//      * !#en Minus the target color
-//      * !#zh 减去目标颜色
+//      * @en Minus the target color
+//      * @zh 减去目标颜色
 //      * @property {Number} ONE_MINUS_DST_COLOR
 //      */
 //     ONE_MINUS_DST_COLOR: 0x307,  // cc.ONE_MINUS_DST_COLOR
@@ -1318,7 +1321,7 @@ const macro = {
     ENABLE_STACKABLE_ACTIONS: true,
 
     /**
-     * !#en
+     * @en
      * The timeout to determine whether a touch is no longer active and should be removed.
      * The reason to add this timeout is due to an issue in X5 browser core,
      * when X5 is presented in wechat on Android, if a touch is glissed from the bottom up, and leave the page area,
@@ -1327,7 +1330,7 @@ const macro = {
      * So this new mechanism can remove the touch that should be inactive if it's not updated during the last 5000 milliseconds.
      * Though it might remove a real touch if it's just not moving for the last 5 seconds which is not easy with the sensibility of mobile touch screen.
      * You can modify this value to have a better behavior if you find it's not enough.
-     * !#zh
+     * @zh
      * 用于甄别一个触点对象是否已经失效并且可以被移除的延时时长
      * 添加这个时长的原因是 X5 内核在微信浏览器中出现的一个 bug。
      * 在这个环境下，如果用户将一个触点从底向上移出页面区域，将不会触发任何 touch cancel 或 touch end 事件，而这个触点会被永远当作停留在页面上的有效触点。
@@ -1340,19 +1343,19 @@ const macro = {
     TOUCH_TIMEOUT: 5000,
 
     /**
-     * !#en
+     * @en
      * The maximum vertex count for a single batched draw call.
-     * !#zh
+     * @zh
      * 最大可以被单次批处理渲染的顶点数量。
      * @property {Number} BATCH_VERTEX_COUNT
      */
     BATCH_VERTEX_COUNT: 20000,
 
     /**
-     * !#en
+     * @en
      * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation,
      * then need to manually disable this, otherwise, the rendering will be wrong.
-     * !#zh
+     * @zh
      * 是否开启瓦片地图的自动裁减功能。瓦片地图如果设置了 skew, rotation 的话，需要手动关闭，否则渲染会出错。
      * @property {Boolean} ENABLE_TILEDMAP_CULLING
      * @default true
@@ -1360,9 +1363,9 @@ const macro = {
     ENABLE_TILEDMAP_CULLING: true,
 
     /**
-     * !#en
+     * @en
      * The max concurrent task number for the downloader
-     * !#zh
+     * @zh
      * 下载任务的最大并发数限制，在安卓平台部分机型或版本上可能需要限制在较低的水平
      * @property {Number} DOWNLOAD_MAX_CONCURRENT
      * @default 64
@@ -1370,12 +1373,12 @@ const macro = {
     DOWNLOAD_MAX_CONCURRENT: 64,
 
     /**
-     * !#en
+     * @en
      * Boolean that indicates if the canvas contains an alpha channel, default sets to false for better performance.
      * Though if you want to make your canvas background transparent and show other dom elements at the background,
      * you can set it to true before `cc.game.run`.
      * Web only.
-     * !#zh
+     * @zh
      * 用于设置 Canvas 背景是否支持 alpha 通道，默认为 false，这样可以有更高的性能表现。
      * 如果你希望 Canvas 背景是透明的，并显示背后的其他 DOM 元素，你可以在 `cc.game.run` 之前将这个值设为 true。
      * 仅支持 Web
@@ -1385,7 +1388,7 @@ const macro = {
     ENABLE_TRANSPARENT_CANVAS: false,
 
     /**
-     * !#en
+     * @en
      * Boolean that indicates if the WebGL context is created with `antialias` option turned on, default value is false.
      * Set it to true could make your game graphics slightly smoother, like texture hard edges when rotated.
      * Whether to use this really depend on your game design and targeted platform,
@@ -1394,7 +1397,7 @@ const macro = {
      * Also, it could have great performance impact with some browser / device using software MSAA.
      * You can set it to true before `cc.game.run`.
      * Web only.
-     * !#zh
+     * @zh
      * 用于设置在创建 WebGL Context 时是否开启抗锯齿选项，默认值是 false。
      * 将这个选项设置为 true 会让你的游戏画面稍稍平滑一些，比如旋转硬边贴图时的锯齿。是否开启这个选项很大程度上取决于你的游戏和面向的平台。
      * 在大多数拥有 retina 级别屏幕的设备上用户往往无法区分这个选项带来的变化；如果你的游戏选择像素艺术风格，你也多半不会想开启这个选项。
@@ -1407,13 +1410,13 @@ const macro = {
     ENABLE_WEBGL_ANTIALIAS: false,
 
     /**
-     * !#en
+     * @en
      * Whether or not enable auto culling.
      * This feature have been removed in v2.0 new renderer due to overall performance consumption.
      * We have no plan currently to re-enable auto culling.
      * If your game have more dynamic objects, we suggest to disable auto culling.
      * If your game have more static objects, we suggest to enable auto culling.
-     * !#zh
+     * @zh
      * 是否开启自动裁减功能，开启裁减功能将会把在屏幕外的物体从渲染队列中去除掉。
      * 这个功能在 v2.0 的新渲染器中被移除了，因为它在大多数游戏中所带来的损耗要高于性能的提升，目前我们没有计划重新支持自动裁剪。
      * 如果游戏中的动态物体比较多的话，建议将此选项关闭。
@@ -1425,13 +1428,13 @@ const macro = {
     ENABLE_CULLING: false,
 
     /**
-     * !#en
+     * @en
      * Whether or not clear dom Image object cache after uploading to gl texture.
      * Concretely, we are setting image.src to empty string to release the cache.
      * Normally you don't need to enable this option, because on web the Image object doesn't consume too much memory.
      * But on Wechat Game platform, the current version cache decoded data in Image object, which has high memory usage.
      * So we enabled this option by default on Wechat, so that we can release Image cache immediately after uploaded to GPU.
-     * !#zh
+     * @zh
      * 是否在将贴图上传至 GPU 之后删除 DOM Image 缓存。
      * 具体来说，我们通过设置 image.src 为空字符串来释放这部分内存。
      * 正常情况下，你不需要开启这个选项，因为在 web 平台，Image 对象所占用的内存很小。
@@ -1443,9 +1446,9 @@ const macro = {
     CLEANUP_IMAGE_CACHE: false,
 
     /**
-     * !#en
+     * @en
      * Whether or not show mesh wire frame.
-     * !#zh
+     * @zh
      * 是否显示网格的线框。
      * @property {Boolean} SHOW_MESH_WIREFRAME
      * @default false
