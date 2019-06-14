@@ -46,12 +46,12 @@
         );
       }
 
-      vec4 decodevec4 (float dx, float x, float y, float offset) {
+      vec4 decodevec4 (float dx, float x, float y) {
         return decodevec4(
-          texture2D(_jointsTexture, vec2(dx * (offset + 0.5), y)),
-          texture2D(_jointsTexture, vec2(dx * (offset + 1.5), y)),
-          texture2D(_jointsTexture, vec2(dx * (offset + 2.5), y)),
-          texture2D(_jointsTexture, vec2(dx * (offset + 3.5), y))
+          texture2D(_jointsTexture, vec2(dx * (x + 0.5), y)),
+          texture2D(_jointsTexture, vec2(dx * (x + 1.5), y)),
+          texture2D(_jointsTexture, vec2(dx * (x + 2.5), y)),
+          texture2D(_jointsTexture, vec2(dx * (x + 3.5), y))
         );
       }
 
@@ -67,10 +67,10 @@
 
         y = dy * (y + 0.5);
 
-        vec4 v1 = decodevec4(dx, x, y, 0.0);
-        vec4 v2 = decodevec4(dx, x, y, 4.0);
-        vec4 v3 = decodevec4(dx, x, y, 8.0);
-        vec4 v4 = decodevec4(dx, x, y, 12.0);
+        vec4 v1 = decodevec4(dx, x,       y);
+        vec4 v2 = decodevec4(dx, x+4.0,   y);
+        vec4 v3 = decodevec4(dx, x+8.0,   y);
+        vec4 v4 = decodevec4(dx, x+12.0,  y);
 
         return mat4(v1, v2, v3, v4);
       }

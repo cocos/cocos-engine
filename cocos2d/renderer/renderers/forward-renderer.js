@@ -75,7 +75,7 @@ export default class ForwardRenderer extends BaseRenderer {
 
   // direct render a single camera
   renderCamera (camera, scene) {
-    this._reset();
+    this.reset();
     
     const canvas = this._device._gl.canvas;
     let width = canvas.width;
