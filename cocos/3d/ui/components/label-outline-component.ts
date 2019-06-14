@@ -31,7 +31,7 @@ import { LabelComponent } from './label-component';
 
 /**
  * @zh
- * 描边效果组件,用于字体描边,只能用于系统字体
+ * 描边效果组件,用于字体描边,只能用于系统字体。
  *
  * @example
  * ```ts

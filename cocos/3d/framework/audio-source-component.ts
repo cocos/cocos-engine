@@ -51,7 +51,7 @@ export class AudioSourceComponent extends Component {
      * @en
      * The default AudioClip to play
      * @zh
-     * 设定要播放的音频
+     * 设定要播放的音频。
      */
     @property({ type: AudioClip })
     set clip (val) {
@@ -66,7 +66,7 @@ export class AudioSourceComponent extends Component {
      * @en
      * Is the audio clip looping?
      * @zh
-     * 是否循环播放音频
+     * 是否循环播放音频？
      */
     @property
     set loop (val) {
@@ -84,8 +84,8 @@ export class AudioSourceComponent extends Component {
      * after a user gesture is received, according to the latest autoplay policy: <br>
      * https://www.chromium.org/audio-video/autoplay
      * @zh
-     * 是否启用自动播放 <br>
-     * 请注意，根据最新的自动播放策略，大部分自动播放仅在收到用户指令后生效 <br>
+     * 是否启用自动播放。 <br>
+     * 请注意，根据最新的自动播放策略，大部分自动播放仅在收到用户指令后生效。 <br>
      * 参看：https://www.chromium.org/audio-video/autoplay
      */
     @property
@@ -100,10 +100,10 @@ export class AudioSourceComponent extends Component {
      * @en
      * The volume of this audio source (0.0 to 1.0).
      * @zh
-     * 音频的音量（大小范围为 0.0 到 1.0 ）
+     * 音频的音量（大小范围为 0.0 到 1.0 ）。
      *
-     * 请注意,在某些平台上，音量控制可能不起效<br>
-     * 请注意,在 ios 平台的 dom 模式下控制音量将无法生效
+     * 请注意,在某些平台上，音量控制可能不起效。<br>
+     * 请注意,在 ios 平台的 dom 模式下控制音量将无法生效。
      */
     @property
     set volume (val) {
@@ -128,10 +128,10 @@ export class AudioSourceComponent extends Component {
      * @en
      * Plays the clip
      * @zh
-     * 开始播放音频
+     * 开始播放音频。
      *
-     * 如果音频处于正在播放状态，将会重新开始播放音频 <br>
-     * 如果音频处于暂停状态，则会继续播放音频
+     * 如果音频处于正在播放状态，将会重新开始播放音频。 <br>
+     * 如果音频处于暂停状态，则会继续播放音频。
      */
     public play () {
         if (!this._clip) { return; }
@@ -143,7 +143,7 @@ export class AudioSourceComponent extends Component {
      * @en
      * Pause the clip
      * @zh
-     * 暂停播放
+     * 暂停播放。
      */
     public pause () {
         if (!this._clip) { return; }
@@ -154,7 +154,7 @@ export class AudioSourceComponent extends Component {
      * @en
      * Stop the clip
      * @zh
-     * 停止播放
+     * 停止播放。
      */
     public stop () {
         if (!this._clip) { return; }
@@ -163,11 +163,11 @@ export class AudioSourceComponent extends Component {
 
     /**
      * @en Plays an AudioClip, and scales volume by volumeScale.
-     * @zh 以指定音量播放一个音频一次
+     * @zh 以指定音量播放一个音频一次。
      *
-     * 注意，对同一个音频片段，不同平台多重播放效果存在差异<br>
-     * 在 Web Audio 模式下，可以同时维护多个播放进度，达到多重播放<br>
-     * 其他模式下都不支持多重播放，如前一次尚未播完，则会立即重新播放
+     * 注意，对同一个音频片段，不同平台多重播放效果存在差异。<br>
+     * 在 Web Audio 模式下，可以同时维护多个播放进度，达到多重播放。<br>
+     * 其他模式下都不支持多重播放，如前一次尚未播完，则会立即重新播放。
      * @param clip - the clip being played
      * @param volumeScale - the scale of the volume (0-1).
      */
@@ -187,7 +187,7 @@ export class AudioSourceComponent extends Component {
      * @en
      * set current playback time, in seconds
      * @zh
-     * 以秒为单位设置当前播放时间
+     * 以秒为单位设置当前播放时间。
      * @param num the playback time you want to jump to
      */
     set currentTime (num: number) {
@@ -200,7 +200,7 @@ export class AudioSourceComponent extends Component {
      * @en
      * get the current playback time, in seconds
      * @zh
-     * 以秒为单位获取当前播放时间
+     * 以秒为单位获取当前播放时间。
      * @returns time current playback time
      */
     get currentTime () {
@@ -212,7 +212,7 @@ export class AudioSourceComponent extends Component {
      * @en
      * get the audio duration, in seconds
      * @zh
-     * 以秒为单位获取音频持续时间
+     * 以秒为单位获取音频持续时间。
      * @returns audio duration
      */
     get duration () {
@@ -224,7 +224,7 @@ export class AudioSourceComponent extends Component {
      * @en
      * get current audio state
      * @zh
-     * 获取当前音频状态
+     * 获取当前音频状态。
      * @returns current audio state
      */
     get state () {

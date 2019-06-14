@@ -3,14 +3,14 @@ import { IGFXAttribute } from '../../gfx/input-assembler';
 
 /**
  * @zh
- * 几何体参数选项
+ * 几何体参数选项。
  */
 export interface IGeometryOptions {
     /**
      * @en
      * Whether to include normal. Default to true.
      * @zh
-     * 是否包含法线。默认为true
+     * 是否包含法线。默认为true。
      */
     includeNormal: boolean;
 
@@ -18,14 +18,14 @@ export interface IGeometryOptions {
      * @en
      * Whether to include uv. Default to true.
      * @zh
-     * 是否包含UV.默认为true
+     * 是否包含UV。默认为true。
      */
     includeUV: boolean;
 }
 
 /**
  * @zh
- * 应用默认的几何参数选项
+ * 应用默认的几何参数选项。
  */
 export function applyDefaultGeometryOptions<GeometryOptions = IGeometryOptions> (
     options?: RecursivePartial<IGeometryOptions>): GeometryOptions {
@@ -41,14 +41,14 @@ export function applyDefaultGeometryOptions<GeometryOptions = IGeometryOptions> 
 
 /**
  * @zh
- * 几何体信息
+ * 几何体信息。
  */
 export interface IGeometry {
     /**
      * @en
      * Vertex positions.
      * @zh
-     * 顶点位置
+     * 顶点位置。
      */
     positions: number[];
 
@@ -56,7 +56,7 @@ export interface IGeometry {
      * @en
      * Vertex normals.
      * @zh
-     * 顶点法线
+     * 顶点法线。
      */
     normals?: number[];
 
@@ -64,7 +64,7 @@ export interface IGeometry {
      * @en
      * Texture coordinates.
      * @zh
-     * 纹理坐标
+     * 纹理坐标。
      */
     uvs?: number[];
 
@@ -72,7 +72,7 @@ export interface IGeometry {
      * @en
      * Vertex colors.
      * @zh
-     * 顶点颜色
+     * 顶点颜色。
      */
     colors?: number[];
 
@@ -80,7 +80,7 @@ export interface IGeometry {
      * @en
      * specify vertex attributes, use (positions|normals|uvs|colors) as keys
      * @zh
-     * 顶点属性
+     * 顶点属性。
      */
     attributes?: IGFXAttribute[];
 
@@ -93,7 +93,7 @@ export interface IGeometry {
      * @en
      * Bounding sphere radius.
      * @zh
-     * 包围球半径
+     * 包围球半径。
      */
     boundingRadius?: number;
 
@@ -101,7 +101,7 @@ export interface IGeometry {
      * @en
      * Min position.
      * @zh
-     * 最小位置
+     * 最小位置。
      */
     minPos?: {
         x: number;
@@ -113,7 +113,7 @@ export interface IGeometry {
      * @en
      * Max position.
      * @zh
-     * 最大位置
+     * 最大位置。
      */
     maxPos?: {
         x: number;
@@ -125,7 +125,7 @@ export interface IGeometry {
      * @en
      * Geometry indices, if one needs indexed-draw.
      * @zh
-     * 几何索引，当使用索引绘制时
+     * 几何索引，当使用索引绘制时。
      */
     indices?: number[];
 
@@ -133,7 +133,7 @@ export interface IGeometry {
      * @en
      * Topology of the geometry vertices. Default is TRIANGLE_LIST.
      * @zh
-     * 几何顶点的拓扑图元。默认值是TRIANGLE_LIST
+     * 几何顶点的拓扑图元。默认值是TRIANGLE_LIST。
      */
     primitiveMode?: GFXPrimitiveMode;
 
@@ -141,7 +141,7 @@ export interface IGeometry {
      * @en
      * whether rays casting from the back face of this geometry could collide with it
      * @zh
-     * 是否是双面，用于判断来自于几何体背面的射线检测
+     * 是否是双面，用于判断来自于几何体背面的射线检测。
      */
     doubleSided?: boolean;
 }

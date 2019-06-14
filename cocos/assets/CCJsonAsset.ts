@@ -27,25 +27,16 @@ import {ccclass, property} from '../core/data/class-decorator';
 import { Asset } from './asset';
 
 /**
- * !#en
- * Class for JSON file. When the JSON file is loaded, this object is returned.
- * The parsed JSON object can be accessed through the `json` attribute in it.<br>
- * If you want to get the original JSON text, you should modify the extname to `.txt`
- * so that it is loaded as a `TextAsset` instead of a `JsonAsset`.
- *
- * !#zh
- * JSON 资源类。JSON 文件加载后，将会返回该对象。可以通过其中的 `json` 属性访问解析后的 JSON 对象。<br>
- * 如果你想要获得 JSON 的原始文本，那么应该修改源文件的后缀为 `.txt`，这样就会加载为一个 `TextAsset` 而不是 `JsonAsset`。
- *
- * @class JsonAsset
- * @extends Asset
+ * @zh
+ * Json 资源。
+ * Json 资源加载后将直接解析为对象。如果你希望获得 JSON 的原始文本，你需要使用文本资源（使用文件名后缀“.txt”）。
  */
 @ccclass('cc.JsonAsset')
 export default class JsonAsset extends Asset {
     /**
-     * @property json - The loaded JSON object.
+     * 解析后的对象。
      */
-    @property()
+    @property
     public json: object | null = null;
 }
 

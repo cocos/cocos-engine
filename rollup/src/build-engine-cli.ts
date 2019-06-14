@@ -3,10 +3,11 @@ import yargs from 'yargs';
 import { build } from './build-engine';
 
 yargs.option('platform', { type: 'string', alias: 'p' });
+yargs.option('physics', { type: 'array', alias: 'py' });
 yargs.option('flags', { type: 'array', alias: 'f' });
 yargs.option('destination', { type: 'string', alias: 'd' });
 yargs.option('excludes', { type: 'array', alias: 'e' });
-yargs.boolean('sourcemap');
+yargs.options('sourcemap', {});
 yargs.boolean('compress');
 
 const flags: IFlags = {};
@@ -15,7 +16,8 @@ if (argvFlags) {
     argvFlags.forEach((argvFlag) => flags[argvFlag as keyof IFlags] = true);
 }
 
-const globalDefs = getGlobalDefs(yargs.argv.platform as Platform, flags);
+const globalDefs = getGlobalDefs(yargs.argv.platform as Platform, yargs.argv.physics as Physics, flags);
+const sourceMap = yargs.argv.sourcemap === 'inline' ? 'inline' : !!yargs.argv.sourcemap;
 
 build({
     compress: yargs.argv.compress as (boolean | undefined),
@@ -23,7 +25,7 @@ build({
     inputPath: './index.ts',
     outputPath: yargs.argv.destination as string,
     excludes: yargs.argv.excludes as string[],
-    sourcemap: yargs.argv.sourcemap as (boolean | undefined),
+    sourcemap: sourceMap,
 }).then(
     () => {
         console.log(`Build successful.`);
@@ -35,6 +37,7 @@ build({
 
 type Platform = 'any' | 'editor' | 'preview' | 'build' | 'test';
 
+type Physics = 'cannon' | 'ammo' | 'builtin';
 interface IFlags {
     jsb?: boolean;
     runtime?: boolean;
@@ -63,10 +66,15 @@ interface IGlobaldefines {
     // Debug macros
     CC_DEV?: boolean;
     CC_SUPPORT_JIT?: boolean;
+
+    // Physics macros
+    CC_PHYSICS_CANNON?: boolean;
+    CC_PHYSICS_AMMO?: boolean;
+    CC_PHYSICS_BUILT_IN?: boolean;
 }
 
 // tslint:disable-next-line: no-shadowed-variable
-function getGlobalDefs (platform: Platform, flags?: IFlags): object {
+function getGlobalDefs (platform: Platform, physics: Physics, flags?: IFlags): object {
     const PLATFORM_MACROS = ['CC_EDITOR', 'CC_PREVIEW', 'CC_BUILD', 'CC_TEST'];
 
     const FLAGS = ['jsb', 'runtime', 'wechatgame', 'wechatgameSub', 'qqplay', 'debug', 'nativeRenderer'];
@@ -97,6 +105,31 @@ function getGlobalDefs (platform: Platform, flags?: IFlags): object {
     result.CC_DEV = result.CC_EDITOR || result.CC_PREVIEW || result.CC_TEST;
     result.CC_DEBUG = result.CC_DEBUG || result.CC_DEV;
     result.CC_SUPPORT_JIT = !(result.CC_WECHATGAME || result.CC_QQPLAY || result.CC_RUNTIME);
+
+    // default
+    result.CC_PHYSICS_CANNON = true;
+    result.CC_PHYSICS_AMMO = false;
+    result.CC_PHYSICS_BUILT_IN = false;
+
+    switch (physics) {
+        case 'cannon':
+            result.CC_PHYSICS_CANNON = true;
+            result.CC_PHYSICS_AMMO = false;
+            result.CC_PHYSICS_BUILT_IN = false;
+            break;
+
+        case 'ammo':
+            result.CC_PHYSICS_CANNON = false;
+            result.CC_PHYSICS_AMMO = true;
+            result.CC_PHYSICS_BUILT_IN = false;
+            break;
+
+        case 'builtin':
+            result.CC_PHYSICS_CANNON = false;
+            result.CC_PHYSICS_AMMO = false;
+            result.CC_PHYSICS_BUILT_IN = true;
+            break;
+    }
 
     return result;
 }

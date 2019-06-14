@@ -20,7 +20,7 @@ export class BillboardComponent extends Component {
     private _texture = null;
 
     /**
-     * @zh Billboard纹理
+     * @zh Billboard纹理。
      */
     @property({
         type: Texture2D,
@@ -40,7 +40,7 @@ export class BillboardComponent extends Component {
     private _height = 0;
 
     /**
-     * @zh 高度
+     * @zh 高度。
      */
     @property
     get height () {
@@ -59,7 +59,7 @@ export class BillboardComponent extends Component {
     private _width = 0;
 
     /**
-     * @zh 宽度
+     * @zh 宽度。
      */
     @property
     public get width () {
@@ -78,7 +78,7 @@ export class BillboardComponent extends Component {
     private _rotation = 0;
 
     /**
-     * @zh 角度
+     * @zh 角度。
      */
     @property
     public get rotation () {

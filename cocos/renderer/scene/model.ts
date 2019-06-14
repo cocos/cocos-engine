@@ -17,8 +17,8 @@ import { customizationManager } from './customization-manager';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
 
-const _temp_floatx16 = new Float32Array(16);
-const _temp_mat4 = mat4.create();
+const f32_1 = new Float32Array(16);
+const m4_1 = mat4.create();
 
 const _subMeshPool = new Pool(() => {
     return new SubModel();
@@ -82,6 +82,14 @@ export class Model {
         this._node = node;
     }
 
+    get transform () {
+        return this._transform;
+    }
+
+    set transform (transform: Node) {
+        this._transform = transform;
+    }
+
     get worldBounds () {
         return this._worldBounds;
     }
@@ -121,6 +129,7 @@ export class Model {
     protected _device: GFXDevice;
     protected _scene: RenderScene;
     protected _node: Node;
+    protected _transform: Node;
     protected _id: number;
     protected _enabled: boolean = false;
     protected _viewID: number = 1;
@@ -143,8 +152,8 @@ export class Model {
     constructor (scene: RenderScene, node: Node) {
         this._device = cc.director.root.device;
         this._scene = scene;
-        this._node = node;
         this._id = this._scene.generateModelId();
+        this._transform = this._node = node;
 
         this._matPSORecord = new Map<Material, GFXPipelineState[]>();
         this._matRefCount = new Map<Material, number>();
@@ -159,11 +168,15 @@ export class Model {
             subModel.destroy();
             _subMeshPool.free(subModel);
         }
-        for (const localBinding of this._localBindings.values()) {
+        const lbIter = this._localBindings.values();
+        let lbResult = lbIter.next();
+        while (!lbResult.done) {
+            const localBinding = lbResult.value;
             if (localBinding.buffer) {
                 localBinding.buffer.destroy();
                 localBinding.buffer = undefined;
             }
+            lbResult = lbIter.next();
         }
         if (this._localBindings.has(UBOForwardLight.BLOCK.name)) {
             this._localBindings.delete(UBOForwardLight.BLOCK.name);
@@ -181,11 +194,12 @@ export class Model {
     }
 
     public updateTransform () {
-        if (!this._node.hasChanged) { return; }
-        this._node.updateWorldTransformFull();
+        const node = this._transform;
+        if (!node.hasChanged) { return; }
+        node.updateWorldTransformFull();
         if (!this._modelBounds) { return; }
-        this._modelBounds.transform(this._node._mat, this._node._pos,
-            this._node._rot, this._node._scale, this._worldBounds!);
+        // @ts-ignore
+        this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds!);
     }
 
     public _resetUBOUpdateFlag () {
@@ -197,11 +211,13 @@ export class Model {
             return;
         }
         this._uboUpdated = true;
-        mat4.array(_temp_floatx16, this._node._mat);
-        this._uboLocal.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_OFFSET);
-        mat4.normalMatrix(_temp_mat4, this._node._mat);
-        mat4.array(_temp_floatx16, _temp_mat4);
-        this._uboLocal.view.set(_temp_floatx16, UBOLocal.MAT_WORLD_IT_OFFSET);
+        // @ts-ignore
+        const worldMatrix = this._transform._mat;
+        mat4.array(f32_1, worldMatrix);
+        this._uboLocal.view.set(f32_1, UBOLocal.MAT_WORLD_OFFSET);
+        mat4.normalMatrix(m4_1, worldMatrix);
+        mat4.array(f32_1, m4_1);
+        this._uboLocal.view.set(f32_1, UBOLocal.MAT_WORLD_IT_OFFSET);
 
         const commonLocal = this._localBindings.get(UBOLocal.BLOCK.name);
         if (commonLocal && commonLocal.buffer) {
@@ -227,8 +243,9 @@ export class Model {
         if (!minPos || !maxPos) { return; }
         this._modelBounds = aabb.fromPoints(aabb.create(), minPos, maxPos);
         this._worldBounds = aabb.clone(this._modelBounds);
-        this._modelBounds.transform(this._node._mat, this._node._pos,
-            this._node._rot, this._node._scale, this._worldBounds);
+        this._transform.updateWorldTransformFull();
+        // @ts-ignore
+        this._modelBounds.transform(this._transform._mat, this._transform._pos, this._transform._rot, this._transform._scale, this._worldBounds);
     }
 
     public initSubModel (idx: number, subMeshData: IRenderingSubmesh, mat: Material) {
@@ -340,7 +357,10 @@ export class Model {
     protected initLocalBindings (mat: Material|null) {
         if (mat) {
             this.onSetLocalBindings(mat);
-            for (const localBinding of this._localBindings.values()) {
+            const lbIter = this._localBindings.values();
+            let lbResult = lbIter.next();
+            while (!lbResult.done) {
+                const localBinding = lbResult.value;
                 if (!localBinding.buffer) {
                     localBinding.buffer = this._device.createBuffer({
                         usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
@@ -348,6 +368,7 @@ export class Model {
                         size: getUniformBlockSize(localBinding.blockInfo!),
                     });
                 }
+                lbResult = lbIter.next();
             }
         }
     }

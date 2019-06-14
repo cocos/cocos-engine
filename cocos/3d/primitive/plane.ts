@@ -4,10 +4,10 @@ import { applyDefaultGeometryOptions, IGeometry, IGeometryOptions } from './defi
 
 /**
  * @zh
- * 生成一个圆锥
- * @param radius 圆锥半径
- * @param height 圆锥高度
- * @param opts 圆锥参数选项
+ * 生成一个圆锥。
+ * @param radius 圆锥半径。
+ * @param height 圆锥高度。
+ * @param opts 圆锥参数选项。
  */
 interface IPlaneOptions extends RecursivePartial<IGeometryOptions> {
     /**
@@ -33,8 +33,8 @@ interface IPlaneOptions extends RecursivePartial<IGeometryOptions> {
 
 /**
  * @zh
- * 应用默认的平面参数选项
- * @param options 平面参数选项
+ * 应用默认的平面参数选项。
+ * @param options 平面参数选项。
  */
 function applyDefaultPlaneOptions (options?: RecursivePartial<IPlaneOptions>): IPlaneOptions {
     options = applyDefaultGeometryOptions<IPlaneOptions>(options);
@@ -56,10 +56,9 @@ const c01 = vec3.create(0, 0, 0);
 /**
  * @en
  * This function generates a plane on XOZ plane with positive Y direction.
- * @param options Options.
  * @zh
- * 生成一个平面，其位于XOZ平面，方向为Y轴正方向
- * @param options 平面参数选项
+ * 生成一个平面，其位于XOZ平面，方向为Y轴正方向。
+ * @param options 平面参数选项。
  */
 export default function (options?: IPlaneOptions): IGeometry {
     const normalizedOptions = applyDefaultPlaneOptions(options);

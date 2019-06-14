@@ -36,8 +36,8 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 获取分组位, 返回的是移动的位数，即 “ 1 << v ” 中的 v
-     * @note 注：使用此接口表示只在一个组
+     * 获取分组位, 返回的是移动的位数，即 “ 1 << v ” 中的 v。
+     * @note 注：使用此接口表示只在一个组。
      * @returns 整数，范围为 0 到 31
      */
     public getGroup (): number {
@@ -49,8 +49,8 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 设置分组位，将会进行位操作，即 1 << v
-     * @note 注：使用此接口表示只在一个组
+     * 设置分组位，将会进行位操作，即 1 << v。
+     * @note 注：使用此接口表示只在一个组。
      * @param v - 整数，范围为 0 到 31
      */
     public setGroup (v: number) {
@@ -61,7 +61,7 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 获取分组值
+     * 获取分组值。
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setCollisionFilterGroup (v: number): void {
@@ -72,7 +72,7 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 直接设置分组值
+     * 设置分组值。
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public getCollisionFilterGroup (): number {
@@ -84,7 +84,7 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 设置掩码位，将会把掩码值的第 v 位写为 1，其它位写位 0
+     * 设置掩码位，将会把掩码值的第 v 位写为 1，其它位写位 0。
      * @param v - 整数，范围为 0 到 31
      */
     public setMask (v: number) {
@@ -95,7 +95,7 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 添加掩码位，将会把掩码值的第 v 位写为 1，可填入需要检查的 group
+     * 添加掩码位，将会把掩码值的第 v 位写为 1，可填入需要检查的 group。
      * @param v - 整数，范围为 0 到 31
      */
     public addMask (v: number) {
@@ -106,7 +106,7 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 移除掩码位，将会把掩码值的第 v 位写为 0，可填入不需要检查的 group
+     * 移除掩码位，将会把掩码值的第 v 位写为 0，可填入不需要检查的 group。
      * @param v - 整数，范围为 0 到 31
      */
     public removeMask (v: number) {
@@ -117,7 +117,7 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 获取掩码值
+     * 获取掩码值。
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public getCollisionFilterMask (): number {
@@ -129,7 +129,7 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 直接设置掩码值
+     * 设置掩码值。
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setCollisionFilterMask (v: number) {
@@ -140,7 +140,7 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 直接设置分组值和掩码值
+     * 直接设置分组值和掩码值。
      * @param group - 分组值
      * @param mask - 掩码值
      */
@@ -337,9 +337,9 @@ class SharedRigidBody {
         // 开始物理计算之前，用户脚本或引擎功能有可能改变节点的Transform，所以需要判断并进行更新
         if (this._node.hasChanged) {
             // scale 进行单独判断，因为目前的物理系统处理后不会改变scale的属性
-            if (!vec3.equals(this._prevScale, this._node._scale)) {
-                this._body.scaleAllShapes(this._node._scale);
-                vec3.copy(this._prevScale, this._node._scale);
+            if (!vec3.equals(this._prevScale, this._node.worldScale)) {
+                this._body.scaleAllShapes(this._node.worldScale);
+                vec3.copy(this._prevScale, this._node.worldScale);
             }
             this.syncPhysWithScene(this._node);
         }

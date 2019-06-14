@@ -5,6 +5,10 @@ import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 
+/**
+ * @zh
+ * SMAA边缘检测渲染阶段。
+ */
 export class SMAAEdgeStage extends RenderStage {
 
     private _hTexSampler: number = 0;

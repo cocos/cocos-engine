@@ -15,7 +15,7 @@ import {
     GFXTextureType,
     GFXTextureUsageBit,
     GFXTextureViewType} from '../gfx/define';
-import { GFXDevice, GFXFeature, GFXAPI } from '../gfx/device';
+import { GFXDevice, GFXFeature } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass } from '../gfx/render-pass';
@@ -35,6 +35,10 @@ const _mat4Array = new Float32Array(16);
 const _outMat = new Mat4();
 const _v3tmp = new Vec3();
 
+/**
+ * @zh
+ * 渲染流程描述信息。
+ */
 export interface IRenderPipelineInfo {
     enablePostProcess?: boolean;
     enableHDR?: boolean;
@@ -42,44 +46,88 @@ export interface IRenderPipelineInfo {
     enableSMAA?: boolean;
 }
 
+/**
+ * @zh
+ * 渲染流程。
+ */
 export abstract class RenderPipeline {
 
+    /**
+     * @zh
+     * Root类对象。
+     */
     public get root (): Root {
         return this._root;
     }
 
+    /**
+     * @zh
+     * GFX设备。
+     */
     public get device (): GFXDevice {
         return this._device;
     }
 
+    /**
+     * @zh
+     * 名称。
+     */
     public get name (): string {
         return this._name;
     }
 
+    /**
+     * @zh
+     * 渲染对象数组。
+     */
     public get renderObjects (): IRenderObject[] {
         return this._renderObjects;
     }
 
+    /**
+     * @zh
+     * 渲染流程数组。
+     */
     public get flows (): RenderFlow[] {
         return this._flows;
     }
 
+    /**
+     * @zh
+     * 启用后期处理。
+     */
     public get usePostProcess (): boolean {
         return this._usePostProcess;
     }
 
+    /**
+     * @zh
+     * 是否支持HDR。
+     */
     public get isHDRSupported (): boolean {
         return this._isHDRSupported;
     }
 
+    /**
+     * @zh
+     * 是否为HDR管线。
+     */
     public get isHDR (): boolean {
         return this._isHDR;
     }
 
+    /**
+     * @zh
+     * 着色尺寸缩放。
+     */
     public get shadingScale (): number {
         return this._shadingScale;
     }
 
+    /**
+     * @zh
+     * 灯光距离缩放系数（以米为单位）。
+     */
     public set lightMeterScale (scale: number) {
         this._lightMeterScale = scale;
     }
@@ -88,143 +136,484 @@ export abstract class RenderPipeline {
         return this._lightMeterScale;
     }
 
+    /**
+     * @zh
+     * 深度模板纹理视图。
+     */
     public get depthStencilTexView (): GFXTextureView {
         return this._depthStencilTexView!;
     }
 
+    /**
+     * @zh
+     * 着色纹理视图数组的当前帧缓冲索引。
+     */
     public get curShadingTexView (): GFXTextureView {
         return this._shadingTexViews[this._curIdx];
     }
 
+    /**
+     * @zh
+     * 着色纹理视图数组的上一帧缓冲索引。
+     */
     public get prevShadingTexView (): GFXTextureView {
         return this._shadingTexViews[this._prevIdx];
     }
 
+    /**
+     * @zh
+     * 着色帧缓冲数组的当前帧缓冲索引。
+     */
     public get curShadingFBO (): GFXFramebuffer {
         return this._shadingFBOs[this._curIdx];
     }
 
+    /**
+     * @zh
+     * 着色帧缓冲数组的上一帧缓冲索引。
+     */
     public get prevShadingFBO (): GFXFramebuffer {
         return this._shadingFBOs[this._prevIdx];
     }
 
+    /**
+     * @zh
+     * MSAA着色帧缓冲。
+     */
     public get msaaShadingFBO (): GFXFramebuffer {
         return this._msaaShadingFBO!;
     }
 
+    /**
+     * @zh
+     * 启用MSAA。
+     */
     public get useMSAA (): boolean {
         return this._useMSAA;
     }
 
+    /**
+     * @zh
+     * 启用SMAA。
+     */
     public get useSMAA (): boolean {
         return this._useSMAA;
     }
 
+    /**
+     * @zh
+     * SMAA边缘纹理视图。
+     */
     public get smaaEdgeTexView (): GFXTextureView {
         return this._smaaEdgeTexView!;
     }
 
+    /**
+     * @zh
+     * SMAA边缘帧缓冲。
+     */
     public get smaaEdgeFBO (): GFXFramebuffer {
         return this._smaaEdgeFBO!;
     }
 
+    /**
+     * @zh
+     * SMAA混合纹理视图。
+     */
     public get smaaBlendTexView (): GFXTextureView {
         return this._smaaBlendTexView!;
     }
 
+    /**
+     * @zh
+     * SMAA混合帧缓冲。
+     */
     public get smaaBlendFBO (): GFXFramebuffer {
         return this._smaaBlendFBO!;
     }
 
+    /**
+     * @zh
+     * 四边形输入汇集器。
+     */
     public get quadIA (): GFXInputAssembler {
         return this._quadIA!;
     }
 
+    /**
+     * @zh
+     * 默认的全局绑定表。
+     */
     public get globalBindings (): Map<string, IInternalBindingInst> {
         return this._globalBindings;
     }
 
+    /**
+     * @zh
+     * 默认纹理。
+     */
     public get defaultTexture (): GFXTexture {
         return this._defaultTex!;
     }
 
+    /**
+     * @zh
+     * 浮点精度缩放。
+     */
     public get fpScale (): number {
         return this._fpScale;
     }
 
+    /**
+     * @zh
+     * 浮点精度缩放的倒数。
+     */
     public get fpScaleInv (): number {
         return this._fpScaleInv;
     }
 
+    /**
+     * @zh
+     * 管线宏定义。
+     */
     public get macros (): IDefineMap {
         return this._macros;
     }
 
+    /**
+     * @zh
+     * 默认的全局UBO。
+     */
     public get defaultGlobalUBOData (): Float32Array {
         return this._defaultUboGlobal!.view;
     }
 
+    /**
+     * @zh
+     * Root类对象。
+     */
     protected _root: Root;
+
+    /**
+     * @zh
+     * GFX设备。
+     */
     protected _device: GFXDevice;
+
+    /**
+     * @zh
+     * 名称。
+     */
     protected _name: string = 'BasePipeline';
+
+    /**
+     * @zh
+     * 渲染对象数组。
+     */
     protected _renderObjects: IRenderObject[] = [];
+
+    /**
+     * @zh
+     * 渲染过程数组。
+     */
     protected _renderPasses: Map<number, GFXRenderPass> = new Map();
+
+    /**
+     * @zh
+     * 渲染流程数组。
+     */
     protected _flows: RenderFlow[] = [];
+
+    /**
+     * @zh
+     * 是否支持HDR。
+     */
     protected _isHDRSupported: boolean = false;
+
+    /**
+     * @zh
+     * 是否为HDR管线。
+     */
     protected _isHDR: boolean = false;
+
+    /**
+     * @zh
+     * 灯光距离缩放系数（以米为单位）。
+     */
     protected _lightMeterScale: number = 10000.0;
+
+    /**
+     * @zh
+     * 着色渲染过程。
+     */
     protected _shadingPass: GFXRenderPass | null = null;
+
+    /**
+     * @zh
+     * 帧缓冲数量。
+     */
     protected _fboCount: number = 1;
+
+    /**
+     * @zh
+     * MSAA着色纹理。
+     */
     protected _msaaShadingTex: GFXTexture | null = null;
+
+    /**
+     * @zh
+     * MSAA着色纹理视图。
+     */
     protected _msaaShadingTexView: GFXTextureView | null = null;
+
+    /**
+     * @zh
+     * MSAA深度模板纹理。
+     */
     protected _msaaDepthStencilTex: GFXTexture | null = null;
+
+    /**
+     * @zh
+     * MSAA深度模板纹理视图。
+     */
     protected _msaaDepthStencilTexView: GFXTextureView | null = null;
+
+    /**
+     * @zh
+     * MSAA着色帧缓冲。
+     */
     protected _msaaShadingFBO: GFXFramebuffer | null = null;
 
+    /**
+     * @zh
+     * 颜色格式。
+     */
     protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;
+
+    /**
+     * @zh
+     * 深度模板格式。
+     */
     protected _depthStencilFmt: GFXFormat = GFXFormat.UNKNOWN;
+
+    /**
+     * @zh
+     * 着色纹理数组。
+     */
     protected _shadingTextures: GFXTexture[] = [];
+
+    /**
+     * @zh
+     * 着色纹理视图数组。
+     */
     protected _shadingTexViews: GFXTextureView[] = [];
+
+    /**
+     * @zh
+     * 深度模板纹理。
+     */
     protected _depthStencilTex: GFXTexture | null = null;
+
+    /**
+     * @zh
+     * 深度模板纹理视图。
+     */
     protected _depthStencilTexView: GFXTextureView | null = null;
+
+    /**
+     * @zh
+     * 着色帧缓冲数组。
+     */
     protected _shadingFBOs: GFXFramebuffer[] = [];
+
+    /**
+     * @zh
+     * 着色尺寸宽度。
+     */
     protected _shadingWidth: number = 0.0;
+
+    /**
+     * @zh
+     * 着色尺寸高度。
+     */
     protected _shadingHeight: number = 0.0;
+
+    /**
+     * @zh
+     * 着色尺寸缩放。
+     */
     protected _shadingScale: number = 1.0;
+
+    /**
+     * @zh
+     * 当前帧缓冲索引。
+     */
     protected _curIdx: number = 0;
+
+    /**
+     * @zh
+     * 上一帧缓冲索引。
+     */
     protected _prevIdx: number = 1;
+
+    /**
+     * @zh
+     * 启用后期处理。
+     */
     protected _usePostProcess: boolean = false;
+
+    /**
+     * @zh
+     * 启用MSAA。
+     */
     protected _useMSAA: boolean = false;
+
+    /**
+     * @zh
+     * 启用SMAA。
+     */
     protected _useSMAA: boolean = false;
+
+    /**
+     * @zh
+     * SMAA渲染过程。
+     */
     protected _smaaPass: GFXRenderPass | null = null;
+
+    /**
+     * @zh
+     * SMAA边缘帧缓冲。
+     */
     protected _smaaEdgeFBO: GFXFramebuffer | null = null;
+
+    /**
+     * @zh
+     * SMAA边缘纹理。
+     */
     protected _smaaEdgeTex: GFXTexture | null = null;
+
+    /**
+     * @zh
+     * SMAA边缘纹理视图。
+     */
     protected _smaaEdgeTexView: GFXTextureView | null = null;
+
+    /**
+     * @zh
+     * SMAA混合帧缓冲。
+     */
     protected _smaaBlendFBO: GFXFramebuffer | null = null;
+
+    /**
+     * @zh
+     * SMAA混合纹理。
+     */
     protected _smaaBlendTex: GFXTexture | null = null;
+
+    /**
+     * @zh
+     * SMAA混合纹理视图。
+     */
     protected _smaaBlendTexView: GFXTextureView | null = null;
+
+    /**
+     * @zh
+     * 四边形顶点缓冲。
+     */
     protected _quadVB: GFXBuffer | null = null;
+
+    /**
+     * @zh
+     * 四边形索引缓冲。
+     */
     protected _quadIB: GFXBuffer | null = null;
+
+    /**
+     * @zh
+     * 四边形输入汇集器。
+     */
     protected _quadIA: GFXInputAssembler | null = null;
+
+    /**
+     * @zh
+     * 默认的全局UBO。
+     */
     protected _defaultUboGlobal: UBOGlobal = new UBOGlobal();
+
+    /**
+     * @zh
+     * 默认的全局绑定表。
+     */
     protected _globalBindings: Map<string, IInternalBindingInst> = new Map<string, IInternalBindingInst>();
+
+    /**
+     * @zh
+     * 默认纹理。
+     */
     protected _defaultTex: GFXTexture | null = null;
+
+    /**
+     * @zh
+     * 默认纹理视图。
+     */
     protected _defaultTexView: GFXTextureView | null = null;
+
+    /**
+     * @zh
+     * 浮点精度缩放。
+     */
     protected _fpScale: number = 1.0 / 1024.0;
+
+    /**
+     * @zh
+     * 浮点精度缩放的倒数。
+     */
     protected _fpScaleInv: number = 1024.0;
+
+    /**
+     * @zh
+     * 管线宏定义。
+     */
     protected _macros: IDefineMap = {};
 
+    /**
+     * @zh
+     * 构造函数。
+     * @param root Root类实例。
+     */
     constructor (root: Root) {
         this._root = root;
         this._device = root.device;
     }
 
+    /**
+     * @zh
+     * 初始化函数。
+     * @param info 渲染管线描述信息。
+     */
     public abstract initialize (info: IRenderPipelineInfo): boolean;
+
+    /**
+     * @zh
+     * 销毁函数。
+     */
     public abstract destroy ();
-    public rebuild () { this.updateMacros(); }
 
+    /**
+     * @zh
+     * 重构函数。
+     */
+    public rebuild () {
+        this.updateMacros();
+    }
+
+    /**
+     * @zh
+     * 重置大小。
+     * @param width 屏幕宽度。
+     * @param height 屏幕高度。
+     */
     public resize (width: number, height: number) {
-
         const w = Math.floor(width * this._shadingScale);
         const h = Math.floor(height * this._shadingScale);
         if (w > this._shadingWidth ||
@@ -240,6 +629,11 @@ export abstract class RenderPipeline {
         }
     }
 
+    /**
+     * @zh
+     * 渲染函数。
+     * @param view 渲染视图。
+     */
     public render (view: RenderView) {
 
         view.camera.update();
@@ -253,18 +647,33 @@ export abstract class RenderPipeline {
         }
     }
 
+    /**
+     * @zh
+     * 交换帧缓冲。
+     */
     public swapFBOs () {
         const temp = this._curIdx;
         this._curIdx = this._prevIdx;
         this._prevIdx = temp;
     }
 
+    /**
+     * @zh
+     * 添加渲染过程。
+     * @param stage 渲染阶段。
+     * @param renderPass 渲染过程。
+     */
     public addRenderPass (stage: number, renderPass: GFXRenderPass) {
         if (renderPass) {
             this._renderPasses.set(stage, renderPass);
         }
     }
 
+    /**
+     * @zh
+     * 得到指定阶段的渲染过程。
+     * @param stage 渲染阶段。
+     */
     public getRenderPass (stage: number): GFXRenderPass | null {
         const renderPass = this._renderPasses.get(stage);
         if (renderPass) {
@@ -274,18 +683,30 @@ export abstract class RenderPipeline {
         }
     }
 
+    /**
+     * @zh
+     * 移除指定阶段的渲染过程。
+     * @param stage 渲染阶段。
+     */
     public removeRenderPass (stage: number) {
         this._renderPasses.delete(stage);
     }
 
+    /**
+     * @zh
+     * 清空渲染过程。
+     */
     public clearRenderPasses () {
         this._renderPasses.clear();
     }
 
+    /**
+     * @zh
+     * 创建渲染流程。
+     */
     public createFlow<T extends RenderFlow> (
         clazz: new (pipeline: RenderPipeline) => T,
-        info: IRenderFlowInfo,
-    ): RenderFlow | null {
+        info: IRenderFlowInfo): RenderFlow | null {
         const flow: RenderFlow = new clazz(this);
         if (flow.initialize(info)) {
             this._flows.push(flow);
@@ -299,6 +720,10 @@ export abstract class RenderPipeline {
         }
     }
 
+    /**
+     * @zh
+     * 销毁全部渲染流程。
+     */
     public destroyFlows () {
         for (const flow of this._flows) {
             flow.destroy();
@@ -306,6 +731,11 @@ export abstract class RenderPipeline {
         this._flows = [];
     }
 
+    /**
+     * @zh
+     * 得到指定名称的渲染流程。
+     * @param name 名称。
+     */
     public getFlow (name: string): RenderFlow | null {
         for (const flow of this._flows) {
             if (flow.name === name) {
@@ -316,6 +746,11 @@ export abstract class RenderPipeline {
         return null;
     }
 
+    /**
+     * @zh
+     * 内部初始化函数。
+     * @param info 渲染流程描述信息。
+     */
     protected _initialize (info: IRenderPipelineInfo): boolean {
 
         if (info.enablePostProcess !== undefined) {
@@ -563,6 +998,10 @@ export abstract class RenderPipeline {
         return true;
     }
 
+    /**
+     * @zh
+     * 内部销毁函数。
+     */
     protected _destroy () {
 
         this.destroyFlows();
@@ -654,6 +1093,12 @@ export abstract class RenderPipeline {
         }
     }
 
+    /**
+     * @zh
+     * 重置帧缓冲大小。
+     * @param width 屏幕宽度。
+     * @param height 屏幕高度。
+     */
     protected resizeFBOs (width: number, height: number) {
 
         this._shadingWidth = width;
@@ -743,6 +1188,10 @@ export abstract class RenderPipeline {
         console.info('Resizing shading fbos: ' + this._shadingWidth + 'x' + this._shadingHeight);
     }
 
+    /**
+     * @zh
+     * 更新宏定义。
+     */
     protected updateMacros () {
         this._macros.CC_USE_HDR = (this._isHDR);
         programLib.destroyShaderByDefines(this._macros);
@@ -751,6 +1200,10 @@ export abstract class RenderPipeline {
         }
     }
 
+    /**
+     * @zh
+     * 创建四边形输入汇集器。
+     */
     protected createQuadInputAssembler (): boolean {
 
         // create vertex buffer
@@ -815,6 +1268,10 @@ export abstract class RenderPipeline {
         return true;
     }
 
+    /**
+     * @zh
+     * 销毁四边形输入汇集器。
+     */
     protected destroyQuadInputAssembler () {
         if (this._quadVB) {
             this._quadVB.destroy();
@@ -832,6 +1289,10 @@ export abstract class RenderPipeline {
         }
     }
 
+    /**
+     * @zh
+     * 创建所有UBO。
+     */
     protected createUBOs (): boolean {
         if (!this._globalBindings.get(UBOGlobal.BLOCK.name)) {
             const globalUBO = this._root.device.createBuffer({
@@ -872,6 +1333,10 @@ export abstract class RenderPipeline {
         return true;
     }
 
+    /**
+     * @zh
+     * 销毁全部UBO。
+     */
     protected destroyUBOs () {
         const globalUBO = this._globalBindings.get(UBOGlobal.BLOCK.name);
         if (globalUBO) {
@@ -885,6 +1350,11 @@ export abstract class RenderPipeline {
         }
     }
 
+    /**
+     * @zh
+     * 更新指定渲染视图的UBO。
+     * @param view 渲染视图。
+     */
     protected updateUBOs (view: RenderView) {
 
         const camera = view.camera;
@@ -989,11 +1459,15 @@ export abstract class RenderPipeline {
 
         const planarShadow = scene.planarShadow;
         if (planarShadow.enabled) {
-            planarShadow.updateDirLight(scene.mainLight);
             this._globalBindings.get(UBOShadow.BLOCK.name)!.buffer!.update(planarShadow.data);
         }
     }
 
+    /**
+     * @zh
+     * 场景裁剪。
+     * @param view 渲染视图。
+     */
     protected sceneCulling (view: RenderView) {
 
         const camera = view.camera;
@@ -1004,6 +1478,11 @@ export abstract class RenderPipeline {
         const mainLight = scene.mainLight;
         if (mainLight && mainLight.enabled) {
             mainLight.update();
+        }
+
+        const planarShadow = scene.planarShadow;
+        if (planarShadow.enabled) {
+            planarShadow.updateDirLight(scene.mainLight);
         }
 
         if (scene.skybox.enabled) {
@@ -1030,6 +1509,12 @@ export abstract class RenderPipeline {
         }
     }
 
+    /**
+     * @zh
+     * 添加可见对象。
+     * @param model 模型。
+     * @param camera 相机。
+     */
     protected addVisibleModel (model: Model, camera: Camera) {
         let depth = 0;
         if (model.node) {

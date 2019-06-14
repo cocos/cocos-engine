@@ -33,10 +33,8 @@ export interface IConfig {
 }
 
 /**
- * !#en Class for BitmapFont handling.
- * !#zh 位图字体资源类。
- * @class BitmapFont
- * @extends Font
+ * @en Class for BitmapFont handling.
+ * @zh 位图字体资源类。
  */
 @ccclass('cc.BitmapFont')
 export class BitmapFont extends Font {
@@ -54,7 +52,7 @@ export class BitmapFont extends Font {
 
     /**
      * @zh
-     * 文字尺寸
+     * 文字尺寸。
      */
     @property
     public fontSize = -1;

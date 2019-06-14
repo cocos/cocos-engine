@@ -40,7 +40,7 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
      * @en
      * get the center of the collider, in local space.
      * @zh
-     * 获取碰撞器的中心点
+     * 获取碰撞器的中心点。
      *
      */
     @property({
@@ -54,7 +54,7 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
 
     /**
      * @zh
-     * 设置碰撞器的中心点
+     * 设置碰撞器的中心点。
      */
     public set center (value: Vec3) {
         vec3.copy(this._center, value);
@@ -88,7 +88,7 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
 
     /**
      * @zh
-     * 注册碰撞事件相关的回调
+     * 注册碰撞事件相关的回调。
      * @param type - 碰撞事件的类型，可为 'onCollisionEnter' 、 'onCollisionStay' 、 'onCollisionExit';
      * @param callback - 注册的回调函数
      * @param target - 可选参数，执行回调函数的目标
@@ -99,7 +99,7 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
 
     /**
      * @zh
-     * 取消已经注册的碰撞事件相关的回调
+     * 取消已经注册的碰撞事件相关的回调。
      * @param type - 碰撞事件的类型，可为 'onCollisionEnter' 、 'onCollisionStay' 、 'onCollisionExit';
      * @param callback - 注册的回调函数
      * @param target - 可选参数，执行回调函数的目标
@@ -110,7 +110,7 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
 
     /**
      * @zh
-     * 注册碰撞事件相关的回调，但只会执行一次
+     * 注册碰撞事件相关的回调，但只会执行一次。
      * @param type - 碰撞事件的类型，可为 'onCollisionEnter' 、 'onCollisionStay' 、 'onCollisionExit';
      * @param callback - 注册的回调函数
      * @param target - 可选参数，执行回调函数的目标

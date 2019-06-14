@@ -11,7 +11,7 @@ import { GFXDevice } from './device';
 
 /**
  * @zh
- * GFX颜色附件
+ * GFX颜色附件。
  */
 export class GFXColorAttachment {
     public format: GFXFormat = GFXFormat.UNKNOWN;
@@ -24,7 +24,7 @@ export class GFXColorAttachment {
 
 /**
  * @zh
- * GFX深度模板附件
+ * GFX深度模板附件。
  */
 export class GFXDepthStencilAttachment {
     public format: GFXFormat = GFXFormat.UNKNOWN;
@@ -39,7 +39,7 @@ export class GFXDepthStencilAttachment {
 
 /**
  * @zh
- * GFX子过程描述信息
+ * GFX子过程描述信息。
  */
 export interface IGFXSubPassInfo {
     bindPoint: GFXPipelineBindPoint;
@@ -52,7 +52,7 @@ export interface IGFXSubPassInfo {
 
 /**
  * @zh
- * GFX渲染过程描述信息
+ * GFX渲染过程描述信息。
  */
 export interface IGFXRenderPassInfo {
     colorAttachments?: GFXColorAttachment[];
@@ -62,32 +62,32 @@ export interface IGFXRenderPassInfo {
 
 /**
  * @zh
- * GFX渲染过程
+ * GFX渲染过程。
  */
 export abstract class GFXRenderPass extends GFXObject {
 
     /**
      * @zh
-     * GFX设备
+     * GFX设备。
      */
     protected _device: GFXDevice;
 
     /**
      * @zh
-     * GFX颜色附件数组
+     * GFX颜色附件数组。
      */
     protected _colorInfos: GFXColorAttachment[] = [];
 
     /**
      * @zh
-     * GFX深度模板附件
+     * GFX深度模板附件。
      */
     protected _depthStencilInfo: GFXDepthStencilAttachment | null = null;
 
     /**
      * @zh
-     * 构造函数
-     * @param device GFX设备
+     * 构造函数。
+     * @param device GFX设备。
      */
     constructor (device: GFXDevice) {
         super(GFXObjectType.RENDER_PASS);
@@ -96,14 +96,14 @@ export abstract class GFXRenderPass extends GFXObject {
 
     /**
      * @zh
-     * 提交命令缓冲数组
-     * @param info GFX渲染过程描述信息
+     * 提交命令缓冲数组。
+     * @param info GFX渲染过程描述信息。
      */
     public abstract initialize (info: IGFXRenderPassInfo): boolean;
 
     /**
      * @zh
-     * 销毁函数
+     * 销毁函数。
      */
     public abstract destroy (): void;
     // protected _subPasses : GFXSubPassInfo[] = [];

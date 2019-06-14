@@ -22,7 +22,7 @@ export class LineComponent extends Component {
     private _texture = null;
 
     /**
-     * @zh 显示的纹理
+     * @zh 显示的纹理。
      */
     @property({
         type: Texture2D,
@@ -45,7 +45,7 @@ export class LineComponent extends Component {
     private _worldSpace = false;
 
     /**
-     * @zh positions是否为世界空间坐标
+     * @zh positions是否为世界空间坐标。
      */
     @property({
         displayOrder: 1,
@@ -71,7 +71,7 @@ export class LineComponent extends Component {
     private _positions = [];
 
     /**
-     * 每段折线的拐点坐标
+     * 每段折线的拐点坐标。
      */
     @property({
         type: [Vec3],
@@ -94,7 +94,7 @@ export class LineComponent extends Component {
     private _width = new CurveRange();
 
     /**
-     * @zh 线段的宽度
+     * @zh 线段的宽度。
      */
     @property({
         type: CurveRange,
@@ -115,7 +115,7 @@ export class LineComponent extends Component {
     private _tile = cc.v2(1, 1);
 
     /**
-     * @zh 图块数
+     * @zh 图块数。
      */
     @property({
         type: Vec2,
@@ -160,7 +160,7 @@ export class LineComponent extends Component {
     private _color = new GradientRange();
 
     /**
-     * @zh 线段颜色
+     * @zh 线段颜色。
      */
     @property({
         type: GradientRange,

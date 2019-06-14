@@ -1,18 +1,27 @@
-import { vec3, mat4, vec4 } from '../../core/vmath';
+import { mat4, vec3, vec4 } from '../../core/vmath';
 import enums from './enums';
 
 const v1 = vec3.create(0, 0, 0);
 const v2 = vec3.create(0, 0, 0);
+const temp_mat = cc.mat4();
+const temp_vec4 = cc.v4();
 
+/**
+ * @zh
+ * 基础几何 plane。
+ */
+// tslint:disable-next-line:class-name
 export default class plane {
 
     /**
+     * @en
      * create a new plane
-     *
-     * @param nx normal X component
-     * @param ny normal Y component
-     * @param nz normal Z component
-     * @param d distance to the origin
+     * @zh
+     * 创建一个新的 plane。
+     * @param nx 法向分量的 x 部分。
+     * @param ny 法向分量的 y 部分。
+     * @param nz 法向分量的 z 部分。
+     * @param d 与原点的距离。
      * @return
      */
     public static create (nx: number, ny: number, nz: number, d: number) {
@@ -20,21 +29,25 @@ export default class plane {
     }
 
     /**
+     * @en
      * clone a new plane
-     *
-     * @param p a the source plane
-     * @return
+     * @zh
+     * 克隆一个新的 plane。
+     * @param p 克隆的来源。
+     * @return 克隆出的对象。
      */
     public static clone (p: plane) {
         return new plane(p.n.x, p.n.y, p.n.z, p.d);
     }
 
     /**
+     * @en
      * copy the values from one plane to another
-     *
-     * @param out the receiving plane
-     * @param p the source plane
-     * @return
+     * @zh
+     * 复制一个平面的值到另一个。
+     * @param out 接受操作的对象。
+     * @param p 复制的来源。
+     * @return 接受操作的对象。
      */
     public static copy (out: plane, p: plane) {
         vec3.copy(out.n, p.n);
@@ -44,13 +57,15 @@ export default class plane {
     }
 
     /**
+     * @en
      * create a plane from three points
-     *
-     * @param out the receiving plane
-     * @param a
-     * @param b
-     * @param c
-     * @return
+     * @zh
+     * 用三个点创建一个平面。
+     * @param out 接受操作的对象。
+     * @param a 点 a。
+     * @param b 点 b。
+     * @param c 点 c。
+     * @return out 接受操作的对象。
      */
     public static fromPoints (out: plane, a: vec3, b: vec3, c: vec3) {
         vec3.sub(v1, b, a);
@@ -63,14 +78,16 @@ export default class plane {
     }
 
     /**
+     * @en
      * Set the components of a plane to the given values
-     *
-     * @param out the receiving plane
-     * @param nx X component of n
-     * @param ny Y component of n
-     * @param nz Z component of n
-     * @param d
-     * @return out
+     * @zh
+     * 将给定平面的属性设置为给定值。
+     * @param out 接受操作的对象。
+     * @param nx 法向分量的 x 部分。
+     * @param ny 法向分量的 y 部分。
+     * @param nz 法向分量的 z 部分。
+     * @param d 与原点的距离。
+     * @return out 接受操作的对象。
      */
     public static set (out: plane, nx: number, ny: number, nz: number, d: number) {
         out.n.x = nx;
@@ -82,12 +99,14 @@ export default class plane {
     }
 
     /**
+     * @en
      * create plane from normal and point
-     *
-     * @param out the receiving plane
-     * @param normal
-     * @param point
-     * @return out
+     * @zh
+     * 用一条法线和一个点创建平面。
+     * @param out 接受操作的对象。
+     * @param normal 平面的法线。
+     * @param point 平面上的一点。
+     * @return out 接受操作的对象。
      */
     public static fromNormalAndPoint (out: plane, normal: vec3, point: vec3) {
         vec3.copy(out.n, normal);
@@ -97,11 +116,13 @@ export default class plane {
     }
 
     /**
+     * @en
      * normalize a plane
-     *
-     * @param out the receiving plane
-     * @param a plane to normalize
-     * @return out
+     * @zh
+     * 归一化一个平面。
+     * @param out 接受操作的对象。
+     * @param a 操作的源数据。
+     * @return out 接受操作的对象。
      */
     public static normalize (out: plane, a: plane) {
         const len = vec3.magnitude(a.n);
@@ -112,27 +133,45 @@ export default class plane {
         return out;
     }
 
-    public transform = (() => {
-        const temp_mat = cc.mat4();
-        const temp_vec4 = cc.v4();
-        return (mat: mat4) => {
-            mat4.invert(temp_mat, mat);
-            mat4.transpose(temp_mat, temp_mat);
-            vec4.set(temp_vec4, this.n.x, this.n.y, this.n.z, this.d);
-            vec4.transformMat4(temp_vec4, temp_vec4, temp_mat);
-            vec3.set(this.n, temp_vec4.x, temp_vec4.y, temp_vec4.z);
-            this.d = temp_vec4.w;
-        };
-    })();
-
+    /**
+     * @zh
+     * 法线向量。
+     */
     public n: vec3;
+
+    /**
+     * @zh
+     * 原点到平面的距离。
+     */
     public d: number;
 
     private _type: number;
 
+    /**
+     * @zh
+     * 构造一个平面。
+     * @param nx 法向分量的 x 部分。
+     * @param ny 法向分量的 y 部分。
+     * @param nz 法向分量的 z 部分。
+     * @param d 与原点的距离。
+     */
     constructor (nx = 0, ny = 1, nz = 0, d = 0) {
         this._type = enums.SHAPE_PLANE;
         this.n = vec3.create(nx, ny, nz);
         this.d = d;
+    }
+
+    /**
+     * @zh
+     * 变换一个平面。
+     * @param mat
+     */
+    public transform (mat: mat4): void {
+        mat4.invert(temp_mat, mat);
+        mat4.transpose(temp_mat, temp_mat);
+        vec4.set(temp_vec4, this.n.x, this.n.y, this.n.z, this.d);
+        vec4.transformMat4(temp_vec4, temp_vec4, temp_mat);
+        vec3.set(this.n, temp_vec4.x, temp_vec4.y, temp_vec4.z);
+        this.d = temp_vec4.w;
     }
 }

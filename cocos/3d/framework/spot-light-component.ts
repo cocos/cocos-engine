@@ -49,7 +49,7 @@ export class SpotLightComponent extends LightComponent {
     protected _light: SpotLight | null = null;
 
     /**
-     * 光通量
+     * 光通量。
      */
     @property({ unit: 'lm' })
     get luminousPower () {
@@ -61,7 +61,7 @@ export class SpotLightComponent extends LightComponent {
     }
 
     /**
-     * 亮度
+     * 亮度。
      */
     @property({ unit: 'cd/m²' })
     get luminance () {
@@ -73,7 +73,7 @@ export class SpotLightComponent extends LightComponent {
     }
 
     /**
-     * 指定光通量或亮度
+     * 指定光通量或亮度。
      */
     @property({ type: PhotometricTerm })
     get term () {
@@ -87,7 +87,7 @@ export class SpotLightComponent extends LightComponent {
      * @en
      * The light size, used for spot and point light
      * @zh
-     * 针对聚光灯和点光源设置光源大小
+     * 针对聚光灯和点光源设置光源大小。
      */
     @property
     get size () {
@@ -102,7 +102,7 @@ export class SpotLightComponent extends LightComponent {
      * @en
      * The light range, used for spot and point light
      * @zh
-     * 针对聚光灯和点光源设置光源范围
+     * 针对聚光灯和点光源设置光源范围。
      */
     @property
     get range () {
@@ -117,7 +117,7 @@ export class SpotLightComponent extends LightComponent {
      * @en
      * The spot light cone angle
      * @zh
-     * 聚光灯锥角
+     * 聚光灯锥角。
      */
     @property({
         slide: true,

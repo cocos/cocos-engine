@@ -167,10 +167,10 @@ class LetterTexture {
 
 export class LetterRenderTexture extends Texture2D {
     /**
-     * !#en
+     * @en
      * Init the render texture with size.
-     * !#zh
-     * 初始化 render texture
+     * @zh
+     * 初始化 render texture。
      * @param [width]
      * @param [height]
      * @param [string]
@@ -197,8 +197,8 @@ export class LetterRenderTexture extends Texture2D {
     }
 
     /**
-     * !#en Draw a texture to the specified position
-     * !#zh 将指定的图片渲染到指定的位置上
+     * @en Draw a texture to the specified position
+     * @zh 将指定的图片渲染到指定的位置上。
      * @param {Texture2D} texture
      * @param {Number} x
      * @param {Number} y

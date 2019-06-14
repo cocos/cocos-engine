@@ -35,17 +35,17 @@ import { UIRenderComponent } from './ui-render-component';
 
 /**
  * @zh
- * Sprite 类型
+ * Sprite 类型。
  */
 enum SpriteType {
     /**
      * @zh
-     * 普通类型
+     * 普通类型。
      */
     SIMPLE = 0,
     /**
      * @zh
-     * 切片（九宫格）类型
+     * 切片（九宫格）类型。
      */
     SLICED = 1,
     // /**
@@ -55,7 +55,7 @@ enum SpriteType {
     // TILED =  2,
     /**
      * @zh
-     * 填充类型
+     * 填充类型。
      */
     FILLED = 3,
     // /**
@@ -70,17 +70,17 @@ ccenum(SpriteType);
 
 /**
  * @zh
- * 填充类型
+ * 填充类型。
  */
 enum FillType {
     /**
      * @zh
-     * 水平方向填充
+     * 水平方向填充。
      */
     HORIZONTAL = 0,
     /**
      * @zh
-     * 垂直方向填充
+     * 垂直方向填充。
      */
     VERTICAL = 1,
     // /**
@@ -95,22 +95,22 @@ ccenum(FillType);
 
 /**
  * @zh
- * 精灵尺寸调整模式
+ * 精灵尺寸调整模式。
  */
 enum SizeMode {
     /**
      * @zh
-     * 使用节点预设的尺寸
+     * 使用节点预设的尺寸。
      */
     CUSTOM = 0,
     /**
      * @zh
-     * 自动适配为精灵裁剪后的尺寸
+     * 自动适配为精灵裁剪后的尺寸。
      */
     TRIMMED = 1,
     /**
      * @zh
-     * 自动适配为精灵原图尺寸
+     * 自动适配为精灵原图尺寸。
      */
     RAW = 2,
 }
@@ -139,7 +139,7 @@ export class SpriteComponent extends UIRenderComponent {
 
     /**
      * @zh
-     * 精灵的图集
+     * 精灵的图集。
      */
     @property({
         type: SpriteAtlas,
@@ -160,7 +160,7 @@ export class SpriteComponent extends UIRenderComponent {
 
     /**
      * @zh
-     * 精灵的精灵帧
+     * 精灵的精灵帧。
      */
     @property({
         type: SpriteFrame,
@@ -188,7 +188,7 @@ export class SpriteComponent extends UIRenderComponent {
 
     /**
      * @zh
-     * 精灵渲染类型
+     * 精灵渲染类型。
      *
      * @example
      * ```ts
@@ -305,7 +305,7 @@ export class SpriteComponent extends UIRenderComponent {
         }
     }
     /**
-     * @zh  是否使用裁剪模式
+     * @zh  是否使用裁剪模式。
      *
      * @example
      * ```ts
@@ -332,7 +332,7 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     /**
-     * @zh  精灵尺寸调整模式
+     * @zh  精灵尺寸调整模式。
      *
      * @example
      * ```ts

@@ -48,7 +48,7 @@ ccenum(GFXBlendFactor);
 
 /**
  * @zh
- * 实例后的材质的着色器属性类型
+ * 实例后的材质的着色器属性类型。
  */
 export enum InstanceMaterialType {
     /**
@@ -66,7 +66,7 @@ export enum InstanceMaterialType {
 
 /**
  * @zh
- * 所有支持渲染的 UI 组件的基类
+ * 所有支持渲染的 UI 组件的基类。
  */
 @ccclass('cc.UIRenderComponent')
 @executionOrder(110)

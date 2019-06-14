@@ -3,7 +3,7 @@ import { IGeometry, IGeometryOptions } from './define';
 
 /**
  * @zh
- * 圆柱参数选项
+ * 圆柱参数选项。
  */
 export interface ICylinderOptions extends IGeometryOptions {
     radialSegments: number;
@@ -17,10 +17,10 @@ const temp2 = vec3.create(0, 0, 0);
 
 /**
  * @zh
- * 生成一个圆柱
- * @param radiusTop 顶部半径
- * @param radiusBottom 底部半径
- * @param opts 圆柱参数选项
+ * 生成一个圆柱。
+ * @param radiusTop 顶部半径。
+ * @param radiusBottom 底部半径。
+ * @param opts 圆柱参数选项。
  */
 export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts: RecursivePartial<ICylinderOptions> = {}): IGeometry {
   const halfHeight = height * 0.5;

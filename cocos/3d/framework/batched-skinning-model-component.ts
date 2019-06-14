@@ -124,6 +124,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         return this._mesh;
     }
     set mesh (val) {
+        // @ts-ignore
         super.mesh = val;
     }
 
@@ -132,6 +133,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         return this._skeleton;
     }
     set skeleton (val) {
+        // @ts-ignore
         super.skeleton = val;
     }
 
@@ -140,6 +142,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         return this._skinningRoot;
     }
     set skinningRoot (val) {
+        // @ts-ignore
         super.skinningRoot = val;
     }
 
@@ -232,6 +235,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         skeleton.joints = skeleton.joints.map((_, idx, arr) => arr[idxMap[idx]]);
         skeleton.bindposes = skeleton.bindposes.map((_, idx, arr) => arr[idxMap[idx]]);
         // apply
+        // @ts-ignore
         super.skeleton = skeleton;
     }
 
@@ -278,13 +282,9 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
             if (!unit || !unit.mesh || !unit.mesh.data) { continue; }
 
             // add batch ID to this temp mesh
-            const newMeshStruct: IMeshStruct = JSON.parse(JSON.stringify(unit.mesh.struct));
-            const extraLength = unit.mesh.struct.vertexBundles.reduce((acc, cur) => acc + cur.view.count * batch_extras_size, 0);
-            const newMeshData = new Uint8Array(unit.mesh.data.byteLength + extraLength);
-            dataView = new DataView(newMeshData.buffer);
-
             // first, update bookkeepping
-            let newOffset = 0; let oldOffset = 0;
+            const newMeshStruct: IMeshStruct = JSON.parse(JSON.stringify(unit.mesh.struct));
+            let newOffset = 0;
             for (const vb of newMeshStruct.vertexBundles) {
                 vb.attributes.push(batch_id);
                 vb.attributes.push(batch_uv);
@@ -299,14 +299,17 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
                     newOffset += pm.indexView.length;
                 }
                 if (pm.geometricInfo) {
+                    newOffset = Math.ceil(newOffset / 4) * 4;
                     pm.geometricInfo.view.offset = newOffset;
                     newOffset += pm.geometricInfo.view.length;
                 }
             }
             // now, we ride!
-            const src = unit.mesh.data;
+            const src = unit.mesh.data; let oldOffset = 0;
+            const newMeshData = new Uint8Array(newOffset);
+            dataView = new DataView(newMeshData.buffer);
             for (let k = 0; k < newMeshStruct.vertexBundles.length; k++) {
-                const uvs = unit.mesh.readAttribute(k, GFXAttributeName.ATTR_TEX_COORD)!; // FIXME: should be kth bundle instead of primitive
+                const uvs = unit.mesh.readAttribute(k, GFXAttributeName.ATTR_TEX_COORD)!; // FIXME: should be k-th bundle instead of primitive
                 const oldView = unit.mesh.struct.vertexBundles[k].view;
                 const newView = newMeshStruct.vertexBundles[k].view;
                 const oldStride = oldView.stride;
@@ -438,7 +441,6 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     protected resizeAtlases () {
         for (const prop of Object.keys(this._textures)) {
             const tex = this._textures[prop];
-            tex.destroy();
             tex.create(this.atlasSize, this.atlasSize, PixelFormat.RGBA8888);
         }
     }

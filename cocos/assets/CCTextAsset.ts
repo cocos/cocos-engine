@@ -28,26 +28,20 @@ import {ccclass, property} from '../core/data/class-decorator';
 import { Asset } from './asset';
 
 /**
- * !#en Class for text file.
- * !#zh 文本资源类。
- * @class TextAsset
- * @extends Asset
+ * @en Class for text file.
+ * @zh 文本资源。
  */
 @ccclass('cc.TextAsset')
 export default class TextAsset extends Asset {
     /**
-     * @property {String} text - The text contents of the resource.
+     * 此资源包含的文本。
      */
     @property
     public text = '';
 
     /**
-     * Returns the text content of the asset.
-     *
-     * JavaScript calls the toString() method automatically when an asset is to be represented as a text value or when a texture is referred to in a string concatenation.
-     *
-     * @method toString
-     * @return {String}
+     * @zh
+     * 重载标准的 `toString()` 方法。
      */
     public toString () {
         return this.text;

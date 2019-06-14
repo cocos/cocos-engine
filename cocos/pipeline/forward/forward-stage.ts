@@ -1,7 +1,5 @@
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXClearFlag, GFXCommandBufferType, GFXFilter, IGFXColor } from '../../gfx/define';
-import { Model } from '../../renderer';
-import { cullSceneWithDirectionalLight } from '../culling';
 import { getPhaseID } from '../pass-phase';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderFlow } from '../render-flow';
@@ -12,11 +10,20 @@ import { RenderView } from '../render-view';
 const colors: IGFXColor[] = [];
 const bufs: GFXCommandBuffer[] = [];
 
+/**
+ * @zh
+ * 前向渲染阶段。
+ */
 export class ForwardStage extends RenderStage {
 
     private _opaqueQueue: RenderQueue;
     private _transparentQueue: RenderQueue;
 
+    /**
+     * @zh
+     * 构造函数。
+     * @param flow 渲染阶段。
+     */
     constructor (flow: RenderFlow) {
         super(flow);
 
@@ -32,6 +39,11 @@ export class ForwardStage extends RenderStage {
         });
     }
 
+    /**
+     * @zh
+     * 初始化函数。
+     * @param info 渲染阶段描述信息。
+     */
     public initialize (info: IRenderStageInfo): boolean {
 
         if (info.name !== undefined) {
@@ -48,6 +60,10 @@ export class ForwardStage extends RenderStage {
         return true;
     }
 
+    /**
+     * @zh
+     * 销毁函数。
+     */
     public destroy () {
         if (this._cmdBuff) {
             this._cmdBuff.destroy();
@@ -55,12 +71,27 @@ export class ForwardStage extends RenderStage {
         }
     }
 
+    /**
+     * @zh
+     * 重置大小。
+     * @param width 屏幕宽度。
+     * @param height 屏幕高度。
+     */
     public resize (width: number, height: number) {
     }
 
+    /**
+     * @zh
+     * 重构函数。
+     */
     public rebuild () {
     }
 
+    /**
+     * @zh
+     * 渲染函数。
+     * @param view 渲染视图。
+     */
     public render (view: RenderView) {
 
         this._opaqueQueue.clear();

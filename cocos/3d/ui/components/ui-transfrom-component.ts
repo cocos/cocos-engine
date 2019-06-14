@@ -21,7 +21,7 @@ export class UITransformComponent extends Component {
 
     /**
      * @zh
-     * 内容尺寸
+     * 内容尺寸。
      */
     @property({
         displayOrder: 0,
@@ -98,7 +98,7 @@ export class UITransformComponent extends Component {
 
     /**
      * @zh
-     * 锚点位置
+     * 锚点位置。
      */
     @property({
         displayOrder: 1,
@@ -161,8 +161,8 @@ export class UITransformComponent extends Component {
      * @zh
      * 设置节点原始大小，不受该节点是否被缩放或者旋转的影响。
      *
-     * @typeparam size - 节点内容变换的尺寸或者宽度.
-     * @param height - 节点内容未变换的高度.
+     * @typeparam size - 节点内容变换的尺寸或者宽度。
+     * @param height - 节点内容未变换的高度。
      * @example
      * ```ts
      * node.setContentSize(cc.size(100, 100));
@@ -207,15 +207,15 @@ export class UITransformComponent extends Component {
 
     /**
      * @zh
-     * 设置锚点的百分比。
-     * 锚点应用于所有变换和坐标点的操作，它就像在节点上连接其父节点的大头针。
-     * 锚点是标准化的，就像百分比一样。(0，0) 表示左下角，(1，1) 表示右上角。
-     * 但是你可以使用比（1，1）更高的值或者比（0，0）更低的值。
-     * 默认的锚点是（0.5，0.5），因此它开始于节点的中心位置。
+     * 设置锚点的百分比。<br>
+     * 锚点应用于所有变换和坐标点的操作，它就像在节点上连接其父节点的大头针。<br>
+     * 锚点是标准化的，就像百分比一样。(0，0) 表示左下角，(1，1) 表示右上角。<br>
+     * 但是你可以使用比（1，1）更高的值或者比（0，0）更低的值。<br>
+     * 默认的锚点是（0.5，0.5），因此它开始于节点的中心位置。<br>
      * 注意：Creator 中的锚点仅用于定位所在的节点，子节点的定位不受影响。
      *
-     * @typeparam point - 节点锚点或节点 x 轴锚.
-     * @param y - 节点 y 轴锚
+     * @typeparam point - 节点锚点或节点 x 轴锚。
+     * @param y - 节点 y 轴锚。
      * @example
      * ```ts
      * node.setAnchorPoint(cc.v2(1, 1));
@@ -248,10 +248,10 @@ export class UITransformComponent extends Component {
 
     /**
      * @zh
-     * 当前节点的点击计算
+     * 当前节点的点击计算。
      *
-     * @typeparam point - 屏幕点
-     * @typeparam listener - 事件监听器
+     * @typeparam point - 屏幕点。
+     * @typeparam listener - 事件监听器。
      */
     public isHit (point: Vec2, listener?: EventListener) {
         // console.log('click point  ' + point.toString());
@@ -315,11 +315,11 @@ export class UITransformComponent extends Component {
     /**
      * @zh
      * 将一个 UI 节点世界坐标系下点转换到另一个 UI 节点 (局部) 空间坐标系，这个坐标系以锚点为原点。
-     * 非 UI 节点转换到 UI 节点(局部) 空间坐标系，请走 cc.pipelineUtils.ConvertWorldToUISpaceAR
+     * 非 UI 节点转换到 UI 节点(局部) 空间坐标系，请走 `cc.pipelineUtils.ConvertWorldToUISpaceAR`。
      *
-     * @typeparam worldPoint - 世界坐标点
-     * @typeparam out - 转换后坐标
-     * @returns - 返回与目标节点的相对位置
+     * @typeparam worldPoint - 世界坐标点。
+     * @typeparam out - 转换后坐标。
+     * @returns - 返回与目标节点的相对位置。
      * @example
      * ```ts
      * var newVec2 = uiTransform.convertToNodeSpaceAR(cc.v2(100, 100));
@@ -400,7 +400,7 @@ export class UITransformComponent extends Component {
 
     /**
      * @zh
-     * 返回包含当前包围盒及其子节点包围盒的最小包围盒
+     * 返回包含当前包围盒及其子节点包围盒的最小包围盒。
      *
      * @param parentMat - 父节点矩阵。
      * @returns

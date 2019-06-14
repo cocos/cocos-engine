@@ -5,7 +5,7 @@ import { GFXTextureView } from './texture-view';
 
 /**
  * @zh
- * GFX帧缓冲描述信息
+ * GFX帧缓冲描述信息。
  */
 export interface IGFXFramebufferInfo {
     renderPass: GFXRenderPass;
@@ -16,13 +16,13 @@ export interface IGFXFramebufferInfo {
 
 /**
  * @zh
- * GFX帧缓冲
+ * GFX帧缓冲。
  */
 export abstract class GFXFramebuffer extends GFXObject {
 
     /**
      * @zh
-     * GFX渲染过程
+     * GFX渲染过程。
      */
     public get renderPass (): GFXRenderPass | null {
         return this._renderPass;
@@ -30,7 +30,7 @@ export abstract class GFXFramebuffer extends GFXObject {
 
     /**
      * @zh
-     * 颜色纹理视图数组
+     * 颜色纹理视图数组。
      */
     public get colorViews (): GFXTextureView[] {
         return this._colorViews;
@@ -38,7 +38,7 @@ export abstract class GFXFramebuffer extends GFXObject {
 
     /**
      * @zh
-     * 深度模板纹理视图
+     * 深度模板纹理视图。
      */
     public get depthStencilView (): GFXTextureView | null {
         return this._depthStencilView;
@@ -46,7 +46,7 @@ export abstract class GFXFramebuffer extends GFXObject {
 
     /**
      * @zh
-     * 是否是离屏的
+     * 是否是离屏的。
      */
     public get isOffscreen (): boolean {
         return this._isOffscreen;
@@ -54,38 +54,38 @@ export abstract class GFXFramebuffer extends GFXObject {
 
     /**
      * @zh
-     * GFX设备
+     * GFX设备。
      */
     protected _device: GFXDevice;
 
     /**
      * @zh
-     * GFX渲染过程
+     * GFX渲染过程。
      */
     protected _renderPass: GFXRenderPass | null = null;
 
     /**
      * @zh
-     * 颜色纹理视图数组
+     * 颜色纹理视图数组。
      */
     protected _colorViews: GFXTextureView[] = [];
 
     /**
      * @zh
-     * 深度模板纹理视图
+     * 深度模板纹理视图。
      */
     protected _depthStencilView: GFXTextureView | null = null;
 
     /**
      * @zh
-     * 是否是离屏的
+     * 是否是离屏的。
      */
     protected _isOffscreen: boolean = true;
 
     /**
      * @zh
-     * 构造函数
-     * @param device GFX设备
+     * 构造函数。
+     * @param device GFX设备。
      */
     constructor (device: GFXDevice) {
         super(GFXObjectType.FRAMEBUFFER);
@@ -94,14 +94,14 @@ export abstract class GFXFramebuffer extends GFXObject {
 
     /**
      * @zh
-     * 初始化函数
-     * @param info GFX帧缓冲描述信息
+     * 初始化函数。
+     * @param info GFX帧缓冲描述信息。
      */
     public abstract initialize (info: IGFXFramebufferInfo): boolean;
 
     /**
      * @zh
-     * 销毁函数
+     * 销毁函数。
      */
     public abstract destroy (): void;
 }

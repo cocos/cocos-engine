@@ -119,7 +119,7 @@ class TrailSegment {
 export default class TrailModule {
 
     /**
-     * 是否启用
+     * 是否启用。
      */
     @property({
         displayOrder: 0,
@@ -146,7 +146,7 @@ export default class TrailModule {
     public _enable = false;
 
     /**
-     * 设定粒子生成轨迹的方式
+     * 设定粒子生成轨迹的方式。
      */
     @property({
         type: TrailMode,
@@ -155,7 +155,7 @@ export default class TrailModule {
     public mode = TrailMode.Particles;
 
     /**
-     * 设定粒子中生成轨迹的比例
+     * 设定粒子中生成轨迹的比例。
      */
     @property({
         displayOrder: 2,
@@ -163,7 +163,7 @@ export default class TrailModule {
     public ratio = 1;
 
     /**
-     * 轨迹存在的生命周期
+     * 轨迹存在的生命周期。
      */
     @property({
         type: CurveRange,
@@ -172,7 +172,7 @@ export default class TrailModule {
     public lifeTime = new CurveRange();
 
     /**
-     * 每个轨迹粒子之间的最小间距
+     * 每个轨迹粒子之间的最小间距。
      */
     @property({
         displayOrder: 5,
@@ -190,7 +190,7 @@ export default class TrailModule {
     public _minParticleDistance = 0.1;
 
     /**
-     * 轨迹设定时的坐标系
+     * 轨迹设定时的坐标系。
      */
     @property({
         type: Space,
@@ -211,7 +211,7 @@ export default class TrailModule {
     }
 
     /**
-     * 粒子本身是否存在
+     * 粒子本身是否存在。
      */
     @property({
         displayOrder: 7,
@@ -219,7 +219,7 @@ export default class TrailModule {
     public existWithParticles = true;
 
     /**
-     * 设定纹理填充方式
+     * 设定纹理填充方式。
      */
     @property({
         type: TextureMode,
@@ -233,7 +233,7 @@ export default class TrailModule {
     public widthFromParticle = true;
 
     /**
-     * 控制轨迹长度的曲线
+     * 控制轨迹长度的曲线。
      */
     @property({
         type: CurveRange,
@@ -340,8 +340,11 @@ export default class TrailModule {
 
     public clear () {
         if (this.enable) {
-            for (const trail of this._particleTrail.values()) {
-                trail.clear();
+            const trailIter = this._particleTrail.values();
+            let trail = trailIter.next();
+            while (!trail.done) {
+                trail.value.clear();
+                trail = trailIter.next();
             }
             this._particleTrail.clear();
             this.updateRenderData();

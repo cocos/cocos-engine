@@ -5,6 +5,11 @@ import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 
+/**
+ * @zh
+ * 色调映射渲染阶段。
+ *
+ */
 export class ToneMapStage extends RenderStage {
 
     private _hTexSampler: number = 0;

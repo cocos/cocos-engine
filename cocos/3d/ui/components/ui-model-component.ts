@@ -7,7 +7,7 @@ import { UIComponent } from './ui-component';
 
 /**
  * @zh
- * UI 模型基础类
+ * UI 模型基础类。
  */
 @ccclass('cc.UIModelComponent')
 @executionOrder(110)

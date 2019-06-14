@@ -38,7 +38,7 @@ import { UIRenderComponent } from './ui-render-component';
 
 /**
  * @zh
- * 过渡类型
+ * 过渡类型。
  */
 enum Transition {
     /**
@@ -153,7 +153,7 @@ export class ButtonComponent extends Component {
 
     /**
      * @zh
-     * 如果这个标记为 true，当 button 的 interactable 属性为 false 的时候，会使用内置 shader 让 button 的 target 节点的 sprite 组件变灰
+     * 如果这个标记为 true，当 button 的 interactable 属性为 false 的时候，会使用内置 shader 让 button 的 target 节点的 sprite 组件变灰。
      */
     // TODO:
     // enableAutoGrayEffect: {
@@ -257,7 +257,7 @@ export class ButtonComponent extends Component {
 
     /**
      * @zh
-     * 颜色过渡和缩放过渡时所需时间
+     * 颜色过渡和缩放过渡时所需时间。
      */
     @property({
         min: 0,
@@ -277,7 +277,7 @@ export class ButtonComponent extends Component {
 
     /**
      * @zh
-     * 当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale
+     * 当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale。
      */
     @property
     get zoomScale () {
@@ -295,7 +295,7 @@ export class ButtonComponent extends Component {
     // sprite transition
     /**
      * @zh
-     * 普通状态下按钮所显示的 Sprite 。
+     * 普通状态下按钮所显示的 Sprite。
      */
     @property({
         type: SpriteFrame,

@@ -37,7 +37,7 @@ import { SpriteComponent } from './sprite-component';
 const _tempPos = new Vec3();
 /**
  * @zh
- * 滑动器方向
+ * 滑动器方向。
  */
 enum Direction {
     /**
@@ -153,6 +153,7 @@ export class SliderComponent extends Component {
     }
 
     // 注册事件
+
     public onEnable () {
         this._updateHandlePosition();
 

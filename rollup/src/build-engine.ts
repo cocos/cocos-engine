@@ -1,5 +1,6 @@
 
 import * as fs from 'fs-extra';
+import * as Path from 'path';
 import { rollup } from 'rollup';
 // @ts-ignore
 import babel from 'rollup-plugin-babel';
@@ -10,7 +11,6 @@ import json from 'rollup-plugin-json';
 // @ts-ignore
 import resolve from 'rollup-plugin-node-resolve';
 import { minify } from 'uglify-js';
-import * as Path from 'path';
 
 const { excludes } = require('../plugin/rollup-plugin-excludes');
 
@@ -20,7 +20,7 @@ export interface IBuildOptions {
     globalDefines: object;
     excludes?: string[];
     compress?: boolean;
-    sourcemap?: boolean;
+    sourcemap?: boolean | 'inline';
 }
 
 export async function build (options: IBuildOptions) {
@@ -88,51 +88,52 @@ async function _doBundle (options: IBuildOptions) {
     const generated = await rollupBuild.generate({
         format: 'iife',
         name: 'cc_modular',
-        sourcemap: true,
+        sourcemap: 'inline',
     });
 
     code = generated.code;
 
-    if (options.compress) {
-        console.log(`Doing uglify...`);
+    console.log(`Applying macros...`);
 
-        const minifyOutput = minify(code, {
-            compress: {
-                global_defs: options.globalDefines,
-                // sequences     : true,  // join consecutive statemets with the “comma operator”
-                // properties    : true,  // optimize property access: a["foo"] → a.foo
-                // dead_code     : true,  // discard unreachable code
-                // drop_debugger : true,  // discard “debugger” statements
-                // unsafe        : false, // some unsafe optimizations (see below)
-                // conditionals  : true,  // optimize if-s and conditional expressions
-                // comparisons   : true,  // optimize comparisons
-                // evaluate      : true,  // evaluate constant expressions
-                // booleans      : true,  // optimize boolean expressions
-                // loops         : true,  // optimize loops
-                // unused        : true,  // drop unused variables/functions
-                // hoist_funs    : true,  // hoist function declarations
-                // hoist_vars    : false, // hoist variable declarations
-                // if_return     : true,  // optimize if-s followed by return/continue
-                // join_vars     : true,  // join var declarations
-                // side_effects  : true,  // drop side-effect-free statements
-                // warnings      : true,  // warn about potentially dangerous optimizations/code
-            },
-            mangle: true,
-            keep_fnames: true,
-            output: {
-                beautify: false,
-            },
-            sourceMap: true,
-        });
-        if (minifyOutput.error) {
-            console.error(minifyOutput.error.stack);
-            return null;
-        } else {
-            code = minifyOutput.code;
-        }
+    const doUglify = !!options.compress;
+
+    const minifyOutput = minify(code, {
+        compress: {
+            global_defs: options.globalDefines,
+            // sequences     : true,  // join consecutive statemets with the “comma operator”
+            // properties    : true,  // optimize property access: a["foo"] → a.foo
+            // dead_code     : true,  // discard unreachable code
+            // drop_debugger : true,  // discard “debugger” statements
+            // unsafe        : false, // some unsafe optimizations (see below)
+            // conditionals  : true,  // optimize if-s and conditional expressions
+            // comparisons   : true,  // optimize comparisons
+            // evaluate      : true,  // evaluate constant expressions
+            // booleans      : true,  // optimize boolean expressions
+            // loops         : true,  // optimize loops
+            // unused        : true,  // drop unused variables/functions
+            // hoist_funs    : true,  // hoist function declarations
+            // hoist_vars    : false, // hoist variable declarations
+            // if_return     : true,  // optimize if-s followed by return/continue
+            // join_vars     : true,  // join var declarations
+            // side_effects  : true,  // drop side-effect-free statements
+            // warnings      : true,  // warn about potentially dangerous optimizations/code
+        },
+        mangle: doUglify,
+        keep_fnames: !doUglify,
+        output: {
+            beautify: !doUglify,
+        },
+        sourceMap: options.sourcemap === 'inline' ? { url: 'inline' } : !!options.sourcemap,
+    });
+
+    if (minifyOutput.error) {
+        console.error(minifyOutput.error.stack);
+        return null;
+    } else {
+        code = minifyOutput.code;
+        return {
+            code: minifyOutput.code,
+            sourceMap: minifyOutput.map,
+        };
     }
-
-    return {
-        code,
-    };
 }

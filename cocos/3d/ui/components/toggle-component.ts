@@ -84,7 +84,7 @@ export class ToggleComponent extends ButtonComponent {
 
     /**
      * @zh
-     * Toggle 处于选中状态时显示的图片
+     * Toggle 处于选中状态时显示的图片。
      */
     @property({
         type: SpriteComponent,

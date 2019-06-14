@@ -31,26 +31,26 @@ import { WebViewEventType, WebViewImpl } from './webview-impl';
 
 /**
  * @en WebView event type
- * @zh 网页视图事件类型
+ * @zh 网页视图事件类型。
  * @enum WebView.EventType
  */
 const EventType = WebViewEventType;
 
 /**
  * @en Web page Load completed.
- * @zh  网页加载完成
+ * @zh  网页加载完成。
  * @property {String} LOADED
  */
 
 /**
  * @en Web page is loading.
- * @zh  网页加载中
+ * @zh  网页加载中。
  * @property {String} LOADING
  */
 
 /**
  * @en Web page error occurs when loading.
- * @zh  网页加载出错
+ * @zh  网页加载出错。
  * @property {String} ERROR
  */
 
@@ -213,7 +213,7 @@ export class WebviewComponent extends UIComponent {
      * Note: Cross domain issues need to be resolved by yourself <br/>
      *
      * @zh
-     * 执行 WebView 内部页面脚本（详情请参阅官方文档） <br/>
+     * 执行 WebView 内部页面脚本（详情请参阅官方文档）。 <br/>
      * 注意：需要自行解决跨域问题
      *
      * @param str

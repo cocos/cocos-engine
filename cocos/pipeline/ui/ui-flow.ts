@@ -1,9 +1,13 @@
+import { UBOGlobal } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderPipeline } from '../render-pipeline';
-import { UIStage } from './ui-stage';
 import { RenderView } from '../render-view';
-import { UBOGlobal } from '../define';
+import { UIStage } from './ui-stage';
 
+/**
+ * @zh
+ * UI渲染流程。
+ */
 export class UIFlow extends RenderFlow {
 
     constructor (pipeline: RenderPipeline) {

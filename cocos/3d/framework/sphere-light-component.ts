@@ -46,7 +46,7 @@ export class SphereLightComponent extends LightComponent {
     protected _light: SphereLight | null = null;
 
     /**
-     * 光通量
+     * 光通量。
      */
     @property({ unit: 'lm' })
     get luminousPower () {
@@ -58,7 +58,7 @@ export class SphereLightComponent extends LightComponent {
     }
 
     /**
-     * 亮度
+     * 亮度。
      */
     @property({ unit: 'cd/m²' })
     get luminance () {
@@ -70,7 +70,7 @@ export class SphereLightComponent extends LightComponent {
     }
 
     /**
-     * 指定光通量或亮度
+     * 指定光通量或亮度。
      */
     @property({ type: PhotometricTerm })
     get term () {
@@ -84,7 +84,7 @@ export class SphereLightComponent extends LightComponent {
      * @en
      * The light size, used for spot and point light
      * @zh
-     * 针对聚光灯和点光源设置光源大小
+     * 针对聚光灯和点光源设置光源大小。
      */
     @property
     get size () {
@@ -99,7 +99,7 @@ export class SphereLightComponent extends LightComponent {
      * @en
      * The light range, used for spot and point light
      * @zh
-     * 针对聚光灯和点光源设置光源范围
+     * 针对聚光灯和点光源设置光源范围。
      */
     @property
     get range () {

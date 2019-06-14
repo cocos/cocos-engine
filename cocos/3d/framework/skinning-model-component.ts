@@ -53,7 +53,6 @@ class Joint {
     protected _lastUpdate = -1;
     constructor (node: Node) { this.node = node; }
     public update () {
-        // if (!this.node.hasChanged) { return; }
         const totalFrames = cc.director.totalFrames;
         if (this._lastUpdate >= totalFrames) { return; }
         this._lastUpdate = totalFrames;
@@ -61,11 +60,11 @@ class Joint {
         const parent = this.parent;
         if (parent) {
             parent.update();
-            vec3.multiply(this.position, this.node.localPosition, parent.scale);
+            vec3.multiply(this.position, this.node.position, parent.scale);
             vec3.transformQuat(this.position, this.position, parent.rotation);
             vec3.add(this.position, this.position, parent.position);
-            quat.multiply(this.rotation, parent.rotation, this.node.localRotation);
-            vec3.multiply(this.scale, parent.scale, this.node.localScale);
+            quat.multiply(this.rotation, parent.rotation, this.node.rotation);
+            vec3.multiply(this.scale, parent.scale, this.node.scale);
         }
     }
 }
@@ -99,7 +98,7 @@ export const LCA = (a: Node, b: Node) => {
 
 /**
  * @en The Skinning Model Component
- * @zh 蒙皮模型组件
+ * @zh 蒙皮模型组件。
  */
 @ccclass('cc.SkinningModelComponent')
 @executionOrder(100)
@@ -109,7 +108,7 @@ export class SkinningModelComponent extends ModelComponent {
 
     /**
      * @en The bone nodes
-     * @zh 骨骼节点
+     * @zh 骨骼节点。
      */
     @property({ type: Skeleton })
     get skeleton () {
@@ -125,7 +124,7 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     /**
-     * 骨骼根节点的引用
+     * 骨骼根节点的引用。
      */
     @property({ type: Node })
     get skinningRoot () {
@@ -169,11 +168,11 @@ export class SkinningModelComponent extends ModelComponent {
             cur.update();
             const bindpose = skeleton.bindposes[i];
 
-            vec3.multiply(v3_1, bindpose.localPosition, cur.scale);
+            vec3.multiply(v3_1, bindpose.position, cur.scale);
             vec3.transformQuat(v3_1, v3_1, cur.rotation);
             vec3.add(v3_1, v3_1, cur.position);
-            quat.multiply(qt_1, cur.rotation, bindpose.localRotation);
-            vec3.multiply(v3_2, cur.scale, bindpose.localScale);
+            quat.multiply(qt_1, cur.rotation, bindpose.rotation);
+            vec3.multiply(v3_2, cur.scale, bindpose.scale);
 
             skinningModel.updateJointData(i, v3_1, qt_1, v3_2, i === 0);
         }
@@ -208,12 +207,6 @@ export class SkinningModelComponent extends ModelComponent {
         // Should bind skeleton before super create pso
         this._bindSkeleton();
         super._updateModelParams();
-    }
-
-    protected _createModel () {
-        if (!this.node.scene) { return; }
-        const scene = this._getRenderScene();
-        this._model = scene.createModel(this._getModelConstructor(), this.node.parent!);
     }
 
     protected _getModelConstructor () {

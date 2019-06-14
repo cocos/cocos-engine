@@ -19,6 +19,10 @@ import { RenderView } from '../render-view';
 import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
 
+/**
+ * @zh
+ * 前向渲染流程优先级。
+ */
 export enum ForwardFlowPriority {
     FORWARD = 0,
     UI = 10,
@@ -30,18 +34,51 @@ const _tempLightIndex = [] as number[];
 const _tempLightDist = [] as number[];
 const _tempVec3 = v3();
 
+/**
+ * @zh
+ * 前向渲染管线。
+ */
 export class ForwardPipeline extends RenderPipeline {
 
+    /**
+     * @zh
+     * 全部光源的UBO结构描述。
+     */
     protected _uboLights: UBOForwardLight = new UBOForwardLight();
+
+    /**
+     * @zh
+     * 全部光源的UBO缓冲。
+     */
     protected _lightsUBO: GFXBuffer | null = null;
+
+    /**
+     * @zh
+     * 参与渲染的灯光。
+     */
     private _validLights: Light[];
+
+    /**
+     * @zh
+     * 灯光索引偏移量数组。
+     */
     private _lightIndexOffset: number[];
+
+    /**
+     * @zh
+     * 灯光索引数组。
+     */
     private _lightIndices: number[];
 
     public get lightsUBO (): GFXBuffer {
         return this._lightsUBO!;
     }
 
+    /**
+     * @zh
+     * 构造函数。
+     * @param root Root类实例。
+     */
     constructor (root: Root) {
         super(root);
         this._validLights = [];
@@ -49,6 +86,11 @@ export class ForwardPipeline extends RenderPipeline {
         this._lightIndices = [];
     }
 
+    /**
+     * @zh
+     * 初始化函数。
+     * @param info 渲染管线描述信息。
+     */
     public initialize (info: IRenderPipelineInfo): boolean {
 
         if (!this._initialize(info)) {
@@ -116,6 +158,10 @@ export class ForwardPipeline extends RenderPipeline {
         return true;
     }
 
+    /**
+     * @zh
+     * 销毁函数。
+     */
     public destroy () {
         const lightsUBO = this._globalBindings.get(UBOForwardLight.BLOCK.name);
         if (lightsUBO) {
@@ -126,6 +172,10 @@ export class ForwardPipeline extends RenderPipeline {
         this._destroy();
     }
 
+    /**
+     * @zh
+     * 重构函数。
+     */
     public rebuild () {
         super.rebuild();
         for (const flow of this._flows) {
@@ -133,6 +183,10 @@ export class ForwardPipeline extends RenderPipeline {
         }
     }
 
+    /**
+     * @zh
+     * 更新UBO。
+     */
     protected updateUBOs (view: RenderView) {
         super.updateUBOs(view);
 
@@ -222,6 +276,11 @@ export class ForwardPipeline extends RenderPipeline {
 
     }
 
+    /**
+     * @zh
+     * 场景裁剪。
+     * @param view 渲染视图。
+     */
     protected sceneCulling (view: RenderView) {
         super.sceneCulling(view);
         this._validLights.splice(0);
@@ -254,6 +313,11 @@ export class ForwardPipeline extends RenderPipeline {
         }
     }
 
+    /**
+     * @zh
+     * 对每个模型裁剪光源。
+     * @param model 模型。
+     */
     private cullLightPerModel (model: Model) {
         _tempLightIndex.splice(0);
         for (let i = 0; i < this._validLights.length; i++) {

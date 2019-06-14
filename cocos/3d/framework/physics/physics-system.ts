@@ -13,7 +13,7 @@ export class PhysicsSystem {
 
     /**
      * @zh
-     * 设置是否只运行一步
+     * 设置是否只运行一步。
      * @param b - 布尔值
      */
     public setSingleStep (b: boolean) {
@@ -22,7 +22,7 @@ export class PhysicsSystem {
 
     /**
      * @zh
-     * 继续
+     * 继续。
      */
     public resume () {
         this._paused = false;
@@ -30,7 +30,7 @@ export class PhysicsSystem {
 
     /**
      * @zh
-     * 暂停
+     * 暂停。
      */
     public pause () {
         this._paused = true;

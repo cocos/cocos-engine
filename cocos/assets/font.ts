@@ -28,10 +28,8 @@ import {ccclass} from '../core/data/class-decorator';
 import { Asset } from './asset';
 
 /**
- * !#en Class for Font handling.
- * !#zh 字体资源类。
- * @class Font
- * @extends Asset
+ * @en Class for Font handling.
+ * @zh 字体资源类。
  */
 @ccclass('cc.Font')
 export class Font extends Asset {

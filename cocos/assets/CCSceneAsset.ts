@@ -29,8 +29,8 @@ import { Scene } from '../scene-graph';
 import { Asset } from './asset';
 
 /**
- * !#en Class for scene handling.
- * !#zh 场景资源类。
+ * @en Class for scene handling.
+ * @zh 场景资源类。
  * @class SceneAsset
  * @extends Asset
  *
@@ -38,27 +38,19 @@ import { Asset } from './asset';
 @ccclass('cc.SceneAsset')
 export default class SceneAsset extends Asset {
     /**
-     * @property {Scene} scene
-     * @default null
+     * 场景结点。
      */
     @property
     public scene: Scene | null = null;
 
     /**
-     * !#en Indicates the raw assets of this scene can be load after scene launched.
-     * !#zh 指示该场景依赖的资源可否在场景切换后再延迟加载。
+     * @en Indicates the raw assets of this scene can be load after scene launched.
+     * @zh 指示该场景依赖的资源可否在场景切换后再延迟加载。
      * @property {Boolean} asyncLoadAssets
      * @default false
      */
     @property
     public asyncLoadAssets = false;
-
-    //// backup prefab assets in editor
-    //// {string} assetUuid: {cc.Node} rootInPrefab
-    // _prefabDatas: {
-    //    default: null,
-    //    editorOnly: true
-    // }
 }
 
 cc.SceneAsset = SceneAsset;

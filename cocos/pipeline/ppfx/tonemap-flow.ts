@@ -2,6 +2,10 @@ import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderPipeline } from '../render-pipeline';
 import { ToneMapStage } from './tonemap-stage';
 
+/**
+ * @zh
+ * 色调映射渲染流程。
+ */
 export class ToneMapFlow extends RenderFlow {
 
     constructor (pipeline: RenderPipeline) {

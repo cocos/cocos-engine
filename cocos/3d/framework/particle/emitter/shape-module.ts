@@ -16,7 +16,7 @@ const _unitBoxExtent = vec3.create(0.5, 0.5, 0.5);
 export default class ShapeModule {
 
     /**
-     * @zh 是否启用
+     * @zh 是否启用。
      */
     @property({
         displayOrder: 0,
@@ -24,7 +24,7 @@ export default class ShapeModule {
     public enable = false;
 
     /**
-     * @zh 粒子发射器类型 [[ShapeType]]
+     * @zh 粒子发射器类型 [[ShapeType]]。
      */
     @property({
         type: ShapeType,
@@ -33,7 +33,7 @@ export default class ShapeModule {
     public shapeType = ShapeType.Box;
 
     /**
-     * @zh 粒子从发射器哪个部位发射 [[EmitLocation]]
+     * @zh 粒子从发射器哪个部位发射 [[EmitLocation]]。
      */
     @property({
         type: EmitLocation,
@@ -45,7 +45,7 @@ export default class ShapeModule {
     private _position = new Vec3(0, 0, 0);
 
     /**
-     * @zh 粒子发射器位置
+     * @zh 粒子发射器位置。
      */
     @property({
         displayOrder: 12,
@@ -62,7 +62,7 @@ export default class ShapeModule {
     private _rotation = new Vec3(0, 0, 0);
 
     /**
-     * @zh 粒子发射器旋转角度
+     * @zh 粒子发射器旋转角度。
      */
     @property({
         displayOrder: 13,
@@ -79,7 +79,7 @@ export default class ShapeModule {
     private _scale = new Vec3(1, 1, 1);
 
     /**
-     * @zh 粒子发射器缩放比例
+     * @zh 粒子发射器缩放比例。
      */
     @property({
         displayOrder: 14,
@@ -93,7 +93,7 @@ export default class ShapeModule {
     }
 
     /**
-     * @zh 根据粒子的初始方向决定粒子的移动方向
+     * @zh 根据粒子的初始方向决定粒子的移动方向。
      */
     @property({
         displayOrder: 15,
@@ -101,7 +101,7 @@ export default class ShapeModule {
     public alignToDirection = false;
 
     /**
-     * @zh 粒子生成方向随机设定
+     * @zh 粒子生成方向随机设定。
      */
     @property({
         displayOrder: 16,
@@ -109,7 +109,7 @@ export default class ShapeModule {
     public randomDirectionAmount = 0;
 
     /**
-     * @zh 表示当前发射方向与当前位置到结点中心连线方向的插值
+     * @zh 表示当前发射方向与当前位置到结点中心连线方向的插值。
      */
     @property({
         displayOrder: 17,
@@ -117,7 +117,7 @@ export default class ShapeModule {
     public sphericalDirectionAmount = 0;
 
     /**
-     * @zh 粒子生成位置随机设定（设定此值为非 0 会使粒子生成位置超出生成器大小范围）
+     * @zh 粒子生成位置随机设定（设定此值为非 0 会使粒子生成位置超出生成器大小范围）。
      */
     @property({
         displayOrder: 18,
@@ -125,7 +125,7 @@ export default class ShapeModule {
     public randomPositionAmount = 0;
 
     /**
-     * @zh 粒子发射器半径
+     * @zh 粒子发射器半径。
      */
     @property({
         displayOrder: 3,
@@ -133,10 +133,10 @@ export default class ShapeModule {
     public radius = 1;
 
     /**
-     * @zh 粒子发射器发射位置（对 Box 类型的发射器无效）<bg>
-     * 0 表示从表面发射
-     * 1 表示从中心发射
-     * 0 ~ 1 之间表示在中心到表面之间发射
+     * @zh 粒子发射器发射位置（对 Box 类型的发射器无效）：<bg>
+     * - 0 表示从表面发射；
+     * - 1 表示从中心发射；
+     * - 0 ~ 1 之间表示在中心到表面之间发射。
      */
     @property({
         displayOrder: 4,
@@ -147,7 +147,7 @@ export default class ShapeModule {
     private _arc = toRadian(360);
 
     /**
-     * @zh 粒子发射器在一个扇形范围内发射
+     * @zh 粒子发射器在一个扇形范围内发射。
      */
     @property({
         displayOrder: 6,
@@ -161,7 +161,7 @@ export default class ShapeModule {
     }
 
     /**
-     * @zh 粒子在扇形范围内的发射方式 [[ArcMode]]
+     * @zh 粒子在扇形范围内的发射方式 [[ArcMode]]。
      */
     @property({
         type: ArcMode,
@@ -178,7 +178,7 @@ export default class ShapeModule {
     public arcSpread = 8;
 
     /**
-     * @zh 粒子沿圆周发射的速度
+     * @zh 粒子沿圆周发射的速度。
      */
     @property({
         type: CurveRange,
@@ -190,8 +190,8 @@ export default class ShapeModule {
     private _angle = toRadian(25);
 
     /**
-     * @zh 圆锥的轴与母线的夹角<bg>
-     * 决定圆锥发射器的开合程度
+     * @zh 圆锥的轴与母线的夹角<bg>。
+     * 决定圆锥发射器的开合程度。
      */
     @property({
         displayOrder: 5,
@@ -205,8 +205,8 @@ export default class ShapeModule {
     }
 
     /**
-     * @zh 圆锥顶部截面距离底部的轴长<bg>
-     * 决定圆锥发射器的高度
+     * @zh 圆锥顶部截面距离底部的轴长<bg>。
+     * 决定圆锥发射器的高度。
      */
     @property({
         displayOrder: 10,
@@ -214,7 +214,7 @@ export default class ShapeModule {
     public length = 0;
 
     /**
-     * @zh 粒子发射器发射位置（针对 Box 类型的粒子发射器）
+     * @zh 粒子发射器发射位置（针对 Box 类型的粒子发射器）。
      */
     @property({
         displayOrder: 11,

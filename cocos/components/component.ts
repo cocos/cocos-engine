@@ -93,6 +93,13 @@ class Component extends CCObject {
         visible: false,
     })
     get uuid () {
+
+        // @ts-ignore
+        if (CC_EDITOR && window.EditorExtends) {
+            // @ts-ignore
+            EditorExtends.Component.add(this._id, this);
+        }
+
         return this._id;
     }
 
@@ -216,7 +223,7 @@ class Component extends CCObject {
     /**
      * For internal usage.
      */
-    public _id: string;
+    public _id: string = idGenerator.getNewId();
 
     /**
      * Register all related EventTargets,
@@ -225,22 +232,6 @@ class Component extends CCObject {
     private _eventTargets: any[] = [];
 
     // private __scriptUuid = '';
-
-    constructor () {
-        super();
-        if (CC_EDITOR) {
-            // @ts-ignore
-            this._id = Editor.Utils.UuidUtils.uuid();
-            // @ts-ignore
-            if (window.EditorExtends && window.EditorExtends.Component) {
-                // @ts-ignore
-                EditorExtends.Component.add(this._id, this);
-            }
-        }
-        else {
-            this._id = idGenerator.getNewId();
-        }
-    }
 
     public _getRenderScene () {
         if (this._sceneGetter) {
@@ -360,7 +351,7 @@ class Component extends CCObject {
 
     /**
      * @en Returns all components of supplied type in self or any of its children.
-     * @zh 递归查找自身或所有子节点中指定类型的组件
+     * @zh 递归查找自身或所有子节点中指定类型的组件。
      * @example
      * ```typescript
      * var sprites = node.getComponentsInChildren(cc.Sprite);
@@ -370,7 +361,7 @@ class Component extends CCObject {
 
     /**
      * @en Returns all components of supplied type in self or any of its children.
-     * @zh 递归查找自身或所有子节点中指定类型的组件
+     * @zh 递归查找自身或所有子节点中指定类型的组件。
      * @example
      * ```typescript
      * var tests = node.getComponentsInChildren("Test");
@@ -443,8 +434,8 @@ class Component extends CCObject {
      * 调度一个自定义的回调函数。<br/>
      * 如果回调函数已调度，那么将不会重复调度它，只会更新时间间隔参数。
      * @method schedule
-     * @param {function} callback 回调函数
-     * @param {Number} interval  时间间隔，0 表示每帧都重复
+     * @param {function} callback 回调函数。
+     * @param {Number} interval  时间间隔，0 表示每帧都重复。
      * @param {Number} repeat    将被重复执行（repeat+ 1）次，您可以使用 cc.macro.REPEAT_FOREVER 进行无限次循环。
      * @param {Number} delay     第一次执行前等待的时间（延时执行）。
      * @example
@@ -479,7 +470,7 @@ class Component extends CCObject {
      * @zh 调度一个只运行一次的回调函数，可以指定 0 让回调函数在下一帧立即执行或者在一定的延时之后执行。
      * @method scheduleOnce
      * @see [[cc.Node.schedule]]
-     * @param {function} callback  回调函数
+     * @param {function} callback  回调函数。
      * @param {Number} delay  第一次执行前等待的时间（延时执行）。
      * @example
      * ```typescript
@@ -498,7 +489,7 @@ class Component extends CCObject {
      * @zh 取消调度一个自定义的回调函数。
      * @method unschedule
      * @see [[cc.Node.schedule]]
-     * @param {function} callback_fn  回调函数
+     * @param {function} callback_fn  回调函数。
      * @example
      * ```typescript
      * this.unschedule(_callback);

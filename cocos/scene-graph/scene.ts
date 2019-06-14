@@ -30,14 +30,12 @@ import { Node } from './node';
 import { SceneGlobals } from './scene-globals';
 
 /**
- * !#en
+ * @en
  * cc.Scene is a subclass of cc.Node that is used only as an abstract concept.<br/>
  * cc.Scene and cc.Node are almost identical with the difference that users can not modify cc.Scene manually.
- * !#zh
+ * @zh
  * cc.Scene 是 cc.Node 的子类，仅作为一个抽象的概念。<br/>
  * cc.Scene 和 cc.Node 有点不同，用户不应直接修改 cc.Scene。
- * @class Scene
- * @extends Node
  */
 @ccclass('cc.Scene')
 export class Scene extends Node {
@@ -49,22 +47,21 @@ export class Scene extends Node {
     get globals () {
         return this._globals;
     }
+
     /**
-     * !#en Indicates whether all (directly or indirectly) static referenced assets of this scene are releasable by default after scene unloading.
-     * !#zh 指示该场景中直接或间接静态引用到的所有资源是否默认在场景切换后自动释放。
+     * @en Indicates whether all (directly or indirectly) static referenced assets of this scene are releasable by default after scene unloading.
+     * @zh 指示该场景中直接或间接静态引用到的所有资源是否默认在场景切换后自动释放。
      */
     @property
     public autoReleaseAssets = false;
+
     /**
-     * !#en Per-scene level rendering info
-     * !#zh 场景级别的渲染信息
+     * @en Per-scene level rendering info
+     * @zh 场景级别的渲染信息
      */
     @property
     public _globals = new SceneGlobals();
 
-    /**
-     * For internal usage.
-     */
     public _renderScene: RenderScene | null = null;
     public dependAssets = null; // cache all depend assets for auto release
 
