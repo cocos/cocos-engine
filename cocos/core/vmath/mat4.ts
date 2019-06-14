@@ -41,7 +41,7 @@ export class mat4 {
     /**
      * @zh 复制目标矩阵
      */
-    public static copy (out: mat4, a: mat4) {
+    public static copy<Out extends mat4> (out: Out, a: mat4) {
         out.m00 = a.m00;
         out.m01 = a.m01;
         out.m02 = a.m02;
@@ -81,7 +81,7 @@ export class mat4 {
     /**
      * @zh 将目标赋值为单位矩阵
      */
-    public static identity (out: mat4) {
+    public static identity<Out extends mat4> (out: Out) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -104,7 +104,7 @@ export class mat4 {
     /**
      * @zh 转置矩阵
      */
-    public static transpose (out: mat4, a: mat4) {
+    public static transpose<Out extends mat4> (out: Out, a: mat4) {
         // If we are transposing ourselves we can skip a few steps but have to cache some values
         if (out === a) {
             const a01 = a.m01, a02 = a.m02, a03 = a.m03, a12 = a.m06, a13 = a.m07, a23 = a.m11;
@@ -144,7 +144,7 @@ export class mat4 {
     /**
      * @zh 矩阵求逆
      */
-    public static invert (out: mat4, a: mat4) {
+    public static invert<Out extends mat4> (out: Out, a: mat4) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03;
         const a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07;
         const a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11;
@@ -218,7 +218,7 @@ export class mat4 {
     /**
      * @zh 矩阵乘法
      */
-    public static multiply (out: mat4, a: mat4, b: mat4) {
+    public static multiply<Out extends mat4> (out: Out, a: mat4, b: mat4) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
             a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
             a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
@@ -254,14 +254,14 @@ export class mat4 {
     /**
      * @zh 矩阵乘法
      */
-    public static mul (out: mat4, a: mat4, b: mat4) {
+    public static mul<Out extends mat4> (out: Out, a: mat4, b: mat4) {
         return mat4.multiply(out, a, b);
     }
 
     /**
      * @zh 在给定矩阵变换基础上加入新位移变换
      */
-    public static translate (out: mat4, a: mat4, v: vec3) {
+    public static translate<Out extends mat4> (out: Out, a: mat4, v: vec3) {
         const x = v.x, y = v.y, z = v.z;
         if (a === out) {
             out.m12 = a.m00 * x + a.m04 * y + a.m08 * z + a.m12;
@@ -288,7 +288,7 @@ export class mat4 {
     /**
      * @zh 在给定矩阵变换基础上加入新缩放变换
      */
-    public static scale (out: mat4, a: mat4, v: vec3) {
+    public static scale<Out extends mat4> (out: Out, a: mat4, v: vec3) {
         const x = v.x, y = v.y, z = v.z;
         out.m00 = a.m00 * x;
         out.m01 = a.m01 * x;
@@ -314,7 +314,7 @@ export class mat4 {
      * @param rad 旋转角度
      * @param axis 旋转轴
      */
-    public static rotate (out: mat4, a: mat4, rad: number, axis: vec3) {
+    public static rotate<Out extends mat4> (out: Out, a: mat4, rad: number, axis: vec3) {
         let x = axis.x, y = axis.y, z = axis.z;
 
         let len = Math.sqrt(x * x + y * y + z * z);
@@ -370,7 +370,7 @@ export class mat4 {
      * @zh 在给定矩阵变换基础上加入绕 X 轴的旋转变换
      * @param rad 旋转角度
      */
-    public static rotateX (out: mat4, a: mat4, rad: number) {
+    public static rotateX<Out extends mat4> (out: Out, a: mat4, rad: number) {
         const s = Math.sin(rad),
             c = Math.cos(rad),
             a10 = a.m04,
@@ -410,7 +410,7 @@ export class mat4 {
      * @zh 在给定矩阵变换基础上加入绕 Y 轴的旋转变换
      * @param rad 旋转角度
      */
-    public static rotateY (out: mat4, a: mat4, rad: number) {
+    public static rotateY<Out extends mat4> (out: Out, a: mat4, rad: number) {
         const s = Math.sin(rad),
             c = Math.cos(rad),
             a00 = a.m00,
@@ -450,7 +450,7 @@ export class mat4 {
      * @zh 在给定矩阵变换基础上加入绕 Z 轴的旋转变换
      * @param rad 旋转角度
      */
-    public static rotateZ (out: mat4, a: mat4, rad: number) {
+    public static rotateZ<Out extends mat4> (out: Out, a: mat4, rad: number) {
         const s = Math.sin(rad),
             c = Math.cos(rad),
             a00 = a.m00,
@@ -490,7 +490,7 @@ export class mat4 {
     /**
      * @zh 计算位移矩阵
      */
-    public static fromTranslation (out: mat4, v: vec3) {
+    public static fromTranslation<Out extends mat4> (out: Out, v: vec3) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -513,7 +513,7 @@ export class mat4 {
     /**
      * @zh 计算缩放矩阵
      */
-    public static fromScaling (out: mat4, v: vec3) {
+    public static fromScaling<Out extends mat4> (out: Out, v: vec3) {
         out.m00 = v.x;
         out.m01 = 0;
         out.m02 = 0;
@@ -536,7 +536,7 @@ export class mat4 {
     /**
      * @zh 计算旋转矩阵
      */
-    public static fromRotation (out: mat4, rad: number, axis: vec3) {
+    public static fromRotation<Out extends mat4> (out: Out, rad: number, axis: vec3) {
         let x = axis.x, y = axis.y, z = axis.z;
         let len = Math.sqrt(x * x + y * y + z * z);
 
@@ -576,7 +576,7 @@ export class mat4 {
     /**
      * @zh 计算绕 X 轴的旋转矩阵
      */
-    public static fromXRotation (out: mat4, rad: number) {
+    public static fromXRotation<Out extends mat4> (out: Out, rad: number) {
         const s = Math.sin(rad), c = Math.cos(rad);
 
         // Perform axis-specific matrix multiplication
@@ -602,7 +602,7 @@ export class mat4 {
     /**
      * @zh 计算绕 Y 轴的旋转矩阵
      */
-    public static fromYRotation (out: mat4, rad: number) {
+    public static fromYRotation<Out extends mat4> (out: Out, rad: number) {
         const s = Math.sin(rad), c = Math.cos(rad);
 
         // Perform axis-specific matrix multiplication
@@ -628,7 +628,7 @@ export class mat4 {
     /**
      * @zh 计算绕 Z 轴的旋转矩阵
      */
-    public static fromZRotation (out: mat4, rad: number) {
+    public static fromZRotation<Out extends mat4> (out: Out, rad: number) {
         const s = Math.sin(rad), c = Math.cos(rad);
 
         // Perform axis-specific matrix multiplication
@@ -654,7 +654,7 @@ export class mat4 {
     /**
      * @zh 根据旋转和位移信息计算矩阵
      */
-    public static fromRT (out: mat4, q: quat, v: vec3) {
+    public static fromRT<Out extends mat4> (out: Out, q: quat, v: vec3) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -693,7 +693,7 @@ export class mat4 {
     /**
      * @zh 提取矩阵的位移信息, 默认矩阵中的变换以 S->R->T 的顺序应用
      */
-    public static getTranslation (out: vec3, mat: mat4) {
+    public static getTranslation<Out extends vec3> (out: Out, mat: mat4) {
         out.x = mat.m12;
         out.y = mat.m13;
         out.z = mat.m14;
@@ -704,7 +704,7 @@ export class mat4 {
     /**
      * @zh 提取矩阵的缩放信息, 默认矩阵中的变换以 S->R->T 的顺序应用
      */
-    public static getScaling (out: vec3, mat: mat4) {
+    public static getScaling<Out extends vec3> (out: Out, mat: mat4) {
         const m00 = m3_1.m00 = mat.m00;
         const m01 = m3_1.m01 = mat.m01;
         const m02 = m3_1.m02 = mat.m02;
@@ -725,7 +725,7 @@ export class mat4 {
     /**
      * @zh 提取矩阵的旋转信息, 默认矩阵中的变换以 S->R->T 的顺序应用
      */
-    public static getRotation (out: quat, mat: mat4) {
+    public static getRotation<Out extends quat> (out: Out, mat: mat4) {
         // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
         const trace = mat.m00 + mat.m05 + mat.m10;
         let S = 0;
@@ -784,7 +784,7 @@ export class mat4 {
     /**
      * @zh 根据旋转、位移、缩放信息计算矩阵，以 S->R->T 的顺序应用
      */
-    public static fromRTS (out: mat4, q: quat, v: vec3, s: vec3) {
+    public static fromRTS<Out extends mat4> (out: Out, q: quat, v: vec3, s: vec3) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -830,7 +830,7 @@ export class mat4 {
      * @param s 缩放值
      * @param o 指定变换中心
      */
-    public static fromRTSOrigin (out: mat4, q: quat, v: vec3, s: vec3, o: vec3) {
+    public static fromRTSOrigin<Out extends mat4> (out: Out, q: quat, v: vec3, s: vec3, o: vec3) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -877,7 +877,7 @@ export class mat4 {
     /**
      * @zh 根据指定的旋转信息计算矩阵
      */
-    public static fromQuat (out: mat4, q: quat) {
+    public static fromQuat<Out extends mat4> (out: Out, q: quat) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -925,7 +925,7 @@ export class mat4 {
      * @param near 近平面距离
      * @param far 远平面距离
      */
-    public static frustum (out: mat4, left: number, right: number, bottom: number, top: number, near: number, far: number) {
+    public static frustum<Out extends mat4> (out: Out, left: number, right: number, bottom: number, top: number, near: number, far: number) {
         const rl = 1 / (right - left);
         const tb = 1 / (top - bottom);
         const nf = 1 / (near - far);
@@ -956,7 +956,7 @@ export class mat4 {
      * @param near 近平面距离
      * @param far 远平面距离
      */
-    public static perspective (out: mat4, fovy: number, aspect: number, near: number, far: number) {
+    public static perspective<Out extends mat4> (out: Out, fovy: number, aspect: number, near: number, far: number) {
         const f = 1.0 / Math.tan(fovy / 2);
         const nf = 1 / (near - far);
 
@@ -988,7 +988,7 @@ export class mat4 {
      * @param near 近平面距离
      * @param far 远平面距离
      */
-    public static ortho (out: mat4, left: number, right: number, bottom: number, top: number, near: number, far: number) {
+    public static ortho<Out extends mat4> (out: Out, left: number, right: number, bottom: number, top: number, near: number, far: number) {
         const lr = 1 / (left - right);
         const bt = 1 / (bottom - top);
         const nf = 1 / (near - far);
@@ -1017,7 +1017,7 @@ export class mat4 {
      * @param center 目标视点
      * @param up 视口上方向
      */
-    public static lookAt (out: mat4, eye: vec3, center: vec3, up: vec3) {
+    public static lookAt<Out extends mat4> (out: Out, eye: vec3, center: vec3, up: vec3) {
         const eyex = eye.x;
         const eyey = eye.y;
         const eyez = eye.z;
@@ -1080,7 +1080,7 @@ export class mat4 {
     /**
      * @zh 计算逆转置矩阵
      */
-    public static inverseTranspose (out: mat4, a: mat4) {
+    public static inverseTranspose<Out extends mat4> (out: Out, a: mat4) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
             a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
             a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
@@ -1158,7 +1158,7 @@ export class mat4 {
     /**
      * @zh 逐元素矩阵加法
      */
-    public static add (out: mat4, a: mat4, b: mat4) {
+    public static add<Out extends mat4> (out: Out, a: mat4, b: mat4) {
         out.m00 = a.m00 + b.m00;
         out.m01 = a.m01 + b.m01;
         out.m02 = a.m02 + b.m02;
@@ -1181,7 +1181,7 @@ export class mat4 {
     /**
      * @zh 逐元素矩阵减法
      */
-    public static subtract (out: mat4, a: mat4, b: mat4) {
+    public static subtract<Out extends mat4> (out: Out, a: mat4, b: mat4) {
         out.m00 = a.m00 - b.m00;
         out.m01 = a.m01 - b.m01;
         out.m02 = a.m02 - b.m02;
@@ -1204,14 +1204,14 @@ export class mat4 {
     /**
      * @zh 逐元素矩阵减法
      */
-    public static sub (out: mat4, a: mat4, b: mat4) {
+    public static sub<Out extends mat4> (out: Out, a: mat4, b: mat4) {
         return mat4.subtract(out, a, b);
     }
 
     /**
      * @zh 矩阵标量乘法
      */
-    public static multiplyScalar (out: mat4, a: mat4, b: number) {
+    public static multiplyScalar<Out extends mat4> (out: Out, a: mat4, b: number) {
         out.m00 = a.m00 * b;
         out.m01 = a.m01 * b;
         out.m02 = a.m02 * b;
@@ -1234,7 +1234,7 @@ export class mat4 {
     /**
      * @zh 逐元素矩阵标量乘加: A + B * scale
      */
-    public static multiplyScalarAndAdd (out: mat4, a: mat4, b: mat4, scale: number) {
+    public static multiplyScalarAndAdd<Out extends mat4> (out: Out, a: mat4, b: mat4, scale: number) {
         out.m00 = a.m00 + (b.m00 * scale);
         out.m01 = a.m01 + (b.m01 * scale);
         out.m02 = a.m02 + (b.m02 * scale);

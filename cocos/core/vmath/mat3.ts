@@ -31,7 +31,7 @@ export class mat3 {
     /**
      * @zh 复制目标矩阵
      */
-    public static copy (out: mat3, a: mat3) {
+    public static copy<Out extends mat3> (out: Out, a: mat3) {
         out.m00 = a.m00;
         out.m01 = a.m01;
         out.m02 = a.m02;
@@ -62,7 +62,7 @@ export class mat3 {
     /**
      * @zh 将目标赋值为单位矩阵
      */
-    public static identity (out: mat3) {
+    public static identity<Out extends mat3> (out: Out) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -78,7 +78,7 @@ export class mat3 {
     /**
      * @zh 转置矩阵
      */
-    public static transpose (out: mat3, a: mat3) {
+    public static transpose<Out extends mat3> (out: Out, a: mat3) {
         // If we are transposing ourselves we can skip a few steps but have to cache some values
         if (out === a) {
             const a01 = a.m01, a02 = a.m02, a12 = a.m05;
@@ -106,7 +106,7 @@ export class mat3 {
     /**
      * @zh 矩阵求逆
      */
-    public static invert (out: mat3, a: mat3) {
+    public static invert<Out extends mat3> (out: Out, a: mat3) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -149,7 +149,7 @@ export class mat3 {
     /**
      * @zh 矩阵乘法
      */
-    public static multiply (out: mat3, a: mat3, b: mat3) {
+    public static multiply<Out extends mat3> (out: Out, a: mat3, b: mat3) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -182,7 +182,7 @@ export class mat3 {
     /**
      * @zh 在给定矩阵变换基础上加入新位移变换
      */
-    public static translate (out: mat3, a: mat3, v: vec3) {
+    public static translate<Out extends mat3> (out: Out, a: mat3, v: vec3) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -205,7 +205,7 @@ export class mat3 {
     /**
      * @zh 在给定矩阵变换基础上加入新缩放变换
      */
-    public static scale (out: mat3, a: mat3, v: vec3) {
+    public static scale<Out extends mat3> (out: Out, a: mat3, v: vec3) {
         const x = v.x, y = v.y;
 
         out.m00 = x * a.m00;
@@ -226,7 +226,7 @@ export class mat3 {
      * @zh 在给定矩阵变换基础上加入新旋转变换
      * @param rad 旋转弧度
      */
-    public static rotate (out: mat3, a: mat3, rad: number) {
+    public static rotate<Out extends mat3> (out: Out, a: mat3, rad: number) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -251,7 +251,7 @@ export class mat3 {
     /**
      * @zh 根据指定四维矩阵计算三维矩阵
      */
-    public static fromMat4 (out: mat3, a: mat4) {
+    public static fromMat4<Out extends mat3> (out: Out, a: mat4) {
         out.m00 = a.m00;
         out.m01 = a.m01;
         out.m02 = a.m02;
@@ -269,7 +269,7 @@ export class mat3 {
      * @param view 视口面向的前方向，必须归一化
      * @param up 视口的上方向，必须归一化，默认为 (0, 1, 0)
      */
-    public static fromViewUp (out: mat3, view: vec3, up?: vec3) {
+    public static fromViewUp<Out extends mat3> (out: Out, view: vec3, up?: vec3) {
         if (vec3.sqrMag(view) < EPSILON * EPSILON) {
             mat3.identity(out);
             return out;
@@ -297,7 +297,7 @@ export class mat3 {
     /**
      * @zh 计算位移矩阵
      */
-    public static fromTranslation (out: mat3, v: vec3) {
+    public static fromTranslation<Out extends mat3> (out: Out, v: vec3) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -313,7 +313,7 @@ export class mat3 {
     /**
      * @zh 计算缩放矩阵
      */
-    public static fromScaling (out: mat3, v: vec3) {
+    public static fromScaling<Out extends mat3> (out: Out, v: vec3) {
         out.m00 = v.x;
         out.m01 = 0;
         out.m02 = 0;
@@ -331,7 +331,7 @@ export class mat3 {
     /**
      * @zh 计算旋转矩阵
      */
-    public static fromRotation (out: mat3, rad: number) {
+    public static fromRotation<Out extends mat3> (out: Out, rad: number) {
         const s = Math.sin(rad), c = Math.cos(rad);
 
         out.m00 = c;
@@ -351,7 +351,7 @@ export class mat3 {
     /**
      * @zh 根据四元数旋转信息计算矩阵
      */
-    public static fromQuat (out: mat3, q: quat) {
+    public static fromQuat<Out extends mat3> (out: Out, q: quat) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -385,7 +385,7 @@ export class mat3 {
     /**
      * @zh 计算指定四维矩阵的逆转置三维矩阵
      */
-    public static inverseTransposeMat4 (out: mat3, a: mat4) {
+    public static inverseTransposeMat4<Out extends mat3> (out: Out, a: mat4) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
             a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
             a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
@@ -455,7 +455,7 @@ export class mat3 {
     /**
      * @zh 逐元素矩阵加法
      */
-    public static add (out: mat3, a: mat3, b: mat3) {
+    public static add<Out extends mat3> (out: Out, a: mat3, b: mat3) {
         out.m00 = a.m00 + b.m00;
         out.m01 = a.m01 + b.m01;
         out.m02 = a.m02 + b.m02;
@@ -471,7 +471,7 @@ export class mat3 {
     /**
      * @zh 逐元素矩阵减法
      */
-    public static subtract (out: mat3, a: mat3, b: mat3) {
+    public static subtract<Out extends mat3> (out: Out, a: mat3, b: mat3) {
         out.m00 = a.m00 - b.m00;
         out.m01 = a.m01 - b.m01;
         out.m02 = a.m02 - b.m02;
@@ -487,14 +487,14 @@ export class mat3 {
     /**
      * @zh 逐元素矩阵减法
      */
-    public static sub (out: mat3, a: mat3, b: mat3) {
+    public static sub<Out extends mat3> (out: Out, a: mat3, b: mat3) {
         return mat3.subtract(out, a, b);
     }
 
     /**
      * @zh 矩阵标量乘法
      */
-    public static multiplyScalar (out: mat3, a: mat3, b: number) {
+    public static multiplyScalar<Out extends mat3> (out: Out, a: mat3, b: number) {
         out.m00 = a.m00 * b;
         out.m01 = a.m01 * b;
         out.m02 = a.m02 * b;
@@ -510,7 +510,7 @@ export class mat3 {
     /**
      * @zh 逐元素矩阵标量乘加: A + B * scale
      */
-    public static multiplyScalarAndAdd (out: mat3, a: mat3, b: mat3, scale: number) {
+    public static multiplyScalarAndAdd<Out extends mat3> (out: Out, a: mat3, b: mat3, scale: number) {
         out.m00 = a.m00 + (b.m00 * scale);
         out.m01 = a.m01 + (b.m01 * scale);
         out.m02 = a.m02 + (b.m02 * scale);

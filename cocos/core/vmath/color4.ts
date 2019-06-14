@@ -24,7 +24,7 @@ export class color4 {
     /**
      * @zh 复制目标颜色
      */
-    public static copy (out: color4, a: color4) {
+    public static copy<Out extends color4> (out: Out, a: color4) {
         out.r = a.r;
         out.g = a.g;
         out.b = a.b;
@@ -35,7 +35,7 @@ export class color4 {
     /**
      * @zh 设置颜色值
      */
-    public static set (out: color4, r: number, g: number, b: number, a: number) {
+    public static set<Out extends color4> (out: Out, r: number, g: number, b: number, a: number) {
         out.r = r;
         out.g = g;
         out.b = b;
@@ -46,7 +46,7 @@ export class color4 {
     /**
      * @zh 根据指定整型数据设置颜色
      */
-    public static fromHex (out: color4, hex: number) {
+    public static fromHex<Out extends color4> (out: Out, hex: number) {
         const r = ((hex >> 24)) / 255.0;
         const g = ((hex >> 16) & 0xff) / 255.0;
         const b = ((hex >> 8) & 0xff) / 255.0;
@@ -62,7 +62,7 @@ export class color4 {
     /**
      * @zh 逐通道颜色加法
      */
-    public static add (out: color4, a: color4, b: color4) {
+    public static add<Out extends color4> (out: Out, a: color4, b: color4) {
         out.r = a.r + b.r;
         out.g = a.g + b.g;
         out.b = a.b + b.b;
@@ -73,7 +73,7 @@ export class color4 {
     /**
      * @zh 逐通道颜色减法
      */
-    public static subtract (out: color4, a: color4, b: color4) {
+    public static subtract<Out extends color4> (out: Out, a: color4, b: color4) {
         out.r = a.r - b.r;
         out.g = a.g - b.g;
         out.b = a.b - b.b;
@@ -84,14 +84,14 @@ export class color4 {
     /**
      * @zh 逐通道颜色减法
      */
-    public static sub (out: color4, a: color4, b: color4) {
+    public static sub<Out extends color4> (out: Out, a: color4, b: color4) {
         return color4.subtract(out, a, b);
     }
 
     /**
      * @zh 逐通道颜色乘法
      */
-    public static multiply (out: color4, a: color4, b: color4) {
+    public static multiply<Out extends color4> (out: Out, a: color4, b: color4) {
         out.r = a.r * b.r;
         out.g = a.g * b.g;
         out.b = a.b * b.b;
@@ -102,14 +102,14 @@ export class color4 {
     /**
      * @zh 逐通道颜色乘法
      */
-    public static mul (out: color4, a: color4, b: color4) {
+    public static mul<Out extends color4> (out: Out, a: color4, b: color4) {
         return color4.multiply(out, a, b);
     }
 
     /**
      * @zh 逐通道颜色除法
      */
-    public static divide (out: color4, a: color4, b: color4) {
+    public static divide<Out extends color4> (out: Out, a: color4, b: color4) {
         out.r = a.r / b.r;
         out.g = a.g / b.g;
         out.b = a.b / b.b;
@@ -120,14 +120,14 @@ export class color4 {
     /**
      * @zh 逐通道颜色除法
      */
-    public static div (out: color4, a: color4, b: color4) {
+    public static div<Out extends color4> (out: Out, a: color4, b: color4) {
         return color4.divide(out, a, b);
     }
 
     /**
      * @zh 全通道统一缩放颜色
      */
-    public static scale (out: color4, a: color4, b: number) {
+    public static scale<Out extends color4> (out: Out, a: color4, b: number) {
         out.r = a.r * b;
         out.g = a.g * b;
         out.b = a.b * b;
@@ -138,7 +138,7 @@ export class color4 {
     /**
      * @zh 逐通道颜色线性插值：A + t * (B - A)
      */
-    public static lerp (out: color4, a: color4, b: color4, t: number) {
+    public static lerp<Out extends color4> (out: Out, a: color4, b: color4, t: number) {
         const ar = a.r, ag = a.g, ab = a.b, aa = a.a;
         out.r = ar + t * (b.r - ar);
         out.g = ag + t * (b.g - ag);
