@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 import CCClass from '../data/class';
-import xquat from '../vmath/quat';
+import { quat as xquat } from '../vmath/quat';
 import { ValueType } from './value-type';
 import Vec3 from './vec3';
 
