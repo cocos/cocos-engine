@@ -307,7 +307,7 @@ export class AnimationClip extends Asset {
         if (propertyCurveData.keys >= 0) {
             ratioSampler = this._ratioSamplers[propertyCurveData.keys];
         }
-        return new AnimCurve(propertyCurveData, propertyName, isNode, ratioSampler);
+        return new AnimCurve(propertyCurveData, propertyName, this._duration, isNode, ratioSampler);
     }
 
     private _createRuntimeEvents () {

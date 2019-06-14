@@ -152,7 +152,10 @@ export class AnimCurve {
 
     private _stepfiedValues?: any[];
 
-    constructor (propertyCurveData: IPropertyCurveData, propertyName: string, isNode: boolean, ratioSampler: RatioSampler | null) {
+    private _duration: number;
+
+    constructor (propertyCurveData: IPropertyCurveData, propertyName: string, duration: number, isNode: boolean, ratioSampler: RatioSampler | null) {
+        this._duration = duration;
         this._ratioSampler = ratioSampler;
 
         // Install values.
@@ -276,7 +279,7 @@ export class AnimCurve {
                         }
                         // calculate value
                         const toVal = values[index];
-                        value = this._lerp(fromVal, toVal, ratioBetweenFrames, dRatio);
+                        value = this._lerp(fromVal, toVal, ratioBetweenFrames, dRatio * this._duration);
                         isLerped = true;
                     }
                 }
