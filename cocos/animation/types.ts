@@ -79,7 +79,19 @@ export class WrappedInfo {
 }
 
 export interface ILerpable {
+    /**
+     * 在当前曲线值与目标曲线值之间插值。
+     * @param to 目标曲线值。
+     * @param t 插值比率。
+     * @param dt 当前曲线值与目标曲线值的时间间隔，单位为秒。
+     * @returns 插值结果。
+     */
     lerp (to: any, t: number, dt: number): any;
+
+    /**
+     * 当直接使用曲线值作为采样结果时的结果值，它应该等同于插值比率为 0 时的插值结果。
+     * @returns 插值比率为 0 时的插值结果。
+     */
     getNoLerp? (): any;
 }
 
