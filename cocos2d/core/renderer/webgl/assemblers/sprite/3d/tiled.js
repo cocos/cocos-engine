@@ -23,46 +23,50 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const base = require('../../base/3d');
+const spriteAssembler = require('../sprite');
+const assembler2D = require('../2d/tiled');
 const js = require('../../../../../platform/js');
-const assembler = require('../2d/tiled');
 const vec3 = cc.vmath.vec3;
 
-module.exports = js.addon({
-    vertexOffset: 6,
-    uvOffset: 3,
-    colorOffset: 5,
+let vec3_temps = [];
+for (let i = 0; i < 4; i++) {
+    vec3_temps.push(vec3.create());
+}
 
-    fillVertices: (function () {
-        let vec3_temps = [];
-        for (let i = 0; i < 4; i++) {
-            vec3_temps.push(vec3.create());
-        }
-        return function (vbuf, vertexOffset, matrix, row, col, verts) {
-            let x, x1, y, y1;
-            for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
-                y = verts[yindex].y;
-                y1 = verts[yindex+1].y;
-                for (let xindex = 0, xlength = col; xindex < xlength; ++xindex) {
-                    x = verts[xindex].x;
-                    x1 = verts[xindex+1].x;
-    
-                    vec3.set(vec3_temps[0], x, y, 0);
-                    vec3.set(vec3_temps[1], x1, y, 0);
-                    vec3.set(vec3_temps[2], x, y1, 0);
-                    vec3.set(vec3_temps[3], x1, y1, 0);
-    
-                    for (let i = 0; i < 4; i ++) {
-                        let vec3_temp = vec3_temps[i];
-                        vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-                        let offset = i * 6;
-                        vbuf[vertexOffset + offset] = vec3_temp.x;
-                        vbuf[vertexOffset + offset + 1] = vec3_temp.y;
-                        vbuf[vertexOffset + offset + 2] = vec3_temp.z;
-                    }
-    
-                    vertexOffset += 24;
+module.exports = spriteAssembler.tiled3D = js.addon({
+    updateWorldVerts (sprite) {
+        let renderHandle = sprite._renderHandle;
+        let local = renderHandle._local;
+        let localX = local.x, localY = local.y;
+        let world = renderHandle.vDatas[0];
+        let { row, col } = renderHandle._infos;
+        let matrix = sprite.node._worldMatrix;
+        let x, x1, y, y1;
+        let vertexOffset = 0;
+        for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
+            y = localY[yindex];
+            y1 = localY[yindex + 1];
+            for (let xindex = 0, xlength = col; xindex < xlength; ++xindex) {
+                x = localX[xindex];
+                x1 = localX[xindex + 1];
+
+                vec3.set(vec3_temps[0], x, y, 0);
+                vec3.set(vec3_temps[1], x1, y, 0);
+                vec3.set(vec3_temps[2], x, y1, 0);
+                vec3.set(vec3_temps[3], x1, y1, 0);
+
+                for (let i = 0; i < 4; i++) {
+                    let vec3_temp = vec3_temps[i];
+                    vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+                    let offset = i * 6;
+                    world[vertexOffset + offset] = vec3_temp.x;
+                    world[vertexOffset + offset + 1] = vec3_temp.y;
+                    world[vertexOffset + offset + 2] = vec3_temp.z;
                 }
+
+                vertexOffset += 24;
             }
-        };
-    })(),
-}, assembler);
+        }
+    },
+}, base, assembler2D);

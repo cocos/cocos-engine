@@ -23,13 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const labelAssembler = require('../label');
 const js = require('../../../../../platform/js');
 const bmfontAssembler = require('./bmfont');
 const fontUtils = require('../../../../utils/label/letter-font');
 const fillMeshVertices = require('../../utils').fillMeshVertices;
 const WHITE = cc.color(255, 255, 255, 255);
 
-module.exports = js.addon({
+module.exports = labelAssembler.letter = js.addon({
     createData (comp) {
         return comp.requestRenderData();
     },

@@ -124,16 +124,17 @@ let Mask = cc.Class({
                 return this._type;
             },
             set: function (value) {
+                if (this._type !== value) {
+                    this._resetAssembler();
+                }
+
                 this._type = value;
                 if (this._type !== MaskType.IMAGE_STENCIL) {
                     this.spriteFrame = null;
                     this.alphaThreshold = 0;
                     this._updateGraphics();
                 }
-                if (this._renderData) {
-                    this.destroyRenderData(this._renderData);
-                    this._renderData = null;
-                }
+                
                 this._activateMaterial();
             },
             type: MaskType,
@@ -319,10 +320,6 @@ let Mask = cc.Class({
         this._removeGraphics();
     },
 
-    initNativeAssembler () {
-        this._renderHandle = new renderer.MaskAssembler();
-    },
-
     _resizeNodeToTargetNode: CC_EDITOR && function () {
         if(this.spriteFrame) {
             let rect = this.spriteFrame.getRect();
@@ -416,27 +413,20 @@ let Mask = cc.Class({
     _createGraphics () {
         if (!this._graphics) {
             this._graphics = new Graphics();
+            this._graphics._resetAssembler();
             this._graphics.node = this.node;
             this._graphics.lineWidth = 0;
             this._graphics.strokeColor = cc.color(0, 0, 0, 0);
-            if (CC_JSB && CC_NATIVERENDERER) {
-                this._graphics._renderHandle.init(this._graphics);
-                this._renderHandle.setNativeRenderHandle(this._graphics._renderHandle);
-            }
         }
         
         if (!this._clearGraphics) {
             this._clearGraphics = new Graphics();
+            this._clearGraphics._resetAssembler();
             this._clearGraphics.node = new Node();
             this._clearGraphics._activateMaterial();
             this._clearGraphics.lineWidth = 0;
-            this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
+            this._clearGraphics.rect(-1, -1, 2, 2);
             this._clearGraphics.fill();
-            if (CC_JSB && CC_NATIVERENDERER) {
-                this._clearGraphics._renderHandle.ignoreWorldMatrix();
-                this._clearGraphics._renderHandle.init(this._clearGraphics);
-                this._renderHandle.setNativeClearHandle(this._clearGraphics._renderHandle);
-            }
         }
     },
 

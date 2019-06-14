@@ -563,6 +563,7 @@ let NodeDefines = {
         _scale: undefined,
         _quat: undefined,
         _trs: null,
+        _eulerAngles: cc.Vec3,
         _skewX: 0.0,
         _skewY: 0.0,
         _zIndex: {
@@ -1179,8 +1180,6 @@ let NodeDefines = {
         this._cullingMask = 1;
         this._childArrivalOrder = 1;
 
-        this._eulerAngles = cc.v3();
-
         // Proxy
         if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy = new renderer.NodeProxy();
@@ -1334,7 +1333,8 @@ let NodeDefines = {
     },
     _fromEuler () {
         if (this.is3DNode) {
-            _quata.fromRotation(this._trs).fromEuler(this._eulerAngles);
+            _quata.fromEuler(this._eulerAngles);
+            _quata.toRotation(this._trs);
         }
         else {
             quat.fromEuler(_quata, 0, 0, this._eulerAngles.z);
@@ -1356,16 +1356,6 @@ let NodeDefines = {
             this._position = undefined;
         }
 
-        // TODO: remove _quat in future version, 3.0 ?
-        let quat = this._quat;
-        if (quat !== undefined) {
-            trs[4] = quat.x;
-            trs[5] = quat.y;
-            trs[6] = quat.z;
-            trs[7] = quat.w;
-            this._quat = undefined;
-        }
-        _quata.fromRotation(trs).toEuler(this._eulerAngles);
 
         if (this._zIndex !== undefined) {
             this._localZOrder = this._zIndex << 16;
@@ -1373,21 +1363,22 @@ let NodeDefines = {
         }
 
         // TODO: remove _rotationX & _rotationY in future version, 3.0 ?
-        // Update quaternion from rotation, when upgrade from 1.x to 2.0
+        // Update eulerAngles from rotation, when upgrade from 1.x to 2.0
         // If rotation x & y is 0 in old version, then update rotation from default quaternion is ok too
-        // _quata.fromRotation(this._trs);
+        let eulerAngles = this._eulerAngles;
         if ((this._rotationX || this._rotationY) &&
-            (_quata.x === 0 && _quata.y === 0 && _quata.z === 0 && _quata.w === 1)) {
+            (eulerAngles.x === 0 && eulerAngles.y === 0 && eulerAngles.z === 0)) {
             if (this._rotationX === this._rotationY) {
-                quat.fromEuler(_quata, 0, 0, -this._rotationX);
+                eulerAngles.z = -this._rotationX;
             }
             else {
-                quat.fromEuler(_quata, this._rotationX, this._rotationY, 0);
+                eulerAngles.x = this._rotationX;
+                eulerAngles.y = this._rotationY;
             }
             this._rotationX = this._rotationY = undefined;
         }
 
-        this._toEuler();
+        this._fromEuler();
 
         // Upgrade _scale from v2
         // TODO: remove in future version, 3.0 ?

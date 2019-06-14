@@ -743,7 +743,6 @@ var ParticleSystem = cc.Class({
 
         this._simulator = new ParticleSimulator(this);
         this._texture = null;
-        this._renderData = null;
 
         // colors
         this._startColor = cc.color(255, 255, 255, 255);
@@ -853,7 +852,8 @@ var ParticleSystem = cc.Class({
         });
     },
 
-    __preload: function () {
+    __preload () {
+        this._super();
 
         if (CC_EDITOR) {
             this._convertTextureToSpriteFrame();
@@ -890,7 +890,6 @@ var ParticleSystem = cc.Class({
 
     onEnable () {
         this._super();
-        this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
         this._activateMaterial();
     },
 
@@ -902,7 +901,6 @@ var ParticleSystem = cc.Class({
             this._buffer.destroy();
             this._buffer = null;
         }
-        this._ia = null;
         // reset uv data so next time simulator will refill buffer uv info when exit edit mode from prefab.
         this._simulator._uvFilled = 0;
         this._super();
@@ -1215,16 +1213,11 @@ var ParticleSystem = cc.Class({
 
     _activateMaterial: function () {
         if (!this._texture || !this._texture.loaded) {
-            this.markForCustomIARender(false);
             if (this._renderSpriteFrame) {
                 this._applySpriteFrame();
             }
 
             return;
-        }
-        
-        if (!this._ia) {
-            ParticleSystem._assembler.createIA(this);
         }
 
         let material = this.sharedMaterials[0];
@@ -1241,7 +1234,6 @@ var ParticleSystem = cc.Class({
         material.setProperty('texture', this._texture);
 
         this.setMaterial(0, material);
-        this.markForCustomIARender(true);
     },
     
     _finishedSimulation: function () {

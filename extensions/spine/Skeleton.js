@@ -561,6 +561,7 @@ sp.Skeleton = cc.Class({
             this._cacheMode = AnimationCacheMode.REALTIME;
         }
 
+        this._resetAssembler();
         this._updateSkeletonData();
         this._updateDebugDraw();
         this._updateUseTint();

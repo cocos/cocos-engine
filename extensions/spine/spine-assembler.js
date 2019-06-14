@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Assembler from '../../cocos2d/core/renderer/assembler';
+
 const Skeleton = require('./Skeleton');
 const spine = require('./lib/spine');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
@@ -160,14 +162,13 @@ function _spineColorToInt32 (spineColor) {
     return ((spineColor.a<<24) >>> 0) + (spineColor.b<<16) + (spineColor.g<<8) + spineColor.r;
 }
 
-var spineAssembler = {
-
+export default class SpineAssembler extends Assembler {
     updateRenderData (comp) {
         let skeleton = comp._skeleton;
         if (skeleton) {
             skeleton.updateWorldTransform();
         }
-    },
+    }
 
     fillVertices (skeletonColor, attachmentColor, slotColor, clipper, slot) {
 
@@ -282,7 +283,7 @@ var spineAssembler = {
                 }
             }
         }
-    },
+    }
 
     realTimeTraverse (worldMat) {
         let vbuf;
@@ -499,7 +500,7 @@ var spineAssembler = {
                 }
             }
         }
-    },
+    }
 
     cacheTraverse (worldMat) {
         
@@ -618,7 +619,7 @@ var spineAssembler = {
                 _useTint && (uintbuf[ii + 1] = _darkColor32);
             }
         }
-    },
+    }
 
     fillBuffers (comp, renderer) {
         
@@ -680,8 +681,6 @@ var spineAssembler = {
         _comp = undefined;
         _vertexEffect = null;
     }
-};
+}
 
-Skeleton._assembler = spineAssembler;
-
-module.exports = spineAssembler;
+Assembler.register(Skeleton, SpineAssembler);

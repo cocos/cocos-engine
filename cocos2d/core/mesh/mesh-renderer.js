@@ -23,6 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Assembler from '../renderer/assembler';
 import gfx from '../../renderer/gfx';
 import InputAssembler from '../../renderer/core/input-assembler';
 import IARenderData from '../../renderer/render-data/ia-render-data';
@@ -32,27 +33,27 @@ const MeshRenderer = require('./CCMeshRenderer');
 
 const BLACK_COLOR = cc.Color.BLACK;
 
-let meshRendererAssembler = {
+export default class MeshRendererAssembler extends Assembler {
+    constructor (comp) {
+        super(comp);
+        this._ias = [];
+    }
+
     updateRenderData (comp) {
-        let renderDatas = comp._renderDatas;
-        renderDatas.length = 0;
+        let ias = this._ias;
+        ias.length = 0;
         if (!comp.mesh) return;
         let submeshes = comp.mesh._subMeshes;
         for (let i = 0; i < submeshes.length; i++) {
-            let data = new IARenderData();
-            data.material = comp.sharedMaterials[i] || comp.sharedMaterials[0];
-            data.ia = submeshes[i];
-            renderDatas.push(data);
+            ias.push(submeshes[i]);
         }
-    },
+    }
 
-    createWireFrameData (ia, oldIbData, material, renderer) {
-        let data = new IARenderData();
+    createWireFrameData (ia, oldIbData, renderer) {
         let m = new Material();
         m.copy(Material.getBuiltinMaterial('unlit'));
         m.setProperty('diffuseColor', BLACK_COLOR);
         m.define('USE_DIFFUSE_TEXTURE', false);
-        data.material = m;
 
         let indices = [];
         for (let i = 0; i < oldIbData.length; i+=3) {
@@ -71,27 +72,25 @@ let meshRendererAssembler = {
             ibData.length
         );
 
-        data.ia = new InputAssembler(ia._vertexBuffer, ib, gfx.PT_LINES);
-        return data;
-    },
+        return new InputAssembler(ia._vertexBuffer, ib, gfx.PT_LINES);
+    }
 
     fillBuffers (comp, renderer) {
         renderer._flush();
 
-        let renderDatas = comp._renderDatas;
-        let submeshes = comp.mesh._subMeshes;
-        if (cc.macro.SHOW_MESH_WIREFRAME) {
-            if (renderDatas.length === submeshes.length) {
-                let ibs = comp.mesh._ibs;
-                for (let i = 0; i < submeshes.length; i++) {
-                    let data = renderDatas[i];
-                    renderDatas.push( this.createWireFrameData(data.ia, ibs[i].data, data.material, renderer) );
-                }
-            }
-        }
-        else {
-            renderDatas.length = submeshes.length;
-        }
+        let ias = this._ias;
+        // let submeshes = comp.mesh._subMeshes;
+        // if (cc.macro.SHOW_MESH_WIREFRAME) {
+        //     if (ias.length === submeshes.length) {
+        //         let ibs = comp.mesh._ibs;
+        //         for (let i = 0; i < submeshes.length; i++) {
+        //             ias.push( this.createWireFrameData(ias[i], ibs[i].data, renderer) );
+        //         }
+        //     }
+        // }
+        // else {
+        //     ias.length = submeshes.length;
+        // }
 
         let tmpMaterial = renderer.material;
 
@@ -103,18 +102,18 @@ let meshRendererAssembler = {
 
         comp.mesh._uploadData();
 
-        for (let i = 0; i < renderDatas.length; i++) {
-            let renderData = renderDatas[i];
-            let material = renderData.material;
+        let materials = comp.sharedMaterials;
+        for (let i = 0; i < ias.length; i++) {
+            let material = materials[i] || materials[0];
 
             renderer.material = material;
-            renderer._flushIA(renderData);
+            renderer._flushIA(ias[i]);
         }
 
         renderer.customProperties = tmpCustomProperties;
         renderer.node = tmpNode;
         renderer.material = tmpMaterial;
     }
-};
+}
 
-module.exports = MeshRenderer._assembler = meshRendererAssembler;
+Assembler.register(MeshRenderer, MeshRendererAssembler);

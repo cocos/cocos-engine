@@ -23,9 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const vertexFormat = require('./vertex-format');
-const defaultVertexFormat = vertexFormat.vfmtPosUvColor;
-const vfmt3D = vertexFormat.vfmt3D;
+const { vfmtPosUvColor, vfmt3D } = require('./vertex-format');
 const QuadBuffer = require('./quad-buffer');
 const MeshBuffer = require('./mesh-buffer');
 const SpineBuffer = require('./spine-buffer');
@@ -60,11 +58,11 @@ var ModelBatcher = function (device, renderScene) {
     }, 16);
 
     // buffers
-    this._quadBuffer = this.getBuffer('quad', defaultVertexFormat);
-    this._meshBuffer = this.getBuffer('mesh', defaultVertexFormat);
+    this._quadBuffer = this.getBuffer('quad', vfmtPosUvColor);
+    this._meshBuffer = this.getBuffer('mesh', vfmtPosUvColor);
     this._quadBuffer3D = this.getBuffer('quad', vfmt3D);
     this._meshBuffer3D = this.getBuffer('mesh', vfmt3D);
-    this._buffer = this._quadBuffer;
+    this._buffer = this._meshBuffer;
 
     this._batchedModels = [];
     this._dummyNode = new cc.Node();
@@ -104,7 +102,7 @@ ModelBatcher.prototype = {
         for (let key in _buffers) {
             _buffers[key].reset();
         }
-        this._buffer = this._quadBuffer;
+        this._buffer = this._meshBuffer;
 
         // reset caches for handle render components
         this.node = this._dummyNode;
@@ -171,14 +169,12 @@ ModelBatcher.prototype = {
         buffer.vertexStart = buffer.vertexOffset;
     },
 
-    _flushIA (iaRenderData) {
-        let material = iaRenderData.material;
-        
-        if (!iaRenderData.ia || !material) {
+    _flushIA (ia) {
+        if (!ia) {
             return;
         }
 
-        this.material = material;
+        let material = this.material;
         let effect = material.effect;
         if (!effect) return;
         
@@ -189,12 +185,12 @@ ModelBatcher.prototype = {
         model._cullingMask = this.cullingMask;
         model.setNode(this.node);
         model.setEffect(effect, this.customProperties);
-        model.setInputAssembler(iaRenderData.ia);
+        model.setInputAssembler(ia);
         
         this._renderScene.addModel(model);
     },
 
-    _commitComp (comp, assembler, cullingMask) {
+    _switchComp (comp, cullingMask) {
         let material = comp.sharedMaterials[0];
         if ((material && material.getHash() !== this.material.getHash()) || 
             this.cullingMask !== cullingMask) {
@@ -203,18 +199,7 @@ ModelBatcher.prototype = {
             this.node = material.getDefine('CC_USE_MODEL') ? comp.node : this._dummyNode;
             this.material = material;
             this.cullingMask = cullingMask;
-        }
-    
-        assembler.fillBuffers(comp, this);
-    },
-
-    _commitIA (comp, assembler, cullingMask) {
-        this._flush();
-        this.cullingMask = cullingMask;
-        this.material = comp.sharedMaterials[0] || empty_material;
-        this.node = this.material.getDefine('CC_USE_MODEL') ? comp.node : this._dummyNode;
-
-        assembler.renderIA(comp, this);
+        }    
     },
 
     terminate () {

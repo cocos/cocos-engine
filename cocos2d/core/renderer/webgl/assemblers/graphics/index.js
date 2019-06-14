@@ -23,6 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Assembler from '../../../assembler';
+
+import InputAssembler from '../../../../../renderer/core/input-assembler';
+
+const MeshBuffer = require('../../mesh-buffer');
+const vfmtPosColor = require('../../vertex-format').vfmtPosColor;
+const renderer = require('../../../index');
+
 const Graphics = require('../../../../graphics/graphics');
 const PointFlags = require('../../../../graphics/types').PointFlags;
 const LineJoin = Graphics.LineJoin;
@@ -41,7 +49,6 @@ const acos    = Math.acos;
 const cos     = Math.cos;
 const sin     = Math.sin;
 const atan2   = Math.atan2;
-const abs     = Math.abs;
 
 let _renderData = null;
 let _impl = null;
@@ -62,68 +69,102 @@ function clamp (v, min, max) {
     return v;
 }
 
-let graphicsAssembler = {
-    createImpl (graphics) {
-        return new Impl(graphics);
-    },
+export default class GraphicsAssembler extends Assembler {
+    constructor (graphics) {
+        super(graphics);
+        
+        this._buffers = [];
+        this._bufferOffset = 0;
+    }
 
-    updateRenderData (graphics) {
-        let datas = graphics._impl.getRenderDatas();
-        for (let i = 0, l = datas.length; i < l; i++) {
-            datas[i].material = graphics.sharedMaterials[0];
+    requestBuffer () {
+        let buffer = {};
+
+        let meshbuffer = new MeshBuffer(renderer._handle, vfmtPosColor);
+        buffer.meshbuffer = meshbuffer;
+
+        let ia = new InputAssembler(meshbuffer._vb, meshbuffer._ib);
+        buffer.ia = ia;
+
+        this._buffers.push(buffer);
+
+        return buffer;
+    }
+
+    getBuffers () {
+        if (this._buffers.length === 0) {
+            this.requestBuffer();
         }
-    },
+
+        return this._buffers;
+    }
+
+    clear (clean) {
+        this._bufferOffset = 0;
+
+        let datas = this._buffers;
+        if (clean) {
+            for (let i = 0, l = datas.length; i < l; i++) {
+                let data = datas[i];
+                data.meshbuffer.destroy();
+                data.meshbuffer = null;
+            }
+            datas.length = 0;
+        }
+        else {
+            for (let i = 0, l = datas.length; i < l; i++) {
+                let data = datas[i];
+
+                let meshbuffer = data.meshbuffer;
+                meshbuffer.reset();
+            }
+        }
+    }
 
     fillBuffers (graphics, renderer) {
         renderer._flush();
 
-        let tempNode = renderer.node;
         renderer.node = graphics.node;
-        this.renderIA(graphics, renderer);
-        renderer.node = tempNode;
-    },
+        renderer.material = graphics.sharedMaterials[0];
 
-    renderIA (graphics, renderer) {
-        let impl = graphics._impl;
-        let renderDatas = impl.getRenderDatas();
-        for (let index = 0, length = renderDatas.length; index < length; index++) {
-            let renderData = renderDatas[index];
-            let meshbuffer = renderData.meshbuffer;
-            renderData.ia._count = meshbuffer.indiceStart;
-            renderer._flushIA(renderData);
+        let buffers = this.getBuffers();
+        for (let index = 0, length = buffers.length; index < length; index++) {
+            let buffer = buffers[index];
+            let meshbuffer = buffer.meshbuffer;
+            buffer.ia._count = meshbuffer.indiceStart;
+            renderer._flushIA(buffer.ia);
             meshbuffer.uploadData();
         }
-    },
+    }
 
     genRenderData (graphics, cverts) {
-        let renderDatas = _impl.getRenderDatas(); 
-        let renderData = renderDatas[_impl._dataOffset];
-        let meshbuffer = renderData.meshbuffer;
+        let buffers = this.getBuffers(); 
+        let buffer = buffers[this._bufferOffset];
+        let meshbuffer = buffer.meshbuffer;
 
         let maxVertsCount = meshbuffer.vertexStart + cverts;
         if (maxVertsCount > MAX_VERTEX ||
             maxVertsCount * 3 > MAX_INDICE) {
-            ++_impl._dataOffset;
+            ++this._bufferOffset;
             maxVertsCount = cverts;
             
-            if (_impl._dataOffset < renderDatas.length) {
-                renderData = renderDatas[_impl._dataOffset];
+            if (this._bufferOffset < buffers.length) {
+                buffer = buffers[this._bufferOffset];
             }
             else {
-                renderData = _impl.requestRenderData(graphics);
-                renderDatas[_impl._dataOffset] = renderData;
+                buffer = this.requestBuffer(graphics);
+                buffers[this._bufferOffset] = buffer;
             }
 
-            renderData.material = graphics.sharedMaterials[0];
-            meshbuffer = renderData.meshbuffer;
+            meshbuffer = buffer.meshbuffer;
         }
 
         if (maxVertsCount > meshbuffer.vertexOffset) {
             meshbuffer.requestStatic(cverts, cverts*3);
         }
 
-        return renderData;
-    },
+        return buffer;
+    }
 
     stroke (graphics) {
         _curColor = graphics._strokeColor._val;
@@ -132,14 +173,14 @@ let graphicsAssembler = {
         this._expandStroke(graphics);
     
         graphics._impl._updatePathOffset = true;
-    },
+    }
 
     fill (graphics) {
         _curColor = graphics._fillColor._val;
 
         this._expandFill(graphics);
         graphics._impl._updatePathOffset = true;
-    },
+    }
 
     _expandStroke (graphics) {
         let w = graphics.lineWidth * 0.5,
@@ -268,7 +309,7 @@ let graphicsAssembler = {
 
         _renderData = null;
         _impl = null;
-    },
+    }
     
     _expandFill (graphics) {
         _impl = graphics._impl;
@@ -339,7 +380,7 @@ let graphicsAssembler = {
 
         _renderData = null;
         _impl = null;
-    },
+    }
 
     _calculateJoins (impl, w, lineJoin, miterLimit) {
         let iw = 0.0;
@@ -411,7 +452,7 @@ let graphicsAssembler = {
                 p1 = pts[j + 1];
             }
         }
-    },
+    }
     
     _flattenPaths (impl) {
         let paths = impl._paths;
@@ -441,7 +482,7 @@ let graphicsAssembler = {
                 p1 = pts[j + 1];
             }
         }
-    },
+    }
 
     _chooseBevel (bevel, p0, p1, w) {
         let x = p1.x;
@@ -459,7 +500,7 @@ let graphicsAssembler = {
         }
     
         return [x0, y0, x1, y1];
-    },
+    }
     
     _buttCap (p, dx, dy, w, d) {
         let px = p.x - dx * d;
@@ -469,7 +510,7 @@ let graphicsAssembler = {
     
         this._vset(px + dlx * w, py + dly * w);
         this._vset(px - dlx * w, py - dly * w);
-    },
+    }
     
     _roundCapStart (p, dx, dy, w, ncap) {
         let px = p.x;
@@ -486,7 +527,7 @@ let graphicsAssembler = {
         }
         this._vset(px + dlx * w, py + dly * w);
         this._vset(px - dlx * w, py - dly * w);
-    },
+    }
     
     _roundCapEnd (p, dx, dy, w, ncap) {
         let px = p.x;
@@ -503,7 +544,7 @@ let graphicsAssembler = {
             this._vset(px, py);
             this._vset(px - dlx * ax + dx * ay, py - dly * ax + dy * ay);
         }
-    },
+    }
     
     _roundJoin (p0, p1, lw, rw, ncap) {
         let dlx0 = p0.dy;
@@ -567,7 +608,7 @@ let graphicsAssembler = {
             this._vset(p1x + dlx1 * rw, p1y + dly1 * rw);
             this._vset(rx1, ry1);
         }
-    },
+    }
     
     _bevelJoin (p0, p1, lw, rw) {
         let rx0, ry0, rx1, ry1;
@@ -602,7 +643,7 @@ let graphicsAssembler = {
             this._vset(p1.x + dlx1 * lw, p1.y + dly1 * lw);
             this._vset(rx1, ry1);
         }
-    },
+    }
     
     _vset (x, y) {
         let meshbuffer = _renderData.meshbuffer;
@@ -618,8 +659,6 @@ let graphicsAssembler = {
         meshbuffer.vertexStart ++;
         meshbuffer._dirty = true;
     }
-};
+}
 
-Graphics._assembler = graphicsAssembler;
-
-module.exports = graphicsAssembler;
+Assembler.register(cc.Graphics, GraphicsAssembler);

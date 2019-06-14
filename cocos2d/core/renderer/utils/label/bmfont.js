@@ -23,11 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-let textUtils = require('../../../utils/text-utils');
+import Assembler2D from '../../assembler-2d';
+
+const textUtils = require('../../../utils/text-utils');
 const macro = require('../../../platform/CCMacro');
 const Label = require('../../../components/CCLabel');
 const Overflow = Label.Overflow;
-
 
 let FontLetterDefinition = function() {
     this._u = 0;
@@ -47,10 +48,10 @@ cc.FontAtlas = function (fntConfig) {
 
 cc.FontAtlas.prototype = {
     constructor: cc.FontAtlas,
-    addLetterDefinitions: function(letter, letterDefinition) {
+    addLetterDefinitions (letter, letterDefinition) {
         this._letterDefinitions[letter] = letterDefinition;
     },
-    cloneLetterDefinition: function() {
+    cloneLetterDefinition () {
         let copyLetterDefinitions = {};
         for (let key in this._letterDefinitions) {
             let value = new FontLetterDefinition();
@@ -59,14 +60,14 @@ cc.FontAtlas.prototype = {
         }
         return copyLetterDefinitions;
     },
-    assignLetterDefinitions: function(letterDefinition) {
+    assignLetterDefinitions (letterDefinition) {
         for (let key in this._letterDefinitions) {
             let newValue = letterDefinition[key];
             let oldValue = this._letterDefinitions[key];
             cc.js.mixin(oldValue, newValue);
         }
     },
-    scaleFontLetterDefinition: function(scaleFactor) {
+    scaleFontLetterDefinition (scaleFactor) {
         for (let fontDefinition in this._letterDefinitions) {
             let letterDefinitions = this._letterDefinitions[fontDefinition];
             letterDefinitions._width *= scaleFactor;
@@ -76,7 +77,7 @@ cc.FontAtlas.prototype = {
             letterDefinitions._xAdvance *= scaleFactor;
         }
     },
-    getLetterDefinitionForChar: function(char) {
+    getLetterDefinitionForChar (char) {
         let hasKey = this._letterDefinitions.hasOwnProperty(char.charCodeAt(0));
         let letterDefinition;
         if (hasKey) {
@@ -131,7 +132,7 @@ let _labelWidth = 0;
 let _labelHeight = 0;
 let _maxLineWidth = 0;
 
-textUtils.bmfont = module.exports = {
+export default class BmfontAssembler extends Assembler2D {
     updateRenderData (comp) {
         if (!comp._vertsDirty) return;
         if (_comp === comp) return;
@@ -141,6 +142,7 @@ textUtils.bmfont = module.exports = {
         this._reserveQuads(comp, comp.string.toString().length);
         this._updateProperties();
         this._updateContent();
+        this.updateWorldVerts(comp);
         
         _comp._actualFontSize = _fontSize;
         _comp.node.setContentSize(_contentSize);
@@ -150,13 +152,13 @@ textUtils.bmfont = module.exports = {
         _comp = null;
         
         this._resetProperties();
-    },
+    }
 
-    _reserveQuads () {},
+    _reserveQuads () {}
 
     _updateFontScale () {
         _bmfontScale = _fontSize / _originFontSize;
-    },
+    }
 
     _updateProperties () {
         let fontAsset = _comp.font;
@@ -214,19 +216,19 @@ textUtils.bmfont = module.exports = {
         }
 
         this._setupBMFontOverflowMetrics();
-    },
+    }
 
     _resetProperties () {
         _fontAtlas = null;
         _fntConfig = null;
         _spriteFrame = null;
-    },
+    }
 
     _updateContent () {
         this._updateFontScale();
         this._computeHorizontalKerningForText();
         this._alignText();
-    },
+    }
 
     _computeHorizontalKerningForText () {
         let string = _string;
@@ -246,9 +248,9 @@ textUtils.bmfont = module.exports = {
             }
             prev = key;
         }
-    },
+    }
 
-    _multilineTextWrap: function(nextTokenFunc) {
+    _multilineTextWrap (nextTokenFunc) {
         let textLen = _string.length;
 
         let lineIndex = 0;
@@ -384,13 +386,13 @@ textUtils.bmfont = module.exports = {
         }
 
         return true;
-    },
+    }
 
-    _getFirstCharLen: function() {
+    _getFirstCharLen () {
         return 1;
-    },
+    }
 
-    _getFirstWordLen: function(text, startIndex, textLen) {
+    _getFirstWordLen (text, startIndex, textLen) {
         let character = text.charAt(startIndex);
         if (textUtils.isUnicodeCJK(character)
             || character === "\n"
@@ -429,17 +431,17 @@ textUtils.bmfont = module.exports = {
         }
 
         return len;
-    },
+    }
 
-    _multilineTextWrapByWord: function() {
+    _multilineTextWrapByWord () {
         return this._multilineTextWrap(this._getFirstWordLen);
-    },
+    }
 
-    _multilineTextWrapByChar: function() {
+    _multilineTextWrapByChar () {
         return this._multilineTextWrap(this._getFirstCharLen);
-    },
+    }
 
-    _recordPlaceholderInfo: function(letterIndex, char) {
+    _recordPlaceholderInfo (letterIndex, char) {
         if (letterIndex >= _lettersInfo.length) {
             let tmpInfo = new LetterInfo();
             _lettersInfo.push(tmpInfo);
@@ -447,9 +449,9 @@ textUtils.bmfont = module.exports = {
 
         _lettersInfo[letterIndex]._char = char;
         _lettersInfo[letterIndex]._valid = false;
-    },
+    }
 
-    _recordLetterInfo: function(letterDefinitions, letterPosition, character, letterIndex, lineIndex) {
+    _recordLetterInfo (letterDefinitions, letterPosition, character, letterIndex, lineIndex) {
         if (letterIndex >= _lettersInfo.length) {
             let tmpInfo = new LetterInfo();
             _lettersInfo.push(tmpInfo);
@@ -461,9 +463,9 @@ textUtils.bmfont = module.exports = {
         _lettersInfo[letterIndex]._valid = letterDefinitions[character]._validDefinition;
         _lettersInfo[letterIndex]._positionX = letterPosition.x;
         _lettersInfo[letterIndex]._positionY = letterPosition.y;
-    },
+    }
 
-    _alignText: function() {
+    _alignText () {
         _textDesiredHeight = 0;
         _linesWidth.length = 0;
 
@@ -487,7 +489,7 @@ textUtils.bmfont = module.exports = {
                 this._shrinkLabelToContentSize(this._isHorizontalClamp);
             }
         }
-    },
+    }
 
     _scaleFontSizeDown (fontSize) {
         let shouldUpdateContent = true;
@@ -500,7 +502,7 @@ textUtils.bmfont = module.exports = {
         if (shouldUpdateContent) {
             this._updateContent();
         }
-    },
+    }
 
     _shrinkLabelToContentSize (lambda) {
         let fontSize = _fontSize;
@@ -540,7 +542,7 @@ textUtils.bmfont = module.exports = {
                 this._scaleFontSizeDown(fontSize - i);
             }
         }
-    },
+    }
 
     _isVerticalClamp () {
         if (_textDesiredHeight > _contentSize.height) {
@@ -548,7 +550,7 @@ textUtils.bmfont = module.exports = {
         } else {
             return false;
         }
-    },
+    }
 
     _isHorizontalClamp () {
         let letterDefinitions = _fontAtlas._letterDefinitions;
@@ -578,7 +580,7 @@ textUtils.bmfont = module.exports = {
         }
 
         return letterClamp;
-    },
+    }
 
     _isHorizontalClamped (px, lineIndex) {
         let wordWidth = _linesWidth[lineIndex];
@@ -589,7 +591,7 @@ textUtils.bmfont = module.exports = {
         }else{
             return (wordWidth > _contentSize.width && letterOverClamp);
         }
-    },
+    }
 
     _updateQuads () {
         let letterDefinitions = _fontAtlas._letterDefinitions;
@@ -678,14 +680,14 @@ textUtils.bmfont = module.exports = {
         this._quadsUpdated(_comp);
 
         return ret;
-    },
+    }
 
     appendQuad (comp, texture, rect, rotated, x, y, scale) {
-    },
+    }
 
-    _quadsUpdated (comp) {},
+    _quadsUpdated (comp) {}
 
-    _computeAlignmentOffset: function() {
+    _computeAlignmentOffset () {
         _linesOffsetX.length = 0;
         
         switch (_hAlign) {
@@ -721,7 +723,7 @@ textUtils.bmfont = module.exports = {
             default:
                 break;
         }
-    },
+    }
 
     _setupBMFontOverflowMetrics () {
         let newWidth = _contentSize.width,
@@ -742,4 +744,6 @@ textUtils.bmfont = module.exports = {
         _labelDimensions.height = newHeight;
         _maxLineWidth = newWidth;
     }
-};
+
+    updateWorldVerts() {}
+}
