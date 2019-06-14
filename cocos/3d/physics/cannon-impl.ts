@@ -219,11 +219,15 @@ export class CannonRigidBody implements RigidBodyBase {
 
     public setGroup (v: number): void {
         this._group = clamp(v, 0, 31);
-        this._body.collisionFilterGroup = 1 << v;
+        this._body.collisionFilterGroup = 1 << this._group;
     }
 
-    public getMask (): number {
-        return this._body.collisionFilterMask;
+    public setCollisionFilterGroup (group: number): void {
+        this._body.collisionFilterGroup = group;
+    }
+
+    public getCollisionFilterGroup (): number {
+        return this._body.collisionFilterGroup;
     }
 
     public setMask (v: number): void {
@@ -239,6 +243,14 @@ export class CannonRigidBody implements RigidBodyBase {
     public removeMask (v: number): void {
         v = clamp(Math.floor(v), 0, 31);
         this._body.collisionFilterMask -= 1 << v;
+    }
+
+    public getCollisionFilterMask (): number {
+        return this._body.collisionFilterMask;
+    }
+
+    public setCollisionFilterMask (v: number): void {
+        this._body.collisionFilterMask = v;
     }
 
     public wakeUp (): void {
