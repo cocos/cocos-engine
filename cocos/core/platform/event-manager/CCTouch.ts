@@ -29,8 +29,8 @@ import { vec2 } from '../../vmath';
 
 const _vec2 = new Vec2();
 /**
- * !#en The touch event class
- * !#zh 封装了触摸相关的信息。
+ * @en The touch event class
+ * @zh 封装了触摸相关的信息。
  * @class Touch
  *
  * @param {Number} x
@@ -50,8 +50,8 @@ export default class Touch {
     }
 
     /**
-     * !#en Returns the current touch location in OpenGL coordinates.、
-     * !#zh 获取当前触点位置。
+     * @en Returns the current touch location in OpenGL coordinates.、
+     * @zh 获取当前触点位置。
      */
     public getLocation (out?: Vec2) {
         if (!out){
@@ -63,24 +63,24 @@ export default class Touch {
     }
 
     /**
-     * !#en Returns X axis location value.
-     * !#zh 获取当前触点 X 轴位置。
+     * @en Returns X axis location value.
+     * @zh 获取当前触点 X 轴位置。
      */
     public getLocationX () {
         return this._point.x;
     }
 
     /**
-     * !#en Returns Y axis location value.
-     * !#zh 获取当前触点 Y 轴位置。
+     * @en Returns Y axis location value.
+     * @zh 获取当前触点 Y 轴位置。
      */
     public getLocationY () {
         return this._point.y;
     }
 
     /**
-     * !#en Returns the current touch location in OpenGL coordinates.、
-     * !#zh 获取当前触点位置。
+     * @en Returns the current touch location in OpenGL coordinates.、
+     * @zh 获取当前触点位置。
      */
     public getUILocation (out?: Vec2) {
         if (!out) {
@@ -93,8 +93,8 @@ export default class Touch {
     }
 
     /**
-     * !#en Returns X axis location value.
-     * !#zh 获取当前触点 X 轴位置。
+     * @en Returns X axis location value.
+     * @zh 获取当前触点 X 轴位置。
      */
     public getUILocationX () {
         const viewport = cc.view.getViewportRect();
@@ -102,8 +102,8 @@ export default class Touch {
     }
 
     /**
-     * !#en Returns Y axis location value.
-     * !#zh 获取当前触点 Y 轴位置。
+     * @en Returns Y axis location value.
+     * @zh 获取当前触点 Y 轴位置。
      */
     public getUILocationY () {
         const viewport = cc.view.getViewportRect();
@@ -111,8 +111,8 @@ export default class Touch {
     }
 
     /**
-     * !#en Returns the previous touch location in OpenGL coordinates.
-     * !#zh 获取触点在上一次事件时的位置对象，对象包含 x 和 y 属性。
+     * @en Returns the previous touch location in OpenGL coordinates.
+     * @zh 获取触点在上一次事件时的位置对象，对象包含 x 和 y 属性。
      */
     public getPreviousLocation (out?: Vec2) {
         if (!out) {
@@ -124,8 +124,8 @@ export default class Touch {
     }
 
     /**
-     * !#en Returns the previous touch location in OpenGL coordinates.
-     * !#zh 获取触点在上一次事件时的位置对象，对象包含 x 和 y 属性。
+     * @en Returns the previous touch location in OpenGL coordinates.
+     * @zh 获取触点在上一次事件时的位置对象，对象包含 x 和 y 属性。
      */
     public getUIPreviousLocation (out?: Vec2) {
         if (!out) {
@@ -138,8 +138,8 @@ export default class Touch {
     }
 
     /**
-     * !#en Returns the start touch location in OpenGL coordinates.
-     * !#zh 获获取触点落下时的位置对象，对象包含 x 和 y 属性。
+     * @en Returns the start touch location in OpenGL coordinates.
+     * @zh 获获取触点落下时的位置对象，对象包含 x 和 y 属性。
      */
     public getStartLocation (out?: Vec2) {
         if (!out) {
@@ -151,8 +151,8 @@ export default class Touch {
     }
 
     /**
-     * !#en Returns the start touch location in OpenGL coordinates.
-     * !#zh 获获取触点落下时的位置对象，对象包含 x 和 y 属性。
+     * @en Returns the start touch location in OpenGL coordinates.
+     * @zh 获获取触点落下时的位置对象，对象包含 x 和 y 属性。
      */
     public getUIStartLocation (out?: Vec2) {
         if (!out) {
@@ -165,8 +165,8 @@ export default class Touch {
     }
 
     /**
-     * !#en Returns the delta distance from the previous touche to the current one in screen coordinates.
-     * !#zh 获取触点距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
+     * @en Returns the delta distance from the previous touche to the current one in screen coordinates.
+     * @zh 获取触点距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
      */
     public getDelta (out?: Vec2) {
         if (!out){
@@ -178,8 +178,8 @@ export default class Touch {
     }
 
     /**
-     * !#en Returns the delta distance from the previous touche to the current one in screen coordinates.
-     * !#zh 获取触点距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
+     * @en Returns the delta distance from the previous touche to the current one in screen coordinates.
+     * @zh 获取触点距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
      */
     public getUIDelta (out?: Vec2) {
         if (!out) {
@@ -193,8 +193,8 @@ export default class Touch {
     }
 
     /**
-     * !#en Returns the current touch location in screen coordinates.
-     * !#zh 获取当前事件在游戏窗口内的坐标位置对象，对象包含 x 和 y 属性。
+     * @en Returns the current touch location in screen coordinates.
+     * @zh 获取当前事件在游戏窗口内的坐标位置对象，对象包含 x 和 y 属性。
      */
     public getLocationInView (out?: Vec2) {
         if (!out) {
@@ -206,8 +206,8 @@ export default class Touch {
     }
 
     /**
-     * !#en Returns the previous touch location in screen coordinates.
-     * !#zh 获取触点在上一次事件时在游戏窗口中的位置对象，对象包含 x 和 y 属性。
+     * @en Returns the previous touch location in screen coordinates.
+     * @zh 获取触点在上一次事件时在游戏窗口中的位置对象，对象包含 x 和 y 属性。
      */
     public getPreviousLocationInView (out?: Vec2) {
         if (!out) {
@@ -219,8 +219,8 @@ export default class Touch {
     }
 
     /**
-     * !#en Returns the start touch location in screen coordinates.
-     * !#zh 获取触点落下时在游戏窗口中的位置对象，对象包含 x 和 y 属性。
+     * @en Returns the start touch location in screen coordinates.
+     * @zh 获取触点落下时在游戏窗口中的位置对象，对象包含 x 和 y 属性。
      */
     public getStartLocationInView (out?: Vec2) {
         if (!out) {
@@ -232,16 +232,16 @@ export default class Touch {
     }
 
     /**
-     * !#en Returns the id of cc.Touch.
-     * !#zh 触点的标识 ID，可以用来在多点触摸中跟踪触点。
+     * @en Returns the id of cc.Touch.
+     * @zh 触点的标识 ID，可以用来在多点触摸中跟踪触点。
      */
     public getID () {
         return this._id;
     }
 
     /**
-     * !#en Sets information to touch.
-     * !#zh 设置触摸相关的信息。用于监控触摸事件。
+     * @en Sets information to touch.
+     * @zh 设置触摸相关的信息。用于监控触摸事件。
      */
     public setTouchInfo (id: number | null = null, x?: number, y?: number) {
         this._prevPoint = this._point;

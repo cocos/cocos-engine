@@ -33,6 +33,9 @@ import * as js from '../core/utils/js';
 import { baseNodePolyfill } from './base-node-dev';
 import { Scene } from './scene';
 
+/**
+ *
+ */
 type Constructor<T = {}> = new (...args: any[]) => T;
 
 // @ts-ignore

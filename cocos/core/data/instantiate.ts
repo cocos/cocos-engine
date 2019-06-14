@@ -36,18 +36,16 @@ const PersistentMask = CCObject.Flags.PersistentMask;
 const objsToClearTmpVar: any = [];   // used to reset _iN$t variable
 
 /**
- * !#en Clones the object `original` and returns the clone, or instantiate a node from the Prefab.
- * !#zh 克隆指定的任意类型的对象，或者从 Prefab 实例化出新节点。
+ * @en Clones the object `original` and returns the clone, or instantiate a node from the Prefab.
+ * @zh 克隆指定的任意类型的对象，或者从 Prefab 实例化出新节点。
  *
  * （Instantiate 时，function 和 dom 等非可序列化对象会直接保留原有引用，Asset 会直接进行浅拷贝，可序列化类型会进行深拷贝。）
  *
  * @method instantiate
  * @param {Prefab|Node|Object} original - An existing object that you want to make a copy of.
  * @return {Node|Object} the newly instantiated object
- * @typescript
- * instantiate(original: Prefab): Node
- * instantiate<T>(original: T): T
  * @example
+ * ```typescript
  * // instantiate node from prefab
  * var scene = cc.director.getScene();
  * var node = cc.instantiate(prefabAsset);
@@ -56,6 +54,7 @@ const objsToClearTmpVar: any = [];   // used to reset _iN$t variable
  * var scene = cc.director.getScene();
  * var node = cc.instantiate(targetNode);
  * node.parent = scene;
+ * ```
  */
 export default function instantiate (original, internal_force?) {
     if (!internal_force) {
@@ -111,8 +110,10 @@ export default function instantiate (original, internal_force?) {
     return clone;
 }
 
-/*
+/**
+ * @en
  * Do instantiate object, the object to instantiate must be non-nil.
+ * @zh
  * 这是一个通用的 instantiate 方法，可能效率比较低。
  * 之后可以给各种类型重写快速实例化的特殊实现，但应该在单元测试中将结果和这个方法的结果进行对比。
  * 值得注意的是，这个方法不可重入。

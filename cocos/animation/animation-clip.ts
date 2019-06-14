@@ -72,8 +72,8 @@ export class AnimationClip extends Asset {
     public static WrapMode = AnimationWrapMode;
 
     /**
-     * !#en Crate clip with a set of sprite frames
-     * !#zh 使用一组序列帧图片来创建动画剪辑
+     * @en Crate clip with a set of sprite frames
+     * @zh 使用一组序列帧图片来创建动画剪辑
      * @example
      * const clip = cc.AnimationClip.createWithSpriteFrames(spriteFrames, 10);
      *

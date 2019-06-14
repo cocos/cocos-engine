@@ -24,6 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ *
+ */
 let requiringFrames: any = [];  // the requiring frame infos
 
 export function push (module, uuid: string, script) {

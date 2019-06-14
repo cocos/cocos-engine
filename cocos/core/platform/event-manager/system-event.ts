@@ -44,7 +44,7 @@ import inputManager from './input-manager';
  * @zh
  * 系统事件，它目前支持按键事件和重力感应事件。<br>
  * 你可以通过 cc.systemEvent 获取到 SystemEvent 的实例。<br>
- * 参考示例：
+ * @example
  * ```
  * cc.systemEvent.on(cc.SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
  * cc.systemEvent.off(cc.SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
@@ -248,7 +248,7 @@ cc.SystemEvent = SystemEvent;
 
 /**
  * @en The System event singleton for global usage
- * @zh 系统事件单例，方便全局使用
+ * @zh 系统事件单例，方便全局使用。
  */
 export const systemEvent = new SystemEvent();
 cc.systemEvent = systemEvent;

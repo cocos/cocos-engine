@@ -33,8 +33,8 @@
 // tslint:disable:no-empty-interface
 
 /**
- * !#en Some JavaScript decorators which can be accessed with "cc._decorator".
- * !#zh 一些 JavaScript 装饰器，目前可以通过 "cc._decorator" 来访问。
+ * @en Some JavaScript decorators which can be accessed with "cc._decorator".
+ * @zh 一些 JavaScript 装饰器，目前可以通过 "cc._decorator" 来访问。
  * （这些 API 仍不完全稳定，有可能随着 JavaScript 装饰器的标准实现而调整）
  *
  * @submodule _decorator
@@ -236,15 +236,16 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
 }
 
 /**
- * !#en
+ * @en
  * Declare the standard [ES6 Class](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes)
  * as CCClass, please see [Class](/docs/editors_and_tools/creator-chapters/scripting/class/) for details.
- * !#zh
+ * @zh
  * 将标准写法的 [ES6 Class](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes) 声明为 CCClass，具体用法请参阅[类型定义](/docs/creator/scripting/class/)。
  *
  * @method ccclass
  * @param {String} [name] - The class name used for serialization.
  * @example
+ * ```typrscript
  * const {ccclass} = cc._decorator;
  *
  * // define a CCClass, omit the name
@@ -258,9 +259,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
  * class LoginData {
  *     // ...
  * }
- * @typescript
- * ccclass(name?: string): Function
- * ccclass(_class?: Function): void
+ * ```
  */
 export const ccclass = checkCtorArgument(function (ctor, name) {
     // if (FIX_BABEL6) {
@@ -373,16 +372,17 @@ function createDummyDecorator (argCheckFunc) {
 }
 
 /**
- * !#en
+ * @en
  * Makes a CCClass that inherit from component execute in edit mode.<br>
  * By default, all components are only executed in play mode,
  * which means they will not have their callback functions executed while the Editor is in edit mode.
- * !#zh
+ * @zh
  * 允许继承自 Component 的 CCClass 在编辑器里执行。<br>
  * 默认情况下，所有 Component 都只会在运行时才会执行，也就是说它们的生命周期回调不会在编辑器里触发。
  *
  * @method executeInEditMode
  * @example
+ * ```typescript
  * const {ccclass, executeInEditMode} = cc._decorator;
  *
  * &#64;ccclass
@@ -390,21 +390,20 @@ function createDummyDecorator (argCheckFunc) {
  * class NewScript extends cc.Component {
  *     // ...
  * }
- * @typescript
- * executeInEditMode(): Function
- * executeInEditMode(_class: Function): void
+ * ```
  */
 export const executeInEditMode = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'executeInEditMode', true);
 
 /**
- * !#en
+ * @en
  * Automatically add required component as a dependency for the CCClass that inherit from component.
- * !#zh
+ * @zh
  * 为声明为 CCClass 的组件添加依赖的其它组件。当组件添加到节点上时，如果依赖的组件不存在，引擎将会自动将依赖组件添加到同一个节点，防止脚本出错。该设置在运行时同样有效。
  *
  * @method requireComponent
  * @param {Component} requiredComponent
  * @example
+ * ```typescript
  * const {ccclass, requireComponent} = cc._decorator;
  *
  * &#64;ccclass
@@ -412,21 +411,21 @@ export const executeInEditMode = (CC_DEV ? createEditorDecorator : createDummyDe
  * class SpriteCtrl extends cc.Component {
  *     // ...
  * }
- * @typescript
- * requireComponent(requiredComponent: typeof cc.Component): Function
+ * ```
  */
 export const requireComponent = createEditorDecorator(checkCompArgument, 'requireComponent');
 
 /**
- * !#en
+ * @en
  * The menu path to register a component to the editors "Component" menu. Eg. "Rendering/CameraCtrl".
- * !#zh
+ * @zh
  * 将当前组件添加到组件菜单中，方便用户查找。例如 "Rendering/CameraCtrl"。
  *
  * @method menu
  * @param {String} path - The path is the menu represented like a pathname.
  *                        For example the menu could be "Rendering/CameraCtrl".
  * @example
+ * ```typescript
  * const {ccclass, menu} = cc._decorator;
  *
  * &#64;ccclass
@@ -434,22 +433,22 @@ export const requireComponent = createEditorDecorator(checkCompArgument, 'requir
  * class NewScript extends cc.Component {
  *     // ...
  * }
- * @typescript
- * menu(path: string): Function
+ * ```
  */
 export const menu = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'menu');
 
 /**
- * !#en
+ * @en
  * The execution order of lifecycle methods for Component.
  * Those less than 0 will execute before while those greater than 0 will execute after.
  * The order will only affect onLoad, onEnable, start, update and lateUpdate while onDisable and onDestroy will not be affected.
- * !#zh
+ * @zh
  * 设置脚本生命周期方法调用的优先级。优先级小于 0 的组件将会优先执行，优先级大于 0 的组件将会延后执行。优先级仅会影响 onLoad, onEnable, start, update 和 lateUpdate，而 onDisable 和 onDestroy 不受影响。
  *
  * @method executionOrder
  * @param {Number} order - The execution order of lifecycle methods for Component. Those less than 0 will execute before while those greater than 0 will execute after.
  * @example
+ * ```typescript
  * const {ccclass, executionOrder} = cc._decorator;
  *
  * &#64;ccclass
@@ -457,19 +456,19 @@ export const menu = (CC_DEV ? createEditorDecorator : createDummyDecorator)(chec
  * class CameraCtrl extends cc.Component {
  *     // ...
  * }
- * @typescript
- * executionOrder(order: number): Function
+ * ```
  */
 export const executionOrder = createEditorDecorator(checkNumberArgument, 'executionOrder');
 
 /**
- * !#en
+ * @en
  * Prevents Component of the same type (or subtype) to be added more than once to a Node.
- * !#zh
+ * @zh
  * 防止多个相同类型（或子类型）的组件被添加到同一个节点。
  *
  * @method disallowMultiple
  * @example
+ * ```typescript
  * const {ccclass, disallowMultiple} = cc._decorator;
  *
  * &#64;ccclass
@@ -477,21 +476,20 @@ export const executionOrder = createEditorDecorator(checkNumberArgument, 'execut
  * class CameraCtrl extends cc.Component {
  *     // ...
  * }
- * @typescript
- * disallowMultiple(): Function
- * disallowMultiple(_class: Function): void
+ * ```
  */
 export const disallowMultiple = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'disallowMultiple');
 
 /**
- * !#en
+ * @en
  * If specified, the editor's scene view will keep updating this node in 60 fps when it is selected, otherwise, it will update only if necessary.<br>
  * This property is only available if executeInEditMode is true.
- * !#zh
+ * @zh
  * 当指定了 "executeInEditMode" 以后，playOnFocus 可以在选中当前组件所在的节点时，提高编辑器的场景刷新频率到 60 FPS，否则场景就只会在必要的时候进行重绘。
  *
  * @method playOnFocus
  * @example
+ * ```typescript
  * const {ccclass, playOnFocus, executeInEditMode} = cc._decorator;
  *
  * &#64;ccclass
@@ -500,21 +498,20 @@ export const disallowMultiple = (CC_DEV ? createEditorDecorator : createDummyDec
  * class CameraCtrl extends cc.Component {
  *     // ...
  * }
- * @typescript
- * playOnFocus(): Function
- * playOnFocus(_class: Function): void
+ * ```
  */
 export const playOnFocus = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'playOnFocus');
 
 /**
- * !#en
+ * @en
  * Specifying the url of the custom html to draw the component in **Properties**.
- * !#zh
+ * @zh
  * 自定义当前组件在 **属性检查器** 中渲染时所用的网页 url。
  *
  * @method inspector
  * @param {String} url
  * @example
+ * ```typescript
  * const {ccclass, inspector} = cc._decorator;
  *
  * &#64;ccclass
@@ -522,21 +519,21 @@ export const playOnFocus = (CC_DEV ? createEditorDecorator : createDummyDecorato
  * class NewScript extends cc.Component {
  *     // ...
  * }
- * @typescript
- * inspector(path: string): Function
+ * ```
  */
 export const inspector = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'inspector');
 
 /**
- * !#en
+ * @en
  * Specifying the url of the icon to display in the editor.
- * !#zh
+ * @zh
  * 自定义当前组件在编辑器中显示的图标 url。
  *
  * @method icon
  * @param {String} url
  * @private
  * @example
+ * ```typescript
  * const {ccclass, icon} = cc._decorator;
  *
  * &#64;ccclass
@@ -544,20 +541,20 @@ export const inspector = (CC_DEV ? createEditorDecorator : createDummyDecorator)
  * class NewScript extends cc.Component {
  *     // ...
  * }
- * @typescript
- * icon(path: string): Function
+ * ```
  */
 export const icon = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'icon');
 
 /**
- * !#en
+ * @en
  * The custom documentation URL.
- * !#zh
+ * @zh
  * 指定当前组件的帮助文档的 url，设置过后，在 **属性检查器** 中就会出现一个帮助图标，用户点击将打开指定的网页。
  *
  * @method help
  * @param {String} url
  * @example
+ * ```typescript
  * const {ccclass, help} = cc._decorator;
  *
  * &#64;ccclass
@@ -565,14 +562,14 @@ export const icon = (CC_DEV ? createEditorDecorator : createDummyDecorator)(chec
  * class NewScript extends cc.Component {
  *     // ...
  * }
- * @typescript
- * help(path: string): Function
+ * ```
  */
 export const help = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'help');
 
 // Other Decorators
 
 /**
+ * @en
  * NOTE:<br>
  * The old mixins implemented in cc.Class(ES5) behaves exact the same as multiple inheritance.
  * But since ES6, class constructor can't be function-called and class methods become non-enumerable,
@@ -584,11 +581,24 @@ export const help = (CC_DEV ? createEditorDecorator : createDummyDecorator)(chec
  * <br>
  * NOTE:<br>
  * You must manually call mixins constructor, this is different from cc.Class(ES5).
+ * @zh
+ * *注意：<br>
+ * 在cc.Class（ES5）中实现的旧mixin的行为与多重继承完全相同。
+ * 但是从ES6开始，类构造函数不能被函数调用，类方法变得不可枚举，
+ * 所以我们不能混合使用ES6类。<br>
+ * 参看：<br>
+ * [https://esdiscuss.org/topic/traits-are-now-impossible-in-es6-until-es7-since-rev32](https://esdiscuss.org/topic/traits-are-now-impossible-in-ES6-直到-ES7，因为-rev32）点击
+ * 一种可能的解决方案（但对 IDE 不友好）：<br>
+ * [http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes](http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/）结果
+ * <br>
+ * 注意：<br>
+ * 您必须手动调用mixins构造函数，这与cc.Class（ES5）不同。
  *
  * @method mixins
  * @param {Function} ...ctor - constructors to mix, only support ES5 constructors or classes defined by using `cc.Class`,
  *                             not support ES6 Classes.
  * @example
+ * ```typescript
  * const {ccclass, mixins} = cc._decorator;
  *
  * class Animal { ... }
@@ -609,8 +619,7 @@ export const help = (CC_DEV ? createEditorDecorator : createDummyDecorator)(chec
  *     }
  *     // ...
  * }
- * @typescript
- * mixins(ctor: Function, ...rest: Function[]): Function
+ * ```
  */
 export function mixins (...constructors: Function[]) {
     const mixins: Function[] = [];

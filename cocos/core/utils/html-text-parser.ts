@@ -24,6 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ *
+ */
 const eventRegx = /^(click)(\s)*=|(param)(\s)*=/;
 const imageAttrReg = /(\s)*src(\s)*=|(\s)*height(\s)*=|(\s)*width(\s)*=|(\s)*click(\s)*=|(\s)*param(\s)*=/;
 /**
