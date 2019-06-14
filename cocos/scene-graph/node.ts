@@ -1,5 +1,6 @@
 import { UITransformComponent } from '../3d';
 import { ccclass, property } from '../core/data/class-decorator';
+import { readOnly } from '../core/data/utils/read-only';
 import Event from '../core/event/event';
 import { eventManager } from '../core/platform/event-manager';
 import { SystemEventType } from '../core/platform/event-manager/event-enum';
@@ -378,6 +379,7 @@ export class Node extends BaseNode {
      * @zh
      * 本地位移
      */
+    @readOnly
     public get position (): Readonly<Vec3> {
         return this._lpos;
     }
