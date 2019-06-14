@@ -293,6 +293,7 @@ var PageView = cc.Class({
             return;
         this.content.addChild(page);
         this._pages.push(page);
+        if(this.getPages().length===1) this._initPages();
         this._updatePageView();
     },
 
