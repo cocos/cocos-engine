@@ -317,18 +317,6 @@ var Texture2D = cc.Class({
     ctor () {
         // Id for generate hash in material
         this._id = idGenerater.getNewId();
-        
-        /**
-         * !#en
-         * The url of the texture, this could be empty if the texture wasn't created via a file.
-         * !#zh
-         * 贴图文件的 url，当贴图不是由文件创建时值可能为空
-         * @property url
-         * @type {String}
-         * @readonly
-         */
-        // TODO - use nativeUrl directly
-        this.url = "";
 
         /**
          * !#en
@@ -864,8 +852,6 @@ var Texture2D = cc.Class({
             let uuid = loadingItem && loadingItem.uuid;
             if (uuid) {
                 this._uuid = uuid;
-                var url = this.nativeUrl;
-                this.url = url;
             }
         }
         if (fields.length === 6) {
