@@ -2,21 +2,24 @@
 declare const global: any;
 const _global = typeof window === 'undefined' ? global : window;
 
-// tslint:disable: no-string-literal
-if (typeof _global['CC_PHYSICS_CANNON'] === 'undefined') {
-    _global['CC_PHYSICS_CANNON'] = false;
+// tslint:disable: no-string-literal;
+if (typeof _global.CC_PHYSICS_CANNON === 'undefined') {
+    _global.CC_PHYSICS_CANNON = false;
 }
 
-if (typeof _global['CC_PHYSICS_AMMO'] === 'undefined') {
-    _global['CC_PHYSICS_AMMO'] = false;
+if (typeof _global.CC_PHYSICS_AMMO === 'undefined') {
+    _global.CC_PHYSICS_AMMO = false;
 }
 
-if (typeof _global['CC_PHYSICS_BUILT_IN'] === 'undefined') {
-    _global['CC_PHYSICS_BUILT_IN'] = true;
+if (typeof _global.CC_PHYSICS_BUILT_IN === 'undefined') {
+    _global.CC_PHYSICS_BUILT_IN = true;
 }
 
 // Cannon
-import { CannonBoxShape, CannonRigidBody, CannonSphereShape, CannonWorld } from './cannon-impl';
+import { CannonRigidBody } from './cannon/cannon-body';
+import { CannonWorld } from './cannon/cannon-world';
+import { CannonBoxShape } from './cannon/shapes/cannon-box-shape';
+import { CannonSphereShape } from './cannon/shapes/cannon-sphere-shape';
 
 // Ammo
 // import { AmmoBoxShape, AmmoRaycastResult, AmmoRigidBody, AmmoSphereShape, AmmoWorld, } from './ammo-impl';
