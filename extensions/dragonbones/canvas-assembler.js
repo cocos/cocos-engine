@@ -29,13 +29,13 @@ let armatureAssembler = {
 
     drawArmature (ctx, armature, texture, matrix) {
         let slots = armature._slots;
-        
+
         for (let i = 0, l = slots.length; i < l; i++) {
             let slot = slots[i];
             if (!slot._visible || !slot._displayData) continue;
 
             if (slot.childArmature) {
-                math.mat4.mul(_matrix, matrix, slot._matrix);
+                math.mat4.multiply(_matrix, matrix, slot._matrix);
                 this.drawArmature(ctx, slot.childArmature, texture, _matrix);
                 continue;
             }
@@ -47,12 +47,12 @@ let armatureAssembler = {
             }
 
             ctx.save();
-            
-            math.mat4.mul(_matrix2, matrix, slot._matrix);
+
+            math.mat4.multiply(_matrix2, matrix, slot._matrix);
 
             let m = _matrix2;
             ctx.transform(m.m00, -m.m01, -m.m04, m.m05, m.m12, -m.m13);
-            
+
             let vertices = slot._vertices;
             let sx = vertices[0].u * texture.width;
             let sy = vertices[3].v * texture.height;

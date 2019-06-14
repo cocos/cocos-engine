@@ -66,7 +66,7 @@ export default class sphere {
      */
     public static fromPoints (out: sphere, minPos: vec3, maxPos: vec3): sphere {
         vec3.scale(out.center, vec3.add(_v3_tmp, minPos, maxPos), 0.5);
-        out.radius = vec3.mag(vec3.sub(_v3_tmp, maxPos, minPos)) * 0.5;
+        out.radius = vec3.mag(vec3.subtract(_v3_tmp, maxPos, minPos)) * 0.5;
         return out;
     }
 

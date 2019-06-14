@@ -88,7 +88,7 @@ export default class aabb {
      */
     public static fromPoints (out: aabb, minPos: vec3, maxPos: vec3): aabb {
         vec3.scale(out.center, vec3.add(_v3_tmp, minPos, maxPos), 0.5);
-        vec3.scale(out.halfExtents, vec3.sub(_v3_tmp2, maxPos, minPos), 0.5);
+        vec3.scale(out.halfExtents, vec3.subtract(_v3_tmp2, maxPos, minPos), 0.5);
         return out;
     }
 
@@ -121,8 +121,8 @@ export default class aabb {
      * @returns {aabb} out 接受操作的 aabb。
      */
     public static merge (out: aabb, a: aabb, b: aabb): aabb {
-        vec3.sub(_v3_tmp, a.center, a.halfExtents);
-        vec3.sub(_v3_tmp2, b.center, b.halfExtents);
+        vec3.subtract(_v3_tmp, a.center, a.halfExtents);
+        vec3.subtract(_v3_tmp2, b.center, b.halfExtents);
         vec3.add(_v3_tmp3, a.center, a.halfExtents);
         vec3.add(_v3_tmp4, b.center, b.halfExtents);
         vec3.max(_v3_tmp4, _v3_tmp3, _v3_tmp4);
@@ -172,7 +172,7 @@ export default class aabb {
      * @param {vec3} maxPos 最大点。
      */
     public getBoundary (minPos: vec3, maxPos: vec3) {
-        vec3.sub(minPos, this.center, this.halfExtents);
+        vec3.subtract(minPos, this.center, this.halfExtents);
         vec3.add(maxPos, this.center, this.halfExtents);
     }
 

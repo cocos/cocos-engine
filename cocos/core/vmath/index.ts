@@ -7,13 +7,10 @@ import * as bits from './bits';
  */
 export { bits };
 
-export { default as vec2 } from './vec2';
-export { default as vec3 } from './vec3';
-export { default as vec4 } from './vec4';
-export { default as quat } from './quat';
-export { default as mat2 } from './mat2';
-export { default as mat23 } from './mat23';
-export { default as mat3 } from './mat3';
-export { default as mat4 } from './mat4';
-export { default as color3 } from './color3';
-export { default as color4 } from './color4';
+export { vec2 } from './vec2';
+export { vec3 } from './vec3';
+export { vec4 } from './vec4';
+export { quat } from './quat';
+export { mat3 } from './mat3';
+export { mat4 } from './mat4';
+export { color4 } from './color4';

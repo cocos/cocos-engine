@@ -215,7 +215,7 @@ export class Model {
         const worldMatrix = this._transform._mat;
         mat4.array(f32_1, worldMatrix);
         this._uboLocal.view.set(f32_1, UBOLocal.MAT_WORLD_OFFSET);
-        mat4.normalMatrix(m4_1, worldMatrix);
+        mat4.inverseTranspose(m4_1, worldMatrix);
         mat4.array(f32_1, m4_1);
         this._uboLocal.view.set(f32_1, UBOLocal.MAT_WORLD_IT_OFFSET);
 

@@ -123,7 +123,7 @@ export class Node extends BaseNode {
      * @zh
      * 设置父节点
      * @param value 父节点
-     * @prama keepWorldTransform 是否保留当前世界变换
+     * @param keepWorldTransform 是否保留当前世界变换
      */
     public setParent (value: this | null, keepWorldTransform: boolean = false) {
         if (keepWorldTransform) { this.updateWorldTransform(); }
@@ -137,11 +137,11 @@ export class Node extends BaseNode {
             const local = this._lpos;
             if (parent) {
                 parent.updateWorldTransform();
-                vec3.sub(local, this._pos, parent._pos);
+                vec3.subtract(local, this._pos, parent._pos);
                 vec3.transformQuat(local, local, quat.conjugate(q_a, parent._rot));
-                vec3.div(local, local, parent._scale);
-                quat.mul(this._lrot, quat.conjugate(q_a, parent._rot), this._rot);
-                vec3.div(this._lscale, this._scale, parent._scale);
+                vec3.divide(local, local, parent._scale);
+                quat.multiply(this._lrot, quat.conjugate(q_a, parent._rot), this._rot);
+                vec3.divide(this._lscale, this._scale, parent._scale);
             } else {
                 vec3.copy(this._lpos, this._pos);
                 quat.copy(this._lrot, this._rot);
@@ -238,7 +238,7 @@ export class Node extends BaseNode {
      */
     public lookAt (pos: Vec3, up?: Vec3) {
         this.getWorldPosition(v3_a);
-        vec3.sub(v3_a, v3_a, pos); // we use -z for view-dir
+        vec3.subtract(v3_a, v3_a, pos); // we use -z for view-dir
         vec3.normalize(v3_a, v3_a);
         quat.fromViewUp(q_a, v3_a, up);
         this.setWorldRotation(q_a);
@@ -302,11 +302,11 @@ export class Node extends BaseNode {
         while (i) {
             child = array_a[--i];
             if (cur) {
-                vec3.mul(child._pos, child._lpos, cur._scale);
+                vec3.multiply(child._pos, child._lpos, cur._scale);
                 vec3.transformQuat(child._pos, child._pos, cur._rot);
                 vec3.add(child._pos, child._pos, cur._pos);
-                quat.mul(child._rot, cur._rot, child._lrot);
-                vec3.mul(child._scale, cur._scale, child._lscale);
+                quat.multiply(child._rot, cur._rot, child._lrot);
+                vec3.multiply(child._scale, cur._scale, child._lscale);
             }
             child._matDirty = true; // further deferred eval
             child._dirty = false;
@@ -542,9 +542,9 @@ export class Node extends BaseNode {
         v3_a.set(this._lpos);
         if (parent) {
             parent.updateWorldTransform();
-            vec3.sub(local, this._pos, parent._pos);
+            vec3.subtract(local, this._pos, parent._pos);
             vec3.transformQuat(local, local, quat.conjugate(q_a, parent._rot));
-            vec3.div(local, local, parent._scale);
+            vec3.divide(local, local, parent._scale);
         } else {
             vec3.copy(local, this._pos);
         }
@@ -606,7 +606,7 @@ export class Node extends BaseNode {
         }
         if (this._parent) {
             this._parent.getWorldRotation(q_a);
-            quat.mul(this._lrot, quat.conjugate(q_a, q_a), this._rot);
+            quat.multiply(this._lrot, quat.conjugate(q_a, q_a), this._rot);
         } else {
             quat.copy(this._lrot, this._rot);
         }
@@ -629,7 +629,7 @@ export class Node extends BaseNode {
         quat.fromEuler(this._rot, x, y, z);
         if (this._parent) {
             this._parent.getWorldRotation(q_a);
-            quat.mul(this._lrot, this._rot, quat.conjugate(q_a, q_a));
+            quat.multiply(this._lrot, this._rot, quat.conjugate(q_a, q_a));
         } else {
             quat.copy(this._lrot, this._rot);
         }
@@ -691,7 +691,7 @@ export class Node extends BaseNode {
         }
         if (this._parent) {
             this._parent.getWorldScale(v3_a);
-            vec3.div(this._lscale, this._scale, v3_a);
+            vec3.divide(this._lscale, this._scale, v3_a);
         } else {
             vec3.copy(this._lscale, this._scale);
         }

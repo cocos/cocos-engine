@@ -29,7 +29,7 @@ const ray_plane = (function () {
         const denom = vec3.dot(ray.d, plane.n);
         if (Math.abs(denom) < Number.EPSILON) { return 0; }
         vec3.scale(pt, plane.n, plane.d);
-        const t = vec3.dot(vec3.sub(pt, pt, ray.o), plane.n) / denom;
+        const t = vec3.dot(vec3.subtract(pt, pt, ray.o), plane.n) / denom;
         if (t < 0) { return 0; }
         return t;
     };
@@ -46,7 +46,7 @@ const line_plane = (function () {
     const ab = vec3.create(0, 0, 0);
 
     return function (line: line, plane: plane): number {
-        vec3.sub(ab, line.e, line.s);
+        vec3.subtract(ab, line.e, line.s);
         const t = (plane.d - vec3.dot(line.s, plane.n)) / vec3.dot(ab, plane.n);
         if (t < 0 || t > 1) { return 0; }
         return t;
@@ -69,9 +69,9 @@ const ray_triangle = (function () {
     const tvec = vec3.create(0, 0, 0);
     const qvec = vec3.create(0, 0, 0);
 
-    return function (ray: ray, triangle: triangle, doubleSided: boolean) {
-        vec3.sub(ab, triangle.b, triangle.a);
-        vec3.sub(ac, triangle.c, triangle.a);
+    return function (ray: ray, triangle: triangle, doubleSided?: boolean) {
+        vec3.subtract(ab, triangle.b, triangle.a);
+        vec3.subtract(ac, triangle.c, triangle.a);
 
         vec3.cross(pvec, ray.d, ac);
         const det = vec3.dot(ab, pvec);
@@ -79,7 +79,7 @@ const ray_triangle = (function () {
 
         const inv_det = 1 / det;
 
-        vec3.sub(tvec, ray.o, triangle.a);
+        vec3.subtract(tvec, ray.o, triangle.a);
         const u = vec3.dot(tvec, pvec) * inv_det;
         if (u < 0 || u > 1) { return 0; }
 
@@ -109,9 +109,9 @@ const line_triangle = (function () {
     const e = vec3.create(0, 0, 0);
 
     return function (line: line, triangle: triangle, outPt: vec3): number {
-        vec3.sub(ab, triangle.b, triangle.a);
-        vec3.sub(ac, triangle.c, triangle.a);
-        vec3.sub(qp, line.s, line.e);
+        vec3.subtract(ab, triangle.b, triangle.a);
+        vec3.subtract(ac, triangle.c, triangle.a);
+        vec3.subtract(qp, line.s, line.e);
 
         vec3.cross(n, ab, ac);
         const det = vec3.dot(qp, n);
@@ -120,7 +120,7 @@ const line_triangle = (function () {
             return 0;
         }
 
-        vec3.sub(ap, line.s, triangle.a);
+        vec3.subtract(ap, line.s, triangle.a);
         const t = vec3.dot(ap, n);
         if (t < 0 || t > det) {
             return 0;
@@ -177,10 +177,10 @@ const line_quad = (function () {
     const tmp = vec3.create(0, 0, 0);
 
     return function (p: vec3, q: vec3, a: vec3, b: vec3, c: vec3, d: vec3, outPt: vec3): number {
-        vec3.sub(pq, q, p);
-        vec3.sub(pa, a, p);
-        vec3.sub(pb, b, p);
-        vec3.sub(pc, c, p);
+        vec3.subtract(pq, q, p);
+        vec3.subtract(pa, a, p);
+        vec3.subtract(pb, b, p);
+        vec3.subtract(pc, c, p);
 
         // Determine which triangle to test against by testing against diagonal first
         vec3.cross(m, pc, pq);
@@ -213,7 +213,7 @@ const line_quad = (function () {
             }
         } else {
             // Test intersection against triangle dac
-            vec3.sub(pd, d, p);
+            vec3.subtract(pd, d, p);
 
             let u = vec3.dot(pd, m);
             if (u < 0) {
@@ -261,7 +261,7 @@ const ray_sphere = (function () {
         const o = ray.o;
         const d = ray.d;
         const rSq = r * r;
-        vec3.sub(e, c, o);
+        vec3.subtract(e, c, o);
         const eSq = vec3.sqrMag(e);
 
         const aLength = vec3.dot(e, d); // assume ray direction already normalized
@@ -288,7 +288,7 @@ const ray_aabb = (function () {
     return function (ray: ray, aabb: aabb): number {
         const o = ray.o, d = ray.d;
         const ix = 1 / d.x, iy = 1 / d.y, iz = 1 / d.z;
-        vec3.sub(min, aabb.center, aabb.halfExtents);
+        vec3.subtract(min, aabb.center, aabb.halfExtents);
         vec3.add(max, aabb.center, aabb.halfExtents);
         const t1 = (min.x - o.x) * ix;
         const t2 = (max.x - o.x) * ix;
@@ -334,7 +334,7 @@ const ray_obb = (function () {
         vec3.set(X, obb.orientation.m00, obb.orientation.m01, obb.orientation.m02);
         vec3.set(Y, obb.orientation.m03, obb.orientation.m04, obb.orientation.m05);
         vec3.set(Z, obb.orientation.m06, obb.orientation.m07, obb.orientation.m08);
-        vec3.sub(p, center, o);
+        vec3.subtract(p, center, o);
 
         // The cos values of the ray on the X, Y, Z
         f[0] = vec3.dot(X, d);
@@ -392,9 +392,9 @@ const aabb_aabb = (function () {
     const bMin = vec3.create();
     const bMax = vec3.create();
     return function (aabb1: aabb, aabb2: aabb) {
-        vec3.sub(aMin, aabb1.center, aabb1.halfExtents);
+        vec3.subtract(aMin, aabb1.center, aabb1.halfExtents);
         vec3.add(aMax, aabb1.center, aabb1.halfExtents);
-        vec3.sub(bMin, aabb2.center, aabb2.halfExtents);
+        vec3.subtract(bMin, aabb2.center, aabb2.halfExtents);
         vec3.add(bMax, aabb2.center, aabb2.halfExtents);
         return (aMin.x <= bMax.x && aMax.x >= bMin.x) &&
             (aMin.y <= bMax.y && aMax.y >= bMin.y) &&
@@ -500,7 +500,7 @@ const aabb_obb = (function () {
             vec3.cross(test[6 + i * 3 + 1], test[i], test[2]);
         }
 
-        vec3.sub(min, aabb.center, aabb.halfExtents);
+        vec3.subtract(min, aabb.center, aabb.halfExtents);
         vec3.add(max, aabb.center, aabb.halfExtents);
         getAABBVertices(min, max, vertices);
         getOBBVertices(obb.center, obb.halfExtents, test[3], test[4], test[5], vertices2);
@@ -579,7 +579,7 @@ const aabb_frustum_accurate = (function () {
         // in case of false positives
         // 2. frustum inside/outside aabb test
         for (let i = 0; i < frustum.vertices.length; i++) {
-            vec3.sub(tmp[i], frustum.vertices[i], aabb.center);
+            vec3.subtract(tmp[i], frustum.vertices[i], aabb.center);
         }
         out1 = 0, out2 = 0;
         for (let i = 0; i < frustum.vertices.length; i++) {
@@ -614,7 +614,7 @@ const obb_point = (function () {
     const tmp = vec3.create(0, 0, 0), m3 = mat3.create();
     const lessThan = function (a: vec3, b: vec3): boolean { return Math.abs(a.x) < b.x && Math.abs(a.y) < b.y && Math.abs(a.z) < b.z; };
     return function (obb: obb, point: vec3): boolean {
-        vec3.sub(tmp, point, obb.center);
+        vec3.subtract(tmp, point, obb.center);
         vec3.transformMat3(tmp, tmp, mat3.transpose(m3, obb.orientation));
         return lessThan(tmp, obb.halfExtents);
     };
@@ -692,7 +692,7 @@ const obb_frustum_accurate = (function () {
         // in case of false positives
         // 2. frustum inside/outside obb test
         for (let i = 0; i < frustum.vertices.length; i++) {
-            vec3.sub(tmp[i], frustum.vertices[i], obb.center);
+            vec3.subtract(tmp[i], frustum.vertices[i], obb.center);
         }
         out1 = 0, out2 = 0;
         for (let i = 0; i < frustum.vertices.length; i++) {

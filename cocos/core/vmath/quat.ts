@@ -1,65 +1,40 @@
-import mat3 from './mat3';
+import { mat3 } from './mat3';
 import { toDegree } from './utils';
-import vec3 from './vec3';
-import vec4 from './vec4';
-
-const halfToRad = 0.5 * Math.PI / 180.0;
+import { vec3 } from './vec3';
+import { vec4 } from './vec4';
 
 /**
- * Mathematical quaternion.
- *
- * A quaternion is a hypercomplex number represented by w + xi + yj + zk, where
- * x, y, z and w are real numbers(called here its components), and i, j, and k are the fundamental quaternion units.
+ * @zh 四元数
  */
 // tslint:disable-next-line:class-name
-export default class quat {
-    public static IDENTITY = new quat();
+export class quat {
+    public static IDENTITY = Object.freeze(new quat());
 
     /**
-     * Creates a quaternion, with components specified separately.
-     *
-     * @param x - Value assigned to x component.
-     * @param y - Value assigned to y component.
-     * @param z - Value assigned to z component.
-     * @param w - Value assigned to w component.
-     * @return The newly created quaternion.
+     * @zh 创建新的实例
      */
     public static create (x = 0, y = 0, z = 0, w = 1) {
         return new quat(x, y, z, w);
     }
 
     /**
-     * Clone a quaternion.
-     *
-     * @param a - Quaternion to clone.
-     * @return The newly created quaternion.
+     * @zh 获得指定四元数的拷贝
      */
     public static clone (a: quat) {
         return new quat(a.x, a.y, a.z, a.w);
     }
 
     /**
-     * Copy content of a quaternion into another.
-     *
-     * @param out - Quaternion to modified.
-     * @param a - The specified quaternion.
-     * @return out.
+     * @zh 复制目标四元数
      */
-    public static copy<Out extends quat> (out: Out, a: quat) {
+    public static copy (out: quat, a: quat) {
         return vec4.copy(out, a);
     }
 
     /**
-     * Sets the components of a quaternion to the given values.
-     *
-     * @param out - The quaternion to modified.
-     * @param x - Value set to x component.
-     * @param y - Value set to y component.
-     * @param z - Value set to z component.
-     * @param w - Value set to w component.
-     * @return out.
+     * @zh 设置四元数值
      */
-    public static set<Out extends quat> (out: Out, x: number, y: number, z: number, w: number) {
+    public static set (out: quat, x: number, y: number, z: number, w: number) {
         out.x = x;
         out.y = y;
         out.z = z;
@@ -68,12 +43,9 @@ export default class quat {
     }
 
     /**
-     * Sets a quaternion as identity quaternion.
-     *
-     * @param out - Quaternion to set.
-     * @return out.
+     * @zh 将目标赋值为单位四元数
      */
-    public static identity<Out extends quat> (out: Out) {
+    public static identity (out: quat) {
         out.x = 0;
         out.y = 0;
         out.z = 0;
@@ -82,25 +54,17 @@ export default class quat {
     }
 
     /**
-     * Sets a quaternion to represent the shortest rotation from one
-     * vector to another.
-     *
-     * Both vectors are assumed to be unit length.
-     *
-     * @param out - Quaternion to set.
-     * @param a - The initial vector.
-     * @param b - The destination vector.
-     * @return out.
+     * @zh 设置四元数为两向量间的最短路径旋转，默认两向量都已归一化
      */
-    public static rotationTo<Out extends quat> (out: Out, a: vec3, b: vec3) {
+    public static rotationTo (out: quat, a: vec3, b: vec3) {
         const dot = vec3.dot(a, b);
         if (dot < -0.999999) {
-            vec3.cross(tmpVec3, tmpXUnitVec3, a);
-            if (vec3.magnitude(tmpVec3) < 0.000001) {
-                vec3.cross(tmpVec3, tmpYUnitVec3, a);
+            vec3.cross(v3_1, vec3.UNIT_X, a);
+            if (vec3.magnitude(v3_1) < 0.000001) {
+                vec3.cross(v3_1, vec3.UNIT_Y, a);
             }
-            vec3.normalize(tmpVec3, tmpVec3);
-            quat.fromAxisAngle(out, tmpVec3, Math.PI);
+            vec3.normalize(v3_1, v3_1);
+            quat.fromAxisAngle(out, v3_1, Math.PI);
             return out;
         } else if (dot > 0.999999) {
             out.x = 0;
@@ -109,29 +73,22 @@ export default class quat {
             out.w = 1;
             return out;
         } else {
-            vec3.cross(tmpVec3, a, b);
-            out.x = tmpVec3.x;
-            out.y = tmpVec3.y;
-            out.z = tmpVec3.z;
+            vec3.cross(v3_1, a, b);
+            out.x = v3_1.x;
+            out.y = v3_1.y;
+            out.z = v3_1.z;
             out.w = 1 + dot;
             return quat.normalize(out, out);
         }
     }
 
     /**
-     * Gets the rotation axis and angle for a given
-     *  quaternion. If a quaternion is created with
-     *  fromAxisAngle, this method will return the same
-     *  values as provided in the original parameter list
-     *  OR functionally equivalent values.
-     * Example: The quaternion formed by axis [0, 0, 1] and
-     *  angle -90 is the same as the quaternion formed by
-     *  [0, 0, 1] and 270. This method favors the latter.
-     * @param  {vec3} out_axis - Vector to store the rotation axis.
-     * @param  {quat} q - Quaternion to be decomposed.
-     * @return - Angle, in radians, of the rotation.
+     * @zh 获取四元数的旋转轴和旋转弧度
+     * @param outAxis 旋转轴输出
+     * @param q 源四元数
+     * @return 旋转弧度
      */
-    public static getAxisAngle<Out extends vec3> (outAxis: Out, q: quat) {
+    public static getAxisAngle (outAxis: vec3, q: quat) {
         const rad = Math.acos(q.w) * 2.0;
         const s = Math.sin(rad / 2.0);
         if (s !== 0.0) {
@@ -148,14 +105,9 @@ export default class quat {
     }
 
     /**
-     * Multiply two quaternions.
-     *
-     * @param out - Quaternion to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return out.
+     * @zh 四元数乘法
      */
-    public static multiply<Out extends quat> (out: Out, a: quat, b: quat) {
+    public static multiply (out: quat, a: quat, b: quat) {
         const { x: ax, y: ay, z: az, w: aw } = a;
         const { x: bx, y: by, z: bz, w: bw } = b;
 
@@ -167,21 +119,16 @@ export default class quat {
     }
 
     /**
-     * Alias of {@link quat.multiply}.
+     * @zh 四元数乘法
      */
-    public static mul<Out extends quat> (out: Out, a: quat, b: quat) {
+    public static mul (out: quat, a: quat, b: quat) {
         return quat.multiply(out, a, b);
     }
 
     /**
-     * Scales a quaternion with a number.
-     *
-     * @param out - Quaternion to store result.
-     * @param a - Quaternion to scale.
-     * @param b - The scale number.
-     * @return out.
+     * @zh 四元数标量乘法
      */
-    public static scale<Out extends quat> (out: Out, a: quat, b: number) {
+    public static scale (out: quat, a: quat, b: number) {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -190,15 +137,9 @@ export default class quat {
     }
 
     /**
-     * Add two quaternions after scaling the second operand by a number.
-     *
-     * @param out - Quaternion to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @param scale - The scale number before adding.
-     * @return out.
+     * @zh 四元数乘加：A + B * scale
      */
-    public static scaleAndAdd<Out extends quat> (out: Out, a: quat, b: quat, scale: number) {
+    public static scaleAndAdd (out: quat, a: quat, b: quat, scale: number) {
         out.x = a.x + b.x * scale;
         out.y = a.y + b.y * scale;
         out.z = a.z + b.z * scale;
@@ -207,14 +148,10 @@ export default class quat {
     }
 
     /**
-     * Rotates a quaternion by the given angle about the X axis.
-     *
-     * @param out - Quaternion to store result.
-     * @param a - Quaternion to rotate.
-     * @param rad - Angle (in radians) to rotate.
-     * @return out.
+     * @zh 绕 X 轴旋转指定四元数
+     * @param rad 旋转弧度
      */
-    public static rotateX<Out extends quat> (out: Out, a: quat, rad: number) {
+    public static rotateX (out: quat, a: quat, rad: number) {
         rad *= 0.5;
 
         const { x: ax, y: ay, z: az, w: aw } = a;
@@ -229,14 +166,10 @@ export default class quat {
     }
 
     /**
-     * Rotates a quaternion by the given angle about the Y axis.
-     *
-     * @param out - Quaternion to store result.
-     * @param a - Quaternion to rotate.
-     * @param rad - Angle (in radians) to rotate.
-     * @return out.
+     * @zh 绕 Y 轴旋转指定四元数
+     * @param rad 旋转弧度
      */
-    public static rotateY<Out extends quat> (out: Out, a: quat, rad: number) {
+    public static rotateY (out: quat, a: quat, rad: number) {
         rad *= 0.5;
 
         const { x: ax, y: ay, z: az, w: aw } = a;
@@ -251,14 +184,10 @@ export default class quat {
     }
 
     /**
-     * Rotates a quaternion by the given angle about the Z axis.
-     *
-     * @param out - Quaternion to store result.
-     * @param a - Quaternion to rotate.
-     * @param rad - Angle (in radians) to rotate.
-     * @return out.
+     * @zh 绕 Z 轴旋转指定四元数
+     * @param rad 旋转弧度
      */
-    public static rotateZ<Out extends quat> (out: Out, a: quat, rad: number) {
+    public static rotateZ (out: quat, a: quat, rad: number) {
         rad *= 0.5;
 
         const { x: ax, y: ay, z: az, w: aw } = a;
@@ -273,49 +202,35 @@ export default class quat {
     }
 
     /**
-     * Rotates a quaternion by the given angle about a world space axis.
-     *
-     * @param out - Quaternion to store result.
-     * @param rot - Quaternion to rotate.
-     * @param axis - The axis around which to rotate in world space.
-     * @param rad - Angle (in radians) to rotate.
-     * @return out.
+     * @zh 绕世界空间下指定轴旋转四元数
+     * @param axis 旋转轴
+     * @param rad 旋转弧度
      */
-    public static rotateAround<Out extends quat> (out: Out, rot: quat, axis: vec3, rad: number) {
+    public static rotateAround (out: quat, rot: quat, axis: vec3, rad: number) {
         // get inv-axis (local to rot)
-        quat.invert(tmpQuat1, rot);
-        vec3.transformQuat(tmpVec3, axis, tmpQuat1);
+        quat.invert(qt_1, rot);
+        vec3.transformQuat(v3_1, axis, qt_1);
         // rotate by inv-axis
-        quat.fromAxisAngle(tmpQuat1, tmpVec3, rad);
-        quat.mul(out, rot, tmpQuat1);
+        quat.fromAxisAngle(qt_1, v3_1, rad);
+        quat.multiply(out, rot, qt_1);
         return out;
     }
 
     /**
-     * Rotates a quaternion by the given angle about a local space axis.
-     *
-     * @param out - Quaternion to store result.
-     * @param rot - Quaternion to rotate.
-     * @param axis - The axis around which to rotate in local space.
-     * @param rad - Angle (in radians) to rotate.
-     * @return out.
+     * @zh 绕本地空间下指定轴旋转四元数
+     * @param axis 旋转轴
+     * @param rad 旋转弧度
      */
-    public static rotateAroundLocal<Out extends quat> (out: Out, rot: quat, axis: vec3, rad: number) {
-        quat.fromAxisAngle(tmpQuat1, axis, rad);
-        quat.mul(out, rot, tmpQuat1);
+    public static rotateAroundLocal (out: quat, rot: quat, axis: vec3, rad: number) {
+        quat.fromAxisAngle(qt_1, axis, rad);
+        quat.multiply(out, rot, qt_1);
         return out;
     }
 
     /**
-     * Calculates the W component of a quaternion from the X, Y, and Z components.
-     * Assumes that quaternion is 1 unit in length.
-     * Any existing W component will be ignored.
-     *
-     * @param out - Quaternion to store result.
-     * @param a - Quaternion to calculate W.
-     * @return out.
+     * @zh 根据 xyz 分量计算 w 分量，默认已归一化
      */
-    public static calculateW<Out extends quat> (out: Out, a: quat) {
+    public static calculateW (out: quat, a: quat) {
         const { x, y, z } = a;
 
         out.x = x;
@@ -326,26 +241,16 @@ export default class quat {
     }
 
     /**
-     * Calculates the dot product of two quaternions.
-     *
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @return - The dot product of a and b.
+     * @zh 四元数点积（数量积）
      */
     public static dot (a: quat, b: quat) {
         return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
     }
 
     /**
-     * Performs a linear interpolation between two quaternions.
-     *
-     * @param out - Quaternion to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @param t - The interpolation coefficient.
-     * @return out.
+     * @zh 逐元素线性插值： A + t * (B - A)
      */
-    public static lerp<Out extends quat> (out: Out, a: quat, b: quat, t: number) {
+    public static lerp (out: quat, a: quat, b: quat, t: number) {
         const { x: ax, y: ay, z: az, w: aw } = a;
         out.x = ax + t * (b.x - ax);
         out.y = ay + t * (b.y - ay);
@@ -355,15 +260,9 @@ export default class quat {
     }
 
     /**
-     * Performs a spherical linear interpolation between two quaternions.
-     *
-     * @param out - Quaternion to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @param t - The interpolation coefficient.
-     * @return out.
+     * @zh 四元数球面插值
      */
-    public static slerp<Out extends quat> (out: Out, a: quat, b: quat, t: number) {
+    public static slerp (out: quat, a: quat, b: quat, t: number) {
         // benchmarks:
         //    http://jsperf.com/quaternion-slerp-implementations
 
@@ -406,31 +305,19 @@ export default class quat {
     }
 
     /**
-     * Performs a spherical linear interpolation with two control points.
-     *
-     * @param out - Quaternion to store result.
-     * @param a - The first operand.
-     * @param b - The second operand.
-     * @param c - The third operand.
-     * @param d - The fourth operand.
-     * @param t - The interpolation coefficient.
-     * @return out
+     * @zh 带两个控制点的四元数球面插值
      */
-    public static sqlerp<Out extends quat> (out: Out, a: quat, b: quat, c: quat, d: quat, t: number) {
-        quat.slerp(tmpQuat1, a, d, t);
-        quat.slerp(tmpQuat2, b, c, t);
-        quat.slerp(out, tmpQuat1, tmpQuat2, 2 * t * (1 - t));
+    public static sqlerp (out: quat, a: quat, b: quat, c: quat, d: quat, t: number) {
+        quat.slerp(qt_1, a, d, t);
+        quat.slerp(qt_2, b, c, t);
+        quat.slerp(out, qt_1, qt_2, 2 * t * (1 - t));
         return out;
     }
 
     /**
-     * Calculates the inverse of a quaternion.
-     *
-     * @param out - Quaternion to store result.
-     * @param a - Quaternion to calculate inverse of.
-     * @return out.
+     * @zh 四元数求逆
      */
-    public static invert<Out extends quat> (out: Out, a: quat) {
+    public static invert (out: quat, a: quat) {
         const { x: a0, y: a1, z: a2, w: a3 } = a;
         const dot = a0 * a0 + a1 * a1 + a2 * a2 + a3 * a3;
         const invDot = dot ? 1.0 / dot : 0;
@@ -445,14 +332,9 @@ export default class quat {
     }
 
     /**
-     * Calculates the conjugate of a quaternion.
-     * If the quaternion is normalized, this function is faster than quat.inverse and produces the same result.
-     *
-     * @param out - Quaternion to store result.
-     * @param a - Quaternion to calculate conjugate of.
-     * @return out.
+     * @zh 求共轭四元数，对单位四元数与求逆等价，但更高效
      */
-    public static conjugate<Out extends quat> (out: Out, a: quat) {
+    public static conjugate (out: quat, a: quat) {
         out.x = -a.x;
         out.y = -a.y;
         out.z = -a.z;
@@ -461,10 +343,7 @@ export default class quat {
     }
 
     /**
-     * Calculates the length of a quaternion.
-     *
-     * @param a - The quaternion.
-     * @return Length of the quaternion.
+     * @zh 求四元数长度
      */
     public static magnitude (a: quat) {
         const { x, y, z, w } = a;
@@ -472,17 +351,14 @@ export default class quat {
     }
 
     /**
-     * Alias of {@link quat.magnitude}.
+     * @zh 求四元数长度
      */
     public static mag (a: quat) {
         return quat.magnitude(a);
     }
 
     /**
-     * Calculates the squared length of a quaternion.
-     *
-     * @param a - The quaternion.
-     * @return Squared length of the quaternion.
+     * @zh 求四元数长度平方
      */
     public static squaredMagnitude (a: quat) {
         const { x, y, z, w } = a;
@@ -490,21 +366,16 @@ export default class quat {
     }
 
     /**
-     * Alias of {@link quat.squaredMagnitude}
+     * @zh 求四元数长度平方
      */
     public static sqrMag (a: quat) {
         return quat.squaredMagnitude(a);
     }
 
     /**
-     * Normalizes a quaternion.
-     *
-     * @param out - Quaternion to store result.
-     * @param a - Quaternion to normalize.
-     * @return out.
-     * @function
+     * @zh 归一化四元数
      */
-    public static normalize<Out extends quat> (out: Out, a: quat) {
+    public static normalize (out: quat, a: quat) {
         const { x, y, z, w } = a;
         let len = x * x + y * y + z * z + w * w;
         if (len > 0) {
@@ -518,49 +389,31 @@ export default class quat {
     }
 
     /**
-     * Sets the specified quaternion with values corresponding to the given
-     * axes. Each axis is a vec3 and is expected to be unit length and
-     * perpendicular to all other specified axes.
-     *
-     * @param out - Quaternion to store result.
-     * @param xAxis - Vector representing the local "right" direction.
-     * @param yAxis - Vector representing the local "up" direction.
-     * @param zAxis - Vector representing the viewing direction.
-     * @return out.
+     * @zh 根据本地坐标轴朝向计算四元数，默认三向量都已归一化且相互垂直
      */
-    public static fromAxes<Out extends quat> (out: Out, xAxis: vec3, yAxis: vec3, zAxis: vec3) {
-        mat3.set(tmpMat3,
+    public static fromAxes (out: quat, xAxis: vec3, yAxis: vec3, zAxis: vec3) {
+        mat3.set(m3_1,
             xAxis.x, xAxis.y, xAxis.z,
             yAxis.x, yAxis.y, yAxis.z,
             zAxis.x, zAxis.y, zAxis.z,
         );
-        return quat.normalize(out, quat.fromMat3(out, tmpMat3));
+        return quat.normalize(out, quat.fromMat3(out, m3_1));
     }
 
     /**
-     * Calculates a quaternion from view direction and up direction
-     *
-     * @param out - Quaternion to store result.
-     * @param view - View direction (must be normalized).
-     * @param [up] - Up direction, default is (0,1,0) (must be normalized).
-     *
-     * @return out.
+     * @zh 根据视口的前方向和上方向计算四元数
+     * @param view 视口面向的前方向，必须归一化
+     * @param up 视口的上方向，必须归一化，默认为 (0, 1, 0)
      */
-    public static fromViewUp<Out extends quat> (out: Out, view: vec3, up?: vec3) {
-        mat3.fromViewUp(tmpMat3, view, up);
-        return quat.normalize(out, quat.fromMat3(out, tmpMat3));
+    public static fromViewUp (out: quat, view: vec3, up?: vec3) {
+        mat3.fromViewUp(m3_1, view, up);
+        return quat.normalize(out, quat.fromMat3(out, m3_1));
     }
 
     /**
-     * Sets a quaternion from the given angle and rotation axis,
-     * then returns it.
-     *
-     * @param out - Quaternion to store result.
-     * @param axis - The axis around which to rotate.
-     * @param rad - The angle in radians.
-     * @return out.
+     * @zh 根据旋转轴和旋转弧度计算四元数
      */
-    public static fromAxisAngle<Out extends quat> (out: Out, axis: vec3, rad: number) {
+    public static fromAxisAngle (out: quat, axis: vec3, rad: number) {
         rad = rad * 0.5;
         const s = Math.sin(rad);
         out.x = s * axis.x;
@@ -571,17 +424,9 @@ export default class quat {
     }
 
     /**
-     * Creates a quaternion from the given 3x3 rotation matrix.
-     *
-     * NOTE: The resultant quaternion is not normalized, so you should be sure
-     * to re-normalize the quaternion yourself where necessary.
-     *
-     * @param out - Quaternion to store result.
-     * @param m - The rotation matrix.
-     * @return out.
-     * @function
+     * @zh 根据三维矩阵信息计算四元数，注意输出四元数并未归一化
      */
-    public static fromMat3<Out extends quat> (out: Out, m: mat3) {
+    public static fromMat3 (out: quat, m: mat3) {
         // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
 
         const {
@@ -629,16 +474,9 @@ export default class quat {
     }
 
     /**
-     * Creates a quaternion from the given euler angle x, y, z.
-     *
-     * @param out - Quaternion to store result.
-     * @param x - Angle to rotate around X axis in degrees.
-     * @param y - Angle to rotate around Y axis in degrees.
-     * @param z - Angle to rotate around Z axis in degrees.
-     * @return out.
-     * @function
+     * @zh 根据欧拉角信息计算四元数
      */
-    public static fromEuler<Out extends quat> (out: Out, x: number, y: number, z: number) {
+    public static fromEuler (out: quat, x: number, y: number, z: number) {
         x *= halfToRad;
         y *= halfToRad;
         z *= halfToRad;
@@ -659,11 +497,7 @@ export default class quat {
     }
 
     /**
-     *  Returns the X orthonormal axis defining the quaternion.
-     *
-     * @param out - X axis.
-     * @param q - The quaternion.
-     * @function
+     * @zh 返回定义此四元数的坐标系 X 轴向量
      */
     public static toAxisX (out: vec3, q: quat) {
         const fy = 2.0 * q.y;
@@ -674,11 +508,7 @@ export default class quat {
     }
 
     /**
-     *  Returns the Y orthonormal axis defining the quaternion.
-     *
-     * @param out - Y axis.
-     * @param q - The quaternion.
-     * @function
+     * @zh 返回定义此四元数的坐标系 Y 轴向量
      */
     public static toAxisY (out: vec3, q: quat) {
         const fx = 2.0 * q.x;
@@ -690,11 +520,7 @@ export default class quat {
     }
 
     /**
-     *  Returns the Z orthonormal axis defining the quaternion.
-     *
-     * @param out - Z axis.
-     * @param q - The quaternion.
-     * @function
+     * @zh 返回定义此四元数的坐标系 Z 轴向量
      */
     public static toAxisZ (out: vec3, q: quat) {
         const fx = 2.0 * q.x;
@@ -706,13 +532,9 @@ export default class quat {
     }
 
     /**
-     * Convert a quaternion back to euler angle (in degrees).
-     *
-     * @param out - Euler angle stored as a vec3
-     * @param q - the quaternion to be converted
-     * @return out.
+     * @zh 根据四元数计算欧拉角，返回角度在 [-180, 180] 区间内
      */
-    public static toEuler<Out extends vec3> (out: Out, q: quat) {
+    public static toEuler (out: vec3, q: quat) {
         const { x, y, z, w } = q;
         let heading: number = NaN;
         let attitude: number = NaN;
@@ -746,81 +568,44 @@ export default class quat {
     }
 
     /**
-     * Returns string representation of a quaternion.
-     *
-     * @param a - The quaternion.
-     * @return - String representation of this quaternion.
+     * @zh 返回四元数的字符串表示
      */
     public static str (a: quat) {
         return `quat(${a.x}, ${a.y}, ${a.z}, ${a.w})`;
     }
 
     /**
-     * Store components of a quaternion into array.
-     *
-     * @param out - Array to store result.
-     * @param q - The quaternion.
-     * @return out.
+     * @zh 四元数转数组
+     * @param ofs 数组内的起始偏移量
      */
-    public static array<Out extends IWritableArrayLike<number>> (out: Out, q: quat) {
-        out[0] = q.x;
-        out[1] = q.y;
-        out[2] = q.z;
-        out[3] = q.w;
+    public static array (out: IWritableArrayLike<number>, q: quat, ofs = 0) {
+        out[ofs + 0] = q.x;
+        out[ofs + 1] = q.y;
+        out[ofs + 2] = q.z;
+        out[ofs + 3] = q.w;
 
         return out;
     }
 
     /**
-     * Returns whether the specified quaternions are equal. (Compared using ===)
-     *
-     * @param a - The first quaternion.
-     * @param b - The second quaternion.
-     * @return True if the quaternions are equal, false otherwise.
+     * @zh 四元数等价判断
      */
     public static exactEquals (a: quat, b: quat) {
         return vec4.exactEquals(a, b);
     }
 
     /**
-     * Returns whether the specified quaternions are approximately equal.
-     *
-     * @param a The first quaternion.
-     * @param b The second quaternion.
-     * @return True if the quaternions are approximately equal, false otherwise.
+     * @zh 排除浮点数误差的四元数近似等价判断
      */
     public static equals (a: quat, b: quat) {
         return vec4.equals(a, b);
     }
 
-    /**
-     * The x component.
-     */
     public x: number;
-
-    /**
-     * The y component.
-     */
     public y: number;
-
-    /**
-     * The z component.
-     */
     public z: number;
-
-    /**
-     * The w component.
-     */
     public w: number;
 
-    /**
-     * Creates a quaternion, with components specified separately.
-     *
-     * @param x - Value assigned to x component.
-     * @param y - Value assigned to y component.
-     * @param z - Value assigned to z component.
-     * @param w - Value assigned to w component.
-     */
     constructor (x = 0, y = 0, z = 0, w = 1) {
         this.x = x;
         this.y = y;
@@ -829,9 +614,8 @@ export default class quat {
     }
 }
 
-const tmpQuat1 = quat.create();
-const tmpQuat2 = quat.create();
-const tmpVec3 = vec3.create();
-const tmpMat3 = mat3.create();
-const tmpXUnitVec3 = vec3.create(1, 0, 0);
-const tmpYUnitVec3 = vec3.create(0, 1, 0);
+const qt_1 = quat.create();
+const qt_2 = quat.create();
+const v3_1 = vec3.create();
+const m3_1 = mat3.create();
+const halfToRad = 0.5 * Math.PI / 180.0;

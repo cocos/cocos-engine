@@ -115,7 +115,7 @@ export class RenderQueue {
     //     let depth = 0;
     //     if (model.node) {
     //         model.node.getWorldPosition(_v3tmp);
-    //         vec3.sub(_v3tmp, _v3tmp, camera.position);
+    //         vec3.subtract(_v3tmp, _v3tmp, camera.position);
     //         depth = vec3.dot(_v3tmp, camera.forward);
     //     }
 

@@ -68,7 +68,7 @@ export default class ray {
      */
     public static fromPoints (out: ray, origin: vec3, target: vec3): ray {
         vec3.copy(out.o, origin);
-        vec3.normalize(out.d, vec3.sub(out.d, target, origin));
+        vec3.normalize(out.d, vec3.subtract(out.d, target, origin));
         return out;
     }
 

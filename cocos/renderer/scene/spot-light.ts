@@ -96,7 +96,7 @@ export class SpotLight extends Light {
             mat4.perspective(_matProj, this._angle, 1, 0.001, this._range);
 
             // view-projection
-            mat4.mul(_matViewProj, _matProj, _matView);
+            mat4.multiply(_matViewProj, _matProj, _matView);
             mat4.invert(_matViewProjInv, _matViewProj);
 
             this._frustum.update(_matViewProj, _matViewProjInv);

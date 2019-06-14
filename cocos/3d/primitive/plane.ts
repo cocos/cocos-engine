@@ -91,7 +91,7 @@ export default function (options?: IPlaneOptions): IGeometry {
 
             vec3.lerp(temp1, c00, c10, u);
             vec3.lerp(temp2, c00, c01, v);
-            vec3.sub(temp3, temp2, c00);
+            vec3.subtract(temp3, temp2, c00);
             vec3.add(r, temp1, temp3);
 
             positions.push(r.x, r.y, r.z);

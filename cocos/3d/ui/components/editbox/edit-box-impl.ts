@@ -436,7 +436,7 @@ export class EditBoxImpl {
         _matrix_temp.m12 = center.x - (_matrix_temp.m00 * m12 + _matrix_temp.m04 * m13);
         _matrix_temp.m13 = center.y - (_matrix_temp.m01 * m12 + _matrix_temp.m05 * m13);
 
-        math.mat4.mul(_matrix_temp, _matrix_temp, _matrix);
+        math.mat4.multiply(_matrix_temp, _matrix_temp, _matrix);
 
         scaleX /= dpr;
         scaleY /= dpr;

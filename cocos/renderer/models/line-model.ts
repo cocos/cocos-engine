@@ -126,7 +126,7 @@ export class LineModel extends Model {
     public addLineVertexData (positions: Vec3[], width: CurveRange, color: GradientRange) {
         if (positions.length > 1) {
             let offset: number = 0;
-            vec3.sub(_temp_v1, positions[1], positions[0]);
+            vec3.subtract(_temp_v1, positions[1], positions[0]);
             this._vdataF32![offset++] = positions[0].x;
             this._vdataF32![offset++] = positions[0].y;
             this._vdataF32![offset++] = positions[0].z;
@@ -150,9 +150,9 @@ export class LineModel extends Model {
             this._vdataF32![offset++] = _temp_v1.z;
             this._vdataUint32![offset++] = color.evaluate(0, 1)._val;
             for (let i = 1; i < positions.length - 1; i++) {
-                vec3.sub(_temp_v1, positions[i - 1], positions[i]);
-                vec3.sub(_temp_v2, positions[i + 1], positions[i]);
-                vec3.sub(_temp_v2, _temp_v2, _temp_v1);
+                vec3.subtract(_temp_v1, positions[i - 1], positions[i]);
+                vec3.subtract(_temp_v2, positions[i + 1], positions[i]);
+                vec3.subtract(_temp_v2, _temp_v2, _temp_v1);
                 const seg = i / positions.length;
                 this._vdataF32![offset++] = positions[i].x;
                 this._vdataF32![offset++] = positions[i].y;
@@ -177,7 +177,7 @@ export class LineModel extends Model {
                 this._vdataF32![offset++] = _temp_v2.z;
                 this._vdataUint32![offset++] = color.evaluate(seg, 1)._val;
             }
-            vec3.sub(_temp_v1, positions[positions.length - 1], positions[positions.length - 2]);
+            vec3.subtract(_temp_v1, positions[positions.length - 1], positions[positions.length - 2]);
             this._vdataF32![offset++] = positions[positions.length - 1].x;
             this._vdataF32![offset++] = positions[positions.length - 1].y;
             this._vdataF32![offset++] = positions[positions.length - 1].z;
