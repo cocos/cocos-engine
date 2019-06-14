@@ -96,6 +96,7 @@ export class SystemEvent extends EventTarget {
     }
 
     public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback: (event: EventKeyboard) => void, target?: Object);
+    public on (type: SystemEventType.MOUSE_DOWN | SystemEventType.MOUSE_UP, callback: (event: MouseEvent) => void, target?: Object);
 
     /**
      * @zh
