@@ -23,10 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Color, Mat4, Vec3 } from '../../../../../core/value-types';
-import { color4, vec3 } from '../../../../../core/vmath';
+import { Color, Vec3 } from '../../../../../core/value-types';
+import { color4 } from '../../../../../core/vmath';
+import { GFXPrimitiveMode } from '../../../../../gfx';
+import { Model } from '../../../../../renderer';
+import { RenderScene } from '../../../../../renderer/scene/render-scene';
 import { IARenderData } from '../../../../../renderer/ui/renderData';
-import { UI } from '../../../../../renderer/ui/ui';
+import { UI, vfmt } from '../../../../../renderer/ui/ui';
+import { createMesh } from '../../../../misc/utils';
 import { GraphicsComponent } from '../../../components';
 import { IAssembler } from '../../assembler';
 import { LineCap, LineJoin, PointFlags } from '../types';
@@ -48,11 +52,15 @@ const abs = Math.abs;
 
 const attrBytes = 9;
 
+const attrs = vfmt;
+const positions: number[] = [];
+const uvs: number[] = [];
+const colors: number[] = [];
+const indices: number[] = [];
+
 let _renderData: IARenderData | null = null;
 let _impl: Impl | null = null;
 const _curColor = new Color();
-const _currMatrix: Mat4 = new Mat4();
-const _tempVec3 = new Vec3();
 
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
@@ -88,44 +96,44 @@ export const graphicsAssembler: IAssembler = {
     },
 
     fillBuffers (graphics: GraphicsComponent, renderer: UI) {
-        this.renderIA!(graphics, renderer);
+        // this.renderIA!(graphics, renderer);
     },
 
     renderIA (graphics: GraphicsComponent, renderer: UI) {
-        const impl = graphics.impl;
-        let renderDatas = impl && impl.getRenderDatas();
-        if (!renderDatas) {
-            renderDatas = [];
-        }
+        // const impl = graphics.impl;
+        // let renderDatas = impl && impl.getRenderDatas();
+        // if (!renderDatas) {
+        //     renderDatas = [];
+        // }
 
-        let bufferBatch = renderer.currBufferBatch!;
-        let vertexId = 0;
-        let byteoffset = 0;
-        let indicesOffset = 0;
-        for (const renderData of renderDatas) {
-            if (!graphics.material || renderData.byteCount <= 0 || renderData.indiceCount <= 0) {
-                continue;
-            }
+        // let bufferBatch = renderer.currBufferBatch!;
+        // let vertexId = 0;
+        // let byteoffset = 0;
+        // let indicesOffset = 0;
+        // for (const renderData of renderDatas) {
+        //     if (!graphics.material || renderData.byteCount <= 0 || renderData.indiceCount <= 0) {
+        //         continue;
+        //     }
 
-            vertexId = bufferBatch.vertexOffset;
-            byteoffset = bufferBatch.byteOffset;
-            indicesOffset = bufferBatch.indiceOffset;
-            bufferBatch.request(renderData.vertexCount, renderData.indiceCount);
-            bufferBatch = renderer.currBufferBatch!;
-            const vData = bufferBatch.vData!;
-            const iData = bufferBatch.iData!;
-            // the data format is strictly in accordance with pos uv color
-            const vDataCopy = renderData.vData.slice(0, renderData.byteCount >> 2);
-            vData.set(vDataCopy, byteoffset >> 2);
+        //     vertexId = bufferBatch.vertexOffset;
+        //     byteoffset = bufferBatch.byteOffset;
+        //     indicesOffset = bufferBatch.indiceOffset;
+        //     bufferBatch.request(renderData.vertexCount, renderData.indiceCount);
+        //     bufferBatch = renderer.currBufferBatch!;
+        //     const vData = bufferBatch.vData!;
+        //     const iData = bufferBatch.iData!;
+        //     // the data format is strictly in accordance with pos uv color
+        //     const vDataCopy = renderData.vData.slice(0, renderData.byteCount >> 2);
+        //     vData.set(vDataCopy, byteoffset >> 2);
 
-            let iDataCopy = renderData.iData.slice(0, renderData.indiceCount);
-            iDataCopy = iDataCopy.map((v) => {
-                return v + vertexId;
-            });
-            iData.set(iDataCopy, indicesOffset);
+        //     let iDataCopy = renderData.iData.slice(0, renderData.indiceCount);
+        //     iDataCopy = iDataCopy.map((v) => {
+        //         return v + vertexId;
+        //     });
+        //     iData.set(iDataCopy, indicesOffset);
 
-            renderer.forceMergeBatches(graphics.material, null);
-        }
+        //     renderer.forceMergeBatches(graphics.material, null);
+        // }
     },
 
     getRenderData (graphics: GraphicsComponent, cverts: number) {
@@ -167,7 +175,7 @@ export const graphicsAssembler: IAssembler = {
 
     stroke (graphics: GraphicsComponent) {
         color4.copy(_curColor, graphics.strokeColor);
-        graphics.node.getWorldMatrix(_currMatrix);
+        // graphics.node.getWorldMatrix(_currMatrix);
         if (!graphics.impl) {
             return;
         }
@@ -176,16 +184,76 @@ export const graphicsAssembler: IAssembler = {
         this._expandStroke!(graphics);
 
         graphics.impl.updatePathOffset = true;
+
+        this.end(graphics);
     },
 
     fill (graphics: GraphicsComponent) {
         color4.copy(_curColor, graphics.fillColor);
-        graphics.node.getWorldMatrix(_currMatrix);
+        // graphics.node.getWorldMatrix(_currMatrix);
 
         this._expandFill!(graphics);
         if (graphics.impl) {
             graphics.impl.updatePathOffset = true;
         }
+
+        this.end(graphics);
+    },
+
+    end (graphics: GraphicsComponent){
+        const scene = cc.director.root.ui.renderScene as RenderScene;
+        if (graphics.model){
+            graphics.model.destroy();
+            scene.destroyModel(graphics.model);
+            graphics.model = null;
+        }
+
+        const impl = graphics.impl;
+        const primitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
+        let renderDatas = impl && impl.getRenderDatas();
+        if (!renderDatas) {
+            renderDatas = [];
+        }
+
+        let i = 0;
+        positions.length = 0;
+        uvs.length = 0;
+        colors.length = 0;
+        indices.length = 0;
+        for (const renderData of renderDatas) {
+            let len = renderData.byteCount >> 2;
+            const vData = renderData.vData;
+            for (i = 0; i < len;) {
+                positions.push(vData[i++]);
+                positions.push(vData[i++]);
+                positions.push(vData[i++]);
+                uvs.push(vData[i++]);
+                uvs.push(vData[i++]);
+                colors.push(vData[i++]);
+                colors.push(vData[i++]);
+                colors.push(vData[i++]);
+                colors.push(vData[i++]);
+            }
+
+            len = renderData.indiceCount;
+            const iData = renderData.iData;
+            for (i = 0; i < len;) {
+                indices.push(iData[i++]);
+            }
+        }
+
+        const mesh = createMesh({
+            primitiveMode,
+            positions,
+            uvs,
+            colors,
+            attributes: attrs,
+            indices,
+        }, undefined, { calculateBounds: false });
+
+        graphics.model = scene.createModel(Model, graphics.node);
+        graphics.model.initSubModel(0, mesh.getSubMesh(0), graphics.material!);
+        graphics.model.enabled = true;
     },
 
     _expandStroke (graphics: GraphicsComponent) {
@@ -711,12 +779,12 @@ export const graphicsAssembler: IAssembler = {
         const meshbuffer = _renderData;
         let dataOffset = meshbuffer.vertexStart * attrBytes;
         const vData = meshbuffer.vData!;
-        vec3.set(_tempVec3, x, y, 0);
-        vec3.transformMat4(_tempVec3, _tempVec3, _currMatrix);
+        // vec3.set(_tempVec3, x, y, 0);
+        // vec3.transformMat4(_tempVec3, _tempVec3, _currMatrix);
 
-        vData[dataOffset++] = _tempVec3.x;
-        vData[dataOffset++] = _tempVec3.y;
-        vData[dataOffset++] = _tempVec3.z;
+        vData[dataOffset++] = x;
+        vData[dataOffset++] = y;
+        vData[dataOffset++] = 0;
         vData[dataOffset++] = 1;
         vData[dataOffset++] = 1;
         color4.array(vData!, _curColor, dataOffset);

@@ -71,7 +71,9 @@ export class DebugCanvasComponent extends CanvasComponent {
         const canvasSize = cc.visibleRect;
         const nodeSize = canvasSize;
         const designSize = cc.view.getDesignResolutionSize();
-        const clipTopRight = !this.fitHeight && !this.fitWidth;
+        const policy = cc.view.getResolutionPolicy();
+        // const clipTopRight = !this.fitHeight && !this.fitWidth;
+        const clipTopRight = policy === cc.ResolutionPolicy.NO_BORDER;
         let offsetX = 0;
         let offsetY = 0;
         if (clipTopRight) {

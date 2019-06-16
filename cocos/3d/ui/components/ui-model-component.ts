@@ -34,7 +34,7 @@ export class UIModelComponent extends UIComponent {
 
     public updateAssembler (render: UI) {
         if (this._modelComponent) {
-            render.commitComp.call(render, this);
+            render.commitModel.call(render, this, (this._modelComponent as any)._model, this._modelComponent.material);
             return true;
         }
 

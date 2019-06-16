@@ -64,12 +64,23 @@ export class UIComponent extends Component {
     public postUpdateAssembler (render: UI) {
     }
 
-    private _parentChanged (node: Node){
+    /**
+     * @zh
+     * 设置当前组件的可视编号。（我们不希望用户自行做处理，除非用户自己知道在做什么）
+     */
+    public setVisibility (value: number) {
+        this._visibility = value;
+    }
+
+    protected _parentChanged (node: Node){
         if (node === this.node) {
             this._updateVisibility();
             this._cancelEventFromParent();
             this._lastParent = this.node.parent;
+            return true;
         }
+
+        return false;
     }
 
     private _updateVisibility () {
