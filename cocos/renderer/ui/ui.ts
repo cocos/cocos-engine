@@ -1,5 +1,5 @@
 
-import { Assembler, CanvasComponent, MeshBuffer, UIComponent, UIRenderComponent } from '../../3d';
+import { Assembler, CanvasComponent, GraphicsComponent, MeshBuffer, UIComponent, UIRenderComponent } from '../../3d';
 import { Material } from '../../3d/assets/material';
 import Pool from '../../3d/memop/pool';
 import RecyclePool from '../../3d/memop/recycle-pool';
@@ -19,7 +19,7 @@ import { RenderScene } from '../scene/render-scene';
 import { UIBatchModel } from './ui-batch-model';
 import { UIMaterial } from './ui-material';
 
-const vfmt = [
+export const vfmt = [
     {
         name: GFXAttributeName.ATTR_POSITION,
         format: GFXFormat.RGB32F,
@@ -44,6 +44,7 @@ export class UIDrawBatch {
     public idxCount: number = 0;
     public pipelineState: GFXPipelineState | null = null;
     public bindingLayout: GFXBindingLayout | null = null;
+    public useLocalData: Node | null = null;
 
     public destroy (ui: UI) {
         if (this.pipelineState) {
@@ -330,48 +331,58 @@ export class UI {
      * @param frame - 当前执行组件贴图。
      * @param assembler - 当前组件渲染数据组装器。
      */
-    public commitComp (comp: UIComponent, frame: GFXTextureView | null = null, assembler?: Assembler.IAssembler) {
-        if (comp instanceof UIRenderComponent) {
-            const renderComp = comp as UIRenderComponent;
-            const texView = frame;
-            if (this._currMaterial.hash !== renderComp.material!.hash ||
-                this._currTexView !== texView ||
-                this._currCanvas !== renderComp.visibility
-            ) {
-                this.autoMergeBatches();
-                this._currMaterial = renderComp.material!;
-                this._currTexView = texView;
-                this._currCanvas = renderComp.visibility;
-            }
-
-            if (assembler) {
-                assembler.fillBuffers(renderComp, this);
-            }
-        } else {
-            // if the last comp is spriteComp, previous comps should be batched.
-            if (this._currMaterial !== this._emptyMaterial) {
-                this.autoMergeBatches();
-            }
-            const uiCanvas = this.getScreen(comp.visibility);
-            const curDrawBatch = this._drawBatchPool.alloc();
-            curDrawBatch.camera = uiCanvas && uiCanvas.camera;
-            curDrawBatch.model = (comp as any).modelComponent._model;
-            curDrawBatch.bufferBatch = null;
-            curDrawBatch.material = null;
-            curDrawBatch.texView = null;
-            curDrawBatch.firstIdx = 0;
-            curDrawBatch.idxCount = 0;
-
-            curDrawBatch.pipelineState = null;
-            curDrawBatch.bindingLayout = null;
-
-            // reset current render state to null
-            this._currMaterial = this._emptyMaterial;
-            this._currTexView = null;
-            this._currCanvas = comp.visibility;
-
-            this._batches.push(curDrawBatch);
+    public commitComp (comp: UIRenderComponent, frame: GFXTextureView | null = null, assembler?: Assembler.IAssembler) {
+        const renderComp = comp;
+        const texView = frame;
+        if (this._currMaterial.hash !== renderComp.material!.hash ||
+            this._currTexView !== texView ||
+            this._currCanvas !== renderComp.visibility
+        ) {
+            this.autoMergeBatches();
+            this._currMaterial = renderComp.material!;
+            this._currTexView = texView;
+            this._currCanvas = renderComp.visibility;
         }
+
+        if (assembler) {
+            assembler.fillBuffers(renderComp, this);
+        }
+    }
+
+    public commitModel (comp: UIComponent, model: Model | null, mat: Material | null){
+        // if the last comp is spriteComp, previous comps should be batched.
+        if (this._currMaterial !== this._emptyMaterial) {
+            this.autoMergeBatches();
+        }
+
+        if (mat){
+            const rebuild = Assembler.StencilManager.sharedManager!.handleMaterial(mat);
+            if (rebuild && model){
+                for (let i = 0; i < model.subModelNum; i++) {
+                    model.setSubModelMaterial(i, mat);
+                }
+            }
+        }
+
+        const uiCanvas = this.getScreen(comp.visibility);
+        const curDrawBatch = this._drawBatchPool.alloc();
+        curDrawBatch.camera = uiCanvas && uiCanvas.camera;
+        curDrawBatch.model = model;
+        curDrawBatch.bufferBatch = null;
+        curDrawBatch.material = mat;
+        curDrawBatch.texView = null;
+        curDrawBatch.firstIdx = 0;
+        curDrawBatch.idxCount = 0;
+
+        curDrawBatch.pipelineState = null;
+        curDrawBatch.bindingLayout = null;
+
+        // reset current render state to null
+        this._currMaterial = this._emptyMaterial;
+        this._currTexView = null;
+        this._currCanvas = comp.visibility;
+
+        this._batches.push(curDrawBatch);
     }
 
     /**

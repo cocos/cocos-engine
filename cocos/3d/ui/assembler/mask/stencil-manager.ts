@@ -167,7 +167,10 @@ export class StencilManager {
             this._defaultPipelineState.blendState = pass.blendState;
             this._defaultPipelineState.rasterizerState = pass.rasterizerState;
             mat.overridePipelineStates(this._defaultPipelineState);
+            return true;
         }
+
+        return false;
     }
 
     public getWriteMask () {

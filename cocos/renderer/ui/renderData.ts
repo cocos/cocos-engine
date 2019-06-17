@@ -98,13 +98,13 @@ export class RenderData extends BaseRenderData {
 }
 
 export class IARenderData extends BaseRenderData {
-    public vData: Float32Array = new Float32Array(256 * 9 * 4);
+    public vData: Float32Array = new Float32Array(256 * 9 * Float32Array.BYTES_PER_ELEMENT);
     public iData: Uint16Array = new Uint16Array(256 * 6);
     public vertexStart = 0;
     public indiceStart = 0;
     public byteStart = 0;
     public byteCount = 0;
-    private _formatByte = 9 * 4;
+    private _formatByte = 9 * Float32Array.BYTES_PER_ELEMENT;
 
     public request (vertexCount: number, indiceCount: number) {
         const byteOffset = this.byteCount + vertexCount * this._formatByte;

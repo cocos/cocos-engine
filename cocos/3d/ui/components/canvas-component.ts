@@ -38,6 +38,7 @@ const _worldPos = new Vec3();
  * @zh
  * 作为 UI 根节点，为所有子节点提供视窗四边的位置信息以供对齐，另外提供屏幕适配策略接口，方便从编辑器设置。
  * 注：由于本节点的尺寸会跟随屏幕拉伸，所以 anchorPoint 只支持 (0.5, 0.5)，否则适配不同屏幕时坐标会有偏差。
+ * 同时 UI 相机默认 fov 是 1000，所以 UI 节点的事件坐标一定是大于或等于 0 的，不支持负数。
  */
 @ccclass('cc.CanvasComponent')
 @executionOrder(100)
@@ -47,69 +48,69 @@ const _worldPos = new Vec3();
 // @disallowMultiple
 export class CanvasComponent extends Component {
 
-    /**
-     * @zh
-     * 设计分辨率。
-     *
-     * @param value - 设计分辨率尺寸。
-     */
-    @property({
-        type: Size,
-        displayOrder: 0,
-    })
-    get designResolution () {
-        return this._designResolution;
-    }
+    // /**
+    //  * @zh
+    //  * 设计分辨率
+    //  *
+    //  * @param value - 设计分辨率尺寸。
+    //  */
+    // @property({
+    //     type: Size,
+    //     displayOrder: 0,
+    // })
+    // get designResolution () {
+    //     return this._designResolution;
+    // }
 
-    set designResolution (value: Size) {
-        this._designResolution.width = value.width;
-        this._designResolution.height = value.height;
-        this.node.emit('design-resolution-changed', this._designResolution);
-        this.applySettings();
-        this.alignWithScreen();
-    }
+    // set designResolution (value: Size) {
+    //     this._designResolution.width = value.width;
+    //     this._designResolution.height = value.height;
+    //     this.node.emit('design-resolution-changed', this._designResolution);
+    //     this.applySettings();
+    //     this.alignWithScreen();
+    // }
 
-    /**
-     * @zh
-     * 是否优先将设计分辨率高度撑满视图高度。
-     *
-     * @param value - 是否撑满高度。
-     */
-    @property({
-        displayOrder: 1,
-    })
-    get fitHeight () {
-        return this._fitHeight;
-    }
+    // /**
+    //  * @zh
+    //  * 是否优先将设计分辨率高度撑满视图高度。
+    //  *
+    //  * @param value - 是否撑满高度。
+    //  */
+    // @property({
+    //     displayOrder: 1,
+    // })
+    // get fitHeight () {
+    //     return this._fitHeight;
+    // }
 
-    set fitHeight (value: boolean) {
-        if (this._fitHeight !== value) {
-            this._fitHeight = value;
-            this.applySettings();
-            this.alignWithScreen();
-        }
-    }
+    // set fitHeight (value: boolean) {
+    //     if (this._fitHeight !== value) {
+    //         this._fitHeight = value;
+    //         this.applySettings();
+    //         this.alignWithScreen();
+    //     }
+    // }
 
-    /**
-     * @zh
-     * 是否优先将设计分辨率宽度撑满视图宽度。
-     *
-     * @param value - 是否撑满宽度。
-     */
-    @property({
-        displayOrder: 2,
-    })
-    get fitWidth () {
-        return this._fitWidth;
-    }
+    // /**
+    //  * @zh
+    //  * 是否优先将设计分辨率宽度撑满视图宽度。
+    //  *
+    //  * @param value - 是否撑满宽度。
+    //  */
+    // @property({
+    //     displayOrder: 2,
+    // })
+    // get fitWidth () {
+    //     return this._fitWidth;
+    // }
 
-    set fitWidth (value: boolean) {
-        if (this._fitWidth !== value) {
-            this._fitWidth = value;
-            this.applySettings();
-            this.alignWithScreen();
-        }
-    }
+    // set fitWidth (value: boolean) {
+    //     if (this._fitWidth !== value) {
+    //         this._fitWidth = value;
+    //         this.applySettings();
+    //         this.alignWithScreen();
+    //     }
+    // }
 
     /**
      * @zh
@@ -141,19 +142,18 @@ export class CanvasComponent extends Component {
         return this._camera;
     }
 
-    /**
-     * @zh
-     * 当前激活的画布组件，场景同一时间只能有一个激活的画布。
-     */
-    public static instance: CanvasComponent | null = null;
-    public static views = [];
+    // /**
+    //  * @zh
+    //  * 当前激活的画布组件，场景同一时间只能有一个激活的画布。
+    //  */
+    // public static instance: CanvasComponent | null = null;
 
-    @property
-    protected _designResolution = cc.size(960, 640);
-    @property
-    protected _fitWidth = false;
-    @property
-    protected _fitHeight = true;
+    // @property
+    // protected _designResolution = cc.size(960, 640);
+    // @property
+    // protected _fitWidth = false;
+    // @property
+    // protected _fitHeight = true;
     @property
     protected _priority = 0;
 
@@ -165,15 +165,15 @@ export class CanvasComponent extends Component {
     constructor () {
         super();
         this._thisOnResized = this.alignWithScreen.bind(this);
-        // TODO:maybe remove when multiple scene
-        if (!CanvasComponent.instance){
-            CanvasComponent.instance = this;
-        }
+        // // TODO:maybe remove when multiple scene
+        // if (!CanvasComponent.instance){
+        //     CanvasComponent.instance = this;
+        // }
     }
 
     public __preload () {
         const cameraNode = new cc.Node('UICamera_' + this.node.name);
-        cameraNode.setPosition(0, 0, 900);
+        cameraNode.setPosition(0, 0, 999);
         if (!CC_EDITOR) {
             this._camera = cc.director.root.ui.renderScene.createCamera({
                 name: 'ui_' + this.node.name,
@@ -198,7 +198,7 @@ export class CanvasComponent extends Component {
 
         cc.view.on('design-resolution-changed', this._thisOnResized);
 
-        this.applySettings();
+        // this.applySettings();
         this.alignWithScreen();
     }
 
@@ -221,9 +221,9 @@ export class CanvasComponent extends Component {
 
         cc.view.off('design-resolution-changed', this._thisOnResized);
 
-        if (CanvasComponent.instance === this) {
-            CanvasComponent.instance = null;
-        }
+        // if (CanvasComponent.instance === this) {
+        //     CanvasComponent.instance = null;
+        // }
     }
 
     /**
@@ -236,14 +236,16 @@ export class CanvasComponent extends Component {
         this.node.getPosition(this._pos);
         if (CC_EDITOR) {
             // nodeSize = designSize = cc.engine.getDesignResolutionSize();
-            nodeSize = designSize = this._designResolution;
+            nodeSize = designSize = cc.view.getDesignResolutionSize();
             vec3.set(_worldPos, designSize.width * 0.5, designSize.height * 0.5, 1);
         }
         else {
             const canvasSize = cc.visibleRect;
             nodeSize = canvasSize;
             designSize = cc.view.getDesignResolutionSize();
-            const clipTopRight = !this.fitHeight && !this.fitWidth;
+            const policy = cc.view.getResolutionPolicy();
+            // const clipTopRight = !this.fitHeight && !this.fitWidth;
+            const clipTopRight = policy === cc.ResolutionPolicy.NO_BORDER;
             let offsetX = 0;
             let offsetY = 0;
             if (clipTopRight) {
@@ -252,7 +254,7 @@ export class CanvasComponent extends Component {
                 offsetY = (designSize.height - canvasSize.height) * 0.5;
             }
 
-            vec3.set(_worldPos, canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY, 1);
+            vec3.set(_worldPos, canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY, 0);
         }
 
         if (!this._pos.equals(_worldPos)){
@@ -272,42 +274,42 @@ export class CanvasComponent extends Component {
             const size = cc.view.getVisibleSize();
             this._camera.resize(size.width, size.height);
             this._camera.orthoHeight = this._camera.height / 2;
-            this._camera.node.setPosition(_worldPos.x, _worldPos.y, 1000);
+            this._camera.node.setPosition(_worldPos.x, _worldPos.y, 999);
             this._camera.update();
         }
     }
 
-    /**
-     * @zh
-     * 应用适配策略。
-     */
-    public applySettings () {
-        const ResolutionPolicy = cc.ResolutionPolicy;
-        let policy;
+    // /**
+    //  * @zh
+    //  * 应用适配策略。
+    //  */
+    // public applySettings () {
+    //     const ResolutionPolicy = cc.ResolutionPolicy;
+    //     let policy;
 
-        if (this.fitHeight && this.fitWidth) {
-            policy = ResolutionPolicy.SHOW_ALL;
-        } else if (!this.fitHeight && !this.fitWidth) {
-            policy = ResolutionPolicy.NO_BORDER;
-        } else if (this.fitWidth) {
-            policy = ResolutionPolicy.FIXED_WIDTH;
-        } else {      // fitHeight
-            policy = ResolutionPolicy.FIXED_HEIGHT;
-        }
+    //     if (this.fitHeight && this.fitWidth) {
+    //         policy = ResolutionPolicy.SHOW_ALL;
+    //     } else if (!this.fitHeight && !this.fitWidth) {
+    //         policy = ResolutionPolicy.NO_BORDER;
+    //     } else if (this.fitWidth) {
+    //         policy = ResolutionPolicy.FIXED_WIDTH;
+    //     } else {      // fitHeight
+    //         policy = ResolutionPolicy.FIXED_HEIGHT;
+    //     }
 
-        const designRes = this._designResolution;
-        if (CC_EDITOR) {
-            // cc.engine.setDesignResolutionSize(designRes.width, designRes.height);
-        }
-        else {
-            const root = cc.director.root;
-            if (root && root.ui && root.ui.debugScreen && root.ui.debugScreen === this ){
-                return;
-            }
+    //     const designRes = this._designResolution;
+    //     if (CC_EDITOR) {
+    //         // cc.engine.setDesignResolutionSize(designRes.width, designRes.height);
+    //     }
+    //     else {
+    //         const root = cc.director.root;
+    //         if (root && root.ui && root.ui.debugScreen && root.ui.debugScreen === this ){
+    //             return;
+    //         }
 
-            cc.view.setDesignResolutionSize(designRes.width, designRes.height, policy);
-        }
-    }
+    //         cc.view.setDesignResolutionSize(designRes.width, designRes.height, policy);
+    //     }
+    // }
 }
 
 cc.CanvasComponent = CanvasComponent;

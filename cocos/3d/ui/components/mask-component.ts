@@ -26,7 +26,7 @@
 import { SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property} from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform';
-import { Mat4, Size, Vec2, Vec3 } from '../../../core/value-types';
+import { Color, Mat4, Size, Vec2, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import * as vmath from '../../../core/vmath';
 import { UI } from '../../../renderer/ui/ui';
@@ -201,6 +201,10 @@ export class MaskComponent extends UIRenderComponent {
         return this._dstBlendFactor;
     }
 
+    set dstBlendFactor (value) {
+        super.dstBlendFactor = value;
+    }
+
     @property({
         visible: false,
         override: true,
@@ -209,12 +213,20 @@ export class MaskComponent extends UIRenderComponent {
         return this._srcBlendFactor;
     }
 
+    set srcBlendFactor (value) {
+        super.srcBlendFactor = value;
+    }
+
     @property({
         visible: false,
         override: true,
     })
     get color () {
         return super.color;
+    }
+
+    set color (value){
+        super.color = value;
     }
 
     public static Type = MaskType;
@@ -244,7 +256,6 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     public onLoad (){
-        // this._flushAssembler();
         this._createGraphics();
     }
 
@@ -264,6 +275,7 @@ export class MaskComponent extends UIRenderComponent {
 
     public onEnable () {
         super.onEnable();
+        this._flushVisibility();
         // if (this._type === MaskType.IMAGE_STENCIL) {
         //     if (!this._spriteFrame || !this._spriteFrame.textureLoaded()) {
         //         if (this._spriteFrame) {
@@ -274,6 +286,9 @@ export class MaskComponent extends UIRenderComponent {
         //     }
         // }
         // else {
+        if (this._clearGraphics){
+            this._clearGraphics.onEnable();
+        }
         this._updateGraphics();
         // }
 
@@ -285,7 +300,7 @@ export class MaskComponent extends UIRenderComponent {
 
     public onDisable () {
         super.onDisable();
-
+        this._disableGraphics();
         this.node.off(SystemEventType.ROTATION_PART, this._nodeStateChange, this);
         this.node.off(SystemEventType.SCALE_PART, this._nodeStateChange, this);
     }
@@ -297,6 +312,11 @@ export class MaskComponent extends UIRenderComponent {
 
     public updateAssembler (render: UI) {
         if (super.updateAssembler(render)) {
+            const size = cc.visibleRect;
+            if (size.width !== this._lastVisibleSize.width || size.height !== this._lastVisibleSize.height) {
+                this._updateClearGraphics();
+            }
+
             render.commitComp(this, null, this._assembler!);
             return true;
         }
@@ -361,12 +381,6 @@ export class MaskComponent extends UIRenderComponent {
 
     protected _nodeStateChange () {
         super._nodeStateChange();
-        const size = cc.visibleRect;
-        if (this._clearGraphics && (size.width !== this._lastVisibleSize.width || size.height !== this._lastVisibleSize.height)) {
-            this._clearGraphics.clear();
-            this._clearGraphics.rect(0, 0, cc.visibleRect.width, cc.visibleRect.height);
-            this._clearGraphics.fill();
-        }
 
         this._updateGraphics();
     }
@@ -401,6 +415,15 @@ export class MaskComponent extends UIRenderComponent {
         }
     }
 
+    protected _parentChanged (node: Node) {
+        if (super._parentChanged(node)) {
+            this._flushVisibility();
+            return true;
+        }
+
+        return false;
+    }
+
     private _onTextureLoaded () {
         // Mark render data dirty
         if (this._renderData) {
@@ -430,25 +453,45 @@ export class MaskComponent extends UIRenderComponent {
 
     private _createGraphics () {
         if (!this._clearGraphics) {
-            this._clearGraphics = new GraphicsComponent();
-            this._clearGraphics.node = new Node('clear-graphics');
-            this._clearGraphics.helpInstanceMaterial();
-            this._clearGraphics._activateMaterial();
-            this._clearGraphics.lineWidth = 0;
-            const size = cc.visibleRect;
+            const clearGraphics = this._clearGraphics = new GraphicsComponent();
+            clearGraphics.node = new Node('clear-graphics');
+            clearGraphics.helpInstanceMaterial();
+            clearGraphics._activateMaterial();
+            clearGraphics.lineWidth = 0;
+            const size = CC_EDITOR ? new Size(960, 640) : cc.visibleRect;
             this._lastVisibleSize.width = size.width;
             this._lastVisibleSize.height = size.height;
-            this._clearGraphics.rect(0, 0, size.width, size.height);
-            this._clearGraphics.fill();
+            clearGraphics.node.setWorldPosition(size.width / 2, size.height / 2, 0);
+            clearGraphics.rect(-size.width / 2, -size.height / 2, size.width, size.height);
+            const color = Color.WHITE;
+            color.a = 0;
+            this._clearGraphics.fillColor = color;
+            clearGraphics.fill();
         }
 
         if (!this._graphics) {
-            this._graphics = new GraphicsComponent();
-            this._graphics.node = this.node;
-            this._graphics.helpInstanceMaterial();
-            this._graphics.lineWidth = 0;
-            this._graphics.strokeColor = cc.color(0, 0, 0, 0);
+            const graphics = this._graphics = new GraphicsComponent();
+            graphics.node = this.node;
+            graphics.helpInstanceMaterial();
+            graphics.lineWidth = 0;
+            const color = Color.WHITE;
+            color.a = 0;
+            graphics.fillColor =  color;
         }
+    }
+
+    private _updateClearGraphics (){
+        if (!this._clearGraphics){
+            return;
+        }
+
+        const size = cc.visibleRect;
+        this._clearGraphics.node.setWorldPosition(size.width / 2, size.height / 2, 0);
+        this._clearGraphics.clear();
+        this._lastVisibleSize.width = size.width;
+        this._lastVisibleSize.height = size.height;
+        this._clearGraphics.rect(-size.width / 2, -size.height / 2, size.width, size.height);
+        this._clearGraphics.fill();
     }
 
     private _updateGraphics () {
@@ -487,6 +530,16 @@ export class MaskComponent extends UIRenderComponent {
         graphics.fill();
     }
 
+    private _disableGraphics (){
+        if (this._graphics) {
+            this._graphics.onDisable();
+        }
+
+        if (this._clearGraphics) {
+            this._clearGraphics.onDisable();
+        }
+    }
+
     private _removeGraphics () {
         if (this._graphics) {
             this._graphics.destroy();
@@ -494,6 +547,16 @@ export class MaskComponent extends UIRenderComponent {
 
         if (this._clearGraphics) {
             this._clearGraphics.destroy();
+        }
+    }
+
+    private _flushVisibility () {
+        if (this._clearGraphics) {
+            this._clearGraphics.setVisibility(this._visibility);
+        }
+
+        if (this._graphics) {
+            this._graphics.setVisibility(this._visibility);
         }
     }
 

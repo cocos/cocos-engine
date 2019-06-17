@@ -26,7 +26,10 @@
 
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { Color } from '../../../core/value-types';
+import { Model } from '../../../renderer';
 import { UI } from '../../../renderer/ui/ui';
+import { Material } from '../../assets';
+import { RenderableComponent } from '../../framework';
 import { IAssembler } from '../assembler/assembler';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
@@ -156,6 +159,7 @@ export class GraphicsComponent extends UIRenderComponent {
     public static LineJoin = LineJoin;
     public static LineCap = LineCap;
     public impl: Impl | null = null;
+    public model: Model | null = null;
     @property
     private _lineWidth = 1;
     @property
@@ -189,17 +193,37 @@ export class GraphicsComponent extends UIRenderComponent {
         this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
     }
 
+    public onLoad (){
+       this._sceneGetter = cc.director.root.ui.getRenderSceneGetter();
+    }
+
     public onEnable () {
         if (super.onEnable) {
             super.onEnable();
         }
 
+        if (this.model){
+            this.model.enabled = true;
+        }
+
         this._activateMaterial();
+    }
+
+    public onDisable (){
+        if (this.model){
+            this.model.enabled = false;
+        }
     }
 
     public onDestroy () {
         if (super.onDestroy) {
             super.onDestroy();
+        }
+
+        this._sceneGetter = null;
+        if (this.model) {
+            this._getRenderScene().destroyModel(this.model);
+            this.model = null;
         }
 
         if (!this.impl) {
@@ -427,7 +451,7 @@ export class GraphicsComponent extends UIRenderComponent {
 
     public updateAssembler (render: UI) {
         if (super.updateAssembler(render)) {
-            render.commitComp(this, null, this._assembler!);
+            render.commitModel(this, this.model, this._material);
             return true;
         }
 
@@ -439,11 +463,24 @@ export class GraphicsComponent extends UIRenderComponent {
      * 辅助材质实例化。可用于只取数据而无实体情况下渲染使用。特殊情况可参考：[[_instanceMaterial]]
      */
     public helpInstanceMaterial () {
-        this._instanceMaterial();
+        let mat: Material | null = null;
+        if (this._sharedMaterial) {
+            mat = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
+        } else {
+            mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-base-material'), new RenderableComponent(), CC_EDITOR ? true : false);
+            mat.recompileShaders({ USE_LOCAL: true });
+            mat.onLoaded();
+        }
+
+        this._updateMaterial(mat);
         if (!this.impl){
             this._flushAssembler();
             this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
         }
+    }
+
+    protected _instanceMaterial (){
+        this.helpInstanceMaterial();
     }
 
     protected _flushAssembler (){
@@ -454,6 +491,13 @@ export class GraphicsComponent extends UIRenderComponent {
         }
     }
 
+    protected _canRender (){
+        if (!super._canRender()){
+            return false;
+        }
+
+        return this.model ? true : false;
+    }
 }
 
 cc.GraphicsComponent = GraphicsComponent;
