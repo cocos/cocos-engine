@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 import { EventTarget } from '../../event/event-target';
-import { EventKeyboard } from './CCEvent';
+import { EventKeyboard, EventMouse, EventTouch, EventAcceleration } from './CCEvent';
 import { SystemEventType } from './event-enum';
 import { EventListener } from './event-listener';
 // import { ccenum } from '../../value-types/enum';
@@ -96,8 +96,12 @@ export class SystemEvent extends EventTarget {
     }
 
     public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback: (event: EventKeyboard) => void, target?: Object);
-    public on (type: SystemEventType.MOUSE_DOWN | SystemEventType.MOUSE_UP, callback: (event: MouseEvent) => void, target?: Object);
-
+    public on (type: SystemEventType.MOUSE_DOWN | SystemEventType.MOUSE_ENTER | SystemEventType.MOUSE_LEAVE |
+                     SystemEventType.MOUSE_MOVE | SystemEventType.MOUSE_UP | SystemEventType.MOUSE_WHEEL ,
+               callback: (event: EventMouse) => void, target?: Object);
+    public on (type: SystemEventType.TOUCH_START | SystemEventType.TOUCH_MOVE | SystemEventType.TOUCH_END | SystemEventType.TOUCH_CANCEL,
+               callback: (event: EventTouch) => void, target?: Object);
+    public on (type: SystemEventType.DEVICEMOTION, callback: (event: EventAcceleration) => void, target?: Object);
     /**
      * @zh
      * 系统事件注册。
