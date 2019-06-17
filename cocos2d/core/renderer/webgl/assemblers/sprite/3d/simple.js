@@ -23,10 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const spriteAssembler = require('../sprite');
-const js = require('../../../../../platform/js');
-const assembler2D = require('../2d/simple');
-const base = require('../../base/3d');
+const Assembler3D = require('../../../../assembler-3d');
+const SimpleAssembler = require('../2d/simple');
 
-module.exports = spriteAssembler.simple3D = js.addon({
-}, base, assembler2D);
+export default class SimpleAssembler3D extends SimpleAssembler {
+
+}
+
+cc.js.mixin(SimpleAssembler3D.prototype, Assembler3D);

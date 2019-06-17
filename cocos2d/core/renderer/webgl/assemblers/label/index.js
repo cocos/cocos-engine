@@ -30,8 +30,8 @@ import TTF from './2d/ttf';
 import Bmfont from './2d/bmfont';
 // import Letter from './2d/letter';
 
-// import TTF3D from './3d/ttf';
-// import Bmfont3D from './3d/bmfont';
+import TTF3D from './3d/ttf';
+import Bmfont3D from './3d/bmfont';
 // import Letter3D from './3d/letter';
 
 Label._canvasPool = {
@@ -80,7 +80,7 @@ Assembler.register(cc.Label, {
     Bmfont,
     // Letter,
 
-    // TTF3D,
-    // Bmfont3D,
+    TTF3D,
+    Bmfont3D,
     // Letter3D
 });

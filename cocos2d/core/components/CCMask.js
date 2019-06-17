@@ -413,7 +413,7 @@ let Mask = cc.Class({
     _createGraphics () {
         if (!this._graphics) {
             this._graphics = new Graphics();
-            this._graphics._resetAssembler();
+            cc.Assembler.init(this._graphics);
             this._graphics.node = this.node;
             this._graphics.lineWidth = 0;
             this._graphics.strokeColor = cc.color(0, 0, 0, 0);
@@ -421,7 +421,7 @@ let Mask = cc.Class({
         
         if (!this._clearGraphics) {
             this._clearGraphics = new Graphics();
-            this._clearGraphics._resetAssembler();
+            cc.Assembler.init(this._clearGraphics);
             this._clearGraphics.node = new Node();
             this._clearGraphics._activateMaterial();
             this._clearGraphics.lineWidth = 0;

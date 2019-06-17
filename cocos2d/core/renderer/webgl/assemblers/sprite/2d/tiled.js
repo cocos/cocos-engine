@@ -27,7 +27,7 @@ import Assembler2D from '../../../../assembler-2d';
 
 const FlexBuffer = require('../../../flex-buffer');
 
-export default class TiledFilledAssembler extends Assembler2D {
+export default class TiledAssembler extends Assembler2D {
     initData (sprite) {
         this._renderData._local = { x: [], y: []};
 

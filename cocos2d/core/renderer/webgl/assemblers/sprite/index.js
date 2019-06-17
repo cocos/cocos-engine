@@ -7,11 +7,11 @@ import Tiled from "./2d/tiled";
 import RadialFilled from "./2d/radial-filled";
 import BarFilled from "./2d/bar-filled";
 
-// import Simple3D from "./3d/simple";
-// import Sliced3D from "./3d/sliced";
-// import Tiled3D from "./3d/tiled";
-// import RadialFilled3D from "./3d/radial-filled";
-// import BarFilled3D from "./3d/bar-filled";
+import Simple3D from "./3d/simple";
+import Sliced3D from "./3d/sliced";
+import Tiled3D from "./3d/tiled";
+import RadialFilled3D from "./3d/radial-filled";
+import BarFilled3D from "./3d/bar-filled";
 
 let ctor = {
     getConstructor(sprite) {
@@ -43,11 +43,11 @@ let ctor = {
     RadialFilled,
     BarFilled,
 
-    // Simple3D,
-    // Sliced3D,
-    // Tiled3D,
-    // RadialFilled3D,
-    // BarFilled3D
+    Simple3D,
+    Sliced3D,
+    Tiled3D,
+    RadialFilled3D,
+    BarFilled3D
 };
 
 Asembler.register(cc.Sprite, ctor);

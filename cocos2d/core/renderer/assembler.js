@@ -1,9 +1,6 @@
-import RenderFlow from './render-flow';
-
 export default class Assembler {
     init (renderComp) {
         this._renderComp = renderComp;
-        renderComp._renderFlag |= RenderFlow.FLAG_OPACITY;
     }
     
     updateRenderData (comp) {

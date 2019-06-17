@@ -23,10 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const base = require('../../base/3d');
-const spriteAssembler = require('../sprite');
-const assembler2D = require('../2d/tiled');
-const js = require('../../../../../platform/js');
+const Assembler3D = require('../../base/3d');
+const TiledAssembler = require('../2d/tiled');
 const vec3 = cc.vmath.vec3;
 
 let vec3_temps = [];
@@ -34,13 +32,17 @@ for (let i = 0; i < 4; i++) {
     vec3_temps.push(vec3.create());
 }
 
-module.exports = spriteAssembler.tiled3D = js.addon({
+export default class TiledAssembler3D extends TiledAssembler {
+    
+}
+
+cc.js.mixin(TiledAssembler3D.prototype, Assembler3D, {
     updateWorldVerts (sprite) {
-        let renderHandle = sprite._renderHandle;
-        let local = renderHandle._local;
+        let renderData = this._renderData;
+        let local = renderData._local;
         let localX = local.x, localY = local.y;
-        let world = renderHandle.vDatas[0];
-        let { row, col } = renderHandle._infos;
+        let world = renderData.vDatas[0];
+        let { row, col } = this;
         let matrix = sprite.node._worldMatrix;
         let x, x1, y, y1;
         let vertexOffset = 0;
@@ -68,5 +70,5 @@ module.exports = spriteAssembler.tiled3D = js.addon({
                 vertexOffset += 24;
             }
         }
-    },
-}, base, assembler2D);
+    }
+});
