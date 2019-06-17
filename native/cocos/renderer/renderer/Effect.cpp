@@ -170,4 +170,45 @@ void Effect::copy(Effect& effect)
     _definesKey = effect._definesKey;
 }
 
+void Effect::setCullMode(CullMode cullMode)
+{
+    Technique* tech = _techniques.front();
+    const Vector<Pass*>& passes = tech->getPasses();
+    for (const auto& pass : passes)
+    {
+        pass->setCullMode(cullMode);
+    }
+}
+
+void Effect::setBlend(BlendOp blendEq, BlendFactor blendSrc, BlendFactor blendDst, BlendOp blendAlphaEq, BlendFactor blendSrcAlpha, BlendFactor blendDstAlpha, uint32_t blendColor)
+{
+    Technique* tech = _techniques.front();
+    const Vector<Pass*>& passes = tech->getPasses();
+    for (const auto& pass : passes)
+    {
+        pass->setBlend(blendEq, blendSrc, blendDst, blendAlphaEq, blendSrcAlpha, blendDstAlpha, blendColor);
+    }
+}
+
+void Effect::setStencilTest(bool value)
+{
+    Technique* tech = _techniques.front();
+    const Vector<Pass*>& passes = tech->getPasses();
+    for (const auto& pass : passes)
+    {
+        pass->setStencilTest(value);
+    }
+}
+
+void Effect::setStencil(StencilFunc stencilFunc, uint32_t stencilRef, uint8_t stencilMask, StencilOp stencilFailOp, StencilOp stencilZFailOp, StencilOp stencilZPassOp, uint8_t stencilWriteMask)
+{
+    Technique* tech = _techniques.front();
+    const Vector<Pass*>& passes = tech->getPasses();
+    for (const auto& pass : passes)
+    {
+        pass->setStencilFront(stencilFunc, stencilRef, stencilMask, stencilFailOp, stencilZFailOp, stencilZPassOp, stencilWriteMask);
+        pass->setStencilBack(stencilFunc, stencilRef, stencilMask, stencilFailOp, stencilZFailOp, stencilZPassOp, stencilWriteMask);
+    }
+}
+
 RENDERER_END

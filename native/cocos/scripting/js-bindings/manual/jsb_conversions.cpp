@@ -1476,6 +1476,283 @@ bool seval_to_TextureImageOption(const se::Value& v, cocos2d::renderer::Texture:
     return true;
 }
 
+bool ccvaluevector_to_EffectPass(const cocos2d::ValueVector& v, cocos2d::Vector<cocos2d::renderer::Pass*>* ret)
+{
+    assert(ret != nullptr);
+    
+    for (const auto& value : v)
+    {
+        cocos2d::ValueMap valMap;
+        valMap = value.asValueMap();
+        cocos2d::renderer::Pass* cobj = new (std::nothrow) cocos2d::renderer::Pass(valMap["program"].asString());
+        
+        // cull mode
+        const auto& iter0 = valMap.find("rasterizerState");
+        uint32_t cullMode = 0;
+        if (iter0 != valMap.end())
+        {
+            const cocos2d::Value& val0 = iter0->second;
+            const cocos2d::ValueMap& valMap0 = val0.asValueMap();
+            const auto& it0 = valMap0.find("cullMode");
+            
+            if (it0 != valMap0.end())
+            {
+                cullMode = it0->second.asUnsignedInt();
+            }
+        }
+        cobj->setCullMode(static_cast<cocos2d::renderer::CullMode>(cullMode));
+
+        // blend
+        const auto& iter1 = valMap.find("blendState");
+        cocos2d::renderer::BlendOp blendEq = cocos2d::renderer::BlendOp::ADD, blendAlphaEq = cocos2d::renderer::BlendOp::ADD;
+        cocos2d::renderer::BlendFactor blendSrc = cocos2d::renderer::BlendFactor::ONE, blendDst = cocos2d::renderer::BlendFactor::ZERO, blendSrcAlpha = cocos2d::renderer::BlendFactor::ONE, blendDstAlpha = cocos2d::renderer::BlendFactor::ZERO;
+        uint32_t blendColor = 0xffffffff;
+        if (iter1 != valMap.end())
+        {
+            const cocos2d::Value& val1 = iter1->second;
+            const cocos2d::ValueMap& valMap1 = val1.asValueMap();
+            const auto& it1 = valMap1.find("targets");
+            
+            if (it1 != valMap1.end())
+            {
+                const cocos2d::ValueVector& vec1 = it1->second.asValueVector();
+                
+                for (const auto &e : vec1)
+                {
+                    cocos2d::ValueMap target = e.asValueMap();
+                    if(target.find("blendEq") != target.end())
+                    {
+                        blendEq = static_cast<cocos2d::renderer::BlendOp>(target.at("blendEq").asUnsignedInt());
+                    }
+                    
+                    if(target.find("blendSrc") != target.end())
+                    {
+                        blendDst = static_cast<cocos2d::renderer::BlendFactor>(target.at("blendSrc").asUnsignedInt());
+                    }
+                    
+                    if(target.find("blendDst") != target.end())
+                    {
+                        blendDst = static_cast<cocos2d::renderer::BlendFactor>(target.at("blendDst").asUnsignedInt());
+                    }
+                    
+                    if(target.find("blendAlphaEq") != target.end())
+                    {
+                        blendAlphaEq = static_cast<cocos2d::renderer::BlendOp>(target.at("blendAlphaEq").asUnsignedInt());
+                    }
+                    
+                    if(target.find("blendSrcAlpha") != target.end())
+                    {
+                        blendSrcAlpha = static_cast<cocos2d::renderer::BlendFactor>(target.at("blendSrcAlpha").asUnsignedInt());
+                    }
+                    
+                    if(target.find("blendDstAlpha") != target.end())
+                    {
+                        blendDstAlpha = static_cast<cocos2d::renderer::BlendFactor>(target.at("blendDstAlpha").asUnsignedInt());
+                    }
+                    
+                    if(target.find("blendColor") != target.end())
+                    {
+                        blendColor = target.at("blendColor").asUnsignedInt();
+                    }
+                    
+                    break;
+                }
+            }
+        }
+        cobj->setBlend(blendEq, blendSrc, blendDst, blendAlphaEq, blendSrcAlpha, blendDstAlpha, blendColor);
+    
+        // depth
+        const auto& iter2 = valMap.find("depthStencilState");
+        bool depthTest = false, depthWrite = false;
+        cocos2d::renderer::DepthFunc depthFunc = cocos2d::renderer::DepthFunc::LESS;
+        
+        uint8_t stencilMaskFront = 0xff, stencilWriteMaskFront = 0xff, stencilMaskBack = 0xff, stencilWriteMaskBack = 0xff;
+        uint32_t stencilRefFront = 0, stencilRefBack = 0;
+        cocos2d::renderer::StencilFunc stencilFuncFront = cocos2d::renderer::StencilFunc::ALWAYS, stencilFuncBack = cocos2d::renderer::StencilFunc::ALWAYS;
+        cocos2d::renderer::StencilOp stencilFailOpFront = cocos2d::renderer::StencilOp::KEEP, stencilFailOpBack = cocos2d::renderer::StencilOp::KEEP, stencilZFailOpFront = cocos2d::renderer::StencilOp::KEEP, stencilZFailOpBack = cocos2d::renderer::StencilOp::KEEP, stencilZPassOpFront = cocos2d::renderer::StencilOp::KEEP, stencilZPassOpBack = cocos2d::renderer::StencilOp::KEEP;
+        
+        if (iter2 != valMap.end())
+        {
+            const cocos2d::Value& val2 = iter2->second;
+            cocos2d::ValueMap state = val2.asValueMap();
+            
+            // depth
+            if(state.find("depthTest") != state.end())
+            {
+                depthTest = state.at("depthTest").asBool();
+            }
+            
+            if(state.find("depthWrite") != state.end())
+            {
+                depthWrite = state.at("depthWrite").asBool();
+            }
+            
+            if(state.find("depthFunc") != state.end())
+            {
+                depthFunc = static_cast<cocos2d::renderer::DepthFunc>(state.at("depthFunc").asUnsignedInt());
+            }
+            
+            // front
+            if(state.find("stencilFuncFront") != state.end())
+            {
+                stencilFuncFront = static_cast<cocos2d::renderer::StencilFunc>(state.at("stencilFuncFront").asUnsignedInt());
+            }
+            
+            if(state.find("stencilRefFront") != state.end())
+            {
+                stencilRefFront = state.at("stencilRefFront").asUnsignedInt();
+            }
+            
+            if(state.find("stencilMaskFront") != state.end())
+            {
+                stencilMaskFront = state.at("stencilMaskFront").asUnsignedInt();
+            }
+            
+            if(state.find("stencilFailOpFront") != state.end())
+            {
+                stencilFailOpFront = static_cast<cocos2d::renderer::StencilOp>(state.at("stencilFailOpFront").asUnsignedInt());
+            }
+            
+            if(state.find("stencilZFailOpFront") != state.end())
+            {
+                stencilZFailOpFront = static_cast<cocos2d::renderer::StencilOp>(state.at("stencilZFailOpFront").asUnsignedInt());
+            }
+            
+            if(state.find("stencilZPassOpFront") != state.end())
+            {
+                stencilZPassOpFront = static_cast<cocos2d::renderer::StencilOp>(state.at("stencilZPassOpFront").asUnsignedInt());
+            }
+            
+            if(state.find("stencilWriteMaskFront") != state.end())
+            {
+                stencilWriteMaskFront = state.at("stencilWriteMaskFront").asUnsignedInt();
+            }
+            
+            // back
+            if(state.find("stencilFuncBack") != state.end())
+            {
+                stencilFuncBack = static_cast<cocos2d::renderer::StencilFunc>(state.at("stencilFuncBack").asUnsignedInt());
+            }
+            
+            if(state.find("stencilRefBack") != state.end())
+            {
+                stencilRefBack = state.at("stencilRefBack").asUnsignedInt();
+            }
+            
+            if(state.find("stencilMaskBack") != state.end())
+            {
+                stencilMaskBack = state.at("stencilMaskBack").asUnsignedInt();
+            }
+            
+            if(state.find("stencilFailOpBack") != state.end())
+            {
+                stencilFailOpBack = static_cast<cocos2d::renderer::StencilOp>(state.at("stencilFailOpBack").asUnsignedInt());
+            }
+            
+            if(state.find("stencilZFailOpBack") != state.end())
+            {
+                stencilZFailOpBack = static_cast<cocos2d::renderer::StencilOp>(state.at("stencilZFailOpBack").asUnsignedInt());
+            }
+            
+            if(state.find("stencilZPassOpBack") != state.end())
+            {
+                stencilZPassOpBack = static_cast<cocos2d::renderer::StencilOp>(state.at("stencilZPassOpBack").asUnsignedInt());
+            }
+            
+            if(state.find("stencilWriteMaskBack") != state.end())
+            {
+                stencilWriteMaskBack = state.at("stencilWriteMaskBack").asUnsignedInt();
+            }
+        }
+        cobj->setDepth(depthTest, depthWrite, depthFunc); // depth func
+    
+        // stencil front
+        cobj->setStencilFront(stencilFuncFront, stencilRefFront, stencilMaskFront, stencilFailOpFront, stencilZFailOpFront, stencilZPassOpFront, stencilWriteMaskFront);
+        // stencil back
+        cobj->setStencilBack(stencilFuncBack, stencilRefBack, stencilMaskBack, stencilFailOpBack, stencilZFailOpBack, stencilZPassOpBack, stencilWriteMaskBack);
+        cobj->autorelease();
+        ret->pushBack(cobj);
+    }
+    
+    return true;
+}
+
+bool seval_to_EffectTechnique(const se::Value& v, cocos2d::renderer::Technique** ret)
+{
+    SE_PRECONDITION2(v.isObject(), false, "Convert Effect Technique failed!");
+    
+    cocos2d::ValueMap valMap;
+    if (seval_to_ccvaluemap(v, &valMap))
+    {
+        std::vector<std::string> stages;
+        const auto& iter0 = valMap.find("stages");
+        if (iter0 != valMap.end())
+        {
+            const cocos2d::Value& val = iter0->second;
+            const cocos2d::ValueVector &vector = val.asValueVector();
+            
+            for (const auto &e : vector)
+            {
+                stages.push_back(std::move(e.asString()));
+            }
+        }
+        else
+        {
+            stages.push_back(std::move("opaque"));
+        }
+        
+        int layer = 0;
+        const auto& iter1 = valMap.find("layer");
+        if (iter1 != valMap.end())
+        {
+            const cocos2d::Value& val = iter1->second;
+            layer = val.asInt();
+        }
+        
+        cocos2d::Vector<cocos2d::renderer::Pass*> passes;
+        const auto& iter2 = valMap.find("passes");
+        if (iter2 != valMap.end())
+        {
+            const cocos2d::Value& val = iter2->second;
+            const cocos2d::ValueVector &vector = val.asValueVector();
+            ccvaluevector_to_EffectPass(vector, &passes);
+        }
+        
+        *ret = new (std::nothrow) cocos2d::renderer::Technique(stages, passes, layer);
+        
+        return true;
+    }
+    
+    return false;
+}
+
+bool seval_to_EffectAsset(const std::string& e, cocos2d::Vector<cocos2d::renderer::Technique*>* ret)
+{
+    se::Object* asset = se::Object::createJSONObject(e);
+    asset = se::Object::createJSONObject(e);
+    // techniques
+    se::Value techniques;
+    asset->getProperty("techniques", &techniques);
+    se::Object* techs = techniques.toObject();
+    bool ok = techs->isArray();
+    SE_PRECONDITION2(ok, false, "Convert Effect Asset Failed!");
+    
+    uint32_t len = 0;
+    techs->getArrayLength(&len);
+    for (uint32_t i = 0; i < len; ++i)
+    {
+        se::Value val;
+        if (techs->getArrayElement(i, &val) && val.isObject())
+        {
+            cocos2d::renderer::Technique* tech = nullptr;
+            ok &= seval_to_EffectTechnique(val, &tech);
+            SE_PRECONDITION2(ok, false, "Effect Technique Create Failed!");
+            ret->pushBack(tech);
+        }
+    }
+    return true;
+}
+
 bool seval_to_EffectProperty(const cocos2d::Vector<cocos2d::renderer::Technique *>& techniqes, const se::Value& v, std::unordered_map<std::string, cocos2d::renderer::Effect::Property>* ret)
 {
     assert(ret != nullptr);

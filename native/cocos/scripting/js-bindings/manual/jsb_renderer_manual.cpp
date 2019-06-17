@@ -546,10 +546,12 @@ static bool js_renderer_Effect_init(se::State& s)
     cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
-    cocos2d::Vector<cocos2d::renderer::Technique *> arg0;
+    std::string asset;
+    seval_to_std_string(args[0], &asset);
+    cocos2d::Vector<cocos2d::renderer::Technique*> arg0;
     std::unordered_map<std::string, cocos2d::renderer::Technique::Parameter> arg1;
     std::vector<std::unordered_map<std::string, cocos2d::Value>> arg2;
-    ok &= seval_to_Vector(args[0], &arg0);
+    ok &= seval_to_EffectAsset(asset, &arg0);
     ok &= seval_to_EffectProperty(arg0, args[1], &arg1);
     ok &= seval_to_EffectDefineTemplate(args[2], &arg2);
     SE_PRECONDITION2(ok, false, "js_renderer_Effect_init : Error processing arguments");
