@@ -79,10 +79,6 @@ export interface IPropertyCurveData {
 export class RatioSampler {
     public ratios: number[];
 
-    private _lastSampleRatio: number = -1;
-
-    private _lastSampleResult: number = 0;
-
     private _findRatio: (ratios: number[], ratio: number) => number;
 
     constructor (ratios: number[]) {
@@ -106,11 +102,7 @@ export class RatioSampler {
     }
 
     public sample (ratio: number) {
-        if (this._lastSampleRatio !== ratio) {
-            this._lastSampleRatio = ratio;
-            this._lastSampleResult = this._findRatio(this.ratios, ratio);
-        }
-        return this._lastSampleResult;
+        return this._findRatio(this.ratios, ratio);
     }
 }
 
@@ -124,12 +116,6 @@ export class AnimCurve {
     public static Bezier (controlPoints: number[]) {
         return controlPoints as BezierControlPoints;
     }
-
-    /**
-     * The keyframe ratio of the keyframe specified as a number between 0.0 and 1.0 inclusive. (x)
-     * A null ratio indicates a zero or single frame curve.
-     */
-    public _ratioSampler: RatioSampler | null = null;
 
     @property
     public types?: Array<(EasingMethod | null)> = undefined;
@@ -154,9 +140,8 @@ export class AnimCurve {
 
     private _duration: number;
 
-    constructor (propertyCurveData: IPropertyCurveData, propertyName: string, duration: number, isNode: boolean, ratioSampler: RatioSampler | null) {
+    constructor (propertyCurveData: IPropertyCurveData, propertyName: string, duration: number, isNode: boolean) {
         this._duration = duration;
-        this._ratioSampler = ratioSampler;
 
         // Install values.
         this._values = propertyCurveData.values;
@@ -209,86 +194,60 @@ export class AnimCurve {
         }
     }
 
-    /**
-     * @param ratio The normalized time specified as a number between 0.0 and 1.0 inclusive.
-     */
-    public sample (ratio: number): any {
-        if (!this._stepfiedValues) {
-            return this._sampleFromOriginal(ratio);
+    public hasLerp () {
+        return !!this._lerp;
+    }
+
+    public valueAt (index: number) {
+        const value = this._values[index];
+        if (value && value.getNoLerp) {
+            return value.getNoLerp();
         } else {
-            const ratioStep = 1 / this._stepfiedValues.length;
-            const i = Math.floor(ratio / ratioStep);
-            return this._stepfiedValues[i];
+            return value;
         }
     }
 
-    public stepfy (stepCount: number) {
-        this._stepfiedValues = undefined;
-        if (stepCount === 0) {
-            return;
+    public valueBetween (ratio: number, from: number, fromRatio: number, to: number, toRatio: number) {
+        // if (!this._stepfiedValues) {
+        //     return this._sampleFromOriginal(ratio);
+        // } else {
+        //     const ratioStep = 1 / this._stepfiedValues.length;
+        //     const i = Math.floor(ratio / ratioStep);
+        //     return this._stepfiedValues[i];
+        // }
+
+        if (!this._lerp) {
+            return this.valueAt(from);
         }
-        this._stepfiedValues = new Array(stepCount);
-        const ratioStep = 1 / stepCount;
-        let curRatio = 0;
-        for (let i = 0; i < stepCount; ++i, curRatio += ratioStep) {
-            const value = this._sampleFromOriginal(curRatio);
-            this._stepfiedValues[i] = value instanceof ValueType ? value.clone() : value;
+
+        const type = this.types ? this.types[from] : this.type;
+        const dRatio = (toRatio - fromRatio);
+        let ratioBetweenFrames = (ratio - fromRatio) / dRatio;
+        if (type) {
+            ratioBetweenFrames = computeRatioByType(ratioBetweenFrames, type);
         }
+        const fromVal = this._values[from];
+        const toVal = this._values[to];
+        const value = this._lerp(fromVal, toVal, ratioBetweenFrames, dRatio * this._duration);
+        return value;
     }
+
+    // public stepfy (stepCount: number) {
+    //     this._stepfiedValues = undefined;
+    //     if (stepCount === 0) {
+    //         return;
+    //     }
+    //     this._stepfiedValues = new Array(stepCount);
+    //     const ratioStep = 1 / stepCount;
+    //     let curRatio = 0;
+    //     for (let i = 0; i < stepCount; ++i, curRatio += ratioStep) {
+    //         const value = this._sampleFromOriginal(curRatio);
+    //         this._stepfiedValues[i] = value instanceof ValueType ? value.clone() : value;
+    //     }
+    // }
 
     public empty () {
         return this._values.length === 0;
-    }
-
-    private _sampleFromOriginal (ratio: number) {
-        const values = this._values;
-        const frameCount = this._ratioSampler ?
-            this._ratioSampler.ratios.length :
-            this._values.length;
-        if (frameCount === 0) {
-            return;
-        }
-
-        // evaluate value
-        let isLerped = false;
-        let value: CurveValue;
-        if (this._ratioSampler === null) {
-            value = this._values[0];
-        } else {
-            let index = this._ratioSampler.sample(ratio);
-            if (index >= 0) {
-                value = values[index];
-            } else {
-                index = ~index;
-                if (index <= 0) {
-                    value = values[0];
-                } else if (index >= frameCount) {
-                    value = values[frameCount - 1];
-                } else {
-                    const fromVal = values[index - 1];
-                    if (!this._lerp) {
-                        value = fromVal;
-                    } else {
-                        const fromRatio = this._ratioSampler.ratios[index - 1];
-                        const toRatio = this._ratioSampler.ratios[index];
-                        const type = this.types ? this.types[index - 1] : this.type;
-                        const dRatio = (toRatio - fromRatio);
-                        let ratioBetweenFrames = (ratio - fromRatio) / dRatio;
-                        if (type) {
-                            ratioBetweenFrames = computeRatioByType(ratioBetweenFrames, type);
-                        }
-                        // calculate value
-                        const toVal = values[index];
-                        value = this._lerp(fromVal, toVal, ratioBetweenFrames, dRatio * this._duration);
-                        isLerped = true;
-                    }
-                }
-            }
-        }
-        if (!isLerped && value && value.getNoLerp) {
-            return value.getNoLerp();
-        }
-        return value;
     }
 }
 
