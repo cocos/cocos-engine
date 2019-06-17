@@ -51,16 +51,9 @@ function getStencilRef () {
 
 function applyStencil (material, func, failOp, ref, stencilMask, writeMask) {
     let effect = material.effect;
-    let technique = effect.getDefaultTechnique();
-    let passes = technique.passes;
-
     let zFailOp = gfx.STENCIL_OP_KEEP,
         zPassOp = gfx.STENCIL_OP_KEEP;
-    for (let i = 0; i < passes.length; ++i) {
-        let pass = passes[i];
-        pass.setStencilFront(gfx.STENCIL_ENABLE, func, ref, stencilMask, failOp, zFailOp, zPassOp, writeMask);
-        pass.setStencilBack(gfx.STENCIL_ENABLE, func, ref, stencilMask, failOp, zFailOp, zPassOp, writeMask);
-    }
+    effect.setStencil(gfx.STENCIL_ENABLE, func, ref, stencilMask, failOp, zFailOp, zPassOp, writeMask);
 }
 
 

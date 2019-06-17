@@ -120,8 +120,7 @@ function _getSlotMaterial (tex, blendMode) {
         material.setProperty('texture', tex);
 
         // update blend function
-        let pass = material.effect.getDefaultTechnique().passes[0];
-        pass.setBlend(
+        material.effect.setBlend(
             true,
             gfx.BLEND_FUNC_ADD,
             src, dst,

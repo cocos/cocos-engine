@@ -16,22 +16,10 @@ export default class Technique {
     this._passes = passes;
     this._layer = layer;
     // TODO: this._version = 'webgl' or 'webgl2' // ????
-
-    if (CC_JSB && CC_NATIVERENDERER) {
-        var passesNative = [];
-        for (var i = 0, len = passes.length; i < len; ++i) {
-        passesNative.push(passes[i]._native);
-        }
-        this._nativeObj = new renderer.TechniqueNative(stages, passesNative, layer);
-    }
   }
 
   setStages(stages) {
     this._stageIDs = config.stageIDs(stages);
-    
-    if (CC_JSB && CC_NATIVERENDERER) {
-        this._nativeObj.setStages(stages);
-    }
   }
 
   get passes() {

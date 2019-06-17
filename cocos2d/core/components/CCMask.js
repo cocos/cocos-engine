@@ -394,10 +394,7 @@ let Mask = cc.Class({
         
             if (!this._exitMaterial) {
                 this._exitMaterial = Material.getInstantiatedBuiltinMaterial('sprite', this);
-                let passes = this._exitMaterial.effect.getDefaultTechnique().passes;
-                for (let i = 0; i < passes.length; i++) {
-                    passes[i].setStencilEnabled(gfx.STENCIL_DISABLE);
-                }
+                this._exitMaterial.effect.setStencilEnabled(gfx.STENCIL_DISABLE);
             }
 
             if (!this._clearMaterial) {
