@@ -208,7 +208,7 @@ export class Model {
 
     public updateUBOs () {
         if (this._uboUpdated) {
-            return;
+            return false;
         }
         this._uboUpdated = true;
         // @ts-ignore
@@ -232,6 +232,7 @@ export class Model {
                 pso.pipelineLayout.layouts[0].update();
             }
         }
+        return true;
     }
 
     /**
