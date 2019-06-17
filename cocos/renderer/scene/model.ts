@@ -197,9 +197,9 @@ export class Model {
         const node = this._transform;
         if (!node.hasChanged) { return; }
         node.updateWorldTransformFull();
-        if (!this._modelBounds) { return; }
+        if (!this._modelBounds || !this._worldBounds) { return; }
         // @ts-ignore
-        this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds!);
+        this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds);
     }
 
     public _resetUBOUpdateFlag () {
@@ -208,7 +208,7 @@ export class Model {
 
     public updateUBOs () {
         if (this._uboUpdated) {
-            return;
+            return false;
         }
         this._uboUpdated = true;
         // @ts-ignore
@@ -232,6 +232,7 @@ export class Model {
                 pso.pipelineLayout.layouts[0].update();
             }
         }
+        return true;
     }
 
     /**

@@ -33,8 +33,8 @@ import { GFXDevice } from '../../gfx/device';
 import { Node } from '../../scene-graph';
 import { Mesh } from '../assets';
 import { Skeleton } from '../assets/skeleton';
-import { mapBuffer } from '../misc/utils';
-import { LCA, SkinningModelComponent } from './skinning-model-component';
+import { LCA, mapBuffer } from '../misc/utils';
+import { SkinningModelComponent } from './skinning-model-component';
 
 const _vec2 = new Vec2();
 
@@ -321,6 +321,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
         skeleton.joints = skeleton.joints.map((_, idx, arr) => arr[idxMap[idx]]);
         skeleton.bindposes = skeleton.bindposes.map((_, idx, arr) => arr[idxMap[idx]]);
         // apply
+        // @ts-ignore
         super.skeleton = skeleton;
     }
 

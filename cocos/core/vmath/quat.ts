@@ -27,14 +27,14 @@ export class quat {
     /**
      * @zh 复制目标四元数
      */
-    public static copy (out: quat, a: quat) {
+    public static copy<Out extends quat> (out: Out, a: quat) {
         return vec4.copy(out, a);
     }
 
     /**
      * @zh 设置四元数值
      */
-    public static set (out: quat, x: number, y: number, z: number, w: number) {
+    public static set<Out extends quat> (out: Out, x: number, y: number, z: number, w: number) {
         out.x = x;
         out.y = y;
         out.z = z;
@@ -45,7 +45,7 @@ export class quat {
     /**
      * @zh 将目标赋值为单位四元数
      */
-    public static identity (out: quat) {
+    public static identity<Out extends quat> (out: Out) {
         out.x = 0;
         out.y = 0;
         out.z = 0;
@@ -56,7 +56,7 @@ export class quat {
     /**
      * @zh 设置四元数为两向量间的最短路径旋转，默认两向量都已归一化
      */
-    public static rotationTo (out: quat, a: vec3, b: vec3) {
+    public static rotationTo<Out extends quat> (out: Out, a: vec3, b: vec3) {
         const dot = vec3.dot(a, b);
         if (dot < -0.999999) {
             vec3.cross(v3_1, vec3.UNIT_X, a);
@@ -107,7 +107,7 @@ export class quat {
     /**
      * @zh 四元数乘法
      */
-    public static multiply (out: quat, a: quat, b: quat) {
+    public static multiply<Out extends quat> (out: Out, a: quat, b: quat) {
         const { x: ax, y: ay, z: az, w: aw } = a;
         const { x: bx, y: by, z: bz, w: bw } = b;
 
@@ -121,14 +121,14 @@ export class quat {
     /**
      * @zh 四元数乘法
      */
-    public static mul (out: quat, a: quat, b: quat) {
+    public static mul<Out extends quat> (out: Out, a: quat, b: quat) {
         return quat.multiply(out, a, b);
     }
 
     /**
      * @zh 四元数标量乘法
      */
-    public static scale (out: quat, a: quat, b: number) {
+    public static scale<Out extends quat> (out: Out, a: quat, b: number) {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -139,7 +139,7 @@ export class quat {
     /**
      * @zh 四元数乘加：A + B * scale
      */
-    public static scaleAndAdd (out: quat, a: quat, b: quat, scale: number) {
+    public static scaleAndAdd<Out extends quat> (out: Out, a: quat, b: quat, scale: number) {
         out.x = a.x + b.x * scale;
         out.y = a.y + b.y * scale;
         out.z = a.z + b.z * scale;
@@ -151,7 +151,7 @@ export class quat {
      * @zh 绕 X 轴旋转指定四元数
      * @param rad 旋转弧度
      */
-    public static rotateX (out: quat, a: quat, rad: number) {
+    public static rotateX<Out extends quat> (out: Out, a: quat, rad: number) {
         rad *= 0.5;
 
         const { x: ax, y: ay, z: az, w: aw } = a;
@@ -169,7 +169,7 @@ export class quat {
      * @zh 绕 Y 轴旋转指定四元数
      * @param rad 旋转弧度
      */
-    public static rotateY (out: quat, a: quat, rad: number) {
+    public static rotateY<Out extends quat> (out: Out, a: quat, rad: number) {
         rad *= 0.5;
 
         const { x: ax, y: ay, z: az, w: aw } = a;
@@ -187,7 +187,7 @@ export class quat {
      * @zh 绕 Z 轴旋转指定四元数
      * @param rad 旋转弧度
      */
-    public static rotateZ (out: quat, a: quat, rad: number) {
+    public static rotateZ<Out extends quat> (out: Out, a: quat, rad: number) {
         rad *= 0.5;
 
         const { x: ax, y: ay, z: az, w: aw } = a;
@@ -206,7 +206,7 @@ export class quat {
      * @param axis 旋转轴
      * @param rad 旋转弧度
      */
-    public static rotateAround (out: quat, rot: quat, axis: vec3, rad: number) {
+    public static rotateAround<Out extends quat> (out: Out, rot: quat, axis: vec3, rad: number) {
         // get inv-axis (local to rot)
         quat.invert(qt_1, rot);
         vec3.transformQuat(v3_1, axis, qt_1);
@@ -221,7 +221,7 @@ export class quat {
      * @param axis 旋转轴
      * @param rad 旋转弧度
      */
-    public static rotateAroundLocal (out: quat, rot: quat, axis: vec3, rad: number) {
+    public static rotateAroundLocal<Out extends quat> (out: Out, rot: quat, axis: vec3, rad: number) {
         quat.fromAxisAngle(qt_1, axis, rad);
         quat.multiply(out, rot, qt_1);
         return out;
@@ -230,7 +230,7 @@ export class quat {
     /**
      * @zh 根据 xyz 分量计算 w 分量，默认已归一化
      */
-    public static calculateW (out: quat, a: quat) {
+    public static calculateW<Out extends quat> (out: Out, a: quat) {
         const { x, y, z } = a;
 
         out.x = x;
@@ -250,7 +250,7 @@ export class quat {
     /**
      * @zh 逐元素线性插值： A + t * (B - A)
      */
-    public static lerp (out: quat, a: quat, b: quat, t: number) {
+    public static lerp<Out extends quat> (out: Out, a: quat, b: quat, t: number) {
         const { x: ax, y: ay, z: az, w: aw } = a;
         out.x = ax + t * (b.x - ax);
         out.y = ay + t * (b.y - ay);
@@ -262,7 +262,7 @@ export class quat {
     /**
      * @zh 四元数球面插值
      */
-    public static slerp (out: quat, a: quat, b: quat, t: number) {
+    public static slerp<Out extends quat> (out: Out, a: quat, b: quat, t: number) {
         // benchmarks:
         //    http://jsperf.com/quaternion-slerp-implementations
 
@@ -307,7 +307,7 @@ export class quat {
     /**
      * @zh 带两个控制点的四元数球面插值
      */
-    public static sqlerp (out: quat, a: quat, b: quat, c: quat, d: quat, t: number) {
+    public static sqlerp<Out extends quat> (out: Out, a: quat, b: quat, c: quat, d: quat, t: number) {
         quat.slerp(qt_1, a, d, t);
         quat.slerp(qt_2, b, c, t);
         quat.slerp(out, qt_1, qt_2, 2 * t * (1 - t));
@@ -317,7 +317,7 @@ export class quat {
     /**
      * @zh 四元数求逆
      */
-    public static invert (out: quat, a: quat) {
+    public static invert<Out extends quat> (out: Out, a: quat) {
         const { x: a0, y: a1, z: a2, w: a3 } = a;
         const dot = a0 * a0 + a1 * a1 + a2 * a2 + a3 * a3;
         const invDot = dot ? 1.0 / dot : 0;
@@ -334,7 +334,7 @@ export class quat {
     /**
      * @zh 求共轭四元数，对单位四元数与求逆等价，但更高效
      */
-    public static conjugate (out: quat, a: quat) {
+    public static conjugate<Out extends quat> (out: Out, a: quat) {
         out.x = -a.x;
         out.y = -a.y;
         out.z = -a.z;
@@ -375,7 +375,7 @@ export class quat {
     /**
      * @zh 归一化四元数
      */
-    public static normalize (out: quat, a: quat) {
+    public static normalize<Out extends quat> (out: Out, a: quat) {
         const { x, y, z, w } = a;
         let len = x * x + y * y + z * z + w * w;
         if (len > 0) {
@@ -391,7 +391,7 @@ export class quat {
     /**
      * @zh 根据本地坐标轴朝向计算四元数，默认三向量都已归一化且相互垂直
      */
-    public static fromAxes (out: quat, xAxis: vec3, yAxis: vec3, zAxis: vec3) {
+    public static fromAxes<Out extends quat> (out: Out, xAxis: vec3, yAxis: vec3, zAxis: vec3) {
         mat3.set(m3_1,
             xAxis.x, xAxis.y, xAxis.z,
             yAxis.x, yAxis.y, yAxis.z,
@@ -405,7 +405,7 @@ export class quat {
      * @param view 视口面向的前方向，必须归一化
      * @param up 视口的上方向，必须归一化，默认为 (0, 1, 0)
      */
-    public static fromViewUp (out: quat, view: vec3, up?: vec3) {
+    public static fromViewUp<Out extends quat> (out: Out, view: vec3, up?: vec3) {
         mat3.fromViewUp(m3_1, view, up);
         return quat.normalize(out, quat.fromMat3(out, m3_1));
     }
@@ -413,7 +413,7 @@ export class quat {
     /**
      * @zh 根据旋转轴和旋转弧度计算四元数
      */
-    public static fromAxisAngle (out: quat, axis: vec3, rad: number) {
+    public static fromAxisAngle<Out extends quat> (out: Out, axis: vec3, rad: number) {
         rad = rad * 0.5;
         const s = Math.sin(rad);
         out.x = s * axis.x;
@@ -426,7 +426,7 @@ export class quat {
     /**
      * @zh 根据三维矩阵信息计算四元数，注意输出四元数并未归一化
      */
-    public static fromMat3 (out: quat, m: mat3) {
+    public static fromMat3<Out extends quat> (out: Out, m: mat3) {
         // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
 
         const {
@@ -476,7 +476,7 @@ export class quat {
     /**
      * @zh 根据欧拉角信息计算四元数
      */
-    public static fromEuler (out: quat, x: number, y: number, z: number) {
+    public static fromEuler<Out extends quat> (out: Out, x: number, y: number, z: number) {
         x *= halfToRad;
         y *= halfToRad;
         z *= halfToRad;
@@ -499,7 +499,7 @@ export class quat {
     /**
      * @zh 返回定义此四元数的坐标系 X 轴向量
      */
-    public static toAxisX (out: vec3, q: quat) {
+    public static toAxisX<Out extends vec3> (out: Out, q: quat) {
         const fy = 2.0 * q.y;
         const fz = 2.0 * q.z;
         out.x = 1.0 - fy * q.y - fz * q.z;
@@ -510,7 +510,7 @@ export class quat {
     /**
      * @zh 返回定义此四元数的坐标系 Y 轴向量
      */
-    public static toAxisY (out: vec3, q: quat) {
+    public static toAxisY<Out extends vec3> (out: Out, q: quat) {
         const fx = 2.0 * q.x;
         const fy = 2.0 * q.y;
         const fz = 2.0 * q.z;
@@ -522,7 +522,7 @@ export class quat {
     /**
      * @zh 返回定义此四元数的坐标系 Z 轴向量
      */
-    public static toAxisZ (out: vec3, q: quat) {
+    public static toAxisZ<Out extends vec3> (out: Out, q: quat) {
         const fx = 2.0 * q.x;
         const fy = 2.0 * q.y;
         const fz = 2.0 * q.z;
@@ -534,7 +534,7 @@ export class quat {
     /**
      * @zh 根据四元数计算欧拉角，返回角度在 [-180, 180] 区间内
      */
-    public static toEuler (out: vec3, q: quat) {
+    public static toEuler<Out extends vec3> (out: Out, q: quat) {
         const { x, y, z, w } = q;
         let heading: number = NaN;
         let attitude: number = NaN;

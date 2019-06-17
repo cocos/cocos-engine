@@ -1,10 +1,12 @@
 import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXFormatType, GFXPrimitiveMode, IGFXFormatInfo } from '../../gfx/define';
 export { find } from '../../scene-graph/find';
-import { Vec3 } from '../../core/value-types';
+import { Mat4, Vec3 } from '../../core/value-types';
 import { vec3 } from '../../core/vmath';
 import { IGFXAttribute } from '../../gfx/input-assembler';
+import { Node } from '../../scene-graph';
 import { IMeshStruct, IPrimitive, IVertexBundle, Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
+import { SkinningModelComponent } from '../framework';
 import { aabb } from '../geom-utils';
 import { IGeometry } from '../primitive/define';
 import { BufferBlob } from './buffer-blob';
@@ -34,6 +36,7 @@ export interface ICreateMeshOptions {
     calculateBounds?: boolean;
 }
 
+const v3_1 = new Vec3();
 export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMeshOptions) {
     options = options || {};
     // Collect attributes and calculate length of result vertex buffer.
@@ -211,16 +214,16 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
     if (!minPosition && options.calculateBounds) {
         minPosition = vec3.set(new vec3(), Infinity, Infinity, Infinity);
         for (let iVertex = 0; iVertex < vertCount; ++iVertex) {
-            vec3.set(tmpVec3, geometry.positions[iVertex * 3 + 0], geometry.positions[iVertex * 3 + 1], geometry.positions[iVertex * 3 + 2]);
-            vec3.min(minPosition, minPosition, tmpVec3);
+            vec3.set(v3_1, geometry.positions[iVertex * 3 + 0], geometry.positions[iVertex * 3 + 1], geometry.positions[iVertex * 3 + 2]);
+            vec3.min(minPosition, minPosition, v3_1);
         }
     }
     let maxPosition = geometry.maxPos;
     if (!maxPosition && options.calculateBounds) {
         maxPosition = vec3.set(new vec3(), -Infinity, -Infinity, -Infinity);
         for (let iVertex = 0; iVertex < vertCount; ++iVertex) {
-            vec3.set(tmpVec3, geometry.positions[iVertex * 3 + 0], geometry.positions[iVertex * 3 + 1], geometry.positions[iVertex * 3 + 2]);
-            vec3.max(maxPosition, maxPosition, tmpVec3);
+            vec3.set(v3_1, geometry.positions[iVertex * 3 + 0], geometry.positions[iVertex * 3 + 1], geometry.positions[iVertex * 3 + 2]);
+            vec3.max(maxPosition, maxPosition, v3_1);
         }
     }
 
@@ -252,8 +255,8 @@ export function readMesh (mesh: Mesh, iPrimitive: number = 0) {
         let offset = bundle.view.offset;
         const { length, stride } = bundle.view;
         for (const attr of bundle.attributes) {
-            const name = _keyMap[attr.name];
-            if (name) { out[name] = readBuffer(dataView, attr.format, offset, length, stride); }
+            const name: GFXAttributeName = _keyMap[attr.name];
+            if (name) { out[name] = (out[name] || []).concat(readBuffer(dataView, attr.format, offset, length, stride)); }
             offset += GFXFormatInfos[attr.format].size;
         }
     }
@@ -334,20 +337,31 @@ export function mapBuffer (
     return out;
 }
 
-const tmpVec3 = new vec3();
-export function calculateBoneSpaceBounds (mesh: Mesh, skeleton: Skeleton) {
-    // https://gamedev.stackexchange.com/questions/43986/calculate-an-aabb-for-bone-animated-model/44135
-    const result = new Array<{max: vec3, min: vec3, hasValue: boolean}>(skeleton.joints.length);
+// get the lowest common ancestor
+const _path: Node[] = [];
+export const LCA = (a: Node, b: Node) => {
+    if (a === b) { return a; }
+    let cur: Node | null = b;
+    _path.length = 0;
+    while (cur) { _path.push(cur); cur = cur.parent; }
+    cur = a;
+    while (cur) {
+        if (_path.find((n) => n === cur)) { return cur; }
+        cur = cur.parent;
+    }
+    return null;
+};
+
+const v3_2 = new Vec3();
+function calculateBoneSpaceBounds (mesh: Mesh, skeleton: Skeleton) {
+    const result = new Array< { max: Vec3, min: Vec3, hasValue: boolean } >(skeleton.joints.length);
     for (let i = 0; i < result.length; ++i) {
         result[i] = {
             hasValue: false,
-            min: new vec3(Infinity, Infinity, Infinity),
-            max: new vec3(-Infinity, -Infinity, -Infinity),
+            min: new Vec3(Infinity, Infinity, Infinity),
+            max: new Vec3(-Infinity, -Infinity, -Infinity),
         };
     }
-
-    const pos = new Vec3();
-    const transformedPos = new Vec3();
 
     for (let iPrimitive = 0; iPrimitive < mesh.struct.primitives.length; ++iPrimitive) {
         const joints = mesh.readAttribute(iPrimitive, GFXAttributeName.ATTR_JOINTS);
@@ -364,7 +378,7 @@ export function calculateBoneSpaceBounds (mesh: Mesh, skeleton: Skeleton) {
         }
         const vertexCount = Math.min(joints.length / 4, weights.length / 4, positions.length / 3);
         for (let iVertex = 0; iVertex < vertexCount; ++iVertex) {
-            vec3.set(pos, positions[3 * iVertex + 0], positions[3 * iVertex + 1], positions[3 * iVertex + 2]);
+            vec3.set(v3_1, positions[3 * iVertex + 0], positions[3 * iVertex + 1], positions[3 * iVertex + 2]);
             for (let i = 0; i < 4; ++i) {
                 const weight = weights[4 * iVertex + i];
                 if (weight === 0) {
@@ -372,27 +386,89 @@ export function calculateBoneSpaceBounds (mesh: Mesh, skeleton: Skeleton) {
                 }
                 const refJointIndex = joints[4 * iVertex + i];
                 if (refJointIndex >= skeleton.joints.length) {
-                    // TODO debugger
                     continue;
                 }
 
                 const bindpose = skeleton.bindposes[refJointIndex];
                 const jointBounds = result[refJointIndex];
 
-                vec3.multiply(transformedPos, pos, bindpose.scale);
-                vec3.transformQuat(transformedPos, transformedPos, bindpose.rotation);
-                vec3.add(transformedPos, transformedPos, bindpose.position);
+                vec3.multiply(v3_2, v3_1, bindpose.scale);
+                vec3.transformQuat(v3_2, v3_2, bindpose.rotation);
+                vec3.add(v3_2, v3_2, bindpose.position);
                 jointBounds.hasValue = true;
-                vec3.min(jointBounds.min, jointBounds.min, transformedPos);
-                vec3.max(jointBounds.max, jointBounds.max, transformedPos);
+                vec3.min(jointBounds.min, jointBounds.min, v3_2);
+                vec3.max(jointBounds.max, jointBounds.max, v3_2);
             }
         }
     }
+    return result.map((bounds) => bounds.hasValue ? aabb.fromPoints(new aabb(), bounds.min, bounds.max) : null);
+}
+interface ICachedBoneSpaceBounds {
+    bounds: Array<aabb | null>;
+    referenceCount: number;
+}
+class BoneSpaceBoundsManager {
+    private _cached = new Map<Mesh, Map<Skeleton, ICachedBoneSpaceBounds>>();
 
-    return result.map((bounds) => {
-        if (bounds.hasValue) {
-            return aabb.fromPoints(new aabb(), bounds.min, bounds.max);
+    public use (mesh: Mesh, skeleton: Skeleton) {
+        let bucket = this._cached.get(mesh);
+        if (!bucket) {
+            bucket = new Map();
+            this._cached.set(mesh, bucket);
         }
-        return null;
-    });
+
+        let cached = bucket.get(skeleton);
+        if (!cached) {
+            cached = {
+                bounds: calculateBoneSpaceBounds(mesh, skeleton),
+                referenceCount: 0,
+            };
+            bucket.set(skeleton, cached);
+        }
+        ++cached.referenceCount;
+        return cached.bounds;
+    }
+
+    public unuse (mesh: Mesh, skeleton: Skeleton) {
+        const bucket = this._cached.get(mesh);
+        if (bucket) {
+            const cached = bucket.get(skeleton);
+            if (cached) {
+                --cached.referenceCount;
+                if (cached.referenceCount === 0) {
+                    bucket.delete(skeleton);
+                }
+            }
+            if (bucket.size === 0) {
+                this._cached.delete(mesh);
+            }
+        }
+    }
+}
+const boneSpaceBoundsManager = new BoneSpaceBoundsManager();
+const m4_1 = new Mat4();
+const ab_1 = new aabb();
+const v3_3 = new Vec3();
+const v3_4 = new Vec3();
+export function calculateSkinnedBounds (out: aabb, comp: SkinningModelComponent) {
+    if (!comp.model || !comp.mesh || !comp.skeleton) { return; }
+    const mesh = comp.mesh;
+    const skeleton = comp.skeleton;
+    const joints = comp.model.joints;
+    vec3.set(v3_3, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
+    vec3.set(v3_4, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+    const boundList = boneSpaceBoundsManager.use(mesh, skeleton);
+    const len = joints.length;
+    for (let i = 0; i < len; ++i) {
+        const bounds = boundList[i];
+        const targetNode = joints[i].node;
+        if (!bounds || !targetNode) { continue; }
+        targetNode.getWorldMatrix(m4_1);
+        aabb.transform(ab_1, bounds, m4_1);
+        ab_1.getBoundary(v3_1, v3_2);
+        vec3.min(v3_3, v3_3, v3_1);
+        vec3.max(v3_4, v3_4, v3_2);
+    }
+    aabb.fromPoints(out, v3_3, v3_4);
+    return true;
 }

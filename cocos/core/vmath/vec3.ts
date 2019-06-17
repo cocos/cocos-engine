@@ -25,7 +25,7 @@ export class vec3 {
     /**
      * @zh 将目标赋值为零向量
      */
-    public static zero (out: vec3) {
+    public static zero<Out extends vec3> (out: Out) {
         out.x = 0;
         out.y = 0;
         out.z = 0;
@@ -42,7 +42,7 @@ export class vec3 {
     /**
      * @zh 复制目标向量
      */
-    public static copy (out: vec3, a: vec3) {
+    public static copy<Out extends vec3> (out: Out, a: vec3) {
         out.x = a.x;
         out.y = a.y;
         out.z = a.z;
@@ -52,7 +52,7 @@ export class vec3 {
     /**
      * @zh 设置向量值
      */
-    public static set (out: vec3, x: number, y: number, z: number) {
+    public static set<Out extends vec3> (out: Out, x: number, y: number, z: number) {
         out.x = x;
         out.y = y;
         out.z = z;
@@ -62,7 +62,7 @@ export class vec3 {
     /**
      * @zh 逐元素向量加法
      */
-    public static add (out: vec3, a: vec3, b: vec3) {
+    public static add<Out extends vec3> (out: Out, a: vec3, b: vec3) {
         out.x = a.x + b.x;
         out.y = a.y + b.y;
         out.z = a.z + b.z;
@@ -72,7 +72,7 @@ export class vec3 {
     /**
      * @zh 逐元素向量减法
      */
-    public static subtract (out: vec3, a: vec3, b: vec3) {
+    public static subtract<Out extends vec3> (out: Out, a: vec3, b: vec3) {
         out.x = a.x - b.x;
         out.y = a.y - b.y;
         out.z = a.z - b.z;
@@ -82,14 +82,14 @@ export class vec3 {
     /**
      * @zh 逐元素向量减法
      */
-    public static sub (out: vec3, a: vec3, b: vec3) {
+    public static sub<Out extends vec3> (out: Out, a: vec3, b: vec3) {
         return vec3.subtract(out, a, b);
     }
 
     /**
      * @zh 逐元素向量乘法
      */
-    public static multiply (out: vec3, a: vec3, b: vec3) {
+    public static multiply<Out extends vec3> (out: Out, a: vec3, b: vec3) {
         out.x = a.x * b.x;
         out.y = a.y * b.y;
         out.z = a.z * b.z;
@@ -99,14 +99,14 @@ export class vec3 {
     /**
      * @zh 逐元素向量乘法
      */
-    public static mul (out: vec3, a: vec3, b: vec3) {
+    public static mul<Out extends vec3> (out: Out, a: vec3, b: vec3) {
         return vec3.multiply(out, a, b);
     }
 
     /**
      * @zh 逐元素向量除法
      */
-    public static divide (out: vec3, a: vec3, b: vec3) {
+    public static divide<Out extends vec3> (out: Out, a: vec3, b: vec3) {
         out.x = a.x / b.x;
         out.y = a.y / b.y;
         out.z = a.z / b.z;
@@ -116,14 +116,14 @@ export class vec3 {
     /**
      * @zh 逐元素向量除法
      */
-    public static div (out: vec3, a: vec3, b: vec3) {
+    public static div<Out extends vec3> (out: Out, a: vec3, b: vec3) {
         return vec3.divide(out, a, b);
     }
 
     /**
      * @zh 逐元素向量向上取整
      */
-    public static ceil (out: vec3, a: vec3) {
+    public static ceil<Out extends vec3> (out: Out, a: vec3) {
         out.x = Math.ceil(a.x);
         out.y = Math.ceil(a.y);
         out.z = Math.ceil(a.z);
@@ -133,7 +133,7 @@ export class vec3 {
     /**
      * @zh 逐元素向量向下取整
      */
-    public static floor (out: vec3, a: vec3) {
+    public static floor<Out extends vec3> (out: Out, a: vec3) {
         out.x = Math.floor(a.x);
         out.y = Math.floor(a.y);
         out.z = Math.floor(a.z);
@@ -143,7 +143,7 @@ export class vec3 {
     /**
      * @zh 逐元素向量最小值
      */
-    public static min (out: vec3, a: vec3, b: vec3) {
+    public static min<Out extends vec3> (out: Out, a: vec3, b: vec3) {
         out.x = Math.min(a.x, b.x);
         out.y = Math.min(a.y, b.y);
         out.z = Math.min(a.z, b.z);
@@ -153,7 +153,7 @@ export class vec3 {
     /**
      * @zh 逐元素向量最大值
      */
-    public static max (out: vec3, a: vec3, b: vec3) {
+    public static max<Out extends vec3> (out: Out, a: vec3, b: vec3) {
         out.x = Math.max(a.x, b.x);
         out.y = Math.max(a.y, b.y);
         out.z = Math.max(a.z, b.z);
@@ -163,7 +163,7 @@ export class vec3 {
     /**
      * @zh 逐元素向量四舍五入取整
      */
-    public static round (out: vec3, a: vec3) {
+    public static round<Out extends vec3> (out: Out, a: vec3) {
         out.x = Math.round(a.x);
         out.y = Math.round(a.y);
         out.z = Math.round(a.z);
@@ -173,7 +173,7 @@ export class vec3 {
     /**
      * @zh 向量标量乘法
      */
-    public static scale (out: vec3, a: vec3, b: number) {
+    public static scale<Out extends vec3> (out: Out, a: vec3, b: number) {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -183,7 +183,7 @@ export class vec3 {
     /**
      * @zh 逐元素向量乘加: A + B * scale
      */
-    public static scaleAndAdd (out: vec3, a: vec3, b: vec3, scale: number) {
+    public static scaleAndAdd<Out extends vec3> (out: Out, a: vec3, b: vec3, scale: number) {
         out.x = a.x + b.x * scale;
         out.y = a.y + b.y * scale;
         out.z = a.z + b.z * scale;
@@ -257,7 +257,7 @@ export class vec3 {
     /**
      * @zh 逐元素向量取负
      */
-    public static negate (out: vec3, a: vec3) {
+    public static negate<Out extends vec3> (out: Out, a: vec3) {
         out.x = -a.x;
         out.y = -a.y;
         out.z = -a.z;
@@ -267,7 +267,7 @@ export class vec3 {
     /**
      * @zh 逐元素向量取倒数，接近 0 时返回 Infinity
      */
-    public static invert (out: vec3, a: vec3) {
+    public static invert<Out extends vec3> (out: Out, a: vec3) {
         out.x = 1.0 / a.x;
         out.y = 1.0 / a.y;
         out.z = 1.0 / a.z;
@@ -277,7 +277,7 @@ export class vec3 {
     /**
      * @zh 逐元素向量取倒数，接近 0 时返回 0
      */
-    public static invertSafe (out: vec3, a: vec3) {
+    public static invertSafe<Out extends vec3> (out: Out, a: vec3) {
         const { x, y, z } = a;
 
         if (Math.abs(x) < EPSILON) {
@@ -304,7 +304,7 @@ export class vec3 {
     /**
      * @zh 归一化向量
      */
-    public static normalize (out: vec3, a: vec3) {
+    public static normalize<Out extends vec3> (out: Out, a: vec3) {
         const { x, y, z } = a;
 
         let len = x * x + y * y + z * z;
@@ -327,7 +327,7 @@ export class vec3 {
     /**
      * @zh 向量叉积（向量积）
      */
-    public static cross (out: vec3, a: vec3, b: vec3) {
+    public static cross<Out extends vec3> (out: Out, a: vec3, b: vec3) {
         const { x: ax, y: ay, z: az } = a;
         const { x: bx, y: by, z: bz } = b;
 
@@ -340,7 +340,7 @@ export class vec3 {
     /**
      * @zh 逐元素向量线性插值： A + t * (B - A)
      */
-    public static lerp (out: vec3, a: vec3, b: vec3, t: number) {
+    public static lerp<Out extends vec3> (out: Out, a: vec3, b: vec3, t: number) {
         const { x: ax, y: ay, z: az } = a;
         out.x = ax + t * (b.x - ax);
         out.y = ay + t * (b.y - ay);
@@ -352,7 +352,7 @@ export class vec3 {
      * @zh 生成一个在单位球体上均匀分布的随机向量
      * @param scale 生成的向量长度
      */
-    public static random (out: vec3, scale?: number) {
+    public static random<Out extends vec3> (out: Out, scale?: number) {
         scale = scale || 1.0;
 
         const phi = random() * 2.0 * Math.PI;
@@ -368,7 +368,7 @@ export class vec3 {
     /**
      * @zh 向量与四维矩阵乘法，默认向量第四位为 1。
      */
-    public static transformMat4 (out: vec3, a: vec3, m: mat4) {
+    public static transformMat4<Out extends vec3> (out: Out, a: vec3, m: mat4) {
         const { x, y, z } = a;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z + m.m15;
         rhw = rhw ? 1 / rhw : 1;
@@ -381,7 +381,7 @@ export class vec3 {
     /**
      * @zh 向量与四维矩阵乘法，默认向量第四位为 0。
      */
-    public static transformMat4Normal (out: vec3, a: vec3, m: mat4) {
+    public static transformMat4Normal<Out extends vec3> (out: Out, a: vec3, m: mat4) {
         const { x, y, z } = a;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z;
         rhw = rhw ? 1 / rhw : 1;
@@ -394,7 +394,7 @@ export class vec3 {
     /**
      * @zh 向量与三维矩阵乘法
      */
-    public static transformMat3 (out: vec3, a: vec3, m: mat3) {
+    public static transformMat3<Out extends vec3> (out: Out, a: vec3, m: mat3) {
         const { x, y, z } = a;
         out.x = x * m.m00 + y * m.m03 + z * m.m06;
         out.y = x * m.m01 + y * m.m04 + z * m.m07;
@@ -405,7 +405,7 @@ export class vec3 {
     /**
      * @zh 向量四元数乘法
      */
-    public static transformQuat (out: vec3, a: vec3, q: quat) {
+    public static transformQuat<Out extends vec3> (out: Out, a: vec3, q: quat) {
         // benchmarks: http://jsperf.com/quaternion-transform-vec3-implementations
 
         const { x, y, z } = a;
@@ -430,7 +430,7 @@ export class vec3 {
      * @param o 旋转中心
      * @param a 旋转弧度
      */
-    public static rotateX (out: vec3, v: vec3, o: vec3, a: number) {
+    public static rotateX<Out extends vec3> (out: Out, v: vec3, o: vec3, a: number) {
         // Translate point to the origin
         const px = v.x - o.x;
         const py = v.y - o.y;
@@ -457,7 +457,7 @@ export class vec3 {
      * @param o 旋转中心
      * @param a 旋转弧度
      */
-    public static rotateY (out: vec3, v: vec3, o: vec3, a: number) {
+    public static rotateY<Out extends vec3> (out: Out, v: vec3, o: vec3, a: number) {
         // Translate point to the origin
         const px = v.x - o.x;
         const py = v.y - o.y;
@@ -484,7 +484,7 @@ export class vec3 {
      * @param o 旋转中心
      * @param a 旋转弧度
      */
-    public static rotateZ (out: vec3, v: vec3, o: vec3, a: number) {
+    public static rotateZ<Out extends vec3> (out: Out, v: vec3, o: vec3, a: number) {
         // Translate point to the origin
         const px = v.x - o.x;
         const py = v.y - o.y;
@@ -568,7 +568,7 @@ export class vec3 {
      * @param a 待投影向量
      * @param n 指定平面的法线
      */
-    public static projectOnPlane (out: vec3, a: vec3, n: vec3) {
+    public static projectOnPlane<Out extends vec3> (out: Out, a: vec3, n: vec3) {
         return vec3.subtract(out, a, vec3.project(out, a, n));
     }
 
@@ -577,7 +577,7 @@ export class vec3 {
      * @param a 待投影向量
      * @param n 目标向量
      */
-    public static project (out: vec3, a: vec3, b: vec3) {
+    public static project<Out extends vec3> (out: Out, a: vec3, b: vec3) {
         const sqrLen = vec3.squaredMagnitude(b);
         if (sqrLen < 0.000001) {
             return vec3.set(out, 0, 0, 0);

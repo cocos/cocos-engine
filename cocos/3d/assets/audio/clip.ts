@@ -64,12 +64,12 @@ export class AudioClip extends Asset {
         this._audio = clip;
         if (clip) {
             let ctor: any;
-            if (clip instanceof AudioBuffer) {
-                ctor = AudioPlayerWeb;
-                this._loadMode = AudioType.WEB_AUDIO;
-            } else if (CC_WECHATGAME) {
+            if (CC_WECHATGAME) {
                 ctor = AudioPlayerWX;
                 this._loadMode = AudioType.WX_GAME_AUDIO;
+            } else if (clip instanceof AudioBuffer) {
+                ctor = AudioPlayerWeb;
+                this._loadMode = AudioType.WEB_AUDIO;
             } else {
                 ctor = AudioPlayerDOM;
                 this._loadMode = AudioType.DOM_AUDIO;

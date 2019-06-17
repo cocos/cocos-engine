@@ -26,7 +26,7 @@ const TRANFORM_ON = 1 << 0;
  * 场景树中的基本节点，基本特性有：
  * * 具有层级关系
  * * 持有各类组件
- * * 维护空间变换（位移、旋转、缩放）信息
+ * * 维护空间变换（坐标、旋转、缩放）信息
  */
 @ccclass('cc.Node')
 export class Node extends BaseNode {
@@ -332,18 +332,18 @@ export class Node extends BaseNode {
 
     /**
      * @zh
-     * 设置本地位移
-     * @param position 目标本地位移
+     * 设置本地坐标
+     * @param position 目标本地坐标
      */
     public setPosition (position: Vec3): void;
 
     /**
      * @zh
-     * 设置本地位移
-     * @param x 目标本地位移的 X 分量
-     * @param y 目标本地位移的 Y 分量
-     * @param z 目标本地位移的 Z 分量
-     * @param w 目标本地位移的 W 分量
+     * 设置本地坐标
+     * @param x 目标本地坐标的 X 分量
+     * @param y 目标本地坐标的 Y 分量
+     * @param z 目标本地坐标的 Z 分量
+     * @param w 目标本地坐标的 W 分量
      */
     public setPosition (x: number, y: number, z: number): void;
 
@@ -364,7 +364,7 @@ export class Node extends BaseNode {
 
     /**
      * @zh
-     * 获取本地位移
+     * 获取本地坐标
      * @param out 输出到此目标 vector
      */
     public getPosition (out?: Vec3): Vec3 {
@@ -377,7 +377,7 @@ export class Node extends BaseNode {
 
     /**
      * @zh
-     * 本地位移
+     * 本地坐标
      */
     @constget
     public get position (): Readonly<Vec3> {
@@ -518,18 +518,18 @@ export class Node extends BaseNode {
 
     /**
      * @zh
-     * 设置世界位移
-     * @param position 目标世界位移
+     * 设置世界坐标
+     * @param position 目标世界坐标
      */
     public setWorldPosition (position: Vec3): void;
 
     /**
      * @zh
-     * 设置世界位移
-     * @param x 目标世界位移的 X 分量
-     * @param y 目标世界位移的 Y 分量
-     * @param z 目标世界位移的 Z 分量
-     * @param w 目标世界位移的 W 分量
+     * 设置世界坐标
+     * @param x 目标世界坐标的 X 分量
+     * @param y 目标世界坐标的 Y 分量
+     * @param z 目标世界坐标的 Z 分量
+     * @param w 目标世界坐标的 W 分量
      */
     public setWorldPosition (x: number, y: number, z: number): void;
 
@@ -559,7 +559,7 @@ export class Node extends BaseNode {
 
     /**
      * @zh
-     * 获取世界位移
+     * 获取世界坐标
      * @param out 输出到此目标 vector
      */
     public getWorldPosition (out?: Vec3): Vec3 {
@@ -573,7 +573,7 @@ export class Node extends BaseNode {
 
     /**
      * @zh
-     * 世界位移
+     * 世界坐标
      */
     public get worldPosition (): Readonly<Vec3> {
         this.updateWorldTransform();
@@ -765,7 +765,7 @@ export class Node extends BaseNode {
 
     /**
      * @zh
-     * 获取只包含位移和旋转的世界变换矩阵
+     * 获取只包含坐标和旋转的世界变换矩阵
      * @param out 输出到此目标矩阵
      */
     public getWorldRT (out?: Mat4): Mat4 {

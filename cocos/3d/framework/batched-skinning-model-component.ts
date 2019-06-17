@@ -35,8 +35,8 @@ import { Node } from '../../scene-graph';
 import { Material, Mesh } from '../assets';
 import { IMeshStruct } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
-import { mapBuffer } from '../misc/utils';
-import { LCA, SkinningModelComponent } from './skinning-model-component';
+import { LCA, mapBuffer } from '../misc/utils';
+import { SkinningModelComponent } from './skinning-model-component';
 
 const repeat = (n: number) => n - Math.floor(n);
 const batch_id: IGFXAttribute = { name: GFXAttributeName.ATTR_BATCH_ID, format: GFXFormat.R32F, isNormalized: false };

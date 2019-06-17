@@ -30,7 +30,7 @@ export interface IGFXCommandBufferInfo {
 
 /**
  * @zh
- * GFX深度便宜。
+ * GFX深度偏移。
  */
 export interface IGFXDepthBias {
     constantFactor: number;
