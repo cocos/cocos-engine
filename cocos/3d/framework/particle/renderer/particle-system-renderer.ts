@@ -188,6 +188,7 @@ export default class ParticleSystemRenderer {
     private _trailDefines: { [index: string]: boolean };
     private _model: ParticleBatchModel | null;
     private frameTile_velLenScale: Vec4;
+    private _node_scale: Vec4;
     private attrs: any[];
     private _vertAttrs: IGFXAttribute[];
     private particleSystem: any;
@@ -199,6 +200,7 @@ export default class ParticleSystemRenderer {
         this._model = null;
 
         this.frameTile_velLenScale = cc.v4(1, 1, 0, 0);
+        this._node_scale = cc.v4();
         this.attrs = new Array(5);
         this._defines = {
             CC_USE_WORLD_SPACE: true,
@@ -267,6 +269,9 @@ export default class ParticleSystemRenderer {
 
     public _updateParticles (dt: number) {
         this.particleSystem.node.getWorldMatrix(_tempWorldTrans);
+        this.particleSystem.node.getWorldScale(this._node_scale);
+        const mat: Material | null = this.particleSystem.sharedMaterial ? this.particleMaterial : this._defaultMat;
+        mat!.setProperty('scale', this._node_scale);
         if (this.particleSystem.velocityOvertimeModule.enable) {
             this.particleSystem.velocityOvertimeModule.update(this.particleSystem._simulationSpace, _tempWorldTrans);
         }
@@ -413,6 +418,9 @@ export default class ParticleSystemRenderer {
     private _updateMaterialParams () {
         if (!this.particleSystem) {
             return;
+        }
+        if (this.particleSystem.sharedMaterial != null && this.particleSystem.sharedMaterial._effectAsset._name.indexOf('particle') === -1) {
+            this.particleSystem.setMaterial(null, 0, false);
         }
         if (this.particleSystem.sharedMaterial == null && this._defaultMat == null) {
             this._defaultMat = Material.getInstantiatedMaterial(builtinResMgr.get<Material>('default-particle-material'), this.particleSystem, true);
