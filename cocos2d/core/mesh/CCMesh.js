@@ -134,12 +134,22 @@ let Mesh = cc.Class({
                 vertexBundle.verticesCount
             );
 
+            let canBatch = this._canVertexFormatBatch(gfxVFmt);
+
             // create sub meshes
             this._subMeshes.push(new InputAssembler(vbBuffer, ibBuffer));
             this._ibs.push({ buffer: ibBuffer, data: ibData });
-            this._vbs.push({ buffer: vbBuffer, data: vbData });
+            this._vbs.push({ buffer: vbBuffer, data: vbData, format: gfxVFmt, canBatch: canBatch, Float32Array: new Float32Array(vbData.buffer)});
         }
         
+    },
+
+    _canVertexFormatBatch (format) {
+        let aPosition = format._attr2el[gfx.ATTR_POSITION];
+        let canBatch = !aPosition || 
+            (aPosition.type === gfx.ATTR_TYPE_FLOAT32 && 
+            format._bytes % 4 === 0);
+        return canBatch;
     },
 
     /**
@@ -164,10 +174,14 @@ let Mesh = cc.Class({
             vertexCount
         );
 
+        let canBatch = this._canVertexFormatBatch(vertexFormat);
+
         this._vbs[0] = {
+            format: vertexFormat,
             buffer: vb,
             data: data,
-            dirty: true
+            dirty: true,
+            canBatch: canBatch
         };
 
         this.emit('init-format');
@@ -181,11 +195,9 @@ let Mesh = cc.Class({
      * @method setVertices
      * @param {String} name - the attribute name, e.g. gfx.ATTR_POSITION
      * @param {[Vec2|Vec3|Color|Number]} values - the vertex values
-     * @param {Number} [index] 
      */
-    setVertices (name, values, index) {
-        index = index || 0;
-        let vb = this._vbs[index];
+    setVertices (name, values) {
+        let vb = this._vbs[0];
 
         let buffer = vb.buffer;
         let el = buffer._format._attr2el[name];

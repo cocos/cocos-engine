@@ -30,7 +30,7 @@ const PixelFormat = Texture.PixelFormat;
 const EffectAsset = require('../CCEffectAsset');
 
 import Effect from '../../../renderer/core/effect';
-import murmurhash2 from './murmurhash2_gc';
+import murmurhash2 from '../../../renderer/murmurhash2_gc';
 import utils from './utils';
 
 /**
