@@ -26,7 +26,7 @@
 
 import { SystemEventType } from '../../../core/platform';
 import { array } from '../../../core/utils/js';
-import { Vec3 } from '../../../core/value-types';
+import { Vec2, Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';
 import { Node } from '../../../scene-graph/node';
 import { CanvasComponent } from './canvas-component';
@@ -35,17 +35,18 @@ import { AlignFlags, AlignMode, WidgetComponent } from './widget-component';
 
 const _tempPos = new Vec3();
 const _zeroVec3 = new Vec3();
+const _defaultAnchor = new Vec2();
 
 // returns a readonly size of the node
 export function getReadonlyNodeSize (parent: Node) {
     if (parent instanceof cc.Scene) {
         if (CC_EDITOR) {
-            const canvasComp = parent.getComponentInChildren(CanvasComponent);
-            if (!canvasComp) {
-                throw new Error('There is no CanvasComponent here');
+            // const canvasComp = parent.getComponentInChildren(CanvasComponent);
+            if (!cc.view) {
+                throw new Error('cc.view uninitiated');
             }
 
-            return canvasComp.designResolution;
+            return cc.view.getDesignResolutionSize();
         }
 
         return cc.visibleRect;
@@ -109,9 +110,10 @@ function align (node: Node, widget: WidgetComponent) {
         target = node.parent;
     }
     const targetSize = getReadonlyNodeSize(target);
-    const targetAnchor = target.getAnchorPoint();
+    const isScene = target instanceof cc.Scene;
+    const targetAnchor = isScene ? _defaultAnchor : target.getAnchorPoint();
 
-    const isRoot = !CC_EDITOR && target instanceof cc.Scene;
+    const isRoot = !CC_EDITOR && isScene;
     node.getPosition(_tempPos);
     let x = _tempPos.x;
     let y = _tempPos.y;
