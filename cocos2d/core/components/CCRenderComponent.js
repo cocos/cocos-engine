@@ -80,6 +80,8 @@ let RenderComponent = cc.Class({
     },
 
     _resetAssembler () {
+        this.setVertsDirty(true);
+        this.node._renderFlag |= RenderFlow.FLAG_OPACITY;
         Assembler.init(this);
     },
 

@@ -23,10 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const labelAssembler = require('../label');
-const js = require('../../../../../platform/js');
-const assembler2D = require('../2d/ttf');
-const base = require('../../base/3d');
+const Assembler3D = require('../../../../assembler-3d');
+const WebglTTFAssembler = require('../2d/ttf');
 
-module.exports = labelAssembler.ttf3D = js.addon({
-}, base, assembler2D);
+export default class WebglTTFAssembler3D extends WebglTTFAssembler {
+
+}
+
+cc.js.mixin(WebglTTFAssembler3D.prototype, Assembler3D);

@@ -23,24 +23,23 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const base = require('../../base/3d');
-const spriteAssembler = require('../sprite');
-const js = require('../../../../../platform/js');
-const assembler2D = require('../2d/sliced');
+const Assembler3D = require('../../../../assembler-3d');
+const SlicedAssembler = require('../2d/sliced');
 
 const vec3 = cc.vmath.vec3;
 const vec3_temp_local = vec3.create();
 const vec3_temp_world = vec3.create();
 
-module.exports = spriteAssembler.sliced3D = js.addon({
-    floatsPerVert: 6,
-    verticesFloats: 16 * 6,
+export default class SlicedAssembler3D extends SlicedAssembler {
+    
+}
 
+cc.js.mixin(SlicedAssembler3D.prototype, Assembler3D, {
     updateWorldVerts (sprite) {
         let matrix = sprite.node._worldMatrix;
-        let renderHandle = sprite._renderHandle;
-        let local = renderHandle._local;
-        let world = renderHandle.vDatas[0];
+        let renderData = this._renderData;
+        let local = renderData._local;
+        let world = renderData.vDatas[0];
 
         let floatsPerVert = this.floatsPerVert;
         for (let row = 0; row < 4; ++row) {
@@ -57,5 +56,5 @@ module.exports = spriteAssembler.sliced3D = js.addon({
                 world[worldIndex+2] = vec3_temp_world.z;
             }
         }
-    },
-}, base, assembler2D);
+    }
+});

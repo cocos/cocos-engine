@@ -23,10 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const base = require('../../base/3d');
-const spriteAssembler = require('../sprite');
-const js = require('../../../../../platform/js');
-const assembler2D = require('../2d/bar-filled');
+const Assembler3D = require('../../../../assembler-3d');
+const BarFilledAssembler = require('../2d/bar-filled');
 
-module.exports = spriteAssembler.barFilled3D = js.addon({
-}, base, assembler2D);
+export default class BarFilledAssembler3D extends BarFilledAssembler {
+
+}
+
+cc.js.mixin(BarFilledAssembler3D.prototype, Assembler3D);

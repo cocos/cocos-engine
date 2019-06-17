@@ -1,4 +1,3 @@
-import base from './2d';
 
 const vec3 = cc.vmath.vec3;
 
@@ -19,8 +18,8 @@ export default {
 
     updateWorldVerts (comp) {
         let matrix = comp.node._worldMatrix;
-        let local = comp._renderHandle._local;
-        let world = comp._renderHandle.vDatas[0];
+        let local = this._renderData._local;
+        let world = this._renderData.vDatas[0];
         
         vec3.set(vec3_temps[0], local[0], local[1], 0);
         vec3.set(vec3_temps[1], local[2], local[1], 0);

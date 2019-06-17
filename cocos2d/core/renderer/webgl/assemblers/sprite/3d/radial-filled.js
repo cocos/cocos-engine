@@ -23,22 +23,24 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const spriteAssembler = require('../sprite');
-const js = require('../../../../../platform/js');
-const assembler2D = require('../2d/radial-filled');
-const base = require('../../base/3d');
+const Assembler3D = require('../../../../assembler-3d');
+const RadialFilledAssembler = require('../2d/radial-filled');
 
 const vec3 = cc.vmath.vec3;
 
 const vec3_temp_local = vec3.create();
 const vec3_temp_world = vec3.create();
 
-module.exports = spriteAssembler.radialFilled3D = js.addon({
+export default class RadialFilledAssembler3D extends RadialFilledAssembler {
+    
+}
+
+cc.js.mixin(RadialFilledAssembler3D.prototype, Assembler3D, {
     updateWorldVerts (sprite) {
         let matrix = sprite.node._worldMatrix;
-        let renderHandle = sprite._renderHandle;
-        let local = renderHandle._local;
-        let world = renderHandle.vDatas[0];
+        let renderData = this._renderData;
+        let local = renderData._local;
+        let world = renderData.vDatas[0];
 
         let floatsPerVert = this.floatsPerVert;
         for (let offset = 0; offset < world.length; offset += floatsPerVert) {
@@ -50,4 +52,4 @@ module.exports = spriteAssembler.radialFilled3D = js.addon({
             world[offset+2] = vec3_temp_world.z;
         }
     }
-}, base, assembler2D);
+});

@@ -23,22 +23,24 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const labelAssembler = require('../label');
-const js = require('../../../../../platform/js');
-const assembler2D = require('../2d/bmfont');
-const base = require('../../base/3d');
+const Assembler3D = require('../../../../assembler-3d');
+const WebglBmfontAssembler = require('../2d/bmfont');
 
 const vec3 = cc.vmath.vec3;
 
 const vec3_temp_local = vec3.create();
 const vec3_temp_world = vec3.create();
 
-module.exports = labelAssembler.bmfont3D = js.addon({
+export default class WebglBmfontAssembler3D extends WebglBmfontAssembler {
+
+}
+
+cc.js.mixin(WebglBmfontAssembler3D.prototype, Assembler3D, {
     updateWorldVerts (comp) {
         let matrix = comp.node._worldMatrix;
-        let renderHandle = comp._renderHandle;
-        let local = renderHandle._local;
-        let world = renderHandle.vDatas[0];
+        let renderData = this._renderData;
+        let local = renderData._local;
+        let world = renderData.vDatas[0];
 
         let floatsPerVert = this.floatsPerVert;
         for (let offset = 0; offset < world.length; offset += floatsPerVert) {
@@ -50,4 +52,4 @@ module.exports = labelAssembler.bmfont3D = js.addon({
             world[offset+2] = vec3_temp_world.z;
         }
     }
-}, base, assembler2D);
+});
