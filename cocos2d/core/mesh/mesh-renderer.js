@@ -156,8 +156,11 @@ let meshRendererAssembler = {
     },
 
     _drawWireFrames (comp, renderer) {
+        renderer._flush();
+        
         comp._updateWireFrameDatas();
-
+        renderer.node = comp.getRenderNode();
+        
         let datas = comp._wireFrameDatas;
         for (let i = 0; i < datas.length; i++) {
             let renderData = datas[i];
