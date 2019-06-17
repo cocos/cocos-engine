@@ -1,11 +1,10 @@
 import { frustum, ray } from '../../3d/geom-utils';
 import { Mat4, Rect, Vec3 } from '../../core/value-types';
-import { lerp, mat4, toRadian, vec3, color4 } from '../../core/vmath';
+import { color4, lerp, mat4, toRadian, vec3 } from '../../core/vmath';
 import { GFXClearFlag, IGFXColor } from '../../gfx/define';
 import { RenderView } from '../../pipeline/render-view';
 import { Node } from '../../scene-graph/node';
 import { RenderScene } from './render-scene';
-import { max, min } from '../../core/vmath/bits';
 
 export enum CameraProjection {
     ORTHO,

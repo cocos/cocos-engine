@@ -1,4 +1,3 @@
-import { vec3 } from '../../core/vmath';
 import { RenderScene } from './render-scene';
 
 export class Ambient {
