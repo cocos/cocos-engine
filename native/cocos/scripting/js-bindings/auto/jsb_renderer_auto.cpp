@@ -658,7 +658,16 @@ static bool js_renderer_AssemblerBase_constructor(se::State& s)
 }
 SE_BIND_CTOR(js_renderer_AssemblerBase_constructor, __jsb_cocos2d_renderer_AssemblerBase_class, js_cocos2d_renderer_AssemblerBase_finalize)
 
+static bool js_renderer_AssemblerBase_ctor(se::State& s)
+{
+    cocos2d::renderer::AssemblerBase* cobj = new (std::nothrow) cocos2d::renderer::AssemblerBase();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_SUB_CLS_CTOR(js_renderer_AssemblerBase_ctor, __jsb_cocos2d_renderer_AssemblerBase_class, js_cocos2d_renderer_AssemblerBase_finalize)
 
+
+    
 
 
 static bool js_cocos2d_renderer_AssemblerBase_finalize(se::State& s)
@@ -684,6 +693,7 @@ bool js_register_renderer_AssemblerBase(se::Object* obj)
     cls->defineFunction("enabled", _SE(js_renderer_AssemblerBase_enabled));
     cls->defineFunction("disable", _SE(js_renderer_AssemblerBase_disable));
     cls->defineFunction("notifyDirty", _SE(js_renderer_AssemblerBase_notifyDirty));
+    cls->defineFunction("ctor", _SE(js_renderer_AssemblerBase_ctor));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_AssemblerBase_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::AssemblerBase>(cls);
@@ -691,6 +701,7 @@ bool js_register_renderer_AssemblerBase(se::Object* obj)
     __jsb_cocos2d_renderer_AssemblerBase_proto = cls->getProto();
     __jsb_cocos2d_renderer_AssemblerBase_class = cls;
 
+    jsb_set_extend_property("renderer", "AssemblerBase");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -4156,7 +4167,16 @@ static bool js_renderer_Assembler_constructor(se::State& s)
 }
 SE_BIND_CTOR(js_renderer_Assembler_constructor, __jsb_cocos2d_renderer_Assembler_class, js_cocos2d_renderer_Assembler_finalize)
 
+static bool js_renderer_Assembler_ctor(se::State& s)
+{
+    cocos2d::renderer::Assembler* cobj = new (std::nothrow) cocos2d::renderer::Assembler();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_SUB_CLS_CTOR(js_renderer_Assembler_ctor, __jsb_cocos2d_renderer_Assembler_class, js_cocos2d_renderer_Assembler_finalize)
 
+
+    
 
 extern se::Object* __jsb_cocos2d_renderer_AssemblerBase_proto;
 
@@ -4189,6 +4209,7 @@ bool js_register_renderer_Assembler(se::Object* obj)
     cls->defineFunction("updateIndicesRange", _SE(js_renderer_Assembler_updateIndicesRange));
     cls->defineFunction("getVertexFormat", _SE(js_renderer_Assembler_getVertexFormat));
     cls->defineFunction("getEffect", _SE(js_renderer_Assembler_getEffect));
+    cls->defineFunction("ctor", _SE(js_renderer_Assembler_ctor));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_Assembler_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::Assembler>(cls);
@@ -4196,6 +4217,7 @@ bool js_register_renderer_Assembler(se::Object* obj)
     __jsb_cocos2d_renderer_Assembler_proto = cls->getProto();
     __jsb_cocos2d_renderer_Assembler_class = cls;
 
+    jsb_set_extend_property("renderer", "Assembler");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -4378,7 +4400,16 @@ static bool js_renderer_CustomAssembler_constructor(se::State& s)
 }
 SE_BIND_CTOR(js_renderer_CustomAssembler_constructor, __jsb_cocos2d_renderer_CustomAssembler_class, js_cocos2d_renderer_CustomAssembler_finalize)
 
+static bool js_renderer_CustomAssembler_ctor(se::State& s)
+{
+    cocos2d::renderer::CustomAssembler* cobj = new (std::nothrow) cocos2d::renderer::CustomAssembler();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_SUB_CLS_CTOR(js_renderer_CustomAssembler_ctor, __jsb_cocos2d_renderer_CustomAssembler_class, js_cocos2d_renderer_CustomAssembler_finalize)
 
+
+    
 
 extern se::Object* __jsb_cocos2d_renderer_AssemblerBase_proto;
 
@@ -4403,6 +4434,7 @@ bool js_register_renderer_CustomAssembler(se::Object* obj)
     cls->defineFunction("updateEffect", _SE(js_renderer_CustomAssembler_updateEffect));
     cls->defineFunction("updateIABuffer", _SE(js_renderer_CustomAssembler_updateIABuffer));
     cls->defineFunction("getEffect", _SE(js_renderer_CustomAssembler_getEffect));
+    cls->defineFunction("ctor", _SE(js_renderer_CustomAssembler_ctor));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_CustomAssembler_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::CustomAssembler>(cls);
@@ -4410,6 +4442,7 @@ bool js_register_renderer_CustomAssembler(se::Object* obj)
     __jsb_cocos2d_renderer_CustomAssembler_proto = cls->getProto();
     __jsb_cocos2d_renderer_CustomAssembler_class = cls;
 
+    jsb_set_extend_property("renderer", "CustomAssembler");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -4767,7 +4800,16 @@ static bool js_renderer_MaskAssembler_constructor(se::State& s)
 }
 SE_BIND_CTOR(js_renderer_MaskAssembler_constructor, __jsb_cocos2d_renderer_MaskAssembler_class, js_cocos2d_renderer_MaskAssembler_finalize)
 
+static bool js_renderer_MaskAssembler_ctor(se::State& s)
+{
+    cocos2d::renderer::MaskAssembler* cobj = new (std::nothrow) cocos2d::renderer::MaskAssembler();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_SUB_CLS_CTOR(js_renderer_MaskAssembler_ctor, __jsb_cocos2d_renderer_MaskAssembler_class, js_cocos2d_renderer_MaskAssembler_finalize)
 
+
+    
 
 extern se::Object* __jsb_cocos2d_renderer_Assembler_proto;
 
@@ -4789,6 +4831,7 @@ bool js_register_renderer_MaskAssembler(se::Object* obj)
     cls->defineFunction("setClearSubHandle", _SE(js_renderer_MaskAssembler_setClearSubHandle));
     cls->defineFunction("getMaskInverted", _SE(js_renderer_MaskAssembler_getMaskInverted));
     cls->defineFunction("setRenderSubHandle", _SE(js_renderer_MaskAssembler_setRenderSubHandle));
+    cls->defineFunction("ctor", _SE(js_renderer_MaskAssembler_ctor));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_MaskAssembler_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::MaskAssembler>(cls);
@@ -4796,6 +4839,7 @@ bool js_register_renderer_MaskAssembler(se::Object* obj)
     __jsb_cocos2d_renderer_MaskAssembler_proto = cls->getProto();
     __jsb_cocos2d_renderer_MaskAssembler_class = cls;
 
+    jsb_set_extend_property("renderer", "MaskAssembler");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -4874,7 +4918,16 @@ static bool js_renderer_TiledMapAssembler_constructor(se::State& s)
 }
 SE_BIND_CTOR(js_renderer_TiledMapAssembler_constructor, __jsb_cocos2d_renderer_TiledMapAssembler_class, js_cocos2d_renderer_TiledMapAssembler_finalize)
 
+static bool js_renderer_TiledMapAssembler_ctor(se::State& s)
+{
+    cocos2d::renderer::TiledMapAssembler* cobj = new (std::nothrow) cocos2d::renderer::TiledMapAssembler();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_SUB_CLS_CTOR(js_renderer_TiledMapAssembler_ctor, __jsb_cocos2d_renderer_TiledMapAssembler_class, js_cocos2d_renderer_TiledMapAssembler_finalize)
 
+
+    
 
 extern se::Object* __jsb_cocos2d_renderer_Assembler_proto;
 
@@ -4894,6 +4947,7 @@ bool js_register_renderer_TiledMapAssembler(se::Object* obj)
     cls->defineFunction("updateNodes", _SE(js_renderer_TiledMapAssembler_updateNodes));
     cls->defineFunction("setLayerMoveXY", _SE(js_renderer_TiledMapAssembler_setLayerMoveXY));
     cls->defineFunction("clearNodes", _SE(js_renderer_TiledMapAssembler_clearNodes));
+    cls->defineFunction("ctor", _SE(js_renderer_TiledMapAssembler_ctor));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_TiledMapAssembler_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::TiledMapAssembler>(cls);
@@ -4901,6 +4955,7 @@ bool js_register_renderer_TiledMapAssembler(se::Object* obj)
     __jsb_cocos2d_renderer_TiledMapAssembler_proto = cls->getProto();
     __jsb_cocos2d_renderer_TiledMapAssembler_class = cls;
 
+    jsb_set_extend_property("renderer", "TiledMapAssembler");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
