@@ -174,6 +174,8 @@ export class SkinningModel extends Model {
     }
 
     public resetSkinningTarget (skinningRoot: Node) {
+        // should be the hosting node of the controlling animation component
+        // here we are approximating with a specific LCA but it should work anyways
         const root = LCA(this.node, skinningRoot);
         if (!root || !this._skeleton) { return; }
         this._joints.length = 0;
