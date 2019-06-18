@@ -196,7 +196,7 @@ let Label = cc.Class({
             },
             set (value) {
                 let oldValue = this._string;
-                this._string = value.toString();
+                this._string = '' + value;
 
                 if (this.string !== oldValue) {
                     this._updateRenderData();
