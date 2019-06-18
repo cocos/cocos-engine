@@ -122,7 +122,9 @@ class Component extends CCObject {
      * cc.log(comp.enabled);
      * ```
      */
-    @property
+    @property({
+        visible: false,
+    })
     get enabled () {
         return this._enabled;
     }
