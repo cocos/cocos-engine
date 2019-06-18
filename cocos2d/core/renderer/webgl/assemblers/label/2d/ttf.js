@@ -23,33 +23,33 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../../../../platform/js');
-const ttfUtls = require('../../../../utils/label/ttf');
+import TTFAssembler from '../../../../utils/label/ttf';
+
 const LabelShadow = require('../../../../../components/CCLabelShadow');
-const fillMeshVertices = require('../../utils').fillMeshVertices;
 const WHITE = cc.color(255, 255, 255, 255);
 
-module.exports = js.addon({
-    createData (comp) {
-        let renderData = comp.requestRenderData();
-
-        renderData.dataLength = 4;
-        renderData.vertexCount = 4;
-        renderData.indiceCount = 6;
-
-        return renderData;
-    },
-
-    fillBuffers (comp, renderer) {
-        let node = comp.node;
-        WHITE._fastSetA(node.color.a);
-        fillMeshVertices(node, renderer._meshBuffer, comp._renderData, WHITE._val);
-    },
-
-    _updateVerts (comp) {
-        let renderData = comp._renderData;
+export default class WebglTTFAssembler extends TTFAssembler {
+    updateUVs (comp) {
+        let verts = this._renderData.vDatas[0];
         let uv = comp._frame.uv;
+        let uvOffset = this.uvOffset;
+        let floatsPerVert = this.floatsPerVert;
+        for (let i = 0; i < 4; i++) {
+            let srcOffset = i * 2;
+            let dstOffset = floatsPerVert * i + uvOffset;
+            verts[dstOffset] = uv[srcOffset];
+            verts[dstOffset + 1] = uv[srcOffset + 1];
+        }
+    }
 
+    updateColor (comp) {
+        WHITE._fastSetA(comp.node.color.a);
+        let color = WHITE._val;
+
+        super.updateColor(comp, color);
+    }
+
+    updateVerts (comp) {
         let node = comp.node,
             canvasWidth = comp._ttfTexture.width,
             canvasHeight = comp._ttfTexture.height,
@@ -88,23 +88,14 @@ module.exports = js.addon({
             }
         }
 
-        let verts = renderData.vertices;
-        verts[0].x = -appx;
-        verts[0].y = -appy;
-        verts[1].x = canvasWidth - appx;
-        verts[1].y = -appy;
-        verts[2].x = -appx;
-        verts[2].y = canvasHeight - appy;
-        verts[3].x = canvasWidth - appx;
-        verts[3].y = canvasHeight - appy;
+        let local = this._renderData._local;
+        local[0] = -appx;
+        local[1] = -appy;
+        local[2] = canvasWidth - appx;
+        local[3] = canvasHeight - appy;
 
-        verts[0].u = uv[0];
-        verts[0].v = uv[1];
-        verts[1].u = uv[2];
-        verts[1].v = uv[3];
-        verts[2].u = uv[4];
-        verts[2].v = uv[5];
-        verts[3].u = uv[6];
-        verts[3].v = uv[7];
+        this.updateUVs(comp);
+        this.updateWorldVerts(comp);
     }
-}, ttfUtls);
+}
+

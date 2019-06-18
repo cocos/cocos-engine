@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Assembler from '../../cocos2d/core/renderer/assembler';
+
 const Armature = require('./ArmatureDisplay');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
 const Material = require('../../cocos2d/core/assets/material/CCMaterial');
@@ -116,9 +118,8 @@ function _handleColor (color, parentOpacity) {
     _c = ((_a<<24) >>> 0) + (_b<<16) + (_g<<8) + _r;
 }
 
-let armatureAssembler = {
-
-    updateRenderData (comp, batchData) {},
+export default class ArmatureAssembler extends Assembler {
+    updateRenderData (comp, batchData) {}
 
     realTimeTraverse (armature, parentMat, parentOpacity) {
         let slots = armature._slots;
@@ -201,7 +202,7 @@ let armatureAssembler = {
                 ibuf[_indexOffset++] = _vertexOffset + indices[ii];
             }
         }
-    },
+    }
 
     cacheTraverse (frame, parentMat) {
         if (!frame) return;
@@ -291,7 +292,7 @@ let armatureAssembler = {
                 uintbuf[ii] = _c;
             }
         }
-    },
+    }
 
     fillBuffers (comp, renderer) {
         comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
@@ -361,6 +362,6 @@ let armatureAssembler = {
         _renderer = undefined;
         _comp = undefined;
     }
-};
+}
 
-module.exports = Armature._assembler = armatureAssembler;
+Assembler.register(Armature, ArmatureAssembler);

@@ -1,16 +1,16 @@
-const DONOTHING = 0;
-const BREAK_FLOW = 1 << 0;
-const LOCAL_TRANSFORM = 1 << 1;
-const WORLD_TRANSFORM = 1 << 2;
+let FlagOfset = 0;
+
+const DONOTHING = 1 << FlagOfset++;
+const BREAK_FLOW = 1 << FlagOfset++;
+const LOCAL_TRANSFORM = 1 << FlagOfset++;
+const WORLD_TRANSFORM = 1 << FlagOfset++;
 const TRANSFORM = LOCAL_TRANSFORM | WORLD_TRANSFORM;
-const UPDATE_RENDER_DATA = 1 << 3;
-const OPACITY = 1 << 4;
-const RENDER = 1 << 5;
-const CUSTOM_IA_RENDER = 1 << 6;
-const CHILDREN = 1 << 7;
-const POST_UPDATE_RENDER_DATA = 1 << 8;
-const POST_RENDER = 1 << 9;
-const FINAL = 1 << 10;
+const UPDATE_RENDER_DATA = 1 << FlagOfset++;
+const OPACITY = 1 << FlagOfset++;
+const RENDER = 1 << FlagOfset++;
+const CHILDREN = 1 << FlagOfset++;
+const POST_RENDER = 1 << FlagOfset++;
+const FINAL = 1 << FlagOfset++;
 
 let _batcher, _forward;
 let _cullingMask = 0;
@@ -67,15 +67,11 @@ _proto._updateRenderData = function (node) {
 
 _proto._render = function (node) {
     let comp = node._renderComponent;
-    _batcher._commitComp(comp, comp._assembler, node._cullingMask);
+    _batcher._switchComp(comp, node._cullingMask);
+    comp._assembler.fillBuffers(comp, _batcher);
     this._next._func(node);
 };
 
-_proto._customIARender = function (node) {
-    let comp = node._renderComponent;
-    _batcher._commitIA(comp, comp._assembler, node._cullingMask);
-    this._next._func(node);
-};
 
 _proto._children = function (node) {
     let cullingMask = _cullingMask;
@@ -110,16 +106,10 @@ _proto._children = function (node) {
     this._next._func(node);
 };
 
-_proto._postUpdateRenderData = function (node) {
-    let comp = node._renderComponent;
-    comp._postAssembler && comp._postAssembler.updateRenderData(comp);
-    node._renderFlag &= ~POST_UPDATE_RENDER_DATA;
-    this._next._func(node);
-};
-
 _proto._postRender = function (node) {
     let comp = node._renderComponent;
-    _batcher._commitComp(comp, comp._postAssembler, node._cullingMask);
+    _batcher._switchComp(comp, node._cullingMask);
+    comp._assembler.postFillBuffers(comp, _batcher);
     this._next._func(node);
 };
 
@@ -155,14 +145,8 @@ function createFlow (flag, next) {
         case RENDER: 
             flow._func = flow._render;
             break;
-        case CUSTOM_IA_RENDER:
-            flow._func = flow._customIARender;
-            break;
         case CHILDREN: 
             flow._func = flow._children;
-            break;
-        case POST_UPDATE_RENDER_DATA: 
-            flow._func = flow._postUpdateRenderData;
             break;
         case POST_RENDER: 
             flow._func = flow._postRender;
@@ -240,9 +224,7 @@ RenderFlow.FLAG_TRANSFORM = TRANSFORM;
 RenderFlow.FLAG_OPACITY = OPACITY;
 RenderFlow.FLAG_UPDATE_RENDER_DATA = UPDATE_RENDER_DATA;
 RenderFlow.FLAG_RENDER = RENDER;
-RenderFlow.FLAG_CUSTOM_IA_RENDER = CUSTOM_IA_RENDER;
 RenderFlow.FLAG_CHILDREN = CHILDREN;
-RenderFlow.FLAG_POST_UPDATE_RENDER_DATA = POST_UPDATE_RENDER_DATA;
 RenderFlow.FLAG_POST_RENDER = POST_RENDER;
 RenderFlow.FLAG_FINAL = FINAL;
 

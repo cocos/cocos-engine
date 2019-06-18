@@ -27,8 +27,8 @@
 const misc = require('../utils/misc');
 const NodeEvent = require('../CCNode').EventType;
 const RenderComponent = require('./CCRenderComponent');
-const RenderFlow = require('../renderer/render-flow');
 const BlendFunc = require('../utils/blend-func');
+const RenderFlow = require('../renderer/render-flow');
 
 const Material = require('../assets/material/CCMaterial');
 
@@ -234,10 +234,8 @@ var Sprite = cc.Class({
             },
             set: function (value) {
                 if (this._type !== value) {
-                    this.destroyRenderData(this._renderData);
-                    this._renderData = null;
                     this._type = value;
-                    this._updateAssembler();
+                    this._resetAssembler();
                 }
             },
             type: SpriteType,
@@ -261,16 +259,8 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 if (value !== this._fillType) {
-                    if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
-                        this.destroyRenderData(this._renderData);
-                        this._renderData = null;
-                    }
-                    else if (this._renderData) {
-                        this.setVertsDirty();
-                        this.markForUpdateRenderData(true);
-                    }
                     this._fillType = value;
-                    this._updateAssembler();
+                    this._resetAssembler();
                 }
             },
             type: FillType,
@@ -294,9 +284,8 @@ var Sprite = cc.Class({
             set: function(value) {
                 this._fillCenter.x = value.x;
                 this._fillCenter.y = value.y;
-                if (this._type === SpriteType.FILLED && this._renderData) {
+                if (this._type === SpriteType.FILLED) {
                     this.setVertsDirty();
-                    this.markForUpdateRenderData(true);
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_center',
@@ -319,9 +308,8 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._fillStart = misc.clampf(value, -1, 1);
-                if (this._type === SpriteType.FILLED && this._renderData) {
+                if (this._type === SpriteType.FILLED) {
                     this.setVertsDirty();
-                    this.markForUpdateRenderData(true);
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_start'
@@ -344,9 +332,8 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._fillRange = misc.clampf(value, -1, 1);
-                if (this._type === SpriteType.FILLED && this._renderData) {
+                if (this._type === SpriteType.FILLED) {
                     this.setVertsDirty();
-                    this.markForUpdateRenderData(true);
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.fill_range'
@@ -366,10 +353,8 @@ var Sprite = cc.Class({
             set: function (value) {
                 if (this._isTrimmedMode !== value) {
                     this._isTrimmedMode = value;
-                    if ((this._type === SpriteType.SIMPLE || this._type === SpriteType.MESH) && 
-                        this._renderData) {
+                    if (this._type === SpriteType.SIMPLE || this._type === SpriteType.MESH) {
                         this.setVertsDirty();
-                        this.markForUpdateRenderData(true);
                     }
                 }
             },
@@ -443,32 +428,29 @@ var Sprite = cc.Class({
             }
         }
         
-        this._updateAssembler();
         this._activateMaterial();
     },
 
     _on3DNodeChanged () {
-        this._updateAssembler();
+        this._resetAssembler();
     },
 
-    _updateAssembler: function () {
-        let assembler = Sprite._assembler.getAssembler(this);
+    // _resetAssembler () {
+    //     let assembler = Sprite._assembler.getAssembler(this);
         
-        if (this._assembler !== assembler) {
-            this._assembler = assembler;
-            this._renderData = null;
-        }
+    //     if (this._assembler !== assembler) {
+    //         this._renderHandle.reset();
 
-        if (!this._renderData) {
-            this._renderData = this._assembler.createData(this);
-            this.setVertsDirty();
-            this.markForUpdateRenderData(true);
-        }
+    //         this._assembler = assembler;
+    //         this._assembler.createData(this);
 
-        if (CC_JSB && CC_NATIVERENDERER) {
-            this._renderHandle.setUseModel(!!assembler.useModel);
-        }
-    },
+    //         this.setVertsDirty();
+    //     }
+
+    //     if (CC_JSB && CC_NATIVERENDERER) {
+    //         this._renderHandle.setUseModel(!!assembler.useModel);
+    //     }
+    // },
 
     _activateMaterial: function () {
         // If render type is canvas, just return.
@@ -610,7 +592,7 @@ var Sprite = cc.Class({
 
 if (CC_EDITOR) {
     // override __preload
-    Sprite.prototype.__superPreload = cc.Component.prototype.__preload;
+    Sprite.prototype.__superPreload = cc.RenderComponent.prototype.__preload;
     Sprite.prototype.__preload = function () {
         if (this.__superPreload) this.__superPreload();
         this.node.on(NodeEvent.SIZE_CHANGED, this._resized, this);

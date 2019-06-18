@@ -1287,8 +1287,7 @@ let TiledLayer = cc.Class({
         }
 
         this.markForUpdateRenderData(true);
-        this.markForRender(false);
-        this.markForCustomIARender(true);
+        this.markForRender(true);
     },
 });
 

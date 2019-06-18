@@ -23,35 +23,43 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
-module.exports = {
-    createData (sprite) {
-        let renderData = sprite.requestRenderData();
-        // 0-4 for local verts
-        // 5-20 for world verts
-        renderData.dataLength = 20;
+import Assembler2D from '../../../../assembler-2d';
 
-        renderData.vertexCount = 16;
-        renderData.indiceCount = 54;
-        return renderData;
-    },
+export default class SlicedAssembler extends Assembler2D {
+    initData (sprite) {
+        if (this._renderData.meshCount > 0) return;
+        this._renderData.createData(0, this.verticesFloats, this.indicesCount);
+        this._renderData._local.length = 8;
+
+        let indices = this._renderData.iDatas[0];
+        let indexOffset = 0;
+        for (let r = 0; r < 3; ++r) {
+            for (let c = 0; c < 3; ++c) {
+                let start = r * 4 + c;
+                indices[indexOffset++] = start;
+                indices[indexOffset++] = start + 1;
+                indices[indexOffset++] = start + 4;
+                indices[indexOffset++] = start + 1;
+                indices[indexOffset++] = start + 5;
+                indices[indexOffset++] = start + 4;
+            }
+        }
+    }
 
     updateRenderData (sprite) {
         let frame = sprite._spriteFrame;
-        packToDynamicAtlas(sprite, frame);
+        if (!frame) return;
+        this.packToDynamicAtlas(sprite, frame);
 
-        let renderData = sprite._renderData;
-        if (renderData && frame && sprite._vertsDirty) {
+        if (sprite._vertsDirty) {
+            this.updateUVs(sprite);
             this.updateVerts(sprite);
-            this.updateWorldVerts(sprite);
             sprite._vertsDirty = false;
         }
-    },
+    }
 
     updateVerts (sprite) {
-        let renderData = sprite._renderData,
-            verts = renderData.vertices,
-            node = sprite.node,
+        let node = sprite.node,
             width = node.width, height = node.height,
             appx = node.anchorX * width, appy = node.anchorY * height;
 
@@ -69,81 +77,60 @@ module.exports = {
         yScale = (isNaN(yScale) || yScale > 1) ? 1 : yScale;
         sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
         sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
-        
-        verts[0].x = -appx;
-        verts[0].y = -appy;
-        verts[1].x = leftWidth * xScale - appx;
-        verts[1].y = bottomHeight * yScale - appy;
-        verts[2].x = verts[1].x + sizableWidth;
-        verts[2].y = verts[1].y + sizableHeight;
-        verts[3].x = width - appx;
-        verts[3].y = height - appy;
-    },
 
-    fillBuffers (sprite, renderer) {
-        if (renderer.worldMatDirty) {
-            this.updateWorldVerts(sprite);
-        }
+        // update local
+        let local = this._renderData._local;
+        local[0] = -appx;
+        local[1] = -appy;
+        local[2] = leftWidth * xScale - appx;
+        local[3] = bottomHeight * yScale - appy;
+        local[4] = local[2] + sizableWidth;
+        local[5] = local[3] + sizableHeight;
+        local[6] = width - appx;
+        local[7] = height - appy;
 
-        let renderData = sprite._renderData,
-            node = sprite.node,
-            color = node._color._val,
-            verts = renderData.vertices;
+        this.updateWorldVerts(sprite);
+    }
 
-        let buffer = renderer._meshBuffer,
-            vertexCount = renderData.vertexCount;
-
+    updateUVs (sprite) {
+        let verts = this._renderData.vDatas[0];
         let uvSliced = sprite.spriteFrame.uvSliced;
-        let offsetInfo = buffer.request(vertexCount, renderData.indiceCount);
-
-        // buffer data may be realloc, need get reference after request.
-        let indiceOffset = offsetInfo.indiceOffset,
-            vertexOffset = offsetInfo.byteOffset >> 2,
-            vertexId = offsetInfo.vertexOffset,
-            vbuf = buffer._vData,
-            uintbuf = buffer._uintVData,
-            ibuf = buffer._iData;
-
-        for (let i = 4; i < 20; ++i) {
-            let vert = verts[i];
-            let uvs = uvSliced[i - 4];
-
-            vbuf[vertexOffset++] = vert.x;
-            vbuf[vertexOffset++] = vert.y;
-            vbuf[vertexOffset++] = uvs.u;
-            vbuf[vertexOffset++] = uvs.v;
-            uintbuf[vertexOffset++] = color;
-        }
-
-        for (let r = 0; r < 3; ++r) {
-            for (let c = 0; c < 3; ++c) {
-                let start = vertexId + r * 4 + c;
-                ibuf[indiceOffset++] = start;
-                ibuf[indiceOffset++] = start + 1;
-                ibuf[indiceOffset++] = start + 4;
-                ibuf[indiceOffset++] = start + 1;
-                ibuf[indiceOffset++] = start + 5;
-                ibuf[indiceOffset++] = start + 4;
+        let uvOffset = this.uvOffset;
+        let floatsPerVert = this.floatsPerVert;
+        for (let row = 0; row < 4; ++row) {
+            for (let col = 0; col < 4; ++col) {
+                let vid = row * 4 + col;
+                let uv = uvSliced[vid];
+                let voffset = vid * floatsPerVert;
+                verts[voffset + uvOffset] = uv.u;
+                verts[voffset + uvOffset + 1] = uv.v;
             }
         }
-    },
+    }
 
     updateWorldVerts (sprite) {
-        let node = sprite.node,
-            verts = sprite._renderData.vertices;
-        
-        let matrix = node._worldMatrix;
-        let matrixm = matrix.m,
-            a = matrixm[0], b = matrixm[1], c = matrixm[4], d = matrixm[5],
-            tx = matrixm[12], ty = matrixm[13];
+        let matrix = sprite.node._worldMatrix,
+            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
+
+        let renderData = this._renderData;
+        let local = renderData._local;
+        let world = renderData.vDatas[0];
+
+        let floatsPerVert = this.floatsPerVert;
         for (let row = 0; row < 4; ++row) {
-            let rowD = verts[row];
+            let localRowY = local[row * 2 + 1];
             for (let col = 0; col < 4; ++col) {
-                let colD = verts[col];
-                let world = verts[4 + row * 4 + col];
-                world.x = colD.x * a + rowD.y * c + tx;
-                world.y = colD.x * b + rowD.y * d + ty;
+                let localColX = local[col * 2];
+                let worldIndex = (row * 4 + col) * floatsPerVert;
+                world[worldIndex] = localColX * a + localRowY * c + tx;
+                world[worldIndex + 1] = localColX * b + localRowY * d + ty;
             }
         }
-    },
-};
+    }
+}
+
+Object.assign(SlicedAssembler.prototype, {
+    verticesCount: 16,
+    indicesCount: 54
+});

@@ -23,16 +23,16 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const spriteAssembler = require('../sprite');
 const fillVerticesWithoutCalc = require('../../utils').fillVerticesWithoutCalc;
-const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 
-module.exports = {
+module.exports = spriteAssembler.mesh = {
     createData (sprite) {
         return sprite.requestRenderData();
     },
 
     updateRenderData (sprite) {
-        packToDynamicAtlas(sprite, sprite._spriteFrame);
+        this.packToDynamicAtlas(sprite, sprite._spriteFrame);
 
         let renderData = sprite._renderData;
         let frame = sprite.spriteFrame;
@@ -54,10 +54,6 @@ module.exports = {
                     this.updateVerts(sprite);
                     this.updateWorldVerts(sprite);
                     sprite._vertsDirty = false;
-                }
-                // update world verts
-                else if (renderer.worldMatDirty) {
-                    this.updateWorldVerts(sprite);
                 }
             }
         }

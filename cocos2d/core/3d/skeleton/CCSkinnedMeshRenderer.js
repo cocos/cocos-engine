@@ -104,6 +104,7 @@ let SkinnedMeshRenderer = cc.Class({
     },
 
     __preload () {
+        this._resetAssembler();
         this._init();
     },
 

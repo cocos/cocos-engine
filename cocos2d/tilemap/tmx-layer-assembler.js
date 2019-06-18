@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Assembler from '../core/renderer/assembler';
+
 const TiledLayer = require('./CCTiledLayer');
 const TiledMap = require('./CCTiledMap');
 const TileFlag = TiledMap.TileFlag;
@@ -64,7 +66,8 @@ function _flush () {
         return;
     }
 
-    _renderer._flushIA(_renderData);
+    _renderer.material = _renderData.material;
+    _renderer._flushIA(_renderData.ia);
 
     let needSwitchBuffer = (_fillGrids >= MaxGridsLimit);
     if (needSwitchBuffer) {
@@ -137,15 +140,15 @@ function _flipTexture (outGrid, inGrid, gid) {
     }
 };
 
-let tmxAssembler = {
+export default class TmxAssembler extends Assembler {
     updateRenderData (comp) {
         if (!comp._renderDataList) {
             comp._buffer = new cc.TiledMapBuffer(renderer._handle, vfmtPosUvColor);
             comp._renderDataList = new cc.TiledMapRenderDataList();
         }
-    },
+    }
 
-    renderIA (comp, renderer) {
+    fillBuffers (comp, renderer) {
         let vertices = comp._vertices;
         if (vertices.length === 0 ) return;
 
@@ -227,7 +230,8 @@ let tmxAssembler = {
                     renderer.node = layerNode;
                 }
                 if (renderData.ia._count > 0) {
-                    renderer._flushIA(renderData);
+                    renderer.material = renderData.material;
+                    renderer._flushIA(renderData.ia);
                 }
             }
         }
@@ -240,9 +244,10 @@ let tmxAssembler = {
         _buffer = null;
         _curMaterial = null;
         _comp = null;
+
         _vbuf = null;
         _uintbuf = null;
-    },
+    }
 
     // rowMoveDir is -1 or 1, -1 means decrease, 1 means increase
     // colMoveDir is -1 or 1, -1 means decrease, 1 means increase
@@ -412,9 +417,10 @@ let tmxAssembler = {
 
         // last flush
         if (_ia._count > 0) {
-            _renderer._flushIA(_renderData);
+            _renderer.material = _renderData.material;
+            _renderer._flushIA(_renderData.ia);
         }
-    },
+    }
 
     fillByTiledNode (tiledNode, vbuf, uintbuf, left, right, top, bottom) {
         tiledNode._updateLocalMatrix();
@@ -450,6 +456,6 @@ let tmxAssembler = {
         vbuf[_vfOffset + 16] = right * b + bottom * d + ty;
         uintbuf[_vfOffset + 19] = color;
     }
-};
+}
 
-module.exports = TiledLayer._assembler = tmxAssembler;
+Assembler.register(TiledLayer, TmxAssembler);

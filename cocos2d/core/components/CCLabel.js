@@ -164,7 +164,6 @@ let Label = cc.Class({
             this._userDefinedFont = null;
         }
 
-        this._renderData = null;
         this._actualFontSize = 0;
         this._assemblerData = null;
 
@@ -377,12 +376,8 @@ let Label = cc.Class({
                     cc.warnID(4000);
                 }
 
-                if (this._renderData) {
-                    this.destroyRenderData(this._renderData);
-                    this._renderData = null;    
-                }
                 this._fontAtlas = null;
-                this._updateAssembler();
+                this._resetAssembler();
                 this._applyFontTexture(true);
                 this._lazyUpdateRenderData();
             },
@@ -404,10 +399,7 @@ let Label = cc.Class({
             },
             set (value) {
                 if (this._isSystemFontUsed === value) return;
-                
-                this.destroyRenderData(this._renderData);
-                this._renderData = null;
-
+               
                 if (CC_EDITOR) {
                     if (!value && this._isSystemFontUsed && this._userDefinedFont) {
                         this.font = this._userDefinedFont;
@@ -419,7 +411,7 @@ let Label = cc.Class({
                 this._isSystemFontUsed = !!value;
                 if (value) {
                     this.font = null;
-                    this._updateAssembler();
+                    this._resetAssembler();
                     this._lazyUpdateRenderData();
                     this._checkStringEmpty();
                 }
@@ -564,6 +556,7 @@ let Label = cc.Class({
         if (!(this.font instanceof cc.BitmapFont)) {
             this._lazyUpdateRenderData();
         }
+        this._assembler.updateColor(this);
     },
 
     _canRender () {
@@ -584,28 +577,30 @@ let Label = cc.Class({
     },
 
     _on3DNodeChanged () {
-        this._updateAssembler();
+        this._resetAssembler();
         this._applyFontTexture(true);
     },
 
-    _updateAssembler () {
-        let assembler = Label._assembler.getAssembler(this);
+    // _resetAssembler () {
+    //     let assembler = Label._assembler.getAssembler(this);
 
-        if (this._assembler !== assembler) {
-            this._assembler = assembler;
-            this._renderData = null;
-            this._frame = null;
-        }
+    //     if (this._assembler !== assembler) {
+    //         this.node._renderFlag |= RenderFlow.FLAG_OPACITY;
 
-        if (!this._renderData) {
-            this._renderData = this._assembler.createData(this);
-            this.markForUpdateRenderData(true);
-        }
+    //         this._assembler = assembler;
+    //         this._frame = null;
 
-        if (CC_JSB && CC_NATIVERENDERER) {
-            this._renderHandle.setUseModel(!!assembler.useModel);
-        }
-    },
+    //         this._renderHandle.reset();
+    //         this._assembler.createData(this);
+
+    //         this.setVertsDirty();
+    //         this.markForUpdateRenderData(true);
+    //     }
+
+    //     if (CC_JSB && CC_NATIVERENDERER) {
+    //         this._renderHandle.setUseModel(!!assembler.useModel);
+    //     }
+    // },
 
     _applyFontTexture (force) {
         let font = this.font;
@@ -697,7 +692,7 @@ let Label = cc.Class({
 
     _forceUpdateRenderData () {
         this.setVertsDirty();
-        this._updateAssembler();
+        this._resetAssembler();
         this._applyFontTexture(true);
         this.markForUpdateRenderData(true);
     },

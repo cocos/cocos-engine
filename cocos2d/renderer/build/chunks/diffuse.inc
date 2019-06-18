@@ -21,7 +21,7 @@ void MULTIPLY_DIFFUSE_TEXTRUE_COLOR (inout vec4 color, in vec2 uv) {
 void MULTIPLY_DIFFUSE_TEXTRUE_COLOR (inout vec4 color) {
   #if USE_DIFFUSE_TEXTURE && _USE_ATTRIBUTE_UV0
     
-    #ifdef _IS_VERT_SHADER
+    #if _IS_VERT_SHADER
       vec2 uv = a_uv0;
     #else
       vec2 uv = v_uv0;

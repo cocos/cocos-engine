@@ -25,10 +25,11 @@
 
 import gfx from '../../renderer/gfx';
 import RenderData from '../../renderer/render-data/render-data';
+import RenderHandle from '../renderer/render-data';
+import Assembler from '../renderer/assembler';
 
 const Component = require('./CCComponent');
 const RenderFlow = require('../renderer/render-flow');
-const BlendFactor = require('../platform/CCMacro').BlendFactor;
 const Material = require('../assets/material/CCMaterial');
 
 /**
@@ -74,17 +75,18 @@ let RenderComponent = cc.Class({
         this._vertsDirty = true;
         this._material = null;
         this._vertexFormat = gfx.VertexFormat.XY_UV_Color;
-        this._assembler = this.constructor._assembler;
-        this._postAssembler = this.constructor._postAssembler;
-
-        if (CC_JSB && CC_NATIVERENDERER) {
-            this._hasAddToNativeNode = false;
-            this.initNativeAssembler();
-        }
+        
+        this._assembler = null;
     },
 
-    initNativeAssembler () {
-        this._renderHandle = new renderer.Assembler();
+    _resetAssembler () {
+        this.setVertsDirty(true);
+        this.node._renderFlag |= RenderFlow.FLAG_OPACITY;
+        Assembler.init(this);
+    },
+
+    __preload () {
+        this._resetAssembler();
     },
 
     onEnable () {
@@ -95,21 +97,14 @@ let RenderComponent = cc.Class({
 
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
+        this.node.on(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
 
         this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
 
         if (CC_JSB && CC_NATIVERENDERER) {
-            if (!this._hasAddToNativeNode) {
-                if (this._renderHandle.init) {
-                    this._renderHandle.init(this);
-                }
-                if (this.node._proxy) {
-                    this.node._proxy.addAssembler("render", this._renderHandle);
-                }
-                this._hasAddToNativeNode = true;
-            } else {
-                this._renderHandle.enable();
-            }
+            cc.RenderFlow.once(cc.RenderFlow.EventType.BEFORE_RENDER, this._updateColor, this);
+
+            this._assembler.enable();
         }
     },
 
@@ -117,6 +112,7 @@ let RenderComponent = cc.Class({
         this.node._renderComponent = null;
         this.node.off(cc.Node.EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
         this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
+        this.node.off(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
         this.disableRender();
     },
 
@@ -128,13 +124,6 @@ let RenderComponent = cc.Class({
         this._materials.length = 0;
         this._renderData = null;
 
-        let uniforms = this._uniforms;
-        for (let name in uniforms) {
-            _uniformPool.remove(_uniformPool._data.indexOf(uniforms[name]));
-        }
-        this._uniforms = null;
-        this._defines = null;
-        
         if (CC_JSB && CC_NATIVERENDERER) {
             this._renderHandle && this._renderHandle.destroy();
         }
@@ -142,9 +131,15 @@ let RenderComponent = cc.Class({
 
     setVertsDirty () {
         this._vertsDirty = true;
+        this.markForUpdateRenderData(true);
     },
 
     _onNodeSizeDirty () {
+        this.setVertsDirty();
+        this.markForUpdateRenderData(true);
+    },
+
+    _on3DNodeChanged () {
         this.setVertsDirty();
         this.markForUpdateRenderData(true);
     },
@@ -167,36 +162,21 @@ let RenderComponent = cc.Class({
         if (enable && this._canRender()) {
             this.node._renderFlag |= RenderFlow.FLAG_RENDER;
             if (CC_JSB && CC_NATIVERENDERER) {
-                this._renderHandle.enable();
+                this._assembler && this._assembler.enable();
             }
         }
         else if (!enable) {
             this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
             if (CC_JSB && CC_NATIVERENDERER) {
-                this._renderHandle.disable();
-            }
-        }
-    },
-
-    markForCustomIARender (enable) {
-        if (enable && this._canRender()) {
-            this.node._renderFlag |= RenderFlow.FLAG_CUSTOM_IA_RENDER;
-            if (CC_JSB && CC_NATIVERENDERER) {
-                this._renderHandle.enable();
-            }
-        }
-        else if (!enable) {
-            this.node._renderFlag &= ~RenderFlow.FLAG_CUSTOM_IA_RENDER;
-            if (CC_JSB && CC_NATIVERENDERER) {
-                this._renderHandle.disable();
+                this._assembler && this._assembler.disable();
             }
         }
     },
 
     disableRender () {
-        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_CUSTOM_IA_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
+        this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
         if (CC_JSB && CC_NATIVERENDERER) {
-            this._renderHandle.disable();
+            this._assembler && this._assembler.disable();
         }
     },
 
@@ -239,8 +219,12 @@ let RenderComponent = cc.Class({
 
     _activateMaterial (force) {
     },
+
+    _updateColor () {
+        if (this._assembler.updateColor) {
+            this._assembler.updateColor(this);
+        }
+    }
 });
-RenderComponent._assembler = null;
-RenderComponent._postAssembler = null;
 
 cc.RenderComponent = module.exports = RenderComponent;
