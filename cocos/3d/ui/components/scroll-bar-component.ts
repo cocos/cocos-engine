@@ -27,7 +27,7 @@
 import { Component } from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { clamp01 } from '../../../core/utils';
-import { Size, Vec2, Vec3 } from '../../../core/value-types';
+import { Color, Size, Vec2, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import { vec3 } from '../../../core/vmath';
 import { Node } from '../../../scene-graph/node';
@@ -39,6 +39,7 @@ const ZERO = new Vec3();
 const _tempPos_1 = new Vec3();
 const _tempPos_2 = new Vec3();
 const defaultAnchor = new Vec2();
+const _tempColor = new Color();
 
 /**
  * @zh
@@ -320,12 +321,16 @@ export class ScrollBarComponent extends Component {
         if (this._handle) {
             let renderComp = this.node.getComponent(SpriteComponent);
             if (renderComp) {
-                renderComp.color.a = opacity;
+                _tempColor.set(renderComp.color);
+                _tempColor.a = opacity;
+                renderComp.color = _tempColor;
             }
 
             renderComp = this._handle.getComponent(SpriteComponent);
             if (renderComp) {
-                renderComp.color.a = opacity;
+                _tempColor.set(renderComp.color);
+                _tempColor.a = opacity;
+                renderComp.color = _tempColor;
             }
         }
     }

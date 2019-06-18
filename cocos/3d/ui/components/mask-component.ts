@@ -202,7 +202,12 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     set dstBlendFactor (value) {
-        super.dstBlendFactor = value;
+        if (this._dstBlendFactor === value) {
+            return;
+        }
+
+        this._dstBlendFactor = value;
+        this._updateBlendFunc();
     }
 
     @property({
@@ -214,7 +219,12 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     set srcBlendFactor (value) {
-        super.srcBlendFactor = value;
+        if (this._srcBlendFactor === value) {
+            return;
+        }
+
+        this._srcBlendFactor = value;
+        this._updateBlendFunc();
     }
 
     @property({
@@ -222,11 +232,16 @@ export class MaskComponent extends UIRenderComponent {
         override: true,
     })
     get color () {
-        return super.color;
+        return this._color;
     }
 
     set color (value){
-        super.color = value;
+        if (this._color === value) {
+            return;
+        }
+
+        this._color.set(value);
+        this.markForUpdateRenderData();
     }
 
     public static Type = MaskType;
