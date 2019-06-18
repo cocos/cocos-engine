@@ -269,7 +269,14 @@ export default class ParticleSystemRenderer {
 
     public _updateParticles (dt: number) {
         this.particleSystem.node.getWorldMatrix(_tempWorldTrans);
-        this.particleSystem.node.getWorldScale(this._node_scale);
+        switch (this.particleSystem.scaleSpace) {
+            case Space.Local:
+                this.particleSystem.node.getScale(this._node_scale);
+                break;
+            case Space.World:
+                this.particleSystem.node.getWorldScale(this._node_scale);
+                break;
+        }
         const mat: Material | null = this.particleSystem.sharedMaterial ? this.particleMaterial : this._defaultMat;
         mat!.setProperty('scale', this._node_scale);
         if (this.particleSystem.velocityOvertimeModule.enable) {

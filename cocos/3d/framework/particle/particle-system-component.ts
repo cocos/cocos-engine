@@ -58,12 +58,18 @@ export class ParticleSystemComponent extends RenderableComponent {
     })
     public startColor = new GradientRange();
 
+    @property({
+        type: Space,
+        displayOrder: 9,
+    })
+    public scaleSpace = Space.Local;
+
     /**
      * @zh 粒子初始大小。
      */
     @property({
         type: CurveRange,
-        displayOrder: 9,
+        displayOrder: 10,
     })
     public startSize = new CurveRange();
 
@@ -73,7 +79,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: CurveRange,
         range: [-1, 1],
-        displayOrder: 10,
+        displayOrder: 11,
     })
     public startSpeed = new CurveRange();
 
@@ -84,7 +90,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         type: CurveRange,
         range: [-1, 1],
         radian: true,
-        displayOrder: 11,
+        displayOrder: 12,
     })
     public startRotation = new CurveRange();
 
@@ -180,7 +186,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: CurveRange,
         range: [-1, 1],
-        displayOrder: 12,
+        displayOrder: 13,
     })
     public gravityModifier = new CurveRange();
 
@@ -190,7 +196,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     @property({
         type: CurveRange,
-        displayOrder: 13,
+        displayOrder: 14,
     })
     public rateOverTime = new CurveRange();
 
@@ -199,7 +205,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     @property({
         type: CurveRange,
-        displayOrder: 14,
+        displayOrder: 15,
     })
     public rateOverDistance = new CurveRange();
 
@@ -208,7 +214,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     @property({
         type: [Burst],
-        displayOrder: 15,
+        displayOrder: 16,
     })
     public bursts = new Array();
 
@@ -233,6 +239,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     @property({
         type: ColorOverLifetimeModule,
+        displayOrder: 23,
     })
     public colorOverLifetimeModule = new ColorOverLifetimeModule();
 
@@ -242,6 +249,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     @property({
         type: ShapeModule,
+        displayOrder: 17,
     })
     public shapeModule = new ShapeModule();
 
@@ -251,6 +259,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     @property({
         type: SizeOvertimeModule,
+        displayOrder: 21,
     })
     public sizeOvertimeModule = new SizeOvertimeModule();
 
@@ -259,6 +268,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     @property({
         type: VelocityOvertimeModule,
+        displayOrder: 18,
     })
     public velocityOvertimeModule = new VelocityOvertimeModule();
 
@@ -267,6 +277,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     @property({
         type: ForceOvertimeModule,
+        displayOrder: 19,
     })
     public forceOvertimeModule = new ForceOvertimeModule();
 
@@ -275,6 +286,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     @property({
         type: LimitVelocityOvertimeModule,
+        displayOrder: 20,
     })
     public limitVelocityOvertimeModule = new LimitVelocityOvertimeModule();
 
@@ -283,6 +295,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     @property({
         type: RotationOvertimeModule,
+        displayOrder: 22,
     })
     public rotationOvertimeModule = new RotationOvertimeModule();
 
@@ -291,6 +304,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     @property({
         type: TextureAnimationModule,
+        displayOrder: 24,
     })
     public textureAnimationModule = new TextureAnimationModule();
 
@@ -299,12 +313,14 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     @property({
         type: TrailModule,
+        displayOrder: 25,
     })
     public trailModule = new TrailModule();
 
     // particle system renderer
     @property({
         type: ParticleSystemRenderer,
+        displayOrder: 26,
     })
     public renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
 
