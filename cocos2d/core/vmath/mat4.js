@@ -53,103 +53,115 @@ class mat4 {
     m08 = 0, m09 = 0, m10 = 1, m11 = 0,
     m12 = 0, m13 = 0, m14 = 0, m15 = 1
   ) {
-    this.m = new Float32Array(16);
-    let m = this.m;
-    /**
-     * The element at column 0 row 0.
-     * @type {number}
-     * */
-    m[0] = m00;
+    if (m00 instanceof Float32Array) {
+        // deep copy
+        if (m01) {
+            this.m = new Float32Array(16);
+            this.m.set(m00);
+        } else {
+            this.m = m00;
+        }
+    } else {
+        this.m = new Float32Array(16);
 
-    /**
-     * The element at column 0 row 1.
-     * @type {number}
-     * */
-    m[1] = m01;
+        let m = this.m;
+        /**
+         * The element at column 0 row 0.
+         * @type {number}
+         * */
+        m[0] = m00;
 
-    /**
-     * The element at column 0 row 2.
-     * @type {number}
-     * */
-    m[2] = m02;
+        /**
+         * The element at column 0 row 1.
+         * @type {number}
+         * */
+        m[1] = m01;
 
-    /**
-     * The element at column 0 row 3.
-     * @type {number}
-     * */
-    m[3] = m03;
+        /**
+         * The element at column 0 row 2.
+         * @type {number}
+         * */
+        m[2] = m02;
 
-    /**
-     * The element at column 1 row 0.
-     * @type {number}
-     * */
-    m[4] = m04;
+        /**
+         * The element at column 0 row 3.
+         * @type {number}
+         * */
+        m[3] = m03;
 
-    /**
-     * The element at column 1 row 1.
-     * @type {number}
-     * */
-    m[5] = m05;
+        /**
+         * The element at column 1 row 0.
+         * @type {number}
+         * */
+        m[4] = m04;
 
-    /**
-     * The element at column 1 row 2.
-     * @type {number}
-     * */
-    m[6] = m06;
+        /**
+         * The element at column 1 row 1.
+         * @type {number}
+         * */
+        m[5] = m05;
 
-    /**
-     * The element at column 1 row 3.
-     * @type {number}
-     * */
-    m[7] = m07;
+        /**
+         * The element at column 1 row 2.
+         * @type {number}
+         * */
+        m[6] = m06;
 
-    /**
-     * The element at column 2 row 0.
-     * @type {number}
-     * */
-    m[8] = m08;
+        /**
+         * The element at column 1 row 3.
+         * @type {number}
+         * */
+        m[7] = m07;
 
-    /**
-     * The element at column 2 row 1.
-     * @type {number}
-     * */
-    m[9] = m09;
+        /**
+         * The element at column 2 row 0.
+         * @type {number}
+         * */
+        m[8] = m08;
 
-    /**
-     * The element at column 2 row 2.
-     * @type {number}
-     * */
-    m[10] = m10;
+        /**
+         * The element at column 2 row 1.
+         * @type {number}
+         * */
+        m[9] = m09;
 
-    /**
-     * The element at column 2 row 3.
-     * @type {number}
-     * */
-    m[11] = m11;
+        /**
+         * The element at column 2 row 2.
+         * @type {number}
+         * */
+        m[10] = m10;
 
-    /**
-     * The element at column 3 row 0.
-     * @type {number}
-     * */
-    m[12] = m12;
+        /**
+         * The element at column 2 row 3.
+         * @type {number}
+         * */
+        m[11] = m11;
 
-    /**
-     * The element at column 3 row 1.
-     * @type {number}
-     * */
-    m[13] = m13;
+        /**
+         * The element at column 3 row 0.
+         * @type {number}
+         * */
+        m[12] = m12;
 
-    /**
-     * The element at column 3 row 2.
-     * @type {number}
-     * */
-    m[14] = m14;
+        /**
+         * The element at column 3 row 1.
+         * @type {number}
+         * */
+        m[13] = m13;
 
-    /**
-     * The element at column 3 row 3.
-     * @type {number}
-     * */
-    m[15] = m15;
+        /**
+         * The element at column 3 row 2.
+         * @type {number}
+         * */
+        m[14] = m14;
+
+        /**
+         * The element at column 3 row 3.
+         * @type {number}
+         * */
+        m[15] = m15;
+
+    }
   }
 
   /**
@@ -1052,7 +1064,7 @@ class mat4 {
   
   static fromTRSArray (out, trs) {
     let outm = out.m;
-    var x = trs[4], y = trs[5], z = trs[6], w = trs[7];
+    var x = trs[3], y = trs[4], z = trs[5], w = trs[6];
     var x2 = x + x;
     var y2 = y + y;
     var z2 = z + z;
@@ -1066,9 +1078,9 @@ class mat4 {
     var wx = w * x2;
     var wy = w * y2;
     var wz = w * z2;
-    var sx = trs[8];
-    var sy = trs[9];
-    var sz = trs[10];
+    var sx = trs[7];
+    var sy = trs[8];
+    var sz = trs[9];
   
     outm[0] = (1 - (yy + zz)) * sx;
     outm[1] = (xy + wz) * sx;
@@ -1082,9 +1094,9 @@ class mat4 {
     outm[9] = (yz - wx) * sz;
     outm[10] = (1 - (xx + yy)) * sz;
     outm[11] = 0;
-    outm[12] = trs[1];
-    outm[13] = trs[2];
-    outm[14] = trs[3];
+    outm[12] = trs[0];
+    outm[13] = trs[1];
+    outm[14] = trs[2];
     outm[15] = 1;
   
     return out;

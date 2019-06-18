@@ -28,43 +28,53 @@ class mat23 {
    * @param {Number} m05 -  Value assigned to element ty.
    */
   constructor(m00 = 1, m01 = 0, m02 = 0, m03 = 1, m04 = 0, m05 = 0) {
-    this.m = new Float32Array(6);
-    let m = this.m;
-    /**
-     * The element a.
-     * @type {number}
-     * */
-    m[0] = m00;
+    if (m00 instanceof Float32Array) {
+        // deep copy
+        if (m01) {
+            this.m = new Float32Array(6);
+            this.m.set(m00);
+        } else {
+            this.m = m00;
+        }
+    } else {
+        this.m = new Float32Array(6);
+        let m = this.m;
+        /**
+         * The element a.
+         * @type {number}
+         * */
+        m[0] = m00;
 
-    /**
-     * The element b.
-     * @type {number}
-     * */
-    m[1] = m01;
+        /**
+         * The element b.
+         * @type {number}
+         * */
+        m[1] = m01;
 
-    /**
-     * The element c.
-     * @type {number}
-     * */
-    m[2] = m02;
+        /**
+         * The element c.
+         * @type {number}
+         * */
+        m[2] = m02;
 
-    /**
-     * The element d.
-     * @type {number}
-     * */
-    m[3] = m03;
+        /**
+         * The element d.
+         * @type {number}
+         * */
+        m[3] = m03;
 
-    /**
-     * The element tx.
-     * @type {number}
-     * */
-    m[4] = m04;
+        /**
+         * The element tx.
+         * @type {number}
+         * */
+        m[4] = m04;
 
-    /**
-     * The element ty.
-     * @type {number}
-     * */
-    m[5] = m05;
+        /**
+         * The element ty.
+         * @type {number}
+         * */
+        m[5] = m05;
+    }
   }
 
   /**

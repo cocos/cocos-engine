@@ -46,61 +46,71 @@ class mat3 {
     m03 = 0, m04 = 1, m05 = 0,
     m06 = 0, m07 = 0, m08 = 1
   ) {
-    this.m = new Float32Array(9);
-    let m = this.m;
-    /**
-     * The element at column 0 row 0.
-     * @type {number}
-     * */
-    m[0] = m00;
+    if (m00 instanceof Float32Array) {
+        // deep copy
+        if (m01) {
+            this.m = new Float32Array(9);
+            this.m.set(m00);
+        } else {
+            this.m = m00;
+        }
+    } else {
+        this.m = new Float32Array(9);
+        let m = this.m;
+        /**
+         * The element at column 0 row 0.
+         * @type {number}
+         * */
+        m[0] = m00;
 
-    /**
-     * The element at column 0 row 1.
-     * @type {number}
-     * */
-    m[1] = m01;
+        /**
+         * The element at column 0 row 1.
+         * @type {number}
+         * */
+        m[1] = m01;
 
-    /**
-     * The element at column 0 row 2.
-     * @type {number}
-     * */
-    m[2] = m02;
+        /**
+         * The element at column 0 row 2.
+         * @type {number}
+         * */
+        m[2] = m02;
 
-    /**
-     * The element at column 1 row 0.
-     * @type {number}
-     * */
-    m[3] = m03;
+        /**
+         * The element at column 1 row 0.
+         * @type {number}
+         * */
+        m[3] = m03;
 
-    /**
-     * The element at column 1 row 1.
-     * @type {number}
-     * */
-    m[4] = m04;
+        /**
+         * The element at column 1 row 1.
+         * @type {number}
+         * */
+        m[4] = m04;
 
-    /**
-     * The element at column 1 row 2.
-     * @type {number}
-     * */
-    m[5] = m05;
+        /**
+         * The element at column 1 row 2.
+         * @type {number}
+         * */
+        m[5] = m05;
 
-    /**
-     * The element at column 2 row 0.
-     * @type {number}
-     * */
-    m[6] = m06;
+        /**
+         * The element at column 2 row 0.
+         * @type {number}
+         * */
+        m[6] = m06;
 
-    /**
-     * The element at column 2 row 1.
-     * @type {number}
-     * */
-    m[7] = m07;
+        /**
+         * The element at column 2 row 1.
+         * @type {number}
+         * */
+        m[7] = m07;
 
-    /**
-     * The element at column 2 row 2.
-     * @type {number}
-     * */
-    m[8] = m08;
+        /**
+         * The element at column 2 row 2.
+         * @type {number}
+         * */
+        m[8] = m08;
+    }
   }
 
   /**

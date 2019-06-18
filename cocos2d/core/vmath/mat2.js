@@ -13,31 +13,41 @@ class mat2 {
    * @param {Number} m03 - Value assigned to element at column 1 row 1.
    */
   constructor(m00 = 1, m01 = 0, m02 = 0, m03 = 1) {
-    this.m = new Float32Array(4);
-    let m = this.m;
-    /**
-     * The element at column 0 row 0.
-     * @type {number}
-     * */
-    m[0] = m00;
+    if (m00 instanceof Float32Array) {
+        // deep copy
+        if (m01) {
+            this.m = new Float32Array(4);
+            this.m.set(m00);
+        } else {
+            this.m = m00;
+        }
+    } else {
+        this.m = new Float32Array(4);
+        let m = this.m;
+        /**
+         * The element at column 0 row 0.
+         * @type {number}
+         * */
+        m[0] = m00;
 
-    /**
-     * The element at column 0 row 1.
-     * @type {number}
-     * */
-    m[1] = m01;
+        /**
+         * The element at column 0 row 1.
+         * @type {number}
+         * */
+        m[1] = m01;
 
-    /**
-     * The element at column 1 row 0.
-     * @type {number}
-     * */
-    m[2] = m02;
+        /**
+         * The element at column 1 row 0.
+         * @type {number}
+         * */
+        m[2] = m02;
 
-    /**
-     * The element at column 1 row 1.
-     * @type {number}
-     * */
-    m[3] = m03;
+        /**
+         * The element at column 1 row 1.
+         * @type {number}
+         * */
+        m[3] = m03;
+    }
   }
 
   /**

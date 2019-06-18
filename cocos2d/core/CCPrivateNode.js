@@ -129,8 +129,8 @@ let PrivateNode = cc.Class({
         let parent = this.parent;
         if (parent) {
             // Position correction for transform calculation
-            this._trs[1] = this._originPos.x - (parent._anchorPoint.x - 0.5) * parent._contentSize.width;
-            this._trs[2] = this._originPos.y - (parent._anchorPoint.y - 0.5) * parent._contentSize.height;
+            this._trs[0] = this._originPos.x - (parent._anchorPoint.x - 0.5) * parent._contentSize.width;
+            this._trs[1] = this._originPos.y - (parent._anchorPoint.y - 0.5) * parent._contentSize.height;
         }
 
         this._super();
