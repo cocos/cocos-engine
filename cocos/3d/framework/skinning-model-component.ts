@@ -84,7 +84,7 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     public _updateModelParams () {
-        // Should bind skeleton before super create pso
+        // should bind skeleton before super create pso
         this._bindSkeleton();
         this._resetSkinningTarget();
         super._updateModelParams();
