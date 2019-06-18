@@ -281,7 +281,7 @@ export class Root {
             }
         }
 
-        this._device.present();
+        // this._device.present();
     }
 
     /**
