@@ -42,9 +42,10 @@ export default class Assembler2D extends Assembler {
         let local = this._renderData._local;
         let verts = this._renderData.vDatas[0];
 
-        let matrix = comp.node._worldMatrix,
-            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
+        let matrix = comp.node._worldMatrix;
+        let matrixm = matrix.m,
+            a = matrixm[0], b = matrixm[1], c = matrixm[4], d = matrixm[5],
+            tx = matrixm[12], ty = matrixm[13];
 
         let vl = local[0], vr = local[2],
             vb = local[1], vt = local[3];
