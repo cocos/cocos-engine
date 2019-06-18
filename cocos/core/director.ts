@@ -1071,7 +1071,7 @@ class Director extends EventTarget {
             this._physicsSystem!.update(this._deltaTime);
 
             this.emit(cc.Director.EVENT_BEFORE_DRAW);
-            this._root!.frameMove(this._deltaTime); 
+            this._root!.frameMove(this._deltaTime);
             this.emit(cc.Director.EVENT_AFTER_DRAW);
 
             eventManager.frameUpdateListeners();
