@@ -82,8 +82,13 @@ function _getSlotMaterial (tex, blendMode) {
 
     let material = materialCache[key];
     if (!material) {
-        material = new Material();
-        material.copy(baseMaterial);
+        let baseKey = baseMaterial._hash;
+        if (!materialCache[baseKey]) {
+            material = baseMaterial;
+        } else {
+            material = new cc.Material();
+            material.copy(baseMaterial);
+        }
 
         material.define('_USE_MODEL', useModel);
         material.setProperty('texture', tex);

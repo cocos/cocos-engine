@@ -98,16 +98,23 @@ function _getSlotMaterial (tex, blendMode) {
             break;
     }
 
-    let key = tex.url + src + dst;
+    let useModel = !_comp.enableBatch;
+    let key = tex.url + src + dst + _useTint + useModel;
     let baseMaterial = _comp.sharedMaterials[0];
     if (!baseMaterial) return null;
 
     let materialCache = _comp._materialCache;
     let material = materialCache[key];
     if (!material) {
-        material = new cc.Material();
-        material.copy(baseMaterial);
-        material.define('_USE_MODEL', true);
+        let baseKey = baseMaterial._hash;
+        if (!materialCache[baseKey]) {
+            material = baseMaterial;
+        } else {
+            material = new cc.Material();
+            material.copy(baseMaterial);
+        }
+        
+        material.define('_USE_MODEL', useModel);
         material.define('USE_TINT', _useTint);
         // update texture
         material.setProperty('texture', tex);
