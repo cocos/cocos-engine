@@ -53,6 +53,11 @@ export interface IPropertyCurve {
      * 属性曲线。
      */
     curve: AnimCurve;
+
+    /**
+     * 曲线采样器。
+     */
+    sampler: RatioSampler | null;
 }
 
 export interface IAnimationEvent {
@@ -278,10 +283,12 @@ export class AnimationClip extends Asset {
             const nodeData = this.curveDatas[curveTargetPath];
             if (nodeData.props) {
                 for (const nodePropertyName of Object.keys(nodeData.props)) {
+                    const propertyCurveData = nodeData.props[nodePropertyName];
                     this._propertyCurves.push({
                         path: curveTargetPath,
                         propertyName: nodePropertyName,
-                        curve: this._createCurve(nodeData.props[nodePropertyName], nodePropertyName, true),
+                        curve: new AnimCurve(propertyCurveData, nodePropertyName, this._duration, true),
+                        sampler: propertyCurveData.keys >= 0 ? this._ratioSamplers[propertyCurveData.keys] : null,
                     });
                 }
             }
@@ -289,25 +296,19 @@ export class AnimationClip extends Asset {
                 for (const componentName of Object.keys(nodeData.comps)) {
                     const componentData = nodeData.comps[componentName];
                     for (const componentPropertyName of Object.keys(componentData)) {
+                        const propertyCurveData = componentData[componentPropertyName];
                         this._propertyCurves.push({
                             path: curveTargetPath,
                             component: componentName,
                             propertyName: componentPropertyName,
-                            curve: this._createCurve(componentData[componentPropertyName], componentPropertyName, false),
+                            curve: new AnimCurve(propertyCurveData, componentPropertyName, this._duration, false),
+                            sampler: propertyCurveData.keys >= 0 ? this._ratioSamplers[propertyCurveData.keys] : null,
                         });
                     }
                 }
             }
         }
         this._applyStepness();
-    }
-
-    private _createCurve (propertyCurveData: IPropertyCurveData, propertyName: string, isNode: boolean) {
-        let ratioSampler: null | RatioSampler = null;
-        if (propertyCurveData.keys >= 0) {
-            ratioSampler = this._ratioSamplers[propertyCurveData.keys];
-        }
-        return new AnimCurve(propertyCurveData, propertyName, this._duration, isNode, ratioSampler);
     }
 
     private _createRuntimeEvents () {
@@ -344,9 +345,9 @@ export class AnimationClip extends Asset {
         if (!this._propertyCurves) {
             return;
         }
-        for (const propertyCurve of this._propertyCurves) {
-            propertyCurve.curve.stepfy(this._stepness);
-        }
+        // for (const propertyCurve of this._propertyCurves) {
+        //     propertyCurve.curve.stepfy(this._stepness);
+        // }
     }
 }
 

@@ -4,7 +4,7 @@ import { EventArgumentsOf, EventCallbackOf } from '../core/event/defines';
 import { Node } from '../scene-graph';
 import { AnimationBlendState, PropertyBlendState } from './animation-blend-state';
 import { AnimationClip } from './animation-clip';
-import { AnimCurve, CurveTarget, EventInfo } from './animation-curve';
+import { AnimCurve, CurveTarget, EventInfo, RatioSampler } from './animation-curve';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 
@@ -14,6 +14,33 @@ interface ICurveInstance {
     propertyName: string;
     blendTarget: PropertyBlendState | null;
     cached?: any[];
+}
+
+/**
+ * The curves in ISamplerSharedGroup share a same keys.
+ */
+interface ISamplerSharedGroup {
+    sampler: RatioSampler | null;
+    curves: ICurveInstance[];
+    samplerResultCache: {
+        from: number,
+        fromRatio: number,
+        to: number,
+        toRatio: number,
+    };
+}
+
+function makeSamplerSharedGroup (sampler: RatioSampler | null): ISamplerSharedGroup {
+    return {
+        sampler,
+        curves: [],
+        samplerResultCache: {
+            from: 0,
+            fromRatio: 0,
+            to: 0,
+            toRatio: 0,
+        },
+    };
 }
 
 const InvalidIndex = -1;
@@ -191,7 +218,7 @@ export class AnimationState extends Playable {
     private _clip: AnimationClip;
     private _name: string;
     private _lastIterations?: number;
-    private _curveInstances: ICurveInstance[] = [];
+    private _samplerSharedGroups: ISamplerSharedGroup[] = [];
     private _curveLoaded = false;
     private _ignoreIndex = InvalidIndex;
 
@@ -207,7 +234,7 @@ export class AnimationState extends Playable {
 
     public initialize (root: Node) {
         this._curveLoaded = true;
-        this._curveInstances.length = 0;
+        this._samplerSharedGroups.length = 0;
         this._targetNode = root;
         const clip = this._clip;
 
@@ -237,7 +264,12 @@ export class AnimationState extends Playable {
                 }
                 target = targetComponent;
             }
-            this._curveInstances.push({
+            let samplerSharedGroup = this._samplerSharedGroups.find((value) => value.sampler === propertyCurve.sampler);
+            if (!samplerSharedGroup) {
+                samplerSharedGroup = makeSamplerSharedGroup(propertyCurve.sampler);
+                this._samplerSharedGroups.push(samplerSharedGroup);
+            }
+            samplerSharedGroup.curves.push({
                 target,
                 propertyName: propertyCurve.propertyName,
                 curve: propertyCurve.curve,
@@ -500,17 +532,21 @@ export class AnimationState extends Playable {
     }
 
     public attachToBlendState (blendState: AnimationBlendState) {
-        for (const curveInstance of this._curveInstances) {
-            curveInstance.blendTarget = blendState.refPropertyBlendTarget(
-                curveInstance.target, curveInstance.propertyName);
+        for (const samplerSharedGroup of this._samplerSharedGroups) {
+            for (const curveInstance of samplerSharedGroup.curves) {
+                curveInstance.blendTarget = blendState.refPropertyBlendTarget(
+                    curveInstance.target, curveInstance.propertyName);
+            }
         }
     }
 
     public detachFromBlendState (blendState: AnimationBlendState) {
-        for (const curveInstance of this._curveInstances) {
-            curveInstance.blendTarget = null;
-            blendState.derefPropertyBlendTarget(
-                curveInstance.target, curveInstance.propertyName);
+        for (const samplerSharedGroup of this._samplerSharedGroups) {
+            for (const curveInstance of samplerSharedGroup.curves) {
+                curveInstance.blendTarget = null;
+                blendState.derefPropertyBlendTarget(
+                    curveInstance.target, curveInstance.propertyName);
+            }
         }
     }
 
@@ -546,18 +582,54 @@ export class AnimationState extends Playable {
     }
 
     private _sampleCurves (ratio: number) {
-        for (const curveInstace of this._curveInstances) {
-            const { curve, blendTarget, target, propertyName } = curveInstace;
-            if (curve.empty()) {
-                continue;
-            }
-            const value = curve.sample(ratio);
-            if (!curve._blendFunction || !blendTarget || blendTarget.refCount <= 1) {
-                target[propertyName] = value;
+        for (const samplerSharedGroup of this._samplerSharedGroups) {
+            const sampler = samplerSharedGroup.sampler;
+            const { samplerResultCache } = samplerSharedGroup;
+            let index: number = 0;
+            let lerpRequired = false;
+            if (!sampler) {
+                index = 0;
             } else {
-                const { weight } = this;
-                blendTarget.value = curve._blendFunction(value, weight, blendTarget);
-                blendTarget.weight += weight;
+                index = sampler.sample(ratio);
+                if (index < 0) {
+                    index = ~index;
+                    if (index <= 0) {
+                        index = 0;
+                    } else if (index >= sampler.ratios.length) {
+                        index = sampler.ratios.length - 1;
+                    } else {
+                        lerpRequired = true;
+                        samplerResultCache.from = index - 1;
+                        samplerResultCache.fromRatio = sampler.ratios[samplerResultCache.from];
+                        samplerResultCache.to = index;
+                        samplerResultCache.toRatio = sampler.ratios[samplerResultCache.to];
+                    }
+                }
+            }
+
+            for (const curveInstace of samplerSharedGroup.curves) {
+                const { curve, blendTarget, target, propertyName } = curveInstace;
+                if (curve.empty()) {
+                    continue;
+                }
+                let value: any;
+                if (!lerpRequired) {
+                    value = curve.valueAt(index);
+                } else {
+                    value = curve.valueBetween(
+                        ratio,
+                        samplerResultCache.from,
+                        samplerResultCache.fromRatio,
+                        samplerResultCache.to,
+                        samplerResultCache.toRatio);
+                }
+                if (!curve._blendFunction || !blendTarget || blendTarget.refCount <= 1) {
+                    target[propertyName] = value;
+                } else {
+                    const { weight } = this;
+                    blendTarget.value = curve._blendFunction(value, weight, blendTarget);
+                    blendTarget.weight += weight;
+                }
             }
         }
     }
