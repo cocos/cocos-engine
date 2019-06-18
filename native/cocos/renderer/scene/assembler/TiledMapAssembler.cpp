@@ -71,8 +71,8 @@ void TiledMapAssembler::beforeFillBuffers(std::size_t index)
             {
                 child->enableVisit();
                 child->disaleUpdateWorldMatrix();
-                child->updateFromJS();
-                child->updateMatrix(_tileMapWorldMat);
+                child->updateLocalMatrix();
+                child->updateWorldMatrix(_tileMapWorldMat);
                 child->addWorldMatDirty();
                 flow->visit(child);
                 child->subWorldMatDirty();

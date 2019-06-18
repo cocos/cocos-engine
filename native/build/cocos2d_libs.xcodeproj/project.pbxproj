@@ -567,6 +567,14 @@
 		04DBD4D422AE2DBD00DBE4CD /* RTTI.h in Headers */ = {isa = PBXBuildFile; fileRef = 04DBD3B922AE2DBC00DBE4CD /* RTTI.h */; };
 		04DBD4D522AE2DBD00DBE4CD /* IkConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = 04DBD3BA22AE2DBC00DBE4CD /* IkConstraint.h */; };
 		04DBD4D622AE2DBD00DBE4CD /* IkConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = 04DBD3BA22AE2DBC00DBE4CD /* IkConstraint.h */; };
+		04DBD4DB22B51EA300DBE4CD /* MemPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04DBD4D922B51EA300DBE4CD /* MemPool.cpp */; };
+		04DBD4DC22B51EA300DBE4CD /* MemPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04DBD4D922B51EA300DBE4CD /* MemPool.cpp */; };
+		04DBD4DD22B51EA300DBE4CD /* MemPool.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04DBD4DA22B51EA300DBE4CD /* MemPool.hpp */; };
+		04DBD4DE22B51EA300DBE4CD /* MemPool.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04DBD4DA22B51EA300DBE4CD /* MemPool.hpp */; };
+		04DBD4E122B51EB300DBE4CD /* NodeMemPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04DBD4DF22B51EB300DBE4CD /* NodeMemPool.cpp */; };
+		04DBD4E222B51EB300DBE4CD /* NodeMemPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04DBD4DF22B51EB300DBE4CD /* NodeMemPool.cpp */; };
+		04DBD4E322B51EB300DBE4CD /* NodeMemPool.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04DBD4E022B51EB300DBE4CD /* NodeMemPool.hpp */; };
+		04DBD4E422B51EB300DBE4CD /* NodeMemPool.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04DBD4E022B51EB300DBE4CD /* NodeMemPool.hpp */; };
 		04ED68D821F8188F006E82F8 /* MeshBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04ED68D621F8188F006E82F8 /* MeshBuffer.cpp */; };
 		04ED68D921F8188F006E82F8 /* MeshBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04ED68D621F8188F006E82F8 /* MeshBuffer.cpp */; };
 		04ED68DA21F8188F006E82F8 /* MeshBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 04ED68D721F8188F006E82F8 /* MeshBuffer.h */; };
@@ -1647,6 +1655,10 @@
 		04DBD3B822AE2DBC00DBE4CD /* LinkedMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LinkedMesh.h; path = "../cocos/editor-support/spine/LinkedMesh.h"; sourceTree = "<group>"; };
 		04DBD3B922AE2DBC00DBE4CD /* RTTI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RTTI.h; path = "../cocos/editor-support/spine/RTTI.h"; sourceTree = "<group>"; };
 		04DBD3BA22AE2DBC00DBE4CD /* IkConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IkConstraint.h; path = "../cocos/editor-support/spine/IkConstraint.h"; sourceTree = "<group>"; };
+		04DBD4D922B51EA300DBE4CD /* MemPool.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MemPool.cpp; sourceTree = "<group>"; };
+		04DBD4DA22B51EA300DBE4CD /* MemPool.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MemPool.hpp; sourceTree = "<group>"; };
+		04DBD4DF22B51EB300DBE4CD /* NodeMemPool.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NodeMemPool.cpp; sourceTree = "<group>"; };
+		04DBD4E022B51EB300DBE4CD /* NodeMemPool.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = NodeMemPool.hpp; sourceTree = "<group>"; };
 		04ED68D621F8188F006E82F8 /* MeshBuffer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MeshBuffer.cpp; path = "../cocos/editor-support/MeshBuffer.cpp"; sourceTree = "<group>"; };
 		04ED68D721F8188F006E82F8 /* MeshBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MeshBuffer.h; path = "../cocos/editor-support/MeshBuffer.h"; sourceTree = "<group>"; };
 		04F8563222ABCB9900063A20 /* TiledMapAssembler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TiledMapAssembler.cpp; sourceTree = "<group>"; };
@@ -2543,6 +2555,10 @@
 				0482F186228D87910019ECF7 /* scene-bindings.h */,
 				0482F193228D87950019ECF7 /* StencilManager.cpp */,
 				0482F18C228D87930019ECF7 /* StencilManager.hpp */,
+				04DBD4D922B51EA300DBE4CD /* MemPool.cpp */,
+				04DBD4DA22B51EA300DBE4CD /* MemPool.hpp */,
+				04DBD4DF22B51EB300DBE4CD /* NodeMemPool.cpp */,
+				04DBD4E022B51EB300DBE4CD /* NodeMemPool.hpp */,
 			);
 			path = scene;
 			sourceTree = "<group>";
@@ -3594,6 +3610,7 @@
 				469303922046AE05004A3D6C /* SeApi.h in Headers */,
 				461786532052301A008256E1 /* CCScheduler.h in Headers */,
 				46FDDB4D202ADDCE00931238 /* pvr.h in Headers */,
+				04DBD4DD22B51EA300DBE4CD /* MemPool.hpp in Headers */,
 				4617863920522469008256E1 /* CCDownloaderImpl-apple.h in Headers */,
 				0482F19D228D87970019ECF7 /* scene-bindings.h in Headers */,
 				1A52DB73205BCDC700350EE3 /* Base.h in Headers */,
@@ -3850,6 +3867,7 @@
 				1A28FF7D1F20AFAB007A1D9D /* SRMutex.h in Headers */,
 				04DBD4B922AE2DBD00DBE4CD /* Skeleton.h in Headers */,
 				1A28FF711F20AFAB007A1D9D /* SRHash.h in Headers */,
+				04DBD4E322B51EB300DBE4CD /* NodeMemPool.hpp in Headers */,
 				469301CF203FC696004A3D6C /* CCConfiguration.h in Headers */,
 				1A14FD932080B4E300E10ABE /* CCGLUtils.h in Headers */,
 				50ABC0171926664800A911A9 /* CCImage.h in Headers */,
@@ -4110,7 +4128,9 @@
 				04DBD47C22AE2DBD00DBE4CD /* AnimationState.h in Headers */,
 				469303AD2046AE05004A3D6C /* Utils.hpp in Headers */,
 				04DBD4D222AE2DBD00DBE4CD /* LinkedMesh.h in Headers */,
+				04DBD4DE22B51EA300DBE4CD /* MemPool.hpp in Headers */,
 				046E06FA2189990700B24E2D /* middleware-adapter.h in Headers */,
+				04DBD4E422B51EB300DBE4CD /* NodeMemPool.hpp in Headers */,
 				1A28FF4E1F20AFAB007A1D9D /* SRDelegateController.h in Headers */,
 				469301D0203FC696004A3D6C /* CCConfiguration.h in Headers */,
 				04DBD45A22AE2DBD00DBE4CD /* PointAttachment.h in Headers */,
@@ -4362,6 +4382,7 @@
 				046E06882185B44A00B24E2D /* BaseFactory.cpp in Sources */,
 				1A52DB30205BCD9200350EE3 /* ScriptEngine.cpp in Sources */,
 				0482F1A1228D87970019ECF7 /* NodeProxy.cpp in Sources */,
+				04DBD4E122B51EB300DBE4CD /* NodeMemPool.cpp in Sources */,
 				1A52DB62205BCDC700350EE3 /* ScriptEngine.cpp in Sources */,
 				04DBD44722AE2DBD00DBE4CD /* Skeleton.cpp in Sources */,
 				4DC57D211F7A58B5005B6546 /* xxtea.cpp in Sources */,
@@ -4469,6 +4490,7 @@
 				046E06BB2185B49F00B24E2D /* TextureAtlasData.cpp in Sources */,
 				1A28FF831F20AFAB007A1D9D /* SRRandom.m in Sources */,
 				46FDDAC5202ACC6A00931238 /* RenderTarget.cpp in Sources */,
+				04DBD4DB22B51EA300DBE4CD /* MemPool.cpp in Sources */,
 				1A52DB6D205BCDC700350EE3 /* ScriptEngine.cpp in Sources */,
 				04DBD44522AE2DBD00DBE4CD /* AnimationState.cpp in Sources */,
 				50ABBD3C1925AB0000A911A9 /* CCGeometry.cpp in Sources */,
@@ -4659,6 +4681,7 @@
 				40AEF7C2216DF22900729AA5 /* jsb_video_auto.cpp in Sources */,
 				ED30578A1BEC77460083C3ED /* tinyxml2.cpp in Sources */,
 				04DBD4C222AE2DBD00DBE4CD /* Updatable.cpp in Sources */,
+				04DBD4E222B51EB300DBE4CD /* NodeMemPool.cpp in Sources */,
 				1A29D76A205665BE00168D9A /* jsb_cocos2dx_auto.cpp in Sources */,
 				46FDDBFC202ADDCE00931238 /* ccCArray.cpp in Sources */,
 				04DBD45422AE2DBD00DBE4CD /* TransformConstraintTimeline.cpp in Sources */,
@@ -4755,6 +4778,7 @@
 				04DBD4CE22AE2DBD00DBE4CD /* ClippingAttachment.cpp in Sources */,
 				40CEAEB620CFDC28007A3281 /* CCReachability.cpp in Sources */,
 				046E06BA2185B49F00B24E2D /* ConstraintData.cpp in Sources */,
+				04DBD4DC22B51EA300DBE4CD /* MemPool.cpp in Sources */,
 				046E06832185B43B00B24E2D /* EventObject.cpp in Sources */,
 				46FDDA8C202ACC6A00931238 /* ForwardRenderer.cpp in Sources */,
 				04DBD41C22AE2DBD00DBE4CD /* SlotData.cpp in Sources */,

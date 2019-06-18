@@ -43,6 +43,8 @@ RENDERER_BEGIN
 
 class ModelBatcher;
 class Scene;
+struct TRS;
+struct ParentInfo;
 
 /**
  * @addtogroup scene
@@ -69,17 +71,16 @@ public:
     /*
      * @brief The default constructor.
      */
-    NodeProxy();
+    NodeProxy(std::size_t unitID, std::size_t index, std::string id);
     /*
      * @brief The destructor.
      */
     ~NodeProxy();
-    
-    /**
-     * @brief Resets all states.
+    /*
+     * @brief destroy node data immediately .
      */
-    void reset();
-
+    void destroyImmediately();
+    
     /// @{
     /// @name Hierarchy
 
@@ -97,6 +98,10 @@ public:
      *  @brief Removes all child node proxies from the current one.
      */
     void removeAllChildren();
+    /**
+     *  @brief Update parent by parent unitId and index.
+     */
+    void notifyUpdateParent();
     
     /**
      *  @brief Sets the node proxy parent.
@@ -133,23 +138,14 @@ public:
      *  @param[in] zOrder The value of zorder.
      */
     void setLocalZOrder(int zOrder);
-    /**
-     *  @brief Sets children order dirty, then children will get sorted during visit process.
-     */
-    inline void setChildrenOrderDirty() { _childrenOrderDirty = true; };
 
     /// @} end of Hierarchy
     
-    /**
-     *  @brief Update the TypedArray contains translation, rotation and scale data.
-     *  @param[in] trs JS TypedArray object
-     */
-    void updateJSTRS(se::Object* trs);
     /*
      *  @brief Gets the world matrix.
      *  @return World matrix.
      */
-    inline const cocos2d::Mat4& getWorldMatrix() const { return _worldMat; };
+    inline const cocos2d::Mat4& getWorldMatrix() const { return *_worldMat; };
     /*
      *  @brief Gets the position.
      *  @param[out] out The position vector
@@ -179,7 +175,7 @@ public:
     /**
      *  @brief Gets the node's opacity.
      */
-    inline uint8_t getOpacity() const { return _opacity; };
+    inline uint8_t getOpacity() const { return *_opacity; };
     /**
      *  @brief Sets the node's opacity.
      */
@@ -195,12 +191,12 @@ public:
     /**
      *  @brief Gets the node's group id, this controls which camera can see the node.
      */
-    inline int getCullingMask() const { return _cullingMask; };
+    inline int getCullingMask() const { return *_cullingMask; };
     /**
      *  @brief Sets the node's group id.
      *  @param[in] groupID The group id
      */
-    inline void setCullingMask(int cullingMask) { _cullingMask = cullingMask; };
+    inline void setCullingMask(int cullingMask) { *_cullingMask = cullingMask; };
     
     /**
      *  @brief Gets the node's name.
@@ -219,7 +215,7 @@ public:
      *  @brief Sets the node's 3D state.
      *  @param[in] is3DNode
      */
-    inline void set3DNode(bool is3DNode) { _is3DNode = is3DNode; };
+    inline void set3DNode(bool is3DNode) { *_is3DNode = is3DNode ? 0x1 : 0x0; };
     
     /**
      *  @brief Adds a system handle to the node proxy, system handle will be invoked during node's visit process.
@@ -260,15 +256,15 @@ public:
     /*
      *  @brief Updates local matrix.
      */
-    void updateFromJS();
+    void updateLocalMatrix();
     /*
      *  @brief Updates world matrix.
      */
-    void updateMatrix();
+    void updateWorldMatrix();
     /*
      *  @brief Updates the world matrix with parent matrix.
      */
-    void updateMatrix(const cocos2d::Mat4& parentMatrix);
+    void updateWorldMatrix(const cocos2d::Mat4& parentMatrix);
     /*
      *  @brief Enables calc world matrix.
      */
@@ -278,10 +274,6 @@ public:
      */
     void disaleUpdateWorldMatrix() { _updateWorldMatrix = false; }
     
-    /*
-     *  @brief Sets node runtime id
-     */
-    void setID(const std::string& id) { _id = id; }
     /*
      *  @brief Gets node runtime id
      */
@@ -295,41 +287,39 @@ public:
      *  @brief Subs world matrix dirty count
      */
     void subWorldMatDirty() { _worldMatDirty--; }
+    
 protected:
+    void updateLevel();
     void childrenAlloc();
     void detachChild(NodeProxy* child, ssize_t childIndex);
     void reorderChildren();
 private:
     static int _worldMatDirty;
     static int _parentOpacityDirty;
-    static const int _TRANSFORM = 1 << 0;
-    static const int _UPDATE_RENDER_DATA = 1 << 1;
-    static const int _OPACITY = 1 << 2;
-    static const int _COLOR = 1 << 3;
-    static const int _CHILDREN = 1 << 4;
-    static const int _POST_UPDATE_RENDER_DATA = 1 << 5;
     
-    bool _childrenOrderDirty = true;
     bool _matrixUpdated = false;
     bool _opacityUpdated = false;
-    bool _is3DNode = false;
     bool _needVisit = true;
     bool _updateWorldMatrix = true;
     
-    uint8_t _opacity = 255;
     uint8_t _realOpacity = 255;
-    int _localZOrder = 0;
-    int _cullingMask = 1;
     std::string _id = "";
+    std::string _name = "";
+    uint32_t _level = 0;
     
-    cocos2d::Mat4 _localMat;
-    cocos2d::Mat4 _worldMat;
+    uint32_t* _dirty = nullptr;
+    TRS* _trs = nullptr;
+    cocos2d::Mat4* _localMat = nullptr;
+    cocos2d::Mat4* _worldMat = nullptr;
+    ParentInfo* _parentInfo = nullptr;
+    uint32_t* _localZOrder = nullptr;
+    int32_t* _cullingMask = nullptr;
+    uint8_t* _opacity = nullptr;
+    uint8_t* _is3DNode = nullptr;
+    std::size_t _unitID = 0;
+    std::size_t _index = 0;
     
-    std::string _name;
-
-    float* _jsTRSData;
-    se::Object* _jsTRS;
-    NodeProxy* _parent;                  ///< weak reference to parent node
+    NodeProxy* _parent = nullptr;                  ///< weak reference to parent node
     cocos2d::Vector<NodeProxy*> _children;        ///< array of children nodes
     
     cocos2d::Map<std::string, AssemblerBase*> _assemblers;
