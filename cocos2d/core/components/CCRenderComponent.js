@@ -125,7 +125,7 @@ let RenderComponent = cc.Class({
         this._renderData = null;
 
         if (CC_JSB && CC_NATIVERENDERER) {
-            this._renderHandle && this._renderHandle.destroy();
+            this._assembler && this._assembler.destroy();
         }
     },
 
