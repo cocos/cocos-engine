@@ -130,11 +130,12 @@ FontAtlasManager.prototype.releaseFontAtlas = function (font, id) {
         for (let i = reference.length - 1; i >= 0; i--) {
             if (reference[i] === id) {
                 reference.splice(i, 1);
+                break;
             }
         }
     }
 
-    if (reference.length === 0) {
+    if (!reference || reference.length === 0) {
         delete this._fontAtlas[name];
     }
 }
