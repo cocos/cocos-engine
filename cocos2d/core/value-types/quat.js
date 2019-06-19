@@ -27,6 +27,7 @@ const ValueType = require('./value-type');
 const js = require('../platform/js');
 const CCClass = require('../platform/CCClass');
 const quat = require('../vmath/quat');
+const vec3 = require('../vmath/vec3');
 
 /**
  * !#en Representation of 2D vectors and points.
@@ -178,12 +179,12 @@ proto.mul = function (other, out) {
  * @returns {quat} out.
  */
 proto.rotateAround = function(rot, axis, rad, out) {
-    var v3_tmp = cc.vmath.vec3.create();
-    var q_tmp = cc.vmath.quat.create();
-    cc.vmath.quat.invert(q_tmp, rot);
-    cc.vmath.vec3.transformQuat(v3_tmp, axis, q_tmp);
-    cc.vmath.quat.fromAxisAngle(q_tmp, v3_tmp, rad);
-    cc.vmath.quat.mul(out, rot, q_tmp);
+    var v3_tmp = vec3.create();
+    var q_tmp = quat.create();
+    quat.invert(q_tmp, rot);
+    vec3.transformQuat(v3_tmp, axis, q_tmp);
+    quat.fromAxisAngle(q_tmp, v3_tmp, rad);
+    quat.mul(out, rot, q_tmp);
     return out;
 };
 
