@@ -41,7 +41,7 @@ RenderFlow::RenderFlow(DeviceGraphics* device, Scene* scene, ForwardRenderer* fo
     
     _batcher = new ModelBatcher(this);
     
-    _levelInfoArr.reserve(InitLevelCount);
+    _levelInfoArr.resize(InitLevelCount);
     for (auto i = 0; i < InitLevelCount; i++)
     {
         _levelInfoArr[i].reserve(InitLevelNodeCount);
