@@ -200,15 +200,17 @@ export class CanvasComponent extends Component {
 
         // this.applySettings();
         this.alignWithScreen();
-    }
 
-    public onEnable (){
         cc.director.root.ui.addScreen(this);
     }
 
-    public onDisable () {
-        cc.director.root.ui.removeScreen(this);
-    }
+    // public onEnable (){
+
+    // }
+
+    // public onDisable () {
+
+    // }
 
     public onDestroy () {
         if (this._camera) {
@@ -220,7 +222,7 @@ export class CanvasComponent extends Component {
         }
 
         cc.view.off('design-resolution-changed', this._thisOnResized);
-
+        cc.director.root.ui.removeScreen(this);
         // if (CanvasComponent.instance === this) {
         //     CanvasComponent.instance = null;
         // }

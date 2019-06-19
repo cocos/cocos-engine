@@ -34,7 +34,7 @@ import { ISharedLabelData } from './font-utils';
 
 // const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutlineComponent, UIComponent);
 const Overflow = LabelComponent.Overflow;
-const WHITE = cc.Color.WHITE;
+const WHITE = Color.WHITE;
 const space = 2;
 const TextAlignment = LabelComponent.HorizontalAlign;
 const VerticalTextAlignment = LabelComponent.VerticalAlign;

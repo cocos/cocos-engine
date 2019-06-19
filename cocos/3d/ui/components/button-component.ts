@@ -195,12 +195,12 @@ export class ButtonComponent extends Component {
         return this._normalColor;
     }
 
-    set normalColor (value: Color) {
+    set normalColor (value) {
         if (this._normalColor === value) {
             return;
         }
 
-        this._normalColor = value;
+        this._normalColor.set(value);
         this._updateState();
     }
 
@@ -213,12 +213,12 @@ export class ButtonComponent extends Component {
         return this._pressColor;
     }
 
-    set pressedColor (value: Color) {
+    set pressedColor (value) {
         if (this._pressColor === value) {
             return;
         }
 
-        this._pressColor = value;
+        this._pressColor.set(value);
     }
 
     /**
@@ -230,12 +230,12 @@ export class ButtonComponent extends Component {
         return this._hoverColor;
     }
 
-    set hoverColor (value: Color) {
+    set hoverColor (value) {
         if (this._hoverColor === value) {
             return;
         }
 
-        this._hoverColor = value;
+        this._hoverColor.set(value);
     }
     /**
      * @zh
@@ -246,12 +246,12 @@ export class ButtonComponent extends Component {
         return this._disabledColor;
     }
 
-    set disabledColor (value: Color) {
+    set disabledColor (value) {
         if (this._disabledColor === value) {
             return;
         }
 
-        this._disabledColor = value;
+        this._disabledColor.set(value);
         this._updateState();
     }
 
@@ -311,7 +311,7 @@ export class ButtonComponent extends Component {
 
         this._normalSprite = value;
         const sprite = this.node.getComponent(SpriteComponent);
-        if (sprite){
+        if (sprite) {
             sprite.spriteFrame = value;
         }
 
@@ -517,7 +517,7 @@ export class ButtonComponent extends Component {
         }
 
         const renderComp = target.getComponent(UIRenderComponent);
-        if (!renderComp){
+        if (!renderComp) {
             return;
         }
 
@@ -542,11 +542,11 @@ export class ButtonComponent extends Component {
         this._hovered = false;
         // Restore button status
         const target = this._target;
-        if (!target){
+        if (!target) {
             return;
         }
         const renderComp = target.getComponent(UIRenderComponent);
-        if (!renderComp){
+        if (!renderComp) {
             return;
         }
 
@@ -590,7 +590,7 @@ export class ButtonComponent extends Component {
 
         this._pressed = true;
         this._updateState();
-        if (event){
+        if (event) {
             event.propagationStopped = true;
         }
     }
@@ -618,7 +618,7 @@ export class ButtonComponent extends Component {
             } else {
                 this._time = 0;
                 this._transitionFinished = true;
-                if (this._target){
+                if (this._target) {
                     this._target!.setScale(this._originalScale);
                 }
             }
@@ -700,7 +700,7 @@ export class ButtonComponent extends Component {
     private _updateColorTransition (state: string) {
         const color = this[state + 'Color'];
         const target = this._target;
-        if (!target){
+        if (!target) {
             return;
         }
 
@@ -727,7 +727,7 @@ export class ButtonComponent extends Component {
     }
 
     private _updateScaleTransition (state: string) {
-        if (!this._interactable){
+        if (!this._interactable) {
             return;
         }
 
@@ -746,7 +746,7 @@ export class ButtonComponent extends Component {
     }
 
     private _zoomBack () {
-        if (!this._target){
+        if (!this._target) {
             return;
         }
 

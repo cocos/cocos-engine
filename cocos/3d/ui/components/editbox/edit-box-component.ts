@@ -244,7 +244,7 @@ export class EditBoxComponent extends Component {
             return;
         }
 
-        this._fontColor = value;
+        this._fontColor.set(value);
         if (this._textLabel) {
             // this._textLabel.node.opacity = this._fontColor.a;
             const renderComp = this._textLabel.node.getComponent(UIRenderComponent);

@@ -71,7 +71,7 @@ export class LabelOutlineComponent extends Component {
             return;
         }
 
-        this._color = value;
+        this._color.set(value);
         this._updateRenderData();
     }
 

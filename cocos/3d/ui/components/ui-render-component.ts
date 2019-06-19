@@ -146,7 +146,7 @@ export class UIRenderComponent extends UIComponent {
             return;
         }
 
-        this._color = value;
+        this._color.set(value);
         this.markForUpdateRenderData();
     }
 

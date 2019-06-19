@@ -114,7 +114,8 @@ export class GraphicsComponent extends UIRenderComponent {
             return;
         }
 
-        this.impl.strokeColor = this._strokeColor = new Color(value);
+        this._strokeColor.set(value);
+        this.impl.strokeColor = this._strokeColor;
     }
 
     /**
@@ -131,7 +132,8 @@ export class GraphicsComponent extends UIRenderComponent {
             return;
         }
 
-        this.impl.fillColor = this._fillColor = new Color(value);
+        this._fillColor.set(value);
+        this.impl.fillColor = this._fillColor;
     }
 
     /**
@@ -152,8 +154,8 @@ export class GraphicsComponent extends UIRenderComponent {
         override: true,
         visible: false,
     })
-    get color (){
-        return super.color;
+    get color () {
+        return this._color;
     }
 
     public static LineJoin = LineJoin;
