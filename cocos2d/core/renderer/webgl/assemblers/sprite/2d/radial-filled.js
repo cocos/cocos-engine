@@ -179,7 +179,7 @@ export default class RadialFilledAssembler extends Assembler2D {
     }
 
     updateRenderData (sprite) {
-        super.updateRenderData();
+        super.updateRenderData(sprite);
 
         let frame = sprite.spriteFrame;
         if (!frame) return;
