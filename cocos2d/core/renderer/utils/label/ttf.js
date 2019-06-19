@@ -389,7 +389,7 @@ module.exports = {
         _canvasSize.width = Math.min(_canvasSize.width, MAX_SIZE);
         _canvasSize.height = Math.min(_canvasSize.height, MAX_SIZE);
 
-        if (_canvas.width !== _canvasSize.width || CC_QQPLAY) {
+        if (_canvas.width !== _canvasSize.width) {
             _canvas.width = _canvasSize.width;
         }
 

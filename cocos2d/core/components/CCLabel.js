@@ -624,7 +624,6 @@ let Label = cc.Class({
             }
         }
         else {
-
             if (!this._frame) {
                 this._frame = new LabelFrame();
             }

@@ -309,6 +309,17 @@
       "./cocos2d/core/3d/primitive/index.js"
     ],
     "dependencies": ["3D"]
+  },
+  {
+    "name": "WechatSubContext",
+    "entries": [
+      "./cocos2d/core/components/WXSubContextView.js"
+    ]
+  },
+  {
+    "name": "SwanSubContext",
+    "entries": [
+      "./cocos2d/core/components/SwanSubContextView.js"
+    ]
   }
-
 ]

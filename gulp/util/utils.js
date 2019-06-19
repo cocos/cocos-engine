@@ -1,10 +1,10 @@
 
 const PLATFORM_MACROS = ['CC_EDITOR', 'CC_PREVIEW', 'CC_BUILD', 'CC_TEST'];
-const FLAGS = ['jsb', 'runtime', 'wechatgame', 'wechatgameSub','baidugame', 'qqplay', 'debug', 'nativeRenderer', 'minigame'];
+const FLAGS = ['support_jit', 'jsb', 'runtime', 'debug', 'nativeRenderer', 'minigame'];
 
 // generate macros for uglify's global_defs
 // available platforms: 'editor' | 'preview' | 'build' | 'test'
-// available keys of flags: 'jsb' | 'runtime' | 'wechatgame' | 'qqplay' | 'debug' | 'nativeRenderer'
+// available keys of flags: 'jsb' | 'runtime' | 'minigame' | 'debug' | 'nativeRenderer'
 exports.getMacros = function (platform, flags) {
     // platform macros
     var platformMacro = 'CC_' + platform.toUpperCase();
