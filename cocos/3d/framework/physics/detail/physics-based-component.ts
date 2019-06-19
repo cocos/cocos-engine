@@ -271,6 +271,9 @@ class SharedRigidBody {
     }
 
     public destroy () {
+        // before destroy make sure body is deactive
+        this._deactiveBody();
+
         this._body.setUserData(null);
         (this._body as any) = null;
         (this._beforeStepCallback as any) = null;
