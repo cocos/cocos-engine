@@ -245,7 +245,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
  * @method ccclass
  * @param {String} [name] - The class name used for serialization.
  * @example
- * ```typrscript
+ * ```typescript
  * const {ccclass} = cc._decorator;
  *
  * // define a CCClass, omit the name
