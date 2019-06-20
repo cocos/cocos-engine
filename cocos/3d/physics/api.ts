@@ -80,6 +80,12 @@ export interface BuiltInRigidBodyBase {
 
     removeMask (v: number): void;
 
+    isAwake (): boolean;
+
+    isSleepy (): boolean;
+
+    isSleeping (): boolean;
+
     addShape (shape: ShapeBase, offset?: Vec3): void;
 
     removeShape (shape: ShapeBase): void;

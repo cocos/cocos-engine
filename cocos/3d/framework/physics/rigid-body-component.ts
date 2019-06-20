@@ -213,6 +213,39 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         }
     }
 
+    /**
+     * @zh
+     * 是否是唤醒的状态。
+     */
+    public get isAwake (): boolean {
+        if (this._assertPreload){
+            return this._body.isAwake();
+        }
+        return false;
+    }
+
+    /**
+     * @zh
+     * 是否是可进入休眠的状态。
+     */
+    public get isSleepy (): boolean {
+        if (this._assertPreload){
+            return this._body.isSleepy();
+        }
+        return false;
+    }
+
+    /**
+     * @zh
+     * 是否是正在休眠的状态。
+     */
+    public get isSleeping (): boolean {
+        if (this._assertPreload){
+            return this._body.isSleeping();
+        }
+        return false;
+    }
+
     /// PRIVATE PROPERTY ///
 
     @property

@@ -108,6 +108,18 @@ export class CannonRigidBody implements RigidBodyBase {
         this._body.type = v;
     }
 
+    public isAwake (): boolean{
+        return this._body.isAwake();
+    }
+
+    public isSleepy (): boolean{
+        return this._body.isSleepy();
+    }
+
+    public isSleeping (): boolean{
+        return this._body.isSleeping();
+    }
+
     public addShape (shape: CannonShape, offset?: Vec3) {
         const index = this._shapes.length;
         this._shapes.push(shape);
