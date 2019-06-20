@@ -2,20 +2,36 @@ Cocos2d Creator 3D authors
 
 (Ordered by join time)
 
-Core Developers:
+Contributors:
 
-    Huabing Xu (@dabingnn)
+    
 
-    Yaqiong Liu
+Core Engine Developers:
 
-    Yunxiao Wu
+    Yaqiong Liu (@JoneLau)
 
-    Xuguang Zhu
+    Yunxiao Wu (@YunHsiao)
 
-    Nan Li
+    Xuguang Zhu (@zxg0622)
+
+    Nan Li (@shrinktofit)
 
     Huabin LING (@pandamicro)
 
     Jiawei Guo (@jareguo)
+
+    Weiliang Wang (@jerrywwl) - Leader
+
+    Jiaxin Lai (@JayceLai)
+
+    Jianing Wang (@LinYunMo)
+
+Retired Engine Developers
+
+    Johnny Wu (@jwu)
+
+    Huabing Xu (@dabingnn)
+
+    Yexin Dong
 
 Thanks to all developers who report & trace bugs, discuss the engine usage in forum!
