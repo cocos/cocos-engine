@@ -1,4 +1,4 @@
-/****************************************************************************
+/*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
@@ -22,7 +22,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
 
 import {mixin} from '../core/utils/js';
 import {ImageAsset} from '../assets/image-asset';
@@ -200,7 +200,7 @@ function loadPKMTex(item) {
     // todo: use new Uint8Array(buffer, ETC_PKM_HEADER_SIZE) instead
     buffer = buffer.slice(ETC_PKM_HEADER_SIZE, buffer.byteLength);
     let etcData = new Uint8Array(buffer);
-    
+
     let etcAsset = {
         _data: etcData,
         _compressed: true,

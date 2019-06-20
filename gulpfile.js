@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+﻿/*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
@@ -22,7 +22,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
 
 'use strict';
 
@@ -80,7 +80,7 @@ gulp.task('build-jsb-min',  ['clean-cache', 'build-debug-infos'], function (done
     if (args.indexOf('--native-renderer') !== -1) {
         opts.nativeRenderer = true;
     }
-    
+
     Engine.buildJsbMin([
         './index.js',
     ], './bin/cocos2d-jsb-min.js', [], opts, done);

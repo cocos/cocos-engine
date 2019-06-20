@@ -1,4 +1,4 @@
-/****************************************************************************
+/*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
@@ -22,7 +22,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
 
 import {pushToMap} from '../core/utils/misc';
 import {TextureUnpacker, JsonUnpacker} from './unpackers';
@@ -152,7 +152,7 @@ export function load (item, callback) {
     var packUuid = uuidToPack[uuid];
     if (!packUuid) {
         // Return undefined to let caller know it's not recognized.
-        // We don't use false here because changing return value type may cause jit fail, 
+        // We don't use false here because changing return value type may cause jit fail,
         // though return undefined may have the same issue.
         return;
     }

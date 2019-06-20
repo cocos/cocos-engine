@@ -1,4 +1,4 @@
-/****************************************************************************
+/*
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
 
 import {safeMeasureText} from '../core/utils/text-utils';
 
@@ -83,7 +83,7 @@ export function loadFont (item, callback) {
         labelCanvas.height = 100;
         _canvasContext = labelCanvas.getContext('2d');
     }
-    
+
     // Default width reference to test whether new font is loaded correctly
     let fontDesc = '40px ' + fontFamilyName;
     _canvasContext.font = fontDesc;

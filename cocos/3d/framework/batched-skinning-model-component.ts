@@ -1,4 +1,4 @@
-/****************************************************************************
+/*
  Copyright (c) 2017-2019 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
@@ -20,7 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+*/
 
 import { Texture2D } from '../../assets';
 import { Filter, PixelFormat } from '../../assets/asset-enum';

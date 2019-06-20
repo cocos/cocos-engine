@@ -1,9 +1,4 @@
-import Mat4 from './mat4';
-import Rect from './rect';
-import Size from './size';
-import Vec2 from './vec2';
-
-/****************************************************************************
+/*
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
@@ -28,7 +23,12 @@ import Vec2 from './vec2';
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+*/
+
+import Mat4 from './mat4';
+import Rect from './rect';
+import Size from './size';
+import Vec2 from './vec2';
 
 /**
  * 二维仿射变换矩阵，描述了平移、缩放和缩放。

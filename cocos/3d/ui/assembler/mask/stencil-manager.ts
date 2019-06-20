@@ -6,7 +6,7 @@ import { MaskComponent } from '../../components/mask-component';
 // import { GFXStencilOp } from '../../../../gfx/define';
 // import { MaskComponent } from '../../components/mask-component';
 
-// /****************************************************************************
+// /*
 //  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 //  http://www.cocos.com
@@ -29,7 +29,7 @@ import { MaskComponent } from '../../components/mask-component';
 //  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
-//  ****************************************************************************/
+// */
 
 // Stage types
 export enum Stage {
