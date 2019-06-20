@@ -280,25 +280,49 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 在某点上对刚体施加一个作用力。
+     * 在世界空间中的某点上对刚体施加一个作用力。
      * @param force - 作用力
-     * @param position - 作用点
+     * @param worldPoint - 作用点
      */
-    public applyForce (force: Vec3, position?: Vec3) {
+    public applyForce (force: Vec3, worldPoint?: Vec3) {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
-            this._body!.applyForce(force, position);
+            this._body!.applyForce(force, worldPoint);
         }
     }
 
     /**
      * @zh
-     * 在某点上对刚体施加一个冲量。
-     * @param impulse - 冲量
-     * @param position - 作用点
+     * 在本地空间中的某点上对刚体施加一个作用力。
+     * @param force - 作用力
+     * @param localPoint - 作用点
      */
-    public applyImpulse (impulse: Vec3, position?: Vec3) {
+    public applyLocalForce (force: Vec3, localPoint?: Vec3) {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
-            this._body!.applyImpulse(impulse, position);
+            this._body!.applyLocalForce(force, localPoint);
+        }
+    }
+
+    /**
+     * @zh
+     * 在世界空间的某点上对刚体施加一个冲量。
+     * @param impulse - 冲量
+     * @param worldPoint - 作用点
+     */
+    public applyImpulse (impulse: Vec3, worldPoint?: Vec3) {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+            this._body!.applyImpulse(impulse, worldPoint);
+        }
+    }
+
+    /**
+     * @zh
+     * 在本地空间的某点上对刚体施加一个冲量。
+     * @param impulse - 冲量
+     * @param localPoint - 作用点
+     */
+    public applyLocalImpulse (impulse: Vec3, localPoint?: Vec3) {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+            this._body!.applyLocalImpulse(impulse, localPoint);
         }
     }
 
