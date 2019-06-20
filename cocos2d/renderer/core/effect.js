@@ -32,6 +32,13 @@ class Effect {
         }
     }
 
+    setDepth (depthTest = false, depthWrite = false, depthFunc = gfx.DS_FUNC_LESS) {
+        let passes = this._techniques[0].passes;
+        for (let i = 0; i < passes.length; i++) {
+            passes[i].setDepth(depthTest, depthWrite, depthFunc);
+        }
+    }
+
     setBlend (enabled = false,
         blendEq = gfx.BLEND_FUNC_ADD,
         blendSrc = gfx.BLEND_SRC_ALPHA,
