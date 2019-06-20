@@ -24,45 +24,71 @@
 
 #pragma once
 
-#include "base/CCRef.h"
+#include "../Macro.h"
 #include <vector>
-#include "RenderData.hpp"
 #include "scripting/js-bindings/jswrapper/Object.hpp"
-
-namespace se {
-    class Object;
-    class HandleObject;
-}
 
 RENDERER_BEGIN
 
-class RenderDataList: public cocos2d::Ref {
+class UnitBase
+{
 public:
-    RenderDataList () {}
-    virtual ~RenderDataList() {}
-    /**
-     *  @brief Update the mesh data for the given index.
-     *  @param[in] index Render data index.
-     *  @param[in] vertices Vertex data.
-     *  @param[in] indices Index data.
-     */
-    void updateMesh(std::size_t index, se_object_ptr vertices, se_object_ptr indices);
-    /**
-     *  @brief Gets the count of render datas
-     *  @return Count.
-     */
-    std::size_t getMeshCount() const { return _datas.size(); };
-    /**
-     *  @brief Gets IARenderData.
-     *  @return IARenderData.
-     */
-    RenderData* getRenderData(std::size_t index);
-    /**
-     *  @brief Resets all IARenderData.
-     */
-    void clear();
+    UnitBase();
+    virtual ~UnitBase();
+    
+    void set(se::Object** dataObj, uint8_t** data, std::size_t* dataLen, se::Object* jsData);
+    void unset(se::Object** dataObj, uint8_t** data, std::size_t* dataLen);
+};
+
+struct Sign
+{
+    uint16_t nextFreeIndex;
+    uint16_t freeFlag;
+};
+
+class UnitCommon: public UnitBase
+{
+public:
+    UnitCommon();
+    virtual ~UnitCommon();
+    
+    void setData(se::Object* jsData);
+    void setSignData(se::Object* jsSignData);
+    
+    uint16_t getUsingNum()
+    {
+        return data[1];
+    }
+    
+    Sign* getSignData(std::size_t index)
+    {
+        return (Sign*)signData + index;
+    }
+    
+    std::size_t getContentNum()
+    {
+        return signDataLen / (sizeof(uint16_t) * 2);
+    }
+protected:
+    se::Object* dataObj = nullptr;
+    uint16_t* data = nullptr;
+    std::size_t dataLen = 0;
+    
+    se::Object* signDataObj = nullptr;
+    uint16_t* signData = nullptr;
+    std::size_t signDataLen = 0;
+};
+
+class MemPool {
+public:
+    MemPool();
+    virtual ~MemPool();
+    
+    void updateCommonData(std::size_t unitID, se_object_ptr dataObj, se_object_ptr signDataObj);
+    UnitCommon& getCommonUnit(std::size_t unitID);
+    const std::vector<UnitCommon*>& getCommonPool() const;
 private:
-    std::vector<RenderData> _datas;
+    std::vector<UnitCommon*> _commonPool;
 };
 
 RENDERER_END

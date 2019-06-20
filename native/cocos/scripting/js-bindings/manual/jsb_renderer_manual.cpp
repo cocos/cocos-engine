@@ -558,30 +558,6 @@ static bool js_renderer_Effect_init(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_Effect_init);
 
-static bool js_renderer_RenderDataList_updateMesh(se::State& s)
-{
-    cocos2d::renderer::RenderDataList* cobj = (cocos2d::renderer::RenderDataList*)s.nativeThisObject();
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    uint32_t index = 0;
-    ok = seval_to_uint32(args[0], &index);
-    SE_PRECONDITION2(ok, false, "js_renderer_RenderDataList_updateMesh: Convert index failed!");
-    cobj->updateMesh(index, args[1].toObject(), args[2].toObject());
-    return true;
-}
-SE_BIND_FUNC(js_renderer_RenderDataList_updateMesh);
-
-static bool js_renderer_NodeProxy_updateJSTRS(se::State& s)
-{
-    cocos2d::renderer::NodeProxy* cobj = (cocos2d::renderer::NodeProxy*)s.nativeThisObject();
-    const auto& args = s.args();
-    bool ok = args[0].isObject() && args[0].toObject()->isTypedArray();
-    SE_PRECONDITION2(ok, false, "js_renderer_NodeProxy_updateJSTRS : Invalid JS TRS Object");
-    cobj->updateJSTRS(args[0].toObject());
-    return true;
-}
-SE_BIND_FUNC(js_renderer_NodeProxy_updateJSTRS);
-
 bool jsb_register_renderer_manual(se::Object* global)
 {
     // Get the ns
@@ -624,12 +600,6 @@ bool jsb_register_renderer_manual(se::Object* global)
 
     // Effect
     __jsb_cocos2d_renderer_Effect_proto->defineFunction("init", _SE(js_renderer_Effect_init));
-    
-    // RenderDataList
-    __jsb_cocos2d_renderer_RenderDataList_proto->defineFunction("updateMesh", _SE(js_renderer_RenderDataList_updateMesh));
-    
-    // NodeProxy
-    __jsb_cocos2d_renderer_NodeProxy_proto->defineFunction("updateJSTRS", _SE(js_renderer_NodeProxy_updateJSTRS));
     
     return true;
 }

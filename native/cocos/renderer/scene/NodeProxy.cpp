@@ -32,52 +32,66 @@
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_renderer_auto.hpp"
+#include "NodeMemPool.hpp"
 #include <math.h>
+#include "RenderFlow.hpp"
 
 RENDERER_BEGIN
 
 int NodeProxy::_parentOpacityDirty = 0;
 int NodeProxy::_worldMatDirty = 0;
 
-NodeProxy::NodeProxy()
-: _jsTRS(nullptr)
-, _jsTRSData(nullptr)
-, _parent(nullptr)
+NodeProxy::NodeProxy(std::size_t unitID, std::size_t index, std::string id)
 {
-    _localMat = Mat4::IDENTITY;
-    _worldMat = Mat4::IDENTITY;
+    _id = id;
+    _unitID = unitID;
+    _index = index;
+    
+    NodeMemPool* pool = NodeMemPool::getInstance();
+    CCASSERT(pool, "NodeProxy constructor NodeMemPool is null");
+    UnitNode& unit = pool->getUnit(unitID);
+    
+    _dirty = unit.getDirty(index);
+    _trs = unit.getTRS(index);
+    _localMat = unit.getLocalMat(index);
+    _worldMat = unit.getWorldMat(index);
+    _parentInfo = unit.getParent(index);
+    _parentInfo->unitID  = 0xffffffff;
+    _parentInfo->index = 0xffffffff;
+    _localZOrder = unit.getZOrder(index);
+    _cullingMask = unit.getCullingMask(index);
+    _opacity = unit.getOpacity(index);
+    _is3DNode = unit.getOpacity(index);
+    
+    uint64_t* self = unit.getNode(index);
+    *self = (uint64_t)this;
 }
 
 NodeProxy::~NodeProxy()
 {
-    CCLOGINFO( "deallocing NodeProxy: %p", this );
-    
     for (auto& child : _children)
     {
         child->_parent = nullptr;
     }
-    
-    if (_jsTRS != nullptr)
-    {
-        _jsTRS->unroot();
-        _jsTRS->decRef();
-        _jsTRS = nullptr;
-    }
-    _jsTRSData = nullptr;
 }
 
-void NodeProxy::reset()
+void NodeProxy::destroyImmediately()
 {
     if (_parent)
     {
         _parent->removeChild(this);
     }
-    removeAllChildren();
-    _localZOrder = 0;
-    _childrenOrderDirty = false;
-    _cullingMask = -1;
-    _localMat.setIdentity();
-    _worldMat.setIdentity();
+    RenderFlow::getInstance()->removeNodeLevel(_level, _worldMat);
+    _level = 0xffffffff;
+    _dirty = nullptr;
+    _trs = nullptr;
+    _localMat = nullptr;
+    _worldMat = nullptr;
+    _parentInfo = nullptr;
+    _localZOrder = nullptr;
+    _cullingMask = nullptr;
+    _opacity = nullptr;
+    _is3DNode = nullptr;
 }
 
 // lazy allocs
@@ -121,7 +135,7 @@ void NodeProxy::addChild(NodeProxy* child)
         this->childrenAlloc();
     }
     _children.pushBack(child);
-    _childrenOrderDirty = true;
+    *_dirty |= RenderFlow::REORDER_CHILDREN;
     child->setParent(this);
     child->updateRealOpacity();
 }
@@ -162,7 +176,6 @@ NodeProxy* NodeProxy::getChildByName(std::string childName)
 {
     for (auto child : _children)
     {
-        // set parent nil at the end
         if (child->_name == childName)
         {
             return child;
@@ -171,29 +184,101 @@ NodeProxy* NodeProxy::getChildByName(std::string childName)
     return nullptr;
 }
 
+NodeProxy* NodeProxy::getChildByID(std::string id)
+{
+    for (auto child : _children)
+    {
+        if (child->_id == id)
+        {
+            return child;
+        }
+    }
+    return nullptr;
+}
+
+void NodeProxy::notifyUpdateParent()
+{
+    if (_parentInfo->index == 0xffffffff)
+    {
+        if (_parent)
+        {
+            _parent->removeChild(this);
+        }
+        updateLevel();
+        return;
+    }
+    
+    NodeMemPool* pool = NodeMemPool::getInstance();
+    CCASSERT(pool, "NodeProxy updateParent NodeMemPool is null");
+    UnitNode& unit = pool->getUnit(_parentInfo->unitID);
+    uint64_t* parentAddrs = unit.getNode(_parentInfo->index);
+    NodeProxy* parent = (NodeProxy*)*parentAddrs;
+    CCASSERT(parent, "NodeProxy updateParent parent is null");
+    
+    if (parent != _parent) {
+        if (_parent)
+        {
+            _parent->removeChild(this);
+        }
+        parent->addChild(this);
+        updateLevel();
+    }
+}
+
+void NodeProxy::updateLevel()
+{
+    auto renderFlow = RenderFlow::getInstance();
+    static RenderFlow::LevelInfo levelInfo;
+    
+    renderFlow->removeNodeLevel(_level, _worldMat);
+    
+    levelInfo.dirty = _dirty;
+    levelInfo.localMat = _localMat;
+    levelInfo.worldMat = _worldMat;
+    
+    if (_parent)
+    {
+        _level = _parent->_level + 1;
+        levelInfo.parentWorldMat = _parent->_worldMat;
+        levelInfo.parentDirty = _parent->_dirty;
+    }
+    else
+    {
+        _level = 0;
+        levelInfo.parentWorldMat = nullptr;
+        levelInfo.parentDirty = nullptr;
+    }
+    renderFlow->insertNodeLevel(_level, levelInfo);
+    
+    for (auto it = _children.begin(); it != _children.end(); it++)
+    {
+        (*it)->updateLevel();
+    }
+}
+
 void NodeProxy::setLocalZOrder(int zOrder)
 {
-    _localZOrder = zOrder;
+    *_localZOrder = zOrder;
     if (_parent != nullptr)
     {
-        _parent->setChildrenOrderDirty();
+        *_parent->_dirty |= RenderFlow::REORDER_CHILDREN;
     }
 }
 
 void NodeProxy::reorderChildren()
 {
-    if (_childrenOrderDirty)
+    if (*_dirty & RenderFlow::REORDER_CHILDREN)
     {
 #if CC_64BITS
         std::sort(std::begin(_children), std::end(_children), [](NodeProxy* n1, NodeProxy* n2) {
-            return (n1->_localZOrder < n2->_localZOrder);
+            return (*n1->_localZOrder < *n2->_localZOrder);
         });
 #else
         std::stable_sort(std::begin(_children), std::end(_children), [](NodeProxy* n1, NodeProxy* n2) {
-            return n1->_localZOrder < n2->_localZOrder;
+            return *n1->_localZOrder < *n2->_localZOrder;
         });
 #endif
-        _childrenOrderDirty = false;
+        *_dirty &= ~RenderFlow::REORDER_CHILDREN;
     }
 }
 
@@ -223,167 +308,144 @@ AssemblerBase* NodeProxy::getAssembler(const std::string& assemblerName)
     return nullptr;
 }
 
-void NodeProxy::updateJSTRS(se::Object* trs)
-{
-    se::ScriptEngine::getInstance()->clearException();
-    se::AutoHandleScope hs;
-    
-    if (_jsTRS != nullptr)
-    {
-        _jsTRS->unroot();
-        _jsTRS->decRef();
-    }
-    
-    trs->root();
-    trs->incRef();
-    _jsTRS = trs;
-    _jsTRSData = nullptr;
-    size_t length;
-    trs->getTypedArrayData((uint8_t**)(&_jsTRSData), &length);
-}
-
 void NodeProxy::getPosition(cocos2d::Vec3* out) const
 {
-    out->x = _jsTRSData[1];
-    out->y = _jsTRSData[2];
-    out->z = _jsTRSData[3];
+    out->x = _trs->x;
+    out->y = _trs->y;
+    out->z = _trs->z;
 }
 
 void NodeProxy::getRotation(cocos2d::Quaternion* out) const
 {
-    out->x = _jsTRSData[4];
-    out->y = _jsTRSData[5];
-    out->z = _jsTRSData[6];
-    out->w = _jsTRSData[7];
+    out->x = _trs->qx;
+    out->y = _trs->qy;
+    out->z = _trs->qz;
+    out->w = _trs->qw;
 }
 
 void NodeProxy::getScale(cocos2d::Vec3* out) const
 {
-    out->x = _jsTRSData[8];
-    out->y = _jsTRSData[9];
-    out->z = _jsTRSData[10];
+    out->x = _trs->sx;
+    out->y = _trs->sy;
+    out->z = _trs->sz;
 }
 
 void NodeProxy::getWorldPosition(cocos2d::Vec3* out) const
 {
-    if (_jsTRSData != nullptr)
+    getPosition(out);
+    
+    cocos2d::Vec3 pos;
+    cocos2d::Quaternion rot;
+    cocos2d::Vec3 scale;
+    NodeProxy* curr = _parent;
+    while (curr != nullptr)
     {
-        getPosition(out);
+        curr->getPosition(&pos);
+        curr->getRotation(&rot);
+        curr->getScale(&scale);
         
-        cocos2d::Vec3 pos;
-        cocos2d::Quaternion rot;
-        cocos2d::Vec3 scale;
-        NodeProxy* curr = _parent;
-        while (curr != nullptr)
-        {
-            curr->getPosition(&pos);
-            curr->getRotation(&rot);
-            curr->getScale(&scale);
-            
-            out->multiply(scale);
-            out->transformQuat(rot);
-            out->add(pos);
-            curr = curr->getParent();
-        }
+        out->multiply(scale);
+        out->transformQuat(rot);
+        out->add(pos);
+        curr = curr->getParent();
     }
 }
 
 void NodeProxy::getWorldRT(cocos2d::Mat4* out) const
 {
-    if (_jsTRSData != nullptr)
+    cocos2d::Vec3 opos(_trs->x, _trs->y, _trs->z);
+    cocos2d::Quaternion orot(_trs->qx, _trs->qy, _trs->qz, _trs->qw);
+    
+    cocos2d::Vec3 pos;
+    cocos2d::Quaternion rot;
+    cocos2d::Vec3 scale;
+    NodeProxy* curr = _parent;
+    while (curr != nullptr)
     {
-        cocos2d::Vec3 opos(_jsTRSData[1], _jsTRSData[2], _jsTRSData[3]);
-        cocos2d::Quaternion orot(_jsTRSData[4], _jsTRSData[5], _jsTRSData[6], _jsTRSData[7]);
+        curr->getPosition(&pos);
+        curr->getRotation(&rot);
+        curr->getScale(&scale);
         
-        cocos2d::Vec3 pos;
-        cocos2d::Quaternion rot;
-        cocos2d::Vec3 scale;
-        NodeProxy* curr = _parent;
-        while (curr != nullptr)
-        {
-            curr->getPosition(&pos);
-            curr->getRotation(&rot);
-            curr->getScale(&scale);
-            
-            opos.multiply(scale);
-            opos.transformQuat(rot);
-            opos.add(pos);
-            orot.multiply(rot);
-            curr = curr->getParent();
-        }
-        out->setIdentity();
-        out->translate(opos);
-        cocos2d::Mat4 quatMat;
-        cocos2d::Mat4::createRotation(orot, &quatMat);
-        out->multiply(quatMat);
+        opos.multiply(scale);
+        opos.transformQuat(rot);
+        opos.add(pos);
+        orot.multiply(rot);
+        curr = curr->getParent();
     }
+    out->setIdentity();
+    out->translate(opos);
+    cocos2d::Mat4 quatMat;
+    cocos2d::Mat4::createRotation(orot, &quatMat);
+    out->multiply(quatMat);
 }
 
 void NodeProxy::setOpacity(uint8_t opacity)
 {
-    if (_opacity != opacity)
+    if (*_opacity != opacity)
     {
-        _opacity = opacity;
-        updateRealOpacity();
+        *_opacity = opacity;
+        *_dirty |= RenderFlow::OPACITY;
     }
 }
 
 void NodeProxy::updateRealOpacity()
 {
-    float parentOpacity = _parent ? _parent->getRealOpacity() / 255.0f : 1.0f;
-    float opacity = (uint8_t)(_opacity * parentOpacity);
-    _realOpacity = opacity;
-    _opacityUpdated = true;
-    
-    auto assembler = getAssembler("render");
-    if (assembler)
+    if (_parent && (_parentOpacityDirty > 0 || *_dirty & RenderFlow::OPACITY))
     {
-        assembler->notifyDirty(AssemblerBase::OPACITY);
+        float parentOpacity = _parent ? _parent->getRealOpacity() / 255.0f : 1.0f;
+        float opacity = (uint8_t)(*_opacity * parentOpacity);
+        _realOpacity = opacity;
+        _opacityUpdated = true;
+        *_dirty &= ~RenderFlow::OPACITY;
+        
+        auto assembler = getAssembler("render");
+        if (assembler)
+        {
+            assembler->notifyDirty(AssemblerBase::OPACITY);
+        }
     }
 }
 
-void NodeProxy::updateMatrix()
+void NodeProxy::updateWorldMatrix()
 {
-    if (_updateWorldMatrix && (_matrixUpdated || _worldMatDirty > 0))
+    if (_updateWorldMatrix && (*_dirty & RenderFlow::WORLD_TRANSFORM || _worldMatDirty > 0))
     {
         // Update world matrix
         const cocos2d::Mat4& parentMat = _parent == nullptr ? cocos2d::Mat4::IDENTITY : _parent->getWorldMatrix();
-        _worldMat.multiply(parentMat, _localMat, &_worldMat);
-        _matrixUpdated = false;
+        updateWorldMatrix(parentMat);
     }
 }
 
-void NodeProxy::updateMatrix(const cocos2d::Mat4& parentMatrix)
+void NodeProxy::updateWorldMatrix(const cocos2d::Mat4& parentMatrix)
 {
-    _worldMat.multiply(parentMatrix, _localMat, &_worldMat);
-    _matrixUpdated = false;
+    _worldMat->multiply(parentMatrix, *_localMat, _worldMat);
+    *_dirty &= ~RenderFlow::WORLD_TRANSFORM;
+    _matrixUpdated = true;
 }
 
-void NodeProxy::updateFromJS()
+void NodeProxy::updateLocalMatrix()
 {
-    uint32_t flag = _jsTRSData[0];
-    if (flag & _TRANSFORM)
+    if (*_dirty & RenderFlow::LOCAL_TRANSFORM)
     {
-        _localMat.setIdentity();
+        _localMat->setIdentity();
 
         // Transform = Translate * Rotation * Scale;
-        cocos2d::Quaternion q(_jsTRSData[4], _jsTRSData[5], _jsTRSData[6], _jsTRSData[7]);
-        if (_is3DNode)
+        cocos2d::Quaternion q(_trs->qx, _trs->qy, _trs->qz, _trs->qw);
+        if (*_is3DNode)
         {
-            _localMat.translate(_jsTRSData[1], _jsTRSData[2], _jsTRSData[3]);
-            _localMat.rotate(q);
-            _localMat.scale(_jsTRSData[8], _jsTRSData[9], _jsTRSData[10]);
+            _localMat->translate(_trs->x, _trs->y, _trs->z);
+            _localMat->rotate(q);
+            _localMat->scale(_trs->sx, _trs->sy, _trs->sz);
         }
         else
         {
-            _localMat.translate(_jsTRSData[1], _jsTRSData[2], 0);
-            _localMat.rotate(q);
-            _localMat.scale(_jsTRSData[8], _jsTRSData[9], 1);
+            _localMat->translate(_trs->x, _trs->y, 0);
+            _localMat->rotate(q);
+            _localMat->scale(_trs->sx, _trs->sy, 1);
         }
 
-        _jsTRSData[0] = 0;
-
-        _matrixUpdated = true;
+        *_dirty &= ~RenderFlow::LOCAL_TRANSFORM;
+        *_dirty |= RenderFlow::WORLD_TRANSFORM;
     }
 }
 
@@ -397,30 +459,16 @@ void NodeProxy::visitAsRoot(ModelBatcher* batcher, Scene* scene)
 void NodeProxy::visit(ModelBatcher* batcher, Scene* scene)
 {
     if (!_needVisit) return;
-    
-    bool worldMatUpdated = false;
-    bool parentOpacityUpdated = false;
 
-    if (_parent != nullptr && _parentOpacityDirty > 0)
-    {
-        updateRealOpacity();
-    }
+    updateRealOpacity();
     
     if (_realOpacity == 0)
     {
         return;
     }
     
-    reorderChildren();
-    
-    updateFromJS();
-    
-    if (_matrixUpdated)
-    {
-        _worldMatDirty++;
-        worldMatUpdated = true;
-    }
-    updateMatrix();
+    updateLocalMatrix();
+    updateWorldMatrix();
     
     for (auto it = _assemblers.begin(); it != _assemblers.end(); it++)
     {
@@ -430,6 +478,20 @@ void NodeProxy::visit(ModelBatcher* batcher, Scene* scene)
         }
     }
     
+    /////////////////////////////////////////
+    // begin visit children
+    /////////////////////////////////////////
+    
+    bool parentWorldMatUpdated = false;
+    bool parentOpacityUpdated = false;
+    
+    if (_matrixUpdated)
+    {
+        _worldMatDirty++;
+        _matrixUpdated = false;
+        parentWorldMatUpdated = true;
+    }
+    
     if (_opacityUpdated)
     {
         _parentOpacityDirty++;
@@ -437,10 +499,25 @@ void NodeProxy::visit(ModelBatcher* batcher, Scene* scene)
         parentOpacityUpdated = true;
     }
     
+    reorderChildren();
     for (const auto& child : _children)
     {
         child->visit(batcher, scene);
     }
+    
+    if (parentWorldMatUpdated)
+    {
+        _worldMatDirty--;
+    }
+    
+    if (parentOpacityUpdated)
+    {
+        _parentOpacityDirty--;
+    }
+    
+    /////////////////////////////////////////
+    // end visit children
+    /////////////////////////////////////////
     
     for (auto it = _assemblers.begin(); it != _assemblers.end(); it++)
     {
@@ -448,15 +525,6 @@ void NodeProxy::visit(ModelBatcher* batcher, Scene* scene)
         {
             it->second->postHandle(this, batcher, scene);
         }
-    }
-    
-    if (worldMatUpdated)
-    {
-        _worldMatDirty--;
-    }
-    if (parentOpacityUpdated)
-    {
-        _parentOpacityDirty--;
     }
 }
 

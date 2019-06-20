@@ -343,19 +343,19 @@ AssemblerBase : function (
 renderer.NodeProxy = {
 
 /**
- * @method addChild
- * @param {cc.renderer::NodeProxy} arg0
+ * @method updateLocalMatrix
  */
-addChild : function (
-nodeproxy 
+updateLocalMatrix : function (
 )
 {
 },
 
 /**
- * @method removeAllChildren
- */
-removeAllChildren : function (
+ * @method updateWorldMatrix
+* @param {mat4_object} mat4
+*/
+updateWorldMatrix : function(
+mat4 
 )
 {
 },
@@ -368,6 +368,14 @@ getChildren : function (
 )
 {
     return new Array();
+},
+
+/**
+ * @method subWorldMatDirty
+ */
+subWorldMatDirty : function (
+)
+{
 },
 
 /**
@@ -389,6 +397,14 @@ int
 },
 
 /**
+ * @method addWorldMatDirty
+ */
+addWorldMatDirty : function (
+)
+{
+},
+
+/**
  * @method addAssembler
  * @param {String} arg0
  * @param {cc.renderer::AssemblerBase} arg1
@@ -396,14 +412,6 @@ int
 addAssembler : function (
 str, 
 assemblerbase 
-)
-{
-},
-
-/**
- * @method setChildrenOrderDirty
- */
-setChildrenOrderDirty : function (
 )
 {
 },
@@ -433,23 +441,11 @@ str
 },
 
 /**
- * @method setParent
- * @param {cc.renderer::NodeProxy} arg0
+ * @method notifyUpdateParent
  */
-setParent : function (
-nodeproxy 
+notifyUpdateParent : function (
 )
 {
-},
-
-/**
- * @method getName
- * @return {String}
- */
-getName : function (
-)
-{
-    return ;
 },
 
 /**
@@ -475,6 +471,14 @@ char
 },
 
 /**
+ * @method destroyImmediately
+ */
+destroyImmediately : function (
+)
+{
+},
+
+/**
  * @method getRealOpacity
  * @return {unsigned char}
  */
@@ -482,16 +486,6 @@ getRealOpacity : function (
 )
 {
     return 0;
-},
-
-/**
- * @method updateMatrix
-* @param {mat4_object} mat4
-*/
-updateMatrix : function(
-mat4 
-)
-{
 },
 
 /**
@@ -549,19 +543,13 @@ getCullingMask : function (
 },
 
 /**
- * @method updateFromJS
+ * @method getID
+ * @return {String}
  */
-updateFromJS : function (
+getID : function (
 )
 {
-},
-
-/**
- * @method reset
- */
-reset : function (
-)
-{
+    return ;
 },
 
 /**
@@ -575,13 +563,15 @@ getParent : function (
 },
 
 /**
- * @method removeChild
- * @param {cc.renderer::NodeProxy} arg0
+ * @method getChildByID
+ * @param {String} arg0
+ * @return {cc.renderer::NodeProxy}
  */
-removeChild : function (
-nodeproxy 
+getChildByID : function (
+str 
 )
 {
+    return cc.renderer::NodeProxy;
 },
 
 /**
@@ -613,6 +603,16 @@ int
 },
 
 /**
+ * @method getName
+ * @return {String}
+ */
+getName : function (
+)
+{
+    return ;
+},
+
+/**
  * @method getChildrenCount
  * @return {unsigned int}
  */
@@ -635,8 +635,14 @@ str
 /**
  * @method NodeProxy
  * @constructor
+ * @param {unsigned int} arg0
+ * @param {unsigned int} arg1
+ * @param {String} arg2
  */
 NodeProxy : function (
+int, 
+int, 
+str 
 )
 {
 },
@@ -1604,6 +1610,92 @@ Scene : function (
 };
 
 /**
+ * @class MemPool
+ */
+renderer.MemPool = {
+
+/**
+ * @method updateCommonData
+ * @param {unsigned int} arg0
+ * @param {se::Object} arg1
+ * @param {se::Object} arg2
+ */
+updateCommonData : function (
+int, 
+object, 
+object 
+)
+{
+},
+
+/**
+ * @method MemPool
+ * @constructor
+ */
+MemPool : function (
+)
+{
+},
+
+};
+
+/**
+ * @class NodeMemPool
+ */
+renderer.NodeMemPool = {
+
+/**
+ * @method updateNodeData
+ * @param {unsigned int} arg0
+ * @param {se::Object} arg1
+ * @param {se::Object} arg2
+ * @param {se::Object} arg3
+ * @param {se::Object} arg4
+ * @param {se::Object} arg5
+ * @param {se::Object} arg6
+ * @param {se::Object} arg7
+ * @param {se::Object} arg8
+ * @param {se::Object} arg9
+ * @param {se::Object} arg10
+ */
+updateNodeData : function (
+int, 
+object, 
+object, 
+object, 
+object, 
+object, 
+object, 
+object, 
+object, 
+object, 
+object 
+)
+{
+},
+
+/**
+ * @method getInstance
+ * @return {cc.renderer::NodeMemPool}
+ */
+getInstance : function (
+)
+{
+    return cc.renderer::NodeMemPool;
+},
+
+/**
+ * @method NodeMemPool
+ * @constructor
+ */
+NodeMemPool : function (
+)
+{
+},
+
+};
+
+/**
  * @class RenderDataList
  */
 renderer.RenderDataList = {
@@ -1618,6 +1710,20 @@ int
 )
 {
     return cc.renderer::RenderData;
+},
+
+/**
+ * @method updateMesh
+ * @param {unsigned int} arg0
+ * @param {se::Object} arg1
+ * @param {se::Object} arg2
+ */
+updateMesh : function (
+int, 
+object, 
+object 
+)
+{
 },
 
 /**
@@ -1780,6 +1886,16 @@ effect
  * @method enableOpacityAlwaysDirty
  */
 enableOpacityAlwaysDirty : function (
+)
+{
+},
+
+/**
+ * @method beforeFillBuffers
+ * @param {unsigned int} arg0
+ */
+beforeFillBuffers : function (
+int 
 )
 {
 },
@@ -1959,11 +2075,51 @@ nodeproxy
 },
 
 /**
+ * @method calculateWorldMatrix
+ */
+calculateWorldMatrix : function (
+)
+{
+},
+
+/**
+ * @method insertNodeLevel
+ * @param {unsigned int} arg0
+ * @param {cc.renderer::RenderFlow::LevelInfo} arg1
+ */
+insertNodeLevel : function (
+int, 
+levelinfo 
+)
+{
+},
+
+/**
  * @method visit
  * @param {cc.renderer::NodeProxy} arg0
  */
 visit : function (
 nodeproxy 
+)
+{
+},
+
+/**
+ * @method calculateLocalMatrix
+ */
+calculateLocalMatrix : function (
+)
+{
+},
+
+/**
+ * @method removeNodeLevel
+ * @param {unsigned int} arg0
+ * @param {mat4_object} arg1
+ */
+removeNodeLevel : function (
+int, 
+mat4 
 )
 {
 },
@@ -1996,6 +2152,16 @@ getDevice : function (
 )
 {
     return cc.renderer::DeviceGraphics;
+},
+
+/**
+ * @method getInstance
+ * @return {cc.renderer::RenderFlow}
+ */
+getInstance : function (
+)
+{
+    return cc.renderer::RenderFlow;
 },
 
 /**
