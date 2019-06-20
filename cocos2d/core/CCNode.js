@@ -1186,6 +1186,8 @@ let NodeDefines = {
             this._proxy = new renderer.NodeProxy(this._spaceInfo.unitID, this._spaceInfo.index, this._id);
             this._proxy.init(this);
         }
+
+        this._renderFlag = RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_OPACITY;
     },
 
     statics: {
