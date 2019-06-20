@@ -85,3 +85,5 @@ export class UIModelComponent extends UIComponent {
         }
     }
 }
+
+cc.UIModelComponent = UIModelComponent;
