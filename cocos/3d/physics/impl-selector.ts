@@ -4,7 +4,7 @@ const _global = typeof window === 'undefined' ? global : window;
 
 // tslint:disable: no-string-literal;
 if (typeof _global.CC_PHYSICS_CANNON === 'undefined') {
-    _global.CC_PHYSICS_CANNON = false;
+    _global.CC_PHYSICS_CANNON = true;
 }
 
 if (typeof _global.CC_PHYSICS_AMMO === 'undefined') {
@@ -12,7 +12,7 @@ if (typeof _global.CC_PHYSICS_AMMO === 'undefined') {
 }
 
 if (typeof _global.CC_PHYSICS_BUILT_IN === 'undefined') {
-    _global.CC_PHYSICS_BUILT_IN = true;
+    _global.CC_PHYSICS_BUILT_IN = false;
 }
 
 // Cannon

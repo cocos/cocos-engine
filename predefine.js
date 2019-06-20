@@ -164,6 +164,9 @@ if (CC_BUILD) {
     _global.CC_QQPLAY = CC_QQPLAY;
     _global.CC_RUNTIME = CC_RUNTIME;
     _global.CC_SUPPORT_JIT = CC_SUPPORT_JIT;
+    _global.CC_PHYSICS_BUILT_IN = CC_PHYSICS_BUILT_IN;
+    _global.CC_PHYSICS_CANNON = CC_PHYSICS_CANNON;
+    _global.CC_PHYSICS_AMMO = CC_PHYSICS_AMMO;
 }
 else {
     defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
