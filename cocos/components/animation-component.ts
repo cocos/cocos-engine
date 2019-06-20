@@ -437,10 +437,13 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     private _removeStateOfAutomaticClip (clip: AnimationClip) {
-        const state = this._nameToState[name];
-        if (state && equalClips(clip, state.clip)) {
-            state.stop();
-            delete this._nameToState[name];
+        // tslint:disable-next-line:forin
+        for (const name in this._nameToState) {
+            const state = this._nameToState[name];
+            if (equalClips(clip, state.clip)) {
+                state.stop();
+                delete this._nameToState[name];
+            }
         }
     }
 
