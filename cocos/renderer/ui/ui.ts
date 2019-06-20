@@ -1,5 +1,5 @@
 
-import { Assembler, CanvasComponent, GraphicsComponent, MeshBuffer, UIComponent, UIRenderComponent } from '../../3d';
+import { Assembler, CanvasComponent, MeshBuffer, UIComponent, UIRenderComponent, UIVertexFormat } from '../../3d';
 import { Material } from '../../3d/assets/material';
 import Pool from '../../3d/memop/pool';
 import RecyclePool from '../../3d/memop/recycle-pool';
@@ -7,7 +7,7 @@ import { CachedArray } from '../../core/memop/cached-array';
 import { Root } from '../../core/root';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXAttributeName, GFXCommandBufferType, GFXFormat  } from '../../gfx/define';
+import { GFXCommandBufferType  } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
@@ -18,21 +18,6 @@ import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 import { UIBatchModel } from './ui-batch-model';
 import { UIMaterial } from './ui-material';
-
-export const vfmt = [
-    {
-        name: GFXAttributeName.ATTR_POSITION,
-        format: GFXFormat.RGB32F,
-    },
-    {
-        name: GFXAttributeName.ATTR_TEX_COORD,
-        format: GFXFormat.RG32F,
-    },
-    {
-        name: GFXAttributeName.ATTR_COLOR,
-        format: GFXFormat.RGBA32F,
-    },
-];
 
 export class UIDrawBatch {
     public camera: Camera | null = null;
@@ -139,7 +124,7 @@ export class UI {
 
     public initialize () {
 
-        this._attributes = vfmt;
+        this._attributes = UIVertexFormat.vfmt;
 
         this._requireBufferBatch();
 
