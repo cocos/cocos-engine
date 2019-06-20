@@ -355,10 +355,11 @@ function refreshScene () {
     }
 }
 
-function adjustWidgetToAllowMovingInEditor (this: WidgetComponent/*, eventType: SystemEventType, oldPos: Vec3*/) {
-    // if (/*!CC_EDITOR ||*/ eventType !== SystemEventType.POSITION_PART) {
-    //     return;
-    // }
+// 节点自身移动对相对应的 Widgetcomponent 的数据改动
+function adjustWidgetToAllowMovingInEditor (this: WidgetComponent, eventType: SystemEventType) {
+    if (/*!CC_EDITOR ||*/ eventType !== SystemEventType.POSITION_PART) {
+        return;
+    }
 
     if (widgetManager.isAligning) {
         return;
@@ -404,6 +405,7 @@ function adjustWidgetToAllowMovingInEditor (this: WidgetComponent/*, eventType: 
     }
 }
 
+// 节点被父节点或者 target 的尺寸影响而重新更新
 function adjustWidgetToAllowResizingInEditor (this: WidgetComponent/*, oldSize: Size*/) {
     // if (!CC_EDITOR) {
     //     return;
@@ -505,17 +507,14 @@ export const widgetManager = cc._widgetManager = {
                     canvasComp.node.on('design-resolution-changed', this.onResized, this);
                 }
             }
-        // widget.node.on(SystemEventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
+        widget.node.on(SystemEventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
         widget.node.on(SystemEventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
         // }
-    },
-    updateTransform (widget: WidgetComponent) {
-        adjustWidgetToAllowMovingInEditor.call(widget);
     },
     remove (widget: WidgetComponent) {
         this._activeWidgetsIterator.remove(widget);
         // if (CC_EDITOR && !cc.engine.isPlaying) {
-        // widget.node.off(SystemEventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
+        widget.node.off(SystemEventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
         widget.node.off(SystemEventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
         // }
     },
