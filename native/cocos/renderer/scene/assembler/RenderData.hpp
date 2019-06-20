@@ -26,6 +26,7 @@
 
 #include "../../Macro.h"
 #include "base/CCRef.h"
+#include <stdint.h>
 
 namespace se {
     class Object;
