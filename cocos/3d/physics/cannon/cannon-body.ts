@@ -1,7 +1,7 @@
 import CANNON from 'cannon';
 import { Mat4, Quat, Vec3 } from '../../../core/value-types';
 import { clamp, mat4, quat, vec3 } from '../../../core/vmath';
-import { ICollisionCallback, ICollisionEvent, ICreateBodyOptions, PhysicsWorldBase, RigidBodyBase } from '../api';
+import { ICollisionCallback, ICollisionEvent, ICollisionEventType, ICreateBodyOptions, PhysicsWorldBase, RigidBodyBase } from '../api';
 import { ERigidBodyType, ETransformSource } from '../physic-enum';
 import { getWrap, setWrap, stringfyVec3 } from '../util';
 import { defaultCannonMaterial } from './cannon-const';
@@ -326,11 +326,11 @@ export class CannonRigidBody implements RigidBodyBase {
     private _onCollided (event: CANNON.ICollisionEvent) {
         const evt: ICollisionEvent = {
             source: getWrap<RigidBodyBase>(event.body),
-            target: getWrap<RigidBodyBase>((event as any).target),
+            target: getWrap<RigidBodyBase>(event.target),
+            contacts: event.contacts,
         };
         for (const callback of this._collisionCallbacks) {
-            // TODO : 目前的Canon无法支持Enter\Stay\Exit，目前碰撞仅触发两次Stay
-            callback('onCollisionStay', evt);
+            callback(event.event, evt);
         }
     }
 

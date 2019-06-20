@@ -20,6 +20,7 @@ export interface ICreateBodyOptions {
 export interface ICollisionEvent {
     source: RigidBodyBase | BuiltInRigidBodyBase;
     target: RigidBodyBase | BuiltInRigidBodyBase;
+    contacts: any;
 }
 
 export type ICollisionEventType = 'onCollisionEnter' | 'onCollisionStay' | 'onCollisionExit';
