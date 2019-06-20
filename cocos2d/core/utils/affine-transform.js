@@ -157,12 +157,13 @@ AffineTransform.invert = function (out, t) {
  * @return {AffineTransform} Out object with inverted result.
  */
 AffineTransform.fromMat4 = function (out, mat) {
-    out.a = mat.m00;
-    out.b = mat.m01;
-    out.c = mat.m04;
-    out.d = mat.m05;
-    out.tx = mat.m12;
-    out.ty = mat.m13;
+    let matm = mat.m;
+    out.a = matm[0];
+    out.b = matm[1];
+    out.c = matm[4];
+    out.d = matm[5];
+    out.tx = matm[12];
+    out.ty = matm[13];
     return out;
 };
 

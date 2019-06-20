@@ -123,6 +123,10 @@ let RenderComponent = cc.Class({
         this.__allocedDatas.length = 0;
         this._materials.length = 0;
         this._renderData = null;
+
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this._assembler && this._assembler.destroy();
+        }
     },
 
     setVertsDirty () {

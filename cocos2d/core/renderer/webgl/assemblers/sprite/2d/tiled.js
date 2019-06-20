@@ -126,8 +126,9 @@ export default class TiledAssembler extends Assembler2D {
         let world = renderData.vDatas[0];
         let { row, col } = this;
         let matrix = sprite.node._worldMatrix;
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
+        let matrixm = matrix.m;
+        let a = matrixm[0], b = matrixm[1], c = matrixm[4], d = matrixm[5],
+            tx = matrixm[12], ty = matrixm[13];
 
         let x, x1, y, y1;
         let floatsPerVert = this.floatsPerVert;

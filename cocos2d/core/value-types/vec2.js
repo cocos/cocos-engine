@@ -596,23 +596,25 @@ proto.transformMat4 = function (m, out) {
 };
 
 proto.fromTranslation = function (trs) {
-    this.x = trs[1];
-    this.y = trs[2];
+    this.x = trs[0];
+    this.y = trs[1];
     return this;
 };
+
 proto.toTranslation = function (trs) {
-    trs[1] = this.x;
-    trs[2] = this.y;
+    trs[0] = this.x;
+    trs[1] = this.y;
 };
 
 proto.fromScale = function (trs) {
-    this.x = trs[8];
-    this.y = trs[9];
+    this.x = trs[7];
+    this.y = trs[8];
     return this;
 };
+
 proto.toScale = function (trs) {
-    trs[8] = this.x;
-    trs[9] = this.y;
+    trs[7] = this.x;
+    trs[8] = this.y;
 };
 
 proto.array = function (out) {

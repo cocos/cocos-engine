@@ -129,6 +129,7 @@ export default class ArmatureAssembler extends Assembler {
         let slotColor;
         let slot;
         let slotMat;
+        let slotMatm;
         let offsetInfo;
 
         for (let i = 0, l = slots.length; i < l; i++) {
@@ -162,6 +163,7 @@ export default class ArmatureAssembler extends Assembler {
 
             _handleColor(slotColor, parentOpacity);
             slotMat = slot._worldMatrix;
+            slotMatm = slotMat.m;
 
             vertices = slot._localVertices;
             _vertexCount = vertices.length >> 2;
@@ -177,12 +179,12 @@ export default class ArmatureAssembler extends Assembler {
             ibuf = _buffer._iData;
             uintbuf = _buffer._uintVData;
 
-            _m00 = slotMat.m00;
-            _m04 = slotMat.m04;
-            _m12 = slotMat.m12;
-            _m01 = slotMat.m01;
-            _m05 = slotMat.m05;
-            _m13 = slotMat.m13;
+            _m00 = slotMatm[0];
+            _m04 = slotMatm[4];
+            _m12 = slotMatm[12];
+            _m01 = slotMatm[1];
+            _m05 = slotMatm[5];
+            _m13 = slotMatm[13];
 
             for (let vi = 0, vl = vertices.length; vi < vl;) {
                 _x = vertices[vi++]; 
@@ -216,12 +218,13 @@ export default class ArmatureAssembler extends Assembler {
         
         let frameVFOffset = 0, frameIndexOffset = 0, segVFCount = 0;
         if (parentMat) {
-            _m00 = parentMat.m00;
-            _m04 = parentMat.m04;
-            _m12 = parentMat.m12;
-            _m01 = parentMat.m01;
-            _m05 = parentMat.m05;
-            _m13 = parentMat.m13;
+            let parentMatm = parentMat.m;
+            _m00 = parentMatm[0];
+            _m04 = parentMatm[4];
+            _m12 = parentMatm[12];
+            _m01 = parentMatm[1];
+            _m05 = parentMatm[5];
+            _m13 = parentMatm[13];
         }
 
         let colorOffset = 0;

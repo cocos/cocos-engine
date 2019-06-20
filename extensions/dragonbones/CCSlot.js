@@ -322,12 +322,13 @@ dragonBones.CCSlot = cc.Class({
 
     _updateTransform () {
         let t = this._matrix;
-        t.m00 = this.globalTransformMatrix.a;
-        t.m01 = -this.globalTransformMatrix.b;
-        t.m04 = -this.globalTransformMatrix.c;
-        t.m05 = this.globalTransformMatrix.d;
-        t.m12 = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
-        t.m13 = -(this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY));
+        let tm = t.m;
+        tm[0] = this.globalTransformMatrix.a;
+        tm[1] = -this.globalTransformMatrix.b;
+        tm[4] = -this.globalTransformMatrix.c;
+        tm[5] = this.globalTransformMatrix.d;
+        tm[12] = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
+        tm[13] = -(this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY));
 
         this._worldMatrixDirty = true;
     },
@@ -355,23 +356,24 @@ dragonBones.CCSlot = cc.Class({
     },
 
     _mulMat (out, a, b) {
-        let aa=a.m00, ab=a.m01, ac=a.m04, ad=a.m05, atx=a.m12, aty=a.m13;
-        let ba=b.m00, bb=b.m01, bc=b.m04, bd=b.m05, btx=b.m12, bty=b.m13;
+        let am = a.m, bm = b.m, outm = out.m;
+        let aa=am[0], ab=am[1], ac=am[4], ad=am[5], atx=am[12], aty=am[13];
+        let ba=bm[0], bb=bm[1], bc=bm[4], bd=bm[5], btx=bm[12], bty=bm[13];
         if (ab !== 0 || ac !== 0) {
-            out.m00 = ba * aa + bb * ac;
-            out.m01 = ba * ab + bb * ad;
-            out.m04 = bc * aa + bd * ac;
-            out.m05 = bc * ab + bd * ad;
-            out.m12 = aa * btx + ac * bty + atx;
-            out.m13 = ab * btx + ad * bty + aty;
+            outm[0] = ba * aa + bb * ac;
+            outm[1] = ba * ab + bb * ad;
+            outm[4] = bc * aa + bd * ac;
+            outm[5] = bc * ab + bd * ad;
+            outm[12] = aa * btx + ac * bty + atx;
+            outm[13] = ab * btx + ad * bty + aty;
         }
         else {
-            out.m00 = ba * aa;
-            out.m01 = bb * ad;
-            out.m04 = bc * aa;
-            out.m05 = bd * ad;
-            out.m12 = aa * btx + atx;
-            out.m13 = ad * bty + aty;
+            outm[0] = ba * aa;
+            outm[1] = bb * ad;
+            outm[4] = bc * aa;
+            outm[5] = bd * ad;
+            outm[12] = aa * btx + atx;
+            outm[13] = ad * bty + aty;
         }
     },
 

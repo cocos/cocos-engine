@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Assembler3D = require('../../base/3d');
+const Assembler3D = {}; // require('../../base/3d');
 const TiledAssembler = require('../2d/tiled');
 const vec3 = cc.vmath.vec3;
 

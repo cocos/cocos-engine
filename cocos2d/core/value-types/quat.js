@@ -117,17 +117,18 @@ proto.equals = function (other) {
 };
 
 proto.fromRotation = function (trs) {
-    this.x = trs[4];
-    this.y = trs[5];
-    this.z = trs[6];
-    this.w = trs[7];
+    this.x = trs[3];
+    this.y = trs[4];
+    this.z = trs[5];
+    this.w = trs[6];
     return this;
 };
+
 proto.toRotation = function (trs) {
-    trs[4] = this.x;
-    trs[5] = this.y;
-    trs[6] = this.z;
-    trs[7] = this.w;
+    trs[3] = this.x;
+    trs[4] = this.y;
+    trs[5] = this.z;
+    trs[6] = this.w;
 };
 
 /**

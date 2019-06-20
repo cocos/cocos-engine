@@ -179,7 +179,7 @@ export default class RadialFilledAssembler extends Assembler2D {
     }
 
     updateRenderData (sprite) {
-        super.updateRenderData();
+        super.updateRenderData(sprite);
 
         let frame = sprite.spriteFrame;
         if (!frame) return;
@@ -317,9 +317,10 @@ export default class RadialFilledAssembler extends Assembler2D {
     updateWorldVerts (sprite) {
         let node = sprite.node;
 
-        let matrix = node._worldMatrix,
-            a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
+        let matrix = node._worldMatrix;
+        let matrixm = matrix.m,
+            a = matrixm[0], b = matrixm[1], c = matrixm[4], d = matrixm[5],
+            tx = matrixm[12], ty = matrixm[13];
 
         let local = this._renderData._local;
         let world = this._renderData.vDatas[0];

@@ -28,41 +28,53 @@ class mat23 {
    * @param {Number} m05 -  Value assigned to element ty.
    */
   constructor(m00 = 1, m01 = 0, m02 = 0, m03 = 1, m04 = 0, m05 = 0) {
-    /**
-     * The element a.
-     * @type {number}
-     * */
-    this.m00 = m00;
+    if (m00 instanceof Float32Array) {
+        // deep copy
+        if (m01) {
+            this.m = new Float32Array(6);
+            this.m.set(m00);
+        } else {
+            this.m = m00;
+        }
+    } else {
+        this.m = new Float32Array(6);
+        let m = this.m;
+        /**
+         * The element a.
+         * @type {number}
+         * */
+        m[0] = m00;
 
-    /**
-     * The element b.
-     * @type {number}
-     * */
-    this.m01 = m01;
+        /**
+         * The element b.
+         * @type {number}
+         * */
+        m[1] = m01;
 
-    /**
-     * The element c.
-     * @type {number}
-     * */
-    this.m02 = m02;
+        /**
+         * The element c.
+         * @type {number}
+         * */
+        m[2] = m02;
 
-    /**
-     * The element d.
-     * @type {number}
-     * */
-    this.m03 = m03;
+        /**
+         * The element d.
+         * @type {number}
+         * */
+        m[3] = m03;
 
-    /**
-     * The element tx.
-     * @type {number}
-     * */
-    this.m04 = m04;
+        /**
+         * The element tx.
+         * @type {number}
+         * */
+        m[4] = m04;
 
-    /**
-     * The element ty.
-     * @type {number}
-     * */
-    this.m05 = m05;
+        /**
+         * The element ty.
+         * @type {number}
+         * */
+        m[5] = m05;
+    }
   }
 
   /**
@@ -87,10 +99,11 @@ class mat23 {
    * @returns {mat23} The newly created matrix.
    */
   static clone(a) {
+    let am = a.m;
     return new mat23(
-      a.m00, a.m01,
-      a.m02, a.m03,
-      a.m04, a.m05
+      am[0], am[1],
+      am[2], am[3],
+      am[4], am[5]
     );
   }
 
@@ -102,12 +115,7 @@ class mat23 {
    * @returns {mat23} out.
    */
   static copy(out, a) {
-    out.m00 = a.m00;
-    out.m01 = a.m01;
-    out.m02 = a.m02;
-    out.m03 = a.m03;
-    out.m04 = a.m04;
-    out.m05 = a.m05;
+    out.m.set(a.m);
     return out;
   }
 
@@ -118,12 +126,13 @@ class mat23 {
    * @returns {mat23} out.
    */
   static identity(out) {
-    out.m00 = 1;
-    out.m01 = 0;
-    out.m02 = 0;
-    out.m03 = 1;
-    out.m04 = 0;
-    out.m05 = 0;
+    let outm = out.m;
+    outm[0] = 1;
+    outm[1] = 0;
+    outm[2] = 0;
+    outm[3] = 1;
+    outm[4] = 0;
+    outm[5] = 0;
     return out;
   }
 
@@ -140,12 +149,13 @@ class mat23 {
    * @returns {mat23} out.
    */
   static set(out, a, b, c, d, tx, ty) {
-    out.m00 = a;
-    out.m01 = b;
-    out.m02 = c;
-    out.m03 = d;
-    out.m04 = tx;
-    out.m05 = ty;
+    let outm = out.m;
+    outm[0] = a;
+    outm[1] = b;
+    outm[2] = c;
+    outm[3] = d;
+    outm[4] = tx;
+    outm[5] = ty;
     return out;
   }
 
@@ -157,8 +167,9 @@ class mat23 {
    * @returns {mat23} out.
    */
   static invert(out, a) {
-    let aa = a.m00, ab = a.m01, ac = a.m02, ad = a.m03,
-      atx = a.m04, aty = a.m05;
+    let am = a.m, outm = out.m;
+    let aa = am[0], ab = am[1], ac = am[2], ad = am[3],
+      atx = am[4], aty = am[5];
 
     let det = aa * ad - ab * ac;
     if (!det) {
@@ -166,12 +177,12 @@ class mat23 {
     }
     det = 1.0 / det;
 
-    out.m00 = ad * det;
-    out.m01 = -ab * det;
-    out.m02 = -ac * det;
-    out.m03 = aa * det;
-    out.m04 = (ac * aty - ad * atx) * det;
-    out.m05 = (ab * atx - aa * aty) * det;
+    outm[0] = ad * det;
+    outm[1] = -ab * det;
+    outm[2] = -ac * det;
+    outm[3] = aa * det;
+    outm[4] = (ac * aty - ad * atx) * det;
+    outm[5] = (ab * atx - aa * aty) * det;
     return out;
   }
 
@@ -182,7 +193,8 @@ class mat23 {
    * @returns {Number} Determinant of a.
    */
   static determinant(a) {
-    return a.m00 * a.m03 - a.m01 * a.m02;
+    let am = a.m;
+    return am[0] * am[3] - am[1] * am[2];
   }
 
   /**
@@ -194,14 +206,15 @@ class mat23 {
    * @returns {mat23} out.
    */
   static multiply(out, a, b) {
-    let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05,
-      b0 = b.m00, b1 = b.m01, b2 = b.m02, b3 = b.m03, b4 = b.m04, b5 = b.m05;
-    out.m00 = a0 * b0 + a2 * b1;
-    out.m01 = a1 * b0 + a3 * b1;
-    out.m02 = a0 * b2 + a2 * b3;
-    out.m03 = a1 * b2 + a3 * b3;
-    out.m04 = a0 * b4 + a2 * b5 + a4;
-    out.m05 = a1 * b4 + a3 * b5 + a5;
+    let am = a.m, bm = b.m, outm = out.m;
+    let a0 = am[0], a1 = am[1], a2 = am[2], a3 = am[3], a4 = am[4], a5 = am[5],
+      b0 = bm[0], b1 = bm[1], b2 = bm[2], b3 = bm[3], b4 = bm[4], b5 = bm[5];
+    outm[0] = a0 * b0 + a2 * b1;
+    outm[1] = a1 * b0 + a3 * b1;
+    outm[2] = a0 * b2 + a2 * b3;
+    outm[3] = a1 * b2 + a3 * b3;
+    outm[4] = a0 * b4 + a2 * b5 + a4;
+    outm[5] = a1 * b4 + a3 * b5 + a5;
     return out;
   }
 
@@ -221,15 +234,16 @@ class mat23 {
    * @returns {mat23} out
    */
   static rotate(out, a, rad) {
-    let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05,
+    let am = a.m, outm = out.m;
+    let a0 = am[0], a1 = am[1], a2 = am[2], a3 = am[3], a4 = am[4], a5 = am[5],
       s = Math.sin(rad),
       c = Math.cos(rad);
-    out.m00 = a0 * c + a2 * s;
-    out.m01 = a1 * c + a3 * s;
-    out.m02 = a0 * -s + a2 * c;
-    out.m03 = a1 * -s + a3 * c;
-    out.m04 = a4;
-    out.m05 = a5;
+    outm[0] = a0 * c + a2 * s;
+    outm[1] = a1 * c + a3 * s;
+    outm[2] = a0 * -s + a2 * c;
+    outm[3] = a1 * -s + a3 * c;
+    outm[4] = a4;
+    outm[5] = a5;
     return out;
   }
 
@@ -242,14 +256,15 @@ class mat23 {
    * @returns {mat23} out
    **/
   static scale(out, a, v) {
-    let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05,
+    let am = a.m, outm = out.m;
+    let a0 = am[0], a1 = am[1], a2 = am[2], a3 = am[3], a4 = am[4], a5 = am[5],
       v0 = v.x, v1 = v.y;
-    out.m00 = a0 * v0;
-    out.m01 = a1 * v0;
-    out.m02 = a2 * v1;
-    out.m03 = a3 * v1;
-    out.m04 = a4;
-    out.m05 = a5;
+    outm[0] = a0 * v0;
+    outm[1] = a1 * v0;
+    outm[2] = a2 * v1;
+    outm[3] = a3 * v1;
+    outm[4] = a4;
+    outm[5] = a5;
     return out;
   }
 
@@ -262,14 +277,15 @@ class mat23 {
    * @returns {mat23} out.
    */
   static translate(out, a, v) {
-    let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05,
+    let am = a.m, outm = out.m;
+    let a0 = am[0], a1 = am[1], a2 = am[2], a3 = am[3], a4 = am[4], a5 = am[5],
       v0 = v.x, v1 = v.y;
-    out.m00 = a0;
-    out.m01 = a1;
-    out.m02 = a2;
-    out.m03 = a3;
-    out.m04 = a0 * v0 + a2 * v1 + a4;
-    out.m05 = a1 * v0 + a3 * v1 + a5;
+    outm[0] = a0;
+    outm[1] = a1;
+    outm[2] = a2;
+    outm[3] = a3;
+    outm[4] = a0 * v0 + a2 * v1 + a4;
+    outm[5] = a1 * v0 + a3 * v1 + a5;
     return out;
   }
 
@@ -285,13 +301,14 @@ class mat23 {
    * @returns {mat23} out.
    */
   static fromRotation(out, rad) {
+    let outm = out.m;
     let s = Math.sin(rad), c = Math.cos(rad);
-    out.m00 = c;
-    out.m01 = s;
-    out.m02 = -s;
-    out.m03 = c;
-    out.m04 = 0;
-    out.m05 = 0;
+    outm[0] = c;
+    outm[1] = s;
+    outm[2] = -s;
+    outm[3] = c;
+    outm[4] = 0;
+    outm[5] = 0;
     return out;
   }
 
@@ -307,12 +324,13 @@ class mat23 {
    * @returns {mat23} out.
    */
   static fromScaling(out, v) {
-    out.m00 = v.m00;
-    out.m01 = 0;
-    out.m02 = 0;
-    out.m03 = v.m01;
-    out.m04 = 0;
-    out.m05 = 0;
+    let vm = v.m, outm = out.m;
+    outm[0] = vm[0];
+    outm[1] = 0;
+    outm[2] = 0;
+    outm[3] = vm[1];
+    outm[4] = 0;
+    outm[5] = 0;
     return out;
   }
 
@@ -328,12 +346,13 @@ class mat23 {
    * @returns {mat23} out.
    */
   static fromTranslation(out, v) {
-    out.m00 = 1;
-    out.m01 = 0;
-    out.m02 = 0;
-    out.m03 = 1;
-    out.m04 = v.x;
-    out.m05 = v.y;
+    let outm = out.m;
+    outm[0] = 1;
+    outm[1] = 0;
+    outm[2] = 0;
+    outm[3] = 1;
+    outm[4] = v.x;
+    outm[5] = v.y;
     return out;
   }
 
@@ -356,13 +375,14 @@ class mat23 {
    * @returns {mat23} out.
    */
   static fromRTS(out, r, t, s) {
+    let outm = out.m;
     let sr = Math.sin(r), cr = Math.cos(r);
-    out.m00 = cr * s.x;
-    out.m01 = sr * s.x;
-    out.m02 = -sr * s.y;
-    out.m03 = cr * s.y;
-    out.m04 = t.x;
-    out.m05 = t.y;
+    outm[0] = cr * s.x;
+    outm[1] = sr * s.x;
+    outm[2] = -sr * s.y;
+    outm[3] = cr * s.y;
+    outm[4] = t.x;
+    outm[5] = t.y;
     return out;
   }
 
@@ -373,7 +393,8 @@ class mat23 {
    * @returns {String} String representation of this matrix.
    */
   static str(a) {
-    return `mat23(${a.m00}, ${a.m01}, ${a.m02}, ${a.m03}, ${a.m04}, ${a.m05})`;
+    let am = a.m;
+    return `mat23(${am[0]}, ${am[1]}, ${am[2]}, ${am[3]}, ${am[4]}, ${am[5]})`;
   }
 
   /**
@@ -384,12 +405,13 @@ class mat23 {
    * @returns {Array} out.
    */
   static array(out, m) {
-    out[0] = m.m00;
-    out[1] = m.m01;
-    out[2] = m.m02;
-    out[3] = m.m03;
-    out[4] = m.m04;
-    out[5] = m.m05;
+    let mm = m.m;
+    out[0] = mm[0];
+    out[1] = mm[1];
+    out[2] = mm[2];
+    out[3] = mm[3];
+    out[4] = mm[4];
+    out[5] = mm[5];
 
     return out;
   }
@@ -402,20 +424,21 @@ class mat23 {
    * @returns {array}
    */
   static array4x4(out, m) {
-    out[0] = m.m00;
-    out[1] = m.m01;
+    let mm = m.m;
+    out[0] = mm[0];
+    out[1] = mm[1];
     out[2] = 0;
     out[3] = 0;
-    out[4] = m.m02;
-    out[5] = m.m03;
+    out[4] = mm[2];
+    out[5] = mm[3];
     out[6] = 0;
     out[7] = 0;
     out[8] = 0;
     out[9] = 0;
     out[10] = 1;
     out[11] = 0;
-    out[12] = m.m04;
-    out[13] = m.m05;
+    out[12] = mm[4];
+    out[13] = mm[5];
     out[14] = 0;
     out[15] = 1;
 
@@ -429,7 +452,8 @@ class mat23 {
    * @returns {Number} - The frobenius norm.
    */
   static frob(a) {
-    return (Math.sqrt(Math.pow(a.m00, 2) + Math.pow(a.m01, 2) + Math.pow(a.m02, 2) + Math.pow(a.m03, 2) + Math.pow(a.m04, 2) + Math.pow(a.m05, 2) + 1));
+    let am = a.m;
+    return (Math.sqrt(Math.pow(am[0], 2) + Math.pow(am[1], 2) + Math.pow(am[2], 2) + Math.pow(am[3], 2) + Math.pow(am[4], 2) + Math.pow(am[5], 2) + 1));
   }
 
   /**
@@ -441,12 +465,13 @@ class mat23 {
    * @returns {mat23} out.
    */
   static add(out, a, b) {
-    out.m00 = a.m00 + b.m00;
-    out.m01 = a.m01 + b.m01;
-    out.m02 = a.m02 + b.m02;
-    out.m03 = a.m03 + b.m03;
-    out.m04 = a.m04 + b.m04;
-    out.m05 = a.m05 + b.m05;
+    let am = a.m, bm = b.m, outm = out.m;
+    outm[0] = am[0] + bm[0];
+    outm[1] = am[1] + bm[1];
+    outm[2] = am[2] + bm[2];
+    outm[3] = am[3] + bm[3];
+    outm[4] = am[4] + bm[4];
+    outm[5] = am[5] + bm[5];
     return out;
   }
 
@@ -459,12 +484,13 @@ class mat23 {
    * @returns {mat23} out.
    */
   static subtract(out, a, b) {
-    out.m00 = a.m00 - b.m00;
-    out.m01 = a.m01 - b.m01;
-    out.m02 = a.m02 - b.m02;
-    out.m03 = a.m03 - b.m03;
-    out.m04 = a.m04 - b.m04;
-    out.m05 = a.m05 - b.m05;
+    let am = a.m, bm = b.m, outm = out.m;
+    outm[0] = am[0] - bm[0];
+    outm[1] = am[1] - bm[1];
+    outm[2] = am[2] - bm[2];
+    outm[3] = am[3] - bm[3];
+    outm[4] = am[4] - bm[4];
+    outm[5] = am[5] - bm[5];
     return out;
   }
 
@@ -484,12 +510,13 @@ class mat23 {
    * @returns {mat23} out.
    */
   static multiplyScalar(out, a, b) {
-    out.m00 = a.m00 * b;
-    out.m01 = a.m01 * b;
-    out.m02 = a.m02 * b;
-    out.m03 = a.m03 * b;
-    out.m04 = a.m04 * b;
-    out.m05 = a.m05 * b;
+    let am = a.m, outm = out.m;
+    outm[0] = am[0] * b;
+    outm[1] = am[1] * b;
+    outm[2] = am[2] * b;
+    outm[3] = am[3] * b;
+    outm[4] = am[4] * b;
+    outm[5] = am[5] * b;
     return out;
   }
 
@@ -503,12 +530,13 @@ class mat23 {
    * @returns {mat23} out.
    */
   static multiplyScalarAndAdd(out, a, b, scale) {
-    out.m00 = a.m00 + (b.m00 * scale);
-    out.m01 = a.m01 + (b.m01 * scale);
-    out.m02 = a.m02 + (b.m02 * scale);
-    out.m03 = a.m03 + (b.m03 * scale);
-    out.m04 = a.m04 + (b.m04 * scale);
-    out.m05 = a.m05 + (b.m05 * scale);
+    let am = a.m, bm = b.m, outm = out.m;
+    outm[0] = am[0] + (bm[0] * scale);
+    outm[1] = am[1] + (bm[1] * scale);
+    outm[2] = am[2] + (bm[2] * scale);
+    outm[3] = am[3] + (bm[3] * scale);
+    outm[4] = am[4] + (bm[4] * scale);
+    outm[5] = am[5] + (bm[5] * scale);
     return out;
   }
 
@@ -520,7 +548,8 @@ class mat23 {
    * @returns {Boolean} True if the matrices are equal, false otherwise.
    */
   static exactEquals(a, b) {
-    return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 && a.m03 === b.m03 && a.m04 === b.m04 && a.m05 === b.m05;
+    let am = a.m, bm = b.m;
+    return am[0] === bm[0] && am[1] === bm[1] && am[2] === bm[2] && am[3] === bm[3] && am[4] === bm[4] && am[5] === bm[5];
   }
 
   /**
@@ -531,8 +560,9 @@ class mat23 {
    * @returns {Boolean} True if the matrices are equal, false otherwise.
    */
   static equals(a, b) {
-    let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05;
-    let b0 = b.m00, b1 = b.m01, b2 = b.m02, b3 = b.m03, b4 = b.m04, b5 = b.m05;
+    let am = a.m, bm = b.m;
+    let a0 = am[0], a1 = am[1], a2 = am[2], a3 = am[3], a4 = am[4], a5 = am[5];
+    let b0 = bm[0], b1 = bm[1], b2 = bm[2], b3 = bm[3], b4 = bm[4], b5 = bm[5];
     return (
       Math.abs(a0 - b0) <= EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
       Math.abs(a1 - b1) <= EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&

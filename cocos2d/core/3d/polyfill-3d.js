@@ -44,21 +44,22 @@ function _updateLocalMatrix3d () {
     if (this._localMatDirty) {
         // Update transform
         let t = this._matrix;
+        let tm = t.m;
         mat4.fromTRSArray(t, this._trs);
 
         // skew
         if (this._skewX || this._skewY) {
-            let a = t.m00, b = t.m01, c = t.m04, d = t.m05;
+            let a = tm[0], b = tm[1], c = tm[4], d = tm[5];
             let skx = Math.tan(this._skewX * ONE_DEGREE);
             let sky = Math.tan(this._skewY * ONE_DEGREE);
             if (skx === Infinity)
                 skx = 99999999;
             if (sky === Infinity)
                 sky = 99999999;
-            t.m00 = a + c * sky;
-            t.m01 = b + d * sky;
-            t.m04 = c + a * skx;
-            t.m05 = d + b * skx;
+            tm[0] = a + c * sky;
+            tm[1] = b + d * sky;
+            tm[4] = c + a * skx;
+            tm[5] = d + b * skx;
         }
         this._localMatDirty = 0;
         // Register dirty status of world matrix so that it can be recalculated
@@ -96,17 +97,17 @@ function setPosition (newPosOrX, y, z) {
     }
 
     let trs = this._trs;
-    if (trs[1] === x && trs[2] === y && trs[3] === z) {
+    if (trs[0] === x && trs[1] === y && trs[2] === z) {
         return;
     }
 
     if (CC_EDITOR) {
-        var oldPosition = new cc.Vec3(trs[1], trs[2], trs[3]);
+        var oldPosition = new cc.Vec3(trs[0], trs[1], trs[2]);
     }
 
-    trs[1] = x;
-    trs[2] = y;
-    trs[3] = z;
+    trs[0] = x;
+    trs[1] = y;
+    trs[2] = z;
     this.setLocalDirty(DirtyFlag.POSITION);
     this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
 
@@ -135,10 +136,10 @@ function setScale (x, y, z) {
         z = 1;
     }
     let trs = this._trs;
-    if (trs[8] !== x || trs[9] !== y || trs[10] !== z) {
-        trs[8] = x;
-        trs[9] = y;
-        trs[10] = z;
+    if (trs[7] !== x || trs[8] !== y || trs[9] !== z) {
+        trs[7] = x;
+        trs[8] = y;
+        trs[9] = z;
         this.setLocalDirty(DirtyFlag.SCALE);
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
@@ -198,10 +199,10 @@ cc.js.getset(proto, 'is3DNode', function () {
 });
 
 cc.js.getset(proto, 'scaleZ', function () {
-    return this._trs[10];
+    return this._trs[9];
 }, function (v) {
-    if (this._trs[10] !== value) {
-        this._trs[10] = value;
+    if (this._trs[9] !== value) {
+        this._trs[9] = value;
         this.setLocalDirty(DirtyFlag.SCALE);
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
 
@@ -212,12 +213,12 @@ cc.js.getset(proto, 'scaleZ', function () {
 });
 
 cc.js.getset(proto, 'z', function () {
-    return this._trs[3];
+    return this._trs[2];
 }, function (value) {
     let trs = this._trs;
-    if (value !== trs[3]) {
+    if (value !== trs[2]) {
         if (!CC_EDITOR || isFinite(value)) {
-            trs[3] = value;
+            trs[2] = value;
             this.setLocalDirty(DirtyFlag.POSITION);
             this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
             // fast check event
@@ -254,5 +255,5 @@ cc.js.getset(proto, 'eulerAngles', function () {
 // Should be rememoved when node.rotation upgrade to quaternion value
 cc.js.getset(proto, 'quat', function () {
     let trs = this._trs;
-    return cc.quat(trs[4], trs[5], trs[6], trs[7]);
+    return cc.quat(trs[3], trs[4], trs[5], trs[6]);
 }, proto.setRotation);

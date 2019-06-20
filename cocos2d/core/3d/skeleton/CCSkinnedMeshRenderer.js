@@ -220,24 +220,7 @@ let SkinnedMeshRenderer = cc.Class({
     },
 
     _setJointsDataWithMatrix (iMatrix, matrix) {
-        let data = this._jointsData;
-
-        data[16 * iMatrix + 0] = matrix.m00;
-        data[16 * iMatrix + 1] = matrix.m01;
-        data[16 * iMatrix + 2] = matrix.m02;
-        data[16 * iMatrix + 3] = matrix.m03;
-        data[16 * iMatrix + 4] = matrix.m04;
-        data[16 * iMatrix + 5] = matrix.m05;
-        data[16 * iMatrix + 6] = matrix.m06;
-        data[16 * iMatrix + 7] = matrix.m07;
-        data[16 * iMatrix + 8] = matrix.m08;
-        data[16 * iMatrix + 9] = matrix.m09;
-        data[16 * iMatrix + 10] = matrix.m10;
-        data[16 * iMatrix + 11] = matrix.m11;
-        data[16 * iMatrix + 12] = matrix.m12;
-        data[16 * iMatrix + 13] = matrix.m13;
-        data[16 * iMatrix + 14] = matrix.m14;
-        data[16 * iMatrix + 15] = matrix.m15;
+        this._jointsData.set(matrix.m, 16 * iMatrix);
     },
 
     _commitJointsData () {
