@@ -70,6 +70,104 @@ array
 };
 
 /**
+ * @class Pass
+ */
+renderer.PassNative = {
+
+/**
+ * @method getStencilTest
+ * @return {bool}
+ */
+getStencilTest : function (
+)
+{
+    return false;
+},
+
+/**
+ * @method setStencilBack
+ */
+setStencilBack : function (
+)
+{
+},
+
+/**
+ * @method getProgramName
+ * @return {String}
+ */
+getProgramName : function (
+)
+{
+    return ;
+},
+
+/**
+ * @method setCullMode
+ * @param {cc.renderer::CullMode} arg0
+ */
+setCullMode : function (
+cullmode 
+)
+{
+},
+
+/**
+ * @method setBlend
+ */
+setBlend : function (
+)
+{
+},
+
+/**
+ * @method setProgramName
+ * @param {String} arg0
+ */
+setProgramName : function (
+str 
+)
+{
+},
+
+/**
+ * @method disableStencilTest
+ */
+disableStencilTest : function (
+)
+{
+},
+
+/**
+ * @method setStencilFront
+ */
+setStencilFront : function (
+)
+{
+},
+
+/**
+ * @method setDepth
+ */
+setDepth : function (
+)
+{
+},
+
+/**
+ * @method Pass
+ * @constructor
+* @param {String} str
+*/
+Pass : function(
+str 
+)
+{
+},
+
+};
+
+/**
  * @class Effect
  */
 renderer.EffectNative = {
@@ -84,6 +182,16 @@ str
 )
 {
     return cc.renderer::Technique::Parameter;
+},
+
+/**
+ * @method setStencilTest
+ * @param {bool} arg0
+ */
+setStencilTest : function (
+bool 
+)
+{
 },
 
 /**
@@ -108,6 +216,32 @@ str
 )
 {
     return cc.Value;
+},
+
+/**
+ * @method setCullMode
+ * @param {cc.renderer::CullMode} arg0
+ */
+setCullMode : function (
+cullmode 
+)
+{
+},
+
+/**
+ * @method setStencil
+ */
+setStencil : function (
+)
+{
+},
+
+/**
+ * @method setBlend
+ */
+setBlend : function (
+)
+{
 },
 
 /**
@@ -1359,94 +1493,6 @@ float
  * @constructor
  */
 Light : function (
-)
-{
-},
-
-};
-
-/**
- * @class Pass
- */
-renderer.PassNative = {
-
-/**
- * @method getStencilTest
- * @return {bool}
- */
-getStencilTest : function (
-)
-{
-    return false;
-},
-
-/**
- * @method setStencilBack
- */
-setStencilBack : function (
-)
-{
-},
-
-/**
- * @method setCullMode
- * @param {cc.renderer::CullMode} arg0
- */
-setCullMode : function (
-cullmode 
-)
-{
-},
-
-/**
- * @method setBlend
- */
-setBlend : function (
-)
-{
-},
-
-/**
- * @method setProgramName
- * @param {String} arg0
- */
-setProgramName : function (
-str 
-)
-{
-},
-
-/**
- * @method disableStencilTest
- */
-disableStencilTest : function (
-)
-{
-},
-
-/**
- * @method setStencilFront
- */
-setStencilFront : function (
-)
-{
-},
-
-/**
- * @method setDepth
- */
-setDepth : function (
-)
-{
-},
-
-/**
- * @method Pass
- * @constructor
-* @param {String} str
-*/
-Pass : function(
-str 
 )
 {
 },

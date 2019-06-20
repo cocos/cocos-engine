@@ -31,6 +31,7 @@
 #include "base/CCValue.h"
 #include "../Macro.h"
 #include "Technique.h"
+#include "Pass.h"
 
 RENDERER_BEGIN
 
@@ -146,6 +147,43 @@ public:
      *  @brief Gets hash.
      */
     double getHash() const { return _hash; };
+    
+    /**
+     *  @brief Sets cull mode.
+     *  @param[in] cullMode Cull front or back or both.
+     */
+    void setCullMode(CullMode cullMode);
+    /**
+     *  @brief Sets blend mode.
+     *  @param[in] blendEq RGB blend equation.
+     *  @param[in] blendSrc Src RGB blend factor.
+     *  @param[in] blendDst Dst RGB blend factor.
+     *  @param[in] blendAlphaEq Alpha blend equation.
+     *  @param[in] blendSrcAlpha Src Alpha blend equation.
+     *  @param[in] blendDstAlpha Dst Alpha blend equation.
+     *  @param[in] blendColor Blend constant color value.
+     */
+    void setBlend(BlendOp blendEq = BlendOp::ADD,
+                  BlendFactor blendSrc = BlendFactor::ONE,
+                  BlendFactor blendDst = BlendFactor::ZERO,
+                  BlendOp blendAlphaEq = BlendOp::ADD,
+                  BlendFactor blendSrcAlpha = BlendFactor::ONE,
+                  BlendFactor blendDstAlpha = BlendFactor::ZERO,
+                  uint32_t blendColor = 0xffffffff);
+    /**
+     *  @brief Sets stencil front-facing function, reference, mask, fail operation, write mask.
+     */
+    void setStencil(StencilFunc stencilFunc = StencilFunc::ALWAYS,
+                         uint32_t stencilRef = 0,
+                         uint8_t stencilMask = 0xff,
+                         StencilOp stencilFailOp = StencilOp::KEEP,
+                         StencilOp stencilZFailOp = StencilOp::KEEP,
+                         StencilOp stencilZPassOp = StencilOp::KEEP,
+                         uint8_t stencilWriteMask = 0xff);
+    /*
+     *  @brief Sets stencil test enabled or not.
+     */
+    void setStencilTest(bool value);
 
     /*
      *  @brief Gets the define key for the current define settings.

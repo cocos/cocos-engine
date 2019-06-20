@@ -126,6 +126,10 @@ public:
      */
     inline void setProgramName(const std::string& programName) { _programName = programName; }
     /**
+     *  @brief Gets linked program name.
+     */
+    inline std::string getProgramName() const { return _programName; }
+    /**
      *  @brief Disable stencil test.
      */
     inline void disableStencilTest() { _stencilTest = false; }
