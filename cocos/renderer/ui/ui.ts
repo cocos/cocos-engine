@@ -12,6 +12,7 @@ import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { GFXTextureView } from '../../gfx/texture-view';
+import { UniformBinding } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
 import { Camera } from '../scene/camera';
 import { Model } from '../scene/model';
@@ -71,7 +72,7 @@ export class UI {
         return this._currMeshBuffer;
     }
 
-    get debugScreen (){
+    get debugScreen () {
         return this._debugScreen;
     }
 
@@ -288,7 +289,8 @@ export class UI {
                     }
                 } else {
                     const bindingLayout = batch.bindingLayout!;
-                    bindingLayout.bindTextureView(0, batch.texView!);
+                    // assumes sprite materials has only one sampler
+                    bindingLayout.bindTextureView(UniformBinding.CUSTOM_SAMPLER_BINDING_START_POINT, batch.texView!);
                     bindingLayout.update();
 
                     const ia = batch.bufferBatch!.ia!;
