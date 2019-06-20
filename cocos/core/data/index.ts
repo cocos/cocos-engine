@@ -30,3 +30,4 @@ export { default as CCClass } from './class';
 export { CCObject } from './object';
 export { default as deserialize } from './deserialize';
 export { default as instantiate } from './instantiate';
+export { CCInteger, CCFloat, CCBoolean, CCString} from './utils/attribute';
