@@ -68,17 +68,13 @@ export class BuiltInBody implements BuiltInRigidBodyBase {
     public addMask (v: number): void {
         v = clamp(Math.floor(v), 0, 31);
         v = 1 << v;
-        if (!(this._collisionFilterMask & v)) {
-            this._collisionFilterMask += v;
-        }
+        this._collisionFilterMask |= v;
     }
 
     public removeMask (v: number): void {
         v = clamp(Math.floor(v), 0, 31);
         v = 1 << v;
-        if (this._collisionFilterMask & v) {
-            this._collisionFilterMask -= v;
-        }
+        this._collisionFilterMask &= ~v;
     }
 
     public getCollisionFilterMask (): number {
