@@ -346,6 +346,34 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         }
     }
 
+    public getLinearVelocity (out: Vec3): Vec3 {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+            return this._body.getLinearVelocity(out);
+        }
+        out = out || new Vec3();
+        return out;
+    }
+
+    public setLinearVelocity (value: Vec3): void {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+            this._body.setLinearVelocity(value);
+        }
+    }
+
+    public getAngularVelocity (out: Vec3): Vec3 {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+            return this._body.getAngularVelocity(out);
+        }
+        out = out || new Vec3();
+        return out;
+    }
+
+    public setAngularVelocity (value: Vec3): void {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+            this._body.setAngularVelocity(value);
+        }
+    }
+
     /// COMPONENT LIFECYCLE ///
 
     protected onLoad () {
