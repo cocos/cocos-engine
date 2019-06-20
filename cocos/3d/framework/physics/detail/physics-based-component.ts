@@ -36,9 +36,19 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 获取分组位, 返回的是移动的位数，即 “ 1 << v ” 中的 v。
-     * @note 注：使用此接口表示只在一个组。
-     * @returns 整数，范围为 0 到 31
+     * 设置分组值。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public setGroup (v: number): void {
+        if (this._assertPreload) {
+            return this._body!.setGroup(v);
+        }
+    }
+
+    /**
+     * @zh
+     * 获取分组值。
+     * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public getGroup (): number {
         if (this._assertPreload) {
@@ -49,69 +59,23 @@ export class PhysicsBasedComponent extends Component {
 
     /**
      * @zh
-     * 设置分组位，将会进行位操作，即 1 << v。
-     * @note 注：使用此接口表示只在一个组。
-     * @param v - 整数，范围为 0 到 31
-     */
-    public setGroup (v: number) {
-        if (this._assertPreload) {
-            return this._body!.setGroup(v);
-        }
-    }
-
-    /**
-     * @zh
-     * 获取分组值。
+     * 添加分组值，可填要加入的 group。
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
-    public setCollisionFilterGroup (v: number): void {
+    public addGroup (v: number) {
         if (this._assertPreload) {
-            return this._body!.setCollisionFilterGroup(v);
+            return this._body!.addGroup(v);
         }
     }
 
     /**
      * @zh
-     * 设置分组值。
-     * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     * 减去分组值，可填要移除的 group。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
-    public getCollisionFilterGroup (): number {
+    public removeGroup (v: number) {
         if (this._assertPreload) {
-            return this._body!.getCollisionFilterGroup();
-        }
-        return 0;
-    }
-
-    /**
-     * @zh
-     * 设置掩码位，将会把掩码值的第 v 位写为 1，其它位写位 0。
-     * @param v - 整数，范围为 0 到 31
-     */
-    public setMask (v: number) {
-        if (this._assertPreload) {
-            return this._body!.setMask(v);
-        }
-    }
-
-    /**
-     * @zh
-     * 添加掩码位，将会把掩码值的第 v 位写为 1，可填入需要检查的 group。
-     * @param v - 整数，范围为 0 到 31
-     */
-    public addMask (v: number) {
-        if (this._assertPreload) {
-            return this._body!.addMask(v);
-        }
-    }
-
-    /**
-     * @zh
-     * 移除掩码位，将会把掩码值的第 v 位写为 0，可填入不需要检查的 group。
-     * @param v - 整数，范围为 0 到 31
-     */
-    public removeMask (v: number) {
-        if (this._assertPreload) {
-            return this._body!.removeMask(v);
+            return this._body!.removeGroup(v);
         }
     }
 
@@ -120,9 +84,9 @@ export class PhysicsBasedComponent extends Component {
      * 获取掩码值。
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
-    public getCollisionFilterMask (): number {
+    public getMask (): number {
         if (this._assertPreload) {
-            return this._body!.getCollisionFilterMask();
+            return this._body!.getMask();
         }
         return 0;
     }
@@ -132,21 +96,31 @@ export class PhysicsBasedComponent extends Component {
      * 设置掩码值。
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
-    public setCollisionFilterMask (v: number) {
+    public setMask (v: number) {
         if (this._assertPreload) {
-            return this._body!.setCollisionFilterMask(v);
+            return this._body!.setMask(v);
         }
     }
 
     /**
      * @zh
-     * 直接设置分组值和掩码值。
-     * @param group - 分组值
-     * @param mask - 掩码值
+     * 添加掩码值，可填入需要检查的 group。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
-    public setCollisionFilter (group: number, mask: number) {
+    public addMask (v: number) {
         if (this._assertPreload) {
-            this._body!.setCollisionFilter(group, mask);
+            return this._body!.addMask(v);
+        }
+    }
+
+    /**
+     * @zh
+     * 减去掩码值，可填入不需要检查的 group。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public removeMask (v: number) {
+        if (this._assertPreload) {
+            return this._body!.removeMask(v);
         }
     }
 
