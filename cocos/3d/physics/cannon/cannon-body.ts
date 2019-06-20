@@ -15,7 +15,6 @@ export class CannonRigidBody implements RigidBodyBase {
         return this._body;
     }
 
-    private _group: number = 1;
     private _body: CANNON.Body;
     private _velocityResult: Vec3 = new Vec3();
     private _useGravity = true;
@@ -56,46 +55,38 @@ export class CannonRigidBody implements RigidBodyBase {
         };
     }
 
+    /** group */
     public getGroup (): number {
-        return this._group;
-    }
-
-    public setGroup (v: number): void {
-        this._group = clamp(v, 0, 31);
-        this._body.collisionFilterGroup = 1 << this._group;
-    }
-
-    public setCollisionFilterGroup (group: number): void {
-        this._body.collisionFilterGroup = group;
-    }
-
-    public getCollisionFilterGroup (): number {
         return this._body.collisionFilterGroup;
     }
 
+    public setGroup (v: number): void {
+        this._body.collisionFilterGroup = v;
+    }
+
+    public addGroup (v: number): void {
+        this._body.collisionFilterGroup |= v;
+    }
+
+    public removeGroup (v: number): void {
+        this._body.collisionFilterGroup &= ~v;
+    }
+
+    /** mask */
+    public getMask (): number {
+        return this._body.collisionFilterMask;
+    }
+
     public setMask (v: number): void {
-        v = clamp(Math.floor(v), 0, 31);
-        this._body.collisionFilterMask = 1 << v;
+        this._body.collisionFilterMask = v;
     }
 
     public addMask (v: number): void {
-        v = clamp(Math.floor(v), 0, 31);
-        v = 1 << v;
         this._body.collisionFilterMask |= v;
     }
 
     public removeMask (v: number): void {
-        v = clamp(Math.floor(v), 0, 31);
-        v = 1 << v;
         this._body.collisionFilterMask &= ~v;
-    }
-
-    public getCollisionFilterMask (): number {
-        return this._body.collisionFilterMask;
-    }
-
-    public setCollisionFilterMask (v: number): void {
-        this._body.collisionFilterMask = v;
     }
 
     public wakeUp (): void {
@@ -230,11 +221,6 @@ export class CannonRigidBody implements RigidBodyBase {
     public applyImpulse (impulse: Vec3) {
         this._body.wakeUp();
         this._body.applyImpulse(toCannonVec3(impulse), this._body.position);
-    }
-
-    public setCollisionFilter (group: number, mask: number) {
-        this._body.collisionFilterGroup = group;
-        this._body.collisionFilterMask = mask;
     }
 
     public setWorld (world: PhysicsWorldBase | null) {

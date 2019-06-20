@@ -67,26 +67,17 @@ export interface BuiltInRigidBodyBase{
 
     setGroup (v: number): void;
 
-    setCollisionFilterGroup (group: number): void;
+    addGroup (v: number): void;
 
-    getCollisionFilterGroup (): number;
+    removeGroup (v: number): void;
 
     setMask (v: number): void;
+
+    getMask (): number;
 
     addMask (v: number): void;
 
     removeMask (v: number): void;
-
-    getCollisionFilterMask (): number;
-
-    setCollisionFilterMask (v: number): void;
-
-    /**
-     * Set the collision filter of this body, remember that they are tested bitwise.
-     * @param group The group which this body will be put into.
-     * @param mask The groups which this body can collide with.
-     */
-    setCollisionFilter (group: number, mask: number): void;
 
     addShape (shape: ShapeBase, offset?: Vec3): void;
 

@@ -43,46 +43,38 @@ export class BuiltInBody implements BuiltInRigidBodyBase {
         this._id = BuiltInBody.idCounter++;
     }
 
+    /** group */
     public getGroup (): number {
-        return this._group;
-    }
-
-    public setGroup (v: number): void {
-        this._group = clamp(Math.floor(v), 0, 31);
-        this._collisionFilterGroup = 1 << this._group;
-    }
-
-    public getCollisionFilterGroup (): number {
         return this._collisionFilterGroup;
     }
 
-    public setCollisionFilterGroup (group: number): void {
-        this._collisionFilterGroup = group;
+    public setGroup (v: number): void {
+        this._collisionFilterGroup = v;
+    }
+
+    public addGroup (v: number): void {
+        this._collisionFilterGroup |= v;
+    }
+
+    public removeGroup (v: number): void {
+        this._collisionFilterGroup &= ~v;
+    }
+
+    /** mask */
+    public getMask (): number {
+        return this._collisionFilterMask;
     }
 
     public setMask (v: number): void {
-        v = clamp(Math.floor(v), 0, 31);
-        this._collisionFilterMask = 1 << v;
+        this._collisionFilterMask = v;
     }
 
     public addMask (v: number): void {
-        v = clamp(Math.floor(v), 0, 31);
-        v = 1 << v;
         this._collisionFilterMask |= v;
     }
 
     public removeMask (v: number): void {
-        v = clamp(Math.floor(v), 0, 31);
-        v = 1 << v;
         this._collisionFilterMask &= ~v;
-    }
-
-    public getCollisionFilterMask (): number {
-        return this._collisionFilterMask;
-    }
-
-    public setCollisionFilterMask (v: number): void {
-        this._collisionFilterMask = v;
     }
 
     public intersects (body: BuiltInBody): boolean {
@@ -129,11 +121,6 @@ export class BuiltInBody implements BuiltInRigidBodyBase {
         if (i >= 0) {
             this._shapes.splice(i, 1);
         }
-    }
-
-    public setCollisionFilter (group: number, mask: number): void {
-        this._collisionFilterGroup = group;
-        this._collisionFilterMask = mask;
     }
 
     public setWorld (world: PhysicsWorldBase | null): void {
