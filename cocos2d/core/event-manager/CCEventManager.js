@@ -332,7 +332,7 @@ var eventManager = {
                 return 1;
         }
 
-        return ex ? ((p1._localZOrder > p2._localZOrder) ? 1 : -1) : ((p2._localZOrder > p1._localZOrder) ? 1 : -1);
+        return ex ? p1._localZOrder - p2._localZOrder : p2._localZOrder - p1._localZOrder;
     },
 
     _sortListenersOfFixedPriority: function (listenerID) {
