@@ -191,13 +191,44 @@ export class CannonRigidBody implements RigidBodyBase {
         this._body.collisionResponse = !value;
     }
 
-    public getVelocity (): Vec3 {
-        vec3.copy(this._velocityResult, this._body.velocity);
-        return this._velocityResult;
+    public getLinearVelocity (out?: Vec3): Vec3 {
+        out = out || new Vec3();
+        vec3.copy(out, this._body.velocity);
+        return out;
     }
 
-    public setVelocity (value: Vec3): void {
+    public setLinearVelocity (value: Vec3): void {
         vec3.copy(this._body.velocity, value);
+    }
+
+    public getAngularVelocity (out?: Vec3): Vec3 {
+        out = out || new Vec3();
+        vec3.copy(out, this._body.angularVelocity);
+        return out;
+    }
+
+    public setAngularVelocity (value: Vec3): void {
+        vec3.copy(this._body.angularVelocity, value);
+    }
+
+    public getLinearFactor (out?: Vec3): Vec3 {
+        out = out || new Vec3();
+        vec3.copy(out, this._body.linearFactor);
+        return out;
+    }
+
+    public setLinearFactor (value: Vec3): void {
+        vec3.copy(this._body.linearFactor, value);
+    }
+
+    public getAngularFactor (out?: Vec3): Vec3 {
+        out = out || new Vec3();
+        vec3.copy(out, this._body.angularFactor);
+        return out;
+    }
+
+    public setAngularFactor (value: Vec3): void {
+        vec3.copy(this._body.angularFactor, value);
     }
 
     public getFreezeRotation (): boolean {
@@ -209,18 +240,38 @@ export class CannonRigidBody implements RigidBodyBase {
         this._body.updateMassProperties();
     }
 
-    public applyForce (force: Vec3, position?: Vec3) {
-        if (!position) {
-            position = new Vec3();
-            vec3.copy(position, this._body.position);
+    public applyForce (force: Vec3, worldPoint?: Vec3) {
+        if (worldPoint == null) {
+            worldPoint = new Vec3();
+            vec3.copy(worldPoint, this._body.position);
         }
         this._body.wakeUp();
-        this._body.applyForce(toCannonVec3(force), toCannonVec3(position));
+        this._body.applyForce(toCannonVec3(force), toCannonVec3(worldPoint));
     }
 
-    public applyImpulse (impulse: Vec3) {
+    public applyImpulse (impulse: Vec3, worldPoint?: Vec3) {
+        if (worldPoint == null) {
+            worldPoint = new Vec3();
+            vec3.copy(worldPoint, this._body.position);
+        }
         this._body.wakeUp();
-        this._body.applyImpulse(toCannonVec3(impulse), this._body.position);
+        this._body.applyImpulse(toCannonVec3(impulse), toCannonVec3(worldPoint));
+    }
+
+    public applyLocalForce (force: Vec3, localPoint?: Vec3): void {
+        if (localPoint == null) {
+            localPoint = new Vec3();
+        }
+        this._body.wakeUp();
+        this._body.applyLocalForce(toCannonVec3(force), toCannonVec3(localPoint));
+    }
+
+    public applyLocalImpulse (impulse: Vec3, localPoint?: Vec3): void {
+        if (localPoint == null) {
+            localPoint = new Vec3();
+        }
+        this._body.wakeUp();
+        this._body.applyLocalImpulse(toCannonVec3(impulse), toCannonVec3(localPoint));
     }
 
     public setWorld (world: PhysicsWorldBase | null) {

@@ -62,7 +62,7 @@ export interface PhysicsWorldBase {
     raycastAll (from: Vec3, to: Vec3, options: IRaycastOptions, callback: (result: RaycastResult) => void): boolean;
 }
 
-export interface BuiltInRigidBodyBase{
+export interface BuiltInRigidBodyBase {
 
     getGroup (): number;
 
@@ -107,7 +107,7 @@ export interface BuiltInRigidBodyBase{
     setWorld (world: PhysicsWorldBase | null): void;
 }
 
-export interface RigidBodyBase extends BuiltInRigidBodyBase{
+export interface RigidBodyBase extends BuiltInRigidBodyBase {
     /** the body type */
     getType (): ERigidBodyType;
 
@@ -121,17 +121,37 @@ export interface RigidBodyBase extends BuiltInRigidBodyBase{
 
     setMass (value: number): void;
 
-    applyForce (force: Vec3, position?: Vec3): void;
+    /**
+     * force
+     */
 
-    applyImpulse (impulse: Vec3, position?: Vec3): void;
+    applyForce (force: Vec3, worldPoint?: Vec3): void;
+
+    applyLocalForce (force: Vec3, localPoint?: Vec3): void;
+
+    /**
+     * impulse
+     */
+
+    applyImpulse (impulse: Vec3, worldPoint?: Vec3): void;
+
+    applyLocalImpulse (impulse: Vec3, localPoint?: Vec3): void;
 
     getIsKinematic (): boolean;
 
     setIsKinematic (value: boolean): void;
 
+    /**
+     * linear damping
+     */
+
     getLinearDamping (): number;
 
     setLinearDamping (value: number): void;
+
+    /**
+     * angular damping
+     */
 
     getAngularDamping (): number;
 
@@ -145,9 +165,37 @@ export interface RigidBodyBase extends BuiltInRigidBodyBase{
 
     setIsTrigger (value: boolean): void;
 
-    getVelocity (): Vec3;
+    /**
+     * linear velocity
+     */
 
-    setVelocity (value: Vec3): void;
+    getLinearVelocity (out?: Vec3): Vec3;
+
+    setLinearVelocity (value: Vec3): void;
+
+    /**
+     * angular velocity
+     */
+
+    getAngularVelocity (out?: Vec3): Vec3;
+
+    setAngularVelocity (value: Vec3): void;
+
+    /**
+     * linear factor
+     */
+
+    getLinearFactor (out?: Vec3): Vec3;
+
+    setLinearFactor (value: Vec3): void;
+
+    /**
+     * angular factor
+     */
+
+    getAngularFactor (out?: Vec3): Vec3;
+
+    setAngularFactor (value: Vec3): void;
 
     getFreezeRotation (): boolean;
 
