@@ -125,6 +125,8 @@ void ModelBatcher::commit(NodeProxy* node, Assembler* assembler)
     
     for (std::size_t i = 0, l = assembler->getIACount(); i < l; ++i)
     {
+        assembler->beforeFillBuffers(i);
+        
         Effect* effect = assembler->getEffect((uint32_t)i);
         if (!effect) continue;
         int cullingMask = node->getCullingMask();

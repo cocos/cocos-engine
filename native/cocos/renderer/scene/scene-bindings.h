@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include "MemPool.hpp"
+#include "NodeMemPool.hpp"
 #include "NodeProxy.hpp"
 #include "ModelBatcher.hpp"
 #include "RenderFlow.hpp"

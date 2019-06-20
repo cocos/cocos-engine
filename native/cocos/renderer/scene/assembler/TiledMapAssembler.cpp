@@ -39,14 +39,14 @@ TiledMapAssembler::~TiledMapAssembler()
     
 }
 
-void TiledMapAssembler::updateNodes(std::size_t meshIndex, std::vector<std::string> nodes)
+void TiledMapAssembler::updateNodes(std::size_t iaIndex, const std::vector<std::string>& nodes)
 {
-    _nodesMap[meshIndex] = nodes;
+    _nodesMap[iaIndex] = nodes;
 }
 
-void TiledMapAssembler::clearNodes(std::size_t meshIndex)
+void TiledMapAssembler::clearNodes(std::size_t iaIndex)
 {
-    _nodesMap.erase(meshIndex);
+    _nodesMap.erase(iaIndex);
 }
 
 void TiledMapAssembler::handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene)
@@ -59,26 +59,32 @@ void TiledMapAssembler::handle(NodeProxy *node, ModelBatcher* batcher, Scene* sc
     Assembler::handle(node, batcher, scene);
 }
 
-void TiledMapAssembler::fillBuffers(MeshBuffer* buffer, std::size_t index, const Mat4& worldMat)
+void TiledMapAssembler::beforeFillBuffers(std::size_t index)
 {
     auto it = _nodesMap.find(index);
     if (it != _nodesMap.end())
     {
         auto flow = _batcher->getFlow();
-        for (auto& childName : it->second) {
-            auto child = _node->getChildByName(childName);
+        for (auto& id : it->second) {
+            auto child = _node->getChildByID(id);
             if (child)
             {
                 child->enableVisit();
                 child->disaleUpdateWorldMatrix();
-                child->updateFromJS();
-                child->updateMatrix(_tileMapWorldMat);
+                child->updateLocalMatrix();
+                child->updateWorldMatrix(_tileMapWorldMat);
+                child->addWorldMatDirty();
                 flow->visit(child);
+                child->subWorldMatDirty();
                 child->enableUpdateWorldMatrix();
                 child->disableVisit();
             }
         }
     }
+}
+
+void TiledMapAssembler::fillBuffers(MeshBuffer* buffer, std::size_t index, const Mat4& worldMat)
+{
     Assembler::fillBuffers(buffer, index, worldMat);
 }
 

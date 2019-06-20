@@ -122,10 +122,7 @@ public:
      */
     virtual void reset() {};
 public:
-    static const int TRANSFORM = 1 << 0;
-    static const int OPACITY = 1 << 1;
-    static const int COLOR = 1 << 2;
-    static const int CHILDREN = 1 << 3;
+    static const int OPACITY = 1;
 protected:
     uint32_t _dirtyFlag = 0;
     bool _enabled = false;

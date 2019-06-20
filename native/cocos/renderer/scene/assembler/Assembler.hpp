@@ -121,6 +121,10 @@ public:
      */
     virtual void postHandle(NodeProxy *node, ModelBatcher* batcher, Scene* scene) override {}
     /*
+     *  @brief before fill buffers handle
+     */
+    virtual void beforeFillBuffers(std::size_t index) {}
+    /*
      *  @brief Fills render data in given index to the MeshBuffer
      *  @param[in] buffer The shared mesh buffer
      *  @param[in] index The index of render data to be updated

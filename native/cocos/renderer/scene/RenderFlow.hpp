@@ -50,6 +50,54 @@ RENDERER_BEGIN
 class RenderFlow
 {
 public:
+    
+    enum RenderFlowFlag {
+        // sync js render flag
+        
+        BREAK_FLOW = 1 << 0,
+        LOCAL_TRANSFORM = 1 << 1,
+        WORLD_TRANSFORM = 1 << 2,
+        TRANSFORM = LOCAL_TRANSFORM | WORLD_TRANSFORM,
+        UPDATE_RENDER_DATA = 1 << 3,
+        OPACITY = 1 << 4,
+        RENDER = 1 << 5,
+        CUSTOM_IA_RENDER = 1 << 6,
+        CHILDREN = 1 << 7,
+        POST_UPDATE_RENDER_DATA = 1 << 8,
+        POST_RENDER = 1 << 9,
+        FINAL = 1 << 10,
+        
+        // native render flag
+        REORDER_CHILDREN = 1 << 11,
+        // world matrix changed
+        WORLD_TRANSFORM_CHANGED = 1 << 12
+    };
+    
+    struct LevelInfo{
+        uint32_t* dirty = nullptr;
+        cocos2d::Mat4* localMat = nullptr;
+        cocos2d::Mat4* worldMat = nullptr;
+        cocos2d::Mat4* parentWorldMat = nullptr;
+        uint32_t* parentDirty = nullptr;
+    };
+    
+    static RenderFlow *getInstance()
+    {
+        return _instance;
+    }
+    
+    /*
+     *  @brief The constructor.
+     *  @param[in] device
+     *  @param[in] scene
+     *  @param[in] forward
+     */
+    RenderFlow(DeviceGraphics* device, Scene* scene, ForwardRenderer* forward);
+    /*
+     *  @brief The destructor.
+     */
+    ~RenderFlow();
+    
     /*
      *  @brief Gets the ModelBatcher which is responsible for collecting render Models.
      */
@@ -71,22 +119,31 @@ public:
      *  @brief Visit a node tree.
      */
     void visit(NodeProxy* rootNode);
-    /*
-     *  @brief The constructor.
-     *  @param[in] device
-     *  @param[in] scene
-     *  @param[in] forward
+    /**
+     *  @brief Calculate local matrix.
      */
-    RenderFlow(DeviceGraphics* device, Scene* scene, ForwardRenderer* forward);
-    /*
-     *  @brief The destructor.
+    void calculateLocalMatrix();
+    /**
+     *  @brief Calculate world matrix.
      */
-    ~RenderFlow();
+    void calculateWorldMatrix();
+    /**
+     *  @brief remove node level
+     */
+    void removeNodeLevel(uint32_t level, cocos2d::Mat4* worldMat);
+    /**
+     *  @brief insert node level
+     */
+    void insertNodeLevel(uint32_t level, const LevelInfo& levelInfo);
 private:
+    
+    static RenderFlow *_instance;
+    
     ModelBatcher* _batcher;
     Scene* _scene;
     DeviceGraphics* _device;
     ForwardRenderer* _forward;
+    std::vector<std::vector<LevelInfo>> _levelInfoArr;
 };
 
 // end of scene group

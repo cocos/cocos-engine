@@ -36,14 +36,15 @@ public:
     TiledMapAssembler();
     virtual ~TiledMapAssembler();
     virtual void handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene) override;
+    virtual void beforeFillBuffers(std::size_t index) override;
     virtual void fillBuffers(MeshBuffer* buffer, std::size_t index, const Mat4& worldMat) override;
     void setLayerMoveXY(float moveX, float moveY)
     {
         _moveX = moveX;
         _moveY = moveY;
     }
-    void updateNodes(std::size_t meshIndex, std::vector<std::string> nodes);
-    void clearNodes(std::size_t meshIndex);
+    void updateNodes(std::size_t iaIndex, const std::vector<std::string>& nodes);
+    void clearNodes(std::size_t iaIndex);
 private:
     std::map<std::size_t, std::vector<std::string>> _nodesMap;
     NodeProxy* _node = nullptr;

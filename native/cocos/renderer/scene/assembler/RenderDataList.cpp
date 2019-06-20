@@ -27,7 +27,7 @@
 
 RENDERER_BEGIN
 
-void RenderDataList::updateMesh(std::size_t index, se::Object* vertices, se::Object* indices)
+void RenderDataList::updateMesh(std::size_t index, se_object_ptr vertices, se_object_ptr indices)
 {
     if (index >= _datas.size())
     {
