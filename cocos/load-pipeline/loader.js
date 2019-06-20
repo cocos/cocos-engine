@@ -34,6 +34,7 @@ import plistParser from './plist-parser';
 import Pipeline from './pipeline';
 import {loadUuid} from './uuid-loader';
 import {loadFont} from './font-loader';
+import {loadPackedScript} from './script-pack';
 
 function loadNothing () {
     return null;
@@ -258,6 +259,8 @@ var defaultMap = {
     'woff' : loadFont,
     'svg' : loadFont,
     'ttc' : loadFont,
+
+    'pkjs': loadPackedScript,
 
     'default' : loadNothing
 };

@@ -47,6 +47,9 @@ export * from './cocos/3d';
 export * from './cocos/gfx';
 import './cocos/pipeline';
 export * from './extensions/ccpool/node-pool';
+import * as scripting from './cocos/scripting';
+cc.scripting = scripting;
+export { scripting };
 
 const cclegacy = cc;
 export { cclegacy };

@@ -29,9 +29,111 @@
 
 import { WebGLGFXDevice } from '../gfx/webgl/webgl-device';
 import { WebGL2GFXDevice } from '../gfx/webgl2/webgl2-device';
+import { setUrlMapping, topLevelImport } from '../scripting';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/CCDebug';
 import inputManager from './platform/event-manager/input-manager';
+
+/**
+ * @zh
+ * 当前的游戏配置。
+ * 注意：请不要直接修改这个对象，它不会有任何效果。
+ * @en
+ * The current game configuration.
+ * Note: Please DO NOT modify this object directly, it won't have any effect.
+ */
+interface IGameConfig {
+    /**
+     * @zh
+     * "gameCanvas" Web 页面上的 Canvas Element ID，仅适用于 web 端。
+     * @en
+     * "gameCanvas" sets the id of your canvas element on the web page, it's useful only on web.
+     */
+    id?: string | HTMLElement;
+
+    /**
+     * @zh
+     * - 0 - 没有消息被打印出来。
+     * - 1 - cc.error，cc.assert，cc.warn，cc.log 将打印在 console 中。
+     * - 2 - cc.error，cc.assert，cc.warn 将打印在 console 中。
+     * - 3 - cc.error，cc.assert 将打印在 console 中。
+     * - 4 - cc.error，cc.assert，cc.warn，cc.log 将打印在 canvas 中（仅适用于 web 端）。
+     * - 5 - cc.error，cc.assert，cc.warn 将打印在 canvas 中（仅适用于 web 端）。
+     * - 6 - cc.error，cc.assert 将打印在 canvas 中（仅适用于 web 端）。
+     * @en
+     * - 0 - No message will be printed.
+     * - 1 - cc.error, cc.assert, cc.warn, cc.log will print in console.
+     * - 2 - cc.error, cc.assert, cc.warn will print in console.
+     * - 3 - cc.error, cc.assert will print in console.
+     * - 4 - cc.error, cc.assert, cc.warn, cc.log will print on canvas, available only on web.
+     * - 5 - cc.error, cc.assert, cc.warn will print on canvas, available only on web.
+     * - 6 - cc.error, cc.assert will print on canvas, available only on web.
+     */
+    debugMode?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+    collisionMatrix?: any;
+
+    /**
+     * @zh
+     * 暴露类名让 Chrome DevTools 可以识别，如果开启会稍稍降低类的创建过程的性能，但对对象构造没有影响。
+     * @en
+     * Expose class name to chrome debug tools, the class intantiate performance is a little bit slower when exposed.
+     */
+    exposeClassName?: boolean;
+
+    /**
+     * @zh
+     * “frameRate” 设置想要的帧率你的游戏，但真正的FPS取决于你的游戏实现和运行环境。
+     * @en
+     * "frameRate" set the wanted frame rate for your game, but the real fps depends on your game implementation and the running environment.
+     */
+    frameRate?: number;
+
+    groupList?: any;
+
+    /**
+     * @zh
+     * 当 showFPS 为 true 的时候界面的左下角将显示 fps 的信息，否则被隐藏。
+     * @en
+     * Left bottom corner fps information will show when "showFPS" equals true, otherwise it will be hide.
+     */
+    showFPS?: boolean;
+
+    /**
+     * @zh
+     * “renderMode” 设置渲染器类型，仅适用于 web 端：
+     * - 0 - 通过引擎自动选择。
+     * - 1 - 强制使用 canvas 渲染。
+     * - 2 - 强制使用 WebGL 渲染，但是在部分 Android 浏览器中这个选项会被忽略。
+     * @en
+     * "renderMode" sets the renderer type, only useful on web :
+     * - Automatically chosen by engine.
+     * - Forced to use canvas renderer.
+     * - Forced to use WebGL renderer, but this will be ignored on mobile browsers.
+     */
+    renderMode?: 0 | 1 | 2 | string;
+
+    registerSystemEvent?: boolean;
+
+    /**
+     * @zh
+     * 当前包中可用场景。
+     * @en
+     * "scenes" include available scenes in the current bundle.
+     */
+    scenes?: any[];
+
+    /**
+     * @zh
+     * 游戏启动之前必须导入的脚本。
+     * @en
+     * The scripts to import before game launch.
+     */
+    bootScripts?: Array<string | {
+        moduleUrl: string;
+        mappedUrl: string;
+    }>;
+}
 
 /**
  * @en An object to boot the game.
@@ -50,12 +152,10 @@ class Game extends EventTarget {
      * 在原生平台，它对应的是应用被切换到后台事件，下拉菜单和上拉状态栏等不一定会触发这个事件，这取决于系统行为。
      * @property EVENT_HIDE
      * @example
-     * ```typescript
      * cc.game.on(Game.EVENT_HIDE, function () {
      *     cc.audioEngine.pauseMusic();
      *     cc.audioEngine.pauseAllEffects();
      * });
-     * ```
      */
     public static EVENT_HIDE: string = 'game_on_hide';
 
@@ -142,66 +242,7 @@ class Game extends EventTarget {
     public eventTargetOn = super.on;
     public eventTargetOnce = super.once;
 
-    /**
-     * @en
-     * The current game configuration, including:<br/>
-     * 1. debugMode<br/>
-     *      "debugMode" possible values :<br/>
-     *      0 - No message will be printed.                                                      <br/>
-     *      1 - cc.error, cc.assert, cc.warn, cc.log will print in console.                      <br/>
-     *      2 - cc.error, cc.assert, cc.warn will print in console.                              <br/>
-     *      3 - cc.error, cc.assert will print in console.                                       <br/>
-     *      4 - cc.error, cc.assert, cc.warn, cc.log will print on canvas, available only on web.<br/>
-     *      5 - cc.error, cc.assert, cc.warn will print on canvas, available only on web.        <br/>
-     *      6 - cc.error, cc.assert will print on canvas, available only on web.                 <br/>
-     * 2. showFPS<br/>
-     *      Left bottom corner fps information will show when "showFPS" equals true, otherwise it will be hide.<br/>
-     * 3. exposeClassName<br/>
-     *      Expose class name to chrome debug tools, the class intantiate performance is a little bit slower when exposed.<br/>
-     * 4. frameRate<br/>
-     *      "frameRate" set the wanted frame rate for your game, but the real fps depends on your game implementation and the running environment.<br/>
-     * 5. id<br/>
-     *      "gameCanvas" sets the id of your canvas element on the web page, it's useful only on web.<br/>
-     * 6. renderMode<br/>
-     *      "renderMode" sets the renderer type, only useful on web :<br/>
-     *      0 - Automatically chosen by engine<br/>
-     *      1 - Forced to use canvas renderer<br/>
-     *      2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers<br/>
-     * 7. scenes<br/>
-     *      "scenes" include available scenes in the current bundle.<br/>
-     * <br/>
-     * Please DO NOT modify this object directly, it won't have any effect.<br/>
-     * @zh
-     * 当前的游戏配置，包括：                                                                  <br/>
-     * 1. debugMode（debug 模式，但是在浏览器中这个选项会被忽略）                                <br/>
-     *      "debugMode" 各种设置选项的意义。                                                   <br/>
-     *          0 - 没有消息被打印出来。
-     *          1 - cc.error，cc.assert，cc.warn，cc.log 将打印在 console 中。
-     *          2 - cc.error，cc.assert，cc.warn 将打印在 console 中。
-     *          3 - cc.error，cc.assert 将打印在 console 中。
-     *          4 - cc.error，cc.assert，cc.warn，cc.log 将打印在 canvas 中（仅适用于 web 端）。
-     *          5 - cc.error，cc.assert，cc.warn 将打印在 canvas 中（仅适用于 web 端）。
-     *          6 - cc.error，cc.assert 将打印在 canvas 中（仅适用于 web 端）。
-     * 2. showFPS（显示 FPS）                                                            <br/>
-     *      当 showFPS 为 true 的时候界面的左下角将显示 fps 的信息，否则被隐藏。              <br/>
-     * 3. exposeClassName                                                           <br/>
-     *      暴露类名让 Chrome DevTools 可以识别，如果开启会稍稍降低类的创建过程的性能，但对对象构造没有影响。 <br/>
-     * 4. frameRate (帧率)                                                              <br/>
-     *      “frameRate” 设置想要的帧率你的游戏，但真正的FPS取决于你的游戏实现和运行环境。      <br/>
-     * 5. id                                                                            <br/>
-     *      "gameCanvas" Web 页面上的 Canvas Element ID，仅适用于 web 端。                         <br/>
-     * 6. renderMode（渲染模式）                                                         <br/>
-     *      “renderMode” 设置渲染器类型，仅适用于 web 端：                              <br/>
-     *          0 - 通过引擎自动选择。
-     *          1 - 强制使用 canvas 渲染。
-     *          2 - 强制使用 WebGL 渲染，但是在部分 Android 浏览器中这个选项会被忽略。
-     * 7. scenes                                                                         <br/>
-     *      “scenes” 当前包中可用场景。                                                   <br/>
-     * <br/>
-     * 注意：请不要直接修改这个对象，它不会有任何效果。
-     * @property config
-     */
-    public config: any = {};
+    public config: IGameConfig = {};
 
     /**
      * @en Callback when the scripts of engine have been load.
@@ -227,7 +268,7 @@ class Game extends EventTarget {
     public _frameTime: number|null = null;
 
     // Scenes list
-    public _sceneInfos = [];
+    public _sceneInfos: any[] = [];
     public collisionMatrix = [];
     public groupList = [];
 
@@ -265,7 +306,7 @@ class Game extends EventTarget {
      * @return {Number} frame rate
      */
     public getFrameRate (): number {
-        return this.config.frameRate;
+        return this.config.frameRate!;
     }
 
     /**
@@ -501,17 +542,25 @@ class Game extends EventTarget {
             return;
         }
 
-        // Load game scripts
-        const jsList = this.config.jsList;
-        if (jsList && jsList.length > 0) {
-            const self = this;
-            cc.loader.load(jsList, (err: any) => {
-                if (err) { throw new Error(JSON.stringify(err)); }
-                self._prepareFinished(cb);
-            });
-        }
-        else {
+        // Import game scripts
+        const { bootScripts } = this.config;
+        if (!bootScripts) {
             this._prepareFinished(cb);
+        } else {
+            for (const bootScript of bootScripts) {
+                if (typeof bootScript === 'object') {
+                    setUrlMapping(bootScript.moduleUrl, bootScript.mappedUrl);
+                }
+            }
+            const scriptImportings = bootScripts.map((bootScript) => {
+                const moduleUrl = typeof bootScript === 'object' ? bootScript.moduleUrl : bootScript;
+                return topLevelImport(moduleUrl);
+            });
+            Promise.all(scriptImportings).then(() => {
+                this._prepareFinished(cb);
+            }).catch((error) => {
+                throw new Error(`Failed to import boot scripts because:\n${error}`);
+            });
         }
     }
 
@@ -603,7 +652,7 @@ class Game extends EventTarget {
         let skip: boolean = true;
         const frameRate = config.frameRate;
 
-        debug.setDisplayStats(config.showFPS);
+        debug.setDisplayStats(!!config.showFPS);
 
         callback = () => {
             if (!self._paused) {
@@ -624,7 +673,7 @@ class Game extends EventTarget {
 
     //  @Game loading section
     // tslint:disable-next-line: max-line-length
-    private _initConfig (config: { debugMode: number; exposeClassName: boolean; frameRate: number; renderMode: number; registerSystemEvent: boolean; showFPS: boolean; scenes: never[]; collisionMatrix: never[]; groupList: never[]; }) {
+    private _initConfig (config: IGameConfig) {
         // Configs adjustment
         if (typeof config.debugMode !== 'number') {
             config.debugMode = 0;
@@ -657,7 +706,8 @@ class Game extends EventTarget {
 
     private _determineRenderType () {
         const config = this.config;
-        const userRenderMode = parseInt(config.renderMode) || 0;
+        const userRenderMode = (typeof config.renderMode === 'string') ?
+            parseInt(config.renderMode) : (config.renderMode || 0);
 
         // Determine RenderType
         this.renderType = Game.RENDER_TYPE_CANVAS;
@@ -730,14 +780,16 @@ class Game extends EventTarget {
             this.canvas = localCanvas = window.canvas;
         }
         else {
-            const element = (el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el));
-
+            const element = (el instanceof HTMLElement) ? el : (document.querySelector(el || '') || document.querySelector('#' + el));
+            if (!element) {
+                throw new Error(`The element ${el} doesn't exists.`);
+            }
             if (element.tagName === 'CANVAS') {
-                width = element.width;
-                height = element.height;
+                width = (element as HTMLCanvasElement).width;
+                height = (element as HTMLCanvasElement).height;
 
                 // it is already a canvas, we wrap it around with a div
-                this.canvas = localCanvas = element;
+                this.canvas = localCanvas = (element as HTMLCanvasElement);
                 this.container = localContainer = document.createElement<'div'>('div');
                 if (localCanvas!.parentNode) {
                     localCanvas!.parentNode.insertBefore(localContainer, localCanvas);

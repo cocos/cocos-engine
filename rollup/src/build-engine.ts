@@ -1,5 +1,5 @@
 import { dirname, relative } from 'path';
-import { rollup } from 'rollup';
+import { ModuleFormat, rollup } from 'rollup';
 // @ts-ignore
 import babel from 'rollup-plugin-babel';
 // @ts-ignore
@@ -9,11 +9,16 @@ import json from 'rollup-plugin-json';
 // @ts-ignore
 import resolve from 'rollup-plugin-node-resolve';
 // @ts-ignore
-import { uglify } from 'rollup-plugin-uglify';
-
-const { excludes } = require('../plugin/rollup-plugin-excludes');
+import { terser } from 'rollup-plugin-terser';
+// @ts-ignore
+import { excludes } from '../plugin/rollup-plugin-excludes';
 
 interface IBaseOptions {
+    /**
+     * 编译格式。
+     */
+    format?: ModuleFormat;
+
     /**
      * 引擎入口模块。
      */
@@ -80,6 +85,8 @@ export async function build (options: IBuildOptions) {
 }
 
 async function _internalBuild (options: IAdvancedOptions) {
+    options.format = options.format || 'iife';
+
     console.log(`Options: ${JSON.stringify(options, undefined, 2)}`);
     const doUglify = !!options.compress;
     const rollupPlugins = [
@@ -126,7 +133,7 @@ async function _internalBuild (options: IAdvancedOptions) {
             },
         }),
 
-        uglify({
+        terser({
             compress: {
                 global_defs: options.globalDefines,
                 // sequences     : true,  // join consecutive statemets with the “comma operator”
@@ -163,9 +170,10 @@ async function _internalBuild (options: IAdvancedOptions) {
         input: options.inputPath,
         plugins: rollupPlugins,
     });
+
     const generated = await rollupBuild.generate({
-        format: 'iife',
-        name: 'cc_modular',
+        format: options.format,
+        name: 'Cocos3D',
         sourcemap: options.sourcemap,
         sourcemapFile,
     });

@@ -11,8 +11,8 @@
   "scripts": {
     "server": "http-server . -p 8002",
     "build": "npm run build:min && npm run build-declaration",
-    "build:dev": "node ./rollup/out/build-engine-cli.js --sourcemap --platform=universal --destination=./bin/cocos-3d.dev.js",
-    "build:min": "node ./rollup/out/build-engine-cli.js --compress --sourcemap --platform=universal --destination=./bin/cocos3d-js.min.js",
+    "build:dev": "node ./rollup/out/build-engine-cli.js --format esm --sourcemap --platform=universal --destination=./bin/cocos-3d.dev.js",
+    "build:min": "node ./rollup/out/build-engine-cli.js --format esm --compress --sourcemap --platform=universal --destination=./bin/cocos3d-js.min.js",
     "build-declaration": "node ./scripts/generate-declarations/generate-declarations-cli.js",
     "build-rollup": "tsc --build rollup/tsconfig.json",
     "postinstall": "npm run build-rollup",
@@ -33,7 +33,7 @@
     "@babel/preset-typescript": "^7.1.0",
     "@types/cannon": "github:cocos-creator/cannon.d.ts#cocos-master",
     "@types/fs-extra": "^5.0.4",
-    "@types/uglify-js": "^3.0.4",
+    "@types/systemjs": "^0.20.6",
     "@types/yargs": "^12.0.5",
     "aliasify": "^2.1.0",
     "async": "1.5.2",
@@ -75,7 +75,7 @@
     "rollup-plugin-commonjs": "^9.1.6",
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-node-resolve": "^3.4.0",
-    "rollup-plugin-uglify": "^6.0.2",
+    "rollup-plugin-terser": "^5.0.0",
     "rollup-watch": "^4.3.1",
     "tfig": "^1.0.20",
     "tslint": "^5.12.0",
@@ -90,5 +90,8 @@
     "vinyl-source-stream": "1.0.0",
     "watchify": "^3.7.0",
     "yargs": "^12.0.5"
+  },
+  "dependencies": {
+    "systemjs": "^3.1.6"
   }
 }

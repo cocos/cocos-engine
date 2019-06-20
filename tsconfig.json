@@ -18,7 +18,8 @@
         "./@types/wx",
         "./cocos/gfx/webgl/WebGL",
         "./cocos/gfx/webgl2/WebGL2",
-      ],
+        "./node_modules/@types/systemjs/index"
+      ]
     },
     "files": [
         "./index.ts"

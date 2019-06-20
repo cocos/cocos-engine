@@ -127,6 +127,7 @@ function downloadUuid (item, callback) {
 var defaultMap = {
     // JS
     'js' : downloadScript,
+    'pkjs': skip,
 
     // Images
     'png' : downloadImage,
