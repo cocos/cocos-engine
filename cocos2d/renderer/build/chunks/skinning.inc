@@ -82,7 +82,7 @@
     mat4 getBoneMatrix(const in float i) {
       return _jointMatrices[int(i)];
     }
-    #endif
+  #endif
 
     mat4 skinMatrix() {
       return
