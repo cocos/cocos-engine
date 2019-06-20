@@ -174,34 +174,46 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         }
     }
 
-    /// PUBLIC GETTER\SETTER ///
+    /**
+     * @zh
+     * 设置线性速度的因子，可以用来控制每个轴方向上的速度的缩放。
+     */
+    @property
+    public get linearFactor () {
+        if (CC_EDITOR) {
+            return this._linearFactor;
+        }
+        return this._body.getLinearFactor(this._linearFactor);
 
-    // public get isTrigger () {
-    //     return this._isTrigger;
-    // }
+    }
 
-    // public set isTrigger (value) {
-    //     this._isTrigger = value;
-    //     if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
-    //         this._body.setIsTrigger(value);
-    //     }
-    // }
+    public set linearFactor (value: Vec3) {
+        vec3.copy(this._linearFactor, value);
+        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
+            this._body.setLinearFactor(this._linearFactor);
+        }
+    }
 
-    // public get velocity () {
-    //     return this._velocity;
-    // }
+    /**
+     * @zh
+     * 设置旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放。
+     */
+    @property
+    public get angularFactor () {
+        if (CC_EDITOR) {
+            return this._angularFactor;
+        }
+        return this._body.getAngularFactor(this._angularFactor);
+    }
 
-    // public set velocity (value: Vec3) {
-    //     vec3.copy(this._velocity, value);
-    //     if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
-    //         this._body.setVelocity(this._velocity);
-    //     }
-    // }
+    public set angularFactor (value: Vec3) {
+        vec3.copy(this._angularFactor, value);
+        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
+            this._body.setAngularFactor(this._angularFactor);
+        }
+    }
 
     /// PRIVATE PROPERTY ///
-
-    @property
-    private _material: PhysicsMaterial | null = null;
 
     @property
     private _mass: number = NonRigidBodyProperties.mass;
@@ -215,16 +227,17 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     @property
     private _fixedRotation: boolean = false;
 
-    // @property
-    // private _isTrigger: boolean = false;
-
     @property
     private _isKinematic: boolean = false;
 
     @property
     private _useGravity: boolean = true;
 
-    // private _velocity: Vec3 = new Vec3();
+    @property
+    private _linearFactor: Vec3 = new Vec3(1, 1, 1);
+
+    @property
+    private _angularFactor: Vec3 = new Vec3(1, 1, 1);
 
     constructor () {
         super();
@@ -289,11 +302,11 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
                 this.mass = this._mass;
                 this.linearDamping = this._linearDamping;
                 this.angularDamping = this._angularDamping;
-                // this.material = this._material;
                 this.useGravity = this._useGravity;
-                // this.velocity = this._velocity;
                 this.isKinematic = this._isKinematic;
                 this.fixedRotation = this._fixedRotation;
+                this.linearFactor = this._linearFactor;
+                this.angularFactor = this._angularFactor;
             }
         }
     }
