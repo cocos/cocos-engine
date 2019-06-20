@@ -19,6 +19,7 @@ export class UIBatchModel extends Model {
     }
 
     public updateUBOs () {
+        return false;
     }
 
     public initialize (ia: GFXInputAssembler, batch: UIDrawBatch) {
