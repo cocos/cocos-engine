@@ -256,6 +256,12 @@ export class ModelComponent extends RenderableComponent {
         return builtinResMgr.get<Material>('missing-material');
     }
 
+    protected _onVisiblityChange (val) {
+        if (this._model) {
+            this._model.viewID = val;
+        }
+    }
+
     private _updateCastShadow () {
         if (!this.enabledInHierarchy || !this._model) {
             return;

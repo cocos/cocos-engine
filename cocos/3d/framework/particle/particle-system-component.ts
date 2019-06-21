@@ -536,6 +536,12 @@ export class ParticleSystemComponent extends RenderableComponent {
         }
     }
 
+    protected _onVisiblityChange (val) {
+        if (this.renderer._model) {
+            this.renderer._model.viewID = val;
+        }
+    }
+
     private emit (count, dt) {
 
         for (let i = 0; i < count; ++i) {
