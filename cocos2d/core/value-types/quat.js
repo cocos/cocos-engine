@@ -27,7 +27,6 @@ const ValueType = require('./value-type');
 const js = require('../platform/js');
 const CCClass = require('../platform/CCClass');
 const quat = require('../vmath/quat');
-const vec3 = require('../vmath/vec3');
 
 /**
  * !#en Representation of 2D vectors and points.
