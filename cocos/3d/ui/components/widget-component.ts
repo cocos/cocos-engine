@@ -344,8 +344,12 @@ export class WidgetComponent extends Component {
         return this._isAbsTop;
     }
     set isAbsoluteTop (value) {
+        if (this._isAbsTop === value){
+            return;
+        }
+
         this._isAbsTop = value;
-        this._recursiveDirty();
+        this._aotuChangedValue(AlignFlags.TOP, this._isAbsTop);
     }
 
     /**
@@ -357,8 +361,12 @@ export class WidgetComponent extends Component {
         return this._isAbsBottom;
     }
     set isAbsoluteBottom (value) {
+        if (this._isAbsBottom === value){
+            return;
+        }
+
         this._isAbsBottom = value;
-        this._recursiveDirty();
+        this._aotuChangedValue(AlignFlags.BOT, this._isAbsBottom);
     }
 
     /**
@@ -370,8 +378,12 @@ export class WidgetComponent extends Component {
         return this._isAbsLeft;
     }
     set isAbsoluteLeft (value) {
+        if (this._isAbsLeft === value) {
+            return;
+        }
+
         this._isAbsLeft = value;
-        this._recursiveDirty();
+        this._aotuChangedValue(AlignFlags.LEFT, this._isAbsLeft);
     }
 
     /**
@@ -383,8 +395,12 @@ export class WidgetComponent extends Component {
         return this._isAbsRight;
     }
     set isAbsoluteRight (value) {
+        if (this._isAbsRight === value){
+            return;
+        }
+
         this._isAbsRight = value;
-        this._recursiveDirty();
+        this._aotuChangedValue(AlignFlags.RIGHT, this._isAbsRight);
     }
 
     /**
@@ -416,8 +432,12 @@ export class WidgetComponent extends Component {
     }
 
     set isAbsoluteHorizontalCenter (value) {
+        if (this._isAbsHorizontalCenter === value) {
+            return;
+        }
+
         this._isAbsHorizontalCenter = value;
-        this._recursiveDirty();
+        this._aotuChangedValue(AlignFlags.CENTER, this._isAbsHorizontalCenter);
     }
 
     /**
@@ -429,8 +449,12 @@ export class WidgetComponent extends Component {
         return this._isAbsVerticalCenter;
     }
     set isAbsoluteVerticalCenter (value) {
+        if (this._isAbsVerticalCenter === value){
+            return;
+        }
+
         this._isAbsVerticalCenter = value;
-        this._recursiveDirty();
+        this._aotuChangedValue(AlignFlags.MID, this._isAbsVerticalCenter);
     }
 
     /**
@@ -546,7 +570,6 @@ export class WidgetComponent extends Component {
 
         if (this.node.hasChanged) {
             this._recursiveDirty();
-            cc._widgetManager.updateTransform(this);
             return;
         }
 
@@ -558,6 +581,30 @@ export class WidgetComponent extends Component {
 
     public onDisable () {
         cc._widgetManager.remove(this);
+    }
+
+    protected _aotuChangedValue (flag: AlignFlags, isAbs: boolean){
+        const current = (this._alignFlags & flag) > 0;
+        if (!current || !this.node.parent || !this.node.parent.uiTransfromComp){
+            return;
+        }
+
+        const size = this.node.parent!.getContentSize();
+        if (this.isAlignLeft && flag === AlignFlags.LEFT) {
+            this._left = isAbs ? this._left * size.width : this._left / size.width;
+        } else if (this.isAlignRight && flag === AlignFlags.RIGHT) {
+            this._right = isAbs ? this._right * size.width : this._right / size.width;
+        } else if (this.isAlignHorizontalCenter && flag === AlignFlags.CENTER) {
+            this._horizontalCenter = isAbs ? this._horizontalCenter * size.width : this._horizontalCenter / size.width;
+        } else if (this.isAlignTop && flag === AlignFlags.TOP) {
+            this._top = isAbs ? this._top * size.height : this._top / size.height;
+        } else if (this.isAlignBottom && flag === AlignFlags.BOT) {
+            this._bottom = isAbs ? this._bottom * size.height : this._bottom / size.height;
+        } else if (this.isAbsoluteVerticalCenter && flag === AlignFlags.MID) {
+            this._verticalCenter = isAbs ? this._verticalCenter * size.height : this._verticalCenter / size.height;
+        }
+
+        this._recursiveDirty();
     }
 
     private _setAlign (flag: AlignFlags, isAlign: boolean) {
