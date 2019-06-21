@@ -16,7 +16,7 @@ import { GFXRenderPass } from '../../gfx/render-pass';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
-import { RenderPassStage, RenderPriority } from '../../pipeline/define';
+import { RenderPassStage, RenderPriority, UniformBinding } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { programLib } from './program-lib';
@@ -69,6 +69,8 @@ const getBindingTypeFromHandle = (handle: number) => (handle & btMask) >>> 28;
 const getTypeFromHandle = (handle: number) => (handle & typeMask) >>> 22;
 const getBindingFromHandle = (handle: number) => (handle & bindingMask) >>> 11;
 const getIndexFromHandle = (handle: number) => (handle & indexMask);
+
+const isBuiltin = (binding: number) => binding >= UniformBinding.CUSTUM_UBO_BINDING_END_POINT;
 
 interface IBlock {
     buffer: ArrayBuffer;
@@ -160,7 +162,7 @@ export class Pass {
         this._fillinPipelineInfo(info.states);
 
         for (const u of this._shaderInfo.blocks) {
-            if (u.name.startsWith('CC')) { continue; }
+            if (isBuiltin(u.binding)) { continue; }
             // create gfx buffer resource
             this._buffers[u.binding] = device.createBuffer({
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
@@ -310,7 +312,7 @@ export class Pass {
 
     /**
      * @zh
-     * 上传当前 UBO 数据。
+     * 更新当前 Uniform 数据。
      */
     public update () {
         const len = this._blocks.length;
@@ -321,6 +323,13 @@ export class Pass {
                 block.dirty = false;
             }
         }
+        const source = cc.director.root.pipeline.globalBindings;
+        const target = this._shaderInfo.builtins.globals;
+        for (const s of target.samplers) {
+            const info = source.get(s);
+            if (info.sampler) { this.bindSampler(info.samplerInfo!.binding, info.sampler); }
+            this.bindTextureView(info.samplerInfo!.binding, info.textureView!);
+        }
     }
 
     /**
@@ -328,18 +337,14 @@ export class Pass {
      * 销毁当前 pass。
      */
     public destroy () {
-        const buffers = Object.values(this._buffers);
-        if (buffers.length) {
-            for (const b of buffers) {
-                b.destroy();
-            }
-            this._buffers = {};
+        for (const u of this._shaderInfo.blocks) {
+            if (isBuiltin(u.binding)) { continue; }
+            this._buffers[u.binding].destroy();
         }
-        const samplers = Object.values(this._samplers);
-        if (samplers.length) {
-            // samplers are reused
-            this._samplers = {};
-        }
+        this._buffers = {};
+        // textures are reused
+        this._samplers = {};
+        this._textureViews = {};
     }
 
     /**
@@ -348,7 +353,7 @@ export class Pass {
      */
     public resetUBOs () {
         for (const u of this._shaderInfo.blocks) {
-            if (u.name.startsWith('CC')) { continue; }
+            if (isBuiltin(u.binding)) { continue; }
             const block: IBlock = this._blocks[u.binding];
             for (let i = 0; i < u.members.length; i++) {
                 const cur = u.members[i];

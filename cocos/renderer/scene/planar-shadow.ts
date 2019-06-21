@@ -1,6 +1,6 @@
 import { Color, Mat4, Quat, Vec3 } from '../../core/value-types';
 import { color4, mat4, vec3 } from '../../core/vmath';
-import { UBOShadow } from '../../pipeline/define';
+import { UBOShadow, IInternalBindingInst } from '../../pipeline/define';
 import { DirectionalLight } from './directional-light';
 import { RenderScene } from './render-scene';
 import { SphereLight } from './sphere-light';
@@ -52,11 +52,13 @@ export class PlanarShadow {
     protected _matLight = new Mat4();
     protected _data = Float32Array.from([
         1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, // matLightPlaneProj
-        0.3, 0.3, 0.3, 1.0, // shadowColor
+        0.0, 0.0, 0.0, 0.3, // shadowColor
     ]);
+    protected _globalBindings: IInternalBindingInst;
 
     constructor (scene: RenderScene) {
         this._scene = scene;
+        this._globalBindings = scene.root.pipeline.globalBindings.get(UBOShadow.BLOCK.name)!;
     }
 
     // tslint:disable: one-variable-per-declaration
@@ -112,6 +114,7 @@ export class PlanarShadow {
         m.m14 = lz * d;
         m.m15 = 1;
         mat4.array(this.data, this._matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
+        this._globalBindings.buffer!.update(this.data);
     }
     // tslint:enable: one-variable-per-declaration
 }

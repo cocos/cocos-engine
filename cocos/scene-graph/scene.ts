@@ -95,7 +95,6 @@ export class Scene extends Node {
             this._inited = true;
         }
         this.walk(BaseNode._setScene);
-        this._globals.renderScene = this._renderScene!;
     }
 
     protected _activate (active: boolean) {
@@ -105,6 +104,7 @@ export class Scene extends Node {
             this._registerIfAttached!(active);
         }
         cc.director._nodeActivator.activateNode(this, active);
+        this._globals.renderScene = this._renderScene!;
     }
 }
 
