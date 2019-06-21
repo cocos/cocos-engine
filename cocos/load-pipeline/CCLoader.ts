@@ -38,6 +38,7 @@ import { callInNextTick } from '../core/utils/misc';
 import AssetLoader from './asset-loader';
 import AssetTable from './asset-table';
 import { getDependsRecursively } from './auto-release-utils';
+import { LoadCompleteCallback, LoadProgressCallback } from './callback-params';
 import Downloader from './downloader';
 import Loader from './loader';
 import LoadingItems from './loading-items';
@@ -400,6 +401,27 @@ class CCLoader extends Pipeline {
         _sharedList.length = 0;
         return accepted;
     }
+
+    public loadRes<T> (
+        url: string,
+        type: Constructor<T>,
+        mount: string,
+        progressCallback: LoadProgressCallback,
+        completeCallback: LoadCompleteCallback<T>,
+    );
+
+    public loadRes<T> (
+        url: string,
+        type: Constructor<T>,
+        progressCallback: LoadProgressCallback,
+        completeCallback: LoadCompleteCallback<T>,
+    );
+
+    public loadRes<T> (
+        url: string,
+        type: Constructor<T>,
+        completeCallback: LoadCompleteCallback<T>,
+    );
 
     // @typescript
     // loadRes(url: string, type: typeof cc.Asset, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any) => void)|null): void

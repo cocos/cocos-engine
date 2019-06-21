@@ -54,7 +54,7 @@ async function _doBundle (options: IBuildOptions) {
             extensions: ['.js', '.ts'],
             highlightCode: true,
             ignore: [
-                'node_modules/**',
+                'node_modules/cannon/**',
             ],
             plugins: [
                 ['@babel/plugin-proposal-decorators', {
