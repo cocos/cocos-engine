@@ -137,9 +137,10 @@ void Assembler::fillBuffers(MeshBuffer* buffer, std::size_t index, const Mat4& w
     uint32_t vBufferOffset = s_offsets.vByte / sizeof(float);
     uint32_t indexId = s_offsets.index;
     uint32_t vertexId = s_offsets.vertex;
+    uint32_t vertexOffset = vertexId - vertexStart;
     uint32_t num = _vfPos->num;
 
-    float* worldVerts = &buffer->vData[vBufferOffset];
+    float* worldVerts = buffer->vData + vBufferOffset;
     memcpy(worldVerts, data->getVertices() + vertexStart * _bytesPerVertex, vertexCount * _bytesPerVertex);
     
     // Calculate vertices world positions
@@ -173,9 +174,10 @@ void Assembler::fillBuffers(MeshBuffer* buffer, std::size_t index, const Mat4& w
     
     // Copy index buffer with vertex offset
     uint16_t* indices = (uint16_t*)data->getIndices();
+    uint16_t* dst = buffer->iData;
     for (auto i = 0, j = ia.indicesStart; i < indexCount; ++i, ++j)
     {
-        buffer->iData[indexId++] = vertexId - vertexStart + indices[j];
+        dst[indexId++] = vertexOffset + indices[j];
     }
 }
 

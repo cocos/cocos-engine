@@ -142,39 +142,39 @@ public:
     /**
      *  @brief The vertex data storage in memory
      */
-    std::vector<float> vData;
+    float* vData = nullptr;
     /**
      *  @brief The index data storage in memory
      */
-    std::vector<uint16_t> iData;
+    uint16_t* iData = nullptr;
     /**
      *  @brief Vertex format of the vertex data.
      */
     VertexFormat* _vertexFmt;
     
-    static const int INIT_VERTEX_COUNT = 256;
+    static const int INIT_VERTEX_COUNT = 4096;
     static const uint8_t VDATA_BYTE = sizeof(float);
     static const uint8_t IDATA_BYTE = sizeof(uint16_t);
 protected:
-    void reallocBuffers();
-    
+    void reallocVBuffer();
+    void reallocIBuffer();
 private:
-    uint32_t _byteStart;
-    uint32_t _byteOffset;
-    uint32_t _indexStart;
-    uint32_t _indexOffset;
-    uint32_t _vertexStart;
-    uint32_t _vertexOffset;
-    uint32_t _bytesPerVertex;
-    uint32_t _vDataCount;
-    uint32_t _iDataCount;
-    bool _dirty;
+    uint32_t _byteStart = 0;
+    uint32_t _byteOffset = 0;
+    uint32_t _indexStart = 0;
+    uint32_t _indexOffset = 0;
+    uint32_t _vertexStart = 0;
+    uint32_t _vertexOffset = 0;
+    uint32_t _bytesPerVertex = 0;
+    uint32_t _vDataCount = 0;
+    uint32_t _iDataCount = 0;
+    bool _dirty = false;
     
-    ModelBatcher* _batcher;
-    std::size_t _vbPos;
+    ModelBatcher* _batcher = nullptr;
+    std::size_t _vbPos = 0;
     cocos2d::Vector<VertexBuffer*> _vbArr;
-    VertexBuffer* _vb;
-    IndexBuffer* _ib;
+    VertexBuffer* _vb = nullptr;
+    IndexBuffer* _ib = nullptr;
 };
 
 // end of scene group

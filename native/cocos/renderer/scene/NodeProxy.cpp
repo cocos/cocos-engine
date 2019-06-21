@@ -82,6 +82,7 @@ void NodeProxy::destroyImmediately()
         _parent->removeChild(this);
     }
     RenderFlow::getInstance()->removeNodeLevel(_level, _worldMat);
+    CC_SAFE_RELEASE_NULL(_assembler);
     _level = 0xffffffff;
     _dirty = nullptr;
     _trs = nullptr;
@@ -227,9 +228,9 @@ void NodeProxy::notifyUpdateParent()
 
 void NodeProxy::updateLevel()
 {
-    auto renderFlow = RenderFlow::getInstance();
     static RenderFlow::LevelInfo levelInfo;
-    
+    auto renderFlow = RenderFlow::getInstance();
+
     renderFlow->removeNodeLevel(_level, _worldMat);
     
     levelInfo.dirty = _dirty;
@@ -282,30 +283,23 @@ void NodeProxy::reorderChildren()
     }
 }
 
-void NodeProxy::addAssembler(const std::string& assemblerName, AssemblerBase* assembler)
+void NodeProxy::setAssembler(AssemblerBase* assembler)
 {
-    if (!assembler) return;
-    _assemblers.insert(assemblerName, assembler);
-    assembler->enable();
+    if (assembler == _assembler) return;
+    CC_SAFE_RELEASE(_assembler);
+    _assembler = assembler;
+    if (_assembler) _assembler->enable();
+    CC_SAFE_RETAIN(_assembler);
 }
 
-void NodeProxy::removeAssembler(const std::string& assemblerName)
+void NodeProxy::clearAssembler()
 {
-    auto it = _assemblers.find(assemblerName);
-    if (it != _assemblers.end()) {
-        it->second->disable();
-        _assemblers.erase(it);
-    }
+    CC_SAFE_RELEASE_NULL(_assembler);
 }
 
-AssemblerBase* NodeProxy::getAssembler(const std::string& assemblerName)
+AssemblerBase* NodeProxy::getAssembler()
 {
-    auto it = _assemblers.find(assemblerName);
-    if (it != _assemblers.end())
-    {
-        return it->second;
-    }
-    return nullptr;
+    return _assembler;
 }
 
 void NodeProxy::getPosition(cocos2d::Vec3* out) const
@@ -397,11 +391,10 @@ void NodeProxy::updateRealOpacity()
         _realOpacity = opacity;
         _opacityUpdated = true;
         *_dirty &= ~RenderFlow::OPACITY;
-        
-        auto assembler = getAssembler("render");
-        if (assembler)
+
+        if (_assembler)
         {
-            assembler->notifyDirty(AssemblerBase::OPACITY);
+            _assembler->notifyDirty(AssemblerBase::OPACITY);
         }
     }
 }
@@ -453,7 +446,53 @@ void NodeProxy::visitAsRoot(ModelBatcher* batcher, Scene* scene)
 {
     _worldMatDirty = 0;
     _parentOpacityDirty = 0;
-    visit(batcher, scene);
+    visitWithoutTransform(batcher, scene);
+}
+
+void NodeProxy::visitWithoutTransform(ModelBatcher* batcher, Scene* scene)
+{
+    if (!_needVisit) return;
+
+    updateRealOpacity();
+
+    if (_realOpacity == 0)
+    {
+        return;
+    }
+
+    // pre render
+    if (_assembler && _assembler->enabled()) _assembler->handle(this, batcher, scene);
+
+    /////////////////////////////////////////
+    // begin visit children
+    /////////////////////////////////////////
+
+    bool parentOpacityUpdated = false;
+
+    if (_opacityUpdated)
+    {
+        _parentOpacityDirty++;
+        _opacityUpdated = false;
+        parentOpacityUpdated = true;
+    }
+
+    reorderChildren();
+    for (const auto& child : _children)
+    {
+        child->visitWithoutTransform(batcher, scene);
+    }
+
+    if (parentOpacityUpdated)
+    {
+        _parentOpacityDirty--;
+    }
+
+    /////////////////////////////////////////
+    // end visit children
+    /////////////////////////////////////////
+
+    // post render
+    if (_assembler && _assembler->enabled()) _assembler->postHandle(this, batcher, scene);
 }
 
 void NodeProxy::visit(ModelBatcher* batcher, Scene* scene)
@@ -461,7 +500,7 @@ void NodeProxy::visit(ModelBatcher* batcher, Scene* scene)
     if (!_needVisit) return;
 
     updateRealOpacity();
-    
+
     if (_realOpacity == 0)
     {
         return;
@@ -469,63 +508,53 @@ void NodeProxy::visit(ModelBatcher* batcher, Scene* scene)
     
     updateLocalMatrix();
     updateWorldMatrix();
-    
-    for (auto it = _assemblers.begin(); it != _assemblers.end(); it++)
-    {
-        if (it->second->enabled())
-        {
-            it->second->handle(this, batcher, scene);
-        }
-    }
-    
+
+    // pre render
+    if (_assembler && _assembler->enabled()) _assembler->handle(this, batcher, scene);
+
     /////////////////////////////////////////
     // begin visit children
     /////////////////////////////////////////
-    
+
     bool parentWorldMatUpdated = false;
     bool parentOpacityUpdated = false;
-    
+
     if (_matrixUpdated)
     {
         _worldMatDirty++;
         _matrixUpdated = false;
         parentWorldMatUpdated = true;
     }
-    
+
     if (_opacityUpdated)
     {
         _parentOpacityDirty++;
         _opacityUpdated = false;
         parentOpacityUpdated = true;
     }
-    
+
     reorderChildren();
     for (const auto& child : _children)
     {
         child->visit(batcher, scene);
     }
-    
-    if (parentWorldMatUpdated)
-    {
-        _worldMatDirty--;
-    }
-    
+
     if (parentOpacityUpdated)
     {
         _parentOpacityDirty--;
     }
-    
+
+    if (parentWorldMatUpdated)
+    {
+        _worldMatDirty--;
+    }
+
     /////////////////////////////////////////
     // end visit children
     /////////////////////////////////////////
-    
-    for (auto it = _assemblers.begin(); it != _assemblers.end(); it++)
-    {
-        if (it->second->enabled())
-        {
-            it->second->postHandle(this, batcher, scene);
-        }
-    }
+
+    // post render
+    if (_assembler && _assembler->enabled()) _assembler->postHandle(this, batcher, scene);
 }
 
 RENDERER_END

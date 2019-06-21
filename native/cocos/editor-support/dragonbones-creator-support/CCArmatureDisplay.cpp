@@ -101,7 +101,7 @@ void CCArmatureDisplay::dbUpdate()
         return;
     }
     
-    _assembler = (CustomAssembler*)_nodeProxy->getAssembler("render");
+    _assembler = (CustomAssembler*)_nodeProxy->getAssembler();
     if (_assembler == nullptr)
     {
         return;

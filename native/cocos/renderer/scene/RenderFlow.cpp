@@ -86,22 +86,33 @@ void RenderFlow::calculateLocalMatrix()
     CCASSERT(instance, "RenderFlow calculateLocalMatrix NodeMemPool is null");
     auto& commonPool = instance->getCommonPool();
     auto& nodePool = instance->getNodePool();
+
+    UnitCommon* commonUnit = nullptr;
+    uint16_t usingNum = 0;
+    std::size_t contentNum = 0;
+    Sign* signData = nullptr;
+    UnitNode* nodeUnit = nullptr;
+    uint32_t* dirty = nullptr;
+    cocos2d::Mat4* localMat = nullptr;
+    TRS* trs = nullptr;
+    uint8_t* is3D = nullptr;
+    cocos2d::Quaternion* quat = nullptr;
+    float trsZ = 0.0f, trsSZ = 0.0f;
+
     for(auto i = 0; i < commonPool.size(); i++)
     {
-        UnitCommon* commonUnit = commonPool[i];
-        uint16_t usingNum = commonUnit->getUsingNum();
+        commonUnit = commonPool[i];
+        usingNum = commonUnit->getUsingNum();
         if (usingNum == 0) continue;
         
-        std::size_t contentNum = commonUnit->getContentNum();
-        Sign* signData = commonUnit->getSignData(0);
+        contentNum = commonUnit->getContentNum();
+        signData = commonUnit->getSignData(0);
         
-        UnitNode* nodeUnit = nodePool[i];
-        uint32_t* dirty = nodeUnit->getDirty(0);
-        cocos2d::Mat4* localMat = nodeUnit->getLocalMat(0);
-        TRS* trs = nodeUnit->getTRS(0);
-        uint8_t* is3D = nodeUnit->getIs3D(0);
-        cocos2d::Quaternion* quat = nullptr;
-        float trsZ = 0.0f, trsSZ = 0.0f;
+        nodeUnit = nodePool[i];
+        dirty = nodeUnit->getDirty(0);
+        localMat = nodeUnit->getLocalMat(0);
+        trs = nodeUnit->getTRS(0);
+        is3D = nodeUnit->getIs3D(0);
         
         for (auto j = 0; j < contentNum; j++, localMat ++, trs ++, is3D ++, signData++, dirty++)
         {
@@ -133,20 +144,22 @@ void RenderFlow::calculateWorldMatrix()
     for(std::size_t level = 0, n = _levelInfoArr.size(); level < n; level++)
     {
         auto& levelInfos = _levelInfoArr[level];
-        for(auto it = levelInfos.begin(); it != levelInfos.end(); it++)
+        for(std::size_t index = 0, count = levelInfos.size(); index < count; index++)
         {
-            auto selfDirty = *it->dirty & WORLD_TRANSFORM;
-            if (it->parentDirty != nullptr && ((*it->parentDirty & WORLD_TRANSFORM_CHANGED) || selfDirty))
+            auto& info = levelInfos[index];
+            auto selfDirty = *info.dirty & WORLD_TRANSFORM;
+            if (info.parentDirty != nullptr && ((*info.parentDirty & WORLD_TRANSFORM_CHANGED) || selfDirty))
             {
-                it->worldMat->multiply(*it->parentWorldMat, *it->localMat, it->worldMat);
-                *it->dirty |= WORLD_TRANSFORM_CHANGED;
+                info.worldMat->multiply(*info.parentWorldMat, *info.localMat, info.worldMat);
+                *info.dirty |= WORLD_TRANSFORM_CHANGED;
+                *info.dirty &= ~WORLD_TRANSFORM;
             }
             else if (selfDirty)
             {
-                *it->worldMat = *it->localMat;
-                *it->dirty |= WORLD_TRANSFORM_CHANGED;
+                *info.worldMat = *info.localMat;
+                *info.dirty |= WORLD_TRANSFORM_CHANGED;
+                *info.dirty &= ~WORLD_TRANSFORM;
             }
-            *it->dirty &= ~WORLD_TRANSFORM;
         }
     }
 }

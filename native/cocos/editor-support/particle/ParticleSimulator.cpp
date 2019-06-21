@@ -224,7 +224,7 @@ void ParticleSimulator::update(float dt)
         return;
     }
     
-    renderer::CustomAssembler* assembler = (renderer::CustomAssembler*)_nodeProxy->getAssembler("render");
+    renderer::CustomAssembler* assembler = (renderer::CustomAssembler*)_nodeProxy->getAssembler();
     if (assembler == nullptr)
     {
         return;
