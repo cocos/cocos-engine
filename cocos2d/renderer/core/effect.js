@@ -5,6 +5,7 @@ import Pass from '../core/pass';
 import Technique from '../core/technique';
 import { getInspectorProps, cloneObjArray, getInstanceCtor } from '../types';
 import enums from '../enums';
+import gfx from '../gfx';
 
 class Effect {
     /**
