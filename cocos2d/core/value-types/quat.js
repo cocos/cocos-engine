@@ -179,13 +179,7 @@ proto.mul = function (other, out) {
  * @returns {quat} out.
  */
 proto.rotateAround = function(rot, axis, rad, out) {
-    var v3_tmp = vec3.create();
-    var q_tmp = quat.create();
-    quat.invert(q_tmp, rot);
-    vec3.transformQuat(v3_tmp, axis, q_tmp);
-    quat.fromAxisAngle(q_tmp, v3_tmp, rad);
-    quat.mul(out, rot, q_tmp);
-    return out;
+    return quat.rotateAround(out,rot,axis,rad);
 };
 
 /**
