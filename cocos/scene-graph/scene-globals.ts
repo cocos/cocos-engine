@@ -102,11 +102,13 @@ cc.AmbientInfo = AmbientInfo;
 @ccclass('cc.SkyboxInfo')
 export class SkyboxInfo {
     @property(TextureCube)
-    protected _cubemap: TextureCube | null = null;
+    protected _envmap: TextureCube | null = null;
     @property
-    protected _isRGBE: boolean = false;
+    protected _isRGBE = false;
     @property
-    protected _enabled: boolean = false;
+    protected _enabled = false;
+    @property
+    protected _useIBL = false;
 
     protected _resource: Skybox | null = null;
 
@@ -123,15 +125,27 @@ export class SkyboxInfo {
     }
 
     /**
+     * @zh 是否启用天空盒？
+     */
+    @property({ type: Boolean })
+    set useIBL (val) {
+        this._useIBL = val;
+        if (this._resource) { this._resource.useIBL = this._useIBL; }
+    }
+    get useIBL () {
+        return this._useIBL;
+    }
+
+    /**
      * @zh 使用的立方体贴图
      */
     @property({ type: TextureCube })
-    set cubemap (val) {
-        this._cubemap = val;
-        if (this._resource) { this._resource.cubemap = this._cubemap; }
+    set envmap (val) {
+        this._envmap = val;
+        if (this._resource) { this._resource.envmap = this._envmap; }
     }
-    get cubemap () {
-        return this._cubemap;
+    get envmap () {
+        return this._envmap;
     }
 
     /**
@@ -149,8 +163,9 @@ export class SkyboxInfo {
     set renderScene (val: RenderScene) {
         this._resource = val.skybox;
         this.isRGBE = this._isRGBE;
-        this.cubemap = this._cubemap;
+        this.envmap = this._envmap;
         this.enabled = this._enabled;
+        this.useIBL = this._useIBL;
     }
 }
 cc.SkyboxInfo = SkyboxInfo;

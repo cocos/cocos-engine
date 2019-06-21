@@ -24,7 +24,7 @@ import { GFXTextureView } from '../gfx/texture-view';
 import { Camera, Model } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass';
 import { programLib } from '../renderer/core/program-lib';
-import { IRenderObject, UBOGlobal, UBOShadow } from './define';
+import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_ENVIRONMENT } from './define';
 import { IInternalBindingInst } from './define';
 import { IRenderFlowInfo, RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
@@ -44,6 +44,7 @@ export interface IRenderPipelineInfo {
     enableHDR?: boolean;
     enableMSAA?: boolean;
     enableSMAA?: boolean;
+    enableIBL?: boolean;
 }
 
 /**
@@ -114,6 +115,17 @@ export abstract class RenderPipeline {
      */
     public get isHDR (): boolean {
         return this._isHDR;
+    }
+
+    /**
+     * @zh
+     * 是否启用 IBL。
+     */
+    public get useIBL () {
+        return this._useIBL;
+    }
+    public set useIBL (val) {
+        this._useIBL = val;
     }
 
     /**
@@ -326,15 +338,21 @@ export abstract class RenderPipeline {
 
     /**
      * @zh
-     * 是否支持HDR。
+     * 是否支持 HDR。
      */
     protected _isHDRSupported: boolean = false;
 
     /**
      * @zh
-     * 是否为HDR管线。
+     * 是否为 HDR 管线。
      */
     protected _isHDR: boolean = false;
+
+    /**
+     * @zh
+     * 是否启用 IBL。
+     */
+    protected _useIBL: boolean = false;
 
     /**
      * @zh
@@ -748,6 +766,19 @@ export abstract class RenderPipeline {
 
     /**
      * @zh
+     * 更新宏定义。
+     */
+    public updateMacros () {
+        programLib.destroyShaderByDefines(this._macros);
+        this._macros.CC_USE_HDR = (this._isHDR);
+        this._macros.CC_USE_IBL = (this._useIBL);
+        for (const scene of this._root.scenes) {
+            scene.onPipelineChange();
+        }
+    }
+
+    /**
+     * @zh
      * 内部初始化函数。
      * @param info 渲染流程描述信息。
      */
@@ -821,6 +852,8 @@ export abstract class RenderPipeline {
         } else {
             this._depthStencilFmt = GFXFormat.D16;
         }
+
+        this._useIBL = (info.enableIBL !== undefined ? info.enableIBL : false);
 
         this.updateMacros();
 
@@ -1190,18 +1223,6 @@ export abstract class RenderPipeline {
 
     /**
      * @zh
-     * 更新宏定义。
-     */
-    protected updateMacros () {
-        this._macros.CC_USE_HDR = (this._isHDR);
-        programLib.destroyShaderByDefines(this._macros);
-        for (const scene of this._root.scenes) {
-            scene.onPipelineChange();
-        }
-    }
-
-    /**
-     * @zh
      * 创建四边形输入汇集器。
      */
     protected createQuadInputAssembler (): boolean {
@@ -1301,10 +1322,6 @@ export abstract class RenderPipeline {
                 size: UBOGlobal.SIZE,
             });
 
-            if (!globalUBO) {
-                return false;
-            }
-
             this._globalBindings.set(UBOGlobal.BLOCK.name, {
                 type: GFXBindingType.UNIFORM_BUFFER,
                 blockInfo: UBOGlobal.BLOCK,
@@ -1319,14 +1336,17 @@ export abstract class RenderPipeline {
                 size: UBOShadow.SIZE,
             });
 
-            if (!shadowUBO) {
-                return false;
-            }
-
             this._globalBindings.set(UBOShadow.BLOCK.name, {
                 type: GFXBindingType.UNIFORM_BUFFER,
                 blockInfo: UBOShadow.BLOCK,
                 buffer: shadowUBO,
+            });
+        }
+
+        if (!this._globalBindings.get(UNIFORM_ENVIRONMENT.name)) {
+            this._globalBindings.set(UNIFORM_ENVIRONMENT.name, {
+                type: GFXBindingType.SAMPLER,
+                samplerInfo: UNIFORM_ENVIRONMENT,
             });
         }
 
@@ -1456,11 +1476,6 @@ export abstract class RenderPipeline {
 
         // update ubos
         this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._defaultUboGlobal.view.buffer);
-
-        const planarShadow = scene.planarShadow;
-        if (planarShadow.enabled) {
-            this._globalBindings.get(UBOShadow.BLOCK.name)!.buffer!.update(planarShadow.data);
-        }
     }
 
     /**

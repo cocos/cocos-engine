@@ -79,6 +79,7 @@ export enum UniformBinding {
 
     // samplers
     SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
+    SAMPLER_ENVIRONMENT = MAX_BINDING_SUPPORTED + 2,
 
     // rooms left for custom bindings
     // effect importer prepares bindings according to this
@@ -154,6 +155,10 @@ export class UBOShadow {
 
     public view: Float32Array = new Float32Array(UBOShadow.COUNT);
 }
+
+export const UNIFORM_ENVIRONMENT: GFXUniformSampler = {
+    binding: UniformBinding.SAMPLER_ENVIRONMENT, name: 'cc_environment', type: GFXType.SAMPLER_CUBE, count: 1,
+};
 
 export const localBindingsDesc: Map<string, IInternalBindingDesc> = new Map<string, IInternalBindingDesc>();
 

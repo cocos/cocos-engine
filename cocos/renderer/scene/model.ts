@@ -277,8 +277,8 @@ export class Model {
         this.initLocalBindings(mat);
         if (this._subModels[idx].material === mat) {
             if (mat) {
-                this.destroyPipelineState(mat!, this._matPSORecord.get(mat!)!);
-                this._matPSORecord.set(mat!, this.createPipelineState(mat!));
+                this.destroyPipelineState(mat, this._matPSORecord.get(mat)!);
+                this._matPSORecord.set(mat, this.createPipelineState(mat));
             }
         } else {
             if (this._subModels[idx].material) {
@@ -295,12 +295,14 @@ export class Model {
     public onPipelineChange () {
         for (const m of this._subModels) {
             const mat = m.material!;
-            const pso = this._matPSORecord.get(mat)!;
+            const psos = this._matPSORecord.get(mat)!;
             for (let i = 0; i < mat.passes.length; i++) {
                 const pass = mat.passes[i];
-                pass.destroyPipelineState(pso[i]);
-                pso[i] = this._doCreatePSO(pass);
+                pass.tryCompile(); // force update shaders
+                pass.destroyPipelineState(psos[i]);
+                psos[i] = this._doCreatePSO(pass);
             }
+            m.updateCommandBuffer();
         }
     }
 
