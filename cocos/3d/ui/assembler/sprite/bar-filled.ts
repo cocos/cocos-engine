@@ -1,4 +1,4 @@
-/****************************************************************************
+/*
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+*/
 
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 import { Mat4 } from '../../../../core/value-types';

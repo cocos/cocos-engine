@@ -1,4 +1,4 @@
-/****************************************************************************
+/*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+*/
 import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
 import { LightType, nt2lm } from '../../renderer/scene/light';
 import { RenderScene } from '../../renderer/scene/render-scene';

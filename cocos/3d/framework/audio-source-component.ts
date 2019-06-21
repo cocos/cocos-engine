@@ -1,4 +1,4 @@
-/****************************************************************************
+/*
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
@@ -21,7 +21,18 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
+
+/**
+ * 音频模块的相关内容
+ * @internal
+ * @module audio
+ * @preferred
+ */
+/**
+ * @able
+ */
+
 import { Component } from '../../components/component';
 import { ccclass, menu, property } from '../../core/data/class-decorator';
 import { AudioClip } from '../assets/audio/clip';
@@ -31,7 +42,8 @@ import { AudioClip } from '../assets/audio/clip';
  * A representation of a single audio source,
  * contains basic functionalities like play, pause and stop.
  * @zh
- * 音频组件，代表单个音源，提供播放、暂停、停止等基本功能。
+ * 音频组件，代表单个音源，提供播放、暂停、停止等基本功能。<br>
+ * 用户可通过 cc.AudioSourceComponent 调用此类。
  */
 @ccclass('cc.AudioSourceComponent')
 @menu('Components/AudioSourceComponent')

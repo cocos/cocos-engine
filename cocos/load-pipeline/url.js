@@ -1,4 +1,4 @@
-/****************************************************************************
+/*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
@@ -22,7 +22,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
 
 /**
  * @class url
@@ -37,7 +37,7 @@ let url = {
      * @readOnly
      */
     _rawAssets: '',
-    
+
     normalize: function (url) {
         if (url) {
             if (url.charCodeAt(0) === 46 && url.charCodeAt(1) === 47) {
@@ -54,7 +54,7 @@ let url = {
 
     /**
      * Returns the url of raw assets, you will only need this if the raw asset is inside the "resources" folder.
-     * 
+     *
      * @method raw
      * @param {String} url
      * @return {String}
@@ -78,7 +78,7 @@ let url = {
                 return cc.AssetLibrary.getLibUrlNoExt(uuid, true) + cc.path.extname(url);
             }
         }
-        
+
         return this._rawAssets + url;
     },
 
