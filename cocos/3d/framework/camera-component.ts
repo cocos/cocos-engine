@@ -133,6 +133,19 @@ export class CameraComponent extends Component {
     }
 
     /**
+     * @en The priority of the camera, it cannot be modified at runtime, instead, it should be set in editor.
+     * @zh 相机的优先级顺序，只能在编辑器中设置，动态设置无效。
+     */
+    @property
+    get priority () {
+        return this._priority;
+    }
+
+    set priority (val) {
+        this._priority = val;
+    }
+
+    /**
      * @en The camera field of view
      * @zh 相机的视角大小。
      */
