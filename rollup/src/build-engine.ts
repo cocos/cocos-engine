@@ -1,6 +1,4 @@
-
-import * as fs from 'fs-extra';
-import * as Path from 'path';
+import { dirname, relative } from 'path';
 import { rollup } from 'rollup';
 // @ts-ignore
 import babel from 'rollup-plugin-babel';
@@ -10,31 +8,80 @@ import commonjs from 'rollup-plugin-commonjs';
 import json from 'rollup-plugin-json';
 // @ts-ignore
 import resolve from 'rollup-plugin-node-resolve';
-import { minify } from 'uglify-js';
+// @ts-ignore
+import { uglify } from 'rollup-plugin-uglify';
 
 const { excludes } = require('../plugin/rollup-plugin-excludes');
 
-export interface IBuildOptions {
+interface IBaseOptions {
+    /**
+     * 引擎入口模块。
+     */
     inputPath: string;
+
+    /**
+     * 指定输出路径。
+     * 你仍应该自己写入生成代码到此文件中。
+     */
     outputPath: string;
-    globalDefines: object;
+
+    /**
+     * 排除的模块。
+     * @default []
+     */
     excludes?: string[];
+
+    /**
+     * 是否对生成结果进行压缩。
+     * @default false
+     */
     compress?: boolean;
+
+    /**
+     * 是否生成 source map。
+     * 若为 `inline` 则生成内联的 source map。
+     * @default false
+     */
     sourcemap?: boolean | 'inline';
+
+    /**
+     * 若 `sourcemap` 为 `true`，此选项指定了 source map 的路径。
+     * 此选项只是为了在生成的结果代码中说明 source map 的相对位置，
+     * 所以你仍应该自己写入 source map 的内容到此文件中。
+     * @default `${outputPath.map}`
+     */
+    sourcemapFile?: string;
+}
+
+interface IAdvancedOptions extends IBaseOptions {
+    globalDefines: object;
+}
+
+export interface IBuildOptions extends IBaseOptions {
+    /**
+     * 目标平台。
+     */
+    platform?: Platform;
+
+    /**
+     * 使用的物理引擎。
+     */
+    physics?: Physics;
+
+    /**
+     * 引擎标志。
+     */
+    flags?: IFlags;
 }
 
 export async function build (options: IBuildOptions) {
-    console.log(`Options: ${JSON.stringify(options)}`);
-    const result = await _doBundle(options);
-    if (!result) {
-        return;
-    }
-    fs.ensureDirSync(Path.dirname(options.outputPath));
-    fs.writeFileSync(options.outputPath, result.code);
+    const globalDefines = getGlobalDefs(options.platform, options.physics, options.flags);
+    return await _internalBuild(Object.assign(options, {globalDefines}));
 }
 
-async function _doBundle (options: IBuildOptions) {
-    let code = '';
+async function _internalBuild (options: IAdvancedOptions) {
+    console.log(`Options: ${JSON.stringify(options, undefined, 2)}`);
+    const doUglify = !!options.compress;
     const rollupPlugins = [
         excludes({
             modules: options.excludes,
@@ -78,62 +125,167 @@ async function _doBundle (options: IBuildOptions) {
                 cannon: ['CANNON', 'Shape'],
             },
         }),
+
+        uglify({
+            compress: {
+                global_defs: options.globalDefines,
+                // sequences     : true,  // join consecutive statemets with the “comma operator”
+                // properties    : true,  // optimize property access: a["foo"] → a.foo
+                // dead_code     : true,  // discard unreachable code
+                // drop_debugger : true,  // discard “debugger” statements
+                // unsafe        : false, // some unsafe optimizations (see below)
+                // conditionals  : true,  // optimize if-s and conditional expressions
+                // comparisons   : true,  // optimize comparisons
+                // evaluate      : true,  // evaluate constant expressions
+                // booleans      : true,  // optimize boolean expressions
+                // loops         : true,  // optimize loops
+                // unused        : true,  // drop unused variables/functions
+                // hoist_funs    : true,  // hoist function declarations
+                // hoist_vars    : false, // hoist variable declarations
+                // if_return     : true,  // optimize if-s followed by return/continue
+                // join_vars     : true,  // join var declarations
+                // side_effects  : true,  // drop side-effect-free statements
+                // warnings      : true,  // warn about potentially dangerous optimizations/code
+            },
+            mangle: doUglify,
+            keep_fnames: !doUglify,
+            output: {
+                beautify: !doUglify,
+            },
+            sourcemap: options.sourcemap === 'inline' ? { url: 'inline' } : !!options.sourcemap,
+        }),
     ];
+
+    const outputPath = options.outputPath;
+    const sourcemapFile = options.sourcemapFile || `${options.outputPath}.map`;
 
     const rollupBuild = await rollup({
         input: options.inputPath,
         plugins: rollupPlugins,
     });
-
     const generated = await rollupBuild.generate({
         format: 'iife',
         name: 'cc_modular',
-        sourcemap: 'inline',
+        sourcemap: options.sourcemap,
+        sourcemapFile,
     });
 
-    code = generated.code;
-
-    console.log(`Applying macros...`);
-
-    const doUglify = !!options.compress;
-
-    const minifyOutput = minify(code, {
-        compress: {
-            global_defs: options.globalDefines,
-            // sequences     : true,  // join consecutive statemets with the “comma operator”
-            // properties    : true,  // optimize property access: a["foo"] → a.foo
-            // dead_code     : true,  // discard unreachable code
-            // drop_debugger : true,  // discard “debugger” statements
-            // unsafe        : false, // some unsafe optimizations (see below)
-            // conditionals  : true,  // optimize if-s and conditional expressions
-            // comparisons   : true,  // optimize comparisons
-            // evaluate      : true,  // evaluate constant expressions
-            // booleans      : true,  // optimize boolean expressions
-            // loops         : true,  // optimize loops
-            // unused        : true,  // drop unused variables/functions
-            // hoist_funs    : true,  // hoist function declarations
-            // hoist_vars    : false, // hoist variable declarations
-            // if_return     : true,  // optimize if-s followed by return/continue
-            // join_vars     : true,  // join var declarations
-            // side_effects  : true,  // drop side-effect-free statements
-            // warnings      : true,  // warn about potentially dangerous optimizations/code
-        },
-        mangle: doUglify,
-        keep_fnames: !doUglify,
-        output: {
-            beautify: !doUglify,
-        },
-        sourceMap: options.sourcemap === 'inline' ? { url: 'inline' } : !!options.sourcemap,
-    });
-
-    if (minifyOutput.error) {
-        console.error(minifyOutput.error.stack);
-        return null;
-    } else {
-        code = minifyOutput.code;
+    const chunk0 = generated.output[0];
+    if (options.sourcemap === true && chunk0.map) {
+        const sourceMappingUrl = relative(dirname(outputPath), sourcemapFile);
         return {
-            code: minifyOutput.code,
-            sourceMap: minifyOutput.map,
+            code: `${chunk0.code}\n//# sourceMappingURL=${sourceMappingUrl}`,
+            map: chunk0.map.toString(),
+        };
+    } else if (options.sourcemap === 'inline' && chunk0.map) {
+        return {
+            code: `${chunk0.code}\n//# sourceMappingURL=${chunk0.map.toUrl()}`,
+        };
+    } else {
+        return {
+            code: chunk0.code,
         };
     }
+}
+
+export type Platform = 'universal' | 'editor' | 'preview' | 'build' | 'test';
+
+export type Physics = 'cannon' | 'ammo' | 'builtin';
+
+export interface IFlags {
+    jsb?: boolean;
+    runtime?: boolean;
+    wechatgame?: boolean;
+    qqplay?: boolean;
+    debug?: boolean;
+    nativeRenderer?: boolean;
+}
+
+interface IGlobaldefines {
+    // Platform macros
+    CC_EDITOR?: boolean;
+    CC_PREVIEW?: boolean;
+    CC_BUILD?: boolean;
+    CC_TEST?: boolean;
+
+    // Flag macros
+    CC_JSB?: boolean;
+    CC_RUNTIME?: boolean;
+    CC_WECHATGAME?: boolean;
+    CC_WECHATGAMESUB?: boolean;
+    CC_QQPLAY?: boolean;
+    CC_DEBUG?: boolean;
+    CC_NATIVERENDERER?: boolean;
+
+    // Debug macros
+    CC_DEV?: boolean;
+    CC_SUPPORT_JIT?: boolean;
+
+    // Physics macros
+    CC_PHYSICS_CANNON?: boolean;
+    CC_PHYSICS_AMMO?: boolean;
+    CC_PHYSICS_BUILT_IN?: boolean;
+}
+
+// tslint:disable-next-line: no-shadowed-variable
+function getGlobalDefs (platform?: Platform, physics?: Physics, flags?: IFlags): object {
+    platform = platform || 'universal';
+
+    const PLATFORM_MACROS = ['CC_EDITOR', 'CC_PREVIEW', 'CC_BUILD', 'CC_TEST'];
+
+    const FLAGS = ['jsb', 'runtime', 'wechatgame', 'wechatgameSub', 'qqplay', 'debug', 'nativeRenderer'];
+
+    const platformMacro = 'CC_' + platform.toUpperCase();
+    if (PLATFORM_MACROS.indexOf(platformMacro) === -1 && platform !== 'universal') {
+        throw new Error(`Unknown platform ${platform}.`);
+    }
+    const result: IGlobaldefines = {};
+    for (const macro of PLATFORM_MACROS) {
+        result[macro as keyof IGlobaldefines] = (macro === platformMacro);
+    }
+
+    if (flags) {
+        for (const flag in flags) {
+            if (flags.hasOwnProperty(flag) && flags[flag as keyof IFlags]) {
+                if (FLAGS.indexOf(flag) === -1) {
+                    throw new Error('Unknown flag: ' + flag);
+                }
+            }
+        }
+    }
+    for (const flag of FLAGS) {
+        const macro = 'CC_' + flag.toUpperCase();
+        result[macro as keyof IGlobaldefines] = !!(flags && flags[flag as keyof IFlags]);
+    }
+
+    result.CC_DEV = result.CC_EDITOR || result.CC_PREVIEW || result.CC_TEST;
+    result.CC_DEBUG = result.CC_DEBUG || result.CC_DEV;
+    result.CC_SUPPORT_JIT = !(result.CC_WECHATGAME || result.CC_QQPLAY || result.CC_RUNTIME);
+
+    // default
+    result.CC_PHYSICS_CANNON = true;
+    result.CC_PHYSICS_AMMO = false;
+    result.CC_PHYSICS_BUILT_IN = false;
+
+    switch (physics) {
+        case 'cannon':
+            result.CC_PHYSICS_CANNON = true;
+            result.CC_PHYSICS_AMMO = false;
+            result.CC_PHYSICS_BUILT_IN = false;
+            break;
+
+        case 'ammo':
+            result.CC_PHYSICS_CANNON = false;
+            result.CC_PHYSICS_AMMO = true;
+            result.CC_PHYSICS_BUILT_IN = false;
+            break;
+
+        case 'builtin':
+            result.CC_PHYSICS_CANNON = false;
+            result.CC_PHYSICS_AMMO = false;
+            result.CC_PHYSICS_BUILT_IN = true;
+            break;
+    }
+
+    return result;
 }
