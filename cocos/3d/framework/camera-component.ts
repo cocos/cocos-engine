@@ -109,6 +109,8 @@ export class CameraComponent extends Component {
     protected _screenScale = 1;
     @property
     protected _targetDisplay = 0;
+    @property
+    protected _visibility = 0;
 
     protected _camera: Camera | null = null;
 
@@ -302,6 +304,21 @@ export class CameraComponent extends Component {
     set targetDisplay (val) {
         this._targetDisplay = val;
         if (this._camera) { this._camera.changeTargetDisplay(val); }
+    }
+
+    /**
+     * @zh 设置摄像机可见掩码，与Component中的visibility同时使用，用于过滤摄像机不需要渲染的物体
+     */
+    @property
+    get visibility () {
+        return this._visibility;
+    }
+
+    set visibility (val) {
+        this._visibility = val;
+        if (this._camera) {
+            this._camera.visibility = val;
+        }
     }
 
     public onLoad () {

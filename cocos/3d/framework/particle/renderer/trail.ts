@@ -155,14 +155,6 @@ export default class TrailModule {
     public mode = TrailMode.Particles;
 
     /**
-     * 设定粒子中生成轨迹的比例。
-     */
-    @property({
-        displayOrder: 2,
-    })
-    public ratio = 1;
-
-    /**
      * 轨迹存在的生命周期。
      */
     @property({

@@ -9,6 +9,9 @@ export class RenderableComponent extends Component {
     @property({ type: [Material] })
     protected _materials: Array<Material | null> = [];
 
+    @property
+    protected _viewID: number = 0;
+
     constructor () {
         super();
     }
@@ -97,6 +100,16 @@ export class RenderableComponent extends Component {
         return this.getSharedMaterial(0);
     }
 
+    @property
+    get visibility () {
+        return this._viewID;
+    }
+
+    set visibility (val) {
+        this._viewID = val;
+        this._onVisiblityChange(val);
+    }
+
     public setMaterial (material: Material | null, index: number, notify: boolean = true) {
         this._materials[index] = material;
         if (notify) {
@@ -116,6 +129,10 @@ export class RenderableComponent extends Component {
     }
 
     protected _clearMaterials () {
+
+    }
+
+    protected _onVisiblityChange (val) {
 
     }
 }
