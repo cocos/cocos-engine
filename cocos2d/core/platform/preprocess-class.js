@@ -190,11 +190,27 @@ function parseType (val, type, className, propName) {
                     js.getClassName(type));
             }
         }
-        else if (type === 'Number') {
-            cc.warnID(5510, className, propName);
-        }
-        else if (type == null) {
-            cc.warnID(5511, className, propName);
+        else {
+            switch (type) {
+            case 'Number':
+                cc.warnID(5510, className, propName);
+                break;
+            case 'String':
+                cc.warn(`The type of "${className}.${propName}" must be cc.String, not "String".`);
+                break;
+            case 'Boolean':
+                cc.warn(`The type of "${className}.${propName}" must be cc.Boolean, not "Boolean".`);
+                break;
+            case 'Float':
+                cc.warn(`The type of "${className}.${propName}" must be cc.Float, not "Float".`);
+                break;
+            case 'Integer':
+                cc.warn(`The type of "${className}.${propName}" must be cc.Integer, not "Integer".`);
+                break;
+            case null:
+                cc.warnID(5511, className, propName);
+                break;
+            }
         }
     }
 }
@@ -294,6 +310,12 @@ exports.getFullFormOfProperty = function (options, propname_dev, classname_dev) 
             return {
                 default: '',
                 url: type,
+                _short: true
+            };
+        }
+        else if (options === cc.String || options === cc.Integer || options === cc.Float || options === cc.Boolean) {
+            return {
+                default: options.default,
                 _short: true
             };
         }

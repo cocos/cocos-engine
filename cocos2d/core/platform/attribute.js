@@ -164,7 +164,12 @@ function setClassAttr (ctor, propName, key, value) {
  * })
  * member = [];
  */
-cc.Integer = 'Integer';
+cc.Integer = {
+    default: 0,
+    toString () {
+        return 'Integer';
+    }
+};
 
 /**
  * Indicates that the elements in array should be type double.
@@ -182,7 +187,12 @@ cc.Integer = 'Integer';
  * })
  * member = [];
  */
-cc.Float = 'Float';
+cc.Float = {
+    default: 0,
+    toString () {
+        return 'Float';
+    }
+};
 
 if (CC_EDITOR) {
     js.get(cc, 'Number', function () {
@@ -207,7 +217,12 @@ if (CC_EDITOR) {
  * })
  * member = [];
  */
-cc.Boolean = 'Boolean';
+cc.Boolean = {
+    default: false,
+    toString () {
+        return 'Boolean';
+    }
+};
 
 /**
  * Indicates that the elements in array should be type string.
@@ -225,7 +240,12 @@ cc.Boolean = 'Boolean';
  * })
  * member = [];
  */
-cc.String = 'String';
+cc.String = {
+    default: '',
+    toString () {
+        return 'String';
+    }
+};
 
 /*
 BuiltinAttributes: {
@@ -244,7 +264,7 @@ Callbacks: {
  */
 
 function getTypeChecker (type, attrName) {
-    if (CC_DEV) {
+    if (CC_EDITOR || CC_TEST) {
         return function (constructor, mainPropName) {
             var propInfo = '"' + js.getClassName(constructor) + '.' + mainPropName + '"';
             var mainPropAttrs = attr(constructor, mainPropName);
@@ -252,6 +272,9 @@ function getTypeChecker (type, attrName) {
                 var mainPropAttrsType = mainPropAttrs.type;
                 if (mainPropAttrsType === cc.Integer || mainPropAttrsType === cc.Float) {
                     mainPropAttrsType = 'Number';
+                }
+                else if (mainPropAttrsType === cc.String || mainPropAttrsType === cc.Boolean) {
+                    mainPropAttrsType = '' + mainPropAttrsType;
                 }
                 if (mainPropAttrsType !== type) {
                     cc.warnID(3604, propInfo);

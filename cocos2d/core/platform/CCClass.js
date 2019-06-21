@@ -904,7 +904,7 @@ function declareProperties (cls, className, properties, baseClass, mixins, es6) 
      properties {
          width: {
              default: 128,
-             type: 'Integer',
+             type: cc.Integer,
              tooltip: 'The width of sprite'
          },
          height: 128,
