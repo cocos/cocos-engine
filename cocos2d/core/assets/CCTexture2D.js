@@ -778,7 +778,7 @@ var Texture2D = cc.Class({
             let exts = [];
             for (let i = 0; i < exportedExts.length; i++) {
                 let extId = "";
-                let ext = exportedExts[i]
+                let ext = exportedExts[i];
                 if (ext) {
                     // ext@format
                     let extFormat = ext.split('@');
@@ -845,13 +845,6 @@ var Texture2D = cc.Class({
             if (ext) {
                 this._setRawAsset(ext);
                 this._format = format;
-            }
-
-            // preset uuid to get correct nativeUrl
-            let loadingItem = handle.customEnv;
-            let uuid = loadingItem && loadingItem.uuid;
-            if (uuid) {
-                this._uuid = uuid;
             }
         }
         if (fields.length === 6) {
