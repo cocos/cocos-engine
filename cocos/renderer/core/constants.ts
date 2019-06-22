@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 export enum RenderQueue {
     OPAQUE = 0,
     TRANSPARENT = 1,

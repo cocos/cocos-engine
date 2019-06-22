@@ -28,8 +28,7 @@
 // tslint:disable:one-variable-per-declaration
 
 import { errorID, log, warnID } from '../../platform/CCDebug';
-import * as js from '../../utils/js';
-import { formatStr } from '../../utils/js';
+import { extend, formatStr, get, getClassName, isChildClassOf, value } from '../../utils/js';
 import { isPlainEmptyObj_DEV } from '../../utils/misc';
 
 export const DELIMETER = '$_$';
@@ -50,10 +49,10 @@ export function createAttrsSingle (owner: Object, ownerConstructor: Function, su
         AttrsCtor = function () { };
     }
     if (superAttrs) {
-        js.extend(AttrsCtor, superAttrs.constructor);
+        extend(AttrsCtor, superAttrs.constructor);
     }
     const attrs = new AttrsCtor();
-    js.value(owner, '__attrs__', attrs);
+    value(owner, '__attrs__', attrs);
     return attrs;
 }
 
@@ -154,81 +153,103 @@ export function setClassAttr (ctor, propName, key, value) {
     proto[propName + DELIMETER + key] = value;
 }
 
-/**
- * Specify that the input value must be integer in Inspector.
- * Also used to indicates that the elements in array should be type integer.
- * @example
- * // in cc.Class
- * member: {
- *     default: [],
- *     type: cc.Integer
- * }
- * // ES6 ccclass
- * @cc._decorator.property({
- *     type: cc.Integer
- * })
- * member = [];
- */
-export const CCInteger = 'Integer';
-cc.Integer = CCInteger;
+export class PrimitiveType<T> {
+    public name: string;
+
+    public default: T;
+
+    constructor (name: string, defaultValue: T) {
+        this.name = name;
+        this.default = defaultValue;
+    }
+
+    public toString () {
+        return this.name;
+    }
+}
 
 /**
- * Indicates that the elements in array should be type double.
- * @example
- * // in cc.Class
- * member: {
- *     default: [],
- *     type: cc.Float
- * }
- * // ES6 ccclass
- * @cc._decorator.property({
- *     type: cc.Float
- * })
- * member = [];
+ * 指定编辑器以整数形式对待该属性或数组元素。
+ * 例如：
+ * ```ts
+ * import { CCInteger, _decorator } from "Cocos3D";
+ *
+ * // 在 cc 类定义中:
+ *
+ * \@_decorator.property({type: CCInteger})
+ * count = 0;
+ *
+ * \@_decorator.property({type: [CCInteger]})
+ * array = [];
+ * ```
  */
-export const CCFloat = 'Float';
+export const CCInteger = new PrimitiveType('Integer', 0);
+cc.Integer = CCInteger;
+cc.CCInteger = CCInteger;
+
+/**
+ * 指定编辑器以浮点数形式对待该属性或数组元素。
+ * 例如：
+ * ```ts
+ * import { CCFloat, _decorator } from "Cocos3D";
+ *
+ * // 在 cc 类定义中:
+ *
+ * \@_decorator.property({type: CCFloat})
+ * x = 0;
+ *
+ * \@_decorator.property({type: [CCFloat]})
+ * array = [];
+ * ```
+ */
+export const CCFloat = new PrimitiveType('Float', 0.0);
 cc.Float = CCFloat;
+cc.CCFloat = CCFloat;
 
 if (CC_EDITOR) {
-    js.get(cc, 'Number', function () {
+    get(cc, 'Number', function () {
         warnID(3603);
         return CCFloat;
     });
 }
 
 /**
- * Indicates that the elements in array should be type boolean.
- * @example
- * // in cc.Class
- * member: {
- *     default: [],
- *     type: cc.Boolean
- * }
- * // ES6 ccclass
- * @cc._decorator.property({
- *     type: cc.Boolean
- * })
- * member = [];
+ * 指定编辑器以布尔值形式对待该属性或数组元素。
+ * 例如：
+ * ```ts
+ * import { CCBoolean, _decorator } from "Cocos3D";
+ *
+ * // 在 cc 类定义中:
+ *
+ * \@_decorator.property({type: CCBoolean})
+ * isTrue = false;
+ *
+ * \@_decorator.property({type: [CCBoolean]})
+ * array = [];
+ * ```
  */
-export const CCBoolean = 'Boolean';
+export const CCBoolean = new PrimitiveType('Boolean', false);
 cc.Boolean = CCBoolean;
+cc.CCBoolean = CCBoolean;
 
 /**
- * Indicates that the elements in array should be type string.
- * @example
- * // in cc.Class
- * member: {
- *     default: [],
- *     type: cc.String
- * }
- * // ES6 ccclass
- * @cc._decorator.property({
- *     type: cc.String
- * })
- * member = [];
+ * 指定编辑器以字符串形式对待该属性或数组元素。
+ * 例如：
+ * ```ts
+ * import { CCString, _decorator } from "Cocos3D";
+ *
+ * // 在 cc 类定义中:
+ *
+ * \@_decorator.property({type: CCString})
+ * name = '';
+ *
+ * \@_decorator.property({type: [CCString]})
+ * array = [];
+ * ```
  */
-export const CCString = 'String';
+export const CCString = new PrimitiveType('String', '');
 cc.String = CCString;
+cc.CCString = CCString;
 
 /*
 BuiltinAttributes: {
@@ -248,12 +269,14 @@ Callbacks: {
 
 export function getTypeChecker (type: string, attributeName: string) {
     return function (constructor: Function, mainPropertyName: string) {
-        const propInfo = '"' + js.getClassName(constructor) + '.' + mainPropertyName + '"';
+        const propInfo = '"' + getClassName(constructor) + '.' + mainPropertyName + '"';
         const mainPropAttrs = attr(constructor, mainPropertyName);
         if (!mainPropAttrs.saveUrlAsAsset) {
             let mainPropAttrsType = mainPropAttrs.type;
             if (mainPropAttrsType === CCInteger || mainPropAttrsType === CCFloat) {
                 mainPropAttrsType = 'Number';
+            } else if (mainPropAttrsType === CCString || mainPropAttrsType === CCBoolean) {
+                mainPropAttrsType = mainPropAttrsType.toString();
             }
             if (mainPropAttrsType !== type) {
                 warnID(3604, propInfo);
@@ -277,36 +300,20 @@ export function getTypeChecker (type: string, attributeName: string) {
             if (!mainPropAttrs.saveUrlAsAsset) {
                 if (type_lowerCase === 'object') {
                     if (defaultVal && !(defaultVal instanceof mainPropAttrs.ctor)) {
-                        warnID(3605, propInfo, js.getClassName(mainPropAttrs.ctor));
-                    }
-                    else {
+                        warnID(3605, propInfo, getClassName(mainPropAttrs.ctor));
+                    } else {
                         return;
                     }
-                }
-                else if (type !== 'Number') {
+                } else if (type !== 'Number') {
                     warnID(3606, attributeName, propInfo, type);
                 }
             }
-        }
-        else if (defaultType !== 'function') {
+        } else if (defaultType !== 'function') {
             if (type === CCString && defaultVal == null) {
-                if (!js.isChildClassOf(mainPropAttrs.ctor, cc.RawAsset)) {
+                if (!isChildClassOf(mainPropAttrs.ctor, cc.RawAsset)) {
                     warnID(3607, propInfo);
                 }
-            }
-            else if (mainPropAttrs.ctor === String && (defaultType === 'string' || defaultVal == null)) {
-                mainPropAttrs.type = CCString;
-                warnID(3608, propInfo);
-            }
-            else if (mainPropAttrs.ctor === Boolean && defaultType === 'boolean') {
-                mainPropAttrs.type = CCBoolean;
-                warnID(3609, propInfo);
-            }
-            else if (mainPropAttrs.ctor === Number && defaultType === 'number') {
-                mainPropAttrs.type = CCFloat;
-                warnID(3610, propInfo);
-            }
-            else {
+            } else {
                 warnID(3611, attributeName, propInfo, defaultType);
             }
         }
@@ -317,26 +324,22 @@ export function getTypeChecker (type: string, attributeName: string) {
     };
 }
 
-export function ObjectType (typeCtor) {
-    return {
-        type: 'Object',
-        ctor: typeCtor,
-        _onAfterProp: !CC_DEV ? undefined : function (classCtor, mainPropName) {
-            getTypeChecker('Object', 'type')(classCtor, mainPropName);
-            // check ValueType
-            const defaultDef = getClassAttrs(classCtor)[mainPropName + DELIMETER + 'default'];
-            const defaultVal = cc.Class.getDefault(defaultDef);
-            if (!Array.isArray(defaultVal) && js.isChildClassOf(typeCtor, cc.ValueType)) {
-                const typename = js.getClassName(typeCtor);
-                const info = formatStr('No need to specify the "type" of "%s.%s" because %s is a child class of ValueType.',
-                    js.getClassName(classCtor), mainPropName, typename);
-                if (defaultDef) {
-                    log(info);
-                }
-                else {
-                    warnID(3612, info, typename, js.getClassName(classCtor), mainPropName, typename);
-                }
+export function getObjTypeChecker (typeCtor) {
+    return function (classCtor, mainPropName) {
+        getTypeChecker('Object', 'type')(classCtor, mainPropName);
+        // check ValueType
+        const defaultDef = getClassAttrs(classCtor)[mainPropName + DELIMETER + 'default'];
+        const defaultVal = cc.Class.getDefault(defaultDef);
+        if (!Array.isArray(defaultVal) && isChildClassOf(typeCtor, cc.ValueType)) {
+            const typename = getClassName(typeCtor);
+            const info = formatStr('No need to specify the "type" of "%s.%s" because %s is a child class of ValueType.',
+            getClassName(classCtor), mainPropName, typename);
+            if (defaultDef) {
+                log(info);
             }
-        },
+            else {
+                warnID(3612, info, typename, getClassName(classCtor), mainPropName, typename);
+            }
+        }
     };
 }

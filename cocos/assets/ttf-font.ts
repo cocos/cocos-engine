@@ -24,15 +24,20 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category asset
+ */
+
 import {ccclass, property} from '../core/data/class-decorator';
 import { Font } from './font';
 
 /**
- * @module cc
- */
-/**
- * @en Class for TTFFont handling.
- * @zh TTF 字体资源类。
+ * @en
+ * Class for TTFFont handling.
+ *
+ * @zh
+ * TTF 字体资源类。
+ * 可通过 cc.TTFFont 获取该组件。
  */
 @ccclass('cc.TTFFont')
 export class TTFFont extends Font {

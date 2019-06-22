@@ -1,3 +1,7 @@
+/**
+ * @category animation
+ */
+
 import { Component } from '../components';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { EventArgumentsOf, EventCallbackOf } from '../core/event/defines';
@@ -608,27 +612,26 @@ export class AnimationState extends Playable {
             }
 
             for (const curveInstace of samplerSharedGroup.curves) {
-                const { curve, blendTarget, target, propertyName } = curveInstace;
-                if (curve.empty()) {
+                if (curveInstace.curve.empty()) {
                     continue;
                 }
                 let value: any;
                 if (!lerpRequired) {
-                    value = curve.valueAt(index);
+                    value = curveInstace.curve.valueAt(index);
                 } else {
-                    value = curve.valueBetween(
+                    value = curveInstace.curve.valueBetween(
                         ratio,
                         samplerResultCache.from,
                         samplerResultCache.fromRatio,
                         samplerResultCache.to,
                         samplerResultCache.toRatio);
                 }
-                if (!curve._blendFunction || !blendTarget || blendTarget.refCount <= 1) {
-                    target[propertyName] = value;
+                if (!curveInstace.curve._blendFunction || !curveInstace.blendTarget || curveInstace.blendTarget.refCount <= 1) {
+                    curveInstace.target[curveInstace.propertyName] = value;
                 } else {
                     const { weight } = this;
-                    blendTarget.value = curve._blendFunction(value, weight, blendTarget);
-                    blendTarget.weight += weight;
+                    curveInstace.blendTarget.value = curveInstace.curve._blendFunction(value, weight, curveInstace.blendTarget);
+                    curveInstace.blendTarget.weight += weight;
                 }
             }
         }

@@ -1,11 +1,17 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
+/**
+ * 粒子系统模块
+ * @category particle
+ */
+
 // tslint:disable: max-line-length
 
-import { Component } from '../../../components/component';
-import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
-import { mat4, pseudoRandom, quat, randomRangeInt, vec2, vec3 } from '../../../core/vmath';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { Mat4, Quat, Vec2, Vec3 } from '../../../core/value-types';
+import { pseudoRandom, randomRangeInt, vec2, vec3 } from '../../../core/vmath';
 import { INT_MAX } from '../../../core/vmath/bits';
+import { Model } from '../../../renderer';
 import { Material } from '../../assets';
 import { RenderableComponent } from '../renderable-component';
 import ColorOverLifetimeModule from './animator/color-overtime';
@@ -24,7 +30,7 @@ import { particleEmitZAxis } from './particle-general-function';
 import ParticleSystemRenderer from './renderer/particle-system-renderer';
 import TrailModule from './renderer/trail';
 
-const _world_mat = mat4.create();
+const _world_mat = new Mat4();
 
 @ccclass('cc.ParticleSystemComponent')
 @menu('Components/ParticleSystemComponent')
@@ -335,11 +341,11 @@ export class ParticleSystemComponent extends RenderableComponent {
     private _time: number;  // playback position in seconds.
     private _emitRateTimeCounter: number;
     private _emitRateDistanceCounter: number;
-    private _oldWPos: vec3;
-    private _curWPos: vec3;
+    private _oldWPos: Vec3;
+    private _curWPos: Vec3;
 
-    private _customData1: vec2;
-    private _customData2: vec2;
+    private _customData1: Vec2;
+    private _customData2: Vec2;
 
     private _subEmitters: any[]; // array of { emitter: ParticleSystemComponent, type: 'birth', 'collision' or 'death'}
 
@@ -369,11 +375,11 @@ export class ParticleSystemComponent extends RenderableComponent {
         this._time = 0.0;  // playback position in seconds.
         this._emitRateTimeCounter = 0.0;
         this._emitRateDistanceCounter = 0.0;
-        this._oldWPos = vec3.create(0, 0, 0);
-        this._curWPos = vec3.create(0, 0, 0);
+        this._oldWPos = new Vec3();
+        this._curWPos = new Vec3();
 
-        this._customData1 = vec2.create(0, 0);
-        this._customData2 = vec2.create(0, 0);
+        this._customData1 = new Vec2();
+        this._customData2 = new Vec2();
 
         this._subEmitters = []; // array of { emitter: ParticleSystemComponent, type: 'birth', 'collision' or 'death'}
     }
@@ -397,6 +403,10 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     public _onRebuildPSO (index: number, material: Material) {
         this.renderer._onRebuildPSO(index, material);
+    }
+
+    public _getModel (): Model | null {
+        return (this.renderer as any)._model;
     }
 
     public recreateModel () {
@@ -452,6 +462,9 @@ export class ParticleSystemComponent extends RenderableComponent {
      * 停止播放粒子。
      */
     public stop () {
+        if (this._isPlaying || this._isPaused) {
+            this.clear();
+        }
         if (this._isPlaying) {
             this._isPlaying = false;
         }
@@ -459,7 +472,6 @@ export class ParticleSystemComponent extends RenderableComponent {
             this._isPaused = false;
         }
 
-        this.clear();
         this._time = 0.0;
         this._emitRateTimeCounter = 0.0;
         this._emitRateDistanceCounter = 0.0;
@@ -567,7 +579,7 @@ export class ParticleSystemComponent extends RenderableComponent {
                 case Space.World:
                     this.node.getWorldMatrix(_world_mat);
                     vec3.transformMat4(particle.position, particle.position, _world_mat);
-                    const worldRot = quat.create();
+                    const worldRot = new Quat();
                     this.node.getWorldRotation(worldRot);
                     vec3.transformQuat(particle.velocity, particle.velocity, worldRot);
                     break;

@@ -1,3 +1,7 @@
+/**
+ * @category animation
+ */
+
 import { ccclass, property } from '../core/data/class-decorator';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { error, errorID } from '../core/platform/CCDebug';
@@ -323,7 +327,7 @@ const selectLerpFx = (() => {
     function makeValueTypeLerpFx<T extends ValueType> (constructor: Constructor<T>) {
         const tempValue = new constructor();
         return (from: T, to: T, ratio: number) => {
-            return from.lerp(to, ratio, tempValue);
+            return constructor.lerp(from, to, ratio, tempValue);
         };
     }
 

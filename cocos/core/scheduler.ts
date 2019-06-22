@@ -23,10 +23,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
 /**
- * @module cc
+ * @category core
  */
+
 import IdGenerator from './utils/id-generator';
 import {createMap} from './utils/js';
 

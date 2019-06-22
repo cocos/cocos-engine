@@ -1,3 +1,7 @@
+/**
+ * @category pipeline
+ */
+
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { GFXBindingType, GFXType } from '../gfx/define';
@@ -271,7 +275,6 @@ localBindingsDesc.set(UBOSkinningTexture.BLOCK.name, {
 });
 
 /**
- * @zh
  * 骨骼纹理采样器。
  */
 export const UNIFORM_JOINTS_TEXTURE: GFXUniformSampler = {

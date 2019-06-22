@@ -1,3 +1,7 @@
+/**
+ * @category pipeline
+ */
+
 import { IGFXColor } from '../gfx/define';
 
 /**

@@ -1,3 +1,8 @@
+/**
+ * 几何图形模块
+ * @category 3d/primitive
+ */
+
 import { GFXPrimitiveMode } from '../../gfx/define';
 import { IGeometry } from './define';
 

@@ -6,7 +6,7 @@ export interface IExposedAttributes {
     type?: any;
 
     /**
-     * ???
+     *
      */
     url?: string;
 
@@ -21,7 +21,7 @@ export interface IExposedAttributes {
     displayName?: string;
 
     /**
-     * ???
+     *
      */
     displayOrder?: number;
 
@@ -31,7 +31,7 @@ export interface IExposedAttributes {
     tooltip?: string;
 
     /**
-     * ???
+     *
      */
     multiline?: boolean;
 
@@ -86,12 +86,12 @@ export interface IExposedAttributes {
     override?: boolean;
 
     /**
-     * ???
+     *
      */
     animatable?: boolean;
 
     /**
-     * ???
+     *
      */
     unit?: string;
 

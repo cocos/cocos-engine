@@ -1,6 +1,10 @@
+/**
+ * 几何工具模块
+ * @category gemotry-utils
+ */
 
 /**
- * Orders matter, it decides the priority when calling intersection functions
+ * 形状的类型值。
  */
 export default {
   SHAPE_RAY: (1 << 0),

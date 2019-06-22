@@ -23,8 +23,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * @category ui
+ */
+
 import { SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property} from '../../../core/data/class-decorator';
+import { constget } from '../../../core/data/utils/constget';
 import { SystemEventType } from '../../../core/platform';
 import { Color, Mat4, Size, Vec2, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
@@ -80,6 +86,7 @@ const SEGEMENTS_MAX = 10000;
 /**
  * @zh
  * 遮罩组件。
+ * 可通过 cc.MaskComponent 获得该组件。
  */
 @ccclass('cc.MaskComponent')
 @executionOrder(110)
@@ -231,7 +238,8 @@ export class MaskComponent extends UIRenderComponent {
         visible: false,
         override: true,
     })
-    get color () {
+    @constget
+    get color (): Readonly<Color> {
         return this._color;
     }
 
@@ -487,6 +495,7 @@ export class MaskComponent extends UIRenderComponent {
         if (!this._graphics) {
             const graphics = this._graphics = new GraphicsComponent();
             graphics.node = this.node;
+            graphics.node.getWorldMatrix();
             graphics.helpInstanceMaterial();
             graphics.lineWidth = 0;
             const color = Color.WHITE;

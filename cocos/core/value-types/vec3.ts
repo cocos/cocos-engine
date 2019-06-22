@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core/value-types
+ */
+
 import CCClass from '../data/class';
 import {clamp, vec3} from '../vmath';
 import Mat4 from './mat4';
@@ -33,6 +37,20 @@ import { ValueType } from './value-type';
  * 三维向量。
  */
 export default class Vec3 extends ValueType {
+
+    /**
+     * 根据指定的插值比率，从当前向量到目标向量之间做插值。
+     * @param form 起始向量。
+     * @param to 目标向量。
+     * @param ratio 插值比率，范围为 [0,1]。
+     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
+     * @returns 当前向量各个分量到目标向量对应的各个分量之间按指定插值比率进行线性插值构成的向量。
+     */
+    public static lerp (from: Vec3, to: Vec3, ratio: number, out: Vec3) {
+        vec3.lerp(out, from, to, ratio);
+        return out;
+    }
+
     /**
      * x 分量。
      */
@@ -129,16 +147,13 @@ export default class Vec3 extends ValueType {
     }
 
     /**
-     * 根据指定的插值比率，从当前向量到目标向量之间做插值。
+     * 同lerp函数一样，但会对自身做lerp。
      * @param to 目标向量。
      * @param ratio 插值比率，范围为 [0,1]。
-     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
      * @returns 当前向量各个分量到目标向量对应的各个分量之间按指定插值比率进行线性插值构成的向量。
      */
-    public lerp (to: Vec3, ratio: number, out?: Vec3) {
-        out = out || new Vec3();
-        vec3.lerp(out, this, to, ratio);
-        return out;
+    public lerpSelf (to: Vec3, ratio: number) {
+        return vec3.lerp(this, this, to, ratio);
     }
 
     /**

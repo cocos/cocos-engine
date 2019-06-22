@@ -1,4 +1,8 @@
 
+/**
+ * @category animation
+ */
+
 import { AnimationClip, AnimationState } from '../animation';
 import { CrossFade } from '../animation/cross-fade';
 import { Playable } from '../animation/playable';
@@ -129,10 +133,6 @@ export class AnimationComponent extends Component implements IEventTarget {
         }
     }
 
-    get currentPlaying () {
-        return this._currentPlaying;
-    }
-
     public static EventType = EventType;
 
     /**
@@ -152,8 +152,6 @@ export class AnimationComponent extends Component implements IEventTarget {
 
     @property
     private _defaultClip: AnimationClip | null = null;
-
-    private _currentPlaying: Playable = this._crossFade;
 
     constructor () {
         super();
@@ -193,54 +191,64 @@ export class AnimationComponent extends Component implements IEventTarget {
             cc.director.getAnimationManager().removeCrossFade(this._crossFade);
             this._crossFade.stop();
         }
+        for (const name of Object.keys(this._nameToState)) {
+            const state = this._nameToState[name];
+            state.stop();
+        }
+        this._nameToState = null as any;
     }
 
     /**
-     * @en Plays an animation and stop other animations.
-     * @zh 播放指定的动画，并且停止当前正在播放动画。如果没有指定动画，则播放默认动画。
-     * @param name - 要播放的动画的名称。 如果未提供名称，则将播放默认动画。
-     * @param startTime - 开始播放动画的时间
-     * @return
-     * 播放动画的动画状态。 在无法播放动画的情况下（即没有默认动画或没有指定名称的动画），该函数将返回null。
-     * @example
-     * ```typescript
-     * var animCtrl = this.node.getComponent(cc.Animation);
-     * animCtrl.play("linear");
-     * ```
+     * 立即切换到指定动画状态。
+     * @param [name] 目标动画状态的名称；若未指定，使用默认动画剪辑的名称。
      */
-    public play (name?: string, startTime = 0) {
+    public play (name?: string) {
         if (!name) {
             if (!this._defaultClip) {
-                return null;
+                return;
             } else {
                 name = this._defaultClip.name;
             }
         }
-        const state = this._nameToState[name];
-        if (state) {
-            this._currentPlaying.stop();
-            this._currentPlaying = state;
-            state.setTime(startTime);
-            state.play();
-        }
-        return state;
+        this.crossFade(name, 0);
     }
 
+    /**
+     * 在指定周期内从当前动画状态平滑地切换到指定动画状态。
+     * @param name 目标动画状态的名称。
+     * @param duration 切换周期，单位为秒。
+     */
     public crossFade (name: string, duration = 0.3) {
         const state = this._nameToState[name];
         if (state) {
-            if (this._currentPlaying !== this._crossFade) {
-                this._currentPlaying.stop();
-            }
-            this._currentPlaying = this._crossFade;
             this._crossFade.crossFade(state, duration);
         }
     }
 
     /**
-     * @zh
-     * 获取指定的动画状态。<br>
-     * **即将弃用**，请使用 [[getState]]。
+     * 暂停所有动画状态，并暂停动画切换。
+     */
+    public pause () {
+        this._crossFade.pause();
+    }
+
+    /**
+     * 恢复所有动画状态，并继续动画切换。
+     */
+    public resume () {
+        this._crossFade.resume();
+    }
+
+    /**
+     * 停止所有动画状态，并停止动画切换。
+     */
+    public stop () {
+        this._crossFade.stop();
+    }
+
+    /**
+     * 获取指定的动画状态。
+     * @deprecated 将在 V1.0.0 移除，请转用 `this.getState()`。
      */
     public getAnimationState (name: string) {
         return this.getState(name);
@@ -286,9 +294,8 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     /**
-     * @zh
-     * 添加一个动画剪辑到 `this.clips`中并以此剪辑创建动画状态。<br>
-     * **即将弃用**，请使用 [[createState]]
+     * 添加一个动画剪辑到 `this.clips`中并以此剪辑创建动画状态。
+     * @deprecated 将在 V1.0.0 移除，请转用 `this.createState()`。
      * @param clip 动画剪辑。
      * @param name 动画状态的名称，若未指定，则使用动画剪辑的名称。
      * @returns 新创建的动画状态。
@@ -309,7 +316,7 @@ export class AnimationComponent extends Component implements IEventTarget {
      * 从动画列表中移除指定的动画剪辑，<br/>
      * 如果依赖于 clip 的 AnimationState 正在播放或者 clip 是 defaultClip 的话，默认是不会删除 clip 的。<br/>
      * 但是如果 force 参数为 true，则会强制停止该动画，然后移除该动画剪辑和相关的动画。这时候如果 clip 是 defaultClip，defaultClip 将会被重置为 null。<br/>
-     * **即将弃用**，请使用 [[removeState]]
+     * @deprecated 将在 V1.0.0 移除，请转用 `this.removeState()`。
      * @param {Boolean} [force=false] - If force is true, then will always remove the clip and any animation states based on it.
      */
     public removeClip (clip: AnimationClip, force?: boolean) {

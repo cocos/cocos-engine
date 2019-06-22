@@ -1,3 +1,7 @@
+/**
+ * @category core/math
+ */
+
 import { EPSILON } from './utils';
 
 /**

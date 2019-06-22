@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core/data
+ */
+
 // tslint:disable:only-arrow-functions
 // tslint:disable:prefer-for-of
 // tslint:disable:no-shadowed-variable
@@ -36,14 +40,12 @@ import * as js from '../utils/js';
 import { getSuper } from '../utils/js';
 import { cloneable_DEV, isPlainEmptyObj_DEV } from '../utils/misc';
 import Enum from '../value-types/enum';
-import * as Attr from './utils/attribute';
+import * as attributeUtils from './utils/attribute';
 import { IAcceptableAttributes } from './utils/attribute-defines';
 import { preprocessAttrs, validateMethodWithProps } from './utils/preprocess-class';
 import * as RF from './utils/requiring-frame';
 
-const DELIMETER = Attr.DELIMETER;
-
-const getTypeChecker = Attr.getTypeChecker;
+const DELIMETER = attributeUtils.DELIMETER;
 
 const BUILTIN_ENTRIES = ['name', 'extends', 'mixins', 'ctor', '__ctor__', 'properties', 'statics', 'editor', '__ES6__'];
 const INVALID_STATICS_DEV = ['name', '__ctors__', '__props__', 'arguments', 'call', 'apply', 'caller', 'length', 'prototype'];
@@ -147,7 +149,7 @@ function defineProp (cls, className, propName, val, es6) {
     }
 
     // set default value
-    Attr.setClassAttr(cls, propName, 'default', defaultValue);
+    attributeUtils.setClassAttr(cls, propName, 'default', defaultValue);
 
     appendProp(cls, propName);
 
@@ -157,7 +159,7 @@ function defineProp (cls, className, propName, val, es6) {
         const onAfterProp: any[] = tmpArray;
         for (let i = 0; i < attrs.length; i++) {
             const attr: any = attrs[i];
-            Attr.attr(cls, propName, attr);
+            attributeUtils.attr(cls, propName, attr);
             if (attr.serializable === false) {
                 pushUnique(cls.__values__, propName);
             }
@@ -190,11 +192,11 @@ function defineGetSet (cls, name, propName, val, es6) {
 
         const attrs = parseAttributes(cls, val, name, propName, true);
         for (let i = 0; i < attrs.length; i++) {
-            Attr.attr(cls, propName, attrs[i]);
+            attributeUtils.attr(cls, propName, attrs[i]);
         }
         attrs.length = 0;
 
-        Attr.setClassAttr(cls, propName, 'serializable', false);
+        attributeUtils.setClassAttr(cls, propName, 'serializable', false);
 
         if (CC_DEV) {
             // 不论是否 visible 都要添加到 props，否则 asset watcher 不能正常工作
@@ -206,7 +208,7 @@ function defineGetSet (cls, name, propName, val, es6) {
         }
 
         if (CC_EDITOR || CC_DEV) {
-            Attr.setClassAttr(cls, propName, 'hasGetter', true); // 方便 editor 做判断
+            attributeUtils.setClassAttr(cls, propName, 'hasGetter', true); // 方便 editor 做判断
         }
     }
 
@@ -218,7 +220,7 @@ function defineGetSet (cls, name, propName, val, es6) {
             js.set(proto, propName, setter, setterUndefined, setterUndefined);
         }
         if (CC_EDITOR || CC_DEV) {
-            Attr.setClassAttr(cls, propName, 'hasSetter', true); // 方便 editor 做判断
+            attributeUtils.setClassAttr(cls, propName, 'hasSetter', true); // 方便 editor 做判断
         }
     }
 }
@@ -331,8 +333,8 @@ function doDefine (className, baseClass, mixins, options) {
             // mixin attributes
             if (CCClass._isCCClass(mixin)) {
                 mixinWithInherited(
-                    Attr.getClassAttrs(fireClass).constructor.prototype,
-                    Attr.getClassAttrs(mixin).constructor.prototype,
+                    attributeUtils.getClassAttrs(fireClass).constructor.prototype,
+                    attributeUtils.getClassAttrs(mixin).constructor.prototype,
                 );
             }
         }
@@ -373,6 +375,40 @@ function define (className, baseClass, mixins, options) {
     const cls = doDefine(className, baseClass, mixins, options);
 
     if (frame) {
+
+        // for RenderPipeline, RenderFlow, RenderStage
+        const isRenderPipeline = js.isChildClassOf(baseClass, cc.RenderPipeline);
+        const isRenderFlow = js.isChildClassOf(baseClass, cc.RenderFlow);
+        const isRenderStage = js.isChildClassOf(baseClass, cc.RenderStage);
+
+        const isRender = isRenderPipeline || isRenderFlow || isRenderStage || false;
+
+        if (isRender) {
+            let renderName = '';
+            if (isRenderPipeline) {
+                renderName = 'render_pipeline';
+            } else if (isRenderFlow) {
+                renderName = 'render_flow';
+            } else if (isRenderStage) {
+                renderName = 'render_stage';
+            }
+
+            if (renderName) {
+                const uuid = frame.uuid;
+                if (uuid) {
+                    js._setClassId(className, cls);
+                    if (CC_EDITOR) {
+                        // 增加了 hidden: 开头标识，使它最终不会显示在 Editor inspector 的添加组件列表里
+                        // @ts-ignore
+                        // tslint:disable-next-line:no-unused-expression
+                        window.EditorExtends && window.EditorExtends.Component.addMenu(cls, `hidden:${renderName}/${className}`, -1);
+                    }
+                }
+                frame.cls = cls;
+            }
+        }
+
+        // 基础的 ts, js 脚本组件
         if (js.isChildClassOf(baseClass, Component)) {
             const uuid = frame.uuid;
             if (uuid) {
@@ -571,7 +607,7 @@ const IDENTIFIER_RE = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
 
 function compileProps (this: any, actualClass) {
     // init deferred properties
-    const attrs = Attr.getClassAttrs(actualClass);
+    const attrs = attributeUtils.getClassAttrs(actualClass);
     let propList = actualClass.__props__;
     if (propList === null) {
         deferredInitializer.init();
@@ -847,7 +883,7 @@ function declareProperties (cls, className, properties, baseClass, mixins, es6?:
         }
     }
 
-    const attrs = Attr.getClassAttrs(cls);
+    const attrs = attributeUtils.getClassAttrs(cls);
     cls.__values__ = cls.__props__.filter(function (prop) {
         return attrs[prop + DELIMETER + 'serializable'] !== false;
     });
@@ -1055,15 +1091,15 @@ CCClass.fastDefine = function (className, constructor, serializableFields) {
     js.setClassName(className, constructor);
     // constructor.__ctors__ = constructor.__ctors__ || null;
     const props = constructor.__props__ = constructor.__values__ = Object.keys(serializableFields);
-    const attrProtos = Attr.getClassAttrsProto(constructor);
+    const attrProtos = attributeUtils.getClassAttrsProto(constructor);
     for (let i = 0; i < props.length; i++) {
         const key = props[i];
         attrProtos[key + DELIMETER + 'visible'] = false;
         attrProtos[key + DELIMETER + 'default'] = serializableFields[key];
     }
 };
-CCClass.Attr = Attr;
-CCClass.attr = Attr.attr;
+CCClass.Attr = attributeUtils;
+CCClass.attr = attributeUtils.attr;
 
 /**
  * Return all super classes.
@@ -1095,9 +1131,11 @@ const PrimitiveTypes = {
     String: 'String',
 };
 
+type OnAfterProp = (constructor: Function, mainPropertyName: string) => void;
+
 interface IParsedAttribute {
     type: string;
-    _onAfterProp?: (constructor: Function, mainPropertyName: string) => void;
+    _onAfterProp?: OnAfterProp;
     ctor?: Function;
     enumList?: any[];
 }
@@ -1110,7 +1148,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
     let attrsProtoKey = '';
     function getAttrsProto () {
         attrsProtoKey = propertyName + DELIMETER;
-        return attrsProto = Attr.getClassAttrsProto(constructor);
+        return attrsProto = attributeUtils.getClassAttrsProto(constructor);
     }
 
     tmpAttrs.length = 0;
@@ -1122,44 +1160,45 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
         if (primitiveType) {
             result.push({
                 type,
-                _onAfterProp: CC_DEV ? getTypeChecker(primitiveType, 'cc.' + type) : undefined,
+                _onAfterProp: (CC_EDITOR || CC_TEST) && !attributes._short ?
+                    attributeUtils.getTypeChecker(primitiveType, 'cc.' + type) :
+                    undefined,
             });
-        }
-        else if (type === 'Object') {
+        } else if (type === 'Object') {
             if (CC_DEV) {
                 errorID(3644, className, propertyName);
             }
         }
-        else {
-            if (typeof type === 'object') {
-                if (Enum.isEnum(type)) {
-                    result.push({
-                        type: 'Enum',
-                        enumList: Enum.getList(type),
-                    });
-                }
-                else if (CC_DEV) {
-                    errorID(3645, className, propertyName, type);
-                }
-            }
-            else if (typeof type === 'function') {
-                if (attributes.url) {
-                    result.push({
-                        type: 'Object',
-                        ctor: type,
-                        _onAfterProp: CC_DEV ? getTypeChecker('String', 'cc.String') : undefined,
-                    });
-                }
-                else {
-                    result.push(attributes._short ? {
-                        type: 'Object',
-                        ctor: type,
-                    } : Attr.ObjectType(type));
-                }
+        // else if (type === Attr.ScriptUuid) {
+        //     result.push({
+        //         type: 'Script',
+        //         ctor: cc.ScriptAsset,
+        //     });
+        // }
+        else if (typeof type === 'object') {
+            if (Enum.isEnum(type)) {
+                result.push({
+                    type: 'Enum',
+                    enumList: Enum.getList(type),
+                });
             }
             else if (CC_DEV) {
-                errorID(3646, className, propertyName, type);
+                errorID(3645, className, propertyName, type);
             }
+        } else if (typeof type === 'function') {
+            let typeChecker: OnAfterProp | undefined;
+            if ((CC_EDITOR || CC_TEST) && !attributes._short) {
+                typeChecker = attributes.url ?
+                    attributeUtils.getTypeChecker('String', 'cc.String') :
+                    attributeUtils.getObjTypeChecker(type);
+            }
+            result.push({
+                type: 'Object',
+                ctor: type,
+                _onAfterProp: typeChecker,
+            });
+        } else if (CC_DEV) {
+            errorID(3646, className, propertyName, type);
         }
     }
 

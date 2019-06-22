@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core/value-types
+ */
+
 export { default as Enum } from './enum';
 export { ValueType } from './value-type';
 export { default as Vec2} from './vec2';

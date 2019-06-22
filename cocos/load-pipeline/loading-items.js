@@ -24,6 +24,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @category loader
+ */
+
 import {CallbacksInvoker} from '../core/event/callbacks-invoker';
 import {extname} from '../core/utils/path';
 import {createMap, mixin} from '../core/utils/js';
@@ -123,7 +127,7 @@ function checkCircleReference(owner, item, recursiveCall) {
 }
 
 /**
- * !#en
+ * @en
  * LoadingItems is the queue of items which can flow them into the loading pipeline.<br/>
  * Please don't construct it directly, use {{#crossLink "LoadingItems.create"}}cc.LoadingItems.create{{/crossLink}} instead, because we use an internal pool to recycle the queues.<br/>
  * It hold a map of items, each entry in the map is a url to object key value pair.<br/>
@@ -139,7 +143,7 @@ function checkCircleReference(owner, item, recursiveCall) {
  * Item can hold other custom properties.<br/>
  * Each LoadingItems object will be destroyed for recycle after onComplete callback<br/>
  * So please don't hold its reference for later usage, you can copy properties in it though.
- * !#zh
+ * @zh
  * LoadingItems 是一个加载对象队列，可以用来输送加载对象到加载管线中。<br/>
  * 请不要直接使用 new 构造这个类的对象，你可以使用 {{#crossLink "LoadingItems.create"}}cc.LoadingItems.create{{/crossLink}} 来创建一个新的加载队列，这样可以允许我们的内部对象池回收并重利用加载队列。
  * 它有一个 map 属性用来存放加载项，在 map 对象中已 url 为 key 值。<br/>
@@ -160,8 +164,8 @@ function checkCircleReference(owner, item, recursiveCall) {
  */
 export default class LoadingItems extends CallbacksInvoker {
     /**
-     * !#en The item states of the LoadingItems, its value could be LoadingItems.ItemState.WORKING | LoadingItems.ItemState.COMPLETET | LoadingItems.ItemState.ERROR
-     * !#zh LoadingItems 队列中的加载项状态，状态的值可能是 LoadingItems.ItemState.WORKING | LoadingItems.ItemState.COMPLETET | LoadingItems.ItemState.ERROR
+     * @en The item states of the LoadingItems, its value could be LoadingItems.ItemState.WORKING | LoadingItems.ItemState.COMPLETET | LoadingItems.ItemState.ERROR
+     * @zh LoadingItems 队列中的加载项状态，状态的值可能是 LoadingItems.ItemState.WORKING | LoadingItems.ItemState.COMPLETET | LoadingItems.ItemState.ERROR
      * @enum LoadingItems.ItemState
      */
 
@@ -199,9 +203,9 @@ export default class LoadingItems extends CallbacksInvoker {
         this._ownerQueue = null;
 
         /**
-         * !#en This is a callback which will be invoked while an item flow out the pipeline.
+         * @en This is a callback which will be invoked while an item flow out the pipeline.
          * You can pass the callback function in LoadingItems.create or set it later.
-         * !#zh 这个回调函数将在 item 加载结束后被调用。你可以在构造时传递这个回调函数或者是在构造之后直接设置。
+         * @zh 这个回调函数将在 item 加载结束后被调用。你可以在构造时传递这个回调函数或者是在构造之后直接设置。
          * @method onProgress
          * @param {Number} completedCount The number of the items that are already completed.
          * @param {Number} totalCount The total number of the items.
@@ -215,9 +219,9 @@ export default class LoadingItems extends CallbacksInvoker {
         this.onProgress = onProgress;
 
         /**
-         * !#en This is a callback which will be invoked while all items is completed,
+         * @en This is a callback which will be invoked while all items is completed,
          * You can pass the callback function in LoadingItems.create or set it later.
-         * !#zh 该函数将在加载队列全部完成时被调用。你可以在构造时传递这个回调函数或者是在构造之后直接设置。
+         * @zh 该函数将在加载队列全部完成时被调用。你可以在构造时传递这个回调函数或者是在构造之后直接设置。
          * @method onComplete
          * @param {Array} errors All errored urls will be stored in this array, if no error happened, then it will be null
          * @param {LoadingItems} items All items.
@@ -232,40 +236,40 @@ export default class LoadingItems extends CallbacksInvoker {
         this.onComplete = onComplete;
 
         /**
-         * !#en The map of all items.
-         * !#zh 存储所有加载项的对象。
+         * @en The map of all items.
+         * @zh 存储所有加载项的对象。
          * @property map
          * @type {Object}
          */
         this.map = createMap(true);
 
         /**
-         * !#en The map of completed items.
-         * !#zh 存储已经完成的加载项。
+         * @en The map of completed items.
+         * @zh 存储已经完成的加载项。
          * @property completed
          * @type {Object}
          */
         this.completed = {};
 
         /**
-         * !#en Total count of all items.
-         * !#zh 所有加载项的总数。
+         * @en Total count of all items.
+         * @zh 所有加载项的总数。
          * @property totalCount
          * @type {Number}
          */
         this.totalCount = 0;
 
         /**
-         * !#en Total count of completed items.
-         * !#zh 所有完成加载项的总数。
+         * @en Total count of completed items.
+         * @zh 所有完成加载项的总数。
          * @property completedCount
          * @type {Number}
          */
         this.completedCount = 0;
 
         /**
-         * !#en Activated or not.
-         * !#zh 是否启用。
+         * @en Activated or not.
+         * @zh 是否启用。
          * @property active
          * @type {Boolean}
          */
@@ -287,9 +291,9 @@ export default class LoadingItems extends CallbacksInvoker {
     }
 
     /**
-     * !#en The constructor function of LoadingItems, this will use recycled LoadingItems in the internal pool if possible.
+     * @en The constructor function of LoadingItems, this will use recycled LoadingItems in the internal pool if possible.
      * You can pass onProgress and onComplete callbacks to visualize the loading process.
-     * !#zh LoadingItems 的构造函数，这种构造方式会重用内部对象缓冲池中的 LoadingItems 队列，以尽量避免对象创建。
+     * @zh LoadingItems 的构造函数，这种构造方式会重用内部对象缓冲池中的 LoadingItems 队列，以尽量避免对象创建。
      * 你可以传递 onProgress 和 onComplete 回调函数来获知加载进度信息。
      * @method create
      * @static
@@ -354,8 +358,8 @@ export default class LoadingItems extends CallbacksInvoker {
     }
 
     /**
-     * !#en Retrieve the LoadingItems queue object for an item.
-     * !#zh 通过 item 对象获取它的 LoadingItems 队列。
+     * @en Retrieve the LoadingItems queue object for an item.
+     * @zh 通过 item 对象获取它的 LoadingItems 队列。
      * @method getQueue
      * @static
      * @param {Object} item The item to query
@@ -366,8 +370,8 @@ export default class LoadingItems extends CallbacksInvoker {
     }
 
     /**
-     * !#en Complete an item in the LoadingItems queue, please do not call this method unless you know what's happening.
-     * !#zh 通知 LoadingItems 队列一个 item 对象已完成，请不要调用这个函数，除非你知道自己在做什么。
+     * @en Complete an item in the LoadingItems queue, please do not call this method unless you know what's happening.
+     * @zh 通知 LoadingItems 队列一个 item 对象已完成，请不要调用这个函数，除非你知道自己在做什么。
      * @method itemComplete
      * @param {Object} item The item which has completed
      */
@@ -430,8 +434,8 @@ export default class LoadingItems extends CallbacksInvoker {
     }
 
     /**
-     * !#en Add urls to the LoadingItems queue.
-     * !#zh 向一个 LoadingItems 队列添加加载项。
+     * @en Add urls to the LoadingItems queue.
+     * @zh 向一个 LoadingItems 队列添加加载项。
      * @method append
      * @param {Array} urlList The url list to be appended, the url can be object or string
      * @param {any} [owner]
@@ -515,8 +519,8 @@ export default class LoadingItems extends CallbacksInvoker {
     }
 
     /**
-     * !#en Complete a LoadingItems queue, please do not call this method unless you know what's happening.
-     * !#zh 完成一个 LoadingItems 队列，请不要调用这个函数，除非你知道自己在做什么。
+     * @en Complete a LoadingItems queue, please do not call this method unless you know what's happening.
+     * @zh 完成一个 LoadingItems 队列，请不要调用这个函数，除非你知道自己在做什么。
      * @method allComplete
      */
     allComplete () {
@@ -527,8 +531,8 @@ export default class LoadingItems extends CallbacksInvoker {
     }
 
     /**
-     * !#en Check whether all items are completed.
-     * !#zh 检查是否所有加载项都已经完成。
+     * @en Check whether all items are completed.
+     * @zh 检查是否所有加载项都已经完成。
      * @method isCompleted
      * @return {Boolean}
      */
@@ -537,8 +541,8 @@ export default class LoadingItems extends CallbacksInvoker {
     }
 
     /**
-     * !#en Check whether an item is completed.
-     * !#zh 通过 id 检查指定加载项是否已经加载完成。
+     * @en Check whether an item is completed.
+     * @zh 通过 id 检查指定加载项是否已经加载完成。
      * @method isItemCompleted
      * @param {String} id The item's id.
      * @return {Boolean}
@@ -548,8 +552,8 @@ export default class LoadingItems extends CallbacksInvoker {
     }
 
     /**
-     * !#en Check whether an item exists.
-     * !#zh 通过 id 检查加载项是否存在。
+     * @en Check whether an item exists.
+     * @zh 通过 id 检查加载项是否存在。
      * @method exists
      * @param {String} id The item's id.
      * @return {Boolean}
@@ -559,8 +563,8 @@ export default class LoadingItems extends CallbacksInvoker {
     }
 
     /**
-     * !#en Returns the content of an internal item.
-     * !#zh 通过 id 获取指定对象的内容。
+     * @en Returns the content of an internal item.
+     * @zh 通过 id 获取指定对象的内容。
      * @method getContent
      * @param {String} id The item's id.
      * @return {Object}
@@ -581,8 +585,8 @@ export default class LoadingItems extends CallbacksInvoker {
     }
 
     /**
-     * !#en Returns the error of an internal item.
-     * !#zh 通过 id 获取指定对象的错误信息。
+     * @en Returns the error of an internal item.
+     * @zh 通过 id 获取指定对象的错误信息。
      * @method getError
      * @param {String} id The item's id.
      * @return {Object}
@@ -602,8 +606,8 @@ export default class LoadingItems extends CallbacksInvoker {
     }
 
     /**
-     * !#en Remove an item, can only remove completed item, ongoing item can not be removed.
-     * !#zh 移除加载项，这里只会移除已经完成的加载项，正在进行的加载项将不能被删除。
+     * @en Remove an item, can only remove completed item, ongoing item can not be removed.
+     * @zh 移除加载项，这里只会移除已经完成的加载项，正在进行的加载项将不能被删除。
      * @param {String} url
      */
     removeItem (url) {
@@ -624,8 +628,8 @@ export default class LoadingItems extends CallbacksInvoker {
     }
 
     /**
-     * !#en Complete an item in the LoadingItems queue, please do not call this method unless you know what's happening.
-     * !#zh 通知 LoadingItems 队列一个 item 对象已完成，请不要调用这个函数，除非你知道自己在做什么。
+     * @en Complete an item in the LoadingItems queue, please do not call this method unless you know what's happening.
+     * @zh 通知 LoadingItems 队列一个 item 对象已完成，请不要调用这个函数，除非你知道自己在做什么。
      * @method itemComplete
      * @param {String} id The item url
      */
@@ -664,8 +668,8 @@ export default class LoadingItems extends CallbacksInvoker {
     }
 
     /**
-     * !#en Destroy the LoadingItems queue, the queue object won't be garbage collected, it will be recycled, so every after destroy is not reliable.
-     * !#zh 销毁一个 LoadingItems 队列，这个队列对象会被内部缓冲池回收，所以销毁后的所有内部信息都是不可依赖的。
+     * @en Destroy the LoadingItems queue, the queue object won't be garbage collected, it will be recycled, so every after destroy is not reliable.
+     * @zh 销毁一个 LoadingItems 队列，这个队列对象会被内部缓冲池回收，所以销毁后的所有内部信息都是不可依赖的。
      * @method destroy
      */
     destroy () {
@@ -700,8 +704,8 @@ export default class LoadingItems extends CallbacksInvoker {
 let proto = LoadingItems.prototype;
 
 /**
- * !#en Add a listener for an item, the callback will be invoked when the item is completed.
- * !#zh 监听加载项（通过 key 指定）的完成事件。
+ * @en Add a listener for an item, the callback will be invoked when the item is completed.
+ * @zh 监听加载项（通过 key 指定）的完成事件。
  * @method addListener
  * @param {String} key
  * @param {Function} callback - can be null
@@ -711,10 +715,10 @@ let proto = LoadingItems.prototype;
 proto.addListener = CallbacksInvoker.prototype.on;
 
 /**
- * !#en
+ * @en
  * Check if the specified key has any registered callback.
  * If a callback is also specified, it will only return true if the callback is registered.
- * !#zh
+ * @zh
  * 检查指定的加载项是否有完成事件监听器。
  * 如果同时还指定了一个回调方法，并且回调有注册，它只会返回 true。
  * @method hasListener
@@ -726,10 +730,10 @@ proto.addListener = CallbacksInvoker.prototype.on;
 proto.hasListener = CallbacksInvoker.prototype.hasEventListener;
 
 /**
- * !#en
+ * @en
  * Removes a listener.
  * It will only remove when key, callback, target all match correctly.
- * !#zh
+ * @zh
  * 移除指定加载项已经注册的完成事件监听器。
  * 只会删除 key, callback, target 均匹配的监听器。
  * @method remove
@@ -741,10 +745,10 @@ proto.hasListener = CallbacksInvoker.prototype.hasEventListener;
 proto.removeListener = CallbacksInvoker.prototype.off;
 
 /**
- * !#en
+ * @en
  * Removes all callbacks registered in a certain event
  * type or all callbacks registered with a certain target.
- * !#zh 删除指定目标的所有完成事件监听器。
+ * @zh 删除指定目标的所有完成事件监听器。
  * @method removeAllListeners
  * @param {String|Object} key - The event key to be removed or the target to be removed
  */

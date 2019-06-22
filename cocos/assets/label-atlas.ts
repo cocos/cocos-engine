@@ -24,14 +24,19 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category asset
+ */
+
 import { ccclass } from '../core/data/class-decorator';
 import { BitmapFont } from './bitmap-font';
 /**
- * @module cc
- */
-/**
- * @en Class for LabelAtlas handling.
- * @zh 艺术数字字体资源类。
+ * @en
+ * Class for LabelAtlas handling.
+ *
+ * @zh
+ * 艺术数字字体资源类。
+ * 可通过 cc.LabelAtlas 获取该组件。
  *
  */
 @ccclass('cc.LabelAtlas')

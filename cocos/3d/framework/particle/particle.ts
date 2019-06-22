@@ -1,5 +1,9 @@
-import { vec3, color4 } from '../../../core/vmath';
+/**
+ * @hidden
+ */
+
 import { Color } from '../../../core/value-types';
+import { vec3 } from '../../../core/vmath';
 import { ParticleSystemComponent } from './particle-system-component';
 
 export default class Particle {

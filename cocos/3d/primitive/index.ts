@@ -1,3 +1,8 @@
+/**
+ * @category 3d/primitive
+ * @hidden
+ */
+
 export * from './utils';
 export * from './define';
 export { default as box } from './box';

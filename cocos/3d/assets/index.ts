@@ -23,6 +23,9 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
 export { AudioClip } from './audio/clip';
 export { EffectAsset } from './effect-asset';
 export { Material } from './material';

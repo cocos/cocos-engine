@@ -1,3 +1,7 @@
+/**
+ * @category gemotry-utils
+ */
+
 import { vec3 } from '../../core/vmath';
 import { FixedArray } from '../memop';
 import aabb from './aabb';

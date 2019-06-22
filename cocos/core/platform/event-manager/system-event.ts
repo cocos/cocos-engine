@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category event
+ */
+
 import { EventTarget } from '../../event/event-target';
 import { EventKeyboard, EventMouse, EventTouch, EventAcceleration } from './CCEvent';
 import { SystemEventType } from './event-enum';
@@ -252,8 +256,7 @@ cc.SystemEvent = SystemEvent;
  */
 
 /**
- * @en The System event singleton for global usage
- * @zh 系统事件单例，方便全局使用。
+ * 系统事件单例，方便全局使用。
  */
 export const systemEvent = new SystemEvent();
 cc.systemEvent = systemEvent;

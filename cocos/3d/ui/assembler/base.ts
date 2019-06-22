@@ -23,6 +23,12 @@
  THE SOFTWARE.
 */
 
+/**
+ * ui 相关模块
+ * @category ui
+ */
+
+
 import { UIRenderComponent } from '../components';
 
 export interface IAssembler {

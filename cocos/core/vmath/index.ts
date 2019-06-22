@@ -1,3 +1,7 @@
+/**
+ * @category core/math
+ */
+
 export * from './utils';
 
 // NOTE: there is no syntax for: export {* as bits} from './lib/bits';

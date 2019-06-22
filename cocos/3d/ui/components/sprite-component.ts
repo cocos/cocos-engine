@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui
+ */
+
 import { SpriteAtlas, SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform';
@@ -59,7 +63,7 @@ enum SpriteType {
      */
     FILLED = 3,
     // /**
-    //  * !#en The mesh type.
+    //  * @en The mesh type.
     //  * @zh  以 Mesh 三角形组成的类型
     //  * @property {Number} MESH
     //  */
@@ -84,7 +88,7 @@ enum FillType {
      */
     VERTICAL = 1,
     // /**
-    //  * !#en The radial fill.
+    //  * @en The radial fill.
     //  * @zh  径向填充
     //  * @property {Number} RADIAL
     //  */
@@ -119,19 +123,24 @@ ccenum(SizeMode);
 
 // var State = cc.Enum({
 //     /**
-//      * !#en The normal state
+//      * @en The normal state
 //      * @zh  正常状态
 //      * @property {Number} NORMAL
 //      */
 //     NORMAL: 0,
 //     /**
-//      * !#en The gray state, all color will be modified to grayscale value.
+//      * @en The gray state, all color will be modified to grayscale value.
 //      * @zh  灰色状态，所有颜色会被转换成灰度值
 //      * @property {Number} GRAY
 //      */
 //     GRAY: 1
 // });
 
+/**
+ * @zh
+ * 渲染精灵组件。
+ * 可通过 cc.SpriteComponent 获得该组件。
+ */
 @ccclass('cc.SpriteComponent')
 @executionOrder(110)
 @menu('UI/Render/Sprite')
@@ -191,7 +200,7 @@ export class SpriteComponent extends UIRenderComponent {
      * 精灵渲染类型。
      *
      * @example
-     * ```ts
+     * ```typescript
      * sprite.type = cc.SpriteComponent.Type.SIMPLE;
      * ```
      */
@@ -214,7 +223,7 @@ export class SpriteComponent extends UIRenderComponent {
      * 精灵填充类型，仅渲染类型设置为 cc.SpriteComponent.Type.FILLED 时有效。
      *
      * @example
-     * ```ts
+     * ```typescript
      * sprite.fillType = cc.SpriteComponent.FillType.HORIZONTAL;
      * ```
      */
@@ -245,7 +254,7 @@ export class SpriteComponent extends UIRenderComponent {
      * 填充中心点，仅渲染类型设置为 cc.SpriteComponent.Type.FILLED 时有效。
      *
      * @example
-     * ```ts
+     * ```typescript
      * sprite.fillCenter = cc.v2(0, 0);
      * ```
      */
@@ -266,7 +275,7 @@ export class SpriteComponent extends UIRenderComponent {
      * 填充起始点，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
      *
      * @example
-     * ```ts
+     * ```typescript
      * // -1 To 1 between the numbers
      * sprite.fillStart = 0.5;
      * ```
@@ -288,7 +297,7 @@ export class SpriteComponent extends UIRenderComponent {
      * 填充范围，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
      *
      * @example
-     * ```ts
+     * ```typescript
      * // -1 To 1 between the numbers
      * sprite.fillRange = 1;
      * ```
@@ -308,7 +317,7 @@ export class SpriteComponent extends UIRenderComponent {
      * @zh  是否使用裁剪模式。
      *
      * @example
-     * ```ts
+     * ```typescript
      * sprite.trim = true;
      * ```
      */
@@ -335,7 +344,7 @@ export class SpriteComponent extends UIRenderComponent {
      * @zh  精灵尺寸调整模式。
      *
      * @example
-     * ```ts
+     * ```typescript
      * sprite.sizeMode = cc.SpriteComponent.SizeMode.CUSTOM;
      * ```
      */

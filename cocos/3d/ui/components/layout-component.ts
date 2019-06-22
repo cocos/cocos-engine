@@ -24,8 +24,13 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui
+ */
+
 import { Component } from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { constget } from '../../../core/data/utils/constget';
 import { Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import { vec3 } from '../../../core/vmath';
@@ -151,8 +156,8 @@ const _tempScale = new Vec3();
  * Layout 组件相当于一个容器，能自动对它的所有子节点进行统一排版。<br>
  * 注意：<br>
  * 1.不会考虑子节点的缩放和旋转。<br>
- * 2.对 Layout 设置后结果需要到下一帧才会更新，除非你设置完以后手动调用。
- * @see updateLayout
+ * 2.对 Layout 设置后结果需要到下一帧才会更新，除非你设置完以后手动调用。[[updateLayout]]
+ * 可通过 cc.LayoutComponent 获得此组件
  */
 @ccclass('cc.LayoutComponent')
 @executionOrder(110)
@@ -212,16 +217,17 @@ export class LayoutComponent extends Component {
      * 每个格子的大小，只有布局类型为 GRID 的时候才有效。
      */
     @property
-    get cellSize () {
+    @constget
+    get cellSize (): Readonly<Size> {
         return this._cellSize;
     }
 
-    set cellSize (value: Size) {
+    set cellSize (value) {
         if (this._cellSize === value) {
             return;
         }
 
-        this._cellSize = value;
+        this._cellSize.set(value);
         this._doLayoutDirty();
     }
 
@@ -440,7 +446,7 @@ export class LayoutComponent extends Component {
     @property
     private _N$padding = 0;
     @property
-    private _cellSize = cc.size(40, 40);
+    private _cellSize = new Size(40, 40);
     @property
     private _startAxis = AxisDirection.HORIZONTAL;
     @property
@@ -468,7 +474,7 @@ export class LayoutComponent extends Component {
      * 立即执行更新布局。
      *
      * @example
-     * ```ts
+     * ```typescript
      * layout.type = cc.LayoutComponent.HORIZONTAL;
      * layout.node.addChild(childNode);
      * cc.log(childNode.x); // not yet changed
@@ -1086,3 +1092,5 @@ export class LayoutComponent extends Component {
     }
 
 }
+
+cc.LayoutComponent = LayoutComponent;

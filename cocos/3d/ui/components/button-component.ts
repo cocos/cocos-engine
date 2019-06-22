@@ -24,9 +24,15 @@
  THE SOFTWARE.
 */
 
+/**
+ * 用户界面组件
+ * @category ui
+ */
+
 import { SpriteFrame } from '../../../assets';
 import { Component, EventHandler as ComponentEventHandler } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { constget } from '../../../core/data/utils/constget';
 import { EventMouse, EventTouch, SystemEventType } from '../../../core/platform';
 import { lerp } from '../../../core/utils';
 import { Color, Vec3 } from '../../../core/value-types';
@@ -77,6 +83,7 @@ enum State {
 /**
  * @zh
  * 按钮组件。可以被按下,或者点击。<br/>
+ * 可通过 cc.ButtonComponent 获得此组件
  *
  * 按钮可以通过修改 Transition 来设置按钮状态过渡的方式：<br/>
  *   -Button.Transition.NONE   // 不做任何过渡<br/>
@@ -99,19 +106,18 @@ enum State {
  *   -cc.Node.EventType.MOUSE_WHEEL // 鼠标滚轮事件<br/>
  *
  * @example
- * ```ts
+ * ```typescript
  * // Add an event to the button.
- * button.node.on(cc.Node.EventType.TOUCH_START, function (event) {
+ * button.node.on(cc.Node.EventType.TOUCH_START, (event) => {
  *     cc.log("This is a callback after the trigger event");
  * });
  * // You could also add a click event
  * //Note: In this way, you can't get the touch event info, so use it wisely.
- * button.node.on('click', function (button) {
+ * button.node.on('click', (button) => {
  *    //The event is a custom event, you could get the Button component via first argument
  * })
  * ```
  */
-
 @ccclass('cc.ButtonComponent')
 @executionOrder(110)
 @menu('UI/Button')
@@ -191,7 +197,8 @@ export class ButtonComponent extends Component {
      * 普通状态下按钮所显示的颜色。
      */
     @property
-    get normalColor () {
+    @constget
+    get normalColor (): Readonly<Color> {
         return this._normalColor;
     }
 
@@ -209,7 +216,8 @@ export class ButtonComponent extends Component {
      * 按下状态时按钮所显示的颜色。
      */
     @property
-    get pressedColor () {
+    @constget
+    get pressedColor (): Readonly<Color> {
         return this._pressColor;
     }
 
@@ -226,7 +234,8 @@ export class ButtonComponent extends Component {
      * 悬停状态下按钮所显示的颜色。
      */
     @property
-    get hoverColor () {
+    @constget
+    get hoverColor (): Readonly<Color> {
         return this._hoverColor;
     }
 
@@ -242,7 +251,8 @@ export class ButtonComponent extends Component {
      * 禁用状态下按钮所显示的颜色。
      */
     @property
-    get disabledColor () {
+    @constget
+    get disabledColor (): Readonly<Color> {
         return this._disabledColor;
     }
 
@@ -474,6 +484,12 @@ export class ButtonComponent extends Component {
             this.node.on('spriteframe-changed', (comp: SpriteComponent) => {
                 if (this._transition === Transition.SPRITE) {
                     this._normalSprite = comp.spriteFrame;
+                } else {
+                    // avoid serialization data loss when in no-sprite mode
+                    this._normalSprite = null;
+                    this._hoverSprite = null;
+                    this._pressedSprite = null;
+                    this._disabledSprite = null;
                 }
             }, this);
         }
@@ -522,7 +538,7 @@ export class ButtonComponent extends Component {
         }
 
         if (this._transition === Transition.COLOR) {
-            renderComp.color = this._fromColor.lerp(this._toColor, ratio);
+            Color.lerp(this._fromColor, this._toColor, ratio, renderComp.color);
         } else if (this.transition === Transition.SCALE) {
             target.getScale(this._targetScale);
             this._targetScale.x = lerp(this._fromScale.x, this._toScale.x, ratio);

@@ -52,9 +52,9 @@ export class WebGLGFXInputAssembler extends GFXInputAssembler {
             gpuIndexBuffer = (info.indexBuffer as WebGLGFXBuffer).gpuBuffer;
             if (gpuIndexBuffer) {
                 switch (gpuIndexBuffer.stride) {
-                    case 1: glIndexType = WebGLRenderingContext.UNSIGNED_BYTE; break;
-                    case 2: glIndexType = WebGLRenderingContext.UNSIGNED_SHORT; break;
-                    case 4: glIndexType = WebGLRenderingContext.UNSIGNED_INT; break;
+                    case 1: glIndexType = 0x1401; break; // WebGLRenderingContext.UNSIGNED_BYTE
+                    case 2: glIndexType = 0x1403; break; // WebGLRenderingContext.UNSIGNED_SHORT
+                    case 4: glIndexType = 0x1405; break; // WebGLRenderingContext.UNSIGNED_INT
                     default: {
                         console.error('Error index buffer stride.');
                     }

@@ -24,7 +24,9 @@
  THE SOFTWARE.
 */
 
+import { error, errorID, warn, warnID } from '../../platform/CCDebug';
 import * as js from '../../utils/js';
+import { PrimitiveType } from './attribute';
 
 // 增加预处理属性这个步骤的目的是降低 CCClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。
 
@@ -51,7 +53,7 @@ const TYPO_TO_CORRECT_DEV = CC_DEV && {
 function parseNotify (val, propName, notify, properties) {
     if (val.get || val.set) {
         if (CC_DEV) {
-            cc.warnID(5500);
+            warnID(5500);
         }
         return;
     }
@@ -84,7 +86,7 @@ function parseNotify (val, propName, notify, properties) {
         }
     }
     else if (CC_DEV) {
-        cc.warnID(5501);
+        warnID(5501);
     }
 }
 
@@ -97,15 +99,15 @@ function checkUrl (val, className, propName, url) {
             url = url[0];
         }
         else if (CC_EDITOR) {
-            return cc.errorID(5502, className, propName);
+            return errorID(5502, className, propName);
         }
     }
     if (CC_EDITOR) {
         if (url == null) {
-            return cc.warnID(5503, className, propName);
+            return warnID(5503, className, propName);
         }
         if (typeof url !== 'function' || !js.isChildClassOf(url, cc.RawAsset)) {
-            return cc.errorID(5504, className, propName);
+            return errorID(5504, className, propName);
         }
         if (url === cc.RawAsset) {
             cc.warn('Please change the definition of property \'%s\' in class \'%s\'. Starting from v1.10,\n' +
@@ -131,10 +133,10 @@ function checkUrl (val, className, propName, url) {
                     propName, className, propName, propName, propName, propName, propName);
         }
         else if (js.isChildClassOf(url, cc.Asset)) {
-            return cc.errorID(5505, className, propName, cc.js.getClassName(url));
+            return errorID(5505, className, propName, cc.js.getClassName(url));
         }
         if (val.type) {
-            return cc.warnID(5506, className, propName);
+            return warnID(5506, className, propName);
         }
     }
     val.type = url;
@@ -145,9 +147,9 @@ function checkUrl (val, className, propName, url) {
  */
 function parseType (val, type, className, propName) {
     if (Array.isArray(type)) {
-        if (CC_EDITOR && 'default' in val) {
+        if ((CC_EDITOR || CC_TEST) && 'default' in val) {
             if (!cc.Class.isArray(val.default)) {
-                cc.warnID(5507, className, propName);
+                warnID(5507, className, propName);
             }
         }
         if (type.length > 0) {
@@ -155,27 +157,48 @@ function parseType (val, type, className, propName) {
                 val.url = type[0];
                 delete val.type;
                 return;
-            }
-            else {
+            } else {
                 val.type = type = type[0];
             }
-        }
-        else {
-            return cc.errorID(5508, className, propName);
+        } else {
+            return errorID(5508, className, propName);
         }
     }
-    if (CC_EDITOR) {
+    if (CC_EDITOR || CC_TEST) {
         if (typeof type === 'function') {
             if (cc.RawAsset.isRawAssetType(type)) {
-                cc.warnID(5509, className, propName,
-                    js.getClassName(type));
+                warnID(5509, className, propName, js.getClassName(type));
+            } else if (type === String) {
+                val.type = cc.String;
+                warnID(3608, `"${className}.${propName}"`);
+            } else if (type === Boolean) {
+                val.type = cc.Boolean;
+                warnID(3609, `"${className}.${propName}"`);
+            } else if (type === Number) {
+                val.type = cc.Float;
+                warnID(3610, `"${className}.${propName}"`);
             }
-        }
-        else if (type === 'Number') {
-            cc.warnID(5510, className, propName);
-        }
-        else if (type == null) {
-            cc.warnID(5511, className, propName);
+        } else {
+            switch (type) {
+                case 'Number':
+                    warnID(5510, className, propName);
+                    break;
+                case 'String':
+                    warn(`The type of "${className}.${propName}" must be CCString, not "String".`);
+                    break;
+                case 'Boolean':
+                    warn(`The type of "${className}.${propName}" must be CCBoolean, not "Boolean".`);
+                    break;
+                case 'Float':
+                    warn(`The type of "${className}.${propName}" must be CCFloat, not "Float".`);
+                    break;
+                case 'Integer':
+                    warn(`The type of "${className}.${propName}" must be CCInteger, not "Integer".`);
+                    break;
+                case null:
+                    warnID(5511, className, propName);
+                    break;
+            }
         }
     }
 }
@@ -183,7 +206,7 @@ function parseType (val, type, className, propName) {
 function postCheckType (val, type, className, propName) {
     if (CC_EDITOR && typeof type === 'function') {
         if (cc.Class._isCCClass(type) && val.serializable !== false && !js._getClassId(type, false)) {
-            cc.warnID(5512, className, propName, className, propName);
+            warnID(5512, className, propName, className, propName);
         }
     }
 }
@@ -195,7 +218,7 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
             res = cls;
         }
         if (!res) {
-            cc.error('unknown error');
+            error('unknown error');
         }
         return res;
     }
@@ -214,8 +237,7 @@ export function getFullFormOfProperty (options, propname_dev?, classname_dev?) {
                 type: options,
                 _short: true,
             };
-        }
-        else if (typeof options === 'function') {
+        } else if (typeof options === 'function') {
             const type = options;
             if (!cc.RawAsset.isRawAssetType(type)) {
                 return {
@@ -229,8 +251,12 @@ export function getFullFormOfProperty (options, propname_dev?, classname_dev?) {
                 url: type,
                 _short: true,
             };
-        }
-        else {
+        } else if (options instanceof PrimitiveType) {
+            return {
+                default: options.default,
+                _short: true,
+            };
+        } else {
             return {
                 default: options,
                 _short: true,
@@ -251,32 +277,32 @@ export function preprocessAttrs (properties, className, cls, es6) {
             if (CC_EDITOR) {
                 if ('default' in val) {
                     if (val.get) {
-                        cc.errorID(5513, className, propName);
+                        errorID(5513, className, propName);
                     }
                     else if (val.set) {
-                        cc.errorID(5514, className, propName);
+                        errorID(5514, className, propName);
                     }
                     else if (cc.Class._isCCClass(val.default)) {
                         val.default = null;
-                        cc.errorID(5515, className, propName);
+                        errorID(5515, className, propName);
                     }
                 }
                 else if (!val.get && !val.set) {
                     const maybeTypeScript = es6;
                     if (!maybeTypeScript) {
-                        cc.errorID(5516, className, propName);
+                        errorID(5516, className, propName);
                     }
                 }
             }
             if (CC_DEV && !val.override && cls.__props__.indexOf(propName) !== -1) {
                 // check override
                 const baseClass = js.getClassName(getBaseClassWherePropertyDefined_DEV(propName, cls));
-                cc.warnID(5517, className, propName, baseClass, propName);
+                warnID(5517, className, propName, baseClass, propName);
             }
             const notify = val.notify;
             if (notify) {
                 if (CC_DEV && es6) {
-                    cc.error('not yet support notify attribute for ES6 Classes');
+                    error('not yet support notify attribute for ES6 Classes');
                 }
                 else {
                     parseNotify(val, propName, notify, properties);
@@ -303,7 +329,7 @@ export function doValidateMethodWithProps_DEV (func, funcName, className, cls, b
     if (cls.__props__ && cls.__props__.indexOf(funcName) >= 0) {
         // find class that defines this method as a property
         const baseClassName = js.getClassName(getBaseClassWherePropertyDefined_DEV(funcName, cls));
-        cc.errorID(3648, className, funcName, baseClassName);
+        errorID(3648, className, funcName, baseClassName);
         return false;
     }
     if (funcName === 'destroy' &&
@@ -311,13 +337,13 @@ export function doValidateMethodWithProps_DEV (func, funcName, className, cls, b
         !CALL_SUPER_DESTROY_REG_DEV.test(func)
     ) {
         // tslint:disable-next-line: max-line-length
-        cc.error(`Overwriting '${funcName}' function in '${className}' class without calling super is not allowed. Call the super function in '${funcName}' please.`);
+        error(`Overwriting '${funcName}' function in '${className}' class without calling super is not allowed. Call the super function in '${funcName}' please.`);
     }
 }
 
 export function validateMethodWithProps (func, funcName, className, cls, base) {
     if (CC_DEV && funcName === 'constructor') {
-        cc.errorID(3643, className);
+        errorID(3643, className);
         return false;
     }
     if (typeof func === 'function' || func === null) {
@@ -333,15 +359,15 @@ export function validateMethodWithProps (func, funcName, className, cls, base) {
                 if (typeof overrided === 'function') {
                     const baseFuc = js.getClassName(base) + '.' + funcName;
                     const subFuc = className + '.' + funcName;
-                    cc.warnID(3624, subFuc, baseFuc, subFuc, subFuc);
+                    warnID(3624, subFuc, baseFuc, subFuc, subFuc);
                 }
             }
             const correct = TYPO_TO_CORRECT_DEV[funcName];
             if (correct) {
-                cc.warnID(3621, className, funcName, correct);
+                warnID(3621, className, funcName, correct);
             }
             else if (func) {
-                cc.errorID(3622, className, funcName);
+                errorID(3622, className, funcName);
             }
         }
         return false;

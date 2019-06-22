@@ -1,3 +1,8 @@
+
+/**
+ * @category memop
+ */
+
 import sort from './timsort';
 
 /**
@@ -9,7 +14,7 @@ export default class RecyclePool<T = any> {
     private _data: T[];
 
     /**
-     * @zh 构造函数。
+     * 构造函数。
      * @param fn 对象构造函数。
      * @param size 初始大小。
      */

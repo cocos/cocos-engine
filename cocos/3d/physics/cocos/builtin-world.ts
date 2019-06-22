@@ -1,7 +1,14 @@
-import { Vec3 } from '../../../core';
-import { AfterStepCallback, BeforeStepCallback, BuiltInRigidBodyBase, ICollisionEvent, IRaycastOptions, PhysicsWorldBase } from '../api';
+/**
+ * @hidden
+ */
+
+import { Vec3 } from '../../../core/value-types';
+import { AfterStepCallback, BeforeStepCallback, BuiltInRigidBodyBase, IRaycastOptions,
+    ITriggerEventType, PhysicsWorldBase, RigidBodyBase, ShapeBase } from '../api';
 import { RaycastResult } from '../raycast-result';
+import { getWrap } from '../util';
 import { BuiltInBody } from './builtin-body';
+import { BuiltinShape } from './shapes/builtin-shape';
 import { ArrayCollisionMatrix } from './utils/array-collision-matrix';
 
 /**
@@ -10,110 +17,174 @@ import { ArrayCollisionMatrix } from './utils/array-collision-matrix';
  * not a full physical simulator
  */
 export class BuiltInWorld implements PhysicsWorldBase {
-  private _bodies: BuiltInRigidBodyBase[] = [];
-  private _customBeforeStepListener: BeforeStepCallback[] = [];
-  private _customAfterStepListener: AfterStepCallback[] = [];
 
-  /** 碰撞矩阵 */
-  private _collisionMatrix: ArrayCollisionMatrix = new ArrayCollisionMatrix();
+    private _bodies: BuiltInRigidBodyBase[] = [];
 
-  constructor () {
-  }
-  public step (deltaTime: number): void {
-    this._customBeforeStepListener.forEach((fx) => fx());
+    private _customBeforeStepListener: BeforeStepCallback[] = [];
 
-    /** collision detection */
-    // tslint:disable-next-line: prefer-for-of
-    for (let i = 0; i < this._bodies.length; i++) {
-      const bodyA = this._bodies[i] as BuiltInBody;
-      // tslint:disable-next-line:prefer-for-of
-      for (let j = i + 1; j < this._bodies.length; j++) {
-        const bodyB = this._bodies[j] as BuiltInBody;
+    private _customAfterStepListener: AfterStepCallback[] = [];
 
-        // first, Check collision filter masks
-        if ((bodyA.collisionFilterGroup & bodyB.collisionFilterMask) === 0 ||
-          (bodyB.collisionFilterGroup & bodyA.collisionFilterMask) === 0) {
-          continue;
+    private _collisionMatrix: ArrayCollisionMatrix = new ArrayCollisionMatrix();
+
+    private _collisionMatrixPrev: ArrayCollisionMatrix = new ArrayCollisionMatrix();
+
+    private _shapeArr: BuiltinShape[] = [];
+
+    public get shapeArr () {
+        return this._shapeArr;
+    }
+
+    private _shapeArrOld: BuiltinShape[] = [];
+
+    public get shapeArrOld () {
+        return this._shapeArrOld;
+    }
+
+    constructor () {
+    }
+
+    public step (deltaTime: number): void {
+
+        // emit before step
+        this._customBeforeStepListener.forEach((fx) => fx());
+
+        // store and reset collsion array
+        this._shapeArrOld = this._shapeArr.slice();
+        this._shapeArr.length = 0;
+
+        // collision detection
+        for (let i = 0; i < this._bodies.length; i++) {
+            const bodyA = this._bodies[i] as BuiltInBody;
+            for (let j = i + 1; j < this._bodies.length; j++) {
+                const bodyB = this._bodies[j] as BuiltInBody;
+
+                // first, Check collision filter masks
+                if ((bodyA.collisionFilterGroup & bodyB.collisionFilterMask) === 0 ||
+                    (bodyB.collisionFilterGroup & bodyA.collisionFilterMask) === 0) {
+                    continue;
+                }
+                bodyA.intersects(bodyB);
+            }
         }
 
-        if (bodyA.intersects(bodyB)) {
-          const event: ICollisionEvent = {
-            source: bodyA,
-            target: bodyB,
-          };
-          if (this._collisionMatrix.get(bodyA.id, bodyB.id)) {
-            // TODO: 触发Stay
-            bodyA.onTrigger('onCollisionStay', event);
-            bodyB.onTrigger('onCollisionStay', event);
-          } else {
-            this._collisionMatrix.set(bodyA.id, bodyB.id, true);
-            /** 是第一次 */ // TODO: 触发Enter
-            bodyA.onTrigger('onCollisionEnter', event);
-            bodyB.onTrigger('onCollisionEnter', event);
-          }
-        } else {
-          if (this._collisionMatrix.get(bodyA.id, bodyB.id)) {
-            // TODO: 触发Exiter
-            const event: ICollisionEvent = {
-              source: bodyA,
-              target: bodyB,
-            };
-            bodyA.onTrigger('onCollisionExit', event);
-            bodyB.onTrigger('onCollisionExit', event);
-          }
+        // emit trigger event
+        let shapeA: BuiltinShape;
+        let shapeB: BuiltinShape;
+        for (let i = 0; i < this._shapeArr.length; i += 2) {
+            shapeA = this._shapeArr[i];
+            shapeB = this._shapeArr[i + 1];
 
-          this._collisionMatrix.set(bodyA.id, bodyB.id, false);
+            TriggerEventObject.selfCollider = shapeA.getUserData();
+            TriggerEventObject.otherCollider = shapeB.getUserData();
+            // TriggerEventObject.selfRigidBody = shapeA.body!.getUserData();
+            // TriggerEventObject.otherRigidBody = shapeB.body!.getUserData();
+
+            this._collisionMatrix.set(shapeA.id, shapeB.id, true);
+
+            if (this._collisionMatrixPrev.get(shapeA.id, shapeB.id)) {
+                // emit stay
+                 TriggerEventObject.type = 'onTriggerStay';
+            } else {
+                // first trigger, emit enter
+                 TriggerEventObject.type = 'onTriggerEnter';
+            }
+            shapeA.onTrigger(TriggerEventObject);
+
+            TriggerEventObject.selfCollider = shapeB.getUserData();
+            TriggerEventObject.otherCollider = shapeA.getUserData();
+            // TriggerEventObject.selfRigidBody = shapeB.body!.getUserData();
+            // TriggerEventObject.otherRigidBody = shapeA.body!.getUserData();
+
+            shapeB.onTrigger(TriggerEventObject);
         }
 
-      }
+        for (let i = 0; i < this._shapeArrOld.length; i += 2) {
+            shapeA = this._shapeArrOld[i];
+            shapeB = this._shapeArrOld[i + 1];
 
-      this._customAfterStepListener.forEach((fx) => fx());
+            if (this._collisionMatrixPrev.get(shapeA.id, shapeB.id)) {
+                if (!this._collisionMatrix.get(shapeA.id, shapeB.id)) {
+                    // emit exit
+                    TriggerEventObject.type = 'onTriggerExit';
+                    TriggerEventObject.selfCollider = shapeA.getUserData();
+                    TriggerEventObject.otherCollider = shapeB.getUserData();
+                    // TriggerEventObject.selfRigidBody = shapeA.body!.getUserData();
+                    // TriggerEventObject.otherRigidBody = shapeB.body!.getUserData();
+
+                    shapeA.onTrigger(TriggerEventObject);
+
+                    TriggerEventObject.selfCollider = shapeB.getUserData();
+                    TriggerEventObject.otherCollider = shapeA.getUserData();
+                    // TriggerEventObject.selfRigidBody = shapeB.body!.getUserData();
+                    // TriggerEventObject.otherRigidBody = shapeA.body!.getUserData();
+
+                    shapeB.onTrigger(TriggerEventObject);
+
+                    this._collisionMatrix.set(shapeA.id, shapeB.id, false);
+                }
+            }
+        }
+
+        this._collisionMatrixPrev.matrix = this._collisionMatrix.matrix.slice();
+        this._collisionMatrix.reset();
+
+        // emit after step
+        this._customAfterStepListener.forEach((fx) => fx());
     }
 
-    /** 执行 after step */
-    this._customAfterStepListener.forEach((fx) => fx());
-  }
-  public addBody (body: BuiltInRigidBodyBase) {
-    this._bodies.push(body);
-  }
-  public removeBody (body: BuiltInRigidBodyBase) {
-    const i = this._bodies.indexOf(body);
-    if (i >= 0) {
-      this._bodies.splice(i, 1);
+    public addBody (body: BuiltInRigidBodyBase) {
+        this._bodies.push(body);
     }
-  }
 
-  public addBeforeStep (cb: BeforeStepCallback) {
-    this._customBeforeStepListener.push(cb);
-  }
-
-  public removeBeforeStep (cb: BeforeStepCallback) {
-    const i = this._customBeforeStepListener.indexOf(cb);
-    if (i < 0) {
-      return;
+    public removeBody (body: BuiltInRigidBodyBase) {
+        const i = this._bodies.indexOf(body);
+        if (i >= 0) {
+            this._bodies.splice(i, 1);
+        }
     }
-    this._customBeforeStepListener.splice(i, 1);
-  }
 
-  public addAfterStep (cb: AfterStepCallback) {
-    this._customAfterStepListener.push(cb);
-  }
-
-  public removeAfterStep (cb: AfterStepCallback) {
-    const i = this._customAfterStepListener.indexOf(cb);
-    if (i < 0) {
-      return;
+    public addBeforeStep (cb: BeforeStepCallback) {
+        this._customBeforeStepListener.push(cb);
     }
-    this._customAfterStepListener.splice(i, 1);
-  }
-  public raycastClosest (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean {
-    return false;
-  }
-  public raycastAny (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean {
-    return false;
-  }
-  public raycastAll (from: Vec3, to: Vec3, options: IRaycastOptions, callback: (result: RaycastResult) => void): boolean {
-    return false;
-  }
+
+    public removeBeforeStep (cb: BeforeStepCallback) {
+        const i = this._customBeforeStepListener.indexOf(cb);
+        if (i < 0) {
+            return;
+        }
+        this._customBeforeStepListener.splice(i, 1);
+    }
+
+    public addAfterStep (cb: AfterStepCallback) {
+        this._customAfterStepListener.push(cb);
+    }
+
+    public removeAfterStep (cb: AfterStepCallback) {
+        const i = this._customAfterStepListener.indexOf(cb);
+        if (i < 0) {
+            return;
+        }
+        this._customAfterStepListener.splice(i, 1);
+    }
+
+    public raycastClosest (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean {
+        return false;
+    }
+
+    public raycastAny (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean {
+        return false;
+    }
+
+    public raycastAll (from: Vec3, to: Vec3, options: IRaycastOptions, callback: (result: RaycastResult) => void): boolean {
+        return false;
+    }
 
 }
+
+const TriggerEventObject = {
+    type: '' as unknown as ITriggerEventType,
+    selfCollider: null,
+    otherCollider: null,
+    // selfRigidBody: null,
+    // otherRigidBody: null,
+};

@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category asset
+ */
+
 import { assertID, error } from '../core/platform/CCDebug';
 import { LoadCallbackParams, loader } from '../load-pipeline';
 import { ImageAsset, ImageSource } from './image-asset';

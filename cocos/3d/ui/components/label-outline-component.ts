@@ -24,17 +24,23 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui
+ */
+
 import { Component } from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { constget } from '../../../core/data/utils/constget';
 import { Color } from '../../../core/value-types';
 import { LabelComponent } from './label-component';
 
 /**
  * @zh
  * 描边效果组件,用于字体描边,只能用于系统字体。
+ * 可通过 cc.LabelOutlineComponent 获得此组件
  *
  * @example
- * ```ts
+ * ```typescript
  *
  *  // Create a new node and add label components.
  *  var node = new cc.Node("New Label");
@@ -57,12 +63,13 @@ export class LabelOutlineComponent extends Component {
      * 改变描边的颜色。
      *
      * @example
-     * ```ts
+     * ```typescript
      * outline.color = cc.color(0.5, 0.3, 0.7, 1.0);
      * ```
      */
     @property
-    get color () {
+    @constget
+    get color (): Readonly<Color> {
         return this._color;
     }
 
@@ -80,7 +87,7 @@ export class LabelOutlineComponent extends Component {
      * 改变描边的宽度。
      *
      * @example
-     * ```ts
+     * ```typescript
      * outline.width = 3;
      * ```
      */

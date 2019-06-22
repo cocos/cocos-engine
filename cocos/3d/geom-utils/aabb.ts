@@ -1,3 +1,7 @@
+/**
+ * @category gemotry-utils
+ */
+
 import { mat3, mat4, quat, vec3 } from '../../core/vmath';
 import enums from './enums';
 

@@ -1,3 +1,7 @@
+/**
+ * @category pipeline
+ */
+
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { IGFXColor, IGFXRect } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';

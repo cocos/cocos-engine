@@ -200,7 +200,7 @@ export class WebGLGFXDevice extends GFXDevice {
 
         try {
             const webGLCtxAttribs: WebGLContextAttributes = {
-                alpha: true,
+                alpha: false,
                 antialias: this._isAntialias,
                 depth: true,
                 stencil: true,
@@ -223,8 +223,6 @@ export class WebGLGFXDevice extends GFXDevice {
             return false;
         }
 
-        // No errors are thrown using try catch
-        // Tested through ios baidu browser 4.14.1
         if (!this._webGLRC) {
             console.error('This device does not support WebGL.');
             return false;
@@ -242,18 +240,18 @@ export class WebGLGFXDevice extends GFXDevice {
             this._renderer = gl.getParameter(this._WEBGL_debug_renderer_info.UNMASKED_RENDERER_WEBGL);
             this._vendor = gl.getParameter(this._WEBGL_debug_renderer_info.UNMASKED_VENDOR_WEBGL);
         } else {
-            this._renderer = gl.getParameter(WebGLRenderingContext.RENDERER);
-            this._vendor = gl.getParameter(WebGLRenderingContext.VENDOR);
+            this._renderer = gl.getParameter(gl.RENDERER);
+            this._vendor = gl.getParameter(gl.VENDOR);
         }
 
-        this._version = gl.getParameter(WebGLRenderingContext.VERSION);
-        this._maxVertexAttributes = gl.getParameter(WebGLRenderingContext.MAX_VERTEX_ATTRIBS);
-        this._maxVertexUniformVectors = gl.getParameter(WebGLRenderingContext.MAX_VERTEX_UNIFORM_VECTORS);
-        this._maxFragmentUniformVectors = gl.getParameter(WebGLRenderingContext.MAX_FRAGMENT_UNIFORM_VECTORS);
-        this._maxTextureUnits = gl.getParameter(WebGLRenderingContext.MAX_TEXTURE_IMAGE_UNITS);
-        this._maxVertexTextureUnits = gl.getParameter(WebGLRenderingContext.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-        this._depthBits = gl.getParameter(WebGLRenderingContext.DEPTH_BITS);
-        this._stencilBits = gl.getParameter(WebGLRenderingContext.STENCIL_BITS);
+        this._version = gl.getParameter(gl.VERSION);
+        this._maxVertexAttributes = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
+        this._maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
+        this._maxFragmentUniformVectors = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
+        this._maxTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+        this._maxVertexTextureUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+        this._depthBits = gl.getParameter(gl.DEPTH_BITS);
+        this._stencilBits = gl.getParameter(gl.STENCIL_BITS);
 
         this._devicePixelRatio = info.devicePixelRatio || 1.0;
         this._width = this._canvas.width;
@@ -636,7 +634,7 @@ export class WebGLGFXDevice extends GFXDevice {
         const curFBO = this.stateCache.glFramebuffer;
 
         if (this.stateCache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
-            gl.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
             this.stateCache.glFramebuffer = gpuFramebuffer.glFramebuffer;
         }
 
@@ -652,11 +650,11 @@ export class WebGLGFXDevice extends GFXDevice {
             const data = view.subarray(buffOffset, buffOffset + memSize);
 
             gl.readPixels(region.texOffset.x, region.texOffset.y, w, h,
-                WebGLRenderingContext.RGBA, WebGLRenderingContext.UNSIGNED_BYTE, data);
+                gl.RGBA, gl.UNSIGNED_BYTE, data);
         }
 
         if (this.stateCache.glFramebuffer !== curFBO) {
-            gl.bindFramebuffer(WebGLRenderingContext.FRAMEBUFFER, curFBO);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, curFBO);
             this.stateCache.glFramebuffer = curFBO;
         }
     }
@@ -664,7 +662,7 @@ export class WebGLGFXDevice extends GFXDevice {
     public blitFramebuffer (src: GFXFramebuffer, dst: GFXFramebuffer, srcRect: IGFXRect, dstRect: IGFXRect, filter: GFXFilter) {
     }
 
-    private initStates (gl: WebGLRenderingContext) {
+    private initStates (gl: gl) {
 
         gl.activeTexture(gl.TEXTURE0);
         gl.pixelStorei(gl.PACK_ALIGNMENT, 1);

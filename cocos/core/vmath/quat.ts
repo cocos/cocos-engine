@@ -1,3 +1,7 @@
+/**
+ * @category core/math
+ */
+
 import { mat3 } from './mat3';
 import { toDegree } from './utils';
 import { vec3 } from './vec3';
@@ -424,11 +428,9 @@ export class quat {
     }
 
     /**
-     * @zh 根据三维矩阵信息计算四元数，注意输出四元数并未归一化
+     * @zh 根据三维矩阵信息计算四元数，默认输入矩阵不含有缩放信息
      */
     public static fromMat3<Out extends quat> (out: Out, m: mat3) {
-        // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
-
         const {
             m00: m00, m03: m01, m06: m02,
             m01: m10, m04: m11, m07: m12,

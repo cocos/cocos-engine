@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category asset
+ */
+
 import {ccclass, property} from '../core/data/class-decorator';
 import { Scene } from '../scene-graph';
 import { Asset } from './asset';

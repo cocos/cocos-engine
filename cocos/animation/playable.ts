@@ -1,3 +1,7 @@
+/**
+ * @category animation
+ */
+
 import { getError } from '../core/platform/CCDebug';
 
 export class Playable {

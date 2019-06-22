@@ -1,4 +1,8 @@
-import { CCClass } from '../../../../core/data';
+
+/**
+ * @category particle
+ */
+
 import { ccclass, property } from '../../../../core/data/class-decorator';
 import { Enum } from '../../../../core/value-types';
 import { lerp, pseudoRandom, repeat } from '../../../../core/vmath';

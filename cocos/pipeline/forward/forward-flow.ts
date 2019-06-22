@@ -1,3 +1,7 @@
+/**
+ * @category pipeline.forward
+ */
+
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderPipeline } from '../render-pipeline';
 import { ForwardStage } from './forward-stage';
@@ -17,7 +21,6 @@ export enum ForwardStagePriority {
 export class ForwardFlow extends RenderFlow {
 
     /**
-     * @zh
      * 构造函数。
      * @param pipeline 渲染管线。
      */

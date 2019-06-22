@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { Material } from '../../3d/assets/material';
 import Pool from '../../3d/memop/pool';
 import { GFXPipelineState } from '../../gfx/pipeline-state';

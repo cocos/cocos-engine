@@ -24,6 +24,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @category loader
+ */
+
 import {mixin} from '../core/utils/js';
 import {ImageAsset} from '../assets/image-asset';
 import plistParser from './plist-parser';
@@ -278,10 +282,12 @@ var ID = 'Loader';
  * @method constructor
  * @param {Object} extMap Custom supported types with corresponded handler
  * @example
- *var loader = new Loader({
+ * ```
+ * var loader = new Loader({
  *    // This will match all url with `.scene` extension or all url with `scene` type
  *    'scene' : function (url, callback) {}
- *});
+ * });
+ * ```
  */
 export default class Loader {
     static ID = ID;

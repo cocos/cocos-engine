@@ -1,3 +1,7 @@
+/**
+ * @category physics
+ */
+
 import {
     ccclass,
     executeInEditMode,
@@ -9,6 +13,10 @@ import { SphereShapeBase } from '../../../physics/api';
 import { createSphereShape } from '../../../physics/instance';
 import { ColliderComponent } from './collider-component';
 
+/**
+ * @zh
+ * 球碰撞器
+ */
 @ccclass('cc.SphereColliderComponent')
 @executionOrder(98)
 @menu('Components/SphereColliderComponent')
@@ -36,7 +44,7 @@ export class SphereColliderComponent extends ColliderComponent {
 
         if (!CC_EDITOR) {
             this.radius = this._radius;
-            this._shape.setScale(this.node._scale);
+            this._shape.setScale(this.node.worldScale);
         }
     }
 
@@ -44,24 +52,23 @@ export class SphereColliderComponent extends ColliderComponent {
 
     /**
      * @en
-     * Get the radius of the sphere.
+     * Get or set the radius of the sphere.
      * @zh
-     * 获取球的半径。
+     * 获取或设置球的半径。
      */
     @property
     public get radius () {
         return this._radius;
     }
 
-    /**
-     * @zh
-     * 设置球的半径。
-     */
     public set radius (value) {
         this._radius = value;
 
         if (!CC_EDITOR) {
-            this._shape.setRadius(value);
+            this._shape.setRadius(this._radius);
+            if (CC_PHYSICS_BUILT_IN) {
+                this._shape.setScale(this.node.worldScale);
+            }
         }
     }
 }

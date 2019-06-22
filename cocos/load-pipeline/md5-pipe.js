@@ -24,6 +24,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @category loader
+ */
+
 import Pipeline from './pipeline';
 
 const ID = 'MD5Pipe';

@@ -1,3 +1,7 @@
+/**
+ * @category gfx
+ */
+
 import { GFXBuffer } from './buffer';
 import { GFXCommandBuffer } from './command-buffer';
 import * as GFXDefines from './define';

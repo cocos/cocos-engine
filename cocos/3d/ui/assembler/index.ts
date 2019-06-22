@@ -23,10 +23,14 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui
+ */
+
+import './utils';
 export * from './graphics';
 export * from './label';
 export * from './mask';
 export * from './sprite';
 
-export * from './assembler';
-export * from './utils';
+export * from './base';

@@ -24,6 +24,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @category loader
+ */
+
 import {createMap} from '../core/utils/js';
 import LoadingItems from './loading-items';
 const ItemState = LoadingItems.ItemState;

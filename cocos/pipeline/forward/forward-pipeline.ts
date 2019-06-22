@@ -1,3 +1,7 @@
+/**
+ * @category pipeline.forward
+ */
+
 import { intersect, sphere } from '../../3d/geom-utils';
 import { Root } from '../../core/root';
 import { v3 } from '../../core/value-types/vec3';
@@ -75,7 +79,6 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     /**
-     * @zh
      * 构造函数。
      * @param root Root类实例。
      */

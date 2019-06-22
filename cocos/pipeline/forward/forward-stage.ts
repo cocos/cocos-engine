@@ -1,3 +1,7 @@
+/**
+ * @category pipeline.forward
+ */
+
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXClearFlag, GFXCommandBufferType, GFXFilter, IGFXColor } from '../../gfx/define';
 import { getPhaseID } from '../pass-phase';
@@ -20,7 +24,6 @@ export class ForwardStage extends RenderStage {
     private _transparentQueue: RenderQueue;
 
     /**
-     * @zh
      * 构造函数。
      * @param flow 渲染阶段。
      */
@@ -140,11 +143,14 @@ export class ForwardStage extends RenderStage {
             this._framebuffer = view.window!.framebuffer;
         }
 
+        const planarShadow = camera.scene.planarShadows;
+
         cmdBuff.begin();
         cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea,
             camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
 
         cmdBuff.execute(this._opaqueQueue.cmdBuffs.array, this._opaqueQueue.cmdBuffCount);
+        cmdBuff.execute(planarShadow.cmdBuffs.array, planarShadow.cmdBuffCount);
         cmdBuff.execute(this._transparentQueue.cmdBuffs.array, this._transparentQueue.cmdBuffCount);
 
         cmdBuff.endRenderPass();

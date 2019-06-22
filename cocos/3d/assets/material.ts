@@ -22,6 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * 材质系统的相关内容
+ * @category material
+ */
+
 import { Asset } from '../../assets/asset';
 import { TextureBase } from '../../assets/texture-base';
 import { ccclass, property } from '../../core/data/class-decorator';
@@ -75,7 +81,7 @@ interface IMaterialInfo {
 export class Material extends Asset {
     /**
      * @zh
-     * 获取材质资源的实例，您应当不会需要手动调用这个函数。
+     * 获取材质资源的实例，应当不会需要手动调用这个函数。
      */
     public static getInstantiatedMaterial (mat: Material, rndCom: RenderableComponent, inEditor: boolean) {
         if (mat._owner === rndCom) {
@@ -360,10 +366,11 @@ export class Material extends Asset {
                 states: this._states,
             });
             // handle property values
-            this._props.length = this._passes.length;
+            const totalPasses = this._effectAsset.techniques[this._techIdx].passes.length;
+            this._props.length = totalPasses;
             if (keepProps) {
                 this._passes.forEach((pass, i) => {
-                    let props = this._props[i];
+                    let props = this._props[pass.idxInTech];
                     if (!props) { props = this._props[i] = {}; }
                     for (const p of Object.keys(props)) {
                         const val = props[p];

@@ -23,6 +23,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * @category ui
+ */
+
 import { EventHandler as ComponentEventHandler } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { ButtonComponent } from './button-component';
@@ -32,6 +37,7 @@ import { ToggleContainerComponent } from './toggle-container-component';
 /**
  * @zh
  * Toggle 是一个 CheckBox，当它和 ToggleGroup 一起使用的时候，可以变成 RadioButton。
+ * 可通过 cc.ToggleComponent 获得该组件。
  */
 @ccclass('cc.ToggleComponent')
 @executionOrder(110)

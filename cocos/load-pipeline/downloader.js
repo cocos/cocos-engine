@@ -23,6 +23,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @category loader
+ */
+
 import {mixin} from '../core/utils/js';
 import * as debug from '../core/platform/CCDebug';
 import Pipeline from './pipeline';
@@ -276,9 +280,9 @@ export default class Downloader {
     }
 
     /**
-     * !#en
+     * @en
      * Load subpackage with name.
-     * !#zh
+     * @zh
      * 通过子包名加载子包代码。
      * @method loadSubpackage
      * @param {String} name - Subpackage name

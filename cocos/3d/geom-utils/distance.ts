@@ -1,3 +1,7 @@
+/**
+ * @category gemotry-utils
+ */
+
 import { plane } from '.';
 import { vec3 } from '../../core/vmath';
 import aabb from './aabb';

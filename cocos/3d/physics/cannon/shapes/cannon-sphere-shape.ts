@@ -34,7 +34,6 @@ export class CannonSphereShape extends CannonShape implements SphereShapeBase {
 
     private _recalcRadius () {
         this._sphere.radius = this._radius * maxComponent(this._scale);
-        // console.log(`[[CANNON]] Set sphere radius to ${this._cannonSphere.radius}.`);
 
         if (this._body != null) {
             commitShapeUpdates(this._body);

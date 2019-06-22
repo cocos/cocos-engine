@@ -1,3 +1,6 @@
+/**
+ * @category ui
+ */
 import { GFXAttributeName, GFXFormat } from '../../gfx/define';
 
 export const vfmt = [

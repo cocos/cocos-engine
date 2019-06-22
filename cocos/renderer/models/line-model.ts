@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { IRenderingSubmesh } from '../../3d/assets/mesh';
 import CurveRange from '../../3d/framework/particle/animator/curve-range';
 import { Vec3 } from '../../core/value-types';

@@ -24,9 +24,13 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui
+ */
+
 import { Component } from '../../../components';
-import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
-import { Size, Vec3 } from '../../../core/value-types';
+import { ccclass, disallowMultiple, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
+import { Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';
 import { GFXClearFlag } from '../../../gfx/define';
 import { Camera } from '../../../renderer';
@@ -39,13 +43,14 @@ const _worldPos = new Vec3();
  * 作为 UI 根节点，为所有子节点提供视窗四边的位置信息以供对齐，另外提供屏幕适配策略接口，方便从编辑器设置。
  * 注：由于本节点的尺寸会跟随屏幕拉伸，所以 anchorPoint 只支持 (0.5, 0.5)，否则适配不同屏幕时坐标会有偏差。
  * 同时 UI 相机默认 fov 是 1000，所以 UI 节点的事件坐标一定是大于或等于 0 的，不支持负数。
+ * 可通过 cc.CanvasComponent 获得此组件
  */
 @ccclass('cc.CanvasComponent')
 @executionOrder(100)
 @requireComponent(UITransformComponent)
 @menu('UI/Canvas')
 @executeInEditMode
-// @disallowMultiple
+@disallowMultiple
 export class CanvasComponent extends Component {
 
     // /**

@@ -24,6 +24,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @category loader
+ */
+
 import {pushToMap} from '../core/utils/misc';
 import {TextureUnpacker, JsonUnpacker} from './unpackers';
 

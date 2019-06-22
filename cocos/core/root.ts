@@ -1,3 +1,7 @@
+/**
+ * @category core
+ */
+
 import { builtinResMgr } from '../3d/builtin';
 import { GFXDevice } from '../gfx/device';
 import { GFXWindow, IGFXWindowInfo } from '../gfx/window';
@@ -146,7 +150,6 @@ export class Root {
     private _fps: number = 0;
 
     /**
-     * @zh
      * 构造函数
      * @param device GFX设备
      */

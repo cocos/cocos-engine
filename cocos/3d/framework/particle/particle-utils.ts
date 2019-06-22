@@ -1,12 +1,13 @@
+/**
+ * @hidden
+ */
+
 import { ParticleSystemComponent } from '..';
 import { CCObject } from '../../../core';
 import { Node } from '../../../scene-graph';
 import { Pool } from '../../memop';
 
 export class ParticleUtils {
-    private static particleSystemPool: Map<string, Pool<CCObject>> = new Map<string, Pool<CCObject>>();
-    private static registeredSceneEvent: boolean = false;
-
     /**
      * instantiate
      */
@@ -30,15 +31,6 @@ export class ParticleUtils {
         }
     }
 
-    private static onSceneUnload () {
-        this.particleSystemPool.forEach((value) => {
-            value.clear((prefab) => {
-                prefab.destroy();
-            });
-        });
-        this.particleSystemPool.clear();
-    }
-
     public static play (rootNode: Node) {
         for (const ps of rootNode.getComponentsInChildren(cc.ParticleSystemComponent)) {
             (ps as ParticleSystemComponent).play();
@@ -49,5 +41,17 @@ export class ParticleUtils {
         for (const ps of rootNode.getComponentsInChildren(cc.ParticleSystemComponent)) {
             (ps as ParticleSystemComponent).stop();
         }
+    }
+
+    private static particleSystemPool: Map<string, Pool<CCObject>> = new Map<string, Pool<CCObject>>();
+    private static registeredSceneEvent: boolean = false;
+
+    private static onSceneUnload () {
+        this.particleSystemPool.forEach((value) => {
+            value.clear((prefab) => {
+                prefab.destroy();
+            });
+        });
+        this.particleSystemPool.clear();
     }
 }

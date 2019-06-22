@@ -1,4 +1,8 @@
 
+/**
+ * @category animation
+ */
+
 export type BezierControlPoints = [ number, number, number, number ];
 
 export function bezier (C1: number, C2: number, C3: number, C4: number, t: number) {

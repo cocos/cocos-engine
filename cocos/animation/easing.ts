@@ -1,4 +1,8 @@
 
+/**
+ * @category animation
+ */
+
 export function constant () {
     return 0;
 }

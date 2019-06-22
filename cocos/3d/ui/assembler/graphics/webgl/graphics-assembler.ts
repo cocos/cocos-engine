@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui-assembler
+ */
+
 import { Color, Vec3 } from '../../../../../core/value-types';
 import { color4 } from '../../../../../core/vmath';
 import { GFXPrimitiveMode } from '../../../../../gfx';
@@ -33,7 +37,7 @@ import { UI } from '../../../../../renderer/ui/ui';
 import { createMesh } from '../../../../misc/utils';
 import { GraphicsComponent } from '../../../components';
 import { vfmt } from '../../../ui-vertex-format';
-import { IAssembler } from '../../assembler';
+import { IAssembler } from '../../base';
 import { LineCap, LineJoin, PointFlags } from '../types';
 import { earcut as Earcut } from './earcut';
 import { Impl, Point } from './impl';
@@ -83,6 +87,10 @@ function clamp (v: number, minNum: number, maxNum: number) {
     return v;
 }
 
+/**
+ * graphics 组装器
+ * 可通过 cc.UI.graphicsAssembler 获取该组装器。
+ */
 export const graphicsAssembler: IAssembler = {
     useModel: true,
     createImpl (graphics: GraphicsComponent) {

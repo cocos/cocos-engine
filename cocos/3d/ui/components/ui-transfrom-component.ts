@@ -1,5 +1,35 @@
+/*
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+/**
+ * @category ui
+ */
+
 import { Component } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { constget } from '../../../core/data/utils/constget';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { EventListener, ILinstenerMask } from '../../../core/platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
@@ -13,6 +43,11 @@ const _mat4_temp = new Mat4();
 const _matrix = new Mat4();
 const _worldMatrix = new Mat4();
 
+/**
+ * @zh
+ * UI 变换组件。
+ * 可通过 cc.UITransformComponent 获得该组件。
+ */
 @ccclass('cc.UITransformComponent')
 @executionOrder(110)
 @menu('UI/UITransform')
@@ -26,7 +61,8 @@ export class UITransformComponent extends Component {
     @property({
         displayOrder: 0,
     })
-    get contentSize () {
+    @constget
+    get contentSize (): Readonly<Size> {
         return this._contentSize;
     }
 
@@ -103,7 +139,8 @@ export class UITransformComponent extends Component {
     @property({
         displayOrder: 1,
     })
-    get anchorPoint () {
+    @constget
+    get anchorPoint (): Readonly<Vec2> {
         return this._anchorPoint;
     }
 
@@ -144,9 +181,9 @@ export class UITransformComponent extends Component {
 
     public static EventType = SystemEventType;
     @property
-    public _contentSize = new Size(100, 100);
+    private _contentSize = new Size(100, 100);
     @property
-    public _anchorPoint = new Vec2(0.5, 0.5);
+    private _anchorPoint = new Vec2(0.5, 0.5);
 
     public __preload () {
         this.node.uiTransfromComp = this;
@@ -164,7 +201,7 @@ export class UITransformComponent extends Component {
      * @param size - 节点内容变换的尺寸或者宽度。
      * @param height - 节点内容未变换的高度。
      * @example
-     * ```ts
+     * ```typescript
      * node.setContentSize(cc.size(100, 100));
      * node.setContentSize(100, 100);
      * ```
@@ -217,7 +254,7 @@ export class UITransformComponent extends Component {
      * @param point - 节点锚点或节点 x 轴锚。
      * @param y - 节点 y 轴锚。
      * @example
-     * ```ts
+     * ```typescript
      * node.setAnchorPoint(cc.v2(1, 1));
      * node.setAnchorPoint(1, 1);
      * ```
@@ -321,7 +358,7 @@ export class UITransformComponent extends Component {
      * @param out - 转换后坐标。
      * @returns - 返回与目标节点的相对位置。
      * @example
-     * ```ts
+     * ```typescript
      * var newVec2 = uiTransform.convertToNodeSpaceAR(cc.v3(100, 100, 0));
      * ```
      */
@@ -343,7 +380,7 @@ export class UITransformComponent extends Component {
      * @param out - 转换后坐标。
      * @returns - 返回 UI 世界坐标系。
      * @example
-     * ```ts
+     * ```typescript
      * var newVec2 = uiTransform.convertToWorldSpaceAR(3(100, 100, 0));
      * ```
      */
@@ -362,7 +399,7 @@ export class UITransformComponent extends Component {
      *
      * @return - 节点大小的包围盒
      * @example
-     * ```ts
+     * ```typescript
      * var boundingBox = uiTransform.getBoundingBox();
      * ```
      */
@@ -385,7 +422,7 @@ export class UITransformComponent extends Component {
      *
      * @returns - 返回世界坐标系下包围盒。
      * @example
-     * ```ts
+     * ```typescript
      * var newRect = uiTransform.getBoundingBoxToWorld();
      * ```
      */

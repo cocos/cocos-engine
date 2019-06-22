@@ -1,9 +1,11 @@
 
+import * as fs from 'fs-extra';
+import * as ps from 'path';
 import yargs from 'yargs';
-import { build } from './build-engine';
+import { build, IBuildOptions } from './build-engine';
 
 yargs.option('platform', { type: 'string', alias: 'p' });
-yargs.option('physics', { type: 'array', alias: 'py' });
+yargs.option('physics', { type: 'string', alias: 'py' });
 yargs.option('flags', { type: 'array', alias: 'f' });
 yargs.option('destination', { type: 'string', alias: 'd' });
 yargs.option('excludes', { type: 'array', alias: 'e' });
@@ -16,19 +18,27 @@ if (argvFlags) {
     argvFlags.forEach((argvFlag) => flags[argvFlag as keyof IFlags] = true);
 }
 
-const globalDefs = getGlobalDefs(yargs.argv.platform as Platform, yargs.argv.physics as Physics, flags);
 const sourceMap = yargs.argv.sourcemap === 'inline' ? 'inline' : !!yargs.argv.sourcemap;
 
-build({
+const options: IBuildOptions = {
     compress: yargs.argv.compress as (boolean | undefined),
-    globalDefines: globalDefs,
     inputPath: './index.ts',
     outputPath: yargs.argv.destination as string,
     excludes: yargs.argv.excludes as string[],
     sourcemap: sourceMap,
-}).then(
-    () => {
+    flags,
+    physics: yargs.argv.physics as (Physics | undefined),
+};
+
+build(options).then(
+    (result) => {
         console.log(`Build successful.`);
+        fs.ensureDirSync(ps.dirname(options.outputPath));
+        fs.writeFileSync(options.outputPath, result.code);
+        console.log(`With map? ${!!result.map}`);
+        if (result.map) {
+            fs.writeFileSync(`${options.outputPath}.map`, result.map);
+        }
     },
     (reason: any) => {
         console.error(`Build failed, reason:\n ${reason.stack}`);
@@ -128,6 +138,10 @@ function getGlobalDefs (platform: Platform, physics: Physics, flags?: IFlags): o
             result.CC_PHYSICS_CANNON = false;
             result.CC_PHYSICS_AMMO = false;
             result.CC_PHYSICS_BUILT_IN = true;
+            break;
+
+        default:
+            throw new Error(`Unknown physics ${physics}.`);
             break;
     }
 

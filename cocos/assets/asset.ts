@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category asset
+ */
+
 import { ccclass, property } from '../core/data/class-decorator';
 import { Event } from '../core/event';
 import { CallbacksInvoker } from '../core/event/callbacks-invoker';

@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { GFXComparisonFunc, GFXStencilOp } from '../../../../gfx/define';
 import { Pass } from '../../../../renderer';
 import { Material } from '../../../assets/material';

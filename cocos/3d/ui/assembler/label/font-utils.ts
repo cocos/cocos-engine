@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 export interface ISharedLabelData {
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D | null;

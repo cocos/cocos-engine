@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui
+ */
+
 import { SpriteFrame } from '../../../../assets/sprite-frame';
 import { Component } from '../../../../components/component';
 import { EventHandler as ComponentEventHandler } from '../../../../components/component-event-handler';

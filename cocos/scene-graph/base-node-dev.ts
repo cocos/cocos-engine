@@ -1,3 +1,31 @@
+/*
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+/**
+ * @category scene-graph
+ */
 
 import { CCObject } from '../core/data/object';
 import * as js from '../core/utils/js';
@@ -44,18 +72,20 @@ export function baseNodePolyfill (BaseNode) {
                     return;
                 }
             }
-            const ReqComp = ctor._requireComponent;
-            if (ReqComp && !this.getComponent(ReqComp)) {
-                if (index === this._components.length) {
-                    // If comp should be last component, increase the index because required component added
-                    ++index;
-                }
-                const depended = this.addComponent(ReqComp);
-                if (!depended) {
-                    // depend conflicts
-                    return null;
-                }
-            }
+
+            // remove dependency and return directly by editor
+            // const ReqComp = ctor._requireComponent;
+            // if (ReqComp && !this.getComponent(ReqComp)) {
+            //     if (index === this._components.length) {
+            //         // If comp should be last component, increase the index because required component added
+            //         ++index;
+            //     }
+            //     const depended = this.addComponent(ReqComp);
+            //     if (!depended) {
+            //         // depend conflicts
+            //         return null;
+            //     }
+            // }
 
             comp.node = this;
             this._components.splice(index, 0, comp);

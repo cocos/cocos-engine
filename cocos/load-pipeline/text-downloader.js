@@ -23,6 +23,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @category loader
+ */
+
 import {urlAppendTimestamp} from './utils';
 
 export default function (item, callback) {

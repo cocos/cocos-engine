@@ -1,4 +1,8 @@
 /**
+ * @category core/math
+ */
+
+/**
  * @en
  * Bit twiddling hacks for JavaScript.
  *

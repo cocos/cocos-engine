@@ -24,6 +24,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+/**
+ * @category core
+ */
 
 import { widgetManager } from '../3d';
 // import SkinningModelSystem from '../3d/framework/skinning-model-system';
@@ -127,7 +130,7 @@ class Director extends EventTarget {
      * @property {String} EVENT_BEFORE_SCENE_LOADING
      * @readonly
      */
-    public static EVENT_BEFORE_SCENE_LOADING = 'director_before_scene_loading';
+    public static readonly EVENT_BEFORE_SCENE_LOADING = 'director_before_scene_loading';
 
     /*
     * @en The event which will be triggered before launching a new scene.
@@ -141,7 +144,7 @@ class Director extends EventTarget {
      * @property {String} EVENT_BEFORE_SCENE_LAUNCH
      * @readonly
      */
-    public static EVENT_BEFORE_SCENE_LAUNCH = 'director_before_scene_launch';
+    public static readonly EVENT_BEFORE_SCENE_LAUNCH = 'director_before_scene_launch';
 
     /**
      * @en The event which will be triggered after launching a new scene.
@@ -155,7 +158,7 @@ class Director extends EventTarget {
      * @property {String} EVENT_AFTER_SCENE_LAUNCH
      * @readonly
      */
-    public static EVENT_AFTER_SCENE_LAUNCH = 'director_after_scene_launch';
+    public static readonly EVENT_AFTER_SCENE_LAUNCH = 'director_after_scene_launch';
 
     /**
      * @en The event which will be triggered at the beginning of every frame.
@@ -168,7 +171,7 @@ class Director extends EventTarget {
      * @property {String} EVENT_BEFORE_UPDATE
      * @readonly
      */
-    public static EVENT_BEFORE_UPDATE = 'director_before_update';
+    public static readonly EVENT_BEFORE_UPDATE = 'director_before_update';
 
     /**
      * @en The event which will be triggered after engine and components update logic.
@@ -181,7 +184,7 @@ class Director extends EventTarget {
      * @property {String} EVENT_AFTER_UPDATE
      * @readonly
      */
-    public static EVENT_AFTER_UPDATE = 'director_after_update';
+    public static readonly EVENT_AFTER_UPDATE = 'director_after_update';
 
     /**
      * @en The event which will be triggered before the rendering process.
@@ -194,7 +197,7 @@ class Director extends EventTarget {
      * @property {String} EVENT_BEFORE_DRAW
      * @readonly
      */
-    public static EVENT_BEFORE_DRAW = 'director_before_draw';
+    public static readonly EVENT_BEFORE_DRAW = 'director_before_draw';
 
     /**
      * @en The event which will be triggered after the rendering process.
@@ -207,7 +210,15 @@ class Director extends EventTarget {
      * @property {String} EVENT_AFTER_DRAW
      * @readonly
      */
-    public static EVENT_AFTER_DRAW = 'director_after_draw';
+    public static readonly EVENT_AFTER_DRAW = 'director_after_draw';
+
+    /**
+     * @en The event which will be triggered before the physics process.
+     * @zh 物理过程之前所触发的事件。
+     * @event cc.Director.EVENT_BEFORE_PHYSICS
+     * @readonly
+     */
+    public static readonly EVENT_BEFORE_PHYSICS = 'director_before_physics';
 
     private invalid: boolean;
     private _paused: boolean;
@@ -261,11 +272,11 @@ class Director extends EventTarget {
         this._systems = [];
 
         const self = this;
-        cc.game.on (Game.EVENT_SHOW, () => {
+        cc.game.on(Game.EVENT_SHOW, () => {
             self._lastUpdate = performance.now();
         });
 
-        cc.game.once (Game.EVENT_ENGINE_INITED, this.init, this);
+        cc.game.once(Game.EVENT_ENGINE_INITED, this.init, this);
     }
 
     public init () {
@@ -537,18 +548,18 @@ class Director extends EventTarget {
         // Scene cannot be cached in loader, because it will be destroyed after switching.
         cc.loader.removeItem(uuid);
 
-        if ( CC_BUILD && CC_DEBUG ) {
+        if (CC_BUILD && CC_DEBUG) {
             console.time('InitScene');
         }
         scene._load();  // ensure scene initialized
-        if ( CC_BUILD && CC_DEBUG ) {
+        if (CC_BUILD && CC_DEBUG) {
             console.timeEnd('InitScene');
         }
         // Re-attach or replace persist nodes
-        if ( CC_BUILD && CC_DEBUG ) {
+        if (CC_BUILD && CC_DEBUG) {
             console.time('AttachPersist');
         }
-        const persistNodeList = Object.keys(cc.game._persistRootNodes).map( (x) => {
+        const persistNodeList = Object.keys(cc.game._persistRootNodes).map((x) => {
             return cc.game._persistRootNodes[x];
         });
         // tslint:disable-next-line: prefer-for-of
@@ -566,24 +577,24 @@ class Director extends EventTarget {
                 node.parent = scene;
             }
         }
-        if ( CC_BUILD && CC_DEBUG ) {
+        if (CC_BUILD && CC_DEBUG) {
             console.timeEnd('AttachPersist');
         }
         const oldScene = this._scene;
         if (!CC_EDITOR) {
             // auto release assets
-            if ( CC_BUILD && CC_DEBUG ) {
+            if (CC_BUILD && CC_DEBUG) {
                 console.time('AutoRelease');
             }
             const autoReleaseAssets = oldScene && oldScene.autoReleaseAssets && oldScene.dependAssets;
             autoRelease(autoReleaseAssets, scene.dependAssets, persistNodeList);
-            if ( CC_BUILD && CC_DEBUG ){
+            if (CC_BUILD && CC_DEBUG) {
                 console.timeEnd('AutoRelease');
             }
         }
 
         // unload scene
-        if ( CC_BUILD && CC_DEBUG ) {
+        if (CC_BUILD && CC_DEBUG) {
             console.time('Destroy');
         }
         if (cc.isValid(oldScene)) {
@@ -604,11 +615,11 @@ class Director extends EventTarget {
         // Run an Entity Scene
         this._scene = scene;
 
-        if ( CC_BUILD && CC_DEBUG ) {
+        if (CC_BUILD && CC_DEBUG) {
             console.time('Activate');
         }
         scene._activate();
-        if ( CC_BUILD && CC_DEBUG ) {
+        if (CC_BUILD && CC_DEBUG) {
             console.timeEnd('Activate');
         }
         // start scene
@@ -1053,7 +1064,7 @@ class Director extends EventTarget {
 
             // Update
             if (!this._paused) {
-                this.emit(cc.Director.EVENT_BEFORE_UPDATE);
+                this.emit(Director.EVENT_BEFORE_UPDATE);
                 // Call start for new added components
                 this._compScheduler.startPhase();
                 // Update for components
@@ -1063,23 +1074,22 @@ class Director extends EventTarget {
                 // Late update for components
                 this._compScheduler.lateUpdatePhase(this._deltaTime);
                 // User can use this event to do things after update
-                this.emit(cc.Director.EVENT_AFTER_UPDATE);
+                this.emit(Director.EVENT_AFTER_UPDATE);
                 // Destroy entities that have been removed recently
                 CCObject._deferredDestroy();
             }
-
+            this.emit(Director.EVENT_BEFORE_PHYSICS);
             this._physicsSystem!.update(this._deltaTime);
 
-            this.emit(cc.Director.EVENT_BEFORE_DRAW);
+            this.emit(Director.EVENT_BEFORE_DRAW);
             this._root!.frameMove(this._deltaTime);
-            this.emit(cc.Director.EVENT_AFTER_DRAW);
+            // Present current frame
+            this._root!.device.present();
+            this.emit(Director.EVENT_AFTER_DRAW);
 
             eventManager.frameUpdateListeners();
             if (this._scene) { this._scene.resetHasChanged(); }
             this._totalFrames++;
-
-            // Present current frame
-            this._root!.device.present();
         }
     }
 
@@ -1097,10 +1107,8 @@ class Director extends EventTarget {
  */
 
 /**
- * @en Director
- * @zh 导演类。
+ * 导演类。
  * @property director
- * @type {Director}
  */
 const director: Director = cc.director = new Director();
 cc.Director = Director;

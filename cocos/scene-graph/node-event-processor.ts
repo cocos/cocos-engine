@@ -1,3 +1,32 @@
+/*
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+/**
+ * @category scene-graph
+ */
+
 import { Event, EventTarget } from '../core/event';
 import { ITargetImpl } from '../core/event/event-target';
 import { eventManager } from '../core/platform/event-manager';
@@ -185,7 +214,7 @@ function _mouseWheelHandler (this: EventListener, event: EventMouse) {
     }
 }
 
-function _doDispatchEvent (owner: Node, event: EventTouch) {
+function _doDispatchEvent (owner: Node, event: Event) {
     let target: Node;
     let i = 0;
     event.target = owner;
@@ -281,6 +310,10 @@ function _checkListeners (node: Node, events: string[]) {
     return true;
 }
 
+/**
+ * @zh
+ * 节点事件类。
+ */
 export class NodeEventProcessor {
     public get node (): Node {
         return this._node;
@@ -314,6 +347,27 @@ export class NodeEventProcessor {
         this._node = node;
     }
 
+    public destroy (): void{
+        if (_currentHovered === this._node) {
+            _currentHovered = null;
+        }
+
+        // Remove all event listeners if necessary
+        if (this.touchListener || this.mouseListener) {
+            eventManager.removeListeners(this._node);
+            if (this.touchListener) {
+                this.touchListener.owner = null;
+                this.touchListener.mask = null;
+                this.touchListener = null;
+            }
+            if (this.mouseListener) {
+                this.mouseListener.owner = null;
+                this.mouseListener.mask = null;
+                this.mouseListener = null;
+            }
+        }
+    }
+
     /**
      * @zh
      * 在节点上注册指定类型的回调函数，也可以设置 target 用于绑定响应函数的 this 对象。<br/>
@@ -338,7 +392,7 @@ export class NodeEventProcessor {
      * @return - 返回监听回调函数自身。
      *
      * @example
-     * ```ts
+     * ```typescript
      * this.node.on(cc.Node.EventType.TOUCH_START, this.memberFunction, this);  // if "this" is component and the "memberFunction" declared in CCClass.
      * this.node.on(cc.Node.EventType.TOUCH_START, callback, this);
      * this.node.on(cc.Node.EventType.ANCHOR_CHANGED, callback);
@@ -388,7 +442,7 @@ export class NodeEventProcessor {
      * @param useCapture - 当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
      *
      * @example
-     * ```ts
+     * ```typescript
      * node.once(cc.Node.EventType.ANCHOR_CHANGED, callback);
      * ```
      */
@@ -416,7 +470,7 @@ export class NodeEventProcessor {
      * @param useCapture - 当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
      *
      * @example
-     * ```ts
+     * ```typescript
      * this.node.off(cc.Node.EventType.TOUCH_START, this.memberFunction, this);
      * node.off(cc.Node.EventType.TOUCH_START, callback, this.node);
      * node.off(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
@@ -477,7 +531,7 @@ export class NodeEventProcessor {
      * @param arg4 - 回调第四个参数。
      * @param arg5 - 回调第五个参数。
      * @example
-     * ```ts
+     * ```typescript
      * eventTarget.emit('fire', event);
      * eventTarget.emit('fire', message, emitter);
      * ```
@@ -494,7 +548,7 @@ export class NodeEventProcessor {
      *
      * @param event - 分派到事件流中的事件对象。
      */
-    public dispatchEvent (event: EventTouch) {
+    public dispatchEvent (event: Event) {
         _doDispatchEvent(this._node, event);
         _cachedArray.length = 0;
     }

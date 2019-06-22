@@ -1,3 +1,7 @@
+/**
+ * @category pipeline.ppfx
+ */
+
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderPipeline } from '../render-pipeline';
 import { ToneMapStage } from './tonemap-stage';

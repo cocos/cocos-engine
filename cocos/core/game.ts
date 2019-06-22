@@ -23,6 +23,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+/**
+ * @category core
+ */
 
 import { WebGLGFXDevice } from '../gfx/webgl/webgl-device';
 import { WebGL2GFXDevice } from '../gfx/webgl2/webgl2-device';
@@ -31,15 +34,10 @@ import * as debug from './platform/CCDebug';
 import inputManager from './platform/event-manager/input-manager';
 
 /**
- * @module cc
- */
-
-/**
  * @en An object to boot the game.
  * @zh 包含游戏主体信息并负责驱动游戏的游戏对象。
  * @class game
  * @static
- * @extends EventTarget
  */
 
 class Game extends EventTarget {
@@ -52,10 +50,12 @@ class Game extends EventTarget {
      * 在原生平台，它对应的是应用被切换到后台事件，下拉菜单和上拉状态栏等不一定会触发这个事件，这取决于系统行为。
      * @property EVENT_HIDE
      * @example
+     * ```typescript
      * cc.game.on(Game.EVENT_HIDE, function () {
      *     cc.audioEngine.pauseMusic();
      *     cc.audioEngine.pauseAllEffects();
      * });
+     * ```
      */
     public static EVENT_HIDE: string = 'game_on_hide';
 
@@ -373,8 +373,6 @@ class Game extends EventTarget {
      * @param {any} [callback.arg5] arg5
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
-     * @typescript
-     * on<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
      */
     public on (type: string, callback: Function, target?: object ): any {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked

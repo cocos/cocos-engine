@@ -1,4 +1,31 @@
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+/*
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+/**
+ * @hidden
+ */
 
 import { Skeleton } from '../../3d/assets/skeleton';
 import { LCA } from '../../3d/misc/utils';
@@ -132,7 +159,11 @@ export class SkinningModel extends Model {
 
         if (type !== JointsMediumType.UNIFORM) {
             const texture = this._jointsMedium.texture = new Texture2D();
-            texture.create(width, height, format);
+            texture.reset({
+                width,
+                height,
+                format,
+            });
             texture.setFilters(Filter.NEAREST, Filter.NEAREST);
             texture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
 
@@ -156,17 +187,24 @@ export class SkinningModel extends Model {
         if (!super.updateUBOs() || !this._skeleton) { return false; }
 
         const len = this._joints.length;
-        for (let i = 0; i < len; ++i) {
-            const cur = this._joints[i]; cur.update();
-            const bindpose = this._skeleton.bindposes[i];
+        if (this._skeleton.bindTRS.length) { // TODO: pre-apply this into animation clip
+            for (let i = 0; i < len; ++i) {
+                const cur = this._joints[i]; cur.update();
+                const bindpose = this._skeleton.bindTRS[i];
 
-            vec3.multiply(v3_1, bindpose.position, cur.scale);
-            vec3.transformQuat(v3_1, v3_1, cur.rotation);
-            vec3.add(v3_1, v3_1, cur.position);
-            quat.multiply(qt_1, cur.rotation, bindpose.rotation);
-            vec3.multiply(v3_2, cur.scale, bindpose.scale);
+                vec3.multiply(v3_1, bindpose.position, cur.scale);
+                vec3.transformQuat(v3_1, v3_1, cur.rotation);
+                vec3.add(v3_1, v3_1, cur.position);
+                quat.multiply(qt_2, cur.rotation, bindpose.rotation);
+                vec3.multiply(v3_2, cur.scale, bindpose.scale);
 
-            this.updateJointData(i, v3_1, qt_1, v3_2, i === 0);
+                this.updateJointData(i, v3_1, qt_2, v3_2);
+            }
+        } else {
+            for (let i = 0; i < len; ++i) {
+                const cur = this._joints[i]; cur.update();
+                this.updateJointData(i, cur.position, cur.rotation, cur.scale);
+            }
         }
 
         this.commitJointData();
@@ -210,25 +248,25 @@ export class SkinningModel extends Model {
     }
 
     // Dual Quaternion Skinning
-    protected updateJointDataDQS (idx: number, pos: Vec3, rot: Quat, scale: Vec3, first = false) {
+    protected updateJointDataDQS (idx: number, pos: Vec3, rot: Quat, scale: Vec3) {
         if (!this._jointsMedium) { return; }
         const out = this._jointsMedium.nativeData;
         const base = 12 * idx;
         // sign consistency
-        if (first) { quat.copy(qt_0, rot); }
+        if (idx === 0) { quat.copy(qt_0, rot); }
         else if (quat.dot(qt_0, rot) < 0) { quat.scale(rot, rot, -1); }
         // conversion
-        quat.set(qt_2, pos.x, pos.y, pos.z, 0);
-        quat.scale(qt_2, quat.multiply(qt_2, qt_2, rot), 0.5);
+        quat.set(qt_1, pos.x, pos.y, pos.z, 0);
+        quat.scale(qt_1, quat.multiply(qt_1, qt_1, rot), 0.5);
         // upload
         out[base + 0] = rot.x;
         out[base + 1] = rot.y;
         out[base + 2] = rot.z;
         out[base + 3] = rot.w;
-        out[base + 4] = qt_2.x;
-        out[base + 5] = qt_2.y;
-        out[base + 6] = qt_2.z;
-        out[base + 7] = qt_2.w;
+        out[base + 4] = qt_1.x;
+        out[base + 5] = qt_1.y;
+        out[base + 6] = qt_1.z;
+        out[base + 7] = qt_1.w;
         out[base + 8] = scale.x;
         out[base + 9] = scale.y;
         out[base + 10] = scale.z;

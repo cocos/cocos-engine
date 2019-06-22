@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core/value-types
+ */
+
 import CCClass from '../data/class';
 import {clamp, vec2} from '../vmath';
 import Mat4 from './mat4';
@@ -33,6 +37,51 @@ import { ValueType } from './value-type';
  * 二维向量。
  */
 export default class Vec2 extends ValueType {
+
+    /**
+     * 创建分量都为 1 的向量并返回。
+     */
+    static get ONE () {
+        return new Vec2(1.0, 1.0);
+    }
+
+    /**
+     * 创建零向量并返回。
+     */
+    static get ZERO () {
+        return new Vec2(0.0, 0.0);
+    }
+
+    /**
+     * 创建与 y 轴同向的单位向量并返回。
+     */
+    static get UP () {
+        return new Vec2(0.0, 1.0);
+    }
+
+    /**
+     * 创建与 x 轴同向的单位向量并返回。
+     */
+    static get RIGHT () {
+        return new Vec2(1.0, 0.0);
+    }
+
+    /**
+     * 根据指定的插值比率，从当前向量到目标向量之间做插值。
+     * @param from 起始向量。
+     * @param to 目标向量。
+     * @param ratio 插值比率，范围为 [0,1]。
+     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
+     * @returns 当前向量各个分量到目标向量对应的各个分量之间按指定插值比率进行线性插值构成的向量。
+     */
+    public static lerp (from: Vec2, to: Vec2, ratio: number, out: Vec2) {
+        const x = from.x;
+        const y = from.y;
+        out.x = x + (to.x - x) * ratio;
+        out.y = y + (to.y - y) * ratio;
+        return out;
+    }
+
     /**
      * x 分量。
      */
@@ -118,19 +167,13 @@ export default class Vec2 extends ValueType {
     }
 
     /**
-     * 根据指定的插值比率，从当前向量到目标向量之间做插值。
+     * 同lerp函数一样，但会对自身做lerp。
      * @param to 目标向量。
      * @param ratio 插值比率，范围为 [0,1]。
-     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
      * @returns 当前向量各个分量到目标向量对应的各个分量之间按指定插值比率进行线性插值构成的向量。
      */
-    public lerp (to: Vec2, ratio: number, out?: Vec2) {
-        out = out || new Vec2();
-        const x = this.x;
-        const y = this.y;
-        out.x = x + (to.x - x) * ratio;
-        out.y = y + (to.y - y) * ratio;
-        return out;
+    public lerpSelf (to: Vec2, ratio: number) {
+        return Vec2.lerp(this, to, ratio, this);
     }
 
     /**
@@ -430,34 +473,6 @@ export default class Vec2 extends ValueType {
     public transformMat4 (matrix: Mat4, out?: Vec2) {
         out = out || new Vec2();
         vec2.transformMat4(out, this, matrix);
-    }
-
-    /**
-     * 创建分量都为 1 的向量并返回。
-     */
-    static get ONE () {
-        return new Vec2(1.0, 1.0);
-    }
-
-    /**
-     * 创建零向量并返回。
-     */
-    static get ZERO () {
-        return new Vec2(0.0, 0.0);
-    }
-
-    /**
-     * 创建与 y 轴同向的单位向量并返回。
-     */
-    static get UP () {
-        return new Vec2(0.0, 1.0);
-    }
-
-    /**
-     * 创建与 x 轴同向的单位向量并返回。
-     */
-    static get RIGHT () {
-        return new Vec2(1.0, 0.0);
     }
 }
 

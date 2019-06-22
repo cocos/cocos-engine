@@ -1,3 +1,8 @@
+
+/**
+ * @category particle
+ */
+
 import { Color, Vec3 } from '../../../../core';
 import { ccclass, property } from '../../../../core/data/class-decorator';
 import Enum from '../../../../core/value-types/enum';

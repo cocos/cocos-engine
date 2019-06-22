@@ -101,6 +101,8 @@ declare interface IWritableArrayLike<T> {
     [index: number]: T;
 }
 
+declare type Constructor<T = {}> = new(...args: any[]) => T;
+
 declare namespace Editor {
     function log (message?: any, ...optionalParams: any[]): void;
     function error (message?: any, ...optionalParams: any[]): void;

@@ -1,3 +1,7 @@
+/**
+ * @category core/math
+ */
+
 import { mat3 } from './mat3';
 import { quat } from './quat';
 import { EPSILON } from './utils';
@@ -716,17 +720,16 @@ export class mat4 {
         const m10 = m3_1.m08 = mat.m10;
         out.x = Math.sqrt(m00 * m00 + m01 * m01 + m02 * m02);
         out.y = Math.sqrt(m04 * m04 + m05 * m05 + m06 * m06);
-        out.y = Math.sqrt(m08 * m08 + m09 * m09 + m10 * m10);
+        out.z = Math.sqrt(m08 * m08 + m09 * m09 + m10 * m10);
         // account for refections
         if (mat3.determinant(m3_1) < 0) { out.x *= -1; }
         return out;
     }
 
     /**
-     * @zh 提取矩阵的旋转信息, 默认矩阵中的变换以 S->R->T 的顺序应用
+     * @zh 提取矩阵的旋转信息, 默认输入矩阵不含有缩放信息，如考虑缩放应使用 `toRTS` 函数。
      */
     public static getRotation<Out extends quat> (out: Out, mat: mat4) {
-        // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
         const trace = mat.m00 + mat.m05 + mat.m10;
         let S = 0;
 

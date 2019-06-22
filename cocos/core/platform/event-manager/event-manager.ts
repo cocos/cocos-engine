@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 // tslint:disable:max-line-length
 
 import { Node } from '../../../scene-graph';
@@ -428,15 +432,15 @@ class EventManager {
                 this._removeListenersForListenerID(ListenerID.TOUCH_ONE_BY_ONE);
             } else if (listenerType === cc.EventListener.TOUCH_ALL_AT_ONCE) {
                 this._removeListenersForListenerID(ListenerID.TOUCH_ALL_AT_ONCE);
-                 } else if (listenerType === cc.EventListener.MOUSE) {
+            } else if (listenerType === cc.EventListener.MOUSE) {
                 this._removeListenersForListenerID(ListenerID.MOUSE);
-                 } else if (listenerType === cc.EventListener.ACCELERATION) {
+            } else if (listenerType === cc.EventListener.ACCELERATION) {
                 this._removeListenersForListenerID(ListenerID.ACCELERATION);
-                 } else if (listenerType === cc.EventListener.KEYBOARD) {
+            } else if (listenerType === cc.EventListener.KEYBOARD) {
                 this._removeListenersForListenerID(ListenerID.KEYBOARD);
-                 } else {
+            } else {
                 cc.logID(3501);
-                 }
+            }
         }
     }
 

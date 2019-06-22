@@ -23,19 +23,27 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui-assembler
+ */
+
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 import { Mat4 } from '../../../../core/value-types';
-import { color4, vec3 } from '../../../../core/vmath';
+import { vec3 } from '../../../../core/vmath';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
 import { SpriteComponent } from '../../components';
-import { IAssembler } from '../assembler';
+import { IAssembler } from '../base';
 import { fillVerticesWithoutCalc3D } from '../utils';
 
 const FillType = SpriteComponent.FillType;
 const matrix = new Mat4();
 
+/**
+ * barFilled 组装器
+ * 可通过 cc.UI.barFilled 获取该组装器。
+ */
 export const barFilled: IAssembler = {
     useModel: false,
     updateRenderData (sprite: SpriteComponent) {

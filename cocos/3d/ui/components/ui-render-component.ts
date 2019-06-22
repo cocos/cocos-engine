@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui
+ */
+
 import {
     ccclass,
     executeInEditMode,
@@ -30,6 +34,7 @@ import {
     property,
     requireComponent,
 } from '../../../core/data/class-decorator';
+import { constget } from '../../../core/data/utils/constget';
 import { SystemEventType } from '../../../core/platform';
 import { Color } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
@@ -38,8 +43,7 @@ import { RenderData } from '../../../renderer/ui/renderData';
 import { UI } from '../../../renderer/ui/ui';
 import { Material } from '../../assets';
 import { RenderableComponent } from '../../framework/renderable-component';
-import { IAssembler, IAssemblerManager } from '../assembler/assembler';
-import { CanvasComponent } from './canvas-component';
+import { IAssembler, IAssemblerManager } from '../assembler/base';
 import { UIComponent } from './ui-component';
 import { UITransformComponent } from './ui-transfrom-component';
 
@@ -67,6 +71,7 @@ export enum InstanceMaterialType {
 /**
  * @zh
  * 所有支持渲染的 UI 组件的基类。
+ * 可通过 cc.UIRenderComponent 获得该组件。
  */
 @ccclass('cc.UIRenderComponent')
 @executionOrder(110)
@@ -80,7 +85,7 @@ export class UIRenderComponent extends UIComponent {
      *
      * @param value 原图混合模式。
      * @example
-     * ```ts
+     * ```typescript
      * sprite.srcBlendFactor = GFXBlendFactor.ONE;
      * ```
      */
@@ -107,7 +112,7 @@ export class UIRenderComponent extends UIComponent {
      *
      * @param value 目标混合模式。
      * @example
-     * ```ts
+     * ```typescript
      * sprite.dstBlendFactor = GFXBlendFactor.ONE;
      * ```
      */
@@ -137,7 +142,8 @@ export class UIRenderComponent extends UIComponent {
     @property({
         displayOrder: 2,
     })
-    get color () {
+    @constget
+    get color (): Readonly<Color> {
         return this._color;
     }
 

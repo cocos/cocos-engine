@@ -1,14 +1,64 @@
+/**
+ * @hidden
+ */
 
-import * as Assembler from './assembler';
+import {
+    barFilled,
+    bmfont,
+    CanvasPool,
+    graphics,
+    graphicsAssembler,
+    labelAssembler,
+    letter,
+    mask,
+    maskEnd,
+    radialFilled,
+    simple,
+    sliced,
+    spriteAssembler,
+    StencilManager,
+    ttf,
+} from './assembler';
 import { MeshBuffer } from './mesh-buffer';
 import * as UIVertexFormat from './ui-vertex-format';
 
 export * from './components';
 
 export {
-    Assembler,
     MeshBuffer,
     UIVertexFormat,
+    StencilManager,
+    CanvasPool,
+    barFilled,
+    radialFilled,
+    simple,
+    sliced,
+    ttf,
+    bmfont,
+    letter,
+    mask,
+    maskEnd,
+    spriteAssembler,
+    graphics,
+    labelAssembler,
+    graphicsAssembler,
+
 };
 
-cc.UI = { Assembler, MeshBuffer};
+cc.UI = {
+    MeshBuffer,
+    UIVertexFormat,
+    barFilled,
+    radialFilled,
+    simple,
+    sliced,
+    ttf,
+    bmfont,
+    letter,
+    mask,
+    maskEnd,
+    graphics,
+    spriteAssembler,
+    graphicsAssembler,
+    labelAssembler,
+};

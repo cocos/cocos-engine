@@ -1,3 +1,9 @@
+/**
+ * gfx模块
+ * @category gfx
+ */
+
+
 export const GFX_MAX_VERTEX_ATTRIBUTES: number = 16;
 export const GFX_MAX_TEXTURE_UNITS: number = 16;
 export const GFX_MAX_ATTACHMENTS: number = 4;
@@ -775,7 +781,6 @@ export interface IGFXFormatInfo {
 }
 
 /**
- * @zh
  * GFX格式信息数组。
  */
 // tslint:disable: max-line-length

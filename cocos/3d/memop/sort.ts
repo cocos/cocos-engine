@@ -1,5 +1,9 @@
 // reference: https://github.com/v8/v8/blob/master/src/js/array.js
 
+/**
+ * @hidden
+ */
+
 // tslint:disable:no-shadowed-variable
 
 function _compare (a, b) {

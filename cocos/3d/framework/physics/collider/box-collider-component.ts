@@ -1,3 +1,7 @@
+/**
+ * @category physics
+ */
+
 import {
     ccclass,
     executeInEditMode,
@@ -11,6 +15,10 @@ import { BoxShapeBase } from '../../../physics/api';
 import { createBoxShape } from '../../../physics/instance';
 import { ColliderComponent } from './collider-component';
 
+/**
+ * @zh
+ * 盒子碰撞器
+ */
 @ccclass('cc.BoxColliderComponent')
 @executionOrder(98)
 @menu('Components/BoxColliderComponent')
@@ -40,7 +48,7 @@ export class BoxColliderComponent extends ColliderComponent {
 
         if (!CC_EDITOR) {
             this.size = this._size;
-            this._shape.setScale(this.node._scale);
+            this._shape.setScale(this.node.worldScale);
         }
     }
 
@@ -48,24 +56,23 @@ export class BoxColliderComponent extends ColliderComponent {
 
     /**
      * @en
-     * Get the size of the box, in local space.
+     * Get or set the size of the box, in local space.
      * @zh
-     * 获取盒的大小。
+     * 获取或设置盒的大小。
      */
     @property({ type: Vec3 })
     public get size () {
         return this._size;
     }
 
-    /**
-     * @zh
-     * 设置盒的大小。
-     */
     public set size (value) {
         vec3.copy(this._size, value);
 
         if (!CC_EDITOR) {
             this._shape.setSize(this._size);
+            if (CC_PHYSICS_BUILT_IN) {
+                this._shape.setScale(this.node.worldScale);
+            }
         }
     }
 }

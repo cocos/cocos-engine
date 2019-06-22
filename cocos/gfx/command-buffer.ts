@@ -1,3 +1,7 @@
+/**
+ * @category gfx
+ */
+
 import { GFXBindingLayout } from './binding-layout';
 import { GFXBuffer } from './buffer';
 import { GFXCommandAllocator } from './command-allocator';

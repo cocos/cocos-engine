@@ -22,6 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * @category model
+ */
+
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { GFXDevice } from '../../gfx/device';
 import { selectJointsMediumType, SkinningModel } from '../../renderer/models/skinning-model';
@@ -79,10 +84,6 @@ export class SkinningModelComponent extends ModelComponent {
     @property(Node)
     protected _skinningRoot: Node | null = null;
 
-    public onLoad () {
-        this._materials.forEach((material, index) => material && this._onMaterialModified(index, material));
-    }
-
     public _updateModelParams () {
         // should bind skeleton before super create pso
         this._bindSkeleton();
@@ -94,7 +95,7 @@ export class SkinningModelComponent extends ModelComponent {
         const device: GFXDevice = cc.director.root && cc.director.root.device;
         const joints = this._skeleton && this._skeleton.joints.length || 0;
         const type = selectJointsMediumType(device, joints);
-        const mat = this.getMaterial(index, CC_EDITOR) || this._getBuiltinMaterial();
+        const mat = this.getMaterial(index) || this._getBuiltinMaterial();
         mat.recompileShaders({ CC_USE_SKINNING: type });
         super._onMaterialModified(index, mat);
     }

@@ -1,3 +1,7 @@
+/**
+ * @category gfx
+ */
+
 import {
     GFXBufferUsage,
     GFXBufferUsageBit,
@@ -44,7 +48,6 @@ export interface IGFXIndirectBuffer {
 }
 
 /**
- * @zh
  * GFX缓冲数据源。
  */
 export type GFXBufferSource = ArrayBuffer | IGFXIndirectBuffer;

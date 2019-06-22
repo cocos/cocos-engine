@@ -1,7 +1,11 @@
+/**
+ * @category pipeline
+ */
+
 import { intersect } from '../3d/geom-utils';
 import { Root } from '../core/root';
-import { Mat4, Vec3 } from '../core/value-types';
-import { mat4, vec3 } from '../core/vmath';
+import { Mat4, Vec3, Vec4 } from '../core/value-types';
+import { mat4, vec3, vec4 } from '../core/vmath';
 import { GFXBuffer } from '../gfx/buffer';
 import {
     GFXBindingType,
@@ -30,10 +34,9 @@ import { IRenderFlowInfo, RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 
 const _vec4Array = new Float32Array(4);
-const _vec4ArrayZero = [0.0, 0.0, 0.0, 0.0];
-const _mat4Array = new Float32Array(16);
 const _outMat = new Mat4();
 const _v3tmp = new Vec3();
+const _v4Zero = new Vec4(0.0, 0.0, 0.0, 0.0);
 
 /**
  * @zh
@@ -115,17 +118,6 @@ export abstract class RenderPipeline {
      */
     public get isHDR (): boolean {
         return this._isHDR;
-    }
-
-    /**
-     * @zh
-     * 是否启用 IBL。
-     */
-    public get useIBL () {
-        return this._useIBL;
-    }
-    public set useIBL (val) {
-        this._useIBL = val;
     }
 
     /**
@@ -297,7 +289,7 @@ export abstract class RenderPipeline {
      * 默认的全局UBO。
      */
     public get defaultGlobalUBOData (): Float32Array {
-        return this._defaultUboGlobal!.view;
+        return this._uboGlobal!.view;
     }
 
     /**
@@ -347,12 +339,6 @@ export abstract class RenderPipeline {
      * 是否为 HDR 管线。
      */
     protected _isHDR: boolean = false;
-
-    /**
-     * @zh
-     * 是否启用 IBL。
-     */
-    protected _useIBL: boolean = false;
 
     /**
      * @zh
@@ -556,7 +542,7 @@ export abstract class RenderPipeline {
      * @zh
      * 默认的全局UBO。
      */
-    protected _defaultUboGlobal: UBOGlobal = new UBOGlobal();
+    protected _uboGlobal: UBOGlobal = new UBOGlobal();
 
     /**
      * @zh
@@ -771,7 +757,6 @@ export abstract class RenderPipeline {
     public updateMacros () {
         programLib.destroyShaderByDefines(this._macros);
         this._macros.CC_USE_HDR = (this._isHDR);
-        this._macros.CC_USE_IBL = (this._useIBL);
         for (const scene of this._root.scenes) {
             scene.onPipelineChange();
         }
@@ -852,8 +837,6 @@ export abstract class RenderPipeline {
         } else {
             this._depthStencilFmt = GFXFormat.D16;
         }
-
-        this._useIBL = (info.enableIBL !== undefined ? info.enableIBL : false);
 
         this.updateMacros();
 
@@ -1382,86 +1365,63 @@ export abstract class RenderPipeline {
         const device = this._root.device;
 
         const mainLight = scene.mainLight;
-
         const ambient = scene.ambient;
+        const fv = this._uboGlobal.view;
 
         // update UBOGlobal
-        _vec4Array[0] = this._root.cumulativeTime;
-        _vec4Array[1] = 0.0;
-        _vec4Array[2] = 0.0;
-        _vec4Array[3] = 0.0;
-        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.TIME_OFFSET);
+        fv[UBOGlobal.TIME_OFFSET] = this._root.cumulativeTime;
 
-        _vec4Array[0] = device.width;
-        _vec4Array[1] = device.height;
-        _vec4Array[2] = 1.0 / _vec4Array[0];
-        _vec4Array[3] = 1.0 / _vec4Array[1];
-        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.SCREEN_SIZE_OFFSET);
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET] = device.width;
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = device.height;
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.SCREEN_SIZE_OFFSET];
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1];
 
-        _vec4Array[0] = camera.width / this._shadingWidth * this._shadingScale;
-        _vec4Array[1] = camera.height / this._shadingHeight * this._shadingScale;
-        _vec4Array[2] = 1.0 / _vec4Array[0];
-        _vec4Array[3] = 1.0 / _vec4Array[1];
-        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.SCREEN_SCALE_OFFSET);
+        fv[UBOGlobal.SCREEN_SCALE_OFFSET] = camera.width / this._shadingWidth * this._shadingScale;
+        fv[UBOGlobal.SCREEN_SCALE_OFFSET + 1] = camera.height / this._shadingHeight * this._shadingScale;
+        fv[UBOGlobal.SCREEN_SCALE_OFFSET + 2] = 1.0 / fv[UBOGlobal.SCREEN_SCALE_OFFSET];
+        fv[UBOGlobal.SCREEN_SCALE_OFFSET + 3] = 1.0 / fv[UBOGlobal.SCREEN_SCALE_OFFSET + 1];
 
-        _vec4Array[0] = this._shadingWidth;
-        _vec4Array[1] = this._shadingHeight;
-        _vec4Array[2] = 1.0 / _vec4Array[0];
-        _vec4Array[3] = 1.0 / _vec4Array[1];
-        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.NATIVE_SIZE_OFFSET);
+        fv[UBOGlobal.NATIVE_SIZE_OFFSET] = this._shadingWidth;
+        fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1] = this._shadingHeight;
+        fv[UBOGlobal.NATIVE_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET];
+        fv[UBOGlobal.NATIVE_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1];
 
-        mat4.array(_mat4Array, camera.matView);
-        this._defaultUboGlobal.view.set(_mat4Array, UBOGlobal.MAT_VIEW_OFFSET);
+        mat4.array(fv, camera.matView, UBOGlobal.MAT_VIEW_OFFSET);
 
         mat4.invert(_outMat, camera.matView);
-        mat4.array(_mat4Array, _outMat);
-        this._defaultUboGlobal.view.set(_mat4Array, UBOGlobal.MAT_VIEW_INV_OFFSET);
-
-        mat4.array(_mat4Array, camera.matProj);
-        this._defaultUboGlobal.view.set(_mat4Array, UBOGlobal.MAT_PROJ_OFFSET);
-
+        mat4.array(fv, _outMat, UBOGlobal.MAT_VIEW_INV_OFFSET);
+        mat4.array(fv, camera.matProj, UBOGlobal.MAT_PROJ_OFFSET);
         mat4.invert(_outMat, camera.matProj);
-        mat4.array(_mat4Array, _outMat);
-        this._defaultUboGlobal.view.set(_mat4Array, UBOGlobal.MAT_PROJ_INV_OFFSET);
-
-        mat4.array(_mat4Array, camera.matViewProj);
-        this._defaultUboGlobal.view.set(_mat4Array, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
-
-        mat4.array(_mat4Array, camera.matViewProjInv);
-        this._defaultUboGlobal.view.set(_mat4Array, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
-
-        vec3.array(_vec4Array, camera.position);
-        _vec4Array[3] = 1.0;
-        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.CAMERA_POS_OFFSET);
+        mat4.array(fv, _outMat, UBOGlobal.MAT_PROJ_INV_OFFSET);
+        mat4.array(fv, camera.matViewProj, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
+        mat4.array(fv, camera.matViewProjInv, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
+        vec3.array(fv, camera.position, UBOGlobal.CAMERA_POS_OFFSET);
 
         const exposure = camera.exposure;
-        _vec4Array[0] = exposure;
-        _vec4Array[1] = 1.0 / exposure;
-        _vec4Array[2] = this._isHDR ? 1.0 : 0.0;
-        _vec4Array[3] = this._fpScale / exposure;
-        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.EXPOSURE_OFFSET);
+        fv[UBOGlobal.EXPOSURE_OFFSET] = exposure;
+        fv[UBOGlobal.EXPOSURE_OFFSET + 1] = 1.0 / exposure;
+        fv[UBOGlobal.EXPOSURE_OFFSET + 2] = this._isHDR ? 1.0 : 0.0;
+        fv[UBOGlobal.EXPOSURE_OFFSET + 3] = this._fpScale / exposure;
 
-        vec3.array(_vec4Array, mainLight.direction);
-        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.MAIN_LIT_DIR_OFFSET);
+        vec3.array(fv, mainLight.direction, UBOGlobal.MAIN_LIT_DIR_OFFSET);
 
         if (mainLight.enabled) {
-            vec3.array(_vec4Array, mainLight.color);
+            vec3.array(fv, mainLight.color, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
             if (mainLight.useColorTemperature) {
                 const colorTempRGB = mainLight.colorTemperatureRGB;
-                _vec4Array[0] *= colorTempRGB.x;
-                _vec4Array[1] *= colorTempRGB.y;
-                _vec4Array[2] *= colorTempRGB.z;
+                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET] *= colorTempRGB.x;
+                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 1] *= colorTempRGB.y;
+                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 2] *= colorTempRGB.z;
             }
 
             if (this._isHDR) {
-                _vec4Array[3] = mainLight.illuminance * this._fpScale;
+                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * this._fpScale;
             } else {
-                _vec4Array[3] = mainLight.illuminance * exposure;
+                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
             }
         } else {
-            _vec4Array.set(_vec4ArrayZero);
+            vec4.array(fv, _v4Zero, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
         }
-        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
 
         _vec4Array.set(ambient.skyColor);
         if (this._isHDR) {
@@ -1469,13 +1429,12 @@ export abstract class RenderPipeline {
         } else {
             _vec4Array[3] = ambient.skyIllum * exposure;
         }
-        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.AMBIENT_SKY_OFFSET);
+        this._uboGlobal.view.set(_vec4Array, UBOGlobal.AMBIENT_SKY_OFFSET);
 
-        _vec4Array.set(ambient.groundAlbedo);
-        this._defaultUboGlobal.view.set(_vec4Array, UBOGlobal.AMBIENT_GROUND_OFFSET);
+        this._uboGlobal.view.set(ambient.groundAlbedo, UBOGlobal.AMBIENT_GROUND_OFFSET);
 
         // update ubos
-        this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._defaultUboGlobal.view.buffer);
+        this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._uboGlobal.view.buffer);
     }
 
     /**
@@ -1495,9 +1454,9 @@ export abstract class RenderPipeline {
             mainLight.update();
         }
 
-        const planarShadow = scene.planarShadow;
-        if (planarShadow.enabled) {
-            planarShadow.updateDirLight(scene.mainLight);
+        const planarShadows = scene.planarShadows;
+        if (planarShadows.enabled && mainLight.node.hasChanged) {
+            planarShadows.updateDirLight(mainLight);
         }
 
         if (scene.skybox.enabled) {
@@ -1521,6 +1480,10 @@ export abstract class RenderPipeline {
 
             model.updateUBOs();
             this.addVisibleModel(model, camera);
+        }
+
+        if (planarShadows.enabled) {
+            planarShadows.updateCommandBuffers();
         }
     }
 

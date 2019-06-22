@@ -1,3 +1,7 @@
+/**
+ * @category asset
+ */
+
 import { GFXAddress, GFXFilter, GFXFormat } from '../gfx/define';
 
 /**
@@ -9,7 +13,6 @@ import { GFXAddress, GFXFilter, GFXFormat } from '../gfx/define';
  * 纹理像素格式，默认值为RGBA8888，<br>
  * 你应该注意到普通图像文件（png，jpg）加载的纹理只能支持RGBA8888格式，<br>
  * 压缩文件类型或原始数据支持其他格式。
- * @enum {number}
  */
 export enum PixelFormat {
     /**
@@ -110,7 +113,6 @@ export enum PixelFormat {
  * The texture wrap mode.
  * @zh
  * 纹理环绕方式。
- * @enum {number}
  */
 export enum WrapMode {
     /**
@@ -148,7 +150,6 @@ export enum WrapMode {
  * The texture filter mode
  * @zh
  * 纹理过滤模式。
- * @enum {number}
  */
 export enum Filter {
     NONE = GFXFilter.NONE,

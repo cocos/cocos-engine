@@ -24,11 +24,7 @@
  */
 
 /**
- * @internal
- * @module audio
- */
-/**
- * @able
+ * @category component/audio
  */
 
 import sys from '../../../core/platform/CCSys';

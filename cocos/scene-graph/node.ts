@@ -1,3 +1,32 @@
+/*
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+/**
+ * @category scene-graph
+ */
+
 import { UITransformComponent } from '../3d';
 import { ccclass, property } from '../core/data/class-decorator';
 import { constget } from '../core/data/utils/constget';
@@ -10,6 +39,7 @@ import Vec2 from '../core/value-types/vec2';
 import { mat4, quat, vec3 } from '../core/vmath';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
+import { NodeEventProcessor } from './node-event-processor';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -76,7 +106,7 @@ export class Node extends BaseNode {
     protected _matDirty = false;
     protected _eulerDirty = false;
 
-    protected _eventProcessor = new cc.NodeEventProcessor(this);
+    protected _eventProcessor: NodeEventProcessor = new cc.NodeEventProcessor(this);
     protected _eventMask = 0;
     private _uiTransfromComp: UITransformComponent | null = null;
 
@@ -455,6 +485,7 @@ export class Node extends BaseNode {
      * @zh
      * 本地旋转
      */
+    @constget
     public get rotation (): Readonly<Quat> {
         return this._lrot;
     }
@@ -509,6 +540,7 @@ export class Node extends BaseNode {
      * @zh
      * 本地缩放
      */
+    @constget
     public get scale (): Readonly<Vec3> {
         return this._lscale;
     }
@@ -575,6 +607,7 @@ export class Node extends BaseNode {
      * @zh
      * 世界坐标
      */
+    @constget
     public get worldPosition (): Readonly<Vec3> {
         this.updateWorldTransform();
         return this._pos;
@@ -661,6 +694,7 @@ export class Node extends BaseNode {
      * @zh
      * 世界旋转
      */
+    @constget
     public get worldRotation (): Readonly<Quat> {
         this.updateWorldTransform();
         return this._rot;
@@ -722,6 +756,7 @@ export class Node extends BaseNode {
      * @zh
      * 世界缩放
      */
+    @constget
     public get worldScale (): Readonly<Vec3> {
         this.updateWorldTransform();
         return this._scale;
@@ -745,6 +780,7 @@ export class Node extends BaseNode {
      * @zh
      * 世界变换矩阵
      */
+    @constget
     public get worldMatrix (): Readonly<Mat4> {
         this.updateWorldTransformFull();
         return this._mat;
@@ -902,6 +938,11 @@ export class Node extends BaseNode {
 
     public resumeSystemEvents (recursive: boolean) {
         eventManager.resumeTarget(this, recursive);
+    }
+
+    public _onPreDestroy () {
+        this._eventProcessor.destroy();
+        super._onPreDestroy();
     }
 }
 

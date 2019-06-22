@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core/value-types
+ */
+
 import { errorID } from '../platform/CCDebug';
 import * as js from '../utils/js';
 
@@ -52,21 +56,6 @@ export class ValueType {
     public equals (other: this) {
         // errorID(100, js.getClassName(this) + '.equals');
         return false;
-    }
-
-    /**
-     * 根据指定的插值比率，从当前值到目标值之间做插值。
-     * 当插值比率为 `0` 时，此方法的返回值应和当前值相等，即满足 `this.lerp(other, 0, out).equals(this)`；
-     * 当插值比率为 `1` 时，此方法的返回值应和目标值相等，即满足 `this.lerp(other, 1, out).equals(other)`。
-     * 本方法的基类版本在插值比率为 `1` 时将目标值的克隆作为插值结果，在其它情况下将当前值的克隆作为插值结果。
-     * @param to 目标值。
-     * @param ratio 插值比率，范围为 [0,1]。
-     * @param out 当此参数定义时，本方法允许将插值结果赋值给此参数并返回此参数。
-     * @returns 插值结果。
-     */
-    public lerp (to: this, ratio: number, out?: this) {
-        // errorID(100, js.getClassName(this) + '.lerp');
-        return ratio === 1 ? to.clone() : this.clone();
     }
 
     /**

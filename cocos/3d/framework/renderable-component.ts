@@ -1,6 +1,11 @@
+/**
+ * @category model
+ */
+
 // @ts-check
 import { Component } from '../../components/component';
 import { _decorator } from '../../core/data/index';
+import { Model } from '../../renderer';
 import { Material } from '../assets/material';
 const { ccclass, property } = _decorator;
 
@@ -68,7 +73,7 @@ export class RenderableComponent extends Component {
      * @zh 返回相对应序号的材质。
      * @param {Number} idx - Look for the material list number
      */
-    public getMaterial (idx: number, inEditor: boolean = false, autoUpdate: boolean = false): Material | null {
+    public getMaterial (idx: number, inEditor: boolean = CC_EDITOR, autoUpdate: boolean = false): Material | null {
         const mat = this._materials[idx];
         if (!mat) { return null; }
         const instantiated = Material.getInstantiatedMaterial(mat, this, inEditor);
@@ -115,6 +120,10 @@ export class RenderableComponent extends Component {
         if (notify) {
             this._onMaterialModified(index, material);
         }
+    }
+
+    public _getModel (): Model | null {
+        return null;
     }
 
     public recreateModel () {
