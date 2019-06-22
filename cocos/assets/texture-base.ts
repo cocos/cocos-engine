@@ -140,7 +140,7 @@ export class TextureBase extends Asset {
 
     private _id: string;
 
-    private _samplerInfo: number[] = [];
+    private _samplerInfo: Array<number | undefined> = [];
 
     protected constructor (flipY: boolean = false) {
         super();

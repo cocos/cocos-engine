@@ -8,7 +8,7 @@ import { programLib } from '../../renderer/core/program-lib';
 export interface IPropertyInfo {
     type: number; // auto-extracted
     value?: number[] | string;
-    sampler?: number[];
+    sampler?: Array<number | undefined>;
 }
 export interface IPassStates {
     priority?: number;
@@ -142,6 +142,14 @@ export class EffectAsset extends Asset {
     public onLoaded () {
         this.shaders.forEach((s) => programLib.define(s));
         EffectAsset.register(this);
+        // replace null with undefined
+        this.techniques.forEach((t) => t.passes.forEach((p) => {
+            if (!p.properties) { return; }
+            for (const prop of Object.values(p.properties)) {
+                if (!prop.sampler) { continue; }
+                prop.sampler = prop.sampler.map((s) => s === null ? undefined : s);
+            }
+        }));
     }
 }
 
