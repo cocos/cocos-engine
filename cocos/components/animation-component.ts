@@ -193,6 +193,11 @@ export class AnimationComponent extends Component implements IEventTarget {
             cc.director.getAnimationManager().removeCrossFade(this._crossFade);
             this._crossFade.stop();
         }
+        for (const name of Object.keys(this._nameToState)) {
+            const state = this._nameToState[name];
+            state.stop();
+        }
+        this._nameToState = Object.create(null);
     }
 
     /**
