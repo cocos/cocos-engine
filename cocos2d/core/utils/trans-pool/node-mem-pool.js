@@ -39,4 +39,11 @@ proto._initNative = function () {
     this._nativeMemPool = new renderer.NodeMemPool();
 };
 
+proto._destroyUnit = function (unitID) {
+    MemPool.prototype._destroyUnit.call(this, unitID);
+    if (CC_JSB && CC_NATIVERENDERER) {
+        this._nativeMemPool.removeNodeData(unitID);
+    }
+};
+
 module.exports = NodeMemPool;
