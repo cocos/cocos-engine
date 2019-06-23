@@ -54,7 +54,26 @@ MeshBuffer::MeshBuffer(ModelBatcher* batcher, VertexFormat* fmt)
 
 MeshBuffer::~MeshBuffer()
 {
+    for (std::size_t i = 0, n = _vbArr.size(); i < n; i++)
+    {
+         _vbArr.at(i)->destroy();
+    }
+    _vbArr.clear();
+    
+    _ib->destroy();
     _ib->release();
+    
+    if (iData)
+    {
+        delete[] iData;
+        iData = nullptr;
+    }
+    
+    if (vData)
+    {
+        delete[] vData;
+        vData = nullptr;
+    }
 }
 
 void MeshBuffer::reallocVBuffer()
@@ -63,7 +82,7 @@ void MeshBuffer::reallocVBuffer()
     vData = new float[_vDataCount];
     if (oldVData)
     {
-        memcpy(vData, oldVData, sizeof(float) * _vDataCount);
+        memcpy(vData, oldVData, sizeof(float) * _oldVDataCount);
         delete[] oldVData;
         oldVData = nullptr;
     }
@@ -76,7 +95,7 @@ void MeshBuffer::reallocIBuffer()
     iData = new uint16_t[_iDataCount];
     if (oldIData)
     {
-        memcpy(iData, oldIData, sizeof(uint16_t) * _iDataCount);
+        memcpy(iData, oldIData, sizeof(uint16_t) * _oldIDataCount);
         delete[] oldIData;
         oldIData = nullptr;
     }
@@ -135,6 +154,8 @@ bool MeshBuffer::requestStatic(uint32_t vertexCount, uint32_t indexCount, Offset
     
     if (byteOffset > vBytes)
     {
+        _oldVDataCount = _vDataCount;
+        
         while (vBytes < byteOffset)
         {
             _vDataCount *= 2;
@@ -146,6 +167,8 @@ bool MeshBuffer::requestStatic(uint32_t vertexCount, uint32_t indexCount, Offset
     
     if (indexOffset > _iDataCount)
     {
+        _oldIDataCount = _iDataCount;
+        
         while (_iDataCount < indexOffset)
         {
             _iDataCount *= 2;
@@ -179,22 +202,6 @@ void MeshBuffer::reset()
     _indexStart = 0;
     _indexOffset = 0;
     _dirty = false;
-}
-
-void MeshBuffer::destroy()
-{
-    _vb->destroy();
-    _ib->destroy();
-    if (iData)
-    {
-        delete[] iData;
-        iData = nullptr;
-    }
-    if (vData)
-    {
-        delete[] vData;
-        vData = nullptr;
-    }
 }
 
 RENDERER_END

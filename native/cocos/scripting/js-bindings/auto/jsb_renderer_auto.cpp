@@ -3861,6 +3861,25 @@ static bool js_renderer_MemPool_updateCommonData(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_MemPool_updateCommonData)
 
+static bool js_renderer_MemPool_removeCommonData(se::State& s)
+{
+    cocos2d::renderer::MemPool* cobj = (cocos2d::renderer::MemPool*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_MemPool_removeCommonData : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        size_t arg0 = 0;
+        ok &= seval_to_size(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_MemPool_removeCommonData : Error processing arguments");
+        cobj->removeCommonData(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_MemPool_removeCommonData)
+
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_MemPool_finalize)
 
 static bool js_renderer_MemPool_constructor(se::State& s)
@@ -3894,6 +3913,7 @@ bool js_register_renderer_MemPool(se::Object* obj)
     auto cls = se::Class::create("MemPool", obj, nullptr, _SE(js_renderer_MemPool_constructor));
 
     cls->defineFunction("updateCommonData", _SE(js_renderer_MemPool_updateCommonData));
+    cls->defineFunction("removeCommonData", _SE(js_renderer_MemPool_removeCommonData));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_MemPool_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::MemPool>(cls);
@@ -3907,6 +3927,25 @@ bool js_register_renderer_MemPool(se::Object* obj)
 
 se::Object* __jsb_cocos2d_renderer_NodeMemPool_proto = nullptr;
 se::Class* __jsb_cocos2d_renderer_NodeMemPool_class = nullptr;
+
+static bool js_renderer_NodeMemPool_removeNodeData(se::State& s)
+{
+    cocos2d::renderer::NodeMemPool* cobj = (cocos2d::renderer::NodeMemPool*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_NodeMemPool_removeNodeData : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        size_t arg0 = 0;
+        ok &= seval_to_size(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_NodeMemPool_removeNodeData : Error processing arguments");
+        cobj->removeNodeData(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_NodeMemPool_removeNodeData)
 
 static bool js_renderer_NodeMemPool_updateNodeData(se::State& s)
 {
@@ -3996,6 +4035,7 @@ bool js_register_renderer_NodeMemPool(se::Object* obj)
 {
     auto cls = se::Class::create("NodeMemPool", obj, __jsb_cocos2d_renderer_MemPool_proto, _SE(js_renderer_NodeMemPool_constructor));
 
+    cls->defineFunction("removeNodeData", _SE(js_renderer_NodeMemPool_removeNodeData));
     cls->defineFunction("updateNodeData", _SE(js_renderer_NodeMemPool_updateNodeData));
     cls->defineStaticFunction("getInstance", _SE(js_renderer_NodeMemPool_getInstance));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_NodeMemPool_finalize));

@@ -66,40 +66,13 @@ class Assembler : public AssemblerBase
 {
 public:
     
-    struct IARenderData {
+    class IARenderData {
     public:
-        IARenderData()
-        {
-            
-        }
-        
-        IARenderData(const IARenderData& o)
-        {
-            meshIndex = o.meshIndex;
-            verticesStart = o.verticesStart;
-            verticesCount = o.verticesCount;
-            indicesStart = o.indicesStart;
-            indicesCount = o.indicesCount;
-            setEffect(o.getEffect());
-        }
-        
-        ~IARenderData()
-        {
-            CC_SAFE_RELEASE(_effect);
-        }
-        
-        void setEffect(Effect* effect)
-        {
-            if (effect == _effect) return;
-            CC_SAFE_RELEASE(_effect);
-            _effect = effect;
-            CC_SAFE_RETAIN(_effect);
-        }
-        
-        Effect* getEffect() const
-        {
-            return _effect;
-        }
+        IARenderData();
+        IARenderData(const IARenderData& o);
+        ~IARenderData();
+        void setEffect(Effect* effect);
+        Effect* getEffect() const;
     private:
         Effect* _effect = nullptr;
     public:

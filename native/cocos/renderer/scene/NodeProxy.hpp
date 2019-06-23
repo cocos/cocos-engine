@@ -308,7 +308,7 @@ private:
     uint8_t _realOpacity = 255;
     std::string _id = "";
     std::string _name = "";
-    uint32_t _level = 0;
+    std::size_t _level = 0;
     
     uint32_t* _dirty = nullptr;
     TRS* _trs = nullptr;

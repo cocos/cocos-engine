@@ -74,7 +74,6 @@ ModelBatcher::~ModelBatcher()
     for (auto iter = _buffers.begin(); iter != _buffers.end(); ++iter)
     {
         MeshBuffer *buffer = iter->second;
-        buffer->destroy();
         delete buffer;
     }
     _buffers.clear();

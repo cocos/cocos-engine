@@ -150,6 +150,7 @@ renderer/scene/RenderFlow.cpp \
 renderer/scene/StencilManager.cpp \
 renderer/scene/MemPool.cpp \
 renderer/scene/NodeMemPool.cpp \
+renderer/scene/ParallelTask.cpp \
 scripting/js-bindings/auto/jsb_gfx_auto.cpp \
 scripting/js-bindings/auto/jsb_renderer_auto.cpp \
 scripting/js-bindings/manual/jsb_renderer_manual.cpp \

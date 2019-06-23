@@ -49,21 +49,22 @@ NodeProxy::NodeProxy(std::size_t unitID, std::size_t index, std::string id)
     
     NodeMemPool* pool = NodeMemPool::getInstance();
     CCASSERT(pool, "NodeProxy constructor NodeMemPool is null");
-    UnitNode& unit = pool->getUnit(unitID);
-    
-    _dirty = unit.getDirty(index);
-    _trs = unit.getTRS(index);
-    _localMat = unit.getLocalMat(index);
-    _worldMat = unit.getWorldMat(index);
-    _parentInfo = unit.getParent(index);
+    UnitNode* unit = pool->getUnit(unitID);
+    CCASSERT(unit, "NodeProxy constructor unit is null");
+
+    _dirty = unit->getDirty(index);
+    _trs = unit->getTRS(index);
+    _localMat = unit->getLocalMat(index);
+    _worldMat = unit->getWorldMat(index);
+    _parentInfo = unit->getParent(index);
     _parentInfo->unitID  = 0xffffffff;
     _parentInfo->index = 0xffffffff;
-    _localZOrder = unit.getZOrder(index);
-    _cullingMask = unit.getCullingMask(index);
-    _opacity = unit.getOpacity(index);
-    _is3DNode = unit.getOpacity(index);
+    _localZOrder = unit->getZOrder(index);
+    _cullingMask = unit->getCullingMask(index);
+    _opacity = unit->getOpacity(index);
+    _is3DNode = unit->getOpacity(index);
     
-    uint64_t* self = unit.getNode(index);
+    uint64_t* self = unit->getNode(index);
     *self = (uint64_t)this;
 }
 
@@ -211,8 +212,9 @@ void NodeProxy::notifyUpdateParent()
     
     NodeMemPool* pool = NodeMemPool::getInstance();
     CCASSERT(pool, "NodeProxy updateParent NodeMemPool is null");
-    UnitNode& unit = pool->getUnit(_parentInfo->unitID);
-    uint64_t* parentAddrs = unit.getNode(_parentInfo->index);
+    UnitNode* unit = pool->getUnit(_parentInfo->unitID);
+    CCASSERT(unit, "NodeProxy updateParent unit is null");
+    uint64_t* parentAddrs = unit->getNode(_parentInfo->index);
     NodeProxy* parent = (NodeProxy*)*parentAddrs;
     CCASSERT(parent, "NodeProxy updateParent parent is null");
     

@@ -231,6 +231,7 @@ extern se::Class* __jsb_cocos2d_renderer_MemPool_class;
 bool js_register_cocos2d_renderer_MemPool(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
 SE_DECLARE_FUNC(js_renderer_MemPool_updateCommonData);
+SE_DECLARE_FUNC(js_renderer_MemPool_removeCommonData);
 SE_DECLARE_FUNC(js_renderer_MemPool_MemPool);
 
 extern se::Object* __jsb_cocos2d_renderer_NodeMemPool_proto;
@@ -238,6 +239,7 @@ extern se::Class* __jsb_cocos2d_renderer_NodeMemPool_class;
 
 bool js_register_cocos2d_renderer_NodeMemPool(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_NodeMemPool_removeNodeData);
 SE_DECLARE_FUNC(js_renderer_NodeMemPool_updateNodeData);
 SE_DECLARE_FUNC(js_renderer_NodeMemPool_getInstance);
 SE_DECLARE_FUNC(js_renderer_NodeMemPool_NodeMemPool);

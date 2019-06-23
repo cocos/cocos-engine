@@ -37,6 +37,39 @@ RENDERER_BEGIN
 
 static MeshBuffer::OffsetInfo s_offsets;
 
+Assembler::IARenderData::IARenderData()
+{
+    
+}
+
+Assembler::IARenderData::IARenderData(const IARenderData& o)
+{
+    meshIndex = o.meshIndex;
+    verticesStart = o.verticesStart;
+    verticesCount = o.verticesCount;
+    indicesStart = o.indicesStart;
+    indicesCount = o.indicesCount;
+    setEffect(o.getEffect());
+}
+
+Assembler::IARenderData::~IARenderData()
+{
+    CC_SAFE_RELEASE(_effect);
+}
+
+void Assembler::IARenderData::setEffect(Effect* effect)
+{
+    if (effect == _effect) return;
+    CC_SAFE_RELEASE(_effect);
+    _effect = effect;
+    CC_SAFE_RETAIN(_effect);
+}
+
+Effect* Assembler::IARenderData::getEffect() const
+{
+    return _effect;
+}
+
 Assembler::Assembler()
 {
     

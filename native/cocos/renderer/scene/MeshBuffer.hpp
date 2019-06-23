@@ -89,10 +89,6 @@ public:
      *  @brief Reset all states.
      */
     void reset();
-    /**
-     *  @brief Destroy the mesh buffer.
-     */
-    void destroy();
     
     /**
      *  @brief Gets the current byte offset which indicates the start of empty range
@@ -166,8 +162,13 @@ private:
     uint32_t _vertexStart = 0;
     uint32_t _vertexOffset = 0;
     uint32_t _bytesPerVertex = 0;
+    
     uint32_t _vDataCount = 0;
     uint32_t _iDataCount = 0;
+    
+    uint32_t _oldVDataCount = 0;
+    uint32_t _oldIDataCount = 0;
+    
     bool _dirty = false;
     
     ModelBatcher* _batcher = nullptr;

@@ -30,6 +30,7 @@
 #include "../renderer/Scene.h"
 #include "../renderer/ForwardRenderer.h"
 #include "../gfx/DeviceGraphics.h"
+#include "ParallelTask.hpp"
 
 RENDERER_BEGIN
 
@@ -47,6 +48,10 @@ RENDERER_BEGIN
  let renderFlow = cc.RenderFlow._nativeFlow;
  @endcode
  */
+
+#define SUB_RENDER_THREAD_COUNT 1
+#define RENDER_THREAD_COUNT (SUB_RENDER_THREAD_COUNT + 1)
+
 class RenderFlow
 {
 public:
@@ -71,6 +76,12 @@ public:
         REORDER_CHILDREN = 1 << 11,
         // world matrix changed
         WORLD_TRANSFORM_CHANGED = 1 << 12
+    };
+
+    enum ParallelStage {
+        NONE,
+        LOCAL_MAT,
+        WORLD_MAT,
     };
     
     struct LevelInfo{
@@ -121,29 +132,43 @@ public:
     void visit(NodeProxy* rootNode);
     /**
      *  @brief Calculate local matrix.
+     *  @param[in] tid It must rather than -1 if enable multiple thread.
      */
-    void calculateLocalMatrix();
+    void calculateLocalMatrix(int tid = -1);
     /**
      *  @brief Calculate world matrix.
      */
     void calculateWorldMatrix();
     /**
+     *  @brief Calculate world matrix by level.
+     *  @param[in] tid Thread id.
+     *  @param[level] level Node level.
+     */
+    void calculateLevelWorldMatrix(int tid = -1);
+    /**
      *  @brief remove node level
      */
-    void removeNodeLevel(uint32_t level, cocos2d::Mat4* worldMat);
+    void removeNodeLevel(std::size_t level, cocos2d::Mat4* worldMat);
     /**
      *  @brief insert node level
      */
-    void insertNodeLevel(uint32_t level, const LevelInfo& levelInfo);
+    void insertNodeLevel(std::size_t level, const LevelInfo& levelInfo);
 private:
     
     static RenderFlow *_instance;
     
-    ModelBatcher* _batcher;
-    Scene* _scene;
-    DeviceGraphics* _device;
-    ForwardRenderer* _forward;
+    ModelBatcher* _batcher = nullptr;
+    Scene* _scene = nullptr;
+    DeviceGraphics* _device = nullptr;
+    ForwardRenderer* _forward = nullptr;
+    std::size_t _curLevel = 0;
     std::vector<std::vector<LevelInfo>> _levelInfoArr;
+    
+#if SUB_RENDER_THREAD_COUNT > 0
+    ParallelStage _parallelStage = ParallelStage::NONE;
+    ParallelTask* _paralleTask = nullptr;
+    uint8_t* _runFlag = nullptr;
+#endif
 };
 
 // end of scene group

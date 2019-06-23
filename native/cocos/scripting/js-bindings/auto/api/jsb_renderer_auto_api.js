@@ -1681,6 +1681,16 @@ object
 },
 
 /**
+ * @method removeCommonData
+ * @param {unsigned int} arg0
+ */
+removeCommonData : function (
+int 
+)
+{
+},
+
+/**
  * @method MemPool
  * @constructor
  */
@@ -1695,6 +1705,16 @@ MemPool : function (
  * @class NodeMemPool
  */
 renderer.NodeMemPool = {
+
+/**
+ * @method removeNodeData
+ * @param {unsigned int} arg0
+ */
+removeNodeData : function (
+int 
+)
+{
+},
 
 /**
  * @method updateNodeData
