@@ -36,7 +36,7 @@ export class CannonWorld implements PhysicsWorldBase {
 
     public step (deltaTime: number, time?: number, maxSubStep?: number) {
         this._callCustomBeforeSteps();
-        this._world.step(deltaTime);
+        this._world.step(deltaTime, time, maxSubStep);
         this._callCustomAfterSteps();
     }
 

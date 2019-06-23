@@ -1,6 +1,5 @@
 import { Quat, Vec3 } from '../../core/value-types';
 import { mat4, quat } from '../../core/vmath';
-import { Node } from '../../scene-graph/node';
 import { ERigidBodyType } from './physic-enum';
 import { RaycastResult } from './raycast-result';
 
@@ -17,15 +16,30 @@ export interface ICreateBodyOptions {
     name?: string;
 }
 
+export interface ITriggerEvent {
+    type: ITriggerEventType;
+    selfCollider: any;
+    otherCollider: any;
+    // selfRigidBody: any;
+    // otherRigidBody: any;
+}
+
+export type ITriggerEventType = 'onTriggerEnter' | 'onTriggerStay' | 'onTriggerExit';
+
+export type ITriggerCallback = (event: ITriggerEvent) => void;
+
 export interface ICollisionEvent {
-    source: RigidBodyBase | BuiltInRigidBodyBase;
-    target: RigidBodyBase | BuiltInRigidBodyBase;
+    type: ICollisionEventType;
+    selfCollider: any;
+    otherCollider: any;
+    // selfRigidBody: any;
+    // otherRigidBody: any;
     contacts: any;
 }
 
 export type ICollisionEventType = 'onCollisionEnter' | 'onCollisionStay' | 'onCollisionExit';
 
-export type ICollisionCallback = (type: ICollisionEventType, event: ICollisionEvent) => void;
+export type ICollisionCallback = (event: ICollisionEvent) => void;
 
 export type BeforeStepCallback = () => void;
 
@@ -33,7 +47,7 @@ export type AfterStepCallback = () => void;
 
 export interface PhysicsWorldBase {
 
-    step (deltaTime: number): void;
+    step (deltaTime: number, ...args: any): void;
 
     addBeforeStep (cb: BeforeStepCallback): void;
 
@@ -80,12 +94,6 @@ export interface BuiltInRigidBodyBase {
 
     removeMask (v: number): void;
 
-    isAwake (): boolean;
-
-    isSleepy (): boolean;
-
-    isSleeping (): boolean;
-
     addShape (shape: ShapeBase, offset?: Vec3): void;
 
     removeShape (shape: ShapeBase): void;
@@ -101,10 +109,6 @@ export interface BuiltInRigidBodyBase {
     translateAndRotate (m: mat4, rot: quat): void;
 
     scaleAllShapes (scale: Vec3): void;
-
-    addCollisionCallback (callback: ICollisionCallback): void;
-
-    removeCollisionCllback (callback: ICollisionCallback): void;
 
     getUserData (): any;
 
@@ -123,9 +127,19 @@ export interface RigidBodyBase extends BuiltInRigidBodyBase {
 
     sleep (): void;
 
+    isAwake (): boolean;
+
+    isSleepy (): boolean;
+
+    isSleeping (): boolean;
+
     getMass (): number;
 
     setMass (value: number): void;
+
+    addCollisionCallback (callback: ICollisionCallback): void;
+
+    removeCollisionCllback (callback: ICollisionCallback): void;
 
     /**
      * force
@@ -167,9 +181,9 @@ export interface RigidBodyBase extends BuiltInRigidBodyBase {
 
     setUseGravity (value: boolean): void;
 
-    getIsTrigger (): boolean;
+    getCollisionResponse (): boolean;
 
-    setIsTrigger (value: boolean): void;
+    setCollisionResponse (value: boolean): void;
 
     /**
      * linear velocity
@@ -222,6 +236,10 @@ export interface ShapeBase {
     getCollisionResponse (): boolean;
 
     setCollisionResponse (value: boolean): void;
+
+    addTriggerCallback (callback: ITriggerCallback): void;
+
+    removeTriggerCallback (callback: ITriggerCallback): void;
 }
 
 export interface SphereShapeBase extends ShapeBase {

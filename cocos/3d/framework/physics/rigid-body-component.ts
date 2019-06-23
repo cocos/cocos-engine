@@ -9,8 +9,6 @@ import {
 import { Quat, Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';
 import { PhysicsMaterial } from '../../assets/physics/material';
-import { ETransformSource } from '../../physics/physic-enum';
-import { DefaultPhysicsMaterial as DefaultPhysicsMaterial } from './default-material';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 
 const NonRigidBodyProperties = {
@@ -383,7 +381,6 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
              * 从而导致ColliderComponent后添加会导致刚体的某些属性被重写
              */
             if (this.sharedBody) {
-                this.sharedBody.transfromSource = ETransformSource.PHYSIC;
                 this.mass = this._mass;
                 this.linearDamping = this._linearDamping;
                 this.angularDamping = this._angularDamping;
