@@ -10,8 +10,9 @@ function _generateDefines(defineList) {
   for (let i = defineList.length - 1; i >= 0; i--) {
     let defs = defineList[i];
     for (let def in defs) {
-      if (cache[def] !== undefined) continue;
       let result = defs[def];
+      if (result === undefined) continue;
+      if (cache[def] !== undefined) continue;
       if (typeof result !== 'number') {
         result = result ? 1 : 0;
       }
@@ -29,9 +30,11 @@ function _replaceMacroNums(string, defineList) {
   for (let i = defineList.length - 1; i >= 0; i--) {
     let defs = defineList[i];
     for (let def in defs) {
+      let result = defs[def];
+      if (result === undefined) continue;
       if (cache[def] !== undefined) continue;
-      if (Number.isInteger(defs[def])) {
-        cache[def] = defs[def];
+      if (Number.isInteger(result)) {
+        cache[def] = result;
       }
     }
   }

@@ -55,7 +55,7 @@ let FontLetterDefinition = function() {
     this.xAdvance = 0;
 };
 
-let _backgroundStyle = 'rgba(255, 255, 255, 0.005)';
+const _invisibleAlpha = (1 / 255).toFixed(3);
 
 function LetterTexture(char, labelInfo) {
     this._texture = null;
@@ -84,7 +84,7 @@ LetterTexture.prototype = {
         this._context = this._data.context;
         this._context.font = this._labelInfo.fontDesc;
         let width = textUtils.safeMeasureText(this._context, this._char);
-        this._width = parseFloat(width.toFixed(2));
+        this._width = parseFloat(width.toFixed(2)) + this._labelInfo.margin * 2;
         this._height = this._labelInfo.fontSize;
         
         if (this._canvas.width !== this._width || CC_QQPLAY) {
@@ -103,20 +103,21 @@ LetterTexture.prototype = {
             width = this._canvas.width,
             height = this._canvas.height;
 
+        let startX = width / 2;
+        let startY = height / 2;
+        let color = labelInfo.color;
+
         context.textAlign = 'center';
         context.textBaseline = 'middle';
         context.clearRect(0, 0, width, height);
         //Add a white background to avoid black edges.
-        context.fillStyle = _backgroundStyle;
+        context.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${_invisibleAlpha})`;
         context.fillRect(0, 0, width, height);
         context.font = labelInfo.fontDesc;
 
-        let startX = width / 2;
-        let startY = height / 2;
-        let color = labelInfo.color;
         //use round for line join to avoid sharp intersect point
         context.lineJoin = 'round';
-        context.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${1})`;
+        context.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 1)`;
         if (labelInfo.isOutlined) {
             let strokeColor = labelInfo.out || WHITE;
             context.strokeStyle = `rgba(${strokeColor.r}, ${strokeColor.g}, ${strokeColor.b}, ${strokeColor.a / 255})`;
@@ -369,8 +370,6 @@ module.exports = {
         _string = _comp.string.toString();
         _fontSize = _comp.fontSize;
         _originFontSize = _fontSize;
-        _contentSize.width = _comp.node._contentSize.width;
-        _contentSize.height = _comp.node._contentSize.height;
         _hAlign = _comp.horizontalAlign;
         _vAlign = _comp.verticalAlign;
         _spacingX = _comp.spacingX;
@@ -401,6 +400,9 @@ module.exports = {
             _labelInfo.isOutlined = false;
             _labelInfo.margin = 0;
         }
+
+        _contentSize.width = _comp.node._contentSize.width + _labelInfo.margin * 2;
+        _contentSize.height = _comp.node._contentSize.height;
 
         _labelInfo.lineHeight = _lineHeight;
         _labelInfo.fontSize = _fontSize;
@@ -443,7 +445,7 @@ module.exports = {
         let color = labelInfo.color.toHEX("#rrggbb");
         let out = '';
         if (labelInfo.isOutlined) {
-            out = labelInfo.out.toHEX("#rrggbb");
+            out = out + labelInfo.margin + labelInfo.out.toHEX("#rrggbb");
         };
         
         return hashData + labelInfo.fontSize + labelInfo.fontFamily + color + out;
@@ -538,7 +540,7 @@ module.exports = {
                     continue;
                 }
 
-                let letterX = nextLetterX + letterDef.offsetX * _bmfontScale;
+                let letterX = nextLetterX + letterDef.offsetX * _bmfontScale - _labelInfo.margin;
 
                 if (_isWrapText
                     && _maxLineWidth > 0
@@ -563,9 +565,9 @@ module.exports = {
                     nextLetterX += _horizontalKernings[letterIndex + 1];
                 }
 
-                nextLetterX += letterDef.xAdvance * _bmfontScale + _spacingX;
+                nextLetterX += letterDef.xAdvance * _bmfontScale + _spacingX - _labelInfo.margin * 2;
 
-                tokenRight = letterPosition.x + letterDef.w * _bmfontScale;
+                tokenRight = letterPosition.x + letterDef.w * _bmfontScale - _labelInfo.margin;
 
                 if (tokenHighestY < letterPosition.y) {
                     tokenHighestY = letterPosition.y;
@@ -606,7 +608,7 @@ module.exports = {
         _contentSize.width = _labelWidth;
         _contentSize.height = _labelHeight;
         if (_labelWidth <= 0) {
-            _contentSize.width = parseFloat(longestLine.toFixed(2));
+            _contentSize.width = parseFloat(longestLine.toFixed(2)) + _labelInfo.margin * 2;
         }
         if (_labelHeight <= 0) {
             _contentSize.height = parseFloat(_textDesiredHeight.toFixed(2));

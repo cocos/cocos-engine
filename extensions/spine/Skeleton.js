@@ -457,7 +457,7 @@ sp.Skeleton = cc.Class({
         for (let mKey in cache) {
             let material = cache[mKey];
             if (material) {
-                material.useModel = !this.enableBatch;
+                material.define('_USE_MODEL', !this.enableBatch);
             }
         }
     },

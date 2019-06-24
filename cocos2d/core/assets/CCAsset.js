@@ -61,6 +61,21 @@ cc.Asset = cc.Class({
          * @type {Boolean}
          */
         this.loaded = true;
+
+        /**
+         * !#en
+         * Points to the true url of this asset's native object, only valid when asset is loaded and asyncLoadAsset is not enabled.
+         * Url equals nativeUrl on web(web-mobile, web-desktop) or native(iOS, Android etc) platform. The difference between
+         * nativeUrl and url is that url may points to temporary path or cached path on mini game platform which has cache mechanism (WeChat etc).
+         * If you want to make use of the native file on those platforms, you should use url instead of nativeUrl.
+         * !#zh
+         * 资源的原生文件的真实url，只在资源被加载后以及没有启用延迟加载时才有效。在web平台（web-mobile, web-desktop）或者原生平台（iOS，安卓等）上url与
+         * nativeUrl是相等的，nativeUrl与url的区别在于，某些带缓存机制的小游戏平台（微信等）上url可能会指向临时文件路径或者缓存路径，如果你需要在这些平台上使用资源的原生文件，
+         * 请使用url，避免使用nativeUrl
+         * @property url
+         * @type {String}
+         */
+        this.url = '';
     },
 
     properties: {
