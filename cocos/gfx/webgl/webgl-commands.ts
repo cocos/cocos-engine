@@ -851,7 +851,8 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
                         let w = gpuTexture.width;
                         let h = gpuTexture.height;
                         for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                            gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
+                            gl.texImage2D(WebGLRenderingContext.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0,
+                                gpuTexture.glFormat, gpuTexture.glType, null);
                             w = Math.max(1, w >> 1);
                             h = Math.max(1, h >> 1);
                         }
@@ -1111,6 +1112,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
 
         let glShaderType: GLenum = 0;
         let shaderTypeStr = '';
+        let lineNumber = 1;
 
         switch (gpuStage.type) {
             case GFXShaderType.VERTEX: {
@@ -1137,7 +1139,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
 
             if (!gl.getShaderParameter(gpuStage.glShader, gl.COMPILE_STATUS)) {
                 console.error(shaderTypeStr + ' in \'' + gpuShader.name + '\' compilation failed.');
-                console.error(gpuStage.source);
+                console.error(gpuStage.source.replace(/^|\n/g, () => `\n${lineNumber++} `));
                 console.error(gl.getShaderInfoLog(gpuStage.glShader));
 
                 gl.deleteShader(gpuStage.glShader);
