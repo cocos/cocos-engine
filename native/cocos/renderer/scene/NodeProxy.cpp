@@ -448,8 +448,7 @@ void NodeProxy::visitAsRoot(ModelBatcher* batcher, Scene* scene)
 {
     _worldMatDirty = 0;
     _parentOpacityDirty = 0;
-    // visitWithoutTransform(batcher, scene);
-    visit(batcher, scene);
+    visitWithoutTransform(batcher, scene);
 }
 
 void NodeProxy::visitWithoutTransform(ModelBatcher* batcher, Scene* scene)

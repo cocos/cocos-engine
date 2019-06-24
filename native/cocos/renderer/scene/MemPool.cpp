@@ -116,8 +116,6 @@ void MemPool::removeCommonData(std::size_t unitID)
     auto unit = _commonPool[unitID];
     if (unit) 
     {
-        delete unit;
-        _commonPool[unitID] = nullptr;
         for (auto it = _commonList.begin(); it != _commonList.end(); it++)
         {
             if ((*it)->unitID == unitID)
@@ -126,6 +124,8 @@ void MemPool::removeCommonData(std::size_t unitID)
                 break;
             }
         }
+        delete unit;
+        _commonPool[unitID] = nullptr;
     }
 }
 
