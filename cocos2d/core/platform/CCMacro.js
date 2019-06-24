@@ -357,16 +357,14 @@ cc.macro = {
     /**
      * !#en
      * Set cc.RotateTo/cc.RotateBy rotate direction.
-     * The rotate positive direction is clockwise before 2.1.0, now is changed to anti clockwise.
-     * If need to be compatible with previous versions, please change setting to : cc.macro.ROTATE_ACTION_ANTI_CLOCKWISE = false;
+     * If need set rotate positive direction to counterclockwise, please change setting to : cc.macro.ROTATE_ACTION_CCW = true;
      * !#zh
      * 设置 cc.RotateTo/cc.RotateBy 的旋转方向。
-     * 在 2.1.0 版本之前旋转的正方向为顺时针方向，2.1.0 版本后旋转的正方向修正为了逆时针方向。
-     * 如果需要兼容之前的版本，请设置选项为： cc.macro.ROTATE_ACTION_ANTI_CLOCKWISE = false;
-     * @property {Boolean} ROTATE_ACTION_ANTI_CLOCKWISE
+     * 如果需要设置旋转的正方向为逆时针方向，请设置选项为： cc.macro.ROTATE_ACTION_CCW = true;
+     * @property {Boolean} ROTATE_ACTION_CCW
      * @default false
      */
-    ROTATE_ACTION_ANTI_CLOCKWISE: true
+    ROTATE_ACTION_CCW: false
 };
 
 
