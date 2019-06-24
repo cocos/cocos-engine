@@ -83,6 +83,7 @@ export default class TiledAssembler extends Assembler2D {
             this._updateIndices();
             this.updateColor(sprite);
         }
+        flexBuffer.used(this.verticesCount, this.indicesCount);
 
         if (sprite._vertsDirty) {
             this.updateUVs(sprite);

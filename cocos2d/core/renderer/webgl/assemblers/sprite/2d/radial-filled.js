@@ -292,6 +292,7 @@ export default class RadialFilledAssembler extends Assembler2D {
                 iData[i] = i;
             }
         }
+        flexBuffer.used(this.verticesCount, this.indicesCount);
 
         let verts = renderData.vDatas[0],
             uintVerts = renderData.uintVDatas[0];
