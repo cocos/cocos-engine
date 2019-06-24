@@ -61,7 +61,6 @@ var MotionStreak = cc.Class({
     },
 
     ctor () {
-        this._renderData = null;
         this._points = [];
     },
 
@@ -284,12 +283,7 @@ var MotionStreak = cc.Class({
      */
     reset () {
         this._points.length = 0;
-        let renderData = this._renderData;
-        if (renderData) {
-            renderData.dataLength = 0;
-            renderData.vertexCount = 0;
-            renderData.indiceCount = 0;
-        }
+        this._assembler._renderData.clear();
         if (CC_EDITOR) {
             cc.engine.repaintInEditMode();
         }

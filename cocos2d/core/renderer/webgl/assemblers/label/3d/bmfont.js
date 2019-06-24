@@ -38,9 +38,8 @@ export default class WebglBmfontAssembler3D extends WebglBmfontAssembler {
 cc.js.mixin(WebglBmfontAssembler3D.prototype, Assembler3D, {
     updateWorldVerts (comp) {
         let matrix = comp.node._worldMatrix;
-        let renderData = this._renderData;
-        let local = renderData._local;
-        let world = renderData.vDatas[0];
+        let local = this._local;
+        let world = this._renderData.vDatas[0];
 
         let floatsPerVert = this.floatsPerVert;
         for (let offset = 0; offset < world.length; offset += floatsPerVert) {

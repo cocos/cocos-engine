@@ -1,3 +1,5 @@
+import FlexBuffer from "./webgl/flex-buffer";
+import { vfmtPosUvColor } from './webgl/vertex-format';
 
 export default function RenderData () {
     this.vDatas = [];
@@ -5,7 +7,6 @@ export default function RenderData () {
     this.iDatas = [];
     this.meshCount = 0;
 
-    this._local = [];
     this._infos = null;
     this._flexBuffer = null;
 }
@@ -19,10 +20,11 @@ cc.js.mixin(RenderData.prototype, {
         this.uintVDatas.length = 0;
         this.meshCount = 0;
 
-        this._local.length = 0;
-        
         this._infos = null;
-        this._flexBuffer = null;
+
+        if (this._flexBuffer) {
+            this._flexBuffer.reset();
+        }
     },
 
     updateMesh (index, vertices, indices) {
@@ -31,6 +33,9 @@ cc.js.mixin(RenderData.prototype, {
         this.iDatas[index] = indices;
     
         this.meshCount = this.vDatas.length;
+    },
+
+    updateMeshRange (verticesCount, indicesCount) {
     },
     
     createData (index, verticesFloats, indicesCount) {
@@ -42,6 +47,11 @@ cc.js.mixin(RenderData.prototype, {
     createQuadData (index, verticesFloats, indicesCount) {
         this.createData(index, verticesFloats, indicesCount);
         this.initQuadIndices(this.iDatas[index]);
+    },
+
+    createFlexData (index, verticesFloats, indicesCount, vfmt) {
+        vfmt = vfmt || vfmtPosUvColor;
+        this._flexBuffer = new FlexBuffer(this, index, verticesFloats, indicesCount, vfmt);
     },
 
     initQuadIndices(indices) {

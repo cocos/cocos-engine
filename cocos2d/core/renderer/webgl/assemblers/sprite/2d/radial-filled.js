@@ -25,8 +25,6 @@
 
 import Assembler2D from '../../../../assembler-2d';
 
-const FlexBuffer = require('../../../flex-buffer');
-
 const PI_2 = Math.PI * 2;
 
 let _vertPos = [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)];
@@ -173,9 +171,8 @@ function _getVertAngle (start, end) {
 
 export default class RadialFilledAssembler extends Assembler2D {
     initData (sprite) {
-        this._renderData._local = [];
-        let bytes = 24 * (this.verticesFloats + 2);
-        this._renderData._flexBuffer = new FlexBuffer(bytes);
+        this._local = [];
+        this._renderData.createFlexData(0, 4, 6, this.getVfmt());
     }
 
     updateRenderData (sprite) {
@@ -217,7 +214,7 @@ export default class RadialFilledAssembler extends Assembler2D {
     updateVerts (sprite, fillStart, fillRange) {
         let fillEnd = fillStart + fillRange;
         
-        let local = this._renderData._local;
+        let local = this._local;
 
         let offset = 0;
         let floatsPerTriangle = 3 * this.floatsPerVert;
@@ -284,23 +281,18 @@ export default class RadialFilledAssembler extends Assembler2D {
         let renderData = this._renderData;
         let floatsPerVert = this.floatsPerVert;
 
-        let local = renderData._local;
+        let local = this._local;
         let verticesCount = local.length / floatsPerVert;
-        
-        let vBytes = local.length * 4;
-        let iBytes = verticesCount * 2;
+        this.verticesCount = this.indicesCount = verticesCount;
 
-        let vData = renderData.vDatas[0];
-        if (!vData || vData.length != verticesCount) {
-            this.verticesCount = verticesCount;
-            let buffer = renderData._flexBuffer.buffer;
-            let vertices = new Float32Array(buffer, 0, vBytes / 4);
-            let indices = new Uint16Array(buffer, vBytes, iBytes / 2);
+        let flexBuffer = renderData._flexBuffer;
+        if (flexBuffer.reserve(verticesCount, verticesCount)) {
+            let iData = renderData.iDatas[0];
             for (let i = 0; i < verticesCount; i ++) {
-                indices[i] = i;
+                iData[i] = i;
             }
-            renderData.updateMesh(0, vertices, indices);
         }
+        flexBuffer.used(this.verticesCount, this.indicesCount);
 
         let verts = renderData.vDatas[0],
             uintVerts = renderData.uintVDatas[0];
@@ -322,10 +314,10 @@ export default class RadialFilledAssembler extends Assembler2D {
             a = matrixm[0], b = matrixm[1], c = matrixm[4], d = matrixm[5],
             tx = matrixm[12], ty = matrixm[13];
 
-        let local = this._renderData._local;
+        let local = this._local;
         let world = this._renderData.vDatas[0];
         let floatsPerVert = this.floatsPerVert;
-        for (let offset = 0; offset < world.length; offset += floatsPerVert) {
+        for (let offset = 0; offset < local.length; offset += floatsPerVert) {
             let x = local[offset];
             let y = local[offset + 1];
             world[offset] = x * a + y * c + tx;

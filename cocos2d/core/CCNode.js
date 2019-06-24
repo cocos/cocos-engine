@@ -2617,10 +2617,10 @@ let NodeDefines = {
         if (this._parent) {
             this._parent.getWorldRotation(_quata);
             quat.conjugate(_quata, _quata);
-            quat.mul(_quata, _quata, quat);
+            quat.mul(_quata, _quata, val);
         }
         else {
-            quat.copy(_quata, quat);
+            quat.copy(_quata, val);
         }
         this._toEuler();
         this.setLocalDirty(LocalDirtyFlag.ROTATION);

@@ -28,48 +28,37 @@ import BmfontAssembler from '../../../../utils/label/bmfont';
 let _dataOffset = 0;
 
 export default class WebglBmfontAssembler extends BmfontAssembler {
-    initData (comp) {
+    initData () {
+        this._local = [];
+        this._renderData.createFlexData(0, 4, 6, this.getVfmt());
     }
 
     _reserveQuads (comp, count) {
-
-        let renderData = this._renderData;
-
         this.verticesCount = count * 4;
-        let vBytes = 4 * this.verticesFloats;
-        let iBytes = count * 6 * 2;
-        let bytes = vBytes + iBytes;
-        let needUpdateArray = false;
+        this.indicesCount = count * 6;
+        
+        let flexBuffer = this._renderData._flexBuffer;
+        flexBuffer.reserve(this.verticesCount, this.indicesCount);
+        flexBuffer.used(this.verticesCount, this.indicesCount);
+       
+        let iData = this._renderData.iDatas[0];
+        for (let i = 0, vid = 0, l = this.indicesCount; i < l; i += 6, vid += 4) {
+            iData[i] = vid;
+            iData[i + 1] = vid + 1;
+            iData[i + 2] = vid + 2;
+            iData[i + 3] = vid + 1;
+            iData[i + 4] = vid + 3;
+            iData[i + 5] = vid + 2;
+        }
 
-        if (!renderData.flexBuffer) {
-            renderData.flexBuffer = new cc.FlexBuffer(bytes);
-            needUpdateArray = true;
-        }
-        else {
-            needUpdateArray = renderData.flexBuffer.reserve(bytes);
-        }
-
-        let buffer = renderData.flexBuffer.buffer;
-        let vData = renderData.vDatas[0];
-        if (needUpdateArray || !vData || vData.length != count) {
-            let vertices = new Float32Array(buffer, 0, vBytes / 4);
-            let indices = new Uint16Array(buffer, vBytes, iBytes / 2);
-            for (let i = 0, vid = 0; i < indices.length; i += 6, vid += 4) {
-                indices[i] = vid;
-                indices[i + 1] = vid + 1;
-                indices[i + 2] = vid + 2;
-                indices[i + 3] = vid + 1;
-                indices[i + 4] = vid + 3;
-                indices[i + 5] = vid + 2;
-            }
-            renderData.updateMesh(0, vertices, indices);
-        }
         _dataOffset = 0;
     }
 
     _quadsUpdated (comp) {
         _dataOffset = 0;
     }
+
+    updateColor () {}
 
     appendQuad (comp, texture, rect, rotated, x, y, scale) {
         let renderData = this._renderData;
@@ -81,9 +70,6 @@ export default class WebglBmfontAssembler extends BmfontAssembler {
             rectWidth = rect.width,
             rectHeight = rect.height,
             color = comp.node._color._val;
-
-        // Keep alpha channel for cpp to update
-        color = ((uintVerts[4] & 0xff000000) | (color & 0x00ffffff) >>> 0) >>> 0;
 
         let l, b, r, t;
         let floatsPerVert = this.floatsPerVert;
@@ -145,7 +131,7 @@ export default class WebglBmfontAssembler extends BmfontAssembler {
     }
 
     appendVerts (comp, offset, l, r, b, t) {
-        let local = this._renderData._local;
+        let local = this._local;
         let floatsPerVert = this.floatsPerVert;
 
         local[offset] = l;
@@ -172,7 +158,7 @@ export default class WebglBmfontAssembler extends BmfontAssembler {
             a = matrixm[0], b = matrixm[1], c = matrixm[4], d = matrixm[5],
             tx = matrixm[12], ty = matrixm[13];
 
-        let local = this._renderData._local;
+        let local = this._local;
         let world = this._renderData.vDatas[0];
         let floatsPerVert = this.floatsPerVert;
         for (let offset = 0; offset < local.length; offset += floatsPerVert) {

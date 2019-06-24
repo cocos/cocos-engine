@@ -38,9 +38,8 @@ export default class RadialFilledAssembler3D extends RadialFilledAssembler {
 cc.js.mixin(RadialFilledAssembler3D.prototype, Assembler3D, {
     updateWorldVerts (sprite) {
         let matrix = sprite.node._worldMatrix;
-        let renderData = this._renderData;
-        let local = renderData._local;
-        let world = renderData.vDatas[0];
+        let local = this._local;
+        let world = this._renderData.vDatas[0];
 
         let floatsPerVert = this.floatsPerVert;
         for (let offset = 0; offset < world.length; offset += floatsPerVert) {

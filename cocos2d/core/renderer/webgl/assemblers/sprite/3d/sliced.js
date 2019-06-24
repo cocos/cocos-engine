@@ -37,9 +37,8 @@ export default class SlicedAssembler3D extends SlicedAssembler {
 cc.js.mixin(SlicedAssembler3D.prototype, Assembler3D, {
     updateWorldVerts (sprite) {
         let matrix = sprite.node._worldMatrix;
-        let renderData = this._renderData;
-        let local = renderData._local;
-        let world = renderData.vDatas[0];
+        let local = this._local;
+        let world = this._renderData.vDatas[0];
 
         let floatsPerVert = this.floatsPerVert;
         for (let row = 0; row < 4; ++row) {

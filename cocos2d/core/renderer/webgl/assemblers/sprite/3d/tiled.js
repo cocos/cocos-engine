@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Assembler3D = {}; // require('../../base/3d');
+const Assembler3D = require('../../../../assembler-3d');
 const TiledAssembler = require('../2d/tiled');
 const vec3 = cc.vmath.vec3;
 
@@ -38,10 +38,9 @@ export default class TiledAssembler3D extends TiledAssembler {
 
 cc.js.mixin(TiledAssembler3D.prototype, Assembler3D, {
     updateWorldVerts (sprite) {
-        let renderData = this._renderData;
-        let local = renderData._local;
+        let local = this._local;
         let localX = local.x, localY = local.y;
-        let world = renderData.vDatas[0];
+        let world = this._renderData.vDatas[0];
         let { row, col } = this;
         let matrix = sprite.node._worldMatrix;
         let x, x1, y, y1;

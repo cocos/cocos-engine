@@ -25,12 +25,8 @@
 
 import Assembler2D from '../../../../assembler-2d';
 
-const FlexBuffer = require('../../../flex-buffer');
-
 export default class TiledAssembler extends Assembler2D {
     initData (sprite) {
-        this._renderData._local = { x: [], y: []};
-
         this.verticesCount = 0;
         this.contentWidth = 0;
         this.contentHeight = 0;
@@ -40,6 +36,22 @@ export default class TiledAssembler extends Assembler2D {
         this.vRepeat = 0;
         this.row = 0;
         this.col = 0;
+
+        this._local = { x: [], y: []};
+        this._renderData.createFlexData(0, 4, 6, this.getVfmt());
+        this._updateIndices();
+    }
+
+    _updateIndices () {
+        let iData = this._renderData.iDatas[0];
+        for (let i = 0, vid = 0, l = iData.length; i < l; i += 6, vid += 4) {
+            iData[i] = vid;
+            iData[i + 1] = vid + 1;
+            iData[i + 2] = vid + 2;
+            iData[i + 3] = vid + 1;
+            iData[i + 4] = vid + 3;
+            iData[i + 5] = vid + 2;
+        }
     }
 
     updateRenderData (sprite) {
@@ -49,7 +61,6 @@ export default class TiledAssembler extends Assembler2D {
         this.packToDynamicAtlas(sprite, frame);
 
         let node = sprite.node;
-        let renderData = this._renderData;
 
         let contentWidth = this.contentWidth = Math.abs(node.width);
         let contentHeight = this.contentHeight = Math.abs(node.height);
@@ -63,36 +74,16 @@ export default class TiledAssembler extends Assembler2D {
 
         // update data property
         let count = row * col;
-        let verticesCount = count * 4;
-        let vBytes = verticesCount * this.floatsPerVert * 4;
-        let iBytes = count * 6 * 2;
-        let bytes = vBytes + iBytes;
-        let needUpdateArray = false;
-        if (!renderData._flexBuffer) {
-            renderData._flexBuffer = new FlexBuffer(bytes);
-            needUpdateArray = true;
-        }
-        else {
-            needUpdateArray = renderData._flexBuffer.reserve(bytes);
-        }
+        this.verticesCount = count * 4;
+        this.indicesCount = count * 6;
 
-        let buffer = renderData._flexBuffer.buffer;
-        if (needUpdateArray || verticesCount != this.verticesCount) {
-            this.verticesCount = verticesCount
-            let vertices = new Float32Array(buffer, 0, vBytes / 4);
-            let indices = new Uint16Array(buffer, vBytes, iBytes / 2);
-            for (let i = 0, vid = 0; i < indices.length; i += 6, vid += 4) {
-                indices[i] = vid;
-                indices[i + 1] = vid + 1;
-                indices[i + 2] = vid + 2;
-                indices[i + 3] = vid + 1;
-                indices[i + 4] = vid + 3;
-                indices[i + 5] = vid + 2;
-            }
-            renderData.updateMesh(0, vertices, indices);
-
+        let renderData = this._renderData;
+        let flexBuffer = renderData._flexBuffer;
+        if (flexBuffer.reserve(this.verticesCount, this.indicesCount)) {
+            this._updateIndices();
             this.updateColor(sprite);
         }
+        flexBuffer.used(this.verticesCount, this.indicesCount);
 
         if (sprite._vertsDirty) {
             this.updateUVs(sprite);
@@ -102,12 +93,11 @@ export default class TiledAssembler extends Assembler2D {
     }
 
     updateVerts (sprite) {
-        let renderData = this._renderData,
-            node = sprite.node,
+        let node = sprite.node,
             appx = node.anchorX * node.width, appy = node.anchorY * node.height;
 
         let { row, col, rectWidth, rectHeight, contentWidth, contentHeight } = this;
-        let { x, y } = renderData._local;
+        let { x, y } = this._local;
         x.length = y.length = 0;
         for (let i = 0; i <= col; ++i) {
             x[i] = Math.min(rectWidth * i, contentWidth) - appx;
@@ -121,7 +111,7 @@ export default class TiledAssembler extends Assembler2D {
     
     updateWorldVerts (sprite) {
         let renderData = this._renderData;
-        let local = renderData._local;
+        let local = this._local;
         let localX = local.x, localY = local.y;
         let world = renderData.vDatas[0];
         let { row, col } = this;
