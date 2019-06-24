@@ -1,119 +1,63 @@
 import { Quat, Vec3 } from '../../../core/value-types';
 import { clamp, mat4, quat, vec3 } from '../../../core/vmath';
 import { intersect } from '../../geom-utils';
-import { BuiltInRigidBodyBase, ICollisionCallback, ICollisionEvent, ICollisionEventType, PhysicsWorldBase } from '../api';
+import { BuiltInRigidBodyBase, ITriggerCallback, ITriggerEvent, ITriggerEventType, PhysicsWorldBase } from '../api';
 import { ERigidBodyType } from '../physic-enum';
 import { BuiltInWorld } from './builtin-world';
+import { BuiltinObject } from './object/builtin-object';
 import { BuiltinShape } from './shapes/builtin-shape';
+// tslint:disable: prefer-for-of
 
 /**
  * Built-in static collider, no physical forces involved
  */
-export class BuiltInBody implements BuiltInRigidBodyBase {
+export class BuiltInBody extends BuiltinObject implements BuiltInRigidBodyBase {
+
+    /** id generator */
+    private static idCounter: number = 0;
+
+    private readonly _id: number;
+
     /** id unique */
     public get id () { return this._id; }
 
-    public get collisionFilterGroup () { return this._collisionFilterGroup; }
-
-    public get collisionFilterMask () { return this._collisionFilterMask; }
-    /** id generator */
-    private static idCounter: number = 0;
-    private readonly _id: number;
-
     private _type: ERigidBodyType = ERigidBodyType.DYNAMIC;
 
-    private _group: number = 0;
-    private _collisionFilterGroup: number = 1 << 0;
-    private _collisionFilterMask: number = 1 << 0;
+    private _world!: BuiltInWorld;
 
-    private _collisionCB: ICollisionCallback[] = [];
-
-    // private _collisionEnterCB: ICollisionCallback[] = [];
-    // private _collisionStayCB: ICollisionCallback[] = [];
-    // private _collisionExitCB: ICollisionCallback[] = [];
-
-    /** 物理世界 */
-    private _world!: BuiltInWorld | null;
-    /** Body拥有的现状 */
     private _shapes: BuiltinShape[] = [];
-    /** Body对应的场景对象 */
+
     private userData: any;
 
     constructor (options) {
+        super();
         this._id = BuiltInBody.idCounter++;
     }
 
-    /** group */
-    public getGroup (): number {
-        return this._collisionFilterGroup;
-    }
-
-    public setGroup (v: number): void {
-        this._collisionFilterGroup = v;
-    }
-
-    public addGroup (v: number): void {
-        this._collisionFilterGroup |= v;
-    }
-
-    public removeGroup (v: number): void {
-        this._collisionFilterGroup &= ~v;
-    }
-
-    /** mask */
-    public getMask (): number {
-        return this._collisionFilterMask;
-    }
-
-    public setMask (v: number): void {
-        this._collisionFilterMask = v;
-    }
-
-    public addMask (v: number): void {
-        this._collisionFilterMask |= v;
-    }
-
-    public removeMask (v: number): void {
-        this._collisionFilterMask &= ~v;
-    }
-
-    public intersects (body: BuiltInBody): boolean {
-        // tslint:disable-next-line: prefer-for-of
+    public intersects (body: BuiltInBody) {
         for (let i = 0; i < this._shapes.length; i++) {
             const shapeA = this._shapes[i];
-            // tslint:disable-next-line:prefer-for-of
+
             for (let j = 0; j < body._shapes.length; j++) {
                 const shapeB = body._shapes[j];
+
+                // first, Check collision filter masks
+                if ((shapeA.collisionFilterGroup & shapeB.collisionFilterMask) === 0 ||
+                    (shapeB.collisionFilterGroup & shapeA.collisionFilterMask) === 0) {
+                    continue;
+                }
+
                 if (intersect.resolve(shapeA.worldShape, shapeB.worldShape)) {
-                    return true;
+                    this._world.shapeArr.push(shapeA);
+                    this._world.shapeArr.push(shapeB);
                 }
             }
         }
-        return false;
-    }
-
-    public onCollision (type: ICollisionEventType, event: ICollisionEvent) {
-        for (const callback of this._collisionCB) {
-            callback(type, event);
-        }
-    }
-
-    public onTrigger (type: ICollisionEventType, event: ICollisionEvent) {
-        for (const callback of this._collisionCB) {
-            callback(type, event);
-        }
-    }
-
-    public wakeUp (): void {
-
-    }
-
-    public sleep (): void {
-
     }
 
     public addShape (shape: BuiltinShape): void {
         this._shapes.push(shape);
+        shape.body = this;
     }
 
     public removeShape (shape: BuiltinShape): void {
@@ -134,7 +78,7 @@ export class BuiltInBody implements BuiltInRigidBodyBase {
             }
         }
 
-        this._world = cworld;
+        this._world = cworld as any;
     }
 
     public getPosition (out: Vec3): void {
@@ -162,17 +106,6 @@ export class BuiltInBody implements BuiltInRigidBodyBase {
     public scaleAllShapes (scale: Vec3): void {
         for (const shape of this._shapes) {
             shape.setScale(scale);
-        }
-    }
-
-    public addCollisionCallback (callback: ICollisionCallback): void {
-        this._collisionCB.push(callback);
-    }
-
-    public removeCollisionCllback (callback: ICollisionCallback): void {
-        const i = this._collisionCB.indexOf(callback);
-        if (i >= 0) {
-            this._collisionCB.splice(i, 1);
         }
     }
 
