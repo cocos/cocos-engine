@@ -722,12 +722,7 @@ var game = {
         if (CC_JSB || CC_RUNTIME) {
             this.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
-            if (CC_JSB || CC_RUNTIME) {
-                localCanvas = window.__canvas;
-            }
-            else {
-                localCanvas = canvas;
-            }
+            localCanvas = window.__canvas;
             this.canvas = localCanvas;
         }
         else {
