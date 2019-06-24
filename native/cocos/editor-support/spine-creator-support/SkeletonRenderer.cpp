@@ -265,7 +265,7 @@ void SkeletonRenderer::update (float deltaTime) {
         return;
     }
     
-    CustomAssembler* assembler = (CustomAssembler*)_nodeProxy->getAssembler("render");
+    CustomAssembler* assembler = (CustomAssembler*)_nodeProxy->getAssembler();
     if (assembler == nullptr) {
         return;
     }

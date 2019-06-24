@@ -98,15 +98,44 @@ void UnitNode::setNode(se::Object *jsData)
 
 NodeMemPool* NodeMemPool::_instance = nullptr;
 
+NodeMemPool::NodeMemPool()
+{
+    _instance = this;
+}
+
+NodeMemPool::~NodeMemPool()
+{
+    for(auto it = _nodePool.begin(); it != _nodePool.end(); it++)
+    {
+        if (*it)
+        {
+            delete (*it);
+        }
+    }
+    _nodePool.clear();
+    _instance = nullptr;
+}
+
 const std::vector<UnitNode*>& NodeMemPool::getNodePool() const
 {
     return _nodePool;
 }
 
-UnitNode& NodeMemPool::getUnit(std::size_t unitID) const
+void NodeMemPool::removeNodeData(std::size_t unitID)
+{
+    CCASSERT(unitID < _nodePool.size(), "NodeMemPool removeNodeData unitID can not be rather than pool size");
+    auto unit = _nodePool[unitID];
+    if (unit) 
+    {
+        delete unit;
+        _nodePool[unitID] = nullptr;
+    }
+}
+
+UnitNode* NodeMemPool::getUnit(std::size_t unitID) const
 {
     CCASSERT(unitID < _nodePool.size(), "NodeMemPool getUnit unitID can not be rather than pool size");
-    return *_nodePool[unitID];
+    return _nodePool[unitID];
 }
 
 void NodeMemPool::updateNodeData(std::size_t unitID, se_object_ptr dirty, se_object_ptr trs, se_object_ptr localMat, se_object_ptr worldMat, se_object_ptr parent, se_object_ptr zOrder, se_object_ptr cullingMask, se_object_ptr opacity, se_object_ptr is3D, se_object_ptr node)
@@ -123,12 +152,18 @@ void NodeMemPool::updateNodeData(std::size_t unitID, se_object_ptr dirty, se_obj
     else if (unitID < _nodePool.size())
     {
         unit = _nodePool[unitID];
+        if(!unit)
+        {
+            unit = new UnitNode;
+            _nodePool[unitID] = unit;
+        }
     }
     else
     {
         return;
     }
     
+    unit->unitID = unitID;
     unit->setDirty(dirty);
     unit->setTRS(trs);
     unit->setLocalMat(localMat);

@@ -218,22 +218,21 @@ public:
     inline void set3DNode(bool is3DNode) { *_is3DNode = is3DNode ? 0x1 : 0x0; };
     
     /**
-     *  @brief Adds a system handle to the node proxy, system handle will be invoked during node's visit process.
-     *  @param[in] sysid The system id.
+     *  @brief Sets a system handle to the node proxy, system handle will be invoked during node's visit process.
      *  @param[in] handle The system handle pointer.
      */
-    void addAssembler(const std::string& assemblerName, AssemblerBase* assembler);
+    void setAssembler(AssemblerBase* assembler);
     /**
      *  @brief Removes a system handle from node proxy by system id.
      *  @param[in] sysid The system id.
      */
-    void removeAssembler(const std::string& assemblerName);
+    void clearAssembler();
     /**
      *  @brief Gets the system handle by system id.
      *  @param[in] sysid The system id.
      *  @return The system handle object or nullptr if not exist
      */
-    AssemblerBase* getAssembler(const std::string& assemblerName);
+    AssemblerBase* getAssembler();
     
     /*
      *  @brief Traverse all node proxy in the current node tree.
@@ -243,6 +242,10 @@ public:
      *  @brief Visit the node as a ordinary node but not a root node.
      */
     void visit(ModelBatcher* batcher, Scene* scene);
+    /*
+     *  @brief Visit the node but do not transform position.
+     */
+    void visitWithoutTransform(ModelBatcher* batcher, Scene* scene);
     /*
      *  @brief Enables visit.
      */
@@ -305,7 +308,7 @@ private:
     uint8_t _realOpacity = 255;
     std::string _id = "";
     std::string _name = "";
-    uint32_t _level = 0;
+    std::size_t _level = 0;
     
     uint32_t* _dirty = nullptr;
     TRS* _trs = nullptr;
@@ -321,8 +324,8 @@ private:
     
     NodeProxy* _parent = nullptr;                  ///< weak reference to parent node
     cocos2d::Vector<NodeProxy*> _children;        ///< array of children nodes
-    
-    cocos2d::Map<std::string, AssemblerBase*> _assemblers;
+
+    AssemblerBase* _assembler = nullptr;
 };
 
 // end of scene group

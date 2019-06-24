@@ -59,7 +59,11 @@ public:
         return dist(mt);
     }
 private:
-    static std::mt19937 &getEngine();
+    static inline std::mt19937 &getEngine() {
+        static std::random_device seed_gen;
+        static std::mt19937 engine(seed_gen());
+        return engine;
+    }
 };
 
 /**

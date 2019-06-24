@@ -10,13 +10,18 @@ LOCAL_ARM_MODE := arm
 LOCAL_SRC_FILES := \
 ../scripting/js-bindings/manual/jsb_helper.cpp \
 IOBuffer.cpp \
-RenderInfoMgr.cpp \
 MeshBuffer.cpp \
 middleware-adapter.cpp \
 TypedArrayPool.cpp \
 IOTypedArray.cpp \
 MiddlewareManager.cpp \
 ../scripting/js-bindings/auto/jsb_cocos2dx_editor_support_auto.cpp
+
+ifeq ($(USE_PARTICLE),1)
+LOCAL_SRC_FILES += \
+particle/ParticleSimulator.cpp \
+../scripting/js-bindings/auto/jsb_cocos2dx_particle_auto.cpp
+endif # USE_PARTICLE
 
 ifeq ($(USE_SPINE),1)
 LOCAL_SRC_FILES += \

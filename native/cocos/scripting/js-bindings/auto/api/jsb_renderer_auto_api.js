@@ -477,6 +477,18 @@ AssemblerBase : function (
 renderer.NodeProxy = {
 
 /**
+ * @method visitWithoutTransform
+ * @param {cc.renderer::ModelBatcher} arg0
+ * @param {cc.renderer::Scene} arg1
+ */
+visitWithoutTransform : function (
+modelbatcher, 
+scene 
+)
+{
+},
+
+/**
  * @method updateLocalMatrix
  */
 updateLocalMatrix : function (
@@ -539,24 +551,18 @@ addWorldMatDirty : function (
 },
 
 /**
- * @method addAssembler
- * @param {String} arg0
- * @param {cc.renderer::AssemblerBase} arg1
+ * @method disaleUpdateWorldMatrix
  */
-addAssembler : function (
-str, 
-assemblerbase 
+disaleUpdateWorldMatrix : function (
 )
 {
 },
 
 /**
  * @method getAssembler
- * @param {String} arg0
  * @return {cc.renderer::AssemblerBase}
  */
 getAssembler : function (
-str 
 )
 {
     return cc.renderer::AssemblerBase;
@@ -687,6 +693,14 @@ getID : function (
 },
 
 /**
+ * @method clearAssembler
+ */
+clearAssembler : function (
+)
+{
+},
+
+/**
  * @method getParent
  * @return {cc.renderer::NodeProxy}
  */
@@ -709,9 +723,11 @@ str
 },
 
 /**
- * @method disaleUpdateWorldMatrix
+ * @method setAssembler
+ * @param {cc.renderer::AssemblerBase} arg0
  */
-disaleUpdateWorldMatrix : function (
+setAssembler : function (
+assemblerbase 
 )
 {
 },
@@ -754,16 +770,6 @@ getChildrenCount : function (
 )
 {
     return 0;
-},
-
-/**
- * @method removeAssembler
- * @param {String} arg0
- */
-removeAssembler : function (
-str 
-)
-{
 },
 
 /**
@@ -1675,6 +1681,16 @@ object
 },
 
 /**
+ * @method removeCommonData
+ * @param {unsigned int} arg0
+ */
+removeCommonData : function (
+int 
+)
+{
+},
+
+/**
  * @method MemPool
  * @constructor
  */
@@ -1689,6 +1705,16 @@ MemPool : function (
  * @class NodeMemPool
  */
 renderer.NodeMemPool = {
+
+/**
+ * @method removeNodeData
+ * @param {unsigned int} arg0
+ */
+removeNodeData : function (
+int 
+)
+{
+},
 
 /**
  * @method updateNodeData

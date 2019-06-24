@@ -30,6 +30,9 @@ RENDERER_BEGIN
 const uint32_t InitLevelCount = 3;
 const uint32_t InitLevelNodeCount = 100;
 
+const uint32_t LocalMat_Use_Thread_Unit_Count = 5;
+const uint32_t WorldMat_Use_Thread_Node_count = 500;
+
 RenderFlow* RenderFlow::_instance = nullptr;
 
 RenderFlow::RenderFlow(DeviceGraphics* device, Scene* scene, ForwardRenderer* forward)
@@ -40,6 +43,30 @@ RenderFlow::RenderFlow(DeviceGraphics* device, Scene* scene, ForwardRenderer* fo
     _instance = this;
     
     _batcher = new ModelBatcher(this);
+
+#if SUB_RENDER_THREAD_COUNT > 0
+    _paralleTask = new ParallelTask();
+    _paralleTask->init(SUB_RENDER_THREAD_COUNT);
+
+    _runFlag = &_paralleTask->getRunFlag()[0];
+    
+    for (uint32_t i = 0; i < SUB_RENDER_THREAD_COUNT; i++)
+    {
+        _paralleTask->pushTask(i, [&](int tid){
+            switch(_parallelStage)
+            {
+                case ParallelStage::LOCAL_MAT:
+                    calculateLocalMatrix(tid);
+                break;
+                case ParallelStage::WORLD_MAT:
+                    calculateLevelWorldMatrix(tid);
+                break;
+                default:
+                break;
+            }
+        });
+    }
+#endif
     
     _levelInfoArr.resize(InitLevelCount);
     for (auto i = 0; i < InitLevelCount; i++)
@@ -50,10 +77,11 @@ RenderFlow::RenderFlow(DeviceGraphics* device, Scene* scene, ForwardRenderer* fo
 
 RenderFlow::~RenderFlow()
 {
+    delete _paralleTask;
     CC_SAFE_DELETE(_batcher);
 }
 
-void RenderFlow::removeNodeLevel(uint32_t level, cocos2d::Mat4* worldMat)
+void RenderFlow::removeNodeLevel(std::size_t level, cocos2d::Mat4* worldMat)
 {
     if (level >= _levelInfoArr.size()) return;
     auto& levelInfos = _levelInfoArr[level];
@@ -67,7 +95,7 @@ void RenderFlow::removeNodeLevel(uint32_t level, cocos2d::Mat4* worldMat)
     }
 }
 
-void RenderFlow::insertNodeLevel(uint32_t level, const LevelInfo& levelInfo)
+void RenderFlow::insertNodeLevel(std::size_t level, const LevelInfo& levelInfo)
 {
     if (level >= _levelInfoArr.size())
     {
@@ -77,31 +105,55 @@ void RenderFlow::insertNodeLevel(uint32_t level, const LevelInfo& levelInfo)
     levelInfos.push_back(levelInfo);
 }
 
-void RenderFlow::calculateLocalMatrix()
+void RenderFlow::calculateLocalMatrix(int tid)
 {
     const uint16_t SPACE_FREE_FLAG = 0x0;
-    static cocos2d::Mat4 matTemp;
+    cocos2d::Mat4 matTemp;
     
     NodeMemPool* instance = NodeMemPool::getInstance();
     CCASSERT(instance, "RenderFlow calculateLocalMatrix NodeMemPool is null");
-    auto& commonPool = instance->getCommonPool();
+    auto& commonList = instance->getCommonList();
     auto& nodePool = instance->getNodePool();
-    for(auto i = 0; i < commonPool.size(); i++)
+
+    UnitCommon* commonUnit = nullptr;
+    uint16_t usingNum = 0;
+    std::size_t contentNum = 0;
+    Sign* signData = nullptr;
+    UnitNode* nodeUnit = nullptr;
+    uint32_t* dirty = nullptr;
+    cocos2d::Mat4* localMat = nullptr;
+    TRS* trs = nullptr;
+    uint8_t* is3D = nullptr;
+    cocos2d::Quaternion* quat = nullptr;
+    float trsZ = 0.0f, trsSZ = 0.0f;
+
+    std::size_t begin = 0, end = commonList.size();
+    std::size_t fieldSize = end / RENDER_THREAD_COUNT;
+    if (tid >= 0)
     {
-        UnitCommon* commonUnit = commonPool[i];
-        uint16_t usingNum = commonUnit->getUsingNum();
+        begin = tid * fieldSize;
+        if (tid < RENDER_THREAD_COUNT - 1)
+        {
+            end = (tid + 1) * fieldSize;
+        }
+    }
+
+    for(auto i = begin; i < end; i++)
+    {
+        commonUnit = commonList[i];
+        if (!commonUnit) continue;
+        usingNum = commonUnit->getUsingNum();
         if (usingNum == 0) continue;
         
-        std::size_t contentNum = commonUnit->getContentNum();
-        Sign* signData = commonUnit->getSignData(0);
+        contentNum = commonUnit->getContentNum();
+        signData = commonUnit->getSignData(0);
         
-        UnitNode* nodeUnit = nodePool[i];
-        uint32_t* dirty = nodeUnit->getDirty(0);
-        cocos2d::Mat4* localMat = nodeUnit->getLocalMat(0);
-        TRS* trs = nodeUnit->getTRS(0);
-        uint8_t* is3D = nodeUnit->getIs3D(0);
-        cocos2d::Quaternion* quat = nullptr;
-        float trsZ = 0.0f, trsSZ = 0.0f;
+        nodeUnit = nodePool[commonUnit->unitID];
+        
+        dirty = nodeUnit->getDirty(0);
+        localMat = nodeUnit->getLocalMat(0);
+        trs = nodeUnit->getTRS(0);
+        is3D = nodeUnit->getIs3D(0);
         
         for (auto j = 0; j < contentNum; j++, localMat ++, trs ++, is3D ++, signData++, dirty++)
         {
@@ -128,25 +180,61 @@ void RenderFlow::calculateLocalMatrix()
     }
 }
 
+void RenderFlow::calculateLevelWorldMatrix(int tid)
+{
+    auto& levelInfos = _levelInfoArr[_curLevel];
+
+    std::size_t begin = 0, end = levelInfos.size();
+    std::size_t fieldSize = end / RENDER_THREAD_COUNT;
+    if (tid >= 0)
+    {
+        begin = tid * fieldSize;
+        if (tid < RENDER_THREAD_COUNT - 1)
+        {
+            end = (tid + 1) * fieldSize;
+        }
+    }
+
+    for(std::size_t index = begin; index < end; index++)
+    {
+        auto& info = levelInfos[index];
+        auto selfDirty = *info.dirty & WORLD_TRANSFORM;
+        if (info.parentDirty != nullptr && ((*info.parentDirty & WORLD_TRANSFORM_CHANGED) || selfDirty))
+        {
+            info.worldMat->multiply(*info.parentWorldMat, *info.localMat, info.worldMat);
+            *info.dirty |= WORLD_TRANSFORM_CHANGED;
+            *info.dirty &= ~WORLD_TRANSFORM;
+        }
+        else if (selfDirty)
+        {
+            *info.worldMat = *info.localMat;
+            *info.dirty |= WORLD_TRANSFORM_CHANGED;
+            *info.dirty &= ~WORLD_TRANSFORM;
+        }
+    }
+}
+
 void RenderFlow::calculateWorldMatrix()
 {
     for(std::size_t level = 0, n = _levelInfoArr.size(); level < n; level++)
     {
         auto& levelInfos = _levelInfoArr[level];
-        for(auto it = levelInfos.begin(); it != levelInfos.end(); it++)
+        for(std::size_t index = 0, count = levelInfos.size(); index < count; index++)
         {
-            auto selfDirty = *it->dirty & WORLD_TRANSFORM;
-            if (it->parentDirty != nullptr && ((*it->parentDirty & WORLD_TRANSFORM_CHANGED) || selfDirty))
+            auto& info = levelInfos[index];
+            auto selfDirty = *info.dirty & WORLD_TRANSFORM;
+            if (info.parentDirty != nullptr && ((*info.parentDirty & WORLD_TRANSFORM_CHANGED) || selfDirty))
             {
-                it->worldMat->multiply(*it->parentWorldMat, *it->localMat, it->worldMat);
-                *it->dirty |= WORLD_TRANSFORM_CHANGED;
+                info.worldMat->multiply(*info.parentWorldMat, *info.localMat, info.worldMat);
+                *info.dirty |= WORLD_TRANSFORM_CHANGED;
+                *info.dirty &= ~WORLD_TRANSFORM;
             }
             else if (selfDirty)
             {
-                *it->worldMat = *it->localMat;
-                *it->dirty |= WORLD_TRANSFORM_CHANGED;
+                *info.worldMat = *info.localMat;
+                *info.dirty |= WORLD_TRANSFORM_CHANGED;
+                *info.dirty &= ~WORLD_TRANSFORM;
             }
-            *it->dirty &= ~WORLD_TRANSFORM;
         }
     }
 }
@@ -155,8 +243,51 @@ void RenderFlow::render(NodeProxy* scene)
 {
     if (scene != nullptr)
     {
-        calculateLocalMatrix();
-        calculateWorldMatrix();
+        
+//#if SUB_RENDER_THREAD_COUNT > 0
+//
+//        int mainThreadTid = RENDER_THREAD_COUNT - 1;
+//        bool threadBegan = false;
+//
+//        NodeMemPool* instance = NodeMemPool::getInstance();
+//        auto& commonList = instance->getCommonList();
+//        if (commonList.size() < LocalMat_Use_Thread_Unit_Count)
+//        {
+//            calculateLocalMatrix();
+//        }
+//        else
+//        {
+//            _parallelStage = ParallelStage::LOCAL_MAT;
+//            _paralleTask->begin();
+//            threadBegan = true;
+//
+//            calculateLocalMatrix(mainThreadTid);
+//            while(*_runFlag != ParallelTask::RunFlag::ProcessFinished) std::this_thread::yield();
+//        }
+//
+//        _parallelStage = ParallelStage::WORLD_MAT;
+//        _curLevel = 0;
+//        for(auto count = _levelInfoArr.size(); _curLevel < count; _curLevel++)
+//        {
+//            auto& levelInfos = _levelInfoArr[_curLevel];
+//            if (levelInfos.size() < WorldMat_Use_Thread_Node_count)
+//            {
+//                calculateLevelWorldMatrix();
+//            }
+//            else
+//            {
+//                if (!threadBegan) _paralleTask->begin();
+//                *_runFlag = ParallelTask::RunFlag::ToProcess;
+//                calculateLevelWorldMatrix(mainThreadTid);
+//                while(*_runFlag != ParallelTask::RunFlag::ProcessFinished) std::this_thread::yield();
+//            }
+//        }
+//
+//        if (threadBegan) _paralleTask->stop();
+//#else
+//        calculateLocalMatrix();
+//        calculateWorldMatrix();
+//#endif
         
         _batcher->startBatch();
         scene->visitAsRoot(_batcher, _scene);

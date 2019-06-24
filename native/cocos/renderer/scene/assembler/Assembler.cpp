@@ -37,6 +37,39 @@ RENDERER_BEGIN
 
 static MeshBuffer::OffsetInfo s_offsets;
 
+Assembler::IARenderData::IARenderData()
+{
+    
+}
+
+Assembler::IARenderData::IARenderData(const IARenderData& o)
+{
+    meshIndex = o.meshIndex;
+    verticesStart = o.verticesStart;
+    verticesCount = o.verticesCount;
+    indicesStart = o.indicesStart;
+    indicesCount = o.indicesCount;
+    setEffect(o.getEffect());
+}
+
+Assembler::IARenderData::~IARenderData()
+{
+    CC_SAFE_RELEASE(_effect);
+}
+
+void Assembler::IARenderData::setEffect(Effect* effect)
+{
+    if (effect == _effect) return;
+    CC_SAFE_RELEASE(_effect);
+    _effect = effect;
+    CC_SAFE_RETAIN(_effect);
+}
+
+Effect* Assembler::IARenderData::getEffect() const
+{
+    return _effect;
+}
+
 Assembler::Assembler()
 {
     
@@ -137,9 +170,10 @@ void Assembler::fillBuffers(MeshBuffer* buffer, std::size_t index, const Mat4& w
     uint32_t vBufferOffset = s_offsets.vByte / sizeof(float);
     uint32_t indexId = s_offsets.index;
     uint32_t vertexId = s_offsets.vertex;
+    uint32_t vertexOffset = vertexId - vertexStart;
     uint32_t num = _vfPos->num;
 
-    float* worldVerts = &buffer->vData[vBufferOffset];
+    float* worldVerts = buffer->vData + vBufferOffset;
     memcpy(worldVerts, data->getVertices() + vertexStart * _bytesPerVertex, vertexCount * _bytesPerVertex);
     
     // Calculate vertices world positions
@@ -173,9 +207,10 @@ void Assembler::fillBuffers(MeshBuffer* buffer, std::size_t index, const Mat4& w
     
     // Copy index buffer with vertex offset
     uint16_t* indices = (uint16_t*)data->getIndices();
+    uint16_t* dst = buffer->iData;
     for (auto i = 0, j = ia.indicesStart; i < indexCount; ++i, ++j)
     {
-        buffer->iData[indexId++] = vertexId - vertexStart + indices[j];
+        dst[indexId++] = vertexOffset + indices[j];
     }
 }
 

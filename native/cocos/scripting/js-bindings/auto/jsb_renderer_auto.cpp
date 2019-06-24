@@ -1486,6 +1486,27 @@ bool js_register_renderer_AssemblerBase(se::Object* obj)
 se::Object* __jsb_cocos2d_renderer_NodeProxy_proto = nullptr;
 se::Class* __jsb_cocos2d_renderer_NodeProxy_class = nullptr;
 
+static bool js_renderer_NodeProxy_visitWithoutTransform(se::State& s)
+{
+    cocos2d::renderer::NodeProxy* cobj = (cocos2d::renderer::NodeProxy*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_NodeProxy_visitWithoutTransform : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        cocos2d::renderer::ModelBatcher* arg0 = nullptr;
+        cocos2d::renderer::Scene* arg1 = nullptr;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        ok &= seval_to_native_ptr(args[1], &arg1);
+        SE_PRECONDITION2(ok, false, "js_renderer_NodeProxy_visitWithoutTransform : Error processing arguments");
+        cobj->visitWithoutTransform(arg0, arg1);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_NodeProxy_visitWithoutTransform)
+
 static bool js_renderer_NodeProxy_updateLocalMatrix(se::State& s)
 {
     cocos2d::renderer::NodeProxy* cobj = (cocos2d::renderer::NodeProxy*)s.nativeThisObject();
@@ -1612,26 +1633,20 @@ static bool js_renderer_NodeProxy_addWorldMatDirty(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_NodeProxy_addWorldMatDirty)
 
-static bool js_renderer_NodeProxy_addAssembler(se::State& s)
+static bool js_renderer_NodeProxy_disaleUpdateWorldMatrix(se::State& s)
 {
     cocos2d::renderer::NodeProxy* cobj = (cocos2d::renderer::NodeProxy*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_NodeProxy_addAssembler : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_renderer_NodeProxy_disaleUpdateWorldMatrix : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        std::string arg0;
-        cocos2d::renderer::AssemblerBase* arg1 = nullptr;
-        ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_native_ptr(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_renderer_NodeProxy_addAssembler : Error processing arguments");
-        cobj->addAssembler(arg0, arg1);
+    if (argc == 0) {
+        cobj->disaleUpdateWorldMatrix();
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_renderer_NodeProxy_addAssembler)
+SE_BIND_FUNC(js_renderer_NodeProxy_disaleUpdateWorldMatrix)
 
 static bool js_renderer_NodeProxy_getAssembler(se::State& s)
 {
@@ -1640,16 +1655,13 @@ static bool js_renderer_NodeProxy_getAssembler(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        std::string arg0;
-        ok &= seval_to_std_string(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_renderer_NodeProxy_getAssembler : Error processing arguments");
-        cocos2d::renderer::AssemblerBase* result = cobj->getAssembler(arg0);
+    if (argc == 0) {
+        cocos2d::renderer::AssemblerBase* result = cobj->getAssembler();
         ok &= native_ptr_to_seval<cocos2d::renderer::AssemblerBase>((cocos2d::renderer::AssemblerBase*)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_renderer_NodeProxy_getAssembler : Error processing arguments");
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
 SE_BIND_FUNC(js_renderer_NodeProxy_getAssembler)
@@ -1881,6 +1893,21 @@ static bool js_renderer_NodeProxy_getID(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_NodeProxy_getID)
 
+static bool js_renderer_NodeProxy_clearAssembler(se::State& s)
+{
+    cocos2d::renderer::NodeProxy* cobj = (cocos2d::renderer::NodeProxy*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_NodeProxy_clearAssembler : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->clearAssembler();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_NodeProxy_clearAssembler)
+
 static bool js_renderer_NodeProxy_getParent(se::State& s)
 {
     cocos2d::renderer::NodeProxy* cobj = (cocos2d::renderer::NodeProxy*)s.nativeThisObject();
@@ -1920,20 +1947,24 @@ static bool js_renderer_NodeProxy_getChildByID(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_NodeProxy_getChildByID)
 
-static bool js_renderer_NodeProxy_disaleUpdateWorldMatrix(se::State& s)
+static bool js_renderer_NodeProxy_setAssembler(se::State& s)
 {
     cocos2d::renderer::NodeProxy* cobj = (cocos2d::renderer::NodeProxy*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_NodeProxy_disaleUpdateWorldMatrix : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_renderer_NodeProxy_setAssembler : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    if (argc == 0) {
-        cobj->disaleUpdateWorldMatrix();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        cocos2d::renderer::AssemblerBase* arg0 = nullptr;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_NodeProxy_setAssembler : Error processing arguments");
+        cobj->setAssembler(arg0);
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_renderer_NodeProxy_disaleUpdateWorldMatrix)
+SE_BIND_FUNC(js_renderer_NodeProxy_setAssembler)
 
 static bool js_renderer_NodeProxy_set3DNode(se::State& s)
 {
@@ -2009,25 +2040,6 @@ static bool js_renderer_NodeProxy_getChildrenCount(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_NodeProxy_getChildrenCount)
 
-static bool js_renderer_NodeProxy_removeAssembler(se::State& s)
-{
-    cocos2d::renderer::NodeProxy* cobj = (cocos2d::renderer::NodeProxy*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_NodeProxy_removeAssembler : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        std::string arg0;
-        ok &= seval_to_std_string(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_renderer_NodeProxy_removeAssembler : Error processing arguments");
-        cobj->removeAssembler(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_NodeProxy_removeAssembler)
-
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_NodeProxy_finalize)
 
 static bool js_renderer_NodeProxy_constructor(se::State& s)
@@ -2063,6 +2075,7 @@ bool js_register_renderer_NodeProxy(se::Object* obj)
 {
     auto cls = se::Class::create("NodeProxy", obj, nullptr, _SE(js_renderer_NodeProxy_constructor));
 
+    cls->defineFunction("visitWithoutTransform", _SE(js_renderer_NodeProxy_visitWithoutTransform));
     cls->defineFunction("updateLocalMatrix", _SE(js_renderer_NodeProxy_updateLocalMatrix));
     cls->defineFunction("updateWorldMatrix", _SE(js_renderer_NodeProxy_updateWorldMatrix));
     cls->defineFunction("getChildren", _SE(js_renderer_NodeProxy_getChildren));
@@ -2070,7 +2083,7 @@ bool js_register_renderer_NodeProxy(se::Object* obj)
     cls->defineFunction("disableVisit", _SE(js_renderer_NodeProxy_disableVisit));
     cls->defineFunction("setCullingMask", _SE(js_renderer_NodeProxy_setCullingMask));
     cls->defineFunction("addWorldMatDirty", _SE(js_renderer_NodeProxy_addWorldMatDirty));
-    cls->defineFunction("addAssembler", _SE(js_renderer_NodeProxy_addAssembler));
+    cls->defineFunction("disaleUpdateWorldMatrix", _SE(js_renderer_NodeProxy_disaleUpdateWorldMatrix));
     cls->defineFunction("getAssembler", _SE(js_renderer_NodeProxy_getAssembler));
     cls->defineFunction("getChildByName", _SE(js_renderer_NodeProxy_getChildByName));
     cls->defineFunction("notifyUpdateParent", _SE(js_renderer_NodeProxy_notifyUpdateParent));
@@ -2085,14 +2098,14 @@ bool js_register_renderer_NodeProxy(se::Object* obj)
     cls->defineFunction("updateRealOpacity", _SE(js_renderer_NodeProxy_updateRealOpacity));
     cls->defineFunction("getCullingMask", _SE(js_renderer_NodeProxy_getCullingMask));
     cls->defineFunction("getID", _SE(js_renderer_NodeProxy_getID));
+    cls->defineFunction("clearAssembler", _SE(js_renderer_NodeProxy_clearAssembler));
     cls->defineFunction("getParent", _SE(js_renderer_NodeProxy_getParent));
     cls->defineFunction("getChildByID", _SE(js_renderer_NodeProxy_getChildByID));
-    cls->defineFunction("disaleUpdateWorldMatrix", _SE(js_renderer_NodeProxy_disaleUpdateWorldMatrix));
+    cls->defineFunction("setAssembler", _SE(js_renderer_NodeProxy_setAssembler));
     cls->defineFunction("set3DNode", _SE(js_renderer_NodeProxy_set3DNode));
     cls->defineFunction("setLocalZOrder", _SE(js_renderer_NodeProxy_setLocalZOrder));
     cls->defineFunction("getName", _SE(js_renderer_NodeProxy_getName));
     cls->defineFunction("getChildrenCount", _SE(js_renderer_NodeProxy_getChildrenCount));
-    cls->defineFunction("removeAssembler", _SE(js_renderer_NodeProxy_removeAssembler));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_NodeProxy_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::NodeProxy>(cls);
@@ -3837,8 +3850,8 @@ static bool js_renderer_MemPool_updateCommonData(se::State& s)
         se_object_ptr arg1 = nullptr;
         se_object_ptr arg2 = nullptr;
         ok &= seval_to_size(args[0], &arg0);
-        ok &= seval_to_native_ptr(args[1], &arg1);
-        ok &= seval_to_native_ptr(args[2], &arg2);
+        arg1 = args[1].toObject();
+        arg2 = args[2].toObject();
         SE_PRECONDITION2(ok, false, "js_renderer_MemPool_updateCommonData : Error processing arguments");
         cobj->updateCommonData(arg0, arg1, arg2);
         return true;
@@ -3847,6 +3860,25 @@ static bool js_renderer_MemPool_updateCommonData(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_renderer_MemPool_updateCommonData)
+
+static bool js_renderer_MemPool_removeCommonData(se::State& s)
+{
+    cocos2d::renderer::MemPool* cobj = (cocos2d::renderer::MemPool*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_MemPool_removeCommonData : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        size_t arg0 = 0;
+        ok &= seval_to_size(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_MemPool_removeCommonData : Error processing arguments");
+        cobj->removeCommonData(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_MemPool_removeCommonData)
 
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_MemPool_finalize)
 
@@ -3881,6 +3913,7 @@ bool js_register_renderer_MemPool(se::Object* obj)
     auto cls = se::Class::create("MemPool", obj, nullptr, _SE(js_renderer_MemPool_constructor));
 
     cls->defineFunction("updateCommonData", _SE(js_renderer_MemPool_updateCommonData));
+    cls->defineFunction("removeCommonData", _SE(js_renderer_MemPool_removeCommonData));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_MemPool_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::MemPool>(cls);
@@ -3894,6 +3927,25 @@ bool js_register_renderer_MemPool(se::Object* obj)
 
 se::Object* __jsb_cocos2d_renderer_NodeMemPool_proto = nullptr;
 se::Class* __jsb_cocos2d_renderer_NodeMemPool_class = nullptr;
+
+static bool js_renderer_NodeMemPool_removeNodeData(se::State& s)
+{
+    cocos2d::renderer::NodeMemPool* cobj = (cocos2d::renderer::NodeMemPool*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_NodeMemPool_removeNodeData : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        size_t arg0 = 0;
+        ok &= seval_to_size(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_NodeMemPool_removeNodeData : Error processing arguments");
+        cobj->removeNodeData(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_NodeMemPool_removeNodeData)
 
 static bool js_renderer_NodeMemPool_updateNodeData(se::State& s)
 {
@@ -3915,16 +3967,16 @@ static bool js_renderer_NodeMemPool_updateNodeData(se::State& s)
         se_object_ptr arg9 = nullptr;
         se_object_ptr arg10 = nullptr;
         ok &= seval_to_size(args[0], &arg0);
-        ok &= seval_to_native_ptr(args[1], &arg1);
-        ok &= seval_to_native_ptr(args[2], &arg2);
-        ok &= seval_to_native_ptr(args[3], &arg3);
-        ok &= seval_to_native_ptr(args[4], &arg4);
-        ok &= seval_to_native_ptr(args[5], &arg5);
-        ok &= seval_to_native_ptr(args[6], &arg6);
-        ok &= seval_to_native_ptr(args[7], &arg7);
-        ok &= seval_to_native_ptr(args[8], &arg8);
-        ok &= seval_to_native_ptr(args[9], &arg9);
-        ok &= seval_to_native_ptr(args[10], &arg10);
+        arg1 = args[1].toObject();
+        arg2 = args[2].toObject();
+        arg3 = args[3].toObject();
+        arg4 = args[4].toObject();
+        arg5 = args[5].toObject();
+        arg6 = args[6].toObject();
+        arg7 = args[7].toObject();
+        arg8 = args[8].toObject();
+        arg9 = args[9].toObject();
+        arg10 = args[10].toObject();
         SE_PRECONDITION2(ok, false, "js_renderer_NodeMemPool_updateNodeData : Error processing arguments");
         cobj->updateNodeData(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
         return true;
@@ -3983,6 +4035,7 @@ bool js_register_renderer_NodeMemPool(se::Object* obj)
 {
     auto cls = se::Class::create("NodeMemPool", obj, __jsb_cocos2d_renderer_MemPool_proto, _SE(js_renderer_NodeMemPool_constructor));
 
+    cls->defineFunction("removeNodeData", _SE(js_renderer_NodeMemPool_removeNodeData));
     cls->defineFunction("updateNodeData", _SE(js_renderer_NodeMemPool_updateNodeData));
     cls->defineStaticFunction("getInstance", _SE(js_renderer_NodeMemPool_getInstance));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_NodeMemPool_finalize));
@@ -4032,8 +4085,8 @@ static bool js_renderer_RenderDataList_updateMesh(se::State& s)
         se_object_ptr arg1 = nullptr;
         se_object_ptr arg2 = nullptr;
         ok &= seval_to_size(args[0], &arg0);
-        ok &= seval_to_native_ptr(args[1], &arg1);
-        ok &= seval_to_native_ptr(args[2], &arg2);
+        arg1 = args[1].toObject();
+        arg2 = args[2].toObject();
         SE_PRECONDITION2(ok, false, "js_renderer_RenderDataList_updateMesh : Error processing arguments");
         cobj->updateMesh(arg0, arg1, arg2);
         return true;

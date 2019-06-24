@@ -102,9 +102,31 @@ MemPool::~MemPool()
 {
     for(auto it = _commonPool.begin(); it != _commonPool.end(); it++)
     {
-        delete (*it);
+        if (*it)
+        {
+            delete (*it);
+        }
     }
     _commonPool.clear();
+}
+
+void MemPool::removeCommonData(std::size_t unitID)
+{
+    CCASSERT(unitID < _commonPool.size(), "MemPool removeCommonData unitID can not be rather than pool size");
+    auto unit = _commonPool[unitID];
+    if (unit) 
+    {
+        delete unit;
+        _commonPool[unitID] = nullptr;
+        for (auto it = _commonList.begin(); it != _commonList.end(); it++)
+        {
+            if ((*it)->unitID == unitID)
+            {
+                _commonList.erase(it);
+                break;
+            }
+        }
+    }
 }
 
 void MemPool::updateCommonData(std::size_t unitID, se_object_ptr dataObj, se_object_ptr signDataObj)
@@ -116,16 +138,24 @@ void MemPool::updateCommonData(std::size_t unitID, se_object_ptr dataObj, se_obj
     {
         unit = new UnitCommon;
         _commonPool.push_back(unit);
+        _commonList.push_back(unit);
     }
     else if (unitID < _commonPool.size())
     {
         unit = _commonPool[unitID];
+        if (!unit) 
+        {
+            unit = new UnitCommon;
+            _commonPool[unitID] = unit;
+            _commonList.push_back(unit);
+        }
     }
     else
     {
         return;
     }
     
+    unit->unitID = unitID;
     unit->setData(dataObj);
     unit->setSignData(signDataObj);
 }
@@ -135,10 +165,15 @@ const std::vector<UnitCommon*>& MemPool::getCommonPool() const
     return _commonPool;
 }
 
-UnitCommon& MemPool::getCommonUnit(std::size_t unitID)
+const std::vector<UnitCommon*>& MemPool::getCommonList() const
+{
+    return _commonList;
+}
+
+UnitCommon* MemPool::getCommonUnit(std::size_t unitID)
 {
     CCASSERT(unitID < _commonPool.size(), "MemPool getCommonUnit unitID can not be rather than pool size");
-    return *_commonPool[unitID];
+    return _commonPool[unitID];
 }
 
 RENDERER_END

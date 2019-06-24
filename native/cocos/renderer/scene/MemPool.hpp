@@ -38,6 +38,8 @@ public:
     
     void set(se::Object** dataObj, uint8_t** data, std::size_t* dataLen, se::Object* jsData);
     void unset(se::Object** dataObj, uint8_t** data, std::size_t* dataLen);
+    
+    std::size_t unitID = 0;
 };
 
 struct Sign
@@ -84,11 +86,14 @@ public:
     MemPool();
     virtual ~MemPool();
     
+    void removeCommonData(std::size_t unitID);
     void updateCommonData(std::size_t unitID, se_object_ptr dataObj, se_object_ptr signDataObj);
-    UnitCommon& getCommonUnit(std::size_t unitID);
+    UnitCommon* getCommonUnit(std::size_t unitID);
     const std::vector<UnitCommon*>& getCommonPool() const;
+    const std::vector<UnitCommon*>& getCommonList() const;
 private:
     std::vector<UnitCommon*> _commonPool;
+    std::vector<UnitCommon*> _commonList;
 };
 
 RENDERER_END

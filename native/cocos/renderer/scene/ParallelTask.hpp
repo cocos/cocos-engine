@@ -24,43 +24,55 @@
 
 #pragma once
 
-#include "../../Macro.h"
-#include "base/CCRef.h"
+#include "../Macro.h"
+#include <vector>
 #include <stdint.h>
-
-namespace se {
-    class Object;
-    class HandleObject;
-}
+#include <functional>
+#include <thread>
+#include <memory>
+#include <condition_variable>
+#include <mutex>
 
 RENDERER_BEGIN
 
-class Effect;
-
-class RenderData {
+class ParallelTask
+{
 public:
-    RenderData ();
-    RenderData (const RenderData& o);
-    virtual ~RenderData ();
     
-    void setVertices (se::Object* jsVertices);
-    void setIndices (se::Object* jsIndices);
+    enum RunFlag{
+        ToProcess = 0x00,
+        ProcessFinished = 0x01,
+        Wait = 0x02,
+    };
     
-    uint8_t* getVertices () const;
-    uint8_t* getIndices () const;
+    typedef std::function<void(int)> Task;
     
-    unsigned long getVBytes () { return _vBytes; }
-    unsigned long getIBytes () { return _iBytes; }
+    ParallelTask();
+    virtual ~ParallelTask();
     
-    void clear();
+    void pushTask(int tid, const Task& task);
+    void clearTasks();
     
+    uint8_t* getRunFlag();
+    
+    void init(int threadNum);
+    void destroy();
+    
+    void stop();
+    void begin();
 private:
-    unsigned long _vBytes = 0;
-    unsigned long _iBytes = 0;
-    uint8_t* _vertices = nullptr;
-    uint8_t* _indices = nullptr;
-    se::Object* _jsVertices = nullptr;
-    se::Object* _jsIndices = nullptr;
+    void joinThread(int tid);
+    void setThread(int tid);
+private:
+    std::vector<std::vector<Task>> _tasks;
+    std::vector<std::unique_ptr<std::thread>> _threads;
+    
+    uint8_t* _runFlags = nullptr;
+    bool _finished = false;
+    int _threadNum = 0;
+    
+    std::mutex _mutex;
+    std::condition_variable _cv;
 };
 
 RENDERER_END

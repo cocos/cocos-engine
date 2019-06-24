@@ -158,24 +158,19 @@ protected:
 
 class NodeMemPool: public MemPool {
 public:
-    NodeMemPool()
-    {
-        _instance = this;
-    }
-    
-    virtual ~NodeMemPool()
-    {
-        _instance = nullptr;
-    }
+    NodeMemPool();
+    virtual ~NodeMemPool();
     
     static NodeMemPool* getInstance()
     {
         return _instance;
     }
     
+    void removeNodeData(std::size_t unitID);
+
     void updateNodeData(std::size_t unitID, se_object_ptr dirty, se_object_ptr trs, se_object_ptr localMat, se_object_ptr worldMat, se_object_ptr parent, se_object_ptr zOrder, se_object_ptr cullingMask, se_object_ptr opacity, se_object_ptr is3D, se_object_ptr node);
     
-    UnitNode& getUnit(std::size_t unitID) const;
+    UnitNode* getUnit(std::size_t unitID) const;
     const std::vector<UnitNode*>& getNodePool() const;
 private:
     static NodeMemPool* _instance;

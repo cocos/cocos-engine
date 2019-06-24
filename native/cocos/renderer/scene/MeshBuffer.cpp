@@ -33,18 +33,8 @@
 RENDERER_BEGIN
 
 MeshBuffer::MeshBuffer(ModelBatcher* batcher, VertexFormat* fmt)
-: _byteStart(0)
-, _byteOffset(0)
-, _indexStart(0)
-, _indexOffset(0)
-, _vertexStart(0)
-, _vertexOffset(0)
-, _vDataCount(0)
-, _iDataCount(0)
-, _dirty(false)
-, _vertexFmt(fmt)
+: _vertexFmt(fmt)
 , _batcher(batcher)
-, _vbPos(0)
 {
     _bytesPerVertex = _vertexFmt->getBytes();
     
@@ -55,22 +45,60 @@ MeshBuffer::MeshBuffer(ModelBatcher* batcher, VertexFormat* fmt)
     _ib = IndexBuffer::create(device, IndexFormat::UINT16, Usage::STATIC, nullptr, 0, 0);
     _ib->retain();
     
-    _vDataCount = MeshBuffer::INIT_VERTEX_COUNT * 4 * _bytesPerVertex / 4;
+    _vDataCount = MeshBuffer::INIT_VERTEX_COUNT * 4 * _bytesPerVertex / sizeof(float);
     _iDataCount = MeshBuffer::INIT_VERTEX_COUNT * 6;
     
-    reallocBuffers();
+    reallocVBuffer();
+    reallocIBuffer();
 }
 
 MeshBuffer::~MeshBuffer()
 {
+    for (std::size_t i = 0, n = _vbArr.size(); i < n; i++)
+    {
+         _vbArr.at(i)->destroy();
+    }
+    _vbArr.clear();
+    
+    _ib->destroy();
     _ib->release();
+    
+    if (iData)
+    {
+        delete[] iData;
+        iData = nullptr;
+    }
+    
+    if (vData)
+    {
+        delete[] vData;
+        vData = nullptr;
+    }
 }
 
-void MeshBuffer::reallocBuffers()
+void MeshBuffer::reallocVBuffer()
 {
-    vData.resize(_vDataCount);
+    auto oldVData = vData;
+    vData = new float[_vDataCount];
+    if (oldVData)
+    {
+        memcpy(vData, oldVData, sizeof(float) * _oldVDataCount);
+        delete[] oldVData;
+        oldVData = nullptr;
+    }
     _vb->setBytes(_vDataCount * VDATA_BYTE);
-    iData.resize(_iDataCount);
+}
+
+void MeshBuffer::reallocIBuffer()
+{
+    auto oldIData = iData;
+    iData = new uint16_t[_iDataCount];
+    if (oldIData)
+    {
+        memcpy(iData, oldIData, sizeof(uint16_t) * _oldIDataCount);
+        delete[] oldIData;
+        oldIData = nullptr;
+    }
     _ib->setBytes(_iDataCount * IDATA_BYTE);
 }
 
@@ -94,7 +122,7 @@ bool MeshBuffer::requestStatic(uint32_t vertexCount, uint32_t indexCount, Offset
     {
         // Finish pre data.
         _batcher->flush();
-        _vb->update(0, vData.data(), _byteOffset);
+        _vb->update(0, vData, _byteOffset);
         
         // Prepare next data.
         _vbPos++;
@@ -126,25 +154,27 @@ bool MeshBuffer::requestStatic(uint32_t vertexCount, uint32_t indexCount, Offset
     
     if (byteOffset > vBytes)
     {
+        _oldVDataCount = _vDataCount;
+        
         while (vBytes < byteOffset)
         {
             _vDataCount *= 2;
             vBytes = _vDataCount * VDATA_BYTE;
         }
         
-        vData.resize(_vDataCount);
-        _vb->setBytes(vBytes);
+        reallocVBuffer();
     }
     
     if (indexOffset > _iDataCount)
     {
+        _oldIDataCount = _iDataCount;
+        
         while (_iDataCount < indexOffset)
         {
             _iDataCount *= 2;
         }
         
-        iData.resize(_iDataCount);
-        _ib->setBytes(_iDataCount * IDATA_BYTE);
+        reallocIBuffer();
     }
     
     _vertexOffset += vertexCount;
@@ -156,8 +186,8 @@ bool MeshBuffer::requestStatic(uint32_t vertexCount, uint32_t indexCount, Offset
 
 void MeshBuffer::uploadData()
 {
-    _vb->update(0, vData.data(), _byteOffset);
-    _ib->update(0, iData.data(), _indexOffset * IDATA_BYTE);
+    _vb->update(0, vData, _byteOffset);
+    _ib->update(0, iData, _indexOffset * IDATA_BYTE);
     _dirty = false;
 }
 
@@ -172,14 +202,6 @@ void MeshBuffer::reset()
     _indexStart = 0;
     _indexOffset = 0;
     _dirty = false;
-}
-
-void MeshBuffer::destroy()
-{
-    _vb->destroy();
-    _ib->destroy();
-    iData.clear();
-    vData.clear();
 }
 
 RENDERER_END
