@@ -115,6 +115,9 @@ else {
             else {
                 this.enabled = false;
             }
+            if (!this.enabledInHierarchy) {
+                this._deactivateSubContext();
+            }
         },
 
         /**
@@ -141,18 +144,26 @@ else {
         },
 
         onDisable () {
+            this._deactivateSubContext();
+        },
+
+        _deactivateSubContext () {
             this._unregisterNodeEvent();
             this._stopSubContextMainLoop();
         },
 
-        update () {
+        update (dt) {
+            if (dt === undefined) {
+                // 'undefined' means users call subContextView.update() mannually
+                cc.warn('Since v2.1.1, calling subContextView.update() to update sub context view is not supported,\nplease enable subContextView component when you need to update sub context view.');
+                return;
+            }
             let now = performance.now();
             let deltaTime = (now - this._previousUpdateTime);
             if (!this._tex || !this._context || deltaTime < this._updateInterval) {
                 return;
             }
             this._previousUpdateTime = now;
-            this._deltaTime = 0;
             this._tex.initWithElement(this._context.canvas);
             this._sprite._activateMaterial();
         },
