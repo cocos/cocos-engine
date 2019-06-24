@@ -361,7 +361,7 @@ let Camera = cc.Class({
 
         _is3D: {
             get () {
-                return this.node._is3DNode;
+                return this.node && this.node._is3DNode;
             }
         }
     },

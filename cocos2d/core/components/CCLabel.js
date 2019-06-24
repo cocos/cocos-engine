@@ -196,7 +196,7 @@ let Label = cc.Class({
             },
             set (value) {
                 let oldValue = this._string;
-                this._string = value.toString();
+                this._string = '' + value;
 
                 if (this.string !== oldValue) {
                     this._updateRenderData();
@@ -367,7 +367,8 @@ let Label = cc.Class({
                 if (CC_EDITOR && value) {
                     this._userDefinedFont = value;
                 }
-
+                // release reference
+                cc.Label.FontAtlasManager.releaseFontAtlas(this.font, this.node._id);
                 this._N$file = value;
                 if (value && this._isSystemFontUsed)
                     this._isSystemFontUsed = false;
@@ -380,7 +381,6 @@ let Label = cc.Class({
                     this.destroyRenderData(this._renderData);
                     this._renderData = null;    
                 }
-                this._fontAtlas = null;
                 this._updateAssembler();
                 this._applyFontTexture(true);
                 this._updateRenderData();
@@ -556,6 +556,8 @@ let Label = cc.Class({
             this._ttfTexture.destroy();
             this._ttfTexture = null;
         }
+        // release reference
+        cc.Label.FontAtlasManager.releaseFontAtlas(this.font, this.node._id);
         this._super();
     },
 

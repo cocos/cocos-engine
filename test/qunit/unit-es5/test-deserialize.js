@@ -158,41 +158,6 @@ if (TestEditorExtends) {
         cc.js.unregisterClass(Vec3);
     });
 
-    test('json deserialize test', function () {
-
-        // TODO:
-        var MyAsset = (function () {
-            var _super = cc.Asset;
-
-            function MyAsset () {
-                _super.call(this);
-
-                this.emptyArray = [];
-                this.array = [1, '2', {a:3}, [4, [5]], true];
-                this.string = 'unknown';
-                this.number = 1;
-                this.boolean = true;
-                this.emptyObj = {};
-                this.obj = {};
-
-            }
-            cc.js.extend(MyAsset, _super);
-            cc.js.setClassName('MyAsset', MyAsset);
-            cc.js.getset(MyAsset.prototype, '_nativeAsset', function () {}, function () {})
-            return MyAsset;
-        })();
-
-        var jsonStr = '{"__type__":"MyAsset","emptyArray":[],"array":[1,"2",{"a":3},[4,[5]],true],"string":"unknown","number":1,"boolean":true,"emptyObj":{},"obj":{},"dynamicProp":false}';
-
-        var deserializedAsset = cc.deserialize(jsonStr);
-
-        var expectAsset = new MyAsset();
-
-        deepEqual(deserializedAsset, expectAsset, 'json deserialize test');
-
-        cc.js.unregisterClass(MyAsset);
-    });
-
     test('reference to main asset', function () {
         var asset = {};
         asset.refSelf = asset;
@@ -289,23 +254,19 @@ if (TestEditorExtends) {
     });
 
     testWithTarget('circular reference by array', function (useTarget) {
-        var MyAsset = (function () {
-            var _super = cc.Asset;
-
-            function MyAsset () {
-                _super.call(this);
+        var MyAsset = cc.Class({
+            name: 'MyAsset',
+            extends: cc.Asset,
+            ctor: function () {
                 this.array1 = [1];
                 this.array2 = [this.array1, 2];
                 this.array1.push(this.array2);
-                // array1 = [1, array2]
-                // array2 = [array1, 2]
+            },
+            properties: {
+                array1: [],
+                array2: []
             }
-            cc.js.extend(MyAsset, _super);
-            cc.js.setClassName('MyAsset', MyAsset);
-
-            return MyAsset;
-        })();
-        cc.js.getset(MyAsset.prototype, '_nativeAsset', function () {}, function () {})
+        });
 
         var expectAsset = new MyAsset();
         //cc.log(Editor.serialize(expectAsset));
@@ -320,21 +281,23 @@ if (TestEditorExtends) {
     });
 
     testWithTarget('circular reference by dict', function (useTarget) {
-        var MyAsset = (function () {
-            var _super = cc.Asset;
-
-            function MyAsset () {
-                _super.call(this);
+        var MyAsset = cc.Class({
+            name: 'MyAsset',
+            extends: cc.Asset,
+            ctor: function () {
                 this.dict1 = {num: 1};
                 this.dict2 = {num: 2, other: this.dict1};
                 this.dict1.other = this.dict2;
+            },
+            properties: {
+                dict1: {
+                    default: {},
+                },
+                dict2: {
+                    default: {},
+                },
             }
-            cc.js.extend(MyAsset, _super);
-            cc.js.setClassName('MyAsset', MyAsset);
-
-            return MyAsset;
-        })();
-        cc.js.getset(MyAsset.prototype, '_nativeAsset', function () {}, function () {})
+        });
 
         var expectAsset = new MyAsset();
 

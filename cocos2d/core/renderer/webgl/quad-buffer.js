@@ -61,10 +61,8 @@ let QuadBuffer = cc.Class({
     switchBuffer () {
         this._super();
         // upload index buffer data
-        if (this.indiceOffset > 0) {
-            let indicesData = new Uint16Array(this._iData.buffer, 0, this.indiceOffset);
-            this._ib.update(0, indicesData);
-        }
+        let indicesData = new Uint16Array(this._iData.buffer, 0, this._initIDataCount);
+        this._ib.update(0, indicesData);
     },
 
     _reallocBuffer () {
