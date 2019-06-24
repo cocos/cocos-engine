@@ -830,6 +830,62 @@ largeModule('Class ES6');
         deepEqual(arrayObj.asset, [], 'checking array of asset');
     });
 
+    test('simplified properties define using cc.xxxType', function () {
+        @ccclass
+        class Type {
+            @property(cc.String)
+            string = '';
+            @property(cc.Boolean)
+            bool = false;
+            @property(cc.Float)
+            float = 0;
+            @property(cc.Integer)
+            int = 0;
+        }
+        @ccclass
+        class ArrayType {
+            @property([cc.String])
+            string = [];
+            @property([cc.Boolean])
+            bool = [];
+            @property([cc.Float])
+            float = [];
+            @property([cc.Integer])
+            int = [];
+        }
+
+        strictEqual(cc.Class.attr(Type, 'string').type, undefined, 'checking string type');
+        strictEqual(cc.Class.attr(Type, 'string').ctor, undefined, 'checking string ctor');
+        strictEqual(cc.Class.attr(Type, 'bool').type, undefined, 'checking bool type');
+        strictEqual(cc.Class.attr(Type, 'bool').ctor, undefined, 'checking bool ctor');
+        strictEqual(cc.Class.attr(Type, 'float').type, undefined, 'checking float type');
+        strictEqual(cc.Class.attr(Type, 'float').ctor, undefined, 'checking float ctor');
+        strictEqual(cc.Class.attr(Type, 'int').type, undefined, 'checking int type');
+        strictEqual(cc.Class.attr(Type, 'int').ctor, undefined, 'checking int ctor');
+
+        strictEqual(cc.Class.attr(ArrayType, 'string').type, cc.String, 'checking array of string type');
+        strictEqual(cc.Class.attr(ArrayType, 'string').ctor, undefined, 'checking array of string ctor');
+        strictEqual(cc.Class.attr(ArrayType, 'bool').type, cc.Boolean, 'checking array of bool type');
+        strictEqual(cc.Class.attr(ArrayType, 'bool').ctor, undefined, 'checking array of bool ctor');
+        strictEqual(cc.Class.attr(ArrayType, 'float').type, cc.Float, 'checking array of float type');
+        strictEqual(cc.Class.attr(ArrayType, 'float').ctor, undefined, 'checking array of float ctor');
+        strictEqual(cc.Class.attr(ArrayType, 'int').type, cc.Integer, 'checking array of int type');
+        strictEqual(cc.Class.attr(ArrayType, 'int').ctor, undefined, 'checking array of int ctor');
+
+        var obj = new Type();
+        var arrayObj = new ArrayType();
+
+        strictEqual(obj.string, '', 'checking default value of string');
+        strictEqual(obj.bool, false, 'checking default value of bool');
+        strictEqual(obj.float, 0, 'checking default value of float');
+        strictEqual(obj.int, 0, 'checking default value of int');
+
+        deepEqual(arrayObj.bool, [], 'checking array of bool');
+        deepEqual(arrayObj.string, [], 'checking array of string');
+        deepEqual(arrayObj.float, [], 'checking array of float');
+        deepEqual(arrayObj.int, [], 'checking array of int');
+    });
+
     // test('property', function () {
     //     @ccclass
     //     class Foo {
@@ -850,7 +906,7 @@ largeModule('Class ES6');
     //             return this.bar;
     //         };
     //
-    //         // @property('Integer')
+    //         // @property(cc.Integer)
     //         set bbb (value) {
     //             this.bar = value;
     //         }
