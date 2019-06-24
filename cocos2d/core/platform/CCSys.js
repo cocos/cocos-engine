@@ -353,65 +353,65 @@ function initSys () {
      */
     sys.WECHAT_GAME = 104;
     /**
-     * @property {Number} WECHAT_GAME_SUB
+     * @property {Number} QQ_PLAY
      * @readOnly
      * @default 105
      */
-    sys.WECHAT_GAME_SUB = 105;
-    /**
-     * @property {Number} QQ_PLAY
-     * @readOnly
-     * @default 106
-     */
-    sys.QQ_PLAY = 106;
+    sys.QQ_PLAY = 105;
     /**
      * @property {Number} FB_PLAYABLE_ADS
      * @readOnly
-     * @default 107
+     * @default 106
      */
-    sys.FB_PLAYABLE_ADS = 107;
+    sys.FB_PLAYABLE_ADS = 106;
     /**
      * @property {Number} BAIDU_GAME
      * @readOnly
-     * @default 108
+     * @default 107
      */
-    sys.BAIDU_GAME = 108;
-    /**
-     * @property {Number} BAIDU_GAME_SUB
-     * @readOnly
-     * @default 109
-     */
-    sys.BAIDU_GAME_SUB = 109;
+    sys.BAIDU_GAME = 107;
     /**
      * @property {Number} VIVO_GAME
      * @readOnly
-     * @default 110
+     * @default 108
      */
-    sys.VIVO_GAME = 110;
+    sys.VIVO_GAME = 108;
     /**
      * @property {Number} OPPO_GAME
      * @readOnly
-     * @default 111
+     * @default 109
      */
-    sys.OPPO_GAME = 111;
+    sys.OPPO_GAME = 109;
     /**
      * @property {Number} HUAWEI_GAME
      * @readOnly
-     * @default 112
+     * @default 110
      */
-    sys.HUAWEI_GAME = 112;
+    sys.HUAWEI_GAME = 110;
     /**
      * @property {Number} XIAOMI_GAME
      * @readOnly
-     * @default 113
+     * @default 111
      */
-    sys.XIAOMI_GAME = 113;
+    sys.XIAOMI_GAME = 111;
     /**
      * @property {Number} JKW_GAME
      * @readOnly
+     * @default 112
+     */
+    sys.JKW_GAME = 112;
+    /**
+     * @property {Number} WECHAT_GAME_SUB
+     * @readOnly
+     * @default 113
+     */
+    sys.WECHAT_GAME_SUB = 113;
+    /**
+     * @property {Number} BAIDU_GAME_SUB
+     * @readOnly
      * @default 114
      */
-    sys.JKW_GAME = 114;
+    sys.BAIDU_GAME_SUB = 114;
     /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
