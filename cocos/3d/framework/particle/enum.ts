@@ -1,3 +1,12 @@
+
+/**
+ * @internal
+ * @module ParticleSystem
+ */
+/**
+ * @able
+ */
+
 import { Enum } from '../../../core/value-types';
 
 export const Space = Enum({

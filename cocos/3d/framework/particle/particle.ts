@@ -1,3 +1,11 @@
+
+/**
+ * @hidden
+ */
+/**
+ * @disable
+ */
+
 import { vec3, color4 } from '../../../core/vmath';
 import { Color } from '../../../core/value-types';
 import { ParticleSystemComponent } from './particle-system-component';

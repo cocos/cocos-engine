@@ -1,5 +1,15 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
+/**
+ * 粒子系统模块
+ * @internal
+ * @module ParticleSystem
+ * @preferred
+ */
+/**
+ * @able
+ */
+
 // tslint:disable: max-line-length
 
 import { Component } from '../../../components/component';
@@ -23,6 +33,7 @@ import { Space } from './enum';
 import { particleEmitZAxis } from './particle-general-function';
 import ParticleSystemRenderer from './renderer/particle-system-renderer';
 import TrailModule from './renderer/trail';
+import { Model } from '../../../renderer';
 
 const _world_mat = mat4.create();
 
@@ -397,6 +408,10 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     public _onRebuildPSO (index: number, material: Material) {
         this.renderer._onRebuildPSO(index, material);
+    }
+
+    public _getModel (): Model | null {
+        return (this.renderer as any)._model;
     }
 
     public recreateModel () {

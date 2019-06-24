@@ -1,3 +1,12 @@
+
+/**
+ * @internal
+ * @module ParticleSystem
+ */
+/**
+ * @able
+ */
+
 import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
 import { pseudoRandom, quat, vec3 } from '../../../../core/vmath';

@@ -1,3 +1,12 @@
+
+/**
+ * @internal
+ * @module memop
+ */
+/**
+ * @able
+ */
+
 /**
  * @zh 可变长数组。
  */
