@@ -247,7 +247,8 @@ void RenderFlow::render(NodeProxy* scene)
 #if SUB_RENDER_THREAD_COUNT > 0
 
         int mainThreadTid = RENDER_THREAD_COUNT - 1;
-
+        bool threadBegan = false;
+        
         NodeMemPool* instance = NodeMemPool::getInstance();
         auto& commonList = instance->getCommonList();
         if (commonList.size() < LocalMat_Use_Thread_Unit_Count)
@@ -258,6 +259,7 @@ void RenderFlow::render(NodeProxy* scene)
         {
             _parallelStage = ParallelStage::LOCAL_MAT;
             _paralleTask->begin();
+            threadBegan = true;
             
             calculateLocalMatrix(mainThreadTid);
             while(*_runFlag != ParallelTask::RunFlag::ProcessFinished) std::this_thread::yield();
@@ -274,13 +276,14 @@ void RenderFlow::render(NodeProxy* scene)
             }
             else
             {
+                if (!threadBegan) _paralleTask->begin();
                 *_runFlag = ParallelTask::RunFlag::ToProcess;
                 calculateLevelWorldMatrix(mainThreadTid);
                 while(*_runFlag != ParallelTask::RunFlag::ProcessFinished) std::this_thread::yield();
             }
         }
         
-        _paralleTask->stop();
+        if (threadBegan) _paralleTask->stop();
 #else
         calculateLocalMatrix();
         calculateWorldMatrix();
