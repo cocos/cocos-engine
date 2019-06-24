@@ -109,7 +109,7 @@ function setPosition (newPosOrX, y, z) {
     trs[1] = y;
     trs[2] = z;
     this.setLocalDirty(DirtyFlag.POSITION);
-    this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
+    !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM);
 
     // fast check event
     if (this._eventMask & POSITION_ON) {
@@ -141,7 +141,7 @@ function setScale (x, y, z) {
         trs[8] = y;
         trs[9] = z;
         this.setLocalDirty(DirtyFlag.SCALE);
-        this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+        !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_TRANSFORM);
 
         if (this._eventMask & SCALE_ON) {
             this.emit(EventType.SCALE_CHANGED);
@@ -204,7 +204,7 @@ cc.js.getset(proto, 'scaleZ', function () {
     if (this._trs[9] !== value) {
         this._trs[9] = value;
         this.setLocalDirty(DirtyFlag.SCALE);
-        this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+        !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_TRANSFORM);
 
         if (this._eventMask & SCALE_ON) {
             this.emit(EventType.SCALE_CHANGED);
@@ -220,7 +220,7 @@ cc.js.getset(proto, 'z', function () {
         if (!CC_EDITOR || isFinite(value)) {
             trs[2] = value;
             this.setLocalDirty(DirtyFlag.POSITION);
-            this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
+            !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM);
             // fast check event
             if (this._eventMask & POSITION_ON) {
                 this.emit(EventType.POSITION_CHANGED);
@@ -248,7 +248,7 @@ cc.js.getset(proto, 'eulerAngles', function () {
     _quat.fromEuler(v);
     _quat.toRotation(this._trs);
     this.setLocalDirty(DirtyFlag.ROTATION);
-    this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+    !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_TRANSFORM);
 });
 
 // This property is used for Mesh Skeleton Animation

@@ -67,10 +67,6 @@ let UnitBase = function (unitID, memPool, contentNum) {
     }
     // last one has no next space;
     this._signData[(contentNum - 1) * 2] = POINTER_INVALID_FLAG;
-
-    if (CC_JSB && CC_NATIVERENDERER) {
-        memPool._nativeMemPool.updateCommonData(unitID, this._data, this._signData);
-    }
 };
 
 let UnitBaseProto = UnitBase.prototype;

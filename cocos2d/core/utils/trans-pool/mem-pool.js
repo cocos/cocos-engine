@@ -39,14 +39,41 @@ proto._initNative = function () {
 };
 
 proto._buildUnit = function (unitID) {
-    return new this._unitClass(unitID, this);
+    let unit = new this._unitClass(unitID, this);
+    if (CC_JSB && CC_NATIVERENDERER) {
+        this._nativeMemPool.updateCommonData(unitID, unit._data, unit._signData);
+    }
+    return unit;
+};
+
+proto._destroyUnit = function (unitID) {
+    this._pool[unitID] = null;
+    for (let idx = 0, n = this._findOrder.length; idx < n; idx++) {
+        let unit = this._findOrder[idx];
+        if (unit && unit.unitID == unitID) {
+            this._findOrder.splice(idx, 1);
+            break;
+        }
+    }
+    if (CC_JSB && CC_NATIVERENDERER) {
+        this._nativeMemPool.removeCommonData(unitID);
+    }
+};
+
+proto._findUnitID = function () {
+    let unitID = 0;
+    let pool = this._pool;
+    while (pool[unitID]) unitID++;
+    return unitID;
 };
 
 proto.pop = function () {
     let findUnit = null;
     let idx = 0;
-    for (let n = this._findOrder.length; idx < n; idx++) {
-        let unit = this._findOrder[idx];
+    let findOrder = this._findOrder;
+    let pool = this._pool;
+    for (let n = findOrder.length; idx < n; idx++) {
+        let unit = findOrder[idx];
         if (unit && unit.hasSpace()) {
             findUnit = unit;
             break;
@@ -54,17 +81,18 @@ proto.pop = function () {
     }
 
     if (!findUnit) {
-        findUnit = this._buildUnit(this._pool.length);
-        this._pool.push(findUnit);
-        this._findOrder.push(findUnit);
-        idx = this._findOrder.length - 1;
+        let unitID = this._findUnitID();
+        findUnit = this._buildUnit(unitID);
+        pool[unitID] = findUnit;
+        findOrder.push(findUnit);
+        idx = findOrder.length - 1;
     }
 
     // swap has space unit to first position, so next find will fast
-    let firstUnit = this._findOrder[0];
+    let firstUnit = findOrder[0];
     if (firstUnit !== findUnit) {
-        this._findOrder[0] = findUnit;
-        this._findOrder[idx] = firstUnit;
+        findOrder[0] = findUnit;
+        findOrder[idx] = firstUnit;
     }
 
     return findUnit.pop();
@@ -73,6 +101,9 @@ proto.pop = function () {
 proto.push = function (info) {
     let unit = this._pool[info.unitID];
     unit.push(info.index);
+    if (this._findOrder.length > 1 && unit.isAllFree()) {
+        this._destroyUnit(info.unitID);
+    }
     return unit;
 };
 module.exports = MemPool;

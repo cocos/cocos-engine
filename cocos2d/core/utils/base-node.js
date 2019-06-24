@@ -325,8 +325,6 @@ var BaseNode = cc.Class({
          * @private
          */
         this.__eventTargets = [];
-
-        this._renderFlag = RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_OPACITY;
     },
     /** 
      * !#en The parent of the node.
