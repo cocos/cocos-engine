@@ -5,6 +5,7 @@ import Pass from '../core/pass';
 import Technique from '../core/technique';
 import { getInspectorProps, cloneObjArray, getInstanceCtor } from '../types';
 import enums from '../enums';
+import gfx from '../gfx';
 
 class Effect {
     /**
@@ -29,6 +30,13 @@ class Effect {
         let passes = this._techniques[0].passes;
         for (let i = 0; i < passes.length; i++) {
             passes[i].setCullMode(cullMode);
+        }
+    }
+
+    setDepth (depthTest = false, depthWrite = false, depthFunc = gfx.DS_FUNC_LESS) {
+        let passes = this._techniques[0].passes;
+        for (let i = 0; i < passes.length; i++) {
+            passes[i].setDepth(depthTest, depthWrite, depthFunc);
         }
     }
 

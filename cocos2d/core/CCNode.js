@@ -579,7 +579,6 @@ let NodeDefines = {
         _is3DNode: false,
 
         // internal properties
-
         /**
          * !#en
          * Group index of node.<br/>
@@ -591,9 +590,8 @@ let NodeDefines = {
          * @type {Integer}
          * @default 0
          */
+        _groupIndex: 0,
         groupIndex: {
-            default: 0,
-            type: cc.Integer,
             get () {
                 return this._groupIndex;
             },
@@ -1186,6 +1184,8 @@ let NodeDefines = {
             this._proxy = new renderer.NodeProxy(this._spaceInfo.unitID, this._spaceInfo.index, this._id);
             this._proxy.init(this);
         }
+
+        this._renderFlag = RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_OPACITY;
     },
 
     statics: {
@@ -1287,7 +1287,7 @@ let NodeDefines = {
 
     _onHierarchyChanged (oldParent) {
         this._updateOrderOfArrival();
-        _updateCullingMask(this);
+        this.groupIndex = _getActualGroupIndex(this);
         if (this._parent) {
             this._parent._delaySort();
         }
@@ -1456,8 +1456,8 @@ let NodeDefines = {
 
         this._updateOrderOfArrival();
 
-        // synchronize _cullingMask
-        this._cullingMask = 1 << _getActualGroupIndex(this);
+        // synchronize groupIndex
+        this.groupIndex = _getActualGroupIndex(this);
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
@@ -1487,7 +1487,7 @@ let NodeDefines = {
     _onBatchRestored () {
         this._upgrade_1x_to_2x();
 
-        this._cullingMask = 1 << _getActualGroupIndex(this);
+        this.groupIndex = _getActualGroupIndex(this);
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
