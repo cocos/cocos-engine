@@ -1,3 +1,11 @@
+
+/**
+ * @hidden
+ */
+/**
+ * @disable
+ */
+
 import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
 import { Color, Enum, ValueType } from '../../../../core/value-types';

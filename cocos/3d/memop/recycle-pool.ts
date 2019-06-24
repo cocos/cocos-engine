@@ -1,3 +1,12 @@
+
+/**
+ * @internal
+ * @module memop
+ */
+/**
+ * @able
+ */
+
 import sort from './timsort';
 
 /**
