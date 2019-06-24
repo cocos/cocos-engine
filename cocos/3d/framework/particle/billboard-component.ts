@@ -1,3 +1,12 @@
+
+/**
+ * @internal
+ * @module ParticleSystem
+ */
+/**
+ * @able
+ */
+
 import { ccclass, property, executeInEditMode, menu } from "../../../core/data/class-decorator";
 import { Material, Mesh } from "../../assets";
 import { Texture2D } from "../../../assets";

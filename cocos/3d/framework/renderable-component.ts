@@ -2,6 +2,7 @@
 import { Component } from '../../components/component';
 import { _decorator } from '../../core/data/index';
 import { Material } from '../assets/material';
+import { Model } from '../../renderer';
 const { ccclass, property } = _decorator;
 
 @ccclass('cc.RenderableComponent')
@@ -115,6 +116,10 @@ export class RenderableComponent extends Component {
         if (notify) {
             this._onMaterialModified(index, material);
         }
+    }
+
+    public _getModel (): Model | null {
+        return null;
     }
 
     public recreateModel () {
