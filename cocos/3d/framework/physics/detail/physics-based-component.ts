@@ -261,8 +261,8 @@ class SharedRigidBody {
         this._world = world;
         this._body.setUserData(this._rigidBody);
 
+        this._beforeStepCallback = this._beforeStep.bind(this);
         if (!CC_PHYSICS_BUILT_IN) {
-            this._beforeStepCallback = this._beforeStep.bind(this);
             this._afterStepCallback = this._afterStep.bind(this);
 
             if (this._rigidBody) {
@@ -300,8 +300,8 @@ class SharedRigidBody {
         this._body.setUserData(null);
         (this._body as any) = null;
 
+        (this._beforeStepCallback as any) = null;
         if (!CC_PHYSICS_BUILT_IN) {
-            (this._beforeStepCallback as any) = null;
             (this._afterStepCallback as any) = null;
         }
 
@@ -350,8 +350,8 @@ class SharedRigidBody {
         this._actived = true;
         this._body.setWorld(this._world);
 
+        this._world.addBeforeStep(this._beforeStepCallback);
         if (!CC_PHYSICS_BUILT_IN) {
-            this._world.addBeforeStep(this._beforeStepCallback);
             this._world.addAfterStep(this._afterStepCallback);
             this._body.wakeUp();
         }
@@ -363,8 +363,8 @@ class SharedRigidBody {
         }
         this._actived = false;
 
+        this._world.removeBeforeStep(this._beforeStepCallback);
         if (!CC_PHYSICS_BUILT_IN) {
-            this._world.removeBeforeStep(this._beforeStepCallback);
             this._world.removeAfterStep(this._afterStepCallback);
             this._body.sleep();
         }
@@ -373,20 +373,18 @@ class SharedRigidBody {
     }
 
     private _beforeStep () {
-        if (!CC_PHYSICS_BUILT_IN) {
-            // 开始物理计算之前，用户脚本或引擎功能有可能改变节点的Transform，所以需要判断并进行更新
-            if (this._node.hasChanged) {
-                // scale 进行单独判断，因为目前的物理系统处理后不会改变scale的属性
-                if (!vec3.equals(this._prevScale, this._node.worldScale)) {
-                    this._body.scaleAllShapes(this._node.worldScale);
-                    vec3.copy(this._prevScale, this._node.worldScale);
-                }
-                this.syncPhysWithScene(this._node);
+        // 开始物理计算之前，用户脚本或引擎功能有可能改变节点的Transform，所以需要判断并进行更新
+        if (this._node.hasChanged) {
+            // scale 进行单独判断，因为目前的物理系统处理后不会改变scale的属性
+            if (!vec3.equals(this._prevScale, this._node.worldScale)) {
+                this._body.scaleAllShapes(this._node.worldScale);
+                vec3.copy(this._prevScale, this._node.worldScale);
+            }
+            this.syncPhysWithScene(this._node);
 
-                if (!CC_PHYSICS_BUILT_IN) {
-                    if (this._body.isSleeping()) {
-                        this._body.wakeUp();
-                    }
+            if (!CC_PHYSICS_BUILT_IN) {
+                if (this._body.isSleeping()) {
+                    this._body.wakeUp();
                 }
             }
         }
@@ -403,10 +401,8 @@ class SharedRigidBody {
                 if (this._node.hasChanged) {
                     this.syncPhysWithScene(this._node);
 
-                    if (!CC_PHYSICS_BUILT_IN) {
-                        if (this._body.isSleeping()) {
-                            this._body.wakeUp();
-                        }
+                    if (this._body.isSleeping()) {
+                        this._body.wakeUp();
                     }
                 }
             }
