@@ -1,6 +1,14 @@
 
 /**
+<<<<<<< HEAD
  * @category particle
+=======
+ * @internal
+ * @module ParticleSystem
+ */
+/**
+ * @able
+>>>>>>> fix ui particle error & add module api doc (#4684)
  */
 
 import { CCClass } from '../../../../core/data';

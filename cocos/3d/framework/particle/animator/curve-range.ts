@@ -2,9 +2,8 @@
  * @hidden
  */
 
-import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { Enum, ValueType } from '../../../../core/value-types';
+import { Enum } from '../../../../core/value-types';
 import { lerp } from '../../../../core/vmath';
 import { AnimationCurve } from '../../../geom-utils';
 

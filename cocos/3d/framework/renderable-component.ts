@@ -7,6 +7,7 @@ import { Component } from '../../components/component';
 import { _decorator } from '../../core/data/index';
 import { Model } from '../../renderer';
 import { Material } from '../assets/material';
+import { Model } from '../../renderer';
 const { ccclass, property } = _decorator;
 
 @ccclass('cc.RenderableComponent')

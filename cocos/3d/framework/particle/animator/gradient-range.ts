@@ -3,9 +3,8 @@
  * @hidden
  */
 
-import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { Enum, ValueType, Color } from '../../../../core/value-types';
+import { Color, Enum } from '../../../../core/value-types';
 import { color4 } from '../../../../core/vmath';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
 

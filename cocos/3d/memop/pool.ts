@@ -4,7 +4,6 @@
  * @category memop
  */
 
-
 /**
  * @zh 对象池。
  */
