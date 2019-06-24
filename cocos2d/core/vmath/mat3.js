@@ -596,7 +596,7 @@ class mat3 {
     outm[6] = zx + wy;
 
     outm[1] = yx + wz;
-    out.m[$1] = 1 - xx - zz;
+    outm[4] = 1 - xx - zz;
     outm[7] = zy - wx;
 
     outm[2] = zx - wy;

@@ -1437,6 +1437,11 @@ let NodeDefines = {
             this._opacity = this._color.a;
             this._color.a = 255;
         }
+
+        if (CC_JSB && CC_NATIVERENDERER)
+        {
+            this._renderFlag = RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_OPACITY;
+        }
     },
 
     /*
