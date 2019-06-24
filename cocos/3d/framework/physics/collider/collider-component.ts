@@ -1,3 +1,13 @@
+/**
+ * 物理模块的相关内容。
+ * @internal
+ * @module physics
+ * @preferred
+ */
+/**
+ * @able
+ */
+
 import { ccclass, property } from '../../../../core/data/class-decorator';
 import { EventTarget } from '../../../../core/event';
 import { CallbacksInvoker, ICallbackTable } from '../../../../core/event/callbacks-invoker';
@@ -6,17 +16,36 @@ import { createMap } from '../../../../core/utils/js';
 import Vec3 from '../../../../core/value-types/vec3';
 import { vec3 } from '../../../../core/vmath';
 import { ICollisionCallback, ICollisionEvent, ITriggerCallback, ITriggerEvent, RigidBodyBase, ShapeBase } from '../../../physics/api';
-import { CollisionCallback, CollisionEventType, IContactEquation, TriggerCallback, TriggerEventType } from '../../../physics/export-api';
+import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../../physics/export-api';
 import { ERigidBodyType, ETransformSource } from '../../../physics/physic-enum';
 import { PhysicsBasedComponent } from '../detail/physics-based-component';
 import { RigidBodyComponent } from '../rigid-body-component';
 
+/**
+ * @zh
+ * 碰撞器的基类
+ */
 @ccclass('cc.ColliderComponent')
 export class ColliderComponent extends PhysicsBasedComponent implements IEventTarget {
 
     public _callbackTable: ICallbackTable = createMap(true);
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
+
+    // Shielding physics material for alpha version
+    // @property({
+    //     type: PhysicsMaterial,
+    // })
+    // get material () {
+    //     return this._material;
+    // }
+
+    // set material (value) {
+    //     this._material = value;
+    //     // if (!CC_EDITOR && !CC_PHYISCS_BUILT_IN) {
+    //     //     this._body.material = (this._material || DefaultPhysicsMaterial)._getImpl();
+    //     // }
+    // }
 
     @property({
         displayOrder: 0,

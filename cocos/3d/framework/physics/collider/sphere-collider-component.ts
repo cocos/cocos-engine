@@ -1,3 +1,11 @@
+/**
+ * @internal
+ * @module physics
+ */
+/**
+ * @able
+ */
+
 import {
     ccclass,
     executeInEditMode,
@@ -9,6 +17,10 @@ import { SphereShapeBase } from '../../../physics/api';
 import { createSphereShape } from '../../../physics/instance';
 import { ColliderComponent } from './collider-component';
 
+/**
+ * @zh
+ * 球碰撞器
+ */
 @ccclass('cc.SphereColliderComponent')
 @executionOrder(98)
 @menu('Components/SphereColliderComponent')

@@ -1,6 +1,18 @@
+/**
+ * @internal
+ * @module physics
+ */
+/**
+ * @able
+ */
+
 import { PhysicsWorldBase } from '../../physics/api';
 import { createPhysicsWorld } from '../../physics/instance';
 
+/**
+ * @zh
+ * 物理系统。
+ */
 export class PhysicsSystem {
     private _world: PhysicsWorldBase;
     private _paused = false;

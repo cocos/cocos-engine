@@ -1,3 +1,10 @@
+/**
+ * @internal
+ * @module physics
+ */
+/**
+ * @able
+ */
 
 import {
     ccclass,
@@ -8,7 +15,6 @@ import {
 } from '../../../core/data/class-decorator';
 import { Quat, Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';
-import { PhysicsMaterial } from '../../assets/physics/material';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 
 const NonRigidBodyProperties = {
@@ -17,6 +23,10 @@ const NonRigidBodyProperties = {
     angularDamping: 0,
 };
 
+/**
+ * @zh
+ * 刚体组件。
+ */
 @ccclass('cc.RigidBodyComponent')
 @executionOrder(99)
 @menu('Components/RigidBodyComponent')
@@ -24,21 +34,6 @@ const NonRigidBodyProperties = {
 export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
-
-    // Shielding physics material for alpha version
-    // @property({
-    //     type: PhysicsMaterial,
-    // })
-    // get material () {
-    //     return this._material;
-    // }
-
-    // set material (value) {
-    //     this._material = value;
-    //     // if (!CC_EDITOR && !CC_PHYISCS_BUILT_IN) {
-    //     //     this._body.material = (this._material || DefaultPhysicsMaterial)._getImpl();
-    //     // }
-    // }
 
     /**
      * @zh
