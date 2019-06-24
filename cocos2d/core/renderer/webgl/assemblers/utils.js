@@ -12,8 +12,8 @@ function fillVertices (node, buffer, renderData, color) {
         uintbuf = buffer._uintVData;
 
     let matrix = node._worldMatrix;
-    let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-        tx = matrix.m12, ty = matrix.m13;
+    let a = matrix.m[0], b = matrix.m[1], c = matrix.m[4], d = matrix.m[5],
+        tx = matrix.m[12], ty = matrix.m[13];
     
     let verts = renderData.vertices;
     for (let i = 0; i < vertexCount; i++) {
@@ -40,8 +40,8 @@ function fillMeshVertices (node, buffer, renderData, color) {
         ibuf = buffer._iData;
 
     let matrix = node._worldMatrix;
-    let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-        tx = matrix.m12, ty = matrix.m13;
+    let a = matrix.m[0], b = matrix.m[1], c = matrix.m[4], d = matrix.m[5],
+        tx = matrix.m[12], ty = matrix.m[13];
 
     let verts = renderData.vertices;
     for (let i = 0; i < vertexCount; i++) {

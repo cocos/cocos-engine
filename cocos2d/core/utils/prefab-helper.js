@@ -94,9 +94,9 @@ module.exports = {
         var _localZOrder = node._localZOrder;
         var _globalZOrder = node._globalZOrder;
         var trs = node._trs;
-        var x = trs[1];
-        var y = trs[2];
-        var qx = trs[4], qy = trs[5], qz = trs[6], qw = trs[7];
+        var x = trs[0];
+        var y = trs[1];
+        var qx = trs[3], qy = trs[4], qz = trs[5], qw = trs[6];
 
         // instantiate prefab
         cc.game._isCloning = true;
@@ -125,11 +125,11 @@ module.exports = {
         node._active = _active;
         node._localZOrder = _localZOrder;
         node._globalZOrder = _globalZOrder;
-        trs[1] = x;
-        trs[2] = y;
-        trs[4] = qx;
-        trs[5] = qy;
-        trs[6] = qz;
-        trs[7] = qw;
+        trs[0] = x;
+        trs[1] = y;
+        trs[3] = qx;
+        trs[4] = qy;
+        trs[5] = qz;
+        trs[6] = qw;
     }
 };

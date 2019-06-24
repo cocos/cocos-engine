@@ -181,12 +181,13 @@ intersect.raycast = (function () {
     }
 
     function transformMat4Normal (out, a, m) {
+        let mm = m.m;
         let x = a.x, y = a.y, z = a.z,
-            rhw = m.m03 * x + m.m07 * y + m.m11 * z;
+            rhw = mm[3] * x + mm[7] * y + mm[11] * z;
         rhw = rhw ? 1 / rhw : 1;
-        out.x = (m.m00 * x + m.m04 * y + m.m08 * z) * rhw;
-        out.y = (m.m01 * x + m.m05 * y + m.m09 * z) * rhw;
-        out.z = (m.m02 * x + m.m06 * y + m.m10 * z) * rhw;
+        out.x = (mm[0] * x + mm[4] * y + mm[8] * z) * rhw;
+        out.y = (mm[1] * x + mm[5] * y + mm[9] * z) * rhw;
+        out.z = (mm[2] * x + mm[6] * y + mm[10] * z) * rhw;
         return out;
     }
 

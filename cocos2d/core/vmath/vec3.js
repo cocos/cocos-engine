@@ -594,12 +594,13 @@ class vec3 {
    * @returns {vec3} out.
    */
   static transformMat4(out, a, m) {
+    let mm = m.m;
     let x = a.x, y = a.y, z = a.z,
-      rhw = m.m03 * x + m.m07 * y + m.m11 * z + m.m15;
+      rhw = mm[3] * x + mm[7] * y + mm[11] * z + mm[15];
     rhw = rhw ? 1 / rhw : 1;
-    out.x = (m.m00 * x + m.m04 * y + m.m08 * z + m.m12) * rhw;
-    out.y = (m.m01 * x + m.m05 * y + m.m09 * z + m.m13) * rhw;
-    out.z = (m.m02 * x + m.m06 * y + m.m10 * z + m.m14) * rhw;
+    out.x = (mm[0] * x + mm[4] * y + mm[8] * z + mm[12]) * rhw;
+    out.y = (mm[1] * x + mm[5] * y + mm[9] * z + mm[13]) * rhw;
+    out.z = (mm[2] * x + mm[6] * y + mm[10] * z + mm[14]) * rhw;
     return out;
   }
 
@@ -613,12 +614,13 @@ class vec3 {
    * @returns {vec3} out.
    */
   static transformMat4Normal(out, a, m) {
+    let mm = m.m;
     let x = a.x, y = a.y, z = a.z,
-      rhw = m.m03 * x + m.m07 * y + m.m11 * z;
+      rhw = mm[3] * x + mm[7] * y + mm[11] * z;
     rhw = rhw ? 1 / rhw : 1;
-    out.x = (m.m00 * x + m.m04 * y + m.m08 * z) * rhw;
-    out.y = (m.m01 * x + m.m05 * y + m.m09 * z) * rhw;
-    out.z = (m.m02 * x + m.m06 * y + m.m10 * z) * rhw;
+    out.x = (mm[0] * x + mm[4] * y + mm[8] * z) * rhw;
+    out.y = (mm[1] * x + mm[5] * y + mm[9] * z) * rhw;
+    out.z = (mm[2] * x + mm[6] * y + mm[10] * z) * rhw;
     return out;
   }
 
@@ -631,10 +633,11 @@ class vec3 {
    * @returns {vec3} out.
    */
   static transformMat3(out, a, m) {
+    let mm = m.m;
     let x = a.x, y = a.y, z = a.z;
-    out.x = x * m.m00 + y * m.m03 + z * m.m06;
-    out.y = x * m.m01 + y * m.m04 + z * m.m07;
-    out.z = x * m.m02 + y * m.m05 + z * m.m08;
+    out.x = x * mm[0] + y * mm[3] + z * mm[6];
+    out.y = x * mm[1] + y * mm[4] + z * mm[7];
+    out.z = x * mm[2] + y * mm[5] + z * mm[8];
     return out;
   }
 

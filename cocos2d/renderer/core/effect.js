@@ -16,26 +16,6 @@ class Effect {
         this._properties = properties;
         this._defines = defines;
         this._dependencies = dependencies;
-        
-        if (CC_JSB && CC_NATIVERENDERER) {
-            var techniqueObjs = [];
-            var techniqueObj;
-            // get native technique info
-            for (var i = 0, len = techniques.length; i < len; ++i) {
-                techniqueObj = techniques[i]._nativeObj; 
-                techniqueObjs.push(techniqueObj);
-            }
-
-            var definesArr = [];
-            for (var key in defines) {
-                definesArr.push({name:key, value:defines[key]});
-            }
-
-            this._nativeObj = new renderer.EffectNative();
-            this._nativeObj.init(techniqueObjs, properties, definesArr);
-            this._nativePtr = this._nativeObj.self();
-        }
-
         // TODO: check if params is valid for current technique???
     }
 
@@ -43,14 +23,57 @@ class Effect {
         this._techniques.length = 0;
         this._properties = {};
         this._defines = {};
+    }
 
-        if (CC_JSB && CC_NATIVERENDERER) {
-            this._nativeObj.clear();
+    setCullMode (cullMode = gfx.CULL_BACK) {
+        let passes = this._techniques[0].passes;
+        for (let i = 0; i < passes.length; i++) {
+            passes[i].setCullMode(cullMode);
         }
     }
 
-    getDefaultTechnique() {
-        return this._techniques[0];
+    setBlend (enabled = false,
+        blendEq = gfx.BLEND_FUNC_ADD,
+        blendSrc = gfx.BLEND_SRC_ALPHA,
+        blendDst = gfx.BLEND_ONE_MINUS_SRC_ALPHA,
+        blendAlphaEq = gfx.BLEND_FUNC_ADD,
+        blendSrcAlpha = gfx.BLEND_SRC_ALPHA,
+        blendDstAlpha = gfx.BLEND_ONE_MINUS_SRC_ALPHA,
+        blendColor = 0xffffffff) { 
+        let passes = this._techniques[0].passes;
+        for (let j = 0; j < passes.length; j++) {
+            let pass = passes[j];
+            pass.setBlend(
+                enabled,
+                blendEq,
+                blendSrc, blendDst,
+                blendAlphaEq,
+                blendSrcAlpha, blendDstAlpha, blendColor
+            );
+        }
+    }
+
+    setStencilEnabled (enabled) {
+        let passes = this._techniques[0].passes;
+        for (let i = 0; i < passes.length; i++) {
+            passes[i].setStencilEnabled(enabled);
+        }
+    }
+
+    setStencil (enabled = gfx.STENCIL_INHERIT,
+        stencilFunc = gfx.DS_FUNC_ALWAYS,
+        stencilRef = 0,
+        stencilMask = 0xff,
+        stencilFailOp = gfx.STENCIL_OP_KEEP,
+        stencilZFailOp = gfx.STENCIL_OP_KEEP,
+        stencilZPassOp = gfx.STENCIL_OP_KEEP,
+        stencilWriteMask = 0xff) {
+        let passes = this._techniques[0].passes;
+        for (let i = 0; i < passes.length; ++i) {
+            let pass = passes[i];
+            pass.setStencilFront(enabled, stencilFunc, stencilRef, stencilMask, stencilFailOp, stencilZFailOp, stencilZPassOp, stencilWriteMask);
+            pass.setStencilBack(enabled, stencilFunc, stencilRef, stencilMask, stencilFailOp, stencilZFailOp, stencilZPassOp, stencilWriteMask);
+        }
     }
 
     getTechnique(stage) {
@@ -105,16 +128,9 @@ class Effect {
                 prop.value = value;
             }
         }
-        
-        if (CC_JSB && CC_NATIVERENDERER) {
-            this._nativeObj.setProperty(name, prop.value);
-        }
     }
 
     updateHash(hash) {
-        if (CC_JSB && CC_NATIVERENDERER) {
-            this._nativeObj.updateHash(hash);
-        }
     }
 
     getDefine(name) {
@@ -134,10 +150,6 @@ class Effect {
         }
 
         this._defines[name] = value;
-
-        if (CC_JSB && CC_NATIVERENDERER) {
-            this._nativeObj.define(name, value);
-        }
     }
 
     extractProperties(out = {}) {
@@ -290,3 +302,8 @@ if (CC_EDITOR) {
 
 export default Effect;
 cc.Effect = Effect;
+cc.Effect.extension = {
+    PARAM_TEXTURE_2D: enums.PARAM_TEXTURE_2D,
+    cloneObjArray: cloneObjArray, 
+    getInstanceCtor: getInstanceCtor
+}
