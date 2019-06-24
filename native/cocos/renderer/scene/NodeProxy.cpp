@@ -62,7 +62,7 @@ NodeProxy::NodeProxy(std::size_t unitID, std::size_t index, std::string id)
     _localZOrder = unit->getZOrder(index);
     _cullingMask = unit->getCullingMask(index);
     _opacity = unit->getOpacity(index);
-    _is3DNode = unit->getOpacity(index);
+    _is3DNode = unit->getIs3D(index);
     
     uint64_t* self = unit->getNode(index);
     *self = (uint64_t)this;
@@ -448,13 +448,14 @@ void NodeProxy::visitAsRoot(ModelBatcher* batcher, Scene* scene)
 {
     _worldMatDirty = 0;
     _parentOpacityDirty = 0;
-    visitWithoutTransform(batcher, scene);
+    // visitWithoutTransform(batcher, scene);
+    visit(batcher, scene);
 }
 
 void NodeProxy::visitWithoutTransform(ModelBatcher* batcher, Scene* scene)
 {
     if (!_needVisit) return;
-
+    
     updateRealOpacity();
 
     if (_realOpacity == 0)

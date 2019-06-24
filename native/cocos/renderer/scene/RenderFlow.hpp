@@ -59,23 +59,22 @@ public:
     enum RenderFlowFlag {
         // sync js render flag
         
-        BREAK_FLOW = 1 << 0,
-        LOCAL_TRANSFORM = 1 << 1,
-        WORLD_TRANSFORM = 1 << 2,
+        DONOTHING = 1 << 0,
+        BREAK_FLOW = 1 << 1,
+        LOCAL_TRANSFORM = 1 << 2,
+        WORLD_TRANSFORM = 1 << 3,
         TRANSFORM = LOCAL_TRANSFORM | WORLD_TRANSFORM,
-        UPDATE_RENDER_DATA = 1 << 3,
-        OPACITY = 1 << 4,
-        RENDER = 1 << 5,
-        CUSTOM_IA_RENDER = 1 << 6,
+        UPDATE_RENDER_DATA = 1 << 4,
+        OPACITY = 1 << 5,
+        RENDER = 1 << 6,
         CHILDREN = 1 << 7,
-        POST_UPDATE_RENDER_DATA = 1 << 8,
-        POST_RENDER = 1 << 9,
-        FINAL = 1 << 10,
+        POST_RENDER = 1 << 8,
+        FINAL = 1 << 9,
         
         // native render flag
-        REORDER_CHILDREN = 1 << 11,
+        REORDER_CHILDREN = 1 << 10,
         // world matrix changed
-        WORLD_TRANSFORM_CHANGED = 1 << 12
+        WORLD_TRANSFORM_CHANGED = 1 << 11
     };
 
     enum ParallelStage {

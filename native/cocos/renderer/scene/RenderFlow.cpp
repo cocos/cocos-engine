@@ -243,51 +243,51 @@ void RenderFlow::render(NodeProxy* scene)
 {
     if (scene != nullptr)
     {
-    
-#if SUB_RENDER_THREAD_COUNT > 0
-
-        int mainThreadTid = RENDER_THREAD_COUNT - 1;
-        bool threadBegan = false;
         
-        NodeMemPool* instance = NodeMemPool::getInstance();
-        auto& commonList = instance->getCommonList();
-        if (commonList.size() < LocalMat_Use_Thread_Unit_Count)
-        {
-            calculateLocalMatrix();
-        }
-        else
-        {
-            _parallelStage = ParallelStage::LOCAL_MAT;
-            _paralleTask->begin();
-            threadBegan = true;
-            
-            calculateLocalMatrix(mainThreadTid);
-            while(*_runFlag != ParallelTask::RunFlag::ProcessFinished) std::this_thread::yield();
-        }
-        
-        _parallelStage = ParallelStage::WORLD_MAT;
-        _curLevel = 0;
-        for(auto count = _levelInfoArr.size(); _curLevel < count; _curLevel++)
-        {
-            auto& levelInfos = _levelInfoArr[_curLevel];
-            if (levelInfos.size() < WorldMat_Use_Thread_Node_count)
-            {
-                calculateLevelWorldMatrix();
-            }
-            else
-            {
-                if (!threadBegan) _paralleTask->begin();
-                *_runFlag = ParallelTask::RunFlag::ToProcess;
-                calculateLevelWorldMatrix(mainThreadTid);
-                while(*_runFlag != ParallelTask::RunFlag::ProcessFinished) std::this_thread::yield();
-            }
-        }
-        
-        if (threadBegan) _paralleTask->stop();
-#else
-        calculateLocalMatrix();
-        calculateWorldMatrix();
-#endif
+//#if SUB_RENDER_THREAD_COUNT > 0
+//
+//        int mainThreadTid = RENDER_THREAD_COUNT - 1;
+//        bool threadBegan = false;
+//
+//        NodeMemPool* instance = NodeMemPool::getInstance();
+//        auto& commonList = instance->getCommonList();
+//        if (commonList.size() < LocalMat_Use_Thread_Unit_Count)
+//        {
+//            calculateLocalMatrix();
+//        }
+//        else
+//        {
+//            _parallelStage = ParallelStage::LOCAL_MAT;
+//            _paralleTask->begin();
+//            threadBegan = true;
+//
+//            calculateLocalMatrix(mainThreadTid);
+//            while(*_runFlag != ParallelTask::RunFlag::ProcessFinished) std::this_thread::yield();
+//        }
+//
+//        _parallelStage = ParallelStage::WORLD_MAT;
+//        _curLevel = 0;
+//        for(auto count = _levelInfoArr.size(); _curLevel < count; _curLevel++)
+//        {
+//            auto& levelInfos = _levelInfoArr[_curLevel];
+//            if (levelInfos.size() < WorldMat_Use_Thread_Node_count)
+//            {
+//                calculateLevelWorldMatrix();
+//            }
+//            else
+//            {
+//                if (!threadBegan) _paralleTask->begin();
+//                *_runFlag = ParallelTask::RunFlag::ToProcess;
+//                calculateLevelWorldMatrix(mainThreadTid);
+//                while(*_runFlag != ParallelTask::RunFlag::ProcessFinished) std::this_thread::yield();
+//            }
+//        }
+//
+//        if (threadBegan) _paralleTask->stop();
+//#else
+//        calculateLocalMatrix();
+//        calculateWorldMatrix();
+//#endif
         
         _batcher->startBatch();
         scene->visitAsRoot(_batcher, _scene);
