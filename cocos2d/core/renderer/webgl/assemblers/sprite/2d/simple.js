@@ -79,7 +79,7 @@ export default class SimpleSpriteAssembler extends Assembler2D {
             t = ch + trimTop * scaleY - appy;
         }
 
-        let local = this._renderData._local;
+        let local = this._local;
         local[0] = l;
         local[1] = b;
         local[2] = r;

@@ -88,7 +88,7 @@ export default class WebglTTFAssembler extends TTFAssembler {
             }
         }
 
-        let local = this._renderData._local;
+        let local = this._local;
         local[0] = -appx;
         local[1] = -appy;
         local[2] = canvasWidth - appx;

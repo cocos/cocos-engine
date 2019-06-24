@@ -29,7 +29,7 @@ export default class SlicedAssembler extends Assembler2D {
     initData (sprite) {
         if (this._renderData.meshCount > 0) return;
         this._renderData.createData(0, this.verticesFloats, this.indicesCount);
-        this._renderData._local.length = 8;
+        this._local.length = 8;
 
         let indices = this._renderData.iDatas[0];
         let indexOffset = 0;
@@ -79,7 +79,7 @@ export default class SlicedAssembler extends Assembler2D {
         sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
 
         // update local
-        let local = this._renderData._local;
+        let local = this._local;
         local[0] = -appx;
         local[1] = -appy;
         local[2] = leftWidth * xScale - appx;
@@ -113,9 +113,8 @@ export default class SlicedAssembler extends Assembler2D {
             a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
             tx = matrix.m12, ty = matrix.m13;
 
-        let renderData = this._renderData;
-        let local = renderData._local;
-        let world = renderData.vDatas[0];
+        let local = this._local;
+        let world = this._renderData.vDatas[0];
 
         let floatsPerVert = this.floatsPerVert;
         for (let row = 0; row < 4; ++row) {

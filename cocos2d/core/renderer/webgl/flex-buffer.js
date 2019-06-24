@@ -20,38 +20,81 @@
  i.  This Agreement is made in both Chinese and English, and the Chinese version shall prevail the event of conflict.
  ****************************************************************************/
 
-cc.FlexBuffer = function (bytes) {
-    this._reallocBuffer(bytes || 64, false);
-}
+export default class FlexBuffer {
+    constructor (handler, index, verticesCount, indicesCount, vfmt) {
+        this._handler = handler;
+        this._index = index;
+        this._vfmt = vfmt;
+        this._verticesBytes = vfmt._bytes;
 
-cc.js.mixin(cc.FlexBuffer.prototype, {
-    _reallocBuffer (bytes, copyOldData) {
-        let oldData;
-        if (this.buffer) {
-            oldData = new Uint8Array(this.buffer);
+        let floatsCount = verticesCount * this._verticesBytes >> 2;
+        this._reallocVData(floatsCount);
+        this._reallocIData(indicesCount);
+
+        this.usedVertices = 0;
+        this.usedVerticesFloats = 0;
+        this.usedIndices = 0;
+    }
+
+    _reallocVData (floatsCount, oldData) {
+        this.vData = new Float32Array(floatsCount);
+        this.uintVData = new Uint32Array(this.vData.buffer);
+
+        if (oldData) {
+            this.vData.set(oldData);
         }
 
-        this.buffer = new ArrayBuffer(bytes);
-        let newData = new Uint8Array(this.buffer);
+        this._handler.updateMesh(this._index, this.vData, this.iData);
+    }
 
-        // Only copy data if old buffer is smaller
-        if (oldData && copyOldData && newData.length >= oldData.length) {
-            newData.set(oldData);
+    _reallocIData (indicesCount, oldData) {
+        this.iData = new Uint16Array(indicesCount);
+        
+        if (oldData) {
+            this.iData.set(oldData);
         }
-    },
-    
-    // return true if array buffer changed
-    reserve (bytes) {
-        let byteLength = this.buffer.byteLength;
-        if (bytes > byteLength) {
-            while (byteLength < bytes) {
-                byteLength *= 2;
+
+        this._handler.updateMesh(this._index, this.vData, this.iData);
+    }
+
+    reserve (verticesCount, indicesCount) {
+        let floatsCount = verticesCount * this._verticesBytes >> 2;
+        let newFloatsCount = this.vData.length;
+        let realloced = false;
+
+        if (floatsCount > newFloatsCount) {
+            while (newFloatsCount < floatsCount) {
+                newFloatsCount *= 2;
             }
-            this._reallocBuffer(byteLength);
-            return true;
+            this._reallocVData(newFloatsCount, this.vData);
+            realloced = true;
         }
-        return false;
-    },
-});
 
-module.exports = cc.FlexBuffer;
+        let newIndicesCount = this.iData.length;
+        if (indicesCount > newIndicesCount) {
+            while (newIndicesCount < indicesCount) {
+                newIndicesCount *= 2;
+            }
+            this._reallocIData(indicesCount, this.iData);
+            realloced = true;
+        }
+
+        return realloced;
+    }
+
+    used (verticesCount, indicesCount) {
+        this.usedVertices = verticesCount;
+        this.usedIndices = indicesCount;
+        this.usedVerticesFloats = verticesCount * this._verticesBytes >> 2;
+
+        this._handler.updateMeshRange(verticesCount, indicesCount);
+    }
+
+    reset () {
+        this.usedVertices = 0;
+        this.usedVerticesFloats = 0;
+        this.usedIndices = 0;
+    }
+} 
+
+cc.FlexBuffer = FlexBuffer

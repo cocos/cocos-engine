@@ -1,10 +1,13 @@
 import Assembler from './assembler';
 import dynamicAtlasManager from './utils/dynamic-atlas/manager';
 import RenderData from './render-data';
+import { vfmtPosUvColor } from './webgl/vertex-format';
 
 export default class Assembler2D extends Assembler {
     init (comp) {
         super.init(comp);
+
+        this._local = [];
 
         this._renderData = new RenderData();
         this._renderData.init(this);
@@ -20,7 +23,7 @@ export default class Assembler2D extends Assembler {
         let data = this._renderData;
         data.createQuadData(0, this.verticesFloats, this.indicesCount);
         // l b r t
-        data._local.length = 4;
+        this._local.length = 4;
     }
 
     updateColor (comp, color) {
@@ -38,8 +41,12 @@ export default class Assembler2D extends Assembler {
         return cc.renderer._handle._meshBuffer;
     }
 
+    getVfmt () {
+        return vfmtPosUvColor;
+    }
+
     updateWorldVerts (comp) {
-        let local = this._renderData._local;
+        let local = this._local;
         let verts = this._renderData.vDatas[0];
 
         let matrix = comp.node._worldMatrix,
@@ -78,7 +85,7 @@ export default class Assembler2D extends Assembler {
         let iData = renderData.iDatas[0];
 
         let buffer = this.getBuffer(renderer);
-        let offsetInfo = buffer.request(this.verticesCount, iData.length);
+        let offsetInfo = buffer.request(this.verticesCount, this.indicesCount);
 
         // buffer data may be realloc, need get reference after request.
 
@@ -86,7 +93,12 @@ export default class Assembler2D extends Assembler {
         let vertexOffset = offsetInfo.byteOffset >> 2,
             vbuf = buffer._vData;
 
-        vbuf.set(vData, vertexOffset);
+        if (vData.length + vertexOffset > vbuf.length) {
+            vbuf.set(vData.subarray(0, this.verticesFloats), vertexOffset);
+        }
+        else {
+            vbuf.set(vData, vertexOffset);
+        }
 
         // fill indices
         let ibuf = buffer._iData,
