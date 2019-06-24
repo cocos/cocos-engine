@@ -1,3 +1,11 @@
+
+/**
+ * @hidden
+ */
+/**
+ * @disable
+ */
+
 import { repeat } from '../../../../core/vmath';
 import { AnimationCurve, evalOptCurve, OptimizedKey } from '../../../geom-utils/curve';
 import CurveRange, { Mode } from './curve-range';

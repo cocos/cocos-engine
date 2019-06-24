@@ -1,3 +1,12 @@
+
+/**
+ * @internal
+ * @module memop
+ */
+/**
+ * @able
+ */
+
 let _bufferPools: ArrayBuffer[][] = Array(8);
 for (let i = 0; i < 8; ++i) {
     _bufferPools[i] = [];

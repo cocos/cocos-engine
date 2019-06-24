@@ -168,6 +168,10 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
+    public _getModel (): Model | null {
+        return this._model;
+    }
+
     public recreateModel () {
         if (this._model) {
             this._model.destroy();

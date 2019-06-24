@@ -1,3 +1,11 @@
+
+/**
+ * @hidden
+ */
+/**
+ * @disable
+ */
+
 import { ParticleSystemComponent } from '..';
 import { CCObject } from '../../../core';
 import { Node } from '../../../scene-graph';

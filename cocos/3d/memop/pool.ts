@@ -1,3 +1,14 @@
+
+/**
+ * 可以自动分配内存的数据结构
+ * @internal
+ * @module memop
+ * @preferred
+ */
+/**
+ * @able
+ */
+
 /**
  * @zh 对象池。
  */

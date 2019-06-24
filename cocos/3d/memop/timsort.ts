@@ -1,6 +1,13 @@
 // reference: https://github.com/mziccard/node-timsort
 
 /**
+ * @hidden
+ */
+/**
+ * @disable
+ */
+
+/**
  * Default minimum size of a run.
  */
 const DEFAULT_MIN_MERGE = 32;
