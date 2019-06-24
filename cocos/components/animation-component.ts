@@ -197,7 +197,7 @@ export class AnimationComponent extends Component implements IEventTarget {
             const state = this._nameToState[name];
             state.stop();
         }
-        this._nameToState = Object.create(null);
+        this._nameToState = null as any;
     }
 
     /**
