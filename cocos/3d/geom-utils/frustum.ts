@@ -1,3 +1,11 @@
+/**
+ * @internal
+ * @module gemotry-util
+ */
+/**
+ * @able
+ */
+
 import { Vec3 } from '../../core/value-types';
 import { mat4, vec3 } from '../../core/vmath';
 import enums from './enums';
@@ -21,15 +29,6 @@ export class frustum {
      */
     set accurate (b: boolean) {
         this._type = b ? enums.SHAPE_FRUSTUM_ACCURATE : enums.SHAPE_FRUSTUM;
-    }
-
-    /**
-     * create a new frustum
-     *
-     * @return {frustum}
-     */
-    public static create () {
-        return new frustum();
     }
 
     public static createOrtho = (() => {
@@ -62,6 +61,15 @@ export class frustum {
             plane.fromPoints(out.planes[0], out.vertices[7], out.vertices[5], out.vertices[6]);
         };
     })();
+
+    /**
+     * create a new frustum
+     *
+     * @return {frustum}
+     */
+    public static create () {
+        return new frustum();
+    }
 
     /**
      * Clone a frustum

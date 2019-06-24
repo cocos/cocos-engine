@@ -1,6 +1,16 @@
+/**
+ * @internal
+ * @module gemotry-util
+ */
+/**
+ * @able
+ */
 
 /**
+ * @en
  * Orders matter, it decides the priority when calling intersection functions
+ * @zh
+ * 形状的类型值。
  */
 export default {
   SHAPE_RAY: (1 << 0),

@@ -1,3 +1,11 @@
+/**
+ * @internal
+ * @module gemotry-util
+ */
+/**
+ * @able
+ */
+
 import { mat4, vec3, vec4 } from '../../core/vmath';
 import enums from './enums';
 
