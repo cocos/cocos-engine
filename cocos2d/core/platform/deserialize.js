@@ -518,10 +518,7 @@ var _Deserializer = (function () {
                 var isPrimitiveType;
                 var userType = attrs[propName + TYPE];
                 if (defaultValue === undefined && userType) {
-                    isPrimitiveType = userType === cc.String ||
-                                      userType === cc.Integer ||
-                                      userType === cc.Float ||
-                                      userType === cc.Boolean;
+                    isPrimitiveType = userType instanceof Attr.PrimitiveType;
                 }
                 else {
                     var defaultType = typeof defaultValue;
@@ -599,10 +596,7 @@ var _Deserializer = (function () {
                 if (fastMode) {
                     var userType = attrs[propName + TYPE];
                     if (defaultValue === undefined && userType) {
-                        isPrimitiveType = userType === cc.String ||
-                                          userType === cc.Integer ||
-                                          userType === cc.Float ||
-                                          userType === cc.Boolean;
+                        isPrimitiveType = userType instanceof Attr.PrimitiveType;
                     }
                     else {
                         var defaultType = typeof defaultValue;
