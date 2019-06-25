@@ -87,7 +87,7 @@ function instantiate (original, internal_force) {
             cc.game._isCloning = true;
             if (original instanceof cc.Component) {//如果参数传递的是组件
                 var node = original.node._instantiate();//那么实例化组件所在的 Node
-                clone = node.getComponent(original);//然后再从实例化出来的 node 中取得目标组件，将其作为返回值
+                clone = node.getComponent(original.__classname__);//然后再从实例化出来的 node 中取得目标组件，将其作为返回值
             } else {//如果是其他 CCObject
                 clone = original._instantiate();//直接实例化
             }
