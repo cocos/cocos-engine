@@ -1,5 +1,8 @@
 /**
+<<<<<<< HEAD
  * 几何图形模块
+=======
+>>>>>>> Daily merge (#4693)
  * @category 3d/primitive
  */
 

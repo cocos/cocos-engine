@@ -24,7 +24,12 @@
  THE SOFTWARE.
 */
 /**
+<<<<<<< HEAD
  * @category core
+=======
+ * @category core 核心模块
+ * @disable
+>>>>>>> Daily merge (#4693)
  */
 
 import * as vmath from './vmath';

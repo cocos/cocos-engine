@@ -10,6 +10,7 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../.
 import { Mat4, Quat, Vec2, Vec3 } from '../../../core/value-types';
 import { pseudoRandom, randomRangeInt, vec2, vec3 } from '../../../core/vmath';
 import { INT_MAX } from '../../../core/vmath/bits';
+import { Model } from '../../../renderer';
 import { Material } from '../../assets';
 import { RenderableComponent } from '../renderable-component';
 import ColorOverLifetimeModule from './animator/color-overtime';
@@ -27,7 +28,6 @@ import { Space } from './enum';
 import { particleEmitZAxis } from './particle-general-function';
 import ParticleSystemRenderer from './renderer/particle-system-renderer';
 import TrailModule from './renderer/trail';
-import { Model } from '../../../renderer';
 
 const _world_mat = new Mat4();
 

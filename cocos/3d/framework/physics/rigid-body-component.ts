@@ -13,6 +13,10 @@ import {
 } from '../../../core/data/class-decorator';
 import { Quat, Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';
+<<<<<<< HEAD
+=======
+import { PhysicsMaterial } from '../../assets/physics/material';
+>>>>>>> Daily merge (#4693)
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 
 const NonRigidBodyProperties = {
@@ -143,11 +147,17 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
+<<<<<<< HEAD
      * 获取或设置线性速度的因子，可以用来控制每个轴方向上的速度的缩放。
      */
     @property({
         displayOrder: 6,
     })
+=======
+     * 设置线性速度的因子，可以用来控制每个轴方向上的速度的缩放。
+     */
+    @property
+>>>>>>> Daily merge (#4693)
     public get linearFactor () {
         if (CC_EDITOR) {
             return this._linearFactor;
@@ -165,11 +175,17 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
+<<<<<<< HEAD
      * 获取或设置旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放。
      */
     @property({
         displayOrder: 7,
     })
+=======
+     * 设置旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放。
+     */
+    @property
+>>>>>>> Daily merge (#4693)
     public get angularFactor () {
         if (CC_EDITOR) {
             return this._angularFactor;
@@ -186,7 +202,11 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
+<<<<<<< HEAD
      * 获取是否是唤醒的状态。
+=======
+     * 是否是唤醒的状态。
+>>>>>>> Daily merge (#4693)
      */
     public get isAwake (): boolean {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
@@ -197,7 +217,11 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
+<<<<<<< HEAD
      * 获取是否是可进入休眠的状态。
+=======
+     * 是否是可进入休眠的状态。
+>>>>>>> Daily merge (#4693)
      */
     public get isSleepy (): boolean {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
@@ -208,7 +232,11 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
+<<<<<<< HEAD
      * 获取是否是正在休眠的状态。
+=======
+     * 是否是正在休眠的状态。
+>>>>>>> Daily merge (#4693)
      */
     public get isSleeping (): boolean {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
@@ -317,11 +345,14 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         }
     }
 
+<<<<<<< HEAD
     /**
      * @zh
      * 获取线性速度。
      * @param out 速度 Vec3
      */
+=======
+>>>>>>> Daily merge (#4693)
     public getLinearVelocity (out: Vec3): Vec3 {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             return this._body.getLinearVelocity(out);
@@ -330,22 +361,28 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         return out;
     }
 
+<<<<<<< HEAD
     /**
      * @zh
      * 设置线性速度。
      * @param value 速度 Vec3
      */
+=======
+>>>>>>> Daily merge (#4693)
     public setLinearVelocity (value: Vec3): void {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             this._body.setLinearVelocity(value);
         }
     }
 
+<<<<<<< HEAD
     /**
      * @zh
      * 获取旋转速度。
      * @param out 速度 Vec3
      */
+=======
+>>>>>>> Daily merge (#4693)
     public getAngularVelocity (out: Vec3): Vec3 {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             return this._body.getAngularVelocity(out);
@@ -354,11 +391,14 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         return out;
     }
 
+<<<<<<< HEAD
     /**
      * @zh
      * 设置旋转速度。
      * @param value 速度 Vec3
      */
+=======
+>>>>>>> Daily merge (#4693)
     public setAngularVelocity (value: Vec3): void {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             this._body.setAngularVelocity(value);

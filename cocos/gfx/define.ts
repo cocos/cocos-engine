@@ -1,9 +1,15 @@
 /**
+<<<<<<< HEAD
  * gfx模块
  * @category gfx
  */
 
 
+=======
+ * @category gfx
+ */
+
+>>>>>>> Daily merge (#4693)
 export const GFX_MAX_VERTEX_ATTRIBUTES: number = 16;
 export const GFX_MAX_TEXTURE_UNITS: number = 16;
 export const GFX_MAX_ATTACHMENTS: number = 4;

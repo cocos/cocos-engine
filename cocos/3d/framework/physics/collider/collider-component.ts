@@ -10,7 +10,11 @@ import { createMap } from '../../../../core/utils/js';
 import Vec3 from '../../../../core/value-types/vec3';
 import { vec3 } from '../../../../core/vmath';
 import { ICollisionCallback, ICollisionEvent, ITriggerCallback, ITriggerEvent, RigidBodyBase, ShapeBase } from '../../../physics/api';
+<<<<<<< HEAD
 import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../../physics/export-api';
+=======
+import { CollisionCallback, CollisionEventType, IContactEquation, TriggerCallback, TriggerEventType } from '../../../physics/export-api';
+>>>>>>> Daily merge (#4693)
 import { ERigidBodyType, ETransformSource } from '../../../physics/physic-enum';
 import { PhysicsBasedComponent } from '../detail/physics-based-component';
 import { RigidBodyComponent } from '../rigid-body-component';
@@ -100,12 +104,15 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
         }
     }
 
+<<<<<<< HEAD
     /**
      * @en
      * get the collider attached rigidbody, this may be null
      * @zh
      * 获取碰撞器所绑定的刚体组件，可能为 null
      */
+=======
+>>>>>>> Daily merge (#4693)
     public get attachedRigidbody (): RigidBodyComponent | null {
         return this.sharedBody.rigidBody as RigidBodyComponent | null;
     }
@@ -203,7 +210,10 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
     protected onEnable () {
 
         if (!CC_EDITOR) {
+<<<<<<< HEAD
             super.onEnable();
+=======
+>>>>>>> Daily merge (#4693)
 
             const rigidBody = this.sharedBody.rigidBody as RigidBodyComponent | null;
             if (rigidBody != null) {
@@ -218,8 +228,11 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
             if (!CC_PHYSICS_BUILT_IN) {
                 this.sharedBody.body.addCollisionCallback(this._collisionCallBack);
             }
+<<<<<<< HEAD
             // sync after add shape
             this.sharedBody.syncPhysWithScene();
+=======
+>>>>>>> Daily merge (#4693)
         }
     }
 

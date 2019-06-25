@@ -1,7 +1,16 @@
 /**
+<<<<<<< HEAD
  * @category core/math
  */
 
+=======
+ * @internal
+ * @module core/math
+ */
+/**
+ * @able
+ */
+>>>>>>> Daily merge (#4693)
 /**
  * @en
  * Bit twiddling hacks for JavaScript.

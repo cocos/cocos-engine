@@ -1,6 +1,28 @@
+<<<<<<< HEAD
 /**
  * @category physics
  */
+=======
+import { Vec3 } from '../../core/value-types';
+import { ColliderComponent } from '../framework/physics/collider/collider-component';
+import { RigidBodyComponent } from '../framework/physics/rigid-body-component';
+
+export interface ITriggerEvent {
+    readonly type: TriggerEventType;
+    readonly selfCollider: ColliderComponent;
+    readonly otherCollider: ColliderComponent;
+}
+
+export type TriggerEventType = 'onTriggerEnter' | 'onTriggerStay' | 'onTriggerExit';
+
+export type TriggerCallback = (event: ITriggerEvent) => void;
+
+export interface IContactEquation {
+    readonly contactA: Vec3;
+    readonly contactB: Vec3;
+    readonly normal: Vec3;
+}
+>>>>>>> Daily merge (#4693)
 
 import { Vec3 } from '../../core/value-types';
 import { ColliderComponent } from '../framework/physics/collider/collider-component';
@@ -68,6 +90,7 @@ export interface IContactEquation {
  * 碰撞事件。
  */
 export interface ICollisionEvent {
+<<<<<<< HEAD
     /**
      * @zh
      * 碰撞的事件类型。
@@ -90,6 +113,11 @@ export interface ICollisionEvent {
      * @zh
      * 碰撞中的所有碰撞点的信息。
      */
+=======
+    readonly type: CollisionEventType;
+    readonly selfCollider: ColliderComponent;
+    readonly otherCollider: ColliderComponent;
+>>>>>>> Daily merge (#4693)
     readonly contacts: IContactEquation[];
 }
 
@@ -98,7 +126,10 @@ export interface ICollisionEvent {
  */
 export type CollisionEventType = 'onCollisionEnter' | 'onCollisionStay' | 'onCollisionExit';
 
+<<<<<<< HEAD
 /**
  * 碰撞事件的回调函数签名定义。
  */
+=======
+>>>>>>> Daily merge (#4693)
 export type CollisionCallback = (event: ICollisionEvent) => void;

@@ -148,9 +148,15 @@ export interface RigidBodyBase extends BuiltInRigidBodyBase {
     /**
      * force
      */
+<<<<<<< HEAD
 
     applyForce (force: Vec3, worldPoint?: Vec3): void;
 
+=======
+
+    applyForce (force: Vec3, worldPoint?: Vec3): void;
+
+>>>>>>> Daily merge (#4693)
     applyLocalForce (force: Vec3, localPoint?: Vec3): void;
 
     /**
@@ -186,6 +192,7 @@ export interface RigidBodyBase extends BuiltInRigidBodyBase {
     setUseGravity (value: boolean): void;
 
     getCollisionResponse (): boolean;
+<<<<<<< HEAD
 
     setCollisionResponse (value: boolean): void;
 
@@ -203,6 +210,25 @@ export interface RigidBodyBase extends BuiltInRigidBodyBase {
 
     getAngularVelocity (out?: Vec3): Vec3;
 
+=======
+
+    setCollisionResponse (value: boolean): void;
+
+    /**
+     * linear velocity
+     */
+
+    getLinearVelocity (out?: Vec3): Vec3;
+
+    setLinearVelocity (value: Vec3): void;
+
+    /**
+     * angular velocity
+     */
+
+    getAngularVelocity (out?: Vec3): Vec3;
+
+>>>>>>> Daily merge (#4693)
     setAngularVelocity (value: Vec3): void;
 
     /**
