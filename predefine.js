@@ -162,6 +162,7 @@ defineMacro('CC_BUILD', false);
 // If you need to modify them
 // please modify the `global_defs` in the option returned by `gulp/util/utils.js: getUglifyOptions`.
 if (CC_BUILD) {
+    _global.CC_BUILD = CC_BUILD;
     _global.CC_DEV = CC_DEV;
     _global.CC_DEBUG = CC_DEBUG;
     _global.CC_SUPPORT_JIT = CC_SUPPORT_JIT;
