@@ -30,6 +30,10 @@ import Mat4 from './mat4';
 import { ValueType } from './value-type';
 
 /**
+ * @category Core/Math
+ */
+
+/**
  * 四维向量。
  */
 export default class Vec4 extends ValueType {
