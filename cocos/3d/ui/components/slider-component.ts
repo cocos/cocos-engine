@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui
+ */
+
 import { Component, EventHandler as ComponentEventHandler } from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { EventTouch, SystemEventType } from '../../../core/platform';
@@ -57,6 +61,7 @@ ccenum(Direction);
 /**
  * @zh
  * 滑动器组件。
+ * 可通过 cc.SliderComponent 获得该组件。
  */
 @ccclass('cc.SliderComponent')
 @executionOrder(110)

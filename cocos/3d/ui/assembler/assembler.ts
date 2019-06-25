@@ -25,10 +25,15 @@
 
 import { UIRenderComponent } from '../components';
 
-export interface IAssembler {
+interface IAssembler {
     [key: string]: any;
 }
 
-export interface IAssemblerManager {
+interface IAssemblerManager {
     getAssembler (component: UIRenderComponent): IAssembler;
 }
+
+export {
+    IAssembler,
+    IAssemblerManager,
+};

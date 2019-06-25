@@ -23,6 +23,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * @category ui
+ */
+
 import { SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property} from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform';
@@ -80,6 +85,7 @@ const SEGEMENTS_MAX = 10000;
 /**
  * @zh
  * 遮罩组件。
+ * 可通过 cc.MaskComponent 获得该组件。
  */
 @ccclass('cc.MaskComponent')
 @executionOrder(110)

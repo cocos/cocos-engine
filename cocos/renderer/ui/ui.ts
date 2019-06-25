@@ -1,5 +1,5 @@
 
-import { Assembler, CanvasComponent, MeshBuffer, UIComponent, UIRenderComponent, UIVertexFormat } from '../../3d';
+import { CanvasComponent, IAssembler, MeshBuffer, StencilManager, UIComponent, UIRenderComponent, UIVertexFormat } from '../../3d';
 import { Material } from '../../3d/assets/material';
 import Pool from '../../3d/memop/pool';
 import RecyclePool from '../../3d/memop/recycle-pool';
@@ -318,7 +318,7 @@ export class UI {
      * @param frame - 当前执行组件贴图。
      * @param assembler - 当前组件渲染数据组装器。
      */
-    public commitComp (comp: UIRenderComponent, frame: GFXTextureView | null = null, assembler?: Assembler.IAssembler) {
+    public commitComp (comp: UIRenderComponent, frame: GFXTextureView | null = null, assembler?: IAssembler) {
         const renderComp = comp;
         const texView = frame;
         if (this._currMaterial.hash !== renderComp.material!.hash ||
@@ -343,7 +343,7 @@ export class UI {
         }
 
         if (mat){
-            const rebuild = Assembler.StencilManager.sharedManager!.handleMaterial(mat);
+            const rebuild = StencilManager.sharedManager!.handleMaterial(mat);
             if (rebuild && model){
                 for (let i = 0; i < model.subModelNum; i++) {
                     model.setSubModelMaterial(i, mat);
@@ -387,7 +387,7 @@ export class UI {
 
         const uiCanvas = this.getScreen(this._currCanvas);
 
-        Assembler.StencilManager.sharedManager!.handleMaterial(mat);
+        StencilManager.sharedManager!.handleMaterial(mat);
 
         const curDrawBatch = this._drawBatchPool.alloc();
         curDrawBatch.camera = uiCanvas && uiCanvas.camera;
@@ -516,7 +516,7 @@ export class UI {
         this._currTexView = null;
         this._meshBufferUseCount = 0;
         this._requireBufferBatch();
-        Assembler.StencilManager.sharedManager!.reset();
+        StencilManager.sharedManager!.reset();
     }
 
     private _createMeshBuffer (): MeshBuffer {

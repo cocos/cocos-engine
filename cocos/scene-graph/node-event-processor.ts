@@ -1,4 +1,35 @@
-import { Event, EventTarget } from '../core/event';
+/*
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+/**
+ * 系统事件
+ * @category event
+ */
+
+import { EventTarget } from '../core/event';
 import { ITargetImpl } from '../core/event/event-target';
 import { eventManager } from '../core/platform/event-manager';
 import Touch from '../core/platform/event-manager/CCTouch';
@@ -281,6 +312,10 @@ function _checkListeners (node: Node, events: string[]) {
     return true;
 }
 
+/**
+ * @zh
+ * 节点事件类。
+ */
 export class NodeEventProcessor {
     public get node (): Node {
         return this._node;
@@ -338,7 +373,7 @@ export class NodeEventProcessor {
      * @return - 返回监听回调函数自身。
      *
      * @example
-     * ```ts
+     * ```typescript
      * this.node.on(cc.Node.EventType.TOUCH_START, this.memberFunction, this);  // if "this" is component and the "memberFunction" declared in CCClass.
      * this.node.on(cc.Node.EventType.TOUCH_START, callback, this);
      * this.node.on(cc.Node.EventType.ANCHOR_CHANGED, callback);
@@ -388,7 +423,7 @@ export class NodeEventProcessor {
      * @param useCapture - 当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
      *
      * @example
-     * ```ts
+     * ```typescript
      * node.once(cc.Node.EventType.ANCHOR_CHANGED, callback);
      * ```
      */
@@ -416,7 +451,7 @@ export class NodeEventProcessor {
      * @param useCapture - 当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
      *
      * @example
-     * ```ts
+     * ```typescript
      * this.node.off(cc.Node.EventType.TOUCH_START, this.memberFunction, this);
      * node.off(cc.Node.EventType.TOUCH_START, callback, this.node);
      * node.off(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
@@ -477,7 +512,7 @@ export class NodeEventProcessor {
      * @param arg4 - 回调第四个参数。
      * @param arg5 - 回调第五个参数。
      * @example
-     * ```ts
+     * ```typescript
      * eventTarget.emit('fire', event);
      * eventTarget.emit('fire', message, emitter);
      * ```

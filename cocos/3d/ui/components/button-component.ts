@@ -24,6 +24,11 @@
  THE SOFTWARE.
 */
 
+/**
+ * 用户界面组件
+ * @category ui
+ */
+
 import { SpriteFrame } from '../../../assets';
 import { Component, EventHandler as ComponentEventHandler } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
@@ -77,6 +82,7 @@ enum State {
 /**
  * @zh
  * 按钮组件。可以被按下,或者点击。<br/>
+ * 可通过 cc.ButtonComponent 获得此组件
  *
  * 按钮可以通过修改 Transition 来设置按钮状态过渡的方式：<br/>
  *   -Button.Transition.NONE   // 不做任何过渡<br/>
@@ -99,19 +105,18 @@ enum State {
  *   -cc.Node.EventType.MOUSE_WHEEL // 鼠标滚轮事件<br/>
  *
  * @example
- * ```ts
+ * ```typescript
  * // Add an event to the button.
- * button.node.on(cc.Node.EventType.TOUCH_START, function (event) {
+ * button.node.on(cc.Node.EventType.TOUCH_START, (event) => {
  *     cc.log("This is a callback after the trigger event");
  * });
  * // You could also add a click event
  * //Note: In this way, you can't get the touch event info, so use it wisely.
- * button.node.on('click', function (button) {
+ * button.node.on('click', (button) => {
  *    //The event is a custom event, you could get the Button component via first argument
  * })
  * ```
  */
-
 @ccclass('cc.ButtonComponent')
 @executionOrder(110)
 @menu('UI/Button')

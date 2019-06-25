@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui
+ */
+
 import { Font, SpriteAtlas, TTFFont } from '../../../assets';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { EventTouch } from '../../../core/platform';
@@ -156,6 +160,7 @@ interface ILabelSegment{
 /**
  * @zh
  * 富文本组件。
+ * 可通过 cc.RichTextComponent 获得该组件。
  */
 @ccclass('cc.RichTextComponent')
 @executionOrder(110)
