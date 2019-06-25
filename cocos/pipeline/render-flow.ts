@@ -1,3 +1,7 @@
+/**
+ * @category pipeline
+ */
+
 import { Material } from '../3d/assets/material';
 import { GFXDevice } from '../gfx/device';
 import { RenderPipeline } from './render-pipeline';

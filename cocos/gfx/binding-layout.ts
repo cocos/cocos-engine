@@ -1,3 +1,7 @@
+/**
+ * @category gfx
+ */
+
 import { GFXBuffer } from './buffer';
 import { GFXBindingType, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';

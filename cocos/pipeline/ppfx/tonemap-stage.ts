@@ -1,3 +1,7 @@
+/**
+ * @category pipeline/ppfx
+ */
+
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXClearFlag, GFXCommandBufferType } from '../../gfx/define';
 import { UBOGlobal } from '../define';

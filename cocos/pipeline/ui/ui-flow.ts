@@ -1,3 +1,7 @@
+/**
+ * @category pipeline/ui UI渲染流程模块
+ */
+
 import { UBOGlobal } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderPipeline } from '../render-pipeline';

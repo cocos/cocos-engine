@@ -1,3 +1,7 @@
+/**
+ * @category gfx
+ */
+
 import { GFXObject, GFXObjectType, GFXShaderType, GFXType } from './define';
 import { GFXDevice } from './device';
 

@@ -1,3 +1,7 @@
+/**
+ * @category gfx
+ */
+
 import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXObject, GFXObjectType, IGFXColor } from './define';
 import { GFXDevice } from './device';
 

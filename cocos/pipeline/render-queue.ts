@@ -1,3 +1,7 @@
+/**
+ * @category pipeline
+ */
+
 import { CachedArray } from '../core/memop/cached-array';
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { IRenderObject, IRenderPass, IRenderQueueDesc } from './define';

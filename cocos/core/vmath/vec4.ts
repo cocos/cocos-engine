@@ -1,3 +1,7 @@
+/**
+ * @category core/math
+ */
+
 import { mat4 } from './mat4';
 import { quat } from './quat';
 import { EPSILON, random } from './utils';
