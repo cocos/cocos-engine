@@ -38,8 +38,8 @@ var js = require('./js');
  * （Instantiate 时，function 和 dom 等非可序列化对象会直接保留原有引用，Asset 会直接进行浅拷贝，可序列化类型会进行深拷贝。）
  *
  * @method instantiate
- * @param {Prefab|Node|Object} original - An existing object that you want to make a copy of.
- * @return {Node|Object} the newly instantiated object
+ * @param {Prefab|Node|Component|Object} original - An existing object that you want to make a copy of.
+ * @return {Node|Component|Object} the newly instantiated object
  * @typescript
  * instantiate(original: Prefab): Node
  * instantiate<T>(original: T): T
@@ -73,9 +73,6 @@ function instantiate (original, internal_force) {
             }
             return null;
         }
-        if (CC_DEV && original instanceof cc.Component) {
-            cc.warn('Should not instantiate a single cc.Component directly, you must instantiate the entire node.');
-        }
     }
 
     var clone;
@@ -88,7 +85,12 @@ function instantiate (original, internal_force) {
         // @returns {Object} - the instantiated object
         if (original._instantiate) {
             cc.game._isCloning = true;
-            clone = original._instantiate();
+            if (original instanceof cc.Component) {//如果参数传递的是组件
+                var node = original.node._instantiate();//那么实例化组件所在的 Node
+                clone = node.getComponent(original);//然后再从实例化出来的 node 中取得目标组件，将其作为返回值
+            } else {//如果是其他 CCObject
+                clone = original._instantiate();//直接实例化
+            }
             cc.game._isCloning = false;
             return clone;
         }
