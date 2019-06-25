@@ -145,10 +145,10 @@ private:
     bool _blend = false;
     BlendOp _blendEq = BlendOp::ADD;
     BlendOp _blendAlphaEq = BlendOp::ADD;
-    BlendFactor _blendSrc = BlendFactor::ONE;
-    BlendFactor _blendDst = BlendFactor::ZERO;
-    BlendFactor _blendSrcAlpha = BlendFactor::ONE;
-    BlendFactor _blendDstAlpha = BlendFactor::ZERO;
+    BlendFactor _blendSrc = BlendFactor::SRC_ALPHA;
+    BlendFactor _blendDst = BlendFactor::ONE_MINUS_SRC_ALPHA;
+    BlendFactor _blendSrcAlpha = BlendFactor::SRC_ALPHA;
+    BlendFactor _blendDstAlpha = BlendFactor::ONE_MINUS_SRC_ALPHA;
     uint32_t _blendColor = 0xffffffff;
     
     // depth
