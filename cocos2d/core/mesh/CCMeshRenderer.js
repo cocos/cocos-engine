@@ -288,13 +288,13 @@ let MeshRenderer = cc.Class({
         this._customProperties.define('_USE_ATTRIBUTE_UV0', !!attr2el[gfx.ATTR_UV0]);
         this._customProperties.define('_USE_ATTRIBUTE_NORMAL', !!attr2el[gfx.ATTR_NORMAL]);
 
-        this._updateWireFrameDatas(true);
+        this._wireFrameDatas.length = 0;
     },
 
-    _updateWireFrameDatas (force) {
+    _updateWireFrameDatas () {
         let renderDatas = this._renderDatas;
         let wireFrameDatas = this._wireFrameDatas;
-        if (renderDatas.length === wireFrameDatas.length && !force) return;
+        if (renderDatas.length === wireFrameDatas.length) return;
 
         wireFrameDatas.length = renderDatas.length;
         let ibs = this.mesh._ibs;
