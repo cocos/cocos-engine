@@ -1505,7 +1505,7 @@ bool ccvaluevector_to_EffectPass(const cocos2d::ValueVector& v, cocos2d::Vector<
         // blend
         const auto& iter1 = valMap.find("blendState");
         cocos2d::renderer::BlendOp blendEq = cocos2d::renderer::BlendOp::ADD, blendAlphaEq = cocos2d::renderer::BlendOp::ADD;
-        cocos2d::renderer::BlendFactor blendSrc = cocos2d::renderer::BlendFactor::ONE, blendDst = cocos2d::renderer::BlendFactor::ZERO, blendSrcAlpha = cocos2d::renderer::BlendFactor::ONE, blendDstAlpha = cocos2d::renderer::BlendFactor::ZERO;
+        cocos2d::renderer::BlendFactor blendSrc = cocos2d::renderer::BlendFactor::SRC_ALPHA, blendDst = cocos2d::renderer::BlendFactor::ONE_MINUS_SRC_ALPHA, blendSrcAlpha = cocos2d::renderer::BlendFactor::SRC_ALPHA, blendDstAlpha = cocos2d::renderer::BlendFactor::ONE_MINUS_SRC_ALPHA;
         uint32_t blendColor = 0xffffffff;
         if (iter1 != valMap.end())
         {
@@ -1558,8 +1558,10 @@ bool ccvaluevector_to_EffectPass(const cocos2d::ValueVector& v, cocos2d::Vector<
                     break;
                 }
             }
+            
+            cobj->setBlend(blendEq, blendSrc, blendDst, blendAlphaEq, blendSrcAlpha, blendDstAlpha, blendColor);
         }
-        cobj->setBlend(blendEq, blendSrc, blendDst, blendAlphaEq, blendSrcAlpha, blendDstAlpha, blendColor);
+       
     
         // depth
         const auto& iter2 = valMap.find("depthStencilState");
@@ -1663,13 +1665,14 @@ bool ccvaluevector_to_EffectPass(const cocos2d::ValueVector& v, cocos2d::Vector<
             {
                 stencilWriteMaskBack = state.at("stencilWriteMaskBack").asUnsignedInt();
             }
+            
+            cobj->setDepth(depthTest, depthWrite, depthFunc); // depth func
+            // stencil front
+            cobj->setStencilFront(stencilFuncFront, stencilRefFront, stencilMaskFront, stencilFailOpFront, stencilZFailOpFront, stencilZPassOpFront, stencilWriteMaskFront);
+            // stencil back
+            cobj->setStencilBack(stencilFuncBack, stencilRefBack, stencilMaskBack, stencilFailOpBack, stencilZFailOpBack, stencilZPassOpBack, stencilWriteMaskBack);
         }
-        cobj->setDepth(depthTest, depthWrite, depthFunc); // depth func
-    
-        // stencil front
-        cobj->setStencilFront(stencilFuncFront, stencilRefFront, stencilMaskFront, stencilFailOpFront, stencilZFailOpFront, stencilZPassOpFront, stencilWriteMaskFront);
-        // stencil back
-        cobj->setStencilBack(stencilFuncBack, stencilRefBack, stencilMaskBack, stencilFailOpBack, stencilZFailOpBack, stencilZPassOpBack, stencilWriteMaskBack);
+        
         cobj->autorelease();
         ret->pushBack(cobj);
     }
