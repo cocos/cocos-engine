@@ -24,12 +24,20 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category asset
+ */
+
 import {ccclass} from '../core/data/class-decorator';
 import { Asset } from './asset';
 
 /**
- * @en Class for Font handling.
- * @zh 字体资源类。
+ * @en
+ * Class for Font handling.
+ *
+ * @zh
+ * 字体资源类。
+ * 可通过 cc.Font 获取该组件。
  */
 @ccclass('cc.Font')
 export class Font extends Asset {

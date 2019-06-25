@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui-assembler
+ */
+
 import { IUV, SpriteFrame } from '../../../../assets';
 import { Mat4 } from '../../../../core/value-types';
 import { color4, vec3 } from '../../../../core/vmath';
@@ -35,6 +39,10 @@ import { IAssembler } from '../assembler';
 const vec3_temp = vec3.create();
 const matrix = new Mat4();
 
+/**
+ * sliced 组装器
+ * 可通过 cc.UI.sliced 获取该组装器。
+ */
 export const sliced: IAssembler = {
     useModel: false,
 

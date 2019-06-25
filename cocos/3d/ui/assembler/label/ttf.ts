@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui-assembler
+ */
+
 import * as js from '../../../../core/utils/js';
 import { Color, Mat4, Vec3 } from '../../../../core/value-types';
 import { vec3 } from '../../../../core/vmath';
@@ -35,6 +39,10 @@ import { ttfUtils } from './ttfUtils';
 
 const WHITE = Color.WHITE;
 
+/**
+ * ttf 组装器
+ * 可通过 cc.UI.ttf 获取该组装器。
+ */
 export const ttf: IAssembler = {
     useModel: false,
 

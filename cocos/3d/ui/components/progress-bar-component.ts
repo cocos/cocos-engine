@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui
+ */
+
 import { Component} from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { clamp01 } from '../../../core/utils';
@@ -58,8 +62,10 @@ Enum(Mode);
 /**
  * @zh
  * 进度条组件，可用于显示加载资源时的进度。
+ * 可通过 cc.ProgressBarComponent 获得该组件。
+ *
  * @example
- * ```ts
+ * ```typescript
  * // update progressBar
  * update(dt) {
  *     var progress = progressBar.progress;
