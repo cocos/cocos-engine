@@ -1513,14 +1513,14 @@ export abstract class RenderPipeline {
             model._resetUBOUpdateFlag();
             // filter model by view visibility
             if (view.visibility > 0 && model.viewID !== view.visibility || !model.enabled) {
-                // continue;
+                continue;
             }
 
             model.updateTransform();
 
             // frustum culling
             if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
-                // continue;
+                continue;
             }
 
             model.updateUBOs();
