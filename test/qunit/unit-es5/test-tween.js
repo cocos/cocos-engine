@@ -40,7 +40,7 @@ asyncTest('basic test', function () {
 
     var node2 = initNode('node2');
     var node3 = initNode('node3');
-    let count = 0;
+    var count = 0;
     function check() {
         if (node2.scale !== 1 && node3.scale !== 1) {
             count++;
@@ -58,8 +58,8 @@ asyncTest('basic test', function () {
 
 function actionUpdate(action, node, t) {
     if (action._actions.length <= 0) return;
-    let actions = action._actions;
-    for (let i = 0; i < actions.length; i++) {
+    var actions = action._actions;
+    for (var i = 0; i < actions.length; i++) {
         actions[i].startWithTarget(node);
         // The range of t is 0 ~ 1
         actions[i].update(t);
@@ -70,15 +70,15 @@ test('ease test', function () {
     cc.game.resume();
     // builtin easing
     var node = initNode('easeNode');
-    let action = tween(node).to(0.1, { scale: 2 }, { easing: 'sineOutIn' });
+    var action = tween(node).to(0.1, { scale: 2 }, { easing: 'sineOutIn' });
     actionUpdate(action, node, 0.5);
-    deepEqual(node.scale, 1.5, 'easeing can set value');
+    deepEqual(node.scale, 1.5, 'easing can set value');
 
     // custom easing
     node.scale = 1;
     action = tween(node).to(0.1, { scale: 2 }, { easing: function (t) { return t * t; } });
     actionUpdate(action, node, 0.9);
-    deepEqual(node.scale, 1.81, 'easeing can set calculation equation.');
+    deepEqual(node.scale, 1.81, 'easing can set calculation equation.');
 
     // easing to single property
     node.scale = 1;
@@ -91,8 +91,8 @@ test('ease test', function () {
             }
         });
     actionUpdate(action, node, 1 / 6.0);
-    deepClose(node.scale, 1 + (1 / 6.0), 0.01, 'easeing can set multiple value: scale');
-    deepClose(node.position, cc.v2(25, 25), 0.01, 'easeing can set multiple value: position');
+    deepClose(node.scale, 1 + (1 / 6.0), 0.001, 'easing can set multiple value: scale');
+    deepClose(cc.v2(node.position), cc.v2(25, 25), 0.001, 'easing can set multiple value: position');
 
 });
 
@@ -122,7 +122,7 @@ asyncTest('progress test', function () {
         })
         .call(function () {
             strictEqual(node.scale, 2, 'custom property progress: scale not setting');
-            deepEqual(node.position, cc.v2(100, 100), 'custom property progress to single property: position');
+            deepEqual(cc.v2(node.position), cc.v2(100, 100), 'custom property progress to single property: position');
             start();
         })
         .start();
@@ -142,7 +142,7 @@ asyncTest('reuse test', function () {
         .call(function () {
             strictEqual(node.scale, 2, 'reuse check: scale');
             strictEqual(node.rotation, 90, 'reuse check: rotation');
-            deepEqual(node.position, cc.v2(100, 100), 'reuse check: postion');
+            deepEqual(cc.v2(node.position), cc.v2(100, 100), 'reuse check: postion');
             start();
         })
         .start();
