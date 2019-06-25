@@ -8,6 +8,12 @@ if (!Math.sign) {
     };
 }
 
+if (!Math.log2) {
+    Math.log2 = function (x) {
+        return Math.log(x) / 0.6931471805599453;
+    };
+}
+
 if (!Number.isInteger) {
     Number.isInteger = function (value) {
         return typeof value === 'number' && isFinite(value) && Math.floor(value) === value;
