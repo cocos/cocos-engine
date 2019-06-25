@@ -1,3 +1,7 @@
+/**
+ * @category 3d/primitive
+ */
+
 import { vec3 } from '../../core/vmath';
 
 /**

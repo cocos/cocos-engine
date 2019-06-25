@@ -1,5 +1,6 @@
 import CANNON from 'cannon';
 import { Vec3 } from '../../../core/value-types';
+import { vec3 } from '../../../core/vmath';
 import { IRaycastOptions, RigidBodyBase, ShapeBase } from '../api';
 import { RaycastResult } from '../raycast-result';
 import { getWrap } from '../util';
@@ -19,6 +20,10 @@ export function toCannonRaycastOptions (options: IRaycastOptions): ICANNONRaycas
 
 export function toCannonVec3 (value: Vec3) {
     return new CANNON.Vec3(value.x, value.y, value.z);
+}
+
+export function toCocosVec3 (cannonVec3: CANNON.Vec3, out: Vec3) {
+    return vec3.copy(out, cannonVec3);
 }
 
 export function toCannonOptions<T> (options: any, optionsRename?: { [x: string]: string; }) {

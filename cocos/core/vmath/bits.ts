@@ -1,4 +1,11 @@
 /**
+ * @internal
+ * @module core/math
+ */
+/**
+ * @able
+ */
+/**
  * @en
  * Bit twiddling hacks for JavaScript.
  *

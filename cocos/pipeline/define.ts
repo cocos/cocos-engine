@@ -1,3 +1,7 @@
+/**
+ * @category pipeline
+ */
+
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { GFXBindingType, GFXType } from '../gfx/define';

@@ -17,8 +17,8 @@ export class CannonBoxShape extends CannonShape implements BoxShapeBase {
         // attention : here should use clone
         this._box = new CANNON.Box(this._halfExtent.clone());
         setWrap<ShapeBase>(this._box, this);
-        setWrap<ShapeBase>(this._box.convexPolyhedronRepresentation, this);
         this._shape = this._box;
+        this._shape.addEventListener('trigger', this.onTrigger);
     }
 
     public setScale (scale: Vec3): void {
@@ -60,9 +60,7 @@ export class CannonBoxShape extends CannonShape implements BoxShapeBase {
 
     private _recalcExtents () {
         vec3.multiply(this._box.halfExtents, this._halfExtent, this._scale);
-        // console.log(`[[CANNON]] Set ${this._stringfyThis()} half extents to ${stringfyVec3(this._cannonBox.halfExtents)}.`);
         this._box.updateConvexPolyhedronRepresentation();
-        setWrap<ShapeBase>(this._box.convexPolyhedronRepresentation, this);
 
         if (this._body != null) {
             commitShapeUpdates(this._body);

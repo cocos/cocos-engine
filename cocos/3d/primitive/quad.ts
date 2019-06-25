@@ -1,4 +1,6 @@
-'use strict';
+/**
+ * @category 3d/primitive
+ */
 
 import { applyDefaultGeometryOptions, IGeometry, IGeometryOptions } from './define';
 

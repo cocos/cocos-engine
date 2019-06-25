@@ -23,16 +23,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+/**
+ * @category core
+ */
 
 import { WebGLGFXDevice } from '../gfx/webgl/webgl-device';
 import { WebGL2GFXDevice } from '../gfx/webgl2/webgl2-device';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/CCDebug';
 import inputManager from './platform/event-manager/input-manager';
-
-/**
- * @module cc
- */
 
 /**
  * @en An object to boot the game.
@@ -778,7 +777,7 @@ class Game extends EventTarget {
                 }
             }
 
-            // useWebGL2 = false;
+            useWebGL2 = false;
             if (useWebGL2) {
                 this._gfxDevice = new cc.WebGL2GFXDevice();
             } else {

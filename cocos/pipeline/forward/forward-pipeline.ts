@@ -1,3 +1,7 @@
+/**
+ * @category pipeline/forward 前向渲染管线模块
+ */
+
 import { intersect, sphere } from '../../3d/geom-utils';
 import { Root } from '../../core/root';
 import { v3 } from '../../core/value-types/vec3';

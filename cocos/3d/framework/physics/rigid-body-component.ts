@@ -9,8 +9,6 @@ import {
 import { Quat, Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';
 import { PhysicsMaterial } from '../../assets/physics/material';
-import { ETransformSource } from '../../physics/physic-enum';
-import { DefaultPhysicsMaterial as DefaultPhysicsMaterial } from './default-material';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 
 const NonRigidBodyProperties = {
@@ -174,34 +172,79 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         }
     }
 
-    /// PUBLIC GETTER\SETTER ///
+    /**
+     * @zh
+     * 设置线性速度的因子，可以用来控制每个轴方向上的速度的缩放。
+     */
+    @property
+    public get linearFactor () {
+        if (CC_EDITOR) {
+            return this._linearFactor;
+        }
+        return this._body.getLinearFactor(this._linearFactor);
 
-    // public get isTrigger () {
-    //     return this._isTrigger;
-    // }
+    }
 
-    // public set isTrigger (value) {
-    //     this._isTrigger = value;
-    //     if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
-    //         this._body.setIsTrigger(value);
-    //     }
-    // }
+    public set linearFactor (value: Vec3) {
+        vec3.copy(this._linearFactor, value);
+        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
+            this._body.setLinearFactor(this._linearFactor);
+        }
+    }
 
-    // public get velocity () {
-    //     return this._velocity;
-    // }
+    /**
+     * @zh
+     * 设置旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放。
+     */
+    @property
+    public get angularFactor () {
+        if (CC_EDITOR) {
+            return this._angularFactor;
+        }
+        return this._body.getAngularFactor(this._angularFactor);
+    }
 
-    // public set velocity (value: Vec3) {
-    //     vec3.copy(this._velocity, value);
-    //     if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
-    //         this._body.setVelocity(this._velocity);
-    //     }
-    // }
+    public set angularFactor (value: Vec3) {
+        vec3.copy(this._angularFactor, value);
+        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
+            this._body.setAngularFactor(this._angularFactor);
+        }
+    }
+
+    /**
+     * @zh
+     * 是否是唤醒的状态。
+     */
+    public get isAwake (): boolean {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+            return this._body.isAwake();
+        }
+        return false;
+    }
+
+    /**
+     * @zh
+     * 是否是可进入休眠的状态。
+     */
+    public get isSleepy (): boolean {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+            return this._body.isSleepy();
+        }
+        return false;
+    }
+
+    /**
+     * @zh
+     * 是否是正在休眠的状态。
+     */
+    public get isSleeping (): boolean {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+            return this._body.isSleeping();
+        }
+        return false;
+    }
 
     /// PRIVATE PROPERTY ///
-
-    @property
-    private _material: PhysicsMaterial | null = null;
 
     @property
     private _mass: number = NonRigidBodyProperties.mass;
@@ -215,16 +258,17 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     @property
     private _fixedRotation: boolean = false;
 
-    // @property
-    // private _isTrigger: boolean = false;
-
     @property
     private _isKinematic: boolean = false;
 
     @property
     private _useGravity: boolean = true;
 
-    // private _velocity: Vec3 = new Vec3();
+    @property
+    private _linearFactor: Vec3 = new Vec3(1, 1, 1);
+
+    @property
+    private _angularFactor: Vec3 = new Vec3(1, 1, 1);
 
     constructor () {
         super();
@@ -234,25 +278,49 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 在某点上对刚体施加一个作用力。
+     * 在世界空间中的某点上对刚体施加一个作用力。
      * @param force - 作用力
-     * @param position - 作用点
+     * @param worldPoint - 作用点
      */
-    public applyForce (force: Vec3, position?: Vec3) {
+    public applyForce (force: Vec3, worldPoint?: Vec3) {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
-            this._body!.applyForce(force, position);
+            this._body!.applyForce(force, worldPoint);
         }
     }
 
     /**
      * @zh
-     * 在某点上对刚体施加一个冲量。
-     * @param impulse - 冲量
-     * @param position - 作用点
+     * 在本地空间中的某点上对刚体施加一个作用力。
+     * @param force - 作用力
+     * @param localPoint - 作用点
      */
-    public applyImpulse (impulse: Vec3, position?: Vec3) {
+    public applyLocalForce (force: Vec3, localPoint?: Vec3) {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
-            this._body!.applyImpulse(impulse, position);
+            this._body!.applyLocalForce(force, localPoint);
+        }
+    }
+
+    /**
+     * @zh
+     * 在世界空间的某点上对刚体施加一个冲量。
+     * @param impulse - 冲量
+     * @param worldPoint - 作用点
+     */
+    public applyImpulse (impulse: Vec3, worldPoint?: Vec3) {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+            this._body!.applyImpulse(impulse, worldPoint);
+        }
+    }
+
+    /**
+     * @zh
+     * 在本地空间的某点上对刚体施加一个冲量。
+     * @param impulse - 冲量
+     * @param localPoint - 作用点
+     */
+    public applyLocalImpulse (impulse: Vec3, localPoint?: Vec3) {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+            this._body!.applyLocalImpulse(impulse, localPoint);
         }
     }
 
@@ -276,6 +344,34 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         }
     }
 
+    public getLinearVelocity (out: Vec3): Vec3 {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+            return this._body.getLinearVelocity(out);
+        }
+        out = out || new Vec3();
+        return out;
+    }
+
+    public setLinearVelocity (value: Vec3): void {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+            this._body.setLinearVelocity(value);
+        }
+    }
+
+    public getAngularVelocity (out: Vec3): Vec3 {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+            return this._body.getAngularVelocity(out);
+        }
+        out = out || new Vec3();
+        return out;
+    }
+
+    public setAngularVelocity (value: Vec3): void {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+            this._body.setAngularVelocity(value);
+        }
+    }
+
     /// COMPONENT LIFECYCLE ///
 
     protected onLoad () {
@@ -285,15 +381,14 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
              * 从而导致ColliderComponent后添加会导致刚体的某些属性被重写
              */
             if (this.sharedBody) {
-                this.sharedBody.transfromSource = ETransformSource.PHYSIC;
                 this.mass = this._mass;
                 this.linearDamping = this._linearDamping;
                 this.angularDamping = this._angularDamping;
-                // this.material = this._material;
                 this.useGravity = this._useGravity;
-                // this.velocity = this._velocity;
                 this.isKinematic = this._isKinematic;
                 this.fixedRotation = this._fixedRotation;
+                this.linearFactor = this._linearFactor;
+                this.angularFactor = this._angularFactor;
             }
         }
     }

@@ -1,3 +1,7 @@
+/**
+ * @category pipeline/ui
+ */
+
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXClearFlag, GFXCommandBufferType } from '../../gfx/define';
 import { getPhaseID } from '../pass-phase';

@@ -4,7 +4,7 @@ import { Mat4, Quat, Vec3 } from '../../../../core/value-types';
 import { quat, vec3 } from '../../../../core/vmath';
 import { Node } from '../../../../scene-graph/node';
 // tslint:disable-next-line:max-line-length
-import { AfterStepCallback, BeforeStepCallback, ICollisionCallback, ICollisionEvent, ICollisionEventType, PhysicsWorldBase, RigidBodyBase } from '../../../physics/api';
+import { AfterStepCallback, BeforeStepCallback, PhysicsWorldBase, RigidBodyBase } from '../../../physics/api';
 import { createRigidBody } from '../../../physics/instance';
 import { ERigidBodyType, ETransformSource } from '../../../physics/physic-enum';
 import { stringfyQuat, stringfyVec3 } from '../../../physics/util';
@@ -138,10 +138,25 @@ export class PhysicsBasedComponent extends Component {
                     }
                 }
                 if (!sharedBody) {
-                    sharedBody = new SharedRigidBody(this.node, cc.director._physicsSystem.world);
+                    // // binding collider to self or parents rigidbody
+                    // // is exit rigidbody on the node or parents?
+                    // const rigidbody = this._findRigidbody(this.node);
+                    // if (rigidbody) {
+                    //     if (rigidbody.sharedBody != null) {
+                    //         sharedBody = rigidbody.sharedBody;
+                    //     } else {
+                    //         sharedBody = new SharedRigidBody(rigidbody.node, rigidbody, cc.director._physicsSystem.world);
+                    //     }
+                    // } else {
+                    //     sharedBody = new SharedRigidBody(this.node, null, cc.director._physicsSystem.world);
+                    // }
+
+                    // binding collider to self rigidybody, if it exist.
+                    const rigidbody = this.getComponent(cc.RigidBodyComponent);
+                    sharedBody = new SharedRigidBody(this.node, rigidbody, cc.director._physicsSystem.world);
                 }
-                sharedBody.ref();
-                this._sharedBody = sharedBody;
+                sharedBody!.ref();
+                this._sharedBody = sharedBody!;
             }
 
             this._isPreLoaded = true;
@@ -166,6 +181,23 @@ export class PhysicsBasedComponent extends Component {
             (this._sharedBody as any) = null;
         }
     }
+
+    private _findRigidbody (begin: Node) {
+        const rigidbody = begin.getComponent(cc.RigidBodyComponent);
+        if (rigidbody) {
+            return rigidbody;
+        } else {
+            if (begin.parent) {
+                if (begin.parent === begin.scene) {
+                    return null;
+                } else {
+                    return this._findRigidbody(begin.parent);
+                }
+            } else {
+                return null;
+            }
+        }
+    }
 }
 
 class SharedRigidBody {
@@ -184,6 +216,10 @@ class SharedRigidBody {
         }
     }
 
+    public get rigidBody () {
+        return this._rigidBody;
+    }
+
     private static _tempMat4 = new Mat4();
 
     private static _tempQuat = new Quat();
@@ -197,6 +233,8 @@ class SharedRigidBody {
     private _actived = false;
 
     private _world!: PhysicsWorldBase;
+
+    private _rigidBody: object | null;
 
     private _node!: Node;
 
@@ -214,15 +252,26 @@ class SharedRigidBody {
     /** 上一次的缩放 */
     private _prevScale: Vec3 = new Vec3();
 
-    constructor (node: Node, world: PhysicsWorldBase) {
+    constructor (node: Node, rigidBody: object | null, world: PhysicsWorldBase) {
         this._body = createRigidBody({
             name: node.name,
         });
         this._node = node;
+        this._rigidBody = rigidBody;
         this._world = world;
-        this._body.setUserData(this._node);
+        this._body.setUserData(this._rigidBody);
+
         this._beforeStepCallback = this._beforeStep.bind(this);
-        this._afterStepCallback = this._afterStep.bind(this);
+        if (!CC_PHYSICS_BUILT_IN) {
+            this._afterStepCallback = this._afterStep.bind(this);
+
+            if (this._rigidBody) {
+                this._isShapeOnly = false;
+            } else {
+                this._isShapeOnly = true;
+                this._body.setUseGravity(false);
+            }
+        }
     }
 
     public ref () {
@@ -250,14 +299,21 @@ class SharedRigidBody {
 
         this._body.setUserData(null);
         (this._body as any) = null;
+
         (this._beforeStepCallback as any) = null;
-        (this._afterStepCallback as any) = null;
+        if (!CC_PHYSICS_BUILT_IN) {
+            (this._afterStepCallback as any) = null;
+        }
+
         (this._world as any) = null;
         (this._node as any) = null;
+
+        if (this._rigidBody) {
+            (this._rigidBody as any) = null;
+        }
     }
 
     public syncPhysWithScene (node: Node) {
-
         // sync position rotation
         node.getWorldMatrix(SharedRigidBody._tempMat4);
         node.getWorldRotation(SharedRigidBody._tempQuat);
@@ -293,9 +349,12 @@ class SharedRigidBody {
 
         this._actived = true;
         this._body.setWorld(this._world);
+
         this._world.addBeforeStep(this._beforeStepCallback);
-        this._world.addAfterStep(this._afterStepCallback);
-        this._body.wakeUp();
+        if (!CC_PHYSICS_BUILT_IN) {
+            this._world.addAfterStep(this._afterStepCallback);
+            this._body.wakeUp();
+        }
     }
 
     private _deactiveBody () {
@@ -303,14 +362,17 @@ class SharedRigidBody {
             return;
         }
         this._actived = false;
+
         this._world.removeBeforeStep(this._beforeStepCallback);
-        this._world.removeAfterStep(this._afterStepCallback);
-        this._body.sleep();
+        if (!CC_PHYSICS_BUILT_IN) {
+            this._world.removeAfterStep(this._afterStepCallback);
+            this._body.sleep();
+        }
+
         this._body.setWorld(null);
     }
 
     private _beforeStep () {
-
         // 开始物理计算之前，用户脚本或引擎功能有可能改变节点的Transform，所以需要判断并进行更新
         if (this._node.hasChanged) {
             // scale 进行单独判断，因为目前的物理系统处理后不会改变scale的属性
@@ -319,18 +381,30 @@ class SharedRigidBody {
                 vec3.copy(this._prevScale, this._node.worldScale);
             }
             this.syncPhysWithScene(this._node);
+
+            if (!CC_PHYSICS_BUILT_IN) {
+                if (this._body.isSleeping()) {
+                    this._body.wakeUp();
+                }
+            }
         }
     }
 
     private _afterStep () {
-        // 物理计算之后，除了只有形状组件的节点，其它有刚体组件的节点，并且刚体类型为DYNAMIC的，需要将计算结果同步到Scene中
-        if (!this._isShapeOnly && this._body.getType() === ERigidBodyType.DYNAMIC) {
-            this._syncSceneWithPhys();
-        } else {
-            // 对于只有形状组件的节点，需要将Scene中节点的Transform同步到Phyisc。
-            // 这是因为物理计算后可能会改变一些节点，这会导致这些子节点的Transform也发生改变。
-            if (this._node.hasChanged) {
-                this.syncPhysWithScene(this._node);
+        if (!CC_PHYSICS_BUILT_IN) {
+            // 物理计算之后，除了只有形状组件的节点，其它有刚体组件的节点，并且刚体类型为DYNAMIC的，需要将计算结果同步到Scene中
+            if (!this._isShapeOnly && this._body.getType() === ERigidBodyType.DYNAMIC) {
+                this._syncSceneWithPhys();
+            } else {
+                // 对于只有形状组件的节点，需要将Scene中节点的Transform同步到Phyisc。
+                // 这是因为物理计算后可能会改变一些节点，这会导致这些子节点的Transform也发生改变。
+                if (this._node.hasChanged) {
+                    this.syncPhysWithScene(this._node);
+
+                    if (this._body.isSleeping()) {
+                        this._body.wakeUp();
+                    }
+                }
             }
         }
     }
