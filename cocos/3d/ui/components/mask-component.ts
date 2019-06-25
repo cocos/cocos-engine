@@ -487,6 +487,7 @@ export class MaskComponent extends UIRenderComponent {
         if (!this._graphics) {
             const graphics = this._graphics = new GraphicsComponent();
             graphics.node = this.node;
+            graphics.node.getWorldMatrix();
             graphics.helpInstanceMaterial();
             graphics.lineWidth = 0;
             const color = Color.WHITE;
