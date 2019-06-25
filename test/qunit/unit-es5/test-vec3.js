@@ -44,8 +44,8 @@ test('compatible', function () {
     var vec1 = new cc.Vec3(5, 0, 5);
     var vec2 = new cc.Vec3(10, 10, 10);
 
-    let magSqr1 = vec1.magSqr();
-    let magSqr2 = vector.magSqr();
+    var magSqr1 = vec1.magSqr();
+    var magSqr2 = vector.magSqr();
     var dot = vec1.dot(vector);
     var theta = dot / (Math.sqrt(magSqr1 * magSqr2));
     theta = cc.misc.clampf(theta, -1.0, 1.0);
@@ -57,13 +57,13 @@ test('compatible', function () {
     vector.set(v3(12, 3, -10));
     vec1.set(v3(-2, -4, -11));
 
-    let radian = Math.PI / 3;
-    let vec3 = new cc.Vec2(12, 3);
-    let vec4 = new cc.Vec2(-2, -4);
+    var radian = Math.PI / 3;
+    var vec3 = new cc.Vec2(12, 3);
+    var vec4 = new cc.Vec2(-2, -4);
 
     deepClose(vec1.signAngle(vector), vec4.signAngle(vec3), 0.01, 'signAngle test');
 
-    let result = vec4.rotate(radian);
+    var result = vec4.rotate(radian);
     deepEqual(vec1.rotate(radian, v3()), v3(result.x, result.y, 0), 'rotate test with a Vec3 out');
     deepEqual(vec1.rotate(radian), result, 'rotate test without out');
     deepEqual(vec1.rotateSelf(radian), v3(result.x, result.y, vec1.z), 'rotateSelf test');
