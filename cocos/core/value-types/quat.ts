@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core/value-types
+ */
+
 import CCClass from '../data/class';
 import { quat as xquat } from '../vmath/quat';
 import { ValueType } from './value-type';

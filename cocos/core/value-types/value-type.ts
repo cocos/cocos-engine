@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core/value-types
+ */
+
 import { errorID } from '../platform/CCDebug';
 import * as js from '../utils/js';
 

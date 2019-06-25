@@ -1,4 +1,8 @@
 
+/**
+ * @category animation
+ */
+
 import { AnimationClip, AnimationState } from '../animation';
 import { CrossFade } from '../animation/cross-fade';
 import { Playable } from '../animation/playable';

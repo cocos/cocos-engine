@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core/value-types
+ */
+
 import CCClass from '../data/class';
 import {clamp, vec2} from '../vmath';
 import Mat4 from './mat4';

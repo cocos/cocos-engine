@@ -1,3 +1,7 @@
+/**
+ * @category animation
+ */
+
 import { ccclass, property } from '../core/data/class-decorator';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { error, errorID } from '../core/platform/CCDebug';

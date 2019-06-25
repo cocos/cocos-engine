@@ -1,3 +1,7 @@
+/**
+ * @category animation
+ */
+
 import { CurveTarget } from './animation-curve';
 
 // tslint:disable:interface-over-type-literal

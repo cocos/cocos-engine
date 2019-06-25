@@ -1,4 +1,8 @@
 
+/**
+ * @category animation
+ */
+
 import { ccenum } from '../core/value-types/enum';
 
 export enum WrapModeMask {
