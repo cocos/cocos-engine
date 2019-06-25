@@ -314,9 +314,9 @@ var eventManager = {
         let node1 = l1._getSceneGraphPriority(),
             node2 = l2._getSceneGraphPriority();
 
-        if (!l2 || !node2 || node2.parent === null)
+        if (!l2 || !node2 || !node2.activeInHierarchy || node2.parent === null)
             return -1;
-        else if (!l1 || !node1 || node1.parent === null)
+        else if (!l1 || !node1 || !node1.activeInHierarchy || node1.parent === null)
             return 1;
         
         let p1 = node1, p2 = node2, ex = false;
