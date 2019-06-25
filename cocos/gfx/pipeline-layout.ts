@@ -1,3 +1,7 @@
+/**
+ * @category gfx
+ */
+
 import { GFXBindingLayout } from './binding-layout';
 import { GFXObject, GFXObjectType, GFXShaderType } from './define';
 import { GFXDevice } from './device';

@@ -24,6 +24,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+/**
+ * @category core
+ */
 
 import { widgetManager } from '../3d';
 // import SkinningModelSystem from '../3d/framework/skinning-model-system';
@@ -1072,14 +1075,13 @@ class Director extends EventTarget {
 
             this.emit(cc.Director.EVENT_BEFORE_DRAW);
             this._root!.frameMove(this._deltaTime);
+            // Present current frame
+            this._root!.device.present();
             this.emit(cc.Director.EVENT_AFTER_DRAW);
 
             eventManager.frameUpdateListeners();
             if (this._scene) { this._scene.resetHasChanged(); }
             this._totalFrames++;
-
-            // Present current frame
-            this._root!.device.present();
         }
     }
 

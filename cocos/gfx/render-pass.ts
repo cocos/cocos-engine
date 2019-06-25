@@ -1,3 +1,7 @@
+/**
+ * @category gfx
+ */
+
 import {
     GFXFormat,
     GFXLoadOp,

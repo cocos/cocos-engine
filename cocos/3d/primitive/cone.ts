@@ -1,4 +1,6 @@
-'use strict';
+/**
+ * @category 3d/primitive
+ */
 
 import cylinder, { ICylinderOptions } from './cylinder';
 

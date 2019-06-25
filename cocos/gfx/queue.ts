@@ -1,3 +1,7 @@
+/**
+ * @category gfx
+ */
+
 import { GFXCommandBuffer } from './command-buffer';
 import { GFXObject, GFXObjectType, GFXQueueType } from './define';
 import { GFXDevice } from './device';

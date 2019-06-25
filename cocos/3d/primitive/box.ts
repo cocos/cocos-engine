@@ -1,3 +1,7 @@
+/**
+ * @category 3d/primitive
+ */
+
 import { Vec3 } from '../../core/value-types';
 import { vec3 } from '../../core/vmath';
 import { IGeometry, IGeometryOptions } from './define';

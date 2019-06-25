@@ -1,3 +1,7 @@
+/**
+ * @category gfx
+ */
+
 import { GFXFormat, GFXObject, GFXObjectType, GFXTextureViewType } from './define';
 import { GFXDevice } from './device';
 import { GFXTexture } from './texture';

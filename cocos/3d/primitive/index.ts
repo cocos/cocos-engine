@@ -1,3 +1,8 @@
+/**
+ * @category 3d/primitive 几何图形模块
+ * @hidden
+ */
+
 export * from './utils';
 export * from './define';
 export { default as box } from './box';

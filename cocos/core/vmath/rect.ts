@@ -1,4 +1,8 @@
 
+/**
+ * @category core/math
+ */
+
 export interface IRect2D {
     x?: number;
     y?: number;

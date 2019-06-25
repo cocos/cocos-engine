@@ -1,3 +1,7 @@
+/**
+ * @category pipeline/ppfx
+ */
+
 import { ImageAsset } from '../../assets/image-asset';
 import { Texture2D } from '../../assets/texture-2d';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
