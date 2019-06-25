@@ -216,7 +216,7 @@ class BuiltinResMgr {
         customizationManager.register('bounds-merge-shadow', {
             onAttach: (m: Model) => {
                 const light = m.scene.mainLight;
-                const shadow = m.scene.planarShadow;
+                const shadow = m.scene.planarShadows;
                 m.updateTransform = () => {
                     const bounds = m.worldBounds;
                     if (!m.transform.hasChanged && !light.node.hasChanged) { return; }

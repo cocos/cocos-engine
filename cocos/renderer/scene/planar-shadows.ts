@@ -1,7 +1,14 @@
+import { Material } from '../../3d/assets/material';
+import { CachedArray } from '../../core/memop/cached-array';
 import { Color, Mat4, Quat, Vec3 } from '../../core/value-types';
 import { color4, mat4, vec3 } from '../../core/vmath';
-import { IInternalBindingInst, UBOShadow } from '../../pipeline/define';
+import { GFXCommandBuffer } from '../../gfx/command-buffer';
+import { GFXCommandBufferType } from '../../gfx/define';
+import { GFXInputAssembler } from '../../gfx/input-assembler';
+import { GFXPipelineState } from '../../gfx/pipeline-state';
+import { IInternalBindingInst, IRenderObject, UBOShadow } from '../../pipeline/define';
 import { DirectionalLight } from './directional-light';
+import { Model } from './model';
 import { RenderScene } from './render-scene';
 import { SphereLight } from './sphere-light';
 
@@ -9,11 +16,12 @@ const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
 const _qt = new Quat();
 
-export class PlanarShadow {
+export class PlanarShadows {
 
     set enabled (enable: boolean) {
         this._enabled = enable;
         this.updateDirLight();
+        this._cmdBuffs.clear();
     }
 
     get enabled (): boolean {
@@ -49,8 +57,16 @@ export class PlanarShadow {
         return this._data;
     }
 
+    get cmdBuffs () {
+        return this._cmdBuffs;
+    }
+
+    get cmdBuffCount () {
+        return this._cmdBuffs.length;
+    }
+
     protected _scene: RenderScene;
-    protected _enabled: boolean = true;
+    protected _enabled: boolean = false;
     protected _normal = new Vec3(0, 1, 0);
     protected _distance = 0;
     protected _matLight = new Mat4();
@@ -59,10 +75,17 @@ export class PlanarShadow {
         0.0, 0.0, 0.0, 0.3, // shadowColor
     ]);
     protected _globalBindings: IInternalBindingInst;
+    protected _cmdBuffs: CachedArray<GFXCommandBuffer>;
+    protected _cmdBuffCount = 0;
+    protected _material = new Material();
+    protected _psoRecord = new Map<Model, GFXPipelineState>();
+    protected _cbRecord = new Map<GFXInputAssembler, GFXCommandBuffer>();
 
     constructor (scene: RenderScene) {
         this._scene = scene;
         this._globalBindings = scene.root.pipeline.globalBindings.get(UBOShadow.BLOCK.name)!;
+        this._cmdBuffs = new CachedArray<GFXCommandBuffer>(64);
+        this._material.initialize({ effectName: 'pipeline/planar-shadow' });
     }
 
     // tslint:disable: one-variable-per-declaration
@@ -121,4 +144,68 @@ export class PlanarShadow {
         this._globalBindings.buffer!.update(this.data);
     }
     // tslint:enable: one-variable-per-declaration
+
+    public updateCommandBuffers () {
+        this._cmdBuffs.clear();
+        for (const model of this._scene.models) {
+            if (!model.node || !model.castShadow) { continue; }
+            let pso = this._psoRecord.get(model);
+            if (!pso) { pso = this._createPSO(model); this._psoRecord.set(model, pso); }
+            if (!model.UBOUpdated) { model.updateUBOs(); }
+            for (let i = 0; i < model.subModelNum; i++) {
+                const ia = model.getSubModel(i).inputAssembler;
+                if (!ia) { continue; }
+                let cb = this._cbRecord.get(ia);
+                if (!cb) {
+                    cb = this._createCommandBuffer();
+                    cb.begin();
+                    cb.bindPipelineState(pso);
+                    cb.bindBindingLayout(pso.pipelineLayout.layouts[0]);
+                    cb.bindInputAssembler(ia);
+                    cb.draw(ia);
+                    cb.end();
+                    this._cbRecord.set(ia, cb);
+                }
+                this.cmdBuffs.push(cb);
+            }
+        }
+    }
+
+    public onPipelineChange () {
+        const cbs = this._cbRecord.values();
+        let cbRes = cbs.next();
+        while (!cbRes.done) {
+            cbRes.value.destroy();
+            cbRes = cbs.next();
+        }
+        this._cbRecord.clear();
+        const pass = this._material.passes[0];
+        const psos = this._psoRecord.values();
+        let psoRes = psos.next();
+        while (!psoRes.done) {
+            pass.destroyPipelineState(psoRes.value);
+            psoRes = psos.next();
+        }
+        this._psoRecord.clear();
+    }
+
+    public destroy () {
+        this.onPipelineChange();
+        this._material.destroy();
+    }
+
+    protected _createPSO (model: Model) {
+        // @ts-ignore
+        const pso = model._doCreatePSO(this._material.passes[0]);
+        pso.pipelineLayout.layouts[0].update();
+        return pso;
+    }
+
+    protected _createCommandBuffer () {
+        const device = this._scene.root.device;
+        return device.createCommandBuffer({
+            allocator: device.commandAllocator,
+            type: GFXCommandBufferType.SECONDARY,
+        });
+    }
 }

@@ -24,9 +24,7 @@
 */
 
 /**
- * 场景树的相关内容
- * @category scene-graph
- * @preferred
+ * @category scene-graph 场景树的相关内容
  * @hidden
  */
 

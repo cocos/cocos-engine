@@ -40,7 +40,7 @@ class UISubModel extends SubModel {
 
     public directInitialize (ia: GFXInputAssembler, mat: Material, pso: GFXPipelineState) {
         this._inputAssembler = ia;
-        this.psos[0] = pso;
+        this.psos![0] = pso;
         this.material = mat;
     }
 

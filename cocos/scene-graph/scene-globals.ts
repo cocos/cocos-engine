@@ -32,7 +32,7 @@ import { ccclass, property } from '../core/data/class-decorator';
 import { Color, Quat, Vec3 } from '../core/value-types';
 import { color4, vec3 } from '../core/vmath';
 import { Ambient } from '../renderer/scene/ambient';
-import { PlanarShadow } from '../renderer/scene/planar-shadow';
+import { PlanarShadows } from '../renderer/scene/planar-shadows';
 import { RenderScene } from '../renderer/scene/render-scene';
 import { Skybox } from '../renderer/scene/skybox';
 import { Node } from './node';
@@ -180,7 +180,7 @@ cc.SkyboxInfo = SkyboxInfo;
 @ccclass('cc.PlanarShadowInfo')
 export class PlanarShadowInfo {
     @property
-    protected _enabled = true;
+    protected _enabled = false;
     @property
     protected _normal = new Vec3(0, 1, 0);
     @property
@@ -188,7 +188,7 @@ export class PlanarShadowInfo {
     @property
     protected _shadowColor = new Color(76, 76, 76, 255);
 
-    protected _resource: PlanarShadow | null = null;
+    protected _resource: PlanarShadows | null = null;
 
     /**
      * @zh 是否启用平面阴影？
@@ -250,7 +250,7 @@ export class PlanarShadowInfo {
     }
 
     set renderScene (val: RenderScene) {
-        this._resource = val.planarShadow;
+        this._resource = val.planarShadows;
         this.normal = this._normal;
         this.distance = this._distance;
         this.shadowColor = this._shadowColor;
@@ -269,12 +269,12 @@ export class SceneGlobals {
     @property({ type: SkyboxInfo })
     public skybox = new SkyboxInfo();
     @property({ type: PlanarShadowInfo })
-    public planarShadow = new PlanarShadowInfo();
+    public planarShadows = new PlanarShadowInfo();
 
     set renderScene (rs: RenderScene) {
         this.ambient.renderScene = rs;
         this.skybox.renderScene = rs;
-        this.planarShadow.renderScene = rs;
+        this.planarShadows.renderScene = rs;
     }
 }
 cc.SceneGlobals = SceneGlobals;

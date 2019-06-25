@@ -125,6 +125,18 @@ export class Model {
         return this._localBindings;
     }
 
+    get castShadow (): boolean {
+        return this._castShadow;
+    }
+
+    set castShadow (val: boolean) {
+        this._castShadow = val;
+    }
+
+    get UBOUpdated () {
+        return this._uboUpdated;
+    }
+
     protected _type: string = 'default';
     protected _device: GFXDevice;
     protected _scene: RenderScene;
@@ -141,10 +153,11 @@ export class Model {
     protected _matPSORecord: Map<Material, GFXPipelineState[]>;
     protected _matRefCount: Map<Material, number>;
     protected _uboLocal: UBOLocal;
-    protected _localUBO: GFXBuffer | null;
+    protected _localUBO: GFXBuffer | null = null;
     protected _localBindings: Map<string, IInternalBindingInst> = new Map<string, IInternalBindingInst>();
-    protected _inited: boolean;
-    protected _uboUpdated: boolean;
+    protected _inited: boolean = false;
+    protected _uboUpdated: boolean = false;
+    protected _castShadow: boolean = false;
 
     /**
      * Setup a default empty model
@@ -158,9 +171,6 @@ export class Model {
         this._matPSORecord = new Map<Material, GFXPipelineState[]>();
         this._matRefCount = new Map<Material, number>();
         this._uboLocal = new UBOLocal();
-        this._localUBO = null;
-        this._inited = false;
-        this._uboUpdated = false;
     }
 
     public destroy () {
