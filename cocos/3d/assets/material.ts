@@ -22,6 +22,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * 材质系统的相关内容
+ * @category material
+ * @preferred
+ */
+
 import { Asset } from '../../assets/asset';
 import { TextureBase } from '../../assets/texture-base';
 import { ccclass, property } from '../../core/data/class-decorator';

@@ -1500,8 +1500,8 @@ export abstract class RenderPipeline {
         }
 
         const planarShadow = scene.planarShadow;
-        if (planarShadow.enabled) {
-            planarShadow.updateDirLight(scene.mainLight);
+        if (planarShadow.enabled && mainLight.node.hasChanged) {
+            planarShadow.updateDirLight(mainLight);
         }
 
         if (scene.skybox.enabled) {

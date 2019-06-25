@@ -1,6 +1,6 @@
 import { Color, Mat4, Quat, Vec3 } from '../../core/value-types';
 import { color4, mat4, vec3 } from '../../core/vmath';
-import { UBOShadow, IInternalBindingInst } from '../../pipeline/define';
+import { IInternalBindingInst, UBOShadow } from '../../pipeline/define';
 import { DirectionalLight } from './directional-light';
 import { RenderScene } from './render-scene';
 import { SphereLight } from './sphere-light';
@@ -13,6 +13,7 @@ export class PlanarShadow {
 
     set enabled (enable: boolean) {
         this._enabled = enable;
+        this.updateDirLight();
     }
 
     get enabled (): boolean {
@@ -21,6 +22,7 @@ export class PlanarShadow {
 
     set normal (val: Vec3) {
         vec3.copy(this._normal, val);
+        this.updateDirLight();
     }
     get normal () {
         return this._normal;
@@ -28,6 +30,7 @@ export class PlanarShadow {
 
     set distance (val: number) {
         this._distance = val;
+        this.updateDirLight();
     }
     get distance () {
         return this._distance;
@@ -35,6 +38,7 @@ export class PlanarShadow {
 
     set shadowColor (color: Color) {
         color4.array(this._data, color, UBOShadow.SHADOW_COLOR_OFFSET);
+        this._globalBindings.buffer!.update(this.data);
     }
 
     get matLight () {
@@ -46,7 +50,7 @@ export class PlanarShadow {
     }
 
     protected _scene: RenderScene;
-    protected _enabled: boolean = false;
+    protected _enabled: boolean = true;
     protected _normal = new Vec3(0, 1, 0);
     protected _distance = 0;
     protected _matLight = new Mat4();
@@ -86,10 +90,10 @@ export class PlanarShadow {
         m.m14 = lz * d;
         m.m15 = NdL;
         mat4.array(this.data, this._matLight);
+        this._globalBindings.buffer!.update(this.data);
     }
 
-    public updateDirLight (light: DirectionalLight) {
-        if (!light.node.hasChanged) { return; }
+    public updateDirLight (light: DirectionalLight = this._scene.mainLight) {
         light.node.getWorldRotation(_qt);
         vec3.transformQuat(_v3, _forward, _qt);
         const n = this._normal, d = this._distance;
