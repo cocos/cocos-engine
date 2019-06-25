@@ -1,3 +1,7 @@
+/**
+ * @category pipeline/forward
+ */
+
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderPipeline } from '../render-pipeline';
 import { ForwardStage } from './forward-stage';

@@ -1,3 +1,7 @@
+/**
+ * @category core
+ */
+
 import { builtinResMgr } from '../3d/builtin';
 import { GFXDevice } from '../gfx/device';
 import { GFXWindow, IGFXWindowInfo } from '../gfx/window';

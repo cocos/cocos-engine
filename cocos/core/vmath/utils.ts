@@ -1,3 +1,7 @@
+/**
+ * @category core/math
+ */
+
 const _d2r = Math.PI / 180.0;
 
 const _r2d = 180.0 / Math.PI;

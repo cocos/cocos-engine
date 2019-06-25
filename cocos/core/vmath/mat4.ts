@@ -1,3 +1,7 @@
+/**
+ * @category core/math
+ */
+
 import { mat3 } from './mat3';
 import { quat } from './quat';
 import { EPSILON } from './utils';

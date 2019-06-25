@@ -1,8 +1,8 @@
 import CANNON from 'cannon';
 import { Quat, Vec3 } from '../../../../core/value-types';
 import { vec3 } from '../../../../core/vmath';
-import { ShapeBase } from '../../api';
-import { stringfyVec3 } from '../../util';
+import { ITriggerCallback, ITriggerEvent, ITriggerEventType, RigidBodyBase, ShapeBase } from '../../api';
+import { getWrap, stringfyVec3 } from '../../util';
 import { commitShapeUpdates } from '../cannon-util';
 
 export class CannonShape implements ShapeBase {
@@ -23,8 +23,23 @@ export class CannonShape implements ShapeBase {
 
     private _userData: any;
 
-    public constructor () {
+    private _onTriggerListener: (event: CANNON.ITriggeredEvent) => any;
 
+    private _triggeredCB: ITriggerCallback[] = [];
+
+    public constructor () {
+        this._onTriggerListener = this.onTrigger.bind(this);
+    }
+
+    public addTriggerCallback (callback: ITriggerCallback): void {
+        this._triggeredCB.push(callback);
+    }
+
+    public removeTriggerCallback (callback: ITriggerCallback): void {
+        const i = this._triggeredCB.indexOf(callback);
+        if (i >= 0) {
+            this._triggeredCB.splice(i, 1);
+        }
     }
 
     public getUserData (): any {
@@ -35,14 +50,14 @@ export class CannonShape implements ShapeBase {
         this._userData = data;
     }
 
-    public _setIndex (index: number) {
-        this._index = index;
-        this._recalcCenter();
-    }
-
-    public _setBody (body: CANNON.Body, index: number) {
+    public setBody (body: CANNON.Body | null, index: number){
+        if (body == null) {
+            this._shape!.removeEventListener('triggered', this._onTriggerListener);
+        } else {
+            this._shape!.addEventListener('triggered', this._onTriggerListener);
+        }
         this._body = body;
-        this._setIndex(index);
+        this._index = index;
     }
 
     public setCenter (center: Vec3): void {
@@ -74,6 +89,17 @@ export class CannonShape implements ShapeBase {
         return `centerOffset: ${stringfyVec3(this._body.shapeOffsets[this._index])}`;
     }
 
+    public onTrigger (event: CANNON.ITriggeredEvent) {
+        TriggerEventObject.type = event.event;
+        TriggerEventObject.selfCollider = getWrap<ShapeBase>(event.selfShape).getUserData();
+        TriggerEventObject.otherCollider = getWrap<ShapeBase>(event.otherShape).getUserData();
+        // TriggerEventObject.selfRigidBody = getWrap<RigidBodyBase>(event.selfBody).getUserData();
+        // TriggerEventObject.otherRigidBody = getWrap<RigidBodyBase>(event.otherBody).getUserData();
+        for (const callback of this._triggeredCB) {
+            callback(TriggerEventObject);
+        }
+    }
+
     private _recalcCenter () {
         if (!this._body) {
             return;
@@ -86,3 +112,11 @@ export class CannonShape implements ShapeBase {
         commitShapeUpdates(this._body);
     }
 }
+
+const TriggerEventObject = {
+    type: '' as unknown as ITriggerEventType,
+    selfCollider: null,
+    otherCollider: null,
+    // selfRigidBody: null,
+    // otherRigidBody: null,
+};

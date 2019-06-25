@@ -1,3 +1,7 @@
+/**
+ * @category pipeline
+ */
+
 import { Root } from '../core/root';
 import { GFXWindow } from '../gfx/window';
 import { Camera } from '../renderer/scene/camera';

@@ -1,3 +1,8 @@
+/**
+ * @category core/math 数学库模块
+ * @hidden
+ */
+
 export * from './utils';
 
 // NOTE: there is no syntax for: export {* as bits} from './lib/bits';

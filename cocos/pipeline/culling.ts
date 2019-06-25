@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { frustum, intersect } from '../3d/geom-utils';
 import { mat4, quat, vec3 } from '../core/vmath';
 import { Camera, Light, Model } from '../renderer';

@@ -40,7 +40,7 @@ export class BoxColliderComponent extends ColliderComponent {
 
         if (!CC_EDITOR) {
             this.size = this._size;
-            this._shape.setScale(this.node._scale);
+            this._shape.setScale(this.node.worldScale);
         }
     }
 

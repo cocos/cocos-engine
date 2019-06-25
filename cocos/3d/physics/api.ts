@@ -1,6 +1,5 @@
 import { Quat, Vec3 } from '../../core/value-types';
 import { mat4, quat } from '../../core/vmath';
-import { Node } from '../../scene-graph/node';
 import { ERigidBodyType } from './physic-enum';
 import { RaycastResult } from './raycast-result';
 
@@ -17,14 +16,30 @@ export interface ICreateBodyOptions {
     name?: string;
 }
 
+export interface ITriggerEvent {
+    type: ITriggerEventType;
+    selfCollider: any;
+    otherCollider: any;
+    // selfRigidBody: any;
+    // otherRigidBody: any;
+}
+
+export type ITriggerEventType = 'onTriggerEnter' | 'onTriggerStay' | 'onTriggerExit';
+
+export type ITriggerCallback = (event: ITriggerEvent) => void;
+
 export interface ICollisionEvent {
-    source: RigidBodyBase | BuiltInRigidBodyBase;
-    target: RigidBodyBase | BuiltInRigidBodyBase;
+    type: ICollisionEventType;
+    selfCollider: any;
+    otherCollider: any;
+    // selfRigidBody: any;
+    // otherRigidBody: any;
+    contacts: any;
 }
 
 export type ICollisionEventType = 'onCollisionEnter' | 'onCollisionStay' | 'onCollisionExit';
 
-export type ICollisionCallback = (type: ICollisionEventType, event: ICollisionEvent) => void;
+export type ICollisionCallback = (event: ICollisionEvent) => void;
 
 export type BeforeStepCallback = () => void;
 
@@ -32,7 +47,7 @@ export type AfterStepCallback = () => void;
 
 export interface PhysicsWorldBase {
 
-    step (deltaTime: number): void;
+    step (deltaTime: number, ...args: any): void;
 
     addBeforeStep (cb: BeforeStepCallback): void;
 
@@ -61,7 +76,7 @@ export interface PhysicsWorldBase {
     raycastAll (from: Vec3, to: Vec3, options: IRaycastOptions, callback: (result: RaycastResult) => void): boolean;
 }
 
-export interface BuiltInRigidBodyBase{
+export interface BuiltInRigidBodyBase {
 
     getGroup (): number;
 
@@ -95,10 +110,6 @@ export interface BuiltInRigidBodyBase{
 
     scaleAllShapes (scale: Vec3): void;
 
-    addCollisionCallback (callback: ICollisionCallback): void;
-
-    removeCollisionCllback (callback: ICollisionCallback): void;
-
     getUserData (): any;
 
     setUserData (data: any): void;
@@ -106,7 +117,7 @@ export interface BuiltInRigidBodyBase{
     setWorld (world: PhysicsWorldBase | null): void;
 }
 
-export interface RigidBodyBase extends BuiltInRigidBodyBase{
+export interface RigidBodyBase extends BuiltInRigidBodyBase {
     /** the body type */
     getType (): ERigidBodyType;
 
@@ -116,21 +127,51 @@ export interface RigidBodyBase extends BuiltInRigidBodyBase{
 
     sleep (): void;
 
+    isAwake (): boolean;
+
+    isSleepy (): boolean;
+
+    isSleeping (): boolean;
+
     getMass (): number;
 
     setMass (value: number): void;
 
-    applyForce (force: Vec3, position?: Vec3): void;
+    addCollisionCallback (callback: ICollisionCallback): void;
 
-    applyImpulse (impulse: Vec3, position?: Vec3): void;
+    removeCollisionCllback (callback: ICollisionCallback): void;
+
+    /**
+     * force
+     */
+
+    applyForce (force: Vec3, worldPoint?: Vec3): void;
+
+    applyLocalForce (force: Vec3, localPoint?: Vec3): void;
+
+    /**
+     * impulse
+     */
+
+    applyImpulse (impulse: Vec3, worldPoint?: Vec3): void;
+
+    applyLocalImpulse (impulse: Vec3, localPoint?: Vec3): void;
 
     getIsKinematic (): boolean;
 
     setIsKinematic (value: boolean): void;
 
+    /**
+     * linear damping
+     */
+
     getLinearDamping (): number;
 
     setLinearDamping (value: number): void;
+
+    /**
+     * angular damping
+     */
 
     getAngularDamping (): number;
 
@@ -140,13 +181,41 @@ export interface RigidBodyBase extends BuiltInRigidBodyBase{
 
     setUseGravity (value: boolean): void;
 
-    getIsTrigger (): boolean;
+    getCollisionResponse (): boolean;
 
-    setIsTrigger (value: boolean): void;
+    setCollisionResponse (value: boolean): void;
 
-    getVelocity (): Vec3;
+    /**
+     * linear velocity
+     */
 
-    setVelocity (value: Vec3): void;
+    getLinearVelocity (out?: Vec3): Vec3;
+
+    setLinearVelocity (value: Vec3): void;
+
+    /**
+     * angular velocity
+     */
+
+    getAngularVelocity (out?: Vec3): Vec3;
+
+    setAngularVelocity (value: Vec3): void;
+
+    /**
+     * linear factor
+     */
+
+    getLinearFactor (out?: Vec3): Vec3;
+
+    setLinearFactor (value: Vec3): void;
+
+    /**
+     * angular factor
+     */
+
+    getAngularFactor (out?: Vec3): Vec3;
+
+    setAngularFactor (value: Vec3): void;
 
     getFreezeRotation (): boolean;
 
@@ -167,6 +236,10 @@ export interface ShapeBase {
     getCollisionResponse (): boolean;
 
     setCollisionResponse (value: boolean): void;
+
+    addTriggerCallback (callback: ITriggerCallback): void;
+
+    removeTriggerCallback (callback: ITriggerCallback): void;
 }
 
 export interface SphereShapeBase extends ShapeBase {
