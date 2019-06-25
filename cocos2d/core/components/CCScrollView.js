@@ -253,7 +253,7 @@ let ScrollView = cc.Class({
          */
         brake: {
             default: 0.5,
-            type: 'Float',
+            type: cc.Float,
             range: [0, 1, 0.1],
             tooltip: CC_DEV && 'i18n:COMPONENT.scrollview.brake',
         },

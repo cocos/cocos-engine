@@ -1355,24 +1355,24 @@ Default value must be initialized at their declaration:
   type: cc.Integer
   default: 0  // <--
 })
-value;
+myProp;
 // After:
 @property({
   type: cc.Integer
 })
-value = 0;    // <--
+myProp = 0;    // <--
 ```
 
 ### 3654
 
-Please specifiy a default value for "%s" property at its declaration:
+Please specifiy a default value for "%s.%s" at its declaration:
 ```
 // Before:
 @property(...)
-value; 
+myProp;
 // After:
 @property(...)
-value = 0
+myProp = 0;
 ```
 
 ### 3655
@@ -1912,7 +1912,7 @@ The 'type' attribute of '%s.%s' must be child class of cc.Asset, otherwise you s
 
 ### 5510
 
-The 'type' attribute of '%s.%s' can not be 'Number', use 'Float' or 'Integer' instead please.
+The 'type' attribute of '%s.%s' can not be 'Number', use cc.Float or cc.Integer instead please.
 
 ### 5511
 

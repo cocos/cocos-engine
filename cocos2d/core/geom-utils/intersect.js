@@ -246,7 +246,7 @@ intersect.raycast = (function () {
             }
 
             if (distanceValid(distance)) {
-                vec3.set(d, distance, 0, 0);
+                vec3.scale(d, modelRay.d, distance);
                 transformMat4Normal(d, d, m4_1);
                 let res = resultsPool.add();
                 res.node = node;
