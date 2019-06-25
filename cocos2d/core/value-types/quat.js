@@ -171,11 +171,11 @@ proto.mul = function (other, out) {
 /**
  * !#en Rotates a quaternion by the given angle about a world space axis.
  * !#zh 围绕世界空间轴按给定角度旋转四元数
- * @param {quat} rot
- * @param {vec3} axis
- * @param {number} rad
- * @param {quat} out
- * @returns {quat} out.
+ * @param {Quat} rot
+ * @param {Vec3} axis
+ * @param {Number} rad
+ * @param {Quat} out
+ * @returns {Quat} out.
  */
 proto.rotateAround = function(rot, axis, rad, out) {
     return quat.rotateAround(out,rot,axis,rad);
