@@ -44,6 +44,7 @@ SE_DECLARE_FUNC(js_renderer_Effect_setStencil);
 SE_DECLARE_FUNC(js_renderer_Effect_setBlend);
 SE_DECLARE_FUNC(js_renderer_Effect_getHash);
 SE_DECLARE_FUNC(js_renderer_Effect_updateHash);
+SE_DECLARE_FUNC(js_renderer_Effect_copy);
 SE_DECLARE_FUNC(js_renderer_Effect_clear);
 SE_DECLARE_FUNC(js_renderer_Effect_define);
 SE_DECLARE_FUNC(js_renderer_Effect_Effect);

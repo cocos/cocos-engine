@@ -365,7 +365,7 @@ void SkeletonRenderer::update (float deltaTime) {
             }
             auto effect = new cocos2d::renderer::Effect();
             effect->autorelease();
-            effect->copy(*_effect);
+            effect->copy(_effect);
             
             Technique* tech = effect->getTechnique(techStage);
             cocos2d::Vector<Pass*>& passes = (cocos2d::Vector<Pass*>&)tech->getPasses();

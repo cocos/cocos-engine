@@ -1010,6 +1010,25 @@ static bool js_renderer_Effect_updateHash(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_Effect_updateHash)
 
+static bool js_renderer_Effect_copy(se::State& s)
+{
+    cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Effect_copy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        const cocos2d::renderer::Effect* arg0 = nullptr;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_Effect_copy : Error processing arguments");
+        cobj->copy(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Effect_copy)
+
 static bool js_renderer_Effect_clear(se::State& s)
 {
     cocos2d::renderer::Effect* cobj = (cocos2d::renderer::Effect*)s.nativeThisObject();
@@ -1081,6 +1100,7 @@ bool js_register_renderer_Effect(se::Object* obj)
     cls->defineFunction("setBlend", _SE(js_renderer_Effect_setBlend));
     cls->defineFunction("getHash", _SE(js_renderer_Effect_getHash));
     cls->defineFunction("updateHash", _SE(js_renderer_Effect_updateHash));
+    cls->defineFunction("copy", _SE(js_renderer_Effect_copy));
     cls->defineFunction("clear", _SE(js_renderer_Effect_clear));
     cls->defineFunction("define", _SE(js_renderer_Effect_define));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_Effect_finalize));

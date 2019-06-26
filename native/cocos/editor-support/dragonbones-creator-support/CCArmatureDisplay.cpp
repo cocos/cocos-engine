@@ -269,7 +269,7 @@ void CCArmatureDisplay::traverseArmature(Armature* armature, float parentOpacity
             }
             auto effect = new cocos2d::renderer::Effect();
             effect->autorelease();
-            effect->copy(*_effect);
+            effect->copy(_effect);
             
             Technique* tech = effect->getTechnique(techStage);
             Vector<Pass*>& passes = (Vector<Pass*>&)tech->getPasses();
