@@ -315,15 +315,11 @@ class SharedRigidBody {
         }
     }
 
-<<<<<<< HEAD
     public syncPhysWithScene (){
         this._syncPhysWithScene(this._node);
     }
 
     private _syncPhysWithScene (node: Node) {
-=======
-    public syncPhysWithScene (node: Node) {
->>>>>>> Daily merge (#4693)
         // sync position rotation
         node.getWorldMatrix(SharedRigidBody._tempMat4);
         node.getWorldRotation(SharedRigidBody._tempQuat);
@@ -387,11 +383,7 @@ class SharedRigidBody {
                 this._body.scaleAllShapes(this._node.worldScale);
                 vec3.copy(this._prevScale, this._node.worldScale);
             }
-<<<<<<< HEAD
             this._syncPhysWithScene(this._node);
-=======
-            this.syncPhysWithScene(this._node);
->>>>>>> Daily merge (#4693)
 
             if (!CC_PHYSICS_BUILT_IN) {
                 if (this._body.isSleeping()) {
@@ -410,11 +402,7 @@ class SharedRigidBody {
                 // 对于只有形状组件的节点，需要将Scene中节点的Transform同步到Phyisc。
                 // 这是因为物理计算后可能会改变一些节点，这会导致这些子节点的Transform也发生改变。
                 if (this._node.hasChanged) {
-<<<<<<< HEAD
                     this._syncPhysWithScene(this._node);
-=======
-                    this.syncPhysWithScene(this._node);
->>>>>>> Daily merge (#4693)
 
                     if (this._body.isSleeping()) {
                         this._body.wakeUp();
