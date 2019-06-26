@@ -3,7 +3,7 @@ import yargs from 'yargs';
 import { build } from './build-engine';
 
 yargs.option('platform', { type: 'string', alias: 'p' });
-yargs.option('physics', { type: 'array', alias: 'py' });
+yargs.option('physics', { type: 'string', alias: 'py' });
 yargs.option('flags', { type: 'array', alias: 'f' });
 yargs.option('destination', { type: 'string', alias: 'd' });
 yargs.option('excludes', { type: 'array', alias: 'e' });
@@ -128,6 +128,10 @@ function getGlobalDefs (platform: Platform, physics: Physics, flags?: IFlags): o
             result.CC_PHYSICS_CANNON = false;
             result.CC_PHYSICS_AMMO = false;
             result.CC_PHYSICS_BUILT_IN = true;
+            break;
+
+        default:
+            throw new Error(`Unknown physics ${physics}.`);
             break;
     }
 
