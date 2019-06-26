@@ -149,7 +149,7 @@ let ArmatureDisplay = cc.Class({
             notify () {
                 // parse the atlas asset data
                 this._parseDragonAtlasAsset();
-                this._buildArmature();
+                this._refresh();
                 this._activateMaterial();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.dragon_bones_atlas_asset'
@@ -411,11 +411,15 @@ let ArmatureDisplay = cc.Class({
     },
 
     _updateBatch () {
+        let baseMaterial = this.sharedMaterials[0];
+        if (baseMaterial) {
+            baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
+        }
         let cache = this._materialCache;
         for (let mKey in cache) {
             let material = cache[mKey];
             if (material) {
-                material.useModel = !this.enableBatch;
+                material.define('CC_USE_MODEL', !this.enableBatch);
             }
         }
     },
@@ -521,9 +525,9 @@ let ArmatureDisplay = cc.Class({
         if (!this.isAnimationCached()) return;
         if (!this._playing) return;
 
-        let frames = this._frameCache.frames;
-        let totalTime = this._frameCache.totalTime;
-        let frameCount = frames.length;
+        let frameCache = this._frameCache;
+        let frames = frameCache.frames;
+        let frameTime = ArmatureCache.FrameTime;
 
         // Animation Start, the event diffrent from dragonbones inner event,
         // It has no event object.
@@ -533,8 +537,12 @@ let ArmatureDisplay = cc.Class({
 
         let globalTimeScale = dragonBones.timeScale;
         this._accTime += dt * this.timeScale * globalTimeScale;
-        let frameIdx = Math.floor(this._accTime / totalTime * frameCount);
-        if (frameIdx >= frameCount) {
+        let frameIdx = Math.floor(this._accTime / frameTime);
+        if (!frameCache.isCompleted) {
+            frameCache.updateToFrame(frameIdx);
+        }
+
+        if (frameCache.isCompleted && frameIdx >= frames.length) {
 
             // Animation loop complete, the event diffrent from dragonbones inner event,
             // It has no event object.
@@ -545,7 +553,9 @@ let ArmatureDisplay = cc.Class({
             this._eventTarget && this._eventTarget.emit(dragonBones.EventObject.COMPLETE);
 
             this._playCount ++;
-            if (this.playTimes === -1 || (this.playTimes > 0 && this._playCount >= this.playTimes)) {
+            if ((this.playTimes > 0 && this._playCount >= this.playTimes)) {
+                // set frame to end frame.
+                this._curFrame = frames[frames.length - 1];
                 this._accTime = 0;
                 this._playing = false;
                 this._playCount = 0;
@@ -618,15 +628,19 @@ let ArmatureDisplay = cc.Class({
         let material = this.sharedMaterials[0];
         if (!material) {
             material = Material.getInstantiatedBuiltinMaterial('sprite', this);
-            material.define('CC_USE_MODEL', true);
-            material.define('USE_TEXTURE', true);
         }
         else {
             material = Material.getInstantiatedMaterial(material, this);
         }
 
+        material.define('CC_USE_MODEL', true);
+        material.define('USE_TEXTURE', true);
         material.setProperty('texture', texture);
+        
         this.setMaterial(0, material);
+    },
+
+    _prepareToRender () {
         this.markForRender(true);
     },
 
@@ -768,7 +782,8 @@ let ArmatureDisplay = cc.Class({
         if (this.isAnimationCached()) {
             let cache = this._armatureCache.getAnimationCache(this._armatureKey, animName);
             if (!cache) {
-                cache = this._armatureCache.updateAnimationCache(this._armatureKey, animName);
+                cache = this._armatureCache.initAnimationCache(this._armatureKey, animName);
+                cache.begin();
             }
             if (cache) {
                 this._accTime = 0;

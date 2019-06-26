@@ -26,13 +26,13 @@ const TrackEntryListeners = require('./track-entry-listeners');
 const spine = require('./lib/spine');
 // Permit max cache time, unit is second.
 const MaxCacheTime = 30;
+const FrameTime = 1 / 60;
 
 let _vertices = [];
 let _indices = [];
 let _vertexOffset = 0;
 let _indexOffset = 0;
 let _vfOffset = 0;
-let _frameTime = 1 / 60;
 let _preTexUrl = null;
 let _preBlendMode = null;
 let _segVCount = 0;
@@ -57,15 +57,18 @@ let AnimationCache = cc.Class({
     ctor () {
         this.frames = [];
         this.totalTime = 0;
-        this._isCompleted = false;
+        this._frameIdx = -1;
+        this.isCompleted = false;
 
+        this._skeletonInfo = null;
         this._animationName = null;
         this._tempSegments = null;
         this._tempColors = null;
     },
 
-    init (animationName) {
+    init (skeletonInfo, animationName) {
         this._animationName = animationName;
+        this._skeletonInfo = skeletonInfo;
     },
 
     // Clear texture quote.
@@ -79,28 +82,25 @@ let AnimationCache = cc.Class({
     bind (listener) {
         let completeHandle = function (entry) {
             if (entry && entry.animation.name === this._animationName) {
-                this._isCompleted = true;
+                this.isCompleted = true;
             }
         }.bind(this);
 
-        listener.end = completeHandle;
         listener.complete = completeHandle;
-        listener.dispose = completeHandle;
     },
 
     unbind (listener) {
-        listener.end = null;
         listener.complete = null;
-        listener.dispose = null;
     },
 
-    update (skeletonInfo) {
-        if (!this._animationName) {
-            cc.error("AnimationCache:update animationName is empty");
-            return;
+    begin () {
+        let skeletonInfo = this._skeletonInfo;
+        // If pre animation not finished, play it to the end.
+        if (skeletonInfo.curAnimationCache) {
+            skeletonInfo.curAnimationCache.updateToFrame();
         }
+
         let skeleton = skeletonInfo.skeleton;
-        let clipper = skeletonInfo.clipper;
         let listener = skeletonInfo.listener;
         let state = skeletonInfo.state;
 
@@ -108,24 +108,54 @@ let AnimationCache = cc.Class({
         state.setAnimationWith(0, animation, false);
         this.bind(listener);
 
-        let frameIdx = 0;
-        this._isCompleted = false;
+        // record cur animation cache
+        skeletonInfo.curAnimationCache = this;
+        this._frameIdx = -1;
+        this.isCompleted = false;
         this.totalTime = 0;
+    },
+
+    end () {
+        if (!this._needToUpdate()) {
+            // clear cur animation cache
+            this._skeletonInfo.curAnimationCache = null;
+            this.frames.length = this._frameIdx + 1;
+            this.isCompleted = true;
+            this.unbind(this._skeletonInfo.listener);
+        }
+    },
+
+    _needToUpdate (toFrameIdx) {
+        return !this.isCompleted && 
+                this.totalTime < MaxCacheTime && 
+                (toFrameIdx == undefined || this._frameIdx < toFrameIdx);
+    },
+
+    updateToFrame (toFrameIdx) {
+        if (!this._needToUpdate(toFrameIdx)) return;
+
+        let skeletonInfo = this._skeletonInfo;
+        let skeleton = skeletonInfo.skeleton;
+        let clipper = skeletonInfo.clipper;
+        let state = skeletonInfo.state;
 
         do {
             // Solid update frame rate 1/60.
-            skeleton.update(_frameTime);
-            state.update(_frameTime);
+            skeleton.update(FrameTime);
+            state.update(FrameTime);
             state.apply(skeleton);
-            skeleton.updateWorldTransform()
-            this._updateFrame(skeleton, clipper, frameIdx)
-            frameIdx++;
-            this.totalTime += _frameTime;
-        } while (!this._isCompleted && this.totalTime < MaxCacheTime);
-        // Update frame length.
-        this.frames.length = frameIdx;
+            skeleton.updateWorldTransform();
+            this._frameIdx++;
+            this._updateFrame(skeleton, clipper, this._frameIdx);
+            this.totalTime += FrameTime;
+        } while (this._needToUpdate(toFrameIdx));
 
-        this.unbind(listener);
+        this.end();
+    },
+
+    updateAllFrame () {
+        this.begin();
+        this.updateToFrame();
     },
 
     _updateFrame (skeleton, clipper, index) {
@@ -431,20 +461,6 @@ let SkeletonCache = cc.Class({
         delete this._skeletonCache[uuid];
     },
 
-    resetSkeleton (uuid) {
-        var skeletonInfo = this._skeletonCache[uuid];
-        if (!skeletonInfo) return;
-        let animationsCache = skeletonInfo.animationsCache;
-        for (var aniKey in animationsCache) {
-            // Clear cache texture, and put cache into pool.
-            // No need to create TypedArray next time.
-            let animationCache = animationsCache[aniKey];
-            if (!animationCache) continue;
-            this._animationPool[uuid + "#" + aniKey] = animationCache;
-            animationCache.clear();
-        }
-    },
-
     getSkeletonCache (uuid, skeletonData) {
         let skeletonInfo = this._skeletonCache[uuid];
         if (!skeletonInfo) {
@@ -463,6 +479,7 @@ let SkeletonCache = cc.Class({
                 // Cache all kinds of animation frame.
                 // When skeleton is dispose, clear all animation cache.
                 animationsCache : {},
+                curAnimationCache: null
             };
         }
         return skeletonInfo;
@@ -481,9 +498,18 @@ let SkeletonCache = cc.Class({
         let skeleton = skeletonInfo && skeletonInfo.skeleton;
         if (!skeleton) return;
         skeleton.setSkinByName(skinName);
+        skeleton.setSlotsToSetupPose();
+
+        skeletonInfo.curAnimationCache = null;
+        let animationsCache = skeletonInfo.animationsCache;
+        for (var aniKey in animationsCache) {
+            let animationCache = animationsCache[aniKey];
+            animationCache.updateAllFrame();
+        }
     },
 
-    updateAnimationCache (uuid, animationName) {
+    initAnimationCache (uuid, animationName) {
+        if (!animationName) return null;
         let skeletonInfo = this._skeletonCache[uuid];
         let skeleton = skeletonInfo && skeletonInfo.skeleton;
         if (!skeleton) return null;
@@ -503,11 +529,17 @@ let SkeletonCache = cc.Class({
                 delete this._animationPool[poolKey];
             } else {
                 animationCache = new AnimationCache();
-                animationCache.init(animationName);
             }
+            animationCache.init(skeletonInfo, animationName);
             animationsCache[animationName] = animationCache;
         }
-        animationCache.update(skeletonInfo);
+        return animationCache;
+    },
+
+    updateAnimationCache (uuid, animationName) {
+        let animationCache = this.initAnimationCache(uuid, animationName);
+        if (!animationCache) return null;
+        animationCache.updateAllFrame();
         if (animationCache.totalTime >= MaxCacheTime) {
             cc.warn("Animation cache is overflow, maybe animation's frame is infinite, please change skeleton render mode to REALTIME, animation name is [%s]",animationName);
         }
@@ -515,5 +547,6 @@ let SkeletonCache = cc.Class({
     }
 });
 
+SkeletonCache.FrameTime = FrameTime;
 SkeletonCache.sharedCache = new SkeletonCache();
 module.exports = SkeletonCache;
