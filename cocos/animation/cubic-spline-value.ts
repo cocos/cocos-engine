@@ -1,4 +1,8 @@
 
+/**
+ * @category animation
+ */
+
 import { ccclass, property } from '../core/data/class-decorator';
 import { Quat, Vec2, Vec3, Vec4 } from '../core/value-types';
 import * as vmath from '../core/vmath';

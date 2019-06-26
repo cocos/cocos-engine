@@ -1,3 +1,7 @@
+/**
+ * @category animation
+ */
+
 import { removeIf } from '../core/utils/array';
 import { clamp01 } from '../core/vmath';
 import { Node } from '../scene-graph';
