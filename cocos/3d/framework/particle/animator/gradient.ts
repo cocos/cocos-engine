@@ -13,6 +13,10 @@ import { lerp, repeat } from '../../../../core/vmath';
 
 // tslint:disable: max-line-length
 
+const _black: Color = Color.BLACK;
+
+const _white: Color = Color.WHITE;
+
 const Mode = Enum({
     Blend: 0,
     Fixed: 1,
@@ -82,6 +86,20 @@ export default class Gradient {
         }
     }
 
+    public evaluate (time: number) {
+        this.getRGB(time);
+        this._color._set_a_unsafe(this.getAlpha(time)!);
+        return this._color;
+    }
+
+    public randomColor () {
+        const c = this.colorKeys[Math.trunc(Math.random() * this.colorKeys.length)];
+        const a = this.alphaKeys[Math.trunc(Math.random() * this.alphaKeys.length)];
+        this._color.set(c.color);
+        this._color._set_a_unsafe(a.alpha);
+        return this._color;
+    }
+
     private getRGB (time: number) {
         if (this.colorKeys.length > 1) {
             time = repeat(time, 1);
@@ -99,19 +117,16 @@ export default class Gradient {
             }
             const lastIndex = this.colorKeys.length - 1;
             if (time < this.colorKeys[0].time) {
-                Color.BLACK.lerp(this.colorKeys[0].color, time / this.colorKeys[0].time, this._color);
+                _black.lerp(this.colorKeys[0].color, time / this.colorKeys[0].time, this._color);
             } else if (time > this.colorKeys[lastIndex].time) {
-                this.colorKeys[lastIndex].color.lerp(Color.BLACK, (time - this.colorKeys[lastIndex].time) / (1 - this.colorKeys[lastIndex].time), this._color);
+                this.colorKeys[lastIndex].color.lerp(_black, (time - this.colorKeys[lastIndex].time) / (1 - this.colorKeys[lastIndex].time), this._color);
             }
             // console.warn('something went wrong. can not get gradient color.');
         } else if (this.colorKeys.length === 1) {
             this._color.set(this.colorKeys[0].color);
             return this._color;
         } else {
-            this._color.r = 255;
-            this._color.g = 255;
-            this._color.b = 255;
-            this._color.a = 255;
+            this._color.set(_white);
             return this._color;
         }
     }
@@ -141,22 +156,6 @@ export default class Gradient {
         } else {
             return 255;
         }
-    }
-
-    public evaluate (time: number) {
-        this.getRGB(time);
-        this._color.a = this.getAlpha(time)!;
-        return this._color;
-    }
-
-    public randomColor () {
-        const c = this.colorKeys[Math.trunc(Math.random() * this.colorKeys.length)];
-        const a = this.alphaKeys[Math.trunc(Math.random() * this.alphaKeys.length)];
-        this._color.r = c.color.r;
-        this._color.g = c.color.g;
-        this._color.b = c.color.b;
-        this._color.a = a.alpha;
-        return this._color;
     }
 }
 
