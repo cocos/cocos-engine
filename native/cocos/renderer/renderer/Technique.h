@@ -122,6 +122,7 @@ public:
         ~Parameter();
         
         Parameter& operator=(const Parameter& rh);
+        bool operator==(const Parameter& rh);
         
         /*
          *  @brief Gets the uniform type.
@@ -143,6 +144,14 @@ public:
          *  @brief Gets bytes occupied by primitive uniform parameter.
          */
         inline uint16_t getBytes() const { return _bytes; };
+        /*
+         *  @brief Gets directly value.
+         */
+        inline bool getDirectly() const { return _directly; }
+        /*
+         *  @brief Sets directly value.
+         */
+        inline void setDirectly(bool value) { _directly = value; };
         
         /*
          *  @brief Gets the texture array.
@@ -170,6 +179,7 @@ public:
         
         // It is meaningful if type is not Texture2D or TEXTURE_CUBE.
         uint16_t _bytes = 0;
+        bool _directly = false;
     };
     
     /**
@@ -211,6 +221,10 @@ public:
      *  @brief Deep copy from other techique.
      */
     void copy(const Technique& tech);
+    /**
+     *  @brief Get layer.
+     */
+    inline const int getLayer() const {return _layer; };
     
 private:
     static uint32_t _genID;

@@ -156,7 +156,11 @@ public:
      *  @param[in] view View pointer.
      */
     void removeView(View* view);
-    
+    /**
+     *  @brief Gets all lights.
+     *  @return Lights container.
+     */
+    inline const Vector<Light*> getLights() const { return _lights; };
 private:
     //REFINE: optimize speed.
     Vector<Camera*> _cameras;

@@ -31,6 +31,10 @@
 #include "base/ccCArray.h"
 #include "math/Mat4.h"
 #include "../Macro.h"
+#include "InputAssembler.h"
+#include "../gfx/DeviceGraphics.h"
+#include "CustomProperties.hpp"
+#include "../scene/NodeProxy.hpp"
 
 RENDERER_BEGIN
 
@@ -78,22 +82,6 @@ public:
      */
     ~Model();
     /**
-     *  @brief Gets input assembler count.
-     */
-    inline uint32_t getInputAssemblerCount() const { return (uint32_t)_inputAssemblers.size(); }
-    /**
-     *  @brief Indicates whether the model's data is in dynamic input assembler.
-     */
-    inline bool isDynamicIA() const { return _dynamicIA; }
-    /**
-     *  @brief Sets whether the model's data is in dynamic input assembler.
-     */
-    inline void setDynamicIA(bool value) { _dynamicIA =  value; }
-    /**
-     *  @brief Gets draw item count.
-     */
-    inline uint32_t getDrawItemCount() const { return _dynamicIA ? 1 :  (uint32_t)_inputAssemblers.size(); }
-    /**
      *  @brief Sets model matrix.
      */
     inline void setWorldMatix(const Mat4& matrix) { _worldMatrix = std::move(matrix); }
@@ -112,35 +100,42 @@ public:
     /**
      *  @brief Adds a input assembler.
      */
-    void addInputAssembler(const InputAssembler& ia);
-    /**
-     *  @brief Clears all input assemblers.
-     */
-    void clearInputAssemblers();
+    void setInputAssembler(const InputAssembler& ia);
     /**
      *  @brief Adds an effect.
      */
-    void addEffect(Effect* effect);
+    void setEffect(Effect* effect, CustomProperties* customProperties);
     /**
-     *  @brief Clears all effects.
+     *  @brief Set user key.
      */
-    void clearEffects();
+    inline void setUserKey(int key) { _userKey = key; };
+    /**
+     *  @brief Set node.
+     */
+    inline void setNode(NodeProxy* node) { _node = node; };
+    /**
+     *  @brief Get node.
+     */
+    inline const NodeProxy* getNode() const { return _node; };
     /**
      *  @brief Extract draw item for the given index during rendering process.
      */
-    void extractDrawItem(DrawItem& out, uint32_t index) const;
+    void extractDrawItem(DrawItem& out) const;
 
 private:
     friend class ModelPool;
     void reset();
     
+    NodeProxy* _node;
     Mat4 _worldMatrix;
-    ccCArray* _effects = ccCArrayNew(2);
+    Effect* _effect;
     
-    std::vector<InputAssembler> _inputAssemblers;
+    InputAssembler _inputAssembler;
     std::vector<ValueMap*> _defines;
+    std::vector<std::unordered_map<std::string, Property>> _uniforms;
     bool _dynamicIA = false;
     int _cullingMask = -1;
+    int _userKey = -1;
 };
 
 // end of renderer group

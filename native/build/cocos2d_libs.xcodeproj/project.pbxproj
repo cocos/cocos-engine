@@ -827,6 +827,12 @@
 		40F373DA21B67A7D0083E4E7 /* libv8_snapshot.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 40F373D921B67A7D0083E4E7 /* libv8_snapshot.a */; };
 		40FF7AA1216B29CC00E73029 /* VideoPlayer-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 40FF7A9E216B29CB00E73029 /* VideoPlayer-ios.mm */; };
 		40FF7AA2216B29CC00E73029 /* VideoPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 40FF7A9F216B29CB00E73029 /* VideoPlayer.h */; };
+		4233799F22BB43B900E5D8A2 /* RecyclePool.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4233799C22BB43B900E5D8A2 /* RecyclePool.hpp */; };
+		423379A022BB43B900E5D8A2 /* RecyclePool.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4233799C22BB43B900E5D8A2 /* RecyclePool.hpp */; };
+		423379A322BB8DEA00E5D8A2 /* CustomProperties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 423379A122BB8DEA00E5D8A2 /* CustomProperties.cpp */; };
+		423379A422BB8DEA00E5D8A2 /* CustomProperties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 423379A122BB8DEA00E5D8A2 /* CustomProperties.cpp */; };
+		423379A522BB8DEA00E5D8A2 /* CustomProperties.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 423379A222BB8DEA00E5D8A2 /* CustomProperties.hpp */; };
+		423379A622BB8DEA00E5D8A2 /* CustomProperties.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 423379A222BB8DEA00E5D8A2 /* CustomProperties.hpp */; };
 		4617861920522469008256E1 /* SocketIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 461785FE20522468008256E1 /* SocketIO.cpp */; };
 		4617861A20522469008256E1 /* SocketIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 461785FE20522468008256E1 /* SocketIO.cpp */; };
 		4617862120522469008256E1 /* HttpCookie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4617860220522468008256E1 /* HttpCookie.cpp */; };
@@ -1819,6 +1825,9 @@
 		40F373D921B67A7D0083E4E7 /* libv8_snapshot.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_snapshot.a; path = ../external/mac/libs/libv8_snapshot.a; sourceTree = "<group>"; };
 		40FF7A9E216B29CB00E73029 /* VideoPlayer-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "VideoPlayer-ios.mm"; sourceTree = "<group>"; };
 		40FF7A9F216B29CB00E73029 /* VideoPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayer.h; sourceTree = "<group>"; };
+		4233799C22BB43B900E5D8A2 /* RecyclePool.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RecyclePool.hpp; sourceTree = "<group>"; };
+		423379A122BB8DEA00E5D8A2 /* CustomProperties.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CustomProperties.cpp; sourceTree = "<group>"; };
+		423379A222BB8DEA00E5D8A2 /* CustomProperties.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CustomProperties.hpp; sourceTree = "<group>"; };
 		461785FE20522468008256E1 /* SocketIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SocketIO.cpp; sourceTree = "<group>"; };
 		4617860220522468008256E1 /* HttpCookie.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HttpCookie.cpp; sourceTree = "<group>"; };
 		4617860420522469008256E1 /* CCIDownloaderImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCIDownloaderImpl.h; sourceTree = "<group>"; };
@@ -2913,6 +2922,14 @@
 			path = videoplayer;
 			sourceTree = "<group>";
 		};
+		4233798722BB237700E5D8A2 /* memop */ = {
+			isa = PBXGroup;
+			children = (
+				4233799C22BB43B900E5D8A2 /* RecyclePool.hpp */,
+			);
+			path = memop;
+			sourceTree = "<group>";
+		};
 		461785FD20522468008256E1 /* network */ = {
 			isa = PBXGroup;
 			children = (
@@ -3175,6 +3192,7 @@
 		46FDDA2C202ACC6A00931238 /* renderer */ = {
 			isa = PBXGroup;
 			children = (
+				4233798722BB237700E5D8A2 /* memop */,
 				0482F183228D87780019ECF7 /* scene */,
 				46FDDA2D202ACC6A00931238 /* renderer */,
 				46FDDA4C202ACC6A00931238 /* Types.cpp */,
@@ -3219,6 +3237,8 @@
 				46FDDA49202ACC6A00931238 /* InputAssembler.cpp */,
 				46FDDA4A202ACC6A00931238 /* Scene.h */,
 				46FDDA4B202ACC6A00931238 /* ForwardRenderer.h */,
+				423379A122BB8DEA00E5D8A2 /* CustomProperties.cpp */,
+				423379A222BB8DEA00E5D8A2 /* CustomProperties.hpp */,
 			);
 			path = renderer;
 			sourceTree = "<group>";
@@ -3510,6 +3530,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4233799F22BB43B900E5D8A2 /* RecyclePool.hpp in Headers */,
 				046E06802185B43B00B24E2D /* IEventDispatcher.h in Headers */,
 				1A28FF891F20AFAB007A1D9D /* SRURLUtilities.h in Headers */,
 				46FDDAA7202ACC6A00931238 /* ForwardRenderer.h in Headers */,
@@ -3727,6 +3748,7 @@
 				04DBD3E922AE2DBD00DBE4CD /* Debug.h in Headers */,
 				46AE3FFF2092F3A600F3A228 /* v8_inspector_protocol_json.h in Headers */,
 				046E06842185B43B00B24E2D /* EventObject.h in Headers */,
+				423379A522BB8DEA00E5D8A2 /* CustomProperties.hpp in Headers */,
 				046E06ED2185B4A500B24E2D /* JSONDataParser.h in Headers */,
 				046E06F32185B4A500B24E2D /* DataParser.h in Headers */,
 				46FDDACB202ACC6A00931238 /* VertexFormat.h in Headers */,
@@ -4252,6 +4274,8 @@
 				04DBD40622AE2DBD00DBE4CD /* BoundingBoxAttachment.h in Headers */,
 				4617863820522469008256E1 /* HttpClient.h in Headers */,
 				04DBD44E22AE2DBD00DBE4CD /* SpacingMode.h in Headers */,
+				423379A022BB43B900E5D8A2 /* RecyclePool.hpp in Headers */,
+				423379A622BB8DEA00E5D8A2 /* CustomProperties.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4306,6 +4330,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 1551A334158F2AB200E66CFE;
@@ -4404,6 +4429,7 @@
 				46FDDB71202ADDCE00931238 /* base64.cpp in Sources */,
 				1AAAC873205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.cpp in Sources */,
 				04DBD46322AE2DBD00DBE4CD /* PathConstraintData.cpp in Sources */,
+				423379A322BB8DEA00E5D8A2 /* CustomProperties.cpp in Sources */,
 				46FDDA8D202ACC6A00931238 /* Config.cpp in Sources */,
 				46930468204FE20F004A3D6C /* CCLog.cpp in Sources */,
 				1A28FF991F20AFAB007A1D9D /* SRSecurityPolicy.m in Sources */,
@@ -4636,6 +4662,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0482F1B8228D87970019ECF7 /* StencilManager.cpp in Sources */,
+				423379A422BB8DEA00E5D8A2 /* CustomProperties.cpp in Sources */,
 				04DBD41222AE2DBD00DBE4CD /* Constraint.cpp in Sources */,
 				ED30578D1BEC77550083C3ED /* unzip.cpp in Sources */,
 				46FDDA9E202ACC6A00931238 /* BaseRenderer.cpp in Sources */,
@@ -5115,6 +5142,7 @@
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../external/sources $(SRCROOT)/../external/ios/include $(SRCROOT)/../external/ios/include/freetype $(SRCROOT)/../cocos/editor-support/";
+				"USER_HEADER_SEARCH_PATHS[arch=*]" = "$(inherited) $(SRCROOT)/../external/sources $(SRCROOT)/../external/ios/include $(SRCROOT)/../external/ios/include/freetype $(SRCROOT)/../cocos/editor-support/";
 				VALID_ARCHS = "arm64 armv7";
 			};
 			name = Debug;
@@ -5143,6 +5171,7 @@
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../external/sources $(SRCROOT)/../external/ios/include $(SRCROOT)/../external/ios/include/freetype $(SRCROOT)/../cocos/editor-support/";
+				"USER_HEADER_SEARCH_PATHS[arch=*]" = "$(inherited) $(SRCROOT)/../external/sources $(SRCROOT)/../external/ios/include $(SRCROOT)/../external/ios/include/freetype $(SRCROOT)/../cocos/editor-support/";
 				VALID_ARCHS = "arm64 armv7";
 			};
 			name = Release;

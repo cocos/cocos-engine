@@ -62,12 +62,31 @@ public:
      *  @brief Renders the given render scene with a given camera setting.
      */
     void renderCamera(Camera* camera, Scene* scene);
-
 private:
+    void updateLights(Scene* scene);
+    void updateDefines();
+    void submitLightsUniforms();
+    void submitShadowStageUniforms(const View& view);
+    void submitOtherStagesUniforms();
+    void updateShaderDefines(StageItem& item);
+    void sortItems(std::vector<StageItem>& items);
+    void drawItems(const std::vector<StageItem>& items);
     void opaqueStage(const View& view, const std::vector<StageItem>& items);
-
+    void shadowStage(const View& view, const std::vector<StageItem>& items);
+    void transparentStage(const View& view, const std::vector<StageItem>& items);
+    static bool compareItems(const StageItem& a, const StageItem& b);
+    
+    Vector<Light*> _directionalLights;
+    Vector<Light*> _pointLights;
+    Vector<Light*> _spotLights;
+    Vector<Light*> _shadowLights;
+    Vector<Light*> _ambientLights;
+    
+    ValueMap* _defines = nullptr;
+    
     int _width = 0;
     int _height = 0;
+    std::size_t _numLights = 0;
 };
 
 // end of renderer group

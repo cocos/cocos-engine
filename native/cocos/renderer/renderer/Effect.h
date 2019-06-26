@@ -76,7 +76,6 @@ RENDERER_BEGIN
 class Effect : public Ref
 {
 public:
-    
     using Property = Technique::Parameter;
     
     /*
@@ -126,7 +125,10 @@ public:
      *  @brief Extracts all defines.
      */
     ValueMap* extractDefines();
-    
+    /*
+     *  @brief Extracts all propertyps.
+     */
+    std::unordered_map<std::string, Property> extractProperties();
     /**
      *  @brief Gets uniform property value by name.
      */

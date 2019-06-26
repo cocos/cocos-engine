@@ -26,6 +26,7 @@
 #include "RenderFlow.hpp"
 #include "StencilManager.hpp"
 #include "assembler/RenderDataList.hpp"
+#include "NodeProxy.hpp"
 
 RENDERER_BEGIN
 
@@ -41,6 +42,8 @@ ModelBatcher::ModelBatcher(RenderFlow* flow)
 , _currEffect(nullptr)
 , _buffer(nullptr)
 , _useModel(false)
+, _customProps(nullptr)
+, _node(nullptr)
 {
     for (int i = 0; i < INIT_IA_LENGTH; i++)
     {
@@ -87,8 +90,6 @@ void ModelBatcher::reset()
     for (int i = 0; i < _batchedModel.size(); ++i)
     {
         Model* model = _batchedModel[i];
-        model->clearInputAssemblers();
-        model->clearEffects();
         _flow->getRenderScene()->removeModel(model);
     }
     _batchedModel.clear();
@@ -142,6 +143,7 @@ void ModelBatcher::commit(NodeProxy* node, Assembler* assembler)
             _modelMat.set(worldMat);
             _useModel = useModel;
             _cullingMask = cullingMask;
+            _node = _useModel ? node : nullptr;
         }
         
         auto dirtyFlag = assembler->getDirtyFlag();
@@ -173,6 +175,8 @@ void ModelBatcher::commitIA(NodeProxy* node, CustomAssembler* assembler)
         _modelMat.set(worldMat);
         assembler->renderIA(i, this, node);
     }
+    
+    _node = _useModel ? node : nullptr;
 }
 
 void ModelBatcher::flushIA(InputAssembler* customIA)
@@ -217,8 +221,8 @@ void ModelBatcher::flushIA(InputAssembler* customIA)
     _modelOffset++;
     model->setWorldMatix(_modelMat);
     model->setCullingMask(_cullingMask);
-    model->addEffect(_currEffect);
-    model->addInputAssembler(*ia);
+    model->setEffect(_currEffect, _customProps);
+    model->setInputAssembler(*ia);
     _batchedModel.push_back(model);
     
     _flow->getRenderScene()->addModel(model);
@@ -280,8 +284,9 @@ void ModelBatcher::flush()
     _modelOffset++;
     model->setWorldMatix(_modelMat);
     model->setCullingMask(_cullingMask);
-    model->addEffect(_currEffect);
-    model->addInputAssembler(*ia);
+    model->setEffect(_currEffect, _customProps);
+    model->setInputAssembler(*ia);
+    model->setNode(_node);
     _batchedModel.push_back(model);
     
     _flow->getRenderScene()->addModel(model);

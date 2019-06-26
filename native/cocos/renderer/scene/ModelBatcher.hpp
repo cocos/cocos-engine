@@ -117,6 +117,7 @@ public:
     void setCullingMask(int cullingMask) { _cullingMask = cullingMask; }
     void setCurrentEffect(Effect* effect);
     void setUseModel(bool useModel) { _useModel = useModel; }
+    void setCustomProperties(CustomProperties* props) { _customProps = props; };
 private:
     int _iaOffset;
     int _modelOffset;
@@ -125,9 +126,12 @@ private:
     bool _walking;
     cocos2d::Mat4 _modelMat;
     
+    NodeProxy* _node;
+    
     MeshBuffer* _buffer;
     Effect* _currEffect;
     RenderFlow* _flow;
+    CustomProperties* _customProps;
 
     StencilManager* _stencilMgr;
     
