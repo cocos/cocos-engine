@@ -153,10 +153,10 @@ void Effect::generateKey()
     _definesKey <<= 8;
 }
 
-void Effect::copy(Effect& effect)
+void Effect::copy(const Effect* effect)
 {
-    _hash = effect._hash;
-    auto& otherTech = effect._techniques;
+    _hash = effect->_hash;
+    auto& otherTech = effect->_techniques;
     for (auto it = otherTech.begin(); it != otherTech.end(); it ++)
     {
         auto tech = new Technique();
@@ -164,10 +164,10 @@ void Effect::copy(Effect& effect)
         tech->copy(**it);
         _techniques.pushBack(tech);
     }
-    _defineTemplates = effect._defineTemplates;
-    _cachedNameValues = effect._cachedNameValues;
-    _properties = effect._properties;
-    _definesKey = effect._definesKey;
+    _defineTemplates = effect->_defineTemplates;
+    _cachedNameValues = effect->_cachedNameValues;
+    _properties = effect->_properties;
+    _definesKey = effect->_definesKey;
 }
 
 void Effect::setCullMode(CullMode cullMode)

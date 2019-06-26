@@ -192,7 +192,7 @@ public:
     /**
      *  @brief Deep copy from other effect.
      */
-    void copy(Effect& effect);
+    void copy(const Effect* effect);
 
 private:
     double _hash;
