@@ -23,6 +23,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+/**
+ * @category load
+ */
 
 import sys from '../core/platform/CCSys';
 import * as debug from '../core/platform/CCDebug';

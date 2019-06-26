@@ -25,7 +25,7 @@
 */
 /**
  * @category core 核心模块
- * @disable
+ * @hidden
  */
 
 import * as vmath from './vmath';

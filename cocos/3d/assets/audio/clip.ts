@@ -24,11 +24,7 @@
  */
 
 /**
- * @internal
- * @module audio
- */
-/**
- * @able
+ * @category audio
  */
 
 import { Asset } from '../../../assets/asset';

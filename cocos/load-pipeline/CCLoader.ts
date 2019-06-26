@@ -25,11 +25,7 @@
  */
 
 /**
- * @internal
- * @module load
- */
-/**
- * @able
+ * @category load
  */
 
 import { Asset, RawAsset } from '../assets';

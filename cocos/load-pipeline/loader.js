@@ -24,6 +24,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @category load
+ */
+
 import {mixin} from '../core/utils/js';
 import {ImageAsset} from '../assets/image-asset';
 import plistParser from './plist-parser';

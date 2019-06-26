@@ -23,6 +23,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+/**
+ * @category load
+ */
 
 import {pushToMap} from '../core/utils/misc';
 import {createMap, isChildClassOf} from '../core/utils/js';

@@ -23,6 +23,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @category load
+ */
+
 var _noCacheRex = /\?/;
 
 export function urlAppendTimestamp (url) {

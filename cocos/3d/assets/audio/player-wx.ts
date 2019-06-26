@@ -24,11 +24,7 @@
  */
 
 /**
- * @internal
- * @module audio
- */
-/**
- * @able
+ * @category audio
  */
 
 import { _decorator } from '../../../core/data/index';

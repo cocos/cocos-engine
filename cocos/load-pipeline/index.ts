@@ -24,6 +24,11 @@
  THE SOFTWARE.
 */
 
+/**
+ * 加载相关模块
+ * @category load
+ */
+
 export {default as url} from './url';
 export {default as Downloader} from './downloader';
 export {default as Loader} from './loader';

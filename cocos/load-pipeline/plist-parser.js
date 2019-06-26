@@ -26,6 +26,10 @@
  */
 
 /**
+ * @category load
+ */
+
+/**
  * A SAX Parser
  * @class saxParser
  */

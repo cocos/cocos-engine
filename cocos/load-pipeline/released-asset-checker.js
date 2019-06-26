@@ -24,6 +24,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @category load
+ */
+
 import {createMap, getClassName, clear} from '../core/utils/js';
 
 var tmpInfo = null;

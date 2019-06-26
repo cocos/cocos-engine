@@ -2,9 +2,6 @@
 /**
  * @hidden
  */
-/**
- * @disable
- */
 
 import { repeat } from '../../../../core/vmath';
 import { AnimationCurve, evalOptCurve, OptimizedKey } from '../../../geom-utils/curve';

@@ -3,9 +3,6 @@
 /**
  * @hidden
  */
-/**
- * @disable
- */
 
 /**
  * Default minimum size of a run.

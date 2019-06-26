@@ -2,9 +2,6 @@
 /**
  * @hidden
  */
-/**
- * @disable
- */
 
 import { ParticleSystemComponent } from '..';
 import { CCObject } from '../../../core';

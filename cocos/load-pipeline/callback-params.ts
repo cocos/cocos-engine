@@ -1,3 +1,7 @@
+/**
+ * @category load
+ */
+
 type LoadSuccessParams<T> = Parameters<(error: null | undefined, asset: T) => void>;
 
 type LoadErrorParams<T> = Parameters<(error: Error) => void>;
