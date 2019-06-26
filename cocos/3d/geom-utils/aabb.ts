@@ -1,9 +1,5 @@
 /**
- * @internal
- * @module gemotry-util
- */
-/**
- * @able
+ * @category gemotry-utils
  */
 
 import { mat3, mat4, quat, vec3 } from '../../core/vmath';

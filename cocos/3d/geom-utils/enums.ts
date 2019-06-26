@@ -1,9 +1,5 @@
 /**
- * @internal
- * @module gemotry-util
- */
-/**
- * @able
+ * @category gemotry-utils
  */
 
 /**

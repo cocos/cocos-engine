@@ -1,9 +1,6 @@
 /**
- * @internal
- * @module gemotry-util
- */
-/**
- * @able
+ * @category gemotry-utils
+ * @hidden
  */
 
 import { vec3 } from '../../core/vmath';

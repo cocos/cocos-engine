@@ -1,10 +1,5 @@
 /**
- * 几何工具模块的相关内容。
- * @internal
- * @module gemotry-util
- */
-/**
- * @able
+ * @category gemotry-utils 几何工具模块。
  */
 
 import { mat3, vec3 } from '../../core/vmath';
