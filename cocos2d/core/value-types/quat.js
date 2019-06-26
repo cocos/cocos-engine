@@ -169,6 +169,19 @@ proto.mul = function (other, out) {
 };
 
 /**
+ * !#en Rotates a quaternion by the given angle about a world space axis.
+ * !#zh 围绕世界空间轴按给定角度旋转四元数
+ * @param {Quat} rot
+ * @param {Vec3} axis
+ * @param {Number} rad
+ * @param {Quat} out
+ * @returns {Quat} out.
+ */
+proto.rotateAround = function(rot, axis, rad, out) {
+    return quat.rotateAround(out,rot,axis,rad);
+};
+
+/**
  * !#en The convenience method to create a new {{#crossLink "Quat"}}cc.Quat{{/crossLink}}.
  * !#zh 通过该简便的函数进行创建 {{#crossLink "Quat"}}cc.Quat{{/crossLink}} 对象。
  * @method quat
