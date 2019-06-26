@@ -10,7 +10,7 @@ if (!Math.sign) {
 
 if (!Math.log2) {
     Math.log2 = function (x) {
-        return Math.log(x) / 0.6931471805599453;
+        return Math.log(x) * Math.LOG2E;
     };
 }
 
