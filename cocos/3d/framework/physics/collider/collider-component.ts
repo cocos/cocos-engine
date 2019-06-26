@@ -1,6 +1,5 @@
 /**
- * 物理模块的相关内容。
- * @category physics
+ * @category physics 物理模块
  */
 
 import { ccclass, property } from '../../../../core/data/class-decorator';
