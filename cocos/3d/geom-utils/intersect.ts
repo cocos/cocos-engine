@@ -1,3 +1,7 @@
+/**
+ * @category gemotry-utils 几何工具模块。
+ */
+
 import { mat3, vec3 } from '../../core/vmath';
 import aabb from './aabb';
 import * as distance from './distance';
