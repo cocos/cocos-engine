@@ -261,7 +261,7 @@ var ProgressBar = cc.Class({
          */
         progress: {
             default: 1,
-            type: 'Float',
+            type: cc.Float,
             range: [0, 1, 0.1],
             slide: true,
             tooltip: CC_DEV && 'i18n:COMPONENT.progress.progress',
