@@ -48,6 +48,13 @@ static uint32_t attrTypeBytes(AttribType attrType)
     return 0;
 }
 
+VertexFormat* VertexFormat::XY_UV_Two_Color = new VertexFormat(std::vector<Info>({
+    Info(ATTRIB_NAME_POSITION, AttribType::FLOAT32, 2),
+    Info(ATTRIB_NAME_UV0, AttribType::FLOAT32, 2),
+    Info(ATTRIB_NAME_COLOR, AttribType::UINT8, 4, true),
+    Info(ATTRIB_NAME_COLOR0, AttribType::UINT8, 4, true)
+}));
+
 VertexFormat* VertexFormat::XY_UV_Color = new VertexFormat(std::vector<Info>({
     Info(ATTRIB_NAME_POSITION, AttribType::FLOAT32, 2),
     Info(ATTRIB_NAME_UV0, AttribType::FLOAT32, 2),

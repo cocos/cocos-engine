@@ -66,8 +66,16 @@ public:
         }
     }
     
+    static uint8_t generateModuleID()
+    {
+        static uint8_t uniqueId = 0;
+        uniqueId++;
+        return uniqueId;
+    }
+    
     /**
-     * update by js
+     * @brief update all elements
+     * @param[in] dt Delta time.
      */
     void update(float dt);
     

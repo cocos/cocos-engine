@@ -12917,6 +12917,25 @@ static bool js_cocos2dx_spine_SkeletonRenderer_bindNodeProxy(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_bindNodeProxy)
 
+static bool js_cocos2dx_spine_SkeletonRenderer_setBatchEnabled(se::State& s)
+{
+    spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_setBatchEnabled : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        bool arg0;
+        ok &= seval_to_boolean(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_setBatchEnabled : Error processing arguments");
+        cobj->setBatchEnabled(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_setBatchEnabled)
+
 static bool js_cocos2dx_spine_SkeletonRenderer_setSkin(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -13227,6 +13246,7 @@ bool js_register_cocos2dx_spine_SkeletonRenderer(se::Object* obj)
     cls->defineFunction("onDisable", _SE(js_cocos2dx_spine_SkeletonRenderer_onDisable));
     cls->defineFunction("setColor", _SE(js_cocos2dx_spine_SkeletonRenderer_setColor));
     cls->defineFunction("bindNodeProxy", _SE(js_cocos2dx_spine_SkeletonRenderer_bindNodeProxy));
+    cls->defineFunction("setBatchEnabled", _SE(js_cocos2dx_spine_SkeletonRenderer_setBatchEnabled));
     cls->defineFunction("setSkin", _SE(js_cocos2dx_spine_SkeletonRenderer_setSkin));
     cls->defineFunction("findSlot", _SE(js_cocos2dx_spine_SkeletonRenderer_findSlot));
     cls->defineFunction("updateWorldTransform", _SE(js_cocos2dx_spine_SkeletonRenderer_updateWorldTransform));

@@ -68,6 +68,7 @@ private:
     std::size_t _bufferPos = 0;
     IOBuffer _vb;
     IOBuffer _ib;
+    int _vertexFormat = 0;
 };
 
 MIDDLEWARE_END

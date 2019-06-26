@@ -50,6 +50,13 @@ class StencilManager;
 class ModelBatcher
 {
 public:
+    
+    enum CommitState {
+        None,
+        Common,
+        Custom,
+    };
+    
     /**
      *  @brief The constructor.
      */
@@ -86,7 +93,11 @@ public:
      */
     void flush();
     /**
-     *  @brief Construct a new Model from custom input assembler provided by CustomRenderHandle and add the Model to render Scene.
+     *  @brief Finished Custom input assmebler batch and add the Model to render Scene.
+     */
+    void flushIA();
+    /**
+     *  @brief Add new input assembler into current input assembler.
      */
     void flushIA(InputAssembler* customIA);
     /**
@@ -118,22 +129,23 @@ public:
     void setCurrentEffect(Effect* effect);
     void setUseModel(bool useModel) { _useModel = useModel; }
 private:
-    int _iaOffset;
-    int _modelOffset;
-    int _cullingMask;
-    bool _useModel;
-    bool _walking;
+    void changeCommitState(CommitState state);
+private:
+    int _modelOffset = 0;
+    int _cullingMask = 0;
+    bool _useModel = false;
+    bool _walking = false;
     cocos2d::Mat4 _modelMat;
+    CommitState _commitState = CommitState::None;
     
-    MeshBuffer* _buffer;
-    Effect* _currEffect;
-    RenderFlow* _flow;
+    MeshBuffer* _buffer = nullptr;
+    Effect* _currEffect = nullptr;
+    RenderFlow* _flow = nullptr;
 
-    StencilManager* _stencilMgr;
+    StencilManager* _stencilMgr = nullptr;
     
-    std::vector<InputAssembler*> _iaPool;
+    InputAssembler _ia;
     std::vector<Model*> _modelPool;
-    std::vector<Model*> _batchedModel;
     std::unordered_map<VertexFormat*, MeshBuffer*> _buffers;
 };
 

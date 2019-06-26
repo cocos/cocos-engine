@@ -3858,6 +3858,25 @@ bool js_register_renderer_Scene(se::Object* obj)
 se::Object* __jsb_cocos2d_renderer_MemPool_proto = nullptr;
 se::Class* __jsb_cocos2d_renderer_MemPool_class = nullptr;
 
+static bool js_renderer_MemPool_removeCommonData(se::State& s)
+{
+    cocos2d::renderer::MemPool* cobj = (cocos2d::renderer::MemPool*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_MemPool_removeCommonData : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        size_t arg0 = 0;
+        ok &= seval_to_size(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_MemPool_removeCommonData : Error processing arguments");
+        cobj->removeCommonData(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_MemPool_removeCommonData)
+
 static bool js_renderer_MemPool_updateCommonData(se::State& s)
 {
     cocos2d::renderer::MemPool* cobj = (cocos2d::renderer::MemPool*)s.nativeThisObject();
@@ -3880,25 +3899,6 @@ static bool js_renderer_MemPool_updateCommonData(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_renderer_MemPool_updateCommonData)
-
-static bool js_renderer_MemPool_removeCommonData(se::State& s)
-{
-    cocos2d::renderer::MemPool* cobj = (cocos2d::renderer::MemPool*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_MemPool_removeCommonData : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        size_t arg0 = 0;
-        ok &= seval_to_size(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_renderer_MemPool_removeCommonData : Error processing arguments");
-        cobj->removeCommonData(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_MemPool_removeCommonData)
 
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_MemPool_finalize)
 
@@ -3932,8 +3932,8 @@ bool js_register_renderer_MemPool(se::Object* obj)
 {
     auto cls = se::Class::create("MemPool", obj, nullptr, _SE(js_renderer_MemPool_constructor));
 
-    cls->defineFunction("updateCommonData", _SE(js_renderer_MemPool_updateCommonData));
     cls->defineFunction("removeCommonData", _SE(js_renderer_MemPool_removeCommonData));
+    cls->defineFunction("updateCommonData", _SE(js_renderer_MemPool_updateCommonData));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_MemPool_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::MemPool>(cls);
@@ -4591,6 +4591,27 @@ static bool js_renderer_CustomAssembler_getIACount(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_CustomAssembler_getIACount)
 
+static bool js_renderer_CustomAssembler_getIA(se::State& s)
+{
+    cocos2d::renderer::CustomAssembler* cobj = (cocos2d::renderer::CustomAssembler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_CustomAssembler_getIA : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        size_t arg0 = 0;
+        ok &= seval_to_size(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_CustomAssembler_getIA : Error processing arguments");
+        cocos2d::renderer::InputAssembler* result = cobj->getIA(arg0);
+        ok &= native_ptr_to_seval<cocos2d::renderer::InputAssembler>((cocos2d::renderer::InputAssembler*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_renderer_CustomAssembler_getIA : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_CustomAssembler_getIA)
+
 static bool js_renderer_CustomAssembler_adjustIA(se::State& s)
 {
     cocos2d::renderer::CustomAssembler* cobj = (cocos2d::renderer::CustomAssembler*)s.nativeThisObject();
@@ -4649,29 +4670,6 @@ static bool js_renderer_CustomAssembler_clearEffect(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_renderer_CustomAssembler_clearEffect)
-
-static bool js_renderer_CustomAssembler_renderIA(se::State& s)
-{
-    cocos2d::renderer::CustomAssembler* cobj = (cocos2d::renderer::CustomAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_CustomAssembler_renderIA : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 3) {
-        size_t arg0 = 0;
-        cocos2d::renderer::ModelBatcher* arg1 = nullptr;
-        cocos2d::renderer::NodeProxy* arg2 = nullptr;
-        ok &= seval_to_size(args[0], &arg0);
-        ok &= seval_to_native_ptr(args[1], &arg1);
-        ok &= seval_to_native_ptr(args[2], &arg2);
-        SE_PRECONDITION2(ok, false, "js_renderer_CustomAssembler_renderIA : Error processing arguments");
-        cobj->renderIA(arg0, arg1, arg2);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_CustomAssembler_renderIA)
 
 static bool js_renderer_CustomAssembler_updateEffect(se::State& s)
 {
@@ -4775,10 +4773,10 @@ bool js_register_renderer_CustomAssembler(se::Object* obj)
     auto cls = se::Class::create("CustomAssembler", obj, __jsb_cocos2d_renderer_AssemblerBase_proto, _SE(js_renderer_CustomAssembler_constructor));
 
     cls->defineFunction("getIACount", _SE(js_renderer_CustomAssembler_getIACount));
+    cls->defineFunction("getIA", _SE(js_renderer_CustomAssembler_getIA));
     cls->defineFunction("adjustIA", _SE(js_renderer_CustomAssembler_adjustIA));
     cls->defineFunction("updateIARange", _SE(js_renderer_CustomAssembler_updateIARange));
     cls->defineFunction("clearEffect", _SE(js_renderer_CustomAssembler_clearEffect));
-    cls->defineFunction("renderIA", _SE(js_renderer_CustomAssembler_renderIA));
     cls->defineFunction("updateEffect", _SE(js_renderer_CustomAssembler_updateEffect));
     cls->defineFunction("updateIABuffer", _SE(js_renderer_CustomAssembler_updateIABuffer));
     cls->defineFunction("getEffect", _SE(js_renderer_CustomAssembler_getEffect));
@@ -4805,14 +4803,16 @@ static bool js_renderer_RenderFlow_render(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 1) {
+    if (argc == 2) {
         cocos2d::renderer::NodeProxy* arg0 = nullptr;
+        float arg1 = 0;
         ok &= seval_to_native_ptr(args[0], &arg0);
+        ok &= seval_to_float(args[1], &arg1);
         SE_PRECONDITION2(ok, false, "js_renderer_RenderFlow_render : Error processing arguments");
-        cobj->render(arg0);
+        cobj->render(arg0, arg1);
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
 SE_BIND_FUNC(js_renderer_RenderFlow_render)
@@ -4840,9 +4840,9 @@ static bool js_renderer_RenderFlow_insertNodeLevel(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        unsigned int arg0 = 0;
+        size_t arg0 = 0;
         cocos2d::renderer::RenderFlow::LevelInfo arg1;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+        ok &= seval_to_size(args[0], &arg0);
         #pragma warning NO CONVERSION TO NATIVE FOR LevelInfo
         ok = false;
         SE_PRECONDITION2(ok, false, "js_renderer_RenderFlow_insertNodeLevel : Error processing arguments");
@@ -4879,11 +4879,19 @@ static bool js_renderer_RenderFlow_calculateLocalMatrix(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_renderer_RenderFlow_calculateLocalMatrix : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
         cobj->calculateLocalMatrix();
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    if (argc == 1) {
+        int arg0 = 0;
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+        SE_PRECONDITION2(ok, false, "js_renderer_RenderFlow_calculateLocalMatrix : Error processing arguments");
+        cobj->calculateLocalMatrix(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
 SE_BIND_FUNC(js_renderer_RenderFlow_calculateLocalMatrix)
@@ -4896,9 +4904,9 @@ static bool js_renderer_RenderFlow_removeNodeLevel(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        unsigned int arg0 = 0;
+        size_t arg0 = 0;
         cocos2d::Mat4* arg1 = nullptr;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+        ok &= seval_to_size(args[0], &arg0);
         ok &= seval_to_native_ptr(args[1], &arg1);
         SE_PRECONDITION2(ok, false, "js_renderer_RenderFlow_removeNodeLevel : Error processing arguments");
         cobj->removeNodeLevel(arg0, arg1);
@@ -4944,6 +4952,29 @@ static bool js_renderer_RenderFlow_getModelBatcher(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_renderer_RenderFlow_getModelBatcher)
+
+static bool js_renderer_RenderFlow_calculateLevelWorldMatrix(se::State& s)
+{
+    cocos2d::renderer::RenderFlow* cobj = (cocos2d::renderer::RenderFlow*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_RenderFlow_calculateLevelWorldMatrix : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cobj->calculateLevelWorldMatrix();
+        return true;
+    }
+    if (argc == 1) {
+        int arg0 = 0;
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+        SE_PRECONDITION2(ok, false, "js_renderer_RenderFlow_calculateLevelWorldMatrix : Error processing arguments");
+        cobj->calculateLevelWorldMatrix(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_RenderFlow_calculateLevelWorldMatrix)
 
 static bool js_renderer_RenderFlow_getDevice(se::State& s)
 {
@@ -5028,6 +5059,7 @@ bool js_register_renderer_RenderFlow(se::Object* obj)
     cls->defineFunction("removeNodeLevel", _SE(js_renderer_RenderFlow_removeNodeLevel));
     cls->defineFunction("getRenderScene", _SE(js_renderer_RenderFlow_getRenderScene));
     cls->defineFunction("getModelBatcher", _SE(js_renderer_RenderFlow_getModelBatcher));
+    cls->defineFunction("calculateLevelWorldMatrix", _SE(js_renderer_RenderFlow_calculateLevelWorldMatrix));
     cls->defineFunction("getDevice", _SE(js_renderer_RenderFlow_getDevice));
     cls->defineStaticFunction("getInstance", _SE(js_renderer_RenderFlow_getInstance));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_RenderFlow_finalize));

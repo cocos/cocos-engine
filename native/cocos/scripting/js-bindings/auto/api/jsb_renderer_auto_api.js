@@ -1667,6 +1667,16 @@ Scene : function (
 renderer.MemPool = {
 
 /**
+ * @method removeCommonData
+ * @param {unsigned int} arg0
+ */
+removeCommonData : function (
+int 
+)
+{
+},
+
+/**
  * @method updateCommonData
  * @param {unsigned int} arg0
  * @param {se::Object} arg1
@@ -1676,16 +1686,6 @@ updateCommonData : function (
 int, 
 object, 
 object 
-)
-{
-},
-
-/**
- * @method removeCommonData
- * @param {unsigned int} arg0
- */
-removeCommonData : function (
-int 
 )
 {
 },
@@ -2035,6 +2035,18 @@ getIACount : function (
 },
 
 /**
+ * @method getIA
+ * @param {unsigned int} arg0
+ * @return {cc.renderer::InputAssembler}
+ */
+getIA : function (
+int 
+)
+{
+    return cc.renderer::InputAssembler;
+},
+
+/**
  * @method adjustIA
  * @param {unsigned int} arg0
  * @return {cc.renderer::InputAssembler}
@@ -2064,20 +2076,6 @@ int
  * @method clearEffect
  */
 clearEffect : function (
-)
-{
-},
-
-/**
- * @method renderIA
- * @param {unsigned int} arg0
- * @param {cc.renderer::ModelBatcher} arg1
- * @param {cc.renderer::NodeProxy} arg2
- */
-renderIA : function (
-int, 
-modelbatcher, 
-nodeproxy 
 )
 {
 },
@@ -2139,9 +2137,11 @@ renderer.RenderFlow = {
 /**
  * @method render
  * @param {cc.renderer::NodeProxy} arg0
+ * @param {float} arg1
  */
 render : function (
-nodeproxy 
+nodeproxy, 
+float 
 )
 {
 },
@@ -2214,6 +2214,14 @@ getModelBatcher : function (
 )
 {
     return cc.renderer::ModelBatcher;
+},
+
+/**
+ * @method calculateLevelWorldMatrix
+ */
+calculateLevelWorldMatrix : function (
+)
+{
 },
 
 /**

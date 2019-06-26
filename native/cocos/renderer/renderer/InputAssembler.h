@@ -107,6 +107,10 @@ public:
      *  @brief Clears all field.
      */
     void clear();
+    /**
+     *  @brief Can be merge.
+     */
+    bool isMergeable(const InputAssembler& ia) const;
 private:
     friend class BaseRenderer;
     
