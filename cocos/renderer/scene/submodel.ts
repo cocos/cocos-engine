@@ -14,7 +14,6 @@ export class SubModel {
     private _material: Material | null;
     private _cmdBuffers: GFXCommandBuffer[];
     private _psos: GFXPipelineState[] | null;
-    private _castShadow: boolean;
     private _priority: RenderPriority;
 
     constructor () {
@@ -22,7 +21,6 @@ export class SubModel {
         this._material = null;
         this._cmdBuffers = new Array<GFXCommandBuffer>();
         this._psos = null;
-        this._castShadow = false;
         this._inputAssembler = null;
         this._priority = RenderPriority.DEFAULT;
     }
@@ -103,14 +101,6 @@ export class SubModel {
 
     get inputAssembler (): GFXInputAssembler | null {
         return this._inputAssembler;
-    }
-
-    get castShadow (): boolean {
-        return this._castShadow;
-    }
-
-    set castShadow (val: boolean) {
-        this._castShadow = val;
     }
 
     public updateCommandBuffer () {

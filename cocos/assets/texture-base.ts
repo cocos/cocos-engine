@@ -35,6 +35,7 @@ import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { postLoadImage } from './texture-util';
+import { error } from '../core/platform/CCDebug';
 
 const CHAR_CODE_1 = 49;    // '1'
 
@@ -70,7 +71,7 @@ export class TextureBase extends Asset {
     /**
      * 此贴图的像素宽度。
      * 对于二维贴图来说，贴图的像素宽度等于它 0 级 Mipmap 的宽度；
-     * 对于二维贴图来说，贴图的像素宽度等于它 0 级 Mipmap 任何面的宽度；
+     * 对于立方体贴图来说，贴图的像素宽度等于它 0 级 Mipmap 任何面的宽度；
      */
     public get width (): number {
         return this._texture ? this._texture.width : 0;
@@ -79,7 +80,7 @@ export class TextureBase extends Asset {
     /**
      * 此贴图的像素高度。
      * 对于二维贴图来说，贴图的像素高度等于它 0 级 Mipmap 的高度；
-     * 对于二维贴图来说，贴图的像素高度等于它 0 级 Mipmap 任何面的高度；
+     * 对于立方体贴图来说，贴图的像素高度等于它 0 级 Mipmap 任何面的高度；
      */
     public get height (): number {
         return this._texture ? this._texture.height : 0;
@@ -161,6 +162,7 @@ export class TextureBase extends Asset {
 
     /**
      * 将当且贴图重置为指定尺寸、像素格式以及指定 mipmap 层级的贴图。重置后，贴图的像素数据将变为未定义。
+     * mipmap 图像的数据不会自动更新到贴图中，你必须显式调用 `this.uploadData` 来上传贴图数据。
      * @param width 像素宽度。
      * @param height 像素高度。
      * @param format 像素格式。
@@ -360,20 +362,39 @@ export class TextureBase extends Asset {
 
     /**
      * 上传图像数据到指定层级的 Mipmap 中。
+     * 图像的尺寸影响 Mipmap 的更新范围：
+     * - 当图像是 `ArrayBuffer` 时，图像的尺寸必须和 Mipmap 的尺寸一致；否则，
+     * - 若图像的尺寸与 Mipmap 的尺寸相同，上传后整个 Mipmap 的数据将与图像数据一致；
+     * - 若图像的尺寸小于指定层级 Mipmap 的尺寸（不管是长或宽），则从贴图左上角开始，图像尺寸范围内的 Mipmap 会被更新；
+     * - 若图像的尺寸超出了指定层级 Mipmap 的尺寸（不管是长或宽），都将引起错误。
      * @param source 图像数据源。
      * @param level Mipmap 层级。
      * @param arrayIndex 数组索引。
      */
     public uploadData (source: HTMLCanvasElement | HTMLImageElement | ArrayBuffer, level: number = 0, arrayIndex: number = 0) {
-        if (!this._texture || this._texture.mipLevel <= level) { return; }
+        if (!this._texture || this._texture.mipLevel <= level) {
+            return;
+        }
+
         const gfxDevice = this._getGlobalDevice();
-        if (!gfxDevice) { return; }
+        if (!gfxDevice) {
+            return;
+        }
 
         const region = _regions[0];
         region.texExtent.width = this._texture.width >> level;
         region.texExtent.height = this._texture.height >> level;
         region.texSubres.baseMipLevel = level;
         region.texSubres.baseArrayLayer = arrayIndex;
+
+        if (CC_DEV) {
+            if (source instanceof HTMLElement) {
+                if (source.height > region.texExtent.height ||
+                    source.width > region.texExtent.width) {
+                    error(`Image source bounds override.`);
+                }
+            }
+        }
 
         if (source instanceof ArrayBuffer) {
             gfxDevice.copyBuffersToTexture([source], this._texture, _regions);

@@ -1499,9 +1499,9 @@ export abstract class RenderPipeline {
             mainLight.update();
         }
 
-        const planarShadow = scene.planarShadow;
-        if (planarShadow.enabled) {
-            planarShadow.updateDirLight(scene.mainLight);
+        const planarShadows = scene.planarShadows;
+        if (planarShadows.enabled && mainLight.node.hasChanged) {
+            planarShadows.updateDirLight(mainLight);
         }
 
         if (scene.skybox.enabled) {
@@ -1525,6 +1525,10 @@ export abstract class RenderPipeline {
 
             model.updateUBOs();
             this.addVisibleModel(model, camera);
+        }
+
+        if (planarShadows.enabled) {
+            planarShadows.updateCommandBuffers();
         }
     }
 
