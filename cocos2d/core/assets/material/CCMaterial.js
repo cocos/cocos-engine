@@ -83,8 +83,7 @@ let Material = cc.Class({
                     cc.error('Can not set an empty effect asset.');
                     return;
                 }
-                this._effect = Effect.parseEffect(asset);
-                this.updateHash();
+                this._effect = this._effectAsset.getInstantiatedEffect();;
             }
         },
 
@@ -164,9 +163,6 @@ let Material = cc.Class({
             else {
                 this._effect.setProperty(name, val);
             }
-            if (!this._manualHash) {
-                this.updateHash();
-            }
         }
     },
 
@@ -186,9 +182,6 @@ let Material = cc.Class({
 
         if (this._effect) {
             this._effect.define(name, val);
-            if (!this._manualHash) {
-                this.updateHash();
-            }
         }
     },
 
@@ -226,7 +219,12 @@ let Material = cc.Class({
 
     getHash () {
         if (!this._dirty) return this._hash;
-        this.updateHash();
+        
+        if (!this._manualHash) {
+            this.updateHash();
+        }
+
+        this._dirty = false;
         return this._hash;
     },
 
