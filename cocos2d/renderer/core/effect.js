@@ -178,6 +178,28 @@ class Effect {
 
         return out;
     }
+
+    clone () {
+        let defines = this.extractDefines({});
+        let dependencies = this.extractDependencies({});
+
+        let newProperties = {};
+        let properties = this._properties;
+        for (let name in properties) {
+            let prop = properties[name];
+            let newProp = newProperties[name] = {};
+            for (let p in prop) {
+                newProp[p] = prop[p];
+            }
+        }
+
+        let techniques = [];
+        for (let i = 0; i < this._techniques.length; i++) {
+            techniques.push(this._techniques[i].clone());
+        }
+
+        return new Effect(this._name, techniques, newProperties, defines, dependencies);
+    }
 }
 
 
