@@ -1,3 +1,7 @@
+/**
+ * @category physics
+ */
+
 import {
     ccclass,
     executeInEditMode,
@@ -11,6 +15,10 @@ import { BoxShapeBase } from '../../../physics/api';
 import { createBoxShape } from '../../../physics/instance';
 import { ColliderComponent } from './collider-component';
 
+/**
+ * @zh
+ * 盒子碰撞器
+ */
 @ccclass('cc.BoxColliderComponent')
 @executionOrder(98)
 @menu('Components/BoxColliderComponent')
