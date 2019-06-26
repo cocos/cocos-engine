@@ -223,14 +223,15 @@ export default class Color extends ValueType {
      */
     public lerp (to: Color, ratio: number, out?: Color) {
         out = out || new Color();
-        const r = this.r;
-        const g = this.g;
-        const b = this.b;
-        const a = this.a;
-        out.r = r + (to.r - r) * ratio;
-        out.g = g + (to.g - g) * ratio;
-        out.b = b + (to.b - b) * ratio;
-        out.a = a + (to.a - a) * ratio;
+        let r = this.r;
+        let g = this.g;
+        let b = this.b;
+        let a = this.a;
+        r = r + (to.r - r) * ratio;
+        g = g + (to.g - g) * ratio;
+        b = b + (to.b - b) * ratio;
+        a = a + (to.a - a) * ratio;
+        out._val = Math.floor(((a << 24) >>> 0) + (b << 16) + (g << 8) + r);
         return out;
     }
 

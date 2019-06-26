@@ -467,6 +467,9 @@ export class ParticleSystemComponent extends RenderableComponent {
      * 停止播放粒子。
      */
     public stop () {
+        if (this._isPlaying || this._isPaused) {
+            this.clear();
+        }
         if (this._isPlaying) {
             this._isPlaying = false;
         }
@@ -474,7 +477,6 @@ export class ParticleSystemComponent extends RenderableComponent {
             this._isPaused = false;
         }
 
-        this.clear();
         this._time = 0.0;
         this._emitRateTimeCounter = 0.0;
         this._emitRateDistanceCounter = 0.0;
