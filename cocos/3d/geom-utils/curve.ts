@@ -1,3 +1,7 @@
+/**
+ * @category gemotry-utils
+ */
+
 import { CCClass } from '../../core/data';
 import { Enum } from '../../core/value-types';
 import { clamp, inverseLerp, pingPong, repeat } from '../../core/vmath';
@@ -72,6 +76,18 @@ export function evalOptCurve (t: number, coefs: Float32Array | number[]) {
  */
 export class AnimationCurve {
 
+    private static defaultKF: Keyframe[] = [{
+        time: 0,
+        value: 1,
+        inTangent: 0,
+        outTangent: 0,
+    }, {
+        time: 1,
+        value: 1,
+        inTangent: 0,
+        outTangent: 0,
+    }];
+
     /**
      * @zh 曲线的关键帧。
      */
@@ -88,18 +104,6 @@ export class AnimationCurve {
     public postWrapMode: number = WrapMode.Loop;
 
     private cachedKey: OptimizedKey;
-
-    private static defaultKF: Keyframe[] = [{
-        time: 0,
-        value: 1,
-        inTangent: 0,
-        outTangent: 0,
-    }, {
-        time: 1,
-        value: 1,
-        inTangent: 0,
-        outTangent: 0,
-    }];
 
     /**
      * 构造函数。
