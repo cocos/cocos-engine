@@ -1,3 +1,7 @@
+/**
+ * @category animation
+ */
+
 import { Component } from '../components';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { EventArgumentsOf, EventCallbackOf } from '../core/event/defines';

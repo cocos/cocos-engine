@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core/value-types
+ */
+
 import CCClass from '../data/class';
 import Mat4 from './mat4';
 import Size from './size';

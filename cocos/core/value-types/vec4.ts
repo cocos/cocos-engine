@@ -30,7 +30,7 @@ import Mat4 from './mat4';
 import { ValueType } from './value-type';
 
 /**
- * @category Core/Math
+ * @category core/value-types
  */
 
 /**

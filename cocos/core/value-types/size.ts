@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core/value-types
+ */
+
 import CCClass from '../data/class';
 import { ValueType } from './value-type';
 

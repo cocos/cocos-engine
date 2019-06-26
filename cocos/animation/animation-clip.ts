@@ -1,3 +1,8 @@
+
+/**
+ * @category animation
+ */
+
 import { Asset, SpriteFrame } from '../assets';
 import { ccclass, property } from '../core/data/class-decorator';
 import { errorID } from '../core/platform/CCDebug';

@@ -1,3 +1,7 @@
+/**
+ * @category animation
+ */
+
 import { ccclass } from '../core/data/class-decorator';
 import { errorID } from '../core/platform/CCDebug';
 import { MutableForwardIterator, remove } from '../core/utils/array';
