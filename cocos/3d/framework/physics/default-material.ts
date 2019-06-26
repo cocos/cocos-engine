@@ -8,4 +8,4 @@ export const DefaultPhysicsMaterial: PhysicsMaterial = (() => {
     return result;
 })();
 
-cc.DefaultPhysicsMaterial = DefaultPhysicsMaterial;
+// cc.DefaultPhysicsMaterial = DefaultPhysicsMaterial;

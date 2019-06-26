@@ -1,13 +1,16 @@
+/**
+ * @category physics
+ * @hidden
+ */
+
 import { Component } from '../../../../components/component';
-import { ccclass } from '../../../../core/data/class-decorator';
 import { Mat4, Quat, Vec3 } from '../../../../core/value-types';
-import { quat, vec3 } from '../../../../core/vmath';
+import { vec3 } from '../../../../core/vmath';
 import { Node } from '../../../../scene-graph/node';
 // tslint:disable-next-line:max-line-length
 import { AfterStepCallback, BeforeStepCallback, PhysicsWorldBase, RigidBodyBase } from '../../../physics/api';
 import { createRigidBody } from '../../../physics/instance';
 import { ERigidBodyType, ETransformSource } from '../../../physics/physic-enum';
-import { stringfyQuat, stringfyVec3 } from '../../../physics/util';
 
 export class PhysicsBasedComponent extends Component {
 
