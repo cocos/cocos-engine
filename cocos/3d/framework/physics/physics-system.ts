@@ -1,9 +1,5 @@
 /**
- * @internal
- * @module physics
- */
-/**
- * @able
+ * @category physics
  */
 
 import { PhysicsWorldBase } from '../../physics/api';
