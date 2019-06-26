@@ -23,5 +23,6 @@ export class BuiltinSphereShape extends BuiltinShape {
 
     public setRadius (radius: number) {
         this._localSphere.radius = radius;
+        this._worldSphere.radius = radius;
     }
 }

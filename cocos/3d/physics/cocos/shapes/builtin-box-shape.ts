@@ -22,6 +22,7 @@ export class BuiltinBoxShape extends BuiltinShape {
 
     public setSize (size: vec3) {
         vec3.scale(this._localObb.halfExtents, size, 0.5);
+        vec3.scale(this._worldObb.halfExtents, size, 0.5);
     }
 
 }
