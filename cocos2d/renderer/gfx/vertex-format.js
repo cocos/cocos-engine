@@ -1,4 +1,5 @@
 import { attrTypeBytes } from './enums';
+import murmurhash2 from '../murmurhash2_gc';
 
 // ====================
 // exports
@@ -21,6 +22,8 @@ export default class VertexFormat {
     this._elements = [];
     this._bytes = 0;
 
+    let hash = "";
+
     for (let i = 0, len = infos.length; i < len; ++i) {
       let info = infos[i];
       let el = {
@@ -38,12 +41,16 @@ export default class VertexFormat {
       this._elements.push(el);
 
       this._bytes += el.bytes;
+
+      hash += `${el.name}:${el.num}:${el.type}:${el.normalize}`;
     }
 
     for (let i = 0, len = this._elements.length; i < len; ++i) {
       let el = this._elements[i];
       el.stride = this._bytes;
     }
+
+    this._hash = murmurhash2(hash, 666);
   }
 
   /**
@@ -52,5 +59,12 @@ export default class VertexFormat {
    */
   element(attrName) {
     return this._attr2el[attrName];
+  }
+
+  /**
+   * @method getHash
+   */
+  getHash () {
+    return this._hash;
   }
 }

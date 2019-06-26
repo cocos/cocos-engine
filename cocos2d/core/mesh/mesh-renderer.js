@@ -23,14 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import gfx from '../../renderer/gfx';
-import InputAssembler from '../../renderer/core/input-assembler';
 import IARenderData from '../../renderer/render-data/ia-render-data';
-const Material = require('../assets/material/CCMaterial');
+import gfx from '../../renderer/gfx';
+import vec3 from '../vmath/vec3';
 
+const Material = require('../assets/material/CCMaterial');
 const MeshRenderer = require('./CCMeshRenderer');
 
-const BLACK_COLOR = cc.Color.BLACK;
+let _idRenderData = new IARenderData();
 
 let meshRendererAssembler = {
     updateRenderData (comp) {
@@ -46,74 +46,128 @@ let meshRendererAssembler = {
         }
     },
 
-    createWireFrameData (ia, oldIbData, material, renderer) {
-        let data = new IARenderData();
-        let m = new Material();
-        m.copy(Material.getBuiltinMaterial('unlit'));
-        m.setProperty('diffuseColor', BLACK_COLOR);
-        m.define('USE_DIFFUSE_TEXTURE', false);
-        data.material = m;
-
-        let indices = [];
-        for (let i = 0; i < oldIbData.length; i+=3) {
-            let a = oldIbData[ i + 0 ];
-            let b = oldIbData[ i + 1 ];
-            let c = oldIbData[ i + 2 ];
-            indices.push(a, b, b, c, c, a);
-        }
-
-        let ibData = new Uint16Array(indices);
-        let ib = new gfx.IndexBuffer(
-            renderer._device,
-            gfx.INDEX_FMT_UINT16,
-            gfx.USAGE_STATIC,
-            ibData,
-            ibData.length
-        );
-
-        data.ia = new InputAssembler(ia._vertexBuffer, ib, gfx.PT_LINES);
-        return data;
-    },
-
     fillBuffers (comp, renderer) {
-        renderer._flush();
-
-        let renderDatas = comp._renderDatas;
-        let submeshes = comp.mesh._subMeshes;
-        if (cc.macro.SHOW_MESH_WIREFRAME) {
-            if (renderDatas.length === submeshes.length) {
-                let ibs = comp.mesh._ibs;
-                for (let i = 0; i < submeshes.length; i++) {
-                    let data = renderDatas[i];
-                    renderDatas.push( this.createWireFrameData(data.ia, ibs[i].data, data.material, renderer) );
-                }
-            }
-        }
-        else {
-            renderDatas.length = submeshes.length;
-        }
-
-        let tmpMaterial = renderer.material;
-
-        let tmpNode = renderer.node;
-        renderer.node = comp.getRenderNode();
-
-        renderer.customProperties = comp._customProperties;
-        let tmpCustomProperties = renderer.customProperties;
+        if (!comp.mesh) return;
 
         comp.mesh._uploadData();
 
-        for (let i = 0; i < renderDatas.length; i++) {
-            let renderData = renderDatas[i];
-            let material = renderData.material;
+        // update custom properties
+        let isCustomPropertiesSame = renderer.customProperties && 
+            renderer.customProperties.getHash() === comp._customProperties.getHash();
 
+
+        // update culling mask
+        let isCullingMaskSame = renderer.cullingMask === comp.node._cullingMask;
+
+        let enableAutoBatch = comp.enableAutoBatch;
+
+        let materials = comp.sharedMaterials;
+        let submeshes = comp.mesh.subMeshes;
+        let vbs = comp.mesh._vbs;
+        let ibs = comp.mesh._ibs;
+        for (let i = 0; i < submeshes.length; i++) {
+            let submesh = submeshes[i];
+            let vb = vbs[i];
+
+            let material = materials[i] || materials[0];
+
+            if (!enableAutoBatch || !vb.canBatch || submesh._primitiveType !== gfx.PT_TRIANGLES) {
+                renderer._flush();
+
+                renderer.material = material;
+                renderer.cullingMask = comp.node._cullingMask;
+                renderer.customProperties = comp._customProperties;
+                renderer.node = comp.getRenderNode();
+
+                _idRenderData.ia = submesh;
+                _idRenderData.material = material
+                
+                renderer._flushIA(_idRenderData);
+
+                continue;
+            }
+
+            if (!isCustomPropertiesSame ||
+                !isCullingMaskSame ||
+                material.getHash() !== renderer.material.getHash()) {
+                renderer._flush();
+                renderer.material = material;
+                renderer.cullingMask = comp.node._cullingMask;
+                renderer.customProperties = comp._customProperties;
+                renderer.node = renderer._dummyNode;
+            }
+            
+            this._fillBuffer(comp, vb, ibs[i], renderer);
+        }
+
+        if (cc.macro.SHOW_MESH_WIREFRAME) {
+            this._drawWireFrames(comp, renderer);
+        }
+    },
+
+    _fillBuffer (comp, vb, ib, renderer) {
+        let matrix = comp.node._worldMatrix;
+        let data = vb.Float32Array;
+        let vtxFormat = vb.format;
+        let attrPos = vtxFormat._attr2el[gfx.ATTR_POSITION];
+        let attrOffset = attrPos.offset / 4;
+        let elementCount = vtxFormat._bytes / 4;
+
+        let vertexCount = data.length / elementCount | 0;
+        
+        let indices = ib.data;
+        let indicesCount = indices.length;
+
+        let buffer = renderer.getBuffer('mesh', vtxFormat);
+        let offsetInfo = buffer.request(vertexCount, indicesCount);
+        
+        // buffer data may be realloc, need get reference after request.
+        let indiceOffset = offsetInfo.indiceOffset,
+            vertexOffset = offsetInfo.byteOffset >> 2,
+            vertexId = offsetInfo.vertexOffset,
+            vbuf = buffer._vData,
+            ibuf = buffer._iData;
+
+        let tmpV3 = cc.v3();
+        for (let i = 0; i < vertexCount; i++) {
+            let offset = i * elementCount;
+            for (let j = 0; j < attrOffset; j++) {
+                vbuf[vertexOffset++] = data[offset + j];
+            }
+
+            tmpV3.x = data[offset + attrOffset];
+            tmpV3.y = data[offset + attrOffset + 1];
+            tmpV3.z = data[offset + attrOffset + 2];
+
+            vec3.transformMat4(tmpV3, tmpV3, matrix);
+
+            vbuf[vertexOffset++] = tmpV3.x;
+            vbuf[vertexOffset++] = tmpV3.y;
+            vbuf[vertexOffset++] = tmpV3.z;
+
+            for (let j = attrOffset + 3; j < elementCount; j++) {
+                vbuf[vertexOffset++] = data[offset + j];
+            }
+        }
+
+        for (let i = 0; i < indicesCount; i++) {
+            ibuf[indiceOffset + i] = vertexId + indices[i];
+        }
+    },
+
+    _drawWireFrames (comp, renderer) {
+        renderer._flush();
+        
+        comp._updateWireFrameDatas();
+        renderer.node = comp.getRenderNode();
+        
+        let datas = comp._wireFrameDatas;
+        for (let i = 0; i < datas.length; i++) {
+            let renderData = datas[i];
+            let material = renderData.material;
             renderer.material = material;
             renderer._flushIA(renderData);
         }
-
-        renderer.customProperties = tmpCustomProperties;
-        renderer.node = tmpNode;
-        renderer.material = tmpMaterial;
     }
 };
 

@@ -94,6 +94,14 @@ let SkinnedMeshRenderer = cc.Class({
                 this._init();
             },
             type: cc.Node
+        },
+
+        // SkinnedMeshRenderer cannot batch
+        enableAutoBatch: {
+            get () {
+                return false;
+            },
+            visible: false
         }
     },
 
