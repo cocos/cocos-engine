@@ -3,7 +3,6 @@
  * @category gemotry-utils
  */
 
-
 import { mat3, vec3 } from '../../core/vmath';
 import aabb from './aabb';
 import * as distance from './distance';
