@@ -33,38 +33,16 @@ import { RenderableComponent } from './renderable-component';
 /**
  * @en Shadow projection mode
  * @zh 阴影投射方式。
- * @static
- * @enum ModelComponent.ShadowCastingMode
  */
 const ModelShadowCastingMode = Enum({
     /**
-     * 关闭阴影投射。
-     * @property Off
-     * @readonly
-     * @type {Number}
+     * 不投射阴影。
      */
-    Off: 0,
+    OFF: 0,
     /**
-     * 开启阴影投射，当阴影光产生的时候。
-     * @property On
-     * @readonly
-     * @type {Number}
+     * 开启阴影投射。
      */
-    On: 1,
-    /**
-     * 可以从网格的任意一边投射出阴影。
-     * @property TwoSided
-     * @readonly
-     * @type {Number}
-     */
-    TwoSided: 2,
-    /**
-     * 只显示阴影。
-     * @property ShadowsOnly
-     * @readonly
-     * @type {Number}
-     */
-    ShadowsOnly: 3,
+    ON: 1,
 });
 
 /**
@@ -81,7 +59,6 @@ export class ModelComponent extends RenderableComponent {
     /**
      * @en The mesh of the model
      * @zh 模型网格。
-     * @type {Mesh}
      */
     @property({
         type: Mesh,
@@ -100,11 +77,10 @@ export class ModelComponent extends RenderableComponent {
     /**
      * @en The shadow casting mode
      * @zh 投射阴影方式。
-     * @type {Number}
      */
-    // @property({
-    //     type: ModelShadowCastingMode,
-    // })
+    @property({
+        type: ModelShadowCastingMode,
+    })
     get shadowCastingMode () {
         return this._shadowCastingMode;
     }
@@ -117,7 +93,6 @@ export class ModelComponent extends RenderableComponent {
     /**
      * @en Does this model receive shadows?
      * @zh 是否接受阴影？
-     * @type {Boolean}
      */
     // @property
     get receiveShadows () {
@@ -141,7 +116,7 @@ export class ModelComponent extends RenderableComponent {
     protected _mesh: Mesh | null = null;
 
     @property
-    private _shadowCastingMode = ModelShadowCastingMode.Off;
+    private _shadowCastingMode = ModelShadowCastingMode.OFF;
 
     @property
     private _receiveShadows = false;
@@ -267,19 +242,11 @@ export class ModelComponent extends RenderableComponent {
     }
 
     private _updateCastShadow () {
-        if (!this.enabledInHierarchy || !this._model) {
-            return;
-        }
-        if (this._shadowCastingMode === ModelShadowCastingMode.Off) {
-            for (let i = 0; i < this._model.subModelNum; ++i) {
-                const subModel = this._model.getSubModel(i);
-                subModel.castShadow = false;
-            }
-        } else if (this._shadowCastingMode === ModelShadowCastingMode.On) {
-            for (let i = 0; i < this._model.subModelNum; ++i) {
-                const subModel = this._model.getSubModel(i);
-                subModel.castShadow = true;
-            }
+        if (!this._model) { return; }
+        if (this._shadowCastingMode === ModelShadowCastingMode.OFF) {
+            this._model.castShadow = false;
+        } else if (this._shadowCastingMode === ModelShadowCastingMode.ON) {
+            this._model.castShadow = true;
         } else {
             console.warn(`ShadowCastingMode ${this._shadowCastingMode} is not supported.`);
         }

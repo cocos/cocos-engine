@@ -11,7 +11,7 @@ import { Ambient } from './ambient';
 import { Camera, ICameraInfo } from './camera';
 import { DirectionalLight } from './directional-light';
 import { Model } from './model';
-import { PlanarShadow } from './planar-shadow';
+import { PlanarShadows } from './planar-shadows';
 import { Skybox } from './skybox';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
@@ -53,8 +53,8 @@ export class RenderScene {
         return this._skybox;
     }
 
-    get planarShadow (): PlanarShadow {
-        return this._planarShadow;
+    get planarShadows (): PlanarShadows {
+        return this._planarShadows;
     }
 
     get defaultMainLightNode (): Node {
@@ -86,7 +86,7 @@ export class RenderScene {
     private _cameras: Camera[] = [];
     private _ambient: Ambient;
     private _skybox: Skybox;
-    private _planarShadow: PlanarShadow;
+    private _planarShadows: PlanarShadows;
     private _mainLight: DirectionalLight;
     private _defaultMainLightNode: Node;
     private _sphereLights: SphereLight[] = [];
@@ -103,7 +103,7 @@ export class RenderScene {
         this._mainLight.enabled = false; // disabled by default
         this._ambient = new Ambient(this);
         this._skybox = new Skybox(this);
-        this._planarShadow = new PlanarShadow(this);
+        this._planarShadows = new PlanarShadows(this);
     }
 
     public initialize (info: IRenderSceneInfo): boolean {
@@ -116,6 +116,7 @@ export class RenderScene {
         this.destroyPointLights();
         this.destroySpotLights();
         this.destroyModels();
+        this.planarShadows.destroy();
     }
 
     public createCamera (info: ICameraInfo): Camera {
@@ -206,6 +207,7 @@ export class RenderScene {
             m.onPipelineChange();
         }
         this._skybox.onPipelineChange();
+        this._planarShadows.onPipelineChange();
     }
 
     public generateModelId (): number {
