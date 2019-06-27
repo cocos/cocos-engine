@@ -103,12 +103,23 @@ export default class Size extends ValueType {
      * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
      * @returns 当前尺寸的宽和高到目标尺寸的宽和高分别按指定插值比率进行线性插值构成的向量。
      */
-    public lerp (to: Size, ratio: number, out?: Size) {
-        out = out || new Size();
+    public lerp (to: Size, ratio: number, out: Size) {
         const width = this.width;
         const height = this.height;
         out.width = width + (to.width - width) * ratio;
         out.height = height + (to.height - height) * ratio;
+        return out;
+    }
+
+    /**
+     * 同lerp，但会重新创建一个Size。
+     * @param to 目标尺寸。
+     * @param ratio 插值比率，范围为 [0,1]。
+     * @returns 当前尺寸的宽和高到目标尺寸的宽和高分别按指定插值比率进行线性插值构成的向量。
+     */
+    public lerpNew (to: Size, ratio: number) {
+        const out = new Size();
+        this.lerp(to, ratio, out);
         return out;
     }
 

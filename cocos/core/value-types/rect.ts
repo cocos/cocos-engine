@@ -225,8 +225,7 @@ export default class Rect extends ValueType {
      * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
      * @returns 当前矩形最小值到目标矩形最小值之间，以及当前矩阵尺寸到目标矩形尺寸之间，按指定插值比率进行线性插值构成的矩形。
      */
-    public lerp (to: Rect, ratio: number, out?: Rect) {
-        out = out || new Rect();
+    public lerp (to: Rect, ratio: number, out: Rect) {
         const x = this.x;
         const y = this.y;
         const width = this.width;
@@ -235,6 +234,18 @@ export default class Rect extends ValueType {
         out.y = y + (to.y - y) * ratio;
         out.width = width + (to.width - width) * ratio;
         out.height = height + (to.height - height) * ratio;
+        return out;
+    }
+
+    /**
+     * 同lerp，但会重新创建一个Rect。
+     * @param to 目标矩形。
+     * @param ratio 插值比率，范围为 [0,1]。
+     * @returns 当前矩形最小值到目标矩形最小值之间，以及当前矩阵尺寸到目标矩形尺寸之间，按指定插值比率进行线性插值构成的矩形。
+     */
+    public lerpNew (to: Rect, ratio: number) {
+        const out = new Rect();
+        this.lerp(to, ratio, out);
         return out;
     }
 

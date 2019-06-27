@@ -68,7 +68,19 @@ export class ValueType {
      * @param out 当此参数定义时，本方法允许将插值结果赋值给此参数并返回此参数。
      * @returns 插值结果。
      */
-    public lerp (to: this, ratio: number, out?: this) {
+    public lerp (to: ValueType, ratio: number, out: ValueType) {
+        // errorID(100, js.getClassName(this) + '.lerp');
+        ratio === 1 ? out.set(to) : out.set(this);
+        return out;
+    }
+
+    /**
+     * 同lerp函数一样，只是会新创建一个value-type
+     * @param to 目标值。
+     * @param ratio 插值比率，范围为 [0,1]。
+     * @returns 插值结果。
+     */
+    public lerpNew (to: ValueType, ratio: number) {
         // errorID(100, js.getClassName(this) + '.lerp');
         return ratio === 1 ? to.clone() : this.clone();
     }

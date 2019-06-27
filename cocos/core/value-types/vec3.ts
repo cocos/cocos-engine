@@ -139,8 +139,19 @@ export default class Vec3 extends ValueType {
      * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
      * @returns 当前向量各个分量到目标向量对应的各个分量之间按指定插值比率进行线性插值构成的向量。
      */
-    public lerp (to: Vec3, ratio: number, out?: Vec3) {
-        out = out || new Vec3();
+    public lerp (to: Vec3, ratio: number, out: Vec3) {
+        vec3.lerp(out, this, to, ratio);
+        return out;
+    }
+
+    /**
+     * 同lerp函数一样，只是会新创建一个Vec3。
+     * @param to 目标向量。
+     * @param ratio 插值比率，范围为 [0,1]。
+     * @returns 当前向量各个分量到目标向量对应的各个分量之间按指定插值比率进行线性插值构成的向量。
+     */
+    public lerpNew (to: Vec3, ratio: number) {
+        const out = new Vec3();
         vec3.lerp(out, this, to, ratio);
         return out;
     }

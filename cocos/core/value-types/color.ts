@@ -215,14 +215,24 @@ export default class Color extends ValueType {
     }
 
     /**
+     * 同lerp函数一样，只是会新创建一个Color。
+     * @param to 目标颜色。
+     * @param ratio 插值比率，范围为 [0,1]。
+     * @returns 当前颜色各个通道到目标颜色对应的各个通道之间按指定插值比率进行线性插值构成的颜色。
+     */
+    public lerpNew (to: Color, ratio: number) {
+        const out = new Color();
+        return this.lerp(to, ratio, out);
+    }
+
+    /**
      * 根据指定的插值比率，从当前颜色到目标颜色之间做插值。
      * @param to 目标颜色。
      * @param ratio 插值比率，范围为 [0,1]。
      * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
      * @returns 当前颜色各个通道到目标颜色对应的各个通道之间按指定插值比率进行线性插值构成的颜色。
      */
-    public lerp (to: Color, ratio: number, out?: Color) {
-        out = out || new Color();
+    public lerp (to: Color, ratio: number, out: Color) {
         let r = this.r;
         let g = this.g;
         let b = this.b;
