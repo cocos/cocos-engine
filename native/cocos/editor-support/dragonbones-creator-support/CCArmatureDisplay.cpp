@@ -32,6 +32,7 @@ using namespace cocos2d::renderer;
 
 static const std::string techStage = "opaque";
 static const std::string textureKey = "texture";
+static const uint8_t moduleID = MiddlewareManager::generateModuleID();
 
 DRAGONBONES_NAMESPACE_BEGIN
 
@@ -107,6 +108,7 @@ void CCArmatureDisplay::dbUpdate()
         return;
     }
     _assembler->reset();
+    _assembler->setUseModel(!_batch);
     
     _preBlendMode = -1;
     _preTextureIndex = -1;
@@ -201,6 +203,9 @@ CCArmatureDisplay* CCArmatureDisplay::getRootDisplay()
 
 void CCArmatureDisplay::traverseArmature(Armature* armature, float parentOpacity)
 {
+    static cocos2d::Mat4 matrixTemp;
+    const cocos2d::Mat4& nodeWorldMat = _nodeProxy->getWorldMatrix();
+    
     auto& slots = armature->getSlots();
     auto mgr = MiddlewareManager::getInstance();
 
@@ -208,6 +213,7 @@ void CCArmatureDisplay::traverseArmature(Armature* armature, float parentOpacity
     IOBuffer& vb = mb->getVB();
     IOBuffer& ib = mb->getIB();
 	float realOpacity = _nodeProxy->getRealOpacity() / 255.0f;
+    
 	float r, g, b, a;
     CCSlot* slot = nullptr;
 	middleware::Texture2D* texture = nullptr;
@@ -242,7 +248,7 @@ void CCArmatureDisplay::traverseArmature(Armature* armature, float parentOpacity
                 break;
         }
         
-        double curHash = _curTextureIndex + (int)_curBlendSrc + (int)_curBlendDst;
+        double curHash = _curTextureIndex + (moduleID << 16) + ((uint8_t)slot->_blendMode << 24);
         
         Effect* renderEffect = _assembler->getEffect(_materialLen);
         Technique::Parameter* param = nullptr;
@@ -349,14 +355,21 @@ void CCArmatureDisplay::traverseArmature(Armature* armature, float parentOpacity
         
         // Transform component matrix to global matrix
         middleware::Triangles& triangles = slot->triangles;
-        cocos2d::Mat4& worldMatrix = slot->worldMatrix;
+        cocos2d::Mat4* worldMatrix = &slot->worldMatrix;
+        if (_batch) {
+            cocos2d::Mat4::multiply(nodeWorldMat, *worldMatrix, &matrixTemp);
+            worldMatrix = &matrixTemp;
+        }
+        
         middleware::V2F_T2F_C4B* worldTriangles = slot->worldVerts;
+        
         for (int v = 0, w = 0, vn = triangles.vertCount; v < vn; ++v, w += 2)
         {
             middleware::V2F_T2F_C4B* vertex = triangles.verts + v;
             middleware::V2F_T2F_C4B* worldVertex = worldTriangles + v;
-            worldVertex->vertex.x = vertex->vertex.x * worldMatrix.m[0] + vertex->vertex.y * worldMatrix.m[4] + worldMatrix.m[12];
-            worldVertex->vertex.y = vertex->vertex.x * worldMatrix.m[1] + vertex->vertex.y * worldMatrix.m[5] + worldMatrix.m[13];
+            worldVertex->vertex.x = vertex->vertex.x * worldMatrix->m[0] + vertex->vertex.y * worldMatrix->m[4] + worldMatrix->m[12];
+            worldVertex->vertex.y = vertex->vertex.x * worldMatrix->m[1] + vertex->vertex.y * worldMatrix->m[5] + worldMatrix->m[13];
+            
             worldVertex->color.r = (GLubyte)r;
             worldVertex->color.g = (GLubyte)g;
             worldVertex->color.b = (GLubyte)b;

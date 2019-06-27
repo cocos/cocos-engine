@@ -49,6 +49,7 @@ using namespace cocos2d::renderer;
 
 static const std::string techStage = "opaque";
 static const std::string textureKey = "texture";
+static const uint8_t moduleID = MiddlewareManager::generateModuleID();
 
 static Cocos2dTextureLoader textureLoader;
 
@@ -270,6 +271,7 @@ void SkeletonRenderer::update (float deltaTime) {
         return;
     }
     assembler->reset();
+    assembler->setUseModel(!_batch);
     
     _nodeColor.a = _nodeProxy->getRealOpacity() / (float)255;
     
@@ -287,16 +289,22 @@ void SkeletonRenderer::update (float deltaTime) {
     middleware::IOBuffer& vb = mb->getVB();
     middleware::IOBuffer& ib = mb->getIB();
     
+    // vertex size int bytes with one color
+    int vbs1 = sizeof(V2F_T2F_C4B);
 	// vertex size in floats with one color
-    int vs1 = sizeof(V2F_T2F_C4B) / sizeof(float);
+    int vs1 = vbs1 / sizeof(float);
+    // vertex size int bytes with two color
+    int vbs2 = sizeof(V2F_T2F_C4B_C4B);
     // verex size in floats with two color
-    int vs2 = sizeof(V2F_T2F_C4B_C4B) / sizeof(float);
-	
+    int vs2 = vbs2 / sizeof(float);
+    const cocos2d::Mat4& nodeWorldMat = _nodeProxy->getWorldMatrix();
+    
 	int vbSize = 0;
     int ibSize = 0;
 
     BlendFactor curBlendSrc = BlendFactor::ONE;
     BlendFactor curBlendDst = BlendFactor::ZERO;
+    int curBlendMode = -1;
     int preBlendMode = -1;
     int preTextureIndex = -1;
     int curTextureIndex = -1;
@@ -325,7 +333,8 @@ void SkeletonRenderer::update (float deltaTime) {
         }
 
         // prepare to fill new segment field
-        switch (slot->getData().getBlendMode()) {
+        curBlendMode = slot->getData().getBlendMode();
+        switch (curBlendMode) {
             case BlendMode_Additive:
                 curBlendSrc = _premultipliedAlpha ? BlendFactor::ONE : BlendFactor::SRC_ALPHA;
                 curBlendDst = BlendFactor::ONE;
@@ -343,7 +352,7 @@ void SkeletonRenderer::update (float deltaTime) {
                 curBlendDst = BlendFactor::ONE_MINUS_SRC_ALPHA;
         }
         
-		double curHash = curTextureIndex + (int)curBlendSrc + (int)curBlendDst;
+		double curHash = curTextureIndex + (moduleID << 16) + (curBlendMode << 24) + ((int)_useTint << 25) + ((int)_batch << 27);
         Effect* renderEffect = assembler->getEffect(materialLen);
         Technique::Parameter* param = nullptr;
         Pass* pass = nullptr;
@@ -384,7 +393,7 @@ void SkeletonRenderer::update (float deltaTime) {
             pass->setBlend(BlendOp::ADD, curBlendSrc, curBlendDst,
                            BlendOp::ADD, curBlendSrc, curBlendDst);
         }
-            
+        
         renderEffect->updateHash(curHash);
 		
         // save new segment count pos field
@@ -814,9 +823,25 @@ void SkeletonRenderer::update (float deltaTime) {
         }
         
         if (vbSize > 0 && ibSize > 0) {
-            auto vertexOffset = vb.getCurPos() / sizeof(middleware::V2F_T2F_C4B);
+            auto vbs = vbs1;
+            auto vertexOffset = vb.getCurPos() / vbs1;
             if (_useTint) {
-                vertexOffset = vb.getCurPos() / sizeof(middleware::V2F_T2F_C4B_C4B);
+                vbs = vbs2;
+                vertexOffset = vb.getCurPos() / vbs2;
+            }
+            
+            if (_batch) {
+                uint8_t* vbBuffer = vb.getCurBuffer();
+                cocos2d::Vec3* point = nullptr;
+                float tempZ = 0.0f;
+                for (int ii = 0, nn = vbSize; ii < nn; ii += vbs)
+                {
+                    point = (cocos2d::Vec3*)(vbBuffer + ii);
+                    tempZ = point->z;
+                    point->z = 0;
+                    nodeWorldMat.transformPoint(point);
+                    point->z = tempZ;
+                }
             }
             
             if (vertexOffset > 0) {
@@ -1015,6 +1040,10 @@ void SkeletonRenderer::setColor (cocos2d::Color4B& color) {
     _nodeColor.g = color.g / 255.0f;
     _nodeColor.b = color.b / 255.0f;
     _nodeColor.a = color.a / 255.0f;
+}
+
+void SkeletonRenderer::setBatchEnabled (bool enabled) {
+    _batch = enabled;
 }
 
 void SkeletonRenderer::setDebugBonesEnabled (bool enabled) {

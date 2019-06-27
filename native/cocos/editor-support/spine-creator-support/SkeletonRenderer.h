@@ -110,16 +110,14 @@ namespace spine {
             return nullptr;
         }
         
-        void bindNodeProxy(cocos2d::renderer::NodeProxy* node)
-        {
+        void bindNodeProxy(cocos2d::renderer::NodeProxy* node) {
             if (node == _nodeProxy) return;
             CC_SAFE_RELEASE(_nodeProxy);
             _nodeProxy = node;
             CC_SAFE_RETAIN(_nodeProxy);
         }
         
-        void setEffect(cocos2d::renderer::Effect* effect)
-        {
+        void setEffect(cocos2d::renderer::Effect* effect) {
             if (effect == _effect) return;
             CC_SAFE_RELEASE(_effect);
             _effect = effect;
@@ -127,6 +125,7 @@ namespace spine {
         }
         
         void setColor (cocos2d::Color4B& color);
+        void setBatchEnabled (bool enabled);
         void setDebugBonesEnabled (bool enabled);
         void setDebugSlotsEnabled (bool enabled);
         void setDebugMeshEnabled (bool enabled);
@@ -171,6 +170,7 @@ namespace spine {
         float               _timeScale = 1;
         bool                _paused = false;
         
+        bool                _batch = false;
         bool                _debugMesh = false;
         bool                _debugSlots = false;
         bool                _debugBones = false;

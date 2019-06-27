@@ -104,15 +104,14 @@ InputAssembler* CustomAssembler::adjustIA(std::size_t index)
     return ia;
 }
 
-void CustomAssembler::renderIA(std::size_t index, ModelBatcher* batcher, NodeProxy* node)
+InputAssembler* CustomAssembler::getIA(std::size_t index) const
 {
     if (index >= _iaCount)
     {
-        cocos2d::log("CustomAssembler:renderIA index:%lu out of range", index);
-        return;
+        return nullptr;
     }
     
-    batcher->flushIA(_iaPool[index]);
+    return _iaPool[index];
 }
 
 void CustomAssembler::updateEffect(std::size_t index, Effect* effect)

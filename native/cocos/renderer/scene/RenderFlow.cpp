@@ -25,6 +25,10 @@
 #include "RenderFlow.hpp"
 #include "NodeMemPool.hpp"
 
+#if USE_MIDDLEWARE
+#include "MiddlewareManager.h"
+#endif
+
 RENDERER_BEGIN
 
 const uint32_t InitLevelCount = 3;
@@ -201,7 +205,7 @@ void RenderFlow::calculateLevelWorldMatrix(int tid)
         auto selfDirty = *info.dirty & WORLD_TRANSFORM;
         if (info.parentDirty != nullptr && ((*info.parentDirty & WORLD_TRANSFORM_CHANGED) || selfDirty))
         {
-            info.worldMat->multiply(*info.parentWorldMat, *info.localMat, info.worldMat);
+            cocos2d::Mat4::multiply(*info.parentWorldMat, *info.localMat, info.worldMat);
             *info.dirty |= WORLD_TRANSFORM_CHANGED;
             *info.dirty &= ~WORLD_TRANSFORM;
         }
@@ -225,7 +229,7 @@ void RenderFlow::calculateWorldMatrix()
             auto selfDirty = *info.dirty & WORLD_TRANSFORM;
             if (info.parentDirty != nullptr && ((*info.parentDirty & WORLD_TRANSFORM_CHANGED) || selfDirty))
             {
-                info.worldMat->multiply(*info.parentWorldMat, *info.localMat, info.worldMat);
+                cocos2d::Mat4::multiply(*info.parentWorldMat, *info.localMat, info.worldMat);
                 *info.dirty |= WORLD_TRANSFORM_CHANGED;
                 *info.dirty &= ~WORLD_TRANSFORM;
             }
@@ -239,7 +243,7 @@ void RenderFlow::calculateWorldMatrix()
     }
 }
 
-void RenderFlow::render(NodeProxy* scene)
+void RenderFlow::render(NodeProxy* scene, float deltaTime)
 {
     if (scene != nullptr)
     {
@@ -275,7 +279,11 @@ void RenderFlow::render(NodeProxy* scene)
             }
             else
             {
-                if (!threadBegan) _paralleTask->begin();
+                if (!threadBegan)
+                {
+                    _paralleTask->begin();
+                    threadBegan = true;
+                }
                 *_runFlag = ParallelTask::RunFlag::ToProcess;
                 calculateLevelWorldMatrix(mainThreadTid);
                 while(*_runFlag != ParallelTask::RunFlag::ProcessFinished) std::this_thread::yield();
@@ -287,7 +295,11 @@ void RenderFlow::render(NodeProxy* scene)
         calculateLocalMatrix();
         calculateWorldMatrix();
 #endif
-        
+
+#if USE_MIDDLEWARE
+        middleware::MiddlewareManager::getInstance()->update(deltaTime);
+#endif
+
         _batcher->startBatch();
         scene->visitAsRoot(_batcher, _scene);
         _batcher->terminateBatch();
