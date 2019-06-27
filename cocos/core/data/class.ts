@@ -407,8 +407,6 @@ function define (className, baseClass, mixins, options) {
         }
 
         // 基础的 ts, js 脚本组件
-
-
         if (js.isChildClassOf(baseClass, Component)) {
             const uuid = frame.uuid;
             if (uuid) {
