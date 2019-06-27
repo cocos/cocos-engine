@@ -69,7 +69,10 @@ export class SphereColliderComponent extends ColliderComponent {
         this._radius = value;
 
         if (!CC_EDITOR) {
-            this._shape.setRadius(value);
+            this._shape.setRadius(this._radius);
+            if (CC_PHYSICS_BUILT_IN) {
+                this._shape.setScale(this.node.worldScale);
+            }
         }
     }
 }
