@@ -3,11 +3,14 @@
  * @hidden
  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 /**
  * @disable
  */
 >>>>>>> fix ui particle error & add module api doc (#4684)
+=======
+>>>>>>> Some API Doc modify (#4725)
 
 import { repeat } from '../../../../core/vmath';
 import { AnimationCurve, evalOptCurve, OptimizedKey } from '../../../geom-utils/curve';

@@ -1,6 +1,10 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 /**
+<<<<<<< HEAD
+=======
+ * 粒子系统模块
+>>>>>>> Some API Doc modify (#4725)
  * @category particle
  */
 

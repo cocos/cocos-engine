@@ -1,7 +1,11 @@
 
 /**
+<<<<<<< HEAD
  * @internal
  * @module memop
+=======
+ * @category memop
+>>>>>>> Some API Doc modify (#4725)
  */
 
 let _bufferPools: ArrayBuffer[][] = Array(8);
