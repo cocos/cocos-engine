@@ -59,6 +59,15 @@ let inputManager = {
     _acceleration: null,
     _accelDeviceEvent: null,
 
+    _canvasBoundingRect: {
+        left: 0,
+        top: 0,
+        adjustedLeft: 0,
+        adjustedTop: 0,
+        width: 0,
+        height: 0,
+    },
+
     _getUnUsedIndex () {
         let temp = this._indexBitsUsed;
         let now = cc.sys.now();
@@ -93,6 +102,34 @@ let inputManager = {
     },
 
     _glView: null,
+
+    _updateCanvasBoundingRect () {
+        let element = cc.game.canvas;
+        let canvasBoundingRect = this._canvasBoundingRect;
+
+        let docElem = document.documentElement;
+        let leftOffset = window.pageXOffset - docElem.clientLeft;
+        let topOffset = window.pageYOffset - docElem.clientTop;
+        if (element.getBoundingClientRect) {
+            let box = element.getBoundingClientRect();
+            canvasBoundingRect.left = box.left + leftOffset;
+            canvasBoundingRect.top = box.top + topOffset;
+            canvasBoundingRect.width = box.width;
+            canvasBoundingRect.height = box.height;
+        }
+        else if (element instanceof HTMLCanvasElement) {
+            canvasBoundingRect.left = leftOffset;
+            canvasBoundingRect.top = topOffset;
+            canvasBoundingRect.width = element.width;
+            canvasBoundingRect.height = element.height;
+        }
+        else {
+            canvasBoundingRect.left = leftOffset;
+            canvasBoundingRect.top = topOffset;
+            canvasBoundingRect.width = parseInt(element.style.width);
+            canvasBoundingRect.height = parseInt(element.style.height);
+        }
+    },
 
     /**
      * @method handleTouchesBegin
@@ -218,53 +255,6 @@ let inputManager = {
     },
 
     /**
-     * @method getHTMLElementPosition
-     * @param {HTMLElement} element
-     * @return {Object}
-     */
-    getHTMLElementPosition (element) {
-        if (CC_WECHATGAME) {
-            return {
-                left: 0,
-                top: 0,
-                width: window.innerWidth,
-                height: window.innerHeight
-            };
-        }
-
-        let docElem = document.documentElement;
-        let leftOffset = window.pageXOffset - docElem.clientLeft;
-        let topOffset = window.pageYOffset - docElem.clientTop;
-        if (element.getBoundingClientRect) {
-            let box = element.getBoundingClientRect();
-            return {
-                left: box.left + leftOffset,
-                top: box.top + topOffset,
-                width: box.width,
-                height: box.height
-            };
-        }
-        else {
-            if (element instanceof HTMLCanvasElement) {
-                return {
-                    left: leftOffset,
-                    top: topOffset,
-                    width: element.width,
-                    height: element.height
-                };
-            }
-            else {
-                return {
-                    left: leftOffset,
-                    top: topOffset,
-                    width: parseInt(element.style.width),
-                    height: parseInt(element.style.height)
-                };
-            }
-        }
-    },
-
-    /**
      * @method getPreTouch
      * @param {Touch} touch
      * @return {Touch}
@@ -319,7 +309,7 @@ let inputManager = {
     getTouchByXY (tx, ty, pos) {
         let locPreTouch = this._preTouchPoint;
         let location = this._glView.convertToLocationInView(tx, ty, pos);
-        let touch = new cc.Touch(location.x,  location.y, 0);
+        let touch = new cc.Touch(location.x, location.y, 0);
         touch._setPrevPoint(locPreTouch.x, locPreTouch.y);
         locPreTouch.x = location.x;
         locPreTouch.y = location.y;
@@ -354,14 +344,9 @@ let inputManager = {
         if (event.pageX != null)  //not avalable in <= IE8
             return {x: event.pageX, y: event.pageY};
 
-        if (CC_WECHATGAME) {
-            pos.left = 0;
-            pos.top = 0;
-        }
-        else {
-            pos.left -= document.body.scrollLeft;
-            pos.top -= document.body.scrollTop;
-        }
+        pos.left -= document.body.scrollLeft;
+        pos.top -= document.body.scrollTop;
+
         return {x: event.clientX, y: event.clientY};
     },
 
@@ -412,16 +397,13 @@ let inputManager = {
 
         this._glView = cc.view;
         let selfPointer = this;
+        let canvasBoundingRect = this._canvasBoundingRect;
+
+        window.addEventListener('resize', this._updateCanvasBoundingRect.bind(this));
 
         let prohibition = sys.isMobile;
         let supportMouse = ('mouse' in sys.capabilities);
         let supportTouches = ('touches' in sys.capabilities);
-
-        if (CC_WECHATGAME) {
-            prohibition = false;
-            supportTouches = true;
-            supportMouse = false;
-        }
 
         if (supportMouse) {
             //HACK
@@ -442,12 +424,11 @@ let inputManager = {
                     
                     selfPointer._mousePressed = false;
 
-                    let pos = selfPointer.getHTMLElementPosition(element);
-                    let location = selfPointer.getPointByEvent(event, pos);
-                    if (!cc.rect(pos.left, pos.top, pos.width, pos.height).contains(location)){
-                        selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, pos)]);
+                    let location = selfPointer.getPointByEvent(event, canvasBoundingRect);
+                    if (!cc.rect(canvasBoundingRect.left, canvasBoundingRect.top, canvasBoundingRect.width, canvasBoundingRect.height).contains(location)){
+                        selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, canvasBoundingRect)]);
 
-                        let mouseEvent = selfPointer.getMouseEvent(location,pos,cc.Event.EventMouse.UP);
+                        let mouseEvent = selfPointer.getMouseEvent(location, canvasBoundingRect, cc.Event.EventMouse.UP);
                         mouseEvent.setButton(event.button);
                         eventManager.dispatchEvent(mouseEvent);
                     }
@@ -457,17 +438,17 @@ let inputManager = {
             // register canvas mouse event
             let EventMouse = cc.Event.EventMouse;
             let _mouseEventsOnElement = [
-                !prohibition && ["mousedown", EventMouse.DOWN, function (event, mouseEvent, location, pos) {
+                !prohibition && ["mousedown", EventMouse.DOWN, function (event, mouseEvent, location, canvasBoundingRect) {
                     selfPointer._mousePressed = true;
-                    selfPointer.handleTouchesBegin([selfPointer.getTouchByXY(location.x, location.y, pos)]);
+                    selfPointer.handleTouchesBegin([selfPointer.getTouchByXY(location.x, location.y, canvasBoundingRect)]);
                     element.focus();
                 }],
-                !prohibition && ["mouseup", EventMouse.UP, function (event, mouseEvent, location, pos) {
+                !prohibition && ["mouseup", EventMouse.UP, function (event, mouseEvent, location, canvasBoundingRect) {
                     selfPointer._mousePressed = false;
-                    selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, pos)]);
+                    selfPointer.handleTouchesEnd([selfPointer.getTouchByXY(location.x, location.y, canvasBoundingRect)]);
                 }],
-                !prohibition && ["mousemove", EventMouse.MOVE, function (event, mouseEvent, location, pos) {
-                    selfPointer.handleTouchesMove([selfPointer.getTouchByXY(location.x, location.y, pos)]);
+                !prohibition && ["mousemove", EventMouse.MOVE, function (event, mouseEvent, location, canvasBoundingRect) {
+                    selfPointer.handleTouchesMove([selfPointer.getTouchByXY(location.x, location.y, canvasBoundingRect)]);
                     if (!selfPointer._mousePressed) {
                         mouseEvent.setButton(null);
                     }
@@ -487,12 +468,11 @@ let inputManager = {
                     let type = entry[1];
                     let handler = entry[2];
                     element.addEventListener(name, function (event) {
-                        let pos = selfPointer.getHTMLElementPosition(element);
-                        let location = selfPointer.getPointByEvent(event, pos);
-                        let mouseEvent = selfPointer.getMouseEvent(location, pos, type);
+                        let location = selfPointer.getPointByEvent(event, canvasBoundingRect);
+                        let mouseEvent = selfPointer.getMouseEvent(location, canvasBoundingRect, type);
                         mouseEvent.setButton(event.button);
 
-                        handler(event, mouseEvent, location, pos);
+                        handler(event, mouseEvent, location, canvasBoundingRect);
 
                         eventManager.dispatchEvent(mouseEvent);
                         event.stopPropagation();
@@ -512,11 +492,11 @@ let inputManager = {
             for (let eventName in _pointerEventsMap) {
                 let touchEvent = _pointerEventsMap[eventName];
                 element.addEventListener(eventName, function (event){
-                    let pos = selfPointer.getHTMLElementPosition(element);
-                    pos.left -= document.documentElement.scrollLeft;
-                    pos.top -= document.documentElement.scrollTop;
+                    let documentElement = document.documentElement;
+                    canvasBoundingRect.adjustedLeft = canvasBoundingRect.left - documentElement.scrollLeft;
+                    canvasBoundingRect.adjustedTop = canvasBoundingRect.top - documentElement.scrollTop;
 
-                    touchEvent.call(selfPointer, [selfPointer.getTouchByXY(event.clientX, event.clientY, pos)]);
+                    touchEvent.call(selfPointer, [selfPointer.getTouchByXY(event.clientX, event.clientY, canvasBoundingRect)]);
                     event.stopPropagation();
                 }, false);
             }
@@ -527,9 +507,7 @@ let inputManager = {
             let _touchEventsMap = {
                 "touchstart": function (touchesToHandle) {
                     selfPointer.handleTouchesBegin(touchesToHandle);
-                    if (!CC_WECHATGAME) {
-                        element.focus();
-                    }
+                    element.focus();
                 },
                 "touchmove": function (touchesToHandle) {
                     selfPointer.handleTouchesMove(touchesToHandle);
@@ -542,50 +520,25 @@ let inputManager = {
                 }
             };
 
-            let registerTouchEvent;
-            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-                _touchEventsMap = {
-                    onTouchStart: _touchEventsMap.touchstart,
-                    onTouchMove: _touchEventsMap.touchmove,
-                    onTouchEnd: _touchEventsMap.touchend,
-                    onTouchCancel: _touchEventsMap.touchcancel,
-                };
-                registerTouchEvent = function(eventName) {
-                    let handler = _touchEventsMap[eventName];
-                    wx[eventName](function(event) {
-                        if (!event.changedTouches) return;
-                        let pos = selfPointer.getHTMLElementPosition(element);
-                        let body = document.body;
-                        pos.left -= body.scrollLeft || 0;
-                        pos.top -= body.scrollTop || 0;
-                        handler(selfPointer.getTouchesByEvent(event, pos));
-                    });
-                };
-            }
-            else {
-                registerTouchEvent = function(eventName) {
-                    let handler = _touchEventsMap[eventName];
-                    element.addEventListener(eventName, (function(event) {
-                        if (!event.changedTouches) return;
-                        let pos = selfPointer.getHTMLElementPosition(element);
-                        let body = document.body;
-                        pos.left -= body.scrollLeft || 0;
-                        pos.top -= body.scrollTop || 0;
-                        handler(selfPointer.getTouchesByEvent(event, pos));
-                        event.stopPropagation();
-                        event.preventDefault();
-                    }), false);
-                };
-            }
+            let registerTouchEvent = function (eventName) {
+                let handler = _touchEventsMap[eventName];
+                element.addEventListener(eventName, (function(event) {
+                    if (!event.changedTouches) return;
+                    let body = document.body;
+
+                    canvasBoundingRect.adjustedLeft = canvasBoundingRect.left - (body.scrollLeft || 0);
+                    canvasBoundingRect.adjustedTop = canvasBoundingRect.top - (body.scrollTop || 0);
+                    handler(selfPointer.getTouchesByEvent(event, canvasBoundingRect));
+                    event.stopPropagation();
+                    event.preventDefault();
+                }), false);
+            };
             for (let eventName in _touchEventsMap) {
                 registerTouchEvent(eventName);
             }
         }
 
-        if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-            //register keyboard event
-            this._registerKeyboardEvent();
-        }
+        this._registerKeyboardEvent();
 
         this._isRegisterEvent = true;
     },
