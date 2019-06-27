@@ -25,10 +25,11 @@
 import { Texture2D } from '../../assets';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
-import { Vec2 } from '../../core/value-types';
+import { CCString } from '../../core/data/utils/attribute';
+import { Mat4, Vec2 } from '../../core/value-types';
 import { vec2 } from '../../core/vmath';
-import { GFXFormat, GFXType } from '../../gfx/define';
 import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
+import { GFXFormat, GFXType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { Node } from '../../scene-graph';
@@ -111,7 +112,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
 
     @property
     public atlasSize: number = 1024;
-    @property({ type: [String] })
+    @property({ type: [CCString] })
     public batchableTextureNames: string[] = [];
     @property({ type: [SkinningModelUnit] })
     public units: SkinningModelUnit[] = [];
@@ -216,6 +217,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         if (!lca) { console.warn('illegal skinning roots'); return; }
         // merge joints accordingly
         const skeleton = new Skeleton();
+        skeleton.bindposes = [];
         for (const unit of this.units) {
             if (!unit || !unit.skeleton || !unit.skinningRoot) { continue; }
             const partial = unit.skeleton;
@@ -225,7 +227,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
                 const idx = skeleton.joints.findIndex((p) => p === path);
                 if (idx >= 0) { continue; }
                 skeleton.joints.push(path);
-                skeleton.bindposes.push(partial.bindposes[i]);
+                skeleton.bindposes.push(partial.bindposes && partial.bindposes[i] || new Mat4());
             }
         }
         // sort the array to be more cache-friendly
@@ -237,8 +239,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         skeleton.joints = skeleton.joints.map((_, idx, arr) => arr[idxMap[idx]]);
         skeleton.bindposes = skeleton.bindposes.map((_, idx, arr) => arr[idxMap[idx]]);
         // apply
-        // @ts-ignore
-        super.skeleton = skeleton;
+        this.skeleton = skeleton;
     }
 
     public cookMeshes () {

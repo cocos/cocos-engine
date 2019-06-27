@@ -25,7 +25,15 @@
 
 import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { Node } from '../../scene-graph/node';
+import { CCString } from '../../core/data/utils/attribute';
+import { Mat4, Quat, Vec3 } from '../../core/value-types';
+import { mat4 } from '../../core/vmath';
+
+interface IBindTRS {
+    position: Vec3;
+    rotation: Quat;
+    scale: Vec3;
+}
 
 /**
  * 骨骼资源。
@@ -33,11 +41,13 @@ import { Node } from '../../scene-graph/node';
  */
 @ccclass('cc.Skeleton')
 export class Skeleton extends Asset {
-    @property([String])
+    @property([CCString])
     private _joints: string[] = [];
 
     @property([Node])
-    private _bindposes: Node[] = [];
+    private _bindposes: Mat4[] | null = null;
+
+    private _bindTRS: IBindTRS[] | null = null;
 
     /**
      * 所有关节的绑定姿势矩阵。该数组的长度始终与 `this.joints` 的长度相同。
@@ -48,6 +58,18 @@ export class Skeleton extends Asset {
 
     set bindposes (value) {
         this._bindposes = value;
+        if (!value) { this._bindTRS = null; return; }
+        this._bindTRS = value.map((m) => {
+            const position = new Vec3();
+            const rotation = new Quat();
+            const scale = new Vec3();
+            mat4.toRTS(m, rotation, position, scale);
+            return { position, rotation, scale };
+        });
+    }
+
+    get bindTRS () {
+        return this._bindTRS;
     }
 
     /**
@@ -59,6 +81,10 @@ export class Skeleton extends Asset {
 
     set joints (value) {
         this._joints = value;
+    }
+
+    public onLoaded () {
+        this.bindposes = this._bindposes;
     }
 }
 

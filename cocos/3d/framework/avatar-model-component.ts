@@ -25,7 +25,8 @@
 import { Texture2D } from '../../assets';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
-import { Vec2 } from '../../core/value-types';
+import { CCString } from '../../core/data/utils/attribute';
+import { Mat4, Vec2 } from '../../core/value-types';
 import { vec2 } from '../../core/vmath';
 import { GFXFormat } from '../../gfx/define';
 import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
@@ -154,7 +155,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
         this._combinedTexSize = size;
     }
 
-    @property({ type: String })
+    @property({ type: CCString })
     get albedoMapName (): string {
         return this._albedoMapName;
     }
@@ -300,6 +301,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
         if (!lca) { console.warn('illegal skinning roots'); return; }
         // merge joints accordingly
         const skeleton = new Skeleton();
+        skeleton.bindposes = [];
         for (const unit of this._avatarUnits) {
             if (!unit || !unit.skeleton || !unit.skinningRoot) { continue; }
             const partial = unit.skeleton;
@@ -309,7 +311,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
                 const idx = skeleton.joints.findIndex((p) => p === path);
                 if (idx >= 0) { continue; }
                 skeleton.joints.push(path);
-                skeleton.bindposes.push(partial.bindposes[i]);
+                skeleton.bindposes.push(partial.bindposes && partial.bindposes[i] || new Mat4());
             }
         }
         // sort the array to be more cache-friendly
