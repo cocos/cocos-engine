@@ -1181,7 +1181,7 @@ let NodeDefines = {
 
         // Proxy
         if (CC_JSB && CC_NATIVERENDERER) {
-            this._proxy = new renderer.NodeProxy(this._spaceInfo.unitID, this._spaceInfo.index, this._id);
+            this._proxy = new renderer.NodeProxy(this._spaceInfo.unitID, this._spaceInfo.index, this._id, this._name);
             this._proxy.init(this);
         }
 
