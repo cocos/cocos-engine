@@ -431,7 +431,7 @@ export default class Camera {
       vec3.set(out,
         (screenPos.x - cx) / cw * 2 - 1,
         (screenPos.y - cy) / ch * 2 - 1,
-        1.0
+        0.9999
       );
 
       // transform to world
