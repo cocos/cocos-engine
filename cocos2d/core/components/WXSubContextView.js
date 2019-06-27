@@ -51,7 +51,7 @@ const Component = require('./CCComponent');
  */
 let WXSubContextView;
 
-if (!CC_EDITOR && !window.wx) {
+if (cc.sys.platform !== cc.sys.WECHAT_GAME) {
     WXSubContextView = cc.Class({
         name: 'cc.WXSubContextView',
         extends: Component,

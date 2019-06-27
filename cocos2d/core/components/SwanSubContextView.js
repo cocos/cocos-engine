@@ -52,7 +52,7 @@ const Component = require('./CCComponent');
 
 let SwanSubContextView;
 
-if (!CC_EDITOR && !window.swan) {
+if (cc.sys.platform !== cc.sys.BAIDU_GAME) {
     SwanSubContextView = cc.Class({
         name: 'cc.SwanSubContextView',
         extends: Component,
