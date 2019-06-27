@@ -133,10 +133,6 @@ export class AnimationComponent extends Component implements IEventTarget {
         }
     }
 
-    get currentPlaying () {
-        return this._currentPlaying;
-    }
-
     public static EventType = EventType;
 
     /**
@@ -156,8 +152,6 @@ export class AnimationComponent extends Component implements IEventTarget {
 
     @property
     private _defaultClip: AnimationClip | null = null;
-
-    private _currentPlaying: Playable = this._crossFade;
 
     constructor () {
         super();
@@ -205,45 +199,51 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     /**
-     * @en Plays an animation and stop other animations.
-     * @zh 播放指定的动画，并且停止当前正在播放动画。如果没有指定动画，则播放默认动画。
-     * @param name - 要播放的动画的名称。 如果未提供名称，则将播放默认动画。
-     * @param startTime - 开始播放动画的时间
-     * @return
-     * 播放动画的动画状态。 在无法播放动画的情况下（即没有默认动画或没有指定名称的动画），该函数将返回null。
-     * @example
-     * ```typescript
-     * var animCtrl = this.node.getComponent(cc.Animation);
-     * animCtrl.play("linear");
-     * ```
+     * 立即切换到指定动画状态。
+     * @param [name] 目标动画状态的名称；若未指定，使用默认动画剪辑的名称。
      */
-    public play (name?: string, startTime = 0) {
+    public play (name?: string) {
         if (!name) {
             if (!this._defaultClip) {
-                return null;
+                return;
             } else {
                 name = this._defaultClip.name;
             }
         }
-        const state = this._nameToState[name];
-        if (state) {
-            this._currentPlaying.stop();
-            this._currentPlaying = state;
-            state.setTime(startTime);
-            state.play();
-        }
-        return state;
+        this.crossFade(name, 0);
     }
 
+    /**
+     * 在指定周期内从当前动画状态平滑地切换到指定动画状态。
+     * @param name 目标动画状态的名称。
+     * @param duration 切换周期，单位为秒。
+     */
     public crossFade (name: string, duration = 0.3) {
         const state = this._nameToState[name];
         if (state) {
-            if (this._currentPlaying !== this._crossFade) {
-                this._currentPlaying.stop();
-            }
-            this._currentPlaying = this._crossFade;
             this._crossFade.crossFade(state, duration);
         }
+    }
+
+    /**
+     * 暂停所有动画状态，并暂停动画切换。
+     */
+    public pause () {
+        this._crossFade.pause();
+    }
+
+    /**
+     * 恢复所有动画状态，并继续动画切换。
+     */
+    public resume () {
+        this._crossFade.resume();
+    }
+
+    /**
+     * 停止所有动画状态，并停止动画切换。
+     */
+    public stop () {
+        this._crossFade.stop();
     }
 
     /**
