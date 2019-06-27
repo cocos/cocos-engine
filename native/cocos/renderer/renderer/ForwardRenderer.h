@@ -26,6 +26,7 @@
 
 #include "BaseRenderer.h"
 #include "Camera.h"
+#include "../memop/RecyclePool.hpp"
 
 RENDERER_BEGIN
 
@@ -44,7 +45,7 @@ public:
      *  @brief The default constructor.
      */
     ForwardRenderer();
-
+    ~ForwardRenderer();
     /**
      *  @brief Initializes the forward renderer.
      *  @param[in] device DeviceGraphics pointer.
@@ -74,6 +75,7 @@ private:
     void opaqueStage(const View& view, const std::vector<StageItem>& items);
     void shadowStage(const View& view, const std::vector<StageItem>& items);
     void transparentStage(const View& view, const std::vector<StageItem>& items);
+    void resetData();
     static bool compareItems(const StageItem& a, const StageItem& b);
     
     Vector<Light*> _directionalLights;
@@ -82,6 +84,7 @@ private:
     Vector<Light*> _shadowLights;
     Vector<Light*> _ambientLights;
     
+    RecyclePool<float>* _arrayPool = nullptr;
     ValueMap* _defines = nullptr;
     
     int _width = 0;

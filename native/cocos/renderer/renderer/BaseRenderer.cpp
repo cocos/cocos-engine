@@ -40,9 +40,9 @@ RENDERER_BEGIN
 
 BaseRenderer::BaseRenderer()
 {
-    _drawItems = new RecyclePool<DrawItem>(100);
-    _stageInfos = new RecyclePool<StageInfo>(10);
-    _views = new RecyclePool<View>(8);
+    _drawItems = new RecyclePool<DrawItem>([]()mutable->DrawItem*{return new DrawItem();},100);
+    _stageInfos = new RecyclePool<StageInfo>([]()mutable->StageInfo*{return new StageInfo();}, 10);
+    _views = new RecyclePool<View>([]()mutable->View*{return new View();}, 8);
 }
 
 BaseRenderer::~BaseRenderer()

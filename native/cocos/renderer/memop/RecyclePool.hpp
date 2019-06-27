@@ -34,15 +34,18 @@ template<typename T>
 class RecyclePool
 {
 public:
-    RecyclePool(int size)
+    typedef std::function<T*()> RecycleFunc;
+    
+    RecyclePool(RecycleFunc func, int size)
     : _data()
     {
         _count = 0;
+        _func = func;
         _data.resize(size);
         
         for (int i = 0; i < size; i++)
         {
-            _data[i] = new T();
+            _data[i] = func();
         }
     }
     
@@ -94,7 +97,8 @@ public:
         {
             for (int i = (int)_data.size(); i < size; i++)
             {
-                _data[i] = new T();
+                T* data = _func();
+                _data.push_back(data);
             }
         }
     }
@@ -114,6 +118,7 @@ public:
     }
 private:
     int _count = 0;
+    RecycleFunc _func;
     std::vector<T*> _data;
 
     

@@ -125,9 +125,9 @@ protected:
     Program* _program = nullptr;
     Texture2D* _defaultTexture = nullptr;
     std::unordered_map<std::string, StageCallback> _stage2fn;
-    RecyclePool<DrawItem>* _drawItems;
-    RecyclePool<StageInfo>* _stageInfos;
-    RecyclePool<View>* _views;
+    RecyclePool<DrawItem>* _drawItems = nullptr;
+    RecyclePool<StageInfo>* _stageInfos = nullptr;
+    RecyclePool<View>* _views = nullptr;
 
     CC_DISALLOW_COPY_ASSIGN_AND_MOVE(BaseRenderer);
 };

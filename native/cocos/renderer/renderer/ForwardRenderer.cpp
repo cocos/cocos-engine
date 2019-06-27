@@ -43,6 +43,23 @@ RENDERER_BEGIN
 
 ForwardRenderer::ForwardRenderer()
 {
+    _arrayPool = new RecyclePool<float>([]()mutable->float*{return new float[16];}, 8);
+
+}
+
+ForwardRenderer::~ForwardRenderer()
+{
+    _directionalLights.clear();
+    _pointLights.clear();
+    _spotLights.clear();
+    _shadowLights.clear();
+    _ambientLights.clear();
+    
+    delete _arrayPool;
+    _arrayPool = nullptr;
+    
+    delete _defines;
+    _defines = nullptr;
 }
 
 bool ForwardRenderer::init(DeviceGraphics* device, std::vector<ProgramLib::Template>& programTemplates, Texture2D* defaultTexture, int width, int height)
@@ -56,9 +73,15 @@ bool ForwardRenderer::init(DeviceGraphics* device, std::vector<ProgramLib::Templ
     return true;
 }
 
+void ForwardRenderer::resetData()
+{
+    _arrayPool->reset();
+    reset();
+}
+
 void ForwardRenderer::render(Scene* scene)
 {
-//    reset();
+    resetData();
     scene->sortCameras();
     auto& cameras = scene->getCameras();
     for (auto camera : cameras)
@@ -69,7 +92,7 @@ void ForwardRenderer::render(Scene* scene)
 
 void ForwardRenderer::renderCamera(Camera* camera, Scene* scene)
 {
-    //    reset();
+    reset();
     int width = _width;
     int height = _height;
     FrameBuffer* fb = camera->getFrameBuffer();
@@ -146,24 +169,25 @@ void ForwardRenderer::submitLightsUniforms()
     if (_directionalLights.size() > 0)
     {
         size_t count = _directionalLights.size();
-        float* directions = new float[count * 4];
-        float* colors = new float[count * 4];
+        float* directions = _arrayPool->add();
+        float* colors = _arrayPool->add();
         Vec3 lightVec3;
         Vec3 colorVec3;
         for (int i = 0; i < count; ++i)
         {
+            int index = i * 4;
             auto* light = _directionalLights.at(i);
             lightVec3.set(light->getDirectionUniform());
-            *directions++ = lightVec3.x;
-            *directions++ = lightVec3.y;
-            *directions++ = lightVec3.z;
-            *directions++ = 0;
+            *(directions + index) = lightVec3.x;
+            *(directions + index + 1) = lightVec3.y;
+            *(directions + index + 2) = lightVec3.z;
+            *(directions + index + 3) = 0;
             
             colorVec3.set(light->getColorUniform());
-            *colors++ = colorVec3.x;
-            *colors++ = colorVec3.y;
-            *colors++ = colorVec3.z;
-            *colors++ = 0;
+            *(colors + index) = colorVec3.x;
+            *(colors + index + 1) = colorVec3.y;
+            *(colors + index + 1) = colorVec3.z;
+            *(colors + index + 1) = 0;
         }
         _device->setUniformfv("cc_dirLightDirection", count * 4, directions);
         _device->setUniformfv("cc_dirLightColor", count * 4, colors);
@@ -172,24 +196,25 @@ void ForwardRenderer::submitLightsUniforms()
     if (_pointLights.size() > 0)
     {
         size_t count = _pointLights.size();
-        float* positionAndRanges = new float[count * 4];
-        float* colors = new float[count * 4];
+        float* positionAndRanges = _arrayPool->add();
+        float* colors = _arrayPool->add();
         Vec3 posVec3;
         Vec3 colorVec3;
         for (int i = 0; i < count; ++i)
         {
+            int index = i * 4;
             auto* light = _pointLights.at(i);
             posVec3.set(light->getPositionUniform());
-            *positionAndRanges++ = posVec3.x;
-            *positionAndRanges++ = posVec3.y;
-            *positionAndRanges++ = posVec3.z;
-            *positionAndRanges++ = light->getRange();
-            
+            *(positionAndRanges + index) = posVec3.x;
+            *(positionAndRanges + index + 1) = posVec3.y;
+            *(positionAndRanges + index + 2) = posVec3.z;
+            *(positionAndRanges + index + 3) = light->getRange();
+
             colorVec3.set(light->getColorUniform());
-            *colors++ = colorVec3.x;
-            *colors++ = colorVec3.y;
-            *colors++ = colorVec3.z;
-            *colors++ = 0;
+            *(colors + index) = colorVec3.x;
+            *(colors + index + 1) = colorVec3.y;
+            *(colors + index + 1) = colorVec3.z;
+            *(colors + index + 1) = 0;
         }
         _device->setUniformfv("cc_pointLightPositionAndRange", count * 4, positionAndRanges);
         _device->setUniformfv("cc_pointLightColor", count * 4, colors);
@@ -198,32 +223,33 @@ void ForwardRenderer::submitLightsUniforms()
     if (_spotLights.size() > 0)
     {
         size_t count = _spotLights.size();
-        float* directions = new float[count * 4];
-        float* positionAndRanges = new float[count * 4];
-        float* colors = new float[count * 4];
+        float* directions = _arrayPool->add();
+        float* positionAndRanges = _arrayPool->add();
+        float* colors = _arrayPool->add();
         Vec3 lightVec3;
         Vec3 posVec3;
         Vec3 colorVec3;
         for (int i = 0; i < count; ++i)
         {
+            int index = i * 4;
             auto* light = _spotLights.at(i);
             lightVec3.set(light->getDirectionUniform());
-            *directions++ = lightVec3.x;
-            *directions++ = lightVec3.y;
-            *directions++ = lightVec3.z;
-            *directions++ = 0;
+            *(directions + index) = lightVec3.x;
+            *(directions + index + 1) = lightVec3.y;
+            *(directions + index + 2) = lightVec3.z;
+            *(directions + index + 3) = 0;
             
             posVec3.set(light->getPositionUniform());
-            *positionAndRanges++ = posVec3.x;
-            *positionAndRanges++ = posVec3.y;
-            *positionAndRanges++ = posVec3.z;
-            *positionAndRanges++ = light->getRange();
+            *(positionAndRanges + index) = posVec3.x;
+            *(positionAndRanges + index + 1) = posVec3.y;
+            *(positionAndRanges + index + 2) = posVec3.z;
+            *(positionAndRanges + index + 3) = light->getRange();
             
             colorVec3.set(light->getColorUniform());
-            *colors++ = colorVec3.x;
-            *colors++ = colorVec3.y;
-            *colors++ = colorVec3.z;
-            *colors++ = 0;
+            *(colors + index) = colorVec3.x;
+            *(colors + index + 1) = colorVec3.y;
+            *(colors + index + 2) = colorVec3.z;
+            *(colors + index + 3) = 0;
         }
         _device->setUniformfv("cc_spotLightDirection", count * 4, directions);
         _device->setUniformfv("cc_spotLightPositionAndRange", count * 4, positionAndRanges);
@@ -232,16 +258,17 @@ void ForwardRenderer::submitLightsUniforms()
     
     if (_ambientLights.size() > 0) {
         size_t count = _ambientLights.size();
-        float* colors = new float[count * 4];
+        float* colors = _arrayPool->add();
         Vec3 colorVec3;
         for (int i = 0; i < count; ++i)
         {
+            int index = i * 4;
             auto* light = _ambientLights.at(i);
             colorVec3.set(light->getColorUniform());
-            *colors++ = colorVec3.x;
-            *colors++ = colorVec3.y;
-            *colors++ = colorVec3.z;
-            *colors++ = 0;
+            *(colors + index) = colorVec3.x;
+            *(colors + index + 1) = colorVec3.y;
+            *(colors + index + 2) = colorVec3.z;
+            *(colors + index + 3) = 0;
         }
         _device->setUniformfv("cc_pointLightColor", count * 4, colors);
     }
@@ -263,19 +290,20 @@ void ForwardRenderer::submitShadowStageUniforms(const View& view)
 void ForwardRenderer::submitOtherStagesUniforms()
 {
     size_t count = _shadowLights.size();
-    float* shadowLightInfo = new float[count * 4];
-    float* shadowLightProjs = new float[count * 16];
+    float* shadowLightInfo = _arrayPool->add();
+    static float* shadowLightProjs = new float[count * 16];
     for (int i = 0; i < count; ++i)
     {
+        int index = i * 4;
+        
         Light* light = _shadowLights.at(i);
         const Mat4 view = light->getViewProjMatrix();
-        memcpy(shadowLightProjs, view.m, 16);
-        shadowLightProjs += 16;
+        memcpy(shadowLightProjs + index, view.m, 16);
         
-        *shadowLightInfo++ = light->getShadowMinDepth();
-        *shadowLightInfo++ = light->getShadowMaxDepth();
-        *shadowLightInfo++ = light->getShadowScale();
-        *shadowLightInfo++ = light->getShadowDarkness();
+        *(shadowLightInfo + index) = light->getShadowMinDepth();
+        *(shadowLightInfo + index + 1) = light->getShadowMaxDepth();
+        *(shadowLightInfo + index + 2) = light->getShadowScale();
+        *(shadowLightInfo + index + 3) = light->getShadowDarkness();
     }
     
     _device->setUniformfv("cc_shadow_lightViewProjMatrix", count * 16, shadowLightProjs);
