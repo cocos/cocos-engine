@@ -188,8 +188,21 @@ class Effect {
         for (let name in properties) {
             let prop = properties[name];
             let newProp = newProperties[name] = {};
-            for (let p in prop) {
-                newProp[p] = prop[p];
+
+            let value = prop.value;
+            if (Array.isArray(value)) {
+                newProp.value = value.concat();
+            }
+            else if (ArrayBuffer.isView(value)) {
+                newProp.value = new value.__proto__.constructor(value);
+            }
+            else {
+                newProp.value = value;
+            }
+
+            for (let name in prop) {
+                if (name === 'value') continue;
+                newProp[name] = prop[name];
             }
         }
 
@@ -198,7 +211,7 @@ class Effect {
             techniques.push(this._techniques[i].clone());
         }
 
-        return new Effect(this._name, techniques, newProperties, defines, dependencies);
+        return new cc.Effect(this._name, techniques, newProperties, defines, dependencies);
     }
 }
 
@@ -212,38 +225,36 @@ let getInvolvedPrograms = function(json) {
     });
     return programs;
 };
-let parseProperties = (function() {
-    return function(json, programs) {
-        let props = {};
 
-        let properties = {};
-        json.techniques.forEach(tech => {
-            tech.passes.forEach(pass => {
-                Object.assign(properties, pass.properties);
-            })
-        });
+function parseProperties(json, programs) {
+    let props = {};
 
-        for (let prop in properties) {
-            let propInfo = properties[prop], uniformInfo;
-            for (let i = 0; i < programs.length; i++) {
-                uniformInfo = programs[i].uniforms.find(u => u.name === prop);
-                if (uniformInfo) break;
-            }
-            // the property is not defined in all the shaders used in techs
-            if (!uniformInfo) {
-                cc.warn(`${json.name} : illegal property: ${prop}`);
-                continue;
-            }
-            // TODO: different param with same name for different passes
-            props[prop] = Object.assign({}, propInfo);
-            props[prop].value = propInfo.type === enums.PARAM_TEXTURE_2D ? null : new Float32Array(propInfo.value);
+    let properties = {};
+    json.techniques.forEach(tech => {
+        tech.passes.forEach(pass => {
+            Object.assign(properties, pass.properties);
+        })
+    });
+
+    for (let prop in properties) {
+        let propInfo = properties[prop], uniformInfo;
+        for (let i = 0; i < programs.length; i++) {
+            uniformInfo = programs[i].uniforms.find(u => u.name === prop);
+            if (uniformInfo) break;
         }
-        return props;
-    };
-})();
+        // the property is not defined in all the shaders used in techs
+        if (!uniformInfo) {
+            cc.warn(`${json.name} : illegal property: ${prop}`);
+            continue;
+        }
+        // TODO: different param with same name for different passes
+        props[prop] = Object.assign({}, propInfo);
+        props[prop].value = propInfo.type === enums.PARAM_TEXTURE_2D ? null : new Float32Array(propInfo.value);
+    }
+    return props;
+};
 
-Effect.parseEffect = function(effect) {
-    // techniques
+Effect.parseTechniques = function (effect) {
     let techNum = effect.techniques.length;
     let techniques = new Array(techNum);
     for (let j = 0; j < techNum; ++j) {
@@ -281,8 +292,14 @@ Effect.parseEffect = function(effect) {
         }
         techniques[j] = new Technique(tech.stages, passes, tech.layer);
     }
-    let programs = getInvolvedPrograms(effect);
 
+    return techniques;
+};
+
+Effect.parseEffect = function (effect) {
+    let techniques = Effect.parseTechniques(effect);
+    
+    let programs = getInvolvedPrograms(effect);
     let props = parseProperties(effect, programs), uniforms = {}, defines = {};
     programs.forEach(p => {
         // uniforms
@@ -303,7 +320,7 @@ Effect.parseEffect = function(effect) {
     let extensions = programs.reduce((acc, cur) => acc = acc.concat(cur.extensions), []);
     extensions = cloneObjArray(extensions);
 
-    return new Effect(effect.name, techniques, uniforms, defines, extensions);
+    return new cc.Effect(effect.name, techniques, uniforms, defines, extensions, effect);
 };
 
 if (CC_EDITOR) {
