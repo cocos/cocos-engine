@@ -129,6 +129,9 @@ export class ModelComponent extends RenderableComponent {
 
     public onEnable () {
         if (this._model) {
+            if (!this._model.inited) {
+                this._updateModels();
+            }
             this._model.enabled = true;
         }
     }
