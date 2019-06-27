@@ -31,7 +31,7 @@ import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
 import { MaskComponent } from '../../components';
-import { IAssembler, IAssemblerManager } from '../assembler';
+import { IAssembler, IAssemblerManager } from '../base';
 import { StencilManager } from './stencil-manager';
 
 const _stencilManager = StencilManager.sharedManager!;

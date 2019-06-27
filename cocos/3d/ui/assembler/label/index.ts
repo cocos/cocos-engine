@@ -25,7 +25,7 @@
 
 import { BitmapFont } from '../../../../assets';
 import { LabelComponent} from '../../components';
-import { IAssemblerManager } from '../assembler';
+import { IAssemblerManager } from '../base';
 import { bmfont } from './bmfont';
 import { CanvasPool } from './font-utils';
 import { letter } from './letter';
