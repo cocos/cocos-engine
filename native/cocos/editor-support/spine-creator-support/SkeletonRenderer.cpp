@@ -447,10 +447,6 @@ void SkeletonRenderer::update (float deltaTime) {
             continue;
         }
         
-        if (!slot->getAttachment()) {
-            continue;
-        }
-        
         Triangles triangles;
         TwoColorTriangles trianglesTwoColor;
         

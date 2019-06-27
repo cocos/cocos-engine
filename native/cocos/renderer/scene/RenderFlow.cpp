@@ -249,18 +249,40 @@ void RenderFlow::calculateWorldMatrix()
         for(std::size_t index = 0, count = levelInfos.size(); index < count; index++)
         {
             auto& info = levelInfos[index];
-            auto selfDirty = *info.dirty & WORLD_TRANSFORM;
-            if (info.parentDirty != nullptr && ((*info.parentDirty & WORLD_TRANSFORM_CHANGED) || selfDirty))
+            auto selfWorldDirty = *info.dirty & WORLD_TRANSFORM;
+            auto selfOpacityDirty = *info.dirty & OPACITY;
+            
+            if (info.parentDirty)
             {
-                cocos2d::Mat4::multiply(*info.parentWorldMat, *info.localMat, info.worldMat);
-                *info.dirty |= WORLD_TRANSFORM_CHANGED;
-                *info.dirty &= ~WORLD_TRANSFORM;
+                if ((*info.parentDirty & WORLD_TRANSFORM_CHANGED) || selfWorldDirty)
+                {
+                    cocos2d::Mat4::multiply(*info.parentWorldMat, *info.localMat, info.worldMat);
+                    *info.dirty |= WORLD_TRANSFORM_CHANGED;
+                    *info.dirty &= ~WORLD_TRANSFORM;
+                }
+                
+                if ((*info.parentDirty & OPACITY_CHANGED) || selfOpacityDirty)
+                {
+                    *info.realOpacity = *info.opacity * *info.parentRealOpacity / 255.0f;
+                    *info.dirty |= OPACITY_CHANGED;
+                    *info.dirty &= ~OPACITY;
+                }
             }
-            else if (selfDirty)
+            else
             {
-                *info.worldMat = *info.localMat;
-                *info.dirty |= WORLD_TRANSFORM_CHANGED;
-                *info.dirty &= ~WORLD_TRANSFORM;
+                if (selfWorldDirty)
+                {
+                    *info.worldMat = *info.localMat;
+                    *info.dirty |= WORLD_TRANSFORM_CHANGED;
+                    *info.dirty &= ~WORLD_TRANSFORM;
+                }
+                
+                if (selfOpacityDirty)
+                {
+                    *info.realOpacity = *info.opacity;
+                    *info.dirty |= OPACITY_CHANGED;
+                    *info.dirty &= ~OPACITY;
+                }
             }
         }
     }
