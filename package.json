@@ -10,7 +10,7 @@
   "module": "index.js",
   "scripts": {
     "server": "http-server . -p 8002",
-    "build": "npm run build:dev && npm run build:min && npm run build-declaration",
+    "build": "npm run build:min && npm run build-declaration",
     "build:dev": "node ./rollup/out/build-engine-cli.js --sourcemap --platform=universal --destination=./bin/cocos-3d.dev.js",
     "build:min": "node ./rollup/out/build-engine-cli.js --compress --sourcemap --platform=universal --destination=./bin/cocos3d-js.min.js",
     "build-declaration": "node ./scripts/generate-declarations/generate-declarations-cli.js",

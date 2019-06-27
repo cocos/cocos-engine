@@ -8,6 +8,10 @@ import {
     CanvasPool,
     graphics,
     graphicsAssembler,
+<<<<<<< HEAD
+=======
+    IAssembler,
+>>>>>>> ui layout api (#4707)
     labelAssembler,
     letter,
     mask,
@@ -29,6 +33,10 @@ export {
     UIVertexFormat,
     StencilManager,
     CanvasPool,
+<<<<<<< HEAD
+=======
+    IAssembler,
+>>>>>>> ui layout api (#4707)
     barFilled,
     radialFilled,
     simple,
@@ -61,4 +69,8 @@ cc.UI = {
     spriteAssembler,
     graphicsAssembler,
     labelAssembler,
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> ui layout api (#4707)

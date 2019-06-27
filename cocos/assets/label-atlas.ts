@@ -24,6 +24,15 @@
  THE SOFTWARE.
 */
 
+<<<<<<< HEAD
+=======
+/**
+ * @category asset
+ */
+
+import { ccclass } from '../core/data/class-decorator';
+import { BitmapFont } from './bitmap-font';
+>>>>>>> ui layout api (#4707)
 /**
  * @category asset
  */
