@@ -1,3 +1,7 @@
+/**
+ * @category physics
+ */
+
 import {
     ccclass,
     executeInEditMode,
@@ -9,6 +13,10 @@ import { SphereShapeBase } from '../../../physics/api';
 import { createSphereShape } from '../../../physics/instance';
 import { ColliderComponent } from './collider-component';
 
+/**
+ * @zh
+ * 球碰撞器
+ */
 @ccclass('cc.SphereColliderComponent')
 @executionOrder(98)
 @menu('Components/SphereColliderComponent')
@@ -61,7 +69,10 @@ export class SphereColliderComponent extends ColliderComponent {
         this._radius = value;
 
         if (!CC_EDITOR) {
-            this._shape.setRadius(value);
+            this._shape.setRadius(this._radius);
+            if (CC_PHYSICS_BUILT_IN) {
+                this._shape.setScale(this.node.worldScale);
+            }
         }
     }
 }

@@ -24,7 +24,10 @@
  THE SOFTWARE.
 */
 
-import { Event } from '.';
+/**
+ * @category event
+ */
+
 import * as js from '../utils/js';
 import { CallbacksInvoker } from './callbacks-invoker';
 
@@ -39,6 +42,7 @@ export interface ITargetImpl extends Object {
  * @zh
  * 事件目标是事件触发时，分派的事件对象，Node 是最常见的事件目标，
  * 但是其他对象也可以是事件目标。
+ * 可通过 cc.EventTarget 获得该对象。
  */
 export class EventTarget extends CallbacksInvoker {
     /**
@@ -56,7 +60,7 @@ export class EventTarget extends CallbacksInvoker {
      * @return - 返回监听回调函数自身。
      *
      * @example
-     * ```ts
+     * ```typescript
      * eventTarget.on('fire', function () {
      *     cc.log("fire in the hole");
      * }, node);
@@ -92,7 +96,7 @@ export class EventTarget extends CallbacksInvoker {
      * @param target - 调用回调的目标。如果为空, 只有没有目标的事件会被移除。
      *
      * @example
-     * ```ts
+     * ```typescript
      * // register fire eventListener
      * var callback = eventTarget.on('fire', function () {
      *     cc.log("fire in the hole");
@@ -147,7 +151,7 @@ export class EventTarget extends CallbacksInvoker {
      * @param target - 调用回调的目标。可以为空。
      *
      * @example
-     * ```ts
+     * ```typescript
      * eventTarget.once('fire', function () {
      *     cc.log("this is the callback and will be invoked only once");
      * }, node);

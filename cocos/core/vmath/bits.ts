@@ -1,10 +1,7 @@
 /**
- * @internal
- * @module core/math
+ * @category core/math
  */
-/**
- * @able
- */
+
 /**
  * @en
  * Bit twiddling hacks for JavaScript.

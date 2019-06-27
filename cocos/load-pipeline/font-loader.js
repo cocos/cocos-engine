@@ -23,6 +23,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @category loader
+ */
+
 import {safeMeasureText} from '../core/utils/text-utils';
 
 let _canvasContext = null;

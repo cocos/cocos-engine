@@ -23,6 +23,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * @category ui
+ */
+
 import { Component, EventHandler as ComponentEventHandler } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { ToggleComponent} from './toggle-component';
@@ -31,6 +36,7 @@ import { ToggleComponent} from './toggle-component';
  * @zh
  * ToggleGroup 不是一个可见的 UI 组件，它可以用来修改一组 Toggle  组件的行为。当一组 Toggle 属于同一个 ToggleGroup 的时候，<br/>
  * 任何时候只能有一个 Toggle 处于选中状态。
+ * 可通过 cc.ToggleContainerComponent 获得该组件。
  */
 
 @ccclass('cc.ToggleContainerComponent')

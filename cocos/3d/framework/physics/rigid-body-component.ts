@@ -1,3 +1,6 @@
+/**
+ * @category physics
+ */
 
 import {
     ccclass,
@@ -8,7 +11,6 @@ import {
 } from '../../../core/data/class-decorator';
 import { Quat, Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';
-import { PhysicsMaterial } from '../../assets/physics/material';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 
 const NonRigidBodyProperties = {
@@ -17,6 +19,10 @@ const NonRigidBodyProperties = {
     angularDamping: 0,
 };
 
+/**
+ * @zh
+ * 刚体组件。
+ */
 @ccclass('cc.RigidBodyComponent')
 @executionOrder(99)
 @menu('Components/RigidBodyComponent')
@@ -24,21 +30,6 @@ const NonRigidBodyProperties = {
 export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
-
-    // Shielding physics material for alpha version
-    // @property({
-    //     type: PhysicsMaterial,
-    // })
-    // get material () {
-    //     return this._material;
-    // }
-
-    // set material (value) {
-    //     this._material = value;
-    //     // if (!CC_EDITOR && !CC_PHYISCS_BUILT_IN) {
-    //     //     this._body.material = (this._material || DefaultPhysicsMaterial)._getImpl();
-    //     // }
-    // }
 
     /**
      * @zh
@@ -176,7 +167,9 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * @zh
      * 设置线性速度的因子，可以用来控制每个轴方向上的速度的缩放。
      */
-    @property
+    @property({
+        displayOrder: 6,
+    })
     public get linearFactor () {
         if (CC_EDITOR) {
             return this._linearFactor;
@@ -196,7 +189,9 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * @zh
      * 设置旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放。
      */
-    @property
+    @property({
+        displayOrder: 7,
+    })
     public get angularFactor () {
         if (CC_EDITOR) {
             return this._angularFactor;

@@ -1,10 +1,6 @@
 
 /**
- * @internal
- * @module ParticleSystem
- */
-/**
- * @able
+ * @category particle
  */
 
 import { CCClass } from '../../../../core/data';

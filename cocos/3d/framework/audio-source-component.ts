@@ -24,13 +24,7 @@
  */
 
 /**
- * 音频模块的相关内容
- * @internal
- * @module audio
- * @preferred
- */
-/**
- * @able
+ * @category audio
  */
 
 import { Component } from '../../components/component';

@@ -24,11 +24,7 @@
  */
 
 /**
- * @internal
- * @module audio
- */
-/**
- * @able
+ * @category audio
  */
 
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';

@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui-assembler
+ */
+
 import { SpriteFrame } from '../../../../assets/sprite-frame';
 import * as js from '../../../../core/utils/js';
 import { Rect } from '../../../../core/value-types';
@@ -32,6 +36,10 @@ import { IAssembler } from '../assembler';
 import { fillMeshVertices3D } from '../utils';
 import { bmfontUtils } from './bmfontUtils';
 
+/**
+ * bmfont 组装器
+ * 可通过 cc.UI.bmfont 获取该组装器。
+ */
 export const bmfont: IAssembler = {
     createData (comp: LabelComponent) {
         return comp.requestRenderData();

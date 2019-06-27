@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui-assembler
+ */
+
 import { addon } from '../../../../core/utils/js';
 import { UI } from '../../../../renderer/ui/ui';
 import { LabelComponent } from '../../components/label-component';
@@ -32,6 +36,10 @@ import { letterFont} from './letter-font';
 
 const WHITE = cc.color(255, 255, 255, 255);
 
+/**
+ * letter 组装器
+ * 可通过 cc.UI.letter 获取该组装器。
+ */
 export const letter = {
     createData (comp: LabelComponent) {
         return comp.requestRenderData();

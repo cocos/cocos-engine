@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui-assembler
+ */
+
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 import { SpriteFrame } from '../../../../assets';
 import { Mat4, Vec2, Vec3 } from '../../../../core/value-types';
@@ -229,6 +233,10 @@ function _generateUV (progressX: number, progressY: number, data: IRenderData[],
     uv.v = py1 + (py2 - py1) * progressY;
 }
 
+/**
+ * radialFilled 组装器
+ * 可通过 cc.UI.radialFilled 获取该组装器。
+ */
 export const radialFilled: IAssembler = {
     useModel: false,
 

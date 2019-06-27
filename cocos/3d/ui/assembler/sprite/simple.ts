@@ -23,6 +23,11 @@
  THE SOFTWARE.
 */
 
+/**
+ * UI 组装器
+ * @category ui-assembler
+ */
+
 import { Vec3 } from '../../../../core/value-types';
 import { color4, vec3 } from '../../../../core/vmath';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
@@ -37,6 +42,10 @@ for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
 
+/**
+ * simple 组装器
+ * 可通过 cc.UI.simple 获取该组装器。
+ */
 export const simple: IAssembler = {
     createData (sprite: SpriteComponent) {
         const renderData = sprite.requestRenderData();

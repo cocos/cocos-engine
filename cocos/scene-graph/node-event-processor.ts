@@ -310,6 +310,10 @@ function _checkListeners (node: Node, events: string[]) {
     return true;
 }
 
+/**
+ * @zh
+ * 节点事件类。
+ */
 export class NodeEventProcessor {
     public get node (): Node {
         return this._node;
@@ -367,7 +371,7 @@ export class NodeEventProcessor {
      * @return - 返回监听回调函数自身。
      *
      * @example
-     * ```ts
+     * ```typescript
      * this.node.on(cc.Node.EventType.TOUCH_START, this.memberFunction, this);  // if "this" is component and the "memberFunction" declared in CCClass.
      * this.node.on(cc.Node.EventType.TOUCH_START, callback, this);
      * this.node.on(cc.Node.EventType.ANCHOR_CHANGED, callback);
@@ -417,7 +421,7 @@ export class NodeEventProcessor {
      * @param useCapture - 当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
      *
      * @example
-     * ```ts
+     * ```typescript
      * node.once(cc.Node.EventType.ANCHOR_CHANGED, callback);
      * ```
      */
@@ -445,7 +449,7 @@ export class NodeEventProcessor {
      * @param useCapture - 当设置为 true，监听器将在捕获阶段触发，否则将在冒泡阶段触发。默认为 false。
      *
      * @example
-     * ```ts
+     * ```typescript
      * this.node.off(cc.Node.EventType.TOUCH_START, this.memberFunction, this);
      * node.off(cc.Node.EventType.TOUCH_START, callback, this.node);
      * node.off(cc.Node.EventType.ANCHOR_CHANGED, callback, this);
@@ -506,7 +510,7 @@ export class NodeEventProcessor {
      * @param arg4 - 回调第四个参数。
      * @param arg5 - 回调第五个参数。
      * @example
-     * ```ts
+     * ```typescript
      * eventTarget.emit('fire', event);
      * eventTarget.emit('fire', message, emitter);
      * ```

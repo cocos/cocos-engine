@@ -25,6 +25,11 @@
  THE SOFTWARE.
 */
 
+/**
+ * 内置资源
+ * @category asset
+ */
+
 import { ccclass } from '../core/data/class-decorator';
 import { Rect, Size, Vec2 } from '../core/value-types';
 import { vec2 } from '../core/vmath';
@@ -79,12 +84,14 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  *  - rectangle: A rectangle of the texture
  *
  * @zh
+ * 精灵帧资源。
  * 一个 SpriteFrame 包含：<br/>
  *  - 纹理：会被渲染组件使用的 Texture2D 对象。<br/>
  *  - 矩形：在纹理中的矩形区域。
+ * 可通过 cc.SpriteFrame 获取该组件。
  *
  * @example
- * ```ts
+ * ```typescript
  * var self = this;
  * var url = "assets/PurpleMonster/icon/icon";
  * cc.loader.loadRes(url, function (err, spriteFrame) {

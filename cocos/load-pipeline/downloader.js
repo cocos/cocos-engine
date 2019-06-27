@@ -23,6 +23,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @category loader
+ */
+
 import {mixin} from '../core/utils/js';
 import * as debug from '../core/platform/CCDebug';
 import Pipeline from './pipeline';

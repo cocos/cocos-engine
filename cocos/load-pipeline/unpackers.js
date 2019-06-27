@@ -24,6 +24,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @category loader
+ */
+
 export class JsonUnpacker {
     constructor () {
         this.jsons = {};
