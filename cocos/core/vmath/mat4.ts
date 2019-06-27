@@ -720,7 +720,7 @@ export class mat4 {
         const m10 = m3_1.m08 = mat.m10;
         out.x = Math.sqrt(m00 * m00 + m01 * m01 + m02 * m02);
         out.y = Math.sqrt(m04 * m04 + m05 * m05 + m06 * m06);
-        out.y = Math.sqrt(m08 * m08 + m09 * m09 + m10 * m10);
+        out.z = Math.sqrt(m08 * m08 + m09 * m09 + m10 * m10);
         // account for refections
         if (mat3.determinant(m3_1) < 0) { out.x *= -1; }
         return out;

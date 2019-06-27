@@ -244,61 +244,60 @@ export abstract class GFXInputAssembler extends GFXObject {
     /**
      * @en
      * update VB data on the fly.
-     * @param vbuffer - an ArrayBuffer containing the full VB
-     * @param attr - name of the attribute to update (default names are specified in GFXAttributeName)
-     * @param data - the new VB attribute data to be uploaded
-     * @example
-     * ```typescript
-     * // get VB array buffer from mesh, better to cache this somewhere convenient
-     * const vbInfo = mesh.struct.vertexBundles[0].data;
-     * const vbuffer = mesh.data.buffer.slice(vbInfo.offset, vbInfo.offset + vbInfo.length);
-     * const submodel = someModelComponent.model.getSubModel(0);
-     * // say the new positions is stored in 'data' as a plain array
-     * submodel.inputAssembler.updateVertexBuffer(vbuffer, cc.GFXAttributeName.ATTR_POSITION, data);
-     * ```
      * @zh
      * 根据顶点属性名称更新顶点缓冲数据。
      * @param vbuffer 缓冲数据源。
      * @param attr 属性名。
      * @param data 更新数据。
+     * @param index 要更新第几号顶点缓冲？（默认为 0）
+     * @param final 是否立即更新？（默认为 true，需要一次修改多个属性时可以使用）
+     * @example
+     * ```typescript
+     * // get VB array buffer from mesh, better to cache this somewhere convenient
+     * const vbInfo = mesh.struct.vertexBundles[mesh.struct.primitives[0].vertexBundelIndices[0]].view;
+     * const vbuffer = mesh.data.buffer.slice(vbInfo.offset, vbInfo.offset + vbInfo.length);
+     * const submodel = someModelComponent.model.getSubModel(0);
+     * // say the new positions is stored in 'data' as a plain array
+     * submodel.inputAssembler.updateVertexBuffer(vbuffer, cc.GFXAttributeName.ATTR_POSITION, data);
+     * ```
      */
-    public updateVertexAttr (vbuffer: GFXBufferSource, attr: string, data: number[]) {
+    public updateVertexAttr (vbuffer: GFXBufferSource, attr: string, data: number[], index = 0, final = true) {
         let offset = 0;
         let format = GFXFormat.UNKNOWN;
         for (const a of this._attributes) {
             if (a.name === attr) { format = a.format; break; }
             offset += GFXFormatInfos[a.format].size;
         }
-        const vb = this._vertexBuffers[0];
+        const vb = this._vertexBuffers[index];
         if (!format || !vb) { return; }
         writeBuffer(new DataView(vbuffer as ArrayBuffer), data, format, offset, vb.stride);
-        vb.update(vbuffer);
+        if (final) { vb.update(vbuffer, 0, vb.stride * vb.count); }
     }
 
     /**
      * @en
      * update IB data on the fly.
-     * need to call submodel.updateCommandBuffer after this if index count changed
+     * need to call `submodel.updateCommandBuffer` after this if index count changed
+     * @zh
+     * 更新索引缓冲数据，如果索引数量改变了，需要在此函数后调用 `submodel.updateCommandBuffer`。
+     * @param ibuffer 缓冲数据源。
+     * @param data 更新数据。
      * @example
      * ```typescript
      * // get IB array buffer from mesh, better to cache this somewhere convenient
-     * const ibInfo = mesh.struct.primitives[0].indices.range;
+     * const ibInfo = mesh.struct.primitives[0].indexView;
      * const ibuffer = mesh.data.buffer.slice(ibInfo.offset, ibInfo.offset + ibInfo.length);
      * const submodel = someModelComponent.model.getSubModel(0);
      * submodel.inputAssembler.updateIndexBuffer(ibuffer, [0, 1, 2]);
      * submodel.updateCommandBuffer(); // index count changed
      * ```
-     * @zh
-     * 更新索引缓冲数据。
-     * @param ibuffer 缓冲数据源。
-     * @param data 更新数据。
      */
     public updateIndexBuffer (ibuffer: GFXBufferSource, data: number[]) {
         const count = this._indexCount;
         const ib = this._indexBuffer;
         if (!count || !ib) { return; }
         writeBuffer(new DataView(ibuffer as ArrayBuffer), data, GFXFormat[`R${ib.stride * 8}UI`]);
-        ib.update(ibuffer);
+        ib.update(ibuffer, 0, ib.stride * ib.count);
         this._indexCount = data.length;
     }
 }

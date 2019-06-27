@@ -6,7 +6,7 @@ import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType } from '../../gfx/define';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
-import { IInternalBindingInst, IRenderObject, UBOShadow } from '../../pipeline/define';
+import { IInternalBindingInst, UBOShadow } from '../../pipeline/define';
 import { DirectionalLight } from './directional-light';
 import { Model } from './model';
 import { RenderScene } from './render-scene';
