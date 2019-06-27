@@ -167,7 +167,9 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * @zh
      * 设置线性速度的因子，可以用来控制每个轴方向上的速度的缩放。
      */
-    @property
+    @property({
+        displayOrder: 6,
+    })
     public get linearFactor () {
         if (CC_EDITOR) {
             return this._linearFactor;
@@ -187,7 +189,9 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * @zh
      * 设置旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放。
      */
-    @property
+    @property({
+        displayOrder: 7,
+    })
     public get angularFactor () {
         if (CC_EDITOR) {
             return this._angularFactor;
