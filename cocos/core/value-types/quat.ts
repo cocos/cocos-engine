@@ -36,6 +36,20 @@ import Vec3 from './vec3';
  * 四元数。
  */
 export default class Quat extends ValueType {
+
+    /**
+     * 根据指定的插值比率，从当前四元数到目标四元数之间做插值。
+     * @param from 起始四元数。
+     * @param to 目标四元数。
+     * @param ratio 插值比率，范围为 [0,1]。
+     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
+     * @returns 当前四元数到目标四元数之间的**球形插值**结果。
+     */
+    public static lerp (from: Quat, to: Quat, ratio: number, out: Quat) {
+        xquat.slerp(out, from, to, ratio);
+        return out;
+    }
+
     /**
      * x 分量。
      */
@@ -126,24 +140,12 @@ export default class Quat extends ValueType {
     }
 
     /**
-     * 根据指定的插值比率，从当前四元数到目标四元数之间做插值。
-     * @param to 目标四元数。
-     * @param ratio 插值比率，范围为 [0,1]。
-     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
-     * @returns 当前四元数到目标四元数之间的**球形插值**结果。
-     */
-    public lerp (to: Quat, ratio: number, out: Quat) {
-        xquat.slerp(out, this, to, ratio);
-        return out;
-    }
-
-    /**
-     * 同lerp，但会重新创建一个Quat。
+     * 同lerp，但会对自身做lerp。
      * @param to 目标四元数。
      * @param ratio 插值比率，范围为 [0,1]。
      * @returns 当前四元数到目标四元数之间的**球形插值**结果。
      */
-    public lerpNew (to: Quat, ratio: number) {
+    public lerpSelf (to: Quat, ratio: number) {
         const out = new Quat();
         xquat.slerp(out, this, to, ratio);
         return out;

@@ -8,7 +8,7 @@
 
 import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { Enum, ValueType } from '../../../../core/value-types';
+import { Enum, ValueType, Color } from '../../../../core/value-types';
 import { color4 } from '../../../../core/vmath';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
 
@@ -112,7 +112,7 @@ export default class GradientRange {
             case Mode.Color:
                 return this.color;
             case Mode.TwoColors:
-                this.colorMin.lerp(this.colorMax, rndRatio, this.color);
+                Color.lerp(this.colorMin, this.colorMax, rndRatio, this.color);
                 return this.color;
             case Mode.RandomColor:
                 return this.gradient.randomColor();
@@ -121,7 +121,7 @@ export default class GradientRange {
             case Mode.TwoGradients:
                 this.colorMin = this.gradientMin.evaluate(time);
                 this.colorMax = this.gradientMax.evaluate(time);
-                this.colorMin.lerp(this.colorMax, rndRatio, this.color);
+                Color.lerp(this.colorMin, this.colorMax, rndRatio, this.color);
                 return this.color;
         }
     }
