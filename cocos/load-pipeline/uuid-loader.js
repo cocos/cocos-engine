@@ -24,6 +24,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @category loader
+ */
+
 import * as js from '../core/utils/js';
 import {_getClassById} from '../core/utils/js';
 import * as debug from '../core/platform/CCDebug';

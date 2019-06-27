@@ -1,10 +1,6 @@
 
 /**
- * @internal
- * @module ParticleSystem
- */
-/**
- * @able
+ * @category particle
  */
 
 import { Enum } from '../../../core/value-types';

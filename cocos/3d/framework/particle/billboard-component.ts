@@ -1,10 +1,6 @@
 
 /**
- * @internal
- * @module ParticleSystem
- */
-/**
- * @able
+ * @category particle
  */
 
 import { ccclass, property, executeInEditMode, menu } from "../../../core/data/class-decorator";
