@@ -56,19 +56,15 @@ export class BoxColliderComponent extends ColliderComponent {
 
     /**
      * @en
-     * Get the size of the box, in local space.
+     * Get or set the size of the box, in local space.
      * @zh
-     * 获取盒的大小。
+     * 获取或设置盒的大小。
      */
     @property({ type: Vec3 })
     public get size () {
         return this._size;
     }
 
-    /**
-     * @zh
-     * 设置盒的大小。
-     */
     public set size (value) {
         vec3.copy(this._size, value);
 

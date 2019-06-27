@@ -33,7 +33,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 获取刚体的质量。
+     * 获取或设置刚体的质量。
      */
     @property({
         displayOrder: 0,
@@ -42,10 +42,6 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         return this._mass;
     }
 
-    /**
-     * @zh
-     * 设置刚体的质量。
-     */
     public set mass (value) {
         this._mass = value;
         if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
@@ -55,7 +51,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 获取线性阻尼。
+     * 获取或设置线性阻尼。
      */
     @property({
         displayOrder: 1,
@@ -64,10 +60,6 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         return this._linearDamping;
     }
 
-    /**
-     * @zh
-     * 设置线性阻尼。
-     */
     public set linearDamping (value) {
         this._linearDamping = value;
         if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
@@ -77,7 +69,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 获取角阻尼。
+     * 获取或设置旋转阻尼。
      */
     @property({
         displayOrder: 2,
@@ -86,10 +78,6 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         return this._angularDamping;
     }
 
-    /**
-     * @zh
-     * 设置角阻尼。
-     */
     public set angularDamping (value) {
         this._angularDamping = value;
         if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
@@ -99,7 +87,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 获取刚体是否由物理系统控制运动。
+     * 获取或设置刚体是否由物理系统控制运动。
      */
     @property({
         displayOrder: 3,
@@ -108,10 +96,6 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         return this._isKinematic;
     }
 
-    /**
-     * @zh
-     * 设置刚体是否由自己控制运动。
-     */
     public set isKinematic (value) {
         this._isKinematic = value;
         if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
@@ -121,7 +105,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 获取刚体是否使用重力。
+     * 获取或设置刚体是否使用重力。
      */
     @property({
         displayOrder: 4,
@@ -130,10 +114,6 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         return this._useGravity;
     }
 
-    /**
-     * @zh
-     * 设置刚体是否使用重力。
-     */
     public set useGravity (value) {
         this._useGravity = value;
         if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
@@ -143,7 +123,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 获取刚体是否固定旋转。
+     * 获取或设置刚体是否固定旋转。
      */
     @property({
         displayOrder: 5,
@@ -152,10 +132,6 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         return this._fixedRotation;
     }
 
-    /**
-     * @zh
-     * 设置刚体是否固定旋转。
-     */
     public set fixedRotation (value) {
         this._fixedRotation = value;
         if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
@@ -165,7 +141,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 设置线性速度的因子，可以用来控制每个轴方向上的速度的缩放。
+     * 获取或设置线性速度的因子，可以用来控制每个轴方向上的速度的缩放。
      */
     @property({
         displayOrder: 6,
@@ -187,7 +163,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 设置旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放。
+     * 获取或设置旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放。
      */
     @property({
         displayOrder: 7,
@@ -208,7 +184,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 是否是唤醒的状态。
+     * 获取是否是唤醒的状态。
      */
     public get isAwake (): boolean {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
@@ -219,7 +195,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 是否是可进入休眠的状态。
+     * 获取是否是可进入休眠的状态。
      */
     public get isSleepy (): boolean {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
@@ -230,7 +206,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
-     * 是否是正在休眠的状态。
+     * 获取是否是正在休眠的状态。
      */
     public get isSleeping (): boolean {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
@@ -339,6 +315,11 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         }
     }
 
+    /**
+     * @zh
+     * 获取线性速度。
+     * @param out 速度 Vec3
+     */
     public getLinearVelocity (out: Vec3): Vec3 {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             return this._body.getLinearVelocity(out);
@@ -347,12 +328,22 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         return out;
     }
 
+    /**
+     * @zh
+     * 设置线性速度。
+     * @param value 速度 Vec3
+     */
     public setLinearVelocity (value: Vec3): void {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             this._body.setLinearVelocity(value);
         }
     }
 
+    /**
+     * @zh
+     * 获取旋转速度。
+     * @param out 速度 Vec3
+     */
     public getAngularVelocity (out: Vec3): Vec3 {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             return this._body.getAngularVelocity(out);
@@ -361,6 +352,11 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         return out;
     }
 
+    /**
+     * @zh
+     * 设置旋转速度。
+     * @param value 速度 Vec3
+     */
     public setAngularVelocity (value: Vec3): void {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             this._body.setAngularVelocity(value);
