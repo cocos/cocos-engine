@@ -39,12 +39,22 @@ public:
     {
         _count = 0;
         _data.resize(size);
-    };
+        
+        for (int i = 0; i < size; i++)
+        {
+            _data[i] = new T();
+        }
+    }
     
     ~RecyclePool()
     {
+        for (int i = 0, len = (int)_data.size(); i < len; i++)
+        {
+            delete _data[i];
+        }
+        
         _data.clear();
-    };
+    }
     
     const T* getData(const int index) const
     {
@@ -54,7 +64,7 @@ public:
             return nullptr;
         }
         
-        return &_data[index];
+        return _data[index];
     }
     
     const int getLength() const
@@ -65,26 +75,34 @@ public:
     void reset()
     {
         _count = 0;
-    };
+    }
     
     T* add()
     {
         int size = (int)_data.size();
-        if (_count >= size) {
-            _data.resize(size * 2);
+        if (_count >= size)
+        {
+            resize(size * 2);
         }
         
-        return &_data[_count++];
-    };
+        return _data[_count++];
+    }
     
     void resize(int size)
     {
-        _data.resize(size);
-    };
+        if (size > _data.size())
+        {
+            for (int i = (int)_data.size(); i < size; i++)
+            {
+                _data[i] = new T();
+            }
+        }
+    }
     
     void remove(int index)
     {
-        if (index >= _count) {
+        if (index >= _count)
+        {
             return;
         }
         
@@ -93,10 +111,10 @@ public:
         _data[index] = _data[last];
         _data[last] = tmp;
         _count -= 1;
-    };
+    }
 private:
     int _count = 0;
-    std::vector<T> _data;
+    std::vector<T*> _data;
 
     
 };

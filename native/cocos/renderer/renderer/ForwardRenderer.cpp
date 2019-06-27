@@ -153,13 +153,13 @@ void ForwardRenderer::submitLightsUniforms()
         for (int i = 0; i < count; ++i)
         {
             auto* light = _directionalLights.at(i);
-            lightVec3.set(std::move(light->getDirectionUniform()));
+            lightVec3.set(light->getDirectionUniform());
             *directions++ = lightVec3.x;
             *directions++ = lightVec3.y;
             *directions++ = lightVec3.z;
             *directions++ = 0;
             
-            colorVec3.set(std::move(light->getColorUniform()));
+            colorVec3.set(light->getColorUniform());
             *colors++ = colorVec3.x;
             *colors++ = colorVec3.y;
             *colors++ = colorVec3.z;
@@ -179,13 +179,13 @@ void ForwardRenderer::submitLightsUniforms()
         for (int i = 0; i < count; ++i)
         {
             auto* light = _pointLights.at(i);
-            posVec3.set(std::move(light->getPositionUniform()));
+            posVec3.set(light->getPositionUniform());
             *positionAndRanges++ = posVec3.x;
             *positionAndRanges++ = posVec3.y;
             *positionAndRanges++ = posVec3.z;
             *positionAndRanges++ = light->getRange();
             
-            colorVec3.set(std::move(light->getColorUniform()));
+            colorVec3.set(light->getColorUniform());
             *colors++ = colorVec3.x;
             *colors++ = colorVec3.y;
             *colors++ = colorVec3.z;
@@ -207,19 +207,19 @@ void ForwardRenderer::submitLightsUniforms()
         for (int i = 0; i < count; ++i)
         {
             auto* light = _spotLights.at(i);
-            lightVec3.set(std::move(light->getDirectionUniform()));
+            lightVec3.set(light->getDirectionUniform());
             *directions++ = lightVec3.x;
             *directions++ = lightVec3.y;
             *directions++ = lightVec3.z;
             *directions++ = 0;
             
-            posVec3.set(std::move(light->getPositionUniform()));
+            posVec3.set(light->getPositionUniform());
             *positionAndRanges++ = posVec3.x;
             *positionAndRanges++ = posVec3.y;
             *positionAndRanges++ = posVec3.z;
             *positionAndRanges++ = light->getRange();
             
-            colorVec3.set(std::move(light->getColorUniform()));
+            colorVec3.set(light->getColorUniform());
             *colors++ = colorVec3.x;
             *colors++ = colorVec3.y;
             *colors++ = colorVec3.z;
@@ -237,7 +237,7 @@ void ForwardRenderer::submitLightsUniforms()
         for (int i = 0; i < count; ++i)
         {
             auto* light = _ambientLights.at(i);
-            colorVec3.set(std::move(light->getColorUniform()));
+            colorVec3.set(light->getColorUniform());
             *colors++ = colorVec3.x;
             *colors++ = colorVec3.y;
             *colors++ = colorVec3.z;
@@ -335,7 +335,7 @@ void ForwardRenderer::drawItems(const std::vector<StageItem>& items)
                 shadowMaps.push_back(light->getShadowMap());
                 slots.push_back(allocTextureUnit());
             }
-            _device->setTextureArray("cc_shadow_map", std::move(shadowMaps), slots);
+            _device->setTextureArray("cc_shadow_map", shadowMaps, slots);
             updateShaderDefines(item);
             draw(item);
         }

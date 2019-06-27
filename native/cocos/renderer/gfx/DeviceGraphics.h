@@ -79,7 +79,7 @@ public:
         
         void setValue(const void* v, size_t bytes);
         
-        void* value;
+        void* value = NULL;
         bool dirty;
         UniformElementType elementType;
     private:

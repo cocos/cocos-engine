@@ -84,7 +84,7 @@ public:
     /**
      *  @brief Sets model matrix.
      */
-    inline void setWorldMatix(const Mat4& matrix) { _worldMatrix = std::move(matrix); }
+    inline void setWorldMatix(const Mat4& matrix) { _worldMatrix = matrix; }
     /**
      *  @brief Gets mode matrix.
      */
@@ -126,13 +126,13 @@ private:
     friend class ModelPool;
     void reset();
     
-    NodeProxy* _node;
+    NodeProxy* _node = nullptr;
     Mat4 _worldMatrix;
-    Effect* _effect;
+    Effect* _effect = nullptr;
     
     InputAssembler _inputAssembler;
     std::vector<ValueMap*> _defines;
-    std::vector<std::unordered_map<std::string, Property>> _uniforms;
+    std::vector<std::unordered_map<std::string, Effect::Property>> _uniforms;
     bool _dynamicIA = false;
     int _cullingMask = -1;
     int _userKey = -1;

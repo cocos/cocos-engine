@@ -84,12 +84,12 @@ void Model::setEffect(Effect* effect, CustomProperties* customProperties)
     _uniforms.clear();
     
     if (effect != nullptr) {
-        _defines.push_back(std::move(effect->extractDefines()));
+        _defines.push_back(effect->extractDefines());
         _uniforms.push_back(effect->extractProperties());
     }
     
     if (customProperties != nullptr) {
-        _defines.push_back(std::move(customProperties->extractDefines()));
+        _defines.push_back(customProperties->extractDefines());
         _uniforms.push_back(customProperties->extractProperties());
     }
 }
@@ -100,7 +100,7 @@ void Model::extractDrawItem(DrawItem& out) const
     {
         out.model = const_cast<Model*>(this);
         out.ia = nullptr;
-        out.effect = std::move(_effect);
+        out.effect = _effect;
         out.defines = out.effect->extractDefines();
         
         return;
@@ -108,7 +108,7 @@ void Model::extractDrawItem(DrawItem& out) const
     
     out.model = const_cast<Model*>(this);
     out.ia = const_cast<InputAssembler*>(&(_inputAssembler));
-    out.effect = std::move(_effect);
+    out.effect = _effect;
     out.defines = out.effect->extractDefines();
 }
 

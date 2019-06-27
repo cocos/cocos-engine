@@ -47,7 +47,7 @@ void CustomProperties::setProperty(const std::string name, const Property& prope
     _dirty = true;
 }
 
-const Property& CustomProperties::getProperty(std::string name) const
+const CustomProperties::Property& CustomProperties::getProperty(std::string name) const
 {
     static Property EMPTY_PROPERTY;
     if (_properties.end() == _properties.find(name))
@@ -79,7 +79,7 @@ Value CustomProperties::getDefine(const std::string& name) const
     return Value::Null;
 }
 
-std::unordered_map<std::string, Property> CustomProperties::extractProperties()
+std::unordered_map<std::string, CustomProperties::Property> CustomProperties::extractProperties()
 {
     return _properties;
 }

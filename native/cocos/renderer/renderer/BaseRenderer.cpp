@@ -170,11 +170,11 @@ void BaseRenderer::render(const View& view, const Scene* scene)
     }
 }
 
-void BaseRenderer::setProperty (Property& prop)
+void BaseRenderer::setProperty (Effect::Property& prop)
 {
     Technique::Parameter::Type propType = prop.getType();
     auto& propName = prop.getName();
-    if (Property::Type::UNKNOWN == propType)
+    if (Effect::Property::Type::UNKNOWN == propType)
     {
         RENDERER_LOGW("Failed to set technique property, type unknown");
         return;
@@ -182,9 +182,9 @@ void BaseRenderer::setProperty (Property& prop)
     
     if (nullptr == prop.getValue())
     {
-        prop = Property(propName, propType);
+        prop = Effect::Property(propName, propType);
         
-        if (Property::Type::TEXTURE_2D == propType)
+        if (Effect::Property::Type::TEXTURE_2D == propType)
         {
             prop.setTexture(_defaultTexture);
         }
@@ -196,8 +196,8 @@ void BaseRenderer::setProperty (Property& prop)
         return;
     }
     
-    if (Property::Type::TEXTURE_2D == propType ||
-        Property::Type::TEXTURE_CUBE == propType)
+    if (Effect::Property::Type::TEXTURE_2D == propType ||
+        Effect::Property::Type::TEXTURE_CUBE == propType)
     {
         if (1 == prop.getCount())
         {
@@ -215,7 +215,7 @@ void BaseRenderer::setProperty (Property& prop)
             }
             
             _device->setTextureArray(propName,
-                                     std::move(prop.getTextureArray()),
+                                     prop.getTextureArray(),
                                      slots);
         }
     }
@@ -241,9 +241,9 @@ void BaseRenderer::setProperty (Property& prop)
         }
         
         uint16_t bytes = prop.getBytes();
-        if (Property::Type::INT == propType ||
-            Property::Type::INT2 == propType ||
-            Property::Type::INT4 == propType)
+        if (Effect::Property::Type::INT == propType ||
+            Effect::Property::Type::INT2 == propType ||
+            Effect::Property::Type::INT4 == propType)
         {
             _device->setUniformiv(propName, bytes / sizeof(int), (const int*)prop.getValue());
         }
@@ -269,7 +269,7 @@ void BaseRenderer::draw(const StageItem& item)
     auto& properties = effect->getProperties();
     for (auto it = properties.begin(); it != properties.end(); it++)
     {
-        Property& prop = const_cast<Property&>(it->second);
+        Effect::Property& prop = const_cast<Effect::Property&>(it->second);
         setProperty(prop);
     }
     

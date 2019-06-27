@@ -31,11 +31,11 @@
 
 RENDERER_BEGIN
 
-using Property = Technique::Parameter;
-
 class CustomProperties
 {
 public:
+    using Property = Technique::Parameter;
+    
     CustomProperties();
     ~CustomProperties();
     
