@@ -26,7 +26,7 @@
 
 /**
  * 加载相关模块
- * @category load
+ * @category loader
  */
 
 export {default as url} from './url';

@@ -25,7 +25,7 @@
  */
 
 /**
- * @category load
+ * @category loader
  */
 
 import * as js from '../core/utils/js';

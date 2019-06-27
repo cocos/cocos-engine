@@ -25,7 +25,7 @@
  */
 
 /**
- * @category load
+ * @category loader
  */
 
 import {CallbacksInvoker} from '../core/event/callbacks-invoker';

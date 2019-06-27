@@ -1,5 +1,5 @@
 /**
- * @category load
+ * @category loader
  */
 
 type LoadSuccessParams<T> = Parameters<(error: null | undefined, asset: T) => void>;

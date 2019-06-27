@@ -24,7 +24,7 @@
  */
 
 /**
- * @category load
+ * @category loader
  */
 
 import {urlAppendTimestamp} from './utils';

@@ -25,7 +25,7 @@
  */
 
 /**
- * @category load
+ * @category loader
  */
 
 import {createMap} from '../core/utils/js';

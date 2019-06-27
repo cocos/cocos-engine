@@ -24,7 +24,7 @@
  THE SOFTWARE.
  */
 /**
- * @category load
+ * @category loader
  */
 
 import {pushToMap} from '../core/utils/misc';

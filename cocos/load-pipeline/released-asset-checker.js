@@ -25,7 +25,7 @@
  */
 
 /**
- * @category load
+ * @category loader
  */
 
 import {createMap, getClassName, clear} from '../core/utils/js';

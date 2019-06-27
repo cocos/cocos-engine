@@ -24,7 +24,7 @@
  */
 
 /**
- * @category load
+ * @category loader
  */
 
 import {mixin} from '../core/utils/js';

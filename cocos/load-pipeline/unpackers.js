@@ -25,7 +25,7 @@
  */
 
 /**
- * @category load
+ * @category loader
  */
 
 export class JsonUnpacker {

@@ -26,7 +26,7 @@
  */
 
 /**
- * @category load
+ * @category loader
  */
 
 /**
