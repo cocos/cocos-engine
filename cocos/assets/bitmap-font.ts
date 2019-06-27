@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category asset
+ */
+
 import { ccclass, property } from '../core/data/class-decorator';
 import { Font } from './font';
 import { SpriteFrame } from './sprite-frame';
@@ -33,8 +37,12 @@ export interface IConfig {
 }
 
 /**
- * @en Class for BitmapFont handling.
- * @zh 位图字体资源类。
+ * @en
+ * Class for BitmapFont handling.
+ *
+ * @zh
+ * 位图字体资源类。
+ * 可通过 cc.BitmapFont 获取该组件。
  */
 @ccclass('cc.BitmapFont')
 export class BitmapFont extends Font {

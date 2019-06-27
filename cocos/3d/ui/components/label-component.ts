@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui
+ */
+
 import { BitmapFont, Font, ImageAsset, SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { ccenum } from '../../../core/value-types/enum';
@@ -156,6 +160,7 @@ ccenum(CacheMode);
 /**
  * @zh
  * 文字标签组件。
+ * 可通过 cc.LabelComponent 获得此组件
  */
 @ccclass('cc.LabelComponent')
 @executionOrder(110)

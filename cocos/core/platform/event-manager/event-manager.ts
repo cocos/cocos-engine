@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 // tslint:disable:max-line-length
 
 import { Node } from '../../../scene-graph';

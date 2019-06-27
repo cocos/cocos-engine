@@ -25,11 +25,16 @@
 */
 
 /**
+ * @category event
+ */
+
+/**
  * @en
  * Base class of all kinds of events.
  *
  * @zh
  * 包含事件相关信息的对象。
+ * 可通过 cc.Event 获得该事件信息。
  */
 export default class Event {
     // Event types

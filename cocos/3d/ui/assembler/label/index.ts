@@ -27,11 +27,9 @@ import { BitmapFont } from '../../../../assets';
 import { LabelComponent} from '../../components';
 import { IAssemblerManager } from '../assembler';
 import { bmfont } from './bmfont';
-import { bmfontUtils } from './bmfontUtils';
 import { CanvasPool } from './font-utils';
 import { letter } from './letter';
 import { ttf } from './ttf';
-import { ttfUtils } from './ttfUtils';
 
 const labelAssembler: IAssemblerManager = {
     getAssembler (comp: LabelComponent) {
@@ -58,8 +56,9 @@ const labelAssembler: IAssemblerManager = {
 
 export {
     labelAssembler,
-    ttfUtils,
-    bmfontUtils,
+    ttf,
+    bmfont,
+    letter,
     CanvasPool,
 };
 

@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui
+ */
+
 import { Component } from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { clamp01 } from '../../../core/utils';
@@ -64,6 +68,7 @@ ccenum(Direction);
 /**
  * @zh
  * 滚动条组件。
+ * 可通过 cc.ScrollBarComponent 获得该组件。
  */
 @ccclass('cc.ScrollBarComponent')
 @executionOrder(110)

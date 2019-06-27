@@ -24,18 +24,14 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category asset
+ */
+
 import { ccclass, property } from '../core/data/class-decorator';
 import * as js from '../core/utils/js';
 import { Asset } from './asset';
 import { SpriteFrame } from './sprite-frame';
-
-/**
- * @en
- * Class for sprite atlas handling.
- *
- * @zh
- * 精灵图集资源类。
- */
 
 interface ISpriteAtlasSerializeData{
     name: string;
@@ -46,6 +42,14 @@ interface ISpriteFrameList {
     [key: string]: SpriteFrame | null;
 }
 
+/**
+ * @en
+ * Class for sprite atlas handling.
+ *
+ * @zh
+ * 精灵图集资源类。
+ * 可通过 cc.SpriteAtlas 获取该组件。
+ */
 @ccclass('cc.SpriteAtlas')
 export class SpriteAtlas extends Asset {
     @property

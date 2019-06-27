@@ -37,11 +37,11 @@ const FillType = SpriteComponent.FillType;
 
 // Inline all type switch to avoid jit deoptimization during inlined function change
 
-export const spriteAssembler: IAssemblerManager = {
-    getAssembler (sprite: UIRenderComponent) {
+const spriteAssembler: IAssemblerManager = {
+    getAssembler (spriteComp: UIRenderComponent) {
         let util = simple;
 
-        const comp = sprite as SpriteComponent;
+        const comp = spriteComp as SpriteComponent;
         switch (comp.type) {
             case SpriteType.SLICED:
                 util = sliced;
@@ -71,3 +71,11 @@ export const spriteAssembler: IAssemblerManager = {
 };
 
 SpriteComponent.Assembler = spriteAssembler;
+
+export {
+    spriteAssembler,
+    simple,
+    sliced,
+    barFilled,
+    radialFilled,
+};
