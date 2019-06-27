@@ -23,6 +23,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * @category ui
+ */
+
 import { EventHandler as ComponentEventHandler } from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { Event } from '../../../core/event';
@@ -148,6 +153,7 @@ const eventMap = {
 /**
  * @zh
  * 滚动视图组件。
+ * 可通过 cc.ScrollViewComponent 获得该组件。
  */
 
 @ccclass('cc.ScrollViewComponent')
@@ -340,7 +346,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
      * @param attenuated - 滚动加速是否衰减，默认为 true。
      * @example
-     * ```ts
+     * ```typescript
      * // Scroll to the bottom of the view.
      * scrollView.scrollToBottom(0.1);
      * ```
@@ -366,7 +372,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到顶部边界。
      * @param attenuated - 滚动加速是否衰减，默认为 true。
      * @example
-     * ```ts
+     * ```typescript
      * // Scroll to the top of the view.
      * scrollView.scrollToTop(0.1);
      * ```
@@ -392,7 +398,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到左边边界。
      * @param attenuated - 滚动加速是否衰减，默认为 true。
      * @example
-     * ```ts
+     * ```typescript
      * // Scroll to the left of the view.
      * scrollView.scrollToLeft(0.1);
      * ```
@@ -418,7 +424,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到右边边界。
      * @param attenuated - 滚动加速是否衰减，默认为 true。
      * @example
-     * ```ts
+     * ```typescript
      * // Scroll to the right of the view.
      * scrollView.scrollToRight(0.1);
      * ```
@@ -444,7 +450,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到左上边边界。
      * @param attenuated - 滚动加速是否衰减，默认为 true。
      * @example
-     * ```ts
+     * ```typescript
      * // Scroll to the upper left corner of the view.
      * scrollView.scrollToTopLeft(0.1);
      * ```
@@ -470,7 +476,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到右上边界。
      * @param attenuated - 滚动加速是否衰减，默认为 true。
      * @example
-     * ```ts
+     * ```typescript
      * // Scroll to the top right corner of the view.
      * scrollView.scrollToTopRight(0.1);
      * ```
@@ -496,7 +502,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到左下边界。
      * @param attenuated - 滚动加速是否衰减，默认为 true。
      * @example
-     * ```ts
+     * ```typescript
      * // Scroll to the lower left corner of the view.
      * scrollView.scrollToBottomLeft(0.1);
      * ```
@@ -522,7 +528,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到右边下边界。
      * @param attenuated - 滚动加速是否衰减，默认为 true。
      * @example
-     * ```ts
+     * ```typescript
      * // Scroll to the lower right corner of the view.
      * scrollView.scrollToBottomRight(0.1);
      * ```
@@ -549,7 +555,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到指定偏移量处。
      * @param attenuated - 滚动加速是否衰减，默认为 true。
      * @example
-     * ```ts
+     * ```typescript
      * // Scroll to middle position in 0.1 second in x-axis
      * let maxScrollOffset = this.getMaxScrollOffset();
      * scrollView.scrollToOffset(new Vec3(maxScrollOffset.x / 2, 0, 0), 0.1);
@@ -613,7 +619,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到指定水平百分比位置。
      * @param attenuated - 滚动加速是否衰减，默认为 true。
      * @example
-     * ```ts
+     * ```typescript
      * // Scroll to middle position.
      * scrollView.scrollToBottomRight(0.5, 0.1);
      * ```
@@ -640,7 +646,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到指定水平或垂直百分比位置。
      * @param attenuated - 滚动加速是否衰减，默认为 true。
      * @example
-     * ```ts
+     * ```typescript
      * // Vertical scroll to the bottom of the view.
      * scrollView.scrollTo(new Vec2(0, 1), 0.1);
      *
@@ -670,7 +676,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到指定垂直百分比位置。
      * @param attenuated - 滚动加速是否衰减，默认为 true。
      * @example
-     * ```ts
+     * ```typescript
      * scrollView.scrollToPercentVertical(0.5, 0.1);
      * ```
      */

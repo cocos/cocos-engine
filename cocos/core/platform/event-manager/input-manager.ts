@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 import { Vec2 } from '../../value-types/index';
 import { rect } from '../../value-types/rect';
 import { macro } from '../CCMacro';
@@ -298,7 +302,7 @@ class InputManager {
 
     public getTouchByXY (event: MouseEvent, tx: number, ty: number, pos: IHTMLElementPosition) {
         const locPreTouch = this._preTouchPoint;
-        let location = this._glView!.convertToLocationInView(tx, ty, pos);
+        const location = this._glView!.convertToLocationInView(tx, ty, pos);
         if (this._pointLocked) {
             location.x = locPreTouch.x + event.movementX;
             location.y = locPreTouch.y - event.movementY;
@@ -567,7 +571,7 @@ class InputManager {
 
     private _registerPointerLockEvent () {
         const lockChangeAlert = () => {
-            let canvas = cc.game.canvas;
+            const canvas = cc.game.canvas;
             if (document.pointerLockElement === canvas || document.mozPointerLockElement === canvas){
                 this._pointLocked = true;
             }
@@ -575,9 +579,9 @@ class InputManager {
                 this._pointLocked = false;
             }
         };
-        if ("onpointerlockchange" in document) {
+        if ('onpointerlockchange' in document) {
             document.addEventListener('pointerlockchange', lockChangeAlert, false);
-        } else if ("onmozpointerlockchange" in document) {
+        } else if ('onmozpointerlockchange' in document) {
             document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
         }
     }

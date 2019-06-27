@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui
+ */
+
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { Color } from '../../../core/value-types';
 import { Model } from '../../../renderer';
@@ -36,8 +40,9 @@ import { Impl } from '../assembler/graphics/webgl/impl';
 import { InstanceMaterialType, UIRenderComponent } from '../components/ui-render-component';
 
 /**
- * @class Graphics
- * @extends Component
+ * @zh
+ * 自定义图形类
+ * 可通过 cc.GraphicsComponent 获得此组件
  */
 @ccclass('cc.GraphicsComponent')
 @executionOrder(110)

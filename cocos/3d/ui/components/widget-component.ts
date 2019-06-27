@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui
+ */
+
 import { Component} from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
 import { Size, Vec3 } from '../../../core/value-types';
@@ -34,6 +38,7 @@ import { UITransformComponent } from './ui-transfrom-component';
 /**
  * @zh
  * Widget 的对齐模式，表示 Widget 应该何时刷新。
+ * 可通过 cc.WidgetComponent 获得此组件
  */
 export enum AlignMode {
     /**
@@ -523,7 +528,7 @@ export class WidgetComponent extends Component {
      * 只有当你需要在当前帧结束前获得 widget 对齐后的最新结果时才需要手动调用这个方法。
      *
      * @example
-     * ```ts
+     * ```typescript
      * widget.top = 10;       // change top margin
      * cc.log(widget.node.y); // not yet changed
      * widget.updateAlignment();
