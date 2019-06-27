@@ -48,7 +48,7 @@ const getTypeChecker = Attr.getTypeChecker;
 const BUILTIN_ENTRIES = ['name', 'extends', 'mixins', 'ctor', '__ctor__', 'properties', 'statics', 'editor', '__ES6__'];
 const INVALID_STATICS_DEV = ['name', '__ctors__', '__props__', 'arguments', 'call', 'apply', 'caller', 'length', 'prototype'];
 
-function pushUnique (array, item) {
+function pushUnique(array, item) {
     if (array.indexOf(item) < 0) {
         array.push(item);
     }
@@ -61,7 +61,7 @@ const deferredInitializer: any = {
 
     // register new class
     // data - {cls: cls, cb: properties, mixins: options.mixins}
-    push (data) {
+    push(data) {
         if (this.datas) {
             this.datas.push(data);
         }
@@ -75,7 +75,7 @@ const deferredInitializer: any = {
         }
     },
 
-    init () {
+    init() {
         const datas = this.datas;
         if (datas) {
             for (let i = 0; i < datas.length; ++i) {
@@ -99,7 +99,7 @@ const deferredInitializer: any = {
 };
 
 // both getter and prop must register the name into __props__ array
-function appendProp (cls, name) {
+function appendProp(cls, name) {
     if (CC_DEV) {
         // if (!IDENTIFIER_RE.test(name)) {
         //    cc.error('The property name "' + name + '" is not compliant with JavaScript naming standards');
@@ -114,7 +114,7 @@ function appendProp (cls, name) {
 }
 
 const tmpArray = [];
-function defineProp (cls, className, propName, val, es6) {
+function defineProp(cls, className, propName, val, es6) {
     const defaultValue = val.default;
 
     if (CC_DEV) {
@@ -175,7 +175,7 @@ function defineProp (cls, className, propName, val, es6) {
     }
 }
 
-function defineGetSet (cls, name, propName, val, es6) {
+function defineGetSet(cls, name, propName, val, es6) {
     const getter = val.get;
     const setter = val.set;
     const proto = cls.prototype;
@@ -223,7 +223,7 @@ function defineGetSet (cls, name, propName, val, es6) {
     }
 }
 
-function getDefault (defaultVal) {
+function getDefault(defaultVal) {
     if (typeof defaultVal === 'function') {
         if (CC_EDITOR) {
             try {
@@ -241,7 +241,7 @@ function getDefault (defaultVal) {
     return defaultVal;
 }
 
-function mixinWithInherited (dest, src, filter?) {
+function mixinWithInherited(dest, src, filter?) {
     for (const prop in src) {
         if (!dest.hasOwnProperty(prop) && (!filter || filter(prop))) {
             Object.defineProperty(dest, prop, js.getPropertyDescriptor(src, prop)!);
@@ -249,7 +249,7 @@ function mixinWithInherited (dest, src, filter?) {
     }
 }
 
-function doDefine (className, baseClass, mixins, options) {
+function doDefine(className, baseClass, mixins, options) {
     let shouldAddProtoCtor;
     const __ctor__ = options.__ctor__;
     let ctor = options.ctor;
@@ -348,7 +348,7 @@ function doDefine (className, baseClass, mixins, options) {
     return fireClass;
 }
 
-function define (className, baseClass, mixins, options) {
+function define(className, baseClass, mixins, options) {
     const Component = cc.Component;
     const frame = RF.peek();
 
@@ -373,6 +373,40 @@ function define (className, baseClass, mixins, options) {
     const cls = doDefine(className, baseClass, mixins, options);
 
     if (frame) {
+
+        // for RenderPipeline, RenderFlow, RenderStage
+        const isRenderPipeline = js.isChildClassOf(baseClass, cc.RenderPipeline);
+        const isRenderFlow = js.isChildClassOf(baseClass, cc.RenderFlow);
+        const isRenderStage = js.isChildClassOf(baseClass, cc.RenderStage);
+
+        const isRender = isRenderPipeline || isRenderFlow || isRenderStage || false;
+
+        if (isRender) {
+            let renderName = '';
+            if (isRenderPipeline) {
+                renderName = 'render_pipeline';
+            } else if (isRenderFlow) {
+                renderName = 'render_flow';
+            } else if (isRenderStage) {
+                renderName = 'render_stage';
+            }
+
+            if (renderName) {
+                const uuid = frame.uuid;
+                if (uuid) {
+                    js._setClassId(className, cls);
+                    if (CC_EDITOR) {
+                        // 增加了 hidden: 开头标识，使它最终不会显示在 Editor inspector 的添加组件列表里
+                        // @ts-ignore
+                        // tslint:disable-next-line:no-unused-expression
+                        window.EditorExtends && window.EditorExtends.Component.addMenu(cls, `hidden:${renderName}/${className}`, -1);
+                    }
+                }
+                frame.cls = cls;
+            }
+        }
+
+        // 基础的 ts, js 脚本组件
         if (js.isChildClassOf(baseClass, Component)) {
             const uuid = frame.uuid;
             if (uuid) {
@@ -393,7 +427,7 @@ function define (className, baseClass, mixins, options) {
     return cls;
 }
 
-function normalizeClassName_DEV (className) {
+function normalizeClassName_DEV(className) {
     const DefaultName = 'CCClass';
     if (className) {
         className = className.replace(/^[^$A-Za-z_]/, '_').replace(/[^0-9A-Za-z_$]/g, '_');
@@ -409,7 +443,7 @@ function normalizeClassName_DEV (className) {
     return DefaultName;
 }
 
-function getNewValueTypeCodeJit (value) {
+function getNewValueTypeCodeJit(value) {
     const clsName = js.getClassName(value);
     const type = value.constructor;
     let res = 'new ' + clsName + '(';
@@ -432,14 +466,14 @@ function getNewValueTypeCodeJit (value) {
 
 // convert a normal string including newlines, quotes and unicode characters into a string literal
 // ready to use in JavaScript source
-function escapeForJS (s) {
+function escapeForJS(s) {
     return JSON.stringify(s).
         // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
         replace(/\u2028/g, '\\u2028').
         replace(/\u2029/g, '\\u2029');
 }
 
-function getInitPropsJit (attrs, propList) {
+function getInitPropsJit(attrs, propList) {
     // functions for generated code
     const F: any[] = [];
     let func = '';
@@ -504,7 +538,7 @@ function getInitPropsJit (attrs, propList) {
     return initProps;
 }
 
-function getInitProps (attrs, propList) {
+function getInitProps(attrs, propList) {
     const advancedProps: any[] = [];
     const advancedValues: any[] = [];
     const simpleProps: any[] = [];
@@ -569,7 +603,7 @@ function getInitProps (attrs, propList) {
 // simple test variable name
 const IDENTIFIER_RE = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
 
-function compileProps (this: any, actualClass) {
+function compileProps(this: any, actualClass) {
     // init deferred properties
     const attrs = Attr.getClassAttrs(actualClass);
     let propList = actualClass.__props__;
@@ -685,7 +719,7 @@ const _createCtor = CC_SUPPORT_JIT ? function (ctors, baseClass, className, opti
     return Class;
 };
 
-function _validateCtor_DEV (ctor, baseClass, className, options) {
+function _validateCtor_DEV(ctor, baseClass, className, options) {
     if (CC_EDITOR && baseClass) {
         // check super call in constructor
         const originCtor = ctor;
@@ -717,9 +751,9 @@ function _validateCtor_DEV (ctor, baseClass, className, options) {
     return ctor;
 }
 
-function _getAllCtors (baseClass, mixins, options) {
+function _getAllCtors(baseClass, mixins, options) {
     // get base user constructors
-    function getCtors (cls) {
+    function getCtors(cls) {
         if (CCClass._isCCClass(cls)) {
             return cls.__ctors__ || [];
         }
@@ -770,7 +804,7 @@ function _getAllCtors (baseClass, mixins, options) {
 const superCllRegCondition = /xyz/.test(function () { const xyz = 0; }.toString());
 const SuperCallReg = superCllRegCondition ? /\b\._super\b/ : /.*/;
 const SuperCallRegStrict = superCllRegCondition ? /this\._super\s*\(/ : /(NONE){99}/;
-function boundSuperCalls (baseClass, options, className) {
+function boundSuperCalls(baseClass, options, className) {
     let hasSuperCall = false;
     for (const funcName in options) {
         if (BUILTIN_ENTRIES.indexOf(funcName) >= 0) {
@@ -814,7 +848,7 @@ function boundSuperCalls (baseClass, options, className) {
     return hasSuperCall;
 }
 
-function declareProperties (cls, className, properties, baseClass, mixins, es6?: boolean) {
+function declareProperties(cls, className, properties, baseClass, mixins, es6?: boolean) {
     cls.__props__ = [];
 
     if (baseClass && baseClass.__props__) {
@@ -946,7 +980,7 @@ function declareProperties (cls, className, properties, baseClass, mixins, es6?:
  * obj.load();
  * ```
  */
-function CCClass (options) {
+function CCClass(options) {
     options = options || {};
 
     let name = options.name;
@@ -1069,7 +1103,7 @@ CCClass.attr = Attr.attr;
  * Return all super classes.
  * @param constructor The Constructor.
  */
-function getInheritanceChain (constructor) {
+function getInheritanceChain(constructor) {
     const chain: any[] = [];
     for (; ;) {
         constructor = getSuper(constructor);
@@ -1103,12 +1137,12 @@ interface IParsedAttribute {
 }
 const tmpAttrs = [];
 
-function parseAttributes (constructor: Function, attributes: IAcceptableAttributes, className: string, propertyName: string, usedInGetter) {
+function parseAttributes(constructor: Function, attributes: IAcceptableAttributes, className: string, propertyName: string, usedInGetter) {
     const ERR_Type = CC_DEV ? 'The %s of %s must be type %s' : '';
 
     let attrsProto = null;
     let attrsProtoKey = '';
-    function getAttrsProto () {
+    function getAttrsProto() {
         attrsProtoKey = propertyName + DELIMETER;
         return attrsProto = Attr.getClassAttrsProto(constructor);
     }
