@@ -34,6 +34,7 @@ import {
     property,
     requireComponent,
 } from '../../../core/data/class-decorator';
+import { constget } from '../../../core/data/utils/constget';
 import { SystemEventType } from '../../../core/platform';
 import { Color } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
@@ -142,7 +143,8 @@ export class UIRenderComponent extends UIComponent {
     @property({
         displayOrder: 2,
     })
-    get color () {
+    @constget
+    get color (): Readonly<Color> {
         return this._color;
     }
 
