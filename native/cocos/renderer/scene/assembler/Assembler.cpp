@@ -32,6 +32,7 @@
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_renderer_auto.hpp"
+#include "../RenderFlow.hpp"
 
 RENDERER_BEGIN
 
@@ -83,7 +84,7 @@ Assembler::~Assembler()
 void Assembler::enable()
 {
     _enabled = true;
-    _dirtyFlag |= OPACITY;
+    *_dirty |= RenderFlow::OPACITY_CHANGED;
 }
 
 void Assembler::updateMeshIndex(std::size_t iaIndex, int meshIndex)
@@ -261,7 +262,7 @@ void Assembler::updateOpacity(std::size_t index, uint8_t opacity)
         ptrAlpha += dataPerVertex;
     }
     
-    _dirtyFlag &= ~OPACITY;
+    *_dirty &= ~RenderFlow::OPACITY_CHANGED;
 }
 
 RENDERER_END

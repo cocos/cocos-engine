@@ -33,7 +33,14 @@ AssemblerBase::AssemblerBase()
 
 AssemblerBase::~AssemblerBase()
 {
-
+    if (_jsDirty)
+    {
+        _jsDirty->unroot();
+        _jsDirty->decRef();
+        _jsDirty = nullptr;
+    }
+    _dirty = nullptr;
+    _dirtyLen = 0;
 }
 
 void AssemblerBase::enable()
@@ -44,6 +51,27 @@ void AssemblerBase::enable()
 void AssemblerBase::disable()
 {
     _enabled = false;
+}
+
+void AssemblerBase::setDirty(se_object_ptr jsDirty)
+{
+    if (_jsDirty == jsDirty) return;
+    
+    if (_jsDirty)
+    {
+        _jsDirty->unroot();
+        _jsDirty->decRef();
+        _jsDirty = nullptr;
+    }
+    
+    if (jsDirty == nullptr) return;
+    
+    _jsDirty = jsDirty;
+    _jsDirty->root();
+    _jsDirty->incRef();
+    _dirty = nullptr;
+    _dirtyLen = 0;
+    _jsDirty->getTypedArrayData((uint8_t**)&_dirty, &_dirtyLen);
 }
 
 RENDERER_END

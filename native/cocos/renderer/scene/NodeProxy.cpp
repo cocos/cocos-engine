@@ -38,14 +38,12 @@
 
 RENDERER_BEGIN
 
-int NodeProxy::_parentOpacityDirty = 0;
-int NodeProxy::_worldMatDirty = 0;
-
-NodeProxy::NodeProxy(std::size_t unitID, std::size_t index, std::string id)
+NodeProxy::NodeProxy(std::size_t unitID, std::size_t index, const std::string& id, const std::string& name)
 {
     _id = id;
     _unitID = unitID;
     _index = index;
+    _name = name;
     
     NodeMemPool* pool = NodeMemPool::getInstance();
     CCASSERT(pool, "NodeProxy constructor NodeMemPool is null");
@@ -238,18 +236,22 @@ void NodeProxy::updateLevel()
     levelInfo.dirty = _dirty;
     levelInfo.localMat = _localMat;
     levelInfo.worldMat = _worldMat;
+    levelInfo.opacity = _opacity;
+    levelInfo.realOpacity = &_realOpacity;
     
     if (_parent)
     {
         _level = _parent->_level + 1;
         levelInfo.parentWorldMat = _parent->_worldMat;
         levelInfo.parentDirty = _parent->_dirty;
+        levelInfo.parentRealOpacity = &_parent->_realOpacity;
     }
     else
     {
         _level = 0;
         levelInfo.parentWorldMat = nullptr;
         levelInfo.parentDirty = nullptr;
+        levelInfo.parentRealOpacity = nullptr;
     }
     renderFlow->insertNodeLevel(_level, levelInfo);
     
@@ -299,7 +301,7 @@ void NodeProxy::clearAssembler()
     CC_SAFE_RELEASE_NULL(_assembler);
 }
 
-AssemblerBase* NodeProxy::getAssembler()
+AssemblerBase* NodeProxy::getAssembler() const
 {
     return _assembler;
 }
@@ -386,28 +388,44 @@ void NodeProxy::setOpacity(uint8_t opacity)
 
 void NodeProxy::updateRealOpacity()
 {
-    if (_parent && (_parentOpacityDirty > 0 || *_dirty & RenderFlow::OPACITY))
+    bool selfOpacityDirty = *_dirty & RenderFlow::OPACITY;
+    if (_parent)
     {
-        float parentOpacity = _parent ? _parent->getRealOpacity() / 255.0f : 1.0f;
-        float opacity = (uint8_t)(*_opacity * parentOpacity);
-        _realOpacity = opacity;
-        _opacityUpdated = true;
-        *_dirty &= ~RenderFlow::OPACITY;
-
-        if (_assembler)
+        if (selfOpacityDirty || *_parent->_dirty & RenderFlow::OPACITY_CHANGED)
         {
-            _assembler->notifyDirty(AssemblerBase::OPACITY);
+            _realOpacity = *_opacity * _parent->getRealOpacity() / 255.0f;
+            *_dirty &= ~RenderFlow::OPACITY;
+            *_dirty |= RenderFlow::OPACITY_CHANGED;
+        }
+    }
+    else
+    {
+        if (selfOpacityDirty)
+        {
+            _realOpacity = *_opacity;
+            *_dirty &= ~RenderFlow::OPACITY;
+            *_dirty |= RenderFlow::OPACITY_CHANGED;
         }
     }
 }
 
 void NodeProxy::updateWorldMatrix()
 {
-    if (_updateWorldMatrix && (*_dirty & RenderFlow::WORLD_TRANSFORM || _worldMatDirty > 0))
+    if (!_updateWorldMatrix) return;
+    
+    bool selfWorldDirty = *_dirty & RenderFlow::WORLD_TRANSFORM;
+    if (_parent)
     {
-        // Update world matrix
-        const cocos2d::Mat4& parentMat = _parent == nullptr ? cocos2d::Mat4::IDENTITY : _parent->getWorldMatrix();
-        updateWorldMatrix(parentMat);
+        if (selfWorldDirty || *_parent->_dirty & RenderFlow::WORLD_TRANSFORM_CHANGED)
+        {
+            updateWorldMatrix(_parent->getWorldMatrix());
+        }
+    }
+    else if (selfWorldDirty)
+    {
+        *_worldMat = *_localMat;
+        *_dirty &= ~RenderFlow::WORLD_TRANSFORM;
+        *_dirty |= RenderFlow::WORLD_TRANSFORM_CHANGED;
     }
 }
 
@@ -415,7 +433,7 @@ void NodeProxy::updateWorldMatrix(const cocos2d::Mat4& parentMatrix)
 {
     _worldMat->multiply(parentMatrix, *_localMat, _worldMat);
     *_dirty &= ~RenderFlow::WORLD_TRANSFORM;
-    _matrixUpdated = true;
+    *_dirty |= RenderFlow::WORLD_TRANSFORM_CHANGED;
 }
 
 void NodeProxy::updateLocalMatrix()
@@ -444,54 +462,18 @@ void NodeProxy::updateLocalMatrix()
     }
 }
 
-void NodeProxy::visitAsRoot(ModelBatcher* batcher, Scene* scene)
+void NodeProxy::render(ModelBatcher* batcher, Scene* scene)
 {
-    _worldMatDirty = 0;
-    _parentOpacityDirty = 0;
-    visitWithoutTransform(batcher, scene);
-}
-
-void NodeProxy::visitWithoutTransform(ModelBatcher* batcher, Scene* scene)
-{
-    if (!_needVisit) return;
-    
-    updateRealOpacity();
-
-    if (_realOpacity == 0)
-    {
-        return;
-    }
+    if (!_needVisit || _realOpacity == 0) return;
 
     // pre render
     if (_assembler && _assembler->enabled()) _assembler->handle(this, batcher, scene);
 
-    /////////////////////////////////////////
-    // begin visit children
-    /////////////////////////////////////////
-
-    bool parentOpacityUpdated = false;
-
-    if (_opacityUpdated)
-    {
-        _parentOpacityDirty++;
-        _opacityUpdated = false;
-        parentOpacityUpdated = true;
-    }
-
     reorderChildren();
     for (const auto& child : _children)
     {
-        child->visitWithoutTransform(batcher, scene);
+        child->render(batcher, scene);
     }
-
-    if (parentOpacityUpdated)
-    {
-        _parentOpacityDirty--;
-    }
-
-    /////////////////////////////////////////
-    // end visit children
-    /////////////////////////////////////////
 
     // post render
     if (_assembler && _assembler->enabled()) _assembler->postHandle(this, batcher, scene);
@@ -510,51 +492,16 @@ void NodeProxy::visit(ModelBatcher* batcher, Scene* scene)
     
     updateLocalMatrix();
     updateWorldMatrix();
-
+    
     // pre render
     if (_assembler && _assembler->enabled()) _assembler->handle(this, batcher, scene);
-
-    /////////////////////////////////////////
-    // begin visit children
-    /////////////////////////////////////////
-
-    bool parentWorldMatUpdated = false;
-    bool parentOpacityUpdated = false;
-
-    if (_matrixUpdated)
-    {
-        _worldMatDirty++;
-        _matrixUpdated = false;
-        parentWorldMatUpdated = true;
-    }
-
-    if (_opacityUpdated)
-    {
-        _parentOpacityDirty++;
-        _opacityUpdated = false;
-        parentOpacityUpdated = true;
-    }
-
+    
     reorderChildren();
     for (const auto& child : _children)
     {
         child->visit(batcher, scene);
     }
-
-    if (parentOpacityUpdated)
-    {
-        _parentOpacityDirty--;
-    }
-
-    if (parentWorldMatUpdated)
-    {
-        _worldMatDirty--;
-    }
-
-    /////////////////////////////////////////
-    // end visit children
-    /////////////////////////////////////////
-
+    
     // post render
     if (_assembler && _assembler->enabled()) _assembler->postHandle(this, batcher, scene);
 }

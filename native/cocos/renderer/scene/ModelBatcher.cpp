@@ -127,6 +127,10 @@ void ModelBatcher::commit(NodeProxy* node, Assembler* assembler)
     const Mat4& worldMat = useModel && !ignoreWorldMatrix ? nodeWorldMat : Mat4::IDENTITY;
     int cullingMask = node->getCullingMask();
     
+    auto asmDirty = assembler->getDirty();
+    auto nodeDirty = node->getDirty();
+    auto needUpdateOpacity = *asmDirty & RenderFlow::OPACITY_CHANGED || *nodeDirty & RenderFlow::OPACITY_CHANGED || assembler->isOpacityAlwaysDirty();
+    
     for (std::size_t i = 0, l = assembler->getIACount(); i < l; ++i)
     {
         assembler->beforeFillBuffers(i);
@@ -147,8 +151,7 @@ void ModelBatcher::commit(NodeProxy* node, Assembler* assembler)
             _cullingMask = cullingMask;
         }
         
-        auto dirtyFlag = assembler->getDirtyFlag();
-        if (dirtyFlag & AssemblerBase::OPACITY || assembler->isOpacityAlwaysDirty())
+        if (needUpdateOpacity)
         {
             assembler->updateOpacity(i, node->getRealOpacity());
         }

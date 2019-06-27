@@ -265,6 +265,16 @@ double
 },
 
 /**
+ * @method copy
+ * @param {cc.renderer::Effect} arg0
+ */
+copy : function (
+effect 
+)
+{
+},
+
+/**
  * @method clear
  */
 clear : function (
@@ -389,16 +399,6 @@ scene
 },
 
 /**
- * @method getDirtyFlag
- * @return {unsigned int}
- */
-getDirtyFlag : function (
-)
-{
-    return 0;
-},
-
-/**
  * @method postHandle
  * @param {cc.renderer::NodeProxy} arg0
  * @param {cc.renderer::ModelBatcher} arg1
@@ -451,11 +451,21 @@ disable : function (
 },
 
 /**
- * @method notifyDirty
- * @param {unsigned int} arg0
+ * @method getDirty
+ * @return {unsigned int}
  */
-notifyDirty : function (
-int 
+getDirty : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method setDirty
+ * @param {se::Object} arg0
+ */
+setDirty : function (
+object 
 )
 {
 },
@@ -477,11 +487,11 @@ AssemblerBase : function (
 renderer.NodeProxy = {
 
 /**
- * @method visitWithoutTransform
+ * @method render
  * @param {cc.renderer::ModelBatcher} arg0
  * @param {cc.renderer::Scene} arg1
  */
-visitWithoutTransform : function (
+render : function (
 modelbatcher, 
 scene 
 )
@@ -517,14 +527,6 @@ getChildren : function (
 },
 
 /**
- * @method subWorldMatDirty
- */
-subWorldMatDirty : function (
-)
-{
-},
-
-/**
  * @method disableVisit
  */
 disableVisit : function (
@@ -538,14 +540,6 @@ disableVisit : function (
  */
 setCullingMask : function (
 int 
-)
-{
-},
-
-/**
- * @method addWorldMatDirty
- */
-addWorldMatDirty : function (
 )
 {
 },
@@ -623,6 +617,16 @@ destroyImmediately : function (
  * @return {unsigned char}
  */
 getRealOpacity : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getDirty
+ * @return {unsigned int}
+ */
+getDirty : function (
 )
 {
     return 0;
@@ -778,10 +782,12 @@ getChildrenCount : function (
  * @param {unsigned int} arg0
  * @param {unsigned int} arg1
  * @param {String} arg2
+ * @param {String} arg3
  */
 NodeProxy : function (
 int, 
 int, 
+str, 
 str 
 )
 {
