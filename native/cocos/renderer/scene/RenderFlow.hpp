@@ -72,9 +72,11 @@ public:
         FINAL = 1 << 9,
         
         // native render flag
-        REORDER_CHILDREN = 1 << 10,
+        REORDER_CHILDREN = 1 << 29,
         // world matrix changed
-        WORLD_TRANSFORM_CHANGED = 1 << 11
+        WORLD_TRANSFORM_CHANGED = 1 << 30,
+        // cascade opacity changed
+        OPACITY_CHANGED = 1 << 31,
     };
 
     enum ParallelStage {
@@ -85,10 +87,13 @@ public:
     
     struct LevelInfo{
         uint32_t* dirty = nullptr;
+        uint32_t* parentDirty = nullptr;
+        cocos2d::Mat4* parentWorldMat = nullptr;
+        uint8_t* parentRealOpacity = nullptr;
         cocos2d::Mat4* localMat = nullptr;
         cocos2d::Mat4* worldMat = nullptr;
-        cocos2d::Mat4* parentWorldMat = nullptr;
-        uint32_t* parentDirty = nullptr;
+        uint8_t* opacity = nullptr;
+        uint8_t* realOpacity = nullptr;
     };
     
     static RenderFlow *getInstance()

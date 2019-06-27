@@ -71,7 +71,7 @@ public:
     /*
      * @brief The default constructor.
      */
-    NodeProxy(std::size_t unitID, std::size_t index, std::string id);
+    NodeProxy(std::size_t unitID, std::size_t index, const std::string& id, const std::string& name);
     /*
      * @brief The destructor.
      */
@@ -232,12 +232,7 @@ public:
      *  @param[in] sysid The system id.
      *  @return The system handle object or nullptr if not exist
      */
-    AssemblerBase* getAssembler();
-    
-    /*
-     *  @brief Traverse all node proxy in the current node tree.
-     */
-    void visitAsRoot(ModelBatcher* batcher, Scene* scene);
+    AssemblerBase* getAssembler() const;
     /*
      *  @brief Visit the node as a ordinary node but not a root node.
      */
@@ -245,7 +240,7 @@ public:
     /*
      *  @brief Visit the node but do not transform position.
      */
-    void visitWithoutTransform(ModelBatcher* batcher, Scene* scene);
+    void render(ModelBatcher* batcher, Scene* scene);
     /*
      *  @brief Enables visit.
      */
@@ -280,28 +275,18 @@ public:
     /*
      *  @brief Gets node runtime id
      */
-    std::string getID() { return _id; }
+    const std::string& getID() const { return _id; }
     
     /*
-     *  @brief Adds world matrix dirty count
+     *  @brief Gets node dirty
      */
-    void addWorldMatDirty() { _worldMatDirty++; }
-    /*
-     *  @brief Subs world matrix dirty count
-     */
-    void subWorldMatDirty() { _worldMatDirty--; }
-    
+    uint32_t* getDirty() const { return _dirty; }
 protected:
     void updateLevel();
     void childrenAlloc();
     void detachChild(NodeProxy* child, ssize_t childIndex);
     void reorderChildren();
 private:
-    static int _worldMatDirty;
-    static int _parentOpacityDirty;
-    
-    bool _matrixUpdated = false;
-    bool _opacityUpdated = false;
     bool _needVisit = true;
     bool _updateWorldMatrix = true;
     
