@@ -25,7 +25,6 @@
 import { ray } from '../../3d/geom-utils';
 import { Component } from '../../components/component';
 import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
-import { constget } from '../../core/data/utils/constget';
 import { Color, Enum, Rect, Vec3 } from '../../core/value-types';
 import { color4, toRadian } from '../../core/vmath';
 import { GFXClearFlag } from '../../gfx/define';
@@ -209,8 +208,7 @@ export class CameraComponent extends Component {
      * @zh 相机的颜色缓冲默认值。
      */
     @property
-    @constget
-    get color (): Readonly<Color>  {
+    get color () {
         return this._color;
     }
 
