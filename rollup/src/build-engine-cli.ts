@@ -2,7 +2,7 @@
 import * as fs from 'fs-extra';
 import * as ps from 'path';
 import yargs from 'yargs';
-import { build, IBuildOptions, IFlags, Physics, Platform } from './build-engine';
+import { build, IBuildOptions } from './build-engine';
 
 yargs.option('platform', { type: 'string', alias: 'p' });
 yargs.option('physics', { type: 'string', alias: 'py' });
@@ -27,7 +27,6 @@ const options: IBuildOptions = {
     excludes: yargs.argv.excludes as string[],
     sourcemap: sourceMap,
     flags,
-    platform: yargs.argv.platform as (Platform | undefined),
     physics: yargs.argv.physics as (Physics | undefined),
 };
 
