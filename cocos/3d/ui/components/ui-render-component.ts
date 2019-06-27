@@ -42,8 +42,7 @@ import { RenderData } from '../../../renderer/ui/renderData';
 import { UI } from '../../../renderer/ui/ui';
 import { Material } from '../../assets';
 import { RenderableComponent } from '../../framework/renderable-component';
-import { IAssembler, IAssemblerManager } from '../assembler/assembler';
-import { CanvasComponent } from './canvas-component';
+import { IAssembler, IAssemblerManager } from '../assembler/base';
 import { UIComponent } from './ui-component';
 import { UITransformComponent } from './ui-transfrom-component';
 

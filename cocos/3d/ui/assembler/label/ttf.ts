@@ -33,7 +33,7 @@ import { vec3 } from '../../../../core/vmath';
 import { RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { LabelComponent } from '../../components/label-component';
-import { IAssembler} from '../assembler';
+import { IAssembler} from '../base';
 import { fillMeshVertices3D } from '../utils';
 import { ttfUtils } from './ttfUtils';
 

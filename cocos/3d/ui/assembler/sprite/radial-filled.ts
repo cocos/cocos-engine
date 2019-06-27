@@ -34,7 +34,7 @@ import { vec2 } from '../../../../core/vmath';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { SpriteComponent } from '../../components';
-import { IAssembler } from '../assembler';
+import { IAssembler } from '../base';
 import { fillVertices3D } from '../utils';
 
 const PI_2 = Math.PI * 2;

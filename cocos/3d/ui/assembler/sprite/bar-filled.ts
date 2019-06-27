@@ -29,12 +29,12 @@
 
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 import { Mat4 } from '../../../../core/value-types';
-import { color4, vec3 } from '../../../../core/vmath';
+import { vec3 } from '../../../../core/vmath';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
 import { SpriteComponent } from '../../components';
-import { IAssembler } from '../assembler';
+import { IAssembler } from '../base';
 import { fillVerticesWithoutCalc3D } from '../utils';
 
 const FillType = SpriteComponent.FillType;

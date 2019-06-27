@@ -37,7 +37,7 @@ import { UI } from '../../../../../renderer/ui/ui';
 import { createMesh } from '../../../../misc/utils';
 import { GraphicsComponent } from '../../../components';
 import { vfmt } from '../../../ui-vertex-format';
-import { IAssembler } from '../../assembler';
+import { IAssembler } from '../../base';
 import { LineCap, LineJoin, PointFlags } from '../types';
 import { earcut as Earcut } from './earcut';
 import { Impl, Point } from './impl';

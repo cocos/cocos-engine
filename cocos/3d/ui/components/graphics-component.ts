@@ -34,7 +34,7 @@ import { Model } from '../../../renderer';
 import { UI } from '../../../renderer/ui/ui';
 import { Material } from '../../assets';
 import { RenderableComponent } from '../../framework';
-import { IAssembler } from '../assembler/assembler';
+import { IAssembler } from '../assembler/base';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
 import { InstanceMaterialType, UIRenderComponent } from '../components/ui-render-component';

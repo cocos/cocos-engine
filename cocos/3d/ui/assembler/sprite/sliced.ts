@@ -34,7 +34,7 @@ import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
 import { SpriteComponent } from '../../components';
-import { IAssembler } from '../assembler';
+import { IAssembler } from '../base';
 
 const vec3_temp = vec3.create();
 const matrix = new Mat4();
