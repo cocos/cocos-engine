@@ -25,6 +25,11 @@
  */
 
 /**
+ * @category loader
+ */
+
+
+/**
  * @class url
  * @static
  */

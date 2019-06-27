@@ -2,12 +2,7 @@
 
 /**
  * 粒子系统模块
- * @internal
- * @module ParticleSystem
- * @preferred
- */
-/**
- * @able
+ * @category particle
  */
 
 // tslint:disable: max-line-length

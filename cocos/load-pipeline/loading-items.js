@@ -24,6 +24,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @category loader
+ */
+
 import {CallbacksInvoker} from '../core/event/callbacks-invoker';
 import {extname} from '../core/utils/path';
 import {createMap, mixin} from '../core/utils/js';

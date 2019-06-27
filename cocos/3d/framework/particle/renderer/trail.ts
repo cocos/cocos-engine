@@ -1,10 +1,6 @@
 
 /**
- * @internal
- * @module ParticleSystem
- */
-/**
- * @able
+ * @category particle
  */
 
 import { Color, Vec3 } from '../../../../core';

@@ -1,9 +1,5 @@
 /**
- * @internal
- * @module physics
- */
-/**
- * @able
+ * @category physics
  */
 
 import { Vec3 } from '../../core/value-types';

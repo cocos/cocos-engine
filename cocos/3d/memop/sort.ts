@@ -3,9 +3,6 @@
 /**
  * @hidden
  */
-/**
- * @disable
- */
 
 // tslint:disable:no-shadowed-variable
 

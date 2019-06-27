@@ -24,11 +24,7 @@
  */
 
 /**
- * @internal
- * @module audio
- */
-/**
- * @able
+ * @category audio
  */
 
 export const PlayingState = {

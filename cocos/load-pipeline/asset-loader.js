@@ -23,6 +23,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+/**
+ * @category loader
+ */
 
 import {extname} from '../core/utils/path';
 import * as debug from '../core/platform/CCDebug';
