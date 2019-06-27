@@ -106,14 +106,6 @@
  * @property {Boolean} CC_TEST - Running in the engine's unit test.
  */
 /**
- * @property {Boolean} CC_WECHATGAME - Running in the WeChat's mini game. Deprecated since v2.2.0.
- * @deprecated since v2.2.0
- */
-/**
- * @property {Boolean} CC_QQPLAY - Running in the bricks. Deprecated since v2.2.0.
- * @deprecated since v2.2.0
- */
-/**
  * @property {Boolean} CC_RUNTIME - Running in runtime environments.
  */
 
