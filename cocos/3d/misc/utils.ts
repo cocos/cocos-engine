@@ -389,12 +389,10 @@ function calculateBoneSpaceBounds (mesh: Mesh, skeleton: Skeleton) {
                     continue;
                 }
 
-                const bindpose = skeleton.bindposes[refJointIndex];
-                const jointBounds = result[refJointIndex];
+                if (skeleton.bindposes) { vec3.transformMat4(v3_2, v3_1, skeleton.bindposes[refJointIndex]); }
+                else { vec3.copy(v3_2, v3_1); }
 
-                vec3.multiply(v3_2, v3_1, bindpose.scale);
-                vec3.transformQuat(v3_2, v3_2, bindpose.rotation);
-                vec3.add(v3_2, v3_2, bindpose.position);
+                const jointBounds = result[refJointIndex];
                 jointBounds.hasValue = true;
                 vec3.min(jointBounds.min, jointBounds.min, v3_2);
                 vec3.max(jointBounds.max, jointBounds.max, v3_2);

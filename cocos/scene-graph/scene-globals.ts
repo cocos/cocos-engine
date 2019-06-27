@@ -186,7 +186,7 @@ export class PlanarShadowInfo {
     @property
     protected _distance = 0;
     @property
-    protected _shadowColor = new Color(76, 76, 76, 255);
+    protected _shadowColor = new Color(0, 0, 0, 76);
 
     protected _resource: PlanarShadows | null = null;
 

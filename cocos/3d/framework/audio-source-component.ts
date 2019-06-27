@@ -91,8 +91,8 @@ export class AudioSourceComponent extends Component {
      * https://www.chromium.org/audio-video/autoplay
      * @zh
      * 是否启用自动播放。 <br>
-     * 请注意，根据最新的自动播放策略，大部分自动播放仅在收到用户指令后生效。 <br>
-     * 参看：https://www.chromium.org/audio-video/autoplay
+     * 请注意，根据最新的自动播放策略，现在大部分时候，自动播放只会在第一次收到用户输入后生效。 <br>
+     * @see https://www.chromium.org/audio-video/autoplay
      */
     @property
     set playOnAwake (val) {
