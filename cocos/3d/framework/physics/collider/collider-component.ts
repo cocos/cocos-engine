@@ -22,6 +22,10 @@ import { RigidBodyComponent } from '../rigid-body-component';
 @ccclass('cc.ColliderComponent')
 export class ColliderComponent extends PhysicsBasedComponent implements IEventTarget {
 
+    /**
+     * @zh
+     * 存储注册事件的回调列表，请不要直接修改。
+     */
     public _callbackTable: ICallbackTable = createMap(true);
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
@@ -41,6 +45,12 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
     //     // }
     // }
 
+    /**
+     * @en
+     * get or set the collider is trigger, this will be always trigger if using builtin.
+     * @zh
+     * 获取或设置碰撞器是否为触发器，若使用 builtin ，属性值无论真假 ，此碰撞器都为触发器。
+     */
     @property({
         displayOrder: 0,
     })
@@ -62,10 +72,9 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
 
     /**
      * @en
-     * get the center of the collider, in local space.
+     * get or set the center of the collider, in local space.
      * @zh
-     * 获取碰撞器的中心点。
-     *
+     * 获取或设置碰撞器的中心点。
      */
     @property({
         type: Vec3,
@@ -76,10 +85,6 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
         return this._center;
     }
 
-    /**
-     * @zh
-     * 设置碰撞器的中心点。
-     */
     public set center (value: Vec3) {
         vec3.copy(this._center, value);
 
@@ -95,6 +100,12 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
         }
     }
 
+    /**
+     * @en
+     * get the collider attached rigidbody, this may be null
+     * @zh
+     * 获取碰撞器所绑定的刚体组件，可能为 null
+     */
     public get attachedRigidbody (): RigidBodyComponent | null {
         return this.sharedBody.rigidBody as RigidBodyComponent | null;
     }

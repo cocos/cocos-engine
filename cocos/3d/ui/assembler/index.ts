@@ -29,4 +29,4 @@ export * from './label';
 export * from './mask';
 export * from './sprite';
 
-export * from './assembler';
+export * from './base';

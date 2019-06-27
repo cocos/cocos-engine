@@ -32,7 +32,7 @@ import * as js from '../../../../core/utils/js';
 import { Rect } from '../../../../core/value-types';
 import { UI } from '../../../../renderer/ui/ui';
 import { LabelComponent } from '../../components/label-component';
-import { IAssembler } from '../assembler';
+import { IAssembler } from '../base';
 import { fillMeshVertices3D } from '../utils';
 import { bmfontUtils } from './bmfontUtils';
 

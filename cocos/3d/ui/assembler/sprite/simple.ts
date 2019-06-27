@@ -34,7 +34,7 @@ import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
 import { SpriteComponent } from '../../components';
-import { IAssembler } from '../assembler';
+import { IAssembler } from '../base';
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 const matrix = cc.mat4();
 const vec3_temps: Vec3[] = [];

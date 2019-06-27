@@ -24,7 +24,7 @@
 */
 
 import { GraphicsComponent, UIRenderComponent } from '../../../components';
-import { IAssemblerManager } from '../../assembler';
+import { IAssemblerManager } from '../../base';
 import { graphicsAssembler as graphics } from './graphics-assembler';
 
 const graphicsAssemblerManager: IAssemblerManager = {

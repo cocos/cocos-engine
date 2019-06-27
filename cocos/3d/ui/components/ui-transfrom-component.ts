@@ -29,6 +29,7 @@
 
 import { Component } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { constget } from '../../../core/data/utils/constget';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { EventListener, ILinstenerMask } from '../../../core/platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
@@ -60,7 +61,8 @@ export class UITransformComponent extends Component {
     @property({
         displayOrder: 0,
     })
-    get contentSize () {
+    @constget
+    get contentSize (): Readonly<Size> {
         return this._contentSize;
     }
 
@@ -137,7 +139,8 @@ export class UITransformComponent extends Component {
     @property({
         displayOrder: 1,
     })
-    get anchorPoint () {
+    @constget
+    get anchorPoint (): Readonly<Vec2> {
         return this._anchorPoint;
     }
 
@@ -178,9 +181,9 @@ export class UITransformComponent extends Component {
 
     public static EventType = SystemEventType;
     @property
-    public _contentSize = new Size(100, 100);
+    private _contentSize = new Size(100, 100);
     @property
-    public _anchorPoint = new Vec2(0.5, 0.5);
+    private _anchorPoint = new Vec2(0.5, 0.5);
 
     public __preload () {
         this.node.uiTransfromComp = this;

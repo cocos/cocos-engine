@@ -39,7 +39,7 @@ const toFloat = 1 / 255;
  * 每个通道都为取值范围 [0, 255] 的整数。
  */
 export default class Color extends ValueType {
-    private _val: number;
+    public _val: number;
 
     /**
      * 构造与指定颜色相等的颜色。
