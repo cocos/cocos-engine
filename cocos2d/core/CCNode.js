@@ -1516,6 +1516,7 @@ let NodeDefines = {
         if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy.setName(this._name);
             this._proxy.updateParent();
+            this._proxy.updateOpacity();
         }
     },
 
