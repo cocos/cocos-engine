@@ -68,7 +68,7 @@ Model::~Model()
     RENDERER_LOGD("Model destruction %p", this);
     reset();
     
-    delete _effect;
+    _effect->release();
     _effect = nullptr;
 }
 
@@ -80,6 +80,7 @@ void Model::setInputAssembler(const InputAssembler& ia)
 void Model::setEffect(Effect* effect, CustomProperties* customProperties)
 {
     _effect = effect;
+    _effect->retain();
     _defines.clear();
     _uniforms.clear();
     

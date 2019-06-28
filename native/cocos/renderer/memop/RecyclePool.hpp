@@ -51,7 +51,7 @@ public:
     
     ~RecyclePool()
     {
-        for (int i = 0, len = (int)_data.size(); i < len; i++)
+        for (size_t i = 0, len = _data.size(); i < len; i++)
         {
             delete _data[i];
         }
