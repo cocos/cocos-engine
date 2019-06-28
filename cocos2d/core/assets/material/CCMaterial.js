@@ -82,6 +82,10 @@ let Material = cc.Class({
                 return this._effectAsset;
             },
             set (asset) {
+                if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+                    return;
+                }
+
                 this._effectAsset = asset;
                 if (!asset) {
                     cc.error('Can not set an empty effect asset.');
