@@ -223,11 +223,9 @@ export class Model {
         this._uboUpdated = true;
         // @ts-ignore
         const worldMatrix = this._transform._mat;
-        mat4.array(f32_1, worldMatrix);
-        this._uboLocal.view.set(f32_1, UBOLocal.MAT_WORLD_OFFSET);
+        mat4.array(this._uboLocal.view, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
         mat4.inverseTranspose(m4_1, worldMatrix);
-        mat4.array(f32_1, m4_1);
-        this._uboLocal.view.set(f32_1, UBOLocal.MAT_WORLD_IT_OFFSET);
+        mat4.array(this._uboLocal.view, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
 
         const commonLocal = this._localBindings.get(UBOLocal.BLOCK.name);
         if (commonLocal && commonLocal.buffer) {
