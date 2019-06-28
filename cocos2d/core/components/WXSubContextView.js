@@ -91,7 +91,7 @@ else {
             this._sprite = null;
             this._tex = new cc.Texture2D();
             this._context = null;
-            this._previousUpdateTime = performance.now();
+            this._updatedTime = performance.now();
             this._updateInterval = 0;
         },
 
@@ -161,9 +161,9 @@ else {
                 return;
             }
             let now = performance.now();
-            let deltaTime = (now - this._previousUpdateTime);
+            let deltaTime = (now - this._updatedTime);
             if (deltaTime >= this._updateInterval) {
-                this._previousUpdateTime = now;
+                this._updatedTime += this._updateInterval;
                 this._updateSubContextTexture();
             }
         },

@@ -108,7 +108,6 @@ const Scheduler = require('./CCScheduler');
 cc.Director = function () {
     EventTarget.call(this);
 
-    this.invalid = false;
     // paused?
     this._paused = false;
     // purge?
@@ -325,10 +324,6 @@ cc.Director.prototype = {
         if (this._paused)
             return;
         this._paused = true;
-    },
-
-    resetLateUpdate: function () {
-        this._lastUpdate = performance.now();
     },
 
     /**
@@ -885,17 +880,20 @@ cc.Director.prototype = {
     // Loop management
     /*
      * Starts Animation
+     * @deprecated since v2.1.2
      */
     startAnimation: function () {
-        this.invalid = false;
-        this._lastUpdate = performance.now();
+        cc.warnID(5400, 'cc.director.startAnimation()', 'cc.game.resume()');
+        cc.game.resume();
     },
 
     /*
      * Stops animation
+     * @deprecated since v2.1.2
      */
     stopAnimation: function () {
-        this.invalid = true;
+        cc.warnID(5400, 'cc.director.stopAnimation()', 'cc.game.pause()');
+        cc.game.pause();
     },
 
     /*
@@ -934,7 +932,7 @@ cc.Director.prototype = {
             this._purgeDirectorInNextLoop = false;
             this.purgeDirector();
         }
-        else if (!this.invalid) {
+        else {
             // calculate "global" dt
             this.calculateDeltaTime(now);
 

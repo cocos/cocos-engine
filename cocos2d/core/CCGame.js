@@ -294,6 +294,7 @@ var game = {
         if (cc.audioEngine) {
             cc.audioEngine._break();
         }
+        cc.director.pause();
         // Pause main loop
         if (this._intervalId)
             window.cancelAnimFrame(this._intervalId);
@@ -313,8 +314,7 @@ var game = {
         if (cc.audioEngine) {
             cc.audioEngine._restore();
         }
-        // To get the correct deltaTime
-        cc.director.resetLateUpdate();
+        cc.director.resume();
         // Resume main loop
         this._runMainLoop();
     },
