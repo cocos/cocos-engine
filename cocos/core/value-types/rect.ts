@@ -138,6 +138,26 @@ export default class Rect extends ValueType {
     }
 
     /**
+     * 根据指定的插值比率，从当前矩形到目标矩形之间做插值。
+     * @param from 起始矩形。
+     * @param to 目标矩形。
+     * @param ratio 插值比率，范围为 [0,1]。
+     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
+     * @returns 当前矩形最小值到目标矩形最小值之间，以及当前矩阵尺寸到目标矩形尺寸之间，按指定插值比率进行线性插值构成的矩形。
+     */
+    public static lerp (from: Rect, to: Rect, ratio: number, out: Rect) {
+        const x = from.x;
+        const y = from.y;
+        const width = from.width;
+        const height = from.height;
+        out.x = x + (to.x - x) * ratio;
+        out.y = y + (to.y - y) * ratio;
+        out.width = width + (to.width - width) * ratio;
+        out.height = height + (to.height - height) * ratio;
+        return out;
+    }
+
+    /**
      * 获取或设置矩形最小点的 x 坐标。
      */
     public x: number;
@@ -219,23 +239,13 @@ export default class Rect extends ValueType {
     }
 
     /**
-     * 根据指定的插值比率，从当前矩形到目标矩形之间做插值。
+     * 同lerp，但会对自身做lerp。
      * @param to 目标矩形。
      * @param ratio 插值比率，范围为 [0,1]。
-     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
      * @returns 当前矩形最小值到目标矩形最小值之间，以及当前矩阵尺寸到目标矩形尺寸之间，按指定插值比率进行线性插值构成的矩形。
      */
-    public lerp (to: Rect, ratio: number, out?: Rect) {
-        out = out || new Rect();
-        const x = this.x;
-        const y = this.y;
-        const width = this.width;
-        const height = this.height;
-        out.x = x + (to.x - x) * ratio;
-        out.y = y + (to.y - y) * ratio;
-        out.width = width + (to.width - width) * ratio;
-        out.height = height + (to.height - height) * ratio;
-        return out;
+    public lerpSelf (to: Rect, ratio: number) {
+        return Rect.lerp(this, to, ratio, this);
     }
 
     /**

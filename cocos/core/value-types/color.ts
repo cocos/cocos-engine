@@ -39,37 +39,6 @@ const toFloat = 1 / 255;
  * 每个通道都为取值范围 [0, 255] 的整数。
  */
 export default class Color extends ValueType {
-    private _val: number;
-
-    /**
-     * 构造与指定颜色相等的颜色。
-     * @param other 相比较的颜色。
-     */
-    constructor (other: Color);
-
-    /**
-     * 构造具有指定通道的颜色。
-     * @param [r=0] 指定的 Red 通道。
-     * @param [g=0] 指定的 Green 通道。
-     * @param [b=0] 指定的 Blue 通道。
-     * @param [a=255] 指定的 Alpha 通道。
-     */
-    constructor (r?: number, g?: number, b?: number, a?: number);
-
-    constructor (r?: number | Color, g?: number, b?: number, a?: number) {
-        super();
-        if (typeof r === 'object') {
-            g = r.g;
-            b = r.b;
-            a = r.a;
-            r = r.r;
-        }
-        r = r || 0;
-        g = g || 0;
-        b = b || 0;
-        a = typeof a === 'number' ? a : 255;
-        this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
-    }
 
     /**
      * 创建并获取（不透明的）纯白色，各通道值依次为 (255, 255, 255, 255)。
@@ -197,6 +166,103 @@ export default class Color extends ValueType {
     }
 
     /**
+     * 通过除以 255，将当前颜色的各个通道都视为范围 [0, 1] 内，设置 Red 通道的值。
+     */
+    get x () {
+        return this.r * toFloat;
+    }
+
+    set x (value) {
+        this.r = value * 255;
+    }
+
+    /**
+     * 通过除以 255，将当前颜色的各个通道都视为范围 [0, 1] 内，设置 Green 通道的值。
+     */
+    get y () {
+        return this.g * toFloat;
+    }
+
+    set y (value) {
+        this.g = value * 255;
+    }
+
+    /**
+     * 通过除以 255，将当前颜色的各个通道都视为范围 [0, 1] 内，设置 Blue 通道的值。
+     */
+    get z () {
+        return this.b * toFloat;
+    }
+
+    set z (value) {
+        this.b = value * 255;
+    }
+
+    /**
+     * 通过除以 255，将当前颜色的各个通道都视为范围 [0, 1] 内，设置 Alpha 通道的值。
+     */
+    get w () {
+        return this.a * toFloat;
+    }
+
+    set w (value) {
+        this.a = value * 255;
+    }
+
+    /**
+     * 根据指定的插值比率，从当前颜色到目标颜色之间做插值。
+     * @param from 起始颜色。
+     * @param to 目标颜色。
+     * @param ratio 插值比率，范围为 [0,1]。
+     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
+     * @returns 当前颜色各个通道到目标颜色对应的各个通道之间按指定插值比率进行线性插值构成的颜色。
+     */
+    public static lerp (from: Color, to: Color, ratio: number, out: Color) {
+        let r = from.r;
+        let g = from.g;
+        let b = from.b;
+        let a = from.a;
+        r = r + (to.r - r) * ratio;
+        g = g + (to.g - g) * ratio;
+        b = b + (to.b - b) * ratio;
+        a = a + (to.a - a) * ratio;
+        out._val = Math.floor(((a << 24) >>> 0) + (b << 16) + (g << 8) + r);
+        return out;
+    }
+
+    private _val: number;
+
+    /**
+     * 构造与指定颜色相等的颜色。
+     * @param other 相比较的颜色。
+     */
+    constructor (other: Color);
+
+    /**
+     * 构造具有指定通道的颜色。
+     * @param [r=0] 指定的 Red 通道。
+     * @param [g=0] 指定的 Green 通道。
+     * @param [b=0] 指定的 Blue 通道。
+     * @param [a=255] 指定的 Alpha 通道。
+     */
+    constructor (r?: number, g?: number, b?: number, a?: number);
+
+    constructor (r?: number | Color, g?: number, b?: number, a?: number) {
+        super();
+        if (typeof r === 'object') {
+            g = r.g;
+            b = r.b;
+            a = r.a;
+            r = r.r;
+        }
+        r = r || 0;
+        g = g || 0;
+        b = b || 0;
+        a = typeof a === 'number' ? a : 255;
+        this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+    }
+
+    /**
      * 克隆当前颜色。
      */
     public clone () {
@@ -215,22 +281,32 @@ export default class Color extends ValueType {
     }
 
     /**
+     * 同lerp函数一样，但是会对自身做lerp。
+     * @param to 目标颜色。
+     * @param ratio 插值比率，范围为 [0,1]。
+     * @returns 当前颜色各个通道到目标颜色对应的各个通道之间按指定插值比率进行线性插值构成的颜色。
+     */
+    public lerpSelf (to: Color, ratio: number) {
+        return Color.lerp(this, to, ratio, this);
+    }
+
+    /**
      * 根据指定的插值比率，从当前颜色到目标颜色之间做插值。
      * @param to 目标颜色。
      * @param ratio 插值比率，范围为 [0,1]。
      * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
      * @returns 当前颜色各个通道到目标颜色对应的各个通道之间按指定插值比率进行线性插值构成的颜色。
      */
-    public lerp (to: Color, ratio: number, out?: Color) {
-        out = out || new Color();
-        const r = this.r;
-        const g = this.g;
-        const b = this.b;
-        const a = this.a;
-        out.r = r + (to.r - r) * ratio;
-        out.g = g + (to.g - g) * ratio;
-        out.b = b + (to.b - b) * ratio;
-        out.a = a + (to.a - a) * ratio;
+    public lerp (to: Color, ratio: number, out: Color) {
+        let r = this.r;
+        let g = this.g;
+        let b = this.b;
+        let a = this.a;
+        r = r + (to.r - r) * ratio;
+        g = g + (to.g - g) * ratio;
+        b = b + (to.b - b) * ratio;
+        a = a + (to.a - a) * ratio;
+        out._val = Math.floor(((a << 24) >>> 0) + (b << 16) + (g << 8) + r);
         return out;
     }
 
@@ -483,48 +559,20 @@ export default class Color extends ValueType {
         return out;
     }
 
-    /**
-     * 通过除以 255，将当前颜色的各个通道都视为范围 [0, 1] 内，设置 Red 通道的值。
-     */
-    get x () {
-        return this.r * toFloat;
+    public _set_r_unsafe (red) {
+        this._val = ((this._val & 0xffffff00) | red) >>> 0;
     }
 
-    set x (value) {
-        this.r = value * 255;
+    public _set_g_unsafe (green) {
+        this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
     }
 
-    /**
-     * 通过除以 255，将当前颜色的各个通道都视为范围 [0, 1] 内，设置 Green 通道的值。
-     */
-    get y () {
-        return this.g * toFloat;
+    public _set_b_unsafe (blue) {
+        this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
     }
 
-    set y (value) {
-        this.g = value * 255;
-    }
-
-    /**
-     * 通过除以 255，将当前颜色的各个通道都视为范围 [0, 1] 内，设置 Blue 通道的值。
-     */
-    get z () {
-        return this.b * toFloat;
-    }
-
-    set z (value) {
-        this.b = value * 255;
-    }
-
-    /**
-     * 通过除以 255，将当前颜色的各个通道都视为范围 [0, 1] 内，设置 Alpha 通道的值。
-     */
-    get w () {
-        return this.a * toFloat;
-    }
-
-    set w (value) {
-        this.a = value * 255;
+    public _set_a_unsafe (alpha) {
+        this._val = ((this._val & 0x00ffffff) | ((alpha << 24) >>> 0)) >>> 0;
     }
 }
 
