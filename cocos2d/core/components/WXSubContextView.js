@@ -90,7 +90,7 @@ else {
             this._sprite = null;
             this._tex = new cc.Texture2D();
             this._context = null;
-            this._previousUpdateTime = performance.now();
+            this._updatedTime = performance.now();
             this._updateInterval = 0;
         },
 
@@ -145,14 +145,28 @@ else {
             this._stopSubContextMainLoop();
         },
 
-        update () {
-            let now = performance.now();
-            let deltaTime = (now - this._previousUpdateTime);
-            if (!this._tex || !this._context || deltaTime < this._updateInterval) {
+        update (dt) {
+            let calledUpdateMannually = (dt === undefined);
+            if (calledUpdateMannually) {
+                this._context && this._context.postMessage({
+                    fromEngine: true,
+                    event: 'step',
+                });
+                this._updateSubContextTexture();
                 return;
             }
-            this._previousUpdateTime = now;
-            this._deltaTime = 0;
+            let now = performance.now();
+            let deltaTime = (now - this._updatedTime);
+            if (deltaTime >= this._updateInterval) {
+                this._updatedTime += this._updateInterval;
+                this._updateSubContextTexture();
+            }
+        },
+
+        _updateSubContextTexture () {
+            if (!this._tex || !this._context) {
+                return;
+            }
             this._tex.initWithElement(this._context.canvas);
             this._sprite._activateMaterial();
         },

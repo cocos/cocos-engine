@@ -269,6 +269,8 @@ if (CC_DEBUG) {
         setAnimationInterval: 'cc.game.setFrameRate',
         isDisplayStats: 'cc.debug.isDisplayStats',
         setDisplayStats: 'cc.debug.setDisplayStats',
+        stopAnimation: 'cc.game.pause',
+        startAnimation: 'cc.game.resume',
     }, 'cc.Director');
     markAsRemoved(cc.Director, [
         'pushScene',

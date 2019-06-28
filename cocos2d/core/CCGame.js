@@ -294,8 +294,6 @@ var game = {
         if (cc.audioEngine) {
             cc.audioEngine._break();
         }
-        // Pause animation
-        cc.director.stopAnimation();
         // Pause main loop
         if (this._intervalId)
             window.cancelAnimFrame(this._intervalId);
@@ -315,8 +313,7 @@ var game = {
         if (cc.audioEngine) {
             cc.audioEngine._restore();
         }
-        // Resume animation
-        cc.director.startAnimation();
+        cc.director._resetDeltaTime();
         // Resume main loop
         this._runMainLoop();
     },
