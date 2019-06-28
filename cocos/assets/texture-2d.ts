@@ -46,12 +46,21 @@ export class Texture2D extends TextureBase {
         this._mipmaps = value;
         if (this._mipmaps.length > 0) {
             const imageAsset: ImageAsset = this._mipmaps[0];
-            this.create(imageAsset.width, imageAsset.height, imageAsset.format, this._mipmaps.length);
+            this.reset({
+                width: imageAsset.width,
+                height: imageAsset.height,
+                format: imageAsset.format,
+                mipmapLevel: this._mipmaps.length,
+            });
             this._mipmaps.forEach((mipmap, level) => {
                 this._assignImage(mipmap, level);
             });
         } else {
-            this.create(0, 0, undefined, this._mipmaps.length);
+            this.reset({
+                width: 0,
+                height: 0,
+                mipmapLevel: this._mipmaps.length,
+            });
         }
     }
 
