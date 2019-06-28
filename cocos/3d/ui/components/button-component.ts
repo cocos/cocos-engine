@@ -527,7 +527,7 @@ export class ButtonComponent extends Component {
         }
 
         if (this._transition === Transition.COLOR) {
-            renderComp.color = this._fromColor.lerp(this._toColor, ratio);
+            Color.lerp(this._fromColor, this._toColor, ratio, renderComp.color);
         } else if (this.transition === Transition.SCALE) {
             target.getScale(this._targetScale);
             this._targetScale.x = lerp(this._fromScale.x, this._toScale.x, ratio);
