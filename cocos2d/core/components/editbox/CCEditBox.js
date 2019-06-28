@@ -432,9 +432,11 @@ let EditBox = cc.Class({
                 return this._tabIndex;
             },
             set (value) {
-                this._tabIndex = value;
-                if (this._impl) {
-                    this._impl.setTabIndex(value);
+                if (this._tabIndex !== value) {
+                    this._tabIndex = value;
+                    if (this._impl) {
+                        this._impl.setTabIndex(value);
+                    }
                 }
             }
         },
