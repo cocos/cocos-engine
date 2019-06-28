@@ -128,7 +128,7 @@ public:
     /*
      *  @brief Extracts all propertyps.
      */
-    std::unordered_map<std::string, Property> extractProperties();
+    std::unordered_map<std::string, Property>& extractProperties();
     /**
      *  @brief Gets uniform property value by name.
      */
