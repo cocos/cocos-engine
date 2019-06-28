@@ -358,7 +358,7 @@ cc.Director.prototype = {
             cc.AssetLibrary.resetBuiltins();
         }
 
-        this.stopAnimation();
+        cc.game.pause();
 
         // Clear all caches
         cc.loader.releaseAll();
@@ -393,7 +393,7 @@ cc.Director.prototype = {
             this._scheduler.scheduleUpdate(this._physicsManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
 
-        this.startAnimation();
+        cc.game.resume();
     },
 
     /**
@@ -467,7 +467,7 @@ cc.Director.prototype = {
         CC_BUILD && CC_DEBUG && console.timeEnd('Activate');
 
         //start scene
-        this.startAnimation();
+        cc.game.resume();
 
         if (onLaunched) {
             onLaunched(null, scene);
@@ -883,7 +883,6 @@ cc.Director.prototype = {
      * @deprecated since v2.1.2
      */
     startAnimation: function () {
-        cc.warnID(5400, 'cc.director.startAnimation()', 'cc.game.resume()');
         cc.game.resume();
     },
 
@@ -892,7 +891,6 @@ cc.Director.prototype = {
      * @deprecated since v2.1.2
      */
     stopAnimation: function () {
-        cc.warnID(5400, 'cc.director.stopAnimation()', 'cc.game.pause()');
         cc.game.pause();
     },
 
