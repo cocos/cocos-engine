@@ -347,6 +347,12 @@ export class NodeEventProcessor {
         this._node = node;
     }
 
+    public destroy (): void{
+        if (_currentHovered === this._node) {
+            _currentHovered = null;
+        }
+    }
+
     /**
      * @zh
      * 在节点上注册指定类型的回调函数，也可以设置 target 用于绑定响应函数的 this 对象。<br/>

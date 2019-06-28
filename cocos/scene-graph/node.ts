@@ -932,6 +932,11 @@ export class Node extends BaseNode {
     public resumeSystemEvents (recursive: boolean) {
         eventManager.resumeTarget(this, recursive);
     }
+
+    public _onPreDestroy () {
+        this._eventProcessor.destroy();
+        super._onPreDestroy();
+    }
 }
 
 cc.Node = Node;
