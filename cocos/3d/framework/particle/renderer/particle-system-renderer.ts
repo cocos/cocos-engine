@@ -221,6 +221,9 @@ export default class ParticleSystemRenderer {
         }, 16);
         this._setVertexAttrib();
         this.onEnable();
+        this._updateModel();
+        this._updateMaterialParams();
+        this._updateTrailMaterial();
     }
 
     public onEnable () {
@@ -235,9 +238,6 @@ export default class ParticleSystemRenderer {
             this._model.node = this.particleSystem.node;
         }
         this._model.enabled = this.particleSystem.enabledInHierarchy;
-        this._updateModel();
-        this._updateMaterialParams();
-        this._updateTrailMaterial();
     }
 
     public onDisable () {
