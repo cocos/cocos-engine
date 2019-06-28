@@ -132,7 +132,11 @@ export class SkinningModel extends Model {
 
         if (type !== JointsMediumType.UNIFORM) {
             const texture = this._jointsMedium.texture = new Texture2D();
-            texture.create(width, height, format);
+            texture.reset({
+                width,
+                height,
+                format,
+            });
             texture.setFilters(Filter.NEAREST, Filter.NEAREST);
             texture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
 

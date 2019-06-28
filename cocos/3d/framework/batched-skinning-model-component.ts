@@ -357,7 +357,10 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
                 }
             }
             const newMesh = new Mesh();
-            newMesh.assign(newMeshStruct, newMeshData);
+            newMesh.reset({
+                struct: newMeshStruct,
+                data: newMeshData,
+            });
 
             const offset = unit.offset;
             const size = unit.size;
@@ -435,7 +438,11 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     protected createTexture (prop: string) {
         const tex = new Texture2D();
         tex.setFilters(Filter.LINEAR, Filter.LINEAR);
-        tex.create(this.atlasSize, this.atlasSize, PixelFormat.RGBA8888);
+        tex.reset({
+            width: this.atlasSize,
+            height: this.atlasSize,
+            format: PixelFormat.RGBA8888,
+        });
         tex.loaded = true;
         this._textures[prop] = tex;
         return tex;
@@ -444,7 +451,11 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     protected resizeAtlases () {
         for (const prop of Object.keys(this._textures)) {
             const tex = this._textures[prop];
-            tex.create(this.atlasSize, this.atlasSize, PixelFormat.RGBA8888);
+            tex.reset({
+                width: this.atlasSize,
+                height: this.atlasSize,
+                format: PixelFormat.RGBA8888,
+            });
         }
     }
 }
