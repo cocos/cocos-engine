@@ -29,8 +29,8 @@
  */
 
 import { Component} from '../../../components';
-import { SystemEvent, SystemEventType } from '../../../core';
 import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
+import { SystemEventType } from '../../../core/platform';
 import { Size, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import { Node } from '../../../scene-graph/node';
