@@ -44,7 +44,7 @@ export class Skeleton extends Asset {
     @property([CCString])
     private _joints: string[] = [];
 
-    @property([Node])
+    @property([Mat4])
     private _bindposes: Mat4[] | null = null;
 
     private _bindTRS: IBindTRS[] | null = null;
