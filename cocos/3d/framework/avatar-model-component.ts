@@ -372,7 +372,10 @@ export class AvatarModelComponent extends SkinningModelComponent {
 
             const meshData = unit.mesh.data.slice();
             const newMesh = new Mesh();
-            newMesh.assign(unit.mesh.struct, meshData);
+            newMesh.reset({
+                struct: unit.mesh.struct,
+                data: meshData,
+            });
 
             dataView = new DataView(meshData.buffer);
             const struct = unit.mesh.struct;
@@ -420,7 +423,11 @@ export class AvatarModelComponent extends SkinningModelComponent {
     private resizeCombinedTexture () {
         if (this._combinedTex) {
             this._combinedTex.destroy();
-            this._combinedTex.create(this._combinedTexSize, this._combinedTexSize, PixelFormat.RGBA8888);
+            this._combinedTex.reset({
+                width: this._combinedTexSize,
+                height: this._combinedTexSize,
+                format: PixelFormat.RGBA8888,
+            });
         }
     }
 }

@@ -240,8 +240,13 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
     }
 
     // Create mesh.
-    if (!out) { out = new Mesh(); }
-    out.assign(meshStruct, new Uint8Array(bufferBlob.getCombined()));
+    if (!out) {
+        out = new Mesh();
+    }
+    out.reset({
+        struct: meshStruct,
+        data: new Uint8Array(bufferBlob.getCombined()),
+    });
 
     return out;
 }
