@@ -327,6 +327,10 @@ cc.Director.prototype = {
         this._paused = true;
     },
 
+    resetLateUpdate: function () {
+        this._lastUpdate = performance.now();
+    },
+
     /**
      * Removes cached all cocos2d cached data.
      * @deprecated since v2.0

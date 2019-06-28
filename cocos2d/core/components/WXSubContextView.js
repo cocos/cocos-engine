@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 const Component = require('./CCComponent');
+const DELAY_TO_UPDATE_TEXTURE = 50;
 
 let WXSubContextView;
 
@@ -145,14 +146,32 @@ else {
             this._stopSubContextMainLoop();
         },
 
-        update () {
-            let now = performance.now();
-            let deltaTime = (now - this._previousUpdateTime);
-            if (!this._tex || !this._context || deltaTime < this._updateInterval) {
+        update (dt) {
+            let calledUpdateMannually = (dt === undefined);
+            if (calledUpdateMannually) {
+                this._context && this._context.postMessage({
+                    fromEngine: true,
+                    event: 'step',
+                });
+                let self = this;
+                // wait util render finish in sub context
+                setTimeout(function () {
+                    self._updateSubContextTexture();
+                }, DELAY_TO_UPDATE_TEXTURE);
                 return;
             }
-            this._previousUpdateTime = now;
-            this._deltaTime = 0;
+            let now = performance.now();
+            let deltaTime = (now - this._previousUpdateTime);
+            if (deltaTime >= this._updateInterval) {
+                this._previousUpdateTime = now;
+                this._updateSubContextTexture();
+            }
+        },
+
+        _updateSubContextTexture () {
+            if (!this._tex || !this._context) {
+                return;
+            }
             this._tex.initWithElement(this._context.canvas);
             this._sprite._activateMaterial();
         },
