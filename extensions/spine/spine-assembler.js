@@ -314,7 +314,10 @@ var spineAssembler = {
             _indexCount = 0;
 
             attachment = slot.getAttachment();
-            if (!attachment) continue;
+            if (!attachment) {
+                clipper.clipEndWithSlot(slot);
+                continue;
+            }
 
             isRegion = attachment instanceof spine.RegionAttachment;
             isMesh = attachment instanceof spine.MeshAttachment;
@@ -325,10 +328,14 @@ var spineAssembler = {
                 continue;
             }
 
-            if (!isRegion && !isMesh) continue;
+            if (!isRegion && !isMesh) {
+                clipper.clipEndWithSlot(slot);
+                continue;
+            }
 
             material = _getSlotMaterial(attachment.region.texture._texture, slot.data.blendMode);
             if (!material) {
+                clipper.clipEndWithSlot(slot);
                 continue;
             }
 
@@ -387,6 +394,7 @@ var spineAssembler = {
             }
     
             if (_vertexFloatCount == 0 || _indexCount == 0) {
+                clipper.clipEndWithSlot(slot);
                 continue;
             }
     
