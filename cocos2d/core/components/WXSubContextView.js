@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 const Component = require('./CCComponent');
-const DELAY_TO_UPDATE_TEXTURE = 50;
 
 let WXSubContextView;
 
@@ -153,11 +152,7 @@ else {
                     fromEngine: true,
                     event: 'step',
                 });
-                let self = this;
-                // wait util render finish in sub context
-                setTimeout(function () {
-                    self._updateSubContextTexture();
-                }, DELAY_TO_UPDATE_TEXTURE);
+                this._updateSubContextTexture();
                 return;
             }
             let now = performance.now();
