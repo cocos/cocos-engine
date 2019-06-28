@@ -30,13 +30,6 @@ const Mode = Enum({
 @ccclass('cc.GradientRange')
 export default class GradientRange {
 
-    public static Mode = Mode;
-
-    @property({
-        type: Mode,
-    })
-    private _mode = Mode.Color;
-
     /**
      * @zh 渐变色类型 [[Mode]]。
      */
@@ -60,6 +53,8 @@ export default class GradientRange {
         }
         this._mode = m;
     }
+
+    public static Mode = Mode;
 
     /**
      * @zh 当mode为Color时的颜色。
@@ -103,6 +98,11 @@ export default class GradientRange {
     })
     public gradientMax = new Gradient();
 
+    @property({
+        type: Mode,
+    })
+    private _mode = Mode.Color;
+
     public evaluate (time: number, rndRatio: number) {
         switch (this.mode) {
             case Mode.Color:
@@ -134,6 +134,19 @@ export default class GradientRange {
 // });
 
 export class GradientUniform {
+
+    public static generateGradientUniform (gradient: Gradient, colorKeyTime: number, colorKeyValue: Float32Array, alphaKeyTime: number, alphaKeyValue: Float32Array) {
+        for (let i = 0; i < gradient.colorKeys.length; i++) {
+            colorKeyTime[i] = gradient.colorKeys[i].time;
+            colorKeyValue[i * 3] = gradient.colorKeys[i].color.r;
+            colorKeyValue[i * 3 + 1] = gradient.colorKeys[i].color.g;
+            colorKeyValue[i * 3 + 2] = gradient.colorKeys[i].color.b;
+        }
+        for (let i = 0; i < gradient.alphaKeys.length; i++) {
+            alphaKeyTime[i] = gradient.alphaKeys[i].time;
+            alphaKeyValue[i] = gradient.alphaKeys[i].alpha;
+        }
+    }
     public gr: GradientRange | null;
     public minColor: Float32Array | null = null;
     public maxColor: Float32Array | null = null;
@@ -206,19 +219,6 @@ export class GradientUniform {
                 device.setUniform('u_' + name + '_maxAlphaKeyValue', this.maxAlphaKeyValue);
                 device.setUniform('u_' + name + '_maxAlphaKeyTime', this.maxAlphaKeyTime);
             }
-        }
-    }
-
-    public static generateGradientUniform (gradient: Gradient, colorKeyTime: number, colorKeyValue: Float32Array, alphaKeyTime: number, alphaKeyValue: Float32Array) {
-        for (let i = 0; i < gradient.colorKeys.length; i++) {
-            colorKeyTime[i] = gradient.colorKeys[i].time;
-            colorKeyValue[i * 3] = gradient.colorKeys[i].color.r;
-            colorKeyValue[i * 3 + 1] = gradient.colorKeys[i].color.g;
-            colorKeyValue[i * 3 + 2] = gradient.colorKeys[i].color.b;
-        }
-        for (let i = 0; i < gradient.alphaKeys.length; i++) {
-            alphaKeyTime[i] = gradient.alphaKeys[i].time;
-            alphaKeyValue[i] = gradient.alphaKeys[i].alpha;
         }
     }
 }
