@@ -896,6 +896,11 @@ cc.Director.prototype = {
         cc.game.pause();
     },
 
+    _resetDeltaTime () {
+        this._lastUpdate = performance.now();
+        this._deltaTime = 0;
+    },
+
     /*
      * Run main loop of director
      */
