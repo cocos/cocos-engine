@@ -27,7 +27,7 @@
  * @category scene-graph
  */
 
-import { EventTarget } from '../core/event';
+import { Event, EventTarget } from '../core/event';
 import { ITargetImpl } from '../core/event/event-target';
 import { eventManager } from '../core/platform/event-manager';
 import Touch from '../core/platform/event-manager/CCTouch';
@@ -214,7 +214,7 @@ function _mouseWheelHandler (this: EventListener, event: EventMouse) {
     }
 }
 
-function _doDispatchEvent (owner: Node, event: EventTouch) {
+function _doDispatchEvent (owner: Node, event: Event) {
     let target: Node;
     let i = 0;
     event.target = owner;
@@ -350,6 +350,21 @@ export class NodeEventProcessor {
     public destroy (): void{
         if (_currentHovered === this._node) {
             _currentHovered = null;
+        }
+
+        // Remove all event listeners if necessary
+        if (this.touchListener || this.mouseListener) {
+            eventManager.removeListeners(this._node);
+            if (this.touchListener) {
+                this.touchListener.owner = null;
+                this.touchListener.mask = null;
+                this.touchListener = null;
+            }
+            if (this.mouseListener) {
+                this.mouseListener.owner = null;
+                this.mouseListener.mask = null;
+                this.mouseListener = null;
+            }
         }
     }
 
@@ -533,7 +548,7 @@ export class NodeEventProcessor {
      *
      * @param event - 分派到事件流中的事件对象。
      */
-    public dispatchEvent (event: EventTouch) {
+    public dispatchEvent (event: Event) {
         _doDispatchEvent(this._node, event);
         _cachedArray.length = 0;
     }
