@@ -1,7 +1,7 @@
 import { Quat, Vec3 } from '../../../core/value-types';
-import { clamp, mat4, quat, vec3 } from '../../../core/vmath';
+import { mat4, quat, vec3 } from '../../../core/vmath';
 import { intersect } from '../../geom-utils';
-import { BuiltInRigidBodyBase, ITriggerCallback, ITriggerEvent, ITriggerEventType, PhysicsWorldBase } from '../api';
+import { BuiltInRigidBodyBase, PhysicsWorldBase } from '../api';
 import { ERigidBodyType } from '../physic-enum';
 import { BuiltInWorld } from './builtin-world';
 import { BuiltinObject } from './object/builtin-object';

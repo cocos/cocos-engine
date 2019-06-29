@@ -150,8 +150,11 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         if (CC_EDITOR) {
             return this._linearFactor;
         }
-        return this._body.getLinearFactor(this._linearFactor);
-
+        if (CC_PHYSICS_BUILT_IN) {
+            return this._linearFactor;
+        } else {
+            return this._body.getLinearFactor(this._linearFactor);
+        }
     }
 
     public set linearFactor (value: Vec3) {
@@ -172,7 +175,11 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
         if (CC_EDITOR) {
             return this._angularFactor;
         }
-        return this._body.getAngularFactor(this._angularFactor);
+        if (CC_PHYSICS_BUILT_IN) {
+            return this._angularFactor;
+        } else {
+            return this._body.getAngularFactor(this._angularFactor);
+        }
     }
 
     public set angularFactor (value: Vec3) {
@@ -323,9 +330,10 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     public getLinearVelocity (out: Vec3): Vec3 {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             return this._body.getLinearVelocity(out);
+        } else {
+            out = out || new Vec3();
+            return out;
         }
-        out = out || new Vec3();
-        return out;
     }
 
     /**
@@ -347,9 +355,10 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     public getAngularVelocity (out: Vec3): Vec3 {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             return this._body.getAngularVelocity(out);
+        } else {
+            out = out || new Vec3();
+            return out;
         }
-        out = out || new Vec3();
-        return out;
     }
 
     /**
