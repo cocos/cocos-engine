@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 import { ccclass } from '../core/data/class-decorator';
 import { CCObject } from '../core/data/object';
 import { isChildClassOf } from '../core/utils/js';

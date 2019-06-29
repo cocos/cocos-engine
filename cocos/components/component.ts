@@ -26,6 +26,10 @@
 
 // tslint:disable
 
+/**
+ * @category component
+ */
+
 import { Script } from '../assets';
 import { ccclass, property } from '../core/data/class-decorator';
 import { CCObject } from '../core/data/object';

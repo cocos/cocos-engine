@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 import { SpriteComponent, UIRenderComponent } from '../../components';
 import { IAssemblerManager } from '../base';
 import { barFilled } from './bar-filled';

@@ -11,7 +11,7 @@ export class OptimizedArray<T = {}> {
     private _data: Array<T | undefined>;
 
     /**
-     * @zh 构造函数，指定数组起始大小。
+     * 构造函数，指定数组起始大小。
      * @en Initialize this array with specified capacity.
      * @param {Number} [size] The size.
      */

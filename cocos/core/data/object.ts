@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core/data
+ */
+
 import * as js from '../utils/js';
 import CCClass from './class';
 
@@ -232,12 +236,14 @@ class CCObject {
      * @default true
      * @readOnly
      * @example
+     * ```typescript
      * var node = new cc.Node();
      * cc.log(node.isValid);    // true
      * node.destroy();
      * cc.log(node.isValid);    // true, still valid in this frame
      * // after a frame...
      * cc.log(node.isValid);    // false, destroyed in the end of last frame
+     * ```
      */
     get isValid () {
         return !(this._objFlags & Destroyed);

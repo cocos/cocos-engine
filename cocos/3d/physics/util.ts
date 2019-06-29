@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { Vec3 } from '../../core/value-types';
 import { quat, vec3 } from '../../core/vmath';
 

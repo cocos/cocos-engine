@@ -24,7 +24,7 @@
  */
 
 /**
- * @category audio
+ * @category component/audio
  */
 
 import { Component } from '../../components/component';

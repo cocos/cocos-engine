@@ -13,7 +13,7 @@ export default class FixedArray<T = {}> {
     private _data: Array<T | undefined>;
 
     /**
-     * @zh 构造函数。
+     * 构造函数。
      * @param size 数组长度。
      */
     constructor (size: number) {

@@ -24,8 +24,7 @@
 */
 
 /**
- * @category scene-graph 场景树的相关内容
- * @hidden
+ * @category scene-graph
  */
 
 import './node-event-processor';

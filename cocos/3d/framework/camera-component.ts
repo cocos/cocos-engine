@@ -22,6 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * @category component/camera
+ */
+
 import { ray } from '../../3d/geom-utils';
 import { Component } from '../../components/component';
 import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
@@ -42,23 +47,15 @@ import { Scene } from '../../scene-graph';
  */
 const ProjectionType = Enum({
     /**
-     * @en
-     * The orthogonal camera
-     * @zh
      * 正交相机。
      * @property Ortho
      * @readonly
-     * @type {Number}
      */
     ORTHO: 0,
     /**
-     * @en
-     * The perspective camera
-     * @zh
      * 透视相机。
      * @property Perspective
      * @readonly
-     * @type {Number}
      */
     PERSPECTIVE: 1,
 });
@@ -74,8 +71,6 @@ const c4_1 = color4.create();
 /**
  * @en The Camera Component
  * @zh 相机组件。
- * @class CameraComponent
- * @extends Component
  */
 @ccclass('cc.CameraComponent')
 @menu('Components/CameraComponent')

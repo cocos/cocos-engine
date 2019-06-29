@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 import { SpriteFrame } from '../../../../assets';
 import { Component } from '../../../../components';
 import { fragmentText, safeMeasureText } from '../../../../core/utils';

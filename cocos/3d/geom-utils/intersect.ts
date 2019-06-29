@@ -1,6 +1,8 @@
 /**
- * @category gemotry-utils 几何工具模块。
+ * 几何工具模块
+ * @category gemotry-utils
  */
+
 
 import { mat3, vec3 } from '../../core/vmath';
 import aabb from './aabb';

@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core/data
+ */
+
 // const FIX_BABEL6 = true;
 
 // tslint:disable:only-arrow-functions
@@ -236,10 +240,6 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
 }
 
 /**
- * @en
- * Declare the standard [ES6 Class](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes)
- * as CCClass, please see [Class](/docs/editors_and_tools/creator-chapters/scripting/class/) for details.
- * @zh
  * 将标准写法的 [ES6 Class](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes) 声明为 CCClass，具体用法请参阅[类型定义](/docs/creator/scripting/class/)。
  *
  * @method ccclass
@@ -249,18 +249,19 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
  * const {ccclass} = cc._decorator;
  *
  * // define a CCClass, omit the name
- * &#64;ccclass
+ *  @ccclass
  * class NewScript extends cc.Component {
  *     // ...
  * }
  *
  * // define a CCClass with a name
- * &#64;ccclass('LoginData')
+ *  @ccclass('LoginData')
  * class LoginData {
  *     // ...
  * }
  * ```
  */
+
 export const ccclass = checkCtorArgument(function (ctor, name) {
     // if (FIX_BABEL6) {
     //     eval('if(typeof _classCallCheck==="function"){_classCallCheck=function(){};}');
@@ -385,8 +386,8 @@ function createDummyDecorator (argCheckFunc) {
  * ```typescript
  * const {ccclass, executeInEditMode} = cc._decorator;
  *
- * &#64;ccclass
- * &#64;executeInEditMode
+ *  @ccclass
+ *  @executeInEditMode
  * class NewScript extends cc.Component {
  *     // ...
  * }
@@ -395,9 +396,6 @@ function createDummyDecorator (argCheckFunc) {
 export const executeInEditMode = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'executeInEditMode', true);
 
 /**
- * @en
- * Automatically add required component as a dependency for the CCClass that inherit from component.
- * @zh
  * 为声明为 CCClass 的组件添加依赖的其它组件。当组件添加到节点上时，如果依赖的组件不存在，引擎将会自动将依赖组件添加到同一个节点，防止脚本出错。该设置在运行时同样有效。
  *
  * @method requireComponent
@@ -406,8 +404,8 @@ export const executeInEditMode = (CC_DEV ? createEditorDecorator : createDummyDe
  * ```typescript
  * const {ccclass, requireComponent} = cc._decorator;
  *
- * &#64;ccclass
- * &#64;requireComponent(cc.Sprite)
+ *  @ccclass
+ *  @requireComponent(cc.Sprite)
  * class SpriteCtrl extends cc.Component {
  *     // ...
  * }
@@ -416,9 +414,6 @@ export const executeInEditMode = (CC_DEV ? createEditorDecorator : createDummyDe
 export const requireComponent = createEditorDecorator(checkCompArgument, 'requireComponent');
 
 /**
- * @en
- * The menu path to register a component to the editors "Component" menu. Eg. "Rendering/CameraCtrl".
- * @zh
  * 将当前组件添加到组件菜单中，方便用户查找。例如 "Rendering/CameraCtrl"。
  *
  * @method menu
@@ -428,8 +423,8 @@ export const requireComponent = createEditorDecorator(checkCompArgument, 'requir
  * ```typescript
  * const {ccclass, menu} = cc._decorator;
  *
- * &#64;ccclass
- * &#64;menu("Rendering/CameraCtrl")
+ *  @ccclass
+ *  @menu("Rendering/CameraCtrl")
  * class NewScript extends cc.Component {
  *     // ...
  * }
@@ -438,11 +433,6 @@ export const requireComponent = createEditorDecorator(checkCompArgument, 'requir
 export const menu = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'menu');
 
 /**
- * @en
- * The execution order of lifecycle methods for Component.
- * Those less than 0 will execute before while those greater than 0 will execute after.
- * The order will only affect onLoad, onEnable, start, update and lateUpdate while onDisable and onDestroy will not be affected.
- * @zh
  * 设置脚本生命周期方法调用的优先级。优先级小于 0 的组件将会优先执行，优先级大于 0 的组件将会延后执行。优先级仅会影响 onLoad, onEnable, start, update 和 lateUpdate，而 onDisable 和 onDestroy 不受影响。
  *
  * @method executionOrder
@@ -451,8 +441,8 @@ export const menu = (CC_DEV ? createEditorDecorator : createDummyDecorator)(chec
  * ```typescript
  * const {ccclass, executionOrder} = cc._decorator;
  *
- * &#64;ccclass
- * &#64;executionOrder(1)
+ *  @ccclass
+ *  @executionOrder(1)
  * class CameraCtrl extends cc.Component {
  *     // ...
  * }
@@ -461,9 +451,6 @@ export const menu = (CC_DEV ? createEditorDecorator : createDummyDecorator)(chec
 export const executionOrder = createEditorDecorator(checkNumberArgument, 'executionOrder');
 
 /**
- * @en
- * Prevents Component of the same type (or subtype) to be added more than once to a Node.
- * @zh
  * 防止多个相同类型（或子类型）的组件被添加到同一个节点。
  *
  * @method disallowMultiple
@@ -471,8 +458,8 @@ export const executionOrder = createEditorDecorator(checkNumberArgument, 'execut
  * ```typescript
  * const {ccclass, disallowMultiple} = cc._decorator;
  *
- * &#64;ccclass
- * &#64;disallowMultiple
+ *  @ccclass
+ *  @disallowMultiple
  * class CameraCtrl extends cc.Component {
  *     // ...
  * }
@@ -481,10 +468,6 @@ export const executionOrder = createEditorDecorator(checkNumberArgument, 'execut
 export const disallowMultiple = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'disallowMultiple');
 
 /**
- * @en
- * If specified, the editor's scene view will keep updating this node in 60 fps when it is selected, otherwise, it will update only if necessary.<br>
- * This property is only available if executeInEditMode is true.
- * @zh
  * 当指定了 "executeInEditMode" 以后，playOnFocus 可以在选中当前组件所在的节点时，提高编辑器的场景刷新频率到 60 FPS，否则场景就只会在必要的时候进行重绘。
  *
  * @method playOnFocus
@@ -492,9 +475,9 @@ export const disallowMultiple = (CC_DEV ? createEditorDecorator : createDummyDec
  * ```typescript
  * const {ccclass, playOnFocus, executeInEditMode} = cc._decorator;
  *
- * &#64;ccclass
- * &#64;executeInEditMode
- * &#64;playOnFocus
+ *  @ccclass
+ *  @executeInEditMode
+ *  @playOnFocus
  * class CameraCtrl extends cc.Component {
  *     // ...
  * }
@@ -503,9 +486,6 @@ export const disallowMultiple = (CC_DEV ? createEditorDecorator : createDummyDec
 export const playOnFocus = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'playOnFocus');
 
 /**
- * @en
- * Specifying the url of the custom html to draw the component in **Properties**.
- * @zh
  * 自定义当前组件在 **属性检查器** 中渲染时所用的网页 url。
  *
  * @method inspector
@@ -514,8 +494,8 @@ export const playOnFocus = (CC_DEV ? createEditorDecorator : createDummyDecorato
  * ```typescript
  * const {ccclass, inspector} = cc._decorator;
  *
- * &#64;ccclass
- * &#64;inspector("packages://inspector/inspectors/comps/camera-ctrl.js")
+ *  @ccclass
+ *  @inspector("packages://inspector/inspectors/comps/camera-ctrl.js")
  * class NewScript extends cc.Component {
  *     // ...
  * }
@@ -524,9 +504,6 @@ export const playOnFocus = (CC_DEV ? createEditorDecorator : createDummyDecorato
 export const inspector = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'inspector');
 
 /**
- * @en
- * Specifying the url of the icon to display in the editor.
- * @zh
  * 自定义当前组件在编辑器中显示的图标 url。
  *
  * @method icon
@@ -536,8 +513,8 @@ export const inspector = (CC_DEV ? createEditorDecorator : createDummyDecorator)
  * ```typescript
  * const {ccclass, icon} = cc._decorator;
  *
- * &#64;ccclass
- * &#64;icon("xxxx.png")
+ *  @ccclass
+ *  @icon("xxxx.png")
  * class NewScript extends cc.Component {
  *     // ...
  * }
@@ -546,9 +523,6 @@ export const inspector = (CC_DEV ? createEditorDecorator : createDummyDecorator)
 export const icon = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'icon');
 
 /**
- * @en
- * The custom documentation URL.
- * @zh
  * 指定当前组件的帮助文档的 url，设置过后，在 **属性检查器** 中就会出现一个帮助图标，用户点击将打开指定的网页。
  *
  * @method help
@@ -557,8 +531,8 @@ export const icon = (CC_DEV ? createEditorDecorator : createDummyDecorator)(chec
  * ```typescript
  * const {ccclass, help} = cc._decorator;
  *
- * &#64;ccclass
- * &#64;help("app://docs/html/components/spine.html")
+ *  @ccclass
+ *  @help("app://docs/html/components/spine.html")
  * class NewScript extends cc.Component {
  *     // ...
  * }
@@ -607,8 +581,8 @@ export const help = (CC_DEV ? createEditorDecorator : createDummyDecorator)(chec
  *     constructor () { ... }
  * });
  *
- * &#64;ccclass
- * &#64;mixins(cc.EventTarget, Fly)
+ *  @ccclass
+ *  @mixins(cc.EventTarget, Fly)
  * class Bird extends Animal {
  *     constructor () {
  *         super();

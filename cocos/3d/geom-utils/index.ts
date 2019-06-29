@@ -1,3 +1,7 @@
+/**
+ * @category gemotry-utils
+ */
+
 export { default as enums } from './enums';
 import * as distance from './distance';
 export { distance };

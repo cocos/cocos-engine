@@ -22,6 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * @category component/light
+ */
+
 import { Component } from '../../components/component';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Color, Enum } from '../../core/value-types';

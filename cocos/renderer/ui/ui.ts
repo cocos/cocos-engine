@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 
 import { CanvasComponent, MeshBuffer, StencilManager, UIComponent, UIRenderComponent, UIVertexFormat } from '../../3d';
 import { Material } from '../../3d/assets/material';

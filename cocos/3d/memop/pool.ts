@@ -4,6 +4,7 @@
  * @category memop
  */
 
+
 /**
  * @zh 对象池。
  */
@@ -14,7 +15,7 @@ export default class Pool<T> {
     private _frees: T[];
 
     /**
-     * @zh 构造函数。
+     * 构造函数。
      * @param fn 元素构造函数。
      * @param size 初始大小。
      */

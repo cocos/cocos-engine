@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 import { BitmapFont, IConfig } from '../../../../assets/bitmap-font';
 import { SpriteFrame } from '../../../../assets/sprite-frame';
 import { isUnicodeCJK, isUnicodeSpace } from '../../../../core/utils/text-utils';

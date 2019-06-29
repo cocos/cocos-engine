@@ -24,6 +24,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * @category event
+ */
+
 import { Node } from '../../../scene-graph';
 
 export interface IEventListenerCreateInfo {

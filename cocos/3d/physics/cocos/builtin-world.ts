@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { Vec3 } from '../../../core/value-types';
 import { AfterStepCallback, BeforeStepCallback, BuiltInRigidBodyBase, IRaycastOptions,
     ITriggerEventType, PhysicsWorldBase, RigidBodyBase, ShapeBase } from '../api';

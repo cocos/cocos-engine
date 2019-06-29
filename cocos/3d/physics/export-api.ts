@@ -30,13 +30,11 @@ export interface ITriggerEvent {
 }
 
 /**
- * @zh
  * 触发事件的值类型定义。
  */
 export type TriggerEventType = 'onTriggerEnter' | 'onTriggerStay' | 'onTriggerExit';
 
 /**
- * @zh
  * 触发事件的回调函数签名定义。
  */
 export type TriggerCallback = (event: ITriggerEvent) => void;
@@ -96,13 +94,11 @@ export interface ICollisionEvent {
 }
 
 /**
- * @zh
  * 碰撞事件的值类型定义。
  */
 export type CollisionEventType = 'onCollisionEnter' | 'onCollisionStay' | 'onCollisionExit';
 
 /**
- * @zh
  * 碰撞事件的回调函数签名定义。
  */
 export type CollisionCallback = (event: ICollisionEvent) => void;

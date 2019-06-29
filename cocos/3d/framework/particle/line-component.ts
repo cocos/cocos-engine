@@ -1,7 +1,9 @@
 
 /**
+ * 粒子系统模块
  * @category particle
  */
+
 
 import { Texture2D } from '../../../assets';
 import { Component } from '../../../components';

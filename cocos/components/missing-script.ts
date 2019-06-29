@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category component
+ */
+
 import {ccclass, inspector, property} from '../core/data/class-decorator';
 import {_getClassById} from '../core/utils/js';
 import {BUILTIN_CLASSID_RE} from '../core/utils/misc';

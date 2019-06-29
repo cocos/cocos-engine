@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core/data
+ */
+
 // tslint:disable:only-arrow-functions
 // tslint:disable:prefer-for-of
 // tslint:disable:no-shadowed-variable

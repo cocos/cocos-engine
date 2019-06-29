@@ -150,7 +150,6 @@ export class Root {
     private _fps: number = 0;
 
     /**
-     * @zh
      * 构造函数
      * @param device GFX设备
      */

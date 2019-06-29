@@ -24,12 +24,13 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category asset
+ */
+
 import {ccclass, property} from '../core/data/class-decorator';
 import { Font } from './font';
 
-/**
- * @module cc
- */
 /**
  * @en
  * Class for TTFFont handling.

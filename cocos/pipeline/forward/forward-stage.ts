@@ -1,5 +1,5 @@
 /**
- * @category pipeline/forward
+ * @category pipeline.forward
  */
 
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
@@ -24,7 +24,6 @@ export class ForwardStage extends RenderStage {
     private _transparentQueue: RenderQueue;
 
     /**
-     * @zh
      * 构造函数。
      * @param flow 渲染阶段。
      */

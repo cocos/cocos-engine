@@ -1,6 +1,5 @@
 /**
- * @category pipeline 渲染管线模块
- * @hidden
+ * @category pipeline
  */
 
 import {RenderPassStage} from './define';

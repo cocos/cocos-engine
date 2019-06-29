@@ -24,8 +24,10 @@
 */
 
 /**
+ * ui-assembler 相关模块
  * @category ui-assembler
  */
+
 
 import * as js from '../../../../core/utils/js';
 import { Color, Mat4, Vec3 } from '../../../../core/value-types';

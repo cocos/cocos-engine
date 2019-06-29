@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 import { AudioSourceComponent } from './audio-source-component';
 import { AvatarModelComponent, AvatarUnit } from './avatar-model-component';
 import { BatchedSkinningModelComponent, SkinningModelUnit } from './batched-skinning-model-component';

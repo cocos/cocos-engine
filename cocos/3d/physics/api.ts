@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { Quat, Vec3 } from '../../core/value-types';
 import { mat4, quat } from '../../core/vmath';
 import { ERigidBodyType } from './physic-enum';
