@@ -45,9 +45,9 @@ export class Skeleton extends Asset {
     private _joints: string[] = [];
 
     @property([Mat4])
-    private _bindposes: Mat4[] | null = null;
+    private _bindposes: Mat4[] = [];
 
-    private _bindTRS: IBindTRS[] | null = null;
+    private _bindTRS: IBindTRS[] = [];
 
     /**
      * 所有关节的绑定姿势矩阵。该数组的长度始终与 `this.joints` 的长度相同。
@@ -58,7 +58,6 @@ export class Skeleton extends Asset {
 
     set bindposes (value) {
         this._bindposes = value;
-        if (!value) { this._bindTRS = null; return; }
         this._bindTRS = value.map((m) => {
             const position = new Vec3();
             const rotation = new Quat();

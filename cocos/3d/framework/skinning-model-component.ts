@@ -90,7 +90,7 @@ export class SkinningModelComponent extends ModelComponent {
         const device: GFXDevice = cc.director.root && cc.director.root.device;
         const joints = this._skeleton && this._skeleton.joints.length || 0;
         const type = selectJointsMediumType(device, joints);
-        const mat = this.getMaterial(index, CC_EDITOR) || this._getBuiltinMaterial();
+        const mat = this.getMaterial(index) || this._getBuiltinMaterial();
         mat.recompileShaders({ CC_USE_SKINNING: type });
         super._onMaterialModified(index, mat);
     }

@@ -148,8 +148,8 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     }
 
     public onLoad () {
-        this._batchMaterial = this.getSharedMaterial(0);
         super.onLoad();
+        this._batchMaterial = this.getSharedMaterial(0);
         this.cook();
     }
 
@@ -217,7 +217,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         if (!lca) { console.warn('illegal skinning roots'); return; }
         // merge joints accordingly
         const skeleton = new Skeleton();
-        skeleton.bindposes = [];
+        const bindposes: Mat4[] = [];
         for (const unit of this.units) {
             if (!unit || !unit.skeleton || !unit.skinningRoot) { continue; }
             const partial = unit.skeleton;
@@ -227,7 +227,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
                 const idx = skeleton.joints.findIndex((p) => p === path);
                 if (idx >= 0) { continue; }
                 skeleton.joints.push(path);
-                skeleton.bindposes.push(partial.bindposes && partial.bindposes[i] || new Mat4());
+                bindposes.push(partial.bindposes[i] || new Mat4());
             }
         }
         // sort the array to be more cache-friendly
@@ -237,7 +237,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
             return 0;
         });
         skeleton.joints = skeleton.joints.map((_, idx, arr) => arr[idxMap[idx]]);
-        skeleton.bindposes = skeleton.bindposes.map((_, idx, arr) => arr[idxMap[idx]]);
+        skeleton.bindposes = bindposes.map((_, idx, arr) => arr[idxMap[idx]]);
         // apply
         this.skeleton = skeleton;
     }
