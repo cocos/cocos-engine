@@ -61,11 +61,10 @@ public:
     virtual void updateIABuffer(std::size_t index, cocos2d::renderer::VertexBuffer* vb, cocos2d::renderer::IndexBuffer* ib);
     
     /**
-     *  @brief Submit the InputAssembler for the given index to ModelBatcher
-     *  @param[in] index Render data index.
-     *  @param[in] batcher The ModelBatcher which will transform render data to Model
+     *  @brief Gets input assembler by index
+     *  @param[in] index.
      */
-    virtual void renderIA(std::size_t index, ModelBatcher* batcher, NodeProxy* node);
+    InputAssembler* getIA(std::size_t index) const;
     
     /**
      *  @brief Gets input assembler count.

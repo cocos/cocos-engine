@@ -25,6 +25,10 @@
 #include "RenderFlow.hpp"
 #include "NodeMemPool.hpp"
 
+#if USE_MIDDLEWARE
+#include "MiddlewareManager.h"
+#endif
+
 RENDERER_BEGIN
 
 const uint32_t InitLevelCount = 3;
@@ -77,7 +81,7 @@ RenderFlow::RenderFlow(DeviceGraphics* device, Scene* scene, ForwardRenderer* fo
 
 RenderFlow::~RenderFlow()
 {
-    delete _paralleTask;
+    CC_SAFE_DELETE(_paralleTask);
     CC_SAFE_DELETE(_batcher);
 }
 
@@ -159,7 +163,8 @@ void RenderFlow::calculateLocalMatrix(int tid)
         {
             if (signData->freeFlag == SPACE_FREE_FLAG) continue;
             // reset world transform changed flag
-            *dirty &= ~WORLD_TRANSFORM_CHANGED;
+            *dirty &= ~(WORLD_TRANSFORM_CHANGED | OPACITY_CHANGED);
+            // reset opacity changed flag
             if (!(*dirty & LOCAL_TRANSFORM)) continue;
             
             localMat->setIdentity();
@@ -198,18 +203,40 @@ void RenderFlow::calculateLevelWorldMatrix(int tid)
     for(std::size_t index = begin; index < end; index++)
     {
         auto& info = levelInfos[index];
-        auto selfDirty = *info.dirty & WORLD_TRANSFORM;
-        if (info.parentDirty != nullptr && ((*info.parentDirty & WORLD_TRANSFORM_CHANGED) || selfDirty))
+        auto selfWorldDirty = *info.dirty & WORLD_TRANSFORM;
+        auto selfOpacityDirty = *info.dirty & OPACITY;
+        
+        if (info.parentDirty)
         {
-            info.worldMat->multiply(*info.parentWorldMat, *info.localMat, info.worldMat);
-            *info.dirty |= WORLD_TRANSFORM_CHANGED;
-            *info.dirty &= ~WORLD_TRANSFORM;
+            if ((*info.parentDirty & WORLD_TRANSFORM_CHANGED) || selfWorldDirty)
+            {
+                cocos2d::Mat4::multiply(*info.parentWorldMat, *info.localMat, info.worldMat);
+                *info.dirty |= WORLD_TRANSFORM_CHANGED;
+                *info.dirty &= ~WORLD_TRANSFORM;
+            }
+            
+            if ((*info.parentDirty & OPACITY_CHANGED) || selfOpacityDirty)
+            {
+                *info.realOpacity = *info.opacity * *info.parentRealOpacity / 255.0f;
+                *info.dirty |= OPACITY_CHANGED;
+                *info.dirty &= ~OPACITY;
+            }
         }
-        else if (selfDirty)
+        else
         {
-            *info.worldMat = *info.localMat;
-            *info.dirty |= WORLD_TRANSFORM_CHANGED;
-            *info.dirty &= ~WORLD_TRANSFORM;
+            if (selfWorldDirty)
+            {
+                *info.worldMat = *info.localMat;
+                *info.dirty |= WORLD_TRANSFORM_CHANGED;
+                *info.dirty &= ~WORLD_TRANSFORM;
+            }
+            
+            if (selfOpacityDirty)
+            {
+                *info.realOpacity = *info.opacity;
+                *info.dirty |= OPACITY_CHANGED;
+                *info.dirty &= ~OPACITY;
+            }
         }
     }
 }
@@ -225,7 +252,7 @@ void RenderFlow::calculateWorldMatrix()
             auto selfDirty = *info.dirty & WORLD_TRANSFORM;
             if (info.parentDirty != nullptr && ((*info.parentDirty & WORLD_TRANSFORM_CHANGED) || selfDirty))
             {
-                info.worldMat->multiply(*info.parentWorldMat, *info.localMat, info.worldMat);
+                cocos2d::Mat4::multiply(*info.parentWorldMat, *info.localMat, info.worldMat);
                 *info.dirty |= WORLD_TRANSFORM_CHANGED;
                 *info.dirty &= ~WORLD_TRANSFORM;
             }
@@ -239,7 +266,7 @@ void RenderFlow::calculateWorldMatrix()
     }
 }
 
-void RenderFlow::render(NodeProxy* scene)
+void RenderFlow::render(NodeProxy* scene, float deltaTime)
 {
     if (scene != nullptr)
     {
@@ -275,7 +302,11 @@ void RenderFlow::render(NodeProxy* scene)
             }
             else
             {
-                if (!threadBegan) _paralleTask->begin();
+                if (!threadBegan)
+                {
+                    _paralleTask->begin();
+                    threadBegan = true;
+                }
                 *_runFlag = ParallelTask::RunFlag::ToProcess;
                 calculateLevelWorldMatrix(mainThreadTid);
                 while(*_runFlag != ParallelTask::RunFlag::ProcessFinished) std::this_thread::yield();
@@ -287,9 +318,13 @@ void RenderFlow::render(NodeProxy* scene)
         calculateLocalMatrix();
         calculateWorldMatrix();
 #endif
-        
+
+#if USE_MIDDLEWARE
+        middleware::MiddlewareManager::getInstance()->update(deltaTime);
+#endif
+
         _batcher->startBatch();
-        scene->visitAsRoot(_batcher, _scene);
+        scene->render(_batcher, _scene);
         _batcher->terminateBatch();
 
         _forward->render(_scene);

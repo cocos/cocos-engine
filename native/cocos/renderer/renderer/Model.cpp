@@ -25,6 +25,7 @@
 #include "Model.h"
 #include "Effect.h"
 #include "InputAssembler.h"
+#include "../scene/NodeProxy.hpp"
 
 RENDERER_BEGIN
 
@@ -70,6 +71,12 @@ Model::~Model()
     
     _effect->release();
     _effect = nullptr;
+    
+    if (_node != nullptr)
+    {
+        _node->release();
+        _node = nullptr;
+    }
 }
 
 void Model::setInputAssembler(const InputAssembler& ia)
@@ -95,6 +102,19 @@ void Model::setEffect(Effect* effect, CustomProperties* customProperties)
     }
 }
 
+void Model::setNode(NodeProxy* node)
+{
+    if (_node != nullptr)
+    {
+        _node->release();
+    }
+    _node = node;
+    if (_node != nullptr)
+    {
+        _node->retain();
+    }
+}
+
 void Model::extractDrawItem(DrawItem& out) const
 {
     if (_dynamicIA)
@@ -113,9 +133,16 @@ void Model::extractDrawItem(DrawItem& out) const
     out.defines = out.effect->extractDefines();
 }
 
+void Model::clearEffect()
+{
+    _effect->release();
+    _effect = nullptr;
+}
+
 void Model::reset()
 {
     _defines.clear();
+    _uniforms.clear();
 }
 
 RENDERER_END

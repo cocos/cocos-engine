@@ -6389,6 +6389,16 @@ nodeproxy
 },
 
 /**
+ * @method setBatchEnabled
+ * @param {bool} arg0
+ */
+setBatchEnabled : function (
+bool 
+)
+{
+},
+
+/**
  * @method setSkin
 * @param {char|String} char
 */

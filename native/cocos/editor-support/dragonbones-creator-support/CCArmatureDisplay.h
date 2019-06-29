@@ -153,6 +153,11 @@ public:
         _debugDraw = enabled;
     }
     
+    void setBatchEnabled (bool enabled)
+    {
+        _batch = enabled;
+    }
+    
     void setOpacityModifyRGB (bool value)
     {
         _premultipliedAlpha = value;
@@ -193,6 +198,7 @@ private:
     int _debugSlotsLen = 0;
     int _materialLen = 0;
     
+    bool _batch = false;
     bool _premultipliedAlpha = false;
     dbEventCallback _dbEventCallback = nullptr;
     cocos2d::renderer::NodeProxy* _nodeProxy = nullptr;

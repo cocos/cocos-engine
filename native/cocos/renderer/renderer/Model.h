@@ -112,7 +112,7 @@ public:
     /**
      *  @brief Set node.
      */
-    inline void setNode(NodeProxy* node) { _node = node; };
+    void setNode(NodeProxy* node);
     /**
      *  @brief Get node.
      */
@@ -121,7 +121,10 @@ public:
      *  @brief Extract draw item for the given index during rendering process.
      */
     void extractDrawItem(DrawItem& out) const;
-
+    /**
+     *  @brief Clear Effect.
+     */
+    void clearEffect();
 private:
     friend class ModelPool;
     void reset();

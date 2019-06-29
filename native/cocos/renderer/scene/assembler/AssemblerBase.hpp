@@ -28,6 +28,7 @@
 #include <stdint.h>
 #include "base/CCVector.h"
 #include "../../renderer/Effect.h"
+#include "scripting/js-bindings/jswrapper/Object.hpp"
 
 RENDERER_BEGIN
 
@@ -58,14 +59,14 @@ public:
      *  @param[in] batcher
      *  @param[in] scene
      */
-    virtual void handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene) {};
+    virtual void handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene) {}
     /**
      *  @brief Callback which will be invoked after visiting child nodes.
      *  @param[in] node The node being processed.
      *  @param[in] batcher
      *  @param[in] scene
      */
-    virtual void postHandle(NodeProxy *node, ModelBatcher* batcher, Scene* scene) {};
+    virtual void postHandle(NodeProxy *node, ModelBatcher* batcher, Scene* scene) {}
     
     /**
      *  @brief Gets whether the current handle should use model matrix uniform during rendering
@@ -73,7 +74,7 @@ public:
     bool getUseModel() const
     {
         return _useModel;
-    };
+    }
     
     /**
      *  @brief Sets whether the current handle should use model matrix uniform during rendering
@@ -81,24 +82,19 @@ public:
     void setUseModel(bool useModel)
     {
         _useModel = useModel;
-    };
+    }
     
     /**
-     *  @brief Notify dirty flag.
-     *  @param[in] node The node being processed.
-     *  @param[in] flag
+     *  @brief Sync script dirty flag.
      */
-    virtual void notifyDirty(uint32_t flag)
-    {
-        _dirtyFlag |= flag;
-    }
+    virtual void setDirty(se_object_ptr jsDirty);
     
     /**
      *  @brief Gets dirty flag.
      */
-    uint32_t getDirtyFlag() const
+    uint32_t* getDirty() const
     {
-        return _dirtyFlag;
+        return _dirty;
     }
     
     /**
@@ -115,16 +111,17 @@ public:
      *  @brief Is assembler enabled.
      *  @return _enabled
      */
-    bool enabled() const { return _enabled; };
+    bool enabled() const { return _enabled; }
     
     /**
      *  @brief Resets data.
      */
-    virtual void reset() {};
-public:
-    static const int OPACITY = 1;
+    virtual void reset() {}
 protected:
-    uint32_t _dirtyFlag = 0;
+    se::Object* _jsDirty = nullptr;
+    uint32_t* _dirty = nullptr;
+    std::size_t _dirtyLen = 0;
+    
     bool _enabled = false;
     bool _useModel = false;
 };

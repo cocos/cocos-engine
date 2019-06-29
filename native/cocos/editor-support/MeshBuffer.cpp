@@ -31,11 +31,12 @@ using namespace cocos2d::renderer;
 
 MIDDLEWARE_BEGIN
 
-MeshBuffer::MeshBuffer(int vertexSize)
-: _ib(INIT_INDEX_BUFFER_SIZE)
-, _vb(MAX_VERTEX_BUFFER_SIZE * vertexSize)
+MeshBuffer::MeshBuffer(int vertexFormat)
+: _vertexFormat(vertexFormat)
+, _ib(INIT_INDEX_BUFFER_SIZE)
+, _vb(MAX_VERTEX_BUFFER_SIZE * vertexFormat)
 {
-    _vb.setMaxSize(MAX_VERTEX_BUFFER_SIZE * vertexSize);
+    _vb.setMaxSize(MAX_VERTEX_BUFFER_SIZE * _vertexFormat);
     _vb.setFullCallback([this]
     {
         uploadVB();
@@ -50,7 +51,19 @@ MeshBuffer::MeshBuffer(int vertexSize)
     _glIBArr.push_back(glIB);
     
     auto glVB = new VertexBuffer();
-    glVB->init(DeviceGraphics::getInstance(), VertexFormat::XY_UV_Color, Usage::DYNAMIC, nullptr, 0, (uint32_t)_vb.getCapacity() / VertexFormat::XY_UV_Color->getBytes());
+    switch(_vertexFormat)
+    {
+        case VF_XYUVC:
+            glVB->init(DeviceGraphics::getInstance(), VertexFormat::XY_UV_Color, Usage::DYNAMIC, nullptr, 0, (uint32_t)_vb.getCapacity() / VertexFormat::XY_UV_Color->getBytes());
+            break;
+        case VF_XYUVCC:
+            glVB->init(DeviceGraphics::getInstance(), VertexFormat::XY_UV_Two_Color, Usage::DYNAMIC, nullptr, 0, (uint32_t)_vb.getCapacity() / VertexFormat::XY_UV_Two_Color->getBytes());
+            break;
+        default:
+            CCASSERT(false, "MeshBuffer constructor unknow vertex format");
+            break;
+    }
+    
     _glVBArr.push_back(glVB);
 }
 
@@ -99,7 +112,20 @@ void MeshBuffer::next()
     if (_glVBArr.size() <= _bufferPos)
     {
         auto glVB = new VertexBuffer();
-        glVB->init(DeviceGraphics::getInstance(), VertexFormat::XY_UV_Color, Usage::DYNAMIC, nullptr, 0, (uint32_t)_vb.getCapacity() / VertexFormat::XY_UV_Color->getBytes());
+        
+        switch(_vertexFormat)
+        {
+            case VF_XYUVC:
+                glVB->init(DeviceGraphics::getInstance(), VertexFormat::XY_UV_Color, Usage::DYNAMIC, nullptr, 0, (uint32_t)_vb.getCapacity() / VertexFormat::XY_UV_Color->getBytes());
+                break;
+            case VF_XYUVCC:
+                glVB->init(DeviceGraphics::getInstance(), VertexFormat::XY_UV_Two_Color, Usage::DYNAMIC, nullptr, 0, (uint32_t)_vb.getCapacity() / VertexFormat::XY_UV_Two_Color->getBytes());
+                break;
+            default:
+                CCASSERT(false, "MeshBuffer constructor unknow vertex format");
+                break;
+        }
+        
         _glVBArr.push_back(glVB);
     }
 }

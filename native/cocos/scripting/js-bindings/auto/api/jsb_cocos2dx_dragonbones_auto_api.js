@@ -2446,6 +2446,16 @@ effect
 },
 
 /**
+ * @method setDBEventCallback
+ * @param {function} arg0
+ */
+setDBEventCallback : function (
+func 
+)
+{
+},
+
+/**
  * @method setOpacityModifyRGB
  * @param {bool} arg0
  */
@@ -2456,11 +2466,11 @@ bool
 },
 
 /**
- * @method setDBEventCallback
- * @param {function} arg0
+ * @method setBatchEnabled
+ * @param {bool} arg0
  */
-setDBEventCallback : function (
-func 
+setBatchEnabled : function (
+bool 
 )
 {
 },

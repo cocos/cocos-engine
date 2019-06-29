@@ -310,6 +310,22 @@ static bool js_cocos2dx_editor_support_MiddlewareManager_destroyInstance(se::Sta
 }
 SE_BIND_FUNC(js_cocos2dx_editor_support_MiddlewareManager_destroyInstance)
 
+static bool js_cocos2dx_editor_support_MiddlewareManager_generateModuleID(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        uint8_t result = cocos2d::middleware::MiddlewareManager::generateModuleID();
+        ok &= uint8_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_editor_support_MiddlewareManager_generateModuleID : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_editor_support_MiddlewareManager_generateModuleID)
+
 static bool js_cocos2dx_editor_support_MiddlewareManager_getInstance(se::State& s)
 {
     const auto& args = s.args();
@@ -360,6 +376,7 @@ bool js_register_cocos2dx_editor_support_MiddlewareManager(se::Object* obj)
 
     cls->defineFunction("update", _SE(js_cocos2dx_editor_support_MiddlewareManager_update));
     cls->defineStaticFunction("destroyInstance", _SE(js_cocos2dx_editor_support_MiddlewareManager_destroyInstance));
+    cls->defineStaticFunction("generateModuleID", _SE(js_cocos2dx_editor_support_MiddlewareManager_generateModuleID));
     cls->defineStaticFunction("getInstance", _SE(js_cocos2dx_editor_support_MiddlewareManager_getInstance));
     cls->defineFinalizeFunction(_SE(js_cocos2d_middleware_MiddlewareManager_finalize));
     cls->install();

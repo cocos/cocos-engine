@@ -30,12 +30,10 @@
 
 RENDERER_BEGIN
 
-#define INIT_IA_LENGTH 16
 #define INIT_MODEL_LENGTH 16
 
 ModelBatcher::ModelBatcher(RenderFlow* flow)
 : _flow(flow)
-, _iaOffset(0)
 , _modelOffset(0)
 , _cullingMask(0)
 , _walking(false)
@@ -45,11 +43,6 @@ ModelBatcher::ModelBatcher(RenderFlow* flow)
 , _customProps(nullptr)
 , _node(nullptr)
 {
-    for (int i = 0; i < INIT_IA_LENGTH; i++)
-    {
-        _iaPool.push_back(new InputAssembler());
-    }
-    
     for (int i = 0; i < INIT_MODEL_LENGTH; i++)
     {
         _modelPool.push_back(new Model());
@@ -60,13 +53,6 @@ ModelBatcher::ModelBatcher(RenderFlow* flow)
 
 ModelBatcher::~ModelBatcher()
 {
-    for (int i = 0; i < _iaPool.size(); i++)
-    {
-        auto ia = _iaPool[i];
-        delete ia;
-    }
-    _iaPool.clear();
-    
     for (int i = 0; i < _modelPool.size(); i++)
     {
         auto model = _modelPool[i];
@@ -84,15 +70,13 @@ ModelBatcher::~ModelBatcher()
 
 void ModelBatcher::reset()
 {
-    _iaOffset = 0;
-    _modelOffset = 0;
-    
-    for (int i = 0; i < _batchedModel.size(); ++i)
+    for (int i = 0; i < _modelOffset; ++i)
     {
-        Model* model = _batchedModel[i];
-        _flow->getRenderScene()->removeModel(model);
+        Model* model = _modelPool[i];
+        model->clearEffect();
     }
-    _batchedModel.clear();
+    _flow->getRenderScene()->removeModels();
+    _modelOffset = 0;
     
     for (auto iter : _buffers)
     {
@@ -100,18 +84,39 @@ void ModelBatcher::reset()
     }
     _buffer = nullptr;
     
-    CC_SAFE_RELEASE_NULL(_currEffect);
+    _commitState = CommitState::None;
+    setCurrentEffect(nullptr);
+    _ia.clear();
     _cullingMask = 0;
     _walking = false;
     _useModel = false;
     
     _modelMat.set(Mat4::IDENTITY);
-    
     _stencilMgr->reset();
+}
+
+void ModelBatcher::changeCommitState(CommitState state)
+{
+    if (_commitState == state) return;
+    switch(_commitState)
+    {
+        case CommitState::Custom:
+            flushIA();
+            break;
+        case CommitState::Common:
+            flush();
+            break;
+        default:
+            break;
+    }
+    setCurrentEffect(nullptr);
+    _commitState = state;
 }
 
 void ModelBatcher::commit(NodeProxy* node, Assembler* assembler)
 {
+    changeCommitState(CommitState::Common);
+    
     VertexFormat* vfmt = assembler->getVertexFormat();
     if (!vfmt)
     {
@@ -122,19 +127,22 @@ void ModelBatcher::commit(NodeProxy* node, Assembler* assembler)
     bool ignoreWorldMatrix = assembler->isIgnoreWorldMatrix();
     const Mat4& nodeWorldMat = node->getWorldMatrix();
     const Mat4& worldMat = useModel && !ignoreWorldMatrix ? nodeWorldMat : Mat4::IDENTITY;
+    int cullingMask = node->getCullingMask();
+    
+    auto asmDirty = assembler->getDirty();
+    auto nodeDirty = node->getDirty();
+    auto needUpdateOpacity = *asmDirty & RenderFlow::OPACITY_CHANGED || *nodeDirty & RenderFlow::OPACITY_CHANGED || assembler->isOpacityAlwaysDirty();
     
     for (std::size_t i = 0, l = assembler->getIACount(); i < l; ++i)
     {
         assembler->beforeFillBuffers(i);
         
-        Effect* effect = assembler->getEffect((uint32_t)i);
+        Effect* effect = assembler->getEffect(i);
         if (!effect) continue;
-        int cullingMask = node->getCullingMask();
 
         if (_currEffect == nullptr ||
             _currEffect->getHash() != effect->getHash() ||
-            _cullingMask != cullingMask ||
-            _useModel != useModel)
+            _cullingMask != cullingMask || useModel)
         {
             // Break auto batch
             flush();
@@ -146,8 +154,7 @@ void ModelBatcher::commit(NodeProxy* node, Assembler* assembler)
             _node = _useModel ? node : nullptr;
         }
         
-        auto dirtyFlag = assembler->getDirtyFlag();
-        if (dirtyFlag & AssemblerBase::OPACITY || assembler->isOpacityAlwaysDirty())
+        if (needUpdateOpacity)
         {
             assembler->updateOpacity(i, node->getRealOpacity());
         }
@@ -163,46 +170,72 @@ void ModelBatcher::commit(NodeProxy* node, Assembler* assembler)
 
 void ModelBatcher::commitIA(NodeProxy* node, CustomAssembler* assembler)
 {
-    flush();
+    changeCommitState(CommitState::Custom);
+
+    Effect* effect = assembler->getEffect(0);
+    if (!effect) return;
+
+    auto customIA = assembler->getIA(0);
+    if (!customIA) return;
     
-    for (std::size_t i = 0, n = assembler->getIACount(); i < n; i++ )
+    std::size_t iaCount = assembler->getIACount();
+    int cullingMask = node->getCullingMask();
+    bool useModel = assembler->getUseModel();
+    const Mat4& worldMat = useModel ? node->getWorldMatrix() : Mat4::IDENTITY;
+    
+    if (_currEffect == nullptr ||
+    _currEffect->getHash() != effect->getHash() ||
+    _cullingMask != cullingMask || useModel ||
+    !_ia.isMergeable(*customIA))
     {
-        const Mat4& worldMat = assembler->getUseModel() ? node->getWorldMatrix() : Mat4::IDENTITY;
-        Effect* effect = assembler->getEffect((uint32_t)i);
-        if (!effect) continue;
+        flushIA();
+        
         setCurrentEffect(effect);
-        _cullingMask = node->getCullingMask();
         _modelMat.set(worldMat);
-        assembler->renderIA(i, this, node);
+        _useModel = useModel;
+        _cullingMask = cullingMask;
+        
+        _ia.setVertexBuffer(customIA->getVertexBuffer());
+        _ia.setIndexBuffer(customIA->getIndexBuffer());
+        _ia.setStart(customIA->getStart());
+        _ia.setCount(0);
+    }
+    
+    for (std::size_t i = 0; i < iaCount; i++ )
+    {
+        customIA = assembler->getIA(i);
+        effect = assembler->getEffect(i);
+        if (!effect) continue;
+        
+        if (i > 0)
+        {
+            flushIA();
+            
+            setCurrentEffect(effect);
+            _modelMat.set(worldMat);
+            _useModel = useModel;
+            _cullingMask = cullingMask;
+            
+            _ia.setVertexBuffer(customIA->getVertexBuffer());
+            _ia.setIndexBuffer(customIA->getIndexBuffer());
+            _ia.setStart(customIA->getStart());
+            _ia.setCount(0);
+        }
+        
+        _ia.setCount(_ia.getCount() + customIA->getCount());
     }
     
     _node = _useModel ? node : nullptr;
 }
 
-void ModelBatcher::flushIA(InputAssembler* customIA)
+void ModelBatcher::flushIA()
 {
-    if (!_walking || _currEffect == nullptr || customIA == nullptr || customIA->getCount() <= 0)
+    if (!_walking || _currEffect == nullptr || _ia.getCount() <= 0)
     {
+        _ia.clear();
         return;
     }
     
-    // Generate IA
-    InputAssembler* ia = nullptr;
-    if (_iaOffset >= _iaPool.size())
-    {
-        ia = new InputAssembler();
-        _iaPool.push_back(ia);
-    }
-    else
-    {
-        ia = _iaPool[_iaOffset];
-    }
-    _iaOffset++;
-    ia->setVertexBuffer(customIA->getVertexBuffer());
-    ia->setIndexBuffer(customIA->getIndexBuffer());
-    ia->setStart(customIA->getStart());
-    ia->setCount(customIA->getCount());
-
     // Stencil manager process
     _stencilMgr->handleEffect(_currEffect);
     
@@ -222,16 +255,9 @@ void ModelBatcher::flushIA(InputAssembler* customIA)
     model->setWorldMatix(_modelMat);
     model->setCullingMask(_cullingMask);
     model->setEffect(_currEffect, _customProps);
-    model->setInputAssembler(*ia);
-    _batchedModel.push_back(model);
+    model->setInputAssembler(_ia);
     
     _flow->getRenderScene()->addModel(model);
-}
-
-void ModelBatcher::startBatch()
-{
-    reset();
-    _walking = true;
 }
 
 void ModelBatcher::flush()
@@ -249,22 +275,10 @@ void ModelBatcher::flush()
         return;
     }
     
-    // Generate IA
-    InputAssembler* ia = nullptr;
-    if (_iaOffset >= _iaPool.size())
-    {
-        ia = new InputAssembler();
-        _iaPool.push_back(ia);
-    }
-    else
-    {
-        ia = _iaPool[_iaOffset];
-    }
-    _iaOffset++;
-    ia->setVertexBuffer(_buffer->getVertexBuffer());
-    ia->setIndexBuffer(_buffer->getIndexBuffer());
-    ia->setStart(indexStart);
-    ia->setCount(indexCount);
+    _ia.setVertexBuffer(_buffer->getVertexBuffer());
+    _ia.setIndexBuffer(_buffer->getIndexBuffer());
+    _ia.setStart(indexStart);
+    _ia.setCount(indexCount);
     
     // Stencil manager process
     _stencilMgr->handleEffect(_currEffect);
@@ -285,18 +299,24 @@ void ModelBatcher::flush()
     model->setWorldMatix(_modelMat);
     model->setCullingMask(_cullingMask);
     model->setEffect(_currEffect, _customProps);
-    model->setInputAssembler(*ia);
+    model->setInputAssembler(_ia);
     model->setNode(_node);
-    _batchedModel.push_back(model);
     
     _flow->getRenderScene()->addModel(model);
     
     _buffer->updateOffset();
 }
 
+void ModelBatcher::startBatch()
+{
+    reset();
+    _walking = true;
+}
+
 void ModelBatcher::terminateBatch()
 {
     flush();
+    flushIA();
     
     for (auto iter : _buffers)
     {
