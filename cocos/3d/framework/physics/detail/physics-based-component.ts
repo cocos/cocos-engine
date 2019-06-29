@@ -247,8 +247,6 @@ class SharedRigidBody {
 
     private _afterStepCallback!: AfterStepCallback;
 
-    private _transformInitialized: boolean = false;
-
     /** 是否只有Collider组件 */
     private _isShapeOnly: boolean = true;
 
@@ -340,11 +338,8 @@ class SharedRigidBody {
     }
 
     private _activeBody () {
-        // 是否为第一次激活
-        if (!this._transformInitialized) {
-            this._transformInitialized = true;
-            this.syncPhysWithScene(this._node);
-        }
+        // Sync scenes, no matter how many activations
+        this.syncPhysWithScene(this._node);
 
         if (this._actived) {
             return;

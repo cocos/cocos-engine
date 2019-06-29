@@ -201,7 +201,6 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
     }
 
     protected onEnable () {
-        super.onEnable();
 
         if (!CC_EDITOR) {
 
@@ -219,6 +218,8 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
                 this.sharedBody.body.addCollisionCallback(this._collisionCallBack);
             }
         }
+
+        super.onEnable();
     }
 
     protected onDisable () {
