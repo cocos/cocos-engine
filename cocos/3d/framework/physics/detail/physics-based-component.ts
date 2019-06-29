@@ -314,7 +314,11 @@ class SharedRigidBody {
         }
     }
 
-    public syncPhysWithScene (node: Node) {
+    public syncPhysWithScene (){
+        this._syncPhysWithScene(this._node);
+    }
+
+    private _syncPhysWithScene (node: Node) {
         // sync position rotation
         node.getWorldMatrix(SharedRigidBody._tempMat4);
         node.getWorldRotation(SharedRigidBody._tempQuat);
@@ -339,7 +343,7 @@ class SharedRigidBody {
 
     private _activeBody () {
         // Sync scenes, no matter how many activations
-        this.syncPhysWithScene(this._node);
+        this._syncPhysWithScene(this._node);
 
         if (this._actived) {
             return;
@@ -378,7 +382,7 @@ class SharedRigidBody {
                 this._body.scaleAllShapes(this._node.worldScale);
                 vec3.copy(this._prevScale, this._node.worldScale);
             }
-            this.syncPhysWithScene(this._node);
+            this._syncPhysWithScene(this._node);
 
             if (!CC_PHYSICS_BUILT_IN) {
                 if (this._body.isSleeping()) {
@@ -397,7 +401,7 @@ class SharedRigidBody {
                 // 对于只有形状组件的节点，需要将Scene中节点的Transform同步到Phyisc。
                 // 这是因为物理计算后可能会改变一些节点，这会导致这些子节点的Transform也发生改变。
                 if (this._node.hasChanged) {
-                    this.syncPhysWithScene(this._node);
+                    this._syncPhysWithScene(this._node);
 
                     if (this._body.isSleeping()) {
                         this._body.wakeUp();

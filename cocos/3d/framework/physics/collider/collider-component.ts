@@ -203,6 +203,7 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
     protected onEnable () {
 
         if (!CC_EDITOR) {
+            super.onEnable();
 
             const rigidBody = this.sharedBody.rigidBody as RigidBodyComponent | null;
             if (rigidBody != null) {
@@ -217,9 +218,9 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
             if (!CC_PHYSICS_BUILT_IN) {
                 this.sharedBody.body.addCollisionCallback(this._collisionCallBack);
             }
+            // sync after add shape
+            this.sharedBody.syncPhysWithScene();
         }
-
-        super.onEnable();
     }
 
     protected onDisable () {
