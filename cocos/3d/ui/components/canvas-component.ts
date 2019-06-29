@@ -29,7 +29,7 @@
  */
 
 import { Component } from '../../../components';
-import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
+import { ccclass, disallowMultiple, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
 import { Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';
 import { GFXClearFlag } from '../../../gfx/define';
@@ -50,7 +50,7 @@ const _worldPos = new Vec3();
 @requireComponent(UITransformComponent)
 @menu('UI/Canvas')
 @executeInEditMode
-// @disallowMultiple
+@disallowMultiple
 export class CanvasComponent extends Component {
 
     // /**
