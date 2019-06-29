@@ -79,10 +79,6 @@ export class SkinningModelComponent extends ModelComponent {
     @property(Node)
     protected _skinningRoot: Node | null = null;
 
-    public onLoad () {
-        this._materials.forEach((material, index) => material && this._onMaterialModified(index, material));
-    }
-
     public _updateModelParams () {
         // should bind skeleton before super create pso
         this._bindSkeleton();
