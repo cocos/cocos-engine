@@ -4,10 +4,10 @@ import { GFXSampler, GFXSamplerState, IGFXSamplerInfo } from '../sampler';
 import { WebGLGPUSampler } from './webgl-gpu-objects';
 
 const WebGLWraps: GLenum[] = [
-    WebGLRenderingContext.REPEAT,
-    WebGLRenderingContext.MIRRORED_REPEAT,
-    WebGLRenderingContext.CLAMP_TO_EDGE,
-    WebGLRenderingContext.CLAMP_TO_EDGE,
+    0x2901, // WebGLRenderingContext.REPEAT,
+    0x8370, // WebGLRenderingContext.MIRRORED_REPEAT,
+    0x812F, // WebGLRenderingContext.CLAMP_TO_EDGE,
+    0x812F, // WebGLRenderingContext.CLAMP_TO_EDGE,
 ];
 
 export class WebGLGFXSampler extends GFXSampler {
@@ -78,8 +78,8 @@ export class WebGLGFXSampler extends GFXSampler {
             this._state.mipLODBias = info.mipLODBias;
         }
 
-        let glMinFilter = WebGLRenderingContext.NONE;
-        let glMagFilter = WebGLRenderingContext.NONE;
+        let glMinFilter = 0;
+        let glMagFilter = 0;
 
         const minFilter = this._state.minFilter;
         const magFilter = this._state.magFilter;
@@ -87,26 +87,26 @@ export class WebGLGFXSampler extends GFXSampler {
 
         if (minFilter === GFXFilter.LINEAR || minFilter === GFXFilter.ANISOTROPIC) {
             if (mipFilter === GFXFilter.LINEAR || mipFilter === GFXFilter.ANISOTROPIC) {
-                glMinFilter = WebGLRenderingContext.LINEAR_MIPMAP_LINEAR;
+                glMinFilter = 0x2703; // WebGLRenderingContext.LINEAR_MIPMAP_LINEAR;
             } else if (mipFilter === GFXFilter.POINT) {
-                glMinFilter = WebGLRenderingContext.LINEAR_MIPMAP_NEAREST;
+                glMinFilter = 0x2701; // WebGLRenderingContext.LINEAR_MIPMAP_NEAREST;
             } else {
-                glMinFilter = WebGLRenderingContext.LINEAR;
+                glMinFilter = 0x2601; // WebGLRenderingContext.LINEAR;
             }
         } else {
             if (mipFilter === GFXFilter.LINEAR || mipFilter === GFXFilter.ANISOTROPIC) {
-                glMinFilter = WebGLRenderingContext.NEAREST_MIPMAP_LINEAR;
+                glMinFilter = 0x2702; // WebGLRenderingContext.NEAREST_MIPMAP_LINEAR;
             } else if (mipFilter === GFXFilter.POINT) {
-                glMinFilter = WebGLRenderingContext.NEAREST_MIPMAP_NEAREST;
+                glMinFilter = 0x2700; // WebGLRenderingContext.NEAREST_MIPMAP_NEAREST;
             } else {
-                glMinFilter = WebGLRenderingContext.NEAREST;
+                glMinFilter = 0x2600; // WebGLRenderingContext.NEAREST;
             }
         }
 
         if (magFilter === GFXFilter.LINEAR || magFilter === GFXFilter.ANISOTROPIC) {
-            glMagFilter = WebGLRenderingContext.LINEAR;
+            glMagFilter = 0x2601; // WebGLRenderingContext.LINEAR;
         } else {
-            glMagFilter = WebGLRenderingContext.NEAREST;
+            glMagFilter = 0x2600; // WebGLRenderingContext.NEAREST;
         }
 
         const glWrapS = WebGLWraps[this._state.addressU];
