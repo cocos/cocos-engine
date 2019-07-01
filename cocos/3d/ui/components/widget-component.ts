@@ -30,6 +30,7 @@
 
 import { Component} from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
+import { SystemEventType } from '../../../core/platform';
 import { Size, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import { Node } from '../../../scene-graph/node';
@@ -138,11 +139,15 @@ export class WidgetComponent extends Component {
             return;
         }
 
+        this._unregisterTargetEvents();
         this._target = value;
+        this._registerTargetEvents();
         if (CC_EDITOR /*&& !cc.engine._isPlaying*/ && this.node.parent) {
             // adjust the offsets to keep the size and position unchanged after target chagned
             cc._widgetManager.updateOffsetsToStayPut(this);
         }
+
+        this._validateTargetInDEV();
 
         this._recursiveDirty();
     }
@@ -566,6 +571,7 @@ export class WidgetComponent extends Component {
         this.node.getPosition(this._lastPos);
         this.node.getContentSize(this._lastSize);
         cc._widgetManager.add(this);
+        this._registerTargetEvents();
     }
 
     public update (){
@@ -573,19 +579,15 @@ export class WidgetComponent extends Component {
             return;
         }
 
+        // changed by parent
         if (this.node.hasChanged) {
             this._recursiveDirty();
-            return;
-        }
-
-        if (this.target && this.target.hasChanged){
-            this._recursiveDirty();
-            return;
         }
     }
 
     public onDisable () {
         cc._widgetManager.remove(this);
+        this._unregisterTargetEvents();
     }
 
     protected _aotuChangedValue (flag: AlignFlags, isAbs: boolean){
@@ -609,6 +611,24 @@ export class WidgetComponent extends Component {
             this._verticalCenter = isAbs ? this._verticalCenter * size.height : this._verticalCenter / size.height;
         }
 
+        this._recursiveDirty();
+    }
+
+    protected _registerTargetEvents (){
+        if (this._target){
+            this._target.on(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
+            this._target.on(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
+        }
+    }
+
+    protected _unregisterTargetEvents () {
+        if (this._target) {
+            this._target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
+            this._target.off(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
+        }
+    }
+
+    protected _targetChangedOperation (){
         this._recursiveDirty();
     }
 
