@@ -25,7 +25,6 @@ export default class LinkedArray<T = {}> {
     private _pool: Pool<INode>;
 
     /**
-     * @zh
      * 构造函数。
      * @param fn 对象构建函数。
      * @param size 内置元素个数。

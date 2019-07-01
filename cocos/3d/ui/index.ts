@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 
 import {
     barFilled,

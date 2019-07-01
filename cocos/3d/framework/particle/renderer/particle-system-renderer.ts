@@ -1,24 +1,22 @@
-import { ccclass, executeInEditMode, property } from '../../../../core/data/class-decorator';
-import { Enum, Vec2, Vec4 } from '../../../../core/value-types';
-import { mat4, vec2, vec3, vec4 } from '../../../../core/vmath';
+import { Component } from '../../../../components';
+import { ccclass, property } from '../../../../core/data/class-decorator';
+import { Mat4, Vec2, Vec3, Vec4 } from '../../../../core/value-types';
+import { vec2, vec3 } from '../../../../core/vmath';
 import { GFXAttributeName, GFXFormat } from '../../../../gfx/define';
 import { IGFXAttribute } from '../../../../gfx/input-assembler';
-import * as renderer from '../../../../renderer';
+import { IDefineMap } from '../../../../renderer/core/pass';
 import ParticleBatchModel from '../../../../renderer/models/particle-batch-model';
 import { Mesh } from '../../../assets';
 import { Material } from '../../../assets/material';
-import { postLoadMesh } from '../../../assets/utils/mesh-utils';
 import { builtinResMgr } from '../../../builtin';
 import RecyclePool from '../../../memop/recycle-pool';
 import { RenderMode, Space } from '../enum';
 import Particle from '../particle';
-// import ParticleSystemComponent from '../particle-system-component';
+import { ParticleSystemComponent } from '../particle-system-component';
 
-// tslint:disable: max-line-length
-const _tempAttribUV: vec3 = vec3.create();
-const _tempAttribUV0: vec2 = vec2.create();
-const _tempAttribColor: vec4 = vec4.create();
-const _tempWorldTrans: mat4 = mat4.create();
+const _tempAttribUV = new Vec3();
+const _tempAttribUV0 = new Vec2();
+const _tempWorldTrans = new Mat4();
 
 const _uvs = [
     0, 0, // bottom-left
@@ -162,7 +160,7 @@ export default class ParticleSystemRenderer {
         displayOrder: 8,
     })
     public get particleMaterial () {
-        return this.particleSystem.getMaterial(0, CC_EDITOR)!;
+        return this.particleSystem.getMaterial(0);
     }
 
     public set particleMaterial (val) {
@@ -177,20 +175,20 @@ export default class ParticleSystemRenderer {
         displayOrder: 9,
     })
     public get trailMaterial () {
-        return this.particleSystem.getMaterial(1, CC_EDITOR)!;
+        return this.particleSystem.getMaterial(1)!;
     }
 
     public set trailMaterial (val) {
         this.particleSystem.setMaterial(val, 1);
     }
 
-    private _defines: { [index: string]: boolean };
-    private _trailDefines: { [index: string]: boolean };
+    private _defines: IDefineMap;
+    private _trailDefines: IDefineMap;
     private _model: ParticleBatchModel | null;
     private frameTile_velLenScale: Vec4;
     private _node_scale: Vec4;
     private attrs: any[];
-    private _vertAttrs: IGFXAttribute[];
+    private _vertAttrs: IGFXAttribute[] = [];
     private particleSystem: any;
     private _particles: RecyclePool | null = null;
     private _defaultMat: Material | null = null;
@@ -199,8 +197,8 @@ export default class ParticleSystemRenderer {
     constructor () {
         this._model = null;
 
-        this.frameTile_velLenScale = cc.v4(1, 1, 0, 0);
-        this._node_scale = cc.v4();
+        this.frameTile_velLenScale = new Vec4(1, 1, 0, 0);
+        this._node_scale = new Vec4();
         this.attrs = new Array(5);
         this._defines = {
             CC_USE_WORLD_SPACE: true,
@@ -214,8 +212,8 @@ export default class ParticleSystemRenderer {
         };
     }
 
-    public onInit (ps) {
-        this.particleSystem = ps.node.getComponent('cc.ParticleSystemComponent');
+    public onInit (ps: Component) {
+        this.particleSystem = ps.node.getComponent(ParticleSystemComponent);
         this._particles = new RecyclePool(() => {
             return new Particle(this);
         }, 16);
@@ -479,7 +477,8 @@ export default class ParticleSystemRenderer {
         mat!.recompileShaders(this._defines);
 
         if (this.particleSystem.textureAnimationModule.enable) {
-            mat!.setProperty('frameTile_velLenScale', vec2.set(this.frameTile_velLenScale, this.particleSystem.textureAnimationModule.numTilesX, this.particleSystem.textureAnimationModule.numTilesY));
+            vec2.set(this.frameTile_velLenScale, this.particleSystem.textureAnimationModule.numTilesX, this.particleSystem.textureAnimationModule.numTilesY);
+            mat!.setProperty('frameTile_velLenScale', this.frameTile_velLenScale);
         } else {
             mat!.setProperty('frameTile_velLenScale', this.frameTile_velLenScale);
         }

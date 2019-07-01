@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 
 import { CanvasComponent, MeshBuffer, StencilManager, UIComponent, UIRenderComponent, UIVertexFormat } from '../../3d';
 import { Material } from '../../3d/assets/material';
@@ -312,7 +315,8 @@ export class UI {
 
     /**
      * @zh
-     * UI 渲染组件数据提交流程。
+     * UI 渲染组件数据提交流程（针对顶点数据都是世界坐标下的提交流程，例如：除 graphics 和 uimodel 的大部分 ui 组件）。
+     * 此处的数据最终会生成需要提交渲染的 model 数据。
      *
      * @param comp - 当前执行组件。
      * @param frame - 当前执行组件贴图。
@@ -336,7 +340,15 @@ export class UI {
         }
     }
 
-    public commitModel (comp: UIComponent, model: Model | null, mat: Material | null){
+    /**
+     * @zh
+     * UI 渲染组件数据提交流程（针对例如： graphics 和 uimodel 等数据量较为庞大的 ui 组件）。
+     *
+     * @param comp - 当前执行组件。
+     * @param model - 提交渲染的 model 数据。
+     * @param mat - 提交渲染的材质。
+     */
+    public commitModel (comp: UIComponent, model: Model | null, mat: Material | null) {
         // if the last comp is spriteComp, previous comps should be batched.
         if (this._currMaterial !== this._emptyMaterial) {
             this.autoMergeBatches();

@@ -39,6 +39,7 @@ import Vec2 from '../core/value-types/vec2';
 import { mat4, quat, vec3 } from '../core/vmath';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
+import { NodeEventProcessor } from './node-event-processor';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -105,7 +106,7 @@ export class Node extends BaseNode {
     protected _matDirty = false;
     protected _eulerDirty = false;
 
-    protected _eventProcessor = new cc.NodeEventProcessor(this);
+    protected _eventProcessor: NodeEventProcessor = new cc.NodeEventProcessor(this);
     protected _eventMask = 0;
     private _uiTransfromComp: UITransformComponent | null = null;
 
@@ -484,6 +485,7 @@ export class Node extends BaseNode {
      * @zh
      * 本地旋转
      */
+    @constget
     public get rotation (): Readonly<Quat> {
         return this._lrot;
     }
@@ -538,6 +540,7 @@ export class Node extends BaseNode {
      * @zh
      * 本地缩放
      */
+    @constget
     public get scale (): Readonly<Vec3> {
         return this._lscale;
     }
@@ -604,6 +607,7 @@ export class Node extends BaseNode {
      * @zh
      * 世界坐标
      */
+    @constget
     public get worldPosition (): Readonly<Vec3> {
         this.updateWorldTransform();
         return this._pos;
@@ -690,6 +694,7 @@ export class Node extends BaseNode {
      * @zh
      * 世界旋转
      */
+    @constget
     public get worldRotation (): Readonly<Quat> {
         this.updateWorldTransform();
         return this._rot;
@@ -751,6 +756,7 @@ export class Node extends BaseNode {
      * @zh
      * 世界缩放
      */
+    @constget
     public get worldScale (): Readonly<Vec3> {
         this.updateWorldTransform();
         return this._scale;
@@ -774,6 +780,7 @@ export class Node extends BaseNode {
      * @zh
      * 世界变换矩阵
      */
+    @constget
     public get worldMatrix (): Readonly<Mat4> {
         this.updateWorldTransformFull();
         return this._mat;
@@ -931,6 +938,11 @@ export class Node extends BaseNode {
 
     public resumeSystemEvents (recursive: boolean) {
         eventManager.resumeTarget(this, recursive);
+    }
+
+    public _onPreDestroy () {
+        this._eventProcessor.destroy();
+        super._onPreDestroy();
     }
 }
 

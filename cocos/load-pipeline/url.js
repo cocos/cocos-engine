@@ -25,6 +25,10 @@
  */
 
 /**
+<<<<<<< HEAD
+ * 加载相关模块
+=======
+>>>>>>> Some API Doc modify (#4725)
  * @category loader
  */
 

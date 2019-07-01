@@ -1,4 +1,31 @@
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+/*
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+/**
+ * @hidden
+ */
 
 import { Skeleton } from '../../3d/assets/skeleton';
 import { LCA } from '../../3d/misc/utils';
@@ -132,7 +159,11 @@ export class SkinningModel extends Model {
 
         if (type !== JointsMediumType.UNIFORM) {
             const texture = this._jointsMedium.texture = new Texture2D();
-            texture.create(width, height, format);
+            texture.reset({
+                width,
+                height,
+                format,
+            });
             texture.setFilters(Filter.NEAREST, Filter.NEAREST);
             texture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
 
@@ -156,7 +187,7 @@ export class SkinningModel extends Model {
         if (!super.updateUBOs() || !this._skeleton) { return false; }
 
         const len = this._joints.length;
-        if (this._skeleton.bindTRS) { // TODO: pre-apply this into animation clip
+        if (this._skeleton.bindTRS.length) { // TODO: pre-apply this into animation clip
             for (let i = 0; i < len; ++i) {
                 const cur = this._joints[i]; cur.update();
                 const bindpose = this._skeleton.bindTRS[i];

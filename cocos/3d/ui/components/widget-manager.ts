@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 import { SystemEventType } from '../../../core/platform';
 import { array } from '../../../core/utils/js';
 import { Vec2, Vec3 } from '../../../core/value-types';
@@ -235,6 +239,7 @@ function align (node: Node, widget: WidgetComponent) {
     }
 
     node.setPosition(x, y, _tempPos.z);
+    vec3.set(widget._lastPos, x, y, _tempPos.z);
 }
 
 function visitNode (node: Node) {

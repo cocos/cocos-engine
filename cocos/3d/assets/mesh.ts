@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category asset
+ */
+
 import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Vec3 } from '../../core/value-types';
@@ -228,6 +232,18 @@ export class RenderingMesh {
     }
 }
 
+export interface IMeshCreateInfo {
+    /**
+     * 网格结构。
+     */
+    struct: IMeshStruct;
+
+    /**
+     * 网格二进制数据。
+     */
+    data: Uint8Array;
+}
+
 /**
  * 网格资源。
  */
@@ -412,11 +428,23 @@ export class Mesh extends Asset {
      * 重置此网格的结构和数据。
      * @param struct 新的结构。
      * @param data 新的数据。
+     * @deprecated 将在 V1.0.0 移除，请转用 `this.reset()`。
      */
     public assign (struct: IMeshStruct, data: Uint8Array) {
+        this.reset({
+            struct,
+            data,
+        });
+    }
+
+    /**
+     * 重置此网格。
+     * @param info 网格重置选项。
+     */
+    public reset (info: IMeshCreateInfo) {
         this.destroyRenderingMesh();
-        this._struct = struct;
-        this._data = data;
+        this._struct = info.struct;
+        this._data = info.data;
         this.loaded = true;
         this.emit('load');
     }
@@ -455,7 +483,7 @@ export class Mesh extends Asset {
         if (!this._initialized && mesh._data) {
             const struct = JSON.parse(JSON.stringify(mesh._struct));
             const data = mesh._data.slice();
-            this.assign(struct, data);
+            this.reset({struct, data});
             this.initialize();
             return true;
         }
@@ -663,7 +691,10 @@ export class Mesh extends Asset {
         }
 
         // Create mesh.
-        this.assign(meshStruct, new Uint8Array(bufferBlob.getCombined()));
+        this.reset({
+            struct: meshStruct,
+            data: new Uint8Array(bufferBlob.getCombined()),
+        });
         this.initialize();
 
         return true;

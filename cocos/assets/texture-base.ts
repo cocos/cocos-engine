@@ -23,6 +23,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * @category asset
+ */
+
 // @ts-check
 import {ccclass, property} from '../core/data/class-decorator';
 import IDGenerator from '../core/utils/id-generator';
@@ -62,6 +67,33 @@ const _regions: GFXBufferTextureCopy[] = [{
         layerCount: 1,
     },
 }];
+
+/**
+ * 贴图创建选项。
+ */
+export interface ITextureCreateInfo {
+    /**
+     * 像素宽度。
+     */
+    width: number;
+
+    /**
+     * 像素高度。
+     */
+    height: number;
+
+    /**
+     * 像素格式。
+     * @default PixelFormat.RGBA8888
+     */
+    format?: PixelFormat;
+
+    /**
+     * mipmap 层级。
+     * @default 1
+     */
+    mipmapLevel?: number;
+}
 
 /**
  * 贴图资源基类。它定义了所有贴图共用的概念。
@@ -161,19 +193,40 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * 将当且贴图重置为指定尺寸、像素格式以及指定 mipmap 层级的贴图。重置后，贴图的像素数据将变为未定义。
+     * 将当前贴图重置为指定尺寸、像素格式以及指定 mipmap 层级。重置后，贴图的像素数据将变为未定义。
+     * mipmap 图像的数据不会自动更新到贴图中，你必须显式调用 `this.uploadData` 来上传贴图数据。
+     * @param info 贴图重置选项。
+     */
+    public reset (info: ITextureCreateInfo) {
+        if (info.format === undefined) {
+            info.format = PixelFormat.RGBA8888;
+        }
+        if (info.mipmapLevel === undefined) {
+            info.mipmapLevel = 1;
+        }
+        this._potientialWidth = info.width;
+        this._potientialHeight = info.height;
+        this._format = info.format;
+        this._mipmapLevel = info.mipmapLevel;
+        this._recreateTexture();
+    }
+
+    /**
+     * 将当前贴图重置为指定尺寸、像素格式以及指定 mipmap 层级的贴图。重置后，贴图的像素数据将变为未定义。
      * mipmap 图像的数据不会自动更新到贴图中，你必须显式调用 `this.uploadData` 来上传贴图数据。
      * @param width 像素宽度。
      * @param height 像素高度。
      * @param format 像素格式。
      * @param mipmapLevel mipmap 层级。
+     * @deprecated 将在 V1.0.0 移除，请转用 `this.reset()`。
      */
     public create (width: number, height: number, format = PixelFormat.RGBA8888, mipmapLevel = 1) {
-        this._potientialWidth = width;
-        this._potientialHeight = height;
-        this._format = format;
-        this._mipmapLevel = mipmapLevel;
-        this._recreateTexture();
+        this.reset({
+            width,
+            height,
+            format,
+            mipmapLevel,
+        });
     }
 
     /**

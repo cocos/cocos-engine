@@ -22,6 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * @category asset
+ */
+
 // @ts-check
 import { Texture2D } from '../../assets';
 import { ImageAsset } from '../../assets/image-asset';
@@ -73,14 +78,23 @@ export class TextureCube extends TextureBase {
         this._mipmaps = value;
         if (this._mipmaps.length > 0) {
             const imageAsset: ImageAsset = this._mipmaps[0].front;
-            this.create(imageAsset.width, imageAsset.height, imageAsset.format, this._mipmaps.length);
+            this.reset({
+                width: imageAsset.width,
+                height: imageAsset.height,
+                format: imageAsset.format,
+                mipmapLevel: this._mipmaps.length,
+            });
             this._mipmaps.forEach((mipmap, level) => {
                 _forEachFace(mipmap, (face, faceIndex) => {
                     this._assignImage(face, level, faceIndex);
                 });
             });
         } else {
-            this.create(0, 0, undefined, this._mipmaps.length);
+            this.reset({
+                width: 0,
+                height: 0,
+                mipmapLevel: this._mipmaps.length,
+            });
         }
     }
 

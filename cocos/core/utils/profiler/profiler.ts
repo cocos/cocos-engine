@@ -40,6 +40,8 @@ interface IProfilerState {
     logic: ICounterOption;
     render: ICounterOption;
     mode: ICounterOption;
+    physics: ICounterOption;
+    deferredDestory: ICounterOption;
 }
 
 let _showFPS = false;
@@ -145,12 +147,14 @@ function generateStats () {
     const now = performance.now();
 
     const opts = {
-        frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
+        frame: { desc: 'Frame time (s)', min: 0, max: 50, average: 500 },
         fps: { desc: 'Framerate (FPS)', below: 30, average: 500 },
         draws: { desc: 'Draw call' },
         tricount: { desc: 'Triangle' },
-        logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: 500, color: '#080' },
-        render: { desc: 'Renderer (ms)', min: 0, max: 50, average: 500, color: '#f90' },
+        logic: { desc: 'Game Logic (s)', min: 0, max: 50, average: 500, color: '#080' },
+        deferredDestory: { desc: 'Deferred Destory (s)', min: 0, max: 50, average: 500 },
+        physics: { desc: 'Physics (s)', min: 0, max: 50, average: 500 },
+        render: { desc: 'Renderer (s)', min: 0, max: 50, average: 500, color: '#f90' },
         mode: { desc: cc.game.renderType === cc.game.RENDER_TYPE_WEBGL ? 'WebGL' : 'Canvas', min: 1 },
     };
 
@@ -240,12 +244,32 @@ function afterUpdate () {
     } else {
         getCounter('logic').end(now);
     }
-    getCounter('render').start(now);
+    getCounter('deferredDestory').start(now);
 }
 
 // function updateLabel (stat: IProfilerStateOption) {
 //     stat.label.string = stat.desc + '  ' + stat.counter.human();
 // }
+
+function beforePhysics (){
+    if (!_stats){
+        return;
+    }
+
+    const now = performance.now();
+    getCounter('deferredDestory').end(now);
+    getCounter('physics').start(now);
+}
+
+function beforeDraw (){
+    if (!_stats){
+        return;
+    }
+
+    const now = performance.now();
+    getCounter('physics').end(now);
+    getCounter('render').start(now);
+}
 
 function afterDraw () {
     if (!_stats){
@@ -293,6 +317,8 @@ export const profiler = {
 
             cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, beforeUpdate);
             cc.director.off(cc.Director.EVENT_AFTER_UPDATE, afterUpdate);
+            cc.director.off(cc.Director.EVENT_BEFORE_PHYSICS, beforePhysics);
+            cc.director.off(cc.Director.EVENT_BEFORE_DRAW, beforeDraw);
             cc.director.off(cc.Director.EVENT_AFTER_DRAW, afterDraw);
             _showFPS = false;
         }
@@ -310,6 +336,8 @@ export const profiler = {
 
             cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, beforeUpdate);
             cc.director.on(cc.Director.EVENT_AFTER_UPDATE, afterUpdate);
+            cc.director.on(cc.Director.EVENT_BEFORE_PHYSICS, beforePhysics);
+            cc.director.on(cc.Director.EVENT_BEFORE_DRAW, beforeDraw);
             cc.director.on(cc.Director.EVENT_AFTER_DRAW, afterDraw);
             _showFPS = true;
         }

@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import * as easing from './easing';
 export * from './bezier';
 export { easing };

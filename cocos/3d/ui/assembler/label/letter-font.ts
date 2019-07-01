@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 import { ImageAsset, SpriteFrame, Texture2D } from '../../../../assets';
 import { isUnicodeCJK, isUnicodeSpace, safeMeasureText} from '../../../../core/utils';
 import { mixin } from '../../../../core/utils/js';

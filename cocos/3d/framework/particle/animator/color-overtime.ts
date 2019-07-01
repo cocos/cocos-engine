@@ -3,9 +3,8 @@
  * @category particle
  */
 
-import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { color4, pseudoRandom } from '../../../../core/vmath';
+import { pseudoRandom } from '../../../../core/vmath';
 import Particle from '../particle';
 import GradientRange from './gradient-range';
 

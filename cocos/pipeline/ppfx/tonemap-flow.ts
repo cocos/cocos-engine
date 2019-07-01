@@ -1,5 +1,5 @@
 /**
- * @category pipeline/ppfx
+ * @category pipeline.ppfx
  */
 
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';

@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core/data
+ */
+
 import * as js from '../utils/js';
 import * as misc from '../utils/misc';
 import CCClass from './class';

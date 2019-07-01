@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 
 /**
  * @hidden
@@ -11,7 +14,7 @@ export default class CircularPool<T = {}> {
     private _data: T[];
 
     /**
-     * @zh 构造函数。
+     * 构造函数。
      * @param fn 创建对象函数。
      * @param size 列表长度。
      */

@@ -22,9 +22,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * @category component/camera
+ */
+
 import { ray } from '../../3d/geom-utils';
 import { Component } from '../../components/component';
 import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
+import { constget } from '../../core/data/utils/constget';
 import { Color, Enum, Rect, Vec3 } from '../../core/value-types';
 import { color4, toRadian } from '../../core/vmath';
 import { GFXClearFlag } from '../../gfx/define';
@@ -42,23 +48,15 @@ import { Scene } from '../../scene-graph';
  */
 const ProjectionType = Enum({
     /**
-     * @en
-     * The orthogonal camera
-     * @zh
      * 正交相机。
      * @property Ortho
      * @readonly
-     * @type {Number}
      */
     ORTHO: 0,
     /**
-     * @en
-     * The perspective camera
-     * @zh
      * 透视相机。
      * @property Perspective
      * @readonly
-     * @type {Number}
      */
     PERSPECTIVE: 1,
 });
@@ -74,8 +72,6 @@ const c4_1 = color4.create();
 /**
  * @en The Camera Component
  * @zh 相机组件。
- * @class CameraComponent
- * @extends Component
  */
 @ccclass('cc.CameraComponent')
 @menu('Components/CameraComponent')
@@ -208,7 +204,8 @@ export class CameraComponent extends Component {
      * @zh 相机的颜色缓冲默认值。
      */
     @property
-    get color () {
+    @constget
+    get color (): Readonly<Color>  {
         return this._color;
     }
 

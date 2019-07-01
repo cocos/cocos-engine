@@ -24,14 +24,14 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core/value-types
+ */
+
 import CCClass from '../data/class';
 import {clamp, vec3, vec4} from '../vmath';
 import Mat4 from './mat4';
 import { ValueType } from './value-type';
-
-/**
- * @category core/value-types
- */
 
 /**
  * 四维向量。

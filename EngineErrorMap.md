@@ -1156,15 +1156,15 @@ The default value of %s must be an empty string.
 
 ### 3608
 
-The type of %s must be cc.String, not String.
+The type of %s must be CCString, not String.
 
 ### 3609
 
-The type of %s must be cc.Boolean, not Boolean.
+The type of %s must be CCBoolean, not Boolean.
 
 ### 3610
 
-The type of %s must be cc.Float or cc.Integer, not Number.
+The type of %s must be CCFloat or CCInteger, not Number.
 
 ### 3611
 

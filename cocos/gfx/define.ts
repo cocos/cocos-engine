@@ -1,4 +1,5 @@
 /**
+ * gfx模块
  * @category gfx
  */
 
@@ -779,7 +780,6 @@ export interface IGFXFormatInfo {
 }
 
 /**
- * @zh
  * GFX格式信息数组。
  */
 // tslint:disable: max-line-length

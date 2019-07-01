@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../../../components';
-import { ccclass, executeInEditMode, executionOrder, property } from '../../../core/data/class-decorator';
+import { ccclass, disallowMultiple, executeInEditMode, executionOrder, property } from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { UI } from '../../../renderer/ui/ui';
 import { Node } from '../../../scene-graph';
@@ -41,6 +41,7 @@ import { CanvasComponent } from './canvas-component';
  */
 @ccclass('cc.UIComponent')
 @executionOrder(110)
+@disallowMultiple
 @executeInEditMode
 export class UIComponent extends Component {
 

@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category asset
+ */
+
 import decodeUuid from '../core/utils/decode-uuid';
 import {_getClassById, createMap, isChildClassOf} from '../core/utils/js';
 import {callInNextTick} from '../core/utils/misc';

@@ -106,11 +106,11 @@ export class WebGLGPUFramebuffer {
 }
 
 export class WebGLGPUSampler {
-    public glMinFilter: GLenum = WebGLRenderingContext.NONE;
-    public glMagFilter: GLenum = WebGLRenderingContext.NONE;
-    public glWrapS: GLenum = WebGLRenderingContext.NONE;
-    public glWrapT: GLenum = WebGLRenderingContext.NONE;
-    public glWrapR: GLenum = WebGLRenderingContext.NONE;
+    public glMinFilter: GLenum = 0;
+    public glMagFilter: GLenum = 0;
+    public glWrapS: GLenum = 0;
+    public glWrapT: GLenum = 0;
+    public glWrapR: GLenum = 0;
 }
 
 export class WebGLGPUInput {
@@ -187,7 +187,7 @@ export class WebGLGPUPipelineLayout {
 
 export class WebGLGPUPipelineState {
 
-    public glPrimitive: GLenum = WebGLRenderingContext.TRIANGLES;
+    public glPrimitive: GLenum = 0x0004; // WebGLRenderingContext.TRIANGLES;
     public gpuShader: WebGLGPUShader | null = null;
     public rs: GFXRasterizerState = new GFXRasterizerState();
     public dss: GFXDepthStencilState = new GFXDepthStencilState();

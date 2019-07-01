@@ -3,7 +3,6 @@
  * @category particle
  */
 
-import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
 import { pseudoRandom } from '../../../../core/vmath';
 import Particle from '../particle';

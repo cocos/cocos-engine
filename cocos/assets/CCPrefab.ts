@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category asset
+ */
+
 import {ccclass, property} from '../core/data/class-decorator';
 import {compile} from '../core/data/instantiate-jit';
 import {obsolete} from '../core/utils/js';

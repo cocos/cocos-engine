@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category asset
+ */
+
 import {ccclass} from '../core/data/class-decorator';
 import { Asset } from './asset';
 

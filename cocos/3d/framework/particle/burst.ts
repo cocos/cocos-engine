@@ -1,9 +1,7 @@
-
 /**
  * @hidden
  */
 
-import { CCClass } from '../../../core/data';
 import { ccclass, property } from '../../../core/data/class-decorator';
 import { repeat } from '../../../core/vmath';
 import CurveRange from './animator/curve-range';

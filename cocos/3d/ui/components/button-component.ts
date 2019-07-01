@@ -32,6 +32,7 @@
 import { SpriteFrame } from '../../../assets';
 import { Component, EventHandler as ComponentEventHandler } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { constget } from '../../../core/data/utils/constget';
 import { EventMouse, EventTouch, SystemEventType } from '../../../core/platform';
 import { lerp } from '../../../core/utils';
 import { Color, Vec3 } from '../../../core/value-types';
@@ -196,7 +197,8 @@ export class ButtonComponent extends Component {
      * 普通状态下按钮所显示的颜色。
      */
     @property
-    get normalColor () {
+    @constget
+    get normalColor (): Readonly<Color> {
         return this._normalColor;
     }
 
@@ -214,7 +216,8 @@ export class ButtonComponent extends Component {
      * 按下状态时按钮所显示的颜色。
      */
     @property
-    get pressedColor () {
+    @constget
+    get pressedColor (): Readonly<Color> {
         return this._pressColor;
     }
 
@@ -231,7 +234,8 @@ export class ButtonComponent extends Component {
      * 悬停状态下按钮所显示的颜色。
      */
     @property
-    get hoverColor () {
+    @constget
+    get hoverColor (): Readonly<Color> {
         return this._hoverColor;
     }
 
@@ -247,7 +251,8 @@ export class ButtonComponent extends Component {
      * 禁用状态下按钮所显示的颜色。
      */
     @property
-    get disabledColor () {
+    @constget
+    get disabledColor (): Readonly<Color> {
         return this._disabledColor;
     }
 
@@ -479,6 +484,12 @@ export class ButtonComponent extends Component {
             this.node.on('spriteframe-changed', (comp: SpriteComponent) => {
                 if (this._transition === Transition.SPRITE) {
                     this._normalSprite = comp.spriteFrame;
+                } else {
+                    // avoid serialization data loss when in no-sprite mode
+                    this._normalSprite = null;
+                    this._hoverSprite = null;
+                    this._pressedSprite = null;
+                    this._disabledSprite = null;
                 }
             }, this);
         }

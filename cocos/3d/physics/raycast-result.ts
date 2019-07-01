@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { Component } from '../../components/component';
 import { Vec3 } from '../../core/value-types';
 import { vec3 } from '../../core/vmath';

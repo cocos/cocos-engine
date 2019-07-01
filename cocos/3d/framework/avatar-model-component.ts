@@ -21,11 +21,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+/**
+ * 模型相关模块
+ * @category model
+ */
 
 import { Texture2D } from '../../assets';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
-import { CCString } from '../../core/data/utils/attribute';
+import { CCInteger, CCString } from '../../core/data/utils/attribute';
 import { Mat4, Vec2 } from '../../core/value-types';
 import { vec2 } from '../../core/vmath';
 import { GFXFormat } from '../../gfx/define';
@@ -112,8 +116,8 @@ const getPrefix = (lca: Node, target: Node) => {
 const concatPath = (prefix: string, path: string) => path ? prefix + path : prefix.slice(0, -1);
 
 /**
- * !#en The Avatar Model Component
- * !#ch 换装模型组件
+ * @en The Avatar Model Component
+ * @zh 换装模型组件
  */
 @ccclass('cc.AvatarModelComponent')
 @executionOrder(100)
@@ -146,7 +150,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
         return this._skinningRoot;
     }
 
-    @property({ type: Number })
+    @property({ type: CCInteger })
     get combinedTexSize (): number {
         return this._combinedTexSize;
     }
@@ -301,7 +305,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
         if (!lca) { console.warn('illegal skinning roots'); return; }
         // merge joints accordingly
         const skeleton = new Skeleton();
-        skeleton.bindposes = [];
+        const bindposes: Mat4[] = [];
         for (const unit of this._avatarUnits) {
             if (!unit || !unit.skeleton || !unit.skinningRoot) { continue; }
             const partial = unit.skeleton;
@@ -311,7 +315,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
                 const idx = skeleton.joints.findIndex((p) => p === path);
                 if (idx >= 0) { continue; }
                 skeleton.joints.push(path);
-                skeleton.bindposes.push(partial.bindposes && partial.bindposes[i] || new Mat4());
+                bindposes.push(partial.bindposes[i] || new Mat4());
             }
         }
         // sort the array to be more cache-friendly
@@ -321,7 +325,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
             return 0;
         });
         skeleton.joints = skeleton.joints.map((_, idx, arr) => arr[idxMap[idx]]);
-        skeleton.bindposes = skeleton.bindposes.map((_, idx, arr) => arr[idxMap[idx]]);
+        skeleton.bindposes = bindposes.map((_, idx, arr) => arr[idxMap[idx]]);
         // apply
         // @ts-ignore
         super.skeleton = skeleton;
@@ -372,7 +376,10 @@ export class AvatarModelComponent extends SkinningModelComponent {
 
             const meshData = unit.mesh.data.slice();
             const newMesh = new Mesh();
-            newMesh.assign(unit.mesh.struct, meshData);
+            newMesh.reset({
+                struct: unit.mesh.struct,
+                data: meshData,
+            });
 
             dataView = new DataView(meshData.buffer);
             const struct = unit.mesh.struct;
@@ -420,7 +427,11 @@ export class AvatarModelComponent extends SkinningModelComponent {
     private resizeCombinedTexture () {
         if (this._combinedTex) {
             this._combinedTex.destroy();
-            this._combinedTex.create(this._combinedTexSize, this._combinedTexSize, PixelFormat.RGBA8888);
+            this._combinedTex.reset({
+                width: this._combinedTexSize,
+                height: this._combinedTexSize,
+                format: PixelFormat.RGBA8888,
+            });
         }
     }
 }

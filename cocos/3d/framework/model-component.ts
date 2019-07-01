@@ -22,6 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * @category model
+ */
+
 import { builtinResMgr } from '../../3d/builtin';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import Enum from '../../core/value-types/enum';
@@ -48,7 +53,6 @@ const ModelShadowCastingMode = Enum({
 /**
  * 模型组件。
  * @class ModelComponent
- * @extends RenderableComponent
  */
 @ccclass('cc.ModelComponent')
 @executionOrder(100)

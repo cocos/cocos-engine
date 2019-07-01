@@ -25,6 +25,10 @@
 */
 
 /**
+<<<<<<< HEAD
+ * 事件相关
+=======
+>>>>>>> ui layout api (#4707)
  * @category event
  */
 

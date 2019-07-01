@@ -1,4 +1,5 @@
 /**
+ * 物理模块
  * @category physics
  */
 
@@ -9,7 +10,7 @@ import {
     menu,
     property,
 } from '../../../core/data/class-decorator';
-import { Quat, Vec3 } from '../../../core/value-types';
+import { Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 

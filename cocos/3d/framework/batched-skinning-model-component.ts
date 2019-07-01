@@ -22,6 +22,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category model
+ */
+
 import { Texture2D } from '../../assets';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
@@ -101,8 +105,8 @@ const getPrefix = (lca: Node, target: Node) => {
 const concatPath = (prefix: string, path: string) => path ? prefix + path : prefix.slice(0, -1);
 
 /**
- * !#en The Batched Skinning Model Component
- * !#ch 蒙皮模型合批组件
+ * @en The Batched Skinning Model Component
+ * @zh 蒙皮模型合批组件
  */
 @ccclass('cc.BatchedSkinningModelComponent')
 @executionOrder(100)
@@ -148,8 +152,8 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     }
 
     public onLoad () {
-        this._batchMaterial = this.getSharedMaterial(0);
         super.onLoad();
+        this._batchMaterial = this.getSharedMaterial(0);
         this.cook();
     }
 
@@ -217,7 +221,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         if (!lca) { console.warn('illegal skinning roots'); return; }
         // merge joints accordingly
         const skeleton = new Skeleton();
-        skeleton.bindposes = [];
+        const bindposes: Mat4[] = [];
         for (const unit of this.units) {
             if (!unit || !unit.skeleton || !unit.skinningRoot) { continue; }
             const partial = unit.skeleton;
@@ -227,7 +231,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
                 const idx = skeleton.joints.findIndex((p) => p === path);
                 if (idx >= 0) { continue; }
                 skeleton.joints.push(path);
-                skeleton.bindposes.push(partial.bindposes && partial.bindposes[i] || new Mat4());
+                bindposes.push(partial.bindposes[i] || new Mat4());
             }
         }
         // sort the array to be more cache-friendly
@@ -237,7 +241,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
             return 0;
         });
         skeleton.joints = skeleton.joints.map((_, idx, arr) => arr[idxMap[idx]]);
-        skeleton.bindposes = skeleton.bindposes.map((_, idx, arr) => arr[idxMap[idx]]);
+        skeleton.bindposes = bindposes.map((_, idx, arr) => arr[idxMap[idx]]);
         // apply
         this.skeleton = skeleton;
     }
@@ -357,7 +361,10 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
                 }
             }
             const newMesh = new Mesh();
-            newMesh.assign(newMeshStruct, newMeshData);
+            newMesh.reset({
+                struct: newMeshStruct,
+                data: newMeshData,
+            });
 
             const offset = unit.offset;
             const size = unit.size;
@@ -435,7 +442,11 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     protected createTexture (prop: string) {
         const tex = new Texture2D();
         tex.setFilters(Filter.LINEAR, Filter.LINEAR);
-        tex.create(this.atlasSize, this.atlasSize, PixelFormat.RGBA8888);
+        tex.reset({
+            width: this.atlasSize,
+            height: this.atlasSize,
+            format: PixelFormat.RGBA8888,
+        });
         tex.loaded = true;
         this._textures[prop] = tex;
         return tex;
@@ -444,7 +455,11 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     protected resizeAtlases () {
         for (const prop of Object.keys(this._textures)) {
             const tex = this._textures[prop];
-            tex.create(this.atlasSize, this.atlasSize, PixelFormat.RGBA8888);
+            tex.reset({
+                width: this.atlasSize,
+                height: this.atlasSize,
+                format: PixelFormat.RGBA8888,
+            });
         }
     }
 }

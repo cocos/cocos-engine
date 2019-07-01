@@ -122,17 +122,6 @@ export abstract class RenderPipeline {
 
     /**
      * @zh
-     * 是否启用 IBL。
-     */
-    public get useIBL () {
-        return this._useIBL;
-    }
-    public set useIBL (val) {
-        this._useIBL = val;
-    }
-
-    /**
-     * @zh
      * 着色尺寸缩放。
      */
     public get shadingScale (): number {
@@ -350,12 +339,6 @@ export abstract class RenderPipeline {
      * 是否为 HDR 管线。
      */
     protected _isHDR: boolean = false;
-
-    /**
-     * @zh
-     * 是否启用 IBL。
-     */
-    protected _useIBL: boolean = false;
 
     /**
      * @zh
@@ -774,7 +757,6 @@ export abstract class RenderPipeline {
     public updateMacros () {
         programLib.destroyShaderByDefines(this._macros);
         this._macros.CC_USE_HDR = (this._isHDR);
-        this._macros.CC_USE_IBL = (this._useIBL);
         for (const scene of this._root.scenes) {
             scene.onPipelineChange();
         }
@@ -855,8 +837,6 @@ export abstract class RenderPipeline {
         } else {
             this._depthStencilFmt = GFXFormat.D16;
         }
-
-        this._useIBL = (info.enableIBL !== undefined ? info.enableIBL : false);
 
         this.updateMacros();
 

@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category event
+ */
+
 import Event from '../../event/event';
 import { Vec2 } from '../../value-types';
 import { vec2 } from '../../vmath';
