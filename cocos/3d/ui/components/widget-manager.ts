@@ -239,6 +239,7 @@ function align (node: Node, widget: WidgetComponent) {
     }
 
     node.setPosition(x, y, _tempPos.z);
+    vec3.set(widget._lastPos, x, y, _tempPos.z);
 }
 
 function visitNode (node: Node) {
