@@ -590,7 +590,10 @@ let NodeDefines = {
          * @type {Integer}
          * @default 0
          */
-        _groupIndex: 0,
+        _groupIndex: {
+            default: 0,
+            formerlySerializedAs: 'groupIndex'
+        },
         groupIndex: {
             get () {
                 return this._groupIndex;
