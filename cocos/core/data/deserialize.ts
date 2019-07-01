@@ -729,48 +729,52 @@ class _Deserializer {
     }
 
     private _deserializeTypedObject (instance, serialized, klass) {
-        // if (klass === cc.Vec2) {
-        //     instance.x = serialized.x || 0;
-        //     instance.y = serialized.y || 0;
-        //     return;
-        // }
-        // else if (klass === cc.Color) {
-        //     instance.r = serialized.r || 0;
-        //     instance.g = serialized.g || 0;
-        //     instance.b = serialized.b || 0;
-        //     var a = serialized.a;
-        //     instance.a = (a === undefined ? 255 : a);
-        //     return;
-        // }
-        // else if (klass === cc.Size) {
-        //     instance.width = serialized.width || 0;
-        //     instance.height = serialized.height || 0;
-        //     return;
-        // }
-
-        let fastDefinedProps = klass.__props__;
-        if (!fastDefinedProps) {
-            fastDefinedProps = Object.keys(instance);    // 遍历 instance，如果具有类型，才不会把 __type__ 也读进来
+        if (klass === cc.Vec2) {
+            instance.x = serialized.x || 0;
+            instance.y = serialized.y || 0;
+            return;
+        } else if (klass === cc.Vec3) {
+            instance.x = serialized.x || 0;
+            instance.y = serialized.y || 0;
+            instance.z = serialized.z || 0;
+            return;
+        } else if (klass === cc.Color) {
+            instance.r = serialized.r || 0;
+            instance.g = serialized.g || 0;
+            instance.b = serialized.b || 0;
+            const a = serialized.a;
+            instance.a = (a === undefined ? 255 : a);
+            return;
+        } else if (klass === cc.Size) {
+            instance.width = serialized.width || 0;
+            instance.height = serialized.height || 0;
+            return;
         }
+
+        const DEFAULT = Attr.DELIMETER + 'default';
+        const attrs = Attr.getClassAttrs(klass);
+        const fastDefinedProps = klass.__props__ || Object.keys(instance);    // 遍历 instance，如果具有类型，才不会把 __type__ 也读进来
         // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < fastDefinedProps.length; i++) {
             const propName = fastDefinedProps[i];
-            const prop = serialized[propName];
-            if (prop !== undefined && serialized.hasOwnProperty(propName)) {
-                if (typeof prop !== 'object') {
-                    instance[propName] = prop;
+            let value = serialized[propName];
+            if (value === undefined || !serialized.hasOwnProperty(propName)) {
+                // not serialized,
+                // recover to default value in ValueType, because eliminated properties equals to
+                // its default value in ValueType, not default value in user class
+                value = CCClass.getDefault(attrs[propName + DEFAULT]);
+            }
+
+            if (typeof value !== 'object') {
+                instance[propName] = value;
+            } else if (value) {
+                if (CC_EDITOR || CC_TEST) {
+                    this._deserializeObjField(instance, value, propName, this._target && instance);
+                } else {
+                    this._deserializeObjField(instance, value, propName);
                 }
-                else if (prop) {
-                    if (CC_EDITOR || CC_TEST) {
-                        this._deserializeObjField(instance, prop, propName, this._target && instance);
-                    }
-                    else {
-                        this._deserializeObjField(instance, prop, propName);
-                    }
-                }
-                else {
-                    instance[propName] = null;
-                }
+            } else {
+                instance[propName] = null;
             }
         }
     }
