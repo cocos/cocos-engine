@@ -256,11 +256,11 @@ void SkeletonRenderer::initWithBinaryFile (const std::string& skeletonDataFile, 
     initialize();
 }
 
-void SkeletonRenderer::update (float deltaTime) {
+void SkeletonRenderer::render () {
     if (!_skeleton) return;
     // avoid other place call update.
     auto mgr = MiddlewareManager::getInstance();
-    if (!mgr->isUpdating) return;
+    if (!mgr->isRendering) return;
     
     if (_nodeProxy == nullptr) {
         return;

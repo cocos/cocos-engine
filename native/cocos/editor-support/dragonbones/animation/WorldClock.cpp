@@ -113,6 +113,17 @@ void WorldClock::remove(IAnimatable* value)
     }
 }
 
+void WorldClock::render()
+{
+    for (const auto animatable : _animatebles)
+    {
+        if (animatable != nullptr)
+        {
+            animatable->render();
+        }
+    }
+}
+
 void WorldClock::clear()
 {
     for (const auto animatable : _animatebles)

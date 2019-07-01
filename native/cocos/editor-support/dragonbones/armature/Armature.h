@@ -190,6 +190,10 @@ public:
      */
     void advanceTime(float passedTime) override;
     /**
+     * @inheritDoc
+     */
+    void render() override;
+    /**
      * - Forces a specific bone or its owning slot to update the transform or display property in the next frame.
      * @param boneName - The bone name. (If not set, all bones will be update)
      * @param updateSlot - Whether to update the bone's slots. (Default: false)

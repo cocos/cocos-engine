@@ -58,17 +58,23 @@ MeshBuffer* MiddlewareManager::getMeshBuffer(int format)
     return mb;
 }
 
-void MiddlewareManager::update(float dt)
+void MiddlewareManager::_clearRemoveList()
 {
-    for (auto it : _mbMap)
+    for (std::size_t i = 0; i < _removeList.size(); i++)
     {
-        auto buffer = it.second;
-        if (buffer)
+        auto editor = _removeList[i];
+        auto it = _updateMap.find(editor);
+        if (it != _updateMap.end())
         {
-            buffer->reset();
+            _updateMap.erase(it);
         }
     }
     
+    _removeList.clear();
+}
+
+void MiddlewareManager::update(float dt)
+{
     isUpdating = true;
     
     for (auto it = _updateMap.begin(); it != _updateMap.end(); it++)
@@ -90,17 +96,40 @@ void MiddlewareManager::update(float dt)
     
     isUpdating = false;
     
-    for (std::size_t i = 0; i < _removeList.size(); i++)
+    _clearRemoveList();
+}
+
+void MiddlewareManager::render()
+{
+    for (auto it : _mbMap)
     {
-        auto editor = _removeList[i];
-        auto it = _updateMap.find(editor);
-        if (it != _updateMap.end())
+        auto buffer = it.second;
+        if (buffer)
         {
-            _updateMap.erase(it);
+            buffer->reset();
         }
     }
     
-    _removeList.clear();
+    isRendering = true;
+    
+    for (auto it = _updateMap.begin(); it != _updateMap.end(); it++)
+    {
+        auto editor = it->first;
+        if (_removeList.size() > 0)
+        {
+            auto removeIt = std::find(_removeList.begin(), _removeList.end(), editor);
+            if (removeIt == _removeList.end())
+            {
+                editor->render();
+            }
+        }
+        else
+        {
+            editor->render();
+        }
+    }
+    
+    isRendering = false;
     
     for (auto it : _mbMap)
     {
@@ -111,6 +140,8 @@ void MiddlewareManager::update(float dt)
             buffer->uploadVB();
         }
     }
+    
+    _clearRemoveList();
 }
 
 void MiddlewareManager::addTimer(IMiddleware* editor)
@@ -125,7 +156,7 @@ void MiddlewareManager::addTimer(IMiddleware* editor)
 
 void MiddlewareManager::removeTimer(IMiddleware* editor)
 {
-    if (isUpdating)
+    if (isUpdating || isRendering)
     {
         _removeList.push_back(editor);
     }

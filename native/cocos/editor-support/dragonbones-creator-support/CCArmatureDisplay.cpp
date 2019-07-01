@@ -69,6 +69,15 @@ CCArmatureDisplay::~CCArmatureDisplay()
     CC_SAFE_RELEASE(_effect);
 }
 
+void CCArmatureDisplay::dispose(bool disposeProxy)
+{
+    if (_armature != nullptr)
+    {
+        _armature->dispose();
+        _armature = nullptr;
+    }
+}
+
 void CCArmatureDisplay::dbInit(Armature* armature)
 {
     _armature = armature;
@@ -80,22 +89,15 @@ void CCArmatureDisplay::dbClear()
     release();
 }
 
-void CCArmatureDisplay::dispose(bool disposeProxy)
-{
-    if (_armature != nullptr) 
-    {
-        _armature->dispose();
-        _armature = nullptr;
-    }
-}
+void CCArmatureDisplay::dbUpdate() {}
 
-void CCArmatureDisplay::dbUpdate()
+void CCArmatureDisplay::dbRender()
 {
     if (this->_armature->getParent())
         return;
     
     auto mgr = MiddlewareManager::getInstance();
-    if (!mgr->isUpdating) return;
+    if (!mgr->isRendering) return;
 	
     if (_nodeProxy == nullptr)
     {

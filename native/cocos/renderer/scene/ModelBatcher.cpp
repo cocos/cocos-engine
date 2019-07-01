@@ -127,9 +127,9 @@ void ModelBatcher::commit(NodeProxy* node, Assembler* assembler)
     const Mat4& worldMat = useModel && !ignoreWorldMatrix ? nodeWorldMat : Mat4::IDENTITY;
     int cullingMask = node->getCullingMask();
     
-    auto asmDirty = assembler->getDirty();
-    auto nodeDirty = node->getDirty();
-    auto needUpdateOpacity = *asmDirty & RenderFlow::OPACITY_CHANGED || *nodeDirty & RenderFlow::OPACITY_CHANGED || assembler->isOpacityAlwaysDirty();
+    auto asmDirty = assembler->isDirty(RenderFlow::OPACITY_CHANGED);
+    auto nodeDirty = node->isDirty(RenderFlow::OPACITY_CHANGED);
+    auto needUpdateOpacity = asmDirty || nodeDirty || assembler->isOpacityAlwaysDirty();
     
     for (std::size_t i = 0, l = assembler->getIACount(); i < l; ++i)
     {

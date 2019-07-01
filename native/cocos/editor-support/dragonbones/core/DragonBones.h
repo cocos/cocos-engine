@@ -471,6 +471,7 @@ public:
     virtual ~DragonBones();
     
     void advanceTime(float passedTime);
+    void render();
     void bufferEvent(EventObject* value);
     void bufferObject(BaseObject* object);
     

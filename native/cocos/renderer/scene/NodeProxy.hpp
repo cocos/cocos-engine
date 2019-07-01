@@ -35,6 +35,8 @@
 #include "math/CCMath.h"
 #include "assembler/AssemblerBase.hpp"
 
+#include "MemPool.hpp"
+
 namespace se {
     class Object;
 }
@@ -281,6 +283,11 @@ public:
      *  @brief Gets node dirty
      */
     uint32_t* getDirty() const { return _dirty; }
+    
+    /*
+     *  @brief Is node flag dirty
+     */
+    bool isDirty(uint32_t flag) const { return *_dirty & flag; }
 protected:
     void updateLevel();
     void childrenAlloc();
@@ -289,6 +296,7 @@ protected:
 private:
     bool _needVisit = true;
     bool _updateWorldMatrix = true;
+    bool _needRender = false;
     
     uint8_t _realOpacity = 255;
     std::string _id = "";
@@ -307,6 +315,7 @@ private:
     std::size_t _unitID = 0;
     std::size_t _index = 0;
     
+    Sign* _signData = nullptr;
     NodeProxy* _parent = nullptr;                  ///< weak reference to parent node
     cocos2d::Vector<NodeProxy*> _children;        ///< array of children nodes
 

@@ -44,6 +44,7 @@ struct TRS {
     float sz;
 };
 
+#define PARENT_INVALID 0xffffffff
 struct ParentInfo {
     uint32_t unitID;
     uint32_t index;
