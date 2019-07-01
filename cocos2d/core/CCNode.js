@@ -725,9 +725,15 @@ let NodeDefines = {
          */
         rotation: {
             get () {
+                if (CC_DEBUG) {
+                    cc.warn("`cc.Node.rotation` is deprecated since v2.1.0, please use `-angle` instead. (`this.node.rotation` -> `-this.node.angle`)");
+                }
                 return -this.angle;
             },
             set (value) {
+                if (CC_DEBUG) {
+                    cc.warn("`cc.Node.rotation` is deprecated since v2.1.0, please set `-angle` instead. (`this.node.rotation = x` -> `this.node.angle = -x`)");
+                }
                 this.angle = -value;
             }
         },
@@ -757,8 +763,8 @@ let NodeDefines = {
         },
 
         /**
-         * !#en The rotation as Euler angles in degrees, used in 3D project.
-         * !#zh 该节点的欧拉角度，用于 3D 项目。
+         * !#en The rotation as Euler angles in degrees, used in 3D node.
+         * !#zh 该节点的欧拉角度，用于 3D 节点。
          * @property eulerAngles
          * @type {Vec3}
          * @example
@@ -780,9 +786,15 @@ let NodeDefines = {
          */
         rotationX: {
             get () {
+                if (CC_DEBUG) {
+                    cc.warn("`cc.Node.rotationX` is deprecated since v2.1.0, please use `eulerAngles.x` instead. (`this.node.rotationX` -> `this.node.eulerAngles.x`)");
+                }
                 return this._eulerAngles.x;
             },
             set (value) {
+                if (CC_DEBUG) {
+                    cc.warn("`cc.Node.rotationX` is deprecated since v2.1.0, please set `eulerAngles` instead. (`this.node.rotationX = x` -> `this.node.is3DNode = true; this.node.eulerAngles = cc.v3(x, 0, 0)`");
+                }
                 if (this._eulerAngles.x !== value) {
                     this._eulerAngles.x = value;
                     // Update quaternion from rotation
@@ -815,9 +827,15 @@ let NodeDefines = {
          */
         rotationY: {
             get () {
+                if (CC_DEBUG) {
+                    cc.warn("`cc.Node.rotationY` is deprecated since v2.1.0, please use `eulerAngles.y` instead. (`this.node.rotationY` -> `this.node.eulerAngles.y`)");
+                }
                 return this._eulerAngles.y;
             },
             set (value) {
+                if (CC_DEBUG) {
+                    cc.warn("`cc.Node.rotationY` is deprecated since v2.1.0, please set `eulerAngles` instead. (`this.node.rotationY = y` -> `this.node.is3DNode = true; this.node.eulerAngles = cc.v3(0, y, 0)`");
+                }
                 if (this._eulerAngles.y !== value) {
                     this._eulerAngles.y = value;
                     // Update quaternion from rotation
@@ -2167,11 +2185,13 @@ let NodeDefines = {
      * cc.log("Node Scale: " + node.getScale(cc.v3()));
      */
     getScale (out) {
-        if (out !== undefined) {
+        if (out) {
             return out.set(this._scale);
         }
         else {
-            cc.warnID(1400, 'cc.Node.getScale', 'cc.Node.scale or cc.Node.getScale(cc.Vec3)');
+            if (CC_DEBUG) {
+                cc.warn("`cc.Node.getScale()` is deprecated since v2.1.0, please use `cc.Node.scale` instead. (`this.node.getScale()` -> `this.node.scale`)");
+            }
             return this._scale.x;
         }
     },
@@ -2227,7 +2247,9 @@ let NodeDefines = {
             return out.set(this._quat);
         }
         else {
-            cc.warnID(1400, 'cc.Node.getRotation', 'cc.Node.angle or cc.Node.getRotation(cc.Quat)');
+            if (CC_DEBUG) {
+                cc.warn("`cc.Node.getRotation()` is deprecated since v2.1.0, please use `-cc.Node.angle` instead. (`this.node.getRotation()` -> `-this.node.angle`)");
+            }
             return -this.angle;
         }
     },
@@ -2243,7 +2265,9 @@ let NodeDefines = {
      */
     setRotation (quat, y, z, w) {
         if (typeof quat === 'number' && y === undefined) {
-            cc.warnID(1400, 'cc.Node.setRotation(Number)', 'cc.Node.angle or cc.Node.setRotation(quat)')
+            if (CC_DEBUG) {
+                cc.warn("`cc.Node.setRotation(degree)` is deprecated since v2.1.0, please set `-cc.Node.angle` instead. (`this.node.setRotation(x)` -> `this.node.angle = -x`)");
+            }
             this.angle = -quat;
         }
         else {

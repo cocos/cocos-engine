@@ -356,12 +356,6 @@ if (CC_DEBUG) {
         '_sgNode',
     ]);
 
-    markAsDeprecated(cc.Node, [
-        ['rotationX', 'eulerAngles'],
-        ['rotationY', 'eulerAngles'],
-        ['rotation', 'angle'],
-    ]);
-
     markFunctionWarning(cc.Node.prototype, {
         getNodeToParentTransform: 'getLocalMatrix',
         getNodeToParentTransformAR: 'getLocalMatrix',
