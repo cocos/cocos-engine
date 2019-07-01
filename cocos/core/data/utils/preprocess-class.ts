@@ -26,7 +26,7 @@
 
 import { error, errorID, warn, warnID } from '../../platform/CCDebug';
 import * as js from '../../utils/js';
-import { CCBoolean, CCFloat, CCInteger, CCString } from './attribute';
+import { PrimitiveType } from './attribute';
 
 // 增加预处理属性这个步骤的目的是降低 CCClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。
 
@@ -251,7 +251,7 @@ export function getFullFormOfProperty (options, propname_dev?, classname_dev?) {
                 url: type,
                 _short: true,
             };
-        } else if (options === CCString || options === CCInteger || options === CCFloat || options === CCBoolean) {
+        } else if (options instanceof PrimitiveType) {
             return {
                 default: options.default,
                 _short: true,

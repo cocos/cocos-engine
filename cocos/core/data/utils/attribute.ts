@@ -153,7 +153,7 @@ export function setClassAttr (ctor, propName, key, value) {
     proto[propName + DELIMETER + key] = value;
 }
 
-class PrimitiveType<T> {
+export class PrimitiveType<T> {
     public name: string;
 
     public default: T;
@@ -169,14 +169,38 @@ class PrimitiveType<T> {
 }
 
 /**
- * cc 整数。
+ * 指定编辑器以整数形式对待该属性或数组元素。
+ * 例如：
+ * ```ts
+ * import { CCInteger, _decorator } from "Cocos3D";
+ *
+ * // 在 cc 类定义中:
+ *
+ * \@_decorator.property({type: CCInteger})
+ * count = 0;
+ *
+ * \@_decorator.property({type: [CCInteger]})
+ * array = [];
+ * ```
  */
 export const CCInteger = new PrimitiveType('Integer', 0);
 cc.Integer = CCInteger;
 cc.CCInteger = CCInteger;
 
 /**
- * cc 浮点数。
+ * 指定编辑器以浮点数形式对待该属性或数组元素。
+ * 例如：
+ * ```ts
+ * import { CCFloat, _decorator } from "Cocos3D";
+ *
+ * // 在 cc 类定义中:
+ *
+ * \@_decorator.property({type: CCFloat})
+ * x = 0;
+ *
+ * \@_decorator.property({type: [CCFloat]})
+ * array = [];
+ * ```
  */
 export const CCFloat = new PrimitiveType('Float', 0.0);
 cc.Float = CCFloat;
@@ -190,14 +214,38 @@ if (CC_EDITOR) {
 }
 
 /**
- * cc 浮点数。
+ * 指定编辑器以布尔值形式对待该属性或数组元素。
+ * 例如：
+ * ```ts
+ * import { CCBoolean, _decorator } from "Cocos3D";
+ *
+ * // 在 cc 类定义中:
+ *
+ * \@_decorator.property({type: CCBoolean})
+ * isTrue = false;
+ *
+ * \@_decorator.property({type: [CCBoolean]})
+ * array = [];
+ * ```
  */
 export const CCBoolean = new PrimitiveType('Boolean', false);
 cc.Boolean = CCBoolean;
 cc.CCBoolean = CCBoolean;
 
 /**
- * cc 字符串。
+ * 指定编辑器以字符串形式对待该属性或数组元素。
+ * 例如：
+ * ```ts
+ * import { CCString, _decorator } from "Cocos3D";
+ *
+ * // 在 cc 类定义中:
+ *
+ * \@_decorator.property({type: CCString})
+ * name = '';
+ *
+ * \@_decorator.property({type: [CCString]})
+ * array = [];
+ * ```
  */
 export const CCString = new PrimitiveType('String', '');
 cc.String = CCString;

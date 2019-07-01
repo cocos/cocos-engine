@@ -1164,7 +1164,7 @@ The type of %s must be CCBoolean, not Boolean.
 
 ### 3610
 
-The type of %s must be CCFloat or cc.Integer, not Number.
+The type of %s must be CCFloat or CCInteger, not Number.
 
 ### 3611
 
