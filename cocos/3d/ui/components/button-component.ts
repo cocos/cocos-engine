@@ -479,6 +479,12 @@ export class ButtonComponent extends Component {
             this.node.on('spriteframe-changed', (comp: SpriteComponent) => {
                 if (this._transition === Transition.SPRITE) {
                     this._normalSprite = comp.spriteFrame;
+                } else {
+                    // avoid serialization data loss when in no-sprite mode
+                    this._normalSprite = null;
+                    this._hoverSprite = null;
+                    this._pressedSprite = null;
+                    this._disabledSprite = null;
                 }
             }, this);
         }
