@@ -150,8 +150,6 @@ export class WebGL2GFXDevice extends GFXDevice {
             return false;
         }
 
-        // No errors are thrown using try catch
-        // Tested through ios baidu browser 4.14.1
         if (!this._webGL2RC) {
             console.error('This device does not support WebGL2.');
             return false;
@@ -170,23 +168,23 @@ export class WebGL2GFXDevice extends GFXDevice {
             this._renderer = gl.getParameter(this._WEBGL_debug_renderer_info.UNMASKED_RENDERER_WEBGL);
             this._vendor = gl.getParameter(this._WEBGL_debug_renderer_info.UNMASKED_VENDOR_WEBGL);
         } else {
-            this._renderer = gl.getParameter(WebGL2RenderingContext.RENDERER);
-            this._vendor = gl.getParameter(WebGL2RenderingContext.VENDOR);
+            this._renderer = gl.getParameter(gl.RENDERER);
+            this._vendor = gl.getParameter(gl.VENDOR);
         }
 
-        this._version = gl.getParameter(WebGL2RenderingContext.VERSION);
-        this._maxVertexAttributes = gl.getParameter(WebGL2RenderingContext.MAX_VERTEX_ATTRIBS);
-        this._maxVertexUniformVectors = gl.getParameter(WebGL2RenderingContext.MAX_VERTEX_UNIFORM_VECTORS);
-        this._maxFragmentUniformVectors = gl.getParameter(WebGL2RenderingContext.MAX_FRAGMENT_UNIFORM_VECTORS);
-        this._maxTextureUnits = gl.getParameter(WebGL2RenderingContext.MAX_TEXTURE_IMAGE_UNITS);
-        this._maxVertexTextureUnits = gl.getParameter(WebGL2RenderingContext.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-        this._maxUniformBufferBindings = gl.getParameter(WebGL2RenderingContext.MAX_UNIFORM_BUFFER_BINDINGS);
-        this._maxUniformBlockSize = gl.getParameter(WebGL2RenderingContext.MAX_UNIFORM_BLOCK_SIZE);
-        this._depthBits = gl.getParameter(WebGL2RenderingContext.DEPTH_BITS);
-        this._stencilBits = gl.getParameter(WebGL2RenderingContext.STENCIL_BITS);
-        // let maxVertexUniformBlocks = gl.getParameter(WebGL2RenderingContext.MAX_VERTEX_UNIFORM_BLOCKS);
-        // let maxFragmentUniformBlocks = gl.getParameter(WebGL2RenderingContext.MAX_FRAGMENT_UNIFORM_BLOCKS);
-        // let uboOffsetAlignment = gl.getParameter(WebGL2RenderingContext.UNIFORM_BUFFER_OFFSET_ALIGNMENT);
+        this._version = gl.getParameter(gl.VERSION);
+        this._maxVertexAttributes = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
+        this._maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
+        this._maxFragmentUniformVectors = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
+        this._maxTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+        this._maxVertexTextureUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+        this._maxUniformBufferBindings = gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS);
+        this._maxUniformBlockSize = gl.getParameter(gl.MAX_UNIFORM_BLOCK_SIZE);
+        this._depthBits = gl.getParameter(gl.DEPTH_BITS);
+        this._stencilBits = gl.getParameter(gl.STENCIL_BITS);
+        // let maxVertexUniformBlocks = gl.getParameter(gl.MAX_VERTEX_UNIFORM_BLOCKS);
+        // let maxFragmentUniformBlocks = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_BLOCKS);
+        // let uboOffsetAlignment = gl.getParameter(gl.UNIFORM_BUFFER_OFFSET_ALIGNMENT);
 
         this._devicePixelRatio = info.devicePixelRatio || 1.0;
         this._width = this._canvas.width;
@@ -551,7 +549,7 @@ export class WebGL2GFXDevice extends GFXDevice {
         const curFBO = this.stateCache.glFramebuffer;
 
         if (this.stateCache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
-            gl.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
             this.stateCache.glFramebuffer = gpuFramebuffer.glFramebuffer;
         }
 
@@ -567,11 +565,11 @@ export class WebGL2GFXDevice extends GFXDevice {
             const data = view.subarray(buffOffset, buffOffset + memSize);
 
             gl.readPixels(region.texOffset.x, region.texOffset.y, w, h,
-                WebGL2RenderingContext.RGBA, WebGL2RenderingContext.UNSIGNED_BYTE, data);
+                gl.RGBA, gl.UNSIGNED_BYTE, data);
         }
 
         if (this.stateCache.glFramebuffer !== curFBO) {
-            gl.bindFramebuffer(WebGL2RenderingContext.FRAMEBUFFER, curFBO);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, curFBO);
             this.stateCache.glFramebuffer = curFBO;
         }
     }
