@@ -465,7 +465,7 @@ void NodeProxy::updateLocalMatrix()
 void NodeProxy::render(ModelBatcher* batcher, Scene* scene)
 {
     if (!_needVisit || _realOpacity == 0) return;
-    
+
     // pre render
     if (_assembler && _assembler->enabled()) _assembler->handle(this, batcher, scene);
 

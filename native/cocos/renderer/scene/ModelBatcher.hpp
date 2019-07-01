@@ -138,7 +138,7 @@ private:
     bool _walking = false;
     cocos2d::Mat4 _modelMat;
     CommitState _commitState = CommitState::None;
-    
+
     NodeProxy* _node = nullptr;
     
     MeshBuffer* _buffer = nullptr;
