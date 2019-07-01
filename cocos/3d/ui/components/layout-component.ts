@@ -1090,3 +1090,5 @@ export class LayoutComponent extends Component {
     }
 
 }
+
+cc.LayoutComponent = LayoutComponent;
