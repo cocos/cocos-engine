@@ -28,6 +28,7 @@
  */
 
 import { TextureCube } from '../3d/assets/texture-cube';
+import { CCBoolean, CCFloat } from '../core';
 import { ccclass, property } from '../core/data/class-decorator';
 import { Color, Quat, Vec3 } from '../core/value-types';
 import { color4, vec3 } from '../core/vmath';
@@ -70,7 +71,7 @@ export class AmbientInfo {
     /**
      * @zh 天空亮度
      */
-    @property({ type: Number })
+    @property({ type: CCFloat })
     set skyIllum (val: number) {
         this._skyIllum = val;
         if (this._resource) { this._resource.skyIllum = this.skyIllum; }
@@ -119,7 +120,7 @@ export class SkyboxInfo {
     /**
      * @zh 是否启用天空盒？
      */
-    @property({ type: Boolean })
+    @property({ type: CCBoolean })
     set enabled (val) {
         this._enabled = val;
         if (this._resource) { this._resource.enabled = this._enabled; }
@@ -131,7 +132,7 @@ export class SkyboxInfo {
     /**
      * @zh 是否启用天空盒？
      */
-    @property({ type: Boolean })
+    @property({ type: CCBoolean })
     set useIBL (val) {
         this._useIBL = val;
         if (this._resource) { this._resource.useIBL = this._useIBL; }
@@ -155,7 +156,7 @@ export class SkyboxInfo {
     /**
      * @zh 是否需要开启 shader 内的 RGBE 数据支持？
      */
-    @property({ type: Boolean })
+    @property({ type: CCBoolean })
     set isRGBE (val) {
         this._isRGBE = val;
         if (this._resource) { this._resource.isRGBE = this._isRGBE; }
@@ -193,7 +194,7 @@ export class PlanarShadowInfo {
     /**
      * @zh 是否启用平面阴影？
      */
-    @property({ type: Boolean })
+    @property({ type: CCBoolean })
     set enabled (val: boolean) {
         this._enabled = val;
         if (this._resource) { this._resource.enabled = val; }
@@ -217,7 +218,7 @@ export class PlanarShadowInfo {
     /**
      * @zh 阴影接收平面与原点的距离
      */
-    @property({ type: Number })
+    @property({ type: CCFloat })
     set distance (val: number) {
         this._distance = val;
         if (this._resource) { this._resource.distance = val; }
