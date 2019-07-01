@@ -301,7 +301,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
         if (!lca) { console.warn('illegal skinning roots'); return; }
         // merge joints accordingly
         const skeleton = new Skeleton();
-        skeleton.bindposes = [];
+        const bindposes: Mat4[] = [];
         for (const unit of this._avatarUnits) {
             if (!unit || !unit.skeleton || !unit.skinningRoot) { continue; }
             const partial = unit.skeleton;
@@ -311,7 +311,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
                 const idx = skeleton.joints.findIndex((p) => p === path);
                 if (idx >= 0) { continue; }
                 skeleton.joints.push(path);
-                skeleton.bindposes.push(partial.bindposes && partial.bindposes[i] || new Mat4());
+                bindposes.push(partial.bindposes[i] || new Mat4());
             }
         }
         // sort the array to be more cache-friendly
@@ -321,7 +321,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
             return 0;
         });
         skeleton.joints = skeleton.joints.map((_, idx, arr) => arr[idxMap[idx]]);
-        skeleton.bindposes = skeleton.bindposes.map((_, idx, arr) => arr[idxMap[idx]]);
+        skeleton.bindposes = bindposes.map((_, idx, arr) => arr[idxMap[idx]]);
         // apply
         // @ts-ignore
         super.skeleton = skeleton;

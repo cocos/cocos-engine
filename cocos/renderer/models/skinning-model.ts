@@ -160,7 +160,7 @@ export class SkinningModel extends Model {
         if (!super.updateUBOs() || !this._skeleton) { return false; }
 
         const len = this._joints.length;
-        if (this._skeleton.bindTRS) { // TODO: pre-apply this into animation clip
+        if (this._skeleton.bindTRS.length) { // TODO: pre-apply this into animation clip
             for (let i = 0; i < len; ++i) {
                 const cur = this._joints[i]; cur.update();
                 const bindpose = this._skeleton.bindTRS[i];

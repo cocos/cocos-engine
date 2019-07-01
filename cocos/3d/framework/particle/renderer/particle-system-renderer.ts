@@ -162,7 +162,7 @@ export default class ParticleSystemRenderer {
         displayOrder: 8,
     })
     public get particleMaterial () {
-        return this.particleSystem.getMaterial(0, CC_EDITOR)!;
+        return this.particleSystem.getMaterial(0);
     }
 
     public set particleMaterial (val) {
@@ -177,7 +177,7 @@ export default class ParticleSystemRenderer {
         displayOrder: 9,
     })
     public get trailMaterial () {
-        return this.particleSystem.getMaterial(1, CC_EDITOR)!;
+        return this.particleSystem.getMaterial(1)!;
     }
 
     public set trailMaterial (val) {
@@ -190,7 +190,7 @@ export default class ParticleSystemRenderer {
     private frameTile_velLenScale: Vec4;
     private _node_scale: Vec4;
     private attrs: any[];
-    private _vertAttrs: IGFXAttribute[];
+    private _vertAttrs: IGFXAttribute[] = [];
     private particleSystem: any;
     private _particles: RecyclePool | null = null;
     private _defaultMat: Material | null = null;

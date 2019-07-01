@@ -7,20 +7,20 @@ import { WebGL2GFXRenderPass } from './webgl2-render-pass';
 import { WebGL2GFXShader } from './webgl2-shader';
 
 const WebGLPrimitives: GLenum[] = [
-    WebGLRenderingContext.POINTS,
-    WebGLRenderingContext.LINES,
-    WebGLRenderingContext.LINE_STRIP,
-    WebGLRenderingContext.LINE_LOOP,
-    WebGLRenderingContext.NONE,
-    WebGLRenderingContext.NONE,
-    WebGLRenderingContext.NONE,
-    WebGLRenderingContext.TRIANGLES,
-    WebGLRenderingContext.TRIANGLE_STRIP,
-    WebGLRenderingContext.TRIANGLE_FAN,
-    WebGLRenderingContext.NONE,
-    WebGLRenderingContext.NONE,
-    WebGLRenderingContext.NONE,
-    WebGLRenderingContext.NONE,
+    0x0000, // WebGLRenderingContext.POINTS,
+    0x0001, // WebGLRenderingContext.LINES,
+    0x0003, // WebGLRenderingContext.LINE_STRIP,
+    0x0002, // WebGLRenderingContext.LINE_LOOP,
+    0x0000, // WebGLRenderingContext.NONE,
+    0x0000, // WebGLRenderingContext.NONE,
+    0x0000, // WebGLRenderingContext.NONE,
+    0x0004, // WebGLRenderingContext.TRIANGLES,
+    0x0005, // WebGLRenderingContext.TRIANGLE_STRIP,
+    0x0006, // WebGLRenderingContext.TRIANGLE_FAN,
+    0x0000, // WebGLRenderingContext.NONE,
+    0x0000, // WebGLRenderingContext.NONE,
+    0x0000, // WebGLRenderingContext.NONE,
+    0x0000, // WebGLRenderingContext.NONE,
 ];
 
 export class WebGL2GFXPipelineState extends GFXPipelineState {

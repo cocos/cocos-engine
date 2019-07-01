@@ -82,7 +82,7 @@ export class UIModelComponent extends UIComponent {
         }
         const matNum = this._modelComponent.sharedMaterials.length;
         for (let i = 0; i < matNum; i++) {
-            const material = this._modelComponent.getMaterial(i, CC_EDITOR)! as Material;
+            const material = this._modelComponent.getMaterial(i)! as Material;
             if (material == null) {
                 continue;
             }
@@ -105,7 +105,7 @@ export class UIModelComponent extends UIComponent {
             }
         }
         for (let i = 0; i < matNum; i++) {
-            const material = this._modelComponent.getMaterial(i, CC_EDITOR)!;
+            const material = this._modelComponent.getMaterial(i);
             if (material == null) {
                 continue;
             }
