@@ -376,9 +376,57 @@ AssemblerBase : function (
 };
 
 /**
+ * @class MemPool
+ */
+renderer.MemPool = {
+
+/**
+ * @method removeCommonData
+ * @param {unsigned int} arg0
+ */
+removeCommonData : function (
+int 
+)
+{
+},
+
+/**
+ * @method updateCommonData
+ * @param {unsigned int} arg0
+ * @param {se::Object} arg1
+ * @param {se::Object} arg2
+ */
+updateCommonData : function (
+int, 
+object, 
+object 
+)
+{
+},
+
+/**
+ * @method MemPool
+ * @constructor
+ */
+MemPool : function (
+)
+{
+},
+
+};
+
+/**
  * @class NodeProxy
  */
 renderer.NodeProxy = {
+
+/**
+ * @method disableVisit
+ */
+disableVisit : function (
+)
+{
+},
 
 /**
  * @method notifyUpdateParent
@@ -392,6 +440,14 @@ notifyUpdateParent : function (
  * @method destroyImmediately
  */
 destroyImmediately : function (
+)
+{
+},
+
+/**
+ * @method enableVisit
+ */
+enableVisit : function (
 )
 {
 },
@@ -1407,46 +1463,6 @@ view
  * @constructor
  */
 Scene : function (
-)
-{
-},
-
-};
-
-/**
- * @class MemPool
- */
-renderer.MemPool = {
-
-/**
- * @method removeCommonData
- * @param {unsigned int} arg0
- */
-removeCommonData : function (
-int 
-)
-{
-},
-
-/**
- * @method updateCommonData
- * @param {unsigned int} arg0
- * @param {se::Object} arg1
- * @param {se::Object} arg2
- */
-updateCommonData : function (
-int, 
-object, 
-object 
-)
-{
-},
-
-/**
- * @method MemPool
- * @constructor
- */
-MemPool : function (
 )
 {
 },

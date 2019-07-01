@@ -57,7 +57,7 @@ namespace spine {
         static SkeletonRenderer* createWithFile (const std::string& skeletonDataFile, const std::string& atlasFile, float scale = 1);
         
         virtual void update (float deltaTime) override {}
-        virtual void render () override;
+        virtual void render (float deltaTime) override;
         virtual cocos2d::Rect getBoundingBox () const;
         
         Skeleton* getSkeleton() const;

@@ -61,13 +61,24 @@ SE_DECLARE_FUNC(js_renderer_AssemblerBase_isDirty);
 SE_DECLARE_FUNC(js_renderer_AssemblerBase_setDirty);
 SE_DECLARE_FUNC(js_renderer_AssemblerBase_AssemblerBase);
 
+extern se::Object* __jsb_cocos2d_renderer_MemPool_proto;
+extern se::Class* __jsb_cocos2d_renderer_MemPool_class;
+
+bool js_register_cocos2d_renderer_MemPool(se::Object* obj);
+bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_MemPool_removeCommonData);
+SE_DECLARE_FUNC(js_renderer_MemPool_updateCommonData);
+SE_DECLARE_FUNC(js_renderer_MemPool_MemPool);
+
 extern se::Object* __jsb_cocos2d_renderer_NodeProxy_proto;
 extern se::Class* __jsb_cocos2d_renderer_NodeProxy_class;
 
 bool js_register_cocos2d_renderer_NodeProxy(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_NodeProxy_disableVisit);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_notifyUpdateParent);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_destroyImmediately);
+SE_DECLARE_FUNC(js_renderer_NodeProxy_enableVisit);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_setName);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_clearAssembler);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_setAssembler);
@@ -198,15 +209,6 @@ SE_DECLARE_FUNC(js_renderer_Scene_reset);
 SE_DECLARE_FUNC(js_renderer_Scene_getCamera);
 SE_DECLARE_FUNC(js_renderer_Scene_addView);
 SE_DECLARE_FUNC(js_renderer_Scene_Scene);
-
-extern se::Object* __jsb_cocos2d_renderer_MemPool_proto;
-extern se::Class* __jsb_cocos2d_renderer_MemPool_class;
-
-bool js_register_cocos2d_renderer_MemPool(se::Object* obj);
-bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_MemPool_removeCommonData);
-SE_DECLARE_FUNC(js_renderer_MemPool_updateCommonData);
-SE_DECLARE_FUNC(js_renderer_MemPool_MemPool);
 
 extern se::Object* __jsb_cocos2d_renderer_NodeMemPool_proto;
 extern se::Class* __jsb_cocos2d_renderer_NodeMemPool_class;

@@ -39,7 +39,7 @@ public:
     IMiddleware() {}
     virtual ~IMiddleware() {}
     virtual void update(float dt) = 0;
-    virtual void render() = 0;
+    virtual void render(float dt) = 0;
 };
 
 /**
@@ -83,7 +83,7 @@ public:
     /**
      * @brief render all elements
      */
-    void render();
+    void render(float dt);
     
     /**
      * @brief Third party module add in _updateMap,it will update perframe.

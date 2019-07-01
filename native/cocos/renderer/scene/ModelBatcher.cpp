@@ -73,7 +73,7 @@ void ModelBatcher::reset()
     for (int i = 0; i < _modelOffset; ++i)
     {
         Model* model = _modelPool[i];
-        model->clearEffect();
+        model->reset();
     }
     _flow->getRenderScene()->removeModels();
     _modelOffset = 0;

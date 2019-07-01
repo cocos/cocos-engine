@@ -122,12 +122,11 @@ public:
      */
     void extractDrawItem(DrawItem& out) const;
     /**
-     *  @brief Clear Effect.
+     *  @brief Resets models.
      */
-    void clearEffect();
+    void reset();
 private:
     friend class ModelPool;
-    void reset();
     
     NodeProxy* _node = nullptr;
     Mat4 _worldMatrix;

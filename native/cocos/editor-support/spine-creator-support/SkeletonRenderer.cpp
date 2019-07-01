@@ -256,7 +256,7 @@ void SkeletonRenderer::initWithBinaryFile (const std::string& skeletonDataFile, 
     initialize();
 }
 
-void SkeletonRenderer::render () {
+void SkeletonRenderer::render (float deltaTime) {
     if (!_skeleton) return;
     // avoid other place call update.
     auto mgr = MiddlewareManager::getInstance();

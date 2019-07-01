@@ -99,7 +99,7 @@ void MiddlewareManager::update(float dt)
     _clearRemoveList();
 }
 
-void MiddlewareManager::render()
+void MiddlewareManager::render(float dt)
 {
     for (auto it : _mbMap)
     {
@@ -120,12 +120,12 @@ void MiddlewareManager::render()
             auto removeIt = std::find(_removeList.begin(), _removeList.end(), editor);
             if (removeIt == _removeList.end())
             {
-                editor->render();
+                editor->render(dt);
             }
         }
         else
         {
-            editor->render();
+            editor->render(dt);
         }
     }
     

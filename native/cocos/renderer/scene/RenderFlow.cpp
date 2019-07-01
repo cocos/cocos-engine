@@ -348,13 +348,14 @@ void RenderFlow::render(NodeProxy* scene, float deltaTime)
         calculateLocalMatrix();
         calculateWorldMatrix();
 #endif
+        
+        _batcher->startBatch();
 
 #if USE_MIDDLEWARE
         // render middleware
-        middleware::MiddlewareManager::getInstance()->render();
+        middleware::MiddlewareManager::getInstance()->render(deltaTime);
 #endif
-
-        _batcher->startBatch();
+        
         scene->render(_batcher, _scene);
         _batcher->terminateBatch();
 

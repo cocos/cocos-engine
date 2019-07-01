@@ -119,7 +119,7 @@ public:
         _dragonBonesInstance->advanceTime(dt);
     }
     
-    virtual void render() override
+    virtual void render(float dt) override
     {
         _dragonBonesInstance->render();
     }
