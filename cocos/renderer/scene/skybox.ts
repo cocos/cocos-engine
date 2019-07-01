@@ -13,9 +13,8 @@ export class Skybox extends Model {
     set useIBL (val) {
         this._useIBL = val;
         const pipeline = this._scene.root.pipeline;
-        if (pipeline.useIBL === val) { return; }
-        pipeline.useIBL = val;
-        pipeline.updateMacros();
+        pipeline.macros.CC_USE_IBL = val;
+        this._scene.onPipelineChange();
         this._updateGlobalBinding();
     }
     get useIBL () {
