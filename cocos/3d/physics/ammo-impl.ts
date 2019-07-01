@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import Ammo from 'ammo.js';
 import { Quat, Vec3 } from '../../core/value-types';
 import { quat, vec3 } from '../../core/vmath';

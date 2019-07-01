@@ -1,3 +1,6 @@
+/**
+ * @category event
+ */
 import { ccenum } from '../../value-types/enum';
 
 /**

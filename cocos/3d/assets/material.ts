@@ -24,7 +24,8 @@
 */
 
 /**
- * @category material 材质系统的相关内容
+ * 材质系统的相关内容
+ * @category material
  */
 
 import { Asset } from '../../assets/asset';

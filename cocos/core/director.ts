@@ -1107,10 +1107,8 @@ class Director extends EventTarget {
  */
 
 /**
- * @en Director
- * @zh 导演类。
+ * 导演类。
  * @property director
- * @type {Director}
  */
 const director: Director = cc.director = new Director();
 cc.Director = Director;

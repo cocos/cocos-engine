@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { Quat, Vec3 } from '../../../core/value-types';
 import { clamp, mat4, quat, vec3 } from '../../../core/vmath';
 import { intersect } from '../../geom-utils';

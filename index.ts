@@ -28,10 +28,6 @@
 /**
  * @hidden
  */
-/**
- * @disable
- */
-
 import './predefine';
 
 import './cocos/legacy';

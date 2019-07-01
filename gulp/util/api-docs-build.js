@@ -12,6 +12,8 @@ program
 
 const mode = 'modules';
 const docsName = 'Creator-3d-API';
+const exclude = '"**/cocos/**/+(webgl|webgl2|utils|builtin|renderer|scene|models|misc|ammo|shapes|constraint|cannon|graphics|webview|platform|profiler)/*.ts"';
+//const exclude = '"**/cocos/**/index.ts"';
 
 exports.generateJson = function () {
     const index = program.index;
@@ -20,10 +22,12 @@ exports.generateJson = function () {
     // typedoc command
     let commands = [
         index,
-        '--mode',
+        '--module',
         mode,
         '--generate-json',
         output,
+        '--exclude',
+        exclude,
         '--tags',
         '--disableOutputCheck',
         '--ignoreCompilerErrors'
@@ -39,7 +43,7 @@ exports.generateAPIZH = function (indexPath, jsonFiles, outputPath) {
     // typedoc command
     let commands = [
         indexPath,
-        '--mode',
+        '--module',
         mode,
         "--generate-from-json",
         jsonFiles,
@@ -47,6 +51,8 @@ exports.generateAPIZH = function (indexPath, jsonFiles, outputPath) {
         outputPath,
         '--name',
         docsName,
+        '--exclude',
+        exclude,
         '--tags',
         '--disableOutputCheck',
         '--ignoreCompilerErrors',
@@ -64,7 +70,7 @@ exports.generateAPIEN = function (indexPath, jsonFiles, outputPath) {
     // typedoc command
     let commands = [
         indexPath,
-        '--mode',
+        '--module',
         mode,
         "--generate-from-json",
         jsonFiles,
@@ -72,6 +78,8 @@ exports.generateAPIEN = function (indexPath, jsonFiles, outputPath) {
         outputPath,
         '--name',
         docsName,
+        '--exclude',
+        exclude,
         '--tags',
         '--disableOutputCheck',
         '--ignoreCompilerErrors',
@@ -90,12 +98,14 @@ exports.generateHTML = function () {
     // typedoc command
     let commands = [
         index,
-        '--mode',
+        '--module',
         mode,
         '--out',
         output,
         '--name',
         docsName,
+        '--exclude',
+        exclude,
         '--disableOutputCheck',
         '--ignoreCompilerErrors',
     ];

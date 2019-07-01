@@ -22,6 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * @category asset
+ */
+
 // @ts-check
 import {ccclass, property} from '../core/data/class-decorator';
 import { GFXDevice, GFXFeature } from '../gfx/device';

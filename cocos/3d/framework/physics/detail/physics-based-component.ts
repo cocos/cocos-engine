@@ -2,6 +2,7 @@
  * @category physics
  * @hidden
  */
+/** */
 
 import { Component } from '../../../../components/component';
 import { Mat4, Quat, Vec3 } from '../../../../core/value-types';

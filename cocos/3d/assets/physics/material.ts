@@ -1,6 +1,10 @@
 
 // @ts-check
 
+/**
+ * @category physics
+ */
+
 import { Asset } from '../../../assets/asset';
 import { ccclass, property } from '../../../core/data/class-decorator';
 

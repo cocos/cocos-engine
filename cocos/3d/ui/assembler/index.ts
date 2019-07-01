@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui
+ */
+
 import './utils';
 export * from './graphics';
 export * from './label';

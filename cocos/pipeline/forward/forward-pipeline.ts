@@ -1,5 +1,5 @@
 /**
- * @category pipeline/forward 前向渲染管线模块
+ * @category pipeline.forward
  */
 
 import { intersect, sphere } from '../../3d/geom-utils';
@@ -79,7 +79,6 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     /**
-     * @zh
      * 构造函数。
      * @param root Root类实例。
      */

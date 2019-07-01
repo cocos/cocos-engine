@@ -31,9 +31,6 @@
 import { ccclass } from '../core/data/class-decorator';
 import { BitmapFont } from './bitmap-font';
 /**
- * @module cc
- */
-/**
  * @en
  * Class for LabelAtlas handling.
  *

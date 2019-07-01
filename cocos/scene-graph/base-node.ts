@@ -114,8 +114,8 @@ export class BaseNode extends CCObject {
     // API
 
     /**
-     * !#en Name of node.
-     * !#zh 该节点名称。
+     * @en Name of node.
+     * @zh 该节点名称。
      * @property name
      * @type {String}
      * @example
@@ -135,8 +135,8 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en The uuid for editor, will be stripped before building project.
-     * !#zh 主要用于编辑器的 uuid，在编辑器下可用于持久化存储，在项目构建之后将变成自增的 id。
+     * @en The uuid for editor, will be stripped before building project.
+     * @zh 主要用于编辑器的 uuid，在编辑器下可用于持久化存储，在项目构建之后将变成自增的 id。
      * @property uuid
      * @type {String}
      * @readOnly
@@ -149,8 +149,8 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en All children nodes.
-     * !#zh 节点的所有子节点。
+     * @en All children nodes.
+     * @zh 节点的所有子节点。
      * @property children
      * @type {Node[]}
      * @readOnly
@@ -166,8 +166,8 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en All children nodes.
-     * !#zh 节点的子节点数量。
+     * @en All children nodes.
+     * @zh 节点的子节点数量。
      * @property childrenCount
      * @type {Number}
      * @readOnly
@@ -181,12 +181,12 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en
+     * @en
      * The local active state of this node.<br/>
      * Note that a Node may be inactive because a parent is not active, even if this returns true.<br/>
      * Use {{#crossLink "Node/activeInHierarchy:property"}}{{/crossLink}}
      * if you want to check if the Node is actually treated as active in the scene.
-     * !#zh
+     * @zh
      * 当前节点的自身激活状态。<br/>
      * 值得注意的是，一个节点的父节点如果不被激活，那么即使它自身设为激活，它仍然无法激活。<br/>
      * 如果你想检查节点在场景中实际的激活状态可以使用 {{#crossLink "Node/activeInHierarchy:property"}}{{/crossLink}}。
@@ -214,8 +214,8 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en Indicates whether this node is active in the scene.
-     * !#zh 表示此节点是否在场景中激活。
+     * @en Indicates whether this node is active in the scene.
+     * @zh 表示此节点是否在场景中激活。
      * @property activeInHierarchy
      * @type {Boolean}
      * @example
@@ -345,8 +345,8 @@ export class BaseNode extends CCObject {
     protected _prefab: any = null;
 
     /**
-     * !#en which scene this node belongs to.
-     * !#zh 此节点属于哪个场景。
+     * @en which scene this node belongs to.
+     * @zh 此节点属于哪个场景。
      * @type {cc.Scene}}
      */
     protected _scene: Scene = NullScene;
@@ -384,8 +384,8 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en Get parent of the node.
-     * !#zh 获取该节点的父节点。
+     * @en Get parent of the node.
+     * @zh 获取该节点的父节点。
      * @example
      * var parent = this.node.getParent();
      */
@@ -394,8 +394,8 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en Set parent of the node.
-     * !#zh 设置该节点的父节点。
+     * @en Set parent of the node.
+     * @zh 设置该节点的父节点。
      * @example
      * node.setParent(newNode);
      */
@@ -440,12 +440,12 @@ export class BaseNode extends CCObject {
     // ABSTRACT INTERFACES
 
     /**
-     * !#en
+     * @en
      * Properties configuration function <br/>
      * All properties in attrs will be set to the node, <br/>
      * when the setter of the node is available, <br/>
      * the property will be set via setter function.<br/>
-     * !#zh 属性配置函数。在 attrs 的所有属性将被设置为节点属性。
+     * @zh 属性配置函数。在 attrs 的所有属性将被设置为节点属性。
      * @param attrs - Properties to be set to node
      * @example
      * var attrs = { key: 0, num: 100 };
@@ -458,8 +458,8 @@ export class BaseNode extends CCObject {
     // composition: GET
 
     /**
-     * !#en Returns a child from the container given its uuid.
-     * !#zh 通过 uuid 获取节点的子节点。
+     * @en Returns a child from the container given its uuid.
+     * @zh 通过 uuid 获取节点的子节点。
      * @param uuid - The uuid to find the child node.
      * @return a Node whose uuid equals to the input parameter
      * @example
@@ -481,8 +481,8 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en Returns a child from the container given its name.
-     * !#zh 通过名称获取节点的子节点。
+     * @en Returns a child from the container given its name.
+     * @zh 通过名称获取节点的子节点。
      * @param name - A name to find the child node.
      * @return a CCNode object whose name equals to the input parameter
      * @example
@@ -504,8 +504,8 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en Returns a child from the container given its path.
-     * !#zh 通过路径获取节点的子节点。
+     * @en Returns a child from the container given its path.
+     * @zh 通过路径获取节点的子节点。
      * @param path - A path to find the child node.
      * @return a CCNode object whose name equals to the input parameter
      * @example
@@ -543,9 +543,9 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en
+     * @en
      * Inserts a child to the node at a specified index.
-     * !#zh
+     * @zh
      * 插入子节点到指定位置
      * @param child - the child node to be inserted
      * @param siblingIndex - the sibling index to place the child in
@@ -560,8 +560,8 @@ export class BaseNode extends CCObject {
     // HIERARCHY METHODS
 
     /**
-     * !#en Get the sibling index.
-     * !#zh 获取同级索引。
+     * @en Get the sibling index.
+     * @zh 获取同级索引。
      * @example
      * var index = node.getSiblingIndex();
      */
@@ -574,8 +574,8 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en Set the sibling index of this node.
-     * !#zh 设置节点同级索引。
+     * @en Set the sibling index of this node.
+     * @zh 设置节点同级索引。
      * @example
      * node.setSiblingIndex(1);
      */
@@ -604,12 +604,12 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en Walk though the sub children tree of the current node.
+     * @en Walk though the sub children tree of the current node.
      * Each node, including the current node, in the sub tree will be visited two times,
      * before all children and after all children.
      * This function call is not recursive, it's based on stack.
      * Please don't walk any other node inside the walk process.
-     * !#zh 遍历该节点的子树里的所有节点并按规则执行回调函数。
+     * @zh 遍历该节点的子树里的所有节点并按规则执行回调函数。
      * 对子树中的所有节点，包含当前节点，会执行两次回调，prefunc 会在访问它的子节点之前调用，postfunc 会在访问所有子节点之后调用。
      * 这个函数的实现不是基于递归的，而是基于栈展开递归的方式。
      * 请不要在 walk 过程中对任何其他的节点嵌套执行 walk。
@@ -707,12 +707,12 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en
+     * @en
      * Remove itself from its parent node. If cleanup is `true`, then also remove all events and actions. <br/>
      * If the cleanup parameter is not passed, it will force a cleanup,
      * so it is recommended that you always pass in the `false` parameter when calling this API.<br/>
      * If the node orphan, then nothing happens.
-     * !#zh
+     * @zh
      * 从父节点中删除该节点。如果不传入 cleanup 参数或者传入 `true`，那么这个节点上所有绑定的事件、action 都会被删除。<br/>
      * 因此建议调用这个 API 时总是传入 `false` 参数。<br/>
      * 如果这个节点是一个孤节点，那么什么都不会发生。
@@ -732,14 +732,14 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en
+     * @en
      * Removes a child from the container.
      * It will also cleanup all running actions depending on the cleanup parameter. </p>
      * If the cleanup parameter is not passed, it will force a cleanup. <br/>
      * "remove" logic MUST only be on this method  <br/>
      * If a class wants to extend the 'removeChild' behavior it only needs <br/>
      * to override this method.
-     * !#zh
+     * @zh
      * 移除节点中指定的子节点，是否需要清理所有正在运行的行为取决于 cleanup 参数。<br/>
      * 如果 cleanup 参数不传入，默认为 true 表示清理。<br/>
      * @param child - The child node which will be removed.
@@ -761,11 +761,11 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en
+     * @en
      * Removes all children from the container and
      * do a cleanup all running actions depending on the cleanup parameter. <br/>
      * If the cleanup parameter is not passed, it will force a cleanup.
-     * !#zh
+     * @zh
      * 移除节点所有的子节点，是否需要清理所有正在运行的行为取决于 cleanup 参数。<br/>
      * 如果 cleanup 参数不传入，默认为 true 表示清理。
      * @param [cleanup=true] - true if all running actions on all children nodes
@@ -795,8 +795,8 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en Is this node a child of the given node?
-     * !#zh 是否是指定节点的子节点？
+     * @en Is this node a child of the given node?
+     * @zh 是否是指定节点的子节点？
      * @return True if this node is a child, deep child or identical to the given node.
      * @example
      * node.isChildOf(newNode);
@@ -816,10 +816,10 @@ export class BaseNode extends CCObject {
     // COMPONENT
 
     /**
-     * !#en
+     * @en
      * Returns the component of supplied type if the node has one attached, null if it doesn't.<br/>
      * You can also get component in the node by passing in the name of the script.
-     * !#zh
+     * @zh
      * 获取节点上指定类型的组件，如果节点有附加指定类型的组件，则返回，如果没有则为空。<br/>
      * 传入参数也可以是脚本的名称。
      * @example
@@ -829,10 +829,10 @@ export class BaseNode extends CCObject {
     public getComponent<T extends Component> (classConstructor: Constructor<T>): T | null;
 
     /**
-     * !#en
+     * @en
      * Returns the component of supplied type if the node has one attached, null if it doesn't.<br/>
      * You can also get component in the node by passing in the name of the script.
-     * !#zh
+     * @zh
      * 获取节点上指定类型的组件，如果节点有附加指定类型的组件，则返回，如果没有则为空。<br/>
      * 传入参数也可以是脚本的名称。
      * @example
@@ -850,16 +850,16 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en Returns all components of supplied type in the node.
-     * !#zh 返回节点上指定类型的所有组件。
+     * @en Returns all components of supplied type in the node.
+     * @zh 返回节点上指定类型的所有组件。
      * @example
      * var sprites = node.getComponents(cc.Sprite);
      */
     public getComponents<T extends Component> (classConstructor: Constructor<T>): T[];
 
     /**
-     * !#en Returns all components of supplied type in the node.
-     * !#zh 返回节点上指定类型的所有组件。
+     * @en Returns all components of supplied type in the node.
+     * @zh 返回节点上指定类型的所有组件。
      * @example
      * var tests = node.getComponents("Test");
      */
@@ -875,16 +875,16 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en Returns the component of supplied type in any of its children using depth first search.
-     * !#zh 递归查找所有子节点中第一个匹配指定类型的组件。
+     * @en Returns the component of supplied type in any of its children using depth first search.
+     * @zh 递归查找所有子节点中第一个匹配指定类型的组件。
      * @example
      * var sprite = node.getComponentInChildren(cc.Sprite);
      */
     public getComponentInChildren<T extends Component> (classConstructor: Constructor<T>): T | null;
 
     /**
-     * !#en Returns the component of supplied type in any of its children using depth first search.
-     * !#zh 递归查找所有子节点中第一个匹配指定类型的组件。
+     * @en Returns the component of supplied type in any of its children using depth first search.
+     * @zh 递归查找所有子节点中第一个匹配指定类型的组件。
      * @example
      * var Test = node.getComponentInChildren("Test");
      */
@@ -899,16 +899,16 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en Returns all components of supplied type in self or any of its children.
-     * !#zh 递归查找自身或所有子节点中指定类型的组件
+     * @en Returns all components of supplied type in self or any of its children.
+     * @zh 递归查找自身或所有子节点中指定类型的组件
      * @example
      * var sprites = node.getComponentsInChildren(cc.Sprite);
      */
     public getComponentsInChildren<T extends Component> (classConstructor: Constructor<T>): T[];
 
     /**
-     * !#en Returns all components of supplied type in self or any of its children.
-     * !#zh 递归查找自身或所有子节点中指定类型的组件
+     * @en Returns all components of supplied type in self or any of its children.
+     * @zh 递归查找自身或所有子节点中指定类型的组件
      * @example
      * var tests = node.getComponentsInChildren("Test");
      */
@@ -925,16 +925,16 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en Adds a component class to the node. You can also add component to node by passing in the name of the script.
-     * !#zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
+     * @en Adds a component class to the node. You can also add component to node by passing in the name of the script.
+     * @zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
      * @example
      * var sprite = node.addComponent(cc.Sprite);
      */
     public addComponent<T extends Component> (classConstructor: Constructor<T>): T | null;
 
     /**
-     * !#en Adds a component class to the node. You can also add component to node by passing in the name of the script.
-     * !#zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
+     * @en Adds a component class to the node. You can also add component to node by passing in the name of the script.
+     * @zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
      * @example
      * var test = node.addComponent("Test");
      */
@@ -1016,10 +1016,10 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en
+     * @en
      * Removes a component identified by the given name or removes the component object given.
      * You can also use component.destroy() if you already have the reference.
-     * !#zh
+     * @zh
      * 删除节点上的指定组件，传入参数可以是一个组件构造函数或组件名，也可以是已经获得的组件引用。
      * 如果你已经获得组件引用，你也可以直接调用 component.destroy()
      * @deprecated please destroy the component to remove it.
@@ -1029,10 +1029,10 @@ export class BaseNode extends CCObject {
     public removeComponent<T extends Component> (classConstructor: Constructor<T>): void;
 
     /**
-     * !#en
+     * @en
      * Removes a component identified by the given name or removes the component object given.
      * You can also use component.destroy() if you already have the reference.
-     * !#zh
+     * @zh
      * 删除节点上的指定组件，传入参数可以是一个组件构造函数或组件名，也可以是已经获得的组件引用。
      * 如果你已经获得组件引用，你也可以直接调用 component.destroy()
      * @deprecated please destroy the component to remove it.
@@ -1075,10 +1075,10 @@ export class BaseNode extends CCObject {
     }
 
     /**
-     * !#en
+     * @en
      * Destroy all children from the node, and release all their own references to other objects.<br/>
      * Actual destruct operation will delayed until before rendering.
-     * !#zh
+     * @zh
      * 销毁所有子节点，并释放所有它们对其它对象的引用。<br/>
      * 实际销毁操作会延迟到当前帧渲染前执行。
      * @example
@@ -1304,10 +1304,10 @@ export class BaseNode extends CCObject {
 baseNodePolyfill(BaseNode);
 
 /**
- * !#en
+ * @en
  * Note: This event is only emitted from the top most node whose active value did changed,
  * not including its child nodes.
- * !#zh
+ * @zh
  * 注意：此节点激活时，此事件仅从最顶部的节点发出。
  * @event active-in-hierarchy-changed
  * @param {Event.EventCustom} event

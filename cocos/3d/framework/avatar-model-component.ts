@@ -21,6 +21,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+/**
+ * 模型相关模块
+ * @category model
+ */
 
 import { Texture2D } from '../../assets';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
@@ -112,8 +116,8 @@ const getPrefix = (lca: Node, target: Node) => {
 const concatPath = (prefix: string, path: string) => path ? prefix + path : prefix.slice(0, -1);
 
 /**
- * !#en The Avatar Model Component
- * !#ch 换装模型组件
+ * @en The Avatar Model Component
+ * @zh 换装模型组件
  */
 @ccclass('cc.AvatarModelComponent')
 @executionOrder(100)

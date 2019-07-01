@@ -22,6 +22,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category model
+ */
+
 import { Texture2D } from '../../assets';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
@@ -101,8 +105,8 @@ const getPrefix = (lca: Node, target: Node) => {
 const concatPath = (prefix: string, path: string) => path ? prefix + path : prefix.slice(0, -1);
 
 /**
- * !#en The Batched Skinning Model Component
- * !#ch 蒙皮模型合批组件
+ * @en The Batched Skinning Model Component
+ * @zh 蒙皮模型合批组件
  */
 @ccclass('cc.BatchedSkinningModelComponent')
 @executionOrder(100)

@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 export class BuiltinObject {
 
     public collisionFilterGroup: number = 1 << 0;

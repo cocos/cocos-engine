@@ -24,8 +24,7 @@
  THE SOFTWARE.
 */
 /**
- * @category core 核心模块
- * @hidden
+ * @category core
  */
 
 import * as vmath from './vmath';

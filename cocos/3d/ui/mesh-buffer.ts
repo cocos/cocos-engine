@@ -1,3 +1,6 @@
+/**
+ * @category ui
+ */
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXInputAssembler, IGFXAttribute } from '../../gfx/input-assembler';

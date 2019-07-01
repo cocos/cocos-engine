@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 export { CanvasComponent } from './canvas-component';
 export { DebugCanvasComponent } from './debug-canvas-component';
 export { UIComponent } from './ui-component';

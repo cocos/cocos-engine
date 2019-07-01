@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category asset
+ */
+
 import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Vec3 } from '../../core/value-types';

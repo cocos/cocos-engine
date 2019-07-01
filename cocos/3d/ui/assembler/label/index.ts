@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui-assembler
+ */
+
 import { BitmapFont } from '../../../../assets';
 import { LabelComponent} from '../../components';
 import { IAssemblerManager } from '../base';
