@@ -137,6 +137,7 @@ let cc = _global.cc = _global.cc || {};
 // For internal usage
 cc.internal = cc.internal || {};
 
+cc._global = _global;
 
 function defineMacro (name, defaultValue) {
     // if "global_defs" not preprocessed by uglify, just declare them globally,
