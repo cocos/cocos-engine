@@ -29,7 +29,6 @@
  */
 
 import CCClass from '../data/class';
-import { color4 } from '../vmath';
 import { ValueType } from './value-type';
 
 const toFloat = 1 / 255;
@@ -230,7 +229,7 @@ export default class Color extends ValueType {
         return out;
     }
 
-    private _val: number;
+    public _val: number;
 
     /**
      * 构造与指定颜色相等的颜色。
