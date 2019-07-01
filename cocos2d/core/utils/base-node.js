@@ -205,6 +205,9 @@ var BaseNode = cc.Class({
                     return;
                 }
                 this._name = value;
+                if (CC_JSB && CC_NATIVERENDERER) {
+                    this._proxy.setName(this._name);
+                }
             },
         },
 

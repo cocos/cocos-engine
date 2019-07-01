@@ -103,8 +103,6 @@ let RenderComponent = cc.Class({
 
         if (CC_JSB && CC_NATIVERENDERER) {
             cc.RenderFlow.once(cc.RenderFlow.EventType.BEFORE_RENDER, this._updateColor, this);
-
-            this._assembler.enable();
         }
     },
 
@@ -161,23 +159,14 @@ let RenderComponent = cc.Class({
     markForRender (enable) {
         if (enable && this._canRender()) {
             this.node._renderFlag |= RenderFlow.FLAG_RENDER;
-            if (CC_JSB && CC_NATIVERENDERER) {
-                this._assembler && this._assembler.enable();
-            }
         }
         else if (!enable) {
             this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
-            if (CC_JSB && CC_NATIVERENDERER) {
-                this._assembler && this._assembler.disable();
-            }
         }
     },
 
     disableRender () {
         this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
-        if (CC_JSB && CC_NATIVERENDERER) {
-            this._assembler && this._assembler.disable();
-        }
     },
 
     requestRenderData () {

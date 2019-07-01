@@ -638,6 +638,7 @@ let ArmatureDisplay = cc.Class({
         material.setProperty('texture', texture);
         
         this.setMaterial(0, material);
+        this._prepareToRender();
     },
 
     _prepareToRender () {
