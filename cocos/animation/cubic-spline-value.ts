@@ -41,10 +41,10 @@ function makeCubicSplineValueConstructor<T> (
         @property
         public outTangent: T = new constructorX();
 
-        constructor (dataPoint: T, inTangent: T, outTangent: T) {
-            this.dataPoint = dataPoint;
-            this.inTangent = inTangent;
-            this.outTangent = outTangent;
+        constructor (dataPoint?: T, inTangent?: T, outTangent?: T) {
+            this.dataPoint = dataPoint || new constructorX();
+            this.inTangent = inTangent || new constructorX();
+            this.outTangent = outTangent || new constructorX();
         }
 
         public lerp (to: CubicSplineValueClass, t: number, dt: number) {
