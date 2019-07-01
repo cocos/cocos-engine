@@ -27,10 +27,6 @@
  * @category ui
  * @hidden
  */
-<<<<<<< HEAD
-/** */
-=======
->>>>>>> ui layout api (#4707)
 
 import { ccclass, executionOrder, requireComponent } from '../../../core/data/class-decorator';
 import { Vec3 } from '../../../core/value-types';

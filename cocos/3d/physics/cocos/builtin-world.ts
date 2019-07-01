@@ -1,10 +1,7 @@
-<<<<<<< HEAD
 /**
  * @hidden
  */
 
-=======
->>>>>>> Daily merge (#4693)
 import { Vec3 } from '../../../core/value-types';
 import { AfterStepCallback, BeforeStepCallback, BuiltInRigidBodyBase, IRaycastOptions,
     ITriggerEventType, PhysicsWorldBase, RigidBodyBase, ShapeBase } from '../api';
@@ -68,7 +65,6 @@ export class BuiltInWorld implements PhysicsWorldBase {
                 }
                 bodyA.intersects(bodyB);
             }
-<<<<<<< HEAD
         }
 
         // emit trigger event
@@ -102,41 +98,6 @@ export class BuiltInWorld implements PhysicsWorldBase {
             shapeB.onTrigger(TriggerEventObject);
         }
 
-=======
-        }
-
-        // emit trigger event
-        let shapeA: BuiltinShape;
-        let shapeB: BuiltinShape;
-        for (let i = 0; i < this._shapeArr.length; i += 2) {
-            shapeA = this._shapeArr[i];
-            shapeB = this._shapeArr[i + 1];
-
-            TriggerEventObject.selfCollider = shapeA.getUserData();
-            TriggerEventObject.otherCollider = shapeB.getUserData();
-            // TriggerEventObject.selfRigidBody = shapeA.body!.getUserData();
-            // TriggerEventObject.otherRigidBody = shapeB.body!.getUserData();
-
-            this._collisionMatrix.set(shapeA.id, shapeB.id, true);
-
-            if (this._collisionMatrixPrev.get(shapeA.id, shapeB.id)) {
-                // emit stay
-                 TriggerEventObject.type = 'onTriggerStay';
-            } else {
-                // first trigger, emit enter
-                 TriggerEventObject.type = 'onTriggerEnter';
-            }
-            shapeA.onTrigger(TriggerEventObject);
-
-            TriggerEventObject.selfCollider = shapeB.getUserData();
-            TriggerEventObject.otherCollider = shapeA.getUserData();
-            // TriggerEventObject.selfRigidBody = shapeB.body!.getUserData();
-            // TriggerEventObject.otherRigidBody = shapeA.body!.getUserData();
-
-            shapeB.onTrigger(TriggerEventObject);
-        }
-
->>>>>>> Daily merge (#4693)
         for (let i = 0; i < this._shapeArrOld.length; i += 2) {
             shapeA = this._shapeArrOld[i];
             shapeB = this._shapeArrOld[i + 1];
@@ -162,30 +123,8 @@ export class BuiltInWorld implements PhysicsWorldBase {
                     this._collisionMatrix.set(shapeA.id, shapeB.id, false);
                 }
             }
-<<<<<<< HEAD
-=======
         }
 
-        this._collisionMatrixPrev.matrix = this._collisionMatrix.matrix.slice();
-        this._collisionMatrix.reset();
-
-        // emit after step
-        this._customAfterStepListener.forEach((fx) => fx());
-    }
-
-    public addBody (body: BuiltInRigidBodyBase) {
-        this._bodies.push(body);
-    }
-
-    public removeBody (body: BuiltInRigidBodyBase) {
-        const i = this._bodies.indexOf(body);
-        if (i >= 0) {
-            this._bodies.splice(i, 1);
->>>>>>> Daily merge (#4693)
-        }
-    }
-
-<<<<<<< HEAD
         this._collisionMatrixPrev.matrix = this._collisionMatrix.matrix.slice();
         this._collisionMatrix.reset();
 
@@ -236,40 +175,6 @@ export class BuiltInWorld implements PhysicsWorldBase {
         return false;
     }
 
-=======
-    public addBeforeStep (cb: BeforeStepCallback) {
-        this._customBeforeStepListener.push(cb);
-    }
-
-    public removeBeforeStep (cb: BeforeStepCallback) {
-        const i = this._customBeforeStepListener.indexOf(cb);
-        if (i < 0) {
-            return;
-        }
-        this._customBeforeStepListener.splice(i, 1);
-    }
-
-    public addAfterStep (cb: AfterStepCallback) {
-        this._customAfterStepListener.push(cb);
-    }
-
-    public removeAfterStep (cb: AfterStepCallback) {
-        const i = this._customAfterStepListener.indexOf(cb);
-        if (i < 0) {
-            return;
-        }
-        this._customAfterStepListener.splice(i, 1);
-    }
-
-    public raycastClosest (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean {
-        return false;
-    }
-
-    public raycastAny (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean {
-        return false;
-    }
-
->>>>>>> Daily merge (#4693)
     public raycastAll (from: Vec3, to: Vec3, options: IRaycastOptions, callback: (result: RaycastResult) => void): boolean {
         return false;
     }

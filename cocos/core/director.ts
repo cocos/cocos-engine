@@ -1085,11 +1085,7 @@ class Director extends EventTarget {
             this._root!.frameMove(this._deltaTime);
             // Present current frame
             this._root!.device.present();
-<<<<<<< HEAD
             this.emit(Director.EVENT_AFTER_DRAW);
-=======
-            this.emit(cc.Director.EVENT_AFTER_DRAW);
->>>>>>> Daily merge (#4693)
 
             eventManager.frameUpdateListeners();
             if (this._scene) { this._scene.resetHasChanged(); }

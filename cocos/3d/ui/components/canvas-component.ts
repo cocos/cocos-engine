@@ -29,11 +29,7 @@
  */
 
 import { Component } from '../../../components';
-<<<<<<< HEAD
 import { ccclass, disallowMultiple, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
-=======
-import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
->>>>>>> ui layout api (#4707)
 import { Vec3 } from '../../../core/value-types';
 import { vec3 } from '../../../core/vmath';
 import { GFXClearFlag } from '../../../gfx/define';

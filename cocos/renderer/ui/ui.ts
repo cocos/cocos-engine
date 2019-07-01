@@ -2,11 +2,7 @@
  * @hidden
  */
 
-<<<<<<< HEAD
 import { CanvasComponent, MeshBuffer, StencilManager, UIComponent, UIRenderComponent, UIVertexFormat } from '../../3d';
-=======
-import { CanvasComponent, IAssembler, MeshBuffer, StencilManager, UIComponent, UIRenderComponent, UIVertexFormat } from '../../3d';
->>>>>>> ui layout api (#4707)
 import { Material } from '../../3d/assets/material';
 import Pool from '../../3d/memop/pool';
 import RecyclePool from '../../3d/memop/recycle-pool';
@@ -326,11 +322,7 @@ export class UI {
      * @param frame - 当前执行组件贴图。
      * @param assembler - 当前组件渲染数据组装器。
      */
-<<<<<<< HEAD
     public commitComp (comp: UIRenderComponent, frame: GFXTextureView | null = null, assembler?: any) {
-=======
-    public commitComp (comp: UIRenderComponent, frame: GFXTextureView | null = null, assembler?: IAssembler) {
->>>>>>> ui layout api (#4707)
         const renderComp = comp;
         const texView = frame;
         if (this._currMaterial.hash !== renderComp.material!.hash ||

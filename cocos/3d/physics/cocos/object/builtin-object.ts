@@ -1,10 +1,7 @@
-<<<<<<< HEAD
 /**
  * @hidden
  */
 
-=======
->>>>>>> Daily merge (#4693)
 export class BuiltinObject {
 
     public collisionFilterGroup: number = 1 << 0;
