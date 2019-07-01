@@ -127,11 +127,6 @@ public:
     virtual void updateOpacity(std::size_t index, uint8_t opacity);
     
     /**
-     *  @brief Enables assembler.
-     */
-    virtual void enable() override;
-    
-    /**
      *  @brief Enable opacity always dirty, it will update per frame.
      */
     void enableOpacityAlwaysDirty() { _opacityAlwaysDirty = true; }

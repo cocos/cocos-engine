@@ -50,13 +50,16 @@ NodeProxy::NodeProxy(std::size_t unitID, std::size_t index, const std::string& i
     UnitNode* unit = pool->getUnit(unitID);
     CCASSERT(unit, "NodeProxy constructor unit is null");
 
+    UnitCommon* common = pool->getCommonUnit(unitID);
+    _signData = common->getSignData(_index);
+    
     _dirty = unit->getDirty(index);
     _trs = unit->getTRS(index);
     _localMat = unit->getLocalMat(index);
     _worldMat = unit->getWorldMat(index);
     _parentInfo = unit->getParent(index);
-    _parentInfo->unitID  = 0xffffffff;
-    _parentInfo->index = 0xffffffff;
+    _parentInfo->unitID  = PARENT_INVALID;
+    _parentInfo->index = PARENT_INVALID;
     _localZOrder = unit->getZOrder(index);
     _cullingMask = unit->getCullingMask(index);
     _opacity = unit->getOpacity(index);
@@ -82,7 +85,7 @@ void NodeProxy::destroyImmediately()
     }
     RenderFlow::getInstance()->removeNodeLevel(_level, _worldMat);
     CC_SAFE_RELEASE_NULL(_assembler);
-    _level = 0xffffffff;
+    _level = NODE_LEVEL_INVALID;
     _dirty = nullptr;
     _trs = nullptr;
     _localMat = nullptr;
@@ -198,7 +201,7 @@ NodeProxy* NodeProxy::getChildByID(std::string id)
 
 void NodeProxy::notifyUpdateParent()
 {
-    if (_parentInfo->index == 0xffffffff)
+    if (_parentInfo->index == PARENT_INVALID)
     {
         if (_parent)
         {
@@ -292,7 +295,6 @@ void NodeProxy::setAssembler(AssemblerBase* assembler)
     if (assembler == _assembler) return;
     CC_SAFE_RELEASE(_assembler);
     _assembler = assembler;
-    if (_assembler) _assembler->enable();
     CC_SAFE_RETAIN(_assembler);
 }
 
@@ -466,8 +468,15 @@ void NodeProxy::render(ModelBatcher* batcher, Scene* scene)
 {
     if (!_needVisit || _realOpacity == 0) return;
 
+    bool needRender = *_dirty & RenderFlow::RENDER;
+    if (_needRender != needRender)
+    {
+        if (_assembler) _assembler->enableDirty(RenderFlow::OPACITY_CHANGED);
+        _needRender = needRender;
+    }
+    
     // pre render
-    if (_assembler && _assembler->enabled()) _assembler->handle(this, batcher, scene);
+    if (_assembler && needRender) _assembler->handle(this, batcher, scene);
 
     reorderChildren();
     for (const auto& child : _children)
@@ -476,7 +485,7 @@ void NodeProxy::render(ModelBatcher* batcher, Scene* scene)
     }
 
     // post render
-    if (_assembler && _assembler->enabled()) _assembler->postHandle(this, batcher, scene);
+    if (_assembler && needRender) _assembler->postHandle(this, batcher, scene);
 }
 
 void NodeProxy::visit(ModelBatcher* batcher, Scene* scene)
@@ -493,8 +502,15 @@ void NodeProxy::visit(ModelBatcher* batcher, Scene* scene)
     updateLocalMatrix();
     updateWorldMatrix();
     
+    bool needRender = *_dirty & RenderFlow::RENDER;
+    if (_needRender != needRender)
+    {
+        if (_assembler) _assembler->enableDirty(RenderFlow::OPACITY_CHANGED);
+        _needRender = needRender;
+    }
+    
     // pre render
-    if (_assembler && _assembler->enabled()) _assembler->handle(this, batcher, scene);
+    if (_assembler && needRender) _assembler->handle(this, batcher, scene);
     
     reorderChildren();
     for (const auto& child : _children)
@@ -503,7 +519,7 @@ void NodeProxy::visit(ModelBatcher* batcher, Scene* scene)
     }
     
     // post render
-    if (_assembler && _assembler->enabled()) _assembler->postHandle(this, batcher, scene);
+    if (_assembler && needRender) _assembler->postHandle(this, batcher, scene);
 }
 
 RENDERER_END

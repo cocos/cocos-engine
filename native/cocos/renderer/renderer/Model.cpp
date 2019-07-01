@@ -66,11 +66,7 @@ Model::Model()
 
 Model::~Model()
 {
-    RENDERER_LOGD("Model destruction %p", this);
     reset();
-    
-    _effect->release();
-    _effect = nullptr;
     
     if (_node != nullptr)
     {
@@ -86,8 +82,13 @@ void Model::setInputAssembler(const InputAssembler& ia)
 
 void Model::setEffect(Effect* effect, CustomProperties* customProperties)
 {
-    _effect = effect;
-    _effect->retain();
+    if (_effect != effect)
+    {
+        CC_SAFE_RELEASE(_effect);
+        _effect = effect;
+        CC_SAFE_RETAIN(_effect);
+    }
+    
     _defines.clear();
     _uniforms.clear();
     
@@ -104,14 +105,11 @@ void Model::setEffect(Effect* effect, CustomProperties* customProperties)
 
 void Model::setNode(NodeProxy* node)
 {
-    if (_node != nullptr)
+    if (_node != node)
     {
-        _node->release();
-    }
-    _node = node;
-    if (_node != nullptr)
-    {
-        _node->retain();
+        CC_SAFE_RELEASE(_node);
+        _node = node;
+        CC_SAFE_RETAIN(_node);
     }
 }
 
@@ -133,14 +131,11 @@ void Model::extractDrawItem(DrawItem& out) const
     out.defines = out.effect->extractDefines();
 }
 
-void Model::clearEffect()
-{
-    _effect->release();
-    _effect = nullptr;
-}
-
 void Model::reset()
 {
+    CC_SAFE_RELEASE_NULL(_effect);
+    CC_SAFE_RELEASE_NULL(_node);
+    _inputAssembler.clear();
     _defines.clear();
     _uniforms.clear();
 }

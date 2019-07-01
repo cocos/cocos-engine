@@ -43,16 +43,6 @@ AssemblerBase::~AssemblerBase()
     _dirtyLen = 0;
 }
 
-void AssemblerBase::enable()
-{
-    _enabled = true;
-}
-
-void AssemblerBase::disable()
-{
-    _enabled = false;
-}
-
 void AssemblerBase::setDirty(se_object_ptr jsDirty)
 {
     if (_jsDirty == jsDirty) return;

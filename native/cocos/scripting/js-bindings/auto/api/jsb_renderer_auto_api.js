@@ -333,52 +333,6 @@ reset : function (
 },
 
 /**
- * @method enable
- */
-enable : function (
-)
-{
-},
-
-/**
- * @method handle
- * @param {cc.renderer::NodeProxy} arg0
- * @param {cc.renderer::ModelBatcher} arg1
- * @param {cc.renderer::Scene} arg2
- */
-handle : function (
-nodeproxy, 
-modelbatcher, 
-scene 
-)
-{
-},
-
-/**
- * @method postHandle
- * @param {cc.renderer::NodeProxy} arg0
- * @param {cc.renderer::ModelBatcher} arg1
- * @param {cc.renderer::Scene} arg2
- */
-postHandle : function (
-nodeproxy, 
-modelbatcher, 
-scene 
-)
-{
-},
-
-/**
- * @method getUseModel
- * @return {bool}
- */
-getUseModel : function (
-)
-{
-    return false;
-},
-
-/**
  * @method setUseModel
  * @param {bool} arg0
  */
@@ -389,31 +343,15 @@ bool
 },
 
 /**
- * @method enabled
+ * @method isDirty
+ * @param {unsigned int} arg0
  * @return {bool}
  */
-enabled : function (
+isDirty : function (
+int 
 )
 {
     return false;
-},
-
-/**
- * @method disable
- */
-disable : function (
-)
-{
-},
-
-/**
- * @method getDirty
- * @return {unsigned int}
- */
-getDirty : function (
-)
-{
-    return 0;
 },
 
 /**
@@ -438,49 +376,49 @@ AssemblerBase : function (
 };
 
 /**
+ * @class MemPool
+ */
+renderer.MemPool = {
+
+/**
+ * @method removeCommonData
+ * @param {unsigned int} arg0
+ */
+removeCommonData : function (
+int 
+)
+{
+},
+
+/**
+ * @method updateCommonData
+ * @param {unsigned int} arg0
+ * @param {se::Object} arg1
+ * @param {se::Object} arg2
+ */
+updateCommonData : function (
+int, 
+object, 
+object 
+)
+{
+},
+
+/**
+ * @method MemPool
+ * @constructor
+ */
+MemPool : function (
+)
+{
+},
+
+};
+
+/**
  * @class NodeProxy
  */
 renderer.NodeProxy = {
-
-/**
- * @method render
- * @param {cc.renderer::ModelBatcher} arg0
- * @param {cc.renderer::Scene} arg1
- */
-render : function (
-modelbatcher, 
-scene 
-)
-{
-},
-
-/**
- * @method updateLocalMatrix
- */
-updateLocalMatrix : function (
-)
-{
-},
-
-/**
- * @method updateWorldMatrix
-* @param {mat4_object} mat4
-*/
-updateWorldMatrix : function(
-mat4 
-)
-{
-},
-
-/**
- * @method getChildren
- * @return {Array}
- */
-getChildren : function (
-)
-{
-    return new Array();
-},
 
 /**
  * @method disableVisit
@@ -491,71 +429,9 @@ disableVisit : function (
 },
 
 /**
- * @method setCullingMask
- * @param {int} arg0
- */
-setCullingMask : function (
-int 
-)
-{
-},
-
-/**
- * @method disaleUpdateWorldMatrix
- */
-disaleUpdateWorldMatrix : function (
-)
-{
-},
-
-/**
- * @method getAssembler
- * @return {cc.renderer::AssemblerBase}
- */
-getAssembler : function (
-)
-{
-    return cc.renderer::AssemblerBase;
-},
-
-/**
- * @method getChildByName
- * @param {String} arg0
- * @return {cc.renderer::NodeProxy}
- */
-getChildByName : function (
-str 
-)
-{
-    return cc.renderer::NodeProxy;
-},
-
-/**
  * @method notifyUpdateParent
  */
 notifyUpdateParent : function (
-)
-{
-},
-
-/**
- * @method visit
- * @param {cc.renderer::ModelBatcher} arg0
- * @param {cc.renderer::Scene} arg1
- */
-visit : function (
-modelbatcher, 
-scene 
-)
-{
-},
-
-/**
- * @method setOpacity
- * @param {unsigned char} arg0
- */
-setOpacity : function (
-char 
 )
 {
 },
@@ -569,47 +445,9 @@ destroyImmediately : function (
 },
 
 /**
- * @method getRealOpacity
- * @return {unsigned char}
- */
-getRealOpacity : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method getDirty
- * @return {unsigned int}
- */
-getDirty : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method getOpacity
- * @return {unsigned char}
- */
-getOpacity : function (
-)
-{
-    return 0;
-},
-
-/**
  * @method enableVisit
  */
 enableVisit : function (
-)
-{
-},
-
-/**
- * @method enableUpdateWorldMatrix
- */
-enableUpdateWorldMatrix : function (
 )
 {
 },
@@ -625,61 +463,11 @@ str
 },
 
 /**
- * @method updateRealOpacity
- */
-updateRealOpacity : function (
-)
-{
-},
-
-/**
- * @method getCullingMask
- * @return {int}
- */
-getCullingMask : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method getID
- * @return {String}
- */
-getID : function (
-)
-{
-    return ;
-},
-
-/**
  * @method clearAssembler
  */
 clearAssembler : function (
 )
 {
-},
-
-/**
- * @method getParent
- * @return {cc.renderer::NodeProxy}
- */
-getParent : function (
-)
-{
-    return cc.renderer::NodeProxy;
-},
-
-/**
- * @method getChildByID
- * @param {String} arg0
- * @return {cc.renderer::NodeProxy}
- */
-getChildByID : function (
-str 
-)
-{
-    return cc.renderer::NodeProxy;
 },
 
 /**
@@ -690,46 +478,6 @@ setAssembler : function (
 assemblerbase 
 )
 {
-},
-
-/**
- * @method set3DNode
- * @param {bool} arg0
- */
-set3DNode : function (
-bool 
-)
-{
-},
-
-/**
- * @method setLocalZOrder
- * @param {int} arg0
- */
-setLocalZOrder : function (
-int 
-)
-{
-},
-
-/**
- * @method getName
- * @return {String}
- */
-getName : function (
-)
-{
-    return ;
-},
-
-/**
- * @method getChildrenCount
- * @return {unsigned int}
- */
-getChildrenCount : function (
-)
-{
-    return 0;
 },
 
 /**
@@ -1722,46 +1470,6 @@ Scene : function (
 };
 
 /**
- * @class MemPool
- */
-renderer.MemPool = {
-
-/**
- * @method removeCommonData
- * @param {unsigned int} arg0
- */
-removeCommonData : function (
-int 
-)
-{
-},
-
-/**
- * @method updateCommonData
- * @param {unsigned int} arg0
- * @param {se::Object} arg1
- * @param {se::Object} arg2
- */
-updateCommonData : function (
-int, 
-object, 
-object 
-)
-{
-},
-
-/**
- * @method MemPool
- * @constructor
- */
-MemPool : function (
-)
-{
-},
-
-};
-
-/**
  * @class NodeMemPool
  */
 renderer.NodeMemPool = {
@@ -1807,16 +1515,6 @@ object
 },
 
 /**
- * @method getInstance
- * @return {cc.renderer::NodeMemPool}
- */
-getInstance : function (
-)
-{
-    return cc.renderer::NodeMemPool;
-},
-
-/**
  * @method NodeMemPool
  * @constructor
  */
@@ -1833,18 +1531,6 @@ NodeMemPool : function (
 renderer.RenderDataList = {
 
 /**
- * @method getRenderData
- * @param {unsigned int} arg0
- * @return {cc.renderer::RenderData}
- */
-getRenderData : function (
-int 
-)
-{
-    return cc.renderer::RenderData;
-},
-
-/**
  * @method updateMesh
  * @param {unsigned int} arg0
  * @param {se::Object} arg1
@@ -1856,16 +1542,6 @@ object,
 object 
 )
 {
-},
-
-/**
- * @method getMeshCount
- * @return {unsigned int}
- */
-getMeshCount : function (
-)
-{
-    return 0;
 },
 
 /**
@@ -1903,53 +1579,11 @@ vertexformat
 },
 
 /**
- * @method getIACount
- * @return {unsigned int}
- */
-getIACount : function (
-)
-{
-    return 0;
-},
-
-/**
  * @method ignoreWorldMatrix
  */
 ignoreWorldMatrix : function (
 )
 {
-},
-
-/**
- * @method updateOpacity
- * @param {unsigned int} arg0
- * @param {unsigned char} arg1
- */
-updateOpacity : function (
-int, 
-char 
-)
-{
-},
-
-/**
- * @method isOpacityAlwaysDirty
- * @return {bool}
- */
-isOpacityAlwaysDirty : function (
-)
-{
-    return false;
-},
-
-/**
- * @method isIgnoreWorldMatrix
- * @return {bool}
- */
-isIgnoreWorldMatrix : function (
-)
-{
-    return false;
 },
 
 /**
@@ -1962,20 +1596,6 @@ updateVerticesRange : function (
 int, 
 int, 
 int 
-)
-{
-},
-
-/**
- * @method fillBuffers
- * @param {cc.renderer::MeshBuffer} arg0
- * @param {unsigned int} arg1
- * @param {mat4_object} arg2
- */
-fillBuffers : function (
-meshbuffer, 
-int, 
-mat4 
 )
 {
 },
@@ -2023,16 +1643,6 @@ enableOpacityAlwaysDirty : function (
 },
 
 /**
- * @method beforeFillBuffers
- * @param {unsigned int} arg0
- */
-beforeFillBuffers : function (
-int 
-)
-{
-},
-
-/**
  * @method updateIndicesRange
  * @param {unsigned int} arg0
  * @param {int} arg1
@@ -2044,28 +1654,6 @@ int,
 int 
 )
 {
-},
-
-/**
- * @method getVertexFormat
- * @return {cc.renderer::VertexFormat}
- */
-getVertexFormat : function (
-)
-{
-    return cc.renderer::VertexFormat;
-},
-
-/**
- * @method getEffect
- * @param {unsigned int} arg0
- * @return {cc.renderer::Effect}
- */
-getEffect : function (
-int 
-)
-{
-    return cc.renderer::Effect;
 },
 
 /**
@@ -2085,97 +1673,11 @@ Assembler : function (
 renderer.CustomAssembler = {
 
 /**
- * @method getIACount
- * @return {unsigned int}
- */
-getIACount : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method getIA
- * @param {unsigned int} arg0
- * @return {cc.renderer::InputAssembler}
- */
-getIA : function (
-int 
-)
-{
-    return cc.renderer::InputAssembler;
-},
-
-/**
- * @method adjustIA
- * @param {unsigned int} arg0
- * @return {cc.renderer::InputAssembler}
- */
-adjustIA : function (
-int 
-)
-{
-    return cc.renderer::InputAssembler;
-},
-
-/**
- * @method updateIARange
- * @param {unsigned int} arg0
- * @param {int} arg1
- * @param {int} arg2
- */
-updateIARange : function (
-int, 
-int, 
-int 
-)
-{
-},
-
-/**
  * @method clearEffect
  */
 clearEffect : function (
 )
 {
-},
-
-/**
- * @method updateEffect
- * @param {unsigned int} arg0
- * @param {cc.renderer::Effect} arg1
- */
-updateEffect : function (
-int, 
-effect 
-)
-{
-},
-
-/**
- * @method updateIABuffer
- * @param {unsigned int} arg0
- * @param {cc.renderer::VertexBuffer} arg1
- * @param {cc.renderer::IndexBuffer} arg2
- */
-updateIABuffer : function (
-int, 
-vertexbuffer, 
-indexbuffer 
-)
-{
-},
-
-/**
- * @method getEffect
- * @param {unsigned int} arg0
- * @return {cc.renderer::Effect}
- */
-getEffect : function (
-int 
-)
-{
-    return cc.renderer::Effect;
 },
 
 /**
@@ -2204,104 +1706,6 @@ nodeproxy,
 float 
 )
 {
-},
-
-/**
- * @method calculateWorldMatrix
- */
-calculateWorldMatrix : function (
-)
-{
-},
-
-/**
- * @method insertNodeLevel
- * @param {unsigned int} arg0
- * @param {cc.renderer::RenderFlow::LevelInfo} arg1
- */
-insertNodeLevel : function (
-int, 
-levelinfo 
-)
-{
-},
-
-/**
- * @method visit
- * @param {cc.renderer::NodeProxy} arg0
- */
-visit : function (
-nodeproxy 
-)
-{
-},
-
-/**
- * @method calculateLocalMatrix
- */
-calculateLocalMatrix : function (
-)
-{
-},
-
-/**
- * @method removeNodeLevel
- * @param {unsigned int} arg0
- * @param {mat4_object} arg1
- */
-removeNodeLevel : function (
-int, 
-mat4 
-)
-{
-},
-
-/**
- * @method getRenderScene
- * @return {cc.renderer::Scene}
- */
-getRenderScene : function (
-)
-{
-    return cc.renderer::Scene;
-},
-
-/**
- * @method getModelBatcher
- * @return {cc.renderer::ModelBatcher}
- */
-getModelBatcher : function (
-)
-{
-    return cc.renderer::ModelBatcher;
-},
-
-/**
- * @method calculateLevelWorldMatrix
- */
-calculateLevelWorldMatrix : function (
-)
-{
-},
-
-/**
- * @method getDevice
- * @return {cc.renderer::DeviceGraphics}
- */
-getDevice : function (
-)
-{
-    return cc.renderer::DeviceGraphics;
-},
-
-/**
- * @method getInstance
- * @return {cc.renderer::RenderFlow}
- */
-getInstance : function (
-)
-{
-    return cc.renderer::RenderFlow;
 },
 
 /**

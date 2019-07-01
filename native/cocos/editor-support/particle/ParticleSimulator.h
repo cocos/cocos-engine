@@ -126,7 +126,8 @@ public:
     void stop();
     void reset();
     void emitParticle(cocos2d::Vec3& pos);
-    void update(float dt);
+    void update(float dt) override {}
+    void render(float dt) override;
     void onEnable();
     void onDisable();
     

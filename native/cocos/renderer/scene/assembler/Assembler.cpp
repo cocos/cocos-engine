@@ -81,12 +81,6 @@ Assembler::~Assembler()
     CC_SAFE_RELEASE_NULL(_datas);
 }
 
-void Assembler::enable()
-{
-    _enabled = true;
-    *_dirty |= RenderFlow::OPACITY_CHANGED;
-}
-
 void Assembler::updateMeshIndex(std::size_t iaIndex, int meshIndex)
 {
     if (iaIndex >= _iaDatas.size())

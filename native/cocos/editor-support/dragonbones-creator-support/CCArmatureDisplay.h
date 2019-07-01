@@ -80,6 +80,10 @@ public:
     /**
      * @inheritDoc
      */
+    virtual void dbRender() override;
+    /**
+     * @inheritDoc
+     */
     virtual void dispose(bool disposeProxy = true) override;
     /**
      * @inheritDoc

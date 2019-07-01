@@ -211,7 +211,7 @@ void ParticleSimulator::onDisable()
     MiddlewareManager::getInstance()->removeTimer(this);
 }
 
-void ParticleSimulator::update(float dt)
+void ParticleSimulator::render(float dt)
 {
     // uv size must equal 8,because per particle has 4 vertex.
     if (_uv.size() != 8)
@@ -234,7 +234,7 @@ void ParticleSimulator::update(float dt)
     
     // avoid other place call update.
     auto mgr = MiddlewareManager::getInstance();
-    if (!mgr->isUpdating) return;
+    if (!mgr->isRendering) return;
     
     middleware::MeshBuffer* mb = mgr->getMeshBuffer(VF_XYUVC);
     middleware::IOBuffer& vb = mb->getVB();

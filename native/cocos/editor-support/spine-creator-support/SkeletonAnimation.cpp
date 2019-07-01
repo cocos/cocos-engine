@@ -149,7 +149,6 @@ void SkeletonAnimation::update (float deltaTime) {
         _state->apply(*_skeleton);
         _skeleton->updateWorldTransform();
     }
-    super::update(deltaTime);
 }
 
 void SkeletonAnimation::setAnimationStateData (AnimationStateData* stateData) {

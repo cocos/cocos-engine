@@ -130,7 +130,7 @@ void RenderFlow::calculateLocalMatrix(int tid)
     uint8_t* is3D = nullptr;
     cocos2d::Quaternion* quat = nullptr;
     float trsZ = 0.0f, trsSZ = 0.0f;
-
+    
     std::size_t begin = 0, end = commonList.size();
     std::size_t fieldSize = end / RENDER_THREAD_COUNT;
     if (tid >= 0)
@@ -159,12 +159,14 @@ void RenderFlow::calculateLocalMatrix(int tid)
         trs = nodeUnit->getTRS(0);
         is3D = nodeUnit->getIs3D(0);
         
-        for (auto j = 0; j < contentNum; j++, localMat ++, trs ++, is3D ++, signData++, dirty++)
+        NodeProxy** nodeProxy = (NodeProxy**)nodeUnit->getNode(0);
+        
+        for (auto j = 0; j < contentNum; j++, localMat ++, trs ++, is3D ++, signData++, dirty++, nodeProxy++)
         {
             if (signData->freeFlag == SPACE_FREE_FLAG) continue;
+            
             // reset world transform changed flag
             *dirty &= ~(WORLD_TRANSFORM_CHANGED | OPACITY_CHANGED);
-            // reset opacity changed flag
             if (!(*dirty & LOCAL_TRANSFORM)) continue;
             
             localMat->setIdentity();
@@ -249,18 +251,40 @@ void RenderFlow::calculateWorldMatrix()
         for(std::size_t index = 0, count = levelInfos.size(); index < count; index++)
         {
             auto& info = levelInfos[index];
-            auto selfDirty = *info.dirty & WORLD_TRANSFORM;
-            if (info.parentDirty != nullptr && ((*info.parentDirty & WORLD_TRANSFORM_CHANGED) || selfDirty))
+            auto selfWorldDirty = *info.dirty & WORLD_TRANSFORM;
+            auto selfOpacityDirty = *info.dirty & OPACITY;
+            
+            if (info.parentDirty)
             {
-                cocos2d::Mat4::multiply(*info.parentWorldMat, *info.localMat, info.worldMat);
-                *info.dirty |= WORLD_TRANSFORM_CHANGED;
-                *info.dirty &= ~WORLD_TRANSFORM;
+                if ((*info.parentDirty & WORLD_TRANSFORM_CHANGED) || selfWorldDirty)
+                {
+                    cocos2d::Mat4::multiply(*info.parentWorldMat, *info.localMat, info.worldMat);
+                    *info.dirty |= WORLD_TRANSFORM_CHANGED;
+                    *info.dirty &= ~WORLD_TRANSFORM;
+                }
+                
+                if ((*info.parentDirty & OPACITY_CHANGED) || selfOpacityDirty)
+                {
+                    *info.realOpacity = *info.opacity * *info.parentRealOpacity / 255.0f;
+                    *info.dirty |= OPACITY_CHANGED;
+                    *info.dirty &= ~OPACITY;
+                }
             }
-            else if (selfDirty)
+            else
             {
-                *info.worldMat = *info.localMat;
-                *info.dirty |= WORLD_TRANSFORM_CHANGED;
-                *info.dirty &= ~WORLD_TRANSFORM;
+                if (selfWorldDirty)
+                {
+                    *info.worldMat = *info.localMat;
+                    *info.dirty |= WORLD_TRANSFORM_CHANGED;
+                    *info.dirty &= ~WORLD_TRANSFORM;
+                }
+                
+                if (selfOpacityDirty)
+                {
+                    *info.realOpacity = *info.opacity;
+                    *info.dirty |= OPACITY_CHANGED;
+                    *info.dirty &= ~OPACITY;
+                }
             }
         }
     }
@@ -270,6 +294,12 @@ void RenderFlow::render(NodeProxy* scene, float deltaTime)
 {
     if (scene != nullptr)
     {
+        
+#if USE_MIDDLEWARE
+        // udpate middleware before render
+        middleware::MiddlewareManager::getInstance()->update(deltaTime);
+#endif
+        
 #if SUB_RENDER_THREAD_COUNT > 0
 
         int mainThreadTid = RENDER_THREAD_COUNT - 1;
@@ -318,12 +348,14 @@ void RenderFlow::render(NodeProxy* scene, float deltaTime)
         calculateLocalMatrix();
         calculateWorldMatrix();
 #endif
+        
+        _batcher->startBatch();
 
 #if USE_MIDDLEWARE
-        middleware::MiddlewareManager::getInstance()->update(deltaTime);
+        // render middleware
+        middleware::MiddlewareManager::getInstance()->render(deltaTime);
 #endif
-
-        _batcher->startBatch();
+        
         scene->render(_batcher, _scene);
         _batcher->terminateBatch();
 

@@ -87,31 +87,30 @@ public:
     /**
      *  @brief Sync script dirty flag.
      */
-    virtual void setDirty(se_object_ptr jsDirty);
+    void setDirty(se_object_ptr jsDirty);
     
     /**
-     *  @brief Gets dirty flag.
+     *  @brief Changes dirty flag.
      */
-    uint32_t* getDirty() const
+    void enableDirty(uint32_t flag)
     {
-        return _dirty;
+        if (_dirty)
+        {
+            *_dirty |= flag;
+        }
     }
     
     /**
-     *  @brief Enables assembler.
+     *  @brief Is flag dirty.
      */
-    virtual void enable();
-    
-    /**
-     *  @brief Disables assembler.
-     */
-    virtual void disable();
-    
-    /**
-     *  @brief Is assembler enabled.
-     *  @return _enabled
-     */
-    bool enabled() const { return _enabled; }
+    bool isDirty(uint32_t flag)
+    {
+        if (_dirty)
+        {
+            return *_dirty & flag;
+        }
+        return false;
+    }
     
     /**
      *  @brief Resets data.
@@ -122,7 +121,6 @@ protected:
     uint32_t* _dirty = nullptr;
     std::size_t _dirtyLen = 0;
     
-    bool _enabled = false;
     bool _useModel = false;
 };
 

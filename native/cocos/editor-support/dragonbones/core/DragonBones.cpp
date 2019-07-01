@@ -73,6 +73,11 @@ void DragonBones::advanceTime(float passedTime)
     _clock->advanceTime(passedTime);
 }
 
+void DragonBones::render()
+{
+    _clock->render();
+}
+
 void DragonBones::bufferEvent(EventObject* value)
 {
     _events.push_back(value);

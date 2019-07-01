@@ -256,11 +256,11 @@ void SkeletonRenderer::initWithBinaryFile (const std::string& skeletonDataFile, 
     initialize();
 }
 
-void SkeletonRenderer::update (float deltaTime) {
+void SkeletonRenderer::render (float deltaTime) {
     if (!_skeleton) return;
     // avoid other place call update.
     auto mgr = MiddlewareManager::getInstance();
-    if (!mgr->isUpdating) return;
+    if (!mgr->isRendering) return;
     
     if (_nodeProxy == nullptr) {
         return;
@@ -444,10 +444,6 @@ void SkeletonRenderer::update (float deltaTime) {
         // Early exit if slot is invisible
         if (slot->getColor().a == 0) {
             _clipper->clipEnd(*slot);
-            continue;
-        }
-        
-        if (!slot->getAttachment()) {
             continue;
         }
         
