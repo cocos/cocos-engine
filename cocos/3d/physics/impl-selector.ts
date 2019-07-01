@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 
 declare const global: any;
 const _global = typeof window === 'undefined' ? global : window;

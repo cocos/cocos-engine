@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core/data
+ */
+
 // Some helper methods for compile instantiation code
 
 import * as js from '../utils/js';

@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { ccclass, executeInEditMode } from '../../core/data/class-decorator';
 import { color4, toRadian } from '../../core/vmath';
 import { RenderView } from '../../pipeline/render-view';

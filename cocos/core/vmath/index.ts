@@ -1,6 +1,5 @@
 /**
- * @category core/math 数学库模块
- * @hidden
+ * @category core/math
  */
 
 export * from './utils';

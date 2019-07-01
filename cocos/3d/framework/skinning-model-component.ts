@@ -22,6 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * @category model
+ */
+
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { GFXDevice } from '../../gfx/device';
 import { selectJointsMediumType, SkinningModel } from '../../renderer/models/skinning-model';

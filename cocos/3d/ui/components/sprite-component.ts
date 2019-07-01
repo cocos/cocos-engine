@@ -63,7 +63,7 @@ enum SpriteType {
      */
     FILLED = 3,
     // /**
-    //  * !#en The mesh type.
+    //  * @en The mesh type.
     //  * @zh  以 Mesh 三角形组成的类型
     //  * @property {Number} MESH
     //  */
@@ -88,7 +88,7 @@ enum FillType {
      */
     VERTICAL = 1,
     // /**
-    //  * !#en The radial fill.
+    //  * @en The radial fill.
     //  * @zh  径向填充
     //  * @property {Number} RADIAL
     //  */
@@ -123,13 +123,13 @@ ccenum(SizeMode);
 
 // var State = cc.Enum({
 //     /**
-//      * !#en The normal state
+//      * @en The normal state
 //      * @zh  正常状态
 //      * @property {Number} NORMAL
 //      */
 //     NORMAL: 0,
 //     /**
-//      * !#en The gray state, all color will be modified to grayscale value.
+//      * @en The gray state, all color will be modified to grayscale value.
 //      * @zh  灰色状态，所有颜色会被转换成灰度值
 //      * @property {Number} GRAY
 //      */

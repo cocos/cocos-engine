@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core/data
+ */
+
 import * as _decorator from './class-decorator';
 cc._decorator = _decorator;
 export { _decorator };

@@ -22,6 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * @category component/light
+ */
+
 import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
 import { toRadian } from '../../core/vmath';
 import { LightType, nt2lm } from '../../renderer/scene/light';

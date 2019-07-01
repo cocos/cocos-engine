@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 
 export type EventArgumentsOf<
     K extends string,

@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 export * from './assets';
 export * from './builtin';
 export * from './framework';

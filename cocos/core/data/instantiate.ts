@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core/data
+ */
+
 import { isDomNode } from '../utils/misc';
 import { ValueType } from '../value-types/value-type';
 import { CCObject } from './object';

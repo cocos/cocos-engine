@@ -1,5 +1,5 @@
 /**
- * @category pipeline/ui
+ * @category pipeline.ui
  */
 
 import { GFXCommandBuffer } from '../../gfx/command-buffer';

@@ -1,5 +1,6 @@
 /**
- * @category pipeline/ui UI渲染流程模块
+ * UI渲染流程模块
+ * @category pipeline.ui
  */
 
 import { UBOGlobal } from '../define';

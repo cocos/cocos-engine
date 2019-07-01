@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 import { SystemEventType } from '../../../core/platform';
 import { array } from '../../../core/utils/js';
 import { Vec2, Vec3 } from '../../../core/value-types';

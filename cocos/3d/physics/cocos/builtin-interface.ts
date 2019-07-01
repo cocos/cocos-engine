@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { mat4, quat, vec3 } from '../../../core/vmath';
 
 /**

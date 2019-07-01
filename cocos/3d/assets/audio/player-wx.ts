@@ -24,7 +24,7 @@
  */
 
 /**
- * @category audio
+ * @category component/audio
  */
 
 import { _decorator } from '../../../core/data/index';

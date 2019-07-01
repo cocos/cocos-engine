@@ -1,11 +1,9 @@
 /**
+ * 几何工具模块
  * @category gemotry-utils
  */
 
 /**
- * @en
- * Orders matter, it decides the priority when calling intersection functions
- * @zh
  * 形状的类型值。
  */
 export default {

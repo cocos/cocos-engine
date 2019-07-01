@@ -25,6 +25,7 @@
  */
 
 /**
+ * 加载相关模块
  * @category loader
  */
 

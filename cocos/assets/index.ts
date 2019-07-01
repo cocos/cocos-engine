@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 export { RawAsset } from './raw-asset';
 export { Asset } from './asset';
 export {default as Prefab} from './CCPrefab';

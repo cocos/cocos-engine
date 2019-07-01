@@ -1,3 +1,7 @@
+/**
+ * @category model
+ */
+
 // @ts-check
 import { Component } from '../../components/component';
 import { _decorator } from '../../core/data/index';

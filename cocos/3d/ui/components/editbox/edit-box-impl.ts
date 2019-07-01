@@ -26,6 +26,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 import { ccclass } from '../../../../core/data/class-decorator';
 import { macro } from '../../../../core/platform/CCMacro';
 import { contains } from '../../../../core/utils';

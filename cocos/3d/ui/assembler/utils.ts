@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 
 import { Color, Mat4 } from '../../../core/value-types';
 import { color4, vec3 } from '../../../core/vmath/index';

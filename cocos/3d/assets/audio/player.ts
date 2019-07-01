@@ -24,7 +24,7 @@
  */
 
 /**
- * @category audio
+ * @category component/audio
  */
 
 export const PlayingState = {

@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core/value-types
+ */
+
 import * as js from '../utils/js';
 
 /**
@@ -38,8 +42,6 @@ import * as js from '../utils/js';
  *
  * @param obj - a JavaScript literal object containing enum names and values, or a TypeScript enum type
  * @return the defined enum type
- * @example {@link cocos2d/core/platform/CCEnum/Enum.js}
- * @typescript Enum<T>(obj: T): T
  */
 export default function Enum<T> (obj: T): T {
     if ('__enums__' in obj) {

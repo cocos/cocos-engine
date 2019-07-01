@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category asset
+ */
+
 import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { CCString } from '../../core/data/utils/attribute';

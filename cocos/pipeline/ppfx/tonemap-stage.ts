@@ -1,5 +1,5 @@
 /**
- * @category pipeline/ppfx
+ * @category pipeline.ppfx
  */
 
 import { GFXBindingLayout } from '../../gfx/binding-layout';

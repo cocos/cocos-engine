@@ -27,6 +27,7 @@
  * @category ui
  * @hidden
  */
+/** */
 
 import { ccclass, executionOrder, requireComponent } from '../../../core/data/class-decorator';
 import { Vec3 } from '../../../core/value-types';

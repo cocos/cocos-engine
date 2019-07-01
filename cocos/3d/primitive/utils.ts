@@ -1,4 +1,5 @@
 /**
+ * 几何图形模块
  * @category 3d/primitive
  */
 

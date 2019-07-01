@@ -1,6 +1,8 @@
 /**
+ * 物理模块
  * @category physics
  */
+
 
 import {
     ccclass,

@@ -1,5 +1,9 @@
 
 /**
+ * @category memop
+ */
+
+/**
  * @zh
  * 缓存数组
  * 该数据结构内存只增不减，适用于处理内存常驻递增的分配策略
@@ -31,7 +35,6 @@ export class CachedArray<T> {
     private _compareFn;
 
     /**
-     * @zh
      * 构造函数
      * @param length 数组初始化长度
      * @param compareFn 比较函数

@@ -1,6 +1,5 @@
 /**
- * @category 3d/primitive 几何图形模块
- * @hidden
+ * @category 3d/primitive
  */
 
 export * from './utils';
