@@ -443,6 +443,10 @@ sp.Skeleton = cc.Class({
     },
 
     _updateUseTint () {
+        let baseMaterial = this.sharedMaterials[0];
+        if (baseMaterial) {
+            baseMaterial.define('USE_TINT', this.useTint);
+        }
         var cache = this._materialCache;
         for (var mKey in cache) {
             var material = cache[mKey];
@@ -453,6 +457,10 @@ sp.Skeleton = cc.Class({
     },
 
     _updateBatch () {
+        let baseMaterial = this.sharedMaterials[0];
+        if (baseMaterial) {
+            baseMaterial.define('_USE_MODEL', !this.enableBatch);
+        }
         let cache = this._materialCache;
         for (let mKey in cache) {
             let material = cache[mKey];
@@ -696,16 +704,18 @@ sp.Skeleton = cc.Class({
             let material = this.sharedMaterials[0];
             if (!material) {
                 material = Material.getInstantiatedBuiltinMaterial('2d-spine', this);
-            }
-            else {
+            } else {
                 material = Material.getInstantiatedMaterial(material, this);
             }
 
             material.define('_USE_MODEL', true);
-
-            this.setMaterial(0, material);
-            this.markForRender(true);
+            this._prepareToRender(material);
         }, this);
+    },
+
+    _prepareToRender (material) {
+        this.setMaterial(0, material);
+        this.markForRender(true);
     },
 
     onEnable () {
