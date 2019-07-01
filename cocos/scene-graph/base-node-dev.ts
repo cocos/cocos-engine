@@ -72,18 +72,20 @@ export function baseNodePolyfill (BaseNode) {
                     return;
                 }
             }
-            const ReqComp = ctor._requireComponent;
-            if (ReqComp && !this.getComponent(ReqComp)) {
-                if (index === this._components.length) {
-                    // If comp should be last component, increase the index because required component added
-                    ++index;
-                }
-                const depended = this.addComponent(ReqComp);
-                if (!depended) {
-                    // depend conflicts
-                    return null;
-                }
-            }
+
+            // remove dependency and return directly by editor
+            // const ReqComp = ctor._requireComponent;
+            // if (ReqComp && !this.getComponent(ReqComp)) {
+            //     if (index === this._components.length) {
+            //         // If comp should be last component, increase the index because required component added
+            //         ++index;
+            //     }
+            //     const depended = this.addComponent(ReqComp);
+            //     if (!depended) {
+            //         // depend conflicts
+            //         return null;
+            //     }
+            // }
 
             comp.node = this;
             this._components.splice(index, 0, comp);
