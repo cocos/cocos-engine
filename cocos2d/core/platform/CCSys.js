@@ -615,6 +615,21 @@ function initSys () {
         }
         return !!cc.renderer.device.ext(name);
     }
+
+    /**
+     * Get max joint matrix size for skinned mesh renderer.
+     * @method getMaxJointMatrixSize
+     */
+    sys.getMaxJointMatrixSize = function () {
+        if (!sys._maxJointMatrixSize) {
+            const JOINT_MATRICES_SIZE = 50;
+            const LEFT_UNIFORM_SIZE = 10;
+
+            let gl = cc.game._renderContext;
+            sys._maxJointMatrixSize = Math.min(JOINT_MATRICES_SIZE, gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS) / 4 - LEFT_UNIFORM_SIZE);
+        }
+        return sys._maxJointMatrixSize;
+    }
     
     if (_global.__platform && _global.__platform.getSystemInfo) {
         let env = _global.__platform.getSystemInfo();
