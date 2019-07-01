@@ -613,7 +613,6 @@ export class WebGL2CmdBindStates extends WebGL2CmdObject {
 }
 
 export class WebGL2CmdDraw extends WebGL2CmdObject {
-
     public drawInfo: IGFXDrawInfo = {
         vertexCount: 0,
         firstVertex: 0,
@@ -737,9 +736,11 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
         if (glBuffer) {
             gpuBuffer.glBuffer = glBuffer;
             if (gpuBuffer.size > 0) {
-                if (cache.glVAO) {
-                    gl.bindVertexArray(null);
-                    cache.glVAO = null;
+                if (device.useVAO) {
+                    if (cache.glVAO) {
+                        gl.bindVertexArray(null);
+                        cache.glVAO = null;
+                    }
                 }
 
                 if (device.stateCache.glArrayBuffer !== gpuBuffer.glBuffer) {
@@ -760,9 +761,11 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
         if (glBuffer) {
             gpuBuffer.glBuffer = glBuffer;
             if (gpuBuffer.size > 0) {
-                if (cache.glVAO) {
-                    gl.bindVertexArray(null);
-                    cache.glVAO = null;
+                if (device.useVAO) {
+                    if (cache.glVAO) {
+                        gl.bindVertexArray(null);
+                        cache.glVAO = null;
+                    }
                 }
 
                 if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
@@ -818,9 +821,11 @@ export function WebGL2CmdFuncResizeBuffer (device: WebGL2GFXDevice, gpuBuffer: W
     const glUsage: GLenum = gpuBuffer.memUsage & GFXMemoryUsageBit.HOST ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW;
 
     if (gpuBuffer.usage & GFXBufferUsageBit.VERTEX) {
-        if (cache.glVAO) {
-            gl.bindVertexArray(null);
-            cache.glVAO = null;
+        if (device.useVAO) {
+            if (cache.glVAO) {
+                gl.bindVertexArray(null);
+                cache.glVAO = null;
+            }
         }
 
         if (cache.glArrayBuffer !== gpuBuffer.glBuffer) {
@@ -831,10 +836,11 @@ export function WebGL2CmdFuncResizeBuffer (device: WebGL2GFXDevice, gpuBuffer: W
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
         cache.glArrayBuffer = null;
     } else if (gpuBuffer.usage & GFXBufferUsageBit.INDEX) {
-
-        if (cache.glVAO) {
-            gl.bindVertexArray(null);
-            cache.glVAO = null;
+        if (device.useVAO) {
+            if (cache.glVAO) {
+                gl.bindVertexArray(null);
+                cache.glVAO = null;
+            }
         }
 
         if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
@@ -1211,19 +1217,19 @@ export function WebGL2CmdFuncCreateSampler (device: WebGL2GFXDevice, gpuSampler:
     if (glSampler) {
         if (gpuSampler.minFilter === GFXFilter.LINEAR || gpuSampler.minFilter === GFXFilter.ANISOTROPIC) {
             if (gpuSampler.mipFilter === GFXFilter.LINEAR || gpuSampler.mipFilter === GFXFilter.ANISOTROPIC) {
-                gpuSampler.glMinFilter = WebGLRenderingContext.LINEAR_MIPMAP_LINEAR;
+                gpuSampler.glMinFilter = gl.LINEAR_MIPMAP_LINEAR;
             } else if (gpuSampler.mipFilter === GFXFilter.POINT) {
-                gpuSampler.glMinFilter = WebGLRenderingContext.LINEAR_MIPMAP_NEAREST;
+                gpuSampler.glMinFilter = gl.LINEAR_MIPMAP_NEAREST;
             } else {
-                gpuSampler.glMinFilter = WebGLRenderingContext.LINEAR;
+                gpuSampler.glMinFilter = gl.LINEAR;
             }
         } else {
             if (gpuSampler.mipFilter === GFXFilter.LINEAR || gpuSampler.mipFilter === GFXFilter.ANISOTROPIC) {
-                gpuSampler.glMinFilter = WebGLRenderingContext.NEAREST_MIPMAP_LINEAR;
+                gpuSampler.glMinFilter = gl.NEAREST_MIPMAP_LINEAR;
             } else if (gpuSampler.mipFilter === GFXFilter.POINT) {
-                gpuSampler.glMinFilter = WebGLRenderingContext.NEAREST_MIPMAP_NEAREST;
+                gpuSampler.glMinFilter = gl.NEAREST_MIPMAP_NEAREST;
             } else {
-                gpuSampler.glMinFilter = WebGLRenderingContext.NEAREST;
+                gpuSampler.glMinFilter = gl.NEAREST;
             }
         }
 
@@ -2219,28 +2225,67 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                 if (cmd2.gpuInputAssembler && gpuShader && gpuInputAssembler !== cmd2.gpuInputAssembler) {
                     gpuInputAssembler = cmd2.gpuInputAssembler;
 
-                    // check vao
-                    const glVAO = gpuInputAssembler.glVAOs.get(gpuShader.glProgram!);
-                    if (glVAO) {
+                    if (device.useVAO) {
+                        // check vao
+                        let glVAO = gpuInputAssembler.glVAOs.get(gpuShader.glProgram!);
+                        if (!glVAO) {
+                            glVAO = gl.createVertexArray()!;
+                            gpuInputAssembler.glVAOs.set(gpuShader.glProgram!, glVAO);
+
+                            gl.bindVertexArray(glVAO);
+                            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+                            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+                            let glAttrib: WebGL2Attrib | null;
+                            for (const glInput of gpuShader.glInputs) {
+                                glAttrib = null;
+
+                                for (const attrib of gpuInputAssembler.glAttribs) {
+                                    if (attrib.name === glInput.name) {
+                                        glAttrib = attrib;
+                                        break;
+                                    }
+                                }
+
+                                if (glAttrib) {
+                                    gl.bindBuffer(gl.ARRAY_BUFFER, glAttrib.glBuffer);
+
+                                    for (let c = 0; c < glAttrib.componentCount; ++c) {
+                                        const glLoc = glInput.glLoc + c;
+                                        const attribOffset = glAttrib.offset + glAttrib.size * c;
+
+                                        gl.enableVertexAttribArray(glLoc);
+                                        cache.glCurrentAttribLocs[glLoc] = true;
+
+                                        gl.vertexAttribPointer(glLoc, glAttrib.count, glAttrib.glType, glAttrib.isNormalized, glAttrib.stride, attribOffset);
+                                        gl.vertexAttribDivisor(glLoc, glAttrib.isInstanced ? 1 : 0);
+                                    }
+                                }
+                            }
+
+                            const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
+                            if (gpuBuffer) {
+                                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
+                            }
+
+                            gl.bindVertexArray(null);
+                            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+                            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+                            cache.glArrayBuffer = null;
+                            cache.glElementArrayBuffer = null;
+                        }
+
                         if (cache.glVAO !== glVAO) {
                             gl.bindVertexArray(glVAO);
                             cache.glVAO = glVAO;
                         }
                     } else {
-                        const _glVAO = gl.createVertexArray();
-                        gpuInputAssembler.glVAOs.set(gpuShader.glProgram!, _glVAO!);
+                        for (let a = 0; a < device.maxVertexAttributes; ++a) {
+                            cache.glCurrentAttribLocs[a] = false;
+                        }
 
-                        gl.bindVertexArray(_glVAO);
-                        cache.glVAO = _glVAO;
-
-                        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-                        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-                        cache.glArrayBuffer = 0;
-                        cache.glElementArrayBuffer = 0;
-
-                        let glAttrib: WebGL2Attrib | null;
                         for (const glInput of gpuShader.glInputs) {
-                            glAttrib = null;
+                            let glAttrib: WebGL2Attrib | null = null;
 
                             for (const attrib of gpuInputAssembler.glAttribs) {
                                 if (attrib.name === glInput.name) {
@@ -2259,14 +2304,16 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                     const glLoc = glInput.glLoc + c;
                                     const attribOffset = glAttrib.offset + glAttrib.size * c;
 
-                                    gl.enableVertexAttribArray(glLoc);
+                                    if (!cache.glEnabledAttribLocs[glLoc] && glLoc >= 0) {
+                                        gl.enableVertexAttribArray(glLoc);
+                                        cache.glEnabledAttribLocs[glLoc] = true;
+                                    }
                                     cache.glCurrentAttribLocs[glLoc] = true;
 
                                     gl.vertexAttribPointer(glLoc, glAttrib.count, glAttrib.glType, glAttrib.isNormalized, glAttrib.stride, attribOffset);
-                                    gl.vertexAttribDivisor(glLoc, glAttrib.isInstanced ? 1 : 0);
                                 }
                             }
-                        }
+                        } // for
 
                         const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
                         if (gpuBuffer) {
@@ -2275,7 +2322,14 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                 cache.glElementArrayBuffer = gpuBuffer.glBuffer;
                             }
                         }
-                    }
+
+                        for (let a = 0; a < device.maxVertexAttributes; ++a) {
+                            if (cache.glEnabledAttribLocs[a] !== cache.glCurrentAttribLocs[a]) {
+                                gl.disableVertexAttribArray(a);
+                                cache.glEnabledAttribLocs[a] = false;
+                            }
+                        }
+                    } // if (device.useVAO)
                 }
 
                 if (gpuPipelineState) {
@@ -2442,9 +2496,8 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                 const cmd3: WebGL2CmdDraw = cmdPackage.drawCmds.array[cmdId];
                 if (gpuInputAssembler && gpuShader) {
                     if (!gpuInputAssembler.gpuIndirectBuffer) {
-                        const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
-                        if (gpuBuffer && cmd3.drawInfo.indexCount > 0) {
-                            const offset = cmd3.drawInfo.firstIndex * gpuBuffer.stride;
+                        if (gpuInputAssembler.gpuIndexBuffer && cmd3.drawInfo.indexCount > -1) {
+                            const offset = cmd3.drawInfo.firstIndex * gpuInputAssembler.gpuIndexBuffer.stride;
                             gl.drawElements(glPrimitive, cmd3.drawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
                         } else {
                             gl.drawArrays(glPrimitive, cmd3.drawInfo.firstVertex, cmd3.drawInfo.vertexCount);
