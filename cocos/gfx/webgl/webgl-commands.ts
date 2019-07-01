@@ -2167,23 +2167,14 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                         const vao = device.OES_vertex_array_object!;
 
                         // check vao
-                        const glVAO = gpuInputAssembler.glVAOs.get(gpuShader.glProgram!);
-                        if (glVAO) {
-                            if (cache.glVAO !== glVAO) {
-                                vao.bindVertexArrayOES(glVAO);
-                                cache.glVAO = glVAO;
-                            }
-                        } else {
-                            const _glVAO = vao.createVertexArrayOES();
-                            gpuInputAssembler.glVAOs.set(gpuShader.glProgram!, _glVAO!);
+                        let glVAO = gpuInputAssembler.glVAOs.get(gpuShader.glProgram!);
+                        if (!glVAO) {
+                            glVAO = vao.createVertexArrayOES()!;
+                            gpuInputAssembler.glVAOs.set(gpuShader.glProgram!, glVAO);
 
-                            vao.bindVertexArrayOES(_glVAO);
-                            cache.glVAO = _glVAO;
-
+                            vao.bindVertexArrayOES(glVAO);
                             gl.bindBuffer(gl.ARRAY_BUFFER, null);
                             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-                            cache.glArrayBuffer = 0;
-                            cache.glElementArrayBuffer = 0;
 
                             let glAttrib: WebGLAttrib | null;
                             for (const glInput of gpuShader.glInputs) {
@@ -2217,11 +2208,19 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
 
                             const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
                             if (gpuBuffer) {
-                                if (cache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
-                                    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
-                                    cache.glElementArrayBuffer = gpuBuffer.glBuffer;
-                                }
+                                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
                             }
+
+                            vao.bindVertexArrayOES(null);
+                            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+                            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+                            cache.glArrayBuffer = null;
+                            cache.glElementArrayBuffer = null;
+                        }
+
+                        if (cache.glVAO !== glVAO) {
+                            vao.bindVertexArrayOES(glVAO);
+                            cache.glVAO = glVAO;
                         }
                     } else {
                         for (let a = 0; a < device.maxVertexAttributes; ++a) {
@@ -2273,8 +2272,8 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                 cache.glEnabledAttribLocs[a] = false;
                             }
                         }
-                    }
-                } // if (device.useVAO)
+                    } // if (device.useVAO)
+                }
 
                 if (gpuPipelineState) {
                     for (const dynamicState of gpuPipelineState.dynamicStates) {
@@ -2441,7 +2440,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                 if (gpuInputAssembler && gpuShader) {
                     if (!gpuInputAssembler.gpuIndirectBuffer) {
                         const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
-                        if (gpuBuffer && cmd3.drawInfo.indexCount > 0) {
+                        if (gpuBuffer && cmd3.drawInfo.indexCount > -1) {
                             const offset = cmd3.drawInfo.firstIndex * gpuBuffer.stride;
                             gl.drawElements(glPrimitive, cmd3.drawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
                         } else {
