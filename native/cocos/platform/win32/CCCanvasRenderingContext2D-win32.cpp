@@ -371,6 +371,8 @@ private:
     cocos2d::Color4F _fillStyle;
     cocos2d::Color4F _strokeStyle;
 
+    TEXTMETRIC _tm;
+
     // change utf-8 string to utf-16, pRetLen is the string length after changing
     wchar_t * _utf8ToUtf16(const std::string& str, int * pRetLen = nullptr)
     {
@@ -589,14 +591,11 @@ private:
         {
             point.y += _fontSize / 2.0f;
         }
-        // The origin of drawing text on win32 is from top-left, but now we get bottom-left,
-        // So, we need to substract the font size to convert 'point' to top-left.
-        point.y -= _fontSize;
 
-        // We use font size to calculate text height, but draw text on win32 is based on
-        // the real font height and in top-left position, substract the adjust value to make text inside text rectangle.
-        // check
-        // point.y -= (textSize.height - _fontSize) / 2.0f;
+        // Since the web platform cannot get the baseline of the font, an additive offset is performed for all platforms.
+        // That's why we should add baseline back again on other platforms
+        GetTextMetrics(_DC, &_tm);
+        point.y -= _tm.tmAscent;
 
         return point;
     }

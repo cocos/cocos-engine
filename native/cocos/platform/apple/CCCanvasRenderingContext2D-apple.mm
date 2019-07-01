@@ -301,21 +301,15 @@ enum class CanvasTextBaseline {
         point.y += _fontSize / 2.0f;
     }
 
+    // Since the web platform cannot get the baseline of the font, an additive offset is performed for all platforms.
+    // That's why we should add baseline back again on other platforms
 #if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
-    // We use font size to calculate text height, but 'drawPointAt' method on macOS is based on
-    // the real font height and in bottom-left position, add the adjust value to make the text inside text rectangle.
-    point.y += (textSize.height - _fontSize) / 2.0f;
+    point.y -= _font.descender;
 
     // The origin on macOS is bottom-left by default, so we need to convert y from top-left origin to bottom-left origin.
     point.y = _height - point.y;
 #else
-    // The origin of drawing text on iOS is from top-left, but now we get bottom-left,
-    // So, we need to substract the font size to convert 'point' to top-left.
-    point.y -= _fontSize;
-
-    // We use font size to calculate text height, but 'drawPointAt' method on iOS is based on
-    // the real font height and in top-left position, substract the adjust value to make text inside text rectangle.
-    point.y -= (textSize.height - _fontSize) / 2.0f;
+    point.y -= _font.ascender;
 #endif
     return point;
 }
