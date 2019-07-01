@@ -1,9 +1,6 @@
 
 /**
-<<<<<<< HEAD
  * 粒子系统模块
-=======
->>>>>>> Some API Doc modify (#4725)
  * @category particle
  */
 
