@@ -398,7 +398,7 @@ static void _addModelsFromTypedArray(cocos2d::renderer::Scene* scene, se::Object
         auto model = cocos2d::renderer::ModelPool::getOrCreateModel();
         
         unsigned long addr = (unsigned long)(*doublePtr++);
-        model->addEffect(reinterpret_cast<cocos2d::renderer::Effect*>(addr));
+        model->setEffect(reinterpret_cast<cocos2d::renderer::Effect*>(addr), nullptr);
         addr = (unsigned long)(*doublePtr++);
         ia.setVertexBuffer(reinterpret_cast<cocos2d::renderer::VertexBuffer*>(addr));
         addr = (unsigned long)(*doublePtr++);
@@ -406,7 +406,6 @@ static void _addModelsFromTypedArray(cocos2d::renderer::Scene* scene, se::Object
         
         floatPtr += 6;
         
-        model->setDynamicIA((bool)*floatPtr++);
         model->setCullingMask((int)*floatPtr++);
         
         memcpy(worldMatrix.m, floatPtr, 16);
@@ -415,7 +414,7 @@ static void _addModelsFromTypedArray(cocos2d::renderer::Scene* scene, se::Object
         
         ia.setStart(*floatPtr++);
         ia.setCount(*floatPtr++);
-        model->addInputAssembler(ia);
+        model->setInputAssembler(ia);
         
         scene->addModel(model);
         

@@ -143,6 +143,16 @@ destroyInstance : function (
 },
 
 /**
+ * @method generateModuleID
+ * @return {unsigned char}
+ */
+generateModuleID : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method getInstance
  * @return {cc.middleware::MiddlewareManager}
  */

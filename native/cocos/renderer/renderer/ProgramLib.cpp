@@ -257,4 +257,15 @@ Program* ProgramLib::getProgram(const std::string& name, const ValueMap& defines
     return program;
 }
 
+Value ProgramLib::getValueFromDefineList(const std::string& name, ValueMap* defineList)
+{
+    auto iter = defineList->find(name);
+    if (iter != defineList->end())
+    {
+        return iter->second;
+    }
+    
+    return Value::Null;
+}
+
 RENDERER_END

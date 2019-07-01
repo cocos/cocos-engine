@@ -25,6 +25,7 @@
 #include "Model.h"
 #include "Effect.h"
 #include "InputAssembler.h"
+#include "../scene/NodeProxy.hpp"
 
 RENDERER_BEGIN
 
@@ -61,9 +62,6 @@ void ModelPool::returnModel(Model *model)
 
 Model::Model()
 {
-//    RENDERER_LOGD("Model construction %p", this);
-    
-    _inputAssemblers.reserve(500);
 }
 
 Model::~Model()
@@ -71,68 +69,80 @@ Model::~Model()
     RENDERER_LOGD("Model destruction %p", this);
     reset();
     
-    ccCArrayFree(_effects);
-}
-
-void Model::addInputAssembler(const InputAssembler& ia)
-{
-    _inputAssemblers.push_back(std::move(ia));
-}
-
-void Model::clearInputAssemblers()
-{
-    _inputAssemblers.clear();
-}
-
-void Model::addEffect(Effect* effect)
-{
-    if (ccCArrayContainsValue(_effects, effect))
-        return;
+    _effect->release();
+    _effect = nullptr;
     
-    ccCArrayAppendValue(_effects, effect);
-    
-    _defines.push_back(effect->extractDefines());
+    if (_node != nullptr)
+    {
+        _node->release();
+        _node = nullptr;
+    }
 }
 
-void Model::clearEffects()
+void Model::setInputAssembler(const InputAssembler& ia)
 {
-    ccCArrayRemoveAllValues(_effects);
+    _inputAssembler = std::move(ia);
+}
+
+void Model::setEffect(Effect* effect, CustomProperties* customProperties)
+{
+    _effect = effect;
+    _effect->retain();
     _defines.clear();
+    _uniforms.clear();
+    
+    if (effect != nullptr) {
+        _defines.push_back(effect->extractDefines());
+        _uniforms.push_back(effect->extractProperties());
+    }
+    
+    if (customProperties != nullptr) {
+        _defines.push_back(customProperties->extractDefines());
+        _uniforms.push_back(customProperties->extractProperties());
+    }
 }
 
-void Model::extractDrawItem(DrawItem& out, uint32_t index) const
+void Model::setNode(NodeProxy* node)
+{
+    if (_node != nullptr)
+    {
+        _node->release();
+    }
+    _node = node;
+    if (_node != nullptr)
+    {
+        _node->retain();
+    }
+}
+
+void Model::extractDrawItem(DrawItem& out) const
 {
     if (_dynamicIA)
     {
         out.model = const_cast<Model*>(this);
         out.ia = nullptr;
-        out.effect = static_cast<Effect*>(_effects->arr[0]);
+        out.effect = _effect;
         out.defines = out.effect->extractDefines();
         
         return;
     }
     
-    if (index >= _inputAssemblers.size())
-        return;
-    
     out.model = const_cast<Model*>(this);
-    out.ia = const_cast<InputAssembler*>(&(_inputAssemblers[index]));
-    
-    auto effectsSize = _effects->num;
-    if (index >= effectsSize)
-        index = (uint32_t)(effectsSize - 1);
-    
-    out.effect = static_cast<Effect*>(_effects->arr[index]);
-
+    out.ia = const_cast<InputAssembler*>(&(_inputAssembler));
+    out.effect = _effect;
     out.defines = out.effect->extractDefines();
+}
+
+void Model::clearEffect()
+{
+    _effect->release();
+    _effect = nullptr;
 }
 
 void Model::reset()
 {
-    ccCArrayRemoveAllValues(_effects);
-    _inputAssemblers.clear();
-    
     _defines.clear();
+    _uniforms.clear();
 }
 
 RENDERER_END

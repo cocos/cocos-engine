@@ -11,6 +11,7 @@ bool js_register_cocos2d_renderer_ProgramLib(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
 SE_DECLARE_FUNC(js_renderer_ProgramLib_getProgram);
 SE_DECLARE_FUNC(js_renderer_ProgramLib_define);
+SE_DECLARE_FUNC(js_renderer_ProgramLib_getValueFromDefineList);
 SE_DECLARE_FUNC(js_renderer_ProgramLib_getKey);
 SE_DECLARE_FUNC(js_renderer_ProgramLib_ProgramLib);
 
@@ -48,22 +49,6 @@ SE_DECLARE_FUNC(js_renderer_Effect_copy);
 SE_DECLARE_FUNC(js_renderer_Effect_clear);
 SE_DECLARE_FUNC(js_renderer_Effect_define);
 SE_DECLARE_FUNC(js_renderer_Effect_Effect);
-
-extern se::Object* __jsb_cocos2d_renderer_BaseRenderer_proto;
-extern se::Class* __jsb_cocos2d_renderer_BaseRenderer_class;
-
-bool js_register_cocos2d_renderer_BaseRenderer(se::Object* obj);
-bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_BaseRenderer_getProgramLib);
-SE_DECLARE_FUNC(js_renderer_BaseRenderer_init);
-SE_DECLARE_FUNC(js_renderer_BaseRenderer_BaseRenderer);
-
-extern se::Object* __jsb_cocos2d_renderer_View_proto;
-extern se::Class* __jsb_cocos2d_renderer_View_class;
-
-bool js_register_cocos2d_renderer_View(se::Object* obj);
-bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_View_View);
 
 extern se::Object* __jsb_cocos2d_renderer_AssemblerBase_proto;
 extern se::Class* __jsb_cocos2d_renderer_AssemblerBase_class;
@@ -118,6 +103,22 @@ SE_DECLARE_FUNC(js_renderer_NodeProxy_setLocalZOrder);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_getName);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_getChildrenCount);
 SE_DECLARE_FUNC(js_renderer_NodeProxy_NodeProxy);
+
+extern se::Object* __jsb_cocos2d_renderer_BaseRenderer_proto;
+extern se::Class* __jsb_cocos2d_renderer_BaseRenderer_class;
+
+bool js_register_cocos2d_renderer_BaseRenderer(se::Object* obj);
+bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_BaseRenderer_getProgramLib);
+SE_DECLARE_FUNC(js_renderer_BaseRenderer_init);
+SE_DECLARE_FUNC(js_renderer_BaseRenderer_BaseRenderer);
+
+extern se::Object* __jsb_cocos2d_renderer_View_proto;
+extern se::Class* __jsb_cocos2d_renderer_View_class;
+
+bool js_register_cocos2d_renderer_View(se::Object* obj);
+bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_View_View);
 
 extern se::Object* __jsb_cocos2d_renderer_Camera_proto;
 extern se::Class* __jsb_cocos2d_renderer_Camera_class;
@@ -176,12 +177,15 @@ SE_DECLARE_FUNC(js_renderer_Light_setSpotExp);
 SE_DECLARE_FUNC(js_renderer_Light_setShadowType);
 SE_DECLARE_FUNC(js_renderer_Light_setType);
 SE_DECLARE_FUNC(js_renderer_Light_getViewProjMatrix);
+SE_DECLARE_FUNC(js_renderer_Light_getPositionUniform);
 SE_DECLARE_FUNC(js_renderer_Light_getShadowBias);
 SE_DECLARE_FUNC(js_renderer_Light_getShadowDarkness);
 SE_DECLARE_FUNC(js_renderer_Light_getSpotAngle);
+SE_DECLARE_FUNC(js_renderer_Light_getDirectionUniform);
 SE_DECLARE_FUNC(js_renderer_Light_getSpotExp);
 SE_DECLARE_FUNC(js_renderer_Light_getViewPorjMatrix);
 SE_DECLARE_FUNC(js_renderer_Light_getType);
+SE_DECLARE_FUNC(js_renderer_Light_getColorUniform);
 SE_DECLARE_FUNC(js_renderer_Light_getIntensity);
 SE_DECLARE_FUNC(js_renderer_Light_getShadowMaxDepth);
 SE_DECLARE_FUNC(js_renderer_Light_getWorldMatrix);
@@ -199,8 +203,8 @@ SE_DECLARE_FUNC(js_renderer_Light_setShadowScale);
 SE_DECLARE_FUNC(js_renderer_Light_setColor);
 SE_DECLARE_FUNC(js_renderer_Light_setShadowMaxDepth);
 SE_DECLARE_FUNC(js_renderer_Light_setFrustumEdgeFalloff);
-SE_DECLARE_FUNC(js_renderer_Light_getShadowType);
 SE_DECLARE_FUNC(js_renderer_Light_getShadowResolution);
+SE_DECLARE_FUNC(js_renderer_Light_getShadowType);
 SE_DECLARE_FUNC(js_renderer_Light_setShadowBias);
 SE_DECLARE_FUNC(js_renderer_Light_Light);
 
@@ -209,20 +213,21 @@ extern se::Class* __jsb_cocos2d_renderer_Scene_class;
 
 bool js_register_cocos2d_renderer_Scene(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_Scene_reset);
 SE_DECLARE_FUNC(js_renderer_Scene_getCameraCount);
-SE_DECLARE_FUNC(js_renderer_Scene_addCamera);
 SE_DECLARE_FUNC(js_renderer_Scene_removeCamera);
 SE_DECLARE_FUNC(js_renderer_Scene_getLightCount);
-SE_DECLARE_FUNC(js_renderer_Scene_getCamera);
+SE_DECLARE_FUNC(js_renderer_Scene_removeView);
+SE_DECLARE_FUNC(js_renderer_Scene_getLights);
+SE_DECLARE_FUNC(js_renderer_Scene_removeLight);
+SE_DECLARE_FUNC(js_renderer_Scene_addCamera);
 SE_DECLARE_FUNC(js_renderer_Scene_getLight);
+SE_DECLARE_FUNC(js_renderer_Scene_addLight);
 SE_DECLARE_FUNC(js_renderer_Scene_getCameras);
 SE_DECLARE_FUNC(js_renderer_Scene_sortCameras);
-SE_DECLARE_FUNC(js_renderer_Scene_addView);
 SE_DECLARE_FUNC(js_renderer_Scene_setDebugCamera);
-SE_DECLARE_FUNC(js_renderer_Scene_removeView);
-SE_DECLARE_FUNC(js_renderer_Scene_addLight);
-SE_DECLARE_FUNC(js_renderer_Scene_removeLight);
+SE_DECLARE_FUNC(js_renderer_Scene_reset);
+SE_DECLARE_FUNC(js_renderer_Scene_getCamera);
+SE_DECLARE_FUNC(js_renderer_Scene_addView);
 SE_DECLARE_FUNC(js_renderer_Scene_Scene);
 
 extern se::Object* __jsb_cocos2d_renderer_MemPool_proto;

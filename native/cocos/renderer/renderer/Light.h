@@ -66,7 +66,11 @@ public:
         /**
          * Spot light
          */
-        SPOT
+        SPOT,
+        /**
+         * Ambient light
+         */
+        AMBIENT
     };
     
     /**
@@ -162,6 +166,18 @@ public:
      *  @brief Gets the view projection matrix.
      */
     inline const Mat4& getViewProjMatrix() const { return _viewProjMatrix; }
+    /**
+     *  @brief Gets the direction uniform.
+     */
+    inline const Vec3& getDirectionUniform() const { return _directionUniform; }
+    /**
+     *  @brief Gets the color uniform.
+     */
+    inline const Vec3& getColorUniform() const { return _colorUniform; }
+    /**
+     *  @brief Gets the position uniform.
+     */
+    inline const Vec3& getPositionUniform() const { return _positionUniform; }
     /**
      *  @brief Sets the resolution of shadow
      */

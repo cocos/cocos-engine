@@ -30,6 +30,7 @@
 #include "View.h"
 #include "Scene.h"
 #include "Effect.h"
+#include "Light.h"
 #include "InputAssembler.h"
 #include "Pass.h"
 #include "Camera.h"
@@ -39,8 +40,9 @@ RENDERER_BEGIN
 
 BaseRenderer::BaseRenderer()
 {
-    _drawItems.reserve(100);
-    _stageInfos.reserve(10);
+    _drawItems = new RecyclePool<DrawItem>([]()mutable->DrawItem*{return new DrawItem();},100);
+    _stageInfos = new RecyclePool<StageInfo>([]()mutable->StageInfo*{return new StageInfo();}, 10);
+    _views = new RecyclePool<View>([]()mutable->View*{return new View();}, 8);
 }
 
 BaseRenderer::~BaseRenderer()
@@ -53,6 +55,15 @@ BaseRenderer::~BaseRenderer()
     
     RENDERER_SAFE_RELEASE(_defaultTexture);
     _defaultTexture = nullptr;
+    
+    delete _drawItems;
+    _drawItems = nullptr;
+    
+    delete _stageInfos;
+    _stageInfos = nullptr;
+    
+    delete _views;
+    _views = nullptr;
 }
 
 bool BaseRenderer::init(DeviceGraphics* device, std::vector<ProgramLib::Template>& programTemplates)
@@ -98,10 +109,8 @@ void BaseRenderer::render(const View& view, const Scene* scene)
     _device->clear(view.clearFlags, &clearColor, view.depth, view.stencil);
     
     // get all draw items
-    _drawItems.clear();
+    _drawItems->reset();
     int modelMask = -1;
-    uint32_t drawItemCount = 0;
-    DrawItem drawItem;
     for (const auto& model : scene->getModels())
     {
         modelMask = model->getCullingMask();
@@ -116,51 +125,47 @@ void BaseRenderer::render(const View& view, const Scene* scene)
                 continue;
         }
         
-        drawItemCount = model->getDrawItemCount();
-        for (uint32_t i = 0; i < drawItemCount; ++i)
-        {
-            model->extractDrawItem(drawItem, i);
-            _drawItems.push_back(drawItem);
-        }
+        DrawItem* drawItem = _drawItems->add();
+        model->extractDrawItem(*drawItem);
     }
     
     // dispatch draw items to different stage
-    _stageInfos.clear();
+    _stageInfos->reset();
     StageItem stageItem;
-    StageInfo stageInfo;
     std::vector<StageItem> stageItems;
     for (const auto& stage : view.stages)
     {
-        for (const auto& item : _drawItems)
+        for (int i = 0, len = _drawItems->getLength(); i < len; i++)
         {
-            auto tech = item.effect->getTechnique(stage);
+            const DrawItem* item = _drawItems->getData(i);
+            auto tech = item->effect->getTechnique(stage);
             if (tech)
             {
-                stageItem.model = item.model;
-                stageItem.ia = item.ia;
-                stageItem.effect = item.effect;
-                stageItem.defines = item.defines;
+                stageItem.model = item->model;
+                stageItem.ia = item->ia;
+                stageItem.effect = item->effect;
+                stageItem.defines = item->defines;
                 stageItem.technique = tech;
                 stageItem.sortKey = -1;
 
                 stageItems.push_back(stageItem);
             }
         }
-
-        stageInfo.stage = stage;
-        stageInfo.items = &stageItems;
-        _stageInfos.push_back(std::move(stageInfo));
+        StageInfo* stageInfo = _stageInfos->add();
+        stageInfo->stage = stage;
+        stageInfo->items = &stageItems;
     }
     
     // render stages
     std::unordered_map<std::string, StageCallback>::iterator foundIter;
-    for (const auto& stageInfoEntry : _stageInfos)
+    for (int i = 0, len = _stageInfos->getLength(); i < len; i++)
     {
-        foundIter = _stage2fn.find(stageInfoEntry.stage);
+        const StageInfo* stageInfo = _stageInfos->getData(i);
+        foundIter = _stage2fn.find(stageInfo->stage);
         if (_stage2fn.end() != foundIter)
         {
             auto& fn = foundIter->second;
-            fn(view, *stageInfoEntry.items);
+            fn(view, *stageInfo->items);
         }
     }
 }
@@ -210,7 +215,7 @@ void BaseRenderer::setProperty (Effect::Property& prop)
             }
             
             _device->setTextureArray(propName,
-                                     std::move(prop.getTextureArray()),
+                                     prop.getTextureArray(),
                                      slots);
         }
     }
@@ -365,12 +370,13 @@ int BaseRenderer::allocTextureUnit()
 
 void BaseRenderer::reset()
 {
-    
+    _views->reset();
+    _stageInfos->reset();
 }
 
 View* BaseRenderer::requestView()
 {
-    return new (std::nothrow) View();
+    return _views->add();
 }
 
 RENDERER_END

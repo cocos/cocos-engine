@@ -1094,13 +1094,11 @@ void DeviceGraphics::commitTextures()
 //
 DeviceGraphics::Uniform::Uniform()
 : dirty(true)
-, value(nullptr)
 , elementType(UniformElementType::FLOAT)
 {}
 
 DeviceGraphics::Uniform::Uniform(const void* v, size_t bytes, UniformElementType elementType_)
 : dirty(true)
-, value(nullptr)
 , elementType(elementType_)
 {
     setValue(v, bytes);

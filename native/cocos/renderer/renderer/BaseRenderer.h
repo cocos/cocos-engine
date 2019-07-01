@@ -32,6 +32,7 @@
 #include "ProgramLib.h"
 #include "Model.h"
 #include "Effect.h"
+#include "../memop/RecyclePool.hpp"
 
 RENDERER_BEGIN
 
@@ -66,7 +67,6 @@ public:
         int sortKey = -1;
     };
     typedef std::function<void(const View&, const std::vector<StageItem>&)> StageCallback;
-    
     /**
      *  @brief The default constructor.
      */
@@ -125,8 +125,9 @@ protected:
     Program* _program = nullptr;
     Texture2D* _defaultTexture = nullptr;
     std::unordered_map<std::string, StageCallback> _stage2fn;
-    std::vector<DrawItem> _drawItems;
-    std::vector<StageInfo> _stageInfos;
+    RecyclePool<DrawItem>* _drawItems = nullptr;
+    RecyclePool<StageInfo>* _stageInfos = nullptr;
+    RecyclePool<View>* _views = nullptr;
 
     CC_DISALLOW_COPY_ASSIGN_AND_MOVE(BaseRenderer);
 };
