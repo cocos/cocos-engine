@@ -32,7 +32,7 @@ import Pipeline from './pipeline';
 
 const ID = 'MD5Pipe';
 const ExtnameRegex = /(\.[^.\n\\/]*)$/;
-const UuidRegex = /.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-]{8,})/;
+const UuidRegex = /.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-]{8,}(@[^\.]*)?)/;
 
 function getUuidFromURL (url) {
     var matches = url.match(UuidRegex);
