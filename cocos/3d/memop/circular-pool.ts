@@ -3,10 +3,6 @@
  */
 
 /**
- * @hidden
- */
-
-/**
  * @zh 循环列表。
  */
 export default class CircularPool<T = {}> {

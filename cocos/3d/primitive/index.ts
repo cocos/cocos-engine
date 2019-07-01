@@ -1,10 +1,6 @@
 /**
-<<<<<<< HEAD
  * @category 3d/primitive
-=======
- * @category 3d/primitive 几何图形模块
  * @hidden
->>>>>>> Daily merge (#4693)
  */
 
 export * from './utils';

@@ -1,10 +1,5 @@
 /**
-<<<<<<< HEAD
  * @category core/math
-=======
- * @category core/math 数学库模块
- * @hidden
->>>>>>> Daily merge (#4693)
  */
 
 export * from './utils';

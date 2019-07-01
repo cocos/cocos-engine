@@ -32,12 +32,6 @@ import {ccclass, property} from '../core/data/class-decorator';
 import { Font } from './font';
 
 /**
-<<<<<<< HEAD
-=======
- * @module cc
- */
-/**
->>>>>>> ui layout api (#4707)
  * @en
  * Class for TTFFont handling.
  *
