@@ -50,10 +50,6 @@ const cos     = Math.cos;
 const sin     = Math.sin;
 const atan2   = Math.atan2;
 
-let _renderData = null;
-let _impl = null;
-let _curColor = 0;
-
 function curveDivs (r, arc, tol) {
     let da = acos(r / (r + tol)) * 2.0;
     return max(2, ceil(arc / da));
@@ -73,12 +69,16 @@ export default class GraphicsAssembler extends Assembler {
     constructor (graphics) {
         super(graphics);
         
+        this._buffer = null;
         this._buffers = [];
         this._bufferOffset = 0;
     }
 
     requestBuffer () {
-        let buffer = {};
+        let buffer = {
+            indiceStart: 0,
+            vertexStart: 0
+        };
 
         let meshbuffer = new MeshBuffer(renderer._handle, vfmtPosColor);
         buffer.meshbuffer = meshbuffer;
@@ -115,6 +115,9 @@ export default class GraphicsAssembler extends Assembler {
             for (let i = 0, l = datas.length; i < l; i++) {
                 let data = datas[i];
 
+                data.indiceStart = 0;
+                data.vertexStart = 0;
+
                 let meshbuffer = data.meshbuffer;
                 meshbuffer.reset();
             }
@@ -131,18 +134,18 @@ export default class GraphicsAssembler extends Assembler {
         for (let index = 0, length = buffers.length; index < length; index++) {
             let buffer = buffers[index];
             let meshbuffer = buffer.meshbuffer;
-            buffer.ia._count = meshbuffer.indiceStart;
+            buffer.ia._count = buffer.indiceStart;
             renderer._flushIA(buffer.ia);
             meshbuffer.uploadData();
         }
     }
 
-    genRenderData (graphics, cverts) {
+    genBuffer (graphics, cverts) {
         let buffers = this.getBuffers(); 
         let buffer = buffers[this._bufferOffset];
         let meshbuffer = buffer.meshbuffer;
 
-        let maxVertsCount = meshbuffer.vertexStart + cverts;
+        let maxVertsCount = buffer.vertexStart + cverts;
         if (maxVertsCount > MAX_VERTEX ||
             maxVertsCount * 3 > MAX_INDICE) {
             ++this._bufferOffset;
@@ -163,11 +166,12 @@ export default class GraphicsAssembler extends Assembler {
             meshbuffer.requestStatic(cverts, cverts*3);
         }
 
+        this._buffer = buffer;
         return buffer;
     }
 
     stroke (graphics) {
-        _curColor = graphics._strokeColor._val;
+        this._curColor = graphics._strokeColor._val;
 
         this._flattenPaths(graphics._impl);
         this._expandStroke(graphics);
@@ -176,7 +180,7 @@ export default class GraphicsAssembler extends Assembler {
     }
 
     fill (graphics) {
-        _curColor = graphics._fillColor._val;
+        this._curColor = graphics._fillColor._val;
 
         this._expandFill(graphics);
         graphics._impl._updatePathOffset = true;
@@ -188,17 +192,17 @@ export default class GraphicsAssembler extends Assembler {
             lineJoin = graphics.lineJoin,
             miterLimit = graphics.miterLimit;
 
-        _impl = graphics._impl;
+        let impl = graphics._impl;
     
-        let ncap = curveDivs(w, PI, _impl._tessTol);
+        let ncap = curveDivs(w, PI, impl._tessTol);
     
-        this._calculateJoins(_impl, w, lineJoin, miterLimit);
+        this._calculateJoins(impl, w, lineJoin, miterLimit);
     
-        let paths = _impl._paths;
+        let paths = impl._paths;
         
         // Calculate max vertex usage.
         let cverts = 0;
-        for (let i = _impl._pathOffset, l = _impl._pathLength; i < l; i++) {
+        for (let i = impl._pathOffset, l = impl._pathLength; i < l; i++) {
             let path = paths[i];
             let pointsLength = path.points.length;
 
@@ -215,16 +219,16 @@ export default class GraphicsAssembler extends Assembler {
             }
         }
         
-        let renderData = _renderData = this.genRenderData(graphics, cverts),
-            meshbuffer = renderData.meshbuffer,
+        let buffer = this.genBuffer(graphics, cverts),
+            meshbuffer = buffer.meshbuffer,
             vData = meshbuffer._vData,
             iData = meshbuffer._iData;
             
-        for (let i = _impl._pathOffset, l = _impl._pathLength; i < l; i++) {
+        for (let i = impl._pathOffset, l = impl._pathLength; i < l; i++) {
             let path = paths[i];
             let pts = path.points;
             let pointsLength = pts.length;
-            let offset = meshbuffer.vertexStart;
+            let offset = buffer.vertexStart;
 
             let p0, p1;
             let start, end, loop;
@@ -297,40 +301,37 @@ export default class GraphicsAssembler extends Assembler {
             }
 
             // stroke indices
-            let indicesOffset = meshbuffer.indiceStart;
-            for (let start = offset+2, end = meshbuffer.vertexStart; start < end; start++) {
+            let indicesOffset = buffer.indiceStart;
+            for (let start = offset+2, end = buffer.vertexStart; start < end; start++) {
                 iData[indicesOffset++] = start - 2;
                 iData[indicesOffset++] = start - 1;
                 iData[indicesOffset++] = start;
             }
 
-            meshbuffer.indiceStart = indicesOffset;
+            buffer.indiceStart = indicesOffset;
         }
-
-        _renderData = null;
-        _impl = null;
     }
     
     _expandFill (graphics) {
-        _impl = graphics._impl;
+        let impl = graphics._impl;
 
-        let paths = _impl._paths;
+        let paths = impl._paths;
 
         // Calculate max vertex usage.
         let cverts = 0;
-        for (let i = _impl._pathOffset, l = _impl._pathLength; i < l; i++) {
+        for (let i = impl._pathOffset, l = impl._pathLength; i < l; i++) {
             let path = paths[i];
             let pointsLength = path.points.length;
 
             cverts += pointsLength;
         }
 
-        let renderData = _renderData = this.genRenderData(graphics, cverts),
-            meshbuffer = renderData.meshbuffer,
+        let buffer = this.genBuffer(graphics, cverts),
+            meshbuffer = buffer.meshbuffer,
             vData = meshbuffer._vData,
             iData = meshbuffer._iData;
 
-        for (let i = _impl._pathOffset, l = _impl._pathLength; i < l; i++) {
+        for (let i = impl._pathOffset, l = impl._pathLength; i < l; i++) {
             let path = paths[i];
             let pts = path.points;
             let pointsLength = pts.length;
@@ -340,17 +341,17 @@ export default class GraphicsAssembler extends Assembler {
             }
     
             // Calculate shape vertices.
-            let offset = meshbuffer.vertexStart;
+            let offset = buffer.vertexStart;
     
             for (let j = 0; j < pointsLength; ++j) {
                 this._vset(pts[j].x, pts[j].y);
             }
     
-            let indicesOffset = meshbuffer.indiceStart;
+            let indicesOffset = buffer.indiceStart;
     
             if (path.complex) {
                 let earcutData = [];
-                for (let j = offset, end = meshbuffer.vertexStart; j < end; j++) {
+                for (let j = offset, end = buffer.vertexStart; j < end; j++) {
                     let vDataOffset = j * 3;
                     earcutData.push(vData[vDataOffset]);
                     earcutData.push(vData[vDataOffset+1]);
@@ -368,18 +369,15 @@ export default class GraphicsAssembler extends Assembler {
             }
             else {
                 let first = offset;
-                for (let start = offset+2, end = meshbuffer.vertexStart; start < end; start++) {
+                for (let start = offset+2, end = buffer.vertexStart; start < end; start++) {
                     iData[indicesOffset++] = first;
                     iData[indicesOffset++] = start - 1;
                     iData[indicesOffset++] = start;
                 }
             }
 
-            meshbuffer.indiceStart = indicesOffset;
+            buffer.indiceStart = indicesOffset;
         }
-
-        _renderData = null;
-        _impl = null;
     }
 
     _calculateJoins (impl, w, lineJoin, miterLimit) {
@@ -646,17 +644,18 @@ export default class GraphicsAssembler extends Assembler {
     }
     
     _vset (x, y) {
-        let meshbuffer = _renderData.meshbuffer;
-        let dataOffset = meshbuffer.vertexStart * 3;
+        let buffer = this._buffer;
+        let meshbuffer = buffer.meshbuffer;
+        let dataOffset = buffer.vertexStart * 3;
 
         let vData = meshbuffer._vData;
         let uintVData = meshbuffer._uintVData;
 
         vData[dataOffset] = x;
         vData[dataOffset+1] = y;
-        uintVData[dataOffset+2] = _curColor;
+        uintVData[dataOffset+2] = this._curColor;
 
-        meshbuffer.vertexStart ++;
+        buffer.vertexStart ++;
         meshbuffer._dirty = true;
     }
 }
