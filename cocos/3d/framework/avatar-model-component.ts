@@ -29,7 +29,7 @@
 import { Texture2D } from '../../assets';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
-import { CCString } from '../../core/data/utils/attribute';
+import { CCInteger, CCString } from '../../core/data/utils/attribute';
 import { Mat4, Vec2 } from '../../core/value-types';
 import { vec2 } from '../../core/vmath';
 import { GFXFormat } from '../../gfx/define';
@@ -150,7 +150,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
         return this._skinningRoot;
     }
 
-    @property({ type: Number })
+    @property({ type: CCInteger })
     get combinedTexSize (): number {
         return this._combinedTexSize;
     }

@@ -727,10 +727,9 @@ export class mat4 {
     }
 
     /**
-     * @zh 提取矩阵的旋转信息, 默认矩阵中的变换以 S->R->T 的顺序应用
+     * @zh 提取矩阵的旋转信息, 默认输入矩阵不含有缩放信息，如考虑缩放应使用 `toRTS` 函数。
      */
     public static getRotation<Out extends quat> (out: Out, mat: mat4) {
-        // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
         const trace = mat.m00 + mat.m05 + mat.m10;
         let S = 0;
 
