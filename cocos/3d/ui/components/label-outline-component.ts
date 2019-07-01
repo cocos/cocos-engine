@@ -30,6 +30,7 @@
 
 import { Component } from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { constget } from '../../../core/data/utils/constget';
 import { Color } from '../../../core/value-types';
 import { LabelComponent } from './label-component';
 
@@ -67,7 +68,8 @@ export class LabelOutlineComponent extends Component {
      * ```
      */
     @property
-    get color () {
+    @constget
+    get color (): Readonly<Color> {
         return this._color;
     }
 

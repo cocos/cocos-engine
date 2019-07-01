@@ -485,6 +485,7 @@ export class Node extends BaseNode {
      * @zh
      * 本地旋转
      */
+    @constget
     public get rotation (): Readonly<Quat> {
         return this._lrot;
     }
@@ -539,6 +540,7 @@ export class Node extends BaseNode {
      * @zh
      * 本地缩放
      */
+    @constget
     public get scale (): Readonly<Vec3> {
         return this._lscale;
     }
@@ -605,6 +607,7 @@ export class Node extends BaseNode {
      * @zh
      * 世界坐标
      */
+    @constget
     public get worldPosition (): Readonly<Vec3> {
         this.updateWorldTransform();
         return this._pos;
@@ -691,6 +694,7 @@ export class Node extends BaseNode {
      * @zh
      * 世界旋转
      */
+    @constget
     public get worldRotation (): Readonly<Quat> {
         this.updateWorldTransform();
         return this._rot;
@@ -752,6 +756,7 @@ export class Node extends BaseNode {
      * @zh
      * 世界缩放
      */
+    @constget
     public get worldScale (): Readonly<Vec3> {
         this.updateWorldTransform();
         return this._scale;
@@ -775,6 +780,7 @@ export class Node extends BaseNode {
      * @zh
      * 世界变换矩阵
      */
+    @constget
     public get worldMatrix (): Readonly<Mat4> {
         this.updateWorldTransformFull();
         return this._mat;
