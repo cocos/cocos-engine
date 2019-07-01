@@ -163,10 +163,6 @@ ModelBatcher.prototype = {
         model.setInputAssembler(ia);
         
         this._renderScene.addModel(model);
-           
-        buffer.byteStart = buffer.byteOffset;
-        buffer.indiceStart = buffer.indiceOffset;
-        buffer.vertexStart = buffer.vertexOffset;
     },
 
     _flushIA (ia) {
