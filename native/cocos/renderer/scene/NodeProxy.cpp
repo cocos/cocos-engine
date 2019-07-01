@@ -485,7 +485,8 @@ void NodeProxy::render(ModelBatcher* batcher, Scene* scene)
     }
 
     // post render
-    if (_assembler && needRender) _assembler->postHandle(this, batcher, scene);
+    bool needPostRender = *_dirty & RenderFlow::POST_RENDER;
+    if (_assembler && needPostRender) _assembler->postHandle(this, batcher, scene);
 }
 
 void NodeProxy::visit(ModelBatcher* batcher, Scene* scene)
@@ -519,7 +520,8 @@ void NodeProxy::visit(ModelBatcher* batcher, Scene* scene)
     }
     
     // post render
-    if (_assembler && needRender) _assembler->postHandle(this, batcher, scene);
+    bool needPostRender = *_dirty & RenderFlow::POST_RENDER;
+    if (_assembler && needPostRender) _assembler->postHandle(this, batcher, scene);
 }
 
 RENDERER_END
