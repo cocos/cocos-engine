@@ -309,6 +309,7 @@ export class Model {
                 pass.tryCompile(); // force update shaders
                 pass.destroyPipelineState(psos[i]);
                 psos[i] = this._doCreatePSO(pass);
+                psos[i].pipelineLayout.layouts[0].update();
             }
             m.updateCommandBuffer();
         }
