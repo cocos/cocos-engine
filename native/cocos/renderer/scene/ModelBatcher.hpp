@@ -128,6 +128,7 @@ public:
     void setCullingMask(int cullingMask) { _cullingMask = cullingMask; }
     void setCurrentEffect(Effect* effect);
     void setUseModel(bool useModel) { _useModel = useModel; }
+    void setCustomProperties(CustomProperties* props) { _customProps = props; };
 private:
     void changeCommitState(CommitState state);
 private:
@@ -137,10 +138,13 @@ private:
     bool _walking = false;
     cocos2d::Mat4 _modelMat;
     CommitState _commitState = CommitState::None;
+
+    NodeProxy* _node = nullptr;
     
     MeshBuffer* _buffer = nullptr;
     Effect* _currEffect = nullptr;
     RenderFlow* _flow = nullptr;
+    CustomProperties* _customProps = nullptr;
 
     StencilManager* _stencilMgr = nullptr;
     

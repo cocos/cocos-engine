@@ -68,6 +68,25 @@ public:
         int maxColorAttatchments;
     };
     
+    struct Uniform
+    {
+        Uniform(const void* v, size_t bytes, UniformElementType elementType_);
+        Uniform(Uniform&& h);
+        Uniform();
+        ~Uniform();
+        
+        Uniform& operator=(Uniform&& h);
+        
+        void setValue(const void* v, size_t bytes);
+        
+        void* value = nullptr;
+        bool dirty;
+        UniformElementType elementType;
+    private:
+        // Disable copy operator
+        Uniform& operator=(const Uniform& o);
+    };
+    
     /**
      * Returns a shared instance of the director.
      */
@@ -291,26 +310,6 @@ public:
     inline const Capacity& getCapacity() const { return _caps; }
     
 private:
-    
-    struct Uniform
-    {
-        Uniform(const void* v, size_t bytes, UniformElementType elementType_);
-        Uniform(Uniform&& h);
-        Uniform();
-        ~Uniform();
-
-        Uniform& operator=(Uniform&& h);
-
-        void setValue(const void* v, size_t bytes);
-
-        void* value;
-        bool dirty;
-        UniformElementType elementType;
-    private:
-        // Disable copy operator
-        Uniform& operator=(const Uniform& o);
-    };
-    
     DeviceGraphics();
     ~DeviceGraphics();
     CC_DISALLOW_COPY_ASSIGN_AND_MOVE(DeviceGraphics);

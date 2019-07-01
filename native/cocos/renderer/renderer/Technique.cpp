@@ -267,6 +267,19 @@ Technique::Parameter& Technique::Parameter::operator=(const Parameter& rh)
     return *this;
 }
 
+bool Technique::Parameter::operator==(const Parameter& rh)
+{
+    if (this == &rh)
+        return true;
+    
+    if (_type == rh.getType() && _value == rh.getValue())
+    {
+        return true;
+    }
+    
+    return false;
+}
+
 std::vector<Texture*> Technique::Parameter::getTextureArray() const
 {
     std::vector<Texture*> ret;

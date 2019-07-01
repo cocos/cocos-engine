@@ -59,7 +59,7 @@ public:
      * @param[in] programName Shader program name
      */
     Pass(const std::string& programName);
-    Pass() {}
+    Pass() {};
     ~Pass();
     
     /**
@@ -157,7 +157,6 @@ private:
     DepthFunc _depthFunc = DepthFunc::LESS;
     
     // stencil
-    
     bool _stencilTest = false;
     // front
     uint32_t _stencilRefFront = 0;

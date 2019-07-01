@@ -82,7 +82,8 @@ public:
      *  @note The return value needs to be released by its 'release' method.
      */
     Program* getProgram(const std::string& name, const ValueMap& defines, int32_t definesKey);
-
+    
+    Value getValueFromDefineList(const std::string& name, ValueMap* defines);
 private:
     DeviceGraphics* _device = nullptr;
     const char* _precisionReplace = "precision highp float;";

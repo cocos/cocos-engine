@@ -41,6 +41,20 @@ array
 },
 
 /**
+ * @method getValueFromDefineList
+ * @param {String} arg0
+ * @param {map_object} arg1
+ * @return {cc.Value}
+ */
+getValueFromDefineList : function (
+str, 
+map 
+)
+{
+    return cc.Value;
+},
+
+/**
  * @method getKey
  * @param {String} arg0
  * @param {int} arg1
@@ -306,64 +320,6 @@ Effect : function (
 };
 
 /**
- * @class BaseRenderer
- */
-renderer.Base = {
-
-/**
- * @method getProgramLib
- * @return {cc.renderer::ProgramLib}
- */
-getProgramLib : function (
-)
-{
-    return cc.renderer::ProgramLib;
-},
-
-/**
- * @method init
-* @param {cc.renderer::DeviceGraphics|cc.renderer::DeviceGraphics} devicegraphics
-* @param {Array|Array} array
-* @param {cc.renderer::Texture2D} texture2d
-* @return {bool|bool}
-*/
-init : function(
-devicegraphics,
-array,
-texture2d 
-)
-{
-    return false;
-},
-
-/**
- * @method BaseRenderer
- * @constructor
- */
-BaseRenderer : function (
-)
-{
-},
-
-};
-
-/**
- * @class View
- */
-renderer.View = {
-
-/**
- * @method View
- * @constructor
- */
-View : function (
-)
-{
-},
-
-};
-
-/**
  * @class AssemblerBase
  */
 renderer.AssemblerBase = {
@@ -481,6 +437,64 @@ int,
 int, 
 str, 
 str 
+)
+{
+},
+
+};
+
+/**
+ * @class BaseRenderer
+ */
+renderer.Base = {
+
+/**
+ * @method getProgramLib
+ * @return {cc.renderer::ProgramLib}
+ */
+getProgramLib : function (
+)
+{
+    return cc.renderer::ProgramLib;
+},
+
+/**
+ * @method init
+* @param {cc.renderer::DeviceGraphics|cc.renderer::DeviceGraphics} devicegraphics
+* @param {Array|Array} array
+* @param {cc.renderer::Texture2D} texture2d
+* @return {bool|bool}
+*/
+init : function(
+devicegraphics,
+array,
+texture2d 
+)
+{
+    return false;
+},
+
+/**
+ * @method BaseRenderer
+ * @constructor
+ */
+BaseRenderer : function (
+)
+{
+},
+
+};
+
+/**
+ * @class View
+ */
+renderer.View = {
+
+/**
+ * @method View
+ * @constructor
+ */
+View : function (
 )
 {
 },
@@ -929,6 +943,16 @@ getViewProjMatrix : function (
 },
 
 /**
+ * @method getPositionUniform
+ * @return {vec3_object}
+ */
+getPositionUniform : function (
+)
+{
+    return cc.Vec3;
+},
+
+/**
  * @method getShadowBias
  * @return {float}
  */
@@ -959,6 +983,16 @@ getSpotAngle : function (
 },
 
 /**
+ * @method getDirectionUniform
+ * @return {vec3_object}
+ */
+getDirectionUniform : function (
+)
+{
+    return cc.Vec3;
+},
+
+/**
  * @method getSpotExp
  * @return {float}
  */
@@ -986,6 +1020,16 @@ getType : function (
 )
 {
     return 0;
+},
+
+/**
+ * @method getColorUniform
+ * @return {vec3_object}
+ */
+getColorUniform : function (
+)
+{
+    return cc.Vec3;
 },
 
 /**
@@ -1163,20 +1207,20 @@ int
 },
 
 /**
- * @method getShadowType
- * @return {cc.renderer::Light::ShadowType}
+ * @method getShadowResolution
+ * @return {unsigned int}
  */
-getShadowType : function (
+getShadowResolution : function (
 )
 {
     return 0;
 },
 
 /**
- * @method getShadowResolution
- * @return {unsigned int}
+ * @method getShadowType
+ * @return {cc.renderer::Light::ShadowType}
  */
-getShadowResolution : function (
+getShadowType : function (
 )
 {
     return 0;
@@ -1209,14 +1253,6 @@ Light : function (
 renderer.Scene = {
 
 /**
- * @method reset
- */
-reset : function (
-)
-{
-},
-
-/**
  * @method getCameraCount
  * @return {unsigned int}
  */
@@ -1224,16 +1260,6 @@ getCameraCount : function (
 )
 {
     return 0;
-},
-
-/**
- * @method addCamera
- * @param {cc.renderer::Camera} arg0
- */
-addCamera : function (
-camera 
-)
-{
 },
 
 /**
@@ -1257,15 +1283,43 @@ getLightCount : function (
 },
 
 /**
- * @method getCamera
- * @param {unsigned int} arg0
- * @return {cc.renderer::Camera}
+ * @method removeView
+ * @param {cc.renderer::View} arg0
  */
-getCamera : function (
-int 
+removeView : function (
+view 
 )
 {
-    return cc.renderer::Camera;
+},
+
+/**
+ * @method getLights
+ * @return {Array}
+ */
+getLights : function (
+)
+{
+    return new Array();
+},
+
+/**
+ * @method removeLight
+ * @param {cc.renderer::Light} arg0
+ */
+removeLight : function (
+light 
+)
+{
+},
+
+/**
+ * @method addCamera
+ * @param {cc.renderer::Camera} arg0
+ */
+addCamera : function (
+camera 
+)
+{
 },
 
 /**
@@ -1278,6 +1332,16 @@ int
 )
 {
     return cc.renderer::Light;
+},
+
+/**
+ * @method addLight
+ * @param {cc.renderer::Light} arg0
+ */
+addLight : function (
+light 
+)
+{
 },
 
 /**
@@ -1299,16 +1363,6 @@ sortCameras : function (
 },
 
 /**
- * @method addView
- * @param {cc.renderer::View} arg0
- */
-addView : function (
-view 
-)
-{
-},
-
-/**
  * @method setDebugCamera
  * @param {cc.renderer::Camera} arg0
  */
@@ -1319,31 +1373,31 @@ camera
 },
 
 /**
- * @method removeView
+ * @method reset
+ */
+reset : function (
+)
+{
+},
+
+/**
+ * @method getCamera
+ * @param {unsigned int} arg0
+ * @return {cc.renderer::Camera}
+ */
+getCamera : function (
+int 
+)
+{
+    return cc.renderer::Camera;
+},
+
+/**
+ * @method addView
  * @param {cc.renderer::View} arg0
  */
-removeView : function (
+addView : function (
 view 
-)
-{
-},
-
-/**
- * @method addLight
- * @param {cc.renderer::Light} arg0
- */
-addLight : function (
-light 
-)
-{
-},
-
-/**
- * @method removeLight
- * @param {cc.renderer::Light} arg0
- */
-removeLight : function (
-light 
 )
 {
 },

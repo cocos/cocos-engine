@@ -26,6 +26,7 @@
 #include "RenderFlow.hpp"
 #include "StencilManager.hpp"
 #include "assembler/RenderDataList.hpp"
+#include "NodeProxy.hpp"
 
 RENDERER_BEGIN
 
@@ -39,6 +40,8 @@ ModelBatcher::ModelBatcher(RenderFlow* flow)
 , _currEffect(nullptr)
 , _buffer(nullptr)
 , _useModel(false)
+, _customProps(nullptr)
+, _node(nullptr)
 {
     for (int i = 0; i < INIT_MODEL_LENGTH; i++)
     {
@@ -70,8 +73,7 @@ void ModelBatcher::reset()
     for (int i = 0; i < _modelOffset; ++i)
     {
         Model* model = _modelPool[i];
-        model->clearInputAssemblers();
-        model->clearEffects();
+        model->clearEffect();
     }
     _flow->getRenderScene()->removeModels();
     _modelOffset = 0;
@@ -149,6 +151,7 @@ void ModelBatcher::commit(NodeProxy* node, Assembler* assembler)
             _modelMat.set(worldMat);
             _useModel = useModel;
             _cullingMask = cullingMask;
+            _node = _useModel ? node : nullptr;
         }
         
         if (needUpdateOpacity)
@@ -221,6 +224,8 @@ void ModelBatcher::commitIA(NodeProxy* node, CustomAssembler* assembler)
         
         _ia.setCount(_ia.getCount() + customIA->getCount());
     }
+    
+    _node = _useModel ? node : nullptr;
 }
 
 void ModelBatcher::flushIA()
@@ -249,8 +254,8 @@ void ModelBatcher::flushIA()
     _modelOffset++;
     model->setWorldMatix(_modelMat);
     model->setCullingMask(_cullingMask);
-    model->addEffect(_currEffect);
-    model->addInputAssembler(_ia);
+    model->setEffect(_currEffect, _customProps);
+    model->setInputAssembler(_ia);
     
     _flow->getRenderScene()->addModel(model);
 }
@@ -293,8 +298,9 @@ void ModelBatcher::flush()
     _modelOffset++;
     model->setWorldMatix(_modelMat);
     model->setCullingMask(_cullingMask);
-    model->addEffect(_currEffect);
-    model->addInputAssembler(_ia);
+    model->setEffect(_currEffect, _customProps);
+    model->setInputAssembler(_ia);
+    model->setNode(_node);
     
     _flow->getRenderScene()->addModel(model);
     
