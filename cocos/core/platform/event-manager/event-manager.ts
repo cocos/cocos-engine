@@ -1223,7 +1223,7 @@ class EventManager {
  *
  * @class eventManager
  * @static
- * @example {@link cocos2d/core/event-manager/CCEventManager/addListener.js}
+ * @example {@link cocos/core/event-manager/CCEventManager/addListener.js}
  * @deprecated
  */
 export const eventManager = new EventManager();
