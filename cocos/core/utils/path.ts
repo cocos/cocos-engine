@@ -31,7 +31,7 @@ const NORMALIZE_RE = /[^\.\/]+\/\.\.\//;
 /**
  * @en Join strings to be a path.
  * @zh 拼接字符串为路径。
- * @example {@link cocos2d/core/utils/CCPath/join.js}
+ * @example {@link cocos/core/utils/CCPath/join.js}
  */
 export function join (...segments: string[]) {
     let result = '';
@@ -44,7 +44,7 @@ export function join (...segments: string[]) {
 /**
  * @en Get the ext name of a path including '.', like '.png'.
  * @zh 返回 Path 的扩展名，包括 '.'，例如 '.png'。
- * @example {@link cocos2d/core/utils/CCPath/extname.js}
+ * @example {@link cocos/core/utils/CCPath/extname.js}
  */
 export function extname (path: string) {
     const temp = EXTNAME_RE.exec(path);
@@ -69,7 +69,7 @@ export function mainFileName (fileName: string) {
 /**
  * @en Get the file name of a file path.
  * @zh 获取文件路径的文件名。
- * @example {@link cocos2d/core/utils/CCPath/basename.js}
+ * @example {@link cocos/core/utils/CCPath/basename.js}
  */
 export function basename (path: string, extName?: string) {
     const index = path.indexOf('?');
@@ -91,7 +91,7 @@ export function basename (path: string, extName?: string) {
 /**
  * @en Get dirname of a file path.
  * @zh 获取文件路径的目录名。
- * @example {@link cocos2d/core/utils/CCPath/dirname.js}
+ * @example {@link cocos/core/utils/CCPath/dirname.js}
  */
 export function dirname (path: string) {
     const temp = DIRNAME_RE.exec(path);
@@ -101,7 +101,7 @@ export function dirname (path: string) {
 /**
  * @en Change extname of a file path.
  * @zh 更改文件路径的扩展名。
- * @example {@link cocos2d/core/utils/CCPath/changeExtname.js}
+ * @example {@link cocos/core/utils/CCPath/changeExtname.js}
  */
 export function changeExtname (path: string, extName?: string) {
     extName = extName || '';
@@ -121,7 +121,7 @@ export function changeExtname (path: string, extName?: string) {
 /**
  * @en Change file name of a file path.
  * @zh 更改文件路径的文件名。
- * @example {@link cocos2d/core/utils/CCPath/changeBasename.js}
+ * @example {@link cocos/core/utils/CCPath/changeBasename.js}
  */
 export function changeBasename (path: string, baseName: string, isSameExt?: boolean) {
     if (baseName.indexOf('.') === 0) {

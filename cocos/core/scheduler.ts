@@ -550,7 +550,7 @@ class Scheduler {
      * @param {Number} interval
      * @param {Number} [repeat=cc.macro.REPEAT_FOREVER]
      * @param {Number} [delay=0]
-     * @param {Boolean} paused
+     * @param {Boolean} [paused=fasle]
      */
     public schedule (callback: Function, target: any, interval: number, repeat: number, delay: number, paused?: boolean) {
         'use strict';
