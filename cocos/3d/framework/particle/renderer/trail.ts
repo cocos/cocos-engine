@@ -168,6 +168,9 @@ export default class TrailModule {
     })
     public lifeTime = new CurveRange();
 
+    @property
+    public _minParticleDistance = 0.1;
+
     /**
      * 每个轨迹粒子之间的最小间距。
      */
@@ -182,17 +185,6 @@ export default class TrailModule {
         this._minParticleDistance = val;
         this._minSquaredDistance = val * val;
     }
-
-    @property
-    public _minParticleDistance = 0.1;
-
-    /**
-     * 轨迹设定时的坐标系。
-     */
-    @property({
-        type: Space,
-    })
-    private _space = Space.World;
 
     @property({
         type: Space,
@@ -254,6 +246,14 @@ export default class TrailModule {
         displayOrder: 13,
     })
     public colorOvertime = new GradientRange();
+
+    /**
+     * 轨迹设定时的坐标系。
+     */
+    @property({
+        type: Space,
+    })
+    private _space = Space.World;
 
     private _particleSystem: any;
     private _minSquaredDistance: number = 0;
@@ -348,54 +348,6 @@ export default class TrailModule {
         }
     }
 
-    private _createModel () {
-        if (this._trailModel) {
-            return;
-        }
-        const device: GFXDevice = cc.director.root.device;
-        const vertexBuffer = device.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: this._vertSize * (this._trailNum + 1) * 2,
-            stride: this._vertSize,
-        });
-        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertSize * (this._trailNum + 1) * 2);
-        this._vbF32 = new Float32Array(vBuffer);
-        this._vbUint32 = new Uint32Array(vBuffer);
-        vertexBuffer.update(vBuffer);
-
-        const indexBuffer = device.createBuffer({
-            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: this._trailNum * 6 * Uint16Array.BYTES_PER_ELEMENT,
-            stride: Uint16Array.BYTES_PER_ELEMENT,
-        });
-        this._iBuffer = new Uint16Array(this._trailNum * 6);
-        indexBuffer.update(this._iBuffer);
-
-        this._iaInfoBuffer = device.createBuffer({
-            usage: GFXBufferUsageBit.INDIRECT,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: GFX_DRAW_INFO_SIZE,
-            stride: 1,
-        });
-        this._iaInfo.drawInfos[0].vertexCount = (this._trailNum + 1) * 2;
-        this._iaInfo.drawInfos[0].indexCount = this._trailNum * 6;
-        this._iaInfoBuffer.update(this._iaInfo);
-
-        this._subMeshData = {
-            vertexBuffers: [vertexBuffer],
-            indexBuffer,
-            indirectBuffer: this._iaInfoBuffer,
-            attributes: this._vertAttrs!,
-            primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
-        };
-
-        this._trailModel = this._particleSystem._getRenderScene().createModel(Model, this._particleSystem.node);
-        this._trailModel!.setSubModelMesh(0, this._subMeshData);
-        this._trailModel!.enabled = true;
-    }
-
     public _updateMaterial () {
         if (this._particleSystem) {
             const mat = this._particleSystem.renderer.trailMaterial;
@@ -465,21 +417,6 @@ export default class TrailModule {
         }
     }
 
-    private _updateTrailElement (module: any, trailEle: ITrailElement, p: Particle, dt: number): boolean {
-        trailEle.lifetime += dt;
-        if (module.colorFromParticle) {
-            p.color.mul(module.colorOvertime.evaluate(1.0 - p.remainingLifetime / p.startLifetime, 1), trailEle.color);
-        } else {
-            trailEle.color.set(module.colorOvertime.evaluate(1.0 - p.remainingLifetime / p.startLifetime, 1));
-        }
-        if (module.widthFromParticle) {
-            trailEle.width = p.size.x * module.widthRatio.evaluate(trailEle.lifetime / module._trailLifetime, 1)!;
-        } else {
-            trailEle.width = module.widthRatio.evaluate(trailEle.lifetime / module._trailLifetime, 1)!;
-        }
-        return trailEle.lifetime > module._trailLifetime;
-    }
-
     public removeParticle (p: Particle) {
         const trail = this._particleTrail.get(p);
         if (trail) {
@@ -545,6 +482,77 @@ export default class TrailModule {
         this.updateIA(this.ibOffset);
     }
 
+    public updateIA (count: number) {
+        this._trailModel!.getSubModel(0).inputAssembler!.vertexBuffers[0].update(this._vbF32!);
+        this._trailModel!.getSubModel(0).inputAssembler!.indexBuffer!.update(this._iBuffer!);
+        this._trailModel!.getSubModel(0).inputAssembler!.indexCount = count;
+        this._trailModel!.getSubModel(0).inputAssembler!.extractDrawInfo(this._iaInfo.drawInfos[0]);
+        this._iaInfoBuffer.update(this._iaInfo);
+    }
+
+    private _createModel () {
+        if (this._trailModel) {
+            return;
+        }
+        const device: GFXDevice = cc.director.root.device;
+        const vertexBuffer = device.createBuffer({
+            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: this._vertSize * (this._trailNum + 1) * 2,
+            stride: this._vertSize,
+        });
+        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertSize * (this._trailNum + 1) * 2);
+        this._vbF32 = new Float32Array(vBuffer);
+        this._vbUint32 = new Uint32Array(vBuffer);
+        vertexBuffer.update(vBuffer);
+
+        const indexBuffer = device.createBuffer({
+            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: this._trailNum * 6 * Uint16Array.BYTES_PER_ELEMENT,
+            stride: Uint16Array.BYTES_PER_ELEMENT,
+        });
+        this._iBuffer = new Uint16Array(this._trailNum * 6);
+        indexBuffer.update(this._iBuffer);
+
+        this._iaInfoBuffer = device.createBuffer({
+            usage: GFXBufferUsageBit.INDIRECT,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: GFX_DRAW_INFO_SIZE,
+            stride: 1,
+        });
+        this._iaInfo.drawInfos[0].vertexCount = (this._trailNum + 1) * 2;
+        this._iaInfo.drawInfos[0].indexCount = this._trailNum * 6;
+        this._iaInfoBuffer.update(this._iaInfo);
+
+        this._subMeshData = {
+            vertexBuffers: [vertexBuffer],
+            indexBuffer,
+            indirectBuffer: this._iaInfoBuffer,
+            attributes: this._vertAttrs!,
+            primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
+        };
+
+        this._trailModel = this._particleSystem._getRenderScene().createModel(Model, this._particleSystem.node);
+        this._trailModel!.setSubModelMesh(0, this._subMeshData);
+        this._trailModel!.enabled = true;
+    }
+
+    private _updateTrailElement (module: any, trailEle: ITrailElement, p: Particle, dt: number): boolean {
+        trailEle.lifetime += dt;
+        if (module.colorFromParticle) {
+            p.color.mul(module.colorOvertime.evaluate(1.0 - p.remainingLifetime / p.startLifetime, 1), trailEle.color);
+        } else {
+            trailEle.color.set(module.colorOvertime.evaluate(1.0 - p.remainingLifetime / p.startLifetime, 1));
+        }
+        if (module.widthFromParticle) {
+            trailEle.width = p.size.x * module.widthRatio.evaluate(trailEle.lifetime / module._trailLifetime, 1)!;
+        } else {
+            trailEle.width = module.widthRatio.evaluate(trailEle.lifetime / module._trailLifetime, 1)!;
+        }
+        return trailEle.lifetime > module._trailLifetime;
+    }
+
     private _fillVertexBuffer (trailSeg: ITrailElement, colorModifer: Color, indexOffset: number, xTexCoord: number, trailEleIdx: number, indexSet: number) {
         this._vbF32[this.vbOffset++] = trailSeg.position.x;
         this._vbF32[this.vbOffset++] = trailSeg.position.y;
@@ -579,13 +587,5 @@ export default class TrailModule {
             this._iBuffer[this.ibOffset++] = indexOffset + 2 * trailEleIdx + 1;
             this._iBuffer[this.ibOffset++] = indexOffset + 2 * trailEleIdx + 2;
         }
-    }
-
-    public updateIA (count: number) {
-        this._trailModel!.getSubModel(0).inputAssembler!.vertexBuffers[0].update(this._vbF32!);
-        this._trailModel!.getSubModel(0).inputAssembler!.indexBuffer!.update(this._iBuffer!);
-        this._trailModel!.getSubModel(0).inputAssembler!.indexCount = count;
-        this._trailModel!.getSubModel(0).inputAssembler!.extractDrawInfo(this._iaInfo.drawInfos[0]);
-        this._iaInfoBuffer.update(this._iaInfo);
     }
 }
