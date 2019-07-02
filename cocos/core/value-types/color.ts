@@ -117,6 +117,39 @@ export default class Color extends ValueType {
     }
 
     /**
+     * 根据指定的插值比率，从当前颜色到目标颜色之间做插值。
+     * @param out 返回值，返回线性插值结果。
+     * @param from 起始颜色。
+     * @param to 目标颜色。
+     * @param ratio 插值比率，范围为 [0,1]。
+     */
+    public static lerp (out: Color, from: Color, to: Color, ratio: number) {
+        let r = from.r;
+        let g = from.g;
+        let b = from.b;
+        let a = from.a;
+        r = r + (to.r - r) * ratio;
+        g = g + (to.g - g) * ratio;
+        b = b + (to.b - b) * ratio;
+        a = a + (to.a - a) * ratio;
+        out._val = Math.floor(((a << 24) >>> 0) + (b << 16) + (g << 8) + r);
+    }
+
+    /**
+     * 将当前颜色乘以与指定颜色的结果赋值给出口颜色。
+     * @param out 返回值，返回结果颜色。
+     * @param x 颜色x。
+     * @param y 颜色y。
+     */
+    public static mul (out: Color, x: Color, y: Color) {
+        const _r = ((x._val & 0x000000ff) * y.r) >> 8;
+        const _g = ((x._val & 0x0000ff00) * y.g) >> 8;
+        const _b = ((x._val & 0x00ff0000) * y.b) >> 8;
+        const _a = ((x._val & 0xff000000) >>> 8) * y.a;
+        out._val = (_a & 0xff000000) | (_b & 0x00ff0000) | (_g & 0x0000ff00) | (_r & 0x000000ff);
+    }
+
+    /**
      * 获取或设置当前颜色的 Red 通道。
      */
     get r () {
@@ -208,27 +241,6 @@ export default class Color extends ValueType {
         this.a = value * 255;
     }
 
-    /**
-     * 根据指定的插值比率，从当前颜色到目标颜色之间做插值。
-     * @param from 起始颜色。
-     * @param to 目标颜色。
-     * @param ratio 插值比率，范围为 [0,1]。
-     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
-     * @returns 当前颜色各个通道到目标颜色对应的各个通道之间按指定插值比率进行线性插值构成的颜色。
-     */
-    public static lerp (from: Color, to: Color, ratio: number, out: Color) {
-        let r = from.r;
-        let g = from.g;
-        let b = from.b;
-        let a = from.a;
-        r = r + (to.r - r) * ratio;
-        g = g + (to.g - g) * ratio;
-        b = b + (to.b - b) * ratio;
-        a = a + (to.a - a) * ratio;
-        out._val = Math.floor(((a << 24) >>> 0) + (b << 16) + (g << 8) + r);
-        return out;
-    }
-
     public _val: number;
 
     /**
@@ -286,17 +298,6 @@ export default class Color extends ValueType {
      * @returns 当前颜色各个通道到目标颜色对应的各个通道之间按指定插值比率进行线性插值构成的颜色。
      */
     public lerpSelf (to: Color, ratio: number) {
-        return Color.lerp(this, to, ratio, this);
-    }
-
-    /**
-     * 根据指定的插值比率，从当前颜色到目标颜色之间做插值。
-     * @param to 目标颜色。
-     * @param ratio 插值比率，范围为 [0,1]。
-     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
-     * @returns 当前颜色各个通道到目标颜色对应的各个通道之间按指定插值比率进行线性插值构成的颜色。
-     */
-    public lerp (to: Color, ratio: number, out: Color) {
         let r = this.r;
         let g = this.g;
         let b = this.b;
@@ -305,8 +306,7 @@ export default class Color extends ValueType {
         g = g + (to.g - g) * ratio;
         b = b + (to.b - b) * ratio;
         a = a + (to.a - a) * ratio;
-        out._val = Math.floor(((a << 24) >>> 0) + (b << 16) + (g << 8) + r);
-        return out;
+        this._val = Math.floor(((a << 24) >>> 0) + (b << 16) + (g << 8) + r);
     }
 
     /**
@@ -540,22 +540,6 @@ export default class Color extends ValueType {
         const b = ((this._val & 0x00ff0000) * other.b) >> 8;
         const a = ((this._val & 0xff000000) >>> 8) * other.a;
         this._val = (a & 0xff000000) | (b & 0x00ff0000) | (g & 0x0000ff00) | (r & 0x000000ff);
-        return this;
-    }
-
-    /**
-     * 将当前颜色乘以与指定颜色的结果赋值给出口颜色。
-     * @param other 指定的颜色。
-     * @param [out] 出口颜色，当未指定时将创建为新的颜色。
-     */
-    public mul (other: Color, out?: Color) {
-        out = out || new Color();
-        const r = ((this._val & 0x000000ff) * other.r) >> 8;
-        const g = ((this._val & 0x0000ff00) * other.g) >> 8;
-        const b = ((this._val & 0x00ff0000) * other.b) >> 8;
-        const a = ((this._val & 0xff000000) >>> 8) * other.a;
-        out._val = (a & 0xff000000) | (b & 0x00ff0000) | (g & 0x0000ff00) | (r & 0x000000ff);
-        return out;
     }
 
     public _set_r_unsafe (red) {

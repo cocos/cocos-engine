@@ -107,15 +107,15 @@ export default class Gradient {
                         return this.colorKeys[i].color;
                     }
                     const factor = (time - preTime) / (curTime - preTime);
-                    Color.lerp(this.colorKeys[i - 1].color, this.colorKeys[i].color, factor, this._color);
+                    Color.lerp(this._color, this.colorKeys[i - 1].color, this.colorKeys[i].color, factor);
                     return this._color;
                 }
             }
             const lastIndex = this.colorKeys.length - 1;
             if (time < this.colorKeys[0].time) {
-                Color.lerp(_black, this.colorKeys[0].color, time / this.colorKeys[0].time, this._color);
+                Color.lerp(this._color, _black, this.colorKeys[0].color, time / this.colorKeys[0].time);
             } else if (time > this.colorKeys[lastIndex].time) {
-                Color.lerp(this.colorKeys[lastIndex].color, _black, (time - this.colorKeys[lastIndex].time) / (1 - this.colorKeys[lastIndex].time), this._color);
+                Color.lerp(this._color, this.colorKeys[lastIndex].color, _black, (time - this.colorKeys[lastIndex].time) / (1 - this.colorKeys[lastIndex].time));
             }
             // console.warn('something went wrong. can not get gradient color.');
         } else if (this.colorKeys.length === 1) {
