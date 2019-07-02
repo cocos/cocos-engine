@@ -390,8 +390,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         this.trailModule.init(this);
         this.textureAnimationModule.onInit(this);
 
-        this.node.getWorldPosition(this._oldWPos);
-        vec3.copy(this._curWPos, this._oldWPos);
+        this._resetPosition();
 
         // this._system.add(this);
     }
@@ -435,6 +434,8 @@ export class ParticleSystemComponent extends RenderableComponent {
 
         this._isPlaying = true;
         this._isEmitting = true;
+
+        this._resetPosition();
 
         // prewarm
         if (this._prewarm) {
@@ -483,8 +484,10 @@ export class ParticleSystemComponent extends RenderableComponent {
      * 将所有粒子从粒子系统中清除。
      */
     public clear () {
-        this.renderer!.clear();
-        this.trailModule.clear();
+        if (this.enabledInHierarchy) {
+            this.renderer!.clear();
+            this.trailModule.clear();
+        }
     }
 
     /**
@@ -660,6 +663,11 @@ export class ParticleSystemComponent extends RenderableComponent {
                 burst.update(this, dt);
             }
         }
+    }
+
+    private _resetPosition () {
+        this.node.getWorldPosition(this._oldWPos);
+        vec3.copy(this._curWPos, this._oldWPos);
     }
 
     private addSubEmitter (subEmitter) {

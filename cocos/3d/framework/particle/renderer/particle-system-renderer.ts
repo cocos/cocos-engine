@@ -12,7 +12,6 @@ import { builtinResMgr } from '../../../builtin';
 import RecyclePool from '../../../memop/recycle-pool';
 import { RenderMode, Space } from '../enum';
 import Particle from '../particle';
-import { ParticleSystemComponent } from '../particle-system-component';
 
 const _tempAttribUV = new Vec3();
 const _tempAttribUV0 = new Vec2();
@@ -213,7 +212,7 @@ export default class ParticleSystemRenderer {
     }
 
     public onInit (ps: Component) {
-        this.particleSystem = ps.node.getComponent(ParticleSystemComponent);
+        this.particleSystem = ps.node.getComponent('cc.ParticleSystemComponent');
         this._particles = new RecyclePool(() => {
             return new Particle(this);
         }, 16);
@@ -393,8 +392,8 @@ export default class ParticleSystemRenderer {
 
     public _onMaterialModified (index: number, material: Material) {
         if (index === 0) {
-            this._updateMaterialParams();
             this._updateModel();
+            this._updateMaterialParams();
         } else {
             this._updateTrailMaterial();
         }
@@ -474,7 +473,6 @@ export default class ParticleSystemRenderer {
         } else {
             console.warn(`particle system renderMode ${this._renderMode} not support.`);
         }
-        mat!.recompileShaders(this._defines);
 
         if (this.particleSystem.textureAnimationModule.enable) {
             vec2.set(this.frameTile_velLenScale, this.particleSystem.textureAnimationModule.numTilesX, this.particleSystem.textureAnimationModule.numTilesY);
@@ -482,6 +480,7 @@ export default class ParticleSystemRenderer {
         } else {
             mat!.setProperty('frameTile_velLenScale', this.frameTile_velLenScale);
         }
+        mat!.recompileShaders(this._defines);
         if (this._model) {
             this._model.setSubModelMaterial(0, this.particleSystem.sharedMaterial || this._defaultMat);
         }
