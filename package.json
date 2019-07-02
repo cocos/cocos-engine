@@ -76,7 +76,7 @@
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-node-resolve": "^3.4.0",
     "rollup-watch": "^4.3.1",
-    "tfig": "^1.0.18",
+    "tfig": "^1.0.20",
     "tslint": "^5.12.0",
     "typedoc": "^0.14.2",
     "typedoc-plugin-external-module-name": "^2.1.0",
