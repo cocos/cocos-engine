@@ -135,7 +135,6 @@ renderer/renderer/ProgramLib.cpp \
 renderer/renderer/Scene.cpp \
 renderer/renderer/Technique.cpp \
 renderer/renderer/View.cpp \
-renderer/renderer/CustomProperties.cpp \
 renderer/renderer/ForwardRenderer.cpp \
 renderer/scene/assembler/Assembler.cpp \
 renderer/scene/assembler/AssemblerBase.cpp \
@@ -152,6 +151,8 @@ renderer/scene/StencilManager.cpp \
 renderer/scene/MemPool.cpp \
 renderer/scene/NodeMemPool.cpp \
 renderer/scene/ParallelTask.cpp \
+renderer/memop/RecyclePool.hpp \
+renderer/renderer/CustomProperties.cpp \
 scripting/js-bindings/auto/jsb_gfx_auto.cpp \
 scripting/js-bindings/auto/jsb_renderer_auto.cpp \
 scripting/js-bindings/manual/jsb_renderer_manual.cpp \

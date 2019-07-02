@@ -77,7 +77,7 @@ Model::~Model()
 
 void Model::setInputAssembler(const InputAssembler& ia)
 {
-    _inputAssembler = std::move(ia);
+    _inputAssembler = ia;
 }
 
 void Model::setEffect(Effect* effect, CustomProperties* customProperties)
