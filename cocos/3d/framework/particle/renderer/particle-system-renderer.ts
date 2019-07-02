@@ -12,7 +12,6 @@ import { builtinResMgr } from '../../../builtin';
 import RecyclePool from '../../../memop/recycle-pool';
 import { RenderMode, Space } from '../enum';
 import Particle from '../particle';
-import { ParticleSystemComponent } from '../particle-system-component';
 
 const _tempAttribUV = new Vec3();
 const _tempAttribUV0 = new Vec2();
@@ -213,7 +212,7 @@ export default class ParticleSystemRenderer {
     }
 
     public onInit (ps: Component) {
-        this.particleSystem = ps.node.getComponent(ParticleSystemComponent);
+        this.particleSystem = ps.node.getComponent('cc.ParticleSystemComponent');
         this._particles = new RecyclePool(() => {
             return new Particle(this);
         }, 16);

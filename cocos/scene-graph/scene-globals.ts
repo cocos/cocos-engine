@@ -28,8 +28,8 @@
  */
 
 import { TextureCube } from '../3d/assets/texture-cube';
-import { CCBoolean, CCFloat } from '../core';
 import { ccclass, property } from '../core/data/class-decorator';
+import { CCBoolean, CCFloat } from '../core/data/utils/attribute';
 import { Color, Quat, Vec3 } from '../core/value-types';
 import { color4, vec3 } from '../core/vmath';
 import { Ambient } from '../renderer/scene/ambient';
