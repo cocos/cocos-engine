@@ -443,7 +443,7 @@ sp.Skeleton = cc.Class({
     },
 
     _updateUseTint () {
-        let baseMaterial = this.sharedMaterials[0];
+        let baseMaterial = this.getMaterial(0);
         if (baseMaterial) {
             baseMaterial.define('USE_TINT', this.useTint);
         }
@@ -457,7 +457,7 @@ sp.Skeleton = cc.Class({
     },
 
     _updateBatch () {
-        let baseMaterial = this.sharedMaterials[0];
+        let baseMaterial = this.getMaterial(0);
         if (baseMaterial) {
             baseMaterial.define('_USE_MODEL', !this.enableBatch);
         }
