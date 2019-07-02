@@ -151,8 +151,8 @@ export default class Vec2 extends ValueType {
      * @param [out] 出口向量，当未指定时将创建为新的向量。
      * @returns `out`
      */
-    public static normalize (out: Vec2) {
-        vec2.normalize(out, out);
+    public static normalize (out: Vec2, that: Vec2) {
+        vec2.normalize(out, that);
     }
 
     /**

@@ -327,7 +327,7 @@ const selectLerpFx = (() => {
     function makeValueTypeLerpFx<T extends ValueType> (constructor: Constructor<T>) {
         const tempValue = new constructor();
         return (from: T, to: T, ratio: number) => {
-            return constructor.lerp(from, to, ratio, tempValue);
+            return constructor.lerp(tempValue, from, to, ratio);
         };
     }
 

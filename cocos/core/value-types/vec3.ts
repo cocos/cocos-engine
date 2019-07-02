@@ -126,8 +126,8 @@ export default class Vec3 extends ValueType {
      * @param [out] 出口向量，当未指定时将创建为新的向量。
      * @returns `out`
      */
-    public static normalize (out: Vec3) {
-        vec3.normalize(out, out);
+    public static normalize (out: Vec3, that: Vec3) {
+        vec3.normalize(out, that);
     }
 
     /**
@@ -327,7 +327,7 @@ export default class Vec3 extends ValueType {
      * @param other 指定的向量。
      * @returns 当前向量与指定向量点乘的结果。
      */
-    public dotSelf (other: Vec3) {
+    public dot (other: Vec3) {
         return this.x * other.x + this.y * other.y + this.z * other.z;
     }
 
