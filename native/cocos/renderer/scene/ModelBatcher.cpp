@@ -53,6 +53,8 @@ ModelBatcher::ModelBatcher(RenderFlow* flow)
 
 ModelBatcher::~ModelBatcher()
 {
+    reset();
+    
     for (int i = 0; i < _modelPool.size(); i++)
     {
         auto model = _modelPool[i];
@@ -86,6 +88,7 @@ void ModelBatcher::reset()
     
     _commitState = CommitState::None;
     setCurrentEffect(nullptr);
+    setNode(nullptr);
     _ia.clear();
     _cullingMask = 0;
     _walking = false;
@@ -147,11 +150,11 @@ void ModelBatcher::commit(NodeProxy* node, Assembler* assembler)
             // Break auto batch
             flush();
             
+            setNode(_useModel ? node : nullptr);
             setCurrentEffect(effect);
             _modelMat.set(worldMat);
             _useModel = useModel;
             _cullingMask = cullingMask;
-            _node = _useModel ? node : nullptr;
         }
         
         if (needUpdateOpacity)
@@ -190,6 +193,7 @@ void ModelBatcher::commitIA(NodeProxy* node, CustomAssembler* assembler)
     {
         flushIA();
         
+        setNode(_useModel ? node : nullptr);
         setCurrentEffect(effect);
         _modelMat.set(worldMat);
         _useModel = useModel;
@@ -211,6 +215,7 @@ void ModelBatcher::commitIA(NodeProxy* node, CustomAssembler* assembler)
         {
             flushIA();
             
+            setNode(_useModel ? node : nullptr);
             setCurrentEffect(effect);
             _modelMat.set(worldMat);
             _useModel = useModel;
@@ -224,13 +229,16 @@ void ModelBatcher::commitIA(NodeProxy* node, CustomAssembler* assembler)
         
         _ia.setCount(_ia.getCount() + customIA->getCount());
     }
-    
-    _node = _useModel ? node : nullptr;
 }
 
 void ModelBatcher::flushIA()
 {
-    if (!_walking || _currEffect == nullptr || _ia.getCount() <= 0)
+    if (_commitState != CommitState::Custom)
+    {
+        return;
+    }
+    
+    if (!_walking || !_currEffect || _ia.getCount() <= 0)
     {
         _ia.clear();
         return;
@@ -241,7 +249,6 @@ void ModelBatcher::flushIA()
     
     // Generate model
     Model* model = nullptr;
-    _modelPool[_modelOffset];
     if (_modelOffset >= _modelPool.size())
     {
         model = new Model();
@@ -255,14 +262,22 @@ void ModelBatcher::flushIA()
     model->setWorldMatix(_modelMat);
     model->setCullingMask(_cullingMask);
     model->setEffect(_currEffect, _customProps);
+    model->setNode(_node);
     model->setInputAssembler(_ia);
+    
+    _ia.clear();
     
     _flow->getRenderScene()->addModel(model);
 }
 
 void ModelBatcher::flush()
 {
-    if (_buffer == nullptr)
+    if (_commitState != CommitState::Common)
+    {
+        return;
+    }
+    
+    if (!_walking || !_currEffect || !_buffer)
     {
         return;
     }
@@ -270,7 +285,7 @@ void ModelBatcher::flush()
     int indexStart = _buffer->getIndexStart();
     int indexOffset = _buffer->getIndexOffset();
     int indexCount = indexOffset - indexStart;
-    if (!_walking || _currEffect == nullptr || indexCount <= 0)
+    if (indexCount <= 0)
     {
         return;
     }
@@ -285,7 +300,6 @@ void ModelBatcher::flush()
     
     // Generate model
     Model* model = nullptr;
-    _modelPool[_modelOffset];
     if (_modelOffset >= _modelPool.size())
     {
         model = new Model();
@@ -299,9 +313,11 @@ void ModelBatcher::flush()
     model->setWorldMatix(_modelMat);
     model->setCullingMask(_cullingMask);
     model->setEffect(_currEffect, _customProps);
-    model->setInputAssembler(_ia);
     model->setNode(_node);
+    model->setInputAssembler(_ia);
     
+    _ia.clear();
+
     _flow->getRenderScene()->addModel(model);
     
     _buffer->updateOffset();
@@ -324,6 +340,17 @@ void ModelBatcher::terminateBatch()
     }
     
     _walking = false;
+}
+
+void ModelBatcher::setNode(NodeProxy* node)
+{
+    if (_node == node)
+    {
+        return;
+    }
+    CC_SAFE_RELEASE(_node);
+    _node = node;
+    CC_SAFE_RETAIN(_node);
 }
 
 void ModelBatcher::setCurrentEffect(Effect* effect)
