@@ -213,7 +213,7 @@ let SkinnedMeshRenderer = cc.Class({
                 pixelFormat = cc.Texture2D.PixelFormat.RGBA8888;
                 width *= 4;
 
-                cc.warn(`SkinnedMeshRenderer [${this.node.name}] has too much joints [${jointCount}] and device do not support float32 texture, fallback to use RGBA8888 texture, which is much slower.`);
+                cc.warn(`SkinnedMeshRenderer [${this.node.name}] has too many joints [${jointCount}] and device do not support float32 texture, fallback to use RGBA8888 texture, which is much slower.`);
             }
 
             let texture = this._jointsTexture || new cc.Texture2D();

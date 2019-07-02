@@ -626,7 +626,13 @@ function initSys () {
             const LEFT_UNIFORM_SIZE = 10;
 
             let gl = cc.game._renderContext;
-            sys._maxJointMatrixSize = Math.min(JOINT_MATRICES_SIZE, gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS) / 4 - LEFT_UNIFORM_SIZE);
+            let maxUniforms = Math.floor(gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS) / 4) - LEFT_UNIFORM_SIZE;
+            if (maxUniforms < JOINT_MATRICES_SIZE) {
+                sys._maxJointMatrixSize = 0;
+            }
+            else {
+                sys._maxJointMatrixSize = JOINT_MATRICES_SIZE;
+            }
         }
         return sys._maxJointMatrixSize;
     }
