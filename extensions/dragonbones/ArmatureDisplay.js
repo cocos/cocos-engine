@@ -411,7 +411,7 @@ let ArmatureDisplay = cc.Class({
     },
 
     _updateBatch () {
-        let baseMaterial = this.sharedMaterials[0];
+        let baseMaterial = this.getMaterial(0);
         if (baseMaterial) {
             baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
         }
