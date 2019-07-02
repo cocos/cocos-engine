@@ -177,11 +177,11 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
 
     public cookMaterials () {
         const mat = this.getMaterial(0);
-        if (!mat || !this._batchMaterial || !mat.effectAsset) {
+        if (!mat || !this._batchMaterial || !this._batchMaterial.effectAsset) {
             console.warn('incomplete batch material!'); return;
         }
         mat.copy(this._batchMaterial); this.resizeAtlases();
-        const tech = mat.effectAsset.techniques[mat.technique];
+        const tech = mat.effectAsset!.techniques[mat.technique];
         for (let i = 0; i < tech.passes.length; i++) {
             const pass = tech.passes[i];
             if (!pass.properties) { continue; }

@@ -82,6 +82,7 @@ export class AudioPlayerWX extends AudioPlayer {
         /* InnerAudioContext doesn't support multiple playback at the
            same time so here we fall back to re-start style approach */
         if (!this._audio) { return; }
+        this._audio.seek(0);
         this._audio.volume = volume;
         if (this._oneShoting) { return; }
         this._audio.loop = false;
