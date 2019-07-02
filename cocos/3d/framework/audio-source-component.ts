@@ -109,7 +109,6 @@ export class AudioSourceComponent extends Component {
      * 音频的音量（大小范围为 0.0 到 1.0 ）。
      *
      * 请注意,在某些平台上，音量控制可能不起效。<br>
-     * 请注意,在 ios 平台的 dom 模式下控制音量将无法生效。
      */
     @property
     set volume (val) {

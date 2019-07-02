@@ -27,11 +27,8 @@
  * @category component/audio
  */
 
-import { _decorator } from '../../../core/data/index';
-const { ccclass } = _decorator;
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 
-@ccclass('cc.AudioPlayerWX')
 export class AudioPlayerWX extends AudioPlayer {
     protected _volume = 1;
     protected _loop = false;
@@ -53,6 +50,7 @@ export class AudioPlayerWX extends AudioPlayer {
         this._audio.onStop(() => {
             this._state = PlayingState.STOPPED;
             this._oneShoting = false;
+            this._audio.seek(0);
         });
         this._audio.onEnded(() => {
             this._state = PlayingState.STOPPED;
@@ -63,8 +61,6 @@ export class AudioPlayerWX extends AudioPlayer {
                 this._oneShoting = false;
             }
         });
-        wx.onShow(() => this._audio.play());
-        wx.onAudioInterruptionEnd(() => this._audio.play());
     }
 
     public play () {
@@ -103,16 +99,18 @@ export class AudioPlayerWX extends AudioPlayer {
     }
 
     public getDuration () {
-        return this._audio ? this._audio.duration : 0;
+        return this._audio ? this._audio.duration : this._duration;
     }
 
     public getVolume () {
-        return this._audio ? this._audio.volume : this._volume;
+        // be careful with the volume getter on InnerAudioContext,
+        // serious performance issue encountered when accessed frequently
+        return this._volume;
     }
 
     public setVolume (val: number, immediate: boolean) {
         this._volume = val;
-        if (this._audio && this._audio.volume !== undefined) { this._audio.volume = val; }
+        if (this._audio) { this._audio.volume = val; }
     }
 
     public getLoop () {
@@ -129,5 +127,3 @@ export class AudioPlayerWX extends AudioPlayer {
         return false;
     }
 }
-
-cc.AudioPlayerWX = AudioPlayerWX;
