@@ -125,6 +125,7 @@ public:
      */
     RenderFlow* getFlow() const { return _flow; };
     
+    void setNode(NodeProxy* node);
     void setCullingMask(int cullingMask) { _cullingMask = cullingMask; }
     void setCurrentEffect(Effect* effect);
     void setUseModel(bool useModel) { _useModel = useModel; }
