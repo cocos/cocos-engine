@@ -339,18 +339,24 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
 
                 finalProgress = computeRatioByType(finalProgress, type);
 
-                let pos: Vec2;
+                let pos = new Vec2();
 
                 if (finalProgress < 0) {
                     const bezier = curve.beziers[0];
                     const length = (0 - finalProgress) * bezier.getLength();
-                    const normal = bezier.start.sub(bezier.endCtrlPoint).normalize();
-                    pos = bezier.start.add(normal.mul(length));
+                    const normal = new Vec2();
+                    Vec2.sub(normal, bezier.start, bezier.endCtrlPoint);
+                    normal.normalizeSelf();
+                    normal.mulSelf(length);
+                    Vec2.add(pos, bezier.start, normal);
                 } else if (finalProgress > 1) {
                     const bezier = curve.beziers[curve.beziers.length - 1];
                     const length = (finalProgress - 1) * bezier.getLength();
-                    const normal = bezier.end.sub(bezier.startCtrlPoint).normalize();
-                    pos = bezier.end.add(normal.mul(length));
+                    const normal = new Vec2();
+                    Vec2.sub(normal, bezier.end, bezier.startCtrlPoint);
+                    normal.normalizeSelf();
+                    normal.mulSelf(length);
+                    Vec2.add(pos, bezier.end, normal);
                 } else {
                     let bezierIndex = binarySearch(progresses, finalProgress);
                     if (bezierIndex < 0) { bezierIndex = ~bezierIndex; }

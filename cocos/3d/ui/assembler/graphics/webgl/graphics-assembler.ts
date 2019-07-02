@@ -27,7 +27,7 @@
  * @category ui-assembler
  */
 
-import { Color, Vec3 } from '../../../../../core/value-types';
+import { Color, Vec2, Vec3 } from '../../../../../core/value-types';
 import { color4 } from '../../../../../core/vmath';
 import { GFXPrimitiveMode } from '../../../../../gfx';
 import { Model } from '../../../../../renderer';
@@ -340,7 +340,8 @@ export const graphicsAssembler: IAssembler = {
 
             if (!loop) {
                 // Add cap
-                const dPos = p1.sub(p0);
+                const dPos = new Point(0, 0);
+                Vec2.sub(dPos, p1, p0);
                 dPos.normalizeSelf();
 
                 const dx = dPos.x;
@@ -385,7 +386,8 @@ export const graphicsAssembler: IAssembler = {
                 meshbuffer.vertexStart++;
             } else {
                 // Add cap
-                const dPos = p1.sub(p0);
+                const dPos = new Point(0, 0);
+                Vec2.sub(dPos, p1, p0);
                 dPos.normalizeSelf();
 
                 const dx = dPos.x;
@@ -596,7 +598,8 @@ export const graphicsAssembler: IAssembler = {
 
             for (let j = 0, size = pts.length; j < size; j++) {
                 // Calculate segment direction and length
-                const dPos = p1.sub(p0);
+                const dPos = new Point(0, 0);
+                Vec2.sub(dPos, p1, p0);
                 p0.len = dPos.mag();
                 if (dPos.x || dPos.y) {
                     dPos.normalizeSelf();
