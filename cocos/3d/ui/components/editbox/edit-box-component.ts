@@ -35,7 +35,7 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../.
 import { EventTouch } from '../../../../core/platform';
 import { SystemEventType } from '../../../../core/platform/event-manager/event-enum';
 import { Color, Size } from '../../../../core/value-types';
-import { Node } from '../../../../scene-graph';
+import { Node } from '../../../../scene-graph/node';
 import { LabelComponent, VerticalTextAlignment } from '../label-component';
 import { SpriteComponent } from '../sprite-component';
 import { UIRenderComponent } from '../ui-render-component';
