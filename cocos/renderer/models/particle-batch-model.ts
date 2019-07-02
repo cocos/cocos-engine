@@ -112,13 +112,6 @@ export default class ParticleBatchModel extends Model {
         this._inited = true;
     }
 
-    private _recreateBuffer () {
-        this._vBuffer = this._createSubMeshData();
-        this.getSubModel(0).updateCommandBuffer();
-        this._vdataF32 = new Float32Array(this._vBuffer);
-        this._vdataUint32 = new Uint32Array(this._vBuffer);
-    }
-
     public _createSubMeshData (): ArrayBuffer {
         if (this._subMeshData) {
             this.destroySubMeshData();
@@ -262,6 +255,13 @@ export default class ParticleBatchModel extends Model {
         }
         this._iaInfoBuffer.destroy();
         this._subMeshData = null;
+    }
+
+    private _recreateBuffer () {
+        this._vBuffer = this._createSubMeshData();
+        this.getSubModel(0).updateCommandBuffer();
+        this._vdataF32 = new Float32Array(this._vBuffer);
+        this._vdataUint32 = new Uint32Array(this._vBuffer);
     }
 
     private destroySubMeshData () {
