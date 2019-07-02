@@ -38,7 +38,7 @@ import { lerp } from '../../../core/utils';
 import { Color, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import * as math from '../../../core/vmath';
-import { Node } from '../../../scene-graph';
+import { Node } from '../../../scene-graph/node';
 import { SpriteComponent } from './sprite-component';
 import { UIRenderComponent } from './ui-render-component';
 
