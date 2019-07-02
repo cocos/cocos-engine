@@ -46,9 +46,98 @@ export default class Vec3 extends ValueType {
      * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
      * @returns 当前向量各个分量到目标向量对应的各个分量之间按指定插值比率进行线性插值构成的向量。
      */
-    public static lerp (from: Vec3, to: Vec3, ratio: number, out: Vec3) {
+    public static lerp (out: Vec3, from: Vec3, to: Vec3, ratio: number) {
         vec3.lerp(out, from, to, ratio);
-        return out;
+    }
+
+    /**
+     * 向量加法。将当前向量与指定向量的相加结果赋值给出口向量。
+     * @param other 指定的向量。
+     * @param [out] 出口向量，当未指定时将创建为新的向量。
+     * @returns `out`
+     */
+    public static add (out: Vec3, lhs: Vec3, rhs: Vec3) {
+        out.x = lhs.x + rhs.x;
+        out.y = lhs.y + rhs.y;
+        out.z = lhs.z + rhs.z;
+    }
+
+    /**
+     * 向量减法。将当前向量减去指定向量的结果赋值给出口向量。
+     * @param other 减数向量。
+     * @param [out] 出口向量，当未指定时将创建为新的向量。
+     * @returns `out`
+     */
+    public static sub (out: Vec3, lhs: Vec3, rhs: Vec3) {
+        out.x = lhs.x - rhs.x;
+        out.y = lhs.y - rhs.y;
+        out.z = lhs.z - rhs.z;
+    }
+
+    /**
+     * 向量数乘。将当前向量数乘指定标量的结果赋值给出口向量。
+     * @param scalar 标量乘数。
+     * @param [out] 出口向量，当未指定时将创建为新的向量。
+     * @returns `out`
+     */
+    public static mul (out: Vec3, that: Vec3, scalar: number) {
+        out.x = that.x * scalar;
+        out.y = that.y * scalar;
+        out.z = that.z * scalar;
+    }
+
+    /**
+     * 向量乘法。将当前向量乘以与指定向量的结果赋值给当前向量。
+     * @param other 指定的向量。
+     * @param [out] 出口向量，当未指定时将创建为新的向量。
+     * @returns `out`
+     */
+    public static scale (out: Vec3, lhs: Vec3, rhs: Vec3) {
+        out.x = lhs.x * rhs.x;
+        out.y = lhs.y * rhs.y;
+        out.z = lhs.z * rhs.z;
+    }
+
+    /**
+     * 将当前向量的各个分量除以指定标量的结果赋值给出口向量。相当于 `this.mul(1 / scalar, out)`。
+     * @param scalar 标量除数。
+     * @param [out] 出口向量，当未指定时将创建为新的向量。
+     * @returns `out`
+     */
+    public static div (out: Vec3, that: Vec3, scalar: number) {
+        out.x = that.x / scalar;
+        out.y = that.y / scalar;
+        out.z = that.z / scalar;
+    }
+
+    /**
+     * 将当前向量的各个分量取反的结果赋值给出口向量。
+     * @param [out] 出口向量，当未指定时将创建为新的向量。
+     * @returns `out`
+     */
+    public static neg (out: Vec3, that: Vec3) {
+        out.x = -that.x;
+        out.y = -that.y;
+        out.z = -that.z;
+    }
+
+    /**
+     * 将当前向量归一化的结果赋值给出口向量。
+     * @param [out] 出口向量，当未指定时将创建为新的向量。
+     * @returns `out`
+     */
+    public static normalize (out: Vec3) {
+        vec3.normalize(out, out);
+    }
+
+    /**
+     * 将当前向量视为 w 分量为 1 的四维向量，
+     * 应用四维矩阵变换到当前矩阵，结果的 x、y、z 分量赋值给出口向量。
+     * @param matrix 变换矩阵。
+     * @param [out] 出口向量，当未指定时将创建为新的向量。
+     */
+    public static transformMat4 (out: Vec3, that: Vec3, matrix: Mat4) {
+        vec3.transformMat4(out, that, matrix);
     }
 
     /**
@@ -166,7 +255,6 @@ export default class Vec3 extends ValueType {
         this.x = clamp(this.x, minInclusive.x, maxInclusive.x);
         this.y = clamp(this.y, minInclusive.y, maxInclusive.y);
         this.z = clamp(this.z, minInclusive.z, maxInclusive.z);
-        return this;
     }
 
     /**
@@ -178,21 +266,6 @@ export default class Vec3 extends ValueType {
         this.x += other.x;
         this.y += other.y;
         this.z += other.z;
-        return this;
-    }
-
-    /**
-     * 向量加法。将当前向量与指定向量的相加结果赋值给出口向量。
-     * @param other 指定的向量。
-     * @param [out] 出口向量，当未指定时将创建为新的向量。
-     * @returns `out`
-     */
-    public add (other: Vec3, out?: Vec3) {
-        out = out || new Vec3();
-        out.x = this.x + other.x;
-        out.y = this.y + other.y;
-        out.z = this.z + other.z;
-        return out;
     }
 
     /**
@@ -204,21 +277,6 @@ export default class Vec3 extends ValueType {
         this.x -= other.x;
         this.y -= other.y;
         this.z -= other.z;
-        return this;
-    }
-
-    /**
-     * 向量减法。将当前向量减去指定向量的结果赋值给出口向量。
-     * @param other 减数向量。
-     * @param [out] 出口向量，当未指定时将创建为新的向量。
-     * @returns `out`
-     */
-    public sub (other: Vec3, out?: Vec3) {
-        out = out || new Vec3();
-        out.x = this.x - other.x;
-        out.y = this.y - other.y;
-        out.z = this.z - other.z;
-        return out;
     }
 
     /**
@@ -230,21 +288,6 @@ export default class Vec3 extends ValueType {
         this.x *= scalar;
         this.y *= scalar;
         this.z *= scalar;
-        return this;
-    }
-
-    /**
-     * 向量数乘。将当前向量数乘指定标量的结果赋值给出口向量。
-     * @param scalar 标量乘数。
-     * @param [out] 出口向量，当未指定时将创建为新的向量。
-     * @returns `out`
-     */
-    public mul (scalar: number, out?: Vec3) {
-        out = out || new Vec3();
-        out.x = this.x * scalar;
-        out.y = this.y * scalar;
-        out.z = this.z * scalar;
-        return out;
     }
 
     /**
@@ -256,21 +299,6 @@ export default class Vec3 extends ValueType {
         this.x *= other.x;
         this.y *= other.y;
         this.z *= other.z;
-        return this;
-    }
-
-    /**
-     * 向量乘法。将当前向量乘以与指定向量的结果赋值给当前向量。
-     * @param other 指定的向量。
-     * @param [out] 出口向量，当未指定时将创建为新的向量。
-     * @returns `out`
-     */
-    public scale (other: Vec3, out?: Vec3) {
-        out = out || new Vec3();
-        out.x = this.x * other.x;
-        out.y = this.y * other.y;
-        out.z = this.z * other.z;
-        return out;
     }
 
     /**
@@ -282,21 +310,6 @@ export default class Vec3 extends ValueType {
         this.x /= scalar;
         this.y /= scalar;
         this.z /= scalar;
-        return this;
-    }
-
-    /**
-     * 将当前向量的各个分量除以指定标量的结果赋值给出口向量。相当于 `this.mul(1 / scalar, out)`。
-     * @param scalar 标量除数。
-     * @param [out] 出口向量，当未指定时将创建为新的向量。
-     * @returns `out`
-     */
-    public div (scalar: number, out?: Vec3) {
-        out = out || new Vec3();
-        out.x = this.x / scalar;
-        out.y = this.y / scalar;
-        out.z = this.z / scalar;
-        return out;
     }
 
     /**
@@ -307,20 +320,6 @@ export default class Vec3 extends ValueType {
         this.x = -this.x;
         this.y = -this.y;
         this.z = -this.z;
-        return this;
-    }
-
-    /**
-     * 将当前向量的各个分量取反的结果赋值给出口向量。
-     * @param [out] 出口向量，当未指定时将创建为新的向量。
-     * @returns `out`
-     */
-    public neg (out?: Vec3) {
-        out = out || new Vec3();
-        out.x = -this.x;
-        out.y = -this.y;
-        out.z = -this.z;
-        return out;
     }
 
     /**
@@ -328,7 +327,7 @@ export default class Vec3 extends ValueType {
      * @param other 指定的向量。
      * @returns 当前向量与指定向量点乘的结果。
      */
-    public dot (other: Vec3) {
+    public dotSelf (other: Vec3) {
         return this.x * other.x + this.y * other.y + this.z * other.z;
     }
 
@@ -365,30 +364,6 @@ export default class Vec3 extends ValueType {
      */
     public normalizeSelf () {
         vec3.normalize(this, this);
-        return this;
-    }
-
-    /**
-     * 将当前向量归一化的结果赋值给出口向量。
-     * @param [out] 出口向量，当未指定时将创建为新的向量。
-     * @returns `out`
-     */
-    public normalize (out?: Vec3) {
-        out = out || new Vec3();
-        vec3.normalize(out, this);
-        return out;
-    }
-
-    /**
-     * 将当前向量视为 w 分量为 1 的四维向量，
-     * 应用四维矩阵变换到当前矩阵，结果的 x、y、z 分量赋值给出口向量。
-     * @param matrix 变换矩阵。
-     * @param [out] 出口向量，当未指定时将创建为新的向量。
-     */
-    public transformMat4 (matrix: Mat4, out?: Vec3) {
-        out = out || new Vec3();
-        vec3.transformMat4(out, this, matrix);
-        return out;
     }
 }
 
