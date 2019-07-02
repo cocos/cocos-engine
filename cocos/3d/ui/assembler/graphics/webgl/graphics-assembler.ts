@@ -341,8 +341,8 @@ export const graphicsAssembler: IAssembler = {
             if (!loop) {
                 // Add cap
                 const dPos = new Point(0, 0);
-                Vec2.sub(dPos, p1, p0);
-                dPos.normalizeSelf();
+                p1.subtract(dPos, p0);
+                dPos.normalize(dPos);
 
                 const dx = dPos.x;
                 const dy = dPos.y;
@@ -387,8 +387,8 @@ export const graphicsAssembler: IAssembler = {
             } else {
                 // Add cap
                 const dPos = new Point(0, 0);
-                Vec2.sub(dPos, p1, p0);
-                dPos.normalizeSelf();
+                p1.subtract(dPos, p0);
+                dPos.normalize(dPos);
 
                 const dx = dPos.x;
                 const dy = dPos.y;
@@ -599,10 +599,10 @@ export const graphicsAssembler: IAssembler = {
             for (let j = 0, size = pts.length; j < size; j++) {
                 // Calculate segment direction and length
                 const dPos = new Point(0, 0);
-                Vec2.sub(dPos, p1, p0);
+                p1.subtract(dPos, p0);
                 p0.len = dPos.mag();
                 if (dPos.x || dPos.y) {
-                    dPos.normalizeSelf();
+                    dPos.normalize(dPos);
                 }
                 p0.dx = dPos.x;
                 p0.dy = dPos.y;

@@ -142,11 +142,10 @@ export default class Rect extends ValueType {
 
     /**
      * 根据指定的插值比率，从当前矩形到目标矩形之间做插值。
+     * @param out 本方法将插值结果赋值给此参数
      * @param from 起始矩形。
      * @param to 目标矩形。
      * @param ratio 插值比率，范围为 [0,1]。
-     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
-     * @returns 当前矩形最小值到目标矩形最小值之间，以及当前矩阵尺寸到目标矩形尺寸之间，按指定插值比率进行线性插值构成的矩形。
      */
     public static lerp (out: Rect, from: Rect, to: Rect, ratio: number) {
         const x = from.x;
@@ -157,82 +156,6 @@ export default class Rect extends ValueType {
         out.y = y + (to.y - y) * ratio;
         out.width = width + (to.width - width) * ratio;
         out.height = height + (to.height - height) * ratio;
-    }
-
-    /**
-     * 计算当前矩形与指定矩形重叠部分的矩形，将其赋值给出口矩形。
-     * @param out 出口矩形。
-     * @param other 指定的矩形。
-     * @returns `out`
-     */
-    public static intersection (out: Rect, that: Rect, other: Rect) {
-        const axMin = that.x;
-        const ayMin = that.y;
-        const axMax = that.x + that.width;
-        const ayMax = that.y + that.height;
-        const bxMin = other.x;
-        const byMin = other.y;
-        const bxMax = other.x + other.width;
-        const byMax = other.y + other.height;
-        out.x = Math.max(axMin, bxMin);
-        out.y = Math.max(ayMin, byMin);
-        out.width = Math.min(axMax, bxMax) - out.x;
-        out.height = Math.min(ayMax, byMax) - out.y;
-    }
-
-    /**
-     * 创建同时包含当前矩形和指定矩形的最小矩形，将其赋值给出口矩形。
-     * @param out 出口矩形。
-     * @param other 指定的矩形。
-     * @returns `out`
-     */
-    public static union (out: Rect, that: Rect, other: Rect) {
-        const ax = that.x;
-        const ay = that.y;
-        const aw = that.width;
-        const ah = that.height;
-        const bx = other.x;
-        const by = other.y;
-        const bw = other.width;
-        const bh = other.height;
-        out.x = Math.min(ax, bx);
-        out.y = Math.min(ay, by);
-        out.width = Math.max(ax + aw, bx + bw) - out.x;
-        out.height = Math.max(ay + ah, by + bh) - out.y;
-    }
-
-    /**
-     * 应用矩阵变换到当前矩形：
-     * 应用矩阵变换到当前矩形的最小点得到新的最小点，
-     * 将当前矩形的尺寸视为二维向量应用矩阵变换得到新的尺寸；
-     * 并将如此构成的新矩形赋值给出口矩形。
-     * @param out 出口矩形。
-     * @param matrix 变换矩阵。
-     * @returns `out`
-     */
-    public static transformMat4 (out: Rect, that: Rect, mat: Mat4) {
-        const ol = that.x;
-        const ob = that.y;
-        const or = ol + that.width;
-        const ot = ob + that.height;
-        const lbx = mat.m00 * ol + mat.m04 * ob + mat.m12;
-        const lby = mat.m01 * ol + mat.m05 * ob + mat.m13;
-        const rbx = mat.m00 * or + mat.m04 * ob + mat.m12;
-        const rby = mat.m01 * or + mat.m05 * ob + mat.m13;
-        const ltx = mat.m00 * ol + mat.m04 * ot + mat.m12;
-        const lty = mat.m01 * ol + mat.m05 * ot + mat.m13;
-        const rtx = mat.m00 * or + mat.m04 * ot + mat.m12;
-        const rty = mat.m01 * or + mat.m05 * ot + mat.m13;
-
-        const minX = Math.min(lbx, rbx, ltx, rtx);
-        const maxX = Math.max(lbx, rbx, ltx, rtx);
-        const minY = Math.min(lby, rby, lty, rty);
-        const maxY = Math.max(lby, rby, lty, rty);
-
-        out.x = minX;
-        out.y = minY;
-        out.width = maxX - minX;
-        out.height = maxY - minY;
     }
 
     /**
@@ -317,13 +240,13 @@ export default class Rect extends ValueType {
     }
 
     /**
-     * 同lerp，但会对自身做lerp。
+     * 根据指定的插值比率，从当前矩形到目标矩形之间做插值。
+     * @param out 出口矩形
      * @param to 目标矩形。
      * @param ratio 插值比率，范围为 [0,1]。
-     * @returns 当前矩形最小值到目标矩形最小值之间，以及当前矩阵尺寸到目标矩形尺寸之间，按指定插值比率进行线性插值构成的矩形。
      */
-    public lerpSelf (to: Rect, ratio: number) {
-        return Rect.lerp(this, this, to, ratio);
+    public lerp (out: Rect, to: Rect, ratio: number) {
+        Rect.lerp(out, this, to, ratio);
     }
 
     /**
@@ -348,6 +271,26 @@ export default class Rect extends ValueType {
     }
 
     /**
+     * 计算当前矩形与指定矩形重叠部分的矩形，将其赋值给出口矩形。
+     * @param out 出口矩形。
+     * @param other 指定的矩形。
+     */
+    public intersection (out: Rect, other: Rect) {
+        const axMin = this.x;
+        const ayMin = this.y;
+        const axMax = this.x + this.width;
+        const ayMax = this.y + this.height;
+        const bxMin = other.x;
+        const byMin = other.y;
+        const bxMax = other.x + other.width;
+        const byMax = other.y + other.height;
+        out.x = Math.max(axMin, bxMin);
+        out.y = Math.max(ayMin, byMin);
+        out.width = Math.min(axMax, bxMax) - out.x;
+        out.height = Math.min(ayMax, byMax) - out.y;
+    }
+
+    /**
      * 判断当前矩形是否包含指定的点。
      * @param point 指定的点。
      * @returns 指定的点包含在矩形内则返回 `true`，否则返回 `false`。
@@ -369,6 +312,59 @@ export default class Rect extends ValueType {
                 this.x + this.width >= other.x + other.width &&
                 this.y <= other.y &&
                 this.y + this.height >= other.y + other.height);
+    }
+
+    /**
+     * 创建同时包含当前矩形和指定矩形的最小矩形，将其赋值给出口矩形。
+     * @param out 出口矩形。
+     * @param other 指定的矩形。
+     */
+    public union (out: Rect, other: Rect) {
+        const ax = this.x;
+        const ay = this.y;
+        const aw = this.width;
+        const ah = this.height;
+        const bx = other.x;
+        const by = other.y;
+        const bw = other.width;
+        const bh = other.height;
+        out.x = Math.min(ax, bx);
+        out.y = Math.min(ay, by);
+        out.width = Math.max(ax + aw, bx + bw) - out.x;
+        out.height = Math.max(ay + ah, by + bh) - out.y;
+    }
+
+    /**
+     * 应用矩阵变换到当前矩形：
+     * 应用矩阵变换到当前矩形的最小点得到新的最小点，
+     * 将当前矩形的尺寸视为二维向量应用矩阵变换得到新的尺寸；
+     * 并将如此构成的新矩形赋值给出口矩形。
+     * @param out 出口矩形。
+     * @param matrix 变换矩阵。
+     */
+    public transformMat4 (out: Rect, mat: Mat4) {
+        const ol = this.x;
+        const ob = this.y;
+        const or = ol + this.width;
+        const ot = ob + this.height;
+        const lbx = mat.m00 * ol + mat.m04 * ob + mat.m12;
+        const lby = mat.m01 * ol + mat.m05 * ob + mat.m13;
+        const rbx = mat.m00 * or + mat.m04 * ob + mat.m12;
+        const rby = mat.m01 * or + mat.m05 * ob + mat.m13;
+        const ltx = mat.m00 * ol + mat.m04 * ot + mat.m12;
+        const lty = mat.m01 * ol + mat.m05 * ot + mat.m13;
+        const rtx = mat.m00 * or + mat.m04 * ot + mat.m12;
+        const rty = mat.m01 * or + mat.m05 * ot + mat.m13;
+
+        const minX = Math.min(lbx, rbx, ltx, rtx);
+        const maxX = Math.max(lbx, rbx, ltx, rtx);
+        const minY = Math.min(lby, rby, lty, rty);
+        const maxY = Math.max(lby, rby, lty, rty);
+
+        out.x = minX;
+        out.y = minY;
+        out.width = maxX - minX;
+        out.height = maxY - minY;
     }
 }
 

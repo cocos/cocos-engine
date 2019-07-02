@@ -45,10 +45,10 @@ export default class Size extends ValueType {
 
     /**
      * 根据指定的插值比率，从当前尺寸到目标尺寸之间做插值。
+     * @param out 本方法将插值结果赋值给此参数
      * @param from 起始尺寸。
      * @param to 目标尺寸。
      * @param ratio 插值比率，范围为 [0,1]。
-     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
      * @returns 当前尺寸的宽和高到目标尺寸的宽和高分别按指定插值比率进行线性插值构成的向量。
      */
     public static lerp (out: Size, from: Size, to: Size, ratio: number) {
@@ -120,13 +120,13 @@ export default class Size extends ValueType {
     }
 
     /**
-     * 同lerp，但会对自身做lerp。
+     * 根据指定的插值比率，从当前尺寸到目标尺寸之间做插值。
+     * @param out 出口尺寸
      * @param to 目标尺寸。
      * @param ratio 插值比率，范围为 [0,1]。
-     * @returns 当前尺寸的宽和高到目标尺寸的宽和高分别按指定插值比率进行线性插值构成的向量。
      */
-    public lerpSelf (to: Size, ratio: number) {
-        return Size.lerp(this, this, to, ratio);
+    public lerp (out: Size, to: Size, ratio: number) {
+        Size.lerp(out, this, to, ratio);
     }
 
     /**

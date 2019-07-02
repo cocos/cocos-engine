@@ -223,9 +223,11 @@ export class Node extends BaseNode {
         vec3.copy(v3_a, this._lpos);
         if (space === NodeSpace.LOCAL) {
             vec3.transformQuat(v3_a, trans, this.worldRotation);
-            this.setPosition(vec3.add(v3_a, this._lpos, v3_a));
+            vec3.add(v3_a, this._lpos, v3_a);
+            this.setPosition(v3_a);
         } else if (space === NodeSpace.WORLD) {
-            this.setPosition(vec3.add(v3_a, this._lpos, trans));
+            vec3.add(v3_a, this._lpos, trans);
+            this.setPosition(v3_a);
         }
     }
 

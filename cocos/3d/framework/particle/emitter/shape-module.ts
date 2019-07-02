@@ -3,9 +3,8 @@
  * @category particle
  */
 
-import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { Enum, Vec3 } from '../../../../core/value-types';
+import { Vec3 } from '../../../../core/value-types';
 import { clamp, mat4, pingPong, quat, random, randomRange, repeat, toDegree, toRadian, vec2, vec3 } from '../../../../core/vmath';
 import CurveRange from '../animator/curve-range';
 import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere, randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';

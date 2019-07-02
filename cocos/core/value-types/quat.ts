@@ -136,12 +136,12 @@ export default class Quat extends ValueType {
     }
 
     /**
-     * 同lerp，但会对自身做lerp。
+     * 根据指定的插值比率，从当前四元数到目标四元数之间做插值。
+     * @param out 出口四元数
      * @param to 目标四元数。
      * @param ratio 插值比率，范围为 [0,1]。
-     * @returns 当前四元数到目标四元数之间的**球形插值**结果。
      */
-    public lerpSelf (out: Quat, to: Quat, ratio: number) {
+    public lerp (out: Quat, to: Quat, ratio: number) {
         xquat.slerp(out, this, to, ratio);
     }
 }
