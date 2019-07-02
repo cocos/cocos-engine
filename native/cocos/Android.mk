@@ -135,6 +135,7 @@ renderer/renderer/ProgramLib.cpp \
 renderer/renderer/Scene.cpp \
 renderer/renderer/Technique.cpp \
 renderer/renderer/View.cpp \
+renderer/renderer/CustomProperties.cpp \
 renderer/renderer/ForwardRenderer.cpp \
 renderer/scene/assembler/Assembler.cpp \
 renderer/scene/assembler/AssemblerBase.cpp \
