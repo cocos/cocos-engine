@@ -1093,7 +1093,7 @@ function parseAttributes (cls, attrs, className, propName, usedInGetter) {
         if (primitiveType) {
             result.push({
                 type: type,
-                _onAfterProp: (CC_EDITOR || CC_TEST) && !attrs._short && Attr.getTypeChecker_ET(primitiveType, 'cc.' + type),
+                _onAfterProp: ((CC_EDITOR && !Editor.isBuilder) || CC_TEST) && !attrs._short && Attr.getTypeChecker_ET(primitiveType, 'cc.' + type),
             });
         }
         else if (type === 'Object') {
@@ -1122,7 +1122,7 @@ function parseAttributes (cls, attrs, className, propName, usedInGetter) {
                 }
                 else if (typeof type === 'function') {
                     let typeChecker = null;
-                    if ((CC_EDITOR || CC_TEST) && !attrs._short) {
+                    if (((CC_EDITOR && !Editor.isBuilder) || CC_TEST) && !attrs._short) {
                         typeChecker = attrs.url ? Attr.getTypeChecker_ET('String', 'cc.String') : Attr.getObjTypeChecker_ET(type);
                     }
                     result.push({

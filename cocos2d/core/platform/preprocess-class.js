@@ -163,8 +163,10 @@ function checkUrl (val, className, propName, url) {
 }
 
 function parseType (val, type, className, propName) {
+    const STATIC_CHECK = (CC_EDITOR && CC_DEV) || CC_TEST;
+
     if (Array.isArray(type)) {
-        if ((CC_EDITOR || CC_TEST) && 'default' in val) {
+        if (STATIC_CHECK && 'default' in val) {
             var isArray = require('./CCClass').isArray;   // require lazily to avoid circular require() calls
             if (!isArray(val.default)) {
                 cc.warnID(5507, className, propName);
@@ -184,45 +186,49 @@ function parseType (val, type, className, propName) {
             return cc.errorID(5508, className, propName);
         }
     }
-    if (CC_EDITOR || CC_TEST) {
-        if (typeof type === 'function') {
-            if (cc.RawAsset.isRawAssetType(type)) {
-                cc.warnID(5509, className, propName, js.getClassName(type));
-            }
-            else if (type === String) {
-                val.type = cc.String;
+    if (typeof type === 'function') {
+        if (type === String) {
+            val.type = cc.String;
+            if (STATIC_CHECK) {
                 cc.warnID(3608, `"${className}.${propName}"`);
             }
-            else if (type === Boolean) {
-                val.type = cc.Boolean;
+        }
+        else if (type === Boolean) {
+            val.type = cc.Boolean;
+            if (STATIC_CHECK) {
                 cc.warnID(3609, `"${className}.${propName}"`);
             }
-            else if (type === Number) {
-                val.type = cc.Float;
+        }
+        else if (type === Number) {
+            val.type = cc.Float;
+            if (STATIC_CHECK) {
                 cc.warnID(3610, `"${className}.${propName}"`);
             }
         }
-        else {
-            switch (type) {
-            case 'Number':
-                cc.warnID(5510, className, propName);
-                break;
-            case 'String':
-                cc.warn(`The type of "${className}.${propName}" must be cc.String, not "String".`);
-                break;
-            case 'Boolean':
-                cc.warn(`The type of "${className}.${propName}" must be cc.Boolean, not "Boolean".`);
-                break;
-            case 'Float':
-                cc.warn(`The type of "${className}.${propName}" must be cc.Float, not "Float".`);
-                break;
-            case 'Integer':
-                cc.warn(`The type of "${className}.${propName}" must be cc.Integer, not "Integer".`);
-                break;
-            case null:
-                cc.warnID(5511, className, propName);
-                break;
-            }
+        else if (STATIC_CHECK && cc.RawAsset.isRawAssetType(type)) {
+            cc.warnID(5509, className, propName, js.getClassName(type));
+        }
+    }
+    else if (STATIC_CHECK) {
+        switch (type) {
+        case 'Number':
+            cc.warnID(5510, className, propName);
+            break;
+        case 'String':
+            cc.warn(`The type of "${className}.${propName}" must be cc.String, not "String".`);
+            break;
+        case 'Boolean':
+            cc.warn(`The type of "${className}.${propName}" must be cc.Boolean, not "Boolean".`);
+            break;
+        case 'Float':
+            cc.warn(`The type of "${className}.${propName}" must be cc.Float, not "Float".`);
+            break;
+        case 'Integer':
+            cc.warn(`The type of "${className}.${propName}" must be cc.Integer, not "Integer".`);
+            break;
+        case null:
+            cc.warnID(5511, className, propName);
+            break;
         }
     }
 }
