@@ -26,6 +26,7 @@ extern se::Class* __jsb_cocos2d_middleware_MiddlewareManager_class;
 
 bool js_register_cocos2d_middleware_MiddlewareManager(se::Object* obj);
 bool register_all_cocos2dx_editor_support(se::Object* obj);
+SE_DECLARE_FUNC(js_cocos2dx_editor_support_MiddlewareManager_render);
 SE_DECLARE_FUNC(js_cocos2dx_editor_support_MiddlewareManager_update);
 SE_DECLARE_FUNC(js_cocos2dx_editor_support_MiddlewareManager_destroyInstance);
 SE_DECLARE_FUNC(js_cocos2dx_editor_support_MiddlewareManager_generateModuleID);

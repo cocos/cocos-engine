@@ -800,6 +800,14 @@ getClock : function (
 },
 
 /**
+ * @method render
+ */
+render : function (
+)
+{
+},
+
+/**
  * @method getSlot
  * @param {String} arg0
  * @return {dragonBones::Slot}
@@ -834,13 +842,13 @@ bool
 },
 
 /**
- * @method getCacheFrameRate
- * @return {unsigned int}
+ * @method _addBone
+ * @param {dragonBones::Bone} arg0
  */
-getCacheFrameRate : function (
+_addBone : function (
+bone 
 )
 {
-    return 0;
 },
 
 /**
@@ -880,13 +888,13 @@ invalidUpdate : function (
 },
 
 /**
- * @method _addBone
- * @param {dragonBones::Bone} arg0
+ * @method getCacheFrameRate
+ * @return {unsigned int}
  */
-_addBone : function (
-bone 
+getCacheFrameRate : function (
 )
 {
+    return 0;
 },
 
 /**
@@ -1665,6 +1673,14 @@ bool
 dragonBones.WorldClock = {
 
 /**
+ * @method render
+ */
+render : function (
+)
+{
+},
+
+/**
  * @method clear
  */
 clear : function (
@@ -2344,38 +2360,6 @@ updateWorldMatrix : function (
 dragonBones.CCArmatureDisplay = {
 
 /**
- * @method getAnimation
- * @return {dragonBones::Animation}
- */
-getAnimation : function (
-)
-{
-    return dragonBones::Animation;
-},
-
-/**
- * @method hasDBEventListener
- * @param {String} arg0
- * @return {bool}
- */
-hasDBEventListener : function (
-str 
-)
-{
-    return false;
-},
-
-/**
- * @method bindNodeProxy
- * @param {cc.renderer::NodeProxy} arg0
- */
-bindNodeProxy : function (
-nodeproxy 
-)
-{
-},
-
-/**
  * @method dbInit
  * @param {dragonBones::Armature} arg0
  */
@@ -2408,9 +2392,49 @@ getRootDisplay : function (
 },
 
 /**
- * @method dbUpdate
+ * @method removeDBEventListener
+ * @param {String} arg0
+ * @param {function} arg1
  */
-dbUpdate : function (
+removeDBEventListener : function (
+str, 
+func 
+)
+{
+},
+
+/**
+ * @method setEffect
+ * @param {cc.renderer::Effect} arg0
+ */
+setEffect : function (
+effect 
+)
+{
+},
+
+/**
+ * @method dispose
+ */
+dispose : function (
+)
+{
+},
+
+/**
+ * @method setOpacityModifyRGB
+ * @param {bool} arg0
+ */
+setOpacityModifyRGB : function (
+bool 
+)
+{
+},
+
+/**
+ * @method dbClear
+ */
+dbClear : function (
 )
 {
 },
@@ -2428,19 +2452,31 @@ eventobject
 },
 
 /**
- * @method dispose
+ * @method getDebugData
+ * @return {se::Object}
  */
-dispose : function (
+getDebugData : function (
 )
 {
+    return se::Object;
 },
 
 /**
- * @method setEffect
- * @param {cc.renderer::Effect} arg0
+ * @method hasDBEventListener
+ * @param {String} arg0
+ * @return {bool}
  */
-setEffect : function (
-effect 
+hasDBEventListener : function (
+str 
+)
+{
+    return false;
+},
+
+/**
+ * @method dbUpdate
+ */
+dbUpdate : function (
 )
 {
 },
@@ -2456,11 +2492,41 @@ func
 },
 
 /**
- * @method setOpacityModifyRGB
+ * @method setDebugBonesEnabled
  * @param {bool} arg0
  */
-setOpacityModifyRGB : function (
+setDebugBonesEnabled : function (
 bool 
+)
+{
+},
+
+/**
+ * @method getAnimation
+ * @return {dragonBones::Animation}
+ */
+getAnimation : function (
+)
+{
+    return dragonBones::Animation;
+},
+
+/**
+ * @method setColor
+ * @param {color4b_object} arg0
+ */
+setColor : function (
+color4b 
+)
+{
+},
+
+/**
+ * @method bindNodeProxy
+ * @param {cc.renderer::NodeProxy} arg0
+ */
+bindNodeProxy : function (
+nodeproxy 
 )
 {
 },
@@ -2476,31 +2542,9 @@ bool
 },
 
 /**
- * @method setDebugBonesEnabled
- * @param {bool} arg0
+ * @method dbRender
  */
-setDebugBonesEnabled : function (
-bool 
-)
-{
-},
-
-/**
- * @method removeDBEventListener
- * @param {String} arg0
- * @param {function} arg1
- */
-removeDBEventListener : function (
-str, 
-func 
-)
-{
-},
-
-/**
- * @method dbClear
- */
-dbClear : function (
+dbRender : function (
 )
 {
 },
@@ -2525,26 +2569,6 @@ vec2
 )
 {
     return cc.Vec2;
-},
-
-/**
- * @method getDebugData
- * @return {se::Object}
- */
-getDebugData : function (
-)
-{
-    return se::Object;
-},
-
-/**
- * @method setColor
- * @param {color4b_object} arg0
- */
-setColor : function (
-color4b 
-)
-{
 },
 
 /**
@@ -2591,6 +2615,16 @@ getSoundEventManager : function (
 )
 {
     return dragonBones::CCArmatureDisplay;
+},
+
+/**
+ * @method render
+ * @param {float} arg0
+ */
+render : function (
+float 
+)
+{
 },
 
 /**

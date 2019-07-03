@@ -868,6 +868,7 @@ bool js_register_spine_SkeletonRenderer(se::Object* obj);
 bool register_all_cocos2dx_spine(se::Object* obj);
 SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_setUseTint);
 SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_setTimeScale);
+SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_render);
 SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_initWithUUID);
 SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_setOpacityModifyRGB);
 SE_DECLARE_FUNC(js_cocos2dx_spine_SkeletonRenderer_paused);
