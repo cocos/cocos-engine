@@ -616,17 +616,19 @@ export class WidgetComponent extends Component {
         this._recursiveDirty();
     }
 
-    protected _registerTargetEvents (){
-        if (this._target){
-            this._target.on(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
-            this._target.on(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
+    protected _registerTargetEvents () {
+        const target = this._target || this.node.parent;
+        if (target){
+            target.on(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
+            target.on(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
         }
     }
 
     protected _unregisterTargetEvents () {
-        if (this._target) {
-            this._target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
-            this._target.off(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
+        const target = this._target || this.node.parent;
+        if (target) {
+            target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
+            target.off(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
         }
     }
 
