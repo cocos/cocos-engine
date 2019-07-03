@@ -89,7 +89,6 @@ export abstract class GFXRenderPass extends GFXObject {
     protected _depthStencilInfo: GFXDepthStencilAttachment | null = null;
 
     /**
-     * @zh
      * 构造函数。
      * @param device GFX设备。
      */

@@ -64,7 +64,6 @@ export abstract class GFXBindingLayout extends GFXObject {
     protected _isDirty = false;
 
     /**
-     * @zh
      * 构造函数。
      * @param device GFX设备。
      */

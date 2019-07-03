@@ -73,7 +73,6 @@ export class RenderQueue {
     private _passDesc: IRenderQueueDesc;
 
     /**
-     * @zh
      * 构造函数。
      * @param desc 渲染队列描述。
      */

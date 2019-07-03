@@ -143,7 +143,6 @@ export default class triangle {
     private _type: number;
 
     /**
-     * @zh
      * 构造一个三角形。
      * @param {number} ax a 点的 x 部分。
      * @param {number} ay a 点的 y 部分。

@@ -131,7 +131,6 @@ export default class Prefab extends Asset {
      * 将预制数据动态转换为最小化代码。<br/>
      * 此方法将在第一次实例化预制件之前自动调用，<br/>
      * 但是您可以在脚本中修改原始预制数据后重新调用以刷新创建功能。
-     * @method compileCreateFunction
      */
     public compileCreateFunction (): void {
         this._createFunction = compile(this.data);

@@ -85,8 +85,9 @@ export class AnimationClip extends Asset {
      * @en Crate clip with a set of sprite frames
      * @zh 使用一组序列帧图片来创建动画剪辑
      * @example
+     * ```
      * const clip = cc.AnimationClip.createWithSpriteFrames(spriteFrames, 10);
-     *
+     * ```
      */
     public static createWithSpriteFrames (spriteFrames: SpriteFrame[], sample: number) {
         if (!Array.isArray(spriteFrames)) {

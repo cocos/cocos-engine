@@ -110,8 +110,7 @@ export class OptimizedValueArray<T = {}> {
     private _dtor;
 
     /**
-     * @zh 构造函数，指定数组元素的构造函数，析构函数，和数组大小。
-     * @en Initialize this array with specified capacity.
+     * 构造函数，指定数组元素的构造函数，析构函数，和数组大小。
      * @param {any} ctor The constructor to create the value.
      * @param {Number} [size] The size.
      */

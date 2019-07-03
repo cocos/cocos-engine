@@ -418,7 +418,9 @@ export class WidgetComponent extends Component {
      * 指定 Widget 的对齐模式，用于决定 Widget 应该何时刷新。
      *
      * @example
+     * ```
      * widget.alignMode = cc.Widget.AlignMode.ON_WINDOW_RESIZE;
+     * ```
      */
     @property({
         type: AlignMode,

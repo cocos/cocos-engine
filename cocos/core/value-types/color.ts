@@ -347,9 +347,11 @@ export default class Color extends ValueType {
      * - `'#rrggbb` 与 `'#rrggbbaa'` 类似但不包括 Alpha 通道。
      * @returns 十六进制颜色字符串。
      * @example
+     * ```
      * const color = new Color(255, 14, 0, 255);
      * color.toHex("rrggbbaa"); // "FF0E00FF"
      * color.toHex("rrggbb"); // "FF0E00"
+     * ```
      */
     public toHEX (fmt: '#rrggbb' | '#rrggbbaa') {
         const hex = [
@@ -379,8 +381,10 @@ export default class Color extends ValueType {
      * 将当前颜色转换为 RGB 整数值。
      * @returns RGB 整数值。从最低有效位开始，每8位分别是 Red、Green、Blue 通道的值。
      * @example
+     * ```
      * const color = Color.YELLOW;
      * color.toRGBValue();
+     * ```
      */
     public toRGBValue () {
         return this._val & 0x00ffffff;
@@ -393,8 +397,10 @@ export default class Color extends ValueType {
      * @param v V 通道。
      * @returns `this`
      * @example
+     * ```
      * const color = Color.YELLOW;
      * color.fromHSV(0, 0, 1); // Color {r: 255, g: 255, b: 255, a: 255};
+     * ```
      */
     public fromHSV (h: number, s: number, v: number) {
         let r: number = 0;
@@ -465,8 +471,10 @@ export default class Color extends ValueType {
      * 转换当前颜色为 HSV 颜色。
      * @returns HSV 颜色。成员 `h`、`s`、`v` 分别代表 HSV 颜色的 H、S、V 通道。
      * @example
+     * ```
      * const color = cc.Color.YELLOW;
      * color.toHSV(); // {h: 0.1533864541832669, s: 0.9843137254901961, v: 1}
+     * ```
      */
     public toHSV () {
         const r = this.r * toFloat;

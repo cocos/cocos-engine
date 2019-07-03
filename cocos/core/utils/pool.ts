@@ -35,6 +35,7 @@ type CleanUpFunction<T> = (value: T) => boolean | void;
  * 这个对象池的实现非常精简，它可以帮助您提高游戏性能，适用于优化对象的反复创建和销毁。
  * @class js.Pool
  * @example
+ * ```
  *
  * Example 1:
  *
@@ -74,6 +75,7 @@ type CleanUpFunction<T> = (value: T) => boolean | void;
  *
  * var detail = Details.pool.get( [] );
  * ...
+ * ```
  */
 export default class Pool<T> {
     /**
@@ -101,10 +103,6 @@ export default class Pool<T> {
     private _cleanup: CleanUpFunction<T> | null;
 
     /**
-     * @en
-     * Constructor for creating an object pool for the specific object type.
-     * You can pass a callback argument for process the cleanup logic when the object is recycled.
-     * @zh
      * 使用构造函数来创建一个指定对象类型的对象池，您可以传递一个回调函数，用于处理对象回收时的清理逻辑。
      * @method constructor
      * @param {Function} [cleanupFunc] - the callback method used to process the cleanup logic when the object is recycled.
@@ -114,10 +112,6 @@ export default class Pool<T> {
     constructor (cleanup: CleanUpFunction<T>, size: number);
 
     /**
-     * @en
-     * Constructor for creating an object pool for the specific object type.
-     * You can pass a callback argument for process the cleanup logic when the object is recycled.
-     * @zh
      * 使用构造函数来创建一个指定对象类型的对象池，您可以传递一个回调函数，用于处理对象回收时的清理逻辑。
      * @method constructor
      * @param {Function} [cleanupFunc] - the callback method used to process the cleanup logic when the object is recycled.
