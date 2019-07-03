@@ -196,7 +196,7 @@ export class mat4 {
     /**
      * @zh 矩阵行列式
      */
-    public static determinant (a: mat4) {
+    public static determinant (a: mat4): number {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
             a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
             a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,

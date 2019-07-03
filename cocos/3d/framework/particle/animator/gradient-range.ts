@@ -5,7 +5,7 @@
 
 import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { Enum, ValueType, Color } from '../../../../core/value-types';
+import { Color, Enum, ValueType } from '../../../../core/value-types';
 import { color4 } from '../../../../core/vmath';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
 
@@ -31,13 +31,6 @@ const Mode = Enum({
 @ccclass('cc.GradientRange')
 export default class GradientRange {
 
-    public static Mode = Mode;
-
-    @property({
-        type: Mode,
-    })
-    private _mode = Mode.Color;
-
     /**
      * @zh 渐变色类型 [[Mode]]。
      */
@@ -61,6 +54,8 @@ export default class GradientRange {
         }
         this._mode = m;
     }
+
+    public static Mode = Mode;
 
     /**
      * @zh 当mode为Color时的颜色。
@@ -103,6 +98,11 @@ export default class GradientRange {
         type: Gradient,
     })
     public gradientMax = new Gradient();
+
+    @property({
+        type: Mode,
+    })
+    private _mode = Mode.Color;
 
     public evaluate (time: number, rndRatio: number) {
         switch (this.mode) {
