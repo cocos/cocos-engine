@@ -40,7 +40,10 @@ let recycleAudio = function (audio) {
         audio.off('ended');
         audio.off('stop');
         audio.src = null;
-        _audioPool.push(audio);
+        // In case repeatly recycle audio
+        if (!_audioPool.includes(audio)) {
+            _audioPool.push(audio);
+        }
     }
     else {
         audio.destroy();
