@@ -176,9 +176,10 @@ let MeshRenderer = cc.Class({
     },
 
     ctor () {
-        this._renderDatas = [];
+        this._renderData = null;
         this._boundingBox = null;
-        this._customProperties = new CustomProperties();
+        this._customProperties = new cc.CustomProperties();
+        this._vertexFormat = cc.gfx.VertexFormat.XY_Color;
     },
 
     onEnable () {
@@ -259,10 +260,10 @@ let MeshRenderer = cc.Class({
         let subMeshes = this._mesh && this._mesh.subMeshes;
         if (!subMeshes) return;
 
-        let attr2el = subMeshes[0]._vertexBuffer._format._attr2el;
-        this._customProperties.define('_USE_ATTRIBUTE_COLOR', !!attr2el[gfx.ATTR_COLOR]);
-        this._customProperties.define('_USE_ATTRIBUTE_UV0', !!attr2el[gfx.ATTR_UV0]);
-        this._customProperties.define('_USE_ATTRIBUTE_NORMAL', !!attr2el[gfx.ATTR_NORMAL]);
+        let buffer = subMeshes[0]._vertexBuffer;
+        this._customProperties.define('_USE_ATTRIBUTE_COLOR', !!buffer.getFormat(gfx.ATTR_COLOR));
+        this._customProperties.define('_USE_ATTRIBUTE_UV0', !!buffer.getFormat(gfx.ATTR_UV0));
+        this._customProperties.define('_USE_ATTRIBUTE_NORMAL', !!buffer.getFormat(gfx.ATTR_NORMAL));
     }
 });
 

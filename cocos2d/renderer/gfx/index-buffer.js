@@ -90,6 +90,10 @@ class IndexBuffer {
   get count () {
     return this._numIndices;
   }
+
+  setUsage (usage) {
+    this._usage = usage;
+  }
 }
 
 export default IndexBuffer;

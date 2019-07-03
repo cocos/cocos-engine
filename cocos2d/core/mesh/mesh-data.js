@@ -124,3 +124,42 @@ export let Primitive = cc.Class({
         topology: gfx.PT_TRIANGLES
     }
 });
+
+export function MeshRenderData () {
+    this.vDatas = [];
+    this.uintVDatas = [];
+    this.iDatas = [];
+    this.meshCount = 0;
+}
+
+cc.js.mixin(MeshRenderData.prototype, {
+    clear () {
+        this.vDatas.length = 0;
+        this.iDatas.length = 0;
+        this.uintVDatas.length = 0;
+        this.meshCount = 0;
+
+        this.vertexFormat = null;
+    },
+
+    updateMesh (index, vertices, indices, byteOffset) {
+        let offset = byteOffset || 0;
+        this.vDatas[index] = vertices;
+        this.uintVDatas[index] = new Uint32Array(vertices.buffer, offset, vertices.length);
+        this.iDatas[index] = indices;
+    
+        this.meshCount = this.vDatas.length;
+    },
+
+    setVertices (index, vertices, byteOffset) {
+        let offset = byteOffset || 0;
+        this.vDatas[index] = vertices;
+        this.uintVDatas[index] = new Uint32Array(vertices.buffer, offset, vertices.length);
+
+        this.meshCount = this.vDatas.length;
+    },
+
+    setIndices (index, indices) {
+        this.iDatas[index] = indices;
+    }
+})
