@@ -22,7 +22,7 @@ let TweenAction = cc.Class({
 
             // property may have custom easing or progress function
             let easing, progress;
-            if (value.value && (value.easing || value.progress)) {
+            if (value.value !== undefined && (value.easing || value.progress)) {
                 if (typeof value.easing === 'string') {
                     easing = cc.easing[value.easing];
                     !easing && cc.warnID(1031, value.easing);
