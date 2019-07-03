@@ -49,7 +49,7 @@ public:
 private:
     std::unordered_map<std::string, Property> _properties;
     ValueMap _defines;
-    double _hash;
+    double _hash = 0;
     bool _dirty = false;
 };
 

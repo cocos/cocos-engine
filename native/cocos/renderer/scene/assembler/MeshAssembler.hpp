@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
-
+ 
  http://www.cocos2d-x.org
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,14 +24,23 @@
 
 #pragma once
 
-#include "MemPool.hpp"
-#include "NodeMemPool.hpp"
-#include "NodeProxy.hpp"
-#include "ModelBatcher.hpp"
-#include "RenderFlow.hpp"
-#include "MeshBuffer.hpp"
+#include "CustomAssembler.hpp"
+#include "../../renderer/CustomProperties.hpp"
+#include "../../renderer/Mesh.hpp"
+RENDERER_BEGIN
 
-#include "assembler/Assembler.hpp"
-#include "assembler/MaskAssembler.hpp"
-#include "assembler/TiledMapAssembler.hpp"
-#include "assembler/MeshAssembler.hpp"
+class MeshAssembler : public CustomAssembler
+{
+public:
+    MeshAssembler();
+    virtual ~MeshAssembler();
+    virtual void handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene) override;
+    void setCustomProperties(CustomProperties* customProp) { _customProp = customProp;};
+    inline void setMesh(Mesh* mesh) { _mesh = mesh; };
+private:
+    ModelBatcher* _batcher = nullptr;
+    CustomProperties* _customProp = nullptr;
+    Mesh* _mesh = nullptr;
+};
+
+RENDERER_END

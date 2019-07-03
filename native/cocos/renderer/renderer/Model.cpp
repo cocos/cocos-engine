@@ -26,6 +26,7 @@
 #include "Effect.h"
 #include "InputAssembler.h"
 #include "../scene/NodeProxy.hpp"
+#include "../gfx/VertexBuffer.h"
 
 RENDERER_BEGIN
 

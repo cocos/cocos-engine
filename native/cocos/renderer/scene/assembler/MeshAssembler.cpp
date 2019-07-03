@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
-
+ 
  http://www.cocos2d-x.org
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,16 +22,41 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#pragma once
+#include "MeshAssembler.hpp"
+#include "../ModelBatcher.hpp"
 
-#include "MemPool.hpp"
-#include "NodeMemPool.hpp"
-#include "NodeProxy.hpp"
-#include "ModelBatcher.hpp"
-#include "RenderFlow.hpp"
-#include "MeshBuffer.hpp"
+RENDERER_BEGIN
 
-#include "assembler/Assembler.hpp"
-#include "assembler/MaskAssembler.hpp"
-#include "assembler/TiledMapAssembler.hpp"
-#include "assembler/MeshAssembler.hpp"
+MeshAssembler::MeshAssembler()
+{
+    
+}
+
+MeshAssembler::~MeshAssembler()
+{
+    
+}
+
+void MeshAssembler::handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene)
+{
+    _batcher = batcher;
+    _batcher->flush();
+    _batcher->setCustomProperties(_customProp);
+    _mesh->uploadData();
+    
+    Effect* effect = getEffect(0);
+    std::unordered_map<std::string, Effect::Property> p = effect->getProperties();
+    
+    _batcher->setCurrentEffect(getEffect(0));
+    for (size_t i = 0, len = _mesh->getMeshCount(); i < len; i++)
+    {
+        Mesh::MeshData* data = _mesh->getMeshData(i);
+        
+        updateIABuffer(i, data->vb, data->ib);
+        updateIARange(i, 0, data->ib->getBytes() / data->ib->getBytesPerIndex());
+    }
+    
+    CustomAssembler::handle(node, batcher, scene);
+}
+
+RENDERER_END
