@@ -177,7 +177,7 @@ export default class Touch {
             out = new Vec2();
         }
 
-        this._point.sub(this._prevPoint, out);
+        this._point.subtract(out, this._prevPoint);
         return out;
     }
 
@@ -190,7 +190,7 @@ export default class Touch {
             out = new Vec2();
         }
 
-        this._point.sub(this._prevPoint, _vec2);
+        this._point.subtract(_vec2, this._prevPoint);
         vec2.set(out, cc.view.getScaleX(), cc.view.getScaleY());
         vec2.divide(out, _vec2, out);
         return out;

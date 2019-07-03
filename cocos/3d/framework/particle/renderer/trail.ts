@@ -541,7 +541,7 @@ export default class TrailModule {
     private _updateTrailElement (module: any, trailEle: ITrailElement, p: Particle, dt: number): boolean {
         trailEle.lifetime += dt;
         if (module.colorFromParticle) {
-            Color.mul(trailEle.color, p.color, module.colorOvertime.evaluate(1.0 - p.remainingLifetime / p.startLifetime, 1));
+            p.color.multiply(trailEle.color, module.colorOvertime.evaluate(1.0 - p.remainingLifetime / p.startLifetime, 1));
         } else {
             trailEle.color.set(module.colorOvertime.evaluate(1.0 - p.remainingLifetime / p.startLifetime, 1));
         }
@@ -564,7 +564,7 @@ export default class TrailModule {
         this._vbF32[this.vbOffset++] = trailSeg.velocity.x;
         this._vbF32[this.vbOffset++] = trailSeg.velocity.y;
         this._vbF32[this.vbOffset++] = trailSeg.velocity.z;
-        Color.mul(_temp_color, trailSeg.color, colorModifer);
+        trailSeg.color.multiply(_temp_color, colorModifer);
         this._vbUint32[this.vbOffset++] = _temp_color._val;
         this._vbF32[this.vbOffset++] = trailSeg.position.x;
         this._vbF32[this.vbOffset++] = trailSeg.position.y;

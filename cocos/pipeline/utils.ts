@@ -34,7 +34,7 @@ export function WorldNode3DToLocalNodeUI (mainCamera: CameraComponent, wpos: Vec
 
     cmp.convertToNodeSpaceAR(_temp_vec3_1, out);
     const targetPos = uiNode.getPosition();
-    out.addSelf(targetPos);
+    out.add(out, targetPos);
 
     return out;
 }

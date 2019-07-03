@@ -75,7 +75,6 @@ export default class AffineTransform {
      * @param out 出口矩阵。
      * @param t1 左矩阵。
      * @param t2 右矩阵。
-     * @returns `out`
      */
     public static concat (out: AffineTransform, t1: AffineTransform, t2: AffineTransform) {
         const a = t1.a;
@@ -90,14 +89,12 @@ export default class AffineTransform {
         out.d = c * t2.b + d * t2.d;
         out.tx = tx * t2.a + ty * t2.c + t2.tx;
         out.ty = tx * t2.b + ty * t2.d + t2.ty;
-        return out;
     }
 
     /**
      * 将矩阵求逆的结果赋值给出口矩阵。
      * @param out 出口矩阵。
      * @param t 求逆的矩阵。
-     * @returns `out`
      */
     public static invert (out: AffineTransform, t: AffineTransform) {
         const { a, b, c, d } = t;
@@ -110,14 +107,12 @@ export default class AffineTransform {
         out.d = determinant * a;
         out.tx = determinant * (c * ty - d * tx);
         out.ty = determinant * (b * tx - a * ty);
-        return out;
     }
 
     /**
      * 将四维矩阵转换为二维仿射变换矩阵并赋值给出口矩阵。
      * @param out 出口矩阵。
      * @param mat 四维矩阵。
-     * @returns `out`
      */
     public static fromMat4 (out: AffineTransform, mat: Mat4) {
         out.a = mat.m00;
@@ -126,7 +121,6 @@ export default class AffineTransform {
         out.d = mat.m05;
         out.tx = mat.m12;
         out.ty = mat.m13;
-        return out;
     }
 
     /**
@@ -134,9 +128,8 @@ export default class AffineTransform {
      * @param out 出口向量。
      * @param point 应用变换的向量。
      * @param t 二维仿射变换矩阵。
-     * @returns `out`
      */
-    public static transformVec2 (out: Vec2, point: Vec2, t: AffineTransform): Vec2;
+    public static transformVec2 (out: Vec2, point: Vec2, t: AffineTransform);
 
     /**
      * 应用二维仿射变换矩阵到二维向量上，并将结果赋值给出口向量。
@@ -144,9 +137,8 @@ export default class AffineTransform {
      * @param x 应用变换的向量的 x 分量。
      * @param y 应用变换的向量的 y 分量。
      * @param t 二维仿射变换矩阵。
-     * @returns `out`
      */
-    public static transformVec2 (out: Vec2, x: number, y: number, t: AffineTransform): Vec2;
+    public static transformVec2 (out: Vec2, x: number, y: number, t: AffineTransform);
 
     public static transformVec2 (out: Vec2, point: any, transOrY: any, t?: any) {
         let x;
@@ -161,7 +153,6 @@ export default class AffineTransform {
         }
         out.x = t.a * x + t.c * y + t.tx;
         out.y = t.b * x + t.d * y + t.ty;
-        return out;
     }
 
     /**
@@ -169,12 +160,10 @@ export default class AffineTransform {
      * @param out 出口尺寸。
      * @param size 应用变换的尺寸。
      * @param t 二维仿射变换矩阵。
-     * @returns `out`
      */
     public static transformSize (out: Size, size: Size, t: AffineTransform) {
         out.width = t.a * size.width + t.c * size.height;
         out.height = t.b * size.width + t.d * size.height;
-        return out;
     }
 
     /**
@@ -182,7 +171,6 @@ export default class AffineTransform {
      * @param out 出口矩形。
      * @param rect 应用变换的矩形。
      * @param t 二维仿射变换矩阵。
-     * @returns `out`
      */
     public static transformRect (out: Rect, rect: Rect, t: AffineTransform) {
         const ol = rect.x;
@@ -207,7 +195,6 @@ export default class AffineTransform {
         out.y = minY;
         out.width = maxX - minX;
         out.height = maxY - minY;
-        return out;
     }
 
     /**

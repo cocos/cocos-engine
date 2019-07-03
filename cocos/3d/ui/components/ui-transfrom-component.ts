@@ -412,7 +412,8 @@ export class UITransformComponent extends Component {
             -this._anchorPoint.y * height,
             width,
             height);
-        return rect.transformMat4(rect, _matrix);
+        rect.transformMat4(rect, _matrix);
+        return rect;
     }
 
     /**

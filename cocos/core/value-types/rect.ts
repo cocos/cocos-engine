@@ -129,23 +129,25 @@ export default class Rect extends ValueType {
      * @param v2 指定的点。
      * @returns 目标矩形。
      */
-    public static fromMinMax (v1: Vec2, v2: Vec2) {
+    public static fromMinMax (out: Rect, v1: Vec2, v2: Vec2) {
         const minX = Math.min(v1.x, v2.x);
         const minY = Math.min(v1.y, v2.y);
         const maxX = Math.max(v1.x, v2.x);
         const maxY = Math.max(v1.y, v2.y);
-        return new Rect(minX, minY, maxX - minX, maxY - minY);
+        out.x = minX;
+        out.y = minY;
+        out.width = maxX - minX;
+        out.height = maxY - minY;
     }
 
     /**
      * 根据指定的插值比率，从当前矩形到目标矩形之间做插值。
+     * @param out 本方法将插值结果赋值给此参数
      * @param from 起始矩形。
      * @param to 目标矩形。
      * @param ratio 插值比率，范围为 [0,1]。
-     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
-     * @returns 当前矩形最小值到目标矩形最小值之间，以及当前矩阵尺寸到目标矩形尺寸之间，按指定插值比率进行线性插值构成的矩形。
      */
-    public static lerp (from: Rect, to: Rect, ratio: number, out: Rect) {
+    public static lerp (out: Rect, from: Rect, to: Rect, ratio: number) {
         const x = from.x;
         const y = from.y;
         const width = from.width;
@@ -154,7 +156,6 @@ export default class Rect extends ValueType {
         out.y = y + (to.y - y) * ratio;
         out.width = width + (to.width - width) * ratio;
         out.height = height + (to.height - height) * ratio;
-        return out;
     }
 
     /**
@@ -239,13 +240,13 @@ export default class Rect extends ValueType {
     }
 
     /**
-     * 同lerp，但会对自身做lerp。
+     * 根据指定的插值比率，从当前矩形到目标矩形之间做插值。
+     * @param out 出口矩形
      * @param to 目标矩形。
      * @param ratio 插值比率，范围为 [0,1]。
-     * @returns 当前矩形最小值到目标矩形最小值之间，以及当前矩阵尺寸到目标矩形尺寸之间，按指定插值比率进行线性插值构成的矩形。
      */
-    public lerpSelf (to: Rect, ratio: number) {
-        return Rect.lerp(this, to, ratio, this);
+    public lerp (out: Rect, to: Rect, ratio: number) {
+        Rect.lerp(out, this, to, ratio);
     }
 
     /**
@@ -273,7 +274,6 @@ export default class Rect extends ValueType {
      * 计算当前矩形与指定矩形重叠部分的矩形，将其赋值给出口矩形。
      * @param out 出口矩形。
      * @param other 指定的矩形。
-     * @returns `out`
      */
     public intersection (out: Rect, other: Rect) {
         const axMin = this.x;
@@ -288,7 +288,6 @@ export default class Rect extends ValueType {
         out.y = Math.max(ayMin, byMin);
         out.width = Math.min(axMax, bxMax) - out.x;
         out.height = Math.min(ayMax, byMax) - out.y;
-        return out;
     }
 
     /**
@@ -319,7 +318,6 @@ export default class Rect extends ValueType {
      * 创建同时包含当前矩形和指定矩形的最小矩形，将其赋值给出口矩形。
      * @param out 出口矩形。
      * @param other 指定的矩形。
-     * @returns `out`
      */
     public union (out: Rect, other: Rect) {
         const ax = this.x;
@@ -334,7 +332,6 @@ export default class Rect extends ValueType {
         out.y = Math.min(ay, by);
         out.width = Math.max(ax + aw, bx + bw) - out.x;
         out.height = Math.max(ay + ah, by + bh) - out.y;
-        return out;
     }
 
     /**
@@ -344,7 +341,6 @@ export default class Rect extends ValueType {
      * 并将如此构成的新矩形赋值给出口矩形。
      * @param out 出口矩形。
      * @param matrix 变换矩阵。
-     * @returns `out`
      */
     public transformMat4 (out: Rect, mat: Mat4) {
         const ol = this.x;
@@ -369,7 +365,6 @@ export default class Rect extends ValueType {
         out.y = minY;
         out.width = maxX - minX;
         out.height = maxY - minY;
-        return out;
     }
 }
 

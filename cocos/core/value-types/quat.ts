@@ -43,11 +43,9 @@ export default class Quat extends ValueType {
      * @param to 目标四元数。
      * @param ratio 插值比率，范围为 [0,1]。
      * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
-     * @returns 当前四元数到目标四元数之间的**球形插值**结果。
      */
-    public static lerp (from: Quat, to: Quat, ratio: number, out: Quat) {
+    public static lerp (out: Quat, from: Quat, to: Quat, ratio: number) {
         xquat.slerp(out, from, to, ratio);
-        return out;
     }
 
     /**
@@ -132,23 +130,19 @@ export default class Quat extends ValueType {
     /**
      * 将当前四元数转化为欧拉角（x-y-z）并赋值给出口向量。
      * @param out [out] 出口向量，当未指定时将创建为新的向量。
-     * @returns `out`
      */
-    public getEulerAngles (out?: Vec3) {
-        out = out || new Vec3();
-        return xquat.toEuler(out, this);
+    public getEulerAngles (out: Vec3) {
+        xquat.toEuler(out, this);
     }
 
     /**
-     * 同lerp，但会对自身做lerp。
+     * 根据指定的插值比率，从当前四元数到目标四元数之间做插值。
+     * @param out 出口四元数
      * @param to 目标四元数。
      * @param ratio 插值比率，范围为 [0,1]。
-     * @returns 当前四元数到目标四元数之间的**球形插值**结果。
      */
-    public lerpSelf (to: Quat, ratio: number) {
-        const out = new Quat();
+    public lerp (out: Quat, to: Quat, ratio: number) {
         xquat.slerp(out, this, to, ratio);
-        return out;
     }
 }
 
