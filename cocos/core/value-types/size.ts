@@ -121,12 +121,11 @@ export default class Size extends ValueType {
 
     /**
      * 根据指定的插值比率，从当前尺寸到目标尺寸之间做插值。
-     * @param out 出口尺寸
      * @param to 目标尺寸。
      * @param ratio 插值比率，范围为 [0,1]。
      */
-    public lerp (out: Size, to: Size, ratio: number) {
-        Size.lerp(out, this, to, ratio);
+    public lerp (to: Size, ratio: number) {
+        Size.lerp(this, this, to, ratio);
     }
 
     /**

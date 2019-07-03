@@ -146,77 +146,70 @@ export default class Vec3 extends ValueType {
 
     /**
      * 根据指定的插值比率，从当前向量到目标向量之间做插值。
-     * @param out 出口向量
      * @param to 目标向量。
      * @param ratio 插值比率，范围为 [0,1]。
      */
-    public lerp (out: Vec3, to: Vec3, ratio: number) {
-        vec3.lerp(out, this, to, ratio);
+    public lerp (to: Vec3, ratio: number) {
+        vec3.lerp(this, this, to, ratio);
     }
 
     /**
-     * 向量加法。将当前向量与指定向量的相加结果赋值给出口向量。
+     * 向量加法。将当前向量与指定向量的相加
      * @param other 指定的向量。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public add (out: Vec3, other: Vec3) {
-        out.x = this.x + other.x;
-        out.y = this.y + other.y;
-        out.z = this.z + other.z;
+    public add (other: Vec3) {
+        this.x = this.x + other.x;
+        this.y = this.y + other.y;
+        this.z = this.z + other.z;
     }
 
     /**
-     * 向量减法。将当前向量减去指定向量的结果赋值给出口向量。
+     * 向量减法。将当前向量减去指定向量的结果。
      * @param other 减数向量。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public subtract (out: Vec3, other: Vec3) {
-        out.x = this.x - other.x;
-        out.y = this.y - other.y;
-        out.z = this.z - other.z;
+    public subtract (other: Vec3) {
+        this.x = this.x - other.x;
+        this.y = this.y - other.y;
+        this.z = this.z - other.z;
     }
 
     /**
-     * 向量数乘。将当前向量数乘指定标量的结果赋值给出口向量。
+     * 向量数乘。将当前向量数乘指定标量
      * @param scalar 标量乘数。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public multiply (out: Vec3, scalar: number) {
-        out.x = this.x * scalar;
-        out.y = this.y * scalar;
-        out.z = this.z * scalar;
+    public multiply (scalar: number) {
+        this.x = this.x * scalar;
+        this.y = this.y * scalar;
+        this.z = this.z * scalar;
     }
 
     /**
      * 向量乘法。将当前向量乘以与指定向量的结果赋值给当前向量。
      * @param other 指定的向量。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public scale (out: Vec3, other: Vec3) {
-        out.x = this.x * other.x;
-        out.y = this.y * other.y;
-        out.z = this.z * other.z;
+    public scale (other: Vec3) {
+        this.x = this.x * other.x;
+        this.y = this.y * other.y;
+        this.z = this.z * other.z;
     }
 
     /**
-     * 将当前向量的各个分量除以指定标量的结果赋值给出口向量。相当于 `this.mul(1 / scalar, out)`。
+     * 将当前向量的各个分量除以指定标量。相当于 `this.multiply(1 / scalar)`。
      * @param scalar 标量除数。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public divide (out: Vec3, scalar: number) {
-        out.x = this.x / scalar;
-        out.y = this.y / scalar;
-        out.z = this.z / scalar;
+    public divide (scalar: number) {
+        this.x = this.x / scalar;
+        this.y = this.y / scalar;
+        this.z = this.z / scalar;
     }
 
     /**
-     * 将当前向量的各个分量取反的结果赋值给出口向量。
-     * @param out 出口向量，当未指定时将创建为新的向量。
+     * 将当前向量的各个分量取反
      */
-    public negative (out: Vec3) {
-        out.x = -this.x;
-        out.y = -this.y;
-        out.z = -this.z;
+    public negative () {
+        this.x = -this.x;
+        this.y = -this.y;
+        this.z = -this.z;
     }
 
     /**
@@ -241,12 +234,11 @@ export default class Vec3 extends ValueType {
     }
 
     /**
-     * 向量叉乘。将当前向量左叉乘指定向量的结果赋值给出口向量。
-     * @param out 出口向量。
+     * 向量叉乘。将当前向量左叉乘指定向量
      * @param other 指定的向量。
      */
-    public cross (out: Vec3, other: Vec3) {
-        vec3.cross(out, this, other);
+    public cross (other: Vec3) {
+        vec3.cross(this, this, other);
     }
 
     /**
@@ -266,21 +258,19 @@ export default class Vec3 extends ValueType {
     }
 
     /**
-     * 将当前向量归一化的结果赋值给出口向量。
-     * @param out 出口向量，当未指定时将创建为新的向量。
+     * 将当前向量归一化
      */
-    public normalize (out: Vec3) {
-        vec3.normalize(out, this);
+    public normalize () {
+        vec3.normalize(this, this);
     }
 
     /**
      * 将当前向量视为 w 分量为 1 的四维向量，
-     * 应用四维矩阵变换到当前矩阵，结果的 x、y、z 分量赋值给出口向量。
+     * 应用四维矩阵变换到当前矩阵
      * @param matrix 变换矩阵。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public transformMat4 (out: Vec3, matrix: Mat4) {
-        vec3.transformMat4(out, this, matrix);
+    public transformMat4 (matrix: Mat4) {
+        vec3.transformMat4(this, this, matrix);
     }
 }
 

@@ -149,12 +149,11 @@ export default class Vec4 extends ValueType {
 
     /**
      * 根据指定的插值比率，从当前向量到目标向量之间做插值。
-     * @param out 出口向量
      * @param to 目标向量。
      * @param ratio 插值比率，范围为 [0,1]。
      */
-    public lerp (out: Vec4, to: Vec4, ratio: number) {
-        vec4.lerp(out, this, to, ratio);
+    public lerp (to: Vec4, ratio: number) {
+        vec4.lerp(this, this, to, ratio);
     }
 
     /**
@@ -179,74 +178,68 @@ export default class Vec4 extends ValueType {
     }
 
     /**
-     * 向量加法。将当前向量与指定向量的相加结果赋值给出口向量。
+     * 向量加法。将当前向量与指定向量的相加
      * @param other 指定的向量。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public add (out: Vec4, other: Vec4) {
-        out.x = this.x + other.x;
-        out.y = this.y + other.y;
-        out.z = this.z + other.z;
-        out.w = this.w + other.w;
+    public add (other: Vec4) {
+        this.x = this.x + other.x;
+        this.y = this.y + other.y;
+        this.z = this.z + other.z;
+        this.w = this.w + other.w;
     }
 
     /**
-     * 向量减法。将当前向量减去指定向量的结果赋值给出口向量。
+     * 向量减法。将当前向量减去指定向量
      * @param other 减数向量。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public subtract (out: Vec4, other: Vec4) {
-        out.x = this.x - other.x;
-        out.y = this.y - other.y;
-        out.z = this.z - other.z;
-        out.w = this.w - other.w;
+    public subtract (other: Vec4) {
+        this.x = this.x - other.x;
+        this.y = this.y - other.y;
+        this.z = this.z - other.z;
+        this.w = this.w - other.w;
     }
 
     /**
-     * 向量数乘。将当前向量数乘指定标量的结果赋值给出口向量。
+     * 向量数乘。将当前向量数乘指定标量
      * @param scalar 标量乘数。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public multiply (out: Vec4, scalar: number) {
-        out.x = this.x * scalar;
-        out.y = this.y * scalar;
-        out.z = this.z * scalar;
-        out.w = this.w * scalar;
+    public multiply (scalar: number) {
+        this.x = this.x * scalar;
+        this.y = this.y * scalar;
+        this.z = this.z * scalar;
+        this.w = this.w * scalar;
     }
 
     /**
-     * 向量乘法。将当前向量乘以与指定向量的结果赋值给当前向量。
+     * 向量乘法。将当前向量乘以与指定向量
      * @param other 指定的向量。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public scale (out: Vec4, other: Vec4) {
-        out.x = this.x * other.x;
-        out.y = this.y * other.y;
-        out.z = this.z * other.z;
-        out.w = this.w * other.w;
+    public scale (other: Vec4) {
+        this.x = this.x * other.x;
+        this.y = this.y * other.y;
+        this.z = this.z * other.z;
+        this.w = this.w * other.w;
     }
 
     /**
-     * 将当前向量的各个分量除以指定标量的结果赋值给出口向量。相当于 `this.mul(1 / scalar, out)`。
+     * 将当前向量的各个分量除以指定标量。相当于 `this.mul(1 / scalar, out)`。
      * @param scalar 标量除数。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public divide (out: Vec4, scalar: number) {
-        out.x = this.x / scalar;
-        out.y = this.y / scalar;
-        out.z = this.z / scalar;
-        out.w = this.w / scalar;
+    public divide (scalar: number) {
+        this.x = this.x / scalar;
+        this.y = this.y / scalar;
+        this.z = this.z / scalar;
+        this.w = this.w / scalar;
     }
 
     /**
-     * 将当前向量的各个分量取反的结果赋值给出口向量。
-     * @param out 出口向量，当未指定时将创建为新的向量。
+     * 将当前向量的各个分量取反
      */
-    public negative (out: Vec4) {
-        out.x = -this.x;
-        out.y = -this.y;
-        out.z = -this.z;
-        out.w = -this.w;
+    public negative () {
+        this.x = -this.x;
+        this.y = -this.y;
+        this.z = -this.z;
+        this.w = -this.w;
     }
 
     /**
@@ -259,12 +252,11 @@ export default class Vec4 extends ValueType {
     }
 
     /**
-     * 向量叉乘。视当前向量和指定向量为三维向量（舍弃 w 分量），将当前向量左叉乘指定向量的结果赋值给出口向量。
+     * 向量叉乘。视当前向量和指定向量为三维向量（舍弃 w 分量），将当前向量左叉乘指定向量
      * @param other 指定的向量。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public cross (out: Vec4, vector: Vec4) {
-        vec3.cross(out, this, vector);
+    public cross (vector: Vec4) {
+        vec3.cross(this, this, vector);
     }
 
     /**
@@ -286,20 +278,18 @@ export default class Vec4 extends ValueType {
     }
 
     /**
-     * 将当前向量归一化的结果赋值给出口向量。
-     * @param out 出口向量，当未指定时将创建为新的向量。
+     * 将当前向量归一化
      */
-    public normalize (out: Vec4) {
-        vec4.normalize(out, this);
+    public normalize () {
+        vec4.normalize(this, this);
     }
 
     /**
-     * 应用四维矩阵变换到当前矩阵，结果将赋值给出口向量。
+     * 应用四维矩阵变换到当前矩阵
      * @param matrix 变换矩阵。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public transformMat4 (out: Vec4, matrix: Mat4) {
-        vec4.transformMat4(out, this, matrix);
+    public transformMat4 (matrix: Mat4) {
+        vec4.transformMat4(this, this, matrix);
     }
 }
 

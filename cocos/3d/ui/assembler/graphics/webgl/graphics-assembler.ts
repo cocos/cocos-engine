@@ -340,9 +340,9 @@ export const graphicsAssembler: IAssembler = {
 
             if (!loop) {
                 // Add cap
-                const dPos = new Point(0, 0);
-                p1.subtract(dPos, p0);
-                dPos.normalize(dPos);
+                const dPos = new Point(p1.x, p1.y);
+                dPos.subtract(p0);
+                dPos.normalize();
 
                 const dx = dPos.x;
                 const dy = dPos.y;
@@ -386,9 +386,9 @@ export const graphicsAssembler: IAssembler = {
                 meshbuffer.vertexStart++;
             } else {
                 // Add cap
-                const dPos = new Point(0, 0);
-                p1.subtract(dPos, p0);
-                dPos.normalize(dPos);
+                const dPos = new Point(p1.x, p1.y);
+                dPos.subtract(p0);
+                dPos.normalize();
 
                 const dx = dPos.x;
                 const dy = dPos.y;
@@ -598,11 +598,11 @@ export const graphicsAssembler: IAssembler = {
 
             for (let j = 0, size = pts.length; j < size; j++) {
                 // Calculate segment direction and length
-                const dPos = new Point(0, 0);
-                p1.subtract(dPos, p0);
+                const dPos = new Point(p1.x, p1.y);
+                dPos.subtract(p0);
                 p0.len = dPos.mag();
                 if (dPos.x || dPos.y) {
-                    dPos.normalize(dPos);
+                    dPos.normalize();
                 }
                 p0.dx = dPos.x;
                 p0.dy = dPos.y;

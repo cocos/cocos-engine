@@ -373,8 +373,8 @@ function adjustWidgetToAllowMovingInEditor (this: WidgetComponent, eventType: Sy
     const self = this;
     const newPos = self.node.getPosition();
     const oldPos = this._lastPos;
-    const delta = new Vec3();
-    newPos.subtract(delta, oldPos);
+    const delta = new Vec3(newPos);
+    delta.subtract(oldPos);
     oldPos.set(newPos);
 
     let target = self.node.parent!;
