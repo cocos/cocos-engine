@@ -280,7 +280,7 @@ export class CameraComponent extends Component {
      * set to 1 to keep the same with the canvas size
      * @zh 相机内部缓冲尺寸的缩放值, 1 为与 canvas 尺寸相同。
      */
-    @property
+    @property({ visible: false })
     get screenScale () {
         return this._screenScale;
     }
@@ -294,7 +294,7 @@ export class CameraComponent extends Component {
      * @en The target display for this Camera.
      * @zh 相机的目标屏幕序号。
      */
-    @property
+    @property({ visible: false })
     get targetDisplay () {
         return this._targetDisplay;
     }
