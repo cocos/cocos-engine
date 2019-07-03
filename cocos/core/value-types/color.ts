@@ -279,12 +279,11 @@ export default class Color extends ValueType {
 
     /**
      * 根据指定的插值比率，从当前颜色到目标颜色之间做插值。
-     * @param out 出口颜色
      * @param to 目标颜色。
      * @param ratio 插值比率，范围为 [0,1]。
      */
-    public lerp (out: Color, to: Color, ratio: number) {
-        Color.lerp(out, this, to, ratio);
+    public lerp (to: Color, ratio: number) {
+        Color.lerp(this, this, to, ratio);
     }
 
     /**
@@ -508,16 +507,15 @@ export default class Color extends ValueType {
     }
 
     /**
-     * 将当前颜色乘以与指定颜色的结果赋值给出口颜色。
-     * @param out 出口颜色，当未指定时将创建为新的颜色。
+     * 将当前颜色乘以与指定颜色
      * @param other 指定的颜色。
      */
-    public multiply (out: Color, other: Color) {
+    public multiply (other: Color) {
         const r = ((this._val & 0x000000ff) * other.r) >> 8;
         const g = ((this._val & 0x0000ff00) * other.g) >> 8;
         const b = ((this._val & 0x00ff0000) * other.b) >> 8;
         const a = ((this._val & 0xff000000) >>> 8) * other.a;
-        out._val = (a & 0xff000000) | (b & 0x00ff0000) | (g & 0x0000ff00) | (r & 0x000000ff);
+        this._val = (a & 0xff000000) | (b & 0x00ff0000) | (g & 0x0000ff00) | (r & 0x000000ff);
     }
 
     public _set_r_unsafe (red) {

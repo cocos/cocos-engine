@@ -166,13 +166,12 @@ export default class Vec2 extends ValueType {
 
     /**
      * 根据指定的插值比率，从当前向量到目标向量之间做插值。
-     * @param out 出口向量
      * @param to 目标向量。
      * @param ratio 插值比率，范围为 [0,1]。
      */
-    public lerp (out: Vec2, to: Vec2, ratio: number) {
-        out.x = this.x + (to.x - this.x) * ratio;
-        out.y = this.y + (to.y - this.y) * ratio;
+    public lerp (to: Vec2, ratio: number) {
+        this.x = this.x + (to.x - this.x) * ratio;
+        this.y = this.y + (to.y - this.y) * ratio;
     }
 
     /**
@@ -187,62 +186,56 @@ export default class Vec2 extends ValueType {
     }
 
     /**
-     * 向量加法。将当前向量与指定向量的相加结果赋值给出口向量。
+     * 向量加法。将当前向量与指定向量的相加
      * @param other 指定的向量。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public add (out: Vec2, rhs: Vec2) {
-        out.x = this.x + rhs.x;
-        out.y = this.y + rhs.y;
+    public add (rhs: Vec2) {
+        this.x = this.x + rhs.x;
+        this.y = this.y + rhs.y;
     }
 
     /**
-     * 向量减法。将当前向量减去指定向量的结果赋值给出口向量。
+     * 向量减法。将当前向量减去指定向量
      * @param other 减数向量。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public subtract (out: Vec2, rhs: Vec2) {
-        out.x = this.x - rhs.x;
-        out.y = this.y - rhs.y;
+    public subtract (other: Vec2) {
+        this.x = this.x - other.x;
+        this.y = this.y - other.y;
     }
 
     /**
-     * 向量数乘。将当前向量数乘指定标量的结果赋值给出口向量。
+     * 向量数乘。将当前向量数乘指定标量
      * @param scalar 标量乘数。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public multiply (out: Vec2, scalar: number) {
-        out.x = this.x * scalar;
-        out.y = this.y * scalar;
+    public multiply (scalar: number) {
+        this.x = this.x * scalar;
+        this.y = this.y * scalar;
     }
 
     /**
      * 向量乘法。将当前向量乘以与指定向量的结果赋值给当前向量。
      * @param other 指定的向量。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public scale (out: Vec2, rhs: Vec2) {
-        out.x = this.x * rhs.x;
-        out.y = this.y * rhs.y;
+    public scale (other: Vec2) {
+        this.x = this.x * other.x;
+        this.y = this.y * other.y;
     }
 
     /**
-     * 将当前向量的各个分量除以指定标量的结果赋值给出口向量。相当于 `this.mul(1 / scalar, out)`。
+     * 将当前向量的各个分量除以指定标量。相当于 `this.multiply(1 / scalar)`。
      * @param scalar 标量除数。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public divide (out: Vec2, scalar: number) {
-        out.x = this.x / scalar;
-        out.y = this.y / scalar;
+    public divide (scalar: number) {
+        this.x = this.x / scalar;
+        this.y = this.y / scalar;
     }
 
     /**
-     * 将当前向量的各个分量取反的结果赋值给出口向量。
-     * @param out 出口向量，当未指定时将创建为新的向量。
+     * 将当前向量的各个分量取反
      */
-    public negative (out: Vec2) {
-        out.x = -this.x;
-        out.y = -this.y;
+    public negative () {
+        this.x = -this.x;
+        this.y = -this.y;
     }
 
     /**
@@ -280,11 +273,10 @@ export default class Vec2 extends ValueType {
     }
 
     /**
-     * 将当前向量归一化的结果赋值给出口向量。
-     * @param out 出口向量，当未指定时将创建为新的向量。
+     * 将当前向量归一化。
      */
-    public normalize (out: Vec2) {
-        vec2.normalize(out, this);
+    public normalize () {
+        vec2.normalize(this, this);
     }
 
     /**
@@ -320,38 +312,36 @@ export default class Vec2 extends ValueType {
 
 
     /**
-     * 将当前向量的旋转结果赋值给出口向量。
+     * 将当前向量的旋转
      * @param radians 旋转角度（弧度制）。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public rotate (out: Vec2, radians: number) {
-        out.x = this.x;
-        out.y = this.y;
+    public rotate (radians: number) {
+        let x = this.x;
+        let y = this.y;
 
         const sin = Math.sin(radians);
         const cos = Math.cos(radians);
-        const x = out.x;
-        out.x = cos * x - sin * out.y;
-        out.y = sin * x + cos * out.y;
+        this.x = cos * x - sin * y;
+        this.y = sin * x + cos * y;
     }
 
     /**
      * 计算当前向量在指定向量上的投影向量。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      * @param other 指定的向量。
      */
-    public project (out: Vec2, other: Vec2) {
-        other.multiply(out, this.dot(other) / other.dot(other));
+    public project (other: Vec2) {
+        let scalar = this.dot(other) / other.dot(other);
+        this.x = other.x * scalar;
+        this.y = other.y * scalar;
     }
 
     /**
      * 将当前向量视为 z 分量为 0、w 分量为 1 的四维向量，
-     * 应用四维矩阵变换到当前矩阵，结果的 x、y 分量赋值给出口向量。
+     * 应用四维矩阵变换到当前矩阵
      * @param matrix 变换矩阵。
-     * @param out 出口向量，当未指定时将创建为新的向量。
      */
-    public transformMat4 (out: Vec2, matrix: Mat4) {
-        vec2.transformMat4(out, this, matrix);
+    public transformMat4 (matrix: Mat4) {
+        vec2.transformMat4(this, this, matrix);
     }
 }
 

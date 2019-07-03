@@ -412,7 +412,7 @@ export class UITransformComponent extends Component {
             -this._anchorPoint.y * height,
             width,
             height);
-        rect.transformMat4(rect, _matrix);
+        rect.transformMat4(_matrix);
         return rect;
     }
 
@@ -454,7 +454,7 @@ export class UITransformComponent extends Component {
             height);
 
         vmath.mat4.multiply(_worldMatrix, parentMat, _matrix);
-        rect.transformMat4(rect, _worldMatrix);
+        rect.transformMat4(_worldMatrix);
 
         // query child's BoundingBox
         if (!this.node.children) {
@@ -468,7 +468,7 @@ export class UITransformComponent extends Component {
                 if (uiTransform) {
                     const childRect = uiTransform.getBoundingBoxTo(parentMat);
                     if (childRect) {
-                        rect.union(rect, childRect);
+                        Rect.union(rect, rect, childRect);
                     }
                 }
             }
