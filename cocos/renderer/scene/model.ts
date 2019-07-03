@@ -205,7 +205,8 @@ export class Model {
 
     public updateTransform () {
         const node = this._transform;
-        if (!node.hasChanged) { return; }
+        // @ts-ignore
+        if (!node.hasChanged && !node._dirty) { return; }
         node.updateWorldTransformFull();
         if (!this._modelBounds || !this._worldBounds) { return; }
         // @ts-ignore
