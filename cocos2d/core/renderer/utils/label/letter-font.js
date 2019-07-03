@@ -85,7 +85,7 @@ LetterTexture.prototype = {
         this._context.font = this._labelInfo.fontDesc;
         let width = textUtils.safeMeasureText(this._context, this._char);
         this._width = parseFloat(width.toFixed(2)) + this._labelInfo.margin * 2;
-        this._height = this._labelInfo.fontSize;
+        this._height = this._labelInfo.fontSize + this._labelInfo.margin * 2;
         
         if (this._canvas.width !== this._width || CC_QQPLAY) {
             this._canvas.width = this._width;
@@ -402,7 +402,7 @@ module.exports = {
         }
 
         _contentSize.width = _comp.node._contentSize.width + _labelInfo.margin * 2;
-        _contentSize.height = _comp.node._contentSize.height;
+        _contentSize.height = _comp.node._contentSize.height + _labelInfo.margin * 2;
 
         _labelInfo.lineHeight = _lineHeight;
         _labelInfo.fontSize = _fontSize;
@@ -558,7 +558,7 @@ module.exports = {
                     letterPosition.x = letterX;
                 }
 
-                letterPosition.y = nextTokenY - letterDef.offsetY * _bmfontScale;
+                letterPosition.y = nextTokenY - letterDef.offsetY * _bmfontScale + _labelInfo.margin;
                 this._recordLetterInfo(letterPosition, character, letterIndex, lineIndex);
 
                 if (letterIndex + 1 < _horizontalKernings.length && letterIndex < textLen - 1) {
@@ -611,7 +611,7 @@ module.exports = {
             _contentSize.width = parseFloat(longestLine.toFixed(2)) + _labelInfo.margin * 2;
         }
         if (_labelHeight <= 0) {
-            _contentSize.height = parseFloat(_textDesiredHeight.toFixed(2));
+            _contentSize.height = parseFloat(_textDesiredHeight.toFixed(2)) + _labelInfo.margin * 2;
         }
 
         _tailoredTopY = _contentSize.height;
