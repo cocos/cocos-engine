@@ -131,7 +131,6 @@ export abstract class GFXTextureView extends GFXObject {
     protected _layerCount: number = 1;
 
     /**
-     * @zh
      * 构造函数。
      * @param device GFX设备。
      */

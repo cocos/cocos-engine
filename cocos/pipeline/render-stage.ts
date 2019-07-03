@@ -139,7 +139,6 @@ export abstract class RenderStage {
     protected _pso: GFXPipelineState | null = null;
 
     /**
-     * @zh
      * 构造函数。
      * @param flow 渲染流程。
      */

@@ -581,7 +581,6 @@ export abstract class RenderPipeline {
     protected _macros: IDefineMap = {};
 
     /**
-     * @zh
      * 构造函数。
      * @param root Root类实例。
      */

@@ -197,7 +197,6 @@ export abstract class GFXWindow extends GFXObject {
     protected _framebuffer: GFXFramebuffer | null = null;
 
     /**
-     * @zh
      * 构造函数。
      * @param device GFX设备。
      */

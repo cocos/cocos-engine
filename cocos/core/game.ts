@@ -237,7 +237,6 @@ class Game extends EventTarget {
     /**
      * @en Set frame rate of game.
      * @zh 设置游戏帧率。
-     * @method setFrameRate
      * @param {Number} frameRate
      */
     public setFrameRate (frameRate: number) {
@@ -261,7 +260,6 @@ class Game extends EventTarget {
     /**
      * @en Get frame rate set for the game, it doesn't represent the real frame rate.
      * @zh 获取设置的游戏帧率（不等同于实际帧率）。
-     * @method getFrameRate
      * @return {Number} frame rate
      */
     public getFrameRate (): number {
@@ -271,7 +269,6 @@ class Game extends EventTarget {
     /**
      * @en Run the game frame by frame.
      * @zh 执行一帧游戏循环。
-     * @method step
      */
     public step () {
         cc.director.mainLoop();
@@ -282,7 +279,6 @@ class Game extends EventTarget {
      * game logic execution, rendering process, event manager, background music and all audio effects.<br>
      * This is different with cc.director.pause which only pause the game logic execution.<br>
      * @zh 暂停游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。这点和只暂停游戏逻辑的 cc.director.pause 不同。
-     * @method pause
      */
     public pause () {
         if (this._paused) { return; }
@@ -298,7 +294,6 @@ class Game extends EventTarget {
      * @en Resume the game from pause. This will resume:<br>
      * game logic execution, rendering process, event manager, background music and all audio effects.<br>
      * @zh 恢复游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。
-     * @method resume
      */
     public resume () {
         if (!this._paused) { return; }
@@ -310,7 +305,6 @@ class Game extends EventTarget {
     /**
      * @en Check whether the game is paused.
      * @zh 判断游戏是否暂停。
-     * @method isPaused
      * @return {Boolean}
      */
     public isPaused (): boolean {
@@ -320,7 +314,6 @@ class Game extends EventTarget {
     /**
      * @en Restart game.
      * @zh 重新开始游戏
-     * @method restart
      */
     public restart () {
         cc.director.once(cc.Director.EVENT_AFTER_DRAW, () => {
@@ -343,7 +336,6 @@ class Game extends EventTarget {
     /**
      * @en End game, it will close the game window
      * @zh 退出游戏
-     * @method end
      */
     public end () {
 
@@ -362,7 +354,6 @@ class Game extends EventTarget {
      * @zh
      * 注册 game 的特定事件类型回调。这种类型的事件应该被 `emit` 触发。<br>
      *
-     * @method on
      * @param {String} type - A string representing the event type to listen for.
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.<br>
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
@@ -391,7 +382,6 @@ class Game extends EventTarget {
      * @zh
      * 注册 game 的特定事件类型回调，回调会在第一时间被触发后删除自身。
      *
-     * @method once
      * @param {String} type - A string representing the event type to listen for.
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.<br>
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
@@ -416,7 +406,6 @@ class Game extends EventTarget {
     /**
      * @en Run game with configuration object and onStart function.
      * @zh 运行游戏，并且指定引擎配置和 onStart 的回调。
-     * @method run
      * @param {Object} config - Pass configuration object or onStart function
      * @param {Function} onStart - function to be executed after game initialized
      */
@@ -434,7 +423,6 @@ class Game extends EventTarget {
      * @zh
      * 声明常驻根节点，该节点不会被在场景切换中被销毁。<br>
      * 目标节点必须位于为层级的根节点，否则无效。
-     * @method addPersistRootNode
      * @param {Node} node - The node to be made persistent
      */
     public addPersistRootNode (node: { uuid: any; parent: any; _persistNode: boolean; }) {
@@ -466,7 +454,6 @@ class Game extends EventTarget {
     /**
      * @en Remove a persistent root node.
      * @zh 取消常驻根节点。
-     * @method removePersistRootNode
      * @param {Node} node - The node to be removed from persistent node list
      */
     public removePersistRootNode (node: { uuid: string; _persistNode: boolean; }) {
@@ -480,7 +467,6 @@ class Game extends EventTarget {
     /**
      * @en Check whether the node is a persistent root node.
      * @zh 检查节点是否是常驻根节点。
-     * @method isPersistRootNode
      * @param {Node} node - The node to be checked
      * @return {Boolean}
      */
@@ -492,7 +478,6 @@ class Game extends EventTarget {
      * @en Prepare game.
      * @zh 准备引擎，请不要直接调用这个函数。
      * @param {Function} cb
-     * @method prepare
      */
     protected prepare (cb: Function | null) {
         // Already prepared

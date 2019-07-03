@@ -209,7 +209,9 @@ class CCObject {
      * @property {String} name
      * @default ""
      * @example
+     * ```
      * obj.name = "New Obj";
+     * ```
      */
     get name () {
         return this._name;
@@ -259,10 +261,11 @@ class CCObject {
      * 销毁该对象，并释放所有它对其它对象的引用。<br/>
      * 实际销毁操作会延迟到当前帧渲染前执行。从下一帧开始，该对象将不再可用。
      * 您可以在访问对象之前使用 cc.isValid(obj) 来检查对象是否已被销毁。
-     * @method destroy
      * @return {Boolean} whether it is the first time the destroy being called
      * @example
+     * ```
      * obj.destroy();
+     * ```
      */
     public destroy () {
         if (this._objFlags & Destroyed) {
@@ -535,12 +538,14 @@ js.value(CCObject, 'Flags', {
  * @param {Boolean} [strictMode=false] - If true, Object called destroy() in this frame will also treated as invalid.
  * @return {Boolean} whether is valid
  * @example
+ * ```
  * var node = new cc.Node();
  * cc.log(cc.isValid(node));    // true
  * node.destroy();
  * cc.log(cc.isValid(node));    // true, still valid in this frame
  * // after a frame...
  * cc.log(cc.isValid(node));    // false, destroyed in the end of last frame
+ * ```
  */
 cc.isValid = (value, strictMode) => {
     if (typeof value === 'object') {

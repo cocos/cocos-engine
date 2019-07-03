@@ -236,8 +236,10 @@ const REGEXP_STR = /%s/;
  * @param subst - JavaScript objects with which to replace substitution strings within msg.
  * This gives you additional control over the format of the output.
  * @example
+ * ```
  * cc.js.formatStr("a: %s, b: %s", a, b);
  * cc.js.formatStr(a, b, c);
+ * ```
  */
 export function formatStr (msg: string | any, ...subst: any[]) {
     if (arguments.length === 0) {
