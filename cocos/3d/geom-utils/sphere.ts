@@ -109,7 +109,6 @@ export default class sphere {
     protected _type: number;
 
     /**
-     * @zh
      * 构造一个球。
      * @param cx 形状的相对于原点的 X 坐标。
      * @param cy 形状的相对于原点的 Y 坐标。

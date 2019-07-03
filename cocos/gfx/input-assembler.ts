@@ -191,7 +191,6 @@ export abstract class GFXInputAssembler extends GFXObject {
     protected _indirectBuffer: GFXBuffer | null = null;
 
     /**
-     * @zh
      * 构造函数。
      * @param device GFX设备。
      */

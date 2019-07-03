@@ -873,7 +873,7 @@ export class LayoutComponent extends Component {
                 if (!allChildrenBoundingBox) {
                     allChildrenBoundingBox = childTransform.getBoundingBoxToWorld();
                 } else {
-                    allChildrenBoundingBox.union(allChildrenBoundingBox!, childTransform.getBoundingBoxToWorld());
+                    Rect.union(allChildrenBoundingBox, allChildrenBoundingBox, childTransform.getBoundingBoxToWorld());
                 }
             }
         }

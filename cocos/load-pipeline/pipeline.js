@@ -114,20 +114,13 @@ export default class Pipeline {
     static ItemState = ItemState;
 
     /**
-     * @en
-     * Constructor, pass an array of pipes to construct a new Pipeline,
-     * the pipes will be chained in the given order.<br/>
-     * A pipe is an object which must contain an `id` in string and a `handle` function,
-     * the id must be unique in the pipeline.<br/>
-     * It can also include `async` property to identify whether it's an asynchronous process.
-     * @zh
      * 构造函数，通过一系列的 pipe 来构造一个新的 pipeline，pipes 将会在给定的顺序中被锁定。<br/>
      * 一个 pipe 就是一个对象，它包含了字符串类型的 ‘id’ 和 ‘handle’ 函数，在 pipeline 中 id 必须是唯一的。<br/>
      * 它还可以包括 ‘async’ 属性以确定它是否是一个异步过程。
      *
-     * @method constructor
      * @param {Array} pipes
      * @example
+     * ```
      *  var pipeline = new Pipeline([
      *      {
      *          id: 'Downloader',
@@ -136,6 +129,7 @@ export default class Pipeline {
      *      },
      *      {id: 'Parser', handle: function (item) {}, async: false}
      *  ]);
+     * ```
      */
     constructor (pipes) {
         this._pipes = pipes;
@@ -252,7 +246,6 @@ export default class Pipeline {
      * 你也可以指定它的 ‘type’ 属性类型，默认情况下，该类型是 ‘url’ 的后缀名。<br/>
      * 也通过添加一个 包含 ‘skips’ 属性的 item 对象，你就可以跳过 skips 中包含的 pipe。<br/>
      * 该对象可以包含任何附加属性。
-     * @method flowIn
      * @param {Array} items
      * @example
      * ```
@@ -299,7 +292,6 @@ export default class Pipeline {
      * 这个 API 的使用通常是为了加载依赖项。<br/>
      * 例如：<br/>
      * 我们需要加载一个场景配置的 JSON 文件，该场景会将所有的依赖项全部都加载完毕以后，进行回调表示加载完毕。
-     * @method flowInDeps
      * @deprecated since v1.3
      * @param {Array} urlList
      * @param {Function} callback
@@ -408,7 +400,6 @@ export default class Pipeline {
     /**
      * @en Clear the current pipeline, this function will clean up the items.
      * @zh 清空当前 pipeline，该函数将清理 items。
-     * @method clear
      */
     clear () {
         for (var id in this._cache) {

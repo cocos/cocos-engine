@@ -90,7 +90,7 @@ export function pt_point_obb (out: vec3, point: vec3, obb_: obb): vec3 {
     e[1] = obb_.halfExtents.y;
     e[2] = obb_.halfExtents.z;
 
-    vec3.sub(d, point, obb_.center);
+    vec3.subtract(d, point, obb_.center);
 
     // Start result at center of obb; make steps from there
     vec3.set(out, obb_.center.x, obb_.center.y, obb_.center.z);

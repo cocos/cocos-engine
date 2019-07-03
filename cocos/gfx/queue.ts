@@ -41,7 +41,6 @@ export abstract class GFXQueue extends GFXObject {
     protected _type: GFXQueueType = GFXQueueType.GRAPHICS;
 
     /**
-     * @zh
      * 构造函数。
      * @param device GFX设备。
      */

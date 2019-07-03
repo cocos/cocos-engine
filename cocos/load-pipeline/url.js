@@ -64,7 +64,7 @@ let url = {
      * @method raw
      * @param {String} url
      * @return {String}
-     * @example {@link cocos2d/core/platform/url/raw.js}
+     * @example {@link cocos/core/platform/url/raw.js}
      */
     raw: function (url) {
         if (CC_EDITOR && !this._rawAssets) {

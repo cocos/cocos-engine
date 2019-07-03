@@ -42,7 +42,7 @@ const SUPPORT_TEXTURE_FORMATS = ['.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp
  * @en Key map for keyboard event
  * @zh 键盘事件的按键值。
  * @enum macro.KEY
- * @example {@link cocos2d/core/platform/CCCommon/KEY.js}
+ * @example {@link cocos/core/platform/CCCommon/KEY.js}
  */
 const KEY = {
     /**

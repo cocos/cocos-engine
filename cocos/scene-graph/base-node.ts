@@ -119,8 +119,10 @@ export class BaseNode extends CCObject {
      * @property name
      * @type {String}
      * @example
+     * ```
      * node.name = "New Node";
      * cc.log("Node Name: " + node.name);
+     * ```
      */
     @property
     get name () {
@@ -141,7 +143,9 @@ export class BaseNode extends CCObject {
      * @type {String}
      * @readOnly
      * @example
+     * ```
      * cc.log("Node Uuid: " + node.uuid);
+     * ```
      */
     @property
     get uuid () {
@@ -155,10 +159,12 @@ export class BaseNode extends CCObject {
      * @type {Node[]}
      * @readOnly
      * @example
+     * ```
      * var children = node.children;
      * for (var i = 0; i < children.length; ++i) {
      *     cc.log("Node: " + children[i]);
      * }
+     * ```
      */
     @property
     get children () {
@@ -172,8 +178,10 @@ export class BaseNode extends CCObject {
      * @type {Number}
      * @readOnly
      * @example
+     * ```
      * var count = node.childrenCount;
      * cc.log("Node Children Count: " + count);
+     * ```
      */
     @property
     get childrenCount () {
@@ -194,7 +202,9 @@ export class BaseNode extends CCObject {
      * @type {Boolean}
      * @default true
      * @example
+     * ```
      * node.active = false;
+     * ```
      */
     @property
     get active () {
@@ -219,6 +229,7 @@ export class BaseNode extends CCObject {
      * @property activeInHierarchy
      * @type {Boolean}
      * @example
+     * ```
      * cc.log("activeInHierarchy: " + node.activeInHierarchy);
      */
     @property
@@ -387,7 +398,9 @@ export class BaseNode extends CCObject {
      * @en Get parent of the node.
      * @zh 获取该节点的父节点。
      * @example
+     * ```
      * var parent = this.node.getParent();
+     * ```
      */
     public getParent () {
         return this._parent;
@@ -397,7 +410,9 @@ export class BaseNode extends CCObject {
      * @en Set parent of the node.
      * @zh 设置该节点的父节点。
      * @example
+     * ```
      * node.setParent(newNode);
+     * ```
      */
     public setParent (value: this | null, keepWorldTransform: boolean = false) {
         if (this._parent === value) {
@@ -448,8 +463,10 @@ export class BaseNode extends CCObject {
      * @zh 属性配置函数。在 attrs 的所有属性将被设置为节点属性。
      * @param attrs - Properties to be set to node
      * @example
+     * ```
      * var attrs = { key: 0, num: 100 };
      * node.attr(attrs);
+     * ```
      */
     public attr (attrs: Object) {
         js.mixin(this, attrs);
@@ -463,7 +480,9 @@ export class BaseNode extends CCObject {
      * @param uuid - The uuid to find the child node.
      * @return a Node whose uuid equals to the input parameter
      * @example
+     * ```
      * var child = node.getChildByUuid(uuid);
+     * ```
      */
     public getChildByUuid (uuid: string) {
         if (!uuid) {
@@ -486,7 +505,9 @@ export class BaseNode extends CCObject {
      * @param name - A name to find the child node.
      * @return a CCNode object whose name equals to the input parameter
      * @example
+     * ```
      * var child = node.getChildByName("Test Node");
+     * ```
      */
     public getChildByName (name: string) {
         if (!name) {
@@ -509,7 +530,9 @@ export class BaseNode extends CCObject {
      * @param path - A path to find the child node.
      * @return a CCNode object whose name equals to the input parameter
      * @example
+     * ```
      * var child = node.getChildByPath("Test Node");
+     * ```
      */
     public getChildByPath (path: string) {
         const segments = path.split('/');
@@ -550,7 +573,9 @@ export class BaseNode extends CCObject {
      * @param child - the child node to be inserted
      * @param siblingIndex - the sibling index to place the child in
      * @example
+     * ```
      * node.insertChild(child, 2);
+     * ```
      */
     public insertChild (child: this, siblingIndex: number) {
         child.parent = this;
@@ -563,7 +588,9 @@ export class BaseNode extends CCObject {
      * @en Get the sibling index.
      * @zh 获取同级索引。
      * @example
+     * ```
      * var index = node.getSiblingIndex();
+     * ```
      */
     public getSiblingIndex () {
         if (this._parent) {
@@ -577,7 +604,9 @@ export class BaseNode extends CCObject {
      * @en Set the sibling index of this node.
      * @zh 设置节点同级索引。
      * @example
+     * ```
      * node.setSiblingIndex(1);
+     * ```
      */
     public setSiblingIndex (index: number) {
         if (!this._parent) {
@@ -616,11 +645,13 @@ export class BaseNode extends CCObject {
      * @param prefunc The callback to process node when reach the node for the first time
      * @param postfunc The callback to process node when re-visit the node after walked all children in its sub tree
      * @example
+     * ```
      * node.walk(function (target) {
      *     console.log('Walked through node ' + target.name + ' for the first time');
      * }, function (target) {
      *     console.log('Walked through node ' + target.name + ' after walked all children in its sub tree');
      * });
+     * ```
      */
     public walk (prefunc: (target: this) => void, postfunc?: (target: this) => void) {
         // const BaseNode = cc._BaseNode;
@@ -719,8 +750,10 @@ export class BaseNode extends CCObject {
      * @param [cleanup=true] - true if all actions and callbacks on this node should be removed, false otherwise.
      * @see cc.Node#removeFromParentAndCleanup
      * @example
+     * ```
      * node.removeFromParent();
      * node.removeFromParent(false);
+     * ```
      */
     public removeFromParent (cleanup?: boolean) {
         if (this._parent) {
@@ -746,8 +779,10 @@ export class BaseNode extends CCObject {
      * @param [cleanup=true] - true if all running actions and callbacks on the child node
      * will be cleanup, false otherwise.
      * @example
+     * ```
      * node.removeChild(newNode);
      * node.removeChild(newNode, false);
+     * ```
      */
     public removeChild (child: this, cleanup?: boolean) {
         if (this._children.indexOf(child) > -1) {
@@ -771,8 +806,10 @@ export class BaseNode extends CCObject {
      * @param [cleanup=true] - true if all running actions on all children nodes
      * should be cleanup, false otherwise.
      * @example
+     * ```
      * node.removeAllChildren();
      * node.removeAllChildren(false);
+     * ```
      */
     public removeAllChildren (cleanup?: boolean) {
         // not using detachChild improves speed here
@@ -799,7 +836,9 @@ export class BaseNode extends CCObject {
      * @zh 是否是指定节点的子节点？
      * @return True if this node is a child, deep child or identical to the given node.
      * @example
+     * ```
      * node.isChildOf(newNode);
+     * ```
      */
     public isChildOf (parent: this) {
         let child: this | null = this;
@@ -823,8 +862,10 @@ export class BaseNode extends CCObject {
      * 获取节点上指定类型的组件，如果节点有附加指定类型的组件，则返回，如果没有则为空。<br/>
      * 传入参数也可以是脚本的名称。
      * @example
+     * ```
      * // get sprite component.
      * var sprite = node.getComponent(cc.Sprite);
+     * ```
      */
     public getComponent<T extends Component> (classConstructor: Constructor<T>): T | null;
 
@@ -836,8 +877,10 @@ export class BaseNode extends CCObject {
      * 获取节点上指定类型的组件，如果节点有附加指定类型的组件，则返回，如果没有则为空。<br/>
      * 传入参数也可以是脚本的名称。
      * @example
+     * ```
      * // get custom test calss.
      * var test = node.getComponent("Test");
+     * ```
      */
     public getComponent (className: string): Component | null;
 
@@ -853,7 +896,9 @@ export class BaseNode extends CCObject {
      * @en Returns all components of supplied type in the node.
      * @zh 返回节点上指定类型的所有组件。
      * @example
+     * ```
      * var sprites = node.getComponents(cc.Sprite);
+     * ```
      */
     public getComponents<T extends Component> (classConstructor: Constructor<T>): T[];
 
@@ -861,7 +906,9 @@ export class BaseNode extends CCObject {
      * @en Returns all components of supplied type in the node.
      * @zh 返回节点上指定类型的所有组件。
      * @example
+     * ```
      * var tests = node.getComponents("Test");
+     * ```
      */
     public getComponents (className: string): Component[];
 
@@ -878,7 +925,9 @@ export class BaseNode extends CCObject {
      * @en Returns the component of supplied type in any of its children using depth first search.
      * @zh 递归查找所有子节点中第一个匹配指定类型的组件。
      * @example
+     * ```
      * var sprite = node.getComponentInChildren(cc.Sprite);
+     * ```
      */
     public getComponentInChildren<T extends Component> (classConstructor: Constructor<T>): T | null;
 
@@ -886,7 +935,9 @@ export class BaseNode extends CCObject {
      * @en Returns the component of supplied type in any of its children using depth first search.
      * @zh 递归查找所有子节点中第一个匹配指定类型的组件。
      * @example
+     * ```
      * var Test = node.getComponentInChildren("Test");
+     * ```
      */
     public getComponentInChildren (className: string): Component | null;
 
@@ -902,7 +953,9 @@ export class BaseNode extends CCObject {
      * @en Returns all components of supplied type in self or any of its children.
      * @zh 递归查找自身或所有子节点中指定类型的组件
      * @example
+     * ```
      * var sprites = node.getComponentsInChildren(cc.Sprite);
+     * ```
      */
     public getComponentsInChildren<T extends Component> (classConstructor: Constructor<T>): T[];
 
@@ -910,7 +963,9 @@ export class BaseNode extends CCObject {
      * @en Returns all components of supplied type in self or any of its children.
      * @zh 递归查找自身或所有子节点中指定类型的组件
      * @example
+     * ```
      * var tests = node.getComponentsInChildren("Test");
+     * ```
      */
     public getComponentsInChildren (className: string): Component[];
 
@@ -928,7 +983,9 @@ export class BaseNode extends CCObject {
      * @en Adds a component class to the node. You can also add component to node by passing in the name of the script.
      * @zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
      * @example
+     * ```
      * var sprite = node.addComponent(cc.Sprite);
+     * ```
      */
     public addComponent<T extends Component> (classConstructor: Constructor<T>): T | null;
 
@@ -936,7 +993,9 @@ export class BaseNode extends CCObject {
      * @en Adds a component class to the node. You can also add component to node by passing in the name of the script.
      * @zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
      * @example
+     * ```
      * var test = node.addComponent("Test");
+     * ```
      */
     public addComponent (className: string): Component | null;
 
@@ -1024,7 +1083,9 @@ export class BaseNode extends CCObject {
      * 如果你已经获得组件引用，你也可以直接调用 component.destroy()
      * @deprecated please destroy the component to remove it.
      * @example
+     * ```
      * node.removeComponent(cc.Sprite);
+     * ```
      */
     public removeComponent<T extends Component> (classConstructor: Constructor<T>): void;
 
@@ -1037,11 +1098,13 @@ export class BaseNode extends CCObject {
      * 如果你已经获得组件引用，你也可以直接调用 component.destroy()
      * @deprecated please destroy the component to remove it.
      * @example
+     * ```
      * const sprite = node.getComponent(CC.Sprite);
      * if (sprite) {
      *     node.removeComponent(sprite);
      * }
      * node.removeComponent('cc.Sprite');
+     * ```
      */
     public removeComponent (classNameOrInstance: string | Component): void;
 
@@ -1082,7 +1145,9 @@ export class BaseNode extends CCObject {
      * 销毁所有子节点，并释放所有它们对其它对象的引用。<br/>
      * 实际销毁操作会延迟到当前帧渲染前执行。
      * @example
+     * ```
      * node.destroyAllChildren();
+     * ```
      */
     public destroyAllChildren () {
         for (const child of this._children) {

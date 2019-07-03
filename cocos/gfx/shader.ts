@@ -129,7 +129,6 @@ export abstract class GFXShader extends GFXObject {
     protected _samplers: GFXUniformSampler[] = [];
 
     /**
-     * @zh
      * 构造函数。
      * @param device GFX设备。
      */

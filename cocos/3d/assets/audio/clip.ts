@@ -42,6 +42,12 @@ export const AudioType = Enum({
     UNKNOWN_AUDIO: 3,
 });
 
+/**
+ * @zh
+ * 音频片段资源，每个片段知道自己应该如何播放、寻址等。
+ * 每当音频片段实际开始播放时，会发出 'started' 事件；
+ * 每当音频片段自然结束播放时，会发出 'ended' 事件。
+ */
 @ccclass('cc.AudioClip')
 export class AudioClip extends Asset {
 
@@ -49,22 +55,26 @@ export class AudioClip extends Asset {
     public static AudioType = AudioType;
     public static preventDeferredLoadDependents = true;
 
-    @property // we serialize this because it's unavailable at runtime on some platforms
-    protected _duration = 0;
-    @property({
-        type: AudioType,
-    })
+    @property
+    protected _duration = 0; // we serialize this because it's unavailable at runtime on some platforms
+
+    @property({ type: AudioType })
     protected _loadMode = AudioType.UNKNOWN_AUDIO;
 
     protected _audio: any = null;
-    private _player: AudioPlayer | null = null;
+    protected _player: AudioPlayer | null = null;
 
     constructor () {
         super();
         this.loaded = false;
     }
 
-    public set _nativeAsset (clip: any) {
+    public destroy () {
+        if (this._player) { this._player.destroy(); }
+        return super.destroy();
+    }
+
+    set _nativeAsset (clip: any) {
         this._audio = clip;
         if (clip) {
             let ctor: any;
@@ -89,13 +99,8 @@ export class AudioClip extends Asset {
         }
     }
 
-    public get _nativeAsset () {
+    get _nativeAsset () {
         return this._audio;
-    }
-
-    public destroy () {
-        if (this._player) { this._player.destroy(); }
-        return super.destroy();
     }
 
     get loadMode () {

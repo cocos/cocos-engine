@@ -91,7 +91,7 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
         if (!CC_EDITOR) {
             const rigidBody = this.sharedBody.rigidBody as RigidBodyComponent | null;
             if (rigidBody != null) {
-                vec3.sub(offset, this.node.worldPosition, rigidBody.node.worldPosition);
+                vec3.subtract(offset, this.node.worldPosition, rigidBody.node.worldPosition);
                 vec3.add(offset, offset, this._center);
                 this._shapeBase.setCenter(offset);
             } else {
@@ -207,7 +207,7 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
 
             const rigidBody = this.sharedBody.rigidBody as RigidBodyComponent | null;
             if (rigidBody != null) {
-                vec3.sub(offset, this.node.worldPosition, rigidBody.node.worldPosition);
+                vec3.subtract(offset, this.node.worldPosition, rigidBody.node.worldPosition);
                 vec3.add(offset, offset, this._center);
                 this.sharedBody.body.addShape(this._shapeBase!, offset);
             } else {

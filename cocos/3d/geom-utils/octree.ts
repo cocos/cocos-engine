@@ -92,11 +92,13 @@ class OctreeBlock {
 /**
  * An octree acceleration data structure
  * @example
+ * ```
  * let octree = new Octree();
  * octree.build(models, model => {
  *   return model._boundingShape;
  * });
  * octree.select(enums.SHAPE_FRUSTUM, view._frustum);
+ * ```
  */
 export default class Octree {
 

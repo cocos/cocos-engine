@@ -153,7 +153,6 @@ export abstract class GFXBuffer extends GFXObject {
     // protected _buffer: GFXBufferSource | null = null;
 
     /**
-     * @zh
      * 构造函数。
      * @param device GFX设备。
      */

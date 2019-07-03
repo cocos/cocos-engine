@@ -87,7 +87,6 @@ export abstract class GFXFramebuffer extends GFXObject {
     protected _isOffscreen: boolean = true;
 
     /**
-     * @zh
      * 构造函数。
      * @param device GFX设备。
      */

@@ -39,7 +39,7 @@ class Customization {
  * 作为渲染管线的定制不够灵活时的最后备用路线，或初期快速实现思路原型的小工具。<br>
  * 因为书写回调函数时不可避免地会对内部渲染流程做一部分 assumption，不建议作为商业项目的正式依赖。
  * @example
- * ```ts
+ * ```typescript
  * cc.customizationManager.register('no-frustum-culling', {
  *     onAttach: (m) => {
  *         m.worldBoundsBak = m.worldBounds;

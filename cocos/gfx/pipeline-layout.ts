@@ -46,7 +46,6 @@ export abstract class GFXPipelineLayout extends GFXObject {
     protected _layouts: GFXBindingLayout[] = [];
 
     /**
-     * @zh
      * 构造函数。
      * @param device GFX设备。
      */

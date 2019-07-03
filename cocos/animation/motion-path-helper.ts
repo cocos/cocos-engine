@@ -5,7 +5,7 @@
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { errorID } from '../core/platform/CCDebug';
 import { Vec2 } from '../core/value-types';
-import { AnimCurve, computeRatioByType, CurveType, CurveValue, CurveTarget } from './animation-curve';
+import { AnimCurve, computeRatioByType, CurveType, CurveValue } from './animation-curve';
 import { bezier } from './bezier';
 
 // tslint:disable:no-shadowed-variable
@@ -339,18 +339,26 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
 
                 finalProgress = computeRatioByType(finalProgress, type);
 
-                let pos: Vec2;
+                let pos = new Vec2();
 
                 if (finalProgress < 0) {
                     const bezier = curve.beziers[0];
                     const length = (0 - finalProgress) * bezier.getLength();
-                    const normal = bezier.start.sub(bezier.endCtrlPoint).normalize();
-                    pos = bezier.start.add(normal.mul(length));
+                    const normal = new Vec2(bezier.start);
+                    normal.subtract(bezier.endCtrlPoint);
+                    normal.normalize();
+                    normal.multiply(length);
+                    pos.set(bezier.start);
+                    pos.add(normal);
                 } else if (finalProgress > 1) {
                     const bezier = curve.beziers[curve.beziers.length - 1];
                     const length = (finalProgress - 1) * bezier.getLength();
-                    const normal = bezier.end.sub(bezier.startCtrlPoint).normalize();
-                    pos = bezier.end.add(normal.mul(length));
+                    const normal = new Vec2(bezier.end);
+                    normal.subtract(bezier.startCtrlPoint);
+                    normal.normalize();
+                    normal.multiply(length);
+                    pos.set(bezier.end);
+                    pos.add(normal);
                 } else {
                     let bezierIndex = binarySearch(progresses, finalProgress);
                     if (bezierIndex < 0) { bezierIndex = ~bezierIndex; }

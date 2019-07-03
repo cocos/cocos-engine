@@ -98,9 +98,6 @@ const _sharedList: any = [];
  * Loader for resource loading process. It's a singleton object.
  * @zh
  * 资源加载程序，这是一个单例对象。
- * @class loader
- * @extends Pipeline
- * @static
  */
 class CCLoader extends Pipeline {
 
@@ -109,8 +106,6 @@ class CCLoader extends Pipeline {
      * Gets a new XMLHttpRequest instance.
      * @zh
      * 获取一个新的 XMLHttpRequest 的实例。
-     * @method getXMLHttpRequest
-     * @returns {XMLHttpRequest}
      */
     public getXMLHttpRequest: Function;
 

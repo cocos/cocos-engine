@@ -362,7 +362,6 @@ class Director extends EventTarget {
      * Useful to convert (multi) touches coordinates to the current layout (portrait or landscape)<br/>
      * Implementation can be found in directorWebGL.
      * @zh 将触摸点的屏幕坐标转换为 WebGL View 下的坐标。
-     * @method convertToGL
      * @param {Vec2} uiPoint
      * @return {Vec2}
      * @deprecated since v2.0
@@ -384,7 +383,6 @@ class Director extends EventTarget {
      * Useful to convert node points to window points for calls such as glScissor<br/>
      * Implementation can be found in directorWebGL.
      * @zh 将触摸点的 WebGL View 坐标转换为屏幕坐标。
-     * @method convertToUI
      * @param {Vec2} glPoint
      * @return {Vec2}
      * @deprecated since v2.0
@@ -409,7 +407,6 @@ class Director extends EventTarget {
 
     /**
      * End the life of director in the next frame
-     * @method end
      */
     public end () {
         this._purgeDirectorInNextLoop = true;
@@ -420,7 +417,6 @@ class Director extends EventTarget {
      * Returns the size of the WebGL view in points.<br/>
      * It takes into account any possible rotation (device orientation) of the window.
      * @zh 获取视图的大小，以点为单位。
-     * @method getWinSize
      * @return {Size}
      * @deprecated since v2.0
      */
@@ -437,7 +433,6 @@ class Director extends EventTarget {
      * @zh
      * 获取视图大小，以像素为单位（这里的像素指的是资源分辨率。
      * 如果要获取屏幕物理分辨率，需要用 cc.view.getFrameSize()）
-     * @method getWinSizeInPixels
      * @return {Size}
      * @deprecated since v2.0
      */
@@ -452,7 +447,6 @@ class Director extends EventTarget {
      * please use cc.game.pause
      * @zh 暂停正在运行的场景，该暂停只会停止游戏逻辑执行，但是不会停止渲染和 UI 响应。<br>
      * 如果想要更彻底得暂停游戏，包含渲染，音频和事件，请使用 cc.game.pause 。
-     * @method pause
      */
     public pause () {
         if (this._paused) {
@@ -536,7 +530,6 @@ class Director extends EventTarget {
      * Run a scene. Replaces the running scene with a new one or enter the first scene.<br>
      * The new scene will be launched immediately.
      * @zh 立刻切换指定场景。
-     * @method runSceneImmediate
      * @param {Scene} scene - The need run scene.
      * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
      * @param {Function} [onLaunched] - The function invoked at the scene after launch.
@@ -639,7 +632,6 @@ class Director extends EventTarget {
      * Run a scene. Replaces the running scene with a new one or enter the first scene.<br>
      * The new scene will be launched at the end of the current frame.<br>
      * @zh 运行指定场景。
-     * @method runScene
      * @param {Scene} scene - The need run scene.
      * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
      * @param {Function} [onLaunched] - The function invoked at the scene after launch.
@@ -696,7 +688,6 @@ class Director extends EventTarget {
      * @en Loads the scene by its name.
      * @zh 通过场景名称进行加载场景。
      *
-     * @method loadScene
      * @param {String} sceneName - The name of the scene to load.
      * @param {Function} [onLaunched] - callback, will be called after scene launched.
      * @return {Boolean} if error, return false
@@ -730,7 +721,6 @@ class Director extends EventTarget {
      * 调用完后，你仍然需要通过 `cc.director.loadScene` 来启动场景，因为这个方法不会执行场景加载操作。<br>
      * 就算预加载还没完成，你也可以直接调用 `cc.director.loadScene`，加载完成后场景就会启动。
      * <br>
-     * @method preloadScene
      * @param {String} sceneName - The name of the scene to preload.
      * @param {Function} [onProgress] - callback, will be called when the load progression change.
      * @param {Number} onProgress.completedCount - The number of the items that are already completed
@@ -769,13 +759,11 @@ class Director extends EventTarget {
     /**
      * @en Loads the scene by its uuid.
      * @zh 通过uuid加载场景
-     * @method _loadSceneByUuid
      * @param {String} uuid - the uuid of the scene asset to load
      * @param {Function} [onLaunched]
      * @param {Function} [onUnloaded]
      * @param {Boolean} [dontRunScene] - Just download and initialize the scene but will not launch it,
      *                                   only take effect in the Editor.
-     * @private
      */
     public _loadSceneByUuid (uuid: String, onLaunched: Function | null = null, onUnloaded: Function | null = null, dontRunScene?: Boolean) {
         if (CC_EDITOR) {
@@ -833,7 +821,6 @@ class Director extends EventTarget {
     /**
      * @en Resume game logic execution after pause, if the current scene is not paused, nothing will happen.
      * @zh 恢复暂停场景的游戏逻辑，如果当前场景没有暂停将没任何事情发生。
-     * @method resume
      */
     public resume () {
         if (!this._paused) {
@@ -854,7 +841,6 @@ class Director extends EventTarget {
      * Enables or disables WebGL depth test.<br>
      * Implementation can be found in directorCanvas.js/directorWebGL.js
      * @zh 启用/禁用深度测试（在 Canvas 渲染模式下不会生效）。
-     * @method setDepthTest
      * @param {Boolean} on
      * @deprecated since v2.0
      */
@@ -872,7 +858,6 @@ class Director extends EventTarget {
      * @zh
      * 设置场景的默认擦除颜色。<br>
      * 支持全透明，但不支持透明度为中间值。要支持全透明需手工开启 cc.macro.ENABLE_TRANSPARENT_CANVAS。
-     * @method setClearColor
      * @param {Color} clearColor
      * @deprecated since v2.0
      */
@@ -890,7 +875,6 @@ class Director extends EventTarget {
     /**
      * @en Returns current logic Scene.
      * @zh 获取当前逻辑场景。
-     * @method getRunningScene
      * @return {Scene}
      * @deprecated since v2.0
      */
@@ -901,11 +885,12 @@ class Director extends EventTarget {
     /**
      * @en Returns current logic Scene.
      * @zh 获取当前逻辑场景。
-     * @method getScene
      * @return {Scene}
      * @example
+     * ```
      *  // This will help you to get the Canvas node in scene
      *  cc.director.getScene().getChildByName('Canvas');
+     * ```
      */
     public getScene () {
         return this._scene;
@@ -914,7 +899,6 @@ class Director extends EventTarget {
     /**
      * @en Returns the FPS value. Please use {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}} to control animation interval.
      * @zh 获取单位帧执行时间。请使用 {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}} 来控制游戏帧率。
-     * @method getAnimationInterval
      * @deprecated since v2.0
      * @return {Number}
      */
@@ -927,7 +911,6 @@ class Director extends EventTarget {
      * To control the game's frame rate overall, please use cc.game.setFrameRate
      * @zh 设置动画间隔，这不控制主循环。<br>
      * 要控制游戏的帧速率，请使用 cc.game.setFrameRate
-     * @method setAnimationInterval
      * @deprecated since v2.0
      * @param {Number} value - The animation interval desired.
      */
@@ -938,7 +921,6 @@ class Director extends EventTarget {
     /**
      * @en Returns the delta time since last frame.
      * @zh 获取上一帧的增量时间。
-     * @method getDeltaTime
      * @return {Number}
      */
     public getDeltaTime () {
@@ -948,7 +930,6 @@ class Director extends EventTarget {
     /**
      * @en Returns how many frames were called since the director started.
      * @zh 获取 director 启动以来游戏运行的总帧数。
-     * @method getTotalFrames
      * @return {Number}
      */
     public getTotalFrames () {
@@ -958,7 +939,6 @@ class Director extends EventTarget {
     /**
      * @en Returns whether or not the Director is paused.
      * @zh 是否处于暂停状态。
-     * @method isPaused
      * @return {Boolean}
      */
     public isPaused () {
@@ -968,7 +948,6 @@ class Director extends EventTarget {
     /**
      * @en Returns the cc.Scheduler associated with this director.
      * @zh 获取和 director 相关联的 cc.Scheduler。
-     * @method getScheduler
      * @return {Scheduler}
      */
     public getScheduler () {
@@ -978,7 +957,6 @@ class Director extends EventTarget {
     /**
      * @en Sets the cc.Scheduler associated with this director.
      * @zh 设置和 director 相关联的 cc.Scheduler。
-     * @method setScheduler
      * @param {Scheduler} scheduler
      */
     public setScheduler (scheduler) {
@@ -990,7 +968,6 @@ class Director extends EventTarget {
     /**
      * @en register a system.
      * @zh 注册一个 system。
-     * @method registerSystem
      * @param {string} name
      * @param {function} cls
      * @param {Array} compClsNames
@@ -1025,7 +1002,6 @@ class Director extends EventTarget {
     /**
      * @en Returns the cc.AnimationManager associated with this director.
      * @zh 获取和 director 相关联的 cc.AnimationManager（动画管理器）。
-     * @method getAnimationManager
      */
     public getAnimationManager () {
         return this._animationManager;

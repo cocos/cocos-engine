@@ -279,7 +279,6 @@ var ID = 'Loader';
 /**
  * Constructor of Loader, you can pass custom supported types.
  *
- * @method constructor
  * @param {Object} extMap Custom supported types with corresponded handler
  * @example
  * ```
@@ -302,7 +301,6 @@ export default class Loader {
 
     /**
      * Add custom supported types handler or modify existing type handler.
-     * @method addHandlers
      * @param {Object} extMap Custom supported types with corresponded handler
      */
     addHandlers (extMap) {

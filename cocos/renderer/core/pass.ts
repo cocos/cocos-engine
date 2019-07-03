@@ -90,7 +90,7 @@ const btMask      = 0xf0000000; // 4 bits, 16 slots
 const typeMask    = 0x0fc00000; // 6 bits, 64 slots
 const bindingMask = 0x003ff800; // 11 bits, 2048 slots
 const indexMask   = 0x000007ff; // 11 bits, 2048 slots
-const genHandle = (bt: GFXBindingType, type: GFXType, binding: number, index: number = 0) =>
+const genHandle = (bt: GFXBindingType, binding: number, type: GFXType, index: number = 0) =>
     ((bt << 28) & btMask) | ((type << 22) & typeMask) | ((binding << 11) & bindingMask) | (index & indexMask);
 const getBindingTypeFromHandle = (handle: number) => (handle & btMask) >>> 28;
 const getTypeFromHandle = (handle: number) => (handle & typeMask) >>> 22;
@@ -196,7 +196,8 @@ export class Pass {
                 size: u.size,
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
             });
-            // buffer data processing system
+            // non-builtin UBO data pools, note that the effect compiler
+            // guarantees these bindings to be consecutive, starting from 0
             const block: IBlock = this._blocks[u.binding] = {
                 buffer: new ArrayBuffer(u.size),
                 dirty: false,
@@ -207,13 +208,13 @@ export class Pass {
                 const view = new Float32Array(block.buffer, acc, cur.size / Float32Array.BYTES_PER_ELEMENT);
                 block.views.push(view);
                 // store handle map
-                this._handleMap[cur.name] = genHandle(GFXBindingType.UNIFORM_BUFFER, cur.type, u.binding, idx);
+                this._handleMap[cur.name] = genHandle(GFXBindingType.UNIFORM_BUFFER, u.binding, cur.type, idx);
                 // proceed the counter
                 return acc + cur.size;
             }, 0); // === u.size
         }
         for (const u of this._shaderInfo.samplers) {
-            this._handleMap[u.name] = genHandle(GFXBindingType.SAMPLER, u.type, u.binding);
+            this._handleMap[u.name] = genHandle(GFXBindingType.SAMPLER, u.binding, u.type);
         }
 
         this.resetUBOs();
@@ -408,7 +409,9 @@ export class Pass {
             if (texture) {
                 this._textureViews[u.binding] = texture.getGFXTextureView()!;
                 const samplerInfo = texture.getGFXSamplerInfo();
-                if (!this._samplers[u.binding] || samplerInfo.length) { this._samplers[u.binding] = samplerLib.getSampler(device, samplerInfo); }
+                if (!this._samplers[u.binding] || samplerInfo.length) {
+                    this._samplers[u.binding] = samplerLib.getSampler(device, samplerInfo);
+                }
             } else { console.warn('illegal texture default value ' + texName); }
         }
     }

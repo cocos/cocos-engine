@@ -69,7 +69,6 @@ export class GFXObject {
     protected _status = GFXStatus.UNREADY;
 
     /**
-     * @zh
      * 构造函数。
      * @param gfxType GFX对象类型。
      */

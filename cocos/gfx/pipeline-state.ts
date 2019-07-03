@@ -309,7 +309,6 @@ export abstract class GFXPipelineState extends GFXObject {
     protected _renderPass: GFXRenderPass | null = null;
 
     /**
-     * @zh
      * 构造函数。
      * @param device GFX设备。
      */

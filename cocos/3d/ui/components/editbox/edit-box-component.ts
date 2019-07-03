@@ -794,7 +794,6 @@ export class EditBoxComponent extends Component {
     /**
      * @en Let the EditBox get focus
      * @zh 让当前 EditBox 获得焦点。
-     * @method setFocus
      */
     public setFocus () {
         if (this._impl) {
@@ -806,7 +805,6 @@ export class EditBoxComponent extends Component {
      * @en Determine whether EditBox is getting focus or not.
      * @zh 判断 EditBox 是否获得了焦点。
      * Note: only available on Web at the moment.
-     * @method isFocused
      */
     public isFocused () {
         let isFocused = false;
@@ -873,9 +871,10 @@ cc.EditBoxComponent = EditBoxComponent;
  * 如果你不再使用 EditBox，并且组件未添加到场景中，那么你必须手动对组件或所在节点调用 destroy。
  * 这样才能移除网页上的 DOM 节点，避免 Web 平台内存泄露。
  * @example
+ * ```
  * editbox.node.parent = null;  // or  editbox.node.removeFromParent(false);
  * // when you don't need editbox anymore
  * editbox.node.destroy();
- * @method destroy
+ * ```
  * @return {Boolean} whether it is the first time the destroy being called
  */
