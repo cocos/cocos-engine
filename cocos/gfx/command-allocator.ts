@@ -26,7 +26,6 @@ export abstract class GFXCommandAllocator extends GFXObject {
     protected _device: GFXDevice;
 
     /**
-     * @zh
      * 构造函数。
      * @param device GFX设备。
      */

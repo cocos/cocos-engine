@@ -120,8 +120,8 @@ class ProgramLib {
     /**
      * @zh
      * 根据 effect 信息注册 shader 模板。
-     * @example:
-     * ```ts
+     * @example
+     * ```typescript
      *   // this object is auto-generated from your actual shaders
      *   let program = {
      *     name: 'foobar',

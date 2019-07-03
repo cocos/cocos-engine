@@ -84,7 +84,6 @@ export abstract class RenderFlow {
     protected _material: Material = new Material();
 
     /**
-     * @zh
      * 构造函数。
      * @param pipeline 渲染管线。
      */

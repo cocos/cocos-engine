@@ -132,9 +132,11 @@ export function pushToMap (map, key, value, pushFront) {
  * @param max_inclusive
  * @return
  * @example
+ * ```
  * var v1 = cc.misc.clampf(20, 0, 20); // 20;
  * var v2 = cc.misc.clampf(-1, 0, 20); //  0;
  * var v3 = cc.misc.clampf(10, 0, 20); // 10;
+ * ```
  */
 export function clampf(value: number, min_inclusive: number, max_inclusive: number) {
     return clamp(value, min_inclusive, max_inclusive);

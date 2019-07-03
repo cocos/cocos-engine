@@ -27,7 +27,7 @@
  * @category ui-assembler
  */
 
-import { Color, Vec3 } from '../../../../../core/value-types';
+import { Color, Vec2, Vec3 } from '../../../../../core/value-types';
 import { color4 } from '../../../../../core/vmath';
 import { GFXPrimitiveMode } from '../../../../../gfx';
 import { Model } from '../../../../../renderer';
@@ -340,8 +340,9 @@ export const graphicsAssembler: IAssembler = {
 
             if (!loop) {
                 // Add cap
-                const dPos = p1.sub(p0);
-                dPos.normalizeSelf();
+                const dPos = new Point(p1.x, p1.y);
+                dPos.subtract(p0);
+                dPos.normalize();
 
                 const dx = dPos.x;
                 const dy = dPos.y;
@@ -385,8 +386,9 @@ export const graphicsAssembler: IAssembler = {
                 meshbuffer.vertexStart++;
             } else {
                 // Add cap
-                const dPos = p1.sub(p0);
-                dPos.normalizeSelf();
+                const dPos = new Point(p1.x, p1.y);
+                dPos.subtract(p0);
+                dPos.normalize();
 
                 const dx = dPos.x;
                 const dy = dPos.y;
@@ -596,10 +598,11 @@ export const graphicsAssembler: IAssembler = {
 
             for (let j = 0, size = pts.length; j < size; j++) {
                 // Calculate segment direction and length
-                const dPos = p1.sub(p0);
+                const dPos = new Point(p1.x, p1.y);
+                dPos.subtract(p0);
                 p0.len = dPos.mag();
                 if (dPos.x || dPos.y) {
-                    dPos.normalizeSelf();
+                    dPos.normalize();
                 }
                 p0.dx = dPos.x;
                 p0.dy = dPos.y;

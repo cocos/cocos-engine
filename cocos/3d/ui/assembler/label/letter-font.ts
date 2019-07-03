@@ -178,7 +178,6 @@ export class LetterRenderTexture extends Texture2D {
      * @param [width]
      * @param [height]
      * @param [string]
-     * @method initWithSize
      */
     public initWithSize (width: number, height: number, format: GFXFormat = GFXFormat.RGBA8) {
         this.destroy();

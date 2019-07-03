@@ -312,7 +312,7 @@ export class Material extends Asset {
                 }
             }
         } else {
-            if (passIdx >= this._props.length) { console.warn(`illegal pass index: ${passIdx}.`); return; }
+            if (passIdx >= this._props.length) { console.warn(`illegal pass index: ${passIdx}.`); return null; }
             const props = this._props[passIdx];
             for (const p of Object.keys(props)) {
                 if (p === name) { return props[p]; }

@@ -88,7 +88,6 @@ const AssetLibrary = {
     /**
      * @zh
      * 加载资源。
-     * @method loadAsset
      * @param {String} uuid
      * @param {loadCallback} callback - 加载完成后执行的回调函数。
      * @param {Object} options
@@ -293,7 +292,6 @@ const AssetLibrary = {
      * Get the exists asset by uuid.
      * @zh
      * 根据 uuid 获取存在的资源。
-     * @method getAssetByUuid
      * @param {String} uuid
      * @return {Asset} - 返回存在的资源，若没有加载则返回 null
      * @private

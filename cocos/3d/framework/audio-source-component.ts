@@ -92,7 +92,7 @@ export class AudioSourceComponent extends Component {
      * @zh
      * 是否启用自动播放。 <br>
      * 请注意，根据最新的自动播放策略，现在大部分时候，自动播放只会在第一次收到用户输入后生效。 <br>
-     * @see https://www.chromium.org/audio-video/autoplay
+     * 参考：https://www.chromium.org/audio-video/autoplay
      */
     @property
     set playOnAwake (val) {
@@ -109,7 +109,6 @@ export class AudioSourceComponent extends Component {
      * 音频的音量（大小范围为 0.0 到 1.0 ）。
      *
      * 请注意,在某些平台上，音量控制可能不起效。<br>
-     * 请注意,在 ios 平台的 dom 模式下控制音量将无法生效。
      */
     @property
     set volume (val) {
@@ -174,8 +173,8 @@ export class AudioSourceComponent extends Component {
      * 注意，对同一个音频片段，不同平台多重播放效果存在差异。<br>
      * 在 Web Audio 模式下，可以同时维护多个播放进度，达到多重播放。<br>
      * 其他模式下都不支持多重播放，如前一次尚未播完，则会立即重新播放。
-     * @param clip - the clip being played
-     * @param volumeScale - the scale of the volume (0-1).
+     * @param clip 要播放的音频
+     * @param volumeScale 相对当前音量的缩放，默认为 1
      */
     public playOneShot (clip: AudioClip, volumeScale = 1) {
         clip.playOneShot(this._volume * volumeScale);
@@ -194,7 +193,7 @@ export class AudioSourceComponent extends Component {
      * set current playback time, in seconds
      * @zh
      * 以秒为单位设置当前播放时间。
-     * @param num the playback time you want to jump to
+     * @param num 要跳转到的播放时间
      */
     set currentTime (num: number) {
         this._cachedCurrentTime = num;
@@ -207,7 +206,6 @@ export class AudioSourceComponent extends Component {
      * get the current playback time, in seconds
      * @zh
      * 以秒为单位获取当前播放时间。
-     * @returns time current playback time
      */
     get currentTime () {
         if (!this._clip) { return this._cachedCurrentTime; }
@@ -218,8 +216,7 @@ export class AudioSourceComponent extends Component {
      * @en
      * get the audio duration, in seconds
      * @zh
-     * 以秒为单位获取音频持续时间。
-     * @returns audio duration
+     * 获取以秒为单位的音频总时长。
      */
     get duration () {
         if (!this._clip) { return 0; }
@@ -231,7 +228,6 @@ export class AudioSourceComponent extends Component {
      * get current audio state
      * @zh
      * 获取当前音频状态。
-     * @returns current audio state
      */
     get state () {
         if (!this._clip) { return AudioClip.PlayingState.INITIALIZING; }

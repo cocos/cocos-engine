@@ -148,10 +148,10 @@ export class PlanarShadows {
     public updateCommandBuffers () {
         this._cmdBuffs.clear();
         for (const model of this._scene.models) {
-            if (!model.node || !model.castShadow) { continue; }
+            if (!model.enabled || !model.node || !model.castShadow) { continue; }
             let pso = this._psoRecord.get(model);
             if (!pso) { pso = this._createPSO(model); this._psoRecord.set(model, pso); }
-            if (!model.UBOUpdated) { model.updateUBOs(); }
+            if (!model.UBOUpdated) { model.updateUBOs(); } // for those outside the frustum
             for (let i = 0; i < model.subModelNum; i++) {
                 const ia = model.getSubModel(i).inputAssembler;
                 if (!ia) { continue; }

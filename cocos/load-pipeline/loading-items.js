@@ -211,10 +211,12 @@ export default class LoadingItems extends CallbacksInvoker {
          * @param {Number} totalCount The total number of the items.
          * @param {Object} item The latest item which flow out the pipeline.
          * @example
+         * ```
          *  loadingItems.onProgress (completedCount, totalCount, item) {
          *      var progress = (100 * completedCount / totalCount).toFixed(2);
          *      cc.log(progress + '%');
          *  }
+         * ```
          */
         this.onProgress = onProgress;
 
@@ -226,12 +228,14 @@ export default class LoadingItems extends CallbacksInvoker {
          * @param {Array} errors All errored urls will be stored in this array, if no error happened, then it will be null
          * @param {LoadingItems} items All items.
          * @example
+         * ```
          *  loadingItems.onComplete (errors, items) {
          *      if (error)
          *          cc.log('Completed with ' + errors.length + ' errors');
          *      else
          *          cc.log('Completed ' + items.totalCount + ' items');
          *  }
+         * ```
          */
         this.onComplete = onComplete;
 
@@ -303,6 +307,7 @@ export default class LoadingItems extends CallbacksInvoker {
      * @param {Function} [onComplete] The completion callback, refer to {{#crossLink "LoadingItems.onComplete"}}{{/crossLink}}
      * @return {LoadingItems} The LoadingItems queue object
      * @example
+     * ```
      *  cc.LoadingItems.create(cc.loader, ['a.png', 'b.plist'], function (completedCount, totalCount, item) {
      *      var progress = (100 * completedCount / totalCount).toFixed(2);
      *      cc.log(progress + '%');
@@ -317,6 +322,7 @@ export default class LoadingItems extends CallbacksInvoker {
      *          // ...
      *      }
      *  })
+     * ```
      */
     static create (pipeline, urlList, onProgress, onComplete) {
         if (onProgress === undefined) {

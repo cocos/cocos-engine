@@ -205,7 +205,8 @@ export class Model {
 
     public updateTransform () {
         const node = this._transform;
-        if (!node.hasChanged) { return; }
+        // @ts-ignore
+        if (!node.hasChanged && !node._dirty) { return; }
         node.updateWorldTransformFull();
         if (!this._modelBounds || !this._worldBounds) { return; }
         // @ts-ignore
@@ -222,9 +223,9 @@ export class Model {
         }
         this._uboUpdated = true;
         // @ts-ignore
-        const worldMatrix = this._transform._mat;
+        const worldMatrix = this._transform._mat; const rot = this._transform._rot;
         mat4.array(this._uboLocal.view, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
-        mat4.inverseTranspose(m4_1, worldMatrix);
+        mat4.fromQuat(m4_1, rot);
         mat4.array(this._uboLocal.view, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
 
         const commonLocal = this._localBindings.get(UBOLocal.BLOCK.name);

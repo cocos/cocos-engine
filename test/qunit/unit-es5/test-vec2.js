@@ -17,9 +17,12 @@ test('basic test', function () {
 
 test('scale test', function () {
     var vec1 = new cc.Vec2(5, 6);
-    deepEqual(vec1.scale(v2(1, 2)), v2(5, 12), 'can scale');
+    var tmp = new cc.Vec2(vec1);
+    tmp.scale(v2(1, 2));
+    deepEqual(tmp, v2(5, 12), 'can scale');
     deepEqual(vec1, v2(5, 6), 'ensure vec1 not being changed after scale');
-    deepEqual(vec1.scaleSelf(v2(1, 2)), v2(5, 12), 'can scaleSelf');
+    vec1.scale(v2(1, 2));
+    deepEqual(vec1, v2(5, 12), 'can scaleSelf');
 });
 
 test('misc', function(){
@@ -29,8 +32,8 @@ test('misc', function(){
     strictEqual(vec1.cross(vector), 415, 'corss test');
     strictEqual(vec1.magSqr(vector), 1885, 'magSqr test');
 
-    var normalizeSelf = vec1.normalizeSelf();
+    vec1.normalize();
     var mag = Math.sqrt(vec1.x * vec1.x + vec1.y * vec1.y);
     var expect = v2(vec1.x / mag, vec1.y / mag);
-    deepEqual(normalizeSelf, expect, 'normalizeSelf test');
+    deepEqual(vec1, expect, 'normalizeSelf test');
 });

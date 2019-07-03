@@ -56,7 +56,6 @@ export class ArrayCollisionMatrix {
 
     /**
      * Sets the max number of objects
-     * @method setNumObjects
      * @param {Number} n
      */
     public setNumObjects (n: number) {

@@ -95,7 +95,6 @@ export abstract class GFXSampler extends GFXObject {
     protected _state: GFXSamplerState = new GFXSamplerState();
 
     /**
-     * @zh
      * 构造函数。
      */
     constructor (device: GFXDevice) {

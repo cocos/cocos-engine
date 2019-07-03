@@ -139,10 +139,6 @@ function getGlobalDefs (platform: Platform, physics: Physics, flags?: IFlags): o
             result.CC_PHYSICS_AMMO = false;
             result.CC_PHYSICS_BUILT_IN = true;
             break;
-
-        default:
-            throw new Error(`Unknown physics ${physics}.`);
-            break;
     }
 
     return result;

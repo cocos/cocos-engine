@@ -210,13 +210,12 @@ export default class Color extends ValueType {
 
     /**
      * 根据指定的插值比率，从当前颜色到目标颜色之间做插值。
+     * @param out 本方法将插值结果赋值给此参数
      * @param from 起始颜色。
      * @param to 目标颜色。
      * @param ratio 插值比率，范围为 [0,1]。
-     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
-     * @returns 当前颜色各个通道到目标颜色对应的各个通道之间按指定插值比率进行线性插值构成的颜色。
      */
-    public static lerp (from: Color, to: Color, ratio: number, out: Color) {
+    public static lerp (out: Color, from: Color, to: Color, ratio: number) {
         let r = from.r;
         let g = from.g;
         let b = from.b;
@@ -226,7 +225,6 @@ export default class Color extends ValueType {
         b = b + (to.b - b) * ratio;
         a = a + (to.a - a) * ratio;
         out._val = Math.floor(((a << 24) >>> 0) + (b << 16) + (g << 8) + r);
-        return out;
     }
 
     public _val: number;
@@ -280,33 +278,12 @@ export default class Color extends ValueType {
     }
 
     /**
-     * 同lerp函数一样，但是会对自身做lerp。
-     * @param to 目标颜色。
-     * @param ratio 插值比率，范围为 [0,1]。
-     * @returns 当前颜色各个通道到目标颜色对应的各个通道之间按指定插值比率进行线性插值构成的颜色。
-     */
-    public lerpSelf (to: Color, ratio: number) {
-        return Color.lerp(this, to, ratio, this);
-    }
-
-    /**
      * 根据指定的插值比率，从当前颜色到目标颜色之间做插值。
      * @param to 目标颜色。
      * @param ratio 插值比率，范围为 [0,1]。
-     * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
-     * @returns 当前颜色各个通道到目标颜色对应的各个通道之间按指定插值比率进行线性插值构成的颜色。
      */
-    public lerp (to: Color, ratio: number, out: Color) {
-        let r = this.r;
-        let g = this.g;
-        let b = this.b;
-        let a = this.a;
-        r = r + (to.r - r) * ratio;
-        g = g + (to.g - g) * ratio;
-        b = b + (to.b - b) * ratio;
-        a = a + (to.a - a) * ratio;
-        out._val = Math.floor(((a << 24) >>> 0) + (b << 16) + (g << 8) + r);
-        return out;
+    public lerp (to: Color, ratio: number) {
+        Color.lerp(this, this, to, ratio);
     }
 
     /**
@@ -370,9 +347,11 @@ export default class Color extends ValueType {
      * - `'#rrggbb` 与 `'#rrggbbaa'` 类似但不包括 Alpha 通道。
      * @returns 十六进制颜色字符串。
      * @example
+     * ```
      * const color = new Color(255, 14, 0, 255);
      * color.toHex("rrggbbaa"); // "FF0E00FF"
      * color.toHex("rrggbb"); // "FF0E00"
+     * ```
      */
     public toHEX (fmt: '#rrggbb' | '#rrggbbaa') {
         const hex = [
@@ -402,8 +381,10 @@ export default class Color extends ValueType {
      * 将当前颜色转换为 RGB 整数值。
      * @returns RGB 整数值。从最低有效位开始，每8位分别是 Red、Green、Blue 通道的值。
      * @example
+     * ```
      * const color = Color.YELLOW;
      * color.toRGBValue();
+     * ```
      */
     public toRGBValue () {
         return this._val & 0x00ffffff;
@@ -416,8 +397,10 @@ export default class Color extends ValueType {
      * @param v V 通道。
      * @returns `this`
      * @example
+     * ```
      * const color = Color.YELLOW;
      * color.fromHSV(0, 0, 1); // Color {r: 255, g: 255, b: 255, a: 255};
+     * ```
      */
     public fromHSV (h: number, s: number, v: number) {
         let r: number = 0;
@@ -488,8 +471,10 @@ export default class Color extends ValueType {
      * 转换当前颜色为 HSV 颜色。
      * @returns HSV 颜色。成员 `h`、`s`、`v` 分别代表 HSV 颜色的 H、S、V 通道。
      * @example
+     * ```
      * const color = cc.Color.YELLOW;
      * color.toHSV(); // {h: 0.1533864541832669, s: 0.9843137254901961, v: 1}
+     * ```
      */
     public toHSV () {
         const r = this.r * toFloat;
@@ -530,32 +515,15 @@ export default class Color extends ValueType {
     }
 
     /**
-     * 将当前颜色乘以与指定颜色：当前颜色的每个通道都乘以指定颜色对应的通道。
+     * 将当前颜色乘以与指定颜色
      * @param other 指定的颜色。
-     * @returns `this`
      */
-    public mulSelf (other: Color) {
+    public multiply (other: Color) {
         const r = ((this._val & 0x000000ff) * other.r) >> 8;
         const g = ((this._val & 0x0000ff00) * other.g) >> 8;
         const b = ((this._val & 0x00ff0000) * other.b) >> 8;
         const a = ((this._val & 0xff000000) >>> 8) * other.a;
         this._val = (a & 0xff000000) | (b & 0x00ff0000) | (g & 0x0000ff00) | (r & 0x000000ff);
-        return this;
-    }
-
-    /**
-     * 将当前颜色乘以与指定颜色的结果赋值给出口颜色。
-     * @param other 指定的颜色。
-     * @param [out] 出口颜色，当未指定时将创建为新的颜色。
-     */
-    public mul (other: Color, out?: Color) {
-        out = out || new Color();
-        const r = ((this._val & 0x000000ff) * other.r) >> 8;
-        const g = ((this._val & 0x0000ff00) * other.g) >> 8;
-        const b = ((this._val & 0x00ff0000) * other.b) >> 8;
-        const a = ((this._val & 0xff000000) >>> 8) * other.a;
-        out._val = (a & 0xff000000) | (b & 0x00ff0000) | (g & 0x0000ff00) | (r & 0x000000ff);
-        return out;
     }
 
     public _set_r_unsafe (red) {

@@ -152,7 +152,6 @@ export default class plane {
     private _type: number;
 
     /**
-     * @zh
      * 构造一个平面。
      * @param nx 法向分量的 x 部分。
      * @param ny 法向分量的 y 部分。

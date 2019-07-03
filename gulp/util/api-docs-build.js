@@ -13,6 +13,7 @@ program
 const mode = 'modules';
 const docsName = 'Creator-3d-API';
 const exclude = '"**/cocos/**/+(webgl|webgl2|utils|builtin|renderer|scene|models|misc|ammo|shapes|constraint|cannon|graphics|webview|platform|profiler)/*.ts"';
+const readme = 'none';
 //const exclude = '"**/cocos/**/index.ts"';
 
 exports.generateJson = function () {
@@ -28,6 +29,8 @@ exports.generateJson = function () {
         output,
         '--exclude',
         exclude,
+        '--readme',
+        readme,
         '--tags',
         '--disableOutputCheck',
         '--ignoreCompilerErrors'
@@ -53,6 +56,8 @@ exports.generateAPIZH = function (indexPath, jsonFiles, outputPath) {
         docsName,
         '--exclude',
         exclude,
+        '--readme',
+        readme,
         '--tags',
         '--disableOutputCheck',
         '--ignoreCompilerErrors',
@@ -80,6 +85,8 @@ exports.generateAPIEN = function (indexPath, jsonFiles, outputPath) {
         docsName,
         '--exclude',
         exclude,
+        '--readme',
+        readme,
         '--tags',
         '--disableOutputCheck',
         '--ignoreCompilerErrors',
@@ -106,6 +113,8 @@ exports.generateHTML = function () {
         docsName,
         '--exclude',
         exclude,
+        '--readme',
+        readme,
         '--disableOutputCheck',
         '--ignoreCompilerErrors',
     ];

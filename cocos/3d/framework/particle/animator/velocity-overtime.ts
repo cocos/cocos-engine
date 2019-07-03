@@ -15,7 +15,6 @@
 >>>>>>> Some API Doc modify (#4725)
  */
 
-import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
 import { mat4, pseudoRandom, quat, vec3 } from '../../../../core/vmath';
 import { Space } from '../enum';

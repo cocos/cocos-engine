@@ -380,7 +380,6 @@ class Scheduler {
      * This method will add a `_id` property if it doesn't exist.
      * @zh 任何需要用 Scheduler 管理任务的对象主体都应该调用这个方法，并且应该在调用任何 Scheduler API 之前调用这个方法。<bg>
      * 这个方法会给对象添加一个 `_id` 属性，如果这个属性不存在的话。
-     * @method enableForTarget
      * @param {Object} target
      */
     public enableForTarget (target) {
@@ -407,7 +406,6 @@ class Scheduler {
      * 默认是 1.0。要创建一个 “slow motion（慢动作）” 效果,使用值低于 1.0。<br>
      * 要使用 “fast forward（快进）” 效果，使用值大于 1.0。<br>
      * 注意：它影响该 Scheduler 下管理的所有定时器。
-     * @method setTimeScale
      * @param {Number} timeScale
      */
     public setTimeScale (timeScale) {
@@ -417,7 +415,6 @@ class Scheduler {
     /**
      * @en Returns time scale of scheduler.
      * @zh 获取时间间隔的缩放比例。
-     * @method getTimeScale
      * @return {Number}
      */
     public getTimeScale (): number {
@@ -427,7 +424,6 @@ class Scheduler {
     /**
      * @en 'update' the scheduler. (You should NEVER call this method, unless you know what you are doing.)
      * @zh update 调度函数。(不应该直接调用这个方法，除非完全了解这么做的结果)
-     * @method update
      * @param {Number} dt delta time
      */
     public update (dt) {
@@ -544,13 +540,12 @@ class Scheduler {
      * repeat 值可以让定时器触发 repeat + 1 次，使用 cc.macro.REPEAT_FOREVER
      * 可以让定时器一直循环触发。<br/>
      * delay 值指定延迟时间，定时器会在延迟指定的时间之后开始计时。
-     * @method schedule
      * @param {Function} callback
      * @param {Object} target
      * @param {Number} interval
      * @param {Number} [repeat=cc.macro.REPEAT_FOREVER]
      * @param {Number} [delay=0]
-     * @param {Boolean} paused
+     * @param {Boolean} [paused=fasle]
      */
     public schedule (callback: Function, target: any, interval: number, repeat: number, delay: number, paused?: boolean) {
         'use strict';
@@ -622,7 +617,6 @@ class Scheduler {
      * 使用指定的优先级为指定的对象设置 update 定时器。<br>
      * update 定时器每一帧都会被触发，触发时自动调用指定对象的 "update" 函数。<br>
      * 优先级的值越低，定时器被触发的越早。
-     * @method scheduleUpdate
      * @param {Object} target
      * @param {Number} priority
      * @param {Boolean} paused
@@ -683,7 +677,6 @@ class Scheduler {
      * @zh
      * 根据指定的回调函数和调用对象。<br>
      * 如果需要取消 update 定时器，请使用 unscheduleUpdate()。
-     * @method unschedule
      * @param {Function} callback The callback to be unscheduled
      * @param {Object} target The target bound to the callback.
      */
@@ -738,7 +731,6 @@ class Scheduler {
     /**
      * @en Unschedules the update callback for a given target.
      * @zh 取消指定对象的 update 定时器。
-     * @method unscheduleUpdate
      * @param {Object} target The target to be unscheduled.
      */
     public unscheduleUpdate (target) {
@@ -771,7 +763,6 @@ class Scheduler {
      * Unschedules all scheduled callbacks for a given target.
      * This also includes the "update" callback.
      * @zh 取消指定对象的所有定时器，包括 update 定时器。
-     * @method unscheduleAllForTarget
      * @param {Object} target The target to be unscheduled.
      */
     public unscheduleAllForTarget (target) {
@@ -821,7 +812,6 @@ class Scheduler {
      * @zh
      * 取消所有对象的所有定时器，包括系统定时器。<br/>
      * 不用调用此函数，除非你确定你在做什么。
-     * @method unscheduleAll
      */
     public unscheduleAll (){
         this.unscheduleAllWithMinPriority(cc.Scheduler.PRIORITY_SYSTEM);
@@ -834,7 +824,6 @@ class Scheduler {
      * @zh
      * 取消所有优先级的值大于指定优先级的定时器。<br/>
      * 你应该只取消优先级的值大于 PRIORITY_NON_SYSTEM_MIN 的定时器。
-     * @method unscheduleAllWithMinPriority
      * @param {Number} minPriority The minimum priority of selector to be unscheduled. Which means, all selectors which
      *        priority is higher than minPriority will be unscheduled.
      */
@@ -892,7 +881,6 @@ class Scheduler {
     /**
      * @en Checks whether a callback for a given target is scheduled.
      * @zh 检查指定的回调函数和回调对象组合是否存在定时器。
-     * @method isScheduled
      * @param {Function} callback The callback to check.
      * @param {Object} target The target of the callback.
      * @return {Boolean} True if the specified callback is invoked, false if not.
@@ -942,7 +930,6 @@ class Scheduler {
      * @zh
      * 暂停所有对象的所有定时器。<br/>
      * 不要调用这个方法，除非你知道你正在做什么。
-     * @method pauseAllTargets
      */
     public pauseAllTargets () {
         return this.pauseAllTargetsWithMinPriority(cc.Scheduler.PRIORITY_SYSTEM);
@@ -955,7 +942,6 @@ class Scheduler {
      * @zh
      * 暂停所有优先级的值大于指定优先级的定时器。<br/>
      * 你应该只暂停优先级的值大于 PRIORITY_NON_SYSTEM_MIN 的定时器。
-     * @method pauseAllTargetsWithMinPriority
      * @param {Number} minPriority
      */
     public pauseAllTargetsWithMinPriority (minPriority: number) {
@@ -1018,7 +1004,6 @@ class Scheduler {
      * @zh
      * 恢复指定数组中所有对象的定时器。<br/>
      * 这个函数是 pauseAllCallbacks 的逆操作。
-     * @method resumeTargets
      * @param {Array} targetsToResume
      */
     public resumeTargets (targetsToResume) {
@@ -1040,7 +1025,6 @@ class Scheduler {
      * 暂停指定对象的定时器。<br/>
      * 指定对象的所有定时器都会被暂停。<br/>
      * 如果指定的对象没有定时器，什么也不会发生。
-     * @method pauseTarget
      * @param {Object} target
      */
     public pauseTarget (target) {
@@ -1079,7 +1063,6 @@ class Scheduler {
      * 恢复指定对象的所有定时器。<br/>
      * 指定对象的所有定时器将继续工作。<br/>
      * 如果指定的对象没有定时器，什么也不会发生。
-     * @method resumeTarget
      * @param {Object} target
      */
     public resumeTarget (target) {
@@ -1112,7 +1095,6 @@ class Scheduler {
     /**
      * @en Returns whether or not the target is paused.
      * @zh 返回指定对象的定时器是否处于暂停状态。
-     * @method isTargetPaused
      * @param {Object} target
      * @return {Boolean}
      */

@@ -136,7 +136,6 @@ export default class line {
     private _type: number;
 
     /**
-     * @zh
      * 构造一条线。
      * @param sx 起点的 x 部分。
      * @param sy 起点的 y 部分。

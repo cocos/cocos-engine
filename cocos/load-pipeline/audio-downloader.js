@@ -34,14 +34,15 @@ import { AudioClip, AudioType } from '../3d/assets/audio/clip';
 var __audioSupport = sys.__audioSupport;
 var formatSupport = __audioSupport.format;
 
+function loadWXAudio (item, callback) {
+    var clip = wx.createInnerAudioContext();
+    clip.src = item.url;
+    clip.onCanplay(() => callback(null, clip));
+}
+
 function loadDomAudio (item, callback) {
     var dom = document.createElement('audio');
     dom.src = item.url;
-
-    if (CC_WECHATGAME) {
-        callback(null, dom);
-        return;
-    }
 
     var clearEvent = function () {
         clearTimeout(timer);
@@ -104,17 +105,16 @@ export default function downloadAudio (item, callback) {
         return new Error(debug.getError(4927));
     }
 
-    var loader;
-    if (!__audioSupport.WEB_AUDIO) {
-        // If WebAudio is not supported, load using DOM mode
-        loader = loadDomAudio;
-    }
-    else {
-        var loadByDeserializedAudio = item._owner instanceof AudioClip;
+    let loader;
+    if (CC_WECHATGAME) {
+        loader = loadWXAudio;
+    } else if (!__audioSupport.WEB_AUDIO) {
+        loader = loadDomAudio; // If WebAudio is not supported, load using DOM mode
+    } else {
+        let loadByDeserializedAudio = item._owner instanceof AudioClip;
         if (loadByDeserializedAudio) {
             loader = (item._owner.loadMode === AudioType.WEB_AUDIO) ? loadWebAudio : loadDomAudio;
-        }
-        else {
+        } else {
             loader = (item.urlParam && item.urlParam['useDom']) ? loadDomAudio : loadWebAudio;
         }
     }

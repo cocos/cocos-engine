@@ -219,7 +219,6 @@ export abstract class GFXTexture extends GFXObject {
     protected _buffer: ArrayBuffer | null = null;
 
     /**
-     * @zh
      * 构造函数。
      * @param device GFX设备。
      */
