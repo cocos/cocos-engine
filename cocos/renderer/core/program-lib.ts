@@ -24,13 +24,13 @@
 */
 
 /**
- * @hidden
+ * @category material
  */
 
-import { IDefineInfo, IShaderInfo } from '../../3d/assets/effect-asset';
+import { IBuiltinInfo, IDefineInfo, IShaderInfo } from '../../3d/assets/effect-asset';
 import { GFXBindingType, GFXShaderType } from '../../gfx/define';
 import { GFXAPI, GFXDevice } from '../../gfx/device';
-import { GFXShader, GFXUniformBlock, GFXUniformSampler } from '../../gfx/shader';
+import { GFXShader } from '../../gfx/shader';
 import { IInternalBindingDesc, localBindingsDesc } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { IDefineMap } from './pass';
@@ -89,18 +89,20 @@ const getShaderInstanceName = (name: string, defs: IDefineValue[]) => {
 };
 
 const insertBuiltinBindings = (tmpl: IProgramInfo, source: Map<string, IInternalBindingDesc>, type: string) => {
-    const target = tmpl.builtins[type];
+    const target = tmpl.builtins[type] as IBuiltinInfo;
+    const blocks = tmpl.blocks;
     for (const b of target.blocks) {
-        const info = source.get(b);
-        if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b}' not available!`); continue; }
-        const blocks = tmpl.blocks as GFXUniformBlock[];
-        blocks.push(info.blockInfo!);
+        const info = source.get(b.name);
+        if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b.name}' not available!`); continue; }
+        const builtin = Object.assign({ defines: b.defines }, info.blockInfo);
+        blocks.push(builtin);
     }
+    const samplers = tmpl.samplers;
     for (const s of target.samplers) {
-        const info = source.get(s);
-        if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`builtin sampler '${s}' not available!`); continue; }
-        const samplers = tmpl.samplers as GFXUniformSampler[];
-        samplers.push(info.samplerInfo!);
+        const info = source.get(s.name);
+        if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`builtin sampler '${s.name}' not available!`); continue; }
+        const builtin = Object.assign({ defines: s.defines }, info.samplerInfo);
+        samplers.push(builtin);
     }
 };
 
@@ -245,11 +247,7 @@ class ProgramLib {
         const defs = prepareDefines(defines, tmpl.defines);
         validateDefines(defs, device, tmpl.dependencies);
         const customDef = defs.reduce((acc, cur) => {
-            // if (typeof cur.result === 'boolean') {
-            //     return cur.result ? `${acc}#define ${cur.name} 1\n` : '';
-            // } else {
-                return `${acc}#define ${cur.name} ${cur.result}\n`;
-            // }
+            return `${acc}#define ${cur.name} ${cur.result}\n`;
         }, '');
 
         let vert: string = '';

@@ -31,6 +31,7 @@ import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { GFXDynamicState, GFXPrimitiveMode, GFXType } from '../../gfx/define';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
+import { GFXUniform } from '../../gfx/shader';
 import { RenderPassStage } from '../../pipeline/define';
 import { programLib } from '../../renderer/core/program-lib';
 
@@ -60,21 +61,15 @@ export interface ITechniqueInfo {
     name?: string;
 }
 
-export interface IBlockMember {
-    size: number;
-    // extends GFXUniform
-    name: string;
-    type: GFXType;
-    count: number;
-}
 export interface IBlockInfo {
-    size: number;
+    defines: string[];
     // extends GFXUniformBlock
     binding: number;
     name: string;
-    members: IBlockMember[];
+    members: GFXUniform[];
 }
 export interface ISamplerInfo {
+    defines: string[];
     // extends GFXUniformSampler
     binding: number;
     name: string;
@@ -88,9 +83,13 @@ export interface IDefineInfo {
     options?: string[];
     default?: string;
 }
+export interface IBuiltin {
+    name: string;
+    defines: string[];
+}
 export interface IBuiltinInfo {
-    blocks: string[];
-    samplers: string[];
+    blocks: IBuiltin[];
+    samplers: IBuiltin[];
 }
 export interface IShaderInfo {
     name: string;
