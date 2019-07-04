@@ -558,7 +558,7 @@ module.exports = {
                     letterPosition.x = letterX;
                 }
 
-                letterPosition.y = nextTokenY - letterDef.offsetY * _bmfontScale + _labelInfo.margin + _fontSize * textUtils.BASELINE_RATIO / 2;
+                letterPosition.y = nextTokenY - letterDef.offsetY * _bmfontScale + _labelInfo.margin + _fontSize * textUtils.MIDDLE_RATIO / 2;
                 this._recordLetterInfo(letterPosition, character, letterIndex, lineIndex);
 
                 if (letterIndex + 1 < _horizontalKernings.length && letterIndex < textLen - 1) {
