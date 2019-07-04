@@ -779,6 +779,11 @@ export interface IGFXFormatInfo {
     readonly isCompressed: boolean;
 }
 
+export interface IGFXMemoryStatus {
+    bufferSize: number;
+    textureSize: number;
+}
+
 /**
  * GFX格式信息数组。
  */
