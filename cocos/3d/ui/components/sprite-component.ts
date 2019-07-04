@@ -579,13 +579,13 @@ export class SpriteComponent extends UIRenderComponent {
         }
     }
 
-    // _onTextureLoaded() {
-    //     if (!this.isValid) {
-    //         return;
-    //     }
+    private _onTextureLoaded () {
+        if (!this.isValid) {
+            return;
+        }
 
-    //     this._applySpriteSize();
-    // }
+        this._applySpriteSize();
+    }
 
     private _applySpriteFrame (oldFrame: SpriteFrame | null) {
         // if (oldFrame && oldFrame.off) {
@@ -601,11 +601,12 @@ export class SpriteComponent extends UIRenderComponent {
         if (spriteFrame) {
             if (!oldFrame || spriteFrame !== oldFrame) {
                 // this._material.setProperty('mainTexture', spriteFrame);
-                this._activateMaterial();
+                if (spriteFrame.loaded) {
+                    this._onTextureLoaded();
+                } else {
+                    spriteFrame.once('load', this._onTextureLoaded, this);
+                }
             }
-            // else {
-            //     this._applySpriteSize();
-            // }
         }
 
         if (CC_EDITOR) {
