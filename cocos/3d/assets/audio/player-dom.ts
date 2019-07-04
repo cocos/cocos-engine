@@ -133,12 +133,6 @@ export class AudioPlayerDOM extends AudioPlayer {
         return this._audio ? this._audio.currentTime : 0;
     }
 
-    public getDuration () {
-        if (!this._audio) { return this._duration; }
-        // electron & ios wechat browser doesn't have duration
-        return isNaN(this._audio.duration) ? this._duration : this._audio.duration;
-    }
-
     public setVolume (val: number, immediate: boolean) {
         this._volume = val;
         /* note this won't work for ios devices, for there
@@ -159,4 +153,6 @@ export class AudioPlayerDOM extends AudioPlayer {
     public getLoop () {
         return this._loop;
     }
+
+    public destroy () {}
 }
