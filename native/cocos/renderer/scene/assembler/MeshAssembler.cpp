@@ -44,9 +44,6 @@ void MeshAssembler::handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene)
     _batcher->setCustomProperties(_customProp);
     _mesh->uploadData();
     
-    Effect* effect = getEffect(0);
-    std::unordered_map<std::string, Effect::Property> p = effect->getProperties();
-    
     _batcher->setCurrentEffect(getEffect(0));
     for (size_t i = 0, len = _mesh->getMeshCount(); i < len; i++)
     {
