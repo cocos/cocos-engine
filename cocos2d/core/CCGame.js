@@ -623,6 +623,9 @@ var game = {
     },
     //Run game.
     _runMainLoop: function () {
+        if (CC_EDITOR) {
+            return;
+        }
         var self = this, callback, config = self.config,
             director = cc.director,
             skip = true, frameRate = config.frameRate;
