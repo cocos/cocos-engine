@@ -52,14 +52,23 @@ export class UIModelComponent extends UIComponent {
     private _modelComponent: RenderableComponent | null = null;
 
     public onLoad () {
-        this._modelComponent = this.getComponent(cc.RenderableComponent) as RenderableComponent;
-        (this._modelComponent as any)._sceneGetter = cc.director.root.ui.getRenderSceneGetter();
+        this._modelComponent = this.getComponent('cc.RenderableComponent') as RenderableComponent;
+        if (!this._modelComponent){
+            console.warn(`Use this component on a node（${this.node && this.node.name}） that has a model component`);
+            return;
+        }
+
+        this._modelComponent._sceneGetter = cc.director.root.ui.getRenderSceneGetter();
         this._modelComponent.recreateModel();
     }
 
     public onDestroy () {
-        this._modelComponent = this.getComponent(cc.RenderableComponent) as RenderableComponent;
-        (this._modelComponent as any)._sceneGetter = null;
+        this._modelComponent = this.getComponent('cc.RenderableComponent') as RenderableComponent;
+        if (!this._modelComponent){
+            return;
+        }
+
+        this._modelComponent._sceneGetter = null;
         this._modelComponent.recreateModel();
     }
 
