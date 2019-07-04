@@ -1870,10 +1870,40 @@ bool seval_to_TechniqueParameter_not_constructor(const se::Value& v, cocos2d::re
         case cocos2d::renderer::Technique::Parameter::Type::TEXTURE_2D:
         case cocos2d::renderer::Technique::Parameter::Type::TEXTURE_CUBE:
         {
-            cocos2d::renderer::Texture* texture = nullptr;
-            seval_to_native_ptr(v, &texture);
-            cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, texture);
-            *ret = std::move(param);
+            se::Object* obj = v.toObject();
+            if (obj->isArray())
+            {
+                uint32_t arrLen = 0;
+                obj->getArrayLength(&arrLen);
+                if (arrLen == 1)
+                {
+                    cocos2d::renderer::Texture* texture = nullptr;
+                    seval_to_native_ptr(v, &texture);
+                    cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, texture);
+                    *ret = std::move(param);
+                }
+                else
+                {
+                    std::vector<cocos2d::renderer::Texture*> textures;
+                    for (uint32_t i = 0; i < arrLen; ++i)
+                    {
+                        se::Value texVal;
+                        obj->getArrayElement(i, &texVal);
+                        cocos2d::renderer::Texture* tmpTex = nullptr;
+                        seval_to_native_ptr(texVal, &tmpTex);
+                        textures.push_back(tmpTex);
+                    }
+                    cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, textures);
+                    *ret = std::move(param);
+                }
+            }
+            else
+            {
+                cocos2d::renderer::Texture* texture = nullptr;
+                seval_to_native_ptr(v, &texture);
+                cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, texture);
+                *ret = std::move(param);
+            }
             break;
         }
         default:
@@ -1993,7 +2023,7 @@ bool seval_to_TechniqueParameter(const se::Value& v, cocos2d::renderer::Techniqu
             }
             else
             {
-                assert(false);
+                //assert(false);
             }
         }
     }
