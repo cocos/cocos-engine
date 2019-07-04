@@ -130,6 +130,7 @@ export class WebGLGFXTexture extends GFXTexture {
 
         WebGLCmdFuncCreateTexture(this._device as WebGLGFXDevice, this._gpuTexture);
 
+        this._device.memoryStatus.textureSize += this._size;
         this._status = GFXStatus.SUCCESS;
 
         return true;
@@ -138,12 +139,14 @@ export class WebGLGFXTexture extends GFXTexture {
     public destroy () {
         if (this._gpuTexture) {
             WebGLCmdFuncDestroyTexture(this._device as WebGLGFXDevice, this._gpuTexture);
+            this._device.memoryStatus.textureSize -= this._size;
             this._gpuTexture = null;
         }
         this._status = GFXStatus.UNREADY;
     }
 
     public resize (width: number, height: number) {
+        const oldSize = this._size;
         this._width = width;
         this._height = height;
         this._size = GFXFormatSurfaceSize(this._format, this.width, this.height,
@@ -154,6 +157,8 @@ export class WebGLGFXTexture extends GFXTexture {
             this._gpuTexture.height = this._height;
             this._gpuTexture.size = this._size;
             WebGLCmdFuncResizeTexture(this._device as WebGLGFXDevice, this._gpuTexture);
+            this._device.memoryStatus.textureSize -= oldSize;
+            this._device.memoryStatus.textureSize += this._size;
         }
         this._status = GFXStatus.UNREADY;
     }

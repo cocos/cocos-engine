@@ -7,7 +7,7 @@ import { GFXBindingLayout, IGFXBindingLayoutInfo } from './binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from './buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from './command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from './command-buffer';
-import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFilter, GFXFormat, IGFXRect } from './define';
+import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFilter, GFXFormat, IGFXRect, IGFXMemoryStatus } from './define';
 import { GFXFramebuffer, IGFXFramebufferInfo } from './framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from './input-assembler';
 import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from './pipeline-layout';
@@ -290,78 +290,49 @@ export abstract class GFXDevice {
         return this._numTris;
     }
 
+    /**
+     * @zh
+     * 内存状态。
+     */
+    public get memoryStatus (): IGFXMemoryStatus {
+        return this._memoryStatus;
+    }
+
     protected _canvas: HTMLCanvasElement | null = null;
-
     protected _canvas2D: HTMLCanvasElement | null = null;
-
     protected _gfxAPI: GFXAPI = GFXAPI.UNKNOWN;
     protected _deviceName: string = '';
-
     protected _renderer: string = '';
-
     protected _vendor: string = '';
-
-    /**
-     * @zh
-     * 驱动版本。
-     */
     protected _version: string = '';
-
-    /**
-     * @zh
-     * 特性数组。
-     */
     protected _features: boolean[] = new Array<boolean>(GFXFeature.COUNT);
-
     protected _queue: GFXQueue | null = null;
-
     protected _devicePixelRatio: number = 1.0;
-
     protected _width: number = 0;
-
     protected _height: number = 0;
-
     protected _nativeWidth: number = 0;
-
     protected _nativeHeight: number = 0;
-
     protected _mainWindow: GFXWindow | null = null;
-
     protected _cmdAllocator: GFXCommandAllocator | null = null;
-
     protected _maxVertexAttributes: number = 0;
-
     protected _maxVertexUniformVectors: number = 0;
-
     protected _maxFragmentUniformVectors: number = 0;
-
     protected _maxTextureUnits: number = 0;
-
     protected _maxVertexTextureUnits: number = 0;
-
     protected _maxUniformBufferBindings: number = GFX_MAX_BUFFER_BINDINGS;
-
     protected _maxUniformBlockSize: number = 0;
-
     protected _depthBits: number = 0;
-
     protected _stencilBits: number = 0;
-
     protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;
-
     protected _depthStencilFmt: GFXFormat = GFXFormat.UNKNOWN;
-
-    /**
-     * @zh
-     * Shader ID 生成标识。
-     */
     protected _shaderIdGen: number = 0;
-
     protected _macros: Map<string, string> = new Map();
-
     protected _numDrawCalls: number = 0;
-
     protected _numTris: number = 0;
+    protected _memoryStatus: IGFXMemoryStatus = {
+        bufferSize: 0,
+        textureSize: 0,
+    };
 
     /**
      * @zh

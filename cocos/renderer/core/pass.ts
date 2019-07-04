@@ -30,11 +30,12 @@
 import { IPassInfo, IPassStates, IPropertyInfo, IShaderInfo } from '../../3d/assets/effect-asset';
 import { builtinResMgr } from '../../3d/builtin';
 import { TextureBase } from '../../assets/texture-base';
+import { Root } from '../../core/root';
 import { mat3, mat4, vec2, vec3, vec4 } from '../../core/vmath';
 import { GFXBindingLayout, IGFXBinding } from '../../gfx/binding-layout';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXDynamicState,
-    GFXMemoryUsageBit, GFXPrimitiveMode, GFXType } from '../../gfx/define';
+    GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode, GFXType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
@@ -45,7 +46,6 @@ import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { RenderPassStage, RenderPriority, UniformBinding } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
-import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
 
@@ -190,28 +190,31 @@ export class Pass {
 
         for (const u of this._shaderInfo.blocks) {
             if (isBuiltin(u.binding)) { continue; }
+            const blockSize = u.members.reduce((s, m) => s + GFXGetTypeSize(m.type) * m.count, 0);
+
             // create gfx buffer resource
             this._buffers[u.binding] = device.createBuffer({
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: u.size,
+                size: blockSize,
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
             });
             // non-builtin UBO data pools, note that the effect compiler
             // guarantees these bindings to be consecutive, starting from 0
             const block: IBlock = this._blocks[u.binding] = {
-                buffer: new ArrayBuffer(u.size),
+                buffer: new ArrayBuffer(blockSize),
                 dirty: false,
                 views: [],
             };
             u.members.reduce((acc, cur, idx) => {
+                const size = GFXGetTypeSize(cur.type) * cur.count;
                 // create property-specific buffer views
-                const view = new Float32Array(block.buffer, acc, cur.size / Float32Array.BYTES_PER_ELEMENT);
+                const view = new Float32Array(block.buffer, acc, size / Float32Array.BYTES_PER_ELEMENT);
                 block.views.push(view);
                 // store handle map
                 this._handleMap[cur.name] = genHandle(GFXBindingType.UNIFORM_BUFFER, u.binding, cur.type, idx);
                 // proceed the counter
-                return acc + cur.size;
-            }, 0); // === u.size
+                return acc + size;
+            }, 0); // === blockSize
         }
         for (const u of this._shaderInfo.samplers) {
             this._handleMap[u.name] = genHandle(GFXBindingType.SAMPLER, u.binding, u.type);
@@ -351,10 +354,10 @@ export class Pass {
                 block.dirty = false;
             }
         }
-        const source = cc.director.root.pipeline.globalBindings;
+        const source = (cc.director.root as Root).pipeline.globalBindings;
         const target = this._shaderInfo.builtins.globals;
         for (const s of target.samplers) {
-            const info = source.get(s);
+            const info = source.get(s.name)!;
             if (info.sampler) { this.bindSampler(info.samplerInfo!.binding, info.sampler); }
             this.bindTextureView(info.samplerInfo!.binding, info.textureView!);
         }
@@ -423,19 +426,23 @@ export class Pass {
      */
     public tryCompile (defineOverrides?: IDefineMap) {
         if (defineOverrides) { Object.assign(this._defines, defineOverrides); }
-        const pipeline = cc.director.root.pipeline as RenderPipeline | null;
+        const pipeline = (cc.director.root as Root).pipeline;
         if (!pipeline) { return false; }
         this._renderPass = pipeline.getRenderPass(this._stage);
         if (!this._renderPass) { console.warn(`illegal pass stage.`); return false; }
         this._shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
         if (!this._shader) { console.warn(`create shader ${this._programName} failed`); return false; }
-        if (!this._bindings.length) {
-            this._bindings = this._shaderInfo.blocks.map((u) =>
-                ({ name: u.name, binding: u.binding, type: GFXBindingType.UNIFORM_BUFFER }),
-            ).concat(this._shaderInfo.samplers.map((u) =>
-                ({ name: u.name, binding: u.binding, type: GFXBindingType.SAMPLER }),
-            ));
-        }
+        this._bindings = this._shaderInfo.blocks.reduce((acc, cur) => {
+            if (cur.defines.every((d) => this._defines[d])) {
+                acc.push({ name: cur.name, binding: cur.binding, type: GFXBindingType.UNIFORM_BUFFER });
+            }
+            return acc;
+        }, [] as IGFXBinding[]).concat(this._shaderInfo.samplers.reduce((acc, cur) => {
+            if (cur.defines.every((d) => this._defines[d])) {
+                acc.push({ name: cur.name, binding: cur.binding, type: GFXBindingType.SAMPLER });
+            }
+            return acc;
+        }, [] as IGFXBinding[]));
         return true;
     }
 
@@ -460,16 +467,16 @@ export class Pass {
             bindingLayout.bindTextureView(parseInt(t), this._textureViews[t]);
         }
         // bind pipeline builtins
-        const source = cc.director.root.pipeline.globalBindings;
+        const source = (cc.director.root as Root).pipeline.globalBindings;
         const target = this._shaderInfo.builtins.globals;
         for (const b of target.blocks) {
-            const info = source.get(b);
-            if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b}' not available!`); continue; }
+            const info = source.get(b.name);
+            if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b.name}' not available!`); continue; }
             bindingLayout.bindBuffer(info.blockInfo!.binding, info.buffer!);
         }
         for (const s of target.samplers) {
-            const info = source.get(s);
-            if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`builtin texture '${s}' not available!`); continue; }
+            const info = source.get(s.name);
+            if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`builtin texture '${s.name}' not available!`); continue; }
             if (info.sampler) { bindingLayout.bindSampler(info.samplerInfo!.binding, info.sampler); }
             bindingLayout.bindTextureView(info.samplerInfo!.binding, info.textureView!);
         }
