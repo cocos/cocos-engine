@@ -432,19 +432,17 @@ export class Pass {
         if (!this._renderPass) { console.warn(`illegal pass stage.`); return false; }
         this._shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
         if (!this._shader) { console.warn(`create shader ${this._programName} failed`); return false; }
-        if (!this._bindings.length) {
-            this._bindings = this._shaderInfo.blocks.reduce((acc, cur) => {
-                if (cur.defines.every((d) => this._defines[d])) {
-                    acc.push({ name: cur.name, binding: cur.binding, type: GFXBindingType.UNIFORM_BUFFER });
-                }
-                return acc;
-            }, [] as IGFXBinding[]).concat(this._shaderInfo.samplers.reduce((acc, cur) => {
-                if (cur.defines.every((d) => this._defines[d])) {
-                    acc.push({ name: cur.name, binding: cur.binding, type: GFXBindingType.SAMPLER });
-                }
-                return acc;
-            }, [] as IGFXBinding[]));
-        }
+        this._bindings = this._shaderInfo.blocks.reduce((acc, cur) => {
+            if (cur.defines.every((d) => this._defines[d])) {
+                acc.push({ name: cur.name, binding: cur.binding, type: GFXBindingType.UNIFORM_BUFFER });
+            }
+            return acc;
+        }, [] as IGFXBinding[]).concat(this._shaderInfo.samplers.reduce((acc, cur) => {
+            if (cur.defines.every((d) => this._defines[d])) {
+                acc.push({ name: cur.name, binding: cur.binding, type: GFXBindingType.SAMPLER });
+            }
+            return acc;
+        }, [] as IGFXBinding[]));
         return true;
     }
 

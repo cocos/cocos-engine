@@ -60,7 +60,7 @@ const mapDefine = (info: IDefineInfo, def: number | string | boolean) => {
         case 'number': return (def !== undefined ? def as number : info.range![0]) + '';
     }
     console.warn(`unknown define type '${info.type}'`);
-    return '0'; // should neven happen
+    return '-1'; // should neven happen
 };
 
 const prepareDefines = (defs: IDefineMap, tDefs: IDefineInfo[]) => {
@@ -77,7 +77,7 @@ const validateDefines = (defines: IDefineValue[], device: GFXDevice, deps: Recor
     for (const info of defines) {
         const name = info.name;
         // fallback if extension dependency not supported
-        if (info.result && deps[name] && !device[deps[name]]) {
+        if (info.result !== '0' && deps[name] && !device[deps[name]]) {
             console.warn(`${deps[name]} not supported on this platform, disabled ${name}`);
             info.result = '0';
         }
@@ -85,7 +85,7 @@ const validateDefines = (defines: IDefineValue[], device: GFXDevice, deps: Recor
 };
 
 const getShaderInstanceName = (name: string, defs: IDefineValue[]) => {
-    return name + defs.reduce((acc, cur) => cur.result ? `${acc}|${cur.name}${cur.result}` : acc, '');
+    return name + defs.reduce((acc, cur) => cur.result !== '0' ? `${acc}|${cur.name}${cur.result}` : acc, '');
 };
 
 const insertBuiltinBindings = (tmpl: IProgramInfo, source: Map<string, IInternalBindingDesc>, type: string) => {
