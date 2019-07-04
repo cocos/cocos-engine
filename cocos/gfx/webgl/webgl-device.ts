@@ -662,7 +662,7 @@ export class WebGLGFXDevice extends GFXDevice {
     public blitFramebuffer (src: GFXFramebuffer, dst: GFXFramebuffer, srcRect: IGFXRect, dstRect: IGFXRect, filter: GFXFilter) {
     }
 
-    private initStates (gl: gl) {
+    private initStates (gl: WebGLRenderingContext) {
 
         gl.activeTexture(gl.TEXTURE0);
         gl.pixelStorei(gl.PACK_ALIGNMENT, 1);

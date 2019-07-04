@@ -58,6 +58,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
 
         WebGLCmdFuncCreateBuffer(this._device as WebGLGFXDevice, this._gpuBuffer);
 
+        this._device.memoryStatus.bufferSize += this._size;
         this._status = GFXStatus.SUCCESS;
 
         return true;
@@ -66,6 +67,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
     public destroy () {
         if (this._gpuBuffer) {
             WebGLCmdFuncDestroyBuffer(this._device as WebGLGFXDevice, this._gpuBuffer);
+            this._device.memoryStatus.bufferSize -= this._size;
             this._gpuBuffer = null;
         }
 
@@ -73,6 +75,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
     }
 
     public resize (size: number) {
+        const oldSize = this._size;
         this._size = size;
         this._count = this._size / this._stride;
 
@@ -84,9 +87,12 @@ export class WebGLGFXBuffer extends GFXBuffer {
             if (this._uniformBuffer) {
                 this._gpuBuffer.buffer = this._uniformBuffer;
             }
+
             this._gpuBuffer.size = this._size;
             if (this._size > 0) {
                 WebGLCmdFuncResizeBuffer(this._device as WebGLGFXDevice, this._gpuBuffer);
+                this._device.memoryStatus.bufferSize -= oldSize;
+                this._device.memoryStatus.bufferSize += this._size;
             }
         }
     }
