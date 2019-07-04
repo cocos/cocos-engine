@@ -178,6 +178,8 @@ function align (node: Node, widget: WidgetComponent) {
                 x = localRight + (anchorX - 1) * width;
             }
         }
+
+        widget._lastSize.width = width;
     }
 
     if (widget.alignFlags & AlignFlags.VERTICAL) {
@@ -236,6 +238,8 @@ function align (node: Node, widget: WidgetComponent) {
                 y = localTop + (anchorY - 1) * height;
             }
         }
+
+        widget._lastSize.height = height;
     }
 
     node.setPosition(x, y, _tempPos.z);
@@ -375,7 +379,6 @@ function adjustWidgetToAllowMovingInEditor (this: WidgetComponent, eventType: Sy
     const oldPos = this._lastPos;
     const delta = new Vec3(newPos);
     delta.subtract(oldPos);
-    oldPos.set(newPos);
 
     let target = self.node.parent!;
     const inverseScale = new Vec3(1, 1, 1);
@@ -427,7 +430,6 @@ function adjustWidgetToAllowResizingInEditor (this: WidgetComponent/*, oldSize: 
     const newSize = self.node.getContentSize();
     const oldSize = this._lastSize;
     const delta = new Vec3(newSize.width - oldSize.width, newSize.height - oldSize.height, 0);
-    oldSize.set(newSize);
 
     let target = self.node.parent!;
     const inverseScale = new Vec3(1, 1, 1);
@@ -456,6 +458,11 @@ function adjustWidgetToAllowResizingInEditor (this: WidgetComponent/*, oldSize: 
     if (self.isAlignRight) {
         self.right -= (self.isAbsoluteRight ? delta.x : deltaInPercent.x) * (1 - anchor.x) * inverseScale.x;
     }
+}
+
+// 节点被父节点或者 target 的尺寸影响而重新更新
+function adjustWidgetToAnchorChanged (this: WidgetComponent) {
+    this.setDirty();
 }
 
 const activeWidgets: WidgetComponent[] = [];
@@ -515,6 +522,7 @@ export const widgetManager = cc._widgetManager = {
             }
         widget.node.on(SystemEventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
         widget.node.on(SystemEventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
+        widget.node.on(SystemEventType.ANCHOR_CHANGED, adjustWidgetToAnchorChanged, widget);
         // }
     },
     remove (widget: WidgetComponent) {
@@ -522,6 +530,7 @@ export const widgetManager = cc._widgetManager = {
         // if (CC_EDITOR && !cc.engine.isPlaying) {
         widget.node.off(SystemEventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
         widget.node.off(SystemEventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
+        widget.node.off(SystemEventType.ANCHOR_CHANGED, adjustWidgetToAnchorChanged, widget);
         // }
     },
     onResized () {
