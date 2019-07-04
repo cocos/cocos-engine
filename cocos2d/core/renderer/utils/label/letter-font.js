@@ -104,11 +104,11 @@ LetterTexture.prototype = {
             height = this._canvas.height;
 
         let startX = width / 2;
-        let startY = height / 2;
+        let startY = height / 2 + this._labelInfo.fontSize * textUtils.MIDDLE_RATIO;
         let color = labelInfo.color;
 
         context.textAlign = 'center';
-        context.textBaseline = 'middle';
+        context.textBaseline = 'alphabetic';
         context.clearRect(0, 0, width, height);
         //Add a white background to avoid black edges.
         context.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${_invisibleAlpha})`;
