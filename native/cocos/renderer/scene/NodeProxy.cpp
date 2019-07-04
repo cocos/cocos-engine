@@ -35,6 +35,7 @@
 #include "NodeMemPool.hpp"
 #include <math.h>
 #include "RenderFlow.hpp"
+#include "assembler/AssemblerSprite.hpp"
 
 RENDERER_BEGIN
 
@@ -54,6 +55,8 @@ NodeProxy::NodeProxy(std::size_t unitID, std::size_t index, const std::string& i
     _signData = common->getSignData(_index);
     
     _dirty = unit->getDirty(index);
+    *_dirty &= ~RenderFlow::PRE_CALCULATE_VERTICES;
+    
     _trs = unit->getTRS(index);
     _localMat = unit->getLocalMat(index);
     _worldMat = unit->getWorldMat(index);
@@ -138,9 +141,7 @@ void NodeProxy::addChild(NodeProxy* child)
         this->childrenAlloc();
     }
     _children.pushBack(child);
-    *_dirty |= RenderFlow::REORDER_CHILDREN;
     child->setParent(this);
-    child->updateRealOpacity();
 }
 
 void NodeProxy::detachChild(NodeProxy *child, ssize_t childIndex)
@@ -296,11 +297,22 @@ void NodeProxy::setAssembler(AssemblerBase* assembler)
     CC_SAFE_RELEASE(_assembler);
     _assembler = assembler;
     CC_SAFE_RETAIN(_assembler);
+    
+    auto assemblerSprite = dynamic_cast<AssemblerSprite*>(_assembler);
+    if (assemblerSprite)
+    {
+        *_dirty |= RenderFlow::PRE_CALCULATE_VERTICES;
+    }
+    else
+    {
+        *_dirty &= ~RenderFlow::PRE_CALCULATE_VERTICES;
+    }
 }
 
 void NodeProxy::clearAssembler()
 {
     CC_SAFE_RELEASE_NULL(_assembler);
+    *_dirty &= ~RenderFlow::PRE_CALCULATE_VERTICES;
 }
 
 AssemblerBase* NodeProxy::getAssembler() const
@@ -393,11 +405,11 @@ void NodeProxy::updateRealOpacity()
     bool selfOpacityDirty = *_dirty & RenderFlow::OPACITY;
     if (_parent)
     {
-        if (selfOpacityDirty || *_parent->_dirty & RenderFlow::OPACITY_CHANGED)
+        if (selfOpacityDirty || *_parent->_dirty & RenderFlow::NODE_OPACITY_CHANGED)
         {
             _realOpacity = *_opacity * _parent->getRealOpacity() / 255.0f;
             *_dirty &= ~RenderFlow::OPACITY;
-            *_dirty |= RenderFlow::OPACITY_CHANGED;
+            *_dirty |= RenderFlow::NODE_OPACITY_CHANGED;
         }
     }
     else
@@ -406,7 +418,7 @@ void NodeProxy::updateRealOpacity()
         {
             _realOpacity = *_opacity;
             *_dirty &= ~RenderFlow::OPACITY;
-            *_dirty |= RenderFlow::OPACITY_CHANGED;
+            *_dirty |= RenderFlow::NODE_OPACITY_CHANGED;
         }
     }
 }
@@ -471,7 +483,7 @@ void NodeProxy::render(ModelBatcher* batcher, Scene* scene)
     bool needRender = *_dirty & RenderFlow::RENDER;
     if (_needRender != needRender)
     {
-        if (_assembler) _assembler->enableDirty(RenderFlow::OPACITY_CHANGED);
+        if (_assembler) _assembler->enableDirty(AssemblerBase::VERTICES_OPACITY_CHANGED);
         _needRender = needRender;
     }
     
@@ -506,7 +518,7 @@ void NodeProxy::visit(ModelBatcher* batcher, Scene* scene)
     bool needRender = *_dirty & RenderFlow::RENDER;
     if (_needRender != needRender)
     {
-        if (_assembler) _assembler->enableDirty(RenderFlow::OPACITY_CHANGED);
+        if (_assembler) _assembler->enableDirty(AssemblerBase::VERTICES_OPACITY_CHANGED);
         _needRender = needRender;
     }
     

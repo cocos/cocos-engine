@@ -54,11 +54,11 @@ public:
     struct OffsetInfo
     {
         /** bytes count of the requested buffer */
-        uint32_t vByte;
+        uint32_t vByte = 0;
         /** offset in index buffer */
-        uint32_t index;
+        uint32_t index = 0;
         /** offset in vertex buffer */
-        uint32_t vertex;
+        uint32_t vertex = 0;
     };
     
     /**
@@ -78,8 +78,8 @@ public:
      *  @param[in] indexCount Requested count of indices
      *  @param[out] offset The result indicates the allocated buffer range
      */
-    bool request(uint32_t vertexCount, uint32_t indexCount, OffsetInfo* offset);
-    bool requestStatic(uint32_t vertexCount, uint32_t indexCount, OffsetInfo* offset);
+    const OffsetInfo& request(uint32_t vertexCount, uint32_t indexCount);
+    const OffsetInfo& requestStatic(uint32_t vertexCount, uint32_t indexCount);
     
     /**
      *  @brief Upload data to GPU memory
@@ -176,6 +176,7 @@ private:
     cocos2d::Vector<VertexBuffer*> _vbArr;
     VertexBuffer* _vb = nullptr;
     IndexBuffer* _ib = nullptr;
+    OffsetInfo _offsetInfo;
 };
 
 // end of scene group

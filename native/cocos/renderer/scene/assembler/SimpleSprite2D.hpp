@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
-
+ 
  http://www.cocos2d-x.org
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,15 +24,18 @@
 
 #pragma once
 
-#include "MemPool.hpp"
-#include "NodeMemPool.hpp"
-#include "NodeProxy.hpp"
-#include "ModelBatcher.hpp"
-#include "RenderFlow.hpp"
-#include "MeshBuffer.hpp"
+#include "AssemblerSprite.hpp"
 
-#include "assembler/Assembler.hpp"
-#include "assembler/MaskAssembler.hpp"
-#include "assembler/TiledMapAssembler.hpp"
-#include "assembler/AssemblerSprite.hpp"
-#include "assembler/SimpleSprite2D.hpp"
+RENDERER_BEGIN
+
+class SimpleSprite2D: public AssemblerSprite
+{
+public:
+    SimpleSprite2D();
+    virtual ~SimpleSprite2D();
+    virtual void fillBuffers(NodeProxy* node, MeshBuffer* buffer, std::size_t index) override;
+    virtual void calculateWorldVertices(const Mat4& worldMat) override;
+    virtual void generateWorldVertices() override;
+};
+
+RENDERER_END

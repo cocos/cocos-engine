@@ -102,20 +102,20 @@ void MeshBuffer::reallocIBuffer()
     _ib->setBytes(_iDataCount * IDATA_BYTE);
 }
 
-bool MeshBuffer::request(uint32_t vertexCount, uint32_t indexCount, OffsetInfo* offset)
+const MeshBuffer::OffsetInfo& MeshBuffer::request(uint32_t vertexCount, uint32_t indexCount)
 {
     if (_batcher->getCurrentBuffer() != this)
     {
         _batcher->flush();
         _batcher->setCurrentBuffer(this);
     }
-    offset->vByte = _byteOffset;
-    offset->index = _indexOffset;
-    offset->vertex = _vertexOffset;
-    return requestStatic(vertexCount, indexCount, offset);
+    _offsetInfo.vByte = _byteOffset;
+    _offsetInfo.index = _indexOffset;
+    _offsetInfo.vertex = _vertexOffset;
+    return requestStatic(vertexCount, indexCount);
 }
 
-bool MeshBuffer::requestStatic(uint32_t vertexCount, uint32_t indexCount, OffsetInfo* offset)
+const MeshBuffer::OffsetInfo& MeshBuffer::requestStatic(uint32_t vertexCount, uint32_t indexCount)
 {
     uint32_t byteOffset = _byteOffset + vertexCount * _bytesPerVertex;
     if (MAX_VB_SIZE < byteOffset)
@@ -143,8 +143,8 @@ bool MeshBuffer::requestStatic(uint32_t vertexCount, uint32_t indexCount, Offset
         _vertexStart = 0;
         _vertexOffset = 0;
         
-        offset->vByte = 0;
-        offset->vertex = 0;
+        _offsetInfo.vByte = 0;
+        _offsetInfo.vertex = 0;
         
         byteOffset = vertexCount * _bytesPerVertex;
     }
@@ -181,7 +181,7 @@ bool MeshBuffer::requestStatic(uint32_t vertexCount, uint32_t indexCount, Offset
     _indexOffset += indexCount;
     _byteOffset = byteOffset;
     _dirty = true;
-    return true;
+    return _offsetInfo;
 }
 
 void MeshBuffer::uploadData()

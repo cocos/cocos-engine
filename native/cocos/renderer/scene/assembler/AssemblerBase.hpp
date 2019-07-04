@@ -49,6 +49,11 @@ class AssemblerBase: public cocos2d::Ref
 {
 public:
     
+    enum AssemblerFlag {
+        VERTICES_OPACITY_CHANGED = 1 << 0,
+        VERTICES_DIRTY = 1 << 1,
+    };
+    
     AssemblerBase();
     
     virtual ~AssemblerBase();
@@ -97,6 +102,17 @@ public:
         if (_dirty)
         {
             *_dirty |= flag;
+        }
+    }
+    
+    /**
+     *  @brief Changes dirty flag.
+     */
+    void disableDirty(uint32_t flag)
+    {
+        if (_dirty)
+        {
+            *_dirty &= ~flag;
         }
     }
     

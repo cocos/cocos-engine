@@ -72,18 +72,20 @@ public:
         POST_RENDER = 1 << 8,
         FINAL = 1 << 9,
         
+        PRE_CALCULATE_VERTICES = 1 << 28,
         // native render flag
         REORDER_CHILDREN = 1 << 29,
         // world matrix changed
         WORLD_TRANSFORM_CHANGED = 1 << 30,
         // cascade opacity changed
-        OPACITY_CHANGED = 1 << 31,
+        NODE_OPACITY_CHANGED = 1 << 31,
     };
 
     enum ParallelStage {
         NONE,
         LOCAL_MAT,
         WORLD_MAT,
+        CALC_VERTICES,
     };
     
     struct LevelInfo{
@@ -150,6 +152,11 @@ public:
      *  @param[level] level Node level.
      */
     void calculateLevelWorldMatrix(int tid = -1);
+    /**
+     *  @brief Calculate world vertices.
+     *  @param[in] tid It must rather than -1 if enable multiple thread.
+     */
+    void calculateWorldVertices(int tid = -1);
     /**
      *  @brief remove node level
      */

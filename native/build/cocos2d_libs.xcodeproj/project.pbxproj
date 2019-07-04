@@ -19,6 +19,14 @@
 		042058CE22A61B340092DE5D /* RenderDataList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 042058CB22A61B340092DE5D /* RenderDataList.cpp */; };
 		042058CF22A61B340092DE5D /* RenderDataList.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 042058CC22A61B340092DE5D /* RenderDataList.hpp */; };
 		042058D022A61B340092DE5D /* RenderDataList.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 042058CC22A61B340092DE5D /* RenderDataList.hpp */; };
+		0431A06922CCA441003356C9 /* AssemblerSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0431A06722CCA441003356C9 /* AssemblerSprite.cpp */; };
+		0431A06A22CCA441003356C9 /* AssemblerSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0431A06722CCA441003356C9 /* AssemblerSprite.cpp */; };
+		0431A06B22CCA441003356C9 /* AssemblerSprite.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0431A06822CCA441003356C9 /* AssemblerSprite.hpp */; };
+		0431A06C22CCA441003356C9 /* AssemblerSprite.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0431A06822CCA441003356C9 /* AssemblerSprite.hpp */; };
+		0431A06F22CCA7C1003356C9 /* SimpleSprite2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0431A06D22CCA7C1003356C9 /* SimpleSprite2D.cpp */; };
+		0431A07022CCA7C1003356C9 /* SimpleSprite2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0431A06D22CCA7C1003356C9 /* SimpleSprite2D.cpp */; };
+		0431A07122CCA7C1003356C9 /* SimpleSprite2D.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0431A06E22CCA7C1003356C9 /* SimpleSprite2D.hpp */; };
+		0431A07222CCA7C1003356C9 /* SimpleSprite2D.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0431A06E22CCA7C1003356C9 /* SimpleSprite2D.hpp */; };
 		04355816217EADF300B9C056 /* IOBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04355814217EADF300B9C056 /* IOBuffer.cpp */; };
 		04355817217EADF300B9C056 /* IOBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04355814217EADF300B9C056 /* IOBuffer.cpp */; };
 		04355818217EADF300B9C056 /* IOBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 04355815217EADF300B9C056 /* IOBuffer.h */; };
@@ -1391,6 +1399,10 @@
 		041854A4228D7E7300F8DF31 /* jsb_cocos2dx_particle_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_particle_auto.cpp; sourceTree = "<group>"; };
 		042058CB22A61B340092DE5D /* RenderDataList.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RenderDataList.cpp; sourceTree = "<group>"; };
 		042058CC22A61B340092DE5D /* RenderDataList.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RenderDataList.hpp; sourceTree = "<group>"; };
+		0431A06722CCA441003356C9 /* AssemblerSprite.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AssemblerSprite.cpp; sourceTree = "<group>"; };
+		0431A06822CCA441003356C9 /* AssemblerSprite.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AssemblerSprite.hpp; sourceTree = "<group>"; };
+		0431A06D22CCA7C1003356C9 /* SimpleSprite2D.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SimpleSprite2D.cpp; sourceTree = "<group>"; };
+		0431A06E22CCA7C1003356C9 /* SimpleSprite2D.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SimpleSprite2D.hpp; sourceTree = "<group>"; };
 		04355814217EADF300B9C056 /* IOBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IOBuffer.cpp; path = "../cocos/editor-support/IOBuffer.cpp"; sourceTree = "<group>"; };
 		04355815217EADF300B9C056 /* IOBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBuffer.h; path = "../cocos/editor-support/IOBuffer.h"; sourceTree = "<group>"; };
 		045F672622A50A8C0033F7BD /* RenderData.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RenderData.cpp; sourceTree = "<group>"; };
@@ -2597,6 +2609,10 @@
 				0482F198228D87970019ECF7 /* AssemblerBase.hpp */,
 				04F8563222ABCB9900063A20 /* TiledMapAssembler.cpp */,
 				04F8563322ABCB9900063A20 /* TiledMapAssembler.hpp */,
+				0431A06722CCA441003356C9 /* AssemblerSprite.cpp */,
+				0431A06822CCA441003356C9 /* AssemblerSprite.hpp */,
+				0431A06D22CCA7C1003356C9 /* SimpleSprite2D.cpp */,
+				0431A06E22CCA7C1003356C9 /* SimpleSprite2D.hpp */,
 			);
 			path = assembler;
 			sourceTree = "<group>";
@@ -3703,6 +3719,7 @@
 				04DBD4BD22AE2DBD00DBE4CD /* spine.h in Headers */,
 				046E069F2185B45300B24E2D /* Point.h in Headers */,
 				46FDDAC7202ACC6A00931238 /* GFX.h in Headers */,
+				0431A06B22CCA441003356C9 /* AssemblerSprite.hpp in Headers */,
 				46FDDC63202D502F00931238 /* CCApplication.h in Headers */,
 				04DBD44122AE2DBD00DBE4CD /* PathAttachment.h in Headers */,
 				469303A42046AE05004A3D6C /* ScriptEngine.hpp in Headers */,
@@ -3728,6 +3745,7 @@
 				1A28FF611F20AFAB007A1D9D /* SRRunLoopThread.h in Headers */,
 				469303D22046AE05004A3D6C /* jsb_gfx_auto.hpp in Headers */,
 				046B68A821A292D300B33469 /* jsb_spine_manual.hpp in Headers */,
+				0431A07122CCA7C1003356C9 /* SimpleSprite2D.hpp in Headers */,
 				1A52DB5E205BCDC700350EE3 /* Class.hpp in Headers */,
 				4693039C2046AE05004A3D6C /* PlatformUtils.h in Headers */,
 				0482F1AD228D87970019ECF7 /* MaskAssembler.hpp in Headers */,
@@ -4070,6 +4088,7 @@
 				04DBD3E222AE2DBD00DBE4CD /* AttachmentTimeline.h in Headers */,
 				469304012046AE06004A3D6C /* jsb_global.h in Headers */,
 				04DBD47A22AE2DBD00DBE4CD /* PositionMode.h in Headers */,
+				0431A07222CCA7C1003356C9 /* SimpleSprite2D.hpp in Headers */,
 				04DBD48222AE2DBD00DBE4CD /* PathConstraintPositionTimeline.h in Headers */,
 				46AE3FF82092F3A600F3A228 /* util-inl.h in Headers */,
 				46FDDADE202ACC6A00931238 /* VertexBuffer.h in Headers */,
@@ -4096,6 +4115,7 @@
 				4617864420522469008256E1 /* HttpRequest.h in Headers */,
 				46AE3FEE2092F3A600F3A228 /* http_parser.h in Headers */,
 				04DBD47422AE2DBD00DBE4CD /* AttachmentType.h in Headers */,
+				0431A06C22CCA441003356C9 /* AssemblerSprite.hpp in Headers */,
 				046E06632185B41B00B24E2D /* Slot.h in Headers */,
 				04DBD3D422AE2DBD00DBE4CD /* RotateTimeline.h in Headers */,
 				04DBD46822AE2DBD00DBE4CD /* TransformConstraintData.h in Headers */,
@@ -4381,6 +4401,7 @@
 				4648882720AC2BC900CD1E4A /* CCRenderTexture.cpp in Sources */,
 				041854A7228D7E7300F8DF31 /* jsb_cocos2dx_particle_auto.cpp in Sources */,
 				46AE3FF92092F3A600F3A228 /* inspector_socket.cc in Sources */,
+				0431A06922CCA441003356C9 /* AssemblerSprite.cpp in Sources */,
 				04DBD47D22AE2DBD00DBE4CD /* DeformTimeline.cpp in Sources */,
 				1A52DB61205BCDC700350EE3 /* Object.cpp in Sources */,
 				042058CD22A61B340092DE5D /* RenderDataList.cpp in Sources */,
@@ -4589,6 +4610,7 @@
 				1AAAC8F1205CB6E9005321B9 /* AudioEngine.cpp in Sources */,
 				046E06F72189990700B24E2D /* middleware-adapter.cpp in Sources */,
 				46FDDAE5202ACC6B00931238 /* IndexBuffer.cpp in Sources */,
+				0431A06F22CCA7C1003356C9 /* SimpleSprite2D.cpp in Sources */,
 				046B688A219FA61200B33469 /* MiddlewareManager.cpp in Sources */,
 				1A29D76F205665D200168D9A /* jsb_cocos2dx_manual.cpp in Sources */,
 				04DBD4CD22AE2DBD00DBE4CD /* ClippingAttachment.cpp in Sources */,
@@ -4677,6 +4699,7 @@
 				50ABC0161926664800A911A9 /* CCImage.cpp in Sources */,
 				04DBD40E22AE2DBD00DBE4CD /* VertexAttachment.cpp in Sources */,
 				469303852046AE05004A3D6C /* MappingUtils.cpp in Sources */,
+				0431A06A22CCA441003356C9 /* AssemblerSprite.cpp in Sources */,
 				046E06F02185B4A500B24E2D /* BinaryDataParser.cpp in Sources */,
 				46FDDBA4202ADDCE00931238 /* pvr.cpp in Sources */,
 				46FDDAB6202ACC6A00931238 /* Program.cpp in Sources */,
@@ -4870,6 +4893,7 @@
 				0482F1BE228D87970019ECF7 /* CustomAssembler.cpp in Sources */,
 				04DBD45E22AE2DBD00DBE4CD /* SkeletonBinary.cpp in Sources */,
 				04DBD46E22AE2DBD00DBE4CD /* ScaleTimeline.cpp in Sources */,
+				0431A07022CCA7C1003356C9 /* SimpleSprite2D.cpp in Sources */,
 				04DBD49E22AE2DBD00DBE4CD /* SkeletonJson.cpp in Sources */,
 				0482F1A0228D87970019ECF7 /* Assembler.cpp in Sources */,
 				46FDDAAA202ACC6A00931238 /* Types.cpp in Sources */,

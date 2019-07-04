@@ -55,6 +55,7 @@ extern se::Class* __jsb_cocos2d_renderer_AssemblerBase_class;
 
 bool js_register_cocos2d_renderer_AssemblerBase(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_AssemblerBase_disableDirty);
 SE_DECLARE_FUNC(js_renderer_AssemblerBase_reset);
 SE_DECLARE_FUNC(js_renderer_AssemblerBase_setUseModel);
 SE_DECLARE_FUNC(js_renderer_AssemblerBase_isDirty);
@@ -258,6 +259,20 @@ bool js_register_cocos2d_renderer_RenderFlow(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
 SE_DECLARE_FUNC(js_renderer_RenderFlow_render);
 SE_DECLARE_FUNC(js_renderer_RenderFlow_RenderFlow);
+
+extern se::Object* __jsb_cocos2d_renderer_AssemblerSprite_proto;
+extern se::Class* __jsb_cocos2d_renderer_AssemblerSprite_class;
+
+bool js_register_cocos2d_renderer_AssemblerSprite(se::Object* obj);
+bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_AssemblerSprite_setLocalData);
+
+extern se::Object* __jsb_cocos2d_renderer_SimpleSprite2D_proto;
+extern se::Class* __jsb_cocos2d_renderer_SimpleSprite2D_class;
+
+bool js_register_cocos2d_renderer_SimpleSprite2D(se::Object* obj);
+bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_SimpleSprite2D_SimpleSprite2D);
 
 extern se::Object* __jsb_cocos2d_renderer_MaskAssembler_proto;
 extern se::Class* __jsb_cocos2d_renderer_MaskAssembler_class;

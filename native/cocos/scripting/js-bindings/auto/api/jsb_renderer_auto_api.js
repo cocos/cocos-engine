@@ -325,6 +325,16 @@ Effect : function (
 renderer.AssemblerBase = {
 
 /**
+ * @method disableDirty
+ * @param {unsigned int} arg0
+ */
+disableDirty : function (
+int 
+)
+{
+},
+
+/**
  * @method reset
  */
 reset : function (
@@ -1719,6 +1729,39 @@ RenderFlow : function (
 devicegraphics, 
 scene, 
 forwardrenderer 
+)
+{
+},
+
+};
+
+/**
+ * @class AssemblerSprite
+ */
+renderer.AssemblerSprite = {
+
+/**
+ * @method setLocalData
+ * @param {se::Object} arg0
+ */
+setLocalData : function (
+object 
+)
+{
+},
+
+};
+
+/**
+ * @class SimpleSprite2D
+ */
+renderer.SimpleSprite2D = {
+
+/**
+ * @method SimpleSprite2D
+ * @constructor
+ */
+SimpleSprite2D : function (
 )
 {
 },
