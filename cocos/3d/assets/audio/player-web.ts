@@ -83,9 +83,9 @@ export class AudioPlayerWeb extends AudioPlayer {
                 this._on_ended();
                 clearInterval(this._currentTimer);
                 if (this._sourceNode.loop) {
-                    this._currentTimer = window.setInterval(this._on_ended, this._audio!.duration * 1000);
+                    this._currentTimer = window.setInterval(this._on_ended, this._audio.duration * 1000);
                 }
-            }, (this._audio!.duration - this._offset) * 1000);
+            }, (this._audio.duration - this._offset) * 1000);
         };
 
         this._on_gesture = () => {
@@ -147,10 +147,6 @@ export class AudioPlayerWeb extends AudioPlayer {
         return this._context.currentTime - this._startTime + this._offset;
     }
 
-    public getDuration () {
-        return this._audio ? this._audio.duration : 0;
-    }
-
     public setVolume (val: number, immediate: boolean) {
         this._volume = val;
         if (!immediate && this._gainNode.gain.setTargetAtTime) {
@@ -172,4 +168,6 @@ export class AudioPlayerWeb extends AudioPlayer {
     public getLoop () {
         return this._loop;
     }
+
+    public destroy () {}
 }

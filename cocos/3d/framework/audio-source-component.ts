@@ -29,6 +29,7 @@
 
 import { Component } from '../../components/component';
 import { ccclass, menu, property } from '../../core/data/class-decorator';
+import { clamp } from '../../core/vmath';
 import { AudioClip } from '../assets/audio/clip';
 
 /**
@@ -112,6 +113,8 @@ export class AudioSourceComponent extends Component {
      */
     @property
     set volume (val) {
+        if (isNaN(val)) { console.warn('illegal audio volume!'); return; }
+        val = clamp(val, 0, 1);
         if (this._clip) {
             this._clip.setVolume(val);
             // on some platform volume control may not be available
@@ -196,6 +199,8 @@ export class AudioSourceComponent extends Component {
      * @param num 要跳转到的播放时间
      */
     set currentTime (num: number) {
+        if (isNaN(num)) { console.warn('illegal audio time!'); return; }
+        num = clamp(num, 0, this.duration);
         this._cachedCurrentTime = num;
         if (!this._clip) { return; }
         this._clip.setCurrentTime(this._cachedCurrentTime);

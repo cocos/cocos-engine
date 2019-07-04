@@ -29,7 +29,16 @@
 
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 
+/**
+ * The main lesson learnt during the porting is,
+ * be very careful with the getter methods on InnerAudioContext,
+ * serious performance issue have been encountered when accessed frequently.
+ * For now this includes duration, current time and volume,
+ * so those are all maintained manually here.
+ */
 export class AudioPlayerWX extends AudioPlayer {
+    protected _startTime = 0;
+    protected _offset = 0;
     protected _volume = 1;
     protected _loop = false;
     protected _oneShoting = false;
@@ -38,21 +47,25 @@ export class AudioPlayerWX extends AudioPlayer {
     constructor (info: IAudioInfo) {
         super(info);
         this._audio = info.clip;
-        this._audio.obeyMuteSwitch = false;
         this._audio.onPlay(() => {
+            this._startTime = performance.now();
             this._state = PlayingState.PLAYING;
             this._eventTarget.emit('started');
         });
         this._audio.onPause(() => {
+            this._offset += performance.now() - this._startTime;
             this._state = PlayingState.STOPPED;
             this._oneShoting = false;
         });
         this._audio.onStop(() => {
             this._state = PlayingState.STOPPED;
             this._oneShoting = false;
+            this._offset = 0;
             this._audio.seek(0);
         });
         this._audio.onEnded(() => {
+            this._offset = 0;
+            this._startTime = performance.now();
             this._state = PlayingState.STOPPED;
             this._eventTarget.emit('ended');
             if (this._oneShoting) {
@@ -61,6 +74,7 @@ export class AudioPlayerWX extends AudioPlayer {
                 this._oneShoting = false;
             }
         });
+        this._audio.onError((res: any) => console.error(res.errMsg));
     }
 
     public play () {
@@ -82,6 +96,7 @@ export class AudioPlayerWX extends AudioPlayer {
         /* InnerAudioContext doesn't support multiple playback at the
            same time so here we fall back to re-start style approach */
         if (!this._audio) { return; }
+        this._offset = 0;
         this._audio.seek(0);
         this._audio.volume = volume;
         if (this._oneShoting) { return; }
@@ -91,21 +106,20 @@ export class AudioPlayerWX extends AudioPlayer {
     }
 
     public getCurrentTime () {
-        return this._audio ? this._audio.currentTime : 0;
+        if (this._state !== PlayingState.PLAYING) { return this._offset / 1000; }
+        let current = (performance.now() - this._startTime + this._offset) / 1000;
+        if (current > this._duration) { current -= this._duration; this._startTime += this._duration * 1000; }
+        return current;
     }
 
     public setCurrentTime (val: number) {
         if (!this._audio) { return; }
+        this._startTime = performance.now();
+        this._offset = val * 1000;
         this._audio.seek(val);
     }
 
-    public getDuration () {
-        return this._audio ? this._audio.duration : this._duration;
-    }
-
     public getVolume () {
-        // be careful with the volume getter on InnerAudioContext,
-        // serious performance issue encountered when accessed frequently
         return this._volume;
     }
 
@@ -124,7 +138,6 @@ export class AudioPlayerWX extends AudioPlayer {
     }
 
     public destroy () {
-        if (this._audio) { this._audio.destroy(); return true; }
-        return false;
+        if (this._audio) { this._audio.destroy(); }
     }
 }
