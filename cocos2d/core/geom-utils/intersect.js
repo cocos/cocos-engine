@@ -127,19 +127,20 @@ intersect.rayMesh = (function () {
         for (let i = 0; i < subMeshes.length; i++) {
             if (subMeshes[i]._primitiveType !== gfx.PT_TRIANGLES) continue;
 
-            let vb = (mesh._vbs[i] || mesh._vbs[0]);
-            let vbData = vb.data;
+            let subData = (mesh._subDatas[i] || mesh._subDatas[0]);
+            let vb = subData.vb;
+            let vbData = subData.vData;
             let dv = new DataView(vbData.buffer, vbData.byteOffset, vbData.byteLength);
-            let ib = mesh._ibs[i].data;
+            let iData = subData.iData;
 
             let format = vb.buffer._format;
             let fmt = format.element(gfx.ATTR_POSITION);
             let offset = fmt.offset, stride = fmt.stride;
             let fn = _compType2fn[fmt.type];
             for (let i = 0; i < ib.length; i += 3) {
-                getVec3(tri.a, dv, fn, 4, ib[i]   * stride + offset);
-                getVec3(tri.b, dv, fn, 4, ib[i+1] * stride + offset);
-                getVec3(tri.c, dv, fn, 4, ib[i+2] * stride + offset);
+                getVec3(tri.a, dv, fn, 4, iData[i]   * stride + offset);
+                getVec3(tri.b, dv, fn, 4, iData[i+1] * stride + offset);
+                getVec3(tri.c, dv, fn, 4, iData[i+2] * stride + offset);
 
                 let dist = intersect.rayTriangle(ray, tri);
                 if (dist > 0 && dist < minDist) {

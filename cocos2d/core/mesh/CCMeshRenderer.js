@@ -213,7 +213,7 @@ let MeshRenderer = cc.Class({
     _activateMaterial (force) {
         let mesh = this._mesh;
 
-        if (!mesh || mesh.subMeshes.length === 0) {
+        if (!mesh || mesh._subDatas.length === 0) {
             this.disableRender();
             return;
         }
@@ -240,9 +240,9 @@ let MeshRenderer = cc.Class({
             materials[0] = material;
         }
 
-        this._updateMeshAttribute();
         this._updateReceiveShadow();
         this._updateCastShadow();
+        this._updateMeshAttribute();
         
         this.markForUpdateRenderData(true);
         this.markForRender(true);
@@ -257,13 +257,17 @@ let MeshRenderer = cc.Class({
     },
 
     _updateMeshAttribute () {
-        let subMeshes = this._mesh && this._mesh.subMeshes;
-        if (!subMeshes) return;
+        let subDatas = this._mesh && this._mesh.subDatas;
+        if (!subDatas) return;
 
-        let buffer = subMeshes[0]._vertexBuffer;
-        this._customProperties.define('_USE_ATTRIBUTE_COLOR', !!buffer.getFormat(gfx.ATTR_COLOR));
-        this._customProperties.define('_USE_ATTRIBUTE_UV0', !!buffer.getFormat(gfx.ATTR_UV0));
-        this._customProperties.define('_USE_ATTRIBUTE_NORMAL', !!buffer.getFormat(gfx.ATTR_NORMAL));
+        let vfm = subDatas[0].vfm;
+        this._customProperties.define('_USE_ATTRIBUTE_COLOR', !!vfm.element(gfx.ATTR_COLOR));
+        this._customProperties.define('_USE_ATTRIBUTE_UV0', !!vfm.element(gfx.ATTR_UV0));
+        this._customProperties.define('_USE_ATTRIBUTE_NORMAL', !!vfm.element(gfx.ATTR_NORMAL));
+        
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this._assembler.updateMeshData(this);
+        }
     }
 });
 
