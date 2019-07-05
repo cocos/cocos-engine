@@ -1146,6 +1146,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
 
                 gl.deleteShader(gpuStage.glShader);
                 gpuStage.glShader = null;
+                return;
             }
         }
     }
@@ -1175,6 +1176,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
                 gpuStage.glShader = null;
             }
         }
+        return;
     }
 
     // parse inputs
