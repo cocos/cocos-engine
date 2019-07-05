@@ -2035,7 +2035,7 @@ let NodeDefines = {
      * @method stopActionByTag
      * @param {Number} tag A tag that indicates the action to be removed.
      * @example
-     * node.stopAction(1);
+     * node.stopActionByTag(1);
      */
     stopActionByTag: ActionManagerExist ? function (tag) {
         if (tag === cc.Action.TAG_INVALID) {
