@@ -28,8 +28,6 @@ const macro = require('../platform/CCMacro');
 const RenderComponent = require('./CCRenderComponent');
 const Material = require('../assets/material/CCMaterial');
 const LabelFrame = require('../renderer/utils/label/label-frame');
-const RenderFlow = require('../renderer/render-flow');
-const opacityFlag = RenderFlow.FLAG_COLOR | RenderFlow.FLAG_OPACITY;
 
 /**
  * !#en Enum for text alignment.
@@ -580,27 +578,6 @@ let Label = cc.Class({
         this._resetAssembler();
         this._applyFontTexture(true);
     },
-
-    // _resetAssembler () {
-    //     let assembler = Label._assembler.getAssembler(this);
-
-    //     if (this._assembler !== assembler) {
-    //         this.node._renderFlag |= RenderFlow.FLAG_OPACITY;
-
-    //         this._assembler = assembler;
-    //         this._frame = null;
-
-    //         this._renderHandle.reset();
-    //         this._assembler.createData(this);
-
-    //         this.setVertsDirty();
-    //         this.markForUpdateRenderData(true);
-    //     }
-
-    //     if (CC_JSB && CC_NATIVERENDERER) {
-    //         this._renderHandle.setUseModel(!!assembler.useModel);
-    //     }
-    // },
 
     _applyFontTexture (force) {
         let font = this.font;

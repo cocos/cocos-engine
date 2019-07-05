@@ -32,7 +32,7 @@ Assembler.init = function (renderComp) {
     
     if (!renderComp._assembler || renderComp._assembler.constructor !== assemblerCtor) {
         renderComp._assembler = new assemblerCtor();
-        renderComp._assembler.init(renderComp)
+        renderComp._assembler.init(renderComp);
     }
 };
 

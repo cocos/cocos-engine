@@ -435,23 +435,6 @@ var Sprite = cc.Class({
         this._resetAssembler();
     },
 
-    // _resetAssembler () {
-    //     let assembler = Sprite._assembler.getAssembler(this);
-        
-    //     if (this._assembler !== assembler) {
-    //         this._renderHandle.reset();
-
-    //         this._assembler = assembler;
-    //         this._assembler.createData(this);
-
-    //         this.setVertsDirty();
-    //     }
-
-    //     if (CC_JSB && CC_NATIVERENDERER) {
-    //         this._renderHandle.setUseModel(!!assembler.useModel);
-    //     }
-    // },
-
     _activateMaterial: function () {
         // If render type is canvas, just return.
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
