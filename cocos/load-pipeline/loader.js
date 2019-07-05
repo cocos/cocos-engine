@@ -69,7 +69,7 @@ function loadImage (item) {
     var rawUrl = item.rawUrl;
     var imageAsset = item.imageAsset || new ImageAsset();
     imageAsset._uuid = item.uuid;
-    imageAsset.url = rawUrl;
+    imageAsset._url = rawUrl;
     imageAsset._setRawAsset(rawUrl, false);
     imageAsset._nativeAsset = image;
     return imageAsset;
