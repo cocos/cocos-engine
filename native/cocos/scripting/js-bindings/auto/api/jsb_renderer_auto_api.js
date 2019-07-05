@@ -1683,6 +1683,16 @@ enableOpacityAlwaysDirty : function (
 },
 
 /**
+ * @method getCustomProperties
+ * @return {cc.renderer::CustomProperties}
+ */
+getCustomProperties : function (
+)
+{
+    return cc.renderer::CustomProperties;
+},
+
+/**
  * @method updateIndicesRange
  * @param {unsigned int} arg0
  * @param {int} arg1
@@ -1692,6 +1702,16 @@ updateIndicesRange : function (
 int, 
 int, 
 int 
+)
+{
+},
+
+/**
+ * @method setCustomProperties
+ * @param {cc.renderer::CustomProperties} arg0
+ */
+setCustomProperties : function (
+customproperties 
 )
 {
 },
@@ -1901,32 +1921,6 @@ int
  * @constructor
  */
 TiledMapAssembler : function (
-)
-{
-},
-
-};
-
-/**
- * @class MeshAssembler
- */
-renderer.MeshAssembler = {
-
-/**
- * @method setCustomProperties
- * @param {cc.renderer::CustomProperties} arg0
- */
-setCustomProperties : function (
-customproperties 
-)
-{
-},
-
-/**
- * @method MeshAssembler
- * @constructor
- */
-MeshAssembler : function (
 )
 {
 },

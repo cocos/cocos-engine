@@ -827,10 +827,6 @@
 		40F373DA21B67A7D0083E4E7 /* libv8_snapshot.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 40F373D921B67A7D0083E4E7 /* libv8_snapshot.a */; };
 		40FF7AA1216B29CC00E73029 /* VideoPlayer-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 40FF7A9E216B29CB00E73029 /* VideoPlayer-ios.mm */; };
 		40FF7AA2216B29CC00E73029 /* VideoPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 40FF7A9F216B29CB00E73029 /* VideoPlayer.h */; };
-		420FDAB022C78D9F004758EA /* MeshAssembler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 420FDAAE22C78D9F004758EA /* MeshAssembler.cpp */; };
-		420FDAB122C78D9F004758EA /* MeshAssembler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 420FDAAE22C78D9F004758EA /* MeshAssembler.cpp */; };
-		420FDAB222C78D9F004758EA /* MeshAssembler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 420FDAAF22C78D9F004758EA /* MeshAssembler.hpp */; };
-		420FDAB322C78D9F004758EA /* MeshAssembler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 420FDAAF22C78D9F004758EA /* MeshAssembler.hpp */; };
 		4233799F22BB43B900E5D8A2 /* RecyclePool.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4233799C22BB43B900E5D8A2 /* RecyclePool.hpp */; };
 		423379A022BB43B900E5D8A2 /* RecyclePool.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4233799C22BB43B900E5D8A2 /* RecyclePool.hpp */; };
 		423379A322BB8DEA00E5D8A2 /* CustomProperties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 423379A122BB8DEA00E5D8A2 /* CustomProperties.cpp */; };
@@ -1829,8 +1825,6 @@
 		40F373D921B67A7D0083E4E7 /* libv8_snapshot.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_snapshot.a; path = ../external/mac/libs/libv8_snapshot.a; sourceTree = "<group>"; };
 		40FF7A9E216B29CB00E73029 /* VideoPlayer-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "VideoPlayer-ios.mm"; sourceTree = "<group>"; };
 		40FF7A9F216B29CB00E73029 /* VideoPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayer.h; sourceTree = "<group>"; };
-		420FDAAE22C78D9F004758EA /* MeshAssembler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MeshAssembler.cpp; sourceTree = "<group>"; };
-		420FDAAF22C78D9F004758EA /* MeshAssembler.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MeshAssembler.hpp; sourceTree = "<group>"; };
 		4233799C22BB43B900E5D8A2 /* RecyclePool.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RecyclePool.hpp; sourceTree = "<group>"; };
 		423379A122BB8DEA00E5D8A2 /* CustomProperties.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CustomProperties.cpp; sourceTree = "<group>"; };
 		423379A222BB8DEA00E5D8A2 /* CustomProperties.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CustomProperties.hpp; sourceTree = "<group>"; };
@@ -2603,8 +2597,6 @@
 				0482F198228D87970019ECF7 /* AssemblerBase.hpp */,
 				04F8563222ABCB9900063A20 /* TiledMapAssembler.cpp */,
 				04F8563322ABCB9900063A20 /* TiledMapAssembler.hpp */,
-				420FDAAE22C78D9F004758EA /* MeshAssembler.cpp */,
-				420FDAAF22C78D9F004758EA /* MeshAssembler.hpp */,
 			);
 			path = assembler;
 			sourceTree = "<group>";
@@ -3720,7 +3712,6 @@
 				04DBD40522AE2DBD00DBE4CD /* BoundingBoxAttachment.h in Headers */,
 				04DBD47722AE2DBD00DBE4CD /* Atlas.h in Headers */,
 				1A52DB68205BCDC700350EE3 /* Base.h in Headers */,
-				420FDAB222C78D9F004758EA /* MeshAssembler.hpp in Headers */,
 				50ABBD521925AB0000A911A9 /* Quaternion.h in Headers */,
 				1A52DB2D205BCD9200350EE3 /* ObjectWrap.h in Headers */,
 				04DBD47322AE2DBD00DBE4CD /* AttachmentType.h in Headers */,
@@ -4285,7 +4276,6 @@
 				04DBD44E22AE2DBD00DBE4CD /* SpacingMode.h in Headers */,
 				423379A022BB43B900E5D8A2 /* RecyclePool.hpp in Headers */,
 				423379A622BB8DEA00E5D8A2 /* CustomProperties.hpp in Headers */,
-				420FDAB322C78D9F004758EA /* MeshAssembler.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4440,7 +4430,6 @@
 				1AAAC873205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.cpp in Sources */,
 				04DBD46322AE2DBD00DBE4CD /* PathConstraintData.cpp in Sources */,
 				423379A322BB8DEA00E5D8A2 /* CustomProperties.cpp in Sources */,
-				420FDAB022C78D9F004758EA /* MeshAssembler.cpp in Sources */,
 				46FDDA8D202ACC6A00931238 /* Config.cpp in Sources */,
 				46930468204FE20F004A3D6C /* CCLog.cpp in Sources */,
 				1A28FF991F20AFAB007A1D9D /* SRSecurityPolicy.m in Sources */,
@@ -4973,7 +4962,6 @@
 				04DBD31C22AE2D8200DBE4CD /* SkeletonAnimation.cpp in Sources */,
 				BA21055F21009A5A00E19975 /* CCEventAssetsManagerEx.cpp in Sources */,
 				BA21055D21009A5500E19975 /* Manifest.cpp in Sources */,
-				420FDAB122C78D9F004758EA /* MeshAssembler.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

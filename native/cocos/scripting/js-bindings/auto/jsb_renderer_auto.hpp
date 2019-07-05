@@ -249,7 +249,9 @@ SE_DECLARE_FUNC(js_renderer_Assembler_setRenderDataList);
 SE_DECLARE_FUNC(js_renderer_Assembler_updateMeshIndex);
 SE_DECLARE_FUNC(js_renderer_Assembler_updateEffect);
 SE_DECLARE_FUNC(js_renderer_Assembler_enableOpacityAlwaysDirty);
+SE_DECLARE_FUNC(js_renderer_Assembler_getCustomProperties);
 SE_DECLARE_FUNC(js_renderer_Assembler_updateIndicesRange);
+SE_DECLARE_FUNC(js_renderer_Assembler_setCustomProperties);
 SE_DECLARE_FUNC(js_renderer_Assembler_Assembler);
 
 extern se::Object* __jsb_cocos2d_renderer_CustomAssembler_proto;
@@ -291,13 +293,5 @@ SE_DECLARE_FUNC(js_renderer_TiledMapAssembler_updateNodes);
 SE_DECLARE_FUNC(js_renderer_TiledMapAssembler_setLayerMoveXY);
 SE_DECLARE_FUNC(js_renderer_TiledMapAssembler_clearNodes);
 SE_DECLARE_FUNC(js_renderer_TiledMapAssembler_TiledMapAssembler);
-
-extern se::Object* __jsb_cocos2d_renderer_MeshAssembler_proto;
-extern se::Class* __jsb_cocos2d_renderer_MeshAssembler_class;
-
-bool js_register_cocos2d_renderer_MeshAssembler(se::Object* obj);
-bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_MeshAssembler_setCustomProperties);
-SE_DECLARE_FUNC(js_renderer_MeshAssembler_MeshAssembler);
 
 #endif //#if (USE_GFX_RENDERER > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
