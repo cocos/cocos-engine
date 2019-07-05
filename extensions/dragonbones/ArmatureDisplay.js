@@ -867,7 +867,7 @@ let ArmatureDisplay = cc.Class({
 
     /**
      * !#en
-     * Add DragonBones one-time event listener, the callback will delete itself the first time after being triggered.
+     * Add DragonBones one-time event listener, the callback will remove itself after the first time it is triggered.
      * !#zh
      * 添加 DragonBones 一次性事件监听器，回调会在第一时间被触发后删除自身。
      * @method once
