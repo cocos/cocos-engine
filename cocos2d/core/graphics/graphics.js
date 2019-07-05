@@ -45,7 +45,6 @@ let Graphics = cc.Class({
 
     ctor () {
         this._impl = new Graphics._Impl(this);
-        this._vertexFormat = cc.gfx.VertexFormat.XY_Color;
     },
 
     properties: {
