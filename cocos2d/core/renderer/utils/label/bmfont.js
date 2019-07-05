@@ -119,14 +119,14 @@ FontAtlasManager.prototype.getFontAtlas = function (comp) {
 }
 
 FontAtlasManager.prototype.releaseFontAtlas = function (font, id) {
-    if (font === null) return
+    if (!font) return
     if (!(font instanceof cc.BitmapFont)) return
     if (!font._fntConfig) return
     
     let fntConfig = font._fntConfig;
     let name = fntConfig.atlasName;
     let reference = this._references[name];
-    if (reference !== null) {
+    if (reference) {
         for (let i = reference.length - 1; i >= 0; i--) {
             if (reference[i] === id) {
                 reference.splice(i, 1);

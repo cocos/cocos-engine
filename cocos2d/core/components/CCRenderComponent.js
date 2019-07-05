@@ -199,6 +199,18 @@ let RenderComponent = cc.Class({
 
     _activateMaterial (force) {
     },
+
+    _checkBacth (renderer, cullingMask) {
+        let material = this.sharedMaterials[0];
+        if ((material && material.getHash() !== renderer.material.getHash()) || 
+            renderer.cullingMask !== cullingMask) {
+            renderer._flush();
+    
+            renderer.node = material.getDefine('_USE_MODEL') ? this.node : renderer._dummyNode;
+            renderer.material = material;
+            renderer.cullingMask = cullingMask;
+        }
+    }
 });
 RenderComponent._assembler = null;
 RenderComponent._postAssembler = null;

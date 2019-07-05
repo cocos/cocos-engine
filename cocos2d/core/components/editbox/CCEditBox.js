@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 const macro = require('../../platform/CCMacro');
-const EditBoxImplBase = require('./EditBoxImplBase');
+const EditBoxImplBase = require('../editbox/EditBoxImplBase');
 const Label = require('../CCLabel');
 const Types = require('./types');
 const InputMode = Types.InputMode;

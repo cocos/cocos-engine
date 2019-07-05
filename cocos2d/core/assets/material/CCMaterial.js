@@ -30,7 +30,7 @@ const PixelFormat = Texture.PixelFormat;
 const EffectAsset = require('../CCEffectAsset');
 
 import Effect from '../../../renderer/core/effect';
-import murmurhash2 from './murmurhash2_gc';
+import murmurhash2 from '../../../renderer/murmurhash2_gc';
 import utils from './utils';
 
 /**
@@ -82,6 +82,10 @@ let Material = cc.Class({
                 return this._effectAsset;
             },
             set (asset) {
+                if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+                    return;
+                }
+
                 this._effectAsset = asset;
                 if (!asset) {
                     cc.error('Can not set an empty effect asset.');

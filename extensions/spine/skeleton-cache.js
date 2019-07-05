@@ -324,7 +324,10 @@ let AnimationCache = cc.Class({
             _indexCount = 0;
 
             attachment = slot.getAttachment();
-            if (!attachment) continue;
+            if (!attachment) {
+                clipper.clipEndWithSlot(slot);
+                continue;
+            }
 
             isRegion = attachment instanceof spine.RegionAttachment;
             isMesh = attachment instanceof spine.MeshAttachment;
@@ -335,10 +338,14 @@ let AnimationCache = cc.Class({
                 continue;
             }
 
-            if (!isRegion && !isMesh) continue;
+            if (!isRegion && !isMesh) {
+                clipper.clipEndWithSlot(slot);
+                continue;
+            }
 
             texture = attachment.region.texture._texture;
             if (!texture) {
+                clipper.clipEndWithSlot(slot);
                 continue;
             }
     
@@ -396,6 +403,7 @@ let AnimationCache = cc.Class({
             }
     
             if (_vfCount == 0 || _indexCount == 0) {
+                clipper.clipEndWithSlot(slot);
                 continue;
             }
     

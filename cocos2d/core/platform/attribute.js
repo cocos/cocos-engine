@@ -342,7 +342,7 @@ module.exports = {
     getClassAttrsProto: getClassAttrsProto,
     setClassAttr: setClassAttr,
     DELIMETER: DELIMETER,
-    getTypeChecker_ET: (CC_EDITOR || CC_TEST) && getTypeChecker,
-    getObjTypeChecker_ET: (CC_EDITOR || CC_TEST) && getObjTypeChecker,
+    getTypeChecker_ET: ((CC_EDITOR && !Editor.isBuilder) || CC_TEST) && getTypeChecker,
+    getObjTypeChecker_ET: ((CC_EDITOR && !Editor.isBuilder) || CC_TEST) && getObjTypeChecker,
     ScriptUuid: {},      // the value will be represented as a uuid string
 };

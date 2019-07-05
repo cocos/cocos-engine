@@ -193,16 +193,7 @@ ModelBatcher.prototype = {
     },
 
     _commitComp (comp, assembler, cullingMask) {
-        let material = comp.sharedMaterials[0];
-        if ((material && material.getHash() !== this.material.getHash()) || 
-            this.cullingMask !== cullingMask) {
-            this._flush();
-    
-            this.node = material.getDefine('_USE_MODEL') ? comp.node : this._dummyNode;
-            this.material = material;
-            this.cullingMask = cullingMask;
-        }
-    
+        comp._checkBacth(this, cullingMask);
         assembler.fillBuffers(comp, this);
     },
 
@@ -229,11 +220,7 @@ ModelBatcher.prototype = {
     },
 
     getBuffer (type, vertextFormat) {
-        if (!vertextFormat.name) {
-            vertextFormat.name = idGenerater.getNewId();
-        }
-
-        let key = type + vertextFormat.name;
+        let key = type + vertextFormat.getHash();
         let buffer = _buffers[key];
         if (!buffer) {
             if (type === 'mesh') {

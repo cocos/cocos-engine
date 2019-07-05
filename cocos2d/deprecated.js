@@ -274,6 +274,8 @@ if (CC_DEBUG) {
         setAnimationInterval: 'cc.game.setFrameRate',
         isDisplayStats: 'cc.debug.isDisplayStats',
         setDisplayStats: 'cc.debug.setDisplayStats',
+        stopAnimation: 'cc.game.pause',
+        startAnimation: 'cc.game.resume',
     }, 'cc.Director');
     markAsRemoved(cc.Director, [
         'pushScene',
@@ -357,12 +359,6 @@ if (CC_DEBUG) {
         'ignoreAnchorPointForPosition',
         'isRunning',
         '_sgNode',
-    ]);
-
-    markAsDeprecated(cc.Node, [
-        ['rotationX', 'eulerAngles'],
-        ['rotationY', 'eulerAngles'],
-        ['rotation', 'angle'],
     ]);
 
     markFunctionWarning(cc.Node.prototype, {

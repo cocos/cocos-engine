@@ -489,7 +489,7 @@ var Texture2D = cc.Class({
         if (!element)
             return;
         this._image = element;
-        if (CC_WECHATGAME || CC_QQPLAY || element.complete || element instanceof HTMLCanvasElement) {
+        if (element.complete || element instanceof HTMLCanvasElement) {
             this.handleLoadedTexture();
         }
         else {
@@ -837,18 +837,18 @@ var Texture2D = cc.Class({
         if (extIdStr) {
             let extIds = extIdStr.split('_');
 
-            let extId = 999;
-            let ext = '';
-            let format = this._format;
+            let defaultExt = '';
+            let bestExt = '';
+            let bestIndex = 999;
+            let bestFormat = this._format;
             let SupportTextureFormats = cc.macro.SUPPORT_TEXTURE_FORMATS;
             for (let i = 0; i < extIds.length; i++) {
                 let extFormat = extIds[i].split('@');
                 let tmpExt = extFormat[0];
-                tmpExt = tmpExt.charCodeAt(0) - CHAR_CODE_0;
-                tmpExt = Texture2D.extnames[tmpExt] || extFormat;
+                tmpExt = Texture2D.extnames[tmpExt.charCodeAt(0) - CHAR_CODE_0] || tmpExt;
 
                 let index = SupportTextureFormats.indexOf(tmpExt);
-                if (index !== -1 && index < extId) {
+                if (index !== -1 && index < bestIndex) {
                     
                     let tmpFormat = extFormat[1] ? parseInt(extFormat[1]) : this._format;
 
@@ -863,15 +863,22 @@ var Texture2D = cc.Class({
                         continue;
                     }
 
-                    extId = index;
-                    ext = tmpExt;
-                    format = tmpFormat;
+                    bestIndex = index;
+                    bestExt = tmpExt;
+                    bestFormat = tmpFormat;
+                }
+                else if (!defaultExt) {
+                    defaultExt = tmpExt;
                 }
             }
 
-            if (ext) {
-                this._setRawAsset(ext);
-                this._format = format;
+            if (bestExt) {
+                this._setRawAsset(bestExt);
+                this._format = bestFormat;
+            }
+            else {
+                this._setRawAsset(defaultExt);
+                cc.warnID(3120, handle.customEnv.url, defaultExt, defaultExt);
             }
         }
         if (fields.length === 6) {

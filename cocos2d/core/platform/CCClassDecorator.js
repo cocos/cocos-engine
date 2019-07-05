@@ -213,7 +213,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
             }
         }
 
-        if (CC_EDITOR || CC_TEST) {
+        if ((CC_EDITOR && !Editor.isBuilder) || CC_TEST) {
             if (!fullOptions && options && options.hasOwnProperty('default')) {
                 cc.warnID(3653, propName, js.getClassName(ctor));
                 // prop.default = options.default;
