@@ -156,10 +156,9 @@ public:
         uint8_t* buffer = _imageData.getBytes();
         if (buffer)
         {
-            float alpha = _fillStyle.a;
-            uint8_t r = _fillStyle.r * 255.0f * alpha;
-            uint8_t g = _fillStyle.g * 255.0f * alpha;
-            uint8_t b = _fillStyle.b * 255.0f * alpha;
+            uint8_t r = _fillStyle.r * 255.0f;
+            uint8_t g = _fillStyle.g * 255.0f;
+            uint8_t b = _fillStyle.b * 255.0f;
             uint8_t a = _fillStyle.a * 255.0f;
             fillRectWithColor(buffer, (uint32_t)_bufferWidth, (uint32_t)_bufferHeight, (uint32_t)x, (uint32_t)y, (uint32_t)w, (uint32_t)h, r, g, b, a);
         }
@@ -558,10 +557,10 @@ private:
                     // "dirtyValue > 0" means pixel was covered when drawing text
                     if (dirtyValue > 0)
                     {
-                        // r = _fillStyle.r * 255 * (dirtyValue / 255) * alpha;
-                        r = _fillStyle.r * dirtyValue * alpha;
-                        g = _fillStyle.g * dirtyValue * alpha;
-                        b = _fillStyle.b * dirtyValue * alpha;
+                        // r = _fillStyle.r * 255 * (dirtyValue / 255);
+                        r = _fillStyle.r * dirtyValue;
+                        g = _fillStyle.g * dirtyValue;
+                        b = _fillStyle.b * dirtyValue;
                         COLORREF textColor = (b << 16 | g << 8 | r) & 0x00ffffff;
                         val = ((BYTE)(dirtyValue * alpha) << 24) | textColor;
                     }
