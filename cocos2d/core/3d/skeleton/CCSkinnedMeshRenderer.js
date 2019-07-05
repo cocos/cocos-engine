@@ -31,8 +31,6 @@ const mat4 = cc.vmath.mat4;
 let _m4_tmp = mat4.create();
 
 const dummyNode = new cc.Node();
-const JOINT_MATRICES_SIZE = 50;
-const MAX_FLOAT_TEXTURE_SIZE = 64;
 
 /**
  * !#en
@@ -191,7 +189,7 @@ let SkinnedMeshRenderer = cc.Class({
         let customProperties = this._customProperties;
 
         let inited = false;
-        if (jointCount <= JOINT_MATRICES_SIZE) {
+        if (jointCount <= cc.sys.getMaxJointMatrixSize()) {
             inited = true;
 
             this._jointsData = this._jointsFloat32Data = new Float32Array(jointCount * 16);
@@ -199,8 +197,8 @@ let SkinnedMeshRenderer = cc.Class({
             customProperties.define('_USE_JOINTS_TEXTRUE', false);
         }
 
-        let SUPPORT_FLOAT_TEXTURE = !!cc.sys.glExtension('OES_texture_float');
         if (!inited) {
+            let SUPPORT_FLOAT_TEXTURE = !!cc.sys.glExtension('OES_texture_float');
             let size;
             if (jointCount > 256) {
                 size = 64;
@@ -223,7 +221,7 @@ let SkinnedMeshRenderer = cc.Class({
                 pixelFormat = cc.Texture2D.PixelFormat.RGBA8888;
                 width *= 4;
 
-                cc.warn(`SkinnedMeshRenderer [${this.node.name}] has too much joints [${jointCount}] and device do not support float32 texture, fallback to use RGBA8888 texture, which is much slower.`);
+                cc.warn(`SkinnedMeshRenderer [${this.node.name}] has too many joints [${jointCount}] and device do not support float32 texture, fallback to use RGBA8888 texture, which is much slower.`);
             }
 
             let texture = this._jointsTexture || new cc.Texture2D();

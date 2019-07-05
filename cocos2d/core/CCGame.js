@@ -293,8 +293,6 @@ var game = {
         if (cc.audioEngine) {
             cc.audioEngine._break();
         }
-        // Pause animation
-        cc.director.stopAnimation();
         // Pause main loop
         if (this._intervalId)
             window.cancelAnimFrame(this._intervalId);
@@ -314,8 +312,7 @@ var game = {
         if (cc.audioEngine) {
             cc.audioEngine._restore();
         }
-        // Resume animation
-        cc.director.startAnimation();
+        cc.director._resetDeltaTime();
         // Resume main loop
         this._runMainLoop();
     },
@@ -625,6 +622,9 @@ var game = {
     },
     //Run game.
     _runMainLoop: function () {
+        if (CC_EDITOR) {
+            return;
+        }
         var self = this, callback, config = self.config,
             director = cc.director,
             skip = true, frameRate = config.frameRate;

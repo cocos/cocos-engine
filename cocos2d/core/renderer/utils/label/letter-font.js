@@ -85,7 +85,7 @@ LetterTexture.prototype = {
         this._context.font = this._labelInfo.fontDesc;
         let width = textUtils.safeMeasureText(this._context, this._char);
         this._width = parseFloat(width.toFixed(2)) + this._labelInfo.margin * 2;
-        this._height = this._labelInfo.fontSize;
+        this._height = (1 + textUtils.BASELINE_RATIO) * this._labelInfo.fontSize + this._labelInfo.margin * 2;
         
         if (this._canvas.width !== this._width) {
             this._canvas.width = this._width;
@@ -104,11 +104,11 @@ LetterTexture.prototype = {
             height = this._canvas.height;
 
         let startX = width / 2;
-        let startY = height / 2;
+        let startY = height / 2 + this._labelInfo.fontSize * textUtils.MIDDLE_RATIO;
         let color = labelInfo.color;
 
         context.textAlign = 'center';
-        context.textBaseline = 'middle';
+        context.textBaseline = 'alphabetic';
         context.clearRect(0, 0, width, height);
         //Add a white background to avoid black edges.
         context.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${_invisibleAlpha})`;
@@ -402,7 +402,7 @@ module.exports = {
         }
 
         _contentSize.width = _comp.node._contentSize.width + _labelInfo.margin * 2;
-        _contentSize.height = _comp.node._contentSize.height;
+        _contentSize.height = _comp.node._contentSize.height + _labelInfo.margin * 2;
 
         _labelInfo.lineHeight = _lineHeight;
         _labelInfo.fontSize = _fontSize;
@@ -558,7 +558,7 @@ module.exports = {
                     letterPosition.x = letterX;
                 }
 
-                letterPosition.y = nextTokenY - letterDef.offsetY * _bmfontScale;
+                letterPosition.y = nextTokenY - letterDef.offsetY * _bmfontScale + _labelInfo.margin + _fontSize * textUtils.MIDDLE_RATIO / 2;
                 this._recordLetterInfo(letterPosition, character, letterIndex, lineIndex);
 
                 if (letterIndex + 1 < _horizontalKernings.length && letterIndex < textLen - 1) {
@@ -611,7 +611,7 @@ module.exports = {
             _contentSize.width = parseFloat(longestLine.toFixed(2)) + _labelInfo.margin * 2;
         }
         if (_labelHeight <= 0) {
-            _contentSize.height = parseFloat(_textDesiredHeight.toFixed(2));
+            _contentSize.height = parseFloat(_textDesiredHeight.toFixed(2)) + _labelInfo.margin * 2 + _fontSize * textUtils.BASELINE_RATIO;
         }
 
         _tailoredTopY = _contentSize.height;

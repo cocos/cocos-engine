@@ -361,7 +361,7 @@ let WebAudioElement = function (buffer, audio) {
     this._volume = 1;
     // https://www.chromestatus.com/features/5287995770929152
     if (this._gainObj['gain'].setTargetAtTime) {
-        this._gainObj['gain'].setTargetAtTime(this._volume, this._context.currentTime, 0.01);
+        this._gainObj['gain'].setTargetAtTime(this._volume, this._context.currentTime, 0);
     } else {
         this._gainObj['gain'].value = 1;
     }
@@ -497,7 +497,7 @@ let WebAudioElement = function (buffer, audio) {
         set: function (num) {
             this._volume = num;
             if (this._gainObj['gain'].setTargetAtTime) {
-                this._gainObj['gain'].setTargetAtTime(this._volume, this._context.currentTime, 0.01);
+                this._gainObj['gain'].setTargetAtTime(this._volume, this._context.currentTime, 0);
             } else {
                 this._volume['gain'].value = num;
             }

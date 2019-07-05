@@ -8,6 +8,7 @@ import sphere from './sphere';
 import torus from './torus';
 import capsule from './capsule';
 import { PolyhedronType, polyhedron } from './polyhedron';
+import VertexData from './vertex-data';
 
 /**
  * 一个创建 3D 物体顶点数据的基础模块，你可以通过 "cc.primitive" 来访问这个模块。
@@ -139,5 +140,7 @@ cc.primitive = Object.assign({
      * @return {primitive.VertextData}
      */
     polyhedron,
-    PolyhedronType: PolyhedronType
+
+    PolyhedronType,
+    VertexData,
 }, utils);
