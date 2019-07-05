@@ -42,18 +42,8 @@ void MeshAssembler::handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene)
     _batcher = batcher;
     _batcher->flush();
     _batcher->setCustomProperties(_customProp);
-    _mesh->uploadData();
-    
-    _batcher->setCurrentEffect(getEffect(0));
-    for (size_t i = 0, len = _mesh->getMeshCount(); i < len; i++)
-    {
-        Mesh::MeshData* data = _mesh->getMeshData(i);
-        
-        updateIABuffer(i, data->vb, data->ib);
-        updateIARange(i, 0, data->ib->getBytes() / data->ib->getBytesPerIndex());
-    }
-    
-    CustomAssembler::handle(node, batcher, scene);
+
+    Assembler::handle(node, batcher, scene);
 }
 
 RENDERER_END

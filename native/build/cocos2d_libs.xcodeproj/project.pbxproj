@@ -831,10 +831,6 @@
 		420FDAB122C78D9F004758EA /* MeshAssembler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 420FDAAE22C78D9F004758EA /* MeshAssembler.cpp */; };
 		420FDAB222C78D9F004758EA /* MeshAssembler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 420FDAAF22C78D9F004758EA /* MeshAssembler.hpp */; };
 		420FDAB322C78D9F004758EA /* MeshAssembler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 420FDAAF22C78D9F004758EA /* MeshAssembler.hpp */; };
-		420FDAB622CA5348004758EA /* Mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 420FDAB422CA5348004758EA /* Mesh.cpp */; };
-		420FDAB722CA5348004758EA /* Mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 420FDAB422CA5348004758EA /* Mesh.cpp */; };
-		420FDAB822CA5348004758EA /* Mesh.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 420FDAB522CA5348004758EA /* Mesh.hpp */; };
-		420FDAB922CA5348004758EA /* Mesh.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 420FDAB522CA5348004758EA /* Mesh.hpp */; };
 		4233799F22BB43B900E5D8A2 /* RecyclePool.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4233799C22BB43B900E5D8A2 /* RecyclePool.hpp */; };
 		423379A022BB43B900E5D8A2 /* RecyclePool.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4233799C22BB43B900E5D8A2 /* RecyclePool.hpp */; };
 		423379A322BB8DEA00E5D8A2 /* CustomProperties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 423379A122BB8DEA00E5D8A2 /* CustomProperties.cpp */; };
@@ -1835,8 +1831,6 @@
 		40FF7A9F216B29CB00E73029 /* VideoPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VideoPlayer.h; sourceTree = "<group>"; };
 		420FDAAE22C78D9F004758EA /* MeshAssembler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MeshAssembler.cpp; sourceTree = "<group>"; };
 		420FDAAF22C78D9F004758EA /* MeshAssembler.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MeshAssembler.hpp; sourceTree = "<group>"; };
-		420FDAB422CA5348004758EA /* Mesh.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Mesh.cpp; sourceTree = "<group>"; };
-		420FDAB522CA5348004758EA /* Mesh.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Mesh.hpp; sourceTree = "<group>"; };
 		4233799C22BB43B900E5D8A2 /* RecyclePool.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RecyclePool.hpp; sourceTree = "<group>"; };
 		423379A122BB8DEA00E5D8A2 /* CustomProperties.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CustomProperties.cpp; sourceTree = "<group>"; };
 		423379A222BB8DEA00E5D8A2 /* CustomProperties.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CustomProperties.hpp; sourceTree = "<group>"; };
@@ -3253,8 +3247,6 @@
 				46FDDA4B202ACC6A00931238 /* ForwardRenderer.h */,
 				423379A122BB8DEA00E5D8A2 /* CustomProperties.cpp */,
 				423379A222BB8DEA00E5D8A2 /* CustomProperties.hpp */,
-				420FDAB422CA5348004758EA /* Mesh.cpp */,
-				420FDAB522CA5348004758EA /* Mesh.hpp */,
 			);
 			path = renderer;
 			sourceTree = "<group>";
@@ -3845,7 +3837,6 @@
 				46AE3FF72092F3A600F3A228 /* util-inl.h in Headers */,
 				1AAAC875205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.hpp in Headers */,
 				04DBD3EB22AE2DBD00DBE4CD /* CurveTimeline.h in Headers */,
-				420FDAB822CA5348004758EA /* Mesh.hpp in Headers */,
 				04DBD3D322AE2DBD00DBE4CD /* RotateTimeline.h in Headers */,
 				0482F1A7228D87970019ECF7 /* NodeProxy.hpp in Headers */,
 				1A28FF951F20AFAB007A1D9D /* SocketRocket.h in Headers */,
@@ -4089,7 +4080,6 @@
 				469304012046AE06004A3D6C /* jsb_global.h in Headers */,
 				04DBD47A22AE2DBD00DBE4CD /* PositionMode.h in Headers */,
 				04DBD48222AE2DBD00DBE4CD /* PathConstraintPositionTimeline.h in Headers */,
-				420FDAB322C78D9F004758EA /* MeshAssembler.hpp in Headers */,
 				46AE3FF82092F3A600F3A228 /* util-inl.h in Headers */,
 				46FDDADE202ACC6A00931238 /* VertexBuffer.h in Headers */,
 				40AEF7B3216D940200729AA5 /* WebViewImpl-ios.h in Headers */,
@@ -4219,7 +4209,6 @@
 				46FDDAAC202ACC6A00931238 /* Types.h in Headers */,
 				04DBD45022AE2DBD00DBE4CD /* Json.h in Headers */,
 				04DBD43222AE2DBD00DBE4CD /* Color.h in Headers */,
-				420FDAB922CA5348004758EA /* Mesh.hpp in Headers */,
 				1AAAC876205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.hpp in Headers */,
 				04DBD32C22AE2D8200DBE4CD /* spine-cocos2dx.h in Headers */,
 				1A52DB7B205BCDD000350EE3 /* ScriptEngine.hpp in Headers */,
@@ -4296,6 +4285,7 @@
 				04DBD44E22AE2DBD00DBE4CD /* SpacingMode.h in Headers */,
 				423379A022BB43B900E5D8A2 /* RecyclePool.hpp in Headers */,
 				423379A622BB8DEA00E5D8A2 /* CustomProperties.hpp in Headers */,
+				420FDAB322C78D9F004758EA /* MeshAssembler.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4662,7 +4652,6 @@
 				46FDDA95202ACC6A00931238 /* RendererUtils.cpp in Sources */,
 				1A28FF9D1F20AFAB007A1D9D /* SRWebSocket.m in Sources */,
 				46FDDB8F202ADDCE00931238 /* ccUtils.cpp in Sources */,
-				420FDAB622CA5348004758EA /* Mesh.cpp in Sources */,
 				046E06FD2189999600B24E2D /* jsb_cocos2dx_editor_support_auto.cpp in Sources */,
 				04DBD46922AE2DBD00DBE4CD /* ShearTimeline.cpp in Sources */,
 				046E065C2185B41B00B24E2D /* Constraint.cpp in Sources */,
@@ -4839,7 +4828,6 @@
 				40CEAEB620CFDC28007A3281 /* CCReachability.cpp in Sources */,
 				046E06BA2185B49F00B24E2D /* ConstraintData.cpp in Sources */,
 				04DBD4DC22B51EA300DBE4CD /* MemPool.cpp in Sources */,
-				420FDAB722CA5348004758EA /* Mesh.cpp in Sources */,
 				046E06832185B43B00B24E2D /* EventObject.cpp in Sources */,
 				46FDDA8C202ACC6A00931238 /* ForwardRenderer.cpp in Sources */,
 				04DBD41C22AE2DBD00DBE4CD /* SlotData.cpp in Sources */,
@@ -4943,7 +4931,6 @@
 				04DBD43422AE2DBD00DBE4CD /* Skin.cpp in Sources */,
 				40AEF7AF216D940200729AA5 /* WebViewImpl-ios.mm in Sources */,
 				46FDDB94202ADDCE00931238 /* TGAlib.cpp in Sources */,
-				420FDAB122C78D9F004758EA /* MeshAssembler.cpp in Sources */,
 				46FDDB66202ADDCE00931238 /* ccRandom.cpp in Sources */,
 				04DBD41822AE2DBD00DBE4CD /* BoneData.cpp in Sources */,
 				1A28FF841F20AFAB007A1D9D /* SRRandom.m in Sources */,
@@ -4986,6 +4973,7 @@
 				04DBD31C22AE2D8200DBE4CD /* SkeletonAnimation.cpp in Sources */,
 				BA21055F21009A5A00E19975 /* CCEventAssetsManagerEx.cpp in Sources */,
 				BA21055D21009A5500E19975 /* Manifest.cpp in Sources */,
+				420FDAB122C78D9F004758EA /* MeshAssembler.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

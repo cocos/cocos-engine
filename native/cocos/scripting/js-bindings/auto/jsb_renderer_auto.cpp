@@ -158,6 +158,96 @@ bool js_register_renderer_ProgramLib(se::Object* obj)
     return true;
 }
 
+se::Object* __jsb_cocos2d_renderer_CustomProperties_proto = nullptr;
+se::Class* __jsb_cocos2d_renderer_CustomProperties_class = nullptr;
+
+static bool js_renderer_CustomProperties_setProperty(se::State& s)
+{
+    cocos2d::renderer::CustomProperties* cobj = (cocos2d::renderer::CustomProperties*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_CustomProperties_setProperty : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        std::string arg0;
+        cocos2d::renderer::Technique::Parameter arg1;
+        ok &= seval_to_std_string(args[0], &arg0);
+        ok &= seval_to_TechniqueParameter(args[1], &arg1);
+        SE_PRECONDITION2(ok, false, "js_renderer_CustomProperties_setProperty : Error processing arguments");
+        cobj->setProperty(arg0, arg1);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_CustomProperties_setProperty)
+
+static bool js_renderer_CustomProperties_define(se::State& s)
+{
+    cocos2d::renderer::CustomProperties* cobj = (cocos2d::renderer::CustomProperties*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_CustomProperties_define : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        std::string arg0;
+        cocos2d::Value arg1;
+        ok &= seval_to_std_string(args[0], &arg0);
+        ok &= seval_to_ccvalue(args[1], &arg1);
+        SE_PRECONDITION2(ok, false, "js_renderer_CustomProperties_define : Error processing arguments");
+        cobj->define(arg0, arg1);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_CustomProperties_define)
+
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_CustomProperties_finalize)
+
+static bool js_renderer_CustomProperties_constructor(se::State& s)
+{
+    cocos2d::renderer::CustomProperties* cobj = new (std::nothrow) cocos2d::renderer::CustomProperties();
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_renderer_CustomProperties_constructor, __jsb_cocos2d_renderer_CustomProperties_class, js_cocos2d_renderer_CustomProperties_finalize)
+
+
+
+
+static bool js_cocos2d_renderer_CustomProperties_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::CustomProperties)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::renderer::CustomProperties* cobj = (cocos2d::renderer::CustomProperties*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_CustomProperties_finalize)
+
+bool js_register_renderer_CustomProperties(se::Object* obj)
+{
+    auto cls = se::Class::create("CustomProperties", obj, nullptr, _SE(js_renderer_CustomProperties_constructor));
+
+    cls->defineFunction("setProperty", _SE(js_renderer_CustomProperties_setProperty));
+    cls->defineFunction("define", _SE(js_renderer_CustomProperties_define));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_CustomProperties_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::renderer::CustomProperties>(cls);
+
+    __jsb_cocos2d_renderer_CustomProperties_proto = cls->getProto();
+    __jsb_cocos2d_renderer_CustomProperties_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
 se::Object* __jsb_cocos2d_renderer_Pass_proto = nullptr;
 se::Class* __jsb_cocos2d_renderer_Pass_class = nullptr;
 
@@ -3888,6 +3978,50 @@ static bool js_renderer_CustomAssembler_clearEffect(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_CustomAssembler_clearEffect)
 
+static bool js_renderer_CustomAssembler_updateEffect(se::State& s)
+{
+    cocos2d::renderer::CustomAssembler* cobj = (cocos2d::renderer::CustomAssembler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_CustomAssembler_updateEffect : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        size_t arg0 = 0;
+        cocos2d::renderer::Effect* arg1 = nullptr;
+        ok &= seval_to_size(args[0], &arg0);
+        ok &= seval_to_native_ptr(args[1], &arg1);
+        SE_PRECONDITION2(ok, false, "js_renderer_CustomAssembler_updateEffect : Error processing arguments");
+        cobj->updateEffect(arg0, arg1);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_CustomAssembler_updateEffect)
+
+static bool js_renderer_CustomAssembler_updateIABuffer(se::State& s)
+{
+    cocos2d::renderer::CustomAssembler* cobj = (cocos2d::renderer::CustomAssembler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_CustomAssembler_updateIABuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        size_t arg0 = 0;
+        cocos2d::renderer::VertexBuffer* arg1 = nullptr;
+        cocos2d::renderer::IndexBuffer* arg2 = nullptr;
+        ok &= seval_to_size(args[0], &arg0);
+        ok &= seval_to_native_ptr(args[1], &arg1);
+        ok &= seval_to_native_ptr(args[2], &arg2);
+        SE_PRECONDITION2(ok, false, "js_renderer_CustomAssembler_updateIABuffer : Error processing arguments");
+        cobj->updateIABuffer(arg0, arg1, arg2);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_CustomAssembler_updateIABuffer)
+
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_CustomAssembler_finalize)
 
 static bool js_renderer_CustomAssembler_constructor(se::State& s)
@@ -3925,6 +4059,8 @@ bool js_register_renderer_CustomAssembler(se::Object* obj)
     auto cls = se::Class::create("CustomAssembler", obj, __jsb_cocos2d_renderer_AssemblerBase_proto, _SE(js_renderer_CustomAssembler_constructor));
 
     cls->defineFunction("clearEffect", _SE(js_renderer_CustomAssembler_clearEffect));
+    cls->defineFunction("updateEffect", _SE(js_renderer_CustomAssembler_updateEffect));
+    cls->defineFunction("updateIABuffer", _SE(js_renderer_CustomAssembler_updateIABuffer));
     cls->defineFunction("ctor", _SE(js_renderer_CustomAssembler_ctor));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_CustomAssembler_finalize));
     cls->install();
@@ -4282,6 +4418,78 @@ bool js_register_renderer_TiledMapAssembler(se::Object* obj)
     return true;
 }
 
+se::Object* __jsb_cocos2d_renderer_MeshAssembler_proto = nullptr;
+se::Class* __jsb_cocos2d_renderer_MeshAssembler_class = nullptr;
+
+static bool js_renderer_MeshAssembler_setCustomProperties(se::State& s)
+{
+    cocos2d::renderer::MeshAssembler* cobj = (cocos2d::renderer::MeshAssembler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_MeshAssembler_setCustomProperties : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        cocos2d::renderer::CustomProperties* arg0 = nullptr;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_MeshAssembler_setCustomProperties : Error processing arguments");
+        cobj->setCustomProperties(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_MeshAssembler_setCustomProperties)
+
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_MeshAssembler_finalize)
+
+static bool js_renderer_MeshAssembler_constructor(se::State& s)
+{
+    cocos2d::renderer::MeshAssembler* cobj = new (std::nothrow) cocos2d::renderer::MeshAssembler();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_renderer_MeshAssembler_constructor, __jsb_cocos2d_renderer_MeshAssembler_class, js_cocos2d_renderer_MeshAssembler_finalize)
+
+static bool js_renderer_MeshAssembler_ctor(se::State& s)
+{
+    cocos2d::renderer::MeshAssembler* cobj = new (std::nothrow) cocos2d::renderer::MeshAssembler();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_SUB_CLS_CTOR(js_renderer_MeshAssembler_ctor, __jsb_cocos2d_renderer_MeshAssembler_class, js_cocos2d_renderer_MeshAssembler_finalize)
+
+
+    
+
+extern se::Object* __jsb_cocos2d_renderer_Assembler_proto;
+
+static bool js_cocos2d_renderer_MeshAssembler_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::MeshAssembler)", s.nativeThisObject());
+    cocos2d::renderer::MeshAssembler* cobj = (cocos2d::renderer::MeshAssembler*)s.nativeThisObject();
+    cobj->release();
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_MeshAssembler_finalize)
+
+bool js_register_renderer_MeshAssembler(se::Object* obj)
+{
+    auto cls = se::Class::create("MeshAssembler", obj, __jsb_cocos2d_renderer_Assembler_proto, _SE(js_renderer_MeshAssembler_constructor));
+
+    cls->defineFunction("setCustomProperties", _SE(js_renderer_MeshAssembler_setCustomProperties));
+    cls->defineFunction("ctor", _SE(js_renderer_MeshAssembler_ctor));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_MeshAssembler_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::renderer::MeshAssembler>(cls);
+
+    __jsb_cocos2d_renderer_MeshAssembler_proto = cls->getProto();
+    __jsb_cocos2d_renderer_MeshAssembler_class = cls;
+
+    jsb_set_extend_property("renderer", "MeshAssembler");
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
 bool register_all_renderer(se::Object* obj)
 {
     // Get the ns
@@ -4298,6 +4506,7 @@ bool register_all_renderer(se::Object* obj)
     js_register_renderer_MemPool(ns);
     js_register_renderer_NodeMemPool(ns);
     js_register_renderer_ProgramLib(ns);
+    js_register_renderer_BaseRenderer(ns);
     js_register_renderer_AssemblerBase(ns);
     js_register_renderer_Assembler(ns);
     js_register_renderer_MaskAssembler(ns);
@@ -4305,10 +4514,11 @@ bool register_all_renderer(se::Object* obj)
     js_register_renderer_Scene(ns);
     js_register_renderer_Effect(ns);
     js_register_renderer_RenderDataList(ns);
-    js_register_renderer_BaseRenderer(ns);
     js_register_renderer_ForwardRenderer(ns);
     js_register_renderer_TiledMapAssembler(ns);
     js_register_renderer_Camera(ns);
+    js_register_renderer_MeshAssembler(ns);
+    js_register_renderer_CustomProperties(ns);
     js_register_renderer_Pass(ns);
     js_register_renderer_NodeProxy(ns);
     js_register_renderer_CustomAssembler(ns);

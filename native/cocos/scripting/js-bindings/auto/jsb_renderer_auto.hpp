@@ -15,6 +15,15 @@ SE_DECLARE_FUNC(js_renderer_ProgramLib_getValueFromDefineList);
 SE_DECLARE_FUNC(js_renderer_ProgramLib_getKey);
 SE_DECLARE_FUNC(js_renderer_ProgramLib_ProgramLib);
 
+extern se::Object* __jsb_cocos2d_renderer_CustomProperties_proto;
+extern se::Class* __jsb_cocos2d_renderer_CustomProperties_class;
+
+bool js_register_cocos2d_renderer_CustomProperties(se::Object* obj);
+bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_CustomProperties_setProperty);
+SE_DECLARE_FUNC(js_renderer_CustomProperties_define);
+SE_DECLARE_FUNC(js_renderer_CustomProperties_CustomProperties);
+
 extern se::Object* __jsb_cocos2d_renderer_Pass_proto;
 extern se::Class* __jsb_cocos2d_renderer_Pass_class;
 
@@ -249,6 +258,8 @@ extern se::Class* __jsb_cocos2d_renderer_CustomAssembler_class;
 bool js_register_cocos2d_renderer_CustomAssembler(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
 SE_DECLARE_FUNC(js_renderer_CustomAssembler_clearEffect);
+SE_DECLARE_FUNC(js_renderer_CustomAssembler_updateEffect);
+SE_DECLARE_FUNC(js_renderer_CustomAssembler_updateIABuffer);
 SE_DECLARE_FUNC(js_renderer_CustomAssembler_CustomAssembler);
 
 extern se::Object* __jsb_cocos2d_renderer_RenderFlow_proto;
@@ -280,5 +291,13 @@ SE_DECLARE_FUNC(js_renderer_TiledMapAssembler_updateNodes);
 SE_DECLARE_FUNC(js_renderer_TiledMapAssembler_setLayerMoveXY);
 SE_DECLARE_FUNC(js_renderer_TiledMapAssembler_clearNodes);
 SE_DECLARE_FUNC(js_renderer_TiledMapAssembler_TiledMapAssembler);
+
+extern se::Object* __jsb_cocos2d_renderer_MeshAssembler_proto;
+extern se::Class* __jsb_cocos2d_renderer_MeshAssembler_class;
+
+bool js_register_cocos2d_renderer_MeshAssembler(se::Object* obj);
+bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_MeshAssembler_setCustomProperties);
+SE_DECLARE_FUNC(js_renderer_MeshAssembler_MeshAssembler);
 
 #endif //#if (USE_GFX_RENDERER > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)

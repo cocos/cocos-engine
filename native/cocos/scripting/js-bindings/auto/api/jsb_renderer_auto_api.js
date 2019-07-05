@@ -84,6 +84,46 @@ array
 };
 
 /**
+ * @class CustomProperties
+ */
+renderer.CustomProperties = {
+
+/**
+ * @method setProperty
+ * @param {String} arg0
+ * @param {cc.renderer::Technique::Parameter} arg1
+ */
+setProperty : function (
+str, 
+parameter 
+)
+{
+},
+
+/**
+ * @method define
+ * @param {String} arg0
+ * @param {cc.Value} arg1
+ */
+define : function (
+str, 
+value 
+)
+{
+},
+
+/**
+ * @method CustomProperties
+ * @constructor
+ */
+CustomProperties : function (
+)
+{
+},
+
+};
+
+/**
  * @class Pass
  */
 renderer.PassNative = {
@@ -1681,6 +1721,32 @@ clearEffect : function (
 },
 
 /**
+ * @method updateEffect
+ * @param {unsigned int} arg0
+ * @param {cc.renderer::Effect} arg1
+ */
+updateEffect : function (
+int, 
+effect 
+)
+{
+},
+
+/**
+ * @method updateIABuffer
+ * @param {unsigned int} arg0
+ * @param {cc.renderer::VertexBuffer} arg1
+ * @param {cc.renderer::IndexBuffer} arg2
+ */
+updateIABuffer : function (
+int, 
+vertexbuffer, 
+indexbuffer 
+)
+{
+},
+
+/**
  * @method CustomAssembler
  * @constructor
  */
@@ -1835,6 +1901,32 @@ int
  * @constructor
  */
 TiledMapAssembler : function (
+)
+{
+},
+
+};
+
+/**
+ * @class MeshAssembler
+ */
+renderer.MeshAssembler = {
+
+/**
+ * @method setCustomProperties
+ * @param {cc.renderer::CustomProperties} arg0
+ */
+setCustomProperties : function (
+customproperties 
+)
+{
+},
+
+/**
+ * @method MeshAssembler
+ * @constructor
+ */
+MeshAssembler : function (
 )
 {
 },

@@ -90,16 +90,27 @@ void Model::setEffect(Effect* effect, CustomProperties* customProperties)
         CC_SAFE_RETAIN(_effect);
     }
     
-    _defines.clear();
     _uniforms.clear();
     
     if (effect != nullptr) {
-        _defines.push_back(effect->extractDefines());
+        _defines = effect->extractDefines();
         _uniforms.push_back(effect->extractProperties());
     }
     
     if (customProperties != nullptr) {
-        _defines.push_back(customProperties->extractDefines());
+        ValueMap* tmpMap = customProperties->extractDefines();
+        for (auto e : *tmpMap)
+        {
+            const std::string& key = e.first;
+            if(_defines->count(key) == 0)
+            {
+                _defines->emplace(key, e.second);
+            }
+            else
+            {
+                _defines->find(key)->second = e.second;
+            }
+        }
         _uniforms.push_back(customProperties->extractProperties());
     }
 }
@@ -129,7 +140,7 @@ void Model::extractDrawItem(DrawItem& out) const
     out.model = const_cast<Model*>(this);
     out.ia = const_cast<InputAssembler*>(&(_inputAssembler));
     out.effect = _effect;
-    out.defines = out.effect->extractDefines();
+    out.defines = _defines;
 }
 
 void Model::reset()
@@ -137,7 +148,7 @@ void Model::reset()
     CC_SAFE_RELEASE_NULL(_effect);
     CC_SAFE_RELEASE_NULL(_node);
     _inputAssembler.clear();
-    _defines.clear();
+    _defines->clear();
     _uniforms.clear();
 }
 

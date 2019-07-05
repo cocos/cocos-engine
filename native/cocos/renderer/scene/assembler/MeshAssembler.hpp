@@ -24,23 +24,20 @@
 
 #pragma once
 
-#include "CustomAssembler.hpp"
+#include "Assembler.hpp"
 #include "../../renderer/CustomProperties.hpp"
-#include "../../renderer/Mesh.hpp"
 RENDERER_BEGIN
 
-class MeshAssembler : public CustomAssembler
+class MeshAssembler : public Assembler
 {
 public:
     MeshAssembler();
     virtual ~MeshAssembler();
     virtual void handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene) override;
     void setCustomProperties(CustomProperties* customProp) { _customProp = customProp;};
-    inline void setMesh(Mesh* mesh) { _mesh = mesh; };
 private:
     ModelBatcher* _batcher = nullptr;
     CustomProperties* _customProp = nullptr;
-    Mesh* _mesh = nullptr;
 };
 
 RENDERER_END
