@@ -34,4 +34,3 @@
 #include "assembler/Assembler.hpp"
 #include "assembler/MaskAssembler.hpp"
 #include "assembler/TiledMapAssembler.hpp"
-#include "assembler/MeshAssembler.hpp"
