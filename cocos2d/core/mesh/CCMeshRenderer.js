@@ -176,10 +176,8 @@ let MeshRenderer = cc.Class({
     },
 
     ctor () {
-        this._renderData = null;
         this._boundingBox = null;
         this._customProperties = new cc.CustomProperties();
-        this._vertexFormat = cc.gfx.VertexFormat.XY_Color;
     },
 
     onEnable () {
