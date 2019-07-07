@@ -89,6 +89,10 @@ export class Texture2D extends TextureBase {
         super(true);
     }
 
+    public initialize () {
+        this.mipmaps = this._mipmaps;
+    }
+
     public onLoaded () {
         this.initialize();
         this.loaded = true;
@@ -175,11 +179,6 @@ export class Texture2D extends TextureBase {
             handle.result.push(this._mipmaps, `${i}`, mipmapUUID);
         }
     }
-
-    protected initialize () {
-        this.mipmaps = this._mipmaps;
-    }
-
 }
 
 cc.Texture2D = Texture2D;

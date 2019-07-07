@@ -68,6 +68,18 @@ const _regions: GFXBufferTextureCopy[] = [{
     },
 }];
 
+// TODO: use it in initialize
+export interface ITextureInitInfo {
+    wrapS?: number;
+    wrapT?: number;
+    wrapR?: number;
+    minFilter?: number;
+    magFilter?: number;
+    mipFilter?: number;
+    premultiplyAlpha?: boolean;
+    anisotropy?: boolean;
+}
+
 /**
  * 贴图创建选项。
  */

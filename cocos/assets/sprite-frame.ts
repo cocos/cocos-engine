@@ -31,11 +31,12 @@
  */
 
 import { ccclass } from '../core/data/class-decorator';
+import { constget } from '../core/data/utils/constget';
 import { Rect, Size, Vec2 } from '../core/value-types';
 import { vec2 } from '../core/vmath';
 import { ImageAsset } from './image-asset';
 import { ITexture2DSerializeData, Texture2D } from './texture-2d';
-import * as textureUtil from './texture-util';
+import { ITextureInitInfo } from './texture-base';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -59,12 +60,11 @@ interface IVertices {
 
 interface ISpriteFramesSerializeData extends ITexture2DSerializeData{
     name: string;
-    texture: string | undefined;
     atlas: string | undefined;
-    rect: number[] | undefined;
-    offset: number[] | undefined;
-    originalSize: number[] | undefined;
-    rotated: boolean | undefined;
+    rect: Rect;
+    offset: Vec2;
+    originalSize: Size;
+    rotated: boolean;
     capInsets: number[];
     vertices: IVertices;
 }
@@ -73,6 +73,45 @@ interface ISpriteFrameOriginal{
     texture: Texture2D;
     x: number;
     y: number;
+}
+
+interface ISpriteFrameInitInfo extends ITextureInitInfo {
+    /**
+     * @zh ImageAsset 资源。
+     */
+    image?: ImageAsset;
+    /**
+     * @zh 精灵帧原始尺寸。
+     */
+    originalSize?: Size;
+    /**
+     * @zh 精灵帧裁切矩形。
+     */
+    rect?: Rect;
+    /**
+     * @zh 精灵帧偏移量。
+     */
+    offset?: Vec2;
+    /**
+     * @zh 上边界。
+     */
+    borderTop?: number;
+    /**
+     * @zh 下边界。
+     */
+    borderBottom?: number;
+    /**
+     * @zh 左边界
+     */
+    borderLeft?: number;
+    /**
+     * @zh 右边界
+     */
+    borderRight?: number;
+    /**
+     * @zh 是否旋转。
+     */
+    isRotate?: boolean;
 }
 
 const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }];
@@ -104,32 +143,18 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  */
 @ccclass('cc.SpriteFrame')
 export class SpriteFrame extends Texture2D {
-    // Use this property to set texture when loading dependency
-    // @property
-    // set _textureSetter(texture) {
-    //     if (texture) {
-    //         if (CC_EDITOR && !(texture instanceof cc.Texture2D)) {
-    //             // just building
-    //             this._texture = texture;
-    //             return;
-    //         }
-    //         if (this._texture !== texture) {
-    //             this._refreshTexture(texture);
-    //         }
-    //         this._textureFilename = texture.url;
-    //     }
-    // }
-
-    // _textureFilename: {
-    //     get () {
-    //         return (this._texture && this._texture.url) || "";
-    //     },
-    //     set (url) {
-    //         let texture = cc.textureCache.addImage(url);
-    //         this._refreshTexture(texture);
-    //     }
-    // }
-
+    /**
+     * @zh
+     * 一键创建 spriteframe
+     *
+     * @param config - 图片源
+     */
+    public static create (config: ISpriteFrameInitInfo){
+        const spriteframe = new SpriteFrame();
+        spriteframe.initialize(config);
+        spriteframe.onLoaded();
+        return spriteframe;
+    }
     /**
      * @en
      * Top border of the sprite.
@@ -202,6 +227,46 @@ export class SpriteFrame extends Texture2D {
         }
     }
 
+    /**
+     * @en
+     * Returns the rect of the sprite frame in the texture.
+     * If it's a atlas texture, a transparent pixel area is proposed for the actual mapping of the current texture.
+     *
+     * @zh
+     * 获取 SpriteFrame 的纹理矩形区域。
+     * 如果是一个 atlas 的贴图，则为当前贴图的实际剔除透明像素区域。
+     */
+    @constget
+    get rect () {
+        return this._rect;
+    }
+
+    set rect (value) {
+        this._rect.set(value);
+        if (this.image) {
+            this._calculateSlicedUV();
+        }
+    }
+
+    /**
+     * @en
+     * Returns the original size of the trimmed image.
+     *
+     * @zh
+     * 获取修剪前的原始大小。
+     */
+    @constget
+    get originalSize () {
+        return this._originalSize;
+    }
+
+    set originalSize (value) {
+        this._originalSize.set(value);
+        if (this.image) {
+            this._calculateSlicedUV();
+        }
+    }
+
     get atlasUuid () {
         return this._atlasUuid;
     }
@@ -249,29 +314,61 @@ export class SpriteFrame extends Texture2D {
     constructor () {
         super();
 
-        // let filename = arguments[0];
-        // const rect = arguments[0];
-        // const rotated = arguments[1];
-        // const offset = arguments[2];
-        // const originalSize = arguments[3];
-
-        // this._texture = null;
-        // this._textureFilename = '';
-
-        // this._capInsets[INSET_BOTTOM] = 0;
-        // this._capInsets[INSET_LEFT] = 0;
-        // this._capInsets[INSET_RIGHT] = 0;
-        // this._capInsets[INSET_TOP] = 0;
-
         if (CC_EDITOR) {
             // Atlas asset uuid
             this._atlasUuid = '';
         }
-        // if (filename !== undefined) {
-        //     this.setTexture(filename, rect, rotated, offset, originalSize);
-        // } else {
-        //     //todo log Error
-        // }
+    }
+
+    /**
+     * @zh
+     * 精灵帧初始化。
+     *
+     * @param config - 初始化配置。
+     */
+    public initialize (config?: ISpriteFrameInitInfo) {
+        if (config){
+            if (config.originalSize) {
+                this._originalSize.set(config.originalSize);
+            }
+
+            if (config.image){
+                this._rect.x = this._rect.y = 0;
+                this._originalSize.width = this._rect.width = config.image.width;
+                this._originalSize.height = this._rect.height = config.image.height;
+                this._mipmaps = [config.image];
+                this.checkRect(this.image!);
+            }
+
+            if (config.rect) {
+                this._rect.set(config.rect);
+            }
+
+            if (config.offset){
+                this._offset.set(config.offset);
+            }
+
+            if (config.borderTop){
+                this._capInsets[INSET_TOP] = config.borderTop;
+            }
+
+            if (config.borderBottom) {
+                this._capInsets[INSET_BOTTOM] = config.borderBottom;
+            }
+
+            if (config.borderLeft) {
+                this._capInsets[INSET_LEFT] = config.borderLeft;
+            }
+
+            if (config.borderRight) {
+                this._capInsets[INSET_RIGHT] = config.borderRight;
+            }
+
+            this._rotated = !! config.isRotate;
+        }
+
+        // TODO:adjust when texture-2d changed
+        // super.initialize();
     }
 
     /**
@@ -315,7 +412,7 @@ export class SpriteFrame extends Texture2D {
      *
      * @zh
      * 获取 SpriteFrame 的纹理矩形区域。
-     * 如果是一个 atlas 的贴图，则为当前贴图的实际提出透明像素区域。
+     * 如果是一个 atlas 的贴图，则为当前贴图的实际剔除透明像素区域。
      */
     public getRect (out?: Rect) {
         if (out) {
@@ -366,41 +463,25 @@ export class SpriteFrame extends Texture2D {
         this._originalSize.set(size);
     }
 
-    // resource initialization assignment
-    public _setBorder (l: number, b: number, r: number, t: number){
-        this._capInsets[INSET_LEFT] = l;
-        this._capInsets[INSET_BOTTOM] = b;
-        this._capInsets[INSET_RIGHT] = r;
-        this._capInsets[INSET_TOP] = t;
-    }
-
     /**
      * @en
      * Returns the texture of the frame.
      *
      * @zh
-     * 获取使用的纹理实例。
+     * 获取实例的图片资源。
      */
-    // getTexture() {
-    //     return this._texture;
-    // }
+    get image () {
+        return this._mipmaps.length === 0 ? null : this._mipmaps[0];
+    }
 
-    /*
-     * @en Sets the texture of the frame.
-     * @zh 设置使用的纹理实例。
-     * @method _refreshTexture
-     * @param {Texture2D} texture
-     */
-    // _refreshTexture(/*texture*/) {
-    //     // this._texture = texture;
-    //     if (/*texture.loaded*/this.loaded) {
-    //         this._textureLoadedCallback();
-    //     }
-    //     else {
-    //         // texture.once('load', this._textureLoadedCallback, this);
-    //         this.once('load', this._textureLoadedCallback, this);
-    //     }
-    // }
+    set image (value){
+        this.mipmaps = value ? [value] : [];
+        if (value){
+            this._rect.x = this._rect.y = 0;
+            this._rect.width = value.width;
+            this._rect.height = value.height;
+        }
+    }
 
     /**
      * @en
@@ -443,66 +524,30 @@ export class SpriteFrame extends Texture2D {
      * @returns - 复制后的精灵帧
      */
     public clone () {
+        if (!this.image){
+            console.warn(`No image ${this.name}`);
+            return;
+        }
+
         const cloneSprite = new SpriteFrame();
         cloneSprite.name = this.name;
         cloneSprite.atlasUuid = this.atlasUuid;
-        cloneSprite.setOriginalSize(this._originalSize);
-        cloneSprite.setRect(this._rect);
         const cap = this._capInsets;
-        cloneSprite._setBorder(cap[INSET_LEFT], cap[INSET_BOTTOM], cap[INSET_RIGHT], cap[INSET_TOP]);
-        cloneSprite.setOffset(this._offset);
-        cloneSprite._mipmaps = this._mipmaps;
+        const config: ISpriteFrameInitInfo = {
+            originalSize: this._originalSize,
+            rect: this._rect,
+            borderTop: cap[INSET_TOP],
+            borderBottom: cap[INSET_BOTTOM],
+            borderLeft: cap[INSET_LEFT],
+            borderRight: cap[INSET_RIGHT],
+            offset: this._offset,
+            image: this.image,
+        };
+
+        cloneSprite.initialize(config);
         cloneSprite.onLoaded();
         return cloneSprite;
     }
-
-    // /**
-    //  * @en Set SpriteFrame with Texture, rect, rotated, offset and originalSize.<br/>
-    //  * @zh 通过 Texture，rect，rotated，offset 和 originalSize 设置 SpriteFrame。
-    //  * @method setTexture
-    //  * @param {String|Texture2D} textureOrTextureFile
-    //  * @param {Rect} [rect=null]
-    //  * @param {Boolean} [rotated=false]
-    //  * @param {Vec2} [offset=cc.v2(0,0)]
-    //  * @param {Size} [originalSize=rect.size]
-    //  * @return {Boolean}
-    //  */
-    // setTexture(textureOrTextureFile, rect, rotated, offset, originalSize) {
-    //     if (rect) {
-    //         this.setRect(rect);
-    //     }
-    //     else {
-    //         this._rect = null;
-    //     }
-
-    //     if (offset) {
-    //         this.setOffset(offset);
-    //     }
-    //     else {
-    //         this._offset = null;
-    //     }
-
-    //     if (originalSize) {
-    //         this.setOriginalSize(originalSize);
-    //     }
-    //     else {
-    //         this._originalSize = null;
-    //     }
-
-    //     this._rotated = rotated || false;
-
-    //     // loading texture
-    //     let texture = textureOrTextureFile;
-    //     if (typeof texture === 'string' && texture) {
-    //         this._textureFilename = texture;
-    //         this._loadTexture();
-    //     }
-    //     if (texture instanceof cc.Texture2D && this._texture !== texture) {
-    //         this._refreshTexture(texture);
-    //     }
-
-    //     return true;
-    // }
 
     // _loadTexture() {
     //     if (this._textureFilename) {
@@ -586,6 +631,22 @@ export class SpriteFrame extends Texture2D {
         }
         if (maxY > texture.height) {
             cc.errorID(3400, texture.url + '/' + this.name, maxY, texture.height);
+        }
+    }
+
+    public onLoaded (){
+        const image = this.image;
+        if (image) {
+            if (!image.loaded) {
+                image.once('load', this.onLoaded, this);
+                return;
+            }
+
+            // hack
+            super.initialize();
+            this._calculateUV();
+            this.loaded = true;
+            this.emit('load');
         }
     }
 
@@ -730,12 +791,10 @@ export class SpriteFrame extends Texture2D {
     }
 
     // SERIALIZATION
-
-    // @ts-ignore
     public _serialize (exporting?: any): any {
         const rect = this._rect;
         const offset = this._offset;
-        const size = this._originalSize;
+        const originalSize = this._originalSize;
         let uuid = this._uuid;
 
         if (uuid && exporting) {
@@ -755,15 +814,15 @@ export class SpriteFrame extends Texture2D {
             };
         }
 
+        // 为 underfined 的数据则不在序列化文件里显示
         return {
             base: super._serialize(exporting),
             name: this._name,
-            texture: uuid || undefined,
             atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting
-            rect: rect ? [rect.x, rect.y, rect.width, rect.height] : undefined,
-            offset: offset ? [offset.x, offset.y] : undefined,
-            originalSize: size ? [size.width, size.height] : undefined,
-            rotated: this._rotated ? this._rotated : undefined,
+            rect,
+            offset,
+            originalSize,
+            rotated: this._rotated,
             capInsets: this._capInsets,
             vertices,
         };
@@ -772,30 +831,29 @@ export class SpriteFrame extends Texture2D {
     public _deserialize (serializeData: any, handle: any) {
         const data = serializeData as ISpriteFramesSerializeData;
         super._deserialize(data.base, handle);
-        const rect = data.rect;
-        if (rect) {
-            this.setRect(new Rect(rect[0], rect[1], rect[2], rect[3]));
-        }
-        if (data.offset) {
-            this.setOffset(new Vec2(data.offset[0], data.offset[1]));
-        }
-        if (data.originalSize) {
-            this.setOriginalSize(new cc.Size(data.originalSize[0], data.originalSize[1]));
-        }
-        this._rotated = !!data.rotated;
         this._name = data.name;
-
-        const capInsets = data.capInsets;
-        if (capInsets) {
-            this._capInsets[INSET_LEFT] = capInsets[INSET_LEFT];
-            this._capInsets[INSET_TOP] = capInsets[INSET_TOP];
-            this._capInsets[INSET_RIGHT] = capInsets[INSET_RIGHT];
-            this._capInsets[INSET_BOTTOM] = capInsets[INSET_BOTTOM];
-        }
-
         if (CC_EDITOR) {
             this._atlasUuid = data.atlas ? data.atlas : '';
         }
+
+        const cap = data.capInsets;
+        const config: ISpriteFrameInitInfo = {
+            originalSize: data.originalSize,
+            offset: data.offset,
+            rect: data.rect,
+            borderTop: cap[INSET_TOP],
+            borderBottom: cap[INSET_BOTTOM],
+            borderLeft: cap[INSET_LEFT],
+            borderRight: cap[INSET_RIGHT],
+            isRotate: data.rotated,
+        };
+        if (this.image && this.image.loaded){
+            const image = this.image;
+            config.rect!.width = image.width;
+            config.rect!.height = image.height;
+        }
+
+        this.initialize(config);
 
         this.vertices = data.vertices;
         if (this.vertices) {
@@ -811,58 +869,6 @@ export class SpriteFrame extends Texture2D {
         // }
     }
 
-    protected initialize () {
-        super.initialize();
-        const self = this;
-        // let texture = this._texture;
-        // if (!texture) {
-        //     // clearTexture called while loading texture...
-        //     return;
-        // }
-        // let w = texture.width, h = texture.height;
-        const w = self.width;
-        const h = self.height;
-
-        // if (self._rotated && cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-        //     // TODO: rotate texture for canvas
-        //     // self._texture = _ccsg.Sprite.CanvasRenderCmd._createRotatedTexture(texture, self.getRect());
-        //     self._rotated = false;
-        //     // w = self._texture.width;
-        //     // h = self._texture.height;
-        //     w = self.width;
-        //     h = self.height;
-        //     self.setRect(cc.rect(0, 0, w, h));
-        // }
-
-        if (self._rect) {
-            self.checkRect(this.image!);
-        } else {
-            self.setRect(new Rect(0, 0, w, h));
-        }
-
-        if (!self._originalSize) {
-            self.setOriginalSize(new Size(w, h));
-        }
-
-        if (!self._offset) {
-            self.setOffset(new Vec2(0, 0));
-        }
-
-        self._calculateUV();
-
-        // dispatch 'load' event of cc.SpriteFrame
-        // @ts-ignore
-        // self.emit('load');
-    }
-
-    // public onLoaded () {
-    //     this.loaded = true;
-    //     if (super.onLoaded) {
-    //         super.onLoaded();
-    //     }
-
-    //     this._textureLoadedCallback();
-    // }
 }
 
 cc.SpriteFrame = SpriteFrame;
