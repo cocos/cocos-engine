@@ -771,11 +771,8 @@ export abstract class RenderPipeline {
         if (info.enablePostProcess !== undefined) {
             this._usePostProcess = info.enablePostProcess;
         } else {
-            if (cc.sys.platform === cc.sys.WECHAT_GAME) {
-                this._usePostProcess = true;
-            } else {
-                this._usePostProcess = true;
-            }
+            // We disable post process now, post process will be enabled in furture.
+            this._usePostProcess = false;
         }
 
         if (this._usePostProcess) {
