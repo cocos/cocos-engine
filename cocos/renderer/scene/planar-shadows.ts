@@ -147,6 +147,7 @@ export class PlanarShadows {
 
     public updateCommandBuffers () {
         this._cmdBuffs.clear();
+        if (!this._scene.mainLight.enabled) { return; }
         for (const model of this._scene.models) {
             if (!model.enabled || !model.node || !model.castShadow) { continue; }
             let pso = this._psoRecord.get(model);
