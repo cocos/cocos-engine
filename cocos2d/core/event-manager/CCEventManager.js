@@ -314,15 +314,15 @@ var eventManager = {
         let node1 = l1._getSceneGraphPriority(),
             node2 = l2._getSceneGraphPriority();
 
-        if (!l2 || !node2 || node2.parent === null)
+        if (!l2 || !node2 || !node2._activeInHierarchy || node2._parent === null)
             return -1;
-        else if (!l1 || !node1 || node1.parent === null)
+        else if (!l1 || !node1 || !node1._activeInHierarchy || node1._parent === null)
             return 1;
         
         let p1 = node1, p2 = node2, ex = false;
-        while (p1.parent._id !== p2.parent._id) {
-            p1 = p1.parent.parent === null ? (ex = true) && node2 : p1.parent;
-            p2 = p2.parent.parent === null ? (ex = true) && node1 : p2.parent;
+        while (p1._parent._id !== p2._parent._id) {
+            p1 = p1._parent._parent === null ? (ex = true) && node2 : p1._parent;
+            p2 = p2._parent._parent === null ? (ex = true) && node1 : p2._parent;
         }
 
         if (p1._id === p2._id) {
