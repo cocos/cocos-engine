@@ -219,7 +219,10 @@ void Assembler::setVertexFormat(VertexFormat* vfmt)
         _vfPos = _vfmt->getElement(ATTRIB_NAME_POSITION);
         _posOffset = _vfPos->offset / 4;
         _vfColor = _vfmt->getElement(ATTRIB_NAME_COLOR);
-        _alphaOffset = _vfColor->offset + 3;
+        if (_vfColor != nullptr)
+        {
+            _alphaOffset = _vfColor->offset + 3;
+        }
     }
 }
 

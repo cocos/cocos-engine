@@ -26,7 +26,6 @@
 
 RENDERER_BEGIN
 CustomProperties::CustomProperties()
-:_hash(0)
 {
 }
 

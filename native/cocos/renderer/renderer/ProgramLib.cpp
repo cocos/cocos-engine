@@ -37,11 +37,13 @@ namespace {
     std::string generateDefines(const cocos2d::ValueMap& defMap)
     {
         std::string ret;
+        std::string v;
         for (const auto& def : defMap)
         {
-            if (def.second.asBool())
+            if (def.second.getType() == cocos2d::Value::Type::BOOLEAN)
             {
-                ret += "#define "  + def.first + "\n";
+                v = def.second.asBool() ? "1" : "0";
+                ret += "#define "  + def.first + " " + v + "\n";
             }
         }
         return ret;
@@ -199,14 +201,6 @@ void ProgramLib::define(const std::string& name, const std::string& vert, const 
     else
     {
         newFrag = _precision + frag;
-    }
-    
-    while ((begin = newFrag.find("#if ")) != std::string::npos) {
-        newFrag.replace(begin, strlen("#if "), "#ifdef ");
-    }
-    
-    while ((begin = newVert.find("#if ")) != std::string::npos) {
-        newVert.replace(begin, strlen("#if "), "#ifdef ");
     }
     
     // store it

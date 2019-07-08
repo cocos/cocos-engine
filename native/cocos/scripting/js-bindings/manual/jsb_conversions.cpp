@@ -1756,7 +1756,7 @@ bool seval_to_EffectAsset(const std::string& e, cocos2d::Vector<cocos2d::rendere
     return true;
 }
 
-bool seval_to_EffectProperty(const cocos2d::Vector<cocos2d::renderer::Technique *>& techniqes, const se::Value& v, std::unordered_map<std::string, cocos2d::renderer::Effect::Property>* ret)
+bool seval_to_EffectProperty(const se::Value& v, std::unordered_map<std::string, cocos2d::renderer::Effect::Property>* ret)
 {
     assert(ret != nullptr);
     if (v.isNullOrUndefined())
@@ -2014,7 +2014,7 @@ bool seval_to_TechniqueParameter(const se::Value& v, cocos2d::renderer::Techniqu
                     ok = (type == cocos2d::renderer::Technique::Parameter::Type::TEXTURE_2D ||
                            type == cocos2d::renderer::Technique::Parameter::Type::TEXTURE_CUBE);
                     
-                    SE_PRECONDITION2(ok, false, "Convert Parameter val failed!");
+                    //SE_PRECONDITION2(ok, false, "Convert Parameter val failed!");
                     if (ok)
                     {
                         seval_to_native_ptr(tmp, &texture);
