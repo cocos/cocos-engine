@@ -41,7 +41,6 @@ const Optimizejs = require('gulp-optimize-js');
 
 var jsbSkipModules = [
     // modules need to skip in jsb
-    /*
     '../../extensions/spine/skeleton-cache.js',
     '../../extensions/spine/vertex-effect-delegate.js',
     '../../extensions/spine/lib/spine.js',
@@ -75,7 +74,6 @@ var jsbSkipModules = [
     '../../cocos2d/renderer/scene/camera.js',
     '../../cocos2d/renderer/scene/light.js',
     '../../cocos2d/renderer/scene/scene.js',
-    */
 
     // buffer
     '../../cocos2d/core/renderer/webgl/model-batcher.js',
@@ -248,7 +246,7 @@ exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) 
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(FixJavaScriptCore())
-        .pipe(Utils.uglify('preview', { jsb: true }))
+        .pipe(Utils.uglify('preview', { jsb: true, nativeRenderer: true }))
         .pipe(Optimizejs({
             sourceMap: false
         }))
@@ -275,7 +273,9 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
     var outDir = Path.dirname(outputFile);
 
     var bundler = createBundler(sourceFile, opts);
-    excludes = excludes.concat(jsbSkipModules);
+    if (opt_macroFlags.nativeRenderer) {
+        excludes = excludes.concat(jsbSkipModules);
+    }
     excludes.forEach(function (module) {
         bundler.exclude(require.resolve(module));
     });
@@ -312,7 +312,9 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
     var outDir = Path.dirname(outputFile);
 
     var bundler = createBundler(sourceFile, opts);
-    excludes = excludes.concat(jsbSkipModules);
+    if (opt_macroFlags.nativeRenderer) {
+        excludes = excludes.concat(jsbSkipModules);
+    }
     excludes.forEach(function (module) {
         bundler.exclude(require.resolve(module));
     });

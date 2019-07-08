@@ -6,12 +6,10 @@ import { vfmtPosUvColor } from './webgl/vertex-format';
 export default class Assembler2D extends Assembler {
     init (comp) {
         super.init(comp);
-
-        this._local = [];
-
         this._renderData = new RenderData();
         this._renderData.init(this);
 
+        this.initLocal();
         this.initData();
     }
 
@@ -22,7 +20,10 @@ export default class Assembler2D extends Assembler {
     initData () {
         let data = this._renderData;
         data.createQuadData(0, this.verticesFloats, this.indicesCount);
-        // l b r t
+    }
+
+    initLocal () {
+        this._local = [];
         this._local.length = 4;
     }
 

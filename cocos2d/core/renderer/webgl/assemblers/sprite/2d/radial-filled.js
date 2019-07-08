@@ -171,7 +171,6 @@ function _getVertAngle (start, end) {
 
 export default class RadialFilledAssembler extends Assembler2D {
     initData (sprite) {
-        this._local = [];
         this._renderData.createFlexData(0, 4, 6, this.getVfmt());
     }
 

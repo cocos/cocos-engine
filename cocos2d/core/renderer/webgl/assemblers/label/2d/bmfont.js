@@ -29,7 +29,6 @@ let _dataOffset = 0;
 
 export default class WebglBmfontAssembler extends BmfontAssembler {
     initData () {
-        this._local = [];
         this._renderData.createFlexData(0, 4, 6, this.getVfmt());
     }
 
