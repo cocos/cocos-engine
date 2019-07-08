@@ -31,93 +31,20 @@
 // @ts-check
 import {ccclass, property} from '../core/data/class-decorator';
 import IDGenerator from '../core/utils/id-generator';
-import { GFXBufferTextureCopy, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
-import { GFXTexture, IGFXTextureInfo } from '../gfx/texture';
-import { GFXTextureView, IGFXTextureViewInfo } from '../gfx/texture-view';
+import { GFXTextureView } from '../gfx/texture-view';
 import { SamplerInfoIndex } from '../renderer/core/sampler-lib';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
-import { ImageAsset } from './image-asset';
-import { postLoadImage } from './texture-util';
-import { error } from '../core/platform/CCDebug';
 
 const CHAR_CODE_1 = 49;    // '1'
 
 const idGenerator = new IDGenerator('Tex');
-
-const _regions: GFXBufferTextureCopy[] = [{
-    buffOffset: 0,
-    buffStride: 0,
-    buffTexHeight: 0,
-    texOffset: {
-        x: 0,
-        y: 0,
-        z: 0,
-    },
-    texExtent: {
-        width: 1,
-        height: 1,
-        depth: 1,
-    },
-    texSubres: {
-        baseMipLevel: 1,
-        levelCount: 1,
-        baseArrayLayer: 0,
-        layerCount: 1,
-    },
-}];
-
-/**
- * 贴图创建选项。
- */
-export interface ITextureCreateInfo {
-    /**
-     * 像素宽度。
-     */
-    width: number;
-
-    /**
-     * 像素高度。
-     */
-    height: number;
-
-    /**
-     * 像素格式。
-     * @default PixelFormat.RGBA8888
-     */
-    format?: PixelFormat;
-
-    /**
-     * mipmap 层级。
-     * @default 1
-     */
-    mipmapLevel?: number;
-}
-
 /**
  * 贴图资源基类。它定义了所有贴图共用的概念。
  */
 @ccclass('cc.TextureBase')
 export class TextureBase extends Asset {
-    /**
-     * 此贴图的像素宽度。
-     * 对于二维贴图来说，贴图的像素宽度等于它 0 级 Mipmap 的宽度；
-     * 对于立方体贴图来说，贴图的像素宽度等于它 0 级 Mipmap 任何面的宽度；
-     */
-    public get width (): number {
-        return this._texture ? this._texture.width : 0;
-    }
-
-    /**
-     * 此贴图的像素高度。
-     * 对于二维贴图来说，贴图的像素高度等于它 0 级 Mipmap 的高度；
-     * 对于立方体贴图来说，贴图的像素高度等于它 0 级 Mipmap 任何面的高度；
-     */
-    public get height (): number {
-        return this._texture ? this._texture.height : 0;
-    }
-
     /**
      * 此贴图是否为压缩的像素格式。
      */
@@ -161,16 +88,6 @@ export class TextureBase extends Asset {
     @property
     protected _anisotropy = 16;
 
-    protected _texture: GFXTexture | null = null;
-
-    protected _textureView: GFXTextureView | null = null;
-
-    private _potientialWidth: number = 0;
-
-    private _potientialHeight: number = 0;
-
-    private _mipmapLevel: number = 1;
-
     private _id: string;
 
     private _samplerInfo: Array<number | undefined> = [];
@@ -193,52 +110,6 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * 将当前贴图重置为指定尺寸、像素格式以及指定 mipmap 层级。重置后，贴图的像素数据将变为未定义。
-     * mipmap 图像的数据不会自动更新到贴图中，你必须显式调用 `this.uploadData` 来上传贴图数据。
-     * @param info 贴图重置选项。
-     */
-    public reset (info: ITextureCreateInfo) {
-        if (info.format === undefined) {
-            info.format = PixelFormat.RGBA8888;
-        }
-        if (info.mipmapLevel === undefined) {
-            info.mipmapLevel = 1;
-        }
-        this._potientialWidth = info.width;
-        this._potientialHeight = info.height;
-        this._format = info.format;
-        this._mipmapLevel = info.mipmapLevel;
-        this._recreateTexture();
-    }
-
-    /**
-     * 将当前贴图重置为指定尺寸、像素格式以及指定 mipmap 层级的贴图。重置后，贴图的像素数据将变为未定义。
-     * mipmap 图像的数据不会自动更新到贴图中，你必须显式调用 `this.uploadData` 来上传贴图数据。
-     * @param width 像素宽度。
-     * @param height 像素高度。
-     * @param format 像素格式。
-     * @param mipmapLevel mipmap 层级。
-     * @deprecated 将在 V1.0.0 移除，请转用 `this.reset()`。
-     */
-    public create (width: number, height: number, format = PixelFormat.RGBA8888, mipmapLevel = 1) {
-        this.reset({
-            width,
-            height,
-            format,
-            mipmapLevel,
-        });
-    }
-
-    /**
-     * 获取底层贴图对象。
-     * @returns 此贴图的底层贴图对象。
-     * @deprecated 请转用 `getGfxTexture()`。
-     */
-    public getImpl () {
-        return this._texture;
-    }
-
-    /**
      * 获取标识符。
      * @returns 此贴图的标识符。
      */
@@ -251,7 +122,6 @@ export class TextureBase extends Asset {
      * @returns 此贴图的像素格式。
      */
     public getPixelFormat () {
-        // support only in WebGl rendering mode
         return this._format;
     }
 
@@ -279,10 +149,14 @@ export class TextureBase extends Asset {
      * @param wrapR R(W) 坐标的采样模式。
      */
     public setWrapMode (wrapS: WrapMode, wrapT: WrapMode, wrapR?: WrapMode) {
-        this._wrapS = wrapS; this._samplerInfo[SamplerInfoIndex.addressU] = wrapS;
-        this._wrapT = wrapT; this._samplerInfo[SamplerInfoIndex.addressV] = wrapT;
-        if (wrapR === undefined) { return; }
-        this._wrapR = wrapR; this._samplerInfo[SamplerInfoIndex.addressW] = wrapR;
+        this._wrapS = wrapS;
+        this._samplerInfo[SamplerInfoIndex.addressU] = wrapS;
+        this._wrapT = wrapT;
+        this._samplerInfo[SamplerInfoIndex.addressV] = wrapT;
+        if (wrapR !== undefined) {
+            this._wrapR = wrapR;
+            this._samplerInfo[SamplerInfoIndex.addressW] = wrapR;
+        }
     }
 
     /**
@@ -291,8 +165,10 @@ export class TextureBase extends Asset {
      * @param magFilter 放大过滤算法。
      */
     public setFilters (minFilter: Filter, magFilter: Filter) {
-        this._minFilter = minFilter; this._samplerInfo[SamplerInfoIndex.minFilter] = minFilter;
-        this._magFilter = magFilter; this._samplerInfo[SamplerInfoIndex.magFilter] = magFilter;
+        this._minFilter = minFilter;
+        this._samplerInfo[SamplerInfoIndex.minFilter] = minFilter;
+        this._magFilter = magFilter;
+        this._samplerInfo[SamplerInfoIndex.magFilter] = magFilter;
     }
 
     /**
@@ -300,7 +176,8 @@ export class TextureBase extends Asset {
      * @param mipFilter mip 过滤算法。
      */
     public setMipFilter (mipFilter: Filter) {
-        this._mipFilter = mipFilter; this._samplerInfo[SamplerInfoIndex.mipFilter] = mipFilter;
+        this._mipFilter = mipFilter;
+        this._samplerInfo[SamplerInfoIndex.mipFilter] = mipFilter;
         this._samplerInfo[SamplerInfoIndex.maxLOD] = mipFilter === Filter.NONE ? 0 : 1000; // WebGL2 on some platform need this
     }
 
@@ -325,29 +202,22 @@ export class TextureBase extends Asset {
      * @param anisotropy 各向异性。
      */
     public setAnisotropy (anisotropy: number) {
-        this._anisotropy = anisotropy; this._samplerInfo[SamplerInfoIndex.maxAnisotropy] = anisotropy;
+        this._anisotropy = anisotropy;
+        this._samplerInfo[SamplerInfoIndex.maxAnisotropy] = anisotropy;
     }
 
     /**
      * 销毁此贴图，并释放占有的所有 GPU 资源。
      */
     public destroy () {
-        this._destroyTexture();
         return super.destroy();
-    }
-
-    /**
-     * 获取此贴图底层的 GFX 贴图对象。
-     */
-    public getGFXTexture () {
-        return this._texture;
     }
 
     /**
      * 获取此贴图底层的 GFX 贴图视图对象。
      */
-    public getGFXTextureView () {
-        return this._textureView;
+    public getGFXTextureView (): GFXTextureView | null {
+        return null;
     }
 
     /**
@@ -396,141 +266,16 @@ export class TextureBase extends Asset {
         }
     }
 
-    /**
-     * 更新 0 级 Mipmap。
-     */
-    public updateImage () {
-        this.updateMipmaps(0);
-    }
-
-    /**
-     * 更新指定层级范围内的 Mipmap。当 Mipmap 数据发生了改变时应调用此方法提交更改。
-     * 若指定的层级范围超出了实际已有的层级范围，只有覆盖的那些层级范围会被更新。
-     * @param firstLevel 起始层级。
-     * @param count 层级数量。
-     */
-    public updateMipmaps (firstLevel: number = 0, count?: number) {
-
-    }
-
-    /**
-     * 上传图像数据到指定层级的 Mipmap 中。
-     * 图像的尺寸影响 Mipmap 的更新范围：
-     * - 当图像是 `ArrayBuffer` 时，图像的尺寸必须和 Mipmap 的尺寸一致；否则，
-     * - 若图像的尺寸与 Mipmap 的尺寸相同，上传后整个 Mipmap 的数据将与图像数据一致；
-     * - 若图像的尺寸小于指定层级 Mipmap 的尺寸（不管是长或宽），则从贴图左上角开始，图像尺寸范围内的 Mipmap 会被更新；
-     * - 若图像的尺寸超出了指定层级 Mipmap 的尺寸（不管是长或宽），都将引起错误。
-     * @param source 图像数据源。
-     * @param level Mipmap 层级。
-     * @param arrayIndex 数组索引。
-     */
-    public uploadData (source: HTMLCanvasElement | HTMLImageElement | ArrayBuffer, level: number = 0, arrayIndex: number = 0) {
-        if (!this._texture || this._texture.mipLevel <= level) {
-            return;
-        }
-
-        const gfxDevice = this._getGlobalDevice();
-        if (!gfxDevice) {
-            return;
-        }
-
-        const region = _regions[0];
-        region.texExtent.width = this._texture.width >> level;
-        region.texExtent.height = this._texture.height >> level;
-        region.texSubres.baseMipLevel = level;
-        region.texSubres.baseArrayLayer = arrayIndex;
-
-        if (CC_DEV) {
-            if (source instanceof HTMLElement) {
-                if (source.height > region.texExtent.height ||
-                    source.width > region.texExtent.width) {
-                    error(`Image source bounds override.`);
-                }
-            }
-        }
-
-        if (source instanceof ArrayBuffer) {
-            gfxDevice.copyBuffersToTexture([source], this._texture, _regions);
-        } else {
-            gfxDevice.copyTexImagesToTexture([source], this._texture, _regions);
-        }
-    }
-
-    protected _getGlobalDevice (): GFXDevice | null {
+    protected _getGFXDevice (): GFXDevice | null {
         return cc.director.root && cc.director.root.device;
     }
 
-    protected _assignImage (image: ImageAsset, level: number, arrayIndex?: number) {
-        const upload = () => {
-            const data = image.data;
-            if (!data) {
-                return;
-            }
-            let source: HTMLCanvasElement | HTMLImageElement | ArrayBuffer;
-            if (ArrayBuffer.isView(data)) {
-                source = data.buffer;
-            } else {
-                source = data;
-            }
-            this.uploadData(source, level, arrayIndex);
-        };
-        if (image.loaded) {
-            upload();
-        } else {
-            image.once('load', () => {
-                upload();
-            });
-            if (!this.isCompressed) {
-                const defaultImg = cc.builtinResMgr.get('black-texture').image as ImageAsset;
-                this.uploadData(defaultImg.data as HTMLCanvasElement, level, arrayIndex);
-            }
-            postLoadImage(image);
-        }
+    protected _getGFXFormat () {
+        return this._format;
     }
 
-    protected _getTextureCreateInfo (): IGFXTextureInfo {
-        return {
-            type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
-            format: this._format,
-            width: this._potientialWidth,
-            height: this._potientialHeight,
-            mipLevel: this._mipmapLevel,
-            flags: this._mipFilter !== Filter.NONE ? GFXTextureFlagBit.GEN_MIPMAP : GFXTextureFlagBit.NONE,
-        };
-    }
-
-    protected _getTextureViewCreateInfo (): IGFXTextureViewInfo {
-        return {
-            texture: this._texture!,
-            type: GFXTextureViewType.TV2D,
-            format: this._format,
-        };
-    }
-
-    protected _recreateTexture () {
-        this._destroyTexture();
-
-        const gfxDevice = this._getGlobalDevice();
-        if (!gfxDevice) {
-            return;
-        }
-
-        this._texture = gfxDevice.createTexture(this._getTextureCreateInfo());
-
-        this._textureView = gfxDevice.createTextureView(this._getTextureViewCreateInfo());
-    }
-
-    private _destroyTexture () {
-        if (this._textureView) {
-            this._textureView.destroy();
-            this._textureView = null;
-        }
-
-        if (this._texture) {
-            this._texture.destroy();
-            this._texture = null;
-        }
+    protected _setGFXFormat (format?: PixelFormat) {
+        this._format = format === undefined ? PixelFormat.RGBA8888 : format;
     }
 }
 

@@ -181,20 +181,11 @@ export class LetterRenderTexture extends Texture2D {
      */
     public initWithSize (width: number, height: number, format: GFXFormat = GFXFormat.RGBA8) {
         this.destroy();
-
-        const gfxDevice = this._getGlobalDevice();
-        if (!gfxDevice) {
-            console.warn('Unable to get device');
-            return;
-        }
-
-        const texInfo = this._getTextureCreateInfo();
-        texInfo.width = width;
-        texInfo.height = height;
-        texInfo.format = format;
-        this._texture = gfxDevice.createTexture(texInfo);
-        this._textureView = gfxDevice.createTextureView(this._getTextureViewCreateInfo());
-
+        this.reset({
+            width,
+            height,
+            format,
+        });
         this.loaded = true;
         this.emit('load');
     }
@@ -207,11 +198,12 @@ export class LetterRenderTexture extends Texture2D {
      * @param {Number} y
      */
     public drawTextureAt (texture: SpriteFrame, x: number, y: number) {
-        if (!texture.image || !this._texture) {
+        const gfxTexture = this.getGFXTexture();
+        if (!texture.image || !gfxTexture) {
             return;
         }
 
-        const gfxDevice = this._getGlobalDevice();
+        const gfxDevice = this._getGFXDevice();
         if (!gfxDevice) {
             console.warn('Unable to get device');
             return;
@@ -239,7 +231,7 @@ export class LetterRenderTexture extends Texture2D {
             },
         };
 
-        gfxDevice.copyTexImagesToTexture([texture.image.data as HTMLCanvasElement], this._texture, [region]);
+        gfxDevice.copyTexImagesToTexture([texture.image.data as HTMLCanvasElement], gfxTexture, [region]);
     }
 }
 
