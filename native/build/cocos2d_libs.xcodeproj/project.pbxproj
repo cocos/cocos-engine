@@ -31,6 +31,8 @@
 		04355817217EADF300B9C056 /* IOBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04355814217EADF300B9C056 /* IOBuffer.cpp */; };
 		04355818217EADF300B9C056 /* IOBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 04355815217EADF300B9C056 /* IOBuffer.h */; };
 		04355819217EADF300B9C056 /* IOBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 04355815217EADF300B9C056 /* IOBuffer.h */; };
+		044597F422D332D800924443 /* Extension.h in Headers */ = {isa = PBXBuildFile; fileRef = 044597F322D332D700924443 /* Extension.h */; };
+		044597F522D332D800924443 /* Extension.h in Headers */ = {isa = PBXBuildFile; fileRef = 044597F322D332D700924443 /* Extension.h */; };
 		045F672822A50A8D0033F7BD /* RenderData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045F672622A50A8C0033F7BD /* RenderData.cpp */; };
 		045F672922A50A8D0033F7BD /* RenderData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045F672622A50A8C0033F7BD /* RenderData.cpp */; };
 		045F672A22A50A8D0033F7BD /* RenderData.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 045F672722A50A8C0033F7BD /* RenderData.hpp */; };
@@ -519,8 +521,6 @@
 		04DBD49422AE2DBD00DBE4CD /* SkeletonJson.h in Headers */ = {isa = PBXBuildFile; fileRef = 04DBD39922AE2DB600DBE4CD /* SkeletonJson.h */; };
 		04DBD49522AE2DBD00DBE4CD /* SpineObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 04DBD39A22AE2DB600DBE4CD /* SpineObject.h */; };
 		04DBD49622AE2DBD00DBE4CD /* SpineObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 04DBD39A22AE2DB600DBE4CD /* SpineObject.h */; };
-		04DBD49722AE2DBD00DBE4CD /* extension.h in Headers */ = {isa = PBXBuildFile; fileRef = 04DBD39B22AE2DB600DBE4CD /* extension.h */; };
-		04DBD49822AE2DBD00DBE4CD /* extension.h in Headers */ = {isa = PBXBuildFile; fileRef = 04DBD39B22AE2DB600DBE4CD /* extension.h */; };
 		04DBD49922AE2DBD00DBE4CD /* TransformMode.h in Headers */ = {isa = PBXBuildFile; fileRef = 04DBD39C22AE2DB700DBE4CD /* TransformMode.h */; };
 		04DBD49A22AE2DBD00DBE4CD /* TransformMode.h in Headers */ = {isa = PBXBuildFile; fileRef = 04DBD39C22AE2DB700DBE4CD /* TransformMode.h */; };
 		04DBD49B22AE2DBD00DBE4CD /* EventData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04DBD39D22AE2DB700DBE4CD /* EventData.cpp */; };
@@ -1409,6 +1409,7 @@
 		0431A06E22CCA7C1003356C9 /* SimpleSprite2D.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SimpleSprite2D.hpp; sourceTree = "<group>"; };
 		04355814217EADF300B9C056 /* IOBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IOBuffer.cpp; path = "../cocos/editor-support/IOBuffer.cpp"; sourceTree = "<group>"; };
 		04355815217EADF300B9C056 /* IOBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IOBuffer.h; path = "../cocos/editor-support/IOBuffer.h"; sourceTree = "<group>"; };
+		044597F322D332D700924443 /* Extension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Extension.h; path = "../cocos/editor-support/spine/Extension.h"; sourceTree = "<group>"; };
 		045F672622A50A8C0033F7BD /* RenderData.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RenderData.cpp; sourceTree = "<group>"; };
 		045F672722A50A8C0033F7BD /* RenderData.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RenderData.hpp; sourceTree = "<group>"; };
 		046B6888219FA61200B33469 /* MiddlewareManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MiddlewareManager.cpp; path = "../cocos/editor-support/MiddlewareManager.cpp"; sourceTree = "<group>"; };
@@ -1653,7 +1654,6 @@
 		04DBD39822AE2DB600DBE4CD /* ShearTimeline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ShearTimeline.h; path = "../cocos/editor-support/spine/ShearTimeline.h"; sourceTree = "<group>"; };
 		04DBD39922AE2DB600DBE4CD /* SkeletonJson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkeletonJson.h; path = "../cocos/editor-support/spine/SkeletonJson.h"; sourceTree = "<group>"; };
 		04DBD39A22AE2DB600DBE4CD /* SpineObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SpineObject.h; path = "../cocos/editor-support/spine/SpineObject.h"; sourceTree = "<group>"; };
-		04DBD39B22AE2DB600DBE4CD /* extension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = extension.h; path = "../cocos/editor-support/spine/extension.h"; sourceTree = "<group>"; };
 		04DBD39C22AE2DB700DBE4CD /* TransformMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TransformMode.h; path = "../cocos/editor-support/spine/TransformMode.h"; sourceTree = "<group>"; };
 		04DBD39D22AE2DB700DBE4CD /* EventData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EventData.cpp; path = "../cocos/editor-support/spine/EventData.cpp"; sourceTree = "<group>"; };
 		04DBD39E22AE2DB700DBE4CD /* SkeletonJson.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkeletonJson.cpp; path = "../cocos/editor-support/spine/SkeletonJson.cpp"; sourceTree = "<group>"; };
@@ -2288,6 +2288,7 @@
 				04DBD34522AE2DA600DBE4CD /* CurveTimeline.h */,
 				04DBD34422AE2DA500DBE4CD /* Debug.h */,
 				04DBD38E22AE2DB400DBE4CD /* DeformTimeline.cpp */,
+				044597F322D332D700924443 /* Extension.h */,
 				04DBD3AF22AE2DBA00DBE4CD /* DeformTimeline.h */,
 				04DBD3B222AE2DBB00DBE4CD /* dll.h */,
 				04DBD36F22AE2DAE00DBE4CD /* DrawOrderTimeline.cpp */,
@@ -2299,7 +2300,6 @@
 				04DBD39222AE2DB500DBE4CD /* EventTimeline.cpp */,
 				04DBD34F22AE2DA700DBE4CD /* EventTimeline.h */,
 				04DBD34722AE2DA600DBE4CD /* Extension.cpp */,
-				04DBD39B22AE2DB600DBE4CD /* extension.h */,
 				04DBD34E22AE2DA700DBE4CD /* HashMap.h */,
 				04DBD33322AE2DA300DBE4CD /* HasRendererObject.h */,
 				04DBD35C22AE2DAA00DBE4CD /* IkConstraint.cpp */,
@@ -3644,6 +3644,7 @@
 				50ABBD4A1925AB0000A911A9 /* Mat4.h in Headers */,
 				04DBD3BB22AE2DBD00DBE4CD /* Pool.h in Headers */,
 				046E063F2185B41100B24E2D /* AnimationState.h in Headers */,
+				044597F422D332D800924443 /* Extension.h in Headers */,
 				1A52DB38205BCD9200350EE3 /* ScriptEngine.hpp in Headers */,
 				046E068A2185B44A00B24E2D /* BaseFactory.h in Headers */,
 				1A52DB892060B11800350EE3 /* jsb_platform.h in Headers */,
@@ -3692,7 +3693,6 @@
 				1A52DB3D205BCD9200350EE3 /* SeApi.h in Headers */,
 				04DBD44F22AE2DBD00DBE4CD /* Json.h in Headers */,
 				46FDDABD202ACC6A00931238 /* DeviceGraphics.h in Headers */,
-				04DBD49722AE2DBD00DBE4CD /* extension.h in Headers */,
 				469303982046AE05004A3D6C /* HelperMacros.h in Headers */,
 				46FDDC01202ADDCE00931238 /* ccCArray.h in Headers */,
 				04DBD3C122AE2DBD00DBE4CD /* TextureLoader.h in Headers */,
@@ -4053,7 +4053,6 @@
 				50ABBD3F1925AB0000A911A9 /* CCGeometry.h in Headers */,
 				4693039D2046AE05004A3D6C /* PlatformUtils.h in Headers */,
 				046E06C22185B49F00B24E2D /* TextureAtlasData.h in Headers */,
-				04DBD49822AE2DBD00DBE4CD /* extension.h in Headers */,
 				04DBD3D222AE2DBD00DBE4CD /* EventData.h in Headers */,
 				046E06402185B41100B24E2D /* AnimationState.h in Headers */,
 				4617866E2052609B008256E1 /* jsb_cocos2dx_network_auto.hpp in Headers */,
@@ -4249,6 +4248,7 @@
 				50ABBD4F1925AB0000A911A9 /* MathUtil.h in Headers */,
 				04DBD3FC22AE2DBD00DBE4CD /* Animation.h in Headers */,
 				1A28FF561F20AFAB007A1D9D /* SRIOConsumerPool.h in Headers */,
+				044597F522D332D800924443 /* Extension.h in Headers */,
 				1A28FF7E1F20AFAB007A1D9D /* SRMutex.h in Headers */,
 				403ACADD20CE542900BB433D /* jsb_module_register.hpp in Headers */,
 				46FDDA76202ACC6A00931238 /* Config.h in Headers */,
