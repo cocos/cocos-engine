@@ -38,6 +38,7 @@ import { getClassName, value } from '../core/utils/js';
 import { Node } from '../scene-graph';
 import { RenderScene } from '../renderer/scene/render-scene';
 import { Rect } from '../core';
+import * as RF from '../core/data/utils/requiring-frame';
 
 const idGenerator = new IDGenerator('Comp');
 // @ts-ignore
@@ -769,8 +770,13 @@ value(Component, '_registerEditorProps', function (cls, props) {
                     break;
 
                 case 'menu':
+                    const frame = RF.peek();
+                    let menu = val;
+                    if (frame) {
+                        menu = 'i18n:menu.custom_script/' + menu;
+                    }
                     // @ts-ignore
-                    window.EditorExtends && window.EditorExtends.Component.addMenu(cls, val, props.menuPriority);
+                    window.EditorExtends && window.EditorExtends.Component.addMenu(cls, menu, props.menuPriority);
                     break;
 
                 case 'disallowMultiple':
