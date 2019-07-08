@@ -190,6 +190,7 @@ export class ModelComponent extends RenderableComponent {
         if (!this.node.scene) { return; }
         const scene = this._getRenderScene();
         this._model = scene.createModel(this._getModelConstructor(), this.node);
+        this._model.viewID = this.visibility;
     }
 
     protected _getModelConstructor () {

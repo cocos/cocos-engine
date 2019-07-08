@@ -384,9 +384,7 @@ export class LabelComponent extends UIRenderComponent {
             this._renderData = null;
         }
         // this._fontAtlas = null;
-        this._flushAssembler();
-        this._applyFontTexture(true);
-        this.updateRenderData();
+        this.updateRenderData(true);
     }
 
     /**
@@ -679,7 +677,7 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     protected _canRender () {
-        if (!super._canRender()){
+        if (!super._canRender() || !this.node.width || !this.node.height){
             return false;
         }
 
@@ -770,7 +768,7 @@ export class LabelComponent extends UIRenderComponent {
             this._flushMaterial();
         }
 
-        if (force && this._assembler && this._assembler.updateRenderData) {
+        if (force && this._assembler && this._canRender() && this._assembler.updateRenderData ) {
             this._assembler.updateRenderData(this);
         }
     }

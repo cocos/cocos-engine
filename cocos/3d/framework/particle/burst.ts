@@ -81,9 +81,9 @@ export default class Burst {
             this._curTime = this._time;
         }
         if (this._remainingCount > 0) {
-            let preFrameTime = repeat(psys._time - psys.startDelay.evaluate(), psys.duration) - dt;
+            let preFrameTime = repeat(psys._time - psys.startDelay.evaluate(0, 1), psys.duration) - dt;
             preFrameTime = (preFrameTime > 0.0) ? preFrameTime : 0.0;
-            const curFrameTime = repeat(psys.time - psys.startDelay.evaluate(), psys.duration);
+            const curFrameTime = repeat(psys.time - psys.startDelay.evaluate(0, 1), psys.duration);
             if (this._curTime >= preFrameTime && this._curTime < curFrameTime) {
                 psys.emit(this.count.evaluate(this._curTime / psys.duration, 1), dt - (curFrameTime - this._curTime));
                 this._curTime += this.repeatInterval;

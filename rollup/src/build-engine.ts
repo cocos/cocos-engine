@@ -80,7 +80,7 @@ export async function build (options: IBuildOptions) {
 }
 
 async function _internalBuild (options: IAdvancedOptions) {
-    console.log(`Options: ${JSON.stringify(options, undefined, 2)}`);
+    console.log(`Build-engine options: ${JSON.stringify(options, undefined, 2)}`);
     const doUglify = !!options.compress;
     const rollupPlugins = [
         excludes({

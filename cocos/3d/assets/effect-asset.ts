@@ -29,9 +29,9 @@
 
 import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { GFXDynamicState, GFXPrimitiveMode, GFXType } from '../../gfx/define';
+import { GFXDynamicState, GFXPrimitiveMode } from '../../gfx/define';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
-import { GFXUniform } from '../../gfx/shader';
+import { GFXUniformBlock, GFXUniformSampler } from '../../gfx/shader';
 import { RenderPassStage } from '../../pipeline/define';
 import { programLib } from '../../renderer/core/program-lib';
 
@@ -61,20 +61,11 @@ export interface ITechniqueInfo {
     name?: string;
 }
 
-export interface IBlockInfo {
+export interface IBlockInfo extends GFXUniformBlock {
     defines: string[];
-    // extends GFXUniformBlock
-    binding: number;
-    name: string;
-    members: GFXUniform[];
 }
-export interface ISamplerInfo {
+export interface ISamplerInfo extends GFXUniformSampler {
     defines: string[];
-    // extends GFXUniformSampler
-    binding: number;
-    name: string;
-    type: GFXType;
-    count: number;
 }
 export interface IDefineInfo {
     name: string;

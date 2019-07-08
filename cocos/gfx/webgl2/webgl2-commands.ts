@@ -1390,11 +1390,12 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
 
             if (!gl.getShaderParameter(gpuStage.glShader, gl.COMPILE_STATUS)) {
                 console.error(shaderTypeStr + ' in \'' + gpuShader.name + '\' compilation failed.');
-                console.error(gpuStage.source.replace(/^|\n/g, () => `\n${lineNumber++} `));
+                console.error('Shader source dump:', gpuStage.source.replace(/^|\n/g, () => `\n${lineNumber++} `));
                 console.error(gl.getShaderInfoLog(gpuStage.glShader));
 
                 gl.deleteShader(gpuStage.glShader);
                 gpuStage.glShader = null;
+                return;
             }
         }
     }
@@ -1424,6 +1425,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
                 gpuStage.glShader = null;
             }
         }
+        return;
     }
 
     // parse inputs
