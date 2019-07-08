@@ -89,30 +89,6 @@ array
 renderer.CustomProperties = {
 
 /**
- * @method setProperty
- * @param {String} arg0
- * @param {cc.renderer::Technique::Parameter} arg1
- */
-setProperty : function (
-str, 
-parameter 
-)
-{
-},
-
-/**
- * @method define
- * @param {String} arg0
- * @param {cc.Value} arg1
- */
-define : function (
-str, 
-value 
-)
-{
-},
-
-/**
  * @method CustomProperties
  * @constructor
  */
@@ -1791,14 +1767,6 @@ CustomAssembler : function (
  * @class RenderFlow
  */
 renderer.RenderFlow = {
-
-/**
- * @method calculateWorldVertices
- */
-calculateWorldVertices : function (
-)
-{
-},
 
 /**
  * @method render

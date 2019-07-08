@@ -30,6 +30,9 @@
 #include "MiddlewareManager.h"
 #endif
 
+#define SUB_RENDER_THREAD_COUNT 1
+#define RENDER_THREAD_COUNT (SUB_RENDER_THREAD_COUNT + 1)
+
 RENDERER_BEGIN
 
 const uint32_t InitLevelCount = 3;
@@ -52,8 +55,6 @@ RenderFlow::RenderFlow(DeviceGraphics* device, Scene* scene, ForwardRenderer* fo
 #if SUB_RENDER_THREAD_COUNT > 0
     _paralleTask = new ParallelTask();
     _paralleTask->init(SUB_RENDER_THREAD_COUNT);
-
-    _runFlag = &_paralleTask->getRunFlag()[0];
     
     for (uint32_t i = 0; i < SUB_RENDER_THREAD_COUNT; i++)
     {
@@ -65,9 +66,6 @@ RenderFlow::RenderFlow(DeviceGraphics* device, Scene* scene, ForwardRenderer* fo
                 break;
                 case ParallelStage::WORLD_MAT:
                     calculateLevelWorldMatrix(tid, _parallelStage);
-                break;
-                case ParallelStage::CALC_VERTICES:
-                    calculateWorldVertices(tid);
                 break;
                 default:
                 break;
@@ -191,73 +189,6 @@ void RenderFlow::calculateLocalMatrix(int tid)
     }
 }
 
-void RenderFlow::calculateWorldVertices(int tid)
-{
-    const uint16_t SPACE_FREE_FLAG = 0x0;
-    cocos2d::Mat4 matTemp;
-    
-    NodeMemPool* instance = NodeMemPool::getInstance();
-    CCASSERT(instance, "RenderFlow calculateLocalMatrix NodeMemPool is null");
-    auto& commonList = instance->getCommonList();
-    auto& nodePool = instance->getNodePool();
-    
-    UnitCommon* commonUnit = nullptr;
-    uint16_t usingNum = 0;
-    std::size_t contentNum = 0;
-    Sign* signData = nullptr;
-    UnitNode* nodeUnit = nullptr;
-    uint32_t* dirty = nullptr;
-    cocos2d::Mat4* worldMat = nullptr;
-    AssemblerBase* assembler = nullptr;
-    AssemblerSprite* assemblerSprite = nullptr;
-    
-    std::size_t begin = 0, end = commonList.size();
-    std::size_t fieldSize = end / RENDER_THREAD_COUNT;
-    if (tid >= 0)
-    {
-        begin = tid * fieldSize;
-        if (tid < RENDER_THREAD_COUNT - 1)
-        {
-            end = (tid + 1) * fieldSize;
-        }
-    }
-    
-    for(auto i = begin; i < end; i++)
-    {
-        commonUnit = commonList[i];
-        if (!commonUnit) continue;
-        usingNum = commonUnit->getUsingNum();
-        if (usingNum == 0) continue;
-        
-        contentNum = commonUnit->getContentNum();
-        signData = commonUnit->getSignData(0);
-        
-        nodeUnit = nodePool[commonUnit->unitID];
-        
-        dirty = nodeUnit->getDirty(0);
-        worldMat = nodeUnit->getWorldMat(0);
-        
-        NodeProxy** nodeProxy = (NodeProxy**)nodeUnit->getNode(0);
-        
-        for (auto j = 0; j < contentNum; j++, signData++, dirty++, nodeProxy++, worldMat++)
-        {
-            if (signData->freeFlag == SPACE_FREE_FLAG) continue;
-            if (!(*dirty & PRE_CALCULATE_VERTICES)) continue;
-            
-            assembler = (*nodeProxy)->getAssembler();
-            CCASSERT(dynamic_cast<AssemblerSprite*>(assembler) != nullptr, "RenderFlow::calculateWorldVertices assembler is not AssemblerSprite");
-            assemblerSprite = (AssemblerSprite*)assembler;
-            
-            if (!(*dirty & WORLD_TRANSFORM_CHANGED) && !assemblerSprite->isDirty(AssemblerBase::VERTICES_DIRTY)) continue;
-            
-            assemblerSprite->generateWorldVertices();
-            assemblerSprite->calculateWorldVertices(*worldMat);
-            
-            *dirty &= ~WORLD_TRANSFORM_CHANGED;
-        }
-    }
-}
-
 void RenderFlow::calculateLevelWorldMatrix(int tid, int stage)
 {
     if (_curLevel >= _levelInfoArr.size())
@@ -281,23 +212,25 @@ void RenderFlow::calculateLevelWorldMatrix(int tid, int stage)
     for(std::size_t index = begin; index < end; index++)
     {
         auto& info = levelInfos[index];
-        auto selfWorldDirty = *info.dirty & WORLD_TRANSFORM;
-        auto selfOpacityDirty = *info.dirty & OPACITY;
+        auto dirty = info.dirty;
+        auto parentDirty = info.parentDirty;
+        auto selfWorldDirty = *dirty & WORLD_TRANSFORM;
+        auto selfOpacityDirty = *dirty & OPACITY;
         
-        if (info.parentDirty)
+        if (parentDirty)
         {
-            if ((*info.parentDirty & WORLD_TRANSFORM_CHANGED) || selfWorldDirty)
+            if ((*parentDirty & WORLD_TRANSFORM_CHANGED) || selfWorldDirty)
             {
                 cocos2d::Mat4::multiply(*info.parentWorldMat, *info.localMat, info.worldMat);
-                *info.dirty |= WORLD_TRANSFORM_CHANGED;
-                *info.dirty &= ~WORLD_TRANSFORM;
+                *dirty |= WORLD_TRANSFORM_CHANGED;
+                *dirty &= ~WORLD_TRANSFORM;
             }
             
-            if ((*info.parentDirty & NODE_OPACITY_CHANGED) || selfOpacityDirty)
+            if ((*parentDirty & NODE_OPACITY_CHANGED) || selfOpacityDirty)
             {
                 *info.realOpacity = *info.opacity * *info.parentRealOpacity / 255.0f;
-                *info.dirty |= NODE_OPACITY_CHANGED;
-                *info.dirty &= ~OPACITY;
+                *dirty |= NODE_OPACITY_CHANGED;
+                *dirty &= ~OPACITY;
             }
         }
         else
@@ -305,17 +238,23 @@ void RenderFlow::calculateLevelWorldMatrix(int tid, int stage)
             if (selfWorldDirty)
             {
                 *info.worldMat = *info.localMat;
-                *info.dirty |= WORLD_TRANSFORM_CHANGED;
-                *info.dirty &= ~WORLD_TRANSFORM;
+                *dirty |= WORLD_TRANSFORM_CHANGED;
+                *dirty &= ~WORLD_TRANSFORM;
             }
             
             if (selfOpacityDirty)
             {
                 *info.realOpacity = *info.opacity;
-                *info.dirty |= NODE_OPACITY_CHANGED;
-                *info.dirty &= ~OPACITY;
+                *dirty |= NODE_OPACITY_CHANGED;
+                *dirty &= ~OPACITY;
             }
         }
+
+//        if (!(*dirty & PRE_CALCULATE_VERTICES)) continue;
+//        AssemblerSprite* assemblerSprite = (AssemblerSprite*)info.node->getAssembler();
+//        if (!(*dirty & WORLD_TRANSFORM_CHANGED) && !assemblerSprite->isDirty(AssemblerBase::VERTICES_DIRTY)) continue;
+//        assemblerSprite->generateWorldVertices();
+//        assemblerSprite->calculateWorldVertices(*info.worldMat);
     }
 }
 
@@ -412,23 +351,9 @@ void RenderFlow::render(NodeProxy* scene, float deltaTime)
                 _paralleTask->waitAllThreads();
             }
         }
-
-        if (commonList.size() < LocalMat_Use_Thread_Unit_Count)
-        {
-            _parallelStage = ParallelStage::NONE;
-            calculateWorldVertices();
-        }
-        else
-        {
-            _parallelStage = ParallelStage::CALC_VERTICES;
-            _paralleTask->beginAllThreads();
-            calculateWorldVertices(mainThreadTid);
-            _paralleTask->waitAllThreads();
-        }
 #else
         calculateLocalMatrix();
         calculateWorldMatrix();
-        calculateWorldVertices();
 #endif
         
         _batcher->startBatch();

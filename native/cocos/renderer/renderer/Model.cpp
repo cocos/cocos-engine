@@ -68,12 +68,6 @@ Model::Model()
 Model::~Model()
 {
     reset();
-    
-    if (_node != nullptr)
-    {
-        _node->release();
-        _node = nullptr;
-    }
 }
 
 void Model::setInputAssembler(const InputAssembler& ia)
@@ -148,8 +142,8 @@ void Model::reset()
     CC_SAFE_RELEASE_NULL(_effect);
     CC_SAFE_RELEASE_NULL(_node);
     _inputAssembler.clear();
-    _defines->clear();
     _uniforms.clear();
+    _defines = nullptr;
 }
 
 RENDERER_END

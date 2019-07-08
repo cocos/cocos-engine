@@ -20,8 +20,6 @@ extern se::Class* __jsb_cocos2d_renderer_CustomProperties_class;
 
 bool js_register_cocos2d_renderer_CustomProperties(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_CustomProperties_setProperty);
-SE_DECLARE_FUNC(js_renderer_CustomProperties_define);
 SE_DECLARE_FUNC(js_renderer_CustomProperties_CustomProperties);
 
 extern se::Object* __jsb_cocos2d_renderer_Pass_proto;
@@ -270,7 +268,6 @@ extern se::Class* __jsb_cocos2d_renderer_RenderFlow_class;
 
 bool js_register_cocos2d_renderer_RenderFlow(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_RenderFlow_calculateWorldVertices);
 SE_DECLARE_FUNC(js_renderer_RenderFlow_render);
 SE_DECLARE_FUNC(js_renderer_RenderFlow_RenderFlow);
 
