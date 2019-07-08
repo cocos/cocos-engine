@@ -574,21 +574,6 @@ static bool js_renderer_CustomProperties_setProperty(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_CustomProperties_setProperty);
 
-static bool js_renderer_CustomProperties_define(se::State& s)
-{
-    cocos2d::renderer::CustomProperties* cobj = (cocos2d::renderer::CustomProperties*)s.nativeThisObject();
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    std::string arg0;
-    cocos2d::Value arg1;
-    ok &= seval_to_std_string(args[0], &arg0);
-    ok &= seval_to_ccvalue(args[1], &arg1);
-    SE_PRECONDITION2(ok, false, "js_renderer_CustomProperties_setProperty : Error processing arguments");
-    cobj->define(arg0, arg1);
-    return true;
-}
-SE_BIND_FUNC(js_renderer_CustomProperties_define);
-
 bool jsb_register_renderer_manual(se::Object* global)
 {
     // Get the ns

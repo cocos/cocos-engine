@@ -161,27 +161,6 @@ bool js_register_renderer_ProgramLib(se::Object* obj)
 se::Object* __jsb_cocos2d_renderer_CustomProperties_proto = nullptr;
 se::Class* __jsb_cocos2d_renderer_CustomProperties_class = nullptr;
 
-static bool js_renderer_CustomProperties_setProperty(se::State& s)
-{
-    cocos2d::renderer::CustomProperties* cobj = (cocos2d::renderer::CustomProperties*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_CustomProperties_setProperty : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        std::string arg0;
-        cocos2d::renderer::Technique::Parameter arg1;
-        ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_TechniqueParameter(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_renderer_CustomProperties_setProperty : Error processing arguments");
-        cobj->setProperty(arg0, arg1);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_CustomProperties_setProperty)
-
 static bool js_renderer_CustomProperties_define(se::State& s)
 {
     cocos2d::renderer::CustomProperties* cobj = (cocos2d::renderer::CustomProperties*)s.nativeThisObject();
@@ -235,7 +214,6 @@ bool js_register_renderer_CustomProperties(se::Object* obj)
 {
     auto cls = se::Class::create("CustomProperties", obj, nullptr, _SE(js_renderer_CustomProperties_constructor));
 
-    cls->defineFunction("setProperty", _SE(js_renderer_CustomProperties_setProperty));
     cls->defineFunction("define", _SE(js_renderer_CustomProperties_define));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_CustomProperties_finalize));
     cls->install();
@@ -2459,24 +2437,6 @@ bool js_register_renderer_ForwardRenderer(se::Object* obj)
 se::Object* __jsb_cocos2d_renderer_Light_proto = nullptr;
 se::Class* __jsb_cocos2d_renderer_Light_class = nullptr;
 
-static bool js_renderer_Light_getShadowScale(se::State& s)
-{
-    cocos2d::renderer::Light* cobj = (cocos2d::renderer::Light*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_Light_getShadowScale : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        float result = cobj->getShadowScale();
-        ok &= float_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_renderer_Light_getShadowScale : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_Light_getShadowScale)
-
 static bool js_renderer_Light_getRange(se::State& s)
 {
     cocos2d::renderer::Light* cobj = (cocos2d::renderer::Light*)s.nativeThisObject();
@@ -2494,6 +2454,25 @@ static bool js_renderer_Light_getRange(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_renderer_Light_getRange)
+
+static bool js_renderer_Light_setShadowFrustumSize(se::State& s)
+{
+    cocos2d::renderer::Light* cobj = (cocos2d::renderer::Light*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Light_setShadowFrustumSize : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        unsigned int arg0 = 0;
+        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_Light_setShadowFrustumSize : Error processing arguments");
+        cobj->setShadowFrustumSize(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Light_setShadowFrustumSize)
 
 static bool js_renderer_Light_setShadowResolution(se::State& s)
 {
@@ -2714,6 +2693,25 @@ static bool js_renderer_Light_getSpotExp(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_renderer_Light_getSpotExp)
+
+static bool js_renderer_Light_setShadowDepthScale(se::State& s)
+{
+    cocos2d::renderer::Light* cobj = (cocos2d::renderer::Light*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Light_setShadowDepthScale : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        float arg0 = 0;
+        ok &= seval_to_float(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_Light_setShadowDepthScale : Error processing arguments");
+        cobj->setShadowDepthScale(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Light_setShadowDepthScale)
 
 static bool js_renderer_Light_getViewPorjMatrix(se::State& s)
 {
@@ -3010,25 +3008,6 @@ static bool js_renderer_Light_setRange(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_Light_setRange)
 
-static bool js_renderer_Light_setShadowScale(se::State& s)
-{
-    cocos2d::renderer::Light* cobj = (cocos2d::renderer::Light*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_Light_setShadowScale : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        float arg0 = 0;
-        ok &= seval_to_float(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_renderer_Light_setShadowScale : Error processing arguments");
-        cobj->setShadowScale(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_Light_setShadowScale)
-
 static bool js_renderer_Light_setColor(se::State& s)
 {
     cocos2d::renderer::Light* cobj = (cocos2d::renderer::Light*)s.nativeThisObject();
@@ -3108,6 +3087,24 @@ static bool js_renderer_Light_getShadowResolution(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_Light_getShadowResolution)
 
+static bool js_renderer_Light_getShadowDepthScale(se::State& s)
+{
+    cocos2d::renderer::Light* cobj = (cocos2d::renderer::Light*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Light_getShadowDepthScale : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getShadowDepthScale();
+        ok &= float_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_renderer_Light_getShadowDepthScale : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Light_getShadowDepthScale)
+
 static bool js_renderer_Light_getShadowType(se::State& s)
 {
     cocos2d::renderer::Light* cobj = (cocos2d::renderer::Light*)s.nativeThisObject();
@@ -3171,8 +3168,8 @@ bool js_register_renderer_Light(se::Object* obj)
 {
     auto cls = se::Class::create("Light", obj, nullptr, _SE(js_renderer_Light_constructor));
 
-    cls->defineFunction("getShadowScale", _SE(js_renderer_Light_getShadowScale));
     cls->defineFunction("getRange", _SE(js_renderer_Light_getRange));
+    cls->defineFunction("setShadowFrustumSize", _SE(js_renderer_Light_setShadowFrustumSize));
     cls->defineFunction("setShadowResolution", _SE(js_renderer_Light_setShadowResolution));
     cls->defineFunction("getFrustumEdgeFalloff", _SE(js_renderer_Light_getFrustumEdgeFalloff));
     cls->defineFunction("setSpotExp", _SE(js_renderer_Light_setSpotExp));
@@ -3185,6 +3182,7 @@ bool js_register_renderer_Light(se::Object* obj)
     cls->defineFunction("getSpotAngle", _SE(js_renderer_Light_getSpotAngle));
     cls->defineFunction("getDirectionUniform", _SE(js_renderer_Light_getDirectionUniform));
     cls->defineFunction("getSpotExp", _SE(js_renderer_Light_getSpotExp));
+    cls->defineFunction("setShadowDepthScale", _SE(js_renderer_Light_setShadowDepthScale));
     cls->defineFunction("getViewPorjMatrix", _SE(js_renderer_Light_getViewPorjMatrix));
     cls->defineFunction("getType", _SE(js_renderer_Light_getType));
     cls->defineFunction("getColorUniform", _SE(js_renderer_Light_getColorUniform));
@@ -3201,11 +3199,11 @@ bool js_register_renderer_Light(se::Object* obj)
     cls->defineFunction("setWorldMatrix", _SE(js_renderer_Light_setWorldMatrix));
     cls->defineFunction("setSpotAngle", _SE(js_renderer_Light_setSpotAngle));
     cls->defineFunction("setRange", _SE(js_renderer_Light_setRange));
-    cls->defineFunction("setShadowScale", _SE(js_renderer_Light_setShadowScale));
     cls->defineFunction("setColor", _SE(js_renderer_Light_setColor));
     cls->defineFunction("setShadowMaxDepth", _SE(js_renderer_Light_setShadowMaxDepth));
     cls->defineFunction("setFrustumEdgeFalloff", _SE(js_renderer_Light_setFrustumEdgeFalloff));
     cls->defineFunction("getShadowResolution", _SE(js_renderer_Light_getShadowResolution));
+    cls->defineFunction("getShadowDepthScale", _SE(js_renderer_Light_getShadowDepthScale));
     cls->defineFunction("getShadowType", _SE(js_renderer_Light_getShadowType));
     cls->defineFunction("setShadowBias", _SE(js_renderer_Light_setShadowBias));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_Light_finalize));

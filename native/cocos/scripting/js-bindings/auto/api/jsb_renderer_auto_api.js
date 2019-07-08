@@ -89,18 +89,6 @@ array
 renderer.CustomProperties = {
 
 /**
- * @method setProperty
- * @param {String} arg0
- * @param {cc.renderer::Technique::Parameter} arg1
- */
-setProperty : function (
-str, 
-parameter 
-)
-{
-},
-
-/**
  * @method define
  * @param {String} arg0
  * @param {cc.Value} arg1
@@ -959,16 +947,6 @@ ForwardRenderer : function (
 renderer.Light = {
 
 /**
- * @method getShadowScale
- * @return {float}
- */
-getShadowScale : function (
-)
-{
-    return 0;
-},
-
-/**
  * @method getRange
  * @return {float}
  */
@@ -976,6 +954,16 @@ getRange : function (
 )
 {
     return 0;
+},
+
+/**
+ * @method setShadowFrustumSize
+ * @param {unsigned int} arg0
+ */
+setShadowFrustumSize : function (
+int 
+)
+{
 },
 
 /**
@@ -1096,6 +1084,16 @@ getSpotExp : function (
 )
 {
     return 0;
+},
+
+/**
+ * @method setShadowDepthScale
+ * @param {float} arg0
+ */
+setShadowDepthScale : function (
+float 
+)
+{
 },
 
 /**
@@ -1259,16 +1257,6 @@ float
 },
 
 /**
- * @method setShadowScale
- * @param {float} arg0
- */
-setShadowScale : function (
-float 
-)
-{
-},
-
-/**
  * @method setColor
  * @param {float} arg0
  * @param {float} arg1
@@ -1307,6 +1295,16 @@ int
  * @return {unsigned int}
  */
 getShadowResolution : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getShadowDepthScale
+ * @return {float}
+ */
+getShadowDepthScale : function (
 )
 {
     return 0;

@@ -142,11 +142,7 @@ void Model::reset()
     CC_SAFE_RELEASE_NULL(_effect);
     CC_SAFE_RELEASE_NULL(_node);
     _inputAssembler.clear();
-    if (_defines != nullptr)
-    {
-        delete _defines;
-        _defines = nullptr;
-    }
+    _defines = nullptr;
     _uniforms.clear();
 }
 

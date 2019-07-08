@@ -20,7 +20,6 @@ extern se::Class* __jsb_cocos2d_renderer_CustomProperties_class;
 
 bool js_register_cocos2d_renderer_CustomProperties(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_CustomProperties_setProperty);
 SE_DECLARE_FUNC(js_renderer_CustomProperties_define);
 SE_DECLARE_FUNC(js_renderer_CustomProperties_CustomProperties);
 
@@ -158,8 +157,8 @@ extern se::Class* __jsb_cocos2d_renderer_Light_class;
 
 bool js_register_cocos2d_renderer_Light(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
-SE_DECLARE_FUNC(js_renderer_Light_getShadowScale);
 SE_DECLARE_FUNC(js_renderer_Light_getRange);
+SE_DECLARE_FUNC(js_renderer_Light_setShadowFrustumSize);
 SE_DECLARE_FUNC(js_renderer_Light_setShadowResolution);
 SE_DECLARE_FUNC(js_renderer_Light_getFrustumEdgeFalloff);
 SE_DECLARE_FUNC(js_renderer_Light_setSpotExp);
@@ -172,6 +171,7 @@ SE_DECLARE_FUNC(js_renderer_Light_getShadowDarkness);
 SE_DECLARE_FUNC(js_renderer_Light_getSpotAngle);
 SE_DECLARE_FUNC(js_renderer_Light_getDirectionUniform);
 SE_DECLARE_FUNC(js_renderer_Light_getSpotExp);
+SE_DECLARE_FUNC(js_renderer_Light_setShadowDepthScale);
 SE_DECLARE_FUNC(js_renderer_Light_getViewPorjMatrix);
 SE_DECLARE_FUNC(js_renderer_Light_getType);
 SE_DECLARE_FUNC(js_renderer_Light_getColorUniform);
@@ -188,11 +188,11 @@ SE_DECLARE_FUNC(js_renderer_Light_setShadowDarkness);
 SE_DECLARE_FUNC(js_renderer_Light_setWorldMatrix);
 SE_DECLARE_FUNC(js_renderer_Light_setSpotAngle);
 SE_DECLARE_FUNC(js_renderer_Light_setRange);
-SE_DECLARE_FUNC(js_renderer_Light_setShadowScale);
 SE_DECLARE_FUNC(js_renderer_Light_setColor);
 SE_DECLARE_FUNC(js_renderer_Light_setShadowMaxDepth);
 SE_DECLARE_FUNC(js_renderer_Light_setFrustumEdgeFalloff);
 SE_DECLARE_FUNC(js_renderer_Light_getShadowResolution);
+SE_DECLARE_FUNC(js_renderer_Light_getShadowDepthScale);
 SE_DECLARE_FUNC(js_renderer_Light_getShadowType);
 SE_DECLARE_FUNC(js_renderer_Light_setShadowBias);
 SE_DECLARE_FUNC(js_renderer_Light_Light);
