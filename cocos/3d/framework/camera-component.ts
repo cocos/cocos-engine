@@ -375,6 +375,7 @@ export class CameraComponent extends Component {
         this._camera.clearDepth = this._depth;
         this._camera.clearStencil = this._stencil;
         this._camera.clearFlag = this._clearFlags;
+        this._camera.visibility = this._visibility;
     }
 
     protected onSceneChanged (scene: Scene) {

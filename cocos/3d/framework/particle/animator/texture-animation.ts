@@ -27,7 +27,7 @@ const Mode = Enum({
     /**
      * 精灵类型（暂未支持）。
      */
-    Sprites: 1,
+    // Sprites: 1,
 });
 
 /**

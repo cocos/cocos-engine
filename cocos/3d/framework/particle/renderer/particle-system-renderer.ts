@@ -229,6 +229,7 @@ export default class ParticleSystemRenderer {
         }
         if (this._model == null) {
             this._model = this.particleSystem._getRenderScene().createModel(ParticleBatchModel, this.particleSystem.node) as ParticleBatchModel;
+            this._model.viewID = this.particleSystem.visibility;
         }
         if (!this._model.inited) {
             this._model.setCapacity(this.particleSystem.capacity);
