@@ -30,6 +30,7 @@ const RenderFlow = require('../core/renderer/render-flow');
 import { mat4, vec2 } from '../core/vmath';
 let _mat4_temp = mat4.create();
 let _vec2_temp = vec2.create();
+let _vec2_temp2 = vec2.create();
 let _tempRowCol = {row:0, col:0};
 
 let TiledUserNodeData = cc.Class({
@@ -40,7 +41,6 @@ let TiledUserNodeData = cc.Class({
         this._index = -1;
         this._row = -1;
         this._col = -1;
-        this._dataId = -1;
         this._tiledLayer = null;
     }
 
@@ -66,7 +66,6 @@ let TiledLayer = cc.Class({
     ctor () {
         this._userNodeGrid = {};// [row][col] = {count: 0, nodesList: []};
         this._userNodeMap = {};// [id] = node;
-        this._userDataId = 1;
         this._userNodeDirty = false;
 
         // store the layer tiles node, index is caculated by 'x + width * y', format likes '[0]=tileNode0,[1]=tileNode1, ...'
@@ -104,6 +103,7 @@ let TiledLayer = cc.Class({
 
         this._layerName = '';
         this._layerOrientation = null;
+
         // store all layer gid corresponding texture info, index is gid, format likes '[gid0]=tex-info,[gid1]=tex-info, ...'
         this._texGrids = null;
         // store all tileset texture, index is tileset index, format likes '[0]=texture0, [1]=texture1, ...'
@@ -147,20 +147,20 @@ let TiledLayer = cc.Class({
      * !#zh 添加用户节点。
      * @method addUserNode
      * @param {cc.Node} node
+     * @return {Boolean}
      */
     addUserNode (node) {
         let dataComp = node.getComponent(TiledUserNodeData);
         if (dataComp) {
             cc.warn("CCTiledLayer:insertUserNode node has insert");
-            return;
+            return false;
         }
 
         dataComp = node.addComponent(TiledUserNodeData);
         node.parent = this.node;
         node._renderFlag |= RenderFlow.FLAG_BREAK_FLOW;
-        this._userNodeMap[this._userDataId] = dataComp;
+        this._userNodeMap[node._id] = dataComp;
 
-        dataComp._dataId = this._userDataId;
         dataComp._row = -1;
         dataComp._col = -1;
         dataComp._tiledLayer = this;
@@ -170,11 +170,7 @@ let TiledLayer = cc.Class({
         this._updateCullingOffsetByUserNode(node);
         node.on(cc.Node.EventType.POSITION_CHANGED, this._userNodePosChange, dataComp);
         node.on(cc.Node.EventType.SIZE_CHANGED, this._userNodeSizeChange, dataComp);
-        this._userDataId++;
-        // user data Id is too large
-        if (this._userDataId >= Number.MAX_SAFE_INTEGER) {
-            this._updateAllUserNode();
-        }
+        return true;
     },
 
     /**
@@ -182,20 +178,22 @@ let TiledLayer = cc.Class({
      * !#zh 移除用户节点。
      * @method removeUserNode
      * @param {cc.Node} node
+     * @return {Boolean}
      */
     removeUserNode (node) {
         let dataComp = node.getComponent(TiledUserNodeData);
         if (!dataComp) {
             cc.warn("CCTiledLayer:removeUserNode node is not exist");
-            return;
+            return false;
         }
         node.off(cc.Node.EventType.POSITION_CHANGED, this._userNodePosChange, dataComp);
         node.off(cc.Node.EventType.SIZE_CHANGED, this._userNodeSizeChange, dataComp);
         this._removeUserNodeFromGrid(dataComp);
-        delete this._userNodeMap[dataComp._dataId];
+        delete this._userNodeMap[node._id];
         node.removeComponent(dataComp);
         node.removeFromParent(true);
         node._renderFlag &= ~RenderFlow.FLAG_BREAK_FLOW;
+        return true;
     },
 
     /**
@@ -222,16 +220,9 @@ let TiledLayer = cc.Class({
     },
 
     _updateAllUserNode () {
-        let oldUserNodeMap = this._userNodeMap;
         this._userNodeGrid = {};
-        let newUserNodeMap = this._userNodeMap = {};
-        this._userDataId = 1;
-        for (let dataId in oldUserNodeMap) {
-            let dataComp = oldUserNodeMap[dataId];
-            dataComp._dataId = this._userDataId;
-            this._userDataId ++;
-            newUserNodeMap[dataComp._dataId] = dataComp;
-
+        for (let dataId in this._userNodeMap) {
+            let dataComp = this._userNodeMap[dataId];
             this._positionToRowCol(dataComp.node.x, dataComp.node.y, _tempRowCol);
             this._addUserNodeToGrid(dataComp, _tempRowCol);
             this._updateCullingOffsetByUserNode(dataComp.node);
@@ -754,8 +745,11 @@ let TiledLayer = cc.Class({
                 _vec2_temp.x = 0;
                 _vec2_temp.y = 0;
                 camera.getCameraToWorldPoint(_vec2_temp, _vec2_temp);
+                _vec2_temp2.x = _vec2_temp.x + rect.width;
+                _vec2_temp2.y = _vec2_temp.y + rect.height;
                 vec2.transformMat4(_vec2_temp, _vec2_temp, _mat4_temp);
-                this._updateViewPort(_vec2_temp.x, _vec2_temp.y, rect.width, rect.height);
+                vec2.transformMat4(_vec2_temp2, _vec2_temp2, _mat4_temp);
+                this._updateViewPort(_vec2_temp.x, _vec2_temp.y, _vec2_temp2.x - _vec2_temp.x, _vec2_temp2.y - _vec2_temp.y);
             }
         }
     },

@@ -411,6 +411,10 @@ let ArmatureDisplay = cc.Class({
     },
 
     _updateBatch () {
+        let baseMaterial = this.getMaterial(0);
+        if (baseMaterial) {
+            baseMaterial.define('_USE_MODEL', !this.enableBatch);
+        }
         let cache = this._materialCache;
         for (let mKey in cache) {
             let material = cache[mKey];
@@ -629,9 +633,14 @@ let ArmatureDisplay = cc.Class({
         }
 
         material.define('_USE_MODEL', true);
+        material.define('USE_TEXTURE', true);
         material.setProperty('texture', texture);
         
         this.setMaterial(0, material);
+        this._prepareToRender();
+    },
+
+    _prepareToRender () {
         this.markForRender(true);
     },
 
