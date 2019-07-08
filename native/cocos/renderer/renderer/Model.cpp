@@ -68,12 +68,6 @@ Model::Model()
 Model::~Model()
 {
     reset();
-    
-    if (_node != nullptr)
-    {
-        _node->release();
-        _node = nullptr;
-    }
 }
 
 void Model::setInputAssembler(const InputAssembler& ia)
@@ -99,7 +93,7 @@ void Model::setEffect(Effect* effect, CustomProperties* customProperties)
     
     if (customProperties != nullptr) {
         ValueMap* tmpMap = customProperties->extractDefines();
-        for (auto e : *tmpMap)
+        for (auto& e : *tmpMap)
         {
             const std::string& key = e.first;
             if(_defines->count(key) == 0)
@@ -148,7 +142,11 @@ void Model::reset()
     CC_SAFE_RELEASE_NULL(_effect);
     CC_SAFE_RELEASE_NULL(_node);
     _inputAssembler.clear();
-    _defines->clear();
+    if (_defines != nullptr)
+    {
+        delete _defines;
+        _defines = nullptr;
+    }
     _uniforms.clear();
 }
 
