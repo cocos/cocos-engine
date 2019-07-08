@@ -57,14 +57,14 @@ RenderFlow::RenderFlow(DeviceGraphics* device, Scene* scene, ForwardRenderer* fo
     
     for (uint32_t i = 0; i < SUB_RENDER_THREAD_COUNT; i++)
     {
-        _paralleTask->pushTask(i, [&](int tid){
+        _paralleTask->pushTask(i, [this](int tid){
             switch(_parallelStage)
             {
                 case ParallelStage::LOCAL_MAT:
                     calculateLocalMatrix(tid);
                 break;
                 case ParallelStage::WORLD_MAT:
-                    calculateLevelWorldMatrix(tid);
+                    calculateLevelWorldMatrix(tid, _parallelStage);
                 break;
                 case ParallelStage::CALC_VERTICES:
                     calculateWorldVertices(tid);
@@ -252,12 +252,19 @@ void RenderFlow::calculateWorldVertices(int tid)
             
             assemblerSprite->generateWorldVertices();
             assemblerSprite->calculateWorldVertices(*worldMat);
+            
+            *dirty &= ~WORLD_TRANSFORM_CHANGED;
         }
     }
 }
 
-void RenderFlow::calculateLevelWorldMatrix(int tid)
+void RenderFlow::calculateLevelWorldMatrix(int tid, int stage)
 {
+    if (_curLevel >= _levelInfoArr.size())
+    {
+        return;
+    }
+    
     auto& levelInfos = _levelInfoArr[_curLevel];
 
     std::size_t begin = 0, end = levelInfos.size();
@@ -372,7 +379,6 @@ void RenderFlow::render(NodeProxy* scene, float deltaTime)
 #if SUB_RENDER_THREAD_COUNT > 0
 
         int mainThreadTid = RENDER_THREAD_COUNT - 1;
-        bool threadBegan = false;
 
         NodeMemPool* instance = NodeMemPool::getInstance();
         auto& commonList = instance->getCommonList();
@@ -384,11 +390,9 @@ void RenderFlow::render(NodeProxy* scene, float deltaTime)
         else
         {
             _parallelStage = ParallelStage::LOCAL_MAT;
-            _paralleTask->begin();
-            threadBegan = true;
-
+            _paralleTask->beginAllThreads();
             calculateLocalMatrix(mainThreadTid);
-            while(*_runFlag != ParallelTask::RunFlag::ProcessFinished) std::this_thread::yield();
+            _paralleTask->waitAllThreads();
         }
 
         _curLevel = 0;
@@ -403,14 +407,9 @@ void RenderFlow::render(NodeProxy* scene, float deltaTime)
             else
             {
                 _parallelStage = ParallelStage::WORLD_MAT;
-                if (!threadBegan)
-                {
-                    _paralleTask->begin();
-                    threadBegan = true;
-                }
-                *_runFlag = ParallelTask::RunFlag::ToProcess;
+                _paralleTask->beginAllThreads();
                 calculateLevelWorldMatrix(mainThreadTid);
-                while(*_runFlag != ParallelTask::RunFlag::ProcessFinished) std::this_thread::yield();
+                _paralleTask->waitAllThreads();
             }
         }
 
@@ -422,17 +421,10 @@ void RenderFlow::render(NodeProxy* scene, float deltaTime)
         else
         {
             _parallelStage = ParallelStage::CALC_VERTICES;
-            if (!threadBegan)
-            {
-                _paralleTask->begin();
-                threadBegan = true;
-            }
-            *_runFlag = ParallelTask::RunFlag::ToProcess;
+            _paralleTask->beginAllThreads();
             calculateWorldVertices(mainThreadTid);
-            while(*_runFlag != ParallelTask::RunFlag::ProcessFinished) std::this_thread::yield();
+            _paralleTask->waitAllThreads();
         }
-
-        if (threadBegan) _paralleTask->stop();
 #else
         calculateLocalMatrix();
         calculateWorldMatrix();

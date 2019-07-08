@@ -36,3 +36,4 @@
 #include "assembler/TiledMapAssembler.hpp"
 #include "assembler/AssemblerSprite.hpp"
 #include "assembler/SimpleSprite2D.hpp"
+#include "assembler/SlicedSprite2D.hpp"

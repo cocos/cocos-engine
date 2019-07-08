@@ -263,6 +263,10 @@
 		0482F1C0228D87970019ECF7 /* Assembler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F197228D87960019ECF7 /* Assembler.hpp */; };
 		0482F1C1228D87970019ECF7 /* AssemblerBase.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F198228D87970019ECF7 /* AssemblerBase.hpp */; };
 		0482F1C2228D87970019ECF7 /* AssemblerBase.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0482F198228D87970019ECF7 /* AssemblerBase.hpp */; };
+		04886B4122CE22F2008CEB66 /* SlicedSprite2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04886B3F22CE22F2008CEB66 /* SlicedSprite2D.cpp */; };
+		04886B4222CE22F2008CEB66 /* SlicedSprite2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04886B3F22CE22F2008CEB66 /* SlicedSprite2D.cpp */; };
+		04886B4322CE22F2008CEB66 /* SlicedSprite2D.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04886B4022CE22F2008CEB66 /* SlicedSprite2D.hpp */; };
+		04886B4422CE22F2008CEB66 /* SlicedSprite2D.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 04886B4022CE22F2008CEB66 /* SlicedSprite2D.hpp */; };
 		0494CFD422BEFC6D00B73B79 /* ParallelTask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0494CFD222BEFC6D00B73B79 /* ParallelTask.cpp */; };
 		0494CFD522BEFC6D00B73B79 /* ParallelTask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0494CFD222BEFC6D00B73B79 /* ParallelTask.cpp */; };
 		0494CFD622BEFC6D00B73B79 /* ParallelTask.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0494CFD322BEFC6D00B73B79 /* ParallelTask.hpp */; };
@@ -1521,6 +1525,8 @@
 		0482F196228D87960019ECF7 /* CustomAssembler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CustomAssembler.cpp; sourceTree = "<group>"; };
 		0482F197228D87960019ECF7 /* Assembler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Assembler.hpp; sourceTree = "<group>"; };
 		0482F198228D87970019ECF7 /* AssemblerBase.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AssemblerBase.hpp; sourceTree = "<group>"; };
+		04886B3F22CE22F2008CEB66 /* SlicedSprite2D.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SlicedSprite2D.cpp; sourceTree = "<group>"; };
+		04886B4022CE22F2008CEB66 /* SlicedSprite2D.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SlicedSprite2D.hpp; sourceTree = "<group>"; };
 		0494CFD222BEFC6D00B73B79 /* ParallelTask.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ParallelTask.cpp; sourceTree = "<group>"; };
 		0494CFD322BEFC6D00B73B79 /* ParallelTask.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ParallelTask.hpp; sourceTree = "<group>"; };
 		04AF62FD219190ED00AED9DE /* TypedArrayPool.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TypedArrayPool.cpp; path = "../cocos/editor-support/TypedArrayPool.cpp"; sourceTree = "<group>"; };
@@ -2613,6 +2619,8 @@
 				0431A06822CCA441003356C9 /* AssemblerSprite.hpp */,
 				0431A06D22CCA7C1003356C9 /* SimpleSprite2D.cpp */,
 				0431A06E22CCA7C1003356C9 /* SimpleSprite2D.hpp */,
+				04886B3F22CE22F2008CEB66 /* SlicedSprite2D.cpp */,
+				04886B4022CE22F2008CEB66 /* SlicedSprite2D.hpp */,
 			);
 			path = assembler;
 			sourceTree = "<group>";
@@ -3610,6 +3618,7 @@
 				046B68AC21A294B100B33469 /* jsb_cocos2dx_spine_auto.hpp in Headers */,
 				04DBD40F22AE2DBD00DBE4CD /* TransformConstraintTimeline.h in Headers */,
 				469303642046AE05004A3D6C /* RefCounter.hpp in Headers */,
+				04886B4322CE22F2008CEB66 /* SlicedSprite2D.hpp in Headers */,
 				04DBD3E122AE2DBD00DBE4CD /* AttachmentTimeline.h in Headers */,
 				046E06CB2185B49F00B24E2D /* SkinData.h in Headers */,
 				46FDDA73202ACC6A00931238 /* ProgramLib.h in Headers */,
@@ -4166,6 +4175,7 @@
 				40AEF7B2216D940200729AA5 /* WebView.h in Headers */,
 				04DBD4D022AE2DBD00DBE4CD /* SkeletonClipping.h in Headers */,
 				1AAAC8F4205CB6E9005321B9 /* AudioEngine.h in Headers */,
+				04886B4422CE22F2008CEB66 /* SlicedSprite2D.hpp in Headers */,
 				046B68A921A292D300B33469 /* jsb_spine_manual.hpp in Headers */,
 				46FDDA78202ACC6A00931238 /* Light.h in Headers */,
 				1A29D7A420566CAC00168D9A /* CCCanvasRenderingContext2D.h in Headers */,
@@ -4457,6 +4467,7 @@
 				46AE3FF52092F3A600F3A228 /* util.cc in Sources */,
 				046E06582185B41B00B24E2D /* Armature.cpp in Sources */,
 				46FDDAE1202ACC6A00931238 /* GFXUtils.cpp in Sources */,
+				04886B4122CE22F2008CEB66 /* SlicedSprite2D.cpp in Sources */,
 				1A52DB6B205BCDC700350EE3 /* Utils.cpp in Sources */,
 				4693042E2046AE06004A3D6C /* jsb_helper.cpp in Sources */,
 				046E06EB2185B4A500B24E2D /* DataParser.cpp in Sources */,
@@ -4799,6 +4810,7 @@
 				46FDDA72202ACC6A00931238 /* Scene.cpp in Sources */,
 				046E06732185B42500B24E2D /* BaseObject.cpp in Sources */,
 				046B689121A00F5600B33469 /* IOTypedArray.cpp in Sources */,
+				04886B4222CE22F2008CEB66 /* SlicedSprite2D.cpp in Sources */,
 				046E06D22185B49F00B24E2D /* DisplayData.cpp in Sources */,
 				1A52DB7D205BCDD000350EE3 /* Utils.cpp in Sources */,
 				1A29D770205665D200168D9A /* jsb_cocos2dx_manual.cpp in Sources */,

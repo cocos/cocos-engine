@@ -37,50 +37,6 @@ SimpleSprite2D::~SimpleSprite2D()
     
 }
 
-void SimpleSprite2D::fillBuffers(NodeProxy* node, MeshBuffer* buffer, std::size_t index)
-{
-    RenderData* data = _datas->getRenderData(0);
-    if (!data)
-    {
-        return;
-    }
-    
-    // must retrieve offset before request
-    auto& bufferOffset = buffer->request(4, 6);
-    uint32_t vBufferOffset = bufferOffset.vByte / sizeof(float);
-    uint32_t indexId = bufferOffset.index;
-    uint32_t vertexId = bufferOffset.vertex;
-    
-    float* dstWorldVerts = buffer->vData + vBufferOffset;
-    memcpy(dstWorldVerts, data->getVertices(), 4 * _bytesPerVertex);
-    
-    // Copy index buffer with vertex offset
-    uint16_t* srcIndices = (uint16_t*)data->getIndices();
-    uint16_t* dstIndices = buffer->iData;
-    for (auto i = 0, j = 0; i < 6; ++i, ++j)
-    {
-        dstIndices[indexId++] = vertexId + srcIndices[j];
-    }
-}
-
-void SimpleSprite2D::calculateWorldVertices(const Mat4& worldMat)
-{
-    size_t dataPerVertex = _bytesPerVertex / sizeof(float);
-    RenderData* data = _datas->getRenderData(0);
-    float* srcWorldVerts = (float*)data->getVertices();
-    
-    for (uint32_t i = 0; i < 4; ++i)
-    {
-        float z = srcWorldVerts[2];
-        srcWorldVerts[2] = 0;
-        worldMat.transformPoint((cocos2d::Vec3*)srcWorldVerts);
-        srcWorldVerts[2] = z;
-        srcWorldVerts += dataPerVertex;
-    }
-    
-    *_dirty &= ~VERTICES_DIRTY;
-}
-
 void SimpleSprite2D::generateWorldVertices()
 {
     float vl = _localData[0],

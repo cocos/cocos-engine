@@ -1707,6 +1707,14 @@ CustomAssembler : function (
 renderer.RenderFlow = {
 
 /**
+ * @method calculateWorldVertices
+ */
+calculateWorldVertices : function (
+)
+{
+},
+
+/**
  * @method render
  * @param {cc.renderer::NodeProxy} arg0
  * @param {float} arg1
@@ -1878,6 +1886,22 @@ int
  * @constructor
  */
 TiledMapAssembler : function (
+)
+{
+},
+
+};
+
+/**
+ * @class SlicedSprite2D
+ */
+renderer.SlicedSprite2D = {
+
+/**
+ * @method SlicedSprite2D
+ * @constructor
+ */
+SlicedSprite2D : function (
 )
 {
 },

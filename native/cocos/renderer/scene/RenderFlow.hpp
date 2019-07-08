@@ -82,10 +82,10 @@ public:
     };
 
     enum ParallelStage {
-        NONE,
-        LOCAL_MAT,
-        WORLD_MAT,
-        CALC_VERTICES,
+        NONE = 1 << 0,
+        LOCAL_MAT = 1 << 1,
+        WORLD_MAT = 1 << 2,
+        CALC_VERTICES = 1 << 3,
     };
     
     struct LevelInfo{
@@ -151,7 +151,7 @@ public:
      *  @param[in] tid Thread id.
      *  @param[level] level Node level.
      */
-    void calculateLevelWorldMatrix(int tid = -1);
+    void calculateLevelWorldMatrix(int tid = -1, int stage = -1);
     /**
      *  @brief Calculate world vertices.
      *  @param[in] tid It must rather than -1 if enable multiple thread.

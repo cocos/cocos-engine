@@ -3961,6 +3961,29 @@ bool js_register_renderer_CustomAssembler(se::Object* obj)
 se::Object* __jsb_cocos2d_renderer_RenderFlow_proto = nullptr;
 se::Class* __jsb_cocos2d_renderer_RenderFlow_class = nullptr;
 
+static bool js_renderer_RenderFlow_calculateWorldVertices(se::State& s)
+{
+    cocos2d::renderer::RenderFlow* cobj = (cocos2d::renderer::RenderFlow*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_RenderFlow_calculateWorldVertices : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cobj->calculateWorldVertices();
+        return true;
+    }
+    if (argc == 1) {
+        int arg0 = 0;
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+        SE_PRECONDITION2(ok, false, "js_renderer_RenderFlow_calculateWorldVertices : Error processing arguments");
+        cobj->calculateWorldVertices(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_RenderFlow_calculateWorldVertices)
+
 static bool js_renderer_RenderFlow_render(se::State& s)
 {
     cocos2d::renderer::RenderFlow* cobj = (cocos2d::renderer::RenderFlow*)s.nativeThisObject();
@@ -4023,6 +4046,7 @@ bool js_register_renderer_RenderFlow(se::Object* obj)
 {
     auto cls = se::Class::create("RenderFlow", obj, nullptr, _SE(js_renderer_RenderFlow_constructor));
 
+    cls->defineFunction("calculateWorldVertices", _SE(js_renderer_RenderFlow_calculateWorldVertices));
     cls->defineFunction("render", _SE(js_renderer_RenderFlow_render));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_RenderFlow_finalize));
     cls->install();
@@ -4395,6 +4419,58 @@ bool js_register_renderer_TiledMapAssembler(se::Object* obj)
     return true;
 }
 
+se::Object* __jsb_cocos2d_renderer_SlicedSprite2D_proto = nullptr;
+se::Class* __jsb_cocos2d_renderer_SlicedSprite2D_class = nullptr;
+
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_SlicedSprite2D_finalize)
+
+static bool js_renderer_SlicedSprite2D_constructor(se::State& s)
+{
+    cocos2d::renderer::SlicedSprite2D* cobj = new (std::nothrow) cocos2d::renderer::SlicedSprite2D();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_renderer_SlicedSprite2D_constructor, __jsb_cocos2d_renderer_SlicedSprite2D_class, js_cocos2d_renderer_SlicedSprite2D_finalize)
+
+static bool js_renderer_SlicedSprite2D_ctor(se::State& s)
+{
+    cocos2d::renderer::SlicedSprite2D* cobj = new (std::nothrow) cocos2d::renderer::SlicedSprite2D();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_SUB_CLS_CTOR(js_renderer_SlicedSprite2D_ctor, __jsb_cocos2d_renderer_SlicedSprite2D_class, js_cocos2d_renderer_SlicedSprite2D_finalize)
+
+
+    
+
+extern se::Object* __jsb_cocos2d_renderer_AssemblerSprite_proto;
+
+static bool js_cocos2d_renderer_SlicedSprite2D_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::SlicedSprite2D)", s.nativeThisObject());
+    cocos2d::renderer::SlicedSprite2D* cobj = (cocos2d::renderer::SlicedSprite2D*)s.nativeThisObject();
+    cobj->release();
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_SlicedSprite2D_finalize)
+
+bool js_register_renderer_SlicedSprite2D(se::Object* obj)
+{
+    auto cls = se::Class::create("SlicedSprite2D", obj, __jsb_cocos2d_renderer_AssemblerSprite_proto, _SE(js_renderer_SlicedSprite2D_constructor));
+
+    cls->defineFunction("ctor", _SE(js_renderer_SlicedSprite2D_ctor));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_SlicedSprite2D_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::renderer::SlicedSprite2D>(cls);
+
+    __jsb_cocos2d_renderer_SlicedSprite2D_proto = cls->getProto();
+    __jsb_cocos2d_renderer_SlicedSprite2D_class = cls;
+
+    jsb_set_extend_property("renderer", "SlicedSprite2D");
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
 bool register_all_renderer(se::Object* obj)
 {
     // Get the ns
@@ -4407,27 +4483,28 @@ bool register_all_renderer(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
-    js_register_renderer_RenderFlow(ns);
-    js_register_renderer_MemPool(ns);
-    js_register_renderer_NodeMemPool(ns);
     js_register_renderer_ProgramLib(ns);
+    js_register_renderer_Camera(ns);
     js_register_renderer_AssemblerBase(ns);
+    js_register_renderer_MemPool(ns);
+    js_register_renderer_NodeProxy(ns);
     js_register_renderer_Assembler(ns);
     js_register_renderer_AssemblerSprite(ns);
     js_register_renderer_SimpleSprite2D(ns);
+    js_register_renderer_Effect(ns);
     js_register_renderer_MaskAssembler(ns);
     js_register_renderer_Light(ns);
-    js_register_renderer_Scene(ns);
-    js_register_renderer_Effect(ns);
-    js_register_renderer_RenderDataList(ns);
+    js_register_renderer_NodeMemPool(ns);
+    js_register_renderer_TiledMapAssembler(ns);
     js_register_renderer_BaseRenderer(ns);
     js_register_renderer_ForwardRenderer(ns);
-    js_register_renderer_TiledMapAssembler(ns);
-    js_register_renderer_Camera(ns);
-    js_register_renderer_Pass(ns);
-    js_register_renderer_NodeProxy(ns);
-    js_register_renderer_CustomAssembler(ns);
     js_register_renderer_View(ns);
+    js_register_renderer_RenderFlow(ns);
+    js_register_renderer_SlicedSprite2D(ns);
+    js_register_renderer_Scene(ns);
+    js_register_renderer_RenderDataList(ns);
+    js_register_renderer_Pass(ns);
+    js_register_renderer_CustomAssembler(ns);
     return true;
 }
 

@@ -24,55 +24,16 @@
 
 #pragma once
 
-#include "../Macro.h"
-#include <vector>
-#include <stdint.h>
-#include <functional>
-#include <thread>
-#include <memory>
-#include <condition_variable>
-#include <mutex>
+#include "AssemblerSprite.hpp"
 
 RENDERER_BEGIN
 
-class ParallelTask
+class SlicedSprite2D: public AssemblerSprite
 {
 public:
-    
-    enum RunFlag{
-        Begin = 0x00,
-        Stop = 0x01,
-    };
-    
-    typedef std::function<void(int)> Task;
-    
-    ParallelTask();
-    virtual ~ParallelTask();
-    
-    void pushTask(int tid, const Task& task);
-    void clearTasks();
-    
-    uint8_t* getRunFlag();
-    
-    void init(int threadNum);
-    void destroy();
-    
-    void waitAllThreads();
-    void stopAllThreads();
-    void beginAllThreads();
-private:
-    void joinThread(int tid);
-    void setThread(int tid);
-private:
-    std::vector<std::vector<Task>> _tasks;
-    std::vector<std::unique_ptr<std::thread>> _threads;
-    
-    uint8_t* _runFlags = nullptr;
-    bool _finished = false;
-    int _threadNum = 0;
-    
-    std::mutex _mutex;
-    std::condition_variable _cv;
+    SlicedSprite2D();
+    virtual ~SlicedSprite2D();
+    virtual void generateWorldVertices() override;
 };
 
 RENDERER_END

@@ -33,8 +33,6 @@ class SimpleSprite2D: public AssemblerSprite
 public:
     SimpleSprite2D();
     virtual ~SimpleSprite2D();
-    virtual void fillBuffers(NodeProxy* node, MeshBuffer* buffer, std::size_t index) override;
-    virtual void calculateWorldVertices(const Mat4& worldMat) override;
     virtual void generateWorldVertices() override;
 };
 

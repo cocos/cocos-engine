@@ -257,6 +257,7 @@ extern se::Class* __jsb_cocos2d_renderer_RenderFlow_class;
 
 bool js_register_cocos2d_renderer_RenderFlow(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_RenderFlow_calculateWorldVertices);
 SE_DECLARE_FUNC(js_renderer_RenderFlow_render);
 SE_DECLARE_FUNC(js_renderer_RenderFlow_RenderFlow);
 
@@ -295,5 +296,12 @@ SE_DECLARE_FUNC(js_renderer_TiledMapAssembler_updateNodes);
 SE_DECLARE_FUNC(js_renderer_TiledMapAssembler_setLayerMoveXY);
 SE_DECLARE_FUNC(js_renderer_TiledMapAssembler_clearNodes);
 SE_DECLARE_FUNC(js_renderer_TiledMapAssembler_TiledMapAssembler);
+
+extern se::Object* __jsb_cocos2d_renderer_SlicedSprite2D_proto;
+extern se::Class* __jsb_cocos2d_renderer_SlicedSprite2D_class;
+
+bool js_register_cocos2d_renderer_SlicedSprite2D(se::Object* obj);
+bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_SlicedSprite2D_SlicedSprite2D);
 
 #endif //#if (USE_GFX_RENDERER > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
