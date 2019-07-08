@@ -74,15 +74,20 @@ let RenderComponent = cc.Class({
         this.__allocedDatas = [];
         this._vertsDirty = true;
         this._material = null;
-        this._vertexFormat = gfx.VertexFormat.XY_UV_Color;
         
         this._assembler = null;
     },
 
     _resetAssembler () {
         this.setVertsDirty(true);
-        this.node._renderFlag |= RenderFlow.FLAG_OPACITY;
         Assembler.init(this);
+
+        if (CC_JSB) {
+            this._updateColor();
+        }
+        else {
+            this.node._renderFlag |= RenderFlow.FLAG_OPACITY;
+        }
     },
 
     __preload () {
@@ -100,10 +105,6 @@ let RenderComponent = cc.Class({
         this.node.on(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
 
         this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
-
-        if (CC_JSB && CC_NATIVERENDERER) {
-            cc.RenderFlow.once(cc.RenderFlow.EventType.BEFORE_RENDER, this._updateColor, this);
-        }
     },
 
     onDisable () {
