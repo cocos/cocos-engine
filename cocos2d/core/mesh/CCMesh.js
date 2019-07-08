@@ -131,7 +131,9 @@ let Mesh = cc.Class({
             meshData.offset = vbRange.offset;
             this._subDatas.push(meshData);
 
-            if (!(CC_JSB && CC_NATIVERENDERER)) {
+            if (CC_JSB && CC_NATIVERENDERER) {
+                meshData.vDirty = true;
+            } else {
                 let vbBuffer = new gfx.VertexBuffer(
                     renderer.device,
                     gfxVFmt,
@@ -152,7 +154,6 @@ let Mesh = cc.Class({
                 this._subMeshes.push(new InputAssembler(vbBuffer, ibBuffer));
             }
         }
-        
     },
 
     /**
