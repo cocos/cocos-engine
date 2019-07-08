@@ -113,6 +113,7 @@ void ModelBatcher::changeCommitState(CommitState state)
             break;
     }
     setCurrentEffect(nullptr);
+    setCustomProperties(nullptr);
     _commitState = state;
 }
 
@@ -141,6 +142,7 @@ void ModelBatcher::commit(NodeProxy* node, Assembler* assembler)
         assembler->beforeFillBuffers(i);
         
         Effect* effect = assembler->getEffect(i);
+        CustomProperties* customProp = assembler->getCustomProperties();
         if (!effect) continue;
 
         if (_currEffect == nullptr ||
@@ -152,6 +154,7 @@ void ModelBatcher::commit(NodeProxy* node, Assembler* assembler)
             
             setNode(_useModel ? node : nullptr);
             setCurrentEffect(effect);
+            setCustomProperties(customProp);
             _modelMat.set(worldMat);
             _useModel = useModel;
             _cullingMask = cullingMask;

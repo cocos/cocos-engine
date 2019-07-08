@@ -30,6 +30,7 @@
 #include "math/CCMath.h"
 #include "../../renderer/Effect.h"
 #include "RenderDataList.hpp"
+#include "../../renderer/CustomProperties.hpp"
 
 namespace se {
     class Object;
@@ -180,6 +181,9 @@ public:
     {
         return _iaDatas.size();
     }
+    
+    inline void setCustomProperties(CustomProperties* customProp) { _customProp = customProp;};
+    inline CustomProperties* getCustomProperties() { return _customProp;};
 protected:
     RenderDataList* _datas = nullptr;
     std::vector<IARenderData> _iaDatas;
@@ -193,6 +197,8 @@ protected:
     
     bool _ignoreWorldMatrix = false;
     bool _opacityAlwaysDirty = false;
+    
+    CustomProperties* _customProp = nullptr;
 };
 
 // end of scene group

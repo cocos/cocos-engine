@@ -84,6 +84,46 @@ array
 };
 
 /**
+ * @class CustomProperties
+ */
+renderer.CustomProperties = {
+
+/**
+ * @method setProperty
+ * @param {String} arg0
+ * @param {cc.renderer::Technique::Parameter} arg1
+ */
+setProperty : function (
+str, 
+parameter 
+)
+{
+},
+
+/**
+ * @method define
+ * @param {String} arg0
+ * @param {cc.Value} arg1
+ */
+define : function (
+str, 
+value 
+)
+{
+},
+
+/**
+ * @method CustomProperties
+ * @constructor
+ */
+CustomProperties : function (
+)
+{
+},
+
+};
+
+/**
  * @class Pass
  */
 renderer.PassNative = {
@@ -1653,6 +1693,16 @@ enableOpacityAlwaysDirty : function (
 },
 
 /**
+ * @method getCustomProperties
+ * @return {cc.renderer::CustomProperties}
+ */
+getCustomProperties : function (
+)
+{
+    return cc.renderer::CustomProperties;
+},
+
+/**
  * @method updateIndicesRange
  * @param {unsigned int} arg0
  * @param {int} arg1
@@ -1662,6 +1712,16 @@ updateIndicesRange : function (
 int, 
 int, 
 int 
+)
+{
+},
+
+/**
+ * @method setCustomProperties
+ * @param {cc.renderer::CustomProperties} arg0
+ */
+setCustomProperties : function (
+customproperties 
 )
 {
 },
@@ -1686,6 +1746,32 @@ renderer.CustomAssembler = {
  * @method clearEffect
  */
 clearEffect : function (
+)
+{
+},
+
+/**
+ * @method updateEffect
+ * @param {unsigned int} arg0
+ * @param {cc.renderer::Effect} arg1
+ */
+updateEffect : function (
+int, 
+effect 
+)
+{
+},
+
+/**
+ * @method updateIABuffer
+ * @param {unsigned int} arg0
+ * @param {cc.renderer::VertexBuffer} arg1
+ * @param {cc.renderer::IndexBuffer} arg2
+ */
+updateIABuffer : function (
+int, 
+vertexbuffer, 
+indexbuffer 
 )
 {
 },

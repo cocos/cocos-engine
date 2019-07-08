@@ -133,7 +133,7 @@ private:
     Effect* _effect = nullptr;
     
     InputAssembler _inputAssembler;
-    std::vector<ValueMap*> _defines;
+    ValueMap* _defines;
     std::vector<std::unordered_map<std::string, Effect::Property>> _uniforms;
     bool _dynamicIA = false;
     int _cullingMask = -1;

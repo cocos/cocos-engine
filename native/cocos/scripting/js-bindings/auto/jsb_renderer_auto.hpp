@@ -15,6 +15,15 @@ SE_DECLARE_FUNC(js_renderer_ProgramLib_getValueFromDefineList);
 SE_DECLARE_FUNC(js_renderer_ProgramLib_getKey);
 SE_DECLARE_FUNC(js_renderer_ProgramLib_ProgramLib);
 
+extern se::Object* __jsb_cocos2d_renderer_CustomProperties_proto;
+extern se::Class* __jsb_cocos2d_renderer_CustomProperties_class;
+
+bool js_register_cocos2d_renderer_CustomProperties(se::Object* obj);
+bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_CustomProperties_setProperty);
+SE_DECLARE_FUNC(js_renderer_CustomProperties_define);
+SE_DECLARE_FUNC(js_renderer_CustomProperties_CustomProperties);
+
 extern se::Object* __jsb_cocos2d_renderer_Pass_proto;
 extern se::Class* __jsb_cocos2d_renderer_Pass_class;
 
@@ -241,7 +250,9 @@ SE_DECLARE_FUNC(js_renderer_Assembler_setRenderDataList);
 SE_DECLARE_FUNC(js_renderer_Assembler_updateMeshIndex);
 SE_DECLARE_FUNC(js_renderer_Assembler_updateEffect);
 SE_DECLARE_FUNC(js_renderer_Assembler_enableOpacityAlwaysDirty);
+SE_DECLARE_FUNC(js_renderer_Assembler_getCustomProperties);
 SE_DECLARE_FUNC(js_renderer_Assembler_updateIndicesRange);
+SE_DECLARE_FUNC(js_renderer_Assembler_setCustomProperties);
 SE_DECLARE_FUNC(js_renderer_Assembler_Assembler);
 
 extern se::Object* __jsb_cocos2d_renderer_CustomAssembler_proto;
@@ -250,6 +261,8 @@ extern se::Class* __jsb_cocos2d_renderer_CustomAssembler_class;
 bool js_register_cocos2d_renderer_CustomAssembler(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
 SE_DECLARE_FUNC(js_renderer_CustomAssembler_clearEffect);
+SE_DECLARE_FUNC(js_renderer_CustomAssembler_updateEffect);
+SE_DECLARE_FUNC(js_renderer_CustomAssembler_updateIABuffer);
 SE_DECLARE_FUNC(js_renderer_CustomAssembler_CustomAssembler);
 
 extern se::Object* __jsb_cocos2d_renderer_RenderFlow_proto;
