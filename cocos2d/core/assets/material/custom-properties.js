@@ -64,3 +64,5 @@ export default class CustomProperties {
         return this._hash = murmurhash2(hash, 666);
     }
 }
+
+cc.CustomProperties = CustomProperties;
