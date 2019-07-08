@@ -544,7 +544,7 @@ class Component extends CCObject {
      * @zh 如果该组件启用，则每帧调用 LateUpdate。<br/>
      * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
      */
-    protected lateUpdate? (): void;
+    protected lateUpdate? (dt: number): void;
 
     /**
      * `__preload` is called before every onLoad.
