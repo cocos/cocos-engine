@@ -48,6 +48,7 @@ let VideoPlayerImpl = cc.Class({
         this._video = null;
         this._url = '';
 
+        this._preFullScreenEnabled = undefined;
         this._fullScreenEnabled = false;
 
         this._loadedmeta = false;
@@ -76,11 +77,8 @@ let VideoPlayerImpl = cc.Class({
         let cbs = this.__eventListeners;
         cbs.loadedmetadata = function () {
             self._loadedmeta = true;
-            if (self._fullScreenEnabled) {
-                cc.screen.requestFullScreen(video);
-            }
-            else if (cc.screen.fullScreen()) {
-                cc.screen.exitFullScreen(video);
+            if (self._preFullScreenEnabled !== undefined) {
+                self._toggleFullscreen(self._preFullScreenEnabled);
             }
             self._dispatchEvent(VideoPlayerImpl.EventType.META_LOADED);
         };
@@ -355,17 +353,38 @@ let VideoPlayerImpl = cc.Class({
         return true;
     },
 
-    setFullScreenEnabled: function (enable) {
-        let video = this._video;
+    _toggleFullscreen: function (enable) {
+        let self = this, video = this._video;
         if (!video) {
             return;
         }
-        this._fullScreenEnabled = enable;
-        if (enable) {
-            cc.screen.requestFullScreen(video);
+
+        // Monitor video entry and exit full-screen events
+        function handleFullscreenChange (event) {
+            let fullscreenElement = sys.browserType === sys.BROWSER_TYPE_IE ? document.msFullscreenElement : document.fullscreenElement;
+            self._fullScreenEnabled =  (fullscreenElement === video);
         }
-        else if (cc.screen.fullScreen()) {
+        function handleFullScreenError (event) {
+            self._fullScreenEnabled = false;
+        }
+
+        if (enable) {
+            if (sys.browserType === sys.BROWSER_TYPE_IE) {
+                // fix IE full screen content is not centered
+                video.style['transform'] = '';
+            }
+            cc.screen.requestFullScreen(video, handleFullscreenChange, handleFullScreenError);
+        } else if (cc.screen.fullScreen()) {
             cc.screen.exitFullScreen(video);
+        }
+    },
+
+    setFullScreenEnabled: function (enable) {
+        if (!this._loadedmeta) {
+            this._preFullScreenEnabled = enable;
+        }
+        else {
+            this._toggleFullscreen(enable);
         }
     },
 
@@ -420,7 +439,7 @@ let VideoPlayerImpl = cc.Class({
     },
 
     updateMatrix (node) {
-        if (!this._video || !this._visible) return;
+        if (!this._video || !this._visible || this._fullScreenEnabled) return;
 
         node.getWorldMatrix(_mat4_temp);
 
