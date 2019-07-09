@@ -32,11 +32,6 @@ import './predefine';
 
 import './cocos/legacy';
 
-// plugin third library
-import TWEEN from 'tween.js';
-export { TWEEN };
-cc._global.TWEEN = TWEEN;
-
 // LOAD ENGINE CORE
 export * from './cocos/core';
 export * from './cocos/scene-graph';
@@ -55,5 +50,7 @@ export * from './extensions/ccpool/node-pool';
 
 const cclegacy = cc;
 export { cclegacy };
+
+export * from './cocos/tween';
 
 // export default cc;

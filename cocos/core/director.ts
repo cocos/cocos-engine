@@ -28,6 +28,7 @@
  * @category core
  */
 
+import TWEEN from 'tween.js';
 import { widgetManager } from '../3d';
 // import SkinningModelSystem from '../3d/framework/skinning-model-system';
 import { PhysicsSystem } from '../3d/framework/physics/physics-system';
@@ -1054,8 +1055,11 @@ class Director extends EventTarget {
                 // Destroy entities that have been removed recently
                 CCObject._deferredDestroy();
             }
-            // Tween uodate
-            TWEEN.update(time);
+
+            if (!CC_EDITOR) {
+                // Tween uodate
+                TWEEN.update(time);
+            }
 
             this.emit(Director.EVENT_BEFORE_PHYSICS);
             this._physicsSystem!.update(this._deltaTime);
