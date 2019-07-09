@@ -9,9 +9,6 @@ const tscExecutablePath = join(__dirname, '..', '..', 'node_modules', '.bin', ts
 const tsConfigDir = join(__dirname, '..', '..');
 const tsConfigPath = join(tsConfigDir, 'tsconfig.json');
 const tempTsConfigPath = join(tsConfigDir, '__tsconfig-gendecls.json');
-const extraDestFiles = [
-    join(__dirname, 'embedded-cocos-3d.d.ts'),
-];
 
 async function generate (options) {
     const tsConfig = ts.readConfigFile(tsConfigPath, (path) => readFileSync(path).toString());
@@ -112,11 +109,11 @@ async function generate (options) {
 
     console.log(`Bundling...`);
     const giftInputPath = tscOutputDtsFile;
-    const giftOutputPath = join(dirName,'Cocos3D.d.ts' );
+    const giftOutputPath = join(dirName,'cc.d.ts' );
     const giftResult = gift.bundle({
         input: giftInputPath,
         output: giftOutputPath,
-        name: 'Cocos3D',
+        name: 'cc',
         rootModule: 'index',
     });
     if (giftResult.error !== gift.GiftErrors.Ok) {
