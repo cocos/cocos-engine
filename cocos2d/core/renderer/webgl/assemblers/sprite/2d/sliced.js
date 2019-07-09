@@ -29,7 +29,6 @@ export default class SlicedAssembler extends Assembler2D {
     initData (sprite) {
         if (this._renderData.meshCount > 0) return;
         this._renderData.createData(0, this.verticesFloats, this.indicesCount);
-        this._local.length = 8;
 
         let indices = this._renderData.iDatas[0];
         let indexOffset = 0;
@@ -44,6 +43,11 @@ export default class SlicedAssembler extends Assembler2D {
                 indices[indexOffset++] = start + 4;
             }
         }
+    }
+
+    initLocal () {
+        this._local = [];
+        this._local.length = 8;
     }
 
     updateRenderData (sprite) {
