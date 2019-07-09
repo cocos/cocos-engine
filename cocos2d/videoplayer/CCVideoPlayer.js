@@ -265,8 +265,8 @@ let VideoPlayer = cc.Class({
                 this._isFullscreen = enable;
                 this._impl.setFullScreenEnabled(enable);
             },
-            multiline: true,
-            tooltip: CC_DEV && 'i18n:COMPONENT.label.isFullscreen'
+            animatable: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.isFullscreen'
         },
 
         /**
