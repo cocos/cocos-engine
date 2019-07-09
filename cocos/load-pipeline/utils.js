@@ -38,3 +38,20 @@ export function urlAppendTimestamp (url) {
     }
     return url;
 }
+
+
+export function decompressJson (data, keys) {
+    if (Array.isArray(data)) {
+        for (var i = 0, l = data.length; i < l; i++) {
+            decompressJson(data[i], keys);
+        }
+    }
+    else if (typeof data === 'object') {
+        for (var key in data) {
+            data[keys[key]] = data[key];
+            decompressJson(data[key], keys);
+            delete data[key];
+        }
+    }
+    return null;
+}

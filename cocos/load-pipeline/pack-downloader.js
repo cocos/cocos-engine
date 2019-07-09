@@ -30,6 +30,7 @@
 
 import {pushToMap} from '../core/utils/misc';
 import {TextureUnpacker, JsonUnpacker} from './unpackers';
+import { decompressJson } from './utils';
 
 // when more than one package contains the required asset,
 // choose to load from the package with the largest state value.
@@ -113,6 +114,12 @@ export function _doLoadNewPack (uuid, packUuid, packedJson) {
         // init unpacker
         if (typeof packedJson === 'string') {
             packedJson = JSON.parse(packedJson);
+        }
+
+        if (!CC_DEBUG && packedJson.keys && packedJson.data) {
+            var keys = packedJson.keys;
+            packedJson = packedJson.data;
+            decompressJson(packedJson, keys);
         }
         if (Array.isArray(packedJson)) {
             unpackerData.unpacker = new JsonUnpacker();
