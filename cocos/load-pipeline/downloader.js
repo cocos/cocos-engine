@@ -34,7 +34,7 @@ import * as PackDownloader from './pack-downloader';
 import downloadBinary from './binary-downloader';
 import downloadText from './text-downloader';
 import downloadAudio from './audio-downloader';
-import {urlAppendTimestamp} from './utils';
+import {urlAppendTimestamp, decompressJson} from './utils';
 
 function skip () {
     return null;
@@ -118,7 +118,23 @@ function downloadImage (item, callback, isCrossOrigin, img) {
 function downloadUuid (item, callback) {
     var result = PackDownloader.load(item, callback);
     if (result === undefined) {
-        return this.extMap['json'](item, callback);
+        return this.extMap['json'](item, function (err, text) {
+            var out = null;
+            if (!err) {
+                try {
+                    out = JSON.parse(text);
+                    if (!CC_DEBUG && out.keys && out.data) {
+                        var keys = out.keys;
+                        out = out.data;
+                        decompressJson(out, keys);
+                    }
+                }
+                catch (e) {
+                    err = new Error(debug.getError(4923, item.id, e.stack));
+                }
+            } 
+            callback(err, out);
+        });
     }
     return result || undefined;
 }
