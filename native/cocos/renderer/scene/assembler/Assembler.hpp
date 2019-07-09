@@ -47,22 +47,6 @@ class ModelBatcher;
  * @{
  */
 
-/**
- *  @brief The render handle is a system handle which occupies rendering datas.\n
- *  It's kind of a cpp delegate for js RenderComponent and should be created and updated by js RenderComponent.\n
- *  It update local vertex data to world vertex data if necessary, commit all render datas to the shared vertex and index buffer.\n
- *  JS API: renderer.RenderHandle
- @code
- // RenderHandle will be automatically created when create a render component
- let node = new cc.Node();
- let sprite = node.addComponent(cc.Sprite);
- sprite._renderHandle;
- 
- // You can also create a RenderHandle by yourself, but you will also need to bind a render component manually
- let renderHandle = new renderer.RenderHandle();
- renderHandle.bind(renderComponent);
- @endcode
- */
 class Assembler : public AssemblerBase
 {
 public:
@@ -102,9 +86,9 @@ public:
      *  @brief Fills render data in given index to the MeshBuffer
      *  @param[in] buffer The shared mesh buffer
      *  @param[in] index The index of render data to be updated
-     *  @param[in] worldMat The world transform matrix
+     *  @param[in] node
      */
-    virtual void fillBuffers(MeshBuffer* buffer, std::size_t index, const Mat4& worldMat);
+    virtual void fillBuffers(NodeProxy* node, MeshBuffer* buffer, std::size_t index);
     
     /**
      *  @brief Sets IArenderDataList

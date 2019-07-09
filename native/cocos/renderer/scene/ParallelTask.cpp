@@ -44,7 +44,7 @@ void ParallelTask::init(int threadNum)
     _tasks.resize(_threadNum);
     _threads.resize(_threadNum);
     _runFlags = new uint8_t[_threadNum];
-    memset(_runFlags, RunFlag::Wait, sizeof(uint8_t) * _threadNum);
+    memset(_runFlags, RunFlag::Stop, sizeof(uint8_t) * _threadNum);
     
     for(auto i = 0; i < _threadNum; i++)
     {
@@ -76,7 +76,7 @@ uint8_t* ParallelTask::getRunFlag()
 void ParallelTask::destroy()
 {
     _finished = true;
-    begin();
+    beginAllThreads();
     for (int i = 0, n = (int)_threads.size(); i < n; ++i)
     {
         joinThread(i);
@@ -88,21 +88,34 @@ void ParallelTask::destroy()
     _threadNum = 0;
 }
 
-void ParallelTask::stop()
+void ParallelTask::stopAllThreads()
 {
     if (!_runFlags) return;
-    memset(_runFlags, RunFlag::Wait, sizeof(uint8_t) * _threadNum);
+    memset(_runFlags, RunFlag::Stop, sizeof(uint8_t) * _threadNum);
 }
 
-void ParallelTask::begin()
+void ParallelTask::beginAllThreads()
 {
     if (!_runFlags) return;
-    memset(_runFlags, RunFlag::ToProcess, sizeof(uint8_t) * _threadNum);
+    memset(_runFlags, RunFlag::Begin, sizeof(uint8_t) * _threadNum);
     
     {
         std::unique_lock<std::mutex> lock(_mutex);
         _cv.notify_all();
     }
+}
+
+void ParallelTask::waitAllThreads()
+{
+    std::unique_lock<std::mutex> lock(_mutex);
+    _cv.wait(lock, [this]() {
+        if (!_runFlags) return true;
+        for (auto i = 0; i < _threadNum; i++)
+        {
+            if (_runFlags[i] == RunFlag::Begin) return false;
+        }
+        return true;
+    });
 }
 
 void ParallelTask::joinThread(int tid)
@@ -130,22 +143,30 @@ void ParallelTask::setThread(int tid)
         
         while (!_finished)
         {
-            while (runFlag == RunFlag::ToProcess)
+            switch (runFlag)
             {
-                for (idx = 0, taskCount = taskQueue.size(); idx < taskCount; idx++)
+                case RunFlag::Begin:
+                    for (idx = 0, taskCount = taskQueue.size(); idx < taskCount; idx++)
+                    {
+                        const Task& task = taskQueue[idx];
+                        task(tid);
+                    }
+                    runFlag = RunFlag::Stop;
+                    
+                    {
+                        std::unique_lock<std::mutex> lock(_mutex);
+                        _cv.notify_all();
+                    }
+                break;
+                case RunFlag::Stop:
                 {
-                    Task task = taskQueue[idx];
-                    task(tid);
+                    std::unique_lock<std::mutex> lock(_mutex);
+                    _cv.wait(lock, [this, &runFlag]()
+                    {
+                        return runFlag == RunFlag::Begin || _finished;
+                    });
                 }
-                runFlag = RunFlag::ProcessFinished;
-            }
-            
-            if (runFlag == RunFlag::Wait)
-            {
-                std::unique_lock<std::mutex> lock(_mutex);
-                _cv.wait(lock, [this, &runFlag]() {
-                    return runFlag == RunFlag::ToProcess || _finished;
-                });
+                break;
             }
         }
     };

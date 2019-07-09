@@ -142,8 +142,8 @@ void Model::reset()
     CC_SAFE_RELEASE_NULL(_effect);
     CC_SAFE_RELEASE_NULL(_node);
     _inputAssembler.clear();
-    _defines = nullptr;
     _uniforms.clear();
+    _defines = nullptr;
 }
 
 RENDERER_END

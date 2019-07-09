@@ -28,12 +28,13 @@
 #include "Assembler.hpp"
 #include "../MeshBuffer.hpp"
 #include "math/CCMath.h"
+#include "SimpleSprite2D.hpp"
 
 class ModelBatcher;
 
 RENDERER_BEGIN
 
-class MaskAssembler: public Assembler
+class MaskAssembler: public SimpleSprite2D
 {
 public:
     MaskAssembler();

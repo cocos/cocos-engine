@@ -353,6 +353,16 @@ Effect : function (
 renderer.AssemblerBase = {
 
 /**
+ * @method disableDirty
+ * @param {unsigned int} arg0
+ */
+disableDirty : function (
+int 
+)
+{
+},
+
+/**
  * @method reset
  */
 reset : function (
@@ -1810,6 +1820,39 @@ forwardrenderer
 };
 
 /**
+ * @class AssemblerSprite
+ */
+renderer.AssemblerSprite = {
+
+/**
+ * @method setLocalData
+ * @param {se::Object} arg0
+ */
+setLocalData : function (
+object 
+)
+{
+},
+
+};
+
+/**
+ * @class SimpleSprite2D
+ */
+renderer.SimpleSprite2D = {
+
+/**
+ * @method SimpleSprite2D
+ * @constructor
+ */
+SimpleSprite2D : function (
+)
+{
+},
+
+};
+
+/**
  * @class MaskAssembler
  */
 renderer.MaskAssembler = {
@@ -1919,6 +1962,22 @@ int
  * @constructor
  */
 TiledMapAssembler : function (
+)
+{
+},
+
+};
+
+/**
+ * @class SlicedSprite2D
+ */
+renderer.SlicedSprite2D = {
+
+/**
+ * @method SlicedSprite2D
+ * @constructor
+ */
+SlicedSprite2D : function (
 )
 {
 },

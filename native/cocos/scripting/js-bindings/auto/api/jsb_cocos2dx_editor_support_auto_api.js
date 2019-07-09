@@ -125,6 +125,16 @@ Texture2D : function (
 middleware.MiddlewareManager = {
 
 /**
+ * @method render
+ * @param {float} arg0
+ */
+render : function (
+float 
+)
+{
+},
+
+/**
  * @method update
  * @param {float} arg0
  */

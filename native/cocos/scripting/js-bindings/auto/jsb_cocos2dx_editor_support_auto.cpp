@@ -278,6 +278,25 @@ bool js_register_cocos2dx_editor_support_Texture2D(se::Object* obj)
 se::Object* __jsb_cocos2d_middleware_MiddlewareManager_proto = nullptr;
 se::Class* __jsb_cocos2d_middleware_MiddlewareManager_class = nullptr;
 
+static bool js_cocos2dx_editor_support_MiddlewareManager_render(se::State& s)
+{
+    cocos2d::middleware::MiddlewareManager* cobj = (cocos2d::middleware::MiddlewareManager*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_editor_support_MiddlewareManager_render : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        float arg0 = 0;
+        ok &= seval_to_float(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_editor_support_MiddlewareManager_render : Error processing arguments");
+        cobj->render(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_editor_support_MiddlewareManager_render)
+
 static bool js_cocos2dx_editor_support_MiddlewareManager_update(se::State& s)
 {
     cocos2d::middleware::MiddlewareManager* cobj = (cocos2d::middleware::MiddlewareManager*)s.nativeThisObject();
@@ -374,6 +393,7 @@ bool js_register_cocos2dx_editor_support_MiddlewareManager(se::Object* obj)
 {
     auto cls = se::Class::create("MiddlewareManager", obj, nullptr, _SE(js_cocos2dx_editor_support_MiddlewareManager_constructor));
 
+    cls->defineFunction("render", _SE(js_cocos2dx_editor_support_MiddlewareManager_render));
     cls->defineFunction("update", _SE(js_cocos2dx_editor_support_MiddlewareManager_update));
     cls->defineStaticFunction("destroyInstance", _SE(js_cocos2dx_editor_support_MiddlewareManager_destroyInstance));
     cls->defineStaticFunction("generateModuleID", _SE(js_cocos2dx_editor_support_MiddlewareManager_generateModuleID));

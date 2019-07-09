@@ -9,14 +9,6 @@ var middleware = middleware || {};
 middleware.ParticleSimulator = {
 
 /**
- * @method reset
- */
-reset : function (
-)
-{
-},
-
-/**
  * @method setGravity
  * @param {float} arg0
  * @param {float} arg1
@@ -26,6 +18,38 @@ setGravity : function (
 float, 
 float, 
 float 
+)
+{
+},
+
+/**
+ * @method render
+ * @param {float} arg0
+ */
+render : function (
+float 
+)
+{
+},
+
+/**
+ * @method setSourcePos
+ * @param {float} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ */
+setSourcePos : function (
+float, 
+float, 
+float 
+)
+{
+},
+
+/**
+ * @method onEnable
+ */
+onEnable : function (
 )
 {
 },
@@ -55,21 +79,29 @@ float
 },
 
 /**
- * @method onDisable
+ * @method setEndColorVar
+ * @param {unsigned char} arg0
+ * @param {unsigned char} arg1
+ * @param {unsigned char} arg2
+ * @param {unsigned char} arg3
  */
-onDisable : function (
+setEndColorVar : function (
+char, 
+char, 
+char, 
+char 
 )
 {
 },
 
 /**
- * @method bindNodeProxy
- * @param {cc.renderer::NodeProxy} arg0
+ * @method getParticleCount
+ * @return {unsigned int}
  */
-bindNodeProxy : function (
-nodeproxy 
+getParticleCount : function (
 )
 {
+    return 0;
 },
 
 /**
@@ -117,36 +149,6 @@ float
 },
 
 /**
- * @method setEndColorVar
- * @param {unsigned char} arg0
- * @param {unsigned char} arg1
- * @param {unsigned char} arg2
- * @param {unsigned char} arg3
- */
-setEndColorVar : function (
-char, 
-char, 
-char, 
-char 
-)
-{
-},
-
-/**
- * @method setSourcePos
- * @param {float} arg0
- * @param {float} arg1
- * @param {float} arg2
- */
-setSourcePos : function (
-float, 
-float, 
-float 
-)
-{
-},
-
-/**
  * @method active
  * @return {bool}
  */
@@ -154,42 +156,6 @@ active : function (
 )
 {
     return false;
-},
-
-/**
- * @method setEndColor
- * @param {unsigned char} arg0
- * @param {unsigned char} arg1
- * @param {unsigned char} arg2
- * @param {unsigned char} arg3
- */
-setEndColor : function (
-char, 
-char, 
-char, 
-char 
-)
-{
-},
-
-/**
- * @method setStopCallback
- * @param {function} arg0
- */
-setStopCallback : function (
-func 
-)
-{
-},
-
-/**
- * @method setFinishedCallback
- * @param {function} arg0
- */
-setFinishedCallback : function (
-func 
-)
-{
 },
 
 /**
@@ -219,21 +185,65 @@ char
 },
 
 /**
- * @method onEnable
+ * @method reset
  */
-onEnable : function (
+reset : function (
 )
 {
 },
 
 /**
- * @method getParticleCount
- * @return {unsigned int}
+ * @method onDisable
  */
-getParticleCount : function (
+onDisable : function (
 )
 {
-    return 0;
+},
+
+/**
+ * @method bindNodeProxy
+ * @param {cc.renderer::NodeProxy} arg0
+ */
+bindNodeProxy : function (
+nodeproxy 
+)
+{
+},
+
+/**
+ * @method setEndColor
+ * @param {unsigned char} arg0
+ * @param {unsigned char} arg1
+ * @param {unsigned char} arg2
+ * @param {unsigned char} arg3
+ */
+setEndColor : function (
+char, 
+char, 
+char, 
+char 
+)
+{
+},
+
+/**
+ * @method setFinishedCallback
+ * @param {function} arg0
+ */
+setFinishedCallback : function (
+func 
+)
+{
+},
+
+/**
+ * @method setStopCallback
+ * @param {function} arg0
+ */
+setStopCallback : function (
+func 
+)
+{
 },
 
 /**

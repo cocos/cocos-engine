@@ -22,57 +22,36 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#pragma once
-
-#include "../Macro.h"
-#include <vector>
-#include <stdint.h>
-#include <functional>
-#include <thread>
-#include <memory>
-#include <condition_variable>
-#include <mutex>
+#include "SlicedSprite2D.hpp"
+#include "../RenderFlow.hpp"
 
 RENDERER_BEGIN
 
-class ParallelTask
+SlicedSprite2D::SlicedSprite2D()
 {
-public:
     
-    enum RunFlag{
-        Begin = 0x00,
-        Stop = 0x01,
-    };
+}
+
+SlicedSprite2D::~SlicedSprite2D()
+{
     
-    typedef std::function<void(int)> Task;
+}
+
+void SlicedSprite2D::generateWorldVertices()
+{
+    RenderData* data = _datas->getRenderData(0);
+    float* verts = (float*)data->getVertices();
     
-    ParallelTask();
-    virtual ~ParallelTask();
-    
-    void pushTask(int tid, const Task& task);
-    void clearTasks();
-    
-    uint8_t* getRunFlag();
-    
-    void init(int threadNum);
-    void destroy();
-    
-    void waitAllThreads();
-    void stopAllThreads();
-    void beginAllThreads();
-private:
-    void joinThread(int tid);
-    void setThread(int tid);
-private:
-    std::vector<std::vector<Task>> _tasks;
-    std::vector<std::unique_ptr<std::thread>> _threads;
-    
-    uint8_t* _runFlags = nullptr;
-    bool _finished = false;
-    int _threadNum = 0;
-    
-    std::mutex _mutex;
-    std::condition_variable _cv;
-};
+    auto floatsPerVert = _bytesPerVertex / sizeof(float);
+    for (auto row = 0; row < 4; ++row) {
+        float localRowY = _localData[row * 2 + 1];
+        for (auto col = 0; col < 4; ++col) {
+            float localColX = _localData[col * 2];
+            std::size_t worldIndex = (row * 4 + col) * floatsPerVert;
+            verts[worldIndex] = localColX ;
+            verts[worldIndex + 1] = localRowY;
+        }
+    }
+}
 
 RENDERER_END

@@ -12236,6 +12236,25 @@ static bool js_cocos2dx_spine_SkeletonRenderer_setTimeScale(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_setTimeScale)
 
+static bool js_cocos2dx_spine_SkeletonRenderer_render(se::State& s)
+{
+    spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonRenderer_render : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        float arg0 = 0;
+        ok &= seval_to_float(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonRenderer_render : Error processing arguments");
+        cobj->render(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_spine_SkeletonRenderer_render)
+
 static bool js_cocos2dx_spine_SkeletonRenderer_initWithUUID(se::State& s)
 {
     spine::SkeletonRenderer* cobj = (spine::SkeletonRenderer*)s.nativeThisObject();
@@ -13217,6 +13236,7 @@ bool js_register_cocos2dx_spine_SkeletonRenderer(se::Object* obj)
 
     cls->defineFunction("setUseTint", _SE(js_cocos2dx_spine_SkeletonRenderer_setUseTint));
     cls->defineFunction("setTimeScale", _SE(js_cocos2dx_spine_SkeletonRenderer_setTimeScale));
+    cls->defineFunction("render", _SE(js_cocos2dx_spine_SkeletonRenderer_render));
     cls->defineFunction("initWithUUID", _SE(js_cocos2dx_spine_SkeletonRenderer_initWithUUID));
     cls->defineFunction("setOpacityModifyRGB", _SE(js_cocos2dx_spine_SkeletonRenderer_setOpacityModifyRGB));
     cls->defineFunction("paused", _SE(js_cocos2dx_spine_SkeletonRenderer_paused));

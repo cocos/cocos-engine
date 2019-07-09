@@ -81,9 +81,9 @@ void TiledMapAssembler::beforeFillBuffers(std::size_t index)
     }
 }
 
-void TiledMapAssembler::fillBuffers(MeshBuffer* buffer, std::size_t index, const Mat4& worldMat)
+void TiledMapAssembler::fillBuffers(NodeProxy* node, MeshBuffer* buffer, std::size_t index)
 {
-    Assembler::fillBuffers(buffer, index, worldMat);
+    Assembler::fillBuffers(node, buffer, index);
 }
 
 RENDERER_END

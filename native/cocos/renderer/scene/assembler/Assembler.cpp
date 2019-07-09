@@ -36,8 +36,6 @@
 
 RENDERER_BEGIN
 
-static MeshBuffer::OffsetInfo s_offsets;
-
 Assembler::IARenderData::IARenderData()
 {
     
@@ -133,15 +131,9 @@ void Assembler::handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene)
     batcher->commit(node, this);
 }
 
-void Assembler::fillBuffers(MeshBuffer* buffer, std::size_t index, const Mat4& worldMat)
+void Assembler::fillBuffers(NodeProxy* node, MeshBuffer* buffer, std::size_t index)
 {
-    // has no color info in vertex buffer
     if(!_datas || !_vfmt)
-    {
-        return;
-    }
-    
-    if (index >= _iaDatas.size())
     {
         return;
     }
@@ -155,16 +147,16 @@ void Assembler::fillBuffers(MeshBuffer* buffer, std::size_t index, const Mat4& w
         return;
     }
     
-    CCASSERT(data->getVBytes() % _bytesPerVertex == 0, "RenderHandle::fillBuffers vertices data doesn't follow vertex format");
+    CCASSERT(data->getVBytes() % _bytesPerVertex == 0, "Assembler::fillBuffers vertices data doesn't follow vertex format");
     uint32_t vertexCount = ia.verticesCount >= 0 ? (uint32_t)ia.verticesCount : (uint32_t)data->getVBytes() / _bytesPerVertex;
     uint32_t indexCount = ia.indicesCount >= 0 ? (uint32_t)ia.indicesCount : (uint32_t)data->getIBytes() / sizeof(unsigned short);
     uint32_t vertexStart = (uint32_t)ia.verticesStart;
     
     // must retrieve offset before request
-    buffer->request(vertexCount, indexCount, &s_offsets);
-    uint32_t vBufferOffset = s_offsets.vByte / sizeof(float);
-    uint32_t indexId = s_offsets.index;
-    uint32_t vertexId = s_offsets.vertex;
+    auto& bufferOffset = buffer->request(vertexCount, indexCount);
+    uint32_t vBufferOffset = bufferOffset.vByte / sizeof(float);
+    uint32_t indexId = bufferOffset.index;
+    uint32_t vertexId = bufferOffset.vertex;
     uint32_t vertexOffset = vertexId - vertexStart;
     uint32_t num = _vfPos->num;
 
@@ -176,6 +168,7 @@ void Assembler::fillBuffers(MeshBuffer* buffer, std::size_t index, const Mat4& w
     {
         size_t dataPerVertex = _bytesPerVertex / sizeof(float);
         float* ptrPos = worldVerts + _posOffset;
+        auto& worldMat = node->getWorldMatrix();
         
         switch (num) {
            // Vertex is X Y Z Format
@@ -242,13 +235,16 @@ void Assembler::updateOpacity(std::size_t index, uint8_t opacity)
         return;
     }
     
-    RenderData* data = _datas->getRenderData(index);
+    const IARenderData& ia = _iaDatas[index];
+    std::size_t meshIndex = ia.meshIndex >= 0 ? ia.meshIndex : index;
+    
+    RenderData* data = _datas->getRenderData(meshIndex);
     if (!data)
     {
         return;
     }
     
-    CCASSERT(data->getVBytes() % _bytesPerVertex == 0, "RenderHandle::fillBuffers vertices data doesn't follow vertex format");
+    CCASSERT(data->getVBytes() % _bytesPerVertex == 0, "Assembler::updateOpacity vertices data doesn't follow vertex format");
     uint32_t vertexCount = (uint32_t)data->getVBytes() / _bytesPerVertex;
     
     size_t dataPerVertex = _bytesPerVertex / sizeof(uint8_t);
@@ -259,7 +255,7 @@ void Assembler::updateOpacity(std::size_t index, uint8_t opacity)
         ptrAlpha += dataPerVertex;
     }
     
-    *_dirty &= ~RenderFlow::OPACITY_CHANGED;
+    *_dirty &= ~VERTICES_OPACITY_CHANGED;
 }
 
 RENDERER_END
