@@ -227,7 +227,7 @@ export default class ParticleBatchModel extends Model {
                 offset += 2;
                 // this._vdataF32![offset++] = index;
                 // this._vdataF32![offset++] = pvdata[1].y;
-                this._vdataF32![offset++] = index;
+                this._vdataF32![offset++] = pvdata[1].z;
                 this._vdataF32![offset++] = pvdata[2].x;
                 this._vdataF32![offset++] = pvdata[2].y;
                 this._vdataUint32![offset++] = pvdata[3];
