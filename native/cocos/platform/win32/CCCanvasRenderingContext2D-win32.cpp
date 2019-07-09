@@ -515,16 +515,17 @@ private:
                     COLORREF& clr = *pPixel;
                     COLORREF& val = *pImage;
                     uint8_t dirtyValue = GetRValue(clr);
+                    r = _fillStyle.r * 255;
+                    g = _fillStyle.g * 255;
+                    b = _fillStyle.b * 255;
+                    COLORREF textColor = (b << 16 | g << 8 | r) & 0x00ffffff;
+
                     // "dirtyValue > 0" means pixel was covered when drawing text
                     if (dirtyValue > 0)
-                    {
-                        // r = _fillStyle.r * 255 * (dirtyValue / 255);
-                        r = _fillStyle.r * dirtyValue;
-                        g = _fillStyle.g * dirtyValue;
-                        b = _fillStyle.b * dirtyValue;
-                        COLORREF textColor = (b << 16 | g << 8 | r) & 0x00ffffff;
-                        val = ((BYTE)(dirtyValue * alpha) << 24) | textColor;
-                    }
+                        val = ((BYTE)(255 * alpha) << 24) | textColor;
+                    else
+                        val = textColor; // Set all transparent pixels to the same color as font.
+
                     ++pPixel;
                     ++pImage;
                 }
