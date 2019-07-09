@@ -163,7 +163,7 @@ else {
     defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
     defineMacro('CC_RUNTIME', 'function' === typeof loadRuntime);
     defineMacro('CC_JSB', defined('jsb'));
-    defineMacro('CC_NATIVERENDERER', defined('CC_NATIVERENDERER'));
+    defineMacro('CC_NATIVERENDERER', defined('renderer'));
     defineMacro('CC_WECHATGAME_SUB', !!(defined('wx') && wx.getSharedCanvas));
     defineMacro('CC_WECHATGAME', !!(defined('wx') && (wx.getSystemInfoSync || wx.getSharedCanvas)));
     defineMacro('CC_QQPLAY', defined('bk'));
