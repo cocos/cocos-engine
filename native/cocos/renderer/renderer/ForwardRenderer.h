@@ -85,7 +85,7 @@ private:
     Vector<Light*> _ambientLights;
     
     RecyclePool<float>* _arrayPool = nullptr;
-    ValueMap* _defines = nullptr;
+    ValueMap _defines;
     
     int _width = 0;
     int _height = 0;

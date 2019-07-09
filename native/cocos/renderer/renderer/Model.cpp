@@ -93,7 +93,7 @@ void Model::setEffect(Effect* effect, CustomProperties* customProperties)
     
     if (customProperties != nullptr) {
         ValueMap* tmpMap = customProperties->extractDefines();
-        for (auto e : *tmpMap)
+        for (auto& e : *tmpMap)
         {
             const std::string& key = e.first;
             if(_defines->count(key) == 0)

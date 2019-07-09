@@ -54,12 +54,10 @@ ForwardRenderer::~ForwardRenderer()
     _spotLights.clear();
     _shadowLights.clear();
     _ambientLights.clear();
+    _defines.clear();
     
     delete _arrayPool;
     _arrayPool = nullptr;
-    
-    delete _defines;
-    _defines = nullptr;
 }
 
 bool ForwardRenderer::init(DeviceGraphics* device, std::vector<ProgramLib::Template>& programTemplates, Texture2D* defaultTexture, int width, int height)
@@ -82,6 +80,7 @@ void ForwardRenderer::resetData()
 void ForwardRenderer::render(Scene* scene)
 {
     resetData();
+    updateLights(scene);
     scene->sortCameras();
     auto& cameras = scene->getCameras();
     for (auto camera : cameras)
@@ -157,11 +156,11 @@ void ForwardRenderer::updateLights(Scene* scene)
 
 void ForwardRenderer::updateDefines()
 {
-    _defines->emplace(std::make_pair("_NUM_DIR_LIGHTS", std::min(4, (int)_directionalLights.size())));
-    _defines->emplace(std::make_pair("_NUM_POINT_LIGHTS", std::min(4, (int)_pointLights.size())));
-    _defines->emplace(std::make_pair("_NUM_SPOT_LIGHTS", std::min(4, (int)_spotLights.size())));
-    _defines->emplace(std::make_pair("_NUM_AMBIENT_LIGHTS", std::min(4, (int)_ambientLights.size())));
-    _defines->emplace(std::make_pair("CC_NUM_SHADOW_LIGHTS", std::min(4, (int)_shadowLights.size())));
+    _defines.emplace(std::make_pair("_NUM_DIR_LIGHTS", std::min(4, (int)_directionalLights.size())));
+    _defines.emplace(std::make_pair("_NUM_POINT_LIGHTS", std::min(4, (int)_pointLights.size())));
+    _defines.emplace(std::make_pair("_NUM_SPOT_LIGHTS", std::min(4, (int)_spotLights.size())));
+    _defines.emplace(std::make_pair("_NUM_AMBIENT_LIGHTS", std::min(4, (int)_ambientLights.size())));
+    _defines.emplace(std::make_pair("CC_NUM_SHADOW_LIGHTS", std::min(4, (int)_shadowLights.size())));
 }
 
 void ForwardRenderer::submitLightsUniforms()
@@ -279,7 +278,7 @@ void ForwardRenderer::submitShadowStageUniforms(const View& view)
     static float* shadowInfo = new float[4];
     shadowInfo[0] = view.shadowLight->getShadowMinDepth();
     shadowInfo[1] = view.shadowLight->getShadowMaxDepth();
-    shadowInfo[2] = view.shadowLight->getShadowScale();
+    shadowInfo[2] = view.shadowLight->getShadowDepthScale();
     shadowInfo[3] = view.shadowLight->getShadowDarkness();
     
     _device->setUniformMat4("cc_shadow_map_lightViewProjMatrix", view.matViewProj);
@@ -302,7 +301,7 @@ void ForwardRenderer::submitOtherStagesUniforms()
         
         *(shadowLightInfo + index) = light->getShadowMinDepth();
         *(shadowLightInfo + index + 1) = light->getShadowMaxDepth();
-        *(shadowLightInfo + index + 2) = light->getShadowScale();
+        *(shadowLightInfo + index + 2) = light->getShadowDepthScale();
         *(shadowLightInfo + index + 3) = light->getShadowDarkness();
     }
     
@@ -312,7 +311,18 @@ void ForwardRenderer::submitOtherStagesUniforms()
 
 void ForwardRenderer::updateShaderDefines(StageItem& item)
 {
-    item.defines = _defines;
+    for (auto& e : _defines)
+    {
+        const std::string& key = e.first;
+        if(item.defines->count(key) == 0)
+        {
+            item.defines->emplace(key, e.second);
+        }
+        else
+        {
+            item.defines->find(key)->second = e.second;
+        }
+    }
 }
 
 bool ForwardRenderer::compareItems(const StageItem &a, const StageItem &b)

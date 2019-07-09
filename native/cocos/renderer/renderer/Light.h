@@ -223,11 +223,11 @@ public:
     /**
      *  @brief Sets the shadow scale.
      */
-    inline void setShadowScale(float val) { _shadowScale = val; }
+    inline void setShadowDepthScale(float val) { _shadowScale = val; }
     /**
      *  @brief Gets the shadow scale.
      */
-    inline float getShadowScale() const { return _shadowScale; }
+    inline float getShadowDepthScale() const { return _shadowScale; }
     /**
      *  @brief Sets the frustum edge fall off.
      */
@@ -252,6 +252,10 @@ public:
      *  @brief Update light and generate new shadow map.
      */
     void update(DeviceGraphics* device);
+    /**
+     *  @brief Sets the shadow frustum size.
+     */
+    inline void setShadowFrustumSize(uint32_t val) {_shadowFustumSize = val;};
     
 private:
     void updateLightPositionAndDirection();
@@ -291,7 +295,7 @@ private:
     uint32_t _frustumEdgeFalloff = 0; // used by directional and spot light.
     Mat4 _viewProjMatrix;
     float _spotAngleScale = 1; // used for spot light.
-    uint32_t _shadowFustumSize = 80; // used for directional light.
+    uint32_t _shadowFustumSize = 50; // used for directional light.
     
     Mat4 _worldMatrix;
     Mat4 _worldRT;

@@ -223,14 +223,14 @@ void BaseRenderer::setProperty (Effect::Property& prop)
     {
         if (0 != prop.getCount())
         {
-            if (Technique::Parameter::Type::COLOR3 == propType ||
-                Technique::Parameter::Type::INT3 == propType ||
-                Technique::Parameter::Type::FLOAT3 == propType ||
-                Technique::Parameter::Type::MAT3 == propType)
-            {
-                RENDERER_LOGW("Uinform array of color3/int3/float3/mat3 can not be supported!");
-                return;
-            }
+//            if (Technique::Parameter::Type::COLOR3 == propType ||
+//                Technique::Parameter::Type::INT3 == propType ||
+//                Technique::Parameter::Type::FLOAT3 == propType ||
+//                Technique::Parameter::Type::MAT3 == propType)
+//            {
+//                RENDERER_LOGW("Uinform array of color3/int3/float3/mat3 can not be supported!");
+//                return;
+//            }
             
             uint8_t size = Technique::Parameter::getElements(propType);
             if (size * prop.getCount() > 64)
