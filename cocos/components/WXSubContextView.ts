@@ -89,9 +89,9 @@ else {
                 this._tex.setPremultiplyAlpha(true);
                 this._tex.image = new ImageAsset(sharedCanvas);
 
-                this._sprite = this.node.getComponent(cc.Sprite);
+                this._sprite = this.node.getComponent('cc.SpriteComponent');
                 if (!this._sprite) {
-                    this._sprite = this.node.addComponent(cc.Sprite);
+                    this._sprite = this.node.addComponent('cc.SpriteComponent');
                     this._sprite.srcBlendFactor = cc.macro.BlendFactor.ONE;
                 }
                 this._sprite.spriteFrame = new cc.SpriteFrame(this._tex);

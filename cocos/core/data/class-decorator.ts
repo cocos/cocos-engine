@@ -405,7 +405,7 @@ export const executeInEditMode = (CC_DEV ? createEditorDecorator : createDummyDe
  * const {ccclass, requireComponent} = cc._decorator;
  *
  *  @ccclass
- *  @requireComponent(cc.Sprite)
+ *  @requireComponent(cc.SpriteComponent)
  * class SpriteCtrl extends cc.Component {
  *     // ...
  * }

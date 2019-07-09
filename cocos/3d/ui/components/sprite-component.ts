@@ -272,7 +272,7 @@ export class SpriteComponent extends UIRenderComponent {
 
     /**
      * @zh
-     * 填充起始点，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
+     * 填充起始点，仅渲染类型设置为 cc.SpriteComponent.Type.FILLED 时有效。
      *
      * @example
      * ```typescript
@@ -294,7 +294,7 @@ export class SpriteComponent extends UIRenderComponent {
 
     /**
      * @zh
-     * 填充范围，仅渲染类型设置为 cc.Sprite.Type.FILLED 时有效。
+     * 填充范围，仅渲染类型设置为 cc.SpriteComponent.Type.FILLED 时有效。
      *
      * @example
      * ```typescript
