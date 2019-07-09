@@ -37,7 +37,7 @@ public:
     virtual ~TiledMapAssembler();
     virtual void handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene) override;
     virtual void beforeFillBuffers(std::size_t index) override;
-    virtual void fillBuffers(MeshBuffer* buffer, std::size_t index, const Mat4& worldMat) override;
+    virtual void fillBuffers(NodeProxy *node, MeshBuffer* buffer, std::size_t index) override;
     void setLayerMoveXY(float moveX, float moveY)
     {
         _moveX = moveX;

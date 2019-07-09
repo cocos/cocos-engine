@@ -6089,6 +6089,16 @@ float
 },
 
 /**
+ * @method render
+ * @param {float} arg0
+ */
+render : function (
+float 
+)
+{
+},
+
+/**
  * @method initWithUUID
  * @param {String} arg0
  */

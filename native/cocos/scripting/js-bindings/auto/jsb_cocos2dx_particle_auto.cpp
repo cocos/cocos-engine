@@ -7,21 +7,6 @@
 se::Object* __jsb_cocos2d_ParticleSimulator_proto = nullptr;
 se::Class* __jsb_cocos2d_ParticleSimulator_class = nullptr;
 
-static bool js_cocos2dx_particle_ParticleSimulator_reset(se::State& s)
-{
-    cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_reset : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->reset();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_reset)
-
 static bool js_cocos2dx_particle_ParticleSimulator_setGravity(se::State& s)
 {
     cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
@@ -44,6 +29,63 @@ static bool js_cocos2dx_particle_ParticleSimulator_setGravity(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_setGravity)
+
+static bool js_cocos2dx_particle_ParticleSimulator_render(se::State& s)
+{
+    cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_render : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        float arg0 = 0;
+        ok &= seval_to_float(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_particle_ParticleSimulator_render : Error processing arguments");
+        cobj->render(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_render)
+
+static bool js_cocos2dx_particle_ParticleSimulator_setSourcePos(se::State& s)
+{
+    cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_setSourcePos : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        float arg0 = 0;
+        float arg1 = 0;
+        float arg2 = 0;
+        ok &= seval_to_float(args[0], &arg0);
+        ok &= seval_to_float(args[1], &arg1);
+        ok &= seval_to_float(args[2], &arg2);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_particle_ParticleSimulator_setSourcePos : Error processing arguments");
+        cobj->setSourcePos(arg0, arg1, arg2);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_setSourcePos)
+
+static bool js_cocos2dx_particle_ParticleSimulator_onEnable(se::State& s)
+{
+    cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_onEnable : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->onEnable();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_onEnable)
 
 static bool js_cocos2dx_particle_ParticleSimulator_setEffect(se::State& s)
 {
@@ -87,39 +129,48 @@ static bool js_cocos2dx_particle_ParticleSimulator_setPosVar(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_setPosVar)
 
-static bool js_cocos2dx_particle_ParticleSimulator_onDisable(se::State& s)
+static bool js_cocos2dx_particle_ParticleSimulator_setEndColorVar(se::State& s)
 {
     cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_onDisable : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_setEndColorVar : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 4) {
+        uint8_t arg0;
+        uint8_t arg1;
+        uint8_t arg2;
+        uint8_t arg3;
+        ok &= seval_to_uint8(args[0], (uint8_t*)&arg0);
+        ok &= seval_to_uint8(args[1], (uint8_t*)&arg1);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
+        ok &= seval_to_uint8(args[3], (uint8_t*)&arg3);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_particle_ParticleSimulator_setEndColorVar : Error processing arguments");
+        cobj->setEndColorVar(arg0, arg1, arg2, arg3);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_setEndColorVar)
+
+static bool js_cocos2dx_particle_ParticleSimulator_getParticleCount(se::State& s)
+{
+    cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_getParticleCount : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cobj->onDisable();
+        size_t result = cobj->getParticleCount();
+        ok &= uint32_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_particle_ParticleSimulator_getParticleCount : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_onDisable)
-
-static bool js_cocos2dx_particle_ParticleSimulator_bindNodeProxy(se::State& s)
-{
-    cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_bindNodeProxy : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        cocos2d::renderer::NodeProxy* arg0 = nullptr;
-        ok &= seval_to_native_ptr(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_particle_ParticleSimulator_bindNodeProxy : Error processing arguments");
-        cobj->bindNodeProxy(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_bindNodeProxy)
+SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_getParticleCount)
 
 static bool js_cocos2dx_particle_ParticleSimulator_setStartColorVar(se::State& s)
 {
@@ -199,54 +250,6 @@ static bool js_cocos2dx_particle_ParticleSimulator_update(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_update)
 
-static bool js_cocos2dx_particle_ParticleSimulator_setEndColorVar(se::State& s)
-{
-    cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_setEndColorVar : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 4) {
-        uint8_t arg0;
-        uint8_t arg1;
-        uint8_t arg2;
-        uint8_t arg3;
-        ok &= seval_to_uint8(args[0], (uint8_t*)&arg0);
-        ok &= seval_to_uint8(args[1], (uint8_t*)&arg1);
-        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
-        ok &= seval_to_uint8(args[3], (uint8_t*)&arg3);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_particle_ParticleSimulator_setEndColorVar : Error processing arguments");
-        cobj->setEndColorVar(arg0, arg1, arg2, arg3);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_setEndColorVar)
-
-static bool js_cocos2dx_particle_ParticleSimulator_setSourcePos(se::State& s)
-{
-    cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_setSourcePos : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 3) {
-        float arg0 = 0;
-        float arg1 = 0;
-        float arg2 = 0;
-        ok &= seval_to_float(args[0], &arg0);
-        ok &= seval_to_float(args[1], &arg1);
-        ok &= seval_to_float(args[2], &arg2);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_particle_ParticleSimulator_setSourcePos : Error processing arguments");
-        cobj->setSourcePos(arg0, arg1, arg2);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_setSourcePos)
-
 static bool js_cocos2dx_particle_ParticleSimulator_active(se::State& s)
 {
     cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
@@ -264,119 +267,6 @@ static bool js_cocos2dx_particle_ParticleSimulator_active(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_active)
-
-static bool js_cocos2dx_particle_ParticleSimulator_setEndColor(se::State& s)
-{
-    cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_setEndColor : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 4) {
-        uint8_t arg0;
-        uint8_t arg1;
-        uint8_t arg2;
-        uint8_t arg3;
-        ok &= seval_to_uint8(args[0], (uint8_t*)&arg0);
-        ok &= seval_to_uint8(args[1], (uint8_t*)&arg1);
-        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
-        ok &= seval_to_uint8(args[3], (uint8_t*)&arg3);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_particle_ParticleSimulator_setEndColor : Error processing arguments");
-        cobj->setEndColor(arg0, arg1, arg2, arg3);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_setEndColor)
-
-static bool js_cocos2dx_particle_ParticleSimulator_setStopCallback(se::State& s)
-{
-    cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_setStopCallback : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        std::function<void ()> arg0;
-        do {
-            if (args[0].isObject() && args[0].toObject()->isFunction())
-            {
-                se::Value jsThis(s.thisObject());
-                se::Value jsFunc(args[0]);
-                jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto lambda = [=]() -> void {
-                    se::ScriptEngine::getInstance()->clearException();
-                    se::AutoHandleScope hs;
-        
-                    se::Value rval;
-                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
-                    se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(se::EmptyValueArray, thisObj, &rval);
-                    if (!succeed) {
-                        se::ScriptEngine::getInstance()->clearException();
-                    }
-                };
-                arg0 = lambda;
-            }
-            else
-            {
-                arg0 = nullptr;
-            }
-        } while(false)
-        ;
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_particle_ParticleSimulator_setStopCallback : Error processing arguments");
-        cobj->setStopCallback(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_setStopCallback)
-
-static bool js_cocos2dx_particle_ParticleSimulator_setFinishedCallback(se::State& s)
-{
-    cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_setFinishedCallback : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        std::function<void ()> arg0;
-        do {
-            if (args[0].isObject() && args[0].toObject()->isFunction())
-            {
-                se::Value jsThis(s.thisObject());
-                se::Value jsFunc(args[0]);
-                jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto lambda = [=]() -> void {
-                    se::ScriptEngine::getInstance()->clearException();
-                    se::AutoHandleScope hs;
-        
-                    se::Value rval;
-                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
-                    se::Object* funcObj = jsFunc.toObject();
-                    bool succeed = funcObj->call(se::EmptyValueArray, thisObj, &rval);
-                    if (!succeed) {
-                        se::ScriptEngine::getInstance()->clearException();
-                    }
-                };
-                arg0 = lambda;
-            }
-            else
-            {
-                arg0 = nullptr;
-            }
-        } while(false)
-        ;
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_particle_ParticleSimulator_setFinishedCallback : Error processing arguments");
-        cobj->setFinishedCallback(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_setFinishedCallback)
 
 static bool js_cocos2dx_particle_ParticleSimulator_updateUVs(se::State& s)
 {
@@ -422,38 +312,167 @@ static bool js_cocos2dx_particle_ParticleSimulator_setStartColor(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_setStartColor)
 
-static bool js_cocos2dx_particle_ParticleSimulator_onEnable(se::State& s)
+static bool js_cocos2dx_particle_ParticleSimulator_reset(se::State& s)
 {
     cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_onEnable : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_reset : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
-        cobj->onEnable();
+        cobj->reset();
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_onEnable)
+SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_reset)
 
-static bool js_cocos2dx_particle_ParticleSimulator_getParticleCount(se::State& s)
+static bool js_cocos2dx_particle_ParticleSimulator_onDisable(se::State& s)
 {
     cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_getParticleCount : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_onDisable : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->onDisable();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_onDisable)
+
+static bool js_cocos2dx_particle_ParticleSimulator_bindNodeProxy(se::State& s)
+{
+    cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_bindNodeProxy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        size_t result = cobj->getParticleCount();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_particle_ParticleSimulator_getParticleCount : Error processing arguments");
+    if (argc == 1) {
+        cocos2d::renderer::NodeProxy* arg0 = nullptr;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_particle_ParticleSimulator_bindNodeProxy : Error processing arguments");
+        cobj->bindNodeProxy(arg0);
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_getParticleCount)
+SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_bindNodeProxy)
+
+static bool js_cocos2dx_particle_ParticleSimulator_setEndColor(se::State& s)
+{
+    cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_setEndColor : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 4) {
+        uint8_t arg0;
+        uint8_t arg1;
+        uint8_t arg2;
+        uint8_t arg3;
+        ok &= seval_to_uint8(args[0], (uint8_t*)&arg0);
+        ok &= seval_to_uint8(args[1], (uint8_t*)&arg1);
+        ok &= seval_to_uint8(args[2], (uint8_t*)&arg2);
+        ok &= seval_to_uint8(args[3], (uint8_t*)&arg3);
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_particle_ParticleSimulator_setEndColor : Error processing arguments");
+        cobj->setEndColor(arg0, arg1, arg2, arg3);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_setEndColor)
+
+static bool js_cocos2dx_particle_ParticleSimulator_setFinishedCallback(se::State& s)
+{
+    cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_setFinishedCallback : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        std::function<void ()> arg0;
+        do {
+            if (args[0].isObject() && args[0].toObject()->isFunction())
+            {
+                se::Value jsThis(s.thisObject());
+                se::Value jsFunc(args[0]);
+                jsThis.toObject()->attachObject(jsFunc.toObject());
+                auto lambda = [=]() -> void {
+                    se::ScriptEngine::getInstance()->clearException();
+                    se::AutoHandleScope hs;
+        
+                    se::Value rval;
+                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
+                    se::Object* funcObj = jsFunc.toObject();
+                    bool succeed = funcObj->call(se::EmptyValueArray, thisObj, &rval);
+                    if (!succeed) {
+                        se::ScriptEngine::getInstance()->clearException();
+                    }
+                };
+                arg0 = lambda;
+            }
+            else
+            {
+                arg0 = nullptr;
+            }
+        } while(false)
+        ;
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_particle_ParticleSimulator_setFinishedCallback : Error processing arguments");
+        cobj->setFinishedCallback(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_setFinishedCallback)
+
+static bool js_cocos2dx_particle_ParticleSimulator_setStopCallback(se::State& s)
+{
+    cocos2d::ParticleSimulator* cobj = (cocos2d::ParticleSimulator*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_particle_ParticleSimulator_setStopCallback : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        std::function<void ()> arg0;
+        do {
+            if (args[0].isObject() && args[0].toObject()->isFunction())
+            {
+                se::Value jsThis(s.thisObject());
+                se::Value jsFunc(args[0]);
+                jsThis.toObject()->attachObject(jsFunc.toObject());
+                auto lambda = [=]() -> void {
+                    se::ScriptEngine::getInstance()->clearException();
+                    se::AutoHandleScope hs;
+        
+                    se::Value rval;
+                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
+                    se::Object* funcObj = jsFunc.toObject();
+                    bool succeed = funcObj->call(se::EmptyValueArray, thisObj, &rval);
+                    if (!succeed) {
+                        se::ScriptEngine::getInstance()->clearException();
+                    }
+                };
+                arg0 = lambda;
+            }
+            else
+            {
+                arg0 = nullptr;
+            }
+        } while(false)
+        ;
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_particle_ParticleSimulator_setStopCallback : Error processing arguments");
+        cobj->setStopCallback(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_particle_ParticleSimulator_setStopCallback)
 
 static bool js_cocos2dx_particle_ParticleSimulator_get_positionType(se::State& s)
 {
@@ -1360,26 +1379,27 @@ bool js_register_cocos2dx_particle_ParticleSimulator(se::Object* obj)
     cls->defineProperty("endRadiusVar", _SE(js_cocos2dx_particle_ParticleSimulator_get_endRadiusVar), _SE(js_cocos2dx_particle_ParticleSimulator_set_endRadiusVar));
     cls->defineProperty("rotatePerS", _SE(js_cocos2dx_particle_ParticleSimulator_get_rotatePerS), _SE(js_cocos2dx_particle_ParticleSimulator_set_rotatePerS));
     cls->defineProperty("rotatePerSVar", _SE(js_cocos2dx_particle_ParticleSimulator_get_rotatePerSVar), _SE(js_cocos2dx_particle_ParticleSimulator_set_rotatePerSVar));
-    cls->defineFunction("reset", _SE(js_cocos2dx_particle_ParticleSimulator_reset));
     cls->defineFunction("setGravity", _SE(js_cocos2dx_particle_ParticleSimulator_setGravity));
+    cls->defineFunction("render", _SE(js_cocos2dx_particle_ParticleSimulator_render));
+    cls->defineFunction("setSourcePos", _SE(js_cocos2dx_particle_ParticleSimulator_setSourcePos));
+    cls->defineFunction("onEnable", _SE(js_cocos2dx_particle_ParticleSimulator_onEnable));
     cls->defineFunction("setEffect", _SE(js_cocos2dx_particle_ParticleSimulator_setEffect));
     cls->defineFunction("setPosVar", _SE(js_cocos2dx_particle_ParticleSimulator_setPosVar));
-    cls->defineFunction("onDisable", _SE(js_cocos2dx_particle_ParticleSimulator_onDisable));
-    cls->defineFunction("bindNodeProxy", _SE(js_cocos2dx_particle_ParticleSimulator_bindNodeProxy));
+    cls->defineFunction("setEndColorVar", _SE(js_cocos2dx_particle_ParticleSimulator_setEndColorVar));
+    cls->defineFunction("getParticleCount", _SE(js_cocos2dx_particle_ParticleSimulator_getParticleCount));
     cls->defineFunction("setStartColorVar", _SE(js_cocos2dx_particle_ParticleSimulator_setStartColorVar));
     cls->defineFunction("emitParticle", _SE(js_cocos2dx_particle_ParticleSimulator_emitParticle));
     cls->defineFunction("stop", _SE(js_cocos2dx_particle_ParticleSimulator_stop));
     cls->defineFunction("update", _SE(js_cocos2dx_particle_ParticleSimulator_update));
-    cls->defineFunction("setEndColorVar", _SE(js_cocos2dx_particle_ParticleSimulator_setEndColorVar));
-    cls->defineFunction("setSourcePos", _SE(js_cocos2dx_particle_ParticleSimulator_setSourcePos));
     cls->defineFunction("active", _SE(js_cocos2dx_particle_ParticleSimulator_active));
-    cls->defineFunction("setEndColor", _SE(js_cocos2dx_particle_ParticleSimulator_setEndColor));
-    cls->defineFunction("setStopCallback", _SE(js_cocos2dx_particle_ParticleSimulator_setStopCallback));
-    cls->defineFunction("setFinishedCallback", _SE(js_cocos2dx_particle_ParticleSimulator_setFinishedCallback));
     cls->defineFunction("updateUVs", _SE(js_cocos2dx_particle_ParticleSimulator_updateUVs));
     cls->defineFunction("setStartColor", _SE(js_cocos2dx_particle_ParticleSimulator_setStartColor));
-    cls->defineFunction("onEnable", _SE(js_cocos2dx_particle_ParticleSimulator_onEnable));
-    cls->defineFunction("getParticleCount", _SE(js_cocos2dx_particle_ParticleSimulator_getParticleCount));
+    cls->defineFunction("reset", _SE(js_cocos2dx_particle_ParticleSimulator_reset));
+    cls->defineFunction("onDisable", _SE(js_cocos2dx_particle_ParticleSimulator_onDisable));
+    cls->defineFunction("bindNodeProxy", _SE(js_cocos2dx_particle_ParticleSimulator_bindNodeProxy));
+    cls->defineFunction("setEndColor", _SE(js_cocos2dx_particle_ParticleSimulator_setEndColor));
+    cls->defineFunction("setFinishedCallback", _SE(js_cocos2dx_particle_ParticleSimulator_setFinishedCallback));
+    cls->defineFunction("setStopCallback", _SE(js_cocos2dx_particle_ParticleSimulator_setStopCallback));
     cls->defineFunction("ctor", _SE(js_cocos2dx_particle_ParticleSimulator_ctor));
     cls->defineFinalizeFunction(_SE(js_cocos2d_ParticleSimulator_finalize));
     cls->install();

@@ -22,57 +22,43 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#pragma once
-
-#include "../Macro.h"
-#include <vector>
-#include <stdint.h>
-#include <functional>
-#include <thread>
-#include <memory>
-#include <condition_variable>
-#include <mutex>
+#include "SimpleSprite2D.hpp"
+#include "../RenderFlow.hpp"
 
 RENDERER_BEGIN
 
-class ParallelTask
+SimpleSprite2D::SimpleSprite2D()
 {
-public:
     
-    enum RunFlag{
-        Begin = 0x00,
-        Stop = 0x01,
-    };
+}
+
+SimpleSprite2D::~SimpleSprite2D()
+{
     
-    typedef std::function<void(int)> Task;
+}
+
+void SimpleSprite2D::generateWorldVertices()
+{
+    float vl = _localData[0],
+    vr = _localData[2],
+    vb = _localData[1],
+    vt = _localData[3];
     
-    ParallelTask();
-    virtual ~ParallelTask();
+    RenderData* data = _datas->getRenderData(0);
+    float* verts = (float*)data->getVertices();
     
-    void pushTask(int tid, const Task& task);
-    void clearTasks();
-    
-    uint8_t* getRunFlag();
-    
-    void init(int threadNum);
-    void destroy();
-    
-    void waitAllThreads();
-    void stopAllThreads();
-    void beginAllThreads();
-private:
-    void joinThread(int tid);
-    void setThread(int tid);
-private:
-    std::vector<std::vector<Task>> _tasks;
-    std::vector<std::unique_ptr<std::thread>> _threads;
-    
-    uint8_t* _runFlags = nullptr;
-    bool _finished = false;
-    int _threadNum = 0;
-    
-    std::mutex _mutex;
-    std::condition_variable _cv;
-};
+    // left bottom
+    verts[0] = vl;
+    verts[1] = vb;
+    // right bottom
+    verts[5] = vr;
+    verts[6] = vb;
+    // left top
+    verts[10] = vl;
+    verts[11] = vt;
+    // right top
+    verts[15] = vr;
+    verts[16] = vt;
+}
 
 RENDERER_END

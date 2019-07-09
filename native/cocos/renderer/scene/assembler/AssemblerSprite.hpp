@@ -24,55 +24,25 @@
 
 #pragma once
 
-#include "../Macro.h"
-#include <vector>
-#include <stdint.h>
-#include <functional>
-#include <thread>
-#include <memory>
-#include <condition_variable>
-#include <mutex>
+#include "../../Macro.h"
+#include "scripting/js-bindings/jswrapper/Object.hpp"
+#include "Assembler.hpp"
 
 RENDERER_BEGIN
 
-class ParallelTask
+class AssemblerSprite: public Assembler
 {
 public:
-    
-    enum RunFlag{
-        Begin = 0x00,
-        Stop = 0x01,
-    };
-    
-    typedef std::function<void(int)> Task;
-    
-    ParallelTask();
-    virtual ~ParallelTask();
-    
-    void pushTask(int tid, const Task& task);
-    void clearTasks();
-    
-    uint8_t* getRunFlag();
-    
-    void init(int threadNum);
-    void destroy();
-    
-    void waitAllThreads();
-    void stopAllThreads();
-    void beginAllThreads();
-private:
-    void joinThread(int tid);
-    void setThread(int tid);
-private:
-    std::vector<std::vector<Task>> _tasks;
-    std::vector<std::unique_ptr<std::thread>> _threads;
-    
-    uint8_t* _runFlags = nullptr;
-    bool _finished = false;
-    int _threadNum = 0;
-    
-    std::mutex _mutex;
-    std::condition_variable _cv;
+    AssemblerSprite();
+    virtual ~AssemblerSprite();
+    virtual void setLocalData(se_object_ptr localData);
+    virtual void fillBuffers(NodeProxy* node, MeshBuffer* buffer, std::size_t index) override;
+    virtual void calculateWorldVertices(const Mat4& worldMat);
+    virtual void generateWorldVertices() = 0;
+protected:
+    se::Object* _localObj = nullptr;
+    float* _localData = nullptr;
+    std::size_t _localLen = 0;
 };
 
 RENDERER_END

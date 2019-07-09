@@ -49,8 +49,6 @@ RENDERER_BEGIN
  @endcode
  */
 
-#define SUB_RENDER_THREAD_COUNT 1
-#define RENDER_THREAD_COUNT (SUB_RENDER_THREAD_COUNT + 1)
 #define NODE_LEVEL_INVALID 0xffffffff
 
 class RenderFlow
@@ -72,18 +70,20 @@ public:
         POST_RENDER = 1 << 8,
         FINAL = 1 << 9,
         
+        PRE_CALCULATE_VERTICES = 1 << 28,
         // native render flag
         REORDER_CHILDREN = 1 << 29,
         // world matrix changed
         WORLD_TRANSFORM_CHANGED = 1 << 30,
         // cascade opacity changed
-        OPACITY_CHANGED = 1 << 31,
+        NODE_OPACITY_CHANGED = 1 << 31,
     };
 
     enum ParallelStage {
-        NONE,
-        LOCAL_MAT,
-        WORLD_MAT,
+        NONE = 1 << 0,
+        LOCAL_MAT = 1 << 1,
+        WORLD_MAT = 1 << 2,
+        CALC_VERTICES = 1 << 3,
     };
     
     struct LevelInfo{
@@ -149,7 +149,7 @@ public:
      *  @param[in] tid Thread id.
      *  @param[level] level Node level.
      */
-    void calculateLevelWorldMatrix(int tid = -1);
+    void calculateLevelWorldMatrix(int tid = -1, int stage = -1);
     /**
      *  @brief remove node level
      */
@@ -168,12 +168,9 @@ private:
     ForwardRenderer* _forward = nullptr;
     std::size_t _curLevel = 0;
     std::vector<std::vector<LevelInfo>> _levelInfoArr;
-    
-#if SUB_RENDER_THREAD_COUNT > 0
+
     ParallelStage _parallelStage = ParallelStage::NONE;
     ParallelTask* _paralleTask = nullptr;
-    uint8_t* _runFlag = nullptr;
-#endif
 };
 
 // end of scene group

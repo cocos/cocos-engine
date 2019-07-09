@@ -45,12 +45,17 @@ RenderData::~RenderData ()
         _jsVertices->unroot();
         _jsVertices->decRef();
         _jsVertices = nullptr;
+        _vertices = nullptr;
+        _vBytes = 0;
     }
+    
     if(_jsIndices != nullptr)
     {
         _jsIndices->unroot();
         _jsIndices->decRef();
         _jsIndices = nullptr;
+        _indices = nullptr;
+        _iBytes = 0;
     }
 }
 
