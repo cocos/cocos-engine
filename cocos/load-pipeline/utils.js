@@ -48,9 +48,12 @@ export function decompressJson (data, keys) {
     }
     else if (typeof data === 'object') {
         for (var key in data) {
-            data[keys[key]] = data[key];
             decompressJson(data[key], keys);
-            delete data[key];
+            var newKey = keys[key];
+            if (newKey) {
+                data[newKey] = data[key];
+                delete data[key];
+            }
         }
     }
     return null;
