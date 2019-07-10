@@ -882,10 +882,10 @@ let ArmatureDisplay = cc.Class({
 
     /**
      * !#en
-     * Add event listener for the DragonBones Event, the same to addEventListener.
+     * Add DragonBones one-time event listener, the callback will remove itself after the first time it is triggered.
      * !#zh
-     * 添加 DragonBones 一次性事件监听器，回调会在第一时间被触发后删除自身。。
-     * @method on
+     * 添加 DragonBones 一次性事件监听器，回调会在第一时间被触发后删除自身。
+     * @method once
      * @param {String} type - A string representing the event type to listen for.
      * @param {Function} listener - The callback that will be invoked when the event is dispatched.
      * @param {Event} listener.event event
