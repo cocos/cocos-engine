@@ -49,9 +49,8 @@ export function decompressJson (data, keys) {
     else if (typeof data === 'object') {
         for (var key in data) {
             decompressJson(data[key], keys);
-            var newKey = keys[key];
-            if (newKey) {
-                data[newKey] = data[key];
+            if (!Number.isNaN(Number(key)))
+                data[keys[key]] = data[key];
                 delete data[key];
             }
         }
