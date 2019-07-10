@@ -590,7 +590,7 @@ class Game extends EventTarget {
 
         debug.setDisplayStats(config.showFPS);
 
-        callback = () => {
+        callback = (time: number) => {
             if (!self._paused) {
                 self._intervalId = window.requestAnimationFrame(callback);
                 if (!CC_JSB && frameRate === 30) {
@@ -599,7 +599,7 @@ class Game extends EventTarget {
                         return;
                     }
                 }
-                director.mainLoop();
+                director.mainLoop(time);
             }
         };
 

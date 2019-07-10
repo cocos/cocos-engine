@@ -102,6 +102,7 @@ async function _internalBuild (options: IAdvancedOptions) {
             highlightCode: true,
             ignore: [
                 'node_modules/cannon/**',
+                'node_modules/tween.js/**',
             ],
             plugins: [
                 ['@babel/plugin-proposal-decorators', {
@@ -122,7 +123,8 @@ async function _internalBuild (options: IAdvancedOptions) {
 
         commonjs({
             namedExports: {
-                cannon: ['CANNON', 'Shape'],
+                'cannon': ['CANNON', 'Shape'],
+                'tween.js': ['TWEEN'],
             },
         }),
 
