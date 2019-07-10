@@ -88,6 +88,12 @@ cc.js.mixin(Atlas.prototype, {
         this._dirty = false;
     },
 
+    deleteInnerTexture (texture) {
+        if (texture) {
+            delete this._innerTextureInfos[texture._id];
+        }
+    },
+
     reset () {
         this._x = space;
         this._y = space;
