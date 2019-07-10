@@ -15,5 +15,14 @@ module.exports = {
                 comp._activateMaterial(true);
             }
         }
+    }, 
+
+    deleteFromDynamicAtlas (comp, frame) {
+        if (frame && !CC_TEST) {
+            if (frame._original && dynamicAtlasManager) {
+                dynamicAtlasManager.deleteAtlasTexture(frame);
+                frame._resetDynamicAtlasFrame();
+            }
+        }
     }
 }
