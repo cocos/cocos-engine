@@ -582,6 +582,7 @@ class _Deserializer {
                 return null;
             }
             const self = this;
+            // @ts-ignore
             function deserializeByType () {
                 if ((CC_EDITOR || CC_TEST) && target) {
                     // use target
@@ -607,6 +608,7 @@ class _Deserializer {
                 }
             }
 
+            // @ts-ignore
             function checkDeserializeByType () {
                 try {
                     deserializeByType();
@@ -871,8 +873,7 @@ export default function deserialize (data, details, options) {
 
     return res;
 }
-
-deserialize.Details = Details;
+(deserialize as any).Details = Details;
 deserialize.reportMissingClass = (id) => {
     if (CC_EDITOR && Editor.Utils.UuidUtils.isUuid(id)) {
         id = Editor.Utils.UuidUtils.decompressUuid(id);
