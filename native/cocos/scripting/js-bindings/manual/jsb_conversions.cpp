@@ -1568,6 +1568,7 @@ bool ccvaluevector_to_EffectPass(const cocos2d::ValueVector& v, cocos2d::Vector<
         bool depthTest = false, depthWrite = false;
         cocos2d::renderer::DepthFunc depthFunc = cocos2d::renderer::DepthFunc::LESS;
         
+        bool stencilTest = false;
         uint8_t stencilMaskFront = 0xff, stencilWriteMaskFront = 0xff, stencilMaskBack = 0xff, stencilWriteMaskBack = 0xff;
         uint32_t stencilRefFront = 0, stencilRefBack = 0;
         cocos2d::renderer::StencilFunc stencilFuncFront = cocos2d::renderer::StencilFunc::ALWAYS, stencilFuncBack = cocos2d::renderer::StencilFunc::ALWAYS;
@@ -1592,6 +1593,11 @@ bool ccvaluevector_to_EffectPass(const cocos2d::ValueVector& v, cocos2d::Vector<
             if(state.find("depthFunc") != state.end())
             {
                 depthFunc = static_cast<cocos2d::renderer::DepthFunc>(state.at("depthFunc").asUnsignedInt());
+            }
+            
+            if(state.find("stencilTest") != state.end())
+            {
+                stencilTest = state.at("stencilTest").asBool();
             }
             
             // front
@@ -1667,10 +1673,13 @@ bool ccvaluevector_to_EffectPass(const cocos2d::ValueVector& v, cocos2d::Vector<
             }
             
             cobj->setDepth(depthTest, depthWrite, depthFunc); // depth func
-            // stencil front
-            cobj->setStencilFront(stencilFuncFront, stencilRefFront, stencilMaskFront, stencilFailOpFront, stencilZFailOpFront, stencilZPassOpFront, stencilWriteMaskFront);
-            // stencil back
-            cobj->setStencilBack(stencilFuncBack, stencilRefBack, stencilMaskBack, stencilFailOpBack, stencilZFailOpBack, stencilZPassOpBack, stencilWriteMaskBack);
+            
+            if (stencilTest) {
+                // stencil front
+                cobj->setStencilFront(stencilFuncFront, stencilRefFront, stencilMaskFront, stencilFailOpFront, stencilZFailOpFront, stencilZPassOpFront, stencilWriteMaskFront);
+                // stencil back
+                cobj->setStencilBack(stencilFuncBack, stencilRefBack, stencilMaskBack, stencilFailOpBack, stencilZFailOpBack, stencilZPassOpBack, stencilWriteMaskBack);
+            }
         }
         
         cobj->autorelease();

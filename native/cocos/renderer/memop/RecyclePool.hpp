@@ -59,7 +59,7 @@ public:
         _data.clear();
     }
     
-    const T* getData(const int index) const
+    const T* getData(size_t index) const
     {
         if (index >= _count)
         {
@@ -70,7 +70,7 @@ public:
         return _data[index];
     }
     
-    const int getLength() const
+    const size_t getLength() const
     {
         return _count;
     }
@@ -117,7 +117,7 @@ public:
         _count -= 1;
     }
 private:
-    int _count = 0;
+    size_t _count = 0;
     RecycleFunc _func;
     std::vector<T*> _data;
 
