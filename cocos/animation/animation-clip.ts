@@ -111,7 +111,7 @@ export class AnimationClip extends Asset {
             '/': {
                 comps: {
                     // component
-                    'cc.Sprite': {
+                    'cc.SpriteComponent': {
                         // component properties
                         spriteFrame: {
                             keys: 0,

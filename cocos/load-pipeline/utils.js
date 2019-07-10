@@ -38,3 +38,23 @@ export function urlAppendTimestamp (url) {
     }
     return url;
 }
+
+
+export function decompressJson (data, keys) {
+    if (Array.isArray(data)) {
+        for (var i = 0, l = data.length; i < l; i++) {
+            decompressJson(data[i], keys);
+        }
+    }
+    else if (typeof data === 'object') {
+        for (var key in data) {
+            decompressJson(data[key], keys);
+            var newKey = keys[key];
+            if (newKey) {
+                data[newKey] = data[key];
+                delete data[key];
+            }
+        }
+    }
+    return null;
+}

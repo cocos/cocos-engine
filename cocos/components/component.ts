@@ -253,7 +253,7 @@ class Component extends CCObject {
      * @zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
      * @example
      * ```typescript
-     * var sprite = node.addComponent(cc.Sprite);
+     * var sprite = node.addComponent(cc.SpriteComponent);
      * ```
      */
     public addComponent<T extends Component> (classConstructor: Constructor<T>): T | null;
@@ -282,7 +282,7 @@ class Component extends CCObject {
      * @example
      * ```typescript
      * // get sprite component.
-     * var sprite = node.getComponent(cc.Sprite);
+     * var sprite = node.getComponent(cc.SpriteComponent);
      * ```
      */
     public getComponent<T extends Component> (classConstructor: Constructor<T>): T | null;
@@ -311,7 +311,7 @@ class Component extends CCObject {
      * @zh 返回节点上指定类型的所有组件。
      * @example
      * ```typescript
-     * var sprites = node.getComponents(cc.Sprite);
+     * var sprites = node.getComponents(cc.SpriteComponent);
      * ```
      */
     public getComponents<T extends Component> (classConstructor: Constructor<T>): T[];
@@ -335,7 +335,7 @@ class Component extends CCObject {
      * @zh 递归查找所有子节点中第一个匹配指定类型的组件。
      * @example
      * ```typescript
-     * var sprite = node.getComponentInChildren(cc.Sprite);
+     * var sprite = node.getComponentInChildren(cc.SpriteComponent);
      * ```
      */
     public getComponentInChildren<T extends Component> (classConstructor: Constructor<T>): T | null;
@@ -359,7 +359,7 @@ class Component extends CCObject {
      * @zh 递归查找自身或所有子节点中指定类型的组件。
      * @example
      * ```typescript
-     * var sprites = node.getComponentsInChildren(cc.Sprite);
+     * var sprites = node.getComponentsInChildren(cc.SpriteComponent);
      * ```
      */
     public getComponentsInChildren<T extends Component> (classConstructor: Constructor<T>): T[];
@@ -544,8 +544,9 @@ class Component extends CCObject {
      * You can only call its super class method inside it. It should not be called manually elsewhere.
      * @zh 如果该组件启用，则每帧调用 LateUpdate。<br/>
      * 该方法为生命周期方法，父类未必会有实现。并且你只能在该方法内部调用父类的实现，不可在其它地方直接调用该方法。
+     * @param dt - the delta time in seconds it took to complete the last frame
      */
-    protected lateUpdate? (): void;
+    protected lateUpdate? (dt: number): void;
 
     /**
      * `__preload` is called before every onLoad.

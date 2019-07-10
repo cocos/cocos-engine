@@ -413,6 +413,9 @@ export class ParticleSystemComponent extends RenderableComponent {
             r._model.destroy();
             r._model = null;
             r.onEnable();
+            r._updateModel();
+            r._updateMaterialParams();
+            r._updateTrailMaterial();
         }
     }
 

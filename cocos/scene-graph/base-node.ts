@@ -864,7 +864,7 @@ export class BaseNode extends CCObject {
      * @example
      * ```
      * // get sprite component.
-     * var sprite = node.getComponent(cc.Sprite);
+     * var sprite = node.getComponent(cc.SpriteComponent);
      * ```
      */
     public getComponent<T extends Component> (classConstructor: Constructor<T>): T | null;
@@ -897,7 +897,7 @@ export class BaseNode extends CCObject {
      * @zh 返回节点上指定类型的所有组件。
      * @example
      * ```
-     * var sprites = node.getComponents(cc.Sprite);
+     * var sprites = node.getComponents(cc.SpriteComponent);
      * ```
      */
     public getComponents<T extends Component> (classConstructor: Constructor<T>): T[];
@@ -926,7 +926,7 @@ export class BaseNode extends CCObject {
      * @zh 递归查找所有子节点中第一个匹配指定类型的组件。
      * @example
      * ```
-     * var sprite = node.getComponentInChildren(cc.Sprite);
+     * var sprite = node.getComponentInChildren(cc.SpriteComponent);
      * ```
      */
     public getComponentInChildren<T extends Component> (classConstructor: Constructor<T>): T | null;
@@ -954,7 +954,7 @@ export class BaseNode extends CCObject {
      * @zh 递归查找自身或所有子节点中指定类型的组件
      * @example
      * ```
-     * var sprites = node.getComponentsInChildren(cc.Sprite);
+     * var sprites = node.getComponentsInChildren(cc.SpriteComponent);
      * ```
      */
     public getComponentsInChildren<T extends Component> (classConstructor: Constructor<T>): T[];
@@ -984,7 +984,7 @@ export class BaseNode extends CCObject {
      * @zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
      * @example
      * ```
-     * var sprite = node.addComponent(cc.Sprite);
+     * var sprite = node.addComponent(cc.SpriteComponent);
      * ```
      */
     public addComponent<T extends Component> (classConstructor: Constructor<T>): T | null;
@@ -1084,7 +1084,7 @@ export class BaseNode extends CCObject {
      * @deprecated please destroy the component to remove it.
      * @example
      * ```
-     * node.removeComponent(cc.Sprite);
+     * node.removeComponent(cc.SpriteComponent);
      * ```
      */
     public removeComponent<T extends Component> (classConstructor: Constructor<T>): void;
@@ -1103,7 +1103,7 @@ export class BaseNode extends CCObject {
      * if (sprite) {
      *     node.removeComponent(sprite);
      * }
-     * node.removeComponent('cc.Sprite');
+     * node.removeComponent('cc.SpriteComponent');
      * ```
      */
     public removeComponent (classNameOrInstance: string | Component): void;
