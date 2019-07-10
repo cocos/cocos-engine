@@ -31,7 +31,8 @@ const Label = require('../../../components/CCLabel');
 const LabelOutline = require('../../../components/CCLabelOutline');
 const LabelShadow = require('../../../components/CCLabelShadow');
 const Overflow = Label.Overflow;
-const {packToDynamicAtlas, deleteFromDynamicAtlas} = require('../utils');
+const packToDynamicAtlas = require('../utils').packToDynamicAtlas;
+const deleteFromDynamicAtlas = require('../utils').deleteFromDynamicAtlas;
 
 const MAX_SIZE = 2048;
 const _invisibleAlpha = (1 / 255).toFixed(3);
