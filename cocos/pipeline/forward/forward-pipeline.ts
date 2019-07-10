@@ -16,7 +16,6 @@ import { SphereLight } from '../../renderer/scene/sphere-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
 import { cullDirectionalLight, cullSphereLight, cullSpotLight } from '../culling';
 import { PIPELINE_FLOW_FORWARD, PIPELINE_FLOW_SMAA, PIPELINE_FLOW_TONEMAP, RenderPassStage, UBOForwardLight } from '../define';
-import { SMAAEdgeFlow } from '../ppfx/smaa-flow';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';
 import { IRenderPipelineInfo, RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
@@ -142,10 +141,12 @@ export class ForwardPipeline extends RenderPipeline {
 
         if (this._usePostProcess) {
             if (this._useSMAA) {
+                /*
                 this.createFlow(SMAAEdgeFlow, {
                     name: PIPELINE_FLOW_SMAA,
                     priority: 0,
                 });
+                */
             }
             this.createFlow(ToneMapFlow, {
                 name: PIPELINE_FLOW_TONEMAP,
