@@ -88,9 +88,7 @@ void ForwardRenderer::render(Scene* scene)
         View* view = requestView();
         camera->extractView(*view, _width, _height);
     }
-    
-    _views->getLength();
-    
+
     for (size_t i = 0, len = _views->getLength(); i < len; ++i) {
         const View* view = _views->getData(i);
         BaseRenderer::render(*view, scene);
