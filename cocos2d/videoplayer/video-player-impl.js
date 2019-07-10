@@ -48,7 +48,7 @@ let VideoPlayerImpl = cc.Class({
         this._video = null;
         this._url = '';
 
-        this._preFullScreenEnabled = undefined;
+        this._waitingFullscreen = false;
         this._fullScreenEnabled = false;
 
         this._loadedmeta = false;
@@ -77,8 +77,9 @@ let VideoPlayerImpl = cc.Class({
         let cbs = this.__eventListeners;
         cbs.loadedmetadata = function () {
             self._loadedmeta = true;
-            if (self._preFullScreenEnabled !== undefined) {
-                self._toggleFullscreen(self._preFullScreenEnabled);
+            if (self._waitingFullscreen) {
+                self._waitingFullscreen = false;
+                self._toggleFullscreen(true);
             }
             self._dispatchEvent(VideoPlayerImpl.EventType.META_LOADED);
         };
@@ -380,8 +381,8 @@ let VideoPlayerImpl = cc.Class({
     },
 
     setFullScreenEnabled: function (enable) {
-        if (!this._loadedmeta) {
-            this._preFullScreenEnabled = enable;
+        if (!this._loadedmeta && enablezhi) {
+            this._waitingFullscreen = true;
         }
         else {
             this._toggleFullscreen(enable);
