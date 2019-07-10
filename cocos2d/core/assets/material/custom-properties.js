@@ -66,3 +66,4 @@ export default class CustomProperties {
 }
 
 cc.CustomProperties = CustomProperties;
+cc.CustomProperties.ctor2enums = ctor2enums;

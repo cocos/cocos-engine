@@ -591,6 +591,10 @@ function initSys () {
         if (CC_WECHATGAME && name === 'OES_texture_float') {
             return false;
         }
+
+        if (CC_JSB && CC_NATIVERENDERER) {
+            return true;
+        }
         return !!cc.renderer.device.ext(name);
     }
     
