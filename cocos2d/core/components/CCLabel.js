@@ -697,7 +697,7 @@ let Label = cc.Class({
             this.markForUpdateRenderData(true);
         }
 
-        if (force) {
+        if (force === true) {
             this._updateAssembler();
             this._applyFontTexture(force);
         }
