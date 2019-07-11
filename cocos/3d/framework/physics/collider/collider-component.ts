@@ -63,9 +63,11 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
 
         if (!CC_EDITOR) {
             if (!CC_PHYSICS_BUILT_IN) {
-                const type = this._isTrigger ? ERigidBodyType.DYNAMIC : ERigidBodyType.STATIC;
-                this.sharedBody.body.setType(type);
-                this._shapeBase.setCollisionResponse!(!this._isTrigger);
+                if (this.sharedBody) {
+                    const type = this._isTrigger ? ERigidBodyType.DYNAMIC : ERigidBodyType.STATIC;
+                    this.sharedBody.body.setType(type);
+                    this._shapeBase.setCollisionResponse!(!this._isTrigger);
+                }
             }
         }
     }
