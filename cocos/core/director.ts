@@ -922,16 +922,22 @@ class Director extends EventTarget {
     /**
      * @en Returns the delta time since last frame.
      * @zh 获取上一帧的增量时间。
-     * @return {Number}
      */
     public getDeltaTime () {
         return this._deltaTime;
     }
 
     /**
+     * @en Returns the current time.
+     * @zh 获取当前帧的时间。
+     */
+    public getCurrentTime () {
+        return this._lastUpdate;
+    }
+
+    /**
      * @en Returns how many frames were called since the director started.
      * @zh 获取 director 启动以来游戏运行的总帧数。
-     * @return {Number}
      */
     public getTotalFrames () {
         return this._totalFrames;
@@ -940,7 +946,6 @@ class Director extends EventTarget {
     /**
      * @en Returns whether or not the Director is paused.
      * @zh 是否处于暂停状态。
-     * @return {Boolean}
      */
     public isPaused () {
         return this._paused;
@@ -949,7 +954,6 @@ class Director extends EventTarget {
     /**
      * @en Returns the cc.Scheduler associated with this director.
      * @zh 获取和 director 相关联的 cc.Scheduler。
-     * @return {Scheduler}
      */
     public getScheduler () {
         return this._scheduler;
@@ -958,9 +962,8 @@ class Director extends EventTarget {
     /**
      * @en Sets the cc.Scheduler associated with this director.
      * @zh 设置和 director 相关联的 cc.Scheduler。
-     * @param {Scheduler} scheduler
      */
-    public setScheduler (scheduler) {
+    public setScheduler (scheduler: Scheduler) {
         if (this._scheduler !== scheduler) {
             this._scheduler = scheduler;
         }
@@ -969,11 +972,6 @@ class Director extends EventTarget {
     /**
      * @en register a system.
      * @zh 注册一个 system。
-     * @param {string} name
-     * @param {function} cls
-     * @param {Array} compClsNames
-     * @param {number} priority
-     * @return {System}
      */
     public registerSystem (name, cls, compClsNames, priority) {
         const sys = new cls();
@@ -991,8 +989,6 @@ class Director extends EventTarget {
     /**
      * @en get a system.
      * @zh 获取一个 system。
-     * @param {string} name
-     * @return {System}
      */
     public getSystem (name) {
         return this._systems.find((sys) => {
