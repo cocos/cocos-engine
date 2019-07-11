@@ -83,7 +83,7 @@ void ForwardRenderer::render(Scene* scene)
     updateLights(scene);
     scene->sortCameras();
     auto& cameras = scene->getCameras();
-    for (auto camera : cameras)
+    for (auto& camera : cameras)
     {
         View* view = requestView();
         camera->extractView(*view, _width, _height);
