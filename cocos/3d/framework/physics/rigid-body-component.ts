@@ -3,7 +3,6 @@
  * @category physics
  */
 
-
 import {
     ccclass,
     executeInEditMode,
@@ -253,11 +252,11 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * @zh
      * 在世界空间中的某点上对刚体施加一个作用力。
      * @param force - 作用力
-     * @param worldPoint - 作用点
+     * @param relativePoint - 作用点，相对于刚体的中心点
      */
-    public applyForce (force: Vec3, worldPoint?: Vec3) {
+    public applyForce (force: Vec3, relativePoint?: Vec3) {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
-            this._body!.applyForce(force, worldPoint);
+            this._body!.applyForce(force, relativePoint);
         }
     }
 
@@ -277,11 +276,11 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * @zh
      * 在世界空间的某点上对刚体施加一个冲量。
      * @param impulse - 冲量
-     * @param worldPoint - 作用点
+     * @param relativePoint - 作用点，相对于刚体的中心点
      */
-    public applyImpulse (impulse: Vec3, worldPoint?: Vec3) {
+    public applyImpulse (impulse: Vec3, relativePoint?: Vec3) {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
-            this._body!.applyImpulse(impulse, worldPoint);
+            this._body!.applyImpulse(impulse, relativePoint);
         }
     }
 
