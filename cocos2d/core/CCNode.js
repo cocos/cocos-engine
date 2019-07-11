@@ -1526,6 +1526,9 @@ let NodeDefines = {
             this._proxy.setName(this._name);
             this._proxy.updateParent();
             this._proxy.updateOpacity();
+            this._proxy.update3DNode();
+            this._proxy.updateZOrder();
+            this._proxy.updateCullingMask();
         }
     },
 
