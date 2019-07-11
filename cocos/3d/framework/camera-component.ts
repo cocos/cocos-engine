@@ -204,7 +204,7 @@ export class CameraComponent extends Component {
      * @zh 相机的颜色缓冲默认值。
      */
     @property
-    @constget
+    // @constget
     get color (): Readonly<Color>  {
         return this._color;
     }

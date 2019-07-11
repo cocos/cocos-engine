@@ -238,7 +238,7 @@ export class MaskComponent extends UIRenderComponent {
         visible: false,
         override: true,
     })
-    @constget
+    // @constget
     get color (): Readonly<Color> {
         return this._color;
     }

@@ -142,7 +142,7 @@ export class UIRenderComponent extends UIComponent {
     @property({
         displayOrder: 2,
     })
-    @constget
+    // @constget
     get color (): Readonly<Color> {
         return this._color;
     }
