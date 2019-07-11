@@ -1701,7 +1701,7 @@ bool seval_to_EffectTechnique(const se::Value& v, cocos2d::renderer::Technique**
         }
         else
         {
-            stages.push_back(std::move("opaque"));
+            stages.push_back("opaque");
         }
         
         int layer = 0;
