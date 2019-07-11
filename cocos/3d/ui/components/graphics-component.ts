@@ -111,7 +111,7 @@ export class GraphicsComponent extends UIRenderComponent {
      * 线段颜色。
      */
     @property
-    @constget
+    // @constget
     get strokeColor (): Readonly<Color> {
         return this._strokeColor;
     }
@@ -130,7 +130,7 @@ export class GraphicsComponent extends UIRenderComponent {
      * 填充颜色。
      */
     @property
-    @constget
+    // @constget
     get fillColor (): Readonly<Color> {
         return this._fillColor;
     }

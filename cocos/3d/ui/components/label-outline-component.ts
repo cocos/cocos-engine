@@ -68,7 +68,7 @@ export class LabelOutlineComponent extends Component {
      * ```
      */
     @property
-    @constget
+    // @constget
     get color (): Readonly<Color> {
         return this._color;
     }

@@ -61,7 +61,7 @@ export class UITransformComponent extends Component {
     @property({
         displayOrder: 0,
     })
-    @constget
+    // @constget
     get contentSize (): Readonly<Size> {
         return this._contentSize;
     }
@@ -139,7 +139,7 @@ export class UITransformComponent extends Component {
     @property({
         displayOrder: 1,
     })
-    @constget
+    // @constget
     get anchorPoint (): Readonly<Vec2> {
         return this._anchorPoint;
     }
