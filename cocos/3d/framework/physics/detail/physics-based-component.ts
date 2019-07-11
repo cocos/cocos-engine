@@ -149,15 +149,15 @@ export class PhysicsBasedComponent extends Component {
                     //     if (rigidbody.sharedBody != null) {
                     //         sharedBody = rigidbody.sharedBody;
                     //     } else {
-                    //         sharedBody = new SharedRigidBody(rigidbody.node, rigidbody, cc.director._physicsSystem.world);
+                    //         sharedBody = new SharedRigidBody(rigidbody.node, rigidbody, cc.director._physicsSystem._world);
                     //     }
                     // } else {
-                    //     sharedBody = new SharedRigidBody(this.node, null, cc.director._physicsSystem.world);
+                    //     sharedBody = new SharedRigidBody(this.node, null, cc.director._physicsSystem._world);
                     // }
 
                     // binding collider to self rigidybody, if it exist.
                     const rigidbody = this.getComponent(cc.RigidBodyComponent);
-                    sharedBody = new SharedRigidBody(this.node, rigidbody, cc.director._physicsSystem.world);
+                    sharedBody = new SharedRigidBody(this.node, rigidbody, cc.director._physicsSystem._world);
                 }
                 sharedBody!.ref();
                 this._sharedBody = sharedBody!;

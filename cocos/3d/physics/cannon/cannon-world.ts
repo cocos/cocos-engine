@@ -4,10 +4,14 @@ import { RaycastResult } from '../raycast-result';
 import { setWrap } from '../util';
 import { AfterStepCallback, BeforeStepCallback, IRaycastOptions, PhysicsWorldBase } from './../api';
 import { defaultCannonContactMaterial, defaultCannonMaterial } from './cannon-const';
-import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
+import { fillRaycastResult, toCannonRaycastOptions, toCannonVec3, toCocosVec3 } from './cannon-util';
 import { CannonConstraint } from './constraint/cannon-constraint';
 
 export class CannonWorld implements PhysicsWorldBase {
+
+    get impl () {
+        return this._world;
+    }
     private _world: CANNON.World;
     private _customBeforeStepListener: BeforeStepCallback[] = [];
     private _customAfterStepListener: AfterStepCallback[] = [];
@@ -16,18 +20,27 @@ export class CannonWorld implements PhysicsWorldBase {
     constructor () {
         this._world = new CANNON.World();
         setWrap<PhysicsWorldBase>(this._world, this);
-        this._world.allowSleep = true;
-        this._world.gravity.set(0, -9.81, 0);
         this._world.broadphase = new CANNON.NaiveBroadphase();
         this._world.defaultMaterial = defaultCannonMaterial;
         this._world.defaultContactMaterial = defaultCannonContactMaterial;
     }
 
-    public destroy () {
+    public getAllowSleep (): boolean {
+        return this._world.allowSleep;
+    }
+    public setAllowSleep (v: boolean): void {
+        this._world.allowSleep = v;
     }
 
-    get impl () {
-        return this._world;
+    public setGravity (gravity: Vec3): void {
+        this._world.gravity = toCannonVec3(gravity);
+    }
+
+    public getGravity (out: Vec3): void {
+        toCocosVec3(this._world.gravity, out);
+    }
+
+    public destroy () {
     }
 
     // get defaultContactMaterial () {
