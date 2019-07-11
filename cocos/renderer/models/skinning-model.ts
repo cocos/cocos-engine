@@ -51,9 +51,9 @@ export enum JointsMediumType {
 }
 
 export function selectJointsMediumType (device: GFXDevice, jointCount: number): JointsMediumType {
-    if (jointCount <= JointUniformCapacity) {
+    /*if (jointCount <= JointUniformCapacity) {
         return JointsMediumType.UNIFORM;
-    } else if (device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
+    } else */if (device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
         return JointsMediumType.RGBA32F;
     } else {
         return JointsMediumType.RGBA8;
@@ -81,6 +81,7 @@ const qt_1 = new Quat();
 const qt_2 = new Quat();
 const m4_1 = new Mat4();
 const f4_1 = new Float32Array(4);
+const SKINNING_INTERVAL = 1000 / 30;
 
 export class Joint {
     public node: Node;
@@ -130,6 +131,7 @@ export class SkinningModel extends Model {
     private _skeleton: Skeleton | null = null;
     private _joints: Joint[] = [];
     private _jointsMedium: IJointsInfo | null = null;
+    private _lastUpdate = 0;
 
     constructor (scene: RenderScene, node: Node) {
         super(scene, node);
@@ -185,6 +187,10 @@ export class SkinningModel extends Model {
 
     public updateUBOs () {
         if (!super.updateUBOs() || !this._skeleton) { return false; }
+
+        const now = cc.director.getCurrentTime();
+        if (now - this._lastUpdate < SKINNING_INTERVAL) { return true; }
+        this._lastUpdate = now;
 
         const len = this._joints.length;
         if (this._skeleton.bindTRS.length) { // TODO: pre-apply this into animation clip
