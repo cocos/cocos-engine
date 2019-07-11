@@ -408,14 +408,16 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     public recreateModel () {
-        const r = this.renderer as any;
-        if (r._model) {
-            r._model.destroy();
-            r._model = null;
-            r.onEnable();
-            r._updateModel();
-            r._updateMaterialParams();
-            r._updateTrailMaterial();
+        if (this.isValid) {
+            const r = this.renderer as any;
+            if (r && r._model) {
+                r._model.destroy();
+                r._model = null;
+                r.onEnable();
+                r._updateModel();
+                r._updateMaterialParams();
+                r._updateTrailMaterial();
+            }
         }
     }
 
