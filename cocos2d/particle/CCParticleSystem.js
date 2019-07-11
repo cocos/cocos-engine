@@ -901,7 +901,7 @@ var ParticleSystem = cc.Class({
     },
     
     lateUpdate (dt) {
-        if (!this._simulator.finished && this.sharedMaterials[0] && this._ia) {
+        if (!this._simulator.finished && this._ia) {
             this._simulator.step(dt);
         }
     },
