@@ -177,7 +177,7 @@ public:
     /**
      *  @brief Extracts the camera info to view.
      */
-    const View& extractView(int width, int height);
+    void extractView(View& view, int width, int height);
     /**
      *  @brief Transform a screen position to world in the current camera projection.
      */
@@ -228,8 +228,7 @@ private:
     
     Mat4 _worldRTInv;
     Vec3 _worldPos;
-    
-    View _cachedView;
+
     int _priority = 0;
 };
 

@@ -83,8 +83,16 @@ void ForwardRenderer::render(Scene* scene)
     updateLights(scene);
     scene->sortCameras();
     auto& cameras = scene->getCameras();
-    for (auto camera : cameras)
-        BaseRenderer::render(camera->extractView(_width, _height), scene);
+    for (auto& camera : cameras)
+    {
+        View* view = requestView();
+        camera->extractView(*view, _width, _height);
+    }
+
+    for (size_t i = 0, len = _views->getLength(); i < len; ++i) {
+        const View* view = _views->getData(i);
+        BaseRenderer::render(*view, scene);
+    }
     
     scene->removeModels();
 }
@@ -99,8 +107,9 @@ void ForwardRenderer::renderCamera(Camera* camera, Scene* scene)
         width = fb->getWidth();
         height = fb->getHeight();
     }
-    View view = camera->extractView(width, height);
-    BaseRenderer::render(view, scene);
+    View* view = requestView();
+    camera->extractView(*view, width, height);
+    BaseRenderer::render(*view, scene);
     
     scene->removeModels();
 }
@@ -367,6 +376,7 @@ void ForwardRenderer::drawItems(const std::vector<StageItem>& items)
         slots.reserve(count);
         for (auto item : items)
         {
+            shadowMaps.clear();
             for(int i = 0; i < count; i++)
             {
                 Light* light = _shadowLights.at(i);

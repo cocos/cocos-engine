@@ -135,7 +135,7 @@ void BaseRenderer::render(const View& view, const Scene* scene)
     std::vector<StageItem> stageItems;
     for (const auto& stage : view.stages)
     {
-        for (int i = 0, len = _drawItems->getLength(); i < len; i++)
+        for (size_t i = 0, len = _drawItems->getLength(); i < len; i++)
         {
             const DrawItem* item = _drawItems->getData(i);
             auto tech = item->effect->getTechnique(stage);
@@ -158,7 +158,7 @@ void BaseRenderer::render(const View& view, const Scene* scene)
     
     // render stages
     std::unordered_map<std::string, StageCallback>::iterator foundIter;
-    for (int i = 0, len = _stageInfos->getLength(); i < len; i++)
+    for (size_t i = 0, len = _stageInfos->getLength(); i < len; i++)
     {
         const StageInfo* stageInfo = _stageInfos->getData(i);
         foundIter = _stage2fn.find(stageInfo->stage);
