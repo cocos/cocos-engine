@@ -313,7 +313,7 @@ enum class CanvasTextBaseline {
     return point;
 }
 
--(void) drawText:(NSString*)text x:(CGFloat)x y:(CGFloat)y maxWidth:(CGFloat)maxWidth isStroke:(BOOL)isStroke {
+-(void) fillText:(NSString*) text x:(CGFloat) x y:(CGFloat) y maxWidth:(CGFloat) maxWidth {
     if (text.length == 0)
         return;
 
@@ -322,13 +322,11 @@ enum class CanvasTextBaseline {
     NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
     paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
 
-    [_tokenAttributesDict removeObjectForKey:NSStrokeWidthAttributeName];
+    [_tokenAttributesDict removeObjectForKey:NSStrokeColorAttributeName];
+
     [_tokenAttributesDict setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
-    [_tokenAttributesDict setObject:[NSColor colorWithRed:_fillStyle.r
-                                             green:_fillStyle.g
-                                             blue:_fillStyle.b
-                                             alpha:_fillStyle.a]
-                                             forKey:NSForegroundColorAttributeName];
+    [_tokenAttributesDict setObject:[NSColor colorWithRed:_fillStyle.r green:_fillStyle.g blue:_fillStyle.b alpha:_fillStyle.a]
+                             forKey:NSForegroundColorAttributeName];
 
     [self saveContext];
 
@@ -336,30 +334,57 @@ enum class CanvasTextBaseline {
     CGContextSetRGBFillColor(_context, _fillStyle.r, _fillStyle.g, _fillStyle.b, _fillStyle.a);
     CGContextSetShouldSubpixelQuantizeFonts(_context, false);
     CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
-    if (isStroke)
-    {
-        CGContextSetLineWidth(_context, _lineWidth);
-        CGContextSetLineJoin(_context, kCGLineJoinRound);
-        CGContextSetTextDrawingMode(_context, kCGTextStroke);
-    }
-    else
-        CGContextSetTextDrawingMode(_context, kCGTextFill);
+    CGContextSetTextDrawingMode(_context, kCGTextFill);
+
+    
 
     NSAttributedString *stringWithAttributes =[[[NSAttributedString alloc] initWithString:text
                                                                                attributes:_tokenAttributesDict] autorelease];
+
     [stringWithAttributes drawAtPoint:drawPoint];
+
 
     CGContextEndTransparencyLayer(_context);
 
     [self restoreContext];
 }
 
--(void) fillText:(NSString*) text x:(CGFloat) x y:(CGFloat) y maxWidth:(CGFloat) maxWidth {
-    [self drawText:text x:x y:y maxWidth:maxWidth isStroke:FALSE];
-}
-
 -(void) strokeText:(NSString*) text x:(CGFloat) x y:(CGFloat) y maxWidth:(CGFloat) maxWidth {
-    [self drawText:text x:x y:y maxWidth:maxWidth isStroke:TRUE];
+    if (text.length == 0)
+        return;
+
+    NSPoint drawPoint = [self convertDrawPoint:NSMakePoint(x, y) text:text];
+
+    NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
+    paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
+
+    [_tokenAttributesDict removeObjectForKey:NSForegroundColorAttributeName];
+
+    [_tokenAttributesDict setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
+    [_tokenAttributesDict setObject:[NSColor colorWithRed:_strokeStyle.r
+                                                    green:_strokeStyle.g
+                                                     blue:_strokeStyle.b
+                                                    alpha:_strokeStyle.a] forKey:NSStrokeColorAttributeName];
+
+    [self saveContext];
+
+    // text color
+    CGContextSetRGBFillColor(_context, _fillStyle.r, _fillStyle.g, _fillStyle.b, _fillStyle.a);
+    CGContextSetLineWidth(_context, _lineWidth);
+    CGContextSetLineJoin(_context, kCGLineJoinRound);
+    CGContextSetShouldSubpixelQuantizeFonts(_context, false);
+    CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
+
+    CGContextSetTextDrawingMode(_context, kCGTextStroke);
+
+    NSAttributedString *stringWithAttributes =[[[NSAttributedString alloc] initWithString:text
+                                                                               attributes:_tokenAttributesDict] autorelease];
+
+    [stringWithAttributes drawAtPoint:drawPoint];
+
+    CGContextEndTransparencyLayer(_context);
+
+    [self restoreContext];
 }
 
 -(void) setFillStyleWithRed:(CGFloat) r green:(CGFloat) g blue:(CGFloat) b alpha:(CGFloat) a {
