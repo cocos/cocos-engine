@@ -25,14 +25,30 @@
 #pragma once
 
 #define SCRIPT_ENGINE_NONE           0
-#define SCRIPT_ENGINE_SM             1
+//#define SCRIPT_ENGINE_SM             1
 #define SCRIPT_ENGINE_V8             2
 #define SCRIPT_ENGINE_JSC            3
-#define SCRIPT_ENGINE_CHAKRACORE     4
-
-#define SCRIPT_ENGINE_V8_ON_MAC      1 // default using v8 on macOS, set 0 to disable
+//#define SCRIPT_ENGINE_CHAKRACORE     4
 
 #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
+#define SCRIPT_ENGINE_V8_ON_MAC      1 // default using v8 on macOS, set 0 to disable
+
+#if defined(__APPLE__)
+    #include <TargetConditionals.h>
+    #if TARGET_OS_OSX && (SCRIPT_ENGINE_V8_ON_MAC == 0)
+        #undef SCRIPT_ENGINE_TYPE
+        #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC
+    #endif
+
+    // v8 ios only support arm64
+    #if TARGET_OS_IOS
+        #ifndef __arm64__
+            #undef SCRIPT_ENGINE_TYPE
+            #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC
+        #endif
+    #endif
+#endif
+
 
 #ifndef USE_V8_DEBUGGER
 #if defined(COCOS2D_DEBUG) && COCOS2D_DEBUG > 0

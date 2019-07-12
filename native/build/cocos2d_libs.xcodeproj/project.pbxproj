@@ -666,6 +666,40 @@
 		461DCA5A20C7E4BA00B22827 /* JavaScriptObjCBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 461DCA5720C7E4B900B22827 /* JavaScriptObjCBridge.h */; };
 		461DCA5B20C7E4BA00B22827 /* JavaScriptObjCBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 461DCA5720C7E4B900B22827 /* JavaScriptObjCBridge.h */; };
 		4626B1FF202D9BD800BE30B9 /* CCApplication-mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4626B1FE202D9BD800BE30B9 /* CCApplication-mac.mm */; };
+		4645C4AB22D830DF0034E29B /* Class.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4645C49A22D830DF0034E29B /* Class.hpp */; };
+		4645C4AC22D830DF0034E29B /* Class.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4645C49A22D830DF0034E29B /* Class.hpp */; };
+		4645C4AD22D830DF0034E29B /* EJConvert.h in Headers */ = {isa = PBXBuildFile; fileRef = 4645C49B22D830DF0034E29B /* EJConvert.h */; };
+		4645C4AE22D830DF0034E29B /* EJConvert.h in Headers */ = {isa = PBXBuildFile; fileRef = 4645C49B22D830DF0034E29B /* EJConvert.h */; };
+		4645C4AF22D830DF0034E29B /* HelperMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 4645C49C22D830DF0034E29B /* HelperMacros.h */; };
+		4645C4B022D830DF0034E29B /* HelperMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 4645C49C22D830DF0034E29B /* HelperMacros.h */; };
+		4645C4B122D830DF0034E29B /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4645C49D22D830DF0034E29B /* Utils.cpp */; };
+		4645C4B222D830DF0034E29B /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4645C49D22D830DF0034E29B /* Utils.cpp */; };
+		4645C4B322D830DF0034E29B /* EJConvertTypedArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 4645C49E22D830DF0034E29B /* EJConvertTypedArray.h */; };
+		4645C4B422D830DF0034E29B /* EJConvertTypedArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 4645C49E22D830DF0034E29B /* EJConvertTypedArray.h */; };
+		4645C4B522D830DF0034E29B /* PlatformUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 4645C49F22D830DF0034E29B /* PlatformUtils.h */; };
+		4645C4B622D830DF0034E29B /* PlatformUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 4645C49F22D830DF0034E29B /* PlatformUtils.h */; };
+		4645C4B722D830DF0034E29B /* EJConvertTypedArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 4645C4A022D830DF0034E29B /* EJConvertTypedArray.m */; };
+		4645C4B822D830DF0034E29B /* EJConvertTypedArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 4645C4A022D830DF0034E29B /* EJConvertTypedArray.m */; };
+		4645C4B922D830DF0034E29B /* EJConvert.m in Sources */ = {isa = PBXBuildFile; fileRef = 4645C4A122D830DF0034E29B /* EJConvert.m */; };
+		4645C4BA22D830DF0034E29B /* EJConvert.m in Sources */ = {isa = PBXBuildFile; fileRef = 4645C4A122D830DF0034E29B /* EJConvert.m */; };
+		4645C4BB22D830DF0034E29B /* Object.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4645C4A222D830DF0034E29B /* Object.hpp */; };
+		4645C4BC22D830DF0034E29B /* Object.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4645C4A222D830DF0034E29B /* Object.hpp */; };
+		4645C4BD22D830DF0034E29B /* Object.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4645C4A322D830DF0034E29B /* Object.mm */; };
+		4645C4BE22D830DF0034E29B /* Object.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4645C4A322D830DF0034E29B /* Object.mm */; };
+		4645C4BF22D830DF0034E29B /* ScriptEngine.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4645C4A422D830DF0034E29B /* ScriptEngine.hpp */; };
+		4645C4C022D830DF0034E29B /* ScriptEngine.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4645C4A422D830DF0034E29B /* ScriptEngine.hpp */; };
+		4645C4C122D830DF0034E29B /* ScriptEngine.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4645C4A522D830DF0034E29B /* ScriptEngine.mm */; };
+		4645C4C222D830DF0034E29B /* ScriptEngine.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4645C4A522D830DF0034E29B /* ScriptEngine.mm */; };
+		4645C4C322D830DF0034E29B /* PlatformUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4645C4A622D830DF0034E29B /* PlatformUtils.mm */; };
+		4645C4C422D830DF0034E29B /* PlatformUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4645C4A622D830DF0034E29B /* PlatformUtils.mm */; };
+		4645C4C522D830DF0034E29B /* SeApi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4645C4A722D830DF0034E29B /* SeApi.h */; };
+		4645C4C622D830DF0034E29B /* SeApi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4645C4A722D830DF0034E29B /* SeApi.h */; };
+		4645C4C722D830DF0034E29B /* Class.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4645C4A822D830DF0034E29B /* Class.cpp */; };
+		4645C4C822D830DF0034E29B /* Class.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4645C4A822D830DF0034E29B /* Class.cpp */; };
+		4645C4C922D830DF0034E29B /* Utils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4645C4A922D830DF0034E29B /* Utils.hpp */; };
+		4645C4CA22D830DF0034E29B /* Utils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4645C4A922D830DF0034E29B /* Utils.hpp */; };
+		4645C4CB22D830DF0034E29B /* Base.h in Headers */ = {isa = PBXBuildFile; fileRef = 4645C4AA22D830DF0034E29B /* Base.h */; };
+		4645C4CC22D830DF0034E29B /* Base.h in Headers */ = {isa = PBXBuildFile; fileRef = 4645C4AA22D830DF0034E29B /* Base.h */; };
 		4648882520AC2BC900CD1E4A /* CCRenderTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 4648882320AC2BC800CD1E4A /* CCRenderTexture.h */; };
 		4648882620AC2BC900CD1E4A /* CCRenderTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 4648882320AC2BC800CD1E4A /* CCRenderTexture.h */; };
 		4648882720AC2BC900CD1E4A /* CCRenderTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4648882420AC2BC900CD1E4A /* CCRenderTexture.cpp */; };
@@ -1491,6 +1525,23 @@
 		461DCA5620C7E4B900B22827 /* JavaScriptObjCBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = JavaScriptObjCBridge.mm; sourceTree = "<group>"; };
 		461DCA5720C7E4B900B22827 /* JavaScriptObjCBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavaScriptObjCBridge.h; sourceTree = "<group>"; };
 		4626B1FE202D9BD800BE30B9 /* CCApplication-mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCApplication-mac.mm"; sourceTree = "<group>"; };
+		4645C49A22D830DF0034E29B /* Class.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Class.hpp; sourceTree = "<group>"; };
+		4645C49B22D830DF0034E29B /* EJConvert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EJConvert.h; sourceTree = "<group>"; };
+		4645C49C22D830DF0034E29B /* HelperMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelperMacros.h; sourceTree = "<group>"; };
+		4645C49D22D830DF0034E29B /* Utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utils.cpp; sourceTree = "<group>"; };
+		4645C49E22D830DF0034E29B /* EJConvertTypedArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EJConvertTypedArray.h; sourceTree = "<group>"; };
+		4645C49F22D830DF0034E29B /* PlatformUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformUtils.h; sourceTree = "<group>"; };
+		4645C4A022D830DF0034E29B /* EJConvertTypedArray.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EJConvertTypedArray.m; sourceTree = "<group>"; };
+		4645C4A122D830DF0034E29B /* EJConvert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EJConvert.m; sourceTree = "<group>"; };
+		4645C4A222D830DF0034E29B /* Object.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Object.hpp; sourceTree = "<group>"; };
+		4645C4A322D830DF0034E29B /* Object.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Object.mm; sourceTree = "<group>"; };
+		4645C4A422D830DF0034E29B /* ScriptEngine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ScriptEngine.hpp; sourceTree = "<group>"; };
+		4645C4A522D830DF0034E29B /* ScriptEngine.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ScriptEngine.mm; sourceTree = "<group>"; };
+		4645C4A622D830DF0034E29B /* PlatformUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PlatformUtils.mm; sourceTree = "<group>"; };
+		4645C4A722D830DF0034E29B /* SeApi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SeApi.h; sourceTree = "<group>"; };
+		4645C4A822D830DF0034E29B /* Class.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Class.cpp; sourceTree = "<group>"; };
+		4645C4A922D830DF0034E29B /* Utils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Utils.hpp; sourceTree = "<group>"; };
+		4645C4AA22D830DF0034E29B /* Base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Base.h; sourceTree = "<group>"; };
 		4648882320AC2BC800CD1E4A /* CCRenderTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCRenderTexture.h; sourceTree = "<group>"; };
 		4648882420AC2BC900CD1E4A /* CCRenderTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCRenderTexture.cpp; sourceTree = "<group>"; };
 		469301CD203FC695004A3D6C /* CCConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCConfiguration.h; sourceTree = "<group>"; };
@@ -2437,6 +2488,30 @@
 			path = "edit-box";
 			sourceTree = "<group>";
 		};
+		4645C49922D830DF0034E29B /* jsc */ = {
+			isa = PBXGroup;
+			children = (
+				4645C49A22D830DF0034E29B /* Class.hpp */,
+				4645C49B22D830DF0034E29B /* EJConvert.h */,
+				4645C49C22D830DF0034E29B /* HelperMacros.h */,
+				4645C49D22D830DF0034E29B /* Utils.cpp */,
+				4645C49E22D830DF0034E29B /* EJConvertTypedArray.h */,
+				4645C49F22D830DF0034E29B /* PlatformUtils.h */,
+				4645C4A022D830DF0034E29B /* EJConvertTypedArray.m */,
+				4645C4A122D830DF0034E29B /* EJConvert.m */,
+				4645C4A222D830DF0034E29B /* Object.hpp */,
+				4645C4A322D830DF0034E29B /* Object.mm */,
+				4645C4A422D830DF0034E29B /* ScriptEngine.hpp */,
+				4645C4A522D830DF0034E29B /* ScriptEngine.mm */,
+				4645C4A622D830DF0034E29B /* PlatformUtils.mm */,
+				4645C4A722D830DF0034E29B /* SeApi.h */,
+				4645C4A822D830DF0034E29B /* Class.cpp */,
+				4645C4A922D830DF0034E29B /* Utils.hpp */,
+				4645C4AA22D830DF0034E29B /* Base.h */,
+			);
+			path = jsc;
+			sourceTree = "<group>";
+		};
 		469301F42046AE05004A3D6C /* js-bindings */ = {
 			isa = PBXGroup;
 			children = (
@@ -2452,6 +2527,7 @@
 		469301F52046AE05004A3D6C /* jswrapper */ = {
 			isa = PBXGroup;
 			children = (
+				4645C49922D830DF0034E29B /* jsc */,
 				4693023E2046AE05004A3D6C /* config.cpp */,
 				469302382046AE05004A3D6C /* config.hpp */,
 				4693022A2046AE05004A3D6C /* HandleObject.cpp */,
@@ -2957,6 +3033,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				46D310B222AF5901001D4590 /* env.h in Headers */,
+				4645C4BB22D830DF0034E29B /* Object.hpp in Headers */,
 				046E06802185B43B00B24E2D /* IEventDispatcher.h in Headers */,
 				1A28FF891F20AFAB007A1D9D /* SRURLUtilities.h in Headers */,
 				46FDDAA7202ACC6A00931238 /* ForwardRenderer.h in Headers */,
@@ -3015,6 +3092,7 @@
 				46FDDADF202ACC6A00931238 /* RenderTarget.h in Headers */,
 				4617862920522469008256E1 /* Uri.h in Headers */,
 				469303902046AE05004A3D6C /* MappingUtils.hpp in Headers */,
+				4645C4AD22D830DF0034E29B /* EJConvert.h in Headers */,
 				1AAAC8F5205CB6E9005321B9 /* Export.h in Headers */,
 				46D310BE22AF5901001D4590 /* node_mutex.h in Headers */,
 				046E065E2185B41B00B24E2D /* TransformObject.h in Headers */,
@@ -3071,6 +3149,7 @@
 				46FDDABD202ACC6A00931238 /* DeviceGraphics.h in Headers */,
 				46FDDC01202ADDCE00931238 /* ccCArray.h in Headers */,
 				469304102046AE06004A3D6C /* jsb_helper.hpp in Headers */,
+				4645C4B322D830DF0034E29B /* EJConvertTypedArray.h in Headers */,
 				0430125D21DCF2B80007084D /* BoneData.h in Headers */,
 				50643BDB19BFAF4400EF68ED /* CCStdC.h in Headers */,
 				1A28FF591F20AFAB007A1D9D /* NSRunLoop+SRWebSocketPrivate.h in Headers */,
@@ -3080,10 +3159,13 @@
 				046E06452185B41100B24E2D /* IAnimatable.h in Headers */,
 				1A29D79E205666F500168D9A /* jsb_opengl_manual.hpp in Headers */,
 				1A52DAF6205BB81400350EE3 /* CCThreadPool.h in Headers */,
+				4645C4C522D830DF0034E29B /* SeApi.h in Headers */,
+				4645C4AB22D830DF0034E29B /* Class.hpp in Headers */,
 				043012A321DCF2B80007084D /* PointAttachment.h in Headers */,
 				046E06642185B41B00B24E2D /* Armature.h in Headers */,
 				1AAAC8E9205CB6E9005321B9 /* AudioMacros.h in Headers */,
 				1AAAC8EF205CB6E9005321B9 /* AudioEngine-inl.h in Headers */,
+				4645C4C922D830DF0034E29B /* Utils.hpp in Headers */,
 				0430125721DCF2B80007084D /* Bone.h in Headers */,
 				46FDDB83202ADDCE00931238 /* ccRandom.h in Headers */,
 				294D7D9A1D0E93A2002CE7B7 /* CCDevice-apple.h in Headers */,
@@ -3097,8 +3179,10 @@
 				46930466204FE20F004A3D6C /* CCLog.h in Headers */,
 				4617862720522469008256E1 /* WebSocket.h in Headers */,
 				46FDDA7F202ACC6A00931238 /* Renderer.h in Headers */,
+				4645C4CB22D830DF0034E29B /* Base.h in Headers */,
 				46FDDAA1202ACC6A00931238 /* InputAssembler.h in Headers */,
 				0430122321DCF2B80007084D /* Attachment.h in Headers */,
+				4645C4AF22D830DF0034E29B /* HelperMacros.h in Headers */,
 				46FDDA91202ACC6A00931238 /* Pass.h in Headers */,
 				046E069F2185B45300B24E2D /* Point.h in Headers */,
 				46D310BA22AF5901001D4590 /* inspector_io.h in Headers */,
@@ -3194,6 +3278,7 @@
 				1A28FF951F20AFAB007A1D9D /* SocketRocket.h in Headers */,
 				046E06992185B45300B24E2D /* Matrix.h in Headers */,
 				46D310D022AF5901001D4590 /* util.h in Headers */,
+				4645C4BF22D830DF0034E29B /* ScriptEngine.hpp in Headers */,
 				046E06142185B37100B24E2D /* CCArmatureDisplay.h in Headers */,
 				46178670205262BC008256E1 /* jsb_conversions.hpp in Headers */,
 				0430125921DCF2B80007084D /* AtlasAttachmentLoader.h in Headers */,
@@ -3250,6 +3335,7 @@
 				50ABC0171926664800A911A9 /* CCImage.h in Headers */,
 				ED30577F1BEC76C90083C3ED /* ioapi_mem.h in Headers */,
 				043012BD21DCF2B80007084D /* IkConstraintData.h in Headers */,
+				4645C4B522D830DF0034E29B /* PlatformUtils.h in Headers */,
 				4617864B20522469008256E1 /* HttpCookie.h in Headers */,
 				046E066A2185B41B00B24E2D /* IArmatureProxy.h in Headers */,
 			);
@@ -3269,6 +3355,7 @@
 				046E06CC2185B49F00B24E2D /* SkinData.h in Headers */,
 				46FDDB5C202ADDCE00931238 /* CCData.h in Headers */,
 				469303832046AE05004A3D6C /* Value.hpp in Headers */,
+				4645C4AC22D830DF0034E29B /* Class.hpp in Headers */,
 				046E06A02185B45300B24E2D /* Point.h in Headers */,
 				1A28FF961F20AFAB007A1D9D /* SocketRocket.h in Headers */,
 				4617864620522469008256E1 /* HttpAsynConnection-apple.h in Headers */,
@@ -3292,6 +3379,7 @@
 				046E067C2185B42F00B24E2D /* DragonBonesHeaders.h in Headers */,
 				46FDDB4E202ADDCE00931238 /* pvr.h in Headers */,
 				46FDDBB6202ADDCE00931238 /* uthash.h in Headers */,
+				4645C4B422D830DF0034E29B /* EJConvertTypedArray.h in Headers */,
 				46FDDB5E202ADDCE00931238 /* ccMacros.h in Headers */,
 				294D7D9B1D0E93A2002CE7B7 /* CCDevice-apple.h in Headers */,
 				46178650205224DA008256E1 /* CCDownloaderImpl-apple.h in Headers */,
@@ -3320,6 +3408,7 @@
 				046E07002189999600B24E2D /* jsb_cocos2dx_editor_support_auto.hpp in Headers */,
 				40AEF7B1216D940200729AA5 /* WebView-inl.h in Headers */,
 				503DD8E61926736A00CD74DD /* CCEAGLView-ios.h in Headers */,
+				4645C4BC22D830DF0034E29B /* Object.hpp in Headers */,
 				46FDDAC8202ACC6A00931238 /* GFX.h in Headers */,
 				046E06F22185B4A500B24E2D /* BinaryDataParser.h in Headers */,
 				46FDDA98202ACC6A00931238 /* Model.h in Headers */,
@@ -3343,6 +3432,7 @@
 				4617866E2052609B008256E1 /* jsb_cocos2dx_network_auto.hpp in Headers */,
 				046E066B2185B41B00B24E2D /* IArmatureProxy.h in Headers */,
 				0430128C21DCF2B80007084D /* SkeletonBounds.h in Headers */,
+				4645C4CC22D830DF0034E29B /* Base.h in Headers */,
 				46E26C89229BC906006DC27A /* Base.h in Headers */,
 				1A28FF6A1F20AFAB007A1D9D /* SRConstants.h in Headers */,
 				043012C021DCF2B80007084D /* dll.h in Headers */,
@@ -3379,11 +3469,13 @@
 				46FDDA86202ACC6A00931238 /* View.h in Headers */,
 				46FDDAD8202ACC6A00931238 /* GFXUtils.h in Headers */,
 				043012B621DCF2B80007084D /* Slot.h in Headers */,
+				4645C4AE22D830DF0034E29B /* EJConvert.h in Headers */,
 				043012A421DCF2B80007084D /* PointAttachment.h in Headers */,
 				46FDDB82202ADDCE00931238 /* ccTypes.h in Headers */,
 				50ABC00C1926664800A911A9 /* CCDevice.h in Headers */,
 				46FDDA74202ACC6A00931238 /* ProgramLib.h in Headers */,
 				46FDDAD0202ACC6A00931238 /* RenderBuffer.h in Headers */,
+				4645C4C022D830DF0034E29B /* ScriptEngine.hpp in Headers */,
 				1A28FF7A1F20AFAB007A1D9D /* SRLog.h in Headers */,
 				46FDDC64202D502F00931238 /* CCApplication.h in Headers */,
 				0430126021DCF2B80007084D /* Atlas.h in Headers */,
@@ -3414,6 +3506,7 @@
 				1A28FF721F20AFAB007A1D9D /* SRHash.h in Headers */,
 				50ABBD431925AB0000A911A9 /* CCMathBase.h in Headers */,
 				46FDDBDE202ADDCE00931238 /* TGAlib.h in Headers */,
+				4645C4CA22D830DF0034E29B /* Utils.hpp in Headers */,
 				046E06DC2185B49F00B24E2D /* ConstraintData.h in Headers */,
 				469303812046AE05004A3D6C /* config.hpp in Headers */,
 				0430124C21DCF2B80007084D /* TransformConstraint.h in Headers */,
@@ -3433,6 +3526,7 @@
 				469303652046AE05004A3D6C /* RefCounter.hpp in Headers */,
 				0430124421DCF2B80007084D /* SkeletonJson.h in Headers */,
 				469303D32046AE05004A3D6C /* jsb_gfx_auto.hpp in Headers */,
+				4645C4B622D830DF0034E29B /* PlatformUtils.h in Headers */,
 				046E068B2185B44A00B24E2D /* BaseFactory.h in Headers */,
 				046E063C2185B41100B24E2D /* WorldClock.h in Headers */,
 				40AEF7B2216D940200729AA5 /* WebView.h in Headers */,
@@ -3444,6 +3538,7 @@
 				1A29D7A420566CAC00168D9A /* CCCanvasRenderingContext2D.h in Headers */,
 				0430122E21DCF2B80007084D /* Animation.h in Headers */,
 				046E06812185B43B00B24E2D /* IEventDispatcher.h in Headers */,
+				4645C4B022D830DF0034E29B /* HelperMacros.h in Headers */,
 				046E040021804E6B00B24E2D /* CreatorAttachmentLoader.h in Headers */,
 				0430123621DCF2B80007084D /* extension.h in Headers */,
 				46D310B922AF5901001D4590 /* base64.h in Headers */,
@@ -3485,6 +3580,7 @@
 				4617862420522469008256E1 /* CCIDownloaderImpl.h in Headers */,
 				046E06EE2185B4A500B24E2D /* JSONDataParser.h in Headers */,
 				046E06F42185B4A500B24E2D /* DataParser.h in Headers */,
+				4645C4C622D830DF0034E29B /* SeApi.h in Headers */,
 				5027253B190BF1B900AAF4ED /* cocos2d.h in Headers */,
 				46FDDAAC202ACC6A00931238 /* Types.h in Headers */,
 				1AAAC876205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.hpp in Headers */,
@@ -3727,6 +3823,7 @@
 				ED30577E1BEC76C90083C3ED /* ioapi_mem.cpp in Sources */,
 				0430128F21DCF2B80007084D /* PathAttachment.c in Sources */,
 				461DCA5820C7E4BA00B22827 /* JavaScriptObjCBridge.mm in Sources */,
+				4645C4BD22D830DF0034E29B /* Object.mm in Sources */,
 				043012B321DCF2B80007084D /* PointAttachment.c in Sources */,
 				4617861920522469008256E1 /* SocketIO.cpp in Sources */,
 				46FDDABF202ACC6A00931238 /* State.cpp in Sources */,
@@ -3750,6 +3847,7 @@
 				ED3057801BEC76C90083C3ED /* ioapi.cpp in Sources */,
 				0430122721DCF2B80007084D /* PathConstraint.c in Sources */,
 				1A52DB26205BCD9200350EE3 /* Utils.cpp in Sources */,
+				4645C4B922D830DF0034E29B /* EJConvert.m in Sources */,
 				46FDDA9F202ACC6A00931238 /* ProgramLib.cpp in Sources */,
 				46FDDABB202ACC6A00931238 /* VertexFormat.cpp in Sources */,
 				0430126121DCF2B80007084D /* EventData.c in Sources */,
@@ -3776,6 +3874,7 @@
 				469301D1203FC696004A3D6C /* CCConfiguration.cpp in Sources */,
 				46FDDB93202ADDCE00931238 /* TGAlib.cpp in Sources */,
 				0430122121DCF2B80007084D /* Atlas.c in Sources */,
+				4645C4C322D830DF0034E29B /* PlatformUtils.mm in Sources */,
 				46D310CC22AF5901001D4590 /* inspector_socket.cc in Sources */,
 				046E06BB2185B49F00B24E2D /* TextureAtlasData.cpp in Sources */,
 				1A28FF831F20AFAB007A1D9D /* SRRandom.m in Sources */,
@@ -3843,6 +3942,7 @@
 				469304082046AE06004A3D6C /* jsb_global.cpp in Sources */,
 				046E066C2185B41B00B24E2D /* Slot.cpp in Sources */,
 				50ABC0151926664800A911A9 /* CCImage.cpp in Sources */,
+				4645C4C722D830DF0034E29B /* Class.cpp in Sources */,
 				046E06D12185B49F00B24E2D /* DisplayData.cpp in Sources */,
 				0430125521DCF2B80007084D /* Color.c in Sources */,
 				46FDDAD3202ACC6A00931238 /* Texture2D.cpp in Sources */,
@@ -3850,6 +3950,7 @@
 				1A28FF871F20AFAB007A1D9D /* SRSIMDHelpers.m in Sources */,
 				0430129721DCF2B80007084D /* Attachment.c in Sources */,
 				046B68AE21A294B100B33469 /* jsb_cocos2dx_spine_auto.cpp in Sources */,
+				4645C4C122D830DF0034E29B /* ScriptEngine.mm in Sources */,
 				043012AD21DCF2B80007084D /* MeshAttachment.c in Sources */,
 				50ABBD601925AB0000A911A9 /* Vec4.cpp in Sources */,
 				46FDDA93202ACC6A00931238 /* Technique.cpp in Sources */,
@@ -3858,6 +3959,7 @@
 				46FDDA6F202ACC6A00931238 /* Pass.cpp in Sources */,
 				4617863520522469008256E1 /* HttpAsynConnection-apple.m in Sources */,
 				043012B121DCF2B80007084D /* extension.c in Sources */,
+				4645C4B722D830DF0034E29B /* EJConvertTypedArray.m in Sources */,
 				461786612052607E008256E1 /* jsb_socketio.cpp in Sources */,
 				1A28FF8B1F20AFAB007A1D9D /* SRURLUtilities.m in Sources */,
 				ED3057881BEC773E0083C3ED /* tinyxml2.cpp in Sources */,
@@ -3873,6 +3975,7 @@
 				046E06742185B42500B24E2D /* DragonBones.cpp in Sources */,
 				BA21055B21009A2900E19975 /* CCEventAssetsManagerEx.cpp in Sources */,
 				046E06822185B43B00B24E2D /* EventObject.cpp in Sources */,
+				4645C4B122D830DF0034E29B /* Utils.cpp in Sources */,
 				046B68A621A292D300B33469 /* jsb_spine_manual.cpp in Sources */,
 				BA21055C21009A2C00E19975 /* Manifest.cpp in Sources */,
 				046E06392185B41100B24E2D /* WorldClock.cpp in Sources */,
@@ -4001,8 +4104,10 @@
 				1A14FD922080B4E300E10ABE /* CCGLUtils.cpp in Sources */,
 				1A28FF741F20AFAB007A1D9D /* SRHash.m in Sources */,
 				46FDDB70202ADDCE00931238 /* ZipUtils.cpp in Sources */,
+				4645C4BA22D830DF0034E29B /* EJConvert.m in Sources */,
 				50ABBD511925AB0000A911A9 /* Quaternion.cpp in Sources */,
 				46930469204FE20F004A3D6C /* CCLog.cpp in Sources */,
+				4645C4C222D830DF0034E29B /* ScriptEngine.mm in Sources */,
 				0430128E21DCF2B80007084D /* SkeletonData.c in Sources */,
 				1AAAC874205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.cpp in Sources */,
 				50ABBD491925AB0000A911A9 /* Mat4.cpp in Sources */,
@@ -4048,6 +4153,7 @@
 				0430123C21DCF2B80007084D /* PathConstraintData.c in Sources */,
 				4617862220522469008256E1 /* HttpCookie.cpp in Sources */,
 				46FDDAE2202ACC6A00931238 /* GFXUtils.cpp in Sources */,
+				4645C4C422D830DF0034E29B /* PlatformUtils.mm in Sources */,
 				469304272046AE06004A3D6C /* jsb_conversions.cpp in Sources */,
 				046E03F021804E6B00B24E2D /* SpineAnimation.cpp in Sources */,
 				0430124621DCF2B80007084D /* Json.c in Sources */,
@@ -4065,6 +4171,7 @@
 				1A28FF8C1F20AFAB007A1D9D /* SRURLUtilities.m in Sources */,
 				1A28FF541F20AFAB007A1D9D /* SRIOConsumer.m in Sources */,
 				046B68A721A292D300B33469 /* jsb_spine_manual.cpp in Sources */,
+				4645C4B222D830DF0034E29B /* Utils.cpp in Sources */,
 				469303692046AE05004A3D6C /* State.cpp in Sources */,
 				46FDDAAA202ACC6A00931238 /* Types.cpp in Sources */,
 				1A29D797205666F500168D9A /* jsb_opengl_utils.cpp in Sources */,
@@ -4074,9 +4181,11 @@
 				5027253D190BF1B900AAF4ED /* cocos2d.cpp in Sources */,
 				1A28FF781F20AFAB007A1D9D /* SRHTTPConnectMessage.m in Sources */,
 				046E06C62185B49F00B24E2D /* AnimationConfig.cpp in Sources */,
+				4645C4B822D830DF0034E29B /* EJConvertTypedArray.m in Sources */,
 				46E26C83229BC86D006DC27A /* ObjectWrap.cpp in Sources */,
 				1A28FF881F20AFAB007A1D9D /* SRSIMDHelpers.m in Sources */,
 				50ABBD451925AB0000A911A9 /* CCVertex.cpp in Sources */,
+				4645C4BE22D830DF0034E29B /* Object.mm in Sources */,
 				294D7D9D1D0E93A2002CE7B7 /* CCDevice-apple.mm in Sources */,
 				0430125021DCF2B80007084D /* Skeleton.c in Sources */,
 				469303BF2046AE05004A3D6C /* jsb_renderer_auto.cpp in Sources */,
@@ -4111,6 +4220,7 @@
 				043012B421DCF2B80007084D /* PointAttachment.c in Sources */,
 				46FDDB66202ADDCE00931238 /* ccRandom.cpp in Sources */,
 				1A28FF841F20AFAB007A1D9D /* SRRandom.m in Sources */,
+				4645C4C822D830DF0034E29B /* Class.cpp in Sources */,
 				46FDDA96202ACC6A00931238 /* RendererUtils.cpp in Sources */,
 				046E06232185B37100B24E2D /* CCTextureAtlasData.cpp in Sources */,
 				04AF6300219190ED00AED9DE /* TypedArrayPool.cpp in Sources */,
@@ -4312,7 +4422,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = YES;
 				HEADER_SEARCH_PATHS = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../external/ios/libs\"";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DCC_NEW_RENDERER";
@@ -4320,7 +4430,7 @@
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../external/sources $(SRCROOT)/../external/ios/include $(SRCROOT)/../external/ios/include/freetype $(SRCROOT)/../cocos/editor-support/ $(SRCROOT)/../external/ios/include/v8 $(SRCROOT)/../external/ios/include/uv";
-				VALID_ARCHS = "arm64 armv7";
+				VALID_ARCHS = "armv7 arm64";
 			};
 			name = Debug;
 		};
@@ -4340,7 +4450,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = YES;
 				HEADER_SEARCH_PATHS = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../external/ios/libs\"";
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
@@ -4348,7 +4458,7 @@
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../external/sources $(SRCROOT)/../external/ios/include $(SRCROOT)/../external/ios/include/freetype $(SRCROOT)/../cocos/editor-support/ $(SRCROOT)/../external/ios/include/v8 $(SRCROOT)/../external/ios/include/uv";
-				VALID_ARCHS = "arm64 armv7";
+				VALID_ARCHS = "armv7 arm64";
 			};
 			name = Release;
 		};
