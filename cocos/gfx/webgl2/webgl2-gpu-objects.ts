@@ -150,7 +150,6 @@ export interface IWebGL2GPUUniform {
     glLoc: WebGLUniformLocation;
     array: number[];
     begin: number;
-    isFirst: boolean;
 }
 
 export class WebGL2GPUUniformBlock {

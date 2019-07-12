@@ -1550,7 +1550,6 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
                             glLoc: -1,
                             array,
                             begin,
-                            isFirst: true,
                         };
                     }
                 }

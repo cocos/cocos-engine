@@ -29,7 +29,6 @@
 
 import { UITransformComponent } from '../3d';
 import { ccclass, property } from '../core/data/class-decorator';
-import { constget } from '../core/data/utils/constget';
 import Event from '../core/event/event';
 import { eventManager } from '../core/platform/event-manager';
 import { SystemEventType } from '../core/platform/event-manager/event-enum';
