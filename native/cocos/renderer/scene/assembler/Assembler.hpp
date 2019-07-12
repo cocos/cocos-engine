@@ -112,12 +112,12 @@ public:
     virtual void updateOpacity(std::size_t index, uint8_t opacity);
     
     /**
-     *  @brief Enable opacity always dirty, it will update per frame.
+     *  @brief ignore opacity flag, it will always not update vertices opacity
      */
     void ignoreOpacityFlag() { _ignoreOpacityFlag = true; }
     
     /**
-     *  @brief Is opacity always dirty.
+     *  @brief Is ignore opacity.
      *  @return _ignoreOpacityFlag
      */
     bool isIgnoreOpacityFlag() { return _ignoreOpacityFlag; }
