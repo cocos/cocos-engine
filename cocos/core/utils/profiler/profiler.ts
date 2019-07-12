@@ -39,9 +39,11 @@ interface IProfilerState {
     tricount: ICounterOption;
     logic: ICounterOption;
     render: ICounterOption;
-    mode: ICounterOption;
+    // mode: ICounterOption;
     physics: ICounterOption;
-    deferredDestory: ICounterOption;
+    textureMemory: ICounterOption;
+    bufferMemory: ICounterOption;
+    // deferredDestory: ICounterOption;
 }
 
 let _showFPS = false;
@@ -152,10 +154,12 @@ function generateStats () {
         draws: { desc: 'Draw call' },
         tricount: { desc: 'Triangle' },
         logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: 500, color: '#080' },
-        deferredDestory: { desc: 'Deferred Destory (ms)', min: 0, max: 50, average: 500 },
+        // deferredDestory: { desc: 'Deferred Destory (ms)', min: 0, max: 50, average: 500 },
         physics: { desc: 'Physics (ms)', min: 0, max: 50, average: 500 },
         render: { desc: 'Renderer (ms)', min: 0, max: 50, average: 500, color: '#f90' },
-        mode: { desc: cc.game.renderType === cc.game.RENDER_TYPE_WEBGL ? 'WebGL' : 'Canvas', min: 1 },
+        textureMemory: { desc: 'Texture memory' },
+        bufferMemory: { desc: 'Buffer memoty'},
+        // mode: { desc: cc.game.renderType === cc.game.RENDER_TYPE_WEBGL ? 'WebGL' : 'Canvas', min: 1 },
     };
 
     for (const id of Object.keys(opts)) {
@@ -244,7 +248,7 @@ function afterUpdate () {
     } else {
         getCounter('logic').end(now);
     }
-    getCounter('deferredDestory').start(now);
+    // getCounter('deferredDestory').start(now);
 }
 
 // function updateLabel (stat: IProfilerStateOption) {
@@ -257,7 +261,7 @@ function beforePhysics (){
     }
 
     const now = performance.now();
-    getCounter('deferredDestory').end(now);
+    // getCounter('deferredDestory').end(now);
     getCounter('physics').start(now);
 }
 
@@ -281,9 +285,11 @@ function afterDraw () {
     getCounter('frame').end(now);
     getCounter('fps').frame(now);
     getCounter('draws').value = device!.numDrawCalls;
+    getCounter('bufferMemory').value = device!.memoryStatus.bufferSize;
+    getCounter('textureMemory').value = device!.memoryStatus.textureSize;
     getCounter('tricount').value = device!.numTris;
     getCounter('render').end(now);
-    getCounter('mode').value = device!.gfxAPI;
+    // getCounter('mode').value = device!.gfxAPI;
 
     let left = '';
     let right = '';
