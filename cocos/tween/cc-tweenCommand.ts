@@ -16,7 +16,7 @@ export class CCTweenCommand {
         return this.quene[this.quene.length - 1];
     }
 
-    public updateChian () {
+    public updateChain () {
 
         const len = this.length;
         let i0 = 0;
@@ -61,7 +61,7 @@ export class CCTweenCommand {
     }
 
     public start () {
-        this.updateChian();
+        this.updateChain();
 
         if (this.length > 0) {
             this.firstUnion.start();

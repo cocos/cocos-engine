@@ -74,7 +74,8 @@ export class CCTween {
     }
 
     /**
-     *
+     * @zh
+     * 将以上的缓动联合成一个 union
      */
     public union () {
         if (!this._command.isExistUnion(this._default)) {
@@ -85,7 +86,8 @@ export class CCTween {
     }
 
     /**
-     *
+     * @zh
+     * 开始执行缓动，注：调用此方法后，请勿再增加缓动行为
      */
     public start () {
         if (this._default.length > 0) {
@@ -98,7 +100,8 @@ export class CCTween {
     }
 
     /**
-     *  TODO
+     * @zh
+     * 停止缓动，注：此方法尚不稳定
      */
     public stop () {
         this._command.stop();
@@ -106,8 +109,16 @@ export class CCTween {
     }
 
     /**
+     * @zh
+     * 重复几次。
      *
-     * @param times
+     * 注：目前多次调用为重写次数，不是累加次数。
+     *
+     * 注：repeat(1) 代表重复一次，即执行两次。
+     *
+     * 注：暂不支持传入 CCTween
+     *
+     * @param times 次数
      */
     public repeat (times: number) {
         if (this._uionDirty) {
@@ -121,7 +132,10 @@ export class CCTween {
     }
 
     /**
+     * @zh
+     * 一直重复。
      *
+     * 注：此方法可能会被废弃
      */
     public repeatForever () {
         if (this._uionDirty) {
@@ -135,7 +149,8 @@ export class CCTween {
     }
 
     /**
-     * 延迟多少时间这个缓动，单位是秒
+     * @zh
+     * 延迟多少时间这个缓动，单位是秒。
      * @param timeInSecond 时间
      */
     public delay (timeInSecond: number) {
@@ -151,7 +166,9 @@ export class CCTween {
 
     /**
      * @zh
-     * 注册缓动执行完成后的回调（注意：一个 to 或 一个 uion 仅支持注册一个）。
+     * 注册缓动执行完成后的回调。
+     *
+     * 注：一个 to 或 一个 union 仅支持注册一个。
      * @param callback 回调
      */
     public call (callback: (object?: any) => void) {
@@ -206,6 +223,18 @@ export class CCTween {
 
 cc.CCTween = CCTween;
 
+/**
+ * @zh
+ * 增加一个 tween 缓动，与 creator 2D 中的 cc.tween 功能类似
+ * @param target 缓动目标
+ *
+ * 注：请勿对 node 矩阵相关数据直接进行缓动，例如传入 this.node.position
+ * @example
+ * let position = new Vec3();
+ * tween(position)
+ *    .to(2000, new Vec3(0, 2, 0) }, { easing: TWEEN.Easing.Cubic.In })
+ *    .start();
+ */
 export function tween (target: Object): CCTween {
     return new CCTween(target);
 }
