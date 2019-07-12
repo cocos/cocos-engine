@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { CCTweenUnion } from './cc-tweenUnion';
 import { getWrap, IWrapped, setWrap } from './util';
 
