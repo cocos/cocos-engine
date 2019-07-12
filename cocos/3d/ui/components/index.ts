@@ -26,5 +26,6 @@ export { WebviewComponent } from './webview/webView-component';
 export { WidgetComponent } from './widget-component';
 export { LabelOutlineComponent } from './label-outline-component';
 export { GraphicsComponent } from './graphics-component';
+export { UIReorderComponent } from './ui-reorder-component';
 
 export { widgetManager } from './widget-manager';
