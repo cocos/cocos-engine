@@ -135,7 +135,7 @@ void ModelBatcher::commit(NodeProxy* node, Assembler* assembler)
     
     auto asmDirty = assembler->isDirty(AssemblerBase::VERTICES_OPACITY_CHANGED);
     auto nodeDirty = node->isDirty(RenderFlow::NODE_OPACITY_CHANGED);
-    auto needUpdateOpacity = asmDirty || nodeDirty || assembler->isOpacityAlwaysDirty();
+    auto needUpdateOpacity = (asmDirty || nodeDirty) && !assembler->isIgnoreOpacityFlag();
     
     for (std::size_t i = 0, l = assembler->getIACount(); i < l; ++i)
     {

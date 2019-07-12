@@ -3784,6 +3784,24 @@ static bool js_renderer_Assembler_setVertexFormat(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_Assembler_setVertexFormat)
 
+static bool js_renderer_Assembler_isIgnoreOpacityFlag(se::State& s)
+{
+    cocos2d::renderer::Assembler* cobj = (cocos2d::renderer::Assembler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Assembler_isIgnoreOpacityFlag : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isIgnoreOpacityFlag();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_renderer_Assembler_isIgnoreOpacityFlag : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Assembler_isIgnoreOpacityFlag)
+
 static bool js_renderer_Assembler_ignoreWorldMatrix(se::State& s)
 {
     cocos2d::renderer::Assembler* cobj = (cocos2d::renderer::Assembler*)s.nativeThisObject();
@@ -3883,21 +3901,6 @@ static bool js_renderer_Assembler_updateEffect(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_Assembler_updateEffect)
 
-static bool js_renderer_Assembler_enableOpacityAlwaysDirty(se::State& s)
-{
-    cocos2d::renderer::Assembler* cobj = (cocos2d::renderer::Assembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_Assembler_enableOpacityAlwaysDirty : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->enableOpacityAlwaysDirty();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_Assembler_enableOpacityAlwaysDirty)
-
 static bool js_renderer_Assembler_getCustomProperties(se::State& s)
 {
     cocos2d::renderer::Assembler* cobj = (cocos2d::renderer::Assembler*)s.nativeThisObject();
@@ -3938,6 +3941,21 @@ static bool js_renderer_Assembler_updateIndicesRange(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_renderer_Assembler_updateIndicesRange)
+
+static bool js_renderer_Assembler_ignoreOpacityFlag(se::State& s)
+{
+    cocos2d::renderer::Assembler* cobj = (cocos2d::renderer::Assembler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Assembler_ignoreOpacityFlag : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->ignoreOpacityFlag();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Assembler_ignoreOpacityFlag)
 
 static bool js_renderer_Assembler_setCustomProperties(se::State& s)
 {
@@ -3995,14 +4013,15 @@ bool js_register_renderer_Assembler(se::Object* obj)
     auto cls = se::Class::create("Assembler", obj, __jsb_cocos2d_renderer_AssemblerBase_proto, _SE(js_renderer_Assembler_constructor));
 
     cls->defineFunction("setVertexFormat", _SE(js_renderer_Assembler_setVertexFormat));
+    cls->defineFunction("isIgnoreOpacityFlag", _SE(js_renderer_Assembler_isIgnoreOpacityFlag));
     cls->defineFunction("ignoreWorldMatrix", _SE(js_renderer_Assembler_ignoreWorldMatrix));
     cls->defineFunction("updateVerticesRange", _SE(js_renderer_Assembler_updateVerticesRange));
     cls->defineFunction("setRenderDataList", _SE(js_renderer_Assembler_setRenderDataList));
     cls->defineFunction("updateMeshIndex", _SE(js_renderer_Assembler_updateMeshIndex));
     cls->defineFunction("updateEffect", _SE(js_renderer_Assembler_updateEffect));
-    cls->defineFunction("enableOpacityAlwaysDirty", _SE(js_renderer_Assembler_enableOpacityAlwaysDirty));
     cls->defineFunction("getCustomProperties", _SE(js_renderer_Assembler_getCustomProperties));
     cls->defineFunction("updateIndicesRange", _SE(js_renderer_Assembler_updateIndicesRange));
+    cls->defineFunction("ignoreOpacityFlag", _SE(js_renderer_Assembler_ignoreOpacityFlag));
     cls->defineFunction("setCustomProperties", _SE(js_renderer_Assembler_setCustomProperties));
     cls->defineFunction("ctor", _SE(js_renderer_Assembler_ctor));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_Assembler_finalize));

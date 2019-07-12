@@ -1627,6 +1627,16 @@ vertexformat
 },
 
 /**
+ * @method isIgnoreOpacityFlag
+ * @return {bool}
+ */
+isIgnoreOpacityFlag : function (
+)
+{
+    return false;
+},
+
+/**
  * @method ignoreWorldMatrix
  */
 ignoreWorldMatrix : function (
@@ -1683,14 +1693,6 @@ effect
 },
 
 /**
- * @method enableOpacityAlwaysDirty
- */
-enableOpacityAlwaysDirty : function (
-)
-{
-},
-
-/**
  * @method getCustomProperties
  * @return {cc.renderer::CustomProperties}
  */
@@ -1710,6 +1712,14 @@ updateIndicesRange : function (
 int, 
 int, 
 int 
+)
+{
+},
+
+/**
+ * @method ignoreOpacityFlag
+ */
+ignoreOpacityFlag : function (
 )
 {
 },
