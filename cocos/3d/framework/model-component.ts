@@ -158,12 +158,14 @@ export class ModelComponent extends RenderableComponent {
     }
 
     public recreateModel () {
-        if (this._model) {
-            this._model.destroy();
-            this._model.scene.destroyModel(this._model);
-            this._model = null;
+        if (this.isValid) {
+            if (this._model) {
+                this._model.destroy();
+                this._model.scene.destroyModel(this._model);
+                this._model = null;
+            }
+            this._updateModels();
         }
-        this._updateModels();
     }
 
     protected _updateModels () {
