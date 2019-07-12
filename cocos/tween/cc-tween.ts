@@ -1,3 +1,7 @@
+/**
+ * @category tween
+ */
+
 import { CCTweenAction } from './cc-tweenAction';
 import { CCTweenCommand } from './cc-tweenCommand';
 import { CCTweenUnion } from './cc-tweenUnion';
@@ -230,10 +234,12 @@ cc.CCTween = CCTween;
  *
  * 注：请勿对 node 矩阵相关数据直接进行缓动，例如传入 this.node.position
  * @example
+ * ```typescript
  * let position = new Vec3();
  * tween(position)
  *    .to(2000, new Vec3(0, 2, 0) }, { easing: TWEEN.Easing.Cubic.In })
  *    .start();
+ * ```
  */
 export function tween (target: Object): CCTween {
     return new CCTween(target);

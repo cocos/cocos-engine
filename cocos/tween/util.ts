@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 
 export interface IWrapped<T> {
     __cc_wrapper__: T;
