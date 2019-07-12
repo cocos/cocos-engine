@@ -108,6 +108,9 @@ let meshRendererAssembler = {
     _fillBuffer (comp, vb, ib, renderer) {
         let matrix = comp.node._worldMatrix;
         let data = vb.Float32Array;
+        if (!data) {
+            data = vb.Float32Array = new Float32Array(vb.data.buffer);
+        }
         let vtxFormat = vb.format;
         let attrPos = vtxFormat._attr2el[gfx.ATTR_POSITION];
         let attrOffset = attrPos.offset / 4;

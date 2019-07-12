@@ -160,6 +160,10 @@ let MeshBuffer = cc.Class({
             this._reallocBuffer();
         }
 
+        this._updateOffset(vertexCount, indiceCount, byteOffset);
+    },
+
+    _updateOffset (vertexCount, indiceCount, byteOffset) {
         let offsetInfo = this._offsetInfo;
         offsetInfo.vertexOffset = this.vertexOffset;
         this.vertexOffset += vertexCount;

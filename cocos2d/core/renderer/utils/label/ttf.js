@@ -32,6 +32,7 @@ const LabelOutline = require('../../../components/CCLabelOutline');
 const LabelShadow = require('../../../components/CCLabelShadow');
 const Overflow = Label.Overflow;
 const packToDynamicAtlas = require('../utils').packToDynamicAtlas;
+const deleteFromDynamicAtlas = require('../utils').deleteFromDynamicAtlas;
 
 const MAX_SIZE = 2048;
 const _invisibleAlpha = (1 / 255).toFixed(3);
@@ -351,8 +352,9 @@ module.exports = {
 
     _calDynamicAtlas (comp) {
         if(comp.cacheMode !== Label.CacheMode.BITMAP) return;
-
         let frame = comp._frame;
+        // Delete cache in atlas.
+        deleteFromDynamicAtlas(comp, frame);
         if (!frame._original) {
             frame.setRect(cc.rect(0, 0, _canvas.width, _canvas.height));
         }

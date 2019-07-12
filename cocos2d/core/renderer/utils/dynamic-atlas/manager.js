@@ -142,6 +142,17 @@ let dynamicAtlasManager = {
         _atlasIndex = -1;
     },
 
+    deleteAtlasTexture (spriteFrame) {
+        if (!spriteFrame._original) return;
+
+        let texture = spriteFrame._original._texture;
+        if (texture) {
+            for (let i = 0, l = _atlases.length; i < l; i++) {
+                _atlases[i].deleteInnerTexture(texture);
+            }
+        }
+    },
+
     /**
      * !#en Displays all the dynamic atlas in the current scene, which you can use to view the current atlas state.
      * !#zh 在当前场景中显示所有动态图集，可以用来查看当前的合图状态。

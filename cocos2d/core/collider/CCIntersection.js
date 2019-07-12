@@ -324,7 +324,7 @@ Intersection.pointInPolygon = pointInPolygon;
  * @param {Vec2} start - The start point of line
  * @param {Vec2} end - The end point of line
  * @param {boolean} isSegment - whether this line is a segment
- * @return {boolean}
+ * @return {number}
  */
 function pointLineDistance(point, start, end, isSegment) {
     var dx = end.x - start.x;

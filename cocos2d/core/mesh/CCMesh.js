@@ -139,7 +139,7 @@ let Mesh = cc.Class({
             // create sub meshes
             this._subMeshes.push(new InputAssembler(vbBuffer, ibBuffer));
             this._ibs.push({ buffer: ibBuffer, data: ibData });
-            this._vbs.push({ buffer: vbBuffer, data: vbData, format: gfxVFmt, canBatch: canBatch, Float32Array: new Float32Array(vbData.buffer)});
+            this._vbs.push({ buffer: vbBuffer, data: vbData, format: gfxVFmt, canBatch: canBatch});
         }
         
     },
