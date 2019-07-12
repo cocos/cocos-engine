@@ -33,6 +33,7 @@ import {_getClassById} from '../core/utils/js';
 import * as debug from '../core/platform/CCDebug';
 import deserialize from '../core/data/deserialize';
 import LoadingItems from './loading-items';
+import {decompressJson} from './utils';
 
 export function isSceneObj (json) {
     var SCENE_ID = 'cc.Scene';

@@ -34,7 +34,7 @@ import * as PackDownloader from './pack-downloader';
 import downloadBinary from './binary-downloader';
 import downloadText from './text-downloader';
 import downloadAudio from './audio-downloader';
-import {urlAppendTimestamp, decompressJson} from './utils';
+import {urlAppendTimestamp} from './utils';
 
 function skip () {
     return null;
