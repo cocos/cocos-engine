@@ -30,23 +30,30 @@
 #define SCRIPT_ENGINE_JSC            3
 //#define SCRIPT_ENGINE_CHAKRACORE     4
 
-#define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
 #define SCRIPT_ENGINE_V8_ON_MAC      1 // default using v8 on macOS, set 0 to disable
 
 #if defined(__APPLE__)
     #include <TargetConditionals.h>
-    #if TARGET_OS_OSX && (SCRIPT_ENGINE_V8_ON_MAC == 0)
-        #undef SCRIPT_ENGINE_TYPE
-        #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC
+    #if TARGET_OS_OSX
+        #if (SCRIPT_ENGINE_V8_ON_MAC == 0)
+            #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC
+        #else
+            #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
+        #endif
     #endif
 
-    // v8 ios only support arm64
     #if TARGET_OS_IOS
-        #ifndef __arm64__
-            #undef SCRIPT_ENGINE_TYPE
+        #ifdef __arm64__
+            #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
+        #else
             #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC
         #endif
     #endif
+
+    //TODO how to make simulator build with v8 too? Because in release mode, it will build
+    // which means it will build armv7, but v8 doesn't support armv7.
+#else
+    #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
 #endif
 
 
