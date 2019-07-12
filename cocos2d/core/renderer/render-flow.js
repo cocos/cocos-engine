@@ -50,7 +50,9 @@ _proto._opacity = function (node) {
     _batcher.parentOpacityDirty++;
 
     let comp = node._renderComponent;
-    if (comp && comp._updateColor) comp._updateColor();
+    if (comp) {
+        comp._updateColor();
+    }
 
     node._renderFlag &= ~OPACITY;
     this._next._func(node);

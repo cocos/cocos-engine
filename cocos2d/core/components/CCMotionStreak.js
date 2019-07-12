@@ -287,6 +287,10 @@ var MotionStreak = cc.Class({
         if (CC_EDITOR) {
             cc.engine.repaintInEditMode();
         }
+    },
+
+    update (dt) {
+        this._assembler.update(this, dt);
     }
 });
 

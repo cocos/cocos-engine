@@ -81,11 +81,6 @@ export default class MotionStreakAssembler extends Assembler2D {
         this._renderData.createFlexData(0, 16, (16 - 2) * 3);
     }
 
-    updateRenderData (comp) {
-        let dt = cc.director.getDeltaTime();
-        this.update(comp, dt);
-    }
-
     update (comp, dt) {
         if (CC_EDITOR && !comp.preview) return;
 
