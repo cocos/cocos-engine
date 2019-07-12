@@ -417,7 +417,7 @@ Local<Value> ErrnoException(Isolate* isolate,
 static Local<String> StringFromPath(Isolate* isolate, const char* path) {
 #ifdef _WIN32
     if (strncmp(path, "\\\\?\\UNC\\", 8) == 0) {
-        return String::Concat(FIXED_ONE_BYTE_STRING(isolate, "\\\\"),
+        return String::Concat(isolate, FIXED_ONE_BYTE_STRING(isolate, "\\\\"),
                               String::NewFromUtf8(isolate, path + 8));
     } else if (strncmp(path, "\\\\?\\", 4) == 0) {
         return String::NewFromUtf8(isolate, path + 4);
