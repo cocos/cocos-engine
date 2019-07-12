@@ -82,12 +82,7 @@ let RenderComponent = cc.Class({
         this.setVertsDirty(true);
         Assembler.init(this);
 
-        if (CC_JSB) {
-            this._updateColor();
-        }
-        else {
-            this.node._renderFlag |= RenderFlow.FLAG_OPACITY;
-        }
+        this._updateColor();
     },
 
     __preload () {
@@ -104,7 +99,7 @@ let RenderComponent = cc.Class({
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
         this.node.on(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
 
-        this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
+        this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_OPACITY;
     },
 
     onDisable () {
@@ -214,6 +209,8 @@ let RenderComponent = cc.Class({
         if (this._assembler.updateColor) {
             this._assembler.updateColor(this);
         }
+
+        this.node._renderFlag &= ~RenderFlow.FLAG_OPACITY;
     }
 });
 
