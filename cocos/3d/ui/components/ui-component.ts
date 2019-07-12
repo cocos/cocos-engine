@@ -37,7 +37,6 @@ import { CanvasComponent } from './canvas-component';
 /**
  * @zh
  * UI 及 UI 模型渲染基类。
- * 可通过 cc.UIComponent 获得该组件。
  */
 @ccclass('cc.UIComponent')
 @executionOrder(110)
