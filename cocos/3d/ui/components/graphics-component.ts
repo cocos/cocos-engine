@@ -29,7 +29,6 @@
  */
 
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { constget } from '../../../core/data/utils/constget';
 import { Color } from '../../../core/value-types';
 import { Model } from '../../../renderer';
 import { UI } from '../../../renderer/ui/ui';

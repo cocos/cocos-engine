@@ -34,7 +34,6 @@ import {
     property,
     requireComponent,
 } from '../../../core/data/class-decorator';
-import { constget } from '../../../core/data/utils/constget';
 import { SystemEventType } from '../../../core/platform';
 import { Color } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';

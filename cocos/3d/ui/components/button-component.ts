@@ -31,8 +31,7 @@
 
 import { SpriteFrame } from '../../../assets';
 import { Component, EventHandler as ComponentEventHandler } from '../../../components';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { constget } from '../../../core/data/utils/constget';
+import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { EventMouse, EventTouch, SystemEventType } from '../../../core/platform';
 import { lerp } from '../../../core/utils';
 import { Color, Vec3 } from '../../../core/value-types';
