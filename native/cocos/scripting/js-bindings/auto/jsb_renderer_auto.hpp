@@ -244,14 +244,15 @@ extern se::Class* __jsb_cocos2d_renderer_Assembler_class;
 bool js_register_cocos2d_renderer_Assembler(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
 SE_DECLARE_FUNC(js_renderer_Assembler_setVertexFormat);
+SE_DECLARE_FUNC(js_renderer_Assembler_isIgnoreOpacityFlag);
 SE_DECLARE_FUNC(js_renderer_Assembler_ignoreWorldMatrix);
 SE_DECLARE_FUNC(js_renderer_Assembler_updateVerticesRange);
 SE_DECLARE_FUNC(js_renderer_Assembler_setRenderDataList);
 SE_DECLARE_FUNC(js_renderer_Assembler_updateMeshIndex);
 SE_DECLARE_FUNC(js_renderer_Assembler_updateEffect);
-SE_DECLARE_FUNC(js_renderer_Assembler_enableOpacityAlwaysDirty);
 SE_DECLARE_FUNC(js_renderer_Assembler_getCustomProperties);
 SE_DECLARE_FUNC(js_renderer_Assembler_updateIndicesRange);
+SE_DECLARE_FUNC(js_renderer_Assembler_ignoreOpacityFlag);
 SE_DECLARE_FUNC(js_renderer_Assembler_setCustomProperties);
 SE_DECLARE_FUNC(js_renderer_Assembler_Assembler);
 

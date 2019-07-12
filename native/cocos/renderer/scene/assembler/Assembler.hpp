@@ -112,15 +112,15 @@ public:
     virtual void updateOpacity(std::size_t index, uint8_t opacity);
     
     /**
-     *  @brief Enable opacity always dirty, it will update per frame.
+     *  @brief ignore opacity flag, it will always not update vertices opacity
      */
-    void enableOpacityAlwaysDirty() { _opacityAlwaysDirty = true; }
+    void ignoreOpacityFlag() { _ignoreOpacityFlag = true; }
     
     /**
-     *  @brief Is opacity always dirty.
-     *  @return _opacityAlwaysDirty
+     *  @brief Is ignore opacity.
+     *  @return _ignoreOpacityFlag
      */
-    bool isOpacityAlwaysDirty() { return _opacityAlwaysDirty; }
+    bool isIgnoreOpacityFlag() { return _ignoreOpacityFlag; }
     
     /**
      *  @brief Enable ignore world matrix.
@@ -196,7 +196,7 @@ protected:
     const VertexFormat::Element* _vfColor = nullptr;
     
     bool _ignoreWorldMatrix = false;
-    bool _opacityAlwaysDirty = false;
+    bool _ignoreOpacityFlag = false;
     
     CustomProperties* _customProp = nullptr;
 };
