@@ -1072,13 +1072,6 @@ class Director extends EventTarget {
         }
     }
 
-    public __fastOn (type, callback, target) {
-        (this as any).add(type, callback, target);
-    }
-
-    public __fastOff (type, callback, target) {
-        (this as any).remove(type, callback, target);
-    }
 }
 
 /**
