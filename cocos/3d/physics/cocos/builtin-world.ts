@@ -3,8 +3,8 @@
  */
 
 import { Vec3 } from '../../../core/value-types';
-import { AfterStepCallback, BeforeStepCallback, BuiltInRigidBodyBase, IRaycastOptions,
-    ITriggerEventType, PhysicsWorldBase, RigidBodyBase, ShapeBase } from '../api';
+import { AfterStepCallback, BeforeStepCallback, BuiltInRigidBodyBase, BuiltInWorldBase,
+    IRaycastOptions, ITriggerEventType, ShapeBase } from '../api';
 import { RaycastResult } from '../raycast-result';
 import { getWrap } from '../util';
 import { BuiltInBody } from './builtin-body';
@@ -16,7 +16,7 @@ import { ArrayCollisionMatrix } from './utils/array-collision-matrix';
  * efficient discrete collision detector,
  * not a full physical simulator
  */
-export class BuiltInWorld implements PhysicsWorldBase {
+export class BuiltInWorld implements BuiltInWorldBase {
 
     private _bodies: BuiltInRigidBodyBase[] = [];
 

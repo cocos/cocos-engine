@@ -8,7 +8,7 @@ import { BoxShape, PhysicsWorld, RigidBody, SphereShape } from './impl-selector'
 import { RaycastResult } from './raycast-result';
 
 export function createPhysicsWorld (): PhysicsWorldBase {
-    return new PhysicsWorld();
+    return new PhysicsWorld() as PhysicsWorldBase;
 }
 
 export function createRigidBody (options?: ICreateBodyOptions): RigidBodyBase {

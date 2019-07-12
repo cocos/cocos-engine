@@ -49,7 +49,7 @@ export type BeforeStepCallback = () => void;
 
 export type AfterStepCallback = () => void;
 
-export interface PhysicsWorldBase {
+export interface BuiltInWorldBase {
 
     step (deltaTime: number, ...args: any): void;
 
@@ -78,6 +78,17 @@ export interface PhysicsWorldBase {
      * @return True if any body was hit.
      */
     raycastAll (from: Vec3, to: Vec3, options: IRaycastOptions, callback: (result: RaycastResult) => void): boolean;
+}
+
+export interface PhysicsWorldBase extends BuiltInWorldBase {
+
+    setGravity (gravity: Vec3): void;
+
+    getGravity (out: Vec3): void;
+
+    getAllowSleep (): boolean;
+
+    setAllowSleep (v: boolean): void;
 }
 
 export interface BuiltInRigidBodyBase {
