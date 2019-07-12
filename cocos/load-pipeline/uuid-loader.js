@@ -221,6 +221,11 @@ export function loadUuid (item, callback) {
     if (typeof item.content === 'string') {
         try {
             json = JSON.parse(item.content);
+            if (!CC_DEBUG && json.keys && json.data) {
+                var keys = json.keys;
+                json = json.data;
+                decompressJson(json, keys);
+            }
         }
         catch (e) {
             return new Error(debug.getError(4923, item.id, e.stack));
