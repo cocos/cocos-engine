@@ -221,6 +221,14 @@ class Director extends EventTarget {
      */
     public static readonly EVENT_BEFORE_PHYSICS = 'director_before_physics';
 
+    /**
+     * @en The event which will be triggered after the physics process.
+     * @zh 物理过程之后所触发的事件。
+     * @event cc.Director.EVENT_AFTER_PHYSICS
+     * @readonly
+     */
+    public static readonly EVENT_AFTER_PHYSICS = 'director_after_physics';
+
     private invalid: boolean;
     private _paused: boolean;
     private _purgeDirectorInNextLoop: boolean;
@@ -1059,6 +1067,7 @@ class Director extends EventTarget {
 
             this.emit(Director.EVENT_BEFORE_PHYSICS);
             this._physicsSystem!.update(this._deltaTime);
+            this.emit(Director.EVENT_AFTER_PHYSICS);
 
             this.emit(Director.EVENT_BEFORE_DRAW);
             this._root!.frameMove(this._deltaTime);

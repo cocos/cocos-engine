@@ -43,7 +43,6 @@ interface IProfilerState {
     physics: ICounterOption;
     textureMemory: ICounterOption;
     bufferMemory: ICounterOption;
-    // deferredDestory: ICounterOption;
 }
 
 let _showFPS = false;
@@ -154,7 +153,6 @@ function generateStats () {
         draws: { desc: 'Draw call' },
         tricount: { desc: 'Triangle' },
         logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: 500, color: '#080' },
-        // deferredDestory: { desc: 'Deferred Destory (ms)', min: 0, max: 50, average: 500 },
         physics: { desc: 'Physics (ms)', min: 0, max: 50, average: 500 },
         render: { desc: 'Renderer (ms)', min: 0, max: 50, average: 500, color: '#f90' },
         textureMemory: { desc: 'Texture memory' },
@@ -248,7 +246,6 @@ function afterUpdate () {
     } else {
         getCounter('logic').end(now);
     }
-    // getCounter('deferredDestory').start(now);
 }
 
 // function updateLabel (stat: IProfilerStateOption) {
@@ -261,8 +258,16 @@ function beforePhysics (){
     }
 
     const now = performance.now();
-    // getCounter('deferredDestory').end(now);
     getCounter('physics').start(now);
+}
+
+function afterPhysics (){
+    if (!_stats){
+        return;
+    }
+
+    const now = performance.now();
+    getCounter('physics').end(now);
 }
 
 function beforeDraw (){
@@ -271,7 +276,6 @@ function beforeDraw (){
     }
 
     const now = performance.now();
-    getCounter('physics').end(now);
     getCounter('render').start(now);
 }
 
@@ -324,6 +328,7 @@ export const profiler = {
             cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, beforeUpdate);
             cc.director.off(cc.Director.EVENT_AFTER_UPDATE, afterUpdate);
             cc.director.off(cc.Director.EVENT_BEFORE_PHYSICS, beforePhysics);
+            cc.director.off(cc.Director.EVENT_AFTER_PHYSICS, afterPhysics);
             cc.director.off(cc.Director.EVENT_BEFORE_DRAW, beforeDraw);
             cc.director.off(cc.Director.EVENT_AFTER_DRAW, afterDraw);
             _showFPS = false;
@@ -343,6 +348,7 @@ export const profiler = {
             cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, beforeUpdate);
             cc.director.on(cc.Director.EVENT_AFTER_UPDATE, afterUpdate);
             cc.director.on(cc.Director.EVENT_BEFORE_PHYSICS, beforePhysics);
+            cc.director.on(cc.Director.EVENT_AFTER_PHYSICS, afterPhysics);
             cc.director.on(cc.Director.EVENT_BEFORE_DRAW, beforeDraw);
             cc.director.on(cc.Director.EVENT_AFTER_DRAW, afterDraw);
             _showFPS = true;
