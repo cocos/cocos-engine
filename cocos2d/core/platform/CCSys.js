@@ -402,6 +402,12 @@ function initSys () {
      */
     sys.JKW_GAME = 112;
     /**
+     * @property {Number} ALIPAY_GAME
+     * @readOnly
+     * @default 113
+     */
+    sys.ALIPAY_GAME = 113;
+    /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
      * @readOnly
@@ -443,6 +449,13 @@ function initSys () {
      * @default "xiaomigame"
      */
     sys.BROWSER_TYPE_XIAOMI_GAME = "xiaomigame";
+    /**
+     * BROWSER_TYPE_ALIPAY_GAME
+     * @property {String} BROWSER_TYPE_ALIPAY_GAME
+     * @readOnly
+     * @default "alipaygame"
+     */
+    sys.BROWSER_TYPE_ALIPAY_GAME = "alipaygame";
     /**
      * BROWSER_TYPE_QQ_PLAY
      * @property {String} BROWSER_TYPE_QQ_PLAY

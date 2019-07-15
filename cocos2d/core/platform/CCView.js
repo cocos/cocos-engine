@@ -33,10 +33,12 @@ require('../platform/CCClass');
 // TODO: move into adapter
 const isXiaomiGame = (cc.sys.platform === cc.sys.XIAOMI_GAME);
 const isBaiduGame = (cc.sys.platform === cc.sys.BAIDU_GAME);
+const isAlipayGame = (cc.sys.platform === cc.sys.ALIPAY_GAME);
 
 var __BrowserGetter = {
     init: function(){
-        if (!CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame && !isXiaomiGame) {
+        // NOTE: not merge into v2.2.0, move into Alipay adapter
+        if (!CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame && !isXiaomiGame && !isAlipayGame) {
             this.html = document.getElementsByTagName("html")[0];
         }
     },
@@ -72,6 +74,11 @@ if (isBaiduGame) {
 
 if (isXiaomiGame) {
     __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_XIAOMI_GAME;
+}
+
+// NOTE: not merge into v2.2.0, move into Alipay adapter
+if (isAlipayGame) {
+    __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_ALIPAY_GAME;
 }
 
 if (CC_WECHATGAME) {
@@ -420,7 +427,8 @@ cc.js.mixin(View.prototype, {
     },
 
     _adjustViewportMeta: function () {
-        if (this._isAdjustViewport && !CC_JSB && !CC_RUNTIME && !CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame && !isXiaomiGame) {
+        // NOTE: not merge into v2.2.0, move into Alipay adapter
+        if (this._isAdjustViewport && !CC_JSB && !CC_RUNTIME && !CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame && !isXiaomiGame && !isAlipayGame) {
             this._setViewportMeta(__BrowserGetter.meta, false);
             this._isAdjustViewport = false;
         }
@@ -822,7 +830,8 @@ cc.js.mixin(View.prototype, {
      * @param {ResolutionPolicy|Number} resolutionPolicy The resolution policy desired
      */
     setRealPixelResolution: function (width, height, resolutionPolicy) {
-        if (!CC_JSB && !CC_RUNTIME && !CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame && !isXiaomiGame) {
+        // NOTE: not merge into v2.2.0, move into Alipay adapter
+        if (!CC_JSB && !CC_RUNTIME && !CC_WECHATGAME && !CC_QQPLAY && !isBaiduGame && !isXiaomiGame && !isAlipayGame) {
             // Set viewport's width
             this._setViewportMeta({"width": width}, true);
 
@@ -1080,7 +1089,8 @@ cc.ContainerStrategy = cc.Class({
     _setupContainer: function (view, w, h) {
         var locCanvas = cc.game.canvas, locContainer = cc.game.container;
 
-        if (!CC_WECHATGAME && !isBaiduGame && !isXiaomiGame) {
+        // NOTE: not merge into v2.2.0, move into Alipay adapter
+        if (!CC_WECHATGAME && !isBaiduGame && !isXiaomiGame && !isAlipayGame) {
             if (cc.sys.os === cc.sys.OS_ANDROID) {
                 document.body.style.width = (view._isRotated ? h : w) + 'px';
                 document.body.style.height = (view._isRotated ? w : h) + 'px';

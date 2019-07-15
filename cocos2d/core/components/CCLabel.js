@@ -549,7 +549,6 @@ let Label = cc.Class({
     },
 
     onDestroy () {
-        this._assembler && this._assembler._resetAssemblerData && this._assembler._resetAssemblerData(this._assemblerData);
         this._assemblerData = null;
         this._letterTexture = null;
         if (this._ttfTexture) {
@@ -599,11 +598,11 @@ let Label = cc.Class({
     },
 
     _applyFontTexture (force) {
+        let self = this;
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
             let spriteFrame = font.spriteFrame;
             this._frame = spriteFrame;
-            let self = this;
             let onBMFontTextureLoaded = function () {
                 // TODO: old texture in material have been released by loader
                 self._frame._texture = spriteFrame._texture;
@@ -637,6 +636,9 @@ let Label = cc.Class({
             } else if (!this._ttfTexture) {
                 this._ttfTexture = new cc.Texture2D();
                 this._assemblerData = this._assembler._getAssemblerData();
+                this._ttfTexture.on('load', function () {
+                    self._assembler && self._assembler._resetAssemblerData && self._assembler._resetAssemblerData(self._assemblerData);
+                });
                 this._ttfTexture.initWithElement(this._assemblerData.canvas);
             } 
 
