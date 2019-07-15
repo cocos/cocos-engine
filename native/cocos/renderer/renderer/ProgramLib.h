@@ -75,21 +75,25 @@ public:
     /**
      *  @brief Gets unique key for the given program name and defines key.
      */
-    uint32_t getKey(const std::string& name, int32_t definesKey);
+    std::string getKey(const std::string& name, const ValueMap& defines);
 
     /**
      *  @brief Gets program by template name, define settings and defines key.
      *  @note The return value needs to be released by its 'release' method.
      */
-    Program* getProgram(const std::string& name, const ValueMap& defines, int32_t definesKey);
+    Program* getProgram(const std::string& name, const ValueMap& defines);
     
-    Value getValueFromDefineList(const std::string& name, ValueMap* defines);
+    Value getValueFromDefineList(const std::string& name, const ValueMap& define);
+
+private:
+    uint32_t getValueKey(const ValueMap& define, const Value& v);
+    
 private:
     DeviceGraphics* _device = nullptr;
     const char* _precisionReplace = "precision highp float;";
     const char* _precision = "#ifdef GL_ES\nprecision highp float;\n#endif\n";
     std::unordered_map<std::string, Template> _templates;
-    std::unordered_map<uint32_t, Program*> _cache;
+    std::unordered_map<std::string, Program*> _cache;
 };
 
 // end of renderer group

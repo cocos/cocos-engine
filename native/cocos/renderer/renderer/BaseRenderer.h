@@ -128,6 +128,8 @@ protected:
     RecyclePool<DrawItem>* _drawItems = nullptr;
     RecyclePool<StageInfo>* _stageInfos = nullptr;
     RecyclePool<View>* _views = nullptr;
+    
+    cocos2d::Mat3* _tmpMat3 = nullptr;
 
     CC_DISALLOW_COPY_ASSIGN_AND_MOVE(BaseRenderer);
 };

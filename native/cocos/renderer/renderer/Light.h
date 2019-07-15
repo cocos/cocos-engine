@@ -299,6 +299,8 @@ private:
     
     Mat4 _worldMatrix;
     Mat4 _worldRT;
+
+    Vec3 _forward = Vec3(0, 0, -1.f);
 };
 
 // end of renderer group

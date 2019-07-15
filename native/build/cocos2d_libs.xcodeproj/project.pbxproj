@@ -845,6 +845,10 @@
 		423379A422BB8DEA00E5D8A2 /* CustomProperties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 423379A122BB8DEA00E5D8A2 /* CustomProperties.cpp */; };
 		423379A522BB8DEA00E5D8A2 /* CustomProperties.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 423379A222BB8DEA00E5D8A2 /* CustomProperties.hpp */; };
 		423379A622BB8DEA00E5D8A2 /* CustomProperties.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 423379A222BB8DEA00E5D8A2 /* CustomProperties.hpp */; };
+		425D3FF122D86BEF00BCED11 /* Mat3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 425D3FEF22D86BEF00BCED11 /* Mat3.cpp */; };
+		425D3FF222D86BEF00BCED11 /* Mat3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 425D3FEF22D86BEF00BCED11 /* Mat3.cpp */; };
+		425D3FF322D86BEF00BCED11 /* Mat3.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 425D3FF022D86BEF00BCED11 /* Mat3.hpp */; };
+		425D3FF422D86BEF00BCED11 /* Mat3.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 425D3FF022D86BEF00BCED11 /* Mat3.hpp */; };
 		4617861920522469008256E1 /* SocketIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 461785FE20522468008256E1 /* SocketIO.cpp */; };
 		4617861A20522469008256E1 /* SocketIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 461785FE20522468008256E1 /* SocketIO.cpp */; };
 		4617862120522469008256E1 /* HttpCookie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4617860220522468008256E1 /* HttpCookie.cpp */; };
@@ -1846,6 +1850,8 @@
 		4233799C22BB43B900E5D8A2 /* RecyclePool.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RecyclePool.hpp; sourceTree = "<group>"; };
 		423379A122BB8DEA00E5D8A2 /* CustomProperties.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CustomProperties.cpp; sourceTree = "<group>"; };
 		423379A222BB8DEA00E5D8A2 /* CustomProperties.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CustomProperties.hpp; sourceTree = "<group>"; };
+		425D3FEF22D86BEF00BCED11 /* Mat3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Mat3.cpp; sourceTree = "<group>"; };
+		425D3FF022D86BEF00BCED11 /* Mat3.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Mat3.hpp; sourceTree = "<group>"; };
 		461785FE20522468008256E1 /* SocketIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SocketIO.cpp; sourceTree = "<group>"; };
 		4617860220522468008256E1 /* HttpCookie.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HttpCookie.cpp; sourceTree = "<group>"; };
 		4617860420522469008256E1 /* CCIDownloaderImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCIDownloaderImpl.h; sourceTree = "<group>"; };
@@ -3177,6 +3183,8 @@
 				50ABBD351925AB0000A911A9 /* Vec4.cpp */,
 				50ABBD361925AB0000A911A9 /* Vec4.h */,
 				50ABBD371925AB0000A911A9 /* Vec4.inl */,
+				425D3FEF22D86BEF00BCED11 /* Mat3.cpp */,
+				425D3FF022D86BEF00BCED11 /* Mat3.hpp */,
 			);
 			name = math;
 			path = ../cocos/math;
@@ -3843,6 +3851,7 @@
 				1A52DB45205BCD9200350EE3 /* Base.h in Headers */,
 				1A52DB65205BCDC700350EE3 /* SeApi.h in Headers */,
 				046E06602185B41B00B24E2D /* DeformVertices.h in Headers */,
+				425D3FF322D86BEF00BCED11 /* Mat3.hpp in Headers */,
 				1A28FF6D1F20AFAB007A1D9D /* SRError.h in Headers */,
 				46AE3FE32092F3A600F3A228 /* inspector_agent.h in Headers */,
 				46AE3FEB2092F3A600F3A228 /* node_mutex.h in Headers */,
@@ -3961,6 +3970,7 @@
 				1A29D79B205666F500168D9A /* jsb_opengl_utils.hpp in Headers */,
 				04DBD4CA22AE2DBD00DBE4CD /* TransformConstraint.h in Headers */,
 				1A28FF8E1F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.h in Headers */,
+				425D3FF422D86BEF00BCED11 /* Mat3.hpp in Headers */,
 				46FDDBA0202ADDCE00931238 /* CCVector.h in Headers */,
 				46FDDB54202ADDCE00931238 /* utlist.h in Headers */,
 				046E06252185B37100B24E2D /* CCSlot.h in Headers */,
@@ -4418,6 +4428,7 @@
 				045F672822A50A8D0033F7BD /* RenderData.cpp in Sources */,
 				50ABBD501925AB0000A911A9 /* Quaternion.cpp in Sources */,
 				0418549F228D7E5700F8DF31 /* ParticleSimulator.cpp in Sources */,
+				425D3FF122D86BEF00BCED11 /* Mat3.cpp in Sources */,
 				ED30579A1BEC77B70083C3ED /* ConvertUTF.c in Sources */,
 				046E06C92185B49F00B24E2D /* UserData.cpp in Sources */,
 				46FDDA79202ACC6A00931238 /* Camera.cpp in Sources */,
@@ -4708,6 +4719,7 @@
 				1A28FF901F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.m in Sources */,
 				046E06C42185B49F00B24E2D /* ArmatureData.cpp in Sources */,
 				50ABC0161926664800A911A9 /* CCImage.cpp in Sources */,
+				425D3FF222D86BEF00BCED11 /* Mat3.cpp in Sources */,
 				04DBD40E22AE2DBD00DBE4CD /* VertexAttachment.cpp in Sources */,
 				469303852046AE05004A3D6C /* MappingUtils.cpp in Sources */,
 				0431A06A22CCA441003356C9 /* AssemblerSprite.cpp in Sources */,

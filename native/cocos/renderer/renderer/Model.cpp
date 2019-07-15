@@ -87,13 +87,25 @@ void Model::setEffect(Effect* effect, CustomProperties* customProperties)
     _uniforms.clear();
     
     if (effect != nullptr) {
-        
-        if (customProperties != nullptr) {
-            effect->mergeCustomProperties(customProperties);
-        }
-        
         _defines = effect->extractDefines();
         _uniforms.push_back(effect->extractProperties());
+    }
+    
+    if (customProperties != nullptr) {
+        ValueMap* tmpMap = customProperties->extractDefines();
+        for (auto& e : *tmpMap)
+        {
+            const std::string& key = e.first;
+            if(_defines->count(key) == 0)
+            {
+                _defines->emplace(key, e.second);
+            }
+            else
+            {
+                _defines->find(key)->second = e.second;
+            }
+        }
+        _uniforms.push_back(customProperties->extractProperties());
     }
 }
 

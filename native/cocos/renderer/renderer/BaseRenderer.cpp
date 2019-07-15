@@ -43,6 +43,8 @@ BaseRenderer::BaseRenderer()
     _drawItems = new RecyclePool<DrawItem>([]()mutable->DrawItem*{return new DrawItem();},100);
     _stageInfos = new RecyclePool<StageInfo>([]()mutable->StageInfo*{return new StageInfo();}, 10);
     _views = new RecyclePool<View>([]()mutable->View*{return new View();}, 8);
+    
+    _tmpMat3 = new Mat3();
 }
 
 BaseRenderer::~BaseRenderer()
@@ -64,6 +66,8 @@ BaseRenderer::~BaseRenderer()
     
     delete _views;
     _views = nullptr;
+    
+    _tmpMat3 = nullptr;
 }
 
 bool BaseRenderer::init(DeviceGraphics* device, std::vector<ProgramLib::Template>& programTemplates)
@@ -259,10 +263,10 @@ void BaseRenderer::draw(const StageItem& item)
     Mat4 worldMatrix = item.model->getWorldMatrix();
     _device->setUniformMat4("cc_matWorld", worldMatrix.m);
 
-    //REFINE: add Mat3
-    worldMatrix.inverse();
-    worldMatrix.transpose();
-    _device->setUniformMat4("cc_mat3WorldIT", worldMatrix.m);
+    Mat3::fromMat4(*_tmpMat3, worldMatrix);
+    _tmpMat3->inverse();
+    _tmpMat3->transpose();
+    _device->setUniformMat4("cc_mat3WorldIT", _tmpMat3->m);
     
     // set technique uniforms
     auto effect = item.effect;
@@ -274,7 +278,6 @@ void BaseRenderer::draw(const StageItem& item)
     }
     
     auto ia = item.ia;
-    const int32_t& definesKey = item.effect->getDefinesKey();
     // for each pass
     for (const auto& pass : item.technique->getPasses())
     {
@@ -287,14 +290,7 @@ void BaseRenderer::draw(const StageItem& item)
         
         // set primitive type
         _device->setPrimitiveType(ia->_primitiveType);
-        
-        // set program
-        if(!_program || _programName != pass->_programName || _definesKey != definesKey)
-        {
-            _programName = pass->_programName;
-            _definesKey = definesKey;
-            _program = _programLib->getProgram(pass->_programName, *(item.defines), _definesKey);
-        }
+        _program = _programLib->getProgram(pass->_programName, *(item.defines));
         _device->setProgram(_program);
         
         // cull mode

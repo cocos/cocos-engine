@@ -159,17 +159,22 @@ void ForwardRenderer::updateLights(Scene* scene)
             }
         }
     }
-    updateDefines();
+    
+    if (lights.size() > 0)
+    {
+        updateDefines();
+    }
+    
     _numLights = lights.size();
 }
 
 void ForwardRenderer::updateDefines()
 {
-    _defines.emplace(std::make_pair("_NUM_DIR_LIGHTS", std::min(4, (int)_directionalLights.size())));
-    _defines.emplace(std::make_pair("_NUM_POINT_LIGHTS", std::min(4, (int)_pointLights.size())));
-    _defines.emplace(std::make_pair("_NUM_SPOT_LIGHTS", std::min(4, (int)_spotLights.size())));
-    _defines.emplace(std::make_pair("_NUM_AMBIENT_LIGHTS", std::min(4, (int)_ambientLights.size())));
-    _defines.emplace(std::make_pair("CC_NUM_SHADOW_LIGHTS", std::min(4, (int)_shadowLights.size())));
+    _defines.emplace(std::make_pair("_NUM_DIR_LIGHTS", Value(std::min(4, (int)_directionalLights.size()))));
+    _defines.emplace(std::make_pair("_NUM_POINT_LIGHTS", Value(std::min(4, (int)_pointLights.size()))));
+    _defines.emplace(std::make_pair("_NUM_SPOT_LIGHTS", Value(std::min(4, (int)_spotLights.size()))));
+    _defines.emplace(std::make_pair("_NUM_AMBIENT_LIGHTS", Value(std::min(4, (int)_ambientLights.size()))));
+    _defines.emplace(std::make_pair("CC_NUM_SHADOW_LIGHTS", Value(std::min(4, (int)_shadowLights.size()))));
 }
 
 void ForwardRenderer::submitLightsUniforms()
@@ -194,8 +199,8 @@ void ForwardRenderer::submitLightsUniforms()
             colorVec3.set(light->getColorUniform());
             *(colors + index) = colorVec3.x;
             *(colors + index + 1) = colorVec3.y;
-            *(colors + index + 1) = colorVec3.z;
-            *(colors + index + 1) = 0;
+            *(colors + index + 2) = colorVec3.z;
+            *(colors + index + 3) = 0;
         }
         _device->setUniformfv("cc_dirLightDirection", count * 4, directions);
         _device->setUniformfv("cc_dirLightColor", count * 4, colors);
@@ -221,8 +226,8 @@ void ForwardRenderer::submitLightsUniforms()
             colorVec3.set(light->getColorUniform());
             *(colors + index) = colorVec3.x;
             *(colors + index + 1) = colorVec3.y;
-            *(colors + index + 1) = colorVec3.z;
-            *(colors + index + 1) = 0;
+            *(colors + index + 2) = colorVec3.z;
+            *(colors + index + 3) = 0;
         }
         _device->setUniformfv("cc_pointLightPositionAndRange", count * 4, positionAndRanges);
         _device->setUniformfv("cc_pointLightColor", count * 4, colors);
@@ -318,7 +323,7 @@ void ForwardRenderer::submitOtherStagesUniforms()
     _device->setUniformfv("cc_shadow_info", count * 4, shadowLightInfo);
 }
 
-void ForwardRenderer::updateShaderDefines(StageItem& item)
+void ForwardRenderer::updateShaderDefines(const StageItem& item)
 {
     for (auto& e : _defines)
     {
@@ -411,9 +416,9 @@ void ForwardRenderer::shadowStage(const View& view, const std::vector<StageItem>
     // update rendering
     submitShadowStageUniforms(view);
     
-    for (auto item : items)
+    for (auto& item : items)
     {
-        if (_programLib->getValueFromDefineList("CC_SHADOW_CASTING", item.defines) != Value::Null) {
+        if (_programLib->getValueFromDefineList("CC_SHADOW_CASTING", *item.defines) != Value::Null) {
             updateShaderDefines(item);
             draw(item);
         }

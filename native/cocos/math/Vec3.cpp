@@ -21,6 +21,7 @@
  */
 
 #include "math/Vec3.h"
+#include "math/Mat3.hpp"
 #include "math/MathUtil.h"
 #include "base/ccMacros.h"
 #include "math/Quaternion.h"
@@ -166,6 +167,14 @@ void Vec3::multiply(const Vec3& v1, const Vec3& v2, Vec3* dst)
     dst->x = v1.x * v2.x;
     dst->y = v1.y * v2.y;
     dst->z = v1.z * v2.z;
+}
+
+void Vec3::transformMat3(const Vec3& v, const Mat3 &m)
+{
+    float ix = v.x, iy = v.y, iz = v.z;
+    x = ix * m.m[0] + iy * m.m[3] + iz * m.m[6];
+    y = ix * m.m[1] + iy * m.m[4] + iz * m.m[7];
+    z = ix * m.m[2] + iy * m.m[5] + iz * m.m[8];
 }
 
 void Vec3::transformQuat(const Quaternion& q)
