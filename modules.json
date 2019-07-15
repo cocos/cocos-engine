@@ -298,5 +298,12 @@
       "./cocos2d/core/3d/primitive/index.js"
     ],
     "dependencies": ["3D"]
+  },
+  {
+    "name": "TypeScript Polyfill",
+    "entries": [
+      "./polyfill/typescript.js"
+    ],
+    "hide": true
   }
 ]
