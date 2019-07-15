@@ -34,7 +34,7 @@ import { ValueType } from './value-type';
 /**
  * 二维尺寸。
  */
-export default class Size extends ValueType {
+export class Size extends ValueType {
 
     /**
      * 创建宽和高都为 0 的尺寸并返回。

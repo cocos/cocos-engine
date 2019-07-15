@@ -5,7 +5,6 @@
 
 import { AnimationClip, AnimationState } from '../animation';
 import { CrossFade } from '../animation/cross-fade';
-import { Playable } from '../animation/playable';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../core/data/class-decorator';
 import { Event, EventTarget } from '../core/event';
 import { CallbacksInvoker, ICallbackTable } from '../core/event/callbacks-invoker';
@@ -13,7 +12,7 @@ import { applyMixins, IEventTarget } from '../core/event/event-target-factory';
 import { warnID } from '../core/platform/CCDebug';
 import * as ArrayUtils from '../core/utils/array';
 import { createMap } from '../core/utils/js-typed';
-import { ccenum } from '../core/value-types/enum';
+import { CCEnum } from '../core/value-types/enum';
 import { Component } from './component';
 
 /**
@@ -52,7 +51,7 @@ export enum EventType {
      */
     FINISHED = 'finished',
 }
-ccenum(EventType);
+CCEnum(EventType);
 
 /**
  * 动画组件管理动画状态来控制动画的播放。

@@ -1,5 +1,4 @@
 import { Quat, Vec3 } from '../../core/value-types';
-import { vec3 } from '../../core/vmath';
 import { Node } from '../../scene-graph';
 import { Light, LightType } from './light';
 import { RenderScene } from './render-scene';
@@ -15,7 +14,7 @@ export class DirectionalLight extends Light {
 
     set direction (dir: Vec3) {
         this._dir = dir;
-        vec3.normalize(this._dir, this._dir);
+        Vec3.normalize(this._dir, this._dir);
     }
 
     get direction (): Vec3 {
@@ -38,8 +37,8 @@ export class DirectionalLight extends Light {
 
     public update () {
         if (this._node) {
-            this._dir = vec3.transformQuat(_v3, _forward, this._node.getWorldRotation(_qt));
-            vec3.normalize(this._dir, this._dir);
+            this._dir = Vec3.transformQuat(_v3, _forward, this._node.getWorldRotation(_qt));
+            Vec3.normalize(this._dir, this._dir);
         }
     }
 }

@@ -3,7 +3,8 @@
  * @category gemotry-utils
  */
 
-import { mat3, vec3 } from '../../core/vmath';
+import { mat3 } from '../../core/vmath';
+import { Vec3 } from '../../core/value-types';
 import aabb from './aabb';
 import * as distance from './distance';
 import enums from './enums';
@@ -30,13 +31,13 @@ import triangle from './triangle';
  * @return {number} 0 或 非 0
  */
 const ray_plane = (function () {
-    const pt = vec3.create(0, 0, 0);
+    const pt = Vec3.create(0, 0, 0);
 
     return function (ray: ray, plane: plane): number {
-        const denom = vec3.dot(ray.d, plane.n);
+        const denom = Vec3.dot(ray.d, plane.n);
         if (Math.abs(denom) < Number.EPSILON) { return 0; }
-        vec3.scale(pt, plane.n, plane.d);
-        const t = vec3.dot(vec3.subtract(pt, pt, ray.o), plane.n) / denom;
+        Vec3.scale(pt, plane.n, plane.d);
+        const t = Vec3.dot(Vec3.subtract(pt, pt, ray.o), plane.n) / denom;
         if (t < 0) { return 0; }
         return t;
     };
@@ -52,11 +53,11 @@ const ray_plane = (function () {
  * @return {number} 0 或 非 0
  */
 const line_plane = (function () {
-    const ab = vec3.create(0, 0, 0);
+    const ab = Vec3.create(0, 0, 0);
 
     return function (line: line, plane: plane): number {
-        vec3.subtract(ab, line.e, line.s);
-        const t = (plane.d - vec3.dot(line.s, plane.n)) / vec3.dot(ab, plane.n);
+        Vec3.subtract(ab, line.e, line.s);
+        const t = (plane.d - Vec3.dot(line.s, plane.n)) / Vec3.dot(ab, plane.n);
         if (t < 0 || t > 1) { return 0; }
         return t;
     };
@@ -74,31 +75,31 @@ const line_plane = (function () {
  * @return {number} 0 或 非 0
  */
 const ray_triangle = (function () {
-    const ab = vec3.create(0, 0, 0);
-    const ac = vec3.create(0, 0, 0);
-    const pvec = vec3.create(0, 0, 0);
-    const tvec = vec3.create(0, 0, 0);
-    const qvec = vec3.create(0, 0, 0);
+    const ab = Vec3.create(0, 0, 0);
+    const ac = Vec3.create(0, 0, 0);
+    const pvec = Vec3.create(0, 0, 0);
+    const tvec = Vec3.create(0, 0, 0);
+    const qvec = Vec3.create(0, 0, 0);
 
     return function (ray: ray, triangle: triangle, doubleSided?: boolean) {
-        vec3.subtract(ab, triangle.b, triangle.a);
-        vec3.subtract(ac, triangle.c, triangle.a);
+        Vec3.subtract(ab, triangle.b, triangle.a);
+        Vec3.subtract(ac, triangle.c, triangle.a);
 
-        vec3.cross(pvec, ray.d, ac);
-        const det = vec3.dot(ab, pvec);
+        Vec3.cross(pvec, ray.d, ac);
+        const det = Vec3.dot(ab, pvec);
         if (det < Number.EPSILON && (!doubleSided || det > -Number.EPSILON)) { return 0; }
 
         const inv_det = 1 / det;
 
-        vec3.subtract(tvec, ray.o, triangle.a);
-        const u = vec3.dot(tvec, pvec) * inv_det;
+        Vec3.subtract(tvec, ray.o, triangle.a);
+        const u = Vec3.dot(tvec, pvec) * inv_det;
         if (u < 0 || u > 1) { return 0; }
 
-        vec3.cross(qvec, tvec, ab);
-        const v = vec3.dot(ray.d, qvec) * inv_det;
+        Vec3.cross(qvec, tvec, ab);
+        const v = Vec3.dot(ray.d, qvec) * inv_det;
         if (v < 0 || u + v > 1) { return 0; }
 
-        const t = vec3.dot(ac, qvec) * inv_det;
+        const t = Vec3.dot(ac, qvec) * inv_det;
         return t < 0 ? 0 : t;
     };
 })();
@@ -110,42 +111,42 @@ const ray_triangle = (function () {
  * 线段与三角形的相交性检测。
  * @param {line} line 线段
  * @param {triangle} triangle 三角形
- * @param {vec3} outPt 可选，相交点
+ * @param {Vec3} outPt 可选，相交点
  * @return {number} 0 或 非 0
  */
 const line_triangle = (function () {
-    const ab = vec3.create(0, 0, 0);
-    const ac = vec3.create(0, 0, 0);
-    const qp = vec3.create(0, 0, 0);
-    const ap = vec3.create(0, 0, 0);
-    const n = vec3.create(0, 0, 0);
-    const e = vec3.create(0, 0, 0);
+    const ab = Vec3.create(0, 0, 0);
+    const ac = Vec3.create(0, 0, 0);
+    const qp = Vec3.create(0, 0, 0);
+    const ap = Vec3.create(0, 0, 0);
+    const n = Vec3.create(0, 0, 0);
+    const e = Vec3.create(0, 0, 0);
 
-    return function (line: line, triangle: triangle, outPt: vec3): number {
-        vec3.subtract(ab, triangle.b, triangle.a);
-        vec3.subtract(ac, triangle.c, triangle.a);
-        vec3.subtract(qp, line.s, line.e);
+    return function (line: line, triangle: triangle, outPt: Vec3): number {
+        Vec3.subtract(ab, triangle.b, triangle.a);
+        Vec3.subtract(ac, triangle.c, triangle.a);
+        Vec3.subtract(qp, line.s, line.e);
 
-        vec3.cross(n, ab, ac);
-        const det = vec3.dot(qp, n);
+        Vec3.cross(n, ab, ac);
+        const det = Vec3.dot(qp, n);
 
         if (det <= 0.0) {
             return 0;
         }
 
-        vec3.subtract(ap, line.s, triangle.a);
-        const t = vec3.dot(ap, n);
+        Vec3.subtract(ap, line.s, triangle.a);
+        const t = Vec3.dot(ap, n);
         if (t < 0 || t > det) {
             return 0;
         }
 
-        vec3.cross(e, qp, ap);
-        let v = vec3.dot(ac, e);
+        Vec3.cross(e, qp, ap);
+        let v = Vec3.dot(ac, e);
         if (v < 0 || v > det) {
             return 0;
         }
 
-        let w = -vec3.dot(ab, e);
+        let w = -Vec3.dot(ab, e);
         if (w < 0.0 || v + w > det) {
             return 0;
         }
@@ -157,7 +158,7 @@ const line_triangle = (function () {
             const u = 1.0 - v - w;
 
             // outPt = u*a + v*d + w*c;
-            vec3.set(outPt,
+            Vec3.set(outPt,
                 triangle.a.x * u + triangle.b.x * v + triangle.c.x * w,
                 triangle.a.y * u + triangle.b.y * v + triangle.c.y * w,
                 triangle.a.z * u + triangle.b.z * v + triangle.c.z * w,
@@ -173,42 +174,42 @@ const line_triangle = (function () {
  * line-quad intersect
  * @zh
  * 线段与四边形的相交性检测。
- * @param {vec3} p 线段的一点
- * @param {vec3} q 线段的另一点
- * @param {vec3} a 四边形的 a 点
- * @param {vec3} b 四边形的 b 点
- * @param {vec3} c 四边形的 c 点
- * @param {vec3} d 四边形的 d 点
- * @param {vec3} outPt 可选，相交点
+ * @param {Vec3} p 线段的一点
+ * @param {Vec3} q 线段的另一点
+ * @param {Vec3} a 四边形的 a 点
+ * @param {Vec3} b 四边形的 b 点
+ * @param {Vec3} c 四边形的 c 点
+ * @param {Vec3} d 四边形的 d 点
+ * @param {Vec3} outPt 可选，相交点
  * @return {number} 0 或 非 0
  */
 const line_quad = (function () {
-    const pq = vec3.create(0, 0, 0);
-    const pa = vec3.create(0, 0, 0);
-    const pb = vec3.create(0, 0, 0);
-    const pc = vec3.create(0, 0, 0);
-    const pd = vec3.create(0, 0, 0);
-    const m = vec3.create(0, 0, 0);
-    const tmp = vec3.create(0, 0, 0);
+    const pq = Vec3.create(0, 0, 0);
+    const pa = Vec3.create(0, 0, 0);
+    const pb = Vec3.create(0, 0, 0);
+    const pc = Vec3.create(0, 0, 0);
+    const pd = Vec3.create(0, 0, 0);
+    const m = Vec3.create(0, 0, 0);
+    const tmp = Vec3.create(0, 0, 0);
 
-    return function (p: vec3, q: vec3, a: vec3, b: vec3, c: vec3, d: vec3, outPt: vec3): number {
-        vec3.subtract(pq, q, p);
-        vec3.subtract(pa, a, p);
-        vec3.subtract(pb, b, p);
-        vec3.subtract(pc, c, p);
+    return function (p: Vec3, q: Vec3, a: Vec3, b: Vec3, c: Vec3, d: Vec3, outPt: Vec3): number {
+        Vec3.subtract(pq, q, p);
+        Vec3.subtract(pa, a, p);
+        Vec3.subtract(pb, b, p);
+        Vec3.subtract(pc, c, p);
 
         // Determine which triangle to test against by testing against diagonal first
-        vec3.cross(m, pc, pq);
-        let v = vec3.dot(pa, m);
+        Vec3.cross(m, pc, pq);
+        let v = Vec3.dot(pa, m);
 
         if (v >= 0) {
             // Test intersection against triangle abc
-            let u = -vec3.dot(pb, m);
+            let u = -Vec3.dot(pb, m);
             if (u < 0) {
                 return 0;
             }
 
-            let w = vec3.dot(vec3.cross(tmp, pq, pb), pa);
+            let w = Vec3.dot(Vec3.cross(tmp, pq, pb), pa);
             if (w < 0) {
                 return 0;
             }
@@ -220,7 +221,7 @@ const line_quad = (function () {
                 v *= denom;
                 w *= denom;
 
-                vec3.set(outPt,
+                Vec3.set(outPt,
                     a.x * u + b.x * v + c.x * w,
                     a.y * u + b.y * v + c.y * w,
                     a.z * u + b.z * v + c.z * w,
@@ -228,14 +229,14 @@ const line_quad = (function () {
             }
         } else {
             // Test intersection against triangle dac
-            vec3.subtract(pd, d, p);
+            Vec3.subtract(pd, d, p);
 
-            let u = vec3.dot(pd, m);
+            let u = Vec3.dot(pd, m);
             if (u < 0) {
                 return 0;
             }
 
-            let w = vec3.dot(vec3.cross(tmp, pq, pa), pd);
+            let w = Vec3.dot(Vec3.cross(tmp, pq, pa), pd);
             if (w < 0) {
                 return 0;
             }
@@ -249,7 +250,7 @@ const line_quad = (function () {
                 v *= denom;
                 w *= denom;
 
-                vec3.set(outPt,
+                Vec3.set(outPt,
                     a.x * u + d.x * v + c.x * w,
                     a.y * u + d.y * v + c.y * w,
                     a.z * u + d.z * v + c.z * w,
@@ -271,17 +272,17 @@ const line_quad = (function () {
  * @return {number} 0 或 非 0
  */
 const ray_sphere = (function () {
-    const e = vec3.create(0, 0, 0);
+    const e = Vec3.create(0, 0, 0);
     return function (ray: ray, sphere: sphere): number {
         const r = sphere.radius;
         const c = sphere.center;
         const o = ray.o;
         const d = ray.d;
         const rSq = r * r;
-        vec3.subtract(e, c, o);
-        const eSq = vec3.sqrMag(e);
+        Vec3.subtract(e, c, o);
+        const eSq = Vec3.sqrMag(e);
 
-        const aLength = vec3.dot(e, d); // assume ray direction already normalized
+        const aLength = Vec3.dot(e, d); // assume ray direction already normalized
         const fSq = rSq - (eSq - aLength * aLength);
         if (fSq < 0) { return 0; }
 
@@ -302,13 +303,13 @@ const ray_sphere = (function () {
  * @return {number} 0 或 非 0
  */
 const ray_aabb = (function () {
-    const min = vec3.create();
-    const max = vec3.create();
+    const min = Vec3.create();
+    const max = Vec3.create();
     return function (ray: ray, aabb: aabb): number {
         const o = ray.o, d = ray.d;
         const ix = 1 / d.x, iy = 1 / d.y, iz = 1 / d.z;
-        vec3.subtract(min, aabb.center, aabb.halfExtents);
-        vec3.add(max, aabb.center, aabb.halfExtents);
+        Vec3.subtract(min, aabb.center, aabb.halfExtents);
+        Vec3.add(max, aabb.center, aabb.halfExtents);
         const t1 = (min.x - o.x) * ix;
         const t2 = (max.x - o.x) * ix;
         const t3 = (min.y - o.y) * iy;
@@ -332,13 +333,13 @@ const ray_aabb = (function () {
  * @return {number} 0 或 非 0
  */
 const ray_obb = (function () {
-    let center = vec3.create();
-    let o = vec3.create();
-    let d = vec3.create();
-    const X = vec3.create();
-    const Y = vec3.create();
-    const Z = vec3.create();
-    const p = vec3.create();
+    let center = Vec3.create();
+    let o = Vec3.create();
+    let d = Vec3.create();
+    const X = Vec3.create();
+    const Y = Vec3.create();
+    const Z = Vec3.create();
+    const p = Vec3.create();
     const size = new Array(3);
     const f = new Array(3);
     const e = new Array(3);
@@ -352,20 +353,20 @@ const ray_obb = (function () {
         o = ray.o;
         d = ray.d;
 
-        vec3.set(X, obb.orientation.m00, obb.orientation.m01, obb.orientation.m02);
-        vec3.set(Y, obb.orientation.m03, obb.orientation.m04, obb.orientation.m05);
-        vec3.set(Z, obb.orientation.m06, obb.orientation.m07, obb.orientation.m08);
-        vec3.subtract(p, center, o);
+        Vec3.set(X, obb.orientation.m00, obb.orientation.m01, obb.orientation.m02);
+        Vec3.set(Y, obb.orientation.m03, obb.orientation.m04, obb.orientation.m05);
+        Vec3.set(Z, obb.orientation.m06, obb.orientation.m07, obb.orientation.m08);
+        Vec3.subtract(p, center, o);
 
         // The cos values of the ray on the X, Y, Z
-        f[0] = vec3.dot(X, d);
-        f[1] = vec3.dot(Y, d);
-        f[2] = vec3.dot(Z, d);
+        f[0] = Vec3.dot(X, d);
+        f[1] = Vec3.dot(Y, d);
+        f[2] = Vec3.dot(Z, d);
 
         // The projection length of P on X, Y, Z
-        e[0] = vec3.dot(X, p);
-        e[1] = vec3.dot(Y, p);
-        e[2] = vec3.dot(Z, p);
+        e[0] = Vec3.dot(X, p);
+        e[1] = Vec3.dot(Y, p);
+        e[2] = Vec3.dot(Z, p);
 
         for (let i = 0; i < 3; ++i) {
             if (f[i] === 0) {
@@ -410,79 +411,79 @@ const ray_obb = (function () {
  * @return {number} 0 或 非 0
  */
 const aabb_aabb = (function () {
-    const aMin = vec3.create();
-    const aMax = vec3.create();
-    const bMin = vec3.create();
-    const bMax = vec3.create();
+    const aMin = Vec3.create();
+    const aMax = Vec3.create();
+    const bMin = Vec3.create();
+    const bMax = Vec3.create();
     return function (aabb1: aabb, aabb2: aabb) {
-        vec3.subtract(aMin, aabb1.center, aabb1.halfExtents);
-        vec3.add(aMax, aabb1.center, aabb1.halfExtents);
-        vec3.subtract(bMin, aabb2.center, aabb2.halfExtents);
-        vec3.add(bMax, aabb2.center, aabb2.halfExtents);
+        Vec3.subtract(aMin, aabb1.center, aabb1.halfExtents);
+        Vec3.add(aMax, aabb1.center, aabb1.halfExtents);
+        Vec3.subtract(bMin, aabb2.center, aabb2.halfExtents);
+        Vec3.add(bMax, aabb2.center, aabb2.halfExtents);
         return (aMin.x <= bMax.x && aMax.x >= bMin.x) &&
             (aMin.y <= bMax.y && aMax.y >= bMin.y) &&
             (aMin.z <= bMax.z && aMax.z >= bMin.z);
     };
 })();
 
-function getAABBVertices (min: vec3, max: vec3, out: vec3[]) {
-    vec3.set(out[0], min.x, max.y, max.z);
-    vec3.set(out[1], min.x, max.y, min.z);
-    vec3.set(out[2], min.x, min.y, max.z);
-    vec3.set(out[3], min.x, min.y, min.z);
-    vec3.set(out[4], max.x, max.y, max.z);
-    vec3.set(out[5], max.x, max.y, min.z);
-    vec3.set(out[6], max.x, min.y, max.z);
-    vec3.set(out[7], max.x, min.y, min.z);
+function getAABBVertices (min: Vec3, max: Vec3, out: Vec3[]) {
+    Vec3.set(out[0], min.x, max.y, max.z);
+    Vec3.set(out[1], min.x, max.y, min.z);
+    Vec3.set(out[2], min.x, min.y, max.z);
+    Vec3.set(out[3], min.x, min.y, min.z);
+    Vec3.set(out[4], max.x, max.y, max.z);
+    Vec3.set(out[5], max.x, max.y, min.z);
+    Vec3.set(out[6], max.x, min.y, max.z);
+    Vec3.set(out[7], max.x, min.y, min.z);
 }
 
-function getOBBVertices (c: vec3, e: vec3, a1: vec3, a2: vec3, a3: vec3, out: vec3[]) {
-    vec3.set(out[0],
+function getOBBVertices (c: Vec3, e: Vec3, a1: Vec3, a2: Vec3, a3: Vec3, out: Vec3[]) {
+    Vec3.set(out[0],
         c.x + a1.x * e.x + a2.x * e.y + a3.x * e.z,
         c.y + a1.y * e.x + a2.y * e.y + a3.y * e.z,
         c.z + a1.z * e.x + a2.z * e.y + a3.z * e.z,
     );
-    vec3.set(out[1],
+    Vec3.set(out[1],
         c.x - a1.x * e.x + a2.x * e.y + a3.x * e.z,
         c.y - a1.y * e.x + a2.y * e.y + a3.y * e.z,
         c.z - a1.z * e.x + a2.z * e.y + a3.z * e.z,
     );
-    vec3.set(out[2],
+    Vec3.set(out[2],
         c.x + a1.x * e.x - a2.x * e.y + a3.x * e.z,
         c.y + a1.y * e.x - a2.y * e.y + a3.y * e.z,
         c.z + a1.z * e.x - a2.z * e.y + a3.z * e.z,
     );
-    vec3.set(out[3],
+    Vec3.set(out[3],
         c.x + a1.x * e.x + a2.x * e.y - a3.x * e.z,
         c.y + a1.y * e.x + a2.y * e.y - a3.y * e.z,
         c.z + a1.z * e.x + a2.z * e.y - a3.z * e.z,
     );
-    vec3.set(out[4],
+    Vec3.set(out[4],
         c.x - a1.x * e.x - a2.x * e.y - a3.x * e.z,
         c.y - a1.y * e.x - a2.y * e.y - a3.y * e.z,
         c.z - a1.z * e.x - a2.z * e.y - a3.z * e.z,
     );
-    vec3.set(out[5],
+    Vec3.set(out[5],
         c.x + a1.x * e.x - a2.x * e.y - a3.x * e.z,
         c.y + a1.y * e.x - a2.y * e.y - a3.y * e.z,
         c.z + a1.z * e.x - a2.z * e.y - a3.z * e.z,
     );
-    vec3.set(out[6],
+    Vec3.set(out[6],
         c.x - a1.x * e.x + a2.x * e.y - a3.x * e.z,
         c.y - a1.y * e.x + a2.y * e.y - a3.y * e.z,
         c.z - a1.z * e.x + a2.z * e.y - a3.z * e.z,
     );
-    vec3.set(out[7],
+    Vec3.set(out[7],
         c.x - a1.x * e.x - a2.x * e.y + a3.x * e.z,
         c.y - a1.y * e.x - a2.y * e.y + a3.y * e.z,
         c.z - a1.z * e.x - a2.z * e.y + a3.z * e.z,
     );
 }
 
-function getInterval (vertices: any[] | vec3[], axis: vec3) {
-    let min = vec3.dot(axis, vertices[0]), max = min;
+function getInterval (vertices: any[] | Vec3[], axis: Vec3) {
+    let min = Vec3.dot(axis, vertices[0]), max = min;
     for (let i = 1; i < 8; ++i) {
-        const projection = vec3.dot(axis, vertices[i]);
+        const projection = Vec3.dot(axis, vertices[i]);
         min = (projection < min) ? projection : min;
         max = (projection > max) ? projection : max;
     }
@@ -501,32 +502,32 @@ function getInterval (vertices: any[] | vec3[], axis: vec3) {
 const aabb_obb = (function () {
     const test = new Array(15);
     for (let i = 0; i < 15; i++) {
-        test[i] = vec3.create(0, 0, 0);
+        test[i] = Vec3.create(0, 0, 0);
     }
     const vertices = new Array(8);
     const vertices2 = new Array(8);
     for (let i = 0; i < 8; i++) {
-        vertices[i] = vec3.create(0, 0, 0);
-        vertices2[i] = vec3.create(0, 0, 0);
+        vertices[i] = Vec3.create(0, 0, 0);
+        vertices2[i] = Vec3.create(0, 0, 0);
     }
-    const min = vec3.create();
-    const max = vec3.create();
+    const min = Vec3.create();
+    const max = Vec3.create();
     return function (aabb: aabb, obb: obb): number {
-        vec3.set(test[0], 1, 0, 0);
-        vec3.set(test[1], 0, 1, 0);
-        vec3.set(test[2], 0, 0, 1);
-        vec3.set(test[3], obb.orientation.m00, obb.orientation.m01, obb.orientation.m02);
-        vec3.set(test[4], obb.orientation.m03, obb.orientation.m04, obb.orientation.m05);
-        vec3.set(test[5], obb.orientation.m06, obb.orientation.m07, obb.orientation.m08);
+        Vec3.set(test[0], 1, 0, 0);
+        Vec3.set(test[1], 0, 1, 0);
+        Vec3.set(test[2], 0, 0, 1);
+        Vec3.set(test[3], obb.orientation.m00, obb.orientation.m01, obb.orientation.m02);
+        Vec3.set(test[4], obb.orientation.m03, obb.orientation.m04, obb.orientation.m05);
+        Vec3.set(test[5], obb.orientation.m06, obb.orientation.m07, obb.orientation.m08);
 
         for (let i = 0; i < 3; ++i) { // Fill out rest of axis
-            vec3.cross(test[6 + i * 3 + 0], test[i], test[0]);
-            vec3.cross(test[6 + i * 3 + 1], test[i], test[1]);
-            vec3.cross(test[6 + i * 3 + 1], test[i], test[2]);
+            Vec3.cross(test[6 + i * 3 + 0], test[i], test[0]);
+            Vec3.cross(test[6 + i * 3 + 1], test[i], test[1]);
+            Vec3.cross(test[6 + i * 3 + 1], test[i], test[2]);
         }
 
-        vec3.subtract(min, aabb.center, aabb.halfExtents);
-        vec3.add(max, aabb.center, aabb.halfExtents);
+        Vec3.subtract(min, aabb.center, aabb.halfExtents);
+        Vec3.add(max, aabb.center, aabb.halfExtents);
         getAABBVertices(min, max, vertices);
         getOBBVertices(obb.center, obb.halfExtents, test[3], test[4], test[5], vertices2);
 
@@ -555,7 +556,7 @@ const aabb_plane = function (aabb: aabb, plane: plane): number {
     const r = aabb.halfExtents.x * Math.abs(plane.n.x) +
         aabb.halfExtents.y * Math.abs(plane.n.y) +
         aabb.halfExtents.z * Math.abs(plane.n.z);
-    const dot = vec3.dot(plane.n, aabb.center);
+    const dot = Vec3.dot(plane.n, aabb.center);
     if (dot + r < plane.d) { return -1; }
     else if (dot - r > plane.d) { return 0; }
     return 1;
@@ -594,7 +595,7 @@ const aabb_frustum_accurate = (function () {
     const tmp = new Array(8);
     let out1 = 0, out2 = 0;
     for (let i = 0; i < tmp.length; i++) {
-        tmp[i] = vec3.create(0, 0, 0);
+        tmp[i] = Vec3.create(0, 0, 0);
     }
     return function (aabb: aabb, frustum: frustum): number {
         let result = 0, intersects = false;
@@ -609,7 +610,7 @@ const aabb_frustum_accurate = (function () {
         // in case of false positives
         // 2. frustum inside/outside aabb test
         for (let i = 0; i < frustum.vertices.length; i++) {
-            vec3.subtract(tmp[i], frustum.vertices[i], aabb.center);
+            Vec3.subtract(tmp[i], frustum.vertices[i], aabb.center);
         }
         out1 = 0, out2 = 0;
         for (let i = 0; i < frustum.vertices.length; i++) {
@@ -639,15 +640,15 @@ const aabb_frustum_accurate = (function () {
  * @zh
  * 方向包围盒和点的相交性检测。
  * @param {obb} obb 方向包围盒
- * @param {vec3} point 点
+ * @param {Vec3} point 点
  * @return {boolean} true or false
  */
 const obb_point = (function () {
-    const tmp = vec3.create(0, 0, 0), m3 = mat3.create();
-    const lessThan = function (a: vec3, b: vec3): boolean { return Math.abs(a.x) < b.x && Math.abs(a.y) < b.y && Math.abs(a.z) < b.z; };
-    return function (obb: obb, point: vec3): boolean {
-        vec3.subtract(tmp, point, obb.center);
-        vec3.transformMat3(tmp, tmp, mat3.transpose(m3, obb.orientation));
+    const tmp = Vec3.create(0, 0, 0), m3 = mat3.create();
+    const lessThan = function (a: Vec3, b: Vec3): boolean { return Math.abs(a.x) < b.x && Math.abs(a.y) < b.y && Math.abs(a.z) < b.z; };
+    return function (obb: obb, point: Vec3): boolean {
+        Vec3.subtract(tmp, point, obb.center);
+        Vec3.transformMat3(tmp, tmp, mat3.transpose(m3, obb.orientation));
         return lessThan(tmp, obb.halfExtents);
     };
 })();
@@ -662,7 +663,7 @@ const obb_point = (function () {
  * @return {number} inside(back) = -1, outside(front) = 0, intersect = 1
  */
 const obb_plane = (function () {
-    const absDot = function (n: vec3, x: number, y: number, z: number) {
+    const absDot = function (n: Vec3, x: number, y: number, z: number) {
         return Math.abs(n.x * x + n.y * y + n.z * z);
     };
     return function (obb: obb, plane: plane): number {
@@ -671,7 +672,7 @@ const obb_plane = (function () {
             obb.halfExtents.y * absDot(plane.n, obb.orientation.m03, obb.orientation.m04, obb.orientation.m05) +
             obb.halfExtents.z * absDot(plane.n, obb.orientation.m06, obb.orientation.m07, obb.orientation.m08);
 
-        const dot = vec3.dot(plane.n, obb.center);
+        const dot = Vec3.dot(plane.n, obb.center);
         if (dot + r < plane.d) { return -1; }
         else if (dot - r > plane.d) { return 0; }
         return 1;
@@ -711,9 +712,9 @@ const obb_frustum_accurate = (function () {
     const tmp = new Array(8);
     let dist = 0, out1 = 0, out2 = 0;
     for (let i = 0; i < tmp.length; i++) {
-        tmp[i] = vec3.create(0, 0, 0);
+        tmp[i] = Vec3.create(0, 0, 0);
     }
-    const dot = function (n: vec3, x: number, y: number, z: number): number {
+    const dot = function (n: Vec3, x: number, y: number, z: number): number {
         return n.x * x + n.y * y + n.z * z;
     };
     return function (obb: obb, frustum: frustum): number {
@@ -729,7 +730,7 @@ const obb_frustum_accurate = (function () {
         // in case of false positives
         // 2. frustum inside/outside obb test
         for (let i = 0; i < frustum.vertices.length; i++) {
-            vec3.subtract(tmp[i], frustum.vertices[i], obb.center);
+            Vec3.subtract(tmp[i], frustum.vertices[i], obb.center);
         }
         out1 = 0, out2 = 0;
         for (let i = 0; i < frustum.vertices.length; i++) {
@@ -768,28 +769,28 @@ const obb_frustum_accurate = (function () {
 const obb_obb = (function () {
     const test = new Array(15);
     for (let i = 0; i < 15; i++) {
-        test[i] = vec3.create(0, 0, 0);
+        test[i] = Vec3.create(0, 0, 0);
     }
 
     const vertices = new Array(8);
     const vertices2 = new Array(8);
     for (let i = 0; i < 8; i++) {
-        vertices[i] = vec3.create(0, 0, 0);
-        vertices2[i] = vec3.create(0, 0, 0);
+        vertices[i] = Vec3.create(0, 0, 0);
+        vertices2[i] = Vec3.create(0, 0, 0);
     }
 
     return function (obb1: obb, obb2: obb): number {
-        vec3.set(test[0], obb1.orientation.m00, obb1.orientation.m01, obb1.orientation.m02);
-        vec3.set(test[1], obb1.orientation.m03, obb1.orientation.m04, obb1.orientation.m05);
-        vec3.set(test[2], obb1.orientation.m06, obb1.orientation.m07, obb1.orientation.m08);
-        vec3.set(test[3], obb2.orientation.m00, obb2.orientation.m01, obb2.orientation.m02);
-        vec3.set(test[4], obb2.orientation.m03, obb2.orientation.m04, obb2.orientation.m05);
-        vec3.set(test[5], obb2.orientation.m06, obb2.orientation.m07, obb2.orientation.m08);
+        Vec3.set(test[0], obb1.orientation.m00, obb1.orientation.m01, obb1.orientation.m02);
+        Vec3.set(test[1], obb1.orientation.m03, obb1.orientation.m04, obb1.orientation.m05);
+        Vec3.set(test[2], obb1.orientation.m06, obb1.orientation.m07, obb1.orientation.m08);
+        Vec3.set(test[3], obb2.orientation.m00, obb2.orientation.m01, obb2.orientation.m02);
+        Vec3.set(test[4], obb2.orientation.m03, obb2.orientation.m04, obb2.orientation.m05);
+        Vec3.set(test[5], obb2.orientation.m06, obb2.orientation.m07, obb2.orientation.m08);
 
         for (let i = 0; i < 3; ++i) { // Fill out rest of axis
-            vec3.cross(test[6 + i * 3 + 0], test[i], test[0]);
-            vec3.cross(test[6 + i * 3 + 1], test[i], test[1]);
-            vec3.cross(test[6 + i * 3 + 1], test[i], test[2]);
+            Vec3.cross(test[6 + i * 3 + 0], test[i], test[0]);
+            Vec3.cross(test[6 + i * 3 + 1], test[i], test[1]);
+            Vec3.cross(test[6 + i * 3 + 1], test[i], test[2]);
         }
 
         getOBBVertices(obb1.center, obb1.halfExtents, test[0], test[1], test[2], vertices);
@@ -819,8 +820,8 @@ const obb_obb = (function () {
  * @return {number} inside(back) = -1, outside(front) = 0, intersect = 1
  */
 const sphere_plane = function (sphere: sphere, plane: plane): number {
-    const dot = vec3.dot(plane.n, sphere.center);
-    const r = sphere.radius * vec3.magnitude(plane.n);
+    const dot = Vec3.dot(plane.n, sphere.center);
+    const r = sphere.radius * Vec3.magnitude(plane.n);
     if (dot + r < plane.d) { return -1; }
     else if (dot - r > plane.d) { return 0; }
     return 1;
@@ -856,23 +857,23 @@ const sphere_frustum = function (sphere: sphere, frustum: frustum): number {
  * @return {number} 0 或 非 0
  */
 const sphere_frustum_accurate = (function () {
-    const pt = vec3.create(0, 0, 0), map = [1, -1, 1, -1, 1, -1];
+    const pt = Vec3.create(0, 0, 0), map = [1, -1, 1, -1, 1, -1];
     return function (sphere: sphere, frustum: frustum): number {
         for (let i = 0; i < 6; i++) {
             const plane = frustum.planes[i];
             const r = sphere.radius, c = sphere.center;
             const n = plane.n, d = plane.d;
-            const dot = vec3.dot(n, c);
+            const dot = Vec3.dot(n, c);
             // frustum plane normal points to the inside
             if (dot + r < d) { return 0; } // completely outside
             else if (dot - r > d) { continue; }
             // in case of false positives
             // has false negatives, still working on it
-            vec3.add(pt, c, vec3.scale(pt, n, r));
+            Vec3.add(pt, c, Vec3.scale(pt, n, r));
             for (let j = 0; j < 6; j++) {
                 if (j === i || j === i + map[i]) { continue; }
                 const test = frustum.planes[j];
-                if (vec3.dot(test.n, pt) < test.d) { return 0; }
+                if (Vec3.dot(test.n, pt) < test.d) { return 0; }
             }
         }
         return 1;
@@ -890,7 +891,7 @@ const sphere_frustum_accurate = (function () {
  */
 const sphere_sphere = function (sphere0: sphere, sphere1: sphere): boolean {
     const r = sphere0.radius + sphere1.radius;
-    return vec3.sqrDist(sphere0.center, sphere1.center) < r * r;
+    return Vec3.sqrDist(sphere0.center, sphere1.center) < r * r;
 };
 
 /**
@@ -903,10 +904,10 @@ const sphere_sphere = function (sphere0: sphere, sphere1: sphere): boolean {
  * @return {boolean} true or false
  */
 const sphere_aabb = (function () {
-    const pt = vec3.create();
+    const pt = Vec3.create();
     return function (sphere: sphere, aabb: aabb): boolean {
         distance.pt_point_aabb(pt, sphere.center, aabb);
-        return vec3.sqrDist(sphere.center, pt) < sphere.radius * sphere.radius;
+        return Vec3.sqrDist(sphere.center, pt) < sphere.radius * sphere.radius;
     };
 })();
 
@@ -920,10 +921,10 @@ const sphere_aabb = (function () {
  * @return {boolean} true or false
  */
 const sphere_obb = (function () {
-    const pt = vec3.create();
+    const pt = Vec3.create();
     return function (sphere: sphere, obb: obb): boolean {
         distance.pt_point_obb(pt, sphere.center, obb);
-        return vec3.sqrDist(sphere.center, pt) < sphere.radius * sphere.radius;
+        return Vec3.sqrDist(sphere.center, pt) < sphere.radius * sphere.radius;
     };
 })();
 

@@ -29,6 +29,7 @@
  */
 
 import CCClass from '../data/class';
+import { EPSILON } from './utils';
 import { ValueType } from './value-type';
 
 const toFloat = 1 / 255;
@@ -37,7 +38,203 @@ const toFloat = 1 / 255;
  * 通过 Red、Green、Blue 颜色通道表示颜色，并通过 Alpha 通道表示不透明度。
  * 每个通道都为取值范围 [0, 255] 的整数。
  */
-export default class Color extends ValueType {
+export class Color extends ValueType {
+
+    /**
+     * 构造与指定颜色相等的颜色。
+     */
+    public static create (other: Color | string): Color;
+
+    /**
+     * 构造具有指定通道的颜色。
+     */
+    public static create (r?: number, g?: number, b?: number, a?: number): Color;
+
+    public static create (r?: number | Color | string, g?: number, b?: number, a?: number) {
+        if (typeof r === 'object') {
+            return new Color(r.r, r.g, r.b, r.a);
+        } else if (typeof r === 'string') {
+            return new Color().fromHEX(r);
+        } else {
+            return new Color(r, g, b, a);
+        }
+    }
+
+    /**
+     * @zh 获得指定颜色的拷贝
+     */
+    public static clone (a: Color) {
+        return new Color().set(a);
+    }
+
+    /**
+     * @zh 复制目标颜色
+     */
+    public static copy (out: Color, a: Color) {
+        out.r = a.r;
+        out.g = a.g;
+        out.b = a.b;
+        out.a = a.a;
+        return out;
+    }
+
+    /**
+     * @zh 设置颜色值
+     */
+    public static set (out: Color, r: number, g: number, b: number, a: number) {
+        out.r = r;
+        out.g = g;
+        out.b = b;
+        out.a = a;
+        return out;
+    }
+
+    /**
+     * @zh 根据指定整型数据设置颜色
+     */
+    public static fromHex (out: Color, hex: number) {
+        const r = ((hex >> 24)) / 255.0;
+        const g = ((hex >> 16) & 0xff) / 255.0;
+        const b = ((hex >> 8) & 0xff) / 255.0;
+        const a = ((hex) & 0xff) / 255.0;
+
+        out.r = r;
+        out.g = g;
+        out.b = b;
+        out.a = a;
+        return out;
+    }
+
+    /**
+     * @zh 逐通道颜色加法
+     */
+    public static add (out: Color, a: Color, b: Color) {
+        out.r = a.r + b.r;
+        out.g = a.g + b.g;
+        out.b = a.b + b.b;
+        out.a = a.a + b.a;
+        return out;
+    }
+
+    /**
+     * @zh 逐通道颜色减法
+     */
+    public static subtract (out: Color, a: Color, b: Color) {
+        out.r = a.r - b.r;
+        out.g = a.g - b.g;
+        out.b = a.b - b.b;
+        out.a = a.a - b.a;
+        return out;
+    }
+
+    /**
+     * @zh 逐通道颜色减法
+     */
+    public static sub (out: Color, a: Color, b: Color) {
+        return Color.subtract(out, a, b);
+    }
+
+    /**
+     * @zh 逐通道颜色乘法
+     */
+    public static multiply (out: Color, a: Color, b: Color) {
+        out.r = a.r * b.r;
+        out.g = a.g * b.g;
+        out.b = a.b * b.b;
+        out.a = a.a * b.a;
+        return out;
+    }
+
+    /**
+     * @zh 逐通道颜色乘法
+     */
+    public static mul (out: Color, a: Color, b: Color) {
+        return Color.multiply(out, a, b);
+    }
+
+    /**
+     * @zh 逐通道颜色除法
+     */
+    public static divide (out: Color, a: Color, b: Color) {
+        out.r = a.r / b.r;
+        out.g = a.g / b.g;
+        out.b = a.b / b.b;
+        out.a = a.a / b.a;
+        return out;
+    }
+
+    /**
+     * @zh 逐通道颜色除法
+     */
+    public static div (out: Color, a: Color, b: Color) {
+        return Color.divide(out, a, b);
+    }
+
+    /**
+     * @zh 全通道统一缩放颜色
+     */
+    public static scale (out: Color, a: Color, b: number) {
+        out.r = a.r * b;
+        out.g = a.g * b;
+        out.b = a.b * b;
+        out.a = a.a * b;
+        return out;
+    }
+
+    /**
+     * @zh 逐通道颜色线性插值：A + t * (B - A)
+     */
+    public static lerp (out: Color, from: Color, to: Color, ratio: number) {
+        let r = from.r;
+        let g = from.g;
+        let b = from.b;
+        let a = from.a;
+        r = r + (to.r - r) * ratio;
+        g = g + (to.g - g) * ratio;
+        b = b + (to.b - b) * ratio;
+        a = a + (to.a - a) * ratio;
+        out._val = Math.floor(((a << 24) >>> 0) + (b << 16) + (g << 8) + r);
+    }
+
+    /**
+     * @zh 颜色转数组
+     * @param ofs 数组起始偏移量
+     */
+    public static array (out: IWritableArrayLike<number>, a: Color, ofs = 0) {
+        const scale = (a instanceof cc.Color || a.a > 1) ? 1 / 255 : 1;
+        out[ofs + 0] = a.r * scale;
+        out[ofs + 1] = a.g * scale;
+        out[ofs + 2] = a.b * scale;
+        out[ofs + 3] = a.a * scale;
+
+        return out;
+    }
+
+    /**
+     * @zh 颜色等价判断
+     */
+    public static exactEquals (a: Color, b: Color) {
+        return a.r === b.r && a.g === b.g && a.b === b.b && a.a === b.a;
+    }
+
+    /**
+     * @zh 排除浮点数误差的颜色近似等价判断
+     */
+    public static equals (a: Color, b: Color, epsilon = EPSILON) {
+        const { r: a0, g: a1, b: a2, a: a3 } = a;
+        const { r: b0, g: b1, b: b2, a: b3 } = b;
+        return (Math.abs(a0 - b0) <= epsilon * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
+            Math.abs(a1 - b1) <= epsilon * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&
+            Math.abs(a2 - b2) <= epsilon * Math.max(1.0, Math.abs(a2), Math.abs(b2)) &&
+            Math.abs(a3 - b3) <= epsilon * Math.max(1.0, Math.abs(a3), Math.abs(b3)));
+    }
+
+    /**
+     * @zh 获取指定颜色的整型数据表示
+     */
+    public static hex (a: Color) {
+        return ((a.r * 255) << 24 | (a.g * 255) << 16 | (a.b * 255) << 8 | a.a * 255) >>> 0;
+    }
 
     /**
      * 创建并获取（不透明的）纯白色，各通道值依次为 (255, 255, 255, 255)。
@@ -208,54 +405,14 @@ export default class Color extends ValueType {
         this.a = value * 255;
     }
 
-    /**
-     * 根据指定的插值比率，从当前颜色到目标颜色之间做插值。
-     * @param out 本方法将插值结果赋值给此参数
-     * @param from 起始颜色。
-     * @param to 目标颜色。
-     * @param ratio 插值比率，范围为 [0,1]。
-     */
-    public static lerp (out: Color, from: Color, to: Color, ratio: number) {
-        let r = from.r;
-        let g = from.g;
-        let b = from.b;
-        let a = from.a;
-        r = r + (to.r - r) * ratio;
-        g = g + (to.g - g) * ratio;
-        b = b + (to.b - b) * ratio;
-        a = a + (to.a - a) * ratio;
-        out._val = Math.floor(((a << 24) >>> 0) + (b << 16) + (g << 8) + r);
-    }
-
     public _val: number;
 
-    /**
-     * 构造与指定颜色相等的颜色。
-     * @param other 相比较的颜色。
-     */
-    constructor (other: Color);
-
-    /**
-     * 构造具有指定通道的颜色。
-     * @param [r=0] 指定的 Red 通道。
-     * @param [g=0] 指定的 Green 通道。
-     * @param [b=0] 指定的 Blue 通道。
-     * @param [a=255] 指定的 Alpha 通道。
-     */
-    constructor (r?: number, g?: number, b?: number, a?: number);
-
-    constructor (r?: number | Color, g?: number, b?: number, a?: number) {
+    constructor (r = 0, g = 0, b = 0, a = 255) {
         super();
-        if (typeof r === 'object') {
-            g = r.g;
-            b = r.b;
-            a = r.a;
-            r = r.r;
-        }
-        r = r || 0;
-        g = g || 0;
-        b = b || 0;
-        a = typeof a === 'number' ? a : 255;
+        r = r;
+        g = g;
+        b = b;
+        a = a;
         this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
     }
 
@@ -544,46 +701,5 @@ export default class Color extends ValueType {
 }
 
 CCClass.fastDefine('cc.Color', Color, {r: 0, g: 0, b: 0, a: 255});
-
-/**
- * 构造与指定颜色相等的颜色。相当于 `new Color(other)`。
- * @param other 相比较的颜色。
- * @returns `new Color(other)`
- */
-export function color (other: Color): Color;
-
-// tslint:disable:unified-signatures
-
-/**
- * 从十六进制字符串中构造颜色。相当于 `(new Color()).fromHex(hexString)`。
- * @param other 相比较的颜色。
- * @returns `(new Color()).fromHex(hexString)`
- */
-export function color (hexString: string): Color;
-
-// tslint:enable:unified-signatures
-
-/**
- * 构造具有指定通道的颜色。相当于 `new Color(r, g, b, a)`。
- * @param [r=0] 指定的 Red 通道。
- * @param [g=0] 指定的 Green 通道。
- * @param [b=0] 指定的 Blue 通道。
- * @param [a=255] 指定的 Alpha 通道。
- * @returns `new Color(r, g, b, a)`
- */
-export function color (r?: number, g?: number, b?: number, a?: number): Color;
-
-export function color (r?: number | Color | string, g?: number, b?: number, a?: number) {
-    if (typeof r === 'string') {
-        const result = new Color();
-        return result.fromHEX(r);
-    }
-    if (typeof r === 'object') {
-        return new Color(r.r, r.g, r.b, r.a);
-    }
-    return  new Color(r, g, b, a);
-}
-
-cc.color = color;
-
 cc.Color = Color;
+cc.color = Color.create;

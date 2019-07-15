@@ -29,24 +29,453 @@
  */
 
 import CCClass from '../data/class';
-import {clamp, vec3, vec4} from '../vmath';
-import Mat4 from './mat4';
+import { Mat4 } from './mat4';
+import { Quat } from './quat';
+import { clamp, EPSILON, random } from './utils';
 import { ValueType } from './value-type';
 
 /**
  * 四维向量。
  */
-export default class Vec4 extends ValueType {
+export class Vec4 extends ValueType {
+
+    public static ZERO = Object.freeze(new Vec4(0, 0, 0, 0));
+    public static ONE = Object.freeze(new Vec4(1, 1, 1, 1));
+    public static NEG_ONE = Object.freeze(new Vec4(-1, -1, -1, -1));
 
     /**
-     * 根据指定的插值比率，从当前向量到目标向量之间做插值。
-     * @param out 本方法将插值结果赋值给此参数
-     * @param from 起始向量。
-     * @param to 目标向量。
-     * @param ratio 插值比率，范围为 [0,1]。
+     * 构造与指定向量相等的向量。
+     * @param other 相比较的向量。
      */
-    public static lerp (out: Vec4, from: Vec4, to: Vec4, ratio: number) {
-        vec4.lerp(out, from, to, ratio);
+    public static create (other: Vec4): Vec4;
+
+    /**
+     * 构造具有指定分量的向量。
+     * @param x 指定的 x 分量。
+     * @param y 指定的 y 分量。
+     * @param z 指定的 z 分量。
+     * @param w 指定的 w 分量。
+     */
+    public static create (x?: number, y?: number, z?: number, w?: number): Vec4;
+
+    /**
+     * @zh 创建新的实例
+     */
+    public static create (x?: number | Vec4, y?: number, z?: number, w?: number) {
+        if (typeof x === 'object') {
+            return new Vec4(x.x, x.y, x.z, x.w);
+        } else {
+            return new Vec4(x, y, z, w);
+        }
+    }
+
+    /**
+     * @zh 获得指定向量的拷贝
+     */
+    public static clone (a: Vec4) {
+        return new Vec4(a.x, a.y, a.z, a.w);
+    }
+
+    /**
+     * @zh 复制目标向量
+     */
+    public static copy (out: Vec4, a: Vec4) {
+        out.x = a.x;
+        out.y = a.y;
+        out.z = a.z;
+        out.w = a.w;
+        return out;
+    }
+
+    /**
+     * @zh 设置向量值
+     */
+    public static set (out: Vec4, x: number, y: number, z: number, w: number) {
+        out.x = x;
+        out.y = y;
+        out.z = z;
+        out.w = w;
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量加法
+     */
+    public static add (out: Vec4, a: Vec4, b: Vec4) {
+        out.x = a.x + b.x;
+        out.y = a.y + b.y;
+        out.z = a.z + b.z;
+        out.w = a.w + b.w;
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量减法
+     */
+    public static subtract (out: Vec4, a: Vec4, b: Vec4) {
+        out.x = a.x - b.x;
+        out.y = a.y - b.y;
+        out.z = a.z - b.z;
+        out.w = a.w - b.w;
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量减法
+     */
+    public static sub (out: Vec4, a: Vec4, b: Vec4) {
+        return Vec4.subtract(out, a, b);
+    }
+
+    /**
+     * @zh 逐元素向量乘法
+     */
+    public static multiply (out: Vec4, a: Vec4, b: Vec4) {
+        out.x = a.x * b.x;
+        out.y = a.y * b.y;
+        out.z = a.z * b.z;
+        out.w = a.w * b.w;
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量乘法
+     */
+    public static mul (out: Vec4, a: Vec4, b: Vec4) {
+        return Vec4.multiply(out, a, b);
+    }
+
+    /**
+     * @zh 逐元素向量除法
+     */
+    public static divide (out: Vec4, a: Vec4, b: Vec4) {
+        out.x = a.x / b.x;
+        out.y = a.y / b.y;
+        out.z = a.z / b.z;
+        out.w = a.w / b.w;
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量除法
+     */
+    public static div (out: Vec4, a: Vec4, b: Vec4) {
+        return Vec4.divide(out, a, b);
+    }
+
+    /**
+     * @zh 逐元素向量向上取整
+     */
+    public static ceil (out: Vec4, a: Vec4) {
+        out.x = Math.ceil(a.x);
+        out.y = Math.ceil(a.y);
+        out.z = Math.ceil(a.z);
+        out.w = Math.ceil(a.w);
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量向下取整
+     */
+    public static floor (out: Vec4, a: Vec4) {
+        out.x = Math.floor(a.x);
+        out.y = Math.floor(a.y);
+        out.z = Math.floor(a.z);
+        out.w = Math.floor(a.w);
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量最小值
+     */
+    public static min (out: Vec4, a: Vec4, b: Vec4) {
+        out.x = Math.min(a.x, b.x);
+        out.y = Math.min(a.y, b.y);
+        out.z = Math.min(a.z, b.z);
+        out.w = Math.min(a.w, b.w);
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量最大值
+     */
+    public static max (out: Vec4, a: Vec4, b: Vec4) {
+        out.x = Math.max(a.x, b.x);
+        out.y = Math.max(a.y, b.y);
+        out.z = Math.max(a.z, b.z);
+        out.w = Math.max(a.w, b.w);
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量四舍五入取整
+     */
+    public static round (out: Vec4, a: Vec4) {
+        out.x = Math.round(a.x);
+        out.y = Math.round(a.y);
+        out.z = Math.round(a.z);
+        out.w = Math.round(a.w);
+        return out;
+    }
+
+    /**
+     * @zh 向量标量乘法
+     */
+    public static scale (out: Vec4, a: Vec4, b: number) {
+        out.x = a.x * b;
+        out.y = a.y * b;
+        out.z = a.z * b;
+        out.w = a.w * b;
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量乘加: A + B * scale
+     */
+    public static scaleAndAdd (out: Vec4, a: Vec4, b: Vec4, scale: number) {
+        out.x = a.x + (b.x * scale);
+        out.y = a.y + (b.y * scale);
+        out.z = a.z + (b.z * scale);
+        out.w = a.w + (b.w * scale);
+        return out;
+    }
+
+    /**
+     * @zh 求两向量的欧氏距离
+     */
+    public static distance (a: Vec4, b: Vec4) {
+        const x = b.x - a.x;
+        const y = b.y - a.y;
+        const z = b.z - a.z;
+        const w = b.w - a.w;
+        return Math.sqrt(x * x + y * y + z * z + w * w);
+    }
+
+    /**
+     * @zh 求两向量的欧氏距离
+     */
+    public static dist (a: Vec4, b: Vec4) {
+        return Vec4.distance(a, b);
+    }
+
+    /**
+     * @zh 求两向量的欧氏距离平方
+     */
+    public static squaredDistance (a: Vec4, b: Vec4) {
+        const x = b.x - a.x;
+        const y = b.y - a.y;
+        const z = b.z - a.z;
+        const w = b.w - a.w;
+        return x * x + y * y + z * z + w * w;
+    }
+
+    /**
+     * @zh 求两向量的欧氏距离平方
+     */
+    public static sqrDist (a: Vec4, b: Vec4) {
+        return Vec4.squaredDistance(a, b);
+    }
+
+    /**
+     * @zh 求向量长度
+     */
+    public static magnitude (a: Vec4) {
+        const { x, y, z, w } = a;
+        return Math.sqrt(x * x + y * y + z * z + w * w);
+    }
+
+    /**
+     * @zh 求向量长度
+     */
+    public static mag (a: Vec4) {
+        return Vec4.magnitude(a);
+    }
+
+    /**
+     * @zh 求向量长度平方
+     */
+    public static squaredMagnitude (a: Vec4) {
+        const { x, y, z, w } = a;
+        return x * x + y * y + z * z + w * w;
+    }
+
+    /**
+     * @zh 求向量长度平方
+     */
+    public static sqrMag (a: Vec4) {
+        return Vec4.squaredMagnitude(a);
+    }
+
+    /**
+     * @zh 逐元素向量取负
+     */
+    public static negate (out: Vec4, a: Vec4) {
+        out.x = -a.x;
+        out.y = -a.y;
+        out.z = -a.z;
+        out.w = -a.w;
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量取倒数，接近 0 时返回 Infinity
+     */
+    public static inverse (out: Vec4, a: Vec4) {
+        out.x = 1.0 / a.x;
+        out.y = 1.0 / a.y;
+        out.z = 1.0 / a.z;
+        out.w = 1.0 / a.w;
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量取倒数，接近 0 时返回 0
+     */
+    public static inverseSafe (out: Vec4, a: Vec4) {
+        const { x, y, z, w } = a;
+
+        if (Math.abs(x) < EPSILON) {
+            out.x = 0;
+        } else {
+            out.x = 1.0 / x;
+        }
+
+        if (Math.abs(y) < EPSILON) {
+            out.y = 0;
+        } else {
+            out.y = 1.0 / y;
+        }
+
+        if (Math.abs(z) < EPSILON) {
+            out.z = 0;
+        } else {
+            out.z = 1.0 / z;
+        }
+
+        if (Math.abs(w) < EPSILON) {
+            out.w = 0;
+        } else {
+            out.w = 1.0 / w;
+        }
+
+        return out;
+    }
+
+    /**
+     * @zh 归一化向量
+     */
+    public static normalize (out: Vec4, a: Vec4) {
+        const { x, y, z, w } = a;
+        let len = x * x + y * y + z * z + w * w;
+        if (len > 0) {
+            len = 1 / Math.sqrt(len);
+            out.x = x * len;
+            out.y = y * len;
+            out.z = z * len;
+            out.w = w * len;
+        }
+        return out;
+    }
+
+    /**
+     * @zh 向量点积（数量积）
+     */
+    public static dot (a: Vec4, b: Vec4) {
+        return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+    }
+
+    /**
+     * @zh 逐元素向量线性插值： A + t * (B - A)
+     */
+    public static lerp (out: Vec4, a: Vec4, b: Vec4, t: number) {
+        const { x: ax, y: ay, z: az, w: aw } = a;
+        out.x = ax + t * (b.x - ax);
+        out.y = ay + t * (b.y - ay);
+        out.z = az + t * (b.z - az);
+        out.w = aw + t * (b.w - aw);
+        return out;
+    }
+
+    /**
+     * @zh 生成一个在单位球体上均匀分布的随机向量
+     * @param scale 生成的向量长度
+     */
+    public static random (out: Vec4, scale?: number) {
+        scale = scale || 1.0;
+
+        const phi = random() * 2.0 * Math.PI;
+        const cosTheta = random() * 2 - 1;
+        const sinTheta = Math.sqrt(1 - cosTheta * cosTheta);
+
+        out.x = sinTheta * Math.cos(phi) * scale;
+        out.y = sinTheta * Math.sin(phi) * scale;
+        out.z = cosTheta * scale;
+        out.w = 0;
+        return out;
+    }
+
+    /**
+     * @zh 向量矩阵乘法
+     */
+    public static transformMat4 (out: Vec4, a: Vec4, m: Mat4) {
+        const { x, y, z, w } = a;
+        out.x = m.m00 * x + m.m04 * y + m.m08 * z + m.m12 * w;
+        out.y = m.m01 * x + m.m05 * y + m.m09 * z + m.m13 * w;
+        out.z = m.m02 * x + m.m06 * y + m.m10 * z + m.m14 * w;
+        out.w = m.m03 * x + m.m07 * y + m.m11 * z + m.m15 * w;
+        return out;
+    }
+
+    /**
+     * @zh 向量四元数乘法
+     */
+    public static transformQuat (out: Vec4, a: Vec4, q: Quat) {
+        const { x, y, z } = a;
+        const { x: qx, y: qy, z: qz, w: qw } = q;
+
+        // calculate quat * vec
+        const ix = qw * x + qy * z - qz * y;
+        const iy = qw * y + qz * x - qx * z;
+        const iz = qw * z + qx * y - qy * x;
+        const iw = -qx * x - qy * y - qz * z;
+
+        // calculate result * inverse quat
+        out.x = ix * qw + iw * -qx + iy * -qz - iz * -qy;
+        out.y = iy * qw + iw * -qy + iz * -qx - ix * -qz;
+        out.z = iz * qw + iw * -qz + ix * -qy - iy * -qx;
+        out.w = a.w;
+        return out;
+    }
+
+    /**
+     * @zh 向量转数组
+     * @param ofs 数组起始偏移量
+     */
+    public static array (out: IWritableArrayLike<number>, v: Vec4, ofs = 0) {
+        out[ofs + 0] = v.x;
+        out[ofs + 1] = v.y;
+        out[ofs + 2] = v.z;
+        out[ofs + 3] = v.w;
+        return out;
+    }
+
+    /**
+     * @zh 向量等价判断
+     */
+    public static exactEquals (a: Vec4, b: Vec4) {
+        return a.x === b.x && a.y === b.y && a.z === b.z && a.w === b.w;
+    }
+
+    /**
+     * @zh 排除浮点数误差的向量近似等价判断
+     */
+    public static equals (a: Vec4, b: Vec4, epsilon = EPSILON) {
+        const { x: a0, y: a1, z: a2, w: a3 } = a;
+        const { x: b0, y: b1, z: b2, w: b3 } = b;
+        return (Math.abs(a0 - b0) <= epsilon * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
+            Math.abs(a1 - b1) <= epsilon * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&
+            Math.abs(a2 - b2) <= epsilon * Math.max(1.0, Math.abs(a2), Math.abs(b2)) &&
+            Math.abs(a3 - b3) <= epsilon * Math.max(1.0, Math.abs(a3), Math.abs(b3)));
     }
 
     /**
@@ -69,34 +498,12 @@ export default class Vec4 extends ValueType {
      */
     public w: number;
 
-    /**
-     * 构造与指定向量相等的向量。
-     * @param other 相比较的向量。
-     */
-    constructor (other: Vec4);
-
-    /**
-     * 构造具有指定分量的向量。
-     * @param [x=0] 指定的 x 分量。
-     * @param [y=0] 指定的 y 分量。
-     * @param [z=0] 指定的 z 分量。
-     * @param [w=0] 指定的 w 分量。
-     */
-    constructor (x?: number, y?: number, z?: number, w?: number);
-
-    constructor (x?: number | Vec4, y?: number, z?: number, w?: number) {
+    constructor (x = 0, y = 0, z = 0, w = 0) {
         super();
-        if (x && typeof x === 'object') {
-            this.x = x.x;
-            this.y = x.y;
-            this.z = x.z;
-            this.w = x.w;
-        } else {
-            this.x = x || 0;
-            this.y = y || 0;
-            this.z = z || 0;
-            this.w = w || 0;
-        }
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.w = w;
     }
 
     /**
@@ -120,31 +527,22 @@ export default class Vec4 extends ValueType {
     }
 
     /**
+     * 判断当前向量是否在误差范围内与指定向量相等。
+     * @param other 相比较的向量。
+     * @param epsilon 允许的误差，应为非负数。
+     * @returns 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
+     */
+    public equals (other: Vec4, epsilon?: number) {
+        return Vec4.equals(this, other, epsilon);
+    }
+
+    /**
      * 判断当前向量是否与指定向量相等。
      * @param other 相比较的向量。
      * @returns 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
      */
-    public equals (other: Vec4) {
+    public exactEquals (other: Vec4) {
         return this.x === other.x && this.y === other.y && this.z === other.z && this.w === other.w;
-    }
-
-    /**
-     * 判断当前向量是否在误差范围 [-variance, variance] 内与指定向量相等。
-     * @param other 相比较的向量。
-     * @param variance 允许的误差，应为非负数。
-     * @returns 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
-     */
-    public fuzzyEquals (other: Vec4, variance: number) {
-        if (this.x - variance <= other.x && other.x <= this.x + variance) {
-            if (this.y - variance <= other.y && other.y <= this.y + variance) {
-                if (this.z - variance <= other.z && other.z <= this.z + variance) {
-                    if (this.w - variance <= other.w && other.w <= this.w + variance) {
-                    return true;
-                    }
-                }
-            }
-        }
-        return false;
     }
 
     /**
@@ -153,7 +551,7 @@ export default class Vec4 extends ValueType {
      * @param ratio 插值比率，范围为 [0,1]。
      */
     public lerp (to: Vec4, ratio: number) {
-        vec4.lerp(this, this, to, ratio);
+        Vec4.lerp(this, this, to, ratio);
     }
 
     /**
@@ -203,7 +601,8 @@ export default class Vec4 extends ValueType {
      * 向量数乘。将当前向量数乘指定标量
      * @param scalar 标量乘数。
      */
-    public multiply (scalar: number) {
+    public scale (scalar: number) {
+        if (typeof scalar === 'object') { console.warn('should use Vec4.multiply for vector * vector operation'); }
         this.x = this.x * scalar;
         this.y = this.y * scalar;
         this.z = this.z * scalar;
@@ -211,10 +610,11 @@ export default class Vec4 extends ValueType {
     }
 
     /**
-     * 向量乘法。将当前向量乘以与指定向量
+     * 向量乘法。将当前向量乘以指定向量
      * @param other 指定的向量。
      */
-    public scale (other: Vec4) {
+    public multiply (other: Vec4) {
+        if (typeof other !== 'object') { console.warn('should use Vec4.scale for vector * scalar operation'); }
         this.x = this.x * other.x;
         this.y = this.y * other.y;
         this.z = this.z * other.z;
@@ -256,7 +656,12 @@ export default class Vec4 extends ValueType {
      * @param other 指定的向量。
      */
     public cross (vector: Vec4) {
-        vec3.cross(this, this, vector);
+        const { x: ax, y: ay, z: az } = this;
+        const { x: bx, y: by, z: bz } = vector;
+
+        this.x = ay * bz - az * by;
+        this.y = az * bx - ax * bz;
+        this.z = ax * by - ay * bx;
     }
 
     /**
@@ -281,7 +686,7 @@ export default class Vec4 extends ValueType {
      * 将当前向量归一化
      */
     public normalize () {
-        vec4.normalize(this, this);
+        Vec4.normalize(this, this);
     }
 
     /**
@@ -289,34 +694,10 @@ export default class Vec4 extends ValueType {
      * @param matrix 变换矩阵。
      */
     public transformMat4 (matrix: Mat4) {
-        vec4.transformMat4(this, this, matrix);
+        Vec4.transformMat4(this, this, matrix);
     }
 }
 
 CCClass.fastDefine('cc.Vec4', Vec4, { x: 0, y: 0, z: 0, w: 0 });
 cc.Vec4 = Vec4;
-
-/**
- * 构造与指定向量相等的向量。等价于 `new Vec4(other)`。
- * @param other 相比较的向量。
- * @returns `new Vec4(other)`
- * @deprecated
- */
-export function v4 (other: Vec4): Vec4;
-
-/**
- * 构造具有指定分量的向量。等价于 `new Vec4(x, y, z, w)`。
- * @param [x=0] 指定的 x 分量。
- * @param [y=0] 指定的 y 分量。
- * @param [z=0] 指定的 z 分量。
- * @param [w=0] 指定的 w 分量。
- * @returns `new Vec4(x, y, z)`
- * @deprecated
- */
-export function v4 (x?: number, y?: number, z?: number, w?: number): Vec4;
-
-export function v4 (x?: number | Vec4, y?: number, z?: number, w?: number) {
-    return new Vec4(x as any, y, z, w);
-}
-
-cc.v4 = v4;
+cc.v4 = Vec4.create;

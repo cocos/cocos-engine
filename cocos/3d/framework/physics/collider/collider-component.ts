@@ -7,7 +7,7 @@ import { EventTarget } from '../../../../core/event';
 import { CallbacksInvoker, ICallbackTable } from '../../../../core/event/callbacks-invoker';
 import { applyMixins, IEventTarget } from '../../../../core/event/event-target-factory';
 import { createMap } from '../../../../core/utils/js';
-import Vec3 from '../../../../core/value-types/vec3';
+import { Vec3 } from '../../../../core/value-types';
 import { vec3 } from '../../../../core/vmath';
 import { ICollisionCallback, ICollisionEvent, ITriggerCallback, ITriggerEvent, RigidBodyBase, ShapeBase } from '../../../physics/api';
 import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../../physics/export-api';

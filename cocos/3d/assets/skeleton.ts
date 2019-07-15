@@ -34,9 +34,9 @@ import { Texture2D } from '../../assets/texture-2d';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { CCString } from '../../core/data/utils/attribute';
 import { Mat4, Quat, Vec3 } from '../../core/value-types';
-import { mat4, quat, vec3 } from '../../core/vmath';
 import { GFXFormatInfos } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
+import { mat4, quat, vec3 } from '../../core/vmath';
 
 export function selectJointsMediumType (device: GFXDevice): JointsMediumType {
     if (device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
@@ -103,7 +103,7 @@ export class Skeleton extends Asset {
             const position = new Vec3();
             const rotation = new Quat();
             const scale = new Vec3();
-            mat4.toRTS(m, rotation, position, scale);
+            Mat4.toRTS(m, rotation, position, scale);
             return { position, rotation, scale };
         });
     }

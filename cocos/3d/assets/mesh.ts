@@ -30,7 +30,6 @@
 import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Vec3 } from '../../core/value-types';
-import { vec3 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXFormatType, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
@@ -684,10 +683,10 @@ export class Mesh extends Asset {
         };
 
         if (meshStruct.minPosition && mesh._struct.minPosition) {
-            vec3.min(meshStruct.minPosition, meshStruct.minPosition, mesh._struct.minPosition);
+            Vec3.min(meshStruct.minPosition, meshStruct.minPosition, mesh._struct.minPosition);
         }
         if (meshStruct.maxPosition && mesh._struct.maxPosition) {
-            vec3.max(meshStruct.maxPosition, meshStruct.maxPosition, mesh._struct.maxPosition);
+            Vec3.max(meshStruct.maxPosition, meshStruct.maxPosition, mesh._struct.maxPosition);
         }
 
         // Create mesh.

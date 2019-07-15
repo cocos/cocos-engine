@@ -32,7 +32,7 @@ import { Component} from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform';
 import { Size, Vec3 } from '../../../core/value-types';
-import { ccenum } from '../../../core/value-types/enum';
+import { CCEnum } from '../../../core/value-types/enum';
 import { Node } from '../../../scene-graph/node';
 import { UITransformComponent } from './ui-transfrom-component';
 
@@ -60,7 +60,7 @@ export enum AlignMode {
     ALWAYS = 1,
 }
 
-ccenum(AlignMode);
+CCEnum(AlignMode);
 
 /**
  * @zh

@@ -29,17 +29,17 @@
  */
 
 import CCClass from '../data/class';
-import Mat4 from './mat4';
-import Size from './size';
+import { Mat4 } from './mat4';
+import { Size } from './size';
 import { ValueType } from './value-type';
-import Vec2 from './vec2';
+import { Vec2 } from './vec2';
 
 /**
  * 轴对齐矩形。
  * 矩形内的所有点都大于等于矩形的最小点 (xMin, yMin) 并且小于等于矩形的最大点 (xMax, yMax)。
  * 矩形的宽度定义为 xMax - xMin；高度定义为 yMax - yMin。
  */
-export default class Rect extends ValueType {
+export class Rect extends ValueType {
     /**
      * 获取或设置矩形在 x 轴上的最小值。
      */

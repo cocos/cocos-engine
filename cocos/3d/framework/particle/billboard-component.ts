@@ -8,11 +8,10 @@ import { Material, Mesh } from "../../assets";
 import { Texture2D } from "../../../assets";
 import { createMesh } from "../../misc/utils";
 import { GFXPrimitiveMode, GFXAttributeName, GFXFormat } from "../../../gfx";
-import { Color } from "../../../core/value-types";
 import { Model } from "../../../renderer";
 import { builtinResMgr } from "../../builtin";
 import { Component } from "../../../components";
-import { toRadian, toDegree } from "../../../core/vmath";
+import { Color, toRadian, toDegree } from "../../../core/value-types";
 
 @ccclass('cc.BillboardComponent')
 @menu('Components/BillboardComponent')

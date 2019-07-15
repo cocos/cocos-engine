@@ -3,8 +3,7 @@
  */
 
 import { removeIf } from '../core/utils/array';
-import { clamp01 } from '../core/vmath';
-import { Node } from '../scene-graph';
+import { clamp01 } from '../core/value-types';
 import { AnimationState } from './animation-state';
 import { Playable } from './playable';
 

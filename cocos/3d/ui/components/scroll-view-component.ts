@@ -34,7 +34,7 @@ import { Event } from '../../../core/event';
 import { EventMouse, EventTouch } from '../../../core/platform';
 import Touch from '../../../core/platform/event-manager/CCTouch';
 import { Size, Vec2, Vec3 } from '../../../core/value-types';
-import { ccenum } from '../../../core/value-types/enum';
+import { CCEnum } from '../../../core/value-types/enum';
 import { vec3 } from '../../../core/vmath';
 import { Node } from '../../../scene-graph/node';
 import { LayoutComponent } from './layout-component';
@@ -132,7 +132,7 @@ enum EventType {
     SCROLL_BEGAN = 12,
 }
 
-ccenum(EventType);
+CCEnum(EventType);
 
 const eventMap = {
     'scroll-to-top': EventType.SCROLL_TO_TOP,

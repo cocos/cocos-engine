@@ -29,15 +29,15 @@
  * @category core/value-types
  */
 
-import Mat4 from './mat4';
-import Rect from './rect';
-import Size from './size';
-import Vec2 from './vec2';
+import { Mat4 } from './mat4';
+import { Rect } from './rect';
+import { Size } from './size';
+import { Vec2 } from './vec2';
 
 /**
  * 二维仿射变换矩阵，描述了平移、缩放和缩放。
  */
-export default class AffineTransform {
+export class AffineTransform {
     /**
      * 创建二维放射变换矩阵。
      * @param a a 元素。

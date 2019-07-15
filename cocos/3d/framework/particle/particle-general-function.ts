@@ -2,8 +2,8 @@
  * @hidden
  */
 
-import { Enum } from '../../../core/value-types';
-import { mat4, quat, random, randomRange, randomRangeInt, vec2, vec3 } from '../../../core/vmath';
+import { random, randomRange, randomRangeInt } from '../../../core/value-types';
+import { mat4, quat, vec2, vec3 } from '../../../core/vmath';
 import { sign } from '../../../core/vmath/bits';
 import { Space } from './enum';
 

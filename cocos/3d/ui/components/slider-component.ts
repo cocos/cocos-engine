@@ -32,9 +32,8 @@ import { Component, EventHandler as ComponentEventHandler } from '../../../compo
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { EventTouch, SystemEventType } from '../../../core/platform';
 import Touch from '../../../core/platform/event-manager/CCTouch';
-import { clamp01 } from '../../../core/utils';
-import { Vec3 } from '../../../core/value-types';
-import { ccenum } from '../../../core/value-types/enum';
+import { clamp01, Vec3 } from '../../../core/value-types';
+import { CCEnum } from '../../../core/value-types/enum';
 import { vec3 } from '../../../core/vmath';
 import { SpriteComponent } from './sprite-component';
 
@@ -56,7 +55,7 @@ enum Direction {
     Vertical = 1,
 }
 
-ccenum(Direction);
+CCEnum(Direction);
 
 /**
  * @zh

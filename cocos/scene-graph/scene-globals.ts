@@ -31,7 +31,7 @@ import { TextureCube } from '../3d/assets/texture-cube';
 import { ccclass, property } from '../core/data/class-decorator';
 import { CCBoolean, CCFloat } from '../core/data/utils/attribute';
 import { Color, Quat, Vec3 } from '../core/value-types';
-import { color4, vec3 } from '../core/vmath';
+import { color4 } from '../core/vmath';
 import { Ambient } from '../renderer/scene/ambient';
 import { PlanarShadows } from '../renderer/scene/planar-shadows';
 import { RenderScene } from '../renderer/scene/render-scene';
@@ -208,7 +208,7 @@ export class PlanarShadowInfo {
      */
     @property({ type: Vec3 })
     set normal (val: Vec3) {
-        vec3.copy(this._normal, val);
+        Vec3.copy(this._normal, val);
         if (this._resource) { this._resource.normal = val; }
     }
     get normal () {
@@ -245,9 +245,9 @@ export class PlanarShadowInfo {
      */
     public setPlaneFromNode (node: Node) {
         node.getWorldRotation(_qt);
-        this.normal = vec3.transformQuat(_v3, _up, _qt);
+        this.normal = Vec3.transformQuat(_v3, _up, _qt);
         node.getWorldPosition(_v3);
-        this.distance = vec3.dot(this._normal, _v3);
+        this.distance = Vec3.dot(this._normal, _v3);
     }
 
     set renderScene (val: RenderScene) {

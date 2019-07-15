@@ -5,13 +5,14 @@
 
 import { ccclass, property } from '../../../../core/data/class-decorator';
 import { Vec3 } from '../../../../core/value-types';
-import { clamp, mat4, pingPong, quat, random, randomRange, repeat, toDegree, toRadian, vec2, vec3 } from '../../../../core/vmath';
+import { clamp, pingPong, random, randomRange, repeat, toDegree, toRadian } from '../../../../core/value-types';
+import { mat4, quat, vec2, vec3 } from '../../../../core/vmath';
 import CurveRange from '../animator/curve-range';
-import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere, randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';
+import { ArcMode, EmitLocation, ShapeType } from '../enum';
+import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere,
+    randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';
 import { ParticleSystemComponent } from '../particle-system-component';
-import { ShapeType, EmitLocation, ArcMode } from '../enum';
 
-// tslint:disable: max-line-length
 const _intermediVec = vec3.create(0, 0, 0);
 const _intermediArr = new Array();
 const _unitBoxExtent = vec3.create(0.5, 0.5, 0.5);

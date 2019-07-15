@@ -5,7 +5,6 @@
 
 import { Color, Vec3 } from '../../../../core';
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import Enum from '../../../../core/value-types/enum';
 import { vec3 } from '../../../../core/vmath';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../../../gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../../../gfx/define';
@@ -14,7 +13,6 @@ import { IGFXAttribute } from '../../../../gfx/input-assembler';
 import { Model } from '../../../../renderer';
 import { Material } from '../../../assets';
 import { IRenderingSubmesh } from '../../../assets/mesh';
-import { builtinResMgr } from '../../../builtin';
 import { Pool } from '../../../memop';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';

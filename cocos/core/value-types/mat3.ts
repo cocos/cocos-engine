@@ -1,33 +1,94 @@
+/*
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 /**
- * @category core/math
+ * @category core/value-types
  */
 
-import { mat4 } from './mat4';
-import { quat } from './quat';
+import CCClass from '../data/class';
+import { Mat4 } from './mat4';
+import { Quat } from './quat';
 import { EPSILON } from './utils';
-import { vec3 } from './vec3';
+import { ValueType } from './value-type';
+import { Vec3 } from './vec3';
 
 /**
- * @zh 三维矩阵
+ * 表示三维（4x4）矩阵。
  */
 // tslint:disable:one-variable-per-declaration
-// tslint:disable-next-line:class-name
-export class mat3 {
+export class Mat3 extends ValueType {
+
+    /**
+     * 构造与指定矩阵相等的矩阵。
+     * @param other 相比较的矩阵。
+     */
+    public static create (other: Mat3): Mat3;
+
+    /**
+     * 构造具有指定元素的矩阵。
+     * @param m00 矩阵第 0 列第 0 行的元素。
+     * @param m01 矩阵第 0 列第 1 行的元素。
+     * @param m02 矩阵第 0 列第 2 行的元素。
+     * @param m03 矩阵第 0 列第 3 行的元素。
+     * @param m04 矩阵第 1 列第 0 行的元素。
+     * @param m05 矩阵第 1 列第 1 行的元素。
+     * @param m06 矩阵第 1 列第 2 行的元素。
+     * @param m07 矩阵第 1 列第 3 行的元素。
+     * @param m08 矩阵第 2 列第 0 行的元素。
+     * @param m09 矩阵第 2 列第 1 行的元素。
+     * @param m10 矩阵第 2 列第 2 行的元素。
+     * @param m11 矩阵第 2 列第 3 行的元素。
+     * @param m12 矩阵第 3 列第 0 行的元素。
+     * @param m13 矩阵第 3 列第 1 行的元素。
+     * @param m14 矩阵第 3 列第 2 行的元素。
+     * @param m15 矩阵第 3 列第 3 行的元素。
+     */
+    public static create (
+        m00?: number, m01?: number, m02?: number,
+        m03?: number, m04?: number, m05?: number,
+        m06?: number, m07?: number, m08?: number): Mat3;
 
     /**
      * @zh 创建新的实例
      */
-    public static create (m00 = 1, m01 = 0, m02 = 0, m03 = 0, m04 = 1, m05 = 0, m06 = 0, m07 = 0, m08 = 1) {
-        console.warn('Obsolete Vmath API');
-        return new mat3(m00, m01, m02, m03, m04, m05, m06, m07, m08);
+    public static create (
+        m00?: number | Mat3, m01?: number, m02?: number,
+        m03?: number, m04?: number, m05?: number,
+        m06?: number, m07?: number, m08?: number) {
+        if (typeof m00 === 'object') {
+            return new Mat3(m00.m00, m00.m01, m00.m02, m00.m03, m00.m04, m00.m05, m00.m06, m00.m07, m00.m08);
+        } else {
+            return new Mat3( m01, m02, m03, m04, m05, m06, m07, m08);
+        }
     }
 
     /**
      * @zh 获得指定矩阵的拷贝
      */
-    public static clone (a: mat3) {
-        console.warn('Obsolete Vmath API');
-        return new mat3(
+    public static clone (a: Mat3) {
+        return new Mat3(
             a.m00, a.m01, a.m02,
             a.m03, a.m04, a.m05,
             a.m06, a.m07, a.m08,
@@ -37,8 +98,7 @@ export class mat3 {
     /**
      * @zh 复制目标矩阵
      */
-    public static copy<Out extends mat3> (out: Out, a: mat3) {
-        console.warn('Obsolete Vmath API');
+    public static copy (out: Mat3, a: Mat3) {
         out.m00 = a.m00;
         out.m01 = a.m01;
         out.m02 = a.m02;
@@ -55,12 +115,11 @@ export class mat3 {
      * @zh 设置矩阵值
      */
     public static set (
-        out: mat3,
+        out: Mat3,
         m00: number, m01: number, m02: number,
         m10: number, m11: number, m12: number,
         m20: number, m21: number, m22: number,
     ) {
-        console.warn('Obsolete Vmath API');
         out.m00 = m00; out.m01 = m01; out.m02 = m02;
         out.m03 = m10; out.m04 = m11; out.m05 = m12;
         out.m06 = m20; out.m07 = m21; out.m08 = m22;
@@ -70,8 +129,7 @@ export class mat3 {
     /**
      * @zh 将目标赋值为单位矩阵
      */
-    public static identity<Out extends mat3> (out: Out) {
-        console.warn('Obsolete Vmath API');
+    public static identity (out: Mat3) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -87,8 +145,7 @@ export class mat3 {
     /**
      * @zh 转置矩阵
      */
-    public static transpose<Out extends mat3> (out: Out, a: mat3) {
-        console.warn('Obsolete Vmath API');
+    public static transpose (out: Mat3, a: Mat3) {
         // If we are transposing ourselves we can skip a few steps but have to cache some values
         if (out === a) {
             const a01 = a.m01, a02 = a.m02, a12 = a.m05;
@@ -116,8 +173,7 @@ export class mat3 {
     /**
      * @zh 矩阵求逆
      */
-    public static invert<Out extends mat3> (out: Out, a: mat3) {
-        console.warn('Obsolete Vmath API');
+    public static invert (out: Mat3, a: Mat3) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -149,8 +205,7 @@ export class mat3 {
     /**
      * @zh 矩阵行列式
      */
-    public static determinant (a: mat3) {
-        console.warn('Obsolete Vmath API');
+    public static determinant (a: Mat3) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -161,8 +216,7 @@ export class mat3 {
     /**
      * @zh 矩阵乘法
      */
-    public static multiply<Out extends mat3> (out: Out, a: mat3, b: mat3) {
-        console.warn('Obsolete Vmath API');
+    public static multiply (out: Mat3, a: Mat3, b: Mat3) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -189,15 +243,13 @@ export class mat3 {
      * @zh 矩阵乘法
      */
     public static mul (out, a, b) {
-        console.warn('Obsolete Vmath API');
-        return mat3.multiply(out, a, b);
+        return Mat3.multiply(out, a, b);
     }
 
     /**
      * @zh 在给定矩阵变换基础上加入新位移变换
      */
-    public static translate<Out extends mat3> (out: Out, a: mat3, v: vec3) {
-        console.warn('Obsolete Vmath API');
+    public static translate (out: Mat3, a: Mat3, v: Vec3) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -220,8 +272,7 @@ export class mat3 {
     /**
      * @zh 在给定矩阵变换基础上加入新缩放变换
      */
-    public static scale<Out extends mat3> (out: Out, a: mat3, v: vec3) {
-        console.warn('Obsolete Vmath API');
+    public static scale (out: Mat3, a: Mat3, v: Vec3) {
         const x = v.x, y = v.y;
 
         out.m00 = x * a.m00;
@@ -242,8 +293,7 @@ export class mat3 {
      * @zh 在给定矩阵变换基础上加入新旋转变换
      * @param rad 旋转弧度
      */
-    public static rotate<Out extends mat3> (out: Out, a: mat3, rad: number) {
-        console.warn('Obsolete Vmath API');
+    public static rotate (out: Mat3, a: Mat3, rad: number) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -268,8 +318,7 @@ export class mat3 {
     /**
      * @zh 根据指定四维矩阵计算三维矩阵
      */
-    public static fromMat4<Out extends mat3> (out: Out, a: mat4) {
-        console.warn('Obsolete Vmath API');
+    public static fromMat4 (out: Mat3, a: Mat4) {
         out.m00 = a.m00;
         out.m01 = a.m01;
         out.m02 = a.m02;
@@ -287,23 +336,22 @@ export class mat3 {
      * @param view 视口面向的前方向，必须归一化
      * @param up 视口的上方向，必须归一化，默认为 (0, 1, 0)
      */
-    public static fromViewUp<Out extends mat3> (out: Out, view: vec3, up?: vec3) {
-        console.warn('Obsolete Vmath API');
-        if (vec3.sqrMag(view) < EPSILON * EPSILON) {
-            mat3.identity(out);
+    public static fromViewUp (out: Mat3, view: Vec3, up?: Vec3) {
+        if (Vec3.sqrMag(view) < EPSILON * EPSILON) {
+            Mat3.identity(out);
             return out;
         }
 
-        up = up || vec3.UNIT_Y;
-        vec3.normalize(v3_1, vec3.cross(v3_1, up, view));
+        up = up || Vec3.UNIT_Y;
+        Vec3.normalize(v3_1, Vec3.cross(v3_1, up, view));
 
-        if (vec3.sqrMag(v3_1) < EPSILON * EPSILON) {
-            mat3.identity(out);
+        if (Vec3.sqrMag(v3_1) < EPSILON * EPSILON) {
+            Mat3.identity(out);
             return out;
         }
 
-        vec3.cross(v3_2, view, v3_1);
-        mat3.set(
+        Vec3.cross(v3_2, view, v3_1);
+        Mat3.set(
             out,
             v3_1.x, v3_1.y, v3_1.z,
             v3_2.x, v3_2.y, v3_2.z,
@@ -316,8 +364,7 @@ export class mat3 {
     /**
      * @zh 计算位移矩阵
      */
-    public static fromTranslation<Out extends mat3> (out: Out, v: vec3) {
-        console.warn('Obsolete Vmath API');
+    public static fromTranslation (out: Mat3, v: Vec3) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -333,8 +380,7 @@ export class mat3 {
     /**
      * @zh 计算缩放矩阵
      */
-    public static fromScaling<Out extends mat3> (out: Out, v: vec3) {
-        console.warn('Obsolete Vmath API');
+    public static fromScaling (out: Mat3, v: Vec3) {
         out.m00 = v.x;
         out.m01 = 0;
         out.m02 = 0;
@@ -352,8 +398,7 @@ export class mat3 {
     /**
      * @zh 计算旋转矩阵
      */
-    public static fromRotation<Out extends mat3> (out: Out, rad: number) {
-        console.warn('Obsolete Vmath API');
+    public static fromRotation (out: Mat3, rad: number) {
         const s = Math.sin(rad), c = Math.cos(rad);
 
         out.m00 = c;
@@ -373,8 +418,7 @@ export class mat3 {
     /**
      * @zh 根据四元数旋转信息计算矩阵
      */
-    public static fromQuat<Out extends mat3> (out: Out, q: quat) {
-        console.warn('Obsolete Vmath API');
+    public static fromQuat (out: Mat3, q: Quat) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -408,8 +452,7 @@ export class mat3 {
     /**
      * @zh 计算指定四维矩阵的逆转置三维矩阵
      */
-    public static inverseTransposeMat4<Out extends mat3> (out: Out, a: mat4) {
-        console.warn('Obsolete Vmath API');
+    public static inverseTransposeMat4 (out: Mat3, a: Mat4) {
         const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
             a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
             a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
@@ -452,19 +495,10 @@ export class mat3 {
     }
 
     /**
-     * @zh 返回矩阵的字符串表示
-     */
-    public static str (a) {
-        console.warn('Obsolete Vmath API');
-        return `mat3(${a.m00}, ${a.m01}, ${a.m02}, ${a.m03}, ${a.m04}, ${a.m05}, ${a.m06}, ${a.m07}, ${a.m08})`;
-    }
-
-    /**
      * @zh 矩阵转数组
      * @param ofs 数组内的起始偏移量
      */
-    public static array (out: IWritableArrayLike<number>, m: mat4, ofs = 0) {
-        console.warn('Obsolete Vmath API');
+    public static array (out: IWritableArrayLike<number>, m: Mat4, ofs = 0) {
         out[ofs + 0] = m.m00;
         out[ofs + 1] = m.m01;
         out[ofs + 2] = m.m02;
@@ -481,8 +515,7 @@ export class mat3 {
     /**
      * @zh 逐元素矩阵加法
      */
-    public static add<Out extends mat3> (out: Out, a: mat3, b: mat3) {
-        console.warn('Obsolete Vmath API');
+    public static add (out: Mat3, a: Mat3, b: Mat3) {
         out.m00 = a.m00 + b.m00;
         out.m01 = a.m01 + b.m01;
         out.m02 = a.m02 + b.m02;
@@ -498,8 +531,7 @@ export class mat3 {
     /**
      * @zh 逐元素矩阵减法
      */
-    public static subtract<Out extends mat3> (out: Out, a: mat3, b: mat3) {
-        console.warn('Obsolete Vmath API');
+    public static subtract (out: Mat3, a: Mat3, b: Mat3) {
         out.m00 = a.m00 - b.m00;
         out.m01 = a.m01 - b.m01;
         out.m02 = a.m02 - b.m02;
@@ -515,16 +547,14 @@ export class mat3 {
     /**
      * @zh 逐元素矩阵减法
      */
-    public static sub<Out extends mat3> (out: Out, a: mat3, b: mat3) {
-        console.warn('Obsolete Vmath API');
-        return mat3.subtract(out, a, b);
+    public static sub (out: Mat3, a: Mat3, b: Mat3) {
+        return Mat3.subtract(out, a, b);
     }
 
     /**
      * @zh 矩阵标量乘法
      */
-    public static multiplyScalar<Out extends mat3> (out: Out, a: mat3, b: number) {
-        console.warn('Obsolete Vmath API');
+    public static multiplyScalar (out: Mat3, a: Mat3, b: number) {
         out.m00 = a.m00 * b;
         out.m01 = a.m01 * b;
         out.m02 = a.m02 * b;
@@ -540,8 +570,7 @@ export class mat3 {
     /**
      * @zh 逐元素矩阵标量乘加: A + B * scale
      */
-    public static multiplyScalarAndAdd<Out extends mat3> (out: Out, a: mat3, b: mat3, scale: number) {
-        console.warn('Obsolete Vmath API');
+    public static multiplyScalarAndAdd (out: Mat3, a: Mat3, b: Mat3, scale: number) {
         out.m00 = a.m00 + (b.m00 * scale);
         out.m01 = a.m01 + (b.m01 * scale);
         out.m02 = a.m02 + (b.m02 * scale);
@@ -557,8 +586,7 @@ export class mat3 {
     /**
      * @zh 矩阵等价判断
      */
-    public static exactEquals (a: mat3, b: mat3) {
-        console.warn('Obsolete Vmath API');
+    public static exactEquals (a: Mat3, b: Mat3) {
         return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 &&
             a.m03 === b.m03 && a.m04 === b.m04 && a.m05 === b.m05 &&
             a.m06 === b.m06 && a.m07 === b.m07 && a.m08 === b.m08;
@@ -567,50 +595,243 @@ export class mat3 {
     /**
      * @zh 排除浮点数误差的矩阵近似等价判断
      */
-    public static equals (a: mat3, b: mat3) {
+    public static equals (a: Mat3, b: Mat3, epsilon = EPSILON) {
         const a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05, a6 = a.m06, a7 = a.m07, a8 = a.m08;
         const b0 = b.m00, b1 = b.m01, b2 = b.m02, b3 = b.m03, b4 = b.m04, b5 = b.m05, b6 = b.m06, b7 = b.m07, b8 = b.m08;
-        console.warn('Obsolete Vmath API');
         return (
-            Math.abs(a0 - b0) <= EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
-            Math.abs(a1 - b1) <= EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&
-            Math.abs(a2 - b2) <= EPSILON * Math.max(1.0, Math.abs(a2), Math.abs(b2)) &&
-            Math.abs(a3 - b3) <= EPSILON * Math.max(1.0, Math.abs(a3), Math.abs(b3)) &&
-            Math.abs(a4 - b4) <= EPSILON * Math.max(1.0, Math.abs(a4), Math.abs(b4)) &&
-            Math.abs(a5 - b5) <= EPSILON * Math.max(1.0, Math.abs(a5), Math.abs(b5)) &&
-            Math.abs(a6 - b6) <= EPSILON * Math.max(1.0, Math.abs(a6), Math.abs(b6)) &&
-            Math.abs(a7 - b7) <= EPSILON * Math.max(1.0, Math.abs(a7), Math.abs(b7)) &&
-            Math.abs(a8 - b8) <= EPSILON * Math.max(1.0, Math.abs(a8), Math.abs(b8))
+            Math.abs(a0 - b0) <= epsilon * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
+            Math.abs(a1 - b1) <= epsilon * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&
+            Math.abs(a2 - b2) <= epsilon * Math.max(1.0, Math.abs(a2), Math.abs(b2)) &&
+            Math.abs(a3 - b3) <= epsilon * Math.max(1.0, Math.abs(a3), Math.abs(b3)) &&
+            Math.abs(a4 - b4) <= epsilon * Math.max(1.0, Math.abs(a4), Math.abs(b4)) &&
+            Math.abs(a5 - b5) <= epsilon * Math.max(1.0, Math.abs(a5), Math.abs(b5)) &&
+            Math.abs(a6 - b6) <= epsilon * Math.max(1.0, Math.abs(a6), Math.abs(b6)) &&
+            Math.abs(a7 - b7) <= epsilon * Math.max(1.0, Math.abs(a7), Math.abs(b7)) &&
+            Math.abs(a8 - b8) <= epsilon * Math.max(1.0, Math.abs(a8), Math.abs(b8))
         );
     }
 
+    /**
+     * 矩阵第 0 列第 0 行的元素。
+     */
     public m00: number;
+
+    /**
+     * 矩阵第 0 列第 1 行的元素。
+     */
     public m01: number;
+
+    /**
+     * 矩阵第 0 列第 2 行的元素。
+     */
     public m02: number;
+
+    /**
+     * 矩阵第 1 列第 0 行的元素。
+     */
     public m03: number;
+
+    /**
+     * 矩阵第 1 列第 1 行的元素。
+     */
     public m04: number;
+
+    /**
+     * 矩阵第 1 列第 2 行的元素。
+     */
     public m05: number;
+
+    /**
+     * 矩阵第 2 列第 0 行的元素。
+     */
     public m06: number;
+
+    /**
+     * 矩阵第 2 列第 1 行的元素。
+     */
     public m07: number;
+
+    /**
+     * 矩阵第 2 列第 2 行的元素。
+     */
     public m08: number;
 
     constructor (
         m00 = 1, m01 = 0, m02 = 0,
         m03 = 0, m04 = 1, m05 = 0,
-        m06 = 0, m07 = 0, m08 = 1,
-    ) {
-        console.warn('Obsolete Vmath API');
-        this.m00 = m00;
-        this.m01 = m01;
-        this.m02 = m02;
-        this.m03 = m03;
-        this.m04 = m04;
-        this.m05 = m05;
-        this.m06 = m06;
-        this.m07 = m07;
-        this.m08 = m08;
+        m06 = 0, m07 = 0, m08 = 1) {
+        super();
+        this.m00 = m00; this.m01 = m01; this.m02 = m02;
+        this.m03 = m03; this.m04 = m04; this.m05 = m05;
+        this.m06 = m06; this.m07 = m07; this.m08 = m08;
+    }
+
+    /**
+     * 克隆当前矩阵。
+     */
+    public clone () {
+        const t = this;
+        return new Mat3(
+            t.m00, t.m01, t.m02,
+            t.m03, t.m04, t.m05,
+            t.m06, t.m07, t.m08);
+    }
+
+    /**
+     * 设置当前矩阵使其与指定矩阵相等。
+     * @param other 相比较的矩阵。
+     * @returns `this`
+     */
+    public set (other: Mat3) {
+        const t = this;
+        t.m00 = other.m00;
+        t.m01 = other.m01;
+        t.m02 = other.m02;
+        t.m03 = other.m03;
+        t.m04 = other.m04;
+        t.m05 = other.m05;
+        t.m06 = other.m06;
+        t.m07 = other.m07;
+        t.m08 = other.m08;
+        return this;
+    }
+
+    /**
+     * 判断当前矩阵是否在误差范围内与指定矩阵相等。
+     * @param other 相比较的矩阵。
+     * @param epsilon 允许的误差，应为非负数。
+     * @returns 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
+     */
+    public equals (other: Mat3, epsilon?: number): boolean {
+        return Mat3.equals(this, other, epsilon);
+    }
+
+    /**
+     * 判断当前矩阵是否与指定矩阵相等。
+     * @param other 相比较的矩阵。
+     * @returns 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
+     */
+    public exactEquals (other: Mat3): boolean {
+        return Mat3.exactEquals(this, other);
+    }
+
+    /**
+     * 返回当前矩阵的字符串表示。
+     * @returns 当前矩阵的字符串表示。
+     */
+    public toString () {
+        const t = this;
+        return '[\n' +
+            t.m00 + ', ' + t.m01 + ', ' + t.m02 + ',\n' +
+            t.m03 + ',\n' + t.m04 + ', ' + t.m05 + ',\n' +
+            t.m06 + ', ' + t.m07 + ',\n' + t.m08 + '\n' +
+            ']';
+    }
+
+    /**
+     * 将当前矩阵设为单位矩阵。
+     * @returns `this`
+     */
+    public identity () {
+        return Mat3.identity(this);
+    }
+
+    /**
+     * 计算当前矩阵的转置矩阵。
+     */
+    public transpose () {
+        Mat3.transpose(this, this);
+    }
+
+    /**
+     * 计算当前矩阵的逆矩阵。
+     */
+    public invert () {
+        Mat3.invert(this, this);
+    }
+
+    /**
+     * 计算当前矩阵的行列式。
+     * @returns 当前矩阵的行列式。
+     */
+    public determinant (): number {
+        return Mat3.determinant(this);
+    }
+
+    /**
+     * 矩阵加法。将当前矩阵与指定矩阵的相加，结果返回给当前矩阵。
+     * @param mat 相加的矩阵
+     */
+    public add (mat: Mat3) {
+        Mat3.add(this, this, mat);
+    }
+
+    /**
+     * 计算矩阵减法。将当前矩阵减去指定矩阵的结果赋值给当前矩阵。
+     * @param mat 减数矩阵。
+     */
+    public sub (mat: Mat3) {
+        Mat3.subtract(this, this, mat);
+    }
+
+    /**
+     * 矩阵乘法。将当前矩阵左乘指定矩阵的结果赋值给当前矩阵。
+     * @param mat 指定的矩阵。
+     */
+    public mul (mat: Mat3) {
+        Mat3.multiply(this, this, mat);
+    }
+
+    /**
+     * 矩阵数乘。将当前矩阵与指定标量的数乘结果赋值给当前矩阵。
+     * @param scalar 指定的标量。
+     */
+    public mulScalar (scalar: number) {
+        Mat3.multiplyScalar(this, this, scalar);
+    }
+
+    /**
+     * 将当前矩阵左乘位移矩阵的结果赋值给当前矩阵，位移矩阵由各个轴的位移给出。
+     * @param vec 位移向量。
+     */
+    public translate (vec: Vec3) {
+        Mat3.translate(this, this, vec);
+    }
+
+    /**
+     * 将当前矩阵左乘缩放矩阵的结果赋值给当前矩阵，缩放矩阵由各个轴的缩放给出。
+     * @param vec 各个轴的缩放。
+     */
+    public scale (vec: Vec3) {
+        Mat3.scale(this, this, vec);
+    }
+
+    /**
+     * 将当前矩阵左乘旋转矩阵的结果赋值给当前矩阵，旋转矩阵由旋转轴和旋转角度给出。
+     * @param mat 矩阵
+     * @param rad 旋转角度（弧度制）
+     */
+    public rotate (rad: number) {
+        Mat3.rotate(this, this, rad);
+    }
+
+    /**
+     * 重置当前矩阵的值，使其表示指定四元数表示的旋转变换。
+     * @param q 四元数表示的旋转变换。
+     * @returns `this`
+     */
+    public fromQuat (q: Quat) {
+        return Mat3.fromQuat(this, q);
     }
 }
 
-const v3_1 = vec3.create(0, 0, 0);
-const v3_2 = vec3.create(0, 0, 0);
+const v3_1 = new Vec3();
+const v3_2 = new Vec3();
+
+CCClass.fastDefine('cc.Mat3', Mat3, {
+    m00: 1, m01: 0, m02: 0,
+    m03: 0, m04: 1, m05: 0,
+    m06: 0, m07: 0, m08: 1,
+});
+cc.Mat3 = Mat3;
+cc.mat3 = Mat3.create;

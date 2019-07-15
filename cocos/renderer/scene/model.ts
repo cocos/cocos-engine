@@ -3,8 +3,7 @@ import { Material } from '../../3d/assets/material';
 import { IRenderingSubmesh } from '../../3d/assets/mesh';
 import { aabb } from '../../3d/geom-utils';
 import Pool from '../../3d/memop/pool';
-import { Vec3 } from '../../core/value-types';
-import { mat4 } from '../../core/vmath';
+import { Mat4, Vec3 } from '../../core/value-types';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
@@ -18,7 +17,7 @@ import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
 
 const f32_1 = new Float32Array(16);
-const m4_1 = mat4.create();
+const m4_1 = Mat4.create();
 
 const _subMeshPool = new Pool(() => {
     return new SubModel();

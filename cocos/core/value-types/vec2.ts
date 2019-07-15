@@ -29,14 +29,14 @@
  */
 
 import CCClass from '../data/class';
-import {clamp, vec2} from '../vmath';
-import Mat4 from './mat4';
+import { Mat4 } from './mat4';
+import { clamp } from './utils';
 import { ValueType } from './value-type';
 
 /**
  * 二维向量。
  */
-export default class Vec2 extends ValueType {
+export class Vec2 extends ValueType {
 
     /**
      * 创建分量都为 1 的向量并返回。

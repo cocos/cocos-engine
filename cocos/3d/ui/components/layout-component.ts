@@ -31,7 +31,7 @@
 import { Component } from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
-import { ccenum } from '../../../core/value-types/enum';
+import { CCEnum } from '../../../core/value-types/enum';
 import { vec3 } from '../../../core/vmath';
 import { Node } from '../../../scene-graph/node';
 import { UITransformComponent } from './ui-transfrom-component';
@@ -64,7 +64,7 @@ enum Type {
     GRID = 3,
 }
 
-ccenum(Type);
+CCEnum(Type);
 
 /**
  * @zh
@@ -88,7 +88,7 @@ enum ResizeMode {
     CHILDREN = 2,
 }
 
-ccenum(ResizeMode);
+CCEnum(ResizeMode);
 
 /**
  * @zh
@@ -107,7 +107,7 @@ enum AxisDirection {
     VERTICAL = 1,
 }
 
-ccenum(AxisDirection);
+CCEnum(AxisDirection);
 
 /**
  * @zh
@@ -126,7 +126,7 @@ enum VerticalDirection {
     TOP_TO_BOTTOM = 1,
 }
 
-ccenum(VerticalDirection);
+CCEnum(VerticalDirection);
 
 /**
  * @zh
@@ -145,7 +145,7 @@ enum HorizontalDirection {
     RIGHT_TO_LEFT = 1,
 }
 
-ccenum(HorizontalDirection);
+CCEnum(HorizontalDirection);
 
 const _tempPos = new Vec3();
 const _tempScale = new Vec3();

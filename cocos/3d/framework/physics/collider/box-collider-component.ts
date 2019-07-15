@@ -9,7 +9,7 @@ import {
     menu,
     property,
 } from '../../../../core/data/class-decorator';
-import Vec3 from '../../../../core/value-types/vec3';
+import { Vec3 } from '../../../../core/value-types';
 import { vec3 } from '../../../../core/vmath';
 import { BoxShapeBase } from '../../../physics/api';
 import { createBoxShape } from '../../../physics/instance';

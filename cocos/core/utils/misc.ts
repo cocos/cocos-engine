@@ -27,7 +27,7 @@
  // tslint:disable
 
 import { getClassName, getset } from './js';
-import { clamp, clamp01 as clampValue01, lerp as lerpUtil, toRadian, toDegree } from '../vmath';
+import { clamp, clamp01 as clampValue01, lerp as lerpUtil, toRadian, toDegree } from '../value-types/utils';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
@@ -138,7 +138,7 @@ export function pushToMap (map, key, value, pushFront) {
  * var v3 = cc.misc.clampf(10, 0, 20); // 10;
  * ```
  */
-export function clampf(value: number, min_inclusive: number, max_inclusive: number) {
+function clampf(value: number, min_inclusive: number, max_inclusive: number) {
     return clamp(value, min_inclusive, max_inclusive);
 }
 
@@ -154,7 +154,7 @@ export function clampf(value: number, min_inclusive: number, max_inclusive: numb
  * let v3 = cc.misc.clamp01(0.5); // 0.5;
  * ```
  */
-export function clamp01 (value: number) {
+function clamp01 (value: number) {
     return clampValue01(value);
 }
 
@@ -172,7 +172,7 @@ export function clamp01 (value: number) {
  * let v2 = cc.misc.lerp(2,10,0.2); // 3.6;
  * ```
  */
-export function lerp (a: number, b: number, r: number) {
+function lerp (a: number, b: number, r: number) {
     return lerpUtil(a, b, r);
 }
 

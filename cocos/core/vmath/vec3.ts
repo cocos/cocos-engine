@@ -23,6 +23,7 @@ export class vec3 {
      * @zh 创建新的实例
      */
     public static create (x = 0, y = 0, z = 0) {
+        console.warn('Obsolete Vmath API');
         return new vec3(x, y, z);
     }
 
@@ -30,6 +31,7 @@ export class vec3 {
      * @zh 将目标赋值为零向量
      */
     public static zero<Out extends vec3> (out: Out) {
+        console.warn('Obsolete Vmath API');
         out.x = 0;
         out.y = 0;
         out.z = 0;
@@ -40,6 +42,7 @@ export class vec3 {
      * @zh 获得指定向量的拷贝
      */
     public static clone (a: vec3) {
+        console.warn('Obsolete Vmath API');
         return new vec3(a.x, a.y, a.z);
     }
 
@@ -47,6 +50,7 @@ export class vec3 {
      * @zh 复制目标向量
      */
     public static copy<Out extends vec3> (out: Out, a: vec3) {
+        console.warn('Obsolete Vmath API');
         out.x = a.x;
         out.y = a.y;
         out.z = a.z;
@@ -57,6 +61,7 @@ export class vec3 {
      * @zh 设置向量值
      */
     public static set<Out extends vec3> (out: Out, x: number, y: number, z: number) {
+        console.warn('Obsolete Vmath API');
         out.x = x;
         out.y = y;
         out.z = z;
@@ -67,6 +72,7 @@ export class vec3 {
      * @zh 逐元素向量加法
      */
     public static add<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+        console.warn('Obsolete Vmath API');
         out.x = a.x + b.x;
         out.y = a.y + b.y;
         out.z = a.z + b.z;
@@ -77,6 +83,7 @@ export class vec3 {
      * @zh 逐元素向量减法
      */
     public static subtract<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+        console.warn('Obsolete Vmath API');
         out.x = a.x - b.x;
         out.y = a.y - b.y;
         out.z = a.z - b.z;
@@ -87,6 +94,7 @@ export class vec3 {
      * @zh 逐元素向量减法
      */
     public static sub<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+        console.warn('Obsolete Vmath API');
         return vec3.subtract(out, a, b);
     }
 
@@ -94,6 +102,7 @@ export class vec3 {
      * @zh 逐元素向量乘法
      */
     public static multiply<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+        console.warn('Obsolete Vmath API');
         out.x = a.x * b.x;
         out.y = a.y * b.y;
         out.z = a.z * b.z;
@@ -104,6 +113,7 @@ export class vec3 {
      * @zh 逐元素向量乘法
      */
     public static mul<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+        console.warn('Obsolete Vmath API');
         return vec3.multiply(out, a, b);
     }
 
@@ -111,6 +121,7 @@ export class vec3 {
      * @zh 逐元素向量除法
      */
     public static divide<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+        console.warn('Obsolete Vmath API');
         out.x = a.x / b.x;
         out.y = a.y / b.y;
         out.z = a.z / b.z;
@@ -121,6 +132,7 @@ export class vec3 {
      * @zh 逐元素向量除法
      */
     public static div<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+        console.warn('Obsolete Vmath API');
         return vec3.divide(out, a, b);
     }
 
@@ -128,6 +140,7 @@ export class vec3 {
      * @zh 逐元素向量向上取整
      */
     public static ceil<Out extends vec3> (out: Out, a: vec3) {
+        console.warn('Obsolete Vmath API');
         out.x = Math.ceil(a.x);
         out.y = Math.ceil(a.y);
         out.z = Math.ceil(a.z);
@@ -138,6 +151,7 @@ export class vec3 {
      * @zh 逐元素向量向下取整
      */
     public static floor<Out extends vec3> (out: Out, a: vec3) {
+        console.warn('Obsolete Vmath API');
         out.x = Math.floor(a.x);
         out.y = Math.floor(a.y);
         out.z = Math.floor(a.z);
@@ -148,6 +162,7 @@ export class vec3 {
      * @zh 逐元素向量最小值
      */
     public static min<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+        console.warn('Obsolete Vmath API');
         out.x = Math.min(a.x, b.x);
         out.y = Math.min(a.y, b.y);
         out.z = Math.min(a.z, b.z);
@@ -158,6 +173,7 @@ export class vec3 {
      * @zh 逐元素向量最大值
      */
     public static max<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+        console.warn('Obsolete Vmath API');
         out.x = Math.max(a.x, b.x);
         out.y = Math.max(a.y, b.y);
         out.z = Math.max(a.z, b.z);
@@ -168,6 +184,7 @@ export class vec3 {
      * @zh 逐元素向量四舍五入取整
      */
     public static round<Out extends vec3> (out: Out, a: vec3) {
+        console.warn('Obsolete Vmath API');
         out.x = Math.round(a.x);
         out.y = Math.round(a.y);
         out.z = Math.round(a.z);
@@ -178,6 +195,7 @@ export class vec3 {
      * @zh 向量标量乘法
      */
     public static scale<Out extends vec3> (out: Out, a: vec3, b: number) {
+        console.warn('Obsolete Vmath API');
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -188,6 +206,7 @@ export class vec3 {
      * @zh 逐元素向量乘加: A + B * scale
      */
     public static scaleAndAdd<Out extends vec3> (out: Out, a: vec3, b: vec3, scale: number) {
+        console.warn('Obsolete Vmath API');
         out.x = a.x + b.x * scale;
         out.y = a.y + b.y * scale;
         out.z = a.z + b.z * scale;
@@ -198,6 +217,7 @@ export class vec3 {
      * @zh 求两向量的欧氏距离
      */
     public static distance (a: vec3, b: vec3) {
+        console.warn('Obsolete Vmath API');
         const x = b.x - a.x;
         const y = b.y - a.y;
         const z = b.z - a.z;
@@ -208,6 +228,7 @@ export class vec3 {
      * @zh 求两向量的欧氏距离
      */
     public static dist (a: vec3, b: vec3) {
+        console.warn('Obsolete Vmath API');
         return vec3.distance(a, b);
     }
 
@@ -215,6 +236,7 @@ export class vec3 {
      * @zh 求两向量的欧氏距离平方
      */
     public static squaredDistance (a: vec3, b: vec3) {
+        console.warn('Obsolete Vmath API');
         const x = b.x - a.x;
         const y = b.y - a.y;
         const z = b.z - a.z;
@@ -225,6 +247,7 @@ export class vec3 {
      * @zh 求两向量的欧氏距离平方
      */
     public static sqrDist (a: vec3, b: vec3) {
+        console.warn('Obsolete Vmath API');
         return vec3.squaredDistance(a, b);
     }
 
@@ -232,6 +255,7 @@ export class vec3 {
      * @zh 求向量长度
      */
     public static magnitude (a: vec3) {
+        console.warn('Obsolete Vmath API');
         const { x, y, z } = a;
         return Math.sqrt(x * x + y * y + z * z);
     }
@@ -240,6 +264,7 @@ export class vec3 {
      * @zh 求向量长度
      */
     public static mag (a: vec3) {
+        console.warn('Obsolete Vmath API');
         return vec3.magnitude(a);
     }
 
@@ -247,6 +272,7 @@ export class vec3 {
      * @zh 求向量长度平方
      */
     public static squaredMagnitude (a: vec3) {
+        console.warn('Obsolete Vmath API');
         const { x, y, z } = a;
         return x * x + y * y + z * z;
     }
@@ -255,6 +281,7 @@ export class vec3 {
      * @zh 求向量长度平方
      */
     public static sqrMag (a: vec3) {
+        console.warn('Obsolete Vmath API');
         return vec3.squaredMagnitude(a);
     }
 
@@ -262,6 +289,7 @@ export class vec3 {
      * @zh 逐元素向量取负
      */
     public static negate<Out extends vec3> (out: Out, a: vec3) {
+        console.warn('Obsolete Vmath API');
         out.x = -a.x;
         out.y = -a.y;
         out.z = -a.z;
@@ -272,6 +300,7 @@ export class vec3 {
      * @zh 逐元素向量取倒数，接近 0 时返回 Infinity
      */
     public static invert<Out extends vec3> (out: Out, a: vec3) {
+        console.warn('Obsolete Vmath API');
         out.x = 1.0 / a.x;
         out.y = 1.0 / a.y;
         out.z = 1.0 / a.z;
@@ -282,6 +311,7 @@ export class vec3 {
      * @zh 逐元素向量取倒数，接近 0 时返回 0
      */
     public static invertSafe<Out extends vec3> (out: Out, a: vec3) {
+        console.warn('Obsolete Vmath API');
         const { x, y, z } = a;
 
         if (Math.abs(x) < EPSILON) {
@@ -309,6 +339,7 @@ export class vec3 {
      * @zh 归一化向量
      */
     public static normalize<Out extends vec3> (out: Out, a: vec3) {
+        console.warn('Obsolete Vmath API');
         const { x, y, z } = a;
 
         let len = x * x + y * y + z * z;
@@ -325,6 +356,7 @@ export class vec3 {
      * @zh 向量点积（数量积）
      */
     public static dot (a: vec3, b: vec3) {
+        console.warn('Obsolete Vmath API');
         return a.x * b.x + a.y * b.y + a.z * b.z;
     }
 
@@ -332,6 +364,7 @@ export class vec3 {
      * @zh 向量叉积（向量积）
      */
     public static cross<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+        console.warn('Obsolete Vmath API');
         const { x: ax, y: ay, z: az } = a;
         const { x: bx, y: by, z: bz } = b;
 
@@ -345,6 +378,7 @@ export class vec3 {
      * @zh 逐元素向量线性插值： A + t * (B - A)
      */
     public static lerp<Out extends vec3> (out: Out, a: vec3, b: vec3, t: number) {
+        console.warn('Obsolete Vmath API');
         out.x = a.x + t * (b.x - a.x);
         out.y = a.y + t * (b.y - a.y);
         out.z = a.z + t * (b.z - a.z);
@@ -356,6 +390,7 @@ export class vec3 {
      * @param scale 生成的向量长度
      */
     public static random<Out extends vec3> (out: Out, scale?: number) {
+        console.warn('Obsolete Vmath API');
         scale = scale || 1.0;
 
         const phi = random() * 2.0 * Math.PI;
@@ -372,6 +407,7 @@ export class vec3 {
      * @zh 向量与四维矩阵乘法，默认向量第四位为 1。
      */
     public static transformMat4<Out extends vec3> (out: Out, a: vec3, m: mat4) {
+        console.warn('Obsolete Vmath API');
         const { x, y, z } = a;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z + m.m15;
         rhw = rhw ? 1 / rhw : 1;
@@ -385,6 +421,7 @@ export class vec3 {
      * @zh 向量与四维矩阵乘法，默认向量第四位为 0。
      */
     public static transformMat4Normal<Out extends vec3> (out: Out, a: vec3, m: mat4) {
+        console.warn('Obsolete Vmath API');
         const { x, y, z } = a;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z;
         rhw = rhw ? 1 / rhw : 1;
@@ -398,6 +435,7 @@ export class vec3 {
      * @zh 向量与三维矩阵乘法
      */
     public static transformMat3<Out extends vec3> (out: Out, a: vec3, m: mat3) {
+        console.warn('Obsolete Vmath API');
         const { x, y, z } = a;
         out.x = x * m.m00 + y * m.m03 + z * m.m06;
         out.y = x * m.m01 + y * m.m04 + z * m.m07;
@@ -409,6 +447,7 @@ export class vec3 {
      * @zh 向量四元数乘法
      */
     public static transformQuat<Out extends vec3> (out: Out, a: vec3, q: quat) {
+        console.warn('Obsolete Vmath API');
         // benchmarks: http://jsperf.com/quaternion-transform-vec3-implementations
 
         // calculate quat * vec
@@ -431,6 +470,7 @@ export class vec3 {
      * @param a 旋转弧度
      */
     public static rotateX<Out extends vec3> (out: Out, v: vec3, o: vec3, a: number) {
+        console.warn('Obsolete Vmath API');
         // Translate point to the origin
         const px = v.x - o.x;
         const py = v.y - o.y;
@@ -458,6 +498,7 @@ export class vec3 {
      * @param a 旋转弧度
      */
     public static rotateY<Out extends vec3> (out: Out, v: vec3, o: vec3, a: number) {
+        console.warn('Obsolete Vmath API');
         // Translate point to the origin
         const px = v.x - o.x;
         const py = v.y - o.y;
@@ -485,6 +526,7 @@ export class vec3 {
      * @param a 旋转弧度
      */
     public static rotateZ<Out extends vec3> (out: Out, v: vec3, o: vec3, a: number) {
+        console.warn('Obsolete Vmath API');
         // Translate point to the origin
         const px = v.x - o.x;
         const py = v.y - o.y;
@@ -509,6 +551,7 @@ export class vec3 {
      * @zh 返回向量的字符串表示
      */
     public static str (a: vec3) {
+        console.warn('Obsolete Vmath API');
         return `vec3(${a.x}, ${a.y}, ${a.z})`;
     }
 
@@ -517,6 +560,7 @@ export class vec3 {
      * @param ofs 数组起始偏移量
      */
     public static array (out: IWritableArrayLike<number>, v: vec3, ofs = 0) {
+        console.warn('Obsolete Vmath API');
         out[ofs + 0] = v.x;
         out[ofs + 1] = v.y;
         out[ofs + 2] = v.z;
@@ -528,6 +572,7 @@ export class vec3 {
      * @zh 向量等价判断
      */
     public static exactEquals (a: vec3, b: vec3) {
+        console.warn('Obsolete Vmath API');
         return a.x === b.x && a.y === b.y && a.z === b.z;
     }
 
@@ -535,6 +580,7 @@ export class vec3 {
      * @zh 排除浮点数误差的向量近似等价判断
      */
     public static equals (a: vec3, b: vec3, epsilon = EPSILON) {
+        console.warn('Obsolete Vmath API');
         const { x: a0, y: a1, z: a2 } = a;
         const { x: b0, y: b1, z: b2 } = b;
         return (
@@ -551,6 +597,7 @@ export class vec3 {
      * @zh 求两向量夹角弧度
      */
     public static angle (a: vec3, b: vec3) {
+        console.warn('Obsolete Vmath API');
         vec3.normalize(v3_1, a);
         vec3.normalize(v3_2, b);
         const cosine = vec3.dot(v3_1, v3_2);
@@ -569,6 +616,7 @@ export class vec3 {
      * @param n 指定平面的法线
      */
     public static projectOnPlane<Out extends vec3> (out: Out, a: vec3, n: vec3) {
+        console.warn('Obsolete Vmath API');
         return vec3.subtract(out, a, vec3.project(out, a, n));
     }
 
@@ -578,6 +626,7 @@ export class vec3 {
      * @param n 目标向量
      */
     public static project<Out extends vec3> (out: Out, a: vec3, b: vec3) {
+        console.warn('Obsolete Vmath API');
         const sqrLen = vec3.squaredMagnitude(b);
         if (sqrLen < 0.000001) {
             return vec3.set(out, 0, 0, 0);
@@ -591,6 +640,7 @@ export class vec3 {
     public z: number;
 
     constructor (x = 0, y = 0, z = 0) {
+        console.warn('Obsolete Vmath API');
         this.x = x;
         this.y = y;
         this.z = z;

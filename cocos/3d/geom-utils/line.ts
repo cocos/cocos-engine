@@ -2,7 +2,7 @@
  * @category gemotry-utils
  */
 
-import { vec3 } from '../../core/vmath';
+import { Vec3 } from '../../core/value-types';
 import enums from './enums';
 
 /**
@@ -54,8 +54,8 @@ export default class line {
      * @return 接受操作的对象。
      */
     public static copy (out: line, a: line) {
-        vec3.copy(out.s, a.s);
-        vec3.copy(out.e, a.e);
+        Vec3.copy(out.s, a.s);
+        Vec3.copy(out.e, a.e);
 
         return out;
     }
@@ -70,15 +70,15 @@ export default class line {
      * @param end 终点。
      * @return out 接受操作的对象。
      */
-    public static fromPoints (out: line, start: vec3, end: vec3) {
-        vec3.copy(out.s, start);
-        vec3.copy(out.e, end);
+    public static fromPoints (out: line, start: Vec3, end: Vec3) {
+        Vec3.copy(out.s, start);
+        Vec3.copy(out.e, end);
         return out;
     }
 
     /**
      * @en
-     * Set the components of a vec3 to the given values
+     * Set the components of a Vec3 to the given values
      * @zh
      * 将给定线的属性设置为给定值。
      * @param out 接受操作的对象。
@@ -108,7 +108,7 @@ export default class line {
      * @return 长度。
      */
     public static magnitude (a: line) {
-        return vec3.distance(a.s, a.e);
+        return Vec3.distance(a.s, a.e);
     }
 
     /**
@@ -125,13 +125,13 @@ export default class line {
      * @zh
      * 起点。
      */
-    public s: vec3;
+    public s: Vec3;
 
     /**
      * @zh
      * 终点。
      */
-    public e: vec3;
+    public e: Vec3;
 
     private _type: number;
 
@@ -146,7 +146,7 @@ export default class line {
      */
     constructor (sx = 0, sy = 0, sz = 0, ex = 0, ey = 0, ez = -1) {
         this._type = enums.SHAPE_LINE;
-        this.s = vec3.create(sx, sy, sz);
-        this.e = vec3.create(ex, ey, ez);
+        this.s = Vec3.create(sx, sy, sz);
+        this.e = Vec3.create(ex, ey, ez);
     }
 }

@@ -30,9 +30,8 @@
 
 import { Component } from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { clamp01 } from '../../../core/utils';
-import { Color, Size, Vec2, Vec3 } from '../../../core/value-types';
-import { ccenum } from '../../../core/value-types/enum';
+import { clamp01, Color, Size, Vec2, Vec3 } from '../../../core/value-types';
+import { CCEnum } from '../../../core/value-types/enum';
 import { vec3 } from '../../../core/vmath';
 import { Node } from '../../../scene-graph/node';
 import { ScrollViewComponent } from './scroll-view-component';
@@ -63,7 +62,7 @@ enum Direction {
     VERTICAL = 1,
 }
 
-ccenum(Direction);
+CCEnum(Direction);
 
 /**
  * @zh
