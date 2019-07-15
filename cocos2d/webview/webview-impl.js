@@ -344,6 +344,11 @@ let WebViewImpl = cc.Class({
         if (!this._div || !this._visible) return;
 
         node.getWorldMatrix(_mat4_temp);
+        let renderCamera = cc.Camera._findRendererCamera(node);
+        if (renderCamera) {
+            renderCamera.worldMatrixToScreen(_mat4_temp, _mat4_temp, cc.visibleRect.width, cc.visibleRect.height);
+        }
+
         let _mat4_tempm = _mat4_temp.m;
         if (!this._forceUpdate &&
             this._m00 === _mat4_tempm[0] && this._m01 === _mat4_tempm[1] &&

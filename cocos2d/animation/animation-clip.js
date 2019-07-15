@@ -41,7 +41,7 @@ var AnimationClip = cc.Class({
     properties: {
         _duration: {
             default: 0,
-            type: 'Float',
+            type: cc.Float,
         },
 
         /**

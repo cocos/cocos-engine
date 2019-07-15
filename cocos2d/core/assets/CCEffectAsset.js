@@ -16,6 +16,10 @@ let EffectAsset = cc.Class({
     },
 
     onLoad () {
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            return;
+        }
+        
         let lib = cc.renderer._forward._programLib;
         for (let i = 0; i < this.shaders.length; i++) {
             lib.define(this.shaders[i]);

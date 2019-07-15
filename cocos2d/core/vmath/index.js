@@ -1,12 +1,5 @@
 export * from './utils';
 
-// NOTE: there is no syntax for: export {* as bits} from './lib/bits';
-import * as bits_ from './bits';
-/**
- * Export module bits.
- */
-export let bits = bits_;
-
 import vec2 from './vec2';
 import vec3 from './vec3';
 import vec4 from './vec4';

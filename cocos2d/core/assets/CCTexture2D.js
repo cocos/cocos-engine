@@ -337,18 +337,6 @@ var Texture2D = cc.Class({
     ctor () {
         // Id for generate hash in material
         this._id = idGenerater.getNewId();
-        
-        /**
-         * !#en
-         * The url of the texture, this could be empty if the texture wasn't created via a file.
-         * !#zh
-         * 贴图文件的 url，当贴图不是由文件创建时值可能为空
-         * @property url
-         * @type {String}
-         * @readonly
-         */
-        // TODO - use nativeUrl directly
-        this.url = "";
 
         /**
          * !#en
@@ -501,7 +489,7 @@ var Texture2D = cc.Class({
         if (!element)
             return;
         this._image = element;
-        if (CC_WECHATGAME || CC_QQPLAY || element.complete || element instanceof HTMLCanvasElement) {
+        if (element.complete || element instanceof HTMLCanvasElement) {
             this.handleLoadedTexture();
         }
         else {
@@ -817,7 +805,7 @@ var Texture2D = cc.Class({
             let exts = [];
             for (let i = 0; i < exportedExts.length; i++) {
                 let extId = "";
-                let ext = exportedExts[i]
+                let ext = exportedExts[i];
                 if (ext) {
                     // ext@format
                     let extFormat = ext.split('@');
@@ -849,18 +837,18 @@ var Texture2D = cc.Class({
         if (extIdStr) {
             let extIds = extIdStr.split('_');
 
-            let extId = 999;
-            let ext = '';
-            let format = this._format;
+            let defaultExt = '';
+            let bestExt = '';
+            let bestIndex = 999;
+            let bestFormat = this._format;
             let SupportTextureFormats = cc.macro.SUPPORT_TEXTURE_FORMATS;
             for (let i = 0; i < extIds.length; i++) {
                 let extFormat = extIds[i].split('@');
                 let tmpExt = extFormat[0];
-                tmpExt = tmpExt.charCodeAt(0) - CHAR_CODE_0;
-                tmpExt = Texture2D.extnames[tmpExt] || extFormat;
+                tmpExt = Texture2D.extnames[tmpExt.charCodeAt(0) - CHAR_CODE_0] || tmpExt;
 
                 let index = SupportTextureFormats.indexOf(tmpExt);
-                if (index !== -1 && index < extId) {
+                if (index !== -1 && index < bestIndex) {
                     
                     let tmpFormat = extFormat[1] ? parseInt(extFormat[1]) : this._format;
 
@@ -875,24 +863,22 @@ var Texture2D = cc.Class({
                         continue;
                     }
 
-                    extId = index;
-                    ext = tmpExt;
-                    format = tmpFormat;
+                    bestIndex = index;
+                    bestExt = tmpExt;
+                    bestFormat = tmpFormat;
+                }
+                else if (!defaultExt) {
+                    defaultExt = tmpExt;
                 }
             }
 
-            if (ext) {
-                this._setRawAsset(ext);
-                this._format = format;
+            if (bestExt) {
+                this._setRawAsset(bestExt);
+                this._format = bestFormat;
             }
-
-            // preset uuid to get correct nativeUrl
-            let loadingItem = handle.customEnv;
-            let uuid = loadingItem && loadingItem.uuid;
-            if (uuid) {
-                this._uuid = uuid;
-                var url = this.nativeUrl;
-                this.url = url;
+            else {
+                this._setRawAsset(defaultExt);
+                cc.warnID(3120, handle.customEnv.url, defaultExt, defaultExt);
             }
         }
         if (fields.length === 6) {

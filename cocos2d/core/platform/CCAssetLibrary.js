@@ -93,7 +93,8 @@ var AssetLibrary = {
         }
         Loader.load(item, function (error, asset) {
             if (error || !asset) {
-                error = new Error('[AssetLibrary] loading JSON or dependencies failed: ' + (error ? error.message : 'Unknown error'));
+                let errorInfo = error ? (error.message || error.errorMessage || error) : 'Unknown error';
+                error = new Error(`[AssetLibrary] loading JSON or dependencies failed: ${errorInfo}`);
             }
             else {
                 if (asset.constructor === cc.SceneAsset) {
@@ -393,6 +394,7 @@ AssetLibrary._uuidToAsset = {};
 //};
 
 
+// TODO: Add BuiltinManager to handle builtin logic
 let _builtins = {
     effect: {},
     material: {}
@@ -437,6 +439,12 @@ AssetLibrary.getBuiltin = function (type, name) {
 AssetLibrary.getBuiltins = function (type) {
     if (!type) return _builtins;
     return _builtins[type];
+};
+AssetLibrary.resetBuiltins = function () {
+    _builtins = {
+        effect: {},
+        material: {}
+    };
 };
 
 module.exports = cc.AssetLibrary = AssetLibrary;

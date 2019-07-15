@@ -151,8 +151,9 @@ let SkeletonAnimationClip = cc.Class({
             let matrix;
             let EPSILON = 10e-5;
 
-            if (node !== rootNode) {
-                let props = paths[node.path].props;
+            let path = paths[node.path];
+            if (node !== rootNode && path) {
+                let props = path.props;
                 for (let prop in props) {
                     let frames = props[prop];
                     for (let i = 0; i < frames.length; i++) {

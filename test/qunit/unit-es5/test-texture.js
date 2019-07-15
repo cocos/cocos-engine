@@ -55,7 +55,6 @@
                 });
                 deserialized._uuid = tex._uuid;
                 strictEqual(deserialized.nativeUrl, tex.nativeUrl, 'nativeUrl should be deserialized');
-                strictEqual(deserialized.url, tex.url, 'url should be deserialized');
             });
         }
         testSerializationOfUrl('.png');

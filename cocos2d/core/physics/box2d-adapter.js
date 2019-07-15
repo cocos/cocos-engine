@@ -1,10 +1,6 @@
 let box2d = require('../../../external/box2d/box2d');
 
 window.b2 = {};
-if (CC_QQPLAY) {
-    // can only define global variable in this way
-    b2 = window.b2;
-}
 
 for (var key in box2d) {
     if (key.indexOf('b2_') !== -1) {

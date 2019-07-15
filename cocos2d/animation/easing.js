@@ -531,7 +531,7 @@ easing.bounceOutIn = _makeOutIn(easing.bounceIn, easing.bounceOut);
 /**
  * !#en This is a Easing instance.
  * !#zh 这是一个 Easing 类实例。
- * @method easing
+ * @property easing
  * @type Easing
  */
 

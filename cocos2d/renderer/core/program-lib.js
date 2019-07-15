@@ -10,8 +10,9 @@ function _generateDefines(defineList) {
   for (let i = defineList.length - 1; i >= 0; i--) {
     let defs = defineList[i];
     for (let def in defs) {
-      if (cache[def] !== undefined) continue;
       let result = defs[def];
+      if (result === undefined) continue;
+      if (cache[def] !== undefined) continue;
       if (typeof result !== 'number') {
         result = result ? 1 : 0;
       }
@@ -29,9 +30,11 @@ function _replaceMacroNums(string, defineList) {
   for (let i = defineList.length - 1; i >= 0; i--) {
     let defs = defineList[i];
     for (let def in defs) {
+      let result = defs[def];
+      if (result === undefined) continue;
       if (cache[def] !== undefined) continue;
-      if (Number.isInteger(defs[def])) {
-        cache[def] = defs[def];
+      if (Number.isInteger(result)) {
+        cache[def] = result;
       }
     }
   }
@@ -63,22 +66,17 @@ function _unrollLoops(string) {
 export default class ProgramLib {
   /**
    * @param {gfx.Device} device
-   * @param {Array} templates
-   * @param {Object} chunks
    */
-  constructor(device, templates = [], chunks = {}) {
+  constructor(device) {
     this._device = device;
 
     // register templates
     this._templates = {};
-    for (let i = 0; i < templates.length; ++i) {
-      this.define(templates[i]);
-    }
+    this._cache = {};
+  }
 
-    // register chunks
-    this._chunks = {};
-    Object.assign(this._chunks, chunks);
-
+  clear () {
+    this._templates = {};
     this._cache = {};
   }
 
@@ -108,7 +106,7 @@ export default class ProgramLib {
     let { name, defines, glsl1 } = prog;
     let { vert, frag } = glsl1 || prog;
     if (this._templates[name]) {
-      console.warn(`Failed to define shader ${name}: already exists.`);
+      // console.warn(`Failed to define shader ${name}: already exists.`);
       return;
     }
 

@@ -23,14 +23,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import IARenderData from '../../renderer/render-data/ia-render-data';
+import gfx from '../../renderer/gfx';
+import InputAssembler from '../../renderer/core/input-assembler';
+import geomUtils from '../geom-utils';
+import CustomProperties from '../assets/material/custom-properties';
+
 const RenderComponent = require('../components/CCRenderComponent');
 const Mesh = require('./CCMesh');
 const RenderFlow = require('../renderer/render-flow');
+const Renderer = require('../renderer');
 const Material = require('../assets/material/CCMaterial');
 
-import geomUtils from '../geom-utils';
-import gfx from '../../renderer/gfx';
-import CustomProperties from '../assets/material/custom-properties';
+const BLACK_COLOR = cc.Color.BLACK;
 
 
 /**
@@ -103,6 +108,8 @@ let MeshRenderer = cc.Class({
         _receiveShadows: false,
         _shadowCastingMode: ShadowCastingMode.OFF,
 
+        _enableAutoBatch: false,
+
         /**
          * !#en
          * The mesh which the renderer uses.
@@ -168,6 +175,22 @@ let MeshRenderer = cc.Class({
                 this._updateCastShadow();
             },
             type: ShadowCastingMode
+        },
+
+        /**
+         * !#en
+         * Enable auto merge mesh, only support when mesh's VertexFormat, PrimitiveType, materials are all the same
+         * !#zh 
+         * 开启自动合并 mesh 功能，只有在网格的 顶点格式，PrimitiveType, 使用的材质 都一致的情况下才会有效
+         * @property {Boolean} enableAutoBatch
+         */
+        enableAutoBatch: {
+            get () {
+                return this._enableAutoBatch;
+            },
+            set (val) {
+                this._enableAutoBatch = val;
+            }
         }
     },
 
@@ -176,6 +199,7 @@ let MeshRenderer = cc.Class({
     },
 
     ctor () {
+        this._wireFrameDatas = [];
         this._boundingBox = null;
         this._customProperties = new cc.CustomProperties();
     },
@@ -258,14 +282,62 @@ let MeshRenderer = cc.Class({
         let subDatas = this._mesh && this._mesh.subDatas;
         if (!subDatas) return;
 
-        let vfm = subDatas[0].vfm;
-        this._customProperties.define('_USE_ATTRIBUTE_COLOR', !!vfm.element(gfx.ATTR_COLOR));
-        this._customProperties.define('_USE_ATTRIBUTE_UV0', !!vfm.element(gfx.ATTR_UV0));
-        this._customProperties.define('_USE_ATTRIBUTE_NORMAL', !!vfm.element(gfx.ATTR_NORMAL));
-        
+        let attr2el = subMeshes[0]._vertexBuffer._format._attr2el;
+        this._customProperties.define('_USE_ATTRIBUTE_COLOR', !!attr2el[gfx.ATTR_COLOR]);
+        this._customProperties.define('_USE_ATTRIBUTE_UV0', !!attr2el[gfx.ATTR_UV0]);
+        this._customProperties.define('_USE_ATTRIBUTE_NORMAL', !!attr2el[gfx.ATTR_NORMAL]);
+
+        this._wireFrameDatas.length = 0;
+
         if (CC_JSB && CC_NATIVERENDERER) {
             this._assembler.updateMeshData(this);
         }
+    },
+
+    _updateWireFrameDatas () {
+        let renderDatas = this._renderDatas;
+        let wireFrameDatas = this._wireFrameDatas;
+        if (renderDatas.length === wireFrameDatas.length) return;
+
+        wireFrameDatas.length = renderDatas.length;
+        let ibs = this.mesh._ibs;
+        for (let i = 0; i < renderDatas.length; i++) {
+            let data = renderDatas[i];
+            wireFrameDatas[i] = this._createWireFrameData(data.ia, ibs[i].data, data.material);
+        }
+    },
+
+    _createWireFrameData (ia, oldIbData, material) {
+        let data = new IARenderData();
+        let m = new Material();
+        m.copy(Material.getBuiltinMaterial('unlit'));
+        m.setProperty('diffuseColor', BLACK_COLOR);
+        m.define('USE_DIFFUSE_TEXTURE', false);
+        data.material = m;
+
+        let indices = [];
+        for (let i = 0; i < oldIbData.length; i+=3) {
+            let a = oldIbData[ i + 0 ];
+            let b = oldIbData[ i + 1 ];
+            let c = oldIbData[ i + 2 ];
+            indices.push(a, b, b, c, c, a);
+        }
+
+        let ibData = new Uint16Array(indices);
+        let ib = new gfx.IndexBuffer(
+            Renderer.device,
+            gfx.INDEX_FMT_UINT16,
+            gfx.USAGE_STATIC,
+            ibData,
+            ibData.length
+        );
+
+        data.ia = new InputAssembler(ia._vertexBuffer, ib, gfx.PT_LINES);
+        return data;
+    },
+
+    _checkBacth () {
+        
     }
 });
 

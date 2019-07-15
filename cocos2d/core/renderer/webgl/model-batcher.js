@@ -189,18 +189,6 @@ ModelBatcher.prototype = {
         this._renderScene.addModel(model);
     },
 
-    _switchComp (comp, cullingMask) {
-        let material = comp.sharedMaterials[0];
-        if ((material && material.getHash() !== this.material.getHash()) || 
-            this.cullingMask !== cullingMask) {
-            this._flush();
-    
-            this.node = material.getDefine('CC_USE_MODEL') ? comp.node : this._dummyNode;
-            this.material = material;
-            this.cullingMask = cullingMask;
-        }    
-    },
-
     terminate () {
         if (cc.dynamicAtlasManager && cc.dynamicAtlasManager.enabled) {
             cc.dynamicAtlasManager.update();
@@ -217,11 +205,7 @@ ModelBatcher.prototype = {
     },
 
     getBuffer (type, vertextFormat) {
-        if (!vertextFormat.name) {
-            vertextFormat.name = idGenerater.getNewId();
-        }
-
-        let key = type + vertextFormat.name;
+        let key = type + vertextFormat.getHash();
         let buffer = _buffers[key];
         if (!buffer) {
             if (type === 'mesh') {

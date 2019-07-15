@@ -72,7 +72,14 @@ module.exports = function createBundler(entryFiles, options) {
 
     var presets = [
         // [ 'es2015', { loose: true } ],
-        'env'
+        [
+            'env',
+            {
+                "loose": true,
+                "exclude": ['transform-es2015-typeof-symbol']
+            }
+        ]
+
     ];
 
     var plugins = [

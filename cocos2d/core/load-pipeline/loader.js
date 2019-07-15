@@ -57,16 +57,15 @@ function loadImage (item) {
     }
 
     var image = item.content;
-    if (!CC_WECHATGAME && !CC_QQPLAY && cc.sys.platform !== cc.sys.FB_PLAYABLE_ADS && !(image instanceof Image)) {
+    if (cc.sys.platform !== cc.sys.FB_PLAYABLE_ADS && !(image instanceof Image)) {
         return new Error('Image Loader: Input item doesn\'t contain Image content');
     } 
 
     // load cc.Texture2D
-    var rawUrl = item.rawUrl;
     var tex = item.texture || new Texture2D();
     tex._uuid = item.uuid;
-    tex.url = rawUrl;
-    tex._setRawAsset(rawUrl, false);
+    tex.url = item.url;
+    tex._setRawAsset(item.rawUrl, false);
     tex._nativeAsset = image;
     return tex;
 }
@@ -83,6 +82,7 @@ function loadAudioAsAsset (item, callback) {
     var audioClip = new cc.AudioClip();
     audioClip._setRawAsset(item.rawUrl, false);
     audioClip._nativeAsset = item.content;
+    audioClip.url = item.url;
     return audioClip;
 }
 

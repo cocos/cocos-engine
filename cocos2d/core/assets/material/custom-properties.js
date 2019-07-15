@@ -1,5 +1,5 @@
 import { ctor2enums } from '../../../renderer/types';
-import murmurhash2 from './murmurhash2_gc';
+import murmurhash2 from '../../../renderer/murmurhash2_gc';
 import utils from './utils';
 import effect from '../../../renderer/core/effect';
 

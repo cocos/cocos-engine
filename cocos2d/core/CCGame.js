@@ -28,7 +28,6 @@ var EventTarget = require('./event/event-target');
 require('../audio/CCAudioEngine');
 const debug = require('./CCDebug');
 const renderer = require('./renderer/index.js');
-const inputManager = CC_QQPLAY ? require('./platform/BKInputManager') : require('./platform/CCInputManager');
 const dynamicAtlasManager = require('../core/renderer/utils/dynamic-atlas/manager');
 
 /**
@@ -294,8 +293,6 @@ var game = {
         if (cc.audioEngine) {
             cc.audioEngine._break();
         }
-        // Pause animation
-        cc.director.stopAnimation();
         // Pause main loop
         if (this._intervalId)
             window.cancelAnimFrame(this._intervalId);
@@ -315,8 +312,7 @@ var game = {
         if (cc.audioEngine) {
             cc.audioEngine._restore();
         }
-        // Resume animation
-        cc.director.startAnimation();
+        cc.director._resetDeltaTime();
         // Resume main loop
         this._runMainLoop();
     },
@@ -346,16 +342,18 @@ var game = {
             cc.director.getScene().destroy();
             cc.Object._deferredDestroy();
 
-            cc.director.purgeDirector();
-
             // Clean up audio
             if (cc.audioEngine) {
                 cc.audioEngine.uncacheAll();
             }
 
             cc.director.reset();
-            game.onStart();
-            game.emit(game.EVENT_RESTART);
+
+            game.pause();
+            cc.AssetLibrary._loadBuiltins(() => {
+                game.onStart();
+                game.emit(game.EVENT_RESTART);
+            });
         });
     },
 
@@ -624,6 +622,9 @@ var game = {
     },
     //Run game.
     _runMainLoop: function () {
+        if (CC_EDITOR) {
+            return;
+        }
         var self = this, callback, config = self.config,
             director = cc.director,
             skip = true, frameRate = config.frameRate;
@@ -718,24 +719,11 @@ var game = {
             width, height,
             localCanvas, localContainer;
 
-        if (CC_WECHATGAME || CC_JSB || CC_RUNTIME) {
+        if (CC_JSB || CC_RUNTIME) {
             this.container = localContainer = document.createElement("DIV");
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
-            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-                localCanvas = window.sharedCanvas || wx.getSharedCanvas();
-            }
-            else if (CC_JSB || CC_RUNTIME) {
-                localCanvas = window.__canvas;
-            }
-            else {
-                localCanvas = canvas;
-            }
+            localCanvas = window.__canvas;
             this.canvas = localCanvas;
-        }
-        else if (CC_QQPLAY) {
-            this.container = document.createElement("DIV");
-            this.frame = document.documentElement;
-            this.canvas = localCanvas = canvas;
         }
         else {
             var element = (el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el));
@@ -788,9 +776,6 @@ var game = {
                 'antialias': cc.macro.ENABLE_WEBGL_ANTIALIAS,
                 'alpha': cc.macro.ENABLE_TRANSPARENT_CANVAS
             };
-            if (CC_WECHATGAME || CC_QQPLAY) {
-                opts['preserveDrawingBuffer'] = true;
-            }
             renderer.initWebGL(localCanvas, opts);
             this._renderContext = renderer.device._gl;
             
@@ -818,7 +803,7 @@ var game = {
 
         // register system events
         if (this.config.registerSystemEvent)
-            inputManager.registerSystemEvent(this.canvas);
+            _cc.inputManager.registerSystemEvent(this.canvas);
 
         if (typeof document.hidden !== 'undefined') {
             hiddenPropName = "hidden";
@@ -872,11 +857,6 @@ var game = {
 
         if (navigator.userAgent.indexOf("MicroMessenger") > -1) {
             win.onfocus = onShown;
-        }
-
-        if (CC_WECHATGAME && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-            wx.onShow && wx.onShow(onShown);
-            wx.onHide && wx.onHide(onHidden);
         }
 
         if ("onpageshow" in window && "onpagehide" in window) {

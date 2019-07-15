@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 const macro = require('../../platform/CCMacro');
-const EditBoxImplBase = require('./EditBoxImplBase');
+const EditBoxImplBase = require('../editbox/EditBoxImplBase');
 const Label = require('../CCLabel');
 const Types = require('./types');
 const InputMode = Types.InputMode;
@@ -432,9 +432,11 @@ let EditBox = cc.Class({
                 return this._tabIndex;
             },
             set (value) {
-                this._tabIndex = value;
-                if (this._impl) {
-                    this._impl.setTabIndex(value);
+                if (this._tabIndex !== value) {
+                    this._tabIndex = value;
+                    if (this._impl) {
+                        this._impl.setTabIndex(value);
+                    }
                 }
             }
         },

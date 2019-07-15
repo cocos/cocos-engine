@@ -30,9 +30,15 @@ const PixelFormat = Texture.PixelFormat;
 const EffectAsset = require('../CCEffectAsset');
 
 import Effect from '../../../renderer/core/effect';
-import murmurhash2 from './murmurhash2_gc';
+import murmurhash2 from '../../../renderer/murmurhash2_gc';
 import utils from './utils';
 
+/**
+ * !#en Material Asset.
+ * !#zh 材质资源类。
+ * @class Material
+ * @extends Asset
+ */
 let Material = cc.Class({
     name: 'cc.Material',
     extends: Asset,
@@ -78,6 +84,10 @@ let Material = cc.Class({
                 return this._effectAsset;
             },
             set (asset) {
+                if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+                    return;
+                }
+
                 this._effectAsset = asset;
                 if (!asset) {
                     cc.error('Can not set an empty effect asset.');
@@ -118,7 +128,6 @@ let Material = cc.Class({
                 instance._name = mat._name + ' (Instance)';
                 instance._uuid = mat._uuid;
                 instance._owner = renderComponent;
-                instance._objFlags |= cc.Object.Flags.DontSave;
                 return instance;
             }
         }

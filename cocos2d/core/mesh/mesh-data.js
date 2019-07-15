@@ -101,7 +101,7 @@ export let Primitive = cc.Class({
          */
         vertexBundleIndices: {
             default: [],
-            type: Number
+            type: cc.Float
         },
         /**
          * The data range of the primitive.

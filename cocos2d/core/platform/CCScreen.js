@@ -32,6 +32,8 @@
  */
 cc.screen = /** @lends cc.screen# */{
     _supportsFullScreen: false,
+    _onfullscreenchange: null,
+    _onfullscreenerror: null,
     // the pre fullscreenchange function
     _preOnFullScreenChange: null,
     _preOnFullScreenError: null,
@@ -127,8 +129,9 @@ cc.screen = /** @lends cc.screen# */{
      * @method requestFullScreen
      * @param {Element} element
      * @param {Function} onFullScreenChange
+     * @param {Function} onFullScreenError
      */
-    requestFullScreen: function (element, onFullScreenChange) {
+    requestFullScreen: function (element, onFullScreenChange, onFullScreenError) {
         if (element && element.tagName.toLowerCase() === "video") {
             if (cc.sys.os === cc.sys.OS_IOS && cc.sys.isBrowser && element.readyState > 0) {
                 element.webkitEnterFullscreen && element.webkitEnterFullscreen();
@@ -146,12 +149,20 @@ cc.screen = /** @lends cc.screen# */{
         element = element || document.documentElement;
 
         if (onFullScreenChange) {
-            var eventName = this._fn.fullscreenchange;
-            if (this._preOnFullScreenChange) {
-                document.removeEventListener(eventName, this._preOnFullScreenChange);
+            let eventName = this._fn.fullscreenchange;
+            if (this._onfullscreenchange) {
+                document.removeEventListener(eventName, this._onfullscreenchange);
             }
-            this._preOnFullScreenChange = onFullScreenChange;
+            this._onfullscreenchange = onFullScreenChange;
             document.addEventListener(eventName, onFullScreenChange, false);
+        }
+        if (onFullScreenError) {
+            let eventName = this._fn.fullscreenerror;
+            if (this._onfullscreenerror) {
+                document.removeEventListener(eventName, this._onfullscreenerror);
+            }
+            this._onfullscreenerror = onFullScreenError;
+            document.addEventListener(eventName, onFullScreenError, { once: true });
         }
 
         element[this._fn.requestFullscreen]();
