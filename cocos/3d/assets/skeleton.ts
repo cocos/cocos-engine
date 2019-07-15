@@ -33,7 +33,7 @@ import { CCString } from '../../core/data/utils/attribute';
 import { Mat4, Quat, Vec3 } from '../../core/value-types';
 import { mat4 } from '../../core/vmath';
 
-interface IBindTRS {
+export interface IBindTRS {
     position: Vec3;
     rotation: Quat;
     scale: Vec3;

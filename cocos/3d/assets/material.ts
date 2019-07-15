@@ -404,7 +404,8 @@ export class Material extends Asset {
             } else if (val instanceof TextureBase) {
                 const textureView: GFXTextureView | null = val.getGFXTextureView();
                 if (!textureView || !textureView.texture.width || !textureView.texture.height) {
-                    console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`); return false;
+                    // console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);
+                    return false;
                 }
                 pass.bindTextureView(binding, textureView);
                 pass.bindSampler(binding, samplerLib.getSampler(cc.game._gfxDevice, val.getGFXSamplerInfo()));

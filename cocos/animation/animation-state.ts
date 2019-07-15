@@ -259,7 +259,7 @@ export class AnimationState extends Playable {
             this.repeatCount = 1;
         }
 
-        const propertyCurves = clip.propertyCurves;
+        const propertyCurves = clip.getPropertyCurves(this._targetNode);
         for (const propertyCurve of propertyCurves) {
             const targetNode = root.getChildByPath(propertyCurve.path);
             if (!targetNode) {

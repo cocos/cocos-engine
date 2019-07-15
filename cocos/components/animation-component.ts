@@ -153,10 +153,6 @@ export class AnimationComponent extends Component implements IEventTarget {
     @property
     private _defaultClip: AnimationClip | null = null;
 
-    constructor () {
-        super();
-    }
-
     public onLoad () {
         this.clips = this._clips;
     }
