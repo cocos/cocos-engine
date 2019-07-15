@@ -164,7 +164,7 @@ void Light::update(DeviceGraphics* device)
 
 void Light::updateLightPositionAndDirection()
 {
-    _worldMatrix.transformVector(Vec3(0, 0, -1.f), &_directionUniform);
+    _worldMatrix.transformVector(_forward, &_directionUniform);
     _positionUniform.set(_worldMatrix.m[12], _worldMatrix.m[13], _worldMatrix.m[14]);
 }
 

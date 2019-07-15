@@ -12,13 +12,11 @@ renderer.ProgramLib = {
  * @method getProgram
  * @param {String} arg0
  * @param {map_object} arg1
- * @param {int} arg2
  * @return {cc.renderer::Program}
  */
 getProgram : function (
 str, 
-map, 
-int 
+map 
 )
 {
     return cc.renderer::Program;
@@ -57,15 +55,15 @@ map
 /**
  * @method getKey
  * @param {String} arg0
- * @param {int} arg1
- * @return {unsigned int}
+ * @param {map_object} arg1
+ * @return {String}
  */
 getKey : function (
 str, 
-int 
+map 
 )
 {
-    return 0;
+    return ;
 },
 
 /**
@@ -215,28 +213,6 @@ str
 renderer.EffectNative = {
 
 /**
- * @method getProperty
- * @param {String} arg0
- * @return {cc.renderer::Technique::Parameter}
- */
-getProperty : function (
-str 
-)
-{
-    return cc.renderer::Technique::Parameter;
-},
-
-/**
- * @method setStencilTest
- * @param {bool} arg0
- */
-setStencilTest : function (
-bool 
-)
-{
-},
-
-/**
  * @method getTechnique
  * @param {String} arg0
  * @return {cc.renderer::Technique}
@@ -249,28 +225,6 @@ str
 },
 
 /**
- * @method getDefine
- * @param {String} arg0
- * @return {cc.Value}
- */
-getDefine : function (
-str 
-)
-{
-    return cc.Value;
-},
-
-/**
- * @method setCullMode
- * @param {cc.renderer::CullMode} arg0
- */
-setCullMode : function (
-cullmode 
-)
-{
-},
-
-/**
  * @method setStencil
  */
 setStencil : function (
@@ -279,9 +233,31 @@ setStencil : function (
 },
 
 /**
- * @method setBlend
+ * @method mergeCustomProperties
+ * @param {cc.renderer::CustomProperties} arg0
  */
-setBlend : function (
+mergeCustomProperties : function (
+customproperties 
+)
+{
+},
+
+/**
+ * @method updateHash
+ * @param {double} arg0
+ */
+updateHash : function (
+double 
+)
+{
+},
+
+/**
+ * @method setStencilTest
+ * @param {bool} arg0
+ */
+setStencilTest : function (
+bool 
 )
 {
 },
@@ -297,11 +273,33 @@ getHash : function (
 },
 
 /**
- * @method updateHash
- * @param {double} arg0
+ * @method define
+ * @param {String} arg0
+ * @param {cc.Value} arg1
  */
-updateHash : function (
-double 
+define : function (
+str, 
+value 
+)
+{
+},
+
+/**
+ * @method getDefine
+ * @param {String} arg0
+ * @return {cc.Value}
+ */
+getDefine : function (
+str 
+)
+{
+    return cc.Value;
+},
+
+/**
+ * @method setBlend
+ */
+setBlend : function (
 )
 {
 },
@@ -317,6 +315,18 @@ effect
 },
 
 /**
+ * @method getProperty
+ * @param {String} arg0
+ * @return {cc.renderer::Technique::Parameter}
+ */
+getProperty : function (
+str 
+)
+{
+    return cc.renderer::Technique::Parameter;
+},
+
+/**
  * @method clear
  */
 clear : function (
@@ -325,13 +335,11 @@ clear : function (
 },
 
 /**
- * @method define
- * @param {String} arg0
- * @param {cc.Value} arg1
+ * @method setCullMode
+ * @param {cc.renderer::CullMode} arg0
  */
-define : function (
-str, 
-value 
+setCullMode : function (
+cullmode 
 )
 {
 },
@@ -968,10 +976,10 @@ getRange : function (
 
 /**
  * @method setShadowFrustumSize
- * @param {unsigned int} arg0
+ * @param {float} arg0
  */
 setShadowFrustumSize : function (
-int 
+float 
 )
 {
 },
@@ -1058,7 +1066,7 @@ getShadowBias : function (
 
 /**
  * @method getShadowDarkness
- * @return {unsigned int}
+ * @return {float}
  */
 getShadowDarkness : function (
 )
@@ -1228,10 +1236,10 @@ devicegraphics
 
 /**
  * @method setShadowDarkness
- * @param {unsigned int} arg0
+ * @param {float} arg0
  */
 setShadowDarkness : function (
-int 
+float 
 )
 {
 },

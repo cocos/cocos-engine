@@ -31,5 +31,6 @@
 #include "math/Vec4.h"
 #include "math/Mat4.h"
 #include "math/Quaternion.h"
+#include "math/Mat3.hpp"
 
 #endif

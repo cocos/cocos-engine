@@ -43,7 +43,7 @@ public:
     const Property& getProperty(std::string name) const;
     void define(const std::string& name, const Value& value);
     Value getDefine(const std::string& name) const;
-    std::unordered_map<std::string, Property> extractProperties();
+    std::unordered_map<std::string, Property>& extractProperties();
     ValueMap* extractDefines();
     const double getHash() const {return _hash; };
 private:

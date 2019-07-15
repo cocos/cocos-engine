@@ -78,7 +78,7 @@ Value CustomProperties::getDefine(const std::string& name) const
     return Value::Null;
 }
 
-std::unordered_map<std::string, CustomProperties::Property> CustomProperties::extractProperties()
+std::unordered_map<std::string, CustomProperties::Property>& CustomProperties::extractProperties()
 {
     return _properties;
 }

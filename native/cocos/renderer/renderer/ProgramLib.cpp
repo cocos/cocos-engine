@@ -43,8 +43,12 @@ namespace {
             if (def.second.getType() == cocos2d::Value::Type::BOOLEAN)
             {
                 v = def.second.asBool() ? "1" : "0";
-                ret += "#define "  + def.first + " " + v + "\n";
             }
+            else
+            {
+                v = std::to_string(def.second.asUnsignedInt());
+            }
+            ret += "#define "  + def.first + " " + v + "\n";
         }
         return ret;
     }
@@ -212,18 +216,44 @@ void ProgramLib::define(const std::string& name, const std::string& vert, const 
     templ.defines = defines;
 }
 
-uint32_t ProgramLib::getKey(const std::string& name, int32_t ekey)
+std::string ProgramLib::getKey(const std::string& name, const ValueMap& defines)
 {
     auto iter = _templates.find(name);
     assert(iter != _templates.end());
-
-    auto& tmpl = iter->second;
-    return ekey | tmpl.id;
+    
+    uint32_t key = 0;
+    uint32_t offset = 0;
+    for (const auto& tmpl : iter->second.defines)
+    {
+        auto& temp = tmpl.asValueMap();
+        const Value& value = getValueFromDefineList(temp.find("name")->second.asString(), defines);
+        if (value == Value::Null)
+        {
+            continue;
+        }
+        
+        uint32_t vkey = getValueKey(temp, value);
+        
+        key |= vkey << offset;
+        
+        if (value.getType() != Value::Type::BOOLEAN)
+        {
+            offset += ceil(log2(vkey));
+        }
+        else
+        {
+            offset += 1;
+        }
+    }
+    
+    // return key << 8 | tmpl.id;
+    // key number maybe bigger than 32 bit, need use string to store value.
+    return std::to_string(iter->second.id) + ":" + std::to_string(key);
 }
 
-Program* ProgramLib::getProgram(const std::string& name, const ValueMap& defines, int32_t definesKey)
+Program* ProgramLib::getProgram(const std::string& name, const ValueMap& defines)
 {
-    uint32_t key = getKey(name, definesKey);
+    std::string key = getKey(name, defines);
     auto iter = _cache.find(key);
     if (iter != _cache.end()) {
         iter->second->retain();
@@ -251,15 +281,27 @@ Program* ProgramLib::getProgram(const std::string& name, const ValueMap& defines
     return program;
 }
 
-Value ProgramLib::getValueFromDefineList(const std::string& name, ValueMap* defineList)
+Value ProgramLib::getValueFromDefineList(const std::string& name, const ValueMap& define)
 {
-    auto iter = defineList->find(name);
-    if (iter != defineList->end())
+    auto iter = define.find(name);
+    if (iter != define.end())
     {
         return iter->second;
     }
     
     return Value::Null;
+}
+
+uint32_t ProgramLib::getValueKey(const ValueMap &define, const Value &v)
+{
+    if (v.getType() == Value::Type::BOOLEAN)
+    {
+        return v.asBool() ? 1 : 0;
+    }
+    else
+    {
+        return v.asUnsignedInt();
+    }
 }
 
 RENDERER_END

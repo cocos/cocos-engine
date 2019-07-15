@@ -35,6 +35,7 @@ NS_CC_MATH_BEGIN
 
 class Mat4;
 class Quaternion;
+class Mat3;
 
 /**
  * Defines a 3-element floating point vector.
@@ -216,6 +217,13 @@ public:
      */
     static void multiply(const Vec3& v1, const Vec3& v2, Vec3* dst);
     
+    /**
+     * Transforms this vector by the specified Mat3 and stores the result in this vector.
+     *
+     * @param v The Vec3 to transform.
+     * @param m The matrix.
+     */
+    void transformMat3(const Vec3& v, const Mat3& m);
     /**
      * Transforms this vector by the specified quaternion and stores the result in this vector.
      *
