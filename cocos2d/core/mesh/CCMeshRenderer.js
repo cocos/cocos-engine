@@ -282,10 +282,10 @@ let MeshRenderer = cc.Class({
         let subDatas = this._mesh && this._mesh.subDatas;
         if (!subDatas) return;
 
-        let attr2el = subMeshes[0]._vertexBuffer._format._attr2el;
-        this._customProperties.define('_USE_ATTRIBUTE_COLOR', !!attr2el[gfx.ATTR_COLOR]);
-        this._customProperties.define('_USE_ATTRIBUTE_UV0', !!attr2el[gfx.ATTR_UV0]);
-        this._customProperties.define('_USE_ATTRIBUTE_NORMAL', !!attr2el[gfx.ATTR_NORMAL]);
+        let vfm = subDatas[0].vfm;
+        this._customProperties.define('_USE_ATTRIBUTE_COLOR', !!vfm.element(gfx.ATTR_COLOR));
+        this._customProperties.define('_USE_ATTRIBUTE_UV0', !!vfm.element(gfx.ATTR_UV0));
+        this._customProperties.define('_USE_ATTRIBUTE_NORMAL', !!vfm.element(gfx.ATTR_NORMAL));
 
         this._wireFrameDatas.length = 0;
 

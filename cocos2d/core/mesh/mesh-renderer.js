@@ -67,10 +67,10 @@ export default class MeshRendererAssembler extends Assembler {
 
         let materials = comp.sharedMaterials;
         let ias = this._ias;
-        let meshDatas = comp.meshDatas;
+        let subDatas = comp.mesh.subDatas;
         for (let i = 0; i < ias.length; i++) {
-            let ia = submeshes[i];
-            let meshData = meshDatas[i];
+            let ia = ias[i];
+            let meshData = subDatas[i];
 
             let material = materials[i] || materials[0];
 

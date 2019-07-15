@@ -80,7 +80,7 @@
       }
     #endif
   #else
-    const int CC_JOINT_MATRICES_SIZE = 50;
+    #define CC_JOINT_MATRICES_SIZE 50
 
     #pragma builtin(local)
     uniform CC_JOINT_MATRIX {

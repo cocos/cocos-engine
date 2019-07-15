@@ -358,7 +358,9 @@ export default class TTFAssembler extends Assembler2D {
         deleteFromDynamicAtlas(comp, frame);
         if (!frame._original) {
             frame.setRect(cc.rect(0, 0, _canvas.width, _canvas.height));
-        this.(comp, frame);
+        }
+        this.packToDynamicAtlas(comp, frame);
+    }
 
     _updateLabelDimensions () {
         let paragraphedStrings = _string.split('\n');

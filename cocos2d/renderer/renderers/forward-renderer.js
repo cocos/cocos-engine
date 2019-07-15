@@ -48,7 +48,7 @@ export default class ForwardRenderer extends BaseRenderer {
 
   reset () {
     _float16_pool.reset();
-    this._reset();
+    super.reset();
   }
 
   render (scene, dt) {

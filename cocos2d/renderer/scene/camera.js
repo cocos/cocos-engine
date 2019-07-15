@@ -4,8 +4,6 @@ import { color4, vec3, mat4, lerp } from '../../core/vmath';
 import geomUtils from '../../core/geom-utils';
 import enums from '../enums';
 
-let _tmp_v3 = vec3.create();
-let _tmp2_v3 = vec3.create();
 let _tmp_mat4 = mat4.create();
 
 let _matView = mat4.create();
