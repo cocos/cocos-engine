@@ -1190,6 +1190,10 @@ let NodeDefines = {
                         this._onSiblingIndexChanged();
                     }
                 }
+
+                if (CC_JSB && CC_NATIVERENDERER) {
+                    this._proxy.updateZOrder();
+                }
             }
         },
     },
@@ -1479,8 +1483,7 @@ let NodeDefines = {
             this._color.a = 255;
         }
 
-        if (CC_JSB && CC_NATIVERENDERER)
-        {
+        if (CC_JSB && CC_NATIVERENDERER) {
             this._renderFlag |= RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_OPACITY;
         }
     },
@@ -1523,12 +1526,7 @@ let NodeDefines = {
         }
 
         if (CC_JSB && CC_NATIVERENDERER) {
-            this._proxy.setName(this._name);
-            this._proxy.updateParent();
-            this._proxy.updateOpacity();
-            this._proxy.update3DNode();
-            this._proxy.updateZOrder();
-            this._proxy.updateCullingMask();
+            this._proxy.initNative();
         }
     },
 
@@ -1558,9 +1556,7 @@ let NodeDefines = {
         }
 
         if (CC_JSB && CC_NATIVERENDERER) {
-            this._proxy.setName(this._name);
-            this._proxy.updateParent();
-            this._proxy.updateOpacity();
+            this._proxy.initNative();
         }
     },
 
