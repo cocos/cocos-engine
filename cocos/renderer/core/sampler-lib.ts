@@ -96,7 +96,7 @@ class SamplerLib {
             gfxInfo.mipLODBias  = info[SamplerInfoIndex.mipLODBias];
             if (info.length >= SamplerInfoIndex.total) {
                 const ofs = SamplerInfoIndex.borderColor;
-                gfxInfo.borderColor = { r: info[ofs], g: info[ofs + 1], b: info[ofs + 2], a: info[ofs + 3] };
+                gfxInfo.borderColor = { r: info[ofs]!, g: info[ofs + 1]!, b: info[ofs + 2]!, a: info[ofs + 3]! };
             }
         }
         const sampler = this._cache[hash] = device.createSampler(gfxInfo);
