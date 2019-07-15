@@ -2,17 +2,18 @@
  * @category animation
  */
 
+import { Component } from '../components';
 import { ccclass, property } from '../core/data/class-decorator';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
-import { error, errorID } from '../core/platform/CCDebug';
-import { Quat, ValueType, Vec2, Vec3, Vec4 } from '../core/value-types';
-import { ccenum } from '../core/value-types/enum';
+import { errorID } from '../core/platform/CCDebug';
+import { ValueType } from '../core/value-types';
 import * as vmath from '../core/vmath';
+import { Node } from '../scene-graph';
 import { PropertyBlendState } from './animation-blend-state';
 import { bezierByTime, BezierControlPoints } from './bezier';
 import * as blending from './blending';
 import * as easing from './easing';
-import { MotionPath, sampleMotionPaths } from './motion-path-helper';
+import { MotionPath } from './motion-path-helper';
 import { ILerpable, isLerpable } from './types';
 
 /**
@@ -23,7 +24,7 @@ export type CurveValue = any;
 /**
  * 表示曲线的目标对象。
  */
-export type CurveTarget = Record<string, any>;
+export type CurveTarget = Node | Component;
 
 /**
  * If propertyBlendState.weight equals to zero, the propertyBlendState.value is dirty.
@@ -220,20 +221,20 @@ export class AnimCurve {
         //     return this._stepfiedValues[i];
         // }
 
-        if (!this._lerp) {
+        if (this._lerp) {
+            const type = this.types ? this.types[from] : this.type;
+            const dRatio = (toRatio - fromRatio);
+            let ratioBetweenFrames = (ratio - fromRatio) / dRatio;
+            if (type) {
+                ratioBetweenFrames = computeRatioByType(ratioBetweenFrames, type);
+            }
+            const fromVal = this._values[from];
+            const toVal = this._values[to];
+            const value = this._lerp(fromVal, toVal, ratioBetweenFrames, dRatio * this._duration);
+            return value;
+        } else {
             return this.valueAt(from);
         }
-
-        const type = this.types ? this.types[from] : this.type;
-        const dRatio = (toRatio - fromRatio);
-        let ratioBetweenFrames = (ratio - fromRatio) / dRatio;
-        if (type) {
-            ratioBetweenFrames = computeRatioByType(ratioBetweenFrames, type);
-        }
-        const fromVal = this._values[from];
-        const toVal = this._values[to];
-        const value = this._lerp(fromVal, toVal, ratioBetweenFrames, dRatio * this._duration);
-        return value;
     }
 
     // public stepfy (stepCount: number) {

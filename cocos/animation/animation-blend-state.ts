@@ -3,11 +3,14 @@
  */
 
 import { CurveTarget } from './animation-curve';
+import { AnimCurveProperty } from './animation-state';
+import { Node } from '../scene-graph';
 
 // tslint:disable:interface-over-type-literal
 
 export type PropertyBlendState<T = any> = {
-    name: string;
+    // name: string;
+    property: AnimCurveProperty;
     weight: number;
     value?: T;
     refCount: number;
@@ -21,7 +24,7 @@ interface ITargetState {
 export class AnimationBlendState {
     private _blendTargets: ITargetState[] = [];
 
-    public refPropertyBlendTarget (target: CurveTarget, propertyName: string) {
+    public refPropertyBlendTarget (target: CurveTarget, property: AnimCurveProperty) {
         let targetState = this._blendTargets.find((x) => x.target === target);
         if (!targetState) {
             targetState = { target, properties: [] };
@@ -29,16 +32,16 @@ export class AnimationBlendState {
         }
         const propertyStates = targetState.properties;
 
-        let propertyState = propertyStates.find((p) => p.name === propertyName);
+        let propertyState = propertyStates.find((p) => p.property === property);
         if (!propertyState) {
-            propertyState = { name: propertyName, weight: 0, value: undefined, refCount: 0 };
+            propertyState = { property, weight: 0, value: undefined, refCount: 0 };
             propertyStates.push(propertyState);
         }
         ++propertyState.refCount;
         return propertyState;
     }
 
-    public derefPropertyBlendTarget (target: CurveTarget, propertyName: string) {
+    public derefPropertyBlendTarget (target: CurveTarget, property: AnimCurveProperty) {
         const iTargetState = this._blendTargets.findIndex((x) => x.target === target);
         if (iTargetState < 0) {
             return;
@@ -46,7 +49,7 @@ export class AnimationBlendState {
         const targetState = this._blendTargets[iTargetState];
 
         const propertyStates = targetState.properties;
-        const iPropertyState = propertyStates.findIndex((p) => p.name === propertyName);
+        const iPropertyState = propertyStates.findIndex((p) => p.property === property);
         if (iPropertyState < 0) {
             return;
         }
@@ -70,7 +73,34 @@ export class AnimationBlendState {
             const propertyStates = targetState.properties;
             for (const p of propertyStates) {
                 if (p.weight !== 0) {
-                    target[p.name] = p.value;
+                    target[p.property] = p.value;
+
+                    switch (p.property) {
+                        case AnimCurveProperty.POSITION: {
+                            if (target instanceof Node) {
+                                target.setPosition(p.value);
+                            } else {
+                                (target as any).position = p.value;
+                            }
+                            break;
+                        }
+                        case AnimCurveProperty.ROTATION: {
+                            if (target instanceof Node) {
+                                target.setRotation(p.value);
+                            } else {
+                                (target as any).rotation = p.value;
+                            }
+                            break;
+                        }
+                        case AnimCurveProperty.SCALE: {
+                            if (target instanceof Node) {
+                                target.setScale(p.value);
+                            } else {
+                                (target as any).scale = p.value;
+                            }
+                            break;
+                        }
+                    }
                 }
             }
         }
