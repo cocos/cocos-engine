@@ -1,4 +1,4 @@
-import { dirname, relative } from 'path';
+import { dirname, join, normalize, relative } from 'path';
 import { rollup } from 'rollup';
 // @ts-ignore
 import babel from 'rollup-plugin-babel';
@@ -7,17 +7,44 @@ import commonjs from 'rollup-plugin-commonjs';
 // @ts-ignore
 import json from 'rollup-plugin-json';
 // @ts-ignore
+import multiEntry from 'rollup-plugin-multi-entry';
+// @ts-ignore
 import resolve from 'rollup-plugin-node-resolve';
 // @ts-ignore
 import { uglify } from 'rollup-plugin-uglify';
+import { existsSync } from 'fs';
 
 const { excludes } = require('../plugin/rollup-plugin-excludes');
 
-interface IBaseOptions {
+interface IAdvancedModuleOptions {
     /**
-     * 引擎入口模块。
+     * @default 'webgl'
      */
-    inputPath: string;
+    gfx: 'webgl' | 'webgl2';
+
+    /**
+     * @default 'cannon'
+     */
+    physics?: 'builtin' | 'cannon' | 'ammo';
+
+    /**
+     * @default true
+     */
+    animation?: boolean;
+
+    /**
+     * @default true
+     */
+    primitives?: boolean;
+
+    /**
+     * @default false
+     */
+    tween?: boolean;
+}
+
+interface IBaseOptions {
+    moduleConfig?: IAdvancedModuleOptions;
 
     /**
      * 指定输出路径。
@@ -79,10 +106,45 @@ export async function build (options: IBuildOptions) {
     return await _internalBuild(Object.assign(options, {globalDefines}));
 }
 
+function getModuleEntry (moduleName: string) {
+    return normalize(`${__dirname}/../../exports/${moduleName}.ts`);
+}
+
+function getModules (options: IAdvancedModuleOptions) {
+    const result: string[] = [];
+    result.push(getModuleEntry(`base`));
+    result.push(getModuleEntry(`gfx-${options.gfx}`));
+    if (options.animation) {
+        result.push(getModuleEntry(`animation`));
+    }
+    if (options.physics) {
+        result.push(getModuleEntry(`physics-${options.physics}`));
+    }
+    if (options.primitives) {
+        result.push(getModuleEntry(`primitives`));
+    }
+    if (options.tween) {
+        result.push(getModuleEntry(`tween`));
+    }
+    return result;
+}
+
+function getDefaultModuleConfig (): IAdvancedModuleOptions {
+    return {
+        animation: true,
+        physics: 'cannon',
+        gfx: 'webgl',
+        primitives: true,
+        tween: false,
+    };
+}
+
 async function _internalBuild (options: IAdvancedOptions) {
     console.log(`Build-engine options: ${JSON.stringify(options, undefined, 2)}`);
     const doUglify = !!options.compress;
     const rollupPlugins = [
+        multiEntry(),
+
         excludes({
             modules: options.excludes,
         }),
@@ -161,8 +223,16 @@ async function _internalBuild (options: IAdvancedOptions) {
     const outputPath = options.outputPath;
     const sourcemapFile = options.sourcemapFile || `${options.outputPath}.map`;
 
+    const moduleEntries = getModules(
+        options.moduleConfig ? options.moduleConfig : getDefaultModuleConfig());
+    console.log(`Modules:\n${moduleEntries.join('\n')}`);
+    for (const moduleEntry of moduleEntries) {
+        if (!existsSync(moduleEntry)) {
+            console.error(`Cannot find engine module ${moduleEntry}`);
+        }
+    }
     const rollupBuild = await rollup({
-        input: options.inputPath,
+        input: moduleEntries,
         plugins: rollupPlugins,
     });
     const generated = await rollupBuild.generate({

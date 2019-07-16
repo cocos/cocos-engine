@@ -1,0 +1,2 @@
+
+export * from '../cocos/tween';
