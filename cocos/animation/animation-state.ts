@@ -11,17 +11,10 @@ import { AnimCurve, CurveTarget, RatioSampler } from './animation-curve';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 
-export enum AnimCurveProperty {
-    UNKNOWN,
-    POSITION,
-    ROTATION,
-    SCALE,
-}
-
 interface ICurveInstance {
     curve: AnimCurve;
     target: CurveTarget;
-    property: AnimCurveProperty;
+    property: string;
     blendTarget: PropertyBlendState | null;
     cached?: any[];
 }
@@ -267,7 +260,7 @@ export class AnimationState extends Playable {
                 continue;
             }
 
-            let target: CurveTarget = targetNode;
+            let target: Node | Component = targetNode;
             if (propertyCurve.component) {
                 const targetComponent = targetNode.getComponent(propertyCurve.component);
                 if (!targetComponent) {
@@ -281,20 +274,9 @@ export class AnimationState extends Playable {
                 this._samplerSharedGroups.push(samplerSharedGroup);
             }
 
-            let property: AnimCurveProperty;
-            if (propertyCurve.propertyName === 'position') {
-                property = AnimCurveProperty.POSITION;
-            } else if (propertyCurve.propertyName === 'rotation') {
-                property = AnimCurveProperty.ROTATION;
-            } else if (propertyCurve.propertyName === 'scale') {
-                property = AnimCurveProperty.SCALE;
-            } else {
-                property = AnimCurveProperty.UNKNOWN;
-            }
-
             samplerSharedGroup.curves.push({
                 target,
-                property,
+                property : propertyCurve.propertyName,
                 curve: propertyCurve.curve,
                 blendTarget: null,
             });
@@ -646,31 +628,16 @@ export class AnimationState extends Playable {
                         samplerResultCache.toRatio);
                 }
                 if (!curveInstace.curve._blendFunction || !curveInstace.blendTarget || curveInstace.blendTarget.refCount <= 1) {
-                    switch (curveInstace.property) {
-                        case AnimCurveProperty.POSITION: {
-                            if (curveInstace.target instanceof Node) {
-                                curveInstace.target.setPosition(value);
-                            } else {
-                                (curveInstace.target as any).position = value;
-                            }
-                            break;
+                    if (curveInstace.target instanceof Node) {
+                        if (curveInstace.property === 'position') {
+                            curveInstace.target.setPosition(value);
+                        } else if (curveInstace.property === 'rotation') {
+                            curveInstace.target.setRotation(value);
+                        } else {
+                            curveInstace.target.setScale(value);
                         }
-                        case AnimCurveProperty.ROTATION: {
-                            if (curveInstace.target instanceof Node) {
-                                curveInstace.target.setRotation(value);
-                            } else {
-                                (curveInstace.target as any).rotation = value;
-                            }
-                            break;
-                        }
-                        case AnimCurveProperty.SCALE: {
-                            if (curveInstace.target instanceof Node) {
-                                curveInstace.target.setScale(value);
-                            } else {
-                                (curveInstace.target as any).scale = value;
-                            }
-                            break;
-                        }
+                    } else {
+                        curveInstace.target[curveInstace.property] = value;
                     }
                 } else {
                     curveInstace.blendTarget.value = curveInstace.curve._blendFunction(value, this.weight, curveInstace.blendTarget);
