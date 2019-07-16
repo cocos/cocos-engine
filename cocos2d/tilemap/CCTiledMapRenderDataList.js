@@ -22,20 +22,46 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+import IARenderData from '../renderer/render-data/ia-render-data';
+import InputAssembler from '../renderer/core/input-assembler';
 
-let ForwardRenderer = function () {
-}
+let TiledMapRenderDataList = cc.Class({
+    name: 'cc.TiledMapRenderDataList',
 
-ForwardRenderer.prototype = {
-    constructor: ForwardRenderer,
-
-    clear () {
-
+    ctor () {
+        this._dataList = [];
+        this._offset = 0;
     },
 
-    render () {
+    _pushRenderData () {
+        let renderData = new IARenderData();
+        renderData.ia = new InputAssembler();
+        renderData.nodesRenderList = [];
+        this._dataList.push(renderData);
+    },
 
+    popRenderData (buffer) {
+        if (this._offset >= this._dataList.length) {
+            this._pushRenderData();
+        }
+        let renderData = this._dataList[this._offset];
+        renderData.nodesRenderList.length = 0;
+        let ia = renderData.ia;
+        ia._vertexBuffer = buffer._vb;
+        ia._indexBuffer = buffer._ib;
+        ia._start = buffer.indiceOffset;
+        ia._count = 0;
+        this._offset++;
+        return renderData;
+    },
+
+    pushNodesList (renderData, nodesList) {
+        renderData.nodesRenderList.push(nodesList);
+    },
+
+    reset () {
+        this._offset = 0;
     }
-};
+});
 
-module.exports = ForwardRenderer;
+cc.TiledMapRenderDataList = module.exports = TiledMapRenderDataList;

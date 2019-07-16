@@ -267,12 +267,10 @@ export default class Base {
    * @param {Object} opts
    * @param {gfx.Texture2D} opts.defaultTexture
    * @param {gfx.TextureCube} opts.defaultTextureCube
-   * @param {Array} opts.programTemplates
-   * @param {Object} opts.programChunks
    */
   constructor(device, opts) {
     this._device = device;
-    this._programLib = new ProgramLib(device, opts.programTemplates, opts.programChunks);
+    this._programLib = new ProgramLib(device);
     this._opts = opts;
     this._type2defaultValue = {
       [enums.PARAM_INT]: 0,
@@ -345,7 +343,12 @@ export default class Base {
     this._stage2fn[name] = fn;
   }
 
-  _reset() {
+  clear () {
+    this._programLib.clear();
+    this.reset();
+  }
+
+  reset() {
     this._viewPools.reset();
     this._stageItemsPools.reset();
   }

@@ -24,7 +24,7 @@ test('test', function () {
                 serializable: false
             },
             weight10: {
-                type: 'Integer',
+                type: cc.Integer,
                 set: function (value) {
                     this.weight = Math.floor(value / 10);
                 },
@@ -33,7 +33,7 @@ test('test', function () {
                 }
             },
             weight5x: {
-                type: 'Integer',
+                type: cc.Integer,
                 get: function () {
                     return this.weight * 5;
                 },
@@ -722,10 +722,6 @@ test('simplified properties define', function () {
     var ArrayType = cc.Class({
         properties: {
             empty: [],
-            bool: [cc.Boolean],
-            string: [cc.String],
-            float: [cc.Float],
-            int: [cc.Integer],
             valueType: [cc.Vec2],
             node: [cc.Node],
             rawAsset: [cc.RawAsset],
@@ -738,7 +734,6 @@ test('simplified properties define', function () {
 
     var arrayObj = new ArrayType();
 
-    strictEqual(cc.Class.attr(ArrayType, 'bool').type, cc.Boolean, 'checking array of bool type');
     strictEqual(cc.Class.attr(ArrayType, 'valueType').type, 'Object', 'checking array of vec2 type');
     strictEqual(cc.Class.attr(ArrayType, 'valueType').ctor, cc.Vec2, 'checking array of vec2 ctor');
     strictEqual(cc.Class.attr(ArrayType, 'node').type, 'Object', 'checking array of node type');
@@ -747,13 +742,62 @@ test('simplified properties define', function () {
     strictEqual(cc.Class.attr(ArrayType, 'rawAsset').ctor, cc.RawAsset, 'checking array of raw asset ctor');
 
     deepEqual(arrayObj.empty, [], 'checking array of empty');
-    deepEqual(arrayObj.bool, [], 'checking array of bool');
-    deepEqual(arrayObj.string, [], 'checking array of string');
     deepEqual(arrayObj.valueType, [], 'checking array of valueType');
     deepEqual(arrayObj.node, [], 'checking array of node');
     deepEqual(arrayObj.rawAsset, [], 'checking array of rawAsset');
     deepEqual(arrayObj.asset, [], 'checking array of asset');
 });
+
+test('simplified properties define using cc.xxxType', function () {
+    var Type = cc.Class({
+        properties: {
+            string: cc.String,
+            bool: cc.Boolean,
+            float: cc.Float,
+            int: cc.Integer,
+        }
+    });
+    var ArrayType = cc.Class({
+        properties: {
+            string: [cc.String],
+            bool: [cc.Boolean],
+            float: [cc.Float],
+            int: [cc.Integer],
+        }
+    });
+
+    strictEqual(cc.Class.attr(Type, 'string').type, undefined, 'checking string type');
+    strictEqual(cc.Class.attr(Type, 'string').ctor, undefined, 'checking string ctor');
+    strictEqual(cc.Class.attr(Type, 'bool').type, undefined, 'checking bool type');
+    strictEqual(cc.Class.attr(Type, 'bool').ctor, undefined, 'checking bool ctor');
+    strictEqual(cc.Class.attr(Type, 'float').type, undefined, 'checking float type');
+    strictEqual(cc.Class.attr(Type, 'float').ctor, undefined, 'checking float ctor');
+    strictEqual(cc.Class.attr(Type, 'int').type, undefined, 'checking int type');
+    strictEqual(cc.Class.attr(Type, 'int').ctor, undefined, 'checking int ctor');
+
+    strictEqual(cc.Class.attr(ArrayType, 'string').type, cc.String, 'checking array of string type');
+    strictEqual(cc.Class.attr(ArrayType, 'string').ctor, undefined, 'checking array of string ctor');
+    strictEqual(cc.Class.attr(ArrayType, 'bool').type, cc.Boolean, 'checking array of bool type');
+    strictEqual(cc.Class.attr(ArrayType, 'bool').ctor, undefined, 'checking array of bool ctor');
+    strictEqual(cc.Class.attr(ArrayType, 'float').type, cc.Float, 'checking array of float type');
+    strictEqual(cc.Class.attr(ArrayType, 'float').ctor, undefined, 'checking array of float ctor');
+    strictEqual(cc.Class.attr(ArrayType, 'int').type, cc.Integer, 'checking array of int type');
+    strictEqual(cc.Class.attr(ArrayType, 'int').ctor, undefined, 'checking array of int ctor');
+
+    var obj = new Type();
+    var arrayObj = new ArrayType();
+
+    strictEqual(obj.string, '', 'checking default value of string');
+    strictEqual(obj.bool, false, 'checking default value of bool');
+    strictEqual(obj.float, 0, 'checking default value of float');
+    strictEqual(obj.int, 0, 'checking default value of int');
+
+    deepEqual(arrayObj.bool, [], 'checking array of bool');
+    deepEqual(arrayObj.string, [], 'checking array of string');
+    deepEqual(arrayObj.float, [], 'checking array of float');
+    deepEqual(arrayObj.int, [], 'checking array of int');
+});
+
 
 // test('call CCClass', function () {
 //     var Husky = cc.Class({

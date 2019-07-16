@@ -4,6 +4,8 @@ import { color4, vec3, mat4, lerp } from '../../core/vmath';
 import geomUtils from '../../core/geom-utils';
 import enums from '../enums';
 
+let _tmp_mat4 = mat4.create();
+
 let _matView = mat4.create();
 let _matProj = mat4.create();
 let _matViewProj = mat4.create();
@@ -475,6 +477,30 @@ export default class Camera {
     out.x = cx + (out.x + 1) * 0.5 * cw;
     out.y = cy + (out.y + 1) * 0.5 * ch;
     out.z = out.z * 0.5 + 0.5;
+
+    return out;
+  }
+
+  /**
+   * transform a world space matrix to screen space
+   * @param {Mat4} out the resulting vector
+   * @param {Mat4} worldMatrix the world space matrix to be transformed
+   * @param {number} width framebuffer width
+   * @param {number} height framebuffer height
+   * @returns {Mat4} the resulting vector
+   */
+  worldMatrixToScreen (out, worldMatrix, width, height) {
+    this._calcMatrices(width, height);
+
+    mat4.mul(out, _matViewProj, worldMatrix);
+
+    let halfWidth = width / 2;
+    let halfHeight = height / 2;
+    mat4.identity(_tmp_mat4);
+    mat4.translate(_tmp_mat4, _tmp_mat4, vec3.set(_tmp_v3, halfWidth, halfHeight, 0));
+    mat4.scale(_tmp_mat4, _tmp_mat4, vec3.set(_tmp_v3, halfWidth, halfHeight, 1));
+    
+    mat4.mul(out, _tmp_mat4, out);
 
     return out;
   }

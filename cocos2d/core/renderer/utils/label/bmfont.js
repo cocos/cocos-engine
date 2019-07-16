@@ -42,8 +42,9 @@ let FontLetterDefinition = function() {
     this._xAdvance = 0;
 };
 
-cc.FontAtlas = function (fntConfig) {
+cc.FontAtlas = function (texture) {
     this._letterDefinitions = {};
+    this._texture = texture;
 };
 
 cc.FontAtlas.prototype = {
@@ -88,6 +89,89 @@ cc.FontAtlas.prototype = {
         return letterDefinition;
     }
 };
+
+let FontAtlasManager = function () {
+    this._fontAtlas = {};
+    this._references = {};
+
+    cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, this.clear, this);
+}
+
+FontAtlasManager.prototype.getFontAtlas = function (comp) {
+    let fontAsset = comp.font;
+    let fntConfig = fontAsset._fntConfig;
+    let name = fntConfig.atlasName
+    let atlas = this._fontAtlas[name];
+    if (!atlas) {
+        atlas = this.createFontAtlas(fontAsset);
+        this._fontAtlas[name] = atlas;
+    }
+
+    if (!this._references[name]) {
+        this._references[name] = [];
+    }
+    
+    if (this._references[name].indexOf(comp.node._id) === -1) {
+        this._references[name].push(comp.node._id);
+    }
+    
+    return this._fontAtlas[name];
+}
+
+FontAtlasManager.prototype.releaseFontAtlas = function (font, id) {
+    if (!font) return
+    if (!(font instanceof cc.BitmapFont)) return
+    if (!font._fntConfig) return
+    
+    let fntConfig = font._fntConfig;
+    let name = fntConfig.atlasName;
+    let reference = this._references[name];
+    if (reference) {
+        for (let i = reference.length - 1; i >= 0; i--) {
+            if (reference[i] === id) {
+                reference.splice(i, 1);
+                break;
+            }
+        }
+    }
+
+    if (!reference || reference.length === 0) {
+        delete this._fontAtlas[name];
+    }
+}
+
+FontAtlasManager.prototype.createFontAtlas = function (fontAsset) {
+    let spriteFrame = fontAsset.spriteFrame;
+    let fntConfig = fontAsset._fntConfig;
+    let atlas = new cc.FontAtlas(spriteFrame.texture);
+    let fontDict = fntConfig.fontDefDictionary;
+    for (let fontDef in fontDict) {
+        let letterDefinition = new FontLetterDefinition();
+
+        let rect = fontDict[fontDef].rect;
+        letterDefinition._offsetX = fontDict[fontDef].xOffset;
+        letterDefinition._offsetY = fontDict[fontDef].yOffset;
+        letterDefinition._width = rect.width;
+        letterDefinition._height = rect.height;
+        letterDefinition._u = rect.x;
+        letterDefinition._v = rect.y;
+        //FIXME: only one texture supported for now
+        letterDefinition._textureID = 0;
+        letterDefinition._validDefinition = true;
+        letterDefinition._xAdvance = fontDict[fontDef].xAdvance;
+
+        atlas.addLetterDefinitions(fontDef, letterDefinition);
+    }
+
+    return atlas;
+}
+
+FontAtlasManager.prototype.clear = function () {
+    this._fontAtlas = {};
+    this._references = {};
+}
+
+cc.Label.FontAtlasManager = new FontAtlasManager();
 
 let LetterInfo = function() {
     this._char = '';
@@ -164,34 +248,7 @@ export default class BmfontAssembler extends Assembler2D {
         let fontAsset = _comp.font;
         _spriteFrame = fontAsset.spriteFrame;
         _fntConfig = fontAsset._fntConfig;
-
-        _fontAtlas = _comp._fontAtlas;
-        if (!_fontAtlas) {
-            _fontAtlas = new cc.FontAtlas(_fntConfig);
-            
-            let fontDict = _fntConfig.fontDefDictionary;
-
-            for (let fontDef in fontDict) {
-                let letterDefinition = new FontLetterDefinition();
-
-                let rect = fontDict[fontDef].rect;
-
-                letterDefinition._offsetX = fontDict[fontDef].xOffset;
-                letterDefinition._offsetY = fontDict[fontDef].yOffset;
-                letterDefinition._width = rect.width;
-                letterDefinition._height = rect.height;
-                letterDefinition._u = rect.x;
-                letterDefinition._v = rect.y;
-                //FIXME: only one texture supported for now
-                letterDefinition._textureID = 0;
-                letterDefinition._validDefinition = true;
-                letterDefinition._xAdvance = fontDict[fontDef].xAdvance;
-
-                _fontAtlas.addLetterDefinitions(fontDef, letterDefinition);
-            }
-
-            _comp._fontAtlas = _fontAtlas;
-        }
+        _fontAtlas = cc.Label.FontAtlasManager.getFontAtlas(_comp);
 
         _string = _comp.string.toString();
         _fontSize = _comp.fontSize;
@@ -595,7 +652,6 @@ export default class BmfontAssembler extends Assembler2D {
 
     _updateQuads () {
         let letterDefinitions = _fontAtlas._letterDefinitions;
-        
         let texture = _spriteFrame._texture;
 
         let node = _comp.node;

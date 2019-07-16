@@ -197,7 +197,7 @@ let Graphics = cc.Class({
             return;
         }
         
-        let material = Material.getInstantiatedBuiltinMaterial('sprite', this);
+        let material = Material.getInstantiatedBuiltinMaterial('2d-base', this);
         material.define('CC_USE_MODEL', true);
         this.setMaterial(0, material);
     },

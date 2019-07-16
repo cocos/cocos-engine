@@ -351,6 +351,18 @@ cc.macro = {
      * @default false
      */
     SHOW_MESH_WIREFRAME: false,
+
+    /**
+     * !#en
+     * Set cc.RotateTo/cc.RotateBy rotate direction.
+     * If need set rotate positive direction to counterclockwise, please change setting to : cc.macro.ROTATE_ACTION_CCW = true;
+     * !#zh
+     * 设置 cc.RotateTo/cc.RotateBy 的旋转方向。
+     * 如果需要设置旋转的正方向为逆时针方向，请设置选项为： cc.macro.ROTATE_ACTION_CCW = true;
+     * @property {Boolean} ROTATE_ACTION_CCW
+     * @default false
+     */
+    ROTATE_ACTION_CCW: false
 };
 
 

@@ -907,7 +907,7 @@ var ParticleSystem = cc.Class({
     },
     
     lateUpdate (dt) {
-        if (!this._simulator.finished && this.sharedMaterials[0]) {
+        if (!this._simulator.finished) {
             this._simulator.step(dt);
         }
     },
@@ -1213,6 +1213,9 @@ var ParticleSystem = cc.Class({
 
     _activateMaterial: function () {
         if (!this._texture || !this._texture.loaded) {
+            this.markForUpdateRenderData(false);
+            this.markForRender(false);
+
             if (this._renderSpriteFrame) {
                 this._applySpriteFrame();
             }
@@ -1222,18 +1225,18 @@ var ParticleSystem = cc.Class({
 
         let material = this.sharedMaterials[0];
         if (!material) {
-            material = Material.getInstantiatedBuiltinMaterial('sprite', this);
-            material.define('USE_TEXTURE', true);
-            // In case the plist lost positionType
-            material.define('CC_USE_MODEL', this._positionType !== PositionType.FREE);
+            material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
         }
         else {
             material = Material.getInstantiatedMaterial(material, this);
         }
 
+        // In case the plist lost positionType
+        material.define('CC_USE_MODEL', this._positionType !== PositionType.FREE);
         material.setProperty('texture', this._texture);
 
         this.setMaterial(0, material);
+        this.markForRender(true);
     },
     
     _finishedSimulation: function () {

@@ -233,6 +233,8 @@ let VideoPlayer = cc.Class({
          * !#en Whether keep the aspect ration of the original video.
          * !#zh 是否保持视频原来的宽高比
          * @property {Boolean} keepAspectRatio
+         * @type {Boolean}
+         * @default true
          */
         keepAspectRatio: {
             tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.keepAspectRatio',
@@ -247,14 +249,24 @@ let VideoPlayer = cc.Class({
          * !#en Whether play video in fullscreen mode.
          * !#zh 是否全屏播放视频
          * @property {Boolean} isFullscreen
+         * @type {Boolean}
+         * @default false
          */
-        isFullscreen: {
-            tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.isFullscreen',
+        _isFullscreen: {
             default: false,
-            type: cc.Boolean,
-            notify: function () {
-                this._impl.setFullScreenEnabled(this.isFullscreen);
-            }
+            formerlySerializedAs: '_N$isFullscreen',
+        },
+        isFullscreen: {
+            get () {
+                this._isFullscreen = this._impl.isFullScreenEnabled();
+                return this._isFullscreen;
+            },
+            set (enable) {
+                this._isFullscreen = enable;
+                this._impl.setFullScreenEnabled(enable);
+            },
+            animatable: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.isFullscreen'
         },
 
         /**

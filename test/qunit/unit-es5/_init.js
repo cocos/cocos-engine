@@ -39,7 +39,7 @@ var TestTexture = cc.Class({
          */
         width: {
             default: 0,
-            type: 'Integer',
+            type: cc.Integer,
             readonly: true
         },
 
@@ -49,7 +49,7 @@ var TestTexture = cc.Class({
          */
         height: {
             default: 0,
-            type: 'Integer',
+            type: cc.Integer,
             readonly: true
         },
     }

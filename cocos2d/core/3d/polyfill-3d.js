@@ -237,8 +237,7 @@ cc.js.getset(proto, 'eulerAngles', function () {
         return this._eulerAngles;
     }
     else {
-        _quat.fromRotation(this._trs);
-        return _quat.toEuler(cc.v3());
+        return this._quat.toEuler(this._eulerAngles);
     }
 }, function (v) {
     if (CC_EDITOR) {

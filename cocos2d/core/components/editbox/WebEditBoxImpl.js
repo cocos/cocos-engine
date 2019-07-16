@@ -28,6 +28,7 @@ const utils = require('../../platform/utils');
 const macro = require('../../platform/CCMacro');
 const Types = require('./types');
 const Label = require('../CCLabel');
+const tabIndexUtil = require('./tabIndexUtil');
 
 const EditBox = cc.EditBox;
 const js = cc.js;
@@ -52,11 +53,10 @@ const DELAY_TIME = 800;
 const SCROLLY = 100;
 const LEFT_PADDING = 2;
 
- // private static property
- let _domCount = 0;
- let _vec3 = cc.v3();
- let _currentEditBoxImpl = null;
-
+// private static property
+let _domCount = 0;
+let _vec3 = cc.v3();
+let _currentEditBoxImpl = null;
 
 // on mobile
 let _fullscreen = false;
@@ -124,8 +124,8 @@ Object.assign(WebEditBoxImpl.prototype, {
         else {
             this._createInput();
         }
+        tabIndexUtil.add(this);
         this.setTabIndex(delegate.tabIndex);
-        this._disableDom();  // enable dom when EditBox.onEnable is called
         this._initStyleSheet();
         this._registerEventListeners();
         this._addDomToGameContainer();
@@ -135,20 +135,26 @@ Object.assign(WebEditBoxImpl.prototype, {
     },
 
     enable () {
-        this._enableDom();
-
-        if (!CC_EDITOR) {
-            this._delegate._unregisterEvent();  // not support touch events on web platform
-        }
+        // Do nothing
     },
 
     disable () {
-        this._disableDom();
+        // Need to hide dom when disable editBox on editing
+        if (this._editing) {
+            this._elem.blur();
+        }
     },
 
     clear () {
         this._removeEventListeners();
         this._removeDomFromGameContainer();
+
+        tabIndexUtil.remove(this);
+
+        // clear while editing
+        if (_currentEditBoxImpl === this) {
+            _currentEditBoxImpl = null;
+        }
     },
 
     update () {
@@ -157,6 +163,7 @@ Object.assign(WebEditBoxImpl.prototype, {
 
     setTabIndex (index) {
         this._elem.tabIndex = index;
+        tabIndexUtil.resort();
     },
 
     setSize (width, height) {
@@ -167,7 +174,7 @@ Object.assign(WebEditBoxImpl.prototype, {
 
     setFocus (value) {
         if (value) {
-            this._elem.focus();
+            this.beginEditing();
         }
         else {
             this._elem.blur();
@@ -179,17 +186,18 @@ Object.assign(WebEditBoxImpl.prototype, {
     },
 
     beginEditing () {
+        if (_currentEditBoxImpl && _currentEditBoxImpl !== this) {
+            _currentEditBoxImpl.setFocus(false);
+        }
         this._editing = true;
         _currentEditBoxImpl = this;
         this._showDom();
+        this._elem.focus();  // set focus
         this._delegate.editBoxEditingDidBegan();  
     },
 
     endEditing () {
-        this._editing = false;
-        _currentEditBoxImpl = null;
-        this._hideDom();
-        this._delegate.editBoxEditingDidEnded();
+        // Do nothing, handle endEditing on blur callback
     },
 
     // ==========================================================================
@@ -223,20 +231,12 @@ Object.assign(WebEditBoxImpl.prototype, {
         delete this._placeholderStyleSheet;
     },
 
-    _enableDom () {
-        this._elem.style.display = '';
-    },
-
-    _disableDom () {
-        this._elem.style.display = 'none';
-    },
-
     _showDom () {
         this._updateMaxLength();
         this._updateInputType();
         this._updateStyleSheet();
 
-        this._elem.style.opacity = 1;
+        this._elem.style.display = '';
         this._delegate._hideLabels();
         
         if (cc.sys.isMobile) {
@@ -247,7 +247,7 @@ Object.assign(WebEditBoxImpl.prototype, {
     _hideDom () {
         let elem = this._elem;
 
-        elem.style.opacity = 0;
+        elem.style.display = 'none';
         this._delegate._showLabels();
         
         if (cc.sys.isMobile) {
@@ -272,17 +272,22 @@ Object.assign(WebEditBoxImpl.prototype, {
     },
 
     _hideDomOnMobile () {
-        if (cc.sys.os !== cc.sys.OS_ANDROID) {
-            return;
-        }
-
-        if (_fullscreen) {
-            cc.view.enableAutoFullScreen(true);
-        }
-        if (_autoResize) {
-            cc.view.resizeWithBrowserSize(true);
+        if (cc.sys.os === cc.sys.OS_ANDROID) {
+            // Closing soft keyboard on mobile will fire 'resize' event
+            // So we need to set a timeout to enable resizeWithBrowserSize
+            setTimeout(function () {
+                if (!_currentEditBoxImpl) {
+                    if (_fullscreen) {
+                        cc.view.enableAutoFullScreen(true);
+                    }
+                    if (_autoResize) {
+                        cc.view.resizeWithBrowserSize(true);
+                    }
+                }
+            }, DELAY_TIME);
         }
         
+        // Some browser like wechat on iOS need to mannully scroll back window
         this._scrollBackWindow();
     },
 
@@ -298,6 +303,16 @@ Object.assign(WebEditBoxImpl.prototype, {
 
     _scrollBackWindow () {
         setTimeout(function () {
+            // FIX: wechat browser bug on iOS
+            // If gameContainer is included in iframe,
+            // Need to scroll the top window, not the one in the iframe
+            // Reference: https://developer.mozilla.org/en-US/docs/Web/API/Window/top
+            let sys = cc.sys;
+            if (sys.browserType === sys.BROWSER_TYPE_WECHAT && sys.os === sys.OS_IOS) {
+                window.top && window.top.scrollTo(0, 0);
+                return;
+            }
+
             window.scrollTo(0, 0);
         }, DELAY_TIME);
     },
@@ -461,7 +476,7 @@ Object.assign(WebEditBoxImpl.prototype, {
     // style sheet
     _initStyleSheet () {
         let elem = this._elem;
-        elem.style.opacity = 0;
+        elem.style.display = 'none';
         elem.style.border = 0;
         elem.style.background = 'transparent';
         elem.style.width = '100%';
@@ -568,7 +583,7 @@ Object.assign(WebEditBoxImpl.prototype, {
             && this._placeholderLabelFontSize === placeholderLabel.fontSize
             && this._placeholderLabelFontColor === placeholderLabel.fontColor
             && this._placeholderLabelAlign === placeholderLabel.horizontalAlign
-            && this._placeholderLineHeight === placeholderLabel.lineHeight) {
+            && this._placeholderLineHeight === placeholderLabel.fontSize) {
                 return;
         }
 
@@ -577,7 +592,7 @@ Object.assign(WebEditBoxImpl.prototype, {
         this._placeholderLabelFontSize = placeholderLabel.fontSize;
         this._placeholderLabelFontColor = placeholderLabel.fontColor;
         this._placeholderLabelAlign = placeholderLabel.horizontalAlign;
-        this._placeholderLineHeight = placeholderLabel.lineHeight;
+        this._placeholderLineHeight = placeholderLabel.fontSize;
 
         let styleEl = this._placeholderStyleSheet;
         // font size
@@ -585,7 +600,7 @@ Object.assign(WebEditBoxImpl.prototype, {
         // font color
         let fontColor = placeholderLabel.node.color.toCSS('rgba');
         // line height
-        let lineHeight = placeholderLabel.lineHeight;
+        let lineHeight = placeholderLabel.fontSize;  // top vertical align by default
         // horizontal align
         let horizontalAlign;
         switch (placeholderLabel.horizontalAlign) {
@@ -651,10 +666,6 @@ Object.assign(WebEditBoxImpl.prototype, {
             }
             impl._delegate.editBoxTextChanged(elem.value);
         };
-
-        cbs.onFocus = function () {
-            impl.beginEditing()
-        };
         
         // There are 2 ways to focus on the input element:
         // Click the input element, or call input.focus().
@@ -666,33 +677,37 @@ Object.assign(WebEditBoxImpl.prototype, {
                     impl._adjustWindowScroll();
                 }
             }
-            // If has last focused input, should call lastInput.blur() explicitly.
-            else if (_currentEditBoxImpl && _currentEditBoxImpl !== impl) {
-                _currentEditBoxImpl._elem.blur();
-            }
         };
         
-        cbs.onKeypress = function (e) {
+        cbs.onKeydown = function (e) {
             if (e.keyCode === macro.KEY.enter) {
                 e.stopPropagation();
                 impl._delegate.editBoxEditingReturn();
 
                 if (!impl._isTextArea) {
-                    elem.blur();  // hide keyboard and call endEditing()
+                    elem.blur();
                 }
+            }
+            else if (e.keyCode === macro.KEY.tab) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                tabIndexUtil.next(impl);
             }
         };
 
         cbs.onBlur = function () {
-            impl.endEditing();
+            impl._editing = false;
+            _currentEditBoxImpl = null;
+            impl._hideDom();
+            impl._delegate.editBoxEditingDidEnded();
         };
 
 
         elem.addEventListener('compositionstart', cbs.compositionStart);
         elem.addEventListener('compositionend', cbs.compositionEnd);
         elem.addEventListener('input', cbs.onInput);
-        elem.addEventListener('focus', cbs.onFocus);
-        elem.addEventListener('keypress', cbs.onKeypress);
+        elem.addEventListener('keydown', cbs.onKeydown);
         elem.addEventListener('blur', cbs.onBlur);
         elem.addEventListener('touchstart', cbs.onClick);
     },
@@ -704,16 +719,14 @@ Object.assign(WebEditBoxImpl.prototype, {
         elem.removeEventListener('compositionstart', cbs.compositionStart);
         elem.removeEventListener('compositionend', cbs.compositionEnd);
         elem.removeEventListener('input', cbs.onInput);
-        elem.removeEventListener('focus', cbs.onFocus);
-        elem.removeEventListener('keypress', cbs.onKeypress);
+        elem.removeEventListener('keydown', cbs.onKeydown);
         elem.removeEventListener('blur', cbs.onBlur);
         elem.removeEventListener('touchstart', cbs.onClick);
         
         cbs.compositionStart = null;
         cbs.compositionEnd = null;
         cbs.onInput = null;
-        cbs.onFocus = null;
-        cbs.onKeypress = null;
+        cbs.onKeydown = null;
         cbs.onBlur = null;
         cbs.onClick = null;
     },

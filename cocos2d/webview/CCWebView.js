@@ -80,7 +80,7 @@ let WebView = cc.Class({
          * @property {String} url
          */
         url: {
-            type: String,
+            type: cc.String,
             tooltip: CC_DEV && 'i18n:COMPONENT.webview.url',
             get: function () {
                 return this._url;

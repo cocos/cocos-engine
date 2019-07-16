@@ -32,6 +32,7 @@ const Label = require('../../../components/CCLabel');
 const LabelOutline = require('../../../components/CCLabelOutline');
 const LabelShadow = require('../../../components/CCLabelShadow');
 const Overflow = Label.Overflow;
+const deleteFromDynamicAtlas = require('../utils').deleteFromDynamicAtlas;
 
 const MAX_SIZE = 2048;
 const _invisibleAlpha = (1 / 255).toFixed(3);
@@ -209,8 +210,6 @@ export default class TTFAssembler extends Assembler2D {
         _outlineComp = (_outlineComp && _outlineComp.enabled && _outlineComp.width > 0) ? _outlineComp : null;
         if (_outlineComp) {
             _outlineColor.set(_outlineComp.color);
-            // TODO: temporary solution, cascade opacity for outline color
-            _outlineColor.a = _outlineColor.a * comp.node.color.a / 255.0;
         }
 
         // shadow
@@ -354,12 +353,12 @@ export default class TTFAssembler extends Assembler2D {
 
     _calDynamicAtlas (comp) {
         if(comp.cacheMode !== Label.CacheMode.BITMAP) return;
-
         let frame = comp._frame;
+        // Delete cache in atlas.
+        deleteFromDynamicAtlas(comp, frame);
         if (!frame._original) {
             frame.setRect(cc.rect(0, 0, _canvas.width, _canvas.height));
         }
-        // Add font images to the dynamic atlas for batch rendering.
         this.packToDynamicAtlas(comp, frame);
     }
 
@@ -392,7 +391,7 @@ export default class TTFAssembler extends Assembler2D {
         _canvasSize.width = Math.min(_canvasSize.width, MAX_SIZE);
         _canvasSize.height = Math.min(_canvasSize.height, MAX_SIZE);
 
-        if (_canvas.width !== _canvasSize.width || CC_QQPLAY) {
+        if (_canvas.width !== _canvasSize.width) {
             _canvas.width = _canvasSize.width;
         }
 

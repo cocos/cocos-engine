@@ -1273,7 +1273,7 @@ let TiledLayer = cc.Class({
 
             let material = this.sharedMaterials[i];
             if (!material) {
-                material = Material.getInstantiatedBuiltinMaterial('sprite', this);
+                material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
             }
             else {
                 material = Material.getInstantiatedMaterial(material, this);

@@ -35,12 +35,6 @@ function loadDomAudio (item, callback) {
     var dom = document.createElement('audio');
     dom.src = item.url;
 
-    const isBaiduGame = (cc.sys.platform === cc.sys.BAIDU_GAME);
-    if (CC_WECHATGAME || isBaiduGame) {
-        callback(null, dom);
-        return;
-    }
-
     var clearEvent = function () {
         clearTimeout(timer);
         dom.removeEventListener("canplaythrough", success, false);

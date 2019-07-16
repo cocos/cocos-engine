@@ -911,11 +911,14 @@ cc.RotateTo = cc.Class({
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
 
-        this._startAngle = target.angle % 360;
-        let angle = this._dstAngle - this._startAngle;
+        let startAngle = target.angle % 360;
+
+        let angle = cc.macro.ROTATE_ACTION_CCW ? (this._dstAngle - startAngle) : (this._dstAngle + startAngle);
         if (angle > 180) angle -= 360;
         if (angle < -180) angle += 360;
-        this._angle = angle;
+
+        this._startAngle = startAngle;
+        this._angle = cc.macro.ROTATE_ACTION_CCW ? angle : -angle;
     },
 
     reverse:function () {
@@ -963,7 +966,9 @@ cc.RotateBy = cc.Class({
     extends: cc.ActionInterval,
 
     ctor: function (duration, deltaAngle) {
-        this._deltaAngle = cc.v3();
+        deltaAngle *= cc.macro.ROTATE_ACTION_CCW ? 1 : -1;
+
+        this._deltaAngle = 0;
         this._startAngle = 0;
         deltaAngle !== undefined && this.initWithDuration(duration, deltaAngle);
     },

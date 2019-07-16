@@ -43,8 +43,11 @@ function generateAtlas () {
         textureHeight = 256;
 
     let canvas = document.createElement("canvas");
-    canvas.style.width = canvas.width = textureWidth;
-    canvas.style.height = canvas.height = textureHeight;
+    canvas.width = textureWidth;
+    canvas.height = textureHeight;
+
+    canvas.style.width = textureWidth + 'px';
+    canvas.style.height = textureHeight + 'px';
 
     // comment out this to show atlas
     // document.body.appendChild(canvas)

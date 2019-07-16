@@ -128,16 +128,15 @@ intersect.rayMesh = (function () {
             if (subMeshes[i]._primitiveType !== gfx.PT_TRIANGLES) continue;
 
             let subData = (mesh._subDatas[i] || mesh._subDatas[0]);
-            let vb = subData.vb;
             let vbData = subData.vData;
             let dv = new DataView(vbData.buffer, vbData.byteOffset, vbData.byteLength);
             let iData = subData.iData;
 
-            let format = vb.buffer._format;
+            let format = subData.vfm;
             let fmt = format.element(gfx.ATTR_POSITION);
             let offset = fmt.offset, stride = fmt.stride;
             let fn = _compType2fn[fmt.type];
-            for (let i = 0; i < ib.length; i += 3) {
+            for (let i = 0; i < iData.length; i += 3) {
                 getVec3(tri.a, dv, fn, 4, iData[i]   * stride + offset);
                 getVec3(tri.b, dv, fn, 4, iData[i+1] * stride + offset);
                 getVec3(tri.c, dv, fn, 4, iData[i+2] * stride + offset);
@@ -248,7 +247,7 @@ intersect.raycast = (function () {
             }
 
             if (distanceValid(distance)) {
-                vec3.set(d, distance, 0, 0);
+                vec3.scale(d, modelRay.d, distance);
                 transformMat4Normal(d, d, m4_1);
                 let res = resultsPool.add();
                 res.node = node;

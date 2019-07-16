@@ -453,15 +453,13 @@ var Sprite = cc.Class({
         // make sure material is belong to self.
         let material = this.sharedMaterials[0];
         if (!material) {
-            material = Material.getInstantiatedBuiltinMaterial('sprite', this);
-            material.define('USE_TEXTURE', true);
+            material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
         }
         else {
             material = Material.getInstantiatedMaterial(material, this);
         }
         
-        let texture = spriteFrame.getTexture();
-        material.setProperty('texture', texture);
+        material.setProperty('texture', spriteFrame.getTexture());
 
         this.setMaterial(0, material);
         this.markForRender(true);

@@ -33,7 +33,7 @@ let logList;
  * @module cc
  */
 
-cc.log = cc.warn = cc.error = cc.assert = console.log;
+cc.log = cc.warn = cc.error = cc.assert = console.log.bind ? console.log.bind(console) : console.log;
 
 let resetDebugSetting = function (mode) {
     // reset

@@ -137,8 +137,8 @@ cc.renderer = module.exports = {
             this._flow.init(this._handle, this._forward);
         }
         config.addStage('shadowcast');
-        config.addStage('transparent');
         config.addStage('opaque');
+        config.addStage('transparent');
     },
 
     initCanvas (canvas) {
@@ -189,6 +189,6 @@ cc.renderer = module.exports = {
 
     clear () {
         this._handle.reset();
-        this._forward._reset();
+        this._forward.clear();
     }
 };

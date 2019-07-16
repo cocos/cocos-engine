@@ -38,13 +38,13 @@ let textureUtil = {
         var tex = cc.loader.getRes(url);
         if (tex) {
             if (tex.loaded) {
-                cb && cb.call(target, tex);
+                cb && cb.call(target, null, tex);
                 return tex;
             }
             else
             {
                 tex.once("load", function(){
-                   cb && cb.call(target, tex);
+                   cb && cb.call(target, null, tex);
                 }, target);
                 return tex;
             }
