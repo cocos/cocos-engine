@@ -9,7 +9,7 @@ uniform DIFFUSE {
 #endif
 
 void MULTIPLY_DIFFUSE_TEXTRUE_COLOR (inout vec4 color, in vec2 uv) {
-  #if USE_DIFFUSE_TEXTURE && _USE_ATTRIBUTE_UV0
+  #if USE_DIFFUSE_TEXTURE && CC_USE_ATTRIBUTE_UV0
     vec4 diffuseTextureColor = texture2D(diffuseTexture, uv);
     #if _USE_ETC1_DIFFUSETEXTURE
       diffuseTextureColor.a *= texture2D(diffuseTexture, uv + vec2(0, 0.5)).r;
@@ -19,9 +19,9 @@ void MULTIPLY_DIFFUSE_TEXTRUE_COLOR (inout vec4 color, in vec2 uv) {
 }
 
 void MULTIPLY_DIFFUSE_TEXTRUE_COLOR (inout vec4 color) {
-  #if USE_DIFFUSE_TEXTURE && _USE_ATTRIBUTE_UV0
+  #if USE_DIFFUSE_TEXTURE && CC_USE_ATTRIBUTE_UV0
     
-    #if _IS_VERT_SHADER
+    #if CC_IS_VERT_SHADER
       vec2 uv = a_uv0;
     #else
       vec2 uv = v_uv0;

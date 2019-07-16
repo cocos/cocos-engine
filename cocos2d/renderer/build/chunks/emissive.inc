@@ -12,7 +12,7 @@
 #endif
 
 void MULTIPLY_EMISSIVE_TEXTRUE_COLOR (inout vec3 color, in vec2 uv) {
-  #if USE_EMISSIVE_TEXTURE && _USE_ATTRIBUTE_UV0
+  #if USE_EMISSIVE_TEXTURE && CC_USE_ATTRIBUTE_UV0
     vec4 emissiveTextureColor = texture2D(emissiveTexture, uv);
     #if _USE_ETC1_EMISSIVETEXTURE
       emissiveTextureColor.a *= texture2D(emissiveTexture, uv + vec2(0, 0.5)).r;
@@ -23,9 +23,9 @@ void MULTIPLY_EMISSIVE_TEXTRUE_COLOR (inout vec3 color, in vec2 uv) {
 }
 
 void MULTIPLY_EMISSIVE_TEXTRUE_COLOR (inout vec3 color) {
-  #if USE_EMISSIVE_TEXTURE && _USE_ATTRIBUTE_UV0
+  #if USE_EMISSIVE_TEXTURE && CC_USE_ATTRIBUTE_UV0
     
-    #ifdef _IS_VERT_SHADER
+    #ifdef CC_IS_VERT_SHADER
       vec2 uv = a_uv0;
     #else
       vec2 uv = v_uv0;

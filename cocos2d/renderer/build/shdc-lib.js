@@ -26,8 +26,8 @@ const layoutRE = /layout\(.*?\)/g;
 const layoutExtract = /layout\((.*?)\)(\s*)$/;
 const bindingExtract = /binding\s*=\s*(\d+)/;
 
-const vertHeader = '#define _IS_FRAG_SHADER 0\n#define _IS_VERT_SHADER 1\n';
-const fragHeader = '#define _IS_FRAG_SHADER 1\n#define _IS_VERT_SHADER 0\n';
+const vertHeader = '#define CC_IS_FRAG_SHADER 0\n#define CC_IS_VERT_SHADER 1\n';
+const fragHeader = '#define CC_IS_FRAG_SHADER 1\n#define CC_IS_VERT_SHADER 0\n';
 
 
 let effectName = '', shaderName = '';

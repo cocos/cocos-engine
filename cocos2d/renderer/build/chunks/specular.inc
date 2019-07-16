@@ -12,7 +12,7 @@
 #endif
 
 void MULTIPLY_SPECULAR_TEXTRUE_COLOR (inout vec3 color, in vec2 uv) {
-  #if USE_SPECULAR_TEXTURE && _USE_ATTRIBUTE_UV0
+  #if USE_SPECULAR_TEXTURE && CC_USE_ATTRIBUTE_UV0
     vec4 specularTextureColor = texture2D(specularTexture, uv);
     specularTextureColor = TEXEL_TO_LINEAR(specularTextureColor);
     color *= specularTextureColor.rgb;
@@ -20,9 +20,9 @@ void MULTIPLY_SPECULAR_TEXTRUE_COLOR (inout vec3 color, in vec2 uv) {
 }
 
 void MULTIPLY_SPECULAR_TEXTRUE_COLOR (inout vec3 color) {
-  #if USE_SPECULAR_TEXTURE && _USE_ATTRIBUTE_UV0
+  #if USE_SPECULAR_TEXTURE && CC_USE_ATTRIBUTE_UV0
     
-    #ifdef _IS_VERT_SHADER
+    #ifdef CC_IS_VERT_SHADER
       vec2 uv = a_uv0;
     #else
       vec2 uv = v_uv0;

@@ -283,9 +283,9 @@ let MeshRenderer = cc.Class({
         if (!subDatas) return;
 
         let vfm = subDatas[0].vfm;
-        this._customProperties.define('_USE_ATTRIBUTE_COLOR', !!vfm.element(gfx.ATTR_COLOR));
-        this._customProperties.define('_USE_ATTRIBUTE_UV0', !!vfm.element(gfx.ATTR_UV0));
-        this._customProperties.define('_USE_ATTRIBUTE_NORMAL', !!vfm.element(gfx.ATTR_NORMAL));
+        this._customProperties.define('CC_USE_ATTRIBUTE_COLOR', !!vfm.element(gfx.ATTR_COLOR));
+        this._customProperties.define('CC_USE_ATTRIBUTE_UV0', !!vfm.element(gfx.ATTR_UV0));
+        this._customProperties.define('CC_USE_ATTRIBUTE_NORMAL', !!vfm.element(gfx.ATTR_NORMAL));
 
         this._wireFrameDatas.length = 0;
 

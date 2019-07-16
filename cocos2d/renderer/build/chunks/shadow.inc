@@ -17,7 +17,7 @@
   varying float v_depth[MAX_SHADOW_LIGHTS];
 #endif
 
-#if _IS_VERT_SHADER
+#if CC_IS_VERT_SHADER
 
   void CLAC_SHADOW (vec3 worldPos) {
     #if CC_USE_SHADOW_MAP
