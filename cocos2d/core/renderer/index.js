@@ -44,6 +44,8 @@ function _initBuiltins(device) {
   
     return {
         defaultTexture: defaultTexture,
+        programTemplates: [],
+        programChunks: {},
     };
 }
 
