@@ -63,7 +63,8 @@ function downloadSimulatorDLL(callback) {
     Download('http://192.168.52.109/TestBuilds/Fireball/simulator/dlls/dll.zip', destPath, {
         mode: '755',
         extract: true,
-        strip: 0
+        strip: 0,
+        agent: null,
     }).then(function(res) {
         callback();
     }).catch(callback);

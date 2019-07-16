@@ -47,6 +47,11 @@ extern "C" {
 JNIEXPORT jint JNICALL JNI_JSJAVABRIDGE(evalString)
         (JNIEnv *env, jclass cls, jstring value)
 {
+    if (!se::ScriptEngine::getInstance()->isValid()) {
+        CCLOG("ScriptEngine has not been initialized");
+        return 0;
+    }
+
     se::AutoHandleScope hs;
     bool strFlag = false;
     std::string strValue = cocos2d::StringUtils::getStringUTFCharsJNI(env, value, &strFlag);

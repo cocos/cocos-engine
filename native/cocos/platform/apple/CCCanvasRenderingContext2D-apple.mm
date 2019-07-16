@@ -23,7 +23,6 @@
 #endif
 
 #include <regex>
-
 enum class CanvasTextAlign {
     LEFT,
     CENTER,
@@ -301,21 +300,15 @@ enum class CanvasTextBaseline {
         point.y += _fontSize / 2.0f;
     }
 
+    // Since the web platform cannot get the baseline of the font, an additive offset is performed for all platforms.
+    // That's why we should add baseline back again on other platforms
 #if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
-    // We use font size to calculate text height, but 'drawPointAt' method on macOS is based on
-    // the real font height and in bottom-left position, add the adjust value to make the text inside text rectangle.
-    point.y += (textSize.height - _fontSize) / 2.0f;
+    point.y -= _font.descender;
 
     // The origin on macOS is bottom-left by default, so we need to convert y from top-left origin to bottom-left origin.
     point.y = _height - point.y;
 #else
-    // The origin of drawing text on iOS is from top-left, but now we get bottom-left,
-    // So, we need to substract the font size to convert 'point' to top-left.
-    point.y -= _fontSize;
-
-    // We use font size to calculate text height, but 'drawPointAt' method on iOS is based on
-    // the real font height and in top-left position, substract the adjust value to make text inside text rectangle.
-    point.y -= (textSize.height - _fontSize) / 2.0f;
+    point.y -= _font.ascender;
 #endif
     return point;
 }
@@ -329,7 +322,6 @@ enum class CanvasTextBaseline {
     NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
     paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
 
-    [_tokenAttributesDict removeObjectForKey:NSStrokeWidthAttributeName];
     [_tokenAttributesDict removeObjectForKey:NSStrokeColorAttributeName];
 
     [_tokenAttributesDict setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
@@ -369,8 +361,6 @@ enum class CanvasTextBaseline {
     [_tokenAttributesDict removeObjectForKey:NSForegroundColorAttributeName];
 
     [_tokenAttributesDict setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
-    [_tokenAttributesDict setObject:[NSNumber numberWithFloat: _lineWidth * 2]
-                            forKey:NSStrokeWidthAttributeName];
     [_tokenAttributesDict setObject:[NSColor colorWithRed:_strokeStyle.r
                                                     green:_strokeStyle.g
                                                      blue:_strokeStyle.b
@@ -380,7 +370,8 @@ enum class CanvasTextBaseline {
 
     // text color
     CGContextSetRGBFillColor(_context, _fillStyle.r, _fillStyle.g, _fillStyle.b, _fillStyle.a);
-
+    CGContextSetLineWidth(_context, _lineWidth);
+    CGContextSetLineJoin(_context, kCGLineJoinRound);
     CGContextSetShouldSubpixelQuantizeFonts(_context, false);
     CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
 
@@ -530,6 +521,33 @@ void CanvasGradient::addColorStop(float offset, const std::string& color)
 
 // CanvasRenderingContext2D
 
+namespace
+{
+#define CLAMP(V, LO, HI) std::min(std::max( (V), (LO) ), (HI) )
+    void unMultiplyAlpha(unsigned char* ptr, ssize_t size)
+    {
+        char alpha;
+        for (int i = 0; i < size; i += 4)
+        {
+            alpha = ptr[i + 3];
+            if (alpha > 0)
+            {
+                ptr[i] = CLAMP(ptr[i] / alpha * 255, 0, 255);
+                ptr[i+1] = CLAMP(ptr[i+1] / alpha * 255, 0, 255);
+                ptr[i+2] =  CLAMP(ptr[i+2] / alpha * 255, 0, 255);
+            }
+        }
+    }
+}
+
+#define SEND_DATA_TO_JS(CB, IMPL) \
+if (CB) \
+{ \
+    auto& data = [IMPL getDataRef]; \
+    unMultiplyAlpha(data.getBytes(), data.getSize() ); \
+    CB(data); \
+}
+
 CanvasRenderingContext2D::CanvasRenderingContext2D(float width, float height)
 : __width(width)
 , __height(height)
@@ -552,8 +570,7 @@ void CanvasRenderingContext2D::recreateBufferIfNeeded()
         _isBufferSizeDirty = false;
 //        SE_LOGD("CanvasRenderingContext2D::recreateBufferIfNeeded %p, w: %f, h:%f\n", this, __width, __height);
         [_impl recreateBufferWithWidth: __width height:__height];
-        if (_canvasBufferUpdatedCB != nullptr)
-            _canvasBufferUpdatedCB([_impl getDataRef]);
+        SEND_DATA_TO_JS(_canvasBufferUpdatedCB, _impl);
     }
 }
 
@@ -568,11 +585,7 @@ void CanvasRenderingContext2D::fillRect(float x, float y, float width, float hei
 {
     recreateBufferIfNeeded();
     [_impl fillRect:CGRectMake(x, y, width, height)];
-
-    if (_canvasBufferUpdatedCB != nullptr)
-    {
-        _canvasBufferUpdatedCB([_impl getDataRef]);
-    }
+    SEND_DATA_TO_JS(_canvasBufferUpdatedCB, _impl);
 }
 
 void CanvasRenderingContext2D::fillText(const std::string& text, float x, float y, float maxWidth)
@@ -584,8 +597,7 @@ void CanvasRenderingContext2D::fillText(const std::string& text, float x, float 
     recreateBufferIfNeeded();
 
     [_impl fillText:[NSString stringWithUTF8String:text.c_str()] x:x y:y maxWidth:maxWidth];
-    if (_canvasBufferUpdatedCB != nullptr)
-        _canvasBufferUpdatedCB([_impl getDataRef]);
+    SEND_DATA_TO_JS(_canvasBufferUpdatedCB, _impl);
 }
 
 void CanvasRenderingContext2D::strokeText(const std::string& text, float x, float y, float maxWidth)
@@ -596,9 +608,7 @@ void CanvasRenderingContext2D::strokeText(const std::string& text, float x, floa
     recreateBufferIfNeeded();
 
     [_impl strokeText:[NSString stringWithUTF8String:text.c_str()] x:x y:y maxWidth:maxWidth];
-
-    if (_canvasBufferUpdatedCB != nullptr)
-        _canvasBufferUpdatedCB([_impl getDataRef]);
+    SEND_DATA_TO_JS(_canvasBufferUpdatedCB, _impl);
 }
 
 cocos2d::Size CanvasRenderingContext2D::measureText(const std::string& text)
@@ -641,9 +651,7 @@ void CanvasRenderingContext2D::lineTo(float x, float y)
 void CanvasRenderingContext2D::stroke()
 {
     [_impl stroke];
-
-    if (_canvasBufferUpdatedCB != nullptr)
-        _canvasBufferUpdatedCB([_impl getDataRef]);
+    SEND_DATA_TO_JS(_canvasBufferUpdatedCB, _impl);
 }
 
 void CanvasRenderingContext2D::fill()

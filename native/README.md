@@ -3,7 +3,7 @@ Cocos2d-x, compact version
 
 <a href="https://travis-ci.org/cocos-creator/cocos2d-x-lite"><img src="https://travis-ci.org/cocos-creator/cocos2d-x-lite.svg?branch=develop " alt="Build Status"></a>
 
-It is based on [cocos2d-x](https://github.com/cocos2d/cocos2d-x)[version 3.9], but remove 3D and other features. It works on iOS,OS X, Android and Windows.
+It is based on [cocos2d-x](https://github.com/cocos2d/cocos2d-x)[version 3.9], but remove 3D and other features. It works on iOS, Android, macOS and Windows.
 
 ------------------------------------------------
 
@@ -43,19 +43,15 @@ Git user attention
 1. Clone the repo from GitHub.
 
        $ git clone https://github.com/cocos-creator/cocos2d-x-lite.git
-
-2. After cloning the repo, please execute `download-deps.py` to download and install dependencies.
-
        $ cd cocos2d-x-lite
-       $ python download-deps.py
-
-3. After running `download-deps.py`.
-
-       $ git submodule update --init
-
-4. Build simulator
-
        $ npm install
+
+2. After cloning the repo, please execute `gulp init` to download and install dependencies.
+
+       $ gulp init
+
+3. Build simulator
+
        $ gulp gen-simulator
        $ gulp update-simulator-config
 

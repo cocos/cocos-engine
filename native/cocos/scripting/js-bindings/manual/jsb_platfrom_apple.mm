@@ -112,6 +112,13 @@ static bool JSB_loadFont(se::State& s)
         ok &= seval_to_std_string(args[0], &originalFamilyName);
         SE_PRECONDITION2(ok, false, "JSB_loadFont : Error processing argument: originalFamilyName");
 
+        // Don't reload font again to avoid memory leak.
+        if (_fontFamilyNameMap.find(originalFamilyName) != _fontFamilyNameMap.end())
+        {
+            s.rval().setString(_fontFamilyNameMap[originalFamilyName]);
+            return true;
+        }
+
         std::string source;
         ok &= seval_to_std_string(args[1], &source);
         SE_PRECONDITION2(ok, false, "JSB_loadFont : Error processing argument: source");

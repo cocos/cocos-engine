@@ -28,6 +28,8 @@
 
 typedef void (*EditTextCallback)(const std::string& text, void* ctx);
 
+extern bool getApplicationExited();
+
 extern void restartJSVM();
 extern void exitApplication();
 
@@ -48,3 +50,4 @@ extern void setGameInfoDebugViewTextJNI(int index, const std::string& text);
 extern void setJSBInvocationCountJNI(int count);
 extern void openDebugViewJNI();
 extern void disableBatchGLCommandsToNativeJNI();
+extern int getAndroidSDKInt();
