@@ -553,8 +553,10 @@ var properties = {
             return this._positionType;
         },
         set (val) {
-            if (this.sharedMaterials[0])
-                this.sharedMaterials[0].define('_USE_MODEL', val !== PositionType.FREE);
+            let material = this.getMaterial(0);
+            if (material) {
+                material.define('_USE_MODEL', val !== PositionType.FREE);
+            }
             this._positionType = val;
         }
     },
