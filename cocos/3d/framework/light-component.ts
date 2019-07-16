@@ -29,7 +29,6 @@
 
 import { Component } from '../../components/component';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { constget } from '../../core/data/utils/constget';
 import { Color, Enum } from '../../core/value-types';
 import { Light, LightType } from '../../renderer/scene/light';
 import { RenderScene } from '../../renderer/scene/render-scene';
@@ -61,7 +60,7 @@ export class LightComponent extends Component {
      * 光源颜色。
      */
     @property
-    @constget
+    // @constget
     get color (): Readonly<Color> {
         return this._color;
     }

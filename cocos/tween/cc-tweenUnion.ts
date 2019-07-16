@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { CCTweenAction } from './cc-tweenAction';
 
 export class CCTweenUnion {

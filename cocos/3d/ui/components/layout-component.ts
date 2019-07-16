@@ -30,7 +30,6 @@
 
 import { Component } from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { constget } from '../../../core/data/utils/constget';
 import { Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import { vec3 } from '../../../core/vmath';
@@ -217,7 +216,7 @@ export class LayoutComponent extends Component {
      * 每个格子的大小，只有布局类型为 GRID 的时候才有效。
      */
     @property
-    @constget
+    // @constget
     get cellSize (): Readonly<Size> {
         return this._cellSize;
     }

@@ -31,8 +31,7 @@
 
 import { SpriteFrame } from '../../../assets';
 import { Component, EventHandler as ComponentEventHandler } from '../../../components';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { constget } from '../../../core/data/utils/constget';
+import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { EventMouse, EventTouch, SystemEventType } from '../../../core/platform';
 import { lerp } from '../../../core/utils';
 import { Color, Vec3 } from '../../../core/value-types';
@@ -196,7 +195,7 @@ export class ButtonComponent extends Component {
      * 普通状态下按钮所显示的颜色。
      */
     @property
-    @constget
+    // @constget
     get normalColor (): Readonly<Color> {
         return this._normalColor;
     }
@@ -215,7 +214,7 @@ export class ButtonComponent extends Component {
      * 按下状态时按钮所显示的颜色。
      */
     @property
-    @constget
+    // @constget
     get pressedColor (): Readonly<Color> {
         return this._pressColor;
     }
@@ -233,7 +232,7 @@ export class ButtonComponent extends Component {
      * 悬停状态下按钮所显示的颜色。
      */
     @property
-    @constget
+    // @constget
     get hoverColor (): Readonly<Color> {
         return this._hoverColor;
     }
@@ -250,7 +249,7 @@ export class ButtonComponent extends Component {
      * 禁用状态下按钮所显示的颜色。
      */
     @property
-    @constget
+    // @constget
     get disabledColor (): Readonly<Color> {
         return this._disabledColor;
     }

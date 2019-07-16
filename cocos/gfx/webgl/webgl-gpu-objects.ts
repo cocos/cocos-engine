@@ -138,7 +138,6 @@ export interface IWebGLGPUUniform {
     glLoc: WebGLUniformLocation;
     array: number[];
     begin: number;
-    isFirst: boolean;
 }
 
 export class WebGLGPUUniformBlock {

@@ -45,7 +45,7 @@ export default class Quat extends ValueType {
      * @param out 当此参数定义时，本方法将插值结果赋值给此参数并返回此参数。
      */
     public static lerp (out: Quat, from: Quat, to: Quat, ratio: number) {
-        xquat.slerp(out, from, to, ratio);
+        return xquat.slerp(out, from, to, ratio);
     }
 
     /**

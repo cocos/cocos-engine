@@ -46,7 +46,7 @@ export default class Vec3 extends ValueType {
      * @param ratio 插值比率，范围为 [0,1]。
      */
     public static lerp (out: Vec3, from: Vec3, to: Vec3, ratio: number) {
-        vec3.lerp(out, from, to, ratio);
+        return vec3.lerp(out, from, to, ratio);
     }
 
     /**

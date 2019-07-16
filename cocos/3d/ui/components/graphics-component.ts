@@ -29,7 +29,6 @@
  */
 
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { constget } from '../../../core/data/utils/constget';
 import { Color } from '../../../core/value-types';
 import { Model } from '../../../renderer';
 import { UI } from '../../../renderer/ui/ui';
@@ -111,7 +110,7 @@ export class GraphicsComponent extends UIRenderComponent {
      * 线段颜色。
      */
     @property
-    @constget
+    // @constget
     get strokeColor (): Readonly<Color> {
         return this._strokeColor;
     }
@@ -130,7 +129,7 @@ export class GraphicsComponent extends UIRenderComponent {
      * 填充颜色。
      */
     @property
-    @constget
+    // @constget
     get fillColor (): Readonly<Color> {
         return this._fillColor;
     }

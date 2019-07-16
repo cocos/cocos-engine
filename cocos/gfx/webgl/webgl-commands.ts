@@ -1252,7 +1252,6 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
                     glLoc: -1,
                     array,
                     begin,
-                    isFirst: true,
                 };
 
                 glBlock.size += size;
@@ -1952,7 +1951,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                 case gl.FLOAT: {
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
-                                                        if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
+                                                        if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
                                                             for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
                                                                 glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
                                                             }
@@ -1965,7 +1964,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                 case gl.FLOAT_VEC2: {
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
-                                                        if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
+                                                        if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
                                                             for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
                                                                 glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
                                                             }
@@ -1978,7 +1977,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                 case gl.FLOAT_VEC3: {
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
-                                                        if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
+                                                        if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
                                                             for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
                                                                 glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
                                                             }
@@ -1991,7 +1990,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                 case gl.FLOAT_VEC4: {
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
-                                                        if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
+                                                        if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
                                                             for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
                                                                 glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
                                                             }
@@ -2004,7 +2003,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                 case gl.FLOAT_MAT2: {
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
-                                                        if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
+                                                        if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
                                                             for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
                                                                 glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
                                                             }
@@ -2017,7 +2016,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                 case gl.FLOAT_MAT3: {
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
-                                                        if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
+                                                        if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
                                                             for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
                                                                 glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
                                                             }
@@ -2030,7 +2029,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                 case gl.FLOAT_MAT4: {
                                                     for (let u = 0; u < glUniform.array.length; ++u) {
                                                         const idx = glUniform.begin + u;
-                                                        if (CmpF32NotEuqal(gpuBinding.gpuBuffer.vf32[idx], glUniform.array[u])) {
+                                                        if (gpuBinding.gpuBuffer.vf32[idx] !== glUniform.array[u]) {
                                                             for (let n = u, m = glUniform.begin + u; n < glUniform.array.length; ++n, ++m) {
                                                                 glUniform.array[n] = gpuBinding.gpuBuffer.vf32[m];
                                                             }

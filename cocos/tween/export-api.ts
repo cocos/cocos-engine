@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 
 export type CCEasing = 'LinearNone' |
 'Quadratic-In'   | 'Quadratic-Out'   | 'Quadratic-InOut'   |

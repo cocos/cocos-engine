@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import TWEEN from 'tween.js';
 import { ICCTweenOption, ICCTweenProp } from './export-api';
 

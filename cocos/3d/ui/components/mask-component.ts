@@ -30,7 +30,6 @@
 
 import { SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property} from '../../../core/data/class-decorator';
-import { constget } from '../../../core/data/utils/constget';
 import { SystemEventType } from '../../../core/platform';
 import { Color, Mat4, Size, Vec2, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
@@ -238,7 +237,7 @@ export class MaskComponent extends UIRenderComponent {
         visible: false,
         override: true,
     })
-    @constget
+    // @constget
     get color (): Readonly<Color> {
         return this._color;
     }

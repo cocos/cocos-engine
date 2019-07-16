@@ -29,7 +29,6 @@
 
 import { Component } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { constget } from '../../../core/data/utils/constget';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { EventListener, ILinstenerMask } from '../../../core/platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
@@ -61,7 +60,7 @@ export class UITransformComponent extends Component {
     @property({
         displayOrder: 0,
     })
-    @constget
+    // @constget
     get contentSize (): Readonly<Size> {
         return this._contentSize;
     }
@@ -139,7 +138,7 @@ export class UITransformComponent extends Component {
     @property({
         displayOrder: 1,
     })
-    @constget
+    // @constget
     get anchorPoint (): Readonly<Vec2> {
         return this._anchorPoint;
     }

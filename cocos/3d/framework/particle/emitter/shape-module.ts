@@ -61,7 +61,7 @@ export default class ShapeModule {
      * @zh 粒子发射器位置。
      */
     @property({
-        displayOrder: 12,
+        displayOrder: 13,
     })
     get position () {
         return this._position;
@@ -78,7 +78,7 @@ export default class ShapeModule {
      * @zh 粒子发射器旋转角度。
      */
     @property({
-        displayOrder: 13,
+        displayOrder: 14,
     })
     get rotation () {
         return this._rotation;
@@ -95,7 +95,7 @@ export default class ShapeModule {
      * @zh 粒子发射器缩放比例。
      */
     @property({
-        displayOrder: 14,
+        displayOrder: 15,
     })
     get scale () {
         return this._scale;
@@ -109,7 +109,7 @@ export default class ShapeModule {
      * @zh 根据粒子的初始方向决定粒子的移动方向。
      */
     @property({
-        displayOrder: 15,
+        displayOrder: 16,
     })
     public alignToDirection = false;
 
@@ -117,7 +117,7 @@ export default class ShapeModule {
      * @zh 粒子生成方向随机设定。
      */
     @property({
-        displayOrder: 16,
+        displayOrder: 17,
     })
     public randomDirectionAmount = 0;
 
@@ -125,7 +125,7 @@ export default class ShapeModule {
      * @zh 表示当前发射方向与当前位置到结点中心连线方向的插值。
      */
     @property({
-        displayOrder: 17,
+        displayOrder: 18,
     })
     public sphericalDirectionAmount = 0;
 
@@ -133,7 +133,7 @@ export default class ShapeModule {
      * @zh 粒子生成位置随机设定（设定此值为非 0 会使粒子生成位置超出生成器大小范围）。
      */
     @property({
-        displayOrder: 18,
+        displayOrder: 19,
     })
     public randomPositionAmount = 0;
 
@@ -186,7 +186,7 @@ export default class ShapeModule {
      * @zh 控制可能产生粒子的弧周围的离散间隔。
      */
     @property({
-        displayOrder: 0,
+        displayOrder: 9,
     })
     public arcSpread = 8;
 
@@ -195,7 +195,7 @@ export default class ShapeModule {
      */
     @property({
         type: CurveRange,
-        displayOrder: 9,
+        displayOrder: 10,
     })
     public arcSpeed = new CurveRange();
 
@@ -222,7 +222,7 @@ export default class ShapeModule {
      * 决定圆锥发射器的高度。
      */
     @property({
-        displayOrder: 10,
+        displayOrder: 11,
     })
     public length = 0;
 
@@ -230,7 +230,7 @@ export default class ShapeModule {
      * @zh 粒子发射器发射位置（针对 Box 类型的粒子发射器）。
      */
     @property({
-        displayOrder: 11,
+        displayOrder: 12,
     })
     public boxThickness = new Vec3(0, 0, 0);
 
@@ -342,7 +342,7 @@ function hemisphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
         case EmitLocation.Shell:
             randomUnitVector(pos);
             vec3.scale(pos, pos, radius);
-            if (pos.z < 0) {
+            if (pos.z > 0) {
                 pos.z *= -1;
             }
             vec3.copy(dir, pos);

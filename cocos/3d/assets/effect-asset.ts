@@ -29,10 +29,12 @@
 
 import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
+import { Root } from '../../core/root';
 import { GFXDynamicState, GFXPrimitiveMode } from '../../gfx/define';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
 import { GFXUniformBlock, GFXUniformSampler } from '../../gfx/shader';
 import { RenderPassStage } from '../../pipeline/define';
+import { IDefineMap } from '../../renderer/core/pass';
 import { programLib } from '../../renderer/core/program-lib';
 
 export interface IPropertyInfo {
@@ -93,6 +95,9 @@ export interface IShaderInfo {
     samplers: ISamplerInfo[];
     dependencies: Record<string, string>;
 }
+export interface IPreCompileInfo {
+    [name: string]: boolean[] | number[] | string[];
+}
 
 const effects: Record<string, EffectAsset> = {};
 
@@ -102,11 +107,13 @@ const effects: Record<string, EffectAsset> = {};
  */
 @ccclass('cc.EffectAsset')
 export class EffectAsset extends Asset {
+
     /**
      * @zh
      * 将指定 effect 注册到全局管理器。
      */
     public static register (asset: EffectAsset) { effects[asset.name] = asset; }
+
     /**
      * @zh
      * 将指定 effect 从全局管理器移除。
@@ -120,6 +127,7 @@ export class EffectAsset extends Asset {
             }
         }
     }
+
     /**
      * @zh
      * 获取指定名字的 effect 资源。
@@ -133,6 +141,7 @@ export class EffectAsset extends Asset {
         }
         return null;
     }
+
     /**
      * @zh
      * 获取所有已注册的 effect 资源。
@@ -156,10 +165,18 @@ export class EffectAsset extends Asset {
 
     /**
      * @zh
+     * 每个 shader 需要预编译的宏定义组合。
+     */
+    @property
+    public combinations: IPreCompileInfo[] = [];
+
+    /**
+     * @zh
      * 通过 Loader 加载完成时的回调，将自动注册 effect 资源。
      */
     public onLoaded () {
         this.shaders.forEach((s) => programLib.define(s));
+        cc.game.once(cc.Game.EVENT_ENGINE_INITED, this._precompile, this);
         EffectAsset.register(this);
         // replace null with undefined
         this.techniques.forEach((t) => t.passes.forEach((p) => {
@@ -169,6 +186,22 @@ export class EffectAsset extends Asset {
                 prop.sampler = prop.sampler.map((s) => s === null ? undefined : s);
             }
         }));
+    }
+
+    protected _precompile () {
+        const root = cc.director.root as Root;
+        for (let i = 0; i < this.shaders.length; i++) {
+            const shader = this.shaders[i];
+            const combination = this.combinations[i];
+            if (!combination) { continue; }
+            Object.keys(combination).reduce((out, name) => out.reduce((acc, cur) => {
+                const choices = combination[name];
+                const next = [cur].concat([...Array(choices.length - 1)].map(() => Object.assign({}, cur)));
+                next.forEach((defines, idx) => defines[name] = choices[idx]);
+                return acc.concat(next);
+            }, [] as IDefineMap[]), [{}] as IDefineMap[]).forEach(
+                (defines) => programLib.getGFXShader(root.device, shader.name, defines, root.pipeline));
+        }
     }
 }
 

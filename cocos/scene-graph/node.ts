@@ -29,7 +29,6 @@
 
 import { UITransformComponent } from '../3d';
 import { ccclass, property } from '../core/data/class-decorator';
-import { constget } from '../core/data/utils/constget';
 import Event from '../core/event/event';
 import { eventManager } from '../core/platform/event-manager';
 import { SystemEventType } from '../core/platform/event-manager/event-enum';
@@ -411,7 +410,7 @@ export class Node extends BaseNode {
      * @zh
      * 本地坐标
      */
-    @constget
+    // @constget
     public get position (): Readonly<Vec3> {
         return this._lpos;
     }
@@ -487,7 +486,7 @@ export class Node extends BaseNode {
      * @zh
      * 本地旋转
      */
-    @constget
+    // @constget
     public get rotation (): Readonly<Quat> {
         return this._lrot;
     }
@@ -542,7 +541,7 @@ export class Node extends BaseNode {
      * @zh
      * 本地缩放
      */
-    @constget
+    // @constget
     public get scale (): Readonly<Vec3> {
         return this._lscale;
     }
@@ -609,7 +608,7 @@ export class Node extends BaseNode {
      * @zh
      * 世界坐标
      */
-    @constget
+    // @constget
     public get worldPosition (): Readonly<Vec3> {
         this.updateWorldTransform();
         return this._pos;
@@ -696,7 +695,7 @@ export class Node extends BaseNode {
      * @zh
      * 世界旋转
      */
-    @constget
+    // @constget
     public get worldRotation (): Readonly<Quat> {
         this.updateWorldTransform();
         return this._rot;
@@ -758,7 +757,7 @@ export class Node extends BaseNode {
      * @zh
      * 世界缩放
      */
-    @constget
+    // @constget
     public get worldScale (): Readonly<Vec3> {
         this.updateWorldTransform();
         return this._scale;
@@ -782,7 +781,7 @@ export class Node extends BaseNode {
      * @zh
      * 世界变换矩阵
      */
-    @constget
+    // @constget
     public get worldMatrix (): Readonly<Mat4> {
         this.updateWorldTransformFull();
         return this._mat;

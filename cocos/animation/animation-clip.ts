@@ -7,6 +7,7 @@ import { Asset, SpriteFrame } from '../assets';
 import { ccclass, property } from '../core/data/class-decorator';
 import { errorID } from '../core/platform/CCDebug';
 import binarySearchEpsilon from '../core/utils/binary-search';
+import { Node } from '../scene-graph';
 import { AnimCurve, IPropertyCurveData, RatioSampler } from './animation-curve';
 import { WrapMode as AnimationWrapMode } from './types';
 
@@ -156,24 +157,24 @@ export class AnimationClip extends Asset {
     public events: IAnimationEventData[] = [];
 
     @property
-    private _duration = 0;
+    protected _duration = 0;
 
     @property
-    private _keys: number[][] = [];
+    protected _keys: number[][] = [];
 
-    private _ratioSamplers: RatioSampler[] = [];
+    protected _ratioSamplers: RatioSampler[] = [];
 
-    private _propertyCurves?: IPropertyCurve[];
+    protected _propertyCurves?: IPropertyCurve[];
 
-    private _runtimeEvents?: {
+    protected _runtimeEvents?: {
         ratios: number[];
         eventGroups: IAnimationEventGroup[];
     };
 
-    private frameRate = 0;
+    protected frameRate = 0;
 
     @property
-    private _stepness = 0;
+    protected _stepness = 0;
 
     /**
      * 动画的周期。
@@ -198,17 +199,7 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * @private
-     */
-    get propertyCurves (): ReadonlyArray<IPropertyCurve> {
-        if (!this._propertyCurves) {
-            this._createPropertyCurves();
-        }
-        return this._propertyCurves!;
-    }
-
-    /**
-     * @private
+     * @protected
      */
     get eventGroups (): ReadonlyArray<IAnimationEventGroup> {
         if (!this._runtimeEvents) {
@@ -218,14 +209,14 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * @private
+     * @protected
      */
     get stepness () {
         return this._stepness;
     }
 
     /**
-     * @private
+     * @protected
      */
     set stepness (value) {
         this._stepness = value;
@@ -237,6 +228,13 @@ export class AnimationClip extends Asset {
         this.speed = this.speed;
         this.wrapMode = this.wrapMode;
         this.frameRate = this.sample;
+    }
+
+    public getPropertyCurves (root: Node): ReadonlyArray<IPropertyCurve> {
+        if (!this._propertyCurves) {
+            this._createPropertyCurves();
+        }
+        return this._propertyCurves!;
     }
 
     /**
@@ -251,7 +249,7 @@ export class AnimationClip extends Asset {
     /**
      * 提交事件数据的修改。
      * 当你修改了 `this.events` 时，必须调用 `this.updateEventDatas()` 使修改生效。
-     * @private
+     * @protected
      */
     public updateEventDatas () {
         delete this._runtimeEvents;
@@ -260,7 +258,7 @@ export class AnimationClip extends Asset {
     /**
      * Gets the event group shall be processed at specified ratio.
      * @param ratio The ratio.
-     * @private
+     * @protected
      */
     public getEventGroupIndexAtRatio (ratio: number): number {
         if (!this._runtimeEvents) {
@@ -272,13 +270,13 @@ export class AnimationClip extends Asset {
 
     /**
      * 返回本动画是否包含事件数据。
-     * @private
+     * @protected
      */
     public hasEvents () {
         return this.events.length !== 0;
     }
 
-    private _createPropertyCurves () {
+    protected _createPropertyCurves () {
         this._ratioSamplers = this._keys.map(
             (keys) => new RatioSampler(
                 keys.map(
@@ -317,7 +315,7 @@ export class AnimationClip extends Asset {
         this._applyStepness();
     }
 
-    private _createRuntimeEvents () {
+    protected _createRuntimeEvents () {
         if (CC_EDITOR) {
             return;
         }
@@ -347,7 +345,7 @@ export class AnimationClip extends Asset {
         };
     }
 
-    private _applyStepness () {
+    protected _applyStepness () {
         if (!this._propertyCurves) {
             return;
         }

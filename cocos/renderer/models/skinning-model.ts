@@ -28,7 +28,6 @@
  */
 
 import { Skeleton } from '../../3d/assets/skeleton';
-import { LCA } from '../../3d/misc/utils';
 import { Filter, PixelFormat, WrapMode } from '../../assets/asset-enum';
 import { Texture2D } from '../../assets/texture-2d';
 import { Mat4, Quat, Vec3 } from '../../core/value-types';
@@ -51,9 +50,9 @@ export enum JointsMediumType {
 }
 
 export function selectJointsMediumType (device: GFXDevice, jointCount: number): JointsMediumType {
-    if (jointCount <= JointUniformCapacity) {
+    /*if (jointCount <= JointUniformCapacity) {
         return JointsMediumType.UNIFORM;
-    } else if (device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
+    } else */if (device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
         return JointsMediumType.RGBA32F;
     } else {
         return JointsMediumType.RGBA8;
@@ -74,50 +73,10 @@ const _jointsFormat = {
     [JointsMediumType.RGBA32F]: PixelFormat.RGBA32F,
 };
 
-const v3_1 = new Vec3();
-const v3_2 = new Vec3();
 const qt_0 = new Quat();
 const qt_1 = new Quat();
-const qt_2 = new Quat();
 const m4_1 = new Mat4();
 const f4_1 = new Float32Array(4);
-
-export class Joint {
-    public node: Node;
-    public position: Vec3 = new Vec3();
-    public rotation: Quat = new Quat();
-    public scale: Vec3 = new Vec3(1, 1, 1);
-    public parent: Joint | null = null;
-    protected _lastUpdate = -1;
-    constructor (node: Node) { this.node = node; }
-    public update () {
-        const totalFrames = cc.director.getTotalFrames();
-        if (this._lastUpdate >= totalFrames) { return; }
-        this._lastUpdate = totalFrames;
-
-        const parent = this.parent;
-        if (parent) {
-            parent.update();
-            vec3.multiply(this.position, this.node.position, parent.scale);
-            vec3.transformQuat(this.position, this.position, parent.rotation);
-            vec3.add(this.position, this.position, parent.position);
-            quat.multiply(this.rotation, parent.rotation, this.node.rotation);
-            vec3.multiply(this.scale, parent.scale, this.node.scale);
-        }
-    }
-}
-
-class JointManager {
-    public static get (node: Node, root: Node) {
-        let joint = JointManager._joints.get(node);
-        if (joint) { return joint; }
-        joint = new Joint(node);
-        if (node !== root && node.parent) { joint.parent = JointManager.get(node.parent, root); }
-        JointManager._joints.set(node, joint);
-        return joint;
-    }
-    protected static _joints: Map<Node, Joint> = new Map();
-}
 
 export class SkinningModel extends Model {
     // change here and cc-skinning.inc to use other skinning algorithms
@@ -128,13 +87,12 @@ export class SkinningModel extends Model {
     }
 
     private _skeleton: Skeleton | null = null;
-    private _joints: Joint[] = [];
+    private _joints: Node[] = [];
     private _jointsMedium: IJointsInfo | null = null;
 
     constructor (scene: RenderScene, node: Node) {
         super(scene, node);
         this._type = 'skinning';
-        if (node.parent) { this._transform = node.parent; }
     }
 
     public bindSkeleton (skeleton: Skeleton | null) {
@@ -175,21 +133,28 @@ export class SkinningModel extends Model {
 
     public commitJointData () {
         if (!this._jointsMedium) { return; }
-        const { type, nativeData, buffer, texture } = this._jointsMedium;
-        if (type === JointsMediumType.UNIFORM) {
-            buffer.update(nativeData, UBOSkinning.MAT_JOINT_OFFSET);
+        if (this._jointsMedium.type === JointsMediumType.UNIFORM) {
+            this._jointsMedium.buffer.update(this._jointsMedium.nativeData, UBOSkinning.MAT_JOINT_OFFSET);
         } else {
-            texture!.uploadData(nativeData.buffer);
+            this._jointsMedium.texture!.uploadData(this._jointsMedium.nativeData.buffer);
         }
     }
 
     public updateUBOs () {
         if (!super.updateUBOs() || !this._skeleton) { return false; }
 
+        /* */
+        const len = this._joints.length;
+        for (let i = 0; i < len; ++i) {
+            const cur = this._joints[i];
+            this.updateJointData(i, cur.position, cur.rotation, cur.scale);
+        }
+        /* *
         const len = this._joints.length;
         if (this._skeleton.bindTRS.length) { // TODO: pre-apply this into animation clip
             for (let i = 0; i < len; ++i) {
-                const cur = this._joints[i]; cur.update();
+                const cur = this._joints[i];
+                cur.update();
                 const bindpose = this._skeleton.bindTRS[i];
 
                 vec3.multiply(v3_1, bindpose.position, cur.scale);
@@ -206,24 +171,23 @@ export class SkinningModel extends Model {
                 this.updateJointData(i, cur.position, cur.rotation, cur.scale);
             }
         }
+        /* */
 
         this.commitJointData();
         return true;
     }
 
     public resetSkinningTarget (skinningRoot: Node) {
-        // should be the hosting node of the controlling animation component
-        // here we are approximating with a specific LCA but it should work anyways
-        const root = LCA(this.node, skinningRoot);
-        if (!root || !this._skeleton) { return; }
+        if (!skinningRoot || !this._skeleton) { return; }
+        this._transform = skinningRoot.parent!;
         this._joints.length = 0;
         this._skeleton.joints.forEach((path) => {
-            const targetNode = skinningRoot.getChildByPath(path);
+            const targetNode = this._transform.getChildByPath(path);
             if (!targetNode) {
                 console.warn(`Skinning target ${path} not found in scene graph.`);
                 return;
             }
-            this._joints.push(JointManager.get(targetNode, root));
+            this._joints.push(targetNode);
         });
     }
 
