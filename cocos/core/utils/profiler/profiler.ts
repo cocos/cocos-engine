@@ -231,6 +231,7 @@ function beforeUpdate () {
     generateNode();
 
     const now = cc.director._lastUpdate;
+    getCounter('frame').end(now);
     getCounter('frame').start(now);
     getCounter('logic').start(now);
 }
@@ -286,7 +287,6 @@ function afterDraw () {
 
     const now = performance.now();
 
-    getCounter('frame').end(now);
     getCounter('fps').frame(now);
     getCounter('draws').value = device!.numDrawCalls;
     getCounter('bufferMemory').value = device!.memoryStatus.bufferSize;
