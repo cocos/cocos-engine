@@ -162,12 +162,12 @@ export default class MeshRendererAssembler extends Assembler {
         comp._updateWireFrameDatas();
         renderer.node = comp.getRenderNode();
         
-        let datas = comp._wireFrameDatas;
-        for (let i = 0; i < datas.length; i++) {
-            let renderData = datas[i];
-            let material = renderData.material;
+        let wireFrameDatas = comp._wireFrameDatas;
+        for (let i = 0; i < wireFrameDatas.length; i++) {
+            let wireFrameData = wireFrameDatas[i];
+            let material = wireFrameData.material;
             renderer.material = material;
-            renderer._flushIA(renderData);
+            renderer._flushIA(wireFrameData.ia);
         }
     }
 }

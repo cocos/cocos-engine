@@ -621,10 +621,7 @@ function initSys () {
      * @param name
      */
     sys.glExtension = function (name) {
-        if (name === 'OES_texture_float') {
-            return false;
-        }
-
+        // TODO: should check support on native platform
         if (CC_JSB && CC_NATIVERENDERER) {
             return true;
         }

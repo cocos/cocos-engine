@@ -295,25 +295,21 @@ let MeshRenderer = cc.Class({
     },
 
     _updateWireFrameDatas () {
-        let renderDatas = this._renderDatas;
         let wireFrameDatas = this._wireFrameDatas;
-        if (renderDatas.length === wireFrameDatas.length) return;
+        let subMeshes = this._mesh.subMeshes;
+        if (subMeshes.length === wireFrameDatas.length) return;
 
-        wireFrameDatas.length = renderDatas.length;
-        let ibs = this.mesh._ibs;
-        for (let i = 0; i < renderDatas.length; i++) {
-            let data = renderDatas[i];
-            wireFrameDatas[i] = this._createWireFrameData(data.ia, ibs[i].data, data.material);
+        wireFrameDatas.length = subMeshes.length;
+        let subDatas = this._mesh._subDatas;
+        for (let i = 0; i < subMeshes.length; i++) {
+            wireFrameDatas[i] = this._createWireFrameData(subMeshes[i], subDatas[i].iData);
         }
     },
 
-    _createWireFrameData (ia, oldIbData, material) {
-        let data = new IARenderData();
+    _createWireFrameData (ia, oldIbData) {
         let m = new Material();
         m.copy(Material.getBuiltinMaterial('unlit'));
         m.setProperty('diffuseColor', BLACK_COLOR);
-        m.define('USE_DIFFUSE_TEXTURE', false);
-        data.material = m;
 
         let indices = [];
         for (let i = 0; i < oldIbData.length; i+=3) {
@@ -332,8 +328,10 @@ let MeshRenderer = cc.Class({
             ibData.length
         );
 
-        data.ia = new InputAssembler(ia._vertexBuffer, ib, gfx.PT_LINES);
-        return data;
+        return {
+            material: m,
+            ia: new InputAssembler(ia._vertexBuffer, ib, gfx.PT_LINES)
+        };
     },
 
     _checkBacth () {
