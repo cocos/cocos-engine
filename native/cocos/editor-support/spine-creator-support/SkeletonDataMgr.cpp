@@ -61,6 +61,7 @@ public:
     SkeletonData* data = nullptr;
     Atlas* atlas = nullptr;
     AttachmentLoader* attachmentLoader = nullptr;
+    std::vector<int> texturesIndex;
     std::string _uuid;
 };
 
@@ -71,7 +72,7 @@ bool SkeletonDataMgr::hasSkeletonData (const std::string& uuid) {
     return it != _dataMap.end();
 }
 
-void SkeletonDataMgr::setSkeletonData (const std::string& uuid, SkeletonData* data, Atlas* atlas, AttachmentLoader* attachmentLoader) {
+void SkeletonDataMgr::setSkeletonData (const std::string& uuid, SkeletonData* data, Atlas* atlas, AttachmentLoader* attachmentLoader, const std::vector<int>& texturesIndex) {
     auto it = _dataMap.find(uuid);
     if (it != _dataMap.end()) {
         releaseByUUID(uuid);
@@ -80,13 +81,13 @@ void SkeletonDataMgr::setSkeletonData (const std::string& uuid, SkeletonData* da
     info->data = data;
     info->atlas = atlas;
     info->attachmentLoader = attachmentLoader;
+    info->texturesIndex = texturesIndex;
     _dataMap[uuid] = info;
 }
 
 SkeletonData* SkeletonDataMgr::retainByUUID (const std::string& uuid) {
     auto dataIt = _dataMap.find(uuid);
-    if (dataIt == _dataMap.end())
-    {
+    if (dataIt == _dataMap.end()) {
         return nullptr;
     }
     dataIt->second->retain();
@@ -102,6 +103,12 @@ void SkeletonDataMgr::releaseByUUID (const std::string& uuid) {
     // If info reference count is 1, then info will be destroy.
     if (info->getReferenceCount() == 1) {
         _dataMap.erase(dataIt);
+        if (_destroyCallback) {
+            auto& texturesIndex = info->texturesIndex;
+            for (auto it = texturesIndex.begin(); it != texturesIndex.end(); it++) {
+                _destroyCallback(*it);
+            }
+        }
     }
     info->release();
 }

@@ -14114,6 +14114,118 @@ bool js_register_cocos2dx_spine_SkeletonAnimation(se::Object* obj)
     return true;
 }
 
+se::Object* __jsb_spine_SkeletonDataMgr_proto = nullptr;
+se::Class* __jsb_spine_SkeletonDataMgr_class = nullptr;
+
+static bool js_cocos2dx_spine_SkeletonDataMgr_setDestroyCallback(se::State& s)
+{
+    spine::SkeletonDataMgr* cobj = (spine::SkeletonDataMgr*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_cocos2dx_spine_SkeletonDataMgr_setDestroyCallback : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        std::function<void (int)> arg0;
+        do {
+            if (args[0].isObject() && args[0].toObject()->isFunction())
+            {
+                se::Value jsThis(s.thisObject());
+                se::Value jsFunc(args[0]);
+                jsThis.toObject()->attachObject(jsFunc.toObject());
+                auto lambda = [=](int larg0) -> void {
+                    se::ScriptEngine::getInstance()->clearException();
+                    se::AutoHandleScope hs;
+        
+                    CC_UNUSED bool ok = true;
+                    se::ValueArray args;
+                    args.resize(1);
+                    ok &= int32_to_seval(larg0, &args[0]);
+                    se::Value rval;
+                    se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
+                    se::Object* funcObj = jsFunc.toObject();
+                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    if (!succeed) {
+                        se::ScriptEngine::getInstance()->clearException();
+                    }
+                };
+                arg0 = lambda;
+            }
+            else
+            {
+                arg0 = nullptr;
+            }
+        } while(false)
+        ;
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonDataMgr_setDestroyCallback : Error processing arguments");
+        cobj->setDestroyCallback(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_spine_SkeletonDataMgr_setDestroyCallback)
+
+static bool js_cocos2dx_spine_SkeletonDataMgr_getInstance(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        spine::SkeletonDataMgr* result = spine::SkeletonDataMgr::getInstance();
+        ok &= native_ptr_to_seval<spine::SkeletonDataMgr>((spine::SkeletonDataMgr*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_cocos2dx_spine_SkeletonDataMgr_getInstance : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_cocos2dx_spine_SkeletonDataMgr_getInstance)
+
+SE_DECLARE_FINALIZE_FUNC(js_spine_SkeletonDataMgr_finalize)
+
+static bool js_cocos2dx_spine_SkeletonDataMgr_constructor(se::State& s)
+{
+    spine::SkeletonDataMgr* cobj = new (std::nothrow) spine::SkeletonDataMgr();
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_cocos2dx_spine_SkeletonDataMgr_constructor, __jsb_spine_SkeletonDataMgr_class, js_spine_SkeletonDataMgr_finalize)
+
+
+
+
+static bool js_spine_SkeletonDataMgr_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (spine::SkeletonDataMgr)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        spine::SkeletonDataMgr* cobj = (spine::SkeletonDataMgr*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_spine_SkeletonDataMgr_finalize)
+
+bool js_register_cocos2dx_spine_SkeletonDataMgr(se::Object* obj)
+{
+    auto cls = se::Class::create("SkeletonDataMgr", obj, nullptr, _SE(js_cocos2dx_spine_SkeletonDataMgr_constructor));
+
+    cls->defineFunction("setDestroyCallback", _SE(js_cocos2dx_spine_SkeletonDataMgr_setDestroyCallback));
+    cls->defineStaticFunction("getInstance", _SE(js_cocos2dx_spine_SkeletonDataMgr_getInstance));
+    cls->defineFinalizeFunction(_SE(js_spine_SkeletonDataMgr_finalize));
+    cls->install();
+    JSBClassType::registerClass<spine::SkeletonDataMgr>(cls);
+
+    __jsb_spine_SkeletonDataMgr_proto = cls->getProto();
+    __jsb_spine_SkeletonDataMgr_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
 bool register_all_cocos2dx_spine(se::Object* obj)
 {
     // Get the ns
@@ -14134,6 +14246,7 @@ bool register_all_cocos2dx_spine(se::Object* obj)
     js_register_cocos2dx_spine_Polygon(ns);
     js_register_cocos2dx_spine_Attachment(ns);
     js_register_cocos2dx_spine_VertexAttachment(ns);
+    js_register_cocos2dx_spine_SkeletonDataMgr(ns);
     js_register_cocos2dx_spine_VertexEffect(ns);
     js_register_cocos2dx_spine_JitterVertexEffect(ns);
     js_register_cocos2dx_spine_IkConstraintTimeline(ns);

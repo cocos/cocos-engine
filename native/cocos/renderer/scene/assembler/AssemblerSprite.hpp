@@ -38,7 +38,7 @@ public:
     virtual void setLocalData(se_object_ptr localData);
     virtual void fillBuffers(NodeProxy* node, MeshBuffer* buffer, std::size_t index) override;
     virtual void calculateWorldVertices(const Mat4& worldMat);
-    virtual void generateWorldVertices() = 0;
+    virtual void generateWorldVertices() {};
 protected:
     se::Object* _localObj = nullptr;
     float* _localData = nullptr;
