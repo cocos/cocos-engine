@@ -214,8 +214,8 @@ public:
     {
         return _data;
     }
-
-#define CLAMP(V, LO, HI) std::min(std::max( (V), (LO) ), (HI) )
+    
+#define CLAMP(V, HI) std::min( (V), (HI) )
     void unMultiplyAlpha(unsigned char* ptr, ssize_t size)
     {
         // Android source data is not premultiplied alpha when API >= 19
@@ -224,15 +224,15 @@ public:
 //        if (getAndroidSDKInt() >= 19)
 //            return;
 
-        char alpha;
+        float alpha;
         for (int i = 0; i < size; i += 4)
         {
-            alpha = ptr[i + 3];
+            alpha = (float)ptr[i + 3];
             if (alpha > 0)
             {
-                ptr[i] = CLAMP(ptr[i] / alpha * 255, 0, 255);
-                ptr[i+1] = CLAMP(ptr[i+1] / alpha * 255, 0, 255);
-                ptr[i+2] =  CLAMP(ptr[i+2] / alpha * 255, 0, 255);
+                ptr[i] = CLAMP((int)((float)ptr[i] / alpha * 255), 255);
+                ptr[i+1] = CLAMP((int)((float)ptr[i+1] / alpha * 255), 255);
+                ptr[i+2] =  CLAMP((int)((float)ptr[i+2] / alpha * 255), 255);
             }
         }
     }
