@@ -2,9 +2,9 @@
  * @category animation
  */
 
+import { Node } from '../scene-graph';
 import { CurveTarget } from './animation-curve';
 import { AnimCurveProperty } from './animation-state';
-import { Node } from '../scene-graph';
 
 // tslint:disable:interface-over-type-literal
 
