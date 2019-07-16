@@ -501,9 +501,10 @@ private:
             GetDIBits(_DC, _bmp, 0, _bufferHeight, dataBuf,
                       (LPBITMAPINFO)&bi, DIB_RGB_COLORS);
 
-
-            uint8_t r, g, b;
-            float alpha = _fillStyle.a;
+            uint8_t r = _fillStyle.r * 255;
+            uint8_t g = _fillStyle.g * 255;
+            uint8_t b = _fillStyle.b * 255;
+            COLORREF textColor = (b << 16 | g << 8 | r) & 0x00ffffff;
             COLORREF * pPixel = nullptr;
             COLORREF * pImage = nullptr;
             for (int y = 0; y < _bufferHeight; ++y)
@@ -514,17 +515,12 @@ private:
                 {
                     COLORREF& clr = *pPixel;
                     COLORREF& val = *pImage;
-                    uint8_t dirtyValue = GetRValue(clr);
-                    r = _fillStyle.r * 255;
-                    g = _fillStyle.g * 255;
-                    b = _fillStyle.b * 255;
-                    COLORREF textColor = (b << 16 | g << 8 | r) & 0x00ffffff;
-
-                    // "dirtyValue > 0" means pixel was covered when drawing text
-                    if (dirtyValue > 0)
-                        val = ((BYTE)(255 * alpha) << 24) | textColor;
-                    else
-                        val = textColor; // Set all transparent pixels to the same color as font.
+                    // Because text is drawn in white color, and background color is black,
+                    // so the red value is equal to alpha value. And we should keep this value
+                    // as it includes anti-atlas information.
+                    uint8_t alpha = GetRValue(clr);
+                   
+                    val = (alpha << 24) | textColor;
 
                     ++pPixel;
                     ++pImage;
