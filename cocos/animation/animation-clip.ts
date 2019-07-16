@@ -126,6 +126,9 @@ export class AnimationClip extends Asset {
         return clip;
     }
 
+    // onPlay callback
+    public onPlay: Function | null = null;
+
     /**
      * 动画帧率，单位为帧/秒。
      */

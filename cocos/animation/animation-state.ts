@@ -276,7 +276,7 @@ export class AnimationState extends Playable {
 
             samplerSharedGroup.curves.push({
                 target,
-                property : propertyCurve.propertyName,
+                property: propertyCurve.propertyName,
                 curve: propertyCurve.curve,
                 blendTarget: null,
             });
@@ -564,6 +564,8 @@ export class AnimationState extends Playable {
         this._delayTime = this._delay;
 
         cc.director.getAnimationManager().addAnimation(this);
+
+        if (this.clip.onPlay) { this.clip.onPlay(this._targetNode); } // for subclasses of AnimationClip
 
         this.emit('play', this);
     }

@@ -17,15 +17,18 @@ import { IPropertyCurveData } from './animation-curve';
 @ccclass('cc.SkeletalAnimationClip')
 export class SkeletalAnimationClip extends AnimationClip {
 
-    @property
-    public aggressiveCaching = true;
-
-    protected _backedUp = false;
-    protected _backUpCurves: ICurveData = {};
+    public convertedData: ICurveData = {};
+    protected _converted = false;
 
     public getPropertyCurves (root: Node): ReadonlyArray<IPropertyCurve> {
-        if (this.aggressiveCaching) { this._convertToSkeletalCurves(root); }
+        this._convertToSkeletalCurves(root);
         return super.getPropertyCurves(root);
+    }
+
+    public onPlay = (root: Node) => {
+        for (const comp of root.getComponentsInChildren(SkinningModelComponent)) {
+            comp.uploadAnimationClip(this);
+        }
     }
 
     private _convertToUniformSample (curve: IPropertyCurveData) {
@@ -72,64 +75,41 @@ export class SkeletalAnimationClip extends AnimationClip {
     }
 
     private _convertToSkeletalCurves (root: Node) {
+        if (this._converted) { return; }
         // sort the keys to make sure parent bone always comes first
         const paths = Object.keys(this.curveDatas).sort();
-        if (!this._backedUp) { // only need to do these once
-            for (const path of paths) {
-                const nodeData = this.curveDatas[path];
-                if (!nodeData.props) { continue; }
-                const { position, rotation, scale } = nodeData.props;
-                // fixed step pre-sample
-                this._convertToUniformSample(position);
-                this._convertToUniformSample(rotation);
-                this._convertToUniformSample(scale);
-                // turn off interpolation
-                position.interpolate = false;
-                rotation.interpolate = false;
-                scale.interpolate = false;
-                // transform to world space
-                this._convertToWorldSpace(path, nodeData.props);
-            }
-            this._backUpCurves = JSON.parse(JSON.stringify(this.curveDatas));
-            this._keys = [[...Array(Math.ceil(this.sample * this._duration))].map((_, i) => i / this.sample)];
-            this._backedUp = true;
-        }
-        // skeleton specific optimizations
-        const comps = root.getComponentsInChildren(SkinningModelComponent);
         for (const path of paths) {
             const nodeData = this.curveDatas[path];
             if (!nodeData.props) { continue; }
-            let bindpose: IBindTRS | null = null;
-            for (const comp of comps) {
-                const skeleton = comp.skeleton;
-                if (!skeleton) { continue; }
-                const idx = skeleton.joints.findIndex((j) => j === path);
-                if (idx < 0) { continue; }
-                bindpose = skeleton.bindTRS[idx];
-                break;
-            }
-            if (!bindpose) { continue; }
-            const props = this._backUpCurves[path].props!;
-            const bPos = props.position.values;
-            const bRot = props.rotation.values;
-            const bScale = props.scale.values;
-            const position = nodeData.props.position.values;
-            const rotation = nodeData.props.rotation.values;
-            const scale = nodeData.props.scale.values;
-            for (let i = 0; i < position.length; i++) {
-                const backupT = bPos[i];
-                const backupR = bRot[i];
-                const backupS = bScale[i];
-                const T = position[i];
-                const R = rotation[i];
-                const S = scale[i];
-                vec3.multiply(T, bindpose.position, backupS);
-                vec3.transformQuat(T, T, backupR);
-                vec3.add(T, T, backupT);
-                quat.multiply(R, backupR, bindpose.rotation);
-                vec3.multiply(S, backupS, bindpose.scale);
-            }
+            const { position, rotation, scale } = nodeData.props;
+            // fixed step pre-sample
+            this._convertToUniformSample(position);
+            this._convertToUniformSample(rotation);
+            this._convertToUniformSample(scale);
+            // turn off interpolation
+            position.interpolate = false;
+            rotation.interpolate = false;
+            scale.interpolate = false;
+            // transform to world space
+            this._convertToWorldSpace(path, nodeData.props);
         }
+        this.convertedData = this.curveDatas;
+        // convert to SkinningModelComponent.fid animation
+        this.curveDatas = {};
+        const values = [...Array(Math.ceil(this.sample * this._duration))].map((_, i) => i);
+        root.getComponentsInChildren(SkinningModelComponent).map((comp) => {
+            let node: Node | null = comp.node;
+            let path = '';
+            while (node !== null && node !== root) {
+                path = `${node.name}/${path}`;
+                node = node.parent;
+            }
+            return path.slice(0, -1);
+        }).forEach((path) => {
+            this.curveDatas[path] = { comps: { 'cc.SkinningModelComponent': { frameID: { keys: 0, values, interpolate: false } } } };
+        });
+        this._keys = [values.map((_, i) => i / this.sample)];
+        this._converted = true;
     }
 }
 

@@ -32,7 +32,7 @@ export class AnimationBlendState {
 
         let propertyState = propertyStates.find((p) => p.name === property);
         if (!propertyState) {
-            propertyState = { name, weight: 0, value: undefined, refCount: 0 };
+            propertyState = { name: property, weight: 0, value: undefined, refCount: 0 };
             propertyStates.push(propertyState);
         }
         ++propertyState.refCount;
