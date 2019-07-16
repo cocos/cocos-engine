@@ -62,12 +62,10 @@ public:
 
     ~CanvasRenderingContext2DImpl()
     {
-        _prepareBitmap(0, 0);
-        if (_DC)
-        {
-            DeleteDC(_DC);
-        }
+        _deleteBitmap();
         _removeCustomFont();
+        if (_DC)
+            DeleteDC(_DC);
     }
 
     void recreateBuffer(float w, float h)
@@ -76,7 +74,7 @@ public:
         _bufferHeight = h;
         if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
         {
-            _prepareBitmap(0, 0);
+            _deleteBitmap();
             return;
         }
 
@@ -120,7 +118,7 @@ public:
         DeleteObject(_hpen);
         if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
             return;
-        _imageData = _getTextureData();
+        _fillTextureData();
     }
 
     void saveContext()
@@ -159,7 +157,7 @@ public:
             uint8_t r = _fillStyle.r * 255.0f;
             uint8_t g = _fillStyle.g * 255.0f;
             uint8_t b = _fillStyle.b * 255.0f;
-            uint8_t a = _fillStyle.a;
+            uint8_t a = _fillStyle.a * 255.0f;
             fillRectWithColor(buffer, (uint32_t)_bufferWidth, (uint32_t)_bufferHeight, (uint32_t)x, (uint32_t)y, (uint32_t)w, (uint32_t)h, r, g, b, a);
         }
     }
@@ -173,7 +171,7 @@ public:
         Point offsetPoint = _convertDrawPoint(Point(x, y), text);
 
         _drawText(text, (int)offsetPoint.x, (int)offsetPoint.y);
-        _imageData = _getTextureData();
+        _fillTextureData();
 
     }
 
@@ -199,16 +197,12 @@ public:
 
     void updateFont(const std::string& fontName, float fontSize, bool bold = false)
     {
-        bool bRet = false;
         do
         {
             _fontName = fontName;
             _fontSize = fontSize;
             std::string fontPath;
-            HFONT       hDefFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-            LOGFONTA    tNewFont = { 0 };
-            LOGFONTA    tOldFont = { 0 };
-            GetObjectA(hDefFont, sizeof(tNewFont), &tNewFont);
+            LOGFONTA    tFont = { 0 };
             if (!_fontName.empty())
             {
                 // firstly, try to create font from ttf file
@@ -240,33 +234,20 @@ public:
                         }
                     }
                 }
-                tNewFont.lfCharSet = DEFAULT_CHARSET;
-                strcpy_s(tNewFont.lfFaceName, LF_FACESIZE, _fontName.c_str());
+                tFont.lfCharSet = DEFAULT_CHARSET;
+                strcpy_s(tFont.lfFaceName, LF_FACESIZE, _fontName.c_str());
             }
 
             if (_fontSize)
-            {
-                tNewFont.lfHeight = -_fontSize;
-            }
+                tFont.lfHeight = -_fontSize;
 
             if (bold)
-            {
-                tNewFont.lfWeight = FW_BOLD;
-            }
+                tFont.lfWeight = FW_BOLD;
             else
-            {
-                tNewFont.lfWeight = FW_NORMAL;
-            }
+                tFont.lfWeight = FW_NORMAL;
 
-            GetObjectA(_font, sizeof(tOldFont), &tOldFont);
-
-            if (tOldFont.lfHeight == tNewFont.lfHeight
-                && tOldFont.lfWeight == tNewFont.lfWeight
-                && 0 == strcmp(tOldFont.lfFaceName, tNewFont.lfFaceName))
-            {
-                bRet = true;
-                break;
-            }
+            // disable Cleartype
+            tFont.lfQuality = ANTIALIASED_QUALITY;
 
             // delete old font
             _removeCustomFont();
@@ -286,17 +267,13 @@ public:
                 }
             }
 
-            _font = nullptr;
-
-            // disable Cleartype
-            tNewFont.lfQuality = ANTIALIASED_QUALITY;
-
             // create new font
-            _font = CreateFontIndirectA(&tNewFont);
+            _font = CreateFontIndirectA(&tFont);
             if (!_font)
             {
                 // create failed, use default font
-                _font = hDefFont;
+                SE_LOGE("Failed to create custom font(font name: %s, font size: %f), use default font.\n",
+                    _fontName.c_str(), fontSize);
                 break;
             }
             else
@@ -304,11 +281,7 @@ public:
                 SelectObject(_DC, _font);
                 SendMessage(_wnd, WM_FONTCHANGE, 0, 0);
             }
-
-            bRet = true;
-
         } while (0);
-
     }
 
     void setTextAlign(CanvasTextAlign align)
@@ -370,6 +343,8 @@ private:
     cocos2d::Color4F _fillStyle;
     cocos2d::Color4F _strokeStyle;
 
+    TEXTMETRIC _tm;
+
     // change utf-8 string to utf-16, pRetLen is the string length after changing
     wchar_t * _utf8ToUtf16(const std::string& str, int * pRetLen = nullptr)
     {
@@ -401,8 +376,7 @@ private:
         HFONT hDefFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
         if (hDefFont != _font)
         {
-            DeleteObject(_font);
-            _font = hDefFont;
+            DeleteObject(SelectObject(_DC, hDefFont));
         }
         // release temp font resource
         if (_curFontPath.size() > 0)
@@ -451,18 +425,11 @@ private:
 
             // SE_LOGE("_drawText text,%s size: (%d, %d) offset after convert: (%d, %d) \n", text.c_str(), newSize.cx, newSize.cy, offsetX, offsetY);
 
-            // draw text
-            HGDIOBJ hOldFont = SelectObject(_DC, _font);
-            HGDIOBJ hOldBmp = SelectObject(_DC, _bmp);
-
             SetBkMode(_DC, TRANSPARENT);
             SetTextColor(_DC, RGB(255, 255, 255)); // white color
 
             // draw text
             nRet = DrawTextW(_DC, pwszBuffer, bufferLen, &rcText, dwFmt);
-
-            DeleteObject(hOldBmp);
-            DeleteObject(hOldFont);
         } while (0);
         CC_SAFE_DELETE_ARRAY(pwszBuffer);
 
@@ -479,49 +446,46 @@ private:
             RECT rc = { 0, 0, 0, 0 };
             DWORD dwCalcFmt = DT_CALCRECT;
 
-            // use current font to measure text extent
-            HGDIOBJ hOld = SelectObject(_DC, _font);
-
             // measure text size
             DrawTextW(_DC, pszText, nLen, &rc, dwCalcFmt);
 
             tRet.cx = rc.right;
             tRet.cy = rc.bottom;
-
-            DeleteObject(hOld);
-
         } while (0);
 
         return tRet;
     }
 
-    bool _prepareBitmap(int nWidth, int nHeight)
+    void _prepareBitmap(int nWidth, int nHeight)
     {
         // release bitmap
+        _deleteBitmap();
+
+        if (nWidth > 0 && nHeight > 0)
+        {
+            _bmp = CreateBitmap(nWidth, nHeight, 1, 32, nullptr);
+            SelectObject(_DC, _bmp);
+        }
+    }
+
+    void _deleteBitmap()
+    {
         if (_bmp)
         {
             DeleteObject(_bmp);
             _bmp = nullptr;
         }
-        if (nWidth > 0 && nHeight > 0)
-        {
-            _bmp = CreateBitmap(nWidth, nHeight, 1, 32, nullptr);
-            if (!_bmp)
-            {
-                return false;
-            }
-        }
-        return true;
     }
 
-    Data _getTextureData()
+    void _fillTextureData()
     {
-        Data ret;
         do
         {
             int dataLen = _bufferWidth * _bufferHeight * 4;
             unsigned char* dataBuf = (unsigned char*)malloc(sizeof(unsigned char) * dataLen);
             CC_BREAK_IF(!dataBuf);
+            unsigned char* imageBuf = _imageData.getBytes();
+            CC_BREAK_IF(!imageBuf);
 
             struct
             {
@@ -541,31 +505,32 @@ private:
             uint8_t r, g, b;
             float alpha = _fillStyle.a;
             COLORREF * pPixel = nullptr;
+            COLORREF * pImage = nullptr;
             for (int y = 0; y < _bufferHeight; ++y)
             {
                 pPixel = (COLORREF *)dataBuf + y * (int)_bufferWidth;
+                pImage = (COLORREF *)imageBuf + y * (int)_bufferWidth;
                 for (int x = 0; x < _bufferWidth; ++x)
                 {
                     COLORREF& clr = *pPixel;
+                    COLORREF& val = *pImage;
                     uint8_t dirtyValue = GetRValue(clr);
+                    r = _fillStyle.r * 255;
+                    g = _fillStyle.g * 255;
+                    b = _fillStyle.b * 255;
+                    COLORREF textColor = (b << 16 | g << 8 | r) & 0x00ffffff;
+
                     // "dirtyValue > 0" means pixel was covered when drawing text
                     if (dirtyValue > 0)
-                    {
-                        // r = _fillStyle.r * 255 * (dirtyValue / 255) * alpha;
-                        r = _fillStyle.r * dirtyValue * alpha;
-                        g = _fillStyle.g * dirtyValue * alpha;
-                        b = _fillStyle.b * dirtyValue * alpha;
-                        COLORREF textColor = (b << 16 | g << 8 | r) & 0x00ffffff;
-                        clr = ((BYTE)(dirtyValue * alpha) << 24) | textColor;
-                    }
+                        val = ((BYTE)(255 * alpha) << 24) | textColor;
+                    else
+                        val = textColor; // Set all transparent pixels to the same color as font.
+
                     ++pPixel;
+                    ++pImage;
                 }
             }
-
-            ret.fastSet(dataBuf, dataLen);
         } while (0);
-
-        return ret;
     }
 
     Point _convertDrawPoint(Point point, std::string text) {
@@ -587,14 +552,11 @@ private:
         {
             point.y += _fontSize / 2.0f;
         }
-        // The origin of drawing text on win32 is from top-left, but now we get bottom-left,
-        // So, we need to substract the font size to convert 'point' to top-left.
-        point.y -= _fontSize;
 
-        // We use font size to calculate text height, but draw text on win32 is based on
-        // the real font height and in top-left position, substract the adjust value to make text inside text rectangle.
-        // check
-        // point.y -= (textSize.height - _fontSize) / 2.0f;
+        // Since the web platform cannot get the baseline of the font, an additive offset is performed for all platforms.
+        // That's why we should add baseline back again on other platforms
+        GetTextMetrics(_DC, &_tm);
+        point.y -= _tm.tmAscent;
 
         return point;
     }

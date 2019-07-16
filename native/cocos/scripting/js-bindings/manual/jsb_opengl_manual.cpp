@@ -4692,7 +4692,7 @@ static bool JSB_glFlushCommand(se::State& s) {
             {
                 LOG_GL_COMMAND("Flush: UNIFORM_4FV\n");
                 GLsizei elementCount = (GLsizei)p[2];
-                JSB_GL_CHECK_VOID(glUniform4fv((GLint)p[1], elementCount / 3, &p[3]));
+                JSB_GL_CHECK_VOID(glUniform4fv((GLint)p[1], elementCount / 4, &p[3]));
                 p += (elementCount + 3);
                 break;
             }

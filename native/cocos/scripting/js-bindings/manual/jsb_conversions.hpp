@@ -353,7 +353,7 @@ bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T
 }
 
 template<typename T>
-bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Value* ret, bool* isReturnCachedValue = nullptr)
+bool native_ptr_to_rooted_seval(const typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Value* ret, bool* isReturnCachedValue = nullptr)
 {
     assert(ret != nullptr);
     if (v == nullptr)
@@ -363,14 +363,14 @@ bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cocos2d
     }
 
     se::Object* obj = nullptr;
-    auto iter = se::NativePtrToObjectMap::find(v);
+    auto iter = se::NativePtrToObjectMap::find((void*)v);
     if (iter == se::NativePtrToObjectMap::end())
     { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
         se::Class* cls = JSBClassType::findClass<T>(v);
         assert(cls != nullptr);
         obj = se::Object::createObjectWithClass(cls);
         obj->root();
-        obj->setPrivateData(v);
+        obj->setPrivateData((void*)v);
 
         if (isReturnCachedValue != nullptr)
         {

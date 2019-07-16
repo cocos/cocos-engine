@@ -101,6 +101,7 @@ namespace
     int g_height = 0;
     bool g_isStarted = false;
     bool g_isGameFinished = false;
+    int g_SDKInt = 0;
 
     cocos2d::Application* g_app = nullptr;
 
@@ -127,10 +128,29 @@ Application* cocos_android_app_init(JNIEnv* env, int width, int height);
 
 extern "C"
 {
+    void getSDKInt(JNIEnv* env)
+    {
+        if (env && g_SDKInt == 0)
+        {
+            // VERSION is a nested class within android.os.Build (hence "$" rather than "/")
+            jclass versionClass = env->FindClass("android/os/Build$VERSION");
+            if (NULL == versionClass)
+                return;
+
+            jfieldID sdkIntFieldID = env->GetStaticFieldID(versionClass, "SDK_INT", "I");
+            if (NULL == sdkIntFieldID)
+                return;
+
+            g_SDKInt = env->GetStaticIntField(versionClass, sdkIntFieldID);
+        }
+    }
+
     JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved)
     {
         JniHelper::setJavaVM(vm);
         cocos_jni_env_init(JniHelper::getEnv());
+        getSDKInt(JniHelper::getEnv());
+
         return JNI_VERSION_1_4;
     }
 
@@ -640,3 +660,16 @@ void exitApplication()
 {
     g_isGameFinished = true;
 }
+
+
+bool getApplicationExited()
+{
+    return g_isGameFinished;
+}
+
+int getAndroidSDKInt()
+{
+    return g_SDKInt;
+}
+
+
