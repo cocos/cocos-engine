@@ -158,6 +158,7 @@ export class Model {
     protected _inited: boolean = false;
     protected _uboUpdated: boolean = false;
     protected _castShadow: boolean = false;
+    private _transformUpdated: boolean = true;
 
     /**
      * Setup a default empty model
@@ -208,6 +209,7 @@ export class Model {
         // @ts-ignore
         if (!node.hasChanged && !node._dirty) { return; }
         node.updateWorldTransformFull();
+        this._transformUpdated = this._transformUpdated || this.node.hasChanged;
         if (!this._modelBounds || !this._worldBounds) { return; }
         // @ts-ignore
         this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds);
@@ -223,24 +225,20 @@ export class Model {
         }
         this._uboUpdated = true;
         // @ts-ignore
-        const worldMatrix = this._transform._mat; const rot = this._transform._rot;
-        mat4.array(this._uboLocal.view, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
-        mat4.fromQuat(m4_1, rot);
-        mat4.array(this._uboLocal.view, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
+        if (this._transformUpdated) {
+            const worldMatrix = this._transform._mat; const rot = this._transform._rot;
+            mat4.array(this._uboLocal.view, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
+            mat4.fromQuat(m4_1, rot);
+            mat4.array(this._uboLocal.view, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
 
-        const commonLocal = this._localBindings.get(UBOLocal.BLOCK.name);
-        if (commonLocal && commonLocal.buffer) {
-            commonLocal.buffer!.update(this._uboLocal.view);
+            const commonLocal = this._localBindings.get(UBOLocal.BLOCK.name);
+            if (commonLocal && commonLocal.buffer) {
+                commonLocal.buffer!.update(this._uboLocal.view);
+            }
+            this._transformUpdated = false;
         }
 
-        for (const mat of this._matPSORecord.keys()) {
-            for (const pass of mat.passes) {
-                pass.update();
-            }
-            for (const pso of this._matPSORecord.get(mat)!) {
-                pso.pipelineLayout.layouts[0].update();
-            }
-        }
+        this._matPSORecord.forEach(this._updatePass, this);
         return true;
     }
 
@@ -367,7 +365,7 @@ export class Model {
         }
     }
 
-    protected initLocalBindings (mat: Material|null) {
+    protected initLocalBindings (mat: Material | null) {
         if (mat) {
             this.onSetLocalBindings(mat);
             const lbIter = this._localBindings.values();
@@ -383,6 +381,15 @@ export class Model {
                 }
                 lbResult = lbIter.next();
             }
+        }
+    }
+
+    private _updatePass (psos: GFXPipelineState[], mat: Material) {
+        for (let i = 0; i < mat.passes.length; i++) {
+            mat.passes[i].update();
+        }
+        for (let i = 0; i < psos.length; i++) {
+            psos[i].pipelineLayout.layouts[0].update();
         }
     }
 
