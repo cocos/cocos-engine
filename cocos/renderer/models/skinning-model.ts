@@ -177,11 +177,10 @@ export class SkinningModel extends Model {
 
     public commitJointData () {
         if (!this._jointsMedium) { return; }
-        const { type, nativeData, buffer, texture } = this._jointsMedium;
-        if (type === JointsMediumType.UNIFORM) {
-            buffer.update(nativeData, UBOSkinning.MAT_JOINT_OFFSET);
+        if (this._jointsMedium.type === JointsMediumType.UNIFORM) {
+            this._jointsMedium.buffer.update(this._jointsMedium.nativeData, UBOSkinning.MAT_JOINT_OFFSET);
         } else {
-            texture!.uploadData(nativeData.buffer);
+            this._jointsMedium.texture!.uploadData(this._jointsMedium.nativeData.buffer);
         }
     }
 
@@ -195,7 +194,8 @@ export class SkinningModel extends Model {
         const len = this._joints.length;
         if (this._skeleton.bindTRS.length) { // TODO: pre-apply this into animation clip
             for (let i = 0; i < len; ++i) {
-                const cur = this._joints[i]; cur.update();
+                const cur = this._joints[i];
+                cur.update();
                 const bindpose = this._skeleton.bindTRS[i];
 
                 vec3.multiply(v3_1, bindpose.position, cur.scale);
