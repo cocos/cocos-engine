@@ -22,12 +22,6 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-*/
-
-/**
- * @hidden
  */
 
-export { Component } from './component';
-export { EventHandler } from './component-event-handler';
-export {default as MissingScript} from './missing-script';
+export * from '../cocos/animation';

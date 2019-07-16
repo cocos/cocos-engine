@@ -1,0 +1,94 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "definitions": {
+        "GroupItem": {
+            "additionalProperties": false,
+            "properties": {
+                "default": {
+                    "description": "If present and non-negtive, this field indicates the specified n-th option is selected by default.",
+                    "type": "number"
+                },
+                "description": {
+                    "description": "Item description.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Item name.",
+                    "type": "string"
+                },
+                "options": {
+                    "description": "Options.",
+                    "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                            "description": {
+                                "description": "Option description.",
+                                "type": "string"
+                            },
+                            "entry": {
+                                "description": "Entry of the option.",
+                                "type": "string"
+                            },
+                            "name": {
+                                "description": "Name of the option.",
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "type": "array"
+                },
+                "required": {
+                    "description": "Whether if this item is required to provide.",
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "SimpleItem": {
+            "additionalProperties": false,
+            "properties": {
+                "default": {
+                    "description": "If true, this field indicates the item is bundled by default.",
+                    "type": "boolean"
+                },
+                "description": {
+                    "description": "Item description.",
+                    "type": "string"
+                },
+                "entry": {
+                    "description": "Entry to the module.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Item name.",
+                    "type": "string"
+                },
+                "required": {
+                    "description": "Whether if this item is required to provide.",
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        }
+    },
+    "properties": {
+        "items": {
+            "description": "Items.",
+            "items": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/SimpleItem"
+                    },
+                    {
+                        "$ref": "#/definitions/GroupItem"
+                    }
+                ]
+            },
+            "type": "array"
+        }
+    },
+    "type": "object"
+}
+

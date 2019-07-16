@@ -1,0 +1,57 @@
+{
+    "$schema": "./tools/division-config-schema.json",
+    "items": [
+        {
+            "name": "Base",
+            "required": true,
+            "entry": "base",
+            "default": true
+        },
+        {
+            "name": "Animation",
+            "entry": "animation",
+            "default": true
+        },
+        {
+            "name": "GFX",
+            "required": true,
+            "options": [
+                {
+                    "name": "WebGL 1.0",
+                    "entry": "gfx-webgl"
+                },
+                {
+                    "name": "WebGL 2.0",
+                    "entry": "gfx-webgl2"
+                }
+            ],
+            "default": 0
+        },
+        {
+            "name": "Primitives",
+            "entry": "primitives",
+            "default": true
+        },
+        {
+            "name": "Physics",
+            "options": [
+                {
+                    "name": "Built-in",
+                    "entry": "physics-builtin"
+                },
+                {
+                    "name": "cannon.js",
+                    "entry": "physics-cannon"
+                },
+                {
+                    "name": "ammo.js",
+                    "entry": "physics-ammo"
+                }
+            ]
+        },
+        {
+            "name": "tween.js Adapter",
+            "entry": "tween"
+        }
+    ]
+}

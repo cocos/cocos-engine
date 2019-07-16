@@ -20,9 +20,14 @@ if (argvFlags) {
 
 const sourceMap = yargs.argv.sourcemap === 'inline' ? 'inline' : !!yargs.argv.sourcemap;
 
+const moduleEntries = yargs.argv._;
+if (moduleEntries.length === 0) {
+    moduleEntries.push(...getDefaultModuleEntries());
+}
+
 const options: IBuildOptions = {
+    moduleEntries,
     compress: yargs.argv.compress as (boolean | undefined),
-    inputPath: './index.ts',
     outputPath: yargs.argv.destination as string,
     excludes: yargs.argv.excludes as string[],
     sourcemap: sourceMap,
@@ -45,3 +50,20 @@ build(options).then(
         console.error(`Build failed, reason:\n ${reason.stack}`);
     },
 );
+
+function getDefaultModuleEntries () {
+    const divisionConfig = require('../../scripts/module-division/division-config.json');
+    const result = [];
+    for (const item of divisionConfig.items) {
+        if (item.options) {
+            if (item.default !== undefined && item.default >= 0) {
+                result.push(item.options[item.default].entry);
+            }
+        } else {
+            if (item.default) {
+                result.push(item.entry);
+            }
+        }
+    }
+    return result;
+}
