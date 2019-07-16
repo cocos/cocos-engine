@@ -68,8 +68,6 @@ var ModelBatcher = function (device, renderScene) {
     this._dummyNode = new cc.Node();
     this._sortKey = 0;
 
-    this._lastBufferIndiceOffset = 0;
-
     this.node = this._dummyNode;
     
     this.parentOpacity = 1;
@@ -116,8 +114,6 @@ ModelBatcher.prototype = {
         this.worldMatDirty = 0;
 
         this.customProperties = null;
-
-        this._lastBufferIndiceOffset = 0;
     },
 
     _flushMaterial (material) {
@@ -140,7 +136,7 @@ ModelBatcher.prototype = {
     _flush () {
         let material = this.material,
             buffer = this._buffer,
-            indiceCount = buffer.indiceOffset - this._lastBufferIndiceOffset;
+            indiceCount = buffer.indiceOffset - buffer.indiceStart;
         if (!this.walking || !material || indiceCount <= 0) {
             return;
         }
@@ -152,7 +148,7 @@ ModelBatcher.prototype = {
         let ia = this._iaPool.add();
         ia._vertexBuffer = buffer._vb;
         ia._indexBuffer = buffer._ib;
-        ia._start = this._lastBufferIndiceOffset;
+        ia._start = buffer.indiceStart;
         ia._count = indiceCount;
         
         // Generate model
@@ -165,7 +161,7 @@ ModelBatcher.prototype = {
         model.setInputAssembler(ia);
         
         this._renderScene.addModel(model);
-        this._lastBufferIndiceOffset = buffer.indiceOffset;
+        buffer.forwardIndiceStartToOffset();
     },
 
     _flushIA (ia) {

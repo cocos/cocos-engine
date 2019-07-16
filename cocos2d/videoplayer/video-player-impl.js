@@ -381,7 +381,7 @@ let VideoPlayerImpl = cc.Class({
     },
 
     setFullScreenEnabled: function (enable) {
-        if (!this._loadedmeta && enablezhi) {
+        if (!this._loadedmeta && enable) {
             this._waitingFullscreen = true;
         }
         else {

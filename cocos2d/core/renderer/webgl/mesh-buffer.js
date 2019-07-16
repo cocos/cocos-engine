@@ -35,6 +35,8 @@ let MeshBuffer = cc.Class({
         this.byteOffset = 0;
         this.indiceOffset = 0;
         this.vertexOffset = 0;
+        this.indiceStart = 0;
+
         this._dirty = false;
 
         this._vertexFormat = vertexFormat;
@@ -102,6 +104,7 @@ let MeshBuffer = cc.Class({
         this.byteOffset = 0;
         this.vertexOffset = 0;
         this.indiceOffset = 0;
+        this.indiceStart = 0;
 
         if (offset < this._vbArr.length) {
             this._vb = this._vbArr[offset];
@@ -233,6 +236,7 @@ let MeshBuffer = cc.Class({
         this.byteOffset = 0;
         this.indiceOffset = 0;
         this.vertexOffset = 0;
+        this.indiceStart = 0;
 
         this._dirty = false;
     },
@@ -253,6 +257,10 @@ let MeshBuffer = cc.Class({
 
         this._ib = null;
         this._vb = null;
+    },
+
+    forwardIndiceStartToOffset () {
+        this.indiceStart = this.indiceOffset;
     }
 });
 

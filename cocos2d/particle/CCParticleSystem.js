@@ -907,7 +907,7 @@ var ParticleSystem = cc.Class({
     },
     
     lateUpdate (dt) {
-        if (!this._simulator.finished && this._ia) {
+        if (!this._simulator.finished) {
             this._simulator.step(dt);
         }
     },
@@ -1213,6 +1213,9 @@ var ParticleSystem = cc.Class({
 
     _activateMaterial: function () {
         if (!this._texture || !this._texture.loaded) {
+            this.markForUpdateRenderData(false);
+            this.markForRender(false);
+
             if (this._renderSpriteFrame) {
                 this._applySpriteFrame();
             }
@@ -1233,6 +1236,7 @@ var ParticleSystem = cc.Class({
         material.setProperty('texture', this._texture);
 
         this.setMaterial(0, material);
+        this.markForRender(true);
     },
     
     _finishedSimulation: function () {
