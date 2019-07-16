@@ -33,21 +33,12 @@ export * from './framework';
 export * from './memop';
 import * as geometry from './geom-utils';
 import * as utils from './misc/utils';
-import * as primitives from './primitive';
 export * from './ui';
-
-// hidden
-// export { createRaycastResult } from './physics/instance';
 
 export {
     utils,
-    primitives,
     geometry,
 };
 
 cc.geometry = geometry;
-cc.primitives = primitives;
 cc.utils = utils;
-
-/// PHYSICS EXPORT ///
-export * from './physics/export-api';

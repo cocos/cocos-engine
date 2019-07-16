@@ -22,7 +22,6 @@ const sourceMap = yargs.argv.sourcemap === 'inline' ? 'inline' : !!yargs.argv.so
 
 const options: IBuildOptions = {
     compress: yargs.argv.compress as (boolean | undefined),
-    inputPath: './index.ts',
     outputPath: yargs.argv.destination as string,
     excludes: yargs.argv.excludes as string[],
     sourcemap: sourceMap,
