@@ -25,12 +25,17 @@
 
 const SkinnedMeshRenderer = require('./CCSkinnedMeshRenderer');
 const MeshRendererAssembler = require('../../mesh/mesh-renderer');
+const RenderFlow = require('../../renderer/render-flow');
 
 export default class SkinnedMeshRendererAssembler extends MeshRendererAssembler {
-    fillBuffers (comp, renderer) {
+    updateRenderData (comp) {
+        super.updateRenderData(comp);
         comp.calcJointMatrix();
+    }
 
+    fillBuffers (comp, renderer) {
         super.fillBuffers(comp, renderer);
+        comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
     }
 }
 

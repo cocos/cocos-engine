@@ -50,6 +50,7 @@ let SkinnedMeshRenderer = cc.Class({
         this._jointsTexture = null;
         this._joints = [];
         this._dummyNode = new cc.Node();
+        this._jointsTextureOptions = null;
     },
 
     properties: {
@@ -118,9 +119,11 @@ let SkinnedMeshRenderer = cc.Class({
 
     _init () {
         this._model = this._skeleton && this._skeleton.model;
-
+        this._calFunc = null;
+        
         this._initJoints();
         this._initJointsTexture();
+        this._initCalcFunc();
     },
 
     _calcWorldMatrixToRoot (joint) {
@@ -227,6 +230,7 @@ let SkinnedMeshRenderer = cc.Class({
             let texture = this._jointsTexture || new cc.Texture2D();
             texture.initWithData(this._jointsData, pixelFormat, width, height);
             this._jointsTexture = texture;
+            this._jointsTextureOptions = {format: cc.Texture2D.PixelFormat.RGBA32F, width: texture.width, height: texture.height}
             
             customProperties.setProperty('cc_jointsTexture', texture.getImpl());
             customProperties.setProperty('cc_jointsTextureSize', new Float32Array([width, height]));
@@ -249,7 +253,8 @@ let SkinnedMeshRenderer = cc.Class({
 
     _commitJointsData () {
         if (this._jointsTexture) {
-            this._jointsTexture.update({ image: this._jointsData });
+            this._jointsTextureOptions.images = [this._jointsData];
+            this._jointsTexture.update(this._jointsTextureOptions);
         }
     },
 
@@ -261,36 +266,48 @@ let SkinnedMeshRenderer = cc.Class({
         return this._useJointMatrix() ? this.rootBone : this._dummyNode;
     },
 
-    calcJointMatrix () {
-        if (!this.skeleton || !this.rootBone) return;
+    _initCalcFunc () {
+        if (this._useJointMatrix()) {
+            this._calFunc = this._calJointMatrix;
+        } else {
+            this._calFunc = this._calWorldMatrix;
+        }
+    },
+
+    _calJointMatrix () {
         const joints = this._joints;
         const bindposes = this.skeleton.bindposes;
         const uniqueBindPoses = this.skeleton.uniqueBindPoses;
+        for (let i = 0; i < joints.length; ++i) {
+            let joint = joints[i];
+            let jointMatrix = joint._jointMatrix;
 
-        if (this._useJointMatrix()) {
-            for (let i = 0; i < joints.length; ++i) {
-                let joint = joints[i];
-                let jointMatrix = joint._jointMatrix;
-    
-                if (uniqueBindPoses[i]) {
-                    this._setJointsDataWithArray(i, jointMatrix);
-                }
-                else {
-                    mat4.multiply(_m4_tmp, jointMatrix, bindposes[i]);
-                    this._setJointsDataWithMatrix(i, _m4_tmp);
-                }
+            if (uniqueBindPoses[i]) {
+                this._setJointsDataWithArray(i, jointMatrix);
             }
-        }
-        else {
-            for (let i = 0; i < joints.length; ++i) {
-                let joint = joints[i];
-    
-                joint._updateWorldMatrix();
-                mat4.multiply(_m4_tmp, joint._worldMatrix, bindposes[i]);
+            else {
+                mat4.multiply(_m4_tmp, jointMatrix, bindposes[i]);
                 this._setJointsDataWithMatrix(i, _m4_tmp);
             }
         }
+    },
 
+    _calWorldMatrix () {
+        const joints = this._joints;
+        const bindposes = this.skeleton.bindposes;
+        for (let i = 0; i < joints.length; ++i) {
+            let joint = joints[i];
+
+            joint._updateWorldMatrix();
+            mat4.multiply(_m4_tmp, joint._worldMatrix, bindposes[i]);
+            this._setJointsDataWithMatrix(i, _m4_tmp);
+        }
+    },
+
+    calcJointMatrix () {
+        if (!this.skeleton || !this.rootBone) return;
+
+        this._calFunc.call(this);
         this._commitJointsData();
     }
 });
