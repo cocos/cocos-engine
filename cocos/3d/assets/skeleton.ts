@@ -129,10 +129,8 @@ export class Skeleton extends Asset {
 
     public destroy () {
         const it = this._jointsTextures.values();
-        let res = it.next();
-        while (!res.done) {
+        for (let res = it.next(); !res.done; res = it.next()) {
             res.value.destroy();
-            res = it.next();
         }
         this._jointsTextures.clear();
         return super.destroy();

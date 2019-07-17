@@ -24,8 +24,7 @@
  THE SOFTWARE.
 */
 
-import { _decorator } from '../data/index';
-const { ccclass, property } = _decorator;
+import { ccclass, property } from '../data/class-decorator';
 import * as math from '../vmath';
 
 @ccclass('cc.PrefabInfo')
