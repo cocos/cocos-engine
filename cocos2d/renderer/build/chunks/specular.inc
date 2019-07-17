@@ -19,19 +19,6 @@ void MULTIPLY_SPECULAR_TEXTRUE_COLOR (inout vec3 color, in vec2 uv) {
   #endif
 }
 
-void MULTIPLY_SPECULAR_TEXTRUE_COLOR (inout vec3 color) {
-  #if USE_SPECULAR_TEXTURE && CC_USE_ATTRIBUTE_UV0
-    
-    #ifdef CC_IS_VERT_SHADER
-      vec2 uv = a_uv0;
-    #else
-      vec2 uv = v_uv0;
-    #endif
-
-    MULTIPLY_SPECULAR_TEXTRUE_COLOR(color, uv);
-  #endif
-}
-
 void CALC_SPECULAR (inout vec3 specular, in vec2 uv) {
   #if USE_SPECULAR
     specular = specularColor;
@@ -42,6 +29,5 @@ void CALC_SPECULAR (inout vec3 specular, in vec2 uv) {
 void CALC_SPECULAR (inout vec3 specular) {
   #if USE_SPECULAR
     specular = specularColor;
-    MULTIPLY_SPECULAR_TEXTRUE_COLOR(specular);
   #endif
 }
