@@ -10,12 +10,12 @@ export default class CustomProperties {
         this._dirty = false;
     }
 
-    setProperty (name, value, directly) {
+    setProperty (name, value, type, directly) {
         let uniform = this._properties[name];
         if (!uniform) {
             uniform = Object.create(null);
             uniform.name = name;
-            uniform.type = ctor2enums[value.constructor];
+            uniform.type = type || ctor2enums[value.constructor];
             uniform.directly = directly;
             this._properties[name] = uniform;
         }

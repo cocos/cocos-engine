@@ -26,6 +26,7 @@
 const Skeleton = require('./CCSkeleton');
 const MeshRenderer = require('../../mesh/CCMeshRenderer');
 const RenderFlow = require('../../renderer/render-flow');
+const enums = require('../../../renderer/enums');
 const mat4 = cc.vmath.mat4;
 
 let _m4_tmp = mat4.create();
@@ -196,7 +197,7 @@ let SkinnedMeshRenderer = cc.Class({
             inited = true;
 
             this._jointsData = this._jointsFloat32Data = new Float32Array(jointCount * 16);
-            customProperties.setProperty('cc_jointMatrices', this._jointsFloat32Data);
+            customProperties.setProperty('cc_jointMatrices', this._jointsFloat32Data, enums.PARAM_FLOAT4);
             customProperties.define('CC_USE_JOINTS_TEXTRUE', false);
         }
 
@@ -232,8 +233,8 @@ let SkinnedMeshRenderer = cc.Class({
             this._jointsTexture = texture;
             this._jointsTextureOptions = {format: cc.Texture2D.PixelFormat.RGBA32F, width: texture.width, height: texture.height}
             
-            customProperties.setProperty('cc_jointsTexture', texture.getImpl());
-            customProperties.setProperty('cc_jointsTextureSize', new Float32Array([width, height]));
+            customProperties.setProperty('cc_jointsTexture', texture.getImpl(), enums.PARAM_TEXTURE_2D);
+            customProperties.setProperty('cc_jointsTextureSize', new Float32Array([width, height]), enums.PARAM_FLOAT2);
             
             customProperties.define('CC_JOINTS_TEXTURE_FLOAT32', SUPPORT_FLOAT_TEXTURE);
             customProperties.define('CC_USE_JOINTS_TEXTRUE', true);
