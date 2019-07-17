@@ -16,33 +16,6 @@ import { uglify } from 'rollup-plugin-uglify';
 
 const { excludes } = require('../plugin/rollup-plugin-excludes');
 
-interface IAdvancedModuleOptions {
-    /**
-     * @default 'webgl'
-     */
-    gfx: 'webgl' | 'webgl2';
-
-    /**
-     * @default 'cannon'
-     */
-    physics?: 'builtin' | 'cannon' | 'ammo';
-
-    /**
-     * @default true
-     */
-    animation?: boolean;
-
-    /**
-     * @default true
-     */
-    primitives?: boolean;
-
-    /**
-     * @default false
-     */
-    tween?: boolean;
-}
-
 interface IBaseOptions {
     moduleEntries: string[];
 
@@ -108,16 +81,6 @@ export async function build (options: IBuildOptions) {
 
 function resolveModuleEntry (moduleEntry: string) {
     return normalize(`${__dirname}/../../exports/${moduleEntry}.ts`);
-}
-
-function getDefaultModuleConfig (): IAdvancedModuleOptions {
-    return {
-        animation: true,
-        physics: 'cannon',
-        gfx: 'webgl',
-        primitives: true,
-        tween: false,
-    };
 }
 
 async function _internalBuild (options: IAdvancedOptions) {
