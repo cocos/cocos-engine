@@ -28,14 +28,9 @@ const MeshRendererAssembler = require('../../mesh/mesh-renderer');
 const RenderFlow = require('../../renderer/render-flow');
 
 export default class SkinnedMeshRendererAssembler extends MeshRendererAssembler {
-    updateRenderData (comp) {
-        super.updateRenderData(comp);
-        comp.calcJointMatrix();
-    }
-
     fillBuffers (comp, renderer) {
+        comp.calcJointMatrix();
         super.fillBuffers(comp, renderer);
-        comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
     }
 }
 
