@@ -59,11 +59,18 @@ public:
     SkeletonDataMgr () {}
     virtual ~SkeletonDataMgr () {}
     bool hasSkeletonData (const std::string& uuid);
-    void setSkeletonData (const std::string& uuid, SkeletonData* data, Atlas* atlas, AttachmentLoader* attachmentLoader);
+    void setSkeletonData (const std::string& uuid, SkeletonData* data, Atlas* atlas, AttachmentLoader* attachmentLoader, const std::vector<int>& texturesIndex);
     SkeletonData* retainByUUID (const std::string& uuid);
     void releaseByUUID (const std::string& uuid);
+    
+    typedef std::function<void(int)> destroyCallback;
+    void setDestroyCallback(destroyCallback callback)
+    {
+        _destroyCallback = callback;
+    }
 private:
     static SkeletonDataMgr* _instance;
+    destroyCallback _destroyCallback = nullptr;
 };
 
 }

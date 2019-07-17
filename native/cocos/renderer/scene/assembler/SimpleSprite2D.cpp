@@ -37,28 +37,67 @@ SimpleSprite2D::~SimpleSprite2D()
     
 }
 
-void SimpleSprite2D::generateWorldVertices()
+void SimpleSprite2D::fillBuffers(NodeProxy* node, MeshBuffer* buffer, std::size_t index)
 {
-    float vl = _localData[0],
-    vr = _localData[2],
-    vb = _localData[1],
-    vt = _localData[3];
-    
     RenderData* data = _datas->getRenderData(0);
-    float* verts = (float*)data->getVertices();
+    if (!data)
+    {
+        return;
+    }
     
-    // left bottom
-    verts[0] = vl;
-    verts[1] = vb;
-    // right bottom
-    verts[5] = vr;
-    verts[6] = vb;
-    // left top
-    verts[10] = vl;
-    verts[11] = vt;
-    // right top
-    verts[15] = vr;
-    verts[16] = vt;
+    // must retrieve offset before request
+    auto& bufferOffset = buffer->request(4, 6);
+    uint32_t vBufferOffset = bufferOffset.vByte / sizeof(float);
+    uint32_t indexId = bufferOffset.index;
+    uint32_t vertexId = bufferOffset.vertex;
+    
+    if (*_dirty & VERTICES_DIRTY || node->isDirty(RenderFlow::WORLD_TRANSFORM_CHANGED))
+    {
+        float vl = _localData[0],
+        vr = _localData[2],
+        vb = _localData[1],
+        vt = _localData[3];
+        
+        const Mat4& worldMat = node->getWorldMatrix();
+        size_t dataPerVertex = _bytesPerVertex / sizeof(float);
+        float* srcWorldVerts = (float*)data->getVertices();
+        
+        // left bottom
+        float u = srcWorldVerts[2];
+        worldMat.transformVector(vl, vb, 0.0f, 1.0f, (cocos2d::Vec3*)srcWorldVerts);
+        srcWorldVerts[2] = u;
+
+        // right bottom
+        srcWorldVerts += dataPerVertex;
+        u = srcWorldVerts[2];
+        worldMat.transformVector(vr, vb, 0.0f, 1.0f, (cocos2d::Vec3*)srcWorldVerts);
+        srcWorldVerts[2] = u;
+
+        // left top
+        srcWorldVerts += dataPerVertex;
+        u = srcWorldVerts[2];
+        worldMat.transformVector(vl, vt, 0.0f, 1.0f, (cocos2d::Vec3*)srcWorldVerts);
+        srcWorldVerts[2] = u;
+
+        // right top
+        srcWorldVerts += dataPerVertex;
+        u = srcWorldVerts[2];
+        worldMat.transformVector(vr, vt, 0.0f, 1.0f, (cocos2d::Vec3*)srcWorldVerts);
+        srcWorldVerts[2] = u;
+        
+        *_dirty &= ~VERTICES_DIRTY;
+    }
+    
+    float* dstWorldVerts = buffer->vData + vBufferOffset;
+    memcpy(dstWorldVerts, data->getVertices(), 4 * _bytesPerVertex);
+
+    // Copy index buffer with vertex offset
+    uint16_t* srcIndices = (uint16_t*)data->getIndices();
+    uint16_t* dstIndices = buffer->iData;
+    for (auto i = 0, j = 0; i < 6; ++i, ++j)
+    {
+        dstIndices[indexId++] = vertexId + srcIndices[j];
+    }
 }
 
 RENDERER_END

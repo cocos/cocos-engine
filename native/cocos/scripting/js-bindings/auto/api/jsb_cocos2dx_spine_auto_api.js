@@ -6750,3 +6750,39 @@ SkeletonAnimation : function (
 },
 
 };
+
+/**
+ * @class SkeletonDataMgr
+ */
+spine.SkeletonDataMgr = {
+
+/**
+ * @method setDestroyCallback
+ * @param {function} arg0
+ */
+setDestroyCallback : function (
+func 
+)
+{
+},
+
+/**
+ * @method getInstance
+ * @return {sp.SkeletonDataMgr}
+ */
+getInstance : function (
+)
+{
+    return sp.SkeletonDataMgr;
+},
+
+/**
+ * @method SkeletonDataMgr
+ * @constructor
+ */
+SkeletonDataMgr : function (
+)
+{
+},
+
+};

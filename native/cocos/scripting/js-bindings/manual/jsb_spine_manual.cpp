@@ -79,10 +79,11 @@ static bool js_register_spine_initSkeletonData (se::State& s)
     auto mgr = spine::SkeletonDataMgr::getInstance();
     bool hasSkeletonData = mgr->hasSkeletonData(uuid);
     if (hasSkeletonData) {
-		mgr->retainByUUID(uuid);
-		return true;
+        spine::SkeletonData* skeletonData = mgr->retainByUUID(uuid);
+        native_ptr_to_rooted_seval<spine::SkeletonData>(skeletonData, &s.rval());
+        return true;
     }
-
+    
     std::string skeletonDataFile;
     ok = seval_to_std_string(args[1], &skeletonDataFile);
     SE_PRECONDITION2(ok, false, "js_register_spine_initSkeletonData: Invalid json path!");
@@ -117,8 +118,13 @@ static bool js_register_spine_initSkeletonData (se::State& s)
     delete json;
     
     if (skeletonData) {
-        mgr->setSkeletonData(uuid, skeletonData, atlas, attachmentLoader);
-        native_ptr_to_rooted_seval<spine::SkeletonData>((spine::SkeletonData*)skeletonData, &s.rval());
+        std::vector<int> texturesIndex;
+        for (auto it = textures.begin(); it != textures.end(); it++)
+        {
+            texturesIndex.push_back(it->second->getRealTextureIndex());
+        }
+        mgr->setSkeletonData(uuid, skeletonData, atlas, attachmentLoader, texturesIndex);
+        native_ptr_to_rooted_seval<spine::SkeletonData>(skeletonData, &s.rval());
     } else {
         if (atlas) {
             delete atlas;
@@ -183,6 +189,30 @@ static bool js_register_spine_initSkeletonRenderer(se::State& s)
 }
 SE_BIND_FUNC(js_register_spine_initSkeletonRenderer)
 
+static bool js_register_spine_retainSkeletonData(se::State& s)
+{
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    if (argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 1);
+        return false;
+    }
+    bool ok = false;
+    
+    std::string uuid;
+    ok = seval_to_std_string(args[0], &uuid);
+    SE_PRECONDITION2(ok, false, "js_register_spine_hasSkeletonData: Invalid uuid content!");
+    
+    auto mgr = spine::SkeletonDataMgr::getInstance();
+    bool hasSkeletonData = mgr->hasSkeletonData(uuid);
+    if (hasSkeletonData) {
+        spine::SkeletonData* skeletonData = mgr->retainByUUID(uuid);
+        native_ptr_to_rooted_seval<spine::SkeletonData>(skeletonData, &s.rval());
+    }
+    return true;
+}
+SE_BIND_FUNC(js_register_spine_retainSkeletonData)
+
 bool register_all_spine_manual(se::Object* obj)
 {
     // Get the ns
@@ -197,6 +227,7 @@ bool register_all_spine_manual(se::Object* obj)
     
     ns->defineFunction("initSkeletonRenderer", _SE(js_register_spine_initSkeletonRenderer));
     ns->defineFunction("initSkeletonData", _SE(js_register_spine_initSkeletonData));
+    ns->defineFunction("retainSkeletonData", _SE(js_register_spine_retainSkeletonData));
     ns->defineFunction("disposeSkeletonData", _SE(js_register_spine_disposeSkeletonData));
     
     spine::setSpineObjectDisposeCallback([](void* spineObj){
