@@ -8,29 +8,6 @@
 se::Object* __jsb_cocos2d_renderer_ProgramLib_proto = nullptr;
 se::Class* __jsb_cocos2d_renderer_ProgramLib_class = nullptr;
 
-static bool js_renderer_ProgramLib_getProgram(se::State& s)
-{
-    cocos2d::renderer::ProgramLib* cobj = (cocos2d::renderer::ProgramLib*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_ProgramLib_getProgram : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        std::string arg0;
-        std::vector<std::unordered_map<std::string, cocos2d::Value>*> arg1;
-        ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_native_ptr(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_renderer_ProgramLib_getProgram : Error processing arguments");
-        cocos2d::renderer::Program* result = cobj->getProgram(arg0, arg1);
-        ok &= native_ptr_to_seval<cocos2d::renderer::Program>((cocos2d::renderer::Program*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_renderer_ProgramLib_getProgram : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_ProgramLib_getProgram)
-
 static bool js_renderer_ProgramLib_define(se::State& s)
 {
     cocos2d::renderer::ProgramLib* cobj = (cocos2d::renderer::ProgramLib*)s.nativeThisObject();
@@ -55,52 +32,6 @@ static bool js_renderer_ProgramLib_define(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_renderer_ProgramLib_define)
-
-static bool js_renderer_ProgramLib_getValueFromDefineList(se::State& s)
-{
-    cocos2d::renderer::ProgramLib* cobj = (cocos2d::renderer::ProgramLib*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_ProgramLib_getValueFromDefineList : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        std::string arg0;
-        std::vector<std::unordered_map<std::string, cocos2d::Value>*> arg1;
-        ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_native_ptr(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_renderer_ProgramLib_getValueFromDefineList : Error processing arguments");
-        cocos2d::Value result = cobj->getValueFromDefineList(arg0, arg1);
-        ok &= ccvalue_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_renderer_ProgramLib_getValueFromDefineList : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_ProgramLib_getValueFromDefineList)
-
-static bool js_renderer_ProgramLib_getKey(se::State& s)
-{
-    cocos2d::renderer::ProgramLib* cobj = (cocos2d::renderer::ProgramLib*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_ProgramLib_getKey : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        std::string arg0;
-        std::vector<std::unordered_map<std::string, cocos2d::Value>*> arg1;
-        ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_native_ptr(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_renderer_ProgramLib_getKey : Error processing arguments");
-        std::string result = cobj->getKey(arg0, arg1);
-        ok &= std_string_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_renderer_ProgramLib_getKey : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_ProgramLib_getKey)
 
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_ProgramLib_finalize)
 
@@ -141,10 +72,7 @@ bool js_register_renderer_ProgramLib(se::Object* obj)
 {
     auto cls = se::Class::create("ProgramLib", obj, nullptr, _SE(js_renderer_ProgramLib_constructor));
 
-    cls->defineFunction("getProgram", _SE(js_renderer_ProgramLib_getProgram));
     cls->defineFunction("define", _SE(js_renderer_ProgramLib_define));
-    cls->defineFunction("getValueFromDefineList", _SE(js_renderer_ProgramLib_getValueFromDefineList));
-    cls->defineFunction("getKey", _SE(js_renderer_ProgramLib_getKey));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_ProgramLib_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::ProgramLib>(cls);

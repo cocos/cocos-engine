@@ -21,7 +21,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 #include "ProgramLib.h"
 #include "../gfx/Program.h"
 #include "gfx/DeviceGraphics.h"
@@ -211,26 +210,54 @@ void ProgramLib::define(const std::string& name, const std::string& vert, const 
 
     std::string newVert = vert;
     std::string newFrag = frag;
-
-    std::size_t begin = newVert.find(_precisionReplace);
-    if (begin != std::string::npos)
+    
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
+    std::string::size_type pos = 0;
+    pos = newVert.find(_precisionVert);
+    if (pos != std::string::npos)
     {
-        newVert.replace(begin, strlen(_precisionReplace), _precision);
-    }
-    else
-    {
-        newVert = _precision + vert;
+        newVert.replace(pos, strlen(_precisionVert), "");
     }
     
-    begin = newFrag.find(_precisionReplace);
-    if (begin != std::string::npos)
+    pos = newFrag.find(_precisionFrag);
+    if (pos != std::string::npos)
     {
-        newFrag.replace(begin, strlen(_precisionReplace), _precision);
+        newFrag.replace(pos, strlen(_precisionFrag), "");
     }
-    else
+    
+    while((pos = newVert.find(_mediump)) != std::string::npos)
     {
-        newFrag = _precision + frag;
+        newVert.replace(pos, strlen(_mediump), _mediumpReplace);
     }
+    
+    while((pos = newFrag.find(_mediump)) != std::string::npos)
+    {
+        newFrag.replace(pos, strlen(_mediump), _mediumpReplace);
+    }
+    
+    while((pos = newVert.find(_lowp)) != std::string::npos)
+    {
+        newVert.replace(pos, strlen(_lowp), _lowpReplace);
+    }
+    
+    while((pos = newFrag.find(_lowp)) != std::string::npos)
+    {
+        newFrag.replace(pos, strlen(_lowp), _lowpReplace);
+    }
+#else
+    std::string::size_type pos = 0;
+    pos = newVert.find(_precisionVert);
+    if (pos == std::string::npos)
+    {
+        newVert = _precisionVertReplace + vert;
+    }
+    
+    pos = newVert.find(_precisionFrag);
+    if (pos == std::string::npos)
+    {
+        newFrag = _precisionFragReplace + frag;
+    }
+#endif
     
     // store it
     auto& templ = _templates[name];

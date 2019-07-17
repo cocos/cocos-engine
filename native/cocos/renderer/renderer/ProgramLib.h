@@ -90,8 +90,15 @@ private:
     
 private:
     DeviceGraphics* _device = nullptr;
-    const char* _precisionReplace = "precision highp float;";
-    const char* _precision = "#ifdef GL_ES\nprecision highp float;\n#endif\n";
+    const char* _precisionVert = "precision highp float;";
+    const char* _precisionVertReplace = "#ifdef GL_ES\nprecision highp float;\n#endif\n";
+    const char* _precisionFrag = "precision highp float;";
+    const char* _precisionFragReplace = "#ifdef GL_ES\nprecision mediump float;\n#endif\n";
+    const char* _mediumpReplace = "half";
+    const char* _mediump = "mediump";
+    const char* _lowpReplace = "fixed";
+    const char* _lowp = "lowp";
+    
     std::unordered_map<std::string, Template> _templates;
     std::unordered_map<std::string, Program*> _cache;
 };

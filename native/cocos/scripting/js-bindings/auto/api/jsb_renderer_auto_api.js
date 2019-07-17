@@ -9,20 +9,6 @@ var renderer = renderer || {};
 renderer.ProgramLib = {
 
 /**
- * @method getProgram
- * @param {String} arg0
- * @param {Array} arg1
- * @return {cc.renderer::Program}
- */
-getProgram : function (
-str, 
-map 
-)
-{
-    return cc.renderer::Program;
-},
-
-/**
  * @method define
  * @param {String} arg0
  * @param {String} arg1
@@ -36,34 +22,6 @@ str,
 array 
 )
 {
-},
-
-/**
- * @method getValueFromDefineList
- * @param {String} arg0
- * @param {Array} arg1
- * @return {cc.Value}
- */
-getValueFromDefineList : function (
-str, 
-map 
-)
-{
-    return cc.Value;
-},
-
-/**
- * @method getKey
- * @param {String} arg0
- * @param {Array} arg1
- * @return {String}
- */
-getKey : function (
-str, 
-map 
-)
-{
-    return ;
 },
 
 /**
