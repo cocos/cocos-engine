@@ -754,6 +754,7 @@ class Game extends EventTarget {
         // WebGL context created successfully
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
             let useWebGL2 = (!!window.WebGL2RenderingContext);
+
             const userAgent = navigator.userAgent.toLowerCase();
             if (userAgent.indexOf('safari') !== -1) {
                 if (userAgent.indexOf('chrome') === -1) {
@@ -761,7 +762,7 @@ class Game extends EventTarget {
                 }
             }
 
-            useWebGL2 = false;
+            // useWebGL2 = false;
             if (useWebGL2) {
                 this._gfxDevice = new cc.WebGL2GFXDevice();
             } else {
