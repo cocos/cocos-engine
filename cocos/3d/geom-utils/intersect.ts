@@ -4,7 +4,6 @@
  */
 
 import { Mat3, Vec3 } from '../../core/value-types';
-import { mat3 } from '../../core/vmath';
 import aabb from './aabb';
 import * as distance from './distance';
 import enums from './enums';

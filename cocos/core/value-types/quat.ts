@@ -34,6 +34,11 @@ import { EPSILON, toDegree } from './utils';
 import { ValueType } from './value-type';
 import { Vec3 } from './vec3';
 
+let _x: number = 0.0;
+let _y: number = 0.0;
+let _z: number = 0.0;
+let _w: number = 0.0;
+
 /**
  * 四元数。
  */
@@ -162,13 +167,14 @@ export class Quat extends ValueType {
      * @zh 四元数乘法
      */
     public static multiply <Out extends IQuatLike, QuatLike_1 extends IQuatLike, QuatLike_2 extends IQuatLike> (out: Out, a: QuatLike_1, b: QuatLike_2) {
-        const { x: ax, y: ay, z: az, w: aw } = a;
-        const { x: bx, y: by, z: bz, w: bw } = b;
-
-        out.x = ax * bw + aw * bx + ay * bz - az * by;
-        out.y = ay * bw + aw * by + az * bx - ax * bz;
-        out.z = az * bw + aw * bz + ax * by - ay * bx;
-        out.w = aw * bw - ax * bx - ay * by - az * bz;
+        _x = a.x * b.w + a.w * b.x + a.y * b.z - a.z * b.y;
+        _y = a.y * b.w + a.w * b.y + a.z * b.x - a.x * b.z;
+        _z = a.z * b.w + a.w * b.z + a.x * b.y - a.y * b.x;
+        _w = a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z;
+        out.x = _x;
+        out.y = _y;
+        out.z = _z;
+        out.w = _w;
         return out;
     }
 
@@ -305,11 +311,10 @@ export class Quat extends ValueType {
      * @zh 逐元素线性插值： A + t * (B - A)
      */
     public static lerp <Out extends IQuatLike> (out: Out, a: Out, b: Out, t: number) {
-        const { x: ax, y: ay, z: az, w: aw } = a;
-        out.x = ax + t * (b.x - ax);
-        out.y = ay + t * (b.y - ay);
-        out.z = az + t * (b.z - az);
-        out.w = aw + t * (b.w - aw);
+        out.x = a.x + t * (b.x - a.x);
+        out.y = a.y + t * (b.y - a.y);
+        out.z = a.z + t * (b.z - a.z);
+        out.w = a.w + t * (b.w - a.w);
         return out;
     }
 
@@ -321,21 +326,18 @@ export class Quat extends ValueType {
         // benchmarks:
         //    http://jsperf.com/quaternion-slerp-implementations
 
-        const { x: ax, y: ay, z: az, w: aw } = a;
-        let { x: bx, y: by, z: bz, w: bw } = b;
-
         let scale0 = 0;
         let scale1 = 0;
 
         // calc cosine
-        let cosom = ax * bx + ay * by + az * bz + aw * bw;
+        let cosom = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
         // adjust signs (if necessary)
         if (cosom < 0.0) {
             cosom = -cosom;
-            bx = -bx;
-            by = -by;
-            bz = -bz;
-            bw = -bw;
+            b.x = -b.x;
+            b.y = -b.y;
+            b.z = -b.z;
+            b.w = -b.w;
         }
         // calculate coefficients
         if ((1.0 - cosom) > 0.000001) {
@@ -351,10 +353,10 @@ export class Quat extends ValueType {
             scale1 = t;
         }
         // calculate final values
-        out.x = scale0 * ax + scale1 * bx;
-        out.y = scale0 * ay + scale1 * by;
-        out.z = scale0 * az + scale1 * bz;
-        out.w = scale0 * aw + scale1 * bw;
+        out.x = scale0 * a.x + scale1 * b.x;
+        out.y = scale0 * a.y + scale1 * b.y;
+        out.z = scale0 * a.z + scale1 * b.z;
+        out.w = scale0 * a.w + scale1 * b.w;
 
         return out;
     }

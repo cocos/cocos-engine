@@ -386,10 +386,9 @@ export class Vec3 extends ValueType {
      * @zh 逐元素向量线性插值： A + t * (B - A)
      */
     public static lerp<Out extends IVec3Like> (out: Out, a: Out, b: Out, t: number) {
-        const { x: ax, y: ay, z: az } = a;
-        out.x = ax + t * (b.x - ax);
-        out.y = ay + t * (b.y - ay);
-        out.z = az + t * (b.z - az);
+        out.x = a.x + t * (b.x - a.x);
+        out.y = a.y + t * (b.y - a.y);
+        out.z = a.z + t * (b.z - a.z);
         return out;
     }
 
@@ -453,19 +452,16 @@ export class Vec3 extends ValueType {
     public static transformQuat<Out extends IVec3Like, VecLike extends IVec3Like, QuatLike extends IQuatLike> (out: Out, a: VecLike, q: QuatLike) {
         // benchmarks: http://jsperf.com/quaternion-transform-Vec3-implementations
 
-        const { x, y, z } = a;
-        const { x: qx, y: qy, z: qz, w: qw } = q;
-
         // calculate quat * vec
-        const ix = qw * x + qy * z - qz * y;
-        const iy = qw * y + qz * x - qx * z;
-        const iz = qw * z + qx * y - qy * x;
-        const iw = -qx * x - qy * y - qz * z;
+        const ix = q.w * a.x + q.y * a.z - q.z * a.y;
+        const iy = q.w * a.y + q.z * a.x - q.x * a.z;
+        const iz = q.w * a.z + q.x * a.y - q.y * a.x;
+        const iw = -q.x * a.x - q.y * a.y - q.z * a.z;
 
         // calculate result * inverse quat
-        out.x = ix * qw + iw * -qx + iy * -qz - iz * -qy;
-        out.y = iy * qw + iw * -qy + iz * -qx - ix * -qz;
-        out.z = iz * qw + iw * -qz + ix * -qy - iy * -qx;
+        out.x = ix * q.w + iw * -q.x + iy * -q.z - iz * -q.y;
+        out.y = iy * q.w + iw * -q.y + iz * -q.x - ix * -q.z;
+        out.z = iz * q.w + iw * -q.z + ix * -q.y - iy * -q.x;
         return out;
     }
 

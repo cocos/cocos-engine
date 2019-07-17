@@ -4,10 +4,8 @@
 
 import { ccclass, property } from '../core/data/class-decorator';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
-import { CCEnum } from '../core/value-types/enum';
-import { lerp, Quat, ValueType, Vec2, Vec3, Vec4 } from '../core/value-types';
-import { error, errorID } from '../core/platform/CCDebug';
-import * as vmath from '../core/vmath';
+import { errorID } from '../core/platform/CCDebug';
+import { lerp, ValueType } from '../core/value-types';
 import { PropertyBlendState } from './animation-blend-state';
 import { bezierByTime, BezierControlPoints } from './bezier';
 import * as blending from './blending';
