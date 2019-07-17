@@ -2,8 +2,8 @@
 
 #if CC_USE_SKINNING
 
-  attribute vec4 a_weights;
-  attribute vec4 a_joints;
+  in vec4 a_weights;
+  in vec4 a_joints;
 
   #if CC_USE_JOINTS_TEXTRUE
     #pragma builtin(local)

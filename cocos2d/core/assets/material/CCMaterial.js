@@ -166,7 +166,7 @@ let Material = cc.Class({
                 if (format === PixelFormat.RGBA_ETC1 ||
                     format === PixelFormat.RGB_A_PVRTC_4BPPV1 ||
                     format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
-                    this.define('_USE_ALPHA_ATLAS_' + name.toUpperCase(), true);
+                    this.define('CC_USE_ALPHA_ATLAS_' + name.toUpperCase(), true);
                 }
             }
             else {

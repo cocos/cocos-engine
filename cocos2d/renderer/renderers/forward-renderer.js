@@ -132,10 +132,10 @@ export default class ForwardRenderer extends BaseRenderer {
 
   _updateDefines () {
     let defines = this._defines;
-    defines._NUM_DIR_LIGHTS = Math.min(4, this._directionalLights.length);
-    defines._NUM_POINT_LIGHTS = Math.min(4, this._pointLights.length);
-    defines._NUM_SPOT_LIGHTS = Math.min(4, this._spotLights.length);
-    defines._NUM_AMBIENT_LIGHTS = Math.min(4, this._ambientLights.length);
+    defines.CC_NUM_DIR_LIGHTS = Math.min(4, this._directionalLights.length);
+    defines.CC_NUM_POINT_LIGHTS = Math.min(4, this._pointLights.length);
+    defines.CC_NUM_SPOT_LIGHTS = Math.min(4, this._spotLights.length);
+    defines.CC_NUM_AMBIENT_LIGHTS = Math.min(4, this._ambientLights.length);
 
     defines.CC_NUM_SHADOW_LIGHTS = Math.min(4, this._shadowLights.length);
   }
@@ -290,6 +290,7 @@ export default class ForwardRenderer extends BaseRenderer {
     if (shadowLights.length === 0 && this._numLights === 0) {
       for (let i = 0; i < items.length; ++i) {
         let item = items.data[i];
+        this._updateShaderDefines(item);
         this._draw(item);
       }
     }
