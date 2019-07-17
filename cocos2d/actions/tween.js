@@ -158,6 +158,7 @@ let SetAction = cc.Class({
  *  - 支持与 cc.Action 混用
  *  - 支持设置 {{#crossLink "Easing"}}{{/crossLink}} 或者 progress 函数
  * @class Tween
+ * @param {Object} target
  * @example
  * cc.tween(node)
  *   .to(1, {scale: 2, position: cc.v3(100, 100, 100)})
