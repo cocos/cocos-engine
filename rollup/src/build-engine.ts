@@ -1,3 +1,4 @@
+import { existsSync } from 'fs';
 import { dirname, join, normalize, relative } from 'path';
 import { rollup } from 'rollup';
 // @ts-ignore
@@ -12,7 +13,6 @@ import multiEntry from 'rollup-plugin-multi-entry';
 import resolve from 'rollup-plugin-node-resolve';
 // @ts-ignore
 import { uglify } from 'rollup-plugin-uglify';
-import { existsSync } from 'fs';
 
 const { excludes } = require('../plugin/rollup-plugin-excludes');
 
@@ -44,7 +44,7 @@ interface IAdvancedModuleOptions {
 }
 
 interface IBaseOptions {
-    moduleConfig?: IAdvancedModuleOptions;
+    moduleEntries: string[];
 
     /**
      * 指定输出路径。
@@ -106,27 +106,8 @@ export async function build (options: IBuildOptions) {
     return await _internalBuild(Object.assign(options, {globalDefines}));
 }
 
-function getModuleEntry (moduleName: string) {
-    return normalize(`${__dirname}/../../exports/${moduleName}.ts`);
-}
-
-function getModules (options: IAdvancedModuleOptions) {
-    const result: string[] = [];
-    result.push(getModuleEntry(`base`));
-    result.push(getModuleEntry(`gfx-${options.gfx}`));
-    if (options.animation) {
-        result.push(getModuleEntry(`animation`));
-    }
-    if (options.physics) {
-        result.push(getModuleEntry(`physics-${options.physics}`));
-    }
-    if (options.primitives) {
-        result.push(getModuleEntry(`primitives`));
-    }
-    if (options.tween) {
-        result.push(getModuleEntry(`tween`));
-    }
-    return result;
+function resolveModuleEntry (moduleEntry: string) {
+    return normalize(`${__dirname}/../../exports/${moduleEntry}.ts`);
 }
 
 function getDefaultModuleConfig (): IAdvancedModuleOptions {
@@ -223,9 +204,7 @@ async function _internalBuild (options: IAdvancedOptions) {
     const outputPath = options.outputPath;
     const sourcemapFile = options.sourcemapFile || `${options.outputPath}.map`;
 
-    const moduleEntries = getModules(
-        options.moduleConfig ? options.moduleConfig : getDefaultModuleConfig());
-    console.log(`Modules:\n${moduleEntries.join('\n')}`);
+    const moduleEntries = options.moduleEntries.map(resolveModuleEntry);
     for (const moduleEntry of moduleEntries) {
         if (!existsSync(moduleEntry)) {
             console.error(`Cannot find engine module ${moduleEntry}`);

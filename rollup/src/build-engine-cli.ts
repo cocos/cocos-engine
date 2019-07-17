@@ -21,6 +21,15 @@ if (argvFlags) {
 const sourceMap = yargs.argv.sourcemap === 'inline' ? 'inline' : !!yargs.argv.sourcemap;
 
 const options: IBuildOptions = {
+    moduleEntries: [
+        'base',
+        'animation',
+        'gfx-webgl',
+        'gfx-webgl2',
+        'physics-builtin',
+        'primitives',
+        'tween',
+    ],
     compress: yargs.argv.compress as (boolean | undefined),
     outputPath: yargs.argv.destination as string,
     excludes: yargs.argv.excludes as string[],
