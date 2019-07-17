@@ -23,7 +23,7 @@
 
 void CALC_NORMAL (inout vec3 normal, in vec3 worldPos, in vec2 uv) {
   #if USE_NORMAL_TEXTURE /*&& GL_OES_standard_derivatives*/
-    normal = getNormal(worldPos, normal, uv);
+    // normal = getNormal(worldPos, normal, uv);
   #endif
 }
 
