@@ -36,6 +36,7 @@ import {getDependsRecursively} from '../load-pipeline/auto-release-utils';
 import Loader from '../load-pipeline/CCLoader';
 import MD5Pipe from '../load-pipeline/md5-pipe';
 import {initPacks} from '../load-pipeline/pack-downloader';
+import SubPackPipe from '../load-pipeline/subpackage-pipe';
 import { Asset } from './asset';
 
 // tslint:disable: max-line-length
@@ -327,6 +328,12 @@ const AssetLibrary = {
         _libraryBase = cc.path.stripSep(libraryPath) + '/';
 
         _rawAssetsBase = options.rawAssetsBase;
+
+        if (options.subpackages) {
+            const subPackPipe = new SubPackPipe(options.subpackages);
+            cc.loader.insertPipeAfter(cc.loader.assetLoader, subPackPipe);
+            cc.loader.subPackPipe = subPackPipe;
+        }
 
         const md5AssetsMap = options.md5AssetsMap;
         if (md5AssetsMap && md5AssetsMap.import) {
