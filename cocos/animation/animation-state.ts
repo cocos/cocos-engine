@@ -635,8 +635,10 @@ export class AnimationState extends Playable {
                             curveInstace.target.setPosition(value);
                         } else if (curveInstace.property === 'rotation') {
                             curveInstace.target.setRotation(value);
-                        } else {
+                        } else if (curveInstace.property === 'scale') {
                             curveInstace.target.setScale(value);
+                        } else {
+                            curveInstace.target[curveInstace.property] = value;
                         }
                     } else {
                         curveInstace.target[curveInstace.property] = value;

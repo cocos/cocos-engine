@@ -41,7 +41,7 @@ import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 
 interface IJointsInfo {
-    buffer: GFXBuffer;
+    buffer: GFXBuffer | null;
     nativeData: Float32Array;
     texture: Texture2D;
 }
@@ -69,8 +69,10 @@ export class SkinningModel extends Model {
 
     public destroy () {
         super.destroy();
-        if (!this._jointsMedium) { return; }
-        this._jointsMedium.buffer.destroy();
+        if (this._jointsMedium.buffer) {
+            this._jointsMedium.buffer.destroy();
+            this._jointsMedium.buffer = null;
+        }
     }
 
     public bindSkeleton (skeleton: Skeleton | null, skinningRoot: Node | null) {
@@ -87,25 +89,22 @@ export class SkinningModel extends Model {
     }
 
     public setFrameID (val: number) {
-        if (!this._jointsMedium) { return; }
         const { buffer, nativeData } = this._jointsMedium;
         nativeData[2] = val;
-        buffer.update(nativeData, UBOSkinningTexture.JOINTS_TEXTURE_SIZE_INV_OFFSET);
+        buffer!.update(nativeData, UBOSkinningTexture.JOINTS_TEXTURE_SIZE_INV_OFFSET);
     }
 
     public getFrameID () {
-        if (!this._jointsMedium) { return 0; }
         return this._jointsMedium.nativeData[2];
     }
 
     protected _applyJointTexture (texture: Texture2D) {
-        if (!this._jointsMedium) { return; }
         this._jointsMedium.texture = texture;
         const { buffer, nativeData } = this._jointsMedium;
         nativeData[0] = 1 / texture.width;
         nativeData[1] = 1 / texture.height;
         nativeData[2] = 0;
-        buffer.update(nativeData, UBOSkinningTexture.JOINTS_TEXTURE_SIZE_INV_OFFSET);
+        if (buffer) { buffer.update(nativeData, UBOSkinningTexture.JOINTS_TEXTURE_SIZE_INV_OFFSET); }
         const view = texture.getGFXTextureView();
         const sampler = samplerLib.getSampler(this._device, texture.getGFXSamplerInfo());
         if (!view || !sampler) { console.warn('incomplete skinning texture'); return; }
@@ -120,7 +119,6 @@ export class SkinningModel extends Model {
 
     protected _doCreatePSO (pass: Pass) {
         const pso = super._doCreatePSO(pass);
-        if (!this._jointsMedium) { return pso; }
         const { buffer, texture } = this._jointsMedium;
         pso.pipelineLayout.layouts[0].bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer);
         const view = texture.getGFXTextureView();

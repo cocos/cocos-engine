@@ -3,12 +3,25 @@
  * @category animation
  */
 
+import { RenderableComponent } from '../3d/framework/renderable-component';
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
 import { ccclass } from '../core/data/class-decorator';
-import { quat, vec3 } from '../core/vmath';
+import { getClassName } from '../core/utils/js';
+import { Quat, Vec3 } from '../core/value-types';
+import { mat4, quat, vec3 } from '../core/vmath';
 import { Node } from '../scene-graph';
 import { AnimationClip, ICurveData, IObjectCurveData, IPropertyCurve } from './animation-clip';
 import { IPropertyCurveData } from './animation-curve';
+
+function getPathFromRoot (target: Node | null, root: Node) {
+    let node: Node | null = target;
+    let path = '';
+    while (node !== null && node !== root) {
+        path = `${node.name}/${path}`;
+        node = node.parent;
+    }
+    return path.slice(0, -1);
+}
 
 /**
  * 骨骼动画剪辑。
@@ -48,7 +61,7 @@ export class SkeletalAnimationClip extends AnimationClip {
         const idx = path.lastIndexOf('/');
         if (idx < 0) { return; }
         const name = path.substring(0, idx);
-        const data = this.curveDatas[name];
+        const data = this.convertedData[name];
         if (!data || !data.props) { console.warn('no data for parent bone?'); return; }
         const pPos = data.props.position.values;
         const pRot = data.props.rotation.values;
@@ -89,27 +102,107 @@ export class SkeletalAnimationClip extends AnimationClip {
             position.interpolate = false;
             rotation.interpolate = false;
             scale.interpolate = false;
-            // transform to world space
+        }
+        // keep all node animations in editor
+        if (CC_EDITOR) { this.convertedData = JSON.parse(JSON.stringify(this.curveDatas)); }
+        else { this.convertedData = this.curveDatas; this.curveDatas = {}; }
+        // transform to world space
+        for (const path of paths) {
+            const nodeData = this.convertedData[path];
+            if (!nodeData.props) { continue; }
             this._convertToWorldSpace(path, nodeData.props);
         }
-        this.convertedData = this.curveDatas;
         // convert to SkinningModelComponent.fid animation
-        this.curveDatas = {};
         const values = [...Array(Math.ceil(this.sample * this._duration))].map((_, i) => i);
-        root.getComponentsInChildren(SkinningModelComponent).map((comp) => {
-            let node: Node | null = comp.node;
-            let path = '';
-            while (node !== null && node !== root) {
-                path = `${node.name}/${path}`;
-                node = node.parent;
+        root.getComponentsInChildren(RenderableComponent).forEach((comp) => {
+            const isSkinningModel = comp instanceof SkinningModelComponent;
+            if (isSkinningModel) {
+                const path = getPathFromRoot(comp.node, root);
+                if (!this.curveDatas[path]) { this.curveDatas[path] = {}; }
+                this.curveDatas[path].comps = { [getClassName(comp)]: { frameID: { keys: 0, values, interpolate: false } } };
             }
-            return path.slice(0, -1);
-        }).forEach((path) => {
-            this.curveDatas[path] = { comps: { 'cc.SkinningModelComponent': { frameID: { keys: 0, values, interpolate: false } } } };
+            if (!CC_EDITOR) { // rig non-skinning renderables
+                if (isSkinningModel && (comp as SkinningModelComponent).skinningRoot === root) { return; }
+                const path = getPathFromRoot(comp.node.parent!, root);
+                const data = this.convertedData[path];
+                if (!data || !data.props) { return; }
+                if (!this.curveDatas[path]) { this.curveDatas[path] = {}; }
+                this.curveDatas[path].props = this._convertToRiggingData(data.props, comp.node.parent!, root);
+            }
         });
         this._keys = [values.map((_, i) => i / this.sample)];
         this._converted = true;
     }
+
+    private _convertToRiggingData (props: IObjectCurveData, target: Node, root: Node) {
+        const data: IObjectCurveData = {
+            position: { keys: 0, values: props.position.values.map(() => new Vec3()) },
+            rotation: { keys: 0, values: props.rotation.values.map(() => new Quat()) },
+            scale: { keys: 0, values: props.scale.values.map(() => new Vec3()) },
+        };
+        if (target.parent !== root) { target = target.parent!; }
+        /* */
+        // invert target world transform
+        quat.invert(qt_1, target.worldRotation);
+        vec3.invert(v3_2, target.worldScale);
+        vec3.negate(v3_1, target.worldPosition);
+        vec3.transformQuat(v3_1, v3_1, qt_1);
+        vec3.multiply(v3_1, v3_1, v3_2);
+        // multiply by root world transform
+        vec3.multiply(v3_3, root.worldPosition, v3_2);
+        vec3.transformQuat(v3_3, v3_3, qt_1);
+        vec3.add(v3_1, v3_3, v3_1);
+        quat.multiply(qt_1, qt_1, root.worldRotation);
+        vec3.multiply(v3_2, v3_2, root.worldScale);
+        /* *
+        vec3.set(v3_1, 0, 0, 0);
+        quat.set(qt_1, 0, 0, 0, 1);
+        vec3.set(v3_2, 1, 1, 1);
+        const path: Node[] = [];
+        while (target !== root) {
+            path.unshift(target);
+            target = target.parent!;
+        }
+        for (const node of path) {
+            vec3.multiply(v3_3, node.position, v3_2);
+            vec3.transformQuat(v3_3, v3_3, qt_1);
+            vec3.add(v3_1, v3_3, v3_1);
+            quat.multiply(qt_1, qt_1, node.worldRotation);
+            vec3.multiply(v3_2, v3_2, node.worldScale);
+        }
+        quat.invert(qt_1, qt_1);
+        vec3.invert(v3_2, v3_2);
+        vec3.negate(v3_1, v3_1);
+        vec3.transformQuat(v3_1, v3_1, qt_1);
+        vec3.multiply(v3_1, v3_1, v3_2);
+        /* */
+        // compute rigging
+        const rPos = data.position.values;
+        const rRot = data.rotation.values;
+        const rScale = data.scale.values;
+        const position = props.position.values;
+        const rotation = props.rotation.values;
+        const scale = props.scale.values;
+        for (let i = 0; i < position.length; i++) {
+            const T = rPos[i];
+            const R = rRot[i];
+            const S = rScale[i];
+            const worldT = position[i];
+            const worldR = rotation[i];
+            const worldS = scale[i];
+            vec3.multiply(T, worldT, v3_2);
+            vec3.transformQuat(T, T, qt_1);
+            vec3.add(T, T, v3_1);
+            quat.multiply(R, qt_1, worldR);
+            vec3.multiply(S, v3_2, worldS);
+        }
+        return data;
+    }
 }
+
+const v3_1 = new Vec3();
+const v3_2 = new Vec3();
+const qt_1 = new Quat();
+const v3_3 = new Vec3();
 
 cc.SkeletalAnimationClip = SkeletalAnimationClip;

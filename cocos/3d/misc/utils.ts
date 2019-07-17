@@ -456,10 +456,9 @@ const v3_3 = new Vec3();
 const v3_4 = new Vec3();
 export function calculateSkinnedBounds (out: aabb, comp: SkinningModelComponent) {
     if (!comp.model || !comp.mesh) { return; }
-    const mesh = comp.mesh;
     const skeleton = comp.skeleton;
-    const clip = comp.model.uploadedClip;
     const root = comp.skinningRoot;
+    const clip = comp.model.uploadedClip;
     if (!skeleton || !root || !clip) {
         if (!comp.model.worldBounds) { return; }
         aabb.copy(out, comp.model.worldBounds);
@@ -468,7 +467,7 @@ export function calculateSkinnedBounds (out: aabb, comp: SkinningModelComponent)
     vec3.set(v3_3, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
     vec3.set(v3_4, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
     root.getWorldMatrix(m4_1);
-    const boundList = boneSpaceBoundsManager.use(mesh, skeleton);
+    const boundList = boneSpaceBoundsManager.use(comp.mesh, skeleton);
     const len = skeleton.joints.length;
     const data = clip.convertedData;
     const fid = comp.model.getFrameID();
