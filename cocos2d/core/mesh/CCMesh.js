@@ -202,7 +202,7 @@ let Mesh = cc.Class({
         let bytes = 4;
         if (name === gfx.ATTR_COLOR) {
             if (isFlatMode) {
-                reader = Float32Array;
+                reader = Uint8Array;
                 bytes = 1;
             }
             else {
