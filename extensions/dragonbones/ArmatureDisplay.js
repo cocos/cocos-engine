@@ -521,6 +521,16 @@ let ArmatureDisplay = cc.Class({
         }
     },
 
+    _emitCacheCompleteEvent () {
+        // Animation loop complete, the event diffrent from dragonbones inner event,
+        // It has no event object.
+        this._eventTarget.emit(dragonBones.EventObject.LOOP_COMPLETE);
+
+        // Animation complete the event diffrent from dragonbones inner event,
+        // It has no event object.
+        this._eventTarget.emit(dragonBones.EventObject.COMPLETE);
+    },
+
     update (dt) {
         if (!this.isAnimationCached()) return;
         if (!this._playing) return;
@@ -532,7 +542,7 @@ let ArmatureDisplay = cc.Class({
         // Animation Start, the event diffrent from dragonbones inner event,
         // It has no event object.
         if (this._accTime == 0 && this._playCount == 0) {
-            this._eventTarget && this._eventTarget.emit(dragonBones.EventObject.START);
+            this._eventTarget.emit(dragonBones.EventObject.START);
         }
 
         let globalTimeScale = dragonBones.timeScale;
@@ -543,15 +553,6 @@ let ArmatureDisplay = cc.Class({
         }
 
         if (frameCache.isCompleted && frameIdx >= frames.length) {
-
-            // Animation loop complete, the event diffrent from dragonbones inner event,
-            // It has no event object.
-            this._eventTarget && this._eventTarget.emit(dragonBones.EventObject.LOOP_COMPLETE);
-
-            // Animation complete the event diffrent from dragonbones inner event,
-            // It has no event object.
-            this._eventTarget && this._eventTarget.emit(dragonBones.EventObject.COMPLETE);
-
             this._playCount ++;
             if ((this.playTimes > 0 && this._playCount >= this.playTimes)) {
                 // set frame to end frame.
@@ -559,10 +560,12 @@ let ArmatureDisplay = cc.Class({
                 this._accTime = 0;
                 this._playing = false;
                 this._playCount = 0;
+                this._emitCacheCompleteEvent();
                 return;
             }
             this._accTime = 0;
             frameIdx = 0;
+            this._emitCacheCompleteEvent();
         }
 
         this._curFrame = frames[frameIdx];

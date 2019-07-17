@@ -129,7 +129,7 @@ class SpineMeta extends CustomAssetMeta {
         //this.textures[0] = value;
     }
 
-    static version () { return '1.2.1'; }
+    static version () { return '1.2.2'; }
     static defaultType () {
         return 'spine';
     }
@@ -176,7 +176,6 @@ class SpineMeta extends CustomAssetMeta {
             var asset = new sp.SkeletonData();
             asset.name = Path.basenameNoExt(fspath);
             asset.skeletonJson = json;
-            asset.skeletonJsonStr = data;
             asset.scale = this.scale;
 
             loadAtlasText(fspath, (err, res) => {
