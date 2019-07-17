@@ -75,7 +75,7 @@ function _getSlotMaterial (tex, blendMode) {
     let useModel = !_comp.enableBatch;
     // Add useModel flag due to if pre same db useModel but next db no useModel,
     // then next db will multiply model matrix more than once.
-    let key = tex.url + src + dst + useModel;
+    let key = tex.getId() + src + dst + useModel;
     let baseMaterial = _comp.sharedMaterials[0];
     if (!baseMaterial) {
         return null;

@@ -106,7 +106,7 @@ function _getSlotMaterial (tex, blendMode) {
     }
 
     let useModel = !_comp.enableBatch;
-    let key = tex.url + src + dst + _useTint + useModel;
+    let key = tex.getId() + src + dst + _useTint + useModel;
     let baseMaterial = _comp.sharedMaterials[0];
     if (!baseMaterial) return null;
 
