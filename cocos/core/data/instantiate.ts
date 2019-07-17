@@ -31,6 +31,7 @@
 import { isDomNode } from '../utils/misc';
 import { ValueType } from '../value-types/value-type';
 import { CCObject } from './object';
+import { js } from '../utils';
 
 // @ts-ignore
 const Destroyed = CCObject.Flags.Destroyed;
@@ -192,7 +193,7 @@ function enumerateCCClass (klass, obj, clone, parent) {
 function enumerateObject (obj, clone, parent) {
     // 目前使用“_iN$t”这个特殊字段来存实例化后的对象，这样做主要是为了防止循环引用
     // 注意，为了避免循环引用，所有新创建的实例，必须在赋值前被设为源对象的_iN$t
-    obj._iN$t = clone;
+    js.value(obj, '_iN$t', clone, true);
     objsToClearTmpVar.push(obj);
     const klass = obj.constructor;
     if (cc.Class._isCCClass(klass)) {

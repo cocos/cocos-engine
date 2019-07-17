@@ -14,7 +14,7 @@ import { Model } from '../../../renderer';
 import { Material } from '../../assets';
 import { RenderableComponent } from '../renderable-component';
 import ColorOverLifetimeModule from './animator/color-overtime';
-import CurveRange from './animator/curve-range';
+import CurveRange, { Mode } from './animator/curve-range';
 import ForceOvertimeModule from './animator/force-overtime';
 import GradientRange from './animator/gradient-range';
 import LimitVelocityOvertimeModule from './animator/limit-velocity-overtime';
@@ -619,7 +619,7 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     // initialize particle system as though it had already completed a full cycle.
     private _prewarmSystem () {
-        this.startDelay.mode = 'constant'; // clear startDelay.
+        this.startDelay.mode = Mode.Constant; // clear startDelay.
         this.startDelay.constant = 0;
         const dt = 1.0; // should use varying value?
         const cnt = this.duration / dt;
