@@ -75,18 +75,18 @@ public:
     /**
      *  @brief Gets unique key for the given program name and defines key.
      */
-    std::string getKey(const std::string& name, const ValueMap& defines);
+    std::string getKey(const std::string& name, const std::vector<ValueMap*>& definesList);
 
     /**
      *  @brief Gets program by template name, define settings and defines key.
      *  @note The return value needs to be released by its 'release' method.
      */
-    Program* getProgram(const std::string& name, const ValueMap& defines);
+    Program* getProgram(const std::string& name, const std::vector<ValueMap*>& definesList);
     
-    Value getValueFromDefineList(const std::string& name, const ValueMap& define);
+    Value getValueFromDefineList(const std::string& name, const std::vector<ValueMap*>& definesList);
 
 private:
-    uint32_t getValueKey(const ValueMap& define, const Value& v);
+    uint32_t getValueKey(const Value& v);
     
 private:
     DeviceGraphics* _device = nullptr;

@@ -151,7 +151,8 @@ void BaseRenderer::render(const View& view, const Scene* scene)
                 stageItem.defines = item->defines;
                 stageItem.technique = tech;
                 stageItem.sortKey = -1;
-
+                stageItem.uniforms = item->uniforms;
+                
                 stageItems.push_back(stageItem);
             }
         }
@@ -269,12 +270,12 @@ void BaseRenderer::draw(const StageItem& item)
     _device->setUniformMat4("cc_mat3WorldIT", _tmpMat3->m);
     
     // set technique uniforms
-    auto effect = item.effect;
-    auto& properties = effect->getProperties();
-    for (auto it = properties.begin(); it != properties.end(); it++)
+    for (int i = 0, len = (int)item.uniforms->size(); i < len; i++)
     {
-        Effect::Property& prop = const_cast<Effect::Property&>(it->second);
-        setProperty(prop);
+        std::unordered_map<std::string, Effect::Property>* properties = (*item.uniforms)[i];
+        for (auto& prop : *properties) {
+            setProperty(prop.second);
+        }
     }
     
     auto ia = item.ia;

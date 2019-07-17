@@ -149,7 +149,7 @@ void Texture2D::setSubImage(const SubImageOption& option)
 
     GL_CHECK(ccPixelStorei(GL_UNPACK_FLIP_Y_WEBGL, flipY));
     GL_CHECK(ccPixelStorei(GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha));
-
+    
     ccFlipYOrPremultiptyAlphaIfNeeded(_glFormat, option.width, option.height, (uint32_t)option.imageDataLength, option.imageData);
 
     if (_compressed)
@@ -202,8 +202,19 @@ void Texture2D::setImage(const ImageOption& option)
     GL_CHECK(ccPixelStorei(GL_UNPACK_ALIGNMENT, aligment));
     GL_CHECK(ccPixelStorei(GL_UNPACK_FLIP_Y_WEBGL, flipY));
     GL_CHECK(ccPixelStorei(GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha));
-
-    ccFlipYOrPremultiptyAlphaIfNeeded(_glFormat, option.width, option.height, (uint32_t)img.length, img.data);
+    
+    uint32_t pixelBytes = (uint32_t)img.length;
+    
+    switch(_glType)
+    {
+        case GL_FLOAT:
+        {
+            pixelBytes /= sizeof(float);
+            break;
+        }
+    }
+    
+    ccFlipYOrPremultiptyAlphaIfNeeded(_glFormat, option.width, option.height, pixelBytes, img.data);
 
     if (_compressed)
     {

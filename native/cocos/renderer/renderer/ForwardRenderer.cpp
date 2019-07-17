@@ -325,18 +325,7 @@ void ForwardRenderer::submitOtherStagesUniforms()
 
 void ForwardRenderer::updateShaderDefines(const StageItem& item)
 {
-    for (auto& e : _defines)
-    {
-        const std::string& key = e.first;
-        if(item.defines->count(key) == 0)
-        {
-            item.defines->emplace(key, e.second);
-        }
-        else
-        {
-            item.defines->find(key)->second = e.second;
-        }
-    }
+    item.defines->push_back(&_defines);
 }
 
 bool ForwardRenderer::compareItems(const StageItem &a, const StageItem &b)

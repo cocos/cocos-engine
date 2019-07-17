@@ -32,7 +32,6 @@
 #include "../Macro.h"
 #include "Technique.h"
 #include "Pass.h"
-#include "CustomProperties.hpp"
 
 RENDERER_BEGIN
 
@@ -129,7 +128,7 @@ public:
     /*
      *  @brief Extracts all propertyps.
      */
-    std::unordered_map<std::string, Property>& extractProperties();
+    std::unordered_map<std::string, Property>* extractProperties();
     /**
      *  @brief Gets uniform property value by name.
      */
@@ -196,8 +195,6 @@ public:
      *  @brief Deep copy from other effect.
      */
     void copy(const Effect* effect);
-    
-    void mergeCustomProperties(CustomProperties* customProp);
 private:
     double _hash;
     int32_t _definesKey;

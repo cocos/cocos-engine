@@ -62,8 +62,9 @@ public:
         Model* model = nullptr;
         InputAssembler *ia = nullptr;
         Effect* effect = nullptr;
-        ValueMap* defines = nullptr;
         Technique* technique = nullptr;
+        std::vector<ValueMap*>* defines = nullptr;
+        std::vector<std::unordered_map<std::string, Effect::Property>*>* uniforms = nullptr;
         int sortKey = -1;
     };
     typedef std::function<void(const View&, const std::vector<StageItem>&)> StageCallback;

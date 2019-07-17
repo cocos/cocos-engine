@@ -11,7 +11,7 @@ renderer.ProgramLib = {
 /**
  * @method getProgram
  * @param {String} arg0
- * @param {map_object} arg1
+ * @param {Array} arg1
  * @return {cc.renderer::Program}
  */
 getProgram : function (
@@ -41,7 +41,7 @@ array
 /**
  * @method getValueFromDefineList
  * @param {String} arg0
- * @param {map_object} arg1
+ * @param {Array} arg1
  * @return {cc.Value}
  */
 getValueFromDefineList : function (
@@ -55,7 +55,7 @@ map
 /**
  * @method getKey
  * @param {String} arg0
- * @param {map_object} arg1
+ * @param {Array} arg1
  * @return {String}
  */
 getKey : function (
@@ -213,43 +213,15 @@ str
 renderer.EffectNative = {
 
 /**
- * @method getTechnique
+ * @method getProperty
  * @param {String} arg0
- * @return {cc.renderer::Technique}
+ * @return {cc.renderer::Technique::Parameter}
  */
-getTechnique : function (
+getProperty : function (
 str 
 )
 {
-    return cc.renderer::Technique;
-},
-
-/**
- * @method setStencil
- */
-setStencil : function (
-)
-{
-},
-
-/**
- * @method mergeCustomProperties
- * @param {cc.renderer::CustomProperties} arg0
- */
-mergeCustomProperties : function (
-customproperties 
-)
-{
-},
-
-/**
- * @method updateHash
- * @param {double} arg0
- */
-updateHash : function (
-double 
-)
-{
+    return cc.renderer::Technique::Parameter;
 },
 
 /**
@@ -263,25 +235,15 @@ bool
 },
 
 /**
- * @method getHash
- * @return {double}
- */
-getHash : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method define
+ * @method getTechnique
  * @param {String} arg0
- * @param {cc.Value} arg1
+ * @return {cc.renderer::Technique}
  */
-define : function (
-str, 
-value 
+getTechnique : function (
+str 
 )
 {
+    return cc.renderer::Technique;
 },
 
 /**
@@ -297,9 +259,47 @@ str
 },
 
 /**
+ * @method setCullMode
+ * @param {cc.renderer::CullMode} arg0
+ */
+setCullMode : function (
+cullmode 
+)
+{
+},
+
+/**
+ * @method setStencil
+ */
+setStencil : function (
+)
+{
+},
+
+/**
  * @method setBlend
  */
 setBlend : function (
+)
+{
+},
+
+/**
+ * @method getHash
+ * @return {double}
+ */
+getHash : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method updateHash
+ * @param {double} arg0
+ */
+updateHash : function (
+double 
 )
 {
 },
@@ -315,18 +315,6 @@ effect
 },
 
 /**
- * @method getProperty
- * @param {String} arg0
- * @return {cc.renderer::Technique::Parameter}
- */
-getProperty : function (
-str 
-)
-{
-    return cc.renderer::Technique::Parameter;
-},
-
-/**
  * @method clear
  */
 clear : function (
@@ -335,11 +323,13 @@ clear : function (
 },
 
 /**
- * @method setCullMode
- * @param {cc.renderer::CullMode} arg0
+ * @method define
+ * @param {String} arg0
+ * @param {cc.Value} arg1
  */
-setCullMode : function (
-cullmode 
+define : function (
+str, 
+value 
 )
 {
 },

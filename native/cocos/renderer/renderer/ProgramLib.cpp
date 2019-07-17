@@ -34,42 +34,67 @@
 namespace {
     uint32_t _shdID = 0;
 
-    std::string generateDefines(const cocos2d::ValueMap& defMap)
+    std::string generateDefines(const std::vector<cocos2d::ValueMap*>& definesList)
     {
         std::string ret;
         std::string v;
-        for (const auto& def : defMap)
-        {
-            if (def.second.getType() == cocos2d::Value::Type::BOOLEAN)
-            {
-                v = def.second.asBool() ? "1" : "0";
-            }
-            else
-            {
-                v = std::to_string(def.second.asUnsignedInt());
-            }
-            ret += "#define "  + def.first + " " + v + "\n";
-        }
-        return ret;
-    }
-
-    std::string replaceMacroNums(const std::string str, const cocos2d::ValueMap& defMap)
-    {
         cocos2d::ValueMap cache;
-        std::string tmp = str;
-        for (const auto& def : defMap)
+        for (int i = (int)definesList.size() - 1; i >= 0; i--)
         {
-            if (def.second.getType() == cocos2d::Value::Type::INTEGER || def.second.getType() == cocos2d::Value::Type::UNSIGNED)
+            cocos2d::ValueMap* defMap = definesList[i];
+            for (const auto& def : *defMap)
             {
+                if (cache.find(def.first) != cache.end())
+                {
+                    continue;
+                }
+                
+                if (def.second.getType() == cocos2d::Value::Type::BOOLEAN)
+                {
+                    v = def.second.asBool() ? "1" : "0";
+                }
+                else
+                {
+                    v = std::to_string(def.second.asUnsignedInt());
+                }
+                
+                ret += "#define "  + def.first + " " + v + "\n";
+                
                 cache.emplace(def.first, def.second);
             }
         }
+       
+        return ret;
+    }
 
+    std::string replaceMacroNums(const std::string str, const std::vector<cocos2d::ValueMap*>& definesList)
+    {
+        cocos2d::ValueMap cache;
+        std::string tmp = str;
+        for (int i = (int)definesList.size() - 1; i >= 0; i--)
+        {
+            cocos2d::ValueMap* defMap = definesList[i];
+
+            for (const auto& def : *defMap)
+            {
+                if (cache.find(def.first) != cache.end())
+                {
+                    continue;
+                }
+                
+                if (def.second.getType() == cocos2d::Value::Type::INTEGER || def.second.getType() == cocos2d::Value::Type::UNSIGNED)
+                {
+                    cache.emplace(def.first, def.second);
+                }
+            }
+        }
+        
         for (const auto& def : cache)
         {
             std::regex pattern(def.first);
             tmp = std::regex_replace(tmp, pattern, def.second.asString());
         }
+        
         return tmp;
     }
 
@@ -216,7 +241,7 @@ void ProgramLib::define(const std::string& name, const std::string& vert, const 
     templ.defines = defines;
 }
 
-std::string ProgramLib::getKey(const std::string& name, const ValueMap& defines)
+std::string ProgramLib::getKey(const std::string& name, const std::vector<ValueMap*>& definesList)
 {
     auto iter = _templates.find(name);
     assert(iter != _templates.end());
@@ -226,13 +251,13 @@ std::string ProgramLib::getKey(const std::string& name, const ValueMap& defines)
     for (const auto& tmpl : iter->second.defines)
     {
         auto& temp = tmpl.asValueMap();
-        const Value& value = getValueFromDefineList(temp.find("name")->second.asString(), defines);
+        const Value& value = getValueFromDefineList(temp.find("name")->second.asString(), definesList);
         if (value == Value::Null)
         {
             continue;
         }
         
-        uint32_t vkey = getValueKey(temp, value);
+        uint32_t vkey = getValueKey(value);
         
         key |= vkey << offset;
         
@@ -251,9 +276,9 @@ std::string ProgramLib::getKey(const std::string& name, const ValueMap& defines)
     return std::to_string(iter->second.id) + ":" + std::to_string(key);
 }
 
-Program* ProgramLib::getProgram(const std::string& name, const ValueMap& defines)
+Program* ProgramLib::getProgram(const std::string& name, const std::vector<ValueMap*>& definesList)
 {
-    std::string key = getKey(name, defines);
+    std::string key = getKey(name, definesList);
     auto iter = _cache.find(key);
     if (iter != _cache.end()) {
         iter->second->retain();
@@ -266,10 +291,10 @@ Program* ProgramLib::getProgram(const std::string& name, const ValueMap& defines
     if (templIter != _templates.end())
     {
         const auto& tmpl = templIter->second;
-        std::string customDef = generateDefines(defines) + "\n";
-        std::string vert = replaceMacroNums(tmpl.vert, defines);
+        std::string customDef = generateDefines(definesList) + "\n";
+        std::string vert = replaceMacroNums(tmpl.vert, definesList);
         vert = customDef + unrollLoops(vert);
-        std::string frag = replaceMacroNums(tmpl.frag, defines);
+        std::string frag = replaceMacroNums(tmpl.frag, definesList);
         frag = customDef + unrollLoops(frag);
         
         program = new Program();
@@ -281,18 +306,22 @@ Program* ProgramLib::getProgram(const std::string& name, const ValueMap& defines
     return program;
 }
 
-Value ProgramLib::getValueFromDefineList(const std::string& name, const ValueMap& define)
+Value ProgramLib::getValueFromDefineList(const std::string& name, const std::vector<ValueMap*>& definesList)
 {
-    auto iter = define.find(name);
-    if (iter != define.end())
+    for (int i = (int)definesList.size() - 1; i >= 0; i--)
     {
-        return iter->second;
+        ValueMap* defines = definesList[i];
+        auto iter = defines->find(name);
+        if (iter != defines->end())
+        {
+            return iter->second;
+        }
     }
     
     return Value::Null;
 }
 
-uint32_t ProgramLib::getValueKey(const ValueMap &define, const Value &v)
+uint32_t ProgramLib::getValueKey(const Value &v)
 {
     if (v.getType() == Value::Type::BOOLEAN)
     {

@@ -161,11 +161,11 @@ public:
         /**
          * The wrapping function for texture coordinate s
          */
-        WrapMode wrapS = WrapMode::REPEAT;
+        WrapMode wrapS = WrapMode::CLAMP;
         /**
          * The wrapping function for texture coordinate t
          */
-        WrapMode wrapT = WrapMode::REPEAT;
+        WrapMode wrapT = WrapMode::CLAMP;
         /**
          * The texture minification filter
          */
@@ -186,7 +186,7 @@ public:
         /**
          * Specifies whether the texture if flipped vertically
          */
-        bool flipY = true;
+        bool flipY = false;
         /**
          * Specifies whether the texture have alpha premultiplied
          */
