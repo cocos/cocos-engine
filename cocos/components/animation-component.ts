@@ -5,7 +5,6 @@
 
 import { AnimationClip, AnimationState } from '../animation';
 import { CrossFade } from '../animation/cross-fade';
-import { Playable } from '../animation/playable';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../core/data/class-decorator';
 import { Event, EventTarget } from '../core/event';
 import { CallbacksInvoker, ICallbackTable } from '../core/event/callbacks-invoker';

@@ -48,6 +48,8 @@ interface IJointsInfo {
 
 export class SkinningModel extends Model {
 
+    public uploadedClip: SkeletalAnimationClip | null = null;
+
     private _jointsMedium: IJointsInfo;
     private _skeleton: Skeleton | null = null;
 
@@ -81,6 +83,7 @@ export class SkinningModel extends Model {
     public uploadAnimationClip (clip: SkeletalAnimationClip) {
         if (!this._skeleton) { return; }
         this._applyJointTexture(this._skeleton.getJointsTexture(this._device, clip));
+        if (this._jointsMedium) { this.uploadedClip = clip; }
     }
 
     public setFrameID (val: number) {

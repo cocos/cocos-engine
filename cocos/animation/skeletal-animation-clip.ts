@@ -3,9 +3,8 @@
  * @category animation
  */
 
-import { IBindTRS } from '../3d/assets/skeleton';
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
-import { ccclass, property } from '../core/data/class-decorator';
+import { ccclass } from '../core/data/class-decorator';
 import { quat, vec3 } from '../core/vmath';
 import { Node } from '../scene-graph';
 import { AnimationClip, ICurveData, IObjectCurveData, IPropertyCurve } from './animation-clip';
