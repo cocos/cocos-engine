@@ -143,15 +143,15 @@ export class AnimationComponent extends Component implements IEventTarget {
 
     public _callbackTable: ICallbackTable = createMap(true);
 
-    private _crossFade = new CrossFade();
+    protected _crossFade = new CrossFade();
 
-    private _nameToState: { [name: string]: AnimationState; } = createMap(true);
+    protected _nameToState: { [name: string]: AnimationState; } = createMap(true);
 
     @property({ type: [AnimationClip] })
-    private _clips: Array<(AnimationClip | null)> = [];
+    protected _clips: Array<(AnimationClip | null)> = [];
 
     @property
-    private _defaultClip: AnimationClip | null = null;
+    protected _defaultClip: AnimationClip | null = null;
 
     public onLoad () {
         this.clips = this._clips;
