@@ -29,6 +29,7 @@
  */
 
 import CCClass from '../data/class';
+import { IColorLike } from './type-define';
 import { EPSILON } from './utils';
 import { ValueType } from './value-type';
 
@@ -63,14 +64,20 @@ export class Color extends ValueType {
     /**
      * @zh 获得指定颜色的拷贝
      */
-    public static clone (a: Color) {
-        return new Color().set(a);
+    public static clone <Out extends IColorLike> (a: Out) {
+        const out = Color.create();
+        if (a._val) {
+            out._val = a._val;
+        } else {
+            out._val = ((a.a << 24) >>> 0) + (a.b << 16) + (a.g << 8) + a.r;
+        }
+        return out;
     }
 
     /**
      * @zh 复制目标颜色
      */
-    public static copy (out: Color, a: Color) {
+    public static copy <Out extends IColorLike> (out: Out, a: Out) {
         out.r = a.r;
         out.g = a.g;
         out.b = a.b;
@@ -81,7 +88,7 @@ export class Color extends ValueType {
     /**
      * @zh 设置颜色值
      */
-    public static set (out: Color, r: number, g: number, b: number, a: number) {
+    public static set <Out extends IColorLike> (out: Out, r: number, g: number, b: number, a: number) {
         out.r = r;
         out.g = g;
         out.b = b;
@@ -92,7 +99,7 @@ export class Color extends ValueType {
     /**
      * @zh 根据指定整型数据设置颜色
      */
-    public static fromHex (out: Color, hex: number) {
+    public static fromHex <Out extends IColorLike> (out: Out, hex: number) {
         const r = ((hex >> 24)) / 255.0;
         const g = ((hex >> 16) & 0xff) / 255.0;
         const b = ((hex >> 8) & 0xff) / 255.0;
@@ -108,7 +115,7 @@ export class Color extends ValueType {
     /**
      * @zh 逐通道颜色加法
      */
-    public static add (out: Color, a: Color, b: Color) {
+    public static add <Out extends IColorLike> (out: Out, a: Out, b: Out) {
         out.r = a.r + b.r;
         out.g = a.g + b.g;
         out.b = a.b + b.b;
@@ -119,7 +126,7 @@ export class Color extends ValueType {
     /**
      * @zh 逐通道颜色减法
      */
-    public static subtract (out: Color, a: Color, b: Color) {
+    public static subtract <Out extends IColorLike> (out: Out, a: Out, b: Out) {
         out.r = a.r - b.r;
         out.g = a.g - b.g;
         out.b = a.b - b.b;
@@ -130,14 +137,14 @@ export class Color extends ValueType {
     /**
      * @zh 逐通道颜色减法
      */
-    public static sub (out: Color, a: Color, b: Color) {
+    public static sub <Out extends IColorLike> (out: Out, a: Out, b: Out) {
         return Color.subtract(out, a, b);
     }
 
     /**
      * @zh 逐通道颜色乘法
      */
-    public static multiply (out: Color, a: Color, b: Color) {
+    public static multiply <Out extends IColorLike> (out: Out, a: Out, b: Out) {
         out.r = a.r * b.r;
         out.g = a.g * b.g;
         out.b = a.b * b.b;
@@ -148,14 +155,14 @@ export class Color extends ValueType {
     /**
      * @zh 逐通道颜色乘法
      */
-    public static mul (out: Color, a: Color, b: Color) {
+    public static mul <Out extends IColorLike> (out: Out, a: Out, b: Out) {
         return Color.multiply(out, a, b);
     }
 
     /**
      * @zh 逐通道颜色除法
      */
-    public static divide (out: Color, a: Color, b: Color) {
+    public static divide <Out extends IColorLike> (out: Out, a: Out, b: Out) {
         out.r = a.r / b.r;
         out.g = a.g / b.g;
         out.b = a.b / b.b;
@@ -166,14 +173,14 @@ export class Color extends ValueType {
     /**
      * @zh 逐通道颜色除法
      */
-    public static div (out: Color, a: Color, b: Color) {
+    public static div <Out extends IColorLike> (out: Out, a: Out, b: Out) {
         return Color.divide(out, a, b);
     }
 
     /**
      * @zh 全通道统一缩放颜色
      */
-    public static scale (out: Color, a: Color, b: number) {
+    public static scale <Out extends IColorLike> (out: Out, a: Out, b: number) {
         out.r = a.r * b;
         out.g = a.g * b;
         out.b = a.b * b;
@@ -184,7 +191,7 @@ export class Color extends ValueType {
     /**
      * @zh 逐通道颜色线性插值：A + t * (B - A)
      */
-    public static lerp (out: Color, from: Color, to: Color, ratio: number) {
+    public static lerp <Out extends IColorLike> (out: Out, from: Out, to: Out, ratio: number) {
         let r = from.r;
         let g = from.g;
         let b = from.b;
@@ -194,13 +201,14 @@ export class Color extends ValueType {
         b = b + (to.b - b) * ratio;
         a = a + (to.a - a) * ratio;
         out._val = Math.floor(((a << 24) >>> 0) + (b << 16) + (g << 8) + r);
+        return out;
     }
 
     /**
      * @zh 颜色转数组
      * @param ofs 数组起始偏移量
      */
-    public static array (out: IWritableArrayLike<number>, a: Color, ofs = 0) {
+    public static array <Out extends IColorLike> (out: IWritableArrayLike<number>, a: Out, ofs = 0) {
         const scale = (a instanceof cc.Color || a.a > 1) ? 1 / 255 : 1;
         out[ofs + 0] = a.r * scale;
         out[ofs + 1] = a.g * scale;
@@ -213,14 +221,14 @@ export class Color extends ValueType {
     /**
      * @zh 颜色等价判断
      */
-    public static exactEquals (a: Color, b: Color) {
+    public static exactEquals <Out extends IColorLike> (a: Out, b: Out) {
         return a.r === b.r && a.g === b.g && a.b === b.b && a.a === b.a;
     }
 
     /**
      * @zh 排除浮点数误差的颜色近似等价判断
      */
-    public static equals (a: Color, b: Color, epsilon = EPSILON) {
+    public static equals <Out extends IColorLike> (a: Out, b: Out, epsilon = EPSILON) {
         const { r: a0, g: a1, b: a2, a: a3 } = a;
         const { r: b0, g: b1, b: b2, a: b3 } = b;
         return (Math.abs(a0 - b0) <= epsilon * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
@@ -232,7 +240,7 @@ export class Color extends ValueType {
     /**
      * @zh 获取指定颜色的整型数据表示
      */
-    public static hex (a: Color) {
+    public static hex <Out extends IColorLike> (a: Out) {
         return ((a.r * 255) << 24 | (a.g * 255) << 16 | (a.b * 255) << 8 | a.a * 255) >>> 0;
     }
 
@@ -440,7 +448,7 @@ export class Color extends ValueType {
      * @param ratio 插值比率，范围为 [0,1]。
      */
     public lerp (to: Color, ratio: number) {
-        Color.lerp(this, this, to, ratio);
+        return Color.lerp(this, this, to, ratio);
     }
 
     /**
@@ -669,6 +677,7 @@ export class Color extends ValueType {
         } else {
             this._val = ((other.a << 24) >>> 0) + (other.b << 16) + (other.g << 8) + other.r;
         }
+        return this;
     }
 
     /**
@@ -681,22 +690,27 @@ export class Color extends ValueType {
         const b = ((this._val & 0x00ff0000) * other.b) >> 8;
         const a = ((this._val & 0xff000000) >>> 8) * other.a;
         this._val = (a & 0xff000000) | (b & 0x00ff0000) | (g & 0x0000ff00) | (r & 0x000000ff);
+        return this;
     }
 
     public _set_r_unsafe (red) {
         this._val = ((this._val & 0xffffff00) | red) >>> 0;
+        return this;
     }
 
     public _set_g_unsafe (green) {
         this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
+        return this;
     }
 
     public _set_b_unsafe (blue) {
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
+        return this;
     }
 
     public _set_a_unsafe (alpha) {
         this._val = ((this._val & 0x00ffffff) | ((alpha << 24) >>> 0)) >>> 0;
+        return this;
     }
 }
 

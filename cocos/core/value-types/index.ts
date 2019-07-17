@@ -28,6 +28,12 @@
  * @category core/value-types
  */
 
+import * as bits from './bits';
+/**
+ * Export module bits.
+ */
+
+export { bits };
 export { Enum } from './enum';
 export { ValueType } from './value-type';
 export { Vec2 } from './vec2';

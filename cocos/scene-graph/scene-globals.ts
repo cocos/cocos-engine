@@ -31,7 +31,6 @@ import { TextureCube } from '../3d/assets/texture-cube';
 import { ccclass, property } from '../core/data/class-decorator';
 import { CCBoolean, CCFloat } from '../core/data/utils/attribute';
 import { Color, Quat, Vec3 } from '../core/value-types';
-import { color4 } from '../core/vmath';
 import { Ambient } from '../renderer/scene/ambient';
 import { PlanarShadows } from '../renderer/scene/planar-shadows';
 import { RenderScene } from '../renderer/scene/render-scene';
@@ -62,7 +61,7 @@ export class AmbientInfo {
     @property({ type: Color })
     set skyColor (val: Color) {
         this._skyColor.set(val);
-        if (this._resource) { color4.array(this._resource.skyColor, this.skyColor); }
+        if (this._resource) { Color.array(this._resource.skyColor, this.skyColor); }
     }
     get skyColor () {
         return this._skyColor;
@@ -86,7 +85,7 @@ export class AmbientInfo {
     @property({ type: Color })
     set groundAlbedo (val: Color) {
         this._groundAlbedo.set(val);
-        if (this._resource) { color4.array(this._resource.groundAlbedo, this.groundAlbedo); }
+        if (this._resource) { Color.array(this._resource.groundAlbedo, this.groundAlbedo); }
     }
     get groundAlbedo () {
         return this._groundAlbedo;

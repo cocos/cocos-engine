@@ -33,7 +33,6 @@ import { ccclass, executionOrder, menu, property} from '../../../core/data/class
 import { SystemEventType } from '../../../core/platform';
 import { clamp, Color, Mat4, Size, Vec2, Vec3 } from '../../../core/value-types';
 import { CCEnum } from '../../../core/value-types/enum';
-import * as vmath from '../../../core/vmath';
 import { UI } from '../../../renderer/ui/ui';
 import { Node } from '../../../scene-graph';
 import { GraphicsComponent } from './graphics-component';
@@ -368,8 +367,8 @@ export class MaskComponent extends UIRenderComponent {
         const testPt = _vec2_temp;
 
         this.node.getWorldMatrix(_worldMatrix);
-        vmath.mat4.invert(_mat4_temp, _worldMatrix);
-        vmath.vec2.transformMat4(testPt, cameraPt, _mat4_temp);
+        Mat4.invert(_mat4_temp, _worldMatrix);
+        Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
         const ap = node.getAnchorPoint();
         testPt.x += ap.x * w;
         testPt.y += ap.y * h;

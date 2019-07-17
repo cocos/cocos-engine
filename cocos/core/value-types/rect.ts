@@ -31,6 +31,7 @@
 import CCClass from '../data/class';
 import { Mat4 } from './mat4';
 import { Size } from './size';
+import { IRectLike, IVec2Like } from './type-define';
 import { ValueType } from './value-type';
 import { Vec2 } from './vec2';
 
@@ -129,7 +130,7 @@ export class Rect extends ValueType {
      * @param v2 指定的点。
      * @returns 目标矩形。
      */
-    public static fromMinMax (out: Rect, v1: Vec2, v2: Vec2) {
+    public static fromMinMax <Out extends IRectLike, VecLike extends IVec2Like> (out: Out, v1: VecLike, v2: VecLike) {
         const minX = Math.min(v1.x, v2.x);
         const minY = Math.min(v1.y, v2.y);
         const maxX = Math.max(v1.x, v2.x);
@@ -138,6 +139,8 @@ export class Rect extends ValueType {
         out.y = minY;
         out.width = maxX - minX;
         out.height = maxY - minY;
+
+        return out;
     }
 
     /**
@@ -147,7 +150,7 @@ export class Rect extends ValueType {
      * @param to 目标矩形。
      * @param ratio 插值比率，范围为 [0,1]。
      */
-    public static lerp (out: Rect, from: Rect, to: Rect, ratio: number) {
+    public static lerp <Out extends IRectLike> (out: Out, from: Out, to: Out, ratio: number) {
         const x = from.x;
         const y = from.y;
         const width = from.width;
@@ -156,6 +159,8 @@ export class Rect extends ValueType {
         out.y = y + (to.y - y) * ratio;
         out.width = width + (to.width - width) * ratio;
         out.height = height + (to.height - height) * ratio;
+
+        return out;
     }
 
     /**
@@ -164,7 +169,7 @@ export class Rect extends ValueType {
      * @param one 指定的一个矩形。
      * @param other 指定的另一个矩形。
      */
-    public static intersection (out: Rect, one: Rect, other: Rect) {
+    public static intersection <Out extends IRectLike> (out: Out, one: Out, other: Out) {
         const axMin = one.x;
         const ayMin = one.y;
         const axMax = one.x + one.width;
@@ -177,6 +182,8 @@ export class Rect extends ValueType {
         out.y = Math.max(ayMin, byMin);
         out.width = Math.min(axMax, bxMax) - out.x;
         out.height = Math.min(ayMax, byMax) - out.y;
+
+        return out;
     }
 
     /**
@@ -185,7 +192,7 @@ export class Rect extends ValueType {
      * @param one 指定的一个矩形。
      * @param other 指定的另一个矩形。
      */
-    public static union (out: Rect, one: Rect, other: Rect) {
+    public static union <Out extends IRectLike> (out: Out, one: Out, other: Out) {
         const ax = one.x;
         const ay = one.y;
         const aw = one.width;
@@ -198,6 +205,8 @@ export class Rect extends ValueType {
         out.y = Math.min(ay, by);
         out.width = Math.max(ax + aw, bx + bw) - out.x;
         out.height = Math.max(ay + ah, by + bh) - out.y;
+
+        return out;
     }
 
     /**
@@ -267,6 +276,7 @@ export class Rect extends ValueType {
         this.y = other.y;
         this.width = other.width;
         this.height = other.height;
+        return this;
     }
 
     /**
@@ -287,7 +297,7 @@ export class Rect extends ValueType {
      * @param ratio 插值比率，范围为 [0,1]。
      */
     public lerp (to: Rect, ratio: number) {
-        Rect.lerp(this, this, to, ratio);
+        return Rect.lerp(this, this, to, ratio);
     }
 
     /**
@@ -365,6 +375,8 @@ export class Rect extends ValueType {
         this.y = minY;
         this.width = maxX - minX;
         this.height = maxY - minY;
+
+        return this;
     }
 }
 

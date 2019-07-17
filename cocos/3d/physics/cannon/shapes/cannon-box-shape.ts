@@ -1,6 +1,5 @@
 import CANNON from 'cannon';
 import { Vec3 } from '../../../../core/value-types';
-import { vec3 } from '../../../../core/vmath';
 import { BoxShapeBase, ShapeBase } from '../../api';
 import { getWrap, setWrap, stringfyVec3 } from '../../util';
 import { CannonRigidBody } from '../cannon-body';
@@ -13,7 +12,7 @@ export class CannonBoxShape extends CannonShape implements BoxShapeBase {
 
     constructor (size: Vec3) {
         super();
-        vec3.scale(this._halfExtent, size, 0.5);
+        Vec3.scale(this._halfExtent, size, 0.5);
         // attention : here should use clone
         this._box = new CANNON.Box(this._halfExtent.clone());
         setWrap<ShapeBase>(this._box, this);
@@ -41,12 +40,12 @@ export class CannonBoxShape extends CannonShape implements BoxShapeBase {
         //         (shape as any).body = null;
         //     }
         // }
-        // vec3.multiply(this._cannonBox.halfExtents, this._cannonBox.halfExtents, scale);
+        // Vec3.multiply(this._cannonBox.halfExtents, this._cannonBox.halfExtents, scale);
         // if (this._body) { this._body.addShape(this._cannonBox); }
     }
 
     public setSize (size: Vec3) {
-        vec3.scale(this._halfExtent, size, 0.5);
+        Vec3.scale(this._halfExtent, size, 0.5);
         this._recalcExtents();
     }
 
@@ -59,7 +58,7 @@ export class CannonBoxShape extends CannonShape implements BoxShapeBase {
     }
 
     private _recalcExtents () {
-        vec3.multiply(this._box.halfExtents, this._halfExtent, this._scale);
+        Vec3.multiply(this._box.halfExtents, this._halfExtent, this._scale);
         this._box.updateConvexPolyhedronRepresentation();
 
         if (this._body != null) {

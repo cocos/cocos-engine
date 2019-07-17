@@ -30,54 +30,414 @@
 
 import CCClass from '../data/class';
 import { Mat4 } from './mat4';
+import { IMat3Like, IMat4Like, IVec2Like } from './type-define';
 import { clamp } from './utils';
+import { EPSILON, random } from './utils';
 import { ValueType } from './value-type';
+import { Vec3 } from './vec3';
 
 /**
  * 二维向量。
  */
 export class Vec2 extends ValueType {
 
+    public static ZERO = Object.freeze(new Vec2(0, 0));
+    public static ONE = Object.freeze(new Vec2(1, 1));
+    public static NEG_ONE = Object.freeze(new Vec2(-1, -1));
+    public static UP = Object.freeze(new Vec2(0.0, 1.0));
+    public static RIGHT = Object.freeze(new Vec2(1.0, 0.0));
+
     /**
-     * 创建分量都为 1 的向量并返回。
+     * 构造与指定向量相等的向量，或如果不指定的话，零向量。
      */
-    static get ONE () {
-        return new Vec2(1.0, 1.0);
+    public static create (v: Vec2): Vec2;
+
+    /**
+     * 构造具有指定分量的向量。
+     */
+    public static create (x?: number, y?: number): Vec2;
+
+    /**
+     * @zh 创建新的实例
+     */
+    public static create (x?: number | Vec2, y?: number) {
+        if (typeof x === 'object') {
+            return new Vec2(x.x, x.y);
+        } else {
+            return new Vec2(x, y);
+        }
     }
 
     /**
-     * 创建零向量并返回。
+     * @zh 获得指定向量的拷贝
      */
-    static get ZERO () {
-        return new Vec2(0.0, 0.0);
+    public static clone <Out extends IVec2Like> (a: Out) {
+        return new Vec2(a.x, a.y);
     }
 
     /**
-     * 创建与 y 轴同向的单位向量并返回。
+     * @zh 复制目标向量
      */
-    static get UP () {
-        return new Vec2(0.0, 1.0);
+    public static copy <Out extends IVec2Like> (out: Out, a: Out) {
+        out.x = a.x;
+        out.y = a.y;
+        return out;
     }
 
     /**
-     * 创建与 x 轴同向的单位向量并返回。
+     * @zh 设置向量值
      */
-    static get RIGHT () {
-        return new Vec2(1.0, 0.0);
+    public static set <Out extends IVec2Like> (out: Out, x: number, y: number) {
+        out.x = x;
+        out.y = y;
+        return out;
     }
 
     /**
-     * 根据指定的插值比率，从当前向量到目标向量之间做插值。
-     * @param out 本方法将插值结果赋值给此参数
-     * @param from 起始向量。
-     * @param to 目标向量。
-     * @param ratio 插值比率，范围为 [0,1]。
+     * @zh 逐元素向量加法
      */
-    public static lerp (out: Vec2, from: Vec2, to: Vec2, ratio: number) {
-        const x = from.x;
-        const y = from.y;
-        out.x = x + (to.x - x) * ratio;
-        out.y = y + (to.y - y) * ratio;
+    public static add <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
+        out.x = a.x + b.x;
+        out.y = a.y + b.y;
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量减法
+     */
+    public static subtract <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
+        out.x = a.x - b.x;
+        out.y = a.y - b.y;
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量减法
+     */
+    public static sub <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
+        return Vec2.subtract(out, a, b);
+    }
+
+    /**
+     * @zh 逐元素向量乘法
+     */
+    public static multiply <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
+        out.x = a.x * b.x;
+        out.y = a.y * b.y;
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量乘法
+     */
+    public static mul <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
+        return Vec2.multiply(out, a, b);
+    }
+
+    /**
+     * @zh 逐元素向量除法
+     */
+    public static divide <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
+        out.x = a.x / b.x;
+        out.y = a.y / b.y;
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量除法
+     */
+    public static div <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
+        return Vec2.divide(out, a, b);
+    }
+
+    /**
+     * @zh 逐元素向量向上取整
+     */
+    public static ceil <Out extends IVec2Like> (out: Out, a: Out) {
+        out.x = Math.ceil(a.x);
+        out.y = Math.ceil(a.y);
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量向下取整
+     */
+    public static floor <Out extends IVec2Like> (out: Out, a: Out) {
+        out.x = Math.floor(a.x);
+        out.y = Math.floor(a.y);
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量最小值
+     */
+    public static min <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
+        out.x = Math.min(a.x, b.x);
+        out.y = Math.min(a.y, b.y);
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量最大值
+     */
+    public static max <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
+        out.x = Math.max(a.x, b.x);
+        out.y = Math.max(a.y, b.y);
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量四舍五入取整
+     */
+    public static round <Out extends IVec2Like> (out: Out, a: Out) {
+        out.x = Math.round(a.x);
+        out.y = Math.round(a.y);
+        return out;
+    }
+
+    /**
+     * @zh 向量标量乘法
+     */
+    public static scale <Out extends IVec2Like> (out: Out, a: Out, b: number) {
+        out.x = a.x * b;
+        out.y = a.y * b;
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量乘加: A + B * scale
+     */
+    public static scaleAndAdd <Out extends IVec2Like> (out: Out, a: Out, b: Out, scale: number) {
+        out.x = a.x + (b.x * scale);
+        out.y = a.y + (b.y * scale);
+        return out;
+    }
+
+    /**
+     * @zh 求两向量的欧氏距离
+     */
+    public static distance <Out extends IVec2Like> (a: Out, b: Out) {
+        const x = b.x - a.x;
+        const y = b.y - a.y;
+        return Math.sqrt(x * x + y * y);
+    }
+
+    /**
+     * @zh 求两向量的欧氏距离
+     */
+    public static dist <Out extends IVec2Like> (a: Out, b: Out) {
+        return Vec2.distance(a, b);
+    }
+
+    /**
+     * @zh 求两向量的欧氏距离平方
+     */
+    public static squaredDistance <Out extends IVec2Like> (a: Out, b: Out) {
+        const x = b.x - a.x;
+        const y = b.y - a.y;
+        return x * x + y * y;
+    }
+
+    /**
+     * @zh 求两向量的欧氏距离平方
+     */
+    public static sqrDist <Out extends IVec2Like> (a: Out, b: Out) {
+        return Vec2.squaredDistance(a, b);
+    }
+
+    /**
+     * @zh 求向量长度
+     */
+    public static magnitude <Out extends IVec2Like> (a: Out) {
+        const { x, y } = a;
+        return Math.sqrt(x * x + y * y);
+    }
+
+    /**
+     * @zh 求向量长度
+     */
+    public static mag <Out extends IVec2Like> (a: Out) {
+        return Vec2.magnitude(a);
+    }
+
+    /**
+     * @zh 求向量长度平方
+     */
+    public static squaredMagnitude <Out extends IVec2Like> (a: Out) {
+        const { x, y } = a;
+        return x * x + y * y;
+    }
+
+    /**
+     * @zh 求向量长度平方
+     */
+    public static sqrMag <Out extends IVec2Like> (a: Out) {
+        return Vec2.squaredMagnitude(a);
+    }
+
+    /**
+     * @zh 逐元素向量取负
+     */
+    public static negate <Out extends IVec2Like> (out: Out, a: Out) {
+        out.x = -a.x;
+        out.y = -a.y;
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量取倒数，接近 0 时返回 Infinity
+     */
+    public static inverse <Out extends IVec2Like> (out: Out, a: Out) {
+        out.x = 1.0 / a.x;
+        out.y = 1.0 / a.y;
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量取倒数，接近 0 时返回 0
+     */
+    public static inverseSafe <Out extends IVec2Like> (out: Out, a: Out) {
+        const { x, y } = a;
+
+        if (Math.abs(x) < EPSILON) {
+            out.x = 0;
+        } else {
+            out.x = 1.0 / x;
+        }
+
+        if (Math.abs(y) < EPSILON) {
+            out.y = 0;
+        } else {
+            out.y = 1.0 / a.y;
+        }
+
+        return out;
+    }
+
+    /**
+     * @zh 归一化向量
+     */
+    public static normalize <Out extends IVec2Like, Vec2Like extends IVec2Like> (out: Out, a: Vec2Like) {
+        const { x, y } = a;
+        let len = x * x + y * y;
+        if (len > 0) {
+            len = 1 / Math.sqrt(len);
+            out.x = a.x * len;
+            out.y = a.y * len;
+        }
+        return out;
+    }
+
+    /**
+     * @zh 向量点积（数量积）
+     */
+    public static dot <Out extends IVec2Like> (a: Out, b: Out) {
+        return a.x * b.x + a.y * b.y;
+    }
+
+    /**
+     * @zh 向量叉积（向量积），注意二维向量的叉积为与 Z 轴平行的三维向量
+     */
+    public static cross <Out extends IVec2Like> (out: Vec3, a: Out, b: Out) {
+        out.x = out.y = 0;
+        out.z = a.x * b.y - a.y * b.x;
+        return out;
+    }
+
+    /**
+     * @zh 逐元素向量线性插值： A + t * (B - A)
+     */
+    public static lerp <Out extends IVec2Like> (out: Out, a: Out, b: Out, t: number) {
+        const { x: ax, y: ay } = a;
+        out.x = ax + t * (b.x - ax);
+        out.y = ay + t * (b.y - ay);
+        return out;
+    }
+
+    /**
+     * @zh 生成一个在单位圆上均匀分布的随机向量
+     * @param scale 生成的向量长度
+     */
+    public static random <Out extends IVec2Like> (out: Out, scale?: number) {
+        scale = scale || 1.0;
+        const r = random() * 2.0 * Math.PI;
+        out.x = Math.cos(r) * scale;
+        out.y = Math.sin(r) * scale;
+        return out;
+    }
+
+    /**
+     * @zh 向量与三维矩阵乘法，默认向量第三位为 1。
+     */
+    public static transformMat3 <Out extends IVec2Like, MatLike extends IMat3Like> (out: Out, a: Out, m: IMat3Like) {
+        const { x, y } = a;
+        out.x = m.m00 * x + m.m03 * y + m.m06;
+        out.y = m.m01 * x + m.m04 * y + m.m07;
+        return out;
+    }
+
+    /**
+     * @zh 向量与四维矩阵乘法，默认向量第三位为 0，第四位为 1。
+     */
+    public static transformMat4 <Out extends IVec2Like, MatLike extends IMat4Like> (out: Out, a: Out, m: IMat4Like) {
+        const { x, y } = a;
+        out.x = m.m00 * x + m.m04 * y + m.m12;
+        out.y = m.m01 * x + m.m05 * y + m.m13;
+        return out;
+    }
+
+    /**
+     * @zh 返回向量的字符串表示
+     */
+    public static str <Out extends IVec2Like> (a: Out) {
+        return `Vec2(${a.x}, ${a.y})`;
+    }
+
+    /**
+     * @zh 向量转数组
+     * @param ofs 数组起始偏移量
+     */
+    public static array <Out extends IVec2Like> (out: IWritableArrayLike<number>, v: Out, ofs = 0) {
+        out[ofs + 0] = v.x;
+        out[ofs + 1] = v.y;
+        return out;
+    }
+
+    /**
+     * @zh 向量等价判断
+     */
+    public static exactEquals <Out extends IVec2Like> (a: Out, b: Out) {
+        return a.x === b.x && a.y === b.y;
+    }
+
+    /**
+     * @zh 排除浮点数误差的向量近似等价判断
+     */
+    public static equals <Out extends IVec2Like> (a: Out, b: Out,  epsilon = EPSILON) {
+        const { x: a0, y: a1 } = a;
+        const { x: b0, y: b1 } = b;
+        return (
+            Math.abs(a0 - b0) <=
+            epsilon * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
+            Math.abs(a1 - b1) <=
+            epsilon * Math.max(1.0, Math.abs(a1), Math.abs(b1))
+        );
+    }
+
+    /**
+     * @zh 求两向量夹角弧度
+     */
+    public static angle <Out extends IVec2Like> (a: Out, b: Out) {
+        Vec2.normalize(v2_1, a);
+        Vec2.normalize(v2_2, b);
+        const cosine = Vec2.dot(v2_1, v2_2);
+        if (cosine > 1.0) {
+            return 0;
+        }
+        if (cosine < -1.0) {
+            return Math.PI;
+        }
+        return Math.acos(cosine);
     }
 
     /**
@@ -90,28 +450,10 @@ export class Vec2 extends ValueType {
      */
     public y: number;
 
-    /**
-     * 构造与指定向量相等的向量。
-     * @param other 相比较的向量。
-     */
-    constructor (other: Vec2);
-
-    /**
-     * 构造具有指定分量的向量。
-     * @param [x=0] 指定的 x 分量。
-     * @param [y=0] 指定的 y 分量。
-     */
-    constructor (x?: number, y?: number);
-
-    constructor (x?: number | Vec2, y?: number) {
+    constructor (x = 0, y = 0) {
         super();
-        if (x && typeof x === 'object') {
-            this.x = x.x;
-            this.y = x.y;
-        } else {
-            this.x = x || 0;
-            this.y = y || 0;
-        }
+        this.x = x;
+        this.y = y;
     }
 
     /**
@@ -133,27 +475,22 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 判断当前向量是否与指定向量相等。
-     * @param other 相比较的向量。
-     * @returns 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
-     */
-    public equals (other: Vec2) {
-        return other && this.x === other.x && this.y === other.y;
-    }
-
-    /**
-     * 判断当前向量是否在误差范围 [-variance, variance] 内与指定向量相等。
+     * 判断当前向量是否在误差范围内与指定向量相等。
      * @param other 相比较的向量。
      * @param variance 允许的误差，应为非负数。
      * @returns 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
      */
-    public fuzzyEquals (other: Vec2, variance: number) {
-        if (this.x - variance <= other.x && other.x <= this.x + variance) {
-            if (this.y - variance <= other.y && other.y <= this.y + variance) {
-                return true;
-            }
-        }
-        return false;
+    public equals (other: Vec2, epsilon?: number) {
+        return Vec2.equals(this, other, epsilon);
+    }
+
+    /**
+     * 判断当前向量是否与指定向量相等。
+     * @param other 相比较的向量。
+     * @returns 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
+     */
+    public exactEquals (other: Vec2) {
+        return other && this.x === other.x && this.y === other.y;
     }
 
     /**
@@ -170,8 +507,7 @@ export class Vec2 extends ValueType {
      * @param ratio 插值比率，范围为 [0,1]。
      */
     public lerp (to: Vec2, ratio: number) {
-        this.x = this.x + (to.x - this.x) * ratio;
-        this.y = this.y + (to.y - this.y) * ratio;
+        return Vec2.lerp(this, this, to, ratio);
     }
 
     /**
@@ -183,6 +519,7 @@ export class Vec2 extends ValueType {
     public clampf (minInclusive: Vec2, maxInclusive: Vec2) {
         this.x = clamp(this.x, minInclusive.x, maxInclusive.x);
         this.y = clamp(this.y, minInclusive.y, maxInclusive.y);
+        return this;
     }
 
     /**
@@ -192,6 +529,7 @@ export class Vec2 extends ValueType {
     public add (rhs: Vec2) {
         this.x = this.x + rhs.x;
         this.y = this.y + rhs.y;
+        return this;
     }
 
     /**
@@ -201,33 +539,39 @@ export class Vec2 extends ValueType {
     public subtract (other: Vec2) {
         this.x = this.x - other.x;
         this.y = this.y - other.y;
+        return this;
     }
 
     /**
      * 向量数乘。将当前向量数乘指定标量
      * @param scalar 标量乘数。
      */
-    public multiply (scalar: number) {
+    public scale (scalar: number) {
+        if (typeof scalar === 'object') { console.warn('should use Vec2.multiply for vector * vector operation'); }
         this.x = this.x * scalar;
         this.y = this.y * scalar;
+        return this;
     }
 
     /**
      * 向量乘法。将当前向量乘以与指定向量的结果赋值给当前向量。
      * @param other 指定的向量。
      */
-    public scale (other: Vec2) {
+    public multiply (other: Vec2) {
+        if (typeof other !== 'object') { console.warn('should use Vec2.scale for vector * scalar operation'); }
         this.x = this.x * other.x;
         this.y = this.y * other.y;
+        return this;
     }
 
     /**
-     * 将当前向量的各个分量除以指定标量。相当于 `this.multiply(1 / scalar)`。
+     * 将当前向量的各个分量除以指定标量。相当于 `this.scale(1 / scalar)`。
      * @param scalar 标量除数。
      */
     public divide (scalar: number) {
         this.x = this.x / scalar;
         this.y = this.y / scalar;
+        return this;
     }
 
     /**
@@ -236,6 +580,7 @@ export class Vec2 extends ValueType {
     public negative () {
         this.x = -this.x;
         this.y = -this.y;
+        return this;
     }
 
     /**
@@ -276,7 +621,7 @@ export class Vec2 extends ValueType {
      * 将当前向量归一化。
      */
     public normalize () {
-        vec2.normalize(this, this);
+        return Vec2.normalize(this, this);
     }
 
     /**
@@ -310,19 +655,19 @@ export class Vec2 extends ValueType {
         return this.cross(other) < 0 ? -angle : angle;
     }
 
-
     /**
      * 将当前向量的旋转
      * @param radians 旋转角度（弧度制）。
      */
     public rotate (radians: number) {
-        let x = this.x;
-        let y = this.y;
+        const x = this.x;
+        const y = this.y;
 
         const sin = Math.sin(radians);
         const cos = Math.cos(radians);
         this.x = cos * x - sin * y;
         this.y = sin * x + cos * y;
+        return this;
     }
 
     /**
@@ -330,9 +675,10 @@ export class Vec2 extends ValueType {
      * @param other 指定的向量。
      */
     public project (other: Vec2) {
-        let scalar = this.dot(other) / other.dot(other);
+        const scalar = this.dot(other) / other.dot(other);
         this.x = other.x * scalar;
         this.y = other.y * scalar;
+        return this;
     }
 
     /**
@@ -341,33 +687,13 @@ export class Vec2 extends ValueType {
      * @param matrix 变换矩阵。
      */
     public transformMat4 (matrix: Mat4) {
-        vec2.transformMat4(this, this, matrix);
+        return Vec2.transformMat4(this, this, matrix);
     }
 }
 
+const v2_1 = Vec2.create();
+const v2_2 = Vec2.create();
+
 CCClass.fastDefine('cc.Vec2', Vec2, { x: 0, y: 0 });
-
 cc.Vec2 = Vec2;
-
-/**
- * 等价于 `new Vec2(other)`。
- * @param other 相比较的向量。
- * @returns `new Vec2(other)`
- * @deprecated
- */
-export function v2 (other: Vec2): Vec2;
-
-/**
- * 等价于 `new Vec2(x, y)`。
- * @param [x=0] 指定的 x 分量。
- * @param [y=0] 指定的 y 分量。
- * @returns `new Vec2(x, y)`
- * @deprecated
- */
-export function v2 (x?: number, y?: number): Vec2;
-
-export function v2 (x?: number | Vec2, y?: number) {
-    return new Vec2(x as any, y);
-}
-
-cc.v2 = v2;
+cc.v2 = Vec2.create;

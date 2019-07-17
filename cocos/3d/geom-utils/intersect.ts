@@ -3,8 +3,8 @@
  * @category gemotry-utils
  */
 
+import { Mat3, Vec3 } from '../../core/value-types';
 import { mat3 } from '../../core/vmath';
-import { Vec3 } from '../../core/value-types';
 import aabb from './aabb';
 import * as distance from './distance';
 import enums from './enums';
@@ -644,11 +644,11 @@ const aabb_frustum_accurate = (function () {
  * @return {boolean} true or false
  */
 const obb_point = (function () {
-    const tmp = Vec3.create(0, 0, 0), m3 = mat3.create();
+    const tmp = Vec3.create(0, 0, 0), m3 = Mat3.create();
     const lessThan = function (a: Vec3, b: Vec3): boolean { return Math.abs(a.x) < b.x && Math.abs(a.y) < b.y && Math.abs(a.z) < b.z; };
     return function (obb: obb, point: Vec3): boolean {
         Vec3.subtract(tmp, point, obb.center);
-        Vec3.transformMat3(tmp, tmp, mat3.transpose(m3, obb.orientation));
+        Vec3.transformMat3(tmp, tmp, Mat3.transpose(m3, obb.orientation));
         return lessThan(tmp, obb.halfExtents);
     };
 })();

@@ -28,8 +28,7 @@
  */
 
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
-import { Mat4 } from '../../../../core/value-types';
-import { vec3 } from '../../../../core/vmath';
+import { Mat4, Vec3 } from '../../../../core/value-types';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
@@ -248,7 +247,7 @@ export const barFilled: IAssembler = {
         for (let i = 0; i < 4; i++) {
             const local = datas[i + 4];
             const world = datas[i];
-            vec3.transformMat4(world, local, matrix);
+            Vec3.transformMat4(world, local, matrix);
         }
     },
 

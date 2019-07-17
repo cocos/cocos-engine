@@ -1,5 +1,5 @@
 /**
- * @category core/math
+ * @category core/value-types
  */
 
 const _d2r = Math.PI / 180.0;

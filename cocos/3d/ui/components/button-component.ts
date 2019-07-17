@@ -35,7 +35,6 @@ import { ccclass, executionOrder, menu, property } from '../../../core/data/clas
 import { EventMouse, EventTouch, SystemEventType } from '../../../core/platform';
 import { Color, lerp, Vec3 } from '../../../core/value-types';
 import { CCEnum } from '../../../core/value-types/enum';
-import * as math from '../../../core/vmath';
 import { Node } from '../../../scene-graph/node';
 import { SpriteComponent } from './sprite-component';
 import { UIRenderComponent } from './ui-render-component';
@@ -593,7 +592,7 @@ export class ButtonComponent extends Component {
     private _applyTarget () {
         this._sprite = this._getTargetSprite(this._target);
         if (this._target) {
-            math.vec3.copy(this._originalScale, this._target.getScale());
+            Vec3.copy(this._originalScale, this._target.getScale());
         }
     }
 
@@ -625,8 +624,8 @@ export class ButtonComponent extends Component {
 
         if (this._transition === Transition.SCALE && this._target) {
             if (hit) {
-                math.vec3.copy(this._fromScale, this._originalScale);
-                math.vec3.scale(this._toScale, this._originalScale, this._zoomScale);
+                Vec3.copy(this._fromScale, this._originalScale);
+                Vec3.scale(this._toScale, this._originalScale, this._zoomScale);
                 this._transitionFinished = false;
             } else {
                 this._time = 0;
@@ -752,8 +751,8 @@ export class ButtonComponent extends Component {
     }
 
     private _zoomUp () {
-        math.vec3.copy(this._fromScale, this._originalScale);
-        math.vec3.scale(this._toScale, this._originalScale, this._zoomScale);
+        Vec3.copy(this._fromScale, this._originalScale);
+        Vec3.scale(this._toScale, this._originalScale, this._zoomScale);
         this._time = 0;
         this._transitionFinished = false;
     }
@@ -763,8 +762,8 @@ export class ButtonComponent extends Component {
             return;
         }
 
-        math.vec3.copy(this._fromScale, this._target.getScale());
-        math.vec3.copy(this._toScale, this._originalScale);
+        Vec3.copy(this._fromScale, this._target.getScale());
+        Vec3.copy(this._toScale, this._originalScale);
         this._time = 0;
         this._transitionFinished = false;
     }

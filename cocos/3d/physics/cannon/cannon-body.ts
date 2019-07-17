@@ -1,6 +1,5 @@
 import CANNON from 'cannon';
 import { Mat4, Quat, Vec3 } from '../../../core/value-types';
-import { mat4, quat, vec3 } from '../../../core/vmath';
 import { ICollisionCallback, ICollisionEventType, ICreateBodyOptions, PhysicsWorldBase, RigidBodyBase, ShapeBase } from '../api';
 import { ERigidBodyType } from '../physic-enum';
 import { getWrap, setWrap, stringfyVec3 } from '../util';
@@ -179,42 +178,42 @@ export class CannonRigidBody implements RigidBodyBase {
 
     public getLinearVelocity (out?: Vec3): Vec3 {
         out = out || new Vec3();
-        vec3.copy(out, this._body.velocity);
+        Vec3.copy(out, this._body.velocity);
         return out;
     }
 
     public setLinearVelocity (value: Vec3): void {
-        vec3.copy(this._body.velocity, value);
+        Vec3.copy(this._body.velocity, value);
     }
 
     public getAngularVelocity (out?: Vec3): Vec3 {
         out = out || new Vec3();
-        vec3.copy(out, this._body.angularVelocity);
+        Vec3.copy(out, this._body.angularVelocity);
         return out;
     }
 
     public setAngularVelocity (value: Vec3): void {
-        vec3.copy(this._body.angularVelocity, value);
+        Vec3.copy(this._body.angularVelocity, value);
     }
 
     public getLinearFactor (out?: Vec3): Vec3 {
         out = out || new Vec3();
-        vec3.copy(out, this._body.linearFactor);
+        Vec3.copy(out, this._body.linearFactor);
         return out;
     }
 
     public setLinearFactor (value: Vec3): void {
-        vec3.copy(this._body.linearFactor, value);
+        Vec3.copy(this._body.linearFactor, value);
     }
 
     public getAngularFactor (out?: Vec3): Vec3 {
         out = out || new Vec3();
-        vec3.copy(out, this._body.angularFactor);
+        Vec3.copy(out, this._body.angularFactor);
         return out;
     }
 
     public setAngularFactor (value: Vec3): void {
-        vec3.copy(this._body.angularFactor, value);
+        Vec3.copy(this._body.angularFactor, value);
     }
 
     public getFreezeRotation (): boolean {
@@ -229,7 +228,7 @@ export class CannonRigidBody implements RigidBodyBase {
     public applyForce (force: Vec3, worldPoint?: Vec3) {
         if (worldPoint == null) {
             worldPoint = new Vec3();
-            vec3.copy(worldPoint, this._body.position);
+            Vec3.copy(worldPoint, this._body.position);
         }
         this._body.wakeUp();
         this._body.applyForce(toCannonVec3(force), toCannonVec3(worldPoint));
@@ -238,7 +237,7 @@ export class CannonRigidBody implements RigidBodyBase {
     public applyImpulse (impulse: Vec3, worldPoint?: Vec3) {
         if (worldPoint == null) {
             worldPoint = new Vec3();
-            vec3.copy(worldPoint, this._body.position);
+            Vec3.copy(worldPoint, this._body.position);
         }
         this._body.wakeUp();
         this._body.applyImpulse(toCannonVec3(impulse), toCannonVec3(worldPoint));
@@ -276,26 +275,26 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     public getPosition (out: Vec3) {
-        vec3.copy(out, this._body.position);
+        Vec3.copy(out, this._body.position);
     }
 
     public setPosition (value: Vec3) {
-        vec3.copy(this._body.position, value);
+        Vec3.copy(this._body.position, value);
         // console.log(`[[CANNON]] Set body position to ${stringfyVec3(value)}.`);
     }
 
     public getRotation (out: Quat) {
-        quat.copy(out, this._body.quaternion);
+        Quat.copy(out, this._body.quaternion);
     }
 
     public setRotation (value: Quat) {
-        quat.copy(this._body.quaternion, value);
+        Quat.copy(this._body.quaternion, value);
         // console.log(`[[CANNON]] Set body rotation to ${stringfyQuat(value)}.`);
     }
 
     public translateAndRotate (m: Mat4, rot: Quat): void {
-        mat4.getTranslation(this._body.position, m);
-        quat.copy(this._body.quaternion, rot);
+        Mat4.getTranslation(this._body.position, m);
+        Quat.copy(this._body.quaternion, rot);
     }
 
     public scaleAllShapes (scale: Vec3) {

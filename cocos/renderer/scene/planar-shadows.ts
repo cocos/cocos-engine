@@ -1,7 +1,6 @@
 import { Material } from '../../3d/assets/material';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Color, Mat4, Quat, Vec3 } from '../../core/value-types';
-import { color4 } from '../../core/vmath';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType } from '../../gfx/define';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
@@ -45,7 +44,7 @@ export class PlanarShadows {
     }
 
     set shadowColor (color: Color) {
-        color4.array(this._data, color, UBOShadow.SHADOW_COLOR_OFFSET);
+        Color.array(this._data, color, UBOShadow.SHADOW_COLOR_OFFSET);
         this._globalBindings.buffer!.update(this.data);
     }
 
