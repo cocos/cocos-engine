@@ -338,5 +338,12 @@
       "./cocos2d/core/components/SwanSubContextView.js"
     ],
     "hide": true
+  },
+  {
+    "name": "TypeScript Polyfill",
+    "entries": [
+      "./polyfill/typescript.js"
+    ],
+    "hide": true
   }
 ]
