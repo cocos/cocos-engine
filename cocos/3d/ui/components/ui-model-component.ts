@@ -101,25 +101,11 @@ export class UIModelComponent extends UIComponent {
             const passNum = passes.length;
             let needReconstruct = false;
             for (let j = 0; j < passNum; j++) {
-                let override = false;
                 if (!passes[j].blendState.targets[0].blend) {
                     needReconstruct = true;
                     const bs = passes[j].blendState.targets[0];
                     bs.blend = true;
-                    override = true;
-                }
-
-                if (passes[j].depthStencilState.depthTest) {
-                    needReconstruct = true;
-                    passes[j].depthStencilState.depthTest = false;
-                    override = true;
-                }
-
-                if (override) {
-                    passes[j].overridePipelineStates(ea.techniques[techIdx].passes[j], {
-                        blendState: passes[j].blendState,
-                        depthStencilState: passes[j].depthStencilState,
-                    });
+                    passes[j].overridePipelineStates(ea.techniques[techIdx].passes[j], { blendState: passes[j].blendState });
                 }
             }
             if (needReconstruct) {
