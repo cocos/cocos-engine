@@ -52,7 +52,8 @@ struct DrawItem
     Model* model = nullptr;
     InputAssembler* ia = nullptr;
     Effect* effect = nullptr;
-    ValueMap* defines = nullptr;
+    std::vector<ValueMap*>* defines = nullptr;
+    std::vector<std::unordered_map<std::string, Effect::Property>*>* uniforms = nullptr;
 };
 
 class Model;
@@ -133,8 +134,8 @@ private:
     Effect* _effect = nullptr;
     
     InputAssembler _inputAssembler;
-    ValueMap* _defines = nullptr;
-    std::vector<std::unordered_map<std::string, Effect::Property>> _uniforms;
+    std::vector<ValueMap*> _definesList;
+    std::vector<std::unordered_map<std::string, Effect::Property>*> _uniforms;
     bool _dynamicIA = false;
     int _cullingMask = -1;
     int _userKey = -1;

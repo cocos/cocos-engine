@@ -86,25 +86,15 @@ void Model::setEffect(Effect* effect, CustomProperties* customProperties)
     
     _uniforms.clear();
     
-    if (effect != nullptr) {
-        _defines = effect->extractDefines();
+    if (effect != nullptr)
+    {
+        _definesList.push_back(effect->extractDefines());
         _uniforms.push_back(effect->extractProperties());
     }
     
-    if (customProperties != nullptr) {
-        ValueMap* tmpMap = customProperties->extractDefines();
-        for (auto& e : *tmpMap)
-        {
-            const std::string& key = e.first;
-            if(_defines->count(key) == 0)
-            {
-                _defines->emplace(key, e.second);
-            }
-            else
-            {
-                _defines->find(key)->second = e.second;
-            }
-        }
+    if (customProperties != nullptr)
+    {
+        _definesList.push_back(customProperties->extractDefines());
         _uniforms.push_back(customProperties->extractProperties());
     }
 }
@@ -126,15 +116,16 @@ void Model::extractDrawItem(DrawItem& out) const
         out.model = const_cast<Model*>(this);
         out.ia = nullptr;
         out.effect = _effect;
-        out.defines = out.effect->extractDefines();
-        
+        out.defines = const_cast<std::vector<ValueMap*>*>(&_definesList);
+
         return;
     }
     
     out.model = const_cast<Model*>(this);
-    out.ia = const_cast<InputAssembler*>(&(_inputAssembler));
+    out.ia = const_cast<InputAssembler*>(&_inputAssembler);
     out.effect = _effect;
-    out.defines = _defines;
+    out.defines = const_cast<std::vector<ValueMap*>*>(&_definesList);
+    out.uniforms = const_cast<std::vector<std::unordered_map<std::string, Effect::Property>*>*>(&_uniforms);
 }
 
 void Model::reset()
@@ -143,7 +134,7 @@ void Model::reset()
     CC_SAFE_RELEASE_NULL(_node);
     _inputAssembler.clear();
     _uniforms.clear();
-    _defines = nullptr;
+    _definesList.clear();
 }
 
 RENDERER_END

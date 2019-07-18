@@ -110,9 +110,9 @@ ValueMap* Effect::extractDefines()
     return &_cachedNameValues;
 }
 
-std::unordered_map<std::string, Effect::Property>& Effect::extractProperties()
+std::unordered_map<std::string, Effect::Property>* Effect::extractProperties()
 {
-    return _properties;
+    return &_properties;
 }
 
 const Effect::Property& Effect::getProperty(const std::string& name) const
@@ -213,35 +213,6 @@ void Effect::setStencil(StencilFunc stencilFunc, uint32_t stencilRef, uint8_t st
     {
         pass->setStencilFront(stencilFunc, stencilRef, stencilMask, stencilFailOp, stencilZFailOp, stencilZPassOp, stencilWriteMask);
         pass->setStencilBack(stencilFunc, stencilRef, stencilMask, stencilFailOp, stencilZFailOp, stencilZPassOp, stencilWriteMask);
-    }
-}
-
-void Effect::mergeCustomProperties(CustomProperties* customProp)
-{
-    if (customProp != nullptr) {
-        ValueMap* tmpMap = customProp->extractDefines();
-        
-        for (auto& def : _cachedNameValues)
-        {
-            const std::string name = def.first.c_str();
-            const auto& iter = tmpMap->find(name);
-            if (iter != tmpMap->end())
-            {
-                if (_cachedNameValues[name] != iter->second)
-                {
-                    _cachedNameValues[name] = iter->second;
-                }
-            }
-        };
-        
-        generateKey();
-        
-        std::unordered_map<std::string, CustomProperties::Property>& props = customProp->extractProperties();
-        
-        for (auto& prop : props)
-        {
-            _properties[prop.first.c_str()] = prop.second;
-        }
     }
 }
 

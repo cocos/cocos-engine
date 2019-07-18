@@ -75,23 +75,30 @@ public:
     /**
      *  @brief Gets unique key for the given program name and defines key.
      */
-    std::string getKey(const std::string& name, const ValueMap& defines);
+    std::string getKey(const std::string& name, const std::vector<ValueMap*>& definesList);
 
     /**
      *  @brief Gets program by template name, define settings and defines key.
      *  @note The return value needs to be released by its 'release' method.
      */
-    Program* getProgram(const std::string& name, const ValueMap& defines);
+    Program* getProgram(const std::string& name, const std::vector<ValueMap*>& definesList);
     
-    Value getValueFromDefineList(const std::string& name, const ValueMap& define);
+    Value getValueFromDefineList(const std::string& name, const std::vector<ValueMap*>& definesList);
 
 private:
-    uint32_t getValueKey(const ValueMap& define, const Value& v);
+    uint32_t getValueKey(const Value& v);
     
 private:
     DeviceGraphics* _device = nullptr;
-    const char* _precisionReplace = "precision highp float;";
-    const char* _precision = "#ifdef GL_ES\nprecision highp float;\n#endif\n";
+    const char* _precisionVert = "precision highp float;";
+    const char* _precisionVertReplace = "#ifdef GL_ES\nprecision highp float;\n#endif\n";
+    const char* _precisionFrag = "precision highp float;";
+    const char* _precisionFragReplace = "#ifdef GL_ES\nprecision mediump float;\n#endif\n";
+    const char* _mediumpReplace = "half";
+    const char* _mediump = "mediump";
+    const char* _lowpReplace = "fixed";
+    const char* _lowp = "lowp";
+    
     std::unordered_map<std::string, Template> _templates;
     std::unordered_map<std::string, Program*> _cache;
 };
