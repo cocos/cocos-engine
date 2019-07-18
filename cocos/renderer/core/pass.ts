@@ -31,7 +31,7 @@ import { IPassInfo, IPassStates, IPropertyInfo, IShaderInfo } from '../../3d/ass
 import { builtinResMgr } from '../../3d/builtin';
 import { TextureBase } from '../../assets/texture-base';
 import { Root } from '../../core/root';
-import { mat3, mat4, vec2, vec3, vec4 } from '../../core/vmath';
+import { Mat3, Mat4, Vec2, Vec3, Vec4 } from '../../core/value-types';
 import { GFXBindingLayout, IGFXBinding } from '../../gfx/binding-layout';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXDynamicState,
@@ -60,15 +60,15 @@ export type PassOverrides = RecursivePartial<IPassStates>;
 
 const _type2fn = {
   [GFXType.INT]: (a: Float32Array, v: any, idx: number = 0) => a[idx] = v,
-  [GFXType.INT2]: (a: Float32Array, v: any, idx: number = 0) => vec2.array(a, v, idx * 2),
-  [GFXType.INT3]: (a: Float32Array, v: any, idx: number = 0) => vec3.array(a, v, idx * 3),
-  [GFXType.INT4]: (a: Float32Array, v: any, idx: number = 0) => vec4.array(a, v, idx * 4),
+  [GFXType.INT2]: (a: Float32Array, v: any, idx: number = 0) => Vec2.array(a, v, idx * 2),
+  [GFXType.INT3]: (a: Float32Array, v: any, idx: number = 0) => Vec3.array(a, v, idx * 3),
+  [GFXType.INT4]: (a: Float32Array, v: any, idx: number = 0) => Vec4.array(a, v, idx * 4),
   [GFXType.FLOAT]: (a: Float32Array, v: any, idx: number = 0) => a[idx] = v,
-  [GFXType.FLOAT2]: (a: Float32Array, v: any, idx: number = 0) => vec2.array(a, v, idx * 2),
-  [GFXType.FLOAT3]: (a: Float32Array, v: any, idx: number = 0) => vec3.array(a, v, idx * 3),
-  [GFXType.FLOAT4]: (a: Float32Array, v: any, idx: number = 0) => vec4.array(a, v, idx * 4),
-  [GFXType.MAT3]: (a: Float32Array, v: any, idx: number = 0) => mat3.array(a, v, idx * 9),
-  [GFXType.MAT4]: (a: Float32Array, v: any, idx: number = 0) => mat4.array(a, v, idx * 16),
+  [GFXType.FLOAT2]: (a: Float32Array, v: any, idx: number = 0) => Vec2.array(a, v, idx * 2),
+  [GFXType.FLOAT3]: (a: Float32Array, v: any, idx: number = 0) => Vec3.array(a, v, idx * 3),
+  [GFXType.FLOAT4]: (a: Float32Array, v: any, idx: number = 0) => Vec4.array(a, v, idx * 4),
+  [GFXType.MAT3]: (a: Float32Array, v: any, idx: number = 0) => Mat3.array(a, v, idx * 9),
+  [GFXType.MAT4]: (a: Float32Array, v: any, idx: number = 0) => Mat4.array(a, v, idx * 16),
 };
 
 const _type2default = {

@@ -2,14 +2,14 @@
  * @hidden
  */
 
-import { mat4, quat, vec3 } from '../../../core/vmath';
+import { Mat4, Quat, Vec3 } from '../../../core/value-types';
 
 /**
  * declare interface
  */
 export interface IBuiltinShape {
-    center: vec3;
-    setScale (scale: vec3, out: IBuiltinShape): void;
-    translateAndRotate (m: mat4, rot: quat, out: IBuiltinShape): void;
+    center: Vec3;
+    setScale (scale: Vec3, out: IBuiltinShape): void;
+    translateAndRotate (m: Mat4, rot: Quat, out: IBuiltinShape): void;
     transform (...args: any): any;
 }

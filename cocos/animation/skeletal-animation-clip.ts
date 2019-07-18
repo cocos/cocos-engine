@@ -29,10 +29,9 @@
 
 import { RenderableComponent } from '../3d/framework/renderable-component';
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
+import { Quat, Vec3 } from '../core/value-types';
 import { ccclass } from '../core/data/class-decorator';
 import { getClassName } from '../core/utils/js';
-import { Quat, Vec3 } from '../core/value-types';
-import { quat, vec3 } from '../core/vmath';
 import { Node } from '../scene-graph';
 import { AnimationClip, ICurveData, IObjectCurveData, IPropertyCurve } from './animation-clip';
 import { AnimationComponent } from './animation-component';
@@ -157,11 +156,11 @@ export class SkeletalAnimationClip extends AnimationClip {
             const T = position[i];
             const R = rotation[i];
             const S = scale[i];
-            vec3.multiply(T, T, parentS);
-            vec3.transformQuat(T, T, parentR);
-            vec3.add(T, T, parentT);
-            quat.multiply(R, parentR, R);
-            vec3.multiply(S, parentS, S);
+            Vec3.multiply(T, T, parentS);
+            Vec3.transformQuat(T, T, parentR);
+            Vec3.add(T, T, parentT);
+            Quat.multiply(R, parentR, R);
+            Vec3.multiply(S, parentS, S);
         }
     }
 

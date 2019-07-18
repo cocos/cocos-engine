@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { ccenum } from '../../../../core/value-types/enum';
+import { CCEnum } from '../../../../core/value-types/enum';
 
 /**
  * @en Enum for LineCap.
@@ -54,7 +54,7 @@ export enum LineCap {
     SQUARE = 2,
 }
 
-ccenum(LineCap);
+CCEnum(LineCap);
 
 /**
  * @en Enum for LineJoin.
@@ -86,7 +86,7 @@ export enum LineJoin {
     MITER = 2,
 }
 
-ccenum(LineJoin);
+CCEnum(LineJoin);
 
 // PointFlags
 export enum PointFlags {
@@ -96,4 +96,4 @@ export enum PointFlags {
     PT_INNERBEVEL = 0x08,
 }
 
-ccenum(PointFlags);
+CCEnum(PointFlags);

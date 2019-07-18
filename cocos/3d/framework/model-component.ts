@@ -29,7 +29,7 @@
 
 import { builtinResMgr } from '../../3d/builtin';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
-import Enum from '../../core/value-types/enum';
+import { Enum } from '../../core/value-types';
 import { Model } from '../../renderer/scene/model';
 import { Material } from '../assets/material';
 import { Mesh } from '../assets/mesh';

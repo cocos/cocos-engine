@@ -7,8 +7,7 @@ import { EventTarget } from '../../../../core/event';
 import { CallbacksInvoker, ICallbackTable } from '../../../../core/event/callbacks-invoker';
 import { applyMixins, IEventTarget } from '../../../../core/event/event-target-factory';
 import { createMap } from '../../../../core/utils/js';
-import Vec3 from '../../../../core/value-types/vec3';
-import { vec3 } from '../../../../core/vmath';
+import { Vec3 } from '../../../../core/value-types';
 import { ICollisionCallback, ICollisionEvent, ITriggerCallback, ITriggerEvent, RigidBodyBase, ShapeBase } from '../../../physics/api';
 import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../../physics/export-api';
 import { ERigidBodyType, ETransformSource } from '../../../physics/physic-enum';
@@ -88,13 +87,13 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
     }
 
     public set center (value: Vec3) {
-        vec3.copy(this._center, value);
+        Vec3.copy(this._center, value);
 
         if (!CC_EDITOR) {
             const rigidBody = this.sharedBody.rigidBody as RigidBodyComponent | null;
             if (rigidBody != null) {
-                vec3.subtract(offset, this.node.worldPosition, rigidBody.node.worldPosition);
-                vec3.add(offset, offset, this._center);
+                Vec3.subtract(offset, this.node.worldPosition, rigidBody.node.worldPosition);
+                Vec3.add(offset, offset, this._center);
                 this._shapeBase.setCenter(offset);
             } else {
                 this._shapeBase.setCenter(this._center);
@@ -209,8 +208,8 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
 
             const rigidBody = this.sharedBody.rigidBody as RigidBodyComponent | null;
             if (rigidBody != null) {
-                vec3.subtract(offset, this.node.worldPosition, rigidBody.node.worldPosition);
-                vec3.add(offset, offset, this._center);
+                Vec3.subtract(offset, this.node.worldPosition, rigidBody.node.worldPosition);
+                Vec3.add(offset, offset, this._center);
                 this.sharedBody.body.addShape(this._shapeBase!, offset);
             } else {
                 this.sharedBody.body.addShape(this._shapeBase!, this._center);

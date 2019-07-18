@@ -1,5 +1,4 @@
-import { Quat, Vec3 } from '../../../../core/value-types';
-import { mat4, quat, vec3 } from '../../../../core/vmath';
+import { Mat4, Quat, Vec3 } from '../../../../core/value-types';
 import { ITriggerCallback, ITriggerEvent, ShapeBase } from '../../api';
 import { BuiltInBody } from '../builtin-body';
 import { IBuiltinShape } from '../builtin-interface';
@@ -56,7 +55,7 @@ export class BuiltinShape extends BuiltinObject implements ShapeBase {
     }
 
     public setCenter (center: Vec3): void {
-        vec3.copy(this._localShape.center, center);
+        Vec3.copy(this._localShape.center, center);
     }
 
     public getUserData () {
@@ -75,7 +74,7 @@ export class BuiltinShape extends BuiltinObject implements ShapeBase {
 
     }
 
-    public setPosition (position: vec3){
+    public setPosition (position: Vec3){
 
     }
 
@@ -83,11 +82,11 @@ export class BuiltinShape extends BuiltinObject implements ShapeBase {
         throw new Error('Method not implemented.');
     }
 
-    public transform (m: mat4, pos: vec3, rot: quat, scale: vec3) {
+    public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3) {
         this._localShape.transform(m, pos, rot, scale, this._worldShape);
     }
 
-    public translateAndRotate (m: mat4, rot: quat){
+    public translateAndRotate (m: Mat4, rot: Quat){
         this._localShape.translateAndRotate(m, rot, this._worldShape);
     }
 

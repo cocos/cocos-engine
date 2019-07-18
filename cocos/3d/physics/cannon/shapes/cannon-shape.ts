@@ -1,6 +1,5 @@
 import CANNON from 'cannon';
 import { Quat, Vec3 } from '../../../../core/value-types';
-import { vec3 } from '../../../../core/vmath';
 import { ITriggerCallback, ITriggerEvent, ITriggerEventType, RigidBodyBase, ShapeBase } from '../../api';
 import { getWrap, stringfyVec3 } from '../../util';
 import { commitShapeUpdates } from '../cannon-util';
@@ -61,12 +60,12 @@ export class CannonShape implements ShapeBase {
     }
 
     public setCenter (center: Vec3): void {
-        vec3.copy(this._center, center);
+        Vec3.copy(this._center, center);
         this._recalcCenter();
     }
 
     public setScale (scale: Vec3): void {
-        vec3.copy(this._scale, scale);
+        Vec3.copy(this._scale, scale);
         this._recalcCenter();
     }
 
@@ -105,8 +104,8 @@ export class CannonShape implements ShapeBase {
             return;
         }
         const shapeOffset = this._body.shapeOffsets[this._index];
-        vec3.copy(shapeOffset, this._center);
-        vec3.multiply(shapeOffset, shapeOffset, this._scale);
+        Vec3.copy(shapeOffset, this._center);
+        Vec3.multiply(shapeOffset, shapeOffset, this._scale);
         // console.log(`[[CANNON]] Set shape offset to (${shapeOffset.x}, ${shapeOffset.y}, ${shapeOffset.z}).`);
 
         commitShapeUpdates(this._body);

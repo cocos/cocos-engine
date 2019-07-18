@@ -35,7 +35,7 @@ import { applyMixins, IEventTarget } from '../core/event/event-target-factory';
 import { warnID } from '../core/platform/CCDebug';
 import * as ArrayUtils from '../core/utils/array';
 import { createMap } from '../core/utils/js-typed';
-import { ccenum } from '../core/value-types/enum';
+import { CCEnum } from '../core/value-types/enum';
 import { AnimationClip } from './animation-clip';
 import { AnimationState } from './animation-state';
 import { CrossFade } from './cross-fade';
@@ -76,7 +76,7 @@ export enum EventType {
      */
     FINISHED = 'finished',
 }
-ccenum(EventType);
+CCEnum(EventType);
 
 /**
  * 动画组件管理动画状态来控制动画的播放。

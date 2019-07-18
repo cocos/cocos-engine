@@ -30,7 +30,7 @@ import { INode } from '../../../../core/utils/interfaces';
 import { Mat4 } from '../../../../core/value-types';
 import { UIRenderComponent } from '../ui-render-component';
 
-const _mat4_temp = new Mat4();
+const _mat4_temp = Mat4.create();
 
 export enum WebViewEventType {
     LOADING = 0,

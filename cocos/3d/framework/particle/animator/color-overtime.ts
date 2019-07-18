@@ -5,8 +5,7 @@
 
 import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { Color } from '../../../../core/value-types';
-import { color4, pseudoRandom } from '../../../../core/vmath';
+import { Color, pseudoRandom } from '../../../../core/value-types';
 import Particle from '../particle';
 import GradientRange from './gradient-range';
 

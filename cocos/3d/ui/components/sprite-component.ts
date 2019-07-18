@@ -32,7 +32,7 @@ import { SpriteAtlas, SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { Vec2 } from '../../../core/value-types';
-import { ccenum } from '../../../core/value-types/enum';
+import { CCEnum } from '../../../core/value-types/enum';
 import { clamp } from '../../../core/vmath/utils';
 import { UI } from '../../../renderer/ui/ui';
 import { UIRenderComponent } from './ui-render-component';
@@ -70,7 +70,7 @@ enum SpriteType {
     // MESH: 4
 }
 
-ccenum(SpriteType);
+CCEnum(SpriteType);
 
 /**
  * @zh
@@ -95,7 +95,7 @@ enum FillType {
     RADIAL = 2,
 }
 
-ccenum(FillType);
+CCEnum(FillType);
 
 /**
  * @zh
@@ -119,7 +119,7 @@ enum SizeMode {
     RAW = 2,
 }
 
-ccenum(SizeMode);
+CCEnum(SizeMode);
 
 // var State = cc.Enum({
 //     /**

@@ -1,7 +1,6 @@
 
 import Ammo from 'ammo.js';
 import { Color, Vec3 } from '../../../core/value-types';
-import { vec3 } from '../../../core/vmath';
 import { GFXComparisonFunc, GFXPrimitiveMode } from '../../../gfx/define';
 import { Node } from '../../../scene-graph';
 import { Material } from '../../assets/material';
@@ -78,8 +77,8 @@ export class Debugger implements Ammo.btIDebugDraw {
         this._iVertex = 0;
         this._positions.length = 0;
         this._colors.length = 0;
-        vec3.set(this._maxPos, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
-        vec3.set(this._minPos, Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+        Vec3.set(this._maxPos, -Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+        Vec3.set(this._minPos, Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
         if (this._mesh) {
             this._mesh.destroy();
             this._mesh = null;
@@ -99,7 +98,7 @@ export class Debugger implements Ammo.btIDebugDraw {
             return;
         }
         const extents = this._tmpExtents;
-        vec3.subtract(extents, this._maxPos, this._minPos);
+        Vec3.subtract(extents, this._maxPos, this._minPos);
         const boundingRadius = Math.max(extents.x, Math.max(extents.y, extents.z)) / 2;
         const geometry: IGeometry = {
             positions: this._positions,
@@ -117,10 +116,10 @@ export class Debugger implements Ammo.btIDebugDraw {
         const from = Ammo.wrapPointer<Ammo.btVector3>(pfrom, Ammo.btVector3);
         const to = Ammo.wrapPointer<Ammo.btVector3>(pto, Ammo.btVector3);
         const color = Ammo.wrapPointer<Ammo.btVector3>(pcolor, Ammo.btVector3);
-        vec3.set(this._tmpVertex.color, color.x(), color.y(), color.z());
-        vec3.set(this._tmpVertex.position, from.x(), from.y(), from.z());
+        Vec3.set(this._tmpVertex.color, color.x(), color.y(), color.z());
+        Vec3.set(this._tmpVertex.position, from.x(), from.y(), from.z());
         this._addVertex(this._tmpVertex);
-        vec3.set(this._tmpVertex.position, to.x(), to.y(), to.z());
+        Vec3.set(this._tmpVertex.position, to.x(), to.y(), to.z());
         this._addVertex(this._tmpVertex);
     }
 
@@ -147,8 +146,8 @@ export class Debugger implements Ammo.btIDebugDraw {
     private _addVertex (vertex: IDebugVertex) {
         ++this._iVertex;
         const { position, color } = vertex;
-        vec3.max(this._maxPos, this._maxPos, position);
-        vec3.min(this._minPos, this._minPos, position);
+        Vec3.max(this._maxPos, this._maxPos, position);
+        Vec3.min(this._minPos, this._minPos, position);
         this._positions.push(position.x, position.y, position.z);
         this._colors.push(color.x, color.y, color.z, 1.0);
     }

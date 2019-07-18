@@ -30,8 +30,8 @@
 import { ray } from '../../3d/geom-utils';
 import { Component } from '../../components/component';
 import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
-import { Color, Enum, Rect, Vec3 } from '../../core/value-types';
-import { color4, toRadian } from '../../core/vmath';
+import { constget } from '../../core/data/utils/constget';
+import { Color, Enum, Rect, toRadian, Vec3 } from '../../core/value-types';
 import { GFXClearFlag } from '../../gfx/define';
 import { Camera } from '../../renderer';
 import { Scene } from '../../scene-graph';
@@ -65,7 +65,7 @@ const CameraClearFlag = Enum({
     DONT_CLEAR: GFXClearFlag.NONE,
 });
 
-const c4_1 = color4.create();
+const c4_1 = Color.create();
 
 /**
  * @en The Camera Component
@@ -210,7 +210,7 @@ export class CameraComponent extends Component {
     set color (val) {
         this._color.set(val);
         if (this._camera) {
-            color4.set(c4_1, val.r / 255, val.g / 255, val.b / 255, val.a / 255);
+            Color.set(c4_1, val.r / 255, val.g / 255, val.b / 255, val.a / 255);
             this._camera.clearColor = c4_1;
         }
     }
@@ -370,7 +370,7 @@ export class CameraComponent extends Component {
             this._camera.orthoHeight = this._orthoHeight;
             this._camera.nearClip = this._near;
             this._camera.farClip = this._far;
-            this._camera.clearColor = color4.create(this._color.r / 255, this._color.g / 255, this._color.b / 255, this._color.a / 255);
+            this._camera.clearColor = Color.create(this._color);
             this._camera.clearDepth = this._depth;
             this._camera.clearStencil = this._stencil;
             this._camera.clearFlag = this._clearFlags;

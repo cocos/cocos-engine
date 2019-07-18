@@ -3,7 +3,7 @@
  * @category animation
  */
 
-import { ccenum } from '../core/value-types/enum';
+import { CCEnum } from '../core/value-types/enum';
 
 export enum WrapModeMask {
     Loop = 1 << 1,
@@ -53,7 +53,7 @@ export enum WrapMode {
     PingPongReverse = WrapModeMask.PingPong | WrapModeMask.Reverse,
 }
 
-ccenum(WrapMode);
+CCEnum(WrapMode);
 
 /**
  * For internal

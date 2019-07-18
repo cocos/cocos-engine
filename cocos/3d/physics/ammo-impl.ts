@@ -4,7 +4,6 @@
 
 import Ammo from 'ammo.js';
 import { Quat, Vec3 } from '../../core/value-types';
-import { quat, vec3 } from '../../core/vmath';
 import { Node } from '../../scene-graph';
 import { Debugger } from './ammo/debugger';
 import { AfterStepCallback, BeforeStepCallback,
@@ -283,7 +282,7 @@ export class AmmoWorld implements PhysicsWorldBase {
 
         vec3AmmoToCreator(this._hitPoint, closestRayResultCallback.get_m_hitPointWorld());
         vec3AmmoToCreator(this._hitNormal, closestRayResultCallback.get_m_hitNormalWorld());
-        const distance = vec3.distance(from, this._hitPoint);
+        const distance = Vec3.distance(from, this._hitPoint);
 
         throw new Error(`not impl.`);
         // result._assign(this._hitPoint, distance, null, wrappedBody);
@@ -325,7 +324,7 @@ export class AmmoWorld implements PhysicsWorldBase {
         vec3AmmoToCreator(collisionEvent._position, contactPoint.getPositionWorldOnA());
         vec3AmmoToCreator(collisionEvent._targetPosition, contactPoint.get_m_positionWorldOnB());
         vec3AmmoToCreator(collisionEvent._targetNormal, contactPoint.get_m_normalWorldOnB());
-        vec3.negate(collisionEvent.normal, collisionEvent.targetNormal);
+        Vec3.negate(collisionEvent.normal, collisionEvent.targetNormal);
         bodyA.dispatchCollisionWith(bodyB);
         bodyB.dispatchCollisionWith(bodyA);
     }
@@ -520,7 +519,7 @@ export class AmmoRigidBody implements RigidBodyBase {
 
     public setVelocity (value: Vec3): void {
         this._changeRequests.velocity.hasValue = true;
-        vec3.copy(this._changeRequests.velocity.storage, value);
+        Vec3.copy(this._changeRequests.velocity.storage, value);
     }
 
     public getFreezeRotation (): boolean {
@@ -584,11 +583,11 @@ export class AmmoRigidBody implements RigidBodyBase {
         this._ammoRigidBody.getMotionState().getWorldTransform(physTransform);
         const physOrigin = physTransform.getOrigin();
         vec3AmmoToCreator(this._worldPosition, physOrigin);
-        vec3.copy(out, this._worldPosition);
+        Vec3.copy(out, this._worldPosition);
     }
 
     public setPosition (value: Vec3) {
-        vec3.copy(this._worldPosition, value);
+        Vec3.copy(this._worldPosition, value);
         this._updateTransform();
     }
 
@@ -598,11 +597,11 @@ export class AmmoRigidBody implements RigidBodyBase {
         this._ammoRigidBody.getMotionState().getWorldTransform(physTransform);
         const physRotation = physTransform.getRotation();
         quatAmmoToCreator(this._worldRotation, physRotation);
-        quat.copy(out, this._worldRotation);
+        Quat.copy(out, this._worldRotation);
     }
 
     public setRotation (value: Quat) {
-        quat.copy(this._worldRotation, value);
+        Quat.copy(this._worldRotation, value);
         this._updateTransform();
     }
 
@@ -781,12 +780,12 @@ export class AmmoShape implements ShapeBase {
     }
 
     public setCenter (center: Vec3): void {
-        vec3.copy(this._center, center);
+        Vec3.copy(this._center, center);
         this._recalcCenter();
     }
 
     public setScale (scale: Vec3): void {
-        vec3.copy(this._scale, scale);
+        Vec3.copy(this._scale, scale);
         this._recalcCenter();
     }
 
@@ -836,7 +835,7 @@ export class AmmoBoxShape extends AmmoShape implements BoxShapeBase {
 
     constructor (size: Vec3) {
         super();
-        vec3.scale(this._halfExtent, size, 0.5);
+        Vec3.scale(this._halfExtent, size, 0.5);
         const halfExtents = this._halfExtent;
         this._ammoBox = new Ammo.btBoxShape(new Ammo.btVector3(halfExtents.x, halfExtents.y, halfExtents.z));
         this._ammoShape = this._ammoBox;
@@ -848,13 +847,13 @@ export class AmmoBoxShape extends AmmoShape implements BoxShapeBase {
     }
 
     public setSize (size: Vec3) {
-        vec3.scale(this._halfExtent, size, 0.5);
+        Vec3.scale(this._halfExtent, size, 0.5);
         this._recalcExtents();
     }
 
     private _recalcExtents () {
         const halfExtents = new Vec3();
-        vec3.multiply(halfExtents, this._halfExtent, this._scale);
+        Vec3.multiply(halfExtents, this._halfExtent, this._scale);
         this._ammoBox = new Ammo.btBoxShape(new Ammo.btVector3(halfExtents.x, halfExtents.y, halfExtents.z));
     }
 }
@@ -893,7 +892,7 @@ function toString (value: Vec3 | Quat): string {
     if (value instanceof Vec3) {
         return `(x: ${value.x}, y: ${value.y}, z: ${value.z})`;
     } else if (value instanceof Quat) {
-        if (quat.exactEquals(value, quat.create())) {
+        if (Quat.exactEquals(value, Quat.create())) {
             return `<No-rotation>`;
         } else {
             return `(x: ${value.x}, y: ${value.y}, z: ${value.z}, w: ${value.w})`;

@@ -27,8 +27,7 @@
  * @category ui-assembler
  */
 
-import { Color, Vec3 } from '../../../../../core/value-types';
-import { color4 } from '../../../../../core/vmath';
+import { Color, Vec2, Vec3 } from '../../../../../core/value-types';
 import { GFXPrimitiveMode } from '../../../../../gfx';
 import { Model } from '../../../../../renderer';
 import { RenderScene } from '../../../../../renderer/scene/render-scene';
@@ -183,7 +182,7 @@ export const graphicsAssembler: IAssembler = {
     },
 
     stroke (graphics: GraphicsComponent) {
-        color4.copy(_curColor, graphics.strokeColor);
+        Color.copy(_curColor, graphics.strokeColor);
         // graphics.node.getWorldMatrix(_currMatrix);
         if (!graphics.impl) {
             return;
@@ -198,7 +197,7 @@ export const graphicsAssembler: IAssembler = {
     },
 
     fill (graphics: GraphicsComponent) {
-        color4.copy(_curColor, graphics.fillColor);
+        Color.copy(_curColor, graphics.fillColor);
         // graphics.node.getWorldMatrix(_currMatrix);
 
         this._expandFill!(graphics);
@@ -799,7 +798,7 @@ export const graphicsAssembler: IAssembler = {
         vData[dataOffset++] = 0;
         vData[dataOffset++] = 1;
         vData[dataOffset++] = 1;
-        color4.array(vData!, _curColor, dataOffset);
+        Color.array(vData!, _curColor, dataOffset);
         meshbuffer.vertexStart ++;
     },
 };

@@ -11,7 +11,6 @@ import {
     property,
 } from '../../../core/data/class-decorator';
 import { Quat, Vec3 } from '../../../core/value-types';
-import { vec3 } from '../../../core/vmath';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 
 const NonRigidBodyProperties = {
@@ -174,7 +173,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     }
 
     public set linearFactor (value: Vec3) {
-        vec3.copy(this._linearFactor, value);
+        Vec3.copy(this._linearFactor, value);
         if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
             this._body.setLinearFactor(this._linearFactor);
         }
@@ -195,7 +194,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     }
 
     public set angularFactor (value: Vec3) {
-        vec3.copy(this._angularFactor, value);
+        Vec3.copy(this._angularFactor, value);
         if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
             this._body.setAngularFactor(this._angularFactor);
         }

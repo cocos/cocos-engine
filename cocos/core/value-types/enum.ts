@@ -43,7 +43,7 @@ import * as js from '../utils/js';
  * @param obj - a JavaScript literal object containing enum names and values, or a TypeScript enum type
  * @return the defined enum type
  */
-export default function Enum<T> (obj: T): T {
+export function Enum<T> (obj: T): T {
     if ('__enums__' in obj) {
         return obj;
     }
@@ -107,7 +107,7 @@ Enum.getList = (enumDef) => {
 
 if (CC_DEV) {
     // check key order in object literal
-    const _TestEnum: Enum = Enum({
+    const _TestEnum = Enum({
         ZERO: -1,
         ONE: -1,
         TWO: -1,
@@ -118,10 +118,7 @@ if (CC_DEV) {
     }
 }
 
-/**
- * @param enumx
- */
-export function ccenum (enumx) {
+export function CCEnum (enumx) {
     if ('__enums__' in enumx) {
         return;
     }

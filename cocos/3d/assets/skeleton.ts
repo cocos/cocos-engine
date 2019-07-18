@@ -31,7 +31,6 @@ import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { CCString } from '../../core/data/utils/attribute';
 import { Mat4, Quat, Vec3 } from '../../core/value-types';
-import { mat4 } from '../../core/vmath';
 
 export interface IBindTRS {
     position: Vec3;
@@ -67,7 +66,7 @@ export class Skeleton extends Asset {
             const position = new Vec3();
             const rotation = new Quat();
             const scale = new Vec3();
-            mat4.toRTS(m, rotation, position, scale);
+            Mat4.toRTS(m, rotation, position, scale);
             return { position, rotation, scale };
         });
     }

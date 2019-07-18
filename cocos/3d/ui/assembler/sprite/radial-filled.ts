@@ -29,8 +29,7 @@
 
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
 import { SpriteFrame } from '../../../../assets';
-import { Vec2 } from '../../../../core/value-types';
-import { vec2 } from '../../../../core/vmath';
+import { Mat4, Vec2, Vec3 } from '../../../../core/value-types';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { SpriteComponent } from '../../components';
@@ -118,20 +117,20 @@ function _calculateVertices (sprite: SpriteComponent) {
     _vertPos[2].y = _vertPos[3].y = t;
 
     for (const num of _triangles) {
-        vec2.set(num, 0, 0);
+        Vec2.set(num, 0, 0);
     }
 
     if (cx !== vertices[0]) {
-        vec2.set(_triangles[0], 3, 0);
+        Vec2.set(_triangles[0], 3, 0);
     }
     if (cx !== vertices[2]) {
-        vec2.set(_triangles[2], 1, 2);
+        Vec2.set(_triangles[2], 1, 2);
     }
     if (cy !== vertices[1]) {
-        vec2.set(_triangles[1], 0, 1);
+        Vec2.set(_triangles[1], 0, 1);
     }
     if (cy !== vertices[3]) {
-        vec2.set(_triangles[3], 2, 3);
+        Vec2.set(_triangles[3], 2, 3);
     }
 }
 

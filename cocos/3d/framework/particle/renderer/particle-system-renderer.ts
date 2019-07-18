@@ -1,7 +1,6 @@
 import { Component } from '../../../../components';
 import { ccclass, property } from '../../../../core/data/class-decorator';
 import { Mat4, Vec2, Vec3, Vec4 } from '../../../../core/value-types';
-import { vec2, vec3 } from '../../../../core/vmath';
 import { GFXAttributeName, GFXFormat } from '../../../../gfx/define';
 import { IGFXAttribute } from '../../../../gfx/input-assembler';
 import { IDefineMap } from '../../../../renderer/core/pass';
@@ -300,7 +299,7 @@ export default class ParticleSystemRenderer {
         for (let i = 0; i < this._particles!.length; ++i) {
             const p = this._particles!.data[i];
             p.remainingLifetime -= dt;
-            vec3.set(p.animatedVelocity, 0, 0, 0);
+            Vec3.set(p.animatedVelocity, 0, 0, 0);
 
             if (p.remainingLifetime < 0.0) {
                 if (this._particleSystem.trailModule.enable) {
@@ -325,7 +324,7 @@ export default class ParticleSystemRenderer {
             if (this._particleSystem.velocityOvertimeModule.enable) {
                 this._particleSystem.velocityOvertimeModule.animate(p);
             } else {
-                vec3.copy(p.ultimateVelocity, p.velocity);
+                Vec3.copy(p.ultimateVelocity, p.velocity);
             }
             if (this._particleSystem.limitVelocityOvertimeModule.enable) {
                 this._particleSystem.limitVelocityOvertimeModule.animate(p);
@@ -336,7 +335,7 @@ export default class ParticleSystemRenderer {
             if (this._particleSystem.textureAnimationModule.enable) {
                 this._particleSystem.textureAnimationModule.animate(p);
             }
-            vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
+            Vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
             if (this._particleSystem.trailModule.enable) {
                 this._particleSystem.trailModule.animate(p, dt);
             }
@@ -488,7 +487,7 @@ export default class ParticleSystemRenderer {
         }
 
         if (this._particleSystem.textureAnimationModule.enable) {
-            vec2.set(this.frameTile_velLenScale, this._particleSystem.textureAnimationModule.numTilesX, this._particleSystem.textureAnimationModule.numTilesY);
+            Vec2.set(this.frameTile_velLenScale, this._particleSystem.textureAnimationModule.numTilesX, this._particleSystem.textureAnimationModule.numTilesY);
             mat!.setProperty('frameTile_velLenScale', this.frameTile_velLenScale);
         } else {
             mat!.setProperty('frameTile_velLenScale', this.frameTile_velLenScale);

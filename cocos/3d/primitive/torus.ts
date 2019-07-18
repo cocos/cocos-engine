@@ -2,7 +2,7 @@
  * @category 3d/primitive
  */
 
-import { vec3 } from '../../core/vmath';
+import { Vec3 } from '../../core/value-types';
 import { IGeometryOptions } from './define';
 
 /**
@@ -32,8 +32,8 @@ export default function (radius = 0.4, tube = 0.1, opts: RecursivePartial<ITorus
   const normals: number[] = [];
   const uvs: number[] = [];
   const indices: number[] = [];
-  const minPos = vec3.create(-radius - tube, -tube, -radius - tube);
-  const maxPos = vec3.create(radius + tube, tube, radius + tube);
+  const minPos = Vec3.create(-radius - tube, -tube, -radius - tube);
+  const maxPos = Vec3.create(radius + tube, tube, radius + tube);
   const boundingRadius = radius + tube;
 
   for (let j = 0; j <= radialSegments; j++) {

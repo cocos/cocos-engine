@@ -1,7 +1,6 @@
 import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXFormatType, GFXPrimitiveMode, IGFXFormatInfo } from '../../gfx/define';
 export { find } from '../../scene-graph/find';
 import { Mat4, Vec3 } from '../../core/value-types';
-import { mat4, vec3 } from '../../core/vmath';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { Node } from '../../scene-graph';
 import { IMeshStruct, IPrimitive, IVertexBundle, Mesh } from '../assets/mesh';
@@ -212,18 +211,18 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
 
     let minPosition = geometry.minPos;
     if (!minPosition && options.calculateBounds) {
-        minPosition = vec3.set(new vec3(), Infinity, Infinity, Infinity);
+        minPosition = Vec3.set(new Vec3(), Infinity, Infinity, Infinity);
         for (let iVertex = 0; iVertex < vertCount; ++iVertex) {
-            vec3.set(v3_1, geometry.positions[iVertex * 3 + 0], geometry.positions[iVertex * 3 + 1], geometry.positions[iVertex * 3 + 2]);
-            vec3.min(minPosition, minPosition, v3_1);
+            Vec3.set(v3_1, geometry.positions[iVertex * 3 + 0], geometry.positions[iVertex * 3 + 1], geometry.positions[iVertex * 3 + 2]);
+            Vec3.min(minPosition, minPosition, v3_1);
         }
     }
     let maxPosition = geometry.maxPos;
     if (!maxPosition && options.calculateBounds) {
-        maxPosition = vec3.set(new vec3(), -Infinity, -Infinity, -Infinity);
+        maxPosition = Vec3.set(new Vec3(), -Infinity, -Infinity, -Infinity);
         for (let iVertex = 0; iVertex < vertCount; ++iVertex) {
-            vec3.set(v3_1, geometry.positions[iVertex * 3 + 0], geometry.positions[iVertex * 3 + 1], geometry.positions[iVertex * 3 + 2]);
-            vec3.max(maxPosition, maxPosition, v3_1);
+            Vec3.set(v3_1, geometry.positions[iVertex * 3 + 0], geometry.positions[iVertex * 3 + 1], geometry.positions[iVertex * 3 + 2]);
+            Vec3.max(maxPosition, maxPosition, v3_1);
         }
     }
 
@@ -383,7 +382,7 @@ function calculateBoneSpaceBounds (mesh: Mesh, skeleton: Skeleton) {
         }
         const vertexCount = Math.min(joints.length / 4, weights.length / 4, positions.length / 3);
         for (let iVertex = 0; iVertex < vertexCount; ++iVertex) {
-            vec3.set(v3_1, positions[3 * iVertex + 0], positions[3 * iVertex + 1], positions[3 * iVertex + 2]);
+            Vec3.set(v3_1, positions[3 * iVertex + 0], positions[3 * iVertex + 1], positions[3 * iVertex + 2]);
             for (let i = 0; i < 4; ++i) {
                 const weight = weights[4 * iVertex + i];
                 if (weight === 0) {
@@ -394,13 +393,13 @@ function calculateBoneSpaceBounds (mesh: Mesh, skeleton: Skeleton) {
                     continue;
                 }
 
-                if (skeleton.bindposes) { vec3.transformMat4(v3_2, v3_1, skeleton.bindposes[refJointIndex]); }
-                else { vec3.copy(v3_2, v3_1); }
+                if (skeleton.bindposes) { Vec3.transformMat4(v3_2, v3_1, skeleton.bindposes[refJointIndex]); }
+                else { Vec3.copy(v3_2, v3_1); }
 
                 const jointBounds = result[refJointIndex];
                 jointBounds.hasValue = true;
-                vec3.min(jointBounds.min, jointBounds.min, v3_2);
-                vec3.max(jointBounds.max, jointBounds.max, v3_2);
+                Vec3.min(jointBounds.min, jointBounds.min, v3_2);
+                Vec3.max(jointBounds.max, jointBounds.max, v3_2);
             }
         }
     }

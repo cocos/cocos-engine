@@ -18,6 +18,7 @@ export class mat3 {
      * @zh 创建新的实例
      */
     public static create (m00 = 1, m01 = 0, m02 = 0, m03 = 0, m04 = 1, m05 = 0, m06 = 0, m07 = 0, m08 = 1) {
+        console.warn('Obsolete Vmath API');
         return new mat3(m00, m01, m02, m03, m04, m05, m06, m07, m08);
     }
 
@@ -25,6 +26,7 @@ export class mat3 {
      * @zh 获得指定矩阵的拷贝
      */
     public static clone (a: mat3) {
+        console.warn('Obsolete Vmath API');
         return new mat3(
             a.m00, a.m01, a.m02,
             a.m03, a.m04, a.m05,
@@ -36,6 +38,7 @@ export class mat3 {
      * @zh 复制目标矩阵
      */
     public static copy<Out extends mat3> (out: Out, a: mat3) {
+        console.warn('Obsolete Vmath API');
         out.m00 = a.m00;
         out.m01 = a.m01;
         out.m02 = a.m02;
@@ -57,6 +60,7 @@ export class mat3 {
         m10: number, m11: number, m12: number,
         m20: number, m21: number, m22: number,
     ) {
+        console.warn('Obsolete Vmath API');
         out.m00 = m00; out.m01 = m01; out.m02 = m02;
         out.m03 = m10; out.m04 = m11; out.m05 = m12;
         out.m06 = m20; out.m07 = m21; out.m08 = m22;
@@ -67,6 +71,7 @@ export class mat3 {
      * @zh 将目标赋值为单位矩阵
      */
     public static identity<Out extends mat3> (out: Out) {
+        console.warn('Obsolete Vmath API');
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -83,6 +88,7 @@ export class mat3 {
      * @zh 转置矩阵
      */
     public static transpose<Out extends mat3> (out: Out, a: mat3) {
+        console.warn('Obsolete Vmath API');
         // If we are transposing ourselves we can skip a few steps but have to cache some values
         if (out === a) {
             const a01 = a.m01, a02 = a.m02, a12 = a.m05;
@@ -111,6 +117,7 @@ export class mat3 {
      * @zh 矩阵求逆
      */
     public static invert<Out extends mat3> (out: Out, a: mat3) {
+        console.warn('Obsolete Vmath API');
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -143,6 +150,7 @@ export class mat3 {
      * @zh 矩阵行列式
      */
     public static determinant (a: mat3) {
+        console.warn('Obsolete Vmath API');
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -154,6 +162,7 @@ export class mat3 {
      * @zh 矩阵乘法
      */
     public static multiply<Out extends mat3> (out: Out, a: mat3, b: mat3) {
+        console.warn('Obsolete Vmath API');
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -180,13 +189,15 @@ export class mat3 {
      * @zh 矩阵乘法
      */
     public static mul (out, a, b) {
+        console.warn('Obsolete Vmath API');
         return mat3.multiply(out, a, b);
     }
 
     /**
      * @zh 在给定矩阵变换基础上加入新位移变换
      */
-    public static translate<Out extends mat3> (out: Out, a: mat3, v: vec3) {
+    public static transform<Out extends mat3> (out: Out, a: mat3, v: vec3) {
+        console.warn('Obsolete Vmath API');
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -210,6 +221,7 @@ export class mat3 {
      * @zh 在给定矩阵变换基础上加入新缩放变换
      */
     public static scale<Out extends mat3> (out: Out, a: mat3, v: vec3) {
+        console.warn('Obsolete Vmath API');
         const x = v.x, y = v.y;
 
         out.m00 = x * a.m00;
@@ -231,6 +243,7 @@ export class mat3 {
      * @param rad 旋转弧度
      */
     public static rotate<Out extends mat3> (out: Out, a: mat3, rad: number) {
+        console.warn('Obsolete Vmath API');
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
             a20 = a.m06, a21 = a.m07, a22 = a.m08;
@@ -256,6 +269,7 @@ export class mat3 {
      * @zh 根据指定四维矩阵计算三维矩阵
      */
     public static fromMat4<Out extends mat3> (out: Out, a: mat4) {
+        console.warn('Obsolete Vmath API');
         out.m00 = a.m00;
         out.m01 = a.m01;
         out.m02 = a.m02;
@@ -274,6 +288,7 @@ export class mat3 {
      * @param up 视口的上方向，必须归一化，默认为 (0, 1, 0)
      */
     public static fromViewUp<Out extends mat3> (out: Out, view: vec3, up?: vec3) {
+        console.warn('Obsolete Vmath API');
         if (vec3.sqrMag(view) < EPSILON * EPSILON) {
             mat3.identity(out);
             return out;
@@ -302,6 +317,7 @@ export class mat3 {
      * @zh 计算位移矩阵
      */
     public static fromTranslation<Out extends mat3> (out: Out, v: vec3) {
+        console.warn('Obsolete Vmath API');
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -318,6 +334,7 @@ export class mat3 {
      * @zh 计算缩放矩阵
      */
     public static fromScaling<Out extends mat3> (out: Out, v: vec3) {
+        console.warn('Obsolete Vmath API');
         out.m00 = v.x;
         out.m01 = 0;
         out.m02 = 0;
@@ -336,6 +353,7 @@ export class mat3 {
      * @zh 计算旋转矩阵
      */
     public static fromRotation<Out extends mat3> (out: Out, rad: number) {
+        console.warn('Obsolete Vmath API');
         const s = Math.sin(rad), c = Math.cos(rad);
 
         out.m00 = c;
@@ -356,6 +374,7 @@ export class mat3 {
      * @zh 根据四元数旋转信息计算矩阵
      */
     public static fromQuat<Out extends mat3> (out: Out, q: quat) {
+        console.warn('Obsolete Vmath API');
         const x = q.x, y = q.y, z = q.z, w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -390,6 +409,7 @@ export class mat3 {
      * @zh 计算指定四维矩阵的逆转置三维矩阵
      */
     public static inverseTransposeMat4<Out extends mat3> (out: Out, a: mat4) {
+        console.warn('Obsolete Vmath API');
         const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
             a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
             a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
@@ -435,6 +455,7 @@ export class mat3 {
      * @zh 返回矩阵的字符串表示
      */
     public static str (a) {
+        console.warn('Obsolete Vmath API');
         return `mat3(${a.m00}, ${a.m01}, ${a.m02}, ${a.m03}, ${a.m04}, ${a.m05}, ${a.m06}, ${a.m07}, ${a.m08})`;
     }
 
@@ -443,6 +464,7 @@ export class mat3 {
      * @param ofs 数组内的起始偏移量
      */
     public static array (out: IWritableArrayLike<number>, m: mat4, ofs = 0) {
+        console.warn('Obsolete Vmath API');
         out[ofs + 0] = m.m00;
         out[ofs + 1] = m.m01;
         out[ofs + 2] = m.m02;
@@ -460,6 +482,7 @@ export class mat3 {
      * @zh 逐元素矩阵加法
      */
     public static add<Out extends mat3> (out: Out, a: mat3, b: mat3) {
+        console.warn('Obsolete Vmath API');
         out.m00 = a.m00 + b.m00;
         out.m01 = a.m01 + b.m01;
         out.m02 = a.m02 + b.m02;
@@ -476,6 +499,7 @@ export class mat3 {
      * @zh 逐元素矩阵减法
      */
     public static subtract<Out extends mat3> (out: Out, a: mat3, b: mat3) {
+        console.warn('Obsolete Vmath API');
         out.m00 = a.m00 - b.m00;
         out.m01 = a.m01 - b.m01;
         out.m02 = a.m02 - b.m02;
@@ -492,6 +516,7 @@ export class mat3 {
      * @zh 逐元素矩阵减法
      */
     public static sub<Out extends mat3> (out: Out, a: mat3, b: mat3) {
+        console.warn('Obsolete Vmath API');
         return mat3.subtract(out, a, b);
     }
 
@@ -499,6 +524,7 @@ export class mat3 {
      * @zh 矩阵标量乘法
      */
     public static multiplyScalar<Out extends mat3> (out: Out, a: mat3, b: number) {
+        console.warn('Obsolete Vmath API');
         out.m00 = a.m00 * b;
         out.m01 = a.m01 * b;
         out.m02 = a.m02 * b;
@@ -515,6 +541,7 @@ export class mat3 {
      * @zh 逐元素矩阵标量乘加: A + B * scale
      */
     public static multiplyScalarAndAdd<Out extends mat3> (out: Out, a: mat3, b: mat3, scale: number) {
+        console.warn('Obsolete Vmath API');
         out.m00 = a.m00 + (b.m00 * scale);
         out.m01 = a.m01 + (b.m01 * scale);
         out.m02 = a.m02 + (b.m02 * scale);
@@ -531,6 +558,7 @@ export class mat3 {
      * @zh 矩阵等价判断
      */
     public static exactEquals (a: mat3, b: mat3) {
+        console.warn('Obsolete Vmath API');
         return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 &&
             a.m03 === b.m03 && a.m04 === b.m04 && a.m05 === b.m05 &&
             a.m06 === b.m06 && a.m07 === b.m07 && a.m08 === b.m08;
@@ -542,6 +570,7 @@ export class mat3 {
     public static equals (a: mat3, b: mat3) {
         const a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05, a6 = a.m06, a7 = a.m07, a8 = a.m08;
         const b0 = b.m00, b1 = b.m01, b2 = b.m02, b3 = b.m03, b4 = b.m04, b5 = b.m05, b6 = b.m06, b7 = b.m07, b8 = b.m08;
+        console.warn('Obsolete Vmath API');
         return (
             Math.abs(a0 - b0) <= EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
             Math.abs(a1 - b1) <= EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&
@@ -570,6 +599,7 @@ export class mat3 {
         m03 = 0, m04 = 1, m05 = 0,
         m06 = 0, m07 = 0, m08 = 1,
     ) {
+        console.warn('Obsolete Vmath API');
         this.m00 = m00;
         this.m01 = m01;
         this.m02 = m02;

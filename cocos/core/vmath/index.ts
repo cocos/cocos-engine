@@ -2,14 +2,14 @@
  * @category core/math
  */
 
-export * from './utils';
+// export * from './utils';
 
 // NOTE: there is no syntax for: export {* as bits} from './lib/bits';
-import * as bits from './bits';
+// import * as bits from './bits';
 /**
  * Export module bits.
  */
-export { bits };
+// export { bits };
 
 export { vec2 } from './vec2';
 export { vec3 } from './vec3';

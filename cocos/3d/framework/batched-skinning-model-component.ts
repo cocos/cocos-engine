@@ -31,7 +31,6 @@ import { Texture2D } from '../../assets/texture-2d';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { CCString } from '../../core/data/utils/attribute';
 import { Mat4, Vec2 } from '../../core/value-types';
-import { vec2 } from '../../core/vmath';
 import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
 import { GFXFormat, GFXType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
@@ -64,7 +63,7 @@ export class SkinningModelUnit {
 
     @property
     set offset (offset) {
-        vec2.copy(this._offset, offset);
+        Vec2.copy(this._offset, offset);
     }
     get offset () {
         return this._offset;
@@ -72,7 +71,7 @@ export class SkinningModelUnit {
 
     @property
     set size (size) {
-        vec2.copy(this._size, size);
+        Vec2.copy(this._size, size);
     }
     get size () {
         return this._size;

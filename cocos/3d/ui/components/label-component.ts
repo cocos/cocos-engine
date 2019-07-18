@@ -30,7 +30,7 @@
 
 import { BitmapFont, Font, ImageAsset, SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { ccenum } from '../../../core/value-types/enum';
+import { CCEnum } from '../../../core/value-types/enum';
 import { UI } from '../../../renderer/ui/ui';
 import { FontAtlas } from '../assembler/label/bmfontUtils';
 import { CanvasPool, ISharedLabelData } from '../assembler/label/font-utils';
@@ -59,7 +59,7 @@ export enum HorizontalTextAlignment {
     RIGHT = 2,
 }
 
-ccenum(HorizontalTextAlignment);
+CCEnum(HorizontalTextAlignment);
 
 /**
  * @zh
@@ -83,7 +83,7 @@ export enum VerticalTextAlignment {
     BOTTOM = 2,
 }
 
-ccenum(VerticalTextAlignment);
+CCEnum(VerticalTextAlignment);
 
 /**
  * @zh
@@ -112,7 +112,7 @@ export enum Overflow {
     RESIZE_HEIGHT = 3,
 }
 
-ccenum(Overflow);
+CCEnum(Overflow);
 
 /**
  * @zh
@@ -138,7 +138,7 @@ enum CacheMode {
     CHAR = 2,
 }
 
-ccenum(CacheMode);
+CCEnum(CacheMode);
 
 /**
  * @zh

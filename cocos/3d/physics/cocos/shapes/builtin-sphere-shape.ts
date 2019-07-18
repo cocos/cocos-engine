@@ -1,5 +1,3 @@
-import { Quat, Vec3 } from '../../../../core/value-types';
-import { vec3 } from '../../../../core/vmath';
 import { sphere } from '../../../geom-utils';
 import { BuiltinShape } from './builtin-shape';
 

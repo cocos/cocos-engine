@@ -5,7 +5,7 @@
 
 import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { lerp, pseudoRandom, vec3 } from '../../../../core/vmath';
+import { lerp, pseudoRandom, Vec3 } from '../../../../core/value-types';
 import { Space } from '../enum';
 import Particle from '../particle';
 import CurveRange from './curve-range';
@@ -105,16 +105,16 @@ export default class LimitVelocityOvertimeModule {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const dampedVel = _temp_v3;
         if (this.separateAxes) {
-            vec3.set(dampedVel,
+            Vec3.set(dampedVel,
                 dampenBeyondLimit(p.ultimateVelocity.x, this.limitX.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen),
                 dampenBeyondLimit(p.ultimateVelocity.y, this.limitY.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen),
                 dampenBeyondLimit(p.ultimateVelocity.z, this.limitZ.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen));
         }
         else {
-            vec3.normalize(dampedVel, p.ultimateVelocity);
-            vec3.scale(dampedVel, dampedVel, dampenBeyondLimit(vec3.magnitude(p.ultimateVelocity), this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen));
+            Vec3.normalize(dampedVel, p.ultimateVelocity);
+            Vec3.scale(dampedVel, dampedVel, dampenBeyondLimit(Vec3.magnitude(p.ultimateVelocity), this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen));
         }
-        vec3.copy(p.ultimateVelocity, dampedVel);
+        Vec3.copy(p.ultimateVelocity, dampedVel);
     }
 
 }

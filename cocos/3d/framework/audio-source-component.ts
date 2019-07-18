@@ -29,7 +29,7 @@
 
 import { Component } from '../../components/component';
 import { ccclass, menu, property } from '../../core/data/class-decorator';
-import { clamp } from '../../core/vmath';
+import { clamp } from '../../core/value-types';
 import { AudioClip } from '../assets/audio/clip';
 
 /**

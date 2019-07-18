@@ -27,7 +27,7 @@
  // tslint:disable
 
 import { getClassName, getset } from './js';
-import { clamp, clamp01 as clampValue01, lerp as lerpUtil, toRadian, toDegree } from '../vmath';
+import { clamp, clamp01 as clampValue01, lerp as lerpUtil, toRadian, toDegree } from '../value-types/utils';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
