@@ -53,10 +53,8 @@ export class Size extends ValueType {
      * @returns 当前尺寸的宽和高到目标尺寸的宽和高分别按指定插值比率进行线性插值构成的向量。
      */
     public static lerp <Out extends ISizeLike> (out: Out, from: Out, to: Out, ratio: number) {
-        const width = from.width;
-        const height = from.height;
-        out.width = width + (to.width - width) * ratio;
-        out.height = height + (to.height - height) * ratio;
+        out.width = from.width + (to.width - from.width) * ratio;
+        out.height = from.height + (to.height - from.height) * ratio;
         return out;
     }
 
@@ -128,7 +126,9 @@ export class Size extends ValueType {
      * @param ratio 插值比率，范围为 [0,1]。
      */
     public lerp (to: Size, ratio: number) {
-        return Size.lerp(this, this, to, ratio);
+        this.width = this.width + (to.width - this.width) * ratio;
+        this.height = this.height + (to.height - this.height) * ratio;
+        return this;
     }
 
     /**

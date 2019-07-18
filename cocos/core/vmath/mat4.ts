@@ -275,7 +275,7 @@ export class mat4 {
     /**
      * @zh 在给定矩阵变换基础上加入新位移变换
      */
-    public static translate<Out extends mat4> (out: Out, a: mat4, v: vec3) {
+    public static transform<Out extends mat4> (out: Out, a: mat4, v: vec3) {
         console.warn('Obsolete Vmath API');
         const x = v.x, y = v.y, z = v.z;
         if (a === out) {

@@ -34,6 +34,11 @@ import { IMat4Like, IQuatLike, IVec4Like } from './type-define';
 import { clamp, EPSILON, random } from './utils';
 import { ValueType } from './value-type';
 
+let _x: number = 0.0;
+let _y: number = 0.0;
+let _z: number = 0.0;
+let _w: number = 0.0;
+
 /**
  * 四维向量。
  */
@@ -124,7 +129,11 @@ export class Vec4 extends ValueType {
      * @zh 逐元素向量减法
      */
     public static sub <Out extends IVec4Like> (out: Out, a: Out, b: Out) {
-        return Vec4.subtract(out, a, b);
+        out.x = a.x - b.x;
+        out.y = a.y - b.y;
+        out.z = a.z - b.z;
+        out.w = a.w - b.w;
+        return out;
     }
 
     /**
@@ -142,7 +151,11 @@ export class Vec4 extends ValueType {
      * @zh 逐元素向量乘法
      */
     public static mul <Out extends IVec4Like> (out: Out, a: Out, b: Out) {
-        return Vec4.multiply(out, a, b);
+        out.x = a.x * b.x;
+        out.y = a.y * b.y;
+        out.z = a.z * b.z;
+        out.w = a.w * b.w;
+        return out;
     }
 
     /**
@@ -160,7 +173,11 @@ export class Vec4 extends ValueType {
      * @zh 逐元素向量除法
      */
     public static div <Out extends IVec4Like> (out: Out, a: Out, b: Out) {
-        return Vec4.divide(out, a, b);
+        out.x = a.x / b.x;
+        out.y = a.y / b.y;
+        out.z = a.z / b.z;
+        out.w = a.w / b.w;
+        return out;
     }
 
     /**
@@ -255,7 +272,11 @@ export class Vec4 extends ValueType {
      * @zh 求两向量的欧氏距离
      */
     public static dist <Out extends IVec4Like> (a: Out, b: Out) {
-        return Vec4.distance(a, b);
+        const x = b.x - a.x;
+        const y = b.y - a.y;
+        const z = b.z - a.z;
+        const w = b.w - a.w;
+        return Math.sqrt(x * x + y * y + z * z + w * w);
     }
 
     /**
@@ -273,37 +294,55 @@ export class Vec4 extends ValueType {
      * @zh 求两向量的欧氏距离平方
      */
     public static sqrDist <Out extends IVec4Like> (a: Out, b: Out) {
-        return Vec4.squaredDistance(a, b);
+        const x = b.x - a.x;
+        const y = b.y - a.y;
+        const z = b.z - a.z;
+        const w = b.w - a.w;
+        return x * x + y * y + z * z + w * w;
     }
 
     /**
      * @zh 求向量长度
      */
     public static magnitude <Out extends IVec4Like> (a: Out) {
-        const { x, y, z, w } = a;
-        return Math.sqrt(x * x + y * y + z * z + w * w);
+        _x = a.x;
+        _y = a.y;
+        _z = a.z;
+        _w = a.w;
+        return Math.sqrt(_x * _x + _y * _y + _z * _z + _w * _w);
     }
 
     /**
      * @zh 求向量长度
      */
     public static mag <Out extends IVec4Like> (a: Out) {
-        return Vec4.magnitude(a);
+        _x = a.x;
+        _y = a.y;
+        _z = a.z;
+        _w = a.w;
+        return Math.sqrt(_x * _x + _y * _y + _z * _z + _w * _w);
     }
 
     /**
      * @zh 求向量长度平方
      */
     public static squaredMagnitude <Out extends IVec4Like> (a: Out) {
-        const { x, y, z, w } = a;
-        return x * x + y * y + z * z + w * w;
+        _x = a.x;
+        _y = a.y;
+        _z = a.z;
+        _w = a.w;
+        return _x * _x + _y * _y + _z * _z + _w * _w;
     }
 
     /**
      * @zh 求向量长度平方
      */
     public static sqrMag <Out extends IVec4Like> (a: Out) {
-        return Vec4.squaredMagnitude(a);
+        _x = a.x;
+        _y = a.y;
+        _z = a.z;
+        _w = a.w;
+        return _x * _x + _y * _y + _z * _z + _w * _w;
     }
 
     /**
@@ -332,30 +371,33 @@ export class Vec4 extends ValueType {
      * @zh 逐元素向量取倒数，接近 0 时返回 0
      */
     public static inverseSafe <Out extends IVec4Like> (out: Out, a: Out) {
-        const { x, y, z, w } = a;
+        _x = a.x;
+        _y = a.y;
+        _z = a.z;
+        _w = a.w;
 
-        if (Math.abs(x) < EPSILON) {
+        if (Math.abs(_x) < EPSILON) {
             out.x = 0;
         } else {
-            out.x = 1.0 / x;
+            out.x = 1.0 / _x;
         }
 
-        if (Math.abs(y) < EPSILON) {
+        if (Math.abs(_y) < EPSILON) {
             out.y = 0;
         } else {
-            out.y = 1.0 / y;
+            out.y = 1.0 / _y;
         }
 
-        if (Math.abs(z) < EPSILON) {
+        if (Math.abs(_z) < EPSILON) {
             out.z = 0;
         } else {
-            out.z = 1.0 / z;
+            out.z = 1.0 / _z;
         }
 
-        if (Math.abs(w) < EPSILON) {
+        if (Math.abs(_w) < EPSILON) {
             out.w = 0;
         } else {
-            out.w = 1.0 / w;
+            out.w = 1.0 / _w;
         }
 
         return out;
@@ -365,14 +407,17 @@ export class Vec4 extends ValueType {
      * @zh 归一化向量
      */
     public static normalize <Out extends IVec4Like> (out: Out, a: Out) {
-        const { x, y, z, w } = a;
-        let len = x * x + y * y + z * z + w * w;
+        _x = a.x;
+        _y = a.y;
+        _z = a.z;
+        _w = a.w;
+        let len = _x * _x + _y * _y + _z * _z + _w * _w;
         if (len > 0) {
             len = 1 / Math.sqrt(len);
-            out.x = x * len;
-            out.y = y * len;
-            out.z = z * len;
-            out.w = w * len;
+            out.x = _x * len;
+            out.y = _y * len;
+            out.z = _z * len;
+            out.w = _w * len;
         }
         return out;
     }
@@ -388,11 +433,10 @@ export class Vec4 extends ValueType {
      * @zh 逐元素向量线性插值： A + t * (B - A)
      */
     public static lerp <Out extends IVec4Like> (out: Out, a: Out, b: Out, t: number) {
-        const { x: ax, y: ay, z: az, w: aw } = a;
-        out.x = ax + t * (b.x - ax);
-        out.y = ay + t * (b.y - ay);
-        out.z = az + t * (b.z - az);
-        out.w = aw + t * (b.w - aw);
+        out.x = a.x + t * (b.x - a.x);
+        out.y = a.y + t * (b.y - a.y);
+        out.z = a.z + t * (b.z - a.z);
+        out.w = a.w + t * (b.w - a.w);
         return out;
     }
 
@@ -418,11 +462,14 @@ export class Vec4 extends ValueType {
      * @zh 向量矩阵乘法
      */
     public static transformMat4 <Out extends IVec4Like, MatLike extends IMat4Like> (out: Out, a: Out, m: MatLike) {
-        const { x, y, z, w } = a;
-        out.x = m.m00 * x + m.m04 * y + m.m08 * z + m.m12 * w;
-        out.y = m.m01 * x + m.m05 * y + m.m09 * z + m.m13 * w;
-        out.z = m.m02 * x + m.m06 * y + m.m10 * z + m.m14 * w;
-        out.w = m.m03 * x + m.m07 * y + m.m11 * z + m.m15 * w;
+        _x = a.x;
+        _y = a.y;
+        _z = a.z;
+        _w = a.w;
+        out.x = m.m00 * _x + m.m04 * _y + m.m08 * _z + m.m12 * _w;
+        out.y = m.m01 * _x + m.m05 * _y + m.m09 * _z + m.m13 * _w;
+        out.z = m.m02 * _x + m.m06 * _y + m.m10 * _z + m.m14 * _w;
+        out.w = m.m03 * _x + m.m07 * _y + m.m11 * _z + m.m15 * _w;
         return out;
     }
 
@@ -431,18 +478,22 @@ export class Vec4 extends ValueType {
      */
     public static transformQuat <Out extends IVec4Like, QuatLike extends IQuatLike> (out: Out, a: Out, q: QuatLike) {
         const { x, y, z } = a;
-        const { x: qx, y: qy, z: qz, w: qw } = q;
+
+        _x = q.x;
+        _y = q.y;
+        _z = q.z;
+        _w = q.w;
 
         // calculate quat * vec
-        const ix = qw * x + qy * z - qz * y;
-        const iy = qw * y + qz * x - qx * z;
-        const iz = qw * z + qx * y - qy * x;
-        const iw = -qx * x - qy * y - qz * z;
+        const ix = _w * x + _y * z - _z * y;
+        const iy = _w * y + _z * x - _x * z;
+        const iz = _w * z + _x * y - _y * x;
+        const iw = -_x * x - _y * y - _z * z;
 
         // calculate result * inverse quat
-        out.x = ix * qw + iw * -qx + iy * -qz - iz * -qy;
-        out.y = iy * qw + iw * -qy + iz * -qx - ix * -qz;
-        out.z = iz * qw + iw * -qz + ix * -qy - iy * -qx;
+        out.x = ix * _w + iw * -_x + iy * -_z - iz * -_y;
+        out.y = iy * _w + iw * -_y + iz * -_x - ix * -_z;
+        out.z = iz * _w + iw * -_z + ix * -_y - iy * -_x;
         out.w = a.w;
         return out;
     }
@@ -470,12 +521,10 @@ export class Vec4 extends ValueType {
      * @zh 排除浮点数误差的向量近似等价判断
      */
     public static equals <Out extends IVec4Like> (a: Out, b: Out, epsilon = EPSILON) {
-        const { x: a0, y: a1, z: a2, w: a3 } = a;
-        const { x: b0, y: b1, z: b2, w: b3 } = b;
-        return (Math.abs(a0 - b0) <= epsilon * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
-            Math.abs(a1 - b1) <= epsilon * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&
-            Math.abs(a2 - b2) <= epsilon * Math.max(1.0, Math.abs(a2), Math.abs(b2)) &&
-            Math.abs(a3 - b3) <= epsilon * Math.max(1.0, Math.abs(a3), Math.abs(b3)));
+        return (Math.abs(a.x - b.x) <= epsilon * Math.max(1.0, Math.abs(a.x), Math.abs(b.x)) &&
+            Math.abs(a.y - b.y) <= epsilon * Math.max(1.0, Math.abs(a.y), Math.abs(b.y)) &&
+            Math.abs(a.z - b.z) <= epsilon * Math.max(1.0, Math.abs(a.z), Math.abs(b.z)) &&
+            Math.abs(a.w - b.w) <= epsilon * Math.max(1.0, Math.abs(a.w), Math.abs(b.w)));
     }
 
     /**
@@ -532,8 +581,11 @@ export class Vec4 extends ValueType {
      * @param epsilon 允许的误差，应为非负数。
      * @returns 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
      */
-    public equals (other: Vec4, epsilon?: number) {
-        return Vec4.equals(this, other, epsilon);
+    public equals (other: Vec4, epsilon = EPSILON) {
+        return (Math.abs(this.x - other.x) <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x)) &&
+            Math.abs(this.y - other.y) <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y)) &&
+            Math.abs(this.z - other.z) <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(other.z)) &&
+            Math.abs(this.w - other.w) <= epsilon * Math.max(1.0, Math.abs(this.w), Math.abs(other.w)));
     }
 
     /**
@@ -551,7 +603,15 @@ export class Vec4 extends ValueType {
      * @param ratio 插值比率，范围为 [0,1]。
      */
     public lerp (to: Vec4, ratio: number) {
-        return Vec4.lerp(this, this, to, ratio);
+        _x = this.x;
+        _y = this.y;
+        _z = this.z;
+        _w = this.w;
+        this.x = _x + ratio * (to.x - _x);
+        this.y = _y + ratio * (to.y - _y);
+        this.z = _z + ratio * (to.z - _z);
+        this.w = _w + ratio * (to.w - _w);
+        return this;
     }
 
     /**
@@ -677,8 +737,11 @@ export class Vec4 extends ValueType {
      * @returns 向量的长度（模）。
      */
     public mag () {
-        const { x, y, z, w } = this;
-        return Math.sqrt(x * x + y * y + z * z + w * w);
+        _x = this.x;
+        _y = this.y;
+        _z = this.z;
+        _w = this.w;
+        return Math.sqrt(_x * _x + _y * _y + _z * _z + _w * _w);
     }
 
     /**
@@ -686,15 +749,30 @@ export class Vec4 extends ValueType {
      * @returns 向量长度（模）的平方。
      */
     public magSqr () {
-        const { x, y, z, w } = this;
-        return x * x + y * y + z * z + w * w;
+        _x = this.x;
+        _y = this.y;
+        _z = this.z;
+        _w = this.w;
+        return _x * _x + _y * _y + _z * _z + _w * _w;
     }
 
     /**
      * 将当前向量归一化
      */
     public normalize () {
-        return Vec4.normalize(this, this);
+        _x = this.x;
+        _y = this.y;
+        _z = this.z;
+        _w = this.w;
+        let len = _x * _x + _y * _y + _z * _z + _w * _w;
+        if (len > 0) {
+            len = 1 / Math.sqrt(len);
+            this.x = _x * len;
+            this.y = _y * len;
+            this.z = _z * len;
+            this.w = _w * len;
+        }
+        return this;
     }
 
     /**
@@ -702,7 +780,15 @@ export class Vec4 extends ValueType {
      * @param matrix 变换矩阵。
      */
     public transformMat4 (matrix: Mat4) {
-        return Vec4.transformMat4(this, this, matrix);
+        _x = this.x;
+        _y = this.y;
+        _z = this.z;
+        _w = this.w;
+        this.x = matrix.m00 * _x + matrix.m04 * _y + matrix.m08 * _z + matrix.m12 * _w;
+        this.y = matrix.m01 * _x + matrix.m05 * _y + matrix.m09 * _z + matrix.m13 * _w;
+        this.z = matrix.m02 * _x + matrix.m06 * _y + matrix.m10 * _z + matrix.m14 * _w;
+        this.w = matrix.m03 * _x + matrix.m07 * _y + matrix.m11 * _z + matrix.m15 * _w;
+        return this;
     }
 }
 

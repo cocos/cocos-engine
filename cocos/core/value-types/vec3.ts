@@ -34,6 +34,10 @@ import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
 import { clamp, EPSILON, random } from './utils';
 import { ValueType } from './value-type';
 
+let _x: number = 0.0;
+let _y: number = 0.0;
+let _z: number = 0.0;
+
 /**
  * 三维向量。
  */
@@ -128,7 +132,10 @@ export class Vec3 extends ValueType {
      * @zh 逐元素向量减法
      */
     public static sub<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
-        return Vec3.subtract(out, a, b);
+        out.x = a.x - b.x;
+        out.y = a.y - b.y;
+        out.z = a.z - b.z;
+        return out;
     }
 
     /**
@@ -145,7 +152,10 @@ export class Vec3 extends ValueType {
      * @zh 逐元素向量乘法
      */
     public static mul<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
-        return Vec3.multiply(out, a, b);
+        out.x = a.x * b.x;
+        out.y = a.y * b.y;
+        out.z = a.z * b.z;
+        return out;
     }
 
     /**
@@ -162,7 +172,10 @@ export class Vec3 extends ValueType {
      * @zh 逐元素向量除法
      */
     public static div<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
-        return Vec3.divide(out, a, b);
+        out.x = a.x / b.x;
+        out.y = a.y / b.y;
+        out.z = a.z / b.z;
+        return out;
     }
 
     /**
@@ -239,64 +252,80 @@ export class Vec3 extends ValueType {
      * @zh 求两向量的欧氏距离
      */
     public static distance <Out extends IVec3Like> (a: Out, b: Out) {
-        const x = b.x - a.x;
-        const y = b.y - a.y;
-        const z = b.z - a.z;
-        return Math.sqrt(x * x + y * y + z * z);
+        _x = b.x - a.x;
+        _y = b.y - a.y;
+        _z = b.z - a.z;
+        return Math.sqrt(_x * _x + _y * _y + _z * _z);
     }
 
     /**
      * @zh 求两向量的欧氏距离
      */
     public static dist <Out extends IVec3Like> (a: Out, b: Out) {
-        return Vec3.distance(a, b);
+        _x = b.x - a.x;
+        _y = b.y - a.y;
+        _z = b.z - a.z;
+        return Math.sqrt(_x * _x + _y * _y + _z * _z);
     }
 
     /**
      * @zh 求两向量的欧氏距离平方
      */
     public static squaredDistance <Out extends IVec3Like> (a: Out, b: Out) {
-        const x = b.x - a.x;
-        const y = b.y - a.y;
-        const z = b.z - a.z;
-        return x * x + y * y + z * z;
+        _x = b.x - a.x;
+        _y = b.y - a.y;
+        _z = b.z - a.z;
+        return _x * _x + _y * _y + _z * _z;
     }
 
     /**
      * @zh 求两向量的欧氏距离平方
      */
     public static sqrDist <Out extends IVec3Like> (a: Out, b: Out) {
-        return Vec3.squaredDistance(a, b);
+        _x = b.x - a.x;
+        _y = b.y - a.y;
+        _z = b.z - a.z;
+        return _x * _x + _y * _y + _z * _z;
     }
 
     /**
      * @zh 求向量长度
      */
     public static magnitude <Out extends IVec3Like> (a: Out) {
-        const { x, y, z } = a;
-        return Math.sqrt(x * x + y * y + z * z);
+        _x = a.x;
+        _y = a.y;
+        _z = a.z;
+        return Math.sqrt(_x * _x + _y * _y + _z * _z);
     }
 
     /**
      * @zh 求向量长度
      */
     public static mag <Out extends IVec3Like> (a: Out) {
-        return Vec3.magnitude(a);
+        _x = a.x;
+        _y = a.y;
+        _z = a.z;
+        return Math.sqrt(_x * _x + _y * _y + _z * _z);
     }
 
     /**
      * @zh 求向量长度平方
      */
     public static squaredMagnitude <Out extends IVec3Like> (a: Out) {
-        const { x, y, z } = a;
-        return x * x + y * y + z * z;
+        _x = a.x;
+        _y = a.y;
+        _z = a.z;
+        return _x * _x + _y * _y + _z * _z;
     }
 
     /**
      * @zh 求向量长度平方
      */
     public static sqrMag <Out extends IVec3Like> (a: Out) {
-        return Vec3.squaredMagnitude(a);
+        _x = a.x;
+        _y = a.y;
+        _z = a.z;
+        return _x * _x + _y * _y + _z * _z;
     }
 
     /**
@@ -323,24 +352,26 @@ export class Vec3 extends ValueType {
      * @zh 逐元素向量取倒数，接近 0 时返回 0
      */
     public static invertSafe<Out extends IVec3Like> (out: Out, a: Out) {
-        const { x, y, z } = a;
+        _x = a.x;
+        _y = a.y;
+        _z = a.z;
 
-        if (Math.abs(x) < EPSILON) {
+        if (Math.abs(_x) < EPSILON) {
             out.x = 0;
         } else {
-            out.x = 1.0 / x;
+            out.x = 1.0 / _x;
         }
 
-        if (Math.abs(y) < EPSILON) {
+        if (Math.abs(_y) < EPSILON) {
             out.y = 0;
         } else {
-            out.y = 1.0 / y;
+            out.y = 1.0 / _y;
         }
 
-        if (Math.abs(z) < EPSILON) {
+        if (Math.abs(_z) < EPSILON) {
             out.z = 0;
         } else {
-            out.z = 1.0 / z;
+            out.z = 1.0 / _z;
         }
 
         return out;
@@ -350,14 +381,16 @@ export class Vec3 extends ValueType {
      * @zh 归一化向量
      */
     public static normalize<Out extends IVec3Like, Vec3Like extends IVec3Like> (out: Out, a: Vec3Like) {
-        const { x, y, z } = a;
+        _x = a.x;
+        _y = a.y;
+        _z = a.z;
 
-        let len = x * x + y * y + z * z;
+        let len = _x * _x + _y * _y + _z * _z;
         if (len > 0) {
             len = 1 / Math.sqrt(len);
-            out.x = x * len;
-            out.y = y * len;
-            out.z = z * len;
+            out.x = _x * len;
+            out.y = _y * len;
+            out.z = _z * len;
         }
         return out;
     }
@@ -373,12 +406,10 @@ export class Vec3 extends ValueType {
      * @zh 向量叉积（向量积）
      */
     public static cross<Out extends IVec3Like, Vec3Like_1 extends IVec3Like, Vec3Like_2 extends IVec3Like > (out: Out, a: Vec3Like_1, b: Vec3Like_2) {
-        const { x: ax, y: ay, z: az } = a;
-        const { x: bx, y: by, z: bz } = b;
 
-        out.x = ay * bz - az * by;
-        out.y = az * bx - ax * bz;
-        out.z = ax * by - ay * bx;
+        out.x = a.y * b.z - a.z * b.y;
+        out.y = a.z * b.x - a.x * b.z;
+        out.z = a.x * b.y - a.y * b.x;
         return out;
     }
 
@@ -413,12 +444,14 @@ export class Vec3 extends ValueType {
      * @zh 向量与四维矩阵乘法，默认向量第四位为 1。
      */
     public static transformMat4 <Out extends IVec3Like, Vec3Like extends IVec3Like, MatLike extends IMat4Like> (out: Out, a: Vec3Like, m: MatLike) {
-        const { x, y, z } = a;
-        let rhw = m.m03 * x + m.m07 * y + m.m11 * z + m.m15;
+        _x = a.x;
+        _y = a.y;
+        _z = a.z;
+        let rhw = m.m03 * _x + m.m07 * _y + m.m11 * _z + m.m15;
         rhw = rhw ? 1 / rhw : 1;
-        out.x = (m.m00 * x + m.m04 * y + m.m08 * z + m.m12) * rhw;
-        out.y = (m.m01 * x + m.m05 * y + m.m09 * z + m.m13) * rhw;
-        out.z = (m.m02 * x + m.m06 * y + m.m10 * z + m.m14) * rhw;
+        out.x = (m.m00 * _x + m.m04 * _y + m.m08 * _z + m.m12) * rhw;
+        out.y = (m.m01 * _x + m.m05 * _y + m.m09 * _z + m.m13) * rhw;
+        out.z = (m.m02 * _x + m.m06 * _y + m.m10 * _z + m.m14) * rhw;
         return out;
     }
 
@@ -426,12 +459,14 @@ export class Vec3 extends ValueType {
      * @zh 向量与四维矩阵乘法，默认向量第四位为 0。
      */
     public static transformMat4Normal<Out extends IVec3Like, MatLike extends IMat4Like> (out: Out, a: Out, m: MatLike) {
-        const { x, y, z } = a;
-        let rhw = m.m03 * x + m.m07 * y + m.m11 * z;
+        _x = a.x;
+        _y = a.y;
+        _z = a.z;
+        let rhw = m.m03 * _x + m.m07 * _y + m.m11 * _z;
         rhw = rhw ? 1 / rhw : 1;
-        out.x = (m.m00 * x + m.m04 * y + m.m08 * z) * rhw;
-        out.y = (m.m01 * x + m.m05 * y + m.m09 * z) * rhw;
-        out.z = (m.m02 * x + m.m06 * y + m.m10 * z) * rhw;
+        out.x = (m.m00 * _x + m.m04 * _y + m.m08 * _z) * rhw;
+        out.y = (m.m01 * _x + m.m05 * _y + m.m09 * _z) * rhw;
+        out.z = (m.m02 * _x + m.m06 * _y + m.m10 * _z) * rhw;
         return out;
     }
 
@@ -439,10 +474,12 @@ export class Vec3 extends ValueType {
      * @zh 向量与三维矩阵乘法
      */
     public static transformMat3<Out extends IVec3Like, MatLike extends IMat3Like> (out: Out, a: Out, m: MatLike) {
-        const { x, y, z } = a;
-        out.x = x * m.m00 + y * m.m03 + z * m.m06;
-        out.y = x * m.m01 + y * m.m04 + z * m.m07;
-        out.z = x * m.m02 + y * m.m05 + z * m.m08;
+        _x = a.x;
+        _y = a.y;
+        _z = a.z;
+        out.x = _x * m.m00 + _y * m.m03 + _z * m.m06;
+        out.y = _x * m.m01 + _y * m.m04 + _z * m.m07;
+        out.z = _x * m.m02 + _y * m.m05 + _z * m.m08;
         return out;
     }
 
@@ -473,16 +510,16 @@ export class Vec3 extends ValueType {
      */
     public static rotateX<Out extends IVec3Like> (out: Out, v: Out, o: Out, a: number) {
         // Translate point to the origin
-        const px = v.x - o.x;
-        const py = v.y - o.y;
-        const pz = v.z - o.z;
+        _x = v.x - o.x;
+        _y = v.y - o.y;
+        _z = v.z - o.z;
 
         // perform rotation
         const cos = Math.cos(a);
         const sin = Math.sin(a);
-        const rx = px;
-        const ry = py * cos - pz * sin;
-        const rz = py * sin + pz * cos;
+        const rx = _x;
+        const ry = _y * cos - _z * sin;
+        const rz = _y * sin + _z * cos;
 
         // translate to correct position
         out.x = rx + o.x;
@@ -500,16 +537,16 @@ export class Vec3 extends ValueType {
      */
     public static rotateY<Out extends IVec3Like> (out: Out, v: Out, o: Out, a: number) {
         // Translate point to the origin
-        const px = v.x - o.x;
-        const py = v.y - o.y;
-        const pz = v.z - o.z;
+        _x = v.x - o.x;
+        _y = v.y - o.y;
+        _z = v.z - o.z;
 
         // perform rotation
         const cos = Math.cos(a);
         const sin = Math.sin(a);
-        const rx = pz * sin + px * cos;
-        const ry = py;
-        const rz = pz * cos - px * sin;
+        const rx = _z * sin + _x * cos;
+        const ry = _y;
+        const rz = _z * cos - _x * sin;
 
         // translate to correct position
         out.x = rx + o.x;
@@ -527,16 +564,16 @@ export class Vec3 extends ValueType {
      */
     public static rotateZ<Out extends IVec3Like> (out: Out, v: Out, o: Out, a: number) {
         // Translate point to the origin
-        const px = v.x - o.x;
-        const py = v.y - o.y;
-        const pz = v.z - o.z;
+        _x = v.x - o.x;
+        _y = v.y - o.y;
+        _z = v.z - o.z;
 
         // perform rotation
         const cos = Math.cos(a);
         const sin = Math.sin(a);
-        const rx = px * cos - py * sin;
-        const ry = px * sin + py * cos;
-        const rz = pz;
+        const rx = _x * cos - _y * sin;
+        const ry = _x * sin + _y * cos;
+        const rz = _z;
 
         // translate to correct position
         out.x = rx + o.x;
@@ -667,8 +704,17 @@ export class Vec3 extends ValueType {
      * @param epsilon 允许的误差，应为非负数。
      * @returns 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
      */
-    public equals (other: Vec3, epsilon?: number) {
-        return Vec3.equals(this, other, epsilon);
+    public equals (other: Vec3, epsilon = EPSILON) {
+        const { x: a0, y: a1, z: a2 } = this;
+        const { x: b0, y: b1, z: b2 } = other;
+        return (
+            Math.abs(a0 - b0) <=
+            epsilon * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
+            Math.abs(a1 - b1) <=
+            epsilon * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&
+            Math.abs(a2 - b2) <=
+            epsilon * Math.max(1.0, Math.abs(a2), Math.abs(b2))
+        );
     }
 
     /**
@@ -694,7 +740,10 @@ export class Vec3 extends ValueType {
      * @param ratio 插值比率，范围为 [0,1]。
      */
     public lerp (to: Vec3, ratio: number) {
-        return Vec3.lerp(this, this, to, ratio);
+        this.x = this.x + ratio * (to.x - this.x);
+        this.y = this.y + ratio * (to.y - this.y);
+        this.z = this.z + ratio * (to.z - this.z);
+        return this;
     }
 
     /**
@@ -791,7 +840,13 @@ export class Vec3 extends ValueType {
      * @param other 指定的向量。
      */
     public cross (other: Vec3) {
-        return Vec3.cross(this, this, other);
+        const { x: ax, y: ay, z: az } = this;
+        const { x: bx, y: by, z: bz } = other;
+
+        this.x = ay * bz - az * by;
+        this.y = az * bx - ax * bz;
+        this.z = ax * by - ay * bx;
+        return this;
     }
 
     /**
@@ -814,7 +869,18 @@ export class Vec3 extends ValueType {
      * 将当前向量归一化
      */
     public normalize () {
-        return Vec3.normalize(this, this);
+        _x = this.x;
+        _y = this.y;
+        _z = this.z;
+
+        let len = _x * _x + _y * _y + _z * _z;
+        if (len > 0) {
+            len = 1 / Math.sqrt(len);
+            this.x = _x * len;
+            this.y = _y * len;
+            this.z = _z * len;
+        }
+        return this;
     }
 
     /**
@@ -823,7 +889,15 @@ export class Vec3 extends ValueType {
      * @param matrix 变换矩阵。
      */
     public transformMat4 (matrix: Mat4) {
-        return Vec3.transformMat4(this, this, matrix);
+        _x = this.x;
+        _y = this.y;
+        _z = this.z;
+        let rhw = matrix.m03 * _x + matrix.m07 * _y + matrix.m11 * _z + matrix.m15;
+        rhw = rhw ? 1 / rhw : 1;
+        this.x = (matrix.m00 * _x + matrix.m04 * _y + matrix.m08 * _z + matrix.m12) * rhw;
+        this.y = (matrix.m01 * _x + matrix.m05 * _y + matrix.m09 * _z + matrix.m13) * rhw;
+        this.z = (matrix.m02 * _x + matrix.m06 * _y + matrix.m10 * _z + matrix.m14) * rhw;
+        return this;
     }
 }
 

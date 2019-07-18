@@ -182,7 +182,15 @@ export class Quat extends ValueType {
      * @zh 四元数乘法
      */
     public static mul <Out extends IQuatLike> (out: Out, a: Out, b: Out) {
-        return Quat.multiply(out, a, b);
+        _x = a.x * b.w + a.w * b.x + a.y * b.z - a.z * b.y;
+        _y = a.y * b.w + a.w * b.y + a.z * b.x - a.x * b.z;
+        _z = a.z * b.w + a.w * b.z + a.x * b.y - a.y * b.x;
+        _w = a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z;
+        out.x = _x;
+        out.y = _y;
+        out.z = _z;
+        out.w = _w;
+        return out;
     }
 
     /**
@@ -214,14 +222,13 @@ export class Quat extends ValueType {
     public static rotateX <Out extends IQuatLike> (out: Out, a: Out, rad: number) {
         rad *= 0.5;
 
-        const { x: ax, y: ay, z: az, w: aw } = a;
         const bx = Math.sin(rad);
         const bw = Math.cos(rad);
 
-        out.x = ax * bw + aw * bx;
-        out.y = ay * bw + az * bx;
-        out.z = az * bw - ay * bx;
-        out.w = aw * bw - ax * bx;
+        out.x = a.x * bw + a.w * bx;
+        out.y = a.y * bw + a.z * bx;
+        out.z = a.z * bw - a.y * bx;
+        out.w = a.w * bw - a.x * bx;
         return out;
     }
 
@@ -232,14 +239,13 @@ export class Quat extends ValueType {
     public static rotateY <Out extends IQuatLike> (out: Out, a: Out, rad: number) {
         rad *= 0.5;
 
-        const { x: ax, y: ay, z: az, w: aw } = a;
         const by = Math.sin(rad);
         const bw = Math.cos(rad);
 
-        out.x = ax * bw - az * by;
-        out.y = ay * bw + aw * by;
-        out.z = az * bw + ax * by;
-        out.w = aw * bw - ay * by;
+        out.x = a.x * bw - a.z * by;
+        out.y = a.y * bw + a.w * by;
+        out.z = a.z * bw + a.x * by;
+        out.w = a.w * bw - a.y * by;
         return out;
     }
 
@@ -250,14 +256,13 @@ export class Quat extends ValueType {
     public static rotateZ <Out extends IQuatLike> (out: Out, a: Out, rad: number) {
         rad *= 0.5;
 
-        const { x: ax, y: ay, z: az, w: aw } = a;
         const bz = Math.sin(rad);
         const bw = Math.cos(rad);
 
-        out.x = ax * bw + ay * bz;
-        out.y = ay * bw - ax * bz;
-        out.z = az * bw + aw * bz;
-        out.w = aw * bw - az * bz;
+        out.x = a.x * bw + a.y * bz;
+        out.y = a.y * bw - a.x * bz;
+        out.z = a.z * bw + a.w * bz;
+        out.w = a.w * bw - a.z * bz;
         return out;
     }
 
@@ -291,12 +296,11 @@ export class Quat extends ValueType {
      * @zh 根据 xyz 分量计算 w 分量，默认已归一化
      */
     public static calculateW <Out extends IQuatLike> (out: Out, a: Out) {
-        const { x, y, z } = a;
 
-        out.x = x;
-        out.y = y;
-        out.z = z;
-        out.w = Math.sqrt(Math.abs(1.0 - x * x - y * y - z * z));
+        out.x = a.x;
+        out.y = a.y;
+        out.z = a.z;
+        out.w = Math.sqrt(Math.abs(1.0 - a.x * a.x - a.y * a.y - a.z * a.z));
         return out;
     }
 
@@ -375,16 +379,15 @@ export class Quat extends ValueType {
      * @zh 四元数求逆
      */
     public static invert <Out extends IQuatLike, QuatLike extends IQuatLike> (out: Out, a: QuatLike) {
-        const { x: a0, y: a1, z: a2, w: a3 } = a;
-        const dot = a0 * a0 + a1 * a1 + a2 * a2 + a3 * a3;
+        const dot = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
         const invDot = dot ? 1.0 / dot : 0;
 
         // TODO: Would be faster to return [0,0,0,0] immediately if dot == 0
 
-        out.x = -a0 * invDot;
-        out.y = -a1 * invDot;
-        out.z = -a2 * invDot;
-        out.w = a3 * invDot;
+        out.x = -a.x * invDot;
+        out.y = -a.y * invDot;
+        out.z = -a.z * invDot;
+        out.w = a.w * invDot;
         return out;
     }
 
@@ -403,44 +406,41 @@ export class Quat extends ValueType {
      * @zh 求四元数长度
      */
     public static magnitude <Out extends IQuatLike> (a: Out) {
-        const { x, y, z, w } = a;
-        return Math.sqrt(x * x + y * y + z * z + w * w);
+        return Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
     }
 
     /**
      * @zh 求四元数长度
      */
     public static mag <Out extends IQuatLike> (a: Out) {
-        return Quat.magnitude(a);
+        return Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
     }
 
     /**
      * @zh 求四元数长度平方
      */
     public static squaredMagnitude <Out extends IQuatLike> (a: Out) {
-        const { x, y, z, w } = a;
-        return x * x + y * y + z * z + w * w;
+        return a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
     }
 
     /**
      * @zh 求四元数长度平方
      */
     public static sqrMag <Out extends IQuatLike> (a: Out) {
-        return Quat.squaredMagnitude(a);
+        return a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
     }
 
     /**
      * @zh 归一化四元数
      */
     public static normalize <Out extends IQuatLike> (out: Out, a: Out) {
-        const { x, y, z, w } = a;
-        let len = x * x + y * y + z * z + w * w;
+        let len = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
         if (len > 0) {
             len = 1 / Math.sqrt(len);
-            out.x = x * len;
-            out.y = y * len;
-            out.z = z * len;
-            out.w = w * len;
+            out.x = a.x * len;
+            out.y = a.y * len;
+            out.z = a.z * len;
+            out.w = a.w * len;
         }
         return out;
     }
@@ -652,12 +652,10 @@ export class Quat extends ValueType {
      * @zh 排除浮点数误差的四元数近似等价判断
      */
     public static equals <Out extends IQuatLike> (a: Out, b: Out, epsilon = EPSILON) {
-        const { x: a0, y: a1, z: a2, w: a3 } = a;
-        const { x: b0, y: b1, z: b2, w: b3 } = b;
-        return (Math.abs(a0 - b0) <= epsilon * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
-            Math.abs(a1 - b1) <= epsilon * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&
-            Math.abs(a2 - b2) <= epsilon * Math.max(1.0, Math.abs(a2), Math.abs(b2)) &&
-            Math.abs(a3 - b3) <= epsilon * Math.max(1.0, Math.abs(a3), Math.abs(b3)));
+        return (Math.abs(a.x - b.x) <= epsilon * Math.max(1.0, Math.abs(a.x), Math.abs(b.x)) &&
+            Math.abs(a.y - b.y) <= epsilon * Math.max(1.0, Math.abs(a.y), Math.abs(b.y)) &&
+            Math.abs(a.z - b.z) <= epsilon * Math.max(1.0, Math.abs(a.z), Math.abs(b.z)) &&
+            Math.abs(a.w - b.w) <= epsilon * Math.max(1.0, Math.abs(a.w), Math.abs(b.w)));
     }
 
     /**
@@ -714,8 +712,11 @@ export class Quat extends ValueType {
      * @param epsilon 允许的误差，应为非负数。
      * @returns 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
      */
-    public equals (other: Quat, epsilon?: number) {
-        return Quat.equals(this, other, epsilon);
+    public equals (other: Quat, epsilon = EPSILON) {
+        return (Math.abs(this.x - other.x) <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x)) &&
+            Math.abs(this.y - other.y) <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y)) &&
+            Math.abs(this.z - other.z) <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(other.z)) &&
+            Math.abs(this.w - other.w) <= epsilon * Math.max(1.0, Math.abs(this.w), Math.abs(other.w)));
     }
 
     /**
@@ -732,7 +733,36 @@ export class Quat extends ValueType {
      * @param out 出口向量。
      */
     public getEulerAngles (out: Vec3) {
-        return Quat.toEuler(out, this);
+        const { x, y, z, w } = this;
+        let heading: number = NaN;
+        let attitude: number = NaN;
+        let bank: number = NaN;
+        const test = x * y + z * w;
+        if (test > 0.499999) { // singularity at north pole
+            heading = 2 * Math.atan2(x, w);
+            attitude = Math.PI / 2;
+            bank = 0;
+        }
+        if (test < -0.499999) { // singularity at south pole
+            heading = -2 * Math.atan2(x, w);
+            attitude = - Math.PI / 2;
+            bank = 0;
+        }
+        if (isNaN(heading)) {
+            const sqx = x * x;
+            const sqy = y * y;
+            const sqz = z * z;
+            heading = Math.atan2(2 * y * w - 2 * x * z, 1 - 2 * sqy - 2 * sqz); // heading
+            attitude = Math.asin(2 * test); // attitude
+            bank = Math.atan2(2 * x * w - 2 * y * z, 1 - 2 * sqx - 2 * sqz); // bank
+        }
+
+        // ranged [-180, 180]
+        out.y = toDegree(heading);
+        out.z = toDegree(attitude);
+        out.x = toDegree(bank);
+
+        return out;
     }
 
     /**
@@ -741,7 +771,39 @@ export class Quat extends ValueType {
      * @param ratio 插值比率，范围为 [0,1]。
      */
     public lerp (to: Quat, ratio: number) {
-        return Quat.slerp(this, this, to, ratio);
+        let scale0 = 0;
+        let scale1 = 0;
+
+        // calc cosine
+        let cosom = this.x * to.x + this.y * to.y + this.z * to.z + this.w * to.w;
+        // adjust signs (if necessary)
+        if (cosom < 0.0) {
+            cosom = -cosom;
+            to.x = -to.x;
+            to.y = -to.y;
+            to.z = -to.z;
+            to.w = -to.w;
+        }
+        // calculate coefficients
+        if ((1.0 - cosom) > 0.000001) {
+            // standard case (slerp)
+            const omega = Math.acos(cosom);
+            const sinom = Math.sin(omega);
+            scale0 = Math.sin((1.0 - ratio) * omega) / sinom;
+            scale1 = Math.sin(ratio * omega) / sinom;
+        } else {
+            // "from" and "to" quaternions are very close
+            //  ... so we can do a linear interpolation
+            scale0 = 1.0 - ratio;
+            scale1 = ratio;
+        }
+        // calculate final values
+        this.x = scale0 * this.x + scale1 * to.x;
+        this.y = scale0 * this.y + scale1 * to.y;
+        this.z = scale0 * this.z + scale1 * to.z;
+        this.w = scale0 * this.w + scale1 * to.w;
+
+        return this;
     }
 }
 

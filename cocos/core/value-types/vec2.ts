@@ -36,6 +36,9 @@ import { EPSILON, random } from './utils';
 import { ValueType } from './value-type';
 import { Vec3 } from './vec3';
 
+let _x: number = 0.0;
+let _y: number = 0.0;
+
 /**
  * 二维向量。
  */
@@ -115,7 +118,9 @@ export class Vec2 extends ValueType {
      * @zh 逐元素向量减法
      */
     public static sub <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
-        return Vec2.subtract(out, a, b);
+        out.x = a.x - b.x;
+        out.y = a.y - b.y;
+        return out;
     }
 
     /**
@@ -131,7 +136,9 @@ export class Vec2 extends ValueType {
      * @zh 逐元素向量乘法
      */
     public static mul <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
-        return Vec2.multiply(out, a, b);
+        out.x = a.x * b.x;
+        out.y = a.y * b.y;
+        return out;
     }
 
     /**
@@ -147,7 +154,9 @@ export class Vec2 extends ValueType {
      * @zh 逐元素向量除法
      */
     public static div <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
-        return Vec2.divide(out, a, b);
+        out.x = a.x / b.x;
+        out.y = a.y / b.y;
+        return out;
     }
 
     /**
@@ -217,62 +226,72 @@ export class Vec2 extends ValueType {
      * @zh 求两向量的欧氏距离
      */
     public static distance <Out extends IVec2Like> (a: Out, b: Out) {
-        const x = b.x - a.x;
-        const y = b.y - a.y;
-        return Math.sqrt(x * x + y * y);
+        _x = b.x - a.x;
+        _y = b.y - a.y;
+        return Math.sqrt(_x * _x + _y * _y);
     }
 
     /**
      * @zh 求两向量的欧氏距离
      */
     public static dist <Out extends IVec2Like> (a: Out, b: Out) {
-        return Vec2.distance(a, b);
+        _x = b.x - a.x;
+        _y = b.y - a.y;
+        return Math.sqrt(_x * _x + _y * _y);
     }
 
     /**
      * @zh 求两向量的欧氏距离平方
      */
     public static squaredDistance <Out extends IVec2Like> (a: Out, b: Out) {
-        const x = b.x - a.x;
-        const y = b.y - a.y;
-        return x * x + y * y;
+        _x = b.x - a.x;
+        _y = b.y - a.y;
+        return _x * _x + _y * _y;
     }
 
     /**
      * @zh 求两向量的欧氏距离平方
      */
     public static sqrDist <Out extends IVec2Like> (a: Out, b: Out) {
-        return Vec2.squaredDistance(a, b);
+        _x = b.x - a.x;
+        _y = b.y - a.y;
+        return _x * _x + _y * _y;
     }
 
     /**
      * @zh 求向量长度
      */
     public static magnitude <Out extends IVec2Like> (a: Out) {
-        const { x, y } = a;
-        return Math.sqrt(x * x + y * y);
+        _x = a.x;
+        _y = a.y;
+        return Math.sqrt(_x * _x + _y * _y);
     }
 
     /**
      * @zh 求向量长度
      */
     public static mag <Out extends IVec2Like> (a: Out) {
-        return Vec2.magnitude(a);
+        _x = a.x;
+        _y = a.y;
+        return Math.sqrt(_x * _x + _y * _y);
     }
 
     /**
      * @zh 求向量长度平方
      */
     public static squaredMagnitude <Out extends IVec2Like> (a: Out) {
-        const { x, y } = a;
-        return x * x + y * y;
+        _x = a.x;
+        _y = a.y;
+        return _x * _x + _y * _y;
     }
 
     /**
      * @zh 求向量长度平方
      */
     public static sqrMag <Out extends IVec2Like> (a: Out) {
-        return Vec2.squaredMagnitude(a);
+        _x = a.x;
+        _y = a.y;
+        return _x * _x + _y * _y;
     }
 
     /**
@@ -297,18 +316,19 @@ export class Vec2 extends ValueType {
      * @zh 逐元素向量取倒数，接近 0 时返回 0
      */
     public static inverseSafe <Out extends IVec2Like> (out: Out, a: Out) {
-        const { x, y } = a;
+        _x = a.x;
+        _y = a.y;
 
-        if (Math.abs(x) < EPSILON) {
+        if (Math.abs(_x) < EPSILON) {
             out.x = 0;
         } else {
-            out.x = 1.0 / x;
+            out.x = 1.0 / _x;
         }
 
-        if (Math.abs(y) < EPSILON) {
+        if (Math.abs(_y) < EPSILON) {
             out.y = 0;
         } else {
-            out.y = 1.0 / a.y;
+            out.y = 1.0 / _y;
         }
 
         return out;
@@ -318,12 +338,13 @@ export class Vec2 extends ValueType {
      * @zh 归一化向量
      */
     public static normalize <Out extends IVec2Like, Vec2Like extends IVec2Like> (out: Out, a: Vec2Like) {
-        const { x, y } = a;
-        let len = x * x + y * y;
+        _x = a.x;
+        _y = a.y;
+        let len = _x * _x + _y * _y;
         if (len > 0) {
             len = 1 / Math.sqrt(len);
-            out.x = a.x * len;
-            out.y = a.y * len;
+            out.x = _x * len;
+            out.y = _y * len;
         }
         return out;
     }
@@ -348,9 +369,10 @@ export class Vec2 extends ValueType {
      * @zh 逐元素向量线性插值： A + t * (B - A)
      */
     public static lerp <Out extends IVec2Like> (out: Out, a: Out, b: Out, t: number) {
-        const { x: ax, y: ay } = a;
-        out.x = ax + t * (b.x - ax);
-        out.y = ay + t * (b.y - ay);
+        _x = a.x;
+        _y = a.y;
+        out.x = _x + t * (b.x - _x);
+        out.y = _y + t * (b.y - _y);
         return out;
     }
 
@@ -370,9 +392,10 @@ export class Vec2 extends ValueType {
      * @zh 向量与三维矩阵乘法，默认向量第三位为 1。
      */
     public static transformMat3 <Out extends IVec2Like, MatLike extends IMat3Like> (out: Out, a: Out, m: IMat3Like) {
-        const { x, y } = a;
-        out.x = m.m00 * x + m.m03 * y + m.m06;
-        out.y = m.m01 * x + m.m04 * y + m.m07;
+        _x = a.x;
+        _y = a.y;
+        out.x = m.m00 * _x + m.m03 * _y + m.m06;
+        out.y = m.m01 * _x + m.m04 * _y + m.m07;
         return out;
     }
 
@@ -380,9 +403,10 @@ export class Vec2 extends ValueType {
      * @zh 向量与四维矩阵乘法，默认向量第三位为 0，第四位为 1。
      */
     public static transformMat4 <Out extends IVec2Like, MatLike extends IMat4Like> (out: Out, a: Out, m: IMat4Like) {
-        const { x, y } = a;
-        out.x = m.m00 * x + m.m04 * y + m.m12;
-        out.y = m.m01 * x + m.m05 * y + m.m13;
+        _x = a.x;
+        _y = a.y;
+        out.x = m.m00 * _x + m.m04 * _y + m.m12;
+        out.y = m.m01 * _x + m.m05 * _y + m.m13;
         return out;
     }
 
@@ -414,13 +438,11 @@ export class Vec2 extends ValueType {
      * @zh 排除浮点数误差的向量近似等价判断
      */
     public static equals <Out extends IVec2Like> (a: Out, b: Out,  epsilon = EPSILON) {
-        const { x: a0, y: a1 } = a;
-        const { x: b0, y: b1 } = b;
         return (
-            Math.abs(a0 - b0) <=
-            epsilon * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
-            Math.abs(a1 - b1) <=
-            epsilon * Math.max(1.0, Math.abs(a1), Math.abs(b1))
+            Math.abs(a.x - b.x) <=
+            epsilon * Math.max(1.0, Math.abs(a.x), Math.abs(b.x)) &&
+            Math.abs(a.y - b.y) <=
+            epsilon * Math.max(1.0, Math.abs(a.y), Math.abs(b.y))
         );
     }
 
@@ -480,8 +502,13 @@ export class Vec2 extends ValueType {
      * @param variance 允许的误差，应为非负数。
      * @returns 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
      */
-    public equals (other: Vec2, epsilon?: number) {
-        return Vec2.equals(this, other, epsilon);
+    public equals (other: Vec2, epsilon = EPSILON) {
+        return (
+            Math.abs(this.x - other.x) <=
+            epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x)) &&
+            Math.abs(this.y - other.y) <=
+            epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y))
+        );
     }
 
     /**
@@ -507,7 +534,11 @@ export class Vec2 extends ValueType {
      * @param ratio 插值比率，范围为 [0,1]。
      */
     public lerp (to: Vec2, ratio: number) {
-        return Vec2.lerp(this, this, to, ratio);
+        _x = this.x;
+        _y = this.y;
+        this.x = _x + ratio * (to.x - _x);
+        this.y = _y + ratio * (to.y - _y);
+        return this;
     }
 
     /**
@@ -621,7 +652,15 @@ export class Vec2 extends ValueType {
      * 将当前向量归一化。
      */
     public normalize () {
-        return Vec2.normalize(this, this);
+        _x = this.x;
+        _y = this.y;
+        let len = _x * _x + _y * _y;
+        if (len > 0) {
+            len = 1 / Math.sqrt(len);
+            this.x = this.x * len;
+            this.y = this.y * len;
+        }
+        return this;
     }
 
     /**
@@ -660,13 +699,13 @@ export class Vec2 extends ValueType {
      * @param radians 旋转角度（弧度制）。
      */
     public rotate (radians: number) {
-        const x = this.x;
-        const y = this.y;
+        _x = this.x;
+        _y = this.y;
 
         const sin = Math.sin(radians);
         const cos = Math.cos(radians);
-        this.x = cos * x - sin * y;
-        this.y = sin * x + cos * y;
+        this.x = cos * _x - sin * _y;
+        this.y = sin * _x + cos * _y;
         return this;
     }
 
@@ -687,7 +726,11 @@ export class Vec2 extends ValueType {
      * @param matrix 变换矩阵。
      */
     public transformMat4 (matrix: Mat4) {
-        return Vec2.transformMat4(this, this, matrix);
+        _x = this.x;
+        _y = this.y;
+        this.x = matrix.m00 * _x + matrix.m04 * _y + matrix.m12;
+        this.y = matrix.m01 * _x + matrix.m05 * _y + matrix.m13;
+        return this;
     }
 }
 

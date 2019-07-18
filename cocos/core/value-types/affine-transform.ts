@@ -34,6 +34,13 @@ import { Rect } from './rect';
 import { Size } from './size';
 import { Vec2 } from './vec2';
 
+let _a: number = 0.0;
+let _b: number = 0.0;
+let _c: number = 0.0;
+let _d: number = 0.0;
+let _tx: number = 0.0;
+let _ty: number = 0.0;
+
 /**
  * 二维仿射变换矩阵，描述了平移、缩放和缩放。
  */
@@ -77,18 +84,18 @@ export class AffineTransform {
      * @param t2 右矩阵。
      */
     public static concat (out: AffineTransform, t1: AffineTransform, t2: AffineTransform) {
-        const a = t1.a;
-        const b = t1.b;
-        const c = t1.c;
-        const d = t1.d;
-        const tx = t1.tx;
-        const ty = t1.ty;
-        out.a = a * t2.a + b * t2.c;
-        out.b = a * t2.b + b * t2.d;
-        out.c = c * t2.a + d * t2.c;
-        out.d = c * t2.b + d * t2.d;
-        out.tx = tx * t2.a + ty * t2.c + t2.tx;
-        out.ty = tx * t2.b + ty * t2.d + t2.ty;
+        _a = t1.a;
+        _b = t1.b;
+        _c = t1.c;
+        _d = t1.d;
+        _tx = t1.tx;
+        _ty = t1.ty;
+        out.a = _a * t2.a + _b * t2.c;
+        out.b = _a * t2.b + _b * t2.d;
+        out.c = _c * t2.a + _d * t2.c;
+        out.d = _c * t2.b + _d * t2.d;
+        out.tx = _tx * t2.a + _ty * t2.c + t2.tx;
+        out.ty = _tx * t2.b + _ty * t2.d + t2.ty;
     }
 
     /**
@@ -97,16 +104,13 @@ export class AffineTransform {
      * @param t 求逆的矩阵。
      */
     public static invert (out: AffineTransform, t: AffineTransform) {
-        const { a, b, c, d } = t;
-        const determinant = 1 / (a * d - b * c);
-        const tx = t.tx;
-        const ty = t.ty;
-        out.a = determinant * d;
-        out.b = -determinant * b;
-        out.c = -determinant * c;
-        out.d = determinant * a;
-        out.tx = determinant * (c * ty - d * tx);
-        out.ty = determinant * (b * tx - a * ty);
+        const determinant = 1 / (t.a * t.d - t.b * t.c);
+        out.a = determinant * t.d;
+        out.b = -determinant * t.b;
+        out.c = -determinant * t.c;
+        out.d = determinant * t.a;
+        out.tx = determinant * (t.c * t.ty - t.d * t.tx);
+        out.ty = determinant * (t.b * t.tx - t.a * t.ty);
     }
 
     /**
@@ -173,16 +177,15 @@ export class AffineTransform {
      * @param t 二维仿射变换矩阵。
      */
     public static transformRect (out: Rect, rect: Rect, t: AffineTransform) {
-        const ol = rect.x;
-        const ob = rect.y;
-        const or = ol + rect.width;
-        const ot = ob + rect.height;
-        const lbx = t.a * ol + t.c * ob + t.tx;
-        const lby = t.b * ol + t.d * ob + t.ty;
-        const rbx = t.a * or + t.c * ob + t.tx;
-        const rby = t.b * or + t.d * ob + t.ty;
-        const ltx = t.a * ol + t.c * ot + t.tx;
-        const lty = t.b * ol + t.d * ot + t.ty;
+
+        const or = rect.x + rect.width;
+        const ot = rect.y + rect.height;
+        const lbx = t.a * rect.x + t.c * rect.y + t.tx;
+        const lby = t.b * rect.x + t.d * rect.y + t.ty;
+        const rbx = t.a * or + t.c * rect.y + t.tx;
+        const rby = t.b * or + t.d * rect.y + t.ty;
+        const ltx = t.a * rect.x + t.c * ot + t.tx;
+        const lty = t.b * rect.x + t.d * ot + t.ty;
         const rtx = t.a * or + t.c * ot + t.tx;
         const rty = t.b * or + t.d * ot + t.ty;
 
@@ -202,17 +205,13 @@ export class AffineTransform {
      * 这个函数不创建任何内存，你需要先创建包围盒的四个 Vector 对象用来存储结果，并作为前四个参数传入函数。
      */
     public static transformObb (out_bl: Vec2, out_tl: Vec2, out_tr: Vec2, out_br: Vec2, rect: Rect, anAffineTransform: AffineTransform) {
-        const x = rect.x;
-        const y = rect.y;
-        const width = rect.width;
-        const height = rect.height;
 
-        const tx = anAffineTransform.a * x + anAffineTransform.c * y + anAffineTransform.tx;
-        const ty = anAffineTransform.b * x + anAffineTransform.d * y + anAffineTransform.ty;
-        const xa = anAffineTransform.a * width;
-        const xb = anAffineTransform.b * width;
-        const yc = anAffineTransform.c * height;
-        const yd = anAffineTransform.d * height;
+        const tx = anAffineTransform.a * rect.x + anAffineTransform.c * rect.y + anAffineTransform.tx;
+        const ty = anAffineTransform.b * rect.x + anAffineTransform.d * rect.y + anAffineTransform.ty;
+        const xa = anAffineTransform.a * rect.width;
+        const xb = anAffineTransform.b * rect.width;
+        const yc = anAffineTransform.c * rect.height;
+        const yd = anAffineTransform.d * rect.height;
 
         out_tl.x = tx;
         out_tl.y = ty;

@@ -196,7 +196,7 @@ export class mat3 {
     /**
      * @zh 在给定矩阵变换基础上加入新位移变换
      */
-    public static translate<Out extends mat3> (out: Out, a: mat3, v: vec3) {
+    public static transform<Out extends mat3> (out: Out, a: mat3, v: vec3) {
         console.warn('Obsolete Vmath API');
         const a00 = a.m00, a01 = a.m01, a02 = a.m02,
             a10 = a.m03, a11 = a.m04, a12 = a.m05,
