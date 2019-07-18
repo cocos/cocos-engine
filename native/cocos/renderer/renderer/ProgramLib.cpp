@@ -227,22 +227,22 @@ void ProgramLib::define(const std::string& name, const std::string& vert, const 
     
     while((pos = newVert.find(_mediump)) != std::string::npos)
     {
-        newVert.replace(pos, strlen(_mediump), _mediumpReplace);
+        newVert.replace(pos, strlen(_mediump), "");
     }
     
     while((pos = newFrag.find(_mediump)) != std::string::npos)
     {
-        newFrag.replace(pos, strlen(_mediump), _mediumpReplace);
+        newFrag.replace(pos, strlen(_mediump), "");
     }
     
     while((pos = newVert.find(_lowp)) != std::string::npos)
     {
-        newVert.replace(pos, strlen(_lowp), _lowpReplace);
+        newVert.replace(pos, strlen(_lowp), "");
     }
     
     while((pos = newFrag.find(_lowp)) != std::string::npos)
     {
-        newFrag.replace(pos, strlen(_lowp), _lowpReplace);
+        newFrag.replace(pos, strlen(_lowp), "");
     }
 #else
     std::string::size_type pos = 0;
