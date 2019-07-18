@@ -652,6 +652,7 @@ export class AnimationState extends Playable {
     }
 
     private _sampleEvents (wrapInfo: WrappedInfo) {
+        const length = this._clip.eventGroups.length;
         let direction = wrapInfo.direction;
         let eventIndex = this._clip.getEventGroupIndexAtRatio(wrapInfo.ratio);
         if (eventIndex < 0) {
