@@ -8,7 +8,7 @@ import { SkinningModelComponent } from '../3d/framework/skinning-model-component
 import { ccclass } from '../core/data/class-decorator';
 import { getClassName } from '../core/utils/js';
 import { Quat, Vec3 } from '../core/value-types';
-import { mat4, quat, vec3 } from '../core/vmath';
+import { quat, vec3 } from '../core/vmath';
 import { Node } from '../scene-graph';
 import { AnimationClip, ICurveData, IObjectCurveData, IPropertyCurve } from './animation-clip';
 import { IPropertyCurveData } from './animation-curve';
