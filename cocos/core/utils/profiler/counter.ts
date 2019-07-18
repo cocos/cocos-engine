@@ -40,9 +40,9 @@ export class Counter {
         this._average(this._value, now);
     }
 
-    public human () {
+    public human (isPoint = true) {
         const v = this._opts.average ? this._averageValue : this._value;
-        return Math.round(v * 100) / 100;
+        return isPoint ? Math.round(v * 100) / 100 : Math.round(v);
     }
 
     public alarm () {
