@@ -5,7 +5,7 @@
 
 #define CC_MAX_LIGHTS 2
 
-#if CC_NUM_DIR_LIGHTS > 0 || CC_NUM_POINT_LIGHTS > 0 || _NUM_SPOT_LIGHTS > 0 || CC_NUM_AMBIENT_LIGHTS > 0
+#if CC_NUM_DIR_LIGHTS > 0 || CC_NUM_POINT_LIGHTS > 0 || CC_NUM_SPOT_LIGHTS > 0 || CC_NUM_AMBIENT_LIGHTS > 0
 
 // directional lights
 #pragma builtin(global)

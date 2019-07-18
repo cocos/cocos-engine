@@ -14,12 +14,12 @@ precision highp float;
 #include <shadow>
 #include <lights>
 
-#define CC_USE_TEXTURE USE_DIFFUSE_TEXTURE || USE_EMISSIVE_TEXTURE || USE_SPECULAR_TEXTURE || USE_NORMAL_TEXTURE
+#define CC_USE_TEXTURE CC_USE_ATTRIBUTE_UV0 && (USE_DIFFUSE_TEXTURE || USE_EMISSIVE_TEXTURE || USE_SPECULAR_TEXTURE || USE_NORMAL_TEXTURE)
 
 in vec3 v_worldNormal;
 in vec3 v_worldPos;
 
-#if CC_USE_ATTRIBUTE_UV0 && CC_USE_TEXTURE
+#if CC_USE_TEXTURE
   in mediump vec2 v_uv0;
 #endif
 
