@@ -56,6 +56,8 @@ let BlendFunc = cc.Class({
     },
 
     setMaterial (index, material) {
+        if (this._materials[index] === material) return;
+        
         RenderComponent.prototype.setMaterial.call(this, index, material);
         if (material) {
             this._updateMaterialBlendFunc(material);
