@@ -170,10 +170,10 @@ void ForwardRenderer::updateLights(Scene* scene)
 
 void ForwardRenderer::updateDefines()
 {
-    _defines.emplace(std::make_pair("_NUM_DIR_LIGHTS", Value(std::min(4, (int)_directionalLights.size()))));
-    _defines.emplace(std::make_pair("_NUM_POINT_LIGHTS", Value(std::min(4, (int)_pointLights.size()))));
-    _defines.emplace(std::make_pair("_NUM_SPOT_LIGHTS", Value(std::min(4, (int)_spotLights.size()))));
-    _defines.emplace(std::make_pair("_NUM_AMBIENT_LIGHTS", Value(std::min(4, (int)_ambientLights.size()))));
+    _defines.emplace(std::make_pair("CC_NUM_DIR_LIGHTS", Value(std::min(4, (int)_directionalLights.size()))));
+    _defines.emplace(std::make_pair("CC_NUM_POINT_LIGHTS", Value(std::min(4, (int)_pointLights.size()))));
+    _defines.emplace(std::make_pair("CC_NUM_SPOT_LIGHTS", Value(std::min(4, (int)_spotLights.size()))));
+    _defines.emplace(std::make_pair("CC_NUM_AMBIENT_LIGHTS", Value(std::min(4, (int)_ambientLights.size()))));
     _defines.emplace(std::make_pair("CC_NUM_SHADOW_LIGHTS", Value(std::min(4, (int)_shadowLights.size()))));
 }
 
