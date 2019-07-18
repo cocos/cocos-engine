@@ -136,46 +136,28 @@ export class SkeletalAnimationClip extends AnimationClip {
 
     private _convertToRiggingData (props: IObjectCurveData, target: Node, root: Node) {
         const data: IObjectCurveData = {
-            position: { keys: 0, values: props.position.values.map(() => new Vec3()) },
-            rotation: { keys: 0, values: props.rotation.values.map(() => new Quat()) },
-            scale: { keys: 0, values: props.scale.values.map(() => new Vec3()) },
+            position: { keys: 0, interpolate: false, values: props.position.values.map(() => new Vec3()) },
+            rotation: { keys: 0, interpolate: false, values: props.rotation.values.map(() => new Quat()) },
+            scale: { keys: 0, interpolate: false, values: props.scale.values.map(() => new Vec3()) },
         };
         if (target.parent !== root) { target = target.parent!; }
-        /* */
-        // invert target world transform
-        quat.invert(qt_1, target.worldRotation);
-        vec3.invert(v3_2, target.worldScale);
-        vec3.negate(v3_1, target.worldPosition);
-        vec3.transformQuat(v3_1, v3_1, qt_1);
-        vec3.multiply(v3_1, v3_1, v3_2);
-        // multiply by root world transform
-        vec3.multiply(v3_3, root.worldPosition, v3_2);
-        vec3.transformQuat(v3_3, v3_3, qt_1);
-        vec3.add(v3_1, v3_3, v3_1);
-        quat.multiply(qt_1, qt_1, root.worldRotation);
-        vec3.multiply(v3_2, v3_2, root.worldScale);
-        /* *
+        // inverse bindpose
         vec3.set(v3_1, 0, 0, 0);
         quat.set(qt_1, 0, 0, 0, 1);
         vec3.set(v3_2, 1, 1, 1);
-        const path: Node[] = [];
         while (target !== root) {
-            path.unshift(target);
+            vec3.multiply(v3_3, v3_1, target.scale);
+            vec3.transformQuat(v3_3, v3_3, target.rotation);
+            vec3.add(v3_1, v3_3, target.position);
+            quat.multiply(qt_1, target.rotation, qt_1);
+            vec3.multiply(v3_2, target.scale, v3_2);
             target = target.parent!;
-        }
-        for (const node of path) {
-            vec3.multiply(v3_3, node.position, v3_2);
-            vec3.transformQuat(v3_3, v3_3, qt_1);
-            vec3.add(v3_1, v3_3, v3_1);
-            quat.multiply(qt_1, qt_1, node.worldRotation);
-            vec3.multiply(v3_2, v3_2, node.worldScale);
         }
         quat.invert(qt_1, qt_1);
         vec3.invert(v3_2, v3_2);
         vec3.negate(v3_1, v3_1);
         vec3.transformQuat(v3_1, v3_1, qt_1);
         vec3.multiply(v3_1, v3_1, v3_2);
-        /* */
         // compute rigging
         const rPos = data.position.values;
         const rRot = data.rotation.values;

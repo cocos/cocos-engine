@@ -53,6 +53,10 @@ export class SkinningModel extends Model {
     private _jointsMedium: IJointsInfo;
     private _skeleton: Skeleton | null = null;
 
+    get worldBounds () {
+        return this.uploadedClip ? null : this._worldBounds;
+    }
+
     constructor (scene: RenderScene, node: Node) {
         super(scene, node);
         this._type = 'skinning';
@@ -120,7 +124,7 @@ export class SkinningModel extends Model {
     protected _doCreatePSO (pass: Pass) {
         const pso = super._doCreatePSO(pass);
         const { buffer, texture } = this._jointsMedium;
-        pso.pipelineLayout.layouts[0].bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer);
+        pso.pipelineLayout.layouts[0].bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
         const view = texture.getGFXTextureView();
         const sampler = samplerLib.getSampler(this._device, texture.getGFXSamplerInfo());
         if (view && sampler) {
