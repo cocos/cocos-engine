@@ -23,6 +23,11 @@ interface BaseItem {
      * Whether if this item is required to provide.
      */
     required?: boolean;
+
+    /**
+     * If true, this field indicates the item is marked as bundled by default.
+     */
+    default?: boolean;
 }
 
 interface SimpleItem extends BaseItem {
@@ -30,11 +35,6 @@ interface SimpleItem extends BaseItem {
      * Entry to the module.
      */
     entry: string;
-
-    /**
-     * If true, this field indicates the item is bundled by default.
-     */
-    default?: boolean;
 }
 
 interface GroupItem extends BaseItem {
@@ -59,9 +59,9 @@ interface GroupItem extends BaseItem {
     }>;
 
     /**
-     * If present and non-negtive, this field indicates the specified n-th option is selected by default.
+     * Indicates the n-th option is selected by default if the item is marked as bundled.
      */
-    default?: number;
+    defaultOption?: number;
 }
 
 type Item = SimpleItem | GroupItem;

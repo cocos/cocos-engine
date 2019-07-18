@@ -6,7 +6,11 @@
             "additionalProperties": false,
             "properties": {
                 "default": {
-                    "description": "If present and non-negtive, this field indicates the specified n-th option is selected by default.",
+                    "description": "If true, this field indicates the item is marked as bundled by default.",
+                    "type": "boolean"
+                },
+                "defaultOption": {
+                    "description": "Indicates the n-th option is selected by default if the item is marked as bundled.",
                     "type": "number"
                 },
                 "description": {
@@ -50,7 +54,7 @@
             "additionalProperties": false,
             "properties": {
                 "default": {
-                    "description": "If true, this field indicates the item is bundled by default.",
+                    "description": "If true, this field indicates the item is marked as bundled by default.",
                     "type": "boolean"
                 },
                 "description": {
