@@ -44,7 +44,7 @@ BaseRenderer::BaseRenderer()
     _stageInfos = new RecyclePool<StageInfo>([]()mutable->StageInfo*{return new StageInfo();}, 10);
     _views = new RecyclePool<View>([]()mutable->View*{return new View();}, 8);
     
-    _tmpMat3 = new Mat3();
+    _tmpMat3 = new cocos2d::Mat3();
 }
 
 BaseRenderer::~BaseRenderer()
@@ -264,7 +264,7 @@ void BaseRenderer::draw(const StageItem& item)
     Mat4 worldMatrix = item.model->getWorldMatrix();
     _device->setUniformMat4("cc_matWorld", worldMatrix.m);
 
-    Mat3::fromMat4(*_tmpMat3, worldMatrix);
+    cocos2d::Mat3::fromMat4(*_tmpMat3, worldMatrix);
     _tmpMat3->inverse();
     _tmpMat3->transpose();
     _device->setUniformMat4("cc_mat3WorldIT", _tmpMat3->m);

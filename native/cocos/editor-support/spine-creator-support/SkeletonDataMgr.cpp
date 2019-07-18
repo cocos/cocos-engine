@@ -29,6 +29,7 @@
 
 #include "SkeletonDataMgr.h"
 #include <algorithm>
+#include <vector>
 
 using namespace spine;
 
