@@ -321,12 +321,10 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * 获取线性速度。
      * @param out 速度 Vec3
      */
-    public getLinearVelocity (out: Vec3): Vec3 {
+    public getLinearVelocity (out: Vec3) {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
-            return this._body.getLinearVelocity(out);
+            this._body.getLinearVelocity(out);
         }
-        out = out || new Vec3();
-        return out;
     }
 
     /**
@@ -345,12 +343,10 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * 获取旋转速度。
      * @param out 速度 Vec3
      */
-    public getAngularVelocity (out: Vec3): Vec3 {
+    public getAngularVelocity (out: Vec3) {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
-            return this._body.getAngularVelocity(out);
+            this._body.getAngularVelocity(out);
         }
-        out = out || new Vec3();
-        return out;
     }
 
     /**
