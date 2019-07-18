@@ -351,7 +351,7 @@ var game = {
             cc.director.reset();
 
             game.pause();
-            cc.AssetLibrary._loadBuiltins(() => {
+            cc.builtinResMgr.init(() => {
                 game.onStart();
                 game.emit(game.EVENT_RESTART);
             });
@@ -393,7 +393,7 @@ var game = {
 
         // Init engine
         this._initEngine();
-        cc.AssetLibrary._loadBuiltins(() => {
+        cc.builtinResMgr.init(() => {
             // Log engine version
             console.log('Cocos Creator v' + cc.ENGINE_VERSION);
 

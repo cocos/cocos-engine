@@ -31,3 +31,4 @@ require('./loading-items');
 require('./pipeline');
 
 require('./CCLoader');
+require('./CCBuiltinResMgr');

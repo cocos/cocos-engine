@@ -355,7 +355,7 @@ cc.Director.prototype = {
             this._scene = null;
 
             cc.renderer.clear();
-            cc.AssetLibrary.resetBuiltins();
+            cc.builtinResMgr.clear();
         }
 
         cc.game.pause();
