@@ -377,8 +377,15 @@ let WebAudioElement = function (buffer, audio) {
 };
 
 // TIME_CONSTANT is used as an argument of setTargetAtTime interface
-// TIME_CONSTANT need to be a positive number on Edge browser.
-WebAudioElement.TIME_CONSTANT = (cc.sys.browserType === cc.sys.BROWSER_TYPE_EDGE ? 0.01 : 0);
+// TIME_CONSTANT need to be a positive number on Edge and Baidu browser
+// TIME_CONSTANT need to be 0 by default, or may fail to set volume at the very beginning of playing audio
+if (cc.sys.browserType === cc.sys.BROWSER_TYPE_EDGE || 
+    cc.sys.browserType === cc.sys.BROWSER_TYPE_BAIDU) {
+    WebAudioElement.TIME_CONSTANT = 0.01;
+}
+else {
+    WebAudioElement.TIME_CONSTANT = 0;
+}
 
 (function (proto) {
     proto.play = function (offset) {
