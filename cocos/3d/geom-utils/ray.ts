@@ -2,7 +2,7 @@
  * @category gemotry-utils
  */
 
-import { vec3 } from '../../core/vmath';
+import { Vec3 } from '../../core/value-types';
 import enums from './enums';
 
 /**
@@ -54,8 +54,8 @@ export default class ray {
      * @return {ray} out 接受操作的 ray。
      */
     public static copy (out: ray, a: ray): ray {
-        vec3.copy(out.o, a.o);
-        vec3.copy(out.d, a.d);
+        Vec3.copy(out.o, a.o);
+        Vec3.copy(out.d, a.d);
 
         return out;
     }
@@ -66,13 +66,13 @@ export default class ray {
      * @zh
      * 用两个点创建一条射线。
      * @param {ray} out 接受操作的射线。
-     * @param {vec3} origin 射线的起点。
-     * @param {vec3} target 射线上的一点。
+     * @param {Vec3} origin 射线的起点。
+     * @param {Vec3} target 射线上的一点。
      * @return {ray} out 接受操作的射线。
      */
-    public static fromPoints (out: ray, origin: vec3, target: vec3): ray {
-        vec3.copy(out.o, origin);
-        vec3.normalize(out.d, vec3.subtract(out.d, target, origin));
+    public static fromPoints (out: ray, origin: Vec3, target: Vec3): ray {
+        Vec3.copy(out.o, origin);
+        Vec3.normalize(out.d, Vec3.subtract(out.d, target, origin));
         return out;
     }
 
@@ -105,13 +105,13 @@ export default class ray {
      * @zh
      * 起点。
      */
-    public o: vec3;
+    public o: Vec3;
 
     /**
      * @zh
      * 方向。
      */
-    public d: vec3;
+    public d: Vec3;
 
     private _type: number;
 
@@ -127,7 +127,7 @@ export default class ray {
     constructor (ox: number = 0, oy: number = 0, oz: number = 0,
                  dx: number = 0, dy: number = 0, dz: number = -1) {
         this._type = enums.SHAPE_RAY;
-        this.o = vec3.create(ox, oy, oz);
-        this.d = vec3.create(dx, dy, dz);
+        this.o = Vec3.create(ox, oy, oz);
+        this.d = Vec3.create(dx, dy, dz);
     }
 }

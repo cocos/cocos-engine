@@ -4,7 +4,7 @@
  */
 
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { mat4, pseudoRandom, quat, vec3 } from '../../../../core/vmath';
+import { Mat4, pseudoRandom, Quat, Vec3 } from '../../../../core/value-types';
 import { Space } from '../enum';
 import Particle from '../particle';
 import { calculateTransform } from '../particle-general-function';
@@ -75,28 +75,28 @@ export default class VelocityOvertimeModule {
     })
     public space = Space.Local;
 
-    private rotation: quat;
+    private rotation: Quat;
     private needTransform: boolean;
 
     constructor () {
-        this.rotation = quat.create();
+        this.rotation = Quat.create();
         this.speedModifier.constant = 1;
         this.needTransform = false;
     }
 
-    public update (space: number, worldTransform: mat4) {
+    public update (space: number, worldTransform: Mat4) {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
     }
 
     public animate (p: Particle) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const vel = vec3.set(_temp_v3, this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET))!, this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET))!, this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET))!);
+        const vel = Vec3.set(_temp_v3, this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET))!, this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET))!, this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET))!);
         if (this.needTransform) {
-            vec3.transformQuat(vel, vel, this.rotation);
+            Vec3.transformQuat(vel, vel, this.rotation);
         }
-        vec3.add(p.animatedVelocity, p.animatedVelocity, vel);
-        vec3.add(p.ultimateVelocity, p.velocity, p.animatedVelocity);
-        vec3.scale(p.ultimateVelocity, p.ultimateVelocity, this.speedModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET))!);
+        Vec3.add(p.animatedVelocity, p.animatedVelocity, vel);
+        Vec3.add(p.ultimateVelocity, p.velocity, p.animatedVelocity);
+        Vec3.scale(p.ultimateVelocity, p.ultimateVelocity, this.speedModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET))!);
     }
 
 }

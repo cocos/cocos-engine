@@ -31,8 +31,7 @@
 import { Component } from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
-import { ccenum } from '../../../core/value-types/enum';
-import { vec3 } from '../../../core/vmath';
+import { CCEnum } from '../../../core/value-types/enum';
 import { Node } from '../../../scene-graph/node';
 import { UITransformComponent } from './ui-transfrom-component';
 const NodeEvent = Node.EventType;
@@ -64,7 +63,7 @@ enum Type {
     GRID = 3,
 }
 
-ccenum(Type);
+CCEnum(Type);
 
 /**
  * @zh
@@ -88,7 +87,7 @@ enum ResizeMode {
     CHILDREN = 2,
 }
 
-ccenum(ResizeMode);
+CCEnum(ResizeMode);
 
 /**
  * @zh
@@ -107,7 +106,7 @@ enum AxisDirection {
     VERTICAL = 1,
 }
 
-ccenum(AxisDirection);
+CCEnum(AxisDirection);
 
 /**
  * @zh
@@ -126,7 +125,7 @@ enum VerticalDirection {
     TOP_TO_BOTTOM = 1,
 }
 
-ccenum(VerticalDirection);
+CCEnum(VerticalDirection);
 
 /**
  * @zh
@@ -145,7 +144,7 @@ enum HorizontalDirection {
     RIGHT_TO_LEFT = 1,
 }
 
-ccenum(HorizontalDirection);
+CCEnum(HorizontalDirection);
 
 const _tempPos = new Vec3();
 const _tempScale = new Vec3();
@@ -883,17 +882,17 @@ export class LayoutComponent extends Component {
                 return;
             }
 
-            vec3.set(_tempPos, allChildrenBoundingBox.x, allChildrenBoundingBox.y, 0);
+            Vec3.set(_tempPos, allChildrenBoundingBox.x, allChildrenBoundingBox.y, 0);
             const leftBottomInParentSpace = new Vec3();
             parentTransform.convertToNodeSpaceAR(_tempPos, leftBottomInParentSpace);
-            vec3.set(leftBottomInParentSpace,
+            Vec3.set(leftBottomInParentSpace,
                 leftBottomInParentSpace.x - this._paddingLeft, leftBottomInParentSpace.y - this._paddingBottom,
                 leftBottomInParentSpace.z);
 
-            vec3.set(_tempPos, allChildrenBoundingBox.x + allChildrenBoundingBox.width, allChildrenBoundingBox.y + allChildrenBoundingBox.height, 0);
+            Vec3.set(_tempPos, allChildrenBoundingBox.x + allChildrenBoundingBox.width, allChildrenBoundingBox.y + allChildrenBoundingBox.height, 0);
             const rightTopInParentSpace = new Vec3();
             parentTransform.convertToNodeSpaceAR(_tempPos, rightTopInParentSpace);
-            vec3.set(rightTopInParentSpace, rightTopInParentSpace.x + this._paddingRight, rightTopInParentSpace.y + this._paddingTop, rightTopInParentSpace.z);
+            Vec3.set(rightTopInParentSpace, rightTopInParentSpace.x + this._paddingRight, rightTopInParentSpace.y + this._paddingTop, rightTopInParentSpace.z);
 
             const newSize = cc.size(parseFloat((rightTopInParentSpace.x - leftBottomInParentSpace.x).toFixed(2)),
                 parseFloat((rightTopInParentSpace.y - leftBottomInParentSpace.y).toFixed(2)));

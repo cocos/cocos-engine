@@ -2,9 +2,8 @@
  * @hidden
  */
 
-import { ccclass, executeInEditMode } from '../../core/data/class-decorator';
-import { color4, toRadian } from '../../core/vmath';
-import { RenderView } from '../../pipeline/render-view';
+import { ccclass } from '../../core/data/class-decorator';
+import { Color, toRadian } from '../../core/value-types';
 import { Camera } from '../../renderer';
 import { CameraComponent } from './camera-component';
 
@@ -52,7 +51,7 @@ export class EditorCameraComponent extends CameraComponent {
         super.color = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.clearColor =
-                color4.create(val.r / 255, val.g / 255, val.b / 255, val.a / 255);
+                Color.create(val.r / 255, val.g / 255, val.b / 255, val.a / 255);
         }
     }
 

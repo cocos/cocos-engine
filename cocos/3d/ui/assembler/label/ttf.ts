@@ -28,10 +28,8 @@
  * @category ui-assembler
  */
 
-
 import * as js from '../../../../core/utils/js';
 import { Color, Mat4, Vec3 } from '../../../../core/value-types';
-import { vec3 } from '../../../../core/vmath';
 import { RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { LabelComponent } from '../../components/label-component';

@@ -28,8 +28,7 @@
  * @category ui-assembler
  */
 
-import { Vec3 } from '../../../../core/value-types';
-import { color4, vec3 } from '../../../../core/vmath';
+import { Color, Vec3 } from '../../../../core/value-types';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { Node } from '../../../../scene-graph/node';
@@ -112,10 +111,10 @@ export const simple: IAssembler = {
 
         const data0 = datas[0];
         const data3 = datas[3];
-        vec3.set(vec3_temps[0], data0.x, data0.y, data0.z);
-        vec3.set(vec3_temps[1], data3.x, data0.y, data0.z);
-        vec3.set(vec3_temps[2], data0.x, data3.y, data0.z);
-        vec3.set(vec3_temps[3], data3.x, data3.y, data0.z);
+        Vec3.set(vec3_temps[0], data0.x, data0.y, data0.z);
+        Vec3.set(vec3_temps[1], data3.x, data0.y, data0.z);
+        Vec3.set(vec3_temps[2], data0.x, data3.y, data0.z);
+        Vec3.set(vec3_temps[3], data3.x, data3.y, data0.z);
 
         // get uv from sprite frame directly
         const uv = sprite!.spriteFrame!.uv;
@@ -123,7 +122,7 @@ export const simple: IAssembler = {
         for (let i = 0; i < 4; i++) {
             // vertex
             const vertex = vec3_temps[i];
-            vec3.transformMat4(vertex, vertex, matrix);
+            Vec3.transformMat4(vertex, vertex, matrix);
 
             vbuf![vertexOffset++] = vertex.x;
             vbuf![vertexOffset++] = vertex.y;
@@ -135,7 +134,7 @@ export const simple: IAssembler = {
             vbuf![vertexOffset++] = uv[1 + uvOffset];
 
             // color
-            color4.array(vbuf!, sprite.color, vertexOffset);
+            Color.array(vbuf!, sprite.color, vertexOffset);
 
             vertexOffset += 4;
         }

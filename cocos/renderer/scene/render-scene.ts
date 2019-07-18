@@ -3,7 +3,6 @@ import { aabb, intersect, ray, triangle } from '../../3d/geom-utils';
 import { RecyclePool } from '../../3d/memop';
 import { Root } from '../../core/root';
 import { Mat4, Vec3 } from '../../core/value-types';
-import { mat4, vec3 } from '../../core/vmath';
 import { GFXPrimitiveMode } from '../../gfx/define';
 import { Layers } from '../../scene-graph/layers';
 import { Node } from '../../scene-graph/node';
@@ -226,9 +225,9 @@ export class RenderScene {
             const transform = m.transform;
             if (!transform || !m.enabled || !cc.Layers.check(m.node.layer, mask) || !m.modelBounds) { continue; }
             // transform ray back to model space
-            mat4.invert(m4, transform.getWorldMatrix(m4));
-            vec3.transformMat4(modelRay.o, worldRay.o, m4);
-            vec3.normalize(modelRay.d, vec3.transformMat4Normal(modelRay.d, worldRay.d, m4));
+            Mat4.invert(m4, transform.getWorldMatrix(m4));
+            Vec3.transformMat4(modelRay.o, worldRay.o, m4);
+            Vec3.normalize(modelRay.d, Vec3.transformMat4Normal(modelRay.d, worldRay.d, m4));
             // broadphase
             distance = intersect.ray_aabb(modelRay, m.modelBounds);
             if (distance <= 0) { continue; }
@@ -241,7 +240,7 @@ export class RenderScene {
                 if (distance < Infinity) {
                     const r = pool.add();
                     r.node = m.node;
-                    r.distance = distance * vec3.magnitude(vec3.multiply(v3, modelRay.d, transform.worldScale));
+                    r.distance = distance * Vec3.magnitude(Vec3.multiply(v3, modelRay.d, transform.worldScale));
                     results[pool.length - 1] = r;
                 }
             }
@@ -329,9 +328,9 @@ const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides:
             const i0 = ib[j] * 3;
             const i1 = ib[j + 1] * 3;
             const i2 = ib[j + 2] * 3;
-            vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
-            vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
-            vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
+            Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
+            Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
+            Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
             const dist = intersect.ray_triangle(modelRay, tri, sides);
             if (dist <= 0 || dist > distance) { continue; }
             distance = dist;
@@ -343,9 +342,9 @@ const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides:
             const i0 = ib[j - rev] * 3;
             const i1 = ib[j + rev + 1] * 3;
             const i2 = ib[j + 2] * 3;
-            vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
-            vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
-            vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
+            Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
+            Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
+            Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
             rev = ~rev;
             const dist = intersect.ray_triangle(modelRay, tri, sides);
             if (dist <= 0 || dist > distance) { continue; }
@@ -354,12 +353,12 @@ const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides:
     } else if (pm === GFXPrimitiveMode.TRIANGLE_FAN) {
         const cnt = ib.length - 1;
         const i0 = ib[0] * 3;
-        vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
+        Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
         for (let j = 1; j < cnt; j += 1) {
             const i1 = ib[j] * 3;
             const i2 = ib[j + 1] * 3;
-            vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
-            vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
+            Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
+            Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
             const dist = intersect.ray_triangle(modelRay, tri, sides);
             if (dist <= 0 || dist > distance) { continue; }
             distance = dist;

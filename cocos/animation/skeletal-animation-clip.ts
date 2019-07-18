@@ -6,7 +6,7 @@
 import { IBindTRS } from '../3d/assets/skeleton';
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
 import { ccclass, property } from '../core/data/class-decorator';
-import { quat, vec3 } from '../core/vmath';
+import { Quat, Vec3 } from '../core/value-types';
 import { Node } from '../scene-graph';
 import { AnimationClip, ICurveData, IObjectCurveData, IPropertyCurve } from './animation-clip';
 import { IPropertyCurveData } from './animation-curve';
@@ -66,11 +66,11 @@ export class SkeletalAnimationClip extends AnimationClip {
             const T = position[i];
             const R = rotation[i];
             const S = scale[i];
-            vec3.multiply(T, T, parentS);
-            vec3.transformQuat(T, T, parentR);
-            vec3.add(T, T, parentT);
-            quat.multiply(R, parentR, R);
-            vec3.multiply(S, parentS, S);
+            Vec3.multiply(T, T, parentS);
+            Vec3.transformQuat(T, T, parentR);
+            Vec3.add(T, T, parentT);
+            Quat.multiply(R, parentR, R);
+            Vec3.multiply(S, parentS, S);
         }
     }
 

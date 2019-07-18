@@ -3,7 +3,7 @@
  * @hidden
  */
 
-import { repeat } from '../../../../core/vmath';
+import { repeat } from '../../../../core/value-types';
 import { AnimationCurve, evalOptCurve, OptimizedKey } from '../../../geom-utils/curve';
 import CurveRange, { Mode } from './curve-range';
 

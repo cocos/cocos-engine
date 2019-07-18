@@ -23,6 +23,7 @@ export class quat {
      * @zh 创建新的实例
      */
     public static create (x = 0, y = 0, z = 0, w = 1) {
+        console.warn('Obsolete Vmath API');
         return new quat(x, y, z, w);
     }
 
@@ -30,6 +31,7 @@ export class quat {
      * @zh 获得指定四元数的拷贝
      */
     public static clone (a: quat) {
+        console.warn('Obsolete Vmath API');
         return new quat(a.x, a.y, a.z, a.w);
     }
 
@@ -37,13 +39,19 @@ export class quat {
      * @zh 复制目标四元数
      */
     public static copy<Out extends quat> (out: Out, a: quat) {
-        return vec4.copy(out, a);
+        console.warn('Obsolete Vmath API');
+        out.x = a.x;
+        out.y = a.y;
+        out.z = a.z;
+        out.w = a.w;
+        return out;
     }
 
     /**
      * @zh 设置四元数值
      */
     public static set<Out extends quat> (out: Out, x: number, y: number, z: number, w: number) {
+        console.warn('Obsolete Vmath API');
         out.x = x;
         out.y = y;
         out.z = z;
@@ -55,6 +63,7 @@ export class quat {
      * @zh 将目标赋值为单位四元数
      */
     public static identity<Out extends quat> (out: Out) {
+        console.warn('Obsolete Vmath API');
         out.x = 0;
         out.y = 0;
         out.z = 0;
@@ -66,6 +75,7 @@ export class quat {
      * @zh 设置四元数为两向量间的最短路径旋转，默认两向量都已归一化
      */
     public static rotationTo<Out extends quat> (out: Out, a: vec3, b: vec3) {
+        console.warn('Obsolete Vmath API');
         const dot = vec3.dot(a, b);
         if (dot < -0.999999) {
             vec3.cross(v3_1, vec3.UNIT_X, a);
@@ -98,6 +108,7 @@ export class quat {
      * @return 旋转弧度
      */
     public static getAxisAngle (outAxis: vec3, q: quat) {
+        console.warn('Obsolete Vmath API');
         const rad = Math.acos(q.w) * 2.0;
         const s = Math.sin(rad / 2.0);
         if (s !== 0.0) {
@@ -117,6 +128,7 @@ export class quat {
      * @zh 四元数乘法
      */
     public static multiply<Out extends quat> (out: Out, a: quat, b: quat) {
+        console.warn('Obsolete Vmath API');
         _x = a.x * b.w + a.w * b.x + a.y * b.z - a.z * b.y;
         _y = a.y * b.w + a.w * b.y + a.z * b.x - a.x * b.z;
         _z = a.z * b.w + a.w * b.z + a.x * b.y - a.y * b.x;
@@ -132,6 +144,7 @@ export class quat {
      * @zh 四元数乘法
      */
     public static mul<Out extends quat> (out: Out, a: quat, b: quat) {
+        console.warn('Obsolete Vmath API');
         return quat.multiply(out, a, b);
     }
 
@@ -139,6 +152,7 @@ export class quat {
      * @zh 四元数标量乘法
      */
     public static scale<Out extends quat> (out: Out, a: quat, b: number) {
+        console.warn('Obsolete Vmath API');
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -150,6 +164,7 @@ export class quat {
      * @zh 四元数乘加：A + B * scale
      */
     public static scaleAndAdd<Out extends quat> (out: Out, a: quat, b: quat, scale: number) {
+        console.warn('Obsolete Vmath API');
         out.x = a.x + b.x * scale;
         out.y = a.y + b.y * scale;
         out.z = a.z + b.z * scale;
@@ -162,6 +177,7 @@ export class quat {
      * @param rad 旋转弧度
      */
     public static rotateX<Out extends quat> (out: Out, a: quat, rad: number) {
+        console.warn('Obsolete Vmath API');
         rad *= 0.5;
 
         const { x: ax, y: ay, z: az, w: aw } = a;
@@ -180,6 +196,7 @@ export class quat {
      * @param rad 旋转弧度
      */
     public static rotateY<Out extends quat> (out: Out, a: quat, rad: number) {
+        console.warn('Obsolete Vmath API');
         rad *= 0.5;
 
         const { x: ax, y: ay, z: az, w: aw } = a;
@@ -198,6 +215,7 @@ export class quat {
      * @param rad 旋转弧度
      */
     public static rotateZ<Out extends quat> (out: Out, a: quat, rad: number) {
+        console.warn('Obsolete Vmath API');
         rad *= 0.5;
 
         const { x: ax, y: ay, z: az, w: aw } = a;
@@ -217,6 +235,7 @@ export class quat {
      * @param rad 旋转弧度
      */
     public static rotateAround<Out extends quat> (out: Out, rot: quat, axis: vec3, rad: number) {
+        console.warn('Obsolete Vmath API');
         // get inv-axis (local to rot)
         quat.invert(qt_1, rot);
         vec3.transformQuat(v3_1, axis, qt_1);
@@ -232,6 +251,7 @@ export class quat {
      * @param rad 旋转弧度
      */
     public static rotateAroundLocal<Out extends quat> (out: Out, rot: quat, axis: vec3, rad: number) {
+        console.warn('Obsolete Vmath API');
         quat.fromAxisAngle(qt_1, axis, rad);
         quat.multiply(out, rot, qt_1);
         return out;
@@ -241,6 +261,7 @@ export class quat {
      * @zh 根据 xyz 分量计算 w 分量，默认已归一化
      */
     public static calculateW<Out extends quat> (out: Out, a: quat) {
+        console.warn('Obsolete Vmath API');
         const { x, y, z } = a;
 
         out.x = x;
@@ -254,6 +275,7 @@ export class quat {
      * @zh 四元数点积（数量积）
      */
     public static dot (a: quat, b: quat) {
+        console.warn('Obsolete Vmath API');
         return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
     }
 
@@ -261,6 +283,7 @@ export class quat {
      * @zh 逐元素线性插值： A + t * (B - A)
      */
     public static lerp<Out extends quat> (out: Out, a: quat, b: quat, t: number) {
+        console.warn('Obsolete Vmath API');
         out.x = a.x + t * (b.x - a.x);
         out.y = a.y + t * (b.y - a.y);
         out.z = a.z + t * (b.z - a.z);
@@ -272,6 +295,7 @@ export class quat {
      * @zh 四元数球面插值
      */
     public static slerp<Out extends quat> (out: Out, a: quat, b: quat, t: number) {
+        console.warn('Obsolete Vmath API');
         // benchmarks:
         //    http://jsperf.com/quaternion-slerp-implementations
 
@@ -314,6 +338,7 @@ export class quat {
      * @zh 带两个控制点的四元数球面插值
      */
     public static sqlerp<Out extends quat> (out: Out, a: quat, b: quat, c: quat, d: quat, t: number) {
+        console.warn('Obsolete Vmath API');
         quat.slerp(qt_1, a, d, t);
         quat.slerp(qt_2, b, c, t);
         quat.slerp(out, qt_1, qt_2, 2 * t * (1 - t));
@@ -324,6 +349,7 @@ export class quat {
      * @zh 四元数求逆
      */
     public static invert<Out extends quat> (out: Out, a: quat) {
+        console.warn('Obsolete Vmath API');
         const { x: a0, y: a1, z: a2, w: a3 } = a;
         const dot = a0 * a0 + a1 * a1 + a2 * a2 + a3 * a3;
         const invDot = dot ? 1.0 / dot : 0;
@@ -341,6 +367,7 @@ export class quat {
      * @zh 求共轭四元数，对单位四元数与求逆等价，但更高效
      */
     public static conjugate<Out extends quat> (out: Out, a: quat) {
+        console.warn('Obsolete Vmath API');
         out.x = -a.x;
         out.y = -a.y;
         out.z = -a.z;
@@ -352,6 +379,7 @@ export class quat {
      * @zh 求四元数长度
      */
     public static magnitude (a: quat) {
+        console.warn('Obsolete Vmath API');
         const { x, y, z, w } = a;
         return Math.sqrt(x * x + y * y + z * z + w * w);
     }
@@ -360,6 +388,7 @@ export class quat {
      * @zh 求四元数长度
      */
     public static mag (a: quat) {
+        console.warn('Obsolete Vmath API');
         return quat.magnitude(a);
     }
 
@@ -367,6 +396,7 @@ export class quat {
      * @zh 求四元数长度平方
      */
     public static squaredMagnitude (a: quat) {
+        console.warn('Obsolete Vmath API');
         const { x, y, z, w } = a;
         return x * x + y * y + z * z + w * w;
     }
@@ -375,6 +405,7 @@ export class quat {
      * @zh 求四元数长度平方
      */
     public static sqrMag (a: quat) {
+        console.warn('Obsolete Vmath API');
         return quat.squaredMagnitude(a);
     }
 
@@ -382,6 +413,7 @@ export class quat {
      * @zh 归一化四元数
      */
     public static normalize<Out extends quat> (out: Out, a: quat) {
+        console.warn('Obsolete Vmath API');
         const { x, y, z, w } = a;
         let len = x * x + y * y + z * z + w * w;
         if (len > 0) {
@@ -398,6 +430,7 @@ export class quat {
      * @zh 根据本地坐标轴朝向计算四元数，默认三向量都已归一化且相互垂直
      */
     public static fromAxes<Out extends quat> (out: Out, xAxis: vec3, yAxis: vec3, zAxis: vec3) {
+        console.warn('Obsolete Vmath API');
         mat3.set(m3_1,
             xAxis.x, xAxis.y, xAxis.z,
             yAxis.x, yAxis.y, yAxis.z,
@@ -412,6 +445,7 @@ export class quat {
      * @param up 视口的上方向，必须归一化，默认为 (0, 1, 0)
      */
     public static fromViewUp<Out extends quat> (out: Out, view: vec3, up?: vec3) {
+        console.warn('Obsolete Vmath API');
         mat3.fromViewUp(m3_1, view, up);
         return quat.normalize(out, quat.fromMat3(out, m3_1));
     }
@@ -420,6 +454,7 @@ export class quat {
      * @zh 根据旋转轴和旋转弧度计算四元数
      */
     public static fromAxisAngle<Out extends quat> (out: Out, axis: vec3, rad: number) {
+        console.warn('Obsolete Vmath API');
         rad = rad * 0.5;
         const s = Math.sin(rad);
         out.x = s * axis.x;
@@ -433,6 +468,7 @@ export class quat {
      * @zh 根据三维矩阵信息计算四元数，默认输入矩阵不含有缩放信息
      */
     public static fromMat3<Out extends quat> (out: Out, m: mat3) {
+        console.warn('Obsolete Vmath API');
         const {
             m00: m00, m03: m01, m06: m02,
             m01: m10, m04: m11, m07: m12,
@@ -481,6 +517,7 @@ export class quat {
      * @zh 根据欧拉角信息计算四元数
      */
     public static fromEuler<Out extends quat> (out: Out, x: number, y: number, z: number) {
+        console.warn('Obsolete Vmath API');
         x *= halfToRad;
         y *= halfToRad;
         z *= halfToRad;
@@ -504,6 +541,7 @@ export class quat {
      * @zh 返回定义此四元数的坐标系 X 轴向量
      */
     public static toAxisX<Out extends vec3> (out: Out, q: quat) {
+        console.warn('Obsolete Vmath API');
         const fy = 2.0 * q.y;
         const fz = 2.0 * q.z;
         out.x = 1.0 - fy * q.y - fz * q.z;
@@ -515,6 +553,7 @@ export class quat {
      * @zh 返回定义此四元数的坐标系 Y 轴向量
      */
     public static toAxisY<Out extends vec3> (out: Out, q: quat) {
+        console.warn('Obsolete Vmath API');
         const fx = 2.0 * q.x;
         const fy = 2.0 * q.y;
         const fz = 2.0 * q.z;
@@ -527,6 +566,7 @@ export class quat {
      * @zh 返回定义此四元数的坐标系 Z 轴向量
      */
     public static toAxisZ<Out extends vec3> (out: Out, q: quat) {
+        console.warn('Obsolete Vmath API');
         const fx = 2.0 * q.x;
         const fy = 2.0 * q.y;
         const fz = 2.0 * q.z;
@@ -539,6 +579,7 @@ export class quat {
      * @zh 根据四元数计算欧拉角，返回角度在 [-180, 180] 区间内
      */
     public static toEuler<Out extends vec3> (out: Out, q: quat) {
+        console.warn('Obsolete Vmath API');
         const { x, y, z, w } = q;
         let heading: number = NaN;
         let attitude: number = NaN;
@@ -575,6 +616,7 @@ export class quat {
      * @zh 返回四元数的字符串表示
      */
     public static str (a: quat) {
+        console.warn('Obsolete Vmath API');
         return `quat(${a.x}, ${a.y}, ${a.z}, ${a.w})`;
     }
 
@@ -583,6 +625,7 @@ export class quat {
      * @param ofs 数组内的起始偏移量
      */
     public static array (out: IWritableArrayLike<number>, q: quat, ofs = 0) {
+        console.warn('Obsolete Vmath API');
         out[ofs + 0] = q.x;
         out[ofs + 1] = q.y;
         out[ofs + 2] = q.z;
@@ -595,6 +638,7 @@ export class quat {
      * @zh 四元数等价判断
      */
     public static exactEquals (a: quat, b: quat) {
+        console.warn('Obsolete Vmath API');
         return vec4.exactEquals(a, b);
     }
 
@@ -602,6 +646,7 @@ export class quat {
      * @zh 排除浮点数误差的四元数近似等价判断
      */
     public static equals (a: quat, b: quat) {
+        console.warn('Obsolete Vmath API');
         return vec4.equals(a, b);
     }
 
@@ -611,6 +656,7 @@ export class quat {
     public w: number;
 
     constructor (x = 0, y = 0, z = 0, w = 1) {
+        console.warn('Obsolete Vmath API');
         this.x = x;
         this.y = y;
         this.z = z;

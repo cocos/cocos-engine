@@ -34,7 +34,6 @@ import { Texture2D } from '../../assets/texture-2d';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { CCString } from '../../core/data/utils/attribute';
 import { Mat4, Quat, Vec3 } from '../../core/value-types';
-import { mat4, quat, vec3 } from '../../core/vmath';
 import { GFXFormatInfos } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
 
@@ -103,7 +102,7 @@ export class Skeleton extends Asset {
             const position = new Vec3();
             const rotation = new Quat();
             const scale = new Vec3();
-            mat4.toRTS(m, rotation, position, scale);
+            Mat4.toRTS(m, rotation, position, scale);
             return { position, rotation, scale };
         });
     }
@@ -152,9 +151,9 @@ export class Skeleton extends Asset {
         const width = Math.ceil(12 * 4 / GFXFormatInfos[format].size);
         const height = this.joints.length;
         texture.reset({ width, height, format });
-        vec3.set(v3_1, 0, 0, 0);
-        quat.set(qt_1, 0, 0, 0, 1);
-        vec3.set(v3_2, 1, 1, 1);
+        Vec3.set(v3_1, 0, 0, 0);
+        Quat.set(qt_1, 0, 0, 0, 1);
+        Vec3.set(v3_2, 1, 1, 1);
         const textureBuffer = new Float32Array(width * height * 4);
         for (let i = 0; i < this.joints.length; i++) {
             this.uploadJointData(textureBuffer, 12 * i, v3_1, qt_1, v3_2, i === 0);
@@ -192,11 +191,11 @@ export class Skeleton extends Asset {
                 const T = position[frame];
                 const R = rotation[frame];
                 const S = scale[frame];
-                vec3.multiply(v3_1, bindpose.position, S);
-                vec3.transformQuat(v3_1, v3_1, R);
-                vec3.add(v3_1, v3_1, T);
-                quat.multiply(qt_1, R, bindpose.rotation);
-                vec3.multiply(v3_2, S, bindpose.scale);
+                Vec3.multiply(v3_1, bindpose.position, S);
+                Vec3.transformQuat(v3_1, v3_1, R);
+                Vec3.add(v3_1, v3_1, T);
+                Quat.multiply(qt_1, R, bindpose.rotation);
+                Vec3.multiply(v3_2, S, bindpose.scale);
                 this.uploadJointData(textureBuffer, 12 * (frames * i + frame), v3_1, qt_1, v3_2, i === 0);
             }
         }
@@ -207,7 +206,7 @@ export class Skeleton extends Asset {
 
     // Linear Blending Skinning
     protected uploadJointDataLBS (out: Float32Array, base: number, pos: Vec3, rot: Quat, scale: Vec3, firstBone: boolean) {
-        mat4.fromRTS(m4_1, rot, pos, scale);
+        Mat4.fromRTS(m4_1, rot, pos, scale);
         out[base + 0] = m4_1.m00;
         out[base + 1] = m4_1.m01;
         out[base + 2] = m4_1.m02;
@@ -225,11 +224,11 @@ export class Skeleton extends Asset {
     // Dual Quaternion Skinning
     protected uploadJointDataDQS (out: Float32Array, base: number, pos: Vec3, rot: Quat, scale: Vec3, firstBone: boolean) {
         // sign consistency
-        if (firstBone) { quat.copy(dq_0, rot); }
-        else if (quat.dot(dq_0, rot) < 0) { quat.scale(rot, rot, -1); }
+        if (firstBone) { Quat.copy(dq_0, rot); }
+        else if (Quat.dot(dq_0, rot) < 0) { Quat.scale(rot, rot, -1); }
         // conversion
-        quat.set(dq_1, pos.x, pos.y, pos.z, 0);
-        quat.scale(dq_1, quat.multiply(dq_1, dq_1, rot), 0.5);
+        Quat.set(dq_1, pos.x, pos.y, pos.z, 0);
+        Quat.scale(dq_1, Quat.multiply(dq_1, dq_1, rot), 0.5);
         // upload
         out[base + 0] = rot.x;
         out[base + 1] = rot.y;

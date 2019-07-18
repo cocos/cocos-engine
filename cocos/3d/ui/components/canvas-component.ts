@@ -31,7 +31,6 @@
 import { Component } from '../../../components';
 import { ccclass, disallowMultiple, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
 import { Vec3 } from '../../../core/value-types';
-import { vec3 } from '../../../core/vmath';
 import { GFXClearFlag } from '../../../gfx/define';
 import { Camera } from '../../../renderer';
 import { UITransformComponent } from './ui-transfrom-component';
@@ -244,7 +243,7 @@ export class CanvasComponent extends Component {
         if (CC_EDITOR) {
             // nodeSize = designSize = cc.engine.getDesignResolutionSize();
             nodeSize = designSize = cc.view.getDesignResolutionSize();
-            vec3.set(_worldPos, designSize.width * 0.5, designSize.height * 0.5, 1);
+            Vec3.set(_worldPos, designSize.width * 0.5, designSize.height * 0.5, 1);
         }
         else {
             const canvasSize = cc.visibleRect;
@@ -261,7 +260,7 @@ export class CanvasComponent extends Component {
                 offsetY = (designSize.height - canvasSize.height) * 0.5;
             }
 
-            vec3.set(_worldPos, canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY, 0);
+            Vec3.set(_worldPos, canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY, 0);
         }
 
         if (!this._pos.equals(_worldPos)){

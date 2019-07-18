@@ -2,7 +2,7 @@
  * @category 3d/primitive
  */
 
-import { vec3 } from '../../core/vmath';
+import { Vec3 } from '../../core/value-types';
 
 /**
  * @zh
@@ -15,8 +15,8 @@ export interface ICapsuteOptions {
     arc: number;
 }
 
-const temp1 = vec3.create(0, 0, 0);
-const temp2 = vec3.create(0, 0, 0);
+const temp1 = Vec3.create(0, 0, 0);
+const temp2 = Vec3.create(0, 0, 0);
 
 /**
  * @zh
@@ -47,8 +47,8 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts: 
   const uvs: number[] = [];
   const indices: number[] = [];
   const maxRadius = Math.max(radiusTop, radiusBottom);
-  const minPos = vec3.create(-maxRadius, -height / 2, -maxRadius);
-  const maxPos = vec3.create(maxRadius, height / 2, maxRadius);
+  const minPos = Vec3.create(-maxRadius, -height / 2, -maxRadius);
+  const maxPos = Vec3.create(maxRadius, height / 2, maxRadius);
   const boundingRadius = height / 2;
 
   let index = 0;
@@ -99,7 +99,7 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts: 
         positions.push(radius * cosTheta);
 
         // normal
-        vec3.normalize(temp1, vec3.set(temp2, sinTheta, -slope, cosTheta));
+        Vec3.normalize(temp1, Vec3.set(temp2, sinTheta, -slope, cosTheta));
         normals.push(temp1.x);
         normals.push(temp1.y);
         normals.push(temp1.z);

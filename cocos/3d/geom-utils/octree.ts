@@ -2,18 +2,18 @@
  * @category gemotry-utils
  */
 
-import { vec3 } from '../../core/vmath';
+import { Vec3 } from '../../core/value-types';
 import { FixedArray } from '../memop';
 import aabb from './aabb';
 import intersect from './intersect';
 
 const mul = (out, v, x, y, z) => {
-    return vec3.set(out, v.x * x, v.y * y, v.z * z);
+    return Vec3.set(out, v.x * x, v.y * y, v.z * z);
 };
 
 class OctreeBlock {
-    public minPos: vec3;
-    public maxPos: vec3;
+    public minPos: Vec3;
+    public maxPos: Vec3;
     public boundingBox: aabb;
     public capacity: number;
     public depth: number;
@@ -104,8 +104,8 @@ export default class Octree {
 
     /**
      * Create sub blocks and populate them with given entries
-     * @param {vec3} worldMin - min position of the parent bounding box
-     * @param {vec3} worldMax - max position of the parent bounding box
+     * @param {Vec3} worldMin - min position of the parent bounding box
+     * @param {Vec3} worldMax - max position of the parent bounding box
      * @param {Array<Object>} entries - the entries to be inserted
      * @param {number} blockCapacity - maximum capacity for each block node
      * before it's been subdivided, might be exceeded if `maxDepth` is reached
@@ -116,15 +116,15 @@ export default class Octree {
      */
     public static createBlocks (worldMin, worldMax, entries, blockCapacity, curDepth, maxDepth, getBoundingShape) {
         const blocks: OctreeBlock[] = [];
-        const blockSize = vec3.create();
-        vec3.scale(blockSize, vec3.subtract(blockSize, worldMax, worldMin), 0.5);
+        const blockSize = Vec3.create();
+        Vec3.scale(blockSize, Vec3.subtract(blockSize, worldMax, worldMin), 0.5);
         for (let x = 0; x < 2; x++) {
             for (let y = 0; y < 2; y++) {
                 for (let z = 0; z < 2; z++) {
-                    const localMin = vec3.create();
-                    const localMax = vec3.create();
-                    vec3.add(localMin, worldMin, mul(localMin, blockSize, x, y, z));
-                    vec3.add(localMax, worldMin, mul(localMax, blockSize, x + 1, y + 1, z + 1));
+                    const localMin = Vec3.create();
+                    const localMax = Vec3.create();
+                    Vec3.add(localMin, worldMin, mul(localMin, blockSize, x, y, z));
+                    Vec3.add(localMax, worldMin, mul(localMax, blockSize, x + 1, y + 1, z + 1));
                     const block = new OctreeBlock(localMin, localMax,
                         blockCapacity, curDepth + 1, maxDepth, getBoundingShape);
                     for (let i = 0; i < entries.length; i++) {
@@ -170,10 +170,10 @@ export default class Octree {
      */
     public build (entries, getBoundingShape) {
         // calc world min & max
-        const worldMin = vec3.create(Infinity, Infinity, Infinity);
-        const worldMax = vec3.create(-Infinity, -Infinity, -Infinity);
-        const minPos = vec3.create();
-        const maxPos = vec3.create();
+        const worldMin = Vec3.create(Infinity, Infinity, Infinity);
+        const worldMax = Vec3.create(-Infinity, -Infinity, -Infinity);
+        const minPos = Vec3.create();
+        const maxPos = Vec3.create();
         const staticEntries: any[] = []; this.dynamics = [];
         for (let i = 0; i < entries.length; i++) {
             const entry = (entries.data || entries)[i];
@@ -182,8 +182,8 @@ export default class Octree {
                 this.dynamics.push(entry);
             } else {
                 shape.getBoundary(minPos, maxPos);
-                vec3.min(worldMin, worldMin, minPos);
-                vec3.max(worldMax, worldMax, maxPos);
+                Vec3.min(worldMin, worldMin, minPos);
+                Vec3.max(worldMax, worldMax, maxPos);
                 staticEntries.push(entry);
             }
         }

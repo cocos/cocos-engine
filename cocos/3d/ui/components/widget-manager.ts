@@ -31,7 +31,6 @@
 import { SystemEventType } from '../../../core/platform';
 import { array } from '../../../core/utils/js';
 import { Vec2, Vec3 } from '../../../core/value-types';
-import { vec3 } from '../../../core/vmath';
 import { Node } from '../../../scene-graph/node';
 import { CanvasComponent } from './canvas-component';
 import { UIRenderComponent } from './ui-render-component';
@@ -243,7 +242,7 @@ function align (node: Node, widget: WidgetComponent) {
     }
 
     node.setPosition(x, y, _tempPos.z);
-    vec3.set(widget._lastPos, x, y, _tempPos.z);
+    Vec3.set(widget._lastPos, x, y, _tempPos.z);
 }
 
 function visitNode (node: Node) {
@@ -377,7 +376,7 @@ function adjustWidgetToAllowMovingInEditor (this: WidgetComponent, eventType: Sy
     const self = this;
     const newPos = self.node.getPosition();
     const oldPos = this._lastPos;
-    const delta = new Vec3(newPos);
+    const delta = Vec3.create(newPos);
     delta.subtract(oldPos);
 
     let target = self.node.parent!;
@@ -391,7 +390,7 @@ function adjustWidgetToAllowMovingInEditor (this: WidgetComponent, eventType: Sy
     const targetSize = getReadonlyNodeSize(target);
     const deltaInPercent = new Vec3();
     if (targetSize.width !== 0 && targetSize.height !== 0) {
-        vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
+        Vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
     }
 
     if (self.isAlignTop) {
@@ -441,7 +440,7 @@ function adjustWidgetToAllowResizingInEditor (this: WidgetComponent/*, oldSize: 
     const targetSize = getReadonlyNodeSize(target);
     const deltaInPercent = new Vec3();
     if (targetSize.width !== 0 && targetSize.height !== 0) {
-        vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
+        Vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
     }
 
     const anchor = self.node.getAnchorPoint();

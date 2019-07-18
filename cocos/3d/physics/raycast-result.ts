@@ -4,7 +4,6 @@
 
 import { Component } from '../../components/component';
 import { Vec3 } from '../../core/value-types';
-import { vec3 } from '../../core/vmath';
 import { Node } from '../../scene-graph';
 import { RigidBodyBase, ShapeBase } from './api';
 
@@ -30,8 +29,8 @@ export class RaycastResult {
     private _collidier: Component | null = null;
     private _node: Node | null = null;
 
-    public _assign (hitPoint: vec3, distance: number, shape: ShapeBase, body: RigidBodyBase) {
-        vec3.copy(this._hitPoint, hitPoint);
+    public _assign (hitPoint: any, distance: number, shape: ShapeBase, body: RigidBodyBase) {
+        Vec3.copy(this._hitPoint, hitPoint);
         this._distance = distance;
         this._node = body.getUserData() as Node;
         this._collidier = shape.getUserData() as Component;

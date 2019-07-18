@@ -2,7 +2,7 @@
  * @category gemotry-utils
  */
 
-import { vec3 } from '../../core/vmath';
+import { Vec3 } from '../../core/value-types';
 import enums from './enums';
 
 /**
@@ -60,9 +60,9 @@ export default class triangle {
      * @return {triangle} out 接受操作的 triangle。
      */
     public static copy (out: triangle, t: triangle): triangle {
-        vec3.copy(out.a, t.a);
-        vec3.copy(out.b, t.b);
-        vec3.copy(out.c, t.c);
+        Vec3.copy(out.a, t.a);
+        Vec3.copy(out.b, t.b);
+        Vec3.copy(out.c, t.c);
 
         return out;
     }
@@ -73,15 +73,15 @@ export default class triangle {
      * @zh
      * 用三个点创建一个 triangle。
      * @param {triangle} out 接受操作的 triangle。
-     * @param {vec3} a a 点。
-     * @param {vec3} b b 点。
-     * @param {vec3} c c 点。
+     * @param {Vec3} a a 点。
+     * @param {Vec3} b b 点。
+     * @param {Vec3} c c 点。
      * @return {triangle} out 接受操作的 triangle。
      */
-    public static fromPoints (out: triangle, a: vec3, b: vec3, c: vec3): triangle {
-        vec3.copy(out.a, a);
-        vec3.copy(out.b, b);
-        vec3.copy(out.c, c);
+    public static fromPoints (out: triangle, a: Vec3, b: Vec3, c: Vec3): triangle {
+        Vec3.copy(out.a, a);
+        Vec3.copy(out.b, b);
+        Vec3.copy(out.c, c);
         return out;
     }
 
@@ -126,19 +126,19 @@ export default class triangle {
      * @zh
      * 点 a。
      */
-    public a: vec3;
+    public a: Vec3;
 
     /**
      * @zh
      * 点 b。
      */
-    public b: vec3;
+    public b: Vec3;
 
     /**
      * @zh
      * 点 c。
      */
-    public c: vec3;
+    public c: Vec3;
 
     private _type: number;
 
@@ -158,8 +158,8 @@ export default class triangle {
                  bx: number = 1, by: number = 0, bz: number = 0,
                  cx: number = 0, cy: number = 1, cz: number = 0) {
         this._type = enums.SHAPE_TRIANGLE;
-        this.a = vec3.create(ax, ay, az);
-        this.b = vec3.create(bx, by, bz);
-        this.c = vec3.create(cx, cy, cz);
+        this.a = Vec3.create(ax, ay, az);
+        this.b = Vec3.create(bx, by, bz);
+        this.c = Vec3.create(cx, cy, cz);
     }
 }

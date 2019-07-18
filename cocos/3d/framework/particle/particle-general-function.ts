@@ -2,86 +2,85 @@
  * @hidden
  */
 
-import { Enum } from '../../../core/value-types';
-import { mat4, quat, random, randomRange, randomRangeInt, vec2, vec3 } from '../../../core/vmath';
-import { sign } from '../../../core/vmath/bits';
+import { Mat4, Quat, random, randomRange, randomRangeInt, Vec2, Vec3 } from '../../../core/value-types';
+import { sign } from '../../../core/value-types/bits';
 import { Space } from './enum';
 
-export const particleEmitZAxis = vec3.create(0, 0, -1);
+export const particleEmitZAxis = Vec3.create(0, 0, -1);
 
-export function calculateTransform (systemSpace: number, moduleSpace: number, worldTransform: mat4, outQuat: quat) {
+export function calculateTransform (systemSpace: number, moduleSpace: number, worldTransform: Mat4, outQuat: Quat) {
     if (moduleSpace !== systemSpace) {
         if (systemSpace === Space.World) {
-            mat4.getRotation(outQuat, worldTransform);
+            Mat4.getRotation(outQuat, worldTransform);
         }
         else {
-            mat4.invert(worldTransform, worldTransform);
-            mat4.getRotation(outQuat, worldTransform);
+            Mat4.invert(worldTransform, worldTransform);
+            Mat4.getRotation(outQuat, worldTransform);
         }
         return true;
     }
     else {
-        quat.set(outQuat, 0, 0, 0, 1);
+        Quat.set(outQuat, 0, 0, 0, 1);
         return false;
     }
 }
 
-export function fixedAngleUnitVector2 (out: vec2 | vec3, theta: number) {
-    vec2.set(out, Math.cos(theta), Math.sin(theta));
+export function fixedAngleUnitVector2 (out: Vec2 | Vec3, theta: number) {
+    Vec2.set(out, Math.cos(theta), Math.sin(theta));
 }
 
-export function randomUnitVector2 (out: vec2 | vec3) {
+export function randomUnitVector2 (out: Vec2 | Vec3) {
     const a = randomRange(0, 2 * Math.PI);
     const x = Math.cos(a);
     const y = Math.sin(a);
-    vec2.set(out, x, y);
+    Vec2.set(out, x, y);
 }
 
-export function randomUnitVector (out: vec3) {
+export function randomUnitVector (out: Vec3) {
     const z = randomRange(-1, 1);
     const a = randomRange(0, 2 * Math.PI);
     const r = Math.sqrt(1 - z * z);
     const x = r * Math.cos(a);
     const y = r * Math.sin(a);
-    vec3.set(out, x, y, z);
+    Vec3.set(out, x, y, z);
 }
 
-export function randomPointInUnitSphere (out: vec3) {
+export function randomPointInUnitSphere (out: Vec3) {
     randomUnitVector(out);
-    vec3.scale(out, out, random());
+    Vec3.scale(out, out, random());
 }
 
-export function randomPointBetweenSphere (out: vec3, minRadius: number, maxRadius: number) {
+export function randomPointBetweenSphere (out: Vec3, minRadius: number, maxRadius: number) {
     randomUnitVector(out);
-    vec3.scale(out, out, minRadius + (maxRadius - minRadius) * random());
+    Vec3.scale(out, out, minRadius + (maxRadius - minRadius) * random());
 }
 
-export function randomPointInUnitCircle (out: vec3) {
+export function randomPointInUnitCircle (out: Vec3) {
     randomUnitVector2(out);
     out.z = 0;
-    vec3.scale(out, out, random());
+    Vec3.scale(out, out, random());
 }
 
-export function randomPointBetweenCircle (out: vec3, minRadius: number, maxRadius: number) {
+export function randomPointBetweenCircle (out: Vec3, minRadius: number, maxRadius: number) {
     randomUnitVector2(out);
     out.z = 0;
-    vec3.scale(out, out, minRadius + (maxRadius - minRadius) * random());
+    Vec3.scale(out, out, minRadius + (maxRadius - minRadius) * random());
 }
 
-export function randomPointBetweenCircleAtFixedAngle (out: vec3, minRadius: number, maxRadius: number, theta: number) {
+export function randomPointBetweenCircleAtFixedAngle (out: Vec3, minRadius: number, maxRadius: number, theta: number) {
     fixedAngleUnitVector2(out, theta);
     out.z = 0;
-    vec3.scale(out, out, minRadius + (maxRadius - minRadius) * random());
+    Vec3.scale(out, out, minRadius + (maxRadius - minRadius) * random());
 }
 
-export function randomPointInCube (out: vec3, extents: vec3) {
-    vec3.set(out,
+export function randomPointInCube (out: Vec3, extents: Vec3) {
+    Vec3.set(out,
         randomRange(-extents.x, extents.x),
         randomRange(-extents.y, extents.y),
         randomRange(-extents.z, extents.z));
 }
 
-export function randomPointBetweenCube (out: vec3, minBox: vec3, maxBox: vec3) {
+export function randomPointBetweenCube (out: Vec3, minBox: Vec3, maxBox: Vec3) {
     const subscript = ['x', 'y', 'z'];
     const edge = randomRangeInt(0, 3);
     for (let i = 0; i < 3; i++) {

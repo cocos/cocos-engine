@@ -31,7 +31,6 @@ import { Texture2D } from '../../assets/texture-2d';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { CCInteger, CCString } from '../../core/data/utils/attribute';
 import { Mat4, Vec2 } from '../../core/value-types';
-import { vec2 } from '../../core/vmath';
 import { GFXFormat } from '../../gfx/define';
 import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
@@ -63,7 +62,7 @@ export class AvatarUnit {
 
     @property
     set atlasSize (atlasSize) {
-        vec2.copy(this._atlasSize, atlasSize);
+        Vec2.copy(this._atlasSize, atlasSize);
     }
     get atlasSize () {
         return this._atlasSize;
@@ -71,7 +70,7 @@ export class AvatarUnit {
 
     @property
     set offset (offset) {
-        vec2.copy(this._offset, offset);
+        Vec2.copy(this._offset, offset);
     }
     get offset () {
         return this._offset;

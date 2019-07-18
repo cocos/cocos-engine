@@ -34,7 +34,6 @@ import { ccclass } from '../../../../core/data/class-decorator';
 import { macro } from '../../../../core/platform/CCMacro';
 import { contains } from '../../../../core/utils';
 import { Color, Mat4, Size, Vec3 } from '../../../../core/value-types';
-import * as math from '../../../../core/vmath';
 import { Node } from '../../../../scene-graph/node';
 import { UIRenderComponent } from '../ui-render-component';
 import { EditBoxComponent} from './edit-box-component';
@@ -409,10 +408,10 @@ export class EditBoxImpl {
         node!.getWorldMatrix(_matrix);
         const transform = node!.uiTransfromComp;
         if (transform) {
-            math.vec3.set(_vec3, -transform.anchorX * transform.width, -transform.anchorY * transform.height, _vec3.z);
+            Vec3.set(_vec3, -transform.anchorX * transform.width, -transform.anchorY * transform.height, _vec3.z);
         }
 
-        math.mat4.translate(_matrix, _matrix, _vec3);
+        Mat4.translate(_matrix, _matrix, _vec3);
 
         // let camera;
         // can't find camera in editor
@@ -440,7 +439,7 @@ export class EditBoxImpl {
         _matrix_temp.m12 = center.x - (_matrix_temp.m00 * m12 + _matrix_temp.m04 * m13);
         _matrix_temp.m13 = center.y - (_matrix_temp.m01 * m12 + _matrix_temp.m05 * m13);
 
-        math.mat4.multiply(_matrix_temp, _matrix_temp, _matrix);
+        Mat4.multiply(_matrix_temp, _matrix_temp, _matrix);
 
         scaleX /= dpr;
         scaleY /= dpr;

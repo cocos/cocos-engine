@@ -26,7 +26,7 @@
 
 import { _decorator } from '../data/index';
 const { ccclass, property } = _decorator;
-import * as math from '../vmath';
+import { Quat } from '../value-types';
 
 @ccclass('cc.PrefabInfo')
 export class PrefabInfo {
@@ -132,7 +132,7 @@ export default function syncWithPrefab (node) {
     node._active = _active;
     node._position.x = x;
     node._position.y = y;
-    math.quat.copy(node._quat, _quat);
+    Quat.copy(node._quat, _quat);
     node._localZOrder = _localZOrder;
     node._globalZOrder = _globalZOrder;
 }

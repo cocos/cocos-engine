@@ -4,7 +4,7 @@
 
 import { CCClass } from '../../core/data';
 import { Enum } from '../../core/value-types';
-import { clamp, inverseLerp, pingPong, repeat } from '../../core/vmath';
+import { clamp, inverseLerp, pingPong, repeat } from '../../core/value-types/utils';
 
 const LOOK_FORWARD = 3;
 

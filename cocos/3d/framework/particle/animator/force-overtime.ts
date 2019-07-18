@@ -5,7 +5,7 @@
 
 import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { pseudoRandom, quat, vec3 } from '../../../../core/vmath';
+import { pseudoRandom, Quat, Vec3 } from '../../../../core/value-types';
 import { Space } from '../enum';
 import { calculateTransform } from '../particle-general-function';
 import CurveRange from './curve-range';
@@ -68,11 +68,11 @@ export default class ForceOvertimeModule {
     // TODO:currently not supported
     public randomized = false;
 
-    private rotation: quat;
+    private rotation: Quat;
     private needTransform: boolean;
 
     constructor () {
-        this.rotation = quat.create();
+        this.rotation = Quat.create();
         this.needTransform = false;
     }
 
@@ -82,11 +82,11 @@ export default class ForceOvertimeModule {
 
     public animate (p, dt) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const force = vec3.set(_temp_v3, this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!, this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!, this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!);
+        const force = Vec3.set(_temp_v3, this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!, this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!, this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!);
         if (this.needTransform) {
-            vec3.transformQuat(force, force, this.rotation);
+            Vec3.transformQuat(force, force, this.rotation);
         }
-        vec3.scaleAndAdd(p.velocity, p.velocity, force, dt);
+        Vec3.scaleAndAdd(p.velocity, p.velocity, force, dt);
     }
 }
 
