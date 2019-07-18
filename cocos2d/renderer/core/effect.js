@@ -26,28 +26,21 @@ class Effect {
         this._defines = {};
     }
 
-    setCullMode (cullMode = gfx.CULL_BACK) {
+    setCullMode (cullMode) {
         let passes = this._techniques[0].passes;
         for (let i = 0; i < passes.length; i++) {
             passes[i].setCullMode(cullMode);
         }
     }
 
-    setDepth (depthTest = false, depthWrite = false, depthFunc = gfx.DS_FUNC_LESS) {
+    setDepth (depthTest, depthWrite, depthFunc) {
         let passes = this._techniques[0].passes;
         for (let i = 0; i < passes.length; i++) {
             passes[i].setDepth(depthTest, depthWrite, depthFunc);
         }
     }
 
-    setBlend (enabled = false,
-        blendEq = gfx.BLEND_FUNC_ADD,
-        blendSrc = gfx.BLEND_SRC_ALPHA,
-        blendDst = gfx.BLEND_ONE_MINUS_SRC_ALPHA,
-        blendAlphaEq = gfx.BLEND_FUNC_ADD,
-        blendSrcAlpha = gfx.BLEND_SRC_ALPHA,
-        blendDstAlpha = gfx.BLEND_ONE_MINUS_SRC_ALPHA,
-        blendColor = 0xffffffff) { 
+    setBlend (enabled, blendEq, blendSrc, blendDst, blendAlphaEq, blendSrcAlpha, blendDstAlpha, blendColor) { 
         let passes = this._techniques[0].passes;
         for (let j = 0; j < passes.length; j++) {
             let pass = passes[j];
@@ -68,14 +61,7 @@ class Effect {
         }
     }
 
-    setStencil (enabled = gfx.STENCIL_INHERIT,
-        stencilFunc = gfx.DS_FUNC_ALWAYS,
-        stencilRef = 0,
-        stencilMask = 0xff,
-        stencilFailOp = gfx.STENCIL_OP_KEEP,
-        stencilZFailOp = gfx.STENCIL_OP_KEEP,
-        stencilZPassOp = gfx.STENCIL_OP_KEEP,
-        stencilWriteMask = 0xff) {
+    setStencil (enabled, stencilFunc, stencilRef, stencilMask, stencilFailOp, stencilZFailOp, stencilZPassOp, stencilWriteMask) {
         let passes = this._techniques[0].passes;
         for (let i = 0; i < passes.length; ++i) {
             let pass = passes[i];
