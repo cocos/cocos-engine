@@ -35,7 +35,6 @@ void CCSlot::_onClear()
     _localMatrix.setIdentity();
     worldMatrix.setIdentity();
     _worldMatDirty = true;
-    _textureScale = 1.0f;
 }
 
 void CCSlot::disposeTriangles()
@@ -109,7 +108,7 @@ void CCSlot::_addDisplay()
 
 void CCSlot::_replaceDisplay(void* value, bool isArmatureDisplay)
 {
-    _textureScale = 1.0f;
+    
 }
 
 void CCSlot::_removeDisplay()
@@ -223,8 +222,6 @@ void CCSlot::_updateFrame()
                 {
                     vertexIndices[i] = intArray[currentVerticesData->offset + (unsigned)BinaryOffset::MeshVertexIndices + i];
                 }
-
-                _textureScale = 1.0f;
 
                 const auto isSkinned = currentVerticesData->weight != nullptr;
                 if (isSkinned)
@@ -373,7 +370,7 @@ void CCSlot::_updateMesh()
         const auto intArray = data->intArray;
         const auto floatArray = data->floatArray;
         const auto vertexCount = (std::size_t)intArray[verticesData->offset + (unsigned)BinaryOffset::MeshVertexCount];
-        int vertexOffset = (std::size_t)intArray[verticesData->offset + (unsigned)BinaryOffset::MeshFloatOffset];
+        std::size_t vertexOffset = (std::size_t)intArray[verticesData->offset + (unsigned)BinaryOffset::MeshFloatOffset];
 
         if (vertexCount > triangles.vertCount) {
             return;
@@ -430,27 +427,19 @@ void CCSlot::_updateMesh()
 void CCSlot::_updateTransform()
 {
     _localMatrix.m[0] = globalTransformMatrix.a;
-    _localMatrix.m[1] = -globalTransformMatrix.b;
+    _localMatrix.m[1] = globalTransformMatrix.b;
     _localMatrix.m[4] = -globalTransformMatrix.c;
-    _localMatrix.m[5] = globalTransformMatrix.d;
+    _localMatrix.m[5] = -globalTransformMatrix.d;
     
     if (_childArmature)
     {
         _localMatrix.m[12] = globalTransformMatrix.tx;
-        _localMatrix.m[13] = -globalTransformMatrix.ty;
+        _localMatrix.m[13] = globalTransformMatrix.ty;
     }
     else 
     {
-        if (_textureScale != 1.0f)
-        {
-            _localMatrix.m[0] *= _textureScale;
-            _localMatrix.m[1] *= _textureScale;
-            _localMatrix.m[4] *= _textureScale;
-            _localMatrix.m[5] *= _textureScale;
-        }
-        
         _localMatrix.m[12] = globalTransformMatrix.tx - (globalTransformMatrix.a * _pivotX - globalTransformMatrix.c * _pivotY);
-        _localMatrix.m[13] = -(globalTransformMatrix.ty - (globalTransformMatrix.b * _pivotX - globalTransformMatrix.d * _pivotY));
+        _localMatrix.m[13] = globalTransformMatrix.ty - (globalTransformMatrix.b * _pivotX - globalTransformMatrix.d * _pivotY);
     }
     
     _worldMatDirty = true;
@@ -501,8 +490,8 @@ void CCSlot::_identityTransform()
 {
     _localMatrix.m[0] = 1.0f;
     _localMatrix.m[1] = 0.0f;
-    _localMatrix.m[4] = 0.0f;
-    _localMatrix.m[5] = 1.0f;
+    _localMatrix.m[4] = -0.0f;
+    _localMatrix.m[5] = -1.0f;
     _localMatrix.m[12] = 0.0f;
     _localMatrix.m[13] = 0.0f;
     
