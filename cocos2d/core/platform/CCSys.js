@@ -466,6 +466,13 @@ function initSys () {
     sys.BROWSER_TYPE_IE = "ie";
     /**
      *
+     * @property {String} BROWSER_TYPE_EDGE
+     * @readOnly
+     * @default "edge"
+     */
+    sys.BROWSER_TYPE_EDGE = "edge";
+    /**
+     *
      * @property {String} BROWSER_TYPE_QQ
      * @readOnly
      * @default "qqbrowser"
@@ -975,7 +982,7 @@ function initSys () {
         /* Determine the browser type */
         (function(){
             var typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
-            var typeReg2 = /qqbrowser|ucbrowser/i;
+            var typeReg2 = /qqbrowser|ucbrowser|edge/i;
             var typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
             var browserTypes = typeReg1.exec(ua);
             if(!browserTypes) browserTypes = typeReg2.exec(ua);
@@ -994,6 +1001,8 @@ function initSys () {
                 browserType = sys.BROWSER_TYPE_ANDROID;
             else if (browserType === "trident")
                 browserType = sys.BROWSER_TYPE_IE;
+            else if (browserType === 'edge')
+                browserType === sys.BROWSER_TYPE_EDGE;
             else if (browserType === "360 aphone")
                 browserType = sys.BROWSER_TYPE_360;
             else if (browserType === "mxbrowser")

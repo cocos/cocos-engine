@@ -353,7 +353,7 @@ let WebAudioElement = function (buffer, audio) {
     this._volume = 1;
     // https://www.chromestatus.com/features/5287995770929152
     if (this._gainObj['gain'].setTargetAtTime) {
-        this._gainObj['gain'].setTargetAtTime(this._volume, this._context.currentTime, 0);
+        this._gainObj['gain'].setTargetAtTime(this._volume, this._context.currentTime, WebAudioElement.TIME_CONSTANT);
     } else {
         this._gainObj['gain'].value = 1;
     }
@@ -375,6 +375,10 @@ let WebAudioElement = function (buffer, audio) {
         }
     }.bind(this);
 };
+
+// TIME_CONSTANT is used as an argument of setTargetAtTime interface
+// TIME_CONSTANT need to be a positive number on Edge browser.
+WebAudioElement.TIME_CONSTANT = (cc.sys.browserType === cc.sys.BROWSER_TYPE_EDGE ? 0.01 : 0);
 
 (function (proto) {
     proto.play = function (offset) {
@@ -489,7 +493,7 @@ let WebAudioElement = function (buffer, audio) {
         set: function (num) {
             this._volume = num;
             if (this._gainObj['gain'].setTargetAtTime) {
-                this._gainObj['gain'].setTargetAtTime(this._volume, this._context.currentTime, 0);
+                this._gainObj['gain'].setTargetAtTime(this._volume, this._context.currentTime, WebAudioElement.TIME_CONSTANT);
             } else {
                 this._volume['gain'].value = num;
             }
