@@ -12,3 +12,4 @@ export * from './skeletal-animation-clip';
 export * from './animation-manager';
 export * from './animation-state';
 export * from './cubic-spline-value';
+export * from './animation-component';

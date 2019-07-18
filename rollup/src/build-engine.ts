@@ -1,4 +1,5 @@
-import { dirname, relative } from 'path';
+import { existsSync } from 'fs';
+import { dirname, join, normalize, relative } from 'path';
 import { rollup } from 'rollup';
 // @ts-ignore
 import babel from 'rollup-plugin-babel';
@@ -7,6 +8,8 @@ import commonjs from 'rollup-plugin-commonjs';
 // @ts-ignore
 import json from 'rollup-plugin-json';
 // @ts-ignore
+import multiEntry from 'rollup-plugin-multi-entry';
+// @ts-ignore
 import resolve from 'rollup-plugin-node-resolve';
 // @ts-ignore
 import { uglify } from 'rollup-plugin-uglify';
@@ -14,10 +17,7 @@ import { uglify } from 'rollup-plugin-uglify';
 const { excludes } = require('../plugin/rollup-plugin-excludes');
 
 interface IBaseOptions {
-    /**
-     * 引擎入口模块。
-     */
-    inputPath: string;
+    moduleEntries: string[];
 
     /**
      * 指定输出路径。
@@ -79,10 +79,16 @@ export async function build (options: IBuildOptions) {
     return await _internalBuild(Object.assign(options, {globalDefines}));
 }
 
+function resolveModuleEntry (moduleEntry: string) {
+    return normalize(`${__dirname}/../../exports/${moduleEntry}.ts`);
+}
+
 async function _internalBuild (options: IAdvancedOptions) {
     console.log(`Build-engine options: ${JSON.stringify(options, undefined, 2)}`);
     const doUglify = !!options.compress;
     const rollupPlugins = [
+        multiEntry(),
+
         excludes({
             modules: options.excludes,
         }),
@@ -161,8 +167,14 @@ async function _internalBuild (options: IAdvancedOptions) {
     const outputPath = options.outputPath;
     const sourcemapFile = options.sourcemapFile || `${options.outputPath}.map`;
 
+    const moduleEntries = options.moduleEntries.map(resolveModuleEntry);
+    for (const moduleEntry of moduleEntries) {
+        if (!existsSync(moduleEntry)) {
+            console.error(`Cannot find engine module ${moduleEntry}`);
+        }
+    }
     const rollupBuild = await rollup({
-        input: options.inputPath,
+        input: moduleEntries,
         plugins: rollupPlugins,
     });
     const generated = await rollupBuild.generate({
