@@ -25,7 +25,8 @@
                     "entry": "gfx-webgl2"
                 }
             ],
-            "default": 0
+            "default": true,
+            "defaultOption": 0
         },
         {
             "name": "Primitives",
@@ -47,7 +48,8 @@
                     "name": "ammo.js",
                     "entry": "physics-ammo"
                 }
-            ]
+            ],
+            "defaultOption": 0
         },
         {
             "name": "tween.js Adapter",

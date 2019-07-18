@@ -10,7 +10,7 @@
                     "type": "boolean"
                 },
                 "defaultOption": {
-                    "description": "Indicates the n-th option is selected by default if the item is marked as bundled.",
+                    "description": "Indicates the n-th option is selected by default if the item is marked as bundled.\nDefaults to 0.",
                     "type": "number"
                 },
                 "description": {

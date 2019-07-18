@@ -60,6 +60,7 @@ interface GroupItem extends BaseItem {
 
     /**
      * Indicates the n-th option is selected by default if the item is marked as bundled.
+     * Defaults to 0.
      */
     defaultOption?: number;
 }
