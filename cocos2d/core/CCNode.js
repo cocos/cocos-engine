@@ -1399,16 +1399,16 @@ let NodeDefines = {
         this._worldMatDirty = true;
 
         let trs = this._trs = this._spaceInfo.trs;
-        trs[0] = 0;
-        trs[1] = 0;
-        trs[2] = 0;
-        trs[3] = 0;
-        trs[4] = 0;
-        trs[5] = 0;
-        trs[6] = 0;
-        trs[7] = 1;
-        trs[8] = 1;
-        trs[9] = 1;
+        trs[0] = 0; // position.x
+        trs[1] = 0; // position.y
+        trs[2] = 0; // position.z
+        trs[3] = 0; // rotation.x
+        trs[4] = 0; // rotation.y
+        trs[5] = 0; // rotation.z
+        trs[6] = 1; // rotation.w
+        trs[7] = 1; // scale.x
+        trs[8] = 1; // scale.y
+        trs[9] = 1; // scale.z
     },
 
     _backDataIntoPool () {
