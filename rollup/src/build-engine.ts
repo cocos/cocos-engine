@@ -95,8 +95,6 @@ async function _internalBuild (options: IAdvancedOptions) {
 
         resolve({
             extensions: ['.js', '.ts', '.json'],
-            jsnext: true,
-            main: true,
         }),
 
         json({

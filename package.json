@@ -75,7 +75,7 @@
     "rollup-plugin-commonjs": "^9.1.6",
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-multi-entry": "^2.1.0",
-    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-uglify": "^6.0.2",
     "rollup-watch": "^4.3.1",
     "tfig": "^1.0.20",
