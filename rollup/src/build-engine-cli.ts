@@ -2,15 +2,48 @@
 import * as fs from 'fs-extra';
 import * as ps from 'path';
 import yargs from 'yargs';
-import { build, IBuildOptions, IFlags, Physics, Platform } from './build-engine';
+import { build, enumeratePhysicsReps, enumeratePlatformReps, IBuildOptions, IFlags, parsePhysics, parsePlatform } from './build-engine';
 
-yargs.option('platform', { type: 'string', alias: 'p' });
-yargs.option('physics', { type: 'string', alias: 'py' });
-yargs.option('flags', { type: 'array', alias: 'f' });
-yargs.option('destination', { type: 'string', alias: 'd' });
-yargs.option('excludes', { type: 'array', alias: 'e' });
-yargs.options('sourcemap', {});
-yargs.boolean('compress');
+yargs.help();
+yargs.option('platform', {
+    type: 'string',
+    alias: 'p',
+    description: 'Target platform.',
+    demandOption: true,
+    choices: enumeratePlatformReps(),
+});
+yargs.option('physics', {
+    type: 'string',
+    alias: 'py',
+    description: 'Physics engine to use.',
+    choices: enumeratePhysicsReps(),
+});
+yargs.option('flags', {
+    type: 'array',
+    alias: 'f',
+    description: 'Engine flags.',
+});
+yargs.option('destination', {
+    type: 'string',
+    alias: 'd',
+    description: 'Output path.',
+});
+yargs.option('excludes', {
+    type: 'array',
+    alias: 'e',
+    description: '(Expired!)',
+});
+yargs.options('sourcemap', {
+    choices: [
+        'inline',
+        true,
+    ],
+    description: 'Source map generation options',
+});
+yargs.option('compress', {
+    type: 'boolean',
+    description: 'Whether to compress compiled engine.',
+});
 
 const flags: IFlags = {};
 const argvFlags = yargs.argv.flags as (string[] | undefined);
@@ -22,6 +55,7 @@ const sourceMap = yargs.argv.sourcemap === 'inline' ? 'inline' : !!yargs.argv.so
 
 const moduleEntries = yargs.argv._;
 if (moduleEntries.length === 0) {
+    console.log(`No module entry specified, default module entries will be used.`);
     moduleEntries.push(...getDefaultModuleEntries());
 }
 
@@ -32,9 +66,13 @@ const options: IBuildOptions = {
     excludes: yargs.argv.excludes as string[],
     sourcemap: sourceMap,
     flags,
-    platform: yargs.argv.platform as (Platform | undefined),
-    physics: yargs.argv.physics as (Physics | undefined),
 };
+if (yargs.argv.platform) {
+    options.platform = parsePlatform(yargs.argv.platform as unknown as string);
+}
+if (yargs.argv.physics) {
+    options.physics = parsePhysics(yargs.argv.physics as unknown as string);
+}
 
 build(options).then(
     (result) => {
