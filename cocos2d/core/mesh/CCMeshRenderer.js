@@ -85,6 +85,7 @@ let ShadowCastingMode = cc.Enum({
  * !#zh
  * 网格渲染组件
  * @class MeshRenderer
+ * @extends RenderComponent
  */
 let MeshRenderer = cc.Class({
     name: 'cc.MeshRenderer',
