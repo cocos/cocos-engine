@@ -49,6 +49,7 @@
                     "entry": "physics-ammo"
                 }
             ],
+            "required": true,
             "defaultOption": 0
         },
         {
