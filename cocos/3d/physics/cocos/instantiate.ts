@@ -5,9 +5,11 @@ import { BuiltInWorld } from './builtin-world';
 import { BuiltinBoxShape } from './shapes/builtin-box-shape';
 import { BuiltinSphereShape } from './shapes/builtin-sphere-shape';
 
-instantiate(
-    BuiltinBoxShape,
-    BuiltinSphereShape,
-    BuiltInBody,
-    BuiltInWorld,
-    );
+if (CC_PHYSICS_BUILT_IN) {
+    instantiate(
+        BuiltinBoxShape,
+        BuiltinSphereShape,
+        BuiltInBody,
+        BuiltInWorld,
+        );
+}
