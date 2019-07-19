@@ -56,7 +56,6 @@ public:
     cocos2d::Color4B color;
     cocos2d::Rect boundsRect;
 private:
-    float _textureScale = 1.0f;
     cocos2d::Mat4 _localMatrix;
 private:
     void disposeTriangles();

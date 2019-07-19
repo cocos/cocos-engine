@@ -239,10 +239,10 @@ void Slot::_updateDisplayData()
                 _pivotY += _helpPoint.y;
             }
 
-            //if (!DragonBones::yDown)
-            //{
+            if (!DragonBones::yDown)
+            {
                 _pivotY = (_textureData->rotated ? _textureData->region.width : _textureData->region.height) * scale - _pivotY;
-            //}
+            }
         }
         else
         {
