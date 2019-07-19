@@ -273,7 +273,7 @@ function getGlobalDefs (platform?: Platform, physics?: Physics, flags?: IFlags):
 
     const FLAGS = ['jsb', 'runtime', 'wechatgame', 'wechatgameSub', 'qqplay', 'debug', 'nativeRenderer'];
 
-    const platformMacro = 'CC_' + Platform[platform];
+    const platformMacro = ('CC_' + Platform[platform]).toUpperCase();
     if (PLATFORM_MACROS.indexOf(platformMacro) === -1 && platform !== Platform.universal) {
         throw new Error(`Unknown platform ${platform}.`);
     }
