@@ -26,6 +26,7 @@
  * @category model
  */
 
+import { AnimationComponent } from '../../animation/animation-component';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { Texture2D } from '../../assets/texture-2d';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
@@ -40,9 +41,8 @@ import { Node } from '../../scene-graph/node';
 import { Material } from '../assets/material';
 import { IMeshStruct, Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
-import { LCA, mapBuffer } from '../misc/utils';
+import { mapBuffer } from '../misc/utils';
 import { SkinningModelComponent } from './skinning-model-component';
-import { AnimationComponent } from '../../components';
 
 const repeat = (n: number) => n - Math.floor(n);
 const batch_id: IGFXAttribute = { name: GFXAttributeName.ATTR_BATCH_ID, format: GFXFormat.R32F, isNormalized: false };
@@ -140,15 +140,6 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         super.skeleton = val;
     }
 
-    @property({ override: true, visible: false })
-    get skinningRoot () {
-        return this._skinningRoot;
-    }
-    set skinningRoot (val) {
-        // @ts-ignore
-        super.skinningRoot = val;
-    }
-
     public onLoad () {
         super.onLoad();
         this._batchMaterial = this.getSharedMaterial(0);
@@ -207,11 +198,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     }
 
     public cookSkeletons () {
-        // find the lowest AnimationComponent node as the new skinning root
-        let root: Node | null = this.node;
-        while (root && !root.getComponent(AnimationComponent)) { root = root.parent; }
-        if (!root) { console.warn('skinning model component must be put under animation component'); return; }
-        this._skinningRoot = root;
+        if (!this._skinningRoot) { console.warn('no skinning root specified!'); return; }
         // merge joints accordingly
         const skeleton = new Skeleton();
         const bindposes: Mat4[] = [];

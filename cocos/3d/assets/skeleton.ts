@@ -58,6 +58,49 @@ export enum JointsMediumType {
     RGBA32F,
 }
 
+const dq_0 = new Quat();
+const dq_1 = new Quat();
+const m4_1 = new Mat4();
+
+// Linear Blending Skinning
+function uploadJointDataLBS (out: Float32Array, base: number, pos: Vec3, rot: Quat, scale: Vec3, firstBone: boolean) {
+    mat4.fromRTS(m4_1, rot, pos, scale);
+    out[base + 0] = m4_1.m00;
+    out[base + 1] = m4_1.m01;
+    out[base + 2] = m4_1.m02;
+    out[base + 3] = m4_1.m12;
+    out[base + 4] = m4_1.m04;
+    out[base + 5] = m4_1.m05;
+    out[base + 6] = m4_1.m06;
+    out[base + 7] = m4_1.m13;
+    out[base + 8] = m4_1.m08;
+    out[base + 9] = m4_1.m09;
+    out[base + 10] = m4_1.m10;
+    out[base + 11] = m4_1.m14;
+}
+
+// Dual Quaternion Skinning
+function uploadJointDataDQS (out: Float32Array, base: number, pos: Vec3, rot: Quat, scale: Vec3, firstBone: boolean) {
+    // sign consistency
+    if (firstBone) { quat.copy(dq_0, rot); }
+    else if (quat.dot(dq_0, rot) < 0) { quat.scale(rot, rot, -1); }
+    // conversion
+    quat.set(dq_1, pos.x, pos.y, pos.z, 0);
+    quat.scale(dq_1, quat.multiply(dq_1, dq_1, rot), 0.5);
+    // upload
+    out[base + 0] = rot.x;
+    out[base + 1] = rot.y;
+    out[base + 2] = rot.z;
+    out[base + 3] = rot.w;
+    out[base + 4] = dq_1.x;
+    out[base + 5] = dq_1.y;
+    out[base + 6] = dq_1.z;
+    out[base + 7] = dq_1.w;
+    out[base + 8] = scale.x;
+    out[base + 9] = scale.y;
+    out[base + 10] = scale.z;
+}
+
 const _jointsFormat = {
     [JointsMediumType.RGBA8]: PixelFormat.RGBA8888,
     [JointsMediumType.RGBA32F]: PixelFormat.RGBA32F,
@@ -67,19 +110,37 @@ const v3_1 = new Vec3();
 const qt_1 = new Quat();
 const v3_2 = new Vec3();
 
-const dq_0 = new Quat();
-const dq_1 = new Quat();
-const m4_1 = new Mat4();
+// change here and cc-skinning.inc to use other skinning algorithms
+const uploadJointData = uploadJointDataDQS;
+let defaultJointsTexture: Texture2D | null = null;
 
 /**
  * 骨骼资源。
- * 骨骼资源记录了每个关节（相对于`SkinningModelComponent.SkinningRoot`）的路径以及它的绑定姿势矩阵。
+ * 骨骼资源记录了每个关节（相对于`SkinningModelComponent.skinningRoot`）的路径以及它的绑定姿势矩阵。
  */
 @ccclass('cc.Skeleton')
 export class Skeleton extends Asset {
 
-    // change here and cc-skinning.inc to use other skinning algorithms
-    public uploadJointData = this.uploadJointDataDQS;
+    /**
+     * 获取默认骨骼贴图
+     */
+    public static getDefaultJointsTexture (device: GFXDevice) {
+        if (defaultJointsTexture) { return defaultJointsTexture; }
+        defaultJointsTexture = new Texture2D();
+        defaultJointsTexture.setFilters(Filter.NEAREST, Filter.NEAREST);
+        defaultJointsTexture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
+        const type = selectJointsMediumType(device);
+        const format = _jointsFormat[type];
+        const width = Math.ceil(12 * 4 / GFXFormatInfos[format].size);
+        defaultJointsTexture.reset({ width, height: 1, format });
+        vec3.set(v3_1, 0, 0, 0);
+        quat.set(qt_1, 0, 0, 0, 1);
+        vec3.set(v3_2, 1, 1, 1);
+        const textureBuffer = new Float32Array(width * 4);
+        uploadJointData(textureBuffer, 0, v3_1, qt_1, v3_2, true);
+        defaultJointsTexture.uploadData(textureBuffer.buffer);
+        return defaultJointsTexture;
+    }
 
     @property([CCString])
     private _joints: string[] = [];
@@ -137,35 +198,9 @@ export class Skeleton extends Asset {
     }
 
     /**
-     * 获取默认绑定姿势的骨骼贴图
-     */
-    public getBindposeTexture (device: GFXDevice) {
-        let texture = this._jointsTextures.get(null);
-        if (texture) { return texture; }
-        texture = new Texture2D();
-        texture.setFilters(Filter.NEAREST, Filter.NEAREST);
-        texture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
-        const type = selectJointsMediumType(device);
-        const format = _jointsFormat[type];
-        const width = Math.ceil(12 * 4 / GFXFormatInfos[format].size);
-        const height = this.joints.length;
-        texture.reset({ width, height, format });
-        vec3.set(v3_1, 0, 0, 0);
-        quat.set(qt_1, 0, 0, 0, 1);
-        vec3.set(v3_2, 1, 1, 1);
-        const textureBuffer = new Float32Array(width * height * 4);
-        for (let i = 0; i < this.joints.length; i++) {
-            this.uploadJointData(textureBuffer, 12 * i, v3_1, qt_1, v3_2, i === 0);
-        }
-        texture.uploadData(textureBuffer.buffer);
-        this._jointsTextures.set(null, texture);
-        return texture;
-    }
-
-    /**
      * 获取指定动画片段的骨骼贴图
      */
-    public getJointsTexture (device: GFXDevice, clip: SkeletalAnimationClip) {
+    public getJointsTextureWithClip (device: GFXDevice, clip: SkeletalAnimationClip) {
         let texture = this._jointsTextures.get(clip);
         if (texture) { return texture; }
         texture = new Texture2D();
@@ -195,51 +230,12 @@ export class Skeleton extends Asset {
                 vec3.add(v3_1, v3_1, T);
                 quat.multiply(qt_1, R, bindpose.rotation);
                 vec3.multiply(v3_2, S, bindpose.scale);
-                this.uploadJointData(textureBuffer, 12 * (frames * i + frame), v3_1, qt_1, v3_2, i === 0);
+                uploadJointData(textureBuffer, 12 * (frames * i + frame), v3_1, qt_1, v3_2, i === 0);
             }
         }
         texture.uploadData(textureBuffer.buffer);
         this._jointsTextures.set(clip, texture);
         return texture;
-    }
-
-    // Linear Blending Skinning
-    protected uploadJointDataLBS (out: Float32Array, base: number, pos: Vec3, rot: Quat, scale: Vec3, firstBone: boolean) {
-        mat4.fromRTS(m4_1, rot, pos, scale);
-        out[base + 0] = m4_1.m00;
-        out[base + 1] = m4_1.m01;
-        out[base + 2] = m4_1.m02;
-        out[base + 3] = m4_1.m12;
-        out[base + 4] = m4_1.m04;
-        out[base + 5] = m4_1.m05;
-        out[base + 6] = m4_1.m06;
-        out[base + 7] = m4_1.m13;
-        out[base + 8] = m4_1.m08;
-        out[base + 9] = m4_1.m09;
-        out[base + 10] = m4_1.m10;
-        out[base + 11] = m4_1.m14;
-    }
-
-    // Dual Quaternion Skinning
-    protected uploadJointDataDQS (out: Float32Array, base: number, pos: Vec3, rot: Quat, scale: Vec3, firstBone: boolean) {
-        // sign consistency
-        if (firstBone) { quat.copy(dq_0, rot); }
-        else if (quat.dot(dq_0, rot) < 0) { quat.scale(rot, rot, -1); }
-        // conversion
-        quat.set(dq_1, pos.x, pos.y, pos.z, 0);
-        quat.scale(dq_1, quat.multiply(dq_1, dq_1, rot), 0.5);
-        // upload
-        out[base + 0] = rot.x;
-        out[base + 1] = rot.y;
-        out[base + 2] = rot.z;
-        out[base + 3] = rot.w;
-        out[base + 4] = dq_1.x;
-        out[base + 5] = dq_1.y;
-        out[base + 6] = dq_1.z;
-        out[base + 7] = dq_1.w;
-        out[base + 8] = scale.x;
-        out[base + 9] = scale.y;
-        out[base + 10] = scale.z;
     }
 }
 
