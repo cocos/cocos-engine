@@ -30,14 +30,14 @@ interface BaseItem {
     default?: boolean;
 }
 
-interface SimpleItem extends BaseItem {
+export interface SimpleItem extends BaseItem {
     /**
      * Entry to the module.
      */
     entry: string;
 }
 
-interface GroupItem extends BaseItem {
+export interface GroupItem extends BaseItem {
     /**
      * Options.
      */
@@ -65,4 +65,4 @@ interface GroupItem extends BaseItem {
     defaultOption?: number;
 }
 
-type Item = SimpleItem | GroupItem;
+export type Item = SimpleItem | GroupItem;

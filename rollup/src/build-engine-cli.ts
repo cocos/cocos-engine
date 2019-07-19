@@ -52,15 +52,21 @@ build(options).then(
 );
 
 function getDefaultModuleEntries () {
-    const divisionConfig = require('../../scripts/module-division/division-config.json');
+    type ModuleDivision = import('../../scripts/module-division/tools/division-config').ModuleDivision;
+    type GroupItem = import('../../scripts/module-division/tools/division-config').GroupItem;
+    type Item = import('../../scripts/module-division/tools/division-config').Item;
+
+    const isGroupItem = (item: Item): item is GroupItem => {
+        return 'options' in item;
+    };
+
+    const divisionConfig: ModuleDivision = require('../../scripts/module-division/division-config.json');
     const result = [];
     for (const item of divisionConfig.items) {
-        if (item.options) {
-            if (item.default !== undefined && item.default >= 0) {
-                result.push(item.options[item.default].entry);
-            }
-        } else {
-            if (item.default) {
+        if (item.required || item.default) {
+            if (isGroupItem(item)) {
+                result.push(item.options[item.defaultOption || 0].entry);
+            } else {
                 result.push(item.entry);
             }
         }
