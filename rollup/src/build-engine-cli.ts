@@ -79,7 +79,6 @@ build(options).then(
         console.log(`Build successful.`);
         fs.ensureDirSync(ps.dirname(options.outputPath));
         fs.writeFileSync(options.outputPath, result.code);
-        console.log(`With map? ${!!result.map}`);
         if (result.map) {
             fs.writeFileSync(`${options.outputPath}.map`, result.map);
         }
