@@ -3,8 +3,7 @@
  * @category animation
  */
 
-import { AnimationClip, AnimationState } from '../animation';
-import { CrossFade } from '../animation/cross-fade';
+import { Component } from '../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../core/data/class-decorator';
 import { Event, EventTarget } from '../core/event';
 import { CallbacksInvoker, ICallbackTable } from '../core/event/callbacks-invoker';
@@ -13,7 +12,9 @@ import { warnID } from '../core/platform/CCDebug';
 import * as ArrayUtils from '../core/utils/array';
 import { createMap } from '../core/utils/js-typed';
 import { ccenum } from '../core/value-types/enum';
-import { Component } from './component';
+import { AnimationClip } from './animation-clip';
+import { AnimationState } from './animation-state';
+import { CrossFade } from './cross-fade';
 
 /**
  * @en The event type supported by Animation
