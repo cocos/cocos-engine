@@ -636,9 +636,11 @@ let Label = cc.Class({
             } else if (!this._ttfTexture) {
                 this._ttfTexture = new cc.Texture2D();
                 this._assemblerData = this._assembler._getAssemblerData();
-                this._ttfTexture.on('load', function () {
+                function onTextureLoaded () {
                     self._assembler && self._assembler._resetAssemblerData && self._assembler._resetAssemblerData(self._assemblerData);
-                });
+                    self._ttfTexture.off('load', onTextureLoaded);
+                }
+                this._ttfTexture.on('load', onTextureLoaded);
                 this._ttfTexture.initWithElement(this._assemblerData.canvas);
             } 
 
