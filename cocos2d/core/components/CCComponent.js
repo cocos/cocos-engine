@@ -352,7 +352,7 @@ var Component = cc.Class({
      * 传入参数也可以是脚本的名称。
      *
      * @method getComponent
-     * @param {Function|String} typeOrClassName
+     * @param {Componnet|Function|String} typeOrClassName
      * @return {Component}
      * @example
      * // get sprite component.

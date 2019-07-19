@@ -610,9 +610,9 @@ function initSys () {
      * @param name
      */
     sys.glExtension = function (name) {
-        if ((CC_WECHATGAME || isBaiduGame) && name === 'OES_texture_float') {
-            return false;
-        }
+        // if ((CC_WECHATGAME || isBaiduGame) && name === 'OES_texture_float') {
+        //     return false;
+        // }
         return !!cc.renderer.device.ext(name);
     }
 
