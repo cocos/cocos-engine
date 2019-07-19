@@ -408,10 +408,7 @@ let actions = {
      * 添加一个队列 action
      * @method sequence
      * @param {Action|Tween} action
-     * @param {Action|Tween} [action]
-     * @param {Action|Tween} [action]
-     * @param {Action|Tween} [action]
-     * @param {Action|Tween} [action]
+     * @param {Action|Tween} ...actions
      * @return {Tween}
      */
     sequence: wrapAction(cc.sequence),
@@ -422,10 +419,7 @@ let actions = {
      * 添加一个并行 action
      * @method parallel
      * @param {Action|Tween} action
-     * @param {Action|Tween} [action]
-     * @param {Action|Tween} [action]
-     * @param {Action|Tween} [action]
-     * @param {Action|Tween} [action]
+     * @param {Action|Tween} ...actions
      * @return {Tween}
      */
     parallel: wrapAction(cc.spawn)
