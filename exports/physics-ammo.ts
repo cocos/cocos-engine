@@ -1,2 +1,2 @@
 
-import '../cocos/3d/physics/ammo/instantiate';
+// import '../cocos/3d/physics/ammo/instantiate';
