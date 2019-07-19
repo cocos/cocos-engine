@@ -411,7 +411,7 @@ export class EditBoxImpl {
             Vec3.set(_vec3, -transform.anchorX * transform.width, -transform.anchorY * transform.height, _vec3.z);
         }
 
-        Mat4.translate(_matrix, _matrix, _vec3);
+        Mat4.transform(_matrix, _matrix, _vec3);
 
         // let camera;
         // can't find camera in editor
