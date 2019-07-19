@@ -82,7 +82,7 @@ export class SkinningModel extends Model {
     public bindSkeleton (skeleton: Skeleton | null, skinningRoot: Node | null) {
         this._skeleton = skeleton;
         if (!skeleton || !skinningRoot) { return; }
-        this._transform = skinningRoot.parent!;
+        this._transform = skinningRoot;
         this._applyJointTexture(skeleton.getBindposeTexture(this._device));
     }
 
