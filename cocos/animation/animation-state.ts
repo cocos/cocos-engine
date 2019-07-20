@@ -11,11 +11,19 @@ import { AnimCurve, CurveTarget, RatioSampler } from './animation-curve';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 
+enum PropertySpecialization {
+    NodePosition,
+    NodeScale,
+    NodeRotation,
+    None,
+}
+
 class ICurveInstance {
     private _curve: AnimCurve;
     private _target: CurveTarget;
     private _isNodeTarget: boolean;
     private _property: string;
+    private _propertySpecialization: PropertySpecialization;
     private _blendTarget: PropertyBlendState | null;
     private _cached?: any[];
 
@@ -23,6 +31,20 @@ class ICurveInstance {
         this._curve = curve;
         this._target = target;
         this._isNodeTarget = target instanceof Node;
+        this._propertySpecialization = PropertySpecialization.None;
+        if (target instanceof Node) {
+            switch (property) {
+                case 'position':
+                    this._propertySpecialization = PropertySpecialization.NodePosition;
+                    break;
+                case 'rotation':
+                    this._propertySpecialization = PropertySpecialization.NodeRotation;
+                    break;
+                case 'scale':
+                    this._propertySpecialization = PropertySpecialization.NodeScale;
+                    break;
+            }
+        }
         this._property = property;
         this._blendTarget = blendTarget;
     }
@@ -57,18 +79,19 @@ class ICurveInstance {
 
     private _setValue (value: any, weight: number) {
         if (!this._curve._blendFunction || !this._blendTarget || this._blendTarget.refCount <= 1) {
-            if (this._isNodeTarget) {
-                if (this._property === 'position') {
+            switch (this._propertySpecialization) {
+                case PropertySpecialization.NodePosition:
                     this._target.setPosition(value);
-                } else if (this._property === 'rotation') {
+                    break;
+                case PropertySpecialization.NodeRotation:
                     this._target.setRotation(value);
-                } else if (this._property === 'scale') {
+                    break;
+                case PropertySpecialization.NodeScale:
                     this._target.setScale(value);
-                } else {
+                    break;
+                default:
                     this._target[this._property] = value;
-                }
-            } else {
-                this._target[this._property] = value;
+                    break;
             }
         } else {
             this._blendTarget.value = this._curve._blendFunction(value, weight, this._blendTarget);
