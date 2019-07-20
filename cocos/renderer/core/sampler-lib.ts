@@ -107,7 +107,6 @@ class SamplerLib {
         */
         const cache = this._cache[hash];
         if (cache) { return cache; }
-<<<<<<< HEAD
 
         if (hash === 0) {
             hash = genSamplerHash(defaultInfo);
@@ -126,19 +125,6 @@ class SamplerLib {
         gfxInfo.mipLODBias    = ((hash >> 28) & 15);
         gfxInfo.borderColor = { r: 0, g: 0, b: 0, a: 0 };
 
-=======
-        gfxInfo.minFilter     = (hash & 4);
-        gfxInfo.magFilter     = ((hash >> 2) & 4);
-        gfxInfo.mipFilter     = ((hash >> 4) & 4);
-        gfxInfo.addressU      = ((hash >> 6) & 4);
-        gfxInfo.addressV      = ((hash >> 8) & 4);
-        gfxInfo.addressW      = ((hash >> 10) & 4);
-        gfxInfo.maxAnisotropy = ((hash >> 12) & 16);
-        gfxInfo.cmpFunc       = ((hash >> 16) & 16);
-        gfxInfo.minLOD        = ((hash >> 20) & 16);
-        gfxInfo.maxLOD        = ((hash >> 24) & 16);
-        gfxInfo.mipLODBias    = ((hash >> 28) & 16);
->>>>>>> optimize samplerLib.getSampler()
         const sampler = this._cache[hash] = device.createSampler(gfxInfo);
         return sampler;
     }
