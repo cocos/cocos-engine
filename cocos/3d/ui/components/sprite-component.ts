@@ -487,7 +487,7 @@ export class SpriteComponent extends UIRenderComponent {
     private _applySpriteSize () {
         if (this._spriteFrame) {
             if (SizeMode.RAW === this._sizeMode) {
-                const size = this._spriteFrame.getOriginalSize();
+                const size = this._spriteFrame.originalSize;
                 this.node.setContentSize(size);
             } else if (SizeMode.TRIMMED === this._sizeMode) {
                 const rect = this._spriteFrame.getRect();
@@ -597,6 +597,13 @@ export class SpriteComponent extends UIRenderComponent {
         //     // disable render flow until texture is loaded
         //     this.markForRender(false);
         // }
+
+        if (oldFrame && spriteFrame) {
+            this._renderData!.uvDirty = oldFrame.uvHash !== spriteFrame.uvHash;
+        }
+        else {
+            this._renderData!.uvDirty = true;
+        }
 
         if (spriteFrame) {
             if (!oldFrame || spriteFrame !== oldFrame) {

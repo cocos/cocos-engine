@@ -35,6 +35,7 @@ import { Rect, Size, Vec2 } from '../core/value-types';
 import { ImageAsset } from './image-asset';
 import { ITexture2DSerializeData, Texture2D } from './texture-2d';
 import * as textureUtil from './texture-util';
+import { murmurhash2_32_gc } from '../core/utils/murmurhash2_gc';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -281,6 +282,7 @@ export class SpriteFrame extends Texture2D {
      * 不带裁切的 UV。
      */
     public uv: number[] = [];
+    public uvHash: number = 0;
 
     /**
      * @zh
@@ -732,6 +734,12 @@ export class SpriteFrame extends Texture2D {
             uv[6] = r;
             uv[7] = t;
         }
+
+        let uvHashStr = '';
+        for (let i = 0; i < uv.length; i++) {
+            uvHashStr += uv[i];
+        }
+        this.uvHash = murmurhash2_32_gc(uvHashStr, 666);
 
         const vertices = this.vertices;
         if (vertices) {
