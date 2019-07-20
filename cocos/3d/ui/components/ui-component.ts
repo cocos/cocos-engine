@@ -81,11 +81,14 @@ export class UIComponent extends Component {
         if (this._lastParent) {
             this.node.on(SystemEventType.CHILD_REMOVED, this._parentChanged, this);
         }
-
+        this.node._uiComp = this;
     }
 
     public onDisable () {
         this._cancelEventFromParent();
+        if (this.node._uiComp === this) {
+            this.node._uiComp = null;
+        }
     }
 
     public updateAssembler (render: UI) {

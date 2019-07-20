@@ -212,7 +212,9 @@ export class UI {
      * @param visibility - 屏幕编号。
      */
     public getScreen (visibility: number) {
-        for (const screen of this._screens) {
+        let screens = this._screens;
+        for (let i = 0; i < screens.length; ++i) {
+            let screen = screens[i];
             if (screen.camera) {
                 if (screen.camera.view.visibility === visibility) {
                     return screen;
@@ -258,7 +260,9 @@ export class UI {
 
         // update buffers
         if (this._batches.length > 0) {
-            for (const bufferBatch of this._meshBuffers) {
+            let buffers = this._meshBuffers;
+            for (let i = 0; i < buffers.length; ++i) {
+                const bufferBatch = buffers[i];
                 bufferBatch.uploadData();
                 bufferBatch.reset();
             }
@@ -451,22 +455,23 @@ export class UI {
         this._uiMaterials.clear();
     }
 
-    private _walk (node: Node, fn1: (node: Node) => void, fn2: (node: Node) => void, level = 0) {
+    private _walk (node: Node, level = 0) {
         let resortNodeList;
 
         const len = node.childrenCount;
 
-        fn1(node);
+        this._preprocess(node);
         if (len > 0) {
             resortNodeList = this._defineNodeOrder(node);
-            for (const comp of resortNodeList) {
-                this._walk(comp, fn1, fn2, level);
+            for (let i = 0; i < resortNodeList.length; ++i) {
+                let node = resortNodeList[i];
+                this._walk(node, level);
             }
 
             this._sortChildList.free(resortNodeList);
         }
 
-        fn2(node);
+        this._postprocess(node);
         level += 1;
     }
 
@@ -475,8 +480,8 @@ export class UI {
         sortList = node.children.slice();
 
         sortList.sort((a, b) => {
-            const aComp = a.getComponent(UIComponent);
-            const bComp = b.getComponent(UIComponent);
+            const aComp = a._uiComp;
+            const bComp = b._uiComp;
             const ca = aComp ? aComp.priority : 0;
             const cb = bComp ? bComp.priority : 0;
             return ca - cb;
@@ -486,7 +491,9 @@ export class UI {
     }
 
     private _renderScreens () {
-        for (const screen of this._screens) {
+        let screens = this._screens;
+        for (let i = 0; i < screens.length; ++i) {
+            let screen = screens[i];
             if (!screen.enabledInHierarchy) {
                 continue;
             }
@@ -498,19 +505,24 @@ export class UI {
             this._recursiveScreenNode(this._debugScreen.node);
         }
     }
+    
+    private _preprocess (c: Node) {
+        // ts-ignore
+        let render = c._uiComp;
+        if (render && render.enabledInHierarchy) {
+            render.updateAssembler(this);
+        }
+    }
+
+    private _postprocess (c: Node) {
+        let render = c._uiComp;
+        if (render && render.enabledInHierarchy) {
+            render.postUpdateAssembler(this);
+        }
+    }
 
     private _recursiveScreenNode (screen: Node) {
-        this._walk(screen, (c: Node) => {
-            const render = c.getComponent(UIComponent);
-            if (render && render.enabledInHierarchy) {
-                render.updateAssembler(this);
-            }
-        }, (c: Node) => {
-            const render = c.getComponent(UIComponent);
-            if (render && render.enabledInHierarchy) {
-                render.postUpdateAssembler(this);
-            }
-        });
+        this._walk(screen);
 
         this.autoMergeBatches();
     }
