@@ -124,14 +124,11 @@ class EventManager {
     private _listenersMap: IListenersMap = {};
     private _priorityDirtyFlagMap: IPriorityFlag = {};
     private _nodeListenersMap: INodeListener = {};
-    private _nodePriorityMap = js.createMap(true);
-    private _globalZOrderNodeMap: string[] = [];
     private _toAddedListeners: EventListener[] = [];
     private _toRemovedListeners: EventListener[] = [];
-    private _dirtyNodes: Node[] = [];
+    private _dirtyListeners: Node[] = [];
     private _inDispatch = 0;
     private _isEnabled = false;
-    private _nodePriorityIndex = 0;
     private _internalCustomListenerIDs: string[] = [];
 
     /**
@@ -354,10 +351,10 @@ class EventManager {
 
         if (!isFound) {
             const locToAddedListeners = this._toAddedListeners;
-            for (let i = 0, len = locToAddedListeners.length; i < len; i++) {
+            for (let i = locToAddedListeners.length - 1; i >= 0; i--) {
                 const selListener = locToAddedListeners[i];
                 if (selListener === listener) {
-                    cc.js.array.remove(locToAddedListeners, selListener);
+                    cc.js.array.removeAt(locToAddedListeners, i);
                     selListener._setRegistered(false);
                     break;
                 }
@@ -392,8 +389,6 @@ class EventManager {
         if (listenerType._id !== undefined) {
             // Ensure the node is removed from these immediately also.
             // Don't want any dangling pointers or the possibility of dealing with deleted objects..
-            delete this._nodePriorityMap[listenerType._id];
-            cc.js.array.remove(this._dirtyNodes, listenerType);
             const listeners = this._nodeListenersMap[listenerType._id];
             if (listeners) {
                 const listenersCopy = cc.js.array.copy(listeners);
@@ -598,8 +593,15 @@ class EventManager {
 
     private _setDirtyForNode (node: Node) {
         // Mark the node dirty only when there is an event listener associated with it.
-        if (this._nodeListenersMap[node.uuid] !== undefined) {
-            this._dirtyNodes.push(node);
+        const selListeners = this._nodeListenersMap[node._id];
+        if (selListeners !== undefined) {
+            for (let j = 0, len = selListeners.length; j < len; j++) {
+                const selListener = selListeners[j];
+                const listenerID = selListener._getListenerID();
+                if (this._dirtyListeners[listenerID] == null) {
+                    this._dirtyListeners[listenerID] = true;
+                }
+            }
         }
         if (node.children.length > 0) {
             const _children = node.children;
@@ -648,24 +650,12 @@ class EventManager {
     }
 
     private _updateDirtyFlagForSceneGraph () {
-        if (this._dirtyNodes.length === 0) {
-            return;
+        const locDirtyListeners = this._dirtyListeners;
+        // tslint:disable-next-line: forin
+        for (const selKey in locDirtyListeners) {
+            this._setDirty(selKey, DIRTY_SCENE_GRAPH_PRIORITY);
         }
-
-        const locDirtyNodes = this._dirtyNodes;
-        const locNodeListenersMap = this._nodeListenersMap;
-        for (let i = 0, len = locDirtyNodes.length; i < len; i++) {
-            const selListeners = locNodeListenersMap[locDirtyNodes[i]._id];
-            if (selListeners) {
-                for (let j = 0, listenersLen = selListeners.length; j < listenersLen; j++) {
-                    const selListener = selListeners[j];
-                    if (selListener) {
-                        this._setDirty(selListener._getListenerID(), DIRTY_SCENE_GRAPH_PRIORITY);
-                    }
-                }
-            }
-        }
-        this._dirtyNodes.length = 0;
+        this._dirtyListeners.length = 0;
     }
 
     private _removeAllListenersInVector (listenerVector: EventListener[]) {
@@ -673,7 +663,7 @@ class EventManager {
             return;
         }
         let selListener;
-        for (let i = 0; i < listenerVector.length;) {
+        for (let i = listenerVector.length - 1; i >= 0; i--) {
             selListener = listenerVector[i];
             selListener._setRegistered(false);
             if (selListener._getSceneGraphPriority() != null) {
@@ -682,9 +672,7 @@ class EventManager {
             }
 
             if (this._inDispatch === 0) {
-                cc.js.array.remove(listenerVector, selListener);
-            } else {
-                ++i;
+                cc.js.array.removeAt(listenerVector, i);
             }
         }
     }
@@ -709,12 +697,10 @@ class EventManager {
         }
 
         const locToAddedListeners = this._toAddedListeners;
-        for (let i = 0; i < locToAddedListeners.length;) {
+        for (let i = locToAddedListeners.length - 1; i >= 0; i--) {
             const listener = locToAddedListeners[i];
             if (listener && listener._getListenerID() === listenerID) {
-                cc.js.array.remove(locToAddedListeners, listener);
-            } else {
-                ++i;
+                cc.js.array.removeAt(locToAddedListeners, i);
             }
         }
     }
@@ -737,13 +723,13 @@ class EventManager {
             if (dirtyFlag & DIRTY_SCENE_GRAPH_PRIORITY) {
                 const rootEntity = cc.director.getScene();
                 if (rootEntity) {
-                    this._sortListenersOfSceneGraphPriority(listenerID, rootEntity);
+                    this._sortListenersOfSceneGraphPriority(listenerID);
                 }
             }
         }
     }
 
-    private _sortListenersOfSceneGraphPriority (listenerID: string, rootNode: any) {
+    private _sortListenersOfSceneGraphPriority (listenerID: string) {
         const listeners = this._getListeners(listenerID);
         if (!listeners) {
             return;
@@ -754,26 +740,36 @@ class EventManager {
             return;
         }
 
-        // Reset priority index
-        this._nodePriorityIndex = 0;
-        this._nodePriorityMap = js.createMap(true);
-
-        this._visitTarget(rootNode, true);
-
         // After sort: priority < 0, > 0
         listeners.getSceneGraphPriorityListeners().sort(this._sortEventListenersOfSceneGraphPriorityDes);
     }
 
     private _sortEventListenersOfSceneGraphPriorityDes (l1: EventListener, l2: EventListener) {
-        const locNodePriorityMap = eventManager._nodePriorityMap;
         const node1 = l1._getSceneGraphPriority();
         const node2 = l2._getSceneGraphPriority();
-        if (!l2 || !node2 || !locNodePriorityMap[node2._id]) {
+        if (!l2 || !node2 || node2.parent === null) {
             return -1;
-        } else if (!l1 || !node1 || !locNodePriorityMap[node1._id]) {
+        }
+        else if (!l1 || !node1 || node1.parent === null) {
             return 1;
-             }
-        return locNodePriorityMap[node2._id] - locNodePriorityMap[node1._id];
+        }
+
+        let p1 = node1; let p2 = node2; let ex = false;
+        while (p1.parent._id !== p2.parent._id) {
+            p1 = p1.parent.parent === null ? (ex = true) && node2 : p1.parent;
+            p2 = p2.parent.parent === null ? (ex = true) && node1 : p2.parent;
+        }
+
+        if (p1._id === p2._id) {
+            if (p1._id === node2._id) {
+                return -1;
+            }
+            if (p1._id === node1._id) {
+                return 1;
+            }
+        }
+
+        return ex ? p1._localZOrder - p2._localZOrder : p2._localZOrder - p1._localZOrder;
     }
 
     private _sortListenersOfFixedPriority (listenerID: string) {
@@ -810,33 +806,29 @@ class EventManager {
         const toRemovedListeners = this._toRemovedListeners;
 
         if (sceneGraphPriorityListeners) {
-            for (let i = 0; i < sceneGraphPriorityListeners.length;) {
+            for (let i = sceneGraphPriorityListeners.length - 1; i >= 0; i--) {
                 const selListener = sceneGraphPriorityListeners[i];
                 if (!selListener._isRegistered()) {
-                    cc.js.array.remove(sceneGraphPriorityListeners, selListener);
+                    cc.js.array.removeAt(sceneGraphPriorityListeners, i);
                     // if item in toRemove list, remove it from the list
                     const idx = toRemovedListeners.indexOf(selListener);
                     if (idx !== -1) {
                         toRemovedListeners.splice(idx, 1);
                     }
-                } else {
-                    ++i;
                 }
             }
         }
 
         if (fixedPriorityListeners) {
-            for (let i = 0; i < fixedPriorityListeners.length;) {
+            for (let i = fixedPriorityListeners.length - 1; i >= 0; i--) {
                 const selListener = fixedPriorityListeners[i];
                 if (!selListener._isRegistered()) {
-                    cc.js.array.remove(fixedPriorityListeners, selListener);
+                    cc.js.array.removeAt(fixedPriorityListeners, i);
                     // if item in toRemove list, remove it from the list
                     const idx = toRemovedListeners.indexOf(selListener);
                     if (idx !== -1) {
                         toRemovedListeners.splice(idx, 1);
                     }
-                } else {
-                    ++i;
                 }
             }
         }
@@ -1105,50 +1097,6 @@ class EventManager {
         }
     }
 
-    private _visitTarget (node: any, isRootNode: boolean) {
-        // sortAllChildren is performed the next frame, but the event is executed immediately.
-        if (node._reorderChildDirty) {
-            node.sortAllChildren();
-        }
-        const children = node.children;
-        let i = 0;
-        const  childrenCount = children.length;
-        let locGlobalZOrderNodeMap = this._globalZOrderNodeMap;
-        const locNodeListenersMap = this._nodeListenersMap;
-
-        if (childrenCount > 0) {
-            if (locNodeListenersMap[node._id] !== undefined) {
-                if (!locGlobalZOrderNodeMap) {
-                    locGlobalZOrderNodeMap = [];
-                }
-                locGlobalZOrderNodeMap.push(node._id);
-            }
-
-            let child;
-            for (; i < childrenCount; i++) {
-                child = children[i];
-                if (child) {
-                    this._visitTarget(child, false);
-                }
-            }
-        } else {
-            if (locNodeListenersMap[node._id] !== undefined) {
-                if (!locGlobalZOrderNodeMap) {
-                    locGlobalZOrderNodeMap = [];
-                }
-                locGlobalZOrderNodeMap.push(node._id);
-            }
-        }
-
-        if (isRootNode) {
-            const locNodePriorityMap = this._nodePriorityMap;
-            for (const locGlobalZOrderNode of locGlobalZOrderNodeMap) {
-                locNodePriorityMap[locGlobalZOrderNode] = ++this._nodePriorityIndex;
-            }
-            this._globalZOrderNodeMap.length = 0;
-        }
-    }
-
     private _sortNumberAsc (a: number, b: number) {
         return a - b;
     }
@@ -1158,7 +1106,7 @@ class EventManager {
             return false;
         }
 
-        for (let i = 0, len = listeners.length; i < len; i++) {
+        for (let i = listeners.length - 1; i >= 0; i--) {
             const selListener = listeners[i];
             // @ts-ignore
             if (selListener._onCustomEvent === callback || selListener.onEvent === callback) {
@@ -1170,7 +1118,7 @@ class EventManager {
                 }
 
                 if (this._inDispatch === 0) {
-                    cc.js.array.remove(listeners, selListener);
+                    cc.js.array.removeAt(listeners, i);
                 } else {
                     this._toRemovedListeners.push(selListener);
                 }
@@ -1185,7 +1133,7 @@ class EventManager {
             return false;
         }
 
-        for (let i = 0, len = listeners.length; i < len; i++) {
+        for (let i = listeners.length - 1; i >= 0; i--) {
             const selListener = listeners[i];
             if (selListener === listener) {
                 selListener._setRegistered(false);
@@ -1196,7 +1144,7 @@ class EventManager {
                 }
 
                 if (this._inDispatch === 0) {
-                    cc.js.array.remove(listeners, selListener);
+                    cc.js.array.removeAt(listeners, i);
                 } else {
                     this._toRemovedListeners.push(selListener);
                 }
