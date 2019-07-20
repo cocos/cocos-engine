@@ -102,9 +102,6 @@ export class UI {
     private _meshBufferUseCount = 0;
     private _uiMaterials: Map<number, UIMaterial> = new Map<number, UIMaterial>();
     private _batches: CachedArray<UIDrawBatch>;
-    private _sortChildList: Pool<any[]> = new Pool(() => {
-        return [];
-    }, 128);
     private _uiModelPool: Pool<UIBatchModel> | null = null;
     private _modelInUse: CachedArray<UIBatchModel>;
     // batcher
@@ -456,38 +453,19 @@ export class UI {
     }
 
     private _walk (node: Node, level = 0) {
-        let resortNodeList;
-
         const len = node.childrenCount;
 
         this._preprocess(node);
         if (len > 0) {
-            resortNodeList = this._defineNodeOrder(node);
-            for (let i = 0; i < resortNodeList.length; ++i) {
-                let node = resortNodeList[i];
-                this._walk(node, level);
+            let children = node.children;
+            for (let i = 0; i < children.length; ++i) {
+                let child = children[i];
+                this._walk(child, level);
             }
-
-            this._sortChildList.free(resortNodeList);
         }
 
         this._postprocess(node);
         level += 1;
-    }
-
-    private _defineNodeOrder (node: Node) {
-        let sortList: any[] = this._sortChildList.alloc();
-        sortList = node.children.slice();
-
-        sortList.sort((a, b) => {
-            const aComp = a._uiComp;
-            const bComp = b._uiComp;
-            const ca = aComp ? aComp.priority : 0;
-            const cb = bComp ? bComp.priority : 0;
-            return ca - cb;
-        });
-
-        return sortList;
     }
 
     private _renderScreens () {

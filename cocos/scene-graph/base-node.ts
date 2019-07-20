@@ -36,7 +36,6 @@ import * as js from '../core/utils/js';
 import { baseNodePolyfill } from './base-node-dev';
 import { Scene } from './scene';
 import { CCClass } from '../core/data';
-import { UIComponent } from '../3d';
 
 /**
  *
@@ -384,8 +383,6 @@ export class BaseNode extends CCObject {
      * protected __eventTargets: EventTarget[] = [];
      */
     protected __eventTargets: any[] = [];
-
-    public _uiComp: UIComponent | null = null;
 
     /**
      * @method constructor
