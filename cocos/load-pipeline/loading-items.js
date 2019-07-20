@@ -77,7 +77,8 @@ function createItem (id, queueId) {
         content: null,
         complete: false,
         states: {},
-        deps: null
+        deps: null,
+        isScene: id.uuid && cc.game._sceneInfos.find((info) => info.uuid === id.uuid),
     };
 
     if (typeof id === 'object') {

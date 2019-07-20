@@ -266,7 +266,7 @@ export default class Pipeline {
             // Cache all items first, in case synchronous loading flow same item repeatly
             for (i = 0; i < items.length; i++) {
                 item = items[i];
-                this._cache[item.id] = item;
+                if (!item.isScene) this._cache[item.id] = item;
             }
             for (i = 0; i < items.length; i++) {
                 item = items[i];
@@ -309,7 +309,7 @@ export default class Pipeline {
         if (item.error) {
             delete this._cache[item.id];
         }
-        else if (!this._cache[item.id]) {
+        else if (!this._cache[item.id] && !item.isScene) {
             this._cache[item.id] = item;
         }
         item.complete = true;
