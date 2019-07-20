@@ -80,7 +80,7 @@ namespace se {
 
     void ObjectWrap::makeWeak() {
         persistent().SetWeak(this, weakCallback, v8::WeakCallbackType::kFinalizer);
-        persistent().MarkIndependent();
+//        persistent().MarkIndependent();
     }
 
 
