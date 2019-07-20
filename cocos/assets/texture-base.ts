@@ -30,17 +30,17 @@
 
 // @ts-check
 import {ccclass, property} from '../core/data/class-decorator';
+import { error } from '../core/platform/CCDebug';
 import IDGenerator from '../core/utils/id-generator';
 import { GFXBufferTextureCopy, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
 import { GFXTexture, IGFXTextureInfo } from '../gfx/texture';
 import { GFXTextureView, IGFXTextureViewInfo } from '../gfx/texture-view';
-import { SamplerInfoIndex } from '../renderer/core/sampler-lib';
+import { genSamplerHash, SamplerInfoIndex, samplerLib } from '../renderer/core/sampler-lib';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { postLoadImage } from './texture-util';
-import { error } from '../core/platform/CCDebug';
 
 const CHAR_CODE_1 = 49;    // '1'
 
@@ -162,18 +162,14 @@ export class TextureBase extends Asset {
     protected _anisotropy = 16;
 
     protected _texture: GFXTexture | null = null;
-
     protected _textureView: GFXTextureView | null = null;
 
     private _potientialWidth: number = 0;
-
     private _potientialHeight: number = 0;
-
     private _mipmapLevel: number = 1;
-
     private _id: string;
-
     private _samplerInfo: Array<number | undefined> = [];
+    private _samplerHash: number = 0;
 
     protected constructor (flipY: boolean = false) {
         super();
@@ -279,10 +275,15 @@ export class TextureBase extends Asset {
      * @param wrapR R(W) 坐标的采样模式。
      */
     public setWrapMode (wrapS: WrapMode, wrapT: WrapMode, wrapR?: WrapMode) {
-        this._wrapS = wrapS; this._samplerInfo[SamplerInfoIndex.addressU] = wrapS;
-        this._wrapT = wrapT; this._samplerInfo[SamplerInfoIndex.addressV] = wrapT;
-        if (wrapR === undefined) { return; }
-        this._wrapR = wrapR; this._samplerInfo[SamplerInfoIndex.addressW] = wrapR;
+        this._wrapS = wrapS;
+        this._samplerInfo[SamplerInfoIndex.addressU] = wrapS;
+        this._wrapT = wrapT;
+        this._samplerInfo[SamplerInfoIndex.addressV] = wrapT;
+        if (wrapR !== undefined) {
+            this._wrapR = wrapR;
+            this._samplerInfo[SamplerInfoIndex.addressW] = wrapR;
+        }
+        this._samplerHash = genSamplerHash(this._samplerInfo);
     }
 
     /**
@@ -291,8 +292,11 @@ export class TextureBase extends Asset {
      * @param magFilter 放大过滤算法。
      */
     public setFilters (minFilter: Filter, magFilter: Filter) {
-        this._minFilter = minFilter; this._samplerInfo[SamplerInfoIndex.minFilter] = minFilter;
-        this._magFilter = magFilter; this._samplerInfo[SamplerInfoIndex.magFilter] = magFilter;
+        this._minFilter = minFilter;
+        this._samplerInfo[SamplerInfoIndex.minFilter] = minFilter;
+        this._magFilter = magFilter;
+        this._samplerInfo[SamplerInfoIndex.magFilter] = magFilter;
+        this._samplerHash = genSamplerHash(this._samplerInfo);
     }
 
     /**
@@ -300,8 +304,10 @@ export class TextureBase extends Asset {
      * @param mipFilter mip 过滤算法。
      */
     public setMipFilter (mipFilter: Filter) {
-        this._mipFilter = mipFilter; this._samplerInfo[SamplerInfoIndex.mipFilter] = mipFilter;
+        this._mipFilter = mipFilter;
+        this._samplerInfo[SamplerInfoIndex.mipFilter] = mipFilter;
         this._samplerInfo[SamplerInfoIndex.maxLOD] = mipFilter === Filter.NONE ? 0 : 1000; // WebGL2 on some platform need this
+        this._samplerHash = genSamplerHash(this._samplerInfo);
     }
 
     /**
@@ -325,7 +331,9 @@ export class TextureBase extends Asset {
      * @param anisotropy 各向异性。
      */
     public setAnisotropy (anisotropy: number) {
-        this._anisotropy = anisotropy; this._samplerInfo[SamplerInfoIndex.maxAnisotropy] = anisotropy;
+        this._anisotropy = anisotropy;
+        this._samplerInfo[SamplerInfoIndex.maxAnisotropy] = anisotropy;
+        this._samplerHash = genSamplerHash(this._samplerInfo);
     }
 
     /**
@@ -354,8 +362,8 @@ export class TextureBase extends Asset {
      * 获取此贴图内部使用的 GFX 采样器信息。
      * @private
      */
-    public getGFXSamplerInfo () {
-        return this._samplerInfo;
+    public getSamplerHash () {
+        return this._samplerHash;
     }
 
     // SERIALIZATION

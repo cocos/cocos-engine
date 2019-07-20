@@ -406,14 +406,14 @@ export class Pass {
         const device = this._device;
         for (const u of this._shaderInfo.samplers) {
             const inf = this._properties[u.name];
-            if (inf && inf.sampler) { this._samplers[u.binding] = samplerLib.getSampler(device, inf.sampler); }
+            if (inf && (inf.samplerHash !== undefined)) { this._samplers[u.binding] = samplerLib.getSampler(device, inf.samplerHash); }
             const texName = inf && inf.value ? inf.value + '-texture' : _type2default[u.type];
             const texture = builtinResMgr.get<TextureBase>(texName);
             if (texture) {
                 this._textureViews[u.binding] = texture.getGFXTextureView()!;
-                const samplerInfo = texture.getGFXSamplerInfo();
-                if (!this._samplers[u.binding] || samplerInfo.length) {
-                    this._samplers[u.binding] = samplerLib.getSampler(device, samplerInfo);
+                const samplerHash = texture.getSamplerHash();
+                if (!this._samplers[u.binding] || samplerHash > 0) {
+                    this._samplers[u.binding] = samplerLib.getSampler(device, samplerHash);
                 }
             } else { console.warn('illegal texture default value ' + texName); }
         }
