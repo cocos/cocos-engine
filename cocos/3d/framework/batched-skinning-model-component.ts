@@ -26,7 +26,6 @@
  * @category model
  */
 
-import { AnimationComponent } from '../../animation/animation-component';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { Texture2D } from '../../assets/texture-2d';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
