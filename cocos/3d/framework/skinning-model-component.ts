@@ -27,6 +27,7 @@
  * @category model
  */
 
+import { AnimationComponent } from '../../animation/animation-component';
 import { SkeletalAnimationClip } from '../../animation/skeletal-animation-clip';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { GFXDevice } from '../../gfx/device';
@@ -91,6 +92,15 @@ export class SkinningModelComponent extends ModelComponent {
     get frameID () {
         if (this._model) { return (this._model as SkinningModel).getFrameID(); }
         return 0;
+    }
+
+    public onLoad () {
+        super.onLoad();
+        if (this._skinningRoot && this._skinningRoot.getComponent(AnimationComponent)) { return; }
+        // find the lowest AnimationComponent node as the new skinning root
+        let root: Node | null = this.node;
+        while (root && !root.getComponent(AnimationComponent)) { root = root.parent; }
+        this._skinningRoot = root;
     }
 
     public uploadAnimationClip (clip: SkeletalAnimationClip) {
