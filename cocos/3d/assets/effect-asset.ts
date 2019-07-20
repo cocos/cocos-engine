@@ -179,14 +179,6 @@ export class EffectAsset extends Asset {
         this.shaders.forEach((s) => programLib.define(s));
         cc.game.once(cc.Game.EVENT_ENGINE_INITED, this._precompile, this);
         EffectAsset.register(this);
-        // replace null with undefined
-        this.techniques.forEach((t) => t.passes.forEach((p) => {
-            if (!p.properties) { return; }
-            for (const prop of Object.values(p.properties)) {
-                if (!prop.sampler) { continue; }
-                prop.sampler = prop.sampler.map((s) => s === null ? undefined : s);
-            }
-        }));
     }
 
     protected _precompile () {
