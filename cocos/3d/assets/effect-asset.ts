@@ -40,7 +40,8 @@ import { programLib } from '../../renderer/core/program-lib';
 export interface IPropertyInfo {
     type: number; // auto-extracted
     value?: number[] | string;
-    sampler?: Array<number | undefined>;
+    // sampler?: Array<number | undefined>;
+    samplerHash?: number;
 }
 export interface IPassStates {
     priority?: number;

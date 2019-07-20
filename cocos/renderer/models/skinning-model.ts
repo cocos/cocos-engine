@@ -110,7 +110,7 @@ export class SkinningModel extends Model {
         nativeData[2] = 0;
         if (buffer) { buffer.update(nativeData, UBOSkinningTexture.JOINTS_TEXTURE_SIZE_INV_OFFSET); }
         const view = texture.getGFXTextureView();
-        const sampler = samplerLib.getSampler(this._device, texture.getGFXSamplerInfo());
+        const sampler = samplerLib.getSampler(this._device, texture.getSamplerHash());
         if (!view || !sampler) { console.warn('incomplete skinning texture'); return; }
         for (const submodel of this._subModels) {
             if (!submodel.psos) { continue; }
@@ -126,7 +126,7 @@ export class SkinningModel extends Model {
         const { buffer, texture } = this._jointsMedium;
         pso.pipelineLayout.layouts[0].bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
         const view = texture.getGFXTextureView();
-        const sampler = samplerLib.getSampler(this._device, texture.getGFXSamplerInfo());
+        const sampler = samplerLib.getSampler(this._device, texture.getSamplerHash());
         if (view && sampler) {
             pso.pipelineLayout.layouts[0].bindTextureView(UNIFORM_JOINTS_TEXTURE.binding, view);
             pso.pipelineLayout.layouts[0].bindSampler(UNIFORM_JOINTS_TEXTURE.binding, sampler);
