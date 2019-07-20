@@ -11,12 +11,70 @@ import { AnimCurve, CurveTarget, RatioSampler } from './animation-curve';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 
-interface ICurveInstance {
-    curve: AnimCurve;
-    target: CurveTarget;
-    property: string;
-    blendTarget: PropertyBlendState | null;
-    cached?: any[];
+class ICurveInstance {
+    private _curve: AnimCurve;
+    private _target: CurveTarget;
+    private _isNodeTarget: boolean;
+    private _property: string;
+    private _blendTarget: PropertyBlendState | null;
+    private _cached?: any[];
+
+    constructor (curve: AnimCurve, target: CurveTarget, property: string, blendTarget: PropertyBlendState | null = null) {
+        this._curve = curve;
+        this._target = target;
+        this._isNodeTarget = target instanceof Node;
+        this._property = property;
+        this._blendTarget = blendTarget;
+    }
+
+    public attachToBlendState (blendState: AnimationBlendState) {
+        this._blendTarget = blendState.refPropertyBlendTarget(
+            this._target, this._property);
+    }
+
+    public dettachFromBlendState (blendState: AnimationBlendState) {
+        this._blendTarget = null;
+        blendState.derefPropertyBlendTarget(this._target, this._property);
+    }
+
+    public applySample (ratio: number, index: number, lerpRequired: boolean, samplerResultCache, weight: number) {
+        if (this._curve.empty()) {
+            return;
+        }
+        let value: any;
+        if (!lerpRequired) {
+            value = this._curve.valueAt(index);
+        } else {
+            value = this._curve.valueBetween(
+                ratio,
+                samplerResultCache.from,
+                samplerResultCache.fromRatio,
+                samplerResultCache.to,
+                samplerResultCache.toRatio);
+        }
+        this._setValue(value, weight);
+    }
+
+    private _setValue (value: any, weight: number) {
+        if (!this._curve._blendFunction || !this._blendTarget || this._blendTarget.refCount <= 1) {
+            if (this._isNodeTarget) {
+                if (this._property === 'position') {
+                    this._target.setPosition(value);
+                } else if (this._property === 'rotation') {
+                    this._target.setRotation(value);
+                } else if (this._property === 'scale') {
+                    this._target.setScale(value);
+                } else {
+                    this._target[this._property] = value;
+                }
+            } else {
+                this._target[this._property] = value;
+            }
+        } else {
+            this._blendTarget.value = this._curve._blendFunction(value, weight, this._blendTarget);
+            this._blendTarget.weight += weight;
+        }
+    }
 }
 
 /**
@@ -274,12 +332,8 @@ export class AnimationState extends Playable {
                 this._samplerSharedGroups.push(samplerSharedGroup);
             }
 
-            samplerSharedGroup.curves.push({
-                target,
-                property: propertyCurve.propertyName,
-                curve: propertyCurve.curve,
-                blendTarget: null,
-            });
+            samplerSharedGroup.curves.push(new ICurveInstance(
+                propertyCurve.curve, target, propertyCurve.propertyName));
         }
     }
 
@@ -539,8 +593,7 @@ export class AnimationState extends Playable {
     public attachToBlendState (blendState: AnimationBlendState) {
         for (const samplerSharedGroup of this._samplerSharedGroups) {
             for (const curveInstance of samplerSharedGroup.curves) {
-                curveInstance.blendTarget = blendState.refPropertyBlendTarget(
-                    curveInstance.target, curveInstance.property);
+                curveInstance.attachToBlendState(blendState);
             }
         }
     }
@@ -548,9 +601,7 @@ export class AnimationState extends Playable {
     public detachFromBlendState (blendState: AnimationBlendState) {
         for (const samplerSharedGroup of this._samplerSharedGroups) {
             for (const curveInstance of samplerSharedGroup.curves) {
-                curveInstance.blendTarget = null;
-                blendState.derefPropertyBlendTarget(
-                    curveInstance.target, curveInstance.property);
+                curveInstance.dettachFromBlendState(blendState);
             }
         }
     }
@@ -589,7 +640,9 @@ export class AnimationState extends Playable {
     }
 
     private _sampleCurves (ratio: number) {
-        for (const samplerSharedGroup of this._samplerSharedGroups) {
+        for (let iSamplerSharedGroup = 0, szSamplerSharedGroup = this._samplerSharedGroups.length;
+            iSamplerSharedGroup < szSamplerSharedGroup; ++iSamplerSharedGroup) {
+            const samplerSharedGroup = this._samplerSharedGroups[iSamplerSharedGroup];
             const sampler = samplerSharedGroup.sampler;
             const { samplerResultCache } = samplerSharedGroup;
             let index: number = 0;
@@ -614,39 +667,10 @@ export class AnimationState extends Playable {
                 }
             }
 
-            for (const curveInstace of samplerSharedGroup.curves) {
-                if (curveInstace.curve.empty()) {
-                    continue;
-                }
-                let value: any;
-                if (!lerpRequired) {
-                    value = curveInstace.curve.valueAt(index);
-                } else {
-                    value = curveInstace.curve.valueBetween(
-                        ratio,
-                        samplerResultCache.from,
-                        samplerResultCache.fromRatio,
-                        samplerResultCache.to,
-                        samplerResultCache.toRatio);
-                }
-                if (!curveInstace.curve._blendFunction || !curveInstace.blendTarget || curveInstace.blendTarget.refCount <= 1) {
-                    if (curveInstace.target instanceof Node) {
-                        if (curveInstace.property === 'position') {
-                            curveInstace.target.setPosition(value);
-                        } else if (curveInstace.property === 'rotation') {
-                            curveInstace.target.setRotation(value);
-                        } else if (curveInstace.property === 'scale') {
-                            curveInstace.target.setScale(value);
-                        } else {
-                            curveInstace.target[curveInstace.property] = value;
-                        }
-                    } else {
-                        curveInstace.target[curveInstace.property] = value;
-                    }
-                } else {
-                    curveInstace.blendTarget.value = curveInstace.curve._blendFunction(value, this.weight, curveInstace.blendTarget);
-                    curveInstace.blendTarget.weight += this.weight;
-                }
+            for (let iCurveInstance = 0, szCurves = samplerSharedGroup.curves.length;
+                iCurveInstance < szCurves; ++iCurveInstance) {
+                const curveInstace = samplerSharedGroup.curves[iCurveInstance];
+                curveInstace.applySample(ratio, index, lerpRequired, samplerResultCache, this.weight);
             }
         }
     }
