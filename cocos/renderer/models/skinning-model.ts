@@ -28,7 +28,6 @@
  */
 
 import { Skeleton } from '../../3d/assets/skeleton';
-import { builtinResMgr } from '../../3d/builtin/init';
 import { SkeletalAnimationClip } from '../../animation';
 import { Texture2D } from '../../assets/texture-2d';
 import { GFXBuffer } from '../../gfx/buffer';
@@ -67,7 +66,7 @@ export class SkinningModel extends Model {
             stride: UBOSkinningTexture.SIZE,
         });
         const nativeData = new Float32Array(4);
-        const texture = builtinResMgr.get<Texture2D>('black-texture');
+        const texture = Skeleton.getDefaultJointsTexture(this._device);
         this._jointsMedium = { buffer, nativeData, texture };
     }
 
@@ -83,12 +82,13 @@ export class SkinningModel extends Model {
         this._skeleton = skeleton;
         if (!skeleton || !skinningRoot) { return; }
         this._transform = skinningRoot;
-        this._applyJointTexture(skeleton.getBindposeTexture(this._device));
+        this._jointsMedium.texture = Skeleton.getDefaultJointsTexture(this._device);
+        this._applyJointTexture(this._jointsMedium.texture);
     }
 
     public uploadAnimationClip (clip: SkeletalAnimationClip) {
         if (!this._skeleton) { return; }
-        this._applyJointTexture(this._skeleton.getJointsTexture(this._device, clip));
+        this._applyJointTexture(this._skeleton.getJointsTextureWithClip(this._device, clip));
         if (this._jointsMedium) { this.uploadedClip = clip; }
     }
 

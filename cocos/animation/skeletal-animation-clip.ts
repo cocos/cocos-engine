@@ -114,22 +114,19 @@ export class SkeletalAnimationClip extends AnimationClip {
         }
         // convert to SkinningModelComponent.fid animation
         const values = [...Array(Math.ceil(this.sample * this._duration))].map((_, i) => i);
-        root.getComponentsInChildren(RenderableComponent).forEach((comp) => {
-            const isSkinningModel = comp instanceof SkinningModelComponent;
-            if (isSkinningModel) {
+        for (const comp of root.getComponentsInChildren(RenderableComponent)) {
+            if (comp instanceof SkinningModelComponent && comp.skinningRoot === root) {
                 const path = getPathFromRoot(comp.node, root);
                 if (!this.curveDatas[path]) { this.curveDatas[path] = {}; }
                 this.curveDatas[path].comps = { [getClassName(comp)]: { frameID: { keys: 0, values, interpolate: false } } };
-            }
-            if (!CC_EDITOR) { // rig non-skinning renderables
-                if (isSkinningModel && (comp as SkinningModelComponent).skinningRoot === root) { return; }
+            } else if (!CC_EDITOR) { // rig non-skinning renderables
                 const path = getPathFromRoot(comp.node.parent!, root);
                 const data = this.convertedData[path];
                 if (!data || !data.props) { return; }
                 if (!this.curveDatas[path]) { this.curveDatas[path] = {}; }
                 this.curveDatas[path].props = this._convertToRiggingData(data.props, comp.node.parent!, root);
             }
-        });
+        }
         this._keys = [values.map((_, i) => i / this.sample)];
         this._converted = true;
     }

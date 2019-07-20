@@ -256,7 +256,7 @@ export class AnimationState extends Playable {
         for (const propertyCurve of propertyCurves) {
             const targetNode = root.getChildByPath(propertyCurve.path);
             if (!targetNode) {
-                console.warn(`Target animation node referenced by path ${propertyCurve.path} is not found(from ${root.name}).`);
+                // console.warn(`Target animation node referenced by path ${propertyCurve.path} is not found(from ${root.name}).`);
                 continue;
             }
 
