@@ -79,11 +79,11 @@ export class UIComponent extends Component {
     public onEnable () {
         this._lastParent = this.node.parent;
         this._updateVisibility();
-        this._sortSiblings();
         if (this._lastParent) {
             this.node.on(SystemEventType.CHILD_REMOVED, this._parentChanged, this);
         }
         this.node._uiComp = this;
+        this._sortSiblings();
     }
 
     public onDisable () {

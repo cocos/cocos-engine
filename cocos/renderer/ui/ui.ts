@@ -459,8 +459,8 @@ export class UI {
         if (len > 0) {
             let children = node.children;
             for (let i = 0; i < children.length; ++i) {
-                let node = children[i];
-                this._walk(node, level);
+                let child = children[i];
+                this._walk(child, level);
             }
         }
 
