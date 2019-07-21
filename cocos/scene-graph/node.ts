@@ -50,14 +50,6 @@ enum NodeSpace {
 }
 const TRANFORM_ON = 1 << 0;
 
-enum TransformDirtyFlag {
-    NONE = 0,
-    POSITION = 1 << 0,
-    ROTATION = 1 << 2,
-    SCALE = 1 << 3,
-    ALL = 0xffffffff
-}
-
 /**
  * @zh
  * 场景树中的基本节点，基本特性有：
@@ -108,7 +100,6 @@ export class Node extends BaseNode {
     protected _euler = new Vec3();
 
     protected _dirty = false; // does the world transform need to update?
-    protected _dirtyFlag = TransformDirtyFlag.NONE;
     protected _hasChanged = false; // has the transform changed in this frame?
 
     protected _matDirty = false;
@@ -194,14 +185,13 @@ export class Node extends BaseNode {
             vec3.copy(this._scale, this._lscale);
         }
 
-        this.invalidateChildren(TransformDirtyFlag.ALL);
+        this.invalidateChildren();
     }
 
     public _onBatchCreated () {
         vec3.copy(this._pos, this._lpos);
         quat.copy(this._rot, this._lrot);
         vec3.copy(this._scale, this._lscale);
-        this._dirtyFlag = TransformDirtyFlag.ALL;
         this._dirty = this._hasChanged = true;
         this._eventMask = 0;
         for (const child of this._children) {
@@ -312,25 +302,12 @@ export class Node extends BaseNode {
      * @zh
      * 递归标记节点世界变换为 dirty
      */
-    public invalidateChildren (dirtyFlag: TransformDirtyFlag) {
-        this._dirtyFlag |= dirtyFlag! ? dirtyFlag! : 0;
+    public invalidateChildren () {
         if (this._dirty && this._hasChanged) { return; }
         this._dirty = this._hasChanged = true;
         for (const child of this._children) {
-            child.invalidateChildren(dirtyFlag);
+            child.invalidateChildren();
         }
-    }
-
-    _updateWorldTransform (dirtyFlag, child, cur) {
-        if (dirtyFlag & TransformDirtyFlag.SCALE) {
-            vec3.multiply(child._pos, child._lpos, cur._scale);
-            vec3.multiply(child._scale, cur._scale, child._lscale);
-        }
-        if (dirtyFlag & TransformDirtyFlag.ROTATION) {
-            vec3.transformQuat(child._pos, child._pos, cur._rot);
-            quat.multiply(child._rot, cur._rot, child._lrot);
-        }
-        vec3.add(child._pos, child._pos, cur._pos);
     }
 
     /**
@@ -345,9 +322,7 @@ export class Node extends BaseNode {
         if (!this._dirty) { return; }
         let cur: this | null = this;
         let i = 0;
-        let dirtyFlag = TransformDirtyFlag.NONE;
         while (cur._dirty) {
-            dirtyFlag = dirtyFlag | cur._dirtyFlag;
             // top level node
             array_a[i++] = cur;
             cur = cur._parent;
@@ -360,15 +335,16 @@ export class Node extends BaseNode {
         while (i) {
             child = array_a[--i];
             if (cur) {
-                this._updateWorldTransform(dirtyFlag, child, cur);
+                vec3.multiply(child._pos, child._lpos, cur._scale);
+                vec3.transformQuat(child._pos, child._pos, cur._rot);
+                vec3.add(child._pos, child._pos, cur._pos);
+                quat.multiply(child._rot, cur._rot, child._lrot);
+                vec3.multiply(child._scale, cur._scale, child._lscale);
             }
             child._matDirty = true; // further deferred eval
             child._dirty = false;
-            child._dirtyFlag = TransformDirtyFlag.NONE;
             cur = child;
         }
-
-        return dirtyFlag;
     }
 
     /**
@@ -376,18 +352,9 @@ export class Node extends BaseNode {
      * 更新节点的完整世界变换信息
      */
     public updateWorldTransformFull () {
-        let dirtyFlag = this.updateWorldTransform();
+        this.updateWorldTransform();
         if (!this._matDirty) { return; }
-
-        if (dirtyFlag === TransformDirtyFlag.POSITION) {
-            let mat = this._mat, pos = this._pos;
-            mat.m12 = pos.x;
-            mat.m13 = pos.y;
-            mat.m14 = pos.z;
-        }
-        else {
-            mat4.fromRTS(this._mat, this._rot, this._pos, this._scale);
-        }
+        mat4.fromRTS(this._mat, this._rot, this._pos, this._scale);
         this._matDirty = false;
     }
 
@@ -421,7 +388,7 @@ export class Node extends BaseNode {
         }
         vec3.copy(this._pos, this._lpos);
 
-        this.invalidateChildren(TransformDirtyFlag.POSITION);
+        this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
         }
@@ -478,7 +445,7 @@ export class Node extends BaseNode {
         quat.copy(this._rot, this._lrot);
         this._eulerDirty = true;
 
-        this.invalidateChildren(TransformDirtyFlag.ROTATION);
+        this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
         }
@@ -497,7 +464,7 @@ export class Node extends BaseNode {
         quat.fromEuler(this._lrot, x, y, z);
         quat.copy(this._rot, this._lrot);
 
-        this.invalidateChildren(TransformDirtyFlag.ROTATION);
+        this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
         }
@@ -552,7 +519,7 @@ export class Node extends BaseNode {
         }
         vec3.copy(this._scale, this._lscale);
 
-        this.invalidateChildren(TransformDirtyFlag.SCALE);
+        this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.SCALE_PART);
         }
@@ -618,7 +585,7 @@ export class Node extends BaseNode {
             vec3.copy(local, this._pos);
         }
 
-        this.invalidateChildren(TransformDirtyFlag.POSITION);
+        this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
         }
@@ -682,7 +649,7 @@ export class Node extends BaseNode {
         }
         this._eulerDirty = true;
 
-        this.invalidateChildren(TransformDirtyFlag.ROTATION);
+        this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
         }
@@ -705,7 +672,7 @@ export class Node extends BaseNode {
         }
         this._eulerDirty = true;
 
-        this.invalidateChildren(TransformDirtyFlag.ROTATION);
+        this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
         }
@@ -767,7 +734,7 @@ export class Node extends BaseNode {
             vec3.copy(this._lscale, this._scale);
         }
 
-        this.invalidateChildren(TransformDirtyFlag.SCALE);
+        this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.SCALE_PART);
         }
