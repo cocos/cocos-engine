@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { CanvasComponent, MeshBuffer, StencilManager, UIComponent, UIRenderComponent, UIVertexFormat } from '../../3d';
+import { CanvasComponent, MeshBuffer, StencilManager, UIComponent, UIRenderComponent, vfmt } from '../../3d';
 import { Material } from '../../3d/assets/material';
 import Pool from '../../3d/memop/pool';
 import RecyclePool from '../../3d/memop/recycle-pool';
@@ -22,6 +22,7 @@ import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 import { UIBatchModel } from './ui-batch-model';
 import { UIMaterial } from './ui-material';
+import { UIRenderFlow } from './ui-render-flow';
 
 export class UIDrawBatch {
     public camera: Camera | null = null;
@@ -125,7 +126,7 @@ export class UI {
 
     public initialize () {
 
-        this._attributes = UIVertexFormat.vfmt;
+        this._attributes = vfmt;
 
         this._requireBufferBatch();
 
@@ -133,6 +134,8 @@ export class UI {
             allocator: this.device.commandAllocator,
             type: GFXCommandBufferType.PRIMARY,
         });
+
+        UIRenderFlow.init(this);
 
         return true;
     }
@@ -476,14 +479,16 @@ export class UI {
                 continue;
             }
 
-            this._recursiveScreenNode(screen.node);
+            UIRenderFlow.visit(screen);
+            // this._recursiveScreenNode(screen.node);
         }
 
         if (!CC_EDITOR && this._debugScreen && this._debugScreen.enabledInHierarchy) {
-            this._recursiveScreenNode(this._debugScreen.node);
+            // this._recursiveScreenNode(this._debugScreen.node);
+            UIRenderFlow.visit(this._debugScreen);
         }
     }
-    
+
     private _preprocess (c: Node) {
         // ts-ignore
         let render = c._uiComp;
@@ -499,11 +504,11 @@ export class UI {
         }
     }
 
-    private _recursiveScreenNode (screen: Node) {
-        this._walk(screen);
+    // private _recursiveScreenNode (screen: Node) {
+    //     this._walk(screen);
 
-        this.autoMergeBatches();
-    }
+    //     this.autoMergeBatches();
+    // }
 
     private _reset () {
         for (let i = 0; i < this._batches.length; ++i) {

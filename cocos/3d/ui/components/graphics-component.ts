@@ -189,7 +189,7 @@ export class GraphicsComponent extends UIRenderComponent {
 
     public onRestore () {
         if (!this.impl) {
-            this._flushAssembler();
+            this._updateAssembler();
         }
     }
 
@@ -198,7 +198,6 @@ export class GraphicsComponent extends UIRenderComponent {
             super.__preload();
         }
 
-        // this._flushAssembler();
         this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
     }
 
@@ -458,13 +457,13 @@ export class GraphicsComponent extends UIRenderComponent {
         (this._assembler as IAssembler).fill!(this);
     }
 
-    public updateAssembler (render: UI) {
-        if (super.updateAssembler(render)) {
-            render.commitModel(this, this.model, this._material);
-            return true;
-        }
-
-        return false;
+    /**
+     * @zh
+     * 数据是否渲染检测入口
+     * @param render 数据处理中转站。
+     */
+    public render(render: UI) {
+        render.commitModel(this, this.model, this._material);
     }
 
     /**
@@ -483,7 +482,7 @@ export class GraphicsComponent extends UIRenderComponent {
 
         this._updateMaterial(mat);
         if (!this.impl){
-            this._flushAssembler();
+            this._updateAssembler();
             this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
         }
     }
@@ -492,7 +491,7 @@ export class GraphicsComponent extends UIRenderComponent {
         this.helpInstanceMaterial();
     }
 
-    protected _flushAssembler (){
+    protected _updateAssembler (){
         const assembler = GraphicsComponent.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {

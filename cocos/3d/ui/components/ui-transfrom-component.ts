@@ -35,6 +35,7 @@ import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
 import * as vmath from '../../../core/vmath';
 import { aabb } from '../../geom-utils';
 import { CanvasComponent } from './canvas-component';
+import { RenderFlowFlag } from './ui-render-flag';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -76,6 +77,7 @@ export class UITransformComponent extends Component {
         }
 
         this._contentSize.set(value);
+
         if (CC_EDITOR) {
             // @ts-ignore
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);
@@ -100,6 +102,7 @@ export class UITransformComponent extends Component {
         }
 
         this._contentSize.width = value;
+
         if (CC_EDITOR) {
             // @ts-ignore
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);
@@ -123,6 +126,7 @@ export class UITransformComponent extends Component {
         }
 
         this._contentSize.height = value;
+
         if (CC_EDITOR) {
             // @ts-ignore
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);
@@ -149,6 +153,7 @@ export class UITransformComponent extends Component {
         }
 
         this._anchorPoint.set(value);
+
         this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
     }
 
@@ -162,6 +167,7 @@ export class UITransformComponent extends Component {
         }
 
         this._anchorPoint.x = value;
+
         this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
     }
 
@@ -175,6 +181,7 @@ export class UITransformComponent extends Component {
         }
 
         this._anchorPoint.y = value;
+
         this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
     }
 
@@ -232,7 +239,7 @@ export class UITransformComponent extends Component {
             locContentSize.width = size as number;
             locContentSize.height = height;
         }
-
+        
         if (CC_EDITOR) {
             // @ts-ignore
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);

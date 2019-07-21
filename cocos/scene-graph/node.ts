@@ -39,6 +39,7 @@ import { mat4, quat, vec3 } from '../core/vmath';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
 import { NodeEventProcessor } from './node-event-processor';
+import { RenderFlowFlag } from '../renderer/ui/ui-render-flag';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -79,6 +80,7 @@ export class Node extends BaseNode {
         return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
     }
 
+    public renderFlag = 0;
     // world transform, don't access this directly
     protected _pos = new Vec3();
     protected _rot = new Quat();
@@ -196,6 +198,10 @@ export class Node extends BaseNode {
         this._eventMask = 0;
         for (const child of this._children) {
             child._onBatchCreated();
+        }
+
+        if (this._children.length > 0) {
+            this.renderFlag |= RenderFlowFlag.CHILDREN;
         }
     }
 
@@ -380,6 +386,7 @@ export class Node extends BaseNode {
     public setPosition (x: number, y: number, z: number): void;
 
     public setPosition (val: Vec3 | number, y?: number, z?: number) {
+        this.renderFlag |= RenderFlowFlag.WORLD_TRANSFORM;
         v3_a.set(this._lpos);
         if (y === undefined || z === undefined) {
             vec3.copy(this._lpos, val as Vec3);
@@ -445,6 +452,7 @@ export class Node extends BaseNode {
         quat.copy(this._rot, this._lrot);
         this._eulerDirty = true;
 
+        this.renderFlag = RenderFlowFlag.TRANSFORM;
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
@@ -518,7 +526,7 @@ export class Node extends BaseNode {
             vec3.set(this._lscale, val as number, y, z);
         }
         vec3.copy(this._scale, this._lscale);
-
+        this.renderFlag = RenderFlowFlag.TRANSFORM;
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.SCALE_PART);

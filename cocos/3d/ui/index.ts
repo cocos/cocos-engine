@@ -20,15 +20,16 @@ import {
     ttf,
 } from './assembler';
 import { MeshBuffer } from './mesh-buffer';
-import * as UIVertexFormat from './ui-vertex-format';
+import { vfmt } from './ui-vertex-format';
 
 export * from './components';
+export * from '../../renderer/ui/ui-render-flag';
 
 export {
     MeshBuffer,
-    UIVertexFormat,
     StencilManager,
     CanvasPool,
+    vfmt,
     barFilled,
     radialFilled,
     simple,
@@ -47,7 +48,7 @@ export {
 
 cc.UI = {
     MeshBuffer,
-    UIVertexFormat,
+    vfmt,
     barFilled,
     radialFilled,
     simple,

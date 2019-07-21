@@ -45,6 +45,7 @@ import { RenderableComponent } from '../../framework/renderable-component';
 import { IAssembler, IAssemblerManager } from '../assembler/base';
 import { UIComponent } from './ui-component';
 import { UITransformComponent } from './ui-transfrom-component';
+import { RenderFlowFlag } from '../../../renderer/ui/ui-render-flag';
 
 // hack
 ccenum(GFXBlendFactor);
@@ -195,6 +196,14 @@ export class UIRenderComponent extends UIComponent {
         return this._renderData;
     }
 
+    get assembler(){
+        return this._assembler;
+    }
+
+    get postAssetmbler(){
+        return this._postAssembler;
+    }
+
     public static BlendState = GFXBlendFactor;
     public static Assembler: IAssemblerManager | null = null;
     public static PostAssembler: IAssemblerManager | null = null;
@@ -212,7 +221,7 @@ export class UIRenderComponent extends UIComponent {
     protected _postAssembler: IAssembler | null = null;
     protected _renderDataPoolID = -1;
     protected _renderData: RenderData | null = null;
-    protected _renderDataDirty = false;
+    // protected _renderDataDirty = false;
     // 特殊渲染标记，在可渲染情况下，因为自身某个原因不给予渲染
     protected _renderPermit = true;
     protected _material: Material | null = null;
@@ -232,8 +241,8 @@ export class UIRenderComponent extends UIComponent {
 
     public __preload (){
         this._instanceMaterial();
-        if (this._flushAssembler){
-            this._flushAssembler();
+        if (this._updateAssembler){
+            this._updateAssembler();
         }
 
         this._updateColor();
@@ -242,22 +251,15 @@ export class UIRenderComponent extends UIComponent {
     public onEnable () {
         super.onEnable();
         this.node.on(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
-        // this.node.on(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
         this.node.on(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
-        // if (this.node._renderComponent) {
-        //     this.node._renderComponent.enabled = false;
-        // }
-        // this.node._renderComponent = this;
-        // this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR;
-        this._renderDataDirty = true;
+        this.node.renderFlag |= RenderFlowFlag.RENDER | RenderFlowFlag.UPDATE_RENDER_DATA;
+        // this._renderDataDirty = true;
     }
 
     public onDisable () {
         super.onDisable();
-        // this.node._renderComponent = null;
-        // this.disableRender();
+        this.node.renderFlag &= ~(RenderFlowFlag.RENDER | RenderFlowFlag.CUSTOM_IA_RENDER | RenderFlowFlag.UPDATE_RENDER_DATA);
         this.node.off(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
-        // this.node.off(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
         this.node.off(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
     }
 
@@ -278,21 +280,46 @@ export class UIRenderComponent extends UIComponent {
 
     /**
      * @zh
-     * 标记当前组件的渲染数据为已修改状态，这样渲染数据才会重新计算。
+     * 标记渲染数据为待更新状态。
      *
      * @param enable 是否标记为已修改。
      */
-    public markForUpdateRenderData (enable: boolean = true) {
+    public markForUpdateRenderData (enable = true) {
         if (enable && this._canRender()) {
-            const renderData = this._renderData;
-            if (renderData) {
-                renderData.vertDirty = true;
-            }
-
-            this._renderDataDirty = enable;
+            this.node.renderFlag |= RenderFlowFlag.UPDATE_RENDER_DATA;
         }
         else if (!enable) {
-            this._renderDataDirty = enable;
+            this.node.renderFlag |= RenderFlowFlag.UPDATE_RENDER_DATA;
+        }
+    }
+
+    /**
+     * @zh
+     * 标记渲染数据为可渲染状态。
+     *
+     * @param enable 是否标记为已修改。
+     */
+    public markForRender(enable = true) {
+        if (enable && this._canRender()) {
+            this.node.renderFlag |= RenderFlowFlag.RENDER;
+        }
+        else if (!enable) {
+            this.node.renderFlag &= ~RenderFlowFlag.RENDER;
+        }
+    }
+
+    /**
+     * @zh
+     * 标记自定义渲染数据为可渲染状态。
+     *
+     * @param enable 是否标记为已修改。
+     */
+    public markForCustomIARender(enable = true) {
+        if (enable && this._canRender()) {
+            this.node.renderFlag |= RenderFlowFlag.CUSTOM_IA_RENDER;
+        }
+        else if (!enable) {
+            this.node.renderFlag &= ~RenderFlowFlag.CUSTOM_IA_RENDER;
         }
     }
 
@@ -312,6 +339,26 @@ export class UIRenderComponent extends UIComponent {
 
     /**
      * @zh
+     * 更新组装器数据
+     */
+    public updateRenderData(){
+        if(this._assembler){
+            this._assembler.updateRenderData(this);
+        }
+    }
+
+    /**
+     * @zh
+     * 更新后向组装器数据
+     */
+    public updatePostRenderData() {
+        if (this._postAssembler) {
+            this._postAssembler.updateRenderData(this);
+        }
+    }
+
+    /**
+     * @zh
      * 渲染数据销毁。
      */
     public destroyRenderData () {
@@ -324,44 +371,43 @@ export class UIRenderComponent extends UIComponent {
         this._renderData = null;
     }
 
+    public updateAssembler (render: UI) {
+        this.render(render);
+    }
+
     /**
      * @zh
-     * 每个渲染组件都由此接口决定是否渲染以及渲染状态的更新。
-     *
-     * @param render 数据处理中转站。
+     * 是否可渲染检测。
      */
-    public updateAssembler (render: UI) {
-        if (!this._canRender()) {
-            return false;
-        }
-
-        this._checkAndUpdateRenderData();
-        return true;
-    }
-
-    protected _checkAndUpdateRenderData (){
-        if (this._renderDataDirty) {
-            this._assembler!.updateRenderData!(this);
-            this._renderDataDirty = false;
-        }
-    }
-
     protected _canRender () {
         return this.material !== null && this._renderPermit;
     }
 
+    /**
+     * @zh
+     * 更新组装器颜色数据。
+     */
     protected _updateColor () {
         if (this._assembler!.updateColor) {
             this._assembler!.updateColor(this);
         }
     }
 
+    /**
+     * @zh
+     * 更新材质。
+     * @param material - 替换材质。
+     */
     protected _updateMaterial (material: Material | null) {
         this._material = material;
 
         this._updateBlendFunc();
     }
 
+    /**
+     * @zh
+     * 更新着色器 blend 数据
+     */
     protected _updateBlendFunc () {
         if (!this._material) {
             return;
@@ -382,15 +428,12 @@ export class UIRenderComponent extends UIComponent {
         if (this._renderData) {
             this.markForUpdateRenderData();
         }
-
-        for (const child of this.node.children) {
-            const renderComp = child.getComponent(UIRenderComponent);
-            if (renderComp) {
-                renderComp.markForUpdateRenderData();
-            }
-        }
     }
 
+    /**
+     * @zh
+     * 材质实例操作，每个渲染组件都需要实例材质。
+     */
     protected _instanceMaterial () {
         let mat: Material | null = null;
         if (this._sharedMaterial) {
@@ -409,7 +452,7 @@ export class UIRenderComponent extends UIComponent {
         this._updateMaterial(mat);
     }
 
-    protected _flushAssembler? (): void;
+    protected _updateAssembler? (): void;
 }
 
 cc.UIRenderComponent = UIRenderComponent;

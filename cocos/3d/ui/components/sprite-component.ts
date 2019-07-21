@@ -36,6 +36,7 @@ import { Vec2 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import { UI } from '../../../renderer/ui/ui';
 import { UIRenderComponent } from './ui-render-component';
+import { RenderFlowFlag } from '../../../renderer/ui/ui-render-flag';
 
 /**
  * @zh
@@ -214,7 +215,7 @@ export class SpriteComponent extends UIRenderComponent {
     set type (value: SpriteType) {
         if (this._type !== value) {
             this._type = value;
-            this._flushAssembler();
+            this._updateAssembler();
         }
     }
 
@@ -246,7 +247,7 @@ export class SpriteComponent extends UIRenderComponent {
         }
 
         this._fillType = value;
-        this._flushAssembler();
+        this._updateAssembler();
     }
 
     /**
@@ -401,38 +402,20 @@ export class SpriteComponent extends UIRenderComponent {
         }
     }
 
-    // /**
-    //  * Change the state of sprite.
-    //  * @method setState
-    //  * @see `SpriteComponent.State`
-    //  * @param state {SpriteComponent.State} NORMAL or GRAY State.
-    //  */
-    // getState() {
-    //     return this._state;
-    // }
-
-    // setState(state) {
-    //     if (this._state === state) return;
-    //     this._state = state;
-    //     this._activateMaterial();
-    // }
-
     // onLoad() {}
 
     public onEnable () {
         super.onEnable();
-
-        // this._flushAssembler();
         this._activateMaterial();
     }
 
-    public updateAssembler (render: UI) {
-        if (super.updateAssembler(render) && this._spriteFrame) {
-            render.commitComp(this, this._spriteFrame.getGFXTextureView(), this._assembler!);
-            return true;
-        }
-
-        return false;
+    /**
+     * @zh
+     * 数据是否渲染检测入口
+     * @param render 数据处理中转站。
+     */
+    public render(render: UI) {
+        render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!);
     }
 
     public onDestroy () {
@@ -440,6 +423,25 @@ export class SpriteComponent extends UIRenderComponent {
         this.destroyRenderData();
         if (CC_EDITOR) {
             this.node.off(SystemEventType.SIZE_CHANGED, this._resized, this);
+        }
+    }
+
+    /**
+     * @zh
+     * 标记渲染数据为待更新状态。
+     *
+     * @param enable 是否标记为已修改。
+     */
+    public markForUpdateRenderData(enable = true) {
+        if (enable && this._canRender()) {
+            this.node.renderFlag |= RenderFlowFlag.UPDATE_RENDER_DATA;
+            if(this.renderData){
+                this.renderData.vertDirty = true;
+                this.renderData.uvDirty = true;
+            }
+        }
+        else if (!enable) {
+            this.node.renderFlag |= RenderFlowFlag.UPDATE_RENDER_DATA;
         }
     }
 
@@ -467,7 +469,7 @@ export class SpriteComponent extends UIRenderComponent {
         return true;
     }
 
-    protected _flushAssembler () {
+    protected _updateAssembler () {
         const assembler = SpriteComponent.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {

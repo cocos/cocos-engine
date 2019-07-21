@@ -1,0 +1,18 @@
+/**
+ * @hidden
+ */
+
+export enum RenderFlowFlag {
+  DONOTHING = 0,
+  LOCAL_TRANSFORM = 1 << 0,
+  WORLD_TRANSFORM = 1 << 1,
+  TRANSFORM = LOCAL_TRANSFORM | WORLD_TRANSFORM,
+  UPDATE_RENDER_DATA = 1 << 2,
+  SIZEANDANCHORCHANGE = 1<<3,
+  RENDER = 1 << 4,
+  CUSTOM_IA_RENDER = 1 << 5,
+  CHILDREN = 1 << 6,
+  POST_UPDATE_RENDER_DATA = 1 << 7,
+  POST_RENDER = 1 << 8,
+  FINAL = 1 << 9,
+}

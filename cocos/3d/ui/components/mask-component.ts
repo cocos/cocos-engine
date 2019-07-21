@@ -332,18 +332,18 @@ export class MaskComponent extends UIRenderComponent {
         this._removeGraphics();
     }
 
-    public updateAssembler (render: UI) {
-        if (super.updateAssembler(render)) {
-            const size = cc.visibleRect;
-            if (size.width !== this._lastVisibleSize.width || size.height !== this._lastVisibleSize.height) {
-                this._updateClearGraphics();
-            }
-
-            render.commitComp(this, null, this._assembler!);
-            return true;
+    /**
+     * @zh
+     * 数据是否渲染检测入口
+     * @param render 数据处理中转站。
+     */
+    public render(render: UI) {
+        const size = cc.visibleRect;
+        if (size.width !== this._lastVisibleSize.width || size.height !== this._lastVisibleSize.height) {
+            this._updateClearGraphics();
         }
 
-        return false;
+        render.commitComp(this, null, this._assembler!);
     }
 
     public postUpdateAssembler (render: UI) {
@@ -415,7 +415,7 @@ export class MaskComponent extends UIRenderComponent {
         return this._clearGraphics !== null && this._graphics !== null && this._renderPermit;
     }
 
-    protected _flushAssembler (){
+    protected _updateAssembler (){
         const assembler = MaskComponent.Assembler!.getAssembler(this);
         const posAssembler = MaskComponent.PostAssembler!.getAssembler(this);
 
