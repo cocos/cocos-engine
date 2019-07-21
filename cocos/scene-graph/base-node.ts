@@ -27,7 +27,9 @@
  * @category scene-graph
  */
 
+import { RenderFlowFlag } from '../renderer/ui/ui-render-flag';
 import { Component } from '../components/component';
+import { CCClass } from '../core/data';
 import { ccclass, property } from '../core/data/class-decorator';
 import { CCObject } from '../core/data/object';
 import { SystemEventType } from '../core/platform/event-manager/event-enum';
@@ -35,7 +37,6 @@ import IdGenerator from '../core/utils/id-generator';
 import * as js from '../core/utils/js';
 import { baseNodePolyfill } from './base-node-dev';
 import { Scene } from './scene';
-import { CCClass } from '../core/data';
 
 /**
  *
@@ -445,6 +446,8 @@ export class BaseNode extends CCObject {
             if (value.emit) {
                 value.emit(SystemEventType.CHILD_ADDED, this);
             }
+            // @ts-ignore
+            value.renderFlag |= RenderFlowFlag.CHILDREN;
         }
         if (oldParent) {
             if (!(oldParent._objFlags & Destroying)) {
@@ -455,6 +458,11 @@ export class BaseNode extends CCObject {
                 oldParent._children.splice(removeAt, 1);
                 if (oldParent.emit) {
                     oldParent.emit(SystemEventType.CHILD_REMOVED, this);
+                }
+
+                if (oldParent._children.length === 0) {
+                    // @ts-ignore
+                    oldParent.renderFlag &= ~RenderFlowFlag.CHILDREN;
                 }
             }
         }

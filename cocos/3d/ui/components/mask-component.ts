@@ -38,6 +38,7 @@ import { UI } from '../../../renderer/ui/ui';
 import { Node } from '../../../scene-graph';
 import { GraphicsComponent } from './graphics-component';
 import { InstanceMaterialType, UIRenderComponent } from './ui-render-component';
+import { RenderFlowFlag } from '../../../../exports/base';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -316,15 +317,21 @@ export class MaskComponent extends UIRenderComponent {
 
         this._activateMaterial();
 
-        this.node.on(SystemEventType.ROTATION_PART, this._nodeStateChange, this);
-        this.node.on(SystemEventType.SCALE_PART, this._nodeStateChange, this);
+        // this.node.on(SystemEventType.ROTATION_PART, this._nodeStateChange, this);
+        // this.node.on(SystemEventType.SCALE_PART, this._nodeStateChange, this);
+        this.node.on(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
+        this.node.on('design-resolution-changed', this._updateClearGraphics, this);
+        this.node.renderFlag |= RenderFlowFlag.POST_RENDER;
     }
 
     public onDisable () {
         super.onDisable();
         this._disableGraphics();
-        this.node.off(SystemEventType.ROTATION_PART, this._nodeStateChange, this);
-        this.node.off(SystemEventType.SCALE_PART, this._nodeStateChange, this);
+        // this.node.off(SystemEventType.ROTATION_PART, this._nodeStateChange, this);
+        // this.node.off(SystemEventType.SCALE_PART, this._nodeStateChange, this);
+        this.node.off(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange);
+        this.node.off('design-resolution-changed', this._updateClearGraphics);
+        this.node.renderFlag &= ~RenderFlowFlag.POST_RENDER;
     }
 
     public onDestroy () {
@@ -332,26 +339,32 @@ export class MaskComponent extends UIRenderComponent {
         this._removeGraphics();
     }
 
-    public updateAssembler (render: UI) {
-        if (super.updateAssembler(render)) {
-            const size = cc.visibleRect;
-            if (size.width !== this._lastVisibleSize.width || size.height !== this._lastVisibleSize.height) {
-                this._updateClearGraphics();
-            }
-
-            render.commitComp(this, null, this._assembler!);
-            return true;
+    /**
+     * @zh
+     * 数据是否渲染检测入口
+     * @param render 数据处理中转站。
+     */
+    public render(render: UI) {
+        const size = cc.visibleRect;
+        if (size.width !== this._lastVisibleSize.width || size.height !== this._lastVisibleSize.height) {
+            this._updateClearGraphics();
         }
 
-        return false;
+        render.commitComp(this, null, this._assembler!);
     }
 
     public postUpdateAssembler (render: UI) {
-        if (!this._canRender() || !this._postAssembler) {
-            return;
-        }
-
         render.commitComp(this, null, this._postAssembler!);
+    }
+
+    public markForRender(enable = true) {
+        if (enable && this.enabledInHierarchy) {
+            this.node.renderFlag |= (RenderFlowFlag.RENDER | RenderFlowFlag.UPDATE_RENDER_DATA |
+                RenderFlowFlag.POST_RENDER);
+        }
+        else if (!enable) {
+            this.node.renderFlag &= ~(RenderFlowFlag.RENDER | RenderFlowFlag.POST_RENDER);
+        }
     }
 
     /**
@@ -415,7 +428,7 @@ export class MaskComponent extends UIRenderComponent {
         return this._clearGraphics !== null && this._graphics !== null && this._renderPermit;
     }
 
-    protected _flushAssembler (){
+    protected _updateAssembler (){
         const assembler = MaskComponent.Assembler!.getAssembler(this);
         const posAssembler = MaskComponent.PostAssembler!.getAssembler(this);
 

@@ -19,7 +19,7 @@ export { SpriteComponent } from './sprite-component';
 export { ToggleComponent } from './toggle-component';
 export { ToggleContainerComponent } from './toggle-container-component';
 export { UIModelComponent } from './ui-model-component';
-export { UIRenderComponent } from './ui-render-component';
+export * from './ui-render-component';
 export { UITransformComponent } from './ui-transfrom-component';
 export { ViewGroupComponent } from './view-group-component';
 export { WebviewComponent } from './webview/webView-component';

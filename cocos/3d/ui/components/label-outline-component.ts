@@ -107,7 +107,7 @@ export class LabelOutlineComponent extends Component {
     private _updateRenderData () {
         const label = this.node.getComponent(LabelComponent);
         if (label) {
-            label.updateRenderData(true);
+            label.updateSelfRenderData(true);
         }
     }
 }

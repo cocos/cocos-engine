@@ -575,7 +575,7 @@ export const letterFont = {
                                 comp.font._nativeAsset = fontFamily;
                             }
 
-                            comp.updateRenderData(true);
+                            comp.updateSelfRenderData(true);
                         });
                     }
                 }

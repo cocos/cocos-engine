@@ -41,6 +41,7 @@ import { IAssembler } from '../../base';
 import { LineCap, LineJoin, PointFlags } from '../types';
 import { earcut as Earcut } from './earcut';
 import { Impl, Point } from './impl';
+import { RenderFlowFlag } from '../../../../../../exports/base';
 
 const MAX_VERTEX = 65535;
 const MAX_INDICE = MAX_VERTEX * 2;
@@ -98,50 +99,9 @@ export const graphicsAssembler: IAssembler = {
     },
 
     updateRenderData (graphics: GraphicsComponent) {
-        const datas = graphics.impl ? graphics.impl.getRenderDatas() : [];
-        for (let i = 0, l = datas.length; i < l; i++) {
-            datas[i].material = graphics.material;
-        }
-    },
-
-    fillBuffers (graphics: GraphicsComponent, renderer: UI) {
-        // this.renderIA!(graphics, renderer);
-    },
-
-    renderIA (graphics: GraphicsComponent, renderer: UI) {
-        // const impl = graphics.impl;
-        // let renderDatas = impl && impl.getRenderDatas();
-        // if (!renderDatas) {
-        //     renderDatas = [];
-        // }
-
-        // let bufferBatch = renderer.currBufferBatch!;
-        // let vertexId = 0;
-        // let byteoffset = 0;
-        // let indicesOffset = 0;
-        // for (const renderData of renderDatas) {
-        //     if (!graphics.material || renderData.byteCount <= 0 || renderData.indiceCount <= 0) {
-        //         continue;
-        //     }
-
-        //     vertexId = bufferBatch.vertexOffset;
-        //     byteoffset = bufferBatch.byteOffset;
-        //     indicesOffset = bufferBatch.indiceOffset;
-        //     bufferBatch.request(renderData.vertexCount, renderData.indiceCount);
-        //     bufferBatch = renderer.currBufferBatch!;
-        //     const vData = bufferBatch.vData!;
-        //     const iData = bufferBatch.iData!;
-        //     // the data format is strictly in accordance with pos uv color
-        //     const vDataCopy = renderData.vData.slice(0, renderData.byteCount >> 2);
-        //     vData.set(vDataCopy, byteoffset >> 2);
-
-        //     let iDataCopy = renderData.iData.slice(0, renderData.indiceCount);
-        //     iDataCopy = iDataCopy.map((v) => {
-        //         return v + vertexId;
-        //     });
-        //     iData.set(iDataCopy, indicesOffset);
-
-        //     renderer.forceMergeBatches(graphics.material, null);
+        // const datas = graphics.impl ? graphics.impl.getRenderDatas() : [];
+        // for (let i = 0, l = datas.length; i < l; i++) {
+        //     datas[i].material = graphics.material;
         // }
     },
 
@@ -263,6 +223,7 @@ export const graphicsAssembler: IAssembler = {
         graphics.model = scene.createModel(Model, graphics.node);
         graphics.model.initSubModel(0, mesh.getSubMesh(0), graphics.material!);
         graphics.model.enabled = true;
+        graphics.node.renderFlag |= RenderFlowFlag.RENDER | RenderFlowFlag.UPDATE_RENDER_DATA;
     },
 
     _expandStroke (graphics: GraphicsComponent) {

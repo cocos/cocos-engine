@@ -973,7 +973,7 @@ export class RichTextComponent extends UIComponent {
             labelComponent.fontSize = this._fontSize;
         }
 
-        labelComponent.updateRenderData(true);
+        labelComponent.updateSelfRenderData(true);
 
         if (textStyle && textStyle.event) {
             const c = 'click';

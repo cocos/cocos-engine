@@ -98,7 +98,7 @@ export const ttfUtils =  {
     updateRenderData (comp: LabelComponent) {
         if (!comp.renderData || !comp.renderData.vertDirty) { return; }
 
-        this._updateFontFamly(comp);
+        this._updateFontFamily(comp);
         this._updateProperties(comp);
         this._calculateLabelFont();
         this._calculateSplitedStrings();
@@ -121,7 +121,7 @@ export const ttfUtils =  {
     updateVerts (comp: LabelComponent) {
     },
 
-    _updateFontFamly (comp: LabelComponent) {
+    _updateFontFamily (comp: LabelComponent) {
         if (!comp.useSystemFont) {
             if (comp.font) {
                 if (comp.font._nativeAsset) {

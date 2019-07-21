@@ -38,6 +38,7 @@ import { IAssembler } from '../assembler/base';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
 import { InstanceMaterialType, UIRenderComponent } from '../components/ui-render-component';
+import { RenderFlowFlag } from '../../../../exports/base';
 
 /**
  * @zh
@@ -189,7 +190,7 @@ export class GraphicsComponent extends UIRenderComponent {
 
     public onRestore () {
         if (!this.impl) {
-            this._flushAssembler();
+            this._updateAssembler();
         }
     }
 
@@ -198,7 +199,6 @@ export class GraphicsComponent extends UIRenderComponent {
             super.__preload();
         }
 
-        // this._flushAssembler();
         this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
     }
 
@@ -207,28 +207,25 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     public onEnable () {
-        if (super.onEnable) {
-            super.onEnable();
-        }
-
-        if (this.model){
+        super.onEnable();
+        if (this.model) {
             this.model.enabled = true;
+        } else {
+            this.node.renderFlag &= ~RenderFlowFlag.RENDER;
         }
 
         this._activateMaterial();
     }
 
     public onDisable (){
+        super.onDisable();
         if (this.model){
             this.model.enabled = false;
         }
     }
 
     public onDestroy () {
-        if (super.onDestroy) {
-            super.onDestroy();
-        }
-
+        super.onDestroy();
         this._sceneGetter = null;
         if (this.model) {
             this._getRenderScene().destroyModel(this.model);
@@ -427,7 +424,13 @@ export class GraphicsComponent extends UIRenderComponent {
             return;
         }
 
+        this.node.renderFlag &= ~RenderFlowFlag.RENDER;
         this.impl.clear();
+        if(this.model){
+            this.model.destroy();
+            this.model.scene.destroyModel(this.model);
+            this.model = null;
+        }
     }
 
     /**
@@ -458,13 +461,13 @@ export class GraphicsComponent extends UIRenderComponent {
         (this._assembler as IAssembler).fill!(this);
     }
 
-    public updateAssembler (render: UI) {
-        if (super.updateAssembler(render)) {
-            render.commitModel(this, this.model, this._material);
-            return true;
-        }
-
-        return false;
+    /**
+     * @zh
+     * 数据是否渲染检测入口
+     * @param render 数据处理中转站。
+     */
+    public render (render: UI) {
+        render.commitModel(this, this.model, this._material);
     }
 
     /**
@@ -483,7 +486,7 @@ export class GraphicsComponent extends UIRenderComponent {
 
         this._updateMaterial(mat);
         if (!this.impl){
-            this._flushAssembler();
+            this._updateAssembler();
             this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
         }
     }
@@ -492,7 +495,7 @@ export class GraphicsComponent extends UIRenderComponent {
         this.helpInstanceMaterial();
     }
 
-    protected _flushAssembler (){
+    protected _updateAssembler (){
         const assembler = GraphicsComponent.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {

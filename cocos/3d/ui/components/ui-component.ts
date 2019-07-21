@@ -93,10 +93,40 @@ export class UIComponent extends Component {
         }
     }
 
-    public updateAssembler (render: UI) {
+    /**
+     * @zh
+     * 数据是否渲染检测入口，流程是渲染到该对象直接执行。
+     * @param render 数据处理中转站。
+     */
+    public render(render: UI) {
     }
 
-    public postUpdateAssembler (render: UI) {
+    /**
+     * @zh
+     * 数据是否后渲染检测入口，流程是该对象子节点渲染结束执行
+     * @param render 数据处理中转站。
+     */
+    public posRender(render: UI) {
+    }
+
+    /**
+     * @zh
+     * 数据是否渲染检测入口，流程是渲染到该对象直接执行。
+     *
+     * @param render 数据处理中转站。
+     * @deprecated 请使用 `this.render`，将在 Beta6 及之后版本废弃。
+     */
+    public updateAssembler(render: UI) {
+    }
+
+    /**
+     * @zh
+     * 数据是否后渲染检测入口，流程是该对象子节点渲染结束执行。
+     *
+     * @param render 数据处理中转站。
+     * @deprecated 请使用 `this.posRender`，将在 Beta6 及之后版本废弃。
+     */
+    public postUpdateAssembler(render: UI) {
     }
 
     /**
