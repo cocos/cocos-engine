@@ -11,6 +11,7 @@ import { Quat, Vec3 } from '../core/value-types';
 import { quat, vec3 } from '../core/vmath';
 import { Node } from '../scene-graph';
 import { AnimationClip, ICurveData, IObjectCurveData, IPropertyCurve } from './animation-clip';
+import { AnimationComponent } from './animation-component';
 import { IPropertyCurveData } from './animation-curve';
 
 function getPathFromRoot (target: Node | null, root: Node) {
@@ -21,6 +22,18 @@ function getPathFromRoot (target: Node | null, root: Node) {
         node = node.parent;
     }
     return path.slice(0, -1);
+}
+
+function isTargetSkinningModel (comp: RenderableComponent, root: Node) {
+    if (!(comp instanceof SkinningModelComponent)) { return false; }
+    const curRoot = comp.skinningRoot;
+    if (curRoot === root) { return true; }
+    if (curRoot && curRoot.getComponent(AnimationComponent)) { return false; }
+    // find the lowest AnimationComponent node
+    let node: Node | null = comp.node;
+    while (node && !node.getComponent(AnimationComponent)) { node = node.parent; }
+    if (node === root) { return true; }
+    return false;
 }
 
 /**
@@ -41,6 +54,47 @@ export class SkeletalAnimationClip extends AnimationClip {
         for (const comp of root.getComponentsInChildren(SkinningModelComponent)) {
             comp.uploadAnimationClip(this);
         }
+    }
+
+    private _convertToSkeletalCurves (root: Node) {
+        if (this._converted) { return; }
+        // sort the keys to make sure parent bone always comes first
+        const paths = Object.keys(this.curveDatas).sort();
+        for (const path of paths) {
+            const nodeData = this.curveDatas[path];
+            if (!nodeData.props) { continue; }
+            const { position, rotation, scale } = nodeData.props;
+            // fixed step pre-sample
+            this._convertToUniformSample(position);
+            this._convertToUniformSample(rotation);
+            this._convertToUniformSample(scale);
+            // turn off interpolation
+            position.interpolate = false;
+            rotation.interpolate = false;
+            scale.interpolate = false;
+        }
+        // keep all node animations in editor
+        if (CC_EDITOR) { this.convertedData = JSON.parse(JSON.stringify(this.curveDatas)); }
+        else { this.convertedData = this.curveDatas; this.curveDatas = {}; }
+        // transform to world space
+        for (const path of paths) {
+            const nodeData = this.convertedData[path];
+            if (!nodeData.props) { continue; }
+            this._convertToWorldSpace(path, nodeData.props);
+        }
+        // convert to SkinningModelComponent.fid animation
+        const values = [...Array(Math.ceil(this.sample * this._duration))].map((_, i) => i);
+        for (const comp of root.getComponentsInChildren(RenderableComponent)) {
+            if (isTargetSkinningModel(comp, root)) {
+                const path = getPathFromRoot(comp.node, root);
+                if (!this.curveDatas[path]) { this.curveDatas[path] = {}; }
+                this.curveDatas[path].comps = { [getClassName(comp)]: { frameID: { keys: 0, values, interpolate: false } } };
+            } else if (!CC_EDITOR) { // rig non-skinning renderables
+                this._convertToRiggingData(comp, root);
+            }
+        }
+        this._keys = [values.map((_, i) => i / this.sample)];
+        this._converted = true;
     }
 
     private _convertToUniformSample (curve: IPropertyCurveData) {
@@ -86,59 +140,54 @@ export class SkeletalAnimationClip extends AnimationClip {
         }
     }
 
-    private _convertToSkeletalCurves (root: Node) {
-        if (this._converted) { return; }
-        // sort the keys to make sure parent bone always comes first
-        const paths = Object.keys(this.curveDatas).sort();
-        for (const path of paths) {
-            const nodeData = this.curveDatas[path];
-            if (!nodeData.props) { continue; }
-            const { position, rotation, scale } = nodeData.props;
-            // fixed step pre-sample
-            this._convertToUniformSample(position);
-            this._convertToUniformSample(rotation);
-            this._convertToUniformSample(scale);
-            // turn off interpolation
-            position.interpolate = false;
-            rotation.interpolate = false;
-            scale.interpolate = false;
+    private _convertToRiggingData (comp: RenderableComponent, root: Node) {
+        const targetNode = comp.node.parent!;
+        const targetPath = getPathFromRoot(targetNode, root);
+        // find lowest joint animation
+        let animPath = targetPath;
+        let source = this.convertedData[animPath];
+        let animNode = targetNode;
+        while (!source || !source.props) {
+            const idx = animPath.lastIndexOf('/');
+            animPath = animPath.substring(0, idx);
+            source = this.convertedData[animPath];
+            animNode = animNode.parent!;
+            if (idx < 0) { return; }
         }
-        // keep all node animations in editor
-        if (CC_EDITOR) { this.convertedData = JSON.parse(JSON.stringify(this.curveDatas)); }
-        else { this.convertedData = this.curveDatas; this.curveDatas = {}; }
-        // transform to world space
-        for (const path of paths) {
-            const nodeData = this.convertedData[path];
-            if (!nodeData.props) { continue; }
-            this._convertToWorldSpace(path, nodeData.props);
-        }
-        // convert to SkinningModelComponent.fid animation
-        const values = [...Array(Math.ceil(this.sample * this._duration))].map((_, i) => i);
-        for (const comp of root.getComponentsInChildren(RenderableComponent)) {
-            if (comp instanceof SkinningModelComponent && comp.skinningRoot === root) {
-                const path = getPathFromRoot(comp.node, root);
-                if (!this.curveDatas[path]) { this.curveDatas[path] = {}; }
-                this.curveDatas[path].comps = { [getClassName(comp)]: { frameID: { keys: 0, values, interpolate: false } } };
-            } else if (!CC_EDITOR) { // rig non-skinning renderables
-                const path = getPathFromRoot(comp.node.parent!, root);
-                const data = this.convertedData[path];
-                if (!data || !data.props) { return; }
-                if (!this.curveDatas[path]) { this.curveDatas[path] = {}; }
-                this.curveDatas[path].props = this._convertToRiggingData(data.props, comp.node.parent!, root);
-            }
-        }
-        this._keys = [values.map((_, i) => i / this.sample)];
-        this._converted = true;
-    }
-
-    private _convertToRiggingData (props: IObjectCurveData, target: Node, root: Node) {
+        // create initial animation data
         const data: IObjectCurveData = {
-            position: { keys: 0, interpolate: false, values: props.position.values.map(() => new Vec3()) },
-            rotation: { keys: 0, interpolate: false, values: props.rotation.values.map(() => new Quat()) },
-            scale: { keys: 0, interpolate: false, values: props.scale.values.map(() => new Vec3()) },
+            position: { keys: 0, interpolate: false, values: source.props.position.values.map((v) => v.clone()) },
+            rotation: { keys: 0, interpolate: false, values: source.props.rotation.values.map((v) => v.clone()) },
+            scale: { keys: 0, interpolate: false, values: source.props.scale.values.map((v) => v.clone()) },
         };
-        if (target.parent !== root) { target = target.parent!; }
-        // inverse bindpose
+        const position = data.position.values;
+        const rotation = data.rotation.values;
+        const scale = data.scale.values;
+        // apply downstream bindpose
+        let target = targetNode;
+        vec3.set(v3_1, 0, 0, 0);
+        quat.set(qt_1, 0, 0, 0, 1);
+        vec3.set(v3_2, 1, 1, 1);
+        while (target !== animNode) {
+            vec3.multiply(v3_3, v3_1, target.scale);
+            vec3.transformQuat(v3_3, v3_3, target.rotation);
+            vec3.add(v3_1, v3_3, target.position);
+            quat.multiply(qt_1, target.rotation, qt_1);
+            vec3.multiply(v3_2, target.scale, v3_2);
+            target = target.parent!;
+        }
+        for (let i = 0; i < position.length; i++) {
+            const T = position[i];
+            const R = rotation[i];
+            const S = scale[i];
+            vec3.multiply(v3_3, v3_1, S);
+            vec3.transformQuat(v3_3, v3_3, R);
+            vec3.add(T, v3_3, T);
+            quat.multiply(R, R, qt_1);
+            vec3.multiply(S, S, v3_2);
+        }
+        // apply inverse upstream bindpose
+        target = animNode.parent === root ? animNode : animNode.parent!;
         vec3.set(v3_1, 0, 0, 0);
         quat.set(qt_1, 0, 0, 0, 1);
         vec3.set(v3_2, 1, 1, 1);
@@ -155,27 +204,19 @@ export class SkeletalAnimationClip extends AnimationClip {
         vec3.negate(v3_1, v3_1);
         vec3.transformQuat(v3_1, v3_1, qt_1);
         vec3.multiply(v3_1, v3_1, v3_2);
-        // compute rigging
-        const rPos = data.position.values;
-        const rRot = data.rotation.values;
-        const rScale = data.scale.values;
-        const position = props.position.values;
-        const rotation = props.rotation.values;
-        const scale = props.scale.values;
         for (let i = 0; i < position.length; i++) {
-            const T = rPos[i];
-            const R = rRot[i];
-            const S = rScale[i];
-            const worldT = position[i];
-            const worldR = rotation[i];
-            const worldS = scale[i];
-            vec3.multiply(T, worldT, v3_2);
+            const T = position[i];
+            const R = rotation[i];
+            const S = scale[i];
+            vec3.multiply(T, T, v3_2);
             vec3.transformQuat(T, T, qt_1);
             vec3.add(T, T, v3_1);
-            quat.multiply(R, qt_1, worldR);
-            vec3.multiply(S, v3_2, worldS);
+            quat.multiply(R, qt_1, R);
+            vec3.multiply(S, v3_2, S);
         }
-        return data;
+        // wrap up
+        if (!this.curveDatas[targetPath]) { this.curveDatas[targetPath] = {}; }
+        this.curveDatas[targetPath].props = data;
     }
 }
 

@@ -210,26 +210,6 @@ class BuiltinResMgr {
         defaultBillboardMtl.initialize({ effectName: 'builtin-billboard' });
         defaultBillboardMtl.onLoaded();
         resources[defaultBillboardMtl._uuid] = defaultBillboardMtl;
-
-        // customization for special effects
-        const tmp = aabb.create();
-        customizationManager.register('bounds-merge-shadow', {
-            onAttach: (m: Model) => {
-                const light = m.scene.mainLight;
-                const shadow = m.scene.planarShadows;
-                m.updateTransform = () => {
-                    const bounds = m.worldBounds;
-                    if (!m.transform.hasChanged && !light.node.hasChanged) { return; }
-                    if (!bounds) { m.transform.updateWorldTransformFull(); return; }
-                    m.modelBounds!.transform(m.transform.worldMatrix, null, null, null, bounds);
-                    bounds.transform(shadow.matLight, null, null, null, tmp);
-                    aabb.merge(bounds, bounds, tmp);
-                };
-            },
-            onDetach: (m: Model) => {
-                m.updateTransform = Model.prototype.updateTransform.bind(m);
-            },
-        });
     }
 
     public get<T extends Asset> (uuid: string) {
