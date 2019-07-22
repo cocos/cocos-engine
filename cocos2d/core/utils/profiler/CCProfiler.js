@@ -109,6 +109,46 @@ function generateAtlas () {
     spriteFrame.setTexture(texture);
 
     _atlas.spriteFrame = spriteFrame;
+
+    let fontDefDictionary = function(texture) {
+        this._letterDefinitions = {};
+        this._texture = texture;
+    }
+
+    fontDefDictionary.prototype.addLetterDefinitions = function (char, letter) {
+        this._letterDefinitions[char] = letter;
+    },
+
+    fontDefDictionary.prototype.getLetterDefinitionForChar = function (char) {
+        return this._letterDefinitions[char.charCodeAt(0)];
+    }
+
+    fontDefDictionary.prototype.getTexture = function () {
+        return this._texture;
+    }
+
+    fontDefDictionary.prototype.getLetter = function (key) {
+        return this._letterDefinitions[key];
+    },
+
+    _atlas._fontDefDictionary = new fontDefDictionary(texture);
+
+    for (let fontDef in dict) {
+        let letter = {};
+        let rect = dict[fontDef].rect;
+        letter.offsetX = dict[fontDef].xOffset;
+        letter.offsetY = dict[fontDef].yOffset;
+        letter.w = rect.width;
+        letter.h = rect.height;
+        letter.u = rect.x;
+        letter.v = rect.y;
+        //FIXME: only one texture supported for now
+        letter.textureID = 0;
+        letter.valid = true;
+        letter.xAdvance = dict[fontDef].xAdvance;
+
+        _atlas._fontDefDictionary.addLetterDefinitions(fontDef, letter);
+    }
 }
 
 function generateStats () {

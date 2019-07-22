@@ -23,16 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const labelAssembler = require('../label');
-const js = require('../../../../../platform/js');
-const assembler = require('../2d/letter');
-const fillMeshVertices3D = require('../../utils').fillMeshVertices3D;
-const WHITE = cc.color(255, 255, 255, 255);
+const Assembler3D = require('../../../../assembler-3d');
+const WebglLetterFontAssembler = require('../2d/letter');
 
-module.exports = labelAssembler.letter3D = js.addon({
-    fillBuffers (comp, renderer) {
-        let node = comp.node;
-        WHITE._fastSetA(node.color.a);
-        fillMeshVertices3D(comp.node, renderer._meshBuffer3D, comp._renderData, WHITE._val);
-    }
-}, assembler);
+export default class WebglLetterFontAssembler3D extends WebglLetterFontAssembler {
+
+}
+
+cc.js.mixin(WebglLetterFontAssembler3D.prototype, Assembler3D);
