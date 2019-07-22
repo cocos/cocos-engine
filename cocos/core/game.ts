@@ -763,9 +763,9 @@ class Game extends EventTarget {
             }
 
             // useWebGL2 = false;
-            if (useWebGL2) {
+            if (useWebGL2 && cc.WebGL2GFXDevice) {
                 this._gfxDevice = new cc.WebGL2GFXDevice();
-            } else {
+            } else if (cc.WebGLGFXDevice) {
                 this._gfxDevice = new cc.WebGLGFXDevice();
             }
 
