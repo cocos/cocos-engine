@@ -79,7 +79,12 @@ function generateAtlas () {
     
     for (let i = 32; i <= 126; i++) {
         let char = String.fromCharCode(i);
-        let width = ctx.measureText(char).width;
+        let measureResult = ctx.measureText(char);
+        let width = measureResult.width;
+        // NOTE: not merge into v2.2.0, move into Alipay adapter
+        if (measureResult.height) {
+            lineHeight = measureResult.height;
+        }
     
         if ((x + width) >= textureWidth) {
             x = space;
