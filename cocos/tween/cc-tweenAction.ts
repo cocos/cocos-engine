@@ -99,3 +99,4 @@ export class CCTweenAction {
 }
 
 cc.CCTweenAction = CCTweenAction;
+cc.TWEEN = TWEEN;
