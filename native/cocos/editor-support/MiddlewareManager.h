@@ -36,9 +36,10 @@ MIDDLEWARE_BEGIN
  */
 class IMiddleware {
 public:
-    IMiddleware(){}
-    virtual ~IMiddleware(){}
+    IMiddleware() {}
+    virtual ~IMiddleware() {}
     virtual void update(float dt) = 0;
+    virtual void render(float dt) = 0;
 };
 
 /**
@@ -66,10 +67,23 @@ public:
         }
     }
     
+    static uint8_t generateModuleID()
+    {
+        static uint8_t uniqueId = 0;
+        uniqueId++;
+        return uniqueId;
+    }
+    
     /**
-     * update by js
+     * @brief update all elements
+     * @param[in] dt Delta time.
      */
     void update(float dt);
+    
+    /**
+     * @brief render all elements
+     */
+    void render(float dt);
     
     /**
      * @brief Third party module add in _updateMap,it will update perframe.
@@ -88,10 +102,13 @@ public:
     MiddlewareManager();
     ~MiddlewareManager();
     
-    // If manager is traversing _updateMap,will set the flag,untill traverse is finished.
+    // If manager is traversing _updateMap, will set the flag untill traverse is finished.
+    bool isRendering = false;
     bool isUpdating = false;
-    
 private:
+    void _clearRemoveList();
+private:
+
     std::map<IMiddleware*, bool> _updateMap;
     std::vector<IMiddleware*> _removeList;
     std::map<int, MeshBuffer*> _mbMap;

@@ -550,7 +550,7 @@ bool BaseFactory::replaceSlotDisplayList(const std::string& dragonBonesName, con
     return true;
 }
 
-bool BaseFactory::replaceSkin(Armature* armature, SkinData* skin, bool isOverride, const std::vector<std::string>* exclude) const
+bool BaseFactory::replaceSkin(Armature* armature, SkinData* skin, bool isOverride, const std::vector<std::string>& exclude) const
 {
     DRAGONBONES_ASSERT(armature && skin, "Arguments error.");
 
@@ -559,7 +559,7 @@ bool BaseFactory::replaceSkin(Armature* armature, SkinData* skin, bool isOverrid
 
     for (const auto slot : armature->getSlots()) 
     {
-        if (exclude != nullptr && std::find(exclude->cbegin(), exclude->cend(), slot->getName()) != exclude->cend()) 
+        if (std::find(exclude.cbegin(), exclude.cend(), slot->getName()) != exclude.cend())
         {
             continue;
         }

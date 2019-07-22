@@ -32,6 +32,7 @@
 #include "spine/spine.h"
 #include "spine-creator-support/SkeletonRenderer.h"
 #include "spine-creator-support/SkeletonAnimation.h"
+#include "spine-creator-support/SkeletonDataMgr.h"
 #include "middleware-adapter.h"
 
 namespace spine {

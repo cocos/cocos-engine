@@ -25,6 +25,8 @@
 
 #include "IOBuffer.h"
 #include <vector>
+#include "renderer/gfx/VertexBuffer.h"
+#include "renderer/gfx/IndexBuffer.h"
 
 MIDDLEWARE_BEGIN
 
@@ -34,12 +36,12 @@ public:
     MeshBuffer(int vertexFormat);
     ~MeshBuffer();
 
-    uint32_t getGLVB()
+    inline cocos2d::renderer::VertexBuffer* getGLVB()
     {
         return _glVBArr[_bufferPos];
     }
     
-    uint32_t getGLIB()
+    inline cocos2d::renderer::IndexBuffer* getGLIB()
     {
         return _glIBArr[_bufferPos];
     }
@@ -60,12 +62,13 @@ public:
 private:
     void next();
 private:
-    std::vector<uint32_t> _glIBArr;
-    std::vector<uint32_t> _glVBArr;
+    std::vector<cocos2d::renderer::IndexBuffer*> _glIBArr;
+    std::vector<cocos2d::renderer::VertexBuffer*> _glVBArr;
     
     std::size_t _bufferPos = 0;
     IOBuffer _vb;
     IOBuffer _ib;
+    int _vertexFormat = 0;
 };
 
 MIDDLEWARE_END

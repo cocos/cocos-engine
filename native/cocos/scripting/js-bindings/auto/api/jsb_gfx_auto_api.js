@@ -467,6 +467,24 @@ enableDepthTest : function (
 },
 
 /**
+ * @method resetDrawCalls
+ */
+resetDrawCalls : function (
+)
+{
+},
+
+/**
+ * @method getDrawCalls
+ * @return {unsigned int}
+ */
+getDrawCalls : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method setBlendEquation
  * @param {cc.renderer::BlendOp} arg0
  */
@@ -594,6 +612,26 @@ getInstance : function (
  * @class FrameBuffer
  */
 gfx.FrameBuffer = {
+
+/**
+ * @method getHeight
+ * @return {int}
+ */
+getHeight : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getWidth
+ * @return {int}
+ */
+getWidth : function (
+)
+{
+    return 0;
+},
 
 /**
  * @method destroy

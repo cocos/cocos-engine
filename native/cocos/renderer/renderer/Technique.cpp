@@ -32,28 +32,39 @@ RENDERER_BEGIN
 
 // implementation of Parameter
 
-uint8_t Technique::Parameter::elementsOfType[] = {
-    1, // INT
-    2, // INT2
-    3, // INT3
-    4, // INT4
-    1, // FLOAT
-    2, // FLOAT2
-    3, // FLOAT3
-    4, // FLOAT4
-    3, // COLOR3
-    4, // COLOR4
-    4, // MAT2
-    9, // MAT3
-    16,// MAT4
-    1, // TEXTURE_2D
-    1, // TEXTURE_CUBE
-    0, // UNKNOWN
-};
-
 uint8_t Technique::Parameter::getElements(Type type)
 {
-    return Parameter::elementsOfType[(int)type];
+    switch (type)
+    {
+        case Type::INT:
+        return 1;
+        case Type::INT2:
+        return 2;
+        case Type::INT3:
+        return 3;
+        case Type::INT4:
+        return 4;
+        case Type::FLOAT:
+        return 1;
+        case Type::FLOAT2:
+        return 2;
+        case Type::FLOAT3:
+        return 3;
+        case Type::FLOAT4:
+        return 4;
+        case Type::COLOR3:
+        return 3;
+        case Type::COLOR4:
+        return 4;
+        case Type::MAT2:
+        return 4;
+        case Type::MAT3:
+        return 9;
+        case Type::MAT4:
+        return 16;
+        default:
+        return 0;
+    }
 }
 
 Technique::Parameter::Parameter()
@@ -256,6 +267,19 @@ Technique::Parameter& Technique::Parameter::operator=(const Parameter& rh)
     return *this;
 }
 
+bool Technique::Parameter::operator==(const Parameter& rh)
+{
+    if (this == &rh)
+        return true;
+    
+    if (_type == rh.getType() && _value == rh.getValue())
+    {
+        return true;
+    }
+    
+    return false;
+}
+
 std::vector<Texture*> Technique::Parameter::getTextureArray() const
 {
     std::vector<Texture*> ret;
@@ -308,11 +332,10 @@ void Technique::Parameter::copyValue(const Parameter& rh)
             _value = rh._value;
             RENDERER_SAFE_RETAIN((Texture*)_value);
         }
-        else
+        else if (_count > 0)
         {
-            if (_count > 0)
-                _value = malloc(_count * sizeof(void*));
-            
+            _value = malloc(_count * sizeof(void*));
+            memcpy(_value, rh._value, _count * sizeof(void*));
             Texture** texture = (Texture**)_value;
             for (uint8_t i = 0; i < _count; ++i)
             {
@@ -364,16 +387,19 @@ void Technique::Parameter::freeValue()
 uint32_t Technique::_genID = 0;
 
 Technique::Technique(const std::vector<std::string>& stages,
-                     const std::vector<Parameter>& parameters,
                      const Vector<Pass*>& passes,
                      int layer)
 : _id(_genID++)
 , _stageIDs(Config::getStageIDs(stages))
-, _parameters(parameters)
 , _passes(passes)
 , _layer(layer)
 {
 //    RENDERER_LOGD("Technique construction: %p", this);
+}
+
+Technique::Technique()
+{
+    
 }
 
 Technique::~Technique()
@@ -389,6 +415,22 @@ void Technique::setStages(const std::vector<std::string>& stages)
 void Technique::setPass(int index, Pass* pass)
 {
     _passes.insert(index, pass);
+}
+
+void Technique::copy(const Technique& tech)
+{
+    _id = tech._id;
+    _stageIDs = tech._stageIDs;
+    _layer = tech._layer;
+    _passes.clear();
+    auto& otherPasses = tech._passes;
+    for (auto it = otherPasses.begin(); it != otherPasses.end(); it++)
+    {
+        auto newPass = new Pass();
+        newPass->autorelease();
+        newPass->copy(**it);
+        _passes.pushBack(newPass);
+    }
 }
 
 RENDERER_END

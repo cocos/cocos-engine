@@ -2,17 +2,17 @@
  Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
-
+ 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
-
+ 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
-
+ 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -48,6 +48,24 @@ static uint32_t attrTypeBytes(AttribType attrType)
     return 0;
 }
 
+VertexFormat* VertexFormat::XY_UV_Two_Color = new VertexFormat(std::vector<Info>({
+    Info(ATTRIB_NAME_POSITION, AttribType::FLOAT32, 2),
+    Info(ATTRIB_NAME_UV0, AttribType::FLOAT32, 2),
+    Info(ATTRIB_NAME_COLOR, AttribType::UINT8, 4, true),
+    Info(ATTRIB_NAME_COLOR0, AttribType::UINT8, 4, true)
+}));
+
+VertexFormat* VertexFormat::XY_UV_Color = new VertexFormat(std::vector<Info>({
+    Info(ATTRIB_NAME_POSITION, AttribType::FLOAT32, 2),
+    Info(ATTRIB_NAME_UV0, AttribType::FLOAT32, 2),
+    Info(ATTRIB_NAME_COLOR, AttribType::UINT8, 4, true)
+}));
+
+VertexFormat* VertexFormat::XY_Color = new VertexFormat(std::vector<Info>({
+    Info(ATTRIB_NAME_POSITION, AttribType::FLOAT32, 2),
+    Info(ATTRIB_NAME_COLOR, AttribType::UINT8, 4, true)
+}));
+
 VertexFormat::VertexFormat()
 {
 }
@@ -76,6 +94,7 @@ VertexFormat::VertexFormat(const std::vector<Info>& infos)
         el.normalize = info._normalize;
         el.bytes = info._num * attrTypeBytes(info._type);
 
+        _names.push_back(el.name);
         _attr2el[el.name] = el;
         elements.push_back(&_attr2el[el.name]);
 
@@ -106,6 +125,7 @@ VertexFormat& VertexFormat::operator=(const VertexFormat& o)
 {
     if (this != &o)
     {
+        _names = o._names;
         _attr2el = o._attr2el;
 #if GFX_DEBUG > 0
         _elements = o._elements;
@@ -119,6 +139,7 @@ VertexFormat& VertexFormat::operator=(VertexFormat&& o)
 {
     if (this != &o)
     {
+        _names = std::move(o._names);
         _attr2el = std::move(o._attr2el);
 #if GFX_DEBUG > 0
         _elements = std::move(o._elements);
@@ -129,13 +150,13 @@ VertexFormat& VertexFormat::operator=(VertexFormat&& o)
     return *this;
 }
 
-const VertexFormat::Element& VertexFormat::getElement(const std::string& attrName) const
+const VertexFormat::Element* VertexFormat::getElement(const std::string& attrName) const
 {
-    static const Element INVALID_ELEMENT_VALUE;
+    static const Element* INVALID_ELEMENT_VALUE = nullptr;
     const auto& iter = _attr2el.find(attrName);
     if (iter != _attr2el.end())
     {
-        return iter->second;
+        return &iter->second;
     }
     return INVALID_ELEMENT_VALUE;
 }

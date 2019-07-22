@@ -426,8 +426,9 @@ void EventDispatcher::removeAllCustomEventListeners(const std::string& eventName
         Node* node = iter->second;
         while (node != nullptr)
         {
+            Node* next = node->next;
             delete node;
-            node = node->next;
+            node = next;
         }
         _listeners.erase(iter);
     }

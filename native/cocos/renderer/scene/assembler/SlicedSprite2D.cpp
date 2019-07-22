@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
  
  http://www.cocos2d-x.org
  
@@ -22,63 +22,36 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#pragma once
+#include "SlicedSprite2D.hpp"
+#include "../RenderFlow.hpp"
 
-#include "IOTypedArray.h"
-#include <functional>
+RENDERER_BEGIN
 
-MIDDLEWARE_BEGIN
-
-class RenderInfoMgr {
-public:
-    static RenderInfoMgr* getInstance ()
-    {
-        if (_instance == nullptr)
-        {
-            _instance = new RenderInfoMgr();
-        }
-        return _instance;
-    }
-
-    static void destroyInstance ()
-    {
-        if (_instance)
-        {
-            delete _instance;
-            _instance = nullptr;
-        }
-    }
-
-    RenderInfoMgr ();
-    virtual ~RenderInfoMgr ();
+SlicedSprite2D::SlicedSprite2D()
+{
     
-    void reset ()
-    {
-        _buffer->reset();
-    }
+}
 
-    IOTypedArray* getBuffer()
-    {
-        return _buffer;
-    }
+SlicedSprite2D::~SlicedSprite2D()
+{
+    
+}
 
-    typedef std::function<void()> resizeCallback;
-    void setResizeCallback(resizeCallback callback)
-    {
-        _resizeCallback = callback;
+void SlicedSprite2D::generateWorldVertices()
+{
+    RenderData* data = _datas->getRenderData(0);
+    float* verts = (float*)data->getVertices();
+    
+    auto floatsPerVert = _bytesPerVertex / sizeof(float);
+    for (auto row = 0; row < 4; ++row) {
+        float localRowY = _localData[row * 2 + 1];
+        for (auto col = 0; col < 4; ++col) {
+            float localColX = _localData[col * 2];
+            std::size_t worldIndex = (row * 4 + col) * floatsPerVert;
+            verts[worldIndex] = localColX ;
+            verts[worldIndex + 1] = localRowY;
+        }
     }
+}
 
-    se_object_ptr getRenderInfo()
-    {
-        return _buffer->getTypeArray();
-    }
-private:
-    void init();
-    void afterCleanupHandle();
-private:
-    static RenderInfoMgr* _instance;
-    IOTypedArray* _buffer = nullptr;
-    resizeCallback _resizeCallback = nullptr;
-};
-
-MIDDLEWARE_END
+RENDERER_END

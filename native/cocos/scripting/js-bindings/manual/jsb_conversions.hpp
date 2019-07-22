@@ -118,6 +118,7 @@ bool sevals_variadic_to_ccvaluevector(const se::ValueArray& args, cocos2d::Value
 bool seval_to_blendfunc(const se::Value& v, cocos2d::BlendFunc* ret);
 bool seval_to_std_vector_string(const se::Value& v, std::vector<std::string>* ret);
 bool seval_to_std_vector_int(const se::Value& v, std::vector<int>* ret);
+bool seval_to_std_vector_uint16(const se::Value& v, std::vector<uint16_t>* ret);
 bool seval_to_std_vector_float(const se::Value& v, std::vector<float>* ret);
 bool seval_to_std_vector_Vec2(const se::Value& v, std::vector<cocos2d::Vec2>* ret);
 //bool seval_to_Rect(const se::Value& v, cocos2d::Rect* rect);
@@ -144,13 +145,16 @@ bool seval_to_std_vector_RenderTarget(const se::Value& v, std::vector<cocos2d::r
 bool seval_to_TextureOptions(const se::Value& v, cocos2d::renderer::Texture::Options* ret);
 bool seval_to_TextureSubImageOption(const se::Value& v, cocos2d::renderer::Texture::SubImageOption* ret);
 bool seval_to_TextureImageOption(const se::Value& v, cocos2d::renderer::Texture::ImageOption* ret);
-bool seval_to_EffectProperty(const cocos2d::Vector<cocos2d::renderer::Technique *>& techniqes, const se::Value& v, std::unordered_map<std::string, cocos2d::renderer::Effect::Property>* ret);
+bool seval_to_EffectProperty(const se::Value& v, std::unordered_map<std::string, cocos2d::renderer::Effect::Property>* ret);
+bool seval_to_EffectTechnique(const se::Value& v, cocos2d::renderer::Technique** ret);
 bool seval_to_EffectDefineTemplate(const se::Value& v, std::vector<cocos2d::ValueMap>* ret);
 bool seval_to_TechniqueParameter_not_constructor(const se::Value& v, cocos2d::renderer::Technique::Parameter* ret);
 bool seval_to_TechniqueParameter(const se::Value& v, cocos2d::renderer::Technique::Parameter* ret);
 bool seval_to_std_vector_TechniqueParameter(const se::Value& v, std::vector<cocos2d::renderer::Technique::Parameter>* ret);
 bool seval_to_std_vector_ProgramLib_Template(const se::Value& v, std::vector<cocos2d::renderer::ProgramLib::Template>* ret);
 bool std_vector_RenderTarget_to_seval(const std::vector<cocos2d::renderer::RenderTarget*>& v, se::Value* ret);
+bool seval_to_EffectAsset(const std::string& s, cocos2d::Vector<cocos2d::renderer::Technique*>* ret);
+bool ccvaluevector_to_EffectPass(const cocos2d::ValueVector& v, cocos2d::Vector<cocos2d::renderer::Pass*>* passes);
 #endif
 
 template<typename T>
@@ -267,6 +271,7 @@ bool long_to_seval(long v, se::Value* ret);
 bool ulong_to_seval(unsigned long v, se::Value* ret);
 bool longlong_to_seval(long long v, se::Value* ret);
 bool ssize_to_seval(ssize_t v, se::Value* ret);
+bool size_to_seval(size_t v, se::Value* ret);
 bool std_string_to_seval(const std::string& v, se::Value* ret);
 
 bool Vec2_to_seval(const cocos2d::Vec2& v, se::Value* ret);
@@ -286,6 +291,7 @@ bool ccvaluevector_to_seval(const cocos2d::ValueVector& v, se::Value* ret);
 bool blendfunc_to_seval(const cocos2d::BlendFunc& v, se::Value* ret);
 bool std_vector_string_to_seval(const std::vector<std::string>& v, se::Value* ret);
 bool std_vector_int_to_seval(const std::vector<int>& v, se::Value* ret);
+bool std_vector_uint16_to_seval(const std::vector<uint16_t>& v, se::Value* ret);
 bool std_vector_float_to_seval(const std::vector<float>& v, se::Value* ret);
 //bool std_vector_Touch_to_seval(const std::vector<cocos2d::Touch*>& v, se::Value* ret);
 bool std_map_string_string_to_seval(const std::map<std::string, std::string>& v, se::Value* ret);

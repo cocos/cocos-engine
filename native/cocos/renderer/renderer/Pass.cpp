@@ -103,4 +103,47 @@ void Pass::setStencilBack(StencilFunc stencilFunc,
     _stencilWriteMaskBack = stencilWriteMask;
 }
 
+void Pass::copy(const Pass& pass)
+{
+    // blending
+    _blend = pass._blend;
+    _blendEq = pass._blendEq;
+    _blendAlphaEq = pass._blendAlphaEq;
+    _blendSrc = pass._blendSrc;
+    _blendDst = pass._blendDst;
+    _blendSrcAlpha = pass._blendSrcAlpha;
+    _blendDstAlpha = pass._blendDstAlpha;
+    _blendColor = pass._blendColor;
+    
+    // depth
+    _depthTest = pass._depthTest;
+    _depthWrite = pass._depthWrite;
+    _depthFunc = pass._depthFunc;
+    
+    // stencil
+    
+    _stencilTest = pass._stencilTest;
+    // front
+    _stencilRefFront = pass._stencilRefFront;
+    _stencilFuncFront = pass._stencilFuncFront;
+    _stencilFailOpFront = pass._stencilFailOpFront;
+    _stencilZFailOpFront = pass._stencilZFailOpFront;
+    _stencilZPassOpFront = pass._stencilZPassOpFront;
+    _stencilWriteMaskFront = pass._stencilWriteMaskFront;
+    _stencilMaskFront = pass._stencilMaskFront;
+    // back
+    _stencilRefBack = pass._stencilRefBack;
+    _stencilFuncBack = pass._stencilFuncBack;
+    _stencilFailOpBack = pass._stencilFailOpBack;
+    _stencilZFailOpBack = pass._stencilZFailOpBack;
+    _stencilZPassOpBack = pass._stencilZPassOpBack;
+    _stencilWriteMaskBack = pass._stencilWriteMaskBack;
+    _stencilMaskBack = pass._stencilMaskBack;
+    
+    // cull mode
+    _cullMode = pass._cullMode;
+    
+    _programName = pass._programName;
+}
+
 RENDERER_END

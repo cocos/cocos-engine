@@ -131,6 +131,18 @@ public:
      */
     virtual void advanceTime(float passedTime) override;
     /**
+     * - render all IAnimatable instances.
+     * @version Cocos creator 2.3
+     * @language en_US
+     */
+    /**
+     * - 渲染所有的 IAnimatable 实例。
+     * @version Cocos creator 2.3
+     * @language zh_CN
+     */
+    virtual void render() override;
+    
+    /**
      * - Check whether contains a specific instance of IAnimatable.
      * @param value - The IAnimatable instance.
      * @version DragonBones 3.0

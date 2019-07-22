@@ -37,6 +37,10 @@
 #include "IOTypedArray.h"
 #include "MiddlewareManager.h"
 #include "spine-creator-support/VertexEffectDelegate.h"
+#include "renderer/scene/NodeProxy.hpp"
+#include "base/CCMap.h"
+#include "middleware-adapter.h"
+#include "base/ccMacros.h"
 
 namespace spine {
 
@@ -52,7 +56,8 @@ namespace spine {
         static SkeletonRenderer* createWithFile (const std::string& skeletonDataFile, Atlas* atlas, float scale = 1);
         static SkeletonRenderer* createWithFile (const std::string& skeletonDataFile, const std::string& atlasFile, float scale = 1);
         
-        virtual void update (float deltaTime);
+        virtual void update (float deltaTime) override {}
+        virtual void render (float deltaTime) override;
         virtual cocos2d::Rect getBoundingBox () const;
         
         Skeleton* getSkeleton() const;
@@ -106,18 +111,22 @@ namespace spine {
             return nullptr;
         }
         
-        /**
-         * @return render info offset,it's a Uint32Array,
-         * format |render info offset|
-         */
-        se_object_ptr getRenderInfoOffset() const {
-            if (_renderInfoOffset) {
-                return _renderInfoOffset->getTypeArray();
-            }
-            return nullptr;
+        void bindNodeProxy(cocos2d::renderer::NodeProxy* node) {
+            if (node == _nodeProxy) return;
+            CC_SAFE_RELEASE(_nodeProxy);
+            _nodeProxy = node;
+            CC_SAFE_RETAIN(_nodeProxy);
         }
-
+        
+        void setEffect(cocos2d::renderer::Effect* effect) {
+            if (effect == _effect) return;
+            CC_SAFE_RELEASE(_effect);
+            _effect = effect;
+            CC_SAFE_RETAIN(_effect);
+        }
+        
         void setColor (cocos2d::Color4B& color);
+        void setBatchEnabled (bool enabled);
         void setDebugBonesEnabled (bool enabled);
         void setDebugSlotsEnabled (bool enabled);
         void setDebugMeshEnabled (bool enabled);
@@ -162,6 +171,7 @@ namespace spine {
         float               _timeScale = 1;
         bool                _paused = false;
         
+        bool                _batch = false;
         bool                _debugMesh = false;
         bool                _debugSlots = false;
         bool                _debugBones = false;
@@ -174,8 +184,9 @@ namespace spine {
         int                 _startSlotIndex = -1;
         int                 _endSlotIndex = -1;
         
-        cocos2d::middleware::IOTypedArray*  _renderInfoOffset = nullptr;
-        cocos2d::middleware::IOTypedArray*  _debugBuffer = nullptr;
+        cocos2d::middleware::IOTypedArray* _debugBuffer = nullptr;
+        cocos2d::renderer::NodeProxy* _nodeProxy = nullptr;
+        cocos2d::renderer::Effect* _effect = nullptr;
     };
 
 }

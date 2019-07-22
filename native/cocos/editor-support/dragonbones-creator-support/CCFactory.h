@@ -119,6 +119,11 @@ public:
         _dragonBonesInstance->advanceTime(dt);
     }
     
+    virtual void render(float dt) override
+    {
+        _dragonBonesInstance->render();
+    }
+    
     /**
      * @note When script engine clean up is trigger,will stop dragonbones timer.
      */

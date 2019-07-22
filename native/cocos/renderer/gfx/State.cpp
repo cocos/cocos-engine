@@ -38,7 +38,7 @@ namespace {
 State::State()
 // blend
 : blend(false)
-, blendSepartion(false)
+, blendSeparation(false)
 , blendColor(0xFFFFFFFF)
 , blendEq(BlendOp::ADD)
 , blendAlphaEq(BlendOp::ADD)
@@ -115,7 +115,7 @@ State& State::operator=(const State& o)
     {
         // blend
         blend = o.blend;
-        blendSepartion = o.blendSepartion;
+        blendSeparation = o.blendSeparation;
         blendColor = o.blendColor;
         blendEq = o.blendEq;
         blendAlphaEq = o.blendAlphaEq;
@@ -218,7 +218,7 @@ State& State::operator=(State&& o)
     {
         // blend
         blend = o.blend;
-        blendSepartion = o.blendSepartion;
+        blendSeparation = o.blendSeparation;
         blendColor = o.blendColor;
         blendEq = o.blendEq;
         blendAlphaEq = o.blendAlphaEq;
@@ -280,7 +280,7 @@ State& State::operator=(State&& o)
 
         // reset o
         o.blend = false;
-        o.blendSepartion = false;
+        o.blendSeparation = false;
         o.blendColor = 0xFFFFFFFF;
         o.blendEq = BlendOp::ADD;
         o.blendAlphaEq = BlendOp::ADD;

@@ -32,6 +32,14 @@ RENDERER_BEGIN
 class VertexBuffer;
 class IndexBuffer;
 
+/**
+ * @addtogroup renderer
+ * @{
+ */
+
+/**
+ *  @brief InputAssembler is an fundamental data structure to store vertex buffer and index buffer.
+ */
 class InputAssembler
 {
 public:
@@ -43,24 +51,66 @@ public:
     InputAssembler& operator=(const InputAssembler& o);
     InputAssembler& operator=(InputAssembler&& o);
 
+    /**
+     *  @brief Initializes with vertex buffer, index buffer and primitive type.
+     */
     bool init(VertexBuffer* vb,
               IndexBuffer* ib,
               PrimitiveType pt = PrimitiveType::TRIANGLES);
-    
+    /**
+     *  @brief Gets the primitive count.
+     */
     uint32_t getPrimitiveCount() const;
 
+    /**
+     *  @brief Sets the vertex buffer.
+     */
     void setVertexBuffer(VertexBuffer* vb);
+    /**
+     *  @brief Gets the vertex buffer.
+     */
     inline VertexBuffer* getVertexBuffer() const { return _vertexBuffer; }
+    /**
+     *  @brief Sets the index buffer.
+     */
     void setIndexBuffer(IndexBuffer* ib);
+    /**
+     *  @brief Gets the index buffer.
+     */
     inline IndexBuffer* getIndexBuffer() const { return _indexBuffer; }
 
+    /**
+     *  @brief Sets the index offset in buffer.
+     */
     inline void setStart(int start) { _start = start; }
+    /**
+     *  @brief Gets the index offset in buffer.
+     */
     inline int getStart() const { return _start; }
+    /**
+     *  @brief Sets the count of indices.
+     */
     inline void setCount(int count) { _count = count; }
+    /**
+     *  @brief Gets the count of indices.
+     */
     inline int getCount() const { return _count; }
+    /**
+     *  @brief Gets the primitive type.
+     */
     inline PrimitiveType getPrimitiveType() const { return _primitiveType; }
+    /**
+     *  @brief Sets the primitive type.
+     */
     inline void setPrimitiveType(PrimitiveType type) { _primitiveType = type; }
-
+    /**
+     *  @brief Clears all field.
+     */
+    void clear();
+    /**
+     *  @brief Can be merge.
+     */
+    bool isMergeable(const InputAssembler& ia) const;
 private:
     friend class BaseRenderer;
     
@@ -71,4 +121,6 @@ private:
     int _count = -1;
 };
 
+// end of renderer group
+/// @}
 RENDERER_END

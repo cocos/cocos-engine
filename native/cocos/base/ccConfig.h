@@ -39,7 +39,7 @@ THE SOFTWARE.
 // disable module if you didn't need it, this will reduce package size
 
 #ifndef USE_GFX_RENDERER
-#define USE_GFX_RENDERER 0
+#define USE_GFX_RENDERER 1
 #endif
 
 #ifndef USE_VIDEO
@@ -62,6 +62,8 @@ THE SOFTWARE.
 #define USE_MIDDLEWARE 1
 #endif
 
+#if USE_GFX_RENDERER > 0 && USE_MIDDLEWARE > 0
+
 #ifndef USE_SPINE
 #define USE_SPINE 1
 #endif
@@ -69,6 +71,12 @@ THE SOFTWARE.
 #ifndef USE_DRAGONBONES
 #define USE_DRAGONBONES 1
 #endif
+
+#ifndef USE_PARTICLE
+#define USE_PARTICLE 1
+#endif
+
+#endif // endif middleware
 
 /** @def CC_ENABLE_STACKABLE_ACTIONS
  * If enabled, actions that alter the position property (eg: MoveBy, JumpBy, BezierBy, etc..) will be stacked.

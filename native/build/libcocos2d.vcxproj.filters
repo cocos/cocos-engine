@@ -422,9 +422,6 @@
     <ClCompile Include="..\cocos\editor-support\IOBuffer.cpp">
       <Filter>editor-support</Filter>
     </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\RenderInfoMgr.cpp">
-      <Filter>editor-support</Filter>
-    </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\AttachmentVertices.cpp">
       <Filter>editor-support\spine-creator-support</Filter>
     </ClCompile>
@@ -593,12 +590,6 @@
     <ClCompile Include="..\cocos\editor-support\spine\AttachmentTimeline.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\AttachmentType.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\BlendMode.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine\Bone.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
@@ -611,28 +602,16 @@
     <ClCompile Include="..\cocos\editor-support\spine\ClippingAttachment.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\Color.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine\ColorTimeline.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine\Constraint.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\ContainerUtil.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine\CurveTimeline.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\Debug.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine\DeformTimeline.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\dll.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine\DrawOrderTimeline.cpp">
@@ -648,12 +627,6 @@
       <Filter>editor-support\spine</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine\Extension.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\HashMap.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\HasRendererObject.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine\IkConstraint.cpp">
@@ -677,12 +650,6 @@
     <ClCompile Include="..\cocos\editor-support\spine\MeshAttachment.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\MixBlend.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\MixDirection.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine\PathAttachment.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
@@ -704,16 +671,7 @@
     <ClCompile Include="..\cocos\editor-support\spine\PointAttachment.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\Pool.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\PositionMode.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine\RegionAttachment.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\RotateMode.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine\RotateTimeline.cpp">
@@ -755,25 +713,13 @@
     <ClCompile Include="..\cocos\editor-support\spine\SlotData.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\SpacingMode.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\spine.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine\SpineObject.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\SpineString.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine\TextureLoader.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine\Timeline.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\TimelineType.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine\TransformConstraint.cpp">
@@ -783,9 +729,6 @@
       <Filter>editor-support\spine</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine\TransformConstraintTimeline.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\TransformMode.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine\TranslateTimeline.cpp">
@@ -800,20 +743,77 @@
     <ClCompile Include="..\cocos\editor-support\spine\Updatable.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\Vector.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine\VertexAttachment.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\editor-support\spine\VertexEffect.cpp">
       <Filter>editor-support\spine</Filter>
     </ClCompile>
-    <ClCompile Include="..\cocos\editor-support\spine\Vertices.cpp">
-      <Filter>editor-support\spine</Filter>
-    </ClCompile>
     <ClCompile Include="..\cocos\editor-support\MeshBuffer.cpp">
       <Filter>editor-support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\MemPool.cpp">
+      <Filter>renderer\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\MeshBuffer.cpp">
+      <Filter>renderer\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\ModelBatcher.cpp">
+      <Filter>renderer\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\NodeMemPool.cpp">
+      <Filter>renderer\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\NodeProxy.cpp">
+      <Filter>renderer\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\ParallelTask.cpp">
+      <Filter>renderer\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\RenderFlow.cpp">
+      <Filter>renderer\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\StencilManager.cpp">
+      <Filter>renderer\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\assembler\Assembler.cpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\assembler\AssemblerBase.cpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\assembler\AssemblerSprite.cpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\assembler\CustomAssembler.cpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\assembler\MaskAssembler.cpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\assembler\RenderData.cpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\assembler\RenderDataList.cpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\assembler\SimpleSprite2D.cpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\assembler\SlicedSprite2D.cpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\assembler\TiledMapAssembler.cpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\renderer\CustomProperties.cpp">
+      <Filter>renderer\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\editor-support\particle\ParticleSimulator.cpp">
+      <Filter>editor-support\particle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_particle_auto.cpp">
+      <Filter>js-bindings\auto</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1517,9 +1517,6 @@
     <ClInclude Include="..\cocos\editor-support\IOBuffer.h">
       <Filter>editor-support</Filter>
     </ClInclude>
-    <ClInclude Include="..\cocos\editor-support\RenderInfoMgr.h">
-      <Filter>editor-support</Filter>
-    </ClInclude>
     <ClInclude Include="..\cocos\editor-support\MiddlewareMacro.h">
       <Filter>editor-support</Filter>
     </ClInclude>
@@ -1769,6 +1766,75 @@
     <ClInclude Include="..\cocos\editor-support\MeshBuffer.h">
       <Filter>editor-support</Filter>
     </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\MemPool.hpp">
+      <Filter>renderer\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\MeshBuffer.hpp">
+      <Filter>renderer\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\ModelBatcher.hpp">
+      <Filter>renderer\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\NodeMemPool.hpp">
+      <Filter>renderer\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\NodeProxy.hpp">
+      <Filter>renderer\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\ParallelTask.hpp">
+      <Filter>renderer\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\RenderFlow.hpp">
+      <Filter>renderer\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\scene-bindings.h">
+      <Filter>renderer\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\StencilManager.hpp">
+      <Filter>renderer\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\assembler\Assembler.hpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\assembler\AssemblerBase.hpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\assembler\AssemblerSprite.hpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\assembler\CustomAssembler.hpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\assembler\MaskAssembler.hpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\assembler\RenderData.hpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\assembler\RenderDataList.hpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\assembler\SimpleSprite2D.hpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\assembler\SlicedSprite2D.hpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\assembler\TiledMapAssembler.hpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\memop\RecyclePool.hpp">
+      <Filter>renderer\scene\memop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\renderer\CustomProperties.hpp">
+      <Filter>renderer\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\editor-support\particle\ParticleSimulator.h">
+      <Filter>editor-support\particle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_cocos2dx_particle_auto.hpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="base">
@@ -1899,6 +1965,18 @@
     </Filter>
     <Filter Include="editor-support\dragonbones\parser">
       <UniqueIdentifier>{adc17345-7ade-411b-abef-14ca3ae30e9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\scene">
+      <UniqueIdentifier>{092e6c27-6094-4ee8-a5fc-7082059c8f93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\scene\assembler">
+      <UniqueIdentifier>{6c380106-a041-45b9-90ee-d4b8194c1e2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\scene\memop">
+      <UniqueIdentifier>{241728db-2151-42d2-a002-3fb1fd260a78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="editor-support\particle">
+      <UniqueIdentifier>{333e24f4-af65-4a68-96a9-a5cccd0b4b81}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

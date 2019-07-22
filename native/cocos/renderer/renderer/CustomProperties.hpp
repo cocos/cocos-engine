@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
  
  http://www.cocos2d-x.org
  
@@ -22,44 +22,35 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "RenderInfoMgr.h"
-MIDDLEWARE_BEGIN
-RenderInfoMgr* RenderInfoMgr::_instance = nullptr;
+#pragma once
 
-RenderInfoMgr::RenderInfoMgr ()
+#include <stdio.h>
+#include "../Macro.h"
+#include "Technique.h"
+#include "base/CCValue.h"
+
+RENDERER_BEGIN
+
+class CustomProperties
 {
-    init();
-}
+public:
+    using Property = Technique::Parameter;
+    
+    CustomProperties();
+    ~CustomProperties();
+    
+    void setProperty(const std::string name, const Property& property);
+    const Property& getProperty(std::string name) const;
+    void define(const std::string& name, const Value& value);
+    Value getDefine(const std::string& name) const;
+    std::unordered_map<std::string, Property>* extractProperties();
+    ValueMap* extractDefines();
+    const double getHash() const {return _hash; };
+private:
+    std::unordered_map<std::string, Property> _properties;
+    ValueMap _defines;
+    double _hash = 0;
+    bool _dirty = false;
+};
 
-RenderInfoMgr::~RenderInfoMgr ()
-{
-    CC_SAFE_DELETE(_buffer);
-}
-
-void RenderInfoMgr::afterCleanupHandle()
-{
-    if (_buffer)
-    {
-        delete _buffer;
-        _buffer = nullptr;
-    }
-    se::ScriptEngine::getInstance()->addAfterInitHook(std::bind(&RenderInfoMgr::init,this));
-}
-
-void RenderInfoMgr::init()
-{
-    if (!_buffer)
-    {
-        _buffer = new IOTypedArray(se::Object::TypedArrayType::UINT32, INIT_RENDER_INFO_BUFFER_SIZE);
-        _buffer->setResizeCallback([this]
-        {
-           if (_resizeCallback)
-           {
-               _resizeCallback();
-           }
-        });
-    }
-    se::ScriptEngine::getInstance()->addAfterCleanupHook(std::bind(&RenderInfoMgr::afterCleanupHandle,this));
-}
-
-MIDDLEWARE_END
+RENDERER_END

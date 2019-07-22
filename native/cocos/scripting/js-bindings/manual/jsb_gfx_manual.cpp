@@ -223,8 +223,8 @@ static bool js_gfx_VertexBuffer_init(se::State& s)
         if (arg3.isObject())
         {
             typedArr = arg3.toObject();
-            assert(typedArr->isArrayBuffer());
-            ok = typedArr->getArrayBufferData(&data, &dataByteLength);
+            assert(typedArr->isTypedArray());
+            ok = typedArr->getTypedArrayData(&data, &dataByteLength);
             assert(ok);
         }
 
@@ -486,8 +486,8 @@ static bool js_gfx_IndexBuffer_init(se::State& s)
         if (arg3.isObject())
         {
             se::Object* typedArr = args[3].toObject();
-            assert(typedArr->isArrayBuffer());
-            ok = typedArr->getArrayBufferData(&data, &dataByteLength);
+            assert(typedArr->isTypedArray());
+            ok = typedArr->getTypedArrayData(&data, &dataByteLength);
             assert(ok);
         }
 
