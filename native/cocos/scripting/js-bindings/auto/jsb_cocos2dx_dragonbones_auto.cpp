@@ -5575,39 +5575,15 @@ static bool js_cocos2dx_dragonbones_BaseFactory_replaceSkin(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        dragonBones::Armature* arg0 = nullptr;
-        dragonBones::SkinData* arg1 = nullptr;
-        ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_native_ptr(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_replaceSkin : Error processing arguments");
-        bool result = cobj->replaceSkin(arg0, arg1);
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_replaceSkin : Error processing arguments");
-        return true;
-    }
-    if (argc == 3) {
-        dragonBones::Armature* arg0 = nullptr;
-        dragonBones::SkinData* arg1 = nullptr;
-        bool arg2;
-        ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_native_ptr(args[1], &arg1);
-        ok &= seval_to_boolean(args[2], &arg2);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_replaceSkin : Error processing arguments");
-        bool result = cobj->replaceSkin(arg0, arg1, arg2);
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_replaceSkin : Error processing arguments");
-        return true;
-    }
     if (argc == 4) {
         dragonBones::Armature* arg0 = nullptr;
         dragonBones::SkinData* arg1 = nullptr;
         bool arg2;
-        const std::vector<std::string>* arg3 = nullptr;
+        std::vector<std::string> arg3;
         ok &= seval_to_native_ptr(args[0], &arg0);
         ok &= seval_to_native_ptr(args[1], &arg1);
         ok &= seval_to_boolean(args[2], &arg2);
-        ok &= seval_to_native_ptr(args[3], &arg3);
+        ok &= seval_to_std_vector_string(args[3], &arg3);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_replaceSkin : Error processing arguments");
         bool result = cobj->replaceSkin(arg0, arg1, arg2, arg3);
         ok &= boolean_to_seval(result, &s.rval());
@@ -6000,24 +5976,13 @@ static bool js_cocos2dx_dragonbones_BaseFactory_changeSkin(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        dragonBones::Armature* arg0 = nullptr;
-        dragonBones::SkinData* arg1 = nullptr;
-        ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_native_ptr(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_changeSkin : Error processing arguments");
-        bool result = cobj->changeSkin(arg0, arg1);
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_changeSkin : Error processing arguments");
-        return true;
-    }
     if (argc == 3) {
         dragonBones::Armature* arg0 = nullptr;
         dragonBones::SkinData* arg1 = nullptr;
-        const std::vector<std::string>* arg2 = nullptr;
+        std::vector<std::string> arg2;
         ok &= seval_to_native_ptr(args[0], &arg0);
         ok &= seval_to_native_ptr(args[1], &arg1);
-        ok &= seval_to_native_ptr(args[2], &arg2);
+        ok &= seval_to_std_vector_string(args[2], &arg2);
         SE_PRECONDITION2(ok, false, "js_cocos2dx_dragonbones_BaseFactory_changeSkin : Error processing arguments");
         bool result = cobj->changeSkin(arg0, arg1, arg2);
         ok &= boolean_to_seval(result, &s.rval());

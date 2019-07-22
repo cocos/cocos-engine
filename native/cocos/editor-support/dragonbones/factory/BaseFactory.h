@@ -478,7 +478,7 @@ public:
      * @version DragonBones 5.6
      * @language zh_CN
      */
-    virtual bool replaceSkin(Armature* armature, SkinData* skin, bool isOverride = false, const std::vector<std::string>* exclude = nullptr) const;
+    virtual bool replaceSkin(Armature* armature, SkinData* skin, bool isOverride, const std::vector<std::string>& exclude) const;
     /**
      * - Replaces the existing animation data for a specific armature with the animation data for the specific armature data.
      * This enables you to make a armature template so that other armature without animations can share it's animations.
@@ -559,7 +559,7 @@ public:
      * @deprecated
      * @language zh_CN
      */
-    inline bool changeSkin(Armature* armature, SkinData* skin, const std::vector<std::string>* exclude = nullptr) const
+    inline bool changeSkin(Armature* armature, SkinData* skin, const std::vector<std::string>& exclude) const
     {
         return replaceSkin(armature, skin, false, exclude);
     }
