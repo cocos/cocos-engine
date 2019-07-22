@@ -28,7 +28,6 @@
  * @category core
  */
 
-import TWEEN from 'tween.js';
 import { widgetManager } from '../3d';
 // import SkinningModelSystem from '../3d/framework/skinning-model-system';
 import { PhysicsSystem } from '../3d/framework/physics/physics-system';
@@ -1061,8 +1060,10 @@ class Director extends EventTarget {
             }
 
             if (!CC_EDITOR) {
-                // Tween uodate
-                TWEEN.update(time);
+                if (cc.TWEEN) {
+                    // Tween update
+                    cc.TWEEN.update(time);
+                }
             }
 
             this.emit(Director.EVENT_BEFORE_PHYSICS);
