@@ -39,6 +39,7 @@ const downloader = require('./downloader');
 const parser = require('./parser');
 const packManager = require('./pack-manager');
 const Bundle = require('./bundle');
+const builtins = require('./builtins')
 const { parse, combine } = require('./urlTransformer');
 const { parseParameters } = require('./utilities');
 const { assets, files, parsed, pipeline, transformPipeline, fetchPipeline, initializePipeline, LoadStrategy, RequestType, bundles} = require('./shared');
@@ -105,6 +106,8 @@ function AssetManager () {
     this.downloader = downloader; 
 
     this.parser = parser;
+
+    this.builtins = builtins;
 
     this.packManager = packManager;
 

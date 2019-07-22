@@ -23,32 +23,28 @@
  THE SOFTWARE.
  ****************************************************************************/
 const Cache = require('./cache');
-const assetManager = require('./CCAssetManager');
 const { RequestType } = require('./shared');
 const { lock, unlock, release } = require('./finalizer');
 
 /**
  * !#en
  * This module contains the builtin asset 
- * All member can be accessed with 'cc.builtinResMgr'.
  * 
  * !#zh
- * 此模块包含内建资源，所有成员能通过cc.builtinResMgr访问
+ * 此模块包含内建资源，所有成员能通过`cc.assetManaer.builtins`访问
  * 
  * @static
- * @submodule builtinResMgr
- * @module builtinResMgr
  */
-var builtinResMgr = {
+var builtins = {
     
-    _builtin: new Cache(), // builtin assets
+    _assets: new Cache(), // builtin assets
 
     _loadBuiltins (name, cb) {
         let dirname = name  + 's';
         let builtin = new Cache();
-        this._builtin.add(name, builtin);
+        this._assets.add(name, builtin);
 
-        return assetManager._bundles.get('internal').load(dirname, {requestType: RequestType.DIR}, null, (err, assets) => {
+        return cc.assetManager._bundles.get('internal').load(dirname, {requestType: RequestType.DIR}, null, (err, assets) => {
             if (err) {
                 cc.error(err);
             }
@@ -79,7 +75,7 @@ var builtinResMgr = {
      */
     init (cb) {
         this.clear();
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS || !assetManager._bundles.has('internal')) {
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS || !cc.assetManager._bundles.has('internal')) {
             return cb && cb();
         }
 
@@ -101,15 +97,15 @@ var builtinResMgr = {
      * @return {*} Builtin-assets
      * 
      * @example
-     * cc.builtinResMgr.getBuiltin('effect', 'phone');
+     * cc.assetManaer.builtins.getBuiltin('effect', 'phone');
      * 
      * @typescript
      * getBuiltin(type: string, name: string): any
      */
     getBuiltin (type, name) {
-        if (arguments.length === 0) return this._builtin;
-        else if (arguments.length === 1) return this._builtin.get(type);
-        else return this._builtin.get(type).get(name);
+        if (arguments.length === 0) return this._assets;
+        else if (arguments.length === 1) return this._assets.get(type);
+        else return this._assets.get(type).get(name);
     },
 
     /**
@@ -125,15 +121,15 @@ var builtinResMgr = {
      * clear(): void
      */
     clear () {
-        this._builtin.forEach(function (assets) {
+        this._assets.forEach(function (assets) {
             assets.forEach(function (asset) {
                 unlock(asset);
                 release(asset, true);
             });
             assets.destroy();
         })
-        this._builtin.clear();
+        this._assets.clear();
     }
 }
 
-module.exports = cc.builtinResMgr = builtinResMgr;
+module.exports = builtins;
