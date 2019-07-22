@@ -34,6 +34,24 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /**
      * @zh
+     * 获取或设置是否允许休眠
+     */
+    // @property({
+    //     displayOrder: -1,
+    // })
+    public get allowSleep (): boolean {
+        return this._allowSleep;
+    }
+
+    public set allowSleep (v: boolean) {
+        this._allowSleep = v;
+        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
+            this.sharedBody.body.setAllowSleep(v);
+        }
+    }
+
+    /**
+     * @zh
      * 获取或设置刚体的质量。
      */
     @property({
@@ -218,6 +236,9 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /// PRIVATE PROPERTY ///
 
+    // @property
+    private _allowSleep: boolean = true;
+
     @property
     private _mass: number = NonRigidBodyProperties.mass;
 
@@ -369,6 +390,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
              * 从而导致ColliderComponent后添加会导致刚体的某些属性被重写
              */
             if (this.sharedBody) {
+                this.allowSleep = this._allowSleep;
                 this.mass = this._mass;
                 this.linearDamping = this._linearDamping;
                 this.angularDamping = this._angularDamping;
