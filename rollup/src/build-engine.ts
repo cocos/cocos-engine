@@ -101,9 +101,8 @@ function _checkPhysicsFlag (options: IBuildOptions) {
             (moduleEntry) => !allowedPhysicsModules.includes(moduleEntry));
     }
 
-    if (options.physics !== undefined) {
-        options.moduleEntries.push(physicsModulesMap[options.physics]);
-    }
+    const physics = options.physics === undefined ? Physics.cannon : options.physics;
+    options.moduleEntries.push(physicsModulesMap[physics]);
 }
 
 async function _internalBuild (options: IAdvancedOptions) {
