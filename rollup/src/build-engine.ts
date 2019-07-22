@@ -75,12 +75,35 @@ export interface IBuildOptions extends IBaseOptions {
 }
 
 export async function build (options: IBuildOptions) {
+    _checkPhysicsFlag(options);
     const globalDefines = getGlobalDefs(options.platform, options.physics, options.flags);
     return await _internalBuild(Object.assign(options, {globalDefines}));
 }
 
 function resolveModuleEntry (moduleEntry: string) {
     return normalize(`${__dirname}/../../exports/${moduleEntry}.ts`);
+}
+
+function _checkPhysicsFlag (options: IBuildOptions) {
+    const physicsModulesMap = {
+        [Physics.builtin]: `physics-builtin`,
+        [Physics.cannon]: `physics-cannon`,
+        [Physics.ammo]: `physics-ammo`,
+    };
+    const allowedPhysicsModules = Object.values(physicsModulesMap);
+
+    if (options.moduleEntries.some(
+        (moduleEntry) => allowedPhysicsModules.includes(moduleEntry))) {
+        console.warn(
+            `You shall not specify physics module explicitly. ` +
+            `Use 'physics' option instead.`);
+        options.moduleEntries = options.moduleEntries.filter(
+            (moduleEntry) => !allowedPhysicsModules.includes(moduleEntry));
+    }
+
+    if (options.physics !== undefined) {
+        options.moduleEntries.push(physicsModulesMap[options.physics]);
+    }
 }
 
 async function _internalBuild (options: IAdvancedOptions) {
