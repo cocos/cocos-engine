@@ -28,11 +28,11 @@ import Label from '../../../../components/CCLabel';
 
 import TTF from './2d/ttf';
 import Bmfont from './2d/bmfont';
-// import Letter from './2d/letter';
+import Letter from './2d/letter';
 
 import TTF3D from './3d/ttf';
 import Bmfont3D from './3d/bmfont';
-// import Letter3D from './3d/letter';
+import Letter3D from './3d/letter';
 
 Label._canvasPool = {
     pool: [],
@@ -78,9 +78,9 @@ Assembler.register(cc.Label, {
 
     TTF,
     Bmfont,
-    // Letter,
+    Letter,
 
     TTF3D,
     Bmfont3D,
-    // Letter3D
+    Letter3D
 });

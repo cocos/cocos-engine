@@ -30,155 +30,15 @@ const macro = require('../../../platform/CCMacro');
 const Label = require('../../../components/CCLabel');
 const Overflow = Label.Overflow;
 
-let FontLetterDefinition = function() {
-    this._u = 0;
-    this._v = 0;
-    this._width = 0;
-    this._height = 0;
-    this._offsetX = 0;
-    this._offsetY = 0;
-    this._textureID = 0;
-    this._validDefinition = false;
-    this._xAdvance = 0;
-};
-
-cc.FontAtlas = function (texture) {
-    this._letterDefinitions = {};
-    this._texture = texture;
-};
-
-cc.FontAtlas.prototype = {
-    constructor: cc.FontAtlas,
-    addLetterDefinitions (letter, letterDefinition) {
-        this._letterDefinitions[letter] = letterDefinition;
-    },
-    cloneLetterDefinition () {
-        let copyLetterDefinitions = {};
-        for (let key in this._letterDefinitions) {
-            let value = new FontLetterDefinition();
-            cc.js.mixin(value, this._letterDefinitions[key]);
-            copyLetterDefinitions[key] = value;
-        }
-        return copyLetterDefinitions;
-    },
-    assignLetterDefinitions (letterDefinition) {
-        for (let key in this._letterDefinitions) {
-            let newValue = letterDefinition[key];
-            let oldValue = this._letterDefinitions[key];
-            cc.js.mixin(oldValue, newValue);
-        }
-    },
-    scaleFontLetterDefinition (scaleFactor) {
-        for (let fontDefinition in this._letterDefinitions) {
-            let letterDefinitions = this._letterDefinitions[fontDefinition];
-            letterDefinitions._width *= scaleFactor;
-            letterDefinitions._height *= scaleFactor;
-            letterDefinitions._offsetX *= scaleFactor;
-            letterDefinitions._offsetY *= scaleFactor;
-            letterDefinitions._xAdvance *= scaleFactor;
-        }
-    },
-    getLetterDefinitionForChar (char) {
-        let hasKey = this._letterDefinitions.hasOwnProperty(char.charCodeAt(0));
-        let letterDefinition;
-        if (hasKey) {
-            letterDefinition = this._letterDefinitions[char.charCodeAt(0)];
-        } else {
-            letterDefinition = null;
-        }
-        return letterDefinition;
-    }
-};
-
-let FontAtlasManager = function () {
-    this._fontAtlas = {};
-    this._references = {};
-
-    cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, this.clear, this);
-}
-
-FontAtlasManager.prototype.getFontAtlas = function (comp) {
-    let fontAsset = comp.font;
-    let fntConfig = fontAsset._fntConfig;
-    let name = fntConfig.atlasName
-    let atlas = this._fontAtlas[name];
-    if (!atlas) {
-        atlas = this.createFontAtlas(fontAsset);
-        this._fontAtlas[name] = atlas;
-    }
-
-    if (!this._references[name]) {
-        this._references[name] = [];
-    }
-    
-    if (this._references[name].indexOf(comp.node._id) === -1) {
-        this._references[name].push(comp.node._id);
-    }
-    
-    return this._fontAtlas[name];
-}
-
-FontAtlasManager.prototype.releaseFontAtlas = function (font, id) {
-    if (!font) return
-    if (!(font instanceof cc.BitmapFont)) return
-    if (!font._fntConfig) return
-    
-    let fntConfig = font._fntConfig;
-    let name = fntConfig.atlasName;
-    let reference = this._references[name];
-    if (reference) {
-        for (let i = reference.length - 1; i >= 0; i--) {
-            if (reference[i] === id) {
-                reference.splice(i, 1);
-                break;
-            }
-        }
-    }
-
-    if (!reference || reference.length === 0) {
-        delete this._fontAtlas[name];
-    }
-}
-
-FontAtlasManager.prototype.createFontAtlas = function (fontAsset) {
-    let spriteFrame = fontAsset.spriteFrame;
-    let fntConfig = fontAsset._fntConfig;
-    let atlas = new cc.FontAtlas(spriteFrame.texture);
-    let fontDict = fntConfig.fontDefDictionary;
-    for (let fontDef in fontDict) {
-        let letterDefinition = new FontLetterDefinition();
-
-        let rect = fontDict[fontDef].rect;
-        letterDefinition._offsetX = fontDict[fontDef].xOffset;
-        letterDefinition._offsetY = fontDict[fontDef].yOffset;
-        letterDefinition._width = rect.width;
-        letterDefinition._height = rect.height;
-        letterDefinition._u = rect.x;
-        letterDefinition._v = rect.y;
-        //FIXME: only one texture supported for now
-        letterDefinition._textureID = 0;
-        letterDefinition._validDefinition = true;
-        letterDefinition._xAdvance = fontDict[fontDef].xAdvance;
-
-        atlas.addLetterDefinitions(fontDef, letterDefinition);
-    }
-
-    return atlas;
-}
-
-FontAtlasManager.prototype.clear = function () {
-    this._fontAtlas = {};
-    this._references = {};
-}
-
-cc.Label.FontAtlasManager = new FontAtlasManager();
+const shareLabelInfo = require('../utils').shareLabelInfo;
 
 let LetterInfo = function() {
-    this._char = '';
-    this._valid = true;
-    this._positionX = 0;
-    this._positionY = 0;
-    this._lineIndex = 0;
+    this.char = '';
+    this.valid = true;
+    this.x = 0;
+    this.y = 0;
+    this.line = 0;
+    this.hash = "";
 };
 
 let _tmpRect = cc.rect();
@@ -189,23 +49,23 @@ let _horizontalKernings = [];
 let _lettersInfo = [];
 let _linesWidth = [];
 let _linesOffsetX = [];
-let _labelDimensions = cc.size();
 
-let _fontAtlas = null;
 let _fntConfig = null;
 let _numberOfLines = 0;
 let _textDesiredHeight =  0;
 let _letterOffsetY =  0;
 let _tailoredTopY =  0;
+
 let _tailoredBottomY =  0;
 let _bmfontScale =  1.0;
+
 let _lineBreakWithoutSpaces =  false;
 let _spriteFrame = null;
 let _lineSpacing = 0;
+let _contentSize = cc.size();
 let _string = '';
 let _fontSize = 0;
 let _originFontSize = 0;
-let _contentSize = cc.size();
 let _hAlign = 0;
 let _vAlign = 0;
 let _spacingX = 0;
@@ -224,7 +84,9 @@ export default class BmfontAssembler extends Assembler2D {
         _comp = comp;
         
         this._reserveQuads(comp, comp.string.toString().length);
-        this._updateProperties();
+        this._updateFontFamily(comp);
+        this._updateProperties(comp);
+        this._updateLabelInfo(comp);
         this._updateContent();
         this.updateWorldVerts(comp);
         
@@ -232,34 +94,36 @@ export default class BmfontAssembler extends Assembler2D {
         _comp.node.setContentSize(_contentSize);
 
         _comp._vertsDirty = false;
-
         _comp = null;
-        
         this._resetProperties();
     }
-
-    _reserveQuads () {}
 
     _updateFontScale () {
         _bmfontScale = _fontSize / _originFontSize;
     }
 
-    _updateProperties () {
-        let fontAsset = _comp.font;
+    _updateFontFamily (comp) {
+        let fontAsset = comp.font;
         _spriteFrame = fontAsset.spriteFrame;
         _fntConfig = fontAsset._fntConfig;
-        _fontAtlas = cc.Label.FontAtlasManager.getFontAtlas(_comp);
+        shareLabelInfo.fontAtlas = fontAsset._fontDefDictionary;
+    }
 
-        _string = _comp.string.toString();
-        _fontSize = _comp.fontSize;
-        _originFontSize = _fntConfig.fontSize;
-        _contentSize.width = _comp.node._contentSize.width;
-        _contentSize.height = _comp.node._contentSize.height;
-        _hAlign = _comp.horizontalAlign;
-        _vAlign = _comp.verticalAlign;
-        _spacingX = _comp.spacingX;
-        _overflow = _comp.overflow;
-        _lineHeight = _comp._lineHeight;
+    _updateLabelInfo() {
+        // clear
+        shareLabelInfo.hash = "";
+        shareLabelInfo.margin = 0;
+    }
+
+    _updateProperties (comp) {
+        _string = comp.string.toString();
+        _fontSize = comp.fontSize;
+        _originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
+        _hAlign = comp.horizontalAlign;
+        _vAlign = comp.verticalAlign;
+        _spacingX = comp.spacingX;
+        _overflow = comp.overflow;
+        _lineHeight = comp._lineHeight;
                 
         // should wrap text
         if (_overflow === Overflow.NONE) {
@@ -269,16 +133,23 @@ export default class BmfontAssembler extends Assembler2D {
             _isWrapText = true;
         }
         else {
-            _isWrapText = _comp.enableWrapText;
+            _isWrapText = comp.enableWrapText;
         }
+
+        _contentSize.width = comp.node._contentSize.width + shareLabelInfo.margin * 2;
+        _contentSize.height = comp.node._contentSize.height + shareLabelInfo.margin * 2;
+        
+        shareLabelInfo.lineHeight = _lineHeight;
+        shareLabelInfo.fontSize = _fontSize;
 
         this._setupBMFontOverflowMetrics();
     }
 
     _resetProperties () {
-        _fontAtlas = null;
         _fntConfig = null;
         _spriteFrame = null;
+        shareLabelInfo.hash = "";
+        shareLabelInfo.margin = 0;
     }
 
     _updateContent () {
@@ -321,10 +192,6 @@ export default class BmfontAssembler extends Assembler2D {
         let letterDef = null;
         let letterPosition = cc.v2(0, 0);
 
-        this._updateFontScale();
-
-        let letterDefinitions = _fontAtlas._letterDefinitions;
-
         for (let index = 0; index < textLen;) {
             let character = _string.charAt(index);
             if (character === "\n") {
@@ -352,19 +219,19 @@ export default class BmfontAssembler extends Assembler2D {
                     this._recordPlaceholderInfo(letterIndex, character);
                     continue;
                 }
-                letterDef = _fontAtlas.getLetterDefinitionForChar(character);
+                letterDef = shareLabelInfo.fontAtlas.getLetterDefinitionForChar(character, shareLabelInfo);
                 if (!letterDef) {
                     this._recordPlaceholderInfo(letterIndex, character);
                     console.log("Can't find letter definition in texture atlas " + _fntConfig.atlasName + " for letter:" + character);
                     continue;
                 }
 
-                let letterX = nextLetterX + letterDef._offsetX * _bmfontScale;
+                let letterX = nextLetterX + letterDef.offsetX * _bmfontScale - shareLabelInfo.margin;
 
                 if (_isWrapText
                     && _maxLineWidth > 0
                     && nextTokenX > 0
-                    && letterX + letterDef._width * _bmfontScale > _maxLineWidth
+                    && letterX + letterDef.w * _bmfontScale > _maxLineWidth
                     && !textUtils.isUnicodeSpace(character)) {
                     _linesWidth.push(letterRight);
                     letterRight = 0;
@@ -377,23 +244,23 @@ export default class BmfontAssembler extends Assembler2D {
                     letterPosition.x = letterX;
                 }
 
-                letterPosition.y = nextTokenY - letterDef._offsetY * _bmfontScale;
-                this._recordLetterInfo(letterDefinitions, letterPosition, character, letterIndex, lineIndex);
+                letterPosition.y = nextTokenY - letterDef.offsetY * _bmfontScale  + shareLabelInfo.margin + _fontSize * textUtils.MIDDLE_RATIO / 2;
+                this._recordLetterInfo(letterPosition, character, letterIndex, lineIndex);
 
                 if (letterIndex + 1 < _horizontalKernings.length && letterIndex < textLen - 1) {
                     nextLetterX += _horizontalKernings[letterIndex + 1];
                 }
 
-                nextLetterX += letterDef._xAdvance * _bmfontScale + _spacingX;
+                nextLetterX += letterDef.xAdvance * _bmfontScale + _spacingX  - shareLabelInfo.margin * 2;
 
-                tokenRight = letterPosition.x + letterDef._width * _bmfontScale;
+                tokenRight = letterPosition.x + letterDef.w * _bmfontScale  - shareLabelInfo.margin;
 
                 if (tokenHighestY < letterPosition.y) {
                     tokenHighestY = letterPosition.y;
                 }
 
-                if (tokenLowestY > letterPosition.y - letterDef._height * _bmfontScale) {
-                    tokenLowestY = letterPosition.y - letterDef._height * _bmfontScale;
+                if (tokenLowestY > letterPosition.y - letterDef.h * _bmfontScale) {
+                    tokenLowestY = letterPosition.y - letterDef.h * _bmfontScale;
                 }
 
             } //end of for loop
@@ -427,10 +294,10 @@ export default class BmfontAssembler extends Assembler2D {
         _contentSize.width = _labelWidth;
         _contentSize.height = _labelHeight;
         if (_labelWidth <= 0) {
-            _contentSize.width = parseFloat(longestLine.toFixed(2));
+            _contentSize.width = parseFloat(longestLine.toFixed(2)) + shareLabelInfo.margin * 2;
         }
         if (_labelHeight <= 0) {
-            _contentSize.height = parseFloat(_textDesiredHeight.toFixed(2));
+            _contentSize.height = parseFloat(_textDesiredHeight.toFixed(2)) + shareLabelInfo.margin * 2 + _fontSize * textUtils.BASELINE_RATIO;
         }
 
         _tailoredTopY = _contentSize.height;
@@ -458,27 +325,27 @@ export default class BmfontAssembler extends Assembler2D {
         }
 
         let len = 1;
-        let letterDef = _fontAtlas.getLetterDefinitionForChar(character);
+        let letterDef = shareLabelInfo.fontAtlas.getLetterDefinitionForChar(character, shareLabelInfo);
         if (!letterDef) {
             return len;
         }
-        let nextLetterX = letterDef._xAdvance * _bmfontScale + _spacingX;
+        let nextLetterX = letterDef.xAdvance * _bmfontScale + _spacingX;
         let letterX;
         for (let index = startIndex + 1; index < textLen; ++index) {
             character = text.charAt(index);
 
-            letterDef = _fontAtlas.getLetterDefinitionForChar(character);
+            letterDef = shareLabelInfo.fontAtlas.getLetterDefinitionForChar(character, shareLabelInfo);
             if (!letterDef) {
                 break;
             }
-            letterX = nextLetterX + letterDef._offsetX * _bmfontScale;
+            letterX = nextLetterX + letterDef.offsetX * _bmfontScale;
 
-            if(letterX + letterDef._width * _bmfontScale > _maxLineWidth
+            if(letterX + letterDef.w * _bmfontScale > _maxLineWidth
                && !textUtils.isUnicodeSpace(character)
                && _maxLineWidth > 0) {
                 return len;
             }
-            nextLetterX += letterDef._xAdvance * _bmfontScale + _spacingX;
+            nextLetterX += letterDef.xAdvance * _bmfontScale + _spacingX;
             if (character === "\n"
                 || textUtils.isUnicodeSpace(character)
                 || textUtils.isUnicodeCJK(character)) {
@@ -504,22 +371,25 @@ export default class BmfontAssembler extends Assembler2D {
             _lettersInfo.push(tmpInfo);
         }
 
-        _lettersInfo[letterIndex]._char = char;
-        _lettersInfo[letterIndex]._valid = false;
+        _lettersInfo[letterIndex].char = char;
+        _lettersInfo[letterIndex].hash = char.charCodeAt(0) + shareLabelInfo.hash;
+        _lettersInfo[letterIndex].valid = false;
     }
 
-    _recordLetterInfo (letterDefinitions, letterPosition, character, letterIndex, lineIndex) {
+    _recordLetterInfo (letterPosition, character, letterIndex, lineIndex) {
         if (letterIndex >= _lettersInfo.length) {
             let tmpInfo = new LetterInfo();
             _lettersInfo.push(tmpInfo);
         }
-        character = character.charCodeAt(0);
+        let char = character.charCodeAt(0);
+        let key = char + shareLabelInfo.hash;
 
-        _lettersInfo[letterIndex]._lineIndex = lineIndex;
-        _lettersInfo[letterIndex]._char = character;
-        _lettersInfo[letterIndex]._valid = letterDefinitions[character]._validDefinition;
-        _lettersInfo[letterIndex]._positionX = letterPosition.x;
-        _lettersInfo[letterIndex]._positionY = letterPosition.y;
+        _lettersInfo[letterIndex].line= lineIndex;
+        _lettersInfo[letterIndex].char = character;
+        _lettersInfo[letterIndex].hash = key;
+        _lettersInfo[letterIndex].valid = shareLabelInfo.fontAtlas.getLetter(key).valid;
+        _lettersInfo[letterIndex].x = letterPosition.x;
+        _lettersInfo[letterIndex].y = letterPosition.y;
     }
 
     _alignText () {
@@ -563,11 +433,8 @@ export default class BmfontAssembler extends Assembler2D {
 
     _shrinkLabelToContentSize (lambda) {
         let fontSize = _fontSize;
-        let originalLineHeight = _lineHeight;
-        let fontAtlas = _fontAtlas;
-        
+    
         let i = 0;
-        let tempLetterDefinition = fontAtlas.cloneLetterDefinition();
         let flag = true;
 
         while (lambda()) {
@@ -580,9 +447,7 @@ export default class BmfontAssembler extends Assembler2D {
             }
 
             let scale = newFontSize / fontSize;
-            fontAtlas.assignLetterDefinitions(tempLetterDefinition);
-            fontAtlas.scaleFontLetterDefinition(scale);
-            _lineHeight = originalLineHeight * scale;
+            _bmfontScale = scale;
             if (!_lineBreakWithoutSpaces) {
                 this._multilineTextWrapByWord();
             } else {
@@ -590,9 +455,6 @@ export default class BmfontAssembler extends Assembler2D {
             }
             this._computeAlignmentOffset();
         }
-
-        _lineHeight = originalLineHeight;
-        fontAtlas.assignLetterDefinitions(tempLetterDefinition);
 
         if (!flag) {
             if (fontSize - i >= 0) {
@@ -610,15 +472,14 @@ export default class BmfontAssembler extends Assembler2D {
     }
 
     _isHorizontalClamp () {
-        let letterDefinitions = _fontAtlas._letterDefinitions;
         let letterClamp = false;
         for (let ctr = 0, l = _string.length; ctr < l; ++ctr) {
             let letterInfo = _lettersInfo[ctr];
-            if (letterInfo._valid) {
-                let letterDef = letterDefinitions[letterInfo._char];
+            if (letterInfo.valid) {
+                let letterDef = shareLabelInfo.fontAtlas.getLetter(letterInfo.hash);
 
-                let px = letterInfo._positionX + letterDef._width * _bmfontScale;
-                let lineIndex = letterInfo._lineIndex;
+                let px = letterInfo.x + letterDef.w * _bmfontScale;
+                let lineIndex = letterInfo.line;
                 if (_labelWidth > 0) {
                     if (!_isWrapText) {
                         if(px > _contentSize.width){
@@ -651,8 +512,7 @@ export default class BmfontAssembler extends Assembler2D {
     }
 
     _updateQuads () {
-        let letterDefinitions = _fontAtlas._letterDefinitions;
-        let texture = _spriteFrame._texture;
+        let texture = shareLabelInfo.fontAtlas.getTexture();
 
         let node = _comp.node;
         let renderData = _comp._renderData;
@@ -667,15 +527,15 @@ export default class BmfontAssembler extends Assembler2D {
         let ret = true;
         for (let ctr = 0, l = _string.length; ctr < l; ++ctr) {
             let letterInfo = _lettersInfo[ctr];
-            if (!letterInfo._valid) continue;
-            let letterDef = letterDefinitions[letterInfo._char];
+            if (!letterInfo.valid) continue;
+            let letterDef = shareLabelInfo.fontAtlas.getLetter(letterInfo.hash);
 
-            _tmpRect.height = letterDef._height;
-            _tmpRect.width = letterDef._width;
-            _tmpRect.x = letterDef._u;
-            _tmpRect.y = letterDef._v;
+            _tmpRect.height = letterDef.h;
+            _tmpRect.width = letterDef.w;
+            _tmpRect.x = letterDef.u;
+            _tmpRect.y = letterDef.v;
 
-            let py = letterInfo._positionY + _letterOffsetY;
+            let py = letterInfo.y + _letterOffsetY;
 
             if (_labelHeight > 0) {
                 if (py > _tailoredTopY) {
@@ -685,20 +545,20 @@ export default class BmfontAssembler extends Assembler2D {
                     py = py - clipTop;
                 }
 
-                if (py - letterDef._height * _bmfontScale < _tailoredBottomY) {
+                if (py - letterDef.h * _bmfontScale < _tailoredBottomY) {
                     _tmpRect.height = (py < _tailoredBottomY) ? 0 : (py - _tailoredBottomY);
                 }
             }
 
-            let lineIndex = letterInfo._lineIndex;
-            let px = letterInfo._positionX + letterDef._width / 2 * _bmfontScale + _linesOffsetX[lineIndex];
+            let lineIndex = letterInfo.line;
+            let px = letterInfo.x + letterDef.w / 2 * _bmfontScale + _linesOffsetX[lineIndex];
 
             if (_labelWidth > 0) {
                 if (this._isHorizontalClamped(px, lineIndex)) {
                     if (_overflow === Overflow.CLAMP) {
                         _tmpRect.width = 0;
                     } else if (_overflow === Overflow.SHRINK) {
-                        if (_contentSize.width > letterDef._width) {
+                        if (_contentSize.width > letterDef.w) {
                             ret = false;
                             break;
                         } else {
@@ -709,27 +569,8 @@ export default class BmfontAssembler extends Assembler2D {
             }
 
             if (_tmpRect.height > 0 && _tmpRect.width > 0) {
-                let isRotated = _spriteFrame.isRotated();
-
-                let originalSize = _spriteFrame._originalSize;
-                let rect = _spriteFrame._rect;
-                let offset = _spriteFrame._offset;
-                let trimmedLeft = offset.x + (originalSize.width - rect.width) / 2;
-                let trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
-
-                if(!isRotated) {
-                    _tmpRect.x += (rect.x - trimmedLeft);
-                    _tmpRect.y += (rect.y + trimmedTop);
-                } else {
-                    let originalX = _tmpRect.x;
-                    _tmpRect.x = rect.x + rect.height - _tmpRect.y - _tmpRect.height - trimmedTop;
-                    _tmpRect.y = originalX + rect.y - trimmedLeft;
-                    if (_tmpRect.y < 0) {
-                        _tmpRect.height = _tmpRect.height + trimmedTop;
-                    }
-                }
-
-                let letterPositionX = letterInfo._positionX + _linesOffsetX[letterInfo._lineIndex];
+                let isRotated = this._determineRect(_tmpRect);
+                let letterPositionX = letterInfo.x + _linesOffsetX[letterInfo.line];
                 this.appendQuad(_comp, texture, _tmpRect, isRotated, letterPositionX - appx, py - appy, _bmfontScale);
             }
         }
@@ -738,10 +579,29 @@ export default class BmfontAssembler extends Assembler2D {
         return ret;
     }
 
-    appendQuad (comp, texture, rect, rotated, x, y, scale) {
-    }
+    _determineRect (tempRect) {
+        let isRotated = _spriteFrame.isRotated();
 
-    _quadsUpdated (comp) {}
+        let originalSize = _spriteFrame._originalSize;
+        let rect = _spriteFrame._rect;
+        let offset = _spriteFrame._offset;
+        let trimmedLeft = offset.x + (originalSize.width - rect.width) / 2;
+        let trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
+
+        if(!isRotated) {
+            tempRect.x += (rect.x - trimmedLeft);
+            tempRect.y += (rect.y + trimmedTop);
+        } else {
+            let originalX = tempRect.x;
+            tempRect.x = rect.x + rect.height - tempRect.y - tempRect.height - trimmedTop;
+            tempRect.y = originalX + rect.y - trimmedLeft;
+            if (tempRect.y < 0) {
+                tempRect.height = tempRect.height + trimmedTop;
+            }
+        }
+
+        return isRotated;
+    }
 
     _computeAlignmentOffset () {
         _linesOffsetX.length = 0;
@@ -771,10 +631,10 @@ export default class BmfontAssembler extends Assembler2D {
                 _letterOffsetY = _contentSize.height;
                 break;
             case macro.VerticalTextAlignment.CENTER:
-                _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2;
+                _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2 - (_lineHeight - _originFontSize) / 2;
                 break;
             case macro.VerticalTextAlignment.BOTTOM:
-                _letterOffsetY = _textDesiredHeight;
+                _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2 - (_lineHeight - _originFontSize);
                 break;
             default:
                 break;
@@ -796,10 +656,13 @@ export default class BmfontAssembler extends Assembler2D {
 
         _labelWidth = newWidth;
         _labelHeight = newHeight;
-        _labelDimensions.width = newWidth;
-        _labelDimensions.height = newHeight;
         _maxLineWidth = newWidth;
     }
 
     updateWorldVerts() {}
+
+    appendQuad (comp, texture, rect, rotated, x, y, scale) {}
+    _quadsUpdated (comp) {}
+
+    _reserveQuads () {}
 }
