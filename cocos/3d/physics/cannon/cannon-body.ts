@@ -33,11 +33,23 @@ export class CannonRigidBody implements RigidBodyBase {
             type: ERigidBodyType.DYNAMIC,
         });
         setWrap<RigidBodyBase>(this._body, this);
-        this._body.allowSleep = true;
+
         this._body.sleepSpeedLimit = 0.1; // Body will feel sleepy if speed<1 (speed == norm of velocity)
         this._body.sleepTimeLimit = 1; // Body falls asleep after 1s of sleepiness
 
         this._onCollidedListener = this._onCollided.bind(this);
+    }
+
+    /** allow sleep */
+    public getAllowSleep (): boolean {
+        return this._body.allowSleep;
+    }
+
+    public setAllowSleep (v: boolean): void {
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+        this._body.allowSleep = v;
     }
 
     /** group */

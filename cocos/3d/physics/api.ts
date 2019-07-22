@@ -235,6 +235,14 @@ export interface RigidBodyBase extends BuiltInRigidBodyBase {
     getFreezeRotation (): boolean;
 
     setFreezeRotation (value: boolean): void;
+
+    /**
+     * allow sleep
+     */
+
+    getAllowSleep (): boolean;
+
+    setAllowSleep (v: boolean): void;
 }
 
 export interface ShapeBase {
