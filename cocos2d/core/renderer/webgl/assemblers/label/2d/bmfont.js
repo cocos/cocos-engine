@@ -23,72 +23,149 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../../../../platform/js');
-const bmfontUtls = require('../../../../utils/label/bmfont');
-const fillMeshVertices = require('../../utils').fillMeshVertices;
+import BmfontAssembler from '../../../../utils/label/bmfont';
 
-module.exports = js.addon({
-    createData (comp) {
-        return comp.requestRenderData();
-    },
+let _dataOffset = 0;
 
-    fillBuffers (comp, renderer) {
-        let node = comp.node;
-        fillMeshVertices(node, renderer._meshBuffer, comp._renderData, node._color._val);
-    },
+export default class WebglBmfontAssembler extends BmfontAssembler {
+    initData () {
+        this._renderData.createFlexData(0, 4, 6, this.getVfmt());
+    }
 
-    appendQuad (renderData, texture, rect, rotated, x, y, scale) {
-        let dataOffset = renderData.dataLength;
+    _reserveQuads (comp, count) {
+        this.verticesCount = count * 4;
+        this.indicesCount = count * 6;
+        
+        let flexBuffer = this._renderData._flexBuffer;
+        flexBuffer.reserve(this.verticesCount, this.indicesCount);
+        flexBuffer.used(this.verticesCount, this.indicesCount);
+       
+        let iData = this._renderData.iDatas[0];
+        for (let i = 0, vid = 0, l = this.indicesCount; i < l; i += 6, vid += 4) {
+            iData[i] = vid;
+            iData[i + 1] = vid + 1;
+            iData[i + 2] = vid + 2;
+            iData[i + 3] = vid + 1;
+            iData[i + 4] = vid + 3;
+            iData[i + 5] = vid + 2;
+        }
 
-        renderData.dataLength += 4;
-        renderData.vertexCount = renderData.dataLength;
-        renderData.indiceCount = renderData.dataLength / 2 * 3;
+        _dataOffset = 0;
+    }
 
-        let data = renderData._data;
+    _quadsUpdated (comp) {
+        _dataOffset = 0;
+    }
+
+    updateColor () {}
+
+    appendQuad (comp, texture, rect, rotated, x, y, scale) {
+        let renderData = this._renderData;
+        let verts = renderData.vDatas[0],
+            uintVerts = renderData.uintVDatas[0];
+
         let texw = texture.width,
-            texh = texture.height;
-
-        let rectWidth = rect.width,
-            rectHeight = rect.height;
+            texh = texture.height,
+            rectWidth = rect.width,
+            rectHeight = rect.height,
+            color = comp.node._color._val;
 
         let l, b, r, t;
+        let floatsPerVert = this.floatsPerVert;
+        // uvs
+        let uvDataOffset = _dataOffset + this.uvOffset;
         if (!rotated) {
             l = (rect.x) / texw;
             r = (rect.x + rectWidth) / texw;
             b = (rect.y + rectHeight) / texh;
             t = (rect.y) / texh;
 
-            data[dataOffset].u = l;
-            data[dataOffset].v = b;
-            data[dataOffset + 1].u = r;
-            data[dataOffset + 1].v = b;
-            data[dataOffset + 2].u = l;
-            data[dataOffset + 2].v = t;
-            data[dataOffset + 3].u = r;
-            data[dataOffset + 3].v = t;
+            verts[uvDataOffset] = l;
+            verts[uvDataOffset + 1] = b;
+            uvDataOffset += floatsPerVert;
+            verts[uvDataOffset] = r;
+            verts[uvDataOffset + 1] = b;
+            uvDataOffset += floatsPerVert;
+            verts[uvDataOffset] = l;
+            verts[uvDataOffset + 1] = t;
+            uvDataOffset += floatsPerVert;
+            verts[uvDataOffset] = r;
+            verts[uvDataOffset + 1] = t;
         } else {
             l = (rect.x) / texw;
             r = (rect.x + rectHeight) / texw;
             b = (rect.y + rectWidth) / texh;
             t = (rect.y) / texh;
 
-            data[dataOffset].u = l;
-            data[dataOffset].v = t;
-            data[dataOffset + 1].u = l;
-            data[dataOffset + 1].v = b;
-            data[dataOffset + 2].u = r;
-            data[dataOffset + 2].v = t;
-            data[dataOffset + 3].u = r;
-            data[dataOffset + 3].v = b;
+            verts[uvDataOffset] = l;
+            verts[uvDataOffset + 1] = t;
+            uvDataOffset += floatsPerVert;
+            verts[uvDataOffset] = l;
+            verts[uvDataOffset + 1] = b;
+            uvDataOffset += floatsPerVert;
+            verts[uvDataOffset] = r;
+            verts[uvDataOffset + 1] = t;
+            uvDataOffset += floatsPerVert;
+            verts[uvDataOffset] = r;
+            verts[uvDataOffset + 1] = b;
         }
 
-        data[dataOffset].x = x;
-        data[dataOffset].y = y - rectHeight * scale;
-        data[dataOffset + 1].x = x + rectWidth * scale;
-        data[dataOffset + 1].y = y - rectHeight * scale;
-        data[dataOffset + 2].x = x;
-        data[dataOffset + 2].y = y;
-        data[dataOffset + 3].x = x + rectWidth * scale;
-        data[dataOffset + 3].y = y;
-    },
-}, bmfontUtls);
+
+        // positions
+        l = x;
+        r = x + rectWidth * scale;
+        b = y - rectHeight * scale;
+        t = y;
+
+        this.appendVerts(comp, _dataOffset, l, r, b, t);
+
+        // colors
+        let colorOffset = _dataOffset + this.colorOffset;
+        for (let i = 0; i < 4; i++) {
+            uintVerts[colorOffset] = color;
+            colorOffset += floatsPerVert;
+        }
+
+        _dataOffset += this.floatsPerVert * 4;
+    }
+
+    appendVerts (comp, offset, l, r, b, t) {
+        let local = this._local;
+        let floatsPerVert = this.floatsPerVert;
+
+        local[offset] = l;
+        local[offset + 1] = b;
+
+        offset += floatsPerVert;
+        local[offset] = r;
+        local[offset + 1] = b;
+
+        offset += floatsPerVert;
+        local[offset] = l;
+        local[offset + 1] = t;
+
+        offset += floatsPerVert;
+        local[offset] = r;
+        local[offset + 1] = t;
+    }
+
+    updateWorldVerts (comp) {
+        let node = comp.node;
+
+        let matrix = node._worldMatrix;
+        let matrixm = matrix.m,
+            a = matrixm[0], b = matrixm[1], c = matrixm[4], d = matrixm[5],
+            tx = matrixm[12], ty = matrixm[13];
+
+        let local = this._local;
+        let world = this._renderData.vDatas[0];
+        let floatsPerVert = this.floatsPerVert;
+        for (let offset = 0; offset < local.length; offset += floatsPerVert) {
+            let x = local[offset];
+            let y = local[offset + 1];
+            world[offset] = x * a + y * c + tx;
+            world[offset+1] = x * b + y * d + ty;
+        }
+    }
+}
+

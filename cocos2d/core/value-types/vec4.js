@@ -479,6 +479,10 @@ class Vec4 extends ValueType {
         vec4.transformMat4(out, this, m);
         return out;
     }
+
+    array (out) {
+        vec4.array(out, this);
+    }
 }
 
 CCClass.fastDefine('cc.Vec4', Vec4, { x: 0, y: 0, z: 0, w: 0 });

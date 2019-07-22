@@ -1266,6 +1266,20 @@ export default class Device {
   }
 
   /**
+   * @method resetDrawCalls
+   */
+  resetDrawCalls () {
+    this._stats.drawcalls = 0;
+  }
+  
+  /**
+   * @method getDrawCalls
+   */
+  getDrawCalls () {
+    return this._stats.drawcalls;
+  }
+
+  /**
    * @method draw
    * @param {Number} base
    * @param {Number} count
@@ -1360,7 +1374,7 @@ export default class Device {
     // }
 
     // update stats
-    this._stats.drawcalls += 1;
+    this._stats.drawcalls++;
 
     // reset states
     cur.set(next);

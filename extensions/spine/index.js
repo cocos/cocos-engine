@@ -44,7 +44,7 @@
 var _global = typeof window === 'undefined' ? global : window;
 var _isUseSpine = true;
 
-if (CC_JSB && _global.spine === undefined) {
+if (CC_NATIVERENDERER && CC_JSB && _global.spine === undefined) {
     _isUseSpine = false;
 }
 
@@ -125,13 +125,13 @@ if (_isUseSpine) {
      */
     if (!CC_EDITOR || !Editor.isMainProcess) {
         
-        if (CC_JSB) {
+        if (CC_NATIVERENDERER && CC_JSB) {
             sp.spine = _global.spine;
         } else {
             sp.spine = require('./lib/spine');
+            require('./skeleton-texture');
         }
 
-        require('./skeleton-texture');
         require('./skeleton-data');
         require('./vertex-effect-delegate');
         require('./Skeleton');

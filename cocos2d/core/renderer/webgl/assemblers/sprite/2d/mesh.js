@@ -23,39 +23,38 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const spriteAssembler = require('../sprite');
 const fillVerticesWithoutCalc = require('../../utils').fillVerticesWithoutCalc;
-const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
 
-module.exports = {
+module.exports = spriteAssembler.mesh = {
     createData (sprite) {
         return sprite.requestRenderData();
     },
 
     updateRenderData (sprite) {
-        packToDynamicAtlas(sprite, sprite._spriteFrame);
+        this.packToDynamicAtlas(sprite, sprite._spriteFrame);
 
         let renderData = sprite._renderData;
         let frame = sprite.spriteFrame;
-        if (!renderData || !frame) return;
-        let vertices = frame.vertices;
-        if (vertices) {
-            if (renderData.vertexCount !== vertices.x.length) {
-                renderData.vertexCount = vertices.x.length;
-                renderData.indiceCount = vertices.triangles.length;
-                
-                // 1 for world vertices, 2 for local vertices
-                renderData.dataLength = renderData.vertexCount * 2;
+        if (renderData && frame) {
+            let vertices = frame.vertices;
+            if (vertices) {
+                if (renderData.vertexCount !== vertices.x.length) {
+                    renderData.vertexCount = vertices.x.length;
+                    renderData.indiceCount = vertices.triangles.length;
 
-                renderData.uvDirty = renderData.vertDirty = true;
-            }
+                    // 1 for world vertices, 2 for local vertices
+                    renderData.dataLength = renderData.vertexCount * 2;
 
-            if (renderData.uvDirty) {
-                this.updateUVs(sprite);
-            }
-            let vertDirty = renderData.vertDirty;
-            if (vertDirty) {
-                this.updateVerts(sprite);
-                this.updateWorldVerts(sprite);
+                    sprite._vertsDirty = true;
+                }
+
+                if (sprite._vertsDirty) {
+                    this.updateUVs(sprite);
+                    this.updateVerts(sprite);
+                    this.updateWorldVerts(sprite);
+                    sprite._vertsDirty = false;
+                }
             }
         }
     },
@@ -66,14 +65,12 @@ module.exports = {
             v = vertices.nv;
 
         let renderData = sprite._renderData;
-        let data = renderData._data;
+        let verts = renderData.vertices;
         for (let i = 0, l = u.length; i < l; i++) {
-            let vertice = data[i];
+            let vertice = verts[i];
             vertice.u = u[i];
             vertice.v = v[i];
         }
-
-        renderData.uvDirty = false;
     },
 
     updateVerts (sprite) {
@@ -100,38 +97,35 @@ module.exports = {
             scaleY = contentHeight / (sprite.trim ? rectHeight : originalHeight);
 
         let renderData = sprite._renderData;
-        let data = renderData._data;
-
+        let verts = renderData.vertices;
+        
         if (!sprite.trim) {
             for (let i = 0, l = x.length; i < l; i++) {
-                let vertice = data[i + l];
+                let vertice = verts[i + l];
                 vertice.x = (x[i]) * scaleX - appx;
                 vertice.y = (originalHeight - y[i]) * scaleY - appy;
             }
         }
         else {
             for (let i = 0, l = x.length; i < l; i++) {
-                let vertice = data[i + l];
+                let vertice = verts[i + l];
                 vertice.x = (x[i] - trimX) * scaleX - appx;
                 vertice.y = (originalHeight - y[i] - trimY) * scaleY - appy;
             }
         }
-
-        renderData.vertDirty = false;
     },
 
     updateWorldVerts (sprite) {
         let node = sprite.node,
             renderData = sprite._renderData,
-            data = renderData._data;
-
+            verts = renderData.vertices;
         let matrix = node._worldMatrix;
-
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
+        let matrixm = matrix.m;
+        let a = matrixm[0], b = matrixm[1], c = matrixm[4], d = matrixm[5],
+            tx = matrixm[12], ty = matrixm[13];
         for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-            let local = data[i + l];
-            let world = data[i];
+            let local = verts[i + l];
+            let world = verts[i];
             world.x = local.x * a + local.y * c + tx;
             world.y = local.x * b + local.y * d + ty;
         }

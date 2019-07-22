@@ -30,8 +30,12 @@ const RenderFlow = require('../renderer/render-flow');
 const game = require('../CCGame');
 
 import geomUtils from '../geom-utils';
-import RendererCamera from '../../renderer/scene/camera';
-import View from '../../renderer/core/view';
+let RendererCamera = null;
+if (CC_JSB && CC_NATIVERENDERER) {
+    RendererCamera = window.renderer.Camera;
+} else {
+    RendererCamera = require('../../renderer/scene/camera');
+}
 
 const mat4 = cc.vmath.mat4;
 const vec2 = cc.vmath.vec2;
@@ -40,9 +44,9 @@ const vec3 = cc.vmath.vec3;
 let _mat4_temp_1 = mat4.create();
 let _mat4_temp_2 = mat4.create();
 
-let _v3_temp_1 = vec3.create();
-let _v3_temp_2 = vec3.create();
-let _v3_temp_3 = vec3.create();
+let _v3_temp_1 = cc.v3();
+let _v3_temp_2 = cc.v3();
+let _v3_temp_3 = cc.v3();
 
 let _cameras = [];
 
@@ -325,7 +329,7 @@ let Camera = cc.Class({
             set (value) {
                 this._depth = value;
                 if (this._camera) {
-                    this._camera._priority = value;
+                    this._camera.setPriority(value);
                 }
             }
         },
@@ -436,8 +440,8 @@ let Camera = cc.Class({
 
             camera.dirty = true;
 
-            camera._cullingMask = 1 << cc.Node.BuiltinGroupIndex.DEBUG;
-            camera._priority = cc.macro.MAX_ZINDEX;
+            camera.cullingMask = 1 << cc.Node.BuiltinGroupIndex.DEBUG;
+            camera.setPriority(cc.macro.MAX_ZINDEX);
             camera.setClearFlags(0);
             camera.setColor(0, 0, 0, 0);
 
@@ -454,7 +458,7 @@ let Camera = cc.Class({
     _updateCameraMask () {
         if (this._camera) {
             let mask = this._cullingMask & (~(1 << cc.Node.BuiltinGroupIndex.DEBUG));
-            this._camera._cullingMask = mask;
+            this._camera.cullingMask = mask;
         }
     },
 
@@ -474,7 +478,7 @@ let Camera = cc.Class({
         if (!this._camera) return;
 
         let texture = this._targetTexture;
-        this._camera._framebuffer = texture ? texture._framebuffer : null;
+        this._camera.setFrameBuffer(texture ? texture._framebuffer : null);
     },
 
     _updateClippingpPlanes () {
@@ -496,14 +500,14 @@ let Camera = cc.Class({
 
     _updateStages () {
         let flags = this._renderStages;
-        let stages = this._camera._stages;
-        stages.length = 0;
+        let stages = [];
         if (flags & StageFlags.OPAQUE) {
             stages.push('opaque');
         }
         if (flags & StageFlags.TRANSPARENT) {
             stages.push('transparent');
         }
+        this._camera.setStages(stages);
     },
 
     _init () {
@@ -626,17 +630,18 @@ let Camera = cc.Class({
         this.node.getWorldRT(_mat4_temp_1);
 
         let zoomRatio = this.zoomRatio;
-        _mat4_temp_1.m00 *= zoomRatio;
-        _mat4_temp_1.m01 *= zoomRatio;
-        _mat4_temp_1.m04 *= zoomRatio;
-        _mat4_temp_1.m05 *= zoomRatio;
+        let _mat4_temp_1m = _mat4_temp_1.m;
+        _mat4_temp_1m[0] *= zoomRatio;
+        _mat4_temp_1m[1] *= zoomRatio;
+        _mat4_temp_1m[4] *= zoomRatio;
+        _mat4_temp_1m[5] *= zoomRatio;
 
-        let m12 = _mat4_temp_1.m12;
-        let m13 = _mat4_temp_1.m13;
+        let m12 = _mat4_temp_1m[12];
+        let m13 = _mat4_temp_1m[13];
 
         let center = cc.visibleRect.center;
-        _mat4_temp_1.m12 = center.x - (_mat4_temp_1.m00 * m12 + _mat4_temp_1.m04 * m13);
-        _mat4_temp_1.m13 = center.y - (_mat4_temp_1.m01 * m12 + _mat4_temp_1.m05 * m13);
+        _mat4_temp_1m[12] = center.x - (_mat4_temp_1m[0] * m12 + _mat4_temp_1m[4] * m13);
+        _mat4_temp_1m[13] = center.y - (_mat4_temp_1m[1] * m12 + _mat4_temp_1m[5] * m13);
 
         if (out !== _mat4_temp_1) {
             mat4.copy(out, _mat4_temp_1);
@@ -698,7 +703,7 @@ let Camera = cc.Class({
         // force update node world matrix
         this.node.getWorldMatrix(_mat4_temp_1);
         this.beforeDraw();
-        RenderFlow.visit(root);
+        RenderFlow.render(root);
         renderer._forward.renderCamera(this._camera, renderer.scene);
     },
 

@@ -23,16 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import InputAssembler from '../../../../../renderer/core/input-assembler';
-import IARenderData from '../../../../../renderer/render-data/ia-render-data';
-
 const Helper = require('../../../../graphics/helper');
 const PointFlags = require('../../../../graphics/types').PointFlags;
-const MeshBuffer = require('../../mesh-buffer');
-const vfmtPosColor = require('../../vertex-format').vfmtPosColor;
-const renderer = require('../../../index');
 
-let Point = cc.Class({
+let Point = cc.Graphics.Point = cc.Class({
     name: 'cc.GraphicsPoint',
     extends: cc.Vec2,
 
@@ -87,10 +81,6 @@ function Impl (graphics) {
 
     this._paths = [];
     this._points = [];
-
-    this._renderDatas = [];
-    
-    this._dataOffset = 0;
 }
 
 cc.js.mixin(Impl.prototype, {
@@ -163,34 +153,16 @@ cc.js.mixin(Impl.prototype, {
         this._curPath.complex = false;
     },
 
-    clear (comp, clean) {
+    clear (clean) {
         this._pathLength = 0;
         this._pathOffset = 0;
         this._pointsOffset = 0;
-        
-        this._dataOffset = 0;
-        
+      
         this._curPath = null;
-    
-        let datas = this._renderDatas;
+
         if (clean) {
             this._paths.length = 0;
             this._points.length = 0;
-            // manually destroy render datas
-            for (let i = 0, l = datas.length; i < l; i++) {
-                let data = datas[i];
-                data.meshbuffer.destroy();
-                data.meshbuffer = null;
-            }
-            datas.length = 0;
-        }
-        else {
-            for (let i = 0, l = datas.length; i < l; i++) {
-                let data = datas[i];
-
-                let meshbuffer = data.meshbuffer;
-                meshbuffer.reset();
-            }
         }
     },
 
@@ -239,28 +211,7 @@ cc.js.mixin(Impl.prototype, {
         pathPoints.push(pt);
     },
 
-    requestRenderData () {
-        let renderData = new IARenderData();
-        let meshbuffer = new MeshBuffer(renderer._handle, vfmtPosColor);
-        renderData.meshbuffer = meshbuffer;
-        this._renderDatas.push(renderData);
-
-        let ia = new InputAssembler();
-        ia._vertexBuffer = meshbuffer._vb;
-        ia._indexBuffer = meshbuffer._ib;
-        ia._start = 0;
-        renderData.ia = ia;
-
-        return renderData;
-    },
-
-    getRenderDatas () {
-        if (this._renderDatas.length === 0) {
-            this.requestRenderData();
-        }
-
-        return this._renderDatas;
-    }
 });
 
+cc.Graphics._Impl = Impl;
 module.exports = Impl;

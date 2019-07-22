@@ -28,7 +28,7 @@ const EventTarget = require('../event/event-target');
 
 import InputAssembler from '../../renderer/core/input-assembler';
 import gfx from '../../renderer/gfx';
-import { Primitive, VertexBundle } from './mesh-data';
+import { Primitive, VertexBundle, MeshData} from './mesh-data';
 
 function applyColor (data, offset, value) {
     data[offset] = value._val;
@@ -93,14 +93,19 @@ let Mesh = cc.Class({
             set (v) {
                 this._subMeshes = v;
             }
+        },
+
+        subDatas : {
+            get () {
+                return this._subDatas;
+            }
         }
     },
 
     ctor () {
         this._subMeshes = [];
 
-        this._ibs = [];
-        this._vbs = [];
+        this._subDatas = [];
     },
 
     onLoad () {
@@ -113,35 +118,46 @@ let Mesh = cc.Class({
             // ib
             let ibrange = primitive.data;
             let ibData = new Uint16Array(this._buffer, ibrange.offset, ibrange.length / 2);
-            let ibBuffer = new gfx.IndexBuffer(
-                renderer.device,
-                primitive.indexUnit,
-                gfx.USAGE_STATIC,
-                ibData,
-                ibData.length
-            );
 
             // vb
             let vertexBundle = this._vertexBundles[primitive.vertexBundleIndices[0]];
             let vbRange = vertexBundle.data;
             let gfxVFmt = new gfx.VertexFormat(vertexBundle.formats);
-            let vbData = new Uint8Array(this._buffer, vbRange.offset, vbRange.length);
-            let vbBuffer = new gfx.VertexBuffer(
-                renderer.device,
-                gfxVFmt,
-                gfx.USAGE_STATIC,
-                vbData,
-                vertexBundle.verticesCount
-            );
-
+            let vbData = new Float32Array(this._buffer, vbRange.offset, vbRange.length / 4);
+            
             let canBatch = this._canVertexFormatBatch(gfxVFmt);
 
-            // create sub meshes
-            this._subMeshes.push(new InputAssembler(vbBuffer, ibBuffer));
-            this._ibs.push({ buffer: ibBuffer, data: ibData });
-            this._vbs.push({ buffer: vbBuffer, data: vbData, format: gfxVFmt, canBatch: canBatch});
+            let meshData = new MeshData();
+            meshData.vData = vbData;
+            meshData.iData = ibData;
+            meshData.vfm = gfxVFmt;
+            meshData.offset = vbRange.offset;
+            meshData.canBatch = canBatch;
+            this._subDatas.push(meshData);
+
+            if (CC_JSB && CC_NATIVERENDERER) {
+                meshData.vDirty = true;
+            } else {
+                let vbBuffer = new gfx.VertexBuffer(
+                    renderer.device,
+                    gfxVFmt,
+                    gfx.USAGE_STATIC,
+                    vbData,
+                    vertexBundle.verticesCount
+                );
+    
+                let ibBuffer = new gfx.IndexBuffer(
+                    renderer.device,
+                    primitive.indexUnit,
+                    gfx.USAGE_STATIC,
+                    ibData,
+                    ibData.length
+                );
+    
+                // create sub meshes
+                this._subMeshes.push(new InputAssembler(vbBuffer, ibBuffer));
+            }
         }
-        
     },
 
     _canVertexFormatBatch (format) {
@@ -165,25 +181,26 @@ let Mesh = cc.Class({
     init (vertexFormat, vertexCount, dynamic) {
         this.clear();
 
-        let data = new Uint8Array(vertexFormat._bytes * vertexCount);
-        let vb = new gfx.VertexBuffer(
-            renderer.device,
-            vertexFormat,
-            dynamic ? gfx.USAGE_DYNAMIC : gfx.USAGE_STATIC,
-            data,
-            vertexCount
-        );
+        let data = new Float32Array(vertexFormat._bytes * vertexCount / 4);
+        let meshData = new MeshData();
+        meshData.vData = data;
+        meshData.vfm = vertexFormat;
+        meshData.vDirty = true;
+        meshData.canBatch = this._canVertexFormatBatch(vertexFormat);
+        
+        if (!(CC_JSB && CC_NATIVERENDERER)) {
+            let vb = new gfx.VertexBuffer(
+                renderer.device,
+                vertexFormat,
+                dynamic ? gfx.USAGE_DYNAMIC : gfx.USAGE_STATIC,
+                data,
+                vertexCount
+            );
 
-        let canBatch = this._canVertexFormatBatch(vertexFormat);
+            meshData.vb = vb;   
+        }
 
-        this._vbs[0] = {
-            format: vertexFormat,
-            buffer: vb,
-            data: data,
-            dirty: true,
-            canBatch: canBatch
-        };
-
+        this._subDatas.push(meshData);
         this.emit('init-format');
     },
 
@@ -196,36 +213,27 @@ let Mesh = cc.Class({
      * @param {String} name - the attribute name, e.g. gfx.ATTR_POSITION
      * @param {[Vec2|Vec3|Color|Number]} values - the vertex values
      */
-    setVertices (name, values) {
-        let vb = this._vbs[0];
+    setVertices (name, values, index) {
+        index = index || 0;
+        let subData = this._subDatas[index];
 
-        let buffer = vb.buffer;
-        let el = buffer._format._attr2el[name];
+        let el = subData.vfm.element(name);
         if (!el) {
             return cc.warn(`Cannot find ${name} attribute in vertex defines.`);
         }
 
-
         // whether the values is expanded
         let isFlatMode = typeof values[0] === 'number';
         let elNum = el.num;
-
-        let reader = Float32Array;
+        let data;
         let bytes = 4;
-        if (name === gfx.ATTR_COLOR) {
-            if (isFlatMode) {
-                reader = Float32Array;
-                bytes = 1;
+        if (name === gfx.ATTR_COLOR && !isFlatMode) {
+            data = subData.uintVData;
+            if (!data) {
+                data = subData.uintVData = new Uint32Array(subData.vData.buffer, 0, subData.vData.length);
             }
-            else {
-                reader = Uint32Array;
-            }
-        }
-
-        let data = vb[reader.name];
-        if (!data) {
-            let vbData = vb.data;
-            data = vb[reader.name] = new reader(vbData.buffer, vbData.byteOffset, vbData.byteLength / bytes);
+        } else {
+            data = subData.vData;
         }
 
         let stride = el.stride / bytes;
@@ -246,7 +254,6 @@ let Mesh = cc.Class({
                 applyFunc = applyColor;
             }
             else {
-
                 if (elNum === 2) {
                     applyFunc = applyVec2;
                 }
@@ -261,7 +268,7 @@ let Mesh = cc.Class({
                 applyFunc(data, vOffset, v);
             }
         }
-        vb.dirty = true;
+        subData.vDirty = true;
     },
 
     /**
@@ -280,29 +287,25 @@ let Mesh = cc.Class({
         let data = new Uint16Array(indices);
         let usage = dynamic ? gfx.USAGE_DYNAMIC : gfx.USAGE_STATIC;
 
-        let ib = this._ibs[index];
-        if (!ib) {
-            let buffer = new gfx.IndexBuffer(
-                renderer.device,
-                gfx.INDEX_FMT_UINT16,
-                usage,
-                data,
-                data.length
-            );
+        let subData = this._subDatas[index];
+        if (!subData.ib) {
+            subData.iData = data;
+            if (!(CC_JSB && CC_NATIVERENDERER)) {
+                let buffer = new gfx.IndexBuffer(
+                    renderer.device,
+                    gfx.INDEX_FMT_UINT16,
+                    usage,
+                    data,
+                    data.length
+                );
 
-            this._ibs[index] = {
-                buffer: buffer,
-                data: data,
-                dirty: false
-            };
-
-            let vb = this._vbs[0];
-            this._subMeshes[index] = new InputAssembler(vb.buffer, buffer);
+                subData.ib = buffer;
+                this._subMeshes[index] = new InputAssembler(subData.vb, buffer);
+            }
         }
         else {
-            ib.buffer._usage = usage;
-            ib.data = data;
-            ib.dirty = true
+            subData.iData = data;
+            subData.iDirty = true;
         }
     },
 
@@ -335,17 +338,17 @@ let Mesh = cc.Class({
     clear () {
         this._subMeshes.length = 0;
 
-        let ibs = this._ibs;
-        for (let i = 0; i < ibs.length; i++) {
-            ibs[i].buffer.destroy();
+        let subDatas = this._subDatas;
+        for (let i = 0, len = subDatas.length; i < len; i++) {
+            if (vb) {
+                subDatas[i].vb.destroy();
+            }
+            
+            if (ib) {
+                subDatas[i].ib.destroy();
+            }
         }
-        ibs.length = 0;
-
-        let vbs = this._vbs;
-        for (let i = 0; i < vbs.length; i++) {
-            vbs[i].buffer.destroy();
-        }
-        vbs.length = 0;
+        subDatas.length = 0;
     },
 
     /**
@@ -365,29 +368,24 @@ let Mesh = cc.Class({
     },
 
     _uploadData () {
-        let vbs = this._vbs;
-        for (let i = 0; i < vbs.length; i++) {
-            let vb = vbs[i];
+        let subDatas = this._subDatas;
+        for (let i = 0, len = subDatas.length; i < len; i++) {
+            let subData = subDatas[i];
 
-            if (vb.dirty) {
-                let buffer = vb.buffer, data = vb.data;
+            if (subData.vDirty) {
+                let buffer = subData.vb, data = subData.vData;
                 buffer._numVertices = data.byteLength / buffer._format._bytes;
                 buffer._bytes = data.byteLength;
                 buffer.update(0, data);
-                vb.dirty = false;
+                subData.vDirty = false;
             }
-        }
 
-        let ibs = this._ibs;
-        for (let i = 0; i < ibs.length; i++) {
-            let ib = ibs[i];
-
-            if (ib.dirty) {
-                let buffer = ib.buffer, data = ib.data;
+            if (subData.iDirty) {
+                let buffer = subData.ib, data = subData.iData;
                 buffer._numIndices = data.length;
                 buffer._bytes = data.byteLength;
                 buffer.update(0, data);
-                ib.dirty = false;
+                subData.iDirty = false;
             }
         }
     }

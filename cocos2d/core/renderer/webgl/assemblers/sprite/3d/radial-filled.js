@@ -23,25 +23,32 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../../../../platform/js');
-const assembler = require('../2d/radial-filled');
-const fillVertices3D = require('../../utils').fillVertices3D;
+const Assembler3D = require('../../../../assembler-3d');
+const RadialFilledAssembler = require('../2d/radial-filled');
 
-module.exports = js.addon({
-    fillBuffers (comp, renderer) {
-        let node = comp.node,
-            color = node._color._val,
-            buffer = renderer._meshBuffer3D,
-            renderData = comp._renderData;
+const vec3 = cc.vmath.vec3;
 
-        let offsetInfo = fillVertices3D(node, buffer, renderData, color);
-        let indiceOffset = offsetInfo.indiceOffset,
-            vertexId = offsetInfo.vertexOffset;
+const vec3_temp_local = vec3.create();
+const vec3_temp_world = vec3.create();
 
-        // buffer data may be realloc, need get reference after request.
-        let ibuf = buffer._iData;
-        for (let i = 0; i < renderData.dataLength; i++) {
-            ibuf[indiceOffset + i] = vertexId + i;
+export default class RadialFilledAssembler3D extends RadialFilledAssembler {
+    
+}
+
+cc.js.mixin(RadialFilledAssembler3D.prototype, Assembler3D, {
+    updateWorldVerts (sprite) {
+        let matrix = sprite.node._worldMatrix;
+        let local = this._local;
+        let world = this._renderData.vDatas[0];
+
+        let floatsPerVert = this.floatsPerVert;
+        for (let offset = 0; offset < world.length; offset += floatsPerVert) {
+            vec3.set(vec3_temp_local, local[offset], local[offset+1], 0);
+            vec3.transformMat4(vec3_temp_world, vec3_temp_local, matrix);
+
+            world[offset] = vec3_temp_world.x;
+            world[offset+1] = vec3_temp_world.y;
+            world[offset+2] = vec3_temp_world.z;
         }
-    },
-}, assembler);
+    }
+});

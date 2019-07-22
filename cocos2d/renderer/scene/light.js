@@ -447,9 +447,10 @@ export default class Light {
     vec3.transformMat3(_transformedLightDirection, _forward, _m3_tmp);
     vec3.array(this._directionUniform, _transformedLightDirection);
     let pos = this._positionUniform;
-    pos[0] = _m4_tmp.m12;
-    pos[1] = _m4_tmp.m13;
-    pos[2] = _m4_tmp.m14;
+    let m = _m4_tmp.m;
+    pos[0] = m[12];
+    pos[1] = m[13];
+    pos[2] = m[14];
   }
 
   _generateShadowMap(device) {

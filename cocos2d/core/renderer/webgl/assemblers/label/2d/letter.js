@@ -24,21 +24,20 @@
  ****************************************************************************/
 
 const js = require('../../../../../platform/js');
-const bmfontAssembler = require('./bmfont');
-const fontUtils = require('../../../../utils/label/letter-font');
-const fillMeshVertices = require('../../utils').fillMeshVertices;
+const WebglBmfontAssembler = require('./bmfont');
+const LetterFontAssembler = require('../../../../utils/label/letter-font');
 const WHITE = cc.color(255, 255, 255, 255);
 
-module.exports = js.addon({
+export default class WebglLetterFontAssembler extends LetterFontAssembler {
     createData (comp) {
         return comp.requestRenderData();
-    },
+    }
 
-    fillBuffers (comp, renderer) {
-        let node = comp.node;
-        WHITE._fastSetA(node.color.a);
-        fillMeshVertices(node, renderer._meshBuffer, comp._renderData, WHITE._val);
-    },
+    updateColor (comp) {
+        WHITE._fastSetA(comp.node.color.a);
+        let color = WHITE._val;
 
-    appendQuad: bmfontAssembler.appendQuad
-}, fontUtils);
+        super.updateColor(comp, color);
+    }
+}
+

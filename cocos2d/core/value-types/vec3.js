@@ -457,6 +457,32 @@ proto.transformMat4 = function (m, out) {
     vec3.transformMat4(out, this, m);
 };
 
+proto.fromTranslation = function (trs) {
+    this.x = trs[0];
+    this.y = trs[1];
+    this.z = trs[2];
+    return this;
+};
+
+proto.toTranslation = function (trs) {
+    trs[0] = this.x;
+    trs[1] = this.y;
+    trs[2] = this.z;
+};
+
+proto.fromScale = function (trs) {
+    this.x = trs[7];
+    this.y = trs[8];
+    this.z = trs[9];
+    return this;
+};
+
+proto.toScale = function (trs) {
+    trs[7] = this.x;
+    trs[8] = this.y;
+    trs[9] = this.z;
+};
+
 /**
  * !#en Get angle in radian between this and vector.
  * !#zh 夹角的弧度。
@@ -520,6 +546,10 @@ proto.rotate = function (radians, out) {
 proto.rotateSelf = function (radians) {
     cc.warnID(1408, 'vec3.rotateSelf', 'v2.1', 'cc.v2(selfVector).rotateSelf(radians)');
     return v2Proto.rotateSelf.call(this, radians);
+};
+
+proto.array = function (out) {
+    vec3.array(out, this);
 };
 
 /**
