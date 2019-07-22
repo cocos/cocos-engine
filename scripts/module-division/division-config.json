@@ -34,25 +34,6 @@
             "default": true
         },
         {
-            "name": "Physics",
-            "options": [
-                {
-                    "name": "Built-in",
-                    "entry": "physics-builtin"
-                },
-                {
-                    "name": "cannon.js",
-                    "entry": "physics-cannon"
-                },
-                {
-                    "name": "ammo.js",
-                    "entry": "physics-ammo"
-                }
-            ],
-            "required": true,
-            "defaultOption": 0
-        },
-        {
             "name": "tween.js Adapter",
             "entry": "tween"
         }
