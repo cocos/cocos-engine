@@ -90,7 +90,7 @@ export class CameraComponent extends Component {
     @property
     protected _far = 1000.0;
     @property
-    protected _color = new Color().fromHEX('#334C78');
+    protected _color = Color.create('#334C78'); // fromHEX('#334C78');
     @property
     protected _depth = 1;
     @property
@@ -369,7 +369,11 @@ export class CameraComponent extends Component {
         this._camera.orthoHeight = this._orthoHeight;
         this._camera.nearClip = this._near;
         this._camera.farClip = this._far;
-        this._camera.clearColor = Color.create(this._color);
+        const r = this._color.r / 255;
+        const g = this._color.g / 255;
+        const b = this._color.b / 255;
+        const a = this._color.a / 255;
+        this._camera.clearColor = {r, g, b, a};
         this._camera.clearDepth = this._depth;
         this._camera.clearStencil = this._stencil;
         this._camera.clearFlag = this._clearFlags;

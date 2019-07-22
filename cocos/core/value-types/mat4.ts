@@ -28,8 +28,8 @@
  */
 
 import CCClass from '../data/class';
-import { Mat3 } from './Mat3';
-import { Quat } from './Quat';
+import { Mat3 } from './mat3';
+import { Quat } from './quat';
 import { IMat4Like, IVec3Like } from './type-define';
 import { EPSILON } from './utils';
 import { ValueType } from './value-type';

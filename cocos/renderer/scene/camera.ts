@@ -1,6 +1,6 @@
 import { frustum, ray } from '../../3d/geom-utils';
 import { Color, lerp, Mat4, Rect, toRadian, Vec3 } from '../../core/value-types';
-import { GFXClearFlag } from '../../gfx/define';
+import { GFXClearFlag, IGFXColor } from '../../gfx/define';
 import { RenderView } from '../../pipeline/render-view';
 import { Node } from '../../scene-graph/node';
 import { RenderScene } from './render-scene';
@@ -98,7 +98,7 @@ export class Camera {
     private _clearStencil: number = 0;
     private _clearDepth: number = 1.0;
     private _clearFlag: GFXClearFlag = GFXClearFlag.NONE;
-    private _clearColor: Color = Color.create();
+    private _clearColor: IGFXColor = { r: 0, g: 0, b: 0, a: 0 };
     private _viewport: Rect = new Rect(0, 0, 1, 1);
     private _isProjDirty = true;
     private _matView: Mat4 = new Mat4();
@@ -315,7 +315,10 @@ export class Camera {
     }
 
     set clearColor (val) {
-        Color.copy(this._clearColor, val);
+        this._clearColor.r = val.r;
+        this._clearColor.g = val.g;
+        this._clearColor.b = val.b;
+        this._clearColor.a = val.a;
     }
 
     get clearColor () {

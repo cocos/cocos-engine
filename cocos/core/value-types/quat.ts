@@ -28,7 +28,7 @@
  */
 
 import CCClass from '../data/class';
-import { Mat3 } from './Mat3';
+import { Mat3 } from './mat3';
 import { IQuatLike, IVec3Like } from './type-define';
 import { EPSILON, toDegree } from './utils';
 import { ValueType } from './value-type';
