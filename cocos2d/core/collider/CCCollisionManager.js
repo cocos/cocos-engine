@@ -393,6 +393,10 @@ let CollisionManager = cc.Class({
         let colliders = node.getComponents(cc.Collider);
 
         for (let i = 0, l = colliders.length; i < l; i++) {
+            let collider = colliders[i];
+            if(collider instanceof cc.PhysicsCollider) {
+                continue
+            }
             this.removeCollider(colliders[i]);
             this.addCollider(colliders[i]);
         }
