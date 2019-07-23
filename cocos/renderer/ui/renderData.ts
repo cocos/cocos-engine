@@ -23,6 +23,7 @@ export class BaseRenderData {
 }
 
 export class RenderData extends BaseRenderData {
+    public vData: Float32Array | null = null;
 
     get dataLength () {
         return this._datas.length;

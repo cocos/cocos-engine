@@ -46,7 +46,7 @@ interface IProfilerState {
 }
 
 let _showFPS = false;
-const _fontSize = 15;
+const _fontSize = 18;
 const stringLeft = 'left';
 const stringRight = 'right';
 
@@ -155,8 +155,8 @@ function generateStats () {
         logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: 500, color: '#080' },
         physics: { desc: 'Physics (ms)', min: 0, max: 50, average: 500 },
         render: { desc: 'Renderer (ms)', min: 0, max: 50, average: 500, color: '#f90' },
-        textureMemory: { desc: 'Texture memory' },
-        bufferMemory: { desc: 'Buffer memoty'},
+        textureMemory: { desc: 'GFX Texture Mem(M)' },
+        bufferMemory: { desc: 'GFX Buffer Mem(M)'},
         // mode: { desc: cc.game.renderType === cc.game.RENDER_TYPE_WEBGL ? 'WebGL' : 'Canvas', min: 1 },
     };
 
@@ -211,7 +211,7 @@ function generateNode () {
     right.anchorX = 1;
     right.anchorY = 0;
     const pos = right.getPosition();
-    right.setPosition(200, pos.y, pos.z);
+    right.setPosition(250, pos.y, pos.z);
     if (rightLabel){
         rightLabel.horizontalAlign = cc.LabelComponent.HorizontalAlign.RIGHT;
         rightLabel.font = _atlas;
@@ -289,8 +289,8 @@ function afterDraw () {
 
     getCounter('fps').frame(now);
     getCounter('draws').value = device!.numDrawCalls;
-    getCounter('bufferMemory').value = device!.memoryStatus.bufferSize;
-    getCounter('textureMemory').value = device!.memoryStatus.textureSize;
+    getCounter('bufferMemory').value = device!.memoryStatus.bufferSize / (1024 * 1024);
+    getCounter('textureMemory').value = device!.memoryStatus.textureSize / (1024 * 1024);
     getCounter('tricount').value = device!.numTris;
     getCounter('render').end(now);
     // getCounter('mode').value = device!.gfxAPI;
@@ -302,7 +302,7 @@ function afterDraw () {
         stat.counter.sample(now);
 
         left += stat.desc + '\n';
-        right += stat.counter.human() + '\n';
+        right += stat.counter.human(!(stat.desc === 'Framerate (FPS)')) + '\n';
     }
 
     _label[stringLeft].string = left;

@@ -67,7 +67,7 @@ export class Skybox extends Model {
 
     protected _updateGlobalBinding () {
         const textureView = this._envmap.getGFXTextureView()!;
-        const sampler = samplerLib.getSampler(this._device, this._envmap.getGFXSamplerInfo());
+        const sampler = samplerLib.getSampler(this._device, this._envmap.getSamplerHash());
         this._globalBinding.sampler = sampler;
         this._globalBinding.textureView = textureView;
         // update skybox material, need to do this every time pso is created

@@ -35,6 +35,7 @@ import IdGenerator from '../core/utils/id-generator';
 import * as js from '../core/utils/js';
 import { baseNodePolyfill } from './base-node-dev';
 import { Scene } from './scene';
+import { CCClass } from '../core/data';
 
 /**
  *
@@ -268,15 +269,18 @@ export class BaseNode extends CCObject {
     protected static _stackId = 0;
 
     protected static _findComponent (node: BaseNode, constructor: Function) {
-        // tslint:disable-next-line
-        if (constructor['_sealed']) {
-            for (const comp of node._components) {
+        const cls = constructor as CCClass;
+        const comps = node._components;
+        if (cls._sealed) {
+            for (let i = 0; i < comps.length; ++i) {
+                let comp = comps[i];
                 if (comp.constructor === constructor) {
                     return comp;
                 }
             }
         } else {
-            for (const comp of node._components) {
+            for (let i = 0; i < comps.length; ++i) {
+                let comp = comps[i];
                 if (comp instanceof constructor) {
                     return comp;
                 }
@@ -286,15 +290,18 @@ export class BaseNode extends CCObject {
     }
 
     protected static _findComponents (node: BaseNode, constructor: Function, components: Component[]) {
-        // tslint:disable-next-line
-        if (constructor['_sealed']) {
-            for (const comp of node._components) {
+        const cls = constructor as CCClass;
+        const comps = node._components;
+        if (cls._sealed) {
+            for (let i = 0; i < comps.length; ++i) {
+                let comp = comps[i];
                 if (comp.constructor === constructor) {
                     components.push(comp);
                 }
             }
         } else {
-            for (const comp of node._components) {
+            for (let i = 0; i < comps.length; ++i) {
+                let comp = comps[i];
                 if (comp instanceof constructor) {
                     components.push(comp);
                 }
@@ -303,7 +310,8 @@ export class BaseNode extends CCObject {
     }
 
     protected static _findChildComponent (children: BaseNode[], constructor) {
-        for (const node of children) {
+        for (let i = 0; i< children.length; ++i) {
+            let node = children[i];
             let comp = BaseNode._findComponent(node, constructor);
             if (comp) {
                 return comp;
@@ -318,7 +326,8 @@ export class BaseNode extends CCObject {
     }
 
     protected static _findChildComponents (children: BaseNode[], constructor, components) {
-        for (const node of children) {
+        for (let i = 0; i< children.length; ++i) {
+            let node = children[i];
             BaseNode._findComponents(node, constructor, components);
             if (node._children.length > 0) {
                 BaseNode._findChildComponents(node._children, constructor, components);
@@ -537,7 +546,8 @@ export class BaseNode extends CCObject {
     public getChildByPath (path: string) {
         const segments = path.split('/');
         let lastNode: this = this;
-        for (const segment of segments) {
+        for (let i = 0; i < segments.length; ++i) {
+            const segment = segments[i];
             if (segment.length === 0) {
                 continue;
             }
@@ -1150,8 +1160,9 @@ export class BaseNode extends CCObject {
      * ```
      */
     public destroyAllChildren () {
-        for (const child of this._children) {
-            child.destroy();
+        let children = this._children;
+        for (let i = 0; i < children.length; ++i) {
+            children[i].destroy();
         }
     }
 
@@ -1304,26 +1315,28 @@ export class BaseNode extends CCObject {
         }
 
         // destroy children
-        // destroy children
-        for (const child of this._children) {
+        let children = this._children;
+        for (let i = 0; i < children.length; ++i) {
             // destroy immediate so its _onPreDestroy can be called
-            child._destroyImmediate();
+            children[i]._destroyImmediate();
         }
 
         // destroy self components
-        for (const component of this._components) {
+        let comps = this._components;
+        for (let i = 0; i < comps.length; ++i) {
             // destroy immediate so its _onPreDestroy can be called
             // TO DO
-            // @ts-ignore
-            component._destroyImmediate();
+            comps[i]._destroyImmediate();
         }
 
-        for (const eventTarget of this.__eventTargets) {
-            if (eventTarget) {
-                eventTarget.targetOff(this);
+        let eventTargets = this.__eventTargets;
+        for (let i = 0; i < eventTargets.length; ++i) {
+            let et = eventTargets[i];
+            if (et) {
+                et.targetOff(this);
             }
         }
-        this.__eventTargets.length = 0;
+        eventTargets.length = 0;
 
         // remove from persist
         if (this._persistNode) {
@@ -1346,13 +1359,17 @@ export class BaseNode extends CCObject {
 
     protected _disableChildComps () {
         // leave this._activeInHierarchy unmodified
-        for (const component of this._components) {
+        let comps = this._components;
+        for (let i = 0; i < comps.length; ++i) {
+            let component = comps[i];
             if (component._enabled) {
                 cc.director._compScheduler.disableComp(component);
             }
         }
         // deactivate recursively
-        for (const node of this._children) {
+        let children = this._children;
+        for (let i = 0; i < children.length; ++i) {
+            let node = children[i];
             if (node._active) {
                 node._disableChildComps();
             }

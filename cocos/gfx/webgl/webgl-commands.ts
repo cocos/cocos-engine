@@ -1437,7 +1437,9 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
 
     const gl = device.gl;
     const cache = device.stateCache;
-    cmdIds.fill(0);
+    for (let i = 0; i < WebGLCmd.COUNT; ++i) {
+        cmdIds[i] = 0;
+    }
 
     let gpuPipelineState: WebGLGPUPipelineState | null = null;
     let gpuShader: WebGLGPUShader | null = null;
@@ -1620,11 +1622,13 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
 
                 break;
             }
+            /*
             case WebGLCmd.END_RENDER_PASS: {
                 // WebGL 1.0 doesn't support store operation of attachments.
                 // GFXStoreOp.Store is the default GL behaviour.
                 break;
             }
+            */
             case WebGLCmd.BIND_STATES: {
 
                 const cmd2 = cmdPackage.bindStatesCmds.array[cmdId];

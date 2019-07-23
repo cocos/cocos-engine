@@ -159,19 +159,15 @@ export class Impl {
         this._curPath!.complex = false;
     }
 
-    public clear (clean: boolean = false) {
+    public clear (clean = false) {
         this.pathLength = 0;
         this.pathOffset = 0;
         this.pointsOffset = 0;
-
         this.dataOffset = 0;
-
         this._curPath = null;
-
         this.paths.length = 0;
         this._points.length = 0;
 
-        this._renderDatasPool.reset();
         const datas = this._renderDatas;
         for (let i = 0, l = datas.length; i < l; i++) {
             const data = datas[i];
@@ -180,6 +176,11 @@ export class Impl {
             }
 
             data.reset();
+        }
+
+        this._renderDatas.length = 0;
+        if (clean) {
+            this._renderDatasPool.reset();
         }
     }
 

@@ -1,4 +1,5 @@
-import { dirname, relative } from 'path';
+import { existsSync } from 'fs';
+import { dirname, join, normalize, relative } from 'path';
 import { rollup } from 'rollup';
 // @ts-ignore
 import babel from 'rollup-plugin-babel';
@@ -7,17 +8,16 @@ import commonjs from 'rollup-plugin-commonjs';
 // @ts-ignore
 import json from 'rollup-plugin-json';
 // @ts-ignore
+import multiEntry from 'rollup-plugin-multi-entry';
+// @ts-ignore
 import resolve from 'rollup-plugin-node-resolve';
 // @ts-ignore
 import { uglify } from 'rollup-plugin-uglify';
-
-const { excludes } = require('../plugin/rollup-plugin-excludes');
+// @ts-ignore
+import { excludes } from '../plugin/rollup-plugin-excludes';
 
 interface IBaseOptions {
-    /**
-     * 引擎入口模块。
-     */
-    inputPath: string;
+    moduleEntries: string[];
 
     /**
      * 指定输出路径。
@@ -75,22 +75,48 @@ export interface IBuildOptions extends IBaseOptions {
 }
 
 export async function build (options: IBuildOptions) {
+    _checkPhysicsFlag(options);
     const globalDefines = getGlobalDefs(options.platform, options.physics, options.flags);
     return await _internalBuild(Object.assign(options, {globalDefines}));
+}
+
+function resolveModuleEntry (moduleEntry: string) {
+    return normalize(`${__dirname}/../../exports/${moduleEntry}.ts`);
+}
+
+function _checkPhysicsFlag (options: IBuildOptions) {
+    const physicsModulesMap = {
+        [Physics.builtin]: `physics-builtin`,
+        [Physics.cannon]: `physics-cannon`,
+        [Physics.ammo]: `physics-ammo`,
+    };
+    const allowedPhysicsModules = Object.values(physicsModulesMap);
+
+    if (options.moduleEntries.some(
+        (moduleEntry) => allowedPhysicsModules.includes(moduleEntry))) {
+        console.warn(
+            `You shall not specify physics module explicitly. ` +
+            `Use 'physics' option instead.`);
+        options.moduleEntries = options.moduleEntries.filter(
+            (moduleEntry) => !allowedPhysicsModules.includes(moduleEntry));
+    }
+
+    const physics = options.physics === undefined ? Physics.cannon : options.physics;
+    options.moduleEntries.push(physicsModulesMap[physics]);
 }
 
 async function _internalBuild (options: IAdvancedOptions) {
     console.log(`Build-engine options: ${JSON.stringify(options, undefined, 2)}`);
     const doUglify = !!options.compress;
     const rollupPlugins = [
+        multiEntry(),
+
         excludes({
             modules: options.excludes,
         }),
 
         resolve({
             extensions: ['.js', '.ts', '.json'],
-            jsnext: true,
-            main: true,
         }),
 
         json({
@@ -161,8 +187,14 @@ async function _internalBuild (options: IAdvancedOptions) {
     const outputPath = options.outputPath;
     const sourcemapFile = options.sourcemapFile || `${options.outputPath}.map`;
 
+    const moduleEntries = options.moduleEntries.map(resolveModuleEntry);
+    for (const moduleEntry of moduleEntries) {
+        if (!existsSync(moduleEntry)) {
+            console.error(`Cannot find engine module ${moduleEntry}`);
+        }
+    }
     const rollupBuild = await rollup({
-        input: options.inputPath,
+        input: moduleEntries,
         plugins: rollupPlugins,
     });
     const generated = await rollupBuild.generate({
@@ -190,9 +222,35 @@ async function _internalBuild (options: IAdvancedOptions) {
     }
 }
 
-export type Platform = 'universal' | 'editor' | 'preview' | 'build' | 'test';
+export enum Platform {
+    universal,
+    editor,
+    preview,
+    build,
+    test,
+}
 
-export type Physics = 'cannon' | 'ammo' | 'builtin';
+export function enumeratePlatformReps () {
+    return Object.values(Platform).filter((value) => typeof value === 'string');
+}
+
+export function parsePlatform (rep: string) {
+    return Reflect.get(Platform, rep);
+}
+
+export enum Physics {
+    cannon,
+    ammo,
+    builtin,
+}
+
+export function enumeratePhysicsReps () {
+    return Object.values(Physics).filter((value) => typeof value === 'string');
+}
+
+export function parsePhysics (rep: string) {
+    return Reflect.get(Physics, rep);
+}
 
 export interface IFlags {
     jsb?: boolean;
@@ -231,14 +289,14 @@ interface IGlobaldefines {
 
 // tslint:disable-next-line: no-shadowed-variable
 function getGlobalDefs (platform?: Platform, physics?: Physics, flags?: IFlags): object {
-    platform = platform || 'universal';
+    platform = platform || Platform.universal;
 
     const PLATFORM_MACROS = ['CC_EDITOR', 'CC_PREVIEW', 'CC_BUILD', 'CC_TEST'];
 
     const FLAGS = ['jsb', 'runtime', 'wechatgame', 'wechatgameSub', 'qqplay', 'debug', 'nativeRenderer'];
 
-    const platformMacro = 'CC_' + platform.toUpperCase();
-    if (PLATFORM_MACROS.indexOf(platformMacro) === -1 && platform !== 'universal') {
+    const platformMacro = ('CC_' + Platform[platform]).toUpperCase();
+    if (PLATFORM_MACROS.indexOf(platformMacro) === -1 && platform !== Platform.universal) {
         throw new Error(`Unknown platform ${platform}.`);
     }
     const result: IGlobaldefines = {};
@@ -270,19 +328,19 @@ function getGlobalDefs (platform?: Platform, physics?: Physics, flags?: IFlags):
     result.CC_PHYSICS_BUILT_IN = false;
 
     switch (physics) {
-        case 'cannon':
+        case Physics.cannon:
             result.CC_PHYSICS_CANNON = true;
             result.CC_PHYSICS_AMMO = false;
             result.CC_PHYSICS_BUILT_IN = false;
             break;
 
-        case 'ammo':
+        case Physics.ammo:
             result.CC_PHYSICS_CANNON = false;
             result.CC_PHYSICS_AMMO = true;
             result.CC_PHYSICS_BUILT_IN = false;
             break;
 
-        case 'builtin':
+        case Physics.builtin:
             result.CC_PHYSICS_CANNON = false;
             result.CC_PHYSICS_AMMO = false;
             result.CC_PHYSICS_BUILT_IN = true;

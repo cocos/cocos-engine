@@ -270,7 +270,6 @@ export class MaskComponent extends UIRenderComponent {
 
     private _graphics: GraphicsComponent | null = null;
     private _clearGraphics: GraphicsComponent | null = null;
-    private _lastVisibleSize = new Size();
 
     constructor (){
         super();
@@ -316,15 +315,15 @@ export class MaskComponent extends UIRenderComponent {
 
         this._activateMaterial();
 
-        this.node.on(SystemEventType.ROTATION_PART, this._nodeStateChange, this);
-        this.node.on(SystemEventType.SCALE_PART, this._nodeStateChange, this);
+        this.node.on(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
+        cc.view.on('design-resolution-changed', this._updateClearGraphics, this);
     }
 
     public onDisable () {
         super.onDisable();
         this._disableGraphics();
-        this.node.off(SystemEventType.ROTATION_PART, this._nodeStateChange, this);
-        this.node.off(SystemEventType.SCALE_PART, this._nodeStateChange, this);
+        this.node.off(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange);
+        cc.view.off('design-resolution-changed', this._updateClearGraphics);
     }
 
     public onDestroy () {
@@ -334,11 +333,6 @@ export class MaskComponent extends UIRenderComponent {
 
     public updateAssembler (render: UI) {
         if (super.updateAssembler(render)) {
-            const size = cc.visibleRect;
-            if (size.width !== this._lastVisibleSize.width || size.height !== this._lastVisibleSize.height) {
-                this._updateClearGraphics();
-            }
-
             render.commitComp(this, null, this._assembler!);
             return true;
         }
@@ -401,10 +395,18 @@ export class MaskComponent extends UIRenderComponent {
         // }
     }
 
-    protected _nodeStateChange () {
-        super._nodeStateChange();
+    protected _nodeStateChange (type: SystemEventType) {
+        if (type === SystemEventType.POSITION_PART){
+            return;
+        }
+
+        super._nodeStateChange(type);
 
         this._updateGraphics();
+    }
+
+    protected _resolutionChanged (){
+        this._updateClearGraphics();
     }
 
     protected _canRender () {
@@ -480,15 +482,10 @@ export class MaskComponent extends UIRenderComponent {
             clearGraphics.helpInstanceMaterial();
             clearGraphics._activateMaterial();
             clearGraphics.lineWidth = 0;
-            const size = CC_EDITOR ? new Size(960, 640) : cc.visibleRect;
-            this._lastVisibleSize.width = size.width;
-            this._lastVisibleSize.height = size.height;
-            clearGraphics.node.setWorldPosition(size.width / 2, size.height / 2, 0);
-            clearGraphics.rect(-size.width / 2, -size.height / 2, size.width, size.height);
             const color = Color.WHITE;
             color.a = 0;
             this._clearGraphics.fillColor = color;
-            clearGraphics.fill();
+            this._updateClearGraphics();
         }
 
         if (!this._graphics) {
@@ -507,12 +504,10 @@ export class MaskComponent extends UIRenderComponent {
         if (!this._clearGraphics){
             return;
         }
-
+        console.log('resolution changed');
         const size = cc.visibleRect;
         this._clearGraphics.node.setWorldPosition(size.width / 2, size.height / 2, 0);
         this._clearGraphics.clear();
-        this._lastVisibleSize.width = size.width;
-        this._lastVisibleSize.height = size.height;
         this._clearGraphics.rect(-size.width / 2, -size.height / 2, size.width, size.height);
         this._clearGraphics.fill();
     }

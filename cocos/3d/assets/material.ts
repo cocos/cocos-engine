@@ -408,7 +408,7 @@ export class Material extends Asset {
                     return false;
                 }
                 pass.bindTextureView(binding, textureView);
-                pass.bindSampler(binding, samplerLib.getSampler(cc.game._gfxDevice, val.getGFXSamplerInfo()));
+                pass.bindSampler(binding, samplerLib.getSampler(cc.game._gfxDevice, val.getSamplerHash()));
             }
         }
         return true;

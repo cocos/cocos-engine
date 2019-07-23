@@ -152,6 +152,7 @@ export class UIRenderComponent extends UIComponent {
         }
 
         this._color.set(value);
+        this._updateColor();
         this.markForUpdateRenderData();
     }
 
@@ -234,6 +235,8 @@ export class UIRenderComponent extends UIComponent {
         if (this._flushAssembler){
             this._flushAssembler();
         }
+
+        this._updateColor();
     }
 
     public onEnable () {
@@ -283,7 +286,6 @@ export class UIRenderComponent extends UIComponent {
         if (enable && this._canRender()) {
             const renderData = this._renderData;
             if (renderData) {
-                renderData.uvDirty = true;
                 renderData.vertDirty = true;
             }
 
@@ -349,9 +351,8 @@ export class UIRenderComponent extends UIComponent {
     }
 
     protected _updateColor () {
-        const material = this._material;
-        if (material) {
-            material.setProperty('color', this._color);
+        if (this._assembler && this._assembler.updateColor) {
+            this._assembler!.updateColor(this);
         }
     }
 
@@ -377,7 +378,7 @@ export class UIRenderComponent extends UIComponent {
     }
 
     // pos, rot, scale changed
-    protected _nodeStateChange (){
+    protected _nodeStateChange (type: SystemEventType){
         if (this._renderData) {
             this.markForUpdateRenderData();
         }

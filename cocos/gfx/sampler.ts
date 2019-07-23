@@ -30,6 +30,7 @@ export interface IGFXSamplerInfo {
  * GFX采样器状态。
  */
 export class GFXSamplerState {
+
     public name: string = '';
     public minFilter: GFXFilter = GFXFilter.LINEAR;
     public magFilter: GFXFilter = GFXFilter.LINEAR;

@@ -2,13 +2,11 @@
  * @category animation
  */
 
-import { Component } from '../components';
 import { ccclass, property } from '../core/data/class-decorator';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { errorID } from '../core/platform/CCDebug';
 import { ValueType } from '../core/value-types';
 import * as vmath from '../core/vmath';
-import { Node } from '../scene-graph';
 import { PropertyBlendState } from './animation-blend-state';
 import { bezierByTime, BezierControlPoints } from './bezier';
 import * as blending from './blending';
@@ -24,7 +22,7 @@ export type CurveValue = any;
 /**
  * 表示曲线的目标对象。
  */
-export type CurveTarget = Node | Component;
+export type CurveTarget = Record<string, any>;
 
 /**
  * If propertyBlendState.weight equals to zero, the propertyBlendState.value is dirty.
