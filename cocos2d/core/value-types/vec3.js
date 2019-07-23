@@ -608,6 +608,10 @@ js.get(Vec3, 'FRONT', function () {
 });
 
 /**
+ * @module cc
+ */
+
+/**
  * !#en The convenience method to create a new {{#crossLink "Vec3"}}cc.Vec3{{/crossLink}}.
  * !#zh 通过该简便的函数进行创建 {{#crossLink "Vec3"}}cc.Vec3{{/crossLink}} 对象。
  * @method v3

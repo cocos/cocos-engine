@@ -563,8 +563,8 @@ VideoPlayerImpl._polyfill = {
  * so it is best to provide mp4 and webm or ogv file
  */
 
- // TODO: adapt wx video player
- // issue: https://github.com/cocos-creator/2d-tasks/issues/1364
+// TODO: adapt wx video player
+// issue: https://github.com/cocos-creator/2d-tasks/issues/1364
 let dom = document.createElement("video");
 if (dom.canPlayType) {
     if (dom.canPlayType("video/ogg")) {
