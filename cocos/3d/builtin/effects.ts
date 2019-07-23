@@ -250,6 +250,44 @@ export default [
     ]
   },
   {
+    "name": "builtin-terrain",
+    "techniques": [
+      {"name":"opaque", "passes":[{"program":"builtin-terrain|terrain-vs:vert|terrain-fs:frag", "properties":{"UVScale":{"value":[1, 1, 1, 1], "type":16}, "weightMap":{"value":"black", "type":28}, "detailMap0":{"value":"grey", "type":28}, "detailMap1":{"value":"grey", "type":28}, "detailMap2":{"value":"grey", "type":28}, "detailMap3":{"value":"grey", "type":28}}}]}
+    ],
+    "shaders": [
+      {
+        "name": "builtin-terrain|terrain-vs:vert|terrain-fs:frag",
+        "hash": 2211091679,
+        "glsl3": {
+          "vert": `\nprecision mediump float;\nuniform CCGlobal {\n  vec4 cc_time;\n  vec4 cc_screenSize;\n  vec4 cc_screenScale;\n  vec4 cc_nativeSize;\n  mat4 cc_matView;\n  mat4 cc_matViewInv;\n  mat4 cc_matProj;\n  mat4 cc_matProjInv;\n  mat4 cc_matViewProj;\n  mat4 cc_matViewProjInv;\n  vec4 cc_cameraPos;\n  vec4 cc_exposure;\n  vec4 cc_mainLitDir;\n  vec4 cc_mainLitColor;\n  vec4 cc_ambientSky;\n  vec4 cc_ambientGround;\n};\nuniform CCLocal {\n  highp mat4 cc_matWorld;\n  mat4 cc_matWorldIT;\n};\nin vec3 a_position;\nin vec3 a_normal;\nin vec2 a_texCoord;\nout vec2 uvw;\nout vec2 uv0;\nout vec2 uv1;\nout vec2 uv2;\nout vec2 uv3;\nout vec3 diffuse;\nuniform TexCoords {\n  vec4 UVScale;\n};\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  pos = cc_matWorld * pos;\n  pos = cc_matViewProj * pos;\n  uvw = a_texCoord;\n  uv0 = a_position.xz * UVScale.x;\n  uv1 = a_position.xz * UVScale.y;\n  uv2 = a_position.xz * UVScale.z;\n  uv3 = a_position.xz * UVScale.w;\n  vec3 L = normalize(-cc_mainLitDir.xyz);\n  vec3 N = a_normal;\n  float fAmb = dot(N, vec3(0.0, -1.0, 0.0)) * 0.5 + 0.5;\n  vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb) * cc_ambientSky.w;\n  diffuse = ambDiff + vec3(dot(N, L));\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
+          "frag": `\nprecision mediump float;\nuniform CCGlobal {\n  vec4 cc_time;\n  vec4 cc_screenSize;\n  vec4 cc_screenScale;\n  vec4 cc_nativeSize;\n  mat4 cc_matView;\n  mat4 cc_matViewInv;\n  mat4 cc_matProj;\n  mat4 cc_matProjInv;\n  mat4 cc_matViewProj;\n  mat4 cc_matViewProjInv;\n  vec4 cc_cameraPos;\n  vec4 cc_exposure;\n  vec4 cc_mainLitDir;\n  vec4 cc_mainLitColor;\n  vec4 cc_ambientSky;\n  vec4 cc_ambientGround;\n};\nvec3 SRGBToLinear(vec3 gamma)\n{\n	return pow(gamma, vec3(2.2));\n}\nvec3 LinearToSRGB(vec3 linear)\n{\n	return pow(linear, vec3(0.454545));\n}\nvec4 CCFragOutput(vec4 color) {\n  #if CC_USE_HDR\n    color.rgb = mix(color.rgb, SRGBToLinear(color.rgb) * cc_exposure.w, vec3(cc_exposure.z));\n	#endif\n	return color;\n}\n  in vec2 uvw;\n  in vec2 uv0;\n  in vec2 uv1;\n  in vec2 uv2;\n  in vec2 uv3;\n  in vec3 diffuse;\n  uniform sampler2D weightMap;\n  uniform sampler2D detailMap0;\n  uniform sampler2D detailMap1;\n  uniform sampler2D detailMap2;\n  uniform sampler2D detailMap3;\nvec4 frag () {\n  vec4 color = vec4(0, 0, 0, 0);\n  #if LAYERS == 1\n    color = texture(detailMap0, uv0);\n  #elif LAYERS == 2\n    vec4 w = texture(weightMap, uvw);\n    color += texture(detailMap0, uv0) * w.r;\n    color += texture(detailMap1, uv1) * w.g;\n  #elif LAYERS == 3\n    vec4 w = texture(weightMap, uvw);\n    color += texture(detailMap0, uv0) * w.r;\n    color += texture(detailMap1, uv1) * w.g;\n    color += texture(detailMap2, uv2) * w.b;\n  #elif LAYERS == 4\n    vec4 w = texture(weightMap, uvw);\n    color += texture(detailMap0, uv0) * w.r;\n    color += texture(detailMap1, uv1) * w.g;\n    color += texture(detailMap2, uv2) * w.b;\n    color += texture(detailMap3, uv3) * w.a;\n  #else\n    color = texture(detailMap0, uv0);\n  #endif\n  color.rgb *= diffuse;\n  return CCFragOutput(color);\n}\nout vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }\n`
+        },
+        "glsl1": {
+          "vert": `\nprecision mediump float;\nuniform mat4 cc_matViewProj;\nuniform vec4 cc_mainLitDir;\nuniform vec4 cc_ambientSky;\nuniform vec4 cc_ambientGround;\nuniform highp mat4 cc_matWorld;\nattribute vec3 a_position;\nattribute vec3 a_normal;\nattribute vec2 a_texCoord;\nvarying vec2 uvw;\nvarying vec2 uv0;\nvarying vec2 uv1;\nvarying vec2 uv2;\nvarying vec2 uv3;\nvarying vec3 diffuse;\nuniform vec4 UVScale;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  pos = cc_matWorld * pos;\n  pos = cc_matViewProj * pos;\n  uvw = a_texCoord;\n  uv0 = a_position.xz * UVScale.x;\n  uv1 = a_position.xz * UVScale.y;\n  uv2 = a_position.xz * UVScale.z;\n  uv3 = a_position.xz * UVScale.w;\n  vec3 L = normalize(-cc_mainLitDir.xyz);\n  vec3 N = a_normal;\n  float fAmb = dot(N, vec3(0.0, -1.0, 0.0)) * 0.5 + 0.5;\n  vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb) * cc_ambientSky.w;\n  diffuse = ambDiff + vec3(dot(N, L));\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
+          "frag": `\nprecision mediump float;\nuniform vec4 cc_exposure;\nvec3 SRGBToLinear(vec3 gamma)\n{\n	return pow(gamma, vec3(2.2));\n}\nvec3 LinearToSRGB(vec3 linear)\n{\n	return pow(linear, vec3(0.454545));\n}\nvec4 CCFragOutput(vec4 color) {\n  #if CC_USE_HDR\n    color.rgb = mix(color.rgb, SRGBToLinear(color.rgb) * cc_exposure.w, vec3(cc_exposure.z));\n	#endif\n	return color;\n}\n  varying vec2 uvw;\n  varying vec2 uv0;\n  varying vec2 uv1;\n  varying vec2 uv2;\n  varying vec2 uv3;\n  varying vec3 diffuse;\n  uniform sampler2D weightMap;\n  uniform sampler2D detailMap0;\n  uniform sampler2D detailMap1;\n  uniform sampler2D detailMap2;\n  uniform sampler2D detailMap3;\nvec4 frag () {\n  vec4 color = vec4(0, 0, 0, 0);\n  #if LAYERS == 1\n    color = texture2D(detailMap0, uv0);\n  #elif LAYERS == 2\n    vec4 w = texture2D(weightMap, uvw);\n    color += texture2D(detailMap0, uv0) * w.r;\n    color += texture2D(detailMap1, uv1) * w.g;\n  #elif LAYERS == 3\n    vec4 w = texture2D(weightMap, uvw);\n    color += texture2D(detailMap0, uv0) * w.r;\n    color += texture2D(detailMap1, uv1) * w.g;\n    color += texture2D(detailMap2, uv2) * w.b;\n  #elif LAYERS == 4\n    vec4 w = texture2D(weightMap, uvw);\n    color += texture2D(detailMap0, uv0) * w.r;\n    color += texture2D(detailMap1, uv1) * w.g;\n    color += texture2D(detailMap2, uv2) * w.b;\n    color += texture2D(detailMap3, uv3) * w.a;\n  #else\n    color = texture2D(detailMap0, uv0);\n  #endif\n  color.rgb *= diffuse;\n  return CCFragOutput(color);\n}\nvoid main() { gl_FragColor = frag(); }\n`
+        },
+        "builtins": {"globals":{"blocks":[{"name":"CCGlobal", "defines":[]}], "samplers":[]}, "locals":{"blocks":[{"name":"CCLocal", "defines":[]}], "samplers":[]}},
+        "defines": [
+          {"name":"CC_USE_HDR", "type":"boolean", "defines":[]},
+          {"name":"LAYERS", "type":"number", "defines":[], "range":[0, 3]}
+        ],
+        "blocks": [
+          {"name": "TexCoords", "defines": [], "binding": 0, "members": [
+            {"name":"UVScale", "type":16, "count":1}
+          ]}
+        ],
+        "samplers": [
+          {"name":"weightMap", "type":28, "count":1, "defines":[], "binding":30},
+          {"name":"detailMap0", "type":28, "count":1, "defines":[], "binding":31},
+          {"name":"detailMap1", "type":28, "count":1, "defines":[], "binding":32},
+          {"name":"detailMap2", "type":28, "count":1, "defines":[], "binding":33},
+          {"name":"detailMap3", "type":28, "count":1, "defines":[], "binding":34}
+        ],
+        "dependencies": {}
+      }
+    ]
+  },
+  {
     "name": "builtin-unlit",
     "techniques": [
       {"name":"opaque", "passes":[{"program":"builtin-unlit|unlit-vs:vert|unlit-fs:frag", "properties":{"color":{"value":[1, 1, 1, 1], "inspector":{"type":"color"}, "type":16}, "tilingOffset":{"value":[1, 1, 0, 0], "type":16}, "mainTexture":{"value":"grey", "type":28}}}]}
@@ -285,6 +323,42 @@ export default [
         "samplers": [
           {"name":"mainTexture", "type":28, "count":1, "defines":["USE_TEXTURE"], "binding":30}
         ],
+        "dependencies": {}
+      }
+    ]
+  },
+  {
+    "name": "editor/terrain-circle-brush",
+    "techniques": [
+      {"name":"transparent", "passes":[{"blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":4, "blendDstAlpha":4}]}, "program":"editor/terrain-circle-brush|terrain-brush-vs:vert|terrain-brush-fs:frag", "depthStencilState":{"depthTest":true, "depthWrite":false}, "properties":{"BrushPos":{"value":[0, 0, 0, 1], "type":16}, "BrushParams":{"value":[2.5, 2.5, 0, 0], "type":16}}}]}
+    ],
+    "shaders": [
+      {
+        "name": "editor/terrain-circle-brush|terrain-brush-vs:vert|terrain-brush-fs:frag",
+        "hash": 3864386462,
+        "glsl3": {
+          "vert": `\nprecision mediump float;\nuniform CCGlobal {\n  vec4 cc_time;\n  vec4 cc_screenSize;\n  vec4 cc_screenScale;\n  vec4 cc_nativeSize;\n  mat4 cc_matView;\n  mat4 cc_matViewInv;\n  mat4 cc_matProj;\n  mat4 cc_matProjInv;\n  mat4 cc_matViewProj;\n  mat4 cc_matViewProjInv;\n  vec4 cc_cameraPos;\n  vec4 cc_exposure;\n  vec4 cc_mainLitDir;\n  vec4 cc_mainLitColor;\n  vec4 cc_ambientSky;\n  vec4 cc_ambientGround;\n};\nuniform CCLocal {\n  highp mat4 cc_matWorld;\n  mat4 cc_matWorldIT;\n};\nin vec3 a_position;\nout vec4 wposition;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  wposition = cc_matWorld * pos;\n  wposition.y += 0.01;\n  pos = cc_matViewProj * wposition;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
+          "frag": `\nprecision mediump float;\nuniform CCGlobal {\n  vec4 cc_time;\n  vec4 cc_screenSize;\n  vec4 cc_screenScale;\n  vec4 cc_nativeSize;\n  mat4 cc_matView;\n  mat4 cc_matViewInv;\n  mat4 cc_matProj;\n  mat4 cc_matProjInv;\n  mat4 cc_matViewProj;\n  mat4 cc_matViewProjInv;\n  vec4 cc_cameraPos;\n  vec4 cc_exposure;\n  vec4 cc_mainLitDir;\n  vec4 cc_mainLitColor;\n  vec4 cc_ambientSky;\n  vec4 cc_ambientGround;\n};\nvec3 SRGBToLinear(vec3 gamma)\n{\n	return pow(gamma, vec3(2.2));\n}\nvec3 LinearToSRGB(vec3 linear)\n{\n	return pow(linear, vec3(0.454545));\n}\nvec4 CCFragOutput(vec4 color) {\n  #if CC_USE_HDR\n    color.rgb = mix(color.rgb, SRGBToLinear(color.rgb) * cc_exposure.w, vec3(cc_exposure.z));\n	#endif\n	return color;\n}\nin vec4 wposition;\nuniform TexCoords {\n  vec4 BrushPos;\n  vec4 BrushParams;\n};\nvec4 frag () {\n  float Radius = BrushParams.x;\n  float Falloff = BrushParams.y;\n  float Distance = length(wposition.xz - BrushPos.xz);\n  float k = 0.0;\n  #if LINEAR\n    if (Distance <= Radius) {\n      k = 1.0;\n    }\n    else if (Distance > Radius + Falloff) {\n      k = 0.0;\n    }\n    else {\n      k = max(0.0, 1.0 - (Distance - Radius) / Falloff);\n    }\n  #elif SMOOTH\n    if (Distance <= Radius) {\n      k = 1.0;\n    }\n    else if (Distance > Radius + Falloff) {\n      k = 0.0;\n    }\n    else {\n      float y = (Distance - Radius) / Falloff;\n      k = sqrt(1.0 - y * y);\n    }\n  #elif SPHERICAL\n    if (Distance <= Radius) {\n      k = 1.0;\n    }\n    else if (Distance > Radius + Falloff) {\n      k = 0.0;\n    }\n    else {\n      k = max(0.0, 1.0 - (Distance - Radius) / Falloff);\n    }\n    k = k*k*(3 - 2 * k);\n  #elif TIP\n    if (Distance <= Radius) {\n      k = 1.0;\n    }\n    else if (Distance > Radius + Falloff) {\n      k = 0.0;\n    }\n    else {\n      float y = (Falloff + Radius - Distance) / Falloff;\n      k = 1.0 - sqrt(1.0 - y * y);\n    }\n  #endif\n  vec4 color = vec4(0, 0, 0, 0);\n  color.rgb = vec3(100, 100, 135) / 255.0;\n  color.a = 0.85 * k;\n  return CCFragOutput(color);\n}\nout vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }\n`
+        },
+        "glsl1": {
+          "vert": `\nprecision mediump float;\nuniform mat4 cc_matViewProj;\nuniform highp mat4 cc_matWorld;\nattribute vec3 a_position;\nvarying vec4 wposition;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 1);\n  wposition = cc_matWorld * pos;\n  wposition.y += 0.01;\n  pos = cc_matViewProj * wposition;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
+          "frag": `\nprecision mediump float;\nuniform vec4 cc_exposure;\nvec3 SRGBToLinear(vec3 gamma)\n{\n	return pow(gamma, vec3(2.2));\n}\nvec3 LinearToSRGB(vec3 linear)\n{\n	return pow(linear, vec3(0.454545));\n}\nvec4 CCFragOutput(vec4 color) {\n  #if CC_USE_HDR\n    color.rgb = mix(color.rgb, SRGBToLinear(color.rgb) * cc_exposure.w, vec3(cc_exposure.z));\n	#endif\n	return color;\n}\nvarying vec4 wposition;\nuniform vec4 BrushPos;\nuniform vec4 BrushParams;\nvec4 frag () {\n  float Radius = BrushParams.x;\n  float Falloff = BrushParams.y;\n  float Distance = length(wposition.xz - BrushPos.xz);\n  float k = 0.0;\n  #if LINEAR\n    if (Distance <= Radius) {\n      k = 1.0;\n    }\n    else if (Distance > Radius + Falloff) {\n      k = 0.0;\n    }\n    else {\n      k = max(0.0, 1.0 - (Distance - Radius) / Falloff);\n    }\n  #elif SMOOTH\n    if (Distance <= Radius) {\n      k = 1.0;\n    }\n    else if (Distance > Radius + Falloff) {\n      k = 0.0;\n    }\n    else {\n      float y = (Distance - Radius) / Falloff;\n      k = sqrt(1.0 - y * y);\n    }\n  #elif SPHERICAL\n    if (Distance <= Radius) {\n      k = 1.0;\n    }\n    else if (Distance > Radius + Falloff) {\n      k = 0.0;\n    }\n    else {\n      k = max(0.0, 1.0 - (Distance - Radius) / Falloff);\n    }\n    k = k*k*(3 - 2 * k);\n  #elif TIP\n    if (Distance <= Radius) {\n      k = 1.0;\n    }\n    else if (Distance > Radius + Falloff) {\n      k = 0.0;\n    }\n    else {\n      float y = (Falloff + Radius - Distance) / Falloff;\n      k = 1.0 - sqrt(1.0 - y * y);\n    }\n  #endif\n  vec4 color = vec4(0, 0, 0, 0);\n  color.rgb = vec3(100, 100, 135) / 255.0;\n  color.a = 0.85 * k;\n  return CCFragOutput(color);\n}\nvoid main() { gl_FragColor = frag(); }\n`
+        },
+        "builtins": {"globals":{"blocks":[{"name":"CCGlobal", "defines":[]}], "samplers":[]}, "locals":{"blocks":[{"name":"CCLocal", "defines":[]}], "samplers":[]}},
+        "defines": [
+          {"name":"CC_USE_HDR", "type":"boolean", "defines":[]},
+          {"name":"LINEAR", "type":"boolean", "defines":[]},
+          {"name":"SMOOTH", "type":"boolean", "defines":[]},
+          {"name":"SPHERICAL", "type":"boolean", "defines":[]},
+          {"name":"TIP", "type":"boolean", "defines":[]}
+        ],
+        "blocks": [
+          {"name": "TexCoords", "defines": [], "binding": 0, "members": [
+            {"name":"BrushPos", "type":16, "count":1},
+            {"name":"BrushParams", "type":16, "count":1}
+          ]}
+        ],
+        "samplers": [],
         "dependencies": {}
       }
     ]

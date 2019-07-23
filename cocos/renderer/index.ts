@@ -14,6 +14,7 @@ export { samplerLib };
 export { Light } from './scene/light';
 export { Camera } from './scene/camera';
 export { Model } from './scene/model';
+export { TerrainSample } from './terrain/terrain-sample';
 
 export { default as ParticleBatchModel } from './models/particle-batch-model';
 export { SkinningModel } from './models/skinning-model';
