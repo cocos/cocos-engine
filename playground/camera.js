@@ -183,7 +183,7 @@ function (_cc$Component) {
     key: "_translate",
     value: function _translate(direction, delta) {
       var position = this.node.getPosition();
-      cc.vmath.vec3.scaleAndAdd(position, position, direction, delta);
+      cc.Vec3.scaleAndAdd(position, position, direction, delta);
       this.node.setPosition(position);
     }
   }, {
@@ -192,7 +192,7 @@ function (_cc$Component) {
       var rotation = this.node.getRotation();
       var up = cc.v3(0, 1, 0); //const up = this._getUp();
 
-      cc.vmath.quat.rotateAround(rotation, rotation, up, -delta / 360.0 * 3.14159265);
+      cc.Quat.rotateAround(rotation, rotation, up, -delta / 360.0 * 3.14159265);
       this.node.setRotation(rotation);
     }
   }, {
@@ -202,7 +202,7 @@ function (_cc$Component) {
 
       var right = this._getRight();
 
-      cc.vmath.quat.rotateAround(rotation, rotation, right, delta / 360.0 * 3.14159265);
+      cc.Quat.rotateAround(rotation, rotation, right, delta / 360.0 * 3.14159265);
       this.node.setRotation(rotation);
     }
   }, {
@@ -224,7 +224,7 @@ function (_cc$Component) {
     key: "_getDirection",
     value: function _getDirection(x, y, z) {
       var result = cc.v3(x, y, z);
-      cc.vmath.vec3.transformQuat(result, result, this.node.getRotation());
+      cc.Vec3.transformQuat(result, result, this.node.getRotation());
       return result;
     }
   }]);

@@ -43,7 +43,7 @@
       const lx = light.x, ly = light.y, lz = light.z;
       const n = plane.n, d = plane.d + 0.01;
       const nx = n.x, ny = n.y, nz = n.z;
-      const NdL = cc.vmath.vec3.dot(plane.n, light);
+      const NdL = cc.Vec3.dot(plane.n, light);
       return cc.mat4(
         NdL - d - lx * nx, -ly * nx, -lz * nx, -nx,
         -lx * ny, NdL - d - ly * ny, -lz * ny, -ny,
@@ -100,8 +100,8 @@
         models[info.name] = modelCom;
       }
 
-      const qt = cc.vmath.quat.fromEuler(cc.quat(), 0, 0, 0);
-      const nm = cc.vmath.vec3.transformQuat(cc.v3(), cc.v3(0, 1, 0), qt);
+      const qt = cc.Quat.fromEuler(cc.quat(), 0, 0, 0);
+      const nm = cc.Vec3.transformQuat(cc.v3(), cc.v3(0, 1, 0), qt);
       models.plane.node.setRotation(qt);
 
       scene.globals.planarShadows.setPlaneFromNode(models.plane.node);

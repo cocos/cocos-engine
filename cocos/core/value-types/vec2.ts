@@ -44,11 +44,11 @@ let _y: number = 0.0;
  */
 export class Vec2 extends ValueType {
 
-    public static ZERO = Object.freeze(new Vec2(0, 0));
-    public static ONE = Object.freeze(new Vec2(1, 1));
-    public static NEG_ONE = Object.freeze(new Vec2(-1, -1));
-    public static UP = Object.freeze(new Vec2(0.0, 1.0));
-    public static RIGHT = Object.freeze(new Vec2(1.0, 0.0));
+    public static ZERO = Object.freeze(Vec2.create(0, 0));
+    public static ONE = Object.freeze(Vec2.create(1, 1));
+    public static NEG_ONE = Object.freeze(Vec2.create(-1, -1));
+    public static UP = Object.freeze(Vec2.create(0.0, 1.0));
+    public static RIGHT = Object.freeze(Vec2.create(1.0, 0.0));
 
     /**
      * 构造与指定向量相等的向量，或如果不指定的话，零向量。

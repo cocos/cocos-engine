@@ -129,12 +129,12 @@
 
       const moveTool = new cc.Node('moveTool');
       moveTool.parent = scene;
-      createArrow(cc.Color.RED, quat.fromEuler(cc.quat(), 90, 0, 0)).parent = moveTool;
-      createArrow(cc.Color.GREEN, quat.fromEuler(cc.quat(), 0, 0, 0)).parent = moveTool;
-      createArrow(cc.Color.BLUE, quat.fromEuler(cc.quat(), 0, 0, -90)).parent = moveTool;
-      createBorderPlane(cc.Color.RED, cc.v3(0.5, 0.5, 0), quat.fromEuler(cc.quat(), 0, 0, 0)).parent = moveTool;
-      createBorderPlane(cc.Color.GREEN, cc.v3(0.5, 0, 0.5), quat.fromEuler(cc.quat(), -90, -90, 0)).parent = moveTool;
-      createBorderPlane(cc.Color.BLUE, cc.v3(0, 0.5, 0.5), quat.fromEuler(cc.quat(), 90, 0, 90)).parent = moveTool;
+      createArrow(cc.Color.RED, cc.Quat.fromEuler(cc.Quat.create(), 90, 0, 0)).parent = moveTool;
+      createArrow(cc.Color.GREEN, cc.Quat.fromEuler(cc.Quat.create(), 0, 0, 0)).parent = moveTool;
+      createArrow(cc.Color.BLUE, cc.Quat.fromEuler(cc.Quat.create(), 0, 0, -90)).parent = moveTool;
+      createBorderPlane(cc.Color.RED, cc.v3(0.5, 0.5, 0), cc.Quat.fromEuler(cc.Quat.create(), 0, 0, 0)).parent = moveTool;
+      createBorderPlane(cc.Color.GREEN, cc.v3(0.5, 0, 0.5), cc.Quat.fromEuler(cc.Quat.create(), -90, -90, 0)).parent = moveTool;
+      createBorderPlane(cc.Color.BLUE, cc.v3(0, 0.5, 0.5), cc.Quat.fromEuler(cc.Quat.create(), 90, 0, 90)).parent = moveTool;
 
       let vel = cc.v3(), speed = 0.1;
       canv.addEventListener('keydown', (e) => {
@@ -155,7 +155,7 @@
         else if (e.key === 'r') moveTool.active = !moveTool.active;
       });
       cc.director.on(cc.Director.EVENT_AFTER_UPDATE, () => {
-        moveTool.setPosition(vec3.add(moveTool._lpos, moveTool._lpos, vel));
+        moveTool.setPosition(cc.Vec3.add(moveTool._lpos, moveTool._lpos, vel));
       });
 
       // cc.director.once(cc.Director.EVENT_AFTER_UPDATE, () => {
