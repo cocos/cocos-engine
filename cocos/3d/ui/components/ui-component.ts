@@ -59,6 +59,7 @@ export class UIComponent extends Component {
         }
 
         this._priority = value;
+        this._sortSiblings();
     }
 
     /**
@@ -81,11 +82,15 @@ export class UIComponent extends Component {
         if (this._lastParent) {
             this.node.on(SystemEventType.CHILD_REMOVED, this._parentChanged, this);
         }
-
+        this.node._uiComp = this;
+        this._sortSiblings();
     }
 
     public onDisable () {
         this._cancelEventFromParent();
+        if (this.node._uiComp === this) {
+            this.node._uiComp = null;
+        }
     }
 
     public updateAssembler (render: UI) {
@@ -107,10 +112,24 @@ export class UIComponent extends Component {
             this._updateVisibility();
             this._cancelEventFromParent();
             this._lastParent = this.node.parent;
+            this._sortSiblings();
             return true;
         }
 
         return false;
+    }
+
+    private _sortSiblings () {
+        let siblings = this.node.parent && this.node.parent.children;
+        if (siblings) {
+            siblings.sort((a, b) => {
+                const aComp = a._uiComp;
+                const bComp = b._uiComp;
+                const ca = aComp ? aComp.priority : 0;
+                const cb = bComp ? bComp.priority : 0;
+                return ca - cb;
+            });
+        }
     }
 
     private _updateVisibility () {

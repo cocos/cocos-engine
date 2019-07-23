@@ -422,12 +422,17 @@ export class GraphicsComponent extends UIRenderComponent {
      * @zh
      * 擦除之前绘制的所有内容的方法。
      */
-    public clear (/*clean: boolean*/) {
+    public clear (clean = false) {
         if (!this.impl) {
             return;
         }
 
-        this.impl.clear();
+        this.impl.clear(clean);
+        if (this.model) {
+            this.model.destroy();
+            this.model.scene.destroyModel(this.model);
+            this.model = null;
+        }
     }
 
     /**

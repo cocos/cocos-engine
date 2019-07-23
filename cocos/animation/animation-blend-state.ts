@@ -4,13 +4,11 @@
 
 import { Node } from '../scene-graph';
 import { CurveTarget } from './animation-curve';
-import { AnimCurveProperty } from './animation-state';
 
 // tslint:disable:interface-over-type-literal
 
 export type PropertyBlendState<T = any> = {
-    // name: string;
-    property: AnimCurveProperty;
+    name: string;
     weight: number;
     value?: T;
     refCount: number;
@@ -24,7 +22,7 @@ interface ITargetState {
 export class AnimationBlendState {
     private _blendTargets: ITargetState[] = [];
 
-    public refPropertyBlendTarget (target: CurveTarget, property: AnimCurveProperty) {
+    public refPropertyBlendTarget (target: CurveTarget, property: string) {
         let targetState = this._blendTargets.find((x) => x.target === target);
         if (!targetState) {
             targetState = { target, properties: [] };
@@ -32,16 +30,16 @@ export class AnimationBlendState {
         }
         const propertyStates = targetState.properties;
 
-        let propertyState = propertyStates.find((p) => p.property === property);
+        let propertyState = propertyStates.find((p) => p.name === property);
         if (!propertyState) {
-            propertyState = { property, weight: 0, value: undefined, refCount: 0 };
+            propertyState = { name: property, weight: 0, value: undefined, refCount: 0 };
             propertyStates.push(propertyState);
         }
         ++propertyState.refCount;
         return propertyState;
     }
 
-    public derefPropertyBlendTarget (target: CurveTarget, property: AnimCurveProperty) {
+    public derefPropertyBlendTarget (target: CurveTarget, property: string) {
         const iTargetState = this._blendTargets.findIndex((x) => x.target === target);
         if (iTargetState < 0) {
             return;
@@ -49,7 +47,7 @@ export class AnimationBlendState {
         const targetState = this._blendTargets[iTargetState];
 
         const propertyStates = targetState.properties;
-        const iPropertyState = propertyStates.findIndex((p) => p.property === property);
+        const iPropertyState = propertyStates.findIndex((p) => p.name === property);
         if (iPropertyState < 0) {
             return;
         }
@@ -73,33 +71,16 @@ export class AnimationBlendState {
             const propertyStates = targetState.properties;
             for (const p of propertyStates) {
                 if (p.weight !== 0) {
-                    target[p.property] = p.value;
-
-                    switch (p.property) {
-                        case AnimCurveProperty.POSITION: {
-                            if (target instanceof Node) {
-                                target.setPosition(p.value);
-                            } else {
-                                (target as any).position = p.value;
-                            }
-                            break;
+                    if (target instanceof Node) {
+                        if (p.name === 'position') {
+                            target.setPosition(p.value);
+                        } else if (p.name === 'rotation') {
+                            target.setRotation(p.value);
+                        } else {
+                            target.setScale(p.value);
                         }
-                        case AnimCurveProperty.ROTATION: {
-                            if (target instanceof Node) {
-                                target.setRotation(p.value);
-                            } else {
-                                (target as any).rotation = p.value;
-                            }
-                            break;
-                        }
-                        case AnimCurveProperty.SCALE: {
-                            if (target instanceof Node) {
-                                target.setScale(p.value);
-                            } else {
-                                (target as any).scale = p.value;
-                            }
-                            break;
-                        }
+                    } else {
+                        target[p.name] = p.value;
                     }
                 }
             }

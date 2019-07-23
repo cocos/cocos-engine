@@ -1693,7 +1693,9 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
 
     const gl = device.gl;
     const cache = device.stateCache;
-    cmdIds.fill(0);
+    for (let i = 0; i < WebGL2Cmd.COUNT; ++i) {
+        cmdIds[i] = 0;
+    }
 
     let gpuPipelineState: WebGL2GPUPipelineState | null = null;
     let gpuShader: WebGL2GPUShader | null = null;

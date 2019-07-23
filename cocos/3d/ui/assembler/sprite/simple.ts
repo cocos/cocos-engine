@@ -52,6 +52,9 @@ export const simple: IAssembler = {
         renderData!.dataLength = 4;
         renderData!.vertexCount = 4;
         renderData!.indiceCount = 6;
+
+        renderData.vData = new Float32Array(4 * 9);
+
         return renderData as RenderData;
     },
 
@@ -72,9 +75,10 @@ export const simple: IAssembler = {
         const renderData = sprite.renderData;
         if (renderData && frame) {
             if (renderData.vertDirty) {
-                if (this.updateVerts) {
-                    this.updateVerts(sprite);
-                }
+                this.updateVerts(sprite);
+            }
+            if (renderData.uvDirty) {
+                this.updateUvs(sprite);
             }
         }
     },
@@ -112,33 +116,36 @@ export const simple: IAssembler = {
 
         const data0 = datas[0];
         const data3 = datas[3];
-        vec3.set(vec3_temps[0], data0.x, data0.y, data0.z);
-        vec3.set(vec3_temps[1], data3.x, data0.y, data0.z);
-        vec3.set(vec3_temps[2], data0.x, data3.y, data0.z);
-        vec3.set(vec3_temps[3], data3.x, data3.y, data0.z);
 
-        // get uv from sprite frame directly
-        const uv = sprite!.spriteFrame!.uv;
-        node.getWorldMatrix(matrix);
-        for (let i = 0; i < 4; i++) {
-            // vertex
-            const vertex = vec3_temps[i];
-            vec3.transformMat4(vertex, vertex, matrix);
+        // // get uv from sprite frame directly
+        let matrix = node.worldMatrix;
 
-            vbuf![vertexOffset++] = vertex.x;
-            vbuf![vertexOffset++] = vertex.y;
-            vbuf![vertexOffset++] = vertex.z;
+        let vl = data0.x, vr = data3.x,
+            vb = data0.y, vt = data3.y;
+        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
+            tx = matrix.m12, ty = matrix.m13;
 
-            // uv
-            const uvOffset = i * 2;
-            vbuf![vertexOffset++] = uv[0 + uvOffset];
-            vbuf![vertexOffset++] = uv[1 + uvOffset];
+        let al = a * vl, ar = a * vr,
+            bl = b * vl, br = b * vr,
+            cb = c * vb, ct = c * vt,
+            db = d * vb, dt = d * vt;
 
-            // color
-            color4.array(vbuf!, sprite.color, vertexOffset);
+        let vData = sprite!.renderData!.vData;
 
-            vertexOffset += 4;
-        }
+        // left bottom
+        vData![0] = al + cb + tx;
+        vData![1] = bl + db + ty;
+        // right bottom
+        vData![9] = ar + cb + tx;
+        vData![10] = br + db + ty;
+        // left top
+        vData![18] = al + ct + tx;
+        vData![19] = bl + dt + ty;
+        // right top
+        vData![27] = ar + ct + tx;
+        vData![28] = br + dt + ty;
+
+        vbuf!.set(vData!, vertexOffset);
 
         // fill indice data
         ibuf![indiceOffset++] = vertexId;
@@ -205,4 +212,36 @@ export const simple: IAssembler = {
 
         renderData.vertDirty = false;
     },
+
+    updateUvs (sprite) {
+        let renderData = sprite.renderData;
+        let vData = renderData.vData;
+        const uv = sprite!.spriteFrame!.uv;
+        vData![3] = uv[0];
+        vData![4] = uv[1];
+        vData![12] = uv[2];
+        vData![13] = uv[3];
+        vData![21] = uv[4];
+        vData![22] = uv[5];
+        vData![30] = uv[6];
+        vData![31] = uv[7];
+
+        renderData.uvDirty = false;
+    },
+
+    updateColor (sprite) {
+        let vData = sprite.renderData.vData;
+
+        //
+        let colorOffset = 5, color = sprite.color;
+        let colorr = color.r / 255, colorg = color.g / 255, colorb = color.b / 255, colora = color.a / 255;
+        for (let i = 0; i < 4; i++) {
+            vData![colorOffset] = colorr;
+            vData![colorOffset + 1] = colorg;
+            vData![colorOffset + 2] = colorb;
+            vData![colorOffset + 3] = colora;
+
+            colorOffset += 9;
+        }
+    }
 };

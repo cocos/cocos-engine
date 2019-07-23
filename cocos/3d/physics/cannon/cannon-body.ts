@@ -33,11 +33,23 @@ export class CannonRigidBody implements RigidBodyBase {
             type: ERigidBodyType.DYNAMIC,
         });
         setWrap<RigidBodyBase>(this._body, this);
-        this._body.allowSleep = true;
+
         this._body.sleepSpeedLimit = 0.1; // Body will feel sleepy if speed<1 (speed == norm of velocity)
         this._body.sleepTimeLimit = 1; // Body falls asleep after 1s of sleepiness
 
         this._onCollidedListener = this._onCollided.bind(this);
+    }
+
+    /** allow sleep */
+    public getAllowSleep (): boolean {
+        return this._body.allowSleep;
+    }
+
+    public setAllowSleep (v: boolean): void {
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+        this._body.allowSleep = v;
     }
 
     /** group */
@@ -129,6 +141,11 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     public setMass (value: number) {
+
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+
         this._body.mass = value;
         this._body.updateMassProperties();
     }
@@ -166,6 +183,11 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     public setUseGravity (value: boolean) {
+
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+
         this._body.useGravity = value;
     }
 
@@ -174,6 +196,11 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     public setCollisionResponse (value: boolean): void {
+
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+
         this._body.collisionResponse = !value;
     }
 
@@ -184,6 +211,11 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     public setLinearVelocity (value: Vec3): void {
+
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+
         vec3.copy(this._body.velocity, value);
     }
 
@@ -194,6 +226,11 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     public setAngularVelocity (value: Vec3): void {
+
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+
         vec3.copy(this._body.angularVelocity, value);
     }
 
@@ -204,6 +241,11 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     public setLinearFactor (value: Vec3): void {
+
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+
         vec3.copy(this._body.linearFactor, value);
     }
 
@@ -214,6 +256,11 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     public setAngularFactor (value: Vec3): void {
+
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+
         vec3.copy(this._body.angularFactor, value);
     }
 
@@ -222,6 +269,11 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     public setFreezeRotation (value: boolean) {
+
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+
         this._body.fixedRotation = value;
         this._body.updateMassProperties();
     }
@@ -231,7 +283,11 @@ export class CannonRigidBody implements RigidBodyBase {
             worldPoint = new Vec3();
             vec3.copy(worldPoint, this._body.position);
         }
-        this._body.wakeUp();
+
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+
         this._body.applyForce(toCannonVec3(force), toCannonVec3(worldPoint));
     }
 
@@ -240,7 +296,11 @@ export class CannonRigidBody implements RigidBodyBase {
             worldPoint = new Vec3();
             vec3.copy(worldPoint, this._body.position);
         }
-        this._body.wakeUp();
+
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+
         this._body.applyImpulse(toCannonVec3(impulse), toCannonVec3(worldPoint));
     }
 
@@ -248,7 +308,11 @@ export class CannonRigidBody implements RigidBodyBase {
         if (localPoint == null) {
             localPoint = new Vec3();
         }
-        this._body.wakeUp();
+
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+
         this._body.applyLocalForce(toCannonVec3(force), toCannonVec3(localPoint));
     }
 
@@ -256,7 +320,11 @@ export class CannonRigidBody implements RigidBodyBase {
         if (localPoint == null) {
             localPoint = new Vec3();
         }
-        this._body.wakeUp();
+
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+
         this._body.applyLocalImpulse(toCannonVec3(impulse), toCannonVec3(localPoint));
     }
 

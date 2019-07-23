@@ -40,7 +40,7 @@ import { Node } from '../../scene-graph/node';
 import { Material } from '../assets/material';
 import { IMeshStruct, Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
-import { LCA, mapBuffer } from '../misc/utils';
+import { mapBuffer } from '../misc/utils';
 import { SkinningModelComponent } from './skinning-model-component';
 
 const repeat = (n: number) => n - Math.floor(n);
@@ -55,8 +55,6 @@ export class SkinningModelUnit {
     public mesh: Mesh | null = null;
     @property(Skeleton)
     public skeleton: Skeleton | null = null;
-    @property(Node)
-    public skinningRoot: Node | null = null;
     @property(Material)
     public material: Material | null = null;
     @property
@@ -85,7 +83,6 @@ export class SkinningModelUnit {
         if (!comp) { return; }
         this.mesh = comp.mesh;
         this.skeleton = comp.skeleton;
-        this.skinningRoot = comp.skinningRoot;
         this.material = comp.getSharedMaterial(0);
     }
     get copyFrom () {
@@ -140,15 +137,6 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     set skeleton (val) {
         // @ts-ignore
         super.skeleton = val;
-    }
-
-    @property({ override: true, visible: false })
-    get skinningRoot () {
-        return this._skinningRoot;
-    }
-    set skinningRoot (val) {
-        // @ts-ignore
-        super.skinningRoot = val;
     }
 
     public onLoad () {
@@ -209,25 +197,15 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     }
 
     public cookSkeletons () {
-        // find lowest common ancestor as the new skinning root
-        let lca: Node | null = null;
-        for (const unit of this.units) {
-            if (!unit || !unit.skinningRoot) { continue; }
-            const cur = unit.skinningRoot;
-            if (!lca) { lca = cur; continue; }
-            lca = LCA(lca, cur);
-        }
-        this._skinningRoot = lca;
-        if (!lca) { console.warn('illegal skinning roots'); return; }
+        if (!this._skinningRoot) { console.warn('no skinning root specified!'); return; }
         // merge joints accordingly
         const skeleton = new Skeleton();
         const bindposes: Mat4[] = [];
         for (const unit of this.units) {
-            if (!unit || !unit.skeleton || !unit.skinningRoot) { continue; }
+            if (!unit || !unit.skeleton) { continue; }
             const partial = unit.skeleton;
-            const prefix = getPrefix(lca, unit.skinningRoot);
             for (let i = 0; i < partial.joints.length; i++) {
-                const path = concatPath(prefix, partial.joints[i]);
+                const path = partial.joints[i];
                 const idx = skeleton.joints.findIndex((p) => p === path);
                 if (idx >= 0) { continue; }
                 skeleton.joints.push(path);
@@ -276,11 +254,9 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         const unitLen = this.units.length;
         for (let i = 0; i < unitLen; i++) {
             const unit = this.units[i];
-            if (!unit || !unit.skeleton || !unit.skinningRoot) { continue; }
-            const prefix = getPrefix(this._skinningRoot, unit.skinningRoot);
+            if (!unit || !unit.skeleton) { continue; }
             jointIndexMap[i] = unit.skeleton.joints.map((j) => {
-                const path = concatPath(prefix, j);
-                return this._skeleton!.joints.findIndex((ref) => path === ref);
+                return this._skeleton!.joints.findIndex((ref) => j === ref);
             });
         }
 

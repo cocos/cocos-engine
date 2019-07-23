@@ -27,12 +27,14 @@
  * @category model
  */
 
+import { AnimationComponent } from '../../animation/animation-component';
+import { SkeletalAnimationClip } from '../../animation/skeletal-animation-clip';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { GFXDevice } from '../../gfx/device';
-import { selectJointsMediumType, SkinningModel } from '../../renderer/models/skinning-model';
+import { SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
 import { Material } from '../assets/material';
-import { Skeleton } from '../assets/skeleton';
+import { selectJointsMediumType, Skeleton } from '../assets/skeleton';
 import { builtinResMgr } from '../builtin';
 import { ModelComponent } from './model-component';
 
@@ -46,6 +48,12 @@ import { ModelComponent } from './model-component';
 @menu('Components/SkinningModelComponent')
 export class SkinningModelComponent extends ModelComponent {
 
+    @property(Skeleton)
+    protected _skeleton: Skeleton | null = null;
+
+    @property(Node)
+    protected _skinningRoot: Node | null = null;
+
     /**
      * @en The bone nodes
      * @zh 骨骼节点。
@@ -57,8 +65,7 @@ export class SkinningModelComponent extends ModelComponent {
 
     set skeleton (val) {
         this._skeleton = val;
-        this._bindSkeleton();
-        this._resetSkinningTarget();
+        this._update();
     }
 
     /**
@@ -71,30 +78,44 @@ export class SkinningModelComponent extends ModelComponent {
 
     set skinningRoot (value) {
         this._skinningRoot = value;
-        this._resetSkinningTarget();
+        this._update();
     }
 
     get model () {
         return (this._model as SkinningModel);
     }
 
-    @property(Skeleton)
-    protected _skeleton: Skeleton | null = null;
+    set frameID (val: number) {
+        if (this._model) { (this._model as SkinningModel).setFrameID(val); }
+    }
 
-    @property(Node)
-    protected _skinningRoot: Node | null = null;
+    get frameID () {
+        if (this._model) { return (this._model as SkinningModel).getFrameID(); }
+        return 0;
+    }
+
+    public onLoad () {
+        super.onLoad();
+        if (this._skinningRoot && this._skinningRoot.getComponent(AnimationComponent)) { return; }
+        // find the lowest AnimationComponent node as the new skinning root
+        let root: Node | null = this.node;
+        while (root && !root.getComponent(AnimationComponent)) { root = root.parent; }
+        this._skinningRoot = root;
+    }
+
+    public uploadAnimationClip (clip: SkeletalAnimationClip) {
+        if (this._model) { (this._model as SkinningModel).uploadAnimationClip(clip); }
+    }
 
     public _updateModelParams () {
         // should bind skeleton before super create pso
-        this._bindSkeleton();
-        this._resetSkinningTarget();
+        this._update();
         super._updateModelParams();
     }
 
     protected _onMaterialModified (index: number, material: Material | null) {
         const device: GFXDevice = cc.director.root && cc.director.root.device;
-        const joints = this._skeleton && this._skeleton.joints.length || 0;
-        const type = selectJointsMediumType(device, joints);
+        const type = selectJointsMediumType(device);
         const mat = this.getMaterial(index) || this._getBuiltinMaterial();
         mat.recompileShaders({ CC_USE_SKINNING: type });
         super._onMaterialModified(index, mat);
@@ -109,13 +130,8 @@ export class SkinningModelComponent extends ModelComponent {
         return builtinResMgr.get<Material>('missing-skinning-material');
     }
 
-    private _bindSkeleton () {
-        if (this._model) { (this._model as SkinningModel).bindSkeleton(this._skeleton); }
+    private _update () {
+        if (this._model) { (this._model as SkinningModel).bindSkeleton(this._skeleton, this._skinningRoot); }
         this._materials.forEach((material, index) => material && this._onMaterialModified(index, material));
-    }
-
-    private _resetSkinningTarget () {
-        if (!this._model || !this._skinningRoot) { return; }
-        (this._model as SkinningModel).resetSkinningTarget(this._skinningRoot);
     }
 }

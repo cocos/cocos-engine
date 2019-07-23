@@ -109,6 +109,8 @@ export class Asset extends RawAsset implements IEventTarget {
     @property
     public _native: string | undefined = '';
 
+    private _file: any = null;
+
     constructor (...args: ConstructorParameters<typeof RawAsset>) {
         super(...args);
     }
@@ -189,9 +191,10 @@ export class Asset extends RawAsset implements IEventTarget {
      */
     @property
     get _nativeAsset (): any {
-        return null;
+        return this._file;
     }
     set _nativeAsset (obj) {
+        this._file = obj;
     }
 
     /**

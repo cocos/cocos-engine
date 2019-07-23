@@ -30,12 +30,16 @@
 
 // @ts-check
 import {ccclass, property} from '../core/data/class-decorator';
+import { error } from '../core/platform/CCDebug';
 import IDGenerator from '../core/utils/id-generator';
 import { GFXDevice } from '../gfx/device';
-import { GFXTextureView } from '../gfx/texture-view';
-import { SamplerInfoIndex } from '../renderer/core/sampler-lib';
+import { GFXTexture, IGFXTextureInfo } from '../gfx/texture';
+import { GFXTextureView, IGFXTextureViewInfo } from '../gfx/texture-view';
+import { genSamplerHash, SamplerInfoIndex, samplerLib } from '../renderer/core/sampler-lib';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
+import { ImageAsset } from './image-asset';
+import { postLoadImage } from './texture-util';
 
 const CHAR_CODE_1 = 49;    // '1'
 
@@ -88,9 +92,15 @@ export class TextureBase extends Asset {
     @property
     protected _anisotropy = 16;
 
-    private _id: string;
+    protected _texture: GFXTexture | null = null;
+    protected _textureView: GFXTextureView | null = null;
 
+    private _potientialWidth: number = 0;
+    private _potientialHeight: number = 0;
+    private _mipmapLevel: number = 1;
+    private _id: string;
     private _samplerInfo: Array<number | undefined> = [];
+    private _samplerHash: number = 0;
 
     protected constructor (flipY: boolean = false) {
         super();
@@ -100,12 +110,6 @@ export class TextureBase extends Asset {
         // Id for generate hash in material
         this._id = idGenerator.getNewId();
 
-        /**
-         * @en
-         * Whether the texture is loaded or not
-         * @zh
-         * 贴图是否已经成功加载。
-         */
         this.loaded = false;
     }
 
@@ -157,6 +161,7 @@ export class TextureBase extends Asset {
             this._wrapR = wrapR;
             this._samplerInfo[SamplerInfoIndex.addressW] = wrapR;
         }
+        this._samplerHash = genSamplerHash(this._samplerInfo);
     }
 
     /**
@@ -169,6 +174,7 @@ export class TextureBase extends Asset {
         this._samplerInfo[SamplerInfoIndex.minFilter] = minFilter;
         this._magFilter = magFilter;
         this._samplerInfo[SamplerInfoIndex.magFilter] = magFilter;
+        this._samplerHash = genSamplerHash(this._samplerInfo);
     }
 
     /**
@@ -179,6 +185,7 @@ export class TextureBase extends Asset {
         this._mipFilter = mipFilter;
         this._samplerInfo[SamplerInfoIndex.mipFilter] = mipFilter;
         this._samplerInfo[SamplerInfoIndex.maxLOD] = mipFilter === Filter.NONE ? 0 : 1000; // WebGL2 on some platform need this
+        this._samplerHash = genSamplerHash(this._samplerInfo);
     }
 
     /**
@@ -204,6 +211,7 @@ export class TextureBase extends Asset {
     public setAnisotropy (anisotropy: number) {
         this._anisotropy = anisotropy;
         this._samplerInfo[SamplerInfoIndex.maxAnisotropy] = anisotropy;
+        this._samplerHash = genSamplerHash(this._samplerInfo);
     }
 
     /**
@@ -224,8 +232,8 @@ export class TextureBase extends Asset {
      * 获取此贴图内部使用的 GFX 采样器信息。
      * @private
      */
-    public getGFXSamplerInfo () {
-        return this._samplerInfo;
+    public getSamplerHash () {
+        return this._samplerHash;
     }
 
     // SERIALIZATION
