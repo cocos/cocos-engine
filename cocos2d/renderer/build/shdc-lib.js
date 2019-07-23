@@ -26,9 +26,6 @@ const layoutRE = /layout\(.*?\)/g;
 const layoutExtract = /layout\((.*?)\)(\s*)$/;
 const bindingExtract = /binding\s*=\s*(\d+)/;
 
-const vertHeader = '#define CC_IS_FRAG_SHADER 0\n#define CC_IS_VERT_SHADER 1\n';
-const fragHeader = '#define CC_IS_FRAG_SHADER 1\n#define CC_IS_VERT_SHADER 0\n';
-
 
 let effectName = '', shaderName = '';
 const formatMsg = (msg, ln) => `${effectName} - ${shaderName}` + (ln ? ` - ${ln}: ` : ': ') + msg;
@@ -517,7 +514,6 @@ const buildShader = (() => {
 
     shaderName = vertName;
     let [ vert, vEntry ] = getChunkByName(vertName, chunks, true);
-    vert = vertHeader + vert;
     vert = wrapEntry(vert, vEntry, true);
     vert = unwindIncludes(vert, chunks);
     vert = expandStructMacro(vert);
@@ -531,7 +527,6 @@ const buildShader = (() => {
     shaderName = fragName;
     cache = createCache();
     let [ frag, fEntry ] = getChunkByName(fragName, chunks);
-    frag = fragHeader + frag;
     frag = wrapEntry(frag, fEntry);
     frag = unwindIncludes(frag, chunks);
     frag = expandStructMacro(frag);
