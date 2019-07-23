@@ -5,6 +5,7 @@ export interface IColorLike {
     b: number;
     a: number;
     _val: number;
+
 }
 
 export interface IMat3Like {
