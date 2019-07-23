@@ -71,15 +71,12 @@ export class TerrainInfo
     protected _tileCount: number[] = [0, 0];
     protected _vertexCount: number[] = [0, 0];
     protected _size: number[] = [0, 0];
-    protected _blockSize: number = 32;
 
     initialize() {
         this._tileCount[0] = this.blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY;
         this._tileCount[1] = this.blockCount[1] * TERRAIN_BLOCK_TILE_COMPLEXITY;
         this._vertexCount[0] = this._tileCount[0] + 1;
         this._vertexCount[1] = this._tileCount[1] + 1;
-        this._blockSize[0] = this._tileCount[0] * this.tileSize;
-        this._blockSize[1] = this._tileCount[1] * this.tileSize;
         this._size[0] = this._tileCount[0] * this.tileSize;
         this._size[1] = this._tileCount[1] * this.tileSize;
     }
@@ -94,10 +91,6 @@ export class TerrainInfo
 
     get size() {
         return this._size;
-    }
-
-    get blockSize() {
-        return this._blockSize;
     }
 }
 

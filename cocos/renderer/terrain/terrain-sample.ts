@@ -16,7 +16,7 @@ export class TerrainSample
     camera: Node|null = null;
 
     onInit(scene: Scene) {
-        console.log("TerrainSample::onInit");
+        console.log("TerrainSample::onInit1");
 
         let info = new TerrainInfo;
         info.tileSize = 1;
@@ -31,30 +31,30 @@ export class TerrainSample
             // build terrain
             this.terrain.build(info);
 
-            cc.loader.loadRes("decal_1/decal_1", Texture2D, (err, asset) => {
-                let layer = new TerrainLayer;
-                layer.detailMap = asset;
-                layer.tileSize = 8.0;
-
-                if (this.terrain != null) {
-                    this.terrain.addLayer(layer);
-                }
-            });
-
-            cc.loader.loadRes("decal_2/decal_2", Texture2D, (err, asset) => {
-                let layer = new TerrainLayer;
-                layer.detailMap = asset;
-                layer.tileSize = 8.0;
-
-                if (this.terrain != null) {
-                    this.terrain.addLayer(layer);
-                }
-            });
-
             this.editor = new TerrainEditor;
             this.editor.setEditTerrain(this.terrain as Terrain);
 
-            let sculptMode = this.editor.getMode(eTerrainEditorMode.SCULPT) as TerrainEditor_Sculpt;
+            // load layer
+            cc.loader.loadRes("decal_1/texture", Texture2D, (err, asset) => {
+                let layer = new TerrainLayer;
+                layer.detailMap = asset;
+                layer.tileSize = 8.0;
+
+                if (this.terrain != null) {
+                    this.terrain.addLayer(layer);
+                }
+            });
+
+            cc.loader.loadRes("decal_2/texture", Texture2D, (err, asset) => {
+                let layer = new TerrainLayer;
+                layer.detailMap = asset;
+                layer.tileSize = 8.0;
+
+                if (this.terrain != null) {
+                    this.terrain.addLayer(layer);
+                }
+            });
+
             let paintMode = this.editor.getMode(eTerrainEditorMode.PAINT) as TerrainEditor_Paint;
 
             paintMode.setCurrentLayer(0);
@@ -87,7 +87,7 @@ export class TerrainSample
                 this.editor.setMode(eTerrainEditorMode.PAINT);
             }
             else if (mode == eTerrainEditorMode.PAINT) {
-                this.editor.setMode(eTerrainEditorMode.MANAGE);
+                this.editor.setMode(eTerrainEditorMode.SCULPT);
             }
         }
         else if (mode == eTerrainEditorMode.MANAGE) {
