@@ -23,22 +23,20 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Assembler2D from '../../../../assembler-2d';
+
 const Sprite = require('../../../../../components/CCSprite');
 const FillType = Sprite.FillType;
-const packToDynamicAtlas = require('../../../../utils/utils').packToDynamicAtlas;
-const fillVerticesWithoutCalc = require('../../utils').fillVerticesWithoutCalc;
 
-module.exports = {
+export default class BarFilledAssembler extends Assembler2D {
     updateRenderData (sprite) {
-        packToDynamicAtlas(sprite, sprite._spriteFrame);
+        let frame = sprite._spriteFrame;
+        if (!frame) return;
 
-        let renderData = sprite._renderData;
-        if (!renderData || !sprite.spriteFrame) return;
-        let uvDirty = renderData.uvDirty,
-            vertDirty = renderData.vertDirty;
+        this.packToDynamicAtlas(sprite, frame);
 
-        if (!uvDirty && !vertDirty) {
-            return sprite.__allocedDatas;
+        if (!sprite._vertsDirty) {
+            return;
         }
 
         let fillStart = sprite._fillStart;
@@ -62,19 +60,14 @@ module.exports = {
         let fillEnd = fillStart + fillRange;
         fillEnd = fillEnd > 1 ? 1 : fillEnd;
 
-        if (uvDirty) {
-            this.updateUVs(sprite, fillStart, fillEnd);
-        }
-        if (vertDirty) {
-            this.updateVerts(sprite, fillStart, fillEnd);
-            this.updateWorldVerts(sprite);
-        }
-    },
+        this.updateUVs(sprite, fillStart, fillEnd);
+        this.updateVerts(sprite, fillStart, fillEnd);
+
+        sprite._vertsDirty = false;
+    }
 
     updateUVs (sprite, fillStart, fillEnd) {
-        let spriteFrame = sprite._spriteFrame,
-            renderData = sprite._renderData,
-            data = renderData._data;
+        let spriteFrame = sprite._spriteFrame;
 
         //build uvs
         let atlasWidth = spriteFrame._texture.width;
@@ -106,39 +99,38 @@ module.exports = {
             quadUV5 = quadUV7 = vt;
         }
 
+        let verts = this._renderData.vDatas[0];
+        let uvOffset = this.uvOffset;
+        let floatsPerVert = this.floatsPerVert;
         switch (sprite._fillType) {
             case FillType.HORIZONTAL:
-                data[0].u = quadUV0 + (quadUV2 - quadUV0) * fillStart;
-                data[0].v = quadUV1 + (quadUV3 - quadUV1) * fillStart;
-                data[1].u = quadUV0 + (quadUV2 - quadUV0) * fillEnd;
-                data[1].v = quadUV1 + (quadUV3 - quadUV1) * fillEnd;
-                data[2].u = quadUV4 + (quadUV6 - quadUV4) * fillStart;
-                data[2].v = quadUV5 + (quadUV7 - quadUV5) * fillStart;
-                data[3].u = quadUV4 + (quadUV6 - quadUV4) * fillEnd;
-                data[3].v = quadUV5 + (quadUV7 - quadUV5) * fillEnd;
+                verts[uvOffset] = quadUV0 + (quadUV2 - quadUV0) * fillStart;
+                verts[uvOffset + 1] = quadUV1 + (quadUV3 - quadUV1) * fillStart;
+                verts[uvOffset + floatsPerVert] = quadUV0 + (quadUV2 - quadUV0) * fillEnd;
+                verts[uvOffset + floatsPerVert + 1] = quadUV1 + (quadUV3 - quadUV1) * fillEnd;
+                verts[uvOffset + floatsPerVert * 2] = quadUV4 + (quadUV6 - quadUV4) * fillStart;
+                verts[uvOffset + floatsPerVert * 2 + 1] = quadUV5 + (quadUV7 - quadUV5) * fillStart;
+                verts[uvOffset + floatsPerVert * 3] = quadUV4 + (quadUV6 - quadUV4) * fillEnd;
+                verts[uvOffset + floatsPerVert * 3 + 1] = quadUV5 + (quadUV7 - quadUV5) * fillEnd;
                 break;
             case FillType.VERTICAL:
-                data[0].u = quadUV0 + (quadUV4 - quadUV0) * fillStart;
-                data[0].v = quadUV1 + (quadUV5 - quadUV1) * fillStart;
-                data[1].u = quadUV2 + (quadUV6 - quadUV2) * fillStart;
-                data[1].v = quadUV3 + (quadUV7 - quadUV3) * fillStart;
-                data[2].u = quadUV0 + (quadUV4 - quadUV0) * fillEnd;
-                data[2].v = quadUV1 + (quadUV5 - quadUV1) * fillEnd;
-                data[3].u = quadUV2 + (quadUV6 - quadUV2) * fillEnd;
-                data[3].v = quadUV3 + (quadUV7 - quadUV3) * fillEnd;
+                verts[uvOffset] = quadUV0 + (quadUV4 - quadUV0) * fillStart;
+                verts[uvOffset + 1] = quadUV1 + (quadUV5 - quadUV1) * fillStart;
+                verts[uvOffset + floatsPerVert] = quadUV2 + (quadUV6 - quadUV2) * fillStart;
+                verts[uvOffset + floatsPerVert + 1] = quadUV3 + (quadUV7 - quadUV3) * fillStart;
+                verts[uvOffset + floatsPerVert * 2] = quadUV0 + (quadUV4 - quadUV0) * fillEnd;
+                verts[uvOffset + floatsPerVert * 2 + 1] = quadUV1 + (quadUV5 - quadUV1) * fillEnd;
+                verts[uvOffset + floatsPerVert * 3] = quadUV2 + (quadUV6 - quadUV2) * fillEnd;
+                verts[uvOffset + floatsPerVert * 3 + 1] = quadUV3 + (quadUV7 - quadUV3) * fillEnd;
                 break;
             default:
                 cc.errorID(2626);
                 break;
         }
-
-        renderData.uvDirty = false;
-    },
+    }
 
     updateVerts (sprite, fillStart, fillEnd) {
-        let renderData = sprite._renderData,
-            data = renderData._data,
-            node = sprite.node,
+        let node = sprite.node,
             width = node.width, height = node.height,
             appx = node.anchorX * width, appy = node.anchorY * height;
 
@@ -166,68 +158,12 @@ module.exports = {
                 break;
         }
 
-        data[4].x = l;
-        data[4].y = b;
-        data[5].x = r;
-        data[5].y = b;
-        data[6].x = l;
-        data[6].y = t;
-        data[7].x = r;
-        data[7].y = t;
+        let local = this._local;
+        local[0] = l;
+        local[1] = b;
+        local[2] = r;
+        local[3] = t;
 
-        renderData.vertDirty = false;
-    },
-
-    createData (sprite) {
-        let renderData = sprite.requestRenderData();
-        // 0-4 for world verts
-        // 5-8 for local verts
-        renderData.dataLength = 8;
-        renderData.vertexCount = 4;
-        renderData.indiceCount = 6;
-
-        let data = renderData._data;
-        for (let i = 0; i < data.length; i++) {
-            data[i].z = 0;
-        }
-        return renderData;
-    },
-
-    updateWorldVerts (sprite) {
-        let node = sprite.node,
-            data = sprite._renderData._data;
-
-        let matrix = node._worldMatrix;
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
-
-        for (let i = 0; i < 4; i++) {
-            let local = data[i + 4];
-            let world = data[i];
-            world.x = local.x * a + local.y * c + tx;
-            world.y = local.x * b + local.y * d + ty;
-        }
-    },
-
-    fillBuffers (sprite, renderer) {
-        if (renderer.worldMatDirty) {
-            this.updateWorldVerts(sprite);
-        }
-
-        // buffer
-        let buffer = renderer._meshBuffer;
-        let node = sprite.node;
-        let offsetInfo = fillVerticesWithoutCalc(node, buffer, sprite._renderData, node._color._val);
-
-        let ibuf = buffer._iData,
-            indiceOffset = offsetInfo.indiceOffset,
-            vertexId = offsetInfo.vertexOffset;
-
-        ibuf[indiceOffset++] = vertexId;
-        ibuf[indiceOffset++] = vertexId + 1;
-        ibuf[indiceOffset++] = vertexId + 2;
-        ibuf[indiceOffset++] = vertexId + 1;
-        ibuf[indiceOffset++] = vertexId + 3;
-        ibuf[indiceOffset++] = vertexId + 2;
+        this.updateWorldVerts(sprite);
     }
-};
+}

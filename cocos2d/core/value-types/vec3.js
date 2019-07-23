@@ -457,6 +457,32 @@ proto.transformMat4 = function (m, out) {
     vec3.transformMat4(out, this, m);
 };
 
+proto.fromTranslation = function (trs) {
+    this.x = trs[0];
+    this.y = trs[1];
+    this.z = trs[2];
+    return this;
+};
+
+proto.toTranslation = function (trs) {
+    trs[0] = this.x;
+    trs[1] = this.y;
+    trs[2] = this.z;
+};
+
+proto.fromScale = function (trs) {
+    this.x = trs[7];
+    this.y = trs[8];
+    this.z = trs[9];
+    return this;
+};
+
+proto.toScale = function (trs) {
+    trs[7] = this.x;
+    trs[8] = this.y;
+    trs[9] = this.z;
+};
+
 /**
  * !#en Get angle in radian between this and vector.
  * !#zh 夹角的弧度。
@@ -522,6 +548,10 @@ proto.rotateSelf = function (radians) {
     return v2Proto.rotateSelf.call(this, radians);
 };
 
+proto.array = function (out) {
+    vec3.array(out, this);
+};
+
 /**
  * !#en return a Vec3 object with x = 1, y = 1, z = 1.
  * !#zh 新 Vec3 对象。
@@ -576,6 +606,10 @@ js.get(Vec3, 'RIGHT', function () {
 js.get(Vec3, 'FRONT', function () {
     return new Vec3(0.0, 0.0, 1.0);
 });
+
+/**
+ * @module cc
+ */
 
 /**
  * !#en The convenience method to create a new {{#crossLink "Vec3"}}cc.Vec3{{/crossLink}}.

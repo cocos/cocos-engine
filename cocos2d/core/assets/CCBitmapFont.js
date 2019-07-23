@@ -24,6 +24,59 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+let FontLetterDefinition = function() {
+    this.u = 0;
+    this.v = 0;
+    this.w = 0;
+    this.h = 0;
+    this.offsetX = 0;
+    this.offsetY = 0;
+    this.textureID = 0;
+    this.valid = false;
+    this.xAdvance = 0;
+};
+
+let FontAtlas = function (texture) {
+    this._letterDefinitions = {};
+    this._texture = texture;
+};
+
+FontAtlas.prototype = {
+    constructor: FontAtlas,
+    addLetterDefinitions (letter, letterDefinition) {
+        this._letterDefinitions[letter] = letterDefinition;
+    },
+    cloneLetterDefinition () {
+        let copyLetterDefinitions = {};
+        for (let key in this._letterDefinitions) {
+            let value = new FontLetterDefinition();
+            cc.js.mixin(value, this._letterDefinitions[key]);
+            copyLetterDefinitions[key] = value;
+        }
+        return copyLetterDefinitions;
+    },
+    getTexture () {
+        return this._texture;
+    },
+    getLetter (key) {
+        return this._letterDefinitions[key];
+    },
+    getLetterDefinitionForChar (char) {
+        let key = char.charCodeAt(0);
+        let hasKey = this._letterDefinitions.hasOwnProperty(key);
+        let letter;
+        if (hasKey) {
+            letter = this._letterDefinitions[key];
+        } else {
+            letter = null;
+        }
+        return letter;
+    },
+    clear () {
+        this._letterDefinitions = {};
+    }
+};
+
 /**
  * @module cc
  */
@@ -52,9 +105,39 @@ var BitmapFont = cc.Class({
             default: -1
         },
         //用来缓存 BitmapFont 解析之后的数据
-        _fntConfig: null
+        _fntConfig: null,
+        _fontDefDictionary: null
+    },
+
+    onLoad () {
+        let spriteFrame = this.spriteFrame;
+        let fntConfig = this._fntConfig;
+        if (!this._fontDefDictionary) {
+            this._fontDefDictionary = new FontAtlas(spriteFrame._texture);
+        }
+        
+        let fontDict = fntConfig.fontDefDictionary;
+        for (let fontDef in fontDict) {
+            let letter = new FontLetterDefinition();
+
+            let rect = fontDict[fontDef].rect;
+            letter.offsetX = fontDict[fontDef].xOffset;
+            letter.offsetY = fontDict[fontDef].yOffset;
+            letter.w = rect.width;
+            letter.h = rect.height;
+            letter.u = rect.x;
+            letter.v = rect.y;
+            //FIXME: only one texture supported for now
+            letter.textureID = 0;
+            letter.valid = true;
+            letter.xAdvance = fontDict[fontDef].xAdvance;
+
+            this._fontDefDictionary.addLetterDefinitions(fontDef, letter);
+        }
     }
 });
 
 cc.BitmapFont = BitmapFont;
+cc.BitmapFont.FontLetterDefinition = FontLetterDefinition;
+cc.BitmapFont.FontAtlas = FontAtlas;
 module.exports = BitmapFont;

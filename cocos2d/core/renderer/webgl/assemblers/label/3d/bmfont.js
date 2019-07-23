@@ -23,13 +23,32 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../../../../platform/js');
-const assembler = require('../2d/bmfont');
-const fillMeshVertices3D = require('../../utils').fillMeshVertices3D;
+const Assembler3D = require('../../../../assembler-3d');
+const WebglBmfontAssembler = require('../2d/bmfont');
 
-module.exports = js.addon({
-    fillBuffers (comp, renderer) {
-        let node = comp.node;
-        fillMeshVertices3D(node, renderer._meshBuffer3D, comp._renderData, node._color._val);
-    },
-}, assembler);
+const vec3 = cc.vmath.vec3;
+
+const vec3_temp_local = vec3.create();
+const vec3_temp_world = vec3.create();
+
+export default class WebglBmfontAssembler3D extends WebglBmfontAssembler {
+
+}
+
+cc.js.mixin(WebglBmfontAssembler3D.prototype, Assembler3D, {
+    updateWorldVerts (comp) {
+        let matrix = comp.node._worldMatrix;
+        let local = this._local;
+        let world = this._renderData.vDatas[0];
+
+        let floatsPerVert = this.floatsPerVert;
+        for (let offset = 0; offset < world.length; offset += floatsPerVert) {
+            vec3.set(vec3_temp_local, local[offset], local[offset+1], 0);
+            vec3.transformMat4(vec3_temp_world, vec3_temp_local, matrix);
+
+            world[offset] = vec3_temp_world.x;
+            world[offset+1] = vec3_temp_world.y;
+            world[offset+2] = vec3_temp_world.z;
+        }
+    }
+});

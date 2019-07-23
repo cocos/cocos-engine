@@ -28,8 +28,6 @@ const macro = require('../platform/CCMacro');
 const RenderComponent = require('./CCRenderComponent');
 const Material = require('../assets/material/CCMaterial');
 const LabelFrame = require('../renderer/utils/label/label-frame');
-const RenderFlow = require('../renderer/render-flow');
-const opacityFlag = RenderFlow.FLAG_COLOR | RenderFlow.FLAG_OPACITY;
 
 /**
  * !#en Enum for text alignment.
@@ -199,7 +197,7 @@ let Label = cc.Class({
                 this._string = '' + value;
 
                 if (this.string !== oldValue) {
-                    this._updateRenderData();
+                    this._lazyUpdateRenderData();
                 }
 
                 this._checkStringEmpty();
@@ -219,7 +217,7 @@ let Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.horizontal_align',
             notify  (oldValue) {
                 if (this.horizontalAlign === oldValue) return;
-                this._updateRenderData();
+                this._lazyUpdateRenderData();
             },
             animatable: false
         },
@@ -235,7 +233,7 @@ let Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.vertical_align',
             notify (oldValue) {
                 if (this.verticalAlign === oldValue) return;
-                this._updateRenderData();
+                this._lazyUpdateRenderData();
             },
             animatable: false
         },
@@ -270,7 +268,7 @@ let Label = cc.Class({
                 if (this._fontSize === value) return;
 
                 this._fontSize = value;
-                this._updateRenderData();
+                this._lazyUpdateRenderData();
             },
             range: [0, 512],
             tooltip: CC_DEV && 'i18n:COMPONENT.label.font_size',
@@ -286,7 +284,7 @@ let Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.font_family',
             notify (oldValue) {
                 if (this.fontFamily === oldValue) return;
-                this._updateRenderData();
+                this._lazyUpdateRenderData();
             },
             animatable: false
         },
@@ -304,7 +302,7 @@ let Label = cc.Class({
             set (value) {
                 if (this._lineHeight === value) return;
                 this._lineHeight = value;
-                this._updateRenderData();
+                this._lazyUpdateRenderData();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.label.line_height',
         },
@@ -319,7 +317,7 @@ let Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.overflow',
             notify (oldValue) {
                 if (this.overflow === oldValue) return;
-                this._updateRenderData();
+                this._lazyUpdateRenderData();
             },
             animatable: false
         },
@@ -338,7 +336,7 @@ let Label = cc.Class({
                 if (this._enableWrapText === value) return;
 
                 this._enableWrapText = value;
-                this._updateRenderData();
+                this._lazyUpdateRenderData();
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.wrap',
@@ -367,8 +365,6 @@ let Label = cc.Class({
                 if (CC_EDITOR && value) {
                     this._userDefinedFont = value;
                 }
-                // release reference
-                cc.Label.FontAtlasManager.releaseFontAtlas(this.font, this.node._id);
                 this._N$file = value;
                 if (value && this._isSystemFontUsed)
                     this._isSystemFontUsed = false;
@@ -377,13 +373,10 @@ let Label = cc.Class({
                     cc.warnID(4000);
                 }
 
-                if (this._renderData) {
-                    this.destroyRenderData(this._renderData);
-                    this._renderData = null;    
-                }
-                this._updateAssembler();
+                this._fontAtlas = null;
+                this._resetAssembler();
                 this._applyFontTexture(true);
-                this._updateRenderData();
+                this._lazyUpdateRenderData();
             },
             type: cc.Font,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.font',
@@ -403,10 +396,7 @@ let Label = cc.Class({
             },
             set (value) {
                 if (this._isSystemFontUsed === value) return;
-                
-                this.destroyRenderData(this._renderData);
-                this._renderData = null;
-
+               
                 if (CC_EDITOR) {
                     if (!value && this._isSystemFontUsed && this._userDefinedFont) {
                         this.font = this._userDefinedFont;
@@ -418,8 +408,8 @@ let Label = cc.Class({
                 this._isSystemFontUsed = !!value;
                 if (value) {
                     this.font = null;
-                    this._updateAssembler();
-                    this._updateRenderData();
+                    this._resetAssembler();
+                    this._lazyUpdateRenderData();
                     this._checkStringEmpty();
                 }
                 else if (!this._userDefinedFont) {
@@ -458,7 +448,7 @@ let Label = cc.Class({
             },
             set (value) {
                 this._spacingX = value;
-                this._updateRenderData();
+                this._lazyUpdateRenderData();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.label.spacingX',
         },
@@ -486,7 +476,7 @@ let Label = cc.Class({
                     this._ttfTexture = null;
                 }
 
-                this._updateRenderData(true);
+                this._lazyUpdateRenderData();
             },
             animatable: false
         },
@@ -533,32 +523,36 @@ let Label = cc.Class({
         }
 
         // Keep track of Node size
-        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._updateRenderData, this);
-        this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._updateRenderData, this);
+        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._lazyUpdateRenderData, this);
+        this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._lazyUpdateRenderData, this);
         this.node.on(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
 
         this._checkStringEmpty();
-        this._updateRenderData(true);
+        this._forceUpdateRenderData();
     },
 
     onDisable () {
         this._super();
-        this.node.off(cc.Node.EventType.SIZE_CHANGED, this._updateRenderData, this);
-        this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._updateRenderData, this);
+        this.node.off(cc.Node.EventType.SIZE_CHANGED, this._lazyUpdateRenderData, this);
+        this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._lazyUpdateRenderData, this);
         this.node.off(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
     },
 
     onDestroy () {
-        this._assembler && this._assembler._resetAssemblerData && this._assembler._resetAssemblerData(this._assemblerData);
         this._assemblerData = null;
         this._letterTexture = null;
         if (this._ttfTexture) {
             this._ttfTexture.destroy();
             this._ttfTexture = null;
         }
-        // release reference
-        cc.Label.FontAtlasManager.releaseFontAtlas(this.font, this.node._id);
         this._super();
+    },
+
+    _updateColor () {
+        if (!(this.font instanceof cc.BitmapFont)) {
+            this._lazyUpdateRenderData();
+        }
+        this._assembler.updateColor(this);
     },
 
     _canRender () {
@@ -579,31 +573,16 @@ let Label = cc.Class({
     },
 
     _on3DNodeChanged () {
-        this._updateAssembler();
+        this._resetAssembler();
         this._applyFontTexture(true);
     },
 
-    _updateAssembler () {
-        let assembler = Label._assembler.getAssembler(this);
-
-        if (this._assembler !== assembler) {
-            this._assembler = assembler;
-            this._renderData = null;
-            this._frame = null;
-        }
-
-        if (!this._renderData) {
-            this._renderData = this._assembler.createData(this);
-            this.markForUpdateRenderData(true);
-        }
-    },
-
     _applyFontTexture (force) {
+        let self = this;
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
             let spriteFrame = font.spriteFrame;
             this._frame = spriteFrame;
-            let self = this;
             let onBMFontTextureLoaded = function () {
                 // TODO: old texture in material have been released by loader
                 self._frame._texture = spriteFrame._texture;
@@ -636,6 +615,11 @@ let Label = cc.Class({
             } else if (!this._ttfTexture) {
                 this._ttfTexture = new cc.Texture2D();
                 this._assemblerData = this._assembler._getAssemblerData();
+                function onTextureLoaded () {
+                    self._assembler && self._assembler._resetAssemblerData && self._assembler._resetAssemblerData(self._assemblerData);
+                    self._ttfTexture.off('load', onTextureLoaded);
+                }
+                this._ttfTexture.on('load', onTextureLoaded);
                 this._ttfTexture.initWithElement(this._assemblerData.canvas);
             } 
 
@@ -649,14 +633,6 @@ let Label = cc.Class({
             if (force) {
                 this._assembler && this._assembler.updateRenderData(this);
             }
-        }
-    },
-
-    _updateColor () {
-        let font = this.font;
-        if (!(font instanceof cc.BitmapFont)) {
-            this._updateRenderData();
-            this.node._renderFlag &= ~RenderFlow.FLAG_COLOR;
         }
     },
 
@@ -688,18 +664,16 @@ let Label = cc.Class({
         this.markForRender(true);
     },
 
-    _updateRenderData (force) {
-        let renderData = this._renderData;
-        if (renderData) {
-            renderData.vertDirty = true;
-            renderData.uvDirty = true;
-            this.markForUpdateRenderData(true);
-        }
+    _lazyUpdateRenderData () {
+        this.setVertsDirty();
+        this.markForUpdateRenderData(true);
+    },
 
-        if (force === true) {
-            this._updateAssembler();
-            this._applyFontTexture(force);
-        }
+    _forceUpdateRenderData () {
+        this.setVertsDirty();
+        this._resetAssembler();
+        this._applyFontTexture(true);
+        this.markForUpdateRenderData(true);
     },
 
     _enableBold (enabled) {

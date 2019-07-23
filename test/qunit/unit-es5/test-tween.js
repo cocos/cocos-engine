@@ -72,13 +72,13 @@ test('ease test', function () {
     var node = initNode('easeNode');
     var action = tween(node).to(0.1, { scale: 2 }, { easing: 'sineOutIn' });
     actionUpdate(action, node, 0.5);
-    deepEqual(node.scale, 1.5, 'easing can set value');
+    close(node.scale, 1.5, 0.0001, 'easing can set value');
 
     // custom easing
     node.scale = 1;
     action = tween(node).to(0.1, { scale: 2 }, { easing: function (t) { return t * t; } });
     actionUpdate(action, node, 0.9);
-    deepEqual(node.scale, 1.81, 'easing can set calculation equation.');
+    close(node.scale, 1.81, 0.0001, 'easing can set calculation equation.');
 
     // easing to single property
     node.scale = 1;

@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Assembler from '../../cocos2d/core/renderer/assembler';
+
 const Skeleton = require('./Skeleton');
 const spine = require('./lib/spine');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
@@ -104,7 +106,7 @@ function _getSlotMaterial (tex, blendMode) {
     }
 
     let useModel = !_comp.enableBatch;
-    let key = tex.url + src + dst + _useTint + useModel;
+    let key = tex.getId() + src + dst + _useTint + useModel;
     let baseMaterial = _comp.sharedMaterials[0];
     if (!baseMaterial) return null;
 
@@ -119,14 +121,13 @@ function _getSlotMaterial (tex, blendMode) {
             material.copy(baseMaterial);
         }
         
-        material.define('_USE_MODEL', useModel);
+        material.define('CC_USE_MODEL', useModel);
         material.define('USE_TINT', _useTint);
         // update texture
         material.setProperty('texture', tex);
 
         // update blend function
-        let pass = material.effect.getDefaultTechnique().passes[0];
-        pass.setBlend(
+        material.effect.setBlend(
             true,
             gfx.BLEND_FUNC_ADD,
             src, dst,
@@ -167,14 +168,13 @@ function _spineColorToInt32 (spineColor) {
     return ((spineColor.a<<24) >>> 0) + (spineColor.b<<16) + (spineColor.g<<8) + spineColor.r;
 }
 
-var spineAssembler = {
-
+export default class SpineAssembler extends Assembler {
     updateRenderData (comp) {
         let skeleton = comp._skeleton;
         if (skeleton) {
             skeleton.updateWorldTransform();
         }
-    },
+    }
 
     fillVertices (skeletonColor, attachmentColor, slotColor, clipper, slot) {
 
@@ -289,7 +289,7 @@ var spineAssembler = {
                 }
             }
         }
-    },
+    }
 
     realTimeTraverse (worldMat) {
         let vbuf;
@@ -304,6 +304,7 @@ var spineAssembler = {
         let isRegion, isMesh, isClip;
         let offsetInfo;
         let slot;
+        let worldMatm;
 
         _slotRangeStart = _comp._startSlotIndex;
         _slotRangeEnd = _comp._endSlotIndex;
@@ -470,12 +471,13 @@ var spineAssembler = {
                 }
 
                 if (worldMat) {
-                    _m00 = worldMat.m00;
-                    _m04 = worldMat.m04;
-                    _m12 = worldMat.m12;
-                    _m01 = worldMat.m01;
-                    _m05 = worldMat.m05;
-                    _m13 = worldMat.m13;
+                    worldMatm = worldMat.m;
+                    _m00 = worldMatm[0];
+                    _m04 = worldMatm[4];
+                    _m12 = worldMatm[12];
+                    _m01 = worldMatm[1];
+                    _m05 = worldMatm[5];
+                    _m13 = worldMatm[13];
                     for (let ii = _vertexFloatOffset, nn = _vertexFloatOffset + _vertexFloatCount; ii < nn; ii += _perVertexSize) {
                         _x = vbuf[ii];
                         _y = vbuf[ii + 1];
@@ -514,7 +516,7 @@ var spineAssembler = {
                 }
             }
         }
-    },
+    }
 
     cacheTraverse (worldMat) {
         
@@ -530,15 +532,17 @@ var spineAssembler = {
         let vertices = frame.vertices;
         let indices = frame.indices;
         let uintVert = frame.uintVert;
+        let worldMatm;
 
         let frameVFOffset = 0, frameIndexOffset = 0, segVFCount = 0;
         if (worldMat) {
-            _m00 = worldMat.m00;
-            _m04 = worldMat.m04;
-            _m12 = worldMat.m12;
-            _m01 = worldMat.m01;
-            _m05 = worldMat.m05;
-            _m13 = worldMat.m13;
+            worldMatm = worldMat.m;
+            _m00 = worldMatm[0];
+            _m04 = worldMatm[4];
+            _m12 = worldMatm[12];
+            _m01 = worldMatm[1];
+            _m05 = worldMatm[5];
+            _m13 = worldMatm[13];
         }
 
         let colorOffset = 0;
@@ -633,7 +637,7 @@ var spineAssembler = {
                 _useTint && (uintbuf[ii + 1] = _darkColor32);
             }
         }
-    },
+    }
 
     fillBuffers (comp, renderer) {
         
@@ -695,8 +699,6 @@ var spineAssembler = {
         _comp = undefined;
         _vertexEffect = null;
     }
-};
+}
 
-Skeleton._assembler = spineAssembler;
-
-module.exports = spineAssembler;
+Assembler.register(Skeleton, SpineAssembler);

@@ -26,14 +26,14 @@ vec4 linearToLinear (in vec4 value) {
 }
 
 
-#if INPUT_IS_GAMMA
-  #define TEXEL_TO_LINEAR gammaToLinearSpaceRGBA
-#else
+// #if INPUT_IS_GAMMA
+//   #define TEXEL_TO_LINEAR gammaToLinearSpaceRGBA
+// #else
   #define TEXEL_TO_LINEAR linearToLinear
-#endif
+// #endif
 
-#if OUTPUT_TO_GAMMA
-  #define LINEAR_TO_OUTPUT_TEXEL linearToGammaSpaceRGBA
-#else
+// #if OUTPUT_TO_GAMMA
+//   #define LINEAR_TO_OUTPUT_TEXEL linearToGammaSpaceRGBA
+// #else
   #define LINEAR_TO_OUTPUT_TEXEL linearToLinear
-#endif
+// #endif

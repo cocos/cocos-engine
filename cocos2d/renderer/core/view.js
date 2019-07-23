@@ -58,11 +58,12 @@ export default class View {
    * @returns {vec3} the receiving vector
    */
   getForward(out) {
+    let m = this._matView.m;
     return vec3.set(
       out,
-      -this._matView.m02,
-      -this._matView.m06,
-      -this._matView.m10
+      -m[2],
+      -m[6],
+      -m[10]
     );
   }
 

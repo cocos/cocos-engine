@@ -459,13 +459,13 @@ sp.Skeleton = cc.Class({
     _updateBatch () {
         let baseMaterial = this.getMaterial(0);
         if (baseMaterial) {
-            baseMaterial.define('_USE_MODEL', !this.enableBatch);
+            baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
         }
         let cache = this._materialCache;
         for (let mKey in cache) {
             let material = cache[mKey];
             if (material) {
-                material.define('_USE_MODEL', !this.enableBatch);
+                material.define('CC_USE_MODEL', !this.enableBatch);
             }
         }
     },
@@ -518,7 +518,7 @@ sp.Skeleton = cc.Class({
      */
     setSlotsRange (startSlotIndex, endSlotIndex) {
         if (this.isAnimationCached()) {
-            console.warn("Slots visible range can not be modified in cached mode.");
+            cc.warn("Slots visible range can not be modified in cached mode.");
         } else {
             this._startSlotIndex = startSlotIndex;
             this._endSlotIndex = endSlotIndex;
@@ -535,7 +535,7 @@ sp.Skeleton = cc.Class({
      */
     setAnimationStateData (stateData) {
         if (this.isAnimationCached()) {
-            console.warn("'setAnimationStateData' interface can not be invoked in cached mode.");
+            cc.warn("'setAnimationStateData' interface can not be invoked in cached mode.");
         } else {
             var state = new spine.AnimationState(stateData);
             if (this._listener) {
@@ -570,6 +570,7 @@ sp.Skeleton = cc.Class({
             this._cacheMode = AnimationCacheMode.REALTIME;
         }
 
+        this._resetAssembler();
         this._updateSkeletonData();
         this._updateDebugDraw();
         this._updateUseTint();
@@ -636,6 +637,15 @@ sp.Skeleton = cc.Class({
         }
     },
 
+    _emitCacheCompleteEvent () {
+        if (!this._listener) return;
+        // Animation complete, the event diffrent from dragonbones inner event,
+        // It has no event object.
+        this._endEntry.animation.name = this._animationName;
+        this._listener.complete && this._listener.complete(this._endEntry);
+        this._listener.end && this._listener.end(this._endEntry);
+    },
+
     _updateCache (dt) {
         let frameCache = this._frameCache;
         let frames = frameCache.frames;
@@ -655,13 +665,6 @@ sp.Skeleton = cc.Class({
         }
 
         if (frameCache.isCompleted && frameIdx >= frames.length) {
-
-            // Animation complete, the event diffrent from dragonbones inner event,
-            // It has no event object.
-            this._endEntry.animation.name = this._animationName;
-            this._listener && this._listener.complete && this._listener.complete(this._endEntry);
-            this._listener && this._listener.end && this._listener.end(this._endEntry);
-
             this._playCount ++;
             if (this._playTimes > 0 && this._playCount >= this._playTimes) {
                 // set frame to end frame.
@@ -669,10 +672,12 @@ sp.Skeleton = cc.Class({
                 this._accTime = 0;
                 this._playCount = 0;
                 this._isAniComplete = true;
+                this._emitCacheCompleteEvent();
                 return;
             }
             this._accTime = 0;
             frameIdx = 0;
+            this._emitCacheCompleteEvent();
         }
         this._curFrame = frames[frameIdx];
     },
@@ -708,7 +713,7 @@ sp.Skeleton = cc.Class({
                 material = Material.getInstantiatedMaterial(material, this);
             }
 
-            material.define('_USE_MODEL', true);
+            material.define('CC_USE_MODEL', true);
             this._prepareToRender(material);
         }, this);
     },
@@ -1061,7 +1066,7 @@ sp.Skeleton = cc.Class({
      */
     getCurrent (trackIndex) {
         if (this.isAnimationCached()) {
-            console.warn("'getCurrent' interface can not be invoked in cached mode.");
+            cc.warn("'getCurrent' interface can not be invoked in cached mode.");
         } else {
             if (this._state) {
                 return this._state.getCurrent(trackIndex);
@@ -1077,7 +1082,7 @@ sp.Skeleton = cc.Class({
      */
     clearTracks () {
         if (this.isAnimationCached()) {
-            console.warn("'clearTracks' interface can not be invoked in cached mode.");
+            cc.warn("'clearTracks' interface can not be invoked in cached mode.");
         } else {
             if (this._state) {
                 this._state.clearTracks();
@@ -1093,7 +1098,7 @@ sp.Skeleton = cc.Class({
      */
     clearTrack (trackIndex) {
         if (this.isAnimationCached()) {
-            console.warn("'clearTrack' interface can not be invoked in cached mode.");
+            cc.warn("'clearTrack' interface can not be invoked in cached mode.");
         } else {
             if (this._state) {
                 this._state.clearTrack(trackIndex);

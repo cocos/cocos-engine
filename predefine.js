@@ -159,11 +159,15 @@ if (CC_BUILD) {
     _global.CC_BUILD = CC_BUILD;
     _global.CC_DEV = CC_DEV;
     _global.CC_DEBUG = CC_DEBUG;
+    _global.CC_JSB = CC_JSB;
+    _global.CC_NATIVERENDERER = CC_NATIVERENDERER;
     _global.CC_SUPPORT_JIT = CC_SUPPORT_JIT;
 }
 else {
     defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
     defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
+    defineMacro('CC_JSB', defined('jsb'));
+    defineMacro('CC_NATIVERENDERER', defined('renderer'));
     defineMacro('CC_SUPPORT_JIT', true);
 }
 // defined in the runtime

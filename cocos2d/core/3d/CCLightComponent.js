@@ -24,14 +24,23 @@
  ****************************************************************************/
 // @ts-check
 import enums from '../../renderer/enums';
-import RendererLight from '../../renderer/scene/light';
+let RendererLight = null;
+if (CC_JSB && CC_NATIVERENDERER) {
+    RendererLight = window.renderer.Light;
+} else {
+    RendererLight = require('../../renderer/scene/light');
+}
+
 import { Color } from '../value-types';
 import { toRadian } from '../vmath';
+import mat4 from '../vmath/mat4';
 
 const renderer = require('../renderer/index');
 const Enum = require('../platform/CCEnum');
 const CCComponent = require('../components/CCComponent');
 const { ccclass, menu, inspector, property, executeInEditMode } = require('../platform/CCClassDecorator');
+
+let _mat4_temp = mat4.create();
 
 /**
  * !#en The light source type
@@ -427,7 +436,12 @@ export default class Light extends CCComponent {
     }
 
     onLoad() {
-        this._light.setNode(this.node);
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this.node.getWorldMatrix(_mat4_temp);
+            this._light.setWorldMatrix(_mat4_temp.m);
+        } else {
+            this._light.setNode(this.node);
+        }
         this.type = this._type;
         this.color = this._color;
         this.intensity = this._intensity;

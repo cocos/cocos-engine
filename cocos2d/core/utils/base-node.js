@@ -146,14 +146,6 @@ var BaseNode = cc.Class({
         _active: true,
 
         /**
-         * @property _level
-         * @type {Number}
-         * @default 0
-         * @private
-         */
-        _level: 0,
-
-        /**
          * @property _components
          * @type {Component[]}
          * @default []
@@ -213,6 +205,9 @@ var BaseNode = cc.Class({
                     return;
                 }
                 this._name = value;
+                if (CC_JSB && CC_NATIVERENDERER) {
+                    this._proxy.setName(this._name);
+                }
             },
         },
 
@@ -333,8 +328,6 @@ var BaseNode = cc.Class({
          * @private
          */
         this.__eventTargets = [];
-
-        this._renderFlag = RenderFlow.FLAG_TRANSFORM;
     },
     /** 
      * !#en The parent of the node.
@@ -385,7 +378,6 @@ var BaseNode = cc.Class({
             if (CC_DEBUG && (value._objFlags & Deactivating)) {
                 cc.errorID(3821);
             }
-            this._level = value._level + 1;
             eventManager._setDirtyForNode(this);
             value._children.push(this);
             value.emit && value.emit(CHILD_ADDED, this);

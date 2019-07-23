@@ -39,52 +39,46 @@ let renderer = {
             sprite._activateMaterial();
         }
 
-        let renderData = sprite._renderData;
-        if (renderData.uvDirty) {
+        if (sprite._vertsDirty) {
             this.updateUVs(sprite);
-        }
-
-        if (renderData.vertDirty) {
             this.updateVerts(sprite);
+            sprite._vertsDirty = false;
         }
     },
 
     updateUVs (sprite) {
         let frame = sprite.spriteFrame;
         let renderData = sprite._renderData;
-        let data = renderData._data;
+        let verts = renderData.vertices;
         let rect = frame._rect;
-        let texture = frame._texture;
         
         if (frame._rotated) {
             let l = rect.x;
             let r = rect.width;
             let b = rect.y;
             let t = rect.height;
-            data[0].u = l;
-            data[0].v = b;
-            data[1].u = t;
-            data[1].v = r;
+            verts[0].u = l;
+            verts[0].v = b;
+            verts[1].u = t;
+            verts[1].v = r;
         }
         else {
             let l = rect.x;
             let r = rect.width;
             let b = rect.y;
             let t = rect.height;
-            data[0].u = l;
-            data[0].v = b;
-            data[1].u = r;
-            data[1].v = t;
+            verts[0].u = l;
+            verts[0].v = b;
+            verts[1].u = r;
+            verts[1].v = t;
         }
-        
-        renderData.uvDirty = false;
     },
 
     updateVerts (sprite) {
         let renderData = sprite._renderData,
             node = sprite.node,
+            verts = renderData.vertices,
             frame = sprite.spriteFrame,
-            data = renderData._data,
             cw = node.width, ch = node.height,
             appx = node.anchorX * cw, appy = node.anchorY * ch,
             l, b, r, t;
@@ -110,15 +104,15 @@ let renderer = {
         }
         
         if (frame._rotated) {
-            data[0].y = l;
-            data[0].x = b;
-            data[1].y = r;
-            data[1].x = t;
+            verts[0].y = l;
+            verts[0].x = b;
+            verts[1].y = r;
+            verts[1].x = t;
         } else {
-            data[0].x = l;
-            data[0].y = b;
-            data[1].x = r;
-            data[1].y = t;
+            verts[0].x = l;
+            verts[0].y = b;
+            verts[1].x = r;
+            verts[1].y = t;
         }
         
         renderData.vertDirty = false;
@@ -129,8 +123,9 @@ let renderer = {
         let frame = comp._spriteFrame;
         // Transform
         let matrix = node._worldMatrix;
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
+        let matrixm = matrix.m;
+        let a = matrixm[0], b = matrixm[1], c = matrixm[4], d = matrixm[5],
+            tx = matrixm[12], ty = matrixm[13];
         ctx.transform(a, b, c, d, tx, ty);
         ctx.scale(1, -1);
         if (frame._rotated) {
@@ -143,20 +138,20 @@ let renderer = {
         utils.context.setGlobalAlpha(ctx, node.opacity / 255);
 
         let tex = frame._texture,
-            data = comp._renderData._data;
+            verts = comp._renderData.vertices;
 
         let image = utils.getColorizedImage(tex, node._color);
 
-        let x = data[0].x;
-        let y = data[0].y;
-        let w = data[1].x;
-        let h = data[1].y;
+        let x = verts[0].x;
+        let y = verts[0].y;
+        let w = verts[1].x;
+        let h = verts[1].y;
         y = - y - h;
 
-        let sx = data[0].u;
-        let sy = data[0].v;
-        let sw = data[1].u;
-        let sh = data[1].v;
+        let sx = verts[0].u;
+        let sy = verts[0].v;
+        let sw = verts[1].u;
+        let sh = verts[1].v;
 
         ctx.drawImage(image,
             sx, sy, sw, sh,

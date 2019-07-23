@@ -1,83 +1,53 @@
-/****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+import Asembler from '../../../assembler';
+import { Type, FillType } from '../../../../components/CCSprite';
 
- https://www.cocos.com/
+import Simple from "./2d/simple";
+import Sliced from "./2d/sliced";
+import Tiled from "./2d/tiled";
+import RadialFilled from "./2d/radial-filled";
+import BarFilled from "./2d/bar-filled";
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+import Simple3D from "./3d/simple";
+import Sliced3D from "./3d/sliced";
+import Tiled3D from "./3d/tiled";
+import RadialFilled3D from "./3d/radial-filled";
+import BarFilled3D from "./3d/bar-filled";
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
- ****************************************************************************/
-
-const Sprite = require('../../../../components/CCSprite');
-
-const SpriteType = Sprite.Type;
-const FillType = Sprite.FillType;
-
-const simpleRenderUtil = require('./2d/simple');
-const slicedRenderUtil = require('./2d/sliced');
-const tiledRenderUtil = require('./2d/tiled');
-const radialFilledRenderUtil = require('./2d/radial-filled');
-const barFilledRenderUtil = require('./2d/bar-filled');
-const meshRenderUtil = require('./2d/mesh');
-
-const simpleRenderUtil3D = require('./3d/simple');
-const slicedRenderUtil3D = require('./3d/sliced');
-const tiledRenderUtil3D = require('./3d/tiled');
-const radialFilledRenderUtil3D = require('./3d/radial-filled');
-const barFilledRenderUtil3D = require('./3d/bar-filled');
-const meshRenderUtil3D = require('./3d/mesh');
-
-// Inline all type switch to avoid jit deoptimization during inlined function change
-
-let spriteAssembler = {
-    getAssembler (sprite) {
+let ctor = {
+    getConstructor(sprite) {
         let is3DNode = sprite.node.is3DNode;
-        
-        let util = is3DNode ? simpleRenderUtil3D : simpleRenderUtil;
+
+        let ctor = is3DNode ? Simple3D : Simple;
         switch (sprite.type) {
-            case SpriteType.SLICED:
-                util = is3DNode ? slicedRenderUtil3D : slicedRenderUtil;
+            case Type.SLICED:
+                ctor = is3DNode ? Sliced3D : Sliced;
                 break;
-            case SpriteType.TILED:
-                util = is3DNode ? tiledRenderUtil3D : tiledRenderUtil;
+            case Type.TILED:
+                ctor = is3DNode ? Tiled3D : Tiled;
                 break;
-            case SpriteType.FILLED:
+            case Type.FILLED:
                 if (sprite._fillType === FillType.RADIAL) {
-                    util = is3DNode ? radialFilledRenderUtil3D : radialFilledRenderUtil;
+                    ctor = is3DNode ? RadialFilled3D : RadialFilled;
+                } else {
+                    ctor = is3DNode ? BarFilled3D : BarFilled;
                 }
-                else {
-                    util = is3DNode ? barFilledRenderUtil3D : barFilledRenderUtil;
-                }
-                break;
-            case SpriteType.MESH:
-                util = is3DNode ? meshRenderUtil3D : meshRenderUtil;
                 break;
         }
 
-        return util;
+        return ctor;
     },
 
-    // Skip invalid sprites (without own _assembler)
-    updateRenderData (sprite) {
-        return sprite.__allocedDatas;
-    }
+    Simple,
+    Sliced,
+    Tiled,
+    RadialFilled,
+    BarFilled,
+
+    Simple3D,
+    Sliced3D,
+    Tiled3D,
+    RadialFilled3D,
+    BarFilled3D
 };
 
-Sprite._assembler = spriteAssembler;
-
-module.exports = spriteAssembler;
+Asembler.register(cc.Sprite, ctor);

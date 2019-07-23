@@ -49,7 +49,35 @@ var jsbSkipModules = [
     '../../extensions/dragonbones/CCArmatureDisplay.js',
     '../../extensions/dragonbones/CCFactory.js',
     '../../extensions/dragonbones/CCSlot.js',
-    '../../extensions/dragonbones/CCTextureData.js'
+    '../../extensions/dragonbones/CCTextureData.js',
+
+    // gfx
+    '../../cocos2d/renderer/gfx/device.js',
+    '../../cocos2d/renderer/gfx/enums.js',
+    '../../cocos2d/renderer/gfx/frame-buffer.js',
+    '../../cocos2d/renderer/gfx/index-buffer.js',
+    '../../cocos2d/renderer/gfx/misc.js',
+    '../../cocos2d/renderer/gfx/program.js',
+    '../../cocos2d/renderer/gfx/render-buffer.js',
+    '../../cocos2d/renderer/gfx/state.js',
+    '../../cocos2d/renderer/gfx/texture-2d.js',
+    '../../cocos2d/renderer/gfx/texture-cube.js',
+    '../../cocos2d/renderer/gfx/texture.js',
+    '../../cocos2d/renderer/gfx/vertex-buffer.js',
+    '../../cocos2d/renderer/gfx/vertex-format.js',
+
+    // renderer
+    '../../cocos2d/renderer/core/base-renderer.js',
+    '../../cocos2d/renderer/core/program-lib.js',
+    '../../cocos2d/renderer/core/view.js',
+    '../../cocos2d/renderer/renderers/forward-renderer.js',
+    '../../cocos2d/renderer/scene/camera.js',
+    '../../cocos2d/renderer/scene/light.js',
+    '../../cocos2d/renderer/scene/scene.js',
+
+    // buffer
+    '../../cocos2d/core/renderer/webgl/model-batcher.js',
+    '../../cocos2d/core/renderer/webgl/spine-buffer.js',
 ];
 var jsbAliasify = {
     replacements: {
@@ -218,7 +246,7 @@ exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) 
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(FixJavaScriptCore())
-        .pipe(Utils.uglify('preview', { jsb: true }))
+        .pipe(Utils.uglify('preview', { jsb: true, nativeRenderer: true }))
         .pipe(Optimizejs({
             sourceMap: false
         }))
@@ -245,7 +273,9 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
     var outDir = Path.dirname(outputFile);
 
     var bundler = createBundler(sourceFile, opts);
-    excludes = excludes.concat(jsbSkipModules);
+    if (opt_macroFlags.nativeRenderer) {
+        excludes = excludes.concat(jsbSkipModules);
+    }
     excludes.forEach(function (module) {
         bundler.exclude(require.resolve(module));
     });
@@ -282,7 +312,9 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
     var outDir = Path.dirname(outputFile);
 
     var bundler = createBundler(sourceFile, opts);
-    excludes = excludes.concat(jsbSkipModules);
+    if (opt_macroFlags.nativeRenderer) {
+        excludes = excludes.concat(jsbSkipModules);
+    }
     excludes.forEach(function (module) {
         bundler.exclude(require.resolve(module));
     });

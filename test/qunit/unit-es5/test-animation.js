@@ -31,13 +31,13 @@ test('curve types', function () {
     state.update(0);
 
     state.update(0.2);
-    strictEqual(entity.x, cc.easing.cubicInOut(0.2) * 100, 'should wrap time by cc.easing.cubicInOut');
+    close(entity.x, cc.easing.cubicInOut(0.2) * 100, 0.0001, 'should wrap time by cc.easing.cubicInOut');
 
     state.update(1.2);
     close(entity.x, bezierByTime([0, 0.5, 0.5, 1], 0.4) * 100 + 100, 0.0001, 'should wrap time by bezierByTime');
 
     state.update(1.3);
-    strictEqual(entity.x, 0.7 * 100 + 200, 'should wrap time by linear');
+    close(entity.x, 0.7 * 100 + 200, 0.0001, 'should wrap time by linear');
 });
 
 test('DynamicAnimCurve', function () {

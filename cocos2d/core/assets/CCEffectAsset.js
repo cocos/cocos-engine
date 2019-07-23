@@ -1,8 +1,13 @@
 const Asset = require('./CCAsset');
+const Effect = require('../../renderer/core/effect');
 
 let EffectAsset = cc.Class({
     name: 'cc.EffectAsset',
     extends: Asset,
+
+    ctor () {
+        this._effect = null;
+    },
 
     properties: {
         properties: Object,
@@ -19,6 +24,18 @@ let EffectAsset = cc.Class({
         for (let i = 0; i < this.shaders.length; i++) {
             lib.define(this.shaders[i]);
         }
+
+        this._initEffect();
+    },
+
+    _initEffect () {
+        if (this._effect) return;
+        this._effect = Effect.parseEffect(this);
+    },
+
+    getInstantiatedEffect () {
+        this._initEffect();
+        return this._effect.clone();
     }
 });
 

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -23,6 +23,27 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-module.exports = {
-    datas: []
+let MemPool = require('./mem-pool');
+let NodeMemPool = function (unitClass) {
+    MemPool.call(this, unitClass);
 };
+
+(function(){
+    let Super = function(){};
+    Super.prototype = MemPool.prototype;
+    NodeMemPool.prototype = new Super();
+})();
+
+let proto = NodeMemPool.prototype;
+proto._initNative = function () {
+    this._nativeMemPool = new renderer.NodeMemPool();
+};
+
+proto._destroyUnit = function (unitID) {
+    MemPool.prototype._destroyUnit.call(this, unitID);
+    if (CC_JSB && CC_NATIVERENDERER) {
+        this._nativeMemPool.removeNodeData(unitID);
+    }
+};
+
+module.exports = NodeMemPool;

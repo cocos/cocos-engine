@@ -196,7 +196,7 @@ let AnimationCache = cc.Class({
         let gVertices = _vertices;
         let gIndices = _indices;
         let slotVertices, slotIndices;
-        let slots = armature._slots, slot, slotMatrix, slotColor, colorVal;
+        let slots = armature._slots, slot, slotMatrix, slotMatrixm, slotColor, colorVal;
         let texture;
         let preSegOffset, preSegInfo;
 
@@ -265,12 +265,13 @@ let AnimationCache = cc.Class({
             slotIndices = slot._indices;
 
             slotMatrix = slot._worldMatrix;
+            slotMatrixm = slotMatrix.m;
 
             for (let j = 0, vl = slotVertices.length; j < vl;) {
                 _x = slotVertices[j++];
                 _y = slotVertices[j++];
-                gVertices[_vfOffset++] = _x * slotMatrix.m00 + _y * slotMatrix.m04 + slotMatrix.m12;
-                gVertices[_vfOffset++] = _x * slotMatrix.m01 + _y * slotMatrix.m05 + slotMatrix.m13;
+                gVertices[_vfOffset++] = _x * slotMatrixm[0] + _y * slotMatrixm[4] + slotMatrixm[12];
+                gVertices[_vfOffset++] = _x * slotMatrixm[1] + _y * slotMatrixm[5] + slotMatrixm[13];
                 gVertices[_vfOffset++] = slotVertices[j++];
                 gVertices[_vfOffset++] = slotVertices[j++];
                 gVertices[_vfOffset++] = colorVal;
