@@ -484,6 +484,10 @@ class Vec4 extends ValueType {
 CCClass.fastDefine('cc.Vec4', Vec4, { x: 0, y: 0, z: 0, w: 0 });
 
 /**
+ * @module cc
+ */
+
+/**
  * !#en The convenience method to create a new {{#crossLink "Vec4"}}cc.Vec4{{/crossLink}}.
  * !#zh 通过该简便的函数进行创建 {{#crossLink "Vec4"}}cc.Vec4{{/crossLink}} 对象。
  * @method v4

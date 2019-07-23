@@ -169,6 +169,10 @@ proto.mul = function (other, out) {
 };
 
 /**
+ * @module cc
+ */
+
+/**
  * !#en The convenience method to create a new {{#crossLink "Quat"}}cc.Quat{{/crossLink}}.
  * !#zh 通过该简便的函数进行创建 {{#crossLink "Quat"}}cc.Quat{{/crossLink}} 对象。
  * @method quat

@@ -160,7 +160,7 @@ let Mesh = cc.Class({
      * @method init
      * @param {gfx.VertexFormat} vertexFormat - vertex format
      * @param {Number} vertexCount - how much vertex should be create in this buffer.
-     * @param {Boolean} dynamic - whether or not to use dynamic buffer.
+     * @param {Boolean} [dynamic] - whether or not to use dynamic buffer.
      */
     init (vertexFormat, vertexCount, dynamic) {
         this.clear();
@@ -194,7 +194,7 @@ let Mesh = cc.Class({
      * 设置顶点数据
      * @method setVertices
      * @param {String} name - the attribute name, e.g. gfx.ATTR_POSITION
-     * @param {[Vec2|Vec3|Color|Number]} values - the vertex values
+     * @param {[Vec2] | [Vec3] | [Color] | [Number] | Uint8Array | Float32Array} values - the vertex values
      */
     setVertices (name, values) {
         let vb = this._vbs[0];
@@ -214,7 +214,7 @@ let Mesh = cc.Class({
         let bytes = 4;
         if (name === gfx.ATTR_COLOR) {
             if (isFlatMode) {
-                reader = Float32Array;
+                reader = Uint8Array;
                 bytes = 1;
             }
             else {
@@ -270,9 +270,9 @@ let Mesh = cc.Class({
      * !#zh
      * 设置子网格索引。
      * @method setIndices
-     * @param {[Number]} indices - the sub mesh indices.
-     * @param {Number} index - sub mesh index.
-     * @param {Boolean} dynamic - whether or not to use dynamic buffer.
+     * @param {[Number]|Uint16Array} indices - the sub mesh indices.
+     * @param {Number} [index] - sub mesh index.
+     * @param {Boolean} [dynamic] - whether or not to use dynamic buffer.
      */
     setIndices (indices, index, dynamic) {
         index = index || 0;

@@ -401,17 +401,23 @@ function initSys () {
      */
     sys.JKW_GAME = 112;
     /**
-     * @property {Number} WECHAT_GAME_SUB
+     * @property {Number} ALIPAY_GAME
      * @readOnly
      * @default 113
      */
-    sys.WECHAT_GAME_SUB = 113;
+    sys.ALIPAY_GAME = 113;
     /**
-     * @property {Number} BAIDU_GAME_SUB
+     * @property {Number} WECHAT_GAME_SUB
      * @readOnly
      * @default 114
      */
-    sys.BAIDU_GAME_SUB = 114;
+    sys.WECHAT_GAME_SUB = 114;
+    /**
+     * @property {Number} BAIDU_GAME_SUB
+     * @readOnly
+     * @default 115
+     */
+    sys.BAIDU_GAME_SUB = 115;
     /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
@@ -455,6 +461,13 @@ function initSys () {
      */
     sys.BROWSER_TYPE_XIAOMI_GAME = "xiaomigame";
     /**
+     * BROWSER_TYPE_ALIPAY_GAME
+     * @property {String} BROWSER_TYPE_ALIPAY_GAME
+     * @readOnly
+     * @default "alipaygame"
+     */
+    sys.BROWSER_TYPE_ALIPAY_GAME = "alipaygame";
+    /**
      * BROWSER_TYPE_QQ_PLAY
      * @property {String} BROWSER_TYPE_QQ_PLAY
      * @readOnly
@@ -475,6 +488,13 @@ function initSys () {
      * @default "ie"
      */
     sys.BROWSER_TYPE_IE = "ie";
+    /**
+     *
+     * @property {String} BROWSER_TYPE_EDGE
+     * @readOnly
+     * @default "edge"
+     */
+    sys.BROWSER_TYPE_EDGE = "edge";
     /**
      *
      * @property {String} BROWSER_TYPE_QQ
@@ -839,7 +859,7 @@ function initSys () {
         /* Determine the browser type */
         (function(){
             var typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
-            var typeReg2 = /qqbrowser|ucbrowser/i;
+            var typeReg2 = /qqbrowser|ucbrowser|edge/i;
             var typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
             var browserTypes = typeReg1.exec(ua);
             if(!browserTypes) browserTypes = typeReg2.exec(ua);
@@ -855,6 +875,8 @@ function initSys () {
                 browserType = sys.BROWSER_TYPE_ANDROID;
             else if (browserType === "trident")
                 browserType = sys.BROWSER_TYPE_IE;
+            else if (browserType === 'edge')
+                browserType === sys.BROWSER_TYPE_EDGE;
             else if (browserType === "360 aphone")
                 browserType = sys.BROWSER_TYPE_360;
             else if (browserType === "mxbrowser")

@@ -28,6 +28,8 @@
     "./cocos2d/core/assets/**/*",
     "./cocos2d/core/3d/**/*",
 
+    "./cocos2d/core/mesh/**/*",
+
     "./cocos2d/core/camera/CCCamera.js",
 
     "./cocos2d/core/collider/**/*",
