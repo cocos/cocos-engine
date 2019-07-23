@@ -31,3 +31,4 @@
 export { Component } from './component';
 export { EventHandler } from './component-event-handler';
 export {default as MissingScript} from './missing-script';
+export { BlockInputEventsComponent } from './block-input-events-component';
