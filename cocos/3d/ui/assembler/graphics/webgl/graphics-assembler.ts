@@ -219,9 +219,9 @@ export const graphicsAssembler: IAssembler = {
 
         const impl = graphics.impl;
         const primitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
-        let renderDatas = impl && impl.getRenderDatas();
+        const renderDatas = impl && impl.getRenderDatas();
         if (!renderDatas) {
-            renderDatas = [];
+            return;
         }
 
         let i = 0;
