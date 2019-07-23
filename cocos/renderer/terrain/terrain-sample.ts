@@ -2,9 +2,12 @@
 import { Terrain, TerrainInfo, TerrainLayer } from './terrain'
 import { Scene } from '../../scene-graph/scene';
 import { Node } from '../../scene-graph/node';
-import { Texture2D, ImageAsset } from '../../assets';
-import { TerrainEditor, eTerrainEditorMode, TerrainEditor_Sculpt, TerrainEditor_Paint } from './terrain-editor';
-import { CameraComponent } from '../../3d/framework';
+import { Texture2D } from '../../assets';
+import { TerrainEditor } from './terrain-editor';
+import { eTerrainEditorMode} from './terrain-editor-mode'
+import { TerrainEditor_Manage } from './terrain-editor-manage'
+import { TerrainEditor_Sculpt } from './terrain-editor-sculpt'
+import { TerrainEditor_Paint } from './terrain-editor-paint'
 
 export class TerrainSample
 {
