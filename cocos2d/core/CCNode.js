@@ -600,7 +600,6 @@ let NodeDefines = {
         _anchorPoint: cc.v2(0.5, 0.5),
         _position: undefined,
         _scale: undefined,
-        _quat: undefined,
         _trs: null,
         _eulerAngles: cc.Vec3,
         _skewX: 0.0,
