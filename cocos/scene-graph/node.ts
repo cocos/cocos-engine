@@ -27,7 +27,7 @@
  * @category scene-graph
  */
 
-import { UITransformComponent, UIComponent } from '../3d';
+import { UIComponent, UITransformComponent } from '../3d/ui/components';
 import { ccclass, property } from '../core/data/class-decorator';
 import Event from '../core/event/event';
 import { eventManager } from '../core/platform/event-manager';
@@ -108,6 +108,7 @@ export class Node extends BaseNode {
     protected _eventProcessor: NodeEventProcessor = new cc.NodeEventProcessor(this);
     protected _eventMask = 0;
     private _uiTransfromComp: UITransformComponent | null = null;
+    // tslint:disable-next-line: member-ordering
     public _uiComp: UIComponent | null = null;
 
     /**
