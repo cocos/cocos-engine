@@ -138,7 +138,7 @@ export class TextureBufferPool {
             texView,
             size: texSize,
             start: texSize,
-            end: texSize + texSize,
+            end: texSize,
         };
         this._chunks[this._chunkCount++] = texBuff;
 
