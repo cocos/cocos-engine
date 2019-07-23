@@ -351,7 +351,7 @@ export class UIRenderComponent extends UIComponent {
     }
 
     protected _updateColor () {
-        if (this._assembler!.updateColor) {
+        if (this._assembler && this._assembler.updateColor) {
             this._assembler!.updateColor(this);
         }
     }
@@ -378,7 +378,7 @@ export class UIRenderComponent extends UIComponent {
     }
 
     // pos, rot, scale changed
-    protected _nodeStateChange (){
+    protected _nodeStateChange (type: SystemEventType){
         if (this._renderData) {
             this.markForUpdateRenderData();
         }
