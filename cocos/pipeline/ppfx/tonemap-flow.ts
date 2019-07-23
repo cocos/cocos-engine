@@ -2,18 +2,19 @@
  * @category pipeline.ppfx
  */
 
+import { ccclass } from '../../core/data/class-decorator';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
-import { RenderPipeline } from '../render-pipeline';
 import { ToneMapStage } from './tonemap-stage';
 
 /**
  * @zh
  * 色调映射渲染流程。
  */
+@ccclass('ToneMapFlow')
 export class ToneMapFlow extends RenderFlow {
 
-    constructor (pipeline: RenderPipeline) {
-        super(pipeline);
+    constructor () {
+        super();
     }
 
     public initialize (info: IRenderFlowInfo): boolean {
@@ -25,8 +26,7 @@ export class ToneMapFlow extends RenderFlow {
         this._priority = info.priority;
 
         const material = this._material;
-        material.initialize({
-            effectName: 'pipeline/tonemap',
+        material.recompileShaders({
             defines: { CC_USE_SMAA: this._pipeline.useSMAA },
         });
 
@@ -50,9 +50,7 @@ export class ToneMapFlow extends RenderFlow {
 
     public rebuild () {
         if (this._material) {
-            this._material.destroy();
-            this._material.initialize({
-                effectName: 'pipeline/tonemap',
+            this._material.recompileShaders({
                 defines: { CC_USE_SMAA: this._pipeline.useSMAA },
             });
         }
