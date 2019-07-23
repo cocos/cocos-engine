@@ -151,7 +151,7 @@ export class TerrainEditor_Paint extends TerrainEditor_Mode
 
                 let sum = w.x + w.y + w.z + w.w;
 				if (sum > 0) {
-					w = w.mul(1.0 / sum);
+					w.multiply(1.0 / sum);
 				}
 
                 if (this._undo != null) {

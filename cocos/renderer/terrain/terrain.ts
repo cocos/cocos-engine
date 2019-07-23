@@ -1,6 +1,6 @@
 
 import { Vec3, Vec4, Vec2, Rect } from '../../core/value-types';
-import { clamp } from '../../core/vmath';
+import { clamp, vec3, vec4 } from '../../core/vmath';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler, IGFXInputAssemblerInfo, IGFXAttribute } from '../../gfx/input-assembler';
@@ -11,14 +11,12 @@ import { Model } from '../../renderer/scene/model'
 import { HeightField } from './height-field'
 import { Node } from '../../scene-graph/node';
 import { Scene } from '../../scene-graph/scene';
-import { ModelComponent } from '../../3d/framework/model-component';
 import { Texture2D } from '../../assets';
 import { Filter, PixelFormat, WrapMode } from '../../assets/asset-enum';
 import { EffectAsset } from '../../3d/assets/effect-asset';
 import { IDefineMap } from '../core/pass';
 import { Component } from '../../components';
 import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
-import { Effect } from '../../renderer/core/effect';
 import { RenderableComponent } from '../../3d/framework/renderable-component';
 import { builtinResMgr } from '../../3d/builtin';
 
@@ -33,6 +31,9 @@ export const TERRAIN_SOUTH_INDEX = 1;
 export const TERRAIN_WEST_INDEX = 2;
 export const TERRAIN_EAST_INDEX = 3;
 
+/**
+ * 地形信息。
+ */
 @ccclass('cc.TerrainInfo')
 export class TerrainInfo
 {
@@ -537,7 +538,7 @@ export class TerrainBlock
                 weightIndex += 1;
             }
         }
-        this._weightMap.directUpdate(weightData.buffer);
+        this._weightMap.uploadData(weightData.buffer);
     }
 }
 
@@ -723,27 +724,31 @@ export class Terrain extends Component
                         let b = getWeight(ix1 + xoff, iz0 + yoff, this._weights);
                         let c = getWeight(ix0 + xoff, iz1 + yoff, this._weights);
                         let d = getWeight(ix1 + xoff, iz1 + yoff, this._weights);
-                        let m = b.add(c).mul(0.5);
-
+                        let m = new Vec4;
+                        vec4.add(m, b, c).multiply(0.5);
+                
                         if (dx + dz <= 1.0) {
-                            d = m.add(m.sub(a));
+                            d = new Vec4;
+                            vec3.sub(d, m, a).add(m);
                         }
                         else {
-                            a = m.add(m.sub(d));
+                            a = new Vec4;
+                            vec3.sub(a, m, d).add(m);
                         }
-
-                        let w1 = a.mul(1.0 - dx).add(b.mul(dx));
-                        let w2 = c.mul(1.0 - dx).add(d.mul(dx));
-                        let w = w1.mul(1.0 - dz).add(w2.mul(dz));
+                        
+                        let n1 = new Vec4, n2 = new Vec4, n = new Vec4;
+                        vec3.lerp(n1, a, b, dx);
+                        vec3.lerp(n2, c, d, dx);
+                        vec3.lerp(n, n1, n2, dz);
 
                         let du = i * this.info.weightMapSize + u;
                         let dv = j * this.info.weightMapSize + v;
                         let index = du * weightMapComplexityU + dv;
 
-                        weights[index * 4 + 0] = w.x * 255;
-                        weights[index * 4 + 1] = w.y * 255;
-                        weights[index * 4 + 2] = w.z * 255;
-                        weights[index * 4 + 3] = w.w * 255;
+                        weights[index * 4 + 0] = n.x * 255;
+                        weights[index * 4 + 1] = n.y * 255;
+                        weights[index * 4 + 2] = n.z * 255;
+                        weights[index * 4 + 3] = n.w * 255;
                     }
                 }
             }
@@ -1071,20 +1076,23 @@ export class Terrain extends Component
 		let b = this.getNormal(ix1, iz0);
 		let c = this.getNormal(ix0, iz1);
 		let d = this.getNormal(ix1, iz1);
-		let m = b.add(c).mul(0.5);
+        let m = new Vec3;
+        vec3.add(m, b, c).multiply(0.5);
 
 		if (dx + dz <= 1.0) {
-			d = m.add(m.sub(a));
+            d = new Vec3;
+            vec3.sub(d, m, a).add(m);
 		}
 		else {
-			a = m.add(m.sub(d));
-		}
-
-		let n1 = a.mul(1.0 - dx).add(b.mul(dx));
-		let n2 = c.mul(1.0 - dx).add(d.mul(dx));
-
-        let n = n1.mul(1.0 - dz).add(n2.mul(dz));
+            a = new Vec3;
+            vec3.sub(a, m, d).add(m);
+        }
         
+        let n1 = new Vec3, n2 = new Vec3, n = new Vec3;
+        vec3.lerp(n1, a, b, dx);
+        vec3.lerp(n2, c, d, dx);
+        vec3.lerp(n, n1, n2, dz);
+
         return n;
     }
 
@@ -1134,21 +1142,24 @@ export class Terrain extends Component
 		let b = this.getWeight(ix1, iz0);
 		let c = this.getWeight(ix0, iz1);
 		let d = this.getWeight(ix1, iz1);
-		let m = b.add(c).mul(0.5);
+        let m = new Vec4;
+        vec4.add(m, b, c).multiply(0.5);
 
 		if (dx + dz <= 1.0) {
-			d = m.add(m.sub(a));
+            d = new Vec4;
+            vec3.sub(d, m, a).add(m);
 		}
 		else {
-			a = m.add(m.sub(d));
-		}
-
-		let w1 = a.mul(1.0 - dx).add(b.mul(dx));
-		let w2 = c.mul(1.0 - dx).add(d.mul(dx));
-
-        let w = w1.mul(1.0 - dz).add(w2.mul(dz));
+            a = new Vec4;
+            vec3.sub(a, m, d).add(m);
+        }
         
-        return w;
+        let n1 = new Vec4, n2 = new Vec4, n = new Vec4;
+        vec3.lerp(n1, a, b, dx);
+        vec3.lerp(n2, c, d, dx);
+        vec3.lerp(n, n1, n2, dz);
+        
+        return n;
     }
 
     getBlock(i: number, j: number) {
@@ -1168,7 +1179,11 @@ export class Terrain extends Component
 
 		let i = 0;
         let trace = start;
-		let position: Vec3|null = null;
+        let position: Vec3|null = null;
+        let dstep = new Vec3;
+
+        dstep.set(dir);
+        dstep.multiply(step);
 
 		if (dir.equals(new Vec3(0, 1, 0))) {
 			let y = this.getHeightAt(trace.x, trace.z);
@@ -1191,7 +1206,7 @@ export class Terrain extends Component
 					break;
 				}
 
-				trace = trace.add(dir.mul(step));
+                trace.add(dstep);
 			}
 		}
 		
@@ -1219,11 +1234,14 @@ export class Terrain extends Component
 			up = this.getPosition(x, z - 1);
 		}
 
-		right = right.sub(here);
-		up = up.sub(here);
+        right.subtract(here);
+        up.subtract(here);
 
-		let normal = up.cross(right).mul(flip);
-		normal.normalizeSelf();
+        let normal = new Vec3;
+        normal.set(up);
+        normal.cross(right);
+        normal.multiply(flip);
+		normal.normalize();
         return normal;
     }
 
