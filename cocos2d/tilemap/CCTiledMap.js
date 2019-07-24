@@ -200,12 +200,54 @@ let StaggerIndex = cc.Enum({
     STAGGERINDEX_EVEN : 1
 });
 
+/**
+ * !#en TiledMap Object Type
+ * !#zh 地图物体类型
+ * @enum TiledMap.TMXObjectType
+ * @static
+ */
 let TMXObjectType = cc.Enum({
+    /**
+     * @property RECT
+     * @type {Number}
+     * @static
+     */
     RECT : 0,
+
+    /**
+     * @property ELLIPSE
+     * @type {Number}
+     * @static
+     */
     ELLIPSE : 1,
+
+    /**
+     * @property POLYGON
+     * @type {Number}
+     * @static
+     */
     POLYGON : 2,
+
+    /**
+     * @property POLYLINE
+     * @type {Number}
+     * @static
+     */
     POLYLINE : 3,
-    IMAGE : 4
+    
+    /**
+     * @property IMAGE
+     * @type {Number}
+     * @static
+     */
+    IMAGE : 4,
+
+    /**
+     * @property TEXT
+     * @type {Number}
+     * @static
+     */
+    TEXT: 5,
 });
 
 /**

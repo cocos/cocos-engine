@@ -196,11 +196,14 @@ let Graphics = cc.Class({
         this.node._renderFlag &= ~cc.RenderFlow.FLAG_RENDER;
         this.node._renderFlag |= cc.RenderFlow.FLAG_CUSTOM_IA_RENDER;
 
-        if (this.sharedMaterials[0]) {
-            return;
+        let material = this.sharedMaterials[0];
+        if (!material) {
+            material = Material.getInstantiatedBuiltinMaterial('2d-base', this);
+        }
+        else {
+            material = Material.getInstantiatedMaterial(material, this);
         }
         
-        let material = Material.getInstantiatedBuiltinMaterial('2d-base', this);
         material.define('_USE_MODEL', true);
         this.setMaterial(0, material);
     },
