@@ -117,10 +117,7 @@ public:
      *  @brief Sets a define's value.
      */
     void define(const std::string& name, const Value& value);
-    /*
-     *  @brief Gets all define values.
-     */
-    const std::vector<ValueMap>& getDefines() const { return _defineTemplates; }
+    
     /*
      *  @brief Extracts all defines.
      */
@@ -190,17 +187,16 @@ public:
     /*
      *  @brief Gets the define key for the current define settings.
      */
-    const int32_t& getDefinesKey() { return _definesKey; };
+    const std::string& getDefinesKey() { return _definesKey; };
     /**
      *  @brief Deep copy from other effect.
      */
     void copy(const Effect* effect);
 private:
     double _hash;
-    int32_t _definesKey;
+    std::string _definesKey;
     Vector<Technique*> _techniques;
-    std::vector<ValueMap> _defineTemplates;
-    ValueMap _cachedNameValues;
+    ValueMap _defines;
     std::unordered_map<std::string, Property> _properties;
     
     // Global define order.
@@ -208,7 +204,7 @@ private:
     static std::vector<std::string> _sharedDefineList;
     static void _updateDefineBitOrder(const ValueMap& nameValues);
     
-    void generateKey();
+    void generateDefinesKey();
 };
 
 // end of renderer group

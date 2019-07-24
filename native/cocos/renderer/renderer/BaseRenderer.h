@@ -64,6 +64,7 @@ public:
         Effect* effect = nullptr;
         Technique* technique = nullptr;
         std::vector<ValueMap*>* defines = nullptr;
+        size_t definesKeyHash = 0;
         std::vector<std::unordered_map<std::string, Effect::Property>*>* uniforms = nullptr;
         int sortKey = -1;
     };

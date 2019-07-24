@@ -75,6 +75,8 @@ void Model::setInputAssembler(const InputAssembler& ia)
     _inputAssembler = ia;
 }
 
+std::string __temp_defines_keys__ = "";
+
 void Model::setEffect(Effect* effect, CustomProperties* customProperties)
 {
     if (_effect != effect)
@@ -86,17 +88,25 @@ void Model::setEffect(Effect* effect, CustomProperties* customProperties)
     
     _uniforms.clear();
     
+    __temp_defines_keys__ = "";
+    
     if (effect != nullptr)
     {
         _definesList.push_back(effect->extractDefines());
         _uniforms.push_back(effect->extractProperties());
+        
+        __temp_defines_keys__ += effect->getDefinesKey();
     }
     
     if (customProperties != nullptr)
     {
         _definesList.push_back(customProperties->extractDefines());
         _uniforms.push_back(customProperties->extractProperties());
+        
+        __temp_defines_keys__ += customProperties->getDefinesKey();
     }
+    
+    _definesKeyHash = std::hash<std::string>{}(__temp_defines_keys__);
 }
 
 void Model::setNode(NodeProxy* node)
@@ -126,6 +136,7 @@ void Model::extractDrawItem(DrawItem& out) const
     out.effect = _effect;
     out.defines = const_cast<std::vector<ValueMap*>*>(&_definesList);
     out.uniforms = const_cast<std::vector<std::unordered_map<std::string, Effect::Property>*>*>(&_uniforms);
+    out.definesKeyHash = _definesKeyHash;
 }
 
 void Model::reset()

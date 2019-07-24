@@ -407,7 +407,7 @@ void ForwardRenderer::shadowStage(const View& view, const std::vector<StageItem>
     
     for (auto& item : items)
     {
-        if (_programLib->getValueFromDefineList("CC_SHADOW_CASTING", *item.defines) != Value::Null) {
+        if (_programLib->getValueFromDefineList("CC_SHADOW_CASTING", *item.defines) != nullptr) {
             updateShaderDefines(item);
             draw(item);
         }

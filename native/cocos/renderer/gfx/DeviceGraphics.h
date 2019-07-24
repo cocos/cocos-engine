@@ -80,6 +80,8 @@ public:
         void setValue(const void* v, size_t bytes);
         
         void* value = nullptr;
+        size_t bytes = 0;
+        
         bool dirty;
         UniformElementType elementType;
     private:

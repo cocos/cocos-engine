@@ -152,6 +152,7 @@ void BaseRenderer::render(const View& view, const Scene* scene)
                 stageItem.technique = tech;
                 stageItem.sortKey = -1;
                 stageItem.uniforms = item->uniforms;
+                stageItem.definesKeyHash = item->definesKeyHash;
                 
                 stageItems.push_back(stageItem);
             }
@@ -291,7 +292,7 @@ void BaseRenderer::draw(const StageItem& item)
         
         // set primitive type
         _device->setPrimitiveType(ia->_primitiveType);
-        _program = _programLib->getProgram(pass->_programName, *(item.defines));
+        _program = _programLib->getProgram(pass->getHashName(), item.definesKeyHash, *(item.defines));
         _device->setProgram(_program);
         
         // cull mode

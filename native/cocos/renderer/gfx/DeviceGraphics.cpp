@@ -1147,12 +1147,17 @@ DeviceGraphics::Uniform& DeviceGraphics::Uniform::operator=(Uniform&& h)
     return *this;
 }
 
-void DeviceGraphics::Uniform::setValue(const void* v, size_t bytes)
+void DeviceGraphics::Uniform::setValue(const void* v, size_t valueBytes)
 {
-    if (value)
-        free(value);
-    value = malloc(bytes);
-    memcpy(value, v, bytes);
+    if (bytes != valueBytes || !value) {
+        if (value)
+            free(value);
+        value = malloc(valueBytes);
+        
+        bytes = valueBytes;
+    }
+    
+    memcpy(value, v, valueBytes);
 }
 
 RENDERER_END
