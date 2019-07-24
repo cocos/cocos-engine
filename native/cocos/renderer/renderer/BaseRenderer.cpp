@@ -67,6 +67,7 @@ BaseRenderer::~BaseRenderer()
     delete _views;
     _views = nullptr;
     
+    delete _tmpMat3;
     _tmpMat3 = nullptr;
 }
 
