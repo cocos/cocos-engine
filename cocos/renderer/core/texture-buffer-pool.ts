@@ -3,7 +3,7 @@
  */
 
 import { GFXFormat } from '../../gfx';
-import { GFXFormatInfos, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../../gfx/define';
+import { GFXFormatInfos, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType, GFXBufferTextureCopy } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXTexture } from '../../gfx/texture';
 import { GFXTextureView } from '../../gfx/texture-view';
@@ -29,7 +29,10 @@ export interface ITextureBuffer {
 
 export interface ITextureBufferHandle {
     chunkIdx: number;
+    start: number;
     end: number;
+    texture: GFXTexture;
+    texView: GFXTextureView;
 }
 
 export class TextureBufferPool {
@@ -40,6 +43,9 @@ export class TextureBufferPool {
     private _chunks: ITextureBuffer[];
     private _chunkCount = 0;
     private _handles: ITextureBufferHandle[];
+    private _region0: GFXBufferTextureCopy = new GFXBufferTextureCopy();
+    private _region1: GFXBufferTextureCopy = new GFXBufferTextureCopy();
+    private _region2: GFXBufferTextureCopy = new GFXBufferTextureCopy();
 
     public constructor (device: GFXDevice) {
         this._device = device;
@@ -63,7 +69,7 @@ export class TextureBufferPool {
         this._handles.splice(0);
     }
 
-    public alloc (size: number): ITextureBuffer | null {
+    public alloc (size: number): ITextureBufferHandle | null {
         if (size === 0) {
             return null;
         }
@@ -92,11 +98,17 @@ export class TextureBufferPool {
 
             if (isFound) {
                 chunk.start += size;
-                this._handles.push({
+
+                const handle = {
                     chunkIdx: i,
+                    start,
                     end: start + size,
-                });
-                return chunk;
+                    texture: chunk.texture,
+                    texView: chunk.texView,
+                };
+
+                this._handles.push(handle);
+                return handle;
             }
         }
 
@@ -128,21 +140,24 @@ export class TextureBufferPool {
             format: this._format,
         });
 
-        this._handles.push({
+        const texHandle = {
             chunkIdx: this._chunkCount,
+            start: 0,
             end: texSize,
-        });
+            texture,
+            texView,
+        };
+        this._handles.push(texHandle);
 
-        const texBuff = {
+        this._chunks[this._chunkCount++] = {
             texture,
             texView,
             size: texSize,
             start: texSize,
             end: texSize,
         };
-        this._chunks[this._chunkCount++] = texBuff;
 
-        return texBuff;
+        return texHandle;
     }
 
     public free (handle: ITextureBufferHandle) {
@@ -152,5 +167,71 @@ export class TextureBufferPool {
                 return;
             }
         }
+    }
+
+    public update (handle: ITextureBufferHandle, buffer: ArrayBuffer) {
+
+        let offsetX = handle.start % handle.texture.width;
+        let offsetY = handle.start / handle.texture.width;
+        let copySize = handle.texture.width - offsetX;
+        let remianSize = buffer.byteLength;
+        let begin = 0;
+
+        const buffers: ArrayBuffer[] = [];
+        const regions: GFXBufferTextureCopy[] = [];
+
+        if (offsetX > 0) {
+            this._region0.texOffset.x = offsetX;
+            this._region0.texOffset.y = offsetY;
+            this._region0.texExtent.width = remianSize;
+            this._region0.texExtent.height = 1;
+
+            buffers.push(buffer.slice(begin, copySize));
+            regions.push(this._region0);
+
+            offsetX = 0;
+            offsetY += 1;
+            remianSize -= copySize;
+            begin += copySize;
+        }
+
+        if (remianSize > 0) {
+            this._region1.texOffset.x = offsetX;
+            this._region1.texOffset.y = offsetY;
+
+            if (remianSize > handle.texture.width) {
+                this._region1.texExtent.width = handle.texture.width;
+                this._region1.texExtent.height = remianSize / handle.texture.width;
+                copySize = this._region1.texExtent.width * this._region1.texExtent.height * this._formatSize;
+                remianSize -= copySize;
+            } else {
+                copySize = remianSize;
+                this._region1.texExtent.width = copySize;
+                this._region1.texExtent.height = 1;
+            }
+
+            buffers.push(buffer.slice(begin, copySize));
+            regions.push(this._region1);
+
+            offsetX = 0;
+            offsetY += 1;
+            remianSize -= copySize;
+            begin += copySize;
+        }
+
+        if (remianSize > 0) {
+            this._region2.texOffset.x = offsetX;
+            this._region2.texOffset.y = offsetY;
+
+            if (remianSize > handle.texture.width) {
+                this._region2.texExtent.width = remianSize;
+                this._region2.texExtent.height = 1;
+            }
+
+            buffers.push(buffer.slice(begin, remianSize));
+            regions.push(this._region2);
+        }
+
+        this._device.copyBuffersToTexture(buffers, handle.texture, regions);
     }
 }
