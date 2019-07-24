@@ -94,15 +94,6 @@ export class SkinningModelComponent extends ModelComponent {
         return 0;
     }
 
-    public onLoad () {
-        super.onLoad();
-        if (this._skinningRoot && this._skinningRoot.getComponent(AnimationComponent)) { return; }
-        // find the lowest AnimationComponent node as the new skinning root
-        let root: Node | null = this.node;
-        while (root && !root.getComponent(AnimationComponent)) { root = root.parent; }
-        this._skinningRoot = root;
-    }
-
     public uploadAnimationClip (clip: SkeletalAnimationClip) {
         if (this._model) { (this._model as SkinningModel).uploadAnimationClip(clip); }
     }
