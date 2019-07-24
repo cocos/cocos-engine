@@ -387,7 +387,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         // HACK, TODO
         this.renderer!.onInit(this);
         this.shapeModule.onInit(this);
-        this.trailModule.init(this);
+        this.trailModule.onInit(this);
         this.textureAnimationModule.onInit(this);
 
         this._resetPosition();

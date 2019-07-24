@@ -20,6 +20,77 @@ const _unitBoxExtent = vec3.create(0.5, 0.5, 0.5);
 export default class ShapeModule {
 
     /**
+     * @zh 粒子发射器位置。
+     */
+    @property({
+        displayOrder: 13,
+    })
+    get position () {
+        return this._position;
+    }
+    set position (val) {
+        this._position = val;
+        this.constructMat();
+    }
+
+    /**
+     * @zh 粒子发射器旋转角度。
+     */
+    @property({
+        displayOrder: 14,
+    })
+    get rotation () {
+        return this._rotation;
+    }
+    set rotation (val) {
+        this._rotation = val;
+        this.constructMat();
+    }
+
+    /**
+     * @zh 粒子发射器缩放比例。
+     */
+    @property({
+        displayOrder: 15,
+    })
+    get scale () {
+        return this._scale;
+    }
+    set scale (val) {
+        this._scale = val;
+        this.constructMat();
+    }
+
+    /**
+     * @zh 粒子发射器在一个扇形范围内发射。
+     */
+    @property({
+        displayOrder: 6,
+    })
+    get arc () {
+        return toDegree(this._arc);
+    }
+
+    set arc (val) {
+        this._arc = toRadian(val);
+    }
+
+    /**
+     * @zh 圆锥的轴与母线的夹角<bg>。
+     * 决定圆锥发射器的开合程度。
+     */
+    @property({
+        displayOrder: 5,
+    })
+    get angle () {
+        return Math.round(toDegree(this._angle) * 100) / 100;
+    }
+
+    set angle (val) {
+        this._angle = toRadian(val);
+    }
+
+    /**
      * @zh 是否启用。
      */
     @property({
@@ -44,57 +115,6 @@ export default class ShapeModule {
         displayOrder: 2,
     })
     public emitFrom = EmitLocation.Volume;
-
-    @property
-    private _position = new Vec3(0, 0, 0);
-
-    /**
-     * @zh 粒子发射器位置。
-     */
-    @property({
-        displayOrder: 13,
-    })
-    get position () {
-        return this._position;
-    }
-    set position (val) {
-        this._position = val;
-        this.constructMat();
-    }
-
-    @property
-    private _rotation = new Vec3(0, 0, 0);
-
-    /**
-     * @zh 粒子发射器旋转角度。
-     */
-    @property({
-        displayOrder: 14,
-    })
-    get rotation () {
-        return this._rotation;
-    }
-    set rotation (val) {
-        this._rotation = val;
-        this.constructMat();
-    }
-
-    @property
-    private _scale = new Vec3(1, 1, 1);
-
-    /**
-     * @zh 粒子发射器缩放比例。
-     */
-    @property({
-        displayOrder: 15,
-    })
-    get scale () {
-        return this._scale;
-    }
-    set scale (val) {
-        this._scale = val;
-        this.constructMat();
-    }
 
     /**
      * @zh 根据粒子的初始方向决定粒子的移动方向。
@@ -147,23 +167,6 @@ export default class ShapeModule {
     })
     public radiusThickness = 1;
 
-    @property
-    private _arc = toRadian(360);
-
-    /**
-     * @zh 粒子发射器在一个扇形范围内发射。
-     */
-    @property({
-        displayOrder: 6,
-    })
-    get arc () {
-        return toDegree(this._arc);
-    }
-
-    set arc (val) {
-        this._arc = toRadian(val);
-    }
-
     /**
      * @zh 粒子在扇形范围内的发射方式 [[ArcMode]]。
      */
@@ -190,24 +193,6 @@ export default class ShapeModule {
     })
     public arcSpeed = new CurveRange();
 
-    @property
-    private _angle = toRadian(25);
-
-    /**
-     * @zh 圆锥的轴与母线的夹角<bg>。
-     * 决定圆锥发射器的开合程度。
-     */
-    @property({
-        displayOrder: 5,
-    })
-    get angle () {
-        return Math.round(toDegree(this._angle) * 100) / 100;
-    }
-
-    set angle (val) {
-        this._angle = toRadian(val);
-    }
-
     /**
      * @zh 圆锥顶部截面距离底部的轴长<bg>。
      * 决定圆锥发射器的高度。
@@ -225,6 +210,21 @@ export default class ShapeModule {
     })
     public boxThickness = new Vec3(0, 0, 0);
 
+    @property
+    private _position = new Vec3(0, 0, 0);
+
+    @property
+    private _rotation = new Vec3(0, 0, 0);
+
+    @property
+    private _scale = new Vec3(1, 1, 1);
+
+    @property
+    private _arc = toRadian(360);
+
+    @property
+    private _angle = toRadian(25);
+
     private mat: mat4;
     private quat: quat;
     private particleSystem: any;
@@ -240,15 +240,9 @@ export default class ShapeModule {
     }
 
     public onInit (ps: ParticleSystemComponent) {
-        this.constructMat();
         this.particleSystem = ps;
+        this.constructMat();
         this.lastTime = this.particleSystem._time;
-        this.totalAngle = 0;
-    }
-
-    private constructMat () {
-        quat.fromEuler(this.quat, this._rotation.x, this._rotation.y, this._rotation.z);
-        mat4.fromRTS(this.mat, this.quat, this._position, this._scale);
     }
 
     public emit (p) {
@@ -283,6 +277,11 @@ export default class ShapeModule {
             vec3.lerp(p.velocity, p.velocity, sphericalVel, this.sphericalDirectionAmount);
         }
         this.lastTime = this.particleSystem!._time;
+    }
+
+    private constructMat () {
+        quat.fromEuler(this.quat, this._rotation.x, this._rotation.y, this._rotation.z);
+        mat4.fromRTS(this.mat, this.quat, this._position, this._scale);
     }
 
     private generateArcAngle () {

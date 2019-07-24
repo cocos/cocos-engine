@@ -196,7 +196,9 @@ export default class TrailModule {
 
     public set space (val) {
         this._space = val;
-        this._particleSystem.renderer._updateTrailMaterial();
+        if (this._particleSystem) {
+            this._particleSystem.renderer._updateTrailMaterial();
+        }
     }
 
     /**
@@ -302,14 +304,14 @@ export default class TrailModule {
         this._particleTrail = new Map<Particle, TrailSegment>();
     }
 
-    public init (ps) {
+    public onInit (ps) {
         this._particleSystem = ps;
         let burstCount = 0;
-        for (const b of ps.bursts) {
-            burstCount += b.getMaxCount(ps);
+        for (const b of this._particleSystem.bursts) {
+            burstCount += b.getMaxCount(this._particleSystem);
         }
-        this._trailNum = Math.ceil(ps.startLifetime.getMax() * this.lifeTime.getMax() * 60 * (ps.rateOverTime.getMax() * ps.duration + burstCount));
-        this._trailSegments = new Pool(() => new TrailSegment(Math.ceil(ps.startLifetime.getMax() * this.lifeTime.getMax() * 60)), Math.ceil(ps.rateOverTime.getMax() * ps.duration));
+        this._trailNum = Math.ceil(this._particleSystem.startLifetime.getMax() * this.lifeTime.getMax() * 60 * (this._particleSystem.rateOverTime.getMax() * this._particleSystem.duration + burstCount));
+        this._trailSegments = new Pool(() => new TrailSegment(Math.ceil(this._particleSystem.startLifetime.getMax() * this.lifeTime.getMax() * 60)), Math.ceil(this._particleSystem.rateOverTime.getMax() * this._particleSystem.duration));
         if (this._enable) {
             this.enable = this._enable;
             this._updateMaterial();

@@ -159,6 +159,9 @@ export default class ParticleSystemRenderer {
         displayOrder: 8,
     })
     public get particleMaterial () {
+        if (!this.particleSystem) {
+            return null;
+        }
         return this.particleSystem.getMaterial(0);
     }
 
@@ -174,6 +177,9 @@ export default class ParticleSystemRenderer {
         displayOrder: 9,
     })
     public get trailMaterial () {
+        if (!this.particleSystem) {
+            return null;
+        }
         return this.particleSystem.getMaterial(1)!;
     }
 
@@ -212,7 +218,7 @@ export default class ParticleSystemRenderer {
     }
 
     public onInit (ps: Component) {
-        this.particleSystem = ps.node.getComponent('cc.ParticleSystemComponent');
+        this.particleSystem = ps;
         this._particles = new RecyclePool(() => {
             return new Particle(this);
         }, 16);
