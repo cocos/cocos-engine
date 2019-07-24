@@ -3,7 +3,11 @@
  */
 
 import { GFXFormat } from '../../gfx';
+<<<<<<< HEAD
 import { GFXBufferTextureCopy, GFXFormatInfos, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../../gfx/define';
+=======
+import { GFXFormatInfos, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType, GFXBufferTextureCopy } from '../../gfx/define';
+>>>>>>> modified some interfaces
 import { GFXDevice } from '../../gfx/device';
 import { GFXTexture } from '../../gfx/texture';
 import { GFXTextureView } from '../../gfx/texture-view';
