@@ -436,12 +436,7 @@ export default class Light extends CCComponent {
     }
 
     onLoad() {
-        if (CC_JSB && CC_NATIVERENDERER) {
-            this.node.getWorldMatrix(_mat4_temp);
-            this._light.setWorldMatrix(_mat4_temp.m);
-        } else {
-            this._light.setNode(this.node);
-        }
+        this._light.setNode(this.node);
         this.type = this._type;
         this.color = this._color;
         this.intensity = this._intensity;
