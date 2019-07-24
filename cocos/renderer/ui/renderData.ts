@@ -52,14 +52,15 @@ export class RenderData extends BaseRenderData {
     }
 
     public static add () {
-        const data = _pool.add();
-        return {
-            pooID: _pool.length - 1,
-            data,
-        };
+        return _pool.add();
     }
 
-    public static remove (idx: number) {
+    public static remove (data: RenderData) {
+        const idx = _pool.data.indexOf(data);
+        if (idx === -1){
+            return;
+        }
+
         _pool.data[idx].clear();
         _pool.removeAt(idx);
     }
