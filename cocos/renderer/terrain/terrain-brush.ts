@@ -1,38 +1,35 @@
-import { Vec3, Vec4 } from "../../core";
-import { max } from "../../core/vmath/bits";
 import { Material } from '../../3d/assets/material';
+import { Vec3, Vec4 } from '../../core';
 import { IDefineMap } from '../core/pass';
 
 // TerrainBrush Interface
 //
-export class TerrainBrush
-{
-    material: Material|null = null;
-    position: Vec3 = new Vec3(0, 0, 0);
-    radius: number = 5;
-    strength: number = 1;
+export class TerrainBrush {
+    public material: Material|null = null;
+    public position: Vec3 = new Vec3(0, 0, 0);
+    public radius: number = 5;
+    public strength: number = 1;
 
-    getDelta(x: number, z: number) {
+    public getDelta (x: number, z: number) {
         return 0;
     }
 
-    update(pos: Vec3) {
+    public update (pos: Vec3) {
         this.position = pos;
     }
 }
 
 // TerrainBrushData Interface
 //
-export class TerrainBrushData
-{
-    bmin: number[] = [0, 0];
-    bmax: number[] = [0, 0];
+export class TerrainBrushData{
+    public bmin: number[] = [0, 0];
+    public bmax: number[] = [0, 0];
 
-    width() {
+    public width () {
         return this.bmax[0] - this.bmax[0] + 1;
     }
-	
-	height() {
+
+    public height () {
         return this.bmax[1] - this.bmax[1] + 1;
     }
 }
@@ -45,41 +42,40 @@ export enum eTerrainCircleBrushType {
     Tip,
 }
 
-export class TerrainCircleBrush extends TerrainBrush
-{
+export class TerrainCircleBrush extends TerrainBrush{
     protected type: eTerrainCircleBrushType = eTerrainCircleBrushType.Linear;
     protected falloff: number = 0.5;
 
-    constructor() {
+    constructor () {
         super();
 
         this._updateMaterial();
     }
 
-    setType(type: eTerrainCircleBrushType) {
-        if (this.type != type) {
+    public setType (type: eTerrainCircleBrushType) {
+        if (this.type !== type) {
             this.type = type;
 
             this._updateMaterial();
         }
     }
 
-    getType() {
+    public getType () {
         return this.type;
     }
 
-    _updateMaterial() {
-        let effect = cc.EffectAsset.get('editor/terrain-circle-brush');
+    public _updateMaterial () {
+        const effect = cc.EffectAsset.get('editor/terrain-circle-brush');
         if (effect != null) {
-            this.material = new Material;
-            this.material.initialize({     
+            this.material = new Material();
+            this.material.initialize({
                 effectAsset: effect,
-                defines: this._getTypeDefine()
+                defines: this._getTypeDefine(),
             });
         }
     }
 
-    _getTypeDefine(): IDefineMap {
+    public _getTypeDefine (): IDefineMap {
         switch (this.type) {
             case eTerrainCircleBrushType.Linear:
                 return { LINEAR: 1 };
@@ -90,11 +86,11 @@ export class TerrainCircleBrush extends TerrainBrush
             case eTerrainCircleBrushType.Tip:
                 return { TIP: 1 };
         }
-       
+
         return { LINEAR: 1 };
     }
 
-    _calculateFalloff_Linear(Distance: number, Radius: number, Falloff: number) {
+    public _calculateFalloff_Linear (Distance: number, Radius: number, Falloff: number) {
         if (Distance <= Radius) {
             return 1.0;
         }
@@ -102,16 +98,16 @@ export class TerrainCircleBrush extends TerrainBrush
             return 0.0;
         }
 
-        return max(0.0, 1.0 - (Distance - Radius) / Falloff);
-    };
+        return Math.max(0.0, 1.0 - (Distance - Radius) / Falloff);
+    }
 
-    _calculateFalloff_Spherical(Distance: number, Radius: number, Falloff: number) {
-        let y = this._calculateFalloff_Linear(Distance, Radius, Falloff);
+    public _calculateFalloff_Spherical (Distance: number, Radius: number, Falloff: number) {
+        const y = this._calculateFalloff_Linear(Distance, Radius, Falloff);
 
-        return y*y*(3 - 2 * y);
-    };
+        return y * y * (3 - 2 * y);
+    }
 
-    _calculateFalloff_Smooth(Distance: number, Radius: number, Falloff: number) {
+    public _calculateFalloff_Smooth (Distance: number, Radius: number, Falloff: number) {
         if (Distance <= Radius) {
             return 1.0;
         }
@@ -119,12 +115,12 @@ export class TerrainCircleBrush extends TerrainBrush
             return 0.0;
         }
 
-        let y = (Distance - Radius) / Falloff;
-        
+        const y = (Distance - Radius) / Falloff;
+
         return Math.sqrt(1.0 - y * y);
     }
 
-    _calculateFalloff_Tip(Distance: number, Radius: number, Falloff: number) {
+    public _calculateFalloff_Tip (Distance: number, Radius: number, Falloff: number) {
         if (Distance <= Radius) {
             return 1.0;
         }
@@ -132,16 +128,17 @@ export class TerrainCircleBrush extends TerrainBrush
             return 0.0;
         }
 
-        let y = (Falloff + Radius - Distance) / Falloff;
-        
+        const y = (Falloff + Radius - Distance) / Falloff;
+
         return 1.0 - Math.sqrt(1.0 - y * y);
     }
-    
-    getDelta(x: number, z: number) {
-        let DetlaX = x - this.position.x, DeltaZ = z -  this.position.z;
-        let Distance = Math.sqrt(DetlaX * DetlaX + DeltaZ * DeltaZ);
-		let Radius = (1.0 - this.falloff) * this.radius;
-        let Falloff =  this.falloff *  this.radius;
+
+    public getDelta (x: number, z: number) {
+        const DetlaX = x - this.position.x;
+        const DeltaZ = z -  this.position.z;
+        const Distance = Math.sqrt(DetlaX * DetlaX + DeltaZ * DeltaZ);
+        const Radius = (1.0 - this.falloff) * this.radius;
+        const Falloff =  this.falloff *  this.radius;
 
         let k = 0;
         switch (this.type) {
@@ -162,21 +159,21 @@ export class TerrainCircleBrush extends TerrainBrush
         return k * this.strength;
     }
 
-    update(pos: Vec3) {
+    public update (pos: Vec3) {
         super.update(pos);
 
         if (this.material != null) {
-            let Radius = (1.0 - this.falloff) * this.radius;
-            let Falloff =  this.falloff *  this.radius;
+            const Radius = (1.0 - this.falloff) * this.radius;
+            const Falloff =  this.falloff *  this.radius;
 
-            let BrushPos = pos;
-            let BrushParams = new Vec4;
+            const BrushPos = pos;
+            const BrushParams = new Vec4();
 
             BrushParams.x = Radius;
             BrushParams.y = Falloff;
 
-            this.material.setProperty("BrushPos", BrushPos);
-            this.material.setProperty("BrushParams", BrushParams);
+            this.material.setProperty('BrushPos', BrushPos);
+            this.material.setProperty('BrushParams', BrushParams);
         }
     }
 }

@@ -1,36 +1,33 @@
-import { TerrainEditor_Mode } from './terrain-editor-mode'
-import { Terrain, TERRAIN_BLOCK_TILE_COMPLEXITY } from './terrain'
-import { Vec3, Rect } from '../../core/value-types';
+import { Rect, Vec3 } from '../../core/value-types';
 import { clamp } from '../../core/vmath';
+import { Terrain, TERRAIN_BLOCK_TILE_COMPLEXITY } from './terrain'
 import { TerrainBrush, TerrainCircleBrush } from './terrain-brush';
+import { TerrainEditorMode } from './terrain-editor-mode';
 import { TerrainHeightOperation, TerrainHeightUndoRedo } from './terrain-operation';
 
-export class TerrainEditor_Sculpt extends TerrainEditor_Mode
-{
-    _brush: TerrainBrush = new TerrainCircleBrush;
-    _undo: TerrainHeightUndoRedo|null = null;
+export class TerrainEditorSculpt extends TerrainEditorMode {
+    public _brush: TerrainBrush = new TerrainCircleBrush();
+    public _undo: TerrainHeightUndoRedo|null = null;
 
-    onUpdate(terrain: Terrain, dtime: number) {
+    public onUpdate (terrain: Terrain, dtime: number) {
         if (this._undo != null) {
             this._updateHeight(terrain, dtime, false);
         }
     }
 
-    onUpdateBrushPosition(terrain: Terrain, pos: Vec3) {
+    public onUpdateBrushPosition (terrain: Terrain, pos: Vec3) {
         this._brush.update(pos);
 
-        let blocks = terrain.getBlocks();
-        for (let i = 0; i < blocks.length; ++i) {
-            let block = blocks[i];
-            let index = block.getIndex();
+        for (const block of terrain.getBlocks()) {
+            const index = block.getIndex();
 
-            let bound = new Rect;
+            const bound = new Rect();
             bound.x = index[0] * terrain.info.tileSize;
             bound.y = index[1] * terrain.info.tileSize;
             bound.width = TERRAIN_BLOCK_TILE_COMPLEXITY * terrain.info.tileSize;
             bound.height = TERRAIN_BLOCK_TILE_COMPLEXITY * terrain.info.tileSize;
 
-            let brushRect = new Rect;
+            const brushRect = new Rect();
             brushRect.x = this._brush.position.x - this._brush.radius;
             brushRect.y = this._brush.position.z - this._brush.radius;
             brushRect.width = this._brush.radius * 2;
@@ -45,18 +42,15 @@ export class TerrainEditor_Sculpt extends TerrainEditor_Mode
         }
     }
 
-    onMouseDown()
-    {
-        this._undo = new TerrainHeightUndoRedo;
+    public onMouseDown () {
+        this._undo = new TerrainHeightUndoRedo();
     }
 
-    onMouseUp()
-    {
+    public onMouseUp () {
         this._undo = null;
     }
 
-    _updateHeight(terrain: Terrain, dtime: number, shift_pressed: boolean)
-    {
+    public _updateHeight (terrain: Terrain, dtime: number, shift_pressed: boolean) {
         let x1 = this._brush.position.x - this._brush.radius;
         let y1 = this._brush.position.z - this._brush.radius;
         let x2 = this._brush.position.x + this._brush.radius;
@@ -72,17 +66,19 @@ export class TerrainEditor_Sculpt extends TerrainEditor_Mode
         x2 = Math.floor(x2);
         y2 = Math.floor(y2);
 
-        if (x1 > terrain.info.vertexCount[0] - 1 || x2 < 0)
+        if (x1 > terrain.info.vertexCount[0] - 1 || x2 < 0) {
             return;
-        if (y1 > terrain.info.vertexCount[1] - 1 || y2 < 0)
+        }
+        if (y1 > terrain.info.vertexCount[1] - 1 || y2 < 0) {
             return;
+        }
 
         x1 = clamp(x1, 0, terrain.info.vertexCount[0] - 1);
         y1 = clamp(y1, 0, terrain.info.vertexCount[1] - 1);
         x2 = clamp(x2, 0, terrain.info.vertexCount[0] - 1);
         y2 = clamp(y2, 0, terrain.info.vertexCount[1] - 1);
 
-        let op = new TerrainHeightOperation;
+        const op = new TerrainHeightOperation();
         for (let y = y1; y <= y2; ++y) {
             for (let x = x1; x <= x2; ++x) {
                 let h = terrain.getHeight(x, y);
@@ -90,10 +86,10 @@ export class TerrainEditor_Sculpt extends TerrainEditor_Mode
                 if (this._undo != null) {
                     this._undo.push(x, y, h);
                 }
-                
-                let xpos = x * terrain.info.tileSize;
-                let ypos = y * terrain.info.tileSize;
-                let delta = this._brush.getDelta(xpos, ypos) * dtime;
+
+                const xpos = x * terrain.info.tileSize;
+                const ypos = y * terrain.info.tileSize;
+                const delta = this._brush.getDelta(xpos, ypos) * dtime;
 
                 if (!shift_pressed) {
                     h += delta;
@@ -103,7 +99,7 @@ export class TerrainEditor_Sculpt extends TerrainEditor_Mode
                 }
 
                 op.push(x, y, h);
-            } 
+            }
         }
 
         op.apply(terrain);

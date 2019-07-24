@@ -1,69 +1,68 @@
-import { TerrainEditor_Mode, eTerrainEditorMode} from './terrain-editor-mode'
-import { TerrainEditor_Manage } from './terrain-editor-manage'
-import { TerrainEditor_Sculpt } from './terrain-editor-sculpt'
-import { TerrainEditor_Paint } from './terrain-editor-paint'
-import { Terrain } from './terrain'
-import { Node } from '../../scene-graph/node';
 import { CameraComponent } from '../../3d/framework';
+import { Node } from '../../scene-graph/node';
+import { Terrain } from './terrain';
+import { TerrainEditorManage } from './terrain-editor-manage';
+import { eTerrainEditorMode, TerrainEditorMode } from './terrain-editor-mode';
+import { TerrainEditorPaint } from './terrain-editor-paint';
+import { TerrainEditorSculpt } from './terrain-editor-sculpt';
 
-export class TerrainEditor
-{
-    static Instance: TerrainEditor;
+export class TerrainEditor {
+    public static Instance: TerrainEditor;
 
-    _terrain: Terrain|null = null;
-    _modes: Array<TerrainEditor_Mode> =  [
-        new TerrainEditor_Manage,
-        new TerrainEditor_Sculpt,
-        new TerrainEditor_Paint,
+    private _terrain: Terrain|null = null;
+    private _modes: TerrainEditorMode[] =  [
+        new TerrainEditorManage(),
+        new TerrainEditorSculpt(),
+        new TerrainEditorPaint(),
     ];
 
-    _currentMode: TerrainEditor_Mode | null = null;
+    private _currentMode: TerrainEditorMode | null = null;
 
-    constructor() {
+    constructor () {
         TerrainEditor.Instance = this;
 
         this.setMode(eTerrainEditorMode.SCULPT);
     }
 
-    setEditTerrain(t: Terrain) {
+    public setEditTerrain (t: Terrain) {
         this._terrain = t;
     }
 
-    setMode(mode: eTerrainEditorMode) {
-        let m = this._modes[mode];
+    public setMode (mode: eTerrainEditorMode) {
+        const m = this._modes[mode];
 
         this._currentMode = m;
     }
 
-    getMode(mode: eTerrainEditorMode) {
+    public getMode (mode: eTerrainEditorMode) {
         return this._modes[mode];
     }
 
-    getCurrentMode() {
+    public getCurrentMode () {
         return this._currentMode;
     }
 
-    getCurrentModeType() {
-        if (this._currentMode == this._modes[0]) {
+    public getCurrentModeType () {
+        if (this._currentMode === this._modes[0]) {
             return eTerrainEditorMode.MANAGE;
         }
-        else if (this._currentMode == this._modes[1]) {
+        else if (this._currentMode === this._modes[1]) {
             return eTerrainEditorMode.SCULPT;
         }
-        else if (this._currentMode == this._modes[2]) {
+        else if (this._currentMode === this._modes[2]) {
             return eTerrainEditorMode.PAINT;
         }
 
         return eTerrainEditorMode.SCULPT;
     }
 
-    setCurrentLayer(id: number) {
-        let paintMode = this.getMode(eTerrainEditorMode.PAINT) as TerrainEditor_Paint;
+    public setCurrentLayer (id: number) {
+        const paintMode = this.getMode(eTerrainEditorMode.PAINT) as TerrainEditorPaint;
 
         paintMode.setCurrentLayer(id);
     }
 
-    update(dtime: number) {
+    public update (dtime: number) {
         if (this._currentMode == null || this._terrain == null) {
             return;
         }
@@ -71,39 +70,39 @@ export class TerrainEditor
         this._currentMode.onUpdate(this._terrain, dtime);
     }
 
-    onMouseDown(id: number, x: number, y: number) {
+    public onMouseDown (id: number, x: number, y: number) {
         if (this._terrain == null) {
             return;
         }
 
-        let sculptMode = this.getMode(eTerrainEditorMode.SCULPT) as TerrainEditor_Sculpt;
-        let paintMode = this.getMode(eTerrainEditorMode.PAINT) as TerrainEditor_Paint;
+        const sculptMode = this.getMode(eTerrainEditorMode.SCULPT) as TerrainEditorSculpt;
+        const paintMode = this.getMode(eTerrainEditorMode.PAINT) as TerrainEditorPaint;
 
-        if (this._currentMode == sculptMode) {
+        if (this._currentMode === sculptMode) {
             sculptMode.onMouseDown();
         }
-        else if (this._currentMode == paintMode) {
+        else if (this._currentMode === paintMode) {
             paintMode.onMouseDown();
         }
     }
 
-    onMouseUp(id: number, x: number, y: number) {
+    public onMouseUp (id: number, x: number, y: number) {
         if (this._terrain == null) {
             return;
         }
 
-        let sculptMode = this.getMode(eTerrainEditorMode.SCULPT) as TerrainEditor_Sculpt;
-        let paintMode = this.getMode(eTerrainEditorMode.PAINT) as TerrainEditor_Paint;
+        const sculptMode = this.getMode(eTerrainEditorMode.SCULPT) as TerrainEditorSculpt;
+        const paintMode = this.getMode(eTerrainEditorMode.PAINT) as TerrainEditorPaint;
 
-        if (this._currentMode == sculptMode) {
+        if (this._currentMode === sculptMode) {
             sculptMode.onMouseUp();
         }
-        else if (this._currentMode == paintMode) {
+        else if (this._currentMode === paintMode) {
             paintMode.onMouseUp();
         }
     }
 
-    onMouseMove(camera: Node, x: number, y: number) {
+    public onMouseMove (camera: Node, x: number, y: number) {
         if (this._terrain == null) {
             return;
         }
@@ -124,18 +123,18 @@ export class TerrainEditor
             cc.vmath.vec3.subtract(dir, to, from);
             cc.vmath.vec3.normalize(dir, dir);
 
-            let vhit = this._terrain.rayCheck(from, dir, 0.1);
+            const vhit = this._terrain.rayCheck(from, dir, 0.1);
             if (vhit == null) {
                 return ;
             }
 
-            let sculptMode = this.getMode(eTerrainEditorMode.SCULPT) as TerrainEditor_Sculpt;
-            let paintMode = this.getMode(eTerrainEditorMode.PAINT) as TerrainEditor_Paint;
+            const sculptMode = this.getMode(eTerrainEditorMode.SCULPT) as TerrainEditorSculpt;
+            const paintMode = this.getMode(eTerrainEditorMode.PAINT) as TerrainEditorPaint;
 
-            if (this._currentMode == sculptMode) {
+            if (this._currentMode === sculptMode) {
                 sculptMode.onUpdateBrushPosition(this._terrain, vhit);
             }
-            else if (this._currentMode == paintMode) {
+            else if (this._currentMode === paintMode) {
                 paintMode.onUpdateBrushPosition(this._terrain, vhit);
             }
         }
