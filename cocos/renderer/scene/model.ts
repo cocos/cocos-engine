@@ -226,6 +226,7 @@ export class Model {
         this._uboUpdated = true;
         // @ts-ignore
         if (this._transformUpdated) {
+            // @ts-ignore
             const worldMatrix = this._transform._mat; const rot = this._transform._rot;
             mat4.array(this._uboLocal.view, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
             mat4.fromQuat(m4_1, rot);

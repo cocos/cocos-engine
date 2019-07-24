@@ -314,13 +314,13 @@ export class EditBoxImpl {
             this._beginEditingOnMobile();
         }
 
+        const self = this;
+        function startFocus () {
+            self._edTxt && self._edTxt.focus();
+        }
+
         if (this._edTxt) {
             this._edTxt.style.display = '';
-
-            const self = this;
-            function startFocus () {
-                self._edTxt!.focus();
-            }
 
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_UC) {
                 setTimeout(startFocus, FOCUS_DELAY_UC);

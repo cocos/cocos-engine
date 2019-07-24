@@ -392,7 +392,7 @@ export class BaseNode extends CCObject {
         super(name);
         this._name = name !== undefined ? name : 'New Node';
 
-        if (cc.director._scheduler) {
+        if (cc.director && cc.director._scheduler) {
             cc.director._scheduler.enableForTarget(this);
         }
 

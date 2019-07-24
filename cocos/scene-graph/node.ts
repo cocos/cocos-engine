@@ -32,9 +32,7 @@ import { ccclass, property } from '../core/data/class-decorator';
 import Event from '../core/event/event';
 import { eventManager } from '../core/platform/event-manager';
 import { SystemEventType } from '../core/platform/event-manager/event-enum';
-import { Mat4, Quat, Vec3 } from '../core/value-types';
-import Size from '../core/value-types/size';
-import Vec2 from '../core/value-types/vec2';
+import { Mat4, Quat, Vec3, Size, Vec2 } from '../core/value-types';
 import { mat4, quat, vec3 } from '../core/vmath';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
@@ -972,10 +970,12 @@ export class Node extends BaseNode {
     }
 
     public pauseSystemEvents (recursive: boolean) {
+        // @ts-ignore
         eventManager.pauseTarget(this, recursive);
     }
 
     public resumeSystemEvents (recursive: boolean) {
+        // @ts-ignore
         eventManager.resumeTarget(this, recursive);
     }
 

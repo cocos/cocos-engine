@@ -26,11 +26,11 @@
 import { ccclass} from '../../../../core/data/class-decorator';
 import sys from '../../../../core/platform/CCSys';
 import * as utils from '../../../../core/utils';
-import * as vmath from '../../../../core/vmath';
 import { Node } from '../../../../scene-graph';
 import { UIRenderComponent } from '../ui-render-component';
+import { Mat4 } from '../../../../core/value-types';
 
-const _mat4_temp = vmath.mat4.create();
+const _mat4_temp = new Mat4();
 
 export enum WebViewEventType {
     LOADING = 0,

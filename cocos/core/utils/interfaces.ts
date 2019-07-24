@@ -1,6 +1,5 @@
 /*
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,26 +22,17 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-/**
- * @category core
- */
 
-import * as vmath from './vmath';
+export interface INode {
+    uuid: string;
+    parent;
+    children;
+    uiTransfromComp;
+    eventProcessor;
+    activeInHierarchy: boolean;
+    _id: string;
+    _persistNode: boolean;
 
-cc.vmath = vmath;
-
-export * from './utils';
-export * from './data';
-export * from './event';
-export * from './platform';
-export * from './value-types';
-// Cause error:
-// export * from './game';
-import './game';
-export * from './scheduler';
-// Cause error:
-// export * from './director';
-import './director';
-
-export * from './utils/profiler/profiler';
-export { vmath };
+    dispatchEvent (event);
+    getComponent (typeOrClassName: string | Function);
+}

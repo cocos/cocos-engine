@@ -18,7 +18,9 @@
     "postinstall": "npm run build-rollup",
     "build-api-json": "gulp build-api-json -i index.ts -o ./3d-api-docs/tempJson",
     "build-api": "npm run build-api-json && gulp build-3d-api -i index.ts -o ./3d-api-docs -j ./3d-api-docs/tempJson",
-    "build-api-default": "gulp build-3d-api-default -i ./index.ts -o ./3d-api-docs/default"
+    "build-api-default": "gulp build-3d-api-default -i ./index.ts -o ./3d-api-docs/default",
+    "test": "jest",
+    "testWithCoverage": "jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -33,6 +35,7 @@
     "@babel/preset-typescript": "^7.1.0",
     "@types/cannon": "github:cocos-creator/cannon.d.ts#cocos-master",
     "@types/fs-extra": "^5.0.4",
+    "@types/jest": "^24.0.15",
     "@types/uglify-js": "^3.0.4",
     "@types/yargs": "^12.0.5",
     "aliasify": "^2.1.0",
@@ -66,6 +69,7 @@
     "gulp-uglify": "^3.0.0",
     "gulp-util": "3.0.6",
     "http-server": "^0.11.1",
+    "jest": "^24.8.0",
     "jshint-stylish": "2.1.0",
     "multipipe": "0.3.0",
     "persistify": "^1.1.1",
@@ -79,18 +83,23 @@
     "rollup-plugin-uglify": "^6.0.2",
     "rollup-watch": "^4.3.1",
     "tfig": "^1.0.20",
+    "ts-jest": "^24.0.2",
     "tslint": "^5.12.0",
     "tween.js": "github:cocos-creator/tween.js#cocos-master",
     "typedoc": "^0.14.2",
     "typedoc-plugin-external-module-name": "^2.1.0",
     "typedoc-plugin-internal-external": "^2.0.2",
     "typedoc-plugin-localization": "github:cocos-creator/typedoc-plugin-localization#master",
-    "typescript": "^3.4.4",
+    "typescript": "^3.5.3",
     "vconsole": "^3.3.0",
     "vinyl": "1.1.0",
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "1.0.0",
     "watchify": "^3.7.0",
     "yargs": "^12.0.5"
+  },
+  "dependencies": {
+    "pkg-dir": "^4.2.0",
+    "puppeteer": "^1.19.0"
   }
 }

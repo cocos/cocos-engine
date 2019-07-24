@@ -3,7 +3,6 @@
  * @category particle
  */
 
-import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
 import { Enum } from '../../../../core/value-types';
 import { lerp, pseudoRandom, repeat } from '../../../../core/vmath';
@@ -86,7 +85,7 @@ export default class TextureAnimationModule {
     }
 
     set mode (val) {
-        if (val === Mode.Sprites) {
+        if (val !== Mode.Grid) {
             console.error('particle texture animation\'s sprites is not supported!');
             return;
         }

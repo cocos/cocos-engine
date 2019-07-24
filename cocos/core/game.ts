@@ -521,7 +521,7 @@ class Game extends EventTarget {
         this._initEngine();
 
         // Log engine version
-        console.log('Cocos3D v' + cc.ENGINE_VERSION);
+        console.log('Cocos Creator 3D v' + cc.ENGINE_VERSION);
 
         this._setAnimFrame();
         this._runMainLoop();
