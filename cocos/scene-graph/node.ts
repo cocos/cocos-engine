@@ -42,6 +42,7 @@ import { NodeEventProcessor } from './node-event-processor';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
+const q_b = new Quat();
 const array_a = new Array(10);
 
 enum NodeSpace {
@@ -221,14 +222,36 @@ export class Node extends BaseNode {
      */
     public translate (trans: Vec3, ns?: NodeSpace) {
         const space = ns || NodeSpace.LOCAL;
-        vec3.copy(v3_a, this._lpos);
         if (space === NodeSpace.LOCAL) {
-            vec3.transformQuat(v3_a, trans, this.worldRotation);
-            vec3.add(v3_a, this._lpos, v3_a);
-            this.setPosition(v3_a);
+            vec3.transformQuat(v3_a, trans, this._lrot);
+            this._lpos.x += v3_a.x;
+            this._lpos.y += v3_a.y;
+            this._lpos.z += v3_a.z;
+            this._pos.x += v3_a.x;
+            this._pos.y += v3_a.y;
+            this._pos.z += v3_a.z;
         } else if (space === NodeSpace.WORLD) {
-            vec3.add(v3_a, this._lpos, trans);
-            this.setPosition(v3_a);
+            if (this._parent) {
+                quat.invert(q_a, this.worldRotation);
+                vec3.transformQuat(v3_a, trans, q_a);
+                const scale = this.worldScale;
+                this._lpos.x += v3_a.x / scale.x;
+                this._lpos.y += v3_a.y / scale.y;
+                this._lpos.z += v3_a.z / scale.z;
+            } else {
+                this._lpos.x += trans.x;
+                this._lpos.y += trans.y;
+                this._lpos.z += trans.z;
+            }
+
+            this._pos.x += trans.x;
+            this._pos.y += trans.y;
+            this._pos.z += trans.z;
+        }
+
+        this.invalidateChildren();
+        if (this._eventMask & TRANFORM_ON) {
+            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
         }
     }
 
@@ -240,12 +263,25 @@ export class Node extends BaseNode {
      */
     public rotate (rot: Quat, ns?: NodeSpace) {
         const space = ns || NodeSpace.LOCAL;
+        quat.normalize(q_a, rot);
+
         if (space === NodeSpace.LOCAL) {
-            this.getRotation(q_a);
-            this.setRotation(quat.multiply(q_a, q_a, rot));
+            quat.multiply(this._lrot, this._lrot, q_a);
+
+            quat.multiply(this._rot, this.worldRotation, q_a);
         } else if (space === NodeSpace.WORLD) {
-            this.getWorldRotation(q_a);
-            this.setWorldRotation(quat.multiply(q_a, rot, q_a));
+            const worldRot = this.worldRotation;
+            quat.multiply(q_b, q_a, worldRot);
+            quat.invert(q_a, this.worldRotation);
+            quat.multiply(q_b, q_a, q_b);
+            quat.multiply(this._lrot, this._lrot, q_b);
+
+            quat.multiply(this._rot, q_a, worldRot);
+        }
+
+        this.invalidateChildren();
+        if (this._eventMask & TRANFORM_ON) {
+            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
         }
     }
 
