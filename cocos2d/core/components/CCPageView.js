@@ -553,8 +553,14 @@ var PageView = cc.Class({
 
     _handleReleaseLogic: function(touch) {
         this._autoScrollToPage();
-        this._super(touch);
+        if (this._scrolling) {
+            this._scrolling = false;
+            if (!this._autoScrolling) {
+                this._dispatchEvent('scroll-ended');
+            }
+        }
     },
+
     _autoScrollToPage: function () {
         var bounceBackStarted = this._startBounceBackIfNeeded();
         var moveOffset = this._touchBeganPosition.sub(this._touchEndPosition);
