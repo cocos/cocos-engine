@@ -59,15 +59,9 @@ export class SkinningModel extends Model {
     constructor (scene: RenderScene, node: Node) {
         super(scene, node);
         this._type = 'skinning';
-        const buffer = this._device.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOSkinningTexture.SIZE,
-            stride: UBOSkinningTexture.SIZE,
-        });
         const nativeData = new Float32Array(4);
         const texture = Skeleton.getDefaultJointsTexture(this._device);
-        this._jointsMedium = { buffer, nativeData, texture };
+        this._jointsMedium = { buffer: null, nativeData, texture };
     }
 
     public destroy () {
@@ -82,13 +76,23 @@ export class SkinningModel extends Model {
         this._skeleton = skeleton;
         if (!skeleton || !skinningRoot) { return; }
         this._transform = skinningRoot;
-        this._jointsMedium.texture = Skeleton.getDefaultJointsTexture(this._device);
-        this._applyJointTexture(this._jointsMedium.texture);
+        if (!this._jointsMedium.buffer) {
+            this._jointsMedium.buffer = this._device.createBuffer({
+                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                size: UBOSkinningTexture.SIZE,
+                stride: UBOSkinningTexture.SIZE,
+            });
+        }
+        const texture = this.uploadedClip ?
+            skeleton.getJointsTextureWithClip(this._device, this.uploadedClip) :
+            Skeleton.getDefaultJointsTexture(this._device);
+        this._applyJointsTexture(texture);
     }
 
     public uploadAnimationClip (clip: SkeletalAnimationClip) {
         if (!this._skeleton) { return; }
-        this._applyJointTexture(this._skeleton.getJointsTextureWithClip(this._device, clip));
+        this._applyJointsTexture(this._skeleton.getJointsTextureWithClip(this._device, clip));
         if (this._jointsMedium) { this.uploadedClip = clip; }
     }
 
@@ -102,7 +106,7 @@ export class SkinningModel extends Model {
         return this._jointsMedium.nativeData[2];
     }
 
-    protected _applyJointTexture (texture: Texture2D) {
+    protected _applyJointsTexture (texture: Texture2D) {
         this._jointsMedium.texture = texture;
         const { buffer, nativeData } = this._jointsMedium;
         nativeData[0] = 1 / texture.width;
