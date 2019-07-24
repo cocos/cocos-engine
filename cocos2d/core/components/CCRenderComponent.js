@@ -166,6 +166,7 @@ let RenderComponent = cc.Class({
      * !#zh 根据指定索引获取材质
      * @method getMaterial
      * @param {Number} index 
+     * @return {Material}
      */
     getMaterial (index) {
         if (index < 0 || index >= this._materials.length) {
