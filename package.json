@@ -97,9 +97,5 @@
     "vinyl-source-stream": "1.0.0",
     "watchify": "^3.7.0",
     "yargs": "^12.0.5"
-  },
-  "dependencies": {
-    "pkg-dir": "^4.2.0",
-    "puppeteer": "^1.19.0"
   }
 }
