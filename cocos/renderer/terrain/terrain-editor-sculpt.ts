@@ -1,6 +1,6 @@
 import { Rect, Vec3 } from '../../core/value-types';
 import { clamp } from '../../core/vmath';
-import { Terrain, TERRAIN_BLOCK_TILE_COMPLEXITY } from './terrain'
+import { Terrain, TERRAIN_BLOCK_TILE_COMPLEXITY } from './terrain';
 import { TerrainBrush, TerrainCircleBrush } from './terrain-brush';
 import { TerrainEditorMode } from './terrain-editor-mode';
 import { TerrainHeightOperation, TerrainHeightUndoRedo } from './terrain-operation';

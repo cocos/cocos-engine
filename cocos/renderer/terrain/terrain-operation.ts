@@ -1,5 +1,5 @@
 import { Rect, Vec2, Vec4 } from '../../core/value-types';
-import { Terrain, TerrainBlock } from './terrain'
+import { Terrain, TerrainBlock } from './terrain';
 
 export class TerrainHeightData {
     public x: number = 0;
@@ -141,8 +141,7 @@ export class TerrainBlockLayerData {
     public block: TerrainBlock;
     public layers: number[];
 
-    constructor (block: TerrainBlock, layers: number[])
-    {
+    constructor (block: TerrainBlock, layers: number[]) {
         this.block = block;
         this.layers = layers;
     }
