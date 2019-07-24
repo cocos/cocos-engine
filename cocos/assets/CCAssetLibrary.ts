@@ -138,7 +138,10 @@ const AssetLibrary = {
         if (CC_BUILD) {
             uuid = decodeUuid(uuid);
         }
-        uuid = encodeURI(uuid);
+        const uuids = uuid.split('@').map((name) => {
+            return encodeURIComponent(name);
+        });
+        uuid = uuids.join('@');
         const base = (CC_BUILD && inRawAssetsDir) ? (_rawAssetsBase + 'assets/') : _libraryBase;
         return base + uuid.slice(0, 2) + '/' + uuid;
     },
