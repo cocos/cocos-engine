@@ -64,7 +64,9 @@ export default class TextureAnimationModule {
 
     set enable (val) {
         this._enable = val;
-        (this.ps!.renderer as any)._updateMaterialParams();
+        if (this.ps) {
+            (this.ps.renderer as any)._updateMaterialParams();
+        }
     }
 
     @property({
