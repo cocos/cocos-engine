@@ -364,16 +364,18 @@ export class CameraComponent extends Component {
             priority: this._priority,
         });
 
-        this._camera.viewport = this._rect;
-        this._camera.fov = toRadian(this._fov);
-        this._camera.orthoHeight = this._orthoHeight;
-        this._camera.nearClip = this._near;
-        this._camera.farClip = this._far;
-        this._camera.clearColor = color4.create(this._color.r / 255, this._color.g / 255, this._color.b / 255, this._color.a / 255);
-        this._camera.clearDepth = this._depth;
-        this._camera.clearStencil = this._stencil;
-        this._camera.clearFlag = this._clearFlags;
-        this._camera.visibility = this._visibility;
+        if (this._camera) {
+            this._camera.viewport = this._rect;
+            this._camera.fov = toRadian(this._fov);
+            this._camera.orthoHeight = this._orthoHeight;
+            this._camera.nearClip = this._near;
+            this._camera.farClip = this._far;
+            this._camera.clearColor = color4.create(this._color.r / 255, this._color.g / 255, this._color.b / 255, this._color.a / 255);
+            this._camera.clearDepth = this._depth;
+            this._camera.clearStencil = this._stencil;
+            this._camera.clearFlag = this._clearFlags;
+            this._camera.visibility = this._visibility;
+        }
     }
 
     protected onSceneChanged (scene: Scene) {

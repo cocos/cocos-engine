@@ -91,7 +91,7 @@ export const simple: IAssembler = {
         // );
         // const commitBuffer: IUIRenderData = renderer.createUIRenderData();
         const datas: IRenderData[] = sprite!.renderData!.datas;
-        const node: Node = sprite.node;
+        const node: Node = sprite.node as Node;
 
         let buffer = renderer.currBufferBatch!;
         let vertexOffset = buffer.byteOffset >> 2;
@@ -181,7 +181,7 @@ export const simple: IAssembler = {
             return;
         }
 
-        const node: Node = sprite.node;
+        const node: Node = sprite.node as Node;
         const datas: IRenderData[] = renderData.datas;
         const cw = node.width;
         const ch = node.height;

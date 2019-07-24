@@ -23,16 +23,48 @@
  THE SOFTWARE.
 */
 
+import { Size, Vec3, Vec2, Mat4, Quat } from "../value-types";
+import { SystemEventType } from "../platform/event-manager/event-enum";
+
 export interface INode {
-    uuid: string;
-    parent;
-    children;
-    uiTransfromComp;
-    eventProcessor;
-    activeInHierarchy: boolean;
-    _id: string;
     _persistNode: boolean;
 
-    dispatchEvent (event);
+    name: string;
+    uuid: string;
+    scene;
+    parent;
+    children;
+    hasChanged: boolean;
+    activeInHierarchy: boolean;
+    eventProcessor;
+
+    worldScale: Vec3;
+    width: number;
+    height: number;
+    uiTransfromComp;
+
+    isChildOf (parent: this): boolean;
+    addChild (child: this);
+
+    addComponent (typeOrClassName: string | Function);
+    _removeComponent (component);
     getComponent (typeOrClassName: string | Function);
+    getComponents (typeOrClassName: string | Function);
+    getComponentInChildren (typeOrClassName: string | Function);
+    getComponentsInChildren (typeOrClassName: string | Function);
+
+    getWorldMatrix (out?: Mat4): Mat4;
+    getPosition (out?: Vec3): Vec3;
+    setPosition (val: Vec3 | number, y?: number, z?: number);
+    getWorldPosition (out?: Vec3): Vec3;
+    setWorldPosition (val: Vec3 | number, y?: number, z?: number);
+    getWorldRotation (out?: Quat): Quat;
+    getScale (out?: Vec3): Vec3;
+    getContentSize (out?: Size): Size;
+    setContentSize (size: Size | number, height?: number);
+    getAnchorPoint (out?: Vec2): Vec2;
+
+    on (type: string | SystemEventType, callback: Function, target?: Object, useCapture?: any);
+    off (type: string, callback?: Function, target?: Object, useCapture?: any);
+    dispatchEvent (event);
 }

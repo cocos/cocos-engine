@@ -40,15 +40,10 @@ import { BillboardComponent } from './particle/billboard-component';
 import { LineComponent } from './particle/line-component';
 import { ParticleSystemComponent } from './particle/particle-system-component';
 import { ParticleUtils } from './particle/particle-utils';
-import { BoxColliderComponent } from './physics/collider/box-collider-component';
-import { ColliderComponent } from './physics/collider/collider-component';
-import { SphereColliderComponent } from './physics/collider/sphere-collider-component';
-import { RigidBodyComponent } from './physics/rigid-body-component';
 import { RenderableComponent } from './renderable-component';
 import { SkinningModelComponent } from './skinning-model-component';
 import { SphereLightComponent } from './sphere-light-component';
 import { SpotLightComponent } from './spot-light-component';
-export * from './physics';
 
 export {
     AudioSourceComponent,
@@ -65,16 +60,6 @@ export {
     BillboardComponent,
     LineComponent,
     RenderableComponent,
-};
-
-/// PHYSICS EXPORT ///
-
-export {
-    ColliderComponent,
-    BoxColliderComponent,
-    SphereColliderComponent,
-
-    RigidBodyComponent,
 };
 
 // cc.AnimationComponent = AnimationComponent;
@@ -98,10 +83,5 @@ cc.SpotLightComponent = SpotLightComponent;
 cc.ParticleSystemComponent = ParticleSystemComponent;
 cc.BillboardComponent = BillboardComponent;
 cc.LineComponent = LineComponent;
-
-cc.ColliderComponent = ColliderComponent;
-cc.BoxColliderComponent = BoxColliderComponent;
-cc.SphereColliderComponent = SphereColliderComponent;
-cc.RigidBodyComponent = RigidBodyComponent;
 
 cc.ParticleUtils = ParticleUtils;

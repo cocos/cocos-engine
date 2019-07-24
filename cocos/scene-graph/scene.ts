@@ -69,7 +69,7 @@ export class Scene extends Node {
     public _renderScene: RenderScene | null = null;
     public dependAssets = null; // cache all depend assets for auto release
 
-    protected _inited = !cc.game._isCloning;
+    protected _inited: boolean;
     protected _prefabSyncedInLiveReload = false;
 
     constructor (name: string) {
@@ -78,6 +78,7 @@ export class Scene extends Node {
         if (cc.director && cc.director.root) {
             this._renderScene = cc.director.root.createScene({});
         }
+        this._inited = cc.game ? !cc.game._isCloning : true;
     }
 
     public destroy () {

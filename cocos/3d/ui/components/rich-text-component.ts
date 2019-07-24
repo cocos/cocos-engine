@@ -568,6 +568,7 @@ export class RichTextComponent extends UIComponent {
         labelSegment.lineCount = this._lineCount;
         labelSegment.node.setAnchorPoint(0, 0);
         this._applyTextAttribute(labelSegment);
+        // @ts-ignore
         this.node.addChild(labelSegment.node);
         this._labelSegments.push(labelSegment);
 
@@ -699,6 +700,7 @@ export class RichTextComponent extends UIComponent {
             spriteNode.setAnchorPoint(0, 0);
             spriteComponent!.type = cc.SpriteComponent.Type.SLICED;
             spriteComponent!.sizeMode = cc.SpriteComponent.SizeMode.CUSTOM;
+            // @ts-ignore
             this.node.addChild(spriteNode);
             const obj: ILabelSegment = {
                 node: spriteNode,

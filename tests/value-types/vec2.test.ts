@@ -1,4 +1,3 @@
-import '../../exports/base';
 import Vec2 from '../../cocos/core/value-types/vec2';
 
 test('basic test', function () {

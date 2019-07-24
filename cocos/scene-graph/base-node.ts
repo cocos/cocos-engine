@@ -850,7 +850,7 @@ export class BaseNode extends CCObject {
      * node.isChildOf(newNode);
      * ```
      */
-    public isChildOf (parent: this) {
+    public isChildOf (parent: this): boolean {
         let child: this | null = this;
         do {
             if (child === parent) {
@@ -1186,7 +1186,9 @@ export class BaseNode extends CCObject {
                 if ((CC_EDITOR || CC_TEST) && cc.engine) {
                     delete cc.engine.attachedObjsForEditor[component._id];
                 }
-            } else if ((component.node as BaseNode) !== this) {
+            }
+            // @ts-ignore
+            else if (component.node !== this) {
                 cc.errorID(3815);
             }
         }
