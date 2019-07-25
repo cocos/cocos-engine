@@ -346,7 +346,7 @@ void DeviceGraphics::setTexture(const std::string& name, Texture* texture, int s
     }
     
     _nextState->setTexture(slot, texture);
-//    setUniformi(name, slot);
+    setUniformi(name, slot);
 }
 
 void DeviceGraphics::setTextureArray(const std::string& name, const std::vector<Texture*>& textures, const std::vector<int>& slots)
@@ -364,7 +364,7 @@ void DeviceGraphics::setTextureArray(const std::string& name, const std::vector<
         _nextState->setTexture(slot, textures[i]);
     }
     
-//    setUniformiv(name, slots.size(), slots.data());
+    setUniformiv(name, slots.size(), slots.data());
 }
 
 void DeviceGraphics::setPrimitiveType(PrimitiveType type)
@@ -445,8 +445,7 @@ void DeviceGraphics::setUniform(const std::string& name, const void* v, size_t b
     auto iter = _uniforms.find(name);
     if (iter == _uniforms.end())
     {
-        Uniform uniform(v, bytes, elementType);
-        _uniforms[name] = std::move(uniform);
+        _uniforms[name] = Uniform(v, bytes, elementType);
     }
     else
     {
