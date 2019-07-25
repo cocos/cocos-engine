@@ -309,7 +309,7 @@ export function getTypeChecker (type: string, attributeName: string) {
                 }
             }
         } else if (defaultType !== 'function') {
-            if (type === CCString && defaultVal == null) {
+            if (type === CCString.default && defaultVal == null) {
                 if (!isChildClassOf(mainPropAttrs.ctor, cc.RawAsset)) {
                     warnID(3607, propInfo);
                 }

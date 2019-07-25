@@ -35,10 +35,10 @@ import { macro } from '../../../../core/platform/CCMacro';
 import { contains } from '../../../../core/utils';
 import { Color, Mat4, Size, Vec3 } from '../../../../core/value-types';
 import * as math from '../../../../core/vmath';
-import { Node } from '../../../../scene-graph/node';
 import { UIRenderComponent } from '../ui-render-component';
 import { EditBoxComponent} from './edit-box-component';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
+import { INode } from '../../../../core/utils/interfaces';
 
 // https://segmentfault.com/q/1010000002914610
 const SCROLLY = 40;
@@ -92,7 +92,7 @@ export class EditBoxImpl {
     public _placeholderText = '';
     public _alwaysOnTop = false;
     public _size: Size = cc.size();
-    public _node: Node | null = null;
+    public _node: INode | null = null;
     public _editing = false;
     public __eventListeners: any = {};
     public __fullscreen = false;
@@ -283,7 +283,7 @@ export class EditBoxImpl {
         this._updateSize(width, height);
     }
 
-    public setNode (node: Node) {
+    public setNode (node: INode) {
         this._node = node;
     }
 
@@ -314,13 +314,13 @@ export class EditBoxImpl {
             this._beginEditingOnMobile();
         }
 
+        const self = this;
+        function startFocus () {
+            self._edTxt && self._edTxt.focus();
+        }
+
         if (this._edTxt) {
             this._edTxt.style.display = '';
-
-            const self = this;
-            function startFocus () {
-                self._edTxt!.focus();
-            }
 
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_UC) {
                 setTimeout(startFocus, FOCUS_DELAY_UC);

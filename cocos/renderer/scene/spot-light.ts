@@ -2,9 +2,9 @@ import { aabb, frustum } from '../../3d/geom-utils';
 import { Mat4, Quat, Vec3 } from '../../core/value-types';
 import { v3 } from '../../core/value-types/vec3';
 import { mat4, vec3 } from '../../core/vmath';
-import { Node } from '../../scene-graph/node';
 import { Light, LightType, nt2lm } from './light';
 import { RenderScene } from './render-scene';
+import { INode } from '../../core/utils/interfaces';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -74,7 +74,7 @@ export class SpotLight extends Light {
         return this._frustum;
     }
 
-    constructor (scene: RenderScene, name: string, node: Node) {
+    constructor (scene: RenderScene, name: string, node: INode) {
         super(scene, name, node);
         this._type = LightType.SPOT;
         this._aabb = aabb.create();

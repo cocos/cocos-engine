@@ -6,13 +6,13 @@ import { Color, Mat4 } from '../../../core/value-types';
 import { color4, vec3 } from '../../../core/vmath/index';
 import { RenderData } from '../../../renderer/ui/renderData';
 import { UI } from '../../../renderer/ui/ui';
-import { Node } from '../../../scene-graph/node';
 import { MeshBuffer } from '../mesh-buffer';
+import { INode } from '../../../core/utils/interfaces';
 
 const vec3_temp = vec3.create();
 const _worldMatrix = new Mat4();
 
-export function fillVertices (node: Node, buffer: MeshBuffer, renderData: RenderData, color: Color) {
+export function fillVertices (node: INode, buffer: MeshBuffer, renderData: RenderData, color: Color) {
     const data = renderData.datas;
     let vertexOffset = buffer.byteOffset >> 2;
 
@@ -43,7 +43,7 @@ export function fillVertices (node: Node, buffer: MeshBuffer, renderData: Render
     }
 }
 
-export function fillMeshVertices (node: Node, buffer: MeshBuffer, renderData: RenderData, color: Color) {
+export function fillMeshVertices (node: INode, buffer: MeshBuffer, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
     let vertexOffset = buffer.byteOffset >> 2;
 
@@ -86,7 +86,7 @@ export function fillMeshVertices (node: Node, buffer: MeshBuffer, renderData: Re
     }
 }
 
-export function fillVertices3D (node: Node, renderer: UI, renderData: RenderData, color: Color) {
+export function fillVertices3D (node: INode, renderer: UI, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
     let buffer = renderer.currBufferBatch!;
     let vertexOffset = buffer.byteOffset >> 2;
@@ -127,7 +127,7 @@ export function fillVertices3D (node: Node, renderer: UI, renderData: RenderData
     }
 }
 
-export function fillMeshVertices3D (node: Node, renderer: UI, renderData: RenderData, color: Color) {
+export function fillMeshVertices3D (node: INode, renderer: UI, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
     let buffer = renderer.currBufferBatch!;
     let vertexOffset = buffer.byteOffset >> 2;
@@ -175,7 +175,7 @@ export function fillMeshVertices3D (node: Node, renderer: UI, renderData: Render
     }
 }
 
-export function fillVerticesWithoutCalc (node: Node, buffer: MeshBuffer, renderData: RenderData, color: Color) {
+export function fillVerticesWithoutCalc (node: INode, buffer: MeshBuffer, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
     let vertexOffset = buffer.byteOffset >> 2;
 
@@ -197,7 +197,7 @@ export function fillVerticesWithoutCalc (node: Node, buffer: MeshBuffer, renderD
     }
 }
 
-export function fillVerticesWithoutCalc3D (node: Node, renderer: UI, renderData: RenderData, color: Color) {
+export function fillVerticesWithoutCalc3D (node: INode, renderer: UI, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
     let buffer = renderer.currBufferBatch!;
     let vertexOffset = buffer.byteOffset >> 2;

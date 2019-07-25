@@ -88,6 +88,7 @@ export default function instantiate (original, internal_force?) {
 
     let clone;
     if (original instanceof CCObject) {
+        original = original as CCObject;
         // Invoke _instantiate method if supplied.
         // The _instantiate callback will be called only on the root object, its associated object will not be called.
         // @callback associated

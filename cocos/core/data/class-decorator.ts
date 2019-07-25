@@ -49,7 +49,6 @@
 // inspired by toddlxt (https://github.com/toddlxt/Creator-TypeScript-Boilerplate)
 
 import * as js from '../utils/js';
-import { ValueType } from '../value-types';
 import './class';
 import { IExposedAttributes } from './utils/attribute-defines';
 import { doValidateMethodWithProps_DEV, getFullFormOfProperty } from './utils/preprocess-class';

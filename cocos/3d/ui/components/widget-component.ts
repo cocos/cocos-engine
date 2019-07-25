@@ -33,7 +33,7 @@ import { ccclass, executeInEditMode, executionOrder, menu, property, requireComp
 import { SystemEventType } from '../../../core/platform';
 import { Size, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
-import { Node } from '../../../scene-graph/node';
+import { INode } from '../../../core/utils/interfaces';
 import { UITransformComponent } from './ui-transfrom-component';
 
 /**
@@ -128,13 +128,13 @@ export class WidgetComponent extends Component {
      * 指定一个对齐目标，只能是当前节点的其中一个父节点，默认为空，为空时表示当前父节点。
      */
     @property({
-        type: Node,
+        type: cc.Node,
     })
     get target () {
         return this._target;
     }
 
-    set target (value: Node | null) {
+    set target (value: INode | null) {
         if (this._target === value){
             return;
         }
@@ -496,7 +496,7 @@ export class WidgetComponent extends Component {
     @property
     private _alignFlags = 0;
     @property
-    private _target: Node | null = null;
+    private _target: INode | null = null;
     @property
     private _left = 0;
     @property
