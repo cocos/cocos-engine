@@ -30,20 +30,125 @@ export interface INode {
     _persistNode: boolean;
 
     name: string;
-    uuid: string;
+    /**
+     * @en The uuid for editor, will be stripped before building project.
+     * @zh 主要用于编辑器的 uuid，在编辑器下可用于持久化存储，在项目构建之后将变成自增的 id。
+     * @property uuid
+     * @type {String}
+     * @readOnly
+     * @example
+     * ```
+     * cc.log("Node Uuid: " + node.uuid);
+     * ```
+     */
+    uuid: Readonly<string>;
     scene;
-    layer;
-    parent;
-    children;
+
+    /**
+     * @zh
+     * 节点所属层，主要影响射线检测、物理碰撞等，参考 [[Layers]]
+     */
+    layer: number;
+
+    /**
+     * @zh
+     * 父节点
+     */
+    parent: this | null;
+
+    /**
+     * @zh
+     * 孩子节点数组
+     */
+    children: Readonly<this[]> | null;
     childrenCount: number;
-    hasChanged: boolean;
+
+    /**
+     * @zh
+     * 这个节点的空间变换信息在当前帧内是否有变过？
+     */
+    hasChanged: Readonly<boolean>;
+
+    /**
+     * @en
+     * The local active state of this node.<br/>
+     * Note that a Node may be inactive because a parent is not active, even if this returns true.<br/>
+     * Use {{#crossLink "Node/activeInHierarchy:property"}}{{/crossLink}}
+     * if you want to check if the Node is actually treated as active in the scene.
+     * @zh
+     * 当前节点的自身激活状态。<br/>
+     * 值得注意的是，一个节点的父节点如果不被激活，那么即使它自身设为激活，它仍然无法激活。<br/>
+     * 如果你想检查节点在场景中实际的激活状态可以使用 {{#crossLink "Node/activeInHierarchy:property"}}{{/crossLink}}。
+     * @property active
+     * @type {Boolean}
+     * @default true
+     * @example
+     * ```
+     * node.active = false;
+     * ```
+     */
     active: boolean;
+
+    /**
+     * @en Indicates whether this node is active in the scene.
+     * @zh 表示此节点是否在场景中激活。
+     * @property activeInHierarchy
+     * @type {Boolean}
+     * @example
+     * ```
+     * cc.log("activeInHierarchy: " + node.activeInHierarchy);
+     */
     activeInHierarchy: boolean;
     eventProcessor;
 
-    worldScale: Vec3;
-    worldPosition: Vec3;
-    worldMatrix: Mat4;
+    /**
+     * @zh
+     * 本地坐标
+     */
+    position: Readonly<Vec3>;
+
+    /**
+     * @zh
+     * 世界坐标
+     */
+    worldPosition: Readonly<Vec3>;
+
+    /**
+     * @zh
+     * 本地缩放
+     */
+    scale: Readonly<Vec3>;
+
+    /**
+     * @zh
+     * 世界旋转
+     */
+    worldScale: Readonly<Vec3>;
+
+    /**
+     * @zh
+     * 以欧拉角表示的本地旋转值
+     */
+    eulerAngles: Readonly<Vec3>;
+
+    /**
+     * @zh
+     * 本地旋转四元数
+     */
+    rotation: Readonly<Quat>;
+
+    /**
+     * @zh
+     * 世界旋转四元数
+     */
+    worldRotation: Readonly<Quat>;
+
+    /**
+     * @zh
+     * 世界变换矩阵
+     */
+    worldMatrix: Readonly<Mat4>;
+
     width: number;
     height: number;
     anchorX: number;

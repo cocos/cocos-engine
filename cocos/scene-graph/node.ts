@@ -32,12 +32,12 @@ import { ccclass, property } from '../core/data/class-decorator';
 import Event from '../core/event/event';
 import { eventManager } from '../core/platform/event-manager';
 import { SystemEventType } from '../core/platform/event-manager/event-enum';
-import { Mat4, Quat, Vec3, Size, Vec2 } from '../core/value-types';
+import { INode } from '../core/utils/interfaces';
+import { Mat4, Quat, Size, Vec2, Vec3 } from '../core/value-types';
 import { mat4, quat, vec3 } from '../core/vmath';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
 import { NodeEventProcessor } from './node-event-processor';
-import { INode } from '../core/utils/interfaces';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
