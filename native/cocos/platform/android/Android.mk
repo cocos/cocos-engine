@@ -28,12 +28,4 @@ LOCAL_EXPORT_LDLIBS := -lGLESv2 \
 
 LOCAL_STATIC_LIBRARIES := v8_static
 
-ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
-LOCAL_STATIC_LIBRARIES += android_support
-endif
-
 include $(BUILD_STATIC_LIBRARY)
-
-ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
-$(call import-module,android/support)
-endif
