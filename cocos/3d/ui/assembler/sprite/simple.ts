@@ -31,7 +31,6 @@
 import { Vec3 } from '../../../../core/value-types';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
-import { Node } from '../../../../scene-graph/node';
 import { SpriteComponent } from '../../components';
 import { IAssembler } from '../base';
 const vec3_temps: Vec3[] = [];
@@ -91,7 +90,7 @@ export const simple: IAssembler = {
         // );
         // const commitBuffer: IUIRenderData = renderer.createUIRenderData();
         const datas: IRenderData[] = sprite!.renderData!.datas;
-        const node: Node = sprite.node as Node;
+        const node = sprite.node;
 
         let buffer = renderer.currBufferBatch!;
         let vertexOffset = buffer.byteOffset >> 2;
@@ -181,7 +180,7 @@ export const simple: IAssembler = {
             return;
         }
 
-        const node: Node = sprite.node as Node;
+        const node = sprite.node;
         const datas: IRenderData[] = renderData.datas;
         const cw = node.width;
         const ch = node.height;

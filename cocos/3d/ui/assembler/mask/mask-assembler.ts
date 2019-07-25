@@ -29,7 +29,6 @@
 
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
-import { Node } from '../../../../scene-graph/node';
 import { MaskComponent } from '../../components';
 import { IAssembler, IAssemblerManager } from '../base';
 import { StencilManager } from './stencil-manager';
@@ -62,7 +61,7 @@ export const maskAssembler: IAssembler = {
             return;
         }
 
-        const node: Node = mask.node;
+        const node = mask.node;
         const datas: IRenderData[] = renderData.datas;
         const cw = node.width;
         const ch = node.height;

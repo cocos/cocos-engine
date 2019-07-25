@@ -7,11 +7,11 @@ import CurveRange from '../../3d/framework/particle/animator/curve-range';
 import { Vec3 } from '../../core/value-types';
 import { vec3 } from '../../core/vmath';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
-import { Node } from '../../scene-graph';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 import GradientRange from '../../3d/framework/particle/animator/gradient-range';
 import { GFX_DRAW_INFO_SIZE, IGFXIndirectBuffer, GFXBuffer } from '../../gfx/buffer';
+import { INode } from '../../core/utils/interfaces';
 
 const _vertex_attrs = [
     { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F }, // xyz:position
@@ -37,7 +37,7 @@ export class LineModel extends Model {
     private _vertCount: number = 0;
     private _indexCount: number = 0;
 
-    constructor (scene: RenderScene, node: Node) {
+    constructor (scene: RenderScene, node: INode) {
         super(scene, node);
         this._capacity = 100;
         this._iaInfo = {

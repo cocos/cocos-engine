@@ -238,7 +238,7 @@ class Component extends CCObject {
 
     // private __scriptUuid = '';
 
-    public _getRenderScene () {
+    public _getRenderScene (): RenderScene {
         if (this._sceneGetter) {
             return this._sceneGetter();
         } else {

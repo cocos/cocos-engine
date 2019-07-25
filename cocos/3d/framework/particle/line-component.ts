@@ -12,9 +12,9 @@ import { Vec3, Vec2, Vec4 } from '../../../core/value-types';
 import { LineModel } from '../../../renderer/models/line-model';
 import { Material } from '../../assets';
 import { builtinResMgr } from '../../builtin';
-import { AnimationCurve } from '../../geom-utils';
 import CurveRange from './animator/curve-range';
 import GradientRange from './animator/gradient-range';
+import { Node } from '../../../scene-graph';
 
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
 const define = { CC_USE_WORLD_SPACE: false };

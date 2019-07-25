@@ -32,19 +32,27 @@ export interface INode {
     name: string;
     uuid: string;
     scene;
+    layer;
     parent;
     children;
+    childrenCount: number;
     hasChanged: boolean;
+    active: boolean;
     activeInHierarchy: boolean;
     eventProcessor;
 
     worldScale: Vec3;
+    worldPosition: Vec3;
     width: number;
     height: number;
+    anchorX: number;
+    anchorY: number;
+    _uiComp;
     uiTransfromComp;
 
     isChildOf (parent: this): boolean;
     addChild (child: this);
+    getChildByName (name: string);
 
     addComponent (typeOrClassName: string | Function);
     _removeComponent (component);
@@ -58,13 +66,20 @@ export interface INode {
     setPosition (val: Vec3 | number, y?: number, z?: number);
     getWorldPosition (out?: Vec3): Vec3;
     setWorldPosition (val: Vec3 | number, y?: number, z?: number);
+    getRotation (out?: Quat): Quat;
     getWorldRotation (out?: Quat): Quat;
+    getWorldRT (out?: Mat4): Mat4;
     getScale (out?: Vec3): Vec3;
+    setScale (val: Vec3 | number, y?: number, z?: number);
+    updateWorldTransform();
+    updateWorldTransformFull();
     getContentSize (out?: Size): Size;
     setContentSize (size: Size | number, height?: number);
     getAnchorPoint (out?: Vec2): Vec2;
+    setAnchorPoint (point: Vec2 | number, y?: number);
 
     on (type: string | SystemEventType, callback: Function, target?: Object, useCapture?: any);
     off (type: string, callback?: Function, target?: Object, useCapture?: any);
+    emit (type: string, ...args: any[]);
     dispatchEvent (event);
 }

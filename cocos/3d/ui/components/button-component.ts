@@ -40,6 +40,7 @@ import * as math from '../../../core/vmath';
 import { Node } from '../../../scene-graph/node';
 import { SpriteComponent } from './sprite-component';
 import { UIRenderComponent } from './ui-render-component';
+import { INode } from '../../../core/utils/interfaces';
 
 /**
  * @zh
@@ -402,7 +403,7 @@ export class ButtonComponent extends Component {
         return this._target;
     }
 
-    set target (value: Node | null) {
+    set target (value: INode | null) {
         if (this._target === value) {
             return;
         }
@@ -446,7 +447,7 @@ export class ButtonComponent extends Component {
     @property
     private _zoomScale = 1.2;
     @property
-    private _target: Node | null = null;
+    private _target: INode | null = null;
     private _pressed = false;
     private _hovered = false;
     private _fromColor: Color = new Color();
@@ -583,7 +584,7 @@ export class ButtonComponent extends Component {
         this.node.on(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
     }
 
-    private _getTargetSprite (target: Node | null) {
+    private _getTargetSprite (target: INode | null) {
         let sprite: SpriteComponent | null = null;
         if (target) {
             sprite = target.getComponent(SpriteComponent);

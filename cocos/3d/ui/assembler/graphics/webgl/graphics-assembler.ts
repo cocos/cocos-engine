@@ -41,7 +41,6 @@ import { IAssembler } from '../../base';
 import { LineCap, LineJoin, PointFlags } from '../types';
 import { earcut as Earcut } from './earcut';
 import { Impl, Point } from './impl';
-import { Node } from '../../../../../scene-graph';
 
 const MAX_VERTEX = 65535;
 const MAX_INDICE = MAX_VERTEX * 2;
@@ -261,7 +260,7 @@ export const graphicsAssembler: IAssembler = {
             indices,
         }, undefined, { calculateBounds: false });
 
-        graphics.model = scene.createModel(Model, graphics.node as Node);
+        graphics.model = scene.createModel(Model, graphics.node);
         graphics.model.initSubModel(0, mesh.getSubMesh(0), graphics.material!);
         graphics.model.enabled = true;
     },

@@ -30,7 +30,7 @@ import { RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { SpriteComponent } from '../../components/sprite-component';
 import { UIRenderComponent } from '../../components/ui-render-component';
-import { IAssembler } from '../assembler';
+import { IAssembler } from '../base';
 
 const matrix = new Mat4();
 

@@ -26,9 +26,9 @@
 import { ccclass} from '../../../../core/data/class-decorator';
 import sys from '../../../../core/platform/CCSys';
 import * as utils from '../../../../core/utils';
-import { Node } from '../../../../scene-graph';
 import { UIRenderComponent } from '../ui-render-component';
 import { Mat4 } from '../../../../core/value-types';
+import { INode } from '../../../../core/utils/interfaces';
 
 const _mat4_temp = new Mat4();
 
@@ -302,7 +302,7 @@ export class WebViewImpl{
         }
     }
 
-    public updateMatrix (node: Node) {
+    public updateMatrix (node: INode) {
         if (!this._div || !this._visible) {
             return;
         }
