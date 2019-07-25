@@ -3,12 +3,12 @@
  */
 
 import { GFXFormat } from '../../gfx';
-import { GFXFormatInfos, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType, GFXBufferTextureCopy } from '../../gfx/define';
+import { GFXBufferTextureCopy, GFXFormatInfos, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXTexture } from '../../gfx/texture';
 import { GFXTextureView } from '../../gfx/texture-view';
 
-function nearsetPO2 (num: number): number {
+function nearestPO2 (num: number): number {
     --num;
     num |= num >> 16;
     num |= num >> 8;
@@ -38,11 +38,11 @@ export interface ITextureBufferHandle {
 export class TextureBufferPool {
 
     private _device: GFXDevice;
-    private _format: GFXFormat;
-    private _formatSize: number;
-    private _chunks: ITextureBuffer[];
+    private _format: GFXFormat = GFXFormat.UNKNOWN;
+    private _formatSize: number = 0;
+    private _chunks: ITextureBuffer[] = [];
     private _chunkCount = 0;
-    private _handles: ITextureBufferHandle[];
+    private _handles: ITextureBufferHandle[] = [];
     private _region0: GFXBufferTextureCopy = new GFXBufferTextureCopy();
     private _region1: GFXBufferTextureCopy = new GFXBufferTextureCopy();
     private _region2: GFXBufferTextureCopy = new GFXBufferTextureCopy();
@@ -120,7 +120,7 @@ export class TextureBufferPool {
 
         // create a new one
         const targetSize = Math.sqrt(size / this._formatSize);
-        const texWidth = Math.max(1024, nearsetPO2(targetSize));
+        const texWidth = Math.max(1024, nearestPO2(targetSize));
         const texSize = texWidth * texWidth * this._formatSize;
 
         console.info('TextureBufferPool: Allocate chunk ' + this._chunkCount + ', size: ' + texSize);
