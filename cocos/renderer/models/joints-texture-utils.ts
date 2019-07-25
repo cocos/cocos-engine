@@ -31,12 +31,12 @@ import { Skeleton } from '../../3d/assets/skeleton';
 import { SkeletalAnimationClip } from '../../animation';
 import { Mat4, Quat, Vec3 } from '../../core/value-types';
 import { mat4, quat, vec3 } from '../../core/vmath';
-import { GFXAddress, GFXFilter, GFXFormat } from '../../gfx/define';
+import { GFXAddress, GFXFilter, GFXFormat, GFXFormatInfos } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { GFXSampler } from '../../gfx/sampler';
 import { samplerLib } from '../core/sampler-lib';
 import { genSamplerHash } from '../core/sampler-lib';
-import { ITextureBuffer, TextureBufferPool } from '../core/texture-buffer-pool';
+import { ITextureBufferHandle, TextureBufferPool } from '../core/texture-buffer-pool';
 
 // change here and cc-skinning.inc to use other skinning algorithms
 const uploadJointData = uploadJointDataDQS;
@@ -98,6 +98,10 @@ function uploadJointDataDQS (out: Float32Array, base: number, pos: Vec3, rot: Qu
     out[base + 10] = scale.z;
 }
 
+function roundUpTextureSize (targetLength: number) {
+    return Math.max(1020, Math.ceil(targetLength / 12) * 12);
+}
+
 const _jointsFormat = {
     [JointsMediumType.RGBA8]: GFXFormat.RGBA8,
     [JointsMediumType.RGBA32F]: GFXFormat.RGBA32F,
@@ -106,49 +110,49 @@ const _jointsFormat = {
 const v3_1 = new Vec3();
 const qt_1 = new Quat();
 const v3_2 = new Vec3();
-const jointsTextureSamplerHash = genSamplerHash([
-  GFXFilter.POINT,
-  GFXFilter.POINT,
-  GFXFilter.NONE,
-  GFXAddress.CLAMP,
-  GFXAddress.CLAMP,
-  GFXAddress.CLAMP,
-]);
-let jointsTextureSampler: GFXSampler | null = null;
 
 export class JointsTexturePool {
-    public static getJointsTextureSampler (device: GFXDevice) {
-        if (jointsTextureSampler) { return jointsTextureSampler; }
-        jointsTextureSampler = samplerLib.getSampler(device, jointsTextureSamplerHash);
-        return jointsTextureSampler;
-    }
 
     private _device: GFXDevice;
     private _pool: TextureBufferPool;
-    private _defaultJointsTexture: ITextureBuffer | null = null;
+    private _defaultTextureBuffer: ITextureBufferHandle | null = null;
 
     constructor (device: GFXDevice) {
         this._device = device;
         this._pool = new TextureBufferPool(device);
     }
 
-    public initialize (maxChunks: number) {
-        this._pool.initialize(_jointsFormat[selectJointsMediumType(this._device)], maxChunks);
+    public initialize (maxChunks: number = 16) {
+        const format = _jointsFormat[selectJointsMediumType(this._device)];
+        const scale = 16 / GFXFormatInfos[format].size;
+        this._pool.initialize(format, maxChunks * scale, roundUpTextureSize);
+    }
+
+    public destroy () {
+        this._pool.destroy();
     }
 
     /**
      * 获取默认骨骼贴图
      */
-    public getDefaultJointsTexture () {
-        if (this._defaultJointsTexture) { return this._defaultJointsTexture; }
-        const texture = this._defaultJointsTexture = this._pool.alloc(12 * Float32Array.BYTES_PER_ELEMENT);
+    public getDefaultJointsTexture (skeleton?: Skeleton) {
+        let len: number = 1; let texture: ITextureBufferHandle | null = null;
+        if (skeleton && skeleton.joints.length > 1) {
+            len = skeleton.joints.length;
+            texture = this._pool.alloc(len * 12 * Float32Array.BYTES_PER_ELEMENT);
+        } else {
+            if (this._defaultTextureBuffer) { return this._defaultTextureBuffer; }
+            texture = this._defaultTextureBuffer = this._pool.alloc(len * 12 * Float32Array.BYTES_PER_ELEMENT);
+        }
         if (!texture) { return null; }
         vec3.set(v3_1, 0, 0, 0);
         quat.set(qt_1, 0, 0, 0, 1);
         vec3.set(v3_2, 1, 1, 1);
-        const textureBuffer = new Float32Array(12);
-        uploadJointData(textureBuffer, 0, v3_1, qt_1, v3_2, true);
-        this._device.copyBuffersToTexture([textureBuffer.buffer], texture.texture, _regions);
+        const textureBuffer = new Float32Array(len * 12);
+        for (let i = 0; i < len; i++) {
+            uploadJointData(textureBuffer, 12 * i, v3_1, qt_1, v3_2, i === 0);
+        }
+        this._pool.update(texture, textureBuffer.buffer);
         return texture;
     }
 
@@ -156,11 +160,11 @@ export class JointsTexturePool {
      * 获取指定动画片段的骨骼贴图
      */
     public getJointsTextureWithClip (skeleton: Skeleton, clip: SkeletalAnimationClip) {
-        const bufSize = skeleton.joints.length * 12 * Float32Array.BYTES_PER_ELEMENT;
-        const texture = this._pool.alloc(bufSize);
+        const frames = clip.keys[0].length;
+        const bufSize = skeleton.joints.length * 12 * frames;
+        const texture = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
         if (!texture) { return null; }
         const textureBuffer = new Float32Array(bufSize);
-        const frames = Math.ceil(clip.duration * clip.sample);
         const data = clip.convertedData;
         for (let i = 0; i < skeleton.joints.length; i++) {
             const nodeData = data[skeleton.joints[i]];
@@ -169,7 +173,7 @@ export class JointsTexturePool {
             const position = nodeData.props.position.values;
             const rotation = nodeData.props.rotation.values;
             const scale = nodeData.props.scale.values;
-            for (let frame = 0; frame < position.length; frame++) {
+            for (let frame = 0; frame < frames; frame++) {
                 const T = position[frame];
                 const R = rotation[frame];
                 const S = scale[frame];
@@ -181,7 +185,26 @@ export class JointsTexturePool {
                 uploadJointData(textureBuffer, 12 * (frames * i + frame), v3_1, qt_1, v3_2, i === 0);
             }
         }
-        this._device.copyBuffersToTexture([textureBuffer.buffer], texture.texture, _regions);
+        this._pool.update(texture, textureBuffer.buffer);
         return texture;
     }
+
+    public bytesToPixels (size: number) {
+        return size / this._pool.formatSize;
+    }
+}
+
+const jointsTextureSamplerHash = genSamplerHash([
+    GFXFilter.POINT,
+    GFXFilter.POINT,
+    GFXFilter.NONE,
+    GFXAddress.CLAMP,
+    GFXAddress.CLAMP,
+    GFXAddress.CLAMP,
+]);
+let jointsTextureSampler: GFXSampler | null = null;
+export function getJointsTextureSampler (device: GFXDevice) {
+    if (jointsTextureSampler) { return jointsTextureSampler; }
+    jointsTextureSampler = samplerLib.getSampler(device, jointsTextureSamplerHash);
+    return jointsTextureSampler;
 }

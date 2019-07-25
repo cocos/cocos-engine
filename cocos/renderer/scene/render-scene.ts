@@ -116,7 +116,7 @@ export class RenderScene {
 
     public initialize (info: IRenderSceneInfo): boolean {
         this._name = info.name;
-        this._texturePool.initialize(15);
+        this._texturePool.initialize();
         return true;
     }
 
@@ -125,7 +125,8 @@ export class RenderScene {
         this.destroyPointLights();
         this.destroySpotLights();
         this.destroyModels();
-        this.planarShadows.destroy();
+        this._planarShadows.destroy();
+        this._texturePool.destroy();
     }
 
     public createCamera (info: ICameraInfo): Camera {

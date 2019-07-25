@@ -34,15 +34,16 @@ import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { UBOSkinningTexture, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
 import { Pass } from '../core/pass';
-import { ITextureBuffer } from '../core/texture-buffer-pool';
+import { ITextureBufferHandle } from '../core/texture-buffer-pool';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
-import { JointsTexturePool } from './joints-texture-utils';
+import { getJointsTextureSampler } from './joints-texture-utils';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;
-    nativeData: Float32Array;
-    texture: ITextureBuffer | null;
+    jointsTextureInfo: Float32Array;
+    frameID: Float32Array;
+    texture: ITextureBufferHandle | null;
 }
 
 export class SkinningModel extends Model {
@@ -59,9 +60,10 @@ export class SkinningModel extends Model {
     constructor (scene: RenderScene, node: Node) {
         super(scene, node);
         this._type = 'skinning';
-        const nativeData = new Float32Array(4);
+        const jointsTextureInfo = new Float32Array(5);
+        const frameID = new Float32Array(1);
         const texture = this._scene.texturePool.getDefaultJointsTexture();
-        this._jointsMedium = { buffer: null, nativeData, texture };
+        this._jointsMedium = { buffer: null, jointsTextureInfo, frameID, texture };
     }
 
     public destroy () {
@@ -86,35 +88,37 @@ export class SkinningModel extends Model {
         }
         const texture = this.uploadedClip ?
         this._scene.texturePool.getJointsTextureWithClip(skeleton, this.uploadedClip) :
-            this._scene.texturePool.getDefaultJointsTexture();
+            this._scene.texturePool.getDefaultJointsTexture(skeleton);
         this._applyJointsTexture(texture);
     }
 
     public uploadAnimationClip (clip: SkeletalAnimationClip) {
         if (!this._skeleton) { return; }
+        this.uploadedClip = clip;
         this._applyJointsTexture(this._scene.texturePool.getJointsTextureWithClip(this._skeleton, clip));
-        if (this._jointsMedium) { this.uploadedClip = clip; }
     }
 
     public setFrameID (val: number) {
-        const { buffer, nativeData } = this._jointsMedium;
-        nativeData[2] = val;
-        buffer!.update(nativeData, UBOSkinningTexture.JOINTS_TEXTURE_SIZE_INV_OFFSET);
+        const { buffer, frameID } = this._jointsMedium;
+        frameID[0] = val;
+        buffer!.update(frameID, UBOSkinningTexture.JOINTS_FRAME_ID_OFFSET);
     }
 
     public getFrameID () {
-        return this._jointsMedium.nativeData[2];
+        return this._jointsMedium.frameID[0];
     }
 
-    protected _applyJointsTexture (texture: ITextureBuffer | null) {
+    protected _applyJointsTexture (texture: ITextureBufferHandle | null) {
         if (!texture) { return; }
         this._jointsMedium.texture = texture;
-        const { buffer, nativeData } = this._jointsMedium;
-        // nativeData[0] = 1 / texture.width;
-        // nativeData[1] = 1 / texture.height;
-        nativeData[2] = 0;
-        if (buffer) { buffer.update(nativeData, UBOSkinningTexture.JOINTS_TEXTURE_SIZE_INV_OFFSET); }
-        const sampler = JointsTexturePool.getJointsTextureSampler(this._device);
+        const { buffer, jointsTextureInfo } = this._jointsMedium;
+        jointsTextureInfo[0] = texture.texture.width;
+        jointsTextureInfo[1] = 1 / texture.texture.width;
+        jointsTextureInfo[2] = this._scene.texturePool.bytesToPixels(texture.start);
+        jointsTextureInfo[3] = this.uploadedClip ? this.uploadedClip.keys[0].length : 1;
+        jointsTextureInfo[4] = 0; // restore fid
+        if (buffer) { buffer.update(jointsTextureInfo); }
+        const sampler = getJointsTextureSampler(this._device);
         for (const submodel of this._subModels) {
             if (!submodel.psos) { continue; }
             for (const pso of submodel.psos) {
@@ -128,7 +132,7 @@ export class SkinningModel extends Model {
         const pso = super._doCreatePSO(pass);
         const { buffer, texture } = this._jointsMedium;
         pso.pipelineLayout.layouts[0].bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
-        const sampler = JointsTexturePool.getJointsTextureSampler(this._device);
+        const sampler = getJointsTextureSampler(this._device);
         if (texture) {
             pso.pipelineLayout.layouts[0].bindTextureView(UNIFORM_JOINTS_TEXTURE.binding, texture.texView);
             pso.pipelineLayout.layouts[0].bindSampler(UNIFORM_JOINTS_TEXTURE.binding, sampler);

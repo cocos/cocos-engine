@@ -2577,7 +2577,6 @@ export function WebGLCmdFuncCopyBuffersToTexture (
             }
 
             for (const region of regions) {
-                n = 0;
                 w = region.texExtent.width;
                 h = region.texExtent.height;
                 // console.debug('Copying buffer to texture 2D: ' + w + ' x ' + h);
