@@ -43,6 +43,7 @@ export interface INode {
 
     worldScale: Vec3;
     worldPosition: Vec3;
+    worldMatrix: Mat4;
     width: number;
     height: number;
     anchorX: number;

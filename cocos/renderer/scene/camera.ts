@@ -5,6 +5,7 @@ import { GFXClearFlag, IGFXColor } from '../../gfx/define';
 import { RenderView } from '../../pipeline/render-view';
 import { Node } from '../../scene-graph/node';
 import { RenderScene } from './render-scene';
+import { INode } from '../../core/utils/interfaces';
 
 export enum CameraProjection {
     ORTHO,
@@ -67,7 +68,7 @@ const ISOS: number[] = [100.0, 200.0, 400.0, 800.0];
 
 export interface ICameraInfo {
     name: string;
-    node: Node;
+    node: INode;
     projection: number;
     targetDisplay: number;
     priority: number;
@@ -109,7 +110,7 @@ export class Camera {
     private _frustum: frustum = new frustum();
     private _forward: Vec3 = new Vec3();
     private _position: Vec3 = new Vec3();
-    private _node: Node | null = null;
+    private _node: INode | null = null;
     private _view: RenderView;
     private _visibility: number = 0;
     private _priority: number = 0;
@@ -250,11 +251,11 @@ export class Camera {
         return this._view;
     }
 
-    set node (val: Node) {
+    set node (val: INode) {
         this._node = val;
     }
 
-    get node (): Node {
+    get node (): INode {
         return this._node!;
     }
 
