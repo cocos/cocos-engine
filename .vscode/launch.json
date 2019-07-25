@@ -18,10 +18,9 @@
             "name": "Unit Test",
             "type": "node",
             "request": "launch",
-            "runtimeVersion": "8.11.4",
             "program": "${workspaceFolder}/node_modules/.bin/jest",
             "windows": {
-                "program": "${workspaceFolder}/node_modules/.bin/jest.cmd"
+                "program": "${workspaceFolder}/node_modules/jest/bin/jest.js"
             },
             "args": [
                 "--runInBand"
