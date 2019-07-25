@@ -350,8 +350,8 @@ private:
     std::vector<int> _newAttributes;
     std::unordered_map<std::string, Uniform> _uniforms;
     
-    State _nextState;
-    State _currentState;
+    State* _nextState;
+    State* _currentState;
     
     friend class IndexBuffer;
     friend class Texture2D;
