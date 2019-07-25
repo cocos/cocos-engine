@@ -56,11 +56,6 @@ export class TerrainInfo {
     })
     public lightMapSize: number = 128;
 
-    @property({
-        visible : false,
-    })
-    public effect: EffectAsset|null = cc.EffectAsset.get('builtin-terrain');
-
     //
     protected _tileCount: number[] = [0, 0];
     protected _vertexCount: number[] = [0, 0];
@@ -134,7 +129,7 @@ export class TerrainRenderable extends RenderableComponent {
     }
 
     public _updateMaterial (block: TerrainBlock, init: boolean) {
-        if (this._meshData == null || block.getTerrain().info.effect == null) {
+        if (this._meshData == null) {
             return;
         }
 
@@ -144,7 +139,7 @@ export class TerrainRenderable extends RenderableComponent {
                 this._currentMaterial = new Material();
 
                 this._currentMaterial.initialize({
-                    effectAsset: block.getTerrain().info.effect,
+                    effectAsset: cc.EffectAsset.get('builtin-terrain'),
                     defines: block._getMaterialDefines(nlayers),
                 });
 
@@ -213,6 +208,7 @@ export class TerrainBlock {
 
         this._node = new PrivateNode('');
         this._node.setParent(this._terrain.node);
+        this._node._objFlags |= cc.Object.Flags.DontSave;
 
         this._renderable =  this._node.addComponent(TerrainRenderable) as TerrainRenderable;
     }
@@ -522,55 +518,26 @@ export class TerrainBlock {
 @menu('Components/Terrain')
 @executeInEditMode
 export class Terrain extends Component {
-    /*
     @property({
         visible: false,
     })
-    */
     protected _info: TerrainInfo = new TerrainInfo();
+
     protected _layers: Array<TerrainLayer|null> = [];
+
+    @property({
+        visible: false,
+    })
     protected _heights: number[] = [];
-    protected _normals: number[] = [];
+
     protected _weights: Uint8Array = new Uint8Array();
 
+    protected _normals: number[] = [];
     protected _blocks: TerrainBlock[] = [];
-    protected _sharedIndexBuffer: GFXBuffer;
+    protected _sharedIndexBuffer: GFXBuffer|null = null;
 
     constructor () {
         super();
-
-        const gfxDevice = cc.director.root.device as GFXDevice;
-
-        // initialize shared index buffer
-        const indexData = new Uint16Array(TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6);
-
-        let index = 0;
-        for (let j = 0; j < TERRAIN_BLOCK_TILE_COMPLEXITY; ++j) {
-            for (let i = 0; i < TERRAIN_BLOCK_TILE_COMPLEXITY; ++i) {
-                const a = j * TERRAIN_BLOCK_VERTEX_COMPLEXITY + i;
-                const b = j * TERRAIN_BLOCK_VERTEX_COMPLEXITY + i + 1;
-                const c = (j + 1) * TERRAIN_BLOCK_VERTEX_COMPLEXITY + i;
-                const d = (j + 1) * TERRAIN_BLOCK_VERTEX_COMPLEXITY + i + 1;
-
-                // face 1
-                indexData[index++] = a;
-                indexData[index++] = c;
-                indexData[index++] = b;
-
-                // face 2
-                indexData[index++] = b;
-                indexData[index++] = c;
-                indexData[index++] = d;
-            }
-        }
-
-        this._sharedIndexBuffer = gfxDevice.createBuffer({
-            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: Uint16Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6,
-            stride: Uint16Array.BYTES_PER_ELEMENT,
-        });
-        this._sharedIndexBuffer.update(indexData);
 
         // initialize layers
         for (let i = 0; i < TERRAIN_MAX_LAYER_COUNT; ++i) {
@@ -748,7 +715,6 @@ export class Terrain extends Component {
         this._info.blockCount[1] = info.blockCount[1];
         this._info.weightMapSize = info.weightMapSize;
         this._info.lightMapSize = info.lightMapSize;
-        this._info.effect = info.effect;
         this._info.initialize();
 
         // build blocks
@@ -828,9 +794,38 @@ export class Terrain extends Component {
     }
 
     public onLoad () {
-        if (this._blocks.length === 0) {
-            this._buildImp();
+        const gfxDevice = cc.director.root.device as GFXDevice;
+
+        // initialize shared index buffer
+        const indexData = new Uint16Array(TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6);
+
+        let index = 0;
+        for (let j = 0; j < TERRAIN_BLOCK_TILE_COMPLEXITY; ++j) {
+            for (let i = 0; i < TERRAIN_BLOCK_TILE_COMPLEXITY; ++i) {
+                const a = j * TERRAIN_BLOCK_VERTEX_COMPLEXITY + i;
+                const b = j * TERRAIN_BLOCK_VERTEX_COMPLEXITY + i + 1;
+                const c = (j + 1) * TERRAIN_BLOCK_VERTEX_COMPLEXITY + i;
+                const d = (j + 1) * TERRAIN_BLOCK_VERTEX_COMPLEXITY + i + 1;
+
+                // face 1
+                indexData[index++] = a;
+                indexData[index++] = c;
+                indexData[index++] = b;
+
+                // face 2
+                indexData[index++] = b;
+                indexData[index++] = c;
+                indexData[index++] = d;
+            }
         }
+
+        this._sharedIndexBuffer = gfxDevice.createBuffer({
+            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: Uint16Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6,
+            stride: Uint16Array.BYTES_PER_ELEMENT,
+        });
+        this._sharedIndexBuffer.update(indexData);
     }
 
     public onEnable () {
@@ -858,7 +853,9 @@ export class Terrain extends Component {
             this._layers[i] = null;
         }
 
-        this._sharedIndexBuffer.destroy();
+        if (this._sharedIndexBuffer != null) {
+            this._sharedIndexBuffer.destroy();
+        }
     }
 
     public update (dtime: number) {
@@ -1200,25 +1197,33 @@ export class Terrain extends Component {
 
         // build heights & normals
         const vcount = this._info.vertexCount[0] * this._info.vertexCount[1];
-        this._heights = new Array<number>(vcount);
-        this._normals = new Array<number>(vcount * 3);
+        if (this._heights.length !== vcount) {
+            this._heights = new Array<number>(vcount);
+            this._normals = new Array<number>(vcount * 3);
 
-        for (let i = 0; i < vcount; ++i) {
-            this._heights[i] = 0;
-            this._normals[i * 3 + 0] = 0;
-            this._normals[i * 3 + 1] = 1;
-            this._normals[i * 3 + 2] = 0;
+            for (let i = 0; i < vcount; ++i) {
+                this._heights[i] = 0;
+                this._normals[i * 3 + 0] = 0;
+                this._normals[i * 3 + 1] = 1;
+                this._normals[i * 3 + 2] = 0;
+            }
+        }
+        else {
+            this._normals = new Array<number>(vcount * 3);
+            this._buildNormals();
         }
 
         // initialize weights
         const weightMapComplexityU = this.info.weightMapSize * this.info.blockCount[0];
         const weightMapComplexityV = this.info.weightMapSize * this.info.blockCount[1];
-        this._weights = new Uint8Array(weightMapComplexityU * weightMapComplexityV * 4);
-        for (let i = 0; i < weightMapComplexityU * weightMapComplexityV; ++i) {
-            this._weights[i * 4 + 0] = 255;
-            this._weights[i * 4 + 1] = 0;
-            this._weights[i * 4 + 2] = 0;
-            this._weights[i * 4 + 3] = 0;
+        if (this._weights.length !== weightMapComplexityU * weightMapComplexityV * 4) {
+            this._weights = new Uint8Array(weightMapComplexityU * weightMapComplexityV * 4);
+            for (let i = 0; i < weightMapComplexityU * weightMapComplexityV; ++i) {
+                this._weights[i * 4 + 0] = 255;
+                this._weights[i * 4 + 1] = 0;
+                this._weights[i * 4 + 2] = 0;
+                this._weights[i * 4 + 3] = 0;
+            }
         }
 
         // build blocks
