@@ -23,8 +23,8 @@
  THE SOFTWARE.
 */
 
-import { Size, Vec3, Vec2, Mat4, Quat } from "../value-types";
-import { SystemEventType } from "../platform/event-manager/event-enum";
+import { SystemEventType } from '../platform/event-manager/event-enum';
+import { Mat4, Quat, Size, Vec2, Vec3 } from '../value-types';
 
 export interface INode {
     _persistNode: boolean;
@@ -68,12 +68,13 @@ export interface INode {
     getWorldPosition (out?: Vec3): Vec3;
     setWorldPosition (val: Vec3 | number, y?: number, z?: number);
     getRotation (out?: Quat): Quat;
+    setWorldRotation (val: Quat | number, y?: number, z?: number, w?: number);
     getWorldRotation (out?: Quat): Quat;
     getWorldRT (out?: Mat4): Mat4;
     getScale (out?: Vec3): Vec3;
     setScale (val: Vec3 | number, y?: number, z?: number);
-    updateWorldTransform();
-    updateWorldTransformFull();
+    updateWorldTransform ();
+    updateWorldTransformFull ();
     getContentSize (out?: Size): Size;
     setContentSize (size: Size | number, height?: number);
     getAnchorPoint (out?: Vec2): Vec2;

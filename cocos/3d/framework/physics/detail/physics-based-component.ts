@@ -157,7 +157,7 @@ export class PhysicsBasedComponent extends Component {
 
                     // binding collider to self rigidybody, if it exist.
                     const rigidbody = this.getComponent(cc.RigidBodyComponent);
-                    sharedBody = new SharedRigidBody(this.node, rigidbody, cc.director._physicsSystem._world);
+                    sharedBody = new SharedRigidBody(this.node as Node, rigidbody, cc.director._physicsSystem._world);
                 }
                 sharedBody!.ref();
                 this._sharedBody = sharedBody!;
@@ -315,7 +315,7 @@ class SharedRigidBody {
         }
     }
 
-    public syncPhysWithScene (){
+    public syncPhysWithScene () {
         this._syncPhysWithScene(this._node);
     }
 

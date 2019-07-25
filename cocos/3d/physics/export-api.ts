@@ -3,24 +3,7 @@
  */
 
 import { Vec3 } from '../../core/value-types';
-
-import { BoxColliderComponent } from '../framework/physics/collider/box-collider-component';
-import { ColliderComponent } from '../framework/physics/collider/collider-component';
-import { SphereColliderComponent } from '../framework/physics/collider/sphere-collider-component';
-import { RigidBodyComponent } from '../framework/physics/rigid-body-component';
-export * from '../framework/physics';
-
-cc.ColliderComponent = ColliderComponent;
-cc.BoxColliderComponent = BoxColliderComponent;
-cc.SphereColliderComponent = SphereColliderComponent;
-cc.RigidBodyComponent = RigidBodyComponent;
-
-export {
-    ColliderComponent,
-    BoxColliderComponent,
-    SphereColliderComponent,
-    RigidBodyComponent,
-};
+import { ColliderComponent } from '../framework';
 
 /**
  * @zh
