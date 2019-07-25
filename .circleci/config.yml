@@ -8,7 +8,7 @@ jobs:
     steps:
       - checkout
       - run: sudo npm install -g gulp
-      - run: npm install gulp-qunit
+      - run: gulp build-debug-infos
       - run: npm install
       - run: npm test
 

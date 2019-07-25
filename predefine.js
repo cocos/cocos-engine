@@ -175,6 +175,7 @@ if (CC_BUILD) {
 }
 else {
     // Defauled value for editor
+    defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
     defineMacro('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
     defineMacro('CC_PREVIEW', !CC_EDITOR);
     defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
