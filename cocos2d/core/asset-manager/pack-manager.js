@@ -49,7 +49,7 @@ var packManager = {
      * 拆解json包，恢复为打包之前的内容
      * 
      * @method unpackJson
-     * @param {[]String} pack - The pack
+     * @param {String[]} pack - The pack
      * @param {Object} json - The content of pack
      * @param {Object} options - Some optional parameters
      * @param {Function} onComplete - Callback when finish unpacking
@@ -78,15 +78,17 @@ var packManager = {
             }
         }
         else if (json.type === js._getClassId(cc.Texture2D)) {
-            var datas = json.data.split('|');
-            if (datas.length !== pack.length) {
-                cc.errorID(4915);
-            }
-            for (let i = 0; i < pack.length; i++) {
-                out[pack[i] + '@import'] = {
-                    __type__: type,
-                    content: datas[i]
-                };
+            if (json.data) {
+                var datas = json.data.split('|');
+                if (datas.length !== pack.length) {
+                    cc.errorID(4915);
+                }
+                for (let i = 0; i < pack.length; i++) {
+                    out[pack[i] + '@import'] = {
+                        __type__: type,
+                        content: datas[i]
+                    };
+                }
             }
         }
         else {
@@ -153,7 +155,7 @@ var packManager = {
      * 用对应的handler来进行解包 
      * 
      * @method unpack
-     * @param {string} packUuid - The uuid of pack 
+     * @param {String[]} pack - The uuid of packed assets 
      * @param {*} data - The packed data
      * @param {string} type - The type indicates that which handler should be used to download, such as '.jpg'
      * @param {Object} options - Some optional parameter
@@ -163,11 +165,11 @@ var packManager = {
      * 
      * @example
      * downloader.downloadFile('pack.json', {responseType: 'json'}, null, (err, file) => {
-     *      packManager.unpack('0a0a995a7', file, '.json', null, (err, data) => console.log(err));
+     *      packManager.unpack(['2fawq123d', '1zsweq23f'], file, '.json', null, (err, data) => console.log(err));
      * });
      * 
      * @typescript
-     * unpack(packUuid: string, data: any, type: string, options: any, onComplete?: ((err: Error, data: any) => void)|null): void
+     * unpack(pack: string, data: any, type: string, options: any, onComplete?: ((err: Error, data: any) => void)|null): void
      */
     unpack (pack, data, type, options, onComplete) {
         if (!data) {
@@ -229,7 +231,7 @@ var packManager = {
 
                     var url = cc.assetManager.transform(pack.uuid, {ext: pack.ext, bundle: item.config.name});
 
-                    downloader.download(pack.uuid + pack.ver || '', url, pack.ext, item.options, function (err, data) {
+                    downloader.download(pack.uuid, url, pack.ext, item.options, function (err, data) {
                         files.remove(pack.uuid);
                         // unpack package
                         packManager.unpack(pack.packs, data, pack.ext, item.options, function (err, result) {

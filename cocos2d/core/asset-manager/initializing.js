@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 const parser = require('./parser');
-const { cacheAsset, gatherAsset, setProperties, clear, forEach} = require('./utilities');
+const { cacheAsset, gatherAsset, setProperties, clear, forEach } = require('./utilities');
 const { assets, parsed, files } = require('./shared');
 
 function initializing (task, done) {
@@ -57,7 +57,10 @@ function initializing (task, done) {
             });
         }
     }, function () {
-        if (task.isFinish) return clear(task, true);
+        if (task.isFinish) {
+            clear(task, true);
+            return task.dispatch('error');
+        } 
         
         var inits = [];
         // stage 2, set properties
@@ -66,10 +69,7 @@ function initializing (task, done) {
             parsed.remove(item.id);
             files.remove(item.id);
             if (!item.isNative) {
-                if (item.content) {
-                    item.content._removeRef();
-                }
-                else {
+                if (!item.content) {
                     var asset = assetsMap[item.id];
                     asset._uuid = item.uuid;
                     var result = setProperties(item.uuid, asset, assetsMap);
@@ -80,6 +80,7 @@ function initializing (task, done) {
                     item.dispatch('load');
                     cacheAsset(item.uuid, asset, item.options.cacheAsset !== undefined ? item.options.cacheAsset : cc.assetManager.cacheAsset); 
                     item.content = asset;
+                    item.content._addRef();
                 }
             }
         }
@@ -97,7 +98,7 @@ function initializing (task, done) {
 
         // stage 4, gathering
         gatherAsset(task);
-        clear(task, false);
+        clear(task, true);
         done();
     });
 }

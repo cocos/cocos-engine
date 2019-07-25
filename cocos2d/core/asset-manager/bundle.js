@@ -208,6 +208,69 @@ Bundle.prototype = {
     },
 
     /**
+     * !#en
+     * Load all assets in a folder inside the bundle folder.<br>
+     * <br>
+     * Note: All asset paths in Creator use forward slashes, paths using backslashes will not work.
+     * 
+     * !#zh
+     * 加载目标文件夹中的所有资源, 注意：路径中只能使用斜杠，反斜杠将停止工作
+     *
+     * @method loadDir
+     * @param {string|Task} dir - path of the target folder or a preloaded task.
+     *                       The path is relative to the bundle folder, extensions must be omitted.
+     * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
+     * @param {Function} [onProgress] - Callback invoked when progression change.
+     * @param {Number} onProgress.finish - The number of the items that are already completed.
+     * @param {Number} onProgress.total - The total number of the items.
+     * @param {Object} onProgress.item - The latest request item
+     * @param {Function} [onComplete] - A callback which is called when all assets have been loaded, or an error occurs.
+     * @param {Error} onComplete.error - If one of the asset failed, the complete callback is immediately called
+     *                                         with the error. If all assets are loaded successfully, error will be null.
+     * @param {Asset[]|Asset} onComplete.assets - An array of all loaded assets.
+     * @returns {Task} loading task
+     *
+     * @typescript
+     * loadDir(dir: string|cc.AssetManager.Task, type: typeof cc.Asset, onProgress: ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error, assets: any[]) => void)|null): cc.AssetManager.Task
+     * loadDir(dir: string|cc.AssetManager.Task, onComplete?: ((error: Error, assets: any[]) => void)|null): cc.AssetManager.Task
+     */
+    loadDir (dir, type, onProgress, onComplete) {
+        return this.load(dir, {requestType: RequestType.DIR, type: type}, onProgress, onComplete);
+    },
+
+    /**
+     * !#en
+     * Preload all assets in a folder inside the bundle folder.<br>
+     * <br>
+     * Everything are like loadDir
+     * 
+     * !#zh
+     * 预加载目标文件夹中的所有资源, 其他和loadDir一样
+     *
+     * @method preloadDir
+     * @param {string} dir - path of the target folder.
+     *                       The path is relative to the bundle folder, extensions must be omitted.
+     * @param {Function} [type] - Only asset of type will be preloaded if this argument is supplied.
+     * @param {Function} [onProgress] - Callback invoked when progression change.
+     * @param {Number} onProgress.finish - The number of the items that are already completed.
+     * @param {Number} onProgress.total - The total number of the items.
+     * @param {Object} onProgress.item - The latest request item
+     * @param {Function} [onComplete] - A callback which is called when all assets have been loaded, or an error occurs.
+     * @param {Error} onComplete.error - If one of the asset failed, the complete callback is immediately called
+     *                                         with the error. If all assets are preloaded successfully, error will be null.
+     * @param {RequestItem[]} onComplete.items - An array of all preloaded items.
+     * 
+     * @returns {Task} preloading task
+     *                                             
+     * @typescript
+     * preloadDir(dir: string, type: typeof cc.Asset, onProgress: ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error, items: cc.AssetManager.RequestItem[]) => void)|null): cc.AssetManager.Task
+     * preloadDir(dir: string, onComplete?: ((error: Error, items: cc.AssetManager.RequestItem[]) => void)|null): cc.AssetManager.Task
+     */
+    preloadDir (dir, type, onProgress, onComplete) {
+        return this.preload(dir, {requestType: RequestType.DIR, type: type}, onProgress, onComplete);
+    },
+
+    /**
      * !#en 
      * Loads the scene by its name. Everything are like {{#crossLink "assetManager/loadScene:method"}}{{/crossLink}}, 
      * but can only load scene from this bundle

@@ -10,7 +10,7 @@
     largeModule('AssetLibrary', {
         setup: function () {
             _resetGame();
-            AssetLibrary.init({libraryPath: libPath});
+            cc.assetManager.init({importBase: libPath, nativeBase: libPath});
         }
     });
 

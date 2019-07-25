@@ -44,7 +44,7 @@ var builtins = {
         let builtin = new Cache();
         this._assets.add(name, builtin);
 
-        return cc.assetManager._bundles.get('internal').load(dirname, {requestType: RequestType.DIR}, null, (err, assets) => {
+        return cc.assetManager._bundles.get('internal').loadDir(dirname, null, null, (err, assets) => {
             if (err) {
                 cc.error(err);
             }

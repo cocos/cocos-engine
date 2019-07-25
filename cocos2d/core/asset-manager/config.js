@@ -109,16 +109,20 @@ Config.prototype = {
             var info = pathList[uuid];
             var path = info[0];
             var type = info[1];
+            var isSubAsset = info.length === 3;
 
             var assetInfo = {uuid, path, ctor: js._getClassById(type)};
             this.assetInfos.add(uuid, assetInfo);
             if (paths.has(path)) {
-                paths.get(path)[type] = assetInfo;
+                if (isSubAsset) {
+                    paths.get(path).push(assetInfo);
+                }
+                else {
+                    paths.get(path).splice(0, 0, assetInfo);
+                } 
             }
             else {
-                var dir = Object.create(null);
-                dir[type] = assetInfo;
-                paths.add(path, dir);
+                paths.add(path, [assetInfo]);
             }
         }
     },
@@ -148,7 +152,12 @@ Config.prototype = {
                 var assetInfo = assetInfos.get(uuid);
                 var assetPacks = assetInfo.packs;
                 if (assetPacks) {
-                    assetPacks.push(pack);
+                    if (l === 1) {
+                        assetPacks.splice(0, 0, pack);
+                    }
+                    else {
+                        assetPacks.push(pack);
+                    }
                 }
                 else {
                     assetInfo.packs = [pack];
@@ -215,17 +224,15 @@ Config.prototype = {
         var items = this.paths.get(path);
         if (items) {
             if (type) {
-                for (let ctor in items) {
-                    var assetInfo = items[ctor];
+                for (var i = 0, l = items.length; i < l; i++) {
+                    var assetInfo = items[i];
                     if (js.isChildClassOf(assetInfo.ctor, type)) {
                         return assetInfo;
                     }
                 }
             }
             else {
-                for (let ctor in items) {
-                    return items[ctor];
-                }
+                return items[0];
             }
         }
         return null;
@@ -267,8 +274,8 @@ Config.prototype = {
         }
         this.paths.forEach(function (items, p) {
             if ((p.startsWith(path) && isMatchByWord(p, path)) || !path) {
-                for (var ctorId in items) {
-                    var entry = items[ctorId];
+                for (var i = 0, l = items.length; i < l; i++) {
+                    var entry = items[i];
                     if (!type || js.isChildClassOf(entry.ctor, type)) {
                         infos.push(entry);
                     }

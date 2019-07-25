@@ -32,10 +32,9 @@ var loader = {
     _autoReleaseSetting: Object.create(null),
 
     /**
-     * @deprecated please use `cc.assetManager.load` instead
+     * @deprecated `cc.loader.load` is deprecated now, please use `cc.assetManager.load` instead
      */
     load (resources, progressCallback, completeCallback) {
-        cc.warn('cc.loader.load is deprecated now, please use cc.assetManager.load instead');
         if (completeCallback === undefined) {
             if (progressCallback !== undefined) {
                 completeCallback = progressCallback;
@@ -73,28 +72,27 @@ var loader = {
     },
 
     /**
-     * @deprecated please use use `XMLHttpRequest` directly
+     * @deprecated cc.loader.getXMLHttpRequest is deprecated now, please use `XMLHttpRequest` directly
      */
     getXMLHttpRequest () {
-        cc.warn('cc.loader.getXMLHttpRequest is deprecated now, please use XMLHttpRequest directly');
         return new XMLHttpRequest();
     },
 
+    /**
+     * @deprecated cc.loader.onProgress is deprecated now, please transfer onProgress to API as a parameter
+     */
     set onProgress (val) {
-        cc.error('cc.loader.onProgress is deprecated now, please transfer onProgress to API as a parameter');
         this._onProgress = val;
     },
 
     get onProgress () {
-        cc.error('cc.loader.onProgress is deprecated now, please transfer onProgress to API as a parameter');
         return this._onProgress;
     },
 
     /**
-     * @deprecated please use use `cc.assetManager.loadRes` instead
+     * @deprecated `cc.loader.loadRes` is deprecated now, please use `cc.assetManager.loadRes` instead
      */
     loadRes (url, type, progressCallback, completeCallback) {
-        cc.warn('cc.loader.loadRes is deprecated now, please use cc.assetManager.loadRes instead');
         if (completeCallback === undefined) {
             if (progressCallback !== undefined) {
                 completeCallback = progressCallback;
@@ -110,10 +108,9 @@ var loader = {
     },
 
     /**
-     * @deprecated please use use `cc.assetManager.loadRes` instead
+     * @deprecated `cc.loader.loadResArray` is deprecated now, please use `cc.assetManager.loadRes` instead
      */
     loadResArray (urls, type, progressCallback, completeCallback) {
-        cc.warn('cc.loader.loadResArray is deprecated now, please use cc.assetManager.loadRes instead');
         if (completeCallback === undefined) {
             if (progressCallback !== undefined) {
                 completeCallback = progressCallback;
@@ -129,10 +126,9 @@ var loader = {
     },
 
     /**
-     * @deprecated please use use `cc.assetManager.loadResDir` instead
+     * @deprecated `cc.loader.loadResDir` is deprecated now, please use `cc.assetManager.loadResDir` instead
      */
     loadResDir (url, type, progressCallback, completeCallback) {
-        cc.warn('cc.loader.loadResDir is deprecated now, please use cc.assetManager.loadResDir instead');
         if (completeCallback === undefined) {
             if (progressCallback !== undefined) {
                 completeCallback = progressCallback;
@@ -148,23 +144,23 @@ var loader = {
     },
 
     /**
-     * @deprecated please use use `cc.assetManager.getRes` instead
+     * @deprecated `cc.loader.getRes` is deprecated now, please use `cc.assetManager.getRes` instead
      */
     getRes (url, type) {
-        cc.warn('cc.loader.getRes is deprecated now, please use cc.assetManager.getRes instead');
         return cc.assetManager.getRes(url, type);
     },
 
+    /**
+     * @deprecated `cc.loader.getResCount` is deprecated now , please use `cc.assetManager._assets.count` instead
+     */
     getResCount () {
-        cc.warn('cc.loader.getResCount is not supported any more , please use cc.assetManager._assets.count instead');
         return cc.assetManager._assets.count;
     },
 
     /**
-     * @deprecated please use use `cc.assetManager.dependUtil.getDepsRecursively` instead
+     * @deprecated `cc.loader.getDependsRecursively` is deprecated now, please use use `cc.assetManager.dependUtil.getDepsRecursively` instead
      */
     getDependsRecursively (owner) {
-        cc.warn('cc.loader.getDependsRecursively is deprecated now, please use use cc.assetManager.dependUtil.getDepsRecursively instead');
         if (!owner) return [];
         return cc.assetManager.dependUtil.getDepsRecursively(typeof owner === 'string' ? owner : owner._uuid);
     },
@@ -173,8 +169,10 @@ var loader = {
         cc.error('cc.loader.assetLoader is not supported anymore, assetLoader and md5Pipe were merged into cc.assetManager._transformPipeline');
     },
 
+    /**
+     * @deprecated `cc.loader.md5Pipe` is deprecated now, assetLoader and md5Pipe were merged into `cc.assetManager._transformPipeline`
+     */
     get md5Pipe () {
-        cc.warn('cc.loader.md5Pipe is deprecated now, assetLoader and md5Pipe were merged into cc.assetManager._transformPipeline');
         return {
             transformURL (url) {
                 url = url.replace(/.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-]{8,})/, function (match, uuid) {
@@ -198,21 +196,24 @@ var loader = {
         }
     },
 
+    /**
+     * @deprecated `cc.loader.downloader` is deprecated now, please use `cc.assetManager.downloader` instead
+     */
     get downloader () {
-        cc.warn('cc.loader.downloader is deprecated now, please use cc.assetManager.downloader instead');
         return cc.assetManager.downloader;
     },
 
+    /**
+     * @deprecated `cc.loader.loader` is deprecated now, please use `cc.assetManager.parser` instead
+     */
     get loader () {
-        cc.warn('cc.loader.loader is deprecated now, please use cc.assetManager.parser instead');
         return cc.assetManager.parser;
     },
 
     /**
-     * @deprecated please use cc.assetManager.downloader.register instead
+     * @deprecated `cc.loader.addDownloadHandlers` is deprecated, please use `cc.assetManager.downloader.register` instead
      */
     addDownloadHandlers (extMap) {
-        cc.warn('addDownloadHandlers is deprecated, please use cc.assetManager.downloader.register instead');
         var handler = Object.create(null);
         for (var type in extMap) {
             var func = extMap[type];
@@ -224,10 +225,9 @@ var loader = {
     },
 
     /**
-     * @deprecated please use cc.assetManager.parser.register instead
+     * @deprecated `cc.loader.addLoadHandlers` is deprecated, please use `cc.assetManager.parser.register` instead
      */
     addLoadHandlers (extMap) {
-        cc.warn('addLoadHandlers is deprecated, please use cc.assetManager.parser.register instead');
         var handler = Object.create(null);
         for (var type in extMap) {
             var func = extMap[type];
@@ -243,10 +243,9 @@ var loader = {
     },
 
     /**
-     * @deprecated please use cc.assetManager.release instead
+     * @deprecated `cc.loader.release` is deprecated now, please use `cc.assetManager.release` instead
      */
     release (asset) {
-        cc.warn('cc.loader.release is deprecated now, please use cc.assetManager.release instead');
         if (Array.isArray(asset)) {
             for (let i = 0; i < asset.length; i++) {
                 var key = asset[i];
@@ -261,18 +260,16 @@ var loader = {
     },
 
     /**
-     * @deprecated please use cc.assetManager.release instead
+     * @deprecated `cc.loader.releaseAsset` is deprecated now, please use `cc.assetManager.release` instead
      */
     releaseAsset (asset) {
-        cc.warn('cc.loader.releaseAsset is deprecated now, please use cc.assetManager.release instead');
         cc.assetManager.release(asset);
     },
 
     /**
-     * @deprecated please use cc.assetManager.releaseRes instead
+     * @deprecated `cc.loader.releaseRes` is deprecated now, please use `cc.assetManager.releaseRes` instead
      */
     releaseRes (url, type) {
-        cc.warn('cc.loader.releaseRes is deprecated now, please use cc.assetManager.releaseRes instead');
         cc.assetManager.releaseRes(url, type);
     },
 
@@ -281,27 +278,31 @@ var loader = {
     },
 
     /**
-     * @deprecated please use cc.assetManager.releaseAll instead
+     * @deprecated `cc.loader.releaseAll` is deprecated now, please use `cc.assetManager.releaseAll` instead
      */
     releaseAll () {
-        cc.warn('cc.loader.releaseAll is deprecated now, please use cc.assetManager.releaseAll instead');
         cc.assetManager.releaseAll();
     },
 
+    /**
+     * @deprecated `cc.loader.removeItem` is deprecated now, please use `cc.assetManager._assets.remove` instead
+     */
     removeItem (key) {
-        cc.warn('cc.loader.removeItem is deprecated now, please use cc.assetManager._assets.remove instead');
         cc.assetManager._assets.remove(key);
     },
     
+    /**
+     * @deprecated `cc.loader.setAutoRelease` is deprecated now, if you want to lock some asset, please use `cc.assetManager.finalizer.lock` instead
+     */
     setAutoRelease (asset, autoRelease) {
-        cc.warn('cc.loader.setAutoRelease is deprecated now, if you want to lock some asset, please use cc.assetManager.finalizer.lock instead');
         if (typeof asset === 'object') asset = asset._uuid;
         this._autoReleaseSetting[asset] = !!autoRelease;
     },
     
-    
+    /**
+     * @deprecated `cc.loader.setAutoReleaseRecursively` is deprecated now, if you want to lock some asset, please use `cc.assetManager.finalizer.lock` instead
+     */
     setAutoReleaseRecursively (asset, autoRelease) {
-        cc.warn('cc.loader.setAutoReleaseRecursively is deprecated now, if you want to lock some asset, please use cc.assetManager.finalizer.lock instead');
         if (typeof asset === 'object') asset = asset._uuid;
         autoRelease = !!autoRelease;
         this._autoReleaseSetting[asset] = autoRelease;
@@ -312,14 +313,23 @@ var loader = {
         }
     },
 
+    /**
+     * @deprecated `cc.loader.isAutoRelease` is deprecated now
+     */
     isAutoRelease (asset) {
         if (typeof asset === 'object') asset = asset._uuid;
-        cc.warn('cc.loader.isAutoRelease is deprecated now');
         return !!this._autoReleaseSetting[asset];
     }
 };
 
 var AssetLibrary = {
+    /**
+     * @deprecated `cc.AssetLibrary` is deprecated now, please use `cc.assetManager.load` instead
+     */
+    loadAsset (uuid, onComplete) {
+        cc.assetManager.load(uuid, onComplete);
+    },
+
     getLibUrlNoExt () {
         cc.error('cc.AssetLibrary.getLibUrlNoExt is not supported any more, if you want to transform url, please use cc.assetManager.helper.getUrlWithUuid instead');
     },
@@ -330,13 +340,17 @@ var AssetLibrary = {
 };
 
 cc.url = {
+    /**
+     * @deprecated `cc.url.normalize` is deprecated now, please use `cc.assetManager.utils.normalize` instead
+     */
     normalize (url) {
-        cc.warn('cc.url.normalize is deprecated now, please use cc.assetManager.utils.normalize instead');
         return cc.assetManager.utils.normalize(url);
     },
 
+    /**
+     * @deprecated `cc.url.raw` is deprecated now, please use `cc.assetManager.loadRes` directly, or use `Asset.nativeUrl` instead.
+     */
     raw (url) {
-        cc.warn('cc.url.raw is deprecated now, please use cc.assetManager.loadRes directly, or use Asset.nativeUrl instead.');
         if (url.startsWith('resources/')) {
             return cc.assetManager.transform({'path': cc.path.changeExtname(url.substr(10)), bundle: 'resources', isNative: true, ext: cc.path.extname(url)});
         }
@@ -344,48 +358,64 @@ cc.url = {
     }
 };
 
-Object.defineProperty(cc, 'loader', {
-    get () {
-        cc.warn('cc.loader is deprecated now, please backup your project and upgrade to cc.assetManager');
-        return loader;
-    }
-});
-
-Object.defineProperty(cc, 'AssetLibrary', {
-    get () {
-        cc.error('cc.AssetLibrary is not supported any more, please backup your project and upgrade to cc.assetManager');
-        return AssetLibrary;
-    }
-});
-
-Object.defineProperty(cc, 'LoadingItems', {
-    get () {
-        cc.error('cc.LoadingItems is not supported any more, please backup your project and upgrade to cc.assetManager');
-        return function () {};
-    }
-}); 
-
-Object.defineProperty(cc.Asset.prototype, 'url', {
-    get () {
-        cc.warn('cc.Asset.url is deprecated now, please use cc.Asset.nativeUrl instead');
-        return this.nativeUrl;
-    }
-}); 
-
-Object.defineProperty(cc.macro, 'DOWNLOAD_MAX_CONCURRENT', {
-    get () {
-        return cc.assetManager.downloader.limitations[cc.AssetManager.LoadStrategy.NORMAL].maxConcurrent;
+Object.defineProperties(cc, {
+    /**
+     * @deprecated `cc.loader` is deprecated now, please backup your project and upgrade to `cc.assetManager`
+     */
+    loader: {
+        get () {
+            return loader;
+        }
     },
 
-    set (val) {
-        cc.warn('cc.macro.DOWNLOAD_MAX_CONCURRENT is deprecated now, please use cc.assetManager.downloader.limitations instead');
-        cc.assetManager.downloader.limitations[cc.AssetManager.LoadStrategy.NORMAL].maxConcurrent = val;
+    /**
+     * @deprecated `cc.AssetLibrary` is deprecated, please backup your project and upgrade to `cc.assetManager`
+     */
+    AssetLibrary: {
+        get () {
+            return AssetLibrary;
+        }
+    },
+
+    LoadingItems: {
+        get () {
+            cc.error('cc.LoadingItems is not supported any more, please backup your project and upgrade to cc.assetManager');
+            return function () {};
+        }
+    }
+});
+
+Object.defineProperties(cc.Asset.prototype, {
+    /**
+     * @deprecated `cc.Asset.url` is deprecated now, please use `cc.Asset.nativeUrl` instead
+     */
+    url: {
+        get () {
+            return this.nativeUrl;
+        }
+    } 
+}); 
+
+Object.defineProperties(cc.macro, {
+    /**
+     * @deprecated `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use `cc.assetManager.downloader.limitations` instead
+     */
+    DOWNLOAD_MAX_CONCURRENT: {
+        get () {
+            return cc.assetManager.downloader.limitations[cc.AssetManager.LoadStrategy.NORMAL].maxConcurrent;
+        },
+
+        set (val) {
+            cc.assetManager.downloader.limitations[cc.AssetManager.LoadStrategy.NORMAL].maxConcurrent = val;
+        }
     }
 }); 
 
 Object.assign(cc.director, {
+    /**
+     * @deprecated `cc.director.preloadScene` is deprecated now, please use `cc.assetManager.preloadScene` instead
+     */
     preloadScene (sceneName, onProgress, onLoaded) {
-        cc.warn('cc.director.preloadScene is deprecated now, please use cc.assetManager.preloadScene instead');
         cc.assetManager.preloadScene(sceneName, null, onProgress, onLoaded);
     }
 }); 
@@ -393,7 +423,7 @@ Object.assign(cc.director, {
 var original = utilities.parseParameters;
 utilities.parseParameters = function () {
     var result = original.apply(this, arguments);
-    result.onProgress = result.onProgress || loader.onProgress;
+    result.onProgress = result.onProgress || loader._onProgress;
     return result;
 };
 

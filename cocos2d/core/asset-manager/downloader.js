@@ -55,7 +55,7 @@ var downloadAudio = function (url, options, onComplete) {
 
 var downloadAudio = formatSupport.length === 0 ? unsupported : (__audioSupport.WEB_AUDIO ? downloadAudio : downloadDomAudio);
 
-var downloadWebp = capabilities.webp ? unsupported : downloadDomImage;
+var downloadWebp = capabilities && capabilities.webp ? unsupported : downloadDomImage;
 
 var downloadImage = function (url, options, onComplete) {
     // if createImageBitmap is valid, we can transform blob to ImageBitmap. Otherwise, just use HTMLImageElement to load
@@ -104,15 +104,6 @@ var updateTime = function () {
     if (now - _lastDate > cc.director._deltaTime * 1000) {
         _totalNumThisPeriod = 0;
         _lastDate = now;
-    }
-};
-
-// when retry finished, invoke callbacks
-var finale = function (err, result) {
-    if (!err) files.add(id, result);
-    var callbacks = _downloading.remove(id);
-    for (let i = 0, l = callbacks.length; i < l; i++) {
-        callbacks[i](err, result);
     }
 };
 
@@ -444,6 +435,15 @@ var downloader = {
                     }
                 }
             }
+
+            // when retry finished, invoke callbacks
+            function finale (err, result) {
+                if (!err) files.add(id, result);
+                var callbacks = _downloading.remove(id);
+                for (let i = 0, l = callbacks.length; i < l; i++) {
+                    callbacks[i](err, result);
+                }
+            };
     
             retry(process, maxRetryCount, this.retryInterval, finale);
         }

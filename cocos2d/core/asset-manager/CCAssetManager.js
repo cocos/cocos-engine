@@ -42,7 +42,7 @@ const Bundle = require('./bundle');
 const builtins = require('./builtins')
 const { parse, combine } = require('./urlTransformer');
 const { parseParameters } = require('./utilities');
-const { assets, files, parsed, pipeline, transformPipeline, fetchPipeline, initializePipeline, LoadStrategy, RequestType, bundles} = require('./shared');
+const { assets, files, parsed, pipeline, transformPipeline, fetchPipeline, initializePipeline, LoadStrategy, RequestType, bundles } = require('./shared');
 
 /**
  * !#en
@@ -579,7 +579,7 @@ AssetManager.prototype = {
      * loadResDir(dir: string|cc.AssetManager.Task, onComplete?: ((error: Error, assets: any[]) => void)|null): cc.AssetManager.Task
      */
     loadResDir (dir, type, onProgress, onComplete) {
-        return bundles.get('resources').load(dir, {requestType: RequestType.DIR, type: type}, onProgress, onComplete);
+        return bundles.get('resources').loadDir(dir, type, onProgress, onComplete);
     },
 
     /**
@@ -623,7 +623,7 @@ AssetManager.prototype = {
      * preloadResDir(dir: string, onComplete?: ((error: Error, items: cc.AssetManager.RequestItem[]) => void)|null): cc.AssetManager.Task
      */
     preloadResDir (dir, type, onProgress, onComplete) {
-        return bundles.get('resources').preload(dir, {requestType: RequestType.DIR, type: type}, onProgress, onComplete);
+        return bundles.get('resources').preloadDir(dir, type, onProgress, onComplete);
     },
 
     /**

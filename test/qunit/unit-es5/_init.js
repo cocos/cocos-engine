@@ -18,6 +18,7 @@ var Ticker = cc._Ticker;
 var Time = cc.Time;
 //var Camera = cc.Camera;
 //var Component = cc.Component;
+var AssetLibrary = cc.AssetLibrary;
 //var SpriteRenderer = cc.SpriteRenderer;
 //var Screen = cc.Screen;
 

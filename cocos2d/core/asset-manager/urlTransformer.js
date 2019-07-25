@@ -28,8 +28,8 @@ const { RequestType, bundles } = require('./shared');
 
 function parse (task) {
 
-    var input = task.input;
-    input = Array.isArray(input) ? input : [ input ], options = task.options;
+    var input = task.input, options = task.options;
+    input = Array.isArray(input) ? input : [ input ];
 
     task.output = [];
     for (var i = 0; i < input.length; i ++ ) {
@@ -133,7 +133,7 @@ function parse (task) {
 }
 
 function combine (task) {
-    var input = task.input;
+    var input = task.output = task.input;
     for (var i = 0; i < input.length; i++) {
         var item = input[i];
         if (item.url) continue;
@@ -169,7 +169,6 @@ function combine (task) {
         
         item.url = url;
     }
-    task.output = input;
     return null;
 }
 

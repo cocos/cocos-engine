@@ -1,6 +1,6 @@
 largeModule('Loader');
 
-var assetManager = cc.assetManager;
+var loader = cc.loader;
 
 asyncTest('Load', function () {
     var image1 = assetDir + '/button.png';
@@ -12,7 +12,7 @@ asyncTest('Load', function () {
         json2,
     ];
 
-    assetManager.load(resources, {key: 'url'}, function (completedCount, totalCount) {
+    loader.load(resources, function (completedCount, totalCount, item) {
         if (item.id === image1) {
             ok(item.content instanceof cc.Texture2D, 'image url\'s result should be Texture2D');
         }
@@ -25,11 +25,7 @@ asyncTest('Load', function () {
         else {
             ok(false, 'should not load an unknown url');
         }
-    }, function (error, assets) {
-        strictEqual(error, null, 'error should be null');
-        for (var i = 0, l = items.length; i < l; i++) {
-            var item = items[i]
-        }
+    }, function (error, items) {
         ok(items.isCompleted(), 'be able to load all resources');
 
         loader.releaseAll();
