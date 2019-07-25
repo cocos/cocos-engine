@@ -174,7 +174,7 @@ if (CC_BUILD) {
     _global.CC_PHYSICS_AMMO = CC_PHYSICS_AMMO;
 }
 else {
-    defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
+    // Defauled value for editor
     defineMacro('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
     defineMacro('CC_PREVIEW', !CC_EDITOR);
     defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
@@ -185,6 +185,9 @@ else {
     defineMacro('CC_QQPLAY', defined('bk'));
     defineMacro('CC_RUNTIME', 'function' === typeof loadRuntime);
     defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY || CC_RUNTIME));
+    defineMacro('CC_PHYSICS_BUILT_IN', true);
+    defineMacro('CC_PHYSICS_CANNON', false);
+    defineMacro('CC_PHYSICS_AMMO', false);
 }
 
 //

@@ -20,6 +20,9 @@
             "request": "launch",
             "runtimeVersion": "8.11.4",
             "program": "${workspaceFolder}/node_modules/.bin/jest",
+            "windows": {
+                "program": "${workspaceFolder}/node_modules/.bin/jest.cmd"
+            },
             "args": [
                 "--runInBand"
             ],
