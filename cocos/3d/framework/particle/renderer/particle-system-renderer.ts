@@ -137,7 +137,7 @@ export default class ParticleSystemRenderer {
         type: cc.ParticleSystemComponent,
         visible: false,
     })
-    private _particleSystem: any;
+    private _particleSystem: any = null;
 
     /**
      * @zh 粒子发射的模型。

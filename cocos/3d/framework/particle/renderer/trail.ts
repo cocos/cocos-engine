@@ -261,7 +261,7 @@ export default class TrailModule {
         type: cc.ParticleSystemComponent,
         visible: false,
     })
-    private _particleSystem: any;
+    private _particleSystem: any = null;
 
     private _minSquaredDistance: number = 0;
     private _vertSize: number;
