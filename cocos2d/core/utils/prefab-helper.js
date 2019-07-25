@@ -93,6 +93,10 @@ module.exports = {
         var _active = node._active;
         var x = node._position.x;
         var y = node._position.y;
+        var z = node._position.z;
+        var eulerAnglesX = node._eulerAngles.x;
+        var eulerAnglesY = node._eulerAngles.y;
+        var eulerAnglesZ = node._eulerAngles.z;
         var _quat = node._quat;
         var _localZOrder = node._localZOrder;
         var _globalZOrder = node._globalZOrder;
@@ -124,8 +128,12 @@ module.exports = {
         node._active = _active;
         node._position.x = x;
         node._position.y = y;
+        node._position.z = z;
         quat.copy(node._quat, _quat);
         node._localZOrder = _localZOrder;
         node._globalZOrder = _globalZOrder;
+        node._eulerAngles.x = eulerAnglesX;
+        node._eulerAngles.y = eulerAnglesY;
+        node._eulerAngles.z = eulerAnglesZ;
     }
 };
