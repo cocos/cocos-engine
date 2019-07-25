@@ -7,11 +7,11 @@
 import { Component } from '../../../../components/component';
 import { Mat4, Quat, Vec3 } from '../../../../core/value-types';
 import { vec3 } from '../../../../core/vmath';
-import { Node } from '../../../../scene-graph/node';
 // tslint:disable-next-line:max-line-length
 import { AfterStepCallback, BeforeStepCallback, PhysicsWorldBase, RigidBodyBase } from '../../../physics/api';
 import { createRigidBody } from '../../../physics/instance';
 import { ERigidBodyType, ETransformSource } from '../../../physics/physic-enum';
+import { INode } from '../../../../core/utils/interfaces';
 
 export class PhysicsBasedComponent extends Component {
 
@@ -157,7 +157,7 @@ export class PhysicsBasedComponent extends Component {
 
                     // binding collider to self rigidybody, if it exist.
                     const rigidbody = this.getComponent(cc.RigidBodyComponent);
-                    sharedBody = new SharedRigidBody(this.node as Node, rigidbody, cc.director._physicsSystem._world);
+                    sharedBody = new SharedRigidBody(this.node, rigidbody, cc.director._physicsSystem._world);
                 }
                 sharedBody!.ref();
                 this._sharedBody = sharedBody!;
@@ -186,7 +186,7 @@ export class PhysicsBasedComponent extends Component {
         }
     }
 
-    private _findRigidbody (begin: Node) {
+    private _findRigidbody (begin: INode) {
         const rigidbody = begin.getComponent(cc.RigidBodyComponent);
         if (rigidbody) {
             return rigidbody;
@@ -240,7 +240,7 @@ class SharedRigidBody {
 
     private _rigidBody: object | null;
 
-    private _node!: Node;
+    private _node!: INode;
 
     private _worldScale: Vec3 = new Vec3(1, 1, 1);
 
@@ -254,7 +254,7 @@ class SharedRigidBody {
     /** 上一次的缩放 */
     private _prevScale: Vec3 = new Vec3();
 
-    constructor (node: Node, rigidBody: object | null, world: PhysicsWorldBase) {
+    constructor (node: INode, rigidBody: object | null, world: PhysicsWorldBase) {
         this._body = createRigidBody({
             name: node.name,
         });
@@ -319,7 +319,7 @@ class SharedRigidBody {
         this._syncPhysWithScene(this._node);
     }
 
-    private _syncPhysWithScene (node: Node) {
+    private _syncPhysWithScene (node: INode) {
         // sync position rotation
         node.getWorldMatrix(SharedRigidBody._tempMat4);
         node.getWorldRotation(SharedRigidBody._tempQuat);
