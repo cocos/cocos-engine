@@ -38,6 +38,26 @@
 
 RENDERER_BEGIN
 
+const size_t BaseRenderer::cc_dirLightDirection = std::hash<std::string>{}("cc_dirLightDirection");
+const size_t BaseRenderer::cc_dirLightColor = std::hash<std::string>{}("cc_dirLightColor");
+const size_t BaseRenderer::cc_pointLightPositionAndRange = std::hash<std::string>{}("cc_pointLightPositionAndRange");
+const size_t BaseRenderer::cc_pointLightColor = std::hash<std::string>{}("cc_pointLightColor");
+const size_t BaseRenderer::cc_spotLightDirection = std::hash<std::string>{}("cc_spotLightDirection");
+const size_t BaseRenderer::cc_spotLightPositionAndRange = std::hash<std::string>{}("cc_spotLightPositionAndRange");
+const size_t BaseRenderer::cc_spotLightColor = std::hash<std::string>{}("cc_spotLightColor");
+const size_t BaseRenderer::cc_shadow_map = std::hash<std::string>{}("cc_cameraPos");
+const size_t BaseRenderer::cc_shadow_map_lightViewProjMatrix = std::hash<std::string>{}("cc_shadow_map_lightViewProjMatrix");
+const size_t BaseRenderer::cc_shadow_map_info = std::hash<std::string>{}("cc_shadow_map_info");
+const size_t BaseRenderer::cc_shadow_map_bias = std::hash<std::string>{}("cc_shadow_map_bias");
+const size_t BaseRenderer::cc_shadow_lightViewProjMatrix = std::hash<std::string>{}("cc_shadow_lightViewProjMatrix");
+const size_t BaseRenderer::cc_shadow_info = std::hash<std::string>{}("cc_shadow_info");
+const size_t BaseRenderer::cc_matView = std::hash<std::string>{}("cc_matView");
+const size_t BaseRenderer::cc_matWorld = std::hash<std::string>{}("cc_matWorld");
+const size_t BaseRenderer::cc_mat3WorldIT = std::hash<std::string>{}("cc_mat3WorldIT");
+const size_t BaseRenderer::cc_matpProj = std::hash<std::string>{}("cc_matpProj");
+const size_t BaseRenderer::cc_matViewProj = std::hash<std::string>{}("cc_matViewProj");
+const size_t BaseRenderer::cc_cameraPos = std::hash<std::string>{}("cc_cameraPos");
+
 BaseRenderer::BaseRenderer()
 {
     _drawItems = new RecyclePool<DrawItem>([]()mutable->DrawItem*{return new DrawItem();},100);
@@ -180,6 +200,7 @@ void BaseRenderer::setProperty (Effect::Property& prop)
 {
     Technique::Parameter::Type propType = prop.getType();
     auto& propName = prop.getName();
+    auto propHashName = prop.getHashName();
     if (Effect::Property::Type::UNKNOWN == propType)
     {
         RENDERER_LOGW("Failed to set technique property, type unknown");
@@ -207,7 +228,7 @@ void BaseRenderer::setProperty (Effect::Property& prop)
     {
         if (1 == prop.getCount())
         {
-            _device->setTexture(propName,
+            _device->setTexture(propHashName,
                                 (renderer::Texture *)(prop.getValue()),
                                 allocTextureUnit());
         }
@@ -220,7 +241,7 @@ void BaseRenderer::setProperty (Effect::Property& prop)
                 slots.push_back(allocTextureUnit());
             }
             
-            _device->setTextureArray(propName,
+            _device->setTextureArray(propHashName,
                                      prop.getTextureArray(),
                                      slots);
         }
@@ -251,11 +272,11 @@ void BaseRenderer::setProperty (Effect::Property& prop)
             Effect::Property::Type::INT2 == propType ||
             Effect::Property::Type::INT4 == propType)
         {
-            _device->setUniformiv(propName, bytes / sizeof(int), (const int*)prop.getValue());
+            _device->setUniformiv(propHashName, bytes / sizeof(int), (const int*)prop.getValue());
         }
         else
         {
-            _device->setUniformfv(propName, bytes / sizeof(float), (const float*)prop.getValue());
+            _device->setUniformfv(propHashName, bytes / sizeof(float), (const float*)prop.getValue());
         }
     }
 }
@@ -263,12 +284,12 @@ void BaseRenderer::setProperty (Effect::Property& prop)
 void BaseRenderer::draw(const StageItem& item)
 {
     Mat4 worldMatrix = item.model->getWorldMatrix();
-    _device->setUniformMat4("cc_matWorld", worldMatrix.m);
+    _device->setUniformMat4(cc_matWorld, worldMatrix.m);
 
     cocos2d::Mat3::fromMat4(*_tmpMat3, worldMatrix);
     _tmpMat3->inverse();
     _tmpMat3->transpose();
-    _device->setUniformMat4("cc_mat3WorldIT", _tmpMat3->m);
+    _device->setUniformMat4(cc_mat3WorldIT, _tmpMat3->m);
     
     // set technique uniforms
     for (int i = 0, len = (int)item.uniforms->size(); i < len; i++)

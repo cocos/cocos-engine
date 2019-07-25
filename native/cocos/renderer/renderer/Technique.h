@@ -132,6 +132,7 @@ public:
          *  @brief Gets the uniform name.
          */
         inline const std::string& getName() const { return _name; }
+        inline const size_t getHashName() const { return _hashName; }
         /*
          *  @brief Gets the counts of uniform components.
          */
@@ -172,6 +173,8 @@ public:
         void copyValue(const Parameter& rh);
         
         std::string _name = "";
+        size_t _hashName = 0;
+        
         // how many elements, for example, how many INT2 or how many MAT2
         uint8_t _count = 0;
         Type _type = Type::UNKNOWN;

@@ -134,6 +134,28 @@ protected:
     cocos2d::Mat3* _tmpMat3 = nullptr;
 
     CC_DISALLOW_COPY_ASSIGN_AND_MOVE(BaseRenderer);
+    
+    
+    
+    static const size_t cc_dirLightDirection;
+    static const size_t cc_dirLightColor;
+    static const size_t cc_pointLightPositionAndRange;
+    static const size_t cc_pointLightColor;
+    static const size_t cc_spotLightDirection;
+    static const size_t cc_spotLightPositionAndRange;
+    static const size_t cc_spotLightColor;
+    static const size_t cc_shadow_map;
+    static const size_t cc_shadow_map_lightViewProjMatrix;
+    static const size_t cc_shadow_map_info;
+    static const size_t cc_shadow_map_bias;
+    static const size_t cc_shadow_lightViewProjMatrix;
+    static const size_t cc_shadow_info;
+    static const size_t cc_matView;
+    static const size_t cc_matWorld;
+    static const size_t cc_mat3WorldIT;
+    static const size_t cc_matpProj;
+    static const size_t cc_matViewProj;
+    static const size_t cc_cameraPos;
 };
 
 // end of renderer group

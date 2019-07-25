@@ -359,6 +359,7 @@ void Program::link()
                 }
 
                 uniform.name = uniformName;
+                uniform.hashName = std::hash<std::string>{}(uniformName);
                 GL_CHECK(uniform.location = glGetUniformLocation(program, uniformName));
 
                 GLenum err = glGetError();

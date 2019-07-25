@@ -108,18 +108,6 @@ void Effect::setProperty(const std::string& name, const Property& property)
     _properties[name] = property;
 }
 
-void Effect::_updateDefineBitOrder(const ValueMap& nameValues)
-{
-    for (auto& tmplDefs : nameValues)
-    {
-        if (_defineBitOrder.find(tmplDefs.first) == _defineBitOrder.end())
-        {
-            _sharedDefineList.push_back(tmplDefs.first);
-            _defineBitOrder[tmplDefs.first] = _sharedDefineList.size();
-        }
-    }
-}
-
 void Effect::generateDefinesKey()
 {
     _definesKey = "";

@@ -469,7 +469,7 @@ static bool js_gfx_DeviceGraphics_setTexture(se::State& s)
         ok &= seval_to_native_ptr(args[1], &arg1);
         do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (int)tmp; } while(false);
         SE_PRECONDITION2(ok, false, "js_gfx_DeviceGraphics_setTexture : Error processing arguments");
-        cobj->setTexture(arg0, arg1, arg2);
+        cobj->setTexture(std::hash<std::string>{}(arg0), arg1, arg2);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
@@ -765,7 +765,7 @@ static bool js_gfx_DeviceGraphics_setTextureArray(se::State& s)
         ok &= seval_to_std_vector_Texture(args[1], &arg1);
         ok &= seval_to_std_vector_int(args[2], &arg2);
         SE_PRECONDITION2(ok, false, "js_gfx_DeviceGraphics_setTextureArray : Error processing arguments");
-        cobj->setTextureArray(arg0, arg1, arg2);
+        cobj->setTextureArray(std::hash<std::string>{}(arg0), arg1, arg2);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
