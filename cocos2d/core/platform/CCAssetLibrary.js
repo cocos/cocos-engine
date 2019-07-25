@@ -399,6 +399,8 @@ let _builtins = {
     material: {}
 };
 
+let _builtinDeps = {};
+
 function loadBuiltins (name, type, cb) {
     let dirname = name  + 's';
     let builtin = _builtins[name] = {};
@@ -413,7 +415,10 @@ function loadBuiltins (name, type, cb) {
         }
         else {
             for (let i = 0; i < assets.length; i++) {
-                builtin[`${assets[i].name}`] = assets[i];
+                var asset = assets[i];
+                var deps = cc.loader.getDependsRecursively(asset);
+                deps.forEach(uuid => _builtinDeps[uuid] = true);
+                builtin[`${asset.name}`] = asset;
             }
         }
 
@@ -444,6 +449,10 @@ AssetLibrary.resetBuiltins = function () {
         effect: {},
         material: {}
     };
+    _builtinDeps = {};
 };
+AssetLibrary.getBuiltinDeps = function () {
+    return _builtinDeps;
+}
 
 module.exports = cc.AssetLibrary = AssetLibrary;
