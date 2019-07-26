@@ -3,6 +3,7 @@
  */
 
 import { intersect, sphere } from '../../3d/geom-utils';
+import { ccclass } from '../../core/data/class-decorator';
 import { Root } from '../../core/root';
 import { v3 } from '../../core/value-types/vec3';
 import { vec3 } from '../../core/vmath';
@@ -15,12 +16,10 @@ import { LightType } from '../../renderer/scene/light';
 import { SphereLight } from '../../renderer/scene/sphere-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
 import { cullDirectionalLight, cullSphereLight, cullSpotLight } from '../culling';
-import { PIPELINE_FLOW_FORWARD, PIPELINE_FLOW_SMAA, PIPELINE_FLOW_TONEMAP, RenderPassStage, UBOForwardLight } from '../define';
-import { ToneMapFlow } from '../ppfx/tonemap-flow';
-import { IRenderPipelineInfo, RenderPipeline } from '../render-pipeline';
+import { PIPELINE_FLOW_FORWARD, PIPELINE_FLOW_TONEMAP, RenderPassStage, UBOForwardLight } from '../define';
+import { RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { UIFlow } from '../ui/ui-flow';
-import { ForwardFlow } from './forward-flow';
 
 /**
  * @zh
@@ -41,6 +40,7 @@ const _tempVec3 = v3();
  * @zh
  * 前向渲染管线。
  */
+@ccclass('ForwardPipeline')
 export class ForwardPipeline extends RenderPipeline {
 
     /**
@@ -81,8 +81,8 @@ export class ForwardPipeline extends RenderPipeline {
      * 构造函数。
      * @param root Root类实例。
      */
-    constructor (root: Root) {
-        super(root);
+    constructor () {
+        super();
         this._validLights = [];
         this._lightIndexOffset = [];
         this._lightIndices = [];
@@ -93,9 +93,10 @@ export class ForwardPipeline extends RenderPipeline {
      * 初始化函数。
      * @param info 渲染管线描述信息。
      */
-    public initialize (info: IRenderPipelineInfo): boolean {
+    public initialize (root: Root): boolean {
 
-        if (!this._initialize(info)) {
+        super.initialize(root);
+        if (!this._initialize()) {
             return false;
         }
 
@@ -134,10 +135,8 @@ export class ForwardPipeline extends RenderPipeline {
         this.addRenderPass(RenderPassStage.DEFAULT, windowPass);
 
         // create flows
-        this.createFlow(ForwardFlow, {
-            name: PIPELINE_FLOW_FORWARD,
-            priority: ForwardFlowPriority.FORWARD,
-        });
+
+        this.activateFlow(this.getFlow(PIPELINE_FLOW_FORWARD)!);
 
         if (this._usePostProcess) {
             if (this._useSMAA) {
@@ -148,10 +147,7 @@ export class ForwardPipeline extends RenderPipeline {
                 });
                 */
             }
-            this.createFlow(ToneMapFlow, {
-                name: PIPELINE_FLOW_TONEMAP,
-                priority: 0,
-            });
+            this.activateFlow(this.getFlow(PIPELINE_FLOW_TONEMAP)!);
         }
 
         this.createFlow(UIFlow, {

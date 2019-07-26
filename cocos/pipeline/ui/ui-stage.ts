@@ -5,7 +5,6 @@
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXClearFlag, GFXCommandBufferType } from '../../gfx/define';
 import { getPhaseID } from '../pass-phase';
-import { RenderFlow } from '../render-flow';
 import { RenderQueue, transparentCompareFn } from '../render-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
@@ -20,13 +19,8 @@ export class UIStage extends RenderStage {
 
     private _uiQueue: RenderQueue;
 
-    constructor (flow: RenderFlow) {
-        super(flow);
-        this._uiQueue = new RenderQueue({
-            isTransparent: true,
-            phases: getPhaseID('default'),
-            sortFunc: transparentCompareFn,
-        });
+    constructor () {
+        super();
     }
 
     public initialize (info: IRenderStageInfo): boolean {
@@ -40,6 +34,12 @@ export class UIStage extends RenderStage {
         if (info.framebuffer !== undefined) {
             this._framebuffer = info.framebuffer;
         }
+
+        this._uiQueue = new RenderQueue({
+            isTransparent: true,
+            phases: getPhaseID('default'),
+            sortFunc: transparentCompareFn,
+        });
 
         this._cmdBuff = this._device.createCommandBuffer({
             allocator: this._device.commandAllocator,

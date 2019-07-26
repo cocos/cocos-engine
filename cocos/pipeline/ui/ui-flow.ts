@@ -5,7 +5,6 @@
 
 import { UBOGlobal } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
-import { RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { UIStage } from './ui-stage';
 
@@ -15,8 +14,8 @@ import { UIStage } from './ui-stage';
  */
 export class UIFlow extends RenderFlow {
 
-    constructor (pipeline: RenderPipeline) {
-        super(pipeline);
+    constructor () {
+        super();
     }
 
     public initialize (info: IRenderFlowInfo): boolean {

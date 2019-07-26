@@ -2,12 +2,11 @@
  * @category pipeline.forward
  */
 
+import { ccclass } from '../../core/data/class-decorator';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXClearFlag, GFXCommandBufferType, GFXFilter, IGFXColor } from '../../gfx/define';
-import { getPhaseID } from '../pass-phase';
 import { SRGBToLinear } from '../pipeline-funcs';
-import { RenderFlow } from '../render-flow';
-import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
+import { RenderQueue } from '../render-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 
@@ -18,28 +17,15 @@ const bufs: GFXCommandBuffer[] = [];
  * @zh
  * 前向渲染阶段。
  */
+@ccclass('ForwardStage')
 export class ForwardStage extends RenderStage {
-
-    private _opaqueQueue: RenderQueue;
-    private _transparentQueue: RenderQueue;
 
     /**
      * 构造函数。
      * @param flow 渲染阶段。
      */
-    constructor (flow: RenderFlow) {
-        super(flow);
-
-        this._opaqueQueue = new RenderQueue({
-            isTransparent: false,
-            phases: getPhaseID('default'),
-            sortFunc: opaqueCompareFn,
-        });
-        this._transparentQueue = new RenderQueue({
-            isTransparent: true,
-            phases: getPhaseID('default') | getPhaseID('planarShadow'),
-            sortFunc: transparentCompareFn,
-        });
+    constructor () {
+        super();
     }
 
     /**
@@ -49,18 +35,19 @@ export class ForwardStage extends RenderStage {
      */
     public initialize (info: IRenderStageInfo): boolean {
 
-        if (info.name !== undefined) {
-            this._name = info.name;
-        }
+        super.initialize(info);
 
-        this._priority = info.priority;
+        this.activate();
 
+        return true;
+    }
+
+    public activate () {
+        super.activate();
         this._cmdBuff = this._device.createCommandBuffer({
             allocator: this._device.commandAllocator,
             type: GFXCommandBufferType.PRIMARY,
         });
-
-        return true;
     }
 
     /**
@@ -97,19 +84,18 @@ export class ForwardStage extends RenderStage {
      */
     public render (view: RenderView) {
 
-        this._opaqueQueue.clear();
-        this._transparentQueue.clear();
+        this._renderQueues.forEach(this.clearRenderQueue);
 
         for (const ro of this._pipeline.renderObjects) {
             for (let i = 0; i < ro.model.subModelNum; i++) {
                 for (let j = 0; j < ro.model.getSubModel(i).passes.length; j++) {
-                    this._opaqueQueue.insertRenderPass(ro, i, j);
-                    this._transparentQueue.insertRenderPass(ro, i, j);
+                    for (const rq of this._renderQueues) {
+                        rq.insertRenderPass(ro, i, j);
+                    }
                 }
             }
         }
-        this._opaqueQueue.sort();
-        this._transparentQueue.sort();
+        this._renderQueues.forEach(this.sortRenderQueue);
 
         const camera = view.camera;
 
@@ -135,9 +121,9 @@ export class ForwardStage extends RenderStage {
 
         if (this._pipeline.usePostProcess) {
             if (!this._pipeline.useMSAA) {
-                this._framebuffer = this._pipeline.curShadingFBO;
+                this._framebuffer = this._pipeline.getFrameBuffer(this._pipeline.currShading);
             } else {
-                this._framebuffer = this._pipeline.msaaShadingFBO;
+                this._framebuffer = this._pipeline.getFrameBuffer('msaa');
             }
         } else {
             this._framebuffer = view.window!.framebuffer;
@@ -149,9 +135,9 @@ export class ForwardStage extends RenderStage {
         cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea,
             camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
 
-        cmdBuff.execute(this._opaqueQueue.cmdBuffs.array, this._opaqueQueue.cmdBuffCount);
+        cmdBuff.execute(this._renderQueues[0].cmdBuffs.array, this._renderQueues[0].cmdBuffCount);
         cmdBuff.execute(planarShadow.cmdBuffs.array, planarShadow.cmdBuffCount);
-        cmdBuff.execute(this._transparentQueue.cmdBuffs.array, this._transparentQueue.cmdBuffCount);
+        cmdBuff.execute(this._renderQueues[1].cmdBuffs.array, this._renderQueues[1].cmdBuffCount);
 
         cmdBuff.endRenderPass();
         cmdBuff.end();
@@ -162,10 +148,18 @@ export class ForwardStage extends RenderStage {
         if (this._pipeline.useMSAA) {
             this._device.blitFramebuffer(
                 this._framebuffer,
-                this._pipeline.curShadingFBO,
+                this._pipeline.getFrameBuffer(this._pipeline.currShading),
                 this._renderArea,
                 this._renderArea,
                 GFXFilter.POINT);
         }
+    }
+
+    private clearRenderQueue (rq: RenderQueue) {
+        rq.clear();
+    }
+
+    private sortRenderQueue (rq: RenderQueue) {
+        rq.sort();
     }
 }

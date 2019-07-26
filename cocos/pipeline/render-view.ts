@@ -202,7 +202,7 @@ export class RenderView {
         if (!info.flows) {
             info.flows = ['ForwardFlow', 'ToneMapFlow', 'SMAAFlow'];
         }
-        const pipelineFlows = cc.director.root.pipeline.flows;
+        const pipelineFlows = cc.director.root.pipeline.activeFlows;
         for (const f of pipelineFlows) {
             if (info.flows.indexOf(f.name) !== -1) {
                 this.flows.push(f);

@@ -887,6 +887,10 @@ class Game extends EventTarget {
             cc.game.resume();
         });
     }
+
+    private setRenderPipeline (rppl) {
+        cc.director.root.setRenderPipeline(rppl);
+    }
 }
 
 cc.Game = Game;

@@ -5,7 +5,6 @@
 import { builtinResMgr } from '../3d/builtin';
 import { GFXDevice } from '../gfx/device';
 import { GFXWindow, IGFXWindowInfo } from '../gfx/window';
-import { ForwardPipeline } from '../pipeline/forward/forward-pipeline';
 import { RenderPipeline } from '../pipeline/render-pipeline';
 import { IRenderViewInfo, RenderView } from '../pipeline/render-view';
 import { IRenderSceneInfo, RenderScene } from '../renderer/scene/render-scene';
@@ -176,18 +175,6 @@ export class Root {
 
         builtinResMgr.initBuiltinRes(this._device);
 
-        this._pipeline = new ForwardPipeline(this);
-        if (!this._pipeline.initialize(info)) {
-            this.destroy();
-            return false;
-        }
-
-        this._ui = new UI(this);
-        if (!this._ui.initialize()) {
-            this.destroy();
-            return false;
-        }
-
         cc.view.on('design-resolution-changed', () => {
             const width = cc.game.canvas.width;
             const height = cc.game.canvas.height;
@@ -244,6 +231,16 @@ export class Root {
         }
     }
 
+    public setRenderPipeline (rppl: RenderPipeline) {
+        this._pipeline = rppl;
+        this._pipeline.initialize(this);
+        this._ui = new UI(this);
+        if (!this._ui.initialize()) {
+            this.destroy();
+            return false;
+        }
+    }
+
     /**
      * @zh
      * 激活指定窗口为当前窗口
@@ -279,8 +276,8 @@ export class Root {
         }
 
         for (const view of this._views) {
-            if (view.isEnable && view.window === this._curWindow) {
-                this._pipeline!.render(view);
+            if (view.isEnable && view.window === this._curWindow && this._pipeline) {
+                this._pipeline.render(view);
             }
         }
 
