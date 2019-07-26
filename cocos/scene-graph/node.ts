@@ -32,13 +32,12 @@ import { ccclass, property } from '../core/data/class-decorator';
 import Event from '../core/event/event';
 import { eventManager } from '../core/platform/event-manager';
 import { SystemEventType } from '../core/platform/event-manager/event-enum';
-import { Mat4, Quat, Vec3 } from '../core/value-types';
-import Size from '../core/value-types/size';
-import Vec2 from '../core/value-types/vec2';
+import { Mat4, Quat, Vec3, Size, Vec2 } from '../core/value-types';
 import { mat4, quat, vec3 } from '../core/vmath';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
 import { NodeEventProcessor } from './node-event-processor';
+import { INode } from '../core/utils/interfaces';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -59,7 +58,7 @@ const TRANFORM_ON = 1 << 0;
  * * 维护空间变换（坐标、旋转、缩放）信息
  */
 @ccclass('cc.Node')
-export class Node extends BaseNode {
+export class Node extends BaseNode implements INode {
     /**
      * @zh
      * 节点可能发出的事件类型
@@ -809,7 +808,7 @@ export class Node extends BaseNode {
      * 获取世界变换矩阵
      * @param out 输出到此目标矩阵
      */
-    public getWorldMatrix (out?: Mat4) {
+    public getWorldMatrix (out?: Mat4): Mat4 {
         this.updateWorldTransformFull();
         if (!out) { out = new Mat4(); }
         return mat4.copy(out, this._mat);
@@ -897,7 +896,7 @@ export class Node extends BaseNode {
         return this._eventProcessor;
     }
 
-    public getAnchorPoint (out?: Vec2) {
+    public getAnchorPoint (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -909,7 +908,7 @@ export class Node extends BaseNode {
         this.uiTransfromComp!.setAnchorPoint(point, y);
     }
 
-    public getContentSize (out?: Size) {
+    public getContentSize (out?: Size): Size {
         if (!out){
             out = new Size();
         }
@@ -972,10 +971,12 @@ export class Node extends BaseNode {
     }
 
     public pauseSystemEvents (recursive: boolean) {
+        // @ts-ignore
         eventManager.pauseTarget(this, recursive);
     }
 
     public resumeSystemEvents (recursive: boolean) {
+        // @ts-ignore
         eventManager.resumeTarget(this, recursive);
     }
 

@@ -2,22 +2,6 @@
  * @hidden
  */
 
-declare const global: any;
-const _global = typeof window === 'undefined' ? global : window;
-
-// tslint:disable: no-string-literal;
-if (typeof _global.CC_PHYSICS_CANNON === 'undefined') {
-    _global.CC_PHYSICS_CANNON = true;
-}
-
-if (typeof _global.CC_PHYSICS_AMMO === 'undefined') {
-    _global.CC_PHYSICS_AMMO = false;
-}
-
-if (typeof _global.CC_PHYSICS_BUILT_IN === 'undefined') {
-    _global.CC_PHYSICS_BUILT_IN = false;
-}
-
 // Cannon
 import { CannonRigidBody } from './cannon/cannon-body';
 import { CannonWorld } from './cannon/cannon-world';

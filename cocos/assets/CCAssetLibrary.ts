@@ -54,7 +54,9 @@ function isScene (asset) {
 // types
 
 function RawAssetEntry (url, type) {
+    // @ts-ignore
     this.url = url;
+    // @ts-ignore
     this.type = type;
 }
 

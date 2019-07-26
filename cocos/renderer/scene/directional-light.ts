@@ -1,8 +1,8 @@
 import { Quat, Vec3 } from '../../core/value-types';
 import { vec3 } from '../../core/vmath';
-import { Node } from '../../scene-graph';
 import { Light, LightType } from './light';
 import { RenderScene } from './render-scene';
+import { INode } from '../../core/utils/interfaces';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -31,7 +31,7 @@ export class DirectionalLight extends Light {
         return this._illum;
     }
 
-    constructor (scene: RenderScene, name: string, node: Node) {
+    constructor (scene: RenderScene, name: string, node: INode) {
         super(scene, name, node);
         this._type = LightType.DIRECTIONAL;
     }

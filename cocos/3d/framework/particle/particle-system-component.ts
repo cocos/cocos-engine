@@ -49,7 +49,9 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     public set capacity (val) {
         this._capacity = val;
+        // @ts-ignore
         if (this.renderer && this.renderer._model) {
+            // @ts-ignore
             this.renderer._model.setCapacity(this._capacity);
         }
     }
@@ -231,10 +233,12 @@ export class ParticleSystemComponent extends RenderableComponent {
     })
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
+        // @ts-ignore
         return super.sharedMaterials;
     }
 
     set sharedMaterials (val) {
+        // @ts-ignore
         super.sharedMaterials = val;
     }
 
@@ -556,7 +560,9 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     protected _onVisiblityChange (val) {
+        // @ts-ignore
         if (this.renderer._model) {
+            // @ts-ignore
             this.renderer._model.viewID = val;
         }
     }

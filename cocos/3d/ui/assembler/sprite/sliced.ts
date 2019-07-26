@@ -32,7 +32,6 @@ import { Mat4 } from '../../../../core/value-types';
 import { color4, vec3 } from '../../../../core/vmath';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
-import { Node } from '../../../../scene-graph/node';
 import { SpriteComponent } from '../../components';
 import { IAssembler } from '../base';
 
@@ -84,7 +83,7 @@ export const sliced: IAssembler = {
     updateVerts (sprite: SpriteComponent) {
         const renderData: RenderData | null = sprite.renderData;
         const datas: IRenderData[] = renderData!.datas;
-        const node: Node = sprite.node;
+        const node = sprite.node;
         const width = node.width!;
         const height = node.height!;
         const appx = node.anchorX! * width;
@@ -176,7 +175,7 @@ export const sliced: IAssembler = {
     },
 
     updateWorldVerts (sprite: SpriteComponent) {
-        const node: Node = sprite.node;
+        const node = sprite.node;
         const datas: IRenderData[] = sprite!.renderData!.datas;
 
         node.getWorldMatrix(matrix);

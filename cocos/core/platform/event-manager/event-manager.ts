@@ -30,11 +30,10 @@
 
 // tslint:disable:max-line-length
 
-import { Node } from '../../../scene-graph';
 import { Event } from '../../event';
-import * as js from '../../utils/js';
 import { EventTouch } from './CCEvent';
 import { EventListener, TouchOneByOne } from './event-listener';
+import { INode } from '../../utils/interfaces';
 const ListenerID = EventListener.ListenerID;
 
 // tslint:disable-next-line
@@ -126,7 +125,7 @@ class EventManager {
     private _nodeListenersMap: INodeListener = {};
     private _toAddedListeners: EventListener[] = [];
     private _toRemovedListeners: EventListener[] = [];
-    private _dirtyListeners: Node[] = [];
+    private _dirtyListeners: INode[] = [];
     private _inDispatch = 0;
     private _isEnabled = false;
     private _internalCustomListenerIDs: string[] = [];
@@ -137,7 +136,7 @@ class EventManager {
      * @param node - 暂停目标节点
      * @param recursive - 是否往子节点递归暂停。默认为 false。
      */
-    public pauseTarget (node: Node, recursive = false) {
+    public pauseTarget (node: INode, recursive = false) {
         if (!(node instanceof cc._BaseNode)) {
             cc.warnID(3506);
             return;
@@ -168,7 +167,7 @@ class EventManager {
      * @param node - 监听器节点。
      * @param recursive - 是否往子节点递归。默认为 false。
      */
-    public resumeTarget (node: Node, recursive = false) {
+    public resumeTarget (node: INode, recursive = false) {
         if (!(node instanceof cc._BaseNode)) {
             cc.warnID(3506);
             return;
@@ -591,8 +590,9 @@ class EventManager {
         this.dispatchEvent(ev);
     }
 
-    private _setDirtyForNode (node: Node) {
+    private _setDirtyForNode (node: INode) {
         // Mark the node dirty only when there is an event listener associated with it.
+        // @ts-ignore
         const selListeners = this._nodeListenersMap[node._id];
         if (selListeners !== undefined) {
             for (let j = 0, len = selListeners.length; j < len; j++) {
@@ -1031,7 +1031,7 @@ class EventManager {
         return false;
     }
 
-    private _associateNodeAndEventListener (node: Node, listener: EventListener) {
+    private _associateNodeAndEventListener (node: INode, listener: EventListener) {
         let listeners = this._nodeListenersMap[node.uuid];
         if (!listeners) {
             listeners = [];
@@ -1040,7 +1040,7 @@ class EventManager {
         listeners.push(listener);
     }
 
-    private _dissociateNodeAndEventListener (node: Node, listener: EventListener) {
+    private _dissociateNodeAndEventListener (node: INode, listener: EventListener) {
         const listeners = this._nodeListenersMap[node.uuid];
         if (listeners) {
             cc.js.array.remove(listeners, listener);

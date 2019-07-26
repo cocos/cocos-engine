@@ -7,11 +7,11 @@ import CurveRange from '../../3d/framework/particle/animator/curve-range';
 import { Vec3 } from '../../core/value-types';
 import { vec3 } from '../../core/vmath';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
-import { Node } from '../../scene-graph';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 import GradientRange from '../../3d/framework/particle/animator/gradient-range';
-import { GFX_DRAW_INFO_SIZE } from '../../gfx/buffer';
+import { GFX_DRAW_INFO_SIZE, IGFXIndirectBuffer, GFXBuffer } from '../../gfx/buffer';
+import { INode } from '../../core/utils/interfaces';
 
 const _vertex_attrs = [
     { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F }, // xyz:position
@@ -26,18 +26,18 @@ const _temp_v2 = cc.v3();
 export class LineModel extends Model {
 
     private _capacity: number;
-    private _vertSize: number;
-    private _vBuffer: ArrayBuffer | null;
-    private _vertAttrsFloatCount: number;
-    private _vdataF32: Float32Array | null;
-    private _vdataUint32: Uint32Array | null;
+    private _vertSize: number = 0;
+    private _vBuffer: ArrayBuffer | null = null;
+    private _vertAttrsFloatCount: number = 0;
+    private _vdataF32: Float32Array | null = null;
+    private _vdataUint32: Uint32Array | null = null;
     private _iaInfo: IGFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer;
-    private _subMeshData: IRenderingSubmesh | null;
+    private _subMeshData: IRenderingSubmesh | null = null;
     private _vertCount: number = 0;
     private _indexCount: number = 0;
 
-    constructor (scene: RenderScene, node: Node) {
+    constructor (scene: RenderScene, node: INode) {
         super(scene, node);
         this._capacity = 100;
         this._iaInfo = {
@@ -111,6 +111,7 @@ export class LineModel extends Model {
         });
 
         indexBuffer.update(indices);
+
 
         this._iaInfo.drawInfos[0].vertexCount = this._capacity * this._vertCount;
         this._iaInfo.drawInfos[0].indexCount = (this._capacity - 1) * this._indexCount;

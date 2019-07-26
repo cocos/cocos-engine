@@ -28,7 +28,7 @@
  * @category core
  */
 
-import { widgetManager } from '../3d';
+import { widgetManager } from '../3d/ui/components/widget-manager';
 // import SkinningModelSystem from '../3d/framework/skinning-model-system';
 import { PhysicsSystem } from '../3d/framework/physics/physics-system';
 import { autoRelease } from '../load-pipeline/auto-release-utils';

@@ -19,11 +19,11 @@ export function cullDirectionalLight (light: DirectionalLight, model: Model) {
 }
 
 export function cullSphereLight (light: SphereLight, model: Model) {
-    return cullLight(light, model) || (model.worldBounds && !intersect.aabb_aabb(model.worldBounds, light.aabb));
+    return cullLight(light, model) || !!(model.worldBounds && !intersect.aabb_aabb(model.worldBounds, light.aabb));
 }
 
 export function cullSpotLight (light: SpotLight, model: Model) {
-    return cullLight(light, model) || (model.worldBounds &&
+    return cullLight(light, model) || !!(model.worldBounds &&
                 (!intersect.aabb_aabb(model.worldBounds, light.aabb) || !intersect.aabb_frustum(model.worldBounds, light.frustum)));
 }
 
