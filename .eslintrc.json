@@ -51,10 +51,6 @@
             ]
         }],
         "@typescript-eslint/class-name-casing": "warn",
-        "@typescript-eslint/consistent-type-assertions": ["warn", {
-            "assertionStyle": "as",
-            "objectLiteralTypeAssertions": "allow-as-parameter"
-        }],
         "@typescript-eslint/consistent-type-definitions": "off",
         "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/explicit-member-accessibility": ["warn", {
@@ -103,7 +99,6 @@
         "@typescript-eslint/no-this-alias": "warn",
         "@typescript-eslint/no-type-alias": "off",
         "@typescript-eslint/no-unnecessary-qualifier": "off",
-        "@typescript-eslint/no-unnecessary-type-arguments": "warn",
         "@typescript-eslint/no-unnecessary-type-assertion": "warn",
         "@typescript-eslint/no-unused-vars": "off",
         "@typescript-eslint/no-use-before-define": "off",
