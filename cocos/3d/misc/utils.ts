@@ -463,8 +463,8 @@ export function calculateSkinnedBounds (out: aabb, comp: SkinningModelComponent)
         aabb.copy(out, comp.model.worldBounds);
         return true;
     }
-    vec3.set(v3_3, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
-    vec3.set(v3_4, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+    Vec3.set(v3_3, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
+    Vec3.set(v3_4, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
     root.getWorldMatrix(m4_1);
     const boundList = boneSpaceBoundsManager.use(comp.mesh, skeleton);
     const len = skeleton.joints.length;
@@ -477,12 +477,12 @@ export function calculateSkinnedBounds (out: aabb, comp: SkinningModelComponent)
         const position = nodeData.props.position.values[fid];
         const rotation = nodeData.props.rotation.values[fid];
         const scale = nodeData.props.scale.values[fid];
-        mat4.fromRTS(m4_2, rotation, position, scale);
-        mat4.multiply(m4_2, m4_1, m4_2);
+        Mat4.fromRTS(m4_2, rotation, position, scale);
+        Mat4.multiply(m4_2, m4_1, m4_2);
         aabb.transform(ab_1, bounds, m4_2);
         ab_1.getBoundary(v3_1, v3_2);
-        vec3.min(v3_3, v3_3, v3_1);
-        vec3.max(v3_4, v3_4, v3_2);
+        Vec3.min(v3_3, v3_3, v3_1);
+        Vec3.max(v3_4, v3_4, v3_2);
     }
     aabb.fromPoints(out, v3_3, v3_4);
     return true;

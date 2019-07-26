@@ -261,7 +261,7 @@ export class Node extends BaseNode implements INode {
      */
     public rotate (rot: Quat, ns?: NodeSpace) {
         const space = ns || NodeSpace.LOCAL;
-        quat.normalize(q_a, rot);
+        Quat.normalize(q_a, rot);
 
         if (space === NodeSpace.LOCAL) {
             Quat.multiply(this._lrot, this._lrot, q_a);
