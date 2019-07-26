@@ -314,7 +314,7 @@ export default class Color extends ValueType {
      * @param opt 格式选项。
      * @returns 当前颜色的 CSS 格式。
      */
-    public toCSS (opt: 'rgba' | 'rgb' | '#rrggbb') {
+    public toCSS (opt: 'rgba' | 'rgb' | '#rrggbb' | '#rrggbbaa') {
         if (opt === 'rgba') {
             return 'rgba(' +
                 (this.r | 0) + ',' +
