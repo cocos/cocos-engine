@@ -223,20 +223,6 @@ VertexBuffer : function (
 gfx.Device = {
 
 /**
- * @method setTexture
- * @param {String} arg0
- * @param {cc.renderer::Texture} arg1
- * @param {int} arg2
- */
-setTexture : function (
-str, 
-texture, 
-int 
-)
-{
-},
-
-/**
  * @method setBlendFuncSeparate
  * @param {cc.renderer::BlendFactor} arg0
  * @param {cc.renderer::BlendFactor} arg1
@@ -376,20 +362,6 @@ int
  * @method enableDepthWrite
  */
 enableDepthWrite : function (
-)
-{
-},
-
-/**
- * @method setTextureArray
- * @param {String} arg0
- * @param {Array} arg1
- * @param {Array} arg2
- */
-setTextureArray : function (
-str, 
-array, 
-array 
 )
 {
 },

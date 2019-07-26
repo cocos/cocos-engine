@@ -454,29 +454,6 @@ bool js_register_gfx_VertexBuffer(se::Object* obj)
 se::Object* __jsb_cocos2d_renderer_DeviceGraphics_proto = nullptr;
 se::Class* __jsb_cocos2d_renderer_DeviceGraphics_class = nullptr;
 
-static bool js_gfx_DeviceGraphics_setTexture(se::State& s)
-{
-    cocos2d::renderer::DeviceGraphics* cobj = (cocos2d::renderer::DeviceGraphics*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_DeviceGraphics_setTexture : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 3) {
-        std::string arg0;
-        cocos2d::renderer::Texture* arg1 = nullptr;
-        int arg2 = 0;
-        ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_native_ptr(args[1], &arg1);
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (int)tmp; } while(false);
-        SE_PRECONDITION2(ok, false, "js_gfx_DeviceGraphics_setTexture : Error processing arguments");
-        cobj->setTexture(std::hash<std::string>{}(arg0), arg1, arg2);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DeviceGraphics_setTexture)
-
 static bool js_gfx_DeviceGraphics_setBlendFuncSeparate(se::State& s)
 {
     cocos2d::renderer::DeviceGraphics* cobj = (cocos2d::renderer::DeviceGraphics*)s.nativeThisObject();
@@ -749,29 +726,6 @@ static bool js_gfx_DeviceGraphics_enableDepthWrite(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_gfx_DeviceGraphics_enableDepthWrite)
-
-static bool js_gfx_DeviceGraphics_setTextureArray(se::State& s)
-{
-    cocos2d::renderer::DeviceGraphics* cobj = (cocos2d::renderer::DeviceGraphics*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_DeviceGraphics_setTextureArray : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 3) {
-        std::string arg0;
-        std::vector<cocos2d::renderer::Texture *> arg1;
-        std::vector<int> arg2;
-        ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_std_vector_Texture(args[1], &arg1);
-        ok &= seval_to_std_vector_int(args[2], &arg2);
-        SE_PRECONDITION2(ok, false, "js_gfx_DeviceGraphics_setTextureArray : Error processing arguments");
-        cobj->setTextureArray(std::hash<std::string>{}(arg0), arg1, arg2);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DeviceGraphics_setTextureArray)
 
 static bool js_gfx_DeviceGraphics_getCapacity(se::State& s)
 {
@@ -1145,7 +1099,6 @@ bool js_register_gfx_DeviceGraphics(se::Object* obj)
 {
     auto cls = se::Class::create("Device", obj, nullptr, nullptr);
 
-    cls->defineFunction("setTexture", _SE(js_gfx_DeviceGraphics_setTexture));
     cls->defineFunction("setBlendFuncSep", _SE(js_gfx_DeviceGraphics_setBlendFuncSeparate));
     cls->defineFunction("enableBlend", _SE(js_gfx_DeviceGraphics_enableBlend));
     cls->defineFunction("setPrimitiveType", _SE(js_gfx_DeviceGraphics_setPrimitiveType));
@@ -1158,7 +1111,6 @@ bool js_register_gfx_DeviceGraphics(se::Object* obj)
     cls->defineFunction("setScissor", _SE(js_gfx_DeviceGraphics_setScissor));
     cls->defineFunction("setVertexBuffer", _SE(js_gfx_DeviceGraphics_setVertexBuffer));
     cls->defineFunction("enableDepthWrite", _SE(js_gfx_DeviceGraphics_enableDepthWrite));
-    cls->defineFunction("setTextureArray", _SE(js_gfx_DeviceGraphics_setTextureArray));
     cls->defineFunction("getCapacity", _SE(js_gfx_DeviceGraphics_getCapacity));
     cls->defineFunction("setStencilOpBack", _SE(js_gfx_DeviceGraphics_setStencilOpBack));
     cls->defineFunction("setViewport", _SE(js_gfx_DeviceGraphics_setViewport));

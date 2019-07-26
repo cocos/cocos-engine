@@ -98,7 +98,7 @@ private:
     std::unordered_map<size_t, Template> _templates;
     std::unordered_map<uint64_t, Program*> _cache;
     
-    Program* _current;
+    Program* _current = nullptr;
 };
 
 // end of renderer group
