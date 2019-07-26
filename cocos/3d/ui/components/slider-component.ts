@@ -32,10 +32,10 @@ import { Component, EventHandler as ComponentEventHandler } from '../../../compo
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { EventTouch, SystemEventType } from '../../../core/platform';
 import Touch from '../../../core/platform/event-manager/CCTouch';
-import { clamp01 } from '../../../core/utils';
 import { Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import { vec3 } from '../../../core/vmath';
+import { clamp01 } from '../../../core/vmath/utils';
 import { SpriteComponent } from './sprite-component';
 
 const _tempPos = new Vec3();
