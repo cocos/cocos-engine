@@ -118,6 +118,7 @@ export class SkeletalAnimationClip extends AnimationClip {
             }
         }
         this._keys = [values.map((_, i) => i / this.sample)];
+        this._duration = (values.length - 1) / this.sample;
         this._converted = true;
     }
 
@@ -164,6 +165,8 @@ export class SkeletalAnimationClip extends AnimationClip {
         }
     }
 
+    // this incorrectly assumes any rig node will never be the parent nodes of others
+    // can only be fixed if we use a different rigging interface other than just attach child node to bone nodes
     private _convertToRiggingData (targetNode: Node, root: Node) {
         const targetPath = getPathFromRoot(targetNode, root);
         // find lowest joint animation

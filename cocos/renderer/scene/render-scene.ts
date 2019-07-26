@@ -6,6 +6,8 @@ import { Mat4, Vec3 } from '../../core/value-types';
 import { mat4, vec3 } from '../../core/vmath';
 import { GFXPrimitiveMode } from '../../gfx/define';
 import { Layers } from '../../scene-graph/layers';
+import { Node } from '../../scene-graph/node';
+import { JointsTexturePool } from '../models/joints-texture-utils';
 import { Ambient } from './ambient';
 import { Camera, ICameraInfo } from './camera';
 import { DirectionalLight } from './directional-light';
@@ -15,7 +17,6 @@ import { Skybox } from './skybox';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
 import { INode } from '../../core/utils/interfaces';
-import { Node } from '../../scene-graph';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -78,6 +79,10 @@ export class RenderScene {
         return this._models;
     }
 
+    get texturePool () {
+        return this._texturePool;
+    }
+
     public static registerCreateFunc (root: Root) {
         root._createSceneFun = (_root: Root): RenderScene => new RenderScene(_root);
     }
@@ -94,6 +99,7 @@ export class RenderScene {
     private _spotLights: SpotLight[] = [];
     private _models: Model[] = [];
     private _modelId: number = 0;
+    private _texturePool: JointsTexturePool;
 
     constructor (root: Root) {
         this._root = root;
@@ -105,10 +111,12 @@ export class RenderScene {
         this._ambient = new Ambient(this);
         this._skybox = new Skybox(this);
         this._planarShadows = new PlanarShadows(this);
+        this._texturePool = new JointsTexturePool(root.device);
     }
 
     public initialize (info: IRenderSceneInfo): boolean {
         this._name = info.name;
+        this._texturePool.initialize();
         return true;
     }
 
@@ -117,7 +125,8 @@ export class RenderScene {
         this.destroyPointLights();
         this.destroySpotLights();
         this.destroyModels();
-        this.planarShadows.destroy();
+        this._planarShadows.destroy();
+        this._texturePool.destroy();
     }
 
     public createCamera (info: ICameraInfo): Camera {
@@ -315,7 +324,7 @@ const pool = new RecyclePool<IRaycastResult>(() => {
     return { node: null!, distance: Infinity };
 }, 8);
 const results: IRaycastResult[] = [];
-/** UI raycast result pool  */
+/** UI raycast result pool */
 const aabbUI = new aabb();
 const poolUI = new RecyclePool<IRaycastResult>(() => {
     return { node: null!, distance: Infinity };
