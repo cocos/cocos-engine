@@ -42,7 +42,7 @@ import { UITransformComponent } from '../ui-transfrom-component';
 import { EditBoxImpl } from './edit-box-impl';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { INode } from '../../../../core/utils/interfaces';
-import { Node } from '../../../../scene-graph';
+import { Node } from '../../../../scene-graph/node';
 
 const LEFT_PADDING = 2;
 
@@ -644,9 +644,9 @@ export class EditBoxComponent extends Component {
         }
 
         if (!this._placeholderLabel) {
-            let node = this.node.getChildByName('PLACEHOLDER_LABEL') as INode;
+            let node = this.node.getChildByName('PLACEHOLDER_LABEL');
             if (!node) {
-                node = new cc.Node('PLACEHOLDER_LABEL') as INode;
+                node = new Node('PLACEHOLDER_LABEL') as INode;
             }
             let placeholderLabel = node!.getComponent(LabelComponent);
             if (!placeholderLabel) {
