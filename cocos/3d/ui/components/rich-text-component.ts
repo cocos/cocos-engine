@@ -41,6 +41,7 @@ import { SpriteComponent } from './sprite-component';
 import { UIComponent } from './ui-component';
 import { UIRenderComponent } from './ui-render-component';
 import { UITransformComponent } from './ui-transfrom-component';
+import { INode } from '../../../core/utils/interfaces';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
@@ -92,7 +93,7 @@ const pool = new Pool((labelSeg: ILabelSegment) => {
 // @ts-ignore
 pool.get = function (str: string, richtext: RichTextComponent) {
     let labelSeg = this._get();
-    if (!labelSeg){
+    if (!labelSeg) {
         labelSeg = {
             node: new PrivateNode(RichTextChildName),
             comp: null,
@@ -150,7 +151,7 @@ pool.get = function (str: string, richtext: RichTextComponent) {
     return labelObj;
 };
 
-interface ILabelSegment{
+interface ILabelSegment {
     node: PrivateNode;
     comp: UIRenderComponent | null;
     clickHandler: '';
@@ -180,7 +181,7 @@ export class RichTextComponent extends UIComponent {
         return this._string;
     }
     set string (value) {
-        if (this._string === value){
+        if (this._string === value) {
             return;
         }
 
@@ -315,7 +316,7 @@ export class RichTextComponent extends UIComponent {
      * 选中此选项后，RichText 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点。
      */
     @property
-    get handleTouchEvent (){
+    get handleTouchEvent () {
         return this._handleTouchEvent;
     }
 
@@ -393,7 +394,7 @@ export class RichTextComponent extends UIComponent {
     }
 
     public onRestore () {
-        if (!CC_EDITOR){
+        if (!CC_EDITOR) {
             return;
         }
 
@@ -499,7 +500,7 @@ export class RichTextComponent extends UIComponent {
 
     private _containsTouchLocation (label: ILabelSegment, point: Vec2) {
         const comp = label.node.getComponent(UITransformComponent);
-        if (!comp){
+        if (!comp) {
             return false;
         }
 
@@ -508,9 +509,9 @@ export class RichTextComponent extends UIComponent {
     }
 
     private _resetState () {
-        const children = this.node.children;
+        const children = this.node.children as Mutable<INode[]>;
 
-        for (let i = children.length - 1; i >= 0; i--){
+        for (let i = children.length - 1; i >= 0; i--) {
             const child = children[i];
             if (child.name === RichTextChildName || child.name === RichTextChildImageName) {
                 if (child.parent === this.node) {
@@ -526,7 +527,7 @@ export class RichTextComponent extends UIComponent {
                         return seg.node === child;
                     });
 
-                    if (index !== -1){
+                    if (index !== -1) {
                         pool.put(this._labelSegments[index]);
                     }
                 }
@@ -688,7 +689,7 @@ export class RichTextComponent extends UIComponent {
     }
 
     private _addRichTextImageElement (richTextElement: IHtmlTextParserResultObj) {
-        if (!richTextElement.style){
+        if (!richTextElement.style) {
             return;
         }
 
@@ -784,7 +785,7 @@ export class RichTextComponent extends UIComponent {
         for (let i = 0; i < this._textArray.length; ++i) {
             const richTextElement = this._textArray[i];
             const text = richTextElement.text;
-            if (text === undefined){
+            if (text === undefined) {
                 continue;
             }
 
