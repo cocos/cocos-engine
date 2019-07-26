@@ -255,7 +255,12 @@ export default class TrailModule {
     })
     private _space = Space.World;
 
-    private _particleSystem: any;
+    @property({
+        type: cc.ParticleSystemComponent,
+        visible: false,
+    })
+    private _particleSystem: any = null;
+
     private _minSquaredDistance: number = 0;
     private _vertSize: number;
     private _trailNum: number = 0;
