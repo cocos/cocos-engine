@@ -128,7 +128,7 @@ void Application::setPreferredFramesPerSecond(int fps)
 
 std::string Application::getCurrentLanguageCode() const
 {
-    std::string language = getCurrentLanguageJNI();
+    std::string language = getCurrentLanguageCodeJNI();
     return language;
 }
 
