@@ -60,7 +60,7 @@ export interface INode {
      * @zh
      * 孩子节点数组
      */
-    children: Readonly<this[]> | null;
+    children: Readonly<this[]>;
     childrenCount: number;
 
     /**
