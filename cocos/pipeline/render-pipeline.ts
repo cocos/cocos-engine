@@ -3,6 +3,7 @@
  */
 
 import { intersect } from '../3d/geom-utils';
+import { ccclass, property } from '../core/data/class-decorator';
 import { Root } from '../core/root';
 import { Mat4, Vec3, Vec4 } from '../core/math';
 import { GFXBuffer } from '../gfx/buffer';
@@ -11,13 +12,8 @@ import {
     GFXBufferUsageBit,
     GFXFormat,
     GFXFormatInfos,
-    GFXLoadOp,
     GFXMemoryUsageBit,
-    GFXStoreOp,
-    GFXTextureLayout,
-    GFXTextureType,
-    GFXTextureUsageBit,
-    GFXTextureViewType} from '../gfx/define';
+    GFXTextureUsageBit } from '../gfx/define';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
@@ -29,6 +25,7 @@ import { IDefineMap } from '../renderer/core/pass';
 import { programLib } from '../renderer/core/program-lib';
 import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_ENVIRONMENT } from './define';
 import { IInternalBindingInst } from './define';
+import { FrameBufferDesc, RenderPassDesc, RenderTextureDesc } from './pipeline-serialization';
 import { IRenderFlowInfo, RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 
@@ -53,6 +50,7 @@ export interface IRenderPipelineInfo {
  * @zh
  * 渲染流程。
  */
+@ccclass('RenderPipeline')
 export abstract class RenderPipeline {
 
     /**
@@ -93,6 +91,10 @@ export abstract class RenderPipeline {
      */
     public get flows (): RenderFlow[] {
         return this._flows;
+    }
+
+    public get activeFlows (): RenderFlow[] {
+        return this._activeFlows;
     }
 
     /**
@@ -141,54 +143,6 @@ export abstract class RenderPipeline {
 
     /**
      * @zh
-     * 深度模板纹理视图。
-     */
-    public get depthStencilTexView (): GFXTextureView {
-        return this._depthStencilTexView!;
-    }
-
-    /**
-     * @zh
-     * 着色纹理视图数组的当前帧缓冲索引。
-     */
-    public get curShadingTexView (): GFXTextureView {
-        return this._shadingTexViews[this._curIdx];
-    }
-
-    /**
-     * @zh
-     * 着色纹理视图数组的上一帧缓冲索引。
-     */
-    public get prevShadingTexView (): GFXTextureView {
-        return this._shadingTexViews[this._prevIdx];
-    }
-
-    /**
-     * @zh
-     * 着色帧缓冲数组的当前帧缓冲索引。
-     */
-    public get curShadingFBO (): GFXFramebuffer {
-        return this._shadingFBOs[this._curIdx];
-    }
-
-    /**
-     * @zh
-     * 着色帧缓冲数组的上一帧缓冲索引。
-     */
-    public get prevShadingFBO (): GFXFramebuffer {
-        return this._shadingFBOs[this._prevIdx];
-    }
-
-    /**
-     * @zh
-     * MSAA着色帧缓冲。
-     */
-    public get msaaShadingFBO (): GFXFramebuffer {
-        return this._msaaShadingFBO!;
-    }
-
-    /**
-     * @zh
      * 启用MSAA。
      */
     public get useMSAA (): boolean {
@@ -201,38 +155,6 @@ export abstract class RenderPipeline {
      */
     public get useSMAA (): boolean {
         return this._useSMAA;
-    }
-
-    /**
-     * @zh
-     * SMAA边缘纹理视图。
-     */
-    public get smaaEdgeTexView (): GFXTextureView {
-        return this._smaaEdgeTexView!;
-    }
-
-    /**
-     * @zh
-     * SMAA边缘帧缓冲。
-     */
-    public get smaaEdgeFBO (): GFXFramebuffer {
-        return this._smaaEdgeFBO!;
-    }
-
-    /**
-     * @zh
-     * SMAA混合纹理视图。
-     */
-    public get smaaBlendTexView (): GFXTextureView {
-        return this._smaaBlendTexView!;
-    }
-
-    /**
-     * @zh
-     * SMAA混合帧缓冲。
-     */
-    public get smaaBlendFBO (): GFXFramebuffer {
-        return this._smaaBlendFBO!;
     }
 
     /**
@@ -291,6 +213,14 @@ export abstract class RenderPipeline {
         return this._uboGlobal!.view;
     }
 
+    get currShading () {
+        return this._curIdx;
+    }
+
+    get prevShading () {
+        return this._prevIdx;
+    }
+
     /**
      * @zh
      * Root类对象。
@@ -317,15 +247,14 @@ export abstract class RenderPipeline {
 
     /**
      * @zh
-     * 渲染过程数组。
-     */
-    protected _renderPasses: Map<number, GFXRenderPass> = new Map();
-
-    /**
-     * @zh
      * 渲染流程数组。
      */
+    @property({
+        type: [RenderFlow],
+    })
     protected _flows: RenderFlow[] = [];
+
+    protected _activeFlows: RenderFlow[] = [];
 
     /**
      * @zh
@@ -347,45 +276,9 @@ export abstract class RenderPipeline {
 
     /**
      * @zh
-     * 着色渲染过程。
-     */
-    protected _shadingPass: GFXRenderPass | null = null;
-
-    /**
-     * @zh
      * 帧缓冲数量。
      */
     protected _fboCount: number = 0;
-
-    /**
-     * @zh
-     * MSAA着色纹理。
-     */
-    protected _msaaShadingTex: GFXTexture | null = null;
-
-    /**
-     * @zh
-     * MSAA着色纹理视图。
-     */
-    protected _msaaShadingTexView: GFXTextureView | null = null;
-
-    /**
-     * @zh
-     * MSAA深度模板纹理。
-     */
-    protected _msaaDepthStencilTex: GFXTexture | null = null;
-
-    /**
-     * @zh
-     * MSAA深度模板纹理视图。
-     */
-    protected _msaaDepthStencilTexView: GFXTextureView | null = null;
-
-    /**
-     * @zh
-     * MSAA着色帧缓冲。
-     */
-    protected _msaaShadingFBO: GFXFramebuffer | null = null;
 
     /**
      * @zh
@@ -398,36 +291,6 @@ export abstract class RenderPipeline {
      * 深度模板格式。
      */
     protected _depthStencilFmt: GFXFormat = GFXFormat.UNKNOWN;
-
-    /**
-     * @zh
-     * 着色纹理数组。
-     */
-    protected _shadingTextures: GFXTexture[] = [];
-
-    /**
-     * @zh
-     * 着色纹理视图数组。
-     */
-    protected _shadingTexViews: GFXTextureView[] = [];
-
-    /**
-     * @zh
-     * 深度模板纹理。
-     */
-    protected _depthStencilTex: GFXTexture | null = null;
-
-    /**
-     * @zh
-     * 深度模板纹理视图。
-     */
-    protected _depthStencilTexView: GFXTextureView | null = null;
-
-    /**
-     * @zh
-     * 着色帧缓冲数组。
-     */
-    protected _shadingFBOs: GFXFramebuffer[] = [];
 
     /**
      * @zh
@@ -451,13 +314,13 @@ export abstract class RenderPipeline {
      * @zh
      * 当前帧缓冲索引。
      */
-    protected _curIdx: number = 0;
+    protected _curIdx: string = 'shading';
 
     /**
      * @zh
      * 上一帧缓冲索引。
      */
-    protected _prevIdx: number = 1;
+    protected _prevIdx: string = 'shading1';
 
     /**
      * @zh
@@ -476,48 +339,6 @@ export abstract class RenderPipeline {
      * 启用SMAA。
      */
     protected _useSMAA: boolean = false;
-
-    /**
-     * @zh
-     * SMAA渲染过程。
-     */
-    protected _smaaPass: GFXRenderPass | null = null;
-
-    /**
-     * @zh
-     * SMAA边缘帧缓冲。
-     */
-    protected _smaaEdgeFBO: GFXFramebuffer | null = null;
-
-    /**
-     * @zh
-     * SMAA边缘纹理。
-     */
-    protected _smaaEdgeTex: GFXTexture | null = null;
-
-    /**
-     * @zh
-     * SMAA边缘纹理视图。
-     */
-    protected _smaaEdgeTexView: GFXTextureView | null = null;
-
-    /**
-     * @zh
-     * SMAA混合帧缓冲。
-     */
-    protected _smaaBlendFBO: GFXFramebuffer | null = null;
-
-    /**
-     * @zh
-     * SMAA混合纹理。
-     */
-    protected _smaaBlendTex: GFXTexture | null = null;
-
-    /**
-     * @zh
-     * SMAA混合纹理视图。
-     */
-    protected _smaaBlendTexView: GFXTextureView | null = null;
 
     /**
      * @zh
@@ -579,13 +400,41 @@ export abstract class RenderPipeline {
      */
     protected _macros: IDefineMap = {};
 
+    @property({
+        type: [RenderTextureDesc],
+    })
+    protected renderTextures: RenderTextureDesc[] = [];
+    @property({
+        type: [FrameBufferDesc],
+    })
+    protected framebuffers: FrameBufferDesc[] = [];
+    @property({
+        type: [RenderPassDesc],
+    })
+    protected renderPasses: RenderPassDesc[] = [];
+    protected _renderTextures: Map<string, GFXTexture> = new Map<string, GFXTexture>();
+    protected _textureViews: Map<string, GFXTextureView> = new Map<string, GFXTextureView>();
+    protected _frameBuffers: Map<string, GFXFramebuffer> = new Map<string, GFXFramebuffer>();
+    protected _renderPasses: Map<number, GFXRenderPass> = new Map<number, GFXRenderPass>();
+
     /**
      * 构造函数。
      * @param root Root类实例。
      */
-    constructor (root: Root) {
-        this._root = root;
-        this._device = root.device;
+    constructor () {
+
+    }
+
+    public getTextureView (name: string) {
+        return this._textureViews.get(name);
+    }
+
+    public getRenderTexture (name: string) {
+        return this._renderTextures.get(name);
+    }
+
+    public getFrameBuffer (name: string) {
+        return this._frameBuffers.get(name);
     }
 
     /**
@@ -593,7 +442,10 @@ export abstract class RenderPipeline {
      * 初始化函数。
      * @param info 渲染管线描述信息。
      */
-    public abstract initialize (info: IRenderPipelineInfo): boolean;
+    public initialize (root: Root) {
+        this._root = root;
+        this._device = root.device;
+    }
 
     /**
      * @zh
@@ -707,19 +559,29 @@ export abstract class RenderPipeline {
      * 创建渲染流程。
      */
     public createFlow<T extends RenderFlow> (
-        clazz: new (pipeline: RenderPipeline) => T,
+        clazz: new () => T,
         info: IRenderFlowInfo): RenderFlow | null {
-        const flow: RenderFlow = new clazz(this);
+        const flow: RenderFlow = new clazz();
+        flow.setPipeline(this);
         if (flow.initialize(info)) {
-            this._flows.push(flow);
-            this._flows.sort((a: RenderFlow, b: RenderFlow) => {
-                return a.priority - b.priority;
-            });
-
+            this.activateFlow(flow);
             return flow;
         } else {
             return null;
         }
+    }
+
+    /**
+     * 激活一个RenderFlow，将其添加到可执行的RenderFlow数组中
+     * @param flow 运行时会执行的RenderFlow
+     */
+    public activateFlow (flow: RenderFlow) {
+        flow.setPipeline(this);
+        flow.activate();
+        this._activeFlows.push(flow);
+        this._activeFlows.sort((a: RenderFlow, b: RenderFlow) => {
+            return a.priority - b.priority;
+        });
     }
 
     /**
@@ -765,8 +627,9 @@ export abstract class RenderPipeline {
      * 内部初始化函数。
      * @param info 渲染流程描述信息。
      */
-    protected _initialize (info: IRenderPipelineInfo): boolean {
+    protected _initialize (): boolean {
 
+        const info: IRenderPipelineInfo = {};
         if (info.enablePostProcess !== undefined) {
             this._usePostProcess = info.enablePostProcess;
         } else {
@@ -783,9 +646,6 @@ export abstract class RenderPipeline {
 
             // this._isHDRSupported = false;
             this._fboCount = 1;
-            this._shadingTextures = new Array<GFXTexture>(this._fboCount);
-            this._shadingTexViews = new Array<GFXTextureView>(this._fboCount);
-            this._shadingFBOs = new Array<GFXFramebuffer>(this._fboCount);
 
             this._isHDR = (info.enableHDR !== undefined ? info.enableHDR : true);
 
@@ -853,151 +713,35 @@ export abstract class RenderPipeline {
         console.info('SHADING_COLOR_FORMAT: ' + GFXFormatInfos[this._colorFmt].name);
         console.info('SHADING_DEPTH_FORMAT: ' + GFXFormatInfos[this._depthStencilFmt].name);
 
-        this._shadingPass = this._device.createRenderPass({
-            colorAttachments: [{
-                format: this._colorFmt,
-                loadOp: GFXLoadOp.CLEAR,
-                storeOp: GFXStoreOp.STORE,
-                sampleCount: 1,
-                beginLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
-                endLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
-            }],
-            depthStencilAttachment: {
-                format : this._depthStencilFmt,
-                depthLoadOp : GFXLoadOp.CLEAR,
-                depthStoreOp : GFXStoreOp.STORE,
-                stencilLoadOp : GFXLoadOp.CLEAR,
-                stencilStoreOp : GFXStoreOp.STORE,
-                sampleCount : 1,
-                beginLayout : GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-                endLayout : GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-            },
-        });
-
-        if (this._useMSAA) {
-            this._msaaShadingTex  = this._device.createTexture({
-                type: GFXTextureType.TEX2D,
-                usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format: this._colorFmt,
-                width: this._shadingWidth,
-                height: this._shadingHeight,
-            });
-            this._msaaShadingTexView = this._device.createTextureView({
-                texture : this._msaaShadingTex,
-                type : GFXTextureViewType.TV2D,
-                format : this._colorFmt,
-            });
-            this._msaaDepthStencilTex = this._device.createTexture({
-                type : GFXTextureType.TEX2D,
-                usage : GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format : this._depthStencilFmt,
-                width : this._shadingWidth,
-                height : this._shadingHeight,
-            });
-            this._msaaDepthStencilTexView = this._device.createTextureView({
-                texture : this._msaaDepthStencilTex,
-                type : GFXTextureViewType.TV2D,
-                format : this._depthStencilFmt,
-            });
-            this._msaaShadingFBO = this._device.createFramebuffer({
-                renderPass: this._shadingPass,
-                colorViews: [ this._msaaShadingTexView ],
-                depthStencilView: this._msaaDepthStencilTexView!,
-            });
+        for (const rtd of this.renderTextures) {
+            this._renderTextures.set(rtd.name, this._device.createTexture({
+                type: rtd.type,
+                usage: rtd.usage,
+                format: this._getTextureFormat(rtd.format, rtd.usage),
+                width: rtd.width === -1 ? this._shadingWidth : rtd.width,
+                height: rtd.height === -1 ? this._shadingHeight : rtd.height,
+            }));
+            this._textureViews.set(rtd.name, this._device.createTextureView({
+                texture: this._renderTextures.get(rtd.name)!,
+                type: rtd.viewType,
+                format: this._getTextureFormat(rtd.format, rtd.usage),
+            }));
+        }
+        for (const rpd of this.renderPasses) {
+            this._renderPasses.set(rpd.index, this._device.createRenderPass({
+                colorAttachments: rpd.colorAttachments,
+                depthStencilAttachment: rpd.depthStencilAttachment,
+            }));
         }
 
-        if (this._fboCount > 0) {
-            this._depthStencilTex = this._device.createTexture({
-                type : GFXTextureType.TEX2D,
-                usage : GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format : this._depthStencilFmt,
-                width : this._shadingWidth,
-                height : this._shadingHeight,
-            });
-
-            this._depthStencilTexView = this._device.createTextureView({
-                texture : this._depthStencilTex,
-                type : GFXTextureViewType.TV2D,
-                format : this._depthStencilFmt,
-            });
-
-            for (let i = 0; i < this._fboCount; ++i) {
-                this._shadingTextures[i] = this._device.createTexture({
-                    type: GFXTextureType.TEX2D,
-                    usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                    format: this._colorFmt,
-                    width: this._shadingWidth,
-                    height: this._shadingHeight,
-                });
-
-                this._shadingTexViews[i] = this._device.createTextureView({
-                    texture : this._shadingTextures[i],
-                    type : GFXTextureViewType.TV2D,
-                    format : this._colorFmt,
-                });
-
-                this._shadingFBOs[i] = this._device.createFramebuffer({
-                    renderPass: this._shadingPass,
-                    colorViews: [ this._shadingTexViews[i] ],
-                    depthStencilView: this._depthStencilTexView!,
-                });
-            }
-        }
-
-        // create smaa framebuffer
-        if (this._useSMAA) {
-            const smaaColorFmt = GFXFormat.RGBA8;
-
-            this._smaaPass = this._device.createRenderPass({
-                colorAttachments: [{
-                    format: smaaColorFmt,
-                    loadOp: GFXLoadOp.CLEAR,
-                    storeOp: GFXStoreOp.STORE,
-                    sampleCount: 1,
-                    beginLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
-                    endLayout: GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL,
-                }],
-            });
-
-            this._smaaEdgeTex =  this._device.createTexture({
-                type: GFXTextureType.TEX2D,
-                usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format: smaaColorFmt,
-                width: this._shadingWidth,
-                height: this._shadingHeight,
-            });
-
-            this._smaaEdgeTexView = this._device.createTextureView({
-                texture : this._smaaEdgeTex,
-                type : GFXTextureViewType.TV2D,
-                format : smaaColorFmt,
-            });
-
-            this._smaaEdgeFBO = this._device.createFramebuffer({
-                renderPass: this._smaaPass,
-                colorViews: [ this._smaaEdgeTexView ],
-                depthStencilView: null,
-            });
-
-            this._smaaBlendTex =  this._device.createTexture({
-                type: GFXTextureType.TEX2D,
-                usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format: smaaColorFmt,
-                width: this._shadingWidth,
-                height: this._shadingHeight,
-            });
-
-            this._smaaBlendTexView = this._device.createTextureView({
-                texture : this._smaaBlendTex,
-                type : GFXTextureViewType.TV2D,
-                format : smaaColorFmt,
-            });
-
-            this._smaaBlendFBO = this._device.createFramebuffer({
-                renderPass: this._smaaPass,
-                colorViews: [ this._smaaBlendTexView ],
-                depthStencilView: null,
-            });
+        for (const fbd of this.framebuffers) {
+            this._frameBuffers.set(fbd.name, this._device.createFramebuffer({
+                renderPass: this._renderPasses.get(fbd.renderPass)!,
+                colorViews: fbd.colorViews.map((value) => {
+                    return this._textureViews.get(value)!;
+                }, this),
+                depthStencilView: this._textureViews.get(fbd.depthStencilView)!,
+            }));
         }
 
         if (!this.createQuadInputAssembler()) {
@@ -1022,87 +766,20 @@ export abstract class RenderPipeline {
         this.destroyQuadInputAssembler();
         this.destroyUBOs();
 
-        if (this._smaaEdgeTexView) {
-            this._smaaEdgeTexView.destroy();
-            this._smaaEdgeTexView = null;
+        for (const rt of this._renderTextures.values()) {
+            rt.destroy();
         }
 
-        if (this._smaaEdgeTex) {
-            this._smaaEdgeTex.destroy();
-            this._smaaEdgeTex = null;
+        for (const tv of this._textureViews.values()) {
+            tv.destroy();
         }
 
-        if (this._smaaEdgeFBO) {
-            this._smaaEdgeFBO.destroy();
-            this._smaaEdgeFBO = null;
+        for (const rp of this._renderPasses.values()) {
+            rp.destroy();
         }
 
-        if (this._smaaBlendTexView) {
-            this._smaaBlendTexView.destroy();
-            this._smaaBlendTexView = null;
-        }
-
-        if (this._smaaBlendTex) {
-            this._smaaBlendTex.destroy();
-            this._smaaBlendTex = null;
-        }
-
-        if (this._smaaBlendFBO) {
-            this._smaaBlendFBO.destroy();
-            this._smaaBlendFBO = null;
-        }
-
-        if (this._msaaShadingTexView) {
-            this._msaaShadingTexView.destroy();
-            this._msaaShadingTexView = null;
-        }
-        if (this._msaaShadingTex) {
-            this._msaaShadingTex.destroy();
-            this._msaaShadingTex = null;
-        }
-        if (this._msaaDepthStencilTexView) {
-            this._msaaDepthStencilTexView.destroy();
-            this._msaaDepthStencilTexView = null;
-        }
-        if (this._msaaDepthStencilTex) {
-            this._msaaDepthStencilTex.destroy();
-            this._msaaDepthStencilTex = null;
-        }
-        if (this._msaaShadingFBO) {
-            this._msaaShadingFBO.destroy();
-            this._msaaShadingFBO = null;
-        }
-
-        for (let i = 0; i < this._shadingTexViews.length; ++i) {
-            if (this._shadingTexViews[i]) {
-                this._shadingTexViews[i].destroy();
-            }
-
-            if (this._shadingTextures[i]) {
-                this._shadingTextures[i].destroy();
-            }
-
-            if (this._shadingFBOs[i]) {
-                this._shadingFBOs[i].destroy();
-            }
-        }
-
-        this._shadingTexViews.splice(0);
-        this._shadingTextures.splice(0);
-        this._shadingFBOs.splice(0);
-
-        if (this._depthStencilTexView) {
-            this._depthStencilTexView.destroy();
-            this._depthStencilTexView = null;
-        }
-        if (this._depthStencilTex) {
-            this._depthStencilTex.destroy();
-            this._depthStencilTex = null;
-        }
-
-        if (this._shadingPass) {
-            this._shadingPass.destroy();
-            this._shadingPass = null;
+        for (const fb of this._frameBuffers.values()) {
+            fb.destroy();
         }
     }
 
@@ -1117,84 +794,24 @@ export abstract class RenderPipeline {
         this._shadingWidth = width;
         this._shadingHeight = height;
 
-        if (this._depthStencilTex) {
-            this._depthStencilTex.resize(width, height);
-            this._depthStencilTexView!.destroy();
-            this._depthStencilTexView!.initialize({
-                texture : this._depthStencilTex,
-                type : GFXTextureViewType.TV2D,
-                format : this._depthStencilFmt,
+        for (const rtd of this.renderTextures.values()) {
+            this._renderTextures.get(rtd.name)!.resize(width, height);
+            this._textureViews.get(rtd.name)!.destroy();
+            this._textureViews.get(rtd.name)!.initialize({
+                texture: this._renderTextures.get(rtd.name)!,
+                type: rtd.viewType,
+                format: this._getTextureFormat(rtd.format, rtd.usage),
             });
         }
 
-        for (let i = 0; i < this._fboCount; ++i) {
-            this._shadingTextures[i].resize(width, height);
-            this._shadingTexViews[i].destroy();
-            this._shadingTexViews[i].initialize({
-                texture : this._shadingTextures[i],
-                type : GFXTextureViewType.TV2D,
-                format : this._colorFmt,
-            });
-
-            this._shadingFBOs[i].destroy();
-            this._shadingFBOs[i].initialize({
-                renderPass: this._shadingPass!,
-                colorViews: [ this._shadingTexViews[i] ],
-                depthStencilView: this._depthStencilTexView!,
-            });
-        }
-
-        if (this._useMSAA) {
-            this._msaaShadingTex!.resize(width, height);
-            this._msaaShadingTexView!.destroy();
-            this._msaaShadingTexView!.initialize({
-                texture : this._msaaShadingTex!,
-                type : GFXTextureViewType.TV2D,
-                format : this._colorFmt,
-            });
-            this._msaaDepthStencilTex!.resize(width, height);
-            this._msaaDepthStencilTexView!.destroy();
-            this._msaaDepthStencilTexView!.initialize({
-                texture : this._msaaDepthStencilTex!,
-                type : GFXTextureViewType.TV2D,
-                format : this._depthStencilFmt,
-            });
-            this._msaaShadingFBO!.destroy();
-            this._msaaShadingFBO!.initialize({
-                renderPass: this._shadingPass!,
-                colorViews: [ this._msaaShadingTexView! ],
-                depthStencilView: this._msaaDepthStencilTexView!,
-            });
-        }
-
-        if (this._useSMAA) {
-            const smaaColorFmt = this._smaaEdgeTex!.format;
-            this._smaaEdgeTex!.resize(width, height);
-            this._smaaEdgeTexView!.destroy();
-            this._smaaEdgeTexView!.initialize({
-                texture : this._smaaEdgeTex!,
-                type : GFXTextureViewType.TV2D,
-                format : smaaColorFmt,
-            });
-
-            this._smaaEdgeFBO!.destroy();
-            this._smaaEdgeFBO!.initialize({
-                renderPass: this._smaaPass!,
-                colorViews: [ this._smaaEdgeTexView! ],
-                depthStencilView: null,
-            });
-            this._smaaBlendTex!.resize(width, height);
-            this._smaaBlendTexView!.destroy();
-            this._smaaBlendTexView!.initialize({
-                texture : this._smaaBlendTex!,
-                type : GFXTextureViewType.TV2D,
-                format : smaaColorFmt,
-            });
-            this._smaaBlendFBO!.destroy();
-            this._smaaBlendFBO!.initialize({
-                renderPass: this._smaaPass!,
-                colorViews: [ this._smaaBlendTexView! ],
-                depthStencilView: null,
+        for (const fbd of this.framebuffers.values()) {
+            this._frameBuffers.get(fbd.name)!.destroy();
+            this._frameBuffers.get(fbd.name)!.initialize({
+                renderPass: this._renderPasses.get(fbd.renderPass)!,
+                colorViews: fbd.colorViews.map((value) => {
+                    return this._textureViews.get(value)!;
+                }, this),
+                depthStencilView: this._textureViews.get(fbd.depthStencilView)!,
             });
         }
 
@@ -1503,4 +1120,19 @@ export abstract class RenderPipeline {
             depth,
         });
     }
+
+    private _getTextureFormat (format: GFXFormat, usage: GFXTextureUsageBit) {
+        if (format === GFXFormat.UNKNOWN) {
+            if (usage & GFXTextureUsageBit.COLOR_ATTACHMENT) {
+                return this._colorFmt;
+            } else if (usage & GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT) {
+                return this._depthStencilFmt;
+            } else {
+                return GFXFormat.UNKNOWN;
+            }
+        } else {
+            return format;
+        }
+    }
 }
+cc.RenderPipeline = RenderPipeline;
