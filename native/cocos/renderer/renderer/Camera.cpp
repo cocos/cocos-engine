@@ -101,6 +101,11 @@ void Camera::setNode(NodeProxy* node)
 
 void Camera::extractView(View& out, int width, int height)
 {
+    if (_framebuffer != nullptr) {
+        width = _framebuffer->getWidth();
+        height = _framebuffer->getHeight();
+    }
+    
     // rect
     out.rect.set(_rect.x * width,
                  _rect.y * height,
@@ -108,7 +113,7 @@ void Camera::extractView(View& out, int width, int height)
                  _rect.h * height);
     
     // clear opts
-    out.color = _color;
+    out.color.set(_color.r, _color.g, _color.b, _color.a);
     out.depth = _depth;
     out.stencil = _stencil;
     out.clearFlags = _clearFlags;
@@ -158,7 +163,7 @@ Vec3& Camera::screenToWorld(Vec3& out, const Vec3& screenPos, int width, int hei
     {
         float x = _orthoHeight * aspect;
         float y = _orthoHeight;
-        Mat4::createOrthographic(-x, x, -y, y, &matProj);
+        Mat4::createOrthographic(-x, x, -y, y, _near, _far, &matProj);
     }
     
     _node->getWorldRT(&(const_cast<Camera*>(this)->_worldRTInv));
@@ -213,7 +218,7 @@ Vec3& Camera::worldToScreen(Vec3& out, const Vec3& worldPos, int width, int heig
     {
         float x = _orthoHeight * aspect;
         float y = _orthoHeight;
-        Mat4::createOrthographic(-x, x, -y, y, &matProj);
+        Mat4::createOrthographic(-x, x, -y, y, _near, _far, &matProj);
     }
     
     _node->getWorldRT(&(const_cast<Camera*>(this)->_worldRTInv));

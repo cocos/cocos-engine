@@ -31,6 +31,7 @@
 #include "../Macro.h"
 #include "../Types.h"
 #include "View.h"
+#include "../scene/NodeProxy.hpp"
 
 RENDERER_BEGIN
 
@@ -96,6 +97,7 @@ public:
      *  @brief The default constructor.
      */
     Light();
+    ~Light();
     
     /**
      *  @brief Sets the light color.
@@ -243,7 +245,7 @@ public:
     /**
      *  @brief Gets the world matrix.
      */
-    inline const Mat4& getWorldMatrix() const { return _worldMatrix; }
+    inline const Mat4& getWorldMatrix() const { return _node->getWorldMatrix(); }
     /**
      *  @brief Extract light informations to view.
      */
@@ -256,7 +258,10 @@ public:
      *  @brief Sets the shadow frustum size.
      */
     inline void setShadowFrustumSize(float val) {_shadowFustumSize = val;};
-    
+    /**
+     *  @brief Sets the related node proxy which provids model matrix for light.
+     */
+    void setNode(NodeProxy* node);
 private:
     void updateLightPositionAndDirection();
     void generateShadowMap(DeviceGraphics* device);
@@ -287,7 +292,7 @@ private:
     bool _shadowMapDirty = false;
     RenderBuffer* _shadowDepthBuffer = nullptr;
     uint32_t _shadowResolution = 1024;
-    float _shadowBias = 0.00005f;
+    float _shadowBias = 0.0005f;
     float _shadowDarkness = 1.f;
     float _shadowMinDepth = 1;
     float _shadowMaxDepth = 1000;
@@ -299,6 +304,8 @@ private:
     
     Mat4 _worldMatrix;
     Mat4 _worldRT;
+    
+    NodeProxy* _node = nullptr;
 
     Vec3 _forward = Vec3(0, 0, -1.f);
 };

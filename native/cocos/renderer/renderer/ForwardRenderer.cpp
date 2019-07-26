@@ -304,15 +304,15 @@ void ForwardRenderer::submitOtherStagesUniforms()
 {
     size_t count = _shadowLights.size();
     float* shadowLightInfo = _arrayPool->add();
-    static float* shadowLightProjs = new float[count * 16];
+    static float* shadowLightProjs = new float[4 * 16];
+    
     for (int i = 0; i < count; ++i)
     {
-        int index = i * 4;
-        
         Light* light = _shadowLights.at(i);
         const Mat4 view = light->getViewProjMatrix();
-        memcpy(shadowLightProjs + index, view.m, 16);
+        memcpy(shadowLightProjs + i * 16, view.m, sizeof(float) * 16);
         
+        int index = i * 4;
         *(shadowLightInfo + index) = light->getShadowMinDepth();
         *(shadowLightInfo + index + 1) = light->getShadowMaxDepth();
         *(shadowLightInfo + index + 2) = light->getShadowDepthScale();
@@ -407,7 +407,8 @@ void ForwardRenderer::shadowStage(const View& view, const std::vector<StageItem>
     
     for (auto& item : items)
     {
-        if (_programLib->getValueFromDefineList("CC_SHADOW_CASTING", *item.defines) != nullptr) {
+        const Value* def = _programLib->getValueFromDefineList("CC_SHADOW_CASTING", *item.defines);
+        if (def && def->asBool()) {
             updateShaderDefines(item);
             draw(item);
         }

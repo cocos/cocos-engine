@@ -131,11 +131,9 @@ void Mat4::createPerspective(float fieldOfView, float aspectRatio,
     dst->m[14] = -2.0f * zFarPlane * zNearPlane * f_n;
 }
 
-void Mat4::createOrthographic(float width, float height, float zNearPlane, float zFarPlane, Mat4* dst)
+void Mat4::createOrthographic(float left, float right, float bottom, float top, float zNearPlane, float zFarPlane, Mat4* dst)
 {
-    float halfWidth = width / 2.0f;
-    float halfHeight = height / 2.0f;
-    createOrthographicOffCenter(-halfWidth, halfWidth, -halfHeight, halfHeight, zNearPlane, zFarPlane, dst);
+    createOrthographicOffCenter(left, right, bottom, top, zNearPlane, zFarPlane, dst);
 }
 
 void Mat4::createOrthographicOffCenter(float left, float right, float bottom, float top,
@@ -150,7 +148,6 @@ void Mat4::createOrthographicOffCenter(float left, float right, float bottom, fl
     dst->m[0] = 2 / (right - left);
     dst->m[5] = 2 / (top - bottom);
     dst->m[10] = 2 / (zNearPlane - zFarPlane);
-
     dst->m[12] = (left + right) / (left - right);
     dst->m[13] = (top + bottom) / (bottom - top);
     dst->m[14] = (zNearPlane + zFarPlane) / (zNearPlane - zFarPlane);

@@ -33,6 +33,15 @@ RENDERER_BEGIN
 
 Light::Light()
 {
+    _worldRT = Mat4();
+}
+
+Light::~Light()
+{
+    RENDERER_SAFE_RELEASE(_shadowFrameBuffer);
+    RENDERER_SAFE_RELEASE(_shadowDepthBuffer);
+    RENDERER_SAFE_RELEASE(_node);
+    RENDERER_SAFE_RELEASE(_shadowMap);
 }
 
 void Light::setColor(float r, float g, float b)
@@ -107,6 +116,24 @@ void Light::setWorldMatrix(const Mat4& worldMatrix)
     _worldRT.translate(translation);
 }
 
+void Light::setNode(NodeProxy* node)
+{
+    if (_node == node)
+    {
+        return;
+    }
+    
+    if (_node != nullptr)
+    {
+        _node->release();
+    }
+    _node = node;
+    if (_node != nullptr)
+    {
+        _node->retain();
+    }
+}
+
 void Light::extractView(View& out, const std::vector<std::string>& stages)
 {
     out.shadowLight = const_cast<Light*>(this);
@@ -140,10 +167,12 @@ void Light::extractView(View& out, const std::vector<std::string>& stages)
     }
     
     // view-porjection
-    Mat4::multiply(out.matView, out.matProj, &out.matViewProj);
+    Mat4::multiply(out.matProj, out.matView, &out.matViewProj);
     out.matInvViewPorj = out.matViewProj.getInversed();
     
     _viewProjMatrix.set(out.matViewProj);
+    
+    out.cullingMask = 0xffffffff;
 }
 
 void Light::update(DeviceGraphics* device)
@@ -164,6 +193,7 @@ void Light::update(DeviceGraphics* device)
 
 void Light::updateLightPositionAndDirection()
 {
+    _worldMatrix = _node->getWorldMatrix();
     _worldMatrix.transformVector(_forward, &_directionUniform);
     _positionUniform.set(_worldMatrix.m[12], _worldMatrix.m[13], _worldMatrix.m[14]);
 }
@@ -227,6 +257,7 @@ void Light::destroyShadowMap()
 void Light::computeSpotLightViewProjMatrix(Mat4& matView, Mat4& matProj) const
 {
     // view matrix
+    _node->getWorldRT(&(const_cast<Light*>(this)->_worldRT));
     matView = _worldRT.getInversed();
     
     // proj matrix
@@ -240,11 +271,12 @@ void Light::computeSpotLightViewProjMatrix(Mat4& matView, Mat4& matProj) const
 void Light::computeDirectionalLightViewProjMatrix(Mat4& matView, Mat4& matProj) const
 {
     // view matrix
+    _node->getWorldRT(&(const_cast<Light*>(this)->_worldRT));
     matView = _worldRT.getInversed();
     
     // proj matrix
-    uint32_t halfSize = _shadowFustumSize / 2;
-    Mat4::createOrthographic(-halfSize, halfSize, -halfSize, halfSize, &matProj);
+    float halfSize = _shadowFustumSize / 2;
+    Mat4::createOrthographic(-halfSize, halfSize, -halfSize, halfSize, _shadowMinDepth, _shadowMaxDepth, &matProj);
 }
 
 void Light::computePointLightViewProjMatrix(Mat4& matView, Mat4& matProj) const

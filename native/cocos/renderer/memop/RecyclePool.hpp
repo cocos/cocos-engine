@@ -63,7 +63,7 @@ public:
     {
         if (index >= _count)
         {
-            RENDERER_LOGW("Failed to get data %d, index not found.", index);
+            RENDERER_LOGW("Failed to get data %zu, index not found.", index);
             return nullptr;
         }
         

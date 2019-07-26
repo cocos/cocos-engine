@@ -201,6 +201,28 @@ static bool js_renderer_Light_extractView(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_Light_extractView)
 
+static bool js_renderer_Light_setNode(se::State& s)
+{
+    cocos2d::renderer::Light* cobj = (cocos2d::renderer::Light*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_Light_setNode : Invalid Native Object");
+    auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        se::Value jsproxy;
+        ok = args[0].toObject()->getProperty("_proxy", &jsproxy);
+        SE_PRECONDITION2(ok, false, "js_renderer_Light_setNode : Cannot find node proxy form Node");
+        NodeProxy* proxy = nullptr;
+        ok = seval_to_native_ptr(jsproxy, &proxy);
+        SE_PRECONDITION2(ok, false, "js_renderer_Light_setNode : Invalid Node Proxy");
+        cobj->setNode(proxy);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_Light_setNode)
+
 static bool js_renderer_View_getForward(se::State& s)
 {
     cocos2d::renderer::View* cobj = (cocos2d::renderer::View*)s.nativeThisObject();
@@ -604,6 +626,7 @@ bool jsb_register_renderer_manual(se::Object* global)
 
     // Light
     __jsb_cocos2d_renderer_Light_proto->defineFunction("extractView", _SE(js_renderer_Light_extractView));
+    __jsb_cocos2d_renderer_Light_proto->defineFunction("setNode", _SE(js_renderer_Light_setNode));
 
     // View
     __jsb_cocos2d_renderer_View_proto->defineFunction("getForward", _SE(js_renderer_View_getForward));
