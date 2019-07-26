@@ -93,9 +93,9 @@ export class ForwardPipeline extends RenderPipeline {
      * 初始化函数。
      * @param info 渲染管线描述信息。
      */
-    public initialize (root: Root): boolean {
+    public initialize (): boolean {
 
-        super.initialize(root);
+        super.initialize();
         if (!this._initialize()) {
             return false;
         }

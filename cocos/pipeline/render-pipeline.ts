@@ -423,7 +423,8 @@ export abstract class RenderPipeline {
      * @param root Root类实例。
      */
     constructor () {
-
+        this._root = cc.director.root;
+        this._device = this._root.device;
     }
 
     public getTextureView (name: string) {
@@ -443,9 +444,7 @@ export abstract class RenderPipeline {
      * 初始化函数。
      * @param info 渲染管线描述信息。
      */
-    public initialize (root: Root) {
-        this._root = root;
-        this._device = root.device;
+    public initialize () {
     }
 
     /**
