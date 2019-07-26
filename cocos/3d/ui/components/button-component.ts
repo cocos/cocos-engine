@@ -33,14 +33,14 @@ import { SpriteFrame } from '../../../assets';
 import { Component, EventHandler as ComponentEventHandler } from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { EventMouse, EventTouch, SystemEventType } from '../../../core/platform';
-import { lerp } from '../../../core/utils';
+import { INode } from '../../../core/utils/interfaces';
+import { lerp } from '../../../core/utils/misc';
 import { Color, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import * as math from '../../../core/vmath';
 import { Node } from '../../../scene-graph/node';
 import { SpriteComponent } from './sprite-component';
 import { UIRenderComponent } from './ui-render-component';
-import { INode } from '../../../core/utils/interfaces';
 
 /**
  * @zh
