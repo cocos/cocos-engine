@@ -39,12 +39,21 @@
 #include "Light.h"
 #include <algorithm>
 
+#include "math/MathUtil.h"
+
 RENDERER_BEGIN
 
 ForwardRenderer::ForwardRenderer()
 {
     _arrayPool = new RecyclePool<float>([]()mutable->float*{return new float[16];}, 8);
-
+    
+    _defines["CC_NUM_DIR_LIGHTS"] = Value(0);
+    _defines["CC_NUM_POINT_LIGHTS"] = Value(0);
+    _defines["CC_NUM_SPOT_LIGHTS"] = Value(0);
+    _defines["CC_NUM_AMBIENT_LIGHTS"] = Value(0);
+    _defines["CC_NUM_SHADOW_LIGHTS"] = Value(0);
+    
+    _definesHash = 0;
 }
 
 ForwardRenderer::~ForwardRenderer()
@@ -170,11 +179,21 @@ void ForwardRenderer::updateLights(Scene* scene)
 
 void ForwardRenderer::updateDefines()
 {
-    _defines.emplace(std::make_pair("CC_NUM_DIR_LIGHTS", Value(std::min(4, (int)_directionalLights.size()))));
-    _defines.emplace(std::make_pair("CC_NUM_POINT_LIGHTS", Value(std::min(4, (int)_pointLights.size()))));
-    _defines.emplace(std::make_pair("CC_NUM_SPOT_LIGHTS", Value(std::min(4, (int)_spotLights.size()))));
-    _defines.emplace(std::make_pair("CC_NUM_AMBIENT_LIGHTS", Value(std::min(4, (int)_ambientLights.size()))));
-    _defines.emplace(std::make_pair("CC_NUM_SHADOW_LIGHTS", Value(std::min(4, (int)_shadowLights.size()))));
+    _defines["CC_NUM_DIR_LIGHTS"]       = std::min(4, (int)_directionalLights.size());
+    _defines["CC_NUM_POINT_LIGHTS"]     = std::min(4, (int)_pointLights.size());
+    _defines["CC_NUM_SPOT_LIGHTS"]      = std::min(4, (int)_spotLights.size());
+    _defines["CC_NUM_AMBIENT_LIGHTS"]   = std::min(4, (int)_ambientLights.size());
+    _defines["CC_NUM_SHADOW_LIGHTS"]    = std::min(4, (int)_shadowLights.size());
+    
+    _definesKey =
+        std::to_string(_directionalLights.size()) +
+        std::to_string(_pointLights.size()) +
+        std::to_string(_spotLights.size()) +
+        std::to_string(_ambientLights.size()) +
+        std::to_string(_shadowLights.size())
+    ;
+
+    _definesHash = std::hash<std::string>{}(_definesKey);
 }
 
 void ForwardRenderer::submitLightsUniforms()
@@ -323,9 +342,10 @@ void ForwardRenderer::submitOtherStagesUniforms()
     _device->setUniformfv(cc_shadow_info, count * 4, shadowLightInfo);
 }
 
-void ForwardRenderer::updateShaderDefines(const StageItem& item)
+void ForwardRenderer::updateShaderDefines(StageItem& item)
 {
     item.defines->push_back(&_defines);
+    MathUtil::combineHash(item.definesKeyHash, _definesHash);
 }
 
 bool ForwardRenderer::compareItems(const StageItem &a, const StageItem &b)
@@ -384,7 +404,7 @@ void ForwardRenderer::drawItems(const std::vector<StageItem>& items)
     }
 }
 
-void ForwardRenderer::opaqueStage(const View& view, const std::vector<StageItem>& items)
+void ForwardRenderer::opaqueStage(const View& view, std::vector<StageItem>& items)
 {
     // update uniforms
     _device->setUniformMat4(cc_matView, view.matView);
@@ -400,7 +420,7 @@ void ForwardRenderer::opaqueStage(const View& view, const std::vector<StageItem>
     drawItems(items);
 }
 
-void ForwardRenderer::shadowStage(const View& view, const std::vector<StageItem>& items)
+void ForwardRenderer::shadowStage(const View& view, std::vector<StageItem>& items)
 {
     // update rendering
     submitShadowStageUniforms(view);

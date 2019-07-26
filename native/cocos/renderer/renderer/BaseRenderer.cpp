@@ -35,6 +35,8 @@
 #include "Pass.h"
 #include "Camera.h"
 #include "Model.h"
+#include "math/MathUtil.h"
+#include "Program.h"
 
 RENDERER_BEGIN
 
@@ -184,7 +186,7 @@ void BaseRenderer::render(const View& view, const Scene* scene)
     }
     
     // render stages
-    std::unordered_map<std::string, StageCallback>::iterator foundIter;
+    std::unordered_map<std::string, const StageCallback>::iterator foundIter;
     for (size_t i = 0, len = _stageInfos->getLength(); i < len; i++)
     {
         const StageInfo* stageInfo = _stageInfos->getData(i);
@@ -314,7 +316,9 @@ void BaseRenderer::draw(const StageItem& item)
         
         // set primitive type
         _device->setPrimitiveType(ia->_primitiveType);
-        _program = _programLib->getProgram(pass->getHashName(), item.definesKeyHash, *(item.defines));
+        
+        // get program
+        _program = _programLib->switchProgram(pass->getHashName(), item.definesKeyHash, *(item.defines));
         _device->setProgram(_program);
         
         // cull mode

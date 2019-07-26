@@ -271,21 +271,24 @@ void ProgramLib::define(const std::string& name, const std::string& vert, const 
     templ.defines = defines;
 }
 
-Program* ProgramLib::getProgram(const size_t programHash, const size_t definesKeyHash, const std::vector<ValueMap*>& definesList)
+Program* ProgramLib::switchProgram(const size_t programNameHash, const size_t definesKeyHash, const std::vector<ValueMap*>& definesList)
 {
+    size_t programHash = 0;
+    MathUtil::combineHash(programHash, programNameHash);
+    MathUtil::combineHash(programHash, definesKeyHash);
     
-    size_t key = 0;
-    MathUtil::combineHash(key, programHash);
-    MathUtil::combineHash(key, definesKeyHash);
+    if (_current && _current->getHash() == programHash) {
+        return _current;
+    }
     
-    auto iter = _cache.find(key);
+    auto iter = _cache.find(programHash);
     if (iter != _cache.end()) {
         return iter->second;
     }
 
     Program* program = nullptr;
     // get template
-    auto templIter = _templates.find(programHash);
+    auto templIter = _templates.find(programNameHash);
     if (templIter != _templates.end())
     {
         const auto& tmpl = templIter->second;
@@ -298,8 +301,12 @@ Program* ProgramLib::getProgram(const size_t programHash, const size_t definesKe
         program = new Program();
         program->init(_device, vert.c_str(), frag.c_str());
         program->link();
-        _cache.emplace(key, program);
+        _cache.emplace(programHash, program);
+        
+        program->setHash(programHash);
     }
+    
+    _current = program;
 
     return program;
 }

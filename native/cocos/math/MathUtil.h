@@ -95,7 +95,7 @@ public:
      * @param seed
      * @param v
      */
-    static void combineHash(std::size_t& seed, const size_t& v);
+    static void combineHash(size_t& seed, const size_t& v);
 private:
     //Indicates that if neon is enabled
     static bool isNeon32Enabled();

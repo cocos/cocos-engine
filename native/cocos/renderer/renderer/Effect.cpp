@@ -38,7 +38,7 @@ void Effect::init(const Vector<Technique*>& techniques,
     _techniques = techniques;
     _properties = properties;
     
-    for (const auto defineTemplate: defineTemplates)
+    for (const auto& defineTemplate: defineTemplates)
         _defines.emplace(defineTemplate.at("name").asString(),
                                   defineTemplate.at("value"));
     generateDefinesKey();

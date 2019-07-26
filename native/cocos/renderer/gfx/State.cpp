@@ -31,10 +31,6 @@
 
 RENDERER_BEGIN
 
-namespace {
-    State __defaultState;
-}
-
 State::State()
 {
     _textureUnits.resize(10);

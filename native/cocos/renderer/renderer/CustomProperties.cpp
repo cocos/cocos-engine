@@ -94,7 +94,7 @@ void CustomProperties::generateDefinesKey()
 {
     _definesKey = "";
     for (auto& def : _defines) {
-        _definesKey += def.first + std::to_string(def.second.asUnsignedInt());
+        _definesKey += def.first + def.second.asString();
     }
 }
 

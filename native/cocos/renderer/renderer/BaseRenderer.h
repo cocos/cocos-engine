@@ -68,7 +68,7 @@ public:
         std::vector<std::unordered_map<std::string, Effect::Property>*>* uniforms = nullptr;
         int sortKey = -1;
     };
-    typedef std::function<void(const View&, const std::vector<StageItem>&)> StageCallback;
+    typedef std::function<void(const View&, std::vector<StageItem>&)> StageCallback;
     /**
      *  @brief The default constructor.
      */
@@ -120,13 +120,11 @@ protected:
     View* requestView();
     
     int _usedTextureUnits = 0;
-    std::string _programName;
-    int32_t _definesKey = 0;
     DeviceGraphics* _device = nullptr;
     ProgramLib* _programLib = nullptr;
     Program* _program = nullptr;
     Texture2D* _defaultTexture = nullptr;
-    std::unordered_map<std::string, StageCallback> _stage2fn;
+    std::unordered_map<std::string, const StageCallback> _stage2fn;
     RecyclePool<DrawItem>* _drawItems = nullptr;
     RecyclePool<StageInfo>* _stageInfos = nullptr;
     RecyclePool<View>* _views = nullptr;
@@ -135,7 +133,9 @@ protected:
 
     CC_DISALLOW_COPY_ASSIGN_AND_MOVE(BaseRenderer);
     
-    
+    ValueMap _defines;
+    size_t _definesHash = 0;
+    std::string _definesKey = "";
     
     static const size_t cc_dirLightDirection;
     static const size_t cc_dirLightColor;
