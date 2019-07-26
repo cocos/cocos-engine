@@ -30,11 +30,11 @@
 
 import { Component } from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { clamp01 } from '../../../core/utils';
+import { INode } from '../../../core/utils/interfaces';
 import { Color, Size, Vec2, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import { vec3 } from '../../../core/vmath';
-import { Node } from '../../../scene-graph/node';
+import { clamp01 } from '../../../core/vmath/utils';
 import { ScrollViewComponent } from './scroll-view-component';
 import { SpriteComponent } from './sprite-component';
 
@@ -305,7 +305,7 @@ export class ScrollBarComponent extends Component {
         this._processAutoHide(dt);
     }
 
-    private _convertToScrollViewSpace (content: Node) {
+    private _convertToScrollViewSpace (content: INode) {
         if (!this._scrollView) {
             return ZERO;
         }

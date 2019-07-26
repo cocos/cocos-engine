@@ -31,9 +31,9 @@
 import { SpriteAtlas, SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform';
-import { clampf } from '../../../core/utils';
 import { Vec2 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
+import { clamp } from '../../../core/vmath/utils';
 import { UI } from '../../../renderer/ui/ui';
 import { UIRenderComponent } from './ui-render-component';
 
@@ -286,7 +286,7 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     set fillStart (value) {
-        this._fillStart = clampf(value, -1, 1);
+        this._fillStart = clamp(value, -1, 1);
         if (this._type === SpriteType.FILLED && this._renderData) {
             this.markForUpdateRenderData();
         }
@@ -308,7 +308,7 @@ export class SpriteComponent extends UIRenderComponent {
     }
     set fillRange (value) {
         // ??? -1 ~ 1
-        this._fillRange = clampf(value, 0, 1);
+        this._fillRange = clamp(value, 0, 1);
         if (this._type === SpriteType.FILLED && this._renderData) {
             this.markForUpdateRenderData();
         }

@@ -89,7 +89,8 @@ const pool = new Pool((labelSeg: ILabelSegment) => {
     return true;
 }, 20);
 
-pool.get = function (string: string, richtext: RichTextComponent) {
+// @ts-ignore
+pool.get = function (str: string, richtext: RichTextComponent) {
     let labelSeg = this._get();
     if (!labelSeg){
         labelSeg = {
@@ -117,8 +118,8 @@ pool.get = function (string: string, richtext: RichTextComponent) {
     labelNode.setContentSize(128, 128);
     // labelNode.skewX = 0;
 
-    if (typeof string !== 'string') {
-        string = '' + string;
+    if (typeof str !== 'string') {
+        str = '' + str;
     }
     const isAsset = richtext.font instanceof Font;
     if (isAsset) {
@@ -127,7 +128,7 @@ pool.get = function (string: string, richtext: RichTextComponent) {
         labelComponent.fontFamily = 'Arial';
     }
 
-    labelComponent.string = string;
+    labelComponent.string = str;
     labelComponent.horizontalAlign = HorizontalTextAlignment.LEFT;
     labelComponent.verticalAlign = VerticalTextAlignment.TOP;
     labelComponent.fontSize = richtext.fontSize || 40;
@@ -428,8 +429,9 @@ export class RichTextComponent extends UIComponent {
         });
     }
 
-    private _createFontLabel (string: string) {
-        return pool.get!(string, this);
+    private _createFontLabel (str: string) {
+        // @ts-ignore
+        return pool.get!(str, this);
     }
 
     private _onTTFLoaded () {
@@ -566,6 +568,7 @@ export class RichTextComponent extends UIComponent {
         labelSegment.lineCount = this._lineCount;
         labelSegment.node.setAnchorPoint(0, 0);
         this._applyTextAttribute(labelSegment);
+        // @ts-ignore
         this.node.addChild(labelSegment.node);
         this._labelSegments.push(labelSegment);
 
@@ -697,6 +700,7 @@ export class RichTextComponent extends UIComponent {
             spriteNode.setAnchorPoint(0, 0);
             spriteComponent!.type = cc.SpriteComponent.Type.SLICED;
             spriteComponent!.sizeMode = cc.SpriteComponent.SizeMode.CUSTOM;
+            // @ts-ignore
             this.node.addChild(spriteNode);
             const obj: ILabelSegment = {
                 node: spriteNode,

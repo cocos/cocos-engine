@@ -7,6 +7,7 @@ import { mat4, vec3 } from '../../core/vmath';
 import { GFXPrimitiveMode } from '../../gfx/define';
 import { Layers } from '../../scene-graph/layers';
 import { Node } from '../../scene-graph/node';
+import { JointsTexturePool } from '../models/joints-texture-utils';
 import { Ambient } from './ambient';
 import { Camera, ICameraInfo } from './camera';
 import { DirectionalLight } from './directional-light';
@@ -15,6 +16,7 @@ import { PlanarShadows } from './planar-shadows';
 import { Skybox } from './skybox';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
+import { INode } from '../../core/utils/interfaces';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -23,11 +25,11 @@ export interface IRenderSceneInfo {
 export interface ISceneNodeInfo {
     name: string;
     isStatic?: boolean;
-    // parent: Node;
+    // parent: INode;
 }
 
 export interface IRaycastResult {
-    node: Node;
+    node: INode;
     distance: number;
 }
 
@@ -57,7 +59,7 @@ export class RenderScene {
         return this._planarShadows;
     }
 
-    get defaultMainLightNode (): Node {
+    get defaultMainLightNode (): INode {
         return this._defaultMainLightNode;
     }
 
@@ -77,6 +79,10 @@ export class RenderScene {
         return this._models;
     }
 
+    get texturePool () {
+        return this._texturePool;
+    }
+
     public static registerCreateFunc (root: Root) {
         root._createSceneFun = (_root: Root): RenderScene => new RenderScene(_root);
     }
@@ -88,11 +94,12 @@ export class RenderScene {
     private _skybox: Skybox;
     private _planarShadows: PlanarShadows;
     private _mainLight: DirectionalLight;
-    private _defaultMainLightNode: Node;
+    private _defaultMainLightNode: INode;
     private _sphereLights: SphereLight[] = [];
     private _spotLights: SpotLight[] = [];
     private _models: Model[] = [];
     private _modelId: number = 0;
+    private _texturePool: JointsTexturePool;
 
     constructor (root: Root) {
         this._root = root;
@@ -104,10 +111,12 @@ export class RenderScene {
         this._ambient = new Ambient(this);
         this._skybox = new Skybox(this);
         this._planarShadows = new PlanarShadows(this);
+        this._texturePool = new JointsTexturePool(root.device);
     }
 
     public initialize (info: IRenderSceneInfo): boolean {
         this._name = info.name;
+        this._texturePool.initialize();
         return true;
     }
 
@@ -116,7 +125,8 @@ export class RenderScene {
         this.destroyPointLights();
         this.destroySpotLights();
         this.destroyModels();
-        this.planarShadows.destroy();
+        this._planarShadows.destroy();
+        this._texturePool.destroy();
     }
 
     public createCamera (info: ICameraInfo): Camera {
@@ -142,7 +152,7 @@ export class RenderScene {
         this._cameras.splice(0);
     }
 
-    public createSphereLight (name: string, node: Node): SphereLight | null {
+    public createSphereLight (name: string, node: INode): SphereLight | null {
         const light = new SphereLight(this, name, node);
         this._sphereLights.push(light);
         return light;
@@ -157,7 +167,7 @@ export class RenderScene {
         }
     }
 
-    public createSpotLight (name: string, node: Node): SpotLight | null {
+    public createSpotLight (name: string, node: INode): SpotLight | null {
         const light = new SpotLight(this, name, node);
         this._spotLights.push(light);
         return light;
@@ -180,7 +190,7 @@ export class RenderScene {
         this._spotLights = [];
     }
 
-    public createModel<T extends Model> (clazz: new (scene: RenderScene, node: Node) => T, node: Node): T {
+    public createModel<T extends Model> (clazz: new (scene: RenderScene, node: INode) => T, node: INode): T {
         const model = new clazz(this, node);
         this._models.push(model);
         return model;
@@ -276,7 +286,7 @@ export class RenderScene {
      * @param uiNode the ui node
      * @returns IRaycastResult | undefined
      */
-    public raycastUINode (worldRay: ray, mask: number = Layers.UI, uiNode: Node) {
+    public raycastUINode (worldRay: ray, mask: number = Layers.UI, uiNode: INode) {
         const uiTransfrom = uiNode.uiTransfromComp;
         if (uiTransfrom == null || !cc.Layers.check(uiNode.layer, mask)) { return; }
         uiTransfrom.getComputeAABB(aabbUI);
@@ -292,7 +302,7 @@ export class RenderScene {
         }
     }
 
-    private _raycastUINodeRecursiveChildren (worldRay: ray, mask: number, parent: Node) {
+    private _raycastUINodeRecursiveChildren (worldRay: ray, mask: number, parent: INode) {
         const result = this.raycastUINode(worldRay, mask, parent);
         if (result != null) {
             resultUIs[poolUI.length - 1] = result;
@@ -314,7 +324,7 @@ const pool = new RecyclePool<IRaycastResult>(() => {
     return { node: null!, distance: Infinity };
 }, 8);
 const results: IRaycastResult[] = [];
-/** UI raycast result pool  */
+/** UI raycast result pool */
 const aabbUI = new aabb();
 const poolUI = new RecyclePool<IRaycastResult>(() => {
     return { node: null!, distance: Infinity };

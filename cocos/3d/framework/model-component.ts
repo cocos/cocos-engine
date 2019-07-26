@@ -200,11 +200,11 @@ export class ModelComponent extends RenderableComponent {
     }
 
     protected _updateModelParams () {
-        // @ts-ignore
-        this.node._hasChanged = true;
         if (!this._mesh || !this._model) {
             return;
         }
+        // @ts-ignore
+        this.node._hasChanged = this._model.transform._hasChanged = true;
         const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
         for (let i = 0; i < meshCount; ++i) {
             const material = this.getSharedMaterial(i);

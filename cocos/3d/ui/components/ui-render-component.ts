@@ -210,7 +210,6 @@ export class UIRenderComponent extends UIComponent {
 
     protected _assembler: IAssembler | null = null;
     protected _postAssembler: IAssembler | null = null;
-    protected _renderDataPoolID = -1;
     protected _renderData: RenderData | null = null;
     protected _renderDataDirty = false;
     // 特殊渲染标记，在可渲染情况下，因为自身某个原因不给予渲染
@@ -242,30 +241,17 @@ export class UIRenderComponent extends UIComponent {
     public onEnable () {
         super.onEnable();
         this.node.on(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
-        // this.node.on(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
         this.node.on(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
-        // if (this.node._renderComponent) {
-        //     this.node._renderComponent.enabled = false;
-        // }
-        // this.node._renderComponent = this;
-        // this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_COLOR;
         this._renderDataDirty = true;
     }
 
     public onDisable () {
         super.onDisable();
-        // this.node._renderComponent = null;
-        // this.disableRender();
         this.node.off(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
-        // this.node.off(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
         this.node.off(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
     }
 
     public onDestroy () {
-        // for (let i = 0, l = this._allocedDatas.length; i < l; i++) {
-        //     RenderData.free(this._allocedDatas[i]);
-        // }
-        // this._allocedDatas.length = 0;
         this.destroyRenderData();
         if (this._material){
             this._material.destroy();
@@ -304,10 +290,8 @@ export class UIRenderComponent extends UIComponent {
      */
     public requestRenderData () {
         const data = RenderData.add();
-        // this._allocedDatas.push(data);
-        this._renderData = data.data;
-        this._renderDataPoolID = data.pooID;
-        return this._renderData;
+        this._renderData = data;
+        return data;
     }
 
     /**
@@ -315,12 +299,11 @@ export class UIRenderComponent extends UIComponent {
      * 渲染数据销毁。
      */
     public destroyRenderData () {
-        if (this._renderDataPoolID === -1) {
+        if (!this._renderData) {
             return;
         }
 
-        RenderData.remove(this._renderDataPoolID);
-        this._renderDataPoolID = -1;
+        RenderData.remove(this._renderData);
         this._renderData = null;
     }
 

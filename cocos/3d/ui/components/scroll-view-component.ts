@@ -40,6 +40,7 @@ import { Node } from '../../../scene-graph/node';
 import { LayoutComponent } from './layout-component';
 import { ScrollBarComponent } from './scroll-bar-component';
 import { ViewGroupComponent } from './view-group-component';
+import { INode } from '../../../core/utils/interfaces';
 
 const NodeEvent = Node.EventType;
 
@@ -171,7 +172,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     get content () {
         return this._content;
     }
-    set content (value: Node | null) {
+    set content (value: INode | null) {
         if (this._content === value){
             return;
         }
@@ -301,7 +302,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     @property
     public cancelInnerEvents = true;
     @property
-    private _content: Node | null = null;
+    private _content: INode | null = null;
     @property
     private _horizontalScrollBar: ScrollBarComponent | null = null;
     @property

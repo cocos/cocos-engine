@@ -213,7 +213,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
             }
         }
         // sort the array to be more cache-friendly
-        const idxMap = [...Array(skeleton.joints.length).keys()].sort((a, b) => {
+        const idxMap = Array.from(Array(skeleton.joints.length).keys()).sort((a, b) => {
             if (skeleton.joints[a] > skeleton.joints[b]) { return 1; }
             if (skeleton.joints[a] < skeleton.joints[b]) { return -1; }
             return 0;
@@ -221,6 +221,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         skeleton.joints = skeleton.joints.map((_, idx, arr) => arr[idxMap[idx]]);
         skeleton.bindposes = bindposes.map((_, idx, arr) => arr[idxMap[idx]]);
         // apply
+        if (this._skeleton) { this._skeleton.destroy(); }
         this.skeleton = skeleton;
     }
 

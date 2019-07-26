@@ -44,4 +44,6 @@ export * from './scheduler';
 // Cause error:
 // export * from './director';
 import './director';
+
+export * from './utils/profiler/profiler';
 export { vmath };

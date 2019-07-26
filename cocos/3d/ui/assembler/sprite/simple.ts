@@ -29,14 +29,10 @@
  */
 
 import { Vec3 } from '../../../../core/value-types';
-import { color4, vec3 } from '../../../../core/vmath';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
-import { Node } from '../../../../scene-graph/node';
 import { SpriteComponent } from '../../components';
 import { IAssembler } from '../base';
-// const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
-const matrix = cc.mat4();
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
@@ -94,7 +90,7 @@ export const simple: IAssembler = {
         // );
         // const commitBuffer: IUIRenderData = renderer.createUIRenderData();
         const datas: IRenderData[] = sprite!.renderData!.datas;
-        const node: Node = sprite.node;
+        const node = sprite.node;
 
         let buffer = renderer.currBufferBatch!;
         let vertexOffset = buffer.byteOffset >> 2;
@@ -109,51 +105,73 @@ export const simple: IAssembler = {
             vertexId = 0;
         }
 
-        // buffer data may be realloc, need get reference after request.
-        const vbuf: Float32Array | null = buffer.vData;
-        // const uintbuf = buffer.uintVData;
-        const ibuf: Uint16Array | null = buffer.iData;
-
+        // buffer data may be reallocated, need get reference after request.
+        const vbuf = buffer.vData!;
+        const ibuf = buffer.iData!;
+        const vData = sprite!.renderData!.vData!;
         const data0 = datas[0];
         const data3 = datas[3];
-
-        // // get uv from sprite frame directly
-        let matrix = node.worldMatrix;
-
-        let vl = data0.x, vr = data3.x,
-            vb = data0.y, vt = data3.y;
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
-
-        let al = a * vl, ar = a * vr,
-            bl = b * vl, br = b * vr,
-            cb = c * vb, ct = c * vt,
-            db = d * vb, dt = d * vt;
-
-        let vData = sprite!.renderData!.vData;
-
+        /* */
+        node.updateWorldTransform();
+        // @ts-ignore
+        const pos = node._pos; const rot = node._rot; const scale = node._scale;
+        const ax = data0.x * scale.x; const bx = data3.x * scale.x;
+        const ay = data0.y * scale.y; const by = data3.y * scale.y;
+        const qx = rot.x; const qy = rot.y; const qz = rot.z; const qw = rot.w;
+        const qxy = qx * qy; const qzw = qz * qw;
+        const qxy2 = qx * qx - qy * qy;
+        const qzw2 = qw * qw - qz * qz;
+        const cx1 = qzw2 + qxy2;
+        const cx2 = (qxy - qzw) * 2;
+        const cy1 = qzw2 - qxy2;
+        const cy2 = (qxy + qzw) * 2;
+        const x = pos.x; const y = pos.y;
         // left bottom
-        vData![0] = al + cb + tx;
-        vData![1] = bl + db + ty;
+        vData[0] = cx1 * ax + cx2 * ay + x;
+        vData[1] = cy1 * ay + cy2 * ax + y;
         // right bottom
-        vData![9] = ar + cb + tx;
-        vData![10] = br + db + ty;
+        vData[9] = cx1 * bx + cx2 * ay + x;
+        vData[10] = cy1 * ay + cy2 * bx + y;
         // left top
-        vData![18] = al + ct + tx;
-        vData![19] = bl + dt + ty;
+        vData[18] = cx1 * ax + cx2 * by + x;
+        vData[19] = cy1 * by + cy2 * ax + y;
         // right top
-        vData![27] = ar + ct + tx;
-        vData![28] = br + dt + ty;
+        vData[27] = cx1 * bx + cx2 * by + x;
+        vData[28] = cy1 * by + cy2 * bx + y;
+        /* *
+        const matrix = node.worldMatrix;
+        const a = matrix.m00; const b = matrix.m01;
+        const c = matrix.m04; const d = matrix.m05;
+        const tx = matrix.m12; const ty = matrix.m13;
+        const vl = data0.x; const vr = data3.x;
+        const vb = data0.y; const vt = data3.y;
+        const al = a * vl; const ar = a * vr;
+        const bl = b * vl; const br = b * vr;
+        const cb = c * vb; const ct = c * vt;
+        const db = d * vb; const dt = d * vt;
+        // left bottom
+        vData[0] = al + cb + tx;
+        vData[1] = bl + db + ty;
+        // right bottom
+        vData[9] = ar + cb + tx;
+        vData[10] = br + db + ty;
+        // left top
+        vData[18] = al + ct + tx;
+        vData[19] = bl + dt + ty;
+        // right top
+        vData[27] = ar + ct + tx;
+        vData[28] = br + dt + ty;
+        /* */
 
-        vbuf!.set(vData!, vertexOffset);
+        vbuf.set(vData, vertexOffset);
 
         // fill indice data
-        ibuf![indiceOffset++] = vertexId;
-        ibuf![indiceOffset++] = vertexId + 1;
-        ibuf![indiceOffset++] = vertexId + 2;
-        ibuf![indiceOffset++] = vertexId + 1;
-        ibuf![indiceOffset++] = vertexId + 3;
-        ibuf![indiceOffset++] = vertexId + 2;
+        ibuf[indiceOffset++] = vertexId;
+        ibuf[indiceOffset++] = vertexId + 1;
+        ibuf[indiceOffset++] = vertexId + 2;
+        ibuf[indiceOffset++] = vertexId + 2;
+        ibuf[indiceOffset++] = vertexId + 1;
+        ibuf[indiceOffset++] = vertexId + 3;
     },
 
     updateVerts (sprite: SpriteComponent) {
@@ -162,7 +180,7 @@ export const simple: IAssembler = {
             return;
         }
 
-        const node: Node = sprite.node;
+        const node = sprite.node;
         const datas: IRenderData[] = renderData.datas;
         const cw = node.width;
         const ch = node.height;
@@ -214,27 +232,30 @@ export const simple: IAssembler = {
     },
 
     updateUvs (sprite) {
-        let renderData = sprite.renderData;
-        let vData = renderData.vData;
+        const renderData = sprite.renderData;
+        const vData = renderData.vData!;
         const uv = sprite!.spriteFrame!.uv;
-        vData![3] = uv[0];
-        vData![4] = uv[1];
-        vData![12] = uv[2];
-        vData![13] = uv[3];
-        vData![21] = uv[4];
-        vData![22] = uv[5];
-        vData![30] = uv[6];
-        vData![31] = uv[7];
+        vData[3] = uv[0];
+        vData[4] = uv[1];
+        vData[12] = uv[2];
+        vData[13] = uv[3];
+        vData[21] = uv[4];
+        vData[22] = uv[5];
+        vData[30] = uv[6];
+        vData[31] = uv[7];
 
         renderData.uvDirty = false;
     },
 
     updateColor (sprite) {
-        let vData = sprite.renderData.vData;
+        const vData = sprite.renderData.vData;
 
-        //
-        let colorOffset = 5, color = sprite.color;
-        let colorr = color.r / 255, colorg = color.g / 255, colorb = color.b / 255, colora = color.a / 255;
+        let colorOffset = 5;
+        const color = sprite.color;
+        const colorr = color.r / 255;
+        const colorg = color.g / 255;
+        const colorb = color.b / 255;
+        const colora = color.a / 255;
         for (let i = 0; i < 4; i++) {
             vData![colorOffset] = colorr;
             vData![colorOffset + 1] = colorg;
@@ -243,5 +264,5 @@ export const simple: IAssembler = {
 
             colorOffset += 9;
         }
-    }
+    },
 };

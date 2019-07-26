@@ -63,7 +63,9 @@ export default class TextureAnimationModule {
 
     set enable (val) {
         this._enable = val;
-        (this.ps!.renderer as any)._updateMaterialParams();
+        if (this.ps) {
+            (this.ps.renderer as any)._updateMaterialParams();
+        }
     }
 
     @property({
@@ -83,7 +85,7 @@ export default class TextureAnimationModule {
     }
 
     set mode (val) {
-        if (val === Mode.Sprites) {
+        if (val !== Mode.Grid) {
             console.error('particle texture animation\'s sprites is not supported!');
             return;
         }

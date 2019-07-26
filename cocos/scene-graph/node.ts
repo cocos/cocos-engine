@@ -27,21 +27,21 @@
  * @category scene-graph
  */
 
-import { UITransformComponent, UIComponent } from '../3d';
+import { UIComponent, UITransformComponent } from '../3d/ui/components';
 import { ccclass, property } from '../core/data/class-decorator';
 import Event from '../core/event/event';
 import { eventManager } from '../core/platform/event-manager';
 import { SystemEventType } from '../core/platform/event-manager/event-enum';
-import { Mat4, Quat, Vec3 } from '../core/value-types';
-import Size from '../core/value-types/size';
-import Vec2 from '../core/value-types/vec2';
+import { Mat4, Quat, Vec3, Size, Vec2 } from '../core/value-types';
 import { mat4, quat, vec3 } from '../core/vmath';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
 import { NodeEventProcessor } from './node-event-processor';
+import { INode } from '../core/utils/interfaces';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
+const q_b = new Quat();
 const array_a = new Array(10);
 
 enum NodeSpace {
@@ -58,7 +58,7 @@ const TRANFORM_ON = 1 << 0;
  * * 维护空间变换（坐标、旋转、缩放）信息
  */
 @ccclass('cc.Node')
-export class Node extends BaseNode {
+export class Node extends BaseNode implements INode {
     /**
      * @zh
      * 节点可能发出的事件类型
@@ -108,6 +108,7 @@ export class Node extends BaseNode {
     protected _eventProcessor: NodeEventProcessor = new cc.NodeEventProcessor(this);
     protected _eventMask = 0;
     private _uiTransfromComp: UITransformComponent | null = null;
+    // tslint:disable-next-line: member-ordering
     public _uiComp: UIComponent | null = null;
 
     /**
@@ -220,14 +221,36 @@ export class Node extends BaseNode {
      */
     public translate (trans: Vec3, ns?: NodeSpace) {
         const space = ns || NodeSpace.LOCAL;
-        vec3.copy(v3_a, this._lpos);
         if (space === NodeSpace.LOCAL) {
-            vec3.transformQuat(v3_a, trans, this.worldRotation);
-            vec3.add(v3_a, this._lpos, v3_a);
-            this.setPosition(v3_a);
+            vec3.transformQuat(v3_a, trans, this._lrot);
+            this._lpos.x += v3_a.x;
+            this._lpos.y += v3_a.y;
+            this._lpos.z += v3_a.z;
+            this._pos.x += v3_a.x;
+            this._pos.y += v3_a.y;
+            this._pos.z += v3_a.z;
         } else if (space === NodeSpace.WORLD) {
-            vec3.add(v3_a, this._lpos, trans);
-            this.setPosition(v3_a);
+            if (this._parent) {
+                quat.invert(q_a, this.worldRotation);
+                vec3.transformQuat(v3_a, trans, q_a);
+                const scale = this.worldScale;
+                this._lpos.x += v3_a.x / scale.x;
+                this._lpos.y += v3_a.y / scale.y;
+                this._lpos.z += v3_a.z / scale.z;
+            } else {
+                this._lpos.x += trans.x;
+                this._lpos.y += trans.y;
+                this._lpos.z += trans.z;
+            }
+
+            this._pos.x += trans.x;
+            this._pos.y += trans.y;
+            this._pos.z += trans.z;
+        }
+
+        this.invalidateChildren();
+        if (this._eventMask & TRANFORM_ON) {
+            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
         }
     }
 
@@ -239,12 +262,25 @@ export class Node extends BaseNode {
      */
     public rotate (rot: Quat, ns?: NodeSpace) {
         const space = ns || NodeSpace.LOCAL;
+        quat.normalize(q_a, rot);
+
         if (space === NodeSpace.LOCAL) {
-            this.getRotation(q_a);
-            this.setRotation(quat.multiply(q_a, q_a, rot));
+            quat.multiply(this._lrot, this._lrot, q_a);
+
+            quat.multiply(this._rot, this.worldRotation, q_a);
         } else if (space === NodeSpace.WORLD) {
-            this.getWorldRotation(q_a);
-            this.setWorldRotation(quat.multiply(q_a, rot, q_a));
+            const worldRot = this.worldRotation;
+            quat.multiply(q_b, q_a, worldRot);
+            quat.invert(q_a, this.worldRotation);
+            quat.multiply(q_b, q_a, q_b);
+            quat.multiply(this._lrot, this._lrot, q_b);
+
+            quat.multiply(this._rot, q_a, worldRot);
+        }
+
+        this.invalidateChildren();
+        if (this._eventMask & TRANFORM_ON) {
+            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
         }
     }
 
@@ -772,7 +808,7 @@ export class Node extends BaseNode {
      * 获取世界变换矩阵
      * @param out 输出到此目标矩阵
      */
-    public getWorldMatrix (out?: Mat4) {
+    public getWorldMatrix (out?: Mat4): Mat4 {
         this.updateWorldTransformFull();
         if (!out) { out = new Mat4(); }
         return mat4.copy(out, this._mat);
@@ -860,7 +896,7 @@ export class Node extends BaseNode {
         return this._eventProcessor;
     }
 
-    public getAnchorPoint (out?: Vec2) {
+    public getAnchorPoint (out?: Vec2): Vec2 {
         if (!out) {
             out = new Vec2();
         }
@@ -872,7 +908,7 @@ export class Node extends BaseNode {
         this.uiTransfromComp!.setAnchorPoint(point, y);
     }
 
-    public getContentSize (out?: Size) {
+    public getContentSize (out?: Size): Size {
         if (!out){
             out = new Size();
         }
@@ -935,10 +971,12 @@ export class Node extends BaseNode {
     }
 
     public pauseSystemEvents (recursive: boolean) {
+        // @ts-ignore
         eventManager.pauseTarget(this, recursive);
     }
 
     public resumeSystemEvents (recursive: boolean) {
+        // @ts-ignore
         eventManager.resumeTarget(this, recursive);
     }
 
