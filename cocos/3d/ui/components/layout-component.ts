@@ -33,9 +33,10 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../.
 import { Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import { vec3 } from '../../../core/vmath';
-import { Node } from '../../../scene-graph/node';
 import { UITransformComponent } from './ui-transfrom-component';
-const NodeEvent = Node.EventType;
+import { SystemEventType } from '../../../core';
+import { INode } from '../../../core/utils/interfaces';
+const NodeEvent = SystemEventType;
 /**
  * @zh
  * 布局类型。
@@ -655,12 +656,12 @@ export class LayoutComponent extends Component {
             if (rowBreak) {
                 const rowBreakBoundary = nextX + rightBoundaryOfChild + sign * (sign > 0 ? this._paddingRight : this._paddingLeft);
                 let leftToRightRowBreak = false;
-                if (this._horizontalDirection === HorizontalDirection.LEFT_TO_RIGHT && rowBreakBoundary > (1 - layoutAnchor.x) * baseWidth){
+                if (this._horizontalDirection === HorizontalDirection.LEFT_TO_RIGHT && rowBreakBoundary > (1 - layoutAnchor.x) * baseWidth) {
                     leftToRightRowBreak = true;
                 }
 
                 let rightToLeftRowBreak = false;
-                if (this._horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT && rowBreakBoundary < -layoutAnchor.x * baseWidth){
+                if (this._horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT && rowBreakBoundary < -layoutAnchor.x * baseWidth) {
                     rightToLeftRowBreak = true;
                 }
 
@@ -718,7 +719,7 @@ export class LayoutComponent extends Component {
     private _doLayoutVertically (
         baseHeight: number,
         columnBreak: boolean,
-        fnPositionX: (node: Node, columnMaxWidth: number, col: number) => number,
+        fnPositionX: (node: INode, columnMaxWidth: number, col: number) => number,
         applyChildren: boolean,
     ) {
         const layoutAnchor = this.node.getAnchorPoint();
@@ -796,12 +797,12 @@ export class LayoutComponent extends Component {
             if (columnBreak) {
                 const columnBreakBoundary = nextY + topBoundaryOfChild + sign * (sign > 0 ? this._paddingTop : this._paddingBottom);
                 let bottomToTopColumnBreak = false;
-                if (this._verticalDirection === VerticalDirection.BOTTOM_TO_TOP && columnBreakBoundary > (1 - layoutAnchor.y) * baseHeight){
+                if (this._verticalDirection === VerticalDirection.BOTTOM_TO_TOP && columnBreakBoundary > (1 - layoutAnchor.y) * baseHeight) {
                     bottomToTopColumnBreak = true;
                 }
 
                 let topToBottomColumnBreak = false;
-                if (this._verticalDirection === VerticalDirection.TOP_TO_BOTTOM && columnBreakBoundary < -layoutAnchor.y * baseHeight){
+                if (this._verticalDirection === VerticalDirection.TOP_TO_BOTTOM && columnBreakBoundary < -layoutAnchor.y * baseHeight) {
                     topToBottomColumnBreak = true;
                 }
 
@@ -860,11 +861,11 @@ export class LayoutComponent extends Component {
     private _doLayoutBasic () {
         const children = this.node.children;
 
-        let allChildrenBoundingBox: Rect|null = null;
+        let allChildrenBoundingBox: Rect | null = null;
 
         for (const child of children) {
             const childTransform = child.getComponent(UITransformComponent);
-            if (!childTransform){
+            if (!childTransform) {
                 continue;
             }
 
@@ -879,7 +880,7 @@ export class LayoutComponent extends Component {
 
         if (allChildrenBoundingBox) {
             const parentTransform = this.node.parent!.getComponent(UITransformComponent);
-            if (!parentTransform){
+            if (!parentTransform) {
                 return;
             }
 
@@ -925,9 +926,9 @@ export class LayoutComponent extends Component {
 
         const self = this;
 
-        const fnPositionY = (child: Node, topOffset: number, row: number) => {
+        const fnPositionY = (child: INode, topOffset: number, row: number) => {
             return bottomBoundaryOfLayout +
-            sign * (topOffset + child.anchorY * child.height * self._getUsedScaleValue(child.getScale().y) + paddingY + row * this._spacingY);
+                sign * (topOffset + child.anchorY * child.height * self._getUsedScaleValue(child.getScale().y) + paddingY + row * this._spacingY);
         };
 
         let newHeight = 0;
@@ -967,9 +968,9 @@ export class LayoutComponent extends Component {
         }
 
         const self = this;
-        const fnPositionX = (child: Node, leftOffset: number, column: number) => {
+        const fnPositionX = (child: INode, leftOffset: number, column: number) => {
             return leftBoundaryOfLayout +
-            sign * (leftOffset + child.anchorX * child.width * self._getUsedScaleValue(child.getScale().x) + paddingX + column * this._spacingX);
+                sign * (leftOffset + child.anchorX * child.width * self._getUsedScaleValue(child.getScale().x) + paddingX + column * this._spacingX);
         };
 
         let newWidth = 0;
@@ -1008,7 +1009,7 @@ export class LayoutComponent extends Component {
 
     }
 
-    private _getHorizontalBaseWidth (children: Node[]) {
+    private _getHorizontalBaseWidth (children: Readonly<INode[]>) {
         let newWidth = 0;
         let activeChildCount = 0;
         if (this._resizeMode === ResizeMode.CONTAINER) {
@@ -1026,7 +1027,7 @@ export class LayoutComponent extends Component {
         return newWidth;
     }
 
-    private _getVerticalBaseHeight (children: Node[]) {
+    private _getVerticalBaseHeight (children: Readonly<INode[]>) {
         let newHeight = 0;
         let activeChildCount = 0;
         if (this._resizeMode === ResizeMode.CONTAINER) {

@@ -31,18 +31,17 @@
 import { EventHandler as ComponentEventHandler } from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { Event } from '../../../core/event';
-import { EventMouse, EventTouch } from '../../../core/platform';
+import { EventMouse, EventTouch, SystemEventType } from '../../../core/platform';
 import Touch from '../../../core/platform/event-manager/CCTouch';
 import { Size, Vec2, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import { vec3 } from '../../../core/vmath';
-import { Node } from '../../../scene-graph/node';
 import { LayoutComponent } from './layout-component';
 import { ScrollBarComponent } from './scroll-bar-component';
 import { ViewGroupComponent } from './view-group-component';
 import { INode } from '../../../core/utils/interfaces';
 
-const NodeEvent = Node.EventType;
+const NodeEvent = SystemEventType;
 
 const NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED = 5;
 const OUT_OF_BOUNDARY_BREAKING_FACTOR = 0.05;
@@ -903,7 +902,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
                 cancelEvent.type = NodeEvent.TOUCH_CANCEL;
                 cancelEvent.touch = event.touch;
                 cancelEvent.simulate = true;
-                (event.target as Node)!.dispatchEvent(cancelEvent);
+                (event.target as INode)!.dispatchEvent(cancelEvent);
                 this._touchMoved = true;
             }
         }
@@ -977,10 +976,10 @@ export class ScrollViewComponent extends ViewGroupComponent {
         if (captureListeners) {
             // captureListeners are arranged from child to parent
             for (const listerner of captureListeners) {
-                const item = listerner as Node;
+                const item = listerner as INode;
 
                 if (this.node === item) {
-                    if (event.target && (event.target as Node).getComponent(ViewGroupComponent)) {
+                    if (event.target && (event.target as INode).getComponent(ViewGroupComponent)) {
                         return true;
                     }
                     return false;
