@@ -34,7 +34,7 @@ import { Vec3 } from '../../../core/value-types';
 import { GFXClearFlag } from '../../../gfx/define';
 import { CanvasComponent } from './canvas-component';
 import { UITransformComponent } from './ui-transfrom-component';
-import { INode } from '../../../core/utils/interfaces';
+import { Node } from '../../../scene-graph';
 
 const _worldPos = new Vec3();
 
@@ -52,7 +52,7 @@ export class DebugCanvasComponent extends CanvasComponent {
     }
 
     public __preload () {
-        const cameraNode = new cc.Node('UICamera_Debug') as INode;
+        const cameraNode = new Node('UICamera_Debug');
         cameraNode.setPosition(0, 0, 1000);
 
         this._camera = cc.director.root.ui.renderScene.createCamera({

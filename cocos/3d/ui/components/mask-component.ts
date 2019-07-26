@@ -30,7 +30,7 @@
 
 import { SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { SystemEventType } from '../../../core/platform';
+import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { Color, Mat4, Size, Vec2, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import * as vmath from '../../../core/vmath';
@@ -38,6 +38,7 @@ import { UI } from '../../../renderer/ui/ui';
 import { GraphicsComponent } from './graphics-component';
 import { InstanceMaterialType, UIRenderComponent } from './ui-render-component';
 import { INode } from '../../../core/utils/interfaces';
+import { Node } from '../../../scene-graph';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -439,7 +440,7 @@ export class MaskComponent extends UIRenderComponent {
         }
     }
 
-    protected _parentChanged (node: INode) {
+    protected _parentChanged (node: Node) {
         if (super._parentChanged(node)) {
             this._flushVisibility();
             return true;
@@ -478,7 +479,7 @@ export class MaskComponent extends UIRenderComponent {
     private _createGraphics () {
         if (!this._clearGraphics) {
             const clearGraphics = this._clearGraphics = new GraphicsComponent();
-            clearGraphics.node = new cc.Node('clear-graphics') as INode;
+            clearGraphics.node = new Node('clear-graphics');
             clearGraphics.helpInstanceMaterial();
             clearGraphics._activateMaterial();
             clearGraphics.lineWidth = 0;

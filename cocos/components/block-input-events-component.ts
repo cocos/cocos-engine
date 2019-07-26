@@ -42,7 +42,7 @@
 import { ccclass, menu } from '../core/data/class-decorator';
 import { Component } from './component';
 import { Event } from '../core/event';
-import { SystemEventType } from '../core/platform';
+import { SystemEventType } from '../core/platform/event-manager/event-enum';
 
 const BlockEvents = [SystemEventType.TOUCH_START, SystemEventType.TOUCH_END, SystemEventType.TOUCH_MOVE,
   SystemEventType.MOUSE_DOWN, SystemEventType.MOUSE_MOVE, SystemEventType.MOUSE_UP,

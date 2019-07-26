@@ -242,7 +242,7 @@ class Component extends CCObject {
         if (this._sceneGetter) {
             return this._sceneGetter();
         } else {
-            return this.node.scene._renderScene!;
+            return this.node.scene!._renderScene!;
         }
     }
 

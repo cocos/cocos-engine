@@ -42,6 +42,7 @@ import { UITransformComponent } from '../ui-transfrom-component';
 import { EditBoxImpl } from './edit-box-impl';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { INode } from '../../../../core/utils/interfaces';
+import { Node } from '../../../../scene-graph';
 
 const LEFT_PADDING = 2;
 
@@ -622,9 +623,9 @@ export class EditBoxComponent extends Component {
 
     public _createLabels () {
         if (!this._textLabel) {
-            let node = this.node.getChildByName('TEXT_LABEL') as INode;
+            let node = this.node.getChildByName('TEXT_LABEL');
             if (!node) {
-                node = new cc.Node('TEXT_LABEL') as INode;
+                node = new Node('TEXT_LABEL') as INode;
             }
             let textLabel = node!.getComponent(LabelComponent);
             node!.parent = this.node;

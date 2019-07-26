@@ -30,7 +30,7 @@
 
 import { SpriteAtlas, SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { SystemEventType } from '../../../core/platform';
+import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { clampf } from '../../../core/utils';
 import { Vec2 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
