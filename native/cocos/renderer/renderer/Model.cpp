@@ -27,6 +27,7 @@
 #include "InputAssembler.h"
 #include "../scene/NodeProxy.hpp"
 #include "../gfx/VertexBuffer.h"
+#include "math/MathUtil.h"
 
 RENDERER_BEGIN
 
@@ -75,8 +76,6 @@ void Model::setInputAssembler(const InputAssembler& ia)
     _inputAssembler = ia;
 }
 
-std::string __temp_defines_keys__ = "";
-
 void Model::setEffect(Effect* effect, CustomProperties* customProperties)
 {
     if (_effect != effect)
@@ -88,14 +87,14 @@ void Model::setEffect(Effect* effect, CustomProperties* customProperties)
     
     _uniforms.clear();
     
-    __temp_defines_keys__ = "";
+    _definesKeyHash = 0;
     
     if (effect != nullptr)
     {
         _definesList.push_back(effect->extractDefines());
         _uniforms.push_back(effect->extractProperties());
         
-        __temp_defines_keys__ += effect->getDefinesKey();
+        MathUtil::combineHash(_definesKeyHash, std::hash<std::string>{}(effect->getDefinesKey()));
     }
     
     if (customProperties != nullptr)
@@ -103,10 +102,8 @@ void Model::setEffect(Effect* effect, CustomProperties* customProperties)
         _definesList.push_back(customProperties->extractDefines());
         _uniforms.push_back(customProperties->extractProperties());
         
-        __temp_defines_keys__ += customProperties->getDefinesKey();
+        MathUtil::combineHash(_definesKeyHash, std::hash<std::string>{}(customProperties->getDefinesKey()));
     }
-    
-    _definesKeyHash = std::hash<std::string>{}(__temp_defines_keys__);
 }
 
 void Model::setNode(NodeProxy* node)

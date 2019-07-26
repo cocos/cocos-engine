@@ -25,6 +25,8 @@
 #include "../gfx/Program.h"
 #include "gfx/DeviceGraphics.h"
 
+#include "math/MathUtil.h"
+
 #include <regex>
 #include <string>
 #include <sstream>
@@ -269,18 +271,12 @@ void ProgramLib::define(const std::string& name, const std::string& vert, const 
     templ.defines = defines;
 }
 
-// https://www.boost.org/doc/libs/1_55_0/doc/html/hash/reference.html#boost.hash_combine
-inline void hash_combine(std::size_t& seed, const size_t& v)
-{
-    seed ^= v + 0x9e3779b9 + (seed<<6) + (seed>>2);
-}
-
 Program* ProgramLib::getProgram(const size_t programHash, const size_t definesKeyHash, const std::vector<ValueMap*>& definesList)
 {
     
     size_t key = 0;
-    hash_combine(key, programHash);
-    hash_combine(key, definesKeyHash);
+    MathUtil::combineHash(key, programHash);
+    MathUtil::combineHash(key, definesKeyHash);
     
     auto iter = _cache.find(key);
     if (iter != _cache.end()) {
