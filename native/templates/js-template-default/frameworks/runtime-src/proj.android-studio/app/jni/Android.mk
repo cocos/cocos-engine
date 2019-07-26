@@ -20,8 +20,8 @@ LOCAL_STATIC_LIBRARIES := cocos2dx_static
 
 include $(BUILD_SHARED_LIBRARY)
 
-ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
-     LOCAL_WHOLE_STATIC_LIBRARIES += android_support
-endif
+ifneq ($(filter x86 armeabi-v7a, $(TARGET_ARCH_ABI)),)
+	LOCAL_WHOLE_STATIC_LIBRARIES += android_support
+endif 
 
 $(call import-module, cocos)

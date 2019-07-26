@@ -212,9 +212,9 @@ LOCAL_STATIC_LIBRARIES += custom_libcxx
 
 LOCAL_WHOLE_STATIC_LIBRARIES := cocos2dxandroid_static
 LOCAL_WHOLE_STATIC_LIBRARIES += cpufeatures
-ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
+ifneq ($(filter x86 armeabi-v7a, $(TARGET_ARCH_ABI)),)
      LOCAL_WHOLE_STATIC_LIBRARIES += android_support
-endif
+endif 
 
 # define the macro to compile through support/zip_support/ioapi.c
 LOCAL_CFLAGS := -DUSE_FILE32API -fexceptions

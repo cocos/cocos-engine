@@ -27,8 +27,8 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/. \
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/. \
                            $(LOCAL_PATH)/..
 
-ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
+ifneq ($(filter x86 armeabi-v7a, $(TARGET_ARCH_ABI)),)
 	LOCAL_WHOLE_STATIC_LIBRARIES += android_support
-endif
+endif 
                     
 include $(BUILD_STATIC_LIBRARY)
