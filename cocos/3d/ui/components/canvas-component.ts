@@ -35,6 +35,7 @@ import { vec3 } from '../../../core/vmath';
 import { GFXClearFlag } from '../../../gfx/define';
 import { Camera } from '../../../renderer';
 import { UITransformComponent } from './ui-transfrom-component';
+import { Node } from '../../../scene-graph';
 
 const _worldPos = new Vec3();
 
@@ -177,7 +178,7 @@ export class CanvasComponent extends Component {
     }
 
     public __preload () {
-        const cameraNode = new cc.Node('UICamera_' + this.node.name);
+        const cameraNode = new Node('UICamera_' + this.node.name);
         cameraNode.setPosition(0, 0, 999);
         if (!CC_EDITOR) {
             this._camera = cc.director.root.ui.renderScene.createCamera({
@@ -264,7 +265,7 @@ export class CanvasComponent extends Component {
             vec3.set(_worldPos, canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY, 0);
         }
 
-        if (!this._pos.equals(_worldPos)){
+        if (!this._pos.equals(_worldPos)) {
             this.node.setPosition(_worldPos);
         }
 

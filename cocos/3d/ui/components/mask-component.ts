@@ -29,15 +29,16 @@
  */
 
 import { SpriteFrame } from '../../../assets';
-import { ccclass, executionOrder, menu, property} from '../../../core/data/class-decorator';
-import { SystemEventType } from '../../../core/platform';
+import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { Color, Mat4, Size, Vec2, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
 import * as vmath from '../../../core/vmath';
 import { UI } from '../../../renderer/ui/ui';
-import { Node } from '../../../scene-graph';
 import { GraphicsComponent } from './graphics-component';
 import { InstanceMaterialType, UIRenderComponent } from './ui-render-component';
+import { INode } from '../../../core/utils/interfaces';
+import { Node } from '../../../scene-graph';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -104,7 +105,7 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     set type (value: MaskType) {
-        if (this._type === value){
+        if (this._type === value) {
             return;
         }
 
@@ -191,11 +192,11 @@ export class MaskComponent extends UIRenderComponent {
         this._updateGraphics();
     }
 
-    get graphics (){
+    get graphics () {
         return this._graphics;
     }
 
-    get clearGraphics (){
+    get clearGraphics () {
         return this._clearGraphics;
     }
 
@@ -203,7 +204,7 @@ export class MaskComponent extends UIRenderComponent {
         visible: false,
         override: true,
     })
-    get dstBlendFactor (){
+    get dstBlendFactor () {
         return this._dstBlendFactor;
     }
 
@@ -242,7 +243,7 @@ export class MaskComponent extends UIRenderComponent {
         return this._color;
     }
 
-    set color (value){
+    set color (value) {
         if (this._color === value) {
             return;
         }
@@ -271,12 +272,12 @@ export class MaskComponent extends UIRenderComponent {
     private _graphics: GraphicsComponent | null = null;
     private _clearGraphics: GraphicsComponent | null = null;
 
-    constructor (){
+    constructor () {
         super();
         this._instanceMaterialType = InstanceMaterialType.ADDCOLOR;
     }
 
-    public onLoad (){
+    public onLoad () {
         this._createGraphics();
     }
 
@@ -307,7 +308,7 @@ export class MaskComponent extends UIRenderComponent {
         //     }
         // }
         // else {
-        if (this._clearGraphics){
+        if (this._clearGraphics) {
             this._clearGraphics.onEnable();
         }
         this._updateGraphics();
@@ -354,7 +355,7 @@ export class MaskComponent extends UIRenderComponent {
      *
      * @param cameraPt  屏幕点转换到相机坐标系下的点。
      */
-    public isHit (cameraPt: Vec2){
+    public isHit (cameraPt: Vec2) {
         const node = this.node;
         const size = node.getContentSize();
         const w = size.width;
@@ -396,7 +397,7 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     protected _nodeStateChange (type: SystemEventType) {
-        if (type === SystemEventType.POSITION_PART){
+        if (type === SystemEventType.POSITION_PART) {
             return;
         }
 
@@ -405,7 +406,7 @@ export class MaskComponent extends UIRenderComponent {
         this._updateGraphics();
     }
 
-    protected _resolutionChanged (){
+    protected _resolutionChanged () {
         this._updateClearGraphics();
     }
 
@@ -417,7 +418,7 @@ export class MaskComponent extends UIRenderComponent {
         return this._clearGraphics !== null && this._graphics !== null && this._renderPermit;
     }
 
-    protected _flushAssembler (){
+    protected _flushAssembler () {
         const assembler = MaskComponent.Assembler!.getAssembler(this);
         const posAssembler = MaskComponent.PostAssembler!.getAssembler(this);
 
@@ -496,12 +497,12 @@ export class MaskComponent extends UIRenderComponent {
             graphics.lineWidth = 0;
             const color = Color.WHITE;
             color.a = 0;
-            graphics.fillColor =  color;
+            graphics.fillColor = color;
         }
     }
 
-    private _updateClearGraphics (){
-        if (!this._clearGraphics){
+    private _updateClearGraphics () {
+        if (!this._clearGraphics) {
             return;
         }
         console.log('resolution changed');
@@ -513,7 +514,7 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     private _updateGraphics () {
-        if (!this._graphics){
+        if (!this._graphics) {
             return;
         }
 
@@ -548,7 +549,7 @@ export class MaskComponent extends UIRenderComponent {
         graphics.fill();
     }
 
-    private _disableGraphics (){
+    private _disableGraphics () {
         if (this._graphics) {
             this._graphics.onDisable();
         }

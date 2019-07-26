@@ -36,6 +36,7 @@ import * as js from '../core/utils/js';
 import { baseNodePolyfill } from './base-node-dev';
 import { Scene } from './scene';
 import { CCClass } from '../core/data';
+import { IBaseNode } from '../core/utils/interfaces';
 
 /**
  *
@@ -84,7 +85,7 @@ function getConstructor (typeOrClassName: string | Function): Function | null {
  * @protected
  */
 @ccclass('cc._BaseNode')
-export class BaseNode extends CCObject {
+export class BaseNode extends CCObject implements IBaseNode {
     /**
      * Gets all components attached to this node.
      */
@@ -246,6 +247,11 @@ export class BaseNode extends CCObject {
         this.setParent(value);
     }
 
+    /**
+     * @en which scene this node belongs to.
+     * @zh 此节点属于哪个场景。
+     * @type {cc.Scene}}
+     */
     get scene () {
         return this._scene;
     }

@@ -35,13 +35,14 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../.
 import { EventTouch } from '../../../../core/platform';
 import { SystemEventType } from '../../../../core/platform/event-manager/event-enum';
 import { Color, Size } from '../../../../core/value-types';
-import { Node } from '../../../../scene-graph/node';
 import { LabelComponent, VerticalTextAlignment } from '../label-component';
 import { SpriteComponent } from '../sprite-component';
 import { UIRenderComponent } from '../ui-render-component';
 import { UITransformComponent } from '../ui-transfrom-component';
-import { EditBoxImpl} from './edit-box-impl';
+import { EditBoxImpl } from './edit-box-impl';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
+import { INode } from '../../../../core/utils/interfaces';
+import { Node } from '../../../../scene-graph';
 
 const LEFT_PADDING = 2;
 
@@ -547,7 +548,7 @@ export class EditBoxComponent extends Component {
             this._showLabels();
         }
 
-        if (this._impl){
+        if (this._impl) {
             this._impl.stayOnTop(this.stayOnTop);
         }
     }
@@ -555,13 +556,13 @@ export class EditBoxComponent extends Component {
     public _syncSize () {
         const size = this.node.getContentSize();
 
-        if (this._background){
+        if (this._background) {
             this._background.node.setAnchorPoint(this.node.getAnchorPoint());
             this._background.node.setContentSize(size);
         }
 
         this._updateLabelPosition(size);
-        if (this._impl){
+        if (this._impl) {
             this._impl.setSize(size.width, size.height);
         }
     }
@@ -603,9 +604,9 @@ export class EditBoxComponent extends Component {
         this._background!.spriteFrame = this._backgroundImage;
         // let background = this._background;
         // if (!background) {
-        //     let node = this.node.getChildByName('BACKGROUND_SPRITE');
+        //     let node = this.node.getChildByName('BACKGROUND_SPRITE') as INode;
         //     if (!node) {
-        //         node = new cc.Node('BACKGROUND_SPRITE');
+        //         node = new cc.Node('BACKGROUND_SPRITE') as INode;
         //     }
 
         //     background = node.getComponent(cc.SpriteComponent);
@@ -624,7 +625,7 @@ export class EditBoxComponent extends Component {
         if (!this._textLabel) {
             let node = this.node.getChildByName('TEXT_LABEL');
             if (!node) {
-                node = new cc.Node('TEXT_LABEL');
+                node = new Node('TEXT_LABEL') as INode;
             }
             let textLabel = node!.getComponent(LabelComponent);
             node!.parent = this.node;
@@ -643,9 +644,9 @@ export class EditBoxComponent extends Component {
         }
 
         if (!this._placeholderLabel) {
-            let node = this.node.getChildByName('PLACEHOLDER_LABEL');
+            let node = this.node.getChildByName('PLACEHOLDER_LABEL') as INode;
             if (!node) {
-                node = new Node('PLACEHOLDER_LABEL');
+                node = new cc.Node('PLACEHOLDER_LABEL') as INode;
             }
             let placeholderLabel = node!.getComponent(LabelComponent);
             if (!placeholderLabel) {
