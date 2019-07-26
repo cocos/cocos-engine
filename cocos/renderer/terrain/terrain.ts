@@ -519,10 +519,15 @@ export class TerrainBlock {
 @executeInEditMode
 export class Terrain extends Component {
     @property({
+        type: TerrainInfo,
         visible: false,
     })
     protected _info: TerrainInfo = new TerrainInfo();
 
+    @property({
+        type: TerrainLayer,
+        visible: false,
+    })
     protected _layers: Array<TerrainLayer|null> = [];
 
     @property({
@@ -530,6 +535,9 @@ export class Terrain extends Component {
     })
     protected _heights: number[] = [];
 
+    @property({
+        visible: false,
+    })
     protected _weights: Uint8Array = new Uint8Array();
 
     protected _normals: number[] = [];
