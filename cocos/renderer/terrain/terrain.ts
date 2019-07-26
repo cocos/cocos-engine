@@ -526,7 +526,7 @@ export class Terrain extends Component {
 
     @property({
         type: TerrainLayer,
-        visible: false,
+        visible: true,
     })
     protected _layers: Array<TerrainLayer|null> = [];
 
