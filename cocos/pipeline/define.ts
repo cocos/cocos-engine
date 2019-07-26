@@ -259,13 +259,15 @@ localBindingsDesc.set(UBOSkinning.BLOCK.name, {
  * 蒙皮纹理信息UBO。
  */
 export class UBOSkinningTexture {
-    public static JOINTS_TEXTURE_SIZE_INV_OFFSET: number = 0;
-    public static COUNT: number = 4;
+    public static JOINTS_TEXTURE_INFO_OFFSET: number = 0;
+    public static JOINTS_FRAME_ID_OFFSET: number = UBOSkinningTexture.JOINTS_TEXTURE_INFO_OFFSET + 4;
+    public static COUNT: number = UBOSkinningTexture.JOINTS_FRAME_ID_OFFSET + 1;
     public static SIZE: number = UBOSkinningTexture.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
         binding: UniformBinding.UBO_SKINNING_TEXTURE, name: 'CCSkinningTexture', members: [
-            { name: 'cc_jointsTextureSizeInv', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_jointsTextureInfo', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_jointsFrameID', type: GFXType.FLOAT, count: 1 },
         ],
     };
 }

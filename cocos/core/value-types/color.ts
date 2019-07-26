@@ -57,7 +57,7 @@ export default class Color extends ValueType {
      * 创建并获取全透明的纯黑色，各通道值依次为 (0, 0, 0, 0)。
      */
     static get TRANSPARENT () {
-         return new Color(0, 0, 0, 0);
+        return new Color(0, 0, 0, 0);
     }
 
     /**
@@ -124,7 +124,7 @@ export default class Color extends ValueType {
     }
 
     set r (red) {
-        red = ~~cc.misc.clampf(red, 0, 255);
+        red = ~~cc.vmath.clamp(red, 0, 255);
         this._val = ((this._val & 0xffffff00) | red) >>> 0;
     }
 
@@ -136,7 +136,7 @@ export default class Color extends ValueType {
     }
 
     set g (green) {
-        green = ~~cc.misc.clampf(green, 0, 255);
+        green = ~~cc.vmath.clamp(green, 0, 255);
         this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
     }
 
@@ -148,7 +148,7 @@ export default class Color extends ValueType {
     }
 
     set b (blue) {
-        blue = ~~cc.misc.clampf(blue, 0, 255);
+        blue = ~~cc.vmath.clamp(blue, 0, 255);
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
     }
 
@@ -160,7 +160,7 @@ export default class Color extends ValueType {
     }
 
     set a (alpha) {
-        alpha = ~~cc.misc.clampf(alpha, 0, 255);
+        alpha = ~~cc.vmath.clamp(alpha, 0, 255);
         this._val = ((this._val & 0x00ffffff) | ((alpha << 24) >>> 0)) >>> 0;
     }
 
@@ -304,19 +304,19 @@ export default class Color extends ValueType {
      * @returns 当前颜色的 CSS 格式。
      */
     public toCSS (opt: 'rgba' | 'rgb' | '#rrggbb') {
-        if ( opt === 'rgba' ) {
+        if (opt === 'rgba') {
             return 'rgba(' +
-                (this.r | 0 ) + ',' +
-                (this.g | 0 ) + ',' +
-                (this.b | 0 ) + ',' +
+                (this.r | 0) + ',' +
+                (this.g | 0) + ',' +
+                (this.b | 0) + ',' +
                 (this.a * toFloat).toFixed(2) + ')'
-            ;
-        } else if ( opt === 'rgb' ) {
+                ;
+        } else if (opt === 'rgb') {
             return 'rgb(' +
-                (this.r | 0 ) + ',' +
-                (this.g | 0 ) + ',' +
-                (this.b | 0 ) + ')'
-            ;
+                (this.r | 0) + ',' +
+                (this.g | 0) + ',' +
+                (this.b | 0) + ')'
+                ;
         } else {
             return '#' + this.toHEX(opt);
         }
@@ -355,21 +355,21 @@ export default class Color extends ValueType {
      */
     public toHEX (fmt: '#rrggbb' | '#rrggbbaa') {
         const hex = [
-            (this.r | 0 ).toString(16),
-            (this.g | 0 ).toString(16),
-            (this.b | 0 ).toString(16),
+            (this.r | 0).toString(16),
+            (this.g | 0).toString(16),
+            (this.b | 0).toString(16),
         ];
         let i = -1;
-        if ( fmt === '#rrggbb' ) {
-            for ( i = 0; i < hex.length; ++i ) {
-                if ( hex[i].length === 1 ) {
+        if (fmt === '#rrggbb') {
+            for (i = 0; i < hex.length; ++i) {
+                if (hex[i].length === 1) {
                     hex[i] = '0' + hex[i];
                 }
             }
-        } else if ( fmt === '#rrggbbaa' ) {
-            hex.push((this.a | 0 ).toString(16));
-            for ( i = 0; i < hex.length; ++i ) {
-                if ( hex[i].length === 1 ) {
+        } else if (fmt === '#rrggbbaa') {
+            hex.push((this.a | 0).toString(16));
+            for (i = 0; i < hex.length; ++i) {
+                if (hex[i].length === 1) {
                     hex[i] = '0' + hex[i];
                 }
             }
@@ -543,7 +543,7 @@ export default class Color extends ValueType {
     }
 }
 
-CCClass.fastDefine('cc.Color', Color, {r: 0, g: 0, b: 0, a: 255});
+CCClass.fastDefine('cc.Color', Color, { r: 0, g: 0, b: 0, a: 255 });
 
 /**
  * 构造与指定颜色相等的颜色。相当于 `new Color(other)`。
@@ -581,7 +581,7 @@ export function color (r?: number | Color | string, g?: number, b?: number, a?: 
     if (typeof r === 'object') {
         return new Color(r.r, r.g, r.b, r.a);
     }
-    return  new Color(r, g, b, a);
+    return new Color(r, g, b, a);
 }
 
 cc.color = color;
