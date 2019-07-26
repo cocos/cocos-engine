@@ -50,13 +50,10 @@ let textureUtil = {
             }
         }
         else {
-            cc.assetManager.loadRemoteTexture(url, function (err, texture) {
-                if (err) {
-                    return cb && cb.call(target, err || new Error('Unknown error'));
-                }
-                texture._nativeUrl = url;
-                texture.handleLoadedTexture();
-                cb && cb.call(target, null, texture);
+            tex = new Texture2D();
+            tex._nativeUrl = url;
+            cc.assetManager.loadRemoteTexture(url, {texture: tex}, function (err, texture) {
+                cb && cb.call(target, err, texture);
             });
             return tex;
         }

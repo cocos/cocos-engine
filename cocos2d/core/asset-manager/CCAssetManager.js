@@ -331,7 +331,7 @@ AssetManager.prototype = {
             var out = null;
             if (!err) {
                 try {
-                    var out = new cc.Texture2D();
+                    var out = options.texture || new cc.Texture2D();
                     out._setRawAsset(url, false);
                     out._nativeAsset = data;
                 }
@@ -373,7 +373,7 @@ AssetManager.prototype = {
             var out = null;
             if (!err) {
                 try {
-                    var out = new cc.AudioClip();
+                    var out = options.audioClip || new cc.AudioClip();
                     out._setRawAsset(url, false);
                     out._nativeAsset = data;
                 }

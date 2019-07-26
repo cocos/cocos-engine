@@ -3,10 +3,12 @@ largeModule('Pipeline');
 (function () {
 
 var download = function (task, callback) {
+    task.output = task.input;
     callback(null, null);
 };
 
 var load = function (task, callback) {
+    task.output = task.input;
     callback(null, null);
 };
 
@@ -59,6 +61,7 @@ test('pipeline flow', function () {
         
     });
     var load = new Callback(function (task, callback) {
+        task.output = task.input;
         callback(null, null);
     });
     var pipeline = new cc.AssetManager.Pipeline('pipeline flow', [download, load]);
@@ -158,7 +161,7 @@ asyncTest('content manipulation', function () {
         strictEqual(completed, 1, 'should dispatch onProgress');
     };
 
-    var task = cc.LoadingItems.create(pipeline, [
+    var task = cc.AssetManager.Task.create({input: [
         'res/Background.png',
         {
             url: 'res/scene.json',
@@ -166,7 +169,7 @@ asyncTest('content manipulation', function () {
         },
         'res/role.plist',
         'res/role'
-    ], onProgress, onComplete);
+    ], onProgress: onProgress, onComplete: onComplete});
 
     pipeline.async(task);
 

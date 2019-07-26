@@ -210,7 +210,7 @@ function _resetGame (w, h) {
     }
     // Forbid render in test
     cc.renderer.render = function () {};
-    cc.assetManager.releaseAll(true);
+    cc.loader.releaseAll();
     cc.director.reset();
     cc.director.runSceneImmediate(new cc.Scene());
     //cc.director.pause();

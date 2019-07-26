@@ -62,7 +62,7 @@ function initializing (task, done) {
             return task.dispatch('error');
         } 
         
-        var inits = [];
+        var deferredInits = [], inits = [];
         // stage 2, set properties
         for (var i = 0, l = input.length; i < l; i++) {
             var item = input[i];
@@ -72,10 +72,16 @@ function initializing (task, done) {
                 if (!item.content) {
                     var asset = assetsMap[item.id];
                     asset._uuid = item.uuid;
+                    var deferredInit = asset.__depends__.length > 0;
                     var result = setProperties(item.uuid, asset, assetsMap);
                     asset = result.asset;
                     if (!result.missingAsset) {
-                        asset.onLoad && inits.push(item);
+                        if (deferredInit) {
+                            asset.onLoad && deferredInits.push(item);
+                        }
+                        else {
+                            asset.onLoad && inits.push(item);
+                        }
                     }
                     item.dispatch('load');
                     cacheAsset(item.uuid, asset, item.options.cacheAsset !== undefined ? item.options.cacheAsset : cc.assetManager.cacheAsset); 
@@ -88,6 +94,16 @@ function initializing (task, done) {
         // stage 3, initialize
         for (var i = 0, l = inits.length; i < l; i++) {
             var item = inits[i];
+            try {
+                item.content.onLoad();
+            }
+            catch (e) {
+                item.dispatch('error', e);
+            }
+        }
+
+        for (var i = 0, l = deferredInits.length; i < l; i++) {
+            var item = deferredInits[i];
             try {
                 item.content.onLoad();
             }

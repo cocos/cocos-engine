@@ -111,8 +111,9 @@ Config.prototype = {
             var type = info[1];
             var isSubAsset = info.length === 3;
 
-            var assetInfo = {uuid, path, ctor: js._getClassById(type)};
-            this.assetInfos.add(uuid, assetInfo);
+            var assetInfo = this.assetInfos.get(uuid);
+            assetInfo.path = path;
+            assetInfo.ctor = js._getClassById(type);
             if (paths.has(path)) {
                 if (isSubAsset) {
                     paths.get(path).push(assetInfo);

@@ -106,6 +106,7 @@ function handle (item, task, content, file, loadDepends, depends, last, done) {
     task.output.push(item);
 
     if (loadDepends) {
+        exclude[item.uuid] = true;
         var err = getDepends(item.uuid, file, exclude, depends, true, item.config);
         if (err) {
             item.dispatch('error', err);

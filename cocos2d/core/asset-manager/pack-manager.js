@@ -85,7 +85,7 @@ var packManager = {
                 }
                 for (let i = 0; i < pack.length; i++) {
                     out[pack[i] + '@import'] = {
-                        __type__: type,
+                        __type__: json.type,
                         content: datas[i]
                     };
                 }

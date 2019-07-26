@@ -25,7 +25,7 @@
 const packManager = require('./pack-manager');
 const Pipeline = require('./pipeline');
 const parser = require('./parser');
-const { getDepends, cacheAsset, gatherAsset, setProperties, forEach, clear } = require('./utilities');
+const { getDepends, cacheAsset, gatherAsset, setProperties, forEach, clear, checkCircleReference } = require('./utilities');
 const { assets, files, parsed, pipeline } = require('./shared');
 const Task = require('./task');
 
@@ -118,20 +118,18 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
         }
         else if (!item.isNative && item.uuid in exclude) {
 
-            var val = exclude[item.uuid];
+            var cache = exclude[item.uuid];
             task.dispatch('progress', ++progress.finish, progress.total, item);
 
-            if (Array.isArray(val)) {
-                val.push({ done, item });
+            if (cache.finish || checkCircleReference(item.uuid, item.uuid, exclude) ) {
+                cache.content && cache.content._addRef();
+                item.content = cache.content;
+                cache.err && item.dispatch('error', cache.err);
+                cache.loaded && item.dispatch('load');
+                done(cache.subTaskError);
             }
             else {
-
-                val.content && val.content._addRef();
-                item.content = val.content;
-                val.err && item.dispatch('error', val.err);
-                val.loaded && item.dispatch('load');
-                done(val.subTaskError);
-
+                cache.callbacks.push({ done, item });
             }
         }
         else {
@@ -156,16 +154,11 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                     
                     task.dispatch('progress', ++progress.finish, progress.total += depends.length, item);
 
+                    var cache = exclude[item.uuid] = { content: asset, finish: false, callbacks: [] };
+
                     if (depends.length > 0) {
 
-                        // only prefab will cause cross reference, callback early 
-                        if (asset instanceof cc.Prefab) {
-                            exclude[item.uuid] = { content: asset, loaded: true };
-                        }
-                        else {
-                            exclude[item.uuid] = [{ done, item }];
-                        }
-
+                        cache.callbacks.push({ done, item });
                         let subTask = Task.create({ 
                             input: depends, 
                             options: task.options, 
@@ -173,8 +166,8 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                             onError: Task.prototype.recycle, 
                             progress, 
                             onComplete: function (err) {
-
-                                var finish = { subTaskError: err };
+                                cache.finish = true;
+                                cache.subTaskError = err;
 
                                 if (!err) {
 
@@ -195,32 +188,29 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                                             asset.onLoad && asset.onLoad();
                                         }
                                         catch (e) {
-                                            finish.err = e;
+                                            cache.err = e;
                                         }
                                     }
 
-                                    finish.content = asset;
-                                    finish.loaded = true;
+                                    cache.loaded = true;
                                     cacheAsset(item.uuid, asset, item.options.cacheAsset !== undefined ? item.options.cacheAsset : cc.assetManager.cacheAsset); 
                                     subTask.recycle();
                                 }
 
-                                var callbacks = exclude[item.uuid];
-
-                                !Array.isArray(callbacks) && (callbacks = [{ done, item }]);
-
-                                exclude[item.uuid] = finish;
+                                var callbacks = cache.callbacks;
 
                                 for (var i = 0, l = callbacks.length; i < l; i++) {
 
                                     var cb = callbacks[i];
-                                    finish.content && finish.content._addRef();
-                                    cb.item.content = finish.content;
-                                    finish.err && cb.item.dispatch('error', finish.err);
-                                    finish.loaded && cb.item.dispatch('load');
-                                    cb.done(finish.subTaskError);
+                                    cache.content && cache.content._addRef();
+                                    cb.item.content = cache.content;
+                                    cache.err && cb.item.dispatch('error', cache.err);
+                                    cache.loaded && cb.item.dispatch('load');
+                                    cb.done(cache.subTaskError);
 
                                 }
+
+                                callbacks.length = 0;
                             }
                         });
 
@@ -229,18 +219,17 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                     else {
                         files.remove(item.id);
                         parsed.remove(item.id);
-                        var finish = { content: asset, loaded: true };
+                        cache.loaded = true;
+                        cache.finish = true;
                         try {
                             asset.onLoad && asset.onLoad();
                         }
                         catch (e) {
                             item.dispatch('error', e);
-                            finish.err = e;
+                            cache.err = e;
                         }
 
                         item.dispatch('load');
-
-                        exclude[item.uuid] = finish;
 
                         asset._addRef();
                         item.content = asset;

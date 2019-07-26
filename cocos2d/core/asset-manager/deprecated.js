@@ -30,6 +30,12 @@ const finalizer = require('./finalizer');
 var loader = {
     _onProgress: null,
     _autoReleaseSetting: Object.create(null),
+    /**
+     * @deprecated `cc.loader._cache` is deprecated now, please use `cc.assetManager._assets` instead
+     */
+    get _cache () {
+        return cc.assetManager._assets._map;
+    },
 
     /**
      * @deprecated `cc.loader.load` is deprecated now, please use `cc.assetManager.load` instead
@@ -45,11 +51,18 @@ var loader = {
         for (var i = 0; i < resources.length; i++) {
             var item = resources[i];
             if (typeof item === 'string') {
-                resources[i] = {url: resources, isNative: true, isCrossOrigin: true};
+                resources[i] = {url: item, isNative: true, isCrossOrigin: true};
             }
-            else if (item.url) {
-                item.isNative = true; 
-                item.isCrossOrigin = true;
+            else {
+                if (item.type) {
+                    item.ext = '.' + item.type;
+                    delete item.type;
+                }
+
+                if (item.url) {
+                    item.isNative = true; 
+                    item.isCrossOrigin = true;
+                }
             }
         }
         cc.assetManager.load(resources, null, progressCallback, (err, native) => {
@@ -58,14 +71,27 @@ var loader = {
                 native = Array.isArray(native) ? native : [native];
                 for (var i = 0; i < native.length; i++) {
                     var item = native[i];
-                    if (item instanceof Image || item instanceof Audio || item instanceof AudioBuffer) {
-                        var asset = item instanceof Image ? new cc.Texture2D() : new cc.AudioClip();
-                        asset._setRawAsset(url, false);
-                        asset._nativeAsset = native;
-                        native[i] = asset;
+                    if (!(item instanceof cc.Asset)) {
+                        var asset = item;
+                        var url = resources[i].url;
+                        if (item instanceof Image || (cc.sys.capabilities.createImageBitmap && item instanceof ImageBitmap) || item instanceof Audio || item instanceof AudioBuffer) {
+                            asset = (item instanceof Image || (cc.sys.capabilities.createImageBitmap && item instanceof ImageBitmap)) ? new cc.Texture2D() : new cc.AudioClip();
+                            asset._setRawAsset(url, false);
+                            asset._nativeAsset = item;
+                            native[i] = asset;
+                            asset._uuid = url;
+                        }
+                        cc.assetManager._assets.add(url, asset);
                     }
                 }
-                out = native.length > 1 ? native : native[0];
+                if (native.length > 1) {
+                    var map = Object.create(null);
+                    native.forEach(function (asset) {
+                        map[asset._uuid] = asset;
+                    });
+                    out = { isCompleted: function () { return true }, _map: map};
+                }
+                out = native.length > 1 ? { isCompleted: function () { return true }, _map: native } : native[0];
             }
             completeCallback && completeCallback(err, out);
         });
@@ -87,6 +113,13 @@ var loader = {
 
     get onProgress () {
         return this._onProgress;
+    },
+
+    /**
+     * @deprecated `cc.loader.getItem` is deprecated now, please use `cc.assetManager._assets` instead
+     */
+    getItem (key) {
+        return cc.assetManager._assets.has(key) ? { content: cc.assetManager._assets.get(key)} : null; 
     },
 
     /**
@@ -140,14 +173,23 @@ var loader = {
                 type = null;
             }
         }
-        cc.assetManager.loadResDir(url, type, progressCallback, completeCallback);
+        cc.assetManager.loadResDir(url, type, progressCallback, function (err, assets) {
+            var urls = [];
+            if (!err) {
+                var infos = cc.assetManager._bundles.get('resources')._config.getDirWithPath(url, type);
+                urls = infos.map(function (info) {
+                    return info.path;
+                });
+            }
+            completeCallback && completeCallback(err, assets, urls);
+        });
     },
 
     /**
      * @deprecated `cc.loader.getRes` is deprecated now, please use `cc.assetManager.getRes` instead
      */
     getRes (url, type) {
-        return cc.assetManager.getRes(url, type);
+        return cc.assetManager._assets.has(url) ? cc.assetManager._assets.get(url) : cc.assetManager.getRes(url, type);
     },
 
     /**
@@ -250,12 +292,12 @@ var loader = {
             for (let i = 0; i < asset.length; i++) {
                 var key = asset[i];
                 if (typeof key === 'string') key = cc.assetManager._assets.get(key);
-                cc.assetManager.release(key);
+                cc.assetManager.release(key, true);
             }
         }
         else if (asset) {
             if (typeof asset === 'string') asset = cc.assetManager._assets.get(asset);
-            cc.assetManager.release(asset);
+            cc.assetManager.release(asset, true);
         }
     },
 
@@ -263,14 +305,14 @@ var loader = {
      * @deprecated `cc.loader.releaseAsset` is deprecated now, please use `cc.assetManager.release` instead
      */
     releaseAsset (asset) {
-        cc.assetManager.release(asset);
+        cc.assetManager.release(asset, true);
     },
 
     /**
      * @deprecated `cc.loader.releaseRes` is deprecated now, please use `cc.assetManager.releaseRes` instead
      */
     releaseRes (url, type) {
-        cc.assetManager.releaseRes(url, type);
+        cc.assetManager.releaseRes(url, type, true);
     },
 
     releaseResDir () {
@@ -281,7 +323,8 @@ var loader = {
      * @deprecated `cc.loader.releaseAll` is deprecated now, please use `cc.assetManager.releaseAll` instead
      */
     releaseAll () {
-        cc.assetManager.releaseAll();
+        cc.assetManager.releaseAll(true);
+        cc.assetManager._assets.clear();
     },
 
     /**
@@ -323,6 +366,20 @@ var loader = {
 };
 
 var AssetLibrary = {
+
+    /**
+     * @deprecated `cc.AssetLibrary.init` is deprecated now, please use `cc.assetManager.init` instead
+     */
+    init (options) {
+        options.importBase = options.libraryPath;
+        options.nativeBase = CC_BUILD ? options.rawAssetsBase : options.libraryPath;
+        cc.assetManager.init(options);
+        if (options.rawAssets) {
+            var resources = new cc.AssetManager.Bundle();
+            resources.init({name:'resources', importBase: options.importBase, nativeBase: options.nativeBase, paths: options.rawAssets.assets, uuids: Object.keys(options.rawAssets.assets)});
+        }
+    },
+
     /**
      * @deprecated `cc.AssetLibrary` is deprecated now, please use `cc.assetManager.load` instead
      */

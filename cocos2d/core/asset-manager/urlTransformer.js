@@ -117,6 +117,7 @@ function parse (task) {
                         break;
                     case RequestType.URL: 
                         out.url = item.url;
+                        out.uuid = item.uuid || item.url;
                         out.ext = item.ext || cc.path.extname(item.url);
                         if (!item.uuid) item.uuid = '' + ((new Date()).getTime() + Math.random());
                         break;

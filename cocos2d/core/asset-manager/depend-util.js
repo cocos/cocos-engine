@@ -71,7 +71,7 @@ var dependUtil = {
      */
     getNativeDep (uuid) {
         if (depends.has(uuid)) return depends.get(uuid).nativeDep;
-        return [];
+        return null;
     },
 
     /**

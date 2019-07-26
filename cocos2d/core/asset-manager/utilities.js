@@ -122,7 +122,6 @@ var utils = {
         var err = null;
         try {
             var info = dependUtil.parse(uuid, data);
-            exclude[uuid] = true;
             if (!preload) {
                 asyncLoadAssets = !CC_EDITOR && (data.asyncLoadAssets || (asyncLoadAssets && !info.preventDeferredLoadDependents));
                 for (var i = 0, l = info.deps.length; i < l; i++) {
@@ -251,6 +250,24 @@ var utils = {
         }
         options = options || Object.create(null);
         return {options, onProgress, onComplete};
+    },
+
+    checkCircleReference (owner, uuid, map) {
+        if (!map[uuid]) {
+            return false;
+        }
+        var result = false;
+        var deps = map[uuid].content && map[uuid].content.__depends__;
+        if (deps) {
+            for (var i = 0, l = deps.length; i < l; i++) {
+                var dep = deps[i];
+                if (dep.uuid === owner || utils.checkCircleReference(owner, dep.uuid, map)) {
+                    result = true;
+                    break;
+                }
+            }
+        }
+        return result;
     }
 };
 

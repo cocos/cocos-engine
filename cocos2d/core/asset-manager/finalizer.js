@@ -304,7 +304,7 @@ var finalizer = {
      * release(asset: cc.Asset, force?: boolean): void
      */
     release (asset, force) {
-        if (!asset instanceof cc.Asset) return;
+        if (!(asset instanceof cc.Asset)) return;
         if (finalizer.isLocked(asset)) return;
         if (force) {
             finalizer._free(asset, force);

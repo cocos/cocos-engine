@@ -31,11 +31,11 @@
         };
 
         cc.assetManager.downloader.download = function (id, url, type, options, onComplete) {
-            onComplete(PACKS[url]);
+            onComplete(null, PACKS[url]);
         }
 
-        packManager.load({ uuid: "f10d21ed" , info: { packs: [{ uuid: "01532d877", packs: ["9b0754b9",
-        "f10d21ed"], ext: '.json'}] }}, null, function (err, data) {
+        packManager.load({ id: "f10d21ed@import" , info: { packs: [{ uuid: "01532d877", packs: ["9b0754b9",
+        "f10d21ed"], ext: '.json'}] }, config: {}}, null, function (err, data) {
             ok(data === "f10d21ed", 'simple test');
             start();
         });
@@ -58,20 +58,20 @@
             };
     
             cc.assetManager.downloader.download = function (id, url, type, options, onComplete) {
-                onComplete(PACKS[url]);
+                onComplete(null, PACKS[url]);
             }
             //
             packManager.load(firstToLoad, null, function (err, data) {
-                var result = cc.assetManager._files.remove('A');
+                var result = cc.assetManager._files.remove('A@import');
                 strictEqual(result, "A", 'loaded asset should be returned synchronously');
                 start();
             });
         });
     }
 
-    testDuplicatedAssets({ uuid: '1' , info: { packs: [{ uuid: "PACK 1", packs: [ "A", "1" ], ext: '.json'}] }});
+    testDuplicatedAssets({ id: '1@import' , info: { packs: [{ uuid: "PACK 1", packs: [ "A", "1" ], ext: '.json'}]},  config: {}});
 
-    testDuplicatedAssets({ uuid: '2' , info: { packs: [{ uuid: "PACK 2", packs: [ "A", "2" ], ext: '.json'}] }});
+    testDuplicatedAssets({ id: '2@import' , info: { packs: [{ uuid: "PACK 2", packs: [ "A", "2" ], ext: '.json'}]},  config: {}});
 
     asyncTest('packs with duplicated assets, if no one downloaded', function () {
         var PACKS = {
@@ -91,16 +91,16 @@
         };
 
         cc.assetManager.downloader.download = function (id, url, type, options, onComplete) {
-            onComplete(PACKS[url]);
+            onComplete(null, PACKS[url]);
         };
         //
         cc.assetManager._files.clear();
-        packManager.load({ uuid: "1", info: { packs: [
+        packManager.load({ id: "1@import", config: {}, info: { packs: [
             { uuid: "PACK 1", packs: ["1"], ext: '.json'}, { uuid: "PACK 1.5", packs: ["1", "2"], ext: '.json'},
         ]}}, null, function (err, data) {
             strictEqual(cc.assetManager._files.count, 1, 'asset should load from smallest pack 1');
             cc.assetManager._files.clear();
-            packManager.load({ uuid: "2", info: { packs: [
+            packManager.load({ id: "2@import", config: {}, info: { packs: [
                 { uuid: "PACK 2", packs: ["2"], ext: '.json'}, { uuid: "PACK 1.5", packs: ["1", "2"], ext: '.json'},
             ]}}, null, function (err, data) {
                 strictEqual(cc.assetManager._files.count, 1, 'asset should load from smallest pack 2');

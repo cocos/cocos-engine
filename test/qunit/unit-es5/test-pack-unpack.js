@@ -39,8 +39,8 @@
         ok(res.indices.indexOf(KEY1) !== -1 && res.indices.indexOf(KEY2) !== -1, 'should generate index data when packing');
 
         cc.assetManager.packManager.unpack(res.indices, JSON.parse(res.data), '.json', null, function (err, data) {
-            deepEqual(data[KEY1], JSON1, 'should unpack JSON1');
-            deepEqual(data[KEY2], JSON2, 'should unpack JSON2');
+            deepEqual(data[KEY1 + '@import'], JSON1, 'should unpack JSON1');
+            deepEqual(data[KEY2 + '@import'], JSON2, 'should unpack JSON2');
         });
     });
 })();
@@ -86,8 +86,8 @@
         ok(res.indices.indexOf(tex1._uuid) !== -1 && res.indices.indexOf(tex2._uuid) !== -1, 'should generate index data when packing');
 
         cc.assetManager.packManager.unpack(res.indices, JSON.parse(res.data), '.json', null, function (err, data) {
-            deepEqual(data[tex1._uuid], tex1Json, 'should unpack tex1');
-            deepEqual(data[tex2._uuid], tex2Json, 'should unpack tex2');
+            deepEqual(data[tex1._uuid + '@import'], tex1Json, 'should unpack tex1');
+            deepEqual(data[tex2._uuid + '@import'], tex2Json, 'should unpack tex2');
         });
     });
 })();

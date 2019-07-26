@@ -109,7 +109,7 @@ Pipeline.prototype = {
             return;
         }
     
-        this.pipes.splice(index, 0, pipe);
+        this.pipes.splice(index, 0, func);
         return this;
     },
 

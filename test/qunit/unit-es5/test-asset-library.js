@@ -10,7 +10,7 @@
     largeModule('AssetLibrary', {
         setup: function () {
             _resetGame();
-            cc.assetManager.init({importBase: libPath, nativeBase: libPath});
+            AssetLibrary.init({libraryPath: libPath});
         }
     });
 
@@ -70,6 +70,7 @@
                 return start();
             }
             clearTimeout(timerId);
+            
             ok(asset.texture === asset, 'asset could reference to itself');
             start();
         }, {
