@@ -176,8 +176,6 @@ export const sliced: IAssembler = {
     updateWorldVerts (sprite: SpriteComponent) {
         const node = sprite.node;
         const datas: IRenderData[] = sprite!.renderData!.datas;
-
-        const datas: IRenderData[] = sprite!.renderData!.datas;
         node.getWorldMatrix(matrix);
         for (let row = 0; row < 4; ++row) {
             const rowD = datas[row];
