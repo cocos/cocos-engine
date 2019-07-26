@@ -42,7 +42,6 @@ export type PresumedGFXTextureViewInfo = Pick<IGFXTextureViewInfo, 'texture' | '
  */
 @ccclass('cc.SimpleTexture')
 export class SimpleTexture extends TextureBase {
-    private _mipmapLevel = 1;
     private _gfxTexture: GFXTexture | null = null;
     private _gfxTextureView: GFXTextureView | null = null;
 
