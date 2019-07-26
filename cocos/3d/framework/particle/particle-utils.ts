@@ -3,7 +3,7 @@
  */
 
 import { ParticleSystemComponent } from '..';
-import { CCObject } from '../../../core';
+import { CCObject } from '../../../core/data/object';
 import { Node } from '../../../scene-graph';
 import { Pool } from '../../memop';
 

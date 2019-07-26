@@ -98,7 +98,7 @@ function uploadJointDataDQS (out: Float32Array, base: number, pos: Vec3, rot: Qu
 }
 
 function roundUpTextureSize (targetLength: number) {
-    return Math.max(1020, Math.ceil(targetLength / 12) * 12);
+    return Math.max(360, Math.ceil(targetLength / 12) * 12);
 }
 
 const _jointsFormat = {
@@ -158,7 +158,7 @@ export class JointsTexturePool {
     /**
      * 获取指定动画片段的骨骼贴图
      */
-    public getJointsTextureWithClip (skeleton: Skeleton, clip: SkeletalAnimationClip) {
+    public getJointsTextureWithAnimation (skeleton: Skeleton, clip: SkeletalAnimationClip) {
         const frames = clip.keys[0].length;
         const bufSize = skeleton.joints.length * 12 * frames;
         const texture = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);

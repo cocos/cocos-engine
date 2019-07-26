@@ -32,12 +32,12 @@ import { SkeletalAnimationClip } from '../../animation';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { UBOSkinningTexture, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
-import { Node } from '../../scene-graph/node';
 import { Pass } from '../core/pass';
 import { ITextureBufferHandle } from '../core/texture-buffer-pool';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 import { getJointsTextureSampler } from './joints-texture-utils';
+import { INode } from '../../core/utils/interfaces';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;
@@ -48,16 +48,16 @@ interface IJointsInfo {
 
 export class SkinningModel extends Model {
 
-    public uploadedClip: SkeletalAnimationClip | null = null;
+    public uploadedAnim: SkeletalAnimationClip | null = null;
 
     private _jointsMedium: IJointsInfo;
     private _skeleton: Skeleton | null = null;
 
     get worldBounds () {
-        return this.uploadedClip ? null : this._worldBounds;
+        return this.uploadedAnim ? null : this._worldBounds;
     }
 
-    constructor (scene: RenderScene, node: Node) {
+    constructor (scene: RenderScene, node: INode) {
         super(scene, node);
         this._type = 'skinning';
         const jointsTextureInfo = new Float32Array(5);
@@ -74,7 +74,7 @@ export class SkinningModel extends Model {
         }
     }
 
-    public bindSkeleton (skeleton: Skeleton | null, skinningRoot: Node | null) {
+    public bindSkeleton (skeleton: Skeleton | null, skinningRoot: INode | null) {
         this._skeleton = skeleton;
         if (!skeleton || !skinningRoot) { return; }
         this._transform = skinningRoot;
@@ -86,16 +86,16 @@ export class SkinningModel extends Model {
                 stride: UBOSkinningTexture.SIZE,
             });
         }
-        const texture = this.uploadedClip ?
-        this._scene.texturePool.getJointsTextureWithClip(skeleton, this.uploadedClip) :
+        const texture = this.uploadedAnim ?
+        this._scene.texturePool.getJointsTextureWithAnimation(skeleton, this.uploadedAnim) :
             this._scene.texturePool.getDefaultJointsTexture(skeleton);
         this._applyJointsTexture(texture);
     }
 
-    public uploadAnimationClip (clip: SkeletalAnimationClip) {
+    public uploadAnimation (anim: SkeletalAnimationClip) {
         if (!this._skeleton) { return; }
-        this.uploadedClip = clip;
-        this._applyJointsTexture(this._scene.texturePool.getJointsTextureWithClip(this._skeleton, clip));
+        this.uploadedAnim = anim;
+        this._applyJointsTexture(this._scene.texturePool.getJointsTextureWithAnimation(this._skeleton, anim));
     }
 
     public setFrameID (val: number) {
@@ -115,7 +115,7 @@ export class SkinningModel extends Model {
         jointsTextureInfo[0] = texture.texture.width;
         jointsTextureInfo[1] = 1 / texture.texture.width;
         jointsTextureInfo[2] = this._scene.texturePool.bytesToPixels(texture.start);
-        jointsTextureInfo[3] = this.uploadedClip ? this.uploadedClip.keys[0].length : 1;
+        jointsTextureInfo[3] = this.uploadedAnim ? this.uploadedAnim.keys[0].length : 1;
         jointsTextureInfo[4] = 0; // restore fid
         if (buffer) { buffer.update(jointsTextureInfo); }
         const sampler = getJointsTextureSampler(this._device);
