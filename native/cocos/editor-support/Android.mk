@@ -117,6 +117,11 @@ LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH) \
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/.. \
 					$(LOCAL_PATH)/../.. \
                     $(LOCAL_PATH)/../../external/android/$(TARGET_ARCH_ABI)/include/v8 \
+                    $(LOCAL_PATH)/../../external/android/$(TARGET_ARCH_ABI)/include/v8/libc++ \
 					$(LOCAL_PATH)/../../external/sources/
+
+ifneq ($(filter x86 armeabi-v7a, $(TARGET_ARCH_ABI)),)
+	LOCAL_WHOLE_STATIC_LIBRARIES += android_support
+endif 
 
 include $(BUILD_STATIC_LIBRARY)

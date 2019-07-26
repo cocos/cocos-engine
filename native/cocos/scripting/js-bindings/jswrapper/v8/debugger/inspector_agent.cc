@@ -565,7 +565,7 @@ class NodeInspectorClient : public V8InspectorClient {
 
     if (!stack_trace.IsEmpty() &&
         stack_trace->GetFrameCount() > 0 &&
-        script_id == stack_trace->GetFrame(0)->GetScriptId()) {
+        script_id == stack_trace->GetFrame(env_->isolate(), 0)->GetScriptId()) {
       script_id = 0;
     }
 
@@ -750,7 +750,7 @@ void Open(const FunctionCallbackInfo<Value>& args) {
   bool wait_for_connect = false;
 
   if (args.Length() > 0 && args[0]->IsUint32()) {
-    uint32_t port = args[0]->Uint32Value();
+    uint32_t port = args[0]->Uint32Value(env->context()).ToChecked();
     agent->options().set_port(static_cast<int>(port));
   }
 
@@ -760,7 +760,7 @@ void Open(const FunctionCallbackInfo<Value>& args) {
   }
 
   if (args.Length() > 2 && args[2]->IsBoolean()) {
-    wait_for_connect =  args[2]->BooleanValue();
+    wait_for_connect =  args[2]->BooleanValue(env->isolate());
   }
 
   agent->StartIoThread(wait_for_connect);

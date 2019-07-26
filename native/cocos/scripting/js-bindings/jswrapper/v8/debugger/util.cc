@@ -39,15 +39,15 @@ template <typename T>
 static void MakeUtf8String(Isolate* isolate,
                            Local<Value> value,
                            T* target) {
-  Local<String> string = value->ToString(isolate);
-  if (string.IsEmpty())
+  Local<String> string;
+  if (! value->ToString(isolate->GetCurrentContext()).ToLocal(&string) )
     return;
 
   const size_t storage = 3 * string->Length() + 1;
   target->AllocateSufficientStorage(storage);
   const int flags =
       String::NO_NULL_TERMINATION | String::REPLACE_INVALID_UTF8;
-  const int length = string->WriteUtf8(target->out(), storage, 0, flags);
+  const int length = string->WriteUtf8(isolate, target->out(), (int)storage, 0, flags);
   target->SetLengthAndZeroTerminate(length);
 }
 
@@ -64,7 +64,8 @@ TwoByteValue::TwoByteValue(Isolate* isolate, Local<Value> value) {
     return;
   }
 
-  Local<String> string = value->ToString(isolate);
+  Local<String> string;
+  if (! value->ToString(isolate->GetCurrentContext()).ToLocal(&string) )
   if (string.IsEmpty())
     return;
 
@@ -73,7 +74,7 @@ TwoByteValue::TwoByteValue(Isolate* isolate, Local<Value> value) {
   AllocateSufficientStorage(storage);
 
   const int flags = String::NO_NULL_TERMINATION;
-  const int length = string->Write(out(), 0, storage, flags);
+  const int length = string->Write(isolate, out(), 0, (int)storage, flags);
   SetLengthAndZeroTerminate(length);
 }
 

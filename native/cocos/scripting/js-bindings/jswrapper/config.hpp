@@ -25,25 +25,40 @@
 #pragma once
 
 #define SCRIPT_ENGINE_NONE           0
-#define SCRIPT_ENGINE_SM             1
+//#define SCRIPT_ENGINE_SM             1
 #define SCRIPT_ENGINE_V8             2
 #define SCRIPT_ENGINE_JSC            3
-#define SCRIPT_ENGINE_CHAKRACORE     4
+//#define SCRIPT_ENGINE_CHAKRACORE     4
 
 #define SCRIPT_ENGINE_V8_ON_MAC      1 // default using v8 on macOS, set 0 to disable
 
 #if defined(__APPLE__)
     #include <TargetConditionals.h>
-    #if TARGET_OS_OSX && SCRIPT_ENGINE_V8_ON_MAC
-        #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
-    #else
-        #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC
+    #if TARGET_OS_OSX
+        #if (SCRIPT_ENGINE_V8_ON_MAC == 0)
+            #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC
+        #else
+            #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
+        #endif
     #endif
-#elif defined(ANDROID) || (defined(_WIN32) && defined(_WINDOWS)) // Windows and Android use V8
-    #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
+
+    #if TARGET_OS_IOS
+    // As no performance improved when using v8, so use JSC now.
+    // Can change to use v8 if needed.
+    #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC
+//        #ifdef __arm64__
+//            #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
+//        #else
+//            #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC
+//        #endif
+    #endif
+
+    //TODO how to make simulator build with v8 too? Because in release mode, it will build
+    // which means it will build armv7, but v8 doesn't support armv7.
 #else
-    #error "Unknown Script Engine"
+    #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
 #endif
+
 
 #ifndef USE_V8_DEBUGGER
 #if defined(COCOS2D_DEBUG) && COCOS2D_DEBUG > 0

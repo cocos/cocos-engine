@@ -520,7 +520,7 @@ inline void Environment::SetMethod(v8::Local<v8::Object> that,
                                    const char* name,
                                    v8::FunctionCallback callback) {
     v8::Local<v8::Function> function =
-    NewFunctionTemplate(callback)->GetFunction();
+    NewFunctionTemplate(callback)->GetFunction(context()).ToLocalChecked();
     // kInternalized strings are created in the old space.
     const v8::NewStringType type = v8::NewStringType::kInternalized;
     v8::Local<v8::String> name_string =

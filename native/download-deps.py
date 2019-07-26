@@ -93,7 +93,8 @@ class CocosZipInstaller(object):
         self._filename = self._current_version + '.zip'
         self._url = data["repo_parent"] + self._repo_name + '/archive/' + self._filename
         self._zip_file_size = int(data["zip_file_size"])
-        self._extracted_folder_name = os.path.join(self._workpath, self._repo_name + '-' + self._current_version)
+        # 'v' letter was swallowed by github, so we need to substring it from the 2nd letter
+        self._extracted_folder_name = os.path.join(self._workpath, self._repo_name + '-' + self._current_version[1:])
 
         try:
             data = self.load_json_file(version_path)
