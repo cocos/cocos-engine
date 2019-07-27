@@ -36,8 +36,7 @@ import { EventMouse, EventTouch, SystemEventType } from '../../../core/platform'
 import { INode } from '../../../core/utils/interfaces';
 import { Color, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
-import * as math from '../../../core/vmath';
-import { lerp } from '../../../core/vmath/utils';
+import { lerp } from '../../../core/value-types/utils';
 import { Node } from '../../../scene-graph/node';
 import { SpriteComponent } from './sprite-component';
 import { UIRenderComponent } from './ui-render-component';

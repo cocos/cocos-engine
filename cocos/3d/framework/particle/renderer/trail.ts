@@ -3,7 +3,7 @@
  * @category particle
  */
 
-import { Color, Vec3 } from '../../../../core';
+import { Color, Vec3 } from '../../../../core/value-types';
 import { ccclass, property } from '../../../../core/data/class-decorator';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../../../gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../../../gfx/define';

@@ -33,7 +33,7 @@ import { ccclass, executionOrder, menu, property } from '../../../core/data/clas
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { Vec2 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
-import { clamp } from '../../../core/vmath/utils';
+import { clamp } from '../../../core/value-types/utils';
 import { UI } from '../../../renderer/ui/ui';
 import { UIRenderComponent } from './ui-render-component';
 

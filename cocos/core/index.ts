@@ -28,21 +28,19 @@
  */
 
 import * as vmath from './vmath';
-
 cc.vmath = vmath;
+export { vmath };
+
+import * as math from './value-types';
+cc.math = math;
+export { math };
 
 export * from './utils';
 export * from './data';
 export * from './event';
 export * from './platform';
-export * from './value-types';
-// Cause error:
-// export * from './game';
 import './game';
 export * from './scheduler';
-// Cause error:
-// export * from './director';
 import './director';
 
 export * from './utils/profiler/profiler';
-export { vmath };

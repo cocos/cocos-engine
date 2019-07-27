@@ -320,7 +320,7 @@ export class Color extends ValueType {
     }
 
     set r (red) {
-        red = ~~cc.vmath.clamp(red, 0, 255);
+        red = ~~cc.math.clamp(red, 0, 255);
         this._val = ((this._val & 0xffffff00) | red) >>> 0;
     }
 
@@ -332,7 +332,7 @@ export class Color extends ValueType {
     }
 
     set g (green) {
-        green = ~~cc.vmath.clamp(green, 0, 255);
+        green = ~~cc.math.clamp(green, 0, 255);
         this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
     }
 
@@ -344,7 +344,7 @@ export class Color extends ValueType {
     }
 
     set b (blue) {
-        blue = ~~cc.vmath.clamp(blue, 0, 255);
+        blue = ~~cc.math.clamp(blue, 0, 255);
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
     }
 
@@ -356,7 +356,7 @@ export class Color extends ValueType {
     }
 
     set a (alpha) {
-        alpha = ~~cc.vmath.clamp(alpha, 0, 255);
+        alpha = ~~cc.math.clamp(alpha, 0, 255);
         this._val = ((this._val & 0x00ffffff) | ((alpha << 24) >>> 0)) >>> 0;
     }
 

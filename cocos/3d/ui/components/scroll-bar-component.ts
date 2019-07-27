@@ -33,7 +33,7 @@ import { ccclass, executionOrder, menu, property } from '../../../core/data/clas
 import { INode } from '../../../core/utils/interfaces';
 import { Color, Size, Vec2, Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
-import { clamp01 } from '../../../core/vmath/utils';
+import { clamp01 } from '../../../core/value-types/utils';
 import { ScrollViewComponent } from './scroll-view-component';
 import { SpriteComponent } from './sprite-component';
 

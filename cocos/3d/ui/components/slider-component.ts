@@ -34,7 +34,7 @@ import { EventTouch, SystemEventType } from '../../../core/platform';
 import Touch from '../../../core/platform/event-manager/CCTouch';
 import { Vec3 } from '../../../core/value-types';
 import { ccenum } from '../../../core/value-types/enum';
-import { clamp01 } from '../../../core/vmath/utils';
+import { clamp01 } from '../../../core/value-types/utils';
 import { SpriteComponent } from './sprite-component';
 
 const _tempPos = new Vec3();
