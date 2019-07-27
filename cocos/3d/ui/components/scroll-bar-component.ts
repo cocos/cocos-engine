@@ -32,7 +32,7 @@ import { Component } from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { INode } from '../../../core/utils/interfaces';
 import { Color, Size, Vec2, Vec3 } from '../../../core/value-types';
-import { CCEnum } from '../../../core/value-types/enum';
+import { ccenum } from '../../../core/value-types/enum';
 import { clamp01 } from '../../../core/vmath/utils';
 import { ScrollViewComponent } from './scroll-view-component';
 import { SpriteComponent } from './sprite-component';
@@ -62,7 +62,7 @@ enum Direction {
     VERTICAL = 1,
 }
 
-CCEnum(Direction);
+ccenum(Direction);
 
 /**
  * @zh

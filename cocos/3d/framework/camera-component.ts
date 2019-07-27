@@ -65,7 +65,7 @@ const CameraClearFlag = Enum({
     DONT_CLEAR: GFXClearFlag.NONE,
 });
 
-const c4_1 = Color.create();
+const c4_1 = new Color();
 
 /**
  * @en The Camera Component
@@ -90,7 +90,7 @@ export class CameraComponent extends Component {
     @property
     protected _far = 1000.0;
     @property
-    protected _color = Color.create('#334C78'); // fromHEX('#334C78');
+    protected _color = new Color('#334C78'); // fromHEX('#334C78');
     @property
     protected _depth = 1;
     @property

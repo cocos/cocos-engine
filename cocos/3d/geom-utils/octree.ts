@@ -116,13 +116,13 @@ export default class Octree {
      */
     public static createBlocks (worldMin, worldMax, entries, blockCapacity, curDepth, maxDepth, getBoundingShape) {
         const blocks: OctreeBlock[] = [];
-        const blockSize = Vec3.create();
+        const blockSize = new Vec3();
         Vec3.scale(blockSize, Vec3.subtract(blockSize, worldMax, worldMin), 0.5);
         for (let x = 0; x < 2; x++) {
             for (let y = 0; y < 2; y++) {
                 for (let z = 0; z < 2; z++) {
-                    const localMin = Vec3.create();
-                    const localMax = Vec3.create();
+                    const localMin = new Vec3();
+                    const localMax = new Vec3();
                     Vec3.add(localMin, worldMin, mul(localMin, blockSize, x, y, z));
                     Vec3.add(localMax, worldMin, mul(localMax, blockSize, x + 1, y + 1, z + 1));
                     const block = new OctreeBlock(localMin, localMax,
@@ -170,10 +170,10 @@ export default class Octree {
      */
     public build (entries, getBoundingShape) {
         // calc world min & max
-        const worldMin = Vec3.create(Infinity, Infinity, Infinity);
-        const worldMax = Vec3.create(-Infinity, -Infinity, -Infinity);
-        const minPos = Vec3.create();
-        const maxPos = Vec3.create();
+        const worldMin = new Vec3(Infinity, Infinity, Infinity);
+        const worldMax = new Vec3(-Infinity, -Infinity, -Infinity);
+        const minPos = new Vec3();
+        const maxPos = new Vec3();
         const staticEntries: any[] = []; this.dynamics = [];
         for (let i = 0; i < entries.length; i++) {
             const entry = (entries.data || entries)[i];

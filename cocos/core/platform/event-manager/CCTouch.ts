@@ -253,7 +253,7 @@ export default class Touch {
         this._point = new Vec2(x || 0, y || 0);
         this._id = id;
         if (!this._startPointCaptured) {
-            this._startPoint = Vec2.create(this._point);
+            this._startPoint = new Vec2(this._point);
             // cc.view._convertPointWithScale(this._startPoint);
             this._startPointCaptured = true;
         }

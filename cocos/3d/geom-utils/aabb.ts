@@ -5,11 +5,11 @@
 import { Mat3, Mat4, Quat, Vec3 } from '../../core/value-types';
 import enums from './enums';
 
-const _v3_tmp = Vec3.create();
-const _v3_tmp2 = Vec3.create();
-const _v3_tmp3 = Vec3.create();
-const _v3_tmp4 = Vec3.create();
-const _m3_tmp = Mat3.create();
+const _v3_tmp = new Vec3();
+const _v3_tmp2 = new Vec3();
+const _v3_tmp3 = new Vec3();
+const _v3_tmp4 = new Vec3();
+const _m3_tmp = new Mat3();
 
 // https://zeuxcg.org/2010/10/17/aabb-from-obb-with-component-wise-abs/
 const transform_extent_m4 = (out: Vec3, extent: Vec3, m4: Mat4) => {
@@ -163,8 +163,8 @@ export default class aabb {
     protected _type: number = enums.SHAPE_AABB;
 
     constructor (px = 0, py = 0, pz = 0, hw = 1, hh = 1, hl = 1) {
-        this.center = Vec3.create(px, py, pz);
-        this.halfExtents = Vec3.create(hw, hh, hl);
+        this.center = new Vec3(px, py, pz);
+        this.halfExtents = new Vec3(hw, hh, hl);
     }
 
     /**

@@ -34,7 +34,7 @@ import { UI } from '../../../../renderer/ui/ui';
 import { SpriteComponent } from '../../components';
 import { IAssembler } from '../base';
 
-const vec3_temp = Vec3.create();
+const vec3_temp = new Vec3();
 const matrix = new Mat4();
 
 /**

@@ -15,7 +15,7 @@ test('basic test', function () {
 
 test('scale test', function () {
     var vec1 = new Vec2(5, 6);
-    var tmp = Vec2.create(vec1);
+    var tmp = new Vec2(vec1);
     tmp.multiply(new Vec2(1, 2));
     expect(tmp).toStrictEqual(new Vec2(5, 12));
     expect(vec1).toStrictEqual(new Vec2(5, 6));

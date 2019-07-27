@@ -12,9 +12,9 @@ import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFix
     randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';
 import { ParticleSystemComponent } from '../particle-system-component';
 
-const _intermediVec = Vec3.create(0, 0, 0);
+const _intermediVec = new Vec3(0, 0, 0);
 const _intermediArr = new Array();
-const _unitBoxExtent = Vec3.create(0.5, 0.5, 0.5);
+const _unitBoxExtent = new Vec3(0.5, 0.5, 0.5);
 
 @ccclass('cc.ShapeModule')
 export default class ShapeModule {
@@ -232,8 +232,8 @@ export default class ShapeModule {
     private totalAngle: number;
 
     constructor () {
-        this.mat = Mat4.create();
-        this.quat = Quat.create();
+        this.mat = new Mat4();
+        this.quat = new Quat();
         this.particleSystem = null;
         this.lastTime = 0;
         this.totalAngle = 0;

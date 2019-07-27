@@ -72,7 +72,7 @@ export default class ForceOvertimeModule {
     private needTransform: boolean;
 
     constructor () {
-        this.rotation = Quat.create();
+        this.rotation = new Quat();
         this.needTransform = false;
     }
 

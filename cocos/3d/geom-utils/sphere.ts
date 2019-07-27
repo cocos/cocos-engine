@@ -5,7 +5,7 @@
 import { Mat4, Quat, Vec3 } from '../../core/value-types';
 import enums from './enums';
 
-const _v3_tmp = Vec3.create();
+const _v3_tmp = new Vec3();
 function maxComponent (v: Vec3) { return Math.max(Math.max(v.x, v.y), v.z); }
 
 /**
@@ -117,7 +117,7 @@ export default class sphere {
      */
     constructor (cx: number = 0, cy: number = 0, cz: number = 0, r: number = 1) {
         this._type = enums.SHAPE_SPHERE;
-        this.center = Vec3.create(cx, cy, cz);
+        this.center = new Vec3(cx, cy, cz);
         this.radius = r;
     }
 

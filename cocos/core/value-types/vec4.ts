@@ -49,32 +49,6 @@ export class Vec4 extends ValueType {
     public static NEG_ONE = Object.freeze(new Vec4(-1, -1, -1, -1));
 
     /**
-     * 构造与指定向量相等的向量。
-     * @param other 相比较的向量。
-     */
-    public static create (other: Vec4): Vec4;
-
-    /**
-     * 构造具有指定分量的向量。
-     * @param x 指定的 x 分量。
-     * @param y 指定的 y 分量。
-     * @param z 指定的 z 分量。
-     * @param w 指定的 w 分量。
-     */
-    public static create (x?: number, y?: number, z?: number, w?: number): Vec4;
-
-    /**
-     * @zh 创建新的实例
-     */
-    public static create (x?: number | Vec4, y?: number, z?: number, w?: number) {
-        if (typeof x === 'object') {
-            return new Vec4(x.x, x.y, x.z, x.w);
-        } else {
-            return new Vec4(x, y, z, w);
-        }
-    }
-
-    /**
      * @zh 获得指定向量的拷贝
      */
     public static clone <Out extends IVec4Like> (a: Out) {
@@ -547,12 +521,23 @@ export class Vec4 extends ValueType {
      */
     public w: number;
 
-    constructor (x = 0, y = 0, z = 0, w = 0) {
+    constructor (other: Vec4);
+
+    constructor (x?: number, y?: number, z?: number, w?: number);
+
+    constructor (x?: number | Vec4, y?: number, z?: number, w?: number) {
         super();
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.w = w;
+        if (x && typeof x === 'object') {
+            this.x = x.x;
+            this.y = x.y;
+            this.z = x.z;
+            this.w = x.w;
+        } else {
+            this.x = x || 0;
+            this.y = y || 0;
+            this.z = z || 0;
+            this.w = w || 0;
+        }
     }
 
     /**
@@ -794,4 +779,12 @@ export class Vec4 extends ValueType {
 
 CCClass.fastDefine('cc.Vec4', Vec4, { x: 0, y: 0, z: 0, w: 0 });
 cc.Vec4 = Vec4;
-cc.v4 = Vec4.create;
+
+export function v4 (other: Vec4): Vec4;
+export function v4 (x?: number, y?: number, z?: number, w?: number): Vec4;
+
+export function v4 (x?: number | Vec4, y?: number, z?: number, w?: number) {
+    return new Vec4(x as any, y, z, w);
+}
+
+cc.v4 = v4;

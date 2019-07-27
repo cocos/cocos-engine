@@ -51,27 +51,6 @@ export class Vec3 extends ValueType {
     public static NEG_ONE = Object.freeze(new Vec3(-1, -1, -1));
 
     /**
-     * 构造与指定向量相等的向量，或如果不指定的话，零向量。
-     */
-    public static create (v: Vec3): Vec3;
-
-    /**
-     * 构造具有指定分量的向量。
-     */
-    public static create (x?: number, y?: number, z?: number): Vec3;
-
-    /**
-     * @zh 创建新的实例
-     */
-    public static create (x?: number | Vec3, y?: number, z?: number) {
-        if (typeof x === 'object') {
-            return new Vec3(x.x, x.y, x.z);
-        } else {
-            return new Vec3(x, y, z);
-        }
-    }
-
-    /**
      * @zh 将目标赋值为零向量
      */
     public static zero<Out extends IVec3Like> (out: Out) {
@@ -672,11 +651,21 @@ export class Vec3 extends ValueType {
      */
     public z: number;
 
-    constructor (x = 0, y = 0, z = 0) {
+    constructor (v: Vec3);
+
+    constructor (x?: number, y?: number, z?: number);
+
+    constructor (x?: number | Vec3, y?: number, z?: number) {
         super();
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        if (x && typeof x === 'object') {
+            this.x = x.x;
+            this.y = x.y;
+            this.z = x.z;
+        } else {
+            this.x = x || 0;
+            this.y = y || 0;
+            this.z = z || 0;
+        }
     }
 
     /**
@@ -901,9 +890,17 @@ export class Vec3 extends ValueType {
     }
 }
 
-const v3_1 = Vec3.create();
-const v3_2 = Vec3.create();
+const v3_1 = new Vec3();
+const v3_2 = new Vec3();
 
 CCClass.fastDefine('cc.Vec3', Vec3, { x: 0, y: 0, z: 0 });
 cc.Vec3 = Vec3;
-cc.v3 = Vec3.create;
+
+export function v3 (other: Vec3): Vec3;
+export function v3 (x?: number, y?: number, z?: number): Vec3;
+
+export function v3 (x?: number | Vec3, y?: number, z?: number) {
+    return new Vec3(x as any, y, z);
+}
+
+cc.v3 = v3;

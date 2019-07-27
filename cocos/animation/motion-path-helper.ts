@@ -54,19 +54,19 @@ export class Curve {
 }
 
 export class Bezier {
-    public start = Vec2.create();
+    public start = new Vec2();
 
-    public end = Vec2.create();
+    public end = new Vec2();
 
     /**
      * cp0, cp1
      */
-    public startCtrlPoint = Vec2.create();
+    public startCtrlPoint = new Vec2();
 
     /**
      * cp2, cp3
      */
-    public endCtrlPoint = Vec2.create();
+    public endCtrlPoint = new Vec2();
 
     public __arcLengthDivisions?: number;
 
@@ -88,7 +88,7 @@ export class Bezier {
     public getPoint (t: number) {
         const x = bezier(this.start.x, this.startCtrlPoint.x, this.endCtrlPoint.x, this.end.x, t);
         const y = bezier(this.start.y, this.startCtrlPoint.y, this.endCtrlPoint.y, this.end.y, t);
-        return Vec2.create(x, y);
+        return new Vec2(x, y);
     }
 
     /**
@@ -118,7 +118,7 @@ export class Bezier {
         const cache: number[] = [];
         let current;
         let last = this.getPoint(0);
-        const vector = Vec2.create();
+        const vector = new Vec2();
         let p;
         let sum = 0;
 
@@ -235,9 +235,9 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
             };
         } else if (Array.isArray(array) && array.length === 6) {
             return {
-                in: Vec2.create(array[2], array[3]),
-                pos: Vec2.create(array[0], array[1]),
-                out: Vec2.create(array[4], array[5]),
+                in: new Vec2(array[2], array[3]),
+                pos: new Vec2(array[0], array[1]),
+                out: new Vec2(array[4], array[5]),
             };
         }
         return {
@@ -339,12 +339,12 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
 
                 finalProgress = computeRatioByType(finalProgress, type);
 
-                let pos = Vec2.create();
+                let pos = new Vec2();
 
                 if (finalProgress < 0) {
                     const bezier = curve.beziers[0];
                     const length = (0 - finalProgress) * bezier.getLength();
-                    const normal = Vec2.create(bezier.start);
+                    const normal = new Vec2(bezier.start);
                     normal.subtract(bezier.endCtrlPoint);
                     normal.normalize();
                     normal.scale(length);
@@ -353,7 +353,7 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
                 } else if (finalProgress > 1) {
                     const bezier = curve.beziers[curve.beziers.length - 1];
                     const length = (finalProgress - 1) * bezier.getLength();
-                    const normal = Vec2.create(bezier.end);
+                    const normal = new Vec2(bezier.end);
                     normal.subtract(bezier.startCtrlPoint);
                     normal.normalize();
                     normal.scale(length);

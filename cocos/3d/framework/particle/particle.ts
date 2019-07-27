@@ -27,15 +27,15 @@ export default class Particle {
 
     constructor (particleSystem: any) {
         this.particleSystem = particleSystem;
-        this.position = Vec3.create(0, 0, 0);
-        this.velocity = Vec3.create(0, 0, 0);
-        this.animatedVelocity = Vec3.create(0, 0, 0);
-        this.ultimateVelocity = Vec3.create(0, 0, 0);
-        this.angularVelocity = Vec3.create(0, 0, 0);
-        this.axisOfRotation = Vec3.create(0, 0, 0);
-        this.rotation = Vec3.create(0, 0, 0);
-        this.startSize = Vec3.create(0, 0, 0);
-        this.size = Vec3.create(0, 0, 0);
+        this.position = new Vec3(0, 0, 0);
+        this.velocity = new Vec3(0, 0, 0);
+        this.animatedVelocity = new Vec3(0, 0, 0);
+        this.ultimateVelocity = new Vec3(0, 0, 0);
+        this.angularVelocity = new Vec3(0, 0, 0);
+        this.axisOfRotation = new Vec3(0, 0, 0);
+        this.rotation = new Vec3(0, 0, 0);
+        this.startSize = new Vec3(0, 0, 0);
+        this.size = new Vec3(0, 0, 0);
         this.startColor = cc.Color.WHITE;
         this.color = cc.Color.WHITE;
         this.randomSeed = 0; // uint

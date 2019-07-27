@@ -29,8 +29,8 @@ export default function (radius = 0.5, opts: RecursivePartial<ISphereOptions> = 
   const normals: number[] = [];
   const uvs: number[] = [];
   const indices: number[] = [];
-  const minPos = Vec3.create(-radius, -radius, -radius);
-  const maxPos = Vec3.create(radius, radius, radius);
+  const minPos = new Vec3(-radius, -radius, -radius);
+  const maxPos = new Vec3(radius, radius, radius);
   const boundingRadius = radius;
 
   for (let lat = 0; lat <= segments; ++lat) {

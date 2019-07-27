@@ -8,7 +8,7 @@ import { UI } from '../../../renderer/ui/ui';
 import { MeshBuffer } from '../mesh-buffer';
 import { INode } from '../../../core/utils/interfaces';
 
-const vec3_temp = Vec3.create();
+const vec3_temp = new Vec3();
 const _worldMatrix = new Mat4();
 
 export function fillVertices (node: INode, buffer: MeshBuffer, renderData: RenderData, color: Color) {

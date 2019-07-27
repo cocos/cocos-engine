@@ -6,7 +6,7 @@ import { Mat4, Quat, random, randomRange, randomRangeInt, Vec2, Vec3 } from '../
 import { sign } from '../../../core/value-types/bits';
 import { Space } from './enum';
 
-export const particleEmitZAxis = Vec3.create(0, 0, -1);
+export const particleEmitZAxis = new Vec3(0, 0, -1);
 
 export function calculateTransform (systemSpace: number, moduleSpace: number, worldTransform: Mat4, outQuat: Quat) {
     if (moduleSpace !== systemSpace) {

@@ -48,13 +48,13 @@ function applyDefaultPlaneOptions (options?: RecursivePartial<IPlaneOptions>): I
     return options as IPlaneOptions;
 }
 
-const temp1 = Vec3.create(0, 0, 0);
-const temp2 = Vec3.create(0, 0, 0);
-const temp3 = Vec3.create(0, 0, 0);
-const r = Vec3.create(0, 0, 0);
-const c00 = Vec3.create(0, 0, 0);
-const c10 = Vec3.create(0, 0, 0);
-const c01 = Vec3.create(0, 0, 0);
+const temp1 = new Vec3(0, 0, 0);
+const temp2 = new Vec3(0, 0, 0);
+const temp3 = new Vec3(0, 0, 0);
+const r = new Vec3(0, 0, 0);
+const c00 = new Vec3(0, 0, 0);
+const c10 = new Vec3(0, 0, 0);
+const c01 = new Vec3(0, 0, 0);
 
 /**
  * @en

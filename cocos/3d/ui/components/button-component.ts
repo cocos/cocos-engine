@@ -35,7 +35,7 @@ import { ccclass, executionOrder, menu, property } from '../../../core/data/clas
 import { EventMouse, EventTouch, SystemEventType } from '../../../core/platform';
 import { INode } from '../../../core/utils/interfaces';
 import { Color, Vec3 } from '../../../core/value-types';
-import { CCEnum } from '../../../core/value-types/enum';
+import { ccenum } from '../../../core/value-types/enum';
 import * as math from '../../../core/vmath';
 import { lerp } from '../../../core/vmath/utils';
 import { Node } from '../../../scene-graph/node';
@@ -71,7 +71,7 @@ enum Transition {
     SCALE = 3,
 }
 
-CCEnum(Transition);
+ccenum(Transition);
 
 enum State {
     NORMAL = 'normal',

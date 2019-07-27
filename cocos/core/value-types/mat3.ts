@@ -46,50 +46,6 @@ let _a20: number = 0; let _a21: number = 0; let _a22: number = 0;
 export class Mat3 extends ValueType {
 
     /**
-     * 构造与指定矩阵相等的矩阵。
-     * @param other 相比较的矩阵。
-     */
-    public static create (other: Mat3): Mat3;
-
-    /**
-     * 构造具有指定元素的矩阵。
-     * @param m00 矩阵第 0 列第 0 行的元素。
-     * @param m01 矩阵第 0 列第 1 行的元素。
-     * @param m02 矩阵第 0 列第 2 行的元素。
-     * @param m03 矩阵第 0 列第 3 行的元素。
-     * @param m04 矩阵第 1 列第 0 行的元素。
-     * @param m05 矩阵第 1 列第 1 行的元素。
-     * @param m06 矩阵第 1 列第 2 行的元素。
-     * @param m07 矩阵第 1 列第 3 行的元素。
-     * @param m08 矩阵第 2 列第 0 行的元素。
-     * @param m09 矩阵第 2 列第 1 行的元素。
-     * @param m10 矩阵第 2 列第 2 行的元素。
-     * @param m11 矩阵第 2 列第 3 行的元素。
-     * @param m12 矩阵第 3 列第 0 行的元素。
-     * @param m13 矩阵第 3 列第 1 行的元素。
-     * @param m14 矩阵第 3 列第 2 行的元素。
-     * @param m15 矩阵第 3 列第 3 行的元素。
-     */
-    public static create (
-        m00?: number, m01?: number, m02?: number,
-        m03?: number, m04?: number, m05?: number,
-        m06?: number, m07?: number, m08?: number): Mat3;
-
-    /**
-     * @zh 创建新的实例
-     */
-    public static create (
-        m00?: number | Mat3, m01?: number, m02?: number,
-        m03?: number, m04?: number, m05?: number,
-        m06?: number, m07?: number, m08?: number) {
-        if (typeof m00 === 'object') {
-            return new Mat3(m00.m00, m00.m01, m00.m02, m00.m03, m00.m04, m00.m05, m00.m06, m00.m07, m00.m08);
-        } else {
-            return new Mat3( m01, m02, m03, m04, m05, m06, m07, m08);
-        }
-    }
-
-    /**
      * @zh 获得指定矩阵的拷贝
      */
     public static clone <Out extends IMat3Like> (a: Out) {
@@ -689,14 +645,27 @@ export class Mat3 extends ValueType {
      */
     public m08: number;
 
+    constructor (other: Mat3);
+
     constructor (
-        m00 = 1, m01 = 0, m02 = 0,
-        m03 = 0, m04 = 1, m05 = 0,
-        m06 = 0, m07 = 0, m08 = 1) {
+        m00?: number, m01?: number, m02?: number,
+        m03?: number, m04?: number, m05?: number,
+        m06?: number, m07?: number, m08?: number);
+
+    constructor (
+        m00: number | Mat3 = 1, m01: number = 0, m02: number = 0,
+        m03: number = 0, m04: number = 1, m05: number = 0,
+        m06: number = 0, m07: number = 0, m08: number = 1 ) {
         super();
-        this.m00 = m00; this.m01 = m01; this.m02 = m02;
-        this.m03 = m03; this.m04 = m04; this.m05 = m05;
-        this.m06 = m06; this.m07 = m07; this.m08 = m08;
+        if (typeof m00 === 'object') {
+            this.m00 = m00.m00; this.m01 = m00.m01; this.m02 = m00.m02;
+            this.m03 = m00.m03; this.m04 = m00.m04; this.m05 = m00.m05;
+            this.m06 = m00.m06; this.m07 = m00.m07; this.m08 = m00.m08;
+        } else {
+            this.m00 = m00; this.m01 = m01; this.m02 = m02;
+            this.m03 = m03; this.m04 = m04; this.m05 = m05;
+            this.m06 = m06; this.m07 = m07; this.m08 = m08;
+        }
     }
 
     /**
@@ -1018,4 +987,19 @@ CCClass.fastDefine('cc.Mat3', Mat3, {
     m06: 0, m07: 0, m08: 1,
 });
 cc.Mat3 = Mat3;
-cc.mat3 = Mat3.create;
+
+export function mat3 (other: Mat3): Mat3;
+export function mat3 (
+    m00?: number, m01?: number, m02?: number,
+    m10?: number, m11?: number, m12?: number,
+    m20?: number, m21?: number, m22?: number,
+    m30?: number, m31?: number, m32?: number): Mat3;
+
+export function mat3 (
+    m00?: Mat3 | number, m01?, m02?,
+    m10?, m11?, m12?,
+    m20?, m21?, m22?) {
+    return new Mat3(m00 as any, m01, m02, m10, m11, m12, m20, m21, m22);
+}
+
+cc.mat3 = mat3;

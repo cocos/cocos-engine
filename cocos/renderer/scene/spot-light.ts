@@ -77,7 +77,7 @@ export class SpotLight extends Light {
         this._type = LightType.SPOT;
         this._aabb = aabb.create();
         this._frustum = frustum.create();
-        this._pos = Vec3.create();
+        this._pos = new Vec3();
     }
 
     public update () {

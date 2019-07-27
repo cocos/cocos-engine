@@ -31,9 +31,8 @@
 import { SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
-import { Color, Mat4, Size, Vec2, Vec3 } from '../../../core/value-types';
-import * as vmath from '../../../core/vmath';
-import { CCEnum } from '../../../core/value-types/enum';
+import { clamp, Color, Mat4, Size, Vec2, Vec3 } from '../../../core/value-types';
+import { ccenum } from '../../../core/value-types/enum';
 import { UI } from '../../../renderer/ui/ui';
 import { GraphicsComponent } from './graphics-component';
 import { InstanceMaterialType, UIRenderComponent } from './ui-render-component';
@@ -78,7 +77,7 @@ export enum MaskType {
     // IMAGE_STENCIL = 2,
 }
 
-CCEnum(MaskType);
+ccenum(MaskType);
 
 const SEGEMENTS_MIN = 3;
 const SEGEMENTS_MAX = 10000;

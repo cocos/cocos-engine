@@ -17,7 +17,7 @@ import { SubModel } from './submodel';
 import { INode } from '../../core/utils/interfaces';
 
 const f32_1 = new Float32Array(16);
-const m4_1 = Mat4.create();
+const m4_1 = new Mat4();
 
 const _subMeshPool = new Pool(() => {
     return new SubModel();

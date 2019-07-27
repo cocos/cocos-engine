@@ -5,8 +5,8 @@
 import { Mat4, Vec3, Vec4 } from '../../core/value-types';
 import enums from './enums';
 
-const v1 = Vec3.create(0, 0, 0);
-const v2 = Vec3.create(0, 0, 0);
+const v1 = new Vec3(0, 0, 0);
+const v2 = new Vec3(0, 0, 0);
 const temp_mat = cc.mat4();
 const temp_vec4 = cc.v4();
 
@@ -160,7 +160,7 @@ export default class plane {
      */
     constructor (nx = 0, ny = 1, nz = 0, d = 0) {
         this._type = enums.SHAPE_PLANE;
-        this.n = Vec3.create(nx, ny, nz);
+        this.n = new Vec3(nx, ny, nz);
         this.d = d;
     }
 

@@ -5,7 +5,7 @@
 import { Quat, Vec3 } from '../../core/value-types';
 
 export function stringfyVec3 (value: {x: number; y: number; z: number}): string {
-    if (Vec3.exactEquals(value, Vec3.create())) {
+    if (Vec3.exactEquals(value, new Vec3())) {
         return `<origin>`;
     } else {
         return `(x: ${value.x}, y: ${value.y}, z: ${value.z})`;
@@ -13,8 +13,8 @@ export function stringfyVec3 (value: {x: number; y: number; z: number}): string 
 }
 
 export function stringfyQuat (value: {x: number; y: number; z: number; w: number}): string {
-    value = Quat.create(value.x, value.y, value.z, value.w);
-    if (Quat.exactEquals(value, Quat.create())) {
+    value = new Quat(value.x, value.y, value.z, value.w);
+    if (Quat.exactEquals(value, new Quat())) {
         return `<Identity>`;
     } else {
         return `(x: ${value.x}, y: ${value.y}, z: ${value.z}, w: ${value.w})`;

@@ -16,8 +16,8 @@ export interface ICylinderOptions extends IGeometryOptions {
     arc: number;
 }
 
-const temp1 = Vec3.create(0, 0, 0);
-const temp2 = Vec3.create(0, 0, 0);
+const temp1 = new Vec3(0, 0, 0);
+const temp2 = new Vec3(0, 0, 0);
 
 /**
  * @zh
@@ -61,8 +61,8 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts: 
   const normals = new Array(vertCount * 3);
   const uvs = new Array(vertCount * 2);
   const maxRadius = Math.max(radiusTop, radiusBottom);
-  const minPos = Vec3.create(-maxRadius, -halfHeight, -maxRadius);
-  const maxPos = Vec3.create(maxRadius, halfHeight, maxRadius);
+  const minPos = new Vec3(-maxRadius, -halfHeight, -maxRadius);
+  const maxPos = new Vec3(maxRadius, halfHeight, maxRadius);
   const boundingRadius = Math.sqrt(maxRadius * maxRadius + halfHeight * halfHeight);
 
   let index = 0;

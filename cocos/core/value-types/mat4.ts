@@ -47,41 +47,6 @@ let _a30: number = 0; let _a31: number = 0; let _a32: number = 0; let _a33: numb
 export class Mat4 extends ValueType {
 
     /**
-     * 构造与指定矩阵相等的矩阵，或如果不指定的话，单位矩阵。
-     */
-    public static create (other: Mat4): Mat4;
-
-    /**
-     * 构造具有指定元素的矩阵。
-     */
-    public static create (
-        m00?: number, m01?: number, m02?: number, m03?: number,
-        m04?: number, m05?: number, m06?: number, m07?: number,
-        m08?: number, m09?: number, m10?: number, m11?: number,
-        m12?: number, m13?: number, m14?: number, m15?: number): Mat4;
-
-    public static create (
-        m00?: number | Mat4, m01?: number, m02?: number, m03?: number,
-        m04?: number, m05?: number, m06?: number, m07?: number,
-        m08?: number, m09?: number, m10?: number, m11?: number,
-        m12?: number, m13?: number, m14?: number, m15?: number,
-    ) {
-        if (typeof m00 === 'object') {
-            return new Mat4(
-                m00.m00, m00.m01, m00.m02, m00.m03,
-                m00.m04, m00.m05, m00.m06, m00.m07,
-                m00.m08, m00.m09, m00.m10, m00.m11,
-                m00.m12, m00.m13, m00.m14, m00.m15);
-        } else {
-            return new Mat4(
-                m00, m01, m02, m03,
-                m04, m05, m06, m07,
-                m08, m09, m10, m11,
-                m12, m13, m14, m15);
-        }
-    }
-
-    /**
      * @zh 获得指定矩阵的拷贝
      */
     public static clone <Out extends IMat4Like> (a: Out) {
@@ -1485,16 +1450,31 @@ export class Mat4 extends ValueType {
      */
     public m15: number;
 
+    constructor (other: Mat4);
+
     constructor (
-        m00 = 1, m01 = 0, m02 = 0, m03 = 0,
+        m00?: number, m01?: number, m02?: number, m03?: number,
+        m04?: number, m05?: number, m06?: number, m07?: number,
+        m08?: number, m09?: number, m10?: number, m11?: number,
+        m12?: number, m13?: number, m14?: number, m15?: number);
+
+    constructor (
+        m00: Mat4 | number = 1, m01 = 0, m02 = 0, m03 = 0,
         m04 = 0, m05 = 1, m06 = 0, m07 = 0,
         m08 = 0, m09 = 0, m10 = 1, m11 = 0,
         m12 = 0, m13 = 0, m14 = 0, m15 = 1) {
         super();
-        this.m00 = m00; this.m01 = m01; this.m02 = m02; this.m03 = m03;
-        this.m04 = m04; this.m05 = m05; this.m06 = m06; this.m07 = m07;
-        this.m08 = m08; this.m09 = m09; this.m10 = m10; this.m11 = m11;
-        this.m12 = m12; this.m13 = m13; this.m14 = m14; this.m15 = m15;
+        if (typeof m00 === 'object') {
+            this.m01 = m00.m01; this.m02 = m00.m02; this.m03 = m00.m03; this.m04 = m00.m04;
+            this.m05 = m00.m05; this.m06 = m00.m06; this.m07 = m00.m07; this.m08 = m00.m08;
+            this.m09 = m00.m09; this.m10 = m00.m10; this.m11 = m00.m11; this.m12 = m00.m12;
+            this.m13 = m00.m13; this.m14 = m00.m14; this.m15 = m00.m15; this.m00 = m00.m00;
+        } else {
+            this.m01 = m01; this.m02 = m02; this.m03 = m03; this.m04 = m04;
+            this.m05 = m05; this.m06 = m06; this.m07 = m07; this.m08 = m08;
+            this.m09 = m09; this.m10 = m10; this.m11 = m11; this.m12 = m12;
+            this.m13 = m13; this.m14 = m14; this.m15 = m15; this.m00 = m00;
+        }
     }
 
     /**
@@ -2074,4 +2054,20 @@ CCClass.fastDefine('cc.Mat4', Mat4, {
     m12: 0, m13: 0, m14: 0, m15: 1,
 });
 cc.Mat4 = Mat4;
-cc.mat4 = Mat4.create;
+
+export function mat4 (other: Mat4): Mat4;
+export function mat4 (
+    m00?: number, m01?: number, m02?: number, m03?: number,
+    m10?: number, m11?: number, m12?: number, m13?: number,
+    m20?: number, m21?: number, m22?: number, m23?: number,
+    m30?: number, m31?: number, m32?: number, m33?: number): Mat4;
+
+export function mat4 (
+    m00?: Mat4 | number, m01?, m02?, m03?,
+    m10?, m11?, m12?, m13?,
+    m20?, m21?, m22?, m23?,
+    m30?, m31?, m32?, m33?) {
+    return new Mat4(m00 as any, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+}
+
+cc.mat4 = mat4;

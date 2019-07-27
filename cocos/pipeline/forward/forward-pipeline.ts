@@ -34,7 +34,7 @@ const _vec4Array = new Float32Array(4);
 const _sphere = sphere.create(0, 0, 0, 1);
 const _tempLightIndex = [] as number[];
 const _tempLightDist = [] as number[];
-const _tempVec3 = Vec3.create();
+const _tempVec3 = new Vec3();
 
 /**
  * @zh

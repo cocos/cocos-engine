@@ -30,7 +30,7 @@ import triangle from './triangle';
  * @return {number} 0 或 非 0
  */
 const ray_plane = (function () {
-    const pt = Vec3.create(0, 0, 0);
+    const pt = new Vec3(0, 0, 0);
 
     return function (ray: ray, plane: plane): number {
         const denom = Vec3.dot(ray.d, plane.n);
@@ -52,7 +52,7 @@ const ray_plane = (function () {
  * @return {number} 0 或 非 0
  */
 const line_plane = (function () {
-    const ab = Vec3.create(0, 0, 0);
+    const ab = new Vec3(0, 0, 0);
 
     return function (line: line, plane: plane): number {
         Vec3.subtract(ab, line.e, line.s);
@@ -74,11 +74,11 @@ const line_plane = (function () {
  * @return {number} 0 或 非 0
  */
 const ray_triangle = (function () {
-    const ab = Vec3.create(0, 0, 0);
-    const ac = Vec3.create(0, 0, 0);
-    const pvec = Vec3.create(0, 0, 0);
-    const tvec = Vec3.create(0, 0, 0);
-    const qvec = Vec3.create(0, 0, 0);
+    const ab = new Vec3(0, 0, 0);
+    const ac = new Vec3(0, 0, 0);
+    const pvec = new Vec3(0, 0, 0);
+    const tvec = new Vec3(0, 0, 0);
+    const qvec = new Vec3(0, 0, 0);
 
     return function (ray: ray, triangle: triangle, doubleSided?: boolean) {
         Vec3.subtract(ab, triangle.b, triangle.a);
@@ -114,12 +114,12 @@ const ray_triangle = (function () {
  * @return {number} 0 或 非 0
  */
 const line_triangle = (function () {
-    const ab = Vec3.create(0, 0, 0);
-    const ac = Vec3.create(0, 0, 0);
-    const qp = Vec3.create(0, 0, 0);
-    const ap = Vec3.create(0, 0, 0);
-    const n = Vec3.create(0, 0, 0);
-    const e = Vec3.create(0, 0, 0);
+    const ab = new Vec3(0, 0, 0);
+    const ac = new Vec3(0, 0, 0);
+    const qp = new Vec3(0, 0, 0);
+    const ap = new Vec3(0, 0, 0);
+    const n = new Vec3(0, 0, 0);
+    const e = new Vec3(0, 0, 0);
 
     return function (line: line, triangle: triangle, outPt: Vec3): number {
         Vec3.subtract(ab, triangle.b, triangle.a);
@@ -183,13 +183,13 @@ const line_triangle = (function () {
  * @return {number} 0 或 非 0
  */
 const line_quad = (function () {
-    const pq = Vec3.create(0, 0, 0);
-    const pa = Vec3.create(0, 0, 0);
-    const pb = Vec3.create(0, 0, 0);
-    const pc = Vec3.create(0, 0, 0);
-    const pd = Vec3.create(0, 0, 0);
-    const m = Vec3.create(0, 0, 0);
-    const tmp = Vec3.create(0, 0, 0);
+    const pq = new Vec3(0, 0, 0);
+    const pa = new Vec3(0, 0, 0);
+    const pb = new Vec3(0, 0, 0);
+    const pc = new Vec3(0, 0, 0);
+    const pd = new Vec3(0, 0, 0);
+    const m = new Vec3(0, 0, 0);
+    const tmp = new Vec3(0, 0, 0);
 
     return function (p: Vec3, q: Vec3, a: Vec3, b: Vec3, c: Vec3, d: Vec3, outPt: Vec3): number {
         Vec3.subtract(pq, q, p);
@@ -271,7 +271,7 @@ const line_quad = (function () {
  * @return {number} 0 或 非 0
  */
 const ray_sphere = (function () {
-    const e = Vec3.create(0, 0, 0);
+    const e = new Vec3(0, 0, 0);
     return function (ray: ray, sphere: sphere): number {
         const r = sphere.radius;
         const c = sphere.center;
@@ -302,8 +302,8 @@ const ray_sphere = (function () {
  * @return {number} 0 或 非 0
  */
 const ray_aabb = (function () {
-    const min = Vec3.create();
-    const max = Vec3.create();
+    const min = new Vec3();
+    const max = new Vec3();
     return function (ray: ray, aabb: aabb): number {
         const o = ray.o, d = ray.d;
         const ix = 1 / d.x, iy = 1 / d.y, iz = 1 / d.z;
@@ -332,13 +332,13 @@ const ray_aabb = (function () {
  * @return {number} 0 或 非 0
  */
 const ray_obb = (function () {
-    let center = Vec3.create();
-    let o = Vec3.create();
-    let d = Vec3.create();
-    const X = Vec3.create();
-    const Y = Vec3.create();
-    const Z = Vec3.create();
-    const p = Vec3.create();
+    let center = new Vec3();
+    let o = new Vec3();
+    let d = new Vec3();
+    const X = new Vec3();
+    const Y = new Vec3();
+    const Z = new Vec3();
+    const p = new Vec3();
     const size = new Array(3);
     const f = new Array(3);
     const e = new Array(3);
@@ -410,10 +410,10 @@ const ray_obb = (function () {
  * @return {number} 0 或 非 0
  */
 const aabb_aabb = (function () {
-    const aMin = Vec3.create();
-    const aMax = Vec3.create();
-    const bMin = Vec3.create();
-    const bMax = Vec3.create();
+    const aMin = new Vec3();
+    const aMax = new Vec3();
+    const bMin = new Vec3();
+    const bMax = new Vec3();
     return function (aabb1: aabb, aabb2: aabb) {
         Vec3.subtract(aMin, aabb1.center, aabb1.halfExtents);
         Vec3.add(aMax, aabb1.center, aabb1.halfExtents);
@@ -501,16 +501,16 @@ function getInterval (vertices: any[] | Vec3[], axis: Vec3) {
 const aabb_obb = (function () {
     const test = new Array(15);
     for (let i = 0; i < 15; i++) {
-        test[i] = Vec3.create(0, 0, 0);
+        test[i] = new Vec3(0, 0, 0);
     }
     const vertices = new Array(8);
     const vertices2 = new Array(8);
     for (let i = 0; i < 8; i++) {
-        vertices[i] = Vec3.create(0, 0, 0);
-        vertices2[i] = Vec3.create(0, 0, 0);
+        vertices[i] = new Vec3(0, 0, 0);
+        vertices2[i] = new Vec3(0, 0, 0);
     }
-    const min = Vec3.create();
-    const max = Vec3.create();
+    const min = new Vec3();
+    const max = new Vec3();
     return function (aabb: aabb, obb: obb): number {
         Vec3.set(test[0], 1, 0, 0);
         Vec3.set(test[1], 0, 1, 0);
@@ -594,7 +594,7 @@ const aabb_frustum_accurate = (function () {
     const tmp = new Array(8);
     let out1 = 0, out2 = 0;
     for (let i = 0; i < tmp.length; i++) {
-        tmp[i] = Vec3.create(0, 0, 0);
+        tmp[i] = new Vec3(0, 0, 0);
     }
     return function (aabb: aabb, frustum: frustum): number {
         let result = 0, intersects = false;
@@ -643,7 +643,7 @@ const aabb_frustum_accurate = (function () {
  * @return {boolean} true or false
  */
 const obb_point = (function () {
-    const tmp = Vec3.create(0, 0, 0), m3 = Mat3.create();
+    const tmp = new Vec3(0, 0, 0), m3 = new Mat3();
     const lessThan = function (a: Vec3, b: Vec3): boolean { return Math.abs(a.x) < b.x && Math.abs(a.y) < b.y && Math.abs(a.z) < b.z; };
     return function (obb: obb, point: Vec3): boolean {
         Vec3.subtract(tmp, point, obb.center);
@@ -711,7 +711,7 @@ const obb_frustum_accurate = (function () {
     const tmp = new Array(8);
     let dist = 0, out1 = 0, out2 = 0;
     for (let i = 0; i < tmp.length; i++) {
-        tmp[i] = Vec3.create(0, 0, 0);
+        tmp[i] = new Vec3(0, 0, 0);
     }
     const dot = function (n: Vec3, x: number, y: number, z: number): number {
         return n.x * x + n.y * y + n.z * z;
@@ -768,14 +768,14 @@ const obb_frustum_accurate = (function () {
 const obb_obb = (function () {
     const test = new Array(15);
     for (let i = 0; i < 15; i++) {
-        test[i] = Vec3.create(0, 0, 0);
+        test[i] = new Vec3(0, 0, 0);
     }
 
     const vertices = new Array(8);
     const vertices2 = new Array(8);
     for (let i = 0; i < 8; i++) {
-        vertices[i] = Vec3.create(0, 0, 0);
-        vertices2[i] = Vec3.create(0, 0, 0);
+        vertices[i] = new Vec3(0, 0, 0);
+        vertices2[i] = new Vec3(0, 0, 0);
     }
 
     return function (obb1: obb, obb2: obb): number {
@@ -856,7 +856,7 @@ const sphere_frustum = function (sphere: sphere, frustum: frustum): number {
  * @return {number} 0 或 非 0
  */
 const sphere_frustum_accurate = (function () {
-    const pt = Vec3.create(0, 0, 0), map = [1, -1, 1, -1, 1, -1];
+    const pt = new Vec3(0, 0, 0), map = [1, -1, 1, -1, 1, -1];
     return function (sphere: sphere, frustum: frustum): number {
         for (let i = 0; i < 6; i++) {
             const plane = frustum.planes[i];
@@ -903,7 +903,7 @@ const sphere_sphere = function (sphere0: sphere, sphere1: sphere): boolean {
  * @return {boolean} true or false
  */
 const sphere_aabb = (function () {
-    const pt = Vec3.create();
+    const pt = new Vec3();
     return function (sphere: sphere, aabb: aabb): boolean {
         distance.pt_point_aabb(pt, sphere.center, aabb);
         return Vec3.sqrDist(sphere.center, pt) < sphere.radius * sphere.radius;
@@ -920,7 +920,7 @@ const sphere_aabb = (function () {
  * @return {boolean} true or false
  */
 const sphere_obb = (function () {
-    const pt = Vec3.create();
+    const pt = new Vec3();
     return function (sphere: sphere, obb: obb): boolean {
         distance.pt_point_obb(pt, sphere.center, obb);
         return Vec3.sqrDist(sphere.center, pt) < sphere.radius * sphere.radius;

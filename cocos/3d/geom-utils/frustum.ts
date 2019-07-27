@@ -7,14 +7,14 @@ import enums from './enums';
 import plane from './plane';
 
 const _v = new Array(8);
-_v[0] = Vec3.create(1, 1, 1);
-_v[1] = Vec3.create(-1, 1, 1);
-_v[2] = Vec3.create(-1, -1, 1);
-_v[3] = Vec3.create(1, -1, 1);
-_v[4] = Vec3.create(1, 1, -1);
-_v[5] = Vec3.create(-1, 1, -1);
-_v[6] = Vec3.create(-1, -1, -1);
-_v[7] = Vec3.create(1, -1, -1);
+_v[0] = new Vec3(1, 1, 1);
+_v[1] = new Vec3(-1, 1, 1);
+_v[2] = new Vec3(-1, -1, 1);
+_v[3] = new Vec3(1, -1, 1);
+_v[4] = new Vec3(1, 1, -1);
+_v[5] = new Vec3(-1, 1, -1);
+_v[6] = new Vec3(-1, -1, -1);
+_v[7] = new Vec3(1, -1, -1);
 
 // tslint:disable-next-line: class-name
 export class frustum {
@@ -99,7 +99,7 @@ export class frustum {
         }
         this.vertices = new Array(8);
         for (let i = 0; i < 8; ++i) {
-            this.vertices[i] = Vec3.create();
+            this.vertices[i] = new Vec3();
         }
     }
 

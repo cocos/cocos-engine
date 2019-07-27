@@ -158,8 +158,8 @@ export default class triangle {
                  bx: number = 1, by: number = 0, bz: number = 0,
                  cx: number = 0, cy: number = 1, cz: number = 0) {
         this._type = enums.SHAPE_TRIANGLE;
-        this.a = Vec3.create(ax, ay, az);
-        this.b = Vec3.create(bx, by, bz);
-        this.c = Vec3.create(cx, cy, cz);
+        this.a = new Vec3(ax, ay, az);
+        this.b = new Vec3(bx, by, bz);
+        this.c = new Vec3(cx, cy, cz);
     }
 }

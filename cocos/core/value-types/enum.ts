@@ -118,7 +118,7 @@ if (CC_DEV) {
     }
 }
 
-export function CCEnum (enumx) {
+export function ccenum (enumx) {
     if ('__enums__' in enumx) {
         return;
     }

@@ -47,30 +47,10 @@ let _a: number = 0;
 export class Color extends ValueType {
 
     /**
-     * 构造与指定颜色相等的颜色。
-     */
-    public static create (other: Color | string): Color;
-
-    /**
-     * 构造具有指定通道的颜色。
-     */
-    public static create (r?: number, g?: number, b?: number, a?: number): Color;
-
-    public static create (r?: number | Color | string, g?: number, b?: number, a?: number) {
-        if (typeof r === 'object') {
-            return new Color(r.r, r.g, r.b, r.a);
-        } else if (typeof r === 'string') {
-            return new Color().fromHEX(r);
-        } else {
-            return new Color(r, g, b, a);
-        }
-    }
-
-    /**
      * @zh 获得指定颜色的拷贝
      */
     public static clone <Out extends IColorLike> (a: Out) {
-        const out = Color.create();
+        const out = new Color();
         if (a._val) {
             out._val = a._val;
         } else {
@@ -424,15 +404,41 @@ export class Color extends ValueType {
         this.a = value * 255;
     }
 
-    public _val: number;
+    public _val = 0;
 
-    constructor (r = 0, g = 0, b = 0, a = 255) {
+    /**
+     * 构造与指定颜色相等的颜色。
+     * @param other 相比较的颜色。
+     */
+    constructor (other: Color | string);
+
+    /**
+     * 构造具有指定通道的颜色。
+     * @param [r=0] 指定的 Red 通道。
+     * @param [g=0] 指定的 Green 通道。
+     * @param [b=0] 指定的 Blue 通道。
+     * @param [a=255] 指定的 Alpha 通道。
+     */
+    constructor (r?: number, g?: number, b?: number, a?: number);
+
+    constructor (r?: number | Color | string, g?: number, b?: number, a?: number) {
         super();
-        r = r;
-        g = g;
-        b = b;
-        a = a;
-        this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+        if (typeof r === 'string') {
+            this.fromHEX(r);
+        }
+        else{
+            if (typeof r === 'object') {
+                g = r.g;
+                b = r.b;
+                a = r.a;
+                r = r.r;
+            }
+            r = r || 0;
+            g = g || 0;
+            b = b || 0;
+            a = typeof a === 'number' ? a : 255;
+            this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+        }
     }
 
     /**
@@ -736,4 +742,16 @@ export class Color extends ValueType {
 
 CCClass.fastDefine('cc.Color', Color, {r: 0, g: 0, b: 0, a: 255});
 cc.Color = Color;
-cc.color = Color.create;
+
+export function color (other: Color): Color;
+export function color (hexString: string): Color;
+export function color (r?: number, g?: number, b?: number, a?: number): Color;
+
+export function color (r?: number | Color | string, g?: number, b?: number, a?: number) {
+    if (typeof r === 'number') {
+        return new Color(r, g, b, a);
+    }
+    return new Color(r as any);
+}
+
+cc.color = color;

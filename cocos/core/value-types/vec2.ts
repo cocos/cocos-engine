@@ -44,32 +44,11 @@ let _y: number = 0.0;
  */
 export class Vec2 extends ValueType {
 
-    public static ZERO = Object.freeze(Vec2.create(0, 0));
-    public static ONE = Object.freeze(Vec2.create(1, 1));
-    public static NEG_ONE = Object.freeze(Vec2.create(-1, -1));
-    public static UP = Object.freeze(Vec2.create(0.0, 1.0));
-    public static RIGHT = Object.freeze(Vec2.create(1.0, 0.0));
-
-    /**
-     * 构造与指定向量相等的向量，或如果不指定的话，零向量。
-     */
-    public static create (v: Vec2): Vec2;
-
-    /**
-     * 构造具有指定分量的向量。
-     */
-    public static create (x?: number, y?: number): Vec2;
-
-    /**
-     * @zh 创建新的实例
-     */
-    public static create (x?: number | Vec2, y?: number) {
-        if (typeof x === 'object') {
-            return new Vec2(x.x, x.y);
-        } else {
-            return new Vec2(x, y);
-        }
-    }
+    public static ZERO = Object.freeze(new Vec2(0, 0));
+    public static ONE = Object.freeze(new Vec2(1, 1));
+    public static NEG_ONE = Object.freeze(new Vec2(-1, -1));
+    public static UP = Object.freeze(new Vec2(0.0, 1.0));
+    public static RIGHT = Object.freeze(new Vec2(1.0, 0.0));
 
     /**
      * @zh 获得指定向量的拷贝
@@ -472,10 +451,19 @@ export class Vec2 extends ValueType {
      */
     public y: number;
 
-    constructor (x = 0, y = 0) {
+    constructor (other: Vec2);
+
+    constructor (x?: number, y?: number);
+
+    constructor (x?: number | Vec2, y?: number) {
         super();
-        this.x = x;
-        this.y = y;
+        if (x && typeof x === 'object') {
+            this.x = x.x;
+            this.y = x.y;
+        } else {
+            this.x = x || 0;
+            this.y = y || 0;
+        }
     }
 
     /**
@@ -734,9 +722,17 @@ export class Vec2 extends ValueType {
     }
 }
 
-const v2_1 = Vec2.create();
-const v2_2 = Vec2.create();
+const v2_1 = new Vec2();
+const v2_2 = new Vec2();
 
 CCClass.fastDefine('cc.Vec2', Vec2, { x: 0, y: 0 });
 cc.Vec2 = Vec2;
-cc.v2 = Vec2.create;
+
+export function v2 (other: Vec2): Vec2;
+export function v2 (x?: number, y?: number): Vec2;
+
+export function v2 (x?: number | Vec2, y?: number) {
+    return new Vec2(x as any, y);
+}
+
+cc.v2 = v2;

@@ -47,32 +47,6 @@ export class Quat extends ValueType {
     public static IDENTITY = Object.freeze(new Quat());
 
     /**
-     * 构造与指定四元数相等的四元数。
-     * @param other 相比较的四元数。
-     */
-    public static create (other: Quat): Quat;
-
-    /**
-     * 构造具有指定分量的四元数。
-     * @param x 指定的 x 分量。
-     * @param y 指定的 y 分量。
-     * @param z 指定的 z 分量。
-     * @param w 指定的 w 分量。
-     */
-    public static create (x?: number, y?: number, z?: number, w?: number): Quat;
-
-    /**
-     * @zh 创建新的实例
-     */
-    public static create (x?: number | Quat, y?: number, z?: number, w?: number) {
-        if (typeof x === 'object') {
-            return new Quat(x.x, x.y, x.z, x.w);
-        } else {
-            return new Quat(x, y, z, w);
-        }
-    }
-
-    /**
      * @zh 获得指定四元数的拷贝
      */
     public static clone <Out extends IQuatLike> (a: Out) {
@@ -678,12 +652,23 @@ export class Quat extends ValueType {
      */
     public w: number;
 
-    constructor (x = 0, y = 0, z = 0, w = 1) {
+    constructor (other: Quat);
+
+    constructor (x?: number, y?: number, z?: number, w?: number);
+
+    constructor (x?: number | Quat, y?: number, z?: number, w?: number) {
         super();
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.w = w;
+        if (x && typeof x === 'object') {
+            this.x = x.x;
+            this.y = x.y;
+            this.z = x.z;
+            this.w = x.w;
+        } else {
+            this.x = x || 0;
+            this.y = y || 0;
+            this.z = z || 0;
+            this.w = w || 1;
+        }
     }
 
     /**
@@ -807,12 +792,20 @@ export class Quat extends ValueType {
     }
 }
 
-const qt_1 = Quat.create();
-const qt_2 = Quat.create();
-const v3_1 = Vec3.create();
-const m3_1 = Mat3.create();
+const qt_1 = new Quat();
+const qt_2 = new Quat();
+const v3_1 = new Vec3();
+const m3_1 = new Mat3();
 const halfToRad = 0.5 * Math.PI / 180.0;
 
 CCClass.fastDefine('cc.Quat', Quat, { x: 0, y: 0, z: 0, w: 1 });
 cc.Quat = Quat;
-cc.quat = Quat.create;
+
+export function quat (other: Quat): Quat;
+export function quat (x?: number, y?: number, z?: number, w?: number): Quat;
+
+export function quat (x: number | Quat = 0, y: number = 0, z: number = 0, w: number = 1) {
+    return new Quat(x as any, y, z, w);
+}
+
+cc.quat = quat;

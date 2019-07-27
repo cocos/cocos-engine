@@ -146,7 +146,7 @@ export default class line {
      */
     constructor (sx = 0, sy = 0, sz = 0, ex = 0, ey = 0, ez = -1) {
         this._type = enums.SHAPE_LINE;
-        this.s = Vec3.create(sx, sy, sz);
-        this.e = Vec3.create(ex, ey, ez);
+        this.s = new Vec3(sx, sy, sz);
+        this.e = new Vec3(ex, ey, ez);
     }
 }

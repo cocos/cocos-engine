@@ -2,7 +2,7 @@
  * @category gfx
  */
 
-import { CCEnum } from '../core/value-types/enum';
+import { ccenum } from '../core/value-types/enum';
 import { GFXBindingLayout, IGFXBindingLayoutInfo } from './binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from './buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from './command-allocator';
@@ -20,7 +20,7 @@ import { GFXTexture, IGFXTextureInfo } from './texture';
 import { GFXTextureView, IGFXTextureViewInfo } from './texture-view';
 import { GFXWindow, IGFXWindowInfo } from './window';
 
-CCEnum(GFXFormat);
+ccenum(GFXFormat);
 
 /**
  * @zh

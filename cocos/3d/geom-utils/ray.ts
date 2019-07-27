@@ -127,7 +127,7 @@ export default class ray {
     constructor (ox: number = 0, oy: number = 0, oz: number = 0,
                  dx: number = 0, dy: number = 0, dz: number = -1) {
         this._type = enums.SHAPE_RAY;
-        this.o = Vec3.create(ox, oy, oz);
-        this.d = Vec3.create(dx, dy, dz);
+        this.o = new Vec3(ox, oy, oz);
+        this.d = new Vec3(dx, dy, dz);
     }
 }

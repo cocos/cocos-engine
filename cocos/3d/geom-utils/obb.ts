@@ -5,9 +5,9 @@
 import { Mat3, Mat4, Quat, Vec3 } from '../../core/value-types';
 import enums from './enums';
 
-const _v3_tmp = Vec3.create();
-const _v3_tmp2 = Vec3.create();
-const _m3_tmp = Mat3.create();
+const _v3_tmp = new Vec3();
+const _v3_tmp2 = new Vec3();
+const _m3_tmp = new Mat3();
 
 // https://zeuxcg.org/2010/10/17/aabb-from-obb-with-component-wise-abs/
 const transform_extent_m3 = (out: Vec3, extent: Vec3, m3: Mat3) => {
@@ -174,9 +174,9 @@ export default class obb {
                  oy_1 = 0, oy_2 = 1, oy_3 = 0,
                  oz_1 = 0, oz_2 = 0, oz_3 = 1) {
         this._type = enums.SHAPE_OBB;
-        this.center = Vec3.create(cx, cy, cz);
-        this.halfExtents = Vec3.create(hw, hh, hl);
-        this.orientation = Mat3.create(ox_1, ox_2, ox_3, oy_1, oy_2, oy_3, oz_1, oz_2, oz_3);
+        this.center = new Vec3(cx, cy, cz);
+        this.halfExtents = new Vec3(hw, hh, hl);
+        this.orientation = new Mat3(ox_1, ox_2, ox_3, oy_1, oy_2, oy_3, oz_1, oz_2, oz_3);
     }
 
     /**

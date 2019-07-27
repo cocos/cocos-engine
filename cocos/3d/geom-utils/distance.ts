@@ -6,12 +6,12 @@ import { plane } from '.';
 import { Vec3 } from '../../core/value-types';
 import aabb from './aabb';
 import obb from './obb';
-const X = Vec3.create();
-const Y = Vec3.create();
-const Z = Vec3.create();
-const d = Vec3.create();
-const min = Vec3.create();
-const max = Vec3.create();
+const X = new Vec3();
+const Y = new Vec3();
+const Z = new Vec3();
+const d = new Vec3();
+const min = new Vec3();
+const max = new Vec3();
 const u = new Array(3);
 const e = new Array(3);
 

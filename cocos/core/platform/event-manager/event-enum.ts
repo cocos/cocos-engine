@@ -1,7 +1,7 @@
 /**
  * @category event
  */
-import { CCEnum } from '../../value-types/enum';
+import { ccenum } from '../../value-types/enum';
 
 /**
  * @zh
@@ -200,6 +200,6 @@ export enum SystemEventType {
     CHILD_REMOVED = 'child-removed',
 }
 
-CCEnum(SystemEventType);
+ccenum(SystemEventType);
 
 cc.SystemEventType = SystemEventType;

@@ -79,7 +79,7 @@ export default class VelocityOvertimeModule {
     private needTransform: boolean;
 
     constructor () {
-        this.rotation = Quat.create();
+        this.rotation = new Quat();
         this.speedModifier.constant = 1;
         this.needTransform = false;
     }

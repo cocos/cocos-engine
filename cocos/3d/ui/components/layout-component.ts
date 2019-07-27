@@ -31,7 +31,7 @@
 import { Component } from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
-import { CCEnum } from '../../../core/value-types/enum';
+import { ccenum } from '../../../core/value-types/enum';
 import { UITransformComponent } from './ui-transfrom-component';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { INode } from '../../../core/utils/interfaces';
@@ -64,7 +64,7 @@ enum Type {
     GRID = 3,
 }
 
-CCEnum(Type);
+ccenum(Type);
 
 /**
  * @zh
@@ -88,7 +88,7 @@ enum ResizeMode {
     CHILDREN = 2,
 }
 
-CCEnum(ResizeMode);
+ccenum(ResizeMode);
 
 /**
  * @zh
@@ -107,7 +107,7 @@ enum AxisDirection {
     VERTICAL = 1,
 }
 
-CCEnum(AxisDirection);
+ccenum(AxisDirection);
 
 /**
  * @zh
@@ -126,7 +126,7 @@ enum VerticalDirection {
     TOP_TO_BOTTOM = 1,
 }
 
-CCEnum(VerticalDirection);
+ccenum(VerticalDirection);
 
 /**
  * @zh
@@ -145,7 +145,7 @@ enum HorizontalDirection {
     RIGHT_TO_LEFT = 1,
 }
 
-CCEnum(HorizontalDirection);
+ccenum(HorizontalDirection);
 
 const _tempPos = new Vec3();
 const _tempScale = new Vec3();
