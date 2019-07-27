@@ -30,7 +30,7 @@
 
 import { Component } from '../../../components';
 import { ccclass, disallowMultiple, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
-import { Vec3 } from '../../../core/value-types';
+import { Vec3 } from '../../../core/math';
 import { GFXClearFlag } from '../../../gfx/define';
 import { Camera } from '../../../renderer';
 import { UITransformComponent } from './ui-transfrom-component';

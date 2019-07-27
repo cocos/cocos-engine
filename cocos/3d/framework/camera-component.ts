@@ -31,7 +31,7 @@ import { ray } from '../../3d/geom-utils';
 import { Component } from '../../components/component';
 import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
 import { constget } from '../../core/data/utils/constget';
-import { Color, Enum, Rect, toRadian, Vec3 } from '../../core/value-types';
+import { Color, Enum, Rect, toRadian, Vec3 } from '../../core/math';
 import { GFXClearFlag } from '../../gfx/define';
 import { Camera } from '../../renderer';
 import { Scene } from '../../scene-graph';

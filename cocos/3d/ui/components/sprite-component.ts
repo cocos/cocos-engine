@@ -31,9 +31,9 @@
 import { SpriteAtlas, SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
-import { Vec2 } from '../../../core/value-types';
-import { ccenum } from '../../../core/value-types/enum';
-import { clamp } from '../../../core/value-types/utils';
+import { Vec2 } from '../../../core/math';
+import { ccenum } from '../../../core/math/enum';
+import { clamp } from '../../../core/math/utils';
 import { UI } from '../../../renderer/ui/ui';
 import { UIRenderComponent } from './ui-render-component';
 

@@ -4,7 +4,7 @@
  */
 
 import { ccclass, property } from '../core/data/class-decorator';
-import { Quat, Vec2, Vec3, Vec4 } from '../core/value-types';
+import { Quat, Vec2, Vec3, Vec4 } from '../core/math';
 import { ILerpable } from './types';
 
 interface ICubicSplineValue<T> extends ILerpable {

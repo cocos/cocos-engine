@@ -3,7 +3,7 @@
  */
 
 import Ammo from 'ammo.js';
-import { Quat, Vec3 } from '../../core/value-types';
+import { Quat, Vec3 } from '../../core/math';
 import { Node } from '../../scene-graph';
 import { Debugger } from './ammo/debugger';
 import { AfterStepCallback, BeforeStepCallback,

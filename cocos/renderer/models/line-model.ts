@@ -4,7 +4,7 @@
 
 import { IRenderingSubmesh } from '../../3d/assets/mesh';
 import CurveRange from '../../3d/framework/particle/animator/curve-range';
-import { Vec3 } from '../../core/value-types';
+import { Vec3 } from '../../core/math';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';

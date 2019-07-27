@@ -28,7 +28,7 @@
  * @category event
  */
 
-import { Vec2 } from '../../value-types';
+import { Vec2 } from '../../math';
 
 const _vec2 = new Vec2();
 /**

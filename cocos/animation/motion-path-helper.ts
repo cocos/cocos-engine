@@ -4,7 +4,7 @@
 
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { errorID } from '../core/platform/CCDebug';
-import { Vec2 } from '../core/value-types';
+import { Vec2 } from '../core/math';
 import { AnimCurve, computeRatioByType, CurveType, CurveValue } from './animation-curve';
 import { bezier } from './bezier';
 

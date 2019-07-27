@@ -29,7 +29,7 @@
 
 import { Component } from '../../components/component';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { Color, Enum } from '../../core/value-types';
+import { Color, Enum } from '../../core/math';
 import { Light, LightType } from '../../renderer/scene/light';
 import { RenderScene } from '../../renderer/scene/render-scene';
 

@@ -1,5 +1,5 @@
 import { frustum, ray } from '../../3d/geom-utils';
-import { Color, lerp, Mat4, Rect, toRadian, Vec3 } from '../../core/value-types';
+import { Color, lerp, Mat4, Rect, toRadian, Vec3 } from '../../core/math';
 import { GFXClearFlag, IGFXColor } from '../../gfx/define';
 import { RenderView } from '../../pipeline/render-view';
 import { Node } from '../../scene-graph/node';

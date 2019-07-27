@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { Vec3 } from '../../../core/value-types';
+import { Vec3 } from '../../../core/math';
 import { AfterStepCallback, BeforeStepCallback, BuiltInRigidBodyBase, BuiltInWorldBase,
     IRaycastOptions, ITriggerEventType, ShapeBase } from '../api';
 import { RaycastResult } from '../raycast-result';

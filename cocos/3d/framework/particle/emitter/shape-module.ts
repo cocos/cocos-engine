@@ -4,8 +4,8 @@
  */
 
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { Mat4, Quat, Vec2, Vec3 } from '../../../../core/value-types';
-import { clamp, pingPong, random, randomRange, repeat, toDegree, toRadian } from '../../../../core/value-types';
+import { Mat4, Quat, Vec2, Vec3 } from '../../../../core/math';
+import { clamp, pingPong, random, randomRange, repeat, toDegree, toRadian } from '../../../../core/math';
 import CurveRange from '../animator/curve-range';
 import { ArcMode, EmitLocation, ShapeType } from '../enum';
 import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere,

@@ -30,7 +30,7 @@
 import { TextureCube } from '../3d/assets/texture-cube';
 import { ccclass, property } from '../core/data/class-decorator';
 import { CCBoolean, CCFloat } from '../core/data/utils/attribute';
-import { Color, Quat, Vec3 } from '../core/value-types';
+import { Color, Quat, Vec3 } from '../core/math';
 import { Ambient } from '../renderer/scene/ambient';
 import { PlanarShadows } from '../renderer/scene/planar-shadows';
 import { RenderScene } from '../renderer/scene/render-scene';

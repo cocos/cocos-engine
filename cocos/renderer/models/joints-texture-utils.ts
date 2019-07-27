@@ -29,7 +29,7 @@
 
 import { Skeleton } from '../../3d/assets/skeleton';
 import { SkeletalAnimationClip } from '../../animation';
-import { Mat4, Quat, Vec3 } from '../../core/value-types';
+import { Mat4, Quat, Vec3 } from '../../core/math';
 import { GFXAddress, GFXFilter, GFXFormat, GFXFormatInfos } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { GFXSampler } from '../../gfx/sampler';

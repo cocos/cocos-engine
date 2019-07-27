@@ -27,7 +27,7 @@
  * @category ui-assembler
  */
 
-import { Color, Vec2, Vec3 } from '../../../../../core/value-types';
+import { Color, Vec2, Vec3 } from '../../../../../core/math';
 import { GFXPrimitiveMode } from '../../../../../gfx';
 import { Model } from '../../../../../renderer';
 import { RenderScene } from '../../../../../renderer/scene/render-scene';

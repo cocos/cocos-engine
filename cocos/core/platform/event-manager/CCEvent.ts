@@ -29,7 +29,7 @@
  */
 
 import Event from '../../event/event';
-import { Vec2 } from '../../value-types';
+import { Vec2 } from '../../math';
 import Touch from './CCTouch';
 
 /**

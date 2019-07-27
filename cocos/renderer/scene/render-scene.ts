@@ -2,7 +2,7 @@ import { IBArray } from '../../3d/assets/mesh';
 import { aabb, intersect, ray, triangle } from '../../3d/geom-utils';
 import { RecyclePool } from '../../3d/memop';
 import { Root } from '../../core/root';
-import { Mat4, Vec3 } from '../../core/value-types';
+import { Mat4, Vec3 } from '../../core/math';
 import { GFXPrimitiveMode } from '../../gfx/define';
 import { Layers } from '../../scene-graph/layers';
 import { Node } from '../../scene-graph/node';

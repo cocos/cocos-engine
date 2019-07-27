@@ -34,7 +34,7 @@ import { EventHandler as ComponentEventHandler } from '../../../../components/co
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../../core/data/class-decorator';
 import { EventTouch } from '../../../../core/platform';
 import { SystemEventType } from '../../../../core/platform/event-manager/event-enum';
-import { Color, Size } from '../../../../core/value-types';
+import { Color, Size } from '../../../../core/math';
 import { LabelComponent, VerticalTextAlignment } from '../label-component';
 import { SpriteComponent } from '../sprite-component';
 import { UIRenderComponent } from '../ui-render-component';

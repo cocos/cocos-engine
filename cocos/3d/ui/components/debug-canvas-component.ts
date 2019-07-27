@@ -30,7 +30,7 @@
 /** */
 
 import { ccclass, executionOrder, requireComponent } from '../../../core/data/class-decorator';
-import { Vec3 } from '../../../core/value-types';
+import { Vec3 } from '../../../core/math';
 import { GFXClearFlag } from '../../../gfx/define';
 import { CanvasComponent } from './canvas-component';
 import { UITransformComponent } from './ui-transfrom-component';

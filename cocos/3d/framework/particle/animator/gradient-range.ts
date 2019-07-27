@@ -5,7 +5,7 @@
 
 import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { Color, Enum, ValueType } from '../../../../core/value-types';
+import { Color, Enum } from '../../../../core/math';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
 
 // tslint:disable: max-line-length

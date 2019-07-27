@@ -3,7 +3,7 @@
  */
 
 import { plane } from '.';
-import { Vec3 } from '../../core/value-types';
+import { Vec3 } from '../../core/math';
 import aabb from './aabb';
 import obb from './obb';
 const X = new Vec3();

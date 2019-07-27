@@ -30,7 +30,7 @@
 import { ImageAsset, SpriteFrame, Texture2D } from '../../../../assets';
 import { isUnicodeCJK, isUnicodeSpace, safeMeasureText} from '../../../../core/utils';
 import { mixin } from '../../../../core/utils/js';
-import { Color, Rect, Size, Vec2 } from '../../../../core/value-types';
+import { Color, Rect, Size, Vec2 } from '../../../../core/math';
 import { GFXBufferTextureCopy } from '../../../../gfx/define';
 import { LabelComponent, LabelOutlineComponent } from '../../components';
 // import { UIComponent } from '../../components/ui-component';

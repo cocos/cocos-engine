@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { Mat4, Quat, Vec3 } from '../../core/value-types';
+import { Mat4, Quat, Vec3 } from '../../core/math';
 import { ERigidBodyType } from './physic-enum';
 import { RaycastResult } from './raycast-result';
 

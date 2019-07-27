@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { Color, Vec3 } from '../../../core/value-types';
+import { Color, Vec3 } from '../../../core/math';
 import { ParticleSystemComponent } from './particle-system-component';
 
 export default class Particle {

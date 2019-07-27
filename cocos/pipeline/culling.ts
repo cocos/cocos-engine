@@ -3,7 +3,7 @@
  */
 
 import { frustum, intersect } from '../3d/geom-utils';
-import { Mat4, Vec3 } from '../core/value-types';
+import { Mat4, Vec3 } from '../core/math';
 import { Camera, Light, Model } from '../renderer';
 import { DirectionalLight } from '../renderer/scene/directional-light';
 import { SphereLight } from '../renderer/scene/sphere-light';

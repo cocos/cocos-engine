@@ -2,7 +2,7 @@
  * @category gfx
  */
 
-import { ccenum } from '../core/value-types/enum';
+import { ccenum } from '../core/math/enum';
 import { GFXBindingLayout, IGFXBindingLayoutInfo } from './binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from './buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from './command-allocator';

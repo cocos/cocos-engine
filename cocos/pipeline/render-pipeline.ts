@@ -4,7 +4,7 @@
 
 import { intersect } from '../3d/geom-utils';
 import { Root } from '../core/root';
-import { Mat4, Vec3, Vec4 } from '../core/value-types';
+import { Mat4, Vec3, Vec4 } from '../core/math';
 import { GFXBuffer } from '../gfx/buffer';
 import {
     GFXBindingType,

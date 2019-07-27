@@ -10,7 +10,7 @@ import {
     menu,
     property,
 } from '../../../core/data/class-decorator';
-import { Quat, Vec3 } from '../../../core/value-types';
+import { Quat, Vec3 } from '../../../core/math';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 
 const NonRigidBodyProperties = {

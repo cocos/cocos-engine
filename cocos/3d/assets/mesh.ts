@@ -29,7 +29,7 @@
 
 import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { Vec3 } from '../../core/value-types';
+import { Vec3 } from '../../core/math';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXFormatType, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';

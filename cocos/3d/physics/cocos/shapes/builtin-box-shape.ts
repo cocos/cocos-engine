@@ -1,4 +1,4 @@
-import { Vec3 } from '../../../../core/value-types';
+import { Vec3 } from '../../../../core/math';
 import { obb } from '../../../geom-utils';
 import { BuiltinShape } from './builtin-shape';
 

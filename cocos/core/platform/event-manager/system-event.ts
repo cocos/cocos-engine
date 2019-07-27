@@ -32,7 +32,6 @@ import { EventTarget } from '../../event/event-target';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './CCEvent';
 import { SystemEventType } from './event-enum';
 import { EventListener } from './event-listener';
-// import { ccenum } from '../../value-types/enum';
 import eventManager from './event-manager';
 import inputManager from './input-manager';
 

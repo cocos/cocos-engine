@@ -7,8 +7,8 @@
 // tslint:disable: max-line-length
 
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../../../core/value-types';
-import { INT_MAX } from '../../../core/value-types/bits';
+import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../../../core/math';
+import { INT_MAX } from '../../../core/math/bits';
 import { Model } from '../../../renderer';
 import { Material } from '../../assets';
 import { RenderableComponent } from '../renderable-component';

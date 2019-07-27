@@ -31,8 +31,8 @@
 import { SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
-import { clamp, Color, Mat4, Size, Vec2, Vec3 } from '../../../core/value-types';
-import { ccenum } from '../../../core/value-types/enum';
+import { clamp, Color, Mat4, Size, Vec2, Vec3 } from '../../../core/math';
+import { ccenum } from '../../../core/math/enum';
 import { UI } from '../../../renderer/ui/ui';
 import { GraphicsComponent } from './graphics-component';
 import { InstanceMaterialType, UIRenderComponent } from './ui-render-component';

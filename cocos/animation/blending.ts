@@ -2,7 +2,7 @@
  * @category animation
  */
 
-import { Quat, Vec3 } from '../core/value-types';
+import { Quat, Vec3 } from '../core/math';
 import { PropertyBlendState } from './animation-blend-state';
 
 export function additive1D (value: number, weight: number, propertyBlendState: PropertyBlendState<number>) {

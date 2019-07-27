@@ -4,7 +4,7 @@
 
 import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { Enum, lerp } from '../../../../core/value-types';
+import { Enum, lerp } from '../../../../core/math';
 import { AnimationCurve } from '../../../geom-utils';
 
 export const Mode = Enum({

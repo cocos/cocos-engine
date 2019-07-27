@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { Color, Mat4, Vec3 } from '../../../core/value-types';
+import { Color, Mat4, Vec3 } from '../../../core/math';
 import { RenderData } from '../../../renderer/ui/renderData';
 import { UI } from '../../../renderer/ui/ui';
 import { MeshBuffer } from '../mesh-buffer';

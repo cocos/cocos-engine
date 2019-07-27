@@ -25,7 +25,7 @@
  THE SOFTWARE.
 */
 
-import { Vec2 } from '../value-types';
+import { Vec2 } from '../math';
 
 /**
  * @en

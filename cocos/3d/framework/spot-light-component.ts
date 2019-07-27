@@ -28,7 +28,7 @@
  */
 
 import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
-import { toRadian } from '../../core/value-types';
+import { toRadian } from '../../core/math';
 import { LightType, nt2lm } from '../../renderer/scene/light';
 import { RenderScene } from '../../renderer/scene/render-scene';
 import { SpotLight } from '../../renderer/scene/spot-light';

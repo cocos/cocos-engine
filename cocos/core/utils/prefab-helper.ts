@@ -25,7 +25,7 @@
 */
 
 import { ccclass, property } from '../data/class-decorator';
-import { Quat } from '../value-types';
+import { Quat } from '../math';
 
 @ccclass('cc.PrefabInfo')
 export class PrefabInfo {

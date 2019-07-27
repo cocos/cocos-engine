@@ -3,7 +3,7 @@
  */
 
 import { Component } from '../../components/component';
-import { Vec3 } from '../../core/value-types';
+import { Vec3 } from '../../core/math';
 import { RigidBodyBase, ShapeBase } from './api';
 import { INode } from '../../core/utils/interfaces';
 

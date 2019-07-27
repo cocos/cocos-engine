@@ -5,7 +5,7 @@
 
 import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { pseudoRandom, Quat, Vec3 } from '../../../../core/value-types';
+import { pseudoRandom, Quat, Vec3 } from '../../../../core/math';
 import { Space } from '../enum';
 import { calculateTransform } from '../particle-general-function';
 import CurveRange from './curve-range';

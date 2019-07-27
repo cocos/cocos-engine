@@ -30,8 +30,8 @@
 
 import { Component } from '../../../components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
-import { ccenum } from '../../../core/value-types/enum';
+import { Rect, Size, Vec2, Vec3 } from '../../../core/math';
+import { ccenum } from '../../../core/math/enum';
 import { UITransformComponent } from './ui-transfrom-component';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { INode } from '../../../core/utils/interfaces';

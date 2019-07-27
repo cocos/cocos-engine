@@ -1,4 +1,4 @@
-import { Vec3 } from '../../core/value-types';
+import { Vec3 } from '../../core/math';
 import { RenderScene } from './render-scene';
 import { INode } from '../../core/utils/interfaces';
 

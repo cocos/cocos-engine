@@ -35,7 +35,7 @@ import { EventListener } from '../core/platform/event-manager/event-listener';
 import { array } from '../core/utils/js';
 import Event from '../core/event/event';
 import Touch from '../core/platform/event-manager/CCTouch';
-import { Vec2 } from '../core/value-types/vec2';
+import { Vec2 } from '../core/math/vec2';
 
 const fastRemove = array.fastRemove;
 

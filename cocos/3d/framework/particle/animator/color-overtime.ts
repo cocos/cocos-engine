@@ -5,7 +5,7 @@
 
 import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { Color, pseudoRandom } from '../../../../core/value-types';
+import { pseudoRandom } from '../../../../core/math';
 import Particle from '../particle';
 import GradientRange from './gradient-range';
 

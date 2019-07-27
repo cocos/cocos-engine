@@ -30,7 +30,7 @@
 
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { array } from '../../../core/utils/js';
-import { Vec2, Vec3 } from '../../../core/value-types';
+import { Vec2, Vec3 } from '../../../core/math';
 import { CanvasComponent } from './canvas-component';
 import { UIRenderComponent } from './ui-render-component';
 import { AlignFlags, AlignMode, WidgetComponent } from './widget-component';

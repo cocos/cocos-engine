@@ -30,7 +30,7 @@ import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { Texture2D } from '../../assets/texture-2d';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { CCString } from '../../core/data/utils/attribute';
-import { Mat4, Vec2 } from '../../core/value-types';
+import { Mat4, Vec2 } from '../../core/math';
 import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
 import { GFXFormat, GFXType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';

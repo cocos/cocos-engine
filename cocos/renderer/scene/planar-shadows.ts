@@ -1,6 +1,6 @@
 import { Material } from '../../3d/assets/material';
 import { CachedArray } from '../../core/memop/cached-array';
-import { Color, Mat4, Quat, Vec3 } from '../../core/value-types';
+import { Color, Mat4, Quat, Vec3 } from '../../core/math';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType } from '../../gfx/define';
 import { GFXInputAssembler } from '../../gfx/input-assembler';

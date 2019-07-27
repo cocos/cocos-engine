@@ -1,5 +1,5 @@
 import CANNON from 'cannon';
-import { Quat, Vec3 } from '../../../../core/value-types';
+import { Quat, Vec3 } from '../../../../core/math';
 import { ITriggerCallback, ITriggerEvent, ITriggerEventType, RigidBodyBase, ShapeBase } from '../../api';
 import { getWrap, stringfyVec3 } from '../../util';
 import { commitShapeUpdates } from '../cannon-util';

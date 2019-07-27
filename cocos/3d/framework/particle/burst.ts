@@ -4,7 +4,7 @@
 
 import { CCClass } from '../../../core/data';
 import { ccclass, property } from '../../../core/data/class-decorator';
-import { repeat } from '../../../core/value-types';
+import { repeat } from '../../../core/math';
 import CurveRange from './animator/curve-range';
 
 @ccclass('cc.Burst')

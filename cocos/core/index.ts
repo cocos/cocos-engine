@@ -31,7 +31,7 @@ import * as vmath from './vmath';
 cc.vmath = vmath;
 export { vmath };
 
-import * as math from './value-types';
+import * as math from './math';
 cc.math = math;
 export { math };
 

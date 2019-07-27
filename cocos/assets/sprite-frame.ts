@@ -31,7 +31,7 @@
  */
 
 import { ccclass } from '../core/data/class-decorator';
-import { Rect, Size, Vec2 } from '../core/value-types';
+import { Rect, Size, Vec2 } from '../core/math';
 import { ImageAsset } from './image-asset';
 import { ITexture2DSerializeData, Texture2D } from './texture-2d';
 import * as textureUtil from './texture-util';

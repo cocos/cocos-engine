@@ -4,7 +4,7 @@
  */
 
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { Mat4, pseudoRandom, Quat, Vec3 } from '../../../../core/value-types';
+import { Mat4, pseudoRandom, Quat, Vec3 } from '../../../../core/math';
 import { Space } from '../enum';
 import Particle from '../particle';
 import { calculateTransform } from '../particle-general-function';

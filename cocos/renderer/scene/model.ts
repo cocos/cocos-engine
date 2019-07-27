@@ -3,7 +3,7 @@ import { Material } from '../../3d/assets/material';
 import { IRenderingSubmesh } from '../../3d/assets/mesh';
 import { aabb } from '../../3d/geom-utils';
 import Pool from '../../3d/memop/pool';
-import { Mat4, Vec3 } from '../../core/value-types';
+import { Mat4, Vec3 } from '../../core/math';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';

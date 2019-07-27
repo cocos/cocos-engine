@@ -31,9 +31,9 @@
 import { Component } from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { INode } from '../../../core/utils/interfaces';
-import { Color, Size, Vec2, Vec3 } from '../../../core/value-types';
-import { ccenum } from '../../../core/value-types/enum';
-import { clamp01 } from '../../../core/value-types/utils';
+import { Color, Size, Vec2, Vec3 } from '../../../core/math';
+import { ccenum } from '../../../core/math/enum';
+import { clamp01 } from '../../../core/math/utils';
 import { ScrollViewComponent } from './scroll-view-component';
 import { SpriteComponent } from './sprite-component';
 

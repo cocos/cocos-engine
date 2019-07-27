@@ -28,8 +28,8 @@
  * @hidden
  */
 
-import { Vec2 } from '../../value-types/index';
-import { rect } from '../../value-types/rect';
+import { Vec2 } from '../../math/index';
+import { rect } from '../../math/rect';
 import { macro } from '../CCMacro';
 import sys from '../CCSys';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './CCEvent';

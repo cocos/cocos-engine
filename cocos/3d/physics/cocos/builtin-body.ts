@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { Mat4, Quat, Vec3 } from '../../../core/value-types';
+import { Mat4, Quat, Vec3 } from '../../../core/math';
 import { intersect } from '../../geom-utils';
 import { BuiltInRigidBodyBase, PhysicsWorldBase } from '../api';
 import { ERigidBodyType } from '../physic-enum';

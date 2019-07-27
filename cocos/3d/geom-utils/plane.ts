@@ -2,7 +2,7 @@
  * @category gemotry-utils
  */
 
-import { Mat4, Vec3, Vec4 } from '../../core/value-types';
+import { Mat4, Vec3, Vec4 } from '../../core/math';
 import enums from './enums';
 
 const v1 = new Vec3(0, 0, 0);

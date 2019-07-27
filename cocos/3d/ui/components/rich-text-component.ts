@@ -33,7 +33,7 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../.
 import { EventTouch } from '../../../core/platform';
 import { fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace } from '../../../core/utils';
 import Pool from '../../../core/utils/pool';
-import { Color, Vec2 } from '../../../core/value-types';
+import { Color, Vec2 } from '../../../core/math';
 import { PrivateNode } from '../../../scene-graph';
 import { HorizontalTextAlignment, LabelComponent, VerticalTextAlignment } from './label-component';
 import { LabelOutlineComponent } from './label-outline-component';

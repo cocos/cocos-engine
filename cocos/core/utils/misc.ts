@@ -27,10 +27,7 @@
  // tslint:disable
 
 import { getClassName, getset } from './js';
-import { clamp, clamp01 as clampValue01, lerp as lerpUtil, toRadian, toDegree } from '../value-types/utils';
-import { equals, approx, randomRange, randomRangeInt } from '../value-types/utils';
-import { pseudoRandom, pseudoRandomRange, pseudoRandomRangeInt } from '../value-types/utils';
-import { nextPow2, repeat, pingPong, inverseLerp } from '../value-types/utils';
+import { clamp, clamp01 as clampValue01, lerp as lerpUtil, toRadian, toDegree } from '../math/utils';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
@@ -217,50 +214,6 @@ export function cloneable_DEV (obj) {
         ((obj.constructor && obj.constructor.prototype.hasOwnProperty('clone')) || obj.hasOwnProperty('clone'));
 }
 
-export function equalsUtil (a: number, b: number) {
-    return equals(a,b);
-}
-
-export function approxUtil (a: number, b: number, maxDiff: number) {
-    return approx (a, b, maxDiff);
-}
-
-export function randomRangeUtil (min: number, max: number) {
-    return randomRange(min,max);
-}
-
-export function randomRangeIntUtil (min: number, max: number) {
-    return randomRangeInt(min,max);
-}
-
-export function pseudoRandomUtil (seed: number) {
-    return pseudoRandom(seed);
-}
-
-export function pseudoRandomRangeUtil (seed: number, min: number, max: number) {
-    return pseudoRandomRange(seed, min, max);
-}
-
-export function pseudoRandomRangeIntUtil (seed: number, min: number, max: number) {
-    return pseudoRandomRangeInt(seed, min, max);
-}
-
-export function nextPow2Util (val: number) {
-    return nextPow2(val);
-}
-
-export function repeatUtil (t: number, length: number) {
-    return repeat(t, length);
-}
-
-export function pingPongUtil (t: number, length: number) {
-    return pingPong(t, length);
-}
-
-export function inverseLerpUtil (from: number, to: number, value: number) {
-    return inverseLerp(from, to, value);
-}
-
 // if (CC_TEST) {
 //     // editor mocks using in unit tests
 //     if (typeof Editor === 'undefined') {
@@ -287,15 +240,4 @@ cc.misc = {
     tryCatchFunctor_EDITOR,
     isPlainEmptyObj_DEV,
     cloneable_DEV,
-    equalsUtil,
-    approxUtil,
-    randomRangeUtil,
-    randomRangeIntUtil,
-    pseudoRandomUtil,
-    pseudoRandomRangeUtil,
-    pseudoRandomRangeIntUtil,
-    nextPow2Util,
-    repeatUtil,
-    pingPongUtil,
-    inverseLerpUtil,
 };

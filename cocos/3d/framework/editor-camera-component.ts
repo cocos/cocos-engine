@@ -3,7 +3,7 @@
  */
 
 import { ccclass } from '../../core/data/class-decorator';
-import { Color, toRadian } from '../../core/value-types';
+import { Color, toRadian } from '../../core/math';
 import { Camera } from '../../renderer';
 import { CameraComponent } from './camera-component';
 

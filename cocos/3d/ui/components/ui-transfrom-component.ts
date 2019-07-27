@@ -31,7 +31,7 @@ import { Component } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { EventListener, ILinstenerMask } from '../../../core/platform/event-manager/event-listener';
-import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
+import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/math';
 import { aabb } from '../../geom-utils';
 import { CanvasComponent } from './canvas-component';
 

@@ -1,4 +1,4 @@
-import { Quat, Vec3 } from '../../core/value-types';
+import { Quat, Vec3 } from '../../core/math';
 import { Light, LightType } from './light';
 import { RenderScene } from './render-scene';
 import { INode } from '../../core/utils/interfaces';

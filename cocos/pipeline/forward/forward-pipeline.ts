@@ -4,7 +4,7 @@
 
 import { intersect, sphere } from '../../3d/geom-utils';
 import { Root } from '../../core/root';
-import { Vec3 } from '../../core/value-types';
+import { Vec3 } from '../../core/math';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXRenderPass } from '../../gfx/render-pass';

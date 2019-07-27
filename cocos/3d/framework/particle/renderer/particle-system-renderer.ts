@@ -1,6 +1,6 @@
 import { Component } from '../../../../components';
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { Mat4, Vec2, Vec3, Vec4 } from '../../../../core/value-types';
+import { Mat4, Vec2, Vec3, Vec4 } from '../../../../core/math';
 import { GFXAttributeName, GFXFormat } from '../../../../gfx/define';
 import { IGFXAttribute } from '../../../../gfx/input-assembler';
 import { IDefineMap } from '../../../../renderer/core/pass';

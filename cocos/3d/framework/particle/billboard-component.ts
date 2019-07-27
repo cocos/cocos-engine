@@ -11,7 +11,7 @@ import { GFXPrimitiveMode, GFXAttributeName, GFXFormat } from "../../../gfx";
 import { Model } from "../../../renderer";
 import { builtinResMgr } from "../../builtin";
 import { Component } from "../../../components";
-import { Color, toRadian, toDegree } from "../../../core/value-types";
+import { Color, toRadian, toDegree } from "../../../core/math";
 
 @ccclass('cc.BillboardComponent')
 @menu('Components/BillboardComponent')

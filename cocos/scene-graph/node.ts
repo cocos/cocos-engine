@@ -33,7 +33,7 @@ import Event from '../core/event/event';
 import { eventManager } from '../core/platform/event-manager';
 import { SystemEventType } from '../core/platform/event-manager/event-enum';
 import { INode } from '../core/utils/interfaces';
-import { Mat4, Quat, Vec3, Size, Vec2 } from '../core/value-types';
+import { Mat4, Quat, Vec3, Size, Vec2 } from '../core/math';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
 import { NodeEventProcessor } from './node-event-processor';

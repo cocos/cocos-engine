@@ -1,6 +1,6 @@
 import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXFormatType, GFXPrimitiveMode, IGFXFormatInfo } from '../../gfx/define';
 export { find } from '../../scene-graph/find';
-import { Mat4, Vec3 } from '../../core/value-types';
+import { Mat4, Vec3 } from '../../core/math';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { Node } from '../../scene-graph';
 import { IMeshStruct, IPrimitive, IVertexBundle, Mesh } from '../assets/mesh';

@@ -29,7 +29,7 @@
 
 import { RenderableComponent } from '../3d/framework/renderable-component';
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
-import { Quat, Vec3 } from '../core/value-types';
+import { Quat, Vec3 } from '../core/math';
 import { ccclass } from '../core/data/class-decorator';
 import { getClassName } from '../core/utils/js';
 import { Node } from '../scene-graph';

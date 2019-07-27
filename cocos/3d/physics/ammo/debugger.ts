@@ -1,6 +1,6 @@
 
 import Ammo from 'ammo.js';
-import { Color, Vec3 } from '../../../core/value-types';
+import { Color, Vec3 } from '../../../core/math';
 import { GFXComparisonFunc, GFXPrimitiveMode } from '../../../gfx/define';
 import { Node } from '../../../scene-graph';
 import { Material } from '../../assets/material';

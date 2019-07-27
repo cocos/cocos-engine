@@ -34,9 +34,9 @@ import { Component, EventHandler as ComponentEventHandler } from '../../../compo
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { EventMouse, EventTouch, SystemEventType } from '../../../core/platform';
 import { INode } from '../../../core/utils/interfaces';
-import { Color, Vec3 } from '../../../core/value-types';
-import { ccenum } from '../../../core/value-types/enum';
-import { lerp } from '../../../core/value-types/utils';
+import { Color, Vec3 } from '../../../core/math';
+import { ccenum } from '../../../core/math/enum';
+import { lerp } from '../../../core/math/utils';
 import { Node } from '../../../scene-graph/node';
 import { SpriteComponent } from './sprite-component';
 import { UIRenderComponent } from './ui-render-component';

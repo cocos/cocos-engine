@@ -5,7 +5,7 @@
 import { ccclass, property } from '../core/data/class-decorator';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { errorID } from '../core/platform/CCDebug';
-import { lerp, ValueType } from '../core/value-types';
+import { lerp, ValueType } from '../core/math';
 import { PropertyBlendState } from './animation-blend-state';
 import { bezierByTime, BezierControlPoints } from './bezier';
 import * as blending from './blending';
