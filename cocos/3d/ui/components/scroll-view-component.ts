@@ -40,6 +40,7 @@ import { LayoutComponent } from './layout-component';
 import { ScrollBarComponent } from './scroll-bar-component';
 import { ViewGroupComponent } from './view-group-component';
 import { INode } from '../../../core/utils/interfaces';
+import { Node } from '../../../scene-graph/node';
 
 const NodeEvent = SystemEventType;
 
