@@ -120,6 +120,58 @@ export function pushToMap (map, key, value, pushFront) {
     }
 }
 
+/**
+ * @zh
+ * 限定浮点数的最大最小值。
+ * 数值大于 max_inclusive 则返回 max_inclusive。
+ * 数值小于 min_inclusive 则返回 min_inclusive。
+ * 否则返回自身。
+ * @deprecated
+ */
+export function clampf(value: number, min_inclusive: number, max_inclusive: number) {
+    console.warn('The funtion will be deprecated soon,please use cc.math.clamp ');
+    return clamp(value, min_inclusive, max_inclusive);
+}
+
+/**
+ * @zh
+ * 限定浮点数的取值范围为 0 ~ 1 之间。
+ * @deprecated
+ */
+export function clamp01 (value: number) {
+    console.warn('The funtion will be deprecated soon,please use cc.math.clamp01 ');
+    return clampValue01(value);
+}
+
+/**
+ * @zh
+ * 两个数字之间的线性插值，比率决定了它对两端的偏向程度。
+ * @deprecated
+ */
+export function lerp (a: number, b: number, r: number) {
+    console.warn('The funtion will be deprecated soon,please use cc.math.lerpUtil ');
+    return lerpUtil(a, b, r);
+}
+
+/**
+ * @zh
+ * 角度转弧度
+ * @deprecated
+ */
+export function degreesToRadians (angle: number) {
+    console.warn('The funtion will be deprecated soon,please use cc.math.toRadian ');
+    return toRadian(angle);
+}
+
+/**
+ * @zh
+ * 弧度转角度
+ * @deprecated
+ */
+export function radiansToDegrees (angle: number) {
+    console.warn('The funtion will be deprecated soon,please use cc.math.toDegree ');
+    return toDegree(angle);
+}
 
 export function contains (refNode, otherNode) {
     if (typeof refNode.contains === 'function') {
@@ -240,4 +292,9 @@ cc.misc = {
     tryCatchFunctor_EDITOR,
     isPlainEmptyObj_DEV,
     cloneable_DEV,
+    clampf,
+    clamp01,
+    lerp,
+    degreesToRadians,
+    radiansToDegrees,
 };
