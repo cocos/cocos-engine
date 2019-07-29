@@ -31,7 +31,7 @@
 import CCClass from '../data/class';
 import { IColorLike } from './type-define';
 import { EPSILON } from './utils';
-import { ValueType } from './value-type';
+import { ValueType } from '../value-types/value-type';
 
 const toFloat = 1 / 255;
 
@@ -748,10 +748,7 @@ export function color (hexString: string): Color;
 export function color (r?: number, g?: number, b?: number, a?: number): Color;
 
 export function color (r?: number | Color | string, g?: number, b?: number, a?: number) {
-    if (typeof r === 'number') {
-        return new Color(r, g, b, a);
-    }
-    return new Color(r as any);
+        return new Color(r as any, g, b, a);
 }
 
 cc.color = color;

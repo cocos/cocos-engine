@@ -32,7 +32,7 @@ import CCClass from '../data/class';
 import { Mat4 } from './mat4';
 import { Size } from './size';
 import { IRectLike, IVec2Like } from './type-define';
-import { ValueType } from './value-type';
+import { ValueType } from '../value-types/value-type';
 import { Vec2 } from './vec2';
 
 let _x: number = 0.0;

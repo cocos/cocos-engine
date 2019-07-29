@@ -31,7 +31,7 @@
 import { ccclass, property } from '../core/data/class-decorator';
 import { compile } from '../core/data/instantiate-jit';
 import { obsolete } from '../core/utils/js';
-import { Enum } from '../core/math';
+import { Enum } from '../core/value-types';
 import { Asset } from './asset';
 
 /**

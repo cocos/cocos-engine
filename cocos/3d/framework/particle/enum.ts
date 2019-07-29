@@ -3,7 +3,7 @@
  * @category particle
  */
 
-import { Enum } from '../../../core/math';
+import { Enum } from '../../../core/value-types';
 
 export const Space = Enum({
     World: 0,

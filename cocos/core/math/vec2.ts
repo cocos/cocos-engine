@@ -33,7 +33,7 @@ import { Mat4 } from './mat4';
 import { IMat3Like, IMat4Like, IVec2Like } from './type-define';
 import { clamp } from './utils';
 import { EPSILON, random } from './utils';
-import { ValueType } from './value-type';
+import { ValueType } from '../value-types/value-type';
 import { Vec3 } from './vec3';
 
 let _x: number = 0.0;

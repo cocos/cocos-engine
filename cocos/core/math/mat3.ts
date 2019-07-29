@@ -32,7 +32,7 @@ import { Mat4 } from './mat4';
 import { Quat } from './quat';
 import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
 import { EPSILON } from './utils';
-import { ValueType } from './value-type';
+import { ValueType } from '../value-types/value-type';
 import { Vec3 } from './vec3';
 
 let _a00: number = 0; let _a01: number = 0; let _a02: number = 0;
@@ -987,19 +987,3 @@ CCClass.fastDefine('cc.Mat3', Mat3, {
     m06: 0, m07: 0, m08: 1,
 });
 cc.Mat3 = Mat3;
-
-export function mat3 (other: Mat3): Mat3;
-export function mat3 (
-    m00?: number, m01?: number, m02?: number,
-    m10?: number, m11?: number, m12?: number,
-    m20?: number, m21?: number, m22?: number,
-    m30?: number, m31?: number, m32?: number): Mat3;
-
-export function mat3 (
-    m00?: Mat3 | number, m01?, m02?,
-    m10?, m11?, m12?,
-    m20?, m21?, m22?) {
-    return new Mat3(m00 as any, m01, m02, m10, m11, m12, m20, m21, m22);
-}
-
-cc.mat3 = mat3;

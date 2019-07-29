@@ -1,7 +1,7 @@
 /**
  * @category event
  */
-import { ccenum } from '../../math/enum';
+import { ccenum } from '../../value-types/enum';
 
 /**
  * @zh

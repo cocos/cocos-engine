@@ -32,7 +32,7 @@ import CCClass from '../data/class';
 import { Mat4 } from './mat4';
 import { IMat4Like, IQuatLike, IVec4Like } from './type-define';
 import { clamp, EPSILON, random } from './utils';
-import { ValueType } from './value-type';
+import { ValueType } from '../value-types/value-type';
 
 let _x: number = 0.0;
 let _y: number = 0.0;

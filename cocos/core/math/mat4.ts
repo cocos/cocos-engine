@@ -32,7 +32,7 @@ import { Mat3 } from './mat3';
 import { Quat } from './quat';
 import { IMat4Like, IVec3Like } from './type-define';
 import { EPSILON } from './utils';
-import { ValueType } from './value-type';
+import { ValueType } from '../value-types/value-type';
 import { Vec3 } from './vec3';
 
 let _a00: number = 0; let _a01: number = 0; let _a02: number = 0; let _a03: number = 0;

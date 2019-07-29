@@ -30,7 +30,7 @@
 
 import { BitmapFont, Font, ImageAsset, SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { ccenum } from '../../../core/math/enum';
+import { ccenum } from '../../../core/value-types/enum';
 import { UI } from '../../../renderer/ui/ui';
 import { FontAtlas } from '../assembler/label/bmfontUtils';
 import { CanvasPool, ISharedLabelData } from '../assembler/label/font-utils';

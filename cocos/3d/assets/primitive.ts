@@ -1,5 +1,5 @@
 import { ccclass, property } from '../../core/data/class-decorator';
-import { Enum } from '../../core/math';
+import { Enum } from '../../core/value-types';
 import { createMesh } from '../misc/utils';
 import * as primitives from '../primitive';
 import { Mesh } from './mesh';

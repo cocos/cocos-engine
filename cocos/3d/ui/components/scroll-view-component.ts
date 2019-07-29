@@ -34,7 +34,7 @@ import { Event } from '../../../core/event';
 import { EventMouse, EventTouch, SystemEventType } from '../../../core/platform';
 import Touch from '../../../core/platform/event-manager/CCTouch';
 import { Size, Vec2, Vec3 } from '../../../core/math';
-import { ccenum } from '../../../core/math/enum';
+import { ccenum } from '../../../core/value-types/enum';
 import { LayoutComponent } from './layout-component';
 import { ScrollBarComponent } from './scroll-bar-component';
 import { ViewGroupComponent } from './view-group-component';

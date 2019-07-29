@@ -35,7 +35,7 @@ import { ccclass, executionOrder, menu, property } from '../../../core/data/clas
 import { EventMouse, EventTouch, SystemEventType } from '../../../core/platform';
 import { INode } from '../../../core/utils/interfaces';
 import { Color, Vec3 } from '../../../core/math';
-import { ccenum } from '../../../core/math/enum';
+import { ccenum } from '../../../core/value-types/enum';
 import { lerp } from '../../../core/math/utils';
 import { Node } from '../../../scene-graph/node';
 import { SpriteComponent } from './sprite-component';

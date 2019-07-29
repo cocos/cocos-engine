@@ -129,7 +129,6 @@ export function pushToMap (map, key, value, pushFront) {
  * @deprecated
  */
 export function clampf(value: number, min_inclusive: number, max_inclusive: number) {
-    console.warn('The funtion will be deprecated soon,please use cc.math.clamp ');
     return clamp(value, min_inclusive, max_inclusive);
 }
 
@@ -139,7 +138,6 @@ export function clampf(value: number, min_inclusive: number, max_inclusive: numb
  * @deprecated
  */
 export function clamp01 (value: number) {
-    console.warn('The funtion will be deprecated soon,please use cc.math.clamp01 ');
     return clampValue01(value);
 }
 
@@ -149,7 +147,6 @@ export function clamp01 (value: number) {
  * @deprecated
  */
 export function lerp (a: number, b: number, r: number) {
-    console.warn('The funtion will be deprecated soon,please use cc.math.lerpUtil ');
     return lerpUtil(a, b, r);
 }
 
@@ -159,7 +156,6 @@ export function lerp (a: number, b: number, r: number) {
  * @deprecated
  */
 export function degreesToRadians (angle: number) {
-    console.warn('The funtion will be deprecated soon,please use cc.math.toRadian ');
     return toRadian(angle);
 }
 
@@ -169,7 +165,6 @@ export function degreesToRadians (angle: number) {
  * @deprecated
  */
 export function radiansToDegrees (angle: number) {
-    console.warn('The funtion will be deprecated soon,please use cc.math.toDegree ');
     return toDegree(angle);
 }
 

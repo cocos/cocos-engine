@@ -34,8 +34,6 @@ import * as bits from './bits';
  */
 
 export { bits };
-export { Enum } from './enum';
-export { ValueType } from './value-type';
 export { Vec2 } from './vec2';
 export { Vec3 } from './vec3';
 export { Vec4 } from './vec4';

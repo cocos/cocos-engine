@@ -18,7 +18,6 @@ export const EPSILON = 0.000001;
  * @return True if the numbers are approximately equal, false otherwise.
  */
 export function equals (a: number, b: number) {
-    console.warn('The funtion will be deprecated soon,please use the funtion in cc.math');
     return Math.abs(a - b) <= EPSILON * Math.max(1.0, Math.abs(a), Math.abs(b));
 }
 
@@ -31,7 +30,6 @@ export function equals (a: number, b: number) {
  * @return True if the numbers are approximately equal, false otherwise.
  */
 export function approx (a: number, b: number, maxDiff: number) {
-    console.warn('The funtion will be deprecated soon,please use the funtion in cc.math');
     maxDiff = maxDiff || EPSILON;
     return Math.abs(a - b) <= maxDiff;
 }
@@ -44,7 +42,6 @@ export function approx (a: number, b: number, maxDiff: number) {
  * @param max
  */
 export function clamp (val: number, min: number, max: number) {
-    console.warn('The funtion will be deprecated soon,please use the funtion in cc.math');
     if (min > max) {
         const temp = min;
         min = max;
@@ -60,7 +57,6 @@ export function clamp (val: number, min: number, max: number) {
  * @param val
  */
 export function clamp01 (val: number) {
-    console.warn('The funtion will be deprecated soon,please use the funtion in cc.math');
     return val < 0 ? 0 : val > 1 ? 1 : val;
 }
 
@@ -70,7 +66,6 @@ export function clamp01 (val: number) {
  * @param ratio - The interpolation coefficient.
  */
 export function lerp (from: number, to: number, ratio: number) {
-    console.warn('The funtion will be deprecated soon,please use the funtion in cc.math');
     return from + (to - from) * ratio;
 }
 
@@ -80,7 +75,6 @@ export function lerp (from: number, to: number, ratio: number) {
  * @param {Number} a Angle in Degrees
  */
 export function toRadian (a: number) {
-    console.warn('The funtion will be deprecated soon,please use the funtion in cc.math');
     return a * _d2r;
 }
 
@@ -90,7 +84,6 @@ export function toRadian (a: number) {
  * @param {Number} a Angle in Radian
  */
 export function toDegree (a: number) {
-    console.warn('The funtion will be deprecated soon,please use the funtion in cc.math');
     return a * _r2d;
 }
 
@@ -108,7 +101,6 @@ export const random = Math.random;
  * @return The random number.
  */
 export function randomRange (min: number, max: number) {
-    console.warn('The funtion will be deprecated soon,please use the funtion in cc.math');
     return Math.random() * (max - min) + min;
 }
 
@@ -120,7 +112,6 @@ export function randomRange (min: number, max: number) {
  * @return The random integer.
  */
 export function randomRangeInt (min: number, max: number) {
-    console.warn('The funtion will be deprecated soon,please use the funtion in cc.math');
     return Math.floor(randomRange(min, max));
 }
 
@@ -131,7 +122,6 @@ export function randomRangeInt (min: number, max: number) {
  * @return The pseudo random.
  */
 export function pseudoRandom (seed: number) {
-    console.warn('The funtion will be deprecated soon,please use the funtion in cc.math');
     seed = (seed * 9301 + 49297) % 233280;
     return seed / 233280.0;
 }
@@ -145,7 +135,6 @@ export function pseudoRandom (seed: number) {
  * @return The random number.
  */
 export function pseudoRandomRange (seed: number, min: number, max: number) {
-    console.warn('The funtion will be deprecated soon,please use the funtion in cc.math');
     return pseudoRandom(seed) * (max - min) + min;
 }
 
@@ -158,7 +147,6 @@ export function pseudoRandomRange (seed: number, min: number, max: number) {
  * @return The random integer.
  */
 export function pseudoRandomRangeInt (seed: number, min: number, max: number) {
-    console.warn('The funtion will be deprecated soon,please use the funtion in cc.math');
     return Math.floor(pseudoRandomRange(seed, min, max));
 }
 
@@ -169,7 +157,6 @@ export function pseudoRandomRangeInt (seed: number, min: number, max: number) {
  * @return The the next power of two.
  */
 export function nextPow2 (val: number) {
-    console.warn('The funtion will be deprecated soon,please use the funtion in cc.math');
     --val;
     val = (val >> 1) | val;
     val = (val >> 2) | val;
@@ -188,7 +175,6 @@ export function nextPow2 (val: number) {
  * @return The Time wrapped in the first cycle.
  */
 export function repeat (t: number, length: number) {
-    console.warn('The funtion will be deprecated soon,please use the funtion in cc.math');
     return t - Math.floor(t / length) * length;
 }
 
@@ -200,7 +186,6 @@ export function repeat (t: number, length: number) {
  * @return The time wrapped in the first cycle.
  */
 export function pingPong (t: number, length: number) {
-    console.warn('The funtion will be deprecated soon,please use the funtion in cc.math');
     t = repeat(t, length * 2);
     t = length - Math.abs(t - length);
     return t;
@@ -215,6 +200,5 @@ export function pingPong (t: number, length: number) {
  * @return The ratio between [from, to].
  */
 export function inverseLerp (from: number, to: number, value: number) {
-    console.warn('The funtion will be deprecated soon,please use the funtion in cc.math');
     return (value - from) / (to - from);
 }

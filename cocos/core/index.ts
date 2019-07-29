@@ -35,6 +35,7 @@ import * as math from './math';
 cc.math = math;
 export { math };
 
+export * from './value-types';
 export * from './utils';
 export * from './data';
 export * from './event';

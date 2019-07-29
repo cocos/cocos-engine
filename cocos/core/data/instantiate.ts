@@ -29,7 +29,7 @@
  */
 
 import { isDomNode } from '../utils/misc';
-import { ValueType } from '../math';
+import { ValueType } from '../value-types';
 import { CCObject } from './object';
 import { js } from '../utils';
 
