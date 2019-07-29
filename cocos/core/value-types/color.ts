@@ -227,13 +227,19 @@ export default class Color extends ValueType {
         out._val = Math.floor(((a << 24) >>> 0) + (b << 16) + (g << 8) + r);
     }
 
-    public _val: number;
+    public _val: number = 0;
 
     /**
      * 构造与指定颜色相等的颜色。
      * @param other 相比较的颜色。
      */
     constructor (other: Color);
+
+    /**
+     * 使用 HEX 颜色值构造一个颜色。
+     * @param hex HEX 颜色。
+     */
+    constructor (hex: string);
 
     /**
      * 构造具有指定通道的颜色。
@@ -244,19 +250,24 @@ export default class Color extends ValueType {
      */
     constructor (r?: number, g?: number, b?: number, a?: number);
 
-    constructor (r?: number | Color, g?: number, b?: number, a?: number) {
+    constructor (r?: number | Color | string, g?: number, b?: number, a?: number) {
         super();
-        if (typeof r === 'object') {
-            g = r.g;
-            b = r.b;
-            a = r.a;
-            r = r.r;
+        if (typeof r === 'string') {
+            this.fromHEX(r);
         }
-        r = r || 0;
-        g = g || 0;
-        b = b || 0;
-        a = typeof a === 'number' ? a : 255;
-        this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+        else {
+            if (typeof r === 'object') {
+                g = r.g;
+                b = r.b;
+                a = r.a;
+                r = r.r;
+            }
+            r = r || 0;
+            g = g || 0;
+            b = b || 0;
+            a = typeof a === 'number' ? a : 255;
+            this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+        }
     }
 
     /**
@@ -303,7 +314,7 @@ export default class Color extends ValueType {
      * @param opt 格式选项。
      * @returns 当前颜色的 CSS 格式。
      */
-    public toCSS (opt: 'rgba' | 'rgb' | '#rrggbb') {
+    public toCSS (opt: 'rgba' | 'rgb' | '#rrggbb' | '#rrggbbaa') {
         if (opt === 'rgba') {
             return 'rgba(' +
                 (this.r | 0) + ',' +
