@@ -70,7 +70,17 @@ var downloadBlob = function (url, options, onComplete) {
 
 var downloadJson = function (url, options, onComplete) {
     options.responseType = "json";
-    downloadFile(url, options, options.onProgress, onComplete);
+    downloadFile(url, options, options.onProgress, function (err, data) {
+        if (!err && typeof data === 'string') {
+            try {
+                data = JSON.parse(data);
+            }
+            catch (e) {
+                err = e;
+            }
+        }
+        onComplete && onComplete(err, data);
+    });
 };
 
 var downloadArrayBuffer = function (url, options, onComplete) {

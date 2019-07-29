@@ -65,7 +65,21 @@ var loader = {
                 }
             }
         }
-        cc.assetManager.load(resources, null, progressCallback, (err, native) => {
+        var imageFmt = ['.png', '.jpg', '.bmp', '.jpeg', '.gif', '.ico', '.tiff', '.webp', '.image', '.pvr', '.pkm'];
+        var audioFmt = ['.mp3', '.ogg', '.wav', '.m4a'];
+        var images = [];
+        var audios = [];
+        cc.assetManager.load(resources, null, (finish, total, item) => {
+            if (item.content) {
+                if (imageFmt.indexOf(item.ext) !== -1) { 
+                    images.push(item.content);
+                }
+                else if (audioFmt.indexOf(item.ext) !== -1) {
+                    audios.push(item.content);
+                }
+            }
+            progressCallback && progressCallback(finish, total, item);
+        }, (err, native) => {
             var out = null;
             if (!err) {
                 native = Array.isArray(native) ? native : [native];
@@ -74,8 +88,15 @@ var loader = {
                     if (!(item instanceof cc.Asset)) {
                         var asset = item;
                         var url = resources[i].url;
-                        if (item instanceof Image || (cc.sys.capabilities.createImageBitmap && item instanceof ImageBitmap) || item instanceof Audio || item instanceof AudioBuffer) {
-                            asset = (item instanceof Image || (cc.sys.capabilities.createImageBitmap && item instanceof ImageBitmap)) ? new cc.Texture2D() : new cc.AudioClip();
+                        if (images.indexOf(asset) !== -1) {
+                            asset = new cc.Texture2D();
+                            asset._setRawAsset(url, false);
+                            asset._nativeAsset = item;
+                            native[i] = asset;
+                            asset._uuid = url;
+                        }
+                        else if (audios.indexOf(asset) !== -1) {
+                            asset = new cc.AudioClip();
                             asset._setRawAsset(url, false);
                             asset._nativeAsset = item;
                             native[i] = asset;
@@ -155,7 +176,16 @@ var loader = {
                 type = null;
             }
         }
-        cc.assetManager.loadRes(urls, type, progressCallback, completeCallback);
+        cc.assetManager.loadRes(urls, type, progressCallback, function (err, assets) {
+            var paths = [];
+            if (!err) {
+                for (var i = 0; i < urls.length; i ++) {
+                    var info = cc.assetManager._bundles.get('resources')._config.getInfoWithPath(urls[i], type);
+                    info && paths.push(info.path);
+                }
+            }
+            completeCallback && completeCallback(err, assets, paths);
+        });
     },
 
     /**
