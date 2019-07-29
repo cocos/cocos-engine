@@ -37,6 +37,7 @@ import { Material } from '../assets/material';
 import { Skeleton } from '../assets/skeleton';
 import { builtinResMgr } from '../builtin';
 import { ModelComponent } from './model-component';
+import { INode } from '../../core/utils/interfaces';
 
 /**
  * @en The Skinning Model Component
@@ -52,7 +53,7 @@ export class SkinningModelComponent extends ModelComponent {
     protected _skeleton: Skeleton | null = null;
 
     @property(Node)
-    protected _skinningRoot: Node | null = null;
+    protected _skinningRoot: INode | null = null;
 
     /**
      * @en The bone nodes
@@ -94,8 +95,8 @@ export class SkinningModelComponent extends ModelComponent {
         return 0;
     }
 
-    public uploadAnimationClip (clip: SkeletalAnimationClip) {
-        if (this._model) { (this._model as SkinningModel).uploadAnimationClip(clip); }
+    public uploadAnimation (clip: SkeletalAnimationClip) {
+        if (this._model) { (this._model as SkinningModel).uploadAnimation(clip); }
     }
 
     public _updateModelParams () {

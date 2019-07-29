@@ -7,9 +7,9 @@ import { Asset, SpriteFrame } from '../assets';
 import { ccclass, property } from '../core/data/class-decorator';
 import { errorID } from '../core/platform/CCDebug';
 import binarySearchEpsilon from '../core/utils/binary-search';
-import { Node } from '../scene-graph';
 import { AnimCurve, IPropertyCurveData, RatioSampler } from './animation-curve';
 import { WrapMode as AnimationWrapMode } from './types';
+import { INode } from '../core/utils/interfaces';
 
 interface IAnimationEventData {
     frame: number;
@@ -126,9 +126,6 @@ export class AnimationClip extends Asset {
         return clip;
     }
 
-    // onPlay callback
-    public onPlay: Function | null = null;
-
     /**
      * 动画帧率，单位为帧/秒。
      */
@@ -233,7 +230,7 @@ export class AnimationClip extends Asset {
         this.frameRate = this.sample;
     }
 
-    public getPropertyCurves (root: Node): ReadonlyArray<IPropertyCurve> {
+    public getPropertyCurves (root: INode): ReadonlyArray<IPropertyCurve> {
         if (!this._propertyCurves) {
             this._createPropertyCurves();
         }

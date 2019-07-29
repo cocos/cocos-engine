@@ -137,6 +137,26 @@ export interface IBaseNode {
     components: ReadonlyArray<Component>;
 
     /**
+     * @en Get parent of the node.
+     * @zh 获取该节点的父节点。
+     * @example
+     * ```
+     * var parent = this.node.getParent();
+     * ```
+     */
+    getParent (): this | null;
+
+    /**
+     * @en Set parent of the node.
+     * @zh 设置该节点的父节点。
+     * @example
+     * ```
+     * node.setParent(newNode);
+     * ```
+     */
+    setParent (value: this | null, keepWorldTransform: boolean): void;
+
+    /**
      * @en Is this node a child of the given node?
      * @zh 是否是指定节点的子节点？
      * @return True if this node is a child, deep child or identical to the given node.
@@ -154,6 +174,18 @@ export interface IBaseNode {
     addChild (child: this): void;
 
     /**
+     * @en Returns a child from the container given its uuid.
+     * @zh 通过 uuid 获取节点的子节点。
+     * @param uuid - The uuid to find the child node.
+     * @return a Node whose uuid equals to the input parameter
+     * @example
+     * ```
+     * var child = node.getChildByUuid(uuid);
+     * ```
+     */
+    getChildByUuid (uuid: string): this | null;
+
+    /**
      * @en Returns a child from the container given its name.
      * @zh 通过名称获取节点的子节点。
      * @param name - A name to find the child node.
@@ -164,6 +196,112 @@ export interface IBaseNode {
      * ```
      */
     getChildByName (name: string): this | null;
+
+    /**
+     * @en Returns a child from the container given its path.
+     * @zh 通过路径获取节点的子节点。
+     * @param path - A path to find the child node.
+     * @return a CCNode object whose name equals to the input parameter
+     * @example
+     * ```
+     * var child = node.getChildByPath("Test Node");
+     * ```
+     */
+    getChildByPath (path: string): this | null;
+
+    /**
+     * @en
+     * Inserts a child to the node at a specified index.
+     * @zh
+     * 插入子节点到指定位置
+     * @param child - the child node to be inserted
+     * @param siblingIndex - the sibling index to place the child in
+     * @example
+     * ```
+     * node.insertChild(child, 2);
+     * ```
+     */
+    insertChild (child: this, siblingIndex: number): void;
+
+    /**
+     * @en Get the sibling index.
+     * @zh 获取同级索引。
+     * @example
+     * ```
+     * var index = node.getSiblingIndex();
+     * ```
+     */
+    getSiblingIndex (): number;
+
+    /**
+     * @en Set the sibling index of this node.
+     * @zh 设置节点同级索引。
+     * @example
+     * ```
+     * node.setSiblingIndex(1);
+     * ```
+     */
+    setSiblingIndex (index: number): void;
+
+    /**
+     * @en
+     * Remove itself from its parent node. If cleanup is `true`, then also remove all events and actions. <br/>
+     * If the cleanup parameter is not passed, it will force a cleanup,
+     * so it is recommended that you always pass in the `false` parameter when calling this API.<br/>
+     * If the node orphan, then nothing happens.
+     * @zh
+     * 从父节点中删除该节点。如果不传入 cleanup 参数或者传入 `true`，那么这个节点上所有绑定的事件、action 都会被删除。<br/>
+     * 因此建议调用这个 API 时总是传入 `false` 参数。<br/>
+     * 如果这个节点是一个孤节点，那么什么都不会发生。
+     * @param [cleanup=true] - true if all actions and callbacks on this node should be removed, false otherwise.
+     * @see cc.Node#removeFromParentAndCleanup
+     * @example
+     * ```
+     * node.removeFromParent();
+     * node.removeFromParent(false);
+     * ```
+     */
+    removeFromParent (cleanup?: boolean): void;
+
+    /**
+     * @en
+     * Removes a child from the container.
+     * It will also cleanup all running actions depending on the cleanup parameter. </p>
+     * If the cleanup parameter is not passed, it will force a cleanup. <br/>
+     * "remove" logic MUST only be on this method  <br/>
+     * If a class wants to extend the 'removeChild' behavior it only needs <br/>
+     * to override this method.
+     * @zh
+     * 移除节点中指定的子节点，是否需要清理所有正在运行的行为取决于 cleanup 参数。<br/>
+     * 如果 cleanup 参数不传入，默认为 true 表示清理。<br/>
+     * @param child - The child node which will be removed.
+     * @param [cleanup=true] - true if all running actions and callbacks on the child node
+     * will be cleanup, false otherwise.
+     * @example
+     * ```
+     * node.removeChild(newNode);
+     * node.removeChild(newNode, false);
+     * ```
+     */
+    removeChild (child: this, cleanup?: boolean): void;
+
+    /**
+     * @en
+     * Removes all children from the container and
+     * do a cleanup all running actions depending on the cleanup parameter. <br/>
+     * If the cleanup parameter is not passed, it will force a cleanup.
+     * @zh
+     * 移除节点所有的子节点，是否需要清理所有正在运行的行为取决于 cleanup 参数。<br/>
+     * 如果 cleanup 参数不传入，默认为 true 表示清理。
+     * @param [cleanup=true] - true if all running actions on all children nodes
+     * should be cleanup, false otherwise.
+     * @example
+     * ```
+     * node.removeAllChildren();
+     * node.removeAllChildren(false);
+     * ```
+     */
+    removeAllChildren (cleanup?: boolean): void;
 
     /**
      * @en Adds a component class to the node. You can also add component to node by passing in the name of the script.

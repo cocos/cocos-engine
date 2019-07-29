@@ -32,28 +32,19 @@ import { SkinningModelComponent } from '../3d/framework/skinning-model-component
 import { Quat, Vec3 } from '../core/math';
 import { ccclass } from '../core/data/class-decorator';
 import { getClassName } from '../core/utils/js';
-import { Node } from '../scene-graph';
 import { AnimationClip, ICurveData, IObjectCurveData, IPropertyCurve } from './animation-clip';
 import { AnimationComponent } from './animation-component';
 import { IPropertyCurveData } from './animation-curve';
+import { INode } from '../core/utils/interfaces';
+import { getPathFromRoot } from './transform-utils';
 
-function getPathFromRoot (target: Node | null, root: Node) {
-    let node: Node | null = target;
-    let path = '';
-    while (node !== null && node !== root) {
-        path = `${node.name}/${path}`;
-        node = node.parent;
-    }
-    return path.slice(0, -1);
-}
-
-function isTargetSkinningModel (comp: RenderableComponent, root: Node) {
+function isTargetSkinningModel (comp: RenderableComponent, root: INode) {
     if (!(comp instanceof SkinningModelComponent)) { return false; }
     const curRoot = comp.skinningRoot;
     if (curRoot === root) { return true; }
     if (curRoot && curRoot.getComponent(AnimationComponent)) { return false; }
     // find the lowest AnimationComponent node
-    let node: Node | null = comp.node;
+    let node: INode | null = comp.node;
     while (node && !node.getComponent(AnimationComponent)) { node = node.parent; }
     if (node === root) { return true; }
     return false;
@@ -68,18 +59,12 @@ export class SkeletalAnimationClip extends AnimationClip {
     public convertedData: ICurveData = {};
     protected _converted = false;
 
-    public getPropertyCurves (root: Node): ReadonlyArray<IPropertyCurve> {
+    public getPropertyCurves (root: INode): ReadonlyArray<IPropertyCurve> {
         this._convertToSkeletalCurves(root);
         return super.getPropertyCurves(root);
     }
 
-    public onPlay = (root: Node) => {
-        for (const comp of root.getComponentsInChildren(SkinningModelComponent)) {
-            comp.uploadAnimationClip(this);
-        }
-    }
-
-    private _convertToSkeletalCurves (root: Node) {
+    private _convertToSkeletalCurves (root: INode) {
         if (this._converted) { return; }
         // sort the keys to make sure parent bone always comes first
         const paths = Object.keys(this.curveDatas).sort();
@@ -97,7 +82,7 @@ export class SkeletalAnimationClip extends AnimationClip {
             scale.interpolate = false;
         }
         // keep all node animations in editor
-        if (CC_EDITOR) { this.convertedData = JSON.parse(JSON.stringify(this.curveDatas)); }
+        if (false) { this.convertedData = JSON.parse(JSON.stringify(this.curveDatas)); }
         else { this.convertedData = this.curveDatas; this.curveDatas = {}; }
         // transform to world space
         for (const path of paths) {
@@ -112,8 +97,9 @@ export class SkeletalAnimationClip extends AnimationClip {
                 const path = getPathFromRoot(comp.node, root);
                 if (!this.curveDatas[path]) { this.curveDatas[path] = {}; }
                 this.curveDatas[path].comps = { [getClassName(comp)]: { frameID: { keys: 0, values, interpolate: false } } };
-            } else if (!CC_EDITOR) { // rig non-skinning renderables
-                this._convertToRiggingData(comp.node.parent!, root);
+            } else { // rig non-skinning renderables
+                // console.warn('[deprecated] attachments should be specified in SkeletalAnimationComponent');
+                // if (!CC_EDITOR) { this._convertToRiggingData(comp.node.parent!, root); }
             }
         }
         this._keys = [values.map((_, i) => i / this.sample)];
@@ -165,8 +151,8 @@ export class SkeletalAnimationClip extends AnimationClip {
     }
 
     // this incorrectly assumes any rig node will never be the parent nodes of others
-    // can only be fixed if we use a different rigging interface other than just attach child node to bone nodes
-    private _convertToRiggingData (targetNode: Node, root: Node) {
+    // can only be fixed if we use a different rigging interface other than just attach child node to bones
+    private _convertToRiggingData (targetNode: INode, root: INode) {
         const targetPath = getPathFromRoot(targetNode, root);
         // find lowest joint animation
         let animPath = targetPath;

@@ -2,13 +2,13 @@ import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXFormatType, GFXPrimitiv
 export { find } from '../../scene-graph/find';
 import { Mat4, Vec3 } from '../../core/math';
 import { IGFXAttribute } from '../../gfx/input-assembler';
-import { Node } from '../../scene-graph';
 import { IMeshStruct, IPrimitive, IVertexBundle, Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { SkinningModelComponent } from '../framework';
 import { aabb } from '../geom-utils';
 import { IGeometry } from '../primitive/define';
 import { BufferBlob } from './buffer-blob';
+import { INode } from '../../core/utils/interfaces';
 
 /**
  * save a color buffer to a PPM file
@@ -342,10 +342,10 @@ export function mapBuffer (
 }
 
 // get the lowest common ancestor
-const _path: Node[] = [];
-export const LCA = (a: Node, b: Node) => {
+const _path: INode[] = [];
+export const LCA = (a: INode, b: INode) => {
     if (a === b) { return a; }
-    let cur: Node | null = b;
+    let cur: INode | null = b;
     _path.length = 0;
     while (cur) { _path.push(cur); cur = cur.parent; }
     cur = a;
@@ -457,7 +457,7 @@ export function calculateSkinnedBounds (out: aabb, comp: SkinningModelComponent)
     if (!comp.model || !comp.mesh) { return; }
     const skeleton = comp.skeleton;
     const root = comp.skinningRoot;
-    const clip = comp.model.uploadedClip;
+    const clip = comp.model.uploadedAnim;
     if (!skeleton || !root || !clip) {
         if (!comp.model.worldBounds) { return; }
         aabb.copy(out, comp.model.worldBounds);
