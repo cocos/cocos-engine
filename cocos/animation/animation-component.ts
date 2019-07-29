@@ -447,8 +447,8 @@ export class AnimationComponent extends Component implements IEventTarget {
     public removeAll (keyOrTarget?: string | Object | undefined): void {}
     public emit (key: string, ...args: any[]): void {}
 
-    protected _getStateCtor () {
-        return AnimationState;
+    protected _createState (clip: AnimationClip, name?: string) {
+        return new AnimationState(clip, name);
     }
 
     private _getStateByNameOrDefaultClip (name?: string) {
@@ -479,7 +479,7 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     private _doCreateState (clip: AnimationClip, name: string) {
-        const state = new (this._getStateCtor())(clip, name);
+        const state = this._createState(clip, name);
         state._setEventTarget(this);
         if (this.node) {
             state.initialize(this.node);

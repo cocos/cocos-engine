@@ -34,11 +34,11 @@ import { Mat4, Vec2 } from '../../core/math';
 import { GFXFormat } from '../../gfx/define';
 import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
-import { Node } from '../../scene-graph/node';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { LCA, mapBuffer } from '../misc/utils';
 import { SkinningModelComponent } from './skinning-model-component';
+import { INode } from '../../core/utils/interfaces';
 
 const _vec2 = new Vec2();
 
@@ -52,7 +52,7 @@ export class AvatarUnit {
     @property(Skeleton)
     public skeleton: Skeleton | null = null;
     @property(Node)
-    public skinningRoot: Node | null = null;
+    public skinningRoot: INode | null = null;
     @property
     private _offset: Vec2 = new Vec2(0, 0);
     @property
@@ -103,9 +103,9 @@ export class AvatarUnit {
     }
 }
 
-const getPrefix = (lca: Node, target: Node) => {
+const getPrefix = (lca: INode, target: INode) => {
     let prefix = '';
-    let cur: Node | null = target;
+    let cur: INode | null = target;
     while (cur && cur !== lca) {
         prefix = `${cur.name}/` + prefix;
         cur = cur.parent;
@@ -293,7 +293,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
 
     public combineSkeletons () {
         // find lowest common ancestor as the new skinning root
-        let lca: Node | null = null;
+        let lca: INode | null = null;
         for (const unit of this._avatarUnits) {
             if (!unit || !unit.skinningRoot) { continue; }
             const cur = unit.skinningRoot;

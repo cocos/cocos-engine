@@ -34,6 +34,7 @@ import { SkeletalAnimationState } from './skeletal-animation-state';
 import { INode } from '../core/utils/interfaces';
 import { Vec3, Quat } from '../core/math';
 import { getWorldTransformUntilRoot } from './transform-utils';
+import { AnimationClip } from './animation-clip';
 
 @ccclass('cc.SkeletalAnimationComponent.Socket')
 export class Socket {
@@ -118,8 +119,8 @@ export class SkeletalAnimationComponent extends AnimationComponent {
         return target;
     }
 
-    protected _getStateCtor () {
-        return SkeletalAnimationState;
+    protected _createState (clip: AnimationClip, name?: string) {
+        return new SkeletalAnimationState(clip, name);
     }
 }
 
