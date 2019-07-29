@@ -408,9 +408,15 @@ export class Color extends ValueType {
 
     /**
      * 构造与指定颜色相等的颜色。
-     * @param other 相比较的颜色。
+     * @param other 指定的颜色。
      */
-    constructor (other: Color | string);
+    constructor (other: Color);
+
+    /**
+     * 用十六进制颜色字符串中构造颜色。
+     * @param hexString 十六进制颜色字符串。
+     */
+    constructor (hexString: string);
 
     /**
      * 构造具有指定通道的颜色。
