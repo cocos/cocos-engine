@@ -31,7 +31,7 @@
 import { Component} from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
-import { Size, Vec3 } from '../../../core/value-types';
+import { Size, Vec3 } from '../../../core/math';
 import { ccenum } from '../../../core/value-types/enum';
 import { INode } from '../../../core/utils/interfaces';
 import { UITransformComponent } from './ui-transfrom-component';

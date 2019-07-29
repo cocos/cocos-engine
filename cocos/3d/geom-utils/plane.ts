@@ -2,11 +2,11 @@
  * @category gemotry-utils
  */
 
-import { mat4, vec3, vec4 } from '../../core/vmath';
+import { Mat4, Vec3, Vec4 } from '../../core/math';
 import enums from './enums';
 
-const v1 = vec3.create(0, 0, 0);
-const v2 = vec3.create(0, 0, 0);
+const v1 = new Vec3(0, 0, 0);
+const v2 = new Vec3(0, 0, 0);
 const temp_mat = cc.mat4();
 const temp_vec4 = cc.v4();
 
@@ -54,7 +54,7 @@ export default class plane {
      * @return 接受操作的对象。
      */
     public static copy (out: plane, p: plane) {
-        vec3.copy(out.n, p.n);
+        Vec3.copy(out.n, p.n);
         out.d = p.d;
 
         return out;
@@ -71,12 +71,12 @@ export default class plane {
      * @param c 点 c。
      * @return out 接受操作的对象。
      */
-    public static fromPoints (out: plane, a: vec3, b: vec3, c: vec3) {
-        vec3.subtract(v1, b, a);
-        vec3.subtract(v2, c, a);
+    public static fromPoints (out: plane, a: Vec3, b: Vec3, c: Vec3) {
+        Vec3.subtract(v1, b, a);
+        Vec3.subtract(v2, c, a);
 
-        vec3.normalize(out.n, vec3.cross(out.n, v1, v2));
-        out.d = vec3.dot(out.n, a);
+        Vec3.normalize(out.n, Vec3.cross(out.n, v1, v2));
+        out.d = Vec3.dot(out.n, a);
 
         return out;
     }
@@ -112,9 +112,9 @@ export default class plane {
      * @param point 平面上的一点。
      * @return out 接受操作的对象。
      */
-    public static fromNormalAndPoint (out: plane, normal: vec3, point: vec3) {
-        vec3.copy(out.n, normal);
-        out.d = vec3.dot(normal, point);
+    public static fromNormalAndPoint (out: plane, normal: Vec3, point: Vec3) {
+        Vec3.copy(out.n, normal);
+        out.d = Vec3.dot(normal, point);
 
         return out;
     }
@@ -129,8 +129,8 @@ export default class plane {
      * @return out 接受操作的对象。
      */
     public static normalize (out: plane, a: plane) {
-        const len = vec3.magnitude(a.n);
-        vec3.normalize(out.n, a.n);
+        const len = Vec3.magnitude(a.n);
+        Vec3.normalize(out.n, a.n);
         if (len > 0) {
             out.d = a.d / len;
         }
@@ -141,7 +141,7 @@ export default class plane {
      * @zh
      * 法线向量。
      */
-    public n: vec3;
+    public n: Vec3;
 
     /**
      * @zh
@@ -160,7 +160,7 @@ export default class plane {
      */
     constructor (nx = 0, ny = 1, nz = 0, d = 0) {
         this._type = enums.SHAPE_PLANE;
-        this.n = vec3.create(nx, ny, nz);
+        this.n = new Vec3(nx, ny, nz);
         this.d = d;
     }
 
@@ -169,12 +169,12 @@ export default class plane {
      * 变换一个平面。
      * @param mat
      */
-    public transform (mat: mat4): void {
-        mat4.invert(temp_mat, mat);
-        mat4.transpose(temp_mat, temp_mat);
-        vec4.set(temp_vec4, this.n.x, this.n.y, this.n.z, this.d);
-        vec4.transformMat4(temp_vec4, temp_vec4, temp_mat);
-        vec3.set(this.n, temp_vec4.x, temp_vec4.y, temp_vec4.z);
+    public transform (mat: Mat4): void {
+        Mat4.invert(temp_mat, mat);
+        Mat4.transpose(temp_mat, temp_mat);
+        Vec4.set(temp_vec4, this.n.x, this.n.y, this.n.z, this.d);
+        Vec4.transformMat4(temp_vec4, temp_vec4, temp_mat);
+        Vec3.set(this.n, temp_vec4.x, temp_vec4.y, temp_vec4.z);
         this.d = temp_vec4.w;
     }
 }

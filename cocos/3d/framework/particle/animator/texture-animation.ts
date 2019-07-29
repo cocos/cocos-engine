@@ -4,8 +4,8 @@
  */
 
 import { ccclass, property } from '../../../../core/data/class-decorator';
+import { lerp, pseudoRandom, repeat } from '../../../../core/math';
 import { Enum } from '../../../../core/value-types';
-import { lerp, pseudoRandom, repeat } from '../../../../core/vmath';
 import Particle from '../particle';
 import { ParticleSystemComponent } from '../particle-system-component';
 import CurveRange from './curve-range';

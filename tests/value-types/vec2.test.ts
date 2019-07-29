@@ -1,4 +1,4 @@
-import Vec2 from '../../cocos/core/value-types/vec2';
+import { Vec2 } from '../../cocos/core/math/vec2';
 
 test('basic test', function () {
     let vec1 = new Vec2(5, 6);
@@ -14,12 +14,12 @@ test('basic test', function () {
 });
 
 test('scale test', function () {
-    let vec1 = new Vec2(5, 6);
-    let tmp = new Vec2(vec1);
-    tmp.scale(new Vec2(1, 2));
+    var vec1 = new Vec2(5, 6);
+    var tmp = new Vec2(vec1);
+    tmp.multiply(new Vec2(1, 2));
     expect(tmp).toStrictEqual(new Vec2(5, 12));
     expect(vec1).toStrictEqual(new Vec2(5, 6));
-    vec1.scale(new Vec2(1, 2));
+    vec1.multiply(new Vec2(1, 2));
     expect(vec1).toStrictEqual(new Vec2(5, 12));
 });
 

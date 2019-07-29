@@ -8,7 +8,7 @@
 import { Texture2D } from '../../../assets';
 import { Component } from '../../../components';
 import { ccclass, executeInEditMode, menu, property } from '../../../core/data/class-decorator';
-import { Vec3, Vec2, Vec4 } from '../../../core/value-types';
+import { Vec3, Vec2, Vec4 } from '../../../core/math';
 import { LineModel } from '../../../renderer/models/line-model';
 import { Material } from '../../assets';
 import { builtinResMgr } from '../../builtin';

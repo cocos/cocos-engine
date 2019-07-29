@@ -5,7 +5,7 @@
 import { Material } from '../../3d/assets/material';
 import Pool from '../../3d/memop/pool';
 import RecyclePool from '../../3d/memop/recycle-pool';
-import { Color, Rect } from '../../core/value-types';
+import { Color, Rect } from '../../core/math';
 
 export interface IRenderData {
     x: number;

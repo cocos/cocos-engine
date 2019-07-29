@@ -30,7 +30,7 @@
 import { SpriteFrame } from '../../../../assets';
 import { Component } from '../../../../components';
 import { fragmentText, safeMeasureText } from '../../../../core/utils';
-import { Color, Size } from '../../../../core/value-types';
+import { Color, Size } from '../../../../core/math';
 import { HorizontalTextAlignment, LabelComponent, LabelOutlineComponent, VerticalTextAlignment } from '../../components';
 import { CanvasPool, ISharedLabelData } from './font-utils';
 import { LetterRenderTexture } from './letter-font';

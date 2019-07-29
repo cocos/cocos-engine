@@ -2,11 +2,10 @@
  * @hidden
  */
 
-import { Vec3 } from '../../core/value-types';
-import { quat, vec3 } from '../../core/vmath';
+import { Quat, Vec3 } from '../../core/math';
 
 export function stringfyVec3 (value: {x: number; y: number; z: number}): string {
-    if (vec3.exactEquals(value, vec3.create())) {
+    if (Vec3.exactEquals(value, new Vec3())) {
         return `<origin>`;
     } else {
         return `(x: ${value.x}, y: ${value.y}, z: ${value.z})`;
@@ -14,7 +13,8 @@ export function stringfyVec3 (value: {x: number; y: number; z: number}): string 
 }
 
 export function stringfyQuat (value: {x: number; y: number; z: number; w: number}): string {
-    if (quat.exactEquals(value, quat.create())) {
+    value = new Quat(value.x, value.y, value.z, value.w);
+    if (Quat.exactEquals(value, new Quat())) {
         return `<Identity>`;
     } else {
         return `(x: ${value.x}, y: ${value.y}, z: ${value.z}, w: ${value.w})`;

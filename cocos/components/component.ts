@@ -36,7 +36,7 @@ import { CCObject } from '../core/data/object';
 import IDGenerator from '../core/utils/id-generator';
 import { getClassName, value } from '../core/utils/js';
 import { RenderScene } from '../renderer/scene/render-scene';
-import { Rect } from '../core';
+import { Rect } from '../core/math';
 import * as RF from '../core/data/utils/requiring-frame';
 import { INode } from '../core/utils/interfaces';
 

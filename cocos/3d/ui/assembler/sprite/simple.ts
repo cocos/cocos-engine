@@ -28,7 +28,7 @@
  * @category ui-assembler
  */
 
-import { Vec3 } from '../../../../core/value-types';
+import { Vec3 } from '../../../../core/math';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { SpriteComponent } from '../../components';

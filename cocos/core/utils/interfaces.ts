@@ -24,7 +24,7 @@
 */
 
 import { SystemEventType } from '../platform/event-manager/event-enum';
-import { Mat4, Quat, Size, Vec2, Vec3 } from '../value-types';
+import { Mat4, Quat, Size, Vec2, Vec3 } from '../math';
 import { Scene } from '../../scene-graph/scene';
 import { NodeEventProcessor } from '../../scene-graph/node-event-processor';
 import { Component } from '../../components/component';
@@ -170,13 +170,13 @@ export interface IBaseNode {
      * @zh 向节点添加一个指定类型的组件类，传入参数可以是一个组件类型或 ccclass 的注册名称，也可以是已经获得的组件引用。
      * @example
      * ```
-     * 
+     *
      * let sprite = node.addComponent(SpriteComponent);
-     * 
+     *
      * var sprite = node.addComponent(cc.SpriteComponent);
-     * 
+     *
      * var sprite = node.addComponent("cc.SpriteComponent");
-     * 
+     *
      * ```
      */
     addComponent<T extends Component> (classConstructor: Constructor<T>): T | null;
@@ -192,13 +192,13 @@ export interface IBaseNode {
      * 如果你已经获得组件引用，你也可以直接调用 component.destroy()
      * @example
      * ```
-     * 
+     *
      * node.removeComponent(SpriteComponent);
-     * 
+     *
      * node.removeComponent(cc.SpriteComponent);
-     * 
+     *
      * node.removeComponent("cc.SpriteComponent");
-     * 
+     *
      * ```
      */
     removeComponent<T extends Component> (classConstructor: Constructor<T>): void;
@@ -216,13 +216,13 @@ export interface IBaseNode {
      * 传入参数也可以是脚本的名称。
      * @example
      * ```
-     * 
+     *
      * let sprite = node.getComponent(SpriteComponent);
-     * 
+     *
      * var sprite = node.getComponent(cc.SpriteComponent);
-     * 
+     *
      * var sprite = node.getComponent("cc.SpriteComponent");
-     * 
+     *
      * ```
      */
     getComponent<T extends Component> (classConstructor: Constructor<T>): T | null;
@@ -238,13 +238,13 @@ export interface IBaseNode {
      * @zh 返回节点上指定类型的所有组件。
      * @example
      * ```
-     * 
+     *
      * let sprite = node.getComponentInChildren(SpriteComponent);
-     * 
+     *
      * var sprite = node.getComponentInChildren(cc.SpriteComponent);
-     * 
+     *
      * var sprite = node.getComponentInChildren("cc.SpriteComponent");
-     * 
+     *
      * ```
      */
     getComponentInChildren<T extends Component> (classConstructor: Constructor<T>): T | null;
@@ -256,14 +256,14 @@ export interface IBaseNode {
      * @zh 递归查找自身或所有子节点中指定类型的组件
      * @example
      * ```
-     * 
+     *
      * let sprites = node.getComponentsInChildren(SpriteComponent);
-     * 
+     *
      * var sprites = node.getComponentsInChildren(cc.SpriteComponent);
-     * 
+     *
      * var sprites = node.getComponentsInChildren("cc.SpriteComponent");
-     * 
-     * 
+     *
+     *
      * ```
      */
     getComponentsInChildren<T extends Component> (classConstructor: Constructor<T>): T[];

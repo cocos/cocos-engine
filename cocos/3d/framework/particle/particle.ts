@@ -2,21 +2,20 @@
  * @hidden
  */
 
-import { vec3, color4 } from '../../../core/vmath';
-import { Color } from '../../../core/value-types';
+import { Color, Vec3 } from '../../../core/math';
 import { ParticleSystemComponent } from './particle-system-component';
 
 export default class Particle {
     public particleSystem: ParticleSystemComponent;
-    public position: vec3;
-    public velocity: vec3;
-    public animatedVelocity: vec3;
-    public ultimateVelocity: vec3;
-    public angularVelocity: vec3;
-    public axisOfRotation: vec3;
-    public rotation: vec3;
-    public startSize: vec3;
-    public size: vec3;
+    public position: Vec3;
+    public velocity: Vec3;
+    public animatedVelocity: Vec3;
+    public ultimateVelocity: Vec3;
+    public angularVelocity: Vec3;
+    public axisOfRotation: Vec3;
+    public rotation: Vec3;
+    public startSize: Vec3;
+    public size: Vec3;
     public startColor: Color;
     public color = cc.Color.WHITE;
     public randomSeed: number; // uint
@@ -28,15 +27,15 @@ export default class Particle {
 
     constructor (particleSystem: any) {
         this.particleSystem = particleSystem;
-        this.position = vec3.create(0, 0, 0);
-        this.velocity = vec3.create(0, 0, 0);
-        this.animatedVelocity = vec3.create(0, 0, 0);
-        this.ultimateVelocity = vec3.create(0, 0, 0);
-        this.angularVelocity = vec3.create(0, 0, 0);
-        this.axisOfRotation = vec3.create(0, 0, 0);
-        this.rotation = vec3.create(0, 0, 0);
-        this.startSize = vec3.create(0, 0, 0);
-        this.size = vec3.create(0, 0, 0);
+        this.position = new Vec3(0, 0, 0);
+        this.velocity = new Vec3(0, 0, 0);
+        this.animatedVelocity = new Vec3(0, 0, 0);
+        this.ultimateVelocity = new Vec3(0, 0, 0);
+        this.angularVelocity = new Vec3(0, 0, 0);
+        this.axisOfRotation = new Vec3(0, 0, 0);
+        this.rotation = new Vec3(0, 0, 0);
+        this.startSize = new Vec3(0, 0, 0);
+        this.size = new Vec3(0, 0, 0);
         this.startColor = cc.Color.WHITE;
         this.color = cc.Color.WHITE;
         this.randomSeed = 0; // uint

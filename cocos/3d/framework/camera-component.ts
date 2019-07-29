@@ -30,8 +30,9 @@
 import { ray } from '../../3d/geom-utils';
 import { Component } from '../../components/component';
 import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
-import { Color, Enum, Rect, Vec3 } from '../../core/value-types';
-import { color4, toRadian } from '../../core/vmath';
+import { constget } from '../../core/data/utils/constget';
+import { Color, Rect, toRadian, Vec3 } from '../../core/math';
+import { Enum } from '../../core/value-types';
 import { GFXClearFlag } from '../../gfx/define';
 import { Camera } from '../../renderer';
 import { Scene } from '../../scene-graph';
@@ -65,7 +66,7 @@ const CameraClearFlag = Enum({
     DONT_CLEAR: GFXClearFlag.NONE,
 });
 
-const c4_1 = color4.create();
+const c4_1 = new Color();
 
 /**
  * @en The Camera Component
@@ -90,7 +91,7 @@ export class CameraComponent extends Component {
     @property
     protected _far = 1000.0;
     @property
-    protected _color = new Color().fromHEX('#334C78');
+    protected _color = new Color('#334C78'); // fromHEX('#334C78');
     @property
     protected _depth = 1;
     @property
@@ -210,7 +211,7 @@ export class CameraComponent extends Component {
     set color (val) {
         this._color.set(val);
         if (this._camera) {
-            color4.set(c4_1, val.r / 255, val.g / 255, val.b / 255, val.a / 255);
+            Color.set(c4_1, val.r / 255, val.g / 255, val.b / 255, val.a / 255);
             this._camera.clearColor = c4_1;
         }
     }
@@ -365,16 +366,20 @@ export class CameraComponent extends Component {
         });
 
         if (this._camera) {
-            this._camera.viewport = this._rect;
-            this._camera.fov = toRadian(this._fov);
-            this._camera.orthoHeight = this._orthoHeight;
-            this._camera.nearClip = this._near;
-            this._camera.farClip = this._far;
-            this._camera.clearColor = color4.create(this._color.r / 255, this._color.g / 255, this._color.b / 255, this._color.a / 255);
-            this._camera.clearDepth = this._depth;
-            this._camera.clearStencil = this._stencil;
-            this._camera.clearFlag = this._clearFlags;
-            this._camera.visibility = this._visibility;
+        this._camera.viewport = this._rect;
+        this._camera.fov = toRadian(this._fov);
+        this._camera.orthoHeight = this._orthoHeight;
+        this._camera.nearClip = this._near;
+        this._camera.farClip = this._far;
+        const r = this._color.r / 255;
+        const g = this._color.g / 255;
+        const b = this._color.b / 255;
+        const a = this._color.a / 255;
+        this._camera.clearColor = {r, g, b, a};
+        this._camera.clearDepth = this._depth;
+        this._camera.clearStencil = this._stencil;
+        this._camera.clearFlag = this._clearFlags;
+        this._camera.visibility = this._visibility;
         }
     }
 

@@ -35,7 +35,7 @@ import {
     requireComponent,
 } from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
-import { Color } from '../../../core/value-types';
+import { Color } from '../../../core/math';
 import { ccenum } from '../../../core/value-types/enum';
 import { GFXBlendFactor } from '../../../gfx/define';
 import { RenderData } from '../../../renderer/ui/renderData';

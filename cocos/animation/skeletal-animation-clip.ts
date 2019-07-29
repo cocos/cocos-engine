@@ -29,10 +29,9 @@
 
 import { RenderableComponent } from '../3d/framework/renderable-component';
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
+import { Quat, Vec3 } from '../core/math';
 import { ccclass } from '../core/data/class-decorator';
 import { getClassName } from '../core/utils/js';
-import { Quat, Vec3 } from '../core/value-types';
-import { quat, vec3 } from '../core/vmath';
 import { Node } from '../scene-graph';
 import { AnimationClip, ICurveData, IObjectCurveData, IPropertyCurve } from './animation-clip';
 import { AnimationComponent } from './animation-component';
@@ -157,11 +156,11 @@ export class SkeletalAnimationClip extends AnimationClip {
             const T = position[i];
             const R = rotation[i];
             const S = scale[i];
-            vec3.multiply(T, T, parentS);
-            vec3.transformQuat(T, T, parentR);
-            vec3.add(T, T, parentT);
-            quat.multiply(R, parentR, R);
-            vec3.multiply(S, parentS, S);
+            Vec3.multiply(T, T, parentS);
+            Vec3.transformQuat(T, T, parentR);
+            Vec3.add(T, T, parentT);
+            Quat.multiply(R, parentR, R);
+            Vec3.multiply(S, parentS, S);
         }
     }
 
@@ -191,54 +190,54 @@ export class SkeletalAnimationClip extends AnimationClip {
         const scale = data.scale.values;
         // apply downstream bindpose
         let target = targetNode;
-        vec3.set(v3_1, 0, 0, 0);
-        quat.set(qt_1, 0, 0, 0, 1);
-        vec3.set(v3_2, 1, 1, 1);
+        Vec3.set(v3_1, 0, 0, 0);
+        Quat.set(qt_1, 0, 0, 0, 1);
+        Vec3.set(v3_2, 1, 1, 1);
         while (target !== animNode) {
-            vec3.multiply(v3_3, v3_1, target.scale);
-            vec3.transformQuat(v3_3, v3_3, target.rotation);
-            vec3.add(v3_1, v3_3, target.position);
-            quat.multiply(qt_1, target.rotation, qt_1);
-            vec3.multiply(v3_2, target.scale, v3_2);
+            Vec3.multiply(v3_3, v3_1, target.scale);
+            Vec3.transformQuat(v3_3, v3_3, target.rotation);
+            Vec3.add(v3_1, v3_3, target.position);
+            Quat.multiply(qt_1, target.rotation, qt_1);
+            Vec3.multiply(v3_2, target.scale, v3_2);
             target = target.parent!;
         }
         for (let i = 0; i < position.length; i++) {
             const T = position[i];
             const R = rotation[i];
             const S = scale[i];
-            vec3.multiply(v3_3, v3_1, S);
-            vec3.transformQuat(v3_3, v3_3, R);
-            vec3.add(T, v3_3, T);
-            quat.multiply(R, R, qt_1);
-            vec3.multiply(S, S, v3_2);
+            Vec3.multiply(v3_3, v3_1, S);
+            Vec3.transformQuat(v3_3, v3_3, R);
+            Vec3.add(T, v3_3, T);
+            Quat.multiply(R, R, qt_1);
+            Vec3.multiply(S, S, v3_2);
         }
         // apply inverse upstream bindpose
         target = animNode.parent === root ? animNode : animNode.parent!;
-        vec3.set(v3_1, 0, 0, 0);
-        quat.set(qt_1, 0, 0, 0, 1);
-        vec3.set(v3_2, 1, 1, 1);
+        Vec3.set(v3_1, 0, 0, 0);
+        Quat.set(qt_1, 0, 0, 0, 1);
+        Vec3.set(v3_2, 1, 1, 1);
         while (target !== root) {
-            vec3.multiply(v3_3, v3_1, target.scale);
-            vec3.transformQuat(v3_3, v3_3, target.rotation);
-            vec3.add(v3_1, v3_3, target.position);
-            quat.multiply(qt_1, target.rotation, qt_1);
-            vec3.multiply(v3_2, target.scale, v3_2);
+            Vec3.multiply(v3_3, v3_1, target.scale);
+            Vec3.transformQuat(v3_3, v3_3, target.rotation);
+            Vec3.add(v3_1, v3_3, target.position);
+            Quat.multiply(qt_1, target.rotation, qt_1);
+            Vec3.multiply(v3_2, target.scale, v3_2);
             target = target.parent!;
         }
-        quat.invert(qt_1, qt_1);
-        vec3.invert(v3_2, v3_2);
-        vec3.negate(v3_1, v3_1);
-        vec3.transformQuat(v3_1, v3_1, qt_1);
-        vec3.multiply(v3_1, v3_1, v3_2);
+        Quat.invert(qt_1, qt_1);
+        Vec3.invert(v3_2, v3_2);
+        Vec3.negate(v3_1, v3_1);
+        Vec3.transformQuat(v3_1, v3_1, qt_1);
+        Vec3.multiply(v3_1, v3_1, v3_2);
         for (let i = 0; i < position.length; i++) {
             const T = position[i];
             const R = rotation[i];
             const S = scale[i];
-            vec3.multiply(T, T, v3_2);
-            vec3.transformQuat(T, T, qt_1);
-            vec3.add(T, T, v3_1);
-            quat.multiply(R, qt_1, R);
-            vec3.multiply(S, v3_2, S);
+            Vec3.multiply(T, T, v3_2);
+            Vec3.transformQuat(T, T, qt_1);
+            Vec3.add(T, T, v3_1);
+            Quat.multiply(R, qt_1, R);
+            Vec3.multiply(S, v3_2, S);
         }
         // wrap up
         if (!this.curveDatas[targetPath]) { this.curveDatas[targetPath] = {}; }

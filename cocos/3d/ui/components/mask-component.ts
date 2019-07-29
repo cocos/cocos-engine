@@ -31,9 +31,8 @@
 import { SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
-import { Color, Mat4, Size, Vec2, Vec3 } from '../../../core/value-types';
+import { clamp, Color, Mat4, Size, Vec2, Vec3 } from '../../../core/math';
 import { ccenum } from '../../../core/value-types/enum';
-import * as vmath from '../../../core/vmath';
 import { UI } from '../../../renderer/ui/ui';
 import { GraphicsComponent } from './graphics-component';
 import { InstanceMaterialType, UIRenderComponent } from './ui-render-component';
@@ -188,7 +187,7 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     set segments (value) {
-        this._segments = vmath.clamp(value, SEGEMENTS_MIN, SEGEMENTS_MAX);
+        this._segments = clamp(value, SEGEMENTS_MIN, SEGEMENTS_MAX);
         this._updateGraphics();
     }
 
@@ -363,8 +362,8 @@ export class MaskComponent extends UIRenderComponent {
         const testPt = _vec2_temp;
 
         this.node.getWorldMatrix(_worldMatrix);
-        vmath.mat4.invert(_mat4_temp, _worldMatrix);
-        vmath.vec2.transformMat4(testPt, cameraPt, _mat4_temp);
+        Mat4.invert(_mat4_temp, _worldMatrix);
+        Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
         const ap = node.getAnchorPoint();
         testPt.x += ap.x * w;
         testPt.y += ap.y * h;

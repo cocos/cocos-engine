@@ -4,8 +4,7 @@
 
 import { intersect } from '../3d/geom-utils';
 import { Root } from '../core/root';
-import { Mat4, Vec3, Vec4 } from '../core/value-types';
-import { mat4, vec3, vec4 } from '../core/vmath';
+import { Mat4, Vec3, Vec4 } from '../core/math';
 import { GFXBuffer } from '../gfx/buffer';
 import {
     GFXBindingType,
@@ -1382,16 +1381,16 @@ export abstract class RenderPipeline {
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET];
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1];
 
-        mat4.array(fv, camera.matView, UBOGlobal.MAT_VIEW_OFFSET);
+        Mat4.array(fv, camera.matView, UBOGlobal.MAT_VIEW_OFFSET);
 
-        mat4.invert(_outMat, camera.matView);
-        mat4.array(fv, _outMat, UBOGlobal.MAT_VIEW_INV_OFFSET);
-        mat4.array(fv, camera.matProj, UBOGlobal.MAT_PROJ_OFFSET);
-        mat4.invert(_outMat, camera.matProj);
-        mat4.array(fv, _outMat, UBOGlobal.MAT_PROJ_INV_OFFSET);
-        mat4.array(fv, camera.matViewProj, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
-        mat4.array(fv, camera.matViewProjInv, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
-        vec3.array(fv, camera.position, UBOGlobal.CAMERA_POS_OFFSET);
+        Mat4.invert(_outMat, camera.matView);
+        Mat4.array(fv, _outMat, UBOGlobal.MAT_VIEW_INV_OFFSET);
+        Mat4.array(fv, camera.matProj, UBOGlobal.MAT_PROJ_OFFSET);
+        Mat4.invert(_outMat, camera.matProj);
+        Mat4.array(fv, _outMat, UBOGlobal.MAT_PROJ_INV_OFFSET);
+        Mat4.array(fv, camera.matViewProj, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
+        Mat4.array(fv, camera.matViewProjInv, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
+        Vec3.array(fv, camera.position, UBOGlobal.CAMERA_POS_OFFSET);
 
         const exposure = camera.exposure;
         fv[UBOGlobal.EXPOSURE_OFFSET] = exposure;
@@ -1399,10 +1398,10 @@ export abstract class RenderPipeline {
         fv[UBOGlobal.EXPOSURE_OFFSET + 2] = this._isHDR ? 1.0 : 0.0;
         fv[UBOGlobal.EXPOSURE_OFFSET + 3] = this._fpScale / exposure;
 
-        vec3.array(fv, mainLight.direction, UBOGlobal.MAIN_LIT_DIR_OFFSET);
+        Vec3.array(fv, mainLight.direction, UBOGlobal.MAIN_LIT_DIR_OFFSET);
 
         if (mainLight.enabled) {
-            vec3.array(fv, mainLight.color, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
+            Vec3.array(fv, mainLight.color, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
             if (mainLight.useColorTemperature) {
                 const colorTempRGB = mainLight.colorTemperatureRGB;
                 fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET] *= colorTempRGB.x;
@@ -1416,7 +1415,7 @@ export abstract class RenderPipeline {
                 fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
             }
         } else {
-            vec4.array(fv, _v4Zero, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
+            Vec4.array(fv, _v4Zero, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
         }
 
         _vec4Array.set(ambient.skyColor);
@@ -1493,8 +1492,8 @@ export abstract class RenderPipeline {
         let depth = 0;
         if (model.node) {
             model.node.getWorldPosition(_v3tmp);
-            vec3.subtract(_v3tmp, _v3tmp, camera.position);
-            depth = vec3.dot(_v3tmp, camera.forward);
+            Vec3.subtract(_v3tmp, _v3tmp, camera.position);
+            depth = Vec3.dot(_v3tmp, camera.forward);
         }
         this._renderObjects.push({
             model,

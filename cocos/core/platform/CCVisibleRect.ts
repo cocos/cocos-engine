@@ -1,5 +1,3 @@
-import { Rect } from '../value-types';
-
 /*
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
@@ -25,6 +23,8 @@ import { Rect } from '../value-types';
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+import { Rect } from '../math';
 
 /**
  * cc.visibleRect is a singleton object which defines the actual visible rect of the current view,
