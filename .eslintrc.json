@@ -86,6 +86,7 @@
         "@typescript-eslint/no-floating-promises": "off",
         "@typescript-eslint/no-for-in-array": "warn",
         "@typescript-eslint/no-inferrable-types": "off",
+        "no-magic-numbers": "off",
         "@typescript-eslint/no-magic-numbers": ["warn", {
             "ignoreNumericLiteralTypes": true,
             "ignoreEnums": true
@@ -114,7 +115,7 @@
         "@typescript-eslint/promise-function-async": "error",
         "@typescript-eslint/require-array-sort-compare": "error",
         "@typescript-eslint/require-await": "warn",
-        "@typescript-eslint/restrict-plus-operands": "error",
+        "@typescript-eslint/restrict-plus-operands": "off",
         "@typescript-eslint/semi": "error",
         "@typescript-eslint/strict-boolean-expressions": "off",
         "@typescript-eslint/triple-slash-reference": "error",

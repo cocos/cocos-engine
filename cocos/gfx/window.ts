@@ -64,6 +64,14 @@ export abstract class GFXWindow extends GFXObject {
 
     /**
      * @zh
+     * 是否是离屏的。
+     */
+    public get isOffscreen (): boolean {
+        return this._isOffscreen;
+    }
+
+    /**
+     * @zh
      * GFX渲染过程。
      */
     public get renderPass (): GFXRenderPass {
@@ -94,106 +102,22 @@ export abstract class GFXWindow extends GFXObject {
         return this._framebuffer!;
     }
 
-    /**
-     * @zh
-     * GFX设备。
-     */
     protected _device: GFXDevice;
-
-    /**
-     * @zh
-     * 标题。
-     */
     protected _title: string = '';
-
-    /**
-     * @zh
-     * 左侧距离。
-     */
     protected _left: number = 0;
-
-    /**
-     * @zh
-     * 顶部距离。
-     */
     protected _top: number = 0;
-
-    /**
-     * @zh
-     * 窗口宽度。
-     */
     protected _width: number = 0;
-
-    /**
-     * @zh
-     * 窗口高度。
-     */
     protected _height: number = 0;
-
-    /**
-     * @zh
-     * 原生宽度。
-     */
     protected _nativeWidth: number = 0;
-
-    /**
-     * @zh
-     * 原生高度。
-     */
     protected _nativeHeight: number = 0;
-
-    /**
-     * @zh
-     * 颜色格式。
-     */
     protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;
-
-    /**
-     * @zh
-     * 深度模板格式。
-     */
     protected _depthStencilFmt: GFXFormat = GFXFormat.UNKNOWN;
-
-    /**
-     * @zh
-     * 是否是离屏的。
-     */
     protected _isOffscreen: boolean = false;
-
-    /**
-     * @zh
-     * GFX渲染过程。
-     */
     protected _renderPass: GFXRenderPass | null = null;
-
-    /**
-     * @zh
-     * 颜色纹理。
-     */
     protected _colorTex: GFXTexture | null = null;
-
-    /**
-     * @zh
-     * 颜色纹理视图。
-     */
     protected _colorTexView: GFXTextureView | null = null;
-
-    /**
-     * @zh
-     * 深度模板纹理。
-     */
     protected _depthStencilTex: GFXTexture | null = null;
-
-    /**
-     * @zh
-     * 深度模板纹理视图。
-     */
     protected _depthStencilTexView: GFXTextureView | null = null;
-
-    /**
-     * @zh
-     * GFX帧缓冲。
-     */
     protected _framebuffer: GFXFramebuffer | null = null;
 
     /**

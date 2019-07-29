@@ -47,6 +47,113 @@ let _a30: number = 0; let _a31: number = 0; let _a32: number = 0; let _a33: numb
 export class Mat4 extends ValueType {
 
     /**
+     * 矩阵第 0 列第 0 行的元素。
+     */
+    public m00: number;
+
+    /**
+     * 矩阵第 0 列第 1 行的元素。
+     */
+    public m01: number;
+
+    /**
+     * 矩阵第 0 列第 2 行的元素。
+     */
+    public m02: number;
+
+    /**
+     * 矩阵第 0 列第 3 行的元素。
+     */
+    public m03: number;
+
+    /**
+     * 矩阵第 1 列第 0 行的元素。
+     */
+    public m04: number;
+
+    /**
+     * 矩阵第 1 列第 1 行的元素。
+     */
+    public m05: number;
+
+    /**
+     * 矩阵第 1 列第 2 行的元素。
+     */
+    public m06: number;
+
+    /**
+     * 矩阵第 1 列第 3 行的元素。
+     */
+    public m07: number;
+
+    /**
+     * 矩阵第 2 列第 0 行的元素。
+     */
+    public m08: number;
+
+    /**
+     * 矩阵第 2 列第 1 行的元素。
+     */
+    public m09: number;
+
+    /**
+     * 矩阵第 2 列第 2 行的元素。
+     */
+    public m10: number;
+
+    /**
+     * 矩阵第 2 列第 3 行的元素。
+     */
+    public m11: number;
+
+    /**
+     * 矩阵第 3 列第 0 行的元素。
+     */
+    public m12: number;
+
+    /**
+     * 矩阵第 3 列第 1 行的元素。
+     */
+    public m13: number;
+
+    /**
+     * 矩阵第 3 列第 2 行的元素。
+     */
+    public m14: number;
+
+    /**
+     * 矩阵第 3 列第 3 行的元素。
+     */
+    public m15: number;
+
+    constructor (other: Mat4);
+
+    constructor (
+        m00?: number, m01?: number, m02?: number, m03?: number,
+        m04?: number, m05?: number, m06?: number, m07?: number,
+        m08?: number, m09?: number, m10?: number, m11?: number,
+        m12?: number, m13?: number, m14?: number, m15?: number);
+
+    constructor (
+        m00: Mat4 | number = 1, m01 = 0, m02 = 0, m03 = 0,
+        m04 = 0, m05 = 1, m06 = 0, m07 = 0,
+        m08 = 0, m09 = 0, m10 = 1, m11 = 0,
+        m12 = 0, m13 = 0, m14 = 0, m15 = 1) {
+        super();
+        if (typeof m00 === 'object') {
+            this.m01 = m00.m01; this.m02 = m00.m02; this.m03 = m00.m03; this.m04 = m00.m04;
+            this.m05 = m00.m05; this.m06 = m00.m06; this.m07 = m00.m07; this.m08 = m00.m08;
+            this.m09 = m00.m09; this.m10 = m00.m10; this.m11 = m00.m11; this.m12 = m00.m12;
+            this.m13 = m00.m13; this.m14 = m00.m14; this.m15 = m00.m15; this.m00 = m00.m00;
+        } else {
+            this.m01 = m01; this.m02 = m02; this.m03 = m03; this.m04 = m04;
+            this.m05 = m05; this.m06 = m06; this.m07 = m07; this.m08 = m08;
+            this.m09 = m09; this.m10 = m10; this.m11 = m11; this.m12 = m12;
+            this.m13 = m13; this.m14 = m14; this.m15 = m15; this.m00 = m00;
+        }
+    }
+
+    /**
      * @zh 获得指定矩阵的拷贝
      */
     public static clone <Out extends IMat4Like> (a: Out) {
@@ -1371,113 +1478,6 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * 矩阵第 0 列第 0 行的元素。
-     */
-    public m00: number;
-
-    /**
-     * 矩阵第 0 列第 1 行的元素。
-     */
-    public m01: number;
-
-    /**
-     * 矩阵第 0 列第 2 行的元素。
-     */
-    public m02: number;
-
-    /**
-     * 矩阵第 0 列第 3 行的元素。
-     */
-    public m03: number;
-
-    /**
-     * 矩阵第 1 列第 0 行的元素。
-     */
-    public m04: number;
-
-    /**
-     * 矩阵第 1 列第 1 行的元素。
-     */
-    public m05: number;
-
-    /**
-     * 矩阵第 1 列第 2 行的元素。
-     */
-    public m06: number;
-
-    /**
-     * 矩阵第 1 列第 3 行的元素。
-     */
-    public m07: number;
-
-    /**
-     * 矩阵第 2 列第 0 行的元素。
-     */
-    public m08: number;
-
-    /**
-     * 矩阵第 2 列第 1 行的元素。
-     */
-    public m09: number;
-
-    /**
-     * 矩阵第 2 列第 2 行的元素。
-     */
-    public m10: number;
-
-    /**
-     * 矩阵第 2 列第 3 行的元素。
-     */
-    public m11: number;
-
-    /**
-     * 矩阵第 3 列第 0 行的元素。
-     */
-    public m12: number;
-
-    /**
-     * 矩阵第 3 列第 1 行的元素。
-     */
-    public m13: number;
-
-    /**
-     * 矩阵第 3 列第 2 行的元素。
-     */
-    public m14: number;
-
-    /**
-     * 矩阵第 3 列第 3 行的元素。
-     */
-    public m15: number;
-
-    constructor (other: Mat4);
-
-    constructor (
-        m00?: number, m01?: number, m02?: number, m03?: number,
-        m04?: number, m05?: number, m06?: number, m07?: number,
-        m08?: number, m09?: number, m10?: number, m11?: number,
-        m12?: number, m13?: number, m14?: number, m15?: number);
-
-    constructor (
-        m00: Mat4 | number = 1, m01 = 0, m02 = 0, m03 = 0,
-        m04 = 0, m05 = 1, m06 = 0, m07 = 0,
-        m08 = 0, m09 = 0, m10 = 1, m11 = 0,
-        m12 = 0, m13 = 0, m14 = 0, m15 = 1) {
-        super();
-        if (typeof m00 === 'object') {
-            this.m01 = m00.m01; this.m02 = m00.m02; this.m03 = m00.m03; this.m04 = m00.m04;
-            this.m05 = m00.m05; this.m06 = m00.m06; this.m07 = m00.m07; this.m08 = m00.m08;
-            this.m09 = m00.m09; this.m10 = m00.m10; this.m11 = m00.m11; this.m12 = m00.m12;
-            this.m13 = m00.m13; this.m14 = m00.m14; this.m15 = m00.m15; this.m00 = m00.m00;
-        } else {
-            this.m01 = m01; this.m02 = m02; this.m03 = m03; this.m04 = m04;
-            this.m05 = m05; this.m06 = m06; this.m07 = m07; this.m08 = m08;
-            this.m09 = m09; this.m10 = m10; this.m11 = m11; this.m12 = m12;
-            this.m13 = m13; this.m14 = m14; this.m15 = m15; this.m00 = m00;
-        }
-    }
-
-    /**
      * 克隆当前矩阵。
      */
     public clone () {
@@ -1558,12 +1558,11 @@ export class Mat4 extends ValueType {
      * @returns 当前矩阵的字符串表示。
      */
     public toString () {
-        const t = this;
         return '[\n' +
-            t.m00 + ', ' + t.m01 + ', ' + t.m02 + ', ' + t.m03 + ',\n' +
-            t.m04 + ', ' + t.m05 + ', ' + t.m06 + ', ' + t.m07 + ',\n' +
-            t.m08 + ', ' + t.m09 + ', ' + t.m10 + ', ' + t.m11 + ',\n' +
-            t.m12 + ', ' + t.m13 + ', ' + t.m14 + ', ' + t.m15 + '\n' +
+            this.m00 + ', ' + this.m01 + ', ' + this.m02 + ', ' + this.m03 + ',\n' +
+            this.m04 + ', ' + this.m05 + ', ' + this.m06 + ', ' + this.m07 + ',\n' +
+            this.m08 + ', ' + this.m09 + ', ' + this.m10 + ', ' + this.m11 + ',\n' +
+            this.m12 + ', ' + this.m13 + ', ' + this.m14 + ', ' + this.m15 + '\n' +
             ']';
     }
 
