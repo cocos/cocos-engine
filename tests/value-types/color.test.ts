@@ -1,4 +1,4 @@
-import Color from '../../cocos/core/value-types/color';
+import { Color } from '../../cocos/core/math';
 
 const white = Number.parseInt('ffffffff', 16);
 
@@ -50,7 +50,7 @@ test('method test', function () {
     let c3 = c1.clone();
     expect(c3).toEqual(c1);
     expect(c3.equals(c1)).toBeTruthy();
-    
+
     c2.set(c1);
     c2.lerp(c0, 0.95);
     expect(c2.r).toBe(Math.floor(c1.r + (c0.r - c1.r) * 0.95));
