@@ -649,8 +649,6 @@ export abstract class RenderPipeline {
         }
     }
 
-
-
     /**
      * @zh
      * 交换帧缓冲。
