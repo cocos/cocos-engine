@@ -201,8 +201,7 @@ async function _internalBuild (options: IAdvancedOptions) {
         plugins: rollupPlugins,
     });
     const generated = await rollupBuild.generate({
-        format: 'iife',
-        name: 'cc_modular',
+        format: 'system',
         sourcemap: options.sourcemap,
         sourcemapFile,
     });
