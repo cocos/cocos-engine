@@ -322,6 +322,15 @@ if (CC_DEBUG) {
         ['inverseLerp','cc.math.inverseLerp'],
         ['EPSILON','cc.math.EPSILON']]);
 
+    markAsDeprecatedInObject_2(cc.vmath,
+        [['vec2','cc.math.Vec2'],
+        ['vec3','cc.math.Vec3'],
+        ['vec4','cc.math.Vec4'],
+        ['mat3','cc.math.Mat3'],
+        ['mat4','cc.math.Mat4'],
+        ['color4','cc.math.Color'],
+        ['rect','cc.math.Rect']]);
+
     markAsDeprecated(cc.misc,
         [['clampf','cc.math.clamp'],
         ['clamp01','cc.math.clamp01'],
