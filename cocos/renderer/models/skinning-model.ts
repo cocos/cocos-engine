@@ -42,7 +42,6 @@ import { INode } from '../../core/utils/interfaces';
 interface IJointsInfo {
     buffer: GFXBuffer | null;
     jointsTextureInfo: Float32Array;
-    frameID: Float32Array;
     texture: ITextureBufferHandle | null;
 }
 
@@ -60,10 +59,9 @@ export class SkinningModel extends Model {
     constructor (scene: RenderScene, node: INode) {
         super(scene, node);
         this._type = 'skinning';
-        const jointsTextureInfo = new Float32Array(8);
-        const frameID = new Float32Array(1);
+        const jointsTextureInfo = new Float32Array(4);
         const texture = this._scene.texturePool.getDefaultJointsTexture();
-        this._jointsMedium = { buffer: null, jointsTextureInfo, frameID, texture };
+        this._jointsMedium = { buffer: null, jointsTextureInfo, texture };
     }
 
     public destroy () {
@@ -99,13 +97,13 @@ export class SkinningModel extends Model {
     }
 
     public setFrameID (val: number) {
-        const { buffer, frameID } = this._jointsMedium;
-        frameID[0] = val;
-        buffer!.update(frameID, UBOSkinningTexture.JOINTS_FRAME_ID_OFFSET * Float32Array.BYTES_PER_ELEMENT);
+        const { buffer, jointsTextureInfo } = this._jointsMedium;
+        jointsTextureInfo[3] = val;
+        buffer!.update(jointsTextureInfo);
     }
 
     public getFrameID () {
-        return this._jointsMedium.frameID[0];
+        return this._jointsMedium.jointsTextureInfo[3];
     }
 
     protected _applyJointsTexture (texture: ITextureBufferHandle | null) {
@@ -113,10 +111,9 @@ export class SkinningModel extends Model {
         this._jointsMedium.texture = texture;
         const { buffer, jointsTextureInfo } = this._jointsMedium;
         jointsTextureInfo[0] = texture.texture.width;
-        jointsTextureInfo[1] = 1 / texture.texture.width;
-        jointsTextureInfo[2] = this._scene.texturePool.bytesToPixels(texture.start);
-        jointsTextureInfo[3] = this.uploadedAnim ? this.uploadedAnim.keys[0].length : 1;
-        jointsTextureInfo[4] = 0; // restore fid
+        jointsTextureInfo[1] = this._scene.texturePool.bytesToPixels(texture.start);
+        jointsTextureInfo[2] = this.uploadedAnim ? this.uploadedAnim.keys[0].length : 1;
+        jointsTextureInfo[3] = 0; // restore fid
         if (buffer) { buffer.update(jointsTextureInfo); }
         const sampler = getJointsTextureSampler(this._device);
         for (const submodel of this._subModels) {
