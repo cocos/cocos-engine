@@ -8,3 +8,4 @@ export * from './exports/tween';
 export * from './exports/physics-framework';
 export * from './exports/physics-builtin';
 export * from './exports/physics-cannon';
+export * from './exports/latest';

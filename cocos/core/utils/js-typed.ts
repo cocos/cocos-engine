@@ -3,10 +3,6 @@ import { warnID } from '../platform/CCDebug';
 import IDGenerator from './id-generator';
 const tempCIDGenerator = new IDGenerator('TmpCId.');
 
-type Getter = () => any;
-
-type Setter = (value: any) => void;
-
 /**
  * Check the object whether is number or not
  * If a number is created by using 'new Number(10086)', the typeof it will be "object"...
@@ -59,8 +55,8 @@ export const getset = (() => {
         set: undefined,
         enumerable: false,
     };
-    return (object: Object, propertyName: string, getter: Getter, setter?: Setter, enumerable?: boolean, configurable?: boolean) => {
-        if (typeof setter !== 'function') {
+    return (object: {}, propertyName: string, getter: Getter, setter?: Setter | boolean, enumerable = false, configurable = false) => {
+        if (typeof setter === 'boolean') {
             enumerable = setter;
             setter = undefined;
         }
