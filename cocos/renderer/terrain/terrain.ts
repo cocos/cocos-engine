@@ -36,24 +36,16 @@ export const TERRAIN_EAST_INDEX = 3;
  */
 @ccclass('cc.TerrainInfo')
 export class TerrainInfo {
-    @property({
-        visible : false,
-    })
+    @property
     public tileSize: number = 1;
 
-    @property({
-        visible : false,
-    })
+    @property
     public blockCount: number[] = [1, 1];
 
-    @property({
-        visible : false,
-    })
+    @property
     public weightMapSize: number = 128;
 
-    @property({
-        visible : false,
-    })
+    @property
     public lightMapSize: number = 128;
 
     //
@@ -520,7 +512,7 @@ export class TerrainBlock {
 export class Terrain extends Component {
     @property({
         type: TerrainInfo,
-        visible: false,
+        visible: true,
     })
     protected _info: TerrainInfo = new TerrainInfo();
 
