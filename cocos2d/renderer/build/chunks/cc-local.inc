@@ -3,5 +3,5 @@
 #pragma builtin(local)
 uniform CCLocal {
   mat4 cc_matWorld;
-  mat3 cc_mat3WorldIT;
+  mat4 cc_matWorldIT;
 };

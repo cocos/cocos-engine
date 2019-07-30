@@ -44,7 +44,7 @@ void main () {
   SKIN_VERTEX(position, normal);
 
   v_worldPos = (cc_matWorld * position).xyz;
-  v_worldNormal = cc_mat3WorldIT * normal.xyz;
+  v_worldNormal = (cc_matWorldIT * normal).xyz;
 
   CLAC_SHADOW(v_worldPos);
   

@@ -3,9 +3,9 @@
 import { enums } from '../../gfx/enums';
 import rendererEnums from '../../enums';
 import { RenderQueue, PassStage } from '../../core/constants';
-import murmurhash2_32_gc from '../../../core/assets/material/murmurhash2_gc';
+import murmurhash2_32_gc from '../../murmurhash2_gc';
 import * as gfx from './gfx/define';
-import { RenderPassStage, RenderPriority } from './pipeline/define';
+import { RenderPassStage, RenderPriority, UniformBinding } from './pipeline/define';
 
 enum SamplerInfoIndex {
   minFilter,
@@ -23,39 +23,21 @@ enum SamplerInfoIndex {
   total = borderColor + 4,
 }
 
-const typeParams = {
-  BOOL: gfx.GFXType.BOOL,
-  INT: gfx.GFXType.INT,
-  IVEC2: gfx.GFXType.INT2,
-  IVEC3: gfx.GFXType.INT3,
-  IVEC4: gfx.GFXType.INT4,
-  FLOAT: gfx.GFXType.FLOAT,
-  VEC2: gfx.GFXType.FLOAT2,
-  VEC3: gfx.GFXType.FLOAT3,
-  VEC4: gfx.GFXType.FLOAT4,
-  MAT2: gfx.GFXType.MAT2,
-  MAT3: gfx.GFXType.MAT3,
-  MAT4: gfx.GFXType.MAT4,
-  SAMPLER2D: gfx.GFXType.SAMPLER2D,
-  SAMPLERCUBE: gfx.GFXType.SAMPLER_CUBE,
-};
-
-const invTypeParams = {
-  [gfx.GFXType.BOOL]: 'bool',
-  [gfx.GFXType.INT]: 'int',
-  [gfx.GFXType.INT2]: 'ivec2',
-  [gfx.GFXType.INT3]: 'ivec3',
-  [gfx.GFXType.INT4]: 'ivec4',
-  [gfx.GFXType.FLOAT]: 'float',
-  [gfx.GFXType.FLOAT2]: 'vec2',
-  [gfx.GFXType.FLOAT3]: 'vec3',
-  [gfx.GFXType.FLOAT4]: 'vec4',
-  [gfx.GFXType.MAT2]: 'mat2',
-  [gfx.GFXType.MAT3]: 'mat3',
-  [gfx.GFXType.MAT4]: 'mat4',
-  [gfx.GFXType.SAMPLER2D]: 'sampler2D',
-  [gfx.GFXType.SAMPLER_CUBE]: 'samplerCube',
-};
+let typeMap = {};
+typeMap[typeMap['bool'] = gfx.GFXType.BOOL] = 'bool';
+typeMap[typeMap['int'] = gfx.GFXType.INT] = 'int';
+typeMap[typeMap['ivec2'] = gfx.GFXType.INT2] = 'ivec2invTypeParams';
+typeMap[typeMap['ivec3'] = gfx.GFXType.INT3] = 'ivec3';
+typeMap[typeMap['ivec4'] = gfx.GFXType.INT4] = 'ivec4';
+typeMap[typeMap['float'] = gfx.GFXType.FLOAT] = 'float';
+typeMap[typeMap['vec2'] = gfx.GFXType.FLOAT2] = 'vec2';
+typeMap[typeMap['vec3'] = gfx.GFXType.FLOAT3] = 'vec3';
+typeMap[typeMap['vec4'] = gfx.GFXType.FLOAT4] = 'vec4';
+typeMap[typeMap['mat2'] = gfx.GFXType.MAT2] = 'mat2';
+typeMap[typeMap['mat3'] = gfx.GFXType.MAT3] = 'mat3';
+typeMap[typeMap['mat4'] = gfx.GFXType.MAT4] = 'mat4';
+typeMap[typeMap['sampler2D'] = gfx.GFXType.SAMPLER2D] = 'sampler2D';
+typeMap[typeMap['samplerCube'] = gfx.GFXType.SAMPLER_CUBE] = 'samplerCube';
 
 const sizeMap = {
   [gfx.GFXType.BOOL]: 4,
@@ -261,13 +243,14 @@ let mappings = {
   murmurhash2_32_gc,
   SamplerInfoIndex,
   effectStructure,
-  typeParams,
-  invTypeParams,
+  typeMap,
   sizeMap,
   formatMap,
   passParams,
   RenderQueue,
   RenderPriority,
+  GFXGetTypeSize: gfx.GFXGetTypeSize,
+  UniformBinding
 };
 
 export default mappings;

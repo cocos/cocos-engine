@@ -709,6 +709,44 @@ var GFXClearFlag;
     GFXClearFlag[GFXClearFlag["DEPTH_STENCIL"] = 6] = "DEPTH_STENCIL";
     GFXClearFlag[GFXClearFlag["ALL"] = 7] = "ALL";
 })(GFXClearFlag || (GFXClearFlag = {}));
+function GFXGetTypeSize(type) {
+    switch (type) {
+        case GFXType.BOOL:
+        case GFXType.INT:
+        case GFXType.UINT:
+        case GFXType.FLOAT: return 4;
+        case GFXType.BOOL2:
+        case GFXType.INT2:
+        case GFXType.UINT2:
+        case GFXType.FLOAT2: return 8;
+        case GFXType.BOOL3:
+        case GFXType.INT3:
+        case GFXType.UINT3:
+        case GFXType.FLOAT3: return 12;
+        case GFXType.BOOL4:
+        case GFXType.INT4:
+        case GFXType.UINT4:
+        case GFXType.FLOAT4:
+        case GFXType.MAT2: return 16;
+        case GFXType.MAT2X3: return 24;
+        case GFXType.MAT2X4: return 32;
+        case GFXType.MAT3X2: return 24;
+        case GFXType.MAT3: return 36;
+        case GFXType.MAT3X4: return 48;
+        case GFXType.MAT4X2: return 32;
+        case GFXType.MAT4X2: return 32;
+        case GFXType.MAT4: return 64;
+        case GFXType.SAMPLER1D:
+        case GFXType.SAMPLER1D_ARRAY:
+        case GFXType.SAMPLER2D:
+        case GFXType.SAMPLER2D_ARRAY:
+        case GFXType.SAMPLER3D:
+        case GFXType.SAMPLER_CUBE: return 4;
+        default: {
+            return 0;
+        }
+    }
+}
 
 // import { GFXBuffer } from '../gfx/buffer';
 var RenderPassStage;
@@ -721,18 +759,25 @@ var RenderPriority;
     RenderPriority[RenderPriority["MAX"] = 255] = "MAX";
     RenderPriority[RenderPriority["DEFAULT"] = 128] = "DEFAULT";
 })(RenderPriority || (RenderPriority = {}));
-// const MAX_BINDING_SUPPORTED = 24; // from WebGL 2 spec
-// export enum UniformBinding {
-//     // UBOs
-//     UBO_GLOBAL = MAX_BINDING_SUPPORTED - 1,
-//     UBO_SHADOW = MAX_BINDING_SUPPORTED - 2,
-//     UBO_LOCAL = MAX_BINDING_SUPPORTED - 3,
-//     UBO_FORWARD_LIGHTS = MAX_BINDING_SUPPORTED - 4,
-//     UBO_SKINNING = MAX_BINDING_SUPPORTED - 5,
-//     UBO_UI = MAX_BINDING_SUPPORTED - 6,
-//     // samplers
-//     SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
-// }
+var MAX_BINDING_SUPPORTED = 24; // from WebGL 2 spec
+var UniformBinding;
+(function (UniformBinding) {
+    // UBOs
+    UniformBinding[UniformBinding["UBO_GLOBAL"] = MAX_BINDING_SUPPORTED - 1] = "UBO_GLOBAL";
+    UniformBinding[UniformBinding["UBO_SHADOW"] = MAX_BINDING_SUPPORTED - 2] = "UBO_SHADOW";
+    UniformBinding[UniformBinding["UBO_LOCAL"] = MAX_BINDING_SUPPORTED - 3] = "UBO_LOCAL";
+    UniformBinding[UniformBinding["UBO_FORWARD_LIGHTS"] = MAX_BINDING_SUPPORTED - 4] = "UBO_FORWARD_LIGHTS";
+    UniformBinding[UniformBinding["UBO_SKINNING"] = MAX_BINDING_SUPPORTED - 5] = "UBO_SKINNING";
+    UniformBinding[UniformBinding["UBO_SKINNING_TEXTURE"] = MAX_BINDING_SUPPORTED - 6] = "UBO_SKINNING_TEXTURE";
+    UniformBinding[UniformBinding["UBO_UI"] = MAX_BINDING_SUPPORTED - 7] = "UBO_UI";
+    // samplers
+    UniformBinding[UniformBinding["SAMPLER_JOINTS"] = MAX_BINDING_SUPPORTED + 1] = "SAMPLER_JOINTS";
+    UniformBinding[UniformBinding["SAMPLER_ENVIRONMENT"] = MAX_BINDING_SUPPORTED + 2] = "SAMPLER_ENVIRONMENT";
+    // rooms left for custom bindings
+    // effect importer prepares bindings according to this
+    UniformBinding[UniformBinding["CUSTUM_UBO_BINDING_END_POINT"] = MAX_BINDING_SUPPORTED - 7] = "CUSTUM_UBO_BINDING_END_POINT";
+    UniformBinding[UniformBinding["CUSTOM_SAMPLER_BINDING_START_POINT"] = MAX_BINDING_SUPPORTED + 6] = "CUSTOM_SAMPLER_BINDING_START_POINT";
+})(UniformBinding || (UniformBinding = {}));
 // export class UBOGlobal {
 //     public static TIME_OFFSET: number = 0;
 //     public static SCREEN_SIZE_OFFSET: number = UBOGlobal.TIME_OFFSET + 4;
@@ -869,7 +914,7 @@ var RenderPriority;
 // }
 
 // this file is used for offline effect building.
-var _a, _b, _c;
+var _a, _b;
 var SamplerInfoIndex;
 (function (SamplerInfoIndex) {
     SamplerInfoIndex[SamplerInfoIndex["minFilter"] = 0] = "minFilter";
@@ -886,65 +931,48 @@ var SamplerInfoIndex;
     SamplerInfoIndex[SamplerInfoIndex["borderColor"] = 11] = "borderColor";
     SamplerInfoIndex[SamplerInfoIndex["total"] = 15] = "total";
 })(SamplerInfoIndex || (SamplerInfoIndex = {}));
-var typeParams = {
-    BOOL: GFXType.BOOL,
-    INT: GFXType.INT,
-    IVEC2: GFXType.INT2,
-    IVEC3: GFXType.INT3,
-    IVEC4: GFXType.INT4,
-    FLOAT: GFXType.FLOAT,
-    VEC2: GFXType.FLOAT2,
-    VEC3: GFXType.FLOAT3,
-    VEC4: GFXType.FLOAT4,
-    MAT2: GFXType.MAT2,
-    MAT3: GFXType.MAT3,
-    MAT4: GFXType.MAT4,
-    SAMPLER2D: GFXType.SAMPLER2D,
-    SAMPLERCUBE: GFXType.SAMPLER_CUBE,
-};
-var invTypeParams = (_a = {},
-    _a[GFXType.BOOL] = 'bool',
-    _a[GFXType.INT] = 'int',
-    _a[GFXType.INT2] = 'ivec2',
-    _a[GFXType.INT3] = 'ivec3',
-    _a[GFXType.INT4] = 'ivec4',
-    _a[GFXType.FLOAT] = 'float',
-    _a[GFXType.FLOAT2] = 'vec2',
-    _a[GFXType.FLOAT3] = 'vec3',
-    _a[GFXType.FLOAT4] = 'vec4',
-    _a[GFXType.MAT2] = 'mat2',
-    _a[GFXType.MAT3] = 'mat3',
-    _a[GFXType.MAT4] = 'mat4',
-    _a[GFXType.SAMPLER2D] = 'sampler2D',
-    _a[GFXType.SAMPLER_CUBE] = 'samplerCube',
+var typeMap = {};
+typeMap[typeMap['bool'] = GFXType.BOOL] = 'bool';
+typeMap[typeMap['int'] = GFXType.INT] = 'int';
+typeMap[typeMap['ivec2'] = GFXType.INT2] = 'ivec2invTypeParams';
+typeMap[typeMap['ivec3'] = GFXType.INT3] = 'ivec3';
+typeMap[typeMap['ivec4'] = GFXType.INT4] = 'ivec4';
+typeMap[typeMap['float'] = GFXType.FLOAT] = 'float';
+typeMap[typeMap['vec2'] = GFXType.FLOAT2] = 'vec2';
+typeMap[typeMap['vec3'] = GFXType.FLOAT3] = 'vec3';
+typeMap[typeMap['vec4'] = GFXType.FLOAT4] = 'vec4';
+typeMap[typeMap['mat2'] = GFXType.MAT2] = 'mat2';
+typeMap[typeMap['mat3'] = GFXType.MAT3] = 'mat3';
+typeMap[typeMap['mat4'] = GFXType.MAT4] = 'mat4';
+typeMap[typeMap['sampler2D'] = GFXType.SAMPLER2D] = 'sampler2D';
+typeMap[typeMap['samplerCube'] = GFXType.SAMPLER_CUBE] = 'samplerCube';
+var sizeMap = (_a = {},
+    _a[GFXType.BOOL] = 4,
+    _a[GFXType.INT] = 4,
+    _a[GFXType.INT2] = 8,
+    _a[GFXType.INT3] = 12,
+    _a[GFXType.INT4] = 16,
+    _a[GFXType.FLOAT] = 4,
+    _a[GFXType.FLOAT2] = 8,
+    _a[GFXType.FLOAT3] = 12,
+    _a[GFXType.FLOAT4] = 16,
+    _a[GFXType.MAT2] = 16,
+    _a[GFXType.MAT3] = 36,
+    _a[GFXType.MAT4] = 64,
+    _a[GFXType.SAMPLER2D] = 4,
+    _a[GFXType.SAMPLER_CUBE] = 4,
     _a);
-var sizeMap = (_b = {},
-    _b[GFXType.BOOL] = 4,
-    _b[GFXType.INT] = 4,
-    _b[GFXType.INT2] = 8,
-    _b[GFXType.INT3] = 12,
-    _b[GFXType.INT4] = 16,
-    _b[GFXType.FLOAT] = 4,
-    _b[GFXType.FLOAT2] = 8,
-    _b[GFXType.FLOAT3] = 12,
-    _b[GFXType.FLOAT4] = 16,
-    _b[GFXType.MAT2] = 16,
-    _b[GFXType.MAT3] = 36,
-    _b[GFXType.MAT4] = 64,
-    _b[GFXType.SAMPLER2D] = 4,
-    _b[GFXType.SAMPLER_CUBE] = 4,
+var formatMap = (_b = {},
+    _b[GFXType.BOOL] = GFXFormat.R32I,
+    _b[GFXType.INT] = GFXFormat.R32I,
+    _b[GFXType.INT2] = GFXFormat.RG32I,
+    _b[GFXType.INT3] = GFXFormat.RGB32I,
+    _b[GFXType.INT4] = GFXFormat.RGBA32I,
+    _b[GFXType.FLOAT] = GFXFormat.R32F,
+    _b[GFXType.FLOAT2] = GFXFormat.RG32F,
+    _b[GFXType.FLOAT3] = GFXFormat.RGB32F,
+    _b[GFXType.FLOAT4] = GFXFormat.RGBA32F,
     _b);
-var formatMap = (_c = {},
-    _c[GFXType.BOOL] = GFXFormat.R32I,
-    _c[GFXType.INT] = GFXFormat.R32I,
-    _c[GFXType.INT2] = GFXFormat.RG32I,
-    _c[GFXType.INT3] = GFXFormat.RGB32I,
-    _c[GFXType.INT4] = GFXFormat.RGBA32I,
-    _c[GFXType.FLOAT] = GFXFormat.R32F,
-    _c[GFXType.FLOAT2] = GFXFormat.RG32F,
-    _c[GFXType.FLOAT3] = GFXFormat.RGB32F,
-    _c[GFXType.FLOAT4] = GFXFormat.RGBA32F,
-    _c);
 // const passParams = {
 //   // color mask
 //   NONE: gfx.GFXColorMask.NONE,
@@ -1107,13 +1135,14 @@ var mappings = {
     murmurhash2_32_gc: murmurhash2_32_gc,
     SamplerInfoIndex: SamplerInfoIndex,
     effectStructure: effectStructure,
-    typeParams: typeParams,
-    invTypeParams: invTypeParams,
+    typeMap: typeMap,
     sizeMap: sizeMap,
     formatMap: formatMap,
     passParams: passParams,
     RenderQueue: RenderQueue,
     RenderPriority: RenderPriority,
+    GFXGetTypeSize: GFXGetTypeSize,
+    UniformBinding: UniformBinding
 };
 
 module.exports = mappings;
