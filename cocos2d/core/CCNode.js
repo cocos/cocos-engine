@@ -143,16 +143,16 @@ var LocalDirtyFlag = cc.Enum({
      */
     SKEW: 1 << 3,
     /**
-     * !#en Flag for position or rotation dirty
-     * !#zh 旋转或位置 dirty 的标记位
+     * !#en Flag for rotation, scale or position dirty
+     * !#zh 旋转，缩放，或位置 dirty 的标记位
      * @property {Number} TRS
      * @static
      */
     TRS: 1 << 0 | 1 << 1 | 1 << 2,
     /**
-     * !#en Flag for position or rotation dirty
-     * !#zh 旋转或位置 dirty 的标记位
-     * @property {Number} TRS
+     * !#en Flag for rotation or scale dirty
+     * !#zh 旋转或缩放 dirty 的标记位
+     * @property {Number} RS
      * @static
      */
     RS: 1 << 1 | 1 << 2,
