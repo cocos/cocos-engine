@@ -102,6 +102,24 @@ if (CC_DEBUG) {
         });
     };
 
+
+    let markAsDeprecatedInObject_2 = (obj: {}, deprecatedProps: string[][], ownerName?: string) => {
+        if (!obj) return;
+
+        ownerName = ownerName || js.getClassName(obj);
+        let descriptors = Object.getOwnPropertyDescriptors(obj);
+        deprecatedProps.forEach(function (prop: string[]) {
+            let deprecatedProp = prop[0];
+            let newProp = prop[1];
+
+            /* eslint-disable-next-line */
+            obj[deprecatedProp] = function (this: any, v: any) {
+                errorID(1400, `${ownerName}.${deprecatedProp}`, `${ownerName}${newProp}`);
+            };
+        });
+    };
+
+
     /**
      * @zh
      * 标志类或对象 API 的更新和废弃
@@ -283,5 +301,32 @@ if (CC_DEBUG) {
         removeClip: 'removeState',
         getAnimationState: 'getState'
     }, 'cc.AnimationComponent');
+
+    cc.vmath = {};
+    markAsDeprecatedInObject_2(cc.vmath,
+        [['equals','cc.math.equals'],
+        ['approx','cc.math.approx'],
+        ['clamp','cc.math.clamp'],
+        ['clamp01','cc.math.clamp01'],
+        ['lerp','cc.math.lerp'],
+        ['toRadian','cc.math.toRadian'],
+        ['toDegree','cc.math.toDegree'],
+        ['random','cc.math.random'],
+        ['randomRange','cc.math.randomRange'],
+        ['randomRangeInt','cc.math.randomRangeInt'],
+        ['pseudoRandom','cc.math.pseudoRandom'],
+        ['pseudoRandomRangeInt','cc.math.pseudoRandomRangeInt'],
+        ['nextPow2','cc.math.nextPow2'],
+        ['repeat','cc.math.repeat'],
+        ['pingPong','cc.math.pingPong'],
+        ['inverseLerp','cc.math.inverseLerp'],
+        ['EPSILON','cc.math.EPSILON']]);
+
+    markAsDeprecated(cc.misc,
+        [['clampf','cc.math.clamp'],
+        ['clamp01','cc.math.clamp01'],
+        ['lerp','cc.math.lerp'],
+        ['degreesToRadians','cc.math.toRadian'],
+        ['radiansToDegrees','cc.math.toDegree']]);
 
 }
