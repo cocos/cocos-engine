@@ -598,11 +598,15 @@ export class SpriteComponent extends UIRenderComponent {
         //     this.markForRender(false);
         // }
 
-        if (oldFrame && spriteFrame) {
-            this._renderData!.uvDirty = oldFrame.uvHash !== spriteFrame.uvHash;
-        }
-        else {
-            this._renderData!.uvDirty = true;
+        if(this._renderData){
+            if (oldFrame && spriteFrame) {
+                this._renderData!.uvDirty = oldFrame.uvHash !== spriteFrame.uvHash;
+            }
+            else {
+                this._renderData!.uvDirty = true;
+            }
+
+            this._renderDataDirty = this._renderData!.uvDirty
         }
 
         if (spriteFrame) {

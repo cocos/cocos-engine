@@ -174,6 +174,18 @@ export interface IBaseNode {
     addChild (child: this): void;
 
     /**
+     * @zh 移除节点中指定的子节点
+     * @param child 孩子节点
+     */
+    removeChild(child: this, cleanup?: boolean): void;
+
+    /**
+    * @zh 插入子节点到指定位置
+    * @param siblingIndex 指定位置
+    */
+    insertChild(child: this, siblingIndex: number): void;
+
+    /**
      * @en Returns a child from the container given its uuid.
      * @zh 通过 uuid 获取节点的子节点。
      * @param uuid - The uuid to find the child node.

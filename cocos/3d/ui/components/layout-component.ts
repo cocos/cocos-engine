@@ -460,7 +460,7 @@ export class LayoutComponent extends Component {
     private _spacingX = 0;
     @property
     private _spacingY = 0;
-    private _layoutSize = cc.size(300, 200);
+    private _layoutSize = new Size(300, 200);
     @property
     private _verticalDirection = VerticalDirection.TOP_TO_BOTTOM;
     @property
@@ -491,7 +491,7 @@ export class LayoutComponent extends Component {
     protected onEnable () {
         this._addEventListeners();
 
-        if (this.node.getContentSize().equals(cc.size(0, 0))) {
+        if (this.node.getContentSize().equals(new Size())) {
             this.node.setContentSize(this._layoutSize);
         }
 
@@ -539,7 +539,7 @@ export class LayoutComponent extends Component {
         for (const child of children) {
             child.on(NodeEvent.SCALE_PART, this._doScaleDirty, this);
             child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
-            child.on(NodeEvent.POSITION_PART, this._doLayoutDirty, this);
+            child.on(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
             child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
             child.on('active-in-hierarchy-changed', this._doLayoutDirty, this);
         }
@@ -550,26 +550,26 @@ export class LayoutComponent extends Component {
         for (const child of children) {
             child.off(NodeEvent.SCALE_PART, this._doScaleDirty, this);
             child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
-            child.off(NodeEvent.POSITION_PART, this._doLayoutDirty, this);
+            child.off(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
             child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
             child.off('active-in-hierarchy-changed', this._doLayoutDirty, this);
         }
     }
 
-    private _childAdded (child) {
+    private _childAdded (child: INode) {
         child.on(NodeEvent.SCALE_PART, this._doScaleDirty, this);
         child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
-        child.on(NodeEvent.POSITION_PART, this._doLayoutDirty, this);
+        child.on(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
         child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
         child.on('active-in-hierarchy-changed', this._doLayoutDirty, this);
 
         this._doLayoutDirty();
     }
 
-    private _childRemoved (child) {
+    private _childRemoved (child: INode) {
         child.off(NodeEvent.SCALE_PART, this._doScaleDirty, this);
         child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
-        child.off(NodeEvent.POSITION_PART, this._doLayoutDirty, this);
+        child.off(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
         child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
         child.off('active-in-hierarchy-changed', this._doLayoutDirty, this);
 
@@ -1080,6 +1080,14 @@ export class LayoutComponent extends Component {
 
     private _getUsedScaleValue (value) {
         return this._affectedByScale ? Math.abs(value) : 1;
+    }
+
+    private _transformDirty(type: SystemEventType){
+        if(type !== SystemEventType.POSITION_PART){
+            return;
+        }
+
+        this._doLayoutDirty();
     }
 
     private _doLayoutDirty () {
