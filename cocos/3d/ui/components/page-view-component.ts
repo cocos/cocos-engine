@@ -227,10 +227,11 @@ export class PageViewComponent extends ScrollViewComponent {
   @property
   public autoPageTurningThreshold = 100;
 
-  // visible false
+  // override visible false
   @property({
     type: ScrollBarComponent,
     visible: false,
+    override: true,
   })
   get verticalScrollBar() {
     return this._verticalScrollBar;
@@ -239,6 +240,7 @@ export class PageViewComponent extends ScrollViewComponent {
   @property({
     type: ScrollBarComponent,
     visible: false,
+    override: true,
   })
   get horizontalScrollBar() {
     return this._horizontalScrollBar;
@@ -246,21 +248,25 @@ export class PageViewComponent extends ScrollViewComponent {
 
   @property({
     visible: false,
+    override: true,
   })
   public horizontal = true;
 
   @property({
     visible: false,
+    override: true,
   })
   public vertical = true;
 
   @property({
     visible: false,
+    override: true,
   })
   public cancelInnerEvents = true;
 
   @property({
     visible: false,
+    override: true,
   })
   public scrollEvents: ComponentEventHandler[] = [];
 
