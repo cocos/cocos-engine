@@ -24,5 +24,9 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 export { Enum } from './enum';
 export { ValueType } from './value-type';

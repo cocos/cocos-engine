@@ -26,7 +26,7 @@
 */
 
 /**
- * @category core/value-types
+ * @category core/math
  */
 
 import { Mat4 } from './mat4';
