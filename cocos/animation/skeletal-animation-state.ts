@@ -41,11 +41,13 @@ export class SkeletalAnimationState extends AnimationState {
     public onPlay () {
         super.onPlay();
         for (const comp of this._targetNode!.getComponentsInChildren(SkinningModelComponent)) {
-            comp.uploadAnimation(this.clip as SkeletalAnimationClip);
+            if (comp.skinningRoot === this._targetNode) {
+                comp.uploadAnimation(this.clip as SkeletalAnimationClip);
+            }
         }
     }
 
-    public rebuildSocketAnimations (sockets: Socket[]) {
+    public rebuildSocketCurves (sockets: Socket[]) {
         // TODO: curve reuse perhaps?
         // delete previous sockets
         if (!this._samplerSharedGroups.length) { return; }

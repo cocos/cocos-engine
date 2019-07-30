@@ -101,7 +101,7 @@ export class SkinningModel extends Model {
     public setFrameID (val: number) {
         const { buffer, frameID } = this._jointsMedium;
         frameID[0] = val;
-        buffer!.update(frameID, UBOSkinningTexture.JOINTS_FRAME_ID_OFFSET);
+        buffer!.update(frameID, UBOSkinningTexture.JOINTS_FRAME_ID_OFFSET * Float32Array.BYTES_PER_ELEMENT);
     }
 
     public getFrameID () {

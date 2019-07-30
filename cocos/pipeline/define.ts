@@ -68,7 +68,7 @@ const MAX_BINDING_SUPPORTED = 24; // from WebGL 2 spec
 
 /**
  * @zh
- * Uniform参数绑定。
+ * Uniform 参数绑定。
  */
 export enum UniformBinding {
     // UBOs
@@ -93,7 +93,7 @@ export enum UniformBinding {
 
 /**
  * @zh
- * 全局UBO。
+ * 全局 UBO。
  */
 export class UBOGlobal {
 
@@ -142,7 +142,7 @@ export class UBOGlobal {
 
 /**
  * @zh
- * 阴影UBO。
+ * 阴影 UBO。
  */
 export class UBOShadow {
     public static MAT_LIGHT_PLANE_PROJ_OFFSET: number = 0;
@@ -168,7 +168,7 @@ export const localBindingsDesc: Map<string, IInternalBindingDesc> = new Map<stri
 
 /**
  * @zh
- * 本地UBO。
+ * 本地 UBO。
  */
 export class UBOLocal {
     public static MAT_WORLD_OFFSET: number = 0;
@@ -192,7 +192,7 @@ localBindingsDesc.set(UBOLocal.BLOCK.name, {
 
 /**
  * @zh
- * 前向灯光UBO。
+ * 前向灯光 UBO。
  */
 export class UBOForwardLight {
     public static MAX_SPHERE_LIGHTS = 2;
@@ -236,27 +236,7 @@ export const JointUniformCapacity = 30;
 
 /**
  * @zh
- * 蒙皮UBO。
- */
-export class UBOSkinning {
-    public static MAT_JOINT_OFFSET: number = 0;
-    public static COUNT: number = JointUniformCapacity * 12;
-    public static SIZE: number = UBOSkinning.COUNT * 4;
-
-    public static BLOCK: GFXUniformBlock = {
-        binding: UniformBinding.UBO_SKINNING, name: 'CCSkinning', members: [
-            { name: 'cc_jointsData', type: GFXType.FLOAT4, count: JointUniformCapacity * 3 }, // DQ + scale
-        ],
-    };
-}
-localBindingsDesc.set(UBOSkinning.BLOCK.name, {
-    type: GFXBindingType.UNIFORM_BUFFER,
-    blockInfo: UBOSkinning.BLOCK,
-});
-
-/**
- * @zh
- * 蒙皮纹理信息UBO。
+ * 骨骼贴图 UBO。
  */
 export class UBOSkinningTexture {
     public static JOINTS_TEXTURE_INFO_OFFSET: number = 0;

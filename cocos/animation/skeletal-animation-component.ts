@@ -102,7 +102,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
         }
         for (const stateName of Object.keys(this._nameToState)) {
             const state = this._nameToState[stateName] as SkeletalAnimationState;
-            state.rebuildSocketAnimations(this._sockets);
+            state.rebuildSocketCurves(this._sockets);
         }
     }
 
