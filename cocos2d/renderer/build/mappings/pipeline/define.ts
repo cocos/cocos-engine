@@ -18,19 +18,27 @@ export enum RenderPriority {
     DEFAULT = 0x80,
 }
 
-// const MAX_BINDING_SUPPORTED = 24; // from WebGL 2 spec
-// export enum UniformBinding {
-//     // UBOs
-//     UBO_GLOBAL = MAX_BINDING_SUPPORTED - 1,
-//     UBO_SHADOW = MAX_BINDING_SUPPORTED - 2,
+const MAX_BINDING_SUPPORTED = 24; // from WebGL 2 spec
+export enum UniformBinding {
+    // UBOs
+    UBO_GLOBAL = MAX_BINDING_SUPPORTED - 1,
+    UBO_SHADOW = MAX_BINDING_SUPPORTED - 2,
 
-//     UBO_LOCAL = MAX_BINDING_SUPPORTED - 3,
-//     UBO_FORWARD_LIGHTS = MAX_BINDING_SUPPORTED - 4,
-//     UBO_SKINNING = MAX_BINDING_SUPPORTED - 5,
-//     UBO_UI = MAX_BINDING_SUPPORTED - 6,
-//     // samplers
-//     SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
-// }
+    UBO_LOCAL = MAX_BINDING_SUPPORTED - 3,
+    UBO_FORWARD_LIGHTS = MAX_BINDING_SUPPORTED - 4,
+    UBO_SKINNING = MAX_BINDING_SUPPORTED - 5,
+    UBO_SKINNING_TEXTURE = MAX_BINDING_SUPPORTED - 6,
+    UBO_UI = MAX_BINDING_SUPPORTED - 7,
+
+    // samplers
+    SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
+    SAMPLER_ENVIRONMENT = MAX_BINDING_SUPPORTED + 2,
+
+    // rooms left for custom bindings
+    // effect importer prepares bindings according to this
+    CUSTUM_UBO_BINDING_END_POINT = MAX_BINDING_SUPPORTED - 7,
+    CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 6,
+}
 
 // export class UBOGlobal {
 //     public static TIME_OFFSET: number = 0;

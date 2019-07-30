@@ -2,7 +2,7 @@
 
 #if USE_EMISSIVE
   uniform EMISSIVE {
-    lowp vec3 emissiveColor;
+    lowp vec4 emissiveColor;
   };
 
   #if USE_EMISSIVE_TEXTURE

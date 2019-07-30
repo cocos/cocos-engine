@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { typeParams } from './build/mappings'
+import { typeMap } from './build/mappings'
 
 export default {
   // projection
@@ -19,19 +19,19 @@ export default {
   SHADOW_SOFT: 2,
 
   // parameter type
-  PARAM_INT:             typeParams.INT,
-  PARAM_INT2:            typeParams.IVEC2,
-  PARAM_INT3:            typeParams.IVEC3,
-  PARAM_INT4:            typeParams.IVEC4,
-  PARAM_FLOAT:           typeParams.FLOAT,
-  PARAM_FLOAT2:          typeParams.VEC2,
-  PARAM_FLOAT3:          typeParams.VEC3,
-  PARAM_FLOAT4:          typeParams.VEC4,
-  PARAM_MAT2:           typeParams.MAT2,
-  PARAM_MAT3:           typeParams.MAT3,
-  PARAM_MAT4:           typeParams.MAT4,
-  PARAM_TEXTURE_2D:     typeParams.SAMPLER2D,
-  PARAM_TEXTURE_CUBE:   typeParams.SAMPLERCUBE,
+  PARAM_INT:             typeMap.int,
+  PARAM_INT2:            typeMap.ivec2,
+  PARAM_INT3:            typeMap.ivec3,
+  PARAM_INT4:            typeMap.ivec4,
+  PARAM_FLOAT:           typeMap.float,
+  PARAM_FLOAT2:          typeMap.vec2,
+  PARAM_FLOAT3:          typeMap.vec3,
+  PARAM_FLOAT4:          typeMap.vec4,
+  PARAM_MAT2:            typeMap.mat2,
+  PARAM_MAT3:            typeMap.mat3,
+  PARAM_MAT4:            typeMap.mat4,
+  PARAM_TEXTURE_2D:      typeMap.sampler2D,
+  PARAM_TEXTURE_CUBE:    typeMap.samplerCube,
 
   // clear flags
   CLEAR_COLOR: 1,

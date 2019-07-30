@@ -2,7 +2,7 @@
 
 #if USE_SPECULAR
   uniform SPECULAR {
-    lowp vec3 specularColor;
+    lowp vec4 specularColor;
   };
 
   #if USE_SPECULAR_TEXTURE
