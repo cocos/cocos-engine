@@ -36,24 +36,16 @@ export const TERRAIN_EAST_INDEX = 3;
  */
 @ccclass('cc.TerrainInfo')
 export class TerrainInfo {
-    @property({
-        visible : false,
-    })
+    @property
     public tileSize: number = 1;
 
-    @property({
-        visible : false,
-    })
+    @property
     public blockCount: number[] = [1, 1];
 
-    @property({
-        visible : false,
-    })
+    @property
     public weightMapSize: number = 128;
 
-    @property({
-        visible : false,
-    })
+    @property
     public lightMapSize: number = 128;
 
     //
@@ -192,17 +184,24 @@ export class TerrainRenderable extends RenderableComponent {
     }
 }
 
+@ccclass('cc.TerrainBlockInfo')
+export class TerrainBlockInfo {
+    @property
+    public layers: number[] = [-1, -1, -1, -1];
+}
+
 export class TerrainBlock {
     private _terrain: Terrain;
+    private _info: TerrainBlockInfo;
     private _node: PrivateNode;
     private _renderable: TerrainRenderable;
     private _index: number[] = [1, 1];
     // private _neighbor: TerrainBlock|null[] = [null, null, null, null];
-    private _layers: number[] = [-1, -1, -1, -1];
     private _weightMap: Texture2D|null = null;
 
     constructor (t: Terrain, i: number, j: number) {
         this._terrain = t;
+        this._info = t.getBlockInfo(i, j);
         this._index[0] = i;
         this._index[1] = j;
 
@@ -297,8 +296,8 @@ export class TerrainBlock {
             const uvScale = new Vec4(1, 1, 1, 1);
 
             if (nlayers === 0) {
-                if (this._layers[0] !== -1) {
-                    const l0 = this._terrain.getLayer(this._layers[0]);
+                if (this.layers[0] !== -1) {
+                    const l0 = this._terrain.getLayer(this.layers[0]);
 
                     if (l0 != null) {
                         uvScale.x = 1.0 / l0.tileSize;
@@ -311,8 +310,8 @@ export class TerrainBlock {
                 }
             }
             else if (nlayers === 1) {
-                const l0 = this._terrain.getLayer(this._layers[0]);
-                const l1 = this._terrain.getLayer(this._layers[1]);
+                const l0 = this._terrain.getLayer(this.layers[0]);
+                const l1 = this._terrain.getLayer(this.layers[1]);
 
                 if (l0 != null) {
                     uvScale.x = 1.0 / l0.tileSize;
@@ -326,9 +325,9 @@ export class TerrainBlock {
                 mtl.setProperty('detailMap1', l1 != null ? l1.detailMap : null);
             }
             else if (nlayers === 2) {
-                const l0 = this._terrain.getLayer(this._layers[0]);
-                const l1 = this._terrain.getLayer(this._layers[1]);
-                const l2 = this._terrain.getLayer(this._layers[2]);
+                const l0 = this._terrain.getLayer(this.layers[0]);
+                const l1 = this._terrain.getLayer(this.layers[1]);
+                const l2 = this._terrain.getLayer(this.layers[2]);
 
                 if (l0 != null) {
                     uvScale.x = 1.0 / l0.tileSize;
@@ -346,10 +345,10 @@ export class TerrainBlock {
                 mtl.setProperty('detailMap2', l2 != null ? l2.detailMap : null);
             }
             else if (nlayers === 3) {
-                const l0 = this._terrain.getLayer(this._layers[0]);
-                const l1 = this._terrain.getLayer(this._layers[1]);
-                const l2 = this._terrain.getLayer(this._layers[2]);
-                const l3 = this._terrain.getLayer(this._layers[3]);
+                const l0 = this._terrain.getLayer(this.layers[0]);
+                const l1 = this._terrain.getLayer(this.layers[1]);
+                const l2 = this._terrain.getLayer(this.layers[2]);
+                const l3 = this._terrain.getLayer(this.layers[3]);
 
                 if (l0 != null) {
                     uvScale.x = 1.0 / l0.tileSize;
@@ -382,6 +381,10 @@ export class TerrainBlock {
         }
     }
 
+    get layers () {
+        return this._info.layers;
+    }
+
     public getTerrain () {
         return this._terrain;
     }
@@ -401,24 +404,24 @@ export class TerrainBlock {
     }
 
     public setLayer (index: number, layerId: number) {
-        if (this._layers[index] !== layerId) {
-            this._layers[index] = layerId;
+        if (this.layers[index] !== layerId) {
+            this.layers[index] = layerId;
             this._renderable._invalidMaterial();
         }
     }
 
     public getLayer (index: number) {
-        return this._layers[index];
+        return this.layers[index];
     }
 
     public getMaxLayer () {
-        if (this._layers[3] >= 0) {
+        if (this.layers[3] >= 0) {
             return 3;
         }
-        else if (this._layers[2] >= 0) {
+        else if (this.layers[2] >= 0) {
             return 2;
         }
-        else if (this._layers[1] >= 0) {
+        else if (this.layers[1] >= 0) {
             return 1;
         }
         else {
@@ -520,13 +523,13 @@ export class TerrainBlock {
 export class Terrain extends Component {
     @property({
         type: TerrainInfo,
-        visible: false,
+        visible: true,
     })
     protected _info: TerrainInfo = new TerrainInfo();
 
     @property({
         type: TerrainLayer,
-        visible: false,
+        visible: true,
     })
     protected _layers: Array<TerrainLayer|null> = [];
 
@@ -539,6 +542,11 @@ export class Terrain extends Component {
         visible: false,
     })
     protected _weights: Uint8Array = new Uint8Array();
+
+    @property({
+        visible: false,
+    })
+    protected _blockInfos: TerrainBlockInfo[] = [];
 
     protected _normals: number[] = [];
     protected _blocks: TerrainBlock[] = [];
@@ -568,146 +576,30 @@ export class Terrain extends Component {
         return this._buildImp();
     }
 
-    public _rebuildHeights (info: TerrainInfo) {
-        if (this.info.vertexCount[0] === info.vertexCount[0] &&
-            this.info.vertexCount[1] === info.vertexCount[1]) {
-            return false;
-        }
-
-        const heights = new Array<number>(info.vertexCount[0] * info.vertexCount[1]);
-        for (let i = 0; i < heights.length; ++i) {
-            heights[i] = 0;
-        }
-
-        const w = Math.min(this.info.vertexCount[0], info.vertexCount[0]);
-        const h = Math.min(this.info.vertexCount[1], info.vertexCount[1]);
-
-        for (let j = 0; j < h; ++j) {
-            for (let i = 0; i < w; ++i) {
-                const index0 = j * this.info.vertexCount[1] + i;
-                const index1 = j * this.info.vertexCount[0] + i;
-
-                heights[index0] = this._heights[index1];
-            }
-        }
-
-        this._heights = heights;
-
-        return true;
-    }
-
-    public _rebuildWeights (info: TerrainInfo) {
-        const oldWeightMapSize = this.info.weightMapSize;
-        const oldWeightMapComplexityU = this.info.weightMapSize * this.info.blockCount[0];
-        const oldWeightMapComplexityV = this.info.weightMapSize * this.info.blockCount[1];
-
-        const weightMapComplexityU = info.weightMapSize * info.blockCount[0];
-        const weightMapComplexityV = info.weightMapSize * info.blockCount[1];
-
-        if (weightMapComplexityU === oldWeightMapComplexityU &&
-            weightMapComplexityV === oldWeightMapComplexityV) {
-            return false;
-        }
-
-        const weights = new Uint8Array(weightMapComplexityU * weightMapComplexityV * 4);
-
-        for (let i = 0; i < weightMapComplexityU * weightMapComplexityV; ++i) {
-            weights[i * 4 + 0] = 255;
-            weights[i * 4 + 1] = 0;
-            weights[i * 4 + 2] = 0;
-            weights[i * 4 + 3] = 0;
-        }
-
-        const w = Math.min(info.blockCount[0], this.info.blockCount[0]);
-        const h = Math.min(info.blockCount[1], this.info.blockCount[1]);
-
-        for (let j = 0; j < h; ++j) {
-            for (let i = 0; i < w; ++i) {
-                const xoff = i * oldWeightMapSize;
-                const yoff = j * oldWeightMapSize;
-
-                // sample weight
-                const getWeight = (_j: number, _i: number, _weights: Uint8Array) => {
-                    const index = _j * oldWeightMapComplexityU  + _i;
-
-                    const weight = new Vec4();
-                    weight.x = _weights[index * 4 + 0] / 255.0;
-                    weight.y = _weights[index * 4 + 1] / 255.0;
-                    weight.z = _weights[index * 4 + 2] / 255.0;
-                    weight.w = _weights[index * 4 + 3] / 255.0;
-
-                    return weight;
-                };
-
-                for (let v = 0; v < this.info.weightMapSize; ++v) {
-                    for (let u = 0; u < this.info.weightMapSize; ++u) {
-                        const fx = u / (this.info.weightMapSize - 1) * (oldWeightMapSize - 1);
-                        const fy = v / (this.info.weightMapSize - 1) * (oldWeightMapSize - 1);
-
-                        let ix0 = Math.floor(fx);
-                        let iz0 = Math.floor(fy);
-                        let ix1 = ix0 + 1;
-                        let iz1 = iz0 + 1;
-                        const dx = fx - ix0;
-                        const dz = fy - iz0;
-
-                        ix0 = clamp(ix0, 0, oldWeightMapSize - 1);
-                        iz0 = clamp(iz0, 0, oldWeightMapSize - 1);
-                        ix1 = clamp(ix1, 0, oldWeightMapSize - 1);
-                        iz1 = clamp(iz1, 0, oldWeightMapSize - 1);
-
-                        const a = getWeight(ix0 + xoff, iz0 + yoff, this._weights);
-                        const b = getWeight(ix1 + xoff, iz0 + yoff, this._weights);
-                        const c = getWeight(ix0 + xoff, iz1 + yoff, this._weights);
-                        const d = getWeight(ix1 + xoff, iz1 + yoff, this._weights);
-                        const m = new Vec4();
-                        vec4.add(m, b, c).multiply(0.5);
-
-                        if (dx + dz <= 1.0) {
-                            d.set(m);
-                            d.subtract(a);
-                            d.add(m);
-                        }
-                        else {
-                            a.set(m);
-                            a.subtract(d);
-                            a.add(m);
-                        }
-
-                        const n1 = new Vec4();
-                        const n2 = new Vec4();
-                        const n = new Vec4();
-                        vec3.lerp(n1, a, b, dx);
-                        vec3.lerp(n2, c, d, dx);
-                        vec3.lerp(n, n1, n2, dz);
-
-                        const du = i * this.info.weightMapSize + u;
-                        const dv = j * this.info.weightMapSize + v;
-                        const index = du * weightMapComplexityU + dv;
-
-                        weights[index * 4 + 0] = n.x * 255;
-                        weights[index * 4 + 1] = n.y * 255;
-                        weights[index * 4 + 2] = n.z * 255;
-                        weights[index * 4 + 3] = n.w * 255;
-                    }
-                }
-            }
-        }
-
-        this._weights = weights;
-
-        return true;
-    }
-
     public rebuild (info: TerrainInfo) {
         info.initialize();
 
-        const oldBlockCountU = this.info.blockCount[0];
-        const oldBlockCountV = this.info.blockCount[1];
-        const oldBlocks: Array<TerrainBlock|null> = [];
+        // build block info
+        const blockInfos: TerrainBlockInfo[] = [];
+        for (let i = 0; i < info.blockCount[0] * info.blockCount[1]; ++i) {
+            blockInfos.push(new TerrainBlockInfo());
+        }
 
-        for (const i of this._blocks) {
-            oldBlocks.push(i);
+        const w = Math.min(this.info.blockCount[0], info.blockCount[0]);
+        const h = Math.min(this.info.blockCount[1], info.blockCount[1]);
+        for (let j = 0; j < h; ++j) {
+            for (let i = 0; i < w; ++i) {
+                const index0 = j * info.vertexCount[0] + i;
+                const index1 = j * this.info.vertexCount[0] + i;
+
+                blockInfos[index0] = this._blockInfos[index1];
+            }
+        }
+
+        this._blockInfos = blockInfos;
+
+        for (const block of this._blocks) {
+            block.destroy();
         }
         this._blocks = [];
 
@@ -730,39 +622,16 @@ export class Terrain extends Component {
 
         for (let j = 0; j < this._info.blockCount[1]; ++j) {
             for (let i = 0; i < this._info.blockCount[0]; ++i) {
-                let block: TerrainBlock;
-                if (i < oldBlockCountU && j < oldBlockCountV) {
-                    block = oldBlocks[j * oldBlockCountU + i] as TerrainBlock;
-                    oldBlocks[j * oldBlockCountU + i] = null;
-                }
-                else {
-                    block = new TerrainBlock(this, i, j);
-                }
-
-                this._blocks.push(block);
+                this._blocks.push(new TerrainBlock(this, i, j));
             }
         }
 
-        for (const i of oldBlocks) {
-            if (i != null) {
-                i.destroy();
-            }
-        }
-
-        for (let j = 0; j < this._info.blockCount[1]; ++j) {
-            for (let i = 0; i < this._info.blockCount[0]; ++i) {
-                const index = j * this._info.blockCount[0] + i;
-                if (i < oldBlockCountU && j < oldBlockCountV) {
-                    this._blocks[index].rebuild();
-                }
-                else {
-                    this._blocks[index].build();
-                }
-            }
+        for (const i of this._blocks) {
+            i.build();
         }
     }
 
-    public import (hf: HeightField, heightScale: number) {
+    public importHeightField (hf: HeightField, heightScale: number) {
         let index = 0;
         for (let j = 0; j < this._info.vertexCount[1]; ++j) {
             for (let i = 0; i < this._info.vertexCount[0]; ++i) {
@@ -783,7 +652,7 @@ export class Terrain extends Component {
         }
     }
 
-    public export (hf: HeightField, heightScale: number) {
+    public exportHeightField (hf: HeightField, heightScale: number) {
         let index = 0;
         for (let j = 0; j < hf.h; ++j) {
             for (let i = 0; i < hf.w; ++i) {
@@ -1093,6 +962,10 @@ export class Terrain extends Component {
         return n;
     }
 
+    public getBlockInfo (i: number, j: number) {
+        return this._blockInfos[j * this._info.blockCount[0] + i];
+    }
+
     public getBlock (i: number, j: number) {
         return this._blocks[j * this._info.blockCount[0] + i];
     }
@@ -1235,8 +1108,17 @@ export class Terrain extends Component {
         }
 
         // build blocks
-        for (let j = 0; j < this._info.blockCount[1]; ++j) {
-            for (let i = 0; i < this._info.blockCount[0]; ++i) {
+        if (this._blockInfos.length !== this.info.blockCount[0] * this.info.blockCount[1]) {
+            this._blockInfos = [];
+            for (let j = 0; j < this.info.blockCount[1]; ++j) {
+                for (let i = 0; i < this.info.blockCount[0]; ++i) {
+                    this._blockInfos.push(new TerrainBlockInfo());
+                }
+            }
+        }
+
+        for (let j = 0; j < this.info.blockCount[1]; ++j) {
+            for (let i = 0; i < this.info.blockCount[0]; ++i) {
                 this._blocks.push(new TerrainBlock(this, i, j));
             }
         }
@@ -1244,5 +1126,136 @@ export class Terrain extends Component {
         for (const i of this._blocks) {
             i.build();
         }
+    }
+
+    private _rebuildHeights (info: TerrainInfo) {
+        if (this.info.vertexCount[0] === info.vertexCount[0] &&
+            this.info.vertexCount[1] === info.vertexCount[1]) {
+            return false;
+        }
+
+        const heights = new Array<number>(info.vertexCount[0] * info.vertexCount[1]);
+        for (let i = 0; i < heights.length; ++i) {
+            heights[i] = 0;
+        }
+
+        const w = Math.min(this.info.vertexCount[0], info.vertexCount[0]);
+        const h = Math.min(this.info.vertexCount[1], info.vertexCount[1]);
+
+        for (let j = 0; j < h; ++j) {
+            for (let i = 0; i < w; ++i) {
+                const index0 = j * info.vertexCount[0] + i;
+                const index1 = j * this.info.vertexCount[0] + i;
+
+                heights[index0] = this._heights[index1];
+            }
+        }
+
+        this._heights = heights;
+
+        return true;
+    }
+
+    private _rebuildWeights (info: TerrainInfo) {
+        const oldWeightMapSize = this.info.weightMapSize;
+        const oldWeightMapComplexityU = this.info.weightMapSize * this.info.blockCount[0];
+        const oldWeightMapComplexityV = this.info.weightMapSize * this.info.blockCount[1];
+
+        const weightMapComplexityU = info.weightMapSize * info.blockCount[0];
+        const weightMapComplexityV = info.weightMapSize * info.blockCount[1];
+
+        if (weightMapComplexityU === oldWeightMapComplexityU &&
+            weightMapComplexityV === oldWeightMapComplexityV) {
+            return false;
+        }
+
+        const weights = new Uint8Array(weightMapComplexityU * weightMapComplexityV * 4);
+
+        for (let i = 0; i < weightMapComplexityU * weightMapComplexityV; ++i) {
+            weights[i * 4 + 0] = 255;
+            weights[i * 4 + 1] = 0;
+            weights[i * 4 + 2] = 0;
+            weights[i * 4 + 3] = 0;
+        }
+
+        const w = Math.min(info.blockCount[0], this.info.blockCount[0]);
+        const h = Math.min(info.blockCount[1], this.info.blockCount[1]);
+
+        for (let j = 0; j < h; ++j) {
+            for (let i = 0; i < w; ++i) {
+                const xoff = i * oldWeightMapSize;
+                const yoff = j * oldWeightMapSize;
+
+                // sample weight
+                const getWeight = (_j: number, _i: number, _weights: Uint8Array) => {
+                    const index = _j * oldWeightMapComplexityU  + _i;
+
+                    const weight = new Vec4();
+                    weight.x = _weights[index * 4 + 0] / 255.0;
+                    weight.y = _weights[index * 4 + 1] / 255.0;
+                    weight.z = _weights[index * 4 + 2] / 255.0;
+                    weight.w = _weights[index * 4 + 3] / 255.0;
+
+                    return weight;
+                };
+
+                for (let v = 0; v < this.info.weightMapSize; ++v) {
+                    for (let u = 0; u < this.info.weightMapSize; ++u) {
+                        const fx = u / (this.info.weightMapSize - 1) * (oldWeightMapSize - 1);
+                        const fy = v / (this.info.weightMapSize - 1) * (oldWeightMapSize - 1);
+
+                        let ix0 = Math.floor(fx);
+                        let iz0 = Math.floor(fy);
+                        let ix1 = ix0 + 1;
+                        let iz1 = iz0 + 1;
+                        const dx = fx - ix0;
+                        const dz = fy - iz0;
+
+                        ix0 = clamp(ix0, 0, oldWeightMapSize - 1);
+                        iz0 = clamp(iz0, 0, oldWeightMapSize - 1);
+                        ix1 = clamp(ix1, 0, oldWeightMapSize - 1);
+                        iz1 = clamp(iz1, 0, oldWeightMapSize - 1);
+
+                        const a = getWeight(ix0 + xoff, iz0 + yoff, this._weights);
+                        const b = getWeight(ix1 + xoff, iz0 + yoff, this._weights);
+                        const c = getWeight(ix0 + xoff, iz1 + yoff, this._weights);
+                        const d = getWeight(ix1 + xoff, iz1 + yoff, this._weights);
+                        const m = new Vec4();
+                        vec4.add(m, b, c).multiply(0.5);
+
+                        if (dx + dz <= 1.0) {
+                            d.set(m);
+                            d.subtract(a);
+                            d.add(m);
+                        }
+                        else {
+                            a.set(m);
+                            a.subtract(d);
+                            a.add(m);
+                        }
+
+                        const n1 = new Vec4();
+                        const n2 = new Vec4();
+                        const n = new Vec4();
+                        vec3.lerp(n1, a, b, dx);
+                        vec3.lerp(n2, c, d, dx);
+                        vec3.lerp(n, n1, n2, dz);
+
+                        const du = i * this.info.weightMapSize + u;
+                        const dv = j * this.info.weightMapSize + v;
+                        const index = du * weightMapComplexityU + dv;
+
+                        weights[index * 4 + 0] = n.x * 255;
+                        weights[index * 4 + 1] = n.y * 255;
+                        weights[index * 4 + 2] = n.z * 255;
+                        weights[index * 4 + 3] = n.w * 255;
+                    }
+                }
+            }
+        }
+
+        this._weights = weights;
+
+        return true;
     }
 }
