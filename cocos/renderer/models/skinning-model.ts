@@ -60,7 +60,7 @@ export class SkinningModel extends Model {
     constructor (scene: RenderScene, node: INode) {
         super(scene, node);
         this._type = 'skinning';
-        const jointsTextureInfo = new Float32Array(5);
+        const jointsTextureInfo = new Float32Array(8);
         const frameID = new Float32Array(1);
         const texture = this._scene.texturePool.getDefaultJointsTexture();
         this._jointsMedium = { buffer: null, jointsTextureInfo, frameID, texture };
