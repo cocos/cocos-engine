@@ -55,7 +55,7 @@ const size_t BaseRenderer::cc_shadow_lightViewProjMatrix = std::hash<std::string
 const size_t BaseRenderer::cc_shadow_info = std::hash<std::string>{}("cc_shadow_info");
 const size_t BaseRenderer::cc_matView = std::hash<std::string>{}("cc_matView");
 const size_t BaseRenderer::cc_matWorld = std::hash<std::string>{}("cc_matWorld");
-const size_t BaseRenderer::cc_mat3WorldIT = std::hash<std::string>{}("cc_mat3WorldIT");
+const size_t BaseRenderer::cc_matWorldIT = std::hash<std::string>{}("cc_matWorldIT");
 const size_t BaseRenderer::cc_matpProj = std::hash<std::string>{}("cc_matpProj");
 const size_t BaseRenderer::cc_matViewProj = std::hash<std::string>{}("cc_matViewProj");
 const size_t BaseRenderer::cc_cameraPos = std::hash<std::string>{}("cc_cameraPos");
@@ -66,7 +66,7 @@ BaseRenderer::BaseRenderer()
     _stageInfos = new RecyclePool<StageInfo>([]()mutable->StageInfo*{return new StageInfo();}, 10);
     _views = new RecyclePool<View>([]()mutable->View*{return new View();}, 8);
     
-    _tmpMat3 = new cocos2d::Mat3();
+    _tmpMat4 = new cocos2d::Mat4();
 }
 
 BaseRenderer::~BaseRenderer()
@@ -89,8 +89,8 @@ BaseRenderer::~BaseRenderer()
     delete _views;
     _views = nullptr;
     
-    delete _tmpMat3;
-    _tmpMat3 = nullptr;
+    delete _tmpMat4;
+    _tmpMat4 = nullptr;
 }
 
 bool BaseRenderer::init(DeviceGraphics* device, std::vector<ProgramLib::Template>& programTemplates)
@@ -286,13 +286,13 @@ void BaseRenderer::setProperty (Effect::Property& prop)
 
 void BaseRenderer::draw(const StageItem& item)
 {
-    Mat4 worldMatrix = item.model->getWorldMatrix();
+    const Mat4& worldMatrix = item.model->getWorldMatrix();
     _device->setUniformMat4(cc_matWorld, worldMatrix.m);
-
-    cocos2d::Mat3::fromMat4(*_tmpMat3, worldMatrix);
-    _tmpMat3->inverse();
-    _tmpMat3->transpose();
-    _device->setUniformMat4(cc_mat3WorldIT, _tmpMat3->m);
+    
+    _tmpMat4->set(worldMatrix);
+    _tmpMat4->inverse();
+    _tmpMat4->transpose();
+    _device->setUniformMat4(cc_matWorldIT, _tmpMat4->m);
     
     // set technique uniforms
     for (int i = 0, len = (int)item.uniforms->size(); i < len; i++)

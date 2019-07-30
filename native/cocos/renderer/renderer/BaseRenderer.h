@@ -129,7 +129,7 @@ protected:
     RecyclePool<StageInfo>* _stageInfos = nullptr;
     RecyclePool<View>* _views = nullptr;
     
-    cocos2d::Mat3* _tmpMat3 = nullptr;
+    cocos2d::Mat4* _tmpMat4 = nullptr;
 
     CC_DISALLOW_COPY_ASSIGN_AND_MOVE(BaseRenderer);
     
@@ -152,7 +152,7 @@ protected:
     static const size_t cc_shadow_info;
     static const size_t cc_matView;
     static const size_t cc_matWorld;
-    static const size_t cc_mat3WorldIT;
+    static const size_t cc_matWorldIT;
     static const size_t cc_matpProj;
     static const size_t cc_matViewProj;
     static const size_t cc_cameraPos;
