@@ -25,7 +25,7 @@
 */
 
 /**
- * @category core/value-types
+ * @category core/math
  */
 
 import CCClass from '../data/class';

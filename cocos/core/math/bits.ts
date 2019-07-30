@@ -1,5 +1,5 @@
 /**
- * @category core/value-types
+ * @category core/math
  */
 
 /**

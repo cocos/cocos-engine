@@ -1,4 +1,9 @@
-
+/**
+ * @category core/math
+ */
+/**
+ * @hidden
+ */
 export interface IColorLike {
     r: number;
     g: number;
