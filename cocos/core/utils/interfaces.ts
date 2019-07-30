@@ -257,63 +257,43 @@ export interface IBaseNode {
 
     /**
      * @en
-     * Remove itself from its parent node. If cleanup is `true`, then also remove all events and actions. <br/>
-     * If the cleanup parameter is not passed, it will force a cleanup,
-     * so it is recommended that you always pass in the `false` parameter when calling this API.<br/>
+     * Remove itself from its parent node. <br/>
      * If the node orphan, then nothing happens.
      * @zh
-     * 从父节点中删除该节点。如果不传入 cleanup 参数或者传入 `true`，那么这个节点上所有绑定的事件、action 都会被删除。<br/>
-     * 因此建议调用这个 API 时总是传入 `false` 参数。<br/>
+     * 从父节点中删除该节点。<br/>
      * 如果这个节点是一个孤节点，那么什么都不会发生。
-     * @param [cleanup=true] - true if all actions and callbacks on this node should be removed, false otherwise.
      * @see cc.Node#removeFromParentAndCleanup
      * @example
      * ```
      * node.removeFromParent();
-     * node.removeFromParent(false);
      * ```
      */
-    removeFromParent (cleanup?: boolean): void;
+    removeFromParent (): void;
 
     /**
      * @en
      * Removes a child from the container.
-     * It will also cleanup all running actions depending on the cleanup parameter. </p>
-     * If the cleanup parameter is not passed, it will force a cleanup. <br/>
-     * "remove" logic MUST only be on this method  <br/>
-     * If a class wants to extend the 'removeChild' behavior it only needs <br/>
-     * to override this method.
      * @zh
-     * 移除节点中指定的子节点，是否需要清理所有正在运行的行为取决于 cleanup 参数。<br/>
-     * 如果 cleanup 参数不传入，默认为 true 表示清理。<br/>
+     * 移除节点中指定的子节点。
      * @param child - The child node which will be removed.
-     * @param [cleanup=true] - true if all running actions and callbacks on the child node
-     * will be cleanup, false otherwise.
      * @example
      * ```
      * node.removeChild(newNode);
-     * node.removeChild(newNode, false);
      * ```
      */
-    removeChild (child: this, cleanup?: boolean): void;
+    removeChild (child: this): void;
 
     /**
      * @en
-     * Removes all children from the container and
-     * do a cleanup all running actions depending on the cleanup parameter. <br/>
-     * If the cleanup parameter is not passed, it will force a cleanup.
+     * Removes all children from the container.
      * @zh
-     * 移除节点所有的子节点，是否需要清理所有正在运行的行为取决于 cleanup 参数。<br/>
-     * 如果 cleanup 参数不传入，默认为 true 表示清理。
-     * @param [cleanup=true] - true if all running actions on all children nodes
-     * should be cleanup, false otherwise.
+     * 移除节点所有的子节点。
      * @example
      * ```
      * node.removeAllChildren();
-     * node.removeAllChildren(false);
      * ```
      */
-    removeAllChildren (cleanup?: boolean): void;
+    removeAllChildren (): void;
 
     /**
      * @en Adds a component class to the node. You can also add component to node by passing in the name of the script.
