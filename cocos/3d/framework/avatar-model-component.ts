@@ -39,6 +39,7 @@ import { Skeleton } from '../assets/skeleton';
 import { LCA, mapBuffer } from '../misc/utils';
 import { SkinningModelComponent } from './skinning-model-component';
 import { INode } from '../../core/utils/interfaces';
+import { Node } from '../../scene-graph/node';
 
 const _vec2 = new Vec2();
 
