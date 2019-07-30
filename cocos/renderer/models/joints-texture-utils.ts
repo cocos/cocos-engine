@@ -98,7 +98,7 @@ function uploadJointDataDQS (out: Float32Array, base: number, pos: Vec3, rot: Qu
 }
 
 function roundUpTextureSize (targetLength: number) {
-    return Math.max(360, Math.ceil(targetLength / 12) * 12);
+    return Math.max(1020, Math.ceil(targetLength / 12) * 12);
 }
 
 const _jointsFormat = {

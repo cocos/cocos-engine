@@ -83,7 +83,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     public querySockets (parent = this.node, prefix = '', out: string[] = []) {
         for (const child of parent.children) {
             const path = prefix ? `${prefix}/${child.name}` : child.name;
-            out.push(path);
+            if (prefix) { out.push(path); }
             this.querySockets(child, path, out);
         }
         return out;
