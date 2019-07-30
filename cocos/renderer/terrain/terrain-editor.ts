@@ -32,6 +32,13 @@ export class TerrainEditor {
         const m = this._modes[mode];
 
         this._currentMode = m;
+
+        // Invidate all brush material
+        if (this._terrain != null) {
+            for (const block of this._terrain.getBlocks()) {
+                block.setBrushMaterial(null);
+            }
+        }
     }
 
     public getMode (mode: eTerrainEditorMode) {
