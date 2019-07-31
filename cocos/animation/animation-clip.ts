@@ -10,6 +10,7 @@ import binarySearchEpsilon from '../core/utils/binary-search';
 import { AnimCurve, IPropertyCurveData, RatioSampler } from './animation-curve';
 import { WrapMode as AnimationWrapMode } from './types';
 import { INode } from '../core/utils/interfaces';
+import { murmurhash2_32_gc } from '../core/utils/murmurhash2_gc';
 
 interface IAnimationEventData {
     frame: number;
@@ -176,6 +177,8 @@ export class AnimationClip extends Asset {
     @property
     protected _stepness = 0;
 
+    protected _hash = 0;
+
     /**
      * 动画的周期。
      */
@@ -223,11 +226,16 @@ export class AnimationClip extends Asset {
         this._applyStepness();
     }
 
+    get hash () {
+        return this._hash;
+    }
+
     public onLoad () {
         this.duration = this._duration;
         this.speed = this.speed;
         this.wrapMode = this.wrapMode;
         this.frameRate = this.sample;
+        this._hash = murmurhash2_32_gc(`${this._uuid} ${this._duration} ${this._keys[0] && this._keys[0].length}`, 666);
     }
 
     public getPropertyCurves (root: INode): ReadonlyArray<IPropertyCurve> {
