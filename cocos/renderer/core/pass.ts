@@ -230,7 +230,7 @@ export class Pass {
      * 获取指定 uniform 的 handle。
      * @param name 目标 uniform 名。
      */
-    public getHandle (name: string) {
+    public getHandle (name: string): number | undefined {
         return this._handleMap[name];
     }
 
@@ -240,7 +240,9 @@ export class Pass {
      * @param name 目标 uniform 名。
      */
     public getBinding (name: string) {
-        return Pass.getBindingFromHandle(this.getHandle(name));
+        const handle = this.getHandle(name);
+        if (handle === undefined) { return; }
+        return Pass.getBindingFromHandle(handle);
     }
 
     /**
