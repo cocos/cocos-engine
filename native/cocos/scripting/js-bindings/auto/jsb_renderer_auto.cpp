@@ -288,7 +288,7 @@ static bool js_renderer_Pass_getProgramName(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        std::string result = cobj->getProgramName();
+        const std::string& result = cobj->getProgramName();
         ok &= std_string_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_renderer_Pass_getProgramName : Error processing arguments");
         return true;

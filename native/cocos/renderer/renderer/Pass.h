@@ -128,7 +128,7 @@ public:
     /**
      *  @brief Gets linked program name.
      */
-    inline std::string getProgramName() const { return _programName; }
+    inline const std::string& getProgramName() const { return _programName; }
     
     inline size_t getHashName() const { return _hashName; }
     /**

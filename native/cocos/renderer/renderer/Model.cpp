@@ -86,6 +86,7 @@ void Model::setEffect(Effect* effect, CustomProperties* customProperties)
     }
     
     _uniforms.clear();
+    _definesList.clear();
     
     _definesKeyHash = 0;
     

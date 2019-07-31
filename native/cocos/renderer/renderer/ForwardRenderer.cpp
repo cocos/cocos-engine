@@ -388,7 +388,7 @@ void ForwardRenderer::drawItems(const std::vector<StageItem>& items)
         shadowMaps.reserve(count);
         std::vector<int> slots;
         slots.reserve(count);
-        for (auto item : items)
+        for (const auto& item : items)
         {
             shadowMaps.clear();
             for(int i = 0; i < count; i++)
@@ -398,7 +398,7 @@ void ForwardRenderer::drawItems(const std::vector<StageItem>& items)
                 slots.push_back(allocTextureUnit());
             }
             _device->setTextureArray(cc_shadow_map, shadowMaps, slots);
-            updateShaderDefines(item);
+            updateShaderDefines(const_cast<StageItem&>(item));
             draw(item);
         }
     }
