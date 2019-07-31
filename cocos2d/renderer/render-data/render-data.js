@@ -79,7 +79,7 @@ export default class RenderData extends BaseRenderData {
 
   static free (data) {
     if (data instanceof RenderData) {
-      for (let i = data.length-1; i > 0; i--) {
+      for (let i = data._data.length - 1; i >= 0; i--) {
         _dataPool.free(data._data[i]);
       }
       data._data.length = 0;
