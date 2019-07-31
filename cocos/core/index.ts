@@ -31,6 +31,17 @@ import * as math from './math';
 cc.math = math;
 export { math };
 
+export { AffineTransform } from './math/affine-transform';
+export { Color } from './math/color';
+export { Mat3 } from './math/mat3';
+export { Mat4 } from './math/mat4';
+export { Quat } from './math/quat';
+export { Rect } from './math/rect';
+export { Size } from './math/size';
+export { Vec2 } from './math/vec2';
+export { Vec3 } from './math/vec3';
+export { Vec4 } from './math/vec4';
+
 export * from './value-types';
 export * from './utils';
 export * from './data';

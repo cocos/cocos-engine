@@ -320,7 +320,134 @@ if (CC_DEBUG) {
         ['repeat','cc.math.repeat'],
         ['pingPong','cc.math.pingPong'],
         ['inverseLerp','cc.math.inverseLerp'],
-        ['EPSILON','cc.math.EPSILON']]);
+        ['EPSILON','cc.math.EPSILON'],
+        ['random','cc.math.random']]);
+
+    Object.defineProperty(cc.vmath, 'EPSILON', {
+        get: function () {
+            error("please use the function in cc.math");
+            return cc.math.EPSILON;
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'random', {
+        get: function () {
+            error("please use the function in cc.math");
+            return cc.math.random;
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'equals', {
+        value: function (arg1,arg2) {
+            error("please use the function in cc.math");
+            return cc.math.equals(arg1,arg2);
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'approx', {
+        value: function (arg1,arg2,arg3) {
+            error("please use the function in cc.math");
+            return cc.math.approx(arg1,arg2,arg3);
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'clamp', {
+        value: function (arg1,arg2,arg3) {
+            error("please use the function in cc.math");
+            return cc.math.clamp(arg1,arg2,arg3);
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'clamp01', {
+        value: function (arg) {
+            error("please use the function in cc.math");
+            return cc.math.clamp01(arg);
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'lerp', {
+        value: function (arg1,arg2,arg3) {
+            error("please use the function in cc.math");
+            return cc.math.lerp(arg1,arg2,arg3);
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'toRadian', {
+        value: function (arg) {
+            error("please use the function in cc.math");
+            return cc.math.toRadian(arg);
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'toDegree', {
+        value: function (args) {
+            error("please use the function in cc.math");
+            return cc.math.toDegree(args);
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'randomRange', {
+        value: function (arg1,arg2) {
+            error("please use the function in cc.math");
+            return cc.math.randomRange(arg1,arg2);
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'randomRangeInt', {
+        value: function (arg1,arg2) {
+            error("please use the function in cc.math");
+            return cc.math.randomRangeInt(arg1,arg2);
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'pseudoRandom', {
+        value: function (args) {
+            error("please use the function in cc.math");
+            return cc.math.pseudoRandom(args);
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'pseudoRandomRange', {
+        value: function (arg1,arg2,arg3) {
+            error("please use the function in cc.math");
+            return cc.math.pseudoRandomRange(arg1,arg2,arg3);
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'pseudoRandomRangeInt', {
+        value: function (arg1,arg2,arg3) {
+            error("please use the function in cc.math");
+            return cc.math.pseudoRandomRangeInt(arg1,arg2,arg3);
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'nextPow2', {
+        value: function (args) {
+            error("please use the function in cc.math");
+            return cc.math.nextPow2(args);
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'repeat', {
+        value: function (arg1,arg2) {
+            error("please use the function in cc.math");
+            return cc.math.repeat(arg1,arg2);
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'pingPong', {
+        value: function (arg1,arg2) {
+            error("please use the function in cc.math");
+            return cc.math.pingPong(arg1,arg2);
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'inverseLerp', {
+        value: function (arg1,arg2,arg3) {
+            error("please use the function in cc.math");
+            return cc.math.inverseLerp(arg1,arg2,arg3);
+        }
+    });
 
     markAsDeprecatedInObject_2(cc.vmath,
         [['vec2','cc.math.Vec2'],
@@ -331,11 +458,95 @@ if (CC_DEBUG) {
         ['color4','cc.math.Color'],
         ['rect','cc.math.Rect']]);
 
-    markAsDeprecated(cc.misc,
+    Object.defineProperty(cc.vmath, 'vec3', {
+        get: function () {
+            error("please use the function in cc.math");
+            return cc.math.Vec3;
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'vec2', {
+        get: function () {
+            error("please use the function in cc.math");
+            return cc.math.Vec2;
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'vec4', {
+        get: function () {
+            error("please use the function in cc.math");
+            return cc.math.Vec4;
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'mat3', {
+        get: function () {
+            error("please use the function in cc.math");
+            return cc.math.Mat3;
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'mat4', {
+        get: function () {
+            error("please use the function in cc.math");
+            return cc.math.Mat4;
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'color4', {
+        get: function () {
+            error("please use the function in cc.math");
+            return cc.math.Color;
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'rect', {
+        get: function () {
+            error("please use the function in cc.math");
+            return cc.math.Rect;
+        }
+    });
+
+    markAsDeprecatedInObject_2(cc.misc,
         [['clampf','cc.math.clamp'],
         ['clamp01','cc.math.clamp01'],
         ['lerp','cc.math.lerp'],
         ['degreesToRadians','cc.math.toRadian'],
         ['radiansToDegrees','cc.math.toDegree']]);
+
+    Object.defineProperty(cc.misc, 'clamp01', {
+        value: function (args) {
+            error("please use the function in cc.math");
+            return cc.math.clamp01(args);
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'lerp', {
+        value: function (arg1,arg2,arg3) {
+            error("please use the function in cc.math");
+            return cc.math.lerp(arg1,arg2,arg3);
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'degreesToRadians', {
+        value: function (args) {
+            error("please use the function in cc.math");
+            return cc.math.toRadian(args);
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'radiansToDegrees', {
+        value: function (args) {
+            error("please use the function in cc.math");
+            return cc.math.toDegree(args);
+        }
+    });
+
+    Object.defineProperty(cc.vmath, 'clampf', {
+        value: function (arg1,arg2,arg3) {
+            error("please use the function in cc.math");
+            return cc.math.clamp(arg1,arg2,arg3);
+        }
+    });
 
 }
