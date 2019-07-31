@@ -72,21 +72,17 @@ public:
      *  @brief Define a new program with name, vertex shader name, fragement shader name and template define settings.
      */
     void define(const std::string& name, const std::string& vert, const std::string& frag, ValueVector& defines);
-    /**
-     *  @brief Gets unique key for the given program name and defines key.
-     */
-    std::string getKey(const std::string& name, const std::vector<ValueMap*>& definesList);
 
     /**
      *  @brief Gets program by template name, define settings and defines key.
      *  @note The return value needs to be released by its 'release' method.
      */
-    Program* getProgram(const std::string& name, const std::vector<ValueMap*>& definesList);
+    Program* switchProgram(const size_t programNameHash, const size_t definesKeyHash, const std::vector<ValueMap*>& definesList);
     
-    Value getValueFromDefineList(const std::string& name, const std::vector<ValueMap*>& definesList);
+    const Value* getValueFromDefineList(const std::string& name, const std::vector<ValueMap*>& definesList);
 
 private:
-    uint32_t getValueKey(const Value& v);
+    uint32_t getValueKey(const Value* v);
     
 private:
     DeviceGraphics* _device = nullptr;
@@ -99,8 +95,10 @@ private:
     const char* _lowpReplace = "fixed";
     const char* _lowp = "lowp";
     
-    std::unordered_map<std::string, Template> _templates;
-    std::unordered_map<std::string, Program*> _cache;
+    std::unordered_map<size_t, Template> _templates;
+    std::unordered_map<uint64_t, Program*> _cache;
+    
+    Program* _current = nullptr;
 };
 
 // end of renderer group

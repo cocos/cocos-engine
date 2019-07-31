@@ -25,6 +25,8 @@
 #include "../gfx/Program.h"
 #include "gfx/DeviceGraphics.h"
 
+#include "math/MathUtil.h"
+
 #include <regex>
 #include <string>
 #include <sstream>
@@ -176,7 +178,8 @@ ProgramLib::~ProgramLib()
 
 void ProgramLib::define(const std::string& name, const std::string& vert, const std::string& frag, ValueVector& defines)
 {
-    auto iter = _templates.find(name);
+    size_t hash = std::hash<std::string>{}(name);
+    auto iter = _templates.find(hash);
     if (iter != _templates.end())
     {
         RENDERER_LOGW("Failed to define shader %s: already exists.", name.c_str());
@@ -260,7 +263,7 @@ void ProgramLib::define(const std::string& name, const std::string& vert, const 
 #endif
     
     // store it
-    auto& templ = _templates[name];
+    auto& templ = _templates[hash];
     templ.id = id;
     templ.name = name;
     templ.vert = newVert;
@@ -268,53 +271,24 @@ void ProgramLib::define(const std::string& name, const std::string& vert, const 
     templ.defines = defines;
 }
 
-std::string ProgramLib::getKey(const std::string& name, const std::vector<ValueMap*>& definesList)
+Program* ProgramLib::switchProgram(const size_t programNameHash, const size_t definesKeyHash, const std::vector<ValueMap*>& definesList)
 {
-    auto iter = _templates.find(name);
-    assert(iter != _templates.end());
+    size_t programHash = 0;
+    MathUtil::combineHash(programHash, programNameHash);
+    MathUtil::combineHash(programHash, definesKeyHash);
     
-    uint32_t key = 0;
-    uint32_t offset = 0;
-    for (const auto& tmpl : iter->second.defines)
-    {
-        auto& temp = tmpl.asValueMap();
-        const Value& value = getValueFromDefineList(temp.find("name")->second.asString(), definesList);
-        if (value == Value::Null)
-        {
-            continue;
-        }
-        
-        uint32_t vkey = getValueKey(value);
-        
-        key |= vkey << offset;
-        
-        if (value.getType() != Value::Type::BOOLEAN)
-        {
-            offset += ceil(log2(vkey));
-        }
-        else
-        {
-            offset += 1;
-        }
+    if (_current && _current->getHash() == programHash) {
+        return _current;
     }
     
-    // return key << 8 | tmpl.id;
-    // key number maybe bigger than 32 bit, need use string to store value.
-    return std::to_string(iter->second.id) + ":" + std::to_string(key);
-}
-
-Program* ProgramLib::getProgram(const std::string& name, const std::vector<ValueMap*>& definesList)
-{
-    std::string key = getKey(name, definesList);
-    auto iter = _cache.find(key);
+    auto iter = _cache.find(programHash);
     if (iter != _cache.end()) {
-        iter->second->retain();
         return iter->second;
     }
 
     Program* program = nullptr;
     // get template
-    auto templIter = _templates.find(name);
+    auto templIter = _templates.find(programNameHash);
     if (templIter != _templates.end())
     {
         const auto& tmpl = templIter->second;
@@ -327,13 +301,17 @@ Program* ProgramLib::getProgram(const std::string& name, const std::vector<Value
         program = new Program();
         program->init(_device, vert.c_str(), frag.c_str());
         program->link();
-        _cache.emplace(key, program);
+        _cache.emplace(programHash, program);
+        
+        program->setHash(programHash);
     }
+    
+    _current = program;
 
     return program;
 }
 
-Value ProgramLib::getValueFromDefineList(const std::string& name, const std::vector<ValueMap*>& definesList)
+const Value* ProgramLib::getValueFromDefineList(const std::string& name, const std::vector<ValueMap*>& definesList)
 {
     for (int i = (int)definesList.size() - 1; i >= 0; i--)
     {
@@ -341,22 +319,22 @@ Value ProgramLib::getValueFromDefineList(const std::string& name, const std::vec
         auto iter = defines->find(name);
         if (iter != defines->end())
         {
-            return iter->second;
+            return &iter->second;
         }
     }
     
-    return Value::Null;
+    return nullptr;
 }
 
-uint32_t ProgramLib::getValueKey(const Value &v)
+uint32_t ProgramLib::getValueKey(const Value *v)
 {
-    if (v.getType() == Value::Type::BOOLEAN)
+    if (v->getType() == Value::Type::BOOLEAN)
     {
-        return v.asBool() ? 1 : 0;
+        return v->asBool() ? 1 : 0;
     }
     else
     {
-        return v.asUnsignedInt();
+        return v->asUnsignedInt();
     }
 }
 

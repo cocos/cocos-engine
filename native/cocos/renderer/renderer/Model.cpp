@@ -27,6 +27,7 @@
 #include "InputAssembler.h"
 #include "../scene/NodeProxy.hpp"
 #include "../gfx/VertexBuffer.h"
+#include "math/MathUtil.h"
 
 RENDERER_BEGIN
 
@@ -86,16 +87,22 @@ void Model::setEffect(Effect* effect, CustomProperties* customProperties)
     
     _uniforms.clear();
     
+    _definesKeyHash = 0;
+    
     if (effect != nullptr)
     {
         _definesList.push_back(effect->extractDefines());
         _uniforms.push_back(effect->extractProperties());
+        
+        MathUtil::combineHash(_definesKeyHash, std::hash<std::string>{}(effect->getDefinesKey()));
     }
     
     if (customProperties != nullptr)
     {
         _definesList.push_back(customProperties->extractDefines());
         _uniforms.push_back(customProperties->extractProperties());
+        
+        MathUtil::combineHash(_definesKeyHash, std::hash<std::string>{}(customProperties->getDefinesKey()));
     }
 }
 
@@ -126,6 +133,7 @@ void Model::extractDrawItem(DrawItem& out) const
     out.effect = _effect;
     out.defines = const_cast<std::vector<ValueMap*>*>(&_definesList);
     out.uniforms = const_cast<std::vector<std::unordered_map<std::string, Effect::Property>*>*>(&_uniforms);
+    out.definesKeyHash = _definesKeyHash;
 }
 
 void Model::reset()

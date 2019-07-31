@@ -81,6 +81,11 @@ public:
          * Uniform name
          */
         std::string name;
+        
+        /**
+         * Uniform hash name
+         */
+        size_t hashName;
         /**
          * The length of the array for uniforms declared as arrays, default value is 1
          */
@@ -140,6 +145,9 @@ public:
      * Link the program with its shader sources
      */
     void link();
+    
+    inline size_t getHash() const { return _hash; }
+    inline void setHash(size_t hash) { _hash = hash; }
 private:
     DeviceGraphics* _device;
     std::vector<Attribute> _attributes;
@@ -148,6 +156,7 @@ private:
     std::string _fragSource;
     uint32_t _id;
     bool _linked;
+    size_t _hash = 0;
 };
 
 // end of gfx group

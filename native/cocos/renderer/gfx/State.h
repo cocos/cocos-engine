@@ -53,12 +53,7 @@ struct State final
      * Constructor
      */
     State();
-    State(const State&);
-    State(State &&);
     ~State();
-
-    State& operator =(const State& rhs);
-    State& operator =(State&& rhs);
 
     /**
      * Reset all states to default values
@@ -271,9 +266,9 @@ struct State final
 private:
     std::vector<VertexBuffer*> _vertexBuffers;
     std::vector<int32_t> _vertexBufferOffsets;
-    IndexBuffer *_indexBuffer;
+    IndexBuffer *_indexBuffer = nullptr;
     std::vector<Texture*> _textureUnits;
-    Program *_program;
+    Program *_program = nullptr;
 };
 
 // end of gfx group

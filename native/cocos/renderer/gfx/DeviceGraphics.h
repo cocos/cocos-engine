@@ -80,8 +80,11 @@ public:
         void setValue(const void* v, size_t bytes);
         
         void* value = nullptr;
+        size_t bytes = 0;
+        
         bool dirty;
         UniformElementType elementType;
+        
     private:
         // Disable copy operator
         Uniform& operator=(const Uniform& o);
@@ -209,84 +212,84 @@ public:
     /**
      * Sets a texture into a GL texture slot then set to the specified uniform
      */
-    void setTexture(const std::string& name, Texture* texture, int slot);
+    void setTexture(size_t hashName, Texture* texture, int slot);
     /**
      * Sets textures array into GL texture slots then set to the specified uniform
      */
-    void setTextureArray(const std::string& name, const std::vector<Texture*>& textures, const std::vector<int>& slots);
+    void setTextureArray(size_t hashName, const std::vector<Texture*>& textures, const std::vector<int>& slots);
 
     /**
      * Sets a integer to the specified uniform
      */
-    void setUniformi(const std::string& name, int i1);
+    void setUniformi(size_t hashName, int i1);
     /**
      * Sets two integers to the specified uniform
      */
-    void setUniformi(const std::string& name, int i1, int i2);
+    void setUniformi(size_t hashName, int i1, int i2);
     /**
      * Sets three integers to the specified uniform
      */
-    void setUniformi(const std::string& name, int i1, int i2, int i3);
+    void setUniformi(size_t hashName, int i1, int i2, int i3);
     /**
      * Sets four integers to the specified uniform
      */
-    void setUniformi(const std::string& name, int i1, int i2, int i3, int i4);
+    void setUniformi(size_t hashName, int i1, int i2, int i3, int i4);
     /**
      * Sets a vector of integers to the specified uniform
      */
-    void setUniformiv(const std::string& name, size_t count, const int* value);
+    void setUniformiv(size_t hashName, size_t count, const int* value);
     /**
      * Sets a float to the specified uniform
      */
-    void setUniformf(const std::string& name, float f1);
+    void setUniformf(size_t hashName, float f1);
     /**
      * Sets two floats to the specified uniform
      */
-    void setUniformf(const std::string& name, float f1, float f2);
+    void setUniformf(size_t hashName, float f1, float f2);
     /**
      * Sets three floats to the specified uniform
      */
-    void setUniformf(const std::string& name, float f1, float f2, float f3);
+    void setUniformf(size_t hashName, float f1, float f2, float f3);
     /**
      * Sets four floats to the specified uniform
      */
-    void setUniformf(const std::string& name, float f1, float f2, float f3, float f4);
+    void setUniformf(size_t hashName, float f1, float f2, float f3, float f4);
     /**
      * Sets a vector of floats to the specified uniform
      */
-    void setUniformfv(const std::string& name, size_t count, const float* value);
+    void setUniformfv(size_t hashName, size_t count, const float* value);
     /**
      * Sets a Vec2 to the specified uniform
      */
-    void setUniformVec2(const std::string& name, const cocos2d::Vec2& value);
+    void setUniformVec2(size_t hashName, const cocos2d::Vec2& value);
     /**
      * Sets a Vec3 to the specified uniform
      */
-    void setUniformVec3(const std::string& name, const cocos2d::Vec3& value);
+    void setUniformVec3(size_t hashName, const cocos2d::Vec3& value);
     /**
      * Sets a Vec4 to the specified uniform
      */
-    void setUniformVec4(const std::string& name, const cocos2d::Vec4& value);
+    void setUniformVec4(size_t hashName, const cocos2d::Vec4& value);
     /**
      * Sets a 2x2 matrix to the specified uniform
      */
-    void setUniformMat2(const std::string& name, float* value);
+    void setUniformMat2(size_t hashName, float* value);
     /**
      * Sets a 3x3 matrix to the specified uniform
      */
-    void setUniformMat3(const std::string& name, float* value);
+    void setUniformMat3(size_t hashName, float* value);
     /**
      * Sets a 4x4 matrix specified by float pointer to the given uniform
      */
-    void setUniformMat4(const std::string& name, float* value);
+    void setUniformMat4(size_t hashName, float* value);
     /**
      * Sets a Mat4 object to the given uniform
      */
-    void setUniformMat4(const std::string& name, const cocos2d::Mat4& value);
+    void setUniformMat4(size_t hashName, const cocos2d::Mat4& value);
     /**
      * Sets data specified by data pointer, type and bytes to the given uniform
      */
-    void setUniform(const std::string& name, const void* v, size_t bytes, UniformElementType elementType);
+    void setUniform(size_t hashName, const void* v, size_t bytes, UniformElementType elementType);
 
     /**
      * Sets the primitive type for draw calls
@@ -346,10 +349,10 @@ private:
     FrameBuffer *_frameBuffer;
     std::vector<int> _enabledAtrributes;
     std::vector<int> _newAttributes;
-    std::unordered_map<std::string, Uniform> _uniforms;
+    std::unordered_map<size_t, Uniform> _uniforms;
     
-    State _nextState;
-    State _currentState;
+    State* _nextState;
+    State* _currentState;
     
     friend class IndexBuffer;
     friend class Texture2D;

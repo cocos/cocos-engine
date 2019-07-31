@@ -53,6 +53,7 @@ struct DrawItem
     InputAssembler* ia = nullptr;
     Effect* effect = nullptr;
     std::vector<ValueMap*>* defines = nullptr;
+    size_t definesKeyHash = 0;
     std::vector<std::unordered_map<std::string, Effect::Property>*>* uniforms = nullptr;
 };
 
@@ -139,6 +140,8 @@ private:
     bool _dynamicIA = false;
     int _cullingMask = -1;
     int _userKey = -1;
+    
+    size_t _definesKeyHash = 0;
 };
 
 // end of renderer group

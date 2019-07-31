@@ -64,6 +64,8 @@ void CustomProperties::define(const std::string& name, const Value& value)
 
     _dirty = true;
     _defines[name] = value;
+    
+    generateDefinesKey();
 }
 
 Value CustomProperties::getDefine(const std::string& name) const
@@ -86,6 +88,14 @@ std::unordered_map<std::string, CustomProperties::Property>* CustomProperties::e
 ValueMap* CustomProperties::extractDefines()
 {
     return &_defines;
+}
+
+void CustomProperties::generateDefinesKey()
+{
+    _definesKey = "";
+    for (auto& def : _defines) {
+        _definesKey += def.first + def.second.asString();
+    }
 }
 
 RENDERER_END

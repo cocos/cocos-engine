@@ -75,6 +75,8 @@ Technique::Parameter::Parameter(const std::string& name, Type type)
 , _type(type)
 , _count(1)
 {
+    _hashName = std::hash<std::string>{}(name);
+    
     if (Type::TEXTURE_2D == _type ||
         Type::TEXTURE_CUBE == _type ||
         Type::UNKNOWN == _type)
@@ -115,6 +117,8 @@ Technique::Parameter::Parameter(const std::string& name, Type type, int* value, 
 , _type(type)
 , _count(count)
 {
+    _hashName = std::hash<std::string>{}(name);
+    
     uint8_t bytes = sizeof(int);
     switch (_type)
     {
@@ -149,6 +153,8 @@ Technique::Parameter::Parameter(const std::string& name, Type type, float* value
 , _type(type)
 , _count(count)
 {
+    _hashName = std::hash<std::string>{}(name);
+    
     uint16_t bytes = sizeof(float);
     switch (_type)
     {
@@ -200,6 +206,8 @@ Technique::Parameter::Parameter(const std::string& name, Type type, Texture* val
 , _count(1)
 , _type(type)
 {
+    _hashName = std::hash<std::string>{}(name);
+    
     assert(_type == Type::TEXTURE_2D || _type == Type::TEXTURE_CUBE);
     if (value)
     {
@@ -213,6 +221,8 @@ Technique::Parameter::Parameter(const std::string& name, Type type, const std::v
 , _count(textures.size())
 , _type(type)
 {
+    _hashName = std::hash<std::string>{}(name);
+    
     assert(_type == Type::TEXTURE_2D || _type == Type::TEXTURE_CUBE);
     if (textures.empty())
         return;
@@ -241,6 +251,7 @@ Technique::Parameter::Parameter(Parameter&& rh)
     _value = rh._value;
     _count = rh._count;
     _bytes = rh._bytes;
+    _hashName = rh._hashName;
     
     rh._value = nullptr;
 }
@@ -323,6 +334,7 @@ void Technique::Parameter::copyValue(const Parameter& rh)
     _type = rh._type;
     _count = rh._count;
     _bytes = rh._bytes;
+    _hashName = rh._hashName;
 
     if (Type::TEXTURE_2D == _type ||
         Type::TEXTURE_CUBE == _type)

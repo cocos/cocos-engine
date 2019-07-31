@@ -39,12 +39,21 @@
 #include "Light.h"
 #include <algorithm>
 
+#include "math/MathUtil.h"
+
 RENDERER_BEGIN
 
 ForwardRenderer::ForwardRenderer()
 {
     _arrayPool = new RecyclePool<float>([]()mutable->float*{return new float[16];}, 8);
-
+    
+    _defines["CC_NUM_DIR_LIGHTS"] = Value(0);
+    _defines["CC_NUM_POINT_LIGHTS"] = Value(0);
+    _defines["CC_NUM_SPOT_LIGHTS"] = Value(0);
+    _defines["CC_NUM_AMBIENT_LIGHTS"] = Value(0);
+    _defines["CC_NUM_SHADOW_LIGHTS"] = Value(0);
+    
+    _definesHash = 0;
 }
 
 ForwardRenderer::~ForwardRenderer()
@@ -170,11 +179,21 @@ void ForwardRenderer::updateLights(Scene* scene)
 
 void ForwardRenderer::updateDefines()
 {
-    _defines.emplace(std::make_pair("CC_NUM_DIR_LIGHTS", Value(std::min(4, (int)_directionalLights.size()))));
-    _defines.emplace(std::make_pair("CC_NUM_POINT_LIGHTS", Value(std::min(4, (int)_pointLights.size()))));
-    _defines.emplace(std::make_pair("CC_NUM_SPOT_LIGHTS", Value(std::min(4, (int)_spotLights.size()))));
-    _defines.emplace(std::make_pair("CC_NUM_AMBIENT_LIGHTS", Value(std::min(4, (int)_ambientLights.size()))));
-    _defines.emplace(std::make_pair("CC_NUM_SHADOW_LIGHTS", Value(std::min(4, (int)_shadowLights.size()))));
+    _defines["CC_NUM_DIR_LIGHTS"]       = std::min(4, (int)_directionalLights.size());
+    _defines["CC_NUM_POINT_LIGHTS"]     = std::min(4, (int)_pointLights.size());
+    _defines["CC_NUM_SPOT_LIGHTS"]      = std::min(4, (int)_spotLights.size());
+    _defines["CC_NUM_AMBIENT_LIGHTS"]   = std::min(4, (int)_ambientLights.size());
+    _defines["CC_NUM_SHADOW_LIGHTS"]    = std::min(4, (int)_shadowLights.size());
+    
+    _definesKey =
+        std::to_string(_directionalLights.size()) +
+        std::to_string(_pointLights.size()) +
+        std::to_string(_spotLights.size()) +
+        std::to_string(_ambientLights.size()) +
+        std::to_string(_shadowLights.size())
+    ;
+
+    _definesHash = std::hash<std::string>{}(_definesKey);
 }
 
 void ForwardRenderer::submitLightsUniforms()
@@ -202,8 +221,8 @@ void ForwardRenderer::submitLightsUniforms()
             *(colors + index + 2) = colorVec3.z;
             *(colors + index + 3) = 0;
         }
-        _device->setUniformfv("cc_dirLightDirection", count * 4, directions);
-        _device->setUniformfv("cc_dirLightColor", count * 4, colors);
+        _device->setUniformfv(cc_dirLightDirection, count * 4, directions);
+        _device->setUniformfv(cc_dirLightColor, count * 4, colors);
     }
     
     if (_pointLights.size() > 0)
@@ -229,8 +248,8 @@ void ForwardRenderer::submitLightsUniforms()
             *(colors + index + 2) = colorVec3.z;
             *(colors + index + 3) = 0;
         }
-        _device->setUniformfv("cc_pointLightPositionAndRange", count * 4, positionAndRanges);
-        _device->setUniformfv("cc_pointLightColor", count * 4, colors);
+        _device->setUniformfv(cc_pointLightPositionAndRange, count * 4, positionAndRanges);
+        _device->setUniformfv(cc_pointLightColor, count * 4, colors);
     }
     
     if (_spotLights.size() > 0)
@@ -264,9 +283,9 @@ void ForwardRenderer::submitLightsUniforms()
             *(colors + index + 2) = colorVec3.z;
             *(colors + index + 3) = 0;
         }
-        _device->setUniformfv("cc_spotLightDirection", count * 4, directions);
-        _device->setUniformfv("cc_spotLightPositionAndRange", count * 4, positionAndRanges);
-        _device->setUniformfv("cc_spotLightColor", count * 4, colors);
+        _device->setUniformfv(cc_spotLightDirection, count * 4, directions);
+        _device->setUniformfv(cc_spotLightPositionAndRange, count * 4, positionAndRanges);
+        _device->setUniformfv(cc_spotLightColor, count * 4, colors);
     }
     
     if (_ambientLights.size() > 0) {
@@ -283,7 +302,7 @@ void ForwardRenderer::submitLightsUniforms()
             *(colors + index + 2) = colorVec3.z;
             *(colors + index + 3) = 0;
         }
-        _device->setUniformfv("cc_pointLightColor", count * 4, colors);
+        _device->setUniformfv(cc_pointLightColor, count * 4, colors);
     }
 }
 
@@ -295,9 +314,9 @@ void ForwardRenderer::submitShadowStageUniforms(const View& view)
     shadowInfo[2] = view.shadowLight->getShadowDepthScale();
     shadowInfo[3] = view.shadowLight->getShadowDarkness();
     
-    _device->setUniformMat4("cc_shadow_map_lightViewProjMatrix", view.matViewProj);
-    _device->setUniformfv("cc_shadow_map_info", 4, shadowInfo);
-    _device->setUniformf("cc_shadow_map_bias", view.shadowLight->getShadowBias());
+    _device->setUniformMat4(cc_shadow_map_lightViewProjMatrix, view.matViewProj);
+    _device->setUniformfv(cc_shadow_map_info, 4, shadowInfo);
+    _device->setUniformf(cc_shadow_map_bias, view.shadowLight->getShadowBias());
 }
 
 void ForwardRenderer::submitOtherStagesUniforms()
@@ -319,13 +338,14 @@ void ForwardRenderer::submitOtherStagesUniforms()
         *(shadowLightInfo + index + 3) = light->getShadowDarkness();
     }
     
-    _device->setUniformfv("cc_shadow_lightViewProjMatrix", count * 16, shadowLightProjs);
-    _device->setUniformfv("cc_shadow_info", count * 4, shadowLightInfo);
+    _device->setUniformfv(cc_shadow_lightViewProjMatrix, count * 16, shadowLightProjs);
+    _device->setUniformfv(cc_shadow_info, count * 4, shadowLightInfo);
 }
 
-void ForwardRenderer::updateShaderDefines(const StageItem& item)
+void ForwardRenderer::updateShaderDefines(StageItem& item)
 {
     item.defines->push_back(&_defines);
+    MathUtil::combineHash(item.definesKeyHash, _definesHash);
 }
 
 bool ForwardRenderer::compareItems(const StageItem &a, const StageItem &b)
@@ -377,38 +397,38 @@ void ForwardRenderer::drawItems(const std::vector<StageItem>& items)
                 shadowMaps.push_back(light->getShadowMap());
                 slots.push_back(allocTextureUnit());
             }
-            _device->setTextureArray("cc_shadow_map", shadowMaps, slots);
+            _device->setTextureArray(cc_shadow_map, shadowMaps, slots);
             updateShaderDefines(item);
             draw(item);
         }
     }
 }
 
-void ForwardRenderer::opaqueStage(const View& view, const std::vector<StageItem>& items)
+void ForwardRenderer::opaqueStage(const View& view, std::vector<StageItem>& items)
 {
     // update uniforms
-    _device->setUniformMat4("cc_matView", view.matView);
-    _device->setUniformMat4("cc_matpProj", view.matProj);
-    _device->setUniformMat4("cc_matViewProj", view.matViewProj);
+    _device->setUniformMat4(cc_matView, view.matView);
+    _device->setUniformMat4(cc_matpProj, view.matProj);
+    _device->setUniformMat4(cc_matViewProj, view.matViewProj);
     static Vec3 cameraPos3;
     static Vec4 cameraPos4;
     view.getPosition(cameraPos3);
     cameraPos4.set(cameraPos3.x, cameraPos3.y, cameraPos3.z, 0);
-    _device->setUniformVec4("cc_cameraPos", cameraPos4);
+    _device->setUniformVec4(cc_cameraPos, cameraPos4);
     submitLightsUniforms();
     submitOtherStagesUniforms();
     drawItems(items);
 }
 
-void ForwardRenderer::shadowStage(const View& view, const std::vector<StageItem>& items)
+void ForwardRenderer::shadowStage(const View& view, std::vector<StageItem>& items)
 {
     // update rendering
     submitShadowStageUniforms(view);
     
     for (auto& item : items)
     {
-        Value def = _programLib->getValueFromDefineList("CC_SHADOW_CASTING", *item.defines);
-        if (def != Value::Null && def.asBool()) {
+        const Value* def = _programLib->getValueFromDefineList("CC_SHADOW_CASTING", *item.defines);
+        if (def && def->asBool()) {
             updateShaderDefines(item);
             draw(item);
         }
@@ -418,14 +438,14 @@ void ForwardRenderer::shadowStage(const View& view, const std::vector<StageItem>
 void ForwardRenderer::transparentStage(const View& view, const std::vector<StageItem>& items)
 {
     // update uniforms
-    _device->setUniformMat4("cc_matView", view.matView);
-    _device->setUniformMat4("cc_matpProj", view.matProj);
-    _device->setUniformMat4("cc_matViewProj", view.matViewProj);
+    _device->setUniformMat4(cc_matView, view.matView);
+    _device->setUniformMat4(cc_matpProj, view.matProj);
+    _device->setUniformMat4(cc_matViewProj, view.matViewProj);
     static Vec3 cameraPos3;
     static Vec4 cameraPos4;
     view.getPosition(cameraPos3);
     cameraPos4.set(cameraPos3.x, cameraPos3.y, cameraPos3.z, 0);
-    _device->setUniformVec4("cc_cameraPos", cameraPos4);
+    _device->setUniformVec4(cc_cameraPos, cameraPos4);
     
     static Vec3 camFwd;
     static Vec3 tmpVec3;

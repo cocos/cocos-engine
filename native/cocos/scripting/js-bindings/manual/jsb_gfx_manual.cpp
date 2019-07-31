@@ -123,6 +123,8 @@ static bool js_gfx_DeviceGraphics_setUniform(se::State& s)
         ok = seval_to_std_string(args[0], &name);
         SE_PRECONDITION2(ok, false, "Convert uniform name failed!");
 
+        auto hashName = std::hash<std::string>{}(name);
+        
         se::Value arg1 = args[1];
         if (arg1.isObject())
         {
@@ -132,7 +134,7 @@ static bool js_gfx_DeviceGraphics_setUniform(se::State& s)
                 uint8_t* data = nullptr;
                 size_t bytes = 0;
                 if (value->getTypedArrayData(&data, &bytes))
-                    cobj->setUniform(name, data, bytes, UniformElementType::FLOAT);
+                    cobj->setUniform(hashName, data, bytes, UniformElementType::FLOAT);
             }
             else
             {
@@ -142,12 +144,12 @@ static bool js_gfx_DeviceGraphics_setUniform(se::State& s)
         else if (arg1.isNumber())
         {
             float number = arg1.toFloat();
-            cobj->setUniformf(name, number);
+            cobj->setUniformf(hashName, number);
         }
         else if (arg1.isBoolean())
         {
             int v = arg1.toBoolean() ? 1 : 0;
-            cobj->setUniformi(name, v);
+            cobj->setUniformi(hashName, v);
         }
         else
         {

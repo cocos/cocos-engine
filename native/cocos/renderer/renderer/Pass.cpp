@@ -29,6 +29,7 @@ RENDERER_BEGIN
 Pass::Pass(const std::string& programName)
 : _programName(programName)
 {
+    _hashName = std::hash<std::string>{}(programName);
 //    RENDERER_LOGD("Pass constructor: %p", this);
 }
 
@@ -144,6 +145,7 @@ void Pass::copy(const Pass& pass)
     _cullMode = pass._cullMode;
     
     _programName = pass._programName;
+    _hashName = pass._hashName;
 }
 
 RENDERER_END

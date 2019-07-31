@@ -35,8 +35,30 @@
 #include "Pass.h"
 #include "Camera.h"
 #include "Model.h"
+#include "math/MathUtil.h"
+#include "Program.h"
 
 RENDERER_BEGIN
+
+const size_t BaseRenderer::cc_dirLightDirection = std::hash<std::string>{}("cc_dirLightDirection");
+const size_t BaseRenderer::cc_dirLightColor = std::hash<std::string>{}("cc_dirLightColor");
+const size_t BaseRenderer::cc_pointLightPositionAndRange = std::hash<std::string>{}("cc_pointLightPositionAndRange");
+const size_t BaseRenderer::cc_pointLightColor = std::hash<std::string>{}("cc_pointLightColor");
+const size_t BaseRenderer::cc_spotLightDirection = std::hash<std::string>{}("cc_spotLightDirection");
+const size_t BaseRenderer::cc_spotLightPositionAndRange = std::hash<std::string>{}("cc_spotLightPositionAndRange");
+const size_t BaseRenderer::cc_spotLightColor = std::hash<std::string>{}("cc_spotLightColor");
+const size_t BaseRenderer::cc_shadow_map = std::hash<std::string>{}("cc_cameraPos");
+const size_t BaseRenderer::cc_shadow_map_lightViewProjMatrix = std::hash<std::string>{}("cc_shadow_map_lightViewProjMatrix");
+const size_t BaseRenderer::cc_shadow_map_info = std::hash<std::string>{}("cc_shadow_map_info");
+const size_t BaseRenderer::cc_shadow_map_bias = std::hash<std::string>{}("cc_shadow_map_bias");
+const size_t BaseRenderer::cc_shadow_lightViewProjMatrix = std::hash<std::string>{}("cc_shadow_lightViewProjMatrix");
+const size_t BaseRenderer::cc_shadow_info = std::hash<std::string>{}("cc_shadow_info");
+const size_t BaseRenderer::cc_matView = std::hash<std::string>{}("cc_matView");
+const size_t BaseRenderer::cc_matWorld = std::hash<std::string>{}("cc_matWorld");
+const size_t BaseRenderer::cc_matWorldIT = std::hash<std::string>{}("cc_matWorldIT");
+const size_t BaseRenderer::cc_matpProj = std::hash<std::string>{}("cc_matpProj");
+const size_t BaseRenderer::cc_matViewProj = std::hash<std::string>{}("cc_matViewProj");
+const size_t BaseRenderer::cc_cameraPos = std::hash<std::string>{}("cc_cameraPos");
 
 BaseRenderer::BaseRenderer()
 {
@@ -44,7 +66,7 @@ BaseRenderer::BaseRenderer()
     _stageInfos = new RecyclePool<StageInfo>([]()mutable->StageInfo*{return new StageInfo();}, 10);
     _views = new RecyclePool<View>([]()mutable->View*{return new View();}, 8);
     
-    _tmpMat3 = new cocos2d::Mat3();
+    _tmpMat4 = new cocos2d::Mat4();
 }
 
 BaseRenderer::~BaseRenderer()
@@ -67,8 +89,8 @@ BaseRenderer::~BaseRenderer()
     delete _views;
     _views = nullptr;
     
-    delete _tmpMat3;
-    _tmpMat3 = nullptr;
+    delete _tmpMat4;
+    _tmpMat4 = nullptr;
 }
 
 bool BaseRenderer::init(DeviceGraphics* device, std::vector<ProgramLib::Template>& programTemplates)
@@ -153,6 +175,7 @@ void BaseRenderer::render(const View& view, const Scene* scene)
                 stageItem.technique = tech;
                 stageItem.sortKey = -1;
                 stageItem.uniforms = item->uniforms;
+                stageItem.definesKeyHash = item->definesKeyHash;
                 
                 stageItems.push_back(stageItem);
             }
@@ -163,7 +186,7 @@ void BaseRenderer::render(const View& view, const Scene* scene)
     }
     
     // render stages
-    std::unordered_map<std::string, StageCallback>::iterator foundIter;
+    std::unordered_map<std::string, const StageCallback>::iterator foundIter;
     for (size_t i = 0, len = _stageInfos->getLength(); i < len; i++)
     {
         const StageInfo* stageInfo = _stageInfos->getData(i);
@@ -180,6 +203,7 @@ void BaseRenderer::setProperty (Effect::Property& prop)
 {
     Technique::Parameter::Type propType = prop.getType();
     auto& propName = prop.getName();
+    auto propHashName = prop.getHashName();
     if (Effect::Property::Type::UNKNOWN == propType)
     {
         RENDERER_LOGW("Failed to set technique property, type unknown");
@@ -207,7 +231,7 @@ void BaseRenderer::setProperty (Effect::Property& prop)
     {
         if (1 == prop.getCount())
         {
-            _device->setTexture(propName,
+            _device->setTexture(propHashName,
                                 (renderer::Texture *)(prop.getValue()),
                                 allocTextureUnit());
         }
@@ -220,7 +244,7 @@ void BaseRenderer::setProperty (Effect::Property& prop)
                 slots.push_back(allocTextureUnit());
             }
             
-            _device->setTextureArray(propName,
+            _device->setTextureArray(propHashName,
                                      prop.getTextureArray(),
                                      slots);
         }
@@ -251,24 +275,24 @@ void BaseRenderer::setProperty (Effect::Property& prop)
             Effect::Property::Type::INT2 == propType ||
             Effect::Property::Type::INT4 == propType)
         {
-            _device->setUniformiv(propName, bytes / sizeof(int), (const int*)prop.getValue());
+            _device->setUniformiv(propHashName, bytes / sizeof(int), (const int*)prop.getValue());
         }
         else
         {
-            _device->setUniformfv(propName, bytes / sizeof(float), (const float*)prop.getValue());
+            _device->setUniformfv(propHashName, bytes / sizeof(float), (const float*)prop.getValue());
         }
     }
 }
 
 void BaseRenderer::draw(const StageItem& item)
 {
-    Mat4 worldMatrix = item.model->getWorldMatrix();
-    _device->setUniformMat4("cc_matWorld", worldMatrix.m);
-
-    cocos2d::Mat3::fromMat4(*_tmpMat3, worldMatrix);
-    _tmpMat3->inverse();
-    _tmpMat3->transpose();
-    _device->setUniformMat4("cc_mat3WorldIT", _tmpMat3->m);
+    const Mat4& worldMatrix = item.model->getWorldMatrix();
+    _device->setUniformMat4(cc_matWorld, worldMatrix.m);
+    
+    _tmpMat4->set(worldMatrix);
+    _tmpMat4->inverse();
+    _tmpMat4->transpose();
+    _device->setUniformMat4(cc_matWorldIT, _tmpMat4->m);
     
     // set technique uniforms
     for (int i = 0, len = (int)item.uniforms->size(); i < len; i++)
@@ -292,7 +316,9 @@ void BaseRenderer::draw(const StageItem& item)
         
         // set primitive type
         _device->setPrimitiveType(ia->_primitiveType);
-        _program = _programLib->getProgram(pass->_programName, *(item.defines));
+        
+        // get program
+        _program = _programLib->switchProgram(pass->getHashName(), item.definesKeyHash, *(item.defines));
         _device->setProgram(_program);
         
         // cull mode

@@ -46,11 +46,17 @@ public:
     std::unordered_map<std::string, Property>* extractProperties();
     ValueMap* extractDefines();
     const double getHash() const {return _hash; };
+    
+    const std::string& getDefinesKey() { return _definesKey; };
 private:
+    
     std::unordered_map<std::string, Property> _properties;
     ValueMap _defines;
     double _hash = 0;
     bool _dirty = false;
+    
+    void generateDefinesKey();
+    std::string _definesKey;
 };
 
 RENDERER_END
