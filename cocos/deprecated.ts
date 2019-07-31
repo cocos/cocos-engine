@@ -102,24 +102,6 @@ if (CC_DEBUG) {
         });
     };
 
-
-    let markAsDeprecatedInObject_2 = (obj: {}, deprecatedProps: string[][], ownerName?: string) => {
-        if (!obj) return;
-
-        ownerName = ownerName || js.getClassName(obj);
-        let descriptors = Object.getOwnPropertyDescriptors(obj);
-        deprecatedProps.forEach(function (prop: string[]) {
-            let deprecatedProp = prop[0];
-            let newProp = prop[1];
-
-            /* eslint-disable-next-line */
-            obj[deprecatedProp] = function (this: any, v: any) {
-                errorID(1400, `${ownerName}.${deprecatedProp}`, `${ownerName}${newProp}`);
-            };
-        });
-    };
-
-
     /**
      * @zh
      * 标志类或对象 API 的更新和废弃
@@ -303,248 +285,213 @@ if (CC_DEBUG) {
     }, 'cc.AnimationComponent');
 
     cc.vmath = {};
-    markAsDeprecatedInObject_2(cc.vmath,
-        [['equals','cc.math.equals'],
-        ['approx','cc.math.approx'],
-        ['clamp','cc.math.clamp'],
-        ['clamp01','cc.math.clamp01'],
-        ['lerp','cc.math.lerp'],
-        ['toRadian','cc.math.toRadian'],
-        ['toDegree','cc.math.toDegree'],
-        ['random','cc.math.random'],
-        ['randomRange','cc.math.randomRange'],
-        ['randomRangeInt','cc.math.randomRangeInt'],
-        ['pseudoRandom','cc.math.pseudoRandom'],
-        ['pseudoRandomRangeInt','cc.math.pseudoRandomRangeInt'],
-        ['nextPow2','cc.math.nextPow2'],
-        ['repeat','cc.math.repeat'],
-        ['pingPong','cc.math.pingPong'],
-        ['inverseLerp','cc.math.inverseLerp'],
-        ['EPSILON','cc.math.EPSILON'],
-        ['random','cc.math.random']]);
 
     Object.defineProperty(cc.vmath, 'EPSILON', {
         get: function () {
-            error("please use the function in cc.math");
+            error("please use cc.math.EPSILON");
             return cc.math.EPSILON;
         }
     });
 
     Object.defineProperty(cc.vmath, 'random', {
         get: function () {
-            error("please use the function in cc.math");
+            error("please use cc.math.random");
             return cc.math.random;
         }
     });
 
     Object.defineProperty(cc.vmath, 'equals', {
         value: function (arg1,arg2) {
-            error("please use the function in cc.math");
+            error("please use cc.math.equals");
             return cc.math.equals(arg1,arg2);
         }
     });
 
     Object.defineProperty(cc.vmath, 'approx', {
         value: function (arg1,arg2,arg3) {
-            error("please use the function in cc.math");
+            error("please use cc.math.approx");
             return cc.math.approx(arg1,arg2,arg3);
         }
     });
 
     Object.defineProperty(cc.vmath, 'clamp', {
         value: function (arg1,arg2,arg3) {
-            error("please use the function in cc.math");
+            error("please use cc.math.clamp");
             return cc.math.clamp(arg1,arg2,arg3);
         }
     });
 
     Object.defineProperty(cc.vmath, 'clamp01', {
         value: function (arg) {
-            error("please use the function in cc.math");
+            error("please use cc.math.clamp01");
             return cc.math.clamp01(arg);
         }
     });
 
     Object.defineProperty(cc.vmath, 'lerp', {
         value: function (arg1,arg2,arg3) {
-            error("please use the function in cc.math");
+            error("please use cc.math.lerp");
             return cc.math.lerp(arg1,arg2,arg3);
         }
     });
 
     Object.defineProperty(cc.vmath, 'toRadian', {
         value: function (arg) {
-            error("please use the function in cc.math");
+            error("please use cc.math.toRadian");
             return cc.math.toRadian(arg);
         }
     });
 
     Object.defineProperty(cc.vmath, 'toDegree', {
         value: function (args) {
-            error("please use the function in cc.math");
+            error("please use cc.math.toDegree");
             return cc.math.toDegree(args);
         }
     });
 
     Object.defineProperty(cc.vmath, 'randomRange', {
         value: function (arg1,arg2) {
-            error("please use the function in cc.math");
+            error("please use cc.math.randomRange");
             return cc.math.randomRange(arg1,arg2);
         }
     });
 
     Object.defineProperty(cc.vmath, 'randomRangeInt', {
         value: function (arg1,arg2) {
-            error("please use the function in cc.math");
+            error("please use cc.math.randomRangeInt");
             return cc.math.randomRangeInt(arg1,arg2);
         }
     });
 
     Object.defineProperty(cc.vmath, 'pseudoRandom', {
         value: function (args) {
-            error("please use the function in cc.math");
+            error("please use cc.math.pseudoRandom");
             return cc.math.pseudoRandom(args);
         }
     });
 
     Object.defineProperty(cc.vmath, 'pseudoRandomRange', {
         value: function (arg1,arg2,arg3) {
-            error("please use the function in cc.math");
+            error("please use cc.math.pseudoRandomRange");
             return cc.math.pseudoRandomRange(arg1,arg2,arg3);
         }
     });
 
     Object.defineProperty(cc.vmath, 'pseudoRandomRangeInt', {
         value: function (arg1,arg2,arg3) {
-            error("please use the function in cc.math");
+            error("please use cc.math.pseudoRandomRangeInt");
             return cc.math.pseudoRandomRangeInt(arg1,arg2,arg3);
         }
     });
 
     Object.defineProperty(cc.vmath, 'nextPow2', {
         value: function (args) {
-            error("please use the function in cc.math");
+            error("please use cc.math.nextPow2");
             return cc.math.nextPow2(args);
         }
     });
 
     Object.defineProperty(cc.vmath, 'repeat', {
         value: function (arg1,arg2) {
-            error("please use the function in cc.math");
+            error("please use cc.math.repeat");
             return cc.math.repeat(arg1,arg2);
         }
     });
 
     Object.defineProperty(cc.vmath, 'pingPong', {
         value: function (arg1,arg2) {
-            error("please use the function in cc.math");
+            error("please use cc.math.pingPong");
             return cc.math.pingPong(arg1,arg2);
         }
     });
 
     Object.defineProperty(cc.vmath, 'inverseLerp', {
         value: function (arg1,arg2,arg3) {
-            error("please use the function in cc.math");
+            error("please use cc.math.inverseLerp");
             return cc.math.inverseLerp(arg1,arg2,arg3);
         }
     });
 
-    markAsDeprecatedInObject_2(cc.vmath,
-        [['vec2','cc.math.Vec2'],
-        ['vec3','cc.math.Vec3'],
-        ['vec4','cc.math.Vec4'],
-        ['mat3','cc.math.Mat3'],
-        ['mat4','cc.math.Mat4'],
-        ['color4','cc.math.Color'],
-        ['rect','cc.math.Rect']]);
-
     Object.defineProperty(cc.vmath, 'vec3', {
         get: function () {
-            error("please use the function in cc.math");
+            error("please use cc.math.Vec3");
             return cc.math.Vec3;
         }
     });
 
     Object.defineProperty(cc.vmath, 'vec2', {
         get: function () {
-            error("please use the function in cc.math");
+            error("please use cc.math.Vec2");
             return cc.math.Vec2;
         }
     });
 
     Object.defineProperty(cc.vmath, 'vec4', {
         get: function () {
-            error("please use the function in cc.math");
+            error("please use cc.math.Vec4");
             return cc.math.Vec4;
         }
     });
 
     Object.defineProperty(cc.vmath, 'mat3', {
         get: function () {
-            error("please use the function in cc.math");
+            error("please use cc.math.Mat3");
             return cc.math.Mat3;
         }
     });
 
     Object.defineProperty(cc.vmath, 'mat4', {
         get: function () {
-            error("please use the function in cc.math");
+            error("please use cc.math.Mat4");
             return cc.math.Mat4;
         }
     });
 
     Object.defineProperty(cc.vmath, 'color4', {
         get: function () {
-            error("please use the function in cc.math");
+            error("please use cc.math.Color");
             return cc.math.Color;
         }
     });
 
     Object.defineProperty(cc.vmath, 'rect', {
         get: function () {
-            error("please use the function in cc.math");
+            error("please use cc.math.Rect");
             return cc.math.Rect;
         }
     });
 
-    markAsDeprecatedInObject_2(cc.misc,
-        [['clampf','cc.math.clamp'],
-        ['clamp01','cc.math.clamp01'],
-        ['lerp','cc.math.lerp'],
-        ['degreesToRadians','cc.math.toRadian'],
-        ['radiansToDegrees','cc.math.toDegree']]);
-
     Object.defineProperty(cc.misc, 'clamp01', {
         value: function (args) {
-            error("please use the function in cc.math");
+            error("please use cc.math.clamp01");
             return cc.math.clamp01(args);
         }
     });
 
-    Object.defineProperty(cc.vmath, 'lerp', {
+    Object.defineProperty(cc.misc, 'lerp', {
         value: function (arg1,arg2,arg3) {
-            error("please use the function in cc.math");
+            error("please use cc.math.lerp");
             return cc.math.lerp(arg1,arg2,arg3);
         }
     });
 
-    Object.defineProperty(cc.vmath, 'degreesToRadians', {
+    Object.defineProperty(cc.misc, 'degreesToRadians', {
         value: function (args) {
-            error("please use the function in cc.math");
+            error("please use cc.math.toRadian");
             return cc.math.toRadian(args);
         }
     });
 
-    Object.defineProperty(cc.vmath, 'radiansToDegrees', {
+    Object.defineProperty(cc.misc, 'radiansToDegrees', {
         value: function (args) {
-            error("please use the function in cc.math");
+            error("please use cc.math.toDegree");
             return cc.math.toDegree(args);
         }
     });
 
-    Object.defineProperty(cc.vmath, 'clampf', {
+    Object.defineProperty(cc.misc, 'clampf', {
         value: function (arg1,arg2,arg3) {
-            error("please use the function in cc.math");
+            error("please use cc.math.clamp");
             return cc.math.clamp(arg1,arg2,arg3);
         }
     });
