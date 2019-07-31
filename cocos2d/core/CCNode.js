@@ -25,7 +25,7 @@
 
 'use strict';
 
-import { mat4, vec2, vec3, quat } from './vmath';
+import { mat4, vec2, vec3, quat, trs } from './vmath';
 
 const BaseNode = require('./utils/base-node');
 const PrefabHelper = require('./utils/prefab-helper');
@@ -143,12 +143,19 @@ var LocalDirtyFlag = cc.Enum({
      */
     SKEW: 1 << 3,
     /**
-     * !#en Flag for position or rotation dirty
-     * !#zh 旋转或位置 dirty 的标记位
-     * @property {Number} RT
+     * !#en Flag for rotation, scale or position dirty
+     * !#zh 旋转，缩放，或位置 dirty 的标记位
+     * @property {Number} TRS
      * @static
      */
     TRS: 1 << 0 | 1 << 1 | 1 << 2,
+    /**
+     * !#en Flag for rotation or scale dirty
+     * !#zh 旋转或缩放 dirty 的标记位
+     * @property {Number} RS
+     * @static
+     */
+    RS: 1 << 1 | 1 << 2,
     /**
      * !#en Flag for all dirty properties
      * !#zh 覆盖所有 dirty 状态的标记位
@@ -803,8 +810,8 @@ let NodeDefines = {
                 return this._eulerAngles.z;
             },
             set (value) {
-                vec3.set(this._eulerAngles, 0, 0, value);
-                this._fromEuler();
+                vec3.set(this._eulerAngles, 0, 0, value);   
+                trs.fromAngleZ(this._trs, value);
                 this.setLocalDirty(LocalDirtyFlag.ROTATION);
 
                 if (this._eventMask & ROTATION_ON) {
@@ -850,12 +857,11 @@ let NodeDefines = {
                     this._eulerAngles.x = value;
                     // Update quaternion from rotation
                     if (this._eulerAngles.x === this._eulerAngles.y) {
-                        quat.fromAngleZ(_quata, -value);
+                        trs.fromAngleZ(this._trs, -value);
                     }
                     else {
-                        quat.fromEuler(_quata, value, this._eulerAngles.y, 0);
+                        trs.fromEulerNumber(this._trs, value, this._eulerAngles.y, 0);
                     }
-                    _quata.toRotation(this._trs);
                     this.setLocalDirty(LocalDirtyFlag.ROTATION);
 
                     if (this._eventMask & ROTATION_ON) {
@@ -891,12 +897,11 @@ let NodeDefines = {
                     this._eulerAngles.y = value;
                     // Update quaternion from rotation
                     if (this._eulerAngles.x === this._eulerAngles.y) {
-                        quat.fromAngleZ(_quata, -value);
+                        trs.fromAngleZ(this._trs, -value);
                     }
                     else {
-                        quat.fromEuler(_quata, this._eulerAngles.x, value, 0);
+                        trs.fromEulerNumber(this._trs, this._eulerAngles.x, value, 0);
                     }
-                    _quata.toRotation(this._trs);
                     this.setLocalDirty(LocalDirtyFlag.ROTATION);
 
                     if (this._eventMask & ROTATION_ON) {
@@ -1247,8 +1252,6 @@ let NodeDefines = {
         this._cullingMask = 1;
         this._childArrivalOrder = 1;
 
-        this._quat = cc.quat();
-
         // Proxy
         if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy = new renderer.NodeProxy(this._spaceInfo.unitID, this._spaceInfo.index, this._id, this._name);
@@ -1423,7 +1426,7 @@ let NodeDefines = {
 
     _toEuler () {
         if (this.is3DNode) {
-            _quata.fromRotation(this._trs).toEuler(this._eulerAngles);
+            trs.toEuler(this._eulerAngles, this._trs);
         }
         else {
             let z = Math.asin(this._trs[5]) / ONE_DEGREE * 2;
@@ -1433,12 +1436,10 @@ let NodeDefines = {
 
     _fromEuler () {
         if (this.is3DNode) {
-            _quata.fromEuler(this._eulerAngles);
-            _quata.toRotation(this._trs);
+            trs.fromEuler(this._trs, this._eulerAngles);
         }
         else {
-            quat.fromAngleZ(_quata, this._eulerAngles.z);
-            _quata.toRotation(this._trs);
+            trs.fromAngleZ(this._trs, this._eulerAngles.z);
         }
     },
 
@@ -2257,7 +2258,7 @@ let NodeDefines = {
      */
     getPosition (out) {
         out = out || cc.v3();
-        return out.fromTranslation(this._trs);
+        return trs.toPosition(out, this._trs);
     },
 
     /**
@@ -2336,7 +2337,7 @@ let NodeDefines = {
      */
     getScale (out) {
         if (out !== undefined) {
-            return out.fromScale(this._trs);
+            return trs.toScale(out, this._trs);
         }
         else {
             cc.warnID(1400, 'cc.Node.getScale', 'cc.Node.scale or cc.Node.getScale(cc.Vec3)');
@@ -2392,7 +2393,7 @@ let NodeDefines = {
      */
     getRotation (out) {
         if (out instanceof cc.Quat) {
-            return out.fromRotation(this._trs);
+            return trs.toRotation(out, this._trs);
         }
         else {
             if (CC_DEBUG) {
@@ -2582,18 +2583,18 @@ let NodeDefines = {
             vec3.copy(out, pos);
         }
 
-        let trs = this._trs;
+        let ltrs = this._trs;
         // out = parent_inv_pos - pos
-        _tpVec3a.fromTranslation(trs);
+        trs.toPosition(_tpVec3a, ltrs);
         vec3.sub(out, out, _tpVec3a);
 
         // out = inv(rot) * out
-        _tpQuata.fromRotation(trs);
+        trs.toRotation(_tpQuata, ltrs);
         quat.conjugate(_tpQuatb, _tpQuata);
         vec3.transformQuat(out, out, _tpQuatb);
 
         // out = (1/scale) * out
-        _tpVec3a.fromScale(this._trs);
+        trs.toScale(_tpVec3a, ltrs);
         vec3.inverseSafe(_tpVec3b, _tpVec3a);
         vec3.mul(out, out, _tpVec3b);
 
@@ -2608,19 +2609,19 @@ let NodeDefines = {
      * @return {Vec3}
      */
     getWorldPosition (out) {
-        out.fromTranslation(this._trs);
+        trs.toPosition(out, this._trs);
         let curr = this._parent;
-        let trs;
+        let ltrs;
         while (curr) {
-            trs = curr._trs;
+            ltrs = curr._trs;
             // out = parent_scale * pos
-            _gwpVec3.fromScale(trs);
+            trs.toScale(_gwpVec3, ltrs);
             vec3.mul(out, out, _gwpVec3);
             // out = parent_quat * out
-            _gwpQuat.fromRotation(trs);
+            trs.toRotation(_gwpQuat, ltrs);
             vec3.transformQuat(out, out, _gwpQuat);
             // out = out + pos
-            _gwpVec3.fromTranslation(trs);
+            trs.toPosition(_gwpVec3, ltrs);
             vec3.add(out, out, _gwpVec3);
             curr = curr._parent;
         }
@@ -2634,9 +2635,9 @@ let NodeDefines = {
      * @param {Vec3} pos
      */
     setWorldPosition (pos) {
-        let trs = this._trs;
+        let ltrs = this._trs;
         if (CC_EDITOR) {
-            var oldPosition = new cc.Vec3(trs[0], trs[1], trs[2]);
+            var oldPosition = new cc.Vec3(ltrs[0], ltrs[1], ltrs[2]);
         }
         // NOTE: this is faster than invert world matrix and transform the point
         if (this._parent) {
@@ -2645,7 +2646,7 @@ let NodeDefines = {
         else {
             vec3.copy(_swpVec3, pos);
         }
-        _swpVec3.toTranslation(trs);
+        trs.toPosition(_swpVec3, ltrs);
         this.setLocalDirty(LocalDirtyFlag.POSITION);
 
         // fast check event
@@ -2668,11 +2669,11 @@ let NodeDefines = {
      * @return {Quat}
      */
     getWorldRotation (out) {
-        _gwrQuat.fromRotation(this._trs);
+        trs.toRotation(_gwrQuat, this._trs);
         quat.copy(out, _gwrQuat);
         let curr = this._parent;
         while (curr) {
-            _gwrQuat.fromRotation(curr._trs);
+            trs.toRotation(_gwrQuat, curr._trs);
             quat.mul(out, _gwrQuat, out);
             curr = curr._parent;
         }
@@ -2706,11 +2707,11 @@ let NodeDefines = {
      * @return {Vec3}
      */
     getWorldScale (out) {
-        _gwsVec3.fromScale(this._trs);
+        trs.toScale(_gwsVec3, this._trs);
         vec3.copy(out, _gwsVec3);
         let curr = this._parent;
         while (curr) {
-            _gwsVec3.fromScale(curr._trs);
+            trs.toScale(_gwsVec3, curr._trs);
             vec3.mul(out, out, _gwsVec3);
             curr = curr._parent;
         }
@@ -2738,21 +2739,21 @@ let NodeDefines = {
     getWorldRT (out) {
         let opos = _gwrtVec3a;
         let orot = _gwrtQuata;
-        let trs = this._trs;
-        opos.fromTranslation(trs);
-        orot.fromRotation(trs);
+        let ltrs = this._trs;
+        trs.toPosition(opos, ltrs);
+        trs.toRotation(orot, ltrs);
 
         let curr = this._parent;
         while (curr) {
-            trs = curr._trs;
+            ltrs = curr._trs;
             // opos = parent_lscale * lpos
-            _gwrtVec3b.fromScale(trs);
+            trs.toScale(_gwrtVec3b, ltrs);
             vec3.mul(opos, opos, _gwrtVec3b);
             // opos = parent_lrot * opos
-            _gwrtQuatb.fromRotation(trs);
+            trs.toRotation(_gwrtQuatb, ltrs);
             vec3.transformQuat(opos, opos, _gwrtQuatb);
             // opos = opos + lpos
-            _gwrtVec3b.fromTranslation(trs);
+            trs.toPosition(_gwrtVec3b, ltrs);
             vec3.add(opos, opos, _gwrtVec3b);
             // orot = lrot * orot
             quat.mul(orot, _gwrtQuatb, orot);
@@ -2787,7 +2788,7 @@ let NodeDefines = {
         let tm = t.m;
         let trs = this._trs;
 
-        if (dirtyFlag & (LocalDirtyFlag.TRS | LocalDirtyFlag.SKEW)) {
+        if (dirtyFlag & (LocalDirtyFlag.RS | LocalDirtyFlag.SKEW)) {
             let rotation = -this._eulerAngles.z;
             let hasSkew = this._skewX || this._skewY;
             let sx = trs[7], sy = trs[8];
