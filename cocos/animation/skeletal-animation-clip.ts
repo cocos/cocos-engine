@@ -60,6 +60,7 @@ export class SkeletalAnimationClip extends AnimationClip {
     protected _converted = false;
 
     public getPropertyCurves (root: INode): ReadonlyArray<IPropertyCurve> {
+        this.hash; // calculate hash before conversion
         this._convertToSkeletalCurves(root);
         return super.getPropertyCurves(root);
     }

@@ -227,6 +227,7 @@ export class AnimationClip extends Asset {
     }
 
     get hash () {
+        if (!this._hash) { this._hash = murmurhash2_32_gc(JSON.stringify(this.curveDatas), 666); }
         return this._hash;
     }
 
@@ -235,7 +236,6 @@ export class AnimationClip extends Asset {
         this.speed = this.speed;
         this.wrapMode = this.wrapMode;
         this.frameRate = this.sample;
-        this._hash = murmurhash2_32_gc(`${this._uuid} ${this._duration} ${this._keys[0] && this._keys[0].length}`, 666);
     }
 
     public getPropertyCurves (root: INode): ReadonlyArray<IPropertyCurve> {
