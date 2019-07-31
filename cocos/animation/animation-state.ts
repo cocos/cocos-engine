@@ -32,7 +32,7 @@ import { EventArgumentsOf, EventCallbackOf } from '../core/event/defines';
 import { Node } from '../scene-graph';
 import { AnimationBlendState, PropertyBlendState } from './animation-blend-state';
 import { AnimationClip } from './animation-clip';
-import { AnimCurve, CurveTarget, RatioSampler } from './animation-curve';
+import { AnimCurve, CurveTarget, RatioSampler, CurveValueAdapter } from './animation-curve';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { INode } from '../core/utils/interfaces';
@@ -46,6 +46,7 @@ enum PropertySpecialization {
 
 export class ICurveInstance {
     private _curve: AnimCurve;
+    private _setter: undefined | ((value: any) => void);
     private _target: CurveTarget;
     private _isNodeTarget: boolean;
     private _property: string;
@@ -55,6 +56,9 @@ export class ICurveInstance {
 
     constructor (curve: AnimCurve, target: CurveTarget, property: string, blendTarget: PropertyBlendState | null = null) {
         this._curve = curve;
+        if (curve.valueAdapter) {
+            this._setter = curve.valueAdapter.forTarget(target[property] || target);
+        }
         this._target = target;
         this._isNodeTarget = target instanceof Node;
         this._propertySpecialization = PropertySpecialization.None;
@@ -116,7 +120,11 @@ export class ICurveInstance {
                     this._target.setScale(value);
                     break;
                 default:
-                    this._target[this._property] = value;
+                    if (this._setter) {
+                        this._setter(value);
+                    } else {
+                        this._target[this._property] = value;
+                    }
                     break;
             }
         } else {

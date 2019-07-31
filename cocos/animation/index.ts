@@ -15,5 +15,6 @@ export * from './skeletal-animation-clip';
 export * from './skeletal-animation-state';
 export * from './skeletal-animation-component';
 export * from './transform-utils';
+export * from './curve-value-adapters';
 
 import './deprecated';

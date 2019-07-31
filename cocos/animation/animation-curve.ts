@@ -12,6 +12,7 @@ import { bezierByTime, BezierControlPoints } from './bezier';
 import * as blending from './blending';
 import * as easing from './easing';
 import { ILerpable, isLerpable } from './types';
+import { deserialize } from '../core';
 
 /**
  * 表示曲线值，曲线值可以是任意类型，但必须符合插值方式的要求。
@@ -71,7 +72,13 @@ export interface IPropertyCurveData {
      * @default true
      */
     interpolate?: boolean;
+
+    /**
+     * 序列化之后的曲线值适配器。
+     */
+    valueAdapter?: CurveValueAdapter;
 }
+
 
 export class RatioSampler {
     public ratios: number[];
@@ -122,6 +129,8 @@ export class AnimCurve {
 
     public _blendFunction: BlendFunction<any> | undefined = undefined;
 
+    public valueAdapter?: undefined | CurveValueAdapter = undefined;
+
     /**
      * The values of the keyframes. (y)
      */
@@ -139,6 +148,8 @@ export class AnimCurve {
 
     constructor (propertyCurveData: IPropertyCurveData, propertyName: string, duration: number, isNode: boolean) {
         this._duration = duration;
+
+        this.valueAdapter = deserialize(propertyCurveData.valueAdapter, undefined, undefined);
 
         // Install values.
         this._values = propertyCurveData.values;
@@ -262,6 +273,21 @@ export class EventInfo {
         });
     }
 }
+
+@ccclass('cc.CurveValueAdapter')
+export class CurveValueAdapter {
+    /**
+     * Returns a setter for target's property.
+     * @param target
+     */
+    public forTarget(target: any) {
+        return (value: any) => {
+            // Empty implementation
+        };
+    }
+}
+
+cc.CurveValueAdapter = CurveValueAdapter;
 
 /**
  * Compute a new ratio by curve type.
