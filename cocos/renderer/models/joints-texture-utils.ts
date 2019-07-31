@@ -114,21 +114,21 @@ export class JointsTexturePool {
 
     private _device: GFXDevice;
     private _pool: TextureBufferPool;
-    private _defaultTextureBuffer: ITextureBufferHandle | null = null;
+    private _defaultTextureBuffers: Map<number, ITextureBufferHandle> = new Map();
+    private _textureBuffers: Map<string, ITextureBufferHandle> = new Map();
 
     constructor (device: GFXDevice) {
         this._device = device;
         this._pool = new TextureBufferPool(device);
     }
 
-    public initialize (maxChunks: number = 16) {
+    public initialize (maxChunks: number = 8) {
         const format = _jointsFormat[selectJointsMediumType(this._device)];
         const scale = 16 / GFXFormatInfos[format].size;
         this._pool.initialize({
             format,
             maxChunks: maxChunks * scale,
-            inOrderFree: false,
-            roundUpFn: roundUpTextureSize
+            roundUpFn: roundUpTextureSize,
         });
     }
 
@@ -140,14 +140,10 @@ export class JointsTexturePool {
      * 获取默认骨骼贴图
      */
     public getDefaultJointsTexture (skeleton?: Skeleton) {
-        let len: number = 1; let texture: ITextureBufferHandle | null = null;
-        if (skeleton && skeleton.joints.length > 1) {
-            len = skeleton.joints.length;
-            texture = this._pool.alloc(len * 12 * Float32Array.BYTES_PER_ELEMENT);
-        } else {
-            if (this._defaultTextureBuffer) { return this._defaultTextureBuffer; }
-            texture = this._defaultTextureBuffer = this._pool.alloc(len * 12 * Float32Array.BYTES_PER_ELEMENT);
-        }
+        let len: number = skeleton && skeleton.joints.length || 1;
+        let texture: ITextureBufferHandle | null = this._defaultTextureBuffers.get(len) || null;
+        if (texture) { return texture; }
+        texture = this._pool.alloc(len * 12 * Float32Array.BYTES_PER_ELEMENT);
         if (!texture) { return null; }
         Vec3.set(v3_1, 0, 0, 0);
         Quat.set(qt_1, 0, 0, 0, 1);
@@ -157,6 +153,7 @@ export class JointsTexturePool {
             uploadJointData(textureBuffer, 12 * i, v3_1, qt_1, v3_2, i === 0);
         }
         this._pool.update(texture, textureBuffer.buffer);
+        this._defaultTextureBuffers.set(len, texture);
         return texture;
     }
 
@@ -164,9 +161,12 @@ export class JointsTexturePool {
      * 获取指定动画片段的骨骼贴图
      */
     public getJointsTextureWithAnimation (skeleton: Skeleton, clip: SkeletalAnimationClip) {
+        const hash = `${skeleton.hash}${clip.hash}`;
+        let texture: ITextureBufferHandle | null = this._textureBuffers.get(hash) || null;
+        if (texture) { return texture; }
         const frames = clip.keys[0].length;
         const bufSize = skeleton.joints.length * 12 * frames;
-        const texture = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
+        texture = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
         if (!texture) { return null; }
         const textureBuffer = new Float32Array(bufSize);
         const data = clip.convertedData;
@@ -190,6 +190,7 @@ export class JointsTexturePool {
             }
         }
         this._pool.update(texture, textureBuffer.buffer);
+        this._textureBuffers.set(hash, texture);
         return texture;
     }
 

@@ -97,9 +97,6 @@ export class SkeletalAnimationClip extends AnimationClip {
                 const path = getPathFromRoot(comp.node, root);
                 if (!this.curveDatas[path]) { this.curveDatas[path] = {}; }
                 this.curveDatas[path].comps = { [getClassName(comp)]: { frameID: { keys: 0, values, interpolate: false } } };
-            } else { // rig non-skinning renderables
-                // console.warn('[deprecated] attachments should be specified in SkeletalAnimationComponent');
-                // if (!CC_EDITOR) { this._convertToRiggingData(comp.node.parent!, root); }
             }
         }
         this._keys = [values.map((_, i) => i / this.sample)];
@@ -149,91 +146,6 @@ export class SkeletalAnimationClip extends AnimationClip {
             Vec3.multiply(S, parentS, S);
         }
     }
-
-    // this incorrectly assumes any rig node will never be the parent nodes of others
-    // can only be fixed if we use a different rigging interface other than just attach child node to bones
-    private _convertToRiggingData (targetNode: INode, root: INode) {
-        const targetPath = getPathFromRoot(targetNode, root);
-        // find lowest joint animation
-        let animPath = targetPath;
-        let source = this.convertedData[animPath];
-        let animNode = targetNode;
-        while (!source || !source.props) {
-            const idx = animPath.lastIndexOf('/');
-            animPath = animPath.substring(0, idx);
-            source = this.convertedData[animPath];
-            animNode = animNode.parent!;
-            if (idx < 0) { return; }
-        }
-        // create initial animation data
-        const data: IObjectCurveData = {
-            position: { keys: 0, interpolate: false, values: source.props.position.values.map((v) => v.clone()) },
-            rotation: { keys: 0, interpolate: false, values: source.props.rotation.values.map((v) => v.clone()) },
-            scale: { keys: 0, interpolate: false, values: source.props.scale.values.map((v) => v.clone()) },
-        };
-        const position = data.position.values;
-        const rotation = data.rotation.values;
-        const scale = data.scale.values;
-        // apply downstream bindpose
-        let target = targetNode;
-        Vec3.set(v3_1, 0, 0, 0);
-        Quat.set(qt_1, 0, 0, 0, 1);
-        Vec3.set(v3_2, 1, 1, 1);
-        while (target !== animNode) {
-            Vec3.multiply(v3_3, v3_1, target.scale);
-            Vec3.transformQuat(v3_3, v3_3, target.rotation);
-            Vec3.add(v3_1, v3_3, target.position);
-            Quat.multiply(qt_1, target.rotation, qt_1);
-            Vec3.multiply(v3_2, target.scale, v3_2);
-            target = target.parent!;
-        }
-        for (let i = 0; i < position.length; i++) {
-            const T = position[i];
-            const R = rotation[i];
-            const S = scale[i];
-            Vec3.multiply(v3_3, v3_1, S);
-            Vec3.transformQuat(v3_3, v3_3, R);
-            Vec3.add(T, v3_3, T);
-            Quat.multiply(R, R, qt_1);
-            Vec3.multiply(S, S, v3_2);
-        }
-        // apply inverse upstream bindpose
-        target = animNode.parent === root ? animNode : animNode.parent!;
-        Vec3.set(v3_1, 0, 0, 0);
-        Quat.set(qt_1, 0, 0, 0, 1);
-        Vec3.set(v3_2, 1, 1, 1);
-        while (target !== root) {
-            Vec3.multiply(v3_3, v3_1, target.scale);
-            Vec3.transformQuat(v3_3, v3_3, target.rotation);
-            Vec3.add(v3_1, v3_3, target.position);
-            Quat.multiply(qt_1, target.rotation, qt_1);
-            Vec3.multiply(v3_2, target.scale, v3_2);
-            target = target.parent!;
-        }
-        Quat.invert(qt_1, qt_1);
-        Vec3.invert(v3_2, v3_2);
-        Vec3.negate(v3_1, v3_1);
-        Vec3.transformQuat(v3_1, v3_1, qt_1);
-        Vec3.multiply(v3_1, v3_1, v3_2);
-        for (let i = 0; i < position.length; i++) {
-            const T = position[i];
-            const R = rotation[i];
-            const S = scale[i];
-            Vec3.multiply(T, T, v3_2);
-            Vec3.transformQuat(T, T, qt_1);
-            Vec3.add(T, T, v3_1);
-            Quat.multiply(R, qt_1, R);
-            Vec3.multiply(S, v3_2, S);
-        }
-        // wrap up
-        if (!this.curveDatas[targetPath]) { this.curveDatas[targetPath] = {}; }
-        this.curveDatas[targetPath].props = data;
-    }
 }
-
-const v3_1 = new Vec3();
-const v3_2 = new Vec3();
-const qt_1 = new Quat();
-const v3_3 = new Vec3();
 
 cc.SkeletalAnimationClip = SkeletalAnimationClip;
