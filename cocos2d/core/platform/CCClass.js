@@ -105,7 +105,6 @@ function appendProp (cls, name) {
     pushUnique(cls.__props__, name);
 }
 
-var tmpArray = [];
 function defineProp (cls, className, propName, val, es6) {
     var defaultValue = val.default;
 
@@ -145,23 +144,12 @@ function defineProp (cls, className, propName, val, es6) {
     appendProp(cls, propName);
 
     // apply attributes
-    var attrs = parseAttributes(cls, val, className, propName, false);    
-    if (attrs) {
-        var onAfterProp = tmpArray;
-        for (var i = 0; i < attrs.length; i++) {
-            var attr = attrs[i];
-            Attr.attr(cls, propName, attr);
-            // register callback
-            if (attr._onAfterProp) {
-                onAfterProp.push(attr._onAfterProp);
-            }
+    parseAttributes(cls, val, className, propName, false);
+    if (CC_DEV) {
+        for (let i = 0; i < onAfterProps_DEV.length; i++) {
+            onAfterProps_DEV[i](cls, propName);
         }
-        // call callback
-        for (var c = 0; c < onAfterProp.length; c++) {
-            onAfterProp[c](cls, propName);
-        }
-        tmpArray.length = 0;
-        attrs.length = 0;
+        onAfterProps_DEV.length = 0;
     }
 }
 
@@ -178,11 +166,10 @@ function defineGetSet (cls, name, propName, val, es6) {
             return;
         }
 
-        var attrs = parseAttributes(cls, val, name, propName, true);
-        for (var i = 0; i < attrs.length; i++) {
-            Attr.attr(cls, propName, attrs[i]);
+        parseAttributes(cls, val, name, propName, true);
+        if (CC_DEV) {
+            onAfterProps_DEV.length = 0;
         }
-        attrs.length = 0;
 
         Attr.setClassAttr(cls, propName, 'serializable', false);
 
@@ -321,10 +308,7 @@ function doDefine (className, baseClass, mixins, options) {
 
             // mixin attributes
             if (CCClass._isCCClass(mixin)) {
-                mixinWithInherited(
-                    Attr.getClassAttrs(fireClass).constructor.prototype,
-                    Attr.getClassAttrs(mixin).constructor.prototype
-                );
+                mixinWithInherited(Attr.getClassAttrs(fireClass), Attr.getClassAttrs(mixin));
             }
         }
         // restore constuctor overridden by mixin
@@ -1034,11 +1018,11 @@ CCClass._fastDefine = function (className, constructor, serializableFields) {
     js.setClassName(className, constructor);
     //constructor.__ctors__ = constructor.__ctors__ || null;
     var props = constructor.__props__ = constructor.__values__ = Object.keys(serializableFields);
-    var attrProtos = Attr.getClassAttrsProto(constructor);
+    var attrs = Attr.getClassAttrs(constructor);
     for (var i = 0; i < props.length; i++) {
         var key = props[i];
-        attrProtos[key + DELIMETER + 'visible'] = false;
-        attrProtos[key + DELIMETER + 'default'] = serializableFields[key];
+        attrs[key + DELIMETER + 'visible'] = false;
+        attrs[key + DELIMETER + 'default'] = serializableFields[key];
     }
 };
 
@@ -1074,28 +1058,29 @@ var PrimitiveTypes = {
     Boolean: 'Boolean',
     String: 'String',
 };
-var tmpAttrs = [];
-function parseAttributes (cls, attrs, className, propName, usedInGetter) {
+var onAfterProps_DEV = [];
+function parseAttributes (cls, attributes, className, propName, usedInGetter) {
     var ERR_Type = CC_DEV ? 'The %s of %s must be type %s' : '';
 
-    var attrsProto = null;
-    var attrsProtoKey = '';
-    function getAttrsProto () {
-        attrsProtoKey = propName + DELIMETER;
-        return attrsProto = Attr.getClassAttrsProto(cls);
+    var attrs = null;
+    var propNamePrefix = '';
+    function initAttrs () {
+        propNamePrefix = propName + DELIMETER;
+        return attrs = Attr.getClassAttrs(cls);
     }
 
-    tmpAttrs.length = 0;
-    var result = tmpAttrs;
+    if (CC_DEV) {
+        onAfterProps_DEV.length = 0;
+    }
 
-    var type = attrs.type;
+    var type = attributes.type;
     if (type) {
         var primitiveType = PrimitiveTypes[type];
         if (primitiveType) {
-            result.push({
-                type: type,
-                _onAfterProp: getTypeChecker(primitiveType, 'cc.' + type)
-            });
+            (attrs || initAttrs())[propNamePrefix + 'type'] = type;
+            if (CC_DEV) {
+                onAfterProps_DEV.push(getTypeChecker(primitiveType, 'cc.' + type));
+            }
         }
         else if (type === 'Object') {
             if (CC_DEV) {
@@ -1104,35 +1089,36 @@ function parseAttributes (cls, attrs, className, propName, usedInGetter) {
         }
         else {
             if (type === Attr.ScriptUuid) {
-                var attr = Attr.ObjectType(cc.ScriptAsset);
-                attr.type = 'Script';
-                result.push(attr);
+                (attrs || initAttrs())[propNamePrefix + 'type'] = 'Script';
+                attrs[propNamePrefix + 'ctor'] = cc.ScriptAsset;
+                if (CC_DEV) {
+                    onAfterProps_DEV.push(Attr.getObjTypeChecker(cc.ScriptAsset));
+                }
             }
             else {
                 if (typeof type === 'object') {
                     if (Enum.isEnum(type)) {
-                        result.push({
-                            type: 'Enum',
-                            enumList: Enum.getList(type)
-                        });
+                        (attrs || initAttrs())[propNamePrefix + 'type'] = 'Enum';
+                        attrs[propNamePrefix + 'enumList'] = Enum.getList(type);
                     }
                     else if (CC_DEV) {
                         cc.errorID(3645, className, propName, type);
                     }
                 }
                 else if (typeof type === 'function') {
-                    if (attrs.url) {
-                        result.push({
-                            type: 'Object',
-                            ctor: type,
-                            _onAfterProp: getTypeChecker('String', 'cc.String')
-                        });
+                    if (attributes.url) {
+                        (attrs || initAttrs())[propNamePrefix + 'type'] = 'Object';
+                        attrs[propNamePrefix + 'ctor'] = type;
+                        if (CC_DEV) {
+                            onAfterProps_DEV.push(getTypeChecker('String', 'cc.String'));
+                        }
                     }
                     else {
-                        result.push(attrs._short ? {
-                            type: 'Object',
-                            ctor: type
-                        } : Attr.ObjectType(type));
+                        (attrs || initAttrs())[propNamePrefix + 'type'] = 'Object';
+                        attrs[propNamePrefix + 'ctor'] = type;
+                        if (CC_DEV && !attributes._short) {
+                            onAfterProps_DEV.push(Attr.getObjTypeChecker(type));
+                        }
                     }
                 }
                 else if (CC_DEV) {
@@ -1143,10 +1129,10 @@ function parseAttributes (cls, attrs, className, propName, usedInGetter) {
     }
 
     function parseSimpleAttr (attrName, expectType) {
-        if (attrName in attrs) {
-            var val = attrs[attrName];
+        if (attrName in attributes) {
+            var val = attributes[attrName];
             if (typeof val === expectType) {
-                (attrsProto || getAttrsProto())[attrsProtoKey + attrName] = val;
+                (attrs || initAttrs())[propNamePrefix + attrName] = val;
             }
             else if (CC_DEV) {
                 cc.error(ERR_Type, attrName, className, propName, expectType);
@@ -1154,34 +1140,34 @@ function parseAttributes (cls, attrs, className, propName, usedInGetter) {
         }
     }
 
-    if (attrs.editorOnly) {
+    if (attributes.editorOnly) {
         if (CC_DEV && usedInGetter) {
             cc.errorID(3613, "editorOnly", name, propName);
         }
         else {
-            (attrsProto || getAttrsProto())[attrsProtoKey + 'editorOnly'] = true;
+            (attrs || initAttrs())[propNamePrefix + 'editorOnly'] = true;
         }
     }
     //parseSimpleAttr('preventDeferredLoad', 'boolean');
     if (CC_DEV) {
         parseSimpleAttr('displayName', 'string');
         parseSimpleAttr('multiline', 'boolean');
-        if (attrs.readonly) {
-            (attrsProto || getAttrsProto())[attrsProtoKey + 'readonly'] = true;
+        if (attributes.readonly) {
+            (attrs || initAttrs())[propNamePrefix + 'readonly'] = true;
         }
         parseSimpleAttr('tooltip', 'string');
         parseSimpleAttr('slide', 'boolean');
     }
 
-    if (attrs.url) {
-        (attrsProto || getAttrsProto())[attrsProtoKey + 'saveUrlAsAsset'] = true;
+    if (attributes.url) {
+        (attrs || initAttrs())[propNamePrefix + 'saveUrlAsAsset'] = true;
     }
-    if (attrs.serializable === false) {
+    if (attributes.serializable === false) {
         if (CC_DEV && usedInGetter) {
             cc.errorID(3613, "serializable", name, propName);
         }
         else {
-            (attrsProto || getAttrsProto())[attrsProtoKey + 'serializable'] = false;
+            (attrs || initAttrs())[propNamePrefix + 'serializable'] = false;
         }
     }
     parseSimpleAttr('formerlySerializedAs', 'string');
@@ -1189,37 +1175,37 @@ function parseAttributes (cls, attrs, className, propName, usedInGetter) {
     if (CC_EDITOR) {
         parseSimpleAttr('notifyFor', 'string');
 
-        if ('animatable' in attrs) {
-            (attrsProto || getAttrsProto())[attrsProtoKey + 'animatable'] = !!attrs.animatable;
+        if ('animatable' in attributes) {
+            (attrs || initAttrs())[propNamePrefix + 'animatable'] = !!attributes.animatable;
         }
     }
 
     if (CC_DEV) {
-        var visible = attrs.visible;
+        var visible = attributes.visible;
         if (typeof visible !== 'undefined') {
             if (!visible) {
-                (attrsProto || getAttrsProto())[attrsProtoKey + 'visible'] = false;
+                (attrs || initAttrs())[propNamePrefix + 'visible'] = false;
             }
             else if (typeof visible === 'function') {
-                (attrsProto || getAttrsProto())[attrsProtoKey + 'visible'] = visible;
+                (attrs || initAttrs())[propNamePrefix + 'visible'] = visible;
             }
         }
         else {
             var startsWithUS = (propName.charCodeAt(0) === 95);
             if (startsWithUS) {
-                (attrsProto || getAttrsProto())[attrsProtoKey + 'visible'] = false;
+                (attrs || initAttrs())[propNamePrefix + 'visible'] = false;
             }
         }
     }
 
-    var range = attrs.range;
+    var range = attributes.range;
     if (range) {
         if (Array.isArray(range)) {
             if (range.length >= 2) {
-                (attrsProto || getAttrsProto())[attrsProtoKey + 'min'] = range[0];
-                attrsProto[attrsProtoKey + 'max'] = range[1];
+                (attrs || initAttrs())[propNamePrefix + 'min'] = range[0];
+                attrs[propNamePrefix + 'max'] = range[1];
                 if (range.length > 2) {
-                    attrsProto[attrsProtoKey + 'step'] = range[2];
+                    attrs[propNamePrefix + 'step'] = range[2];
                 }
             }
             else if (CC_DEV) {
@@ -1233,8 +1219,6 @@ function parseAttributes (cls, attrs, className, propName, usedInGetter) {
     parseSimpleAttr('min', 'number');
     parseSimpleAttr('max', 'number');
     parseSimpleAttr('step', 'number');
-
-    return result;
 }
 
 cc.Class = CCClass;
