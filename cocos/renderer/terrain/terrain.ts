@@ -135,7 +135,11 @@ export class TerrainRenderable extends RenderableComponent {
                     defines: block._getMaterialDefines(nlayers),
                 });
 
-                this._updateBrushMaterial();
+                if (this._brushMaterial !== null) {
+                    const passes = this._currentMaterial.passes;
+
+                    passes.push(this._brushMaterial.passes[0]);
+                }
 
                 if (init) {
                     this._model.initSubModel(0, this._meshData, this._currentMaterial);
@@ -171,16 +175,6 @@ export class TerrainRenderable extends RenderableComponent {
 
     private _getBuiltinMaterial () {
         return builtinResMgr.get<Material>('missing-material');
-    }
-
-    private _updateBrushMaterial () {
-        if (this._currentMaterial == null || this._brushMaterial == null) {
-            return;
-        }
-
-        const passes = this._currentMaterial.passes;
-
-        passes.push(this._brushMaterial.passes[0]);
     }
 }
 
