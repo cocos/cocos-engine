@@ -17,3 +17,19 @@ if (!Array.prototype.find) {
         return undefined;
     };
 }
+
+// 
+if (!Array.prototype.includes) {
+    Array.prototype.includes = function () {       
+        var length = this.length, i = 0;
+        if (arguments.length >= 2) {
+            i = arguments[1];
+        }
+        for(; i < length; i++) {
+            if(this[i] === arguments[0]) {
+                return true;
+            }
+        }
+        return false;
+    };
+}
