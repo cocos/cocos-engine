@@ -158,8 +158,9 @@ Audio.State = {
             if (touchBinded) return;
             touchBinded = true;
 
+            let touchEventName = ('ontouchend' in window) ? 'touchend' : 'mousedown';
             // Listen to the touchstart body event and play the audio when necessary.
-            cc.game.canvas.addEventListener('touchstart', function () {
+            cc.game.canvas.addEventListener(touchEventName, function () {
                 let item;
                 while (item = touchPlayList.pop()) {
                     item.audio.play(item.offset);
