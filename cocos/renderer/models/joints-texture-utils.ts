@@ -98,7 +98,7 @@ function uploadJointDataDQS (out: Float32Array, base: number, pos: Vec3, rot: Qu
 }
 
 function roundUpTextureSize (targetLength: number) {
-    return Math.max(1020, Math.ceil(targetLength / 12) * 12);
+    return Math.max(180, Math.ceil(targetLength / 12) * 12);
 }
 
 const _jointsFormat = {
@@ -124,7 +124,12 @@ export class JointsTexturePool {
     public initialize (maxChunks: number = 16) {
         const format = _jointsFormat[selectJointsMediumType(this._device)];
         const scale = 16 / GFXFormatInfos[format].size;
-        this._pool.initialize(format, maxChunks * scale, roundUpTextureSize);
+        this._pool.initialize({
+            format,
+            maxChunks: maxChunks * scale,
+            inOrderFree: false,
+            roundUpFn: roundUpTextureSize
+        });
     }
 
     public destroy () {
