@@ -18,7 +18,6 @@ if (!Array.prototype.find) {
     };
 }
 
-// 
 if (!Array.prototype.includes) {
     Array.prototype.includes = function () {       
         var length = this.length, i = 0;
