@@ -355,7 +355,7 @@ export abstract class RenderPipeline {
      * @zh
      * 帧缓冲数量。
      */
-    protected _fboCount: number = 1;
+    protected _fboCount: number = 0;
 
     /**
      * @zh
@@ -649,7 +649,7 @@ export abstract class RenderPipeline {
         }
     }
 
-    
+
 
     /**
      * @zh
@@ -908,40 +908,42 @@ export abstract class RenderPipeline {
             });
         }
 
-        this._depthStencilTex = this._device.createTexture({
-            type : GFXTextureType.TEX2D,
-            usage : GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-            format : this._depthStencilFmt,
-            width : this._shadingWidth,
-            height : this._shadingHeight,
-        });
-
-        this._depthStencilTexView = this._device.createTextureView({
-            texture : this._depthStencilTex,
-            type : GFXTextureViewType.TV2D,
-            format : this._depthStencilFmt,
-        });
-
-        for (let i = 0; i < this._fboCount; ++i) {
-            this._shadingTextures[i] = this._device.createTexture({
-                type: GFXTextureType.TEX2D,
-                usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
-                format: this._colorFmt,
-                width: this._shadingWidth,
-                height: this._shadingHeight,
+        if (this._fboCount > 0) {
+            this._depthStencilTex = this._device.createTexture({
+                type : GFXTextureType.TEX2D,
+                usage : GFXTextureUsageBit.DEPTH_STENCIL_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                format : this._depthStencilFmt,
+                width : this._shadingWidth,
+                height : this._shadingHeight,
             });
 
-            this._shadingTexViews[i] = this._device.createTextureView({
-                texture : this._shadingTextures[i],
+            this._depthStencilTexView = this._device.createTextureView({
+                texture : this._depthStencilTex,
                 type : GFXTextureViewType.TV2D,
-                format : this._colorFmt,
+                format : this._depthStencilFmt,
             });
 
-            this._shadingFBOs[i] = this._device.createFramebuffer({
-                renderPass: this._shadingPass,
-                colorViews: [ this._shadingTexViews[i] ],
-                depthStencilView: this._depthStencilTexView!,
-            });
+            for (let i = 0; i < this._fboCount; ++i) {
+                this._shadingTextures[i] = this._device.createTexture({
+                    type: GFXTextureType.TEX2D,
+                    usage: GFXTextureUsageBit.COLOR_ATTACHMENT | GFXTextureUsageBit.SAMPLED,
+                    format: this._colorFmt,
+                    width: this._shadingWidth,
+                    height: this._shadingHeight,
+                });
+
+                this._shadingTexViews[i] = this._device.createTextureView({
+                    texture : this._shadingTextures[i],
+                    type : GFXTextureViewType.TV2D,
+                    format : this._colorFmt,
+                });
+
+                this._shadingFBOs[i] = this._device.createFramebuffer({
+                    renderPass: this._shadingPass,
+                    colorViews: [ this._shadingTexViews[i] ],
+                    depthStencilView: this._depthStencilTexView!,
+                });
+            }
         }
 
         // create smaa framebuffer
