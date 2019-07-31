@@ -58,7 +58,7 @@ export class ToneMapStage extends RenderStage {
 
     public rebuild () {
         this._pass = this._flow.material.passes[0];
-        this._hTexSampler = this._pass.getBinding('u_texSampler');
+        this._hTexSampler = this._pass.getBinding('u_texSampler')!;
 
         const globalUBO = this._pipeline.globalBindings.get(UBOGlobal.BLOCK.name);
 
@@ -69,7 +69,7 @@ export class ToneMapStage extends RenderStage {
         this._pass.bindTextureView(this._hTexSampler, this._pipeline.curShadingTexView);
 
         if (this._pipeline.useSMAA) {
-            this._hBlendTexSampler = this._pass.getBinding('u_blendTexSampler');
+            this._hBlendTexSampler = this._pass.getBinding('u_blendTexSampler')!;
             this._pass.bindTextureView(this._hBlendTexSampler, this._pipeline.smaaBlendTexView);
         }
 
