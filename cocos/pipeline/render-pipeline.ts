@@ -603,6 +603,24 @@ export abstract class RenderPipeline {
 
     /**
      * @zh
+     * 渲染函数。
+     * @param view 渲染视图。
+     */
+    public render (view: RenderView) {
+
+        view.camera.update();
+
+        this.sceneCulling(view);
+
+        this.updateUBOs(view);
+
+        for (const flow of view.flows) {
+            flow.render(view);
+        }
+    }
+
+    /**
+     * @zh
      * 重构函数。
      */
     public rebuild () {
@@ -631,23 +649,7 @@ export abstract class RenderPipeline {
         }
     }
 
-    /**
-     * @zh
-     * 渲染函数。
-     * @param view 渲染视图。
-     */
-    public render (view: RenderView) {
-
-        view.camera.update();
-
-        this.sceneCulling(view);
-
-        this.updateUBOs(view);
-
-        for (const flow of view.flows) {
-            flow.render(view);
-        }
-    }
+    
 
     /**
      * @zh
