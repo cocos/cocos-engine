@@ -111,7 +111,7 @@ export class SkinningModel extends Model {
         this._jointsMedium.texture = texture;
         const { buffer, jointsTextureInfo } = this._jointsMedium;
         jointsTextureInfo[0] = texture.texture.width;
-        jointsTextureInfo[1] = this._scene.texturePool.bytesToPixels(texture.start);
+        jointsTextureInfo[1] = this._scene.texturePool.bytesToPixels(texture.start) + 0.1; // guard against floor() underflow
         jointsTextureInfo[2] = this.uploadedAnim ? this.uploadedAnim.keys[0].length : 1;
         jointsTextureInfo[3] = 0; // restore fid
         if (buffer) { buffer.update(jointsTextureInfo); }
