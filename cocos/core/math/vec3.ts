@@ -220,7 +220,7 @@ export class Vec3 extends ValueType {
     /**
      * @zh 求向量长度
      */
-    public static magnitude <Out extends IVec3Like> (a: Out) {
+    public static len <Out extends IVec3Like> (a: Out) {
         _x = a.x;
         _y = a.y;
         _z = a.z;
@@ -230,7 +230,7 @@ export class Vec3 extends ValueType {
     /**
      * @zh 求向量长度平方
      */
-    public static squaredMagnitude <Out extends IVec3Like> (a: Out) {
+    public static lengthSqr <Out extends IVec3Like> (a: Out) {
         _x = a.x;
         _y = a.y;
         _z = a.z;
@@ -558,7 +558,7 @@ export class Vec3 extends ValueType {
      * @param n 目标向量
      */
     public static project<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
-        const sqrLen = Vec3.squaredMagnitude(b);
+        const sqrLen = Vec3.lengthSqr(b);
         if (sqrLen < 0.000001) {
             return Vec3.set(out, 0, 0, 0);
         } else {
@@ -772,7 +772,7 @@ export class Vec3 extends ValueType {
      * 计算向量的长度（模）。
      * @returns 向量的长度（模）。
      */
-    public magnitude () {
+    public length () {
         return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
     }
 
@@ -780,7 +780,7 @@ export class Vec3 extends ValueType {
      * 计算向量长度（模）的平方。
      * @returns 向量长度（模）的平方。
      */
-    public squaredMagnitude () {
+    public lengthSqr () {
         return this.x * this.x + this.y * this.y + this.z * this.z;
     }
 

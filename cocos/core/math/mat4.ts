@@ -905,15 +905,15 @@ export class Mat4 extends ValueType {
      * @zh 提取旋转、位移、缩放信息， 默认矩阵中的变换以 S->R->T 的顺序应用
      */
     public static toRTS <Out extends IMat4Like, VecLike extends IVec3Like> (m: Out, q: Quat, v: VecLike, s: VecLike) {
-        s.x = Vec3.magnitude(Vec3.set(v3_1, m.m00, m.m01, m.m02));
+        s.x = Vec3.set(v3_1, m.m00, m.m01, m.m02).length();
         m3_1.m00 = m.m00 / s.x;
         m3_1.m01 = m.m01 / s.x;
         m3_1.m02 = m.m02 / s.x;
-        s.y = Vec3.magnitude(Vec3.set(v3_1, m.m04, m.m05, m.m06));
+        s.y = Vec3.set(v3_1, m.m04, m.m05, m.m06).length();
         m3_1.m03 = m.m04 / s.y;
         m3_1.m04 = m.m05 / s.y;
         m3_1.m05 = m.m06 / s.y;
-        s.z = Vec3.magnitude(Vec3.set(v3_1, m.m08, m.m09, m.m10));
+        s.z = Vec3.set(v3_1, m.m08, m.m09, m.m10).length();
         m3_1.m06 = m.m08 / s.z;
         m3_1.m07 = m.m09 / s.z;
         m3_1.m08 = m.m10 / s.z;

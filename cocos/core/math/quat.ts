@@ -93,7 +93,7 @@ export class Quat extends ValueType {
         const dot = Vec3.dot(a, b);
         if (dot < -0.999999) {
             Vec3.cross(v3_1, Vec3.UNIT_X, a);
-            if (Vec3.magnitude(v3_1) < 0.000001) {
+            if (v3_1.length() < 0.000001) {
                 Vec3.cross(v3_1, Vec3.UNIT_Y, a);
             }
             Vec3.normalize(v3_1, v3_1);
@@ -364,14 +364,14 @@ export class Quat extends ValueType {
     /**
      * @zh 求四元数长度
      */
-    public static magnitude <Out extends IQuatLike> (a: Out) {
+    public static len <Out extends IQuatLike> (a: Out) {
         return Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
     }
 
     /**
      * @zh 求四元数长度平方
      */
-    public static squaredMagnitude <Out extends IQuatLike> (a: Out) {
+    public static lengthSqr <Out extends IQuatLike> (a: Out) {
         return a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
     }
 
@@ -760,6 +760,20 @@ export class Quat extends ValueType {
         this.w = scale0 * this.w + scale1 * to.w;
 
         return this;
+    }
+
+    /**
+     * @zh 求四元数长度
+     */
+    public length () {
+        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+    }
+
+    /**
+     * @zh 求四元数长度平方
+     */
+    public lengthSqr () {
+        return this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w;
     }
 }
 

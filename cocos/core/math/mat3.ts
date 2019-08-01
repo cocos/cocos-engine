@@ -293,7 +293,7 @@ export class Mat3 extends ValueType {
      * @param up 视口的上方向，必须归一化，默认为 (0, 1, 0)
      */
     public static fromViewUp <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, view: VecLike, up?: Vec3) {
-        if (Vec3.squaredMagnitude(view) < EPSILON * EPSILON) {
+        if (Vec3.lengthSqr(view) < EPSILON * EPSILON) {
             Mat3.identity(out);
             return out;
         }
@@ -301,7 +301,7 @@ export class Mat3 extends ValueType {
         up = up || Vec3.UNIT_Y;
         Vec3.normalize(v3_1, Vec3.cross(v3_1, up, view));
 
-        if (Vec3.squaredMagnitude(v3_1) < EPSILON * EPSILON) {
+        if (Vec3.lengthSqr(v3_1) < EPSILON * EPSILON) {
             Mat3.identity(out);
             return out;
         }

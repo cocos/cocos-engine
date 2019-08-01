@@ -279,7 +279,7 @@ const ray_sphere = (function () {
         const d = ray.d;
         const rSq = r * r;
         Vec3.subtract(e, c, o);
-        const eSq = Vec3.squaredMagnitude(e);
+        const eSq = e.lengthSqr();
 
         const aLength = Vec3.dot(e, d); // assume ray direction already normalized
         const fSq = rSq - (eSq - aLength * aLength);
@@ -820,7 +820,7 @@ const obb_obb = (function () {
  */
 const sphere_plane = function (sphere: sphere, plane: plane): number {
     const dot = Vec3.dot(plane.n, sphere.center);
-    const r = sphere.radius * Vec3.magnitude(plane.n);
+    const r = sphere.radius * plane.n.length();
     if (dot + r < plane.d) { return -1; }
     else if (dot - r > plane.d) { return 0; }
     return 1;

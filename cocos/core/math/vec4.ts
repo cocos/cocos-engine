@@ -223,7 +223,7 @@ export class Vec4 extends ValueType {
     /**
      * @zh 求向量长度
      */
-    public static magnitude <Out extends IVec4Like> (a: Out) {
+    public static len <Out extends IVec4Like> (a: Out) {
         _x = a.x;
         _y = a.y;
         _z = a.z;
@@ -234,7 +234,7 @@ export class Vec4 extends ValueType {
     /**
      * @zh 求向量长度平方
      */
-    public static squaredMagnitude <Out extends IVec4Like> (a: Out) {
+    public static lengthSqr <Out extends IVec4Like> (a: Out) {
         _x = a.x;
         _y = a.y;
         _z = a.z;
@@ -644,7 +644,7 @@ export class Vec4 extends ValueType {
      * 计算向量的长度（模）。
      * @returns 向量的长度（模）。
      */
-    public magnitude () {
+    public length () {
         _x = this.x;
         _y = this.y;
         _z = this.z;
@@ -656,7 +656,7 @@ export class Vec4 extends ValueType {
      * 计算向量长度（模）的平方。
      * @returns 向量长度（模）的平方。
      */
-    public squaredMagnitude () {
+    public lengthSqr () {
         _x = this.x;
         _y = this.y;
         _z = this.z;
