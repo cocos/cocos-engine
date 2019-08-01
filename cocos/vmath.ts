@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { deprecatedWrapper } from './deprecated';
 import { math } from './core';
 
