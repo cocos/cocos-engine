@@ -38,6 +38,10 @@ var utils = {
             var types = options.types;
             var bundles = options.deps;
             var realEntries = options.paths = Object.create(null);
+            for (var i = 0, l = uuids.length; i < l; i++) {
+                uuids[i] = helper.decodeUuid(uuids[i]);
+            }
+
             for (var id in paths) {
                 var entry = paths[id];
                 var type = entry[1];
@@ -243,13 +247,48 @@ var utils = {
     },
 
     parseParameters (options, onProgress, onComplete) {
-        if (typeof options === 'function') {
-            onComplete = options;
-            options = null;
-            onProgress = null;
+        if (onComplete === undefined) {
+            var isCallback = typeof options === 'function';
+            if (onProgress) {
+                onComplete = onProgress;
+                if (!isCallback) {
+                    onProgress = null;
+                }
+            }
+            else if (onProgress === undefined && isCallback) {
+                onComplete = options;
+                options = null;
+                onProgress = null;
+            }
+            if (onProgress !== undefined && isCallback) {
+                onProgress = options;
+                options = null;
+            }
         }
         options = options || Object.create(null);
         return {options, onProgress, onComplete};
+    },
+
+    parseLoadResArgs (type, onProgress, onComplete) {
+        if (onComplete === undefined) {
+            var isValidType = cc.js.isChildClassOf(type, cc.RawAsset);
+            if (onProgress) {
+                onComplete = onProgress;
+                if (isValidType) {
+                    onProgress = null;
+                }
+            }
+            else if (onProgress === undefined && !isValidType) {
+                onComplete = type;
+                onProgress = null;
+                type = null;
+            }
+            if (onProgress !== undefined && !isValidType) {
+                onProgress = type;
+                type = null;
+            }
+        }
+        return { type, onProgress, onComplete };
     },
 
     checkCircleReference (owner, uuid, map) {

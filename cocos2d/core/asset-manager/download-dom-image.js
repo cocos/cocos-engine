@@ -27,7 +27,7 @@
 const { parseParameters, urlAppendTimestamp } = require('./utilities');
 
 function downloadDomImage (url, options, onComplete) {
-    var { options, onComplete } = parseParameters(options, null, onComplete);
+    var { options, onComplete } = parseParameters(options, undefined, onComplete);
     
     var isCrossOrigin = options.isCrossOrigin;
 

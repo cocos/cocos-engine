@@ -48,13 +48,12 @@ function parse (task) {
             for (var key in item) {
                 switch (key) {
                     case RequestType.UUID: 
-                        var uuid = item[key];
-                        out.uuid = uuid;
+                        var uuid = out.uuid = decodeUuid(item.uuid);
                         if (bundles.has(item.bundle)) {
                             var config = bundles.get(item.bundle)._config;
                             var info = config.getAssetInfo(uuid);
                             if (info && info.redirect) {
-                                if (!bundles.has(info.redirect)) throw new Error(`you need to load bundle ${info.redirect} first`);
+                                if (!bundles.has(info.redirect)) throw new Error(`Please load bundle ${info.redirect} first`);
                                 config = bundles.get(info.redirect)._config;
                                 info = config.getAssetInfo(uuid);
                             }
@@ -93,7 +92,7 @@ function parse (task) {
                             out.uuid = info.uuid;
                             out.info = info;
                         }
-
+                        out.ext = item.ext || '.json';
                         if (!info) {
                             out.recycle();
                             throw new Error(`this bundle ${item.bundle} does not contain ${item.path}`);
@@ -119,7 +118,8 @@ function parse (task) {
                         out.url = item.url;
                         out.uuid = item.uuid || item.url;
                         out.ext = item.ext || cc.path.extname(item.url);
-                        if (!item.uuid) item.uuid = '' + ((new Date()).getTime() + Math.random());
+                        if (!out.uuid) out.uuid = '' + ((new Date()).getTime() + Math.random());
+                        out.isNative = item.isNative || true;
                         break;
                     default: out.options[key] = item[key];
                 }
@@ -148,7 +148,7 @@ function combine (task) {
             base = item.config ? (item.config.base + item.config.importBase) : cc.assetManager.generalImportBase;
         }
 
-        let uuid = decodeUuid(item.uuid);
+        let uuid = item.uuid;
             
         var ver = '';
         if (item.info) {

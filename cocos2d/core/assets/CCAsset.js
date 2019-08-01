@@ -257,9 +257,9 @@ cc.Asset = cc.Class({
 });
 
 function parseDependRecursively (data, out) {
-    var uuid = data.__uuid__;
     if (!data || typeof data !== 'object' || data.__id__) return;
-    else if (Array.isArray(data)) {
+    var uuid = data.__uuid__;
+    if (Array.isArray(data)) {
         for (let i = 0, l = data.length; i < l; i++) {
             parseDependRecursively(data[i], out);
         }

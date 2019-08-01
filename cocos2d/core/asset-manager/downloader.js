@@ -95,6 +95,7 @@ var downloadText = function (url, options, onComplete) {
 
 var _downloading = new Cache();
 var _queue = [];
+var _queueDirty = false;
 
 // the number of loading thread
 var _totalNum = 0;
@@ -122,13 +123,19 @@ var handleQueue = function (maxConcurrent, maxRequestsPerFrame) {
     _checkNextPeriod = false;
     updateTime();
     while (_queue.length > 0 && _totalNum < maxConcurrent && _totalNumThisPeriod < maxRequestsPerFrame) {
-        var nextOne = _queue.shift();
+        if (_queueDirty) {
+            _queue.sort(function (a, b) {
+                return a.priority - b.priority;
+            });
+            _queueDirty = false;
+        }
+        var nextOne = _queue.pop();
         if (!nextOne) {
             break;
         }
         _totalNum++;
         _totalNumThisPeriod++;
-        nextOne();
+        nextOne.invoke();
     }
 
     if (_queue.length > 0 && _totalNum < maxConcurrent) {
@@ -401,6 +408,17 @@ var downloader = {
         }
         else if (_downloading.has(id)) {
             _downloading.get(id).push(onComplete);
+            for (let i = 0, l = _queue.length; i < l; i++) {
+                var item = _queue[i];
+                if (item.id === id) {
+                    var priority = options.priority || 0;
+                    if (item.priority < priority) {
+                        item.priority = priority;
+                        _queueDirty = true;
+                    } 
+                    return;
+                }
+            } 
         }
         else {
             // if download fail, should retry
@@ -437,7 +455,8 @@ var downloader = {
                 }
                 else {
                     // when number of request up to limitation, cache the rest
-                    _queue.push(invoke);
+                    _queue.push({ id, priority: options.priority || 0, invoke });
+                    _queueDirty = true;
     
                     if (!_checkNextPeriod && _totalNum < maxConcurrent) {
                         callInNextTick(handleQueue, maxConcurrent, maxRequestsPerFrame);

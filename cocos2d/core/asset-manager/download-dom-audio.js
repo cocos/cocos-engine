@@ -26,7 +26,7 @@ var __audioSupport = cc.sys.__audioSupport;
 const { parseParameters, urlAppendTimestamp } = require('./utilities');
 
 function downloadDomAudio (url, options, onComplete) {
-    var { options, onComplete } = parseParameters(options, null, onComplete);
+    var { options, onComplete } = parseParameters(options, undefined, onComplete);
 
     var dom = document.createElement('audio');
     dom.src = urlAppendTimestamp(url);

@@ -26,7 +26,7 @@ const Config = require('./config');
 const Task = require('./task');
 const Cache = require('./cache');
 const { release } = require('./finalizer');
-const { parseParameters } = require('./utilities');
+const { parseParameters, parseLoadResArgs } = require('./utilities');
 const { pipeline, fetchPipeline, initializePipeline, LoadStrategy, RequestType, assets, bundles } = require('./shared');
 
 
@@ -175,6 +175,7 @@ Bundle.prototype = {
      * loadAsset(paths: string|string[]|cc.AssetManager.Task): cc.AssetManager.Task
      */
     loadAsset (paths, type, onProgress, onComplete) {
+        var { type, onProgress, onComplete } = parseLoadResArgs(type, onProgress, onComplete);
         return this.load(paths, {requestType: RequestType.PATH, type: type}, onProgress, onComplete);
     },
 
@@ -204,6 +205,7 @@ Bundle.prototype = {
      * preloadAsset(paths: string|string[]): cc.AssetManager.Task
      */
     preloadAsset (paths, type, onProgress, onComplete) {
+        var { type, onProgress, onComplete } = parseLoadResArgs(type, onProgress, onComplete);
         return this.preload(paths, {requestType: RequestType.PATH, type: type}, onProgress, onComplete);
     },
 
@@ -235,6 +237,7 @@ Bundle.prototype = {
      * loadDir(dir: string|cc.AssetManager.Task, onComplete?: ((error: Error, assets: any[]) => void)|null): cc.AssetManager.Task
      */
     loadDir (dir, type, onProgress, onComplete) {
+        var { type, onProgress, onComplete } = parseLoadResArgs(type, onProgress, onComplete);
         return this.load(dir, {requestType: RequestType.DIR, type: type}, onProgress, onComplete);
     },
 
@@ -267,6 +270,7 @@ Bundle.prototype = {
      * preloadDir(dir: string, onComplete?: ((error: Error, items: cc.AssetManager.RequestItem[]) => void)|null): cc.AssetManager.Task
      */
     preloadDir (dir, type, onProgress, onComplete) {
+        var { type, onProgress, onComplete } = parseLoadResArgs(type, onProgress, onComplete);
         return this.preload(dir, {requestType: RequestType.DIR, type: type}, onProgress, onComplete);
     },
 

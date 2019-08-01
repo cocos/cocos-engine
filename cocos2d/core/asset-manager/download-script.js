@@ -26,7 +26,7 @@
 const { urlAppendTimestamp, parseParameters } = require('./utilities');
 
 function downloadScript (url, options, onComplete) {
-    var { options, onComplete } = parseParameters(options, null, onComplete);
+    var { options, onComplete } = parseParameters(options, undefined, onComplete);
 
     var d = document, s = document.createElement('script');
 

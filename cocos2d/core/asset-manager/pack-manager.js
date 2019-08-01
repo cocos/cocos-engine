@@ -28,7 +28,6 @@ const js = require('../platform/js');
 const { files } = require('./shared');
 
 var _loading = new Cache();
-var _packages = new Cache();
 
 /**
  * !#en
@@ -111,7 +110,6 @@ var packManager = {
      * init(): void
      */
     init () {
-        _packages.clear();
         _loading.clear();
     },
 

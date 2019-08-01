@@ -159,7 +159,7 @@ AssetManager.prototype = {
      * Every custom parameter in `requests` will be tranfered to handler of `downloader` and `parser` as `options`. 
      * You can register you own handler downloader or parser to collect these custom parameters for some effect. notice: when requests is a preloaded task, options will be ignored.
      * 
-     * Reserverd Keyword: [`uuid`, `url`, `path`, `dir`, `scene`, `requestType`, `type`, `isNative`, `loadStrategy`, `loadMode`, `name`, `ext`, `bundle`, `exclude`],
+     * Reserverd Keyword: [`uuid`, `url`, `path`, `dir`, `scene`, `requestType`, `type`, `isNative`, `priority`, `loadStrategy`, `loadMode`, `name`, `ext`, `bundle`, `exclude`],
      * Please DO NOT use these words as custom options!
      * 
      * !#zh
@@ -168,7 +168,7 @@ AssetManager.prototype = {
      * 依赖资源，则`options`中的参数会继续向依赖项中分发。request中的自定义参数都会以`options`形式传入加载流程中的`downloader`, `parser`的方法中, 你可以
      * 扩展`downloader`, `parser`收集参数完成想实现的效果。 注意：options在request是Task时是无效的。
      * 
-     * 保留关键字: [`uuid`, `url`, `path`, `dir`, `scene`, `requestType`, `type`, `isNative`, `loadStrategy`, `loadMode`, `name`, `ext`, `bundle`, `exclude`],
+     * 保留关键字: [`uuid`, `url`, `path`, `dir`, `scene`, `requestType`, `type`, `isNative`, `priority`, `loadStrategy`, `loadMode`, `name`, `ext`, `bundle`, `exclude`],
      * 请不要使用这些字段为自定义参数!
      * 
      * @method load
@@ -324,7 +324,7 @@ AssetManager.prototype = {
      * loadRemoteTexture(url: string, options?: any, onComplete?: ((err: Error, texture: cc.Texture2D) => void)|null): cc.AssetManager.Task
      */
     loadRemoteTexture (url, options, onComplete) {
-        var { options, onComplete } = parseParameters(options, null, onComplete);
+        var { options, onComplete } = parseParameters(options, undefined, onComplete);
 
         options.isNative = true;
         return this.load({url}, options, null, function (err, data) {
@@ -366,7 +366,7 @@ AssetManager.prototype = {
      * loadRemoteAudio(url: string, options?: any, onComplete?: ((err: Error, audioClip: cc.AudioClip) => void)|null): cc.AssetManager.Task
      */
     loadRemoteAudio (url, options, onComplete) {
-        var { options, onComplete } = parseParameters(options, null, onComplete);
+        var { options, onComplete } = parseParameters(options, undefined, onComplete);
 
         options.isNative = true;
         return this.load({url}, options, null, function (err, data) {
@@ -432,7 +432,7 @@ AssetManager.prototype = {
      */
     loadBundle (root, options, onComplete) {
         if (!root) return;
-        var { options, onComplete } = parseParameters(options, null, onComplete);
+        var { options, onComplete } = parseParameters(options, undefined, onComplete);
 
         var self = this;
         options.responseType = 'json';

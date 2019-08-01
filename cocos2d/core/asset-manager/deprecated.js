@@ -51,7 +51,7 @@ var loader = {
         for (var i = 0; i < resources.length; i++) {
             var item = resources[i];
             if (typeof item === 'string') {
-                resources[i] = {url: item, isNative: true, isCrossOrigin: true};
+                resources[i] = { url: item, isNative: true, isCrossOrigin: true };
             }
             else {
                 if (item.type) {
@@ -136,6 +136,8 @@ var loader = {
         return this._onProgress;
     },
 
+    _parseLoadResArgs: utilities.parseLoadResArgs,
+
     /**
      * @deprecated `cc.loader.getItem` is deprecated now, please use `cc.assetManager._assets` instead
      */
@@ -147,63 +149,24 @@ var loader = {
      * @deprecated `cc.loader.loadRes` is deprecated now, please use `cc.assetManager.loadRes` instead
      */
     loadRes (url, type, progressCallback, completeCallback) {
-        if (completeCallback === undefined) {
-            if (progressCallback !== undefined) {
-                completeCallback = progressCallback;
-                progressCallback = null;
-            }
-            else {
-                completeCallback = type;
-                progressCallback = null;
-                type = null;
-            }
-        }
-        cc.assetManager.loadRes(url, type, progressCallback, completeCallback);
+        var { type, onProgress, onComplete } = this._parseLoadResArgs(type, progressCallback, completeCallback);
+        cc.assetManager.loadRes(url, type, onProgress, onComplete);
     },
 
     /**
      * @deprecated `cc.loader.loadResArray` is deprecated now, please use `cc.assetManager.loadRes` instead
      */
     loadResArray (urls, type, progressCallback, completeCallback) {
-        if (completeCallback === undefined) {
-            if (progressCallback !== undefined) {
-                completeCallback = progressCallback;
-                progressCallback = null;
-            }
-            else {
-                completeCallback = type;
-                progressCallback = null;
-                type = null;
-            }
-        }
-        cc.assetManager.loadRes(urls, type, progressCallback, function (err, assets) {
-            var paths = [];
-            if (!err) {
-                for (var i = 0; i < urls.length; i ++) {
-                    var info = cc.assetManager._bundles.get('resources')._config.getInfoWithPath(urls[i], type);
-                    info && paths.push(info.path);
-                }
-            }
-            completeCallback && completeCallback(err, assets, paths);
-        });
+        var { type, onProgress, onComplete } = this._parseLoadResArgs(type, progressCallback, completeCallback);
+        cc.assetManager.loadRes(urls, type, onProgress, onComplete);
     },
 
     /**
      * @deprecated `cc.loader.loadResDir` is deprecated now, please use `cc.assetManager.loadResDir` instead
      */
     loadResDir (url, type, progressCallback, completeCallback) {
-        if (completeCallback === undefined) {
-            if (progressCallback !== undefined) {
-                completeCallback = progressCallback;
-                progressCallback = null;
-            }
-            else {
-                completeCallback = type;
-                progressCallback = null;
-                type = null;
-            }
-        }
-        cc.assetManager.loadResDir(url, type, progressCallback, function (err, assets) {
+        var { type, onProgress, onComplete } = this._parseLoadResArgs(type, progressCallback, completeCallback);
+        cc.assetManager.loadResDir(url, type, onProgress, function (err, assets) {
             var urls = [];
             if (!err) {
                 var infos = cc.assetManager._bundles.get('resources')._config.getDirWithPath(url, type);
@@ -211,7 +174,7 @@ var loader = {
                     return info.path;
                 });
             }
-            completeCallback && completeCallback(err, assets, urls);
+            onComplete && onComplete(err, assets, urls);
         });
     },
 
@@ -504,8 +467,29 @@ Object.assign(cc.director, {
      */
     preloadScene (sceneName, onProgress, onLoaded) {
         cc.assetManager.preloadScene(sceneName, null, onProgress, onLoaded);
+    },
+
+    /**
+     * @deprecated `cc.director._getSceneUuid` is deprecated now, please use `config.getSceneInfo` instead
+     */
+    _getSceneUuid (sceneName) {
+        cc.assetManager._bundles.get('scenes')._config.getSceneInfo(sceneName);
     }
 }); 
+
+Object.defineProperties(cc.game, {
+    /**
+     * @deprecated `cc.game._sceneInfos` is deprecated now, please use `config.scenes` instead
+     */
+    _sceneInfos: {
+        get () {
+            var scenes = [];
+            cc.assetManager._bundles.get('scenes')._config.scenes.forEach(function (val) {
+                scenes.push(val);
+            });
+        }
+    }
+});
 
 var original = utilities.parseParameters;
 utilities.parseParameters = function () {
@@ -523,7 +507,7 @@ finalizer._autoRelease = function () {
         let key = keys[i];
         if (releaseSettings[key] === true) {
             var asset = cc.assetManager._assets.get(key);
-            finalizer.release(asset);
+            asset && finalizer.release(asset);
         }
     }
     return result;

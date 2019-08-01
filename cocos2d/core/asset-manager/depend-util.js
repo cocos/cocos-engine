@@ -25,7 +25,6 @@
 const Cache = require('./cache');
 const js = require('../platform/js');
 
-var depends = new Cache();
 /**
  * !#en
  * Control asset's dependency list, it is a singleton.
@@ -36,6 +35,8 @@ var depends = new Cache();
  * @static
  */
 var dependUtil = {
+    _depends: new Cache(),
+
     /**
      * !#en
      * Initialize
@@ -49,7 +50,7 @@ var dependUtil = {
      * init(): void
      */
     init () {
-        depends.clear();
+        this._depends.clear();
     },
 
     /**
@@ -70,7 +71,7 @@ var dependUtil = {
      * getNativeDep(uuid: string): any
      */
     getNativeDep (uuid) {
-        if (depends.has(uuid)) return depends.get(uuid).nativeDep;
+        if (this._depends.has(uuid)) return this._depends.get(uuid).nativeDep;
         return null;
     },
 
@@ -92,8 +93,8 @@ var dependUtil = {
      * getDeps(uuid: string): string[]
      */
     getDeps (uuid) {
-        if (depends.has(uuid)) {
-            return depends.get(uuid).deps;
+        if (this._depends.has(uuid)) {
+            return this._depends.get(uuid).deps;
         }
         return [];
     },
@@ -152,7 +153,7 @@ var dependUtil = {
      * remove(uuid: string);
      */
     remove (uuid) {
-        depends.remove(uuid);
+        this._depends.remove(uuid);
     },
     
     /**
@@ -175,7 +176,7 @@ var dependUtil = {
      * parse(uuid: string, json: any): any
      */
     parse (uuid, json) {
-        if (!CC_EDITOR && depends.has(uuid)) return depends.get(uuid);
+        if (!CC_EDITOR && this._depends.has(uuid)) return this._depends.get(uuid);
         
         var out = Object.create(null);
         var type = json.__type__;
@@ -211,7 +212,7 @@ var dependUtil = {
             }
         }
         // cache dependency list
-        depends.add(uuid, out);
+        this._depends.add(uuid, out);
         return out;
     }
 };

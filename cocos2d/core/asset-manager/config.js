@@ -136,6 +136,7 @@ Config.prototype = {
         for (var sceneName in sceneList) {
             var uuid = sceneList[sceneName];
             var assetInfo = assetInfos.get(uuid);
+            assetInfo.url = sceneName;
             scenes.add(sceneName, assetInfo);
         }
     },

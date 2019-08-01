@@ -343,27 +343,54 @@ var Texture2D = cc.Class({
             let fields = data.split(',');
             // decode extname
             var extIdStr = fields[0];
-            let ext = '';
+            var ext = '';
             if (extIdStr) {
-                let extIds = extIdStr.split('_');
-        
-                let extId = 999;
-                let SupportTextureFormats = cc.macro.SUPPORT_TEXTURE_FORMATS;
-                for (let i = 0; i < extIds.length; i++) {
-                    let extFormat = extIds[i].split('@');
-                    let tmpExt = extFormat[0];
-                    tmpExt = tmpExt.charCodeAt(0) - 48;
-                    tmpExt = cc.Texture2D.extnames[tmpExt] || extFormat;
-        
-                    let index = SupportTextureFormats.indexOf(tmpExt);
-                    if (index !== -1 && index < extId) {
-                        extId = index;
-                        ext = tmpExt;
-                    }
-                }
+                var result = Texture2D._parseExt(extIdStr, PixelFormat.RGBA8888);
+                ext = result.bestExt || result.defaultExt;
             }
 
-            return {isNative: true, ext};
+            return { isNative: true, ext };
+        },
+
+        _parseExt (extIdStr, defaultFormat) {
+            let device = cc.renderer.device;
+            let extIds = extIdStr.split('_');
+
+            let defaultExt = '';
+            let bestExt = '';
+            let bestIndex = 999;
+            let bestFormat = defaultFormat;
+            let SupportTextureFormats = cc.macro.SUPPORT_TEXTURE_FORMATS;
+            for (let i = 0; i < extIds.length; i++) {
+                let extFormat = extIds[i].split('@');
+                let tmpExt = extFormat[0];
+                tmpExt = Texture2D.extnames[tmpExt.charCodeAt(0) - CHAR_CODE_0] || tmpExt;
+
+                let index = SupportTextureFormats.indexOf(tmpExt);
+                if (index !== -1 && index < bestIndex) {
+                    
+                    let tmpFormat = extFormat[1] ? parseInt(extFormat[1]) : defaultFormat;
+
+                    // check whether or not support compressed texture
+                    if ( tmpExt === '.pvr' && !device.ext('WEBGL_compressed_texture_pvrtc')) {
+                        continue;
+                    }
+                    else if ((tmpFormat === PixelFormat.RGB_ETC1 || tmpFormat === PixelFormat.RGBA_ETC1) && !device.ext('WEBGL_compressed_texture_etc1')) {
+                        continue;
+                    }
+                    else if ((tmpFormat === PixelFormat.RGB_ETC2 || tmpFormat === PixelFormat.RGBA_ETC2) && !device.ext('WEBGL_compressed_texture_etc')) {
+                        continue;
+                    }
+
+                    bestIndex = index;
+                    bestExt = tmpExt;
+                    bestFormat = tmpFormat;
+                }
+                else if (!defaultExt) {
+                    defaultExt = tmpExt;
+                }
+            }
+            return { bestExt, bestFormat, defaultExt };
         },
 
         _parseDepsFromJson () {
@@ -864,56 +891,19 @@ var Texture2D = cc.Class({
     },
 
     _deserialize: function (data) {
-        let device = cc.renderer.device;
-
         let fields = data.split(',');
         // decode extname
         let extIdStr = fields[0];
         if (extIdStr) {
-            let extIds = extIdStr.split('_');
+            var result = Texture2D._parseExt(extIdStr, this._format);
 
-            let defaultExt = '';
-            let bestExt = '';
-            let bestIndex = 999;
-            let bestFormat = this._format;
-            let SupportTextureFormats = cc.macro.SUPPORT_TEXTURE_FORMATS;
-            for (let i = 0; i < extIds.length; i++) {
-                let extFormat = extIds[i].split('@');
-                let tmpExt = extFormat[0];
-                tmpExt = Texture2D.extnames[tmpExt.charCodeAt(0) - CHAR_CODE_0] || tmpExt;
-
-                let index = SupportTextureFormats.indexOf(tmpExt);
-                if (index !== -1 && index < bestIndex) {
-                    
-                    let tmpFormat = extFormat[1] ? parseInt(extFormat[1]) : this._format;
-
-                    // check whether or not support compressed texture
-                    if ( tmpExt === '.pvr' && !device.ext('WEBGL_compressed_texture_pvrtc')) {
-                        continue;
-                    }
-                    else if ((tmpFormat === PixelFormat.RGB_ETC1 || tmpFormat === PixelFormat.RGBA_ETC1) && !device.ext('WEBGL_compressed_texture_etc1')) {
-                        continue;
-                    }
-                    else if ((tmpFormat === PixelFormat.RGB_ETC2 || tmpFormat === PixelFormat.RGBA_ETC2) && !device.ext('WEBGL_compressed_texture_etc')) {
-                        continue;
-                    }
-
-                    bestIndex = index;
-                    bestExt = tmpExt;
-                    bestFormat = tmpFormat;
-                }
-                else if (!defaultExt) {
-                    defaultExt = tmpExt;
-                }
-            }
-
-            if (bestExt) {
-                this._setRawAsset(bestExt);
-                this._format = bestFormat;
+            if (result.bestExt) {
+                this._setRawAsset(result.bestExt);
+                this._format = result.bestFormat;
             }
             else {
-                this._setRawAsset(defaultExt);
-                cc.warnID(3120, handle.customEnv.url, defaultExt, defaultExt);
+                this._setRawAsset(result.defaultExt);
+                cc.warnID(3120, handle.customEnv.url, result.defaultExt, result.defaultExt);
             }
         }
         if (fields.length === 6) {

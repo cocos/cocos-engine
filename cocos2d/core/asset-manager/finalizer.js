@@ -39,7 +39,9 @@ function visitAsset (asset, deps) {
 function visitComponent (comp, deps) {
     var props = Object.getOwnPropertyNames(comp);
     for (let i = 0; i < props.length; i++) {
-        var value = comp[props[i]];
+        var propName = props[i];
+        if (propName === 'node' || propName === '__eventTargets') continue;
+        var value = comp[propName];
         if (typeof value === 'object' && value) {
             if (Array.isArray(value)) {
                 for (let j = 0; j < value.length; j++) {
@@ -153,7 +155,7 @@ var finalizer = {
         // transfer refs from persist nodes to new scene
         for (let i = 0, l = persistNodes.length; i < l; i++) {
             var node = persistNodes[i];
-            var sceneDeps = dependUtil.getDeps(newScene._id);
+            var sceneDeps = dependUtil._depends.get(newScene._id);
             var deps = _persistNodeDeps.get(node.uuid);
             for (let i = 0, l = deps.length; i < l; i++) {
                 var dependAsset = assets.get(deps[i]);
@@ -161,7 +163,10 @@ var finalizer = {
                     dependAsset._addRef();
                 }
             }
-            sceneDeps.push.apply(sceneDeps, deps);
+            if (sceneDeps) {
+                !sceneDeps.persistDeps && (sceneDeps.persistDeps = []);
+                sceneDeps.persistDeps.push.apply(sceneDeps.persistDeps, deps);
+            }
         }
 
         if (oldScene) {
@@ -171,6 +176,16 @@ var finalizer = {
                 asset && asset._removeRef();
                 this.release(asset);
             }
+            var dependencies = dependUtil._depends.get(oldScene._id);
+            if (dependencies && dependencies.persistDeps) {
+                var persistDeps = dependencies.persistDeps;
+                for (let i = 0, l = persistDeps.length; i < l; i++) {
+                    let asset = assets.get(persistDeps[i]);
+                    asset && asset._removeRef();
+                    this.release(asset);
+                }
+            }
+            dependUtil.remove(oldScene._id);
         }
     },
 
@@ -262,11 +277,15 @@ var finalizer = {
                     for (let i = 0, l = depends.length; i < l; i++) {
                         var dependAsset = assets.get(depends[i]);
                         if (dependAsset) {
-                            if (!(dependAsset._uuid in refs)) refs[dependAsset._uuid] = dependAsset._ref;
-                            refs[dependAsset._uuid]--;
-                            if (refs[dependAsset._uuid] === 0) {
-                                checkCircularReference(dependAsset, refs);
+                            if (!(dependAsset._uuid in refs)) { 
+                                refs[dependAsset._uuid] = dependAsset._ref - 1;
+                                if (refs[dependAsset._uuid] === 0) {
+                                    checkCircularReference(dependAsset, refs);
+                                }
                             }
+                            else {
+                                refs[dependAsset._uuid]--;
+                            } 
                         }
                     }
                 })(asset, refs);
@@ -282,7 +301,7 @@ var finalizer = {
             var dependAsset = assets.get(depends[i]);
             if (dependAsset) {
                 dependAsset._removeRef();
-                this._free(dependAsset, force);
+                finalizer._free(dependAsset, force);
             }
         }
         asset.destroy();

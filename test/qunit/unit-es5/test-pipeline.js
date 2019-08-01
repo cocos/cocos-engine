@@ -1,4 +1,4 @@
-largeModule('Pipeline');
+module('Pipeline');
 
 (function () {
 
@@ -16,10 +16,25 @@ var pipeline = new cc.AssetManager.Pipeline('test', [download, load]);
 
 test('construction', function () {
     var pipes = pipeline.pipes;
-
     strictEqual(pipes[0], download, 'should have first pipe id equal to Downloader');
     strictEqual(pipes[1], load, 'should have second pipe id equal to Loader');
     strictEqual(pipeline.name, 'test', 'should have name equal to test');
+});
+
+test('operate pipe', function () {
+    pipeline.insert(function () {}, 1);
+    var pipes = pipeline.pipes;
+    strictEqual(pipes[0], download, 'should have first pipe equal to Downloader');
+    strictEqual(pipes[2], load, 'should have third pipe equal to Loader');
+    ok(pipes[1] !== load, 'should have second pipe equal to new pipe');
+    strictEqual(pipes.length, 3, 'should have three pipes');
+    pipeline.remove(1);
+    strictEqual(pipes.length, 2, 'should have two pipes');
+    strictEqual(pipes[1], load, 'should have second pipe equal to Loader');
+    pipeline.append(function () {});
+    strictEqual(pipes[1], load, 'should have second pipe equal to Loader');
+    strictEqual(pipes.length, 3, 'should have three pipes');
+    pipeline.remove(2);
 });
 
 test('task', function () {
@@ -108,6 +123,39 @@ test('flow empty array', function () {
 
     var task = cc.AssetManager.Task.create({input: [], onProgress: onProgress, onComplete: onComplete});
     pipeline.async(task);
+});
+
+test('sync', function () {
+    var map = {
+        'AAA': 'resources/import/2a/100101',
+        'BBB': 'resources/native/1a/100101'
+    };
+    var md5Map = {
+        'resources/import/2a/100101': '123sawe',
+        'resources/native/1a/100101': 'sqwe123'
+    };
+    var parse = function (task) {
+        var output = [];
+        for (var i = 0, l = task.input.length; i < l; i++) {
+            var str = task.input[i];
+            output.push(map[str]);
+        }
+        task.output = output;
+    };
+    var combine = function (task) {
+        var output = [];
+        for (var i = 0, l = task.input.length; i < l; i++) {
+            var str = task.input[i];
+            output.push(str + '.' + md5Map[str]);
+        }
+        task.output = output;
+    }
+    var pipeline = new cc.AssetManager.Pipeline('sync', [parse, combine]);
+
+    var task = cc.AssetManager.Task.create({input: ['AAA', 'BBB']});
+    var result = pipeline.sync(task);
+    strictEqual(result[0], 'resources/import/2a/100101.123sawe', 'should equal to resources/import/2a/100101.123sawe');
+    strictEqual(result[1], 'resources/native/1a/100101.sqwe123', 'should equal to resources/native/1a/100101.sqwe123');
 });
 
 asyncTest('content manipulation', function () {

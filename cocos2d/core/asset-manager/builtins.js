@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 const Cache = require('./cache');
-const { RequestType } = require('./shared');
 const { lock, unlock, release } = require('./finalizer');
 
 /**
