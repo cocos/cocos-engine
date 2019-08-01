@@ -28,11 +28,14 @@
  */
 
 // @ts-check
-import { Texture2D } from '../../assets';
+import { Texture2D, TrivialTexture } from '../../assets';
 import { ImageAsset } from '../../assets/image-asset';
-import { TextureBase } from '../../assets/texture-base';
+import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo } from '../../assets/simple-texture';
+import { ITexture2DCreateInfo } from '../../assets/texture-2d';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { GFXTextureFlagBit, GFXTextureViewType } from '../../gfx/define';
+import { GFXTextureFlagBit, GFXTextureType, GFXTextureViewType } from '../../gfx/define';
+
+export type ITextureCubeCreateInfo = ITexture2DCreateInfo;
 
 /**
  * 立方体贴图的 Mipmap。
@@ -63,8 +66,22 @@ enum FaceIndex {
  * 立方体贴图资源的每个 Mipmap 层级都为 6 张图像资源，分别代表了立方体贴图的 6 个面。
  */
 @ccclass('cc.TextureCube')
-export class TextureCube extends TextureBase {
+export class TextureCube extends TrivialTexture {
     public static FaceIndex = FaceIndex;
+
+    /**
+     * 此贴图的像素宽度。
+     */
+    public get width (): number {
+        return this._width;
+    }
+
+    /**
+     * 此贴图的像素高度。
+     */
+    public get height (): number {
+        return this._height;
+    }
 
     /**
      * 所有层级 Mipmap，注意，这里不包含自动生成的 Mipmap。
@@ -76,6 +93,7 @@ export class TextureCube extends TextureBase {
 
     set mipmaps (value) {
         this._mipmaps = value;
+        this._setMipmapLevel(this._mipmaps.length);
         if (this._mipmaps.length > 0) {
             const imageAsset: ImageAsset = this._mipmaps[0].front;
             this.reset({
@@ -150,6 +168,8 @@ export class TextureCube extends TextureBase {
 
     @property
     public _mipmaps: ITextureCubeMipmap[] = [];
+    private _width: number = 0;
+    private _height: number = 0;
 
     constructor () {
         super();
@@ -159,6 +179,19 @@ export class TextureCube extends TextureBase {
         this.mipmaps = this._mipmaps;
         this.loaded = true;
         this.emit('load');
+    }
+
+    /**
+     * 将当前贴图重置为指定尺寸、像素格式以及指定 mipmap 层级。重置后，贴图的像素数据将变为未定义。
+     * mipmap 图像的数据不会自动更新到贴图中，你必须显式调用 `this.uploadData` 来上传贴图数据。
+     * @param info 贴图重置选项。
+     */
+    public reset (info: ITextureCubeCreateInfo) {
+        this._width = info.width;
+        this._height = info.height;
+        this._setGFXFormat(info.format);
+        this._setMipmapLevel(info.mipmapLevel || 1);
+        this._tryReset();
     }
 
     public updateMipmaps (firstLevel: number = 0, count?: number) {
@@ -240,18 +273,22 @@ export class TextureCube extends TextureBase {
         }
     }
 
-    protected _getTextureCreateInfo () {
-        const result =  super._getTextureCreateInfo();
-        result.arrayLayer = 6;
+    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo) {
+        const result =  Object.assign({
+            type: GFXTextureType.TEX2D,
+            width: this._width,
+            height: this._height,
+            arrayLayer: 6,
+        }, presumed);
         result.flags = (result.flags || 0) | GFXTextureFlagBit.CUBEMAP;
         return result;
     }
 
-    protected _getTextureViewCreateInfo () {
-        const result = super._getTextureViewCreateInfo();
-        result.type = GFXTextureViewType.CUBE;
-        result.layerCount = 6;
-        return result;
+    protected _getGfxTextureViewCreateInfo (presumed: PresumedGFXTextureViewInfo) {
+        return Object.assign({
+            type: GFXTextureViewType.CUBE,
+            layerCount: 6,
+        }, presumed);
     }
 
 }

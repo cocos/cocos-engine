@@ -46,3 +46,5 @@ export { BitmapFont } from './bitmap-font';
 export { Font } from './font';
 import * as textureUtil from './texture-util';
 export { textureUtil };
+export { SimpleTexture as TrivialTexture } from './simple-texture';
+export { RenderTexture } from './render-texture';

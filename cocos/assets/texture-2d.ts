@@ -30,15 +30,58 @@
 
 // @ts-check
 import { ccclass, property } from '../core/data/class-decorator';
-import { ImageAsset, ImageSource } from './image-asset';
-import { TextureBase } from './texture-base';
+import { GFXTextureType, GFXTextureViewType } from '../gfx/define';
+import { PixelFormat } from './asset-enum';
+import { ImageAsset } from './image-asset';
+import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
+
+/**
+ * 贴图创建选项。
+ */
+export interface ITexture2DCreateInfo {
+    /**
+     * 像素宽度。
+     */
+    width: number;
+
+    /**
+     * 像素高度。
+     */
+    height: number;
+
+    /**
+     * 像素格式。
+     * @default PixelFormat.RGBA8888
+     */
+    format?: PixelFormat;
+
+    /**
+     * mipmap 层级。
+     * @default 1
+     */
+    mipmapLevel?: number;
+}
 
 /**
  * 二维贴图资源。
  * 二维贴图资源的每个 Mipmap 层级都为一张图像资源。
  */
 @ccclass('cc.Texture2D')
-export class Texture2D extends TextureBase {
+export class Texture2D extends SimpleTexture {
+    /**
+     * 此贴图的像素宽度。
+     */
+    public get width (): number {
+        return this._width;
+    }
+
+    /**
+     * 此贴图的像素高度。
+     */
+    public get height (): number {
+        return this._height;
+    }
+
     /**
      * 所有层级 Mipmap，注意，这里不包含自动生成的 Mipmap。
      * 当设置 Mipmap 时，贴图的尺寸以及像素格式可能会改变。
@@ -84,6 +127,8 @@ export class Texture2D extends TextureBase {
 
     @property([ImageAsset])
     public _mipmaps: ImageAsset[] = [];
+    private _width: number = 0;
+    private _height: number = 0;
 
     constructor () {
         super(true);
@@ -93,6 +138,37 @@ export class Texture2D extends TextureBase {
         this.initialize();
         this.loaded = true;
         this.emit('load');
+    }
+
+    /**
+     * 将当前贴图重置为指定尺寸、像素格式以及指定 mipmap 层级。重置后，贴图的像素数据将变为未定义。
+     * mipmap 图像的数据不会自动更新到贴图中，你必须显式调用 `this.uploadData` 来上传贴图数据。
+     * @param info 贴图重置选项。
+     */
+    public reset (info: ITexture2DCreateInfo) {
+        this._width = info.width;
+        this._height = info.height;
+        this._setGFXFormat(info.format);
+        this._setMipmapLevel(info.mipmapLevel || 1);
+        this._tryReset();
+    }
+
+    /**
+     * 将当前贴图重置为指定尺寸、像素格式以及指定 mipmap 层级的贴图。重置后，贴图的像素数据将变为未定义。
+     * mipmap 图像的数据不会自动更新到贴图中，你必须显式调用 `this.uploadData` 来上传贴图数据。
+     * @param width 像素宽度。
+     * @param height 像素高度。
+     * @param format 像素格式。
+     * @param mipmapLevel mipmap 层级。
+     * @deprecated 将在 V1.0.0 移除，请转用 `this.reset()`。
+     */
+    public create (width: number, height: number, format = PixelFormat.RGBA8888, mipmapLevel = 1) {
+        this.reset({
+            width,
+            height,
+            format,
+            mipmapLevel,
+        });
     }
 
     /**
@@ -176,10 +252,23 @@ export class Texture2D extends TextureBase {
         }
     }
 
-    protected initialize () {
+    public initialize () {
         this.mipmaps = this._mipmaps;
     }
 
+    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo) {
+        return Object.assign({
+            type: GFXTextureType.TEX2D,
+            width: this._width,
+            height: this._height,
+        }, presumed);
+    }
+
+    protected _getGfxTextureViewCreateInfo (presumed: PresumedGFXTextureViewInfo) {
+        return Object.assign({
+            type: GFXTextureViewType.TV2D,
+        }, presumed);
+    }
 }
 
 cc.Texture2D = Texture2D;
