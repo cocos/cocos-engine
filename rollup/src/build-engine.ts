@@ -1,6 +1,6 @@
 import { existsSync } from 'fs';
 import { dirname, join, normalize, relative } from 'path';
-import { rollup } from 'rollup';
+import { rollup, ModuleFormat } from 'rollup';
 // @ts-ignore
 import babel from 'rollup-plugin-babel';
 // @ts-ignore
@@ -15,6 +15,7 @@ import resolve from 'rollup-plugin-node-resolve';
 import { uglify } from 'rollup-plugin-uglify';
 // @ts-ignore
 import { excludes } from '../plugin/rollup-plugin-excludes';
+import { terser } from 'rollup-plugin-terser';
 
 interface IBaseOptions {
     moduleEntries: string[];
@@ -24,6 +25,12 @@ interface IBaseOptions {
      * 你仍应该自己写入生成代码到此文件中。
      */
     outputPath: string;
+
+    /**
+     * 输出模块格式。
+     * @default ModuleOption.system
+     */
+    moduleFormat?: ModuleOption;
 
     /**
      * 排除的模块。
@@ -111,6 +118,17 @@ function _checkPhysicsFlag (options: IBuildOptions) {
 async function _internalBuild (options: IAdvancedOptions) {
     console.log(`Build-engine options: ${JSON.stringify(options, undefined, 2)}`);
     const doUglify = !!options.compress;
+
+    let format: ModuleFormat = 'system';
+    switch (options.moduleFormat) {
+        case ModuleOption.cjs:
+            format = 'cjs';
+            break;
+        case ModuleOption.esm:
+            format = 'esm';
+            break;
+    }
+
     const rollupPlugins = [
         multiEntry(),
 
@@ -156,36 +174,33 @@ async function _internalBuild (options: IAdvancedOptions) {
                 'tween.js': ['TWEEN'],
             },
         }),
+    ];
 
-        uglify({
+    if (format === 'esm') {
+        rollupPlugins.push(terser({
             compress: {
                 global_defs: options.globalDefines,
-                // sequences     : true,  // join consecutive statemets with the “comma operator”
-                // properties    : true,  // optimize property access: a["foo"] → a.foo
-                // dead_code     : true,  // discard unreachable code
-                // drop_debugger : true,  // discard “debugger” statements
-                // unsafe        : false, // some unsafe optimizations (see below)
-                // conditionals  : true,  // optimize if-s and conditional expressions
-                // comparisons   : true,  // optimize comparisons
-                // evaluate      : true,  // evaluate constant expressions
-                // booleans      : true,  // optimize boolean expressions
-                // loops         : true,  // optimize loops
-                // unused        : true,  // drop unused variables/functions
-                // hoist_funs    : true,  // hoist function declarations
-                // hoist_vars    : false, // hoist variable declarations
-                // if_return     : true,  // optimize if-s followed by return/continue
-                // join_vars     : true,  // join var declarations
-                // side_effects  : true,  // drop side-effect-free statements
-                // warnings      : true,  // warn about potentially dangerous optimizations/code
             },
             mangle: doUglify,
             keep_fnames: !doUglify,
             output: {
                 beautify: !doUglify,
             },
-            sourcemap: options.sourcemap === 'inline' ? { url: 'inline' } : !!options.sourcemap,
-        }),
-    ];
+            sourcemap: !!options.sourcemap,
+        }));
+    } else {
+        rollupPlugins.push(uglify({
+            compress: {
+                global_defs: options.globalDefines,
+            },
+            mangle: doUglify,
+            keep_fnames: !doUglify,
+            output: {
+                beautify: !doUglify,
+            },
+            sourcemap: !!options.sourcemap,
+        }));
+    }
 
     const outputPath = options.outputPath;
     const sourcemapFile = options.sourcemapFile || `${options.outputPath}.map`;
@@ -201,7 +216,7 @@ async function _internalBuild (options: IAdvancedOptions) {
         plugins: rollupPlugins,
     });
     const generated = await rollupBuild.generate({
-        format: 'system',
+        format,
         sourcemap: options.sourcemap,
         sourcemapFile,
     });
@@ -252,6 +267,20 @@ export function enumeratePhysicsReps () {
 
 export function parsePhysics (rep: string) {
     return Reflect.get(Physics, rep);
+}
+
+export enum ModuleOption {
+    esm,
+    cjs,
+    system,
+}
+
+export function enumerateModuleOptionReps () {
+    return Object.values(ModuleOption).filter((value) => typeof value === 'string');
+}
+
+export function parseModuleOption (rep: string) {
+    return Reflect.get(ModuleOption, rep);
 }
 
 export interface IFlags {

@@ -2,9 +2,15 @@
 import * as fs from 'fs-extra';
 import * as ps from 'path';
 import yargs from 'yargs';
-import { build, enumeratePhysicsReps, enumeratePlatformReps, IBuildOptions, IFlags, parsePhysics, parsePlatform } from './build-engine';
+import { build, enumeratePhysicsReps, enumeratePlatformReps, IBuildOptions, IFlags, parsePhysics, parsePlatform, enumerateModuleOptionReps, parseModuleOption } from './build-engine';
 
 yargs.help();
+yargs.option('module', {
+    type: 'string',
+    alias: 'm',
+    description: `Output module format.`,
+    choices: enumerateModuleOptionReps(),
+});
 yargs.option('platform', {
     type: 'string',
     alias: 'p',
@@ -67,6 +73,9 @@ const options: IBuildOptions = {
     sourcemap: sourceMap,
     flags,
 };
+if (yargs.argv['module']) {
+    options.moduleFormat = parseModuleOption(yargs.argv['module'] as unknown as string);
+}
 if (yargs.argv.platform) {
     options.platform = parsePlatform(yargs.argv.platform as unknown as string);
 }

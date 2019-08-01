@@ -27,7 +27,7 @@
 
 import '../data/class';
 import { EventTarget } from '../event/event-target';
-import Game from '../game';
+import { Game } from '../game';
 import { Rect, Size } from '../math';
 
 let _currentFrame = 0;

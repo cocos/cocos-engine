@@ -889,6 +889,7 @@ class Game extends EventTarget {
     }
 }
 
+const game = new Game();
 cc.Game = Game;
-cc.game = new Game();
-export default Game;
+cc.game = game;
+export { Game, game };
