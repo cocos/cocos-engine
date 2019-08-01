@@ -280,7 +280,7 @@ export class Root {
 
         for (const view of this._views) {
             if (view.isEnable && (view.window &&
-                (view.window.isOffscreen || 
+                (view.window.isOffscreen ||
                 (!view.window.isOffscreen && (view.window === this._curWindow))))) {
                 this._pipeline!.render(view);
             }
