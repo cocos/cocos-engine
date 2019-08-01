@@ -22,8 +22,8 @@ export class TerrainEditorSculpt extends TerrainEditorMode {
             const index = block.getIndex();
 
             const bound = new Rect();
-            bound.x = index[0] * terrain.info.tileSize;
-            bound.y = index[1] * terrain.info.tileSize;
+            bound.x = index[0] * TERRAIN_BLOCK_TILE_COMPLEXITY * terrain.info.tileSize;
+            bound.y = index[1] * TERRAIN_BLOCK_TILE_COMPLEXITY * terrain.info.tileSize;
             bound.width = TERRAIN_BLOCK_TILE_COMPLEXITY * terrain.info.tileSize;
             bound.height = TERRAIN_BLOCK_TILE_COMPLEXITY * terrain.info.tileSize;
 
