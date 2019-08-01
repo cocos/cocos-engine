@@ -893,7 +893,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         const deltaMove = new Vec2(touch.getUILocation());
         deltaMove.subtract(touch.getStartLocation());
         // FIXME: touch move delta should be calculated by DPI.
-        if (deltaMove.mag() > 7) {
+        if (deltaMove.length() > 7) {
             if (!this._touchMoved && event.target !== this.node) {
                 // Simulate touch cancel for target node
                 const cancelEvent = new EventTouch(event.getTouches(), event.bubbles);
@@ -1021,7 +1021,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 
     protected _startAttenuatingAutoScroll (deltaMove: Vec3, initialVelocity: Vec3) {
-        let time = this._calculateAutoScrollTimeByInitalSpeed(initialVelocity.mag());
+        let time = this._calculateAutoScrollTimeByInitalSpeed(initialVelocity.length());
 
         const targetDelta = new Vec3(deltaMove);
         targetDelta.normalize();
@@ -1038,8 +1038,8 @@ export class ScrollViewComponent extends ViewGroupComponent {
         targetDelta.y = targetDelta.y * totalMoveHeight * attenuatedFactorY * (1 - this.brake);
         targetDelta.z = 0;
 
-        const originalMoveLength = deltaMove.mag();
-        let factor = targetDelta.mag() / originalMoveLength;
+        const originalMoveLength = deltaMove.length();
+        let factor = targetDelta.length() / originalMoveLength;
         targetDelta.add(deltaMove);
 
         if (this.brake > 0 && factor > 7) {

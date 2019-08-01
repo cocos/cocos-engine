@@ -116,17 +116,6 @@ export class Color extends ValueType {
     }
 
     /**
-     * @zh 逐通道颜色减法
-     */
-    public static sub <Out extends IColorLike> (out: Out, a: Out, b: Out) {
-        out.r = a.r - b.r;
-        out.g = a.g - b.g;
-        out.b = a.b - b.b;
-        out.a = a.a - b.a;
-        return out;
-    }
-
-    /**
      * @zh 逐通道颜色乘法
      */
     public static multiply <Out extends IColorLike> (out: Out, a: Out, b: Out) {
@@ -138,31 +127,9 @@ export class Color extends ValueType {
     }
 
     /**
-     * @zh 逐通道颜色乘法
-     */
-    public static mul <Out extends IColorLike> (out: Out, a: Out, b: Out) {
-        out.r = a.r * b.r;
-        out.g = a.g * b.g;
-        out.b = a.b * b.b;
-        out.a = a.a * b.a;
-        return out;
-    }
-
-    /**
      * @zh 逐通道颜色除法
      */
     public static divide <Out extends IColorLike> (out: Out, a: Out, b: Out) {
-        out.r = a.r / b.r;
-        out.g = a.g / b.g;
-        out.b = a.b / b.b;
-        out.a = a.a / b.a;
-        return out;
-    }
-
-    /**
-     * @zh 逐通道颜色除法
-     */
-    public static div <Out extends IColorLike> (out: Out, a: Out, b: Out) {
         out.r = a.r / b.r;
         out.g = a.g / b.g;
         out.b = a.b / b.b;

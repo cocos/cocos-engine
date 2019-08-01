@@ -599,7 +599,7 @@ export const graphicsAssembler: IAssembler = {
                 // Calculate segment direction and length
                 const dPos = new Point(p1.x, p1.y);
                 dPos.subtract(p0);
-                p0.len = dPos.mag();
+                p0.len = dPos.length();
                 if (dPos.x || dPos.y) {
                     dPos.normalize();
                 }

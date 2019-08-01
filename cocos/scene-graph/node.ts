@@ -292,7 +292,7 @@ export class Node extends BaseNode implements INode {
         return Vec3.transformQuat(new Vec3(), Vec3.UNIT_Z, q_a);
     }
     set forward (dir: Vec3) {
-        const len = Vec3.magnitude(dir);
+        const len = dir.length();
         Vec3.scale(v3_a, dir, -1 / len); // we use -z for view-dir
         Quat.fromViewUp(q_a, v3_a);
         this.setWorldRotation(q_a);

@@ -279,7 +279,7 @@ const ray_sphere = (function () {
         const d = ray.d;
         const rSq = r * r;
         Vec3.subtract(e, c, o);
-        const eSq = Vec3.sqrMag(e);
+        const eSq = e.lengthSqr();
 
         const aLength = Vec3.dot(e, d); // assume ray direction already normalized
         const fSq = rSq - (eSq - aLength * aLength);
@@ -820,7 +820,7 @@ const obb_obb = (function () {
  */
 const sphere_plane = function (sphere: sphere, plane: plane): number {
     const dot = Vec3.dot(plane.n, sphere.center);
-    const r = sphere.radius * Vec3.magnitude(plane.n);
+    const r = sphere.radius * plane.n.length();
     if (dot + r < plane.d) { return -1; }
     else if (dot - r > plane.d) { return 0; }
     return 1;
@@ -890,7 +890,7 @@ const sphere_frustum_accurate = (function () {
  */
 const sphere_sphere = function (sphere0: sphere, sphere1: sphere): boolean {
     const r = sphere0.radius + sphere1.radius;
-    return Vec3.sqrDist(sphere0.center, sphere1.center) < r * r;
+    return Vec3.squaredDistance(sphere0.center, sphere1.center) < r * r;
 };
 
 /**
@@ -906,7 +906,7 @@ const sphere_aabb = (function () {
     const pt = new Vec3();
     return function (sphere: sphere, aabb: aabb): boolean {
         distance.pt_point_aabb(pt, sphere.center, aabb);
-        return Vec3.sqrDist(sphere.center, pt) < sphere.radius * sphere.radius;
+        return Vec3.squaredDistance(sphere.center, pt) < sphere.radius * sphere.radius;
     };
 })();
 
@@ -923,7 +923,7 @@ const sphere_obb = (function () {
     const pt = new Vec3();
     return function (sphere: sphere, obb: obb): boolean {
         distance.pt_point_obb(pt, sphere.center, obb);
-        return Vec3.sqrDist(sphere.center, pt) < sphere.radius * sphere.radius;
+        return Vec3.squaredDistance(sphere.center, pt) < sphere.radius * sphere.radius;
     };
 })();
 

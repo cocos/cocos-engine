@@ -203,32 +203,6 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @zh 矩阵乘法
-     */
-    public static mul <Out extends IMat3Like> (out: Out, a: Out, b: Out) {
-        _a00 = a.m00; _a01 = a.m01; _a02 = a.m02;
-        _a10 = a.m03; _a11 = a.m04; _a12 = a.m05;
-        _a20 = a.m06; _a21 = a.m07; _a22 = a.m08;
-
-        const b00 = b.m00, b01 = b.m01, b02 = b.m02;
-        const b10 = b.m03, b11 = b.m04, b12 = b.m05;
-        const b20 = b.m06, b21 = b.m07, b22 = b.m08;
-
-        out.m00 = b00 * _a00 + b01 * _a10 + b02 * _a20;
-        out.m01 = b00 * _a01 + b01 * _a11 + b02 * _a21;
-        out.m02 = b00 * _a02 + b01 * _a12 + b02 * _a22;
-
-        out.m03 = b10 * _a00 + b11 * _a10 + b12 * _a20;
-        out.m04 = b10 * _a01 + b11 * _a11 + b12 * _a21;
-        out.m05 = b10 * _a02 + b11 * _a12 + b12 * _a22;
-
-        out.m06 = b20 * _a00 + b21 * _a10 + b22 * _a20;
-        out.m07 = b20 * _a01 + b21 * _a11 + b22 * _a21;
-        out.m08 = b20 * _a02 + b21 * _a12 + b22 * _a22;
-        return out;
-    }
-
-    /**
      * @zh 在给定矩阵变换基础上加入变换
      */
     public static transfrom <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
@@ -319,7 +293,7 @@ export class Mat3 extends ValueType {
      * @param up 视口的上方向，必须归一化，默认为 (0, 1, 0)
      */
     public static fromViewUp <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, view: VecLike, up?: Vec3) {
-        if (Vec3.sqrMag(view) < EPSILON * EPSILON) {
+        if (Vec3.lengthSqr(view) < EPSILON * EPSILON) {
             Mat3.identity(out);
             return out;
         }
@@ -327,7 +301,7 @@ export class Mat3 extends ValueType {
         up = up || Vec3.UNIT_Y;
         Vec3.normalize(v3_1, Vec3.cross(v3_1, up, view));
 
-        if (Vec3.sqrMag(v3_1) < EPSILON * EPSILON) {
+        if (Vec3.lengthSqr(v3_1) < EPSILON * EPSILON) {
             Mat3.identity(out);
             return out;
         }
@@ -514,22 +488,6 @@ export class Mat3 extends ValueType {
      * @zh 逐元素矩阵减法
      */
     public static subtract <Out extends IMat3Like> (out: Out, a: Out, b: Out) {
-        out.m00 = a.m00 - b.m00;
-        out.m01 = a.m01 - b.m01;
-        out.m02 = a.m02 - b.m02;
-        out.m03 = a.m03 - b.m03;
-        out.m04 = a.m04 - b.m04;
-        out.m05 = a.m05 - b.m05;
-        out.m06 = a.m06 - b.m06;
-        out.m07 = a.m07 - b.m07;
-        out.m08 = a.m08 - b.m08;
-        return out;
-    }
-
-    /**
-     * @zh 逐元素矩阵减法
-     */
-    public static sub <Out extends IMat3Like> (out: Out, a: Out, b: Out) {
         out.m00 = a.m00 - b.m00;
         out.m01 = a.m01 - b.m01;
         out.m02 = a.m02 - b.m02;
@@ -837,7 +795,7 @@ export class Mat3 extends ValueType {
      * 计算矩阵减法。将当前矩阵减去指定矩阵的结果赋值给当前矩阵。
      * @param mat 减数矩阵。
      */
-    public sub (mat: Mat3) {
+    public subtract (mat: Mat3) {
         this.m00 = this.m00 - mat.m00;
         this.m01 = this.m01 - mat.m01;
         this.m02 = this.m02 - mat.m02;
@@ -854,7 +812,7 @@ export class Mat3 extends ValueType {
      * 矩阵乘法。将当前矩阵左乘指定矩阵的结果赋值给当前矩阵。
      * @param mat 指定的矩阵。
      */
-    public mul (mat: Mat3) {
+    public multiply (mat: Mat3) {
         const a00 = this.m00, a01 = this.m01, a02 = this.m02,
         a10 = this.m03, a11 = this.m04, a12 = this.m05,
         a20 = this.m06, a21 = this.m07, a22 = this.m08;
@@ -881,7 +839,7 @@ export class Mat3 extends ValueType {
      * 矩阵数乘。将当前矩阵与指定标量的数乘结果赋值给当前矩阵。
      * @param scalar 指定的标量。
      */
-    public mulScalar (scalar: number) {
+    public multiplyScalar (scalar: number) {
         this.m00 = this.m00 * scalar;
         this.m01 = this.m01 * scalar;
         this.m02 = this.m02 * scalar;

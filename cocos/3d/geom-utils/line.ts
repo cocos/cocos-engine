@@ -107,18 +107,8 @@ export default class line {
      * @param a 要计算的线。
      * @return 长度。
      */
-    public static magnitude (a: line) {
+    public static len (a: line) {
         return Vec3.distance(a.s, a.e);
-    }
-
-    /**
-     * @en
-     * Alias of {@link line.magnitude}.
-     * @zh
-     * line.magnitude 的别名。
-     */
-    public static mag (a: line) {
-        return line.magnitude(a);
     }
 
     /**
@@ -148,5 +138,15 @@ export default class line {
         this._type = enums.SHAPE_LINE;
         this.s = new Vec3(sx, sy, sz);
         this.e = new Vec3(ex, ey, ez);
+    }
+
+    /**
+     * @zh
+     * 计算线的长度。
+     * @param a 要计算的线。
+     * @return 长度。
+     */
+    public length () {
+        return Vec3.distance(this.s, this.e);
     }
 }

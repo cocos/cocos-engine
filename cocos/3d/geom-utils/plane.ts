@@ -129,7 +129,7 @@ export default class plane {
      * @return out 接受操作的对象。
      */
     public static normalize (out: plane, a: plane) {
-        const len = Vec3.magnitude(a.n);
+        const len = a.n.length();
         Vec3.normalize(out.n, a.n);
         if (len > 0) {
             out.d = a.d / len;

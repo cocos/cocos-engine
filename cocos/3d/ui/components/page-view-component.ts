@@ -689,7 +689,7 @@ export class PageViewComponent extends ScrollViewComponent {
     const bounceBackStarted = this._startBounceBackIfNeeded();
     // Note:
     const moveOffset = new Vec3();
-    Vec3.sub(moveOffset, this._touchBeganPosition, this._touchEndPosition);
+    Vec3.subtract(moveOffset, this._touchBeganPosition, this._touchEndPosition);
     // this._touchBeganPosition.subtract(this._touchEndPosition);
     if (bounceBackStarted) {
       const dragDirection = this._getDragDirection(moveOffset);
