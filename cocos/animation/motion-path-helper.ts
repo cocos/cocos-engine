@@ -129,7 +129,7 @@ export class Bezier {
             current = this.getPoint(p / divisions);
             vector.x = last.x - current.x;
             vector.y = last.y - current.y;
-            sum += vector.mag();
+            sum += vector.magnitude();
             cache.push(sum);
             last = current;
 

@@ -94,15 +94,6 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @zh 逐元素向量减法
-     */
-    public static sub <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
-        out.x = a.x - b.x;
-        out.y = a.y - b.y;
-        return out;
-    }
-
-    /**
      * @zh 逐元素向量乘法
      */
     public static multiply <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
@@ -112,27 +103,9 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @zh 逐元素向量乘法
-     */
-    public static mul <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
-        out.x = a.x * b.x;
-        out.y = a.y * b.y;
-        return out;
-    }
-
-    /**
      * @zh 逐元素向量除法
      */
     public static divide <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
-        out.x = a.x / b.x;
-        out.y = a.y / b.y;
-        return out;
-    }
-
-    /**
-     * @zh 逐元素向量除法
-     */
-    public static div <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
         out.x = a.x / b.x;
         out.y = a.y / b.y;
         return out;
@@ -211,27 +184,9 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @zh 求两向量的欧氏距离
-     */
-    public static dist <Out extends IVec2Like> (a: Out, b: Out) {
-        _x = b.x - a.x;
-        _y = b.y - a.y;
-        return Math.sqrt(_x * _x + _y * _y);
-    }
-
-    /**
      * @zh 求两向量的欧氏距离平方
      */
     public static squaredDistance <Out extends IVec2Like> (a: Out, b: Out) {
-        _x = b.x - a.x;
-        _y = b.y - a.y;
-        return _x * _x + _y * _y;
-    }
-
-    /**
-     * @zh 求两向量的欧氏距离平方
-     */
-    public static sqrDist <Out extends IVec2Like> (a: Out, b: Out) {
         _x = b.x - a.x;
         _y = b.y - a.y;
         return _x * _x + _y * _y;
@@ -247,27 +202,9 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @zh 求向量长度
-     */
-    public static mag <Out extends IVec2Like> (a: Out) {
-        _x = a.x;
-        _y = a.y;
-        return Math.sqrt(_x * _x + _y * _y);
-    }
-
-    /**
      * @zh 求向量长度平方
      */
     public static squaredMagnitude <Out extends IVec2Like> (a: Out) {
-        _x = a.x;
-        _y = a.y;
-        return _x * _x + _y * _y;
-    }
-
-    /**
-     * @zh 求向量长度平方
-     */
-    public static sqrMag <Out extends IVec2Like> (a: Out) {
         _x = a.x;
         _y = a.y;
         return _x * _x + _y * _y;
@@ -624,7 +561,7 @@ export class Vec2 extends ValueType {
      * 计算向量的长度（模）。
      * @returns 向量的长度（模）。
      */
-    public mag () {
+    public magnitude () {
         return Math.sqrt(this.x * this.x + this.y * this.y);
     }
 
@@ -632,7 +569,7 @@ export class Vec2 extends ValueType {
      * 计算向量长度（模）的平方。
      * @returns 向量长度（模）的平方。
      */
-    public magSqr () {
+    public squaredMagnitude () {
         return this.x * this.x + this.y * this.y;
     }
 
@@ -657,8 +594,8 @@ export class Vec2 extends ValueType {
      * @returns 当前向量和指定向量之间的角度（弧度制）；若当前向量和指定向量中存在零向量，将返回 0。
      */
     public angle (other: Vec2) {
-        const magSqr1 = this.magSqr();
-        const magSqr2 = other.magSqr();
+        const magSqr1 = this.squaredMagnitude();
+        const magSqr2 = other.squaredMagnitude();
 
         if (magSqr1 === 0 || magSqr2 === 0) {
             console.warn('Can\'t get angle between zero vector');

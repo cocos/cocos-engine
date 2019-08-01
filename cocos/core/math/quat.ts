@@ -153,21 +153,6 @@ export class Quat extends ValueType {
     }
 
     /**
-     * @zh 四元数乘法
-     */
-    public static mul <Out extends IQuatLike> (out: Out, a: Out, b: Out) {
-        _x = a.x * b.w + a.w * b.x + a.y * b.z - a.z * b.y;
-        _y = a.y * b.w + a.w * b.y + a.z * b.x - a.x * b.z;
-        _z = a.z * b.w + a.w * b.z + a.x * b.y - a.y * b.x;
-        _w = a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z;
-        out.x = _x;
-        out.y = _y;
-        out.z = _z;
-        out.w = _w;
-        return out;
-    }
-
-    /**
      * @zh 四元数标量乘法
      */
     public static scale <Out extends IQuatLike> (out: Out, a: Out, b: number) {
@@ -384,23 +369,9 @@ export class Quat extends ValueType {
     }
 
     /**
-     * @zh 求四元数长度
-     */
-    public static mag <Out extends IQuatLike> (a: Out) {
-        return Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
-    }
-
-    /**
      * @zh 求四元数长度平方
      */
     public static squaredMagnitude <Out extends IQuatLike> (a: Out) {
-        return a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
-    }
-
-    /**
-     * @zh 求四元数长度平方
-     */
-    public static sqrMag <Out extends IQuatLike> (a: Out) {
         return a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
     }
 
