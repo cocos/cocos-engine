@@ -20,3 +20,4 @@ const cclegacy = cc;
 export { cclegacy };
 
 export * from '../cocos/deprecated';
+export { vmath } from '../cocos/vmath';
