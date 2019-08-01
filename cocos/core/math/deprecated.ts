@@ -27,16 +27,16 @@ deprecatedWrapper({
     ],
 });
 
-deprecatedWrapper({
-    oldTarget: Vec2,
-    oldPrefix: 'Vec2',
-    newTarget: Vec2,
-    newPrefix: 'Vec2',
-    pairs: [
-        ['mag', 'length'],
-        ['magSqr', 'lengthSqr'],
-    ],
-});
+// deprecatedWrapper({
+//     oldTarget: Vec2,
+//     oldPrefix: 'Vec2',
+//     newTarget: Vec2,
+//     newPrefix: 'Vec2',
+//     pairs: [
+//         ['mag', 'length'],
+//         ['magSqr', 'lengthSqr'],
+//     ],
+// });
 
 deprecatedWrapper({
     oldTarget: Vec3.prototype,
@@ -54,16 +54,16 @@ deprecatedWrapper({
     ],
 });
 
-deprecatedWrapper({
-    oldTarget: Vec3,
-    oldPrefix: 'Vec3',
-    newTarget: Vec3,
-    newPrefix: 'Vec3',
-    pairs: [
-        ['mag', 'length'],
-        ['magSqr', 'lengthSqr'],
-    ],
-});
+// deprecatedWrapper({
+//     oldTarget: Vec3,
+//     oldPrefix: 'Vec3',
+//     newTarget: Vec3,
+//     newPrefix: 'Vec3',
+//     pairs: [
+//         ['mag', 'length'],
+//         ['magSqr', 'lengthSqr'],
+//     ],
+// });
 
 deprecatedWrapper({
     oldTarget: Vec4.prototype,
@@ -81,16 +81,16 @@ deprecatedWrapper({
     ],
 });
 
-deprecatedWrapper({
-    oldTarget: Vec4,
-    oldPrefix: 'Vec4',
-    newTarget: Vec4,
-    newPrefix: 'Vec4',
-    pairs: [
-        ['mag', 'length'],
-        ['magSqr', 'lengthSqr'],
-    ],
-});
+// deprecatedWrapper({
+//     oldTarget: Vec4,
+//     oldPrefix: 'Vec4',
+//     newTarget: Vec4,
+//     newPrefix: 'Vec4',
+//     pairs: [
+//         ['mag', 'length'],
+//         ['magSqr', 'lengthSqr'],
+//     ],
+// });
 
 deprecatedWrapper({
     oldTarget: Quat.prototype,
@@ -127,17 +127,17 @@ deprecatedWrapper({
     ],
 });
 
-deprecatedWrapper({
-    oldTarget: Mat3,
-    oldPrefix: 'Mat3',
-    newTarget: Mat3,
-    newPrefix: 'Mat3',
-    pairs: [
-        ['sub', 'subtract'],
-        ['mul', 'multiply'],
-        ['mulScalar', 'multiplyScalar'],
-    ],
-});
+// deprecatedWrapper({
+//     oldTarget: Mat3,
+//     oldPrefix: 'Mat3',
+//     newTarget: Mat3,
+//     newPrefix: 'Mat3',
+//     pairs: [
+//         ['sub', 'subtract'],
+//         ['mul', 'multiply'],
+//         ['mulScalar', 'multiplyScalar'],
+//     ],
+// });
 
 deprecatedWrapper({
     oldTarget: Mat4.prototype,
@@ -150,14 +150,14 @@ deprecatedWrapper({
     ],
 });
 
-deprecatedWrapper({
-    oldTarget: Mat4,
-    oldPrefix: 'Mat4',
-    newTarget: Mat4,
-    newPrefix: 'Mat4',
-    pairs: [
-        ['sub', 'subtract'],
-        ['mul', 'multiply'],
-        ['mulScalar', 'multiplyScalar'],
-    ],
-});
+// deprecatedWrapper({
+//     oldTarget: Mat4,
+//     oldPrefix: 'Mat4',
+//     newTarget: Mat4,
+//     newPrefix: 'Mat4',
+//     pairs: [
+//         ['sub', 'subtract'],
+//         ['mul', 'multiply'],
+//         ['mulScalar', 'multiplyScalar'],
+//     ],
+// });
