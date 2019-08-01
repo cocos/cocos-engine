@@ -29,7 +29,7 @@
  */
 
 import { isDomNode } from '../utils/misc';
-import { ValueType } from '../value-types';
+import { ValueType } from '../value-types/value-type';
 import { CCObject } from './object';
 import { js } from '../utils';
 
@@ -88,7 +88,6 @@ export default function instantiate (original, internal_force?) {
 
     let clone;
     if (original instanceof CCObject) {
-        original = original as CCObject;
         // Invoke _instantiate method if supplied.
         // The _instantiate callback will be called only on the root object, its associated object will not be called.
         // @callback associated

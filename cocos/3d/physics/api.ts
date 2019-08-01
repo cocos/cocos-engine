@@ -2,7 +2,8 @@
  * @hidden
  */
 
-import { Mat4, Quat, Vec3 } from '../../core/math';
+import { Quat, Vec3 } from '../../core/value-types';
+import { mat4, quat } from '../../core/vmath';
 import { ERigidBodyType } from './physic-enum';
 import { RaycastResult } from './raycast-result';
 
@@ -120,7 +121,7 @@ export interface BuiltInRigidBodyBase {
 
     setRotation (out: Quat): void;
 
-    translateAndRotate (m: Mat4, rot: Quat): void;
+    translateAndRotate (m: mat4, rot: quat): void;
 
     scaleAllShapes (scale: Vec3): void;
 

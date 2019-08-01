@@ -36,7 +36,6 @@ import * as js from '../core/utils/js';
 import { baseNodePolyfill } from './base-node-dev';
 import { Scene } from './scene';
 import { CCClass } from '../core/data';
-import { IBaseNode } from '../core/utils/interfaces';
 
 /**
  *
@@ -85,7 +84,7 @@ function getConstructor (typeOrClassName: string | Function): Function | null {
  * @protected
  */
 @ccclass('cc._BaseNode')
-export class BaseNode extends CCObject implements IBaseNode {
+export class BaseNode extends CCObject {
     /**
      * Gets all components attached to this node.
      */
@@ -247,11 +246,6 @@ export class BaseNode extends CCObject implements IBaseNode {
         this.setParent(value);
     }
 
-    /**
-     * @en which scene this node belongs to.
-     * @zh 此节点属于哪个场景。
-     * @type {cc.Scene}}
-     */
     get scene () {
         return this._scene;
     }
@@ -398,7 +392,7 @@ export class BaseNode extends CCObject implements IBaseNode {
         super(name);
         this._name = name !== undefined ? name : 'New Node';
 
-        if (cc.director && cc.director._scheduler) {
+        if (cc.director._scheduler) {
             cc.director._scheduler.enableForTarget(this);
         }
 
@@ -755,36 +749,57 @@ export class BaseNode extends CCObject implements IBaseNode {
 
     /**
      * @en
-     * Remove itself from its parent node. <br/>
+     * Remove itself from its parent node. If cleanup is `true`, then also remove all events and actions. <br/>
+     * If the cleanup parameter is not passed, it will force a cleanup,
+     * so it is recommended that you always pass in the `false` parameter when calling this API.<br/>
      * If the node orphan, then nothing happens.
      * @zh
-     * 从父节点中删除该节点。<br/>
+     * 从父节点中删除该节点。如果不传入 cleanup 参数或者传入 `true`，那么这个节点上所有绑定的事件、action 都会被删除。<br/>
+     * 因此建议调用这个 API 时总是传入 `false` 参数。<br/>
      * 如果这个节点是一个孤节点，那么什么都不会发生。
+     * @param [cleanup=true] - true if all actions and callbacks on this node should be removed, false otherwise.
      * @see cc.Node#removeFromParentAndCleanup
      * @example
      * ```
      * node.removeFromParent();
+     * node.removeFromParent(false);
      * ```
      */
-    public removeFromParent () {
+    public removeFromParent (cleanup?: boolean) {
         if (this._parent) {
-            this._parent.removeChild(this);
+            if (cleanup === undefined) {
+                cleanup = true;
+            }
+            this._parent.removeChild(this, cleanup);
         }
     }
 
     /**
      * @en
      * Removes a child from the container.
+     * It will also cleanup all running actions depending on the cleanup parameter. </p>
+     * If the cleanup parameter is not passed, it will force a cleanup. <br/>
+     * "remove" logic MUST only be on this method  <br/>
+     * If a class wants to extend the 'removeChild' behavior it only needs <br/>
+     * to override this method.
      * @zh
-     * 移除节点中指定的子节点。
+     * 移除节点中指定的子节点，是否需要清理所有正在运行的行为取决于 cleanup 参数。<br/>
+     * 如果 cleanup 参数不传入，默认为 true 表示清理。<br/>
      * @param child - The child node which will be removed.
+     * @param [cleanup=true] - true if all running actions and callbacks on the child node
+     * will be cleanup, false otherwise.
      * @example
      * ```
      * node.removeChild(newNode);
+     * node.removeChild(newNode, false);
      * ```
      */
-    public removeChild (child: this) {
+    public removeChild (child: this, cleanup?: boolean) {
         if (this._children.indexOf(child) > -1) {
+            // If you don't do cleanup, the child's actions will not get removed and the
+            if (cleanup || cleanup === undefined) {
+                child.cleanup();
+            }
             // invoke the parent setter
             child.parent = null;
         }
@@ -792,20 +807,34 @@ export class BaseNode extends CCObject implements IBaseNode {
 
     /**
      * @en
-     * Removes all children from the container.
+     * Removes all children from the container and
+     * do a cleanup all running actions depending on the cleanup parameter. <br/>
+     * If the cleanup parameter is not passed, it will force a cleanup.
      * @zh
-     * 移除节点所有的子节点。
+     * 移除节点所有的子节点，是否需要清理所有正在运行的行为取决于 cleanup 参数。<br/>
+     * 如果 cleanup 参数不传入，默认为 true 表示清理。
+     * @param [cleanup=true] - true if all running actions on all children nodes
+     * should be cleanup, false otherwise.
      * @example
      * ```
      * node.removeAllChildren();
+     * node.removeAllChildren(false);
      * ```
      */
-    public removeAllChildren () {
+    public removeAllChildren (cleanup?: boolean) {
         // not using detachChild improves speed here
         const children = this._children;
+        if (cleanup === undefined) {
+            cleanup = true;
+        }
         for (let i = children.length - 1; i >= 0; i--) {
             const node = children[i];
             if (node) {
+                // If you don't do cleanup, the node's actions will not get removed and the
+                if (cleanup) {
+                    node.cleanup();
+                }
+
                 node.parent = null;
             }
         }
@@ -821,7 +850,7 @@ export class BaseNode extends CCObject implements IBaseNode {
      * node.isChildOf(newNode);
      * ```
      */
-    public isChildOf (parent: this): boolean {
+    public isChildOf (parent: this) {
         let child: this | null = this;
         do {
             if (child === parent) {
@@ -1137,6 +1166,10 @@ export class BaseNode extends CCObject implements IBaseNode {
         }
     }
 
+    public cleanup () {
+        return;
+    }
+
     public emit? (type: string, ...args: any[]): void;
 
     // Do remove component, only used internally.
@@ -1153,9 +1186,7 @@ export class BaseNode extends CCObject implements IBaseNode {
                 if ((CC_EDITOR || CC_TEST) && cc.engine) {
                     delete cc.engine.attachedObjsForEditor[component._id];
                 }
-            }
-            // @ts-ignore
-            else if (component.node !== this) {
+            } else if ((component.node as BaseNode) !== this) {
                 cc.errorID(3815);
             }
         }

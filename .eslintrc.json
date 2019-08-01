@@ -1,152 +1,42 @@
 {
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-        "project": "./tsconfig.json"
-    },
-    "extends": "plugin:@typescript-eslint/recommended",
-    "plugins": [
-        "@typescript-eslint"
-    ],
-    "settings": {
-        "import/resolver": {
-            "node": {
-                "extensions": [
-                    ".js",
-                    ".jsx",
-                    ".ts",
-                    ".tsx",
-                    ".d.ts"
-                ]
-            }
-        }
-    },
-    "rules": {
-        "quotes": ["warn", "single"],
-        "no-console": "warn",
-        "space-before-function-paren": "warn",
-        "max-len": [
-            "warn",
-            160
-        ],
-
-        "camelcase": "off",
-        "indent": "off",
-        "no-empty-function": "off",
-        "no-extra-parens": "off",
-        "semi": "off",
-
-        "@typescript-eslint/adjacent-overload-signatures": "off",
-        "@typescript-eslint/array-type": ["warn", "array-simple"],
-        "@typescript-eslint/await-thenable": "off",
-        "@typescript-eslint/ban-ts-ignore": "warn",
-        "@typescript-eslint/ban-types": ["warn", {
-            "types": {
-                "Object": "Use {} instead"
-            }
-        }],
-        "@typescript-eslint/camelcase": ["error", {
-            "allow": [
-                "^_[a-z]",
-                "^[a-zA-Z]"
-            ]
-        }],
-        "@typescript-eslint/class-name-casing": "warn",
-        "@typescript-eslint/consistent-type-definitions": "off",
-        "@typescript-eslint/explicit-function-return-type": "off",
-        "@typescript-eslint/explicit-member-accessibility": ["warn", {
-            "accessibility": "explicit",
-            "overrides": {
-                "constructors": "off",
-                "accessors": "off"
-            }
-        }],
-        "@typescript-eslint/func-call-spacing": "warn",
-        "@typescript-eslint/generic-type-naming": "off",
-        "@typescript-eslint/indent": ["warn", 4],
-        "@typescript-eslint/interface-name-prefix": ["warn", "never"],
-        "@typescript-eslint/member-delimiter-style": ["warn", {
-            "multiline": {
-                "delimiter": "semi",
-                "requireLast": true
-            },
-            "singleline": {
-                "delimiter": "semi"
-            }
-        }],
-        "@typescript-eslint/member-naming": ["warn", {
-            "private": "^_"
-        }],
-        "@typescript-eslint/member-ordering": ["warn"],
-        "@typescript-eslint/no-array-constructor": ["error"],
-        "@typescript-eslint/no-empty-function": "off",
-        "@typescript-eslint/no-empty-interface": "off",
-        "@typescript-eslint/no-explicit-any": "off",
-        "@typescript-eslint/no-extra-parens": "off",
-        "@typescript-eslint/no-extraneous-class": "warn",
-        "@typescript-eslint/no-floating-promises": "off",
-        "@typescript-eslint/no-for-in-array": "warn",
-        "@typescript-eslint/no-inferrable-types": "off",
-        "no-magic-numbers": "off",
-        "@typescript-eslint/no-magic-numbers": ["warn", {
-            "ignoreNumericLiteralTypes": true,
-            "ignoreEnums": true
-        }],
-        "@typescript-eslint/no-misused-new": "error",
-        "@typescript-eslint/no-misused-promises": "error",
-        "@typescript-eslint/no-namespace": "error",
-        "@typescript-eslint/no-non-null-assertion": "warn",
-        "@typescript-eslint/no-parameter-properties": "off",
-        "@typescript-eslint/no-require-imports": "error",
-        "@typescript-eslint/no-this-alias": "warn",
-        "@typescript-eslint/no-type-alias": "off",
-        "@typescript-eslint/no-unnecessary-qualifier": "off",
-        "@typescript-eslint/no-unnecessary-type-assertion": "warn",
-        "@typescript-eslint/no-unused-vars": "off",
-        "@typescript-eslint/no-use-before-define": "off",
-        "@typescript-eslint/no-useless-constructor": "off",
-        "@typescript-eslint/no-var-requires": "error",
-        "@typescript-eslint/prefer-for-of": "off",
-        "@typescript-eslint/prefer-function-type": "off",
-        "@typescript-eslint/prefer-includes": "warn",
-        "@typescript-eslint/prefer-namespace-keyword": "off",
-        "@typescript-eslint/prefer-readonly": "warn",
-        "@typescript-eslint/prefer-regexp-exec": "warn",
-        "@typescript-eslint/prefer-string-starts-ends-with": "warn",
-        "@typescript-eslint/promise-function-async": "error",
-        "@typescript-eslint/require-array-sort-compare": "error",
-        "@typescript-eslint/require-await": "warn",
-        "@typescript-eslint/restrict-plus-operands": "off",
-        "@typescript-eslint/semi": "error",
-        "@typescript-eslint/strict-boolean-expressions": "off",
-        "@typescript-eslint/triple-slash-reference": "error",
-        "@typescript-eslint/type-annotation-spacing": "warn",
-        "@typescript-eslint/typedef": "off",
-        "@typescript-eslint/unbound-method": "error",
-        "@typescript-eslint/unified-signatures": "warn"
-    },
-    "env": {
-        "browser": true,
-        "node": true,
-        "es6": true,
-        "jest": true
-    },
-    "globals": {
-        "cc": false,
-        "wx": false,
-        "CC_BUILD": false,
-        "CC_TEST": false,
-        "CC_EDITOR": false,
-        "CC_PREVIEW": false,
-        "CC_DEV": false,
-        "CC_DEBUG": false,
-        "CC_JSB": false,
-        "CC_WECHATGAME_SUB": false,
-        "CC_WECHATGAME": false,
-        "CC_QQPLAY": false,
-        "CC_RUNTIME": false,
-        "CC_SUPPORT_JIT": false,
-        "Editor": false,
-        "_Scene": false,
-        "_ccsg": false
+  "extends": "eslint:recommended",
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "legacyDecorators": true
     }
+  },
+  "rules": {
+    "comma-dangle": 0,
+    "no-console": 0,
+    "no-constant-condition": 0,
+    "semi": 1
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true,
+    "mocha": true
+  },
+  "plugins": [
+  ],
+  "globals": {
+    "cc": false,
+    "wx": false,
+    "CC_BUILD": false,
+    "CC_TEST": false,
+    "CC_EDITOR": false,
+    "CC_PREVIEW": false,
+    "CC_DEV": false,
+    "CC_DEBUG": false,
+    "CC_JSB": false,
+    "CC_WECHATGAME_SUB": false,
+    "CC_WECHATGAME": false,
+    "CC_QQPLAY": false,
+    "CC_RUNTIME": false,
+    "CC_SUPPORT_JIT": false,
+    "Editor": false,
+    "_Scene": false,
+    "_ccsg": false
+  }
 }

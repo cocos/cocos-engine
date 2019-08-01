@@ -31,7 +31,8 @@ import { Component } from '../../../components';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { EventListener, ILinstenerMask } from '../../../core/platform/event-manager/event-listener';
-import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/math';
+import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/value-types';
+import * as vmath from '../../../core/vmath';
 import { aabb } from '../../geom-utils';
 import { CanvasComponent } from './canvas-component';
 
@@ -316,12 +317,12 @@ export class UITransformComponent extends Component {
         const center = cc.visibleRect.center;
         _mat4_temp.m12 = center.x - (_mat4_temp.m00 * m12 + _mat4_temp.m04 * m13);
         _mat4_temp.m13 = center.y - (_mat4_temp.m01 * m12 + _mat4_temp.m05 * m13);
-        Mat4.invert(_mat4_temp, _mat4_temp);
-        Vec2.transformMat4(cameraPt, point, _mat4_temp);
+        vmath.mat4.invert(_mat4_temp, _mat4_temp);
+        vmath.vec2.transformMat4(cameraPt, point, _mat4_temp);
 
         this.node.getWorldMatrix(_worldMatrix);
-        Mat4.invert(_mat4_temp, _worldMatrix);
-        Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
+        vmath.mat4.invert(_mat4_temp, _worldMatrix);
+        vmath.vec2.transformMat4(testPt, cameraPt, _mat4_temp);
         testPt.x += this._anchorPoint.x * w;
         testPt.y += this._anchorPoint.y * h;
 
@@ -362,12 +363,12 @@ export class UITransformComponent extends Component {
      */
     public convertToNodeSpaceAR (worldPoint: Vec3, out?: Vec3) {
         this.node.getWorldMatrix(_worldMatrix);
-        Mat4.invert(_mat4_temp, _worldMatrix);
+        vmath.mat4.invert(_mat4_temp, _worldMatrix);
         if (!out) {
             out = new Vec3();
         }
 
-        return Vec3.transformMat4(out, worldPoint, _mat4_temp);
+        return vmath.vec3.transformMat4(out, worldPoint, _mat4_temp);
     }
 
     /**
@@ -388,7 +389,7 @@ export class UITransformComponent extends Component {
             out = new Vec3();
         }
 
-        return Vec3.transformMat4(out, nodePoint, _worldMatrix);
+        return vmath.vec3.transformMat4(out, nodePoint, _worldMatrix);
     }
 
     /**
@@ -402,7 +403,7 @@ export class UITransformComponent extends Component {
      * ```
      */
     public getBoundingBox () {
-        Mat4.fromRTS(_matrix, this.node.getRotation(), this.node.getPosition(), this.node.getScale());
+        vmath.mat4.fromRTS(_matrix, this.node.getRotation(), this.node.getPosition(), this.node.getScale());
         const width = this._contentSize.width;
         const height = this._contentSize.height;
         const rect = new Rect(
@@ -442,7 +443,7 @@ export class UITransformComponent extends Component {
      * @returns
      */
     public getBoundingBoxTo (parentMat: Mat4) {
-        Mat4.fromRTS(_matrix, this.node.getRotation(), this.node.getPosition(), this.node.getScale());
+        vmath.mat4.fromRTS(_matrix, this.node.getRotation(), this.node.getPosition(), this.node.getScale());
         const width = this._contentSize.width;
         const height = this._contentSize.height;
         const rect = new Rect(
@@ -451,7 +452,7 @@ export class UITransformComponent extends Component {
             width,
             height);
 
-        Mat4.multiply(_worldMatrix, parentMat, _matrix);
+        vmath.mat4.multiply(_worldMatrix, parentMat, _matrix);
         rect.transformMat4(_worldMatrix);
 
         // query child's BoundingBox

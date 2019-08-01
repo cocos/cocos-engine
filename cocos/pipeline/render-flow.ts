@@ -26,11 +26,11 @@ export interface IRenderFlowInfo {
 export abstract class RenderFlow {
 
     public get device (): GFXDevice {
-        return this._device!;
+        return this._device;
     }
 
     public get pipeline (): RenderPipeline {
-        return this._pipeline!;
+        return this._pipeline;
     }
 
     public get name (): string {
@@ -45,7 +45,7 @@ export abstract class RenderFlow {
         return this._stages!;
     }
 
-    public get material (): Material | null {
+    public get material (): Material {
         return this._material;
     }
 
@@ -53,13 +53,13 @@ export abstract class RenderFlow {
      * @zh
      * GFX设备。
      */
-    protected _device: GFXDevice | null = null;
+    protected _device: GFXDevice;
 
     /**
      * @zh
      * 渲染管线。
      */
-    protected _pipeline: RenderPipeline | null = null;
+    protected _pipeline: RenderPipeline;
 
     /**
      * @zh
@@ -87,7 +87,7 @@ export abstract class RenderFlow {
         type: cc.Material,
         displayOrder: 2,
     })
-    protected _material: Material | null = null;
+    protected _material: cc.Material = null;
 
     /**
      * @zh

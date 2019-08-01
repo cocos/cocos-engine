@@ -4,8 +4,8 @@
  */
 
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { lerp, pseudoRandom, repeat } from '../../../../core/math';
 import { Enum } from '../../../../core/value-types';
+import { lerp, pseudoRandom, repeat } from '../../../../core/vmath';
 import Particle from '../particle';
 import { ParticleSystemComponent } from '../particle-system-component';
 import CurveRange from './curve-range';
@@ -63,9 +63,7 @@ export default class TextureAnimationModule {
 
     set enable (val) {
         this._enable = val;
-        if (this.ps) {
-            (this.ps.renderer as any)._updateMaterialParams();
-        }
+        (this.ps!.renderer as any)._updateMaterialParams();
     }
 
     @property({
@@ -85,7 +83,7 @@ export default class TextureAnimationModule {
     }
 
     set mode (val) {
-        if (val !== Mode.Grid) {
+        if (val === Mode.Sprites) {
             console.error('particle texture animation\'s sprites is not supported!');
             return;
         }

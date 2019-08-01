@@ -142,7 +142,6 @@ export class WebGL2GFXTexture extends GFXTexture {
             this._gpuTexture = null;
         }
         this._status = GFXStatus.UNREADY;
-        this._buffer = null;
     }
 
     public resize (width: number, height: number) {

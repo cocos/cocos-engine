@@ -66,7 +66,11 @@ export {default as IDGenerator} from './id-generator';
 export {default as Pool} from './pool';
 export const array = jsarray;
 
-export const js = {    
+/**
+ * This module provides some JavaScript utilities.
+ * All members can be accessed with "cc.js".
+ */
+cc.js = {
     IDGenerator,
     Pool,
     array: jsarray,
@@ -96,12 +100,6 @@ export const js = {
     shiftArguments,
     createMap,
 };
-
-/**
- * This module provides some JavaScript utilities.
- * All members can be accessed with "cc.js".
- */
-cc.js = js;
 
 if (CC_EDITOR) {
     cc.js.getset(cc.js, '_registeredClassIds', () => {

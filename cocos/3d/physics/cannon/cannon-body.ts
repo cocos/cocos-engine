@@ -1,5 +1,6 @@
 import CANNON from 'cannon';
-import { Mat4, Quat, Vec3 } from '../../../core/math';
+import { Mat4, Quat, Vec3 } from '../../../core/value-types';
+import { mat4, quat, vec3 } from '../../../core/vmath';
 import { ICollisionCallback, ICollisionEventType, ICreateBodyOptions, PhysicsWorldBase, RigidBodyBase, ShapeBase } from '../api';
 import { ERigidBodyType } from '../physic-enum';
 import { getWrap, setWrap, stringfyVec3 } from '../util';
@@ -205,7 +206,7 @@ export class CannonRigidBody implements RigidBodyBase {
 
     public getLinearVelocity (out?: Vec3): Vec3 {
         out = out || new Vec3();
-        Vec3.copy(out, this._body.velocity);
+        vec3.copy(out, this._body.velocity);
         return out;
     }
 
@@ -215,12 +216,12 @@ export class CannonRigidBody implements RigidBodyBase {
             this._body.wakeUp();
         }
 
-        Vec3.copy(this._body.velocity, value);
+        vec3.copy(this._body.velocity, value);
     }
 
     public getAngularVelocity (out?: Vec3): Vec3 {
         out = out || new Vec3();
-        Vec3.copy(out, this._body.angularVelocity);
+        vec3.copy(out, this._body.angularVelocity);
         return out;
     }
 
@@ -230,12 +231,12 @@ export class CannonRigidBody implements RigidBodyBase {
             this._body.wakeUp();
         }
 
-        Vec3.copy(this._body.angularVelocity, value);
+        vec3.copy(this._body.angularVelocity, value);
     }
 
     public getLinearFactor (out?: Vec3): Vec3 {
         out = out || new Vec3();
-        Vec3.copy(out, this._body.linearFactor);
+        vec3.copy(out, this._body.linearFactor);
         return out;
     }
 
@@ -245,12 +246,12 @@ export class CannonRigidBody implements RigidBodyBase {
             this._body.wakeUp();
         }
 
-        Vec3.copy(this._body.linearFactor, value);
+        vec3.copy(this._body.linearFactor, value);
     }
 
     public getAngularFactor (out?: Vec3): Vec3 {
         out = out || new Vec3();
-        Vec3.copy(out, this._body.angularFactor);
+        vec3.copy(out, this._body.angularFactor);
         return out;
     }
 
@@ -258,9 +259,9 @@ export class CannonRigidBody implements RigidBodyBase {
 
         if (this._body.isSleeping()) {
             this._body.wakeUp();
-
         }
-        Vec3.copy(this._body.angularFactor, value);
+
+        vec3.copy(this._body.angularFactor, value);
     }
 
     public getFreezeRotation (): boolean {
@@ -280,7 +281,7 @@ export class CannonRigidBody implements RigidBodyBase {
     public applyForce (force: Vec3, worldPoint?: Vec3) {
         if (worldPoint == null) {
             worldPoint = new Vec3();
-            Vec3.copy(worldPoint, this._body.position);
+            vec3.copy(worldPoint, this._body.position);
         }
 
         if (this._body.isSleeping()) {
@@ -293,7 +294,7 @@ export class CannonRigidBody implements RigidBodyBase {
     public applyImpulse (impulse: Vec3, worldPoint?: Vec3) {
         if (worldPoint == null) {
             worldPoint = new Vec3();
-            Vec3.copy(worldPoint, this._body.position);
+            vec3.copy(worldPoint, this._body.position);
         }
 
         if (this._body.isSleeping()) {
@@ -343,26 +344,26 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     public getPosition (out: Vec3) {
-        Vec3.copy(out, this._body.position);
+        vec3.copy(out, this._body.position);
     }
 
     public setPosition (value: Vec3) {
-        Vec3.copy(this._body.position, value);
+        vec3.copy(this._body.position, value);
         // console.log(`[[CANNON]] Set body position to ${stringfyVec3(value)}.`);
     }
 
     public getRotation (out: Quat) {
-        Quat.copy(out, this._body.quaternion);
+        quat.copy(out, this._body.quaternion);
     }
 
     public setRotation (value: Quat) {
-        Quat.copy(this._body.quaternion, value);
+        quat.copy(this._body.quaternion, value);
         // console.log(`[[CANNON]] Set body rotation to ${stringfyQuat(value)}.`);
     }
 
     public translateAndRotate (m: Mat4, rot: Quat): void {
-        Mat4.getTranslation(this._body.position, m);
-        Quat.copy(this._body.quaternion, rot);
+        mat4.getTranslation(this._body.position, m);
+        quat.copy(this._body.quaternion, rot);
     }
 
     public scaleAllShapes (scale: Vec3) {

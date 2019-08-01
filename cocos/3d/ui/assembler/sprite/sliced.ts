@@ -28,13 +28,15 @@
  */
 
 import { IUV, SpriteFrame } from '../../../../assets';
-import { Color, Mat4, Vec3 } from '../../../../core/math';
+import { Mat4 } from '../../../../core/value-types';
+import { color4, vec3 } from '../../../../core/vmath';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
+import { Node } from '../../../../scene-graph/node';
 import { SpriteComponent } from '../../components';
 import { IAssembler } from '../base';
 
-const vec3_temp = new Vec3();
+const vec3_temp = vec3.create();
 const matrix = new Mat4();
 
 /**
@@ -82,7 +84,7 @@ export const sliced: IAssembler = {
     updateVerts (sprite: SpriteComponent) {
         const renderData: RenderData | null = sprite.renderData;
         const datas: IRenderData[] = renderData!.datas;
-        const node = sprite.node;
+        const node: Node = sprite.node;
         const width = node.width!;
         const height = node.height!;
         const appx = node.anchorX! * width;
@@ -155,7 +157,7 @@ export const sliced: IAssembler = {
             vbuf![vertexOffset++] = vert.z;
             vbuf![vertexOffset++] = uvs.u;
             vbuf![vertexOffset++] = uvs.v;
-            Color.array(vbuf!, sprite.color, vertexOffset);
+            color4.array(vbuf!, sprite.color, vertexOffset);
             vertexOffset += 4;
             // uintbuf[vertexOffset++] = color;
         }
@@ -174,8 +176,9 @@ export const sliced: IAssembler = {
     },
 
     updateWorldVerts (sprite: SpriteComponent) {
-        const node = sprite.node;
+        const node: Node = sprite.node;
         const datas: IRenderData[] = sprite!.renderData!.datas;
+
         node.getWorldMatrix(matrix);
         for (let row = 0; row < 4; ++row) {
             const rowD = datas[row];
@@ -183,8 +186,8 @@ export const sliced: IAssembler = {
                 const colD = datas[col];
                 const world = datas[4 + row * 4 + col];
 
-                Vec3.set(vec3_temp, colD.x, rowD.y, 0);
-                Vec3.transformMat4(world, vec3_temp, matrix);
+                vec3.set(vec3_temp, colD.x, rowD.y, 0);
+                vec3.transformMat4(world, vec3_temp, matrix);
             }
         }
     },

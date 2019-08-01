@@ -5,7 +5,7 @@
 import { Material } from '../../3d/assets/material';
 import Pool from '../../3d/memop/pool';
 import RecyclePool from '../../3d/memop/recycle-pool';
-import { Color, Rect } from '../../core/math';
+import { Color, Rect } from '../../core/value-types';
 
 export interface IRenderData {
     x: number;
@@ -52,15 +52,14 @@ export class RenderData extends BaseRenderData {
     }
 
     public static add () {
-        return _pool.add();
+        const data = _pool.add();
+        return {
+            pooID: _pool.length - 1,
+            data,
+        };
     }
 
-    public static remove (data: RenderData) {
-        const idx = _pool.data.indexOf(data);
-        if (idx === -1){
-            return;
-        }
-
+    public static remove (idx: number) {
         _pool.data[idx].clear();
         _pool.removeAt(idx);
     }

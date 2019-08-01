@@ -116,7 +116,7 @@ export class SphereLightComponent extends LightComponent {
 
     protected _createLight (scene?: RenderScene) {
         if (!this.node.scene) { return; }
-        scene = scene || this._getRenderScene();
+        if (!scene) { scene = this._getRenderScene(); }
         if (this._light && scene.sphereLights.find((c) => c === this._light)) { return; }
         this._light = scene.createSphereLight(this.name, this.node);
         if (!this._light) {

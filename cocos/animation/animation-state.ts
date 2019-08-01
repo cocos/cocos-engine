@@ -1,28 +1,3 @@
-/*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
-
- http://www.cocos.com
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
-
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
-*/
-
 /**
  * @category animation
  */
@@ -35,7 +10,6 @@ import { AnimationClip } from './animation-clip';
 import { AnimCurve, CurveTarget, RatioSampler } from './animation-curve';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
-import { INode } from '../core/utils/interfaces';
 
 enum PropertySpecialization {
     NodePosition,
@@ -44,7 +18,7 @@ enum PropertySpecialization {
     None,
 }
 
-export class ICurveInstance {
+class ICurveInstance {
     private _curve: AnimCurve;
     private _target: CurveTarget;
     private _isNodeTarget: boolean;
@@ -58,7 +32,7 @@ export class ICurveInstance {
         this._target = target;
         this._isNodeTarget = target instanceof Node;
         this._propertySpecialization = PropertySpecialization.None;
-        if (this._isNodeTarget) {
+        if (target instanceof Node) {
             switch (property) {
                 case 'position':
                     this._propertySpecialization = PropertySpecialization.NodePosition;
@@ -124,8 +98,6 @@ export class ICurveInstance {
             this._blendTarget.weight += weight;
         }
     }
-
-    get propertyName () { return this._property; }
 }
 
 /**
@@ -310,29 +282,29 @@ export class AnimationState extends Playable {
 
     public _lastframeEventOn = false;
 
-    protected _wrapMode = WrapMode.Normal;
+    private _wrapMode = WrapMode.Normal;
 
-    protected _repeatCount = 1;
+    private _repeatCount = 1;
 
     /**
      * Mark whether the current frame is played.
      * When set new time to animation state, we should ensure the frame at the specified time being played at next update.
      */
-    protected _currentFramePlayed = false;
-    protected _delay = 0;
-    protected _delayTime = 0;
-    protected _wrappedInfo = new WrappedInfo();
-    protected _lastWrapInfo: WrappedInfo | null = null;
-    protected _lastWrapInfoEvent: WrappedInfo | null = null;
-    protected _process = this.process;
-    protected _target: INode | null = null;
-    protected _targetNode: INode | null = null;
-    protected _clip: AnimationClip;
-    protected _name: string;
-    protected _lastIterations?: number;
-    protected _samplerSharedGroups: ISamplerSharedGroup[] = [];
-    protected _curveLoaded = false;
-    protected _ignoreIndex = InvalidIndex;
+    private _currentFramePlayed = false;
+    private _delay = 0;
+    private _delayTime = 0;
+    private _wrappedInfo = new WrappedInfo();
+    private _lastWrapInfo: WrappedInfo | null = null;
+    private _lastWrapInfoEvent: WrappedInfo | null = null;
+    private _process = this.process;
+    private _target: Node | null = null;
+    private _targetNode: Node | null = null;
+    private _clip: AnimationClip;
+    private _name: string;
+    private _lastIterations?: number;
+    private _samplerSharedGroups: ISamplerSharedGroup[] = [];
+    private _curveLoaded = false;
+    private _ignoreIndex = InvalidIndex;
 
     constructor (clip: AnimationClip, name?: string) {
         super();
@@ -344,7 +316,7 @@ export class AnimationState extends Playable {
         return this._curveLoaded;
     }
 
-    public initialize (root: INode) {
+    public initialize (root: Node) {
         this._curveLoaded = true;
         this._samplerSharedGroups.length = 0;
         this._targetNode = root;
@@ -361,7 +333,7 @@ export class AnimationState extends Playable {
             this.repeatCount = 1;
         }
 
-        const propertyCurves = clip.getPropertyCurves(root);
+        const propertyCurves = clip.getPropertyCurves(this._targetNode);
         for (const propertyCurve of propertyCurves) {
             const targetNode = root.getChildByPath(propertyCurve.path);
             if (!targetNode) {
@@ -369,7 +341,7 @@ export class AnimationState extends Playable {
                 continue;
             }
 
-            let target: INode | Component = targetNode;
+            let target: Node | Component = targetNode;
             if (propertyCurve.component) {
                 const targetComponent = targetNode.getComponent(propertyCurve.component);
                 if (!targetComponent) {
@@ -666,6 +638,8 @@ export class AnimationState extends Playable {
         this._delayTime = this._delay;
 
         cc.director.getAnimationManager().addAnimation(this);
+
+        if (this.clip.onPlay) { this.clip.onPlay(this._targetNode); } // for subclasses of AnimationClip
 
         this.emit('play', this);
     }

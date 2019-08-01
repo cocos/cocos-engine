@@ -103,11 +103,6 @@ function _checkPhysicsFlag (options: IBuildOptions) {
 
     const physics = options.physics === undefined ? Physics.cannon : options.physics;
     options.moduleEntries.push(physicsModulesMap[physics]);
-
-    // direct push physics-framework for now
-    options.moduleEntries.push(`physics-framework`);
-    // direct push latest for now
-    options.moduleEntries.push(`latest`);
 }
 
 async function _internalBuild (options: IAdvancedOptions) {

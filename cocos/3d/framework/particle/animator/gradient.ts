@@ -3,8 +3,8 @@
  */
 
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { Color, lerp, repeat } from '../../../../core/math';
-import { Enum } from '../../../../core/value-types';
+import { Color, Enum } from '../../../../core/value-types';
+import { lerp, repeat } from '../../../../core/vmath';
 
 // tslint:disable: max-line-length
 

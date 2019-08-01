@@ -25,8 +25,17 @@
 */
 
 /**
- * @hidden
+ * @category core/value-types
  */
 
-export { Enum } from './enum';
+export { default as Enum } from './enum';
 export { ValueType } from './value-type';
+export { default as Vec2} from './vec2';
+export { default as Vec3} from './vec3';
+export { default as Vec4} from './vec4';
+export { default as Quat} from './quat';
+export { default as Mat4} from './mat4';
+export { default as AffineTransform} from './affine-transform';
+export { default as Size} from './size';
+export { default as Rect} from './rect';
+export { default as Color} from './color';

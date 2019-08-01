@@ -7,10 +7,9 @@ import { Asset, SpriteFrame } from '../assets';
 import { ccclass, property } from '../core/data/class-decorator';
 import { errorID } from '../core/platform/CCDebug';
 import binarySearchEpsilon from '../core/utils/binary-search';
+import { Node } from '../scene-graph';
 import { AnimCurve, IPropertyCurveData, RatioSampler } from './animation-curve';
 import { WrapMode as AnimationWrapMode } from './types';
-import { INode } from '../core/utils/interfaces';
-import { murmurhash2_32_gc } from '../core/utils/murmurhash2_gc';
 
 interface IAnimationEventData {
     frame: number;
@@ -127,6 +126,9 @@ export class AnimationClip extends Asset {
         return clip;
     }
 
+    // onPlay callback
+    public onPlay: Function | null = null;
+
     /**
      * 动画帧率，单位为帧/秒。
      */
@@ -177,8 +179,6 @@ export class AnimationClip extends Asset {
     @property
     protected _stepness = 0;
 
-    protected _hash = 0;
-
     /**
      * 动画的周期。
      */
@@ -226,11 +226,6 @@ export class AnimationClip extends Asset {
         this._applyStepness();
     }
 
-    get hash () {
-        if (!this._hash) { this._hash = murmurhash2_32_gc(JSON.stringify(this.curveDatas), 666); }
-        return this._hash;
-    }
-
     public onLoad () {
         this.duration = this._duration;
         this.speed = this.speed;
@@ -238,7 +233,7 @@ export class AnimationClip extends Asset {
         this.frameRate = this.sample;
     }
 
-    public getPropertyCurves (root: INode): ReadonlyArray<IPropertyCurve> {
+    public getPropertyCurves (root: Node): ReadonlyArray<IPropertyCurve> {
         if (!this._propertyCurves) {
             this._createPropertyCurves();
         }

@@ -9,7 +9,8 @@ import {
     menu,
     property,
 } from '../../../../core/data/class-decorator';
-import { Vec3 } from '../../../../core/math';
+import Vec3 from '../../../../core/value-types/vec3';
+import { vec3 } from '../../../../core/vmath';
 import { BoxShapeBase } from '../../../physics/api';
 import { createBoxShape } from '../../../physics/instance';
 import { ColliderComponent } from './collider-component';
@@ -65,7 +66,7 @@ export class BoxColliderComponent extends ColliderComponent {
     }
 
     public set size (value) {
-        Vec3.copy(this._size, value);
+        vec3.copy(this._size, value);
 
         if (!CC_EDITOR) {
             this._shape.setSize(this._size);

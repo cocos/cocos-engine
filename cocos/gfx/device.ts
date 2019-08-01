@@ -7,7 +7,7 @@ import { GFXBindingLayout, IGFXBindingLayoutInfo } from './binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from './buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from './command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from './command-buffer';
-import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFilter, GFXFormat, IGFXMemoryStatus, IGFXRect } from './define';
+import { GFX_MAX_BUFFER_BINDINGS, GFXBufferTextureCopy, GFXFilter, GFXFormat, IGFXRect, IGFXMemoryStatus } from './define';
 import { GFXFramebuffer, IGFXFramebufferInfo } from './framebuffer';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from './input-assembler';
 import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from './pipeline-layout';

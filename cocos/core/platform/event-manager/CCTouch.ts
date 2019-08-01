@@ -28,7 +28,8 @@
  * @category event
  */
 
-import { Vec2 } from '../../math';
+import { Vec2 } from '../../value-types';
+import { vec2 } from '../../vmath';
 
 const _vec2 = new Vec2();
 /**
@@ -61,7 +62,7 @@ export default class Touch {
             out = new Vec2();
         }
 
-        Vec2.set(out, this._point.x, this._point.y);
+        vec2.set(out, this._point.x, this._point.y);
         return out;
     }
 
@@ -90,7 +91,7 @@ export default class Touch {
             out = new Vec2();
         }
 
-        Vec2.set(out, this._point.x, this._point.y);
+        vec2.set(out, this._point.x, this._point.y);
         cc.view._convertPointWithScale(out);
         return out;
     }
@@ -122,7 +123,7 @@ export default class Touch {
             out = new Vec2();
         }
 
-        Vec2.set(out, this._prevPoint.x, this._prevPoint.y);
+        vec2.set(out, this._prevPoint.x, this._prevPoint.y);
         return out;
     }
 
@@ -135,7 +136,7 @@ export default class Touch {
             out = new Vec2();
         }
 
-        Vec2.set(out, this._prevPoint.x, this._prevPoint.y);
+        vec2.set(out, this._prevPoint.x, this._prevPoint.y);
         cc.view._convertPointWithScale(out);
         return out;
     }
@@ -149,7 +150,7 @@ export default class Touch {
             out = new Vec2();
         }
 
-        Vec2.set(out, this._startPoint.x, this._startPoint.y);
+        vec2.set(out, this._startPoint.x, this._startPoint.y);
         return out;
     }
 
@@ -162,7 +163,7 @@ export default class Touch {
             out = new Vec2();
         }
 
-        Vec2.set(out, this._startPoint.x, this._startPoint.y);
+        vec2.set(out, this._startPoint.x, this._startPoint.y);
         cc.view._convertPointWithScale(out);
         return out;
     }
@@ -192,8 +193,8 @@ export default class Touch {
 
         _vec2.set(this._point);
         _vec2.subtract(this._prevPoint);
-        Vec2.set(out, cc.view.getScaleX(), cc.view.getScaleY());
-        Vec2.divide(out, _vec2, out);
+        vec2.set(out, cc.view.getScaleX(), cc.view.getScaleY());
+        vec2.divide(out, _vec2, out);
         return out;
     }
 
@@ -206,7 +207,7 @@ export default class Touch {
             out = new Vec2();
         }
 
-        Vec2.set(out, this._point.x, cc.view._designResolutionSize.height - this._point.y);
+        vec2.set(out, this._point.x, cc.view._designResolutionSize.height - this._point.y);
         return out;
     }
 
@@ -219,7 +220,7 @@ export default class Touch {
             out = new Vec2();
         }
 
-        Vec2.set(out, this._prevPoint.x, cc.view._designResolutionSize.height - this._prevPoint.y);
+        vec2.set(out, this._prevPoint.x, cc.view._designResolutionSize.height - this._prevPoint.y);
         return out;
     }
 
@@ -232,7 +233,7 @@ export default class Touch {
             out = new Vec2();
         }
 
-        Vec2.set(out, this._startPoint.x, cc.view._designResolutionSize.height - this._startPoint.y);
+        vec2.set(out, this._startPoint.x, cc.view._designResolutionSize.height - this._startPoint.y);
         return out;
     }
 

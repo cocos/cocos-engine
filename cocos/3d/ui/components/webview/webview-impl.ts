@@ -23,14 +23,14 @@
  THE SOFTWARE.
 */
 
-import { ccclass } from '../../../../core/data/class-decorator';
+import { ccclass} from '../../../../core/data/class-decorator';
 import sys from '../../../../core/platform/CCSys';
-import { misc } from '../../../../core/utils';
-import { INode } from '../../../../core/utils/interfaces';
-import { Mat4 } from '../../../../core/math';
+import * as utils from '../../../../core/utils';
+import * as vmath from '../../../../core/vmath';
+import { Node } from '../../../../scene-graph';
 import { UIRenderComponent } from '../ui-render-component';
 
-const _mat4_temp = new Mat4();
+const _mat4_temp = vmath.mat4.create();
 
 export enum WebViewEventType {
     LOADING = 0,
@@ -39,12 +39,12 @@ export enum WebViewEventType {
     JS_EVALUATED = 3,
 }
 
-interface IFrameEventListener {
+interface IFrameEventListener{
     load: EventListenerOrEventListenerObject | null;
     error: EventListenerOrEventListenerObject | null;
 }
 
-interface IPolyfill {
+interface IPolyfill{
     devicePixelRatio: boolean;
     enableDiv: boolean;
     enableBG?: boolean;
@@ -72,7 +72,7 @@ else {
 }
 
 @ccclass('cc.WebviewImpl')
-export class WebViewImpl {
+export class WebViewImpl{
     public static Polyfill = polyfill;
     public static EventType = WebViewEventType;
     private _EventList = new Map<WebViewEventType, Function | null>();
@@ -91,9 +91,9 @@ export class WebViewImpl {
     private _m13 = 0;
     private _w = 0;
     private _h = 0;
-    private _eventListeners: IFrameEventListener = { load: () => { }, error: () => { } };
+    private _eventListeners: IFrameEventListener = { load: () => {}, error: () => {} };
 
-    public createDomElementIfNeeded (w: number, h: number) {
+    public createDomElementIfNeeded (w: number, h: number){
         // if (CC_EDITOR) {
         //     this._div = document.createElement('div');
         //     this._div.style.background = 'rgba(255, 255, 255, 0.8)';
@@ -106,19 +106,19 @@ export class WebViewImpl {
         //     this._div.style['word-wrap'] = 'break-word';
         //     cc.game.container.appendChild(this._div);
         // } else {
-        if (!this._div) {
-            this._createNativeControl(w, h);
-        }
-        else {
-            this._updateSize(w, h);
-        }
+            if (!this._div) {
+                this._createNativeControl(w, h);
+            }
+            else {
+                this._updateSize(w, h);
+            }
         // }
     }
 
     public removeDom () {
         const div = this._div;
         if (div) {
-            const hasChild = misc.contains(cc.game.container, div);
+            const hasChild = utils.contains(cc.game.container, div);
             if (hasChild) {
                 cc.game.container.removeChild(div);
             }
@@ -142,7 +142,7 @@ export class WebViewImpl {
      */
     public loadURL (url: string) {
         if (CC_EDITOR) {
-            if (this._div) {
+            if (this._div){
                 this._div.innerText = url;
             }
         } else {
@@ -245,7 +245,7 @@ export class WebViewImpl {
         const iframe = this._iframe;
         if (iframe) {
             const win = iframe.contentWindow;
-            if (win) {
+            if (win){
                 try {
                     // eval(str);
                     // this._dispatchEvent(WebViewImpl.EventType.JS_EVALUATED);
@@ -302,7 +302,7 @@ export class WebViewImpl {
         }
     }
 
-    public updateMatrix (node: INode) {
+    public updateMatrix (node: Node) {
         if (!this._div || !this._visible) {
             return;
         }
@@ -359,7 +359,7 @@ export class WebViewImpl {
 
         // chagned iframe opacity
         const renderComp = node.getComponent(UIRenderComponent);
-        if (renderComp) {
+        if (renderComp){
             this._setOpacity(renderComp.color.a);
         }
     }

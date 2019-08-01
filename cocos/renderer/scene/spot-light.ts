@@ -1,8 +1,10 @@
 import { aabb, frustum } from '../../3d/geom-utils';
-import { Mat4, Quat, Vec3 } from '../../core/math';
+import { Mat4, Quat, Vec3 } from '../../core/value-types';
+import { v3 } from '../../core/value-types/vec3';
+import { mat4, vec3 } from '../../core/vmath';
+import { Node } from '../../scene-graph/node';
 import { Light, LightType, nt2lm } from './light';
 import { RenderScene } from './render-scene';
-import { INode } from '../../core/utils/interfaces';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -72,30 +74,30 @@ export class SpotLight extends Light {
         return this._frustum;
     }
 
-    constructor (scene: RenderScene, name: string, node: INode) {
+    constructor (scene: RenderScene, name: string, node: Node) {
         super(scene, name, node);
         this._type = LightType.SPOT;
         this._aabb = aabb.create();
         this._frustum = frustum.create();
-        this._pos = new Vec3();
+        this._pos = v3();
     }
 
     public update () {
         if (this._node) {
             this._node.getWorldPosition(this._pos);
-            this._dir = Vec3.transformQuat(_v3, _forward, this._node.getWorldRotation(_qt));
-            Vec3.normalize(this._dir, this._dir);
+            this._dir = vec3.transformQuat(_v3, _forward, this._node.getWorldRotation(_qt));
+            vec3.normalize(this._dir, this._dir);
             aabb.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, this._range, this._range, this._range);
 
             // view matrix
             this._node.getWorldRT(_matView);
-            Mat4.invert(_matView, _matView);
+            mat4.invert(_matView, _matView);
 
-            Mat4.perspective(_matProj, this._angle, 1, 0.001, this._range);
+            mat4.perspective(_matProj, this._angle, 1, 0.001, this._range);
 
             // view-projection
-            Mat4.multiply(_matViewProj, _matProj, _matView);
-            Mat4.invert(_matViewProjInv, _matViewProj);
+            mat4.multiply(_matViewProj, _matProj, _matView);
+            mat4.invert(_matViewProjInv, _matViewProj);
 
             this._frustum.update(_matViewProj, _matViewProjInv);
         }

@@ -28,20 +28,21 @@
  * @hidden
  */
 
-import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
+import { SystemEventType } from '../../../core/platform';
 import { array } from '../../../core/utils/js';
-import { Vec2, Vec3 } from '../../../core/math';
+import { Vec2, Vec3 } from '../../../core/value-types';
+import { vec3 } from '../../../core/vmath';
+import { Node } from '../../../scene-graph/node';
 import { CanvasComponent } from './canvas-component';
 import { UIRenderComponent } from './ui-render-component';
 import { AlignFlags, AlignMode, WidgetComponent } from './widget-component';
-import { INode } from '../../../core/utils/interfaces';
 
 const _tempPos = new Vec3();
 const _zeroVec3 = new Vec3();
 const _defaultAnchor = new Vec2();
 
 // returns a readonly size of the node
-export function getReadonlyNodeSize (parent: INode) {
+export function getReadonlyNodeSize (parent: Node) {
     if (parent instanceof cc.Scene) {
         if (CC_EDITOR) {
             // const canvasComp = parent.getComponentInChildren(CanvasComponent);
@@ -58,7 +59,7 @@ export function getReadonlyNodeSize (parent: INode) {
     }
 }
 
-export function computeInverseTransForTarget (widgetNode: INode, target: INode, out_inverseTranslate: Vec3, out_inverseScale: Vec3) {
+export function computeInverseTransForTarget (widgetNode: Node, target: Node, out_inverseTranslate: Vec3, out_inverseScale: Vec3) {
     let scale = widgetNode.parent ? widgetNode.parent.getScale() : _zeroVec3;
     let scaleX = scale.x;
     let scaleY = scale.y;
@@ -99,7 +100,7 @@ const tInverseTranslate = new Vec3();
 const tInverseScale = new Vec3(1, 1, 1);
 
 // align to borders by adjusting node's position and size (ignore rotation)
-function align (node: INode, widget: WidgetComponent) {
+function align (node: Node, widget: WidgetComponent) {
     const hasTarget = widget.target;
     let target: any;
     const inverseTranslate = tInverseTranslate;
@@ -242,10 +243,10 @@ function align (node: INode, widget: WidgetComponent) {
     }
 
     node.setPosition(x, y, _tempPos.z);
-    Vec3.set(widget._lastPos, x, y, _tempPos.z);
+    vec3.set(widget._lastPos, x, y, _tempPos.z);
 }
 
-function visitNode (node: INode) {
+function visitNode (node: Node) {
     const widget = node.getComponent(WidgetComponent);
     if (widget) {
         if (CC_DEV) {
@@ -390,7 +391,7 @@ function adjustWidgetToAllowMovingInEditor (this: WidgetComponent, eventType: Sy
     const targetSize = getReadonlyNodeSize(target);
     const deltaInPercent = new Vec3();
     if (targetSize.width !== 0 && targetSize.height !== 0) {
-        Vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
+        vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
     }
 
     if (self.isAlignTop) {
@@ -440,7 +441,7 @@ function adjustWidgetToAllowResizingInEditor (this: WidgetComponent/*, oldSize: 
     const targetSize = getReadonlyNodeSize(target);
     const deltaInPercent = new Vec3();
     if (targetSize.width !== 0 && targetSize.height !== 0) {
-        Vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
+        vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
     }
 
     const anchor = self.node.getAnchorPoint();
@@ -467,9 +468,9 @@ function adjustWidgetToAnchorChanged (this: WidgetComponent) {
 const activeWidgets: WidgetComponent[] = [];
 
 // updateAlignment from scene to node recursively
-function updateAlignment (node: INode) {
+function updateAlignment (node: Node) {
     const parent = node.parent;
-    if (parent && cc.Node.isNode(parent)) {
+    if (parent && Node.isNode(parent)) {
         updateAlignment(parent);
     }
 
@@ -538,8 +539,8 @@ export const widgetManager = cc._widgetManager = {
             this.refreshWidgetOnResized(scene);
         }
     },
-    refreshWidgetOnResized (node: INode) {
-        if (cc.Node.isNode(node)){
+    refreshWidgetOnResized (node: Node) {
+        if (Node.isNode(node)){
             const widget = node.getComponent(WidgetComponent);
             // const widget: WidgetComponent | null = null;
             if (widget && widget.alignFlags === AlignMode.ALWAYS) {

@@ -20,7 +20,6 @@ import { Enum } from '../../../core/value-types';
 export const Space = Enum({
     World: 0,
     Local: 1,
-    Custom: 2,
 });
 
 /**

@@ -30,8 +30,8 @@
 import { Component } from '../../../components';
 import { ccclass, disallowMultiple, executeInEditMode, executionOrder, property } from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
-import { INode } from '../../../core/utils/interfaces';
 import { UI } from '../../../renderer/ui/ui';
+import { Node } from '../../../scene-graph';
 import { CanvasComponent } from './canvas-component';
 
 /**
@@ -75,7 +75,7 @@ export class UIComponent extends Component {
 
     protected _visibility = -1;
 
-    private _lastParent: INode | null = null;
+    private _lastParent: Node | null = null;
     public onEnable () {
         this._lastParent = this.node.parent;
         this._updateVisibility();
@@ -107,7 +107,7 @@ export class UIComponent extends Component {
         this._visibility = value;
     }
 
-    protected _parentChanged (node: INode) {
+    protected _parentChanged (node: Node){
         if (node === this.node) {
             this._updateVisibility();
             this._cancelEventFromParent();
@@ -120,10 +120,9 @@ export class UIComponent extends Component {
     }
 
     private _sortSiblings () {
-
-        const siblings = this.node.parent && this.node.parent.children as Mutable<INode[]>;
+        let siblings = this.node.parent && this.node.parent.children;
         if (siblings) {
-            siblings.sort((a: INode, b: INode) => {
+            siblings.sort((a, b) => {
                 const aComp = a._uiComp;
                 const bComp = b._uiComp;
                 const ca = aComp ? aComp.priority : 0;
@@ -150,7 +149,7 @@ export class UIComponent extends Component {
         }
     }
 
-    private _cancelEventFromParent () {
+    private _cancelEventFromParent (){
         if (this._lastParent) {
             this._lastParent.off(SystemEventType.CHILD_REMOVED, this._parentChanged, this);
             this._lastParent = null;

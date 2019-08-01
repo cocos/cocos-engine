@@ -32,9 +32,10 @@
 
 import { ccclass } from '../../../../core/data/class-decorator';
 import { macro } from '../../../../core/platform/CCMacro';
-import { INode } from '../../../../core/utils/interfaces';
-import { contains } from '../../../../core/utils/misc';
-import { Color, Mat4, Size, Vec3 } from '../../../../core/math';
+import { contains } from '../../../../core/utils';
+import { Color, Mat4, Size, Vec3 } from '../../../../core/value-types';
+import * as math from '../../../../core/vmath';
+import { Node } from '../../../../scene-graph/node';
 import { UIRenderComponent } from '../ui-render-component';
 import { EditBoxComponent} from './edit-box-component';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
@@ -91,7 +92,7 @@ export class EditBoxImpl {
     public _placeholderText = '';
     public _alwaysOnTop = false;
     public _size: Size = cc.size();
-    public _node: INode | null = null;
+    public _node: Node | null = null;
     public _editing = false;
     public __eventListeners: any = {};
     public __fullscreen = false;
@@ -282,7 +283,7 @@ export class EditBoxImpl {
         this._updateSize(width, height);
     }
 
-    public setNode (node: INode) {
+    public setNode (node: Node) {
         this._node = node;
     }
 
@@ -313,13 +314,13 @@ export class EditBoxImpl {
             this._beginEditingOnMobile();
         }
 
-        const self = this;
-        function startFocus () {
-            self._edTxt && self._edTxt.focus();
-        }
-
         if (this._edTxt) {
             this._edTxt.style.display = '';
+
+            const self = this;
+            function startFocus () {
+                self._edTxt!.focus();
+            }
 
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_UC) {
                 setTimeout(startFocus, FOCUS_DELAY_UC);
@@ -408,10 +409,10 @@ export class EditBoxImpl {
         node!.getWorldMatrix(_matrix);
         const transform = node!.uiTransfromComp;
         if (transform) {
-            Vec3.set(_vec3, -transform.anchorX * transform.width, -transform.anchorY * transform.height, _vec3.z);
+            math.vec3.set(_vec3, -transform.anchorX * transform.width, -transform.anchorY * transform.height, _vec3.z);
         }
 
-        Mat4.transform(_matrix, _matrix, _vec3);
+        math.mat4.translate(_matrix, _matrix, _vec3);
 
         // let camera;
         // can't find camera in editor
@@ -439,7 +440,7 @@ export class EditBoxImpl {
         _matrix_temp.m12 = center.x - (_matrix_temp.m00 * m12 + _matrix_temp.m04 * m13);
         _matrix_temp.m13 = center.y - (_matrix_temp.m01 * m12 + _matrix_temp.m05 * m13);
 
-        Mat4.multiply(_matrix_temp, _matrix_temp, _matrix);
+        math.mat4.multiply(_matrix_temp, _matrix_temp, _matrix);
 
         scaleX /= dpr;
         scaleY /= dpr;

@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { Vec3 } from '../../core/math';
+import { Vec3 } from '../../core/value-types';
 import { BoxShapeBase, ICreateBodyOptions, PhysicsWorldBase, RigidBodyBase, SphereShapeBase } from './api';
 import { BoxShape, PhysicsWorld, RigidBody, SphereShape } from './impl-selector';
 import { RaycastResult } from './raycast-result';

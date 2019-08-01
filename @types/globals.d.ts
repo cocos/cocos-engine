@@ -42,15 +42,8 @@ declare const jsb: any;
 declare const CC_PHYSICS_CANNON: boolean;
 declare const CC_PHYSICS_AMMO: boolean;
 declare const CC_PHYSICS_BUILT_IN: boolean;
+
 interface Window {
-
-    WebGL2RenderingContext: any;
-
-    sharedCanvas: any;
-    __canvas: any;
-    canvas: any;
-
-    XMLHttpRequest: any;
     mozRequestAnimationFrame (callback: any, element?: any): any;
     oRequestAnimationFrame (callback: any, element?: any): any;
     msRequestAnimationFrame (callback: any, element?: any): any;
@@ -62,6 +55,14 @@ interface Window {
     msCancelAnimationFrame (callback: any, element?: any): any;
     mozCancelAnimationFrame (callback: any, element?: any): any;
     ocancelAnimationFrame (callback: any, element?: any): any;
+
+    WebGL2RenderingContext: any;
+
+    sharedCanvas:any;
+    __canvas:any;
+    canvas:any;
+
+    XMLHttpRequest:any;
 }
 
 interface Document{
@@ -75,7 +76,9 @@ interface HTMLElement{
     name: any;
 }
 
-type ActiveXObject = new (s: string) => any;
+interface ActiveXObject {
+    new (s: string): any;
+}
 declare var ActiveXObject: ActiveXObject;
 
 declare const cc: {
@@ -99,12 +102,6 @@ declare interface IWritableArrayLike<T> {
 }
 
 declare type Constructor<T = {}> = new(...args: any[]) => T;
-
-declare type Mutable<T> = { -readonly [P in keyof T]: T[P] };
-
-declare type Getter = () => any;
-
-declare type Setter = (value: any) => void;
 
 declare namespace Editor {
     function log (message?: any, ...optionalParams: any[]): void;

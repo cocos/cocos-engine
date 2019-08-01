@@ -30,12 +30,11 @@
 import { ImageAsset, SpriteFrame, Texture2D } from '../../../../assets';
 import { isUnicodeCJK, isUnicodeSpace, safeMeasureText} from '../../../../core/utils';
 import { mixin } from '../../../../core/utils/js';
-import { Color, Rect, Size, Vec2 } from '../../../../core/math';
-import { GFXBufferTextureCopy } from '../../../../gfx/define';
+import { Color, Rect, Size, Vec2 } from '../../../../core/value-types';
+import { GFXBufferTextureCopy, GFXFormat } from '../../../../gfx/define';
 import { LabelComponent, LabelOutlineComponent } from '../../components';
 // import { UIComponent } from '../../components/ui-component';
 import { ISharedLabelData } from './font-utils';
-import { PixelFormat } from '../../../../assets/asset-enum';
 
 // const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutlineComponent, UIComponent);
 const Overflow = LabelComponent.Overflow;
@@ -180,7 +179,7 @@ export class LetterRenderTexture extends Texture2D {
      * @param [height]
      * @param [string]
      */
-    public initWithSize (width: number, height: number, format: number = PixelFormat.RGBA8888) {
+    public initWithSize (width: number, height: number, format: GFXFormat = GFXFormat.RGBA8) {
         this.destroy();
         this.reset({
             width,

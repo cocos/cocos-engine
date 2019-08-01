@@ -2626,6 +2626,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
             }
 
             for (const region of regions) {
+                n = 0;
                 w = region.texExtent.width;
                 h = region.texExtent.height;
                 for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {

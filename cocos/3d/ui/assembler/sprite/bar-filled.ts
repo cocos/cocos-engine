@@ -28,9 +28,11 @@
  */
 
 // const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
-import { Mat4, Vec3 } from '../../../../core/math';
+import { Mat4 } from '../../../../core/value-types';
+import { vec3 } from '../../../../core/vmath';
 import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
+import { Node } from '../../../../scene-graph/node';
 import { SpriteComponent } from '../../components';
 import { IAssembler } from '../base';
 import { fillVerticesWithoutCalc3D } from '../utils';
@@ -177,7 +179,7 @@ export const barFilled: IAssembler = {
     updateVerts (sprite: SpriteComponent, fillStart: number, fillEnd: number) {
         const renderData: RenderData|null = sprite.renderData;
         const datas: IRenderData[] = renderData!.datas;
-        const node = sprite.node;
+        const node: Node = sprite.node;
         const width = node.width;
         const height = node.height;
         const appx = node.anchorX * width;
@@ -246,7 +248,7 @@ export const barFilled: IAssembler = {
         for (let i = 0; i < 4; i++) {
             const local = datas[i + 4];
             const world = datas[i];
-            Vec3.transformMat4(world, local, matrix);
+            vec3.transformMat4(world, local, matrix);
         }
     },
 

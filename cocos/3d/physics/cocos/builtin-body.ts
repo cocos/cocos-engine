@@ -2,9 +2,10 @@
  * @hidden
  */
 
-import { Mat4, Quat, Vec3 } from '../../../core/math';
+import { Quat, Vec3 } from '../../../core/value-types';
+import { clamp, mat4, quat, vec3 } from '../../../core/vmath';
 import { intersect } from '../../geom-utils';
-import { BuiltInRigidBodyBase, PhysicsWorldBase } from '../api';
+import { BuiltInRigidBodyBase, ITriggerCallback, ITriggerEvent, ITriggerEventType, PhysicsWorldBase } from '../api';
 import { ERigidBodyType } from '../physic-enum';
 import { BuiltInWorld } from './builtin-world';
 import { BuiltinObject } from './object/builtin-object';
@@ -120,13 +121,13 @@ export class BuiltInBody extends BuiltinObject implements BuiltInRigidBodyBase {
         this.userData = data;
     }
 
-    public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3) {
+    public transform (m: mat4, pos: vec3, rot: quat, scale: vec3) {
         for (let i = this._shapes.length; i--;) {
             this._shapes[i].transform(m, pos, rot, scale);
         }
     }
 
-    public translateAndRotate (m: Mat4, rot: Quat): void {
+    public translateAndRotate (m: mat4, rot: quat): void {
         for (let i = this._shapes.length; i--;) {
             this._shapes[i].translateAndRotate(m, rot);
         }

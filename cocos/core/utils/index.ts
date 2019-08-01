@@ -27,21 +27,17 @@
 import * as js from './js';
 
 /**
- * 杂项工具函数
- */
-import * as misc from './misc';
-
-/**
  * 用于处理文件与目录的路径的模块
  */
 import * as path from './path';
+export * from './profiler/profiler';
+export * from './misc';
 export * from './text-utils';
 export * from './html-text-parser';
 
 export * from './prefab-helper';
 export {
     js,
-    misc,
     path,
 };
 

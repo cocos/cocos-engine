@@ -137,14 +137,12 @@ export class WebGLGFXTexture extends GFXTexture {
     }
 
     public destroy () {
-
         if (this._gpuTexture) {
             WebGLCmdFuncDestroyTexture(this._device as WebGLGFXDevice, this._gpuTexture);
             this._device.memoryStatus.textureSize -= this._size;
             this._gpuTexture = null;
         }
         this._status = GFXStatus.UNREADY;
-        this._buffer = null;
     }
 
     public resize (width: number, height: number) {
