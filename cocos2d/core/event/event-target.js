@@ -134,6 +134,10 @@ proto.on = function (type, callback, target) {
 proto.off = function (type, callback, target) {
     if (!callback) {
         this.removeAll(type);
+
+        if (target && target.__eventTargets) {
+            fastRemove(target.__eventTargets, this);
+        }
     }
     else {
         this.remove(type, callback, target);
@@ -155,7 +159,13 @@ proto.off = function (type, callback, target) {
  * @method targetOff
  * @param {Object} target - The target to be searched for all related listeners
  */
-proto.targetOff = proto.removeAll;
+proto.targetOff = function (target) {
+    this.removeAll(target);
+    
+    if (target && target.__eventTargets) {
+        fastRemove(target.__eventTargets, this);
+    }
+};
 
 /**
  * !#en
