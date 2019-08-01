@@ -21,8 +21,10 @@ export class ArrayCurveValueAdapter extends CurveValueAdapter {
         } else if (this.elementAdapater !== null) {
             return this.elementAdapater.forTarget(target[this.index]);
         } else {
-            return (value: any) => {
-                target[this.index] = value; 
+            return {
+                set: (value: any) => {
+                    target[this.index] = value; 
+                },
             };
         }
     }

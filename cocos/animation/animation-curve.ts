@@ -74,7 +74,9 @@ export interface IPropertyCurveData {
     interpolate?: boolean;
 
     /**
-     * 序列化之后的曲线值适配器。
+     * 曲线值适配器。
+     * 若存在曲线值适配器，将从曲线值适配器中获取曲线值代理以获取和设置曲线值；
+     * 否则，直接使用赋值操作符写入曲线值。
      */
     valueAdapter?: CurveValueAdapter;
 }
@@ -274,15 +276,31 @@ export class EventInfo {
     }
 }
 
+/**
+ * 曲线值代理用来设置曲线值到目标，是广义的赋值。
+ * 每个曲线值代理都关联着一个目标对象。
+ */
+export interface ICurveValueProxy {
+    /**
+     * 设置曲线值到目标对象上。
+     */
+    set: (value: any) => void;
+}
+
+/**
+ * 曲线值适配器是曲线值代理的工厂。
+ */
 @ccclass('cc.CurveValueAdapter')
 export class CurveValueAdapter {
     /**
-     * Returns a setter for target's property.
+     * 返回指定目标的曲线值代理。
      * @param target
      */
-    public forTarget(target: any) {
-        return (value: any) => {
-            // Empty implementation
+    public forTarget(target: any): ICurveValueProxy {
+        return {
+            set: (value: any) => {
+                // Empty implementation
+            },
         };
     }
 }
