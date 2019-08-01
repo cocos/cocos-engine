@@ -16,3 +16,5 @@ export * from './skeletal-animation-clip';
 export * from './skeletal-animation-state';
 export * from './skeletal-animation-component';
 export * from './transform-utils';
+
+import './deprecated';
