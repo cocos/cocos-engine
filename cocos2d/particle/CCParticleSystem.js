@@ -58,6 +58,16 @@ function getImageFormatByData (imgData) {
     return macro.ImageFormat.UNKNOWN;
 }
 
+//
+function getParticleComponents (node) {
+    let parent = node.parent, comp = node.getComponent(cc.ParticleSystem);
+    if (!parent || !comp) {
+        return node.getComponentsInChildren(cc.ParticleSystem);
+    }
+    return getParticleComponents(parent);
+}
+
+
 /**
  * !#en Enum for emitter modes
  * !#zh 发射模式
@@ -795,13 +805,27 @@ var ParticleSystem = cc.Class({
 
     onFocusInEditor: CC_EDITOR && function () {
         this._focused = true;
-        if (this.preview) {
-            this.resetSystem();
+        let components = getParticleComponents(this.node);
+        for (let i = 0; i < components.length; ++i) {
+            components[i]._startPreview();
         }
     },
 
     onLostFocusInEditor: CC_EDITOR && function () {
         this._focused = false;
+        let components = getParticleComponents(this.node);
+        for (let i = 0; i < components.length; ++i) {
+            components[i]._stopPreview();
+        }
+    },
+
+    _startPreview: CC_EDITOR && function () {
+        if (this.preview) {
+            this.resetSystem();
+        }
+    },
+
+    _stopPreview: CC_EDITOR && function () {
         if (this.preview) {
             this.resetSystem();
             this.stopSystem();
