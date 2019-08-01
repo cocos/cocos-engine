@@ -35,6 +35,13 @@ export interface ITextureBufferHandle {
     texView: GFXTextureView;
 }
 
+export interface ITextureBufferPoolInfo {
+    format: GFXFormat; // target texture format
+    maxChunks: number; // maximum number of textures to allocate until exception
+    inOrderFree?: boolean; // will the handles be freed exactly in the order of their allocation?
+    roundUpFn?: (size: number) => number; // given a target size, how will the actual texture size round up?
+}
+
 export class TextureBufferPool {
 
     private _device: GFXDevice;
@@ -47,6 +54,7 @@ export class TextureBufferPool {
     private _region1: GFXBufferTextureCopy = new GFXBufferTextureCopy();
     private _region2: GFXBufferTextureCopy = new GFXBufferTextureCopy();
     private _roundUpFn: ((size: number) => number) | null = null;
+    private _inOrderFree = false;
 
     get formatSize () {
         return this._formatSize;
@@ -56,11 +64,13 @@ export class TextureBufferPool {
         this._device = device;
     }
 
-    public initialize (format: GFXFormat, maxChunks: number, roundUpFn?: (size: number) => number): boolean {
-        this._format = format;
+    public initialize (info: ITextureBufferPoolInfo): boolean {
+
+        this._format = info.format;
         this._formatSize = GFXFormatInfos[this._format].size;
-        this._chunks = new Array(maxChunks);
-        if (roundUpFn) { this._roundUpFn = roundUpFn; }
+        this._chunks = new Array(info.maxChunks);
+        this._roundUpFn = info.roundUpFn || null;
+        this._inOrderFree = info.inOrderFree || false;
 
         return true;
     }
@@ -86,7 +96,21 @@ export class TextureBufferPool {
             let start = chunk.start;
             if ((start + size) <= chunk.end) {
                 isFound = true;
-            } else if (start > chunk.end) {
+            } else if (!this._inOrderFree) {
+                start = 0; // try to find from head again
+                const handles = this._handles.filter((h) => h.chunkIdx === i).sort((a, b) => a.start - b.start);
+                for (let j = 0; j < handles.length; j++) {
+                    const handle = handles[j];
+                    if ((start + size) <= handle.start) {
+                        isFound = true;
+                        break;
+                    }
+                    start = handle.end;
+                }
+                if (!isFound && (start + size) <= chunk.size) {
+                    isFound = true;
+                }
+            } else if (start > chunk.end) { // [McDonald 12] Efficient Buffer Management
                 if ((start + size) <= chunk.size) {
                     isFound = true;
                 } else if (size <= chunk.end) {
@@ -169,6 +193,7 @@ export class TextureBufferPool {
     public free (handle: ITextureBufferHandle) {
         for (let i = 0; i < this._handles.length; ++i) {
             if (this._handles[i] === handle) {
+                this._chunks[handle.chunkIdx].end = handle.end;
                 this._handles.splice(i, 1);
                 return;
             }

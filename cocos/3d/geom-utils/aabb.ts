@@ -2,21 +2,21 @@
  * @category gemotry-utils
  */
 
-import { mat3, mat4, quat, vec3 } from '../../core/vmath';
+import { Mat3, Mat4, Quat, Vec3 } from '../../core/math';
 import enums from './enums';
 
-const _v3_tmp = vec3.create();
-const _v3_tmp2 = vec3.create();
-const _v3_tmp3 = vec3.create();
-const _v3_tmp4 = vec3.create();
-const _m3_tmp = mat3.create();
+const _v3_tmp = new Vec3();
+const _v3_tmp2 = new Vec3();
+const _v3_tmp3 = new Vec3();
+const _v3_tmp4 = new Vec3();
+const _m3_tmp = new Mat3();
 
 // https://zeuxcg.org/2010/10/17/aabb-from-obb-with-component-wise-abs/
-const transform_extent_m4 = (out: vec3, extent: vec3, m4: mat4) => {
+const transform_extent_m4 = (out: Vec3, extent: Vec3, m4: Mat4) => {
     _m3_tmp.m00 = Math.abs(m4.m00); _m3_tmp.m01 = Math.abs(m4.m01); _m3_tmp.m02 = Math.abs(m4.m02);
     _m3_tmp.m03 = Math.abs(m4.m04); _m3_tmp.m04 = Math.abs(m4.m05); _m3_tmp.m05 = Math.abs(m4.m06);
     _m3_tmp.m06 = Math.abs(m4.m08); _m3_tmp.m07 = Math.abs(m4.m09); _m3_tmp.m08 = Math.abs(m4.m10);
-    vec3.transformMat3(out, extent, _m3_tmp);
+    Vec3.transformMat3(out, extent, _m3_tmp);
 };
 
 /**
@@ -74,8 +74,8 @@ export default class aabb {
      * @return {aabb} out 接受操作的 aabb。
      */
     public static copy (out: aabb, a: aabb): aabb {
-        vec3.copy(out.center, a.center);
-        vec3.copy(out.halfExtents, a.halfExtents);
+        Vec3.copy(out.center, a.center);
+        Vec3.copy(out.halfExtents, a.halfExtents);
 
         return out;
     }
@@ -90,9 +90,9 @@ export default class aabb {
      * @param maxPos - aabb 的最大点。
      * @returns {aabb} out 接受操作的 aabb。
      */
-    public static fromPoints (out: aabb, minPos: vec3, maxPos: vec3): aabb {
-        vec3.scale(out.center, vec3.add(_v3_tmp, minPos, maxPos), 0.5);
-        vec3.scale(out.halfExtents, vec3.subtract(_v3_tmp2, maxPos, minPos), 0.5);
+    public static fromPoints (out: aabb, minPos: Vec3, maxPos: Vec3): aabb {
+        Vec3.scale(out.center, Vec3.add(_v3_tmp, minPos, maxPos), 0.5);
+        Vec3.scale(out.halfExtents, Vec3.subtract(_v3_tmp2, maxPos, minPos), 0.5);
         return out;
     }
 
@@ -111,8 +111,8 @@ export default class aabb {
      * @return {aabb} out 接受操作的 aabb。
      */
     public static set (out: aabb, px: number, py: number, pz: number, hw: number, hh: number, hl: number): aabb {
-        vec3.set(out.center, px, py, pz);
-        vec3.set(out.halfExtents, hw, hh, hl);
+        Vec3.set(out.center, px, py, pz);
+        Vec3.set(out.halfExtents, hw, hh, hl);
         return out;
     }
 
@@ -125,12 +125,12 @@ export default class aabb {
      * @returns {aabb} out 接受操作的 aabb。
      */
     public static merge (out: aabb, a: aabb, b: aabb): aabb {
-        vec3.subtract(_v3_tmp, a.center, a.halfExtents);
-        vec3.subtract(_v3_tmp2, b.center, b.halfExtents);
-        vec3.add(_v3_tmp3, a.center, a.halfExtents);
-        vec3.add(_v3_tmp4, b.center, b.halfExtents);
-        vec3.max(_v3_tmp4, _v3_tmp3, _v3_tmp4);
-        vec3.min(_v3_tmp3, _v3_tmp, _v3_tmp2);
+        Vec3.subtract(_v3_tmp, a.center, a.halfExtents);
+        Vec3.subtract(_v3_tmp2, b.center, b.halfExtents);
+        Vec3.add(_v3_tmp3, a.center, a.halfExtents);
+        Vec3.add(_v3_tmp4, b.center, b.halfExtents);
+        Vec3.max(_v3_tmp4, _v3_tmp3, _v3_tmp4);
+        Vec3.min(_v3_tmp3, _v3_tmp, _v3_tmp2);
         return aabb.fromPoints(out, _v3_tmp3, _v3_tmp4);
     }
 
@@ -142,8 +142,8 @@ export default class aabb {
      * @param matrix 矩阵。
      * @returns {aabb} out 接受操作的 aabb。
      */
-    public static transform (out: aabb, a: aabb, matrix: mat4): aabb {
-        vec3.transformMat4(out.center, a.center, matrix);
+    public static transform (out: aabb, a: aabb, matrix: Mat4): aabb {
+        Vec3.transformMat4(out.center, a.center, matrix);
         transform_extent_m4(out.halfExtents, a.halfExtents, matrix);
         return out;
     }
@@ -152,19 +152,19 @@ export default class aabb {
      * @zh
      * 本地坐标的中心点。
      */
-    public center: vec3;
+    public center: Vec3;
 
     /**
      * @zh
      * 长宽高的一半。
      */
-    public halfExtents: vec3;
+    public halfExtents: Vec3;
 
     protected _type: number = enums.SHAPE_AABB;
 
     constructor (px = 0, py = 0, pz = 0, hw = 1, hh = 1, hl = 1) {
-        this.center = vec3.create(px, py, pz);
-        this.halfExtents = vec3.create(hw, hh, hl);
+        this.center = new Vec3(px, py, pz);
+        this.halfExtents = new Vec3(hw, hh, hl);
     }
 
     /**
@@ -172,12 +172,12 @@ export default class aabb {
      * Get the bounding points of this shape
      * @zh
      * 获取 aabb 的最小点和最大点。
-     * @param {vec3} minPos 最小点。
-     * @param {vec3} maxPos 最大点。
+     * @param {Vec3} minPos 最小点。
+     * @param {Vec3} maxPos 最大点。
      */
-    public getBoundary (minPos: vec3, maxPos: vec3) {
-        vec3.subtract(minPos, this.center, this.halfExtents);
-        vec3.add(maxPos, this.center, this.halfExtents);
+    public getBoundary (minPos: Vec3, maxPos: Vec3) {
+        Vec3.subtract(minPos, this.center, this.halfExtents);
+        Vec3.add(maxPos, this.center, this.halfExtents);
     }
 
     /**
@@ -191,8 +191,8 @@ export default class aabb {
      * @param scale 变换的缩放部分。
      * @param out 变换的目标。
      */
-    public transform (m: mat4, pos: vec3 | null, rot: quat | null, scale: vec3 | null, out: aabb) {
-        vec3.transformMat4(out.center, this.center, m);
+    public transform (m: Mat4, pos: Vec3 | null, rot: Quat | null, scale: Vec3 | null, out: aabb) {
+        Vec3.transformMat4(out.center, this.center, m);
         transform_extent_m4(out.halfExtents, this.halfExtents, m);
     }
 

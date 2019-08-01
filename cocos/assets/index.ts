@@ -30,14 +30,14 @@
 
 export { RawAsset } from './raw-asset';
 export { Asset } from './asset';
-export {default as Prefab} from './CCPrefab';
-export * from './CCScripts';
-export {default as SceneAsset} from './CCSceneAsset';
+export {default as Prefab} from './prefab';
+export * from './scripts';
+export {default as SceneAsset} from './scene-asset';
 export * from './sprite-frame';
 export { SpriteAtlas } from './sprite-atlas';
-export {default as TextAsset} from './CCTextAsset';
-export {default as JsonAsset} from './CCJsonAsset';
-export {default as AssetLibrary} from './CCAssetLibrary';
+export {default as TextAsset} from './text-asset';
+export {default as JsonAsset} from './json-asset';
+export {default as AssetLibrary} from './asset-library';
 export { ImageAsset } from './image-asset';
 export { Texture2D } from './texture-2d';
 export { TTFFont } from './ttf-font';

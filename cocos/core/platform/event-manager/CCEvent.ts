@@ -29,8 +29,7 @@
  */
 
 import Event from '../../event/event';
-import { Vec2 } from '../../value-types';
-import { vec2 } from '../../vmath';
+import { Vec2 } from '../../math';
 import Touch from './CCTouch';
 
 /**
@@ -246,7 +245,7 @@ export class EventMouse extends Event {
             out = new Vec2();
         }
 
-        vec2.set(out, this._x, this._y);
+        Vec2.set(out, this._x, this._y);
         return out;
     }
 
@@ -262,7 +261,7 @@ export class EventMouse extends Event {
             out = new Vec2();
         }
 
-        vec2.set(out, this._x, cc.view._designResolutionSize.height - this._y);
+        Vec2.set(out, this._x, cc.view._designResolutionSize.height - this._y);
         return out;
     }
 
@@ -278,7 +277,7 @@ export class EventMouse extends Event {
             out = new Vec2();
         }
 
-        vec2.set(out, this._x, this._y);
+        Vec2.set(out, this._x, this._y);
         cc.view._convertPointWithScale(out);
         return out;
     }
@@ -300,7 +299,7 @@ export class EventMouse extends Event {
             out = new Vec2();
         }
 
-        vec2.set(out, this._prevX, this._prevY);
+        Vec2.set(out, this._prevX, this._prevY);
         return out;
     }
 
@@ -316,7 +315,7 @@ export class EventMouse extends Event {
             out = new Vec2();
         }
 
-        vec2.set(out, this._prevX, this._prevY);
+        Vec2.set(out, this._prevX, this._prevY);
         cc.view._convertPointWithScale(out);
         return out;
     }
@@ -333,7 +332,7 @@ export class EventMouse extends Event {
             out = new Vec2();
         }
 
-        vec2.set(out, this._x - this._prevX, this._y - this._prevY);
+        Vec2.set(out, this._x - this._prevX, this._y - this._prevY);
         return out;
     }
 
@@ -371,7 +370,7 @@ export class EventMouse extends Event {
             out = new Vec2();
         }
 
-        vec2.set(out, (this._x - this._prevX) / cc.view.getScaleX(), (this._y - this._prevY) / cc.view.getScaleY());
+        Vec2.set(out, (this._x - this._prevX) / cc.view.getScaleX(), (this._y - this._prevY) / cc.view.getScaleY());
         return out;
     }
 

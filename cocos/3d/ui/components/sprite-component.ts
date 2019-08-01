@@ -30,10 +30,10 @@
 
 import { SpriteAtlas, SpriteFrame } from '../../../assets';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { SystemEventType } from '../../../core/platform';
-import { Vec2 } from '../../../core/value-types';
+import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
+import { Vec2 } from '../../../core/math';
 import { ccenum } from '../../../core/value-types/enum';
-import { clamp } from '../../../core/vmath/utils';
+import { clamp } from '../../../core/math/utils';
 import { UI } from '../../../renderer/ui/ui';
 import { UIRenderComponent } from './ui-render-component';
 
@@ -598,11 +598,15 @@ export class SpriteComponent extends UIRenderComponent {
         //     this.markForRender(false);
         // }
 
-        if (oldFrame && spriteFrame) {
-            this._renderData!.uvDirty = oldFrame.uvHash !== spriteFrame.uvHash;
-        }
-        else {
-            this._renderData!.uvDirty = true;
+        if(this._renderData){
+            if (oldFrame && spriteFrame) {
+                this._renderData!.uvDirty = oldFrame.uvHash !== spriteFrame.uvHash;
+            }
+            else {
+                this._renderData!.uvDirty = true;
+            }
+
+            this._renderDataDirty = this._renderData!.uvDirty
         }
 
         if (spriteFrame) {

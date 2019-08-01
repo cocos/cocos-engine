@@ -29,32 +29,22 @@
 
 import { RenderableComponent } from '../3d/framework/renderable-component';
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
+import { Quat, Vec3 } from '../core/math';
 import { ccclass } from '../core/data/class-decorator';
 import { getClassName } from '../core/utils/js';
-import { Quat, Vec3 } from '../core/value-types';
-import { quat, vec3 } from '../core/vmath';
-import { Node } from '../scene-graph';
 import { AnimationClip, ICurveData, IObjectCurveData, IPropertyCurve } from './animation-clip';
 import { AnimationComponent } from './animation-component';
 import { IPropertyCurveData } from './animation-curve';
+import { INode } from '../core/utils/interfaces';
+import { getPathFromRoot } from './transform-utils';
 
-function getPathFromRoot (target: Node | null, root: Node) {
-    let node: Node | null = target;
-    let path = '';
-    while (node !== null && node !== root) {
-        path = `${node.name}/${path}`;
-        node = node.parent;
-    }
-    return path.slice(0, -1);
-}
-
-function isTargetSkinningModel (comp: RenderableComponent, root: Node) {
+function isTargetSkinningModel (comp: RenderableComponent, root: INode) {
     if (!(comp instanceof SkinningModelComponent)) { return false; }
     const curRoot = comp.skinningRoot;
     if (curRoot === root) { return true; }
     if (curRoot && curRoot.getComponent(AnimationComponent)) { return false; }
     // find the lowest AnimationComponent node
-    let node: Node | null = comp.node;
+    let node: INode | null = comp.node;
     while (node && !node.getComponent(AnimationComponent)) { node = node.parent; }
     if (node === root) { return true; }
     return false;
@@ -69,18 +59,13 @@ export class SkeletalAnimationClip extends AnimationClip {
     public convertedData: ICurveData = {};
     protected _converted = false;
 
-    public getPropertyCurves (root: Node): ReadonlyArray<IPropertyCurve> {
+    public getPropertyCurves (root: INode): ReadonlyArray<IPropertyCurve> {
+        this.hash; // calculate hash before conversion
         this._convertToSkeletalCurves(root);
         return super.getPropertyCurves(root);
     }
 
-    public onPlay = (root: Node) => {
-        for (const comp of root.getComponentsInChildren(SkinningModelComponent)) {
-            comp.uploadAnimationClip(this);
-        }
-    }
-
-    private _convertToSkeletalCurves (root: Node) {
+    private _convertToSkeletalCurves (root: INode) {
         if (this._converted) { return; }
         // sort the keys to make sure parent bone always comes first
         const paths = Object.keys(this.curveDatas).sort();
@@ -98,7 +83,7 @@ export class SkeletalAnimationClip extends AnimationClip {
             scale.interpolate = false;
         }
         // keep all node animations in editor
-        if (CC_EDITOR) { this.convertedData = JSON.parse(JSON.stringify(this.curveDatas)); }
+        if (false) { this.convertedData = JSON.parse(JSON.stringify(this.curveDatas)); }
         else { this.convertedData = this.curveDatas; this.curveDatas = {}; }
         // transform to world space
         for (const path of paths) {
@@ -113,8 +98,6 @@ export class SkeletalAnimationClip extends AnimationClip {
                 const path = getPathFromRoot(comp.node, root);
                 if (!this.curveDatas[path]) { this.curveDatas[path] = {}; }
                 this.curveDatas[path].comps = { [getClassName(comp)]: { frameID: { keys: 0, values, interpolate: false } } };
-            } else if (!CC_EDITOR) { // rig non-skinning renderables
-                this._convertToRiggingData(comp.node.parent!, root);
             }
         }
         this._keys = [values.map((_, i) => i / this.sample)];
@@ -157,98 +140,13 @@ export class SkeletalAnimationClip extends AnimationClip {
             const T = position[i];
             const R = rotation[i];
             const S = scale[i];
-            vec3.multiply(T, T, parentS);
-            vec3.transformQuat(T, T, parentR);
-            vec3.add(T, T, parentT);
-            quat.multiply(R, parentR, R);
-            vec3.multiply(S, parentS, S);
+            Vec3.multiply(T, T, parentS);
+            Vec3.transformQuat(T, T, parentR);
+            Vec3.add(T, T, parentT);
+            Quat.multiply(R, parentR, R);
+            Vec3.multiply(S, parentS, S);
         }
-    }
-
-    // this incorrectly assumes any rig node will never be the parent nodes of others
-    // can only be fixed if we use a different rigging interface other than just attach child node to bone nodes
-    private _convertToRiggingData (targetNode: Node, root: Node) {
-        const targetPath = getPathFromRoot(targetNode, root);
-        // find lowest joint animation
-        let animPath = targetPath;
-        let source = this.convertedData[animPath];
-        let animNode = targetNode;
-        while (!source || !source.props) {
-            const idx = animPath.lastIndexOf('/');
-            animPath = animPath.substring(0, idx);
-            source = this.convertedData[animPath];
-            animNode = animNode.parent!;
-            if (idx < 0) { return; }
-        }
-        // create initial animation data
-        const data: IObjectCurveData = {
-            position: { keys: 0, interpolate: false, values: source.props.position.values.map((v) => v.clone()) },
-            rotation: { keys: 0, interpolate: false, values: source.props.rotation.values.map((v) => v.clone()) },
-            scale: { keys: 0, interpolate: false, values: source.props.scale.values.map((v) => v.clone()) },
-        };
-        const position = data.position.values;
-        const rotation = data.rotation.values;
-        const scale = data.scale.values;
-        // apply downstream bindpose
-        let target = targetNode;
-        vec3.set(v3_1, 0, 0, 0);
-        quat.set(qt_1, 0, 0, 0, 1);
-        vec3.set(v3_2, 1, 1, 1);
-        while (target !== animNode) {
-            vec3.multiply(v3_3, v3_1, target.scale);
-            vec3.transformQuat(v3_3, v3_3, target.rotation);
-            vec3.add(v3_1, v3_3, target.position);
-            quat.multiply(qt_1, target.rotation, qt_1);
-            vec3.multiply(v3_2, target.scale, v3_2);
-            target = target.parent!;
-        }
-        for (let i = 0; i < position.length; i++) {
-            const T = position[i];
-            const R = rotation[i];
-            const S = scale[i];
-            vec3.multiply(v3_3, v3_1, S);
-            vec3.transformQuat(v3_3, v3_3, R);
-            vec3.add(T, v3_3, T);
-            quat.multiply(R, R, qt_1);
-            vec3.multiply(S, S, v3_2);
-        }
-        // apply inverse upstream bindpose
-        target = animNode.parent === root ? animNode : animNode.parent!;
-        vec3.set(v3_1, 0, 0, 0);
-        quat.set(qt_1, 0, 0, 0, 1);
-        vec3.set(v3_2, 1, 1, 1);
-        while (target !== root) {
-            vec3.multiply(v3_3, v3_1, target.scale);
-            vec3.transformQuat(v3_3, v3_3, target.rotation);
-            vec3.add(v3_1, v3_3, target.position);
-            quat.multiply(qt_1, target.rotation, qt_1);
-            vec3.multiply(v3_2, target.scale, v3_2);
-            target = target.parent!;
-        }
-        quat.invert(qt_1, qt_1);
-        vec3.invert(v3_2, v3_2);
-        vec3.negate(v3_1, v3_1);
-        vec3.transformQuat(v3_1, v3_1, qt_1);
-        vec3.multiply(v3_1, v3_1, v3_2);
-        for (let i = 0; i < position.length; i++) {
-            const T = position[i];
-            const R = rotation[i];
-            const S = scale[i];
-            vec3.multiply(T, T, v3_2);
-            vec3.transformQuat(T, T, qt_1);
-            vec3.add(T, T, v3_1);
-            quat.multiply(R, qt_1, R);
-            vec3.multiply(S, v3_2, S);
-        }
-        // wrap up
-        if (!this.curveDatas[targetPath]) { this.curveDatas[targetPath] = {}; }
-        this.curveDatas[targetPath].props = data;
     }
 }
-
-const v3_1 = new Vec3();
-const v3_2 = new Vec3();
-const qt_1 = new Quat();
-const v3_3 = new Vec3();
 
 cc.SkeletalAnimationClip = SkeletalAnimationClip;

@@ -24,8 +24,7 @@
 */
 
 // const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
-import { Mat4, Vec3 } from '../../../../core/value-types';
-import { vec3 } from '../../../../core/vmath/index';
+import { Mat4, Vec3 } from '../../../../core/math';
 import { RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { SpriteComponent } from '../../components/sprite-component';
@@ -149,14 +148,14 @@ export const tilled: IAssembler = {
                 x = datas[xindex].x;
                 x1 = datas[xindex + 1].x;
 
-                vec3.set(vec3_temps[0], x, y, 0);
-                vec3.set(vec3_temps[1], x1, y, 0);
-                vec3.set(vec3_temps[2], x, y1, 0);
-                vec3.set(vec3_temps[3], x1, y1, 0);
+                Vec3.set(vec3_temps[0], x, y, 0);
+                Vec3.set(vec3_temps[1], x1, y, 0);
+                Vec3.set(vec3_temps[2], x, y1, 0);
+                Vec3.set(vec3_temps[3], x1, y1, 0);
 
                 for (let i = 0; i < 4; i++) {
                     const vec3_temp = vec3_temps[i];
-                    vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+                    Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
                     const move = i * 6;
                     vbuf![vertexOffset + move] = vec3_temp.x;
                     vbuf![vertexOffset + move + 1] = vec3_temp.y;

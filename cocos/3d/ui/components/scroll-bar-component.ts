@@ -31,10 +31,9 @@
 import { Component } from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { INode } from '../../../core/utils/interfaces';
-import { Color, Size, Vec2, Vec3 } from '../../../core/value-types';
+import { Color, Size, Vec2, Vec3 } from '../../../core/math';
 import { ccenum } from '../../../core/value-types/enum';
-import { vec3 } from '../../../core/vmath';
-import { clamp01 } from '../../../core/vmath/utils';
+import { clamp01 } from '../../../core/math/utils';
 import { ScrollViewComponent } from './scroll-view-component';
 import { SpriteComponent } from './sprite-component';
 
@@ -355,7 +354,7 @@ export class ScrollBarComponent extends Component {
 
         const handleParent = this.handle!.node.parent!;
 
-        vec3.set(_tempPos_1, -barSize.width * barAnchor.x, -barSize.height * barAnchor.y, 0);
+        Vec3.set(_tempPos_1, -barSize.width * barAnchor.x, -barSize.height * barAnchor.y, 0);
         const leftBottomWorldPosition = this.node!.uiTransfromComp!.convertToWorldSpaceAR(_tempPos_1, _tempPos_2);
         let fixupPosition = new Vec3();
         handleParent.uiTransfromComp!.convertToNodeSpaceAR(leftBottomWorldPosition, fixupPosition);

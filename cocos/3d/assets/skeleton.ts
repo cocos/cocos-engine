@@ -30,8 +30,8 @@
 import { Asset } from '../../assets/asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { CCString } from '../../core/data/utils/attribute';
-import { Mat4, Quat, Vec3 } from '../../core/value-types';
-import { mat4 } from '../../core/vmath';
+import { Mat4, Quat, Vec3 } from '../../core/math';
+import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 
 export interface IBindTRS {
     position: Vec3;
@@ -54,6 +54,8 @@ export class Skeleton extends Asset {
 
     private _bindTRS: IBindTRS[] = [];
 
+    private _hash = 0;
+
     /**
      * 所有关节的绑定姿势矩阵。该数组的长度始终与 `this.joints` 的长度相同。
      */
@@ -67,9 +69,15 @@ export class Skeleton extends Asset {
             const position = new Vec3();
             const rotation = new Quat();
             const scale = new Vec3();
-            mat4.toRTS(m, rotation, position, scale);
+            Mat4.toRTS(m, rotation, position, scale);
             return { position, rotation, scale };
         });
+        this._hash = murmurhash2_32_gc(this.bindposes.reduce((acc, cur) => acc +
+            cur.m00.toPrecision(2) + ' ' + cur.m01.toPrecision(2) + ' ' + cur.m02.toPrecision(2) + ' ' + cur.m03.toPrecision(2) + ' ' +
+            cur.m04.toPrecision(2) + ' ' + cur.m05.toPrecision(2) + ' ' + cur.m06.toPrecision(2) + ' ' + cur.m07.toPrecision(2) + ' ' +
+            cur.m08.toPrecision(2) + ' ' + cur.m09.toPrecision(2) + ' ' + cur.m10.toPrecision(2) + ' ' + cur.m11.toPrecision(2) + ' ' +
+            cur.m12.toPrecision(2) + ' ' + cur.m13.toPrecision(2) + ' ' + cur.m14.toPrecision(2) + ' ' + cur.m15.toPrecision(2) + '\n'
+        , ''), 666);
     }
 
     get bindTRS () {
@@ -85,6 +93,10 @@ export class Skeleton extends Asset {
 
     set joints (value) {
         this._joints = value;
+    }
+
+    get hash () {
+        return this._hash;
     }
 
     public onLoaded () {

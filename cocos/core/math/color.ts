@@ -25,19 +25,215 @@
 */
 
 /**
- * @category core/value-types
+ * @category core/math
  */
 
 import CCClass from '../data/class';
-import { ValueType } from './value-type';
+import { IColorLike } from './type-define';
+import { EPSILON } from './utils';
+import { ValueType } from '../value-types/value-type';
 
 const toFloat = 1 / 255;
+
+let _r: number = 0;
+let _g: number = 0;
+let _b: number = 0;
+let _a: number = 0;
 
 /**
  * 通过 Red、Green、Blue 颜色通道表示颜色，并通过 Alpha 通道表示不透明度。
  * 每个通道都为取值范围 [0, 255] 的整数。
  */
-export default class Color extends ValueType {
+export class Color extends ValueType {
+
+    /**
+     * @zh 获得指定颜色的拷贝
+     */
+    public static clone <Out extends IColorLike> (a: Out) {
+        const out = new Color();
+        if (a._val) {
+            out._val = a._val;
+        } else {
+            out._val = ((a.a << 24) >>> 0) + (a.b << 16) + (a.g << 8) + a.r;
+        }
+        return out;
+    }
+
+    /**
+     * @zh 复制目标颜色
+     */
+    public static copy <Out extends IColorLike> (out: Out, a: Out) {
+        out.r = a.r;
+        out.g = a.g;
+        out.b = a.b;
+        out.a = a.a;
+        return out;
+    }
+
+    /**
+     * @zh 设置颜色值
+     */
+    public static set <Out extends IColorLike> (out: Out, r: number, g: number, b: number, a: number) {
+        out.r = r;
+        out.g = g;
+        out.b = b;
+        out.a = a;
+        return out;
+    }
+
+    /**
+     * @zh 根据指定整型数据设置颜色
+     */
+    public static fromHex <Out extends IColorLike> (out: Out, hex: number) {
+        out.r = ((hex >> 24)) / 255.0;
+        out.g = ((hex >> 16) & 0xff) / 255.0;
+        out.b = ((hex >> 8) & 0xff) / 255.0;
+        out.a = ((hex) & 0xff) / 255.0;
+
+        return out;
+    }
+
+    /**
+     * @zh 逐通道颜色加法
+     */
+    public static add <Out extends IColorLike> (out: Out, a: Out, b: Out) {
+        out.r = a.r + b.r;
+        out.g = a.g + b.g;
+        out.b = a.b + b.b;
+        out.a = a.a + b.a;
+        return out;
+    }
+
+    /**
+     * @zh 逐通道颜色减法
+     */
+    public static subtract <Out extends IColorLike> (out: Out, a: Out, b: Out) {
+        out.r = a.r - b.r;
+        out.g = a.g - b.g;
+        out.b = a.b - b.b;
+        out.a = a.a - b.a;
+        return out;
+    }
+
+    /**
+     * @zh 逐通道颜色减法
+     */
+    public static sub <Out extends IColorLike> (out: Out, a: Out, b: Out) {
+        out.r = a.r - b.r;
+        out.g = a.g - b.g;
+        out.b = a.b - b.b;
+        out.a = a.a - b.a;
+        return out;
+    }
+
+    /**
+     * @zh 逐通道颜色乘法
+     */
+    public static multiply <Out extends IColorLike> (out: Out, a: Out, b: Out) {
+        out.r = a.r * b.r;
+        out.g = a.g * b.g;
+        out.b = a.b * b.b;
+        out.a = a.a * b.a;
+        return out;
+    }
+
+    /**
+     * @zh 逐通道颜色乘法
+     */
+    public static mul <Out extends IColorLike> (out: Out, a: Out, b: Out) {
+        out.r = a.r * b.r;
+        out.g = a.g * b.g;
+        out.b = a.b * b.b;
+        out.a = a.a * b.a;
+        return out;
+    }
+
+    /**
+     * @zh 逐通道颜色除法
+     */
+    public static divide <Out extends IColorLike> (out: Out, a: Out, b: Out) {
+        out.r = a.r / b.r;
+        out.g = a.g / b.g;
+        out.b = a.b / b.b;
+        out.a = a.a / b.a;
+        return out;
+    }
+
+    /**
+     * @zh 逐通道颜色除法
+     */
+    public static div <Out extends IColorLike> (out: Out, a: Out, b: Out) {
+        out.r = a.r / b.r;
+        out.g = a.g / b.g;
+        out.b = a.b / b.b;
+        out.a = a.a / b.a;
+        return out;
+    }
+
+    /**
+     * @zh 全通道统一缩放颜色
+     */
+    public static scale <Out extends IColorLike> (out: Out, a: Out, b: number) {
+        out.r = a.r * b;
+        out.g = a.g * b;
+        out.b = a.b * b;
+        out.a = a.a * b;
+        return out;
+    }
+
+    /**
+     * @zh 逐通道颜色线性插值：A + t * (B - A)
+     */
+    public static lerp <Out extends IColorLike> (out: Out, from: Out, to: Out, ratio: number) {
+        _r = from.r;
+        _g = from.g;
+        _b = from.b;
+        _a = from.a;
+        _r = _r + (to.r - _r) * ratio;
+        _g = _g + (to.g - _g) * ratio;
+        _b = _b + (to.b - _b) * ratio;
+        _a = _a + (to.a - _a) * ratio;
+        out._val = Math.floor(((_a << 24) >>> 0) + (_b << 16) + (_g << 8) + _r);
+        return out;
+    }
+
+    /**
+     * @zh 颜色转数组
+     * @param ofs 数组起始偏移量
+     */
+    public static array <Out extends IColorLike> (out: IWritableArrayLike<number>, a: Out, ofs = 0) {
+        const scale = (a instanceof cc.Color || a.a > 1) ? 1 / 255 : 1;
+        out[ofs + 0] = a.r * scale;
+        out[ofs + 1] = a.g * scale;
+        out[ofs + 2] = a.b * scale;
+        out[ofs + 3] = a.a * scale;
+
+        return out;
+    }
+
+    /**
+     * @zh 颜色等价判断
+     */
+    public static exactEquals <Out extends IColorLike> (a: Out, b: Out) {
+        return a.r === b.r && a.g === b.g && a.b === b.b && a.a === b.a;
+    }
+
+    /**
+     * @zh 排除浮点数误差的颜色近似等价判断
+     */
+    public static equals <Out extends IColorLike> (a: Out, b: Out, epsilon = EPSILON) {
+        return (Math.abs(a.r - b.r) <= epsilon * Math.max(1.0, Math.abs(a.r), Math.abs(b.r)) &&
+            Math.abs(a.g - b.g) <= epsilon * Math.max(1.0, Math.abs(a.g), Math.abs(b.g)) &&
+            Math.abs(a.b - b.b) <= epsilon * Math.max(1.0, Math.abs(a.b), Math.abs(b.b)) &&
+            Math.abs(a.a - b.a) <= epsilon * Math.max(1.0, Math.abs(a.a), Math.abs(b.a)));
+    }
+
+    /**
+     * @zh 获取指定颜色的整型数据表示
+     */
+    public static hex <Out extends IColorLike> (a: Out) {
+        return ((a.r * 255) << 24 | (a.g * 255) << 16 | (a.b * 255) << 8 | a.a * 255) >>> 0;
+    }
 
     /**
      * 创建并获取（不透明的）纯白色，各通道值依次为 (255, 255, 255, 255)。
@@ -124,7 +320,7 @@ export default class Color extends ValueType {
     }
 
     set r (red) {
-        red = ~~cc.vmath.clamp(red, 0, 255);
+        red = ~~cc.math.clamp(red, 0, 255);
         this._val = ((this._val & 0xffffff00) | red) >>> 0;
     }
 
@@ -136,7 +332,7 @@ export default class Color extends ValueType {
     }
 
     set g (green) {
-        green = ~~cc.vmath.clamp(green, 0, 255);
+        green = ~~cc.math.clamp(green, 0, 255);
         this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
     }
 
@@ -148,7 +344,7 @@ export default class Color extends ValueType {
     }
 
     set b (blue) {
-        blue = ~~cc.vmath.clamp(blue, 0, 255);
+        blue = ~~cc.math.clamp(blue, 0, 255);
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
     }
 
@@ -160,7 +356,7 @@ export default class Color extends ValueType {
     }
 
     set a (alpha) {
-        alpha = ~~cc.vmath.clamp(alpha, 0, 255);
+        alpha = ~~cc.math.clamp(alpha, 0, 255);
         this._val = ((this._val & 0x00ffffff) | ((alpha << 24) >>> 0)) >>> 0;
     }
 
@@ -208,32 +404,19 @@ export default class Color extends ValueType {
         this.a = value * 255;
     }
 
-    /**
-     * 根据指定的插值比率，从当前颜色到目标颜色之间做插值。
-     * @param out 本方法将插值结果赋值给此参数
-     * @param from 起始颜色。
-     * @param to 目标颜色。
-     * @param ratio 插值比率，范围为 [0,1]。
-     */
-    public static lerp (out: Color, from: Color, to: Color, ratio: number) {
-        let r = from.r;
-        let g = from.g;
-        let b = from.b;
-        let a = from.a;
-        r = r + (to.r - r) * ratio;
-        g = g + (to.g - g) * ratio;
-        b = b + (to.b - b) * ratio;
-        a = a + (to.a - a) * ratio;
-        out._val = Math.floor(((a << 24) >>> 0) + (b << 16) + (g << 8) + r);
-    }
-
-    public _val: number;
+    public _val = 0;
 
     /**
      * 构造与指定颜色相等的颜色。
-     * @param other 相比较的颜色。
+     * @param other 指定的颜色。
      */
     constructor (other: Color);
+
+    /**
+     * 用十六进制颜色字符串中构造颜色。
+     * @param hexString 十六进制颜色字符串。
+     */
+    constructor (hexString: string);
 
     /**
      * 构造具有指定通道的颜色。
@@ -244,19 +427,24 @@ export default class Color extends ValueType {
      */
     constructor (r?: number, g?: number, b?: number, a?: number);
 
-    constructor (r?: number | Color, g?: number, b?: number, a?: number) {
+    constructor (r?: number | Color | string, g?: number, b?: number, a?: number) {
         super();
-        if (typeof r === 'object') {
-            g = r.g;
-            b = r.b;
-            a = r.a;
-            r = r.r;
+        if (typeof r === 'string') {
+            this.fromHEX(r);
         }
-        r = r || 0;
-        g = g || 0;
-        b = b || 0;
-        a = typeof a === 'number' ? a : 255;
-        this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+        else{
+            if (typeof r === 'object') {
+                g = r.g;
+                b = r.b;
+                a = r.a;
+                r = r.r;
+            }
+            r = r || 0;
+            g = g || 0;
+            b = b || 0;
+            a = typeof a === 'number' ? a : 255;
+            this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+        }
     }
 
     /**
@@ -283,7 +471,16 @@ export default class Color extends ValueType {
      * @param ratio 插值比率，范围为 [0,1]。
      */
     public lerp (to: Color, ratio: number) {
-        Color.lerp(this, this, to, ratio);
+        _r = this.r;
+        _g = this.g;
+        _b = this.b;
+        _a = this.a;
+        _r = _r + (to.r - _r) * ratio;
+        _g = _g + (to.g - _g) * ratio;
+        _b = _b + (to.b - _b) * ratio;
+        _a = _a + (to.a - _a) * ratio;
+        this._val = Math.floor(((_a << 24) >>> 0) + (_b << 16) + (_g << 8) + _r);
+        return this;
     }
 
     /**
@@ -303,7 +500,7 @@ export default class Color extends ValueType {
      * @param opt 格式选项。
      * @returns 当前颜色的 CSS 格式。
      */
-    public toCSS (opt: 'rgba' | 'rgb' | '#rrggbb') {
+    public toCSS (opt: 'rgba' | 'rgb' | '#rrggbb' | '#rrggbbaa') {
         if (opt === 'rgba') {
             return 'rgba(' +
                 (this.r | 0) + ',' +
@@ -332,11 +529,11 @@ export default class Color extends ValueType {
      */
     public fromHEX (hexString: string) {
         hexString = (hexString.indexOf('#') === 0) ? hexString.substring(1) : hexString;
-        const r = parseInt(hexString.substr(0, 2), 16) || 0;
-        const g = parseInt(hexString.substr(2, 2), 16) || 0;
-        const b = parseInt(hexString.substr(4, 2), 16) || 0;
-        const a = parseInt(hexString.substr(6, 2), 16) || 255;
-        this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+        _r = parseInt(hexString.substr(0, 2), 16) || 0;
+        _g = parseInt(hexString.substr(2, 2), 16) || 0;
+        _b = parseInt(hexString.substr(4, 2), 16) || 0;
+        _a = parseInt(hexString.substr(6, 2), 16) || 255;
+        this._val = ((_a << 24) >>> 0) + (_b << 16) + (_g << 8) + _r;
         return this;
     }
 
@@ -403,14 +600,14 @@ export default class Color extends ValueType {
      * ```
      */
     public fromHSV (h: number, s: number, v: number) {
-        let r: number = 0;
-        let g: number = 0;
-        let b: number = 0;
+        _r = 0;
+        _g = 0;
+        _b = 0;
         if (s === 0) {
-            r = g = b = v;
+            _r = _g = _b = v;
         } else {
             if (v === 0) {
-                r = g = b = 0;
+                _r = _g = _b = 0;
             } else {
                 if (h === 1) { h = 0; }
                 h *= 6;
@@ -423,47 +620,47 @@ export default class Color extends ValueType {
                 const t = v * (1 - (s * (1 - f)));
                 switch (i) {
                     case 0:
-                        r = v;
-                        g = t;
-                        b = p;
+                        _r = v;
+                        _g = t;
+                        _b = p;
                         break;
 
                     case 1:
-                        r = q;
-                        g = v;
-                        b = p;
+                        _r = q;
+                        _g = v;
+                        _b = p;
                         break;
 
                     case 2:
-                        r = p;
-                        g = v;
-                        b = t;
+                        _r = p;
+                        _g = v;
+                        _b = t;
                         break;
 
                     case 3:
-                        r = p;
-                        g = q;
-                        b = v;
+                        _r = p;
+                        _g = q;
+                        _b = v;
                         break;
 
                     case 4:
-                        r = t;
-                        g = p;
-                        b = v;
+                        _r = t;
+                        _g = p;
+                        _b = v;
                         break;
 
                     case 5:
-                        r = v;
-                        g = p;
-                        b = q;
+                        _r = v;
+                        _g = p;
+                        _b = q;
                         break;
                 }
             }
         }
-        r *= 255;
-        g *= 255;
-        b *= 255;
-        this._val = ((this.a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+        _r *= 255;
+        _g *= 255;
+        _b *= 255;
+        this._val = ((this.a << 24) >>> 0) + (_b << 16) + (_g << 8) + _r;
         return this;
     }
 
@@ -477,23 +674,23 @@ export default class Color extends ValueType {
      * ```
      */
     public toHSV () {
-        const r = this.r * toFloat;
-        const g = this.g * toFloat;
-        const b = this.b * toFloat;
+        _r = this.r * toFloat;
+        _g = this.g * toFloat;
+        _b = this.b * toFloat;
         const hsv = { h: 0, s: 0, v: 0 };
-        const max = Math.max(r, g, b);
-        const min = Math.min(r, g, b);
+        const max = Math.max(_r, _g, _b);
+        const min = Math.min(_r, _g, _b);
         let delta = 0;
         hsv.v = max;
         hsv.s = max ? (max - min) / max : 0;
         if (!hsv.s) { hsv.h = 0; } else {
             delta = max - min;
-            if (r === max) {
-                hsv.h = (g - b) / delta;
-            } else if (g === max) {
-                hsv.h = 2 + (b - r) / delta;
+            if (_r === max) {
+                hsv.h = (_g - _b) / delta;
+            } else if (_g === max) {
+                hsv.h = 2 + (_b - _r) / delta;
             } else {
-                hsv.h = 4 + (r - g) / delta;
+                hsv.h = 4 + (_r - _g) / delta;
             }
             hsv.h /= 6;
             if (hsv.h < 0) { hsv.h += 1.0; }
@@ -512,6 +709,7 @@ export default class Color extends ValueType {
         } else {
             this._val = ((other.a << 24) >>> 0) + (other.b << 16) + (other.g << 8) + other.r;
         }
+        return this;
     }
 
     /**
@@ -519,71 +717,44 @@ export default class Color extends ValueType {
      * @param other 指定的颜色。
      */
     public multiply (other: Color) {
-        const r = ((this._val & 0x000000ff) * other.r) >> 8;
-        const g = ((this._val & 0x0000ff00) * other.g) >> 8;
-        const b = ((this._val & 0x00ff0000) * other.b) >> 8;
-        const a = ((this._val & 0xff000000) >>> 8) * other.a;
-        this._val = (a & 0xff000000) | (b & 0x00ff0000) | (g & 0x0000ff00) | (r & 0x000000ff);
+        _r = ((this._val & 0x000000ff) * other.r) >> 8;
+        _g = ((this._val & 0x0000ff00) * other.g) >> 8;
+        _b = ((this._val & 0x00ff0000) * other.b) >> 8;
+        _a = ((this._val & 0xff000000) >>> 8) * other.a;
+        this._val = (_a & 0xff000000) | (_b & 0x00ff0000) | (_g & 0x0000ff00) | (_r & 0x000000ff);
+        return this;
     }
 
     public _set_r_unsafe (red) {
         this._val = ((this._val & 0xffffff00) | red) >>> 0;
+        return this;
     }
 
     public _set_g_unsafe (green) {
         this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
+        return this;
     }
 
     public _set_b_unsafe (blue) {
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
+        return this;
     }
 
     public _set_a_unsafe (alpha) {
         this._val = ((this._val & 0x00ffffff) | ((alpha << 24) >>> 0)) >>> 0;
+        return this;
     }
 }
 
-CCClass.fastDefine('cc.Color', Color, { r: 0, g: 0, b: 0, a: 255 });
+CCClass.fastDefine('cc.Color', Color, {r: 0, g: 0, b: 0, a: 255});
+cc.Color = Color;
 
-/**
- * 构造与指定颜色相等的颜色。相当于 `new Color(other)`。
- * @param other 相比较的颜色。
- * @returns `new Color(other)`
- */
 export function color (other: Color): Color;
-
-// tslint:disable:unified-signatures
-
-/**
- * 从十六进制字符串中构造颜色。相当于 `(new Color()).fromHex(hexString)`。
- * @param other 相比较的颜色。
- * @returns `(new Color()).fromHex(hexString)`
- */
 export function color (hexString: string): Color;
-
-// tslint:enable:unified-signatures
-
-/**
- * 构造具有指定通道的颜色。相当于 `new Color(r, g, b, a)`。
- * @param [r=0] 指定的 Red 通道。
- * @param [g=0] 指定的 Green 通道。
- * @param [b=0] 指定的 Blue 通道。
- * @param [a=255] 指定的 Alpha 通道。
- * @returns `new Color(r, g, b, a)`
- */
 export function color (r?: number, g?: number, b?: number, a?: number): Color;
 
 export function color (r?: number | Color | string, g?: number, b?: number, a?: number) {
-    if (typeof r === 'string') {
-        const result = new Color();
-        return result.fromHEX(r);
-    }
-    if (typeof r === 'object') {
-        return new Color(r.r, r.g, r.b, r.a);
-    }
-    return new Color(r, g, b, a);
+        return new Color(r as any, g, b, a);
 }
 
 cc.color = color;
-
-cc.Color = Color;

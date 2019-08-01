@@ -5,8 +5,8 @@
 import { ccclass, property } from '../core/data/class-decorator';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { errorID } from '../core/platform/CCDebug';
+import { lerp } from '../core/math';
 import { ValueType } from '../core/value-types';
-import * as vmath from '../core/vmath';
 import { PropertyBlendState } from './animation-blend-state';
 import { bezierByTime, BezierControlPoints } from './bezier';
 import * as blending from './blending';
@@ -336,19 +336,17 @@ const selectLerpFx = (() => {
         return from.lerp(to, t, dt);
     }
 
-    const lerpNumber = vmath.lerp;
-
     return (value: any): LerpFunction<any> | undefined => {
         if (value === null) {
             return undefined;
         }
         if (typeof value === 'number') {
-            return lerpNumber;
+            return lerp;
         } else if (typeof value === 'object' && value.constructor) {
             if (value instanceof ValueType) {
                 return makeValueTypeLerpFx(value.constructor as typeof ValueType);
             } else if (value.constructor === Number) {
-                return lerpNumber;
+                return lerp;
             } else if (isLerpable(value)) {
                 return callLerpable;
             }

@@ -35,6 +35,7 @@ import { AnimationClip } from './animation-clip';
 import { AnimCurve, CurveTarget, RatioSampler } from './animation-curve';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
+import { INode } from '../core/utils/interfaces';
 
 enum PropertySpecialization {
     NodePosition,
@@ -43,7 +44,7 @@ enum PropertySpecialization {
     None,
 }
 
-class ICurveInstance {
+export class ICurveInstance {
     private _curve: AnimCurve;
     private _target: CurveTarget;
     private _isNodeTarget: boolean;
@@ -57,7 +58,7 @@ class ICurveInstance {
         this._target = target;
         this._isNodeTarget = target instanceof Node;
         this._propertySpecialization = PropertySpecialization.None;
-        if (target instanceof Node) {
+        if (this._isNodeTarget) {
             switch (property) {
                 case 'position':
                     this._propertySpecialization = PropertySpecialization.NodePosition;
@@ -123,6 +124,8 @@ class ICurveInstance {
             this._blendTarget.weight += weight;
         }
     }
+
+    get propertyName () { return this._property; }
 }
 
 /**
@@ -307,29 +310,29 @@ export class AnimationState extends Playable {
 
     public _lastframeEventOn = false;
 
-    private _wrapMode = WrapMode.Normal;
+    protected _wrapMode = WrapMode.Normal;
 
-    private _repeatCount = 1;
+    protected _repeatCount = 1;
 
     /**
      * Mark whether the current frame is played.
      * When set new time to animation state, we should ensure the frame at the specified time being played at next update.
      */
-    private _currentFramePlayed = false;
-    private _delay = 0;
-    private _delayTime = 0;
-    private _wrappedInfo = new WrappedInfo();
-    private _lastWrapInfo: WrappedInfo | null = null;
-    private _lastWrapInfoEvent: WrappedInfo | null = null;
-    private _process = this.process;
-    private _target: Node | null = null;
-    private _targetNode: Node | null = null;
-    private _clip: AnimationClip;
-    private _name: string;
-    private _lastIterations?: number;
-    private _samplerSharedGroups: ISamplerSharedGroup[] = [];
-    private _curveLoaded = false;
-    private _ignoreIndex = InvalidIndex;
+    protected _currentFramePlayed = false;
+    protected _delay = 0;
+    protected _delayTime = 0;
+    protected _wrappedInfo = new WrappedInfo();
+    protected _lastWrapInfo: WrappedInfo | null = null;
+    protected _lastWrapInfoEvent: WrappedInfo | null = null;
+    protected _process = this.process;
+    protected _target: INode | null = null;
+    protected _targetNode: INode | null = null;
+    protected _clip: AnimationClip;
+    protected _name: string;
+    protected _lastIterations?: number;
+    protected _samplerSharedGroups: ISamplerSharedGroup[] = [];
+    protected _curveLoaded = false;
+    protected _ignoreIndex = InvalidIndex;
 
     constructor (clip: AnimationClip, name?: string) {
         super();
@@ -341,7 +344,7 @@ export class AnimationState extends Playable {
         return this._curveLoaded;
     }
 
-    public initialize (root: Node) {
+    public initialize (root: INode) {
         this._curveLoaded = true;
         this._samplerSharedGroups.length = 0;
         this._targetNode = root;
@@ -358,7 +361,7 @@ export class AnimationState extends Playable {
             this.repeatCount = 1;
         }
 
-        const propertyCurves = clip.getPropertyCurves(this._targetNode);
+        const propertyCurves = clip.getPropertyCurves(root);
         for (const propertyCurve of propertyCurves) {
             const targetNode = root.getChildByPath(propertyCurve.path);
             if (!targetNode) {
@@ -366,7 +369,7 @@ export class AnimationState extends Playable {
                 continue;
             }
 
-            let target: Node | Component = targetNode;
+            let target: INode | Component = targetNode;
             if (propertyCurve.component) {
                 const targetComponent = targetNode.getComponent(propertyCurve.component);
                 if (!targetComponent) {
@@ -663,8 +666,6 @@ export class AnimationState extends Playable {
         this._delayTime = this._delay;
 
         cc.director.getAnimationManager().addAnimation(this);
-
-        if (this.clip.onPlay) { this.clip.onPlay(this._targetNode); } // for subclasses of AnimationClip
 
         this.emit('play', this);
     }

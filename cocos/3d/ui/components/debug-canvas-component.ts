@@ -30,10 +30,11 @@
 /** */
 
 import { ccclass, executionOrder, requireComponent } from '../../../core/data/class-decorator';
-import { Vec3 } from '../../../core/value-types';
+import { Vec3 } from '../../../core/math';
 import { GFXClearFlag } from '../../../gfx/define';
 import { CanvasComponent } from './canvas-component';
 import { UITransformComponent } from './ui-transfrom-component';
+import { Node } from '../../../scene-graph';
 
 const _worldPos = new Vec3();
 
@@ -45,13 +46,13 @@ const _worldPos = new Vec3();
 @executionOrder(100)
 @requireComponent(UITransformComponent)
 export class DebugCanvasComponent extends CanvasComponent {
-    constructor (){
+    constructor () {
         super();
         this._thisOnResized = this.alignWithScreen.bind(this);
     }
 
-    public __preload (){
-        const cameraNode = new cc.Node('UICamera_Debug');
+    public __preload () {
+        const cameraNode = new Node('UICamera_Debug');
         cameraNode.setPosition(0, 0, 1000);
 
         this._camera = cc.director.root.ui.renderScene.createCamera({
@@ -80,11 +81,11 @@ export class DebugCanvasComponent extends CanvasComponent {
     }
 
     // don't remove
-    public onEnable (){
+    public onEnable () {
     }
 
     // don't remove
-    public onDisable (){
+    public onDisable () {
     }
 
     public onDestroy () {
@@ -98,7 +99,7 @@ export class DebugCanvasComponent extends CanvasComponent {
         }
     }
 
-    public alignWithScreen (){
+    public alignWithScreen () {
         const canvasSize = cc.visibleRect;
         const nodeSize = canvasSize;
         const designSize = cc.view.getDesignResolutionSize();
@@ -133,7 +134,7 @@ export class DebugCanvasComponent extends CanvasComponent {
     }
 
     // don't remove
-    public applySettings (){
+    public applySettings () {
     }
 
 }

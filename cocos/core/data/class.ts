@@ -39,7 +39,7 @@ import { errorID, warnID } from '../platform/CCDebug';
 import * as js from '../utils/js';
 import { getSuper } from '../utils/js';
 import { cloneable_DEV, isPlainEmptyObj_DEV } from '../utils/misc';
-import Enum from '../value-types/enum';
+import { Enum } from '../value-types/enum';
 import * as attributeUtils from './utils/attribute';
 import { IAcceptableAttributes } from './utils/attribute-defines';
 import { preprocessAttrs, validateMethodWithProps } from './utils/preprocess-class';

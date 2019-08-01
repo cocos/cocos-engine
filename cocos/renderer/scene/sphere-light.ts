@@ -1,5 +1,5 @@
 import { aabb } from '../../3d/geom-utils';
-import { Vec3 } from '../../core/value-types';
+import { Vec3 } from '../../core/math';
 import { Light, LightType, nt2lm } from './light';
 import { RenderScene } from './render-scene';
 import { INode } from '../../core/utils/interfaces';
