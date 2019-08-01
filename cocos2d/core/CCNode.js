@@ -1739,10 +1739,6 @@ let NodeDefines = {
         if (listeners) {
             listeners.targetOff(target);
 
-            if (target && target.__eventTargets) {
-                js.array.fastRemove(target.__eventTargets, this);
-            }
-
             // Check for event mask reset
             if ((this._eventMask & POSITION_ON) && !listeners.hasEventListener(EventType.POSITION_CHANGED)) {
                 this._eventMask &= ~POSITION_ON;
@@ -1765,6 +1761,10 @@ let NodeDefines = {
         }
         if (this._capturingListeners) {
             this._capturingListeners.targetOff(target);
+        }
+
+        if (target && target.__eventTargets) {
+            js.array.fastRemove(target.__eventTargets, this);
         }
 
         if (this._touchListener && !_checkListeners(this, _touchEvents)) {
