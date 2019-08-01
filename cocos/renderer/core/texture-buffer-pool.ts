@@ -56,10 +56,6 @@ export class TextureBufferPool {
     private _roundUpFn: ((size: number) => number) | null = null;
     private _inOrderFree = false;
 
-    get formatSize () {
-        return this._formatSize;
-    }
-
     public constructor (device: GFXDevice) {
         this._device = device;
     }

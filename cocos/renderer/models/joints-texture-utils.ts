@@ -110,12 +110,19 @@ const v3_1 = new Vec3();
 const qt_1 = new Quat();
 const v3_2 = new Vec3();
 
+export interface IJointsTextureHandle {
+    pixelOffset: number;
+    refCount: number;
+    hash: number;
+    handle: ITextureBufferHandle;
+}
+
 export class JointsTexturePool {
 
     private _device: GFXDevice;
     private _pool: TextureBufferPool;
-    private _defaultTextureBuffers: Map<number, ITextureBufferHandle> = new Map();
-    private _textureBuffers: Map<string, ITextureBufferHandle> = new Map();
+    private _textureBuffers: Map<number, IJointsTextureHandle> = new Map();
+    private _formatSize = 0;
 
     constructor (device: GFXDevice) {
         this._device = device;
@@ -124,7 +131,8 @@ export class JointsTexturePool {
 
     public initialize (maxChunks: number = 8) {
         const format = _jointsFormat[selectJointsMediumType(this._device)];
-        const scale = 16 / GFXFormatInfos[format].size;
+        this._formatSize = GFXFormatInfos[format].size;
+        const scale = 16 / this._formatSize;
         this._pool.initialize({
             format,
             maxChunks: maxChunks * scale,
@@ -141,10 +149,11 @@ export class JointsTexturePool {
      */
     public getDefaultJointsTexture (skeleton?: Skeleton) {
         let len: number = skeleton && skeleton.joints.length || 1;
-        let texture: ITextureBufferHandle | null = this._defaultTextureBuffers.get(len) || null;
-        if (texture) { return texture; }
-        texture = this._pool.alloc(len * 12 * Float32Array.BYTES_PER_ELEMENT);
-        if (!texture) { return null; }
+        let texture: IJointsTextureHandle | null = this._textureBuffers.get(len) || null;
+        if (texture) { texture.refCount++; return texture; }
+        const handle = this._pool.alloc(len * 12 * Float32Array.BYTES_PER_ELEMENT);
+        if (!handle) { return null; }
+        texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, hash: len, handle };
         Vec3.set(v3_1, 0, 0, 0);
         Quat.set(qt_1, 0, 0, 0, 1);
         Vec3.set(v3_2, 1, 1, 1);
@@ -152,8 +161,8 @@ export class JointsTexturePool {
         for (let i = 0; i < len; i++) {
             uploadJointData(textureBuffer, 12 * i, v3_1, qt_1, v3_2, i === 0);
         }
-        this._pool.update(texture, textureBuffer.buffer);
-        this._defaultTextureBuffers.set(len, texture);
+        this._pool.update(handle, textureBuffer.buffer);
+        this._textureBuffers.set(len, texture);
         return texture;
     }
 
@@ -161,13 +170,14 @@ export class JointsTexturePool {
      * 获取指定动画片段的骨骼贴图
      */
     public getJointsTextureWithAnimation (skeleton: Skeleton, clip: SkeletalAnimationClip) {
-        const hash = `${skeleton.hash}${clip.hash}`;
-        let texture: ITextureBufferHandle | null = this._textureBuffers.get(hash) || null;
-        if (texture) { return texture; }
+        const hash = skeleton.hash ^ clip.hash;
+        let texture: IJointsTextureHandle | null = this._textureBuffers.get(hash) || null;
+        if (texture) { texture.refCount++; return texture; }
         const frames = clip.keys[0].length;
         const bufSize = skeleton.joints.length * 12 * frames;
-        texture = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
-        if (!texture) { return null; }
+        const handle = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
+        if (!handle) { return null; }
+        texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, hash, handle };
         const textureBuffer = new Float32Array(bufSize);
         const data = clip.convertedData;
         for (let i = 0; i < skeleton.joints.length; i++) {
@@ -189,13 +199,16 @@ export class JointsTexturePool {
                 uploadJointData(textureBuffer, 12 * (frames * i + frame), v3_1, qt_1, v3_2, i === 0);
             }
         }
-        this._pool.update(texture, textureBuffer.buffer);
+        this._pool.update(handle, textureBuffer.buffer);
         this._textureBuffers.set(hash, texture);
         return texture;
     }
 
-    public bytesToPixels (size: number) {
-        return size / this._pool.formatSize;
+    public releaseTexture (texture: IJointsTextureHandle) {
+        if (--texture.refCount === 0) {
+            this._pool.free(texture.handle);
+            this._textureBuffers.delete(texture.hash);
+        }
     }
 }
 

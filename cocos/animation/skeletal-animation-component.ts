@@ -94,6 +94,8 @@ export class SkeletalAnimationComponent extends AnimationComponent {
             const joint = this.node.getChildByPath(socket.path);
             const target = socket.target;
             if (joint && target) {
+                target.name = `${socket.path.substring(socket.path.lastIndexOf('/') + 1)} Socket`;
+                target.parent = this.node;
                 getWorldTransformUntilRoot(joint, this.node, v3_1, qt_1, v3_2);
                 target.setPosition(v3_1);
                 target.setRotation(qt_1);
@@ -112,7 +114,6 @@ export class SkeletalAnimationComponent extends AnimationComponent {
         const joint = this.node.getChildByPath(path);
         if (!joint) { console.warn('illegal socket path'); return null; }
         const target = new cc.Node();
-        target.name = `${path.substring(path.lastIndexOf('/') + 1)} Socket`;
         target.parent = this.node;
         this._sockets.push(new Socket(path, target));
         this.rebuildSocketAnimations();
