@@ -23,20 +23,21 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const ttfUtils = require('../../../utils/label/ttf')
-const js = require('../../../../platform/js');
-const utils = require('../utils');
+import TTFAssembler from '../../../utils/label/ttf';
+import RenderData from '../render-data';
+import utils from '../utils';
 
-module.exports = js.addon({
-    createData (sprite) {
-        let renderData = sprite.requestRenderData();
-        // 0 for bottom left, 1 for top right
-        renderData.dataLength = 2;
-        return renderData;
-    },
+export default class CanvasTTFAssembler extends TTFAssembler {
+    init () {
+        this._renderData = new RenderData();
+        this._renderData.dataLength = 2;
+    }
 
-    _updateVerts (comp) {
-        let renderData = comp._renderData;
+    updateColor () {
+    }
+
+    updateVerts (comp) {
+        let renderData = this._renderData;
 
         let node = comp.node,
             width = node.width,
@@ -49,13 +50,13 @@ module.exports = js.addon({
         verts[0].y = -appy;
         verts[1].x = width - appx;
         verts[1].y = height - appy;
-    },
+    }
 
     _updateTexture (comp) {
-        ttfUtils._updateTexture(comp);
+        TTFAssembler.prototype._updateTexture.call(this, comp);
         let texture = comp._frame._texture;
         utils.dropColorizedImage(texture, comp.node.color);
-    },
+    }
 
     draw (ctx, comp) {
         let node = comp.node;
@@ -73,7 +74,7 @@ module.exports = js.addon({
         utils.context.setGlobalAlpha(ctx, node.opacity / 255);
 
         let tex = comp._frame._texture,
-            verts = comp._renderData.vertices;
+            verts = this._renderData.vertices;
 
         let image = tex.getHtmlElementObj();
 
@@ -86,4 +87,4 @@ module.exports = js.addon({
         ctx.drawImage(image, x, y, w, h);
         return 1;
     }
-}, ttfUtils);
+}

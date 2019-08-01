@@ -24,15 +24,11 @@
  ****************************************************************************/
 
 import Assembler from '../renderer/assembler';
-import InputAssembler from '../../renderer/core/input-assembler';
-import IARenderData from '../../renderer/render-data/ia-render-data';
 import gfx from '../../renderer/gfx';
 import vec3 from '../vmath/vec3';
 
-const Material = require('../assets/material/CCMaterial');
 const MeshRenderer = require('./CCMeshRenderer');
 
-let _idRenderData = new IARenderData();
 
 export default class MeshRendererAssembler extends Assembler {
     constructor (comp) {

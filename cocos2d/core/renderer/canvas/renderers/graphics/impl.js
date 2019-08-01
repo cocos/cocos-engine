@@ -155,4 +155,5 @@ js.set(_proto, 'miterLimit', function (v) {
     this.style.miterLimit = v;
 });
 
+cc.Graphics._Impl = Impl;
 module.exports = Impl;

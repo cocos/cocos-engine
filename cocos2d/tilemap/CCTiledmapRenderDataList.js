@@ -22,7 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-import IARenderData from '../renderer/render-data/ia-render-data';
 import InputAssembler from '../renderer/core/input-assembler';
 
 let TiledMapRenderDataList = cc.Class({
@@ -34,7 +33,7 @@ let TiledMapRenderDataList = cc.Class({
     },
 
     _pushRenderData () {
-        let renderData = new IARenderData();
+        let renderData = {};
         renderData.ia = new InputAssembler();
         renderData.nodesRenderList = [];
         this._dataList.push(renderData);

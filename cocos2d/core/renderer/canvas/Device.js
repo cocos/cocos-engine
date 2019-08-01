@@ -83,4 +83,12 @@ Device.prototype.clear = function clear (color) {
   }
 };
 
+Device.prototype.resetDrawCalls = function () {
+  this._stats.drawcalls = 0;
+}
+
+Device.prototype.getDrawCalls = function () {
+  return this._stats.drawcalls;
+}
+
 module.exports = Device;

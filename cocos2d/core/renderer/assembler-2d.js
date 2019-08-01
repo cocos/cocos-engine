@@ -1,6 +1,6 @@
 import Assembler from './assembler';
 import dynamicAtlasManager from './utils/dynamic-atlas/manager';
-import RenderData from './render-data';
+import RenderData from './webgl/render-data';
 import { vfmtPosUvColor } from './webgl/vertex-format';
 
 export default class Assembler2D extends Assembler {

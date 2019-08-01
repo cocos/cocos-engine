@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import IARenderData from '../../renderer/render-data/ia-render-data';
 import gfx from '../../renderer/gfx';
 import InputAssembler from '../../renderer/core/input-assembler';
 import geomUtils from '../geom-utils';
