@@ -18,17 +18,9 @@ if (!Array.prototype.find) {
     };
 }
 
+// for ie 11
 if (!Array.prototype.includes) {
-    Array.prototype.includes = function () {       
-        var length = this.length, i = 0;
-        if (arguments.length >= 2) {
-            i = arguments[1];
-        }
-        for(; i < length; i++) {
-            if(this[i] === arguments[0]) {
-                return true;
-            }
-        }
-        return false;
-    };
+   Array.prototype.includes = function (value) {
+       return this.indexOf(value) !== -1;
+   };
 }
