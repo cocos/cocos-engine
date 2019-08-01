@@ -125,6 +125,7 @@ module.exports = {
         node._active = _active;
         node._localZOrder = _localZOrder;
         node._globalZOrder = _globalZOrder;
+        trs = node._trs;
         trs[0] = x;
         trs[1] = y;
         trs[3] = qx;
