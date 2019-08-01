@@ -1,5 +1,5 @@
 import CANNON from 'cannon';
-import { Vec3 } from '../../../../core/value-types';
+import { Vec3 } from '../../../../core/math';
 import { IPointToPointConstraintOptions, PointToPointConstraintBase } from '../../api';
 import { CannonRigidBody } from '../cannon-body';
 import { toCannonVec3 } from '../cannon-util';

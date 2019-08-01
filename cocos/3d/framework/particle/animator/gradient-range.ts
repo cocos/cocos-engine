@@ -4,7 +4,8 @@
  */
 
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { Color, Enum } from '../../../../core/value-types';
+import { Color } from '../../../../core/math';
+import { Enum } from '../../../../core/value-types';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
 
 // tslint:disable: max-line-length
@@ -102,6 +103,8 @@ export default class GradientRange {
     })
     private _mode = Mode.Color;
 
+    private _color = cc.Color.WHITE;
+
     public evaluate (time: number, rndRatio: number) {
         switch (this.mode) {
             case Mode.Color:
@@ -116,8 +119,8 @@ export default class GradientRange {
             case Mode.TwoGradients:
                 this.colorMin = this.gradientMin.evaluate(time);
                 this.colorMax = this.gradientMax.evaluate(time);
-                Color.lerp(this.color, this.colorMin, this.colorMax, rndRatio);
-                return this.color;
+                Color.lerp(this._color, this.colorMin, this.colorMax, rndRatio);
+                return this._color;
         }
     }
 }

@@ -233,7 +233,7 @@ export class Root {
 
     public setRenderPipeline (rppl: RenderPipeline) {
         this._pipeline = rppl;
-        this._pipeline.initialize(this);
+        this._pipeline.initialize();
         this._ui = new UI(this);
         if (!this._ui.initialize()) {
             this.destroy();
@@ -276,8 +276,10 @@ export class Root {
         }
 
         for (const view of this._views) {
-            if (view.isEnable && view.window === this._curWindow && this._pipeline) {
-                this._pipeline.render(view);
+            if (view.isEnable && (view.window &&
+                (view.window.isOffscreen || 
+                (!view.window.isOffscreen && (view.window === this._curWindow))))) {
+                this._pipeline!.render(view);
             }
         }
 

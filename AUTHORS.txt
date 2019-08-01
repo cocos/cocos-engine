@@ -20,7 +20,11 @@ Core Engine Developers:
 
     Jiawei Guo (@jareguo)
 
+    Hao Wang (@holycanvas)
+
     Weiliang Wang (@jerrywwl) - Leader
+
+    Sizhong Wang (@MSoft1115)
 
     Jiaxin Lai (@JayceLai)
 

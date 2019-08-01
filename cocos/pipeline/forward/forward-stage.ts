@@ -44,8 +44,8 @@ export class ForwardStage extends RenderStage {
 
     public activate () {
         super.activate();
-        this._cmdBuff = this._device.createCommandBuffer({
-            allocator: this._device.commandAllocator,
+        this._cmdBuff = this._device!.createCommandBuffer({
+            allocator: this._device!.commandAllocator,
             type: GFXCommandBufferType.PRIMARY,
         });
     }
@@ -86,7 +86,7 @@ export class ForwardStage extends RenderStage {
 
         this._renderQueues.forEach(this.clearRenderQueue);
 
-        for (const ro of this._pipeline.renderObjects) {
+        for (const ro of this._pipeline!.renderObjects) {
             for (let i = 0; i < ro.model.subModelNum; i++) {
                 for (let j = 0; j < ro.model.getSubModel(i).passes.length; j++) {
                     for (const rq of this._renderQueues) {
@@ -109,9 +109,9 @@ export class ForwardStage extends RenderStage {
 
         if (camera.clearFlag & GFXClearFlag.COLOR) {
             colors[0] = camera.clearColor;
-            if (this._pipeline.isHDR) {
+            if (this._pipeline!.isHDR) {
                 colors[0] = SRGBToLinear(colors[0]);
-                const scale = this._pipeline.fpScale / camera.exposure;
+                const scale = this._pipeline!.fpScale / camera.exposure;
                 colors[0].r *= scale;
                 colors[0].g *= scale;
                 colors[0].b *= scale;
@@ -119,11 +119,11 @@ export class ForwardStage extends RenderStage {
             colors.length = 1;
         }
 
-        if (this._pipeline.usePostProcess) {
-            if (!this._pipeline.useMSAA) {
-                this._framebuffer = this._pipeline.getFrameBuffer(this._pipeline.currShading);
+        if (this._pipeline!.usePostProcess) {
+            if (!this._pipeline!.useMSAA) {
+                this._framebuffer = this._pipeline!.getFrameBuffer(this._pipeline!.currShading)!;
             } else {
-                this._framebuffer = this._pipeline.getFrameBuffer('msaa');
+                this._framebuffer = this._pipeline!.getFrameBuffer('msaa')!;
             }
         } else {
             this._framebuffer = view.window!.framebuffer;
@@ -143,12 +143,12 @@ export class ForwardStage extends RenderStage {
         cmdBuff.end();
 
         bufs[0] = cmdBuff;
-        this._device.queue.submit(bufs);
+        this._device!.queue.submit(bufs);
 
-        if (this._pipeline.useMSAA) {
-            this._device.blitFramebuffer(
+        if (this._pipeline!.useMSAA) {
+            this._device!.blitFramebuffer(
                 this._framebuffer,
-                this._pipeline.getFrameBuffer(this._pipeline.currShading),
+                this._pipeline!.getFrameBuffer(this._pipeline!.currShading)!,
                 this._renderArea,
                 this._renderArea,
                 GFXFilter.POINT);

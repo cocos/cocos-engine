@@ -708,9 +708,9 @@ export function WebGLCmdFuncUpdateBuffer (device: WebGLGFXDevice, gpuBuffer: Web
 
     if (gpuBuffer.usage & GFXBufferUsageBit.UNIFORM) {
         if (buffer instanceof Float32Array) {
-            gpuBuffer.vf32!.set(buffer, offset);
+            gpuBuffer.vf32!.set(buffer, offset / Float32Array.BYTES_PER_ELEMENT);
         } else {
-            gpuBuffer.vf32!.set(new Float32Array(buffer as ArrayBuffer), offset);
+            gpuBuffer.vf32!.set(new Float32Array(buffer as ArrayBuffer), offset / Float32Array.BYTES_PER_ELEMENT);
         }
     } else if (gpuBuffer.usage & GFXBufferUsageBit.INDIRECT) {
         gpuBuffer.indirects = (buffer as IGFXIndirectBuffer).drawInfos;
@@ -2577,7 +2577,6 @@ export function WebGLCmdFuncCopyBuffersToTexture (
             }
 
             for (const region of regions) {
-                n = 0;
                 w = region.texExtent.width;
                 h = region.texExtent.height;
                 // console.debug('Copying buffer to texture 2D: ' + w + ' x ' + h);

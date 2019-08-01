@@ -29,7 +29,7 @@
 
 import { builtinResMgr } from '../../3d/builtin';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
-import Enum from '../../core/value-types/enum';
+import { Enum } from '../../core/value-types';
 import { Model } from '../../renderer/scene/model';
 import { Material } from '../assets/material';
 import { Mesh } from '../assets/mesh';
@@ -200,11 +200,11 @@ export class ModelComponent extends RenderableComponent {
     }
 
     protected _updateModelParams () {
-        // @ts-ignore
-        this.node._hasChanged = true;
         if (!this._mesh || !this._model) {
             return;
         }
+        // @ts-ignore
+        this.node._hasChanged = this._model.transform._hasChanged = true;
         const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
         for (let i = 0; i < meshCount; ++i) {
             const material = this.getSharedMaterial(i);

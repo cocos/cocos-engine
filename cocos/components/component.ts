@@ -35,10 +35,10 @@ import { ccclass, property } from '../core/data/class-decorator';
 import { CCObject } from '../core/data/object';
 import IDGenerator from '../core/utils/id-generator';
 import { getClassName, value } from '../core/utils/js';
-import { Node } from '../scene-graph';
 import { RenderScene } from '../renderer/scene/render-scene';
-import { Rect } from '../core';
+import { Rect } from '../core/math';
 import * as RF from '../core/data/utils/requiring-frame';
+import { INode } from '../core/utils/interfaces';
 
 const idGenerator = new IDGenerator('Comp');
 // @ts-ignore
@@ -46,7 +46,7 @@ const IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
 // @ts-ignore
 const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
 
-const NullNode = null as unknown as Node;
+const NullNode = null as unknown as INode;
 
 /**
  * @en
@@ -195,7 +195,7 @@ class Component extends CCObject {
     @property({
         visible: false,
     })
-    public node: Node = NullNode;
+    public node: INode = NullNode;
     // set __scriptAsset (value) {
     //    if (this.__scriptUuid !== value) {
     //        if (value && Editor.Utils.UuidUtils.isUuid(value._uuid)) {
@@ -238,11 +238,11 @@ class Component extends CCObject {
 
     // private __scriptUuid = '';
 
-    public _getRenderScene () {
+    public _getRenderScene (): RenderScene {
         if (this._sceneGetter) {
             return this._sceneGetter();
         } else {
-            return this.node.scene._renderScene!;
+            return this.node.scene!._renderScene!;
         }
     }
 

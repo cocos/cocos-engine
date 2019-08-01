@@ -2,8 +2,8 @@ import '../predefine';
 import '../cocos/legacy';
 
 // LOAD ENGINE CORE
-export * from '../cocos/core';
 export * from '../cocos/scene-graph';
+export * from '../cocos/core';
 import * as renderer from '../cocos/renderer';
 export { renderer };
 cc.renderer = renderer;

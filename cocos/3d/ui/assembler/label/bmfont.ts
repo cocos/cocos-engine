@@ -29,7 +29,7 @@
 
 import { SpriteFrame } from '../../../../assets/sprite-frame';
 import * as js from '../../../../core/utils/js';
-import { Rect } from '../../../../core/value-types';
+import { Rect } from '../../../../core/math';
 import { UI } from '../../../../renderer/ui/ui';
 import { LabelComponent } from '../../components/label-component';
 import { IAssembler } from '../base';

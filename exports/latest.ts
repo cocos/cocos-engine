@@ -1,0 +1,2 @@
+
+import '../cocos/deprecated';

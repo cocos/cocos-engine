@@ -911,10 +911,13 @@ else {
         };
     }
 
-    const _supportWebp = _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
-    const _supportCanvas = !!_tmpCanvas1.getContext('2d');
+    const _supportWebp = CC_TEST ? false : _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
+    const _supportCanvas = CC_TEST ? false : !!_tmpCanvas1.getContext('2d');
     let _supportWebGL = false;
-    if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
+    if (CC_TEST) {
+        _supportWebGL = false;
+    }
+    else if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
         _supportWebGL = true;
     }
     // @ts-ignore

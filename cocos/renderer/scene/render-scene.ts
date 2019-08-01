@@ -2,11 +2,11 @@ import { IBArray } from '../../3d/assets/mesh';
 import { aabb, intersect, ray, triangle } from '../../3d/geom-utils';
 import { RecyclePool } from '../../3d/memop';
 import { Root } from '../../core/root';
-import { Mat4, Vec3 } from '../../core/value-types';
-import { mat4, vec3 } from '../../core/vmath';
+import { Mat4, Vec3 } from '../../core/math';
 import { GFXPrimitiveMode } from '../../gfx/define';
 import { Layers } from '../../scene-graph/layers';
 import { Node } from '../../scene-graph/node';
+import { JointsTexturePool } from '../models/joints-texture-utils';
 import { Ambient } from './ambient';
 import { Camera, ICameraInfo } from './camera';
 import { DirectionalLight } from './directional-light';
@@ -15,6 +15,7 @@ import { PlanarShadows } from './planar-shadows';
 import { Skybox } from './skybox';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
+import { INode } from '../../core/utils/interfaces';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -23,11 +24,11 @@ export interface IRenderSceneInfo {
 export interface ISceneNodeInfo {
     name: string;
     isStatic?: boolean;
-    // parent: Node;
+    // parent: INode;
 }
 
 export interface IRaycastResult {
-    node: Node;
+    node: INode;
     distance: number;
 }
 
@@ -57,7 +58,7 @@ export class RenderScene {
         return this._planarShadows;
     }
 
-    get defaultMainLightNode (): Node {
+    get defaultMainLightNode (): INode {
         return this._defaultMainLightNode;
     }
 
@@ -77,6 +78,10 @@ export class RenderScene {
         return this._models;
     }
 
+    get texturePool () {
+        return this._texturePool;
+    }
+
     public static registerCreateFunc (root: Root) {
         root._createSceneFun = (_root: Root): RenderScene => new RenderScene(_root);
     }
@@ -88,11 +93,12 @@ export class RenderScene {
     private _skybox: Skybox;
     private _planarShadows: PlanarShadows;
     private _mainLight: DirectionalLight;
-    private _defaultMainLightNode: Node;
+    private _defaultMainLightNode: INode;
     private _sphereLights: SphereLight[] = [];
     private _spotLights: SpotLight[] = [];
     private _models: Model[] = [];
     private _modelId: number = 0;
+    private _texturePool: JointsTexturePool;
 
     constructor (root: Root) {
         this._root = root;
@@ -104,10 +110,12 @@ export class RenderScene {
         this._ambient = new Ambient(this);
         this._skybox = new Skybox(this);
         this._planarShadows = new PlanarShadows(this);
+        this._texturePool = new JointsTexturePool(root.device);
     }
 
     public initialize (info: IRenderSceneInfo): boolean {
         this._name = info.name;
+        this._texturePool.initialize();
         return true;
     }
 
@@ -116,7 +124,8 @@ export class RenderScene {
         this.destroyPointLights();
         this.destroySpotLights();
         this.destroyModels();
-        this.planarShadows.destroy();
+        this._planarShadows.destroy();
+        this._texturePool.destroy();
     }
 
     public createCamera (info: ICameraInfo): Camera {
@@ -142,7 +151,7 @@ export class RenderScene {
         this._cameras.splice(0);
     }
 
-    public createSphereLight (name: string, node: Node): SphereLight | null {
+    public createSphereLight (name: string, node: INode): SphereLight | null {
         const light = new SphereLight(this, name, node);
         this._sphereLights.push(light);
         return light;
@@ -157,7 +166,7 @@ export class RenderScene {
         }
     }
 
-    public createSpotLight (name: string, node: Node): SpotLight | null {
+    public createSpotLight (name: string, node: INode): SpotLight | null {
         const light = new SpotLight(this, name, node);
         this._spotLights.push(light);
         return light;
@@ -180,7 +189,7 @@ export class RenderScene {
         this._spotLights = [];
     }
 
-    public createModel<T extends Model> (clazz: new (scene: RenderScene, node: Node) => T, node: Node): T {
+    public createModel<T extends Model> (clazz: new (scene: RenderScene, node: INode) => T, node: INode): T {
         const model = new clazz(this, node);
         this._models.push(model);
         return model;
@@ -226,9 +235,9 @@ export class RenderScene {
             const transform = m.transform;
             if (!transform || !m.enabled || !cc.Layers.check(m.node.layer, mask) || !m.modelBounds) { continue; }
             // transform ray back to model space
-            mat4.invert(m4, transform.getWorldMatrix(m4));
-            vec3.transformMat4(modelRay.o, worldRay.o, m4);
-            vec3.normalize(modelRay.d, vec3.transformMat4Normal(modelRay.d, worldRay.d, m4));
+            Mat4.invert(m4, transform.getWorldMatrix(m4));
+            Vec3.transformMat4(modelRay.o, worldRay.o, m4);
+            Vec3.normalize(modelRay.d, Vec3.transformMat4Normal(modelRay.d, worldRay.d, m4));
             // broadphase
             distance = intersect.ray_aabb(modelRay, m.modelBounds);
             if (distance <= 0) { continue; }
@@ -241,7 +250,7 @@ export class RenderScene {
                 if (distance < Infinity) {
                     const r = pool.add();
                     r.node = m.node;
-                    r.distance = distance * vec3.magnitude(vec3.multiply(v3, modelRay.d, transform.worldScale));
+                    r.distance = distance * Vec3.magnitude(Vec3.multiply(v3, modelRay.d, transform.worldScale));
                     results[pool.length - 1] = r;
                 }
             }
@@ -276,7 +285,7 @@ export class RenderScene {
      * @param uiNode the ui node
      * @returns IRaycastResult | undefined
      */
-    public raycastUINode (worldRay: ray, mask: number = Layers.UI, uiNode: Node) {
+    public raycastUINode (worldRay: ray, mask: number = Layers.UI, uiNode: INode) {
         const uiTransfrom = uiNode.uiTransfromComp;
         if (uiTransfrom == null || !cc.Layers.check(uiNode.layer, mask)) { return; }
         uiTransfrom.getComputeAABB(aabbUI);
@@ -292,7 +301,7 @@ export class RenderScene {
         }
     }
 
-    private _raycastUINodeRecursiveChildren (worldRay: ray, mask: number, parent: Node) {
+    private _raycastUINodeRecursiveChildren (worldRay: ray, mask: number, parent: INode) {
         const result = this.raycastUINode(worldRay, mask, parent);
         if (result != null) {
             resultUIs[poolUI.length - 1] = result;
@@ -314,7 +323,7 @@ const pool = new RecyclePool<IRaycastResult>(() => {
     return { node: null!, distance: Infinity };
 }, 8);
 const results: IRaycastResult[] = [];
-/** UI raycast result pool  */
+/** UI raycast result pool */
 const aabbUI = new aabb();
 const poolUI = new RecyclePool<IRaycastResult>(() => {
     return { node: null!, distance: Infinity };
@@ -329,9 +338,9 @@ const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides:
             const i0 = ib[j] * 3;
             const i1 = ib[j + 1] * 3;
             const i2 = ib[j + 2] * 3;
-            vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
-            vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
-            vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
+            Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
+            Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
+            Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
             const dist = intersect.ray_triangle(modelRay, tri, sides);
             if (dist <= 0 || dist > distance) { continue; }
             distance = dist;
@@ -343,9 +352,9 @@ const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides:
             const i0 = ib[j - rev] * 3;
             const i1 = ib[j + rev + 1] * 3;
             const i2 = ib[j + 2] * 3;
-            vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
-            vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
-            vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
+            Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
+            Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
+            Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
             rev = ~rev;
             const dist = intersect.ray_triangle(modelRay, tri, sides);
             if (dist <= 0 || dist > distance) { continue; }
@@ -354,12 +363,12 @@ const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides:
     } else if (pm === GFXPrimitiveMode.TRIANGLE_FAN) {
         const cnt = ib.length - 1;
         const i0 = ib[0] * 3;
-        vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
+        Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
         for (let j = 1; j < cnt; j += 1) {
             const i1 = ib[j] * 3;
             const i2 = ib[j + 1] * 3;
-            vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
-            vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
+            Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
+            Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
             const dist = intersect.ray_triangle(modelRay, tri, sides);
             if (dist <= 0 || dist > distance) { continue; }
             distance = dist;

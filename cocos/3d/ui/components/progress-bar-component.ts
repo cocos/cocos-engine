@@ -30,8 +30,9 @@
 
 import { Component} from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { clamp01 } from '../../../core/utils';
-import { Enum, Size, Vec2, Vec3 } from '../../../core/value-types';
+import { Size, Vec2, Vec3 } from '../../../core/math';
+import { Enum } from '../../../core/value-types';
+import { clamp01 } from '../../../core/math/utils';
 import { SpriteComponent } from './sprite-component';
 
 /**
