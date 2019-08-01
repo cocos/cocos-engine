@@ -100,7 +100,8 @@ let SkinnedMeshRenderer = cc.Class({
             get () {
                 return false;
             },
-            visible: false
+            visible: false,
+            override: true,
         }
     },
 

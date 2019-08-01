@@ -110,4 +110,4 @@ module.exports = js.addon({
         
         return 1;
     }
-}, bmfontUtils);
+}, bmfontUtils.prototype);

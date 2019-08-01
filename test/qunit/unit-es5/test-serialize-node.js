@@ -38,8 +38,8 @@ if (TestEditorExtends) {
     ];
 
     function createNodeData(nodeName) {
-        let rts = new Float32Array(10);
-        for (let i = 0; i < rts.length; i++) {
+        var rts = new Float32Array(10);
+        for (var i = 0; i < rts.length; i++) {
             rts[i] = getRandomDouble();
         }
         return {

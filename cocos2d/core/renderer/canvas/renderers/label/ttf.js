@@ -86,4 +86,4 @@ module.exports = js.addon({
         ctx.drawImage(image, x, y, w, h);
         return 1;
     }
-}, ttfUtils);
+}, ttfUtils.prototype);
