@@ -17,7 +17,7 @@ export class ArrayCurveValueAdapter extends CurveValueAdapter {
         if (!Array.isArray(target) ||
             this.index < 0 ||
             this.index >= target.length) {
-            return super.forTarget(target);
+            throw new Error(`Target array outof bounds.`);
         } else if (this.elementAdapater !== null) {
             return this.elementAdapater.forTarget(target[this.index]);
         } else {

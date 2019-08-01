@@ -17,6 +17,9 @@ export class UniformCurveValueAdapter extends CurveValueAdapter {
     public forTarget(target: Material) {
         const pass = target.passes[this.passIndex];
         const uniformHandle = pass.getHandle(this.uniformName);
+        if (uniformHandle === undefined) {
+            throw new Error(`Material "${target.name}" has no uniform "${this.uniformName}"`);
+        }
         return {
             set: (value: any) => {
                 pass.setUniform(uniformHandle, value);

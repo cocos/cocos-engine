@@ -392,8 +392,19 @@ export class AnimationState extends Playable {
                 this._samplerSharedGroups.push(samplerSharedGroup);
             }
 
-            samplerSharedGroup.curves.push(new ICurveInstance(
-                propertyCurve.curve, target, propertyCurve.propertyName));
+            try {
+                samplerSharedGroup.curves.push(new ICurveInstance(
+                    propertyCurve.curve, target, propertyCurve.propertyName));
+            } catch (error) {
+                let pathRep = propertyCurve.path;
+                if (propertyCurve.component) {
+                    pathRep += `[[${propertyCurve.component}]]`;
+                }
+                if (propertyCurve.propertyName.length !== 0) {
+                    pathRep += `.${propertyCurve.propertyName}`;
+                }
+                error(`Failed to bind "${targetNode.name}" to curve ${pathRep}: ${error}`);
+            }
         }
     }
 

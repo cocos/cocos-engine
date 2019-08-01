@@ -151,7 +151,7 @@ export class AnimCurve {
     constructor (propertyCurveData: IPropertyCurveData, propertyName: string, duration: number, isNode: boolean) {
         this._duration = duration;
 
-        this.valueAdapter = deserialize(propertyCurveData.valueAdapter, undefined, undefined);
+        this.valueAdapter = propertyCurveData.valueAdapter;
 
         // Install values.
         this._values = propertyCurveData.values;
