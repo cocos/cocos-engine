@@ -36,7 +36,11 @@ let ccWarn = console.log;
 
 let ccError = console.log;
 
-let ccAssert = console.log;
+let ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
+    if (!condition) {
+        console.log('ASSERT: ' + formatString(message, ...optionalParams));
+    }
+};
 
 function formatString (message?: any, ...optionalParams: any[]) {
     return cc.js.formatStr.apply(null, [message].concat(optionalParams));

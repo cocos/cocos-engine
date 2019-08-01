@@ -25,12 +25,13 @@ export class ToneMapFlow extends RenderFlow {
 
         this._priority = info.priority;
 
-        const material = this._material;
+        const material = this._material!;
+
         material.recompileShaders({
-            defines: { CC_USE_SMAA: this._pipeline.useSMAA },
+            CC_USE_SMAA: this._pipeline!.useSMAA,
         });
 
-        const framebuffer = this._pipeline.root.mainWindow!.framebuffer!;
+        const framebuffer = this._pipeline!.root.mainWindow!.framebuffer!;
 
         this.createStage(ToneMapStage, {
             name: 'ToneMapStage',
@@ -51,7 +52,7 @@ export class ToneMapFlow extends RenderFlow {
     public rebuild () {
         if (this._material) {
             this._material.recompileShaders({
-                defines: { CC_USE_SMAA: this._pipeline.useSMAA },
+                CC_USE_SMAA: this._pipeline!.useSMAA,
             });
         }
 

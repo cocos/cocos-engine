@@ -30,7 +30,7 @@
 import { BitmapFont, IConfig } from '../../../../assets/bitmap-font';
 import { SpriteFrame } from '../../../../assets/sprite-frame';
 import { isUnicodeCJK, isUnicodeSpace } from '../../../../core/utils/text-utils';
-import { Rect, Size, Vec2 } from '../../../../core/value-types';
+import { Rect, Size, Vec2 } from '../../../../core/math';
 import { HorizontalTextAlignment, VerticalTextAlignment } from '../../components/label-component';
 import { LabelComponent, Overflow } from '../../components/label-component';
 

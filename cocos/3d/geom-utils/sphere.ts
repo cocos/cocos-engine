@@ -2,11 +2,11 @@
  * @category gemotry-utils
  */
 
-import { mat4, quat, vec3 } from '../../core/vmath';
+import { Mat4, Quat, Vec3 } from '../../core/math';
 import enums from './enums';
 
-const _v3_tmp = vec3.create();
-function maxComponent (v: vec3) { return Math.max(Math.max(v.x, v.y), v.z); }
+const _v3_tmp = new Vec3();
+function maxComponent (v: Vec3) { return Math.max(Math.max(v.x, v.y), v.z); }
 
 /**
  * @zh
@@ -52,7 +52,7 @@ export default class sphere {
      * @return {sphere} out 接受操作的 sphere。
      */
     public static copy (out: sphere, p: sphere): sphere {
-        vec3.copy(out.center, p.center);
+        Vec3.copy(out.center, p.center);
         out.radius = p.radius;
 
         return out;
@@ -68,9 +68,9 @@ export default class sphere {
      * @param maxPos - sphere 的最大点。
      * @returns {sphere} out 接受操作的 sphere。
      */
-    public static fromPoints (out: sphere, minPos: vec3, maxPos: vec3): sphere {
-        vec3.scale(out.center, vec3.add(_v3_tmp, minPos, maxPos), 0.5);
-        out.radius = vec3.mag(vec3.subtract(_v3_tmp, maxPos, minPos)) * 0.5;
+    public static fromPoints (out: sphere, minPos: Vec3, maxPos: Vec3): sphere {
+        Vec3.scale(out.center, Vec3.add(_v3_tmp, minPos, maxPos), 0.5);
+        out.radius = Vec3.mag(Vec3.subtract(_v3_tmp, maxPos, minPos)) * 0.5;
         return out;
     }
 
@@ -98,7 +98,7 @@ export default class sphere {
      * @zh
      * 本地坐标的中心点。
      */
-    public center: vec3;
+    public center: Vec3;
 
     /**
      * @zh
@@ -117,7 +117,7 @@ export default class sphere {
      */
     constructor (cx: number = 0, cy: number = 0, cz: number = 0, r: number = 1) {
         this._type = enums.SHAPE_SPHERE;
-        this.center = vec3.create(cx, cy, cz);
+        this.center = new Vec3(cx, cy, cz);
         this.radius = r;
     }
 
@@ -143,12 +143,12 @@ export default class sphere {
      * Get the bounding points of this shape
      * @zh
      * 获取此形状的边界点。
-     * @param {vec3} minPos 最小点。
-     * @param {vec3} maxPos 最大点。
+     * @param {Vec3} minPos 最小点。
+     * @param {Vec3} maxPos 最大点。
      */
-    public getBoundary (minPos: vec3, maxPos: vec3) {
-        vec3.set(minPos, this.center.x - this.radius, this.center.y - this.radius, this.center.z - this.radius);
-        vec3.set(maxPos, this.center.x + this.radius, this.center.y + this.radius, this.center.z + this.radius);
+    public getBoundary (minPos: Vec3, maxPos: Vec3) {
+        Vec3.set(minPos, this.center.x - this.radius, this.center.y - this.radius, this.center.z - this.radius);
+        Vec3.set(maxPos, this.center.x + this.radius, this.center.y + this.radius, this.center.z + this.radius);
     }
 
     /**
@@ -162,8 +162,8 @@ export default class sphere {
      * @param scale 变换的缩放部分。
      * @param out 变换的目标。
      */
-    public transform (m: mat4, pos: vec3, rot: quat, scale: vec3, out: sphere) {
-        vec3.transformMat4(out.center, this.center, m);
+    public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3, out: sphere) {
+        Vec3.transformMat4(out.center, this.center, m);
         out.radius = this.radius * maxComponent(scale);
     }
 
@@ -174,8 +174,8 @@ export default class sphere {
      * @param rot 变换的旋转部分。
      * @param out 变换的目标。
      */
-    public translateAndRotate (m: mat4, rot: quat, out: sphere){
-        vec3.transformMat4(out.center, this.center, m);
+    public translateAndRotate (m: Mat4, rot: Quat, out: sphere){
+        Vec3.transformMat4(out.center, this.center, m);
     }
 
     /**
@@ -184,7 +184,7 @@ export default class sphere {
      * @param scale 缩放值。
      * @param out 缩放的目标。
      */
-    public setScale (scale: vec3, out: sphere) {
+    public setScale (scale: Vec3, out: sphere) {
         out.radius = this.radius * maxComponent(scale);
     }
 }

@@ -1,8 +1,8 @@
 import { aabb } from '../../3d/geom-utils';
-import { Vec3 } from '../../core/value-types';
-import { Node } from '../../scene-graph';
+import { Vec3 } from '../../core/math';
 import { Light, LightType, nt2lm } from './light';
 import { RenderScene } from './render-scene';
+import { INode } from '../../core/utils/interfaces';
 
 export class SphereLight extends Light {
 
@@ -44,7 +44,7 @@ export class SphereLight extends Light {
     protected _pos: Vec3;
     protected _aabb: aabb;
 
-    constructor (scene: RenderScene, name: string, node: Node) {
+    constructor (scene: RenderScene, name: string, node: INode) {
         super(scene, name, node);
         this._type = LightType.SPHERE;
         this._aabb = aabb.create();

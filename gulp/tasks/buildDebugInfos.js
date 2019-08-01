@@ -1,6 +1,6 @@
 const Fs = require('fs');
 
-module.exports =  function buildDebugInfos () {
+module.exports = function buildDebugInfos () {
     let readContent = Fs.readFileSync('EngineErrorMap.md', 'utf-8');
     let titleRegExp = /### \d+/g;
     let debugInfos = {};

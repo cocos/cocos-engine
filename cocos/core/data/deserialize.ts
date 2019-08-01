@@ -451,6 +451,9 @@ function _deserializeFireClass (self, obj, serialized, klass, target) {
             unlinkUnusedPrefab(self, serialized, obj);
         }
     }
+    if (obj.__postDeserialize) {
+        obj.__postDeserialize();
+    }
 }
 
 // function _compileTypedObject (accessor, klass, ctorCode) {

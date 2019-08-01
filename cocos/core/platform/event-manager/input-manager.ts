@@ -28,8 +28,8 @@
  * @hidden
  */
 
-import { Vec2 } from '../../value-types/index';
-import { rect } from '../../value-types/rect';
+import { Vec2 } from '../../math/index';
+import { rect } from '../../math/rect';
 import { macro } from '../CCMacro';
 import sys from '../CCSys';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './CCEvent';
@@ -572,6 +572,7 @@ class InputManager {
     private _registerPointerLockEvent () {
         const lockChangeAlert = () => {
             const canvas = cc.game.canvas;
+            // @ts-ignore
             if (document.pointerLockElement === canvas || document.mozPointerLockElement === canvas){
                 this._pointLocked = true;
             }
@@ -582,6 +583,7 @@ class InputManager {
         if ('onpointerlockchange' in document) {
             document.addEventListener('pointerlockchange', lockChangeAlert, false);
         } else if ('onmozpointerlockchange' in document) {
+            // @ts-ignore
             document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
         }
     }

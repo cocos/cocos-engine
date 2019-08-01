@@ -2,7 +2,7 @@
  * @category physics
  */
 
-import { Vec3 } from '../../../core/value-types';
+import { Vec3 } from '../../../core/math';
 import { PhysicsWorldBase } from '../../physics/api';
 import { createPhysicsWorld } from '../../physics/instance';
 

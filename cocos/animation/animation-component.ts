@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
 
 /**
  * @category animation
@@ -423,6 +447,10 @@ export class AnimationComponent extends Component implements IEventTarget {
     public removeAll (keyOrTarget?: string | Object | undefined): void {}
     public emit (key: string, ...args: any[]): void {}
 
+    protected _createState (clip: AnimationClip, name?: string) {
+        return new AnimationState(clip, name);
+    }
+
     private _getStateByNameOrDefaultClip (name?: string) {
         if (!name) {
             if (!this._defaultClip) {
@@ -451,7 +479,7 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     private _doCreateState (clip: AnimationClip, name: string) {
-        const state = new AnimationState(clip, name);
+        const state = this._createState(clip, name);
         state._setEventTarget(this);
         if (this.node) {
             state.initialize(this.node);

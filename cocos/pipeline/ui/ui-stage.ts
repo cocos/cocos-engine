@@ -17,7 +17,7 @@ const bufs: GFXCommandBuffer[] = [];
  */
 export class UIStage extends RenderStage {
 
-    private _uiQueue: RenderQueue;
+    private _uiQueue: RenderQueue | null = null;
 
     constructor () {
         super();
@@ -41,8 +41,8 @@ export class UIStage extends RenderStage {
             sortFunc: transparentCompareFn,
         });
 
-        this._cmdBuff = this._device.createCommandBuffer({
-            allocator: this._device.commandAllocator,
+        this._cmdBuff = this._device!.createCommandBuffer({
+            allocator: this._device!.commandAllocator,
             type: GFXCommandBufferType.PRIMARY,
         });
 
@@ -65,16 +65,16 @@ export class UIStage extends RenderStage {
 
     public render (view: RenderView) {
 
-        this._uiQueue.clear();
+        this._uiQueue!.clear();
 
-        for (const ro of this._pipeline.renderObjects) {
+        for (const ro of this._pipeline!.renderObjects) {
             for (let i = 0; i < ro.model.subModelNum; i++) {
                 for (let j = 0; j < ro.model.getSubModel(i).passes.length; j++) {
-                    this._uiQueue.insertRenderPass(ro, i, j);
+                    this._uiQueue!.insertRenderPass(ro, i, j);
                 }
             }
         }
-        this._uiQueue.sort();
+        this._uiQueue!.sort();
 
         const framebuffer = view.window!.framebuffer;
 
@@ -89,12 +89,12 @@ export class UIStage extends RenderStage {
         cmdBuff.beginRenderPass(framebuffer, this._renderArea,
             GFXClearFlag.DEPTH_STENCIL, [], camera.clearDepth, camera.clearStencil);
 
-        cmdBuff.execute(this._uiQueue.cmdBuffs.array, this._uiQueue.cmdBuffCount);
+        cmdBuff.execute(this._uiQueue!.cmdBuffs.array, this._uiQueue!.cmdBuffCount);
 
         cmdBuff.endRenderPass();
         cmdBuff.end();
 
         bufs[0] = cmdBuff;
-        this._device.queue.submit(bufs);
+        this._device!.queue.submit(bufs);
     }
 }

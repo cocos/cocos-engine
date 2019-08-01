@@ -22,6 +22,7 @@ import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 import { UIBatchModel } from './ui-batch-model';
 import { UIMaterial } from './ui-material';
+import { INode } from '../../core/utils/interfaces';
 
 export class UIDrawBatch {
     public camera: Camera | null = null;
@@ -33,7 +34,7 @@ export class UIDrawBatch {
     public idxCount: number = 0;
     public pipelineState: GFXPipelineState | null = null;
     public bindingLayout: GFXBindingLayout | null = null;
-    public useLocalData: Node | null = null;
+    public useLocalData: INode | null = null;
 
     public destroy (ui: UI) {
         if (this.pipelineState) {
@@ -452,7 +453,7 @@ export class UI {
         this._uiMaterials.clear();
     }
 
-    private _walk (node: Node, level = 0) {
+    private _walk (node: INode, level = 0) {
         const len = node.childrenCount;
 
         this._preprocess(node);
@@ -484,7 +485,7 @@ export class UI {
         }
     }
     
-    private _preprocess (c: Node) {
+    private _preprocess (c: INode) {
         // ts-ignore
         let render = c._uiComp;
         if (render && render.enabledInHierarchy) {
@@ -492,14 +493,14 @@ export class UI {
         }
     }
 
-    private _postprocess (c: Node) {
+    private _postprocess (c: INode) {
         let render = c._uiComp;
         if (render && render.enabledInHierarchy) {
             render.postUpdateAssembler(this);
         }
     }
 
-    private _recursiveScreenNode (screen: Node) {
+    private _recursiveScreenNode (screen: INode) {
         this._walk(screen);
 
         this.autoMergeBatches();

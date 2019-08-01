@@ -60,7 +60,7 @@ export abstract class RenderStage {
      * 渲染流程。
      */
     public get flow (): RenderFlow {
-        return this._flow;
+        return this._flow!;
     }
 
     /**
@@ -68,7 +68,7 @@ export abstract class RenderStage {
      * 渲染管线。
      */
     public get pipeline (): RenderPipeline {
-        return this._pipeline;
+        return this._pipeline!;
     }
 
     /**
@@ -122,19 +122,19 @@ export abstract class RenderStage {
      * @zh
      * 渲染流程。
      */
-    protected _flow: RenderFlow;
+    protected _flow: RenderFlow | null = null;
 
     /**
      * @zh
      * 渲染管线。
      */
-    protected _pipeline: RenderPipeline;
+    protected _pipeline: RenderPipeline | null = null;
 
     /**
      * @zh
      * GFX设备。
      */
-    protected _device: GFXDevice;
+    protected _device: GFXDevice | null = null;
 
     /**
      * @zh
@@ -152,7 +152,7 @@ export abstract class RenderStage {
      * @zh
      * 清空颜色数组。
      */
-    protected _clearColors: IGFXColor[];
+    protected _clearColors: IGFXColor[] = [];
 
     /**
      * @zh
@@ -189,20 +189,18 @@ export abstract class RenderStage {
      * @param flow 渲染流程。
      */
     constructor () {
+        this._clearColors = [{ r: 0.3, g: 0.6, b: 0.9, a: 1.0 }];
+        this._renderArea = { x: 0, y: 0, width: 0, height: 0 };
     }
 
     public setFlow (flow: RenderFlow) {
+        this._device = flow.device;
         this._flow = flow;
         this._pipeline = flow.pipeline;
-        this._device = flow.device;
 
         if (!this._flow.pipeline.root.device) {
             throw new Error('');
         }
-
-        this._device = this._flow.pipeline.root.device;
-        this._clearColors = [{ r: 0.3, g: 0.6, b: 0.9, a: 1.0 }];
-        this._renderArea = { x: 0, y: 0, width: 0, height: 0 };
     }
 
     /**
@@ -246,9 +244,9 @@ export abstract class RenderStage {
         }
 
         if (this.frameBuffer === 'window') {
-            this._framebuffer = this._flow.pipeline.root.mainWindow!.framebuffer!;
+            this._framebuffer = this._flow!.pipeline.root.mainWindow!.framebuffer!;
         } else {
-            this._framebuffer = this._flow.pipeline.getFrameBuffer(this.frameBuffer);
+            this._framebuffer = this._flow!.pipeline.getFrameBuffer(this.frameBuffer)!;
         }
     }
 

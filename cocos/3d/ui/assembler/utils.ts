@@ -2,17 +2,16 @@
  * @hidden
  */
 
-import { Color, Mat4 } from '../../../core/value-types';
-import { color4, vec3 } from '../../../core/vmath/index';
+import { Color, Mat4, Vec3 } from '../../../core/math';
 import { RenderData } from '../../../renderer/ui/renderData';
 import { UI } from '../../../renderer/ui/ui';
-import { Node } from '../../../scene-graph/node';
 import { MeshBuffer } from '../mesh-buffer';
+import { INode } from '../../../core/utils/interfaces';
 
-const vec3_temp = vec3.create();
+const vec3_temp = new Vec3();
 const _worldMatrix = new Mat4();
 
-export function fillVertices (node: Node, buffer: MeshBuffer, renderData: RenderData, color: Color) {
+export function fillVertices (node: INode, buffer: MeshBuffer, renderData: RenderData, color: Color) {
     const data = renderData.datas;
     let vertexOffset = buffer.byteOffset >> 2;
 
@@ -38,12 +37,12 @@ export function fillVertices (node: Node, buffer: MeshBuffer, renderData: Render
         vbuf[vertexOffset++] = vert.x * b + vert.y * d + ty;
         vbuf[vertexOffset++] = vert.u;
         vbuf[vertexOffset++] = vert.v;
-        color4.array(vbuf!, color, vertexOffset);
+        Color.array(vbuf!, color, vertexOffset);
         vertexOffset += 4;
     }
 }
 
-export function fillMeshVertices (node: Node, buffer: MeshBuffer, renderData: RenderData, color: Color) {
+export function fillMeshVertices (node: INode, buffer: MeshBuffer, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
     let vertexOffset = buffer.byteOffset >> 2;
 
@@ -70,7 +69,7 @@ export function fillMeshVertices (node: Node, buffer: MeshBuffer, renderData: Re
         vbuf[vertexOffset++] = vert.x * b + vert.y * d + ty;
         vbuf[vertexOffset++] = vert.u;
         vbuf[vertexOffset++] = vert.v;
-        color4.array(vbuf!, color, vertexOffset);
+        Color.array(vbuf!, color, vertexOffset);
         vertexOffset += 4;
     }
 
@@ -86,7 +85,7 @@ export function fillMeshVertices (node: Node, buffer: MeshBuffer, renderData: Re
     }
 }
 
-export function fillVertices3D (node: Node, renderer: UI, renderData: RenderData, color: Color) {
+export function fillVertices3D (node: INode, renderer: UI, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
     let buffer = renderer.currBufferBatch!;
     let vertexOffset = buffer.byteOffset >> 2;
@@ -109,14 +108,14 @@ export function fillVertices3D (node: Node, renderer: UI, renderData: RenderData
 
     for (let i = 0; i < vertexCount; i++) {
         const vert = datas[i];
-        vec3.set(vec3_temp, vert.x, vert.y, 0);
-        vec3.transformMat4(vec3_temp, vec3_temp, _worldMatrix);
+        Vec3.set(vec3_temp, vert.x, vert.y, 0);
+        Vec3.transformMat4(vec3_temp, vec3_temp, _worldMatrix);
         vbuf[vertexOffset++] = vec3_temp.x;
         vbuf[vertexOffset++] = vec3_temp.y;
         vbuf[vertexOffset++] = vec3_temp.z;
         vbuf[vertexOffset++] = vert.u;
         vbuf[vertexOffset++] = vert.v;
-        color4.array(vbuf!, color, vertexOffset);
+        Color.array(vbuf!, color, vertexOffset);
         vertexOffset += 4;
     }
 
@@ -127,7 +126,7 @@ export function fillVertices3D (node: Node, renderer: UI, renderData: RenderData
     }
 }
 
-export function fillMeshVertices3D (node: Node, renderer: UI, renderData: RenderData, color: Color) {
+export function fillMeshVertices3D (node: INode, renderer: UI, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
     let buffer = renderer.currBufferBatch!;
     let vertexOffset = buffer.byteOffset >> 2;
@@ -152,14 +151,14 @@ export function fillMeshVertices3D (node: Node, renderer: UI, renderData: Render
 
     for (let i = 0; i < vertexCount; i++) {
         const vert = datas[i];
-        vec3.set(vec3_temp, vert.x, vert.y, 0);
-        vec3.transformMat4(vec3_temp, vec3_temp, _worldMatrix);
+        Vec3.set(vec3_temp, vert.x, vert.y, 0);
+        Vec3.transformMat4(vec3_temp, vec3_temp, _worldMatrix);
         vbuf[vertexOffset++] = vec3_temp.x;
         vbuf[vertexOffset++] = vec3_temp.y;
         vbuf[vertexOffset++] = vec3_temp.z;
         vbuf[vertexOffset++] = vert.u;
         vbuf[vertexOffset++] = vert.v;
-        color4.array(vbuf!, color, vertexOffset);
+        Color.array(vbuf!, color, vertexOffset);
         vertexOffset += 4;
     }
 
@@ -175,7 +174,7 @@ export function fillMeshVertices3D (node: Node, renderer: UI, renderData: Render
     }
 }
 
-export function fillVerticesWithoutCalc (node: Node, buffer: MeshBuffer, renderData: RenderData, color: Color) {
+export function fillVerticesWithoutCalc (node: INode, buffer: MeshBuffer, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
     let vertexOffset = buffer.byteOffset >> 2;
 
@@ -192,12 +191,12 @@ export function fillVerticesWithoutCalc (node: Node, buffer: MeshBuffer, renderD
         vbuf[vertexOffset++] = vert.y;
         vbuf[vertexOffset++] = vert.u;
         vbuf[vertexOffset++] = vert.v;
-        color4.array(vbuf!, color, vertexOffset);
+        Color.array(vbuf!, color, vertexOffset);
         vertexOffset += 4;
     }
 }
 
-export function fillVerticesWithoutCalc3D (node: Node, renderer: UI, renderData: RenderData, color: Color) {
+export function fillVerticesWithoutCalc3D (node: INode, renderer: UI, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
     let buffer = renderer.currBufferBatch!;
     let vertexOffset = buffer.byteOffset >> 2;
@@ -224,7 +223,7 @@ export function fillVerticesWithoutCalc3D (node: Node, renderer: UI, renderData:
         vbuf[vertexOffset++] = vert.z;
         vbuf[vertexOffset++] = vert.u;
         vbuf[vertexOffset++] = vert.v;
-        color4.array(vbuf!, color, vertexOffset);
+        Color.array(vbuf!, color, vertexOffset);
         vertexOffset += 4;
     }
 

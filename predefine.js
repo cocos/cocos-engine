@@ -174,6 +174,7 @@ if (CC_BUILD) {
     _global.CC_PHYSICS_AMMO = CC_PHYSICS_AMMO;
 }
 else {
+    // Defauled value for editor
     defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
     defineMacro('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
     defineMacro('CC_PREVIEW', !CC_EDITOR);
@@ -185,6 +186,9 @@ else {
     defineMacro('CC_QQPLAY', defined('bk'));
     defineMacro('CC_RUNTIME', 'function' === typeof loadRuntime);
     defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY || CC_RUNTIME));
+    defineMacro('CC_PHYSICS_BUILT_IN', true);
+    defineMacro('CC_PHYSICS_CANNON', false);
+    defineMacro('CC_PHYSICS_AMMO', false);
 }
 
 //
@@ -207,7 +211,7 @@ if (CC_DEV) {
  * If you post a bug to forum, please attach this flag.
  * @property {String} ENGINE_VERSION
  */
-const engineVersion = '2.0.0 alpha';
+const engineVersion = '1.0.0 beta';
 _global['CocosEngine'] = cc.ENGINE_VERSION = engineVersion;
 
 export default cc;

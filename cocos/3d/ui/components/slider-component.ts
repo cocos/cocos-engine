@@ -32,10 +32,9 @@ import { Component, EventHandler as ComponentEventHandler } from '../../../compo
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { EventTouch, SystemEventType } from '../../../core/platform';
 import Touch from '../../../core/platform/event-manager/CCTouch';
-import { clamp01 } from '../../../core/utils';
-import { Vec3 } from '../../../core/value-types';
+import { Vec3 } from '../../../core/math';
 import { ccenum } from '../../../core/value-types/enum';
-import { vec3 } from '../../../core/vmath';
+import { clamp01 } from '../../../core/math/utils';
 import { SpriteComponent } from './sprite-component';
 
 const _tempPos = new Vec3();
@@ -193,7 +192,7 @@ export class SliderComponent extends Component {
         this._dragging = true;
         this._touchHandle = true;
         const touhPos = event.touch!.getUILocation();
-        vec3.set(this._touchPos, touhPos.x, touhPos.y, 0);
+        Vec3.set(this._touchPos, touhPos.x, touhPos.y, 0);
         this._handle.node.uiTransfromComp.convertToNodeSpaceAR(this._touchPos, this._offset);
 
         event.propagationStopped = true;
@@ -254,7 +253,7 @@ export class SliderComponent extends Component {
         }
 
         const touchPos = touch.getUILocation();
-        vec3.set(this._touchPos, touchPos.x, touchPos.y, 0);
+        Vec3.set(this._touchPos, touchPos.x, touchPos.y, 0);
         const localTouchPos = this.node.uiTransfromComp!.convertToNodeSpaceAR(this._touchPos, _tempPos);
         if (this.direction === Direction.Horizontal) {
             this.progress = clamp01(0.5 + (localTouchPos.x - this._offset.x) / this.node.width!);

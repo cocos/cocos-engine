@@ -26,7 +26,7 @@ export class UIFlow extends RenderFlow {
 
         this._priority = info.priority;
 
-        const mainWindow = this._pipeline.root.mainWindow;
+        const mainWindow = this._pipeline!.root.mainWindow;
         if (!mainWindow || !mainWindow.framebuffer) {
             return false;
         }

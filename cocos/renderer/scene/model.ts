@@ -3,22 +3,21 @@ import { Material } from '../../3d/assets/material';
 import { IRenderingSubmesh } from '../../3d/assets/mesh';
 import { aabb } from '../../3d/geom-utils';
 import Pool from '../../3d/memop/pool';
-import { Vec3 } from '../../core/value-types';
-import { mat4 } from '../../core/vmath';
+import { Mat4, Vec3 } from '../../core/math';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { GFXUniformBlock } from '../../gfx/shader';
 import { IInternalBindingInst, UBOForwardLight, UBOLocal } from '../../pipeline/define';
-import { Node } from '../../scene-graph/node';
 import { Pass } from '../core/pass';
 import { customizationManager } from './customization-manager';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
+import { INode } from '../../core/utils/interfaces';
 
 const f32_1 = new Float32Array(16);
-const m4_1 = mat4.create();
+const m4_1 = new Mat4();
 
 const _subMeshPool = new Pool(() => {
     return new SubModel();
@@ -78,7 +77,7 @@ export class Model {
      * Set the hosting node of this model
      * @param {Node} node the hosting node
      */
-    set node (node: Node) {
+    set node (node: INode) {
         this._node = node;
     }
 
@@ -86,7 +85,7 @@ export class Model {
         return this._transform;
     }
 
-    set transform (transform: Node) {
+    set transform (transform: INode) {
         this._transform = transform;
     }
 
@@ -140,8 +139,8 @@ export class Model {
     protected _type: string = 'default';
     protected _device: GFXDevice;
     protected _scene: RenderScene;
-    protected _node: Node;
-    protected _transform: Node;
+    protected _node: INode;
+    protected _transform: INode;
     protected _id: number;
     protected _enabled: boolean = false;
     protected _viewID: number = 1;
@@ -163,7 +162,7 @@ export class Model {
     /**
      * Setup a default empty model
      */
-    constructor (scene: RenderScene, node: Node) {
+    constructor (scene: RenderScene, node: INode) {
         this._device = cc.director.root.device;
         this._scene = scene;
         this._id = this._scene.generateModelId();
@@ -226,10 +225,11 @@ export class Model {
         this._uboUpdated = true;
         // @ts-ignore
         if (this._transformUpdated) {
+            // @ts-ignore
             const worldMatrix = this._transform._mat; const rot = this._transform._rot;
-            mat4.array(this._uboLocal.view, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
-            mat4.fromQuat(m4_1, rot);
-            mat4.array(this._uboLocal.view, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
+            Mat4.array(this._uboLocal.view, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
+            Mat4.fromQuat(m4_1, rot);
+            Mat4.array(this._uboLocal.view, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
 
             const commonLocal = this._localBindings.get(UBOLocal.BLOCK.name);
             if (commonLocal && commonLocal.buffer) {

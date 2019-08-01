@@ -112,16 +112,10 @@ export class SpriteAtlas extends Asset {
         for (const key of Object.keys(this.spriteFrames)) {
             const spriteFrame = this.spriteFrames[key];
             let id = spriteFrame ? spriteFrame._uuid : '';
-            const strs = id.split('@');
-            const uuid = strs[0];
-            const name = strs[1];
             if (id && exporting) {
-                id = Editor.Utils.UuidUtils.compressUuid(uuid, true);
-                if (name) {
-                    id = id + `@${name}`;
-                }
+                id = Editor.Utils.UuidUtils.compressUuid(id, true);
             }
-            frames.push(name);
+            frames.push(key);
             frames.push(id);
         }
 
