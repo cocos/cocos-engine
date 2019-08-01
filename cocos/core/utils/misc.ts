@@ -27,7 +27,7 @@
  // tslint:disable
 
 import { getClassName, getset } from './js';
-import { clamp, clamp01 as clampValue01, lerp as lerpUtil, toRadian, toDegree } from '../math/utils';
+import { clamp, clamp01 as clampValue01, lerp as lerpUtil, toRadian, toDegree } from '../vmath';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
@@ -126,7 +126,17 @@ export function pushToMap (map, key, value, pushFront) {
  * 数值大于 max_inclusive 则返回 max_inclusive。
  * 数值小于 min_inclusive 则返回 min_inclusive。
  * 否则返回自身。
- * @deprecated
+ *
+ * @param value
+ * @param min_inclusive
+ * @param max_inclusive
+ * @return
+ * @example
+ * ```
+ * var v1 = cc.misc.clampf(20, 0, 20); // 20;
+ * var v2 = cc.misc.clampf(-1, 0, 20); //  0;
+ * var v3 = cc.misc.clampf(10, 0, 20); // 10;
+ * ```
  */
 export function clampf(value: number, min_inclusive: number, max_inclusive: number) {
     return clamp(value, min_inclusive, max_inclusive);
@@ -135,7 +145,14 @@ export function clampf(value: number, min_inclusive: number, max_inclusive: numb
 /**
  * @zh
  * 限定浮点数的取值范围为 0 ~ 1 之间。
- * @deprecated
+ *
+ * @param value
+ * @example
+ * ```typescript
+ * let v1 = cc.misc.clamp01(20);  // 1;
+ * let v2 = cc.misc.clamp01(-1);  // 0;
+ * let v3 = cc.misc.clamp01(0.5); // 0.5;
+ * ```
  */
 export function clamp01 (value: number) {
     return clampValue01(value);
@@ -144,7 +161,16 @@ export function clamp01 (value: number) {
 /**
  * @zh
  * 两个数字之间的线性插值，比率决定了它对两端的偏向程度。
- * @deprecated
+ *
+ * @param a number A
+ * @param b number B
+ * @param r ratio between 0 and 1
+ * @return
+ * @example
+ * ```
+ * let v1 = cc.misc.lerp(2,10,0.5); // 6;
+ * let v2 = cc.misc.lerp(2,10,0.2); // 3.6;
+ * ```
  */
 export function lerp (a: number, b: number, r: number) {
     return lerpUtil(a, b, r);
@@ -153,7 +179,9 @@ export function lerp (a: number, b: number, r: number) {
 /**
  * @zh
  * 角度转弧度
- * @deprecated
+ *
+ * @param angle
+ * @return
  */
 export function degreesToRadians (angle: number) {
     return toRadian(angle);
@@ -162,7 +190,9 @@ export function degreesToRadians (angle: number) {
 /**
  * @zh
  * 弧度转角度
- * @deprecated
+ *
+ * @param angle
+ * @return
  */
 export function radiansToDegrees (angle: number) {
     return toDegree(angle);
@@ -281,15 +311,15 @@ cc.misc = {
     propertyDefine,
     nextPOT,
     pushToMap,
+    clampf,
+    clamp01,
+    lerp,
+    degreesToRadians,
+    radiansToDegrees,
     contains,
     isDomNode,
     callInNextTick,
     tryCatchFunctor_EDITOR,
     isPlainEmptyObj_DEV,
     cloneable_DEV,
-    clampf,
-    clamp01,
-    lerp,
-    degreesToRadians,
-    radiansToDegrees,
 };

@@ -29,7 +29,7 @@
  * @category event
  */
 
-import { INode } from '../../utils/interfaces';
+import { Node } from '../../../scene-graph';
 
 export interface IEventListenerCreateInfo {
     event?: number;
@@ -39,7 +39,7 @@ export interface IEventListenerCreateInfo {
 
 export interface ILinstenerMask {
     index: number;
-    node: INode;
+    node: Node;
 }
 
 /**

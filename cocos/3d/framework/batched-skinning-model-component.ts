@@ -30,7 +30,8 @@ import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { Texture2D } from '../../assets/texture-2d';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { CCString } from '../../core/data/utils/attribute';
-import { Mat4, Vec2 } from '../../core/math';
+import { Mat4, Vec2 } from '../../core/value-types';
+import { vec2 } from '../../core/vmath';
 import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
 import { GFXFormat, GFXType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
@@ -63,7 +64,7 @@ export class SkinningModelUnit {
 
     @property
     set offset (offset) {
-        Vec2.copy(this._offset, offset);
+        vec2.copy(this._offset, offset);
     }
     get offset () {
         return this._offset;
@@ -71,7 +72,7 @@ export class SkinningModelUnit {
 
     @property
     set size (size) {
-        Vec2.copy(this._size, size);
+        vec2.copy(this._size, size);
     }
     get size () {
         return this._size;
@@ -212,7 +213,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
             }
         }
         // sort the array to be more cache-friendly
-        const idxMap = Array.from(Array(skeleton.joints.length).keys()).sort((a, b) => {
+        const idxMap = [...Array(skeleton.joints.length).keys()].sort((a, b) => {
             if (skeleton.joints[a] > skeleton.joints[b]) { return 1; }
             if (skeleton.joints[a] < skeleton.joints[b]) { return -1; }
             return 0;
@@ -220,7 +221,6 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         skeleton.joints = skeleton.joints.map((_, idx, arr) => arr[idxMap[idx]]);
         skeleton.bindposes = bindposes.map((_, idx, arr) => arr[idxMap[idx]]);
         // apply
-        if (this._skeleton) { this._skeleton.destroy(); }
         this.skeleton = skeleton;
     }
 

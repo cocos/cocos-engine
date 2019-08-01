@@ -4,7 +4,8 @@
  */
 
 import { ccclass, property } from '../core/data/class-decorator';
-import { Quat, Vec2, Vec3, Vec4 } from '../core/math';
+import { Quat, Vec2, Vec3, Vec4 } from '../core/value-types';
+import * as vmath from '../core/vmath';
 import { ILerpable } from './types';
 
 interface ICubicSplineValue<T> extends ILerpable {
@@ -74,19 +75,19 @@ function makeCubicSplineValueConstructor<T> (
 }
 
 export const CubicSplineVec2Value = makeCubicSplineValueConstructor(
-    'cc.CubicSplineVec2Value', Vec2, Vec2.scale, Vec2.scaleAndAdd);
+    'cc.CubicSplineVec2Value', Vec2, vmath.vec2.scale, vmath.vec2.scaleAndAdd);
 cc.CubicSplineVec2Value = CubicSplineVec2Value;
 
 export const CubicSplineVec3Value = makeCubicSplineValueConstructor(
-    'cc.CubicSplineVec3Value', Vec3, Vec3.scale, Vec3.scaleAndAdd);
+    'cc.CubicSplineVec3Value', Vec3, vmath.vec3.scale, vmath.vec3.scaleAndAdd);
 cc.CubicSplineVec3Value = CubicSplineVec3Value;
 
 export const CubicSplineVec4Value = makeCubicSplineValueConstructor(
-    'cc.CubicSplineVec4Value', Vec4, Vec4.scale, Vec4.scaleAndAdd);
+    'cc.CubicSplineVec4Value', Vec4, vmath.vec4.scale, vmath.vec4.scaleAndAdd);
 cc.CubicSplineVec4Value = CubicSplineVec4Value;
 
 export const CubicSplineQuatValue = makeCubicSplineValueConstructor(
-    'cc.CubicSplineQuatValue', Quat, Quat.scale, Quat.scaleAndAdd);
+    'cc.CubicSplineQuatValue', Quat, vmath.quat.scale, vmath.quat.scaleAndAdd);
 cc.CubicSplineQuatValue = CubicSplineQuatValue;
 
 @ccclass('cc.CubicSplineNumberValue')

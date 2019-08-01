@@ -33,7 +33,7 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../.
 import { EventTouch } from '../../../core/platform';
 import { fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace } from '../../../core/utils';
 import Pool from '../../../core/utils/pool';
-import { Color, Vec2 } from '../../../core/math';
+import { Color, Vec2 } from '../../../core/value-types';
 import { PrivateNode } from '../../../scene-graph';
 import { HorizontalTextAlignment, LabelComponent, VerticalTextAlignment } from './label-component';
 import { LabelOutlineComponent } from './label-outline-component';
@@ -41,7 +41,6 @@ import { SpriteComponent } from './sprite-component';
 import { UIComponent } from './ui-component';
 import { UIRenderComponent } from './ui-render-component';
 import { UITransformComponent } from './ui-transfrom-component';
-import { INode } from '../../../core/utils/interfaces';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
@@ -90,10 +89,9 @@ const pool = new Pool((labelSeg: ILabelSegment) => {
     return true;
 }, 20);
 
-// @ts-ignore
-pool.get = function (str: string, richtext: RichTextComponent) {
+pool.get = function (string: string, richtext: RichTextComponent) {
     let labelSeg = this._get();
-    if (!labelSeg) {
+    if (!labelSeg){
         labelSeg = {
             node: new PrivateNode(RichTextChildName),
             comp: null,
@@ -119,8 +117,8 @@ pool.get = function (str: string, richtext: RichTextComponent) {
     labelNode.setContentSize(128, 128);
     // labelNode.skewX = 0;
 
-    if (typeof str !== 'string') {
-        str = '' + str;
+    if (typeof string !== 'string') {
+        string = '' + string;
     }
     const isAsset = richtext.font instanceof Font;
     if (isAsset) {
@@ -129,7 +127,7 @@ pool.get = function (str: string, richtext: RichTextComponent) {
         labelComponent.fontFamily = 'Arial';
     }
 
-    labelComponent.string = str;
+    labelComponent.string = string;
     labelComponent.horizontalAlign = HorizontalTextAlignment.LEFT;
     labelComponent.verticalAlign = VerticalTextAlignment.TOP;
     labelComponent.fontSize = richtext.fontSize || 40;
@@ -151,7 +149,7 @@ pool.get = function (str: string, richtext: RichTextComponent) {
     return labelObj;
 };
 
-interface ILabelSegment {
+interface ILabelSegment{
     node: PrivateNode;
     comp: UIRenderComponent | null;
     clickHandler: '';
@@ -181,7 +179,7 @@ export class RichTextComponent extends UIComponent {
         return this._string;
     }
     set string (value) {
-        if (this._string === value) {
+        if (this._string === value){
             return;
         }
 
@@ -316,7 +314,7 @@ export class RichTextComponent extends UIComponent {
      * 选中此选项后，RichText 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点。
      */
     @property
-    get handleTouchEvent () {
+    get handleTouchEvent (){
         return this._handleTouchEvent;
     }
 
@@ -394,7 +392,7 @@ export class RichTextComponent extends UIComponent {
     }
 
     public onRestore () {
-        if (!CC_EDITOR) {
+        if (!CC_EDITOR){
             return;
         }
 
@@ -430,9 +428,8 @@ export class RichTextComponent extends UIComponent {
         });
     }
 
-    private _createFontLabel (str: string) {
-        // @ts-ignore
-        return pool.get!(str, this);
+    private _createFontLabel (string: string) {
+        return pool.get!(string, this);
     }
 
     private _onTTFLoaded () {
@@ -500,7 +497,7 @@ export class RichTextComponent extends UIComponent {
 
     private _containsTouchLocation (label: ILabelSegment, point: Vec2) {
         const comp = label.node.getComponent(UITransformComponent);
-        if (!comp) {
+        if (!comp){
             return false;
         }
 
@@ -509,9 +506,9 @@ export class RichTextComponent extends UIComponent {
     }
 
     private _resetState () {
-        const children = this.node.children as Mutable<INode[]>;
+        const children = this.node.children;
 
-        for (let i = children.length - 1; i >= 0; i--) {
+        for (let i = children.length - 1; i >= 0; i--){
             const child = children[i];
             if (child.name === RichTextChildName || child.name === RichTextChildImageName) {
                 if (child.parent === this.node) {
@@ -527,7 +524,7 @@ export class RichTextComponent extends UIComponent {
                         return seg.node === child;
                     });
 
-                    if (index !== -1) {
+                    if (index !== -1){
                         pool.put(this._labelSegments[index]);
                     }
                 }
@@ -569,7 +566,6 @@ export class RichTextComponent extends UIComponent {
         labelSegment.lineCount = this._lineCount;
         labelSegment.node.setAnchorPoint(0, 0);
         this._applyTextAttribute(labelSegment);
-        // @ts-ignore
         this.node.addChild(labelSegment.node);
         this._labelSegments.push(labelSegment);
 
@@ -689,7 +685,7 @@ export class RichTextComponent extends UIComponent {
     }
 
     private _addRichTextImageElement (richTextElement: IHtmlTextParserResultObj) {
-        if (!richTextElement.style) {
+        if (!richTextElement.style){
             return;
         }
 
@@ -701,7 +697,6 @@ export class RichTextComponent extends UIComponent {
             spriteNode.setAnchorPoint(0, 0);
             spriteComponent!.type = cc.SpriteComponent.Type.SLICED;
             spriteComponent!.sizeMode = cc.SpriteComponent.SizeMode.CUSTOM;
-            // @ts-ignore
             this.node.addChild(spriteNode);
             const obj: ILabelSegment = {
                 node: spriteNode,
@@ -785,7 +780,7 @@ export class RichTextComponent extends UIComponent {
         for (let i = 0; i < this._textArray.length; ++i) {
             const richTextElement = this._textArray[i];
             const text = richTextElement.text;
-            if (text === undefined) {
+            if (text === undefined){
                 continue;
             }
 

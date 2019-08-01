@@ -28,8 +28,9 @@
  * @category ui-assembler
  */
 
+
 import * as js from '../../../../core/utils/js';
-import { Color } from '../../../../core/math';
+import { Color } from '../../../../core/value-types';
 import { RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { LabelComponent } from '../../components/label-component';

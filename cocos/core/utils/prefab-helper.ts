@@ -25,7 +25,7 @@
 */
 
 import { ccclass, property } from '../data/class-decorator';
-import { Quat } from '../math';
+import * as math from '../vmath';
 
 @ccclass('cc.PrefabInfo')
 export class PrefabInfo {
@@ -131,7 +131,7 @@ export default function syncWithPrefab (node) {
     node._active = _active;
     node._position.x = x;
     node._position.y = y;
-    Quat.copy(node._quat, _quat);
+    math.quat.copy(node._quat, _quat);
     node._localZOrder = _localZOrder;
     node._globalZOrder = _globalZOrder;
 }

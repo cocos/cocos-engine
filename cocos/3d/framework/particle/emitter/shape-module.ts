@@ -4,91 +4,29 @@
  */
 
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { Mat4, Quat, Vec2, Vec3 } from '../../../../core/math';
-import { clamp, pingPong, random, randomRange, repeat, toDegree, toRadian } from '../../../../core/math';
+import { Vec3 } from '../../../../core/value-types';
+import { clamp, mat4, pingPong, quat, random, randomRange, repeat, toDegree, toRadian, vec2, vec3 } from '../../../../core/vmath';
 import CurveRange from '../animator/curve-range';
 import { ArcMode, EmitLocation, ShapeType } from '../enum';
-import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere,
-    randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';
+import {
+    fixedAngleUnitVector2,
+    particleEmitZAxis,
+    randomPointBetweenCircleAtFixedAngle,
+    randomPointBetweenSphere,
+    randomPointInCube,
+    randomSign,
+    randomSortArray,
+    randomUnitVector,
+} from '../particle-general-function';
 import { ParticleSystemComponent } from '../particle-system-component';
 
-const _intermediVec = new Vec3(0, 0, 0);
+// tslint:disable: max-line-length
+const _intermediVec = vec3.create(0, 0, 0);
 const _intermediArr = new Array();
-const _unitBoxExtent = new Vec3(0.5, 0.5, 0.5);
+const _unitBoxExtent = vec3.create(0.5, 0.5, 0.5);
 
 @ccclass('cc.ShapeModule')
 export default class ShapeModule {
-
-    /**
-     * @zh 粒子发射器位置。
-     */
-    @property({
-        displayOrder: 13,
-    })
-    get position () {
-        return this._position;
-    }
-    set position (val) {
-        this._position = val;
-        this.constructMat();
-    }
-
-    /**
-     * @zh 粒子发射器旋转角度。
-     */
-    @property({
-        displayOrder: 14,
-    })
-    get rotation () {
-        return this._rotation;
-    }
-    set rotation (val) {
-        this._rotation = val;
-        this.constructMat();
-    }
-
-    /**
-     * @zh 粒子发射器缩放比例。
-     */
-    @property({
-        displayOrder: 15,
-    })
-    get scale () {
-        return this._scale;
-    }
-    set scale (val) {
-        this._scale = val;
-        this.constructMat();
-    }
-
-    /**
-     * @zh 粒子发射器在一个扇形范围内发射。
-     */
-    @property({
-        displayOrder: 6,
-    })
-    get arc () {
-        return toDegree(this._arc);
-    }
-
-    set arc (val) {
-        this._arc = toRadian(val);
-    }
-
-    /**
-     * @zh 圆锥的轴与母线的夹角<bg>。
-     * 决定圆锥发射器的开合程度。
-     */
-    @property({
-        displayOrder: 5,
-    })
-    get angle () {
-        return Math.round(toDegree(this._angle) * 100) / 100;
-    }
-
-    set angle (val) {
-        this._angle = toRadian(val);
-    }
 
     /**
      * @zh 是否启用。
@@ -115,6 +53,57 @@ export default class ShapeModule {
         displayOrder: 2,
     })
     public emitFrom = EmitLocation.Volume;
+
+    @property
+    private _position = new Vec3(0, 0, 0);
+
+    /**
+     * @zh 粒子发射器位置。
+     */
+    @property({
+        displayOrder: 13,
+    })
+    get position () {
+        return this._position;
+    }
+    set position (val) {
+        this._position = val;
+        this.constructMat();
+    }
+
+    @property
+    private _rotation = new Vec3(0, 0, 0);
+
+    /**
+     * @zh 粒子发射器旋转角度。
+     */
+    @property({
+        displayOrder: 14,
+    })
+    get rotation () {
+        return this._rotation;
+    }
+    set rotation (val) {
+        this._rotation = val;
+        this.constructMat();
+    }
+
+    @property
+    private _scale = new Vec3(1, 1, 1);
+
+    /**
+     * @zh 粒子发射器缩放比例。
+     */
+    @property({
+        displayOrder: 15,
+    })
+    get scale () {
+        return this._scale;
+    }
+    set scale (val) {
+        this._scale = val;
+        this.constructMat();
+    }
 
     /**
      * @zh 根据粒子的初始方向决定粒子的移动方向。
@@ -167,6 +156,23 @@ export default class ShapeModule {
     })
     public radiusThickness = 1;
 
+    @property
+    private _arc = toRadian(360);
+
+    /**
+     * @zh 粒子发射器在一个扇形范围内发射。
+     */
+    @property({
+        displayOrder: 6,
+    })
+    get arc () {
+        return toDegree(this._arc);
+    }
+
+    set arc (val) {
+        this._arc = toRadian(val);
+    }
+
     /**
      * @zh 粒子在扇形范围内的发射方式 [[ArcMode]]。
      */
@@ -193,6 +199,24 @@ export default class ShapeModule {
     })
     public arcSpeed = new CurveRange();
 
+    @property
+    private _angle = toRadian(25);
+
+    /**
+     * @zh 圆锥的轴与母线的夹角<bg>。
+     * 决定圆锥发射器的开合程度。
+     */
+    @property({
+        displayOrder: 5,
+    })
+    get angle () {
+        return Math.round(toDegree(this._angle) * 100) / 100;
+    }
+
+    set angle (val) {
+        this._angle = toRadian(val);
+    }
+
     /**
      * @zh 圆锥顶部截面距离底部的轴长<bg>。
      * 决定圆锥发射器的高度。
@@ -210,39 +234,30 @@ export default class ShapeModule {
     })
     public boxThickness = new Vec3(0, 0, 0);
 
-    @property
-    private _position = new Vec3(0, 0, 0);
-
-    @property
-    private _rotation = new Vec3(0, 0, 0);
-
-    @property
-    private _scale = new Vec3(1, 1, 1);
-
-    @property
-    private _arc = toRadian(360);
-
-    @property
-    private _angle = toRadian(25);
-
-    private mat: Mat4;
-    private quat: Quat;
+    private mat: mat4;
+    private quat: quat;
     private particleSystem: any;
     private lastTime: number;
     private totalAngle: number;
 
     constructor () {
-        this.mat = new Mat4();
-        this.quat = new Quat();
+        this.mat = mat4.create();
+        this.quat = quat.create();
         this.particleSystem = null;
         this.lastTime = 0;
         this.totalAngle = 0;
     }
 
     public onInit (ps: ParticleSystemComponent) {
-        this.particleSystem = ps;
         this.constructMat();
+        this.particleSystem = ps;
         this.lastTime = this.particleSystem._time;
+        this.totalAngle = 0;
+    }
+
+    private constructMat () {
+        quat.fromEuler(this.quat, this._rotation.x, this._rotation.y, this._rotation.z);
+        mat4.fromRTS(this.mat, this.quat, this._position, this._scale);
     }
 
     public emit (p) {
@@ -270,18 +285,13 @@ export default class ShapeModule {
             p.position.y += randomRange(-this.randomPositionAmount, this.randomPositionAmount);
             p.position.z += randomRange(-this.randomPositionAmount, this.randomPositionAmount);
         }
-        Vec3.transformQuat(p.velocity, p.velocity, this.quat);
-        Vec3.transformMat4(p.position, p.position, this.mat);
+        vec3.transformQuat(p.velocity, p.velocity, this.quat);
+        vec3.transformMat4(p.position, p.position, this.mat);
         if (this.sphericalDirectionAmount > 0) {
-            const sphericalVel = Vec3.normalize(_intermediVec, p.position);
-            Vec3.lerp(p.velocity, p.velocity, sphericalVel, this.sphericalDirectionAmount);
+            const sphericalVel = vec3.normalize(_intermediVec, p.position);
+            vec3.lerp(p.velocity, p.velocity, sphericalVel, this.sphericalDirectionAmount);
         }
         this.lastTime = this.particleSystem!._time;
-    }
-
-    private constructMat () {
-        Quat.fromEuler(this.quat, this._rotation.x, this._rotation.y, this._rotation.z);
-        Mat4.fromRTS(this.mat, this.quat, this._position, this._scale);
     }
 
     private generateArcAngle () {
@@ -306,13 +316,13 @@ function sphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
     switch (emitFrom) {
         case EmitLocation.Volume:
             randomPointBetweenSphere(pos, radius * (1 - radiusThickness), radius);
-            Vec3.copy(dir, pos);
-            Vec3.normalize(dir, dir);
+            vec3.copy(dir, pos);
+            vec3.normalize(dir, dir);
             break;
         case EmitLocation.Shell:
             randomUnitVector(pos);
-            Vec3.scale(pos, pos, radius);
-            Vec3.copy(dir, pos);
+            vec3.scale(pos, pos, radius);
+            vec3.copy(dir, pos);
             break;
         default:
             console.warn(emitFrom + ' is not supported for sphere emitter.');
@@ -326,16 +336,16 @@ function hemisphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
             if (pos.z > 0) {
                 pos.z *= -1;
             }
-            Vec3.copy(dir, pos);
-            Vec3.normalize(dir, dir);
+            vec3.copy(dir, pos);
+            vec3.normalize(dir, dir);
             break;
         case EmitLocation.Shell:
             randomUnitVector(pos);
-            Vec3.scale(pos, pos, radius);
+            vec3.scale(pos, pos, radius);
             if (pos.z > 0) {
                 pos.z *= -1;
             }
-            Vec3.copy(dir, pos);
+            vec3.copy(dir, pos);
             break;
         default:
             console.warn(emitFrom + ' is not supported for hemisphere emitter.');
@@ -346,26 +356,26 @@ function coneEmit (emitFrom, radius, radiusThickness, theta, angle, length, pos,
     switch (emitFrom) {
         case EmitLocation.Base:
             randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
-            Vec2.scale(dir, pos, Math.sin(angle));
+            vec2.scale(dir, pos, Math.sin(angle));
             dir.z = -Math.cos(angle) * radius;
-            Vec3.normalize(dir, dir);
+            vec3.normalize(dir, dir);
             pos.z = 0;
             break;
         case EmitLocation.Shell:
             fixedAngleUnitVector2(pos, theta);
-            Vec2.scale(dir, pos, Math.sin(angle));
+            vec2.scale(dir, pos, Math.sin(angle));
             dir.z = -Math.cos(angle);
-            Vec3.normalize(dir, dir);
-            Vec2.scale(pos, pos, radius);
+            vec3.normalize(dir, dir);
+            vec2.scale(pos, pos, radius);
             pos.z = 0;
             break;
         case EmitLocation.Volume:
             randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
-            Vec2.scale(dir, pos, Math.sin(angle));
+            vec2.scale(dir, pos, Math.sin(angle));
             dir.z = -Math.cos(angle) * radius;
-            Vec3.normalize(dir, dir);
+            vec3.normalize(dir, dir);
             pos.z = 0;
-            Vec3.add(pos, pos, Vec3.scale(_intermediVec, dir, length * random() / -dir.z));
+            vec3.add(pos, pos, vec3.scale(_intermediVec, dir, length * random() / -dir.z));
             break;
         default:
             console.warn(emitFrom + ' is not supported for cone emitter.');
@@ -385,7 +395,7 @@ function boxEmit (emitFrom, boxThickness, pos, dir) {
             _intermediArr.push(randomSign() * 0.5);
             randomSortArray(_intermediArr);
             applyBoxThickness(_intermediArr, boxThickness);
-            Vec3.set(pos, _intermediArr[0], _intermediArr[1], _intermediArr[2]);
+            vec3.set(pos, _intermediArr[0], _intermediArr[1], _intermediArr[2]);
             break;
         case EmitLocation.Edge:
             _intermediArr.splice(0, _intermediArr.length);
@@ -394,17 +404,17 @@ function boxEmit (emitFrom, boxThickness, pos, dir) {
             _intermediArr.push(randomSign() * 0.5);
             randomSortArray(_intermediArr);
             applyBoxThickness(_intermediArr, boxThickness);
-            Vec3.set(pos, _intermediArr[0], _intermediArr[1], _intermediArr[2]);
+            vec3.set(pos, _intermediArr[0], _intermediArr[1], _intermediArr[2]);
             break;
         default:
             console.warn(emitFrom + ' is not supported for box emitter.');
     }
-    Vec3.copy(dir, particleEmitZAxis);
+    vec3.copy(dir, particleEmitZAxis);
 }
 
 function circleEmit (radius, radiusThickness, theta, pos, dir) {
     randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
-    Vec3.normalize(dir, pos);
+    vec3.normalize(dir, pos);
 }
 
 function applyBoxThickness (pos, thickness) {

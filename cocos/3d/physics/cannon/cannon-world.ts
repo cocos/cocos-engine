@@ -1,5 +1,5 @@
 import CANNON from 'cannon';
-import { Vec3 } from '../../../core/math';
+import { Vec3 } from '../../../core/value-types';
 import { RaycastResult } from '../raycast-result';
 import { setWrap } from '../util';
 import { AfterStepCallback, BeforeStepCallback, IRaycastOptions, PhysicsWorldBase } from './../api';

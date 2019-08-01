@@ -4,13 +4,14 @@
 
 import { IRenderingSubmesh } from '../../3d/assets/mesh';
 import CurveRange from '../../3d/framework/particle/animator/curve-range';
-import { Vec3 } from '../../core/math';
+import { Vec3 } from '../../core/value-types';
+import { vec3 } from '../../core/vmath';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
+import { Node } from '../../scene-graph';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 import GradientRange from '../../3d/framework/particle/animator/gradient-range';
-import { GFX_DRAW_INFO_SIZE, IGFXIndirectBuffer, GFXBuffer } from '../../gfx/buffer';
-import { INode } from '../../core/utils/interfaces';
+import { GFX_DRAW_INFO_SIZE } from '../../gfx/buffer';
 
 const _vertex_attrs = [
     { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F }, // xyz:position
@@ -25,18 +26,18 @@ const _temp_v2 = cc.v3();
 export class LineModel extends Model {
 
     private _capacity: number;
-    private _vertSize: number = 0;
-    private _vBuffer: ArrayBuffer | null = null;
-    private _vertAttrsFloatCount: number = 0;
-    private _vdataF32: Float32Array | null = null;
-    private _vdataUint32: Uint32Array | null = null;
+    private _vertSize: number;
+    private _vBuffer: ArrayBuffer | null;
+    private _vertAttrsFloatCount: number;
+    private _vdataF32: Float32Array | null;
+    private _vdataUint32: Uint32Array | null;
     private _iaInfo: IGFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer;
-    private _subMeshData: IRenderingSubmesh | null = null;
+    private _subMeshData: IRenderingSubmesh | null;
     private _vertCount: number = 0;
     private _indexCount: number = 0;
 
-    constructor (scene: RenderScene, node: INode) {
+    constructor (scene: RenderScene, node: Node) {
         super(scene, node);
         this._capacity = 100;
         this._iaInfo = {
@@ -111,7 +112,6 @@ export class LineModel extends Model {
 
         indexBuffer.update(indices);
 
-
         this._iaInfo.drawInfos[0].vertexCount = this._capacity * this._vertCount;
         this._iaInfo.drawInfos[0].indexCount = (this._capacity - 1) * this._indexCount;
         this._iaInfoBuffer.update(this._iaInfo);
@@ -130,7 +130,7 @@ export class LineModel extends Model {
     public addLineVertexData (positions: Vec3[], width: CurveRange, color: GradientRange) {
         if (positions.length > 1) {
             let offset: number = 0;
-            Vec3.subtract(_temp_v1, positions[1], positions[0]);
+            vec3.subtract(_temp_v1, positions[1], positions[0]);
             this._vdataF32![offset++] = positions[0].x;
             this._vdataF32![offset++] = positions[0].y;
             this._vdataF32![offset++] = positions[0].z;
@@ -154,9 +154,9 @@ export class LineModel extends Model {
             this._vdataF32![offset++] = _temp_v1.z;
             this._vdataUint32![offset++] = color.evaluate(0, 1)._val;
             for (let i = 1; i < positions.length - 1; i++) {
-                Vec3.subtract(_temp_v1, positions[i - 1], positions[i]);
-                Vec3.subtract(_temp_v2, positions[i + 1], positions[i]);
-                Vec3.subtract(_temp_v2, _temp_v2, _temp_v1);
+                vec3.subtract(_temp_v1, positions[i - 1], positions[i]);
+                vec3.subtract(_temp_v2, positions[i + 1], positions[i]);
+                vec3.subtract(_temp_v2, _temp_v2, _temp_v1);
                 const seg = i / positions.length;
                 this._vdataF32![offset++] = positions[i].x;
                 this._vdataF32![offset++] = positions[i].y;
@@ -181,7 +181,7 @@ export class LineModel extends Model {
                 this._vdataF32![offset++] = _temp_v2.z;
                 this._vdataUint32![offset++] = color.evaluate(seg, 1)._val;
             }
-            Vec3.subtract(_temp_v1, positions[positions.length - 1], positions[positions.length - 2]);
+            vec3.subtract(_temp_v1, positions[positions.length - 1], positions[positions.length - 2]);
             this._vdataF32![offset++] = positions[positions.length - 1].x;
             this._vdataF32![offset++] = positions[positions.length - 1].y;
             this._vdataF32![offset++] = positions[positions.length - 1].z;

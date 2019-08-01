@@ -1,6 +1,6 @@
-import { Vec3 } from '../../core/math';
+import { Vec3 } from '../../core/value-types';
+import { Node } from '../../scene-graph/node';
 import { RenderScene } from './render-scene';
-import { INode } from '../../core/utils/interfaces';
 
 // Color temperature (in Kelvin) to RGB
 export function ColorTemperatureToRGB (rgb: Vec3, kelvin: number) {
@@ -98,11 +98,11 @@ export class Light {
     protected _colorTemp: number = 6550.0;
     protected _colorTempRGB: Vec3 = new Vec3(1, 1, 1);
     protected _scene: RenderScene;
-    protected _node: INode;
+    protected _node: Node;
     protected _type: LightType;
     protected _name: string;
 
-    constructor (scene: RenderScene, name: string, node: INode) {
+    constructor (scene: RenderScene, name: string, node: Node) {
         this._scene = scene;
         this._name = name;
         this._type = LightType.UNKNOWN;

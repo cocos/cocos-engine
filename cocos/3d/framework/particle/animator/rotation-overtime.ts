@@ -4,7 +4,7 @@
  */
 
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { pseudoRandom } from '../../../../core/math';
+import { pseudoRandom } from '../../../../core/vmath';
 import Particle from '../particle';
 import CurveRange from './curve-range';
 

@@ -3,7 +3,7 @@
  */
 
 import { CameraComponent, UITransformComponent } from '../3d';
-import { Vec3 } from '../core/math';
+import { Vec3 } from '../core';
 import { Node } from '../scene-graph';
 
 const _temp_vec3_1 = new Vec3();

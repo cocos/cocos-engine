@@ -7,8 +7,9 @@
 // tslint:disable: max-line-length
 
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../../../core/math';
-import { INT_MAX } from '../../../core/math/bits';
+import { Mat4, Quat, Vec2, Vec3 } from '../../../core/value-types';
+import { pseudoRandom, randomRangeInt, vec2, vec3 } from '../../../core/vmath';
+import { INT_MAX } from '../../../core/vmath/bits';
 import { Model } from '../../../renderer';
 import { Material } from '../../assets';
 import { RenderableComponent } from '../renderable-component';
@@ -48,9 +49,7 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     public set capacity (val) {
         this._capacity = val;
-        // @ts-ignore
         if (this.renderer && this.renderer._model) {
-            // @ts-ignore
             this.renderer._model.setCapacity(this._capacity);
         }
     }
@@ -232,12 +231,10 @@ export class ParticleSystemComponent extends RenderableComponent {
     })
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
-        // @ts-ignore
         return super.sharedMaterials;
     }
 
     set sharedMaterials (val) {
-        // @ts-ignore
         super.sharedMaterials = val;
     }
 
@@ -390,7 +387,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         // HACK, TODO
         this.renderer!.onInit(this);
         this.shapeModule.onInit(this);
-        this.trailModule.onInit(this);
+        this.trailModule.init(this);
         this.textureAnimationModule.onInit(this);
 
         this._resetPosition();
@@ -509,11 +506,11 @@ export class ParticleSystemComponent extends RenderableComponent {
      * @ignore
      */
     public setCustomData1 (x, y) {
-        Vec2.set(this._customData1, x, y);
+        vec2.set(this._customData1, x, y);
     }
 
     public setCustomData2 (x, y) {
-        Vec2.set(this._customData2, x, y);
+        vec2.set(this._customData2, x, y);
     }
 
     protected onDestroy () {
@@ -559,9 +556,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     protected _onVisiblityChange (val) {
-        // @ts-ignore
         if (this.renderer._model) {
-            // @ts-ignore
             this.renderer._model.viewID = val;
         }
     }
@@ -579,33 +574,33 @@ export class ParticleSystemComponent extends RenderableComponent {
                 this.shapeModule.emit(particle);
             }
             else {
-                Vec3.set(particle.position, 0, 0, 0);
-                Vec3.copy(particle.velocity, particleEmitZAxis);
+                vec3.set(particle.position, 0, 0, 0);
+                vec3.copy(particle.velocity, particleEmitZAxis);
             }
 
-            Vec3.scale(particle.velocity, particle.velocity, this.startSpeed.evaluate(this._time / this.duration, rand)!);
+            vec3.scale(particle.velocity, particle.velocity, this.startSpeed.evaluate(this._time / this.duration, rand)!);
 
             switch (this._simulationSpace) {
                 case Space.Local:
                     break;
                 case Space.World:
                     this.node.getWorldMatrix(_world_mat);
-                    Vec3.transformMat4(particle.position, particle.position, _world_mat);
+                    vec3.transformMat4(particle.position, particle.position, _world_mat);
                     const worldRot = new Quat();
                     this.node.getWorldRotation(worldRot);
-                    Vec3.transformQuat(particle.velocity, particle.velocity, worldRot);
+                    vec3.transformQuat(particle.velocity, particle.velocity, worldRot);
                     break;
                 case Space.Custom:
                     // TODO:
                     break;
             }
-            Vec3.copy(particle.ultimateVelocity, particle.velocity);
+            vec3.copy(particle.ultimateVelocity, particle.velocity);
             // apply startRotation. now 2D only.
-            Vec3.set(particle.rotation, this.startRotation.evaluate(this._time / this.duration, rand)!, 0, 0);
+            vec3.set(particle.rotation, this.startRotation.evaluate(this._time / this.duration, rand)!, 0, 0);
 
             // apply startSize. now 2D only.
-            Vec3.set(particle.startSize, this.startSize.evaluate(this._time / this.duration, rand)!, 0, 0);
-            Vec3.copy(particle.size, particle.startSize);
+            vec3.set(particle.startSize, this.startSize.evaluate(this._time / this.duration, rand)!, 0, 0);
+            vec3.copy(particle.size, particle.startSize);
 
             // apply startColor.
             particle.startColor.set(this.startColor.evaluate(this._time / this.duration, rand));
@@ -659,8 +654,8 @@ export class ParticleSystemComponent extends RenderableComponent {
             }
             // emit by rateOverDistance
             this.node.getWorldPosition(this._curWPos);
-            const distance = Vec3.distance(this._curWPos, this._oldWPos);
-            Vec3.copy(this._oldWPos, this._curWPos);
+            const distance = vec3.distance(this._curWPos, this._oldWPos);
+            vec3.copy(this._oldWPos, this._curWPos);
             this._emitRateDistanceCounter += distance * this.rateOverDistance.evaluate(this._time / this.duration, 1)!;
             if (this._emitRateDistanceCounter > 1 && this._isEmitting) {
                 const emitNum = Math.floor(this._emitRateDistanceCounter);
@@ -677,7 +672,7 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     private _resetPosition () {
         this.node.getWorldPosition(this._oldWPos);
-        Vec3.copy(this._curWPos, this._oldWPos);
+        vec3.copy(this._curWPos, this._oldWPos);
     }
 
     private addSubEmitter (subEmitter) {

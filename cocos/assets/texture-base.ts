@@ -94,10 +94,10 @@ export class TextureBase extends Asset {
 
     protected _texture: GFXTexture | null = null;
     protected _textureView: GFXTextureView | null = null;
-    protected _mipmapLevel: number = 1;
 
     private _potientialWidth: number = 0;
     private _potientialHeight: number = 0;
+    private _mipmapLevel: number = 1;
     private _id: string;
     private _samplerInfo: Array<number | undefined> = [];
     private _samplerHash: number = 0;

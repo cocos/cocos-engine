@@ -2,7 +2,7 @@ import { Asset } from '../../assets/asset';
 import { ImageAsset } from '../../assets/image-asset';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { Texture2D } from '../../assets/texture-2d';
-import { Rect } from '../../core/math';
+import { Rect } from '../../core/value-types';
 import { GFXDevice } from '../../gfx/device';
 import { customizationManager } from '../../renderer/scene/customization-manager';
 import { Model } from '../../renderer/scene/model';

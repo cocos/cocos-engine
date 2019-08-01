@@ -28,7 +28,8 @@
 import '../data/class';
 import { EventTarget } from '../event/event-target';
 import Game from '../game';
-import { Rect, Size } from '../math';
+import Rect from '../value-types/rect';
+import Size from '../value-types/size';
 
 let _currentFrame = 0;
 

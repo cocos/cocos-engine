@@ -464,10 +464,10 @@ class CCLoader extends Pipeline {
      * });
      * ```
      */
-    public loadRes (url: String, type: Function, mount: string | Function, progressCallback?: Function, completeCallback?: Function) {
+    public loadRes (url: String, type: Function, mount, progressCallback: Function, completeCallback: Function) {
         if (arguments.length !== 5) {
             completeCallback = progressCallback;
-            progressCallback = mount as Function;
+            progressCallback = mount;
             mount = 'assets';
         }
         const args = this._parseLoadResArgs(type, progressCallback, completeCallback);

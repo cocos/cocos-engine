@@ -5,12 +5,13 @@
 /** */
 
 import { Component } from '../../../../components/component';
-import { Mat4, Quat, Vec3 } from '../../../../core/math';
+import { Mat4, Quat, Vec3 } from '../../../../core/value-types';
+import { vec3 } from '../../../../core/vmath';
+import { Node } from '../../../../scene-graph/node';
 // tslint:disable-next-line:max-line-length
 import { AfterStepCallback, BeforeStepCallback, PhysicsWorldBase, RigidBodyBase } from '../../../physics/api';
 import { createRigidBody } from '../../../physics/instance';
 import { ERigidBodyType, ETransformSource } from '../../../physics/physic-enum';
-import { INode } from '../../../../core/utils/interfaces';
 
 export class PhysicsBasedComponent extends Component {
 
@@ -185,7 +186,7 @@ export class PhysicsBasedComponent extends Component {
         }
     }
 
-    private _findRigidbody (begin: INode) {
+    private _findRigidbody (begin: Node) {
         const rigidbody = begin.getComponent(cc.RigidBodyComponent);
         if (rigidbody) {
             return rigidbody;
@@ -239,7 +240,7 @@ class SharedRigidBody {
 
     private _rigidBody: object | null;
 
-    private _node!: INode;
+    private _node!: Node;
 
     private _worldScale: Vec3 = new Vec3(1, 1, 1);
 
@@ -253,7 +254,7 @@ class SharedRigidBody {
     /** 上一次的缩放 */
     private _prevScale: Vec3 = new Vec3();
 
-    constructor (node: INode, rigidBody: object | null, world: PhysicsWorldBase) {
+    constructor (node: Node, rigidBody: object | null, world: PhysicsWorldBase) {
         this._body = createRigidBody({
             name: node.name,
         });
@@ -314,11 +315,11 @@ class SharedRigidBody {
         }
     }
 
-    public syncPhysWithScene () {
+    public syncPhysWithScene (){
         this._syncPhysWithScene(this._node);
     }
 
-    private _syncPhysWithScene (node: INode) {
+    private _syncPhysWithScene (node: Node) {
         // sync position rotation
         node.getWorldMatrix(SharedRigidBody._tempMat4);
         node.getWorldRotation(SharedRigidBody._tempQuat);
@@ -378,9 +379,9 @@ class SharedRigidBody {
         // 开始物理计算之前，用户脚本或引擎功能有可能改变节点的Transform，所以需要判断并进行更新
         if (this._node.hasChanged) {
             // scale 进行单独判断，因为目前的物理系统处理后不会改变scale的属性
-            if (!Vec3.equals(this._prevScale, this._node.worldScale)) {
+            if (!vec3.equals(this._prevScale, this._node.worldScale)) {
                 this._body.scaleAllShapes(this._node.worldScale);
-                Vec3.copy(this._prevScale, this._node.worldScale);
+                vec3.copy(this._prevScale, this._node.worldScale);
             }
             this._syncPhysWithScene(this._node);
 

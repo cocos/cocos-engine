@@ -3,15 +3,16 @@
  * @category particle
  */
 
-import { ccclass, property, executeInEditMode, menu } from "../../../core/data/class-decorator";
-import { Material, Mesh } from "../../assets";
-import { Texture2D } from "../../../assets";
-import { createMesh } from "../../misc/utils";
-import { GFXPrimitiveMode, GFXAttributeName, GFXFormat } from "../../../gfx";
-import { Model } from "../../../renderer";
-import { builtinResMgr } from "../../builtin";
-import { Component } from "../../../components";
-import { Color, toRadian, toDegree } from "../../../core/math";
+import { Texture2D } from '../../../assets';
+import { Component } from '../../../components';
+import { ccclass, executeInEditMode, menu, property } from '../../../core/data/class-decorator';
+import { Color } from '../../../core/value-types';
+import { toDegree, toRadian } from '../../../core/vmath';
+import { GFXAttributeName, GFXFormat, GFXPrimitiveMode } from '../../../gfx';
+import { Model } from '../../../renderer';
+import { Material, Mesh } from '../../assets';
+import { builtinResMgr } from '../../builtin';
+import { createMesh } from '../../misc/utils';
 
 @ccclass('cc.BillboardComponent')
 @menu('Components/BillboardComponent')

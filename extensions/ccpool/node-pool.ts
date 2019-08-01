@@ -129,7 +129,7 @@ export class NodePool {
     public put (obj: Node) {
         if (obj && this._pool.indexOf(obj) === -1) {
             // Remove from parent, but don't cleanup
-            obj.removeFromParent();
+            obj.removeFromParent(false);
 
             // Invoke pool handler
             // @ts-ignore

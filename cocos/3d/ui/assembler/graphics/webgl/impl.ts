@@ -1,6 +1,6 @@
 
 // import { ccclass } from '../../../../../core/data/class-decorator';
-import { Color, Vec2 } from '../../../../../core/math';
+import { Color, Vec2 } from '../../../../../core/value-types';
 import { IARenderData } from '../../../../../renderer/ui/renderData';
 import RecyclePool from '../../../../memop/recycle-pool';
 import { arc, ellipse, roundRect, tesselateBezier } from '../helper';

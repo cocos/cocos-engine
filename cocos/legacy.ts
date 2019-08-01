@@ -2,6 +2,7 @@
  * @hidden
  */
 
+// import AssetLibrary from './assets/CCAssetLibrary';
 import * as debug from './core/platform/CCDebug';
 import { _normalize, basename, changeBasename, changeExtname, dirname, extname, getSeperator, join, mainFileName, stripSep } from './core/utils/path';
 // import Pipeline from './load-pipeline/pipeline';

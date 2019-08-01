@@ -29,7 +29,7 @@
  */
 
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { Color } from '../../../core/math';
+import { Color } from '../../../core/value-types';
 import { Model } from '../../../renderer';
 import { UI } from '../../../renderer/ui/ui';
 import { Material } from '../../assets';

@@ -4,7 +4,7 @@
  */
 
 import { ccclass, property } from '../../../../core/data/class-decorator';
-import { pseudoRandom, Vec3 } from '../../../../core/math';
+import { pseudoRandom, vec3 } from '../../../../core/vmath';
 import Particle from '../particle';
 import CurveRange from './curve-range';
 
@@ -68,7 +68,7 @@ export default class SizeOvertimeModule {
 
     public animate (particle: Particle) {
         if (!this.separateAxes) {
-            Vec3.scale(particle.size, particle.startSize, this.size.evaluate(1 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + SIZE_OVERTIME_RAND_OFFSET))!);
+            vec3.scale(particle.size, particle.startSize, this.size.evaluate(1 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + SIZE_OVERTIME_RAND_OFFSET))!);
         }
     }
 }

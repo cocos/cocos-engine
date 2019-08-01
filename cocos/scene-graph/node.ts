@@ -27,20 +27,21 @@
  * @category scene-graph
  */
 
-import { UIComponent, UITransformComponent } from '../3d/ui/components';
+import { UITransformComponent, UIComponent } from '../3d';
 import { ccclass, property } from '../core/data/class-decorator';
 import Event from '../core/event/event';
 import { eventManager } from '../core/platform/event-manager';
 import { SystemEventType } from '../core/platform/event-manager/event-enum';
-import { INode } from '../core/utils/interfaces';
-import { Mat4, Quat, Vec3, Size, Vec2 } from '../core/math';
+import { Mat4, Quat, Vec3 } from '../core/value-types';
+import Size from '../core/value-types/size';
+import Vec2 from '../core/value-types/vec2';
+import { mat4, quat, vec3 } from '../core/vmath';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
 import { NodeEventProcessor } from './node-event-processor';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
-const q_b = new Quat();
 const array_a = new Array(10);
 
 enum NodeSpace {
@@ -57,7 +58,7 @@ const TRANFORM_ON = 1 << 0;
  * * 维护空间变换（坐标、旋转、缩放）信息
  */
 @ccclass('cc.Node')
-export class Node extends BaseNode implements INode {
+export class Node extends BaseNode {
     /**
      * @zh
      * 节点可能发出的事件类型
@@ -107,7 +108,6 @@ export class Node extends BaseNode implements INode {
     protected _eventProcessor: NodeEventProcessor = new cc.NodeEventProcessor(this);
     protected _eventMask = 0;
     private _uiTransfromComp: UITransformComponent | null = null;
-    // tslint:disable-next-line: member-ordering
     public _uiComp: UIComponent | null = null;
 
     /**
@@ -120,7 +120,7 @@ export class Node extends BaseNode implements INode {
     }
     get eulerAngles () {
         if (this._eulerDirty) {
-            Quat.toEuler(this._euler, this._lrot);
+            quat.toEuler(this._euler, this._lrot);
             this._eulerDirty = false;
         }
         return this._euler;
@@ -168,30 +168,30 @@ export class Node extends BaseNode implements INode {
             const local = this._lpos;
             if (parent) {
                 parent.updateWorldTransform();
-                Vec3.subtract(local, this._pos, parent._pos);
-                Vec3.transformQuat(local, local, Quat.conjugate(q_a, parent._rot));
-                Vec3.divide(local, local, parent._scale);
-                Quat.multiply(this._lrot, Quat.conjugate(q_a, parent._rot), this._rot);
-                Vec3.divide(this._lscale, this._scale, parent._scale);
+                vec3.subtract(local, this._pos, parent._pos);
+                vec3.transformQuat(local, local, quat.conjugate(q_a, parent._rot));
+                vec3.divide(local, local, parent._scale);
+                quat.multiply(this._lrot, quat.conjugate(q_a, parent._rot), this._rot);
+                vec3.divide(this._lscale, this._scale, parent._scale);
             } else {
-                Vec3.copy(this._lpos, this._pos);
-                Quat.copy(this._lrot, this._rot);
-                Vec3.copy(this._lscale, this._scale);
+                vec3.copy(this._lpos, this._pos);
+                quat.copy(this._lrot, this._rot);
+                vec3.copy(this._lscale, this._scale);
             }
             this._eulerDirty = true;
         } else {
-            Vec3.copy(this._pos, this._lpos);
-            Quat.copy(this._rot, this._lrot);
-            Vec3.copy(this._scale, this._lscale);
+            vec3.copy(this._pos, this._lpos);
+            quat.copy(this._rot, this._lrot);
+            vec3.copy(this._scale, this._lscale);
         }
 
         this.invalidateChildren();
     }
 
     public _onBatchCreated () {
-        Vec3.copy(this._pos, this._lpos);
-        Quat.copy(this._rot, this._lrot);
-        Vec3.copy(this._scale, this._lscale);
+        vec3.copy(this._pos, this._lpos);
+        quat.copy(this._rot, this._lrot);
+        vec3.copy(this._scale, this._lscale);
         this._dirty = this._hasChanged = true;
         this._eventMask = 0;
         for (const child of this._children) {
@@ -220,36 +220,14 @@ export class Node extends BaseNode implements INode {
      */
     public translate (trans: Vec3, ns?: NodeSpace) {
         const space = ns || NodeSpace.LOCAL;
+        vec3.copy(v3_a, this._lpos);
         if (space === NodeSpace.LOCAL) {
-            Vec3.transformQuat(v3_a, trans, this._lrot);
-            this._lpos.x += v3_a.x;
-            this._lpos.y += v3_a.y;
-            this._lpos.z += v3_a.z;
-            this._pos.x += v3_a.x;
-            this._pos.y += v3_a.y;
-            this._pos.z += v3_a.z;
+            vec3.transformQuat(v3_a, trans, this.worldRotation);
+            vec3.add(v3_a, this._lpos, v3_a);
+            this.setPosition(v3_a);
         } else if (space === NodeSpace.WORLD) {
-            if (this._parent) {
-                Quat.invert(q_a, this.worldRotation);
-                Vec3.transformQuat(v3_a, trans, q_a);
-                const scale = this.worldScale;
-                this._lpos.x += v3_a.x / scale.x;
-                this._lpos.y += v3_a.y / scale.y;
-                this._lpos.z += v3_a.z / scale.z;
-            } else {
-                this._lpos.x += trans.x;
-                this._lpos.y += trans.y;
-                this._lpos.z += trans.z;
-            }
-
-            this._pos.x += trans.x;
-            this._pos.y += trans.y;
-            this._pos.z += trans.z;
-        }
-
-        this.invalidateChildren();
-        if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
+            vec3.add(v3_a, this._lpos, trans);
+            this.setPosition(v3_a);
         }
     }
 
@@ -261,25 +239,12 @@ export class Node extends BaseNode implements INode {
      */
     public rotate (rot: Quat, ns?: NodeSpace) {
         const space = ns || NodeSpace.LOCAL;
-        Quat.normalize(q_a, rot);
-
         if (space === NodeSpace.LOCAL) {
-            Quat.multiply(this._lrot, this._lrot, q_a);
-
-            Quat.multiply(this._rot, this.worldRotation, q_a);
+            this.getRotation(q_a);
+            this.setRotation(quat.multiply(q_a, q_a, rot));
         } else if (space === NodeSpace.WORLD) {
-            const worldRot = this.worldRotation;
-            Quat.multiply(q_b, q_a, worldRot);
-            Quat.invert(q_a, this.worldRotation);
-            Quat.multiply(q_b, q_a, q_b);
-            Quat.multiply(this._lrot, this._lrot, q_b);
-
-            Quat.multiply(this._rot, q_a, worldRot);
-        }
-
-        this.invalidateChildren();
-        if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
+            this.getWorldRotation(q_a);
+            this.setWorldRotation(quat.multiply(q_a, rot, q_a));
         }
     }
 
@@ -289,12 +254,12 @@ export class Node extends BaseNode implements INode {
      */
     get forward (): Vec3 {
         this.getWorldRotation(q_a);
-        return Vec3.transformQuat(new Vec3(), Vec3.UNIT_Z, q_a);
+        return vec3.transformQuat(new Vec3(), vec3.UNIT_Z, q_a);
     }
     set forward (dir: Vec3) {
-        const len = Vec3.magnitude(dir);
-        Vec3.scale(v3_a, dir, -1 / len); // we use -z for view-dir
-        Quat.fromViewUp(q_a, v3_a);
+        const len = vec3.magnitude(dir);
+        vec3.scale(v3_a, dir, -1 / len); // we use -z for view-dir
+        quat.fromViewUp(q_a, v3_a);
         this.setWorldRotation(q_a);
     }
 
@@ -306,9 +271,9 @@ export class Node extends BaseNode implements INode {
      */
     public lookAt (pos: Vec3, up?: Vec3) {
         this.getWorldPosition(v3_a);
-        Vec3.subtract(v3_a, v3_a, pos); // we use -z for view-dir
-        Vec3.normalize(v3_a, v3_a);
-        Quat.fromViewUp(q_a, v3_a, up);
+        vec3.subtract(v3_a, v3_a, pos); // we use -z for view-dir
+        vec3.normalize(v3_a, v3_a);
+        quat.fromViewUp(q_a, v3_a, up);
         this.setWorldRotation(q_a);
     }
 
@@ -370,11 +335,11 @@ export class Node extends BaseNode implements INode {
         while (i) {
             child = array_a[--i];
             if (cur) {
-                Vec3.multiply(child._pos, child._lpos, cur._scale);
-                Vec3.transformQuat(child._pos, child._pos, cur._rot);
-                Vec3.add(child._pos, child._pos, cur._pos);
-                Quat.multiply(child._rot, cur._rot, child._lrot);
-                Vec3.multiply(child._scale, cur._scale, child._lscale);
+                vec3.multiply(child._pos, child._lpos, cur._scale);
+                vec3.transformQuat(child._pos, child._pos, cur._rot);
+                vec3.add(child._pos, child._pos, cur._pos);
+                quat.multiply(child._rot, cur._rot, child._lrot);
+                vec3.multiply(child._scale, cur._scale, child._lscale);
             }
             child._matDirty = true; // further deferred eval
             child._dirty = false;
@@ -389,7 +354,7 @@ export class Node extends BaseNode implements INode {
     public updateWorldTransformFull () {
         this.updateWorldTransform();
         if (!this._matDirty) { return; }
-        Mat4.fromRTS(this._mat, this._rot, this._pos, this._scale);
+        mat4.fromRTS(this._mat, this._rot, this._pos, this._scale);
         this._matDirty = false;
     }
 
@@ -417,11 +382,11 @@ export class Node extends BaseNode implements INode {
     public setPosition (val: Vec3 | number, y?: number, z?: number) {
         v3_a.set(this._lpos);
         if (y === undefined || z === undefined) {
-            Vec3.copy(this._lpos, val as Vec3);
+            vec3.copy(this._lpos, val as Vec3);
         } else if (arguments.length === 3) {
-            Vec3.set(this._lpos, val as number, y, z);
+            vec3.set(this._lpos, val as number, y, z);
         }
-        Vec3.copy(this._pos, this._lpos);
+        vec3.copy(this._pos, this._lpos);
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
@@ -436,9 +401,9 @@ export class Node extends BaseNode implements INode {
      */
     public getPosition (out?: Vec3): Vec3 {
         if (out) {
-            return Vec3.set(out, this._lpos.x, this._lpos.y, this._lpos.z);
+            return vec3.set(out, this._lpos.x, this._lpos.y, this._lpos.z);
         } else {
-            return Vec3.copy(new Vec3(), this._lpos);
+            return vec3.copy(new Vec3(), this._lpos);
         }
     }
 
@@ -473,11 +438,11 @@ export class Node extends BaseNode implements INode {
 
     public setRotation (val: Quat | number, y?: number, z?: number, w?: number) {
         if (y === undefined || z === undefined || w === undefined) {
-            Quat.copy(this._lrot, val as Quat);
+            quat.copy(this._lrot, val as Quat);
         } else if (arguments.length === 4) {
-            Quat.set(this._lrot, val as number, y, z, w);
+            quat.set(this._lrot, val as number, y, z, w);
         }
-        Quat.copy(this._rot, this._lrot);
+        quat.copy(this._rot, this._lrot);
         this._eulerDirty = true;
 
         this.invalidateChildren();
@@ -494,10 +459,10 @@ export class Node extends BaseNode implements INode {
      * @param z - 目标欧拉角的 Z 分量
      */
     public setRotationFromEuler (x: number, y: number, z: number) {
-        Vec3.set(this._euler, x, y, z);
+        vec3.set(this._euler, x, y, z);
         this._eulerDirty = false;
-        Quat.fromEuler(this._lrot, x, y, z);
-        Quat.copy(this._rot, this._lrot);
+        quat.fromEuler(this._lrot, x, y, z);
+        quat.copy(this._rot, this._lrot);
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
@@ -512,9 +477,9 @@ export class Node extends BaseNode implements INode {
      */
     public getRotation (out?: Quat): Quat {
         if (out) {
-            return Quat.set(out, this._lrot.x, this._lrot.y, this._lrot.z, this._lrot.w);
+            return quat.set(out, this._lrot.x, this._lrot.y, this._lrot.z, this._lrot.w);
         } else {
-            return Quat.copy(new Quat(), this._lrot);
+            return quat.copy(new Quat(), this._lrot);
         }
     }
 
@@ -548,11 +513,11 @@ export class Node extends BaseNode implements INode {
 
     public setScale (val: Vec3 | number, y?: number, z?: number) {
         if (y === undefined || z === undefined) {
-            Vec3.copy(this._lscale, val as Vec3);
+            vec3.copy(this._lscale, val as Vec3);
         } else if (arguments.length === 3) {
-            Vec3.set(this._lscale, val as number, y, z);
+            vec3.set(this._lscale, val as number, y, z);
         }
-        Vec3.copy(this._scale, this._lscale);
+        vec3.copy(this._scale, this._lscale);
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
@@ -567,9 +532,9 @@ export class Node extends BaseNode implements INode {
      */
     public getScale (out?: Vec3): Vec3 {
         if (out) {
-            return Vec3.set(out, this._lscale.x, this._lscale.y, this._lscale.z);
+            return vec3.set(out, this._lscale.x, this._lscale.y, this._lscale.z);
         } else {
-            return Vec3.copy(new Vec3(), this._lscale);
+            return vec3.copy(new Vec3(), this._lscale);
         }
     }
 
@@ -604,20 +569,20 @@ export class Node extends BaseNode implements INode {
 
     public setWorldPosition (val: Vec3 | number, y?: number, z?: number) {
         if (y === undefined || z === undefined) {
-            Vec3.copy(this._pos, val as Vec3);
+            vec3.copy(this._pos, val as Vec3);
         } else if (arguments.length === 3) {
-            Vec3.set(this._pos, val as number, y, z);
+            vec3.set(this._pos, val as number, y, z);
         }
         const parent = this._parent;
         const local = this._lpos;
         v3_a.set(this._lpos);
         if (parent) {
             parent.updateWorldTransform();
-            Vec3.subtract(local, this._pos, parent._pos);
-            Vec3.transformQuat(local, local, Quat.conjugate(q_a, parent._rot));
-            Vec3.divide(local, local, parent._scale);
+            vec3.subtract(local, this._pos, parent._pos);
+            vec3.transformQuat(local, local, quat.conjugate(q_a, parent._rot));
+            vec3.divide(local, local, parent._scale);
         } else {
-            Vec3.copy(local, this._pos);
+            vec3.copy(local, this._pos);
         }
 
         this.invalidateChildren();
@@ -634,9 +599,9 @@ export class Node extends BaseNode implements INode {
     public getWorldPosition (out?: Vec3): Vec3 {
         this.updateWorldTransform();
         if (out) {
-            return Vec3.copy(out, this._pos);
+            return vec3.copy(out, this._pos);
         } else {
-            return Vec3.copy(new Vec3(), this._pos);
+            return vec3.copy(new Vec3(), this._pos);
         }
     }
 
@@ -672,15 +637,15 @@ export class Node extends BaseNode implements INode {
 
     public setWorldRotation (val: Quat | number, y?: number, z?: number, w?: number) {
         if (y === undefined || z === undefined || w === undefined) {
-            Quat.copy(this._rot, val as Quat);
+            quat.copy(this._rot, val as Quat);
         } else if (arguments.length === 4) {
-            Quat.set(this._rot, val as number, y, z, w);
+            quat.set(this._rot, val as number, y, z, w);
         }
         if (this._parent) {
             this._parent.getWorldRotation(q_a);
-            Quat.multiply(this._lrot, Quat.conjugate(q_a, q_a), this._rot);
+            quat.multiply(this._lrot, quat.conjugate(q_a, q_a), this._rot);
         } else {
-            Quat.copy(this._lrot, this._rot);
+            quat.copy(this._lrot, this._rot);
         }
         this._eulerDirty = true;
 
@@ -698,12 +663,12 @@ export class Node extends BaseNode implements INode {
      * @param z - 目标欧拉角的 Z 分量
      */
     public setWorldRotationFromEuler (x: number, y: number, z: number) {
-        Quat.fromEuler(this._rot, x, y, z);
+        quat.fromEuler(this._rot, x, y, z);
         if (this._parent) {
             this._parent.getWorldRotation(q_a);
-            Quat.multiply(this._lrot, this._rot, Quat.conjugate(q_a, q_a));
+            quat.multiply(this._lrot, this._rot, quat.conjugate(q_a, q_a));
         } else {
-            Quat.copy(this._lrot, this._rot);
+            quat.copy(this._lrot, this._rot);
         }
         this._eulerDirty = true;
 
@@ -721,9 +686,9 @@ export class Node extends BaseNode implements INode {
     public getWorldRotation (out?: Quat): Quat {
         this.updateWorldTransform();
         if (out) {
-            return Quat.copy(out, this._rot);
+            return quat.copy(out, this._rot);
         } else {
-            return Quat.copy(new Quat(), this._rot);
+            return quat.copy(new Quat(), this._rot);
         }
     }
 
@@ -758,15 +723,15 @@ export class Node extends BaseNode implements INode {
 
     public setWorldScale (val: Vec3 | number, y?: number, z?: number) {
         if (y === undefined || z === undefined) {
-            Vec3.copy(this._scale, val as Vec3);
+            vec3.copy(this._scale, val as Vec3);
         } else if (arguments.length === 3) {
-            Vec3.set(this._scale, val as number, y, z);
+            vec3.set(this._scale, val as number, y, z);
         }
         if (this._parent) {
             this._parent.getWorldScale(v3_a);
-            Vec3.divide(this._lscale, this._scale, v3_a);
+            vec3.divide(this._lscale, this._scale, v3_a);
         } else {
-            Vec3.copy(this._lscale, this._scale);
+            vec3.copy(this._lscale, this._scale);
         }
 
         this.invalidateChildren();
@@ -783,9 +748,9 @@ export class Node extends BaseNode implements INode {
     public getWorldScale (out?: Vec3): Vec3 {
         this.updateWorldTransform();
         if (out) {
-            return Vec3.copy(out, this._scale);
+            return vec3.copy(out, this._scale);
         } else {
-            return Vec3.copy(new Vec3(), this._scale);
+            return vec3.copy(new Vec3(), this._scale);
         }
     }
 
@@ -807,10 +772,10 @@ export class Node extends BaseNode implements INode {
      * 获取世界变换矩阵
      * @param out 输出到此目标矩阵
      */
-    public getWorldMatrix (out?: Mat4): Mat4 {
+    public getWorldMatrix (out?: Mat4) {
         this.updateWorldTransformFull();
         if (!out) { out = new Mat4(); }
-        return Mat4.copy(out, this._mat);
+        return mat4.copy(out, this._mat);
     }
 
     /**
@@ -831,7 +796,7 @@ export class Node extends BaseNode implements INode {
     public getWorldRS (out?: Mat4): Mat4 {
         this.updateWorldTransformFull();
         if (!out) { out = new Mat4(); }
-        Mat4.copy(out, this._mat);
+        mat4.copy(out, this._mat);
         out.m12 = 0; out.m13 = 0; out.m14 = 0;
         return out;
     }
@@ -844,7 +809,7 @@ export class Node extends BaseNode implements INode {
     public getWorldRT (out?: Mat4): Mat4 {
         this.updateWorldTransform();
         if (!out) { out = new Mat4(); }
-        return Mat4.fromRT(out, this._rot, this._pos);
+        return mat4.fromRT(out, this._rot, this._pos);
     }
 
     // ===============================
@@ -895,7 +860,7 @@ export class Node extends BaseNode implements INode {
         return this._eventProcessor;
     }
 
-    public getAnchorPoint (out?: Vec2): Vec2 {
+    public getAnchorPoint (out?: Vec2) {
         if (!out) {
             out = new Vec2();
         }
@@ -907,7 +872,7 @@ export class Node extends BaseNode implements INode {
         this.uiTransfromComp!.setAnchorPoint(point, y);
     }
 
-    public getContentSize (out?: Size): Size {
+    public getContentSize (out?: Size) {
         if (!out){
             out = new Size();
         }
@@ -970,12 +935,10 @@ export class Node extends BaseNode implements INode {
     }
 
     public pauseSystemEvents (recursive: boolean) {
-        // @ts-ignore
         eventManager.pauseTarget(this, recursive);
     }
 
     public resumeSystemEvents (recursive: boolean) {
-        // @ts-ignore
         eventManager.resumeTarget(this, recursive);
     }
 

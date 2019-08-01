@@ -2,7 +2,7 @@
  * @category 3d/primitive
  */
 
-import { Vec3 } from '../../core/math';
+import { vec3 } from '../../core/vmath';
 import { IGeometry, IGeometryOptions } from './define';
 
 /**
@@ -29,8 +29,8 @@ export default function (radius = 0.5, opts: RecursivePartial<ISphereOptions> = 
   const normals: number[] = [];
   const uvs: number[] = [];
   const indices: number[] = [];
-  const minPos = new Vec3(-radius, -radius, -radius);
-  const maxPos = new Vec3(radius, radius, radius);
+  const minPos = vec3.create(-radius, -radius, -radius);
+  const maxPos = vec3.create(radius, radius, radius);
   const boundingRadius = radius;
 
   for (let lat = 0; lat <= segments; ++lat) {

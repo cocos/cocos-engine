@@ -2,7 +2,8 @@
  * @category 3d/primitive
  */
 
-import { Vec3 } from '../../core/math';
+import { Vec3 } from '../../core/value-types';
+import { vec3 } from '../../core/vmath';
 import { IGeometry, IGeometryOptions } from './define';
 
 /**
@@ -78,14 +79,14 @@ export default function box (options?: IBoxOptions): IGeometry {
     const hl = (options.length || 1) / 2;
 
     const corners = [
-        Vec3.set(c0, -hw, -hh, hl),
-        Vec3.set(c1, hw, -hh, hl),
-        Vec3.set(c2, hw, hh, hl),
-        Vec3.set(c3, -hw, hh, hl),
-        Vec3.set(c4, hw, -hh, -hl),
-        Vec3.set(c5, -hw, -hh, -hl),
-        Vec3.set(c6, -hw, hh, -hl),
-        Vec3.set(c7, hw, hh, -hl),
+        vec3.set(c0, -hw, -hh, hl),
+        vec3.set(c1, hw, -hh, hl),
+        vec3.set(c2, hw, hh, hl),
+        vec3.set(c3, -hw, hh, hl),
+        vec3.set(c4, hw, -hh, -hl),
+        vec3.set(c5, -hw, -hh, -hl),
+        vec3.set(c6, -hw, hh, -hl),
+        vec3.set(c7, hw, hh, -hl),
     ];
 
     const faceAxes = [
@@ -128,10 +129,10 @@ export default function box (options?: IBoxOptions): IGeometry {
                 u = ix / uSegments;
                 v = iy / vSegments;
 
-                Vec3.lerp(temp1, corners[faceAxe[0]], corners[faceAxe[1]], u);
-                Vec3.lerp(temp2, corners[faceAxe[0]], corners[faceAxe[2]], v);
-                Vec3.subtract(temp3, temp2, corners[faceAxe[0]]);
-                Vec3.add(r, temp1, temp3);
+                vec3.lerp(temp1, corners[faceAxe[0]], corners[faceAxe[1]], u);
+                vec3.lerp(temp2, corners[faceAxe[0]], corners[faceAxe[2]], v);
+                vec3.subtract(temp3, temp2, corners[faceAxe[0]]);
+                vec3.add(r, temp1, temp3);
 
                 positions.push(r.x, r.y, r.z);
                 normals.push(faceNormal[0], faceNormal[1], faceNormal[2]);

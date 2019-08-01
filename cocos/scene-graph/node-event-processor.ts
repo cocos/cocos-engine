@@ -27,20 +27,22 @@
  * @category scene-graph
  */
 
-import { INode } from '../core/utils/interfaces';
-import { ITargetImpl, EventTarget } from '../core/event/event-target';
-import { eventManager, EventMouse, EventTouch } from '../core/platform/event-manager';
+import { Event, EventTarget } from '../core/event';
+import { ITargetImpl } from '../core/event/event-target';
+import { eventManager } from '../core/platform/event-manager';
+import Touch from '../core/platform/event-manager/CCTouch';
 import { SystemEventType } from '../core/platform/event-manager/event-enum';
 import { EventListener } from '../core/platform/event-manager/event-listener';
-import { array } from '../core/utils/js';
-import Event from '../core/event/event';
-import Touch from '../core/platform/event-manager/CCTouch';
-import { Vec2 } from '../core/math/vec2';
+import { EventMouse, EventTouch} from '../core/platform/event-manager/index';
+import Scheduler from '../core/scheduler';
+import * as js from '../core/utils/js';
+import { Vec2 } from '../core/value-types';
+import { Node } from './node';
 
-const fastRemove = array.fastRemove;
+const fastRemove = js.array.fastRemove;
 
-let _cachedArray = new Array<INode>(16);
-let _currentHovered: INode | null = null;
+const _cachedArray = new Array<Node>(16);
+let _currentHovered: Node | null = null;
 let pos = new Vec2();
 
 const _touchEvents = [
@@ -61,20 +63,17 @@ const _mouseEvents = [
 
 // TODO: rearrange event
 function _touchStartHandler (this: EventListener, touch: Touch, event: EventTouch) {
-    const node = this.owner as INode;
-    // @ts-ignore
+    const node = this.owner as Node;
     if (!node || !node.uiTransfromComp) {
         return false;
     }
 
     touch.getUILocation(pos);
 
-    // @ts-ignore
     if (node.uiTransfromComp.isHit(pos, this)) {
         event.type = SystemEventType.TOUCH_START.toString();
         event.touch = touch;
         event.bubbles = true;
-        // @ts-ignore
         node.dispatchEvent(event);
         return true;
     }
@@ -83,7 +82,7 @@ function _touchStartHandler (this: EventListener, touch: Touch, event: EventTouc
 }
 
 function _touchMoveHandler (this: EventListener, touch: Touch, event: EventTouch) {
-    const node = this.owner as INode;
+    const node = this.owner as Node;
     if (!node || !node.uiTransfromComp) {
         return false;
     }
@@ -95,7 +94,7 @@ function _touchMoveHandler (this: EventListener, touch: Touch, event: EventTouch
 }
 
 function _touchEndHandler (this: EventListener, touch: Touch, event: EventTouch) {
-    const node = this.owner as INode;
+    const node = this.owner as Node;
     if (!node || !node.uiTransfromComp) {
         return;
     }
@@ -113,7 +112,7 @@ function _touchEndHandler (this: EventListener, touch: Touch, event: EventTouch)
 }
 
 function _touchCancelHandler (this: EventListener, touch: Touch, event: EventTouch) {
-    const node = this.owner as INode;
+    const node = this.owner as Node;
     if (!node || !node.uiTransfromComp) {
         return;
     }
@@ -125,7 +124,7 @@ function _touchCancelHandler (this: EventListener, touch: Touch, event: EventTou
 }
 
 function _mouseDownHandler (this: EventListener, event: EventMouse) {
-    const node = this.owner as INode;
+    const node = this.owner as Node;
     if (!node || !node.uiTransfromComp) {
         return;
     }
@@ -140,7 +139,7 @@ function _mouseDownHandler (this: EventListener, event: EventMouse) {
 }
 
 function _mouseMoveHandler (this: EventListener, event: EventMouse) {
-    const node = this.owner as INode;
+    const node = this.owner as Node;
     if (!node || !node.uiTransfromComp) {
         return;
     }
@@ -182,7 +181,7 @@ function _mouseMoveHandler (this: EventListener, event: EventMouse) {
 }
 
 function _mouseUpHandler (this: EventListener, event: EventMouse) {
-    const node = this.owner as INode;
+    const node = this.owner as Node;
     if (!node || !node.uiTransfromComp) {
         return;
     }
@@ -199,7 +198,7 @@ function _mouseUpHandler (this: EventListener, event: EventMouse) {
 }
 
 function _mouseWheelHandler (this: EventListener, event: EventMouse) {
-    const node = this.owner as INode;
+    const node = this.owner as Node;
     if (!node || !node.uiTransfromComp) {
         return;
     }
@@ -215,8 +214,8 @@ function _mouseWheelHandler (this: EventListener, event: EventMouse) {
     }
 }
 
-function _doDispatchEvent (owner: INode, event: Event) {
-    let target: INode;
+function _doDispatchEvent (owner: Node, event: Event) {
+    let target: Node;
     let i = 0;
     event.target = owner;
 
@@ -273,11 +272,11 @@ function _doDispatchEvent (owner: INode, event: Event) {
     _cachedArray.length = 0;
 }
 
-function _searchMaskInParent (node: INode | null) {
+function _searchMaskInParent (node: Node | null) {
     const Mask = cc.MaskComponent;
     if (Mask) {
         let index = 0;
-        for (let curr = node; curr && cc.Node.isNode(curr); curr = curr.parent, ++index) {
+        for (let curr = node; curr && Node.isNode(curr); curr = curr.parent, ++index) {
             if (curr.getComponent(Mask)) {
                 return {
                     index,
@@ -289,7 +288,7 @@ function _searchMaskInParent (node: INode | null) {
     return null;
 }
 
-function _checkListeners (node: INode, events: string[]) {
+function _checkListeners (node: Node, events: string[]) {
     if (!node._persistNode) {
         let i = 0;
         if (node.eventProcessor.bubblingTargets) {
@@ -316,7 +315,7 @@ function _checkListeners (node: INode, events: string[]) {
  * 节点事件类。
  */
 export class NodeEventProcessor {
-    public get node (): INode {
+    public get node (): Node {
         return this._node;
     }
 
@@ -342,9 +341,9 @@ export class NodeEventProcessor {
      */
     public mouseListener: EventListener | null = null;
 
-    private _node: INode;
+    private _node: Node;
 
-    constructor (node: INode) {
+    constructor (node: Node) {
         this._node = node;
     }
 
@@ -605,7 +604,7 @@ export class NodeEventProcessor {
      * @param type - 一个监听事件类型的字符串。
      * @param array - 接收目标的数组。
      */
-    public getCapturingTargets (type: string, targets: INode[]) {
+    public getCapturingTargets (type: string, targets: Node[]) {
         let parent = this._node.parent;
         while (parent) {
             if (parent.eventProcessor.capturingTargets && parent.eventProcessor.capturingTargets.hasEventListener(type)) {
@@ -624,7 +623,7 @@ export class NodeEventProcessor {
      * @param type - 一个监听事件类型的字符串。
      * @param array - 接收目标的数组。
      */
-    public getBubblingTargets (type: string, targets: INode[]) {
+    public getBubblingTargets (type: string, targets: Node[]) {
         let parent = this._node.parent;
         while (parent) {
             if (parent.eventProcessor.bubblingTargets && parent.eventProcessor.bubblingTargets.hasEventListener(type)) {
@@ -674,9 +673,8 @@ export class NodeEventProcessor {
             forDispatch = true;
         }
         if (newAdded && !this._node.activeInHierarchy) {
-            cc.director.getScheduler().schedule(() => {
+            (cc.director.getScheduler() as Scheduler).schedule(() => {
                 if (!this._node.activeInHierarchy) {
-                    // @ts-ignore;
                     eventManager.pauseTarget(this._node);
                 }
             }, this._node, 0, 0, 0, false);

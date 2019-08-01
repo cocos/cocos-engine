@@ -2,8 +2,9 @@
  * @hidden
  */
 
-import { ccclass } from '../../core/data/class-decorator';
-import { Color, toRadian } from '../../core/math';
+import { ccclass, executeInEditMode } from '../../core/data/class-decorator';
+import { color4, toRadian } from '../../core/vmath';
+import { RenderView } from '../../pipeline/render-view';
 import { Camera } from '../../renderer';
 import { CameraComponent } from './camera-component';
 
@@ -13,7 +14,6 @@ export class EditorCameraComponent extends CameraComponent {
     private _uiEditorCamera: Camera | null = null;
 
     set projection (val) {
-        // @ts-ignore
         super.projection = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.projectionType = val;
@@ -21,7 +21,6 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set fov (val) {
-        // @ts-ignore
         super.fov = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.fov = toRadian(val);
@@ -29,7 +28,6 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set orthoHeight (val) {
-        // @ts-ignore
         super.orthoHeight = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.orthoHeight = val;
@@ -37,7 +35,6 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set near (val) {
-        // @ts-ignore
         super.near = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.nearClip = val;
@@ -45,7 +42,6 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set far (val) {
-        // @ts-ignore
         super.far = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.farClip = val;
@@ -53,15 +49,14 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set color (val) {
-        // @ts-ignore
         super.color = val;
         if (this._uiEditorCamera) {
-            this._uiEditorCamera.clearColor = val;
+            this._uiEditorCamera.clearColor =
+                color4.create(val.r / 255, val.g / 255, val.b / 255, val.a / 255);
         }
     }
 
     set depth (val) {
-        // @ts-ignore
         super.depth = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.clearDepth = val;
@@ -69,7 +64,6 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set stencil (val) {
-        // @ts-ignore
         super.stencil = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.clearStencil = val;
@@ -77,7 +71,6 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set clearFlags (val) {
-        // @ts-ignore
         super.clearFlags = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.clearFlag = val;
@@ -85,7 +78,6 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set rect (val) {
-        // @ts-ignore
         super.rect = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.viewport = val;
@@ -93,7 +85,6 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set screenScale (val) {
-        // @ts-ignore
         super.screenScale = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.screenScale = val;
@@ -101,7 +92,6 @@ export class EditorCameraComponent extends CameraComponent {
     }
 
     set targetDisplay (val) {
-        // @ts-ignore
         super.targetDisplay = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.changeTargetDisplay(val);
@@ -149,11 +139,7 @@ export class EditorCameraComponent extends CameraComponent {
             this._uiEditorCamera!.fov = this._camera.fov;
             this._uiEditorCamera!.nearClip = this._camera.nearClip;
             this._uiEditorCamera!.farClip = this._camera.farClip;
-            const r = this._camera.clearColor.r / 255;
-            const g = this._camera.clearColor.g / 255;
-            const b = this._camera.clearColor.b / 255;
-            const a = this._camera.clearColor.a / 255;
-            this._uiEditorCamera!.clearColor = {r, g, b, a};
+            this._uiEditorCamera!.clearColor = this._camera.clearColor;
             this._uiEditorCamera!.clearDepth = this._camera.clearDepth;
             this._uiEditorCamera!.clearStencil = this._camera.clearStencil;
             this._uiEditorCamera!.clearFlag = this._camera.clearFlag;

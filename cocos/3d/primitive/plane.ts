@@ -2,7 +2,8 @@
  * @category 3d/primitive
  */
 
-import { Vec3 } from '../../core/math';
+import { Vec3 } from '../../core/value-types';
+import { vec3 } from '../../core/vmath';
 import { applyDefaultGeometryOptions, IGeometry, IGeometryOptions } from './define';
 
 /**
@@ -48,13 +49,13 @@ function applyDefaultPlaneOptions (options?: RecursivePartial<IPlaneOptions>): I
     return options as IPlaneOptions;
 }
 
-const temp1 = new Vec3(0, 0, 0);
-const temp2 = new Vec3(0, 0, 0);
-const temp3 = new Vec3(0, 0, 0);
-const r = new Vec3(0, 0, 0);
-const c00 = new Vec3(0, 0, 0);
-const c10 = new Vec3(0, 0, 0);
-const c01 = new Vec3(0, 0, 0);
+const temp1 = vec3.create(0, 0, 0);
+const temp2 = vec3.create(0, 0, 0);
+const temp3 = vec3.create(0, 0, 0);
+const r = vec3.create(0, 0, 0);
+const c00 = vec3.create(0, 0, 0);
+const c10 = vec3.create(0, 0, 0);
+const c01 = vec3.create(0, 0, 0);
 
 /**
  * @en
@@ -83,19 +84,19 @@ export default function (options?: IPlaneOptions): IGeometry {
     const maxPos = new Vec3(hw, 0, hl);
     const boundingRadius = Math.sqrt(width * width + length * length);
 
-    Vec3.set(c00, -hw, 0, hl);
-    Vec3.set(c10, hw, 0, hl);
-    Vec3.set(c01, -hw, 0, -hl);
+    vec3.set(c00, -hw, 0, hl);
+    vec3.set(c10, hw, 0, hl);
+    vec3.set(c01, -hw, 0, -hl);
 
     for (let y = 0; y <= vSegments; y++) {
         for (let x = 0; x <= uSegments; x++) {
             const u = x / uSegments;
             const v = y / vSegments;
 
-            Vec3.lerp(temp1, c00, c10, u);
-            Vec3.lerp(temp2, c00, c01, v);
-            Vec3.subtract(temp3, temp2, c00);
-            Vec3.add(r, temp1, temp3);
+            vec3.lerp(temp1, c00, c10, u);
+            vec3.lerp(temp2, c00, c01, v);
+            vec3.subtract(temp3, temp2, c00);
+            vec3.add(r, temp1, temp3);
 
             positions.push(r.x, r.y, r.z);
             if (normalizedOptions.includeUV) {
