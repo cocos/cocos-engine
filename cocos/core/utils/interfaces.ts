@@ -333,7 +333,7 @@ export interface IBaseNode {
      */
     removeComponent<T extends Component> (classConstructor: Constructor<T>): void;
     removeComponent (classNameOrInstance: string | Component): void;
-    removeComponent (component: any): void;
+    removeComponent (component: string | Component | any): void;
 
     _removeComponent (component: Component): void;
 

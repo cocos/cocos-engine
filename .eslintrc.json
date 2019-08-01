@@ -21,7 +21,7 @@
         }
     },
     "rules": {
-        "quotes": ["warn", "single"],
+        "quotes": "off",//["warn", "single"],
         "no-console": "warn",
         "space-before-function-paren": "warn",
         "max-len": [
@@ -63,7 +63,7 @@
         "@typescript-eslint/func-call-spacing": "warn",
         "@typescript-eslint/generic-type-naming": "off",
         "@typescript-eslint/indent": ["warn", 4],
-        "@typescript-eslint/interface-name-prefix": ["warn", "never"],
+        "@typescript-eslint/interface-name-prefix": "off",//["warn", "never"],
         "@typescript-eslint/member-delimiter-style": ["warn", {
             "multiline": {
                 "delimiter": "semi",
@@ -86,8 +86,7 @@
         "@typescript-eslint/no-floating-promises": "off",
         "@typescript-eslint/no-for-in-array": "warn",
         "@typescript-eslint/no-inferrable-types": "off",
-        "no-magic-numbers": "off",
-        "@typescript-eslint/no-magic-numbers": ["warn", {
+        "@typescript-eslint/no-magic-numbers": ["off", {
             "ignoreNumericLiteralTypes": true,
             "ignoreEnums": true
         }],
@@ -121,7 +120,7 @@
         "@typescript-eslint/triple-slash-reference": "error",
         "@typescript-eslint/type-annotation-spacing": "warn",
         "@typescript-eslint/typedef": "off",
-        "@typescript-eslint/unbound-method": "error",
+        "@typescript-eslint/unbound-method": "off",
         "@typescript-eslint/unified-signatures": "warn"
     },
     "env": {
