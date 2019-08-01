@@ -163,7 +163,7 @@ function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGLRenderingCo
         case GFXFormat.R5G6B5: return gl.RGB565;
         case GFXFormat.RGB5A1: return gl.RGB5_A1;
         case GFXFormat.RGBA4: return gl.RGBA4;
-        case GFXFormat.D16: return gl.DEPTH_COMPONENT16;
+        case GFXFormat.D16: return gl.DEPTH_COMPONENT;
         case GFXFormat.D16S8: return gl.DEPTH_STENCIL;
         case GFXFormat.D24: return gl.DEPTH_COMPONENT;
         case GFXFormat.D24S8: return gl.DEPTH_STENCIL;

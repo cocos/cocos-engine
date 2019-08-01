@@ -59,7 +59,6 @@ export class DebugCanvasComponent extends CanvasComponent {
             name: 'ui_Debug',
             node: cameraNode,
             projection: cc.CameraComponent.ProjectionType.ORTHO,
-            targetDisplay: 0,
             priority: this._priority,
             isUI: true,
             flows: ['UIFlow'],

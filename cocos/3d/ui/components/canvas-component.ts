@@ -184,7 +184,6 @@ export class CanvasComponent extends Component {
                 name: 'ui_' + this.node.name,
                 node: cameraNode,
                 projection: cc.CameraComponent.ProjectionType.ORTHO,
-                targetDisplay: 0,
                 priority: this._priority,
                 isUI: true,
                 flows: ['UIFlow'],
