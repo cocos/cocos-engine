@@ -93,7 +93,7 @@ export class SkeletalAnimationState extends AnimationState {
         const position = data.position.values;
         const rotation = data.rotation.values;
         const scale = data.scale.values;
-        // apply downstream bindpose
+        // apply downstream default pose
         getWorldTransformUntilRoot(targetNode, animNode, v3_1, qt_1, v3_2);
         for (let i = 0; i < position.length; i++) {
             const T = position[i];
@@ -105,8 +105,7 @@ export class SkeletalAnimationState extends AnimationState {
             Quat.multiply(R, R, qt_1);
             Vec3.multiply(S, S, v3_2);
         }
-        // assign to clip to sync with animation editor
-        if (CC_EDITOR) {
+        if (CC_EDITOR) { // assign back to clip to sync with animation editor
             const path = getPathFromRoot(socket.target, root);
             if (!this.clip.curveDatas[path]) { this.clip.curveDatas[path] = {}; }
             this.clip.curveDatas[path].props = data;
