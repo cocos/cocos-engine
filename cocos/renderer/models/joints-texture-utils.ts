@@ -36,7 +36,6 @@ import { GFXSampler } from '../../gfx/sampler';
 import { samplerLib } from '../core/sampler-lib';
 import { genSamplerHash } from '../core/sampler-lib';
 import { ITextureBufferHandle, TextureBufferPool } from '../core/texture-buffer-pool';
-import { GFXTextureView } from '../../gfx/texture-view';
 
 // change here and cc-skinning.inc to use other skinning algorithms
 const uploadJointData = uploadJointDataDQS;
