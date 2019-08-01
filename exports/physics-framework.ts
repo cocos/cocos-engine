@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 
 import { BoxColliderComponent } from '../cocos/3d/framework/physics/collider/box-collider-component';
 import { ColliderComponent } from '../cocos/3d/framework/physics/collider/collider-component';

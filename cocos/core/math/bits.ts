@@ -1,9 +1,9 @@
 /**
+ * 数学库
  * @category core/math
  */
 
 /**
- * @en
  * Bit twiddling hacks for JavaScript.
  *
  * Author: Mikola Lysenko

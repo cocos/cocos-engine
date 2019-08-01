@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 
 export * from './exports/base';
 export * from './exports/animation';

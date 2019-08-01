@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import '../predefine';
 import '../cocos/legacy';
 

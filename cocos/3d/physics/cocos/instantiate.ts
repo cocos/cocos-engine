@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 
 import { instantiate } from '../impl-selector';
 import { BuiltInBody } from './builtin-body';

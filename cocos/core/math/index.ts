@@ -25,7 +25,7 @@
 */
 
 /**
- * @category core/math
+ * @hidden
  */
 
 import * as bits from './bits';
