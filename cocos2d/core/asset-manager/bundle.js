@@ -137,6 +137,7 @@ Bundle.prototype = {
 
         options.loadStrategy = LoadStrategy.PRELOAD;
         options.bundle = this._config.name;
+        options.priority = -1;
         var task = new Task({input: requests, onProgress, onComplete, options});
         fetchPipeline.async(task);
         return task;
@@ -317,7 +318,8 @@ Bundle.prototype = {
             request = {'scene': sceneName};
         }
     
-        return this.load(request, null, onProgress, function (err, sceneAsset) {
+        options.priority = options.priority !== undefined ? options.priority : 1;
+        return this.load(request, options, onProgress, function (err, sceneAsset) {
             if (err) {
                 onComplete && onComplete(err);
             }

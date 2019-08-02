@@ -255,6 +255,7 @@ AssetManager.prototype = {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
     
         options.loadStrategy = LoadStrategy.PRELOAD;
+        options.priority = -1;
         var task = new Task({input: requests, onProgress, onComplete, options});
         fetchPipeline.async(task);
         return task;
