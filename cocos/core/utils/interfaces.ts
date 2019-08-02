@@ -154,7 +154,7 @@ export interface IBaseNode {
      * node.setParent(newNode);
      * ```
      */
-    setParent (value: this | null, keepWorldTransform: boolean): void;
+    setParent (value: this | null, keepWorldTransform?: boolean): void;
 
     /**
      * @en Is this node a child of the given node?
@@ -177,13 +177,13 @@ export interface IBaseNode {
      * @zh 移除节点中指定的子节点
      * @param child 孩子节点
      */
-    removeChild(child: this, cleanup?: boolean): void;
+    removeChild (child: this, cleanup?: boolean): void;
 
     /**
     * @zh 插入子节点到指定位置
     * @param siblingIndex 指定位置
     */
-    insertChild(child: this, siblingIndex: number): void;
+    insertChild (child: this, siblingIndex: number): void;
 
     /**
      * @en Returns a child from the container given its uuid.
