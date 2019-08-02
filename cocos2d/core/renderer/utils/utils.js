@@ -37,11 +37,7 @@ module.exports = {
                     return comp.font._nativeAsset;
                 }
                 else {
-                    let fontFamily = cc.loader.getRes(comp.font.nativeUrl);
-                    if (fontFamily) {
-                        return fontFamily;
-                    }
-                    console.log("Font " + comp.font.nativeUrl + " for label is not loaded!");
+                    console.error("Font " + comp.font.nativeUrl + " for label is not loaded!");
                 }
             }
     
