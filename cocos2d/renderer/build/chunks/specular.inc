@@ -21,13 +21,13 @@ void MULTIPLY_SPECULAR_TEXTRUE_COLOR (inout vec3 color, in vec2 uv) {
 
 void CALC_SPECULAR (inout vec3 specular, in vec2 uv) {
   #if USE_SPECULAR
-    specular = specularColor;
+    specular = specularColor.xyz;
     MULTIPLY_SPECULAR_TEXTRUE_COLOR(specular, uv);
   #endif
 }
 
 void CALC_SPECULAR (inout vec3 specular) {
   #if USE_SPECULAR
-    specular = specularColor;
+    specular = specularColor.xyz;
   #endif
 }
