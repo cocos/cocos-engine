@@ -1763,6 +1763,10 @@ let NodeDefines = {
             this._capturingListeners.targetOff(target);
         }
 
+        if (target && target.__eventTargets) {
+            js.array.fastRemove(target.__eventTargets, this);
+        }
+
         if (this._touchListener && !_checkListeners(this, _touchEvents)) {
             eventManager.removeListener(this._touchListener);
             this._touchListener = null;
