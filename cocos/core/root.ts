@@ -230,7 +230,9 @@ export class Root {
         this._mainWindow!.resize(width, height);
 
         for (const window of this._windows) {
-            window.resize(width, height);
+            if (!window.isOffscreen) {
+                window.resize(width, height);
+            }
         }
 
         if (this._pipeline) {
