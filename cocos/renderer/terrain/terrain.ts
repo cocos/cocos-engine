@@ -216,7 +216,7 @@ export class TerrainBlock {
                 const y = this._index[1] * TERRAIN_BLOCK_TILE_COMPLEXITY + j;
                 const position = this._terrain.getPosition(x, y);
                 const normal = this._terrain.getNormal(x, y);
-                const uv = new Vec2(i / TERRAIN_BLOCK_VERTEX_COMPLEXITY, j / TERRAIN_BLOCK_VERTEX_COMPLEXITY);
+                const uv = new Vec2(i / TERRAIN_BLOCK_TILE_COMPLEXITY, j / TERRAIN_BLOCK_TILE_COMPLEXITY);
                 vertexData[index++] = position.x;
                 vertexData[index++] = position.y;
                 vertexData[index++] = position.z;
@@ -399,6 +399,7 @@ export class TerrainBlock {
         if (this.layers[index] !== layerId) {
             this.layers[index] = layerId;
             this._renderable._invalidMaterial();
+            this._updateMaterial(false);
         }
     }
 
@@ -438,11 +439,19 @@ export class TerrainBlock {
         return { LAYERS: 0 };
     }
 
+    public _invalidMaterial () {
+        this._renderable._invalidMaterial();
+    }
+
     public _updateMaterial (init: boolean) {
         this._renderable._updateMaterial(this, init);
     }
 
     public _updateHeight () {
+        if (this._renderable._meshData == null) {
+            return ;
+        }
+
         const vertexData = new Float32Array(TERRAIN_BLOCK_VERTEX_SIZE * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY);
 
         let index = 0;
@@ -466,7 +475,7 @@ export class TerrainBlock {
             }
         }
 
-        this._renderable._meshData!.vertexBuffers[0].update(vertexData);
+        this._renderable._meshData.vertexBuffers[0].update(vertexData);
     }
 
     public _updateWeightMap () {
@@ -495,7 +504,7 @@ export class TerrainBlock {
             for (let i = 0; i < this._terrain.info.weightMapSize; ++i) {
                 const x = this._index[0] * this._terrain.info.weightMapSize + i;
                 const y = this._index[1] * this._terrain.info.weightMapSize + j;
-                const w =  this._terrain.getWeight(x, y);
+                const w = this._terrain.getWeight(x, y);
 
                 weightData[weightIndex * 4 + 0] = Math.floor(w.x * 255);
                 weightData[weightIndex * 4 + 1] = Math.floor(w.y * 255);
@@ -715,7 +724,7 @@ export class Terrain extends Component {
             const layer = this._layers[i];
             if (layer != null) {
                 if (layer.detailMap != null) {
-                    cc.loader.release(layer.detailMap);
+                    //cc.loader.release(layer.detailMap);
                 }
             }
 
@@ -867,11 +876,13 @@ export class Terrain extends Component {
         Vec3.add(m, b, c).scale(0.5);
 
         if (dx + dz <= 1.0) {
+            // d = m + (m - a);
             d.set(m);
             d.subtract(a);
             d.add(m);
         }
         else {
+            // a = m + (m - d);
             a.set(m);
             a.subtract(d);
             a.add(m);
@@ -1173,74 +1184,82 @@ export class Terrain extends Component {
         const w = Math.min(info.blockCount[0], this.info.blockCount[0]);
         const h = Math.min(info.blockCount[1], this.info.blockCount[1]);
 
+        // get weight
+        const getOldWeight = (_i: number, _j: number, _weights: Uint8Array) => {
+            const index = _j * oldWeightMapComplexityU  + _i;
+
+            const weight = new Vec4();
+            weight.x = _weights[index * 4 + 0] / 255.0;
+            weight.y = _weights[index * 4 + 1] / 255.0;
+            weight.z = _weights[index * 4 + 2] / 255.0;
+            weight.w = _weights[index * 4 + 3] / 255.0;
+
+            return weight;
+        };
+
+        // sample weight
+        const sampleOldWeight = (_x: number, _y: number, _xoff: number, _yoff: number, _weights: Uint8Array) => {
+            let ix0 = Math.floor(_x);
+            let iz0 = Math.floor(_y);
+            let ix1 = ix0 + 1;
+            let iz1 = iz0 + 1;
+            const dx = _x - ix0;
+            const dz = _y - iz0;
+
+            const a = getOldWeight(ix0 + _xoff, iz0 + _yoff, this._weights);
+            const b = getOldWeight(ix1 + _xoff, iz0 + _yoff, this._weights);
+            const c = getOldWeight(ix0 + _xoff, iz1 + _yoff, this._weights);
+            const d = getOldWeight(ix1 + _xoff, iz1 + _yoff, this._weights);
+            const m = new Vec4();
+            Vec4.add(m, b, c).scale(0.5);
+
+            if (dx + dz <= 1.0) {
+                d.set(m);
+                d.subtract(a);
+                d.add(m);
+            }
+            else {
+                a.set(m);
+                a.subtract(d);
+                a.add(m);
+            }
+
+            const n1 = new Vec4();
+            const n2 = new Vec4();
+            const n = new Vec4();
+            Vec4.lerp(n1, a, b, dx);
+            Vec4.lerp(n2, c, d, dx);
+            Vec4.lerp(n, n1, n2, dz);
+
+            return n;
+        };
+
+        // fill new weights
         for (let j = 0; j < h; ++j) {
             for (let i = 0; i < w; ++i) {
-                const xoff = i * oldWeightMapSize;
-                const yoff = j * oldWeightMapSize;
-
-                // sample weight
-                const getWeight = (_j: number, _i: number, _weights: Uint8Array) => {
-                    const index = _j * oldWeightMapComplexityU  + _i;
-
-                    const weight = new Vec4();
-                    weight.x = _weights[index * 4 + 0] / 255.0;
-                    weight.y = _weights[index * 4 + 1] / 255.0;
-                    weight.z = _weights[index * 4 + 2] / 255.0;
-                    weight.w = _weights[index * 4 + 3] / 255.0;
-
-                    return weight;
-                };
+                const uoff = i * oldWeightMapSize;
+                const voff = j * oldWeightMapSize;
 
                 for (let v = 0; v < this.info.weightMapSize; ++v) {
                     for (let u = 0; u < this.info.weightMapSize; ++u) {
-                        const fx = u / (this.info.weightMapSize - 1) * (oldWeightMapSize - 1);
-                        const fy = v / (this.info.weightMapSize - 1) * (oldWeightMapSize - 1);
-
-                        let ix0 = Math.floor(fx);
-                        let iz0 = Math.floor(fy);
-                        let ix1 = ix0 + 1;
-                        let iz1 = iz0 + 1;
-                        const dx = fx - ix0;
-                        const dz = fy - iz0;
-
-                        ix0 = clamp(ix0, 0, oldWeightMapSize - 1);
-                        iz0 = clamp(iz0, 0, oldWeightMapSize - 1);
-                        ix1 = clamp(ix1, 0, oldWeightMapSize - 1);
-                        iz1 = clamp(iz1, 0, oldWeightMapSize - 1);
-
-                        const a = getWeight(ix0 + xoff, iz0 + yoff, this._weights);
-                        const b = getWeight(ix1 + xoff, iz0 + yoff, this._weights);
-                        const c = getWeight(ix0 + xoff, iz1 + yoff, this._weights);
-                        const d = getWeight(ix1 + xoff, iz1 + yoff, this._weights);
-                        const m = new Vec4();
-                        Vec4.add(m, b, c).scale(0.5);
-
-                        if (dx + dz <= 1.0) {
-                            d.set(m);
-                            d.subtract(a);
-                            d.add(m);
+                        let w: Vec4;
+                        if (info.weightMapSize == oldWeightMapSize) {
+                            w = getOldWeight(u + uoff, v + voff, this._weights);
                         }
                         else {
-                            a.set(m);
-                            a.subtract(d);
-                            a.add(m);
+                            const x = u / (this.info.weightMapSize - 1) * (oldWeightMapSize - 1);
+                            const y = v / (this.info.weightMapSize - 1) * (oldWeightMapSize - 1);
+                            w = sampleOldWeight(x, y, uoff, voff, this._weights);
                         }
-
-                        const n1 = new Vec4();
-                        const n2 = new Vec4();
-                        const n = new Vec4();
-                        Vec4.lerp(n1, a, b, dx);
-                        Vec4.lerp(n2, c, d, dx);
-                        Vec4.lerp(n, n1, n2, dz);
 
                         const du = i * this.info.weightMapSize + u;
                         const dv = j * this.info.weightMapSize + v;
-                        const index = du * weightMapComplexityU + dv;
+                        const index = dv * weightMapComplexityU + du;
 
-                        weights[index * 4 + 0] = n.x * 255;
-                        weights[index * 4 + 1] = n.y * 255;
-                        weights[index * 4 + 2] = n.z * 255;
-                        weights[index * 4 + 3] = n.w * 255;
+                        weights[index * 4 + 0] = w.x * 255;
+                        weights[index * 4 + 1] = w.y * 255;
+                        weights[index * 4 + 2] = w.z * 255;
+                        weights[index * 4 + 3] = w.w * 255;
                     }
                 }
             }
