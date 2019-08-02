@@ -31,7 +31,7 @@ import { Component } from '../components';
 import { EventArgumentsOf, EventCallbackOf } from '../core/event/defines';
 import { Node } from '../scene-graph';
 import { AnimationBlendState, PropertyBlendState } from './animation-blend-state';
-import { AnimationClip, IPropertyCurve } from './animation-clip';
+import { AnimationClip, IRuntimeCurve } from './animation-clip';
 import { AnimCurve, CurveTarget, RatioSampler, ICurveValueProxy, CurveValueAdapter } from './animation-curve';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
@@ -60,7 +60,7 @@ export class ICurveInstance {
     private _cached?: any[];
 
     constructor (
-        runtimeCurve: IPropertyCurve,
+        runtimeCurve: IRuntimeCurve,
         target: any,
         blendTarget: PropertyBlendState | null = null) {
         this._curve = runtimeCurve.curve;

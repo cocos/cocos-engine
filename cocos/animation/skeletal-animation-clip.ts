@@ -32,7 +32,7 @@ import { SkinningModelComponent } from '../3d/framework/skinning-model-component
 import { Quat, Vec3 } from '../core/math';
 import { ccclass } from '../core/data/class-decorator';
 import { getClassName } from '../core/utils/js';
-import { AnimationClip, ICurveData, IObjectCurveData, IPropertyCurve } from './animation-clip';
+import { AnimationClip, ICurveData, IObjectCurveData, IRuntimeCurve } from './animation-clip';
 import { AnimationComponent } from './animation-component';
 import { IPropertyCurveData } from './animation-curve';
 import { INode } from '../core/utils/interfaces';
@@ -59,7 +59,7 @@ export class SkeletalAnimationClip extends AnimationClip {
     public convertedData: ICurveData = {};
     protected _converted = false;
 
-    public getPropertyCurves (root: INode): ReadonlyArray<IPropertyCurve> {
+    public getPropertyCurves (root: INode): ReadonlyArray<IRuntimeCurve> {
         this.hash; // calculate hash before conversion
         this._convertToSkeletalCurves(root);
         return super.getPropertyCurves(root);

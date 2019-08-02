@@ -43,7 +43,7 @@ export interface ICurveData {
     [path: string]: INodeCurveData;
 }
 
-export interface IPropertyCurve {
+export interface IRuntimeCurve {
     /**
      * 属性曲线。
      */
@@ -145,12 +145,13 @@ export class AnimationClip extends Asset {
 
     /**
      * 动画的曲线数据。
+     * @deprecated 请转用 `this.curves`
      */
     @property
     public curveDatas?: ICurveData = {};
 
     @property
-    private _targetCurves: ITargetCurveData[] = [];
+    private _curves: ITargetCurveData[] = [];
 
     /**
      * 动画包含的事件数据。
@@ -166,7 +167,7 @@ export class AnimationClip extends Asset {
 
     protected _ratioSamplers: RatioSampler[] = [];
 
-    protected _propertyCurves?: IPropertyCurve[];
+    protected _runtimeCurves?: IRuntimeCurve[];
 
     protected _runtimeEvents?: {
         ratios: number[];
@@ -232,6 +233,15 @@ export class AnimationClip extends Asset {
         return this._hash;
     }
 
+    get curves () {
+        return this._curves;
+    }
+
+    set curves (value) {
+        this._curves = value;
+        delete this._runtimeCurves;
+    }
+
     public onLoad () {
         this.duration = this._duration;
         this.speed = this.speed;
@@ -240,26 +250,22 @@ export class AnimationClip extends Asset {
         this._migrateCurveDatas();
     }
 
-    public getPropertyCurves (root: INode): ReadonlyArray<IPropertyCurve> {
-        if (!this._propertyCurves) {
+    public getPropertyCurves (root: INode): ReadonlyArray<IRuntimeCurve> {
+        if (!this._runtimeCurves) {
             this._createPropertyCurves();
         }
-        return this._propertyCurves!;
+        return this._runtimeCurves!;
     }
 
     /**
      * 提交曲线数据的修改。
      * 当你修改了 `this.curveDatas`、`this.keys` 或 `this.duration`时，
      * 必须调用 `this.updateCurveDatas()` 使修改生效。
+     * @deprecated
      */
     public updateCurveDatas () {
         this._migrateCurveDatas();
-        delete this._propertyCurves;
-    }
-
-    public setTargetCurves (targetCurves: ITargetCurveData[]) {
-        this._targetCurves = targetCurves;
-        delete this._propertyCurves;
+        delete this._runtimeCurves;
     }
 
     /**
@@ -298,7 +304,7 @@ export class AnimationClip extends Asset {
                 keys.map(
                     (key) => key / this._duration)));
 
-        this._propertyCurves = this._targetCurves.map((targetCurve): IPropertyCurve => {
+        this._runtimeCurves = this._curves.map((targetCurve): IRuntimeCurve => {
             return {
                 curve: new AnimCurve(targetCurve.data, this._duration),
                 modifiers: targetCurve.modifiers,
@@ -341,7 +347,7 @@ export class AnimationClip extends Asset {
     }
 
     protected _applyStepness () {
-        if (!this._propertyCurves) {
+        if (!this._runtimeCurves) {
             return;
         }
         // for (const propertyCurve of this._propertyCurves) {
@@ -360,7 +366,7 @@ export class AnimationClip extends Asset {
             if (nodeData.props) {
                 for (const nodePropertyName of Object.keys(nodeData.props)) {
                     const propertyCurveData = nodeData.props[nodePropertyName];
-                    this._targetCurves.push({
+                    this._curves.push({
                         modifiers: [ hierachyModifier, nodePropertyName ],
                         data: propertyCurveData,
                     });
@@ -373,7 +379,7 @@ export class AnimationClip extends Asset {
                     const componentData = nodeData.comps[componentName];
                     for (const componentPropertyName of Object.keys(componentData)) {
                         const propertyCurveData = componentData[componentPropertyName];
-                        this._targetCurves.push({
+                        this._curves.push({
                             modifiers: [ hierachyModifier, componentModifier, componentPropertyName ],
                             data: propertyCurveData,
                         });
