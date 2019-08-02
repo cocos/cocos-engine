@@ -1,5 +1,5 @@
-import FlexBuffer from "./webgl/flex-buffer";
-import { vfmtPosUvColor } from './webgl/vertex-format';
+import FlexBuffer from "./flex-buffer";
+import { vfmtPosUvColor } from './vertex-format';
 
 export default function RenderData () {
     this.vDatas = [];

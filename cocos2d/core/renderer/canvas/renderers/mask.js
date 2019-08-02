@@ -25,28 +25,21 @@
 
 const Mask = require('../../../components/CCMask');
 const graphicsHandler = require('./graphics');
+import Assembler from '../../assembler';
 
-let beforeHandler = {
-    updateRenderData (comp) {},
-
+export default class CanvasMaskAssembler extends Assembler {
     draw (ctx, mask) {
         ctx.save();
 
         // draw stencil
-        graphicsHandler.draw(ctx, mask._graphics);
+        mask._graphics._assembler.draw(ctx, mask._graphics);
 
         ctx.clip();
     }
-};
 
-let afterHandler = {
-    updateRenderData (comp) {},
-    draw (ctx, mask) {
+    postDraw (ctx, mask) {
         ctx.restore();
     }
-};
+}
 
-module.exports = {
-    beforeHandler,
-    afterHandler
-};
+Assembler.register(Mask, CanvasMaskAssembler);

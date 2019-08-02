@@ -22,46 +22,25 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-import IARenderData from '../renderer/render-data/ia-render-data';
-import InputAssembler from '../renderer/core/input-assembler';
 
-let TiledMapRenderDataList = cc.Class({
-    name: 'cc.TiledMapRenderDataList',
+import RenderFlow from '../render-flow';
 
-    ctor () {
-        this._dataList = [];
-        this._offset = 0;
-    },
+RenderFlow.prototype._draw = function (node, func) {
+    let batcher = RenderFlow.getBachther();
+    let ctx = batcher._device._ctx;
+    let cam = batcher._camera;
+    ctx.setTransform(cam.a, cam.b, cam.c, cam.d, cam.tx, cam.ty);
+    ctx.scale(1, -1);
 
-    _pushRenderData () {
-        let renderData = new IARenderData();
-        renderData.ia = new InputAssembler();
-        renderData.nodesRenderList = [];
-        this._dataList.push(renderData);
-    },
+    let comp = node._renderComponent;
+    comp._assembler[func](ctx, comp);
+    this._next._func(node);
+}
 
-    popRenderData (buffer) {
-        if (this._offset >= this._dataList.length) {
-            this._pushRenderData();
-        }
-        let renderData = this._dataList[this._offset];
-        renderData.nodesRenderList.length = 0;
-        let ia = renderData.ia;
-        ia._vertexBuffer = buffer._vb;
-        ia._indexBuffer = buffer._ib;
-        ia._start = buffer.indiceOffset;
-        ia._count = 0;
-        this._offset++;
-        return renderData;
-    },
+RenderFlow.prototype._render = function (node) {
+    this._draw(node, 'draw');
+}
 
-    pushNodesList (renderData, nodesList) {
-        renderData.nodesRenderList.push(nodesList);
-    },
-
-    reset () {
-        this._offset = 0;
-    }
-});
-
-cc.TiledMapRenderDataList = module.exports = TiledMapRenderDataList;
+RenderFlow.prototype._postRender = function (node) {
+    this._draw(node, 'postDraw');
+}

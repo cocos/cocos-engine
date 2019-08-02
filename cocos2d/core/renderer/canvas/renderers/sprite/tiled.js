@@ -23,20 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Assembler from '../../../assembler';
+
 const utils = require('../utils');
 
-let renderer = {
-    createData (sprite) {
-        let renderData = sprite.requestRenderData();
-        return renderData;
-    },
-    
-    updateRenderData (sprite) {
-        if (!sprite._material) {
-            sprite._activateMaterial();
-        }
-    },
-
+export default class CanvasTiledSprite extends Assembler {
     draw (ctx, sprite) {
         let node = sprite.node;
         // Transform
@@ -74,5 +65,3 @@ let renderer = {
         return 1;
     }
 }
-
-module.exports = renderer

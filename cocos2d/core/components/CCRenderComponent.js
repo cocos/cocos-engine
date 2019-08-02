@@ -23,9 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import gfx from '../../renderer/gfx';
-import RenderData from '../../renderer/render-data/render-data';
-import RenderHandle from '../renderer/render-data';
 import Assembler from '../renderer/assembler';
 
 const Component = require('./CCComponent');
@@ -75,11 +72,8 @@ let RenderComponent = cc.Class({
     },
     
     ctor () {
-        this._renderData = null;
-        this.__allocedDatas = [];
         this._vertsDirty = true;
         this._material = null;
-        
         this._assembler = null;
     },
 
@@ -116,12 +110,7 @@ let RenderComponent = cc.Class({
     },
 
     onDestroy () {
-        for (let i = 0, l = this.__allocedDatas.length; i < l; i++) {
-            RenderData.free(this.__allocedDatas[i]);
-        }
-        this.__allocedDatas.length = 0;
         this._materials.length = 0;
-        this._renderData = null;
 
         if (CC_JSB && CC_NATIVERENDERER) {
             this._assembler && this._assembler.destroy && this._assembler.destroy();
@@ -168,20 +157,6 @@ let RenderComponent = cc.Class({
 
     disableRender () {
         this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA);
-    },
-
-    requestRenderData () {
-        let data = RenderData.alloc();
-        this.__allocedDatas.push(data);
-        return data;
-    },
-
-    destroyRenderData (data) {
-        let index = this.__allocedDatas.indexOf(data);
-        if (index !== -1) {
-            this.__allocedDatas.splice(index, 1);
-            RenderData.free(data);
-        }
     },
 
     /**

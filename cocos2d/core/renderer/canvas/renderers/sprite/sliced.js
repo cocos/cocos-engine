@@ -23,22 +23,21 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Assembler from '../../../assembler';
+import RenderData from '../render-data';
+import CanvasSimpleSprite from './simple';
+
 const utils = require('../utils');
-const simple = require('./simple');
 
-let renderer = {
-    createData (sprite) {
-        let renderData = sprite.requestRenderData();
-        // 4 rows & cols
-        renderData.dataLength = 4;
-        return renderData;
-    },
+export default class CanvasSlicedSprite extends CanvasSimpleSprite {
+    init () {
+        this._renderData = new RenderData();
+        this._renderData.dataLength = 4;
+    }
 
-    updateRenderData: simple.updateRenderData,
-    
     updateUVs (sprite) {
         let frame = sprite.spriteFrame;
-        let renderData = sprite._renderData;
+        let renderData = this._renderData;
         let rect = frame._rect;
     
         // caculate texture coordinate
@@ -71,10 +70,10 @@ let renderer = {
             verts[1].v = topHeight + centerHeight + rect.y;
             verts[0].v = rect.y + rect.height;
         }
-    },
+    }
     
     updateVerts (sprite) {
-        let renderData = sprite._renderData,
+        let renderData = this._renderData,
             verts = renderData.vertices,
             node = sprite.node,
             width = node.width, height = node.height,
@@ -100,8 +99,8 @@ let renderer = {
             verts[0].x = -appy;
             verts[1].y = rightWidth * xScale - appx;
             verts[1].x = bottomHeight * yScale - appy;
-            verts[2].y = data[1].y + sizableWidth;
-            verts[2].x = data[1].x + sizableHeight;
+            verts[2].y = verts[1].y + sizableWidth;
+            verts[2].x = verts[1].x + sizableHeight;
             verts[3].y = width - appx;
             verts[3].x = height - appy;
         } else {
@@ -109,14 +108,14 @@ let renderer = {
             verts[0].y = -appy;
             verts[1].x = leftWidth * xScale - appx;
             verts[1].y = bottomHeight * yScale - appy;
-            verts[2].x = data[1].x + sizableWidth;
-            verts[2].y = data[1].y + sizableHeight;
+            verts[2].x = verts[1].x + sizableWidth;
+            verts[2].y = verts[1].y + sizableHeight;
             verts[3].x = width - appx;
             verts[3].y = height - appy;
         }
             
-        renderData.vertDirty = false;
-    },
+        sprite._vertsDirty = false;
+    }
 
     draw (ctx, comp) {
         let node = comp.node;
@@ -137,7 +136,7 @@ let renderer = {
         utils.context.setGlobalAlpha(ctx, node.opacity / 255);
 
         let tex = frame._texture,
-            verts = comp._renderData.vertices;
+            verts = this._renderData.vertices;
 
         let image = utils.getColorizedImage(tex, node._color);
 
@@ -173,6 +172,4 @@ let renderer = {
         }
         return drawCall;
     }
-};
-
-module.exports = renderer;
+}
