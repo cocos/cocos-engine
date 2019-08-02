@@ -34,7 +34,7 @@ import { error } from '../core/platform/CCDebug';
 import IDGenerator from '../core/utils/id-generator';
 import { GFXDevice } from '../gfx/device';
 import { GFXTextureView } from '../gfx/texture-view';
-import { SamplerInfoIndex } from '../renderer/core/sampler-lib';
+import { SamplerInfoIndex, genSamplerHash } from '../renderer/core/sampler-lib';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 
@@ -152,6 +152,8 @@ export class TextureBase extends Asset {
             this._wrapR = wrapR;
             this._samplerInfo[SamplerInfoIndex.addressW] = wrapR;
         }
+
+        this._samplerHash = genSamplerHash(this._samplerInfo);
     }
 
     /**
@@ -164,6 +166,7 @@ export class TextureBase extends Asset {
         this._samplerInfo[SamplerInfoIndex.minFilter] = minFilter;
         this._magFilter = magFilter;
         this._samplerInfo[SamplerInfoIndex.magFilter] = magFilter;
+        this._samplerHash = genSamplerHash(this._samplerInfo);
     }
 
     /**
@@ -174,6 +177,7 @@ export class TextureBase extends Asset {
         this._mipFilter = mipFilter;
         this._samplerInfo[SamplerInfoIndex.mipFilter] = mipFilter;
         this._samplerInfo[SamplerInfoIndex.maxLOD] = mipFilter === Filter.NONE ? 0 : 1000; // WebGL2 on some platform need this
+        this._samplerHash = genSamplerHash(this._samplerInfo);
     }
 
     /**
@@ -199,6 +203,7 @@ export class TextureBase extends Asset {
     public setAnisotropy (anisotropy: number) {
         this._anisotropy = anisotropy;
         this._samplerInfo[SamplerInfoIndex.maxAnisotropy] = anisotropy;
+        this._samplerHash = genSamplerHash(this._samplerInfo);
     }
 
     /**
