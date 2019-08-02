@@ -35,6 +35,7 @@ import { INode } from '../core/utils/interfaces';
 import { Vec3, Quat } from '../core/math';
 import { getWorldTransformUntilRoot } from './transform-utils';
 import { AnimationClip } from './animation-clip';
+import { SkeletalAnimationClip } from '../../exports/animation';
 
 @ccclass('cc.SkeletalAnimationComponent.Socket')
 export class Socket {
@@ -51,6 +52,17 @@ export class Socket {
 const v3_1 = new Vec3();
 const v3_2 = new Vec3();
 const qt_1 = new Quat();
+
+function collectRecursively (node: INode, prefix = '', out: string[] = []) {
+    for (let i = 0; i < node.children.length; i++) {
+        const child = node.children[i];
+        if (!child) { continue; }
+        const path = prefix ? `${prefix}/${child.name}` : child.name;
+        out.push(path);
+        collectRecursively(child, path, out);
+    }
+    return out;
+}
 
 /**
  * 骨骼动画组件，额外提供骨骼挂点功能
@@ -80,11 +92,17 @@ export class SkeletalAnimationComponent extends AnimationComponent {
         this.sockets = this._sockets;
     }
 
-    public querySockets (parent = this.node, prefix = '', out: string[] = []) {
-        for (const child of parent.children) {
-            const path = prefix ? `${prefix}/${child.name}` : child.name;
-            if (prefix) { out.push(path); }
-            this.querySockets(child, path, out);
+    public querySockets () {
+        let out: string[] = [];
+        if (!this._defaultClip) { return out; }
+        const animPaths = Object.keys((this._defaultClip as SkeletalAnimationClip).convertedData).sort().reduce((acc, cur) =>
+            cur.startsWith(acc[acc.length - 1]) ? acc : (acc.push(cur), acc), [] as string[]);
+        for (let i = 0; i < animPaths.length; i++) {
+            const path = animPaths[i];
+            const node = this.node.getChildByPath(path);
+            if (!node) { continue; }
+            out.push(path);
+            collectRecursively(node, path, out);
         }
         return out;
     }
