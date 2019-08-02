@@ -5,23 +5,24 @@
 import { ccclass } from '../core/data/class-decorator';
 import { errorID } from '../core/platform/CCDebug';
 import { MutableForwardIterator, remove } from '../core/utils/array';
-import { Node } from '../scene-graph';
+import { Node } from '../core/scene-graph';
 import { AnimationBlendState } from './animation-blend-state';
 import { AnimationState } from './animation-state';
 import { CrossFade } from './cross-fade';
+import Director from '../core/director';
+import { Scheduler } from '../core/scheduler';
+import System from '../core/components/system';
+
+const director = Director.instance;
 
 @ccclass
-export class AnimationManager {
+export class AnimationManager extends System {
     private _anims = new MutableForwardIterator<AnimationState>([]);
     private _delayEvents: Array<{target: Node; func: string; args: any[]; }> = [];
     private _blendState: AnimationBlendState = new AnimationBlendState();
     private _crossFades: CrossFade[] = [];
 
-    constructor () {
-        if (cc.director._scheduler) {
-            cc.director._scheduler.enableForTarget(this);
-        }
-    }
+    public static ID = 'animation';
 
     public get blendState () {
         return this._blendState;
@@ -88,5 +89,10 @@ export class AnimationManager {
         });
     }
 }
+
+director.on(Director.EVENT_INIT, function () {
+    let animationManager = new AnimationManager();
+    director.registerSystem(AnimationManager.ID, animationManager, Scheduler.PRIORITY_SYSTEM);
+});
 
 cc.AnimationManager = AnimationManager;

@@ -5,7 +5,7 @@
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { errorID } from '../core/platform/CCDebug';
 import { Vec2 } from '../core/math';
-import { AnimCurve, computeRatioByType, CurveType, CurveValue } from './animation-curve';
+import { AnimCurve, computeRatioByType, CurveValue, EasingMethod } from './animation-curve';
 import { bezier } from './bezier';
 
 // tslint:disable:no-shadowed-variable
@@ -247,6 +247,7 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
         };
     };
 
+    // @ts-ignore
     const values = data.values = data.values.map((value) => {
         if (Array.isArray(value)) {
             value = value.length === 2 ? cc.v2(value[0], value[1]) : cc.v3(value[0], value[1], value[2]);
@@ -280,13 +281,16 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
     }
 
     const types = data.types;
+    // @ts-ignore
     const ratios = (data.ratioSampler ? data.ratioSampler.ratios : []);
 
+    // @ts-ignore
     const newValues: CurveValue[] = data.values = [];
-    const newTypes: CurveType[] = data.types = [];
+    const newTypes: any[] = data.types = [];
+    // @ts-ignore
     const newRatios: number[] = data.ratios = [];
 
-    function addNewDatas (value: CurveValue, type: CurveType, ratio: number) {
+    function addNewDatas (value: CurveValue, type: any, ratio: number) {
         newValues.push(value);
         newTypes.push(type);
         newRatios.push(ratio);
@@ -296,7 +300,7 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
     let startRatioOffset = 0;
 
     const EPSILON = 1e-6;
-    let newType: CurveType = AnimCurve.Linear;
+    let newType: any = AnimCurve.Linear;
 
     // do not need to compute last path
     for (let i = 0, l = motionPaths.length; i < l - 1; i++) {
@@ -309,7 +313,7 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
         const value = values[i];
         const nextValue = values[i + 1];
 
-        const type = types[i];
+        const type = types && types[i];
 
         const results: Vec2[] = [];
         let progress = startRatioOffset / betweenRatio;
@@ -337,7 +341,7 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
             while (1 - progress > EPSILON) {
                 finalProgress = progress;
 
-                finalProgress = computeRatioByType(finalProgress, type);
+                finalProgress = computeRatioByType(finalProgress, type as EasingMethod);
 
                 let pos = new Vec2();
 
@@ -378,7 +382,7 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
             while (1 - progress > EPSILON) {
                 finalProgress = progress;
 
-                finalProgress = computeRatioByType(finalProgress, type);
+                finalProgress = computeRatioByType(finalProgress, type as EasingMethod);
 
                 results.push(value.lerp(nextValue, finalProgress));
 

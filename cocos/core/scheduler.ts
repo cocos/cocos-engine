@@ -29,10 +29,16 @@
 
 import IdGenerator from './utils/id-generator';
 import {createMap} from './utils/js';
+import System from './components/system';
 
 const MAX_POOL_SIZE = 20;
 
 const idGenerator = new IdGenerator('Scheduler');
+
+export interface ISchedulable {
+    id?:string;
+    uuid?:string;
+}
 
 // data structures
 /**
@@ -46,7 +52,7 @@ const idGenerator = new IdGenerator('Scheduler');
  */
 class ListEntry {
 
-    public static get = (target: any, priority: Number, paused: Boolean, markedForDeletion: Boolean) => {
+    public static get = (target: ISchedulable, priority: Number, paused: Boolean, markedForDeletion: Boolean) => {
         let result = ListEntry._listEntries.pop();
         if (result) {
             result.target = target;
@@ -69,12 +75,12 @@ class ListEntry {
 
     private static _listEntries: any = [];
 
-    public target: any;
+    public target: ISchedulable;
     public priority: Number;
     public paused: Boolean;
     public markedForDeletion: Boolean;
 
-    constructor (target: any, priority: Number, paused: Boolean, markedForDeletion: Boolean) {
+    constructor (target: ISchedulable, priority: Number, paused: Boolean, markedForDeletion: Boolean) {
         this.target = target;
         this.priority = priority;
         this.paused = paused;
@@ -93,7 +99,7 @@ class ListEntry {
  */
 class HashUpdateEntry {
 
-    public static get = (list: any, entry: ListEntry, target: Object, callback: any) => {
+    public static get = (list: any, entry: ListEntry, target: ISchedulable, callback: any) => {
         let result = HashUpdateEntry._hashUpdateEntries.pop();
         if (result) {
             result.list = list;
@@ -118,10 +124,10 @@ class HashUpdateEntry {
 
     public list: any;
     public entry: ListEntry;
-    public target: Object;
+    public target: ISchedulable;
     public callback: any;
 
-    constructor (list: any, entry: ListEntry, target: Object, callback: any) {
+    constructor (list: any, entry: ListEntry, target: ISchedulable, callback: any) {
         this.list = list;
         this.entry = entry;
         this.target = target;
@@ -142,7 +148,7 @@ class HashUpdateEntry {
  */
 class HashTimerEntry {
 
-    public static get = (timers: any, target: Object, timerIndex: Number, currentTimer: any, currentTimerSalvaged: any, paused: any) => {
+    public static get = (timers: any, target: ISchedulable, timerIndex: Number, currentTimer: any, currentTimerSalvaged: any, paused: any) => {
         let result = HashTimerEntry._hashTimerEntries.pop();
         if (result) {
             result.timers = timers;
@@ -168,13 +174,13 @@ class HashTimerEntry {
     private static _hashTimerEntries: any = [];
 
     public timers: any;
-    public target: Object;
+    public target: ISchedulable;
     public timerIndex: Number;
     public currentTimer: any;
     public currentTimerSalvaged: any;
     public paused: any;
 
-    constructor (timers: any, target: Object, timerIndex: Number, currentTimer: any, currentTimerSalvaged: any, paused: any){
+    constructor (timers: any, target: ISchedulable, timerIndex: Number, currentTimer: any, currentTimerSalvaged: any, paused: any){
         this.timers = timers;
         this.target = target;
         this.timerIndex = timerIndex;
@@ -209,7 +215,7 @@ class CallbackTimer {
     private _repeat: number;
     private _delay: number;
     private  _interval: number;
-    private _target: any;
+    private _target: ISchedulable | null;
     private _callback: any;
 
     constructor () {
@@ -227,7 +233,7 @@ class CallbackTimer {
         this._callback = null;
     }
 
-    public initWithCallback (scheduler: any, callback: any, target: any, seconds: number, repeat: number, delay: number) {
+    public initWithCallback (scheduler: any, callback: any, target: ISchedulable, seconds: number, repeat: number, delay: number) {
         this._lock = false;
         this._scheduler = scheduler;
         this._target = target;
@@ -333,7 +339,7 @@ class CallbackTimer {
  *
  * @class Scheduler
  */
-class Scheduler {
+export class Scheduler extends System {
     /**
      * @en Priority level reserved for system services.
      * @zh 系统服务的优先级。
@@ -348,6 +354,8 @@ class Scheduler {
      */
     public static PRIORITY_NON_SYSTEM: number = Scheduler.PRIORITY_SYSTEM + 1;
 
+    public static ID = 'scheduler';
+
     private _timeScale: number;
     private _updatesNegList: any[];
     private _updates0List: any[];
@@ -359,7 +367,34 @@ class Scheduler {
     private _updateHashLocked: boolean;
     private _arrayForTimers;
 
+    /**
+     * @en This method should be called for any target which needs to schedule tasks, and this method should be called before any scheduler API usage.<bg>
+     * This method will add a `id` property if it doesn't exist.
+     * @zh 任何需要用 Scheduler 管理任务的对象主体都应该调用这个方法，并且应该在调用任何 Scheduler API 之前调用这个方法。<bg>
+     * 这个方法会给对象添加一个 `id` 属性，如果这个属性不存在的话。
+     * @param {Object} target
+     */
+    public static enableForTarget (target: ISchedulable) {
+        let found = false;
+        if (target.uuid) {
+            found = true;
+        }
+        else if (target.id) {
+            found = true;
+        }
+        if (!found) {
+            // @ts-ignore
+            if (target.__instanceId) {
+                cc.warnID(1513);
+            }
+            else {
+                target.id = idGenerator.getNewId();
+            }
+        }
+    }
+
     constructor () {
+        super();
         this._timeScale = 1.0;
         this._updatesNegList = [];  // list of priority < 0
         this._updates0List = [];    // list of priority == 0
@@ -375,23 +410,6 @@ class Scheduler {
     }
 
     // -----------------------public method-------------------------
-    /**
-     * @en This method should be called for any target which needs to schedule tasks, and this method should be called before any scheduler API usage.<bg>
-     * This method will add a `_id` property if it doesn't exist.
-     * @zh 任何需要用 Scheduler 管理任务的对象主体都应该调用这个方法，并且应该在调用任何 Scheduler API 之前调用这个方法。<bg>
-     * 这个方法会给对象添加一个 `_id` 属性，如果这个属性不存在的话。
-     * @param {Object} target
-     */
-    public enableForTarget (target) {
-        if (!target._id) {
-            if (target.__instanceId) {
-                cc.warnID(1513);
-            }
-            else {
-                target._id = idGenerator.getNewId();
-            }
-        }
-    }
 
     /**
      * @en
@@ -547,10 +565,11 @@ class Scheduler {
      * @param {Number} [delay=0]
      * @param {Boolean} [paused=fasle]
      */
-    public schedule (callback: Function, target: any, interval: number, repeat: number, delay: number, paused?: boolean) {
+    public schedule (callback: Function, target: ISchedulable, interval: number, repeat: number, delay: number, paused?: boolean) {
         'use strict';
         if (typeof callback !== 'function') {
             const tmp = callback;
+            // @ts-ignore
             callback = target;
             target = tmp;
         }
@@ -564,15 +583,10 @@ class Scheduler {
 
         cc.assertID(target, 1502);
 
-        let targetId = target._id;
+        let targetId = target.uuid || target.id;
         if (!targetId) {
-            if (target.__instanceId) {
-                cc.warnID(1513);
-                targetId = target._id = target.__instanceId;
-            }
-            else {
-                cc.errorID(1510);
-            }
+            cc.errorID(1510);
+            return;
         }
         let element = this._hashForTimers[targetId];
         if (!element) {
@@ -621,16 +635,11 @@ class Scheduler {
      * @param {Number} priority
      * @param {Boolean} paused
      */
-    public scheduleUpdate (target: any, priority: Number, paused: Boolean) {
-        let targetId = target._id;
+    public scheduleUpdate (target: ISchedulable, priority: Number, paused: Boolean) {
+        let targetId = target.uuid || target.id;
         if (!targetId) {
-            if (target.__instanceId) {
-                cc.warnID(1513);
-                targetId = target._id = target.__instanceId;
-            }
-            else {
-                cc.errorID(1510);
-            }
+            cc.errorID(1510);
+            return;
         }
         const hashElement = this._hashForUpdates[targetId];
         if (hashElement && hashElement.entry){
@@ -680,22 +689,17 @@ class Scheduler {
      * @param {Function} callback The callback to be unscheduled
      * @param {Object} target The target bound to the callback.
      */
-    public unschedule (callback, target) {
+    public unschedule (callback, target:ISchedulable) {
         // callback, target
 
         // explicity handle nil arguments when removing an object
         if (!target || !callback) {
             return;
         }
-        let targetId = target._id;
+        let targetId = target.uuid || target.id;
         if (!targetId) {
-            if (target.__instanceId) {
-                cc.warnID(1513);
-                targetId = target._id = target.__instanceId;
-            }
-            else {
-                cc.errorID(1510);
-            }
+            cc.errorID(1510);
+            return;
         }
 
         const self = this;
@@ -733,19 +737,14 @@ class Scheduler {
      * @zh 取消指定对象的 update 定时器。
      * @param {Object} target The target to be unscheduled.
      */
-    public unscheduleUpdate (target) {
+    public unscheduleUpdate (target:ISchedulable) {
         if (!target) {
             return;
         }
-        let targetId = target._id;
+        let targetId = target.uuid || target.id;
         if (!targetId) {
-            if (target.__instanceId) {
-                cc.warnID(1513);
-                targetId = target._id = target.__instanceId;
-            }
-            else {
-                cc.errorID(1510);
-            }
+            cc.errorID(1510);
+            return;
         }
 
         const element = this._hashForUpdates[targetId];
@@ -770,15 +769,10 @@ class Scheduler {
         if (!target){
             return;
         }
-        let targetId = target._id;
+        let targetId = target.uuid || target.id;
         if (!targetId) {
-            if (target.__instanceId) {
-                cc.warnID(1513);
-                targetId = target._id = target.__instanceId;
-            }
-            else {
-                cc.errorID(1510);
-            }
+            cc.errorID(1510);
+            return;
         }
 
         // Custom Selectors
@@ -885,20 +879,15 @@ class Scheduler {
      * @param {Object} target The target of the callback.
      * @return {Boolean} True if the specified callback is invoked, false if not.
      */
-    public isScheduled (callback, target){
+    public isScheduled (callback, target:ISchedulable){
         // key, target
         // selector, target
         cc.assertID(callback, 1508);
         cc.assertID(target, 1509);
-        let targetId = target._id;
+        let targetId = target.uuid || target.id;
         if (!targetId) {
-            if (target.__instanceId) {
-                cc.warnID(1513);
-                targetId = target._id = target.__instanceId;
-            }
-            else {
-                cc.errorID(1510);
-            }
+            cc.errorID(1510);
+            return;
         }
 
         const element = this._hashForTimers[targetId];
@@ -1027,17 +1016,12 @@ class Scheduler {
      * 如果指定的对象没有定时器，什么也不会发生。
      * @param {Object} target
      */
-    public pauseTarget (target) {
+    public pauseTarget (target:ISchedulable) {
         cc.assertID(target, 1503);
-        let targetId = target._id;
+        let targetId = target.uuid || target.id;
         if (!targetId) {
-            if (target.__instanceId) {
-                cc.warnID(1513);
-                targetId = target._id = target.__instanceId;
-            }
-            else {
-                cc.errorID(1510);
-            }
+            cc.errorID(1510);
+            return;
         }
 
         // customer selectors
@@ -1065,17 +1049,12 @@ class Scheduler {
      * 如果指定的对象没有定时器，什么也不会发生。
      * @param {Object} target
      */
-    public resumeTarget (target) {
+    public resumeTarget (target:ISchedulable) {
         cc.assertID(target, 1504);
-        let targetId = target._id;
+        let targetId = target.uuid || target.id;
         if (!targetId) {
-            if (target.__instanceId) {
-                cc.warnID(1513);
-                targetId = target._id = target.__instanceId;
-            }
-            else {
-                cc.errorID(1510);
-            }
+            cc.errorID(1510);
+            return;
         }
 
         // custom selectors
@@ -1098,17 +1077,12 @@ class Scheduler {
      * @param {Object} target
      * @return {Boolean}
      */
-    public isTargetPaused (target) {
+    public isTargetPaused (target:ISchedulable) {
         cc.assertID(target, 1505);
-        let targetId = target._id;
+        let targetId = target.uuid || target.id;
         if (!targetId) {
-            if (target.__instanceId) {
-                cc.warnID(1513);
-                targetId = target._id = target.__instanceId;
-            }
-            else {
-                cc.errorID(1510);
-            }
+            cc.errorID(1510);
+            return;
         }
 
         // Custom selectors
@@ -1125,7 +1099,8 @@ class Scheduler {
 
     // -----------------------private method----------------------
     private _removeHashElement (element) {
-        delete this._hashForTimers[element.target._id];
+        let targetId = element.target.uuid || element.target.id;
+        delete this._hashForTimers[targetId];
         const arr = this._arrayForTimers;
         for (let i = 0, l = arr.length; i < l; i++) {
             if (arr[i] === element) {
@@ -1137,7 +1112,7 @@ class Scheduler {
     }
 
     private _removeUpdateFromHash (entry) {
-        const targetId = entry.target._id;
+        const targetId = entry.target.uuid || entry.target.id;
         const self = this;
         const element = self._hashForUpdates[targetId];
         if (element) {
@@ -1174,4 +1149,3 @@ class Scheduler {
 }
 
 cc.Scheduler = Scheduler;
-export default Scheduler;

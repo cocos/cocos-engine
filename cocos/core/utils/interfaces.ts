@@ -25,11 +25,11 @@
 
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { Mat4, Quat, Size, Vec2, Vec3 } from '../math';
-import { Scene } from '../../scene-graph/scene';
-import { NodeEventProcessor } from '../../scene-graph/node-event-processor';
-import { Component } from '../../components/component';
+import { Scene } from '../scene-graph/scene';
+import { NodeEventProcessor } from '../scene-graph/node-event-processor';
+import { Component } from '../components/component';
 import { Event } from '../event';
-import { TransformDirtyBit, NodeSpace } from '../../scene-graph/node-enum';
+import { TransformDirtyBit, NodeSpace } from '../scene-graph/node-enum';
 
 export interface IBaseNode {
 

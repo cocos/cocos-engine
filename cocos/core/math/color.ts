@@ -31,7 +31,8 @@
 import CCClass from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { IColorLike } from './type-define';
-import { EPSILON } from './utils';
+import { EPSILON, clamp } from './utils';
+import { ValueType } from '../value-types/value-type';
 
 const toFloat = 1 / 255;
 
@@ -180,7 +181,7 @@ export class Color extends ValueType {
      * @param ofs 数组起始偏移量
      */
     public static array <Out extends IColorLike> (out: IWritableArrayLike<number>, a: Out, ofs = 0) {
-        const scale = (a instanceof cc.Color || a.a > 1) ? 1 / 255 : 1;
+        const scale = (a instanceof Color || a.a > 1) ? 1 / 255 : 1;
         out[ofs + 0] = a.r * scale;
         out[ofs + 1] = a.g * scale;
         out[ofs + 2] = a.b * scale;
@@ -221,7 +222,7 @@ export class Color extends ValueType {
     }
 
     set r (red) {
-        red = ~~cc.math.clamp(red, 0, 255);
+        red = ~~clamp(red, 0, 255);
         this._val = ((this._val & 0xffffff00) | red) >>> 0;
     }
 
@@ -233,7 +234,7 @@ export class Color extends ValueType {
     }
 
     set g (green) {
-        green = ~~cc.math.clamp(green, 0, 255);
+        green = ~~clamp(green, 0, 255);
         this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
     }
 
@@ -245,7 +246,7 @@ export class Color extends ValueType {
     }
 
     set b (blue) {
-        blue = ~~cc.math.clamp(blue, 0, 255);
+        blue = ~~clamp(blue, 0, 255);
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
     }
 
@@ -257,7 +258,7 @@ export class Color extends ValueType {
     }
 
     set a (alpha) {
-        alpha = ~~cc.math.clamp(alpha, 0, 255);
+        alpha = ~~clamp(alpha, 0, 255);
         this._val = ((this._val & 0x00ffffff) | ((alpha << 24) >>> 0)) >>> 0;
     }
 

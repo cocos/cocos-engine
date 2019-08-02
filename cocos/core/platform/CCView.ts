@@ -125,7 +125,7 @@ let _scissorRect: Rect | null = null;
  *
  * @class View
  */
-class View extends EventTarget {
+export class View extends EventTarget {
 
     private _frameSize: Size;
     private _designResolutionSize: Size;
@@ -151,6 +151,8 @@ class View extends EventTarget {
     private _rpNoBorder: ResolutionPolicy;
     private _rpFixedHeight: ResolutionPolicy;
     private _rpFixedWidth: ResolutionPolicy;
+
+    public static instance: View;
 
     constructor () {
         super();
@@ -1611,7 +1613,7 @@ cc.ResolutionPolicy = ResolutionPolicy;
  * @static
  * @type {View}
  */
-const view = cc.view = new View();
+export const view = View.instance = cc.view = new View();
 
 /**
  * @en cc.winSize is the alias object for the size of the current game window.
@@ -1620,5 +1622,3 @@ const view = cc.view = new View();
  * @type Size
  */
 cc.winSize = cc.v2();
-
-export default view;

@@ -288,7 +288,7 @@ Argument target must be non-nullptr
 
 ### 1510
 
-cc.Scheduler: Illegal target which doesn't have uuid or instanceId.
+cc.Scheduler: Illegal target which doesn't have id, you should do Scheduler.enableForTarget(target) before all scheduler API usage on target
 
 ### 1511
 
@@ -300,7 +300,7 @@ cc.Scheduler: updateFunc parameter is deprecated in scheduleUpdate function, and
 
 ### 1513
 
-cc.Scheduler: scheduler stopped using `__instanceId` as id since v2.0, you should do scheduler.enableForTarget(target) before all scheduler API usage on target
+cc.Scheduler: scheduler stopped using `__instanceId` as id since v2.0, you should do Scheduler.enableForTarget(target) before all scheduler API usage on target
 
 ### 1600
 
