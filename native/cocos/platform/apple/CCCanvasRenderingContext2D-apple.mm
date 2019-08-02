@@ -543,7 +543,7 @@ namespace
 #define SEND_DATA_TO_JS(CB, IMPL) \
 if (CB) \
 { \
-    auto& data = [IMPL getDataRef]; \
+    Data data([IMPL getDataRef]); \
     unMultiplyAlpha(data.getBytes(), data.getSize() ); \
     CB(data); \
 }

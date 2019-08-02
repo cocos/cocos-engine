@@ -71,7 +71,7 @@ namespace node {
         process_template->SetClassName(FIXED_ONE_BYTE_STRING(isolate(), "process"));
         
         auto process_object =
-        process_template->GetFunction()->NewInstance(context()).ToLocalChecked();
+        process_template->GetFunction(context()).ToLocalChecked()->NewInstance(context()).ToLocalChecked();
         set_process_object(process_object);
         
         SetupProcessObject(this, argc, argv, exec_argc, exec_argv);

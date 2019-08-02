@@ -836,7 +836,6 @@
 		40CEAEB720CFDC45007A3281 /* CCReachability.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A37E9C4200DD0680078AF72 /* CCReachability.cpp */; };
 		40CEAEB820CFDC47007A3281 /* CCReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A37E9C3200DD0680078AF72 /* CCReachability.h */; };
 		40CEAEBA20CFDE19007A3281 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 40CEAEB920CFDE19007A3281 /* SystemConfiguration.framework */; };
-		40F373DA21B67A7D0083E4E7 /* libv8_snapshot.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 40F373D921B67A7D0083E4E7 /* libv8_snapshot.a */; };
 		40FF7AA1216B29CC00E73029 /* VideoPlayer-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 40FF7A9E216B29CB00E73029 /* VideoPlayer-ios.mm */; };
 		40FF7AA2216B29CC00E73029 /* VideoPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 40FF7A9F216B29CB00E73029 /* VideoPlayer.h */; };
 		4233799F22BB43B900E5D8A2 /* RecyclePool.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4233799C22BB43B900E5D8A2 /* RecyclePool.hpp */; };
@@ -922,6 +921,14 @@
 		4648882620AC2BC900CD1E4A /* CCRenderTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 4648882320AC2BC800CD1E4A /* CCRenderTexture.h */; };
 		4648882720AC2BC900CD1E4A /* CCRenderTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4648882420AC2BC900CD1E4A /* CCRenderTexture.cpp */; };
 		4648882820AC2BC900CD1E4A /* CCRenderTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4648882420AC2BC900CD1E4A /* CCRenderTexture.cpp */; };
+		468A967E22F43F00005034BE /* libv8_monolith.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 468A967D22F43F00005034BE /* libv8_monolith.a */; };
+		468A967F22F43F4C005034BE /* Class.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A52DB19205BCD9200350EE3 /* Class.cpp */; };
+		468A968022F43F4F005034BE /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A52DB08205BCD9200350EE3 /* Object.cpp */; };
+		468A968122F43F53005034BE /* ObjectWrap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A52DAFE205BCD9200350EE3 /* ObjectWrap.cpp */; };
+		468A968222F43F55005034BE /* ScriptEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A52DB0A205BCD9200350EE3 /* ScriptEngine.cpp */; };
+		468A968322F43F5A005034BE /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A52DB00205BCD9200350EE3 /* Utils.cpp */; };
+		468A968522F43F8F005034BE /* libv8_monolith.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 468A968422F43F8F005034BE /* libv8_monolith.a */; };
+		468A968722F440AC005034BE /* libuv_a.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 468A968622F440AC005034BE /* libuv_a.a */; };
 		469301CF203FC696004A3D6C /* CCConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 469301CD203FC695004A3D6C /* CCConfiguration.h */; };
 		469301D0203FC696004A3D6C /* CCConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 469301CD203FC695004A3D6C /* CCConfiguration.h */; };
 		469301D1203FC696004A3D6C /* CCConfiguration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 469301CE203FC695004A3D6C /* CCConfiguration.cpp */; };
@@ -1391,12 +1398,7 @@
 		ED3057D11BEC7DA80083C3ED /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED3057CB1BEC7DA80083C3ED /* libpng.a */; };
 		ED3057D21BEC7DA80083C3ED /* libtiff.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED3057CC1BEC7DA80083C3ED /* libtiff.a */; };
 		ED3057D31BEC7DA80083C3ED /* libwebsockets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED3057CD1BEC7DA80083C3ED /* libwebsockets.a */; };
-		ED99765F216C453D00A46923 /* libv8_base.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED99765E216C453D00A46923 /* libv8_base.a */; };
-		ED997668216C459E00A46923 /* libv8_libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED997660216C459D00A46923 /* libv8_libbase.a */; };
 		ED997669216C459E00A46923 /* libuv_a.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED997661216C459D00A46923 /* libuv_a.a */; };
-		ED99766C216C459E00A46923 /* libinspector.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED997664216C459D00A46923 /* libinspector.a */; };
-		ED99766E216C459E00A46923 /* libv8_libplatform.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED997666216C459E00A46923 /* libv8_libplatform.a */; };
-		ED99766F216C459E00A46923 /* libv8_libsampler.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED997667216C459E00A46923 /* libv8_libsampler.a */; };
 		EDE5DFF81C0D6B3F0014147A /* libwebsockets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EDE5DFF71C0D6B3F0014147A /* libwebsockets.a */; };
 /* End PBXBuildFile section */
 
@@ -1890,6 +1892,9 @@
 		4626B1FE202D9BD800BE30B9 /* CCApplication-mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCApplication-mac.mm"; sourceTree = "<group>"; };
 		4648882320AC2BC800CD1E4A /* CCRenderTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCRenderTexture.h; sourceTree = "<group>"; };
 		4648882420AC2BC900CD1E4A /* CCRenderTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCRenderTexture.cpp; sourceTree = "<group>"; };
+		468A967D22F43F00005034BE /* libv8_monolith.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_monolith.a; path = ../external/mac/libs/libv8_monolith.a; sourceTree = "<group>"; };
+		468A968422F43F8F005034BE /* libv8_monolith.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libv8_monolith.a; path = ../external/ios/libs/libv8_monolith.a; sourceTree = "<group>"; };
+		468A968622F440AC005034BE /* libuv_a.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libuv_a.a; path = ../external/ios/libs/libuv_a.a; sourceTree = "<group>"; };
 		469301CD203FC695004A3D6C /* CCConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCConfiguration.h; sourceTree = "<group>"; };
 		469301CE203FC695004A3D6C /* CCConfiguration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCConfiguration.cpp; sourceTree = "<group>"; };
 		469302292046AE05004A3D6C /* RefCounter.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RefCounter.hpp; sourceTree = "<group>"; };
@@ -2178,12 +2183,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				40F373DA21B67A7D0083E4E7 /* libv8_snapshot.a in Frameworks */,
-				ED99765F216C453D00A46923 /* libv8_base.a in Frameworks */,
-				ED99766F216C459E00A46923 /* libv8_libsampler.a in Frameworks */,
-				ED997668216C459E00A46923 /* libv8_libbase.a in Frameworks */,
-				ED99766E216C459E00A46923 /* libv8_libplatform.a in Frameworks */,
-				ED99766C216C459E00A46923 /* libinspector.a in Frameworks */,
+				468A967E22F43F00005034BE /* libv8_monolith.a in Frameworks */,
 				40CEAEBA20CFDE19007A3281 /* SystemConfiguration.framework in Frameworks */,
 				A679D0DA1C71D93200620A6C /* libcrypto.a in Frameworks */,
 				A679D0D91C71D90A00620A6C /* libssl.a in Frameworks */,
@@ -2207,6 +2207,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				468A968722F440AC005034BE /* libuv_a.a in Frameworks */,
+				468A968522F43F8F005034BE /* libv8_monolith.a in Frameworks */,
 				EDE5DFF81C0D6B3F0014147A /* libwebsockets.a in Frameworks */,
 				1ACF6A3C1E4AFDC80033C137 /* libcrypto.a in Frameworks */,
 				1ACF6A3D1E4AFDC80033C137 /* libssl.a in Frameworks */,
@@ -2666,6 +2668,9 @@
 		1551A341158F2AB200E66CFE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				468A968622F440AC005034BE /* libuv_a.a */,
+				468A967D22F43F00005034BE /* libv8_monolith.a */,
+				468A968422F43F8F005034BE /* libv8_monolith.a */,
 				40F373D921B67A7D0083E4E7 /* libv8_snapshot.a */,
 				ED997664216C459D00A46923 /* libinspector.a */,
 				ED997661216C459D00A46923 /* libuv_a.a */,
@@ -4768,6 +4773,7 @@
 				04DBD4E222B51EB300DBE4CD /* NodeMemPool.cpp in Sources */,
 				1A29D76A205665BE00168D9A /* jsb_cocos2dx_auto.cpp in Sources */,
 				46FDDBFC202ADDCE00931238 /* ccCArray.cpp in Sources */,
+				468A968322F43F5A005034BE /* Utils.cpp in Sources */,
 				04DBD45422AE2DBD00DBE4CD /* TransformConstraintTimeline.cpp in Sources */,
 				04355817217EADF300B9C056 /* IOBuffer.cpp in Sources */,
 				04DBD49C22AE2DBD00DBE4CD /* EventData.cpp in Sources */,
@@ -4865,12 +4871,14 @@
 				046E06BA2185B49F00B24E2D /* ConstraintData.cpp in Sources */,
 				04DBD4DC22B51EA300DBE4CD /* MemPool.cpp in Sources */,
 				046E06832185B43B00B24E2D /* EventObject.cpp in Sources */,
+				468A967F22F43F4C005034BE /* Class.cpp in Sources */,
 				46FDDA8C202ACC6A00931238 /* ForwardRenderer.cpp in Sources */,
 				04DBD41C22AE2DBD00DBE4CD /* SlotData.cpp in Sources */,
 				ED30579D1BEC77B90083C3ED /* ConvertUTF.c in Sources */,
 				46AE3FE22092F3A600F3A228 /* node.cc in Sources */,
 				4617864D205224CC008256E1 /* WebSocket-apple.mm in Sources */,
 				1AAAC8E2205CB6E9005321B9 /* AudioPlayer.mm in Sources */,
+				468A968222F43F55005034BE /* ScriptEngine.cpp in Sources */,
 				046E06752185B42500B24E2D /* DragonBones.cpp in Sources */,
 				469304132046AE06004A3D6C /* jsb_classtype.cpp in Sources */,
 				46FDDAA4202ACC6A00931238 /* InputAssembler.cpp in Sources */,
@@ -4904,6 +4912,7 @@
 				4008729520CE20C2002EB77B /* jsb_cocos2dx_network_manual.cpp in Sources */,
 				04DBD4AE22AE2DBD00DBE4CD /* BoundingBoxAttachment.cpp in Sources */,
 				046E06442185B41100B24E2D /* Animation.cpp in Sources */,
+				468A968122F43F53005034BE /* ObjectWrap.cpp in Sources */,
 				50ABBD3D1925AB0000A911A9 /* CCGeometry.cpp in Sources */,
 				046E06CA2185B49F00B24E2D /* UserData.cpp in Sources */,
 				0494CFD522BEFC6D00B73B79 /* ParallelTask.cpp in Sources */,
@@ -4977,6 +4986,7 @@
 				04AF6300219190ED00AED9DE /* TypedArrayPool.cpp in Sources */,
 				046E06CE2185B49F00B24E2D /* CanvasData.cpp in Sources */,
 				04DBD4A222AE2DBD00DBE4CD /* Attachment.cpp in Sources */,
+				468A968022F43F4F005034BE /* Object.cpp in Sources */,
 				04DBD48A22AE2DBD00DBE4CD /* IkConstraintTimeline.cpp in Sources */,
 				469303952046AE05004A3D6C /* RefCounter.cpp in Sources */,
 				46FDDABC202ACC6A00931238 /* VertexFormat.cpp in Sources */,
@@ -5189,7 +5199,7 @@
 				OTHER_LDFLAGS = "-llibsql3";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../external/sources $(SRCROOT)/../external/ios/include $(SRCROOT)/../external/ios/include/freetype $(SRCROOT)/../cocos/editor-support/";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../external/sources $(SRCROOT)/../external/ios/include $(SRCROOT)/../external/ios/include/freetype $(SRCROOT)/../cocos/editor-support/ $(SRCROOT)/../external/ios/include/v8 $(SRCROOT)/../external/ios/include/uv";
 				"USER_HEADER_SEARCH_PATHS[arch=*]" = "$(inherited) $(SRCROOT)/../external/sources $(SRCROOT)/../external/ios/include $(SRCROOT)/../external/ios/include/freetype $(SRCROOT)/../cocos/editor-support/";
 				VALID_ARCHS = "arm64 armv7";
 			};
@@ -5218,8 +5228,8 @@
 				OTHER_LDFLAGS = "-llibsql3";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../external/sources $(SRCROOT)/../external/ios/include $(SRCROOT)/../external/ios/include/freetype $(SRCROOT)/../cocos/editor-support/";
-				"USER_HEADER_SEARCH_PATHS[arch=*]" = "$(inherited) $(SRCROOT)/../external/sources $(SRCROOT)/../external/ios/include $(SRCROOT)/../external/ios/include/freetype $(SRCROOT)/../cocos/editor-support/";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../external/sources $(SRCROOT)/../external/ios/include $(SRCROOT)/../external/ios/include/freetype $(SRCROOT)/../cocos/editor-support/ $(SRCROOT)/../external/ios/include/v8";
+				"USER_HEADER_SEARCH_PATHS[arch=*]" = "$(inherited) $(SRCROOT)/../external/sources $(SRCROOT)/../external/ios/include $(SRCROOT)/../external/ios/include/freetype $(SRCROOT)/../cocos/editor-support/ $(SRCROOT)/../external/ios/include/v8 $(SRCROOT)/../external/ios/include/uv";
 				VALID_ARCHS = "arm64 armv7";
 			};
 			name = Release;
