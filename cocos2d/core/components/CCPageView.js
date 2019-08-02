@@ -560,6 +560,7 @@ var PageView = cc.Class({
             }
         }
     },
+
     _autoScrollToPage: function () {
         var bounceBackStarted = this._startBounceBackIfNeeded();
         var moveOffset = this._touchBeganPosition.sub(this._touchEndPosition);

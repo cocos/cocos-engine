@@ -37,8 +37,16 @@ var IsOnLoadCalled = Flags.IsOnLoadCalled;
 var Deactivating = Flags.Deactivating;
 
 var callPreloadInTryCatch = CC_EDITOR && callerFunctor('__preload');
-var callOnLoadInTryCatch = CC_EDITOR && callerFunctor('onLoad', null,
-        'target._objFlags |= ' + IsOnLoadCalled + '; arg(target);', _onLoadInEditor);
+var callOnLoadInTryCatch = CC_EDITOR && function (c) {
+    try {
+        c.onLoad();
+    }
+    catch (e) {
+        cc._throw(e);
+    }
+    c._objFlags |= IsOnLoadCalled;
+    _onLoadInEditor(c);
+};
 var callOnDestroyInTryCatch = CC_EDITOR && callerFunctor('onDestroy');
 var callResetInTryCatch = CC_EDITOR && callerFunctor('resetInEditor');
 var callOnFocusInTryCatch = CC_EDITOR && callerFunctor('onFocusInEditor');
@@ -68,12 +76,8 @@ var UnsortedInvoker = cc.Class({
     },
 });
 
-var invokePreload = CompScheduler.createInvokeImpl(
-    CC_EDITOR ? callPreloadInTryCatch : callPreload
-);
-var invokeOnLoad = CompScheduler.createInvokeImpl(
-    CC_EDITOR ? callOnLoadInTryCatch : callOnLoad
-);
+var invokePreload = CompScheduler.createInvokeImpl(callPreload);
+var invokeOnLoad = CompScheduler.createInvokeImpl(callOnLoad, false, IsOnLoadCalled);
 
 var activateTasksPool = new js.Pool(MAX_POOL_SIZE);
 activateTasksPool.get = function getActivateTask () {

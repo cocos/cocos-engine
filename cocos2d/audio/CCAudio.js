@@ -165,8 +165,9 @@ Audio.State = {
         if (touchBinded) return;
         touchBinded = true;
 
+        let touchEventName = ('ontouchend' in window) ? 'touchend' : 'mousedown';
         // Listen to the touchstart body event and play the audio when necessary.
-        cc.game.canvas.addEventListener('touchstart', function () {
+        cc.game.canvas.addEventListener(touchEventName, function () {
             let item;
             while (item = touchPlayList.pop()) {
                 item.audio.play(item.offset);
@@ -357,7 +358,8 @@ Audio.State = {
 // TIME_CONSTANT need to be 0 by default, or may fail to set volume at the very beginning of playing audio
 let TIME_CONSTANT;
 if (cc.sys.browserType === cc.sys.BROWSER_TYPE_EDGE || 
-    cc.sys.browserType === cc.sys.BROWSER_TYPE_BAIDU) {
+    cc.sys.browserType === cc.sys.BROWSER_TYPE_BAIDU ||
+    cc.sys.browserType === cc.sys.BROWSER_TYPE_UC) {
     TIME_CONSTANT = 0.01;
 }
 else {

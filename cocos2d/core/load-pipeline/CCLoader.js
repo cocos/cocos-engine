@@ -812,6 +812,7 @@ proto.release = function (asset) {
     }
     else if (asset) {
         var id = this._getReferenceKey(asset);
+        if (!CC_EDITOR && id && id in cc.AssetLibrary.getBuiltinDeps()) return;
         var item = this.getItem(id);
         if (item) {
             var removed = this.removeItem(id);

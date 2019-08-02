@@ -141,6 +141,14 @@ proto.on = function (type, callback, target, once) {
 proto.__off = proto.off;
 proto.off = function (type, callback, target) {
     if (!callback) {
+        let list = this._callbackTable[type];
+        let targets = list.targets;
+        for (let i = 0; i < targets.length; ++i) {
+            let target = targets[i];
+            if (target && target.__eventTargets) {
+                fastRemove(target.__eventTargets, this);
+            }
+        }
         this.removeAll(type);
     }
     else {
@@ -168,7 +176,13 @@ proto.off = function (type, callback, target) {
  * @method targetOff
  * @param {Object} target - The target to be searched for all related listeners
  */
-proto.targetOff = proto.removeAll;
+proto.targetOff = function (target) {
+    this.removeAll(target);
+    
+    if (target && target.__eventTargets) {
+        fastRemove(target.__eventTargets, this);
+    }
+};
 
 /**
  * !#en

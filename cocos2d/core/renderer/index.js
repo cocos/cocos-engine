@@ -40,7 +40,7 @@ function _initBuiltins(device) {
         format: gfx.TEXTURE_FMT_RGB8,
         mipmap: false,
     });
-  
+
     return {
         defaultTexture: defaultTexture,
         programTemplates: [],
@@ -142,10 +142,10 @@ cc.renderer = module.exports = {
         const canvasRenderer = require('./canvas');
         const Texture2D = require('./canvas/Texture2D');
         const Device = require('./canvas/Device');
-        
+
         // It's actually running with original render engine
-        this.Device = Device;        
-        
+        this.Device = Device;
+
         this.Texture2D = Texture2D;
 
         this.canvas = canvas;
@@ -163,7 +163,7 @@ cc.renderer = module.exports = {
         // TODO: remove HACK
         if (!CC_EDITOR && cc.director) {
             let ecScene = cc.director.getScene();
-            ecScene.setScale(1, 1, 1);
+            if (ecScene) ecScene.setScale(1, 1, 1);
         }
 
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
