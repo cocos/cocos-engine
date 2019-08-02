@@ -130,6 +130,7 @@ deprecatedWrapper({
     newTarget: Quat.prototype,
     newPrefix: 'Quat',
     pairs: [
+        ['scale', 'multiplyScalar'],
         ['exactEquals', 'strictEquals'],
     ],
 });

@@ -835,7 +835,7 @@ export class AmmoBoxShape extends AmmoShape implements BoxShapeBase {
 
     constructor (size: Vec3) {
         super();
-        Vec3.scale(this._halfExtent, size, 0.5);
+        Vec3.multiplyScalar(this._halfExtent, size, 0.5);
         const halfExtents = this._halfExtent;
         this._ammoBox = new Ammo.btBoxShape(new Ammo.btVector3(halfExtents.x, halfExtents.y, halfExtents.z));
         this._ammoShape = this._ammoBox;
@@ -847,7 +847,7 @@ export class AmmoBoxShape extends AmmoShape implements BoxShapeBase {
     }
 
     public setSize (size: Vec3) {
-        Vec3.scale(this._halfExtent, size, 0.5);
+        Vec3.multiplyScalar(this._halfExtent, size, 0.5);
         this._recalcExtents();
     }
 
