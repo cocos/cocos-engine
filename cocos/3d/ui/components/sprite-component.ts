@@ -426,21 +426,16 @@ export class SpriteComponent extends UIRenderComponent {
         this._activateMaterial();
     }
 
-    public updateAssembler (render: UI) {
-        if (super.updateAssembler(render) && this._spriteFrame) {
-            render.commitComp(this, this._spriteFrame.getGFXTextureView(), this._assembler!);
-            return true;
-        }
-
-        return false;
-    }
-
     public onDestroy () {
         super.onDestroy();
         this.destroyRenderData();
         if (CC_EDITOR) {
             this.node.off(SystemEventType.SIZE_CHANGED, this._resized, this);
         }
+    }
+
+    protected _render(render: UI) {
+        render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!);
     }
 
     protected _canRender () {
@@ -555,7 +550,7 @@ export class SpriteComponent extends UIRenderComponent {
                 this._renderData.material = material;
             }
         } else {
-            this.markForUpdateRenderData(true);
+            this.markForUpdateRenderData();
             // this.markForRender(true);
         }
     }
@@ -606,7 +601,7 @@ export class SpriteComponent extends UIRenderComponent {
                 this._renderData!.uvDirty = true;
             }
 
-            this._renderDataDirty = this._renderData!.uvDirty
+            this._renderDataFlag = this._renderData!.uvDirty
         }
 
         if (spriteFrame) {
