@@ -24,13 +24,13 @@ void MULTIPLY_EMISSIVE_TEXTRUE_COLOR (inout vec3 color, in vec2 uv) {
 
 void CALC_EMISSIVE (inout vec3 emissive, in vec2 uv) {
   #if USE_EMISSIVE
-    emissive = emissiveColor;
+    emissive = emissiveColor.xyz;
     MULTIPLY_EMISSIVE_TEXTRUE_COLOR(emissive, uv);
   #endif
 }
 
 void CALC_EMISSIVE (inout vec3 emissive) {
   #if USE_EMISSIVE
-    emissive = emissiveColor;
+    emissive = emissiveColor.xyz;
   #endif
 }
