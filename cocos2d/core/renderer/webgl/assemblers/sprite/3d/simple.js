@@ -23,66 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../../../../platform/js');
-const assembler = require('../2d/simple');
-const vec3 = cc.vmath.vec3;
+const Assembler3D = require('../../../../assembler-3d');
+const SimpleAssembler = require('../2d/simple');
 
-module.exports = js.addon({
-    fillBuffers: (function() {
-        let vec3_temps = [];
-        for (let i = 0; i < 4; i++) {
-            vec3_temps.push(vec3.create());
-        }
-        return function (sprite, renderer) {
-            let data = sprite._renderData._data,
-                node = sprite.node,
-                color = node._color._val,
-                matrix = node._worldMatrix;
-    
-            let buffer = renderer._meshBuffer3D;
-            let offsetInfo = buffer.request(4, 6);
-    
-            // buffer data may be realloc, need get reference after request.
-            let vertexOffset = offsetInfo.byteOffset >> 2,
-                indiceOffset = offsetInfo.indiceOffset,
-                vertexId = offsetInfo.vertexOffset,
-                vbuf = buffer._vData,
-                uintbuf = buffer._uintVData,
-                ibuf = buffer._iData;
-    
-            let data0 = data[0], data3 = data[3];
-            vec3.set(vec3_temps[0], data0.x, data0.y, 0);
-            vec3.set(vec3_temps[1], data3.x, data0.y, 0);
-            vec3.set(vec3_temps[2], data0.x, data3.y, 0);
-            vec3.set(vec3_temps[3], data3.x, data3.y, 0);
+export default class SimpleAssembler3D extends SimpleAssembler {
 
-            // get uv from sprite frame directly
-            let uv = sprite._spriteFrame.uv;
-            for (let i = 0; i < 4; i++) {
-                // vertex
-                let vertex = vec3_temps[i];
-                vec3.transformMat4(vertex, vertex, matrix);
+}
 
-                vbuf[vertexOffset++] = vertex.x;
-                vbuf[vertexOffset++] = vertex.y;
-                vbuf[vertexOffset++] = vertex.z;
-
-                // uv
-                let uvOffset = i * 2;
-                vbuf[vertexOffset++] = uv[0 + uvOffset];
-                vbuf[vertexOffset++] = uv[1 + uvOffset];
-    
-                // color
-                uintbuf[vertexOffset++] = color;
-            }
-
-            // fill indice data
-            ibuf[indiceOffset++] = vertexId;
-            ibuf[indiceOffset++] = vertexId + 1;
-            ibuf[indiceOffset++] = vertexId + 2;
-            ibuf[indiceOffset++] = vertexId + 1;
-            ibuf[indiceOffset++] = vertexId + 3;
-            ibuf[indiceOffset++] = vertexId + 2;
-        };
-    })(),
-}, assembler);
+cc.js.mixin(SimpleAssembler3D.prototype, Assembler3D);

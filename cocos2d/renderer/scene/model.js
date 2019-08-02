@@ -1,5 +1,4 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
-import geomUtils from '../../core/geom-utils';
 
 /**
  * A representation of a model
@@ -25,25 +24,6 @@ export default class Model {
     // this will cause gc performance, so change to Array type to store values.
     this._defines = [];
     this._uniforms = [];
-  }
-
-  _updateTransform() {
-    if (!this._node._hasChanged || !this._boundingShape) return;
-    this._node.updateWorldTransformFull();
-    this._bsModelSpace.transform(this._node._mat, this._node._pos,
-      this._node._rot, this._node._scale, this._boundingShape);
-  }
-  
-  /**
-   * Create the bounding shape of this model
-   * @param {vec3} minPos the min position of the model
-   * @param {vec3} maxPos the max position of the model
-   */
-  createBoundingShape(minPos, maxPos) {
-    if (!geomUtils) return
-    if (!minPos || !maxPos) return;
-    this._bsModelSpace = geomUtils.Aabb.fromPoints(geomUtils.Aabb.create(), minPos, maxPos);
-    this._boundingShape = geomUtils.Aabb.clone(this._bsModelSpace);
   }
 
   /**

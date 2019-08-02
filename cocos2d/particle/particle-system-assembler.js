@@ -23,44 +23,48 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import IARenderData from '../renderer/render-data/ia-render-data';
+import Assembler from '../core/renderer/assembler';
  
 const ParticleSystem = require('./CCParticleSystem');
 const renderer = require('../core/renderer/');
-const vfmtPosUvColor = require('../core/renderer/webgl/vertex-format').vfmtPosUvColor;
 const QuadBuffer = require('../core/renderer/webgl/quad-buffer');
+const vfmtPosUvColor = require('../core/renderer/webgl/vertex-format').vfmtPosUvColor;
 
 import InputAssembler from '../renderer/core/input-assembler';
 
-var particleSystemAssembler = {
-    createIA (comp) {
-        let device = renderer.device;
-        // Vertex format defines vertex buffer layout: x, y, u, v color
-        comp._vertexFormat = vfmtPosUvColor;
+class ParticleAssembler extends Assembler {
+    constructor (comp) {
+        super(comp);
 
-        // Create quad buffer for vertex and index
-        comp._buffer = new QuadBuffer(renderer._handle, vfmtPosUvColor);
+        this._buffer = null;
+        this._ia = null;
 
-        comp._ia = new InputAssembler();
-        comp._ia._vertexBuffer = comp._buffer._vb;
-        comp._ia._indexBuffer = comp._buffer._ib;
-        comp._ia._start = 0;
-        comp._ia._count = 0;
-    },
-
-    updateRenderData (comp) {
-        if (!comp._renderData) {
-            comp._renderData = new IARenderData();
-        }
-        comp._renderData.ia = comp._ia;
-        comp._renderData.material = comp.sharedMaterials[0];
-    },
-
-    renderIA (comp, renderer) {
-        renderer._flushIA(comp._renderData);
+        this._vfmt = vfmtPosUvColor;
     }
-};
 
-ParticleSystem._assembler = particleSystemAssembler;
+    getBuffer () {
+        if (!this._buffer) {
+            // Create quad buffer for vertex and index
+            this._buffer = new QuadBuffer(renderer._handle, vfmtPosUvColor);
 
-module.exports = particleSystemAssembler;
+            this._ia = new InputAssembler();
+            this._ia._vertexBuffer = this._buffer._vb;
+            this._ia._indexBuffer = this._buffer._ib;
+            this._ia._start = 0;
+            this._ia._count = 0;
+        }
+        return this._buffer;
+    }
+    
+    fillBuffers (comp, renderer) {
+        if (!this._ia) return;
+        
+        renderer.node = comp.node;
+        renderer.material = comp.sharedMaterials[0];
+        renderer._flushIA(this._ia);
+    }
+}
+
+Assembler.register(ParticleSystem, ParticleAssembler);
+
+module.exports = ParticleAssembler;

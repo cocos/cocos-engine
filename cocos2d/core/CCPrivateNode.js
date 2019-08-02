@@ -117,7 +117,7 @@ let PrivateNode = cc.Class({
 
     _posDirty (sendEvent) {
         this.setLocalDirty(LocalDirtyFlag.POSITION);
-        this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+        !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_TRANSFORM);
         if (sendEvent === true && (this._eventMask & POSITION_ON)) {
             this.emit(Node.EventType.POSITION_CHANGED);
         }
@@ -129,8 +129,8 @@ let PrivateNode = cc.Class({
         let parent = this.parent;
         if (parent) {
             // Position correction for transform calculation
-            this._position.x = this._originPos.x - (parent._anchorPoint.x - 0.5) * parent._contentSize.width;
-            this._position.y = this._originPos.y - (parent._anchorPoint.y - 0.5) * parent._contentSize.height;
+            this._trs[0] = this._originPos.x - (parent._anchorPoint.x - 0.5) * parent._contentSize.width;
+            this._trs[1] = this._originPos.y - (parent._anchorPoint.y - 0.5) * parent._contentSize.height;
         }
 
         this._super();

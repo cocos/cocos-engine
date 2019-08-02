@@ -32,20 +32,21 @@ const math = cc.vmath;
 let _vec2 = cc.v2();
 
 function obbApplyMatrix (rect, mat4, out_bl, out_tl, out_tr, out_br) {
-    var x = rect.x;
-    var y = rect.y;
-    var width = rect.width;
-    var height = rect.height;
+    let x = rect.x;
+    let y = rect.y;
+    let width = rect.width;
+    let height = rect.height;
 
-    var m00 = mat4.m00, m01 = mat4.m01, m04 = mat4.m04, m05 = mat4.m05;
-    var m12 = mat4.m12, m13 = mat4.m13;
+    let mat4m = mat4.m;
+    let m00 = mat4m[0], m01 = mat4m[1], m04 = mat4m[4], m05 = mat4m[5];
+    let m12 = mat4m[12], m13 = mat4m[13];
 
-    var tx = m00 * x + m04 * y + m12;
-    var ty = m01 * x + m05 * y + m13;
-    var xa = m00 * width;
-    var xb = m01 * width;
-    var yc = m04 * height;
-    var yd = m05 * height;
+    let tx = m00 * x + m04 * y + m12;
+    let ty = m01 * x + m05 * y + m13;
+    let xa = m00 * width;
+    let xb = m01 * width;
+    let yc = m04 * height;
+    let yd = m05 * height;
 
     out_tl.x = tx;
     out_tl.y = ty;
@@ -55,7 +56,7 @@ function obbApplyMatrix (rect, mat4, out_bl, out_tl, out_tr, out_br) {
     out_bl.y = yd + ty;
     out_br.x = xa + yc + tx;
     out_br.y = xb + yd + ty;
-};
+}
 
 /**
  * !#en
@@ -290,8 +291,9 @@ let CollisionManager = cc.Class({
             world.position.y = _vec2.y;
 
             // calculate world radius
-            let tempx = m.m12, tempy = m.m13;
-            m.m12 = m.m13 = 0;
+            let mm = m.m;
+            let tempx = mm[12], tempy = mm[13];
+            mm[12] = mm[13] = 0;
 
             _vec2.x = collider.radius;
             _vec2.y = 0;
@@ -306,8 +308,8 @@ let CollisionManager = cc.Class({
             aabb.width = d * 2;
             aabb.height = d * 2;
 
-            m.m12 = tempx;
-            m.m13 = tempy;
+            mm[12] = tempx;
+            mm[13] = tempy;
         }
         else if (collider instanceof cc.PolygonCollider) {
             let points = collider.points;
@@ -393,8 +395,12 @@ let CollisionManager = cc.Class({
         let colliders = node.getComponents(cc.Collider);
 
         for (let i = 0, l = colliders.length; i < l; i++) {
-            this.removeCollider(colliders[i]);
-            this.addCollider(colliders[i]);
+            let collider = colliders[i];
+            if(collider instanceof cc.PhysicsCollider) {
+                continue;
+            }
+            this.removeCollider(collider);
+            this.addCollider(collider);
         }
     },
 

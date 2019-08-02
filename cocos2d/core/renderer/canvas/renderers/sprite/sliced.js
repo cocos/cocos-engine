@@ -23,24 +23,22 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Assembler from '../../../assembler';
+import RenderData from '../render-data';
+import CanvasSimpleSprite from './simple';
+
 const utils = require('../utils');
-const simple = require('./simple');
 
-let renderer = {
-    createData (sprite) {
-        let renderData = sprite.requestRenderData();
-        // 4 rows & cols
-        renderData.dataLength = 4;
-        return renderData;
-    },
+export default class CanvasSlicedSprite extends CanvasSimpleSprite {
+    init () {
+        this._renderData = new RenderData();
+        this._renderData.dataLength = 4;
+    }
 
-    updateRenderData: simple.updateRenderData,
-    
     updateUVs (sprite) {
         let frame = sprite.spriteFrame;
-        let renderData = sprite._renderData;
+        let renderData = this._renderData;
         let rect = frame._rect;
-        let texture = frame._texture;
     
         // caculate texture coordinate
         let leftWidth = frame.insetLeft;
@@ -51,39 +49,37 @@ let renderer = {
         let centerHeight = rect.height - topHeight - bottomHeight;
     
         // uv computation should take spritesheet into account.
-        let data = renderData._data;
+        let verts = renderData.vertices;
         if (frame._rotated) {
-            data[0].u = rect.x;
-            data[1].u = bottomHeight + rect.x;
-            data[2].u = bottomHeight + centerHeight + rect.x;
-            data[3].u = rect.x + rect.height;
-            data[3].v = rect.y;
-            data[2].v = leftWidth + rect.y;
-            data[1].v = leftWidth + centerWidth + rect.y;
-            data[0].v = rect.y + rect.width;
+            verts[0].u = rect.x;
+            verts[1].u = bottomHeight + rect.x;
+            verts[2].u = bottomHeight + centerHeight + rect.x;
+            verts[3].u = rect.x + rect.height;
+            verts[3].v = rect.y;
+            verts[2].v = leftWidth + rect.y;
+            verts[1].v = leftWidth + centerWidth + rect.y;
+            verts[0].v = rect.y + rect.width;
         }
         else {
-            data[0].u = rect.x;
-            data[1].u = leftWidth + rect.x;
-            data[2].u = leftWidth + centerWidth + rect.x;
-            data[3].u = rect.x + rect.width;
-            data[3].v = rect.y;
-            data[2].v = topHeight + rect.y;
-            data[1].v = topHeight + centerHeight + rect.y;
-            data[0].v = rect.y + rect.height;
+            verts[0].u = rect.x;
+            verts[1].u = leftWidth + rect.x;
+            verts[2].u = leftWidth + centerWidth + rect.x;
+            verts[3].u = rect.x + rect.width;
+            verts[3].v = rect.y;
+            verts[2].v = topHeight + rect.y;
+            verts[1].v = topHeight + centerHeight + rect.y;
+            verts[0].v = rect.y + rect.height;
         }
-        renderData.uvDirty = false;
-    },
+    }
     
     updateVerts (sprite) {
-        let renderData = sprite._renderData,
-            data = renderData._data,
+        let renderData = this._renderData,
+            verts = renderData.vertices,
             node = sprite.node,
             width = node.width, height = node.height,
             appx = node.anchorX * width, appy = node.anchorY * height;
     
         let frame = sprite.spriteFrame;
-        let rect = frame._rect;
         let leftWidth = frame.insetLeft;
         let rightWidth = frame.insetRight;
         let topHeight = frame.insetTop;
@@ -99,35 +95,36 @@ let renderer = {
         sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
         
         if (frame._rotated) {
-            data[0].y = -appx;
-            data[0].x = -appy;
-            data[1].y = rightWidth * xScale - appx;
-            data[1].x = bottomHeight * yScale - appy;
-            data[2].y = data[1].y + sizableWidth;
-            data[2].x = data[1].x + sizableHeight;
-            data[3].y = width - appx;
-            data[3].x = height - appy;
+            verts[0].y = -appx;
+            verts[0].x = -appy;
+            verts[1].y = rightWidth * xScale - appx;
+            verts[1].x = bottomHeight * yScale - appy;
+            verts[2].y = verts[1].y + sizableWidth;
+            verts[2].x = verts[1].x + sizableHeight;
+            verts[3].y = width - appx;
+            verts[3].x = height - appy;
         } else {
-            data[0].x = -appx;
-            data[0].y = -appy;
-            data[1].x = leftWidth * xScale - appx;
-            data[1].y = bottomHeight * yScale - appy;
-            data[2].x = data[1].x + sizableWidth;
-            data[2].y = data[1].y + sizableHeight;
-            data[3].x = width - appx;
-            data[3].y = height - appy;
+            verts[0].x = -appx;
+            verts[0].y = -appy;
+            verts[1].x = leftWidth * xScale - appx;
+            verts[1].y = bottomHeight * yScale - appy;
+            verts[2].x = verts[1].x + sizableWidth;
+            verts[2].y = verts[1].y + sizableHeight;
+            verts[3].x = width - appx;
+            verts[3].y = height - appy;
         }
             
-        renderData.vertDirty = false;
-    },
+        sprite._vertsDirty = false;
+    }
 
     draw (ctx, comp) {
         let node = comp.node;
         let frame = comp._spriteFrame;
         // Transform
         let matrix = node._worldMatrix;
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
+        let matrixm = matrix.m;
+        let a = matrixm[0], b = matrixm[1], c = matrixm[4], d = matrixm[5],
+            tx = matrixm[12], ty = matrixm[13];
         ctx.transform(a, b, c, d, tx, ty);
         ctx.scale(1, -1);
         if (frame._rotated) {
@@ -139,7 +136,7 @@ let renderer = {
         utils.context.setGlobalAlpha(ctx, node.opacity / 255);
 
         let tex = frame._texture,
-            data = comp._renderData._data;
+            verts = this._renderData.vertices;
 
         let image = utils.getColorizedImage(tex, node._color);
 
@@ -148,11 +145,11 @@ let renderer = {
             x, y, w, h,
             sx, sy, sw, sh;
         for (let r = 0; r < 3; ++r) {
-            bd = data[r];
-            td = data[r+1];
+            bd = verts[r];
+            td = verts[r+1];
             for (let c = 0; c < 3; ++c) {
-                ld = data[c];
-                rd = data[c+1];
+                ld = verts[c];
+                rd = verts[c+1];
                 x = ld.x;
                 y = bd.y;
                 w = rd.x - x;
@@ -175,6 +172,4 @@ let renderer = {
         }
         return drawCall;
     }
-};
-
-module.exports = renderer;
+}

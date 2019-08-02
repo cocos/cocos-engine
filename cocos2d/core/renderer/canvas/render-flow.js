@@ -23,6 +23,24 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-module.exports = {
-    datas: []
-};
+import RenderFlow from '../render-flow';
+
+RenderFlow.prototype._draw = function (node, func) {
+    let batcher = RenderFlow.getBachther();
+    let ctx = batcher._device._ctx;
+    let cam = batcher._camera;
+    ctx.setTransform(cam.a, cam.b, cam.c, cam.d, cam.tx, cam.ty);
+    ctx.scale(1, -1);
+
+    let comp = node._renderComponent;
+    comp._assembler[func](ctx, comp);
+    this._next._func(node);
+}
+
+RenderFlow.prototype._render = function (node) {
+    this._draw(node, 'draw');
+}
+
+RenderFlow.prototype._postRender = function (node) {
+    this._draw(node, 'postDraw');
+}

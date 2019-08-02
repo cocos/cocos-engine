@@ -26,7 +26,6 @@
 const Helper = require('../../../../graphics/helper');
 const Types = require('../../../../graphics/types');
 const js = require('../../../../platform/js');
-const PointFlags = Types.PointFlags;
 const LineJoin = Types.LineJoin;
 const LineCap = Types.LineCap;
 
@@ -156,4 +155,5 @@ js.set(_proto, 'miterLimit', function (v) {
     this.style.miterLimit = v;
 });
 
+cc.Graphics._Impl = Impl;
 module.exports = Impl;

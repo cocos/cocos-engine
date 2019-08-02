@@ -23,44 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const js = require('../../../../../platform/js');
-const assembler = require('../2d/bar-filled');
-const fillVerticesWithoutCalc3D = require('../../utils').fillVerticesWithoutCalc3D;
+const Assembler3D = require('../../../../assembler-3d');
+const BarFilledAssembler = require('../2d/bar-filled');
 
-const vec3 = cc.vmath.vec3;
+export default class BarFilledAssembler3D extends BarFilledAssembler {
 
-module.exports = js.addon({
-    updateWorldVerts (sprite) {
-        let node = sprite.node,
-            data = sprite._renderData._data;
+}
 
-        let matrix = node._worldMatrix;
-        for (let i = 0; i < 4; i++) {
-            let local = data[i + 4];
-            let world = data[i];
-            vec3.transformMat4(world, local, matrix);
-        }
-    },
-
-    fillBuffers (sprite, renderer) {
-        if (renderer.worldMatDirty) {
-            this.updateWorldVerts(sprite);
-        }
-
-        // buffer
-        let buffer = renderer._meshBuffer3D;
-        let node = sprite.node;
-        let offsetInfo = fillVerticesWithoutCalc3D(node, buffer, sprite._renderData, node._color._val);
-
-        let ibuf = buffer._iData,
-            indiceOffset = offsetInfo.indiceOffset,
-            vertexId = offsetInfo.vertexOffset;
-
-        ibuf[indiceOffset++] = vertexId;
-        ibuf[indiceOffset++] = vertexId + 1;
-        ibuf[indiceOffset++] = vertexId + 2;
-        ibuf[indiceOffset++] = vertexId + 1;
-        ibuf[indiceOffset++] = vertexId + 3;
-        ibuf[indiceOffset++] = vertexId + 2;
-    }
-}, assembler);
+cc.js.mixin(BarFilledAssembler3D.prototype, Assembler3D);

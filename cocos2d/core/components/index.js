@@ -28,6 +28,24 @@ require('./CCComponent');
 require('./CCComponentEventHandler');
 require('./missing-script');
 
+// In case subContextView modules are excluded
+let WXSubContextView = require('./WXSubContextView');
+let SwanSubContextView = require('./SwanSubContextView');
+
+if (!WXSubContextView) {
+    WXSubContextView = cc.Class({
+        name: 'cc.WXSubContextView',
+        extends: cc.Component,
+    });
+}
+
+if (!SwanSubContextView) {
+    SwanSubContextView = cc.Class({
+        name: 'cc.SwanSubContextView',
+        extends: cc.Component,
+    });
+}
+
 var components = [
     require('./CCSprite'),
     require('./CCWidget'),
@@ -53,8 +71,8 @@ var components = [
     require('./CCToggle'),
     require('./CCBlockInputEvents'),
     require('./CCMotionStreak'),
-    require('./WXSubContextView'),
-    require('./SwanSubContextView'),
+    WXSubContextView,
+    SwanSubContextView,
 ];
 
 module.exports = components;

@@ -205,9 +205,11 @@ function getWorldRotation (node) {
 
 Simulator.prototype.updateUVs = function (force) {
     let particleCount = this.particles.length;
-    if (this.sys._buffer && this.sys._renderSpriteFrame) {
-        const FLOAT_PER_PARTICLE = 4 * this.sys._vertexFormat._bytes / 4;
-        let vbuf = this.sys._buffer._vData;
+    let assembler = this.sys._assembler;
+    let buffer = assembler.getBuffer();
+    if (buffer && this.sys._renderSpriteFrame) {
+        const FLOAT_PER_PARTICLE = 4 * assembler._vfmt._bytes / 4;
+        let vbuf = buffer._vData;
         let uv = this.sys._renderSpriteFrame.uv;
 
         let start = force ? 0 : this._uvFilled;
@@ -276,22 +278,23 @@ Simulator.prototype.step = function (dt) {
     let psys = this.sys;
     let node = psys.node;
     let particles = this.particles;
-    const FLOAT_PER_PARTICLE = 4 * psys._vertexFormat._bytes / 4;
+    const FLOAT_PER_PARTICLE = 4 * this.sys._assembler._vfmt._bytes / 4;
 
     // Calculate pos
     node._updateWorldMatrix();
     _trans = AffineTrans.identity();
     if (psys.positionType === cc.ParticleSystem.PositionType.FREE) {
-        _trans.tx = node._worldMatrix.m12;
-        _trans.ty = node._worldMatrix.m13;
+        let m =  node._worldMatrix.m;
+        _trans.tx = m[12];
+        _trans.ty = m[13];
         AffineTrans.transformVec2(_pos, ZERO_VEC2, _trans);
     } else if (psys.positionType === cc.ParticleSystem.PositionType.RELATIVE) {
         let angle = misc.degreesToRadians(-node.angle);
         let cos = Math.cos(angle);
         let sin = Math.sin(angle);
         _trans = AffineTrans.create(cos, -sin, sin, cos, 0, 0);
-        _pos.x = node._position.x;
-        _pos.y = node._position.y;
+        _pos.x = node.x;
+        _pos.y = node.y;
     }
 
     // Get world to node trans only once
@@ -317,7 +320,7 @@ Simulator.prototype.step = function (dt) {
     }
 
     // Request buffer for particles
-    let buffer = psys._buffer;
+    let buffer = psys._assembler.getBuffer();
     let particleCount = particles.length;
     buffer.reset();
     buffer.request(particleCount * 4, particleCount * 6);
@@ -431,7 +434,7 @@ Simulator.prototype.step = function (dt) {
 
     if (particles.length > 0) {
         buffer.uploadData();
-        psys._ia._count = particles.length * 6;
+        psys._assembler._ia._count = particles.length * 6;
     }
     else if (!this.active) {
         this.finished = true;

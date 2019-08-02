@@ -43,10 +43,18 @@ var SkeletonData = cc.Class({
     },
 
     properties: {
-
-        // store skeleton json string for jsb
-        skeletonJsonStr: "",
         _skeletonJson: null,
+
+        // use by jsb
+        skeletonJsonStr: {
+            get: function () {
+                if (this._skeletonJson) {
+                    return JSON.stringify(this._skeletonJson);
+                } else {
+                    return "";
+                }
+            }
+        },
 
         /**
          * !#en See http://en.esotericsoftware.com/spine-json-format
@@ -58,9 +66,11 @@ var SkeletonData = cc.Class({
                 return this._skeletonJson;
             },
             set: function (value) {
-                this._skeletonJson = value;
-                // If dynamic set skeletonJson field, auto update skeletonJsonStr field.
-                this.skeletonJsonStr = JSON.stringify(value);
+                if (typeof(value) == "string") {
+                    this._skeletonJson = JSON.parse(value);
+                } else {
+                    this._skeletonJson = value;
+                }
                 // If create by manual, uuid is empty.
                 if (!this._uuid && value.skeleton) {
                     this._uuid = value.skeleton.hash;

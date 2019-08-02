@@ -1,18 +1,36 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ 
+#define MAX_SHADOW_LIGHTS 2
 
-#if _USE_SHADOW_MAP
+#if CC_USE_SHADOW_MAP 
+
+  #pragma builtin(global)
+  uniform CC_SHADOW {
+    mat4 cc_shadow_lightViewProjMatrix[MAX_SHADOW_LIGHTS];
+    vec4 cc_shadow_info[MAX_SHADOW_LIGHTS];        // [minDepth, maxDepth, depthScale, darkness]
+  };
+
+  #pragma builtin(global)
+  uniform sampler2D cc_shadow_map[MAX_SHADOW_LIGHTS];
+
+  varying vec4 v_posLightSpace[MAX_SHADOW_LIGHTS];
+  varying float v_depth[MAX_SHADOW_LIGHTS];
+#endif
+
+#if CC_IS_VERT_SHADER
+
+  void CLAC_SHADOW (vec3 worldPos) {
+    #if CC_USE_SHADOW_MAP
+    for (int i = 0; i < CC_NUM_SHADOW_LIGHTS; i++) {
+      v_posLightSpace[i] = cc_shadow_lightViewProjMatrix[i] * vec4(worldPos, 1.0);
+      v_depth[i] = (v_posLightSpace[i].z + cc_shadow_info[i].x) / (cc_shadow_info[i].x + cc_shadow_info[i].y);
+    }
+    #endif
+  }
+
+#else
+
   #include <packing>
-
-  #if _NUM_SHADOW_LIGHTS > 0
-    #pragma for id in range(0, _NUM_SHADOW_LIGHTS)
-      uniform sampler2D cc_shadowMap_{id};
-      uniform float cc_darkness_{id};
-      uniform float cc_depthScale_{id};
-      uniform float cc_frustumEdgeFalloff_{id};
-      varying vec4 v_posLightSpace{id};
-      varying float v_depth{id};
-    #pragma endFor
-  #endif
 
   float computeFallOff(float esm, vec2 coords, float frustumEdgeFalloff) {
     float mask = smoothstep(1.0 - frustumEdgeFalloff, 1.0, clamp(dot(coords, coords), 0.0, 1.0));
@@ -34,12 +52,15 @@
 
   float computeShadow() {
     float shadow = 1.0;
-    #if _NUM_SHADOW_LIGHTS > 0
-      #pragma for id in range(0, _NUM_SHADOW_LIGHTS)
-        shadow *= computeShadowESM(cc_shadowMap_{id}, v_posLightSpace{id}, v_depth{id}, cc_depthScale_{id}, cc_darkness_{id}, cc_frustumEdgeFalloff_{id});
-      #pragma endFor
+    float frustumEdgeFalloff = 0.0;
+    #if CC_USE_SHADOW_MAP
+    for (int i = 0; i < CC_NUM_SHADOW_LIGHTS; i++) {
+        shadow *= computeShadowESM(cc_shadow_map[i], v_posLightSpace[i], v_depth[i], cc_shadow_info[i].z, cc_shadow_info[i].w, frustumEdgeFalloff);
+    }
     #endif
     return shadow;
   }
 
 #endif
+
+

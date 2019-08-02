@@ -22,20 +22,20 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+import Assembler from '../../../assembler';
+import Impl from './impl';
+import Graphics from '../../../../graphics/graphics';
 
-const Impl = require('./impl');
-
-module.exports = {
-    createImpl () {
-        return new Impl();
-    },
+export default class CanvasGraphicsAssembler {
+    init () {}
 
     draw (ctx, comp) {
         let node = comp.node;
         // Transform
         let matrix = node._worldMatrix;
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
+        let matrixm = matrix.m;
+        let a = matrixm[0], b = matrixm[1], c = matrixm[4], d = matrixm[5],
+            tx = matrixm[12], ty = matrixm[13];
         ctx.transform(a, b, c, d, tx, ty);
         ctx.save();
 
@@ -76,13 +76,17 @@ module.exports = {
         ctx.restore();
 
         return 1;
-    },
+    }
 
     stroke (comp) {
         comp._impl.stroke();
-    },
+    }
 
     fill (comp) {
         comp._impl.fill();
     }
+
+    clear () {}
 }
+
+Assembler.register(Graphics, CanvasGraphicsAssembler);

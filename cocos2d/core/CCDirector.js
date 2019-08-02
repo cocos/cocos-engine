@@ -792,7 +792,7 @@ cc.Director.prototype = {
 
         // Render
         this.emit(cc.Director.EVENT_BEFORE_DRAW);
-        renderer.render(this._scene);
+        renderer.render(this._scene, deltaTime);
         
         // After draw
         this.emit(cc.Director.EVENT_AFTER_DRAW);
@@ -827,7 +827,7 @@ cc.Director.prototype = {
 
             // Render
             this.emit(cc.Director.EVENT_BEFORE_DRAW);
-            renderer.render(this._scene);
+            renderer.render(this._scene, this._deltaTime);
 
             // After draw
             this.emit(cc.Director.EVENT_AFTER_DRAW);

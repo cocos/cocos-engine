@@ -23,10 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Assembler from '../../assembler';
+
 const Mask = require('../../../components/CCMask');
 const RenderFlow = require('../../render-flow');
-const spriteAssembler = require('./sprite/2d/simple');
-const graphicsAssembler = require('./graphics');
+const SimpleSpriteAssembler = require('./sprite/2d/simple');
+const GraphicsAssembler = require('./graphics');
 const gfx = require('../../../../renderer/gfx');
 const vfmtPos = require('../vertex-format').vfmtPos;
 
@@ -49,16 +51,9 @@ function getStencilRef () {
 
 function applyStencil (material, func, failOp, ref, stencilMask, writeMask) {
     let effect = material.effect;
-    let technique = effect.getDefaultTechnique();
-    let passes = technique.passes;
-
     let zFailOp = gfx.STENCIL_OP_KEEP,
         zPassOp = gfx.STENCIL_OP_KEEP;
-    for (let i = 0; i < passes.length; ++i) {
-        let pass = passes[i];
-        pass.setStencilFront(gfx.STENCIL_ENABLE, func, ref, stencilMask, failOp, zFailOp, zPassOp, writeMask);
-        pass.setStencilBack(gfx.STENCIL_ENABLE, func, ref, stencilMask, failOp, zFailOp, zPassOp, writeMask);
-    }
+    effect.setStencil(gfx.STENCIL_ENABLE, func, ref, stencilMask, failOp, zFailOp, zPassOp, writeMask);
 }
 
 
@@ -130,15 +125,16 @@ function applyAreaMask (mask, renderer) {
     applyStencil(mask.sharedMaterials[0], func, failOp, ref, stencilMask, writeMask);
 
     // vertex buffer
-    renderer.node = mask.node;
     renderer.material = mask.sharedMaterials[0];
 
     if (mask._type === Mask.Type.IMAGE_STENCIL) {
-        spriteAssembler.fillBuffers(mask, renderer);
+        renderer.node = renderer._dummyNode;
+        SimpleSpriteAssembler.prototype.fillBuffers.call(mask._assembler, mask, renderer);
         renderer._flush();
     }
     else {
-        graphicsAssembler.fillBuffers(mask._graphics, renderer);
+        renderer.node = mask.node;
+        GraphicsAssembler.prototype.fillBuffers.call(mask._graphics._assembler, mask._graphics, renderer);
     }
 }
 
@@ -154,28 +150,11 @@ function enableMask (renderer) {
     renderer._flushMaterial(mask._enableMaterial);
 }
 
-
-let maskFrontAssembler = {
+export class MaskAssembler  extends SimpleSpriteAssembler {
     updateRenderData (mask) {
-        if (!mask._renderData) {
-            if (mask._type === Mask.Type.IMAGE_STENCIL) {
-                mask._renderData = spriteAssembler.createData(mask);
-            }
-            else {
-                // for updateGraphics calculation
-                mask._renderData = mask.requestRenderData();
-            }
-        }
-        let renderData = mask._renderData;
-
         if (mask._type === Mask.Type.IMAGE_STENCIL) {
             if (mask.spriteFrame) {
-                let size = mask.node._contentSize;
-                let anchor = mask.node._anchorPoint;
-                renderData.updateSizeNPivot(size.width, size.height, anchor.x, anchor.y);
-                renderData.dataLength = 4;
-                spriteAssembler.updateRenderData(mask);
-                renderData.material = mask.sharedMaterials[0];
+                SimpleSpriteAssembler.prototype.updateRenderData.call(this, mask);
             }
             else {
                 mask.setMaterial(0, null);
@@ -183,9 +162,9 @@ let maskFrontAssembler = {
         }
         else {
             mask._graphics.setMaterial(0, mask.sharedMaterials[0]);
-            graphicsAssembler.updateRenderData(mask._graphics);
+            GraphicsAssembler.prototype.updateRenderData.call(mask._graphics._assembler, mask._graphics, mask._graphics);
         }
-    },
+    }
 
     fillBuffers (mask, renderer) {
         // Invalid state
@@ -201,10 +180,8 @@ let maskFrontAssembler = {
 
         mask.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
     }
-};
 
-let maskEndAssembler = {
-    fillBuffers (mask, renderer) {
+    postFillBuffers (mask, renderer) {
         // Invalid state
         if (mask._type !== Mask.Type.IMAGE_STENCIL || mask.spriteFrame) {
             // HACK: Must pop mask after batch, so we can only put this logic in fillBuffers
@@ -215,10 +192,4 @@ let maskEndAssembler = {
     }
 };
 
-Mask._assembler = maskFrontAssembler;
-Mask._postAssembler = maskEndAssembler;
-
-module.exports = {
-    front: maskFrontAssembler,
-    end: maskEndAssembler
-};
+Assembler.register(Mask, MaskAssembler);

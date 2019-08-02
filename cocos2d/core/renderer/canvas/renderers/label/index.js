@@ -22,9 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-const Label = require('../../../../components/CCLabel');
-const ttf = require('./ttf');
-const bmfont = require('./bmfont');
+
+import Assembler from '../../../assembler';
+import Label from '../../../../components/CCLabel';
+import TTF from './ttf';
+import Bmfont from './bmfont';
 
 let canvasPool = {
     pool: [],
@@ -52,31 +54,20 @@ let canvasPool = {
 
 Label._canvasPool = canvasPool;
 
-module.exports = {
-    getAssembler (comp) {
-        let assembler = ttf;
+
+Assembler.register(Label, {
+    getConstructor(label) {
+        let ctor = TTF;
         
-        if (comp.font instanceof cc.BitmapFont) {
-            assembler = bmfont;
+        if (label.font instanceof cc.BitmapFont) {
+            ctor = Bmfont;
+        } else if (label.cacheMode === Label.CacheMode.CHAR) {
+            cc.warn('sorry, canvas mode does not support CHAR mode currently!');
         }
 
-        return assembler;
+        return ctor;
     },
 
-    createData (comp) {
-        return comp._assembler.createData(comp);
-    },
-
-    draw (ctx, comp) {
-        // Check whether need to render
-        if (!comp._texture) {
-            return 0;
-        }
-
-        let assembler = comp._assembler;
-        if (!assembler) return 0;
-        
-        assembler.updateRenderData(comp);
-        return assembler.draw(ctx, comp);
-    }
-};
+    TTF,
+    Bmfont
+});

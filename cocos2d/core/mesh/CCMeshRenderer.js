@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import IARenderData from '../../renderer/render-data/ia-render-data';
 import gfx from '../../renderer/gfx';
 import InputAssembler from '../../renderer/core/input-assembler';
 import geomUtils from '../geom-utils';
@@ -90,6 +89,7 @@ let ShadowCastingMode = cc.Enum({
  * !#zh
  * 网格渲染组件
  * @class MeshRenderer
+ * @extends RenderComponent
  */
 let MeshRenderer = cc.Class({
     name: 'cc.MeshRenderer',
@@ -199,10 +199,9 @@ let MeshRenderer = cc.Class({
     },
 
     ctor () {
-        this._renderDatas = [];
         this._wireFrameDatas = [];
         this._boundingBox = null;
-        this._customProperties = new CustomProperties();
+        this._customProperties = new cc.CustomProperties();
     },
 
     onEnable () {
@@ -236,7 +235,7 @@ let MeshRenderer = cc.Class({
     _activateMaterial (force) {
         let mesh = this._mesh;
 
-        if (!mesh || mesh.subMeshes.length === 0) {
+        if (!mesh || mesh._subDatas.length === 0) {
             this.disableRender();
             return;
         }
@@ -263,54 +262,54 @@ let MeshRenderer = cc.Class({
             materials[0] = material;
         }
 
-        this._updateMeshAttribute();
         this._updateReceiveShadow();
         this._updateCastShadow();
+        this._updateMeshAttribute();
         
         this.markForUpdateRenderData(true);
         this.markForRender(true);
     },
 
     _updateReceiveShadow () {
-        this._customProperties.define('_USE_SHADOW_MAP', this._receiveShadows);
+        this._customProperties.define('CC_USE_SHADOW_MAP', this._receiveShadows);
     },
 
     _updateCastShadow () {
-        this._customProperties.define('_SHADOW_CASTING', this._shadowCastingMode === ShadowCastingMode.ON);
+        this._customProperties.define('CC_SHADOW_CASTING', this._shadowCastingMode === ShadowCastingMode.ON);
     },
 
     _updateMeshAttribute () {
-        let subMeshes = this._mesh && this._mesh.subMeshes;
-        if (!subMeshes) return;
+        let subDatas = this._mesh && this._mesh.subDatas;
+        if (!subDatas) return;
 
-        let attr2el = subMeshes[0]._vertexBuffer._format._attr2el;
-        this._customProperties.define('_USE_ATTRIBUTE_COLOR', !!attr2el[gfx.ATTR_COLOR]);
-        this._customProperties.define('_USE_ATTRIBUTE_UV0', !!attr2el[gfx.ATTR_UV0]);
-        this._customProperties.define('_USE_ATTRIBUTE_NORMAL', !!attr2el[gfx.ATTR_NORMAL]);
+        let vfm = subDatas[0].vfm;
+        this._customProperties.define('CC_USE_ATTRIBUTE_COLOR', !!vfm.element(gfx.ATTR_COLOR));
+        this._customProperties.define('CC_USE_ATTRIBUTE_UV0', !!vfm.element(gfx.ATTR_UV0));
+        this._customProperties.define('CC_USE_ATTRIBUTE_NORMAL', !!vfm.element(gfx.ATTR_NORMAL));
 
         this._wireFrameDatas.length = 0;
-    },
 
-    _updateWireFrameDatas () {
-        let renderDatas = this._renderDatas;
-        let wireFrameDatas = this._wireFrameDatas;
-        if (renderDatas.length === wireFrameDatas.length) return;
-
-        wireFrameDatas.length = renderDatas.length;
-        let ibs = this.mesh._ibs;
-        for (let i = 0; i < renderDatas.length; i++) {
-            let data = renderDatas[i];
-            wireFrameDatas[i] = this._createWireFrameData(data.ia, ibs[i].data, data.material);
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this._assembler.updateMeshData(this);
         }
     },
 
-    _createWireFrameData (ia, oldIbData, material) {
-        let data = new IARenderData();
+    _updateWireFrameDatas () {
+        let wireFrameDatas = this._wireFrameDatas;
+        let subMeshes = this._mesh.subMeshes;
+        if (subMeshes.length === wireFrameDatas.length) return;
+
+        wireFrameDatas.length = subMeshes.length;
+        let subDatas = this._mesh._subDatas;
+        for (let i = 0; i < subMeshes.length; i++) {
+            wireFrameDatas[i] = this._createWireFrameData(subMeshes[i], subDatas[i].iData);
+        }
+    },
+
+    _createWireFrameData (ia, oldIbData) {
         let m = new Material();
         m.copy(Material.getBuiltinMaterial('unlit'));
         m.setProperty('diffuseColor', BLACK_COLOR);
-        m.define('USE_DIFFUSE_TEXTURE', false);
-        data.material = m;
 
         let indices = [];
         for (let i = 0; i < oldIbData.length; i+=3) {
@@ -329,8 +328,10 @@ let MeshRenderer = cc.Class({
             ibData.length
         );
 
-        data.ia = new InputAssembler(ia._vertexBuffer, ib, gfx.PT_LINES);
-        return data;
+        return {
+            material: m,
+            ia: new InputAssembler(ia._vertexBuffer, ib, gfx.PT_LINES)
+        };
     },
 
     _checkBacth () {

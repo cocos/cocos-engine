@@ -23,23 +23,24 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const bmfontUtils = require('../../../utils/label/bmfont')
-const js = require('../../../../platform/js');
-const utils = require('../utils');
+import BmfontAssembler from '../../../utils/label/bmfont';
+import RenderData from '../render-data';
+import utils from '../utils';
 
-module.exports = js.addon({
-    createData (comp) {
-        return comp.requestRenderData();
-    },
+export default class CanvasBmfontAssembler extends BmfontAssembler {
+    init () {
+        this._renderData = new RenderData();
+    }
 
-    appendQuad (renderData, texture, rect, rotated, x, y, scale) {
+    updateColor () {}
+
+    appendQuad (comp, texture, rect, rotated, x, y, scale) {
+        let renderData = this._renderData;
         let dataOffset = renderData.dataLength;
         
         renderData.dataLength += 2;
 
-        let data = renderData._data;
-        let texw = texture.width,
-            texh = texture.height;
+        let verts = renderData.vertices;
 
         let rectWidth = rect.width,
             rectHeight = rect.height;
@@ -51,34 +52,35 @@ module.exports = js.addon({
             b = rect.y;
             t = rect.y + rectHeight;
 
-            data[dataOffset].u = l;
-            data[dataOffset].v = b;
-            data[dataOffset+1].u = r;
-            data[dataOffset+1].v = t;
+            verts[dataOffset].u = l;
+            verts[dataOffset].v = b;
+            verts[dataOffset+1].u = r;
+            verts[dataOffset+1].v = t;
         } else {
             l = rect.x;
             r = rect.x + rectHeight;
             b = rect.y;
             t = rect.y + rectWidth;
 
-            data[dataOffset].u = l;
-            data[dataOffset].v = t;
-            data[dataOffset+1].u = l;
-            data[dataOffset+1].v = b;
+            verts[dataOffset].u = l;
+            verts[dataOffset].v = t;
+            verts[dataOffset+1].u = l;
+            verts[dataOffset+1].v = b;
         }
 
-        data[dataOffset].x = x;
-        data[dataOffset].y = y - rectHeight * scale;
-        data[dataOffset+1].x = x + rectWidth * scale;
-        data[dataOffset+1].y = y;
-    },
+        verts[dataOffset].x = x;
+        verts[dataOffset].y = y - rectHeight * scale;
+        verts[dataOffset+1].x = x + rectWidth * scale;
+        verts[dataOffset+1].y = y;
+    }
 
     draw (ctx, comp) {
         let node = comp.node;
         // Transform
         let matrix = node._worldMatrix;
-        let a = matrix.m00, b = matrix.m01, c = matrix.m04, d = matrix.m05,
-            tx = matrix.m12, ty = matrix.m13;
+        let matrixm = matrix.m;
+        let a = matrixm[0], b = matrixm[1], c = matrixm[4], d = matrixm[5],
+            tx = matrixm[12], ty = matrixm[13];
         ctx.transform(a, b, c, d, tx, ty);
         ctx.scale(1, -1);
 
@@ -88,21 +90,21 @@ module.exports = js.addon({
         utils.context.setGlobalAlpha(ctx, node.opacity / 255);
 
         let tex = comp._frame._texture,
-            data = comp._renderData._data;
+            verts = this._renderData.vertices;
 
         let image = utils.getColorizedImage(tex, node._color);
 
-        for (let i = 0, l = data.length; i < l; i+=2) {
-            let x = data[i].x;
-            let y = data[i].y;
-            let w = data[i+1].x - x;
-            let h = data[i+1].y - y;
+        for (let i = 0, l = verts.length; i < l; i+=2) {
+            let x = verts[i].x;
+            let y = verts[i].y;
+            let w = verts[i+1].x - x;
+            let h = verts[i+1].y - y;
             y = - y - h;
 
-            let sx = data[i].u;
-            let sy = data[i].v;
-            let sw = data[i+1].u - sx;
-            let sh = data[i+1].v - sy;
+            let sx = verts[i].u;
+            let sy = verts[i].v;
+            let sw = verts[i+1].u - sx;
+            let sh = verts[i+1].v - sy;
 
             ctx.drawImage(image, 
                 sx, sy, sw, sh,
@@ -111,4 +113,5 @@ module.exports = js.addon({
         
         return 1;
     }
-}, bmfontUtils);
+}
+

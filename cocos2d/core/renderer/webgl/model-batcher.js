@@ -23,9 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const vertexFormat = require('./vertex-format');
-const defaultVertexFormat = vertexFormat.vfmtPosUvColor;
-const vfmt3D = vertexFormat.vfmt3D;
+const { vfmtPosUvColor, vfmt3D } = require('./vertex-format');
 const QuadBuffer = require('./quad-buffer');
 const MeshBuffer = require('./mesh-buffer');
 const SpineBuffer = require('./spine-buffer');
@@ -60,11 +58,11 @@ var ModelBatcher = function (device, renderScene) {
     }, 16);
 
     // buffers
-    this._quadBuffer = this.getBuffer('quad', defaultVertexFormat);
-    this._meshBuffer = this.getBuffer('mesh', defaultVertexFormat);
+    this._quadBuffer = this.getBuffer('quad', vfmtPosUvColor);
+    this._meshBuffer = this.getBuffer('mesh', vfmtPosUvColor);
     this._quadBuffer3D = this.getBuffer('quad', vfmt3D);
     this._meshBuffer3D = this.getBuffer('mesh', vfmt3D);
-    this._buffer = this._quadBuffer;
+    this._buffer = this._meshBuffer;
 
     this._batchedModels = [];
     this._dummyNode = new cc.Node();
@@ -91,6 +89,8 @@ ModelBatcher.prototype = {
         let models = this._batchedModels;
         for (let i = 0; i < models.length; ++i) {
             // remove from scene
+            // models[i].clearInputAssemblers();
+            // models[i].clearEffects();
             models[i].setInputAssembler(null);
             models[i].setEffect(null);
             scene.removeModel(models[i]);
@@ -102,7 +102,7 @@ ModelBatcher.prototype = {
         for (let key in _buffers) {
             _buffers[key].reset();
         }
-        this._buffer = this._quadBuffer;
+        this._buffer = this._meshBuffer;
 
         // reset caches for handle render components
         this.node = this._dummyNode;
@@ -136,21 +136,19 @@ ModelBatcher.prototype = {
     _flush () {
         let material = this.material,
             buffer = this._buffer,
-            indiceStart = buffer.indiceStart,
-            indiceOffset = buffer.indiceOffset,
-            indiceCount = indiceOffset - indiceStart;
+            indiceCount = buffer.indiceOffset - buffer.indiceStart;
         if (!this.walking || !material || indiceCount <= 0) {
             return;
         }
 
         let effect = material.effect;
         if (!effect) return;
-
+        
         // Generate ia
         let ia = this._iaPool.add();
         ia._vertexBuffer = buffer._vb;
         ia._indexBuffer = buffer._ib;
-        ia._start = indiceStart;
+        ia._start = buffer.indiceStart;
         ia._count = indiceCount;
         
         // Generate model
@@ -163,20 +161,15 @@ ModelBatcher.prototype = {
         model.setInputAssembler(ia);
         
         this._renderScene.addModel(model);
-           
-        buffer.byteStart = buffer.byteOffset;
-        buffer.indiceStart = buffer.indiceOffset;
-        buffer.vertexStart = buffer.vertexOffset;
+        buffer.forwardIndiceStartToOffset();
     },
 
-    _flushIA (iaRenderData) {
-        let material = iaRenderData.material;
-        
-        if (!iaRenderData.ia || !material) {
+    _flushIA (ia) {
+        if (!ia) {
             return;
         }
 
-        this.material = material;
+        let material = this.material;
         let effect = material.effect;
         if (!effect) return;
         
@@ -187,23 +180,9 @@ ModelBatcher.prototype = {
         model._cullingMask = this.cullingMask;
         model.setNode(this.node);
         model.setEffect(effect, this.customProperties);
-        model.setInputAssembler(iaRenderData.ia);
+        model.setInputAssembler(ia);
         
         this._renderScene.addModel(model);
-    },
-
-    _commitComp (comp, assembler, cullingMask) {
-        comp._checkBacth(this, cullingMask);
-        assembler.fillBuffers(comp, this);
-    },
-
-    _commitIA (comp, assembler, cullingMask) {
-        this._flush();
-        this.cullingMask = cullingMask;
-        this.material = comp.sharedMaterials[0] || empty_material;
-        this.node = this.material.getDefine('_USE_MODEL') ? comp.node : this._dummyNode;
-
-        assembler.renderIA(comp, this);
     },
 
     terminate () {
@@ -217,6 +196,8 @@ ModelBatcher.prototype = {
         for (let key in _buffers) {
             _buffers[key].uploadData();
         }
+    
+        this.walking = false;
     },
 
     getBuffer (type, vertextFormat) {

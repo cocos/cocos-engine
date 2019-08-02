@@ -310,7 +310,7 @@ proto.scale = function (vector, out) {
  * !#en Divides by a number. If you want to save result to another vector, use div() instead.
  * !#zh 向量除法。如果你想结果保存到另一个向量，可使用 div() 代替。
  * @method divSelf
- * @param {number} divisor
+ * @param {number} num
  * @return {Vec3} returns this
  * @chainable
  */
@@ -325,7 +325,7 @@ proto.divSelf = function (num) {
  * !#en Divides by a number, and returns the new result.
  * !#zh 向量除法，并返回新的结果。
  * @method div
- * @param {Vec3} vector
+ * @param {number} num
  * @param {Vec3} [out] - optional, the receiving vector, you can pass the same vec3 to save result to itself, if not provided, a new vec3 will be created
  * @return {Vec3} the result
  */
@@ -522,6 +522,10 @@ proto.rotateSelf = function (radians) {
     return v2Proto.rotateSelf.call(this, radians);
 };
 
+proto.array = function (out) {
+    vec3.array(out, this);
+};
+
 /**
  * !#en return a Vec3 object with x = 1, y = 1, z = 1.
  * !#zh 新 Vec3 对象。
@@ -576,6 +580,10 @@ js.get(Vec3, 'RIGHT', function () {
 js.get(Vec3, 'FRONT', function () {
     return new Vec3(0.0, 0.0, 1.0);
 });
+
+/**
+ * @module cc
+ */
 
 /**
  * !#en The convenience method to create a new {{#crossLink "Vec3"}}cc.Vec3{{/crossLink}}.

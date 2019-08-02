@@ -98,23 +98,14 @@ misc.NextPOT = function (x) {
 if (CC_EDITOR) {
     // use anonymous function here to ensure it will not being hoisted without CC_EDITOR
 
-    misc.tryCatchFunctor_EDITOR = function (funcName, forwardArgs, afterCall, bindArg) {
-        function call_FUNC_InTryCatch (_R_ARGS_) {
-            try {
-                target._FUNC_(_U_ARGS_);
-            }
-            catch (e) {
-                cc._throw(e);
-            }
-            _AFTER_CALL_
-        }
-        // use evaled code to generate named function
-        return Function('arg', 'return ' + call_FUNC_InTryCatch
-                    .toString()
-                    .replace(/_FUNC_/g, funcName)
-                    .replace('_R_ARGS_', 'target' + (forwardArgs ? ', ' + forwardArgs : ''))
-                    .replace('_U_ARGS_', forwardArgs || '')
-                    .replace('_AFTER_CALL_', afterCall || ''))(bindArg);
+    misc.tryCatchFunctor_EDITOR = function (funcName) {
+        return Function('target',
+            'try {\n' +
+            '  target.' + funcName + '();\n' +
+            '}\n' +
+            'catch (e) {\n' +
+            '  cc._throw(e);\n' +
+            '}');
     };
 }
 
@@ -199,7 +190,7 @@ misc.clamp01 = function (value) {
  * @param {Number} b number B
  * @param {Number} r ratio between 0 and 1
  * @return {Number}
- * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCMacro/lerp.js}
+ * @example {@link cocos2d/core/platform/CCMacro/lerp.js}
  */
 misc.lerp = function (a, b, r) {
     return a + (b - a) * r;

@@ -1,31 +1,28 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-#include <shadowmap-declare-frag>
 
 // TODO: lights uniform should move back to cc-global
 
+#define CC_MAX_LIGHTS 2
+
+#if CC_NUM_DIR_LIGHTS > 0 || CC_NUM_POINT_LIGHTS > 0 || CC_NUM_SPOT_LIGHTS > 0 || CC_NUM_AMBIENT_LIGHTS > 0
+
 // directional lights
-#if _NUM_DIR_LIGHTS > 0
-  uniform vec4 cc_dirLightDirection[_NUM_DIR_LIGHTS];            // xyz
-  uniform vec4 cc_dirLightColor[_NUM_DIR_LIGHTS];                // xyz
-#endif
+#pragma builtin(global)
+uniform CCLIGHTS {
+  vec4 cc_dirLightDirection[CC_MAX_LIGHTS];            // xyz
+  vec4 cc_dirLightColor[CC_MAX_LIGHTS];                // xyz
 
-// point lights
-#if _NUM_POINT_LIGHTS > 0
-  uniform vec4 cc_pointLightPositionAndRange[_NUM_POINT_LIGHTS];   // xyz range
-  uniform vec4 cc_pointLightColor[_NUM_POINT_LIGHTS];              // xyz
-#endif
+  vec4 cc_pointLightPositionAndRange[CC_MAX_LIGHTS];   // xyz range
+  vec4 cc_pointLightColor[CC_MAX_LIGHTS];              // xyz
 
-// spot lights
-#if _NUM_SPOT_LIGHTS > 0
-  uniform vec4 cc_spotLightPositionAndRange[_NUM_SPOT_LIGHTS];    // xyz range
-  uniform vec4 cc_spotLightDirection[_NUM_SPOT_LIGHTS];           // xyz spotAngle
-  uniform vec4 cc_spotLightColor[_NUM_SPOT_LIGHTS];               // xyz spotExp
-#endif
+  vec4 cc_spotLightPositionAndRange[CC_MAX_LIGHTS];    // xyz range
+  vec4 cc_spotLightDirection[CC_MAX_LIGHTS];           // xyz spotAngle
+  vec4 cc_spotLightColor[CC_MAX_LIGHTS];               // xyz spotExp
 
-// ambient lights
-#if _NUM_AMBIENT_LIGHTS > 0
-  uniform vec4 cc_ambientColor[_NUM_AMBIENT_LIGHTS];             // xyz
+  vec4 cc_ambientColor[CC_MAX_LIGHTS];                 // xyz
+};
+
 #endif
 
 struct LightInfo {

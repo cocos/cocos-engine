@@ -320,7 +320,7 @@ class Vec4 extends ValueType {
      * !#en Divides by a number. If you want to save result to another vector, use div() instead.
      * !#zh 向量除法。如果你想结果保存到另一个向量，可使用 div() 代替。
      * @method divSelf
-     * @param {Vec4} vector
+     * @param {number} num
      * @return {Vec4} returns this
      * @chainable
      */
@@ -336,7 +336,7 @@ class Vec4 extends ValueType {
      * !#en Divides by a number, and returns the new result.
      * !#zh 向量除法，并返回新的结果。
      * @method div
-     * @param {Vec4} vector
+     * @param {number} num
      * @param {Vec4} [out] - optional, the receiving vector, you can pass the same vec4 to save result to itself, if not provided, a new vec4 will be created
      * @return {Vec4} the result
      */
@@ -479,9 +479,17 @@ class Vec4 extends ValueType {
         vec4.transformMat4(out, this, m);
         return out;
     }
+
+    array (out) {
+        vec4.array(out, this);
+    }
 }
 
 CCClass.fastDefine('cc.Vec4', Vec4, { x: 0, y: 0, z: 0, w: 0 });
+
+/**
+ * @module cc
+ */
 
 /**
  * !#en The convenience method to create a new {{#crossLink "Vec4"}}cc.Vec4{{/crossLink}}.

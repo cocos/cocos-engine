@@ -229,10 +229,7 @@ let _type2uniformArrayValue = {
       let result = _float64_pool.add();
       for (let i = 0; i < values.length; ++i) {
         let v = values[i];
-        result[4 * i] = v.m00;
-        result[4 * i + 1] = v.m01;
-        result[4 * i + 2] = v.m02;
-        result[4 * i + 3] = v.m03;
+        result.set(v.m, 4 * i);
       }
       return result;
     },
@@ -250,22 +247,7 @@ let _type2uniformArrayValue = {
       let result = _float64_pool.add();
       for (let i = 0; i < values.length; ++i) {
         let v = values[i];
-        result[16 * i] = v.m00;
-        result[16 * i + 1] = v.m01;
-        result[16 * i + 2] = v.m02;
-        result[16 * i + 3] = v.m03;
-        result[16 * i + 4] = v.m04;
-        result[16 * i + 5] = v.m05;
-        result[16 * i + 6] = v.m06;
-        result[16 * i + 7] = v.m07;
-        result[16 * i + 8] = v.m08;
-        result[16 * i + 9] = v.m09;
-        result[16 * i + 10] = v.m10;
-        result[16 * i + 11] = v.m11;
-        result[16 * i + 12] = v.m12;
-        result[16 * i + 13] = v.m13;
-        result[16 * i + 14] = v.m14;
-        result[16 * i + 15] = v.m15;
+        result.set(v.m, 16 * i);
       }
       return result;
     },
@@ -422,10 +404,6 @@ export default class Base {
       model.extractDrawItem(drawItem);
     }
 
-    // TODO: update frustum
-    // TODO: visbility test
-    // frustum.update(view._viewProj);
-
     // dispatch draw items to different stage
     _stageInfos.reset();
 
@@ -486,9 +464,9 @@ export default class Base {
       prop.type === enums.PARAM_TEXTURE_2D ||
       prop.type === enums.PARAM_TEXTURE_CUBE
     ) {
-      if (prop.size !== undefined) {
-        if (prop.size !== param.length) {
-          console.error(`The length of texture array (${param.length}) is not corrent(expect ${prop.size}).`);
+      if (Array.isArray(param)) {
+        if (param.length > prop.count) {
+          console.error(`Failed to set property [${prop.name}] : The length of texture array [${param.length}] is bigger than [${prop.count}].`);
           return;
         }
         let slots = _int64_pool.add();
@@ -500,27 +478,12 @@ export default class Base {
         device.setTexture(prop.name, param, this._allocTextureUnit());
       }
     } else {
-      let convertedValue;
-      if (param instanceof Float32Array || param instanceof Int32Array) {
+      if (prop.directly) {
         device.setUniformDirectly(prop.name, param);
-        return;
       }
-      else if (prop.size !== undefined) {
-        let convertArray = _type2uniformArrayValue[prop.type];
-        if (convertArray.func === undefined) {
-          console.error('Uniform array of color3/int3/float3/mat3 can not be supportted!');
-          return;
-        }
-        if (prop.size * convertArray.size > 64) {
-          console.error('Uniform array is too long!');
-          return;
-        }
-        convertedValue = convertArray.func(param);
-      } else {
-        let convertFn = _type2uniformValue[prop.type];
-        convertedValue = convertFn(param);
+      else {
+        device.setUniform(prop.name, param);
       }
-      device.setUniform(prop.name, convertedValue);
     }
   }
 
@@ -549,11 +512,10 @@ export default class Base {
     node.getWorldMatrix(_m4_tmp);
     device.setUniform('cc_matWorld', mat4.array(_float16_pool.add(), _m4_tmp));
 
-    let inverse = mat3.invert(_m3_tmp, mat3.fromMat4(_m3_tmp, _m4_tmp));
-    if (inverse) {
-      mat3.transpose(_m3_tmp, inverse);
-      device.setUniform('cc_matWorldIT', mat3.array(_float9_pool.add(), _m3_tmp));
-    }
+    // let wq = node.getWorldRotation(cc.quat());
+    mat4.invert(_m4_tmp, _m4_tmp);
+    mat4.transpose(_m4_tmp, _m4_tmp);
+    device.setUniform('cc_matWorldIT', mat4.array(_float16_pool.add(), _m4_tmp));
     // }
 
     for (let i = 0; i < uniforms.length; i++) {

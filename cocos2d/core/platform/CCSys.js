@@ -401,17 +401,23 @@ function initSys () {
      */
     sys.JKW_GAME = 112;
     /**
-     * @property {Number} WECHAT_GAME_SUB
+     * @property {Number} ALIPAY_GAME
      * @readOnly
      * @default 113
      */
-    sys.WECHAT_GAME_SUB = 113;
+    sys.ALIPAY_GAME = 113;
     /**
-     * @property {Number} BAIDU_GAME_SUB
+     * @property {Number} WECHAT_GAME_SUB
      * @readOnly
      * @default 114
      */
-    sys.BAIDU_GAME_SUB = 114;
+    sys.WECHAT_GAME_SUB = 114;
+    /**
+     * @property {Number} BAIDU_GAME_SUB
+     * @readOnly
+     * @default 115
+     */
+    sys.BAIDU_GAME_SUB = 115;
     /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
@@ -455,6 +461,13 @@ function initSys () {
      */
     sys.BROWSER_TYPE_XIAOMI_GAME = "xiaomigame";
     /**
+     * BROWSER_TYPE_ALIPAY_GAME
+     * @property {String} BROWSER_TYPE_ALIPAY_GAME
+     * @readOnly
+     * @default "alipaygame"
+     */
+    sys.BROWSER_TYPE_ALIPAY_GAME = "alipaygame";
+    /**
      * BROWSER_TYPE_QQ_PLAY
      * @property {String} BROWSER_TYPE_QQ_PLAY
      * @readOnly
@@ -475,6 +488,13 @@ function initSys () {
      * @default "ie"
      */
     sys.BROWSER_TYPE_IE = "ie";
+    /**
+     *
+     * @property {String} BROWSER_TYPE_EDGE
+     * @readOnly
+     * @default "edge"
+     */
+    sys.BROWSER_TYPE_EDGE = "edge";
     /**
      *
      * @property {String} BROWSER_TYPE_QQ
@@ -621,8 +641,9 @@ function initSys () {
      * @param name
      */
     sys.glExtension = function (name) {
-        if ((sys.platform === sys.WECHAT_GAME || sys.platform === sys.BAIDU_GAME) && name === 'OES_texture_float') {
-            return false;
+        // TODO: should check support on native platform
+        if (CC_JSB && CC_NATIVERENDERER) {
+            return true;
         }
         return !!cc.renderer.device.ext(name);
     }
@@ -844,30 +865,27 @@ function initSys () {
         /* Determine the browser type */
         (function(){
             var typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
-            var typeReg2 = /qqbrowser|ucbrowser/i;
+            var typeReg2 = /qqbrowser|ucbrowser|ubrowser|edge/i;
             var typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
-            var browserTypes = typeReg1.exec(ua);
-            if(!browserTypes) browserTypes = typeReg2.exec(ua);
-            if(!browserTypes) browserTypes = typeReg3.exec(ua);
+            var browserTypes = typeReg1.exec(ua) || typeReg2.exec(ua) || typeReg3.exec(ua);
 
             var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
 
-            if (browserType === 'micromessenger')
-                browserType = sys.BROWSER_TYPE_WECHAT;
-            else if (browserType === "safari" && isAndroid)
+            if (browserType === "safari" && isAndroid)
                 browserType = sys.BROWSER_TYPE_ANDROID;
             else if (browserType === "qq" && ua.match(/android.*applewebkit/i))
                 browserType = sys.BROWSER_TYPE_ANDROID;
-            else if (browserType === "trident")
-                browserType = sys.BROWSER_TYPE_IE;
-            else if (browserType === "360 aphone")
-                browserType = sys.BROWSER_TYPE_360;
-            else if (browserType === "mxbrowser")
-                browserType = sys.BROWSER_TYPE_MAXTHON;
-            else if (browserType === "opr/")
-                browserType = sys.BROWSER_TYPE_OPERA;
-
-            sys.browserType = browserType;
+            let typeMap = {
+                'micromessenger': sys.BROWSER_TYPE_WECHAT,
+                'trident': sys.BROWSER_TYPE_IE,
+                'edge': sys.BROWSER_TYPE_EDGE,
+                '360 aphone': sys.BROWSER_TYPE_360,
+                'mxbrowser': sys.BROWSER_TYPE_MAXTHON,
+                'opr/': sys.BROWSER_TYPE_OPERA,
+                'ubrowser': sys.BROWSER_TYPE_UC
+            };
+            
+            sys.browserType = typeMap[browserType] || browserType;
         })();
 
         /**

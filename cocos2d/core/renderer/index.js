@@ -22,17 +22,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
-import ForwardRenderer from '../../renderer/renderers/forward-renderer';
 import config from '../../renderer/config';
 import gfx from '../../renderer/gfx';
-import Scene from '../../renderer/scene/scene';
 
 import InputAssembler from '../../renderer/core/input-assembler';
-import IARenderData from '../../renderer/render-data/ia-render-data';
 import Pass from '../../renderer/core/pass';
 
-const RenderFlow = require('./render-flow');
+// const RenderFlow = require('./render-flow');
 
 function _initBuiltins(device) {
     let defaultTexture = new gfx.Texture2D(device, {
@@ -44,9 +40,11 @@ function _initBuiltins(device) {
         format: gfx.TEXTURE_FMT_RGB8,
         mipmap: false,
     });
-  
+
     return {
         defaultTexture: defaultTexture,
+        programTemplates: [],
+        programChunks: {},
     };
 }
 
@@ -65,7 +63,6 @@ cc.renderer = module.exports = {
     Texture2D: null,
 
     InputAssembler: InputAssembler,
-    IARenderData: IARenderData,
     Pass: Pass,
 
     /**
@@ -107,41 +104,48 @@ cc.renderer = module.exports = {
     _cameraNode: null,
     _camera: null,
     _forward: null,
+    _flow: null,
 
     initWebGL (canvas, opts) {
         require('./webgl/assemblers');
         const ModelBatcher = require('./webgl/model-batcher');
 
         this.Texture2D = gfx.Texture2D;
-
         this.canvas = canvas;
+        this._flow = cc.RenderFlow;
+        
         if (CC_JSB && CC_NATIVERENDERER) {
             // native codes will create an instance of Device, so just use the global instance.
-            this.device = window.device;
+            this.device = gfx.Device.getInstance();
+            this.scene = new renderer.Scene();
+            let builtins = _initBuiltins(this.device);
+            this._forward = new renderer.ForwardRenderer(this.device, builtins);
+            let nativeFlow = new renderer.RenderFlow(this.device, this.scene, this._forward);
+            this._flow.init(nativeFlow);
         }
         else {
+            let Scene = require('../../renderer/scene/scene');
+            let ForwardRenderer = require('../../renderer/renderers/forward-renderer');
             this.device = new gfx.Device(canvas, opts);
+            this.scene = new Scene();
+            let builtins = _initBuiltins(this.device);
+            this._forward = new ForwardRenderer(this.device, builtins);
+            this._handle = new ModelBatcher(this.device, this.scene);
+            this._flow.init(this._handle, this._forward);
         }
-        
-        this.scene = new Scene();
-
-        this._handle = new ModelBatcher(this.device, this.scene);
-        RenderFlow.init(this._handle);
-        let builtins = _initBuiltins(this.device);
-        this._forward = new ForwardRenderer(this.device, builtins);
         config.addStage('shadowcast');
         config.addStage('opaque');
         config.addStage('transparent');
     },
 
     initCanvas (canvas) {
-        let canvasRenderer = require('./canvas');
+        const canvasRenderer = require('./canvas');
         const Texture2D = require('./canvas/Texture2D');
         const Device = require('./canvas/Device');
-        
+
         // It's actually running with original render engine
-        this.Device = Device;        
-        
+        this.Device = Device;
+
         this.Texture2D = Texture2D;
 
         this.canvas = canvas;
@@ -150,15 +154,16 @@ cc.renderer = module.exports = {
             a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0
         };
         this._handle = new canvasRenderer.RenderComponentHandle(this.device, this._camera);
-        RenderFlow.init(this._handle);
         this._forward = new canvasRenderer.ForwardRenderer();
+        this._flow = cc.RenderFlow;
+        this._flow.init(this._handle, this._forward);
     },
 
     updateCameraViewport () {
         // TODO: remove HACK
         if (!CC_EDITOR && cc.director) {
             let ecScene = cc.director.getScene();
-            ecScene.setScale(1, 1, 1);
+            if (ecScene) ecScene.setScale(1, 1, 1);
         }
 
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
@@ -171,14 +176,12 @@ cc.renderer = module.exports = {
         }
     },
 
-    render (ecScene) {
-        this.device._stats.drawcalls = 0;
+    render (ecScene, dt) {
+        this.device.resetDrawCalls();
         if (ecScene) {
             // walk entity component scene to generate models
-            RenderFlow.visit(ecScene);
-            // Render models in renderer scene
-            this._forward.render(this.scene);
-            this.drawCalls = this.device._stats.drawcalls;
+            this._flow.render(ecScene, dt);
+            this.drawCalls = this.device.getDrawCalls();
         }
     },
 

@@ -332,7 +332,7 @@ proto.scale = function (vector, out) {
  * !#en Divides by a number. If you want to save result to another vector, use div() instead.
  * !#zh 向量除法。如果你想结果保存到另一个向量，可使用 div() 代替。
  * @method divSelf
- * @param {number} divisor
+ * @param {number} num
  * @return {Vec2} returns this
  * @chainable
  * @example
@@ -349,7 +349,7 @@ proto.divSelf = function (num) {
  * !#en Divides by a number, and returns the new result.
  * !#zh 向量除法，并返回新的结果。
  * @method div
- * @param {Vec2} divisor
+ * @param {number} num
  * @param {Vec2} [out] - optional, the receiving vector, you can pass the same vec2 to save result to itself, if not provided, a new vec2 will be created
  * @return {Vec2} the result
  * @example
@@ -593,6 +593,32 @@ proto.project = function (vector) {
 proto.transformMat4 = function (m, out) {
     out = out || new Vec2();
     vec2.transformMat4(out, this, m);
+};
+
+proto.fromTranslation = function (trs) {
+    this.x = trs[0];
+    this.y = trs[1];
+    return this;
+};
+
+proto.toTranslation = function (trs) {
+    trs[0] = this.x;
+    trs[1] = this.y;
+};
+
+proto.fromScale = function (trs) {
+    this.x = trs[7];
+    this.y = trs[8];
+    return this;
+};
+
+proto.toScale = function (trs) {
+    trs[7] = this.x;
+    trs[8] = this.y;
+};
+
+proto.array = function (out) {
+    vec2.array(out, this);
 };
 
 //_serialize: function () {

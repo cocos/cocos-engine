@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Assembler from '../core/renderer/assembler';
+
 const TiledLayer = require('./CCTiledLayer');
 const TiledMap = require('./CCTiledMap');
 const TileFlag = TiledMap.TileFlag;
@@ -49,6 +51,7 @@ let _renderData = null, _ia = null, _fillGrids = 0,
     _curMaterial = null, _comp = null, _vbuf = null, _uintbuf = null;
 
 function _visitUserNode (userNode) {
+    if (CC_NATIVERENDERER) return;
     userNode._updateLocalMatrix();
     mat4.mul(userNode._worldMatrix, _layerMat, userNode._matrix);
     vec3.set(_vec3_temp, -_moveX, -_moveY, 0);
@@ -63,7 +66,8 @@ function _flush () {
         return;
     }
 
-    _renderer._flushIA(_renderData);
+    _renderer.material = _renderData.material;
+    _renderer._flushIA(_renderData.ia);
 
     let needSwitchBuffer = (_fillGrids >= MaxGridsLimit);
     if (needSwitchBuffer) {
@@ -136,15 +140,15 @@ function _flipTexture (outGrid, inGrid, gid) {
     }
 };
 
-let tmxAssembler = {
+export default class TmxAssembler extends Assembler {
     updateRenderData (comp) {
         if (!comp._renderDataList) {
             comp._buffer = new cc.TiledMapBuffer(renderer._handle, vfmtPosUvColor);
             comp._renderDataList = new cc.TiledMapRenderDataList();
         }
-    },
+    }
 
-    renderIA (comp, renderer) {
+    fillBuffers (comp, renderer) {
         let vertices = comp._vertices;
         if (vertices.length === 0 ) return;
 
@@ -202,7 +206,7 @@ let tmxAssembler = {
             comp._setCullingDirty(false);
             comp._setUserNodeDirty(false);
 
-        } else {
+        } else if (!CC_NATIVERENDERER) {
             let renderData = null;
             let nodesRenderList = null;
             let nodesList = null;
@@ -226,7 +230,8 @@ let tmxAssembler = {
                     renderer.node = layerNode;
                 }
                 if (renderData.ia._count > 0) {
-                    renderer._flushIA(renderData);
+                    renderer.material = renderData.material;
+                    renderer._flushIA(renderData.ia);
                 }
             }
         }
@@ -242,7 +247,7 @@ let tmxAssembler = {
 
         _vbuf = null;
         _uintbuf = null;
-    },
+    }
 
     // rowMoveDir is -1 or 1, -1 means decrease, 1 means increase
     // colMoveDir is -1 or 1, -1 means decrease, 1 means increase
@@ -412,21 +417,23 @@ let tmxAssembler = {
 
         // last flush
         if (_ia._count > 0) {
-            _renderer._flushIA(_renderData);
+            _renderer.material = _renderData.material;
+            _renderer._flushIA(_renderData.ia);
         }
-    },
+    }
 
     fillByTiledNode (tiledNode, vbuf, uintbuf, left, right, top, bottom) {
         tiledNode._updateLocalMatrix();
         mat4.copy(_mat4_temp, tiledNode._matrix);
         vec3.set(_vec3_temp, -(left + _moveX), -(bottom + _moveY), 0);
         mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
-        let a = _mat4_temp.m00;
-        let b = _mat4_temp.m01;
-        let c = _mat4_temp.m04;
-        let d = _mat4_temp.m05;
-        let tx = _mat4_temp.m12;
-        let ty = _mat4_temp.m13;
+        let m = _mat4_temp.m;
+        let a = m[0];
+        let b = m[1];
+        let c = m[4];
+        let d = m[5];
+        let tx = m[12];
+        let ty = m[13];
         let color = tiledNode._color._val;
 
         // tl
@@ -449,6 +456,6 @@ let tmxAssembler = {
         vbuf[_vfOffset + 16] = right * b + bottom * d + ty;
         uintbuf[_vfOffset + 19] = color;
     }
-};
+}
 
-module.exports = TiledLayer._assembler = tmxAssembler;
+Assembler.register(TiledLayer, TmxAssembler);

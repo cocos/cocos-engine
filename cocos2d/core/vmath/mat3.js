@@ -46,59 +46,71 @@ class mat3 {
     m03 = 0, m04 = 1, m05 = 0,
     m06 = 0, m07 = 0, m08 = 1
   ) {
-    /**
-     * The element at column 0 row 0.
-     * @type {number}
-     * */
-    this.m00 = m00;
+    if (m00 instanceof Float32Array) {
+        // deep copy
+        if (m01) {
+            this.m = new Float32Array(9);
+            this.m.set(m00);
+        } else {
+            this.m = m00;
+        }
+    } else {
+        this.m = new Float32Array(9);
+        let m = this.m;
+        /**
+         * The element at column 0 row 0.
+         * @type {number}
+         * */
+        m[0] = m00;
 
-    /**
-     * The element at column 0 row 1.
-     * @type {number}
-     * */
-    this.m01 = m01;
+        /**
+         * The element at column 0 row 1.
+         * @type {number}
+         * */
+        m[1] = m01;
 
-    /**
-     * The element at column 0 row 2.
-     * @type {number}
-     * */
-    this.m02 = m02;
+        /**
+         * The element at column 0 row 2.
+         * @type {number}
+         * */
+        m[2] = m02;
 
-    /**
-     * The element at column 1 row 0.
-     * @type {number}
-     * */
-    this.m03 = m03;
+        /**
+         * The element at column 1 row 0.
+         * @type {number}
+         * */
+        m[3] = m03;
 
-    /**
-     * The element at column 1 row 1.
-     * @type {number}
-     * */
-    this.m04 = m04;
+        /**
+         * The element at column 1 row 1.
+         * @type {number}
+         * */
+        m[4] = m04;
 
-    /**
-     * The element at column 1 row 2.
-     * @type {number}
-     * */
-    this.m05 = m05;
+        /**
+         * The element at column 1 row 2.
+         * @type {number}
+         * */
+        m[5] = m05;
 
-    /**
-     * The element at column 2 row 0.
-     * @type {number}
-     * */
-    this.m06 = m06;
+        /**
+         * The element at column 2 row 0.
+         * @type {number}
+         * */
+        m[6] = m06;
 
-    /**
-     * The element at column 2 row 1.
-     * @type {number}
-     * */
-    this.m07 = m07;
+        /**
+         * The element at column 2 row 1.
+         * @type {number}
+         * */
+        m[7] = m07;
 
-    /**
-     * The element at column 2 row 2.
-     * @type {number}
-     * */
-    this.m08 = m08;
+        /**
+         * The element at column 2 row 2.
+         * @type {number}
+         * */
+        m[8] = m08;
+    }
   }
 
   /**
@@ -126,10 +138,11 @@ class mat3 {
    * @returns {mat3} The newly created matrix.
    */
   static clone(a) {
+    let am = a.m;
     return new mat3(
-      a.m00, a.m01, a.m02,
-      a.m03, a.m04, a.m05,
-      a.m06, a.m07, a.m08
+      am[0], am[1], am[2],
+      am[3], am[4], am[5],
+      am[6], am[7], am[8]
     );
   }
 
@@ -141,15 +154,7 @@ class mat3 {
    * @returns {mat3} out.
    */
   static copy(out, a) {
-    out.m00 = a.m00;
-    out.m01 = a.m01;
-    out.m02 = a.m02;
-    out.m03 = a.m03;
-    out.m04 = a.m04;
-    out.m05 = a.m05;
-    out.m06 = a.m06;
-    out.m07 = a.m07;
-    out.m08 = a.m08;
+    out.m.set(a.m);
     return out;
   }
 
@@ -169,15 +174,16 @@ class mat3 {
    * @returns {mat3} out.
    */
   static set(out, m00, m01, m02, m10, m11, m12, m20, m21, m22) {
-    out.m00 = m00;
-    out.m01 = m01;
-    out.m02 = m02;
-    out.m03 = m10;
-    out.m04 = m11;
-    out.m05 = m12;
-    out.m06 = m20;
-    out.m07 = m21;
-    out.m08 = m22;
+    let outm = out.m;
+    outm[0] = m00;
+    outm[1] = m01;
+    outm[2] = m02;
+    outm[3] = m10;
+    outm[4] = m11;
+    outm[5] = m12;
+    outm[6] = m20;
+    outm[7] = m21;
+    outm[8] = m22;
     return out;
   }
 
@@ -187,15 +193,16 @@ class mat3 {
    * @returns {mat3} out.
    */
   static identity(out) {
-    out.m00 = 1;
-    out.m01 = 0;
-    out.m02 = 0;
-    out.m03 = 0;
-    out.m04 = 1;
-    out.m05 = 0;
-    out.m06 = 0;
-    out.m07 = 0;
-    out.m08 = 1;
+    let outm = out.m;
+    outm[0] = 1;
+    outm[1] = 0;
+    outm[2] = 0;
+    outm[3] = 0;
+    outm[4] = 1;
+    outm[5] = 0;
+    outm[6] = 0;
+    outm[7] = 0;
+    outm[8] = 1;
     return out;
   }
 
@@ -207,25 +214,26 @@ class mat3 {
    * @returns {mat3} out.
    */
   static transpose(out, a) {
+    let am = a.m, outm = out.m;
     // If we are transposing ourselves we can skip a few steps but have to cache some values
     if (out === a) {
-      let a01 = a.m01, a02 = a.m02, a12 = a.m05;
-      out.m01 = a.m03;
-      out.m02 = a.m06;
-      out.m03 = a01;
-      out.m05 = a.m07;
-      out.m06 = a02;
-      out.m07 = a12;
+      let a01 = am[1], a02 = am[2], a12 = am[5];
+      outm[1] = am[3];
+      outm[2] = am[6];
+      outm[3] = a01;
+      outm[5] = am[7];
+      outm[6] = a02;
+      outm[7] = a12;
     } else {
-      out.m00 = a.m00;
-      out.m01 = a.m03;
-      out.m02 = a.m06;
-      out.m03 = a.m01;
-      out.m04 = a.m04;
-      out.m05 = a.m07;
-      out.m06 = a.m02;
-      out.m07 = a.m05;
-      out.m08 = a.m08;
+      outm[0] = am[0];
+      outm[1] = am[3];
+      outm[2] = am[6];
+      outm[3] = am[1];
+      outm[4] = am[4];
+      outm[5] = am[7];
+      outm[6] = am[2];
+      outm[7] = am[5];
+      outm[8] = am[8];
     }
 
     return out;
@@ -239,9 +247,10 @@ class mat3 {
    * @returns {mat3} out.
    */
   static invert(out, a) {
-    let a00 = a.m00, a01 = a.m01, a02 = a.m02,
-      a10 = a.m03, a11 = a.m04, a12 = a.m05,
-      a20 = a.m06, a21 = a.m07, a22 = a.m08;
+    let am = a.m, outm = out.m;
+    let a00 = am[0], a01 = am[1], a02 = am[2],
+      a10 = am[3], a11 = am[4], a12 = am[5],
+      a20 = am[6], a21 = am[7], a22 = am[8];
 
     let b01 = a22 * a11 - a12 * a21;
     let b11 = -a22 * a10 + a12 * a20;
@@ -255,15 +264,15 @@ class mat3 {
     }
     det = 1.0 / det;
 
-    out.m00 = b01 * det;
-    out.m01 = (-a22 * a01 + a02 * a21) * det;
-    out.m02 = (a12 * a01 - a02 * a11) * det;
-    out.m03 = b11 * det;
-    out.m04 = (a22 * a00 - a02 * a20) * det;
-    out.m05 = (-a12 * a00 + a02 * a10) * det;
-    out.m06 = b21 * det;
-    out.m07 = (-a21 * a00 + a01 * a20) * det;
-    out.m08 = (a11 * a00 - a01 * a10) * det;
+    outm[0] = b01 * det;
+    outm[1] = (-a22 * a01 + a02 * a21) * det;
+    outm[2] = (a12 * a01 - a02 * a11) * det;
+    outm[3] = b11 * det;
+    outm[4] = (a22 * a00 - a02 * a20) * det;
+    outm[5] = (-a12 * a00 + a02 * a10) * det;
+    outm[6] = b21 * det;
+    outm[7] = (-a21 * a00 + a01 * a20) * det;
+    outm[8] = (a11 * a00 - a01 * a10) * det;
     return out;
   }
 
@@ -275,19 +284,20 @@ class mat3 {
    * @returns {mat3} out.
    */
   static adjoint(out, a) {
-    let a00 = a.m00, a01 = a.m01, a02 = a.m02,
-      a10 = a.m03, a11 = a.m04, a12 = a.m05,
-      a20 = a.m06, a21 = a.m07, a22 = a.m08;
+    let am = a.m, outm = out.m;
+    let a00 = am[0], a01 = am[1], a02 = am[2],
+      a10 = am[3], a11 = am[4], a12 = am[5],
+      a20 = am[6], a21 = am[7], a22 = am[8];
 
-    out.m00 = (a11 * a22 - a12 * a21);
-    out.m01 = (a02 * a21 - a01 * a22);
-    out.m02 = (a01 * a12 - a02 * a11);
-    out.m03 = (a12 * a20 - a10 * a22);
-    out.m04 = (a00 * a22 - a02 * a20);
-    out.m05 = (a02 * a10 - a00 * a12);
-    out.m06 = (a10 * a21 - a11 * a20);
-    out.m07 = (a01 * a20 - a00 * a21);
-    out.m08 = (a00 * a11 - a01 * a10);
+    outm[0] = (a11 * a22 - a12 * a21);
+    outm[1] = (a02 * a21 - a01 * a22);
+    outm[2] = (a01 * a12 - a02 * a11);
+    outm[3] = (a12 * a20 - a10 * a22);
+    outm[4] = (a00 * a22 - a02 * a20);
+    outm[5] = (a02 * a10 - a00 * a12);
+    outm[6] = (a10 * a21 - a11 * a20);
+    outm[7] = (a01 * a20 - a00 * a21);
+    outm[8] = (a00 * a11 - a01 * a10);
     return out;
   }
 
@@ -298,9 +308,10 @@ class mat3 {
    * @returns {Number} Determinant of a.
    */
   static determinant(a) {
-    let a00 = a.m00, a01 = a.m01, a02 = a.m02,
-      a10 = a.m03, a11 = a.m04, a12 = a.m05,
-      a20 = a.m06, a21 = a.m07, a22 = a.m08;
+    let am = a.m;
+    let a00 = am[0], a01 = am[1], a02 = am[2],
+      a10 = am[3], a11 = am[4], a12 = am[5],
+      a20 = am[6], a21 = am[7], a22 = am[8];
 
     return a00 * (a22 * a11 - a12 * a21) + a01 * (-a22 * a10 + a12 * a20) + a02 * (a21 * a10 - a11 * a20);
   }
@@ -314,25 +325,26 @@ class mat3 {
    * @returns {mat3} out.
    */
   static multiply(out, a, b) {
-    let a00 = a.m00, a01 = a.m01, a02 = a.m02,
-      a10 = a.m03, a11 = a.m04, a12 = a.m05,
-      a20 = a.m06, a21 = a.m07, a22 = a.m08;
+    let am = a.m, bm = b.m, outm = out.m;
+    let a00 = am[0], a01 = am[1], a02 = am[2],
+      a10 = am[3], a11 = am[4], a12 = am[5],
+      a20 = am[6], a21 = am[7], a22 = am[8];
 
-    let b00 = b.m00, b01 = b.m01, b02 = b.m02;
-    let b10 = b.m03, b11 = b.m04, b12 = b.m05;
-    let b20 = b.m06, b21 = b.m07, b22 = b.m08;
+    let b00 = bm[0], b01 = bm[1], b02 = bm[2];
+    let b10 = bm[3], b11 = bm[4], b12 = bm[5];
+    let b20 = bm[6], b21 = bm[7], b22 = bm[8];
 
-    out.m00 = b00 * a00 + b01 * a10 + b02 * a20;
-    out.m01 = b00 * a01 + b01 * a11 + b02 * a21;
-    out.m02 = b00 * a02 + b01 * a12 + b02 * a22;
+    outm[0] = b00 * a00 + b01 * a10 + b02 * a20;
+    outm[1] = b00 * a01 + b01 * a11 + b02 * a21;
+    outm[2] = b00 * a02 + b01 * a12 + b02 * a22;
 
-    out.m03 = b10 * a00 + b11 * a10 + b12 * a20;
-    out.m04 = b10 * a01 + b11 * a11 + b12 * a21;
-    out.m05 = b10 * a02 + b11 * a12 + b12 * a22;
+    outm[3] = b10 * a00 + b11 * a10 + b12 * a20;
+    outm[4] = b10 * a01 + b11 * a11 + b12 * a21;
+    outm[5] = b10 * a02 + b11 * a12 + b12 * a22;
 
-    out.m06 = b20 * a00 + b21 * a10 + b22 * a20;
-    out.m07 = b20 * a01 + b21 * a11 + b22 * a21;
-    out.m08 = b20 * a02 + b21 * a12 + b22 * a22;
+    outm[6] = b20 * a00 + b21 * a10 + b22 * a20;
+    outm[7] = b20 * a01 + b21 * a11 + b22 * a21;
+    outm[8] = b20 * a02 + b21 * a12 + b22 * a22;
     return out;
   }
 
@@ -352,22 +364,23 @@ class mat3 {
    * @returns {mat3} out.
    */
   static translate(out, a, v) {
-    let a00 = a.m00, a01 = a.m01, a02 = a.m02,
-      a10 = a.m03, a11 = a.m04, a12 = a.m05,
-      a20 = a.m06, a21 = a.m07, a22 = a.m08;
+    let am = a.m, outm = out.m;
+    let a00 = am[0], a01 = am[1], a02 = am[2],
+      a10 = am[3], a11 = am[4], a12 = am[5],
+      a20 = am[6], a21 = am[7], a22 = am[8];
     let x = v.x, y = v.y;
 
-    out.m00 = a00;
-    out.m01 = a01;
-    out.m02 = a02;
+    outm[0] = a00;
+    outm[1] = a01;
+    outm[2] = a02;
 
-    out.m03 = a10;
-    out.m04 = a11;
-    out.m05 = a12;
+    outm[3] = a10;
+    outm[4] = a11;
+    outm[5] = a12;
 
-    out.m06 = x * a00 + y * a10 + a20;
-    out.m07 = x * a01 + y * a11 + a21;
-    out.m08 = x * a02 + y * a12 + a22;
+    outm[6] = x * a00 + y * a10 + a20;
+    outm[7] = x * a01 + y * a11 + a21;
+    outm[8] = x * a02 + y * a12 + a22;
     return out;
   }
 
@@ -380,24 +393,25 @@ class mat3 {
    * @returns {mat3} out
    */
   static rotate(out, a, rad) {
-    let a00 = a.m00, a01 = a.m01, a02 = a.m02,
-      a10 = a.m03, a11 = a.m04, a12 = a.m05,
-      a20 = a.m06, a21 = a.m07, a22 = a.m08;
+    let am = a.m, outm = out.m;
+    let a00 = am[0], a01 = am[1], a02 = am[2],
+      a10 = am[3], a11 = am[4], a12 = am[5],
+      a20 = am[6], a21 = am[7], a22 = am[8];
 
     let s = Math.sin(rad);
     let c = Math.cos(rad);
 
-    out.m00 = c * a00 + s * a10;
-    out.m01 = c * a01 + s * a11;
-    out.m02 = c * a02 + s * a12;
+    outm[0] = c * a00 + s * a10;
+    outm[1] = c * a01 + s * a11;
+    outm[2] = c * a02 + s * a12;
 
-    out.m03 = c * a10 - s * a00;
-    out.m04 = c * a11 - s * a01;
-    out.m05 = c * a12 - s * a02;
+    outm[3] = c * a10 - s * a00;
+    outm[4] = c * a11 - s * a01;
+    outm[5] = c * a12 - s * a02;
 
-    out.m06 = a20;
-    out.m07 = a21;
-    out.m08 = a22;
+    outm[6] = a20;
+    outm[7] = a21;
+    outm[8] = a22;
     return out;
   }
 
@@ -411,18 +425,19 @@ class mat3 {
    **/
   static scale(out, a, v) {
     let x = v.x, y = v.y;
+    let am = a.m, outm = out.m;
 
-    out.m00 = x * a.m00;
-    out.m01 = x * a.m01;
-    out.m02 = x * a.m02;
+    outm[0] = x * am[0];
+    outm[1] = x * am[1];
+    outm[2] = x * am[2];
 
-    out.m03 = y * a.m03;
-    out.m04 = y * a.m04;
-    out.m05 = y * a.m05;
+    outm[3] = y * am[3];
+    outm[4] = y * am[4];
+    outm[5] = y * am[5];
 
-    out.m06 = a.m06;
-    out.m07 = a.m07;
-    out.m08 = a.m08;
+    outm[6] = am[6];
+    outm[7] = am[7];
+    outm[8] = am[8];
     return out;
   }
 
@@ -434,15 +449,16 @@ class mat3 {
    * @returns {mat3} out.
    */
   static fromMat4(out, a) {
-    out.m00 = a.m00;
-    out.m01 = a.m01;
-    out.m02 = a.m02;
-    out.m03 = a.m04;
-    out.m04 = a.m05;
-    out.m05 = a.m06;
-    out.m06 = a.m08;
-    out.m07 = a.m09;
-    out.m08 = a.m10;
+    let am = a.m, outm = out.m;
+    outm[0] = am[0];
+    outm[1] = am[1];
+    outm[2] = am[2];
+    outm[3] = am[4];
+    outm[4] = am[5];
+    outm[5] = am[6];
+    outm[6] = am[8];
+    outm[7] = am[9];
+    outm[8] = am[10];
     return out;
   }
 
@@ -458,15 +474,16 @@ class mat3 {
    * @returns {mat3} out.
    */
   static fromTranslation(out, v) {
-    out.m00 = 1;
-    out.m01 = 0;
-    out.m02 = 0;
-    out.m03 = 0;
-    out.m04 = 1;
-    out.m05 = 0;
-    out.m06 = v.x;
-    out.m07 = v.y;
-    out.m08 = 1;
+    let outm = out.m;
+    outm[0] = 1;
+    outm[1] = 0;
+    outm[2] = 0;
+    outm[3] = 0;
+    outm[4] = 1;
+    outm[5] = 0;
+    outm[6] = v.x;
+    outm[7] = v.y;
+    outm[8] = 1;
     return out;
   }
 
@@ -483,18 +500,19 @@ class mat3 {
    */
   static fromRotation(out, rad) {
     let s = Math.sin(rad), c = Math.cos(rad);
+    let outm = out.m;
 
-    out.m00 = c;
-    out.m01 = s;
-    out.m02 = 0;
+    outm[0] = c;
+    outm[1] = s;
+    outm[2] = 0;
 
-    out.m03 = -s;
-    out.m04 = c;
-    out.m05 = 0;
+    outm[3] = -s;
+    outm[4] = c;
+    outm[5] = 0;
 
-    out.m06 = 0;
-    out.m07 = 0;
-    out.m08 = 1;
+    outm[6] = 0;
+    outm[7] = 0;
+    outm[8] = 1;
     return out;
   }
 
@@ -510,17 +528,18 @@ class mat3 {
    * @returns {mat3} out.
    */
   static fromScaling(out, v) {
-    out.m00 = v.x;
-    out.m01 = 0;
-    out.m02 = 0;
+    let outm = out.m;
+    outm[0] = v.x;
+    outm[1] = 0;
+    outm[2] = 0;
 
-    out.m03 = 0;
-    out.m04 = v.y;
-    out.m05 = 0;
+    outm[3] = 0;
+    outm[4] = v.y;
+    outm[5] = 0;
 
-    out.m06 = 0;
-    out.m07 = 0;
-    out.m08 = 1;
+    outm[6] = 0;
+    outm[7] = 0;
+    outm[8] = 1;
     return out;
   }
 
@@ -532,17 +551,18 @@ class mat3 {
    * @returns {mat3} out.
    **/
   static fromMat2d(out, a) {
-    out.m00 = a.m00;
-    out.m01 = a.m01;
-    out.m02 = 0;
+    let am = a.m, outm = out.m;
+    outm[0] = am[0];
+    outm[1] = am[1];
+    outm[2] = 0;
 
-    out.m03 = a.m02;
-    out.m04 = a.m03;
-    out.m05 = 0;
+    outm[3] = am[2];
+    outm[4] = am[3];
+    outm[5] = 0;
 
-    out.m06 = a.m04;
-    out.m07 = a.m05;
-    out.m08 = 1;
+    outm[6] = am[4];
+    outm[7] = am[5];
+    outm[8] = 1;
     return out;
   }
 
@@ -555,6 +575,7 @@ class mat3 {
    * @returns {mat3} out.
    */
   static fromQuat(out, q) {
+    let outm = out.m;
     let x = q.x, y = q.y, z = q.z, w = q.w;
     let x2 = x + x;
     let y2 = y + y;
@@ -570,17 +591,17 @@ class mat3 {
     let wy = w * y2;
     let wz = w * z2;
 
-    out.m00 = 1 - yy - zz;
-    out.m03 = yx - wz;
-    out.m06 = zx + wy;
+    outm[0] = 1 - yy - zz;
+    outm[3] = yx - wz;
+    outm[6] = zx + wy;
 
-    out.m01 = yx + wz;
-    out.m04 = 1 - xx - zz;
-    out.m07 = zy - wx;
+    outm[1] = yx + wz;
+    outm[4] = 1 - xx - zz;
+    outm[7] = zy - wx;
 
-    out.m02 = zx - wy;
-    out.m05 = zy + wx;
-    out.m08 = 1 - xx - yy;
+    outm[2] = zx - wy;
+    outm[5] = zy + wx;
+    outm[8] = 1 - xx - yy;
 
     return out;
   }
@@ -637,10 +658,11 @@ class mat3 {
    * @returns {mat3} out.
    */
   static normalFromMat4(out, a) {
-    let a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
-      a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
-      a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
-      a30 = a.m12, a31 = a.m13, a32 = a.m14, a33 = a.m15;
+    let am = a.m, outm = out.m;
+    let a00 = am[0], a01 = am[1], a02 = am[2], a03 = am[3],
+      a10 = am[4], a11 = am[5], a12 = am[6], a13 = am[7],
+      a20 = am[8], a21 = am[9], a22 = am[10], a23 = am[11],
+      a30 = am[12], a31 = am[13], a32 = am[14], a33 = am[15];
 
     let b00 = a00 * a11 - a01 * a10;
     let b01 = a00 * a12 - a02 * a10;
@@ -663,17 +685,17 @@ class mat3 {
     }
     det = 1.0 / det;
 
-    out.m00 = (a11 * b11 - a12 * b10 + a13 * b09) * det;
-    out.m01 = (a12 * b08 - a10 * b11 - a13 * b07) * det;
-    out.m02 = (a10 * b10 - a11 * b08 + a13 * b06) * det;
+    outm[0] = (a11 * b11 - a12 * b10 + a13 * b09) * det;
+    outm[1] = (a12 * b08 - a10 * b11 - a13 * b07) * det;
+    outm[2] = (a10 * b10 - a11 * b08 + a13 * b06) * det;
 
-    out.m03 = (a02 * b10 - a01 * b11 - a03 * b09) * det;
-    out.m04 = (a00 * b11 - a02 * b08 + a03 * b07) * det;
-    out.m05 = (a01 * b08 - a00 * b10 - a03 * b06) * det;
+    outm[3] = (a02 * b10 - a01 * b11 - a03 * b09) * det;
+    outm[4] = (a00 * b11 - a02 * b08 + a03 * b07) * det;
+    outm[5] = (a01 * b08 - a00 * b10 - a03 * b06) * det;
 
-    out.m06 = (a31 * b05 - a32 * b04 + a33 * b03) * det;
-    out.m07 = (a32 * b02 - a30 * b05 - a33 * b01) * det;
-    out.m08 = (a30 * b04 - a31 * b02 + a33 * b00) * det;
+    outm[6] = (a31 * b05 - a32 * b04 + a33 * b03) * det;
+    outm[7] = (a32 * b02 - a30 * b05 - a33 * b01) * det;
+    outm[8] = (a30 * b04 - a31 * b02 + a33 * b00) * det;
 
     return out;
   }
@@ -685,7 +707,8 @@ class mat3 {
    * @returns {String} String representation of this matrix.
    */
   static str(a) {
-    return `mat3(${a.m00}, ${a.m01}, ${a.m02}, ${a.m03}, ${a.m04}, ${a.m05}, ${a.m06}, ${a.m07}, ${a.m08})`;
+    let am = a.m;
+    return `mat3(${am[0]}, ${am[1]}, ${am[2]}, ${am[3]}, ${am[4]}, ${am[5]}, ${am[6]}, ${am[7]}, ${am[8]})`;
   }
 
   /**
@@ -696,15 +719,16 @@ class mat3 {
    * @returns {Array} out.
    */
   static array(out, m) {
-    out[0] = m.m00;
-    out[1] = m.m01;
-    out[2] = m.m02;
-    out[3] = m.m03;
-    out[4] = m.m04;
-    out[5] = m.m05;
-    out[6] = m.m06;
-    out[7] = m.m07;
-    out[8] = m.m08;
+    let mm = m.m;
+    out[0] = mm[0];
+    out[1] = mm[1];
+    out[2] = mm[2];
+    out[3] = mm[3];
+    out[4] = mm[4];
+    out[5] = mm[5];
+    out[6] = mm[6];
+    out[7] = mm[7];
+    out[8] = mm[8];
 
     return out;
   }
@@ -716,7 +740,8 @@ class mat3 {
    * @returns {Number} - The frobenius norm.
    */
   static frob(a) {
-    return (Math.sqrt(Math.pow(a.m00, 2) + Math.pow(a.m01, 2) + Math.pow(a.m02, 2) + Math.pow(a.m03, 2) + Math.pow(a.m04, 2) + Math.pow(a.m05, 2) + Math.pow(a.m06, 2) + Math.pow(a.m07, 2) + Math.pow(a.m08, 2)));
+    let am = a.m;
+    return (Math.sqrt(Math.pow(am[0], 2) + Math.pow(am[1], 2) + Math.pow(am[2], 2) + Math.pow(am[3], 2) + Math.pow(am[4], 2) + Math.pow(am[5], 2) + Math.pow(am[6], 2) + Math.pow(am[7], 2) + Math.pow(am[8], 2)));
   }
 
   /**
@@ -728,15 +753,16 @@ class mat3 {
    * @returns {mat3} out.
    */
   static add(out, a, b) {
-    out.m00 = a.m00 + b.m00;
-    out.m01 = a.m01 + b.m01;
-    out.m02 = a.m02 + b.m02;
-    out.m03 = a.m03 + b.m03;
-    out.m04 = a.m04 + b.m04;
-    out.m05 = a.m05 + b.m05;
-    out.m06 = a.m06 + b.m06;
-    out.m07 = a.m07 + b.m07;
-    out.m08 = a.m08 + b.m08;
+    let am = a.m, bm = b.m, outm = out.m;
+    outm[0] = am[0] + bm[0];
+    outm[1] = am[1] + bm[1];
+    outm[2] = am[2] + bm[2];
+    outm[3] = am[3] + bm[3];
+    outm[4] = am[4] + bm[4];
+    outm[5] = am[5] + bm[5];
+    outm[6] = am[6] + bm[6];
+    outm[7] = am[7] + bm[7];
+    outm[8] = am[8] + bm[8];
     return out;
   }
 
@@ -749,15 +775,16 @@ class mat3 {
    * @returns {mat3} out.
    */
   static subtract(out, a, b) {
-    out.m00 = a.m00 - b.m00;
-    out.m01 = a.m01 - b.m01;
-    out.m02 = a.m02 - b.m02;
-    out.m03 = a.m03 - b.m03;
-    out.m04 = a.m04 - b.m04;
-    out.m05 = a.m05 - b.m05;
-    out.m06 = a.m06 - b.m06;
-    out.m07 = a.m07 - b.m07;
-    out.m08 = a.m08 - b.m08;
+    let am = a.m, bm = b.m, outm = out.m;
+    outm[0] = am[0] - bm[0];
+    outm[1] = am[1] - bm[1];
+    outm[2] = am[2] - bm[2];
+    outm[3] = am[3] - bm[3];
+    outm[4] = am[4] - bm[4];
+    outm[5] = am[5] - bm[5];
+    outm[6] = am[6] - bm[6];
+    outm[7] = am[7] - bm[7];
+    outm[8] = am[8] - bm[8];
     return out;
   }
 
@@ -777,15 +804,16 @@ class mat3 {
    * @returns {mat3} out.
    */
   static multiplyScalar(out, a, b) {
-    out.m00 = a.m00 * b;
-    out.m01 = a.m01 * b;
-    out.m02 = a.m02 * b;
-    out.m03 = a.m03 * b;
-    out.m04 = a.m04 * b;
-    out.m05 = a.m05 * b;
-    out.m06 = a.m06 * b;
-    out.m07 = a.m07 * b;
-    out.m08 = a.m08 * b;
+    let am = a.m, outm = out.m;
+    outm[0] = am[0] * b;
+    outm[1] = am[1] * b;
+    outm[2] = am[2] * b;
+    outm[3] = am[3] * b;
+    outm[4] = am[4] * b;
+    outm[5] = am[5] * b;
+    outm[6] = am[6] * b;
+    outm[7] = am[7] * b;
+    outm[8] = am[8] * b;
     return out;
   }
 
@@ -799,15 +827,16 @@ class mat3 {
    * @returns {mat3} out.
    */
   static multiplyScalarAndAdd(out, a, b, scale) {
-    out.m00 = a.m00 + (b.m00 * scale);
-    out.m01 = a.m01 + (b.m01 * scale);
-    out.m02 = a.m02 + (b.m02 * scale);
-    out.m03 = a.m03 + (b.m03 * scale);
-    out.m04 = a.m04 + (b.m04 * scale);
-    out.m05 = a.m05 + (b.m05 * scale);
-    out.m06 = a.m06 + (b.m06 * scale);
-    out.m07 = a.m07 + (b.m07 * scale);
-    out.m08 = a.m08 + (b.m08 * scale);
+    let am = a.m, bm = b.m, outm = out.m;
+    outm[0] = am[0] + (bm[0] * scale);
+    outm[1] = am[1] + (bm[1] * scale);
+    outm[2] = am[2] + (bm[2] * scale);
+    outm[3] = am[3] + (bm[3] * scale);
+    outm[4] = am[4] + (bm[4] * scale);
+    outm[5] = am[5] + (bm[5] * scale);
+    outm[6] = am[6] + (bm[6] * scale);
+    outm[7] = am[7] + (bm[7] * scale);
+    outm[8] = am[8] + (bm[8] * scale);
     return out;
   }
 
@@ -819,9 +848,10 @@ class mat3 {
    * @returns {Boolean} True if the matrices are equal, false otherwise.
    */
   static exactEquals(a, b) {
-    return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 &&
-      a.m03 === b.m03 && a.m04 === b.m04 && a.m05 === b.m05 &&
-      a.m06 === b.m06 && a.m07 === b.m07 && a.m08 === b.m08;
+    let am = a.m, bm = b.m;
+    return am[0] === bm[0] && am[1] === bm[1] && am[2] === bm[2] &&
+      am[3] === bm[3] && am[4] === bm[4] && am[5] === bm[5] &&
+      am[6] === bm[6] && am[7] === bm[7] && am[8] === bm[8];
   }
 
   /**
@@ -832,8 +862,9 @@ class mat3 {
    * @returns {Boolean} True if the matrices are equal, false otherwise.
    */
   static equals(a, b) {
-    let a0 = a.m00, a1 = a.m01, a2 = a.m02, a3 = a.m03, a4 = a.m04, a5 = a.m05, a6 = a.m06, a7 = a.m07, a8 = a.m08;
-    let b0 = b.m00, b1 = b.m01, b2 = b.m02, b3 = b.m03, b4 = b.m04, b5 = b.m05, b6 = b.m06, b7 = b.m07, b8 = b.m08;
+    let am = a.m, bm = b.m;
+    let a0 = am[0], a1 = am[1], a2 = am[2], a3 = am[3], a4 = am[4], a5 = am[5], a6 = am[6], a7 = am[7], a8 = am[8];
+    let b0 = bm[0], b1 = bm[1], b2 = bm[2], b3 = bm[3], b4 = bm[4], b5 = bm[5], b6 = bm[6], b7 = bm[7], b8 = bm[8];
     return (
       Math.abs(a0 - b0) <= EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
       Math.abs(a1 - b1) <= EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&

@@ -29,22 +29,7 @@ import mat4 from '../../vmath/mat4';
 
 function maxtrixToArray (matrix) {
     let data = new Float32Array(16);
-    data[0] = matrix.m00;
-    data[1] = matrix.m01;
-    data[2] = matrix.m02;
-    data[3] = matrix.m03;
-    data[4] = matrix.m04;
-    data[5] = matrix.m05;
-    data[6] = matrix.m06;
-    data[7] = matrix.m07;
-    data[8] = matrix.m08;
-    data[9] = matrix.m09;
-    data[10] = matrix.m10;
-    data[11] = matrix.m11;
-    data[12] = matrix.m12;
-    data[13] = matrix.m13;
-    data[14] = matrix.m14;
-    data[15] = matrix.m15;
+    data.set(matrix.m);
     return data;
 }
 

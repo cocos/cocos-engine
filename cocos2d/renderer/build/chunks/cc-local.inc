@@ -1,5 +1,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-// transforms
-uniform mat4 cc_matWorld;
-uniform mat3 cc_matWorldIT;
+#pragma builtin(local)
+uniform CCLocal {
+  mat4 cc_matWorld;
+  mat4 cc_matWorldIT;
+};
