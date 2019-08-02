@@ -8,14 +8,14 @@ import { Texture2D } from '../../assets';
 import { Filter, PixelFormat, WrapMode } from '../../assets/asset-enum';
 import { Component } from '../../components';
 import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
-import { Rect, Size, Vec2, Vec3, Vec4 } from '../../core/value-types';
-import { clamp, vec3, vec4 } from '../../core/vmath';
+import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../../core/math';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { Model } from '../../renderer/scene/model';
 import { Node } from '../../scene-graph/node';
+import { INode } from '../../core/utils/interfaces';
 import { PrivateNode } from '../../scene-graph/private-node';
 import { IDefineMap } from '../core/pass';
 import { HeightField } from './height-field';
@@ -200,7 +200,7 @@ export class TerrainBlock {
         this._index[1] = j;
 
         this._node = new PrivateNode('');
-        this._node.setParent(this._terrain.node);
+        this._node.setParent(this._terrain.node as Node);
         this._node._objFlags |= cc.Object.Flags.DontSave;
 
         this._renderable =  this._node.addComponent(TerrainRenderable) as TerrainRenderable;
@@ -866,7 +866,7 @@ export class Terrain extends Component {
         const c = this.getNormal(ix0, iz1);
         const d = this.getNormal(ix1, iz1);
         const m = new Vec3();
-        vec3.add(m, b, c).multiply(0.5);
+        Vec3.add(m, b, c).scale(0.5);
 
         if (dx + dz <= 1.0) {
             d.set(m);
@@ -882,9 +882,9 @@ export class Terrain extends Component {
         const n1 = new Vec3();
         const n2 = new Vec3();
         const n = new Vec3();
-        vec3.lerp(n1, a, b, dx);
-        vec3.lerp(n2, c, d, dx);
-        vec3.lerp(n, n1, n2, dz);
+        Vec3.lerp(n1, a, b, dx);
+        Vec3.lerp(n2, c, d, dx);
+        Vec3.lerp(n, n1, n2, dz);
 
         return n;
     }
@@ -935,23 +935,23 @@ export class Terrain extends Component {
         const c = this.getWeight(ix0, iz1);
         let d = this.getWeight(ix1, iz1);
         const m = new Vec4();
-        vec4.add(m, b, c).multiply(0.5);
+        Vec4.add(m, b, c).scale(0.5);
 
         if (dx + dz <= 1.0) {
             d = new Vec4();
-            vec3.sub(d, m, a).add(m);
+            Vec4.subtract(d, m, a).add(m);
         }
         else {
             a = new Vec4();
-            vec3.sub(a, m, d).add(m);
+            Vec4.subtract(a, m, d).add(m);
         }
 
         const n1 = new Vec4();
         const n2 = new Vec4();
         const n = new Vec4();
-        vec3.lerp(n1, a, b, dx);
-        vec3.lerp(n2, c, d, dx);
-        vec3.lerp(n, n1, n2, dz);
+        Vec4.lerp(n1, a, b, dx);
+        Vec4.lerp(n2, c, d, dx);
+        Vec4.lerp(n, n1, n2, dz);
 
         return n;
     }
@@ -981,7 +981,7 @@ export class Terrain extends Component {
 
         const dstep = new Vec3();
         dstep.set(dir);
-        dstep.multiply(step);
+        dstep.scale(step);
 
         if (dir.equals(new Vec3(0, 1, 0))) {
             const y = this.getHeightAt(trace.x, trace.z);
@@ -1039,7 +1039,7 @@ export class Terrain extends Component {
         const normal = new Vec3();
         normal.set(up);
         normal.cross(right);
-        normal.multiply(flip);
+        normal.scale(flip);
         normal.normalize();
 
         return normal;
@@ -1215,7 +1215,7 @@ export class Terrain extends Component {
                         const c = getWeight(ix0 + xoff, iz1 + yoff, this._weights);
                         const d = getWeight(ix1 + xoff, iz1 + yoff, this._weights);
                         const m = new Vec4();
-                        vec4.add(m, b, c).multiply(0.5);
+                        Vec4.add(m, b, c).scale(0.5);
 
                         if (dx + dz <= 1.0) {
                             d.set(m);
@@ -1231,9 +1231,9 @@ export class Terrain extends Component {
                         const n1 = new Vec4();
                         const n2 = new Vec4();
                         const n = new Vec4();
-                        vec3.lerp(n1, a, b, dx);
-                        vec3.lerp(n2, c, d, dx);
-                        vec3.lerp(n, n1, n2, dz);
+                        Vec4.lerp(n1, a, b, dx);
+                        Vec4.lerp(n2, c, d, dx);
+                        Vec4.lerp(n, n1, n2, dz);
 
                         const du = i * this.info.weightMapSize + u;
                         const dv = j * this.info.weightMapSize + v;

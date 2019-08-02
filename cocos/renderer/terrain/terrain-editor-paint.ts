@@ -1,5 +1,4 @@
-import { Rect, Vec3 } from '../../core/value-types';
-import { clamp } from '../../core/vmath';
+import { clamp, Rect, Vec3 } from '../../core/math';
 import { Terrain, TERRAIN_BLOCK_TILE_COMPLEXITY } from './terrain';
 import { TerrainBrush, TerrainCircleBrush } from './terrain-brush';
 import { TerrainEditorMode } from './terrain-editor-mode';
@@ -156,7 +155,7 @@ export class TerrainEditorPaint extends TerrainEditorMode {
 
                 const sum = w.x + w.y + w.z + w.w;
                 if (sum > 0) {
-                    w.multiply(1.0 / sum);
+                    w.scale(1.0 / sum);
                 }
 
                 if (this._undo != null) {
