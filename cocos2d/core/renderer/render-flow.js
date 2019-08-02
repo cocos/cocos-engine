@@ -219,6 +219,10 @@ RenderFlow.init = function (batcher, forwardRenderer) {
     }
 };
 
+RenderFlow.getBachther = function () {
+    return _batcher;
+};
+
 RenderFlow.FLAG_DONOTHING = DONOTHING;
 RenderFlow.FLAG_BREAK_FLOW = BREAK_FLOW;
 RenderFlow.FLAG_LOCAL_TRANSFORM = LOCAL_TRANSFORM;

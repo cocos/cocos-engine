@@ -30,6 +30,7 @@ const DirtyFlag = Node._LocalDirtyFlag;
 const RenderFlow = require('../renderer/render-flow');
 
 import { mat4 } from '../vmath';
+import { trs } from '../vmath';
 
 // ====== Node transform polyfills ======
 const ONE_DEGREE = Math.PI / 180;
@@ -37,8 +38,6 @@ const ONE_DEGREE = Math.PI / 180;
 const POSITION_ON = 1 << 0;
 const SCALE_ON = 1 << 1;
 const ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
-
-let _quat = cc.quat();
 
 function _updateLocalMatrix3d () {
     if (this._localMatDirty) {
@@ -237,15 +236,14 @@ cc.js.getset(proto, 'eulerAngles', function () {
         return this._eulerAngles;
     }
     else {
-        return this._quat.toEuler(this._eulerAngles);
+        return trs.toEuler(this._eulerAngles, this._trs);
     }
 }, function (v) {
     if (CC_EDITOR) {
         this._eulerAngles.set(v);
     }
 
-    _quat.fromEuler(v);
-    _quat.toRotation(this._trs);
+    trs.fromEuler(this._trs, v);
     this.setLocalDirty(DirtyFlag.ROTATION);
     !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_TRANSFORM);
 });

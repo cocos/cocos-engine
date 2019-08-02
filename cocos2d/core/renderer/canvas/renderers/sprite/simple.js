@@ -23,32 +23,27 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Assembler from '../../../assembler';
+import RenderData from '../render-data';
 const utils = require('../utils');
 
-let renderer = {
-
-    createData (sprite) {
-        let renderData = sprite.requestRenderData();
-        // 0 for bottom left, 1 for top right
-        renderData.dataLength = 2;
-        return renderData;
-    },
+export default class CanvasSimpleSprite extends Assembler {
+    init () {
+        this._renderData = new RenderData();
+        this._renderData.dataLength = 2;
+    }
 
     updateRenderData (sprite) {
-        if (!sprite._material) {
-            sprite._activateMaterial();
-        }
-
         if (sprite._vertsDirty) {
             this.updateUVs(sprite);
             this.updateVerts(sprite);
             sprite._vertsDirty = false;
         }
-    },
+    }
 
     updateUVs (sprite) {
         let frame = sprite.spriteFrame;
-        let renderData = sprite._renderData;
+        let renderData = this._renderData;
         let verts = renderData.vertices;
         let rect = frame._rect;
         
@@ -72,10 +67,10 @@ let renderer = {
             verts[1].u = r;
             verts[1].v = t;
         }
-    },
+    }
 
     updateVerts (sprite) {
-        let renderData = sprite._renderData,
+        let renderData = this._renderData,
             node = sprite.node,
             verts = renderData.vertices,
             frame = sprite.spriteFrame,
@@ -94,9 +89,7 @@ let renderer = {
                 offset = frame._offset,
                 scaleX = cw / ow, scaleY = ch / oh;
             let trimLeft = offset.x + (ow - rw) / 2;
-            let trimRight = offset.x - (ow - rw) / 2;
             let trimBottom = offset.y + (oh - rh) / 2;
-            let trimTop = offset.y - (oh - rh) / 2;
             l = trimLeft * scaleX - appx;
             b = trimBottom * scaleY - appy;
             r = cw;
@@ -116,7 +109,7 @@ let renderer = {
         }
         
         renderData.vertDirty = false;
-    },
+    }
 
     draw (ctx, comp) {
         let node = comp.node;
@@ -138,7 +131,7 @@ let renderer = {
         utils.context.setGlobalAlpha(ctx, node.opacity / 255);
 
         let tex = frame._texture,
-            verts = comp._renderData.vertices;
+            verts = this._renderData.vertices;
 
         let image = utils.getColorizedImage(tex, node._color);
 
@@ -158,6 +151,5 @@ let renderer = {
             x, y, w, h);
         return 1;
     }
-};
+}
 
-module.exports = renderer;

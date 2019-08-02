@@ -91,12 +91,15 @@ module.exports = {
         var _id = node._id;
         var _name = node._name;
         var _active = node._active;
+        var eulerAnglesX = node._eulerAngles.x;
+        var eulerAnglesY = node._eulerAngles.y;
+        var eulerAnglesZ = node._eulerAngles.z;
         var _localZOrder = node._localZOrder;
         var _globalZOrder = node._globalZOrder;
         var trs = node._trs;
         var x = trs[0];
         var y = trs[1];
-        var qx = trs[3], qy = trs[4], qz = trs[5], qw = trs[6];
+        var z = trs[2];
 
         // instantiate prefab
         cc.game._isCloning = true;
@@ -125,11 +128,12 @@ module.exports = {
         node._active = _active;
         node._localZOrder = _localZOrder;
         node._globalZOrder = _globalZOrder;
+        trs = node._trs;
         trs[0] = x;
         trs[1] = y;
-        trs[3] = qx;
-        trs[4] = qy;
-        trs[5] = qz;
-        trs[6] = qw;
+        trs[2] = z;
+        node._eulerAngles.x = eulerAnglesX;
+        node._eulerAngles.y = eulerAnglesY;
+        node._eulerAngles.z = eulerAnglesZ;
     }
 };

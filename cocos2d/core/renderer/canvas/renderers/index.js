@@ -23,42 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-let js = require('../../../platform/js');
+import '../../../components/CCSprite';
+import '../../../components/CCLabel';
+import '../../../components/CCMask';
+import '../../../graphics/graphics';
 
-let Sprite = require('../../../components/CCSprite');
-let Label = require('../../../components/CCLabel');
-let Mask = require('../../../components/CCMask');
-let Graphics = require('../../../graphics/graphics');
-
-let spriteRenderer = require('./sprite');
-let labelRenderer = require('./label');
-let graphicsRenderer = require('./graphics');
-let maskRenderer = require('./mask');
-
-let map = {};
-let postMap = {};
-
-function addRenderer (Component, handler, postHandler) {
-    let name = js.getClassName(Component);
-    map[name] = handler;
-    if (postHandler) {
-        postMap[name] = postHandler;
-    }
-    Component._assembler = handler;
-    Component._postAssembler = postHandler;
-}
-
-addRenderer(Sprite, spriteRenderer);
-addRenderer(Label, labelRenderer);
-if (Mask) {
-    addRenderer(Mask, maskRenderer.beforeHandler, maskRenderer.afterHandler);
-}
-if (Graphics) {
-    addRenderer(Graphics, graphicsRenderer);
-}
-
-module.exports = {
-    map,
-    postMap,
-    addRenderer
-};
+import './sprite';
+import './label';
+import './graphics';
+import './mask';

@@ -58,13 +58,6 @@ if (!Function.prototype.bind) {
     };
 }
 
-//if (!Array.prototype.includes) {
-//    // This will break test-node-serialization.js
-//    Array.prototype.includes = function (value) {
-//        return this.indexOf(value) !== -1;
-//    };
-//}
-
 var isPhantomJS = window.navigator.userAgent.indexOf('PhantomJS') !== -1;
 if (isPhantomJS) {
     QUnit.config.notrycatch = true;
@@ -195,3 +188,16 @@ if (!Object.getOwnPropertySymbols) {
 
 Number.parseFloat = Number.parseFloat || parseFloat;
 Number.parseInt = Number.parseInt || parseInt;
+
+Array.from = Array.from || function (obj) {
+    var array = new Array(obj.length);
+    for (var i = 0; i < obj.length; ++i) {
+        array[i] = obj[i];
+    }
+    return array;
+};
+
+Float32Array.name = 'Float32Array';
+Uint32Array.name = 'Uint32Array';
+Int32Array.name = 'Int32Array';
+Uint8Array.name = 'Uint8Array';

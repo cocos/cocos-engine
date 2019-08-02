@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 import Assembler from '../core/renderer/assembler';
-import IARenderData from '../renderer/render-data/ia-render-data';
  
 const ParticleSystem = require('./CCParticleSystem');
 const renderer = require('../core/renderer/');

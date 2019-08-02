@@ -310,7 +310,7 @@ proto.scale = function (vector, out) {
  * !#en Divides by a number. If you want to save result to another vector, use div() instead.
  * !#zh 向量除法。如果你想结果保存到另一个向量，可使用 div() 代替。
  * @method divSelf
- * @param {number} divisor
+ * @param {number} num
  * @return {Vec3} returns this
  * @chainable
  */
@@ -325,7 +325,7 @@ proto.divSelf = function (num) {
  * !#en Divides by a number, and returns the new result.
  * !#zh 向量除法，并返回新的结果。
  * @method div
- * @param {Vec3} vector
+ * @param {number} num
  * @param {Vec3} [out] - optional, the receiving vector, you can pass the same vec3 to save result to itself, if not provided, a new vec3 will be created
  * @return {Vec3} the result
  */
@@ -455,32 +455,6 @@ proto.normalize = function (out) {
 proto.transformMat4 = function (m, out) {
     out = out || new Vec3();
     vec3.transformMat4(out, this, m);
-};
-
-proto.fromTranslation = function (trs) {
-    this.x = trs[0];
-    this.y = trs[1];
-    this.z = trs[2];
-    return this;
-};
-
-proto.toTranslation = function (trs) {
-    trs[0] = this.x;
-    trs[1] = this.y;
-    trs[2] = this.z;
-};
-
-proto.fromScale = function (trs) {
-    this.x = trs[7];
-    this.y = trs[8];
-    this.z = trs[9];
-    return this;
-};
-
-proto.toScale = function (trs) {
-    trs[7] = this.x;
-    trs[8] = this.y;
-    trs[9] = this.z;
 };
 
 /**

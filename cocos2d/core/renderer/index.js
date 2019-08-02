@@ -26,7 +26,6 @@ import config from '../../renderer/config';
 import gfx from '../../renderer/gfx';
 
 import InputAssembler from '../../renderer/core/input-assembler';
-import IARenderData from '../../renderer/render-data/ia-render-data';
 import Pass from '../../renderer/core/pass';
 
 // const RenderFlow = require('./render-flow');
@@ -41,7 +40,7 @@ function _initBuiltins(device) {
         format: gfx.TEXTURE_FMT_RGB8,
         mipmap: false,
     });
-  
+
     return {
         defaultTexture: defaultTexture,
         programTemplates: [],
@@ -64,7 +63,6 @@ cc.renderer = module.exports = {
     Texture2D: null,
 
     InputAssembler: InputAssembler,
-    IARenderData: IARenderData,
     Pass: Pass,
 
     /**
@@ -114,6 +112,7 @@ cc.renderer = module.exports = {
 
         this.Texture2D = gfx.Texture2D;
         this.canvas = canvas;
+        this._flow = cc.RenderFlow;
         
         if (CC_JSB && CC_NATIVERENDERER) {
             // native codes will create an instance of Device, so just use the global instance.
@@ -122,7 +121,6 @@ cc.renderer = module.exports = {
             let builtins = _initBuiltins(this.device);
             this._forward = new renderer.ForwardRenderer(this.device, builtins);
             let nativeFlow = new renderer.RenderFlow(this.device, this.scene, this._forward);
-            this._flow = cc.RenderFlow;
             this._flow.init(nativeFlow);
         }
         else {
@@ -133,7 +131,6 @@ cc.renderer = module.exports = {
             let builtins = _initBuiltins(this.device);
             this._forward = new ForwardRenderer(this.device, builtins);
             this._handle = new ModelBatcher(this.device, this.scene);
-            this._flow = cc.RenderFlow;
             this._flow.init(this._handle, this._forward);
         }
         config.addStage('shadowcast');
@@ -142,13 +139,13 @@ cc.renderer = module.exports = {
     },
 
     initCanvas (canvas) {
-        let canvasRenderer = require('./canvas');
+        const canvasRenderer = require('./canvas');
         const Texture2D = require('./canvas/Texture2D');
         const Device = require('./canvas/Device');
-        
+
         // It's actually running with original render engine
-        this.Device = Device;        
-        
+        this.Device = Device;
+
         this.Texture2D = Texture2D;
 
         this.canvas = canvas;
@@ -157,15 +154,16 @@ cc.renderer = module.exports = {
             a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0
         };
         this._handle = new canvasRenderer.RenderComponentHandle(this.device, this._camera);
-        cc.RenderFlow.init(this._handle);
         this._forward = new canvasRenderer.ForwardRenderer();
+        this._flow = cc.RenderFlow;
+        this._flow.init(this._handle, this._forward);
     },
 
     updateCameraViewport () {
         // TODO: remove HACK
         if (!CC_EDITOR && cc.director) {
             let ecScene = cc.director.getScene();
-            ecScene.setScale(1, 1, 1);
+            if (ecScene) ecScene.setScale(1, 1, 1);
         }
 
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
