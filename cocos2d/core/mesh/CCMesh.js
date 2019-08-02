@@ -67,6 +67,7 @@ let Mesh = cc.Class({
             },
             set (bin) {
                 this._buffer = ArrayBuffer.isView(bin) ? bin.buffer : bin;
+                this.initWithBuffer();
             }
         },
 
@@ -98,12 +99,13 @@ let Mesh = cc.Class({
 
     ctor () {
         this._subMeshes = [];
+        this.loaded = false;
 
         this._ibs = [];
         this._vbs = [];
     },
 
-    onLoad () {
+    initWithBuffer () {
         this._subMeshes.length = 0;
 
         let primitives = this._primitives;
@@ -139,7 +141,8 @@ let Mesh = cc.Class({
             this._ibs.push({ buffer: ibBuffer, data: ibData });
             this._vbs.push({ buffer: vbBuffer, data: vbData });
         }
-        
+        this.loaded = true;
+        this.emit('load');
     },
 
     /**
@@ -169,7 +172,8 @@ let Mesh = cc.Class({
             data: data,
             dirty: true
         };
-
+        this.loaded = true;
+        this.emit('load');
         this.emit('init-format');
     },
 
