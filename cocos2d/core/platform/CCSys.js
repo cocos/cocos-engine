@@ -995,37 +995,30 @@ function initSys () {
         /* Determine the browser type */
         (function(){
             var typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
-            var typeReg2 = /qqbrowser|ucbrowser|edge|ubrowser/i;
+            var typeReg2 = /qqbrowser|ucbrowser|ubrowser|edge/i;
             var typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
-            var browserTypes = typeReg1.exec(ua);
-            if(!browserTypes) browserTypes = typeReg2.exec(ua);
-            if(!browserTypes) browserTypes = typeReg3.exec(ua);
+            var browserTypes = typeReg1.exec(ua) || typeReg2.exec(ua) || typeReg3.exec(ua);
 
             var browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
             if (CC_WECHATGAME)
                 browserType = sys.BROWSER_TYPE_WECHAT_GAME;
             else if (CC_QQPLAY)
                 browserType = sys.BROWSER_TYPE_QQ_PLAY;
-            else if (browserType === 'micromessenger')
-                browserType = sys.BROWSER_TYPE_WECHAT;
             else if (browserType === "safari" && isAndroid)
                 browserType = sys.BROWSER_TYPE_ANDROID;
             else if (browserType === "qq" && ua.match(/android.*applewebkit/i))
                 browserType = sys.BROWSER_TYPE_ANDROID;
-            else if (browserType === "trident")
-                browserType = sys.BROWSER_TYPE_IE;
-            else if (browserType === 'edge')
-                browserType === sys.BROWSER_TYPE_EDGE;
-            else if (browserType === "360 aphone")
-                browserType = sys.BROWSER_TYPE_360;
-            else if (browserType === "mxbrowser")
-                browserType = sys.BROWSER_TYPE_MAXTHON;
-            else if (browserType === "opr/")
-                browserType = sys.BROWSER_TYPE_OPERA;
-            else if (browserType === "ucbrowser" || browserType === 'ubrowser')
-                browserType = sys.BROWSER_TYPE_UC;
-
-            sys.browserType = browserType;
+            let typeMap = {
+                'micromessenger': sys.BROWSER_TYPE_WECHAT,
+                'trident': sys.BROWSER_TYPE_IE,
+                'edge': sys.BROWSER_TYPE_EDGE,
+                '360 aphone': sys.BROWSER_TYPE_360,
+                'mxbrowser': sys.BROWSER_TYPE_MAXTHON,
+                'opr/': sys.BROWSER_TYPE_OPERA,
+                'ubrowser': sys.BROWSER_TYPE_UC
+            };
+            
+            sys.browserType = typeMap[browserType] || browserType;
         })();
 
         /**
