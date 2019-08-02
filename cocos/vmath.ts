@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { deprecatedWrapper } from './deprecated';
+import { deprecatedWrapper, replaceProperty, removeProperty, markAsWarning } from './deprecated';
 import { math } from './core';
 
 const vmath = {};
@@ -39,6 +39,40 @@ deprecatedWrapper({
         ['rect', 'Rect'],
     ],
 });
+
+// replaceProperty(vmath, 'vmath', [
+//     {
+//         name: 'vec2',
+//         newName: 'Vec2',
+//         target: math,
+//         targetName: 'math',
+//         'logTimes': 1
+//     },
+//     {
+//         name: 'EPSILON',
+//         target: math,
+//         targetName: 'math',
+//         'logTimes': 2
+//     },
+//     {
+//         name: 'equals',
+//         target: math,
+//         targetName: 'math',
+//         'logTimes': 3
+//     }
+// ]);
+
+// removeProperty(vmath, 'vmath', [
+//     {
+//         'name': 'random'
+//     }
+// ]);
+
+// markAsWarning(math, 'math', [
+//     {
+//         'name': 'toRadian'
+//     }
+// ]);
 
 cc.vmath = vmath;
 
