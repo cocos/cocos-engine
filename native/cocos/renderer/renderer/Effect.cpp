@@ -28,6 +28,7 @@
 RENDERER_BEGIN
 
 Effect::Effect()
+: _hash(0)
 {}
 
 void Effect::init(const Vector<Technique*>& techniques,
@@ -36,11 +37,11 @@ void Effect::init(const Vector<Technique*>& techniques,
 {
     _techniques = techniques;
     _properties = properties;
-    _defineTemplates = defineTemplates;
     
-    for (const auto defineTemplate: _defineTemplates)
-        _cachedNameValues.emplace(defineTemplate.at("name").asString(),
+    for (const auto& defineTemplate: defineTemplates)
+        _defines.emplace(defineTemplate.at("name").asString(),
                                   defineTemplate.at("value"));
+    generateDefinesKey();
 }
 
 Effect::~Effect()
@@ -52,7 +53,6 @@ Effect::~Effect()
 void Effect::clear()
 {
     _techniques.clear();
-    _defineTemplates.clear();
 }
 
 Technique* Effect::getTechnique(const std::string& stage) const
@@ -70,37 +70,28 @@ Technique* Effect::getTechnique(const std::string& stage) const
     return nullptr;
 }
 
-Value Effect::getDefineValue(const std::string& name) const
+Value Effect::getDefine(const std::string& name) const
 {
-    for (const auto& def : _defineTemplates)
-    {
-        if (name == def.at("name").asString())
-            return def.at("value");
-    }
-    
-    RENDERER_LOGW("Failed to set define %s, define not found.", name.c_str());
-    return Value::Null;
+    return _defines.at(name);
 }
 
-void Effect::setDefineValue(const std::string& name, const Value& value)
+void Effect::define(const std::string& name, const Value& value)
 {
-    for (auto& def : _defineTemplates)
+    if (_defines[name] != value)
     {
-        if (name == def.at("name").asString())
-        {
-            def["value"] = value;
-            _cachedNameValues[name] = value;
-            return;
-        }
+        _defines[name] = value;
+        generateDefinesKey();
     }
 }
 
 ValueMap* Effect::extractDefines()
 {
-//    for (auto& def : _defineTemplates)
-//        out.emplace(def.at("name").asString(), def.at("value"));
+    return &_defines;
+}
 
-    return &_cachedNameValues;
+std::unordered_map<std::string, Effect::Property>* Effect::extractProperties()
+{
+    return &_properties;
 }
 
 const Effect::Property& Effect::getProperty(const std::string& name) const
@@ -115,6 +106,71 @@ const Effect::Property& Effect::getProperty(const std::string& name) const
 void Effect::setProperty(const std::string& name, const Property& property)
 {
     _properties[name] = property;
+}
+
+void Effect::generateDefinesKey()
+{
+    _definesKey = "";
+    for (auto& def : _defines) {
+        _definesKey += def.first + std::to_string(def.second.asUnsignedInt());
+    }
+}
+
+void Effect::copy(const Effect* effect)
+{
+    _hash = effect->_hash;
+    auto& otherTech = effect->_techniques;
+    for (auto it = otherTech.begin(); it != otherTech.end(); it ++)
+    {
+        auto tech = new Technique();
+        tech->autorelease();
+        tech->copy(**it);
+        _techniques.pushBack(tech);
+    }
+    _defines = effect->_defines;
+    _properties = effect->_properties;
+    _definesKey = effect->_definesKey;
+}
+
+void Effect::setCullMode(CullMode cullMode)
+{
+    Technique* tech = _techniques.front();
+    const Vector<Pass*>& passes = tech->getPasses();
+    for (const auto& pass : passes)
+    {
+        pass->setCullMode(cullMode);
+    }
+}
+
+void Effect::setBlend(BlendOp blendEq, BlendFactor blendSrc, BlendFactor blendDst, BlendOp blendAlphaEq, BlendFactor blendSrcAlpha, BlendFactor blendDstAlpha, uint32_t blendColor)
+{
+    Technique* tech = _techniques.front();
+    const Vector<Pass*>& passes = tech->getPasses();
+    for (const auto& pass : passes)
+    {
+        pass->setBlend(blendEq, blendSrc, blendDst, blendAlphaEq, blendSrcAlpha, blendDstAlpha, blendColor);
+    }
+}
+
+void Effect::setStencilTest(bool value)
+{
+    Technique* tech = _techniques.front();
+    const Vector<Pass*>& passes = tech->getPasses();
+    for (const auto& pass : passes)
+    {
+        pass->setStencilTest(value);
+    }
+}
+
+void Effect::setStencil(StencilFunc stencilFunc, uint32_t stencilRef, uint8_t stencilMask, StencilOp stencilFailOp, StencilOp stencilZFailOp, StencilOp stencilZPassOp, uint8_t stencilWriteMask)
+{
+    Technique* tech = _techniques.front();
+    const Vector<Pass*>& passes = tech->getPasses();
+    for (const auto& pass : passes)
+    {
+        pass->setStencilFront(stencilFunc, stencilRef, stencilMask, stencilFailOp, stencilZFailOp, stencilZPassOp, stencilWriteMask);
+        pass->setStencilBack(stencilFunc, stencilRef, stencilMask, stencilFailOp, stencilZFailOp, stencilZPassOp, stencilWriteMask);
+    }
 }
 
 RENDERER_END

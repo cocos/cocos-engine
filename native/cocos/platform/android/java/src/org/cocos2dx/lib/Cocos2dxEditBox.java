@@ -88,6 +88,7 @@ public class Cocos2dxEditBox {
             super(context);
             //remove focus border
             this.setBackground(null);
+            this.setTextColor(Color.BLACK);
             mScreenHeight = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).
                     getDefaultDisplay().getHeight();
             mPaint = new Paint();

@@ -212,7 +212,7 @@ public:
      * @param zFarPlane The maximum z-value of the view volume.
      * @param dst A matrix to store the result in.
      */
-    static void createOrthographic(float width, float height, float zNearPlane, float zFarPlane, Mat4* dst);
+    static void createOrthographic(float left, float right, float bottom, float top, float zNearPlane, float zFarPlane, Mat4* dst);
 
     /**
      * Creates an orthographic projection matrix.

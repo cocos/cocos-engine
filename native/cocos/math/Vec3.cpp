@@ -21,8 +21,10 @@
  */
 
 #include "math/Vec3.h"
+#include "math/Mat3.hpp"
 #include "math/MathUtil.h"
 #include "base/ccMacros.h"
+#include "math/Quaternion.h"
 
 NS_CC_MATH_BEGIN
 
@@ -151,6 +153,44 @@ void Vec3::cross(const Vec3& v1, const Vec3& v2, Vec3* dst)
     // We might want to revisit this (and other areas of code that make this assumption)
     // later to guarantee 100% safety/compatibility.
     MathUtil::crossVec3(&v1.x, &v2.x, &dst->x);
+}
+
+void Vec3::multiply(const Vec3& v)
+{
+    x *= v.x;
+    y *= v.y;
+    z *= v.z;
+}
+
+void Vec3::multiply(const Vec3& v1, const Vec3& v2, Vec3* dst)
+{
+    dst->x = v1.x * v2.x;
+    dst->y = v1.y * v2.y;
+    dst->z = v1.z * v2.z;
+}
+
+void Vec3::transformMat3(const Vec3& v, const Mat3 &m)
+{
+    float ix = v.x, iy = v.y, iz = v.z;
+    x = ix * m.m[0] + iy * m.m[3] + iz * m.m[6];
+    y = ix * m.m[1] + iy * m.m[4] + iz * m.m[7];
+    z = ix * m.m[2] + iy * m.m[5] + iz * m.m[8];
+}
+
+void Vec3::transformQuat(const Quaternion& q)
+{
+    float qx = q.x, qy = q.y, qz = q.z, qw = q.w;
+    
+    // calculate quat * vec
+    float ix = qw * x + qy * z - qz * y;
+    float iy = qw * y + qz * x - qx * z;
+    float iz = qw * z + qx * y - qy * x;
+    float iw = -qx * x - qy * y - qz * z;
+    
+    // calculate result * inverse quat
+    x = ix * qw + iw * -qx + iy * -qz - iz * -qy;
+    y = iy * qw + iw * -qy + iz * -qx - ix * -qz;
+    z = iz * qw + iw * -qz + ix * -qy - iy * -qx;
 }
 
 float Vec3::distance(const Vec3& v) const

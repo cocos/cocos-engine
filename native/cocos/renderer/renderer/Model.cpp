@@ -25,6 +25,9 @@
 #include "Model.h"
 #include "Effect.h"
 #include "InputAssembler.h"
+#include "../scene/NodeProxy.hpp"
+#include "../gfx/VertexBuffer.h"
+#include "math/MathUtil.h"
 
 RENDERER_BEGIN
 
@@ -61,78 +64,86 @@ void ModelPool::returnModel(Model *model)
 
 Model::Model()
 {
-//    RENDERER_LOGD("Model construction %p", this);
-    
-    _inputAssemblers.reserve(500);
 }
 
 Model::~Model()
 {
-    RENDERER_LOGD("Model destruction %p", this);
     reset();
+}
+
+void Model::setInputAssembler(const InputAssembler& ia)
+{
+    _inputAssembler = ia;
+}
+
+void Model::setEffect(Effect* effect, CustomProperties* customProperties)
+{
+    if (_effect != effect)
+    {
+        CC_SAFE_RELEASE(_effect);
+        _effect = effect;
+        CC_SAFE_RETAIN(_effect);
+    }
     
-    ccCArrayFree(_effects);
-}
-
-void Model::addInputAssembler(const InputAssembler& ia)
-{
-    _inputAssemblers.push_back(std::move(ia));
-}
-
-void Model::clearInputAssemblers()
-{
-    _inputAssemblers.clear();
-}
-
-void Model::addEffect(Effect* effect)
-{
-    if (ccCArrayContainsValue(_effects, effect))
-        return;
+    _uniforms.clear();
+    _definesList.clear();
     
-    ccCArrayAppendValue(_effects, effect);
+    _definesKeyHash = 0;
     
-    _defines.push_back(effect->extractDefines());
+    if (effect != nullptr)
+    {
+        _definesList.push_back(effect->extractDefines());
+        _uniforms.push_back(effect->extractProperties());
+        
+        MathUtil::combineHash(_definesKeyHash, std::hash<std::string>{}(effect->getDefinesKey()));
+    }
+    
+    if (customProperties != nullptr)
+    {
+        _definesList.push_back(customProperties->extractDefines());
+        _uniforms.push_back(customProperties->extractProperties());
+        
+        MathUtil::combineHash(_definesKeyHash, std::hash<std::string>{}(customProperties->getDefinesKey()));
+    }
 }
 
-void Model::clearEffects()
+void Model::setNode(NodeProxy* node)
 {
-    ccCArrayRemoveAllValues(_effects);
-    _defines.clear();
+    if (_node != node)
+    {
+        CC_SAFE_RELEASE(_node);
+        _node = node;
+        CC_SAFE_RETAIN(_node);
+    }
 }
 
-void Model::extractDrawItem(DrawItem& out, uint32_t index) const
+void Model::extractDrawItem(DrawItem& out) const
 {
     if (_dynamicIA)
     {
         out.model = const_cast<Model*>(this);
         out.ia = nullptr;
-        out.effect = static_cast<Effect*>(_effects->arr[0]);
-        out.defines = out.effect->extractDefines();
-        
+        out.effect = _effect;
+        out.defines = const_cast<std::vector<ValueMap*>*>(&_definesList);
+
         return;
     }
     
-    if (index >= _inputAssemblers.size())
-        return;
-    
     out.model = const_cast<Model*>(this);
-    out.ia = const_cast<InputAssembler*>(&(_inputAssemblers[index]));
-    
-    auto effectsSize = _effects->num;
-    if (index >= effectsSize)
-        index = (uint32_t)(effectsSize - 1);
-    
-    out.effect = static_cast<Effect*>(_effects->arr[index]);
-
-    out.defines = out.effect->extractDefines();
+    out.ia = const_cast<InputAssembler*>(&_inputAssembler);
+    out.effect = _effect;
+    out.defines = const_cast<std::vector<ValueMap*>*>(&_definesList);
+    out.uniforms = const_cast<std::vector<std::unordered_map<std::string, Effect::Property>*>*>(&_uniforms);
+    out.definesKeyHash = _definesKeyHash;
 }
 
 void Model::reset()
 {
-    ccCArrayRemoveAllValues(_effects);
-    _inputAssemblers.clear();
-    
-    _defines.clear();
+    CC_SAFE_RELEASE_NULL(_effect);
+    CC_SAFE_RELEASE_NULL(_node);
+    _inputAssembler.clear();
+    _uniforms.clear();
+    _definesList.clear();
 }
 
 RENDERER_END

@@ -10,13 +10,18 @@ LOCAL_ARM_MODE := arm
 LOCAL_SRC_FILES := \
 ../scripting/js-bindings/manual/jsb_helper.cpp \
 IOBuffer.cpp \
-RenderInfoMgr.cpp \
 MeshBuffer.cpp \
 middleware-adapter.cpp \
 TypedArrayPool.cpp \
 IOTypedArray.cpp \
 MiddlewareManager.cpp \
 ../scripting/js-bindings/auto/jsb_cocos2dx_editor_support_auto.cpp
+
+ifeq ($(USE_PARTICLE),1)
+LOCAL_SRC_FILES += \
+particle/ParticleSimulator.cpp \
+../scripting/js-bindings/auto/jsb_cocos2dx_particle_auto.cpp
+endif # USE_PARTICLE
 
 ifeq ($(USE_SPINE),1)
 LOCAL_SRC_FILES += \
@@ -139,6 +144,11 @@ LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH) \
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/.. \
 					$(LOCAL_PATH)/../.. \
                     $(LOCAL_PATH)/../../external/android/$(TARGET_ARCH_ABI)/include/v8 \
+                    $(LOCAL_PATH)/../../external/android/$(TARGET_ARCH_ABI)/include/v8/libc++ \
 					$(LOCAL_PATH)/../../external/sources/
+
+ifneq ($(filter x86 armeabi-v7a, $(TARGET_ARCH_ABI)),)
+	LOCAL_WHOLE_STATIC_LIBRARIES += android_support
+endif 
 
 include $(BUILD_STATIC_LIBRARY)

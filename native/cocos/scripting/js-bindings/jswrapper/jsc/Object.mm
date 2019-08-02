@@ -515,7 +515,7 @@ namespace se {
         JSValueRef exception = nullptr;
         JSValueRef rcValue = JSObjectCallAsFunction(__cx, _obj, contextObject, args.size(), jsArgs, &exception);
         free(jsArgs);
-
+        
         if (rcValue != nullptr)
         {
             if (rval != nullptr && !JSValueIsUndefined(__cx, rcValue))
@@ -524,7 +524,7 @@ namespace se {
             }
             return true;
         }
-
+        
         // Function call failed, try to output exception
         if (exception != nullptr)
         {

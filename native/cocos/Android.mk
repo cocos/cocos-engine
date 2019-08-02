@@ -26,6 +26,7 @@ math/Quaternion.cpp \
 math/Vec2.cpp \
 math/Vec3.cpp \
 math/Vec4.cpp \
+math/Mat3.cpp \
 base/CCAutoreleasePool.cpp \
 base/CCConfiguration.cpp \
 base/CCData.cpp \
@@ -136,6 +137,26 @@ renderer/renderer/Scene.cpp \
 renderer/renderer/Technique.cpp \
 renderer/renderer/View.cpp \
 renderer/renderer/ForwardRenderer.cpp \
+renderer/scene/assembler/Assembler.cpp \
+renderer/scene/assembler/AssemblerBase.cpp \
+renderer/scene/assembler/CustomAssembler.cpp \
+renderer/scene/assembler/MaskAssembler.cpp \
+renderer/scene/assembler/RenderData.cpp \
+renderer/scene/assembler/RenderDataList.cpp \
+renderer/scene/assembler/TiledMapAssembler.cpp \
+renderer/scene/assembler/AssemblerSprite.cpp \
+renderer/scene/assembler/SimpleSprite2D.cpp \
+renderer/scene/assembler/SlicedSprite2D.cpp \
+renderer/scene/MeshBuffer.cpp \
+renderer/scene/ModelBatcher.cpp \
+renderer/scene/NodeProxy.cpp \
+renderer/scene/RenderFlow.cpp \
+renderer/scene/StencilManager.cpp \
+renderer/scene/MemPool.cpp \
+renderer/scene/NodeMemPool.cpp \
+renderer/scene/ParallelTask.cpp \
+renderer/memop/RecyclePool.hpp \
+renderer/renderer/CustomProperties.cpp \
 scripting/js-bindings/auto/jsb_gfx_auto.cpp \
 scripting/js-bindings/auto/jsb_renderer_auto.cpp \
 scripting/js-bindings/manual/jsb_renderer_manual.cpp \
@@ -174,7 +195,7 @@ endif # USE_SOCKET
 
 ifneq ($(USE_MIDDLEWARE),0)
 LOCAL_STATIC_LIBRARIES += editor_support_static
-endif # USE_SPINE or USE_DRAGONBONES
+endif # USE_MIDDLEWARE
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/.. \
@@ -207,9 +228,14 @@ endif
 LOCAL_STATIC_LIBRARIES += cocos_webp_static
 LOCAL_STATIC_LIBRARIES += cocos_zlib_static
 LOCAL_STATIC_LIBRARIES += v8_static
+LOCAL_STATIC_LIBRARIES += custom_libcxx
+
 
 LOCAL_WHOLE_STATIC_LIBRARIES := cocos2dxandroid_static
 LOCAL_WHOLE_STATIC_LIBRARIES += cpufeatures
+ifneq ($(filter x86 armeabi-v7a, $(TARGET_ARCH_ABI)),)
+     LOCAL_WHOLE_STATIC_LIBRARIES += android_support
+endif 
 
 # define the macro to compile through support/zip_support/ioapi.c
 LOCAL_CFLAGS := -DUSE_FILE32API -fexceptions
@@ -234,3 +260,6 @@ $(call import-module,platform/android)
 $(call import-module,audio/android)
 $(call import-module,extensions)
 $(call import-module,android/cpufeatures)
+ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
+$(call import-module,android/support)
+endif

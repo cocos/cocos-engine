@@ -39,6 +39,16 @@ int
 },
 
 /**
+ * @method getNativeTexture
+ * @return {cc.renderer::Texture}
+ */
+getNativeTexture : function (
+)
+{
+    return cc.renderer::Texture;
+},
+
+/**
  * @method setPixelsWide
  * @param {int} arg0
  */
@@ -79,6 +89,16 @@ int
 },
 
 /**
+ * @method setNativeTexture
+ * @param {cc.renderer::Texture} arg0
+ */
+setNativeTexture : function (
+texture 
+)
+{
+},
+
+/**
  * @method setTexParameters
  * @param {cc.middleware::Texture2D::_TexParams} arg0
  */
@@ -105,6 +125,16 @@ Texture2D : function (
 middleware.MiddlewareManager = {
 
 /**
+ * @method render
+ * @param {float} arg0
+ */
+render : function (
+float 
+)
+{
+},
+
+/**
  * @method update
  * @param {float} arg0
  */
@@ -123,6 +153,16 @@ destroyInstance : function (
 },
 
 /**
+ * @method generateModuleID
+ * @return {unsigned char}
+ */
+generateModuleID : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method getInstance
  * @return {cc.middleware::MiddlewareManager}
  */
@@ -137,60 +177,6 @@ getInstance : function (
  * @constructor
  */
 MiddlewareManager : function (
-)
-{
-},
-
-};
-
-/**
- * @class RenderInfoMgr
- */
-middleware.RenderInfoMgr = {
-
-/**
- * @method setResizeCallback
- * @param {function} arg0
- */
-setResizeCallback : function (
-func 
-)
-{
-},
-
-/**
- * @method getRenderInfo
- * @return {se::Object}
- */
-getRenderInfo : function (
-)
-{
-    return se::Object;
-},
-
-/**
- * @method destroyInstance
- */
-destroyInstance : function (
-)
-{
-},
-
-/**
- * @method getInstance
- * @return {cc.middleware::RenderInfoMgr}
- */
-getInstance : function (
-)
-{
-    return cc.middleware::RenderInfoMgr;
-},
-
-/**
- * @method RenderInfoMgr
- * @constructor
- */
-RenderInfoMgr : function (
 )
 {
 },

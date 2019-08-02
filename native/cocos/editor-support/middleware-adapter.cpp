@@ -23,6 +23,10 @@
  ****************************************************************************/
 #include "middleware-adapter.h"
 #include "base/ccMacros.h"
+#include "renderer/gfx/Texture.h"
+
+using namespace cocos2d;
+using namespace cocos2d::renderer;
 
 MIDDLEWARE_BEGIN
 
@@ -33,7 +37,8 @@ Texture2D::Texture2D()
 
 Texture2D::~Texture2D()
 {
-    
+    CC_SAFE_RELEASE(_texture);
+    _texParamCallback = nullptr;
 }
 
 int Texture2D::getPixelsWide() const
@@ -77,6 +82,19 @@ void Texture2D::setTexParameters(const TexParams& texParams)
     {
         _texParamCallback(this->_realTextureIndex,texParams.minFilter,texParams.magFilter,texParams.wrapS,texParams.wrapT);
     }
+}
+
+void Texture2D::setNativeTexture(Texture* texture)
+{
+	if (_texture == texture) return;
+    CC_SAFE_RELEASE(_texture);
+    _texture = texture;
+    CC_SAFE_RETAIN(_texture);
+}
+
+Texture* Texture2D::getNativeTexture() const
+{
+    return _texture;
 }
 
 SpriteFrame* SpriteFrame::createWithTexture(Texture2D *texture, const cocos2d::Rect& rect)

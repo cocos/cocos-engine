@@ -31,6 +31,8 @@
 #include "../Macro.h"
 #include "ProgramLib.h"
 #include "Model.h"
+#include "Effect.h"
+#include "../memop/RecyclePool.hpp"
 
 RENDERER_BEGIN
 
@@ -44,33 +46,67 @@ class Effect;
 class Technique;
 class Texture2D;
 
+/**
+ * @addtogroup renderer
+ * @{
+ */
+
+/**
+ *  @brief Base renderer implements the basic render process.
+ */
 class BaseRenderer : public Ref
 {
 public:
     struct StageItem
     {
         Model* model = nullptr;
-        INode* node = nullptr;
         InputAssembler *ia = nullptr;
         Effect* effect = nullptr;
-        ValueMap* defines = nullptr;
         Technique* technique = nullptr;
+        std::vector<ValueMap*>* defines = nullptr;
+        size_t definesKeyHash = 0;
+        std::vector<std::unordered_map<std::string, Effect::Property>*>* uniforms = nullptr;
         int sortKey = -1;
     };
-    typedef std::function<void(const View&, const std::vector<StageItem>&)> StageCallback;
-
+    typedef std::function<void(const View&, std::vector<StageItem>&)> StageCallback;
+    /**
+     *  @brief The default constructor.
+     */
     BaseRenderer();
     
+    /**
+     *  @brief Initializes the base renderer.
+     *  @param[in] device DeviceGraphics pointer.
+     *  @param[in] programTemplates All linked programs.
+     */
     bool init(DeviceGraphics* device, std::vector<ProgramLib::Template>& programTemplates);
+    /**
+     *  @brief Initializes the base renderer.
+     *  @param[in] device DeviceGraphics pointer.
+     *  @param[in] programTemplates All programs.
+     *  @param[in] defaultTexture Default texture pointer.
+     */
     bool init(DeviceGraphics* device, std::vector<ProgramLib::Template>& programTemplates, Texture2D* defaultTexture);
+    /**
+     *  @brief The default destructor.
+     */
     virtual ~BaseRenderer();
-    
+    /**
+     *  @brief Register a new render stage.
+     *  @param[in] name Stage name.
+     *  @param[in] call Stage handle callback.
+     */
     void registerStage(const std::string& name, const StageCallback& callback);
-    ProgramLib* getProgramLib() const { return _programLib; }
+    /**
+     *  @brief Gets the program library pointer.
+     *  @return Program library pointer.
+     */
+    ProgramLib* getProgramLib() const { return _programLib; };
     
 protected:
     void render(const View&, const Scene* scene);
     void draw(const StageItem& item);
+    void setProperty (Effect::Property& prop);
     
     struct StageInfo
     {
@@ -86,12 +122,42 @@ protected:
     int _usedTextureUnits = 0;
     DeviceGraphics* _device = nullptr;
     ProgramLib* _programLib = nullptr;
+    Program* _program = nullptr;
     Texture2D* _defaultTexture = nullptr;
-    std::unordered_map<std::string, StageCallback> _stage2fn;
-    std::vector<DrawItem> _drawItems;
-    std::vector<StageInfo> _stageInfos;
+    std::unordered_map<std::string, const StageCallback> _stage2fn;
+    RecyclePool<DrawItem>* _drawItems = nullptr;
+    RecyclePool<StageInfo>* _stageInfos = nullptr;
+    RecyclePool<View>* _views = nullptr;
+    
+    cocos2d::Mat4* _tmpMat4 = nullptr;
 
     CC_DISALLOW_COPY_ASSIGN_AND_MOVE(BaseRenderer);
+    
+    ValueMap _defines;
+    size_t _definesHash = 0;
+    std::string _definesKey = "";
+    
+    static const size_t cc_dirLightDirection;
+    static const size_t cc_dirLightColor;
+    static const size_t cc_pointLightPositionAndRange;
+    static const size_t cc_pointLightColor;
+    static const size_t cc_spotLightDirection;
+    static const size_t cc_spotLightPositionAndRange;
+    static const size_t cc_spotLightColor;
+    static const size_t cc_shadow_map;
+    static const size_t cc_shadow_map_lightViewProjMatrix;
+    static const size_t cc_shadow_map_info;
+    static const size_t cc_shadow_map_bias;
+    static const size_t cc_shadow_lightViewProjMatrix;
+    static const size_t cc_shadow_info;
+    static const size_t cc_matView;
+    static const size_t cc_matWorld;
+    static const size_t cc_matWorldIT;
+    static const size_t cc_matpProj;
+    static const size_t cc_matViewProj;
+    static const size_t cc_cameraPos;
 };
 
+// end of renderer group
+/// @}
 RENDERER_END

@@ -48,6 +48,18 @@ InputAssembler::~InputAssembler()
     RENDERER_SAFE_RELEASE(_indexBuffer);
 }
 
+void InputAssembler::clear()
+{
+    CC_SAFE_RELEASE(_vertexBuffer);
+    CC_SAFE_RELEASE(_indexBuffer);
+    
+    _vertexBuffer = nullptr;
+    _indexBuffer = nullptr;
+    _primitiveType = PrimitiveType::TRIANGLES;
+    _start = 0;
+    _count = -1;
+}
+
 InputAssembler& InputAssembler::operator=(const InputAssembler& o)
 {
     CC_SAFE_RELEASE(_vertexBuffer);
@@ -78,6 +90,8 @@ InputAssembler& InputAssembler::operator=(InputAssembler&& o)
     
     o._indexBuffer = nullptr;
     o._vertexBuffer = nullptr;
+    o._start = 0;
+    o._count = -1;
     
     return *this;
 }
@@ -116,6 +130,15 @@ uint32_t InputAssembler::getPrimitiveCount() const
     
     assert(_vertexBuffer);
     return _vertexBuffer->getCount();
+}
+
+bool InputAssembler::isMergeable(const InputAssembler& ia) const
+{
+    if (_indexBuffer != ia._indexBuffer || _vertexBuffer != ia._vertexBuffer)
+    {
+        return false;
+    }
+    return (_start + _count) == ia._start;
 }
 
 RENDERER_END

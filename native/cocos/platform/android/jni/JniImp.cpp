@@ -599,6 +599,11 @@ std::string getCurrentLanguageJNI()
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getCurrentLanguage");
 }
 
+std::string getCurrentLanguageCodeJNI()
+{
+    return JniHelper::callStaticStringMethod(JCLS_HELPER, "getCurrentLanguageCode");
+}
+
 std::string getSystemVersionJNI()
 {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getSystemVersion");

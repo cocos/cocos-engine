@@ -223,20 +223,6 @@ VertexBuffer : function (
 gfx.Device = {
 
 /**
- * @method setTexture
- * @param {String} arg0
- * @param {cc.renderer::Texture} arg1
- * @param {int} arg2
- */
-setTexture : function (
-str, 
-texture, 
-int 
-)
-{
-},
-
-/**
  * @method setBlendFuncSeparate
  * @param {cc.renderer::BlendFactor} arg0
  * @param {cc.renderer::BlendFactor} arg1
@@ -381,20 +367,6 @@ enableDepthWrite : function (
 },
 
 /**
- * @method setTextureArray
- * @param {String} arg0
- * @param {Array} arg1
- * @param {Array} arg2
- */
-setTextureArray : function (
-str, 
-array, 
-array 
-)
-{
-},
-
-/**
  * @method getCapacity
  * @return {cc.renderer::DeviceGraphics::Capacity}
  */
@@ -464,6 +436,24 @@ comparisonfunc
 enableDepthTest : function (
 )
 {
+},
+
+/**
+ * @method resetDrawCalls
+ */
+resetDrawCalls : function (
+)
+{
+},
+
+/**
+ * @method getDrawCalls
+ * @return {unsigned int}
+ */
+getDrawCalls : function (
+)
+{
+    return 0;
 },
 
 /**
@@ -594,6 +584,26 @@ getInstance : function (
  * @class FrameBuffer
  */
 gfx.FrameBuffer = {
+
+/**
+ * @method getHeight
+ * @return {int}
+ */
+getHeight : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getWidth
+ * @return {int}
+ */
+getWidth : function (
+)
+{
+    return 0;
+},
 
 /**
  * @method destroy

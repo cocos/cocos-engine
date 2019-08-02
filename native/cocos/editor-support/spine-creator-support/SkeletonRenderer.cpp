@@ -31,12 +31,12 @@
 #include "spine-creator-support/AttachmentVertices.h"
 #include "spine-creator-support/spine-cocos2dx.h"
 #include <algorithm>
-#include "platform/CCApplication.h"
 #include "base/CCScheduler.h"
 #include "MiddlewareMacro.h"
-#include "MeshBuffer.h"
+#include "renderer/renderer/Pass.h"
+#include "renderer/renderer/Technique.h"
+#include "renderer/scene/assembler/CustomAssembler.hpp"
 #include "SkeletonDataMgr.h"
-#include "RenderInfoMgr.h"
 
 USING_NS_CC;
 USING_NS_MW;
@@ -44,6 +44,12 @@ USING_NS_MW;
 using std::min;
 using std::max;
 using namespace spine;
+using namespace cocos2d;
+using namespace cocos2d::renderer;
+
+static const std::string techStage = "opaque";
+static const std::string textureKey = "texture";
+static const uint8_t moduleID = MiddlewareManager::generateModuleID();
 
 static Cocos2dTextureLoader textureLoader;
 
@@ -88,12 +94,7 @@ void SkeletonRenderer::initialize () {
     if (_clipper == nullptr) {
         _clipper = new (__FILE__, __LINE__) SkeletonClipping();
     }
-    
-    if (_renderInfoOffset == nullptr) {
-        // store global TypedArray begin and end offset
-        _renderInfoOffset = new IOTypedArray(se::Object::TypedArrayType::UINT32, sizeof(uint32_t));
-    }
-    
+	
     _skeleton->setToSetupPose();
     _skeleton->updateWorldTransform();
     beginSchedule();
@@ -113,11 +114,6 @@ void SkeletonRenderer::onDisable() {
 
 void SkeletonRenderer::stopSchedule() {
     MiddlewareManager::getInstance()->removeTimer(this);
-    if (_renderInfoOffset) {
-        _renderInfoOffset->reset();
-        _renderInfoOffset->clear();
-    }
-    
     if (_debugBuffer) {
         _debugBuffer->reset();
         _debugBuffer->clear();
@@ -150,7 +146,6 @@ SkeletonRenderer::SkeletonRenderer (const std::string& skeletonDataFile, const s
 
 SkeletonRenderer::~SkeletonRenderer () {
     CC_SAFE_RELEASE(_effectDelegate);
-    
     if (_ownsSkeletonData) delete _skeleton->getData();
     if (_ownsSkeleton) delete _skeleton;
     if (_ownsAtlas && _atlas) delete _atlas;
@@ -158,16 +153,13 @@ SkeletonRenderer::~SkeletonRenderer () {
     if (_uuid != "") SkeletonDataMgr::getInstance()->releaseByUUID(_uuid);
     if (_clipper) delete _clipper;
     
-    if (_renderInfoOffset) {
-        delete _renderInfoOffset;
-        _renderInfoOffset = nullptr;
-    }
-    
     if (_debugBuffer) {
         delete _debugBuffer;
         _debugBuffer = nullptr;
     }
     
+    CC_SAFE_RELEASE(_nodeProxy);
+    CC_SAFE_RELEASE(_effect);
     stopSchedule();
 }
 
@@ -264,66 +256,67 @@ void SkeletonRenderer::initWithBinaryFile (const std::string& skeletonDataFile, 
     initialize();
 }
 
-void SkeletonRenderer::update (float deltaTime) {
-    
+void SkeletonRenderer::render (float deltaTime) {
     if (!_skeleton) return;
-
-    _renderInfoOffset->reset();
-    _renderInfoOffset->clear();
     // avoid other place call update.
     auto mgr = MiddlewareManager::getInstance();
-    if (!mgr->isUpdating) return;
+    if (!mgr->isRendering) return;
     
-    auto renderMgr = RenderInfoMgr::getInstance();
-    auto renderInfo = renderMgr->getBuffer();
-    if (!renderInfo) return;
-    
-    //  store renderInfo offset
-    _renderInfoOffset->writeUint32((uint32_t)renderInfo->getCurPos() / sizeof(uint32_t));
-    
-    // check enough space
-    renderInfo->checkSpace(sizeof(uint32_t) * 2, true);
-    // write border
-    renderInfo->writeUint32(0xffffffff);
-    
-    std::size_t materialLenOffset = renderInfo->getCurPos();
-    //reserved space to save material len
-    renderInfo->writeUint32(0);
-    
-    // If opacity is 0,then return.
-    if (_skeleton->getColor().a == 0) {
+    if (_nodeProxy == nullptr) {
         return;
     }
     
+    CustomAssembler* assembler = (CustomAssembler*)_nodeProxy->getAssembler();
+    if (assembler == nullptr) {
+        return;
+    }
+    assembler->reset();
+    assembler->setUseModel(!_batch);
+    
+    _nodeColor.a = _nodeProxy->getRealOpacity() / (float)255;
+    
+	// If opacity is 0,then return.
+    if (_skeleton->getColor().a == 0) {
+        return;
+    }
+	
     Color4F color;
     Color4F darkColor;
     AttachmentVertices* attachmentVertices = nullptr;
     bool inRange = _startSlotIndex != -1 || _endSlotIndex != -1 ? false : true;
     auto vertexFormat = _useTint? VF_XYUVCC : VF_XYUVC;
-    MeshBuffer* mb = mgr->getMeshBuffer(vertexFormat);
+	middleware::MeshBuffer* mb = mgr->getMeshBuffer(vertexFormat);
     middleware::IOBuffer& vb = mb->getVB();
     middleware::IOBuffer& ib = mb->getIB();
     
-    // vertex size in floats with one color
-    int vs1 = sizeof(V2F_T2F_C4B) / sizeof(float);
+    // vertex size int bytes with one color
+    int vbs1 = sizeof(V2F_T2F_C4B);
+	// vertex size in floats with one color
+    int vs1 = vbs1 / sizeof(float);
+    // vertex size int bytes with two color
+    int vbs2 = sizeof(V2F_T2F_C4B_C4B);
     // verex size in floats with two color
-    int vs2 = sizeof(V2F_T2F_C4B_C4B) / sizeof(float);
+    int vs2 = vbs2 / sizeof(float);
+    const cocos2d::Mat4& nodeWorldMat = _nodeProxy->getWorldMatrix();
     
-    int vbSize = 0;
+	int vbSize = 0;
     int ibSize = 0;
-    
-    int preTextureIndex = -1;
+
+    BlendFactor curBlendSrc = BlendFactor::ONE;
+    BlendFactor curBlendDst = BlendFactor::ZERO;
+    int curBlendMode = -1;
     int preBlendMode = -1;
-    int curBlendSrc = -1;
-    int curBlendDst = -1;
+    int preTextureIndex = -1;
     int curTextureIndex = -1;
     
-    int preISegWritePos = -1;
+	int preISegWritePos = -1;
     int curISegLen = 0;
     
     int materialLen = 0;
     Slot* slot = nullptr;
     int isFull = 0;
+    
+    middleware::Texture2D* texture = nullptr;
     
     if (_debugSlots || _debugBones || _debugMesh) {
         // If enable debug draw,then init debug buffer.
@@ -336,49 +329,77 @@ void SkeletonRenderer::update (float deltaTime) {
     auto flush = [&]() {
         // fill pre segment count field
         if (preISegWritePos != -1) {
-            renderInfo->writeUint32(preISegWritePos, curISegLen);
+            assembler->updateIARange(materialLen - 1, preISegWritePos, curISegLen);
         }
 
         // prepare to fill new segment field
-        switch (slot->getData().getBlendMode()) {
+        curBlendMode = slot->getData().getBlendMode();
+        switch (curBlendMode) {
             case BlendMode_Additive:
-                curBlendSrc = _premultipliedAlpha ? GL_ONE : GL_SRC_ALPHA;
-                curBlendDst = GL_ONE;
+                curBlendSrc = _premultipliedAlpha ? BlendFactor::ONE : BlendFactor::SRC_ALPHA;
+                curBlendDst = BlendFactor::ONE;
                 break;
             case BlendMode_Multiply:
-                curBlendSrc = GL_DST_COLOR;
-                curBlendDst = GL_ONE_MINUS_SRC_ALPHA;
+                curBlendSrc = BlendFactor::DST_COLOR;
+                curBlendDst = BlendFactor::ONE_MINUS_SRC_ALPHA;
                 break;
             case BlendMode_Screen:
-                curBlendSrc = GL_ONE;
-                curBlendDst = GL_ONE_MINUS_SRC_COLOR;
+                curBlendSrc = BlendFactor::ONE;
+                curBlendDst = BlendFactor::ONE_MINUS_SRC_COLOR;
                 break;
             default:
-                curBlendSrc = _premultipliedAlpha ? GL_ONE : GL_SRC_ALPHA;
-                curBlendDst = GL_ONE_MINUS_SRC_ALPHA;
+                curBlendSrc = _premultipliedAlpha ? BlendFactor::ONE : BlendFactor::SRC_ALPHA;
+                curBlendDst = BlendFactor::ONE_MINUS_SRC_ALPHA;
         }
         
-        // check enough space
-        renderInfo->checkSpace(sizeof(uint32_t) * 7, true);
+		double curHash = curTextureIndex + (moduleID << 16) + (curBlendMode << 24) + ((int)_useTint << 25) + ((int)_batch << 27);
+        Effect* renderEffect = assembler->getEffect(materialLen);
+        Technique::Parameter* param = nullptr;
+        Pass* pass = nullptr;
         
-        // fill new texture index
-        renderInfo->writeUint32(curTextureIndex);
-        // fill new blend src and dst
-        renderInfo->writeUint32(curBlendSrc);
-        renderInfo->writeUint32(curBlendDst);
-        // fill new index and vertex buffer id
-        auto glIB = mb->getGLIB();
-        auto glVB = mb->getGLVB();
-        renderInfo->writeUint32(glIB);
-        renderInfo->writeUint32(glVB);
-        // fill new index offset
-        renderInfo->writeUint32((uint32_t)ib.getCurPos() / sizeof(unsigned short));
-
+        if (renderEffect) {
+            double renderHash = renderEffect->getHash();
+            if (abs(renderHash - curHash) >= 0.01) {
+                param = (Technique::Parameter*)&(renderEffect->getProperty(textureKey));
+                Technique* tech = renderEffect->getTechnique(techStage);
+                cocos2d::Vector<Pass*>& passes = (cocos2d::Vector<Pass*>&)tech->getPasses();
+                pass = *(passes.begin());
+            }
+        }
+        else {
+            if (_effect == nullptr) {
+                cocos2d::log("SkeletonRenderer:update get effect failed");
+                assembler->reset();
+                return;
+            }
+            auto effect = new cocos2d::renderer::Effect();
+            effect->autorelease();
+            effect->copy(_effect);
+            
+            Technique* tech = effect->getTechnique(techStage);
+            cocos2d::Vector<Pass*>& passes = (cocos2d::Vector<Pass*>&)tech->getPasses();
+            pass = *(passes.begin());
+            
+            assembler->updateEffect(materialLen, effect);
+            renderEffect = effect;
+            param = (Technique::Parameter*)&(renderEffect->getProperty(textureKey));
+        }
+        
+        if (param) {
+            param->setTexture(texture->getNativeTexture());
+        }
+        
+        if (pass) {
+            pass->setBlend(BlendOp::ADD, curBlendSrc, curBlendDst,
+                           BlendOp::ADD, curBlendSrc, curBlendDst);
+        }
+        
+        renderEffect->updateHash(curHash);
+		
         // save new segment count pos field
-        preISegWritePos = (int)renderInfo->getCurPos();
-        // reserve indice segamentation count
-        renderInfo->writeUint32(0);
-        
+        preISegWritePos = (int)ib.getCurPos() / sizeof(unsigned short);
+        // save new segment vb and ib
+        assembler->updateIABuffer(materialLen, mb->getGLVB(), mb->getGLIB());
         // reset pre blend mode to current
         preBlendMode = (int)slot->getData().getBlendMode();
         // reset pre texture index to current
@@ -423,10 +444,6 @@ void SkeletonRenderer::update (float deltaTime) {
         // Early exit if slot is invisible
         if (slot->getColor().a == 0) {
             _clipper->clipEnd(*slot);
-            continue;
-        }
-        
-        if (!slot->getAttachment()) {
             continue;
         }
         
@@ -794,6 +811,7 @@ void SkeletonRenderer::update (float deltaTime) {
             }
         }
         
+        texture = attachmentVertices->_texture;
         curTextureIndex = attachmentVertices->_texture->getRealTextureIndex();
         // If texture or blendMode change,will change material.
         if (preTextureIndex != curTextureIndex || preBlendMode != slot->getData().getBlendMode() || isFull) {
@@ -801,9 +819,25 @@ void SkeletonRenderer::update (float deltaTime) {
         }
         
         if (vbSize > 0 && ibSize > 0) {
-            auto vertexOffset = vb.getCurPos() / sizeof(middleware::V2F_T2F_C4B);
+            auto vbs = vbs1;
+            auto vertexOffset = vb.getCurPos() / vbs1;
             if (_useTint) {
-                vertexOffset = vb.getCurPos() / sizeof(middleware::V2F_T2F_C4B_C4B);
+                vbs = vbs2;
+                vertexOffset = vb.getCurPos() / vbs2;
+            }
+            
+            if (_batch) {
+                uint8_t* vbBuffer = vb.getCurBuffer();
+                cocos2d::Vec3* point = nullptr;
+                float tempZ = 0.0f;
+                for (int ii = 0, nn = vbSize; ii < nn; ii += vbs)
+                {
+                    point = (cocos2d::Vec3*)(vbBuffer + ii);
+                    tempZ = point->z;
+                    point->z = 0;
+                    nodeWorldMat.transformPoint(point);
+                    point->z = tempZ;
+                }
             }
             
             if (vertexOffset > 0) {
@@ -827,11 +861,10 @@ void SkeletonRenderer::update (float deltaTime) {
     
     if (effect) effect->end();
     
-    renderInfo->writeUint32(materialLenOffset, materialLen);
-    if (preISegWritePos != -1) {
-        renderInfo->writeUint32(preISegWritePos, curISegLen);
+	if (preISegWritePos != -1) {
+		assembler->updateIARange(materialLen - 1, preISegWritePos, curISegLen);
     }
-    
+
     if (_debugBones) {
         auto& bones = _skeleton->getBones();
         size_t bonesCount = bones.size();
@@ -1003,6 +1036,10 @@ void SkeletonRenderer::setColor (cocos2d::Color4B& color) {
     _nodeColor.g = color.g / 255.0f;
     _nodeColor.b = color.b / 255.0f;
     _nodeColor.a = color.a / 255.0f;
+}
+
+void SkeletonRenderer::setBatchEnabled (bool enabled) {
+    _batch = enabled;
 }
 
 void SkeletonRenderer::setDebugBonesEnabled (bool enabled) {

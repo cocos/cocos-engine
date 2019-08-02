@@ -1,9 +1,10 @@
-APP_STL := c++_static
+# use the same stl as v8
+APP_STL := none
 
 # Uncomment this line to compile to armeabi-v7a, your application will run faster but support less devices
 APP_ABI := armeabi-v7a
 
-APP_CPPFLAGS := -frtti -std=c++11 -fsigned-char
+APP_CPPFLAGS := -frtti -std=c++11 -fsigned-char -D_LIBCPP_ABI_UNSTABLE
 APP_LDFLAGS := -latomic
 
 # To solve windows commands char length too long
@@ -13,7 +14,7 @@ USE_ARM_MODE := 1
 
 # MUST be careful to modify this manually
 # disable module will speed up compile time, and reduce package size
-USE_GFX_RENDERER := 0
+USE_GFX_RENDERER := 1
 USE_VIDEO := 1
 USE_WEB_VIEW := 1
 USE_AUDIO := 1
@@ -22,6 +23,7 @@ USE_SPINE := 1
 USE_DRAGONBONES := 1
 USE_TIFF := 1
 USE_MIDDLEWARE := 1
+USE_PARTICLE := 1
 
 APP_CPPFLAGS += -DUSE_GFX_RENDERER=$(USE_GFX_RENDERER)
 APP_CPPFLAGS += -DUSE_VIDEO=${USE_VIDEO}
@@ -32,6 +34,7 @@ APP_CPPFLAGS += -DUSE_SPINE=${USE_SPINE}
 APP_CPPFLAGS += -DUSE_DRAGONBONES=${USE_DRAGONBONES}
 APP_CPPFLAGS += -DCC_USE_TIFF=${USE_TIFF}
 APP_CPPFLAGS += -DUSE_MIDDLEWARE=${USE_MIDDLEWARE}
+APP_CPPFLAGS += -DUSE_PARTICLE=${USE_PARTICLE}
 
 ifeq ($(NDK_DEBUG),1)
   APP_CPPFLAGS += -DCOCOS2D_DEBUG=1

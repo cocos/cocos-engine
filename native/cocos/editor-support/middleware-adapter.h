@@ -27,6 +27,7 @@
 #include "base/ccTypes.h"
 #include <functional>
 #include "MiddlewareMacro.h"
+#include "renderer/renderer/Effect.h"
 
 MIDDLEWARE_BEGIN
 /**
@@ -105,7 +106,7 @@ public:
     virtual ~Texture2D();
     /**
      Extension to set the Min / Mag filter
-        */
+     */
     typedef struct _TexParams
     {
         GLuint    minFilter;
@@ -121,16 +122,16 @@ public:
     
     /** Sets the min filter, mag filter, wrap s and wrap t texture parameters.
      If the texture size is NPOT (non power of 2), then in can only use GL_CLAMP_TO_EDGE in GL_TEXTURE_WRAP_{S,T}.
-        
-        @warning Calling this method could allocate additional texture memory.
-        
-        @since v0.8
-        * @code
-        * When this function bound into js or lua,the input parameter will be changed
-        * In js: var setBlendFunc(var arg1, var arg2, var arg3, var arg4)
-        * In lua: local setBlendFunc(local arg1, local arg2, local arg3, local arg4)
-        * @endcode
-        */
+         
+     @warning Calling this method could allocate additional texture memory.
+         
+     @since v0.8
+     * @code
+     * When this function bound into js or lua,the input parameter will be changed
+     * In js: var setBlendFunc(var arg1, var arg2, var arg3, var arg4)
+     * In lua: local setBlendFunc(local arg1, local arg2, local arg3, local arg4)
+     * @endcode
+     */
     void setTexParameters(const TexParams& texParams);
     
     /** Gets the width of the texture in pixels. */
@@ -153,6 +154,12 @@ public:
     
     /** Sets texture param callback*/
     void setTexParamCallback(const texParamCallback& callback);
+    
+    /** Sets texture native ptr*/
+    void setNativeTexture(cocos2d::renderer::Texture* texture);
+    
+    /** Gets texture native ptr*/
+    cocos2d::renderer::Texture* getNativeTexture() const;
 private:
     
     /** width in pixels */
@@ -165,6 +172,8 @@ private:
     int             _realTextureIndex = 0;
     
     texParamCallback _texParamCallback = nullptr;
+        
+    cocos2d::renderer::Texture* _texture = nullptr;
 };
 
 ///////////////////////////////////////////////////////////////////////

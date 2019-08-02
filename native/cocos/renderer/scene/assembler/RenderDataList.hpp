@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
  
  http://www.cocos2d-x.org
  
@@ -22,44 +22,47 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "RenderInfoMgr.h"
-MIDDLEWARE_BEGIN
-RenderInfoMgr* RenderInfoMgr::_instance = nullptr;
+#pragma once
 
-RenderInfoMgr::RenderInfoMgr ()
-{
-    init();
+#include "base/CCRef.h"
+#include <vector>
+#include "RenderData.hpp"
+#include "scripting/js-bindings/jswrapper/Object.hpp"
+
+namespace se {
+    class Object;
+    class HandleObject;
 }
 
-RenderInfoMgr::~RenderInfoMgr ()
-{
-    CC_SAFE_DELETE(_buffer);
-}
+RENDERER_BEGIN
 
-void RenderInfoMgr::afterCleanupHandle()
-{
-    if (_buffer)
-    {
-        delete _buffer;
-        _buffer = nullptr;
-    }
-    se::ScriptEngine::getInstance()->addAfterInitHook(std::bind(&RenderInfoMgr::init,this));
-}
+class RenderDataList: public cocos2d::Ref {
+public:
+    RenderDataList () {}
+    virtual ~RenderDataList() {}
+    /**
+     *  @brief Update the mesh data for the given index.
+     *  @param[in] index Render data index.
+     *  @param[in] vertices Vertex data.
+     *  @param[in] indices Index data.
+     */
+    void updateMesh(std::size_t index, se_object_ptr vertices, se_object_ptr indices);
+    /**
+     *  @brief Gets the count of render datas
+     *  @return Count.
+     */
+    std::size_t getMeshCount() const { return _datas.size(); };
+    /**
+     *  @brief Gets IARenderData.
+     *  @return IARenderData.
+     */
+    RenderData* getRenderData(std::size_t index);
+    /**
+     *  @brief Resets all IARenderData.
+     */
+    void clear();
+private:
+    std::vector<RenderData> _datas;
+};
 
-void RenderInfoMgr::init()
-{
-    if (!_buffer)
-    {
-        _buffer = new IOTypedArray(se::Object::TypedArrayType::UINT32, INIT_RENDER_INFO_BUFFER_SIZE);
-        _buffer->setResizeCallback([this]
-        {
-           if (_resizeCallback)
-           {
-               _resizeCallback();
-           }
-        });
-    }
-    se::ScriptEngine::getInstance()->addAfterCleanupHook(std::bind(&RenderInfoMgr::afterCleanupHandle,this));
-}
-
-MIDDLEWARE_END
+RENDERER_END

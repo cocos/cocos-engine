@@ -60,6 +60,19 @@ public:
      * @language zh_CN
      */
     virtual void advanceTime(float passedTime) = 0;
+    
+    /**
+     * - Render.
+     * @version Cocos creator 2.3
+     * @language en_US
+     */
+    /**
+     * - 渲染。
+     * @version Cocos creator 2.3
+     * @language zh_CN
+     */
+    virtual void render() = 0;
+    
     /**
      * - The Wordclock instance to which the current belongs.
      * @example

@@ -25,6 +25,7 @@
 
 #include "../core/DragonBones.h"
 #include "../event/IEventDispatcher.h"
+#include "MiddlewareManager.h"
 
 DRAGONBONES_NAMESPACE_BEGIN
 /**
@@ -56,6 +57,10 @@ public:
      * @internal
      */
     virtual void dbUpdate() = 0;
+    /**
+     * @internal
+     */
+    virtual void dbRender() = 0;
     /**
      * - Dispose the instance and the Armature instance. (The Armature instance will return to the object pool)
      * @example

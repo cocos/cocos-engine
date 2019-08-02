@@ -277,4 +277,10 @@ void MathUtil::crossVec3(const float* v1, const float* v2, float* dst)
 #endif
 }
 
+void MathUtil::combineHash(size_t& seed, const size_t& v)
+{
+    seed ^= v + 0x9e3779b9 + (seed<<6) + (seed>>2);
+}
+
+
 NS_CC_MATH_END

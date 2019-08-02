@@ -6089,6 +6089,16 @@ float
 },
 
 /**
+ * @method render
+ * @param {float} arg0
+ */
+render : function (
+float 
+)
+{
+},
+
+/**
  * @method initWithUUID
  * @param {String} arg0
  */
@@ -6149,13 +6159,13 @@ onEnable : function (
 },
 
 /**
- * @method getRenderInfoOffset
- * @return {se::Object}
+ * @method setEffect
+ * @param {cc.renderer::Effect} arg0
  */
-getRenderInfoOffset : function (
+setEffect : function (
+effect 
 )
 {
-    return se::Object;
 },
 
 /**
@@ -6374,6 +6384,26 @@ onDisable : function (
  */
 setColor : function (
 color4b 
+)
+{
+},
+
+/**
+ * @method bindNodeProxy
+ * @param {cc.renderer::NodeProxy} arg0
+ */
+bindNodeProxy : function (
+nodeproxy 
+)
+{
+},
+
+/**
+ * @method setBatchEnabled
+ * @param {bool} arg0
+ */
+setBatchEnabled : function (
+bool 
 )
 {
 },
@@ -6715,6 +6745,42 @@ float
  * @constructor
  */
 SkeletonAnimation : function (
+)
+{
+},
+
+};
+
+/**
+ * @class SkeletonDataMgr
+ */
+spine.SkeletonDataMgr = {
+
+/**
+ * @method setDestroyCallback
+ * @param {function} arg0
+ */
+setDestroyCallback : function (
+func 
+)
+{
+},
+
+/**
+ * @method getInstance
+ * @return {sp.SkeletonDataMgr}
+ */
+getInstance : function (
+)
+{
+    return sp.SkeletonDataMgr;
+},
+
+/**
+ * @method SkeletonDataMgr
+ * @constructor
+ */
+SkeletonDataMgr : function (
 )
 {
 },
