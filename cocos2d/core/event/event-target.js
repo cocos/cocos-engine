@@ -133,11 +133,15 @@ proto.on = function (type, callback, target) {
  */
 proto.off = function (type, callback, target) {
     if (!callback) {
-        this.removeAll(type);
-
-        if (target && target.__eventTargets) {
-            fastRemove(target.__eventTargets, this);
+        let list = this._callbackTable[type];
+        let targets = list.targets;
+        for (let i = 0; i < targets.length; ++i) {
+            let target = targets[i];
+            if (target && target.__eventTargets) {
+                fastRemove(target.__eventTargets, this);
+            }
         }
+        this.removeAll(type);
     }
     else {
         this.remove(type, callback, target);
