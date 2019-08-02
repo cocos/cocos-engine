@@ -5,9 +5,18 @@ import { TerrainEditorMode } from './terrain-editor-mode';
 import { TerrainWeightOperation, TerrainWeightUndoRedo } from './terrain-operation';
 
 export class TerrainEditorPaint extends TerrainEditorMode {
-    public _brush: TerrainBrush = new TerrainCircleBrush();
+    public _brush: TerrainBrush;
     public _undo: TerrainWeightUndoRedo|null = null;
     public _currentLayer: number = -1;
+
+    constructor () {
+        super();
+
+        const brush = new TerrainCircleBrush();
+        brush.strength = 5;
+
+        this._brush = brush;
+    }
 
     public setCurrentLayer (layer: number) {
         this._currentLayer = layer;

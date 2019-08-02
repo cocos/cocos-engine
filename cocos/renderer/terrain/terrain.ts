@@ -876,11 +876,13 @@ export class Terrain extends Component {
         Vec3.add(m, b, c).scale(0.5);
 
         if (dx + dz <= 1.0) {
+            // d = m + (m - a);
             d.set(m);
             d.subtract(a);
             d.add(m);
         }
         else {
+            // a = m + (m - d);
             a.set(m);
             a.subtract(d);
             a.add(m);
