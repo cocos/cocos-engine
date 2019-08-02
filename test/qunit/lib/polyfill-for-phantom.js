@@ -195,3 +195,16 @@ if (!Object.getOwnPropertySymbols) {
 
 Number.parseFloat = Number.parseFloat || parseFloat;
 Number.parseInt = Number.parseInt || parseInt;
+
+Array.from = Array.from || function (obj) {
+    var array = new Array(obj.length);
+    for (var i = 0; i < obj.length; ++i) {
+        array[i] = obj[i];
+    }
+    return array;
+};
+
+Float32Array.name = 'Float32Array';
+Uint32Array.name = 'Uint32Array';
+Int32Array.name = 'Int32Array';
+Uint8Array.name = 'Uint8Array';
