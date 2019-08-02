@@ -1381,7 +1381,7 @@ let NodeDefines = {
 
     _initDataFromPool () {
         if (!this._spaceInfo) {
-            if (CC_EDITOR) {
+            if (CC_EDITOR || CC_TEST) {
                 this._spaceInfo = {
                     trs: new Float32Array(10),
                     localMat: new Float32Array(16),
@@ -1414,7 +1414,7 @@ let NodeDefines = {
     },
 
     _backDataIntoPool () {
-        if (!CC_EDITOR) {
+        if (!(CC_EDITOR || CC_TEST)) {
             // push back to pool
             nodeMemPool.push(this._spaceInfo);
             this._matrix = null;

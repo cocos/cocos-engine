@@ -23,8 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-module.exports = {
-    ForwardRenderer: require('./forward-renderer'),
-    RenderComponentHandle: require('./render-component-handle'),
-    _renderers: require('./renderers')
+import './render-flow';
+import './renderers';
+import ForwardRenderer from './forward-renderer';
+import RenderComponentHandle from './render-component-handle';
+
+export default {
+    ForwardRenderer,
+    RenderComponentHandle
 };

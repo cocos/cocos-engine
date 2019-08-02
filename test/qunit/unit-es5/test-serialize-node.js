@@ -38,14 +38,14 @@ if (TestEditorExtends) {
     ];
 
     function createNodeData(nodeName) {
-        let rts = new Float32Array(10);
-        for (let i = 0; i < rts.length; i++) {
-            rts[i] = getRandomDouble();
+        var trs = new Float32Array(10);
+        for (var i = 0; i < trs.length; i++) {
+            trs[i] = getRandomDouble();
         }
         return {
             '_localZOrder' : getRandomInt(),
             '_globalZOrder' : getRandomInt(),
-            '_rts' : rts,
+            '_trs' : trs,
             '_skewX' : getRandomDouble(),
             '_skewY' : getRandomDouble(),
             '_active' : getRandomBool(),

@@ -23,16 +23,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const bmfontUtils = require('../../../utils/label/bmfont')
-const js = require('../../../../platform/js');
+import BmfontAssembler from '../../../utils/label/bmfont';
+import RenderData from '../render-data';
+import utils from '../utils';
 
-module.exports = js.addon({
-    createData (comp) {
-        return comp.requestRenderData();
-    },
+export default class CanvasBmfontAssembler extends BmfontAssembler {
+    init () {
+        this._renderData = new RenderData();
+    }
+
+    updateColor () {}
 
     appendQuad (comp, texture, rect, rotated, x, y, scale) {
-        let renderData = comp._renderData;
+        let renderData = this._renderData;
         let dataOffset = renderData.dataLength;
         
         renderData.dataLength += 2;
@@ -69,7 +72,7 @@ module.exports = js.addon({
         verts[dataOffset].y = y - rectHeight * scale;
         verts[dataOffset+1].x = x + rectWidth * scale;
         verts[dataOffset+1].y = y;
-    },
+    }
 
     draw (ctx, comp) {
         let node = comp.node;
@@ -87,7 +90,7 @@ module.exports = js.addon({
         utils.context.setGlobalAlpha(ctx, node.opacity / 255);
 
         let tex = comp._frame._texture,
-            verts = comp._renderData.vertices;
+            verts = this._renderData.vertices;
 
         let image = utils.getColorizedImage(tex, node._color);
 
@@ -110,4 +113,5 @@ module.exports = js.addon({
         
         return 1;
     }
-}, bmfontUtils);
+}
+

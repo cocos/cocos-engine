@@ -22,13 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+import Assembler from '../../../assembler';
+import Impl from './impl';
+import Graphics from '../../../../graphics/graphics';
 
-const Impl = require('./impl');
-
-module.exports = {
-    createImpl () {
-        return new Impl();
-    },
+export default class CanvasGraphicsAssembler {
+    init () {}
 
     draw (ctx, comp) {
         let node = comp.node;
@@ -77,13 +76,17 @@ module.exports = {
         ctx.restore();
 
         return 1;
-    },
+    }
 
     stroke (comp) {
         comp._impl.stroke();
-    },
+    }
 
     fill (comp) {
         comp._impl.fill();
     }
+
+    clear () {}
 }
+
+Assembler.register(Graphics, CanvasGraphicsAssembler);
