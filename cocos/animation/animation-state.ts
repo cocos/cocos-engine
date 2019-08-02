@@ -32,10 +32,11 @@ import { EventArgumentsOf, EventCallbackOf } from '../core/event/defines';
 import { Node } from '../scene-graph';
 import { AnimationBlendState, PropertyBlendState } from './animation-blend-state';
 import { AnimationClip } from './animation-clip';
-import { AnimCurve, CurveTarget, RatioSampler, CurveValueAdapter, ICurveValueProxy } from './animation-curve';
+import { AnimCurve, CurveTarget, RatioSampler, ICurveValueProxy } from './animation-curve';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { INode } from '../core/utils/interfaces';
+import { BlendFunction, additive3D, additiveQuat } from './blending';
 
 enum PropertySpecialization {
     NodePosition,
@@ -52,6 +53,7 @@ export class ICurveInstance {
     private _property: string;
     private _propertySpecialization: PropertySpecialization;
     private _blendTarget: PropertyBlendState | null;
+    private _blendFunction: BlendFunction<any> | null;
     private _cached?: any[];
 
     constructor (curve: AnimCurve, target: CurveTarget, property: string, blendTarget: PropertyBlendState | null = null) {
@@ -62,16 +64,20 @@ export class ICurveInstance {
         this._target = target;
         this._isNodeTarget = target instanceof Node;
         this._propertySpecialization = PropertySpecialization.None;
+        this._blendFunction = null;
         if (this._isNodeTarget) {
             switch (property) {
                 case 'position':
                     this._propertySpecialization = PropertySpecialization.NodePosition;
+                    this._blendFunction = additive3D;
                     break;
                 case 'rotation':
                     this._propertySpecialization = PropertySpecialization.NodeRotation;
+                    this._blendFunction = additiveQuat;
                     break;
                 case 'scale':
                     this._propertySpecialization = PropertySpecialization.NodeScale;
+                    this._blendFunction = additive3D;
                     break;
             }
         }
@@ -108,7 +114,7 @@ export class ICurveInstance {
     }
 
     private _setValue (value: any, weight: number) {
-        if (!this._curve._blendFunction || !this._blendTarget || this._blendTarget.refCount <= 1) {
+        if (!this._blendFunction || !this._blendTarget || this._blendTarget.refCount <= 1) {
             switch (this._propertySpecialization) {
                 case PropertySpecialization.NodePosition:
                     this._target.setPosition(value);
@@ -128,7 +134,7 @@ export class ICurveInstance {
                     break;
             }
         } else {
-            this._blendTarget.value = this._curve._blendFunction(value, weight, this._blendTarget);
+            this._blendTarget.value = this._blendFunction(value, weight, this._blendTarget);
             this._blendTarget.weight += weight;
         }
     }

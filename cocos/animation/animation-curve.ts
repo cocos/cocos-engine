@@ -25,12 +25,6 @@ export type CurveValue = any;
 export type CurveTarget = Record<string, any>;
 
 /**
- * If propertyBlendState.weight equals to zero, the propertyBlendState.value is dirty.
- * You shall handle this situation correctly.
- */
-export type BlendFunction<T> = (value: T, weight: number, propertyBlendState: PropertyBlendState) => T;
-
-/**
  * 内置帧时间渐变方式名称。
  */
 export type EasingMethodName = keyof (typeof easing);
@@ -129,8 +123,6 @@ export class AnimCurve {
     @property
     public type?: EasingMethod | null = null;
 
-    public _blendFunction: BlendFunction<any> | undefined = undefined;
-
     public valueAdapter?: undefined | CurveValueAdapter = undefined;
 
     /**
@@ -148,7 +140,7 @@ export class AnimCurve {
 
     private _duration: number;
 
-    constructor (propertyCurveData: IPropertyCurveData, propertyName: string, duration: number, isNode: boolean) {
+    constructor (propertyCurveData: IPropertyCurveData, duration: number) {
         this._duration = duration;
 
         this.valueAdapter = propertyCurveData.valueAdapter;
@@ -186,21 +178,6 @@ export class AnimCurve {
         // Setup the lerp function.
         if (interpolate) {
             this._lerp = selectLerpFx(firstValue);
-        }
-
-        // Setup the blend function.
-        if (isNode) {
-            switch (propertyName) {
-                case 'position':
-                    this._blendFunction = blending.additive3D;
-                    break;
-                case 'scale':
-                    this._blendFunction = blending.additive3D;
-                    break;
-                case 'rotation':
-                    this._blendFunction = blending.additiveQuat;
-                    break;
-            }
         }
     }
 

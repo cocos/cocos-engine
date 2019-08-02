@@ -299,7 +299,7 @@ export class AnimationClip extends Asset {
                     this._propertyCurves.push({
                         path: curveTargetPath,
                         propertyName: nodePropertyName,
-                        curve: new AnimCurve(propertyCurveData, nodePropertyName, this._duration, true),
+                        curve: new AnimCurve(propertyCurveData, this._duration),
                         sampler: propertyCurveData.keys >= 0 ? this._ratioSamplers[propertyCurveData.keys] : null,
                     });
                 }
@@ -313,7 +313,7 @@ export class AnimationClip extends Asset {
                             path: curveTargetPath,
                             component: componentName,
                             propertyName: componentPropertyName,
-                            curve: new AnimCurve(propertyCurveData, componentPropertyName, this._duration, false),
+                            curve: new AnimCurve(propertyCurveData, this._duration),
                             sampler: propertyCurveData.keys >= 0 ? this._ratioSamplers[propertyCurveData.keys] : null,
                         });
                     }
