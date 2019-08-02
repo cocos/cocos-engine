@@ -66,13 +66,24 @@ export interface IPropertyCurveData {
      * @default true
      */
     interpolate?: boolean;
+}
 
+export interface INestedPropertyCurveData {
     /**
      * 曲线值适配器。
      * 若存在曲线值适配器，将从曲线值适配器中获取曲线值代理以获取和设置曲线值；
      * 否则，直接使用赋值操作符写入曲线值。
+     * @example
+     * ```
+     * [
+     *   'sharedMaterials',
+     *   0,
+     *   new UniformCurveValueAdapter('albedo', 0, 0),
+     * ]
+     * ```
      */
-    valueAdapter?: CurveValueAdapter;
+    properties: Array<number | string | CurveValueAdapter>;
+    data: IPropertyCurveData;
 }
 
 
@@ -123,8 +134,6 @@ export class AnimCurve {
     @property
     public type?: EasingMethod | null = null;
 
-    public valueAdapter?: undefined | CurveValueAdapter = undefined;
-
     /**
      * The values of the keyframes. (y)
      */
@@ -140,10 +149,8 @@ export class AnimCurve {
 
     private _duration: number;
 
-    constructor (propertyCurveData: IPropertyCurveData, duration: number) {
+    constructor (propertyCurveData: Omit<IPropertyCurveData, 'keys'>, duration: number) {
         this._duration = duration;
-
-        this.valueAdapter = propertyCurveData.valueAdapter;
 
         // Install values.
         this._values = propertyCurveData.values;
@@ -283,6 +290,28 @@ export class CurveValueAdapter {
 }
 
 cc.CurveValueAdapter = CurveValueAdapter;
+
+/**
+ * 采样动画曲线。
+ * @param curve 动画曲线。
+ * @param sampler 采样器。
+ * @param ratio 采样比率。
+ */
+export function sampleAnimationCurve (curve: AnimCurve, sampler: RatioSampler, ratio: number) {
+    let index = sampler.sample(ratio);
+    if (index < 0) {
+        index = ~index;
+        if (index <= 0) {
+            index = 0;
+        } else if (index >= sampler.ratios.length) {
+            index = sampler.ratios.length - 1;
+        } else {
+            return curve.valueBetween(
+                ratio, index - 1, sampler.ratios[index - 1], index, sampler.ratios[index]);
+        }
+    }
+    return curve.valueAt(index);
+}
 
 /**
  * Compute a new ratio by curve type.

@@ -31,12 +31,14 @@ import { Component } from '../components';
 import { EventArgumentsOf, EventCallbackOf } from '../core/event/defines';
 import { Node } from '../scene-graph';
 import { AnimationBlendState, PropertyBlendState } from './animation-blend-state';
-import { AnimationClip } from './animation-clip';
-import { AnimCurve, CurveTarget, RatioSampler, ICurveValueProxy } from './animation-curve';
+import { AnimationClip, IPropertyCurve } from './animation-clip';
+import { AnimCurve, CurveTarget, RatioSampler, ICurveValueProxy, CurveValueAdapter } from './animation-curve';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { INode } from '../core/utils/interfaces';
 import { BlendFunction, additive3D, additiveQuat } from './blending';
+import { BoundTarget } from './target-modifier';
+import { error } from '../core/platform/CCDebug';
 
 enum PropertySpecialization {
     NodePosition,
@@ -47,26 +49,28 @@ enum PropertySpecialization {
 
 export class ICurveInstance {
     private _curve: AnimCurve;
+    private _boundTarget: BoundTarget;
     private _curveValueProxy?: ICurveValueProxy;
-    private _target: CurveTarget;
+    private _rootTarget: any;
+    private _rootTargetProperty?: string;
     private _isNodeTarget: boolean;
-    private _property: string;
     private _propertySpecialization: PropertySpecialization;
     private _blendTarget: PropertyBlendState | null;
     private _blendFunction: BlendFunction<any> | null;
     private _cached?: any[];
 
-    constructor (curve: AnimCurve, target: CurveTarget, property: string, blendTarget: PropertyBlendState | null = null) {
-        this._curve = curve;
-        if (curve.valueAdapter) {
-            this._curveValueProxy = curve.valueAdapter.forTarget(target[property] || target);
-        }
-        this._target = target;
+    constructor (
+        runtimeCurve: IPropertyCurve,
+        target: any,
+        blendTarget: PropertyBlendState | null = null) {
+        this._curve = runtimeCurve.curve;
+        this._boundTarget = new BoundTarget(target, runtimeCurve.modifiers, runtimeCurve.valueAdapter);
+        this._rootTarget = target;
         this._isNodeTarget = target instanceof Node;
         this._propertySpecialization = PropertySpecialization.None;
         this._blendFunction = null;
-        if (this._isNodeTarget) {
-            switch (property) {
+        if (this._isNodeTarget && runtimeCurve.modifiers.length === 1) {
+            switch (runtimeCurve.modifiers[0]) {
                 case 'position':
                     this._propertySpecialization = PropertySpecialization.NodePosition;
                     this._blendFunction = additive3D;
@@ -81,18 +85,21 @@ export class ICurveInstance {
                     break;
             }
         }
-        this._property = property;
         this._blendTarget = blendTarget;
     }
 
     public attachToBlendState (blendState: AnimationBlendState) {
-        this._blendTarget = blendState.refPropertyBlendTarget(
-            this._target, this._property);
+        if (this._rootTargetProperty) {
+            this._blendTarget = blendState.refPropertyBlendTarget(
+                this._rootTarget, this._rootTargetProperty);
+        }
     }
 
     public dettachFromBlendState (blendState: AnimationBlendState) {
-        this._blendTarget = null;
-        blendState.derefPropertyBlendTarget(this._target, this._property);
+        if (this._rootTargetProperty) {
+            this._blendTarget = null;
+            blendState.derefPropertyBlendTarget(this._rootTarget, this._rootTargetProperty);
+        }
     }
 
     public applySample (ratio: number, index: number, lerpRequired: boolean, samplerResultCache, weight: number) {
@@ -117,20 +124,16 @@ export class ICurveInstance {
         if (!this._blendFunction || !this._blendTarget || this._blendTarget.refCount <= 1) {
             switch (this._propertySpecialization) {
                 case PropertySpecialization.NodePosition:
-                    this._target.setPosition(value);
+                    this._rootTarget.setPosition(value);
                     break;
                 case PropertySpecialization.NodeRotation:
-                    this._target.setRotation(value);
+                    this._rootTarget.setRotation(value);
                     break;
                 case PropertySpecialization.NodeScale:
-                    this._target.setScale(value);
+                    this._rootTarget.setScale(value);
                     break;
                 default:
-                    if (this._curveValueProxy) {
-                        this._curveValueProxy.set(value);
-                    } else {
-                        this._target[this._property] = value;
-                    }
+                    this._boundTarget.setValue(value);
                     break;
             }
         } else {
@@ -139,7 +142,7 @@ export class ICurveInstance {
         }
     }
 
-    get propertyName () { return this._property; }
+    get propertyName () { return this._rootTargetProperty || ''; }
 }
 
 /**
@@ -377,21 +380,8 @@ export class AnimationState extends Playable {
         }
 
         const propertyCurves = clip.getPropertyCurves(root);
-        for (const propertyCurve of propertyCurves) {
-            const targetNode = root.getChildByPath(propertyCurve.path);
-            if (!targetNode) {
-                // console.warn(`Target animation node referenced by path ${propertyCurve.path} is not found(from ${root.name}).`);
-                continue;
-            }
-
-            let target: INode | Component = targetNode;
-            if (propertyCurve.component) {
-                const targetComponent = targetNode.getComponent(propertyCurve.component);
-                if (!targetComponent) {
-                    continue;
-                }
-                target = targetComponent;
-            }
+        for (let iPropertyCurve = 0; iPropertyCurve < propertyCurves.length; ++iPropertyCurve) {
+            const propertyCurve = propertyCurves[iPropertyCurve];
             let samplerSharedGroup = this._samplerSharedGroups.find((value) => value.sampler === propertyCurve.sampler);
             if (!samplerSharedGroup) {
                 samplerSharedGroup = makeSamplerSharedGroup(propertyCurve.sampler);
@@ -399,17 +389,9 @@ export class AnimationState extends Playable {
             }
 
             try {
-                samplerSharedGroup.curves.push(new ICurveInstance(
-                    propertyCurve.curve, target, propertyCurve.propertyName));
-            } catch (error) {
-                let pathRep = propertyCurve.path;
-                if (propertyCurve.component) {
-                    pathRep += `[[${propertyCurve.component}]]`;
-                }
-                if (propertyCurve.propertyName.length !== 0) {
-                    pathRep += `.${propertyCurve.propertyName}`;
-                }
-                error(`Failed to bind "${targetNode.name}" to curve ${pathRep}: ${error}`);
+                samplerSharedGroup.curves.push(new ICurveInstance(propertyCurve, root));
+            } catch (err) {
+                error(`Failed to bind "" to curve : ${err}`);
             }
         }
     }
