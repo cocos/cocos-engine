@@ -371,7 +371,7 @@ public abstract class Cocos2dxActivity extends Activity implements Cocos2dxHelpe
     }
 
     private void resumeIfHasFocus() {
-        if(hasFocus) {
+        if(hasFocus && !paused) {
             Utils.hideVirtualButton();
             Cocos2dxHelper.onResume();
             mGLSurfaceView.onResume();
