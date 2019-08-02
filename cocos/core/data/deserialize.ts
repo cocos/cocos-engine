@@ -572,7 +572,16 @@ class _Deserializer {
         let obj: any = null;     // the obj to return
         let klass: any = null;
         const type = serialized.__type__;
-        if (type) {
+        if (type === 'TypedArray') {
+            const array = serialized.array;
+            // @ts-ignore
+            obj = new window[serialized.ctor](array.length);
+            for (let i = 0; i < array.length; ++i) {
+                obj[i] = array[i];
+            }
+            return obj;
+        }
+        else if (type) {
 
             // Type Object (including CCClass)
 

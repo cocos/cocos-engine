@@ -121,34 +121,32 @@ export class TerrainRenderable extends RenderableComponent {
     }
 
     public _updateMaterial (block: TerrainBlock, init: boolean) {
-        if (this._meshData == null) {
+        if (this._meshData == null || this._model == null) {
             return;
         }
 
         const nlayers = block.getMaxLayer();
         if (this._currentMaterial == null || nlayers !== this._currentMaterialLayers) {
-            if (this._model != null) {
-                this._currentMaterial = new Material();
+            this._currentMaterial = new Material();
 
-                this._currentMaterial.initialize({
-                    effectAsset: cc.EffectAsset.get('builtin-terrain'),
-                    defines: block._getMaterialDefines(nlayers),
-                });
+            this._currentMaterial.initialize({
+                effectAsset: cc.EffectAsset.get('builtin-terrain'),
+                defines: block._getMaterialDefines(nlayers),
+            });
 
-                if (this._brushMaterial !== null) {
-                    const passes = this._currentMaterial.passes;
+            if (this._brushMaterial !== null) {
+                const passes = this._currentMaterial.passes;
 
-                    passes.push(this._brushMaterial.passes[0]);
-                }
-
-                if (init) {
-                    this._model.initSubModel(0, this._meshData, this._currentMaterial);
-                }
-
-                this.setMaterial(this._currentMaterial, 0);
-                this._currentMaterialLayers = nlayers;
-                this._model.enabled = true;
+                passes.push(this._brushMaterial.passes[0]);
             }
+
+            if (init) {
+                this._model.initSubModel(0, this._meshData, this._currentMaterial);
+            }
+
+            this.setMaterial(this._currentMaterial, 0);
+            this._currentMaterialLayers = nlayers;
+            this._model.enabled = true;
         }
     }
 
@@ -717,7 +715,7 @@ export class Terrain extends Component {
             const layer = this._layers[i];
             if (layer != null) {
                 if (layer.detailMap != null) {
-                    layer.detailMap.destroy();
+                    cc.loader.release(layer.detailMap);
                 }
             }
 

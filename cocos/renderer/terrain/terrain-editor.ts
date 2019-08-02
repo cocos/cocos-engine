@@ -1,4 +1,5 @@
 import { CameraComponent } from '../../3d/framework';
+import { Vec3 } from '../../core/math';
 import { Node } from '../../scene-graph/node';
 import { Terrain } from './terrain';
 import { TerrainEditorManage } from './terrain-editor-manage';
@@ -122,13 +123,13 @@ export class TerrainEditor {
             }
 
             const from = camera.getPosition();
-            const to = new cc.vmath.vec3();
+            const to = new Vec3();
 
-            cameraComponent.screenToWorld(new cc.vmath.vec3(x, y, 0), to);
+            cameraComponent.screenToWorld(new Vec3(x, y, 0), to);
 
-            const dir = new cc.Vec3();
-            cc.vmath.vec3.subtract(dir, to, from);
-            cc.vmath.vec3.normalize(dir, dir);
+            const dir = new Vec3();
+            Vec3.subtract(dir, to, from);
+            Vec3.normalize(dir, dir);
 
             const vhit = this._terrain.rayCheck(from, dir, 0.1);
             if (vhit == null) {
