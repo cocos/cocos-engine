@@ -70,6 +70,7 @@ export interface ICameraInfo {
     node: INode;
     projection: number;
     targetDisplay?: number;
+    window?: GFXWindow;
     priority: number;
     pipeline?: string;
     isUI?: boolean;
@@ -146,7 +147,7 @@ export class Camera {
             flows: info.flows,
         });
 
-        this.changeTargetWindow();
+        this.changeTargetWindow(info.window);
 
         console.log('Create Camera: ' + this._name + ' ' + this._width + ' x ' + this._height);
     }

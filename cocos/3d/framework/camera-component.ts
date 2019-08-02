@@ -36,6 +36,7 @@ import { GFXClearFlag } from '../../gfx/define';
 import { Camera } from '../../renderer';
 import { Scene } from '../../scene-graph';
 import { RenderTexture } from '../../assets';
+import { GFXWindow } from '../../gfx/window';
 
 /**
  * @en
@@ -108,6 +109,8 @@ export class CameraComponent extends Component {
     protected _targetTexture: RenderTexture | null = null;
 
     protected _camera: Camera | null = null;
+    // hack
+    protected _editorWindow: GFXWindow | null = null
 
     constructor () {
         super();
@@ -319,12 +322,17 @@ export class CameraComponent extends Component {
             return;
         }
 
+        if(!value && this._camera){
+            this._targetTexture!.removeCamera(this._camera);
+        }
+
         this._targetTexture = value;
         this._updateTargetTexture();
     }
 
     public onLoad () {
         cc.director.on(cc.Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneChanged, this);
+        this._getEditorWindow();
     }
 
     public onEnable () {
@@ -339,6 +347,7 @@ export class CameraComponent extends Component {
     }
 
     public onDestroy () {
+        this._editorWindow = null;
         if (this._camera) { this._getRenderScene().destroyCamera(this._camera); this._camera = null; }
         if(this._targetTexture){
             this._targetTexture.destroy();
@@ -396,17 +405,35 @@ export class CameraComponent extends Component {
     protected onSceneChanged (scene: Scene) {
         // to handle scene switch of editor camera
         if (this._camera && this._camera.scene !== scene.renderScene) {
+            if(this._targetTexture){
+                this._targetTexture.removeCamera(this._camera);
+            }
             this._createCamera();
             this._camera.enabled = true;
             this._updateTargetTexture();
+
+        }
+    }
+
+    protected _getEditorWindow (){
+        if(cc.director.root && CC_EDITOR){
+            this._editorWindow = cc.director.root.windows[0];
         }
     }
 
     protected _updateTargetTexture (){
-        if(!this._targetTexture || !this._camera){
+        if (!this._camera) {
             return;
         }
 
-        this._camera.changeTargetWindow(this._targetTexture.getGFXWindow());
+        if (!this._targetTexture) {
+            this._camera.changeTargetWindow(this._editorWindow);
+        } else {
+            this._camera.changeTargetWindow(this._targetTexture.getGFXWindow());
+            this._targetTexture.addCamera(this._camera);
+        }
+
+
+
     }
 }

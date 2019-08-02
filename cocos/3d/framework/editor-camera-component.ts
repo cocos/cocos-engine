@@ -136,6 +136,7 @@ export class EditorCameraComponent extends CameraComponent {
                 priority: this._priority,
                 isUI: true,
                 flows: ['UIFlow'],
+                window: this._editorWindow,
             });
 
             this._uiEditorCamera!.viewport = this._camera.viewport;
@@ -150,6 +151,12 @@ export class EditorCameraComponent extends CameraComponent {
             this._uiEditorCamera!.clearDepth = this._camera.clearDepth;
             this._uiEditorCamera!.clearStencil = this._camera.clearStencil;
             this._uiEditorCamera!.clearFlag = this._camera.clearFlag;
+        }
+    }
+
+    protected _getEditorWindow (){
+        if (cc.director.root) {
+            this._editorWindow = cc.director.root.mainWindow;
         }
     }
 }
