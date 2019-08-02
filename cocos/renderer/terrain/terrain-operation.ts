@@ -1,4 +1,4 @@
-import { Rect, Vec2, Vec4 } from '../../core/value-types';
+import { Rect, Vec2, Vec4 } from '../../core/math';
 import { Terrain, TerrainBlock } from './terrain';
 
 export class TerrainHeightData {

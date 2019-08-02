@@ -23,7 +23,6 @@ export * from './terrain/terrain-editor-paint';
 export * from './terrain/terrain-editor-sculpt';
 export * from './terrain/terrain-editor';
 export * from './terrain/terrain-operation';
-export * from './terrain/terrain-sample';
 export * from './terrain/terrain';
 
 export { default as ParticleBatchModel } from './models/particle-batch-model';
