@@ -35,7 +35,7 @@ const ray_plane = (function () {
     return function (ray: ray, plane: plane): number {
         const denom = Vec3.dot(ray.d, plane.n);
         if (Math.abs(denom) < Number.EPSILON) { return 0; }
-        Vec3.scale(pt, plane.n, plane.d);
+        Vec3.multiplyScalar(pt, plane.n, plane.d);
         const t = Vec3.dot(Vec3.subtract(pt, pt, ray.o), plane.n) / denom;
         if (t < 0) { return 0; }
         return t;
@@ -868,7 +868,7 @@ const sphere_frustum_accurate = (function () {
             else if (dot - r > d) { continue; }
             // in case of false positives
             // has false negatives, still working on it
-            Vec3.add(pt, c, Vec3.scale(pt, n, r));
+            Vec3.add(pt, c, Vec3.multiplyScalar(pt, n, r));
             for (let j = 0; j < 6; j++) {
                 if (j === i || j === i + map[i]) { continue; }
                 const test = frustum.planes[j];

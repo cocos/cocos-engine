@@ -47,30 +47,30 @@ export function randomUnitVector (out: Vec3) {
 
 export function randomPointInUnitSphere (out: Vec3) {
     randomUnitVector(out);
-    Vec3.scale(out, out, random());
+    Vec3.multiplyScalar(out, out, random());
 }
 
 export function randomPointBetweenSphere (out: Vec3, minRadius: number, maxRadius: number) {
     randomUnitVector(out);
-    Vec3.scale(out, out, minRadius + (maxRadius - minRadius) * random());
+    Vec3.multiplyScalar(out, out, minRadius + (maxRadius - minRadius) * random());
 }
 
 export function randomPointInUnitCircle (out: Vec3) {
     randomUnitVector2(out);
     out.z = 0;
-    Vec3.scale(out, out, random());
+    Vec3.multiplyScalar(out, out, random());
 }
 
 export function randomPointBetweenCircle (out: Vec3, minRadius: number, maxRadius: number) {
     randomUnitVector2(out);
     out.z = 0;
-    Vec3.scale(out, out, minRadius + (maxRadius - minRadius) * random());
+    Vec3.multiplyScalar(out, out, minRadius + (maxRadius - minRadius) * random());
 }
 
 export function randomPointBetweenCircleAtFixedAngle (out: Vec3, minRadius: number, maxRadius: number, theta: number) {
     fixedAngleUnitVector2(out, theta);
     out.z = 0;
-    Vec3.scale(out, out, minRadius + (maxRadius - minRadius) * random());
+    Vec3.multiplyScalar(out, out, minRadius + (maxRadius - minRadius) * random());
 }
 
 export function randomPointInCube (out: Vec3, extents: Vec3) {

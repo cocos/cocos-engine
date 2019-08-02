@@ -892,7 +892,7 @@ function toString (value: Vec3 | Quat): string {
     if (value instanceof Vec3) {
         return `(x: ${value.x}, y: ${value.y}, z: ${value.z})`;
     } else if (value instanceof Quat) {
-        if (Quat.exactEquals(value, new Quat())) {
+        if (Quat.strictEquals(value, new Quat())) {
             return `<No-rotation>`;
         } else {
             return `(x: ${value.x}, y: ${value.y}, z: ${value.z}, w: ${value.w})`;

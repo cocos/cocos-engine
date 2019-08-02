@@ -105,7 +105,7 @@ export class Vec2 extends ValueType {
     /**
      * @zh 逐元素向量除法
      */
-    public static divide <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
+    public static divideScalar <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
         out.x = a.x / b.x;
         out.y = a.y / b.y;
         return out;
@@ -159,7 +159,7 @@ export class Vec2 extends ValueType {
     /**
      * @zh 向量标量乘法
      */
-    public static scale <Out extends IVec2Like> (out: Out, a: Out, b: number) {
+    public static multiplyScalar <Out extends IVec2Like> (out: Out, a: Out, b: number) {
         out.x = a.x * b;
         out.y = a.y * b;
         return out;
@@ -346,7 +346,7 @@ export class Vec2 extends ValueType {
     /**
      * @zh 向量等价判断
      */
-    public static exactEquals <Out extends IVec2Like> (a: Out, b: Out) {
+    public static strictEquals <Out extends IVec2Like> (a: Out, b: Out) {
         return a.x === b.x && a.y === b.y;
     }
 
@@ -410,14 +410,21 @@ export class Vec2 extends ValueType {
         return new Vec2(this.x, this.y);
     }
 
+    public set (other: Vec2);
+    public set (x?:number, y?:number);
     /**
      * 设置当前向量使其与指定向量相等。
      * @param other 相比较的向量。
      * @returns `this`
      */
-    public set (other: Vec2) {
-        this.x = other.x;
-        this.y = other.y;
+    public set (x?: number | Vec2, y?: number) {
+        if (x && typeof x === 'object') {
+            this.x = x.x;
+            this.y = x.y;
+        } else {
+            this.x = x || 0;
+            this.y = y || 0;
+        }
         return this;
     }
 
@@ -436,13 +443,26 @@ export class Vec2 extends ValueType {
         );
     }
 
+    public equals2f (x: number, y: number, epsilon = EPSILON) {
+        return (
+            Math.abs(this.x - x) <=
+            epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(x)) &&
+            Math.abs(this.y - y) <=
+            epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(y))
+        );
+    }
+
     /**
      * 判断当前向量是否与指定向量相等。
      * @param other 相比较的向量。
      * @returns 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
      */
-    public exactEquals (other: Vec2) {
+    public strictEquals (other: Vec2) {
         return other && this.x === other.x && this.y === other.y;
+    }
+
+    public strictEquals2f (x:number, y:number) {
+        return this.x === x && this.y === y;
     }
 
     /**
@@ -482,9 +502,15 @@ export class Vec2 extends ValueType {
      * 向量加法。将当前向量与指定向量的相加
      * @param other 指定的向量。
      */
-    public add (rhs: Vec2) {
-        this.x = this.x + rhs.x;
-        this.y = this.y + rhs.y;
+    public add (other: Vec2) {
+        this.x = this.x + other.x;
+        this.y = this.y + other.y;
+        return this;
+    }
+
+    public add2f (x:number, y:number) {
+        this.x = this.x + x;
+        this.y = this.y + y;
         return this;
     }
 
@@ -498,11 +524,17 @@ export class Vec2 extends ValueType {
         return this;
     }
 
+    public subtract2f (x:number, y:number) {
+        this.x = this.x - x;
+        this.y = this.y - y;
+        return this;
+    }
+
     /**
      * 向量数乘。将当前向量数乘指定标量
      * @param scalar 标量乘数。
      */
-    public scale (scalar: number) {
+    public multiplyScalar (scalar: number) {
         if (typeof scalar === 'object') { console.warn('should use Vec2.multiply for vector * vector operation'); }
         this.x = this.x * scalar;
         this.y = this.y * scalar;
@@ -520,13 +552,31 @@ export class Vec2 extends ValueType {
         return this;
     }
 
+    public multiply2f (x:number, y:number) {
+        this.x = this.x * x;
+        this.y = this.y * y;
+        return this;
+    }
+
     /**
      * 将当前向量的各个分量除以指定标量。相当于 `this.scale(1 / scalar)`。
      * @param scalar 标量除数。
      */
-    public divide (scalar: number) {
+    public divideScalar (scalar: number) {
         this.x = this.x / scalar;
         this.y = this.y / scalar;
+        return this;
+    }
+
+    public divide (other: Vec2) {
+        this.x = this.x / other.x;
+        this.y = this.y / other.y;
+        return this;
+    }
+
+    public divide2f (x:number, y:number) {
+        this.x = this.x / x;
+        this.y = this.y / y;
         return this;
     }
 

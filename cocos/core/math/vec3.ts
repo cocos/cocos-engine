@@ -120,7 +120,7 @@ export class Vec3 extends ValueType {
     /**
      * @zh 逐元素向量除法
      */
-    public static divide<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
+    public static divideScalar<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
         out.x = a.x / b.x;
         out.y = a.y / b.y;
         out.z = a.z / b.z;
@@ -180,7 +180,7 @@ export class Vec3 extends ValueType {
     /**
      * @zh 向量标量乘法
      */
-    public static scale<Out extends IVec3Like, Vec3Like extends IVec3Like > (out: Out, a: Vec3Like, b: number) {
+    public static multiplyScalar<Out extends IVec3Like, Vec3Like extends IVec3Like > (out: Out, a: Vec3Like, b: number) {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -507,7 +507,7 @@ export class Vec3 extends ValueType {
     /**
      * @zh 向量等价判断
      */
-    public static exactEquals <Out extends IVec3Like> (a: Out, b: Out) {
+    public static strictEquals <Out extends IVec3Like> (a: Out, b: Out) {
         return a.x === b.x && a.y === b.y && a.z === b.z;
     }
 
@@ -562,7 +562,7 @@ export class Vec3 extends ValueType {
         if (sqrLen < 0.000001) {
             return Vec3.set(out, 0, 0, 0);
         } else {
-            return Vec3.scale(out, b, Vec3.dot(a, b) / sqrLen);
+            return Vec3.multiplyScalar(out, b, Vec3.dot(a, b) / sqrLen);
         }
     }
 
@@ -605,15 +605,23 @@ export class Vec3 extends ValueType {
         return new Vec3(this.x, this.y, this.z);
     }
 
+    public set (other: Vec3);
+    public set (x?: number, y?: number, z?: number);
     /**
      * 设置当前向量使其与指定向量相等。
      * @param other 相比较的向量。
      * @returns `this`
      */
-    public set (other: Vec3) {
-        this.x = other.x;
-        this.y = other.y;
-        this.z = other.z;
+    public set (x?: number | Vec3, y?: number, z?: number) {
+        if (x && typeof x === 'object') {
+            this.x = x.x;
+            this.y = x.y;
+            this.z = x.z;
+        } else {
+            this.x = x || 0;
+            this.y = y || 0;
+            this.z = z || 0;
+        }
         return this;
     }
 
@@ -624,25 +632,39 @@ export class Vec3 extends ValueType {
      * @returns 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
      */
     public equals (other: Vec3, epsilon = EPSILON) {
-        const { x: a0, y: a1, z: a2 } = this;
-        const { x: b0, y: b1, z: b2 } = other;
         return (
-            Math.abs(a0 - b0) <=
-            epsilon * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
-            Math.abs(a1 - b1) <=
-            epsilon * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&
-            Math.abs(a2 - b2) <=
-            epsilon * Math.max(1.0, Math.abs(a2), Math.abs(b2))
+            Math.abs(this.x - other.x) <=
+            epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x)) &&
+            Math.abs(this.y - other.y) <=
+            epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y)) &&
+            Math.abs(this.z - other.z) <=
+            epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(other.z))
         );
     }
+
+    public equals3f (x: number, y: number, z: number, epsilon = EPSILON) {
+        return (
+            Math.abs(this.x - x) <=
+            epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(x)) &&
+            Math.abs(this.y - y) <=
+            epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(y)) &&
+            Math.abs(this.z - z) <=
+            epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(z))
+        );
+    }
+
 
     /**
      * 判断当前向量是否与指定向量相等。
      * @param other 相比较的向量。
      * @returns 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
      */
-    public exactEquals (other: Vec3) {
+    public strictEquals (other: Vec3) {
         return this.x === other.x && this.y === other.y && this.z === other.z;
+    }
+
+    public strictEquals3f (x:number, y:number, z:number) {
+        return this.x === x && this.y === y && this.z === z;
     }
 
     /**
@@ -676,6 +698,13 @@ export class Vec3 extends ValueType {
         return this;
     }
 
+    public add3f (x:number, y:number, z:number) {
+        this.x = this.x + x;
+        this.y = this.y + y;
+        this.z = this.z + z;
+        return this;
+    }
+
     /**
      * 向量减法。将当前向量减去指定向量的结果。
      * @param other 减数向量。
@@ -687,11 +716,18 @@ export class Vec3 extends ValueType {
         return this;
     }
 
+    public subtract3f (x:number, y:number, z:number) {
+        this.x = this.x - x;
+        this.y = this.y - y;
+        this.z = this.z - z;
+        return this;
+    }
+
     /**
      * 向量数乘。将当前向量数乘指定标量
      * @param scalar 标量乘数。
      */
-    public scale (scalar: number) {
+    public multiplyScalar (scalar: number) {
         if (typeof scalar === 'object') { console.warn('should use Vec3.multiply for vector * vector operation'); }
         this.x = this.x * scalar;
         this.y = this.y * scalar;
@@ -711,14 +747,35 @@ export class Vec3 extends ValueType {
         return this;
     }
 
+    public multiply3f (x:number, y:number, z:number) {
+        this.x = this.x * x;
+        this.y = this.y * y;
+        this.z = this.z * z;
+        return this;
+    }
+
     /**
      * 将当前向量的各个分量除以指定标量。相当于 `this.scale(1 / scalar)`。
      * @param scalar 标量除数。
      */
-    public divide (scalar: number) {
+    public divideScalar (scalar: number) {
         this.x = this.x / scalar;
         this.y = this.y / scalar;
         this.z = this.z / scalar;
+        return this;
+    }
+
+    public divide (other: Vec3) {
+        this.x = this.x / other.x;
+        this.y = this.y / other.y;
+        this.z = this.z / other.z;
+        return this;
+    }
+
+    public divide3f (x:number, y:number, z:number) {
+        this.x = this.x / x;
+        this.y = this.y / y;
+        this.z = this.z / z;
         return this;
     }
 

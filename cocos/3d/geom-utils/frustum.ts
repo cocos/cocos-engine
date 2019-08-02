@@ -139,7 +139,7 @@ export class frustum {
         for (let i = 0; i < 6; i++) {
             const pl = this.planes[i];
             const invDist = 1 / pl.n.length();
-            Vec3.scale(pl.n, pl.n, invDist);
+            Vec3.multiplyScalar(pl.n, pl.n, invDist);
             pl.d *= invDist;
         }
 

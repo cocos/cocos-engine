@@ -583,7 +583,7 @@ export class ParticleSystemComponent extends RenderableComponent {
                 Vec3.copy(particle.velocity, particleEmitZAxis);
             }
 
-            Vec3.scale(particle.velocity, particle.velocity, this.startSpeed.evaluate(this._time / this.duration, rand)!);
+            Vec3.multiplyScalar(particle.velocity, particle.velocity, this.startSpeed.evaluate(this._time / this.duration, rand)!);
 
             switch (this._simulationSpace) {
                 case Space.Local:

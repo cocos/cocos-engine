@@ -311,7 +311,7 @@ function sphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
             break;
         case EmitLocation.Shell:
             randomUnitVector(pos);
-            Vec3.scale(pos, pos, radius);
+            Vec3.multiplyScalar(pos, pos, radius);
             Vec3.copy(dir, pos);
             break;
         default:
@@ -331,7 +331,7 @@ function hemisphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
             break;
         case EmitLocation.Shell:
             randomUnitVector(pos);
-            Vec3.scale(pos, pos, radius);
+            Vec3.multiplyScalar(pos, pos, radius);
             if (pos.z > 0) {
                 pos.z *= -1;
             }
@@ -346,26 +346,26 @@ function coneEmit (emitFrom, radius, radiusThickness, theta, angle, length, pos,
     switch (emitFrom) {
         case EmitLocation.Base:
             randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
-            Vec2.scale(dir, pos, Math.sin(angle));
+            Vec2.multiplyScalar(dir, pos, Math.sin(angle));
             dir.z = -Math.cos(angle) * radius;
             Vec3.normalize(dir, dir);
             pos.z = 0;
             break;
         case EmitLocation.Shell:
             fixedAngleUnitVector2(pos, theta);
-            Vec2.scale(dir, pos, Math.sin(angle));
+            Vec2.multiplyScalar(dir, pos, Math.sin(angle));
             dir.z = -Math.cos(angle);
             Vec3.normalize(dir, dir);
-            Vec2.scale(pos, pos, radius);
+            Vec2.multiplyScalar(pos, pos, radius);
             pos.z = 0;
             break;
         case EmitLocation.Volume:
             randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
-            Vec2.scale(dir, pos, Math.sin(angle));
+            Vec2.multiplyScalar(dir, pos, Math.sin(angle));
             dir.z = -Math.cos(angle) * radius;
             Vec3.normalize(dir, dir);
             pos.z = 0;
-            Vec3.add(pos, pos, Vec3.scale(_intermediVec, dir, length * random() / -dir.z));
+            Vec3.add(pos, pos, Vec3.multiplyScalar(_intermediVec, dir, length * random() / -dir.z));
             break;
         default:
             console.warn(emitFrom + ' is not supported for cone emitter.');

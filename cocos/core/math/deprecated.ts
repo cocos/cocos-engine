@@ -24,6 +24,9 @@ deprecatedWrapper({
         ['sqrDist', 'squaredDistance'],
         ['mag', 'len'],
         ['sqrMag', 'lengthSqr'],
+        ['divide', 'divideScalar'],
+        ['scale', 'multiplyScalar'],
+        ['exactEquals', 'strictEquals'],
     ],
 });
 
@@ -35,6 +38,9 @@ deprecatedWrapper({
     pairs: [
         ['mag', 'length'],
         ['magSqr', 'lengthSqr'],
+        ['exactEquals', 'strictEquals'],
+        ['scale', 'multiplyScalar'],
+        ['divide', 'divideScalar'],
     ],
 });
 
@@ -51,6 +57,9 @@ deprecatedWrapper({
         ['sqrDist', 'squaredDistance'],
         ['mag', 'len'],
         ['sqrMag', 'lengthSqr'],
+        ['divide', 'divideScalar'],
+        ['scale', 'multiplyScalar'],
+        ['exactEquals', 'strictEquals'],
     ],
 });
 
@@ -62,6 +71,9 @@ deprecatedWrapper({
     pairs: [
         ['mag', 'length'],
         ['magSqr', 'lengthSqr'],
+        ['exactEquals', 'strictEquals'],
+        ['scale', 'multiplyScalar'],
+        ['divide', 'divideScalar'],
     ],
 });
 
@@ -78,6 +90,9 @@ deprecatedWrapper({
         ['sqrDist', 'squaredDistance'],
         ['mag', 'len'],
         ['sqrMag', 'lengthSqr'],
+        ['divide', 'divideScalar'],
+        ['scale', 'multiplyScalar'],
+        ['exactEquals', 'strictEquals'],
     ],
 });
 
@@ -89,6 +104,9 @@ deprecatedWrapper({
     pairs: [
         ['mag', 'length'],
         ['magSqr', 'lengthSqr'],
+        ['exactEquals', 'strictEquals'],
+        ['scale', 'multiplyScalar'],
+        ['divide', 'divideScalar'],
     ],
 });
 
@@ -101,6 +119,18 @@ deprecatedWrapper({
         ['mul', 'multiply'],
         ['mag', 'len'],
         ['sqrMag', 'lengthSqr'],
+        ['scale', 'multiplyScalar'],
+        ['exactEquals', 'strictEquals'],
+    ],
+});
+
+deprecatedWrapper({
+    oldTarget: Quat.prototype,
+    oldPrefix: 'Quat',
+    newTarget: Quat.prototype,
+    newPrefix: 'Quat',
+    pairs: [
+        ['exactEquals', 'strictEquals'],
     ],
 });
 
@@ -113,6 +143,7 @@ deprecatedWrapper({
         ['sub', 'subtract'],
         ['mul', 'multiply'],
         ['div', 'divide'],
+        ['exactEquals','strictEquals'],
     ],
 });
 
@@ -124,6 +155,7 @@ deprecatedWrapper({
     pairs: [
         ['sub', 'subtract'],
         ['mul', 'multiply'],
+        ['exactEquals','strictEquals'],
     ],
 });
 
@@ -136,6 +168,7 @@ deprecatedWrapper({
         ['sub', 'subtract'],
         ['mul', 'multiply'],
         ['mulScalar', 'multiplyScalar'],
+        ['exactEquals','strictEquals'],
     ],
 });
 
@@ -147,6 +180,7 @@ deprecatedWrapper({
     pairs: [
         ['sub', 'subtract'],
         ['mul', 'multiply'],
+        ['exactEquals','strictEquals'],
     ],
 });
 
@@ -159,5 +193,6 @@ deprecatedWrapper({
         ['sub', 'subtract'],
         ['mul', 'multiply'],
         ['mulScalar', 'multiplyScalar'],
+        ['exactEquals','strictEquals'],
     ],
 });
