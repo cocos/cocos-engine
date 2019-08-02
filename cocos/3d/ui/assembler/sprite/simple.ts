@@ -97,7 +97,7 @@ export const simple: IAssembler = {
         let indiceOffset = buffer.indiceOffset;
         let vertexId = buffer.vertexOffset;
 
-        const isRecreate = buffer.request(4, 6);
+        const isRecreate = buffer.request();
         if (!isRecreate) {
             buffer = renderer.currBufferBatch!;
             vertexOffset = 0;
@@ -114,7 +114,7 @@ export const simple: IAssembler = {
         /* */
         node.updateWorldTransform();
         // @ts-ignore
-        const pos = node._pos; const rot = node._rot; const scale = node._scale;
+        const pos = node._pos as Vec3; const rot = node._rot; const scale = node._scale;
         const ax = data0.x * scale.x; const bx = data3.x * scale.x;
         const ay = data0.y * scale.y; const by = data3.y * scale.y;
         const qx = rot.x; const qy = rot.y; const qz = rot.z; const qw = rot.w;
@@ -231,8 +231,8 @@ export const simple: IAssembler = {
         renderData.vertDirty = false;
     },
 
-    updateUvs (sprite) {
-        const renderData = sprite.renderData;
+    updateUvs (sprite: SpriteComponent) {
+        const renderData = sprite.renderData!;
         const vData = renderData.vData!;
         const uv = sprite!.spriteFrame!.uv;
         vData[3] = uv[0];
@@ -247,8 +247,8 @@ export const simple: IAssembler = {
         renderData.uvDirty = false;
     },
 
-    updateColor (sprite) {
-        const vData = sprite.renderData.vData;
+    updateColor (sprite: SpriteComponent) {
+        const vData = sprite.renderData!.vData;
 
         let colorOffset = 5;
         const color = sprite.color;

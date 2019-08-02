@@ -172,6 +172,7 @@ export class LabelComponent extends UIRenderComponent {
      */
     @property({
         displayOrder: 4,
+        multiline: true,
     })
     get string () {
         return this._string;
@@ -183,7 +184,6 @@ export class LabelComponent extends UIRenderComponent {
         }
 
         this._string = value;
-        this._checkStringEmpty();
         this.updateRenderData();
     }
 
@@ -419,7 +419,6 @@ export class LabelComponent extends UIRenderComponent {
             this.font = null;
             this._flushAssembler();
             this.updateRenderData();
-            this._checkStringEmpty();
         }
         // else if (!this._userDefinedFont) {
         //     this.disableRender();
@@ -568,9 +567,9 @@ export class LabelComponent extends UIRenderComponent {
     @property
     private _string = 'label';
     @property
-    private _horizontalAlign = HorizontalTextAlignment.LEFT;
+    private _horizontalAlign = HorizontalTextAlignment.CENTER;
     @property
-    private _verticalAlign = VerticalTextAlignment.TOP;
+    private _verticalAlign = VerticalTextAlignment.CENTER;
     @property
     private _actualFontSize = 0;
     @property
@@ -628,7 +627,6 @@ export class LabelComponent extends UIRenderComponent {
             this.fontFamily = 'Arial';
         }
 
-        this._checkStringEmpty();
         this.updateRenderData(true);
     }
 
@@ -651,7 +649,7 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     public updateRenderData (force = false) {
-        this.markForUpdateRenderData(true);
+        this.markForUpdateRenderData();
 
         if (force) {
             this._flushAssembler();
@@ -659,13 +657,8 @@ export class LabelComponent extends UIRenderComponent {
         }
     }
 
-    public updateAssembler (render: UI) {
-        if (super.updateAssembler(render) && this._texture) {
-            render.commitComp(this, this._texture.getGFXTextureView(), this._assembler!);
-            return true;
-        }
-
-        return false;
+    protected _render (render: UI) {
+        render.commitComp(this, this._texture!.getGFXTextureView(), this._assembler!);
     }
 
     protected _updateColor () {
@@ -677,7 +670,7 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     protected _canRender () {
-        if (!super._canRender() || !this.node.width || !this.node.height){
+        if (!super._canRender() || !this.node.width || !this.node.height || !this._string) {
             return false;
         }
 
@@ -707,15 +700,6 @@ export class LabelComponent extends UIRenderComponent {
                 this._renderData!.material = this._material;
             }
         }
-    }
-
-    /**
-     * @zh
-     * 检查是否空字符串，空字符串不渲染。
-     *
-     */
-    private _checkStringEmpty () {
-        this._renderPermit = !!this.string;
     }
 
     private _flushMaterial () {
@@ -768,8 +752,8 @@ export class LabelComponent extends UIRenderComponent {
             this._flushMaterial();
         }
 
-        if (force && this._assembler && this._canRender() && this._assembler.updateRenderData ) {
-            this._assembler.updateRenderData(this);
+        if (force && this._assembler ) {
+            this.markForUpdateRenderData();
         }
     }
 }

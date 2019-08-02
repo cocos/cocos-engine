@@ -93,10 +93,24 @@ export class UIComponent extends Component {
         }
     }
 
-    public updateAssembler (render: UI) {
+    /**
+     * @zh
+     * 渲染数据收集。每个渲染组件都由此自身决定是否渲染以及渲染状态的更新。
+     *
+     * @param render 数据处理中转站。
+     */
+    public updateAssembler(render: UI) {
     }
 
-    public postUpdateAssembler (render: UI) {
+
+    /**
+     * @zh
+     * 后渲染数据收集。每个渲染组件都由此接口决定是否渲染以及渲染状态的更新。
+     * 一般是在自身子节点 updateAssembler 执行完调用。
+     *
+     * @param render 数据处理中转站。
+     */
+    public postUpdateAssembler(render: UI) {
     }
 
     /**
