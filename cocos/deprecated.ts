@@ -54,6 +54,8 @@ if (CC_DEBUG) {
 
                     if (newProp != null && _t1 != null && _t1[newProp] != null) {
                         return _t1[newProp];
+                    } else if (_t0[deprecatedProp] != null) {
+                        return _t0[deprecatedProp];
                     }
                 };
 
@@ -76,6 +78,8 @@ if (CC_DEBUG) {
                             if (typeof _t1[newProp] !== 'function') {
                                 _t1[newProp] = v;
                             }
+                        } else if (_t0[deprecatedProp] != null) {
+                            _t0[deprecatedProp] = v;
                         }
                     }
                 });
