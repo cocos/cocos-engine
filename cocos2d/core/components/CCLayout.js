@@ -817,23 +817,23 @@ var Layout = cc.Class({
         }
 
         if (allChildrenBoundingBox) {
-            var leftBottomInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.v2(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
+            var leftBottomInParentSpace = this.node.convertToNodeSpaceAR(cc.v2(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
             leftBottomInParentSpace = cc.v2(leftBottomInParentSpace.x - this.paddingLeft, leftBottomInParentSpace.y - this.paddingBottom);
 
-            var rightTopInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.v2(allChildrenBoundingBox.x + allChildrenBoundingBox.width,
-                                                                                   allChildrenBoundingBox.y + allChildrenBoundingBox.height));
+            var rightTopInParentSpace = this.node.convertToNodeSpaceAR(cc.v2(allChildrenBoundingBox.xMax, allChildrenBoundingBox.yMax));
             rightTopInParentSpace = cc.v2(rightTopInParentSpace.x + this.paddingRight, rightTopInParentSpace.y + this.paddingTop);
 
-            var newSize = cc.size(parseFloat((rightTopInParentSpace.x - leftBottomInParentSpace.x).toFixed(2)),
-                                  parseFloat((rightTopInParentSpace.y - leftBottomInParentSpace.y).toFixed(2)));
+            var newSize = rightTopInParentSpace.sub(leftBottomInParentSpace);
+            newSize = cc.size(parseFloat(newSize.x.toFixed(2)), parseFloat(newSize.y.toFixed(2)));
 
-            var layoutPosition = this.node.getPosition();
             if (newSize.width !== 0) {
-                var newAnchorX = (layoutPosition.x - leftBottomInParentSpace.x) / newSize.width;
+                // Invert is to get the coordinate point of the child node in the parent coordinate system
+                var newAnchorX = (-leftBottomInParentSpace.x) / newSize.width;
                 this.node.anchorX = parseFloat(newAnchorX.toFixed(2));
             }
             if (newSize.height !== 0) {
-                var newAnchorY = (layoutPosition.y - leftBottomInParentSpace.y) / newSize.height;
+                // Invert is to get the coordinate point of the child node in the parent coordinate system
+                var newAnchorY = (-leftBottomInParentSpace.y) / newSize.height;
                 this.node.anchorY = parseFloat(newAnchorY.toFixed(2));
             }
             this.node.setContentSize(newSize);
