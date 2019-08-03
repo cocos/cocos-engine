@@ -49,6 +49,22 @@ enum NodeSpace {
 }
 const TRANFORM_ON = 1 << 0;
 
+enum NodeDirtyBit {
+    NONE = 0,
+    POSITION = (1 << 0),
+    ROTATION = (1 << 1),
+    SCALE = (1 << 2),
+    EULER = (1 << 3),
+    RE = NodeDirtyBit.ROTATION | NodeDirtyBit.EULER,
+    RS = NodeDirtyBit.ROTATION | NodeDirtyBit.SCALE,
+    TRS = NodeDirtyBit.POSITION | NodeDirtyBit.ROTATION | NodeDirtyBit.SCALE,
+    ALL = NodeDirtyBit.TRS | NodeDirtyBit.EULER,
+    POSITION_MASK = ~NodeDirtyBit.POSITION,
+    ROTATION_MASK = ~NodeDirtyBit.ROTATION,
+    SCALE_MASK = ~NodeDirtyBit.SCALE,
+    EULER_MASK = ~NodeDirtyBit.EULER,
+}
+
 /**
  * @zh
  * 场景树中的基本节点，基本特性有：
@@ -100,8 +116,7 @@ export class Node extends BaseNode implements INode {
 
     protected _dirty = false; // does the world transform need to update?
     protected _hasChanged = false; // has the transform changed in this frame?
-
-    protected _eulerDirty = false;
+    protected _dirtyBits = NodeDirtyBit.NONE; // the actual transform dirty part
 
     protected _eventProcessor: NodeEventProcessor = new cc.NodeEventProcessor(this);
     protected _eventMask = 0;
@@ -118,9 +133,9 @@ export class Node extends BaseNode implements INode {
         this.setRotationFromEuler(val.x, val.y, val.z);
     }
     get eulerAngles () {
-        if (this._eulerDirty) {
+        if (this._dirtyBits & NodeDirtyBit.EULER) {
             Quat.toEuler(this._euler, this._lrot);
-            this._eulerDirty = false;
+            this._dirtyBits &= NodeDirtyBit.EULER_MASK;
         }
         return this._euler;
     }
@@ -177,20 +192,15 @@ export class Node extends BaseNode implements INode {
                 Quat.copy(this._lrot, this._rot);
                 Vec3.copy(this._lscale, this._scale);
             }
-            this._eulerDirty = true;
-        } else {
-            Vec3.copy(this._pos, this._lpos);
-            Quat.copy(this._rot, this._lrot);
-            Vec3.copy(this._scale, this._lscale);
+            this._dirtyBits |= NodeDirtyBit.EULER;
         }
+        this._dirtyBits |= NodeDirtyBit.TRS;
 
         this.invalidateChildren();
     }
 
     public _onBatchCreated () {
-        Vec3.copy(this._pos, this._lpos);
-        Quat.copy(this._rot, this._lrot);
-        Vec3.copy(this._scale, this._lscale);
+        this._dirtyBits = NodeDirtyBit.TRS;
         this._dirty = this._hasChanged = true;
         this._eventMask = 0;
         for (const child of this._children) {
@@ -224,9 +234,6 @@ export class Node extends BaseNode implements INode {
             this._lpos.x += v3_a.x;
             this._lpos.y += v3_a.y;
             this._lpos.z += v3_a.z;
-            this._pos.x += v3_a.x;
-            this._pos.y += v3_a.y;
-            this._pos.z += v3_a.z;
         } else if (space === NodeSpace.WORLD) {
             if (this._parent) {
                 Quat.invert(q_a, this.worldRotation);
@@ -240,11 +247,8 @@ export class Node extends BaseNode implements INode {
                 this._lpos.y += trans.y;
                 this._lpos.z += trans.z;
             }
-
-            this._pos.x += trans.x;
-            this._pos.y += trans.y;
-            this._pos.z += trans.z;
         }
+        this._dirtyBits = NodeDirtyBit.POSITION;
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
@@ -264,17 +268,14 @@ export class Node extends BaseNode implements INode {
 
         if (space === NodeSpace.LOCAL) {
             Quat.multiply(this._lrot, this._lrot, q_a);
-
-            Quat.multiply(this._rot, this.worldRotation, q_a);
         } else if (space === NodeSpace.WORLD) {
             const worldRot = this.worldRotation;
             Quat.multiply(q_b, q_a, worldRot);
-            Quat.invert(q_a, this.worldRotation);
+            Quat.invert(q_a, worldRot);
             Quat.multiply(q_b, q_a, q_b);
             Quat.multiply(this._lrot, this._lrot, q_b);
-
-            Quat.multiply(this._rot, q_a, worldRot);
         }
+        this._dirtyBits = NodeDirtyBit.RE;
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
@@ -356,31 +357,42 @@ export class Node extends BaseNode implements INode {
         if (!this._dirty) { return; }
         let cur: this | null = this;
         let i = 0;
-        while (cur._dirty) {
+        while (cur && cur._dirty) {
             // top level node
             array_a[i++] = cur;
             cur = cur._parent;
-            if (!cur || !cur._parent) {
-                cur = null;
-                break;
-            }
         }
-        let child: this;
+        let child: this, first = true, dirtyBits = 0;
         while (i) {
             child = array_a[--i];
+            // if (first && !child._dirtyBits) console.warn('not actually dirty?');
+            dirtyBits |= (first ? child._dirtyBits : NodeDirtyBit.POSITION | child._dirtyBits);
+            first = false;
             if (cur) {
-                Vec3.multiply(child._pos, child._lpos, cur._scale);
-                Vec3.transformQuat(child._pos, child._pos, cur._rot);
-                Vec3.add(child._pos, child._pos, cur._pos);
-                Quat.multiply(child._rot, cur._rot, child._lrot);
-                Vec3.multiply(child._scale, cur._scale, child._lscale);
-                Mat4.fromRTS(child._mat, child._lrot, child._lpos, child._lscale);
-                Mat4.multiply(child._mat, cur._mat, child._mat);
+                if (dirtyBits & NodeDirtyBit.POSITION) {
+                    Vec3.transformRTS(child._pos, child._lpos, cur._rot, cur._pos, cur._scale);
+                    child._mat.m12 = child._pos.x;
+                    child._mat.m13 = child._pos.y;
+                    child._mat.m14 = child._pos.z;
+                }
+                if (dirtyBits & NodeDirtyBit.RS) {
+                    Quat.multiply(child._rot, cur._rot, child._lrot);
+                    Vec3.multiply(child._scale, cur._scale, child._lscale);
+                    Mat4.fromRTS(child._mat, child._lrot, child._lpos, child._lscale);
+                    Mat4.multiply(child._mat, cur._mat, child._mat);
+                }
             } else {
-                Vec3.copy(child._pos, child._lpos);
-                Quat.copy(child._rot, child._lrot);
-                Vec3.copy(child._scale, child._lscale);
-                Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
+                if (dirtyBits & NodeDirtyBit.POSITION) {
+                    Vec3.copy(child._pos, child._lpos);
+                    child._mat.m12 = child._pos.x;
+                    child._mat.m13 = child._pos.y;
+                    child._mat.m14 = child._pos.z;
+                }
+                if (dirtyBits & NodeDirtyBit.RS) {
+                    Quat.copy(child._rot, child._lrot);
+                    Vec3.copy(child._scale, child._lscale);
+                    Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
+                }
             }
             child._dirty = false;
             cur = child;
@@ -414,7 +426,7 @@ export class Node extends BaseNode implements INode {
         } else {
             Vec3.set(this._lpos, val as number, y, z);
         }
-        // Vec3.copy(this._pos, this._lpos);
+        this._dirtyBits |= NodeDirtyBit.POSITION;
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
@@ -470,8 +482,7 @@ export class Node extends BaseNode implements INode {
         } else {
             Quat.set(this._lrot, val as number, y, z, w);
         }
-        this._eulerDirty = true;
-        // Quat.copy(this._rot, this._lrot);
+        this._dirtyBits |= NodeDirtyBit.RE;
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
@@ -488,9 +499,8 @@ export class Node extends BaseNode implements INode {
      */
     public setRotationFromEuler (x: number, y: number, z: number) {
         Vec3.set(this._euler, x, y, z);
-        this._eulerDirty = false;
         Quat.fromEuler(this._lrot, x, y, z);
-        // Quat.copy(this._rot, this._lrot);
+        this._dirtyBits = this._dirtyBits & NodeDirtyBit.EULER_MASK | NodeDirtyBit.ROTATION;
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
@@ -545,7 +555,7 @@ export class Node extends BaseNode implements INode {
         } else {
             Vec3.set(this._lscale, val as number, y, z);
         }
-        // Vec3.copy(this._scale, this._lscale);
+        this._dirtyBits |= NodeDirtyBit.SCALE;
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
@@ -603,7 +613,6 @@ export class Node extends BaseNode implements INode {
         }
         const parent = this._parent;
         const local = this._lpos;
-        v3_a.set(this._lpos);
         if (parent) {
             parent.updateWorldTransform();
             Vec3.subtract(local, this._pos, parent._pos);
@@ -612,6 +621,7 @@ export class Node extends BaseNode implements INode {
         } else {
             Vec3.copy(local, this._pos);
         }
+        this._dirtyBits |= NodeDirtyBit.POSITION;
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
@@ -675,7 +685,7 @@ export class Node extends BaseNode implements INode {
         } else {
             Quat.copy(this._lrot, this._rot);
         }
-        this._eulerDirty = true;
+        this._dirtyBits |= NodeDirtyBit.RE;
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
@@ -698,7 +708,7 @@ export class Node extends BaseNode implements INode {
         } else {
             Quat.copy(this._lrot, this._rot);
         }
-        this._eulerDirty = true;
+        this._dirtyBits |= NodeDirtyBit.RE;
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
@@ -761,6 +771,7 @@ export class Node extends BaseNode implements INode {
         } else {
             Vec3.copy(this._lscale, this._scale);
         }
+        this._dirtyBits |= NodeDirtyBit.SCALE;
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
@@ -841,7 +852,7 @@ export class Node extends BaseNode implements INode {
     }
 
     // ===============================
-    // creator-backward-compatible interfaces
+    // for backward-compatibility
     // ===============================
 
     // NOTE: don't set it manually
