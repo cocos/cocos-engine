@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { CanvasComponent, MeshBuffer, StencilManager, UIComponent, UIRenderComponent, UIVertexFormat } from '../../3d';
+import { CanvasComponent, MeshBuffer, StencilManager, UIComponent, UIRenderComponent, UIVertexFormat } from '../../3d/ui';
 import { Material } from '../../3d/assets/material';
 import Pool from '../../3d/memop/pool';
 import RecyclePool from '../../3d/memop/recycle-pool';
@@ -16,7 +16,6 @@ import { IGFXAttribute } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { UniformBinding } from '../../pipeline/define';
-import { Node } from '../../scene-graph/node';
 import { Camera } from '../scene/camera';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
@@ -484,7 +483,7 @@ export class UI {
             this._recursiveScreenNode(this._debugScreen.node);
         }
     }
-    
+
     private _preprocess (c: INode) {
         // ts-ignore
         let render = c._uiComp;

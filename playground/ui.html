@@ -67,8 +67,8 @@
                 let elem = cc.game.canvas.getElementsByTagName('img')[0];
                 spriteFrame.setOriginalSize(cc.size(elem.width, elem.height));
                 spriteFrame.setRect(cc.rect(0, 0, elem.width, elem.height));
-                spriteFrame.onLoaded();
                 spriteFrame.image = new cc.ImageAsset(elem);
+                spriteFrame.onLoaded();
 
                 spriteComp.spriteFrame = spriteFrame;
 

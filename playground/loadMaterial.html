@@ -24,8 +24,8 @@
 
 <body class="fit">
   <canvas id="canvas" tabindex="-1" class="fit"></canvas>
-  <script src="../../node_modules/vconsole/dist/vconsole.min.js"></script>
-  <script src="../../node_modules/dat.gui/build/dat.gui.min.js"></script>
+  <script src="../node_modules/vconsole/dist/vconsole.min.js"></script>
+  <script src="../node_modules/dat.gui/build/dat.gui.min.js"></script>
   <script src="../bin/cocos-3d.dev.js"></script>
   <script src="./camera.js"></script>
   <script>
@@ -56,11 +56,7 @@
       cameraNode.addComponent(FirstPersonCamera);
 
       const material = new cc.Material();
-      material.initialize({
-        effectAsset: effect,
-        technique: 1,
-        defines: { SOURCE: 'color.r', COUNT: 3.0, ALL_WHITE: true }
-      });
+      material.initialize({ effectAsset: effect });
 
       const modelNode = new cc.Node('test');
       modelNode.parent = scene;
@@ -77,15 +73,13 @@
       rawAssetsBase: 'library',
       rawAssets: {
         assets: {
-          "649e73d0-4a7f-4a40-9c9c-3b73c922ff20": ["dev", "cc.EffectAsset"]
+          "97051ce4-0cc9-4ae0-a584-d73943d7c11a": ["test", "cc.EffectAsset"]
         }
       }
     });
 
-    // cc.sys.__audioSupport.WEB_AUDIO = false;
-
     let jobsRemaining = 1, effect;
-    cc.loader.loadRes('dev', cc.EffectAsset, (err, asset) => {
+    cc.loader.loadRes('test', cc.EffectAsset, (err, asset) => {
         effect = asset;
         if (!--jobsRemaining) run();
     });

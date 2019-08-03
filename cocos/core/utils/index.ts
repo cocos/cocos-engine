@@ -36,7 +36,7 @@ import * as misc from './misc';
  */
 import * as path from './path';
 import { deprecatedWrapper } from '../../deprecated';
-import { math } from '..';
+import * as math from '../math';
 
 deprecatedWrapper({
     oldTarget: misc,
