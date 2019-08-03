@@ -101,7 +101,6 @@ export class Node extends BaseNode implements INode {
     protected _dirty = false; // does the world transform need to update?
     protected _hasChanged = false; // has the transform changed in this frame?
 
-    protected _matDirty = false;
     protected _eulerDirty = false;
 
     protected _eventProcessor: NodeEventProcessor = new cc.NodeEventProcessor(this);
@@ -375,22 +374,17 @@ export class Node extends BaseNode implements INode {
                 Vec3.add(child._pos, child._pos, cur._pos);
                 Quat.multiply(child._rot, cur._rot, child._lrot);
                 Vec3.multiply(child._scale, cur._scale, child._lscale);
+                Mat4.fromRTS(child._mat, child._lrot, child._lpos, child._lscale);
+                Mat4.multiply(child._mat, cur._mat, child._mat);
+            } else {
+                Vec3.copy(child._pos, child._lpos);
+                Quat.copy(child._rot, child._lrot);
+                Vec3.copy(child._scale, child._lscale);
+                Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
             }
-            child._matDirty = true; // further deferred eval
             child._dirty = false;
             cur = child;
         }
-    }
-
-    /**
-     * @zh
-     * 更新节点的完整世界变换信息
-     */
-    public updateWorldTransformFull () {
-        this.updateWorldTransform();
-        if (!this._matDirty) { return; }
-        Mat4.fromRTS(this._mat, this._rot, this._pos, this._scale);
-        this._matDirty = false;
     }
 
     // ===============================
@@ -415,13 +409,12 @@ export class Node extends BaseNode implements INode {
     public setPosition (x: number, y: number, z: number): void;
 
     public setPosition (val: Vec3 | number, y?: number, z?: number) {
-        v3_a.set(this._lpos);
         if (y === undefined || z === undefined) {
             Vec3.copy(this._lpos, val as Vec3);
-        } else if (arguments.length === 3) {
+        } else {
             Vec3.set(this._lpos, val as number, y, z);
         }
-        Vec3.copy(this._pos, this._lpos);
+        // Vec3.copy(this._pos, this._lpos);
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
@@ -474,11 +467,11 @@ export class Node extends BaseNode implements INode {
     public setRotation (val: Quat | number, y?: number, z?: number, w?: number) {
         if (y === undefined || z === undefined || w === undefined) {
             Quat.copy(this._lrot, val as Quat);
-        } else if (arguments.length === 4) {
+        } else {
             Quat.set(this._lrot, val as number, y, z, w);
         }
-        Quat.copy(this._rot, this._lrot);
         this._eulerDirty = true;
+        // Quat.copy(this._rot, this._lrot);
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
@@ -497,7 +490,7 @@ export class Node extends BaseNode implements INode {
         Vec3.set(this._euler, x, y, z);
         this._eulerDirty = false;
         Quat.fromEuler(this._lrot, x, y, z);
-        Quat.copy(this._rot, this._lrot);
+        // Quat.copy(this._rot, this._lrot);
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
@@ -549,10 +542,10 @@ export class Node extends BaseNode implements INode {
     public setScale (val: Vec3 | number, y?: number, z?: number) {
         if (y === undefined || z === undefined) {
             Vec3.copy(this._lscale, val as Vec3);
-        } else if (arguments.length === 3) {
+        } else {
             Vec3.set(this._lscale, val as number, y, z);
         }
-        Vec3.copy(this._scale, this._lscale);
+        // Vec3.copy(this._scale, this._lscale);
 
         this.invalidateChildren();
         if (this._eventMask & TRANFORM_ON) {
@@ -605,7 +598,7 @@ export class Node extends BaseNode implements INode {
     public setWorldPosition (val: Vec3 | number, y?: number, z?: number) {
         if (y === undefined || z === undefined) {
             Vec3.copy(this._pos, val as Vec3);
-        } else if (arguments.length === 3) {
+        } else {
             Vec3.set(this._pos, val as number, y, z);
         }
         const parent = this._parent;
@@ -673,7 +666,7 @@ export class Node extends BaseNode implements INode {
     public setWorldRotation (val: Quat | number, y?: number, z?: number, w?: number) {
         if (y === undefined || z === undefined || w === undefined) {
             Quat.copy(this._rot, val as Quat);
-        } else if (arguments.length === 4) {
+        } else {
             Quat.set(this._rot, val as number, y, z, w);
         }
         if (this._parent) {
@@ -759,7 +752,7 @@ export class Node extends BaseNode implements INode {
     public setWorldScale (val: Vec3 | number, y?: number, z?: number) {
         if (y === undefined || z === undefined) {
             Vec3.copy(this._scale, val as Vec3);
-        } else if (arguments.length === 3) {
+        } else {
             Vec3.set(this._scale, val as number, y, z);
         }
         if (this._parent) {
@@ -808,7 +801,7 @@ export class Node extends BaseNode implements INode {
      * @param out 输出到此目标矩阵
      */
     public getWorldMatrix (out?: Mat4): Mat4 {
-        this.updateWorldTransformFull();
+        this.updateWorldTransform();
         if (!out) { out = new Mat4(); }
         return Mat4.copy(out, this._mat);
     }
@@ -819,7 +812,7 @@ export class Node extends BaseNode implements INode {
      */
     // @constget
     public get worldMatrix (): Readonly<Mat4> {
-        this.updateWorldTransformFull();
+        this.updateWorldTransform();
         return this._mat;
     }
 
@@ -829,7 +822,7 @@ export class Node extends BaseNode implements INode {
      * @param out 输出到此目标矩阵
      */
     public getWorldRS (out?: Mat4): Mat4 {
-        this.updateWorldTransformFull();
+        this.updateWorldTransform();
         if (!out) { out = new Mat4(); }
         Mat4.copy(out, this._mat);
         out.m12 = 0; out.m13 = 0; out.m14 = 0;
@@ -838,7 +831,7 @@ export class Node extends BaseNode implements INode {
 
     /**
      * @zh
-     * 获取只包含坐标和旋转的世界变换矩阵
+     * 获取只包含旋转和位移的世界变换矩阵
      * @param out 输出到此目标矩阵
      */
     public getWorldRT (out?: Mat4): Mat4 {

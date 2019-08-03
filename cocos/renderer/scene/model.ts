@@ -207,7 +207,7 @@ export class Model {
         const node = this._transform;
         // @ts-ignore
         if (!node.hasChanged && !node._dirty) { return; }
-        node.updateWorldTransformFull();
+        node.updateWorldTransform();
         this._transformUpdated = this._transformUpdated || this.node.hasChanged;
         if (!this._modelBounds || !this._worldBounds) { return; }
         // @ts-ignore
@@ -251,7 +251,7 @@ export class Model {
         if (!minPos || !maxPos) { return; }
         this._modelBounds = aabb.fromPoints(aabb.create(), minPos, maxPos);
         this._worldBounds = aabb.clone(this._modelBounds);
-        this._transform.updateWorldTransformFull();
+        this._transform.updateWorldTransform();
         // @ts-ignore
         this._modelBounds.transform(this._transform._mat, this._transform._pos, this._transform._rot, this._transform._scale, this._worldBounds);
     }

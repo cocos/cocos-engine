@@ -643,12 +643,6 @@ export interface INode extends IBaseNode {
      */
     updateWorldTransform (): void;
 
-    /**
-     * @zh
-     * 更新节点的完整世界变换信息
-     */
-    updateWorldTransformFull (): void;
-
     getContentSize (out?: Size): Size;
     setContentSize (size: Size | number, height?: number): void;
     getAnchorPoint (out?: Vec2): Vec2;
