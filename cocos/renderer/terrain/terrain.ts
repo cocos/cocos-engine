@@ -15,7 +15,6 @@ import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { Model } from '../../renderer/scene/model';
 import { Node } from '../../scene-graph/node';
-import { INode } from '../../core/utils/interfaces';
 import { PrivateNode } from '../../scene-graph/private-node';
 import { IDefineMap } from '../core/pass';
 import { HeightField } from './height-field';
@@ -721,13 +720,6 @@ export class Terrain extends Component {
 
     public onDestroy () {
         for (let i = 0; i < this._layers.length; ++i) {
-            const layer = this._layers[i];
-            if (layer != null) {
-                if (layer.detailMap != null) {
-                    //cc.loader.release(layer.detailMap);
-                }
-            }
-
             this._layers[i] = null;
         }
 

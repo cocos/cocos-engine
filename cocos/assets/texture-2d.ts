@@ -224,7 +224,7 @@ export class Texture2D extends SimpleTexture {
      * @deprecated 请转用 `this.destroy()`。
      */
     public releaseTexture () {
-        this.mipmaps = [];
+        this.destroy();
     }
 
     public _serialize (exporting?: any): any {
