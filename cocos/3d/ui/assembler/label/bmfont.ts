@@ -63,8 +63,9 @@ export const bmfont: IAssembler = {
         renderData.indiceCount = renderData.dataLength / 2 * 3;
 
         const datas = renderData.datas;
-        const texw = texture.width;
-        const texh = texture.height;
+        const origin = texture.originalSize;
+        const texw = origin.width;
+        const texh = origin.height;
 
         const rectWidth = rect.width;
         const rectHeight = rect.height;
