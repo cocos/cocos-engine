@@ -107,8 +107,8 @@ export default class obb {
      * @returns {obb} out 接受操作的 obb。
      */
     public static fromPoints (out: obb, minPos: Vec3, maxPos: Vec3): obb {
-        Vec3.scale(out.center, Vec3.add(_v3_tmp, minPos, maxPos), 0.5);
-        Vec3.scale(out.halfExtents, Vec3.subtract(_v3_tmp2, maxPos, minPos), 0.5);
+        Vec3.multiplyScalar(out.center, Vec3.add(_v3_tmp, minPos, maxPos), 0.5);
+        Vec3.multiplyScalar(out.halfExtents, Vec3.subtract(_v3_tmp2, maxPos, minPos), 0.5);
         Mat3.identity(out.orientation);
         return out;
     }

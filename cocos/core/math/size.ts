@@ -99,14 +99,21 @@ export class Size extends ValueType {
         return new Size(this.width, this.height);
     }
 
+    public set (other: Size);
+    public set (width?: number, height?: number);
     /**
      * 设置当前尺寸使其与指定的尺寸相等。
      * @param other 相比较的尺寸。
      * @returns `this`
      */
-    public set (other: Size) {
-        this.width = other.width;
-        this.height = other.height;
+    public set (width?: Size | number, height?: number) {
+        if (width && typeof width === 'object') {
+            this.height = width.height;
+            this.width = width.width;
+        } else {
+            this.width = width || 0;
+            this.height = height || 0;
+        }
         return this;
     }
 

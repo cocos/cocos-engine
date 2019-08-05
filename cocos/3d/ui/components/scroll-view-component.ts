@@ -1007,7 +1007,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
     protected _startInertiaScroll (touchMoveVelocity: Vec3) {
         const inertiaTotalMovement = new Vec3(touchMoveVelocity);
-        inertiaTotalMovement.scale(MOVEMENT_FACTOR);
+        inertiaTotalMovement.multiplyScalar(MOVEMENT_FACTOR);
         this._startAttenuatingAutoScroll(inertiaTotalMovement, touchMoveVelocity);
     }
 
@@ -1045,7 +1045,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         if (this.brake > 0 && factor > 7) {
             factor = Math.sqrt(factor);
             let a = new Vec3(deltaMove);
-            a.scale(factor);
+            a.multiplyScalar(factor);
             targetDelta.set(a);
             targetDelta.add(deltaMove);
         }
@@ -1461,7 +1461,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         }
 
         const a = new Vec3(this._autoScrollTargetDelta);
-        a.scale(percentage);
+        a.multiplyScalar(percentage);
         const newPosition = new Vec3(this._autoScrollStartPosition);
         newPosition.add(a);
         let reachedEnd = Math.abs(percentage - 1) <= EPSILON;
@@ -1476,7 +1476,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
             const brakeOffsetPosition = new Vec3(newPosition);
             brakeOffsetPosition.subtract(this._autoScrollBrakingStartPosition);
             if (isAutoScrollBrake) {
-                brakeOffsetPosition.scale(brakingFactor);
+                brakeOffsetPosition.multiplyScalar(brakingFactor);
             }
             newPosition.set(this._autoScrollBrakingStartPosition);
             newPosition.add(brakeOffsetPosition);

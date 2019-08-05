@@ -535,7 +535,7 @@ export class Mat3 extends ValueType {
     /**
      * @zh 矩阵等价判断
      */
-    public static exactEquals <Out extends IMat3Like> (a: Out, b: Out) {
+    public static strictEquals <Out extends IMat3Like> (a: Out, b: Out) {
         return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 &&
             a.m03 === b.m03 && a.m04 === b.m04 && a.m05 === b.m05 &&
             a.m06 === b.m06 && a.m07 === b.m07 && a.m08 === b.m08;
@@ -637,21 +637,27 @@ export class Mat3 extends ValueType {
             t.m06, t.m07, t.m08);
     }
 
+    public set (other: Mat3);
+    public set (m00?: number, m01?: number, m02?: number,
+                m03?: number, m04?: number, m05?: number,
+                m06?: number, m07?: number, m08?: number)
     /**
      * 设置当前矩阵使其与指定矩阵相等。
      * @param other 相比较的矩阵。
      * @returns `this`
      */
-    public set (other: Mat3) {
-        this.m00 = other.m00;
-        this.m01 = other.m01;
-        this.m02 = other.m02;
-        this.m03 = other.m03;
-        this.m04 = other.m04;
-        this.m05 = other.m05;
-        this.m06 = other.m06;
-        this.m07 = other.m07;
-        this.m08 = other.m08;
+    public set (m00: number | Mat3 = 1, m01: number = 0, m02: number = 0,
+                m03: number = 0, m04: number = 1, m05: number = 0,
+                m06: number = 0, m07: number = 0, m08: number = 1 ) {
+        if (typeof m00 === 'object') {
+            this.m00 = m00.m00; this.m01 = m00.m01; this.m02 = m00.m02;
+            this.m03 = m00.m03; this.m04 = m00.m04; this.m05 = m00.m05;
+            this.m06 = m00.m06; this.m07 = m00.m07; this.m08 = m00.m08;
+        } else {
+            this.m00 = m00; this.m01 = m01; this.m02 = m02;
+            this.m03 = m03; this.m04 = m04; this.m05 = m05;
+            this.m06 = m06; this.m07 = m07; this.m08 = m08;
+        }
         return this;
     }
 
@@ -680,7 +686,7 @@ export class Mat3 extends ValueType {
      * @param other 相比较的矩阵。
      * @returns 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
      */
-    public exactEquals (other: Mat3): boolean {
+    public strictEquals (other: Mat3): boolean {
         return this.m00 === other.m00 && this.m01 === other.m01 && this.m02 === other.m02 &&
             this.m03 === other.m03 && this.m04 === other.m04 && this.m05 === other.m05 &&
             this.m06 === other.m06 && this.m07 === other.m07 && this.m08 === other.m08;

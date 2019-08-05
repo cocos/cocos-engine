@@ -1385,7 +1385,7 @@ export class Mat4 extends ValueType {
     /**
      * @zh 矩阵等价判断
      */
-    public static exactEquals <Out extends IMat4Like> (a: Out, b: Out) {
+    public static strictEquals <Out extends IMat4Like> (a: Out, b: Out) {
         return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 && a.m03 === b.m03 &&
             a.m04 === b.m04 && a.m05 === b.m05 && a.m06 === b.m06 && a.m07 === b.m07 &&
             a.m08 === b.m08 && a.m09 === b.m09 && a.m10 === b.m10 && a.m11 === b.m11 &&
@@ -1429,28 +1429,33 @@ export class Mat4 extends ValueType {
             t.m12, t.m13, t.m14, t.m15);
     }
 
+    public set (other: Mat4);
+    public set (
+        m00?: number, m01?: number, m02?: number, m03?: number,
+        m04?: number, m05?: number, m06?: number, m07?: number,
+        m08?: number, m09?: number, m10?: number, m11?: number,
+        m12?: number, m13?: number, m14?: number, m15?: number);
+
     /**
      * 设置当前矩阵使其与指定矩阵相等。
      * @param other 相比较的矩阵。
      * @returns `this`
      */
-    public set (other: Mat4) {
-        this.m00 = other.m00;
-        this.m01 = other.m01;
-        this.m02 = other.m02;
-        this.m03 = other.m03;
-        this.m04 = other.m04;
-        this.m05 = other.m05;
-        this.m06 = other.m06;
-        this.m07 = other.m07;
-        this.m08 = other.m08;
-        this.m09 = other.m09;
-        this.m10 = other.m10;
-        this.m11 = other.m11;
-        this.m12 = other.m12;
-        this.m13 = other.m13;
-        this.m14 = other.m14;
-        this.m15 = other.m15;
+    public set (m00: Mat4 | number = 1, m01 = 0, m02 = 0, m03 = 0,
+                m04 = 0, m05 = 1, m06 = 0, m07 = 0,
+                m08 = 0, m09 = 0, m10 = 1, m11 = 0,
+                m12 = 0, m13 = 0, m14 = 0, m15 = 1) {
+        if (typeof m00 === 'object') {
+            this.m01 = m00.m01; this.m02 = m00.m02; this.m03 = m00.m03; this.m04 = m00.m04;
+            this.m05 = m00.m05; this.m06 = m00.m06; this.m07 = m00.m07; this.m08 = m00.m08;
+            this.m09 = m00.m09; this.m10 = m00.m10; this.m11 = m00.m11; this.m12 = m00.m12;
+            this.m13 = m00.m13; this.m14 = m00.m14; this.m15 = m00.m15; this.m00 = m00.m00;
+        } else {
+            this.m01 = m01; this.m02 = m02; this.m03 = m03; this.m04 = m04;
+            this.m05 = m05; this.m06 = m06; this.m07 = m07; this.m08 = m08;
+            this.m09 = m09; this.m10 = m10; this.m11 = m11; this.m12 = m12;
+            this.m13 = m13; this.m14 = m14; this.m15 = m15; this.m00 = m00;
+        }
         return this;
     }
 
@@ -1486,7 +1491,7 @@ export class Mat4 extends ValueType {
      * @param other 相比较的矩阵。
      * @returns 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
      */
-    public exactEquals (other: Mat4): boolean {
+    public strictEquals (other: Mat4): boolean {
         return this.m00 === other.m00 && this.m01 === other.m01 && this.m02 === other.m02 && this.m03 === other.m03 &&
             this.m04 === other.m04 && this.m05 === other.m05 && this.m06 === other.m06 && this.m07 === other.m07 &&
             this.m08 === other.m08 && this.m09 === other.m09 && this.m10 === other.m10 && this.m11 === other.m11 &&

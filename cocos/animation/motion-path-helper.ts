@@ -347,7 +347,7 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
                     const normal = new Vec2(bezier.start);
                     normal.subtract(bezier.endCtrlPoint);
                     normal.normalize();
-                    normal.scale(length);
+                    normal.multiplyScalar(length);
                     pos.set(bezier.start);
                     pos.add(normal);
                 } else if (finalProgress > 1) {
@@ -356,7 +356,7 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
                     const normal = new Vec2(bezier.end);
                     normal.subtract(bezier.startCtrlPoint);
                     normal.normalize();
-                    normal.scale(length);
+                    normal.multiplyScalar(length);
                     pos.set(bezier.end);
                     pos.add(normal);
                 } else {

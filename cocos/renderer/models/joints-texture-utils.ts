@@ -79,10 +79,10 @@ function uploadJointDataLBS (out: Float32Array, base: number, pos: Vec3, rot: Qu
 function uploadJointDataDQS (out: Float32Array, base: number, pos: Vec3, rot: Quat, scale: Vec3, firstBone: boolean) {
     // sign consistency
     if (firstBone) { Quat.copy(dq_0, rot); }
-    else if (Quat.dot(dq_0, rot) < 0) { Quat.scale(rot, rot, -1); }
+    else if (Quat.dot(dq_0, rot) < 0) { Quat.multiplyScalar(rot, rot, -1); }
     // conversion
     Quat.set(dq_1, pos.x, pos.y, pos.z, 0);
-    Quat.scale(dq_1, Quat.multiply(dq_1, dq_1, rot), 0.5);
+    Quat.multiplyScalar(dq_1, Quat.multiply(dq_1, dq_1, rot), 0.5);
     // upload
     out[base + 0] = rot.x;
     out[base + 1] = rot.y;

@@ -40,7 +40,7 @@ export function point_plane (point: Vec3, plane_: plane) {
  */
 export function pt_point_plane (out: Vec3, point: Vec3, plane_: plane) {
     const t = point_plane(point, plane_);
-    return Vec3.subtract(out, point, Vec3.scale(out, plane_.n, t));
+    return Vec3.subtract(out, point, Vec3.multiplyScalar(out, plane_.n, t));
 }
 
 /**

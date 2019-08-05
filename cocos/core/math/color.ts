@@ -181,7 +181,7 @@ export class Color extends ValueType {
     /**
      * @zh 颜色等价判断
      */
-    public static exactEquals <Out extends IColorLike> (a: Out, b: Out) {
+    public static strictEquals <Out extends IColorLike> (a: Out, b: Out) {
         return a.r === b.r && a.g === b.g && a.b === b.b && a.a === b.a;
     }
 
@@ -665,17 +665,25 @@ export class Color extends ValueType {
         return hsv;
     }
 
+    public set (other:Color);
+    public set (r?:number, g?:number, b?:number, a?:number);
     /**
      * 设置当前颜色使其与指定颜色相等。
      * @param other 相比较的颜色。
      * @returns 当前颜色。
      */
-    public set (other: Color) {
-        if (other._val) {
-            this._val = other._val;
-        } else {
-            this._val = ((other.a << 24) >>> 0) + (other.b << 16) + (other.g << 8) + other.r;
+    public set (r?: number|Color, g?:number, b?:number, a?:number ) {
+        if (typeof r === 'object') {
+            g = r.g;
+            b = r.b;
+            a = r.a;
+            r = r.r;
         }
+        r = r || 0;
+        g = g || 0;
+        b = b || 0;
+        a = typeof a === 'number' ? a : 255;
+        this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
         return this;
     }
 

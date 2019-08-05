@@ -12,7 +12,7 @@ export class CannonBoxShape extends CannonShape implements BoxShapeBase {
 
     constructor (size: Vec3) {
         super();
-        Vec3.scale(this._halfExtent, size, 0.5);
+        Vec3.multiplyScalar(this._halfExtent, size, 0.5);
         // attention : here should use clone
         this._box = new CANNON.Box(this._halfExtent.clone());
         setWrap<ShapeBase>(this._box, this);
@@ -45,7 +45,7 @@ export class CannonBoxShape extends CannonShape implements BoxShapeBase {
     }
 
     public setSize (size: Vec3) {
-        Vec3.scale(this._halfExtent, size, 0.5);
+        Vec3.multiplyScalar(this._halfExtent, size, 0.5);
         this._recalcExtents();
     }
 

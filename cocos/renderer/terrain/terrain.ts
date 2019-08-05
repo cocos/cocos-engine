@@ -873,7 +873,7 @@ export class Terrain extends Component {
         const c = this.getNormal(ix0, iz1);
         const d = this.getNormal(ix1, iz1);
         const m = new Vec3();
-        Vec3.add(m, b, c).scale(0.5);
+        Vec3.add(m, b, c).multiplyScalar(0.5);
 
         if (dx + dz <= 1.0) {
             // d = m + (m - a);
@@ -944,7 +944,7 @@ export class Terrain extends Component {
         const c = this.getWeight(ix0, iz1);
         let d = this.getWeight(ix1, iz1);
         const m = new Vec4();
-        Vec4.add(m, b, c).scale(0.5);
+        Vec4.add(m, b, c).multiplyScalar(0.5);
 
         if (dx + dz <= 1.0) {
             d = new Vec4();
@@ -990,7 +990,7 @@ export class Terrain extends Component {
 
         const dstep = new Vec3();
         dstep.set(dir);
-        dstep.scale(step);
+        dstep.multiplyScalar(step);
 
         if (dir.equals(new Vec3(0, 1, 0))) {
             const y = this.getHeightAt(trace.x, trace.z);
@@ -1048,7 +1048,7 @@ export class Terrain extends Component {
         const normal = new Vec3();
         normal.set(up);
         normal.cross(right);
-        normal.scale(flip);
+        normal.multiplyScalar(flip);
         normal.normalize();
 
         return normal;
@@ -1211,7 +1211,7 @@ export class Terrain extends Component {
             const c = getOldWeight(ix0 + _xoff, iz1 + _yoff, this._weights);
             const d = getOldWeight(ix1 + _xoff, iz1 + _yoff, this._weights);
             const m = new Vec4();
-            Vec4.add(m, b, c).scale(0.5);
+            Vec4.add(m, b, c).multiplyScalar(0.5);
 
             if (dx + dz <= 1.0) {
                 d.set(m);

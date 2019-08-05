@@ -164,7 +164,7 @@ export class TerrainEditorPaint extends TerrainEditorMode {
 
                 const sum = w.x + w.y + w.z + w.w;
                 if (sum > 0) {
-                    w.scale(1.0 / sum);
+                    w.multiplyScalar(1.0 / sum);
                 }
 
                 if (this._undo != null) {

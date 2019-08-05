@@ -155,7 +155,7 @@ export class Quat extends ValueType {
     /**
      * @zh 四元数标量乘法
      */
-    public static scale <Out extends IQuatLike> (out: Out, a: Out, b: number) {
+    public static multiplyScalar <Out extends IQuatLike> (out: Out, a: Out, b: number) {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -589,7 +589,7 @@ export class Quat extends ValueType {
     /**
      * @zh 四元数等价判断
      */
-    public static exactEquals <Out extends IQuatLike> (a: Out, b: Out) {
+    public static strictEquals <Out extends IQuatLike> (a: Out, b: Out) {
         return a.x === b.x && a.y === b.y && a.z === b.z && a.w === b.w;
     }
 
@@ -649,16 +649,25 @@ export class Quat extends ValueType {
         return new Quat(this.x, this.y, this.z, this.w);
     }
 
+    public set (other: Quat);
+    public set (x?: number, y?: number, z?: number, w?: number);
     /**
      * 设置当前四元数使其与指定四元数相等。
      * @param other 相比较的四元数。
      * @returns `this`
      */
-    public set (other: Quat) {
-        this.x = other.x;
-        this.y = other.y;
-        this.z = other.z;
-        this.w = other.w;
+    public set (x?: number | Quat, y?: number, z?: number, w?: number) {
+        if (x && typeof x === 'object') {
+            this.x = x.x;
+            this.y = x.y;
+            this.z = x.z;
+            this.w = x.w;
+        } else {
+            this.x = x || 0;
+            this.y = y || 0;
+            this.z = z || 0;
+            this.w = w || 1;
+        }
         return this;
     }
 
@@ -680,7 +689,7 @@ export class Quat extends ValueType {
      * @param other 相比较的四元数。
      * @returns 两四元数的各分量都相等时返回 `true`；否则返回 `false`。
      */
-    public exactEquals (other: Quat) {
+    public strictEquals (other: Quat) {
         return other && this.x === other.x && this.y === other.y && this.z === other.z && this.w === other.w;
     }
 
