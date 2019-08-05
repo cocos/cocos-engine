@@ -34,6 +34,8 @@
 #include "spine/SkeletonData.h"
 #include "base/CCRef.h"
 #include "spine/spine.h"
+#include <vector>
+#include <functional>
 
 namespace spine {
 
