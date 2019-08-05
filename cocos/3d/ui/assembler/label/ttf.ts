@@ -68,14 +68,12 @@ export const ttf: IAssembler = {
         const node = comp.node;
 
         let buffer = renderer.currBufferBatch!;
-        let vertexCount = renderData.vertexCount;
         let vertexOffset = buffer.byteOffset >> 2;
         let indiceOffset = buffer.indiceOffset;
         let vertexId = buffer.vertexOffset;
         const isRecreate = buffer.request();
         if (!isRecreate) {
             buffer = renderer.currBufferBatch!;
-            vertexCount = 0;
             indiceOffset = 0;
             vertexId = 0;
         }

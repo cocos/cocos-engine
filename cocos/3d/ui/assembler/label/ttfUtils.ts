@@ -261,7 +261,7 @@ export const ttfUtils =  {
 
         // _texture.handleLoadedTexture();
         if (_texture) {
-            _texture.mipmaps = [_texture.image!];
+            _texture.image = _texture.image;
         }
     },
 

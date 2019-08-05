@@ -137,7 +137,7 @@ function generateAtlas () {
     const image = new ImageAsset(canvas);
 
     const spriteFrame = new SpriteFrame();
-    spriteFrame.mipmaps = [image];
+    spriteFrame.image = image;
     spriteFrame.onLoaded();
 
     _atlas.spriteFrame = spriteFrame;
