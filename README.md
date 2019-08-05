@@ -1,8 +1,10 @@
 # Cocos Creator 3D
 
-Cocos Creator 3D is a complete package of game development tools and workflow, including a game engine, resource management, scene editing, game preview, debug and publish one project to multiple platforms. Based on Cocos Creator,it has been aggresively refactored to meet the complex needs of 3D projects while retaining most of the original features where applicable.
+Cocos Creator 3D is the new generation of game development tool in Cocos family, it brings a complete set of 3d features and provides an intuitive, low cost and collaboration friendly workflow to game developers.
 
-This is the repo for Cocos Creator 3D engine, which is written mostly in TypeScript and conforms to the HTML5 standard, supporting mainstream desktop and mobile browsers and all sorts of WebGL-interfaced native in-app platforms. The engine itself is mostly self-contained, with full-fledged runtime modules including lighting, material, particle, animation, physical, UI, terrain, sound, resource and scene-graph management, etc.
+Cocos Creator 3D inherited many good qualities and cool features from its previous versions, such as cross-platform support including instant gaming platforms like WeChat mini game, asset management, powerful animation editing, etc. Furthermore, Cocos Creator 3D has pushed our technology to a whole new level. Our GFX implementation is designed to adapt to the latest graphic backend APIs, it already supports WebGL 2 and can be seamlessly fall back to WebGL 1, it will support Vulkan and Metal in the native build. The material system is built on our own effect format which uses GLSL 300 and can be easily adapted to lower version on low end devices. Developers can produce high performance, extremely expressive shaders with good compatibility. Along with physical based camera and lighting, high level game graphic can be easily achieved. Our pure GPU driven skeleton animation also make sure your game runs as smooth as possible. Besides all these exciting features, Cocos Creator 3D have builtin physics support, terrain editing support, visual effect editing, ui system, TypeScript support, instant preview etc.
+
+This repo is the engine part of Cocos Creator 3D, it's mainly written in TypeScript and support users to use TypeScript or ES6 to write game logics. The engine itself is mostly self-contained, with full-fledged runtime modules including lighting, material, particle, animation, physical, UI, terrain, sound, resource and scene-graph management, etc. It supports both native and web platforms, including Windows, Mac, iOS, Android, Web. What's more exciting is that it supports rapidly expanding instant gaming platforms like WeChat Mini Game and Facebook Instant Games.
 
 The engine is naturally integrated within Cocos Creator 3D, designed to only be the essential runtime library and not to be used independently.
 
@@ -43,9 +45,9 @@ This is all you have to do to setup engine development environment.
 
 ## Links
 
-- [Official site]()
-- [Download]()
-- [Documentation](https://github.com/cocos-creator/docs-3d)
-- [API References]()
+- [Official site](http://www.cocos.com/en)
 - [Forum](https://forum.cocos.com/c/3D)
-- [Road Map]()
+- [Documentation](https://github.com/cocos-creator/docs-3d)
+- API Referencess: Not yet published
+- Download: To be announced
+- Road Map: To be announced
