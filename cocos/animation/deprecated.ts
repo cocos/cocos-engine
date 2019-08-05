@@ -1,5 +1,5 @@
 
-import { deprecatedWrapper } from '../deprecated';
+import { deprecatedWrapper, replaceProperty } from '../deprecated';
 import { AnimationComponent } from './animation-component';
 import { AnimationClip } from './animation-clip';
 import { error } from '../core/platform/CCDebug';
@@ -36,4 +36,20 @@ if (CC_DEBUG) {
         }
     });
 
+    // replaceProperty(AnimationComponent.prototype, 'AnimationComponent', [
+    //     {
+    //         name: 'getAnimationState',
+    //         target: AnimationComponent.prototype,
+    //         newName: 'getState',
+    //         logTimes: 1
+    //     },
+    //     {
+    //         name: 'removeClip',
+    //         custom: function (...args: any) {
+    //             let arg0 = args[0] as AnimationClip;
+    //             return AnimationComponent.prototype.removeState.call(this, arg0.name);
+    //         },
+    //         logTimes: 1
+    //     }
+    // ]);
 }
