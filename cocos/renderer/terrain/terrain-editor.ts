@@ -1,4 +1,4 @@
-import { CameraComponent } from '../../3d/framework';
+import { CameraComponent } from '../../3d/framework/camera-component';
 import { Vec3 } from '../../core/math';
 import { Node } from '../../scene-graph/node';
 import { Terrain } from './terrain';

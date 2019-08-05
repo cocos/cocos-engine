@@ -1,233 +1,118 @@
-// camera
+const { Quat, Vec2, Vec3 } = cc.math;
 
-                "use strict";
+const v2_1 = new Vec2();
+const v2_2 = new Vec2();
+const v3_1 = new Vec3();
+const qt_1 = new Quat();
+const id_forward = new Vec3(0, 0, 1);
+const KEYCODE = {
+    W: 'W'.charCodeAt(0),
+    S: 'S'.charCodeAt(0),
+    A: 'A'.charCodeAt(0),
+	D: 'D'.charCodeAt(0),
+    Q: 'Q'.charCodeAt(0),
+    E: 'E'.charCodeAt(0),
+    SHIFT: cc.macro.KEY.shift,
+};
 
-var _dec, _class;
+const FirstPersonCamera = cc.Class({
+    extends: cc.Component,
+	properties: {
+		moveSpeed: 1,
+		moveSpeedShiftScale: 5,
+		damp: 0.2,
+		rotateSpeed: 1,
+	},
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+	onLoad () {
+		this._euler = new Vec3();
+		this._velocity = new Vec3();
+		this._position = new Vec3();
+		this._speedScale = 1;
+		cc.systemEvent.on(cc.SystemEvent.EventType.MOUSE_WHEEL, this.onMouseWheel, this);
+		cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
+		cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
+        cc.systemEvent.on(cc.SystemEvent.EventType.TOUCH_START, this.onTouchStart, this);
+        cc.systemEvent.on(cc.SystemEvent.EventType.TOUCH_MOVE, this.onTouchMove, this);
+		cc.systemEvent.on(cc.SystemEvent.EventType.TOUCH_END, this.onTouchEnd, this);
+		Vec3.copy(this._euler, this.node.eulerAngles);
+		Vec3.copy(this._position, this.node.position);
+	},
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	onDestroy () {
+		cc.systemEvent.off(cc.SystemEvent.EventType.MOUSE_WHEEL, this.onMouseWheel, this);
+		cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
+		cc.systemEvent.off(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
+        cc.systemEvent.off(cc.SystemEvent.EventType.TOUCH_START, this.onTouchStart, this);
+        cc.systemEvent.off(cc.SystemEvent.EventType.TOUCH_MOVE, this.onTouchMove, this);
+		cc.systemEvent.off(cc.SystemEvent.EventType.TOUCH_END, this.onTouchEnd, this);
+	},
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+	update (dt) {
+		// position
+		Vec3.transformQuat(v3_1, this._velocity, this.node.rotation);
+		Vec3.scaleAndAdd(this._position, this._position, v3_1, this.moveSpeed * this._speedScale);
+		Vec3.lerp(v3_1, this.node.position, this._position, dt / this.damp);
+		this.node.setPosition(v3_1);
+		// rotation
+		Quat.fromEuler(qt_1, this._euler.x, this._euler.y, this._euler.z);
+		Quat.slerp(qt_1, this.node.rotation, qt_1, dt / this.damp);
+		this.node.setRotation(qt_1);
+    },
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+	onMouseWheel (e) {
+		const delta = -e.getScrollY() * this.moveSpeed / 24; // delta is positive when scroll down
+		Vec3.transformQuat(v3_1, id_forward, this.node.rotation);
+		Vec3.scaleAndAdd(v3_1, this.node.position, v3_1, delta);
+		this.node.setPosition(v3_1);
+	},
 
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+	onKeyDown (e) {
+		const v = this._velocity;
+		if      (e.keyCode === KEYCODE.SHIFT) { this._speedScale = this.moveSpeedShiftScale; }
+        else if (e.keyCode === KEYCODE.W) { if (v.z === 0) { v.z = -1; } }
+        else if (e.keyCode === KEYCODE.S) { if (v.z === 0) { v.z =  1; } }
+        else if (e.keyCode === KEYCODE.A) { if (v.x === 0) { v.x = -1; } }
+        else if (e.keyCode === KEYCODE.D) { if (v.x === 0) { v.x =  1; } }
+        else if (e.keyCode === KEYCODE.Q) { if (v.y === 0) { v.y = -1; } }
+        else if (e.keyCode === KEYCODE.E) { if (v.y === 0) { v.y =  1; } }
+	},
 
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+	onKeyUp (e) {
+		const v = this._velocity;
+		if      (e.keyCode === KEYCODE.SHIFT) { this._speedScale = 1; }
+        else if (e.keyCode === KEYCODE.W) { if (v.z < 0) { v.z = 0; } }
+        else if (e.keyCode === KEYCODE.S) { if (v.z > 0) { v.z = 0; } }
+        else if (e.keyCode === KEYCODE.A) { if (v.x < 0) { v.x = 0; } }
+        else if (e.keyCode === KEYCODE.D) { if (v.x > 0) { v.x = 0; } }
+        else if (e.keyCode === KEYCODE.Q) { if (v.y < 0) { v.y = 0; } }
+        else if (e.keyCode === KEYCODE.E) { if (v.y > 0) { v.y = 0; } }
+	},
 
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+	onTouchStart (e) {
+		if (cc.game.canvas.requestPointerLock) cc.game.canvas.requestPointerLock();
+	},
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+	onTouchMove (e) {
+		e.getStartLocation(v2_1);
+		if (v2_1.x > cc.winSize.width * 0.4) { // rotation
+			e.getDelta(v2_2);
+			this._euler.y -= v2_2.x * this.rotateSpeed * 0.1;
+			this._euler.x += v2_2.y * this.rotateSpeed * 0.1;
+		} else { // position
+			e.getLocation(v2_2);
+			Vec3.subtract(v2_2, v2_2, v2_1);
+			this._velocity.x = v2_2.x * 0.01;
+			this._velocity.z = -v2_2.y * 0.01;
+		}
+	},
 
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-var FirstPersonCamera = (_dec = cc._decorator.ccclass(), _dec(_class =
-/*#__PURE__*/
-function (_cc$Component) {
-  _inherits(FirstPersonCamera, _cc$Component);
-
-  function FirstPersonCamera() {
-    var _this;
-
-    _classCallCheck(this, FirstPersonCamera);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(FirstPersonCamera).call(this));
-    _this._lbtnDown = false;
-    _this._rbtnDown = false;
-    _this._keyStates = new Array(128);
-
-    _this._keyStates.fill(false);
-
-    return _this;
-  }
-
-  _createClass(FirstPersonCamera, [{
-    key: "start",
-    value: function start() {
-      var _this2 = this;
-
-      var cameraComponent = this.node.getComponent("cc.CameraComponent");
-
-      if (!cameraComponent) {
-        console.error("Cannot find cc.CameraComponent on node ".concat(this.node.name));
-      }
-
-      cc.eventManager.setEnabled(true);
-      var mouseListener = cc.EventListener.create({
-        event: cc.EventListener.MOUSE,
-        onMouseDown: function onMouseDown() {
-          return _this2._mouseDownHandler.apply(_this2, arguments);
-        },
-        onMouseMove: function onMouseMove() {
-          return _this2._mouseMoveHandler.apply(_this2, arguments);
-        },
-        onMouseUp: function onMouseUp() {
-          return _this2._mouseUpHandler.apply(_this2, arguments);
-        },
-        onMouseScroll: function onMouseScroll() {
-          return _this2._mouseWheelHandler.apply(_this2, arguments);
-        }
-      });
-      cc.eventManager.addListener(mouseListener, 1);
-      var keyListener = cc.EventListener.create({
-        event: cc.EventListener.KEYBOARD,
-        onKeyPressed: function onKeyPressed() {
-          return _this2._keyDownHandler.apply(_this2, arguments);
-        },
-        onKeyReleased: function onKeyReleased() {
-          return _this2._keyUpHandler.apply(_this2, arguments);
-        }
-      });
-      cc.eventManager.addListener(keyListener, 1);
-    }
-  }, {
-    key: "update",
-    value: function update(dt) {
-      var _this3 = this;
-
-      var translationDelta = dt * 10;
-
-      var isKeyPressing = function isKeyPressing(keystr) {
-        return _this3._keyStates[keystr.charCodeAt(0)];
-      };
-
-      if (isKeyPressing("W")) {
-        this._translate(this._getForward(), translationDelta);
-      }
-
-      if (isKeyPressing("S")) {
-        this._translate(this._getForward(), -translationDelta);
-      }
-
-      if (isKeyPressing("A")) {
-        this._translate(this._getRight(), -translationDelta);
-      }
-
-      if (isKeyPressing("D")) {
-        this._translate(this._getRight(), translationDelta);
-      }
-
-      if (isKeyPressing("Q")) {
-        this._translate(cc.v3(0, 1, 0), -translationDelta);
-      }
-
-      if (isKeyPressing("E")) {
-        this._translate(cc.v3(0, 1, 0), translationDelta);
-      }
-    }
-  }, {
-    key: "_mouseWheelHandler",
-    value: function _mouseWheelHandler(event) {
-      var delta = event._scrollY / 120; // forward to screen is positive
-
-      this._translate(this._getForward(), delta);
-    }
-  }, {
-    key: "_mouseDownHandler",
-    value: function _mouseDownHandler(event) {
-      if (event._button === 0) {
-        this._lbtnDown = true;
-      } else if (event._button === 1) {
-        this._mbtnDown = true;
-      } else if (event._button === 2) {
-        cc.game.canvas.requestPointerLock();
-        this._rbtnDown = true;
-      }
-    }
-  }, {
-    key: "_mouseUpHandler",
-    value: function _mouseUpHandler(event) {
-      if (event._button === 0) {
-        this._lbtnDown = false;
-      } else if (event._button === 1) {
-        this._mbtnDown = false;
-      } else if (event._button === 2) {
-        document.exitPointerLock();
-        this._rbtnDown = false;
-      }
-    }
-  }, {
-    key: "_mouseMoveHandler",
-    value: function _mouseMoveHandler(event) {
-      var dx = event.movementX;
-      var dy = -event.movementY;
-
-      if (dx !== 0) {
-        if (this._rbtnDown) {
-          this._rotateSelfHorizon(dx / 5);
-        }
-      }
-
-      if (dy !== 0) {
-        if (this._rbtnDown) {
-          this._rotateSelfVertical(dy / 5);
-        }
-      }
-    }
-  }, {
-    key: "_keyDownHandler",
-    value: function _keyDownHandler(keycode) {
-      if (keycode < this._keyStates.length) {
-        this._keyStates[keycode] = true;
-      }
-    }
-  }, {
-    key: "_keyUpHandler",
-    value: function _keyUpHandler(keycode) {
-      if (keycode < this._keyStates.length) {
-        this._keyStates[keycode] = false;
-      }
-    }
-  }, {
-    key: "_translate",
-    value: function _translate(direction, delta) {
-      var position = this.node.getPosition();
-      cc.Vec3.scaleAndAdd(position, position, direction, delta);
-      this.node.setPosition(position);
-    }
-  }, {
-    key: "_rotateSelfHorizon",
-    value: function _rotateSelfHorizon(delta) {
-      var rotation = this.node.getRotation();
-      var up = cc.v3(0, 1, 0); //const up = this._getUp();
-
-      cc.Quat.rotateAround(rotation, rotation, up, -delta / 360.0 * 3.14159265);
-      this.node.setRotation(rotation);
-    }
-  }, {
-    key: "_rotateSelfVertical",
-    value: function _rotateSelfVertical(delta) {
-      var rotation = this.node.getRotation(); //const right = cc.v3(1, 0, 0);
-
-      var right = this._getRight();
-
-      cc.Quat.rotateAround(rotation, rotation, right, delta / 360.0 * 3.14159265);
-      this.node.setRotation(rotation);
-    }
-  }, {
-    key: "_getForward",
-    value: function _getForward() {
-      return this._getDirection(0, 0, -1);
-    }
-  }, {
-    key: "_getRight",
-    value: function _getRight() {
-      return this._getDirection(1, 0, 0);
-    }
-  }, {
-    key: "_getUp",
-    value: function _getUp() {
-      return this._getDirection(0, 1, 0);
-    }
-  }, {
-    key: "_getDirection",
-    value: function _getDirection(x, y, z) {
-      var result = cc.v3(x, y, z);
-      cc.Vec3.transformQuat(result, result, this.node.getRotation());
-      return result;
-    }
-  }]);
-
-  return FirstPersonCamera;
-}(cc.Component)) || _class);
+	onTouchEnd (e) {
+		if (document.exitPointerLock) document.exitPointerLock();
+		e.getStartLocation(v2_1);
+		if (v2_1.x < cc.winSize.width * 0.4) { // position
+			this._velocity.x = 0;
+			this._velocity.z = 0;
+		}
+	},
+});

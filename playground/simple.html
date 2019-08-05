@@ -62,10 +62,10 @@
 
       const cameraNode = new cc.Node('Camera');
       cameraNode.parent = scene;
-      cameraNode.setPosition(1, 1, 4);
-      cameraNode.setRotationFromEuler(0, 30, 0);
-      cameraNode.addComponent(cc.CameraComponent);
+      cameraNode.setPosition(-2.2, 3.6, -5.3);
+      cameraNode.setRotationFromEuler(-13.6, -165.5, 0);
       cameraNode.addComponent(FirstPersonCamera);
+      const camComp = cameraNode.addComponent(cc.CameraComponent);
 
       // const skybox = scene.globals.skybox;
       // const textureCube = new cc.TextureCube();
@@ -83,8 +83,8 @@
 
       const lightNode = new cc.Node('Light');
       lightNode.parent = scene;
-      lightNode.setRotationFromEuler(70, 0, 0);
-      const lightComp = lightNode.addComponent(cc.LightComponent);
+      lightNode.setRotationFromEuler(-40, 0, 0);
+      const lightComp = lightNode.addComponent(cc.DirectionalLightComponent);
 
       // parsed effect file is embedded in cocos/3d/builtin/effects.js
       const material = new cc.Material();
@@ -143,13 +143,11 @@
       canv.addEventListener('mousemove', (e) => (pos.x = e.x, pos.y = e.y));
 
       cc.director.on(cc.Director.EVENT_AFTER_UPDATE, () => {
-        /*
         if (buttonDown) {
           const ray = camComp.screenPointToRay(pos.x, canv.height - pos.y);
           const res = cc.director._scene._renderScene.raycast(ray);
           if (res.length) res.forEach((r) => console.log(r.node.name, r.distance));
         }
-        */
         models.forEach((m, i) => {
           const dt = cc.director._deltaTime;
           const t = cc.director._totalFrames / (60);
@@ -161,17 +159,6 @@
           passes[i].setUniform(handle, color);
         });
       });
-
-      const n0 = new cc.Node();
-      n0.parent = scene;
-      n0.setWorldPosition(0, 0, 10);
-      const n1 = new cc.Node();
-      n1.parent = n0;
-      console.log(n1.getPosition());
-      console.log(n1.getWorldPosition());
-      n1.parent = scene;
-      console.log(n1.getPosition());
-      console.log(n1.getWorldPosition());
 
       cc.director.runSceneImmediate(scene);
     }

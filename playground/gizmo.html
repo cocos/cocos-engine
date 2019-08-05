@@ -104,9 +104,9 @@
         const mesh = planeModel.mesh = cc.utils.createMesh(cc.primitives.quad());
         const submesh = mesh.renderingMesh.getSubmesh(0);
 
-        const vbInfo = mesh.struct.vertexBundles[0].data;
+        const vbInfo = mesh.struct.vertexBundles[0].view;
         submesh.vbuffer = mesh.data.buffer.slice(vbInfo.offset, vbInfo.offset + vbInfo.length);
-        const ibInfo = mesh.struct.primitives[0].indices.range;
+        const ibInfo = mesh.struct.primitives[0].indexView;
         submesh.ibuffer = mesh.data.buffer.slice(ibInfo.offset, ibInfo.offset + ibInfo.length);
 
         planeModel.material = material2;
@@ -127,12 +127,12 @@
 
       const moveTool = new cc.Node('moveTool');
       moveTool.parent = scene;
-      createArrow(cc.Color.RED, cc.Quat.fromEuler(cc.Quat.create(), 90, 0, 0)).parent = moveTool;
-      createArrow(cc.Color.GREEN, cc.Quat.fromEuler(cc.Quat.create(), 0, 0, 0)).parent = moveTool;
-      createArrow(cc.Color.BLUE, cc.Quat.fromEuler(cc.Quat.create(), 0, 0, -90)).parent = moveTool;
-      createBorderPlane(cc.Color.RED, cc.v3(0.5, 0.5, 0), cc.Quat.fromEuler(cc.Quat.create(), 0, 0, 0)).parent = moveTool;
-      createBorderPlane(cc.Color.GREEN, cc.v3(0.5, 0, 0.5), cc.Quat.fromEuler(cc.Quat.create(), -90, -90, 0)).parent = moveTool;
-      createBorderPlane(cc.Color.BLUE, cc.v3(0, 0.5, 0.5), cc.Quat.fromEuler(cc.Quat.create(), 90, 0, 90)).parent = moveTool;
+      createArrow(cc.Color.RED, cc.Quat.fromEuler(new cc.Quat(), 90, 0, 0)).parent = moveTool;
+      createArrow(cc.Color.GREEN, cc.Quat.fromEuler(new cc.Quat(), 0, 0, 0)).parent = moveTool;
+      createArrow(cc.Color.BLUE, cc.Quat.fromEuler(new cc.Quat(), 0, 0, -90)).parent = moveTool;
+      createBorderPlane(cc.Color.RED, cc.v3(0.5, 0.5, 0), cc.Quat.fromEuler(new cc.Quat(), 0, 0, 0)).parent = moveTool;
+      createBorderPlane(cc.Color.GREEN, cc.v3(0.5, 0, 0.5), cc.Quat.fromEuler(new cc.Quat(), -90, -90, 0)).parent = moveTool;
+      createBorderPlane(cc.Color.BLUE, cc.v3(0, 0.5, 0.5), cc.Quat.fromEuler(new cc.Quat(), 90, 0, 90)).parent = moveTool;
 
       let vel = cc.v3(), speed = 0.1;
       canv.addEventListener('keydown', (e) => {
