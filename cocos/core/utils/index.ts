@@ -38,38 +38,38 @@ import * as path from './path';
 import { replaceProperty } from '../../deprecated';
 import * as math from '../math';
 
-replaceProperty(misc,'misc',[
-    {
-        name: 'clampf',
-        newName: 'clamp',
-        target: math,
-        targetName: 'math'
-    },
-    {
-        name: 'clamp01',
-        newName: 'clamp01',
-        target: math,
-        targetName: 'math'
-    },
-    {
-        name: 'lerp',
-        newName: 'lerp',
-        target: math,
-        targetName: 'math'
-    },
-    {
-        name: 'degreesToRadians',
-        newName: 'toRadian',
-        target: math,
-        targetName: 'math'
-    },
-    {
-        name: 'radiansToDegrees',
-        newName: 'toDegree',
-        target: math,
-        targetName: 'math'
-    },
-]);
+// replaceProperty(misc,'misc',[
+//     {
+//         name: 'clampf',
+//         newName: 'clamp',
+//         target: math,
+//         targetName: 'math'
+//     },
+//     {
+//         name: 'clamp01',
+//         newName: 'clamp01',
+//         target: math,
+//         targetName: 'math'
+//     },
+//     {
+//         name: 'lerp',
+//         newName: 'lerp',
+//         target: math,
+//         targetName: 'math'
+//     },
+//     {
+//         name: 'degreesToRadians',
+//         newName: 'toRadian',
+//         target: math,
+//         targetName: 'math'
+//     },
+//     {
+//         name: 'radiansToDegrees',
+//         newName: 'toDegree',
+//         target: math,
+//         targetName: 'math'
+//     },
+// ]);
 
 export * from './text-utils';
 export * from './html-text-parser';
