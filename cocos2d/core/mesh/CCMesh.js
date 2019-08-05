@@ -117,13 +117,14 @@ let Mesh = cc.Class({
             
             // ib
             let ibrange = primitive.data;
-            let ibData = new Uint16Array(this._buffer, ibrange.offset, ibrange.length / 2);
+            let ibData = new Uint8Array(this._buffer, ibrange.offset, ibrange.length);
 
             // vb
             let vertexBundle = this._vertexBundles[primitive.vertexBundleIndices[0]];
             let vbRange = vertexBundle.data;
             let gfxVFmt = new gfx.VertexFormat(vertexBundle.formats);
-            let vbData = new Float32Array(this._buffer, vbRange.offset, vbRange.length / 4);
+            // Mesh binary may have several data format, must use Uint8Array to store data.
+            let vbData = new Uint8Array(this._buffer, vbRange.offset, vbRange.length);
             
             let canBatch = this._canVertexFormatBatch(gfxVFmt);
 
@@ -151,7 +152,7 @@ let Mesh = cc.Class({
                     primitive.indexUnit,
                     gfx.USAGE_STATIC,
                     ibData,
-                    ibData.length
+                    ibData.byteLength / 2
                 );
     
                 // create sub meshes
@@ -181,7 +182,7 @@ let Mesh = cc.Class({
     init (vertexFormat, vertexCount, dynamic) {
         this.clear();
 
-        let data = new Float32Array(vertexFormat._bytes * vertexCount / 4);
+        let data = new Uint8Array(vertexFormat._bytes * vertexCount);
         let meshData = new MeshData();
         meshData.vData = data;
         meshData.vfm = vertexFormat;
@@ -227,13 +228,17 @@ let Mesh = cc.Class({
         let elNum = el.num;
         let data;
         let bytes = 4;
-        if (name === gfx.ATTR_COLOR && !isFlatMode) {
-            data = subData.uintVData;
-            if (!data) {
-                data = subData.uintVData = new Uint32Array(subData.vData.buffer, 0, subData.vData.length);
+        if (name === gfx.ATTR_COLOR) {
+            if (!isFlatMode) {
+                data = subData.getVData(Uint32Array);
             }
-        } else {
-            data = subData.vData;
+            else {
+                data = subData.getVData();
+                bytes = 1;
+            }
+        } 
+        else {
+            data = subData.getVData(Float32Array);
         }
 
         let stride = el.stride / bytes;
@@ -277,26 +282,34 @@ let Mesh = cc.Class({
      * !#zh
      * 设置子网格索引。
      * @method setIndices
-     * @param {[Number]|Uint16Array} indices - the sub mesh indices.
+     * @param {[Number]|Uint16Array|Uint8Array} indices - the sub mesh indices.
      * @param {Number} [index] - sub mesh index.
      * @param {Boolean} [dynamic] - whether or not to use dynamic buffer.
      */
     setIndices (indices, index, dynamic) {
         index = index || 0;
 
-        let data = new Uint16Array(indices);
+        let iData = indices;
+        if (indices instanceof Uint16Array) {
+            iData = new Uint8Array(indices.buffer, indices.byteOffset, indices.byteLength);
+        }
+        else if (Array.isArray(indices)) {
+            iData = new Uint16Array(indices);
+            iData = new Uint8Array(iData.buffer, iData.byteOffset, iData.byteLength);
+        }
+
         let usage = dynamic ? gfx.USAGE_DYNAMIC : gfx.USAGE_STATIC;
 
         let subData = this._subDatas[index];
         if (!subData.ib) {
-            subData.iData = data;
+            subData.iData = iData;
             if (!(CC_JSB && CC_NATIVERENDERER)) {
                 let buffer = new gfx.IndexBuffer(
                     renderer.device,
                     gfx.INDEX_FMT_UINT16,
                     usage,
-                    data,
-                    data.length
+                    iData,
+                    iData.byteLength / 2
                 );
 
                 subData.ib = buffer;
@@ -304,7 +317,7 @@ let Mesh = cc.Class({
             }
         }
         else {
-            subData.iData = data;
+            subData.iData = iData;
             subData.iDirty = true;
         }
     },
