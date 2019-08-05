@@ -501,7 +501,7 @@ utilities.parseParameters = function () {
 var autoRelease = finalizer._autoRelease;
 finalizer._autoRelease = function (oldScene) {
     var result = autoRelease.apply(this, arguments);
-    if (oldScene && oldScene.autoReleaseAssets) {
+    if (CC_TEST || (oldScene && oldScene.autoReleaseAssets)) {
         var releaseSettings = loader._autoReleaseSetting;
         var keys = Object.keys(releaseSettings);
         for (let i = 0; i < keys.length; i++) {

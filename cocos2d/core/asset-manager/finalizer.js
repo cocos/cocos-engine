@@ -174,7 +174,7 @@ var finalizer = {
             for (let i = 0, l = childs.length; i < l; i++) {
                 let asset = assets.get(childs[i]);
                 asset && asset._removeRef();
-                oldScene.autoReleaseAssets && this.release(asset);
+                if (CC_TEST || oldScene.autoReleaseAssets) this.release(asset);
             }
             var dependencies = dependUtil._depends.get(oldScene._id);
             if (dependencies && dependencies.persistDeps) {
@@ -182,7 +182,7 @@ var finalizer = {
                 for (let i = 0, l = persistDeps.length; i < l; i++) {
                     let asset = assets.get(persistDeps[i]);
                     asset && asset._removeRef();
-                    oldScene.autoReleaseAssets && this.release(asset);
+                    if (CC_TEST || oldScene.autoReleaseAssets) this.release(asset);
                 }
             }
             dependUtil.remove(oldScene._id);
