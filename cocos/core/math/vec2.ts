@@ -103,15 +103,6 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @zh 逐元素向量除法
-     */
-    public static divideScalar <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
-        out.x = a.x / b.x;
-        out.y = a.y / b.y;
-        return out;
-    }
-
-    /**
      * @zh 逐元素向量向上取整
      */
     public static ceil <Out extends IVec2Like> (out: Out, a: Out) {
@@ -555,16 +546,6 @@ export class Vec2 extends ValueType {
     public multiply2f (x:number, y:number) {
         this.x = this.x * x;
         this.y = this.y * y;
-        return this;
-    }
-
-    /**
-     * 将当前向量的各个分量除以指定标量。相当于 `this.scale(1 / scalar)`。
-     * @param scalar 标量除数。
-     */
-    public divideScalar (scalar: number) {
-        this.x = this.x / scalar;
-        this.y = this.y / scalar;
         return this;
     }
 

@@ -118,16 +118,6 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * @zh 逐元素向量除法
-     */
-    public static divideScalar<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
-        out.x = a.x / b.x;
-        out.y = a.y / b.y;
-        out.z = a.z / b.z;
-        return out;
-    }
-
-    /**
      * @zh 逐元素向量向上取整
      */
     public static ceil<Out extends IVec3Like> (out: Out, a: Out) {
@@ -751,17 +741,6 @@ export class Vec3 extends ValueType {
         this.x = this.x * x;
         this.y = this.y * y;
         this.z = this.z * z;
-        return this;
-    }
-
-    /**
-     * 将当前向量的各个分量除以指定标量。相当于 `this.scale(1 / scalar)`。
-     * @param scalar 标量除数。
-     */
-    public divideScalar (scalar: number) {
-        this.x = this.x / scalar;
-        this.y = this.y / scalar;
-        this.z = this.z / scalar;
         return this;
     }
 
