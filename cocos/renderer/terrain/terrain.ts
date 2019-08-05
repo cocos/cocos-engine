@@ -1,3 +1,6 @@
+/**
+ * @category terrain
+ */
 
 import { EffectAsset } from '../../3d/assets/effect-asset';
 import { Material } from '../../3d/assets/material';

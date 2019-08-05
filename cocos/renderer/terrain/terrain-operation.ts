@@ -1,3 +1,7 @@
+/**
+ * @category terrain
+ */
+
 import { Rect, Vec2, Vec4 } from '../../core/math';
 import { Terrain, TerrainBlock } from './terrain';
 

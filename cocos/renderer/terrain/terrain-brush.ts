@@ -1,3 +1,7 @@
+/**
+ * @category terrain
+ */
+
 import { Material } from '../../3d/assets/material';
 import { Vec3, Vec4 } from '../../core/math';
 import { IDefineMap } from '../core/pass';

@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 
 import { deprecatedWrapper, replaceProperty } from '../deprecated';
 import { AnimationComponent } from './animation-component';

@@ -1,3 +1,7 @@
+/**
+ * @category terrain
+ */
+
 import { Terrain, TERRAIN_BLOCK_TILE_COMPLEXITY } from './terrain';
 
 export enum eTerrainEditorMode {
