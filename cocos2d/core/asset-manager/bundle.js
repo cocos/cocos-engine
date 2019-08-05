@@ -306,7 +306,7 @@ Bundle.prototype = {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
 
         var request = null;
-        if (this._preloadedScene.has(info.uuid)) {
+        if (this._preloadedScene.has(sceneName)) {
             request = this._preloadedScene.get(sceneName);
             if (!request.isFinish) {
                 cc.warn('preloading task have not finished yet, please wait for preloading');

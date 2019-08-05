@@ -144,6 +144,8 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                 if (item.isNative) {
                     item.content = asset;
                     task.dispatch('progress', ++progress.finish, progress.total, item);
+                    files.remove(item.id);
+                    parsed.remove(item.id);
                     done();
                 }
                 else {

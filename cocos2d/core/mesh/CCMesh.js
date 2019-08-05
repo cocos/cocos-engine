@@ -342,12 +342,14 @@ let Mesh = cc.Class({
 
         let subDatas = this._subDatas;
         for (let i = 0, len = subDatas.length; i < len; i++) {
+            let vb = subDatas[i].vb;
             if (vb) {
-                subDatas[i].vb.destroy();
+                vb.destroy();
             }
             
+            let ib = subDatas[i].ib;
             if (ib) {
-                subDatas[i].ib.destroy();
+                ib.destroy();
             }
         }
         subDatas.length = 0;

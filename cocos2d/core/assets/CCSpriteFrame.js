@@ -162,7 +162,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
     statics: {
         _parseDepsFromJson (json) {
-            return [json.content.texture];
+            return [cc.assetManager.utils.decodeUuid(json.content.texture)];
         }
     },
 

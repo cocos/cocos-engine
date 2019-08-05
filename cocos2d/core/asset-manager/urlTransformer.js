@@ -102,6 +102,11 @@ function parse (task) {
                         if (bundles.has(item.bundle)) {
                             var config = bundles.get(item.bundle)._config;
                             var info = config.getSceneInfo(item.scene);
+                            if (info && info.redirect) {
+                                if (!bundles.has(info.redirect)) throw new Error(`you need to load bundle ${info.redirect} first`);
+                                config = bundles.get(info.redirect)._config;
+                                info = config.getAssetInfo(info.uuid);
+                            }
                             out.config = config; 
                             out.uuid = info.uuid;
                             out.info = info;

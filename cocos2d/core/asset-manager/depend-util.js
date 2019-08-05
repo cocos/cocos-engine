@@ -24,6 +24,7 @@
  ****************************************************************************/
 const Cache = require('./cache');
 const js = require('../platform/js');
+const { decodeUuid } = require('./helper');
 
 /**
  * !#en

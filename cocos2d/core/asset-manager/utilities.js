@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 const dependUtil = require('./depend-util');
-const helper = require('./helper');
+const { isScene, decodeUuid } = require('./helper');
 const { assets } = require('./shared');
 const MissingObjectReporter = CC_EDITOR && Editor.require('app://editor/page/scene-utils/missing-object-reporter');
 require('../assets/CCAsset');
@@ -31,59 +31,71 @@ require('../assets/CCAsset');
 var utils = {
 
     processOptions (options) {
+        if (CC_EDITOR) return;
+        var uuids = options.uuids;
+        var paths = options.paths;
+        var types = options.types;
+        var bundles = options.deps;
+        var realEntries = options.paths = Object.create(null);
 
         if (options.debug === false) {
-            var uuids = options.uuids;
-            var paths = options.paths;
-            var types = options.types;
-            var bundles = options.deps;
-            var realEntries = options.paths = Object.create(null);
             for (var i = 0, l = uuids.length; i < l; i++) {
-                uuids[i] = helper.decodeUuid(uuids[i]);
+                uuids[i] = decodeUuid(uuids[i]);
             }
 
             for (var id in paths) {
                 var entry = paths[id];
                 var type = entry[1];
                 entry[1] = types[type];
-                realEntries[uuids[id]] = entry;
             }
-
-            var scenes = options.scenes;
-            for (var name in scenes) {
-                var uuid = scenes[name];
-                scenes[name] = uuids[uuid];
-            }
-
-            var packs = options.packs;
-            for (var packId in packs) {
-                var packedIds = packs[packId];
-                for (var j = 0; j < packedIds.length; ++j) {
-                    packedIds[j] = uuids[packedIds[j]];
-                }
-            }
-
-            var versions = options.versions;
-            if (versions) {
-                for (var folder in versions) {
-                    var entries = versions[folder];
-                    for (var i = 0; i < entries.length; i += 2) {
-                        if (typeof entries[i] === "number") {
-                            entries[i] = uuids[entries[i]];
-                        }
-                    }
-                }
-            }
-
-            var redirect = options.redirect;
-            if (redirect) {
-                for (var i = 0; i < redirect.length; i += 2) {
-                    redirect[i] = uuids[redirect[i]];
-                    redirect[i + 1] = bundles[redirect[i + 1]];
-                }
-            }
-
         }
+        else {
+            var out = Object.create(null);
+            for (var i = 0, l = uuids.length; i < l; i++) {
+                var uuid = uuids[i];
+                uuids[i] = out[uuid] = decodeUuid(uuid);
+            }
+            uuids = out;
+        }
+
+        for (var id in paths) {
+            var entry = paths[id];
+            realEntries[uuids[id]] = entry;
+        }
+
+        var scenes = options.scenes;
+        for (var name in scenes) {
+            var uuid = scenes[name];
+            scenes[name] = uuids[uuid];
+        }
+
+        var packs = options.packs;
+        for (var packId in packs) {
+            var packedIds = packs[packId];
+            for (var j = 0; j < packedIds.length; ++j) {
+                packedIds[j] = uuids[packedIds[j]];
+            }
+        }
+
+        var versions = options.versions;
+        if (versions) {
+            for (var folder in versions) {
+                var entries = versions[folder];
+                for (var i = 0; i < entries.length; i += 2) {
+                    var uuid = entries[i];
+                    entries[i] = uuids[uuid] || uuid;
+                }
+            }
+        }
+
+        var redirect = options.redirect;
+        if (redirect) {
+            for (var i = 0; i < redirect.length; i += 2) {
+                redirect[i] = uuids[redirect[i]];
+                redirect[i + 1] = bundles[redirect[i + 1]];
+            }
+        }
+
     },
 
     clear (task, clearRef) {
@@ -163,11 +175,11 @@ var utils = {
     
     cacheAsset (id, asset, cache) {
         if (!asset) return;
-        var isScene = helper.isScene(asset);
-        if (!isScene && cache) {
+        var _isScene = isScene(asset);
+        if (!_isScene && cache) {
             assets.add(id, asset);
         }
-        if (isScene) {
+        if (_isScene) {
             if (CC_EDITOR && !asset.scene) {
                 Editor.error('Sorry, the scene data of "%s" is corrupted!', asset._uuid);
             }

@@ -86,11 +86,11 @@ cc.Asset = cc.Class({
                         }
                         if (name.charCodeAt(0) === 46) {  // '.'
                                 // imported in dir where json exist
-                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {ext: name});
+                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {ext: name, isNative: true });
                         }
                         else {
                             // imported in an independent dir
-                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {name, ext: cc.path.extname(name)});
+                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {name, ext: cc.path.extname(name), isNative: true});
                         }
                     }
                 }
@@ -265,7 +265,7 @@ function parseDependRecursively (data, out) {
         }
     }
     else if (uuid) { 
-        out.push(uuid);
+        out.push(cc.assetManager.utils.decodeUuid(uuid));
     }
     else {
         for (var prop in data) {

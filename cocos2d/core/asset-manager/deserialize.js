@@ -89,7 +89,7 @@ function deserialize (json, options) {
     for (var i = 0; i < uuidList.length; i++) {
         var dependUuid = uuidList[i];
         depends[i] = {
-            uuid: dependUuid,
+            uuid: helper.decodeUuid(dependUuid),
             owner: objList[i],
             prop: propList[i]
         };
