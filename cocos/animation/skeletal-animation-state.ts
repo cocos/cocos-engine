@@ -35,6 +35,7 @@ import { IObjectCurveData } from './animation-clip';
 import { Vec3, Quat } from '../core/math';
 import { AnimCurve } from './animation-curve';
 import { getPathFromRoot, getWorldTransformUntilRoot } from './transform-utils';
+import { HierachyModifier } from './target-modifier';
 
 export class SkeletalAnimationState extends AnimationState {
 
@@ -86,9 +87,9 @@ export class SkeletalAnimationState extends AnimationState {
         }
         // create animation data
         const data: IObjectCurveData = {
-            position: { keys: 0, interpolate: false, values: source.props.position.values.map((v) => v.clone()) },
-            rotation: { keys: 0, interpolate: false, values: source.props.rotation.values.map((v) => v.clone()) },
-            scale: { keys: 0, interpolate: false, values: source.props.scale.values.map((v) => v.clone()) },
+            position: { keys: 0, interpolate: false, values: source.position.values.map((v) => v.clone()) },
+            rotation: { keys: 0, interpolate: false, values: source.rotation.values.map((v) => v.clone()) },
+            scale: { keys: 0, interpolate: false, values: source.scale.values.map((v) => v.clone()) },
         };
         const position = data.position.values;
         const rotation = data.rotation.values;
@@ -107,15 +108,53 @@ export class SkeletalAnimationState extends AnimationState {
         }
         if (CC_EDITOR) { // assign back to clip to sync with animation editor
             const path = getPathFromRoot(socket.target, root);
-            if (!this.clip.curveDatas[path]) { this.clip.curveDatas[path] = {}; }
-            this.clip.curveDatas[path].props = data;
+            const curves = this.clip.curves;
+            Object.keys(data).forEach((propertyName) => {
+                const dstcurve = curves.find((curve) =>
+                !curve.valueAdapter &&
+                curve.modifiers.length === 2 &&
+                curve.modifiers[0] instanceof HierachyModifier &&
+                (curve.modifiers[0] as HierachyModifier).path === path &&
+                curve.modifiers[1] === propertyName);
+                if (dstcurve) {
+                    dstcurve.data = data[propertyName];
+                } else {
+                    curves.push({
+                        modifiers: [
+                            new HierachyModifier(path),
+                            propertyName,
+                        ],
+                        data: data[propertyName],
+                    });
+                }
+            });
+            this.clip.curves = curves;
         }
         // wrap up
         const duration = this.clip.duration;
+        const hierachyModifier = new HierachyModifier();
         return [
-            new ICurveInstance(new AnimCurve(data.position, 'position', duration, true), socket.target, 'position'),
-            new ICurveInstance(new AnimCurve(data.rotation, 'rotation', duration, true), socket.target, 'rotation'),
-            new ICurveInstance(new AnimCurve(data.scale, 'scale', duration, true), socket.target, 'scale'),
+            new ICurveInstance({
+                curve: new AnimCurve(data.position, duration),
+                modifiers: [
+                    hierachyModifier,
+                    'position',
+                ],
+            }, socket.target),
+            new ICurveInstance({
+                curve: new AnimCurve(data.position, duration),
+                modifiers: [
+                    hierachyModifier,
+                    'rotation',
+                ],
+            }, socket.target),
+            new ICurveInstance({
+                curve: new AnimCurve(data.position, duration),
+                modifiers: [
+                    hierachyModifier,
+                    'scale',
+                ],
+            }, socket.target),
         ];
     }
 }

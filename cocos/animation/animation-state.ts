@@ -60,7 +60,7 @@ export class ICurveInstance {
     private _cached?: any[];
 
     constructor (
-        runtimeCurve: IRuntimeCurve,
+        runtimeCurve: Omit<IRuntimeCurve, 'sampler'>,
         target: any,
         blendTarget: PropertyBlendState | null = null) {
         this._curve = runtimeCurve.curve;

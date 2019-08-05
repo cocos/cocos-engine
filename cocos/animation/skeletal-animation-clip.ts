@@ -37,6 +37,7 @@ import { AnimationComponent } from './animation-component';
 import { IPropertyCurveData } from './animation-curve';
 import { INode } from '../core/utils/interfaces';
 import { getPathFromRoot } from './transform-utils';
+import { HierachyModifier, ComponentModifier } from './target-modifier';
 
 function isTargetSkinningModel (comp: RenderableComponent, root: INode) {
     if (!(comp instanceof SkinningModelComponent)) { return false; }
@@ -50,13 +51,15 @@ function isTargetSkinningModel (comp: RenderableComponent, root: INode) {
     return false;
 }
 
+type ConvertedData = Record<string, Record<string, IPropertyCurveData>>;
+
 /**
  * 骨骼动画剪辑。
  */
 @ccclass('cc.SkeletalAnimationClip')
 export class SkeletalAnimationClip extends AnimationClip {
 
-    public convertedData: ICurveData = {};
+    public convertedData: ConvertedData = {};
     protected _converted = false;
 
     public getPropertyCurves (root: INode): ReadonlyArray<IRuntimeCurve> {
@@ -67,13 +70,29 @@ export class SkeletalAnimationClip extends AnimationClip {
 
     private _convertToSkeletalCurves (root: INode) {
         if (this._converted) { return; }
-        this.convertedData = this.curveDatas; this.curveDatas = {};
+        const convertedData: ConvertedData = {};
+        this.curves.forEach((curve) => {
+            if (!curve.valueAdapter &&
+                curve.modifiers.length === 2 &&
+                curve.modifiers[0] instanceof HierachyModifier &&
+                typeof curve.modifiers[1] === 'string') {
+                const path = (curve.modifiers[0] as HierachyModifier).path;
+                let cs = convertedData[path];
+                if (!cs) {
+                    cs = {};
+                    convertedData[path] = cs;
+                }
+                const property = curve.modifiers[1] as string;
+                cs[property] = curve.data;
+            }
+        });
+        this.convertedData = convertedData; this.curves = [];
         // sort the keys to make sure parent bone always comes first
         const paths = Object.keys(this.convertedData).sort();
         for (const path of paths) {
             const nodeData = this.convertedData[path];
             if (!nodeData.props) { continue; }
-            const { position, rotation, scale } = nodeData.props;
+            const { position, rotation, scale } = nodeData;
             // fixed step pre-sample
             this._convertToUniformSample(position);
             this._convertToUniformSample(rotation);
@@ -83,15 +102,36 @@ export class SkeletalAnimationClip extends AnimationClip {
             rotation.interpolate = false;
             scale.interpolate = false;
             // transform to world space
-            this._convertToWorldSpace(path, nodeData.props);
+            this._convertToWorldSpace(path, nodeData);
         }
         // convert to SkinningModelComponent.fid animation
         const values = [...Array(Math.ceil(this.sample * this._duration))].map((_, i) => i);
         for (const comp of root.getComponentsInChildren(RenderableComponent)) {
             if (isTargetSkinningModel(comp, root)) {
                 const path = getPathFromRoot(comp.node, root);
-                if (!this.curveDatas[path]) { this.curveDatas[path] = {}; }
-                this.curveDatas[path].comps = { [getClassName(comp)]: { frameID: { keys: 0, values, interpolate: false } } };
+                const compName = getClassName(comp);
+                const curves = this.curves;
+                const dstcurve = curves.find((curve) =>
+                    !curve.valueAdapter &&
+                    curve.modifiers.length === 3 &&
+                    curve.modifiers[0] instanceof HierachyModifier &&
+                    (curve.modifiers[0] as HierachyModifier).path === path &&
+                    curve.modifiers[1] instanceof ComponentModifier &&
+                    (curve.modifiers[1] as ComponentModifier).component === compName &&
+                    curve.modifiers[2] === 'frameID');
+                if (dstcurve) {
+                    dstcurve.data = { keys: 0, values, interpolate: false };
+                } else {
+                    curves.push({
+                        modifiers: [
+                            new HierachyModifier(path),
+                            new ComponentModifier(compName),
+                            'frameID'
+                        ],
+                        data: { keys: 0, values, interpolate: false },
+                    });
+                }
+                this.curves = curves;
             }
         }
         this._keys = [values.map((_, i) => i / this.sample)];
@@ -118,10 +158,10 @@ export class SkeletalAnimationClip extends AnimationClip {
         if (idx < 0) { return; }
         const name = path.substring(0, idx);
         const data = this.convertedData[name];
-        if (!data || !data.props) { console.warn('no data for parent bone?'); return; }
-        const pPos = data.props.position.values;
-        const pRot = data.props.rotation.values;
-        const pScale = data.props.scale.values;
+        if (!data) { console.warn('no data for parent bone?'); return; }
+        const pPos = data.position.values;
+        const pRot = data.rotation.values;
+        const pScale = data.scale.values;
         // parent is already in world space
         const position = props.position.values;
         const rotation = props.rotation.values;
