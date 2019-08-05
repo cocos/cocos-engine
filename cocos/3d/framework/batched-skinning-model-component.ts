@@ -89,17 +89,6 @@ export class SkinningModelUnit {
     }
 }
 
-const getPrefix = (lca: Node, target: Node) => {
-    let prefix = '';
-    let cur: Node | null = target;
-    while (cur && cur !== lca) {
-        prefix = `${cur.name}/` + prefix;
-        cur = cur.parent;
-    }
-    return prefix;
-};
-const concatPath = (prefix: string, path: string) => path ? prefix + path : prefix.slice(0, -1);
-
 /**
  * @en The Batched Skinning Model Component
  * @zh 蒙皮模型合批组件

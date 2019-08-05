@@ -8,7 +8,7 @@ import { Material, Mesh } from "../../assets";
 import { Texture2D } from "../../../assets";
 import { createMesh } from "../../misc/utils";
 import { GFXPrimitiveMode, GFXAttributeName, GFXFormat } from "../../../gfx";
-import { Model } from "../../../renderer";
+import { Model } from "../../../renderer/scene/model";
 import { builtinResMgr } from "../../builtin";
 import { Component } from "../../../components";
 import { Color, toRadian, toDegree } from "../../../core/math";

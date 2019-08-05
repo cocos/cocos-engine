@@ -271,16 +271,25 @@ export class Rect extends ValueType {
         return new Rect(this.x, this.y, this.width, this.height);
     }
 
+    public set (other: Rect);
+    public set (x?: number, y?: number, width?: number, height?: number);
     /**
      * 设置当前矩形使其与指定矩形相等。
      * @param other 相比较的矩形。
      * @returns `this`
      */
-    public set (other: Rect) {
-        this.x = other.x;
-        this.y = other.y;
-        this.width = other.width;
-        this.height = other.height;
+    public set (x?: Rect | number, y?: number, width?: number, height?: number) {
+        if (x && typeof x === 'object') {
+            this.y = x.y;
+            this.width = x.width;
+            this.height = x.height;
+            this.x = x.x;
+        } else {
+            this.x = x || 0;
+            this.y = y || 0;
+            this.width = width || 0;
+            this.height = height || 0;
+        }
         return this;
     }
 

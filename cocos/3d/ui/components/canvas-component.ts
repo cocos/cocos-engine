@@ -35,6 +35,7 @@ import { GFXClearFlag } from '../../../gfx/define';
 import { Camera } from '../../../renderer';
 import { UITransformComponent } from './ui-transfrom-component';
 import { Node } from '../../../scene-graph';
+import { RenderTexture } from '../../../assets';
 
 const _worldPos = new Vec3();
 
@@ -135,6 +136,33 @@ export class CanvasComponent extends Component {
         }
     }
 
+    /**
+     * @zh Canvas 的 RenderTexture
+     */
+    @property({
+        type: RenderTexture,
+    })
+    get targetTexture (){
+        return this._targetTexture;
+    }
+
+    set targetTexture (value) {
+        if (this._camera) {
+            if (this._targetTexture) {
+                this._targetTexture.removeCamera(this._camera);
+            }
+
+            if (value) {
+                this._camera.changeTargetWindow(value.getGFXWindow());
+                value.addCamera(this._camera);
+            } else {
+                this._camera.changeTargetWindow();
+            }
+        }
+
+        this._targetTexture = value;
+    }
+
     get visibility () {
         if (this._camera) {
             return this._camera.view.visibility;
@@ -153,14 +181,10 @@ export class CanvasComponent extends Component {
     //  */
     // public static instance: CanvasComponent | null = null;
 
-    // @property
-    // protected _designResolution = cc.size(960, 640);
-    // @property
-    // protected _fitWidth = false;
-    // @property
-    // protected _fitHeight = true;
     @property
     protected _priority = 0;
+    @property
+    protected _targetTexture: RenderTexture | null = null;
 
     protected _thisOnResized: () => void;
 
@@ -184,7 +208,6 @@ export class CanvasComponent extends Component {
                 name: 'ui_' + this.node.name,
                 node: cameraNode,
                 projection: cc.CameraComponent.ProjectionType.ORTHO,
-                targetDisplay: 0,
                 priority: this._priority,
                 isUI: true,
                 flows: ['UIFlow'],
@@ -195,6 +218,10 @@ export class CanvasComponent extends Component {
 
             const device = cc.director.root.device;
             this._camera!.resize(device.width, device.height);
+            if (this._targetTexture) {
+                this._camera!.changeTargetWindow(this._targetTexture.getGFXWindow());
+                this._targetTexture.addCamera(this._camera!);
+            }
         }
 
         if (CC_EDITOR) {
@@ -220,6 +247,9 @@ export class CanvasComponent extends Component {
     public onDestroy () {
         if (this._camera) {
             cc.director.root.ui.renderScene.destroyCamera(this._camera);
+            if(this._targetTexture){
+                this._targetTexture.removeCamera(this._camera);
+            }
         }
 
         if (CC_EDITOR) {

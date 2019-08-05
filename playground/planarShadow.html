@@ -73,13 +73,8 @@
       const lightComp = lightNode.addComponent(cc.DirectionalLightComponent);
 
       // parsed effect file is embedded in cocos/3d/builtin/effects.js
-      const noShadow = new cc.Material();
-      noShadow.initialize({ effectName: 'builtin-standard' });
       const material = new cc.Material();
-      material.initialize({
-        effectName: 'builtin-standard',
-        defines: { USE_PLANAR_SHADOW: true },
-      });
+      material.initialize({ effectName: 'builtin-standard' });
 
       const manifest = [
         { name: 'box', pos: cc.v3(0, 1, 0) },
@@ -87,48 +82,27 @@
         { name: 'cylinder', pos: cc.v3(-5, 1, -5) },
         { name: 'torus', pos: cc.v3(5, 1, -5) },
         { name: 'cone', pos: cc.v3(-5, 1, 5) },
-        { name: 'plane', pos: cc.v3(0, 0, 0), mat: noShadow, param: { width: 100, length: 100 } },
+        { name: 'plane', pos: cc.v3(0, 0, 0), param: { width: 100, length: 100 } },
       ];
       const models = {};
       for (const info of manifest) {
         const modelNode = new cc.Node(`${info.name}`);
         modelNode.parent = rt;
-        const modelCom = modelNode.addComponent('cc.ModelComponent');
-        modelCom.material = info.mat || material;
-        modelCom.mesh = cc.utils.createMesh(cc.primitives[info.name](info.param));
+        const modelComp = modelNode.addComponent('cc.ModelComponent');
+        modelComp.material = info.mat || material;
+        modelComp.mesh = cc.utils.createMesh(cc.primitives[info.name](info.param));
+        if (info.name !== 'plane') modelComp.shadowCastingMode = cc.ModelComponent.ShadowCastingMode.ON;
         modelNode.setPosition(info.pos);
-        models[info.name] = modelCom;
+        models[info.name] = modelComp;
       }
 
       const qt = cc.Quat.fromEuler(cc.quat(), 0, 0, 0);
       const nm = cc.Vec3.transformQuat(cc.v3(), cc.v3(0, 1, 0), qt);
       models.plane.node.setRotation(qt);
 
+      scene.globals.planarShadows.enabled = true;
       scene.globals.planarShadows.setPlaneFromNode(models.plane.node);
       scene.globals.planarShadows.shadowColor = cc.color('#2a4e90');
-
-      // material.setProperty('matLightPlaneProj', getLightPlaneProj(cc.v3(-10, altitude + 10, -10), // light
-      //   cc.geometry.plane.create(nm.x, nm.y, nm.z, cc.math.vec3.dot(nm, models.plane.node.getWorldPosition()))));
-
-      // const { vec3, quat } = cc.math;
-      // const L = vec3.transformQuat(cc.v3(), cc.v3(0, 0, -1), quat.fromEuler(cc.quat(), 10, 20, 30));
-      // const N = vec3.transformQuat(cc.v3(), cc.v3(0, 1, 0), quat.fromEuler(cc.quat(), 10, 0, 0)), d = 0;
-      // const sp = cc.primitives.sphere();
-      // const pos = sp.positions;
-      // const V = cc.v3();
-      // for (let i = 0; i < pos.length; i += 3) {
-      //   vec3.set(V, pos[i], pos[i+1], pos[i+2]);
-      //   const scale = (d - vec3.dot(V, N)) / vec3.dot(N, L);
-      //   pos[i]   = V.x + scale * L.x;
-      //   pos[i+1] = V.y + scale * L.y;
-      //   pos[i+2] = V.z + scale * L.z;
-      // }
-
-      // const spNode = new cc.Node('test');
-      // spNode.parent = rt;
-      // const spCom = spNode.addComponent('cc.ModelComponent');
-      // spCom.material = cc.builtinResMgr.get('missing-material');
-      // spCom.mesh = cc.utils.createMesh(sp);
 
       cc.director.runSceneImmediate(scene);
     }

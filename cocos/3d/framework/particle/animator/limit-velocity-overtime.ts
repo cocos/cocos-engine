@@ -111,7 +111,7 @@ export default class LimitVelocityOvertimeModule {
         }
         else {
             Vec3.normalize(dampedVel, p.ultimateVelocity);
-            Vec3.scale(dampedVel, dampedVel, dampenBeyondLimit(Vec3.magnitude(p.ultimateVelocity), this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen));
+            Vec3.multiplyScalar(dampedVel, dampedVel, dampenBeyondLimit(p.ultimateVelocity.length(), this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen));
         }
         Vec3.copy(p.ultimateVelocity, dampedVel);
     }

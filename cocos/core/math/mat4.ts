@@ -380,43 +380,6 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 矩阵乘法
-     */
-    public static mul <Out extends IMat4Like> (out: Out, a: Out, b: Out) {
-
-        _a00 = a.m00; _a01 = a.m01; _a02 = a.m02; _a03 = a.m03;
-        _a10 = a.m04; _a11 = a.m05; _a12 = a.m06; _a13 = a.m07;
-        _a20 = a.m08; _a21 = a.m09; _a22 = a.m10; _a23 = a.m11;
-        _a30 = a.m12; _a31 = a.m13; _a32 = a.m14; _a33 = a.m15;
-
-        // Cache only the current line of the second matrix
-        let b0 = b.m00, b1 = b.m01, b2 = b.m02, b3 = b.m03;
-        out.m00 = b0 * _a00 + b1 * _a10 + b2 * _a20 + b3 * _a30;
-        out.m01 = b0 * _a01 + b1 * _a11 + b2 * _a21 + b3 * _a31;
-        out.m02 = b0 * _a02 + b1 * _a12 + b2 * _a22 + b3 * _a32;
-        out.m03 = b0 * _a03 + b1 * _a13 + b2 * _a23 + b3 * _a33;
-
-        b0 = b.m04; b1 = b.m05; b2 = b.m06; b3 = b.m07;
-        out.m04 = b0 * _a00 + b1 * _a10 + b2 * _a20 + b3 * _a30;
-        out.m05 = b0 * _a01 + b1 * _a11 + b2 * _a21 + b3 * _a31;
-        out.m06 = b0 * _a02 + b1 * _a12 + b2 * _a22 + b3 * _a32;
-        out.m07 = b0 * _a03 + b1 * _a13 + b2 * _a23 + b3 * _a33;
-
-        b0 = b.m08; b1 = b.m09; b2 = b.m10; b3 = b.m11;
-        out.m08 = b0 * _a00 + b1 * _a10 + b2 * _a20 + b3 * _a30;
-        out.m09 = b0 * _a01 + b1 * _a11 + b2 * _a21 + b3 * _a31;
-        out.m10 = b0 * _a02 + b1 * _a12 + b2 * _a22 + b3 * _a32;
-        out.m11 = b0 * _a03 + b1 * _a13 + b2 * _a23 + b3 * _a33;
-
-        b0 = b.m12; b1 = b.m13; b2 = b.m14; b3 = b.m15;
-        out.m12 = b0 * _a00 + b1 * _a10 + b2 * _a20 + b3 * _a30;
-        out.m13 = b0 * _a01 + b1 * _a11 + b2 * _a21 + b3 * _a31;
-        out.m14 = b0 * _a02 + b1 * _a12 + b2 * _a22 + b3 * _a32;
-        out.m15 = b0 * _a03 + b1 * _a13 + b2 * _a23 + b3 * _a33;
-        return out;
-    }
-
-    /**
      * @zh 在给定矩阵变换基础上加入变换
      */
     public static transform <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
@@ -942,15 +905,15 @@ export class Mat4 extends ValueType {
      * @zh 提取旋转、位移、缩放信息， 默认矩阵中的变换以 S->R->T 的顺序应用
      */
     public static toRTS <Out extends IMat4Like, VecLike extends IVec3Like> (m: Out, q: Quat, v: VecLike, s: VecLike) {
-        s.x = Vec3.mag(Vec3.set(v3_1, m.m00, m.m01, m.m02));
+        s.x = Vec3.set(v3_1, m.m00, m.m01, m.m02).length();
         m3_1.m00 = m.m00 / s.x;
         m3_1.m01 = m.m01 / s.x;
         m3_1.m02 = m.m02 / s.x;
-        s.y = Vec3.mag(Vec3.set(v3_1, m.m04, m.m05, m.m06));
+        s.y = Vec3.set(v3_1, m.m04, m.m05, m.m06).length();
         m3_1.m03 = m.m04 / s.y;
         m3_1.m04 = m.m05 / s.y;
         m3_1.m05 = m.m06 / s.y;
-        s.z = Vec3.mag(Vec3.set(v3_1, m.m08, m.m09, m.m10));
+        s.z = Vec3.set(v3_1, m.m08, m.m09, m.m10).length();
         m3_1.m06 = m.m08 / s.z;
         m3_1.m07 = m.m09 / s.z;
         m3_1.m08 = m.m10 / s.z;
@@ -1374,29 +1337,6 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 逐元素矩阵减法
-     */
-    public static sub <Out extends IMat4Like> (out: Out, a: Out, b: Out) {
-        out.m00 = a.m00 - b.m00;
-        out.m01 = a.m01 - b.m01;
-        out.m02 = a.m02 - b.m02;
-        out.m03 = a.m03 - b.m03;
-        out.m04 = a.m04 - b.m04;
-        out.m05 = a.m05 - b.m05;
-        out.m06 = a.m06 - b.m06;
-        out.m07 = a.m07 - b.m07;
-        out.m08 = a.m08 - b.m08;
-        out.m09 = a.m09 - b.m09;
-        out.m10 = a.m10 - b.m10;
-        out.m11 = a.m11 - b.m11;
-        out.m12 = a.m12 - b.m12;
-        out.m13 = a.m13 - b.m13;
-        out.m14 = a.m14 - b.m14;
-        out.m15 = a.m15 - b.m15;
-        return out;
-    }
-
-    /**
      * @zh 矩阵标量乘法
      */
     public static multiplyScalar <Out extends IMat4Like> (out: Out, a: Out, b: number) {
@@ -1445,7 +1385,7 @@ export class Mat4 extends ValueType {
     /**
      * @zh 矩阵等价判断
      */
-    public static exactEquals <Out extends IMat4Like> (a: Out, b: Out) {
+    public static strictEquals <Out extends IMat4Like> (a: Out, b: Out) {
         return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 && a.m03 === b.m03 &&
             a.m04 === b.m04 && a.m05 === b.m05 && a.m06 === b.m06 && a.m07 === b.m07 &&
             a.m08 === b.m08 && a.m09 === b.m09 && a.m10 === b.m10 && a.m11 === b.m11 &&
@@ -1489,28 +1429,33 @@ export class Mat4 extends ValueType {
             t.m12, t.m13, t.m14, t.m15);
     }
 
+    public set (other: Mat4);
+    public set (
+        m00?: number, m01?: number, m02?: number, m03?: number,
+        m04?: number, m05?: number, m06?: number, m07?: number,
+        m08?: number, m09?: number, m10?: number, m11?: number,
+        m12?: number, m13?: number, m14?: number, m15?: number);
+
     /**
      * 设置当前矩阵使其与指定矩阵相等。
      * @param other 相比较的矩阵。
      * @returns `this`
      */
-    public set (other: Mat4) {
-        this.m00 = other.m00;
-        this.m01 = other.m01;
-        this.m02 = other.m02;
-        this.m03 = other.m03;
-        this.m04 = other.m04;
-        this.m05 = other.m05;
-        this.m06 = other.m06;
-        this.m07 = other.m07;
-        this.m08 = other.m08;
-        this.m09 = other.m09;
-        this.m10 = other.m10;
-        this.m11 = other.m11;
-        this.m12 = other.m12;
-        this.m13 = other.m13;
-        this.m14 = other.m14;
-        this.m15 = other.m15;
+    public set (m00: Mat4 | number = 1, m01 = 0, m02 = 0, m03 = 0,
+                m04 = 0, m05 = 1, m06 = 0, m07 = 0,
+                m08 = 0, m09 = 0, m10 = 1, m11 = 0,
+                m12 = 0, m13 = 0, m14 = 0, m15 = 1) {
+        if (typeof m00 === 'object') {
+            this.m01 = m00.m01; this.m02 = m00.m02; this.m03 = m00.m03; this.m04 = m00.m04;
+            this.m05 = m00.m05; this.m06 = m00.m06; this.m07 = m00.m07; this.m08 = m00.m08;
+            this.m09 = m00.m09; this.m10 = m00.m10; this.m11 = m00.m11; this.m12 = m00.m12;
+            this.m13 = m00.m13; this.m14 = m00.m14; this.m15 = m00.m15; this.m00 = m00.m00;
+        } else {
+            this.m01 = m01; this.m02 = m02; this.m03 = m03; this.m04 = m04;
+            this.m05 = m05; this.m06 = m06; this.m07 = m07; this.m08 = m08;
+            this.m09 = m09; this.m10 = m10; this.m11 = m11; this.m12 = m12;
+            this.m13 = m13; this.m14 = m14; this.m15 = m15; this.m00 = m00;
+        }
         return this;
     }
 
@@ -1546,7 +1491,7 @@ export class Mat4 extends ValueType {
      * @param other 相比较的矩阵。
      * @returns 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
      */
-    public exactEquals (other: Mat4): boolean {
+    public strictEquals (other: Mat4): boolean {
         return this.m00 === other.m00 && this.m01 === other.m01 && this.m02 === other.m02 && this.m03 === other.m03 &&
             this.m04 === other.m04 && this.m05 === other.m05 && this.m06 === other.m06 && this.m07 === other.m07 &&
             this.m08 === other.m08 && this.m09 === other.m09 && this.m10 === other.m10 && this.m11 === other.m11 &&
@@ -1713,7 +1658,7 @@ export class Mat4 extends ValueType {
      * 计算矩阵减法。将当前矩阵减去指定矩阵的结果赋值给当前矩阵。
      * @param mat 减数矩阵。
      */
-    public sub (mat: Mat4) {
+    public subtract (mat: Mat4) {
         this.m00 = this.m00 - mat.m00;
         this.m01 = this.m01 - mat.m01;
         this.m02 = this.m02 - mat.m02;
@@ -1737,7 +1682,7 @@ export class Mat4 extends ValueType {
      * 矩阵乘法。将当前矩阵左乘指定矩阵的结果赋值给当前矩阵。
      * @param mat 指定的矩阵。
      */
-    public mul (mat: Mat4) {
+    public multiply (mat: Mat4) {
         _a00 = this.m00; _a01 = this.m01; _a02 = this.m02; _a03 = this.m03;
         _a10 = this.m04; _a11 = this.m05; _a12 = this.m06; _a13 = this.m07;
         _a20 = this.m08; _a21 = this.m09; _a22 = this.m10; _a23 = this.m11;
@@ -1774,7 +1719,7 @@ export class Mat4 extends ValueType {
      * 矩阵数乘。将当前矩阵与指定标量的数乘结果赋值给当前矩阵。
      * @param scalar 指定的标量。
      */
-    public mulScalar (scalar: number) {
+    public multiplyScalar (scalar: number) {
         this.m00 = this.m00 * scalar;
         this.m01 = this.m01 * scalar;
         this.m02 = this.m02 * scalar;

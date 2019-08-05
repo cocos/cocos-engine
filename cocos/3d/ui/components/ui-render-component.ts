@@ -211,9 +211,10 @@ export class UIRenderComponent extends UIComponent {
     protected _assembler: IAssembler | null = null;
     protected _postAssembler: IAssembler | null = null;
     protected _renderData: RenderData | null = null;
-    protected _renderDataDirty = false;
+    protected _renderDataFlag = true;
+    protected _renderFlag = true;
     // 特殊渲染标记，在可渲染情况下，因为自身某个原因不给予渲染
-    protected _renderPermit = true;
+    // protected _renderPermit = true;
     protected _material: Material | null = null;
     protected _instanceMaterialType = InstanceMaterialType.ADDCOLORANDTEXTURE;
     protected _blendTemplate = {
@@ -242,13 +243,14 @@ export class UIRenderComponent extends UIComponent {
         super.onEnable();
         this.node.on(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.on(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
-        this._renderDataDirty = true;
+        this._renderFlag = this._canRender();
     }
 
     public onDisable () {
         super.onDisable();
         this.node.off(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.off(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
+        this._renderFlag = false;
     }
 
     public onDestroy () {
@@ -269,16 +271,17 @@ export class UIRenderComponent extends UIComponent {
      * @param enable 是否标记为已修改。
      */
     public markForUpdateRenderData (enable: boolean = true) {
-        if (enable && this._canRender()) {
+        this._renderFlag = this._canRender();
+        if (enable && this._renderFlag) {
             const renderData = this._renderData;
             if (renderData) {
                 renderData.vertDirty = true;
             }
 
-            this._renderDataDirty = enable;
+            this._renderDataFlag = enable;
         }
         else if (!enable) {
-            this._renderDataDirty = enable;
+            this._renderDataFlag = enable;
         }
     }
 
@@ -307,31 +310,40 @@ export class UIRenderComponent extends UIComponent {
         this._renderData = null;
     }
 
-    /**
-     * @zh
-     * 每个渲染组件都由此接口决定是否渲染以及渲染状态的更新。
-     *
-     * @param render 数据处理中转站。
-     */
     public updateAssembler (render: UI) {
-        if (!this._canRender()) {
-            return false;
+        super.updateAssembler(render);
+        if(this._renderFlag){
+            this._checkAndUpdateRenderData();
+            this._render(render);
         }
-
-        this._checkAndUpdateRenderData();
-        return true;
     }
 
+    public postUpdateAssembler(render: UI) {
+        super.postUpdateAssembler(render);
+        if (this._renderFlag) {
+            this._postRender(render);
+        }
+    }
+
+    // 开始提交渲染数据给中转站
+    protected _render(render: UI) { }
+
+    // 开始提交渲染数据给中转站
+    protected _postRender(render: UI) { }
+
+    // 像组装器更新渲染数据
     protected _checkAndUpdateRenderData (){
-        if (this._renderDataDirty) {
+        if (this._renderDataFlag) {
             this._assembler!.updateRenderData!(this);
-            this._renderDataDirty = false;
+            this._renderDataFlag = false;
         }
     }
 
     protected _canRender () {
-        return this.material !== null && this._renderPermit;
+        return this.material !== null && this.enabled && this.enabledInHierarchy;
     }
+
+    protected _postCanRender(){}
 
     protected _updateColor () {
         if (this._assembler && this._assembler.updateColor) {

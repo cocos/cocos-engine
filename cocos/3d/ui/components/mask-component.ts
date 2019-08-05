@@ -331,23 +331,6 @@ export class MaskComponent extends UIRenderComponent {
         this._removeGraphics();
     }
 
-    public updateAssembler (render: UI) {
-        if (super.updateAssembler(render)) {
-            render.commitComp(this, null, this._assembler!);
-            return true;
-        }
-
-        return false;
-    }
-
-    public postUpdateAssembler (render: UI) {
-        if (!this._canRender() || !this._postAssembler) {
-            return;
-        }
-
-        render.commitComp(this, null, this._postAssembler!);
-    }
-
     /**
      * @zh
      * 根据屏幕坐标计算点击事件。
@@ -395,6 +378,18 @@ export class MaskComponent extends UIRenderComponent {
         // }
     }
 
+    protected _render(render: UI) {
+        render.commitComp(this, null, this._assembler!);
+    }
+
+    protected _postRender(render: UI) {
+        if (!this._postAssembler) {
+            return;
+        }
+
+        render.commitComp(this, null, this._postAssembler!);
+    }
+
     protected _nodeStateChange (type: SystemEventType) {
         if (type === SystemEventType.POSITION_PART) {
             return;
@@ -414,7 +409,7 @@ export class MaskComponent extends UIRenderComponent {
             return false;
         }
 
-        return this._clearGraphics !== null && this._graphics !== null && this._renderPermit;
+        return this._clearGraphics !== null && this._graphics !== null;
     }
 
     protected _flushAssembler () {

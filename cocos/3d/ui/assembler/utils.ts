@@ -5,85 +5,10 @@
 import { Color, Mat4, Vec3 } from '../../../core/math';
 import { RenderData } from '../../../renderer/ui/renderData';
 import { UI } from '../../../renderer/ui/ui';
-import { MeshBuffer } from '../mesh-buffer';
 import { INode } from '../../../core/utils/interfaces';
 
 const vec3_temp = new Vec3();
 const _worldMatrix = new Mat4();
-
-export function fillVertices (node: INode, buffer: MeshBuffer, renderData: RenderData, color: Color) {
-    const data = renderData.datas;
-    let vertexOffset = buffer.byteOffset >> 2;
-
-    const vertexCount = renderData.vertexCount;
-    buffer.request(vertexCount, renderData.indiceCount);
-
-    // buffer data may be realloc, need get reference after request.
-    const vbuf = buffer.vData!;
-    // uintbuf = buffer._uintVData;
-
-    // let matrix = node._worldMatrix;
-    node.getWorldMatrix(_worldMatrix);
-    const matrix = _worldMatrix;
-    const a = matrix.m00;
-    const b = matrix.m01;
-    const c = matrix.m04;
-    const d = matrix.m05;
-    const tx = matrix.m12;
-    const ty = matrix.m13;
-    for (let i = 0; i < vertexCount; i++) {
-        const vert = data[i];
-        vbuf[vertexOffset++] = vert.x * a + vert.y * c + tx;
-        vbuf[vertexOffset++] = vert.x * b + vert.y * d + ty;
-        vbuf[vertexOffset++] = vert.u;
-        vbuf[vertexOffset++] = vert.v;
-        Color.array(vbuf!, color, vertexOffset);
-        vertexOffset += 4;
-    }
-}
-
-export function fillMeshVertices (node: INode, buffer: MeshBuffer, renderData: RenderData, color: Color) {
-    const datas = renderData.datas;
-    let vertexOffset = buffer.byteOffset >> 2;
-
-    const vertexCount = renderData.vertexCount;
-    let indiceOffset = buffer.indiceOffset;
-    const vertexId = buffer.vertexOffset;
-    buffer.request(vertexCount, renderData.indiceCount);
-
-    // buffer data may be realloc, need get reference after request.
-    const vbuf = buffer.vData!;
-    const ibuf = buffer.iData!;
-
-    node.getWorldMatrix(_worldMatrix);
-    const matrix = _worldMatrix;
-    const a = matrix.m00;
-    const b = matrix.m01;
-    const c = matrix.m04;
-    const d = matrix.m05;
-    const tx = matrix.m12;
-    const ty = matrix.m13;
-    for (let i = 0; i < vertexCount; i++) {
-        const vert = datas[i];
-        vbuf[vertexOffset++] = vert.x * a + vert.y * c + tx;
-        vbuf[vertexOffset++] = vert.x * b + vert.y * d + ty;
-        vbuf[vertexOffset++] = vert.u;
-        vbuf[vertexOffset++] = vert.v;
-        Color.array(vbuf!, color, vertexOffset);
-        vertexOffset += 4;
-    }
-
-    // fill indice data
-    for (let i = 0, count = vertexCount / 4; i < count; i++) {
-        const start = vertexId + i * 4;
-        ibuf[indiceOffset++] = start;
-        ibuf[indiceOffset++] = start + 1;
-        ibuf[indiceOffset++] = start + 2;
-        ibuf[indiceOffset++] = start + 1;
-        ibuf[indiceOffset++] = start + 3;
-        ibuf[indiceOffset++] = start + 2;
-    }
-}
 
 export function fillVertices3D (node: INode, renderer: UI, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
@@ -171,28 +96,6 @@ export function fillMeshVertices3D (node: INode, renderer: UI, renderData: Rende
         ibuf[indiceOffset++] = start + 1;
         ibuf[indiceOffset++] = start + 3;
         ibuf[indiceOffset++] = start + 2;
-    }
-}
-
-export function fillVerticesWithoutCalc (node: INode, buffer: MeshBuffer, renderData: RenderData, color: Color) {
-    const datas = renderData.datas;
-    let vertexOffset = buffer.byteOffset >> 2;
-
-    const vertexCount = renderData.vertexCount;
-    buffer.request(vertexCount, renderData.indiceCount);
-
-    // buffer data may be realloc, need get reference after request.
-    const vbuf = buffer.vData!;
-    // uintbuf = buffer._uintVData;
-
-    for (let i = 0; i < vertexCount; i++) {
-        const vert = datas[i];
-        vbuf[vertexOffset++] = vert.x;
-        vbuf[vertexOffset++] = vert.y;
-        vbuf[vertexOffset++] = vert.u;
-        vbuf[vertexOffset++] = vert.v;
-        Color.array(vbuf!, color, vertexOffset);
-        vertexOffset += 4;
     }
 }
 

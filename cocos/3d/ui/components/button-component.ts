@@ -627,7 +627,7 @@ export class ButtonComponent extends Component {
         if (this._transition === Transition.SCALE && this._target) {
             if (hit) {
                 Vec3.copy(this._fromScale, this._originalScale);
-                Vec3.scale(this._toScale, this._originalScale, this._zoomScale);
+                Vec3.multiplyScalar(this._toScale, this._originalScale, this._zoomScale);
                 this._transitionFinished = false;
             } else {
                 this._time = 0;
@@ -754,7 +754,7 @@ export class ButtonComponent extends Component {
 
     private _zoomUp () {
         Vec3.copy(this._fromScale, this._originalScale);
-        Vec3.scale(this._toScale, this._originalScale, this._zoomScale);
+        Vec3.multiplyScalar(this._toScale, this._originalScale, this._zoomScale);
         this._time = 0;
         this._transitionFinished = false;
     }

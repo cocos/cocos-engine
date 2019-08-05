@@ -250,7 +250,7 @@ export class RenderScene {
                 if (distance < Infinity) {
                     const r = pool.add();
                     r.node = m.node;
-                    r.distance = distance * Vec3.magnitude(Vec3.multiply(v3, modelRay.d, transform.worldScale));
+                    r.distance = distance * Vec3.multiply(v3, modelRay.d, transform.worldScale).length();
                     results[pool.length - 1] = r;
                 }
             }

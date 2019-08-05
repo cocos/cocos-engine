@@ -67,10 +67,11 @@ export class SkeletalAnimationClip extends AnimationClip {
 
     private _convertToSkeletalCurves (root: INode) {
         if (this._converted) { return; }
+        this.convertedData = this.curveDatas; this.curveDatas = {};
         // sort the keys to make sure parent bone always comes first
-        const paths = Object.keys(this.curveDatas).sort();
+        const paths = Object.keys(this.convertedData).sort();
         for (const path of paths) {
-            const nodeData = this.curveDatas[path];
+            const nodeData = this.convertedData[path];
             if (!nodeData.props) { continue; }
             const { position, rotation, scale } = nodeData.props;
             // fixed step pre-sample
@@ -81,14 +82,7 @@ export class SkeletalAnimationClip extends AnimationClip {
             position.interpolate = false;
             rotation.interpolate = false;
             scale.interpolate = false;
-        }
-        // keep all node animations in editor
-        if (false) { this.convertedData = JSON.parse(JSON.stringify(this.curveDatas)); }
-        else { this.convertedData = this.curveDatas; this.curveDatas = {}; }
-        // transform to world space
-        for (const path of paths) {
-            const nodeData = this.convertedData[path];
-            if (!nodeData.props) { continue; }
+            // transform to world space
             this._convertToWorldSpace(path, nodeData.props);
         }
         // convert to SkinningModelComponent.fid animation

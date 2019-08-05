@@ -30,12 +30,11 @@
 
 import * as js from '../../../../core/utils/js';
 import { Color } from '../../../../core/math';
-import { RenderData } from '../../../../renderer/ui/renderData';
 import { UI } from '../../../../renderer/ui/ui';
 import { LabelComponent } from '../../components/label-component';
 import { IAssembler} from '../base';
-import { fillMeshVertices3D } from '../utils';
 import { ttfUtils } from './ttfUtils';
+import { IRenderData } from '../../../../renderer/ui/renderData';
 
 const WHITE = Color.WHITE;
 
@@ -44,29 +43,86 @@ const WHITE = Color.WHITE;
  * 可通过 cc.UI.ttf 获取该组装器。
  */
 export const ttf: IAssembler = {
-    useModel: false,
-
     createData (comp: LabelComponent) {
-        const renderData: RenderData|null = comp.requestRenderData();
+        const renderData = comp.requestRenderData();
 
         renderData!.dataLength = 4;
         renderData!.vertexCount = 4;
         renderData!.indiceCount = 6;
 
-        const datas = renderData!.datas;
-        datas[0].u = 0;
-        datas[0].v = 1;
-        datas[1].u = 1;
-        datas[1].v = 1;
-        datas[2].u = 0;
-        datas[2].v = 0;
-        datas[3].u = 1;
-        datas[3].v = 0;
-        return renderData as RenderData;
+        const vData =  renderData.vData = new Float32Array(4 * 9);
+
+        vData[3] = vData[21] = vData[22] = vData[31] = 0;
+        vData[4] = vData[12] = vData[13] = vData[30] = 1;
+        let offset = 5;
+        for (let i = 0; i < 4; i++) {
+            Color.array(vData, WHITE, offset);
+            offset += 9;
+        }
+        return renderData;
     },
 
     fillBuffers (comp: LabelComponent, renderer: UI) {
-        fillMeshVertices3D(comp.node, renderer, comp.renderData!, WHITE);
+        const renderData = comp.renderData!;
+        const datas: IRenderData[] = renderData.datas;
+        const node = comp.node;
+
+        let buffer = renderer.currBufferBatch!;
+        let vertexCount = renderData.vertexCount;
+        let vertexOffset = buffer.byteOffset >> 2;
+        let indiceOffset = buffer.indiceOffset;
+        let vertexId = buffer.vertexOffset;
+        const isRecreate = buffer.request();
+        if (!isRecreate) {
+            buffer = renderer.currBufferBatch!;
+            vertexCount = 0;
+            indiceOffset = 0;
+            vertexId = 0;
+        }
+
+        // buffer data may be reallocated, need get reference after request.
+        const vbuf = buffer.vData!;
+        const ibuf = buffer.iData!;
+        const vData = renderData.vData!;
+        const data0 = datas[0];
+        const data3 = datas[3];
+        /* */
+        node.updateWorldTransform();
+        // @ts-ignore
+        const pos = node._pos as Vec3; const rot = node._rot; const scale = node._scale;
+        const ax = data0.x * scale.x; const bx = data3.x * scale.x;
+        const ay = data0.y * scale.y; const by = data3.y * scale.y;
+        const qx = rot.x; const qy = rot.y; const qz = rot.z; const qw = rot.w;
+        const qxy = qx * qy; const qzw = qz * qw;
+        const qxy2 = qx * qx - qy * qy;
+        const qzw2 = qw * qw - qz * qz;
+        const cx1 = qzw2 + qxy2;
+        const cx2 = (qxy - qzw) * 2;
+        const cy1 = qzw2 - qxy2;
+        const cy2 = (qxy + qzw) * 2;
+        const x = pos.x; const y = pos.y;
+        // left bottom
+        vData[0] = cx1 * ax + cx2 * ay + x;
+        vData[1] = cy1 * ay + cy2 * ax + y;
+        // right bottom
+        vData[9] = cx1 * bx + cx2 * ay + x;
+        vData[10] = cy1 * ay + cy2 * bx + y;
+        // left top
+        vData[18] = cx1 * ax + cx2 * by + x;
+        vData[19] = cy1 * by + cy2 * ax + y;
+        // right top
+        vData[27] = cx1 * bx + cx2 * by + x;
+        vData[28] = cy1 * by + cy2 * bx + y;
+
+        vbuf.set(vData, vertexOffset);
+
+        // fill indice data
+        ibuf[indiceOffset++] = vertexId;
+        ibuf[indiceOffset++] = vertexId + 1;
+        ibuf[indiceOffset++] = vertexId + 2;
+        ibuf[indiceOffset++] = vertexId + 2;
+        ibuf[indiceOffset++] = vertexId + 1;
+        ibuf[indiceOffset++] = vertexId + 3;
     },
 
     updateVerts (comp: LabelComponent) {
@@ -84,10 +140,6 @@ export const ttf: IAssembler = {
         const datas = renderData!.datas;
         datas[0].x = -appx;
         datas[0].y = -appy;
-        datas[1].x = width - appx;
-        datas[1].y = -appy;
-        datas[2].x = -appx;
-        datas[2].y = height - appy;
         datas[3].x = width - appx;
         datas[3].y = height - appy;
     },

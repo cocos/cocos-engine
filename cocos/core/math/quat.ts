@@ -93,7 +93,7 @@ export class Quat extends ValueType {
         const dot = Vec3.dot(a, b);
         if (dot < -0.999999) {
             Vec3.cross(v3_1, Vec3.UNIT_X, a);
-            if (Vec3.magnitude(v3_1) < 0.000001) {
+            if (v3_1.length() < 0.000001) {
                 Vec3.cross(v3_1, Vec3.UNIT_Y, a);
             }
             Vec3.normalize(v3_1, v3_1);
@@ -153,24 +153,9 @@ export class Quat extends ValueType {
     }
 
     /**
-     * @zh 四元数乘法
-     */
-    public static mul <Out extends IQuatLike> (out: Out, a: Out, b: Out) {
-        _x = a.x * b.w + a.w * b.x + a.y * b.z - a.z * b.y;
-        _y = a.y * b.w + a.w * b.y + a.z * b.x - a.x * b.z;
-        _z = a.z * b.w + a.w * b.z + a.x * b.y - a.y * b.x;
-        _w = a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z;
-        out.x = _x;
-        out.y = _y;
-        out.z = _z;
-        out.w = _w;
-        return out;
-    }
-
-    /**
      * @zh 四元数标量乘法
      */
-    public static scale <Out extends IQuatLike> (out: Out, a: Out, b: number) {
+    public static multiplyScalar <Out extends IQuatLike> (out: Out, a: Out, b: number) {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -379,28 +364,14 @@ export class Quat extends ValueType {
     /**
      * @zh 求四元数长度
      */
-    public static magnitude <Out extends IQuatLike> (a: Out) {
-        return Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
-    }
-
-    /**
-     * @zh 求四元数长度
-     */
-    public static mag <Out extends IQuatLike> (a: Out) {
+    public static len <Out extends IQuatLike> (a: Out) {
         return Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
     }
 
     /**
      * @zh 求四元数长度平方
      */
-    public static squaredMagnitude <Out extends IQuatLike> (a: Out) {
-        return a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
-    }
-
-    /**
-     * @zh 求四元数长度平方
-     */
-    public static sqrMag <Out extends IQuatLike> (a: Out) {
+    public static lengthSqr <Out extends IQuatLike> (a: Out) {
         return a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
     }
 
@@ -618,7 +589,7 @@ export class Quat extends ValueType {
     /**
      * @zh 四元数等价判断
      */
-    public static exactEquals <Out extends IQuatLike> (a: Out, b: Out) {
+    public static strictEquals <Out extends IQuatLike> (a: Out, b: Out) {
         return a.x === b.x && a.y === b.y && a.z === b.z && a.w === b.w;
     }
 
@@ -678,16 +649,25 @@ export class Quat extends ValueType {
         return new Quat(this.x, this.y, this.z, this.w);
     }
 
+    public set (other: Quat);
+    public set (x?: number, y?: number, z?: number, w?: number);
     /**
      * 设置当前四元数使其与指定四元数相等。
      * @param other 相比较的四元数。
      * @returns `this`
      */
-    public set (other: Quat) {
-        this.x = other.x;
-        this.y = other.y;
-        this.z = other.z;
-        this.w = other.w;
+    public set (x?: number | Quat, y?: number, z?: number, w?: number) {
+        if (x && typeof x === 'object') {
+            this.x = x.x;
+            this.y = x.y;
+            this.z = x.z;
+            this.w = x.w;
+        } else {
+            this.x = x || 0;
+            this.y = y || 0;
+            this.z = z || 0;
+            this.w = w || 1;
+        }
         return this;
     }
 
@@ -709,7 +689,7 @@ export class Quat extends ValueType {
      * @param other 相比较的四元数。
      * @returns 两四元数的各分量都相等时返回 `true`；否则返回 `false`。
      */
-    public exactEquals (other: Quat) {
+    public strictEquals (other: Quat) {
         return other && this.x === other.x && this.y === other.y && this.z === other.z && this.w === other.w;
     }
 
@@ -789,6 +769,20 @@ export class Quat extends ValueType {
         this.w = scale0 * this.w + scale1 * to.w;
 
         return this;
+    }
+
+    /**
+     * @zh 求四元数长度
+     */
+    public length () {
+        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+    }
+
+    /**
+     * @zh 求四元数长度平方
+     */
+    public lengthSqr () {
+        return this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w;
     }
 }
 

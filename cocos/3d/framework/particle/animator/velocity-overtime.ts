@@ -108,7 +108,7 @@ export default class VelocityOvertimeModule {
         }
         Vec3.add(p.animatedVelocity, p.animatedVelocity, vel);
         Vec3.add(p.ultimateVelocity, p.velocity, p.animatedVelocity);
-        Vec3.scale(p.ultimateVelocity, p.ultimateVelocity, this.speedModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET))!);
+        Vec3.multiplyScalar(p.ultimateVelocity, p.ultimateVelocity, this.speedModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET))!);
     }
 
 }

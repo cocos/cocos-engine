@@ -1,4 +1,4 @@
-/****************************************************************************
+/*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
@@ -22,7 +22,10 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+*/
+/**
+ * @category ui
+ */
 
 import { EventHandler as ComponentEventHandler } from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
@@ -689,7 +692,7 @@ export class PageViewComponent extends ScrollViewComponent {
     const bounceBackStarted = this._startBounceBackIfNeeded();
     // Note:
     const moveOffset = new Vec3();
-    Vec3.sub(moveOffset, this._touchBeganPosition, this._touchEndPosition);
+    Vec3.subtract(moveOffset, this._touchBeganPosition, this._touchEndPosition);
     // this._touchBeganPosition.subtract(this._touchEndPosition);
     if (bounceBackStarted) {
       const dragDirection = this._getDragDirection(moveOffset);

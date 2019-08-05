@@ -28,7 +28,7 @@ test('misc', function(){
     let vec1 = new Vec2(11, -42);
     expect(vec1.dot(vector)).toStrictEqual(-385);
     expect(vec1.cross(vector)).toStrictEqual(415);
-    expect(vec1.magSqr()).toStrictEqual(1885);
+    expect(vec1.lengthSqr()).toStrictEqual(1885);
 
     vec1.normalize();
     let mag = Math.sqrt(vec1.x * vec1.x + vec1.y * vec1.y);

@@ -35,6 +35,23 @@ import * as misc from './misc';
  * 用于处理文件与目录的路径的模块
  */
 import * as path from './path';
+import { deprecatedWrapper } from '../../deprecated';
+import * as math from '../math';
+
+deprecatedWrapper({
+    oldTarget: misc,
+    oldPrefix: 'misc',
+    newTarget: math,
+    newPrefix: 'math',
+    pairs: [
+        ['clampf', 'clamp'],
+        ['clamp01', 'clamp01'],
+        ['lerp', 'lerp'],
+        ['degreesToRadians', 'toRadian'],
+        ['radiansToDegrees', 'toDegree'],
+    ],
+});
+
 export * from './text-utils';
 export * from './html-text-parser';
 

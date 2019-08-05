@@ -122,7 +122,6 @@ const concatPath = (prefix: string, path: string) => path ? prefix + path : pref
 @ccclass('cc.AvatarModelComponent')
 @executionOrder(100)
 @executeInEditMode
-@menu('Components/AvatarModelComponent')
 export class AvatarModelComponent extends SkinningModelComponent {
 
     @property

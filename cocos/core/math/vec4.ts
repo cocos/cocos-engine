@@ -100,17 +100,6 @@ export class Vec4 extends ValueType {
     }
 
     /**
-     * @zh 逐元素向量减法
-     */
-    public static sub <Out extends IVec4Like> (out: Out, a: Out, b: Out) {
-        out.x = a.x - b.x;
-        out.y = a.y - b.y;
-        out.z = a.z - b.z;
-        out.w = a.w - b.w;
-        return out;
-    }
-
-    /**
      * @zh 逐元素向量乘法
      */
     public static multiply <Out extends IVec4Like> (out: Out, a: Out, b: Out) {
@@ -118,39 +107,6 @@ export class Vec4 extends ValueType {
         out.y = a.y * b.y;
         out.z = a.z * b.z;
         out.w = a.w * b.w;
-        return out;
-    }
-
-    /**
-     * @zh 逐元素向量乘法
-     */
-    public static mul <Out extends IVec4Like> (out: Out, a: Out, b: Out) {
-        out.x = a.x * b.x;
-        out.y = a.y * b.y;
-        out.z = a.z * b.z;
-        out.w = a.w * b.w;
-        return out;
-    }
-
-    /**
-     * @zh 逐元素向量除法
-     */
-    public static divide <Out extends IVec4Like> (out: Out, a: Out, b: Out) {
-        out.x = a.x / b.x;
-        out.y = a.y / b.y;
-        out.z = a.z / b.z;
-        out.w = a.w / b.w;
-        return out;
-    }
-
-    /**
-     * @zh 逐元素向量除法
-     */
-    public static div <Out extends IVec4Like> (out: Out, a: Out, b: Out) {
-        out.x = a.x / b.x;
-        out.y = a.y / b.y;
-        out.z = a.z / b.z;
-        out.w = a.w / b.w;
         return out;
     }
 
@@ -212,7 +168,7 @@ export class Vec4 extends ValueType {
     /**
      * @zh 向量标量乘法
      */
-    public static scale <Out extends IVec4Like> (out: Out, a: Out, b: number) {
+    public static multiplyScalar <Out extends IVec4Like> (out: Out, a: Out, b: number) {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -243,17 +199,6 @@ export class Vec4 extends ValueType {
     }
 
     /**
-     * @zh 求两向量的欧氏距离
-     */
-    public static dist <Out extends IVec4Like> (a: Out, b: Out) {
-        const x = b.x - a.x;
-        const y = b.y - a.y;
-        const z = b.z - a.z;
-        const w = b.w - a.w;
-        return Math.sqrt(x * x + y * y + z * z + w * w);
-    }
-
-    /**
      * @zh 求两向量的欧氏距离平方
      */
     public static squaredDistance <Out extends IVec4Like> (a: Out, b: Out) {
@@ -265,31 +210,9 @@ export class Vec4 extends ValueType {
     }
 
     /**
-     * @zh 求两向量的欧氏距离平方
-     */
-    public static sqrDist <Out extends IVec4Like> (a: Out, b: Out) {
-        const x = b.x - a.x;
-        const y = b.y - a.y;
-        const z = b.z - a.z;
-        const w = b.w - a.w;
-        return x * x + y * y + z * z + w * w;
-    }
-
-    /**
      * @zh 求向量长度
      */
-    public static magnitude <Out extends IVec4Like> (a: Out) {
-        _x = a.x;
-        _y = a.y;
-        _z = a.z;
-        _w = a.w;
-        return Math.sqrt(_x * _x + _y * _y + _z * _z + _w * _w);
-    }
-
-    /**
-     * @zh 求向量长度
-     */
-    public static mag <Out extends IVec4Like> (a: Out) {
+    public static len <Out extends IVec4Like> (a: Out) {
         _x = a.x;
         _y = a.y;
         _z = a.z;
@@ -300,18 +223,7 @@ export class Vec4 extends ValueType {
     /**
      * @zh 求向量长度平方
      */
-    public static squaredMagnitude <Out extends IVec4Like> (a: Out) {
-        _x = a.x;
-        _y = a.y;
-        _z = a.z;
-        _w = a.w;
-        return _x * _x + _y * _y + _z * _z + _w * _w;
-    }
-
-    /**
-     * @zh 求向量长度平方
-     */
-    public static sqrMag <Out extends IVec4Like> (a: Out) {
+    public static lengthSqr <Out extends IVec4Like> (a: Out) {
         _x = a.x;
         _y = a.y;
         _z = a.z;
@@ -487,7 +399,7 @@ export class Vec4 extends ValueType {
     /**
      * @zh 向量等价判断
      */
-    public static exactEquals <Out extends IVec4Like> (a: Out, b: Out) {
+    public static strictEquals <Out extends IVec4Like> (a: Out, b: Out) {
         return a.x === b.x && a.y === b.y && a.z === b.z && a.w === b.w;
     }
 
@@ -547,16 +459,25 @@ export class Vec4 extends ValueType {
         return new Vec4(this.x, this.y, this.z, this.w);
     }
 
+    public set (other: Vec4);
+    public set (x?: number, y?: number, z?: number, w?: number);
     /**
      * 设置当前向量使其与指定向量相等。
      * @param other 相比较的向量。
      * @returns `this`
      */
-    public set (other: Vec4) {
-        this.x = other.x;
-        this.y = other.y;
-        this.z = other.z;
-        this.w = other.w;
+    public set (x?: number | Vec4, y?: number, z?: number, w?: number) {
+        if (x && typeof x === 'object') {
+            this.x = x.x;
+            this.y = x.y;
+            this.z = x.z;
+            this.w = x.w;
+        } else {
+            this.x = x || 0;
+            this.y = y || 0;
+            this.z = z || 0;
+            this.w = w || 0;
+        }
         return this;
     }
 
@@ -573,13 +494,24 @@ export class Vec4 extends ValueType {
             Math.abs(this.w - other.w) <= epsilon * Math.max(1.0, Math.abs(this.w), Math.abs(other.w)));
     }
 
+    public equals4f (x: number, y: number, z: number, w:number, epsilon = EPSILON) {
+        return (Math.abs(this.x - x) <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(x)) &&
+            Math.abs(this.y - y) <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(y)) &&
+            Math.abs(this.z - z) <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(z)) &&
+            Math.abs(this.w - w) <= epsilon * Math.max(1.0, Math.abs(this.w), Math.abs(w)));
+    }
+
     /**
      * 判断当前向量是否与指定向量相等。
      * @param other 相比较的向量。
      * @returns 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
      */
-    public exactEquals (other: Vec4) {
+    public strictEquals (other: Vec4) {
         return this.x === other.x && this.y === other.y && this.z === other.z && this.w === other.w;
+    }
+
+    public strictEquals4f (x: number, y: number, z: number, w:number) {
+        return this.x === x && this.y === y && this.z === z && this.w === w;
     }
 
     /**
@@ -633,6 +565,14 @@ export class Vec4 extends ValueType {
         return this;
     }
 
+    public add4f (x:number, y:number, z:number, w:number) {
+        this.x = this.x + x;
+        this.y = this.y + y;
+        this.z = this.z + z;
+        this.w = this.w + w;
+        return this;
+    }
+
     /**
      * 向量减法。将当前向量减去指定向量
      * @param other 减数向量。
@@ -645,11 +585,19 @@ export class Vec4 extends ValueType {
         return this;
     }
 
+    public subtract4f (x:number, y:number, z:number, w:number) {
+        this.x = this.x - x;
+        this.y = this.y - y;
+        this.z = this.z - z;
+        this.w = this.w - w;
+        return this;
+    }
+
     /**
      * 向量数乘。将当前向量数乘指定标量
      * @param scalar 标量乘数。
      */
-    public scale (scalar: number) {
+    public multiplyScalar (scalar: number) {
         if (typeof scalar === 'object') { console.warn('should use Vec4.multiply for vector * vector operation'); }
         this.x = this.x * scalar;
         this.y = this.y * scalar;
@@ -671,15 +619,27 @@ export class Vec4 extends ValueType {
         return this;
     }
 
-    /**
-     * 将当前向量的各个分量除以指定标量。相当于 `this.mul(1 / scalar, out)`。
-     * @param scalar 标量除数。
-     */
-    public divide (scalar: number) {
-        this.x = this.x / scalar;
-        this.y = this.y / scalar;
-        this.z = this.z / scalar;
-        this.w = this.w / scalar;
+    public multiply4f (x:number, y:number, z:number, w:number) {
+        this.x = this.x * x;
+        this.y = this.y * y;
+        this.z = this.z * z;
+        this.w = this.w * w;
+        return this;
+    }
+
+    public divide (other: Vec4) {
+        this.x = this.x / other.x;
+        this.y = this.y / other.y;
+        this.z = this.z / other.z;
+        this.w = this.w / other.w;
+        return this;
+    }
+
+    public divide4f (x:number, y:number, z:number, w:number) {
+        this.x = this.x / x;
+        this.y = this.y / y;
+        this.z = this.z / z;
+        this.w = this.w / w;
         return this;
     }
 
@@ -721,7 +681,7 @@ export class Vec4 extends ValueType {
      * 计算向量的长度（模）。
      * @returns 向量的长度（模）。
      */
-    public mag () {
+    public length () {
         _x = this.x;
         _y = this.y;
         _z = this.z;
@@ -733,7 +693,7 @@ export class Vec4 extends ValueType {
      * 计算向量长度（模）的平方。
      * @returns 向量长度（模）的平方。
      */
-    public magSqr () {
+    public lengthSqr () {
         _x = this.x;
         _y = this.y;
         _z = this.z;

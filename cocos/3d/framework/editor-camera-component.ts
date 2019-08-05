@@ -100,14 +100,6 @@ export class EditorCameraComponent extends CameraComponent {
         }
     }
 
-    set targetDisplay (val) {
-        // @ts-ignore
-        super.targetDisplay = val;
-        if (this._uiEditorCamera) {
-            this._uiEditorCamera.changeTargetDisplay(val);
-        }
-    }
-
     public onLoad () {
         super.onLoad();
     }
@@ -131,6 +123,7 @@ export class EditorCameraComponent extends CameraComponent {
     protected _createCamera () {
         const priorCamera = this._camera;
         super._createCamera();
+
         if (this._camera !== priorCamera && this._camera) {
             if (this._uiEditorCamera) {
                 cc.director.root.ui.renderScene.destroyCamera(this._uiEditorCamera);
@@ -140,11 +133,12 @@ export class EditorCameraComponent extends CameraComponent {
                 name: 'Editor UICamera',
                 node: this._camera.node,
                 projection: this._projection,
-                targetDisplay: this._targetDisplay,
                 priority: this._priority,
                 isUI: true,
                 flows: ['UIFlow'],
+                window: this._editorWindow,
             });
+
             this._uiEditorCamera!.viewport = this._camera.viewport;
             this._uiEditorCamera!.fov = this._camera.fov;
             this._uiEditorCamera!.nearClip = this._camera.nearClip;
@@ -157,6 +151,12 @@ export class EditorCameraComponent extends CameraComponent {
             this._uiEditorCamera!.clearDepth = this._camera.clearDepth;
             this._uiEditorCamera!.clearStencil = this._camera.clearStencil;
             this._uiEditorCamera!.clearFlag = this._camera.clearFlag;
+        }
+    }
+
+    protected _getEditorWindow (){
+        if (cc.director.root) {
+            this._editorWindow = cc.director.root.mainWindow;
         }
     }
 }

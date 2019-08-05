@@ -46,20 +46,6 @@ let _ty: number = 0.0;
  */
 export class AffineTransform {
     /**
-     * 创建二维放射变换矩阵。
-     * @param a a 元素。
-     * @param b b 元素。
-     * @param c c 元素。
-     * @param d d 元素。
-     * @param tx tx 元素。
-     * @param ty ty 元素。
-     * @returns `new AffineTransform(a, b, c, d, tx, ty)`
-     */
-    public static create (a: number, b: number, c: number, d: number, tx: number, ty: number) {
-        return new AffineTransform(a, b, c, d, tx, ty);
-    }
-
-    /**
      * 创建单位二维仿射变换矩阵，它不进行任何变换。
      */
     public static identity () {

@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import '../predefine';
 import '../cocos/legacy';
 
@@ -18,3 +22,6 @@ export * from '../extensions/ccpool/node-pool';
 
 const cclegacy = cc;
 export { cclegacy };
+
+export * from '../cocos/deprecated';
+export { vmath } from '../cocos/vmath';

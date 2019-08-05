@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 
 export * from './exports/base';
 export * from './exports/animation';
@@ -8,4 +11,3 @@ export * from './exports/tween';
 export * from './exports/physics-framework';
 export * from './exports/physics-builtin';
 export * from './exports/physics-cannon';
-export * from './exports/latest';

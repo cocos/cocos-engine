@@ -217,7 +217,9 @@ export class Root {
         this._mainWindow!.resize(width, height);
 
         for (const window of this._windows) {
-            window.resize(width, height);
+            if (!window.isOffscreen) {
+                window.resize(width, height);
+            }
         }
 
         if (this._pipeline) {
@@ -277,7 +279,7 @@ export class Root {
 
         for (const view of this._views) {
             if (view.isEnable && (view.window &&
-                (view.window.isOffscreen || 
+                (view.window.isOffscreen ||
                 (!view.window.isOffscreen && (view.window === this._curWindow))))) {
                 this._pipeline!.render(view);
             }

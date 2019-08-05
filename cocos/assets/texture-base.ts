@@ -30,16 +30,13 @@
 
 // @ts-check
 import {ccclass, property} from '../core/data/class-decorator';
-import { error } from '../core/platform/CCDebug';
 import IDGenerator from '../core/utils/id-generator';
 import { GFXDevice } from '../gfx/device';
-import { GFXTexture, IGFXTextureInfo } from '../gfx/texture';
-import { GFXTextureView, IGFXTextureViewInfo } from '../gfx/texture-view';
-import { genSamplerHash, SamplerInfoIndex, samplerLib } from '../renderer/core/sampler-lib';
+import { GFXTextureView } from '../gfx/texture-view';
+import { SamplerInfoIndex, genSamplerHash } from '../renderer/core/sampler-lib';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
-import { ImageAsset } from './image-asset';
-import { postLoadImage } from './texture-util';
+import { GFXTexture } from '../gfx/texture';
 
 const CHAR_CODE_1 = 49;    // '1'
 
@@ -161,6 +158,7 @@ export class TextureBase extends Asset {
             this._wrapR = wrapR;
             this._samplerInfo[SamplerInfoIndex.addressW] = wrapR;
         }
+
         this._samplerHash = genSamplerHash(this._samplerInfo);
     }
 

@@ -35,7 +35,7 @@ const ray_plane = (function () {
     return function (ray: ray, plane: plane): number {
         const denom = Vec3.dot(ray.d, plane.n);
         if (Math.abs(denom) < Number.EPSILON) { return 0; }
-        Vec3.scale(pt, plane.n, plane.d);
+        Vec3.multiplyScalar(pt, plane.n, plane.d);
         const t = Vec3.dot(Vec3.subtract(pt, pt, ray.o), plane.n) / denom;
         if (t < 0) { return 0; }
         return t;
@@ -279,7 +279,7 @@ const ray_sphere = (function () {
         const d = ray.d;
         const rSq = r * r;
         Vec3.subtract(e, c, o);
-        const eSq = Vec3.sqrMag(e);
+        const eSq = e.lengthSqr();
 
         const aLength = Vec3.dot(e, d); // assume ray direction already normalized
         const fSq = rSq - (eSq - aLength * aLength);
@@ -820,7 +820,7 @@ const obb_obb = (function () {
  */
 const sphere_plane = function (sphere: sphere, plane: plane): number {
     const dot = Vec3.dot(plane.n, sphere.center);
-    const r = sphere.radius * Vec3.magnitude(plane.n);
+    const r = sphere.radius * plane.n.length();
     if (dot + r < plane.d) { return -1; }
     else if (dot - r > plane.d) { return 0; }
     return 1;
@@ -868,7 +868,7 @@ const sphere_frustum_accurate = (function () {
             else if (dot - r > d) { continue; }
             // in case of false positives
             // has false negatives, still working on it
-            Vec3.add(pt, c, Vec3.scale(pt, n, r));
+            Vec3.add(pt, c, Vec3.multiplyScalar(pt, n, r));
             for (let j = 0; j < 6; j++) {
                 if (j === i || j === i + map[i]) { continue; }
                 const test = frustum.planes[j];
@@ -890,7 +890,7 @@ const sphere_frustum_accurate = (function () {
  */
 const sphere_sphere = function (sphere0: sphere, sphere1: sphere): boolean {
     const r = sphere0.radius + sphere1.radius;
-    return Vec3.sqrDist(sphere0.center, sphere1.center) < r * r;
+    return Vec3.squaredDistance(sphere0.center, sphere1.center) < r * r;
 };
 
 /**
@@ -906,7 +906,7 @@ const sphere_aabb = (function () {
     const pt = new Vec3();
     return function (sphere: sphere, aabb: aabb): boolean {
         distance.pt_point_aabb(pt, sphere.center, aabb);
-        return Vec3.sqrDist(sphere.center, pt) < sphere.radius * sphere.radius;
+        return Vec3.squaredDistance(sphere.center, pt) < sphere.radius * sphere.radius;
     };
 })();
 
@@ -923,7 +923,7 @@ const sphere_obb = (function () {
     const pt = new Vec3();
     return function (sphere: sphere, obb: obb): boolean {
         distance.pt_point_obb(pt, sphere.center, obb);
-        return Vec3.sqrDist(sphere.center, pt) < sphere.radius * sphere.radius;
+        return Vec3.squaredDistance(sphere.center, pt) < sphere.radius * sphere.radius;
     };
 })();
 

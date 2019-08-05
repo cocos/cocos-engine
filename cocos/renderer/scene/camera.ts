@@ -2,9 +2,9 @@ import { frustum, ray } from '../../3d/geom-utils';
 import { Color, lerp, Mat4, Rect, toRadian, Vec3 } from '../../core/math';
 import { GFXClearFlag, IGFXColor } from '../../gfx/define';
 import { RenderView } from '../../pipeline/render-view';
-import { Node } from '../../scene-graph/node';
 import { RenderScene } from './render-scene';
 import { INode } from '../../core/utils/interfaces';
+import { GFXWindow } from '../../gfx/window';
 
 export enum CameraProjection {
     ORTHO,
@@ -69,7 +69,8 @@ export interface ICameraInfo {
     name: string;
     node: INode;
     projection: number;
-    targetDisplay: number;
+    targetDisplay?: number;
+    window?: GFXWindow;
     priority: number;
     pipeline?: string;
     isUI?: boolean;
@@ -146,7 +147,7 @@ export class Camera {
             flows: info.flows,
         });
 
-        this.changeTargetDisplay(info.targetDisplay);
+        this.changeTargetWindow(info.window);
 
         console.log('Create Camera: ' + this._name + ' ' + this._width + ' x ' + this._height);
     }
@@ -469,9 +470,9 @@ export class Camera {
         return this._exposure;
     }
 
-    public changeTargetDisplay (val: number) {
+    public changeTargetWindow (window: GFXWindow | null = null) {
         const scene = this._scene;
-        const win = scene.root.windows[val] || scene.root.mainWindow;
+        const win = window || scene.root.mainWindow;
         if (win) {
             this._width = win.width;
             this._height = win.height;

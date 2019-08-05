@@ -78,7 +78,7 @@ export class MeshBuffer {
         // batch.ibSize = ib.size;
     }
 
-    public request (vertexCount: number, indiceCount: number) {
+    public request (vertexCount = 4, indiceCount = 6) {
         const byteOffset = this.byteOffset + vertexCount * this._vertexFormatBytes;
         const indiceOffset = this.indiceOffset + indiceCount;
 

@@ -24,4 +24,8 @@
  THE SOFTWARE.
  */
 
+/**
+ * @hidden
+ */
+
 export * from '../cocos/animation';

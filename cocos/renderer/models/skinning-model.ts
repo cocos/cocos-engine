@@ -33,16 +33,15 @@ import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { UBOSkinningTexture, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
 import { Pass } from '../core/pass';
-import { ITextureBufferHandle } from '../core/texture-buffer-pool';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
-import { getJointsTextureSampler } from './joints-texture-utils';
+import { getJointsTextureSampler, IJointsTextureHandle } from './joints-texture-utils';
 import { INode } from '../../core/utils/interfaces';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;
     jointsTextureInfo: Float32Array;
-    texture: ITextureBufferHandle | null;
+    texture: IJointsTextureHandle | null;
 }
 
 export class SkinningModel extends Model {
@@ -106,12 +105,16 @@ export class SkinningModel extends Model {
         return this._jointsMedium.jointsTextureInfo[3];
     }
 
-    protected _applyJointsTexture (texture: ITextureBufferHandle | null) {
+    protected _applyJointsTexture (texture: IJointsTextureHandle | null) {
         if (!texture) { return; }
+        // we skip freeing the joints texture by default as an aggressive caching strategy
+        // toggle the following when memory usage becomes more important than stable performance
+        // const oldTex = this._jointsMedium.texture;
+        // if (oldTex && oldTex !== texture) { this._scene.texturePool.releaseTexture(oldTex); }
         this._jointsMedium.texture = texture;
         const { buffer, jointsTextureInfo } = this._jointsMedium;
-        jointsTextureInfo[0] = texture.texture.width;
-        jointsTextureInfo[1] = this._scene.texturePool.bytesToPixels(texture.start) + 0.1; // guard against floor() underflow
+        jointsTextureInfo[0] = texture.handle.texture.width;
+        jointsTextureInfo[1] = texture.pixelOffset + 0.1; // guard against floor() underflow
         jointsTextureInfo[2] = this.uploadedAnim ? this.uploadedAnim.keys[0].length : 1;
         jointsTextureInfo[3] = 0; // restore fid
         if (buffer) { buffer.update(jointsTextureInfo); }
@@ -119,7 +122,7 @@ export class SkinningModel extends Model {
         for (const submodel of this._subModels) {
             if (!submodel.psos) { continue; }
             for (const pso of submodel.psos) {
-                pso.pipelineLayout.layouts[0].bindTextureView(UNIFORM_JOINTS_TEXTURE.binding, texture.texView);
+                pso.pipelineLayout.layouts[0].bindTextureView(UNIFORM_JOINTS_TEXTURE.binding, texture.handle.texView);
                 pso.pipelineLayout.layouts[0].bindSampler(UNIFORM_JOINTS_TEXTURE.binding, sampler);
             }
         }
@@ -131,7 +134,7 @@ export class SkinningModel extends Model {
         pso.pipelineLayout.layouts[0].bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
         const sampler = getJointsTextureSampler(this._device);
         if (texture) {
-            pso.pipelineLayout.layouts[0].bindTextureView(UNIFORM_JOINTS_TEXTURE.binding, texture.texView);
+            pso.pipelineLayout.layouts[0].bindTextureView(UNIFORM_JOINTS_TEXTURE.binding, texture.handle.texView);
             pso.pipelineLayout.layouts[0].bindSampler(UNIFORM_JOINTS_TEXTURE.binding, sampler);
         }
         return pso;

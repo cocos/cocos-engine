@@ -33,7 +33,7 @@ import { Color } from '../../../core/math';
 import { Model } from '../../../renderer';
 import { UI } from '../../../renderer/ui/ui';
 import { Material } from '../../assets';
-import { RenderableComponent } from '../../framework';
+import { RenderableComponent } from '../../framework/renderable-component';
 import { IAssembler } from '../assembler/base';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
@@ -207,9 +207,7 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     public onEnable () {
-        if (super.onEnable) {
-            super.onEnable();
-        }
+        super.onEnable();
 
         if (this.model){
             this.model.enabled = true;
@@ -225,9 +223,7 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     public onDestroy () {
-        if (super.onDestroy) {
-            super.onDestroy();
-        }
+        super.onDestroy();
 
         this._sceneGetter = null;
         if (this.model) {
@@ -463,15 +459,6 @@ export class GraphicsComponent extends UIRenderComponent {
         (this._assembler as IAssembler).fill!(this);
     }
 
-    public updateAssembler (render: UI) {
-        if (super.updateAssembler(render)) {
-            render.commitModel(this, this.model, this._material);
-            return true;
-        }
-
-        return false;
-    }
-
     /**
      * @zh
      * 辅助材质实例化。可用于只取数据而无实体情况下渲染使用。特殊情况可参考：[[_instanceMaterial]]
@@ -491,6 +478,10 @@ export class GraphicsComponent extends UIRenderComponent {
             this._flushAssembler();
             this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
         }
+    }
+
+    protected _render(render: UI) {
+        render.commitModel(this, this.model, this._material);
     }
 
     protected _instanceMaterial (){

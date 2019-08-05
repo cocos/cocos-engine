@@ -203,32 +203,6 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @zh 矩阵乘法
-     */
-    public static mul <Out extends IMat3Like> (out: Out, a: Out, b: Out) {
-        _a00 = a.m00; _a01 = a.m01; _a02 = a.m02;
-        _a10 = a.m03; _a11 = a.m04; _a12 = a.m05;
-        _a20 = a.m06; _a21 = a.m07; _a22 = a.m08;
-
-        const b00 = b.m00, b01 = b.m01, b02 = b.m02;
-        const b10 = b.m03, b11 = b.m04, b12 = b.m05;
-        const b20 = b.m06, b21 = b.m07, b22 = b.m08;
-
-        out.m00 = b00 * _a00 + b01 * _a10 + b02 * _a20;
-        out.m01 = b00 * _a01 + b01 * _a11 + b02 * _a21;
-        out.m02 = b00 * _a02 + b01 * _a12 + b02 * _a22;
-
-        out.m03 = b10 * _a00 + b11 * _a10 + b12 * _a20;
-        out.m04 = b10 * _a01 + b11 * _a11 + b12 * _a21;
-        out.m05 = b10 * _a02 + b11 * _a12 + b12 * _a22;
-
-        out.m06 = b20 * _a00 + b21 * _a10 + b22 * _a20;
-        out.m07 = b20 * _a01 + b21 * _a11 + b22 * _a21;
-        out.m08 = b20 * _a02 + b21 * _a12 + b22 * _a22;
-        return out;
-    }
-
-    /**
      * @zh 在给定矩阵变换基础上加入变换
      */
     public static transfrom <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
@@ -319,7 +293,7 @@ export class Mat3 extends ValueType {
      * @param up 视口的上方向，必须归一化，默认为 (0, 1, 0)
      */
     public static fromViewUp <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, view: VecLike, up?: Vec3) {
-        if (Vec3.sqrMag(view) < EPSILON * EPSILON) {
+        if (Vec3.lengthSqr(view) < EPSILON * EPSILON) {
             Mat3.identity(out);
             return out;
         }
@@ -327,7 +301,7 @@ export class Mat3 extends ValueType {
         up = up || Vec3.UNIT_Y;
         Vec3.normalize(v3_1, Vec3.cross(v3_1, up, view));
 
-        if (Vec3.sqrMag(v3_1) < EPSILON * EPSILON) {
+        if (Vec3.lengthSqr(v3_1) < EPSILON * EPSILON) {
             Mat3.identity(out);
             return out;
         }
@@ -527,22 +501,6 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @zh 逐元素矩阵减法
-     */
-    public static sub <Out extends IMat3Like> (out: Out, a: Out, b: Out) {
-        out.m00 = a.m00 - b.m00;
-        out.m01 = a.m01 - b.m01;
-        out.m02 = a.m02 - b.m02;
-        out.m03 = a.m03 - b.m03;
-        out.m04 = a.m04 - b.m04;
-        out.m05 = a.m05 - b.m05;
-        out.m06 = a.m06 - b.m06;
-        out.m07 = a.m07 - b.m07;
-        out.m08 = a.m08 - b.m08;
-        return out;
-    }
-
-    /**
      * @zh 矩阵标量乘法
      */
     public static multiplyScalar <Out extends IMat3Like> (out: Out, a: Out, b: number) {
@@ -577,7 +535,7 @@ export class Mat3 extends ValueType {
     /**
      * @zh 矩阵等价判断
      */
-    public static exactEquals <Out extends IMat3Like> (a: Out, b: Out) {
+    public static strictEquals <Out extends IMat3Like> (a: Out, b: Out) {
         return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 &&
             a.m03 === b.m03 && a.m04 === b.m04 && a.m05 === b.m05 &&
             a.m06 === b.m06 && a.m07 === b.m07 && a.m08 === b.m08;
@@ -679,21 +637,27 @@ export class Mat3 extends ValueType {
             t.m06, t.m07, t.m08);
     }
 
+    public set (other: Mat3);
+    public set (m00?: number, m01?: number, m02?: number,
+                m03?: number, m04?: number, m05?: number,
+                m06?: number, m07?: number, m08?: number)
     /**
      * 设置当前矩阵使其与指定矩阵相等。
      * @param other 相比较的矩阵。
      * @returns `this`
      */
-    public set (other: Mat3) {
-        this.m00 = other.m00;
-        this.m01 = other.m01;
-        this.m02 = other.m02;
-        this.m03 = other.m03;
-        this.m04 = other.m04;
-        this.m05 = other.m05;
-        this.m06 = other.m06;
-        this.m07 = other.m07;
-        this.m08 = other.m08;
+    public set (m00: number | Mat3 = 1, m01: number = 0, m02: number = 0,
+                m03: number = 0, m04: number = 1, m05: number = 0,
+                m06: number = 0, m07: number = 0, m08: number = 1 ) {
+        if (typeof m00 === 'object') {
+            this.m00 = m00.m00; this.m01 = m00.m01; this.m02 = m00.m02;
+            this.m03 = m00.m03; this.m04 = m00.m04; this.m05 = m00.m05;
+            this.m06 = m00.m06; this.m07 = m00.m07; this.m08 = m00.m08;
+        } else {
+            this.m00 = m00; this.m01 = m01; this.m02 = m02;
+            this.m03 = m03; this.m04 = m04; this.m05 = m05;
+            this.m06 = m06; this.m07 = m07; this.m08 = m08;
+        }
         return this;
     }
 
@@ -722,7 +686,7 @@ export class Mat3 extends ValueType {
      * @param other 相比较的矩阵。
      * @returns 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
      */
-    public exactEquals (other: Mat3): boolean {
+    public strictEquals (other: Mat3): boolean {
         return this.m00 === other.m00 && this.m01 === other.m01 && this.m02 === other.m02 &&
             this.m03 === other.m03 && this.m04 === other.m04 && this.m05 === other.m05 &&
             this.m06 === other.m06 && this.m07 === other.m07 && this.m08 === other.m08;
@@ -837,7 +801,7 @@ export class Mat3 extends ValueType {
      * 计算矩阵减法。将当前矩阵减去指定矩阵的结果赋值给当前矩阵。
      * @param mat 减数矩阵。
      */
-    public sub (mat: Mat3) {
+    public subtract (mat: Mat3) {
         this.m00 = this.m00 - mat.m00;
         this.m01 = this.m01 - mat.m01;
         this.m02 = this.m02 - mat.m02;
@@ -854,7 +818,7 @@ export class Mat3 extends ValueType {
      * 矩阵乘法。将当前矩阵左乘指定矩阵的结果赋值给当前矩阵。
      * @param mat 指定的矩阵。
      */
-    public mul (mat: Mat3) {
+    public multiply (mat: Mat3) {
         const a00 = this.m00, a01 = this.m01, a02 = this.m02,
         a10 = this.m03, a11 = this.m04, a12 = this.m05,
         a20 = this.m06, a21 = this.m07, a22 = this.m08;
@@ -881,7 +845,7 @@ export class Mat3 extends ValueType {
      * 矩阵数乘。将当前矩阵与指定标量的数乘结果赋值给当前矩阵。
      * @param scalar 指定的标量。
      */
-    public mulScalar (scalar: number) {
+    public multiplyScalar (scalar: number) {
         this.m00 = this.m00 * scalar;
         this.m01 = this.m01 * scalar;
         this.m02 = this.m02 * scalar;

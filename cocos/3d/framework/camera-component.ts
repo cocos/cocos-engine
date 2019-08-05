@@ -30,12 +30,13 @@
 import { ray } from '../../3d/geom-utils';
 import { Component } from '../../components/component';
 import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
-import { constget } from '../../core/data/utils/constget';
 import { Color, Rect, toRadian, Vec3 } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { GFXClearFlag } from '../../gfx/define';
 import { Camera } from '../../renderer';
 import { Scene } from '../../scene-graph';
+import { RenderTexture } from '../../assets';
+import { GFXWindow } from '../../gfx/window';
 
 /**
  * @en
@@ -103,11 +104,13 @@ export class CameraComponent extends Component {
     @property
     protected _screenScale = 1;
     @property
-    protected _targetDisplay = 0;
-    @property
     protected _visibility = 0;
+    @property
+    protected _targetTexture: RenderTexture | null = null;
 
     protected _camera: Camera | null = null;
+    // hack
+    protected _editorWindow: GFXWindow | null = null
 
     constructor () {
         super();
@@ -290,19 +293,6 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en The target display for this Camera.
-     * @zh 相机的目标屏幕序号。
-     */
-    @property({ visible: false })
-    get targetDisplay () {
-        return this._targetDisplay;
-    }
-    set targetDisplay (val) {
-        this._targetDisplay = val;
-        if (this._camera) { this._camera.changeTargetDisplay(val); }
-    }
-
-    /**
      * @zh 设置摄像机可见掩码，与Component中的visibility同时使用，用于过滤摄像机不需要渲染的物体
      */
     @property
@@ -317,14 +307,39 @@ export class CameraComponent extends Component {
         }
     }
 
+    /**
+     * @zh 设置摄像机 RenderTexture
+     */
+    @property({
+        type: RenderTexture,
+    })
+    get targetTexture () {
+        return this._targetTexture;
+    }
+
+    set targetTexture (value){
+        if(this._targetTexture === value){
+            return;
+        }
+
+        if(!value && this._camera){
+            this._targetTexture!.removeCamera(this._camera);
+        }
+
+        this._targetTexture = value;
+        this._updateTargetTexture();
+    }
+
     public onLoad () {
         cc.director.on(cc.Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneChanged, this);
+        this._getEditorWindow();
     }
 
     public onEnable () {
         if (this._camera) { this._camera.enabled = true; return; }
         this._createCamera();
         this._camera!.enabled = true;
+        this._updateTargetTexture();
     }
 
     public onDisable () {
@@ -332,7 +347,12 @@ export class CameraComponent extends Component {
     }
 
     public onDestroy () {
+        this._editorWindow = null;
         if (this._camera) { this._getRenderScene().destroyCamera(this._camera); this._camera = null; }
+        if(this._targetTexture){
+            this._targetTexture.destroy();
+            this._targetTexture = null;
+        }
     }
 
     public screenPointToRay (x: number, y: number, out?: ray) {
@@ -361,33 +381,59 @@ export class CameraComponent extends Component {
             name: this.node.name,
             node: this.node,
             projection: this._projection,
-            targetDisplay: this._targetDisplay,
             priority: this._priority,
         });
 
         if (this._camera) {
-        this._camera.viewport = this._rect;
-        this._camera.fov = toRadian(this._fov);
-        this._camera.orthoHeight = this._orthoHeight;
-        this._camera.nearClip = this._near;
-        this._camera.farClip = this._far;
-        const r = this._color.r / 255;
-        const g = this._color.g / 255;
-        const b = this._color.b / 255;
-        const a = this._color.a / 255;
-        this._camera.clearColor = {r, g, b, a};
-        this._camera.clearDepth = this._depth;
-        this._camera.clearStencil = this._stencil;
-        this._camera.clearFlag = this._clearFlags;
-        this._camera.visibility = this._visibility;
+            this._camera.viewport = this._rect;
+            this._camera.fov = toRadian(this._fov);
+            this._camera.orthoHeight = this._orthoHeight;
+            this._camera.nearClip = this._near;
+            this._camera.farClip = this._far;
+            const r = this._color.r / 255;
+            const g = this._color.g / 255;
+            const b = this._color.b / 255;
+            const a = this._color.a / 255;
+            this._camera.clearColor = { r, g, b, a };
+            this._camera.clearDepth = this._depth;
+            this._camera.clearStencil = this._stencil;
+            this._camera.clearFlag = this._clearFlags;
+            this._camera.visibility = this._visibility;
         }
     }
 
     protected onSceneChanged (scene: Scene) {
         // to handle scene switch of editor camera
         if (this._camera && this._camera.scene !== scene.renderScene) {
+            if(this._targetTexture){
+                this._targetTexture.removeCamera(this._camera);
+            }
             this._createCamera();
             this._camera.enabled = true;
+            this._updateTargetTexture();
+
         }
+    }
+
+    protected _getEditorWindow (){
+        if(cc.director.root && CC_EDITOR){
+            this._editorWindow = cc.director.root.windows[0];
+        }
+    }
+
+    protected _updateTargetTexture (){
+        if (!this._camera) {
+            return;
+        }
+
+        if (!this._targetTexture) {
+            this._camera.changeTargetWindow(this._editorWindow);
+        } else {
+            this._camera.changeTargetWindow(this._targetTexture.getGFXWindow());
+            this._targetTexture.addCamera(this._camera);
+        }
+
+
+
     }
 }
