@@ -2,77 +2,161 @@
  * @hidden
  */
 
-import { deprecatedWrapper, replaceProperty, removeProperty, markAsWarning } from './deprecated';
+import { replaceProperty } from './deprecated';
 import { math } from './core';
 
 const vmath = {};
-deprecatedWrapper({
-    oldTarget: vmath,
-    oldPrefix: 'vmath',
-    newTarget: math,
-    newPrefix: 'math',
-    pairs: [
-        ['approx', 'approx'],
-        ['EPSILON', 'EPSILON'],
-        ['equals', 'equals'],
-        ['clamp', 'clamp'],
-        ['clamp01', 'clamp01'],
-        ['lerp', 'lerp'],
-        ['toRadian', 'toRadian'],
-        ['toDegree', 'toDegree'],
-        ['random', 'random'],
-        ['randomRange', 'randomRange'],
-        ['randomRangeInt', 'randomRangeInt'],
-        ['pseudoRandom', 'pseudoRandom'],
-        ['pseudoRandomRangeInt', 'pseudoRandomRangeInt'],
-        ['nextPow2', 'nextPow2'],
-        ['repeat', 'repeat'],
-        ['pingPong', 'pingPong'],
-        ['inverseLerp', 'inverseLerp'],
-        ['vec2', 'Vec2'],
-        ['vec3', 'Vec3'],
-        ['vec4', 'Vec4'],
-        ['quat', 'Quat'],
-        ['mat3', 'Mat3'],
-        ['mat4', 'Mat4'],
-        ['color4', 'Color'],
-        ['rect', 'Rect'],
-    ],
-});
-
-// replaceProperty(vmath, 'vmath', [
-//     {
-//         name: 'vec2',
-//         newName: 'Vec2',
-//         target: math,
-//         targetName: 'math',
-//         'logTimes': 1
-//     },
-//     {
-//         name: 'EPSILON',
-//         target: math,
-//         targetName: 'math',
-//         'logTimes': 2
-//     },
-//     {
-//         name: 'equals',
-//         target: math,
-//         targetName: 'math',
-//         'logTimes': 3
-//     }
-// ]);
-
-// removeProperty(vmath, 'vmath', [
-//     {
-//         'name': 'random'
-//     }
-// ]);
-
-// markAsWarning(math, 'math', [
-//     {
-//         'name': 'toRadian'
-//     }
-// ]);
+replaceProperty(vmath,'vmath',[
+    {
+        name: 'vec2',
+        newName: 'Vec2',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'vec3',
+        newName: 'Vec3',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'vec4',
+        newName: 'Vec4',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'quat',
+        newName: 'Quat',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'mat3',
+        newName: 'Mat3',
+        target: math,
+        targetName: 'math'
+    },    {
+        name: 'mat4',
+        newName: 'Mat4',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'color4',
+        newName: 'Color',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'rect',
+        newName: 'Rect',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'approx',
+        newName: 'approx',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'EPSILON',
+        newName: 'EPSILON',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'equals',
+        newName: 'equals',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'clamp',
+        newName: 'clamp',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'clamp01',
+        newName: 'clamp01',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'lerp',
+        newName: 'lerp',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'toRadian',
+        newName: 'toRadian',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'toDegree',
+        newName: 'toDegree',
+        target: math,
+        targetName: 'math',
+    },
+    {
+        name: 'random',
+        newName: 'random',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'randomRange',
+        newName: 'randomRange',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'randomRangeInt',
+        newName: 'randomRangeInt',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'pseudoRandom',
+        newName: 'pseudoRandom',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'pseudoRandomRangeInt',
+        newName: 'pseudoRandomRangeInt',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'nextPow2',
+        newName: 'nextPow2',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'repeat',
+        newName: 'repeat',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'pingPong',
+        newName: 'pingPong',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'inverseLerp',
+        newName: 'inverseLerp',
+        target: math,
+        targetName: 'math'
+    },
+]);
 
 cc.vmath = vmath;
 

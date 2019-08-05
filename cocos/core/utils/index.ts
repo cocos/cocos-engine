@@ -35,22 +35,41 @@ import * as misc from './misc';
  * 用于处理文件与目录的路径的模块
  */
 import * as path from './path';
-import { deprecatedWrapper } from '../../deprecated';
+import { replaceProperty } from '../../deprecated';
 import * as math from '../math';
 
-deprecatedWrapper({
-    oldTarget: misc,
-    oldPrefix: 'misc',
-    newTarget: math,
-    newPrefix: 'math',
-    pairs: [
-        ['clampf', 'clamp'],
-        ['clamp01', 'clamp01'],
-        ['lerp', 'lerp'],
-        ['degreesToRadians', 'toRadian'],
-        ['radiansToDegrees', 'toDegree'],
-    ],
-});
+replaceProperty(misc,'misc',[
+    {
+        name: 'clampf',
+        newName: 'clamp',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'clamp01',
+        newName: 'clamp01',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'lerp',
+        newName: 'lerp',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'degreesToRadians',
+        newName: 'toRadian',
+        target: math,
+        targetName: 'math'
+    },
+    {
+        name: 'radiansToDegrees',
+        newName: 'toDegree',
+        target: math,
+        targetName: 'math'
+    },
+]);
 
 export * from './text-utils';
 export * from './html-text-parser';

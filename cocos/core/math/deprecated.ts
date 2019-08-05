@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { deprecatedWrapper } from '../../deprecated';
+import { replaceProperty, removeProperty } from '../../deprecated';
 import { Vec2 } from './vec2';
 import { Vec3 } from './vec3';
 import { Vec4 } from './vec4';
@@ -11,210 +11,446 @@ import { Mat3 } from './mat3';
 import { Mat4 } from './mat4';
 import { Color } from './color';
 
-deprecatedWrapper({
-    oldTarget: Vec2,
-    oldPrefix: 'Vec2',
-    newTarget: Vec2,
-    newPrefix: 'Vec2',
-    pairs: [
-        ['sub', 'subtract'],
-        ['mul', 'multiply'],
-        ['div', 'divide'],
-        ['dist', 'distance'],
-        ['sqrDist', 'squaredDistance'],
-        ['mag', 'len'],
-        ['sqrMag', 'lengthSqr'],
-        ['scale', 'multiplyScalar'],
-        ['exactEquals', 'strictEquals'],
-    ],
-});
+replaceProperty(Vec2,'Vec2',[
+    {
+        name: 'sub',
+        newName: 'subtract',
+        target: Vec2,
+        targetName: 'Vec2'
+    },
+    {
+        name: 'mul',
+        newName: 'multiply',
+        target: Vec2,
+        targetName: 'Vec2'
+    },
+    {
+        name: 'div',
+        newName: 'divide',
+        target: Vec2,
+        targetName: 'Vec2'
+    },
+    {
+        name: 'dist',
+        newName: 'distance',
+        target: Vec2,
+        targetName: 'Vec2'
+    },
+    {
+        name: 'sqrDist',
+        newName: 'squaredDistance',
+        target: Vec2,
+        targetName: 'Vec2'
+    },
+    {
+        name: 'mag',
+        newName: 'len',
+        target: Vec2,
+        targetName: 'Vec2'
+    },
+    {
+        name: 'sqrMag',
+        newName: 'lengthSqr',
+        target: Vec2,
+        targetName: 'Vec2'
+    },
+    {
+        name: 'scale',
+        newName: 'multiplyScalar',
+        target: Vec2,
+        targetName: 'Vec2'
+    },
+    {
+        name: 'exactEquals',
+        newName: 'strictEquals',
+        target: Vec2,
+        targetName: 'Vec2'
+    },
+]);
 
-deprecatedWrapper({
-    oldTarget: Vec2.prototype,
-    oldPrefix: 'Vec2',
-    newTarget: Vec2.prototype,
-    newPrefix: 'Vec2',
-    pairs: [
-        ['mag', 'length'],
-        ['magSqr', 'lengthSqr'],
-        ['exactEquals', 'strictEquals'],
-        ['scale', 'multiplyScalar'],
-    ],
-});
-
-// 与新添加API 接口重名，需尽快更改后删除此弃用
-deprecatedWrapper({
-    oldTarget: Vec2.prototype,
-    oldPrefix: "Vec2",
-    pairs: [
-        ['divide'],
-    ]
-});
-
-deprecatedWrapper({
-    oldTarget: Vec3,
-    oldPrefix: 'Vec3',
-    newTarget: Vec3,
-    newPrefix: 'Vec3',
-    pairs: [
-        ['sub', 'subtract'],
-        ['mul', 'multiply'],
-        ['div', 'divide'],
-        ['dist', 'distance'],
-        ['sqrDist', 'squaredDistance'],
-        ['mag', 'len'],
-        ['sqrMag', 'lengthSqr'],
-        ['scale', 'multiplyScalar'],
-        ['exactEquals', 'strictEquals'],
-    ],
-});
-
-deprecatedWrapper({
-    oldTarget: Vec3.prototype,
-    oldPrefix: 'Vec3',
-    newTarget: Vec3.prototype,
-    newPrefix: 'Vec3',
-    pairs: [
-        ['mag', 'length'],
-        ['magSqr', 'lengthSqr'],
-        ['exactEquals', 'strictEquals'],
-        ['scale', 'multiplyScalar'],
-    ],
-});
-
-// 与新添加API 接口重名，需尽快更改后删除此弃用
-deprecatedWrapper({
-    oldTarget: Vec3.prototype,
-    oldPrefix: "Vec3",
-    pairs: [
-        ['divide'],
-    ]
-});
-
-deprecatedWrapper({
-    oldTarget: Vec4,
-    oldPrefix: 'Vec4',
-    newTarget: Vec4,
-    newPrefix: 'Vec4',
-    pairs: [
-        ['sub', 'subtract'],
-        ['mul', 'multiply'],
-        ['div', 'divide'],
-        ['dist', 'distance'],
-        ['sqrDist', 'squaredDistance'],
-        ['mag', 'len'],
-        ['sqrMag', 'lengthSqr'],
-        ['scale', 'multiplyScalar'],
-        ['exactEquals', 'strictEquals'],
-    ],
-});
-
-deprecatedWrapper({
-    oldTarget: Vec4.prototype,
-    oldPrefix: 'Vec4',
-    newTarget: Vec4.prototype,
-    newPrefix: 'Vec4',
-    pairs: [
-        ['mag', 'length'],
-        ['magSqr', 'lengthSqr'],
-        ['exactEquals', 'strictEquals'],
-        ['scale', 'multiplyScalar'],
-    ],
-});
+replaceProperty(Vec2.prototype,'Vec2',[
+    {
+        name: 'mag',
+        newName: 'length',
+        target: Vec2.prototype,
+        targetName: 'Vec2'
+    },
+    {
+        name: 'sqrMag',
+        newName: 'lengthSqr',
+        target: Vec2.prototype,
+        targetName: 'Vec2'
+    },
+    {
+        name: 'scale',
+        newName: 'multiplyScalar',
+        target: Vec2.prototype,
+        targetName: 'Vec2'
+    },
+    {
+        name: 'exactEquals',
+        newName: 'strictEquals',
+        target: Vec2.prototype,
+        targetName: 'Vec2'
+    },
+]);
 
 // 与新添加API 接口重名，需尽快更改后删除此弃用
-deprecatedWrapper({
-    oldTarget: Vec4.prototype,
-    oldPrefix: "Vec4",
-    pairs: [
-        ['divide'],
-    ]
-});
+removeProperty(Vec2.prototype, 'vmath', [
+    {
+        'name': 'divide'
+    }
+]);
 
-deprecatedWrapper({
-    oldTarget: Quat,
-    oldPrefix: 'Quat',
-    newTarget: Quat,
-    newPrefix: 'Quat',
-    pairs: [
-        ['mul', 'multiply'],
-        ['mag', 'len'],
-        ['sqrMag', 'lengthSqr'],
-        ['scale', 'multiplyScalar'],
-        ['exactEquals', 'strictEquals'],
-    ],
-});
+replaceProperty(Vec3,'Vec3',[
+    {
+        name: 'sub',
+        newName: 'subtract',
+        target: Vec3,
+        targetName: 'Vec3'
+    },
+    {
+        name: 'mul',
+        newName: 'multiply',
+        target: Vec3,
+        targetName: 'Vec3'
+    },
+    {
+        name: 'div',
+        newName: 'divide',
+        target: Vec3,
+        targetName: 'Vec3'
+    },
+    {
+        name: 'dist',
+        newName: 'distance',
+        target: Vec3,
+        targetName: 'Vec3'
+    },
+    {
+        name: 'sqrDist',
+        newName: 'squaredDistance',
+        target: Vec3,
+        targetName: 'Vec3'
+    },
+    {
+        name: 'mag',
+        newName: 'len',
+        target: Vec3,
+        targetName: 'Vec3'
+    },
+    {
+        name: 'sqrMag',
+        newName: 'lengthSqr',
+        target: Vec3,
+        targetName: 'Vec3'
+    },
+    {
+        name: 'scale',
+        newName: 'multiplyScalar',
+        target: Vec3,
+        targetName: 'Vec3'
+    },
+    {
+        name: 'exactEquals',
+        newName: 'strictEquals',
+        target: Vec3,
+        targetName: 'Vec3'
+    },
+]);
 
-deprecatedWrapper({
-    oldTarget: Quat.prototype,
-    oldPrefix: 'Quat',
-    newTarget: Quat.prototype,
-    newPrefix: 'Quat',
-    pairs: [
-        ['scale', 'multiplyScalar'],
-        ['exactEquals', 'strictEquals'],
-    ],
-});
+replaceProperty(Vec3.prototype,'Vec3',[
+    {
+        name: 'mag',
+        newName: 'length',
+        target: Vec3.prototype,
+        targetName: 'Vec3'
+    },
+    {
+        name: 'sqrMag',
+        newName: 'lengthSqr',
+        target: Vec3.prototype,
+        targetName: 'Vec3'
+    },
+    {
+        name: 'scale',
+        newName: 'multiplyScalar',
+        target: Vec3.prototype,
+        targetName: 'Vec3'
+    },
+    {
+        name: 'exactEquals',
+        newName: 'strictEquals',
+        target: Vec3.prototype,
+        targetName: 'Vec3'
+    },
+]);
 
-deprecatedWrapper({
-    oldTarget: Color,
-    oldPrefix: 'Color',
-    newTarget: Color,
-    newPrefix: 'Color',
-    pairs: [
-        ['sub', 'subtract'],
-        ['mul', 'multiply'],
-        ['div', 'divide'],
-        ['exactEquals','strictEquals'],
-    ],
-});
+// 与新添加API 接口重名，需尽快更改后删除此弃用
+removeProperty(Vec3.prototype, 'vmath', [
+    {
+        'name': 'divide'
+    }
+]);
 
-deprecatedWrapper({
-    oldTarget: Mat3,
-    oldPrefix: 'Mat3',
-    newTarget: Mat3,
-    newPrefix: 'Mat3',
-    pairs: [
-        ['sub', 'subtract'],
-        ['mul', 'multiply'],
-        ['exactEquals','strictEquals'],
-    ],
-});
+replaceProperty(Vec4,'Vec4',[
+    {
+        name: 'sub',
+        newName: 'subtract',
+        target: Vec4,
+        targetName: 'Vec4'
+    },
+    {
+        name: 'mul',
+        newName: 'multiply',
+        target: Vec4,
+        targetName: 'Vec4'
+    },
+    {
+        name: 'div',
+        newName: 'divide',
+        target: Vec4,
+        targetName: 'Vec4'
+    },
+    {
+        name: 'dist',
+        newName: 'distance',
+        target: Vec4,
+        targetName: 'Vec4'
+    },
+    {
+        name: 'sqrDist',
+        newName: 'squaredDistance',
+        target: Vec4,
+        targetName: 'Vec4'
+    },
+    {
+        name: 'mag',
+        newName: 'len',
+        target: Vec4,
+        targetName: 'Vec4'
+    },
+    {
+        name: 'sqrMag',
+        newName: 'lengthSqr',
+        target: Vec4,
+        targetName: 'Vec4'
+    },
+    {
+        name: 'scale',
+        newName: 'multiplyScalar',
+        target: Vec4,
+        targetName: 'Vec4'
+    },
+    {
+        name: 'exactEquals',
+        newName: 'strictEquals',
+        target: Vec4,
+        targetName: 'Vec4'
+    },
+]);
 
-deprecatedWrapper({
-    oldTarget: Mat3.prototype,
-    oldPrefix: 'Mat3',
-    newTarget: Mat3.prototype,
-    newPrefix: 'Mat3',
-    pairs: [
-        ['sub', 'subtract'],
-        ['mul', 'multiply'],
-        ['mulScalar', 'multiplyScalar'],
-        ['exactEquals','strictEquals'],
-    ],
-});
+replaceProperty(Vec4.prototype,'Vec4',[
+    {
+        name: 'mag',
+        newName: 'length',
+        target: Vec4.prototype,
+        targetName: 'Vec4'
+    },
+    {
+        name: 'sqrMag',
+        newName: 'lengthSqr',
+        target: Vec4.prototype,
+        targetName: 'Vec4'
+    },
+    {
+        name: 'scale',
+        newName: 'multiplyScalar',
+        target: Vec4.prototype,
+        targetName: 'Vec4'
+    },
+    {
+        name: 'exactEquals',
+        newName: 'strictEquals',
+        target: Vec4.prototype,
+        targetName: 'Vec4'
+    },
+]);
 
-deprecatedWrapper({
-    oldTarget: Mat4,
-    oldPrefix: 'Mat4',
-    newTarget: Mat4,
-    newPrefix: 'Mat4',
-    pairs: [
-        ['sub', 'subtract'],
-        ['mul', 'multiply'],
-        ['exactEquals','strictEquals'],
-    ],
-});
+// 与新添加API 接口重名，需尽快更改后删除此弃用
+removeProperty(Vec4.prototype, 'vmath', [
+    {
+        'name': 'divide'
+    }
+]);
 
-deprecatedWrapper({
-    oldTarget: Mat4.prototype,
-    oldPrefix: 'Mat4',
-    newTarget: Mat4.prototype,
-    newPrefix: 'Mat4',
-    pairs: [
-        ['sub', 'subtract'],
-        ['mul', 'multiply'],
-        ['mulScalar', 'multiplyScalar'],
-        ['exactEquals','strictEquals'],
-    ],
-});
+replaceProperty(Quat,'Quat',[
+    {
+        name: 'mag',
+        newName: 'len',
+        target: Quat,
+        targetName: 'Quat'
+    },
+    {
+        name: 'mul',
+        newName: 'multiply',
+        target: Quat,
+        targetName: 'Quat'
+    },
+    {
+        name: 'sqrMag',
+        newName: 'lengthSqr',
+        target: Quat,
+        targetName: 'Quat'
+    },
+    {
+        name: 'scale',
+        newName: 'multiplyScalar',
+        target: Quat,
+        targetName: 'Quat'
+    },
+    {
+        name: 'exactEquals',
+        newName: 'strictEquals',
+        target: Quat,
+        targetName: 'Quat'
+    },
+]);
+
+replaceProperty(Quat.prototype,'Quat',[
+    {
+        name: 'scale',
+        newName: 'multiplyScalar',
+        target: Quat.prototype,
+        targetName: 'Quat'
+    },
+    {
+        name: 'exactEquals',
+        newName: 'strictEquals',
+        target: Quat.prototype,
+        targetName: 'Quat'
+    },
+]);
+
+replaceProperty(Color,'Color',[
+    {
+        name: 'sub',
+        newName: 'subtract',
+        target: Color,
+        targetName: 'Color'
+    },
+    {
+        name: 'mul',
+        newName: 'multiply',
+        target: Color,
+        targetName: 'Color'
+    },
+    {
+        name: 'div',
+        newName: 'divide',
+        target: Color,
+        targetName: 'Color'
+    },
+    {
+        name: 'exactEquals',
+        newName: 'strictEquals',
+        target: Color,
+        targetName: 'Color'
+    },
+]);
+
+replaceProperty(Mat3,'Mat3',[
+    {
+        name: 'sub',
+        newName: 'subtract',
+        target: Mat3,
+        targetName: 'Mat3'
+    },
+    {
+        name: 'mul',
+        newName: 'multiply',
+        target: Mat3,
+        targetName: 'Mat3'
+    },
+    {
+        name: 'exactEquals',
+        newName: 'strictEquals',
+        target: Mat3,
+        targetName: 'Mat3'
+    },
+]);
+
+replaceProperty(Mat3.prototype,'Mat3',[
+    {
+        name: 'sub',
+        newName: 'subtract',
+        target: Mat3.prototype,
+        targetName: 'Mat3'
+    },
+    {
+        name: 'mul',
+        newName: 'multiply',
+        target: Mat3.prototype,
+        targetName: 'Mat3'
+    },
+    {
+        name: 'mulScalar',
+        newName: 'multiplyScalar',
+        target: Mat3.prototype,
+        targetName: 'Mat3'
+    },
+    {
+        name: 'exactEquals',
+        newName: 'strictEquals',
+        target: Mat3.prototype,
+        targetName: 'Mat3'
+    },
+]);
+
+replaceProperty(Mat4,'Mat4',[
+    {
+        name: 'sub',
+        newName: 'subtract',
+        target: Mat4,
+        targetName: 'Mat4'
+    },
+    {
+        name: 'mul',
+        newName: 'multiply',
+        target: Mat4,
+        targetName: 'Mat4'
+    },
+    {
+        name: 'exactEquals',
+        newName: 'strictEquals',
+        target: Mat4,
+        targetName: 'Mat4'
+    },
+]);
+
+replaceProperty(Mat4.prototype,'Mat4',[
+    {
+        name: 'sub',
+        newName: 'subtract',
+        target: Mat4.prototype,
+        targetName: 'Mat4'
+    },
+    {
+        name: 'mul',
+        newName: 'multiply',
+        target: Mat4.prototype,
+        targetName: 'Mat4'
+    },
+    {
+        name: 'mulScalar',
+        newName: 'multiplyScalar',
+        target: Mat4.prototype,
+        targetName: 'Mat4'
+    },
+    {
+        name: 'exactEquals',
+        newName: 'strictEquals',
+        target: Mat4.prototype,
+        targetName: 'Mat4'
+    },
+]);
