@@ -188,7 +188,7 @@ let MeshRenderer = cc.Class({
         if (this._mesh && !this._mesh.loaded) {
             this.disableRender();
             var self = this;
-            this._mesh.on('load', function () {
+            this._mesh.once('load', function () {
                 self._setMesh(self._mesh);
                 self._activateMaterial();
             });
