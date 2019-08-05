@@ -435,8 +435,7 @@ export interface INode extends IBaseNode {
      * @zh
      * 这个节点的空间变换信息在当前帧内是否有变过？
      */
-    hasChanged: Readonly<boolean>;
-
+    hasChangedFlags: Readonly<number>;
 
     /**
      * @zh

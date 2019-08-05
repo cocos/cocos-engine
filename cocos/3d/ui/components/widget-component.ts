@@ -582,7 +582,7 @@ export class WidgetComponent extends Component {
         }
 
         // changed by parent
-        if (this.node.hasChanged) {
+        if (this.node.hasChangedFlags) {
             this._recursiveDirty();
         }
     }
