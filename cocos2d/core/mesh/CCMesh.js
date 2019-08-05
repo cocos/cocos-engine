@@ -152,7 +152,7 @@ let Mesh = cc.Class({
                     primitive.indexUnit,
                     gfx.USAGE_STATIC,
                     ibData,
-                    ibData.byteLength / 2
+                    ibData.byteLength / gfx.IndexBuffer.BYTES_PER_INDEX[primitive.indexUnit]
                 );
     
                 // create sub meshes
@@ -309,7 +309,7 @@ let Mesh = cc.Class({
                     gfx.INDEX_FMT_UINT16,
                     usage,
                     iData,
-                    iData.byteLength / 2
+                    iData.byteLength / gfx.IndexBuffer.BYTES_PER_INDEX[gfx.INDEX_FMT_UINT16]
                 );
 
                 subData.ib = buffer;
@@ -395,7 +395,7 @@ let Mesh = cc.Class({
 
             if (subData.iDirty) {
                 let buffer = subData.ib, data = subData.iData;
-                buffer._numIndices = data.length;
+                buffer._numIndices = data.length / buffer._bytesPerIndex;
                 buffer._bytes = data.byteLength;
                 buffer.update(0, data);
                 subData.iDirty = false;

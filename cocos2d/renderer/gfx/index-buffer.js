@@ -1,5 +1,11 @@
 import { enums } from './enums';
 
+const BYTES_PER_INDEX = {
+  [enums.INDEX_FMT_UINT8]: 1,
+  [enums.INDEX_FMT_UINT16]: 2,
+  [enums.INDEX_FMT_UINT32]: 4,
+}
+
 class IndexBuffer {
   /**
    * @constructor
@@ -14,16 +20,8 @@ class IndexBuffer {
     this._format = format;
     this._usage = usage;
     this._numIndices = numIndices;
-    this._bytesPerIndex = 0;
 
-    // calculate bytes
-    if (format === enums.INDEX_FMT_UINT8) {
-      this._bytesPerIndex = 1;
-    } else if (format === enums.INDEX_FMT_UINT16) {
-      this._bytesPerIndex = 2;
-    } else if (format === enums.INDEX_FMT_UINT32) {
-      this._bytesPerIndex = 4;
-    }
+    this._bytesPerIndex = BYTES_PER_INDEX[format];
     this._bytes = this._bytesPerIndex * numIndices;
 
     // update
@@ -95,5 +93,7 @@ class IndexBuffer {
     this._usage = usage;
   }
 }
+
+IndexBuffer.BYTES_PER_INDEX = BYTES_PER_INDEX;
 
 export default IndexBuffer;
