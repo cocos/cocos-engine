@@ -525,9 +525,12 @@ Object.assign(WebEditBoxImpl.prototype, {
             font = textLabel.fontFamily;
         }
 
+        // get font size
+        let fontSize = textLabel.fontSize * textLabel.node.scaleY;
+
         // whether need to update
         if (this._textLabelFont === font
-            && this._textLabelFontSize === textLabel.fontSize
+            && this._textLabelFontSize === fontSize
             && this._textLabelFontColor === textLabel.fontColor
             && this._textLabelAlign === textLabel.horizontalAlign) {
                 return;
@@ -535,13 +538,13 @@ Object.assign(WebEditBoxImpl.prototype, {
 
         // update cache
         this._textLabelFont = font;
-        this._textLabelFontSize = textLabel.fontSize;
+        this._textLabelFontSize = fontSize;
         this._textLabelFontColor = textLabel.fontColor;
         this._textLabelAlign = textLabel.horizontalAlign;
 
         let elem = this._elem;
         // font size
-        elem.style.fontSize = `${textLabel.fontSize}px`;
+        elem.style.fontSize = `${fontSize}px`;
         // font color
         elem.style.color = textLabel.node.color.toCSS('rgba');
         // font family
@@ -576,9 +579,12 @@ Object.assign(WebEditBoxImpl.prototype, {
             font = placeholderLabel.fontFamily;
         }
 
+        // get font size
+        let fontSize = placeholderLabel.fontSize * placeholderLabel.node.scaleY;
+
         // whether need to update
         if (this._placeholderLabelFont === font
-            && this._placeholderLabelFontSize === placeholderLabel.fontSize
+            && this._placeholderLabelFontSize === fontSize
             && this._placeholderLabelFontColor === placeholderLabel.fontColor
             && this._placeholderLabelAlign === placeholderLabel.horizontalAlign
             && this._placeholderLineHeight === placeholderLabel.fontSize) {
@@ -587,14 +593,13 @@ Object.assign(WebEditBoxImpl.prototype, {
 
         // update cache
         this._placeholderLabelFont = font;
-        this._placeholderLabelFontSize = placeholderLabel.fontSize;
+        this._placeholderLabelFontSize = fontSize;
         this._placeholderLabelFontColor = placeholderLabel.fontColor;
         this._placeholderLabelAlign = placeholderLabel.horizontalAlign;
         this._placeholderLineHeight = placeholderLabel.fontSize;
 
         let styleEl = this._placeholderStyleSheet;
-        // font size
-        let fontSize = placeholderLabel.fontSize;
+        
         // font color
         let fontColor = placeholderLabel.node.color.toCSS('rgba');
         // line height
