@@ -2,10 +2,10 @@
  * @hidden
  */
 
-import { Material } from '../../core/assets/material';
-import Pool from '../../core/memop/pool';
-import { GFXPipelineState } from '../../core/gfx/pipeline-state';
-import { Pass } from '../../core/renderer/core/pass';
+import { Material } from '../../assets/material';
+import Pool from '../../memop/pool';
+import { GFXPipelineState } from '../../gfx/pipeline-state';
+import { Pass } from '../../renderer/core/pass';
 
 export interface IUIMaterialInfo {
     material: Material;

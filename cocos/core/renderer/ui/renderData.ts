@@ -2,9 +2,9 @@
  * @hidden
  */
 
-import { Material } from '../../core/assets/material';
-import { Pool, RecyclePool } from '../../core/memop';
-import { Color } from '../../core/math';
+import { Pool, RecyclePool } from '../../memop';
+import { Material } from '../../assets';
+import { Color } from '../../math';
 
 export interface IRenderData {
     x: number;
