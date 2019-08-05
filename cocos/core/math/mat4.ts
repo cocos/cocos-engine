@@ -1429,18 +1429,23 @@ export class Mat4 extends ValueType {
             t.m12, t.m13, t.m14, t.m15);
     }
 
+    /**
+     * 设置当前矩阵使其与指定矩阵相等。
+     * @param other 相比较的矩阵。
+     * @returns `this`
+     */
     public set (other: Mat4);
+
+    /**
+     * 设置当前矩阵指定元素值。
+     * @returns `this`
+     */
     public set (
         m00?: number, m01?: number, m02?: number, m03?: number,
         m04?: number, m05?: number, m06?: number, m07?: number,
         m08?: number, m09?: number, m10?: number, m11?: number,
         m12?: number, m13?: number, m14?: number, m15?: number);
 
-    /**
-     * 设置当前矩阵使其与指定矩阵相等。
-     * @param other 相比较的矩阵。
-     * @returns `this`
-     */
     public set (m00: Mat4 | number = 1, m01 = 0, m02 = 0, m03 = 0,
                 m04 = 0, m05 = 1, m06 = 0, m07 = 0,
                 m08 = 0, m09 = 0, m10 = 1, m11 = 0,

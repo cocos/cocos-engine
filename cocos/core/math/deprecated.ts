@@ -42,6 +42,15 @@ deprecatedWrapper({
     ],
 });
 
+// 与新添加API 接口重名，需尽快更改后删除此弃用
+deprecatedWrapper({
+    oldTarget: Vec2.prototype,
+    oldPrefix: "Vec2",
+    pairs: [
+        ['divide'],
+    ]
+});
+
 deprecatedWrapper({
     oldTarget: Vec3,
     oldPrefix: 'Vec3',
@@ -73,6 +82,15 @@ deprecatedWrapper({
     ],
 });
 
+// 与新添加API 接口重名，需尽快更改后删除此弃用
+deprecatedWrapper({
+    oldTarget: Vec3.prototype,
+    oldPrefix: "Vec3",
+    pairs: [
+        ['divide'],
+    ]
+});
+
 deprecatedWrapper({
     oldTarget: Vec4,
     oldPrefix: 'Vec4',
@@ -102,6 +120,15 @@ deprecatedWrapper({
         ['exactEquals', 'strictEquals'],
         ['scale', 'multiplyScalar'],
     ],
+});
+
+// 与新添加API 接口重名，需尽快更改后删除此弃用
+deprecatedWrapper({
+    oldTarget: Vec4.prototype,
+    oldPrefix: "Vec4",
+    pairs: [
+        ['divide'],
+    ]
 });
 
 deprecatedWrapper({
