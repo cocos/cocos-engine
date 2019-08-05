@@ -2,9 +2,9 @@
  * @category pipeline.forward
  */
 
-import { intersect, sphere } from '../../3d/geom-utils';
-import { Root } from '../../core/root';
-import { Vec3 } from '../../core/math';
+import { intersect, sphere } from '../../geom-utils';
+import { Root } from '../../root';
+import { Vec3 } from '../../math';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXRenderPass } from '../../gfx/render-pass';
@@ -14,7 +14,7 @@ import { LightType } from '../../renderer/scene/light';
 import { SphereLight } from '../../renderer/scene/sphere-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
 import { cullDirectionalLight, cullSphereLight, cullSpotLight } from '../culling';
-import { PIPELINE_FLOW_FORWARD, PIPELINE_FLOW_SMAA, PIPELINE_FLOW_TONEMAP, RenderPassStage, UBOForwardLight } from '../define';
+import { PIPELINE_FLOW_FORWARD, PIPELINE_FLOW_TONEMAP, RenderPassStage, UBOForwardLight } from '../define';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';
 import { IRenderPipelineInfo, RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
