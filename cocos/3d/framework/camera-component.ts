@@ -348,10 +348,13 @@ export class CameraComponent extends Component {
 
     public onDestroy () {
         this._editorWindow = null;
-        if (this._camera) { this._getRenderScene().destroyCamera(this._camera); this._camera = null; }
-        if(this._targetTexture){
-            this._targetTexture.destroy();
-            this._targetTexture = null;
+        if (this._camera) {
+            if (this._targetTexture) {
+                this._targetTexture.removeCamera(this._camera);
+            }
+
+            this._getRenderScene().destroyCamera(this._camera);
+            this._camera = null;
         }
     }
 
@@ -429,11 +432,10 @@ export class CameraComponent extends Component {
         if (!this._targetTexture) {
             this._camera.changeTargetWindow(this._editorWindow);
         } else {
-            this._camera.changeTargetWindow(this._targetTexture.getGFXWindow());
+            const window = this._targetTexture.getGFXWindow();
+            this._camera.changeTargetWindow(window);
+            this._camera.setFixedSize(window!.width, window!.height);
             this._targetTexture.addCamera(this._camera);
         }
-
-
-
     }
 }

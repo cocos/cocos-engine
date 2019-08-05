@@ -153,7 +153,9 @@ export class CanvasComponent extends Component {
             }
 
             if (value) {
-                this._camera.changeTargetWindow(value.getGFXWindow());
+                const window = value.getGFXWindow();
+                this._camera.changeTargetWindow(window);
+                this._camera.setFixedSize(window!.width, window!.height);
                 value.addCamera(this._camera);
             } else {
                 this._camera.changeTargetWindow();
@@ -219,7 +221,9 @@ export class CanvasComponent extends Component {
             const device = cc.director.root.device;
             this._camera!.resize(device.width, device.height);
             if (this._targetTexture) {
-                this._camera!.changeTargetWindow(this._targetTexture.getGFXWindow());
+                const window = this._targetTexture.getGFXWindow();
+                this._camera!.changeTargetWindow(window);
+                this._camera!.setFixedSize(window!.width, window!.height);
                 this._targetTexture.addCamera(this._camera!);
             }
         }

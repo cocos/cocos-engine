@@ -43,8 +43,8 @@ export type PresumedGFXTextureViewInfo = Pick<IGFXTextureViewInfo, 'texture' | '
 @ccclass('cc.SimpleTexture')
 export class SimpleTexture extends TextureBase {
     private _mipmapLevel = 1;
-    private _gfxTexture: GFXTexture | null = null;
-    private _gfxTextureView: GFXTextureView | null = null;
+    protected _gfxTexture: GFXTexture | null = null;
+    protected _gfxTextureView: GFXTextureView | null = null;
 
     /**
      * 获取此贴图底层的 GFX 贴图对象。
@@ -110,7 +110,7 @@ export class SimpleTexture extends TextureBase {
             if (source instanceof HTMLElement) {
                 if (source.height > region.texExtent.height ||
                     source.width > region.texExtent.width) {
-                    error(`Image source bounds override.`);
+                    error(`Image source(${this.name}) bounds override.`);
                 }
             }
         }
@@ -184,7 +184,7 @@ export class SimpleTexture extends TextureBase {
         this._createTexture(device);
     }
 
-    private _createTexture (device: GFXDevice) {
+    protected _createTexture (device: GFXDevice) {
         const textureCreateInfo = this._getGfxTextureCreateInfo({
             usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
             format: this._getGFXFormat(),
@@ -215,7 +215,7 @@ export class SimpleTexture extends TextureBase {
         this._gfxTextureView = view;
     }
 
-    private _tryDestroyTexture () {
+    protected _tryDestroyTexture () {
         if (this._gfxTexture) {
             this._gfxTexture.destroy();
             this._gfxTexture = null;

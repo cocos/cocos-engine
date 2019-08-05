@@ -399,6 +399,10 @@ export class SpriteComponent extends UIRenderComponent {
             this._resized();
             this.node.on(SystemEventType.SIZE_CHANGED, this._resized, this);
         }
+
+        if(this._spriteFrame){
+            this._spriteFrame.on('change-texture-view', this._markForUpdateUvDirty, this);
+        }
     }
 
     // /**
@@ -431,6 +435,10 @@ export class SpriteComponent extends UIRenderComponent {
         this.destroyRenderData();
         if (CC_EDITOR) {
             this.node.off(SystemEventType.SIZE_CHANGED, this._resized, this);
+        }
+
+        if (this._spriteFrame) {
+            this._spriteFrame.off('change-texture-view');
         }
     }
 
@@ -594,10 +602,17 @@ export class SpriteComponent extends UIRenderComponent {
         // }
 
         if(this._renderData){
+            if(oldFrame){
+                oldFrame.off('change-texture-view');
+            }
+
+            if(spriteFrame){
+                spriteFrame.on('change-texture-view', this._markForUpdateUvDirty, this);
+            }
+
             if (oldFrame && spriteFrame) {
                 this._renderData!.uvDirty = oldFrame.uvHash !== spriteFrame.uvHash;
-            }
-            else {
+            } else {
                 this._renderData!.uvDirty = true;
             }
 
@@ -618,6 +633,16 @@ export class SpriteComponent extends UIRenderComponent {
         if (CC_EDITOR) {
             // Set atlas
             this._applyAtlas(spriteFrame);
+        }
+    }
+
+    /**
+     * 强制刷新 uv。
+     */
+    private _markForUpdateUvDirty() {
+        if (this._renderData) {
+            this._renderData.uvDirty = true;
+            this._renderDataFlag = true;
         }
     }
 }

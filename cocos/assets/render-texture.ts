@@ -4,7 +4,6 @@ import { GFXDevice } from '../gfx/device';
 import { GFXWindow } from '../gfx/window';
 import { DepthStencilFormat, PixelFormat } from './asset-enum';
 import { TextureBase } from './texture-base';
-import { WebGL2GFXFramebuffer } from '../gfx/webgl2/webgl2-framebuffer';
 import { ccenum } from '../core/value-types/enum';
 import { Camera } from '../renderer';
 
@@ -100,26 +99,6 @@ export class RenderTexture extends TextureBase {
         });
         this._cameras.length = 0;
         return super.destroy();
-    }
-
-    public readPixels (x?: number, y?: number, w?: number, h?: number, data?: Uint8Array) {
-        if (!this._window || !this._window.colorTexView) {
-            return data;
-        }
-
-        x = x || 0;
-        y = y || 0;
-        let width = w || this._width;
-        let height = h || this._height;
-        data = data || new Uint8Array(width * height * 4);
-
-        let gl = cc.director.root.device.gl;
-        let oldFBO = gl.getParameter(gl.FRAMEBUFFER_BINDING);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, (this._window.framebuffer as WebGL2GFXFramebuffer).gpuFramebuffer.glFramebuffer);
-        gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, oldFBO);
-
-        return data;
     }
 
     public addCamera (camera: Camera) {
