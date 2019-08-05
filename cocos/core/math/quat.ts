@@ -649,13 +649,23 @@ export class Quat extends ValueType {
         return new Quat(this.x, this.y, this.z, this.w);
     }
 
-    public set (other: Quat);
-    public set (x?: number, y?: number, z?: number, w?: number);
     /**
      * 设置当前四元数使其与指定四元数相等。
      * @param other 相比较的四元数。
      * @returns `this`
      */
+    public set (other: Quat);
+
+    /**
+     * 设置当前四元数指定元素值。
+     * @param x 四元数 x 元素值
+     * @param y 四元数 y 元素值
+     * @param z 四元数 z 元素值
+     * @param w 四元数 w 元素值
+     * @returns `this`
+     */
+    public set (x?: number, y?: number, z?: number, w?: number);
+
     public set (x?: number | Quat, y?: number, z?: number, w?: number) {
         if (x && typeof x === 'object') {
             this.x = x.x;

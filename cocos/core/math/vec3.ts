@@ -118,6 +118,16 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @zh 逐元素向量除法
+     */
+    public static divide<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
+        out.x = a.x / b.x;
+        out.y = a.y / b.y;
+        out.z = a.z / b.z;
+        return out;
+    }
+
+    /**
      * @zh 逐元素向量向上取整
      */
     public static ceil<Out extends IVec3Like> (out: Out, a: Out) {
@@ -612,13 +622,22 @@ export class Vec3 extends ValueType {
         return new Vec3(this.x, this.y, this.z);
     }
 
-    public set (other: Vec3);
-    public set (x?: number, y?: number, z?: number);
     /**
      * 设置当前向量使其与指定向量相等。
      * @param other 相比较的向量。
      * @returns `this`
      */
+    public set (other: Vec3);
+
+    /**
+     * 设置当前向量的具体分量值。
+     * @param x 要设置的 x 分量的值
+     * @param y 要设置的 y 分量的值
+     * @param z 要设置的 z 分量的值
+     * @returns `this`
+     */
+    public set (x?: number, y?: number, z?: number);
+
     public set (x?: number | Vec3, y?: number, z?: number) {
         if (x && typeof x === 'object') {
             this.x = x.x;
@@ -649,6 +668,14 @@ export class Vec3 extends ValueType {
         );
     }
 
+    /**
+     * 判断当前向量是否在误差范围内与指定分量的向量相等。
+     * @param x 相比较的向量的 x 分量。
+     * @param y 相比较的向量的 y 分量。
+     * @param z 相比较的向量的 z 分量。
+     * @param epsilon 允许的误差，应为非负数。
+     * @returns 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
+     */
     public equals3f (x: number, y: number, z: number, epsilon = EPSILON) {
         return (
             Math.abs(this.x - x) <=
@@ -670,6 +697,13 @@ export class Vec3 extends ValueType {
         return this.x === other.x && this.y === other.y && this.z === other.z;
     }
 
+    /**
+     * 判断当前向量是否与指定分量的向量相等。
+     * @param x 指定向量的 x 分量。
+     * @param y 指定向量的 y 分量。
+     * @param z 指定向量的 z 分量。
+     * @returns 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
+     */
     public strictEquals3f (x:number, y:number, z:number) {
         return this.x === x && this.y === y && this.z === z;
     }
@@ -705,6 +739,12 @@ export class Vec3 extends ValueType {
         return this;
     }
 
+    /**
+     * 向量加法。将当前向量与指定分量的向量相加
+     * @param x 指定的向量的 x 分量。
+     * @param y 指定的向量的 y 分量。
+     * @param z 指定的向量的 z 分量。
+     */
     public add3f (x:number, y:number, z:number) {
         this.x = this.x + x;
         this.y = this.y + y;
@@ -723,6 +763,12 @@ export class Vec3 extends ValueType {
         return this;
     }
 
+    /**
+     * 向量减法。将当前向量减去指定分量的向量
+     * @param x 指定的向量的 x 分量。
+     * @param y 指定的向量的 y 分量。
+     * @param z 指定的向量的 z 分量。
+     */
     public subtract3f (x:number, y:number, z:number) {
         this.x = this.x - x;
         this.y = this.y - y;
@@ -754,6 +800,12 @@ export class Vec3 extends ValueType {
         return this;
     }
 
+    /**
+     * 向量乘法。将当前向量与指定分量的向量相乘的结果赋值给当前向量。
+     * @param x 指定的向量的 x 分量。
+     * @param y 指定的向量的 y 分量。
+     * @param z 指定的向量的 z 分量。
+     */
     public multiply3f (x:number, y:number, z:number) {
         this.x = this.x * x;
         this.y = this.y * y;
@@ -761,6 +813,10 @@ export class Vec3 extends ValueType {
         return this;
     }
 
+    /**
+     * 向量逐元素相除。将当前向量与指定分量的向量相除的结果赋值给当前向量。
+     * @param other 指定的向量
+     */
     public divide (other: Vec3) {
         this.x = this.x / other.x;
         this.y = this.y / other.y;
@@ -768,6 +824,12 @@ export class Vec3 extends ValueType {
         return this;
     }
 
+    /**
+     * 向量逐元素相除。将当前向量与指定分量的向量相除的结果赋值给当前向量。
+     * @param x 指定的向量的 x 分量。
+     * @param y 指定的向量的 y 分量。
+     * @param z 指定的向量的 z 分量。
+     */
     public divide3f (x:number, y:number, z:number) {
         this.x = this.x / x;
         this.y = this.y / y;

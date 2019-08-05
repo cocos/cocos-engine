@@ -637,15 +637,21 @@ export class Mat3 extends ValueType {
             t.m06, t.m07, t.m08);
     }
 
-    public set (other: Mat3);
-    public set (m00?: number, m01?: number, m02?: number,
-                m03?: number, m04?: number, m05?: number,
-                m06?: number, m07?: number, m08?: number)
     /**
      * 设置当前矩阵使其与指定矩阵相等。
      * @param other 相比较的矩阵。
      * @returns `this`
      */
+    public set (other: Mat3);
+
+    /**
+     * 设置当前矩阵指定元素值。
+     * @returns `this`
+     */
+    public set (m00?: number, m01?: number, m02?: number,
+                m03?: number, m04?: number, m05?: number,
+                m06?: number, m07?: number, m08?: number);
+
     public set (m00: number | Mat3 = 1, m01: number = 0, m02: number = 0,
                 m03: number = 0, m04: number = 1, m05: number = 0,
                 m06: number = 0, m07: number = 0, m08: number = 1 ) {

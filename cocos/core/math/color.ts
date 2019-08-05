@@ -665,13 +665,23 @@ export class Color extends ValueType {
         return hsv;
     }
 
-    public set (other:Color);
-    public set (r?:number, g?:number, b?:number, a?:number);
     /**
      * 设置当前颜色使其与指定颜色相等。
      * @param other 相比较的颜色。
      * @returns 当前颜色。
      */
+    public set (other:Color);
+
+    /**
+     * 设置当前颜色使其与指定通道值相等。
+     * @param [r=0] 指定的 Red 通道。
+     * @param [g=0] 指定的 Green 通道。
+     * @param [b=0] 指定的 Blue 通道。
+     * @param [a=255] 指定的 Alpha 通道。
+     * @returns 当前颜色。
+     */
+    public set (r?:number, g?:number, b?:number, a?:number);
+
     public set (r?: number|Color, g?:number, b?:number, a?:number ) {
         if (typeof r === 'object') {
             g = r.g;

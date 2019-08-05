@@ -184,13 +184,9 @@ export class Node extends BaseNode implements INode {
                 parent.updateWorldTransform();
                 Vec3.subtract(local, this._pos, parent._pos);
                 Vec3.transformQuat(local, local, Quat.conjugate(q_a, parent._rot));
-                local.x /= parent._scale.x;
-                local.y /= parent._scale.y;
-                local.z /= parent._scale.z;
+                Vec3.divide(local, local, parent._scale);
                 Quat.multiply(this._lrot, Quat.conjugate(q_a, parent._rot), this._rot);
-                this._lscale.x = this._scale.x / parent._scale.x;
-                this._lscale.y = this._scale.y / parent._scale.y;
-                this._lscale.z = this._scale.z / parent._scale.z;
+                Vec3.divide(this._lscale, this._scale, parent._scale);
             } else {
                 Vec3.copy(this._lpos, this._pos);
                 Quat.copy(this._lrot, this._rot);
@@ -621,9 +617,7 @@ export class Node extends BaseNode implements INode {
             parent.updateWorldTransform();
             Vec3.subtract(local, this._pos, parent._pos);
             Vec3.transformQuat(local, local, Quat.conjugate(q_a, parent._rot));
-            local.x /= parent._scale.x;
-            local.y /= parent._scale.y;
-            local.z /= parent._scale.z;
+            Vec3.divide(local, local, parent._scale);
         } else {
             Vec3.copy(local, this._pos);
         }
@@ -773,9 +767,7 @@ export class Node extends BaseNode implements INode {
         }
         if (this._parent) {
             this._parent.getWorldScale(v3_a);
-            this._lscale.x = this._scale.x / v3_a.x;
-            this._lscale.y = this._scale.y / v3_a.y;
-            this._lscale.z = this._scale.z / v3_a.z;
+            Vec3.divide(this._lscale, this._scale, v3_a);
         } else {
             Vec3.copy(this._lscale, this._scale);
         }

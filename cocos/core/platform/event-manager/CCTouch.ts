@@ -193,8 +193,7 @@ export default class Touch {
         _vec2.set(this._point);
         _vec2.subtract(this._prevPoint);
         Vec2.set(out, cc.view.getScaleX(), cc.view.getScaleY());
-        out.x = _vec2.x / out.x;
-        out.y = _vec2.y / out.y;
+        Vec2.divide(out, _vec2, out);
         return out;
     }
 
