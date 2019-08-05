@@ -27,7 +27,6 @@
  // tslint:disable
 
 import { getClassName, getset } from './js';
-import { clamp, clamp01 as clampValue01, lerp as lerpUtil, toRadian, toDegree } from '../math/utils';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
@@ -118,54 +117,6 @@ export function pushToMap (map, key, value, pushFront) {
     else {
         map[key] = value;
     }
-}
-
-/**
- * @zh
- * 限定浮点数的最大最小值。
- * 数值大于 max_inclusive 则返回 max_inclusive。
- * 数值小于 min_inclusive 则返回 min_inclusive。
- * 否则返回自身。
- * @deprecated
- */
-export function clampf(value: number, min_inclusive: number, max_inclusive: number) {
-    return clamp(value, min_inclusive, max_inclusive);
-}
-
-/**
- * @zh
- * 限定浮点数的取值范围为 0 ~ 1 之间。
- * @deprecated
- */
-export function clamp01 (value: number) {
-    return clampValue01(value);
-}
-
-/**
- * @zh
- * 两个数字之间的线性插值，比率决定了它对两端的偏向程度。
- * @deprecated
- */
-export function lerp (a: number, b: number, r: number) {
-    return lerpUtil(a, b, r);
-}
-
-/**
- * @zh
- * 角度转弧度
- * @deprecated
- */
-export function degreesToRadians (angle: number) {
-    return toRadian(angle);
-}
-
-/**
- * @zh
- * 弧度转角度
- * @deprecated
- */
-export function radiansToDegrees (angle: number) {
-    return toDegree(angle);
 }
 
 export function contains (refNode, otherNode) {
@@ -287,9 +238,4 @@ cc.misc = {
     tryCatchFunctor_EDITOR,
     isPlainEmptyObj_DEV,
     cloneable_DEV,
-    clampf,
-    clamp01,
-    lerp,
-    degreesToRadians,
-    radiansToDegrees,
 };
