@@ -173,7 +173,7 @@ export class Camera {
     public update (forceUpdate = false) { // for lazy eval situations like the in-editor preview
         if (this._node) {
             // view matrix
-            if (this._node.hasChanged || forceUpdate) {
+            if (this._node.hasChangedFlags || forceUpdate) {
                 Mat4.invert(this._matView, this.node.worldMatrix);
 
                 this._forward.x = -this._matView.m02;
@@ -194,7 +194,7 @@ export class Camera {
             }
 
             // view-projection
-            if (this._node.hasChanged || this._isProjDirty || forceUpdate) {
+            if (this._node.hasChangedFlags || this._isProjDirty || forceUpdate) {
                 Mat4.multiply(this._matViewProj, this._matProj, this._matView);
                 Mat4.invert(this._matViewProjInv, this._matViewProj);
                 this._frustum.update(this._matViewProj, this._matViewProjInv);

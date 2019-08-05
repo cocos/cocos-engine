@@ -9,7 +9,7 @@
   ],
   "module": "index.js",
   "scripts": {
-    "server": "http-server . -p 8002",
+    "server": "http-server . -p 8002 -o http://127.0.0.1:8002/playground",
     "build": "npm run build:min && npm run build-declaration",
     "build:dev": "node ./rollup/out/build-engine-cli.js --sourcemap --platform=universal --physics=cannon --destination=./bin/cocos-3d.dev.js",
     "build:min": "node ./rollup/out/build-engine-cli.js --compress --sourcemap --platform=universal --physics=cannon --destination=./bin/cocos3d-js.min.js",

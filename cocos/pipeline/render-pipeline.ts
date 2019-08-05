@@ -1452,7 +1452,7 @@ export abstract class RenderPipeline {
         }
 
         const planarShadows = scene.planarShadows;
-        if (planarShadows.enabled && mainLight.node.hasChanged) {
+        if (planarShadows.enabled && mainLight.node.hasChangedFlags) {
             planarShadows.updateDirLight(mainLight);
         }
 

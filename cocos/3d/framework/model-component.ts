@@ -204,7 +204,7 @@ export class ModelComponent extends RenderableComponent {
             return;
         }
         // @ts-ignore
-        this.node._hasChanged = this._model.transform._hasChanged = true;
+        this.node._hasChangedFlags = this._model.transform._hasChangedFlags = true;
         const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
         for (let i = 0; i < meshCount; ++i) {
             const material = this.getSharedMaterial(i);

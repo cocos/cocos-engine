@@ -1077,7 +1077,7 @@ class Director extends EventTarget {
             this.emit(Director.EVENT_AFTER_DRAW);
 
             eventManager.frameUpdateListeners();
-            if (this._scene) { this._scene.resetHasChanged(); }
+            if (this._scene) { this._scene.resetHasChangedFlags(); }
             this._totalFrames++;
         }
     }

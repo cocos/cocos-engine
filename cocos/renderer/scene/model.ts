@@ -157,7 +157,7 @@ export class Model {
     protected _inited: boolean = false;
     protected _uboUpdated: boolean = false;
     protected _castShadow: boolean = false;
-    private _transformUpdated: boolean = true;
+    private _transformUpdated: number = 0;
 
     /**
      * Setup a default empty model
@@ -206,9 +206,9 @@ export class Model {
     public updateTransform () {
         const node = this._transform;
         // @ts-ignore
-        if (!node.hasChanged && !node._dirty) { return; }
+        if (!node._hasChangedFlags && !node._dirtyFlags) { return; }
         node.updateWorldTransform();
-        this._transformUpdated = this._transformUpdated || this.node.hasChanged;
+        this._transformUpdated = this._transformUpdated || this.node.hasChangedFlags;
         if (!this._modelBounds || !this._worldBounds) { return; }
         // @ts-ignore
         this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds);
@@ -235,7 +235,7 @@ export class Model {
             if (commonLocal && commonLocal.buffer) {
                 commonLocal.buffer!.update(this._uboLocal.view);
             }
-            this._transformUpdated = false;
+            this._transformUpdated = 0;
         }
 
         this._matPSORecord.forEach(this._updatePass, this);

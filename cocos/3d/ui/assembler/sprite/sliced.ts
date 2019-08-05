@@ -116,7 +116,7 @@ export const sliced: IAssembler = {
     },
 
     fillBuffers (sprite: SpriteComponent, renderer: UI) {
-        if (sprite.node.hasChanged) {
+        if (sprite.node.hasChangedFlags) {
             this.updateWorldVerts(sprite);
         }
 

@@ -376,7 +376,7 @@ class SharedRigidBody {
 
     private _beforeStep () {
         // 开始物理计算之前，用户脚本或引擎功能有可能改变节点的Transform，所以需要判断并进行更新
-        if (this._node.hasChanged) {
+        if (this._node.hasChangedFlags) {
             // scale 进行单独判断，因为目前的物理系统处理后不会改变scale的属性
             if (!Vec3.equals(this._prevScale, this._node.worldScale)) {
                 this._body.scaleAllShapes(this._node.worldScale);
@@ -400,7 +400,7 @@ class SharedRigidBody {
             } else {
                 // 对于只有形状组件的节点，需要将Scene中节点的Transform同步到Phyisc。
                 // 这是因为物理计算后可能会改变一些节点，这会导致这些子节点的Transform也发生改变。
-                if (this._node.hasChanged) {
+                if (this._node.hasChangedFlags) {
                     this._syncPhysWithScene(this._node);
 
                     if (this._body.isSleeping()) {
