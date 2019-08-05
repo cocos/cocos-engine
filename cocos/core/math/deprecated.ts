@@ -24,7 +24,6 @@ deprecatedWrapper({
         ['sqrDist', 'squaredDistance'],
         ['mag', 'len'],
         ['sqrMag', 'lengthSqr'],
-        ['divide', 'divideScalar'],
         ['scale', 'multiplyScalar'],
         ['exactEquals', 'strictEquals'],
     ],
@@ -40,7 +39,6 @@ deprecatedWrapper({
         ['magSqr', 'lengthSqr'],
         ['exactEquals', 'strictEquals'],
         ['scale', 'multiplyScalar'],
-        ['divide', 'divideScalar'],
     ],
 });
 
@@ -57,7 +55,6 @@ deprecatedWrapper({
         ['sqrDist', 'squaredDistance'],
         ['mag', 'len'],
         ['sqrMag', 'lengthSqr'],
-        ['divide', 'divideScalar'],
         ['scale', 'multiplyScalar'],
         ['exactEquals', 'strictEquals'],
     ],
@@ -73,7 +70,6 @@ deprecatedWrapper({
         ['magSqr', 'lengthSqr'],
         ['exactEquals', 'strictEquals'],
         ['scale', 'multiplyScalar'],
-        ['divide', 'divideScalar'],
     ],
 });
 
@@ -90,7 +86,6 @@ deprecatedWrapper({
         ['sqrDist', 'squaredDistance'],
         ['mag', 'len'],
         ['sqrMag', 'lengthSqr'],
-        ['divide', 'divideScalar'],
         ['scale', 'multiplyScalar'],
         ['exactEquals', 'strictEquals'],
     ],
@@ -106,7 +101,6 @@ deprecatedWrapper({
         ['magSqr', 'lengthSqr'],
         ['exactEquals', 'strictEquals'],
         ['scale', 'multiplyScalar'],
-        ['divide', 'divideScalar'],
     ],
 });
 

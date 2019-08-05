@@ -111,17 +111,6 @@ export class Vec4 extends ValueType {
     }
 
     /**
-     * @zh 逐元素向量除法
-     */
-    public static divideScalar <Out extends IVec4Like> (out: Out, a: Out, b: Out) {
-        out.x = a.x / b.x;
-        out.y = a.y / b.y;
-        out.z = a.z / b.z;
-        out.w = a.w / b.w;
-        return out;
-    }
-
-    /**
      * @zh 逐元素向量向上取整
      */
     public static ceil <Out extends IVec4Like> (out: Out, a: Out) {
@@ -635,18 +624,6 @@ export class Vec4 extends ValueType {
         this.y = this.y * y;
         this.z = this.z * z;
         this.w = this.w * w;
-        return this;
-    }
-
-    /**
-     * 将当前向量的各个分量除以指定标量。相当于 `this.multiply(1 / scalar, out)`。
-     * @param scalar 标量除数。
-     */
-    public divideScalar (scalar: number) {
-        this.x = this.x / scalar;
-        this.y = this.y / scalar;
-        this.z = this.z / scalar;
-        this.w = this.w / scalar;
         return this;
     }
 
