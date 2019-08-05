@@ -1,3 +1,7 @@
+/**
+ * @category asset
+ */
+
 import { ccclass, property } from '../core/data/class-decorator';
 import { GFXFormat } from '../gfx';
 import { GFXDevice } from '../gfx/device';

@@ -1,3 +1,7 @@
+/**
+ * @category terrain
+ */
+
 import { clamp, Rect, Vec3 } from '../../core/math';
 import { Terrain, TERRAIN_BLOCK_TILE_COMPLEXITY } from './terrain';
 import { TerrainBrush, TerrainCircleBrush } from './terrain-brush';

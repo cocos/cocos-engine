@@ -1,3 +1,7 @@
+/**
+ * @category terrain
+ */
+
 import { clamp } from '../../core/math';
 
 export class HeightField {

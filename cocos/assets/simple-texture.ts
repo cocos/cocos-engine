@@ -1,3 +1,7 @@
+/**
+ * @category asset
+ */
+
 import { ccclass } from '../core/data/class-decorator';
 import { error } from '../core/platform/CCDebug';
 import { GFXBufferTextureCopy, GFXTextureFlagBit, GFXTextureUsageBit } from '../gfx/define';

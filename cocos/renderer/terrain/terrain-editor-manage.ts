@@ -1,3 +1,7 @@
+/**
+ * @category terrain
+ */
+
 import { TerrainEditorMode } from './terrain-editor-mode';
 
 // 管理模式
