@@ -37,6 +37,7 @@ exports.getMacros = function (platform, flags) {
     res['CC_DEV'] = res['CC_EDITOR'] || res['CC_PREVIEW'] || res['CC_TEST'];
     res['CC_DEBUG'] = res['CC_DEBUG'] || res['CC_DEV'];
     res['CC_SUPPORT_JIT'] = !(res['CC_RUNTIME'] || res['CC_MINIGAME']);
+    res['CC_NATIVERENDERER'] = false;
     return res;
 };
 

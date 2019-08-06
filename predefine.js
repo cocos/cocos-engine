@@ -167,7 +167,7 @@ else {
     defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
     defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
     defineMacro('CC_JSB', defined('jsb'));
-    defineMacro('CC_NATIVERENDERER', defined('renderer'));
+    defineMacro('CC_NATIVERENDERER', defined('jsb'));
     defineMacro('CC_SUPPORT_JIT', true);
 }
 // defined in the runtime
