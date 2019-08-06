@@ -2,10 +2,12 @@
 // tslint:disable:interface-name
 
 export interface ModuleDivision {
+    $schema?: string;
+
     /**
      * Items.
      */
-    items: Item[];
+    items: Array<Item | ItemGroup>;
 }
 
 interface BaseItem {
@@ -30,14 +32,14 @@ interface BaseItem {
     default?: boolean;
 }
 
-export interface SimpleItem extends BaseItem {
+export interface Simple extends BaseItem {
     /**
-     * Entry to the module.
+     * Entry(s) to the module.
      */
-    entry: string;
+    entry: string | string[];
 }
 
-export interface GroupItem extends BaseItem {
+export interface SingleSelection extends BaseItem {
     /**
      * Options.
      */
@@ -48,9 +50,9 @@ export interface GroupItem extends BaseItem {
         name: string;
 
         /**
-         * Entry of the option.
+         * Entry(s) of the option.
          */
-        entry: string;
+        entry: string | string[];
 
         /**
          * Option description.
@@ -65,4 +67,16 @@ export interface GroupItem extends BaseItem {
     defaultOption?: number;
 }
 
-export type Item = SimpleItem | GroupItem;
+export interface ItemGroup {
+    description: string;
+
+    /**
+     * Whether if at least one item shall be selected.
+     */
+    required?: boolean;
+
+    
+    items: Item[];
+}
+
+export type Item = Simple | SingleSelection;

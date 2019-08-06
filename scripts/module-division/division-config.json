@@ -8,14 +8,8 @@
             "default": true
         },
         {
-            "name": "Animation",
-            "entry": "animation",
-            "default": true
-        },
-        {
-            "name": "GFX",
-            "required": true,
-            "options": [
+            "description": "Graphcis API",
+            "items": [
                 {
                     "name": "WebGL 1.0",
                     "entry": "gfx-webgl"
@@ -24,17 +18,36 @@
                     "name": "WebGL 2.0",
                     "entry": "gfx-webgl2"
                 }
-            ],
-            "default": true,
-            "defaultOption": 0
+            ]
         },
         {
-            "name": "Primitives",
-            "entry": "primitives",
-            "default": true
+            "name": "physics",
+            "description": "Physics implementation",
+            "options": [
+                {
+                    "name": "cannon.js",
+                    "entry": [
+                        "physics-cannon",
+                        "physics-framework"
+                    ]
+                },
+                {
+                    "name": "builtin",
+                    "entry": [
+                        "physics-builtin",
+                        "physics-framework"
+                    ]
+                }
+            ]
         },
         {
-            "name": "tween.js Adapter",
+            "name": "audio",
+            "description": "Audio",
+            "entry": ""
+        },
+        {
+            "name": "tween",
+            "description": "tween.js Adapter",
             "entry": "tween"
         }
     ]

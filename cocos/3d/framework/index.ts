@@ -28,7 +28,6 @@
  * @hidden
  */
 
-import { AudioSourceComponent } from './audio-source-component';
 import { AvatarModelComponent, AvatarUnit } from './avatar-model-component';
 import { BatchedSkinningModelComponent, SkinningModelUnit } from './batched-skinning-model-component';
 import { CameraComponent } from './camera-component';
@@ -46,7 +45,6 @@ import { SphereLightComponent } from './sphere-light-component';
 import { SpotLightComponent } from './spot-light-component';
 
 export {
-    AudioSourceComponent,
     CameraComponent,
     LightComponent,
     ModelComponent,
@@ -63,7 +61,6 @@ export {
 };
 
 // cc.AnimationComponent = AnimationComponent;
-cc.AudioSourceComponent = AudioSourceComponent;
 cc.CameraComponent = CameraComponent;
 cc.EditorComponent = EditorCameraComponent;
 cc.RenderableComponent = RenderableComponent;
