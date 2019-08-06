@@ -136,16 +136,16 @@ export class Model {
         return this._uboUpdated;
     }
 
-    protected _type: string = 'default';
+    protected _type = 'default';
     protected _device: GFXDevice;
     protected _scene: RenderScene;
     protected _node: INode;
     protected _transform: INode;
     protected _id: number;
-    protected _enabled: boolean = false;
-    protected _viewID: number = 1;
-    protected _cameraID: number = -1;
-    protected _userKey: number = -1;
+    protected _enabled = false;
+    protected _viewID = 1;
+    protected _cameraID = -1;
+    protected _userKey = -1;
     protected _worldBounds: aabb | null = null;
     protected _modelBounds: aabb | null = null;
     protected _subModels: SubModel[] = [];
@@ -154,10 +154,10 @@ export class Model {
     protected _uboLocal: UBOLocal;
     protected _localUBO: GFXBuffer | null = null;
     protected _localBindings: Map<string, IInternalBindingInst> = new Map<string, IInternalBindingInst>();
-    protected _inited: boolean = false;
-    protected _uboUpdated: boolean = false;
-    protected _castShadow: boolean = false;
-    private _transformUpdated: number = 0;
+    protected _inited = false;
+    protected _uboUpdated = false;
+    protected _castShadow = false;
+    private _transformUpdated = false;
 
     /**
      * Setup a default empty model
@@ -206,12 +206,14 @@ export class Model {
     public updateTransform () {
         const node = this._transform;
         // @ts-ignore
-        if (!node._hasChangedFlags && !node._dirtyFlags) { return; }
-        node.updateWorldTransform();
-        this._transformUpdated = this._transformUpdated || this.node.hasChangedFlags;
-        if (!this._modelBounds || !this._worldBounds) { return; }
-        // @ts-ignore
-        this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds);
+        if (node._hasChangedFlags || node._dirtyFlags) {
+            node.updateWorldTransform();
+            this._transformUpdated = true;
+            if (this._modelBounds && this._worldBounds) {
+                // @ts-ignore
+                this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds);
+            }
+        }
     }
 
     public _resetUBOUpdateFlag () {
@@ -223,7 +225,6 @@ export class Model {
             return false;
         }
         this._uboUpdated = true;
-        // @ts-ignore
         if (this._transformUpdated) {
             // @ts-ignore
             const worldMatrix = this._transform._mat; const rot = this._transform._rot;
@@ -235,7 +236,7 @@ export class Model {
             if (commonLocal && commonLocal.buffer) {
                 commonLocal.buffer!.update(this._uboLocal.view);
             }
-            this._transformUpdated = 0;
+            this._transformUpdated = false;
         }
 
         this._matPSORecord.forEach(this._updatePass, this);
