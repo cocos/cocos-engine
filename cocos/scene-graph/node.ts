@@ -199,8 +199,9 @@ export class Node extends BaseNode implements INode {
 
     public _onBatchCreated () {
         this._dirtyFlags = this._hasChangedFlags = TransformDirtyBit.TRS;
-        for (const child of this._children) {
-            child._onBatchCreated();
+        const len = this._children.length;
+        for (let i = 0; i < len; ++i) {
+            this._children[i]._onBatchCreated();
         }
     }
 
@@ -328,17 +329,18 @@ export class Node extends BaseNode implements INode {
     /**
      * @en
      * invalidate the world transform information
-     * for this node and all its children recursively, one part at a time
+     * for this node and all its children recursively
      * @zh
-     * 递归标记节点世界变换为 dirty，一次只能标记 TRS 中的一种类型
+     * 递归标记节点世界变换为 dirty
      */
     public invalidateChildren (dirtyBit: TransformDirtyBit) {
-        if (this._dirtyFlags & this._hasChangedFlags & dirtyBit) { return; }
+        if ((this._dirtyFlags & this._hasChangedFlags & dirtyBit) === dirtyBit) { return; }
         this._dirtyFlags |= dirtyBit;
         this._hasChangedFlags |= dirtyBit;
         dirtyBit |= TransformDirtyBit.POSITION;
-        for (const child of this._children) {
-            child.invalidateChildren(dirtyBit);
+        const len = this._children.length;
+        for (let i = 0; i < len; ++i) {
+            this._children[i].invalidateChildren(dirtyBit);
         }
     }
 

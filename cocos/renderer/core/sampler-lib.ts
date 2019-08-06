@@ -99,12 +99,6 @@ class SamplerLib {
      * @param info 目标 sampler 属性
      */
     public getSampler (device: GFXDevice, hash: number) {
-        /*
-        let hash = '';
-        for (let i = 0; i < defaultInfo.length; i++) {
-            hash += (info[i] || defaultInfo[i]) + ',';
-        }
-        */
         const cache = this._cache[hash];
         if (cache) { return cache; }
 
