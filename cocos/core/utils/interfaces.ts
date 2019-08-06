@@ -29,6 +29,7 @@ import { Scene } from '../../scene-graph/scene';
 import { NodeEventProcessor } from '../../scene-graph/node-event-processor';
 import { Component } from '../../components/component';
 import { Event } from '../event';
+import { TransformDirtyBit } from '../../scene-graph/node';
 
 export interface IBaseNode {
 
@@ -435,7 +436,7 @@ export interface INode extends IBaseNode {
      * @zh
      * 这个节点的空间变换信息在当前帧内是否有变过？
      */
-    hasChangedFlags: Readonly<number>;
+    hasChangedFlags: Readonly<TransformDirtyBit>;
 
     /**
      * @zh
