@@ -2263,9 +2263,9 @@ let NodeDefines = {
      * !#zh 设置该节点的 quaternion 旋转角度。
      * @method setRotation
      * @param {cc.Quat|Number} quat Quaternion object represents the rotation or the x value of quaternion
-     * @param {Number} y y value of quternion
-     * @param {Number} z z value of quternion
-     * @param {Number} w w value of quternion
+     * @param {Number} [y] y value of quternion
+     * @param {Number} [z] z value of quternion
+     * @param {Number} [w] w value of quternion
      */
     setRotation (quat, y, z, w) {
         if (typeof quat === 'number' && y === undefined) {
