@@ -501,6 +501,8 @@ export interface INode extends IBaseNode {
 
     _uiComp;
 
+    isValid: boolean;
+
     uiTransfromComp;
 
     /**
@@ -656,7 +658,7 @@ export interface INode extends IBaseNode {
     once (type: string, callback: Function, target?: Object, useCapture?: boolean): void;
     emit (type: string, ...args: any[]): void;
     dispatchEvent (event: Event): void;
-    hasEventListener (type: string): void;
+    hasEventListener (type: string): boolean;
     targetOff (target: string | Object): void;
     pauseSystemEvents (recursive: boolean): void;
     resumeSystemEvents (recursive: boolean): void;
