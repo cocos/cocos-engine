@@ -29,7 +29,7 @@ import { Scene } from '../../scene-graph/scene';
 import { NodeEventProcessor } from '../../scene-graph/node-event-processor';
 import { Component } from '../../components/component';
 import { Event } from '../event';
-import { TransformDirtyBit } from '../../scene-graph/node';
+import { TransformDirtyBit, NodeSpace } from '../../scene-graph/node-enum';
 
 export interface IBaseNode {
 
@@ -64,6 +64,26 @@ export interface IBaseNode {
      * ```
      */
     uuid: Readonly<string>;
+
+    /**
+     * @en
+     * Indicates whether the object is not yet destroyed. (It will not be available after being destroyed)<br>
+     * When an object's `destroy` is called, it is actually destroyed after the end of this frame.
+     * So `isValid` will return false from the next frame, while `isValid` in the current frame will still be true.
+     * If you want to determine whether the current frame has called `destroy`, use `cc.isValid(obj, true)`,
+     * but this is often caused by a particular logical requirements, which is not normally required.
+     *
+     * @zh
+     * 表示该对象是否可用（被 destroy 后将不可用）。<br>
+     * 当一个对象的 `destroy` 调用以后，会在这一帧结束后才真正销毁。<br>
+     * 因此从下一帧开始 `isValid` 就会返回 false，而当前帧内 `isValid` 仍然会是 true。<br>
+     * 如果希望判断当前帧是否调用过 `destroy`，请使用 `cc.isValid(obj, true)`，不过这往往是特殊的业务需求引起的，通常情况下不需要这样。
+     *
+     * @property {Boolean} isValid
+     * @default true
+     * @readOnly
+     */
+    isValid: boolean;
 
     /**
      * @zh
@@ -473,6 +493,12 @@ export interface INode extends IBaseNode {
      * 以欧拉角表示的本地旋转值
      */
     eulerAngles: Readonly<Vec3>;
+    
+    /**
+     * @zh
+     * 当前节点面向的前方方向
+     */
+   forward: Vec3;
 
     /**
      * @zh
@@ -569,6 +595,15 @@ export interface INode extends IBaseNode {
 
     /**
      * @zh
+     * 通过欧拉角设置本地旋转
+     * @param x - 目标欧拉角的 X 分量
+     * @param y - 目标欧拉角的 Y 分量
+     * @param z - 目标欧拉角的 Z 分量
+     */
+    setRotationFromEuler (x: number, y: number, z: number): void;
+
+    /**
+     * @zh
      * 获取世界旋转
      * @param out 输出到此目标 quaternion
      */
@@ -587,6 +622,15 @@ export interface INode extends IBaseNode {
     setWorldRotation (rotation: Quat): void;
     setWorldRotation (x: number, y: number, z: number, w: number): void;
     setWorldRotation (val: Quat | number, y?: number, z?: number, w?: number): void;
+    
+    /**
+     * @zh
+     * 通过欧拉角设置世界旋转
+     * @param x - 目标欧拉角的 X 分量
+     * @param y - 目标欧拉角的 Y 分量
+     * @param z - 目标欧拉角的 Z 分量
+     */
+    setWorldRotationFromEuler (x: number, y: number, z: number): void;
 
     /**
      * @zh
@@ -628,6 +672,13 @@ export interface INode extends IBaseNode {
 
     /**
      * @zh
+     * 获取只包含旋转和缩放的世界变换矩阵
+     * @param out 输出到此目标矩阵
+     */
+    getWorldRS (out?: Mat4): Mat4;
+
+    /**
+     * @zh
      * 获取只包含坐标和旋转的世界变换矩阵
      * @param out 输出到此目标矩阵
      */
@@ -642,6 +693,47 @@ export interface INode extends IBaseNode {
      * 更新节点的世界变换信息
      */
     updateWorldTransform (): void;
+
+    /**
+     * @zh
+     * 移动节点
+     * @param trans 位置增量
+     * @param ns 操作空间
+     */
+    translate (trans: Vec3, ns?: NodeSpace): void;
+
+    /**
+     * @zh
+     * 旋转节点
+     * @param trans 旋转增量
+     * @param ns 操作空间
+     */
+    rotate (rot: Quat, ns?: NodeSpace): void;
+
+    /**
+     * @zh
+     * 设置当前节点旋转为面向目标位置
+     * @param pos 目标位置
+     * @param up 坐标系的上方向
+     */
+    lookAt (pos: Vec3, up?: Vec3): void;
+
+    /**
+     * @en
+     * Reset the `hasChangedFlags` flag recursively
+     * @zh
+     * 递归重置节点的 hasChangedFlags 标记为 false
+     */
+    resetHasChangedFlags (): void;
+
+    /**
+     * @en
+     * invalidate the world transform information
+     * for this node and all its children recursively, one part at a time
+     * @zh
+     * 递归标记节点世界变换为 dirty，一次只能标记 TRS 中的一种类型
+     */
+    invalidateChildren (dirtyBit: any): void;
 
     getContentSize (out?: Size): Size;
     setContentSize (size: Size | number, height?: number): void;
