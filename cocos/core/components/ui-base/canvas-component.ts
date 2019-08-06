@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2019 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -28,15 +28,19 @@
  * @category ui
  */
 
-import { Component } from '../../../components';
-import { ccclass, disallowMultiple, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../../core/data/class-decorator';
-import { Vec3 } from '../../../core/math';
-import { GFXClearFlag } from '../../../gfx/define';
-import { Camera } from '../../../renderer';
+import { Component } from '../component';
+import { ccclass, disallowMultiple, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../data/class-decorator';
+import { Vec3 } from '../../math';
+import { GFXClearFlag } from '../../gfx/define';
+import { Camera } from '../../renderer';
 import { UITransformComponent } from './ui-transfrom-component';
-import { Node } from '../../../scene-graph/node';
-import { RenderTexture } from '../../../assets';
-import { GFXWindow } from '../../../gfx/window';
+import { Node } from '../../scene-graph/node';
+import { RenderTexture } from '../../assets/render-texture';
+import { GFXWindow } from '../../gfx/window';
+import { director, Director } from '../../director';
+import { view, ResolutionPolicy } from '../../platform/CCView';
+import visibleRect from '../../platform/CCVisibleRect';
+import { CameraComponent } from '../../3d/framework/camera-component';
 
 const _worldPos = new Vec3();
 
@@ -199,10 +203,10 @@ export class CanvasComponent extends Component {
         const cameraNode = new Node('UICamera_' + this.node.name);
         cameraNode.setPosition(0, 0, 1000);
         if (!CC_EDITOR) {
-            this._camera = cc.director.root.ui.renderScene.createCamera({
+            this._camera = director.root.ui.renderScene.createCamera({
                 name: 'ui_' + this.node.name,
                 node: cameraNode,
-                projection: cc.CameraComponent.ProjectionType.ORTHO,
+                projection: CameraComponent.ProjectionType.ORTHO,
                 priority: this._priority,
                 isUI: true,
                 farClip: 2000,
@@ -212,7 +216,7 @@ export class CanvasComponent extends Component {
             this._camera!.fov = 45;
             this._camera!.clearFlag = GFXClearFlag.COLOR | GFXClearFlag.DEPTH | GFXClearFlag.STENCIL;
 
-            const device = cc.director.root.device;
+            const device = director.root.device;
             this._camera!.resize(device.width, device.height);
             if (this._targetTexture) {
                 const window = this._targetTexture.getGFXWindow();
@@ -222,15 +226,15 @@ export class CanvasComponent extends Component {
         }
 
         if (CC_EDITOR) {
-            cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
+            director.on(Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
         }
 
-        cc.view.on('design-resolution-changed', this._thisOnResized);
+        view.on('design-resolution-changed', this._thisOnResized);
 
         // this.applySettings();
         this.alignWithScreen();
 
-        cc.director.root.ui.addScreen(this);
+        director.root.ui.addScreen(this);
     }
 
     // public onEnable (){
@@ -243,19 +247,19 @@ export class CanvasComponent extends Component {
 
     public onDestroy () {
         if (this._camera) {
-            cc.director.root.ui.renderScene.destroyCamera(this._camera);
+            director.root.ui.renderScene.destroyCamera(this._camera);
         }
 
         if (CC_EDITOR) {
-            cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
+            director.off(Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
         }
 
         if (this._targetTexture) {
             this._targetTexture.off('resize');
         }
 
-        cc.view.off('design-resolution-changed', this._thisOnResized);
-        cc.director.root.ui.removeScreen(this);
+        view.off('design-resolution-changed', this._thisOnResized);
+        director.root.ui.removeScreen(this);
         // if (CanvasComponent.instance === this) {
         //     CanvasComponent.instance = null;
         // }
@@ -271,16 +275,16 @@ export class CanvasComponent extends Component {
         this.node.getPosition(this._pos);
         if (CC_EDITOR) {
             // nodeSize = designSize = cc.engine.getDesignResolutionSize();
-            nodeSize = designSize = cc.view.getDesignResolutionSize();
+            nodeSize = designSize = view.getDesignResolutionSize();
             Vec3.set(_worldPos, designSize.width * 0.5, designSize.height * 0.5, 1);
         }
         else {
-            const canvasSize = cc.visibleRect;
+            const canvasSize = visibleRect;
             nodeSize = canvasSize;
-            designSize = cc.view.getDesignResolutionSize();
-            const policy = cc.view.getResolutionPolicy();
+            designSize = view.getDesignResolutionSize();
+            const policy = view.getResolutionPolicy();
             // const clipTopRight = !this.fitHeight && !this.fitWidth;
-            const clipTopRight = policy === cc.ResolutionPolicy.NO_BORDER;
+            const clipTopRight = policy === ResolutionPolicy.NO_BORDER;
             let offsetX = 0;
             let offsetY = 0;
             if (clipTopRight) {
@@ -306,7 +310,7 @@ export class CanvasComponent extends Component {
 
         this.node.getWorldPosition(_worldPos);
         if (this._camera) {
-            const size = cc.view.getVisibleSize();
+            const size = view.getVisibleSize();
             this._camera.resize(size.width, size.height);
             this._camera.orthoHeight = this._camera.height / 2;
             this._camera.node.setPosition(_worldPos.x, _worldPos.y, 999);

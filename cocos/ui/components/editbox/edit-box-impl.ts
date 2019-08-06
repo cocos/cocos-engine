@@ -35,7 +35,7 @@ import { macro } from '../../../../core/platform/CCMacro';
 import { INode } from '../../../../core/utils/interfaces';
 import { contains } from '../../../../core/utils/misc';
 import { Color, Mat4, Size, Vec3 } from '../../../../core/math';
-import { UIRenderComponent } from '../ui-render-component';
+import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-component';
 import { EditBoxComponent} from './edit-box-component';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 

@@ -29,7 +29,7 @@
  */
 
 // @ts-check
-import { ccclass, property } from '../core/data/class-decorator';
+import { ccclass, property } from '../data/class-decorator';
 import { GFXTextureType, GFXTextureViewType } from '../gfx/define';
 import { PixelFormat } from './asset-enum';
 import { ImageAsset } from './image-asset';

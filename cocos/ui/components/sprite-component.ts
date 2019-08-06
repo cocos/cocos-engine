@@ -35,7 +35,7 @@ import { Vec2 } from '../../../core/math';
 import { ccenum } from '../../../core/value-types/enum';
 import { clamp } from '../../../core/math/utils';
 import { UI } from '../../../renderer/ui/ui';
-import { UIRenderComponent } from './ui-render-component';
+import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 
 /**
  * @zh

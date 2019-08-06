@@ -33,7 +33,7 @@ import { RenderPriority } from '../../../pipeline/define';
 import { UI } from '../../../renderer/ui/ui';
 import { Material } from '../../assets';
 import { RenderableComponent } from '../../framework/renderable-component';
-import { UIComponent } from './ui-component';
+import { UIComponent } from '../../core/components/ui-base/ui-component';
 
 /**
  * @zh

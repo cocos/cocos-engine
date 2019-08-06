@@ -38,9 +38,9 @@ import { PrivateNode } from '../../../scene-graph';
 import { HorizontalTextAlignment, LabelComponent, VerticalTextAlignment } from './label-component';
 import { LabelOutlineComponent } from './label-outline-component';
 import { SpriteComponent } from './sprite-component';
-import { UIComponent } from './ui-component';
-import { UIRenderComponent } from './ui-render-component';
-import { UITransformComponent } from './ui-transfrom-component';
+import { UIComponent } from '../../core/components/ui-base/ui-component';
+import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
+import { UITransformComponent } from '../../core/components/ui-base/ui-transfrom-component';
 import { INode } from '../../../core/utils/interfaces';
 
 const _htmlTextParser = new HtmlTextParser();

@@ -37,7 +37,7 @@ import { RenderableComponent } from '../../framework/renderable-component';
 import { IAssembler } from '../assembler/base';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
-import { InstanceMaterialType, UIRenderComponent } from '../components/ui-render-component';
+import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 
 /**
  * @zh

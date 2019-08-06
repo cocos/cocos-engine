@@ -35,7 +35,7 @@ import { UI } from '../../../renderer/ui/ui';
 import { FontAtlas } from '../assembler/label/bmfontUtils';
 import { CanvasPool, ISharedLabelData } from '../assembler/label/font-utils';
 import { LetterRenderTexture } from '../assembler/label/letter-font';
-import { UIRenderComponent } from './ui-render-component';
+import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 
 /**
  * @zh

@@ -26,7 +26,7 @@
 
 import { EventHandler } from '../../../../components/component-event-handler';
 import { ccclass, executionOrder, menu, property } from '../../../../core/data/class-decorator';
-import { UIComponent } from '../ui-component';
+import { UIComponent } from '../../../core/components/ui-base/ui-component';
 import { WebViewEventType, WebViewImpl } from './webview-impl';
 
 /**

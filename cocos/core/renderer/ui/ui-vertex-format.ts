@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,19 +22,22 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
 /**
- * ui 相关模块
  * @category ui
  */
+import { GFXAttributeName, GFXFormat } from '../core/gfx/define';
 
-
-import { UIRenderComponent } from '../components';
-
-export interface IAssembler {
-    [key: string]: any;
-}
-
-export interface IAssemblerManager {
-    getAssembler (component: UIRenderComponent): IAssembler;
-}
+export const vfmt = [
+    {
+        name: GFXAttributeName.ATTR_POSITION,
+        format: GFXFormat.RGB32F,
+    },
+    {
+        name: GFXAttributeName.ATTR_TEX_COORD,
+        format: GFXFormat.RG32F,
+    },
+    {
+        name: GFXAttributeName.ATTR_COLOR,
+        format: GFXFormat.RGBA32F,
+    },
+];

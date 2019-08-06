@@ -34,7 +34,7 @@ import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { Size, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { Node } from '../../core/scene-graph/node';
-import { UITransformComponent } from './ui-transfrom-component';
+import { UITransformComponent } from '../../core/components/ui-base/ui-transfrom-component';
 import { widgetManager } from './widget-manager';
 
 /**

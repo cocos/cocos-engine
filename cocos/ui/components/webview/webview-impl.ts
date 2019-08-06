@@ -28,7 +28,7 @@ import sys from '../../../../core/platform/CCSys';
 import { misc } from '../../../../core/utils';
 import { INode } from '../../../../core/utils/interfaces';
 import { Mat4 } from '../../../../core/math';
-import { UIRenderComponent } from '../ui-render-component';
+import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-component';
 
 const _mat4_temp = new Mat4();
 

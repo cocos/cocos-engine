@@ -2,25 +2,25 @@
  * @category terrain
  */
 
-import { EffectAsset } from '../../3d/assets/effect-asset';
-import { Material } from '../../3d/assets/material';
-import { IRenderingSubmesh } from '../../3d/assets/mesh';
-import { builtinResMgr } from '../../3d/builtin';
-import { RenderableComponent } from '../../3d/framework/renderable-component';
-import { Texture2D } from '../../assets';
-import { Filter, PixelFormat, WrapMode } from '../../assets/asset-enum';
-import { Component } from '../../components';
-import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
-import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../../core/math';
-import { GFXBuffer } from '../../gfx/buffer';
-import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
-import { GFXDevice } from '../../gfx/device';
-import { IGFXAttribute } from '../../gfx/input-assembler';
-import { Model } from '../../renderer/scene/model';
-import { Node } from '../../scene-graph/node';
-import { PrivateNode } from '../../scene-graph/private-node';
-import { IDefineMap } from '../core/pass';
+import { Material } from '../core/assets/material';
+import { IRenderingSubmesh } from '../core/assets/mesh';
+import { builtinResMgr } from '../core/3d/builtin';
+import { RenderableComponent } from '../core/3d/framework/renderable-component';
+import { Texture2D, EffectAsset } from '../core/assets';
+import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
+import { Component } from '../core/components';
+import { ccclass, executeInEditMode, menu, property } from '../core/data/class-decorator';
+import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
+import { GFXBuffer } from '../core/gfx/buffer';
+import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../core/gfx/define';
+import { GFXDevice } from '../core/gfx/device';
+import { IGFXAttribute } from '../core/gfx/input-assembler';
+import { Model } from '../core/renderer/scene/model';
+import { Node } from '../core/scene-graph/node';
+import { PrivateNode } from '../core/scene-graph/private-node';
+import { IDefineMap } from '../core/renderer/core/pass';
 import { HeightField } from './height-field';
+import { director } from '../core/director';
 
 export const TERRAIN_MAX_LEVELS = 4;
 export const TERRAIN_MAX_BLEND_LAYERS = 4;
@@ -132,7 +132,7 @@ export class TerrainRenderable extends RenderableComponent {
             this._currentMaterial = new Material();
 
             this._currentMaterial.initialize({
-                effectAsset: cc.EffectAsset.get('builtin-terrain'),
+                effectAsset: EffectAsset.get('builtin-terrain'),
                 defines: block._getMaterialDefines(nlayers),
             });
 
@@ -201,13 +201,14 @@ export class TerrainBlock {
 
         this._node = new PrivateNode('');
         this._node.setParent(this._terrain.node as Node);
+        // @ts-ignore
         this._node._objFlags |= cc.Object.Flags.DontSave;
 
         this._renderable =  this._node.addComponent(TerrainRenderable) as TerrainRenderable;
     }
 
     public build () {
-        const gfxDevice = cc.director.root.device as GFXDevice;
+        const gfxDevice = director.root.device as GFXDevice;
 
         // vertex buffer
         const vertexData = new Float32Array(TERRAIN_BLOCK_VERTEX_SIZE * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY);
@@ -300,7 +301,7 @@ export class TerrainBlock {
                     mtl.setProperty('detailMap0', l0 != null ? l0.detailMap : null);
                 }
                 else {
-                    mtl.setProperty('detailMap0', cc.builtinResMgr.get('default-texture'));
+                    mtl.setProperty('detailMap0', builtinResMgr.get('default-texture'));
                 }
             }
             else if (nlayers === 1) {
@@ -674,7 +675,7 @@ export class Terrain extends Component {
     }
 
     public onLoad () {
-        const gfxDevice = cc.director.root.device as GFXDevice;
+        const gfxDevice = director.root.device as GFXDevice;
 
         // initialize shared index buffer
         const indexData = new Uint16Array(TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6);

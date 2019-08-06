@@ -2,13 +2,13 @@
  * @category asset
  */
 
-import { ccclass, property } from '../core/data/class-decorator';
-import { ccenum } from '../core/value-types/enum';
+import { ccclass, property } from '../data/class-decorator';
 import { GFXFormat } from '../gfx';
 import { GFXDevice } from '../gfx/device';
 import { GFXWindow } from '../gfx/window';
 import { DepthStencilFormat, PixelFormat } from './asset-enum';
 import { TextureBase } from './texture-base';
+import { ccenum } from '../value-types/enum';
 
 export interface IRenderTextureCreateInfo {
     name?: string;

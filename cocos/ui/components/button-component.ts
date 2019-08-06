@@ -39,7 +39,7 @@ import { ccenum } from '../../../core/value-types/enum';
 import { lerp } from '../../../core/math/utils';
 import { Node } from '../../../scene-graph/node';
 import { SpriteComponent } from './sprite-component';
-import { UIRenderComponent } from './ui-render-component';
+import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 
 /**
  * @zh

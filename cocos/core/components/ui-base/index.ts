@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,23 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @category ui
- */
-
-import { ccclass, disallowMultiple, executeInEditMode, executionOrder, menu } from '../../../core/data/class-decorator';
-import { UIComponent } from '../../core/components/ui-base/ui-component';
-
-/**
- * @zh
- * UI 及 UI 模型渲染基类。
- */
-@ccclass('cc.UIReorderComponent')
-@menu('UI/Reorder')
-@executionOrder(110)
-@disallowMultiple
-@executeInEditMode
-export class UIReorderComponent extends UIComponent {
-
-}
-cc.UIReorderComponent = UIReorderComponent;
+export * from './canvas-component';
+export * from './ui-component';
+export * from './ui-render-component';
+export * from './ui-transfrom-component';

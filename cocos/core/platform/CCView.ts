@@ -1446,7 +1446,7 @@ class ContentStrategy {
  * @param {ContainerStrategy} containerStg The container strategy
  * @param {ContentStrategy} contentStg The content strategy
  */
-class ResolutionPolicy {
+export class ResolutionPolicy {
     public static EXACT_FIT: number;
     public static SHOW_ALL: number;
     public static NO_BORDER: number;

@@ -17,7 +17,6 @@ import { SubModel } from './submodel';
 import { INode } from '../../utils/interfaces';
 import { TransformDirtyBit } from '../../scene-graph/node-enum';
 
-
 const m4_1 = new Mat4();
 
 const _subMeshPool = new Pool(() => {

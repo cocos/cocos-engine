@@ -35,7 +35,7 @@ import { clamp, Color, Mat4, Size, Vec2, Vec3 } from '../../../core/math';
 import { ccenum } from '../../../core/value-types/enum';
 import { UI } from '../../../renderer/ui/ui';
 import { GraphicsComponent } from './graphics-component';
-import { InstanceMaterialType, UIRenderComponent } from './ui-render-component';
+import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { INode } from '../../../core/utils/interfaces';
 import { Node } from '../../../scene-graph';
 

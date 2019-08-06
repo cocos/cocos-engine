@@ -31,8 +31,8 @@
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { array } from '../../core/utils/js';
 import { Vec2, Vec3 } from '../../core/math';
-import { CanvasComponent } from './canvas-component';
-import { UIRenderComponent } from './ui-render-component';
+import { CanvasComponent } from '../../core/components/ui-base/canvas-component';
+import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { AlignFlags, AlignMode, WidgetComponent } from './widget-component';
 import { Node } from '../../core/scene-graph/node';
 import { Scene } from '../../core/scene-graph';

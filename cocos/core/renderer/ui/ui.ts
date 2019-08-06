@@ -1,30 +1,55 @@
+/*
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
 /**
  * @hidden
  */
 
-import { CanvasComponent, UIComponent, UIRenderComponent } from '../components';
-import { MeshBuffer } from '../mesh-buffer';
-import { vfmt as UIVertexFormat } from '../ui-vertex-format';
-import { StencilManager } from '../assembler/mask/stencil-manager';
-import { Material } from '../../core/assets/material';
-import { Pool, RecyclePool } from '../../core/memop';
-import { CachedArray } from '../../core/memop/cached-array';
-import { Root } from '../../core/root';
-import { GFXBindingLayout } from '../../core/gfx/binding-layout';
-import { GFXCommandBuffer } from '../../core/gfx/command-buffer';
-import { GFXCommandBufferType  } from '../../core/gfx/define';
-import { GFXDevice } from '../../core/gfx/device';
-import { IGFXAttribute } from '../../core/gfx/input-assembler';
-import { GFXPipelineState } from '../../core/gfx/pipeline-state';
-import { GFXTextureView } from '../../core/gfx/texture-view';
-import { UniformBinding } from '../../core/pipeline/define';
-import { Camera } from '../../core/renderer/scene/camera';
-import { Model, VisibilityFlags } from '../../core/renderer/scene/model';
-import { RenderScene } from '../../core/renderer/scene/render-scene';
+import { CanvasComponent, UIComponent, UIRenderComponent } from '../../components/ui-base';
+import { MeshBuffer } from './mesh-buffer';
+import * as UIVertexFormat from './ui-vertex-format';
+import { StencilManager } from './stencil-manager';
+import { Material } from '../../assets/material';
+import { Pool, RecyclePool } from '../../memop';
+import { CachedArray } from '../../memop/cached-array';
+import { Root } from '../../root';
+import { GFXBindingLayout } from '../../gfx/binding-layout';
+import { GFXCommandBuffer } from '../../gfx/command-buffer';
+import { GFXCommandBufferType  } from '../../gfx/define';
+import { GFXDevice } from '../../gfx/device';
+import { IGFXAttribute } from '../../gfx/input-assembler';
+import { GFXPipelineState } from '../../gfx/pipeline-state';
+import { GFXTextureView } from '../../gfx/texture-view';
+import { UniformBinding } from '../../pipeline/define';
+import { Camera } from '../../renderer/scene/camera';
+import { Model, VisibilityFlags } from '../../renderer/scene/model';
+import { RenderScene } from '../../renderer/scene/render-scene';
 import { UIBatchModel } from './ui-batch-model';
 import { UIMaterial } from './ui-material';
-import { INode } from '../../core/utils/interfaces';
-import { RenderableComponent } from '../../core/3d/framework';
+import { INode } from '../../utils/interfaces';
+import { RenderableComponent } from '../../3d/framework';
+import { Director, director } from '../../director';
 
 export class UIDrawBatch {
     public camera: Camera | null = null;
@@ -127,7 +152,7 @@ export class UI {
         this._modelInUse = new CachedArray<UIBatchModel>(10);
         this._batches = new CachedArray(64);
 
-        cc.director.on(cc.Director.EVENT_BEFORE_DRAW, this.update, this);
+        director.on(Director.EVENT_BEFORE_DRAW, this.update, this);
     }
 
     public initialize () {

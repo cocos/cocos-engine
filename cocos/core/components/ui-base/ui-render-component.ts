@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2019 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -37,12 +37,12 @@ import {
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { Color } from '../../../core/math';
 import { ccenum } from '../../../core/value-types/enum';
-import { GFXBlendFactor } from '../../../gfx/define';
-import { RenderData } from '../../../renderer/ui/renderData';
-import { UI } from '../../../renderer/ui/ui';
+import { GFXBlendFactor } from '../../gfx/define';
+import { RenderData } from '../../renderer/ui/render-data';
+import { UI } from '../../renderer/ui/ui';
 import { Material } from '../../assets';
-import { RenderableComponent } from '../../framework/renderable-component';
-import { IAssembler, IAssemblerManager } from '../assembler/base';
+import { RenderableComponent } from '../../../core/3d/framework/renderable-component';
+import { IAssembler, IAssemblerManager } from '../../renderer/ui/base';
 import { UIComponent } from './ui-component';
 import { UITransformComponent } from './ui-transfrom-component';
 

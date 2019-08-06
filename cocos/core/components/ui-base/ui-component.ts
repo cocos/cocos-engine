@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2019 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -27,11 +27,11 @@
  * @category ui
  */
 
-import { Component } from '../../../components';
+import { Component } from '../component';
 import { ccclass, disallowMultiple, executeInEditMode, executionOrder, property } from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { INode } from '../../../core/utils/interfaces';
-import { UI } from '../../../renderer/ui/ui';
+import { UI } from '../../renderer/ui/ui';
 import { CanvasComponent } from './canvas-component';
 
 /**
