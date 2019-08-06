@@ -146,7 +146,8 @@ proto.fromEuler = function (euler) {
  * @member lerp
  * @param {Quat} to
  * @param {Number} ratio
- * @param {Quat} out
+ * @param {Quat} [out]
+ * @returns {Quat} out
  */
 proto.lerp = function (to, ratio, out) {
     out = out || new cc.Quat();
@@ -160,7 +161,8 @@ proto.lerp = function (to, ratio, out) {
  * @member lerp
  * @param {Quat} to
  * @param {Number} ratio
- * @param {Quat} out
+ * @param {Quat} [out]
+ * @returns {Quat} out
  */
 proto.mul = function (other, out) {
     out = out || new cc.Quat();
@@ -170,6 +172,21 @@ proto.mul = function (other, out) {
 
 proto.array = function (out) {
     quat.array(out, this);
+};
+
+/**
+ * !#en Rotates a quaternion by the given angle (in radians) about a world space axis.
+ * !#zh 围绕世界空间轴按给定弧度旋转四元数
+ * @member rotateAround
+ * @param {Quat} rot - Quaternion to rotate
+ * @param {Vec3} axis - The axis around which to rotate in world space
+ * @param {Number} rad - Angle (in radians) to rotate
+ * @param {Quat} [out] - Quaternion to store result
+ * @returns {Quat} out
+ */
+proto.rotateAround = function(rot, axis, rad, out) {
+    out = out || new cc.Quat();
+    return quat.rotateAround(out, rot, axis, rad);
 };
 
 /**

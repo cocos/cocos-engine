@@ -29,31 +29,19 @@ var isPlainEmptyObj = require('./utils').isPlainEmptyObj_DEV;
 
 const DELIMETER = '$_$';
 
-function createAttrsSingle (owner, ownerCtor, superAttrs) {
-    var AttrsCtor;
-    if (CC_DEV && CC_SUPPORT_JIT) {
-        var ctorName = ownerCtor.name;
-        if (owner === ownerCtor) {
-            ctorName += '_ATTRS';
-        }
-        else {
-            ctorName += '_ATTRS_INSTANCE';
-        }
-        AttrsCtor = Function('return (function ' + ctorName + '(){});')();
-    }
-    else {
-        AttrsCtor = function () {};
-    }
-    if (superAttrs) {
-        js.extend(AttrsCtor, superAttrs.constructor);
-    }
-    var attrs = new AttrsCtor();
+function createAttrsSingle (owner, superAttrs) {
+    var attrs = superAttrs ? Object.create(superAttrs) : {};
     js.value(owner, '__attrs__', attrs);
     return attrs;
 }
 
 // subclass should not have __attrs__
 function createAttrs (subclass) {
+    if (typeof subclass !== 'function') {
+        // attributes only in instance
+        let instance = subclass;
+        return createAttrsSingle(instance, getClassAttrs(instance.constructor));
+    }
     var superClass;
     var chains = cc.Class.getInheritanceChain(subclass);
     for (var i = chains.length - 1; i >= 0; i--) {
@@ -61,11 +49,11 @@ function createAttrs (subclass) {
         var attrs = cls.hasOwnProperty('__attrs__') && cls.__attrs__;
         if (!attrs) {
             superClass = chains[i + 1];
-            createAttrsSingle(cls, cls, superClass && superClass.__attrs__);
+            createAttrsSingle(cls, superClass && superClass.__attrs__);
         }
     }
     superClass = chains[0];
-    createAttrsSingle(subclass, subclass, superClass && superClass.__attrs__);
+    createAttrsSingle(subclass, superClass && superClass.__attrs__);
     return subclass.__attrs__;
 }
 
@@ -84,46 +72,23 @@ function createAttrs (subclass) {
 //  * @static
 //  * @private
 function attr (ctor, propName, newAttrs) {
-    var attrs, setter, key;
-    if (typeof ctor === 'function') {
-        // attributes shared between instances
-        attrs = getClassAttrs(ctor);
-        setter = attrs.constructor.prototype;
-    }
-    else {
-        // attributes in instance
-        var instance = ctor;
-        attrs = instance.__attrs__;
-        if (!attrs) {
-            ctor = instance.constructor;
-            var clsAttrs = getClassAttrs(ctor);
-            attrs = createAttrsSingle(instance, ctor, clsAttrs);
-        }
-        setter = attrs;
-    }
-
-    if (typeof newAttrs === 'undefined') {
+    var attrs = getClassAttrs(ctor);
+    if (!CC_DEV || typeof newAttrs === 'undefined') {
         // get
         var prefix = propName + DELIMETER;
         var ret = {};
-        for (key in attrs) {
+        for (let key in attrs) {
             if (key.startsWith(prefix)) {
                 ret[key.slice(prefix.length)] = attrs[key];
             }
         }
         return ret;
     }
-    else {
+    else if (CC_DEV && typeof newAttrs === 'object') {
         // set
-        if (typeof newAttrs === 'object') {
-            for (key in newAttrs) {
-                if (key.charCodeAt(0) !== 95 /* _ */) {
-                    setter[propName + DELIMETER + key] = newAttrs[key];
-                }
-            }
-        }
-        else if (CC_DEV) {
-            cc.errorID(3629);
+        cc.warn(`\`cc.Class.attr(obj, prop, { key: value });\` is deprecated, use \`cc.Class.Attr.setClassAttr(obj, prop, 'key', value);\` instead please.`);
+        for (let key in newAttrs) {
+            attrs[propName + DELIMETER + key] = newAttrs[key];
         }
     }
 }
@@ -133,14 +98,8 @@ function getClassAttrs (ctor) {
     return (ctor.hasOwnProperty('__attrs__') && ctor.__attrs__) || createAttrs(ctor);
 }
 
-// returns a writable meta object, used to set multi attributes
-function getClassAttrsProto (ctor) {
-    return getClassAttrs(ctor).constructor.prototype;
-}
-
 function setClassAttr (ctor, propName, key, value) {
-    var proto = getClassAttrsProto(ctor);
-    proto[propName + DELIMETER + key] = value;
+    getClassAttrs(ctor)[propName + DELIMETER + key] = value;
 }
 
 /**
@@ -235,22 +194,6 @@ cc.Boolean = new PrimitiveType('Boolean', false);
  */
 cc.String = new PrimitiveType('String', '');
 
-/*
-BuiltinAttributes: {
-    default: defaultValue,
-    _canUsedInSetter: false, (default false) (NYI)
-}
-Getter or Setter: {
-    hasGetter: true,
-    hasSetter: true,
-}
-Callbacks: {
-    _onAfterProp: function (constructor, propName) {},
-    _onAfterGetter: function (constructor, propName) {}, (NYI)
-    _onAfterSetter: function (constructor, propName) {}, (NYI)
-}
- */
-
 // Ensures the type matches its default value
 function getTypeChecker (type, attrName) {
     return function (constructor, mainPropName) {
@@ -339,7 +282,6 @@ module.exports = {
     PrimitiveType,
     attr: attr,
     getClassAttrs: getClassAttrs,
-    getClassAttrsProto: getClassAttrsProto,
     setClassAttr: setClassAttr,
     DELIMETER: DELIMETER,
     getTypeChecker_ET: ((CC_EDITOR && !Editor.isBuilder) || CC_TEST) && getTypeChecker,

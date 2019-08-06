@@ -229,7 +229,7 @@ let Button = cc.Class({
          * @property {Color} normalColor
          */
         normalColor: {
-            default: cc.color(214, 214, 214),
+            default: cc.Color.WHITE,
             displayName: 'Normal',
             tooltip: CC_DEV && 'i18n:COMPONENT.button.normal_color',
             notify () {

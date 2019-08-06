@@ -52,12 +52,6 @@ var callResetInTryCatch = CC_EDITOR && callerFunctor('resetInEditor');
 var callOnFocusInTryCatch = CC_EDITOR && callerFunctor('onFocusInEditor');
 var callOnLostFocusInTryCatch = CC_EDITOR && callerFunctor('onLostFocusInEditor');
 
-var callPreload = CC_SUPPORT_JIT ? 'c.__preload();' : function (c) { c.__preload(); };
-var callOnLoad = CC_SUPPORT_JIT ? ('c.onLoad();c._objFlags|=' + IsOnLoadCalled) : function (c) {
-    c.onLoad();
-    c._objFlags |= IsOnLoadCalled;
-};
-
 // for __preload: use internally, no sort
 var UnsortedInvoker = cc.Class({
     extends: CompScheduler.LifeCycleInvoker,
@@ -76,8 +70,32 @@ var UnsortedInvoker = cc.Class({
     },
 });
 
-var invokePreload = CompScheduler.createInvokeImpl(callPreload);
-var invokeOnLoad = CompScheduler.createInvokeImpl(callOnLoad, false, IsOnLoadCalled);
+var invokePreload = CC_SUPPORT_JIT ?
+    CompScheduler.createInvokeImpl('c.__preload();') :
+    CompScheduler.createInvokeImpl(function (c) { c.__preload(); }, false, undefined, function (iterator) {
+        var array = iterator.array;
+        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+            array[iterator.i].__preload();
+        }
+    });
+var invokeOnLoad = CC_SUPPORT_JIT ?
+    CompScheduler.createInvokeImpl('c.onLoad();c._objFlags|=' + IsOnLoadCalled, false, IsOnLoadCalled) :
+    CompScheduler.createInvokeImpl(function (c) {
+            c.onLoad();
+            c._objFlags |= IsOnLoadCalled;
+        },
+        false,
+        IsOnLoadCalled,
+        function (iterator) {
+            var array = iterator.array;
+            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                let comp = array[iterator.i];
+                comp.onLoad();
+                comp._objFlags |= IsOnLoadCalled;
+            }
+        }
+    );
+
 
 var activateTasksPool = new js.Pool(MAX_POOL_SIZE);
 activateTasksPool.get = function getActivateTask () {

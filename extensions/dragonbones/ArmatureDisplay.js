@@ -69,10 +69,8 @@ let AnimationCacheMode = cc.Enum({
 });
 
 function setEnumAttr (obj, propName, enumDef) {
-    cc.Class.attr(obj, propName, {
-        type: 'Enum',
-        enumList: cc.Enum.getList(enumDef)
-    });
+    cc.Class.Attr.setClassAttr(obj, propName, 'type', 'Enum');
+    cc.Class.Attr.setClassAttr(obj, propName, 'enumList', cc.Enum.getList(enumDef));
 }
 
 /**
