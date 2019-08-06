@@ -200,10 +200,6 @@ gulp.task('test-in-ci', function () {
 // API //
 ////////////
 
-gulp.task('build-3d-api-default', function () {
-    APIBuilder.generateHTML();
-});
-
 gulp.task('build-api-json', function () {
     APIBuilder.generateJson();
 });
