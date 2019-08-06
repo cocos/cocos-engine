@@ -353,12 +353,12 @@ export default class TrailModule {
     }
 
     public _updateMaterial () {
-        if (this._particleSystem) {
+        if (this._particleSystem && this._trailModel) {
             const mat = this._particleSystem.renderer.trailMaterial;
             if (mat) {
-                this._trailModel!.setSubModelMaterial(0, mat);
+                this._trailModel.setSubModelMaterial(0, mat);
             } else {
-                this._trailModel!.setSubModelMaterial(0, this._particleSystem.renderer._defaultTrailMat);
+                this._trailModel.setSubModelMaterial(0, this._particleSystem.renderer._defaultTrailMat);
             }
         }
     }
@@ -490,11 +490,14 @@ export default class TrailModule {
     }
 
     public updateIA (count: number) {
-        this._trailModel!.getSubModel(0).inputAssembler!.vertexBuffers[0].update(this._vbF32!);
-        this._trailModel!.getSubModel(0).inputAssembler!.indexBuffer!.update(this._iBuffer!);
-        this._trailModel!.getSubModel(0).inputAssembler!.indexCount = count;
-        this._trailModel!.getSubModel(0).inputAssembler!.extractDrawInfo(this._iaInfo.drawInfos[0]);
-        this._iaInfoBuffer!.update(this._iaInfo);
+        if (this._trailModel && this._trailModel.subModelNum > 0) {
+            const subModel = this._trailModel.getSubModel(0);
+            subModel.inputAssembler!.vertexBuffers[0].update(this._vbF32!);
+            subModel.inputAssembler!.indexBuffer!.update(this._iBuffer!);
+            subModel.inputAssembler!.indexCount = count;
+            subModel.inputAssembler!.extractDrawInfo(this._iaInfo.drawInfos[0]);
+            this._iaInfoBuffer!.update(this._iaInfo);
+        }
     }
 
     private _createModel () {
