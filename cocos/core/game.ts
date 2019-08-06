@@ -724,8 +724,8 @@ class Game extends EventTarget {
                 // it is already a canvas, we wrap it around with a div
                 this.canvas = localCanvas = element;
                 this.container = localContainer = document.createElement<'div'>('div');
-                if (localCanvas!.parentNode) {
-                    localCanvas!.parentNode.insertBefore(localContainer, localCanvas);
+                if (localCanvas && localCanvas.parentNode) {
+                    localCanvas.parentNode.insertBefore(localContainer, localCanvas);
                 }
             } else {
                 // we must make a new canvas and place into this element

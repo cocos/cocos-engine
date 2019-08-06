@@ -73,7 +73,7 @@ export class SkinningModelComponent extends ModelComponent {
      * 骨骼根节点的引用。
      */
     @property({ type: Node })
-    get skinningRoot () {
+    get skinningRoot (): INode | null {
         return this._skinningRoot;
     }
 

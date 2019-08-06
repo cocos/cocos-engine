@@ -267,7 +267,7 @@ class CCObject {
      * obj.destroy();
      * ```
      */
-    public destroy () {
+    public destroy (): boolean {
         if (this._objFlags & Destroyed) {
             cc.warnID(5000);
             return false;

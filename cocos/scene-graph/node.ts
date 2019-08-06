@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2019 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -37,27 +37,13 @@ import { Mat4, Quat, Vec3, Size, Vec2 } from '../core/math';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
 import { NodeEventProcessor } from './node-event-processor';
+import { NodeSpace, TransformDirtyBit } from './node-enum';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
 const q_b = new Quat();
 const array_a = new Array(10);
-
-enum NodeSpace {
-    LOCAL,
-    WORLD,
-}
 const TRANFORM_ON = 1 << 0;
-
-export enum TransformDirtyBit {
-    NONE = 0,
-    POSITION = (1 << 0),
-    ROTATION = (1 << 1),
-    SCALE = (1 << 2),
-    RS = TransformDirtyBit.ROTATION | TransformDirtyBit.SCALE,
-    TRS = TransformDirtyBit.POSITION | TransformDirtyBit.ROTATION | TransformDirtyBit.SCALE,
-    TRS_MASK = ~TransformDirtyBit.TRS,
-}
 
 /**
  * @zh
@@ -125,6 +111,43 @@ export class Node extends BaseNode implements INode {
 
     /**
      * @zh
+     * 本地坐标
+     */
+    // @constget
+    public get position (): Readonly<Vec3> {
+        return this._lpos;
+    }
+    public set position (val: Readonly<Vec3>) {
+        this.setPosition(val);
+    }
+
+    /**
+     * @zh
+     * 世界坐标
+     */
+    // @constget
+    public get worldPosition (): Readonly<Vec3> {
+        this.updateWorldTransform();
+        return this._pos;
+    }
+    public set worldPosition (val: Readonly<Vec3>) {
+        this.setWorldPosition(val);
+    }
+
+    /**
+     * @zh
+     * 本地旋转
+     */
+    // @constget
+    public get rotation (): Readonly<Quat> {
+        return this._lrot;
+    }
+    public set rotation (val: Readonly<Quat>) {
+        this.setRotation(val);
+    }
+
+    /**
+     * @zh
      * 以欧拉角表示的本地旋转值
      */
     @property({ type: Vec3 })
@@ -137,6 +160,69 @@ export class Node extends BaseNode implements INode {
             this._eulerDirty = false;
         }
         return this._euler;
+    }
+
+    /**
+     * @zh
+     * 世界旋转
+     */
+    // @constget
+    public get worldRotation (): Readonly<Quat> {
+        this.updateWorldTransform();
+        return this._rot;
+    }
+    public set worldRotation (val: Readonly<Quat>) {
+        this.setWorldRotation(val);
+    }
+
+    /**
+     * @zh
+     * 本地缩放
+     */
+    // @constget
+    public get scale (): Readonly<Vec3> {
+        return this._lscale;
+    }
+    public set scale (val: Readonly<Vec3>) {
+        this.setScale(val);
+    }
+
+    /**
+     * @zh
+     * 世界缩放
+     */
+    // @constget
+    public get worldScale (): Readonly<Vec3> {
+        this.updateWorldTransform();
+        return this._scale;
+    }
+    public set worldScale (val: Readonly<Vec3>) {
+        this.setWorldScale(val);
+    }
+
+    /**
+     * @zh
+     * 世界变换矩阵
+     */
+    // @constget
+    public get worldMatrix (): Readonly<Mat4> {
+        this.updateWorldTransform();
+        return this._mat;
+    }
+
+    /**
+     * @zh
+     * 当前节点面向的前方方向
+     */
+    get forward (): Vec3 {
+        this.getWorldRotation(q_a);
+        return Vec3.transformQuat(new Vec3(), Vec3.UNIT_Z, q_a);
+    }
+    set forward (dir: Vec3) {
+        const len = dir.length();
+        Vec3.multiplyScalar(v3_a, dir, -1 / len); // we use -z for view-dir
+        Quat.fromViewUp(q_a, v3_a);
+        this.setWorldRotation(q_a);
     }
 
     /**
@@ -157,6 +243,54 @@ export class Node extends BaseNode implements INode {
      */
     get hasChangedFlags () {
         return this._hasChangedFlags;
+    }
+
+    // ===============================
+    // for backward-compatibility
+    // ===============================
+
+    // NOTE: don't set it manually
+    get uiTransfromComp () {
+        if (!this._uiTransfromComp) {
+            this._uiTransfromComp = this.getComponent('cc.UITransformComponent') as UITransformComponent;
+        }
+
+        return this._uiTransfromComp;
+    }
+    set uiTransfromComp (value: UITransformComponent | null) {
+        this._uiTransfromComp = value;
+    }
+
+    get width () {
+        return this.uiTransfromComp!.width;
+    }
+    set width (value: number) {
+        this.uiTransfromComp!.width = value;
+    }
+
+    get height () {
+        return this.uiTransfromComp!.height;
+    }
+    set height (value: number) {
+        this.uiTransfromComp!.height = value;
+    }
+
+    get anchorX () {
+        return this.uiTransfromComp!.anchorX;
+    }
+    set anchorX (value) {
+        this.uiTransfromComp!.anchorX = value;
+    }
+
+    get anchorY () {
+        return this.uiTransfromComp!.anchorY;
+    }
+    set anchorY (value: number) {
+        this.uiTransfromComp!.anchorY = value;
+    }
+
+    get eventProcessor () {
+        return this._eventProcessor;
     }
 
     // ===============================
@@ -224,7 +358,7 @@ export class Node extends BaseNode implements INode {
      * @param trans 位置增量
      * @param ns 操作空间
      */
-    public translate (trans: Vec3, ns?: NodeSpace) {
+    public translate (trans: Vec3, ns?: NodeSpace): void {
         const space = ns || NodeSpace.LOCAL;
         if (space === NodeSpace.LOCAL) {
             Vec3.transformQuat(v3_a, trans, this._lrot);
@@ -258,7 +392,7 @@ export class Node extends BaseNode implements INode {
      * @param trans 旋转增量
      * @param ns 操作空间
      */
-    public rotate (rot: Quat, ns?: NodeSpace) {
+    public rotate (rot: Quat, ns?: NodeSpace): void {
         const space = ns || NodeSpace.LOCAL;
         Quat.normalize(q_a, rot);
 
@@ -281,26 +415,11 @@ export class Node extends BaseNode implements INode {
 
     /**
      * @zh
-     * 当前节点面向的前方方向
-     */
-    get forward (): Vec3 {
-        this.getWorldRotation(q_a);
-        return Vec3.transformQuat(new Vec3(), Vec3.UNIT_Z, q_a);
-    }
-    set forward (dir: Vec3) {
-        const len = dir.length();
-        Vec3.multiplyScalar(v3_a, dir, -1 / len); // we use -z for view-dir
-        Quat.fromViewUp(q_a, v3_a);
-        this.setWorldRotation(q_a);
-    }
-
-    /**
-     * @zh
      * 设置当前节点旋转为面向目标位置
      * @param pos 目标位置
      * @param up 坐标系的上方向
      */
-    public lookAt (pos: Vec3, up?: Vec3) {
+    public lookAt (pos: Vec3, up?: Vec3): void {
         this.getWorldPosition(v3_a);
         Vec3.subtract(v3_a, v3_a, pos); // we use -z for view-dir
         Vec3.normalize(v3_a, v3_a);
@@ -318,7 +437,7 @@ export class Node extends BaseNode implements INode {
      * @zh
      * 递归重置节点的 hasChangedFlags 标记为 false
      */
-    public resetHasChangedFlags () {
+    public resetHasChangedFlags (): void {
         this._hasChangedFlags = TransformDirtyBit.NONE;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
@@ -443,18 +562,6 @@ export class Node extends BaseNode implements INode {
 
     /**
      * @zh
-     * 本地坐标
-     */
-    // @constget
-    public get position (): Readonly<Vec3> {
-        return this._lpos;
-    }
-    public set position (val: Readonly<Vec3>) {
-        this.setPosition(val);
-    }
-
-    /**
-     * @zh
      * 设置本地旋转
      * @param rotation 目标本地旋转
      */
@@ -491,7 +598,7 @@ export class Node extends BaseNode implements INode {
      * @param y - 目标欧拉角的 Y 分量
      * @param z - 目标欧拉角的 Z 分量
      */
-    public setRotationFromEuler (x: number, y: number, z: number) {
+    public setRotationFromEuler (x: number, y: number, z: number): void {
         Vec3.set(this._euler, x, y, z);
         Quat.fromEuler(this._lrot, x, y, z);
         this._eulerDirty = false;
@@ -513,18 +620,6 @@ export class Node extends BaseNode implements INode {
         } else {
             return Quat.copy(new Quat(), this._lrot);
         }
-    }
-
-    /**
-     * @zh
-     * 本地旋转
-     */
-    // @constget
-    public get rotation (): Readonly<Quat> {
-        return this._lrot;
-    }
-    public set rotation (val: Readonly<Quat>) {
-        this.setRotation(val);
     }
 
     /**
@@ -567,18 +662,6 @@ export class Node extends BaseNode implements INode {
         } else {
             return Vec3.copy(new Vec3(), this._lscale);
         }
-    }
-
-    /**
-     * @zh
-     * 本地缩放
-     */
-    // @constget
-    public get scale (): Readonly<Vec3> {
-        return this._lscale;
-    }
-    public set scale (val: Readonly<Vec3>) {
-        this.setScale(val);
     }
 
     /**
@@ -637,19 +720,6 @@ export class Node extends BaseNode implements INode {
 
     /**
      * @zh
-     * 世界坐标
-     */
-    // @constget
-    public get worldPosition (): Readonly<Vec3> {
-        this.updateWorldTransform();
-        return this._pos;
-    }
-    public set worldPosition (val: Readonly<Vec3>) {
-        this.setWorldPosition(val);
-    }
-
-    /**
-     * @zh
      * 设置世界旋转
      * @param rotation 目标世界旋转
      */
@@ -692,7 +762,7 @@ export class Node extends BaseNode implements INode {
      * @param y - 目标欧拉角的 Y 分量
      * @param z - 目标欧拉角的 Z 分量
      */
-    public setWorldRotationFromEuler (x: number, y: number, z: number) {
+    public setWorldRotationFromEuler (x: number, y: number, z: number): void {
         Quat.fromEuler(this._rot, x, y, z);
         if (this._parent) {
             this._parent.getWorldRotation(q_a);
@@ -720,19 +790,6 @@ export class Node extends BaseNode implements INode {
         } else {
             return Quat.copy(new Quat(), this._rot);
         }
-    }
-
-    /**
-     * @zh
-     * 世界旋转
-     */
-    // @constget
-    public get worldRotation (): Readonly<Quat> {
-        this.updateWorldTransform();
-        return this._rot;
-    }
-    public set worldRotation (val: Readonly<Quat>) {
-        this.setWorldRotation(val);
     }
 
     /**
@@ -786,19 +843,6 @@ export class Node extends BaseNode implements INode {
 
     /**
      * @zh
-     * 世界缩放
-     */
-    // @constget
-    public get worldScale (): Readonly<Vec3> {
-        this.updateWorldTransform();
-        return this._scale;
-    }
-    public set worldScale (val: Readonly<Vec3>) {
-        this.setWorldScale(val);
-    }
-
-    /**
-     * @zh
      * 获取世界变换矩阵
      * @param out 输出到此目标矩阵
      */
@@ -806,16 +850,6 @@ export class Node extends BaseNode implements INode {
         this.updateWorldTransform();
         if (!out) { out = new Mat4(); }
         return Mat4.copy(out, this._mat);
-    }
-
-    /**
-     * @zh
-     * 世界变换矩阵
-     */
-    // @constget
-    public get worldMatrix (): Readonly<Mat4> {
-        this.updateWorldTransform();
-        return this._mat;
     }
 
     /**
@@ -845,50 +879,6 @@ export class Node extends BaseNode implements INode {
     // ===============================
     // for backward-compatibility
     // ===============================
-
-    // NOTE: don't set it manually
-    get uiTransfromComp () {
-        if (!this._uiTransfromComp) {
-            this._uiTransfromComp = this.getComponent('cc.UITransformComponent') as UITransformComponent;
-        }
-
-        return this._uiTransfromComp;
-    }
-    set uiTransfromComp (value: UITransformComponent | null) {
-        this._uiTransfromComp = value;
-    }
-
-    get width () {
-        return this.uiTransfromComp!.width;
-    }
-    set width (value: number) {
-        this.uiTransfromComp!.width = value;
-    }
-
-    get height () {
-        return this.uiTransfromComp!.height;
-    }
-    set height (value: number) {
-        this.uiTransfromComp!.height = value;
-    }
-
-    get anchorX () {
-        return this.uiTransfromComp!.anchorX;
-    }
-    set anchorX (value) {
-        this.uiTransfromComp!.anchorX = value;
-    }
-
-    get anchorY () {
-        return this.uiTransfromComp!.anchorY;
-    }
-    set anchorY (value: number) {
-        this.uiTransfromComp!.anchorY = value;
-    }
-
-    get eventProcessor () {
-        return this._eventProcessor;
-    }
 
     public getAnchorPoint (out?: Vec2): Vec2 {
         if (!out) {
@@ -964,12 +954,12 @@ export class Node extends BaseNode implements INode {
         }
     }
 
-    public pauseSystemEvents (recursive: boolean) {
+    public pauseSystemEvents (recursive: boolean): void {
         // @ts-ignore
         eventManager.pauseTarget(this, recursive);
     }
 
-    public resumeSystemEvents (recursive: boolean) {
+    public resumeSystemEvents (recursive: boolean): void {
         // @ts-ignore
         eventManager.resumeTarget(this, recursive);
     }
