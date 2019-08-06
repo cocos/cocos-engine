@@ -7,16 +7,16 @@ class VertexBuffer {
    * @param {VertexFormat} format
    * @param {USAGE_*} usage
    * @param {ArrayBuffer | Uint8Array} data
-   * @param {Number} numVertices
    */
-  constructor(device, format, usage, data, numVertices) {
+  constructor(device, format, usage, data) {
     this._device = device;
     this._format = format;
     this._usage = usage;
-    this._numVertices = numVertices;
+    this._bytesPerVertex = this._format._bytes;
+    this._bytes = data.byteLength;
+    this._numVertices = this._bytes / this._bytesPerVertex;
 
-    // calculate bytes
-    this._bytes = this._format._bytes * numVertices;
+    this._needExpandDataStore = true;
 
     // update
     this._glID = device._gl.createBuffer();
@@ -44,36 +44,41 @@ class VertexBuffer {
 
   /**
    * @method update
-   * @param {Number} offset
+   * @param {Number} byteOffset
    * @param {ArrayBuffer} data
    */
-  update(offset, data) {
+  update(byteOffset, data) {
     if (this._glID === -1) {
       console.error('The buffer is destroyed');
       return;
     }
 
-    if (data && data.byteLength + offset > this._bytes) {
-      console.error('Failed to update data, bytes exceed.');
-      return;
+    if (data.byteLength === 0) return;
+
+    // Need to create new buffer object when bytes exceed
+    if (byteOffset + data.byteLength > this._bytes) {
+      if (byteOffset) {
+        // Lost data between [0, byteOffset] which is need for new buffer
+        console.error('Failed to update data, bytes exceed.');
+        return;
+      }
+      else {
+        this._needExpandDataStore = true;
+        this._bytes = byteOffset + data.byteLength;
+        this._numVertices = this._bytes / this._bytesPerVertex;
+      }
     }
 
     let gl = this._device._gl;
     let glUsage = this._usage;
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this._glID);
-    if (!data) {
-      if (this._bytes) {
-        gl.bufferData(gl.ARRAY_BUFFER, this._bytes, glUsage);
-      } else {
-        console.warn('bufferData should not submit 0 bytes data');
-      }
-    } else {
-      if (offset) {
-        gl.bufferSubData(gl.ARRAY_BUFFER, offset, data);
-      } else {
-        gl.bufferData(gl.ARRAY_BUFFER, data, glUsage);
-      }
+    if (this._needExpandDataStore) {
+      gl.bufferData(gl.ARRAY_BUFFER, data, glUsage);
+      this._needExpandDataStore = false;
+    }
+    else {
+      gl.bufferSubData(gl.ARRAY_BUFFER, byteOffset, data);
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
   }

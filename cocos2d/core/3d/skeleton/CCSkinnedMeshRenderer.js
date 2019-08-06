@@ -232,7 +232,12 @@ let SkinnedMeshRenderer = cc.Class({
             let texture = this._jointsTexture || new cc.Texture2D();
             texture.initWithData(this._jointsData, pixelFormat, width, height);
             this._jointsTexture = texture;
-            this._jointsTextureOptions = {format: cc.Texture2D.PixelFormat.RGBA32F, width: texture.width, height: texture.height, images:[]}
+            this._jointsTextureOptions = {
+                format: pixelFormat, 
+                width: texture.width, 
+                height: texture.height, 
+                images:[]
+            };
             
             customProperties.setProperty('cc_jointsTexture', texture.getImpl(), enums.PARAM_TEXTURE_2D);
             customProperties.setProperty('cc_jointsTextureSize', new Float32Array([width, height]), enums.PARAM_FLOAT2);

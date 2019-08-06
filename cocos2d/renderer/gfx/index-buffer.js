@@ -1,5 +1,11 @@
 import { enums } from './enums';
 
+const BYTES_PER_INDEX = {
+  [enums.INDEX_FMT_UINT8]: 1,
+  [enums.INDEX_FMT_UINT16]: 2,
+  [enums.INDEX_FMT_UINT32]: 4,
+}
+
 class IndexBuffer {
   /**
    * @constructor
@@ -7,24 +13,16 @@ class IndexBuffer {
    * @param {INDEX_FMT_*} format
    * @param {USAGE_*} usage
    * @param {ArrayBuffer | Uint8Array} data
-   * @param {Number} numIndices
    */
-  constructor(device, format, usage, data, numIndices) {
+  constructor(device, format, usage, data) {
     this._device = device;
     this._format = format;
     this._usage = usage;
-    this._numIndices = numIndices;
-    this._bytesPerIndex = 0;
+    this._bytesPerIndex = BYTES_PER_INDEX[format];
+    this._bytes = data.byteLength;
+    this._numIndices = this._bytes / this._bytesPerIndex;
 
-    // calculate bytes
-    if (format === enums.INDEX_FMT_UINT8) {
-      this._bytesPerIndex = 1;
-    } else if (format === enums.INDEX_FMT_UINT16) {
-      this._bytesPerIndex = 2;
-    } else if (format === enums.INDEX_FMT_UINT32) {
-      this._bytesPerIndex = 4;
-    }
-    this._bytes = this._bytesPerIndex * numIndices;
+    this._needExpandDataStore = true;
 
     // update
     this._glID = device._gl.createBuffer();
@@ -52,18 +50,29 @@ class IndexBuffer {
 
   /**
    * @method update
-   * @param {Number} offset
+   * @param {Number} byteOffset
    * @param {ArrayBuffer} data
    */
-  update(offset, data) {
+  update(byteOffset, data) {
     if (this._glID === -1) {
       console.error('The buffer is destroyed');
       return;
     }
 
-    if (data && data.byteLength + offset > this._bytes) {
-      console.error('Failed to update data, bytes exceed.');
-      return;
+    if (data.byteLength === 0) return;
+
+    // Need to create new buffer object when bytes exceed
+    if (byteOffset + data.byteLength > this._bytes) {
+      if (byteOffset) {
+        // Lost data between [0, byteOffset] which is need for new buffer
+        console.error('Failed to update data, bytes exceed.');
+        return;
+      }
+      else {
+        this._needExpandDataStore = true;
+        this._bytes = byteOffset + data.byteLength;
+        this._numIndices = this._bytes / this._bytesPerIndex;
+      }
     }
 
     /** @type{WebGLRenderingContext} */
@@ -71,18 +80,12 @@ class IndexBuffer {
     let glUsage = this._usage;
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._glID);
-    if (!data) {
-      if (this._bytes) {
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this._bytes, glUsage);
-      } else {
-        console.warn('bufferData should not submit 0 bytes data');
-      }
-    } else {
-      if (offset) {
-        gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, offset, data);
-      } else {
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, data, glUsage);
-      }
+    if (this._needExpandDataStore) {
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, data, glUsage);
+      this._needExpandDataStore = false;
+    }
+    else {
+      gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, byteOffset, data);
     }
     this._device._restoreIndexBuffer();
   }
@@ -95,5 +98,7 @@ class IndexBuffer {
     this._usage = usage;
   }
 }
+
+IndexBuffer.BYTES_PER_INDEX = BYTES_PER_INDEX;
 
 export default IndexBuffer;
