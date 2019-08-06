@@ -74,6 +74,8 @@ NS_CC_BEGIN
         virtual void setFrame(float x, float y, float width, float height);
 
         void setBounces(bool bounces);
+        
+        void setBackgroundTransparent(bool isTransparent);
 
         static bool shouldStartLoading(const int viewTag, const std::string &url);
 

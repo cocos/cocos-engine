@@ -95,6 +95,8 @@ static std::string getFixedBaseUrl(const std::string& baseUrl)
 - (void)goForward;
 
 - (void)setScalesPageToFit:(const bool)scalesPageToFit;
+
+- (void)setBackgroundTransparent:(const bool)isTransparent;
 @end
 
 
@@ -220,6 +222,12 @@ static std::string getFixedBaseUrl(const std::string& baseUrl)
 - (void)setScalesPageToFit:(const bool)scalesPageToFit {
     if (!self.uiWebView) {[self setupWebView];}
     self.uiWebView.scalesPageToFit = scalesPageToFit;
+}
+
+- (void)setBackgroundTransparent:(const bool)isTransparent {
+    if (!self.uiWebView) {[self setupWebView];}
+    [self.uiWebView setOpaque:isTransparent ? NO : YES];
+    [self.uiWebView setBackgroundColor:isTransparent ? [UIColor clearColor] : [UIColor whiteColor]];
 }
 
 #pragma mark - UIWebViewDelegate
@@ -363,6 +371,10 @@ namespace cocos2d {
                                        y:y/scaleFactor
                                    width:width/scaleFactor
                                   height:height/scaleFactor];
+    }
+    
+    void WebViewImpl::setBackgroundTransparent(bool isTransparent){
+        [_uiWebViewWrapper setBackgroundTransparent:isTransparent];
     }
 } //namespace cocos2d
 

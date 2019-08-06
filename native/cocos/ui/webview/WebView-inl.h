@@ -126,6 +126,10 @@ NS_CC_BEGIN
         _impl->setBounces(bounces);
     }
 
+    void WebView::setBackgroundTransparent(bool isTransparent) {
+        _impl->setBackgroundTransparent(isTransparent);
+    }
+
     void WebView::setOnDidFailLoading(const ccWebViewCallback &callback) {
         _onDidFailLoading = callback;
     }
