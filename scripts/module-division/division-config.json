@@ -9,11 +9,11 @@
         },
         {
             "description": "Graphcis API",
-            "required": true,
             "items": [
                 {
                     "name": "WebGL 1.0",
-                    "entry": "gfx-webgl"
+                    "entry": "gfx-webgl",
+                    "required": true
                 },
                 {
                     "name": "WebGL 2.0",
