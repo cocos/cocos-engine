@@ -901,7 +901,7 @@ export class Node extends BaseNode implements INode {
     }
 
     public getContentSize (out?: Size): Size {
-        if (!out){
+        if (!out) {
             out = new Size();
         }
 
@@ -918,8 +918,8 @@ export class Node extends BaseNode implements INode {
     public on (type: string | SystemEventType, callback: Function, target?: Object, useCapture?: any) {
         switch (type) {
             case SystemEventType.TRANSFORM_CHANGED:
-            this._eventMask |= TRANFORM_ON;
-            break;
+                this._eventMask |= TRANFORM_ON;
+                break;
         }
         this._eventProcessor.on(type, callback, target, useCapture);
     }
@@ -932,8 +932,8 @@ export class Node extends BaseNode implements INode {
         if (!hasListeners) {
             switch (type) {
                 case SystemEventType.TRANSFORM_CHANGED:
-                this._eventMask &= ~TRANFORM_ON;
-                break;
+                    this._eventMask &= ~TRANFORM_ON;
+                    break;
             }
         }
     }
@@ -947,10 +947,10 @@ export class Node extends BaseNode implements INode {
     }
 
     public dispatchEvent (event: Event) {
-       this._eventProcessor.dispatchEvent(event);
+        this._eventProcessor.dispatchEvent(event);
     }
 
-    public hasEventListener (type: string){
+    public hasEventListener (type: string) {
         return this._eventProcessor.hasEventListener(type);
     }
 
