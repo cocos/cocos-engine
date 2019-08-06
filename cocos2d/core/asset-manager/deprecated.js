@@ -487,6 +487,7 @@ Object.defineProperties(cc.game, {
             cc.assetManager._bundles.get('scenes')._config.scenes.forEach(function (val) {
                 scenes.push(val);
             });
+            return scenes;
         }
     }
 });
