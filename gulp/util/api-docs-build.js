@@ -99,31 +99,6 @@ exports.generateAPIEN = function (indexPath, jsonFiles, outputPath) {
     outputDebug(child);
 }
 
-exports.generateHTML = function () {
-    const index = program.index;
-    const output = program.output;
-    // typedoc command
-    let commands = [
-        index,
-        '--module',
-        mode,
-        '--out',
-        output,
-        '--name',
-        docsName,
-        '--exclude',
-        exclude,
-        '--readme',
-        readme,
-        '--disableOutputCheck',
-        '--ignoreCompilerErrors',
-    ];
-    let child = spawn('typedoc', commands, {
-        shell: process.platform === 'win32'
-    });
-    outputDebug(child);
-}
-
 exports.generateHTMLWithLocalization = function () {
     const index = program.index;
     const output = program.output;
