@@ -1171,7 +1171,7 @@ export class BaseNode extends CCObject implements IBaseNode {
         }
     }
 
-    protected _onPostActivated () {
+    protected _onPostActivated (active:boolean) {
         return;
     }
 

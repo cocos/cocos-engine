@@ -348,6 +348,18 @@ export class NodeEventProcessor {
         this._node = node;
     }
 
+    public reattach (): void {
+        if (this.touchListener) {
+            var mask = this.touchListener.mask = _searchMaskInParent(this._node);
+            if (this.mouseListener) {
+                this.mouseListener.mask = mask;
+            }
+        }
+        else if (this.mouseListener) {
+            this.mouseListener.mask = _searchMaskInParent(this._node);
+        }
+    }
+
     public destroy (): void{
         if (_currentHovered === this._node) {
             _currentHovered = null;
