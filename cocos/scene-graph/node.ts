@@ -974,6 +974,17 @@ export class Node extends BaseNode implements INode {
         eventManager.resumeTarget(this, recursive);
     }
 
+    public _onPostActivated (active) {
+        if (active) {
+            eventManager.resumeTarget(this);
+            this.eventProcessor.reattach();
+        }
+        else {
+            // deactivate
+            eventManager.pauseTarget(this);
+        }
+    }
+
     public _onPreDestroy () {
         this._eventProcessor.destroy();
         super._onPreDestroy();
