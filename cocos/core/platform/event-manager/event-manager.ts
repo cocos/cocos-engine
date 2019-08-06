@@ -747,10 +747,10 @@ class EventManager {
     private _sortEventListenersOfSceneGraphPriorityDes (l1: EventListener, l2: EventListener) {
         const node1 = l1._getSceneGraphPriority();
         const node2 = l2._getSceneGraphPriority();
-        if (!l2 || !node2 || node2.parent === null) {
+        if (!l2 || !node2 || !node2._activeInHierarchy || node2.parent === null) {
             return -1;
         }
-        else if (!l1 || !node1 || node1.parent === null) {
+        else if (!l1 || !node1 || !node1._activeInHierarchy || node1.parent === null) {
             return 1;
         }
 
