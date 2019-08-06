@@ -119,7 +119,6 @@ let MeshBuffer = cc.Class({
                 0
             );
             this._vbArr[offset] = this._vb;
-            this._vb._bytes = this._vData.byteLength;
 
             this._ib = new gfx.IndexBuffer(
                 this._batcher._device,
@@ -129,7 +128,6 @@ let MeshBuffer = cc.Class({
                 0
             );
             this._ibArr[offset] = this._ib;
-            this._ib._bytes = this._iData.byteLength;
         }
     },
 
@@ -209,8 +207,6 @@ let MeshBuffer = cc.Class({
                 newData[i] = oldVData[i];
             }
         }
-
-        this._vb._bytes = this._vData.byteLength;
     },
 
     _reallocIData (copyOldData) {
@@ -224,8 +220,6 @@ let MeshBuffer = cc.Class({
                 iData[i] = oldIData[i];
             }
         }
-
-        this._ib._bytes = this._iData.byteLength;
     },
 
     reset () {

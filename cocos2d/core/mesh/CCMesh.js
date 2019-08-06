@@ -143,16 +143,14 @@ let Mesh = cc.Class({
                     renderer.device,
                     gfxVFmt,
                     gfx.USAGE_STATIC,
-                    vbData,
-                    vertexBundle.verticesCount
+                    vbData
                 );
     
                 let ibBuffer = new gfx.IndexBuffer(
                     renderer.device,
                     primitive.indexUnit,
                     gfx.USAGE_STATIC,
-                    ibData,
-                    ibData.byteLength / gfx.IndexBuffer.BYTES_PER_INDEX[primitive.indexUnit]
+                    ibData
                 );
     
                 // create sub meshes
@@ -195,7 +193,6 @@ let Mesh = cc.Class({
                 vertexFormat,
                 dynamic ? gfx.USAGE_DYNAMIC : gfx.USAGE_STATIC,
                 data,
-                vertexCount
             );
 
             meshData.vb = vb;   
@@ -387,16 +384,12 @@ let Mesh = cc.Class({
 
             if (subData.vDirty) {
                 let buffer = subData.vb, data = subData.vData;
-                buffer._numVertices = data.byteLength / buffer._format._bytes;
-                buffer._bytes = data.byteLength;
                 buffer.update(0, data);
                 subData.vDirty = false;
             }
 
             if (subData.iDirty) {
                 let buffer = subData.ib, data = subData.iData;
-                buffer._numIndices = data.length / buffer._bytesPerIndex;
-                buffer._bytes = data.byteLength;
                 buffer.update(0, data);
                 subData.iDirty = false;
             }
