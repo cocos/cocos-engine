@@ -76,7 +76,7 @@ replaceProperty(Vec2.prototype,'Vec2',[
         targetName: 'Vec2'
     },
     {
-        name: 'sqrMag',
+        name: 'magSqr',
         newName: 'lengthSqr',
         target: Vec2.prototype,
         targetName: 'Vec2'
@@ -167,7 +167,7 @@ replaceProperty(Vec3.prototype,'Vec3',[
         targetName: 'Vec3'
     },
     {
-        name: 'sqrMag',
+        name: 'magSqr',
         newName: 'lengthSqr',
         target: Vec3.prototype,
         targetName: 'Vec3'
@@ -258,7 +258,7 @@ replaceProperty(Vec4.prototype,'Vec4',[
         targetName: 'Vec4'
     },
     {
-        name: 'sqrMag',
+        name: 'magSqr',
         newName: 'lengthSqr',
         target: Vec4.prototype,
         targetName: 'Vec4'
