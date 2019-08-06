@@ -9,6 +9,7 @@
         },
         {
             "description": "Graphcis API",
+            "required": true,
             "items": [
                 {
                     "name": "WebGL 1.0",
