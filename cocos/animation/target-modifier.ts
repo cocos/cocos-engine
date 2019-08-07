@@ -13,6 +13,18 @@ export interface ICustomTargetModifier {
 
 export type TargetModifier = PropertyModifier | ElementModifier | ICustomTargetModifier;
 
+export function isPropertyModifier(modifier: TargetModifier): modifier is PropertyModifier {
+    return typeof modifier === 'string';
+}
+
+export function isElementModifier(modifier: TargetModifier): modifier is ElementModifier {
+    return typeof modifier === 'number';
+}
+
+export function isCustomTargetModifier<T extends ICustomTargetModifier>(modifier: TargetModifier, constructor: Constructor<T>): modifier is T {
+    return modifier instanceof constructor;
+}
+
 @ccclass('cc.HierachyModifier')
 export class HierachyModifier implements ICustomTargetModifier {
     @property

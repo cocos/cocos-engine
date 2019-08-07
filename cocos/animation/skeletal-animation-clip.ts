@@ -51,7 +51,9 @@ function isTargetSkinningModel (comp: RenderableComponent, root: INode) {
     return false;
 }
 
-type ConvertedData = Record<string, Record<string, IPropertyCurveData>>;
+type ConvertedData = Record<string, {
+    props: Record<string, IPropertyCurveData>;
+}>;
 
 /**
  * 骨骼动画剪辑。
@@ -79,11 +81,13 @@ export class SkeletalAnimationClip extends AnimationClip {
                 const path = (curve.modifiers[0] as HierachyModifier).path;
                 let cs = convertedData[path];
                 if (!cs) {
-                    cs = {};
+                    cs = {
+                        props: {},
+                    };
                     convertedData[path] = cs;
                 }
                 const property = curve.modifiers[1] as string;
-                cs[property] = curve.data;
+                cs.props[property] = curve.data;
             }
         });
         this.convertedData = convertedData; this.curves = [];
@@ -92,7 +96,7 @@ export class SkeletalAnimationClip extends AnimationClip {
         for (const path of paths) {
             const nodeData = this.convertedData[path];
             if (!nodeData.props) { continue; }
-            const { position, rotation, scale } = nodeData;
+            const { position, rotation, scale } = nodeData.props;
             // fixed step pre-sample
             this._convertToUniformSample(position);
             this._convertToUniformSample(rotation);
@@ -102,7 +106,7 @@ export class SkeletalAnimationClip extends AnimationClip {
             rotation.interpolate = false;
             scale.interpolate = false;
             // transform to world space
-            this._convertToWorldSpace(path, nodeData);
+            this._convertToWorldSpace(path, nodeData.props);
         }
         // convert to SkinningModelComponent.fid animation
         const values = [...Array(Math.ceil(this.sample * this._duration))].map((_, i) => i);
@@ -159,9 +163,9 @@ export class SkeletalAnimationClip extends AnimationClip {
         const name = path.substring(0, idx);
         const data = this.convertedData[name];
         if (!data) { console.warn('no data for parent bone?'); return; }
-        const pPos = data.position.values;
-        const pRot = data.rotation.values;
-        const pScale = data.scale.values;
+        const pPos = data.props.position.values;
+        const pRot = data.props.rotation.values;
+        const pScale = data.props.scale.values;
         // parent is already in world space
         const position = props.position.values;
         const rotation = props.rotation.values;

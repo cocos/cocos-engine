@@ -11,7 +11,7 @@ import { AnimCurve, IPropertyCurveData, RatioSampler, CurveValueAdapter } from '
 import { WrapMode as AnimationWrapMode } from './types';
 import { INode } from '../core/utils/interfaces';
 import { murmurhash2_32_gc } from '../core/utils/murmurhash2_gc';
-import { TargetModifier, HierachyModifier, ComponentModifier } from './target-modifier';
+import { TargetModifier, HierachyModifier, ComponentModifier, isCustomTargetModifier, PropertyModifier, isPropertyModifier } from './target-modifier';
 import { UniformCurveValueAdapter } from './curve-value-adapters';
 
 export interface ITargetCurveData {
@@ -242,10 +242,7 @@ export class AnimationClip extends Asset {
         delete this._runtimeCurves;
     }
 
-    public onLoad () {
-        this.duration = this._duration;
-        this.speed = this.speed;
-        this.wrapMode = this.wrapMode;
+    public onLoaded () {
         this.frameRate = this.sample;
         this._migrateCurveDatas();
     }
@@ -388,6 +385,56 @@ export class AnimationClip extends Asset {
             }
         }
         delete this.curveDatas;
+        Object.defineProperty(this, 'curveDatas', {
+            get: () => {
+                const result: ICurveData = {};
+                for (const curve of this._curves) {
+                    if (curve.modifiers.length === 0 ||
+                        !isCustomTargetModifier(curve.modifiers[0], HierachyModifier)) {
+                        continue;
+                    }
+
+                    let componentName: string | null = null;
+                    let propertyName: string | undefined;
+                    if (curve.modifiers.length === 2 &&
+                        isPropertyModifier(curve.modifiers[1])) {
+                        propertyName = curve.modifiers[1] as PropertyModifier;
+                    } else if (curve.modifiers.length === 3 &&
+                        isCustomTargetModifier(curve.modifiers[1], ComponentModifier) &&
+                        isPropertyModifier(curve.modifiers[2])) {
+                        componentName = (curve.modifiers[1] as ComponentModifier).component;
+                        propertyName = curve.modifiers[2] as PropertyModifier;
+                    } else {
+                        continue;
+                    }
+
+                    const path = (curve.modifiers[0] as HierachyModifier).path;
+                    
+                    if (!(path in result)) {
+                        result[path] = {};
+                    }
+                    const nodeCurveData = result[path];
+                    let objectCurveData: IObjectCurveData | undefined;
+                    if (componentName) {
+                        if (!('comps' in nodeCurveData)) {
+                            nodeCurveData.comps = {};
+                        }
+                        const componentCurveData = nodeCurveData.comps!;
+                        if (!(componentName in componentCurveData)) {
+                            componentCurveData[componentName] = {};
+                        }
+                        objectCurveData = componentCurveData[componentName];
+                    } else {
+                        if (!('props' in nodeCurveData)) {
+                            nodeCurveData.props = {};
+                        }
+                        objectCurveData = nodeCurveData.props!;
+                    }
+                    objectCurveData[propertyName] = curve.data;
+                }
+                return result;
+            }
+        });
     }
 }
 

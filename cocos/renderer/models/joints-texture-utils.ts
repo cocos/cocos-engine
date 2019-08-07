@@ -184,9 +184,9 @@ export class JointsTexturePool {
             const nodeData = data[skeleton.joints[i]];
             if (!nodeData || !nodeData.props) { continue; }
             const bindpose = skeleton.bindTRS[i];
-            const position = nodeData.position.values;
-            const rotation = nodeData.rotation.values;
-            const scale = nodeData.scale.values;
+            const position = nodeData.props.position.values;
+            const rotation = nodeData.props.rotation.values;
+            const scale = nodeData.props.scale.values;
             for (let frame = 0; frame < frames; frame++) {
                 const T = position[frame];
                 const R = rotation[frame];
