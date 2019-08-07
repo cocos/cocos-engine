@@ -28,7 +28,7 @@
  * @category ui
  */
 
-import { BitmapFont, Font, ImageAsset, SpriteFrame } from '../../../assets';
+import { BitmapFont, Font, ImageAsset, SpriteFrame, Texture2D } from '../../../assets';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { ccenum } from '../../../core/value-types/enum';
 import { UI } from '../../../renderer/ui/ui';
@@ -448,7 +448,7 @@ export class LabelComponent extends UIRenderComponent {
         // }
 
         if (this._cacheMode === CacheMode.CHAR) {
-            this._ttfTexture = null;
+            this._ttfSpriteFrame = null;
         }
 
         this._cacheMode = value;
@@ -600,7 +600,7 @@ export class LabelComponent extends UIRenderComponent {
     // 这个保存了旧项目的 file 数据
     private _N$file: Font | null = null;
     private _texture: SpriteFrame | LetterRenderTexture | null = null;
-    private _ttfTexture: SpriteFrame | null = null;
+    private _ttfSpriteFrame: SpriteFrame | null = null;
     private _userDefinedFont: Font | null = null;
     private _assemblerData: ISharedLabelData | null = null;
     private _fontAtlas: FontAtlas | null = null;
@@ -612,7 +612,7 @@ export class LabelComponent extends UIRenderComponent {
             this._userDefinedFont = null;
         }
 
-        this._ttfTexture = null;
+        this._ttfSpriteFrame = null;
     }
 
     public onEnable () {
@@ -640,9 +640,9 @@ export class LabelComponent extends UIRenderComponent {
         }
 
         this._assemblerData = null;
-        if (this._ttfTexture) {
-            this._ttfTexture.destroy();
-            this._ttfTexture = null;
+        if (this._ttfSpriteFrame) {
+            this._ttfSpriteFrame.destroy();
+            this._ttfSpriteFrame = null;
         }
 
         super.onDestroy();
@@ -705,7 +705,7 @@ export class LabelComponent extends UIRenderComponent {
     private _flushMaterial () {
         const material = this._material;
         // Setup blend function for premultiplied ttf label texture
-        // if (this._texture === this._ttfTexture) {
+        // if (this._texture === this._ttfSpriteFrame) {
         //     this._srcBlendFactor = macro.BlendFactor.ONE;
         // } else {
         //     this._srcBlendFactor = macro.BlendFactor.SRC_ALPHA;
@@ -736,17 +736,19 @@ export class LabelComponent extends UIRenderComponent {
             if (this.cacheMode === CacheMode.CHAR && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
                 this._letterTexture = this._assembler!.getAssemblerData();
                 this._texture = this._letterTexture;
-            } else if (!this._ttfTexture) {
-                this._ttfTexture = new SpriteFrame();
+            } else if (!this._ttfSpriteFrame) {
+                this._ttfSpriteFrame = new SpriteFrame();
                 this._assemblerData = this._assembler!.getAssemblerData();
-                // this._ttfTexture.initWithElement(this._assemblerData.canvas);
+                // this._ttfSpriteFrame.initWithElement(this._assemblerData.canvas);
                 const image = new ImageAsset(this._assemblerData!.canvas);
-                this._ttfTexture.image = image;
+                const tex = new Texture2D();
+                tex.image = image;
+                this._ttfSpriteFrame.texture = tex;
             }
 
             if (this.cacheMode !== CacheMode.CHAR) {
                 // this._frame._refreshTexture(this._texture);
-                this._texture = this._ttfTexture;
+                this._texture = this._ttfSpriteFrame;
             }
 
             this._flushMaterial();

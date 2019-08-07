@@ -69,20 +69,6 @@ export interface ITexture2DCreateInfo {
 @ccclass('cc.Texture2D')
 export class Texture2D extends SimpleTexture {
     /**
-     * 此贴图的像素宽度。
-     */
-    public get width (): number {
-        return this._width;
-    }
-
-    /**
-     * 此贴图的像素高度。
-     */
-    public get height (): number {
-        return this._height;
-    }
-
-    /**
      * 所有层级 Mipmap，注意，这里不包含自动生成的 Mipmap。
      * 当设置 Mipmap 时，贴图的尺寸以及像素格式可能会改变。
      */
@@ -127,8 +113,6 @@ export class Texture2D extends SimpleTexture {
 
     @property([ImageAsset])
     public _mipmaps: ImageAsset[] = [];
-    private _width: number = 0;
-    private _height: number = 0;
 
     constructor () {
         super(true);
@@ -136,8 +120,6 @@ export class Texture2D extends SimpleTexture {
 
     public onLoaded () {
         this.initialize();
-        this.loaded = true;
-        this.emit('load');
     }
 
     /**
@@ -268,6 +250,21 @@ export class Texture2D extends SimpleTexture {
         return Object.assign({
             type: GFXTextureViewType.TV2D,
         }, presumed);
+    }
+
+    protected _checkTextureLoaded() {
+        let ready = true;
+        for (let i = 0; i < this._mipmaps.length; ++i) {
+            const image = this._mipmaps[i];
+            if(!image.loaded){
+                ready = false;
+                break;
+            }
+        }
+
+        if(ready){
+            super._textureReady();
+        }
     }
 }
 

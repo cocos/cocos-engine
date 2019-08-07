@@ -70,20 +70,6 @@ export class TextureCube extends TrivialTexture {
     public static FaceIndex = FaceIndex;
 
     /**
-     * 此贴图的像素宽度。
-     */
-    public get width (): number {
-        return this._width;
-    }
-
-    /**
-     * 此贴图的像素高度。
-     */
-    public get height (): number {
-        return this._height;
-    }
-
-    /**
      * 所有层级 Mipmap，注意，这里不包含自动生成的 Mipmap。
      * 当设置 Mipmap 时，贴图的尺寸以及像素格式可能会改变。
      */
@@ -168,8 +154,6 @@ export class TextureCube extends TrivialTexture {
 
     @property
     public _mipmaps: ITextureCubeMipmap[] = [];
-    private _width: number = 0;
-    private _height: number = 0;
 
     constructor () {
         super();

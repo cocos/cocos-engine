@@ -53,6 +53,20 @@ export class TextureBase extends Asset {
         return this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
     }
 
+    /**
+     * 此贴图的像素宽度。
+     */
+    public get width(): number {
+        return this._width;
+    }
+
+    /**
+     * 此贴图的像素高度。
+     */
+    public get height(): number {
+        return this._height;
+    }
+
     public static PixelFormat = PixelFormat;
 
     public static WrapMode = WrapMode;
@@ -89,11 +103,15 @@ export class TextureBase extends Asset {
     @property
     protected _anisotropy = 16;
 
+    protected _width: number = 0;
+    protected _height: number = 0;
+
     private _id: string;
     private _samplerInfo: Array<number | undefined> = [];
     private _samplerHash: number = 0;
 
-    protected constructor (flipY: boolean = false) {
+
+    constructor (flipY: boolean = false) {
         super();
 
         this._flipY = flipY;

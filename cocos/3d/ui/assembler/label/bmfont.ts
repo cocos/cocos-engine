@@ -50,7 +50,7 @@ export const bmfont: IAssembler = {
         fillMeshVertices3D(node, renderer, comp.renderData!, comp.color);
     },
 
-    appendQuad (comp: LabelComponent, texture: SpriteFrame, rect: Rect, rotated: boolean, x: number, y: number, scale: number) {
+    appendQuad (comp: LabelComponent, spriteframe: SpriteFrame, rect: Rect, rotated: boolean, x: number, y: number, scale: number) {
         const renderData = comp.renderData;
         if (!renderData){
             return;
@@ -63,9 +63,8 @@ export const bmfont: IAssembler = {
         renderData.indiceCount = renderData.dataLength / 2 * 3;
 
         const datas = renderData.datas;
-        const origin = texture.originalSize;
-        const texw = origin.width;
-        const texh = origin.height;
+        const texw = spriteframe.width;
+        const texh = spriteframe.height;
 
         const rectWidth = rect.width;
         const rectHeight = rect.height;

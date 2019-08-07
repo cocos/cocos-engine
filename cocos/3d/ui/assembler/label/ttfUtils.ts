@@ -27,7 +27,7 @@
  * @hidden
  */
 
-import { SpriteFrame } from '../../../../assets';
+import { SpriteFrame, Texture2D } from '../../../../assets';
 import { Component } from '../../../../components';
 import { fragmentText, safeMeasureText } from '../../../../core/utils';
 import { Color, Size } from '../../../../core/math';
@@ -261,7 +261,12 @@ export const ttfUtils =  {
 
         // _texture.handleLoadedTexture();
         if (_texture) {
-            _texture.image = _texture.image;
+            if (_texture instanceof SpriteFrame) {
+                const tex = (_texture.texture as Texture2D);
+                tex.image = tex.image;
+            } else {
+                _texture.image = _texture.image;
+            }
         }
     },
 

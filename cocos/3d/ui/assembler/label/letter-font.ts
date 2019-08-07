@@ -82,7 +82,7 @@ class FontLetterDefinition {
 const _backgroundStyle = 'rgba(255, 255, 255, 0.005)';
 
 class LetterTexture {
-    public texture: SpriteFrame | null = null;
+    public spriteframe: SpriteFrame | null = null;
     public labelInfo: ILabelInfo;
     public char: string;
     public data: ISharedLabelData | null  = null;
@@ -103,13 +103,13 @@ class LetterTexture {
     }
 
     public destroy () {
-        this.texture!.destroy();
-        this.texture = null;
+        this.spriteframe!.destroy();
+        this.spriteframe = null;
         // LabelComponent._canvasPool.put(this._data);
     }
 
     private _updateProperties () {
-        this.texture = new SpriteFrame();
+        this.spriteframe = new SpriteFrame();
         this.data = LabelComponent.CanvasPool.get();
         this.canvas = this.data.canvas;
         this.context = this.data.context;
@@ -130,7 +130,7 @@ class LetterTexture {
 
         // this.texture.initWithElement(this.canvas);
         const image = new ImageAsset(this.canvas);
-        this.texture.image = image;
+        (this.spriteframe.texture as Texture2D).image = image;
     }
 
     private _updateTexture () {
@@ -166,7 +166,8 @@ class LetterTexture {
         context.fillText(this.char, startX, startY);
 
         // this.texture.handleLoadedTexture();
-        this.texture!.updateImage();
+        (this.spriteframe!.texture as Texture2D).updateImage();
+
     }
 }
 
@@ -265,7 +266,7 @@ export class LetterAtlas {
     }
 
     public insertLetterTexture (letterTexture: LetterTexture) {
-        const texture = letterTexture.texture;
+        const texture = letterTexture.spriteframe;
         const device = cc.director.root.device;
         if (!texture || !this.texture || !device || !texture.image) {
             return null;

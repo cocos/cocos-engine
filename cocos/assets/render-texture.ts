@@ -27,12 +27,6 @@ export class RenderTexture extends TextureBase {
     private _window: GFXWindow | null = null;
 
     @property
-    private _width: number = 0;
-
-    @property
-    private _height: number = 0;
-
-    @property
     private _depthStencilFormat: DepthStencilFormat = DepthStencilFormat.NONE;
 
     private _cameras: Camera[] = [];
