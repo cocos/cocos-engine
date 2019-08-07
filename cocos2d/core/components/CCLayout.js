@@ -817,23 +817,23 @@ var Layout = cc.Class({
         }
 
         if (allChildrenBoundingBox) {
-            var leftBottomInParentSpace = this.node.convertToNodeSpaceAR(cc.v2(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
-            leftBottomInParentSpace = cc.v2(leftBottomInParentSpace.x - this.paddingLeft, leftBottomInParentSpace.y - this.paddingBottom);
+            var leftBottomSpace = this.node.convertToNodeSpaceAR(cc.v2(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
+            leftBottomSpace = cc.v2(leftBottomSpace.x - this.paddingLeft, leftBottomSpace.y - this.paddingBottom);
 
-            var rightTopInParentSpace = this.node.convertToNodeSpaceAR(cc.v2(allChildrenBoundingBox.xMax, allChildrenBoundingBox.yMax));
-            rightTopInParentSpace = cc.v2(rightTopInParentSpace.x + this.paddingRight, rightTopInParentSpace.y + this.paddingTop);
+            var rightTopSpace = this.node.convertToNodeSpaceAR(cc.v2(allChildrenBoundingBox.xMax, allChildrenBoundingBox.yMax));
+            rightTopSpace = cc.v2(rightTopSpace.x + this.paddingRight, rightTopSpace.y + this.paddingTop);
 
-            var newSize = rightTopInParentSpace.sub(leftBottomInParentSpace);
+            var newSize = rightTopSpace.sub(leftBottomSpace);
             newSize = cc.size(parseFloat(newSize.x.toFixed(2)), parseFloat(newSize.y.toFixed(2)));
 
             if (newSize.width !== 0) {
                 // Invert is to get the coordinate point of the child node in the parent coordinate system
-                var newAnchorX = (-leftBottomInParentSpace.x) / newSize.width;
+                var newAnchorX = (-leftBottomSpace.x) / newSize.width;
                 this.node.anchorX = parseFloat(newAnchorX.toFixed(2));
             }
             if (newSize.height !== 0) {
                 // Invert is to get the coordinate point of the child node in the parent coordinate system
-                var newAnchorY = (-leftBottomInParentSpace.y) / newSize.height;
+                var newAnchorY = (-leftBottomSpace.y) / newSize.height;
                 this.node.anchorY = parseFloat(newAnchorY.toFixed(2));
             }
             this.node.setContentSize(newSize);
