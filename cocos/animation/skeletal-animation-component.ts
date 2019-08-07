@@ -141,6 +141,12 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     protected _createState (clip: AnimationClip, name?: string) {
         return new SkeletalAnimationState(clip, name);
     }
+
+    protected _doCreateState (clip: AnimationClip, name: string) {
+        const state = super._doCreateState(clip, name) as SkeletalAnimationState;
+        state.rebuildSocketCurves(this._sockets);
+        return state;
+    }
 }
 
 cc.SkeletalAnimationComponent = SkeletalAnimationComponent;
