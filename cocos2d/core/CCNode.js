@@ -2650,7 +2650,7 @@ let NodeDefines = {
         else {
             vec3.copy(_swpVec3, pos);
         }
-        trs.toPosition(_swpVec3, ltrs);
+        trs.fromPosition(ltrs, _swpVec3);
         this.setLocalDirty(LocalDirtyFlag.POSITION);
 
         // fast check event
@@ -2736,7 +2736,7 @@ let NodeDefines = {
         else {
             vec3.copy(_swsVec3, scale);
         }
-        _swsVec3.toScale(this._trs);
+        trs.fromScale(this._trs, _swsVec3);
         this.setLocalDirty(LocalDirtyFlag.SCALE);
     },
 
