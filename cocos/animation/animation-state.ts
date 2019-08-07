@@ -32,13 +32,13 @@ import { EventArgumentsOf, EventCallbackOf } from '../core/event/defines';
 import { Node } from '../scene-graph';
 import { AnimationBlendState, PropertyBlendState } from './animation-blend-state';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
-import { AnimCurve, CurveTarget, RatioSampler, ICurveValueProxy, CurveValueAdapter } from './animation-curve';
+import { AnimCurve, RatioSampler, ICurveValueProxy } from './animation-curve';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { INode } from '../core/utils/interfaces';
 import { BlendFunction, additive3D, additiveQuat } from './blending';
 import { BoundTarget } from './target-modifier';
-import { error } from '../core/platform/CCDebug';
+import { warn } from '../core/platform/CCDebug';
 
 enum PropertySpecialization {
     NodePosition,
@@ -391,7 +391,7 @@ export class AnimationState extends Playable {
             try {
                 samplerSharedGroup.curves.push(new ICurveInstance(propertyCurve, root));
             } catch (err) {
-                error(`Failed to bind "" to curve : ${err}`);
+                warn(`Failed to bind "${root.name}" to curve in clip ${clip.name}: ${err}`);
             }
         }
     }
