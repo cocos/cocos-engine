@@ -2736,7 +2736,7 @@ let NodeDefines = {
         else {
             vec3.copy(_swsVec3, scale);
         }
-        _swsVec3.toScale(this._trs);
+        trs.fromScale(_swsVec3, this._trs);
         this.setLocalDirty(LocalDirtyFlag.SCALE);
     },
 
