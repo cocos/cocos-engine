@@ -24,7 +24,7 @@ export class HierachyModifier implements ICustomTargetModifier {
     get(target: INode) {
         const result = target.getChildByPath(this.path);
         if (!result) {
-            throw new Error(`Node ${target.name} has no path "${this.path}"`);
+            throw new Error(`Node "${target.name}" has no path "${this.path}"`);
         }
         return result;
     }
@@ -43,7 +43,7 @@ export class ComponentModifier implements ICustomTargetModifier {
     get (target: INode) {
         const result = target.getComponent(this.component);
         if (!result) {
-            throw new Error(`Node ${target.name} has no component "${this.component}"`);
+            throw new Error(`Node "${target.name}" has no component "${this.component}"`);
         }
         return result;
     }
@@ -70,7 +70,7 @@ export class BoundTarget {
                     if (modifier in target) {
                         target = target[modifier];
                     } else {
-                        throw new Error(`Target object has no property ${modifier}`);
+                        throw new Error(`Target object has no property "${modifier}"`);
                     }
                 } else {
                     assignmentModifier = modifier;
@@ -82,7 +82,7 @@ export class BoundTarget {
             }
         }
 
-        if (assignmentModifier) {
+        if (assignmentModifier !== undefined) {
             this._assignmentOrProxy = {
                 object: target,
                 propertyOrElement: assignmentModifier,

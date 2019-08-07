@@ -116,11 +116,11 @@ export class RatioSampler {
         return this._findRatio(this.ratios, ratio);
     }
 }
+cc.RatioSampler = RatioSampler;
 
 /**
  * 动画曲线。
  */
-@ccclass('cc.AnimCurve')
 export class AnimCurve {
     public static Linear = null;
 
@@ -128,16 +128,13 @@ export class AnimCurve {
         return controlPoints as BezierControlPoints;
     }
 
-    @property
     public types?: Array<(EasingMethod | null)> = undefined;
 
-    @property
     public type?: EasingMethod | null = null;
 
     /**
      * The values of the keyframes. (y)
      */
-    @property
     private _values: CurveValue[] = [];
 
     /**
@@ -244,6 +241,7 @@ export class AnimCurve {
         return this._values.length === 0;
     }
 }
+cc.AnimCurve = AnimCurve;
 
 export class EventInfo {
     public events: any[] = [];
@@ -312,6 +310,7 @@ export function sampleAnimationCurve (curve: AnimCurve, sampler: RatioSampler, r
     }
     return curve.valueAt(index);
 }
+cc.sampleAnimationCurve = sampleAnimationCurve;
 
 /**
  * Compute a new ratio by curve type.
