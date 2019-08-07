@@ -129,6 +129,7 @@ let RenderTexture = cc.Class({
         this._super();
         if (this._framebuffer) {
             this._framebuffer.destroy();
+            this._framebuffer = null;
         }
     }
 });

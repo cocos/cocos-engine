@@ -55,6 +55,11 @@ const DEFAULT_MODULE_CACHE = {
     'cc.PrefabInfo': false
 };
 
+!Float32Array.name && (Float32Array.name = 'Float32Array');
+!Uint32Array.name && (Uint32Array.name = 'Uint32Array');
+!Int32Array.name && (Int32Array.name = 'Int32Array');
+!Uint8Array.name && (Uint8Array.name = 'Uint8Array');
+
 // HELPER CLASSES
 
 // ('foo', 'bar')
