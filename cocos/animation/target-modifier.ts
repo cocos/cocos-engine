@@ -22,7 +22,11 @@ export class HierachyModifier implements ICustomTargetModifier {
     }
 
     get(target: INode) {
-        return target.getChildByPath(this.path);
+        const result = target.getChildByPath(this.path);
+        if (!result) {
+            throw new Error(`Node ${target.name} has no path "${this.path}"`);
+        }
+        return result;
     }
 }
 cc.HierachyModifier = HierachyModifier;
@@ -37,7 +41,11 @@ export class ComponentModifier implements ICustomTargetModifier {
     }
 
     get (target: INode) {
-        return target.getComponent(this.component);
+        const result = target.getComponent(this.component);
+        if (!result) {
+            throw new Error(`Node ${target.name} has no component "${this.component}"`);
+        }
+        return result;
     }
 }
 cc.ComponentModifier = ComponentModifier;
@@ -59,7 +67,11 @@ export class BoundTarget {
             case 'string':
             case 'number':
                 if (iModifier !== modifiers.length - 1 || valueAdapter) {
-                    target = target[modifier];
+                    if (modifier in target) {
+                        target = target[modifier];
+                    } else {
+                        throw new Error(`Target object has no property ${modifier}`);
+                    }
                 } else {
                     assignmentModifier = modifier;
                 }
