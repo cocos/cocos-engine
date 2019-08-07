@@ -521,6 +521,7 @@ let Camera = cc.Class({
         this._updateClippingpPlanes();
         this._updateProjection();
         this._updateStages();
+        this.beforeDraw();
     },
 
     onLoad () {
