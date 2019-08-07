@@ -345,6 +345,7 @@ export class AnimationState extends Playable {
     }
 
     public initialize (root: INode) {
+        if (this._curveLoaded) { return; }
         this._curveLoaded = true;
         this._samplerSharedGroups.length = 0;
         this._targetNode = root;
