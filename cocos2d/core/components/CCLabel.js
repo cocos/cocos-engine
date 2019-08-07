@@ -641,6 +641,13 @@ let Label = cc.Class({
         }
         // WebGL
         else {
+
+            // If frame not create, disable render and return.
+            if (!this._frame) {
+                this.disableRender();
+                return;
+            }
+
             // Label's texture is generated dynamically,
             // we should always get a material instance for this label.
             let material = this.sharedMaterials[0];
