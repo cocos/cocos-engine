@@ -2,12 +2,9 @@ import { Asset } from '../../assets/asset';
 import { ImageAsset } from '../../assets/image-asset';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { Texture2D } from '../../assets/texture-2d';
-import { Rect } from '../../core/math';
+import { Rect, Size } from '../../core/math';
 import { GFXDevice } from '../../gfx/device';
-import { customizationManager } from '../../renderer/scene/customization-manager';
-import { Model } from '../../renderer/scene/model';
 import { TextureCube } from '../assets/texture-cube';
-import { aabb } from '../geom-utils';
 import effects from './effects';
 
 class BuiltinResMgr {
@@ -121,11 +118,8 @@ class BuiltinResMgr {
         resources[defaultCubeTexture._uuid] = defaultCubeTexture;
 
         const spriteFrame = new SpriteFrame();
+        (spriteFrame.texture as Texture2D).image = imgAsset;
         spriteFrame._uuid = 'default-spriteframe';
-        spriteFrame.setOriginalSize(cc.size(imgAsset.width, imgAsset.height));
-        spriteFrame.setRect(new Rect(0, 0, imgAsset.width, imgAsset.height));
-        spriteFrame.image = imgAsset;
-        spriteFrame.onLoaded();
         resources[spriteFrame._uuid] = spriteFrame;
 
         // builtin effects

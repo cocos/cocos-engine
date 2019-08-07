@@ -33,13 +33,12 @@
 import { ccclass } from '../core/data/class-decorator';
 import { Rect, Size, Vec2 } from '../core/math';
 import { ImageAsset } from './image-asset';
-import { ITexture2DSerializeData } from './texture-2d';
-import * as textureUtil from './texture-util';
 import { murmurhash2_32_gc } from '../core/utils/murmurhash2_gc';
-import { SimpleTexture, PresumedGFXTextureInfo, PresumedGFXTextureViewInfo } from './simple-texture';
-import { IGFXTextureInfo } from '../gfx/texture';
-import { IGFXTextureViewInfo, GFXTextureView } from '../gfx/texture-view';
-import { GFXTextureType, GFXTextureViewType } from '../gfx/define';
+import { GFXTextureView } from '../gfx/texture-view';
+import { TextureBase } from './texture-base';
+import { Asset } from './asset';
+import { Texture2D } from './texture-2d';
+import { RenderTexture } from './render-texture';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -82,9 +81,9 @@ interface ISpriteFrameOriginal {
 
 interface ISpriteFrameInitInfo {
     /**
-     * @zh ImageAsset 资源。
+     * @zh Texture 对象资源。
      */
-    image: ImageAsset | null;
+    texture?: TextureBase;
     /**
      * @zh 精灵帧原始尺寸。
      */
@@ -118,9 +117,9 @@ interface ISpriteFrameInitInfo {
      */
     isRotate?: boolean;
     /**
-     * @zh 是否保持原尺寸大小。
+     * @zh 是否转置 UV。
      */
-    keepOriginSize?: boolean;
+    isFlipUv?: boolean;
 }
 
 const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }];
@@ -140,26 +139,58 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  *
  * @example
  * ```typescript
- * const self = this;
+ * // First way to use a SpriteFrame
  * const url = "assets/PurpleMonster/icon/spriteFrame";
- * cc.loader.loadRes(url, function (err, spriteFrame) {
+ * cc.loader.loadRes(url, (err, spriteFrame) => {
  *   const node = new Node("New Sprite");
  *   const sprite = node.addComponent(SpriteComponent);
  *   sprite.spriteFrame = spriteFrame;
  *   node.parent = self.node;
  * });
+ *
+ * // Second way to use a SpriteFrame
+ * const self = this;
+ * const url = "assets/PurpleMonster/icon";
+ * cc.loader.loadRes(url, (err, imageAsset) => {
+ *  const node = new Node("New Sprite");
+ *  const sprite = node.addComponent(SpriteComponent);
+ *  const spriteFrame = new SpriteFrame();
+ *  spriteFrame.initialize({
+ *    originalSize: new Size(imageAsset.width, imageAsset.height),
+ *    rect: new Rect(0, 0, imageAsset.width, imageAsset.height),
+ *  });
+ *  (spriteFrame.texture as Texture2D).image = imageAsset;
+ *  sprite.spriteFrame = spriteFrame;
+ *  node.parent = self.node;
+ * });
+ *
+ * // Third way to use a SpriteFrame
+ * const self = this;
+ * const cameraComp = this.getComponent(CameraComponent);
+ * const renderTexture = new RenderTexture();
+ * rendetTex.reset({
+ *   width: 512,
+ *   height: 512,
+ *   depthStencilFormat: RenderTexture.DepthStencilFormat.DEPTH_24_STENCIL_8
+ * });
+ *
+ * cameraComp.targetTexture = renderTexture;
+ * const spriteFrame = new SpriteFrame();
+ * spriteFrame.texture = renderTexture;
  * ```
  */
 @ccclass('cc.SpriteFrame')
-export class SpriteFrame extends SimpleTexture {
+export class SpriteFrame extends Asset {
     /**
      * @zh
      * 一键创建 spriteframe
      *
+     * @deprecated v1.0.0 beta10 后移除，新方案请参考头部。
      * @param config - 图片源
      */
     public static create (config: ISpriteFrameInitInfo){
-        const spriteframe = new SpriteFrame(config);
+        const spriteframe = new SpriteFrame();
+        spriteframe.initialize(config);
         spriteframe.onLoaded();
         return spriteframe;
     }
@@ -176,9 +207,7 @@ export class SpriteFrame extends SimpleTexture {
 
     set insetTop (value) {
         this._capInsets[INSET_TOP] = value;
-        if (this.image) {
-            this._calculateSlicedUV();
-        }
+        this._calculateSlicedUV();
     }
 
     /**
@@ -274,14 +303,43 @@ export class SpriteFrame extends SimpleTexture {
     }
 
     /**
-     * 图片源 ImageAsset。使用 FrameBuffer 绘制不设置次参数。
+     * 图片源 ImageAsset。用户不要设置此参数。
+     * @deprecated v1.0.0 beta10 废弃。
      */
     get image () {
         return this._image;
     }
 
     set image (value) {
-        this.reset({image: value});
+        this._image = this.image;
+        let tex = this._texture;
+        if(value instanceof RenderTexture){
+            tex = new Texture2D();
+        }
+
+        (tex as Texture2D).image = value;
+        this.reset({texture: tex}, true);
+    }
+
+    set _imageSource(value: ImageAsset) {
+        this._image = value;
+        const tex = this._texture as Texture2D;
+        tex.image = this._image;
+        this._calculateUV();
+    }
+
+    get texture (){
+        return this._texture;
+    }
+
+    set texture(value){
+        if(!value){
+            console.warn(`Error Texture in ${this.name}`);
+            return;
+        }
+
+        this.reset({ texture: value }, true);
+        this.emit('updated');
     }
 
     get atlasUuid () {
@@ -297,11 +355,11 @@ export class SpriteFrame extends SimpleTexture {
     }
 
     get width () {
-        return this._rect.width;
+        return this._texture.width;
     }
 
     get height () {
-        return this._rect.height;
+        return this._texture.height;
     }
 
     public vertices: IVertices | null = null;
@@ -338,8 +396,12 @@ export class SpriteFrame extends SimpleTexture {
     protected _original: ISpriteFrameOriginal | null = null;
 
     protected _atlasUuid: string = '';
+    // @ts-ignore
+    protected _texture: TextureBase;
 
-    constructor (info?: ISpriteFrameInitInfo) {
+    protected _flipUv = false;
+
+    constructor () {
         super();
 
         if (CC_EDITOR) {
@@ -347,8 +409,17 @@ export class SpriteFrame extends SimpleTexture {
             this._atlasUuid = '';
         }
 
-        // 初始化只初始化基础配置，gfxtexture 等留到 onLoaded 完成。
-        this._resetData(info);
+        this._texture = new Texture2D();
+        this._texture.on('load', this._textureLoaded, this);
+    }
+
+    /**
+     * 初始化配置
+     * @param info 配置。
+     */
+    public initialize(info?: ISpriteFrameInitInfo){
+        this.reset(info);
+        this.onLoaded();
     }
 
     /**
@@ -356,7 +427,7 @@ export class SpriteFrame extends SimpleTexture {
      * Returns whether the texture have been loaded.
      *
      * @zh
-     * 返回是否已加载纹理。
+     * 返回是否已加载精灵帧。
      */
     public textureLoaded () {
         return this.loaded;
@@ -475,31 +546,32 @@ export class SpriteFrame extends SimpleTexture {
     }
 
     public getGFXTextureView (){
-        return this._gfxTextureView;
+        return this._texture.getGFXTextureView();
     }
 
     /**
      * 外置 GFX 贴图视图，一般提供给 FrameBuffer 使用。
      * 注意： 需要取消使用外置 GFXTextureView 可以使用 set image 方法替换新视图。
+     * @deprecated v1.0.0 beta10 后移除
      * @param value GFX 贴图视图
      */
     public setGFXTextureView (value: GFXTextureView) {
-        this._tryDestroyTexture();
-        this._image = null;
-        const tex = this._gfxTexture = value.texture;
-        this._resetData({
-            originalSize: new Size(tex.width, tex.height),
-            rect: new Rect(0, 0, tex.width, tex.height),
-            image: null,
-            borderBottom: 0,
-            borderLeft: 0,
-            borderRight: 0,
-            borderTop: 0,
-        });
-        this._calculateUV(true);
-        this._gfxTextureView = value;
-        this._gfxTexture = value.texture;
-        this.emit('change-texture-view');
+        // this._tryDestroyTexture();
+        // this._image = null;
+        // const tex = this._gfxTexture = value.texture;
+        // this._resetData({
+        //     originalSize: new Size(tex.width, tex.height),
+        //     rect: new Rect(0, 0, tex.width, tex.height),
+        //     image: null,
+        //     borderBottom: 0,
+        //     borderLeft: 0,
+        //     borderRight: 0,
+        //     borderTop: 0,
+        // });
+        // this._calculateUV(true);
+        // this._gfxTextureView = value;
+        // this._gfxTexture = value.texture;
+        // this.emit('change-texture-view');
     }
 
     /**
@@ -509,14 +581,10 @@ export class SpriteFrame extends SimpleTexture {
      * @zh
      * 克隆 SpriteFrame。
      *
+     * @deprecated 建议重新创建，v1.0.0 beta10 后移除
      * @returns - 复制后的精灵帧
      */
     public clone () {
-        if (!this.image){
-            console.warn(`No image ${this.name}`);
-            return;
-        }
-
         const cap = this._capInsets;
         const config: ISpriteFrameInitInfo = {
             originalSize: this._originalSize,
@@ -526,11 +594,16 @@ export class SpriteFrame extends SimpleTexture {
             borderLeft: cap[INSET_LEFT],
             borderRight: cap[INSET_RIGHT],
             offset: this._offset,
-            image: this.image,
         };
-        const cloneSprite = new SpriteFrame(config);
+
+        if(this._texture instanceof RenderTexture){
+            config.texture = this._texture;
+        }
+
+        const cloneSprite = new SpriteFrame();
         cloneSprite.name = this.name;
         cloneSprite.atlasUuid = this.atlasUuid;
+        cloneSprite.initialize(config);
         cloneSprite.onLoaded();
         return cloneSprite;
     }
@@ -553,7 +626,7 @@ export class SpriteFrame extends SimpleTexture {
      * 当加载中的场景或 Prefab 被标记为 `asyncLoadAssets` 时，用户在场景中由自定义组件关联到的所有 SpriteFrame 的贴图都不会被提前加载。
      * 只有当 Sprite 组件要渲染这些 SpriteFrame 时，才会检查贴图是否加载。如果你希望加载过程提前，你可以手工调用这个方法。
      *
-     * @method ensureLoadTexture
+     * @deprecated v1.0.0 beta10 后移除
      * @example
      * ```ts
      * spriteFrame.once('load', this._onTextureLoaded, this);
@@ -561,31 +634,93 @@ export class SpriteFrame extends SimpleTexture {
      * ```
      */
     public ensureLoadTexture () {
-        const image = this.image;
-        if (image && !image.loaded) {
-            // load exists texture
-            this._refreshTexture(image);
-            textureUtil.postLoadImage(image);
-        }
+        // const image = this.image;
+        // if (image && !image.loaded) {
+        //     // load exists texture
+        //     this._refreshTexture(image);
+        //     textureUtil.postLoadImage(image);
+        // }
     }
 
     /**
-     * 重新更新
+     * 重新更新 ImageAsset
+     * @deprecated v1.0.0 beta10 后移除
      */
     public updateImage () {
         // 上传图片源数据。
-        this._assignImage(this._image!, 0);
+        if(this._texture instanceof Texture2D){
+            // @ts-ignore
+            (this._texture as Texture2D)._assignImage(this._image!, 0);
+        }
     }
 
     /**
      * 重置 SpriteFrame 数据。
      * @param info SpriteFrame 初始化数据。
      */
-    public reset (info?: ISpriteFrameInitInfo) {
-        this._resetData(info);
-        this._calculateUV();
-        this._tryReset();
-        this.updateImage();
+    public reset (info?: ISpriteFrameInitInfo, clearData = false) {
+        let calUV = false;
+        if(clearData){
+            this._originalSize.set(0, 0);
+            this._rect.set(0, 0, 0 ,0);
+            this._offset.set(0, 0);
+            this._capInsets = [0 , 0, 0, 0];
+            this._rotated = false;
+            calUV = true;
+        }
+
+        if (info) {
+            if (info.texture) {
+                this._rect.x = this._rect.y = 0;
+                this._rect.width = info.texture.width;
+                this._rect.height = info.texture.height;
+                this._texture.off('load');
+                this._texture = info.texture;
+                this.checkRect(this._texture);
+                this._texture.on('load', this._textureLoaded, this);
+            }
+
+            if (info.originalSize) {
+                this._originalSize.set(info.originalSize);
+            }
+
+            if (info.rect) {
+                this._rect.set(info.rect);
+            }
+
+            if (info.offset) {
+                this._offset.set(info.offset);
+            }
+
+            if (info.borderTop !== undefined) {
+                this._capInsets[INSET_TOP] = info.borderTop;
+            }
+
+            if (info.borderBottom !== undefined) {
+                this._capInsets[INSET_BOTTOM] = info.borderBottom;
+            }
+
+            if (info.borderLeft !== undefined) {
+                this._capInsets[INSET_LEFT] = info.borderLeft;
+            }
+
+            if (info.borderRight !== undefined) {
+                this._capInsets[INSET_RIGHT] = info.borderRight;
+            }
+
+            this._rotated = !!info.isRotate;
+            this._flipUv = !!info.isFlipUv;
+            // hack
+            if (!this._texture['image']) {
+                this._flipUv = true;
+            }
+
+            calUV = true;
+        }
+
+        if(calUV){
+            this._calculateUV()
+        }
     }
 
     /**
@@ -594,7 +729,7 @@ export class SpriteFrame extends SimpleTexture {
      *
      * @param texture
      */
-    public checkRect (texture: ImageAsset) {
+    public checkRect (texture: TextureBase) {
         const rect = this._rect;
         let maxX = rect.x;
         let maxY = rect.y;
@@ -607,32 +742,14 @@ export class SpriteFrame extends SimpleTexture {
         }
 
         if (maxX > texture.width) {
-            cc.errorID(3300, texture.url + '/' + this.name, maxX, texture.width);
+            cc.errorID(3300, this.name + '/' + texture.name, maxX, texture.width);
         }
         if (maxY > texture.height) {
-            cc.errorID(3400, texture.url + '/' + this.name, maxY, texture.height);
+            cc.errorID(3400, this.name + '/' + texture.name, maxY, texture.height);
         }
-    }
-
-    public destroy (){
-        this.uv.length = 0;
-        this.uvSliced.length = 0;
-        this._capInsets.length = 0;
-        this.vertices = null;
-        return super.destroy();
     }
 
     public onLoaded (){
-        if(!this._image){
-            return;
-        }
-
-        if (!this._image.loaded){
-            this.ensureLoadTexture();
-            return;
-        }
-
-       this.reset();
        this.loaded = true;
        this.emit('load');
     }
@@ -642,15 +759,18 @@ export class SpriteFrame extends SimpleTexture {
      *
      * @zh 设置使用的纹理实例。
      *
+     * @deprecated v1.0.0 beta10 后移除
      * @param image
      */
     public _refreshTexture (image: ImageAsset) {
-        this.image = image;
-        if (image.loaded) {
-            this.onLoaded();
-        } else {
-            image.once('load', this._refreshTexture, this);
-        }
+        // this._image = image;
+        // if (image.loaded) {
+        //     if(this._texture instanceof Texture2D){
+        //         (this._texture as Texture2D).image = this._image;
+        //     }
+        // } else {
+        //     image.once('load', this.ensureLoadTexture, this);
+        // }
     }
 
     /**
@@ -659,9 +779,9 @@ export class SpriteFrame extends SimpleTexture {
      */
     public _calculateSlicedUV () {
         const rect = this._rect;
-        const texture = this._getCalculateTarget()!;
-        const atlasWidth = texture.width;
-        const atlasHeight = texture.height;
+        // const texture = this._getCalculateTarget()!;
+        const atlasWidth = this._texture.width;
+        const atlasHeight = this._texture.height;
         const leftWidth = this._capInsets[INSET_LEFT];
         const rightWidth = this._capInsets[INSET_RIGHT];
         const centerWidth = rect.width - leftWidth - rightWidth;
@@ -727,7 +847,7 @@ export class SpriteFrame extends SimpleTexture {
 
         this._rect.x = frame._rect.x;
         this._rect.y = frame._rect.y;
-        this.image = frame.image;
+        this._image = frame.image;
         this._calculateUV();
     }
 
@@ -738,7 +858,7 @@ export class SpriteFrame extends SimpleTexture {
 
         this._rect.x = this._original.x;
         this._rect.y = this._original.y;
-        this.image = this._original.spriteframe.image;
+        this._image = this._original.spriteframe.image;
         this._original = null;
         this._calculateUV();
     }
@@ -747,16 +867,11 @@ export class SpriteFrame extends SimpleTexture {
      * @zh
      * 计算 UV。
      */
-    public _calculateUV (flip = false) {
+    public _calculateUV () {
         const rect = this._rect;
-        const texture = this._getCalculateTarget();
-        if(!texture){
-            console.warn(`There is no texture to calculate in ${this.name}`);
-            return;
-        }
         const uv = this.uv;
-        const texw = texture.width;
-        const texh = texture.height;
+        const texw = this._texture.width;
+        const texh = this._texture.height;
 
         if (this._rotated) {
             const l = texw === 0 ? 0 : rect.x / texw;
@@ -776,7 +891,7 @@ export class SpriteFrame extends SimpleTexture {
             const r = texw === 0 ? 0 : (rect.x + rect.width) / texw;
             const b = texh === 0 ? 0 : (rect.y + rect.height) / texh;
             const t = texh === 0 ? 0 : rect.y / texh;
-            if (flip) {
+            if (this._flipUv) {
                 uv[0] = l;
                 uv[1] = t;
                 uv[2] = r;
@@ -841,7 +956,6 @@ export class SpriteFrame extends SimpleTexture {
         }
 
         const serialize = {
-            base: super._serialize(exporting),
             image: this._image ? exporting ? Editor.Utils.UuidUtils.compressUuid(this._image._uuid, true) : this._image._uuid : undefined,
             name: this._name,
             atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting
@@ -859,11 +973,6 @@ export class SpriteFrame extends SimpleTexture {
 
     public _deserialize (serializeData: any, handle: any) {
         const data = serializeData as ISpriteFramesSerializeData;
-        super._deserialize(data.base, handle);
-        if(data.image.length > 0){
-            this._image = new ImageAsset();
-            handle.result.push(this, '_image', data.image);
-        }
         const rect = data.rect;
         if (rect) {
             this.setRect(new Rect(rect.x, rect.y, rect.width, rect.height));
@@ -889,6 +998,8 @@ export class SpriteFrame extends SimpleTexture {
             this._capInsets[INSET_BOTTOM] = capInsets[INSET_BOTTOM];
         }
 
+        handle.result.push(this, '_imageSource', data.image);
+
         if (CC_EDITOR) {
             this._atlasUuid = data.atlas ? data.atlas : '';
         }
@@ -901,93 +1012,13 @@ export class SpriteFrame extends SimpleTexture {
         }
     }
 
-    /**
-     * GFX 贴图信息。
-     * @param presumed The presumed GFX texture info.
-     */
-    protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): IGFXTextureInfo | null {
-        if(!this._image){
-            return null;
-        }
-
-        return Object.assign({
-            type: GFXTextureType.TEX2D,
-            width: this._image.width,
-            height: this._image.height,
-        }, presumed);
-    }
-
-    /**
-     * GFX 贴图视图信息。
-     * @param presumed The presumed GFX texture view info.
-     */
-    protected _getGfxTextureViewCreateInfo (presumed: PresumedGFXTextureViewInfo): IGFXTextureViewInfo | null {
-        return Object.assign({
-            type: GFXTextureViewType.TV2D,
-        }, presumed);
-    }
-
-    /**
-     * 重制精灵帧数据。
-     * @param 重置数据。
-     */
-    protected _resetData (info?: ISpriteFrameInitInfo) {
-        if (info) {
-            if (info.image) {
-                this._rect.x = this._rect.y = 0;
-                this._rect.width = info.image.width;
-                this._rect.height = info.image.height;
-                const keepOriginSize = !!info.keepOriginSize;
-                if (!keepOriginSize) {
-                    this._originalSize.width = this._rect.width;
-                    this._originalSize.height = this._rect.height;
-                }
-                this._image = info.image;
-                this.checkRect(this._image);
-            }
-
-            if (info.originalSize) {
-                this._originalSize.set(info.originalSize);
-            }
-
-            if (info.rect) {
-                this._rect.set(info.rect);
-            }
-
-            if (info.offset) {
-                this._offset.set(info.offset);
-            }
-
-            if (info.borderTop !== undefined) {
-                this._capInsets[INSET_TOP] = info.borderTop;
-            }
-
-            if (info.borderBottom !== undefined) {
-                this._capInsets[INSET_BOTTOM] = info.borderBottom;
-            }
-
-            if (info.borderLeft !== undefined) {
-                this._capInsets[INSET_LEFT] = info.borderLeft;
-            }
-
-            if (info.borderRight !== undefined) {
-                this._capInsets[INSET_RIGHT] = info.borderRight;
-            }
-
-            this._rotated = !!info.isRotate;
-        }
-
-        if(this._image){
-            this._setGFXFormat(this._image.format);
-        }
-    }
-
-    protected _getCalculateTarget(){
-        if (this._image) {
-            return this._image;
-        } else {
-            return this._gfxTexture;
-        }
+    protected _textureLoaded() {
+        const tex = this._texture;
+        this.reset({
+            originalSize: new Size(tex.width, tex.height),
+            rect: new Rect(0, 0, tex.width, tex.height),
+        });
+        this.emit('updated');
     }
 
 }

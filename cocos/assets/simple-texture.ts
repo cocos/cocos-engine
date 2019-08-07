@@ -139,6 +139,7 @@ export class SimpleTexture extends TextureBase {
                 source = data;
             }
             this.uploadData(source, level, arrayIndex);
+            this._checkTextureLoaded();
         };
         if (image.loaded) {
             upload();
@@ -152,6 +153,15 @@ export class SimpleTexture extends TextureBase {
             }
             postLoadImage(image);
         }
+    }
+
+    protected _checkTextureLoaded(){
+        this._textureReady();
+    }
+
+    protected _textureReady(){
+        this.loaded = true;
+        this.emit('load');
     }
 
     /**

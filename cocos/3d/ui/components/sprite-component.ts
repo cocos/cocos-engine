@@ -401,7 +401,7 @@ export class SpriteComponent extends UIRenderComponent {
         }
 
         if(this._spriteFrame){
-            this._spriteFrame.on('change-texture-view', this._markForUpdateUvDirty, this);
+            this._spriteFrame.on('updated', this._markForUpdateUvDirty, this);
         }
     }
 
@@ -438,7 +438,7 @@ export class SpriteComponent extends UIRenderComponent {
         }
 
         if (this._spriteFrame) {
-            this._spriteFrame.off('change-texture-view');
+            this._spriteFrame.off('updated');
         }
     }
 
@@ -603,11 +603,11 @@ export class SpriteComponent extends UIRenderComponent {
 
         if(this._renderData){
             if(oldFrame){
-                oldFrame.off('change-texture-view');
+                oldFrame.off('updated');
             }
 
             if(spriteFrame){
-                spriteFrame.on('change-texture-view', this._markForUpdateUvDirty, this);
+                spriteFrame.on('updated', this._markForUpdateUvDirty, this);
             }
 
             if (oldFrame && spriteFrame) {
