@@ -222,7 +222,7 @@ var _Deserializer = (function () {
         if (type === 'TypedArray') {
             var array = serialized.array;
             obj = new window[serialized.ctor](array.length);
-            for (var i = 0; i < array.length; ++i) {
+            for (let i = 0; i < array.length; ++i) {
                 obj[i] = array[i];
             }
             return obj;
@@ -282,7 +282,7 @@ var _Deserializer = (function () {
                 obj = new Array(serialized.length);
             }
 
-            for (var i = 0; i < serialized.length; i++) {
+            for (let i = 0; i < serialized.length; i++) {
                 prop = serialized[i];
                 if (typeof prop === 'object' && prop) {
                     if (CC_EDITOR || CC_TEST) {
