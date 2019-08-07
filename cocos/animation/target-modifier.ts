@@ -22,6 +22,9 @@ export class HierachyModifier implements ICustomTargetModifier {
     }
 
     get(target: INode) {
+        if (!(target instanceof Node)) {
+            throw new Error(`Target of hierachy modifier shall be Node.`);
+        }
         const result = target.getChildByPath(this.path);
         if (!result) {
             throw new Error(`Node "${target.name}" has no path "${this.path}"`);
@@ -41,6 +44,9 @@ export class ComponentModifier implements ICustomTargetModifier {
     }
 
     get (target: INode) {
+        if (!(target instanceof Node)) {
+            throw new Error(`Target of hierachy modifier shall be Node.`);
+        }
         const result = target.getComponent(this.component);
         if (!result) {
             throw new Error(`Node "${target.name}" has no component "${this.component}"`);
