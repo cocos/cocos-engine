@@ -50,7 +50,7 @@ let _meshColor = cc.color(255, 255, 0, 255);
 let _finalColor = null;
 let _darkColor = null;
 let _tempPos = null, _tempUv = null;
-if (!CC_JSB) {
+if (!CC_NATIVERENDERER) {
     _finalColor = new spine.Color(1, 1, 1, 1);
     _darkColor = new spine.Color(1, 1, 1, 1);
     _tempPos = new spine.Vector2();
