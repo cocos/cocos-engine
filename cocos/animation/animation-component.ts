@@ -451,6 +451,16 @@ export class AnimationComponent extends Component implements IEventTarget {
         return new AnimationState(clip, name);
     }
 
+    protected _doCreateState (clip: AnimationClip, name: string) {
+        const state = this._createState(clip, name);
+        state._setEventTarget(this);
+        if (this.node) {
+            state.initialize(this.node);
+        }
+        this._nameToState[state.name] = state;
+        return state;
+    }
+
     private _getStateByNameOrDefaultClip (name?: string) {
         if (!name) {
             if (!this._defaultClip) {
@@ -476,16 +486,6 @@ export class AnimationComponent extends Component implements IEventTarget {
                 delete this._nameToState[name];
             }
         }
-    }
-
-    private _doCreateState (clip: AnimationClip, name: string) {
-        const state = this._createState(clip, name);
-        state._setEventTarget(this);
-        if (this.node) {
-            state.initialize(this.node);
-        }
-        this._nameToState[state.name] = state;
-        return state;
     }
 }
 
