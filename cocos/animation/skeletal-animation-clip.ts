@@ -162,7 +162,7 @@ export class SkeletalAnimationClip extends AnimationClip {
         if (idx < 0) { return; }
         const name = path.substring(0, idx);
         const data = this.convertedData[name];
-        if (!data) { console.warn('no data for parent bone?'); return; }
+        if (!data || !data.props) { console.warn('no data for parent bone?'); return; }
         const pPos = data.props.position.values;
         const pRot = data.props.rotation.values;
         const pScale = data.props.scale.values;

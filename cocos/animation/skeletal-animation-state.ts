@@ -87,9 +87,9 @@ export class SkeletalAnimationState extends AnimationState {
         }
         // create animation data
         const data: IObjectCurveData = {
-            position: { keys: 0, interpolate: false, values: source.position.values.map((v) => v.clone()) },
-            rotation: { keys: 0, interpolate: false, values: source.rotation.values.map((v) => v.clone()) },
-            scale: { keys: 0, interpolate: false, values: source.scale.values.map((v) => v.clone()) },
+            position: { keys: 0, interpolate: false, values: source.props.position.values.map((v) => v.clone()) },
+            rotation: { keys: 0, interpolate: false, values: source.props.rotation.values.map((v) => v.clone()) },
+            scale: { keys: 0, interpolate: false, values: source.props.scale.values.map((v) => v.clone()) },
         };
         const position = data.position.values;
         const rotation = data.rotation.values;
