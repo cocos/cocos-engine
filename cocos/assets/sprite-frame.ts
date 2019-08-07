@@ -311,7 +311,7 @@ export class SpriteFrame extends Asset {
     }
 
     set image (value) {
-        this._image = this.image;
+        this._image = value;
         let tex = this._texture;
         if(value instanceof RenderTexture){
             tex = new Texture2D();
@@ -743,10 +743,15 @@ export class SpriteFrame extends Asset {
 
         if (maxX > texture.width) {
             cc.errorID(3300, this.name + '/' + texture.name, maxX, texture.width);
+            return false;
+
         }
         if (maxY > texture.height) {
             cc.errorID(3400, this.name + '/' + texture.name, maxY, texture.height);
+            return false;
         }
+
+        return true;
     }
 
     public onLoaded (){
@@ -878,14 +883,26 @@ export class SpriteFrame extends Asset {
             const r = texw === 0 ? 0 : (rect.x + rect.height) / texw;
             const b = texh === 0 ? 0 : (rect.y + rect.width) / texh;
             const t = texh === 0 ? 0 : rect.y / texh;
-            uv[0] = l;
-            uv[1] = t;
-            uv[2] = l;
-            uv[3] = b;
-            uv[4] = r;
-            uv[5] = t;
-            uv[6] = r;
-            uv[7] = b;
+            if (this._flipUv) {
+                uv[0] = l;
+                uv[1] = t;
+                uv[2] = l;
+                uv[3] = b;
+                uv[4] = r;
+                uv[5] = t;
+                uv[6] = r;
+                uv[7] = b;
+            }
+            else {
+                uv[0] = r;
+                uv[1] = b;
+                uv[2] = r;
+                uv[3] = t;
+                uv[4] = l;
+                uv[5] = b;
+                uv[6] = l;
+                uv[7] = t;
+            }
         } else {
             const l = texw === 0 ? 0 : rect.x / texw;
             const r = texw === 0 ? 0 : (rect.x + rect.width) / texw;
@@ -1014,13 +1031,23 @@ export class SpriteFrame extends Asset {
 
     protected _textureLoaded() {
         const tex = this._texture;
-        this.reset({
-            originalSize: new Size(tex.width, tex.height),
-            rect: new Rect(0, 0, tex.width, tex.height),
-        });
-        this.emit('updated');
-    }
+        const config = {} as ISpriteFrameInitInfo;
+        let isReset = false;
+        if(!this.checkRect(tex)){
+            config.rect = new Rect(0, 0, tex.width, tex.height);
+            isReset = true;
+        }
 
+        if(this._originalSize.width > tex.width || this._originalSize.height > tex.height){
+            config.originalSize = new Size(tex.width, tex.height);
+            isReset = true;
+        }
+
+        if(isReset){
+            this.reset(config);
+            this.emit('updated');
+        }
+    }
 }
 
 cc.SpriteFrame = SpriteFrame;
