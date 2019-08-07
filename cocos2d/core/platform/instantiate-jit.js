@@ -380,9 +380,10 @@ proto.instantiateTypedArray = function (value) {
     this.objsToClear_iN$t.push(value);
 
     for (var i = 0; i < value.length; ++i) {
-        var statement = arrayVar + '[' + i + ']=';
-        var expression = this.enumerateField(value, i, value[i]);
-        writeAssignment(codeArray, statement, expression);
+        if (value[i] !== 0) {
+            var statement = arrayVar + '[' + i + ']=';
+            writeAssignment(codeArray, statement, value[i]);
+        }
     }
     return codeArray;
 };
