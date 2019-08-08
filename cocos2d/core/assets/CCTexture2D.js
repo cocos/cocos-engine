@@ -322,6 +322,7 @@ var Texture2D = cc.Class({
         _mipFilter: Filter.LINEAR,
         _wrapS: WrapMode.CLAMP_TO_EDGE,
         _wrapT: WrapMode.CLAMP_TO_EDGE,
+        _dynamicPack: true,
     },
 
     statics: {
@@ -753,6 +754,26 @@ var Texture2D = cc.Class({
         }
     },
 
+    /**
+     * !#en Set whther texture can be packed into dynamic atlas.
+     * !#zh 设置纹理是否允许参与动态合图。
+     * @method enableDynamicPack
+     * @param {boolean} enabled
+     */
+    enableDynamicPack (enabled) {
+        this._dynamicPack = enabled;
+    },
+
+    /**
+     * !#en Get whther texture can be packed into dynamic atlas.
+     * !#zh 获取是否允许参与动态合图。
+     * @method canDynamicPack
+     * @return {boolean}
+     */
+    canDynamicPack () {
+        return this._dynamicPack;
+    },
+
     _getOpts() {
         let opts = _getSharedOptions();
         opts.width = this.width;
@@ -821,10 +842,8 @@ var Texture2D = cc.Class({
             }
             extId = exts.join('_');
         }
-        let asset = "" + extId + "," + 
-                    this._minFilter + "," + this._magFilter + "," + 
-                    this._wrapS + "," + this._wrapT + "," + 
-                    (this._premultiplyAlpha ? 1 : 0) + "," + (this._genMipmaps ? 1 : 0);
+        let asset = `${extId},${this._minFilter},${this._magFilter},${this._wrapS},${this._wrapT},` +
+                    `${this._premultiplyAlpha ? 1 : 0},${this._genMipmaps ? 1 : 0},${this._dynamicPack ? 1 : 0}`;
         return asset;
     },
 
@@ -881,7 +900,7 @@ var Texture2D = cc.Class({
                 cc.warnID(3120, handle.customEnv.url, defaultExt, defaultExt);
             }
         }
-        if (fields.length === 7) {
+        if (fields.length === 8) {
             // decode filters
             this._minFilter = parseInt(fields[1]);
             this._magFilter = parseInt(fields[2]);
@@ -891,6 +910,7 @@ var Texture2D = cc.Class({
             // decode premultiply alpha
             this._premultiplyAlpha = fields[5].charCodeAt(0) === CHAR_CODE_1;
             this._genMipmaps = fields[6].charCodeAt(0) === CHAR_CODE_1;
+            this._dynamicPack = fields[7].charCodeAt(0) === CHAR_CODE_1;
         }
     },
 
