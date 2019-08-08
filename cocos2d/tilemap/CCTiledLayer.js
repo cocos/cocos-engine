@@ -165,7 +165,8 @@ let TiledLayer = cc.Class({
         dataComp._col = -1;
         dataComp._tiledLayer = this;
         
-        this._positionToRowCol(node.x, node.y, _tempRowCol);
+        this._nodeLocalPosToLayerPos(node, _vec2_temp);
+        this._positionToRowCol(_vec2_temp.x, _vec2_temp.y, _tempRowCol);
         this._addUserNodeToGrid(dataComp, _tempRowCol);
         this._updateCullingOffsetByUserNode(node);
         node.on(cc.Node.EventType.POSITION_CHANGED, this._userNodePosChange, dataComp);
@@ -207,6 +208,12 @@ let TiledLayer = cc.Class({
         node.destroy();
     },
 
+    // acording layer anchor point to calculate node layer pos
+    _nodeLocalPosToLayerPos (nodePos, out) {
+        out.x = nodePos.x + this._leftDownToCenterX;
+        out.y = nodePos.y + this._leftDownToCenterY;
+    },
+
     _getNodesByRowCol (row, col) {
         let rowData = this._userNodeGrid[row];
         if (!rowData) return null;
@@ -223,7 +230,8 @@ let TiledLayer = cc.Class({
         this._userNodeGrid = {};
         for (let dataId in this._userNodeMap) {
             let dataComp = this._userNodeMap[dataId];
-            this._positionToRowCol(dataComp.node.x, dataComp.node.y, _tempRowCol);
+            this._nodeLocalPosToLayerPos(dataComp.node, _vec2_temp);
+            this._positionToRowCol(_vec2_temp.x, _vec2_temp.y, _tempRowCol);
             this._addUserNodeToGrid(dataComp, _tempRowCol);
             this._updateCullingOffsetByUserNode(dataComp.node);
         }
@@ -255,7 +263,8 @@ let TiledLayer = cc.Class({
         let dataComp = this;
         let node = dataComp.node;
         let self = dataComp._tiledLayer;
-        self._positionToRowCol(node.x, node.y, _tempRowCol);
+        self._nodeLocalPosToLayerPos(node, _vec2_temp);
+        self._positionToRowCol(_vec2_temp.x, _vec2_temp.y, _tempRowCol);
         // users pos not change
         if (_tempRowCol.row === dataComp._row && _tempRowCol.col === dataComp._col) return;
 
@@ -329,8 +338,9 @@ let TiledLayer = cc.Class({
     },
 
     _syncAnchorPoint () {
-        this._leftDownToCenterX = this.node.width * this.node.anchorX;
-        this._leftDownToCenterY = this.node.height * this.node.anchorY;
+        let node = this.node;
+        this._leftDownToCenterX = node.width * node.anchorX * node.scaleX;
+        this._leftDownToCenterY = node.height * node.anchorY * node.scaleY;
         this._cullingDirty = true;
     },
 
