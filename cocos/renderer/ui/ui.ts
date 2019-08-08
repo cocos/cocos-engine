@@ -453,7 +453,7 @@ export class UI {
     }
 
     private _walk (node: INode, level = 0) {
-        const len = node.childrenCount;
+        const len = node.children.length;
 
         this._preprocess(node);
         if (len > 0) {

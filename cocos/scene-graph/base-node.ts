@@ -174,23 +174,6 @@ export class BaseNode extends CCObject implements IBaseNode {
     }
 
     /**
-     * @en All children nodes.
-     * @zh 节点的子节点数量。
-     * @property childrenCount
-     * @type {Number}
-     * @readOnly
-     * @example
-     * ```
-     * var count = node.childrenCount;
-     * cc.log("Node Children Count: " + count);
-     * ```
-     */
-    @property
-    get childrenCount () {
-        return this._children.length;
-    }
-
-    /**
      * @en
      * The local active state of this node.<br/>
      * Note that a Node may be inactive because a parent is not active, even if this returns true.<br/>
@@ -351,12 +334,6 @@ export class BaseNode extends CCObject implements IBaseNode {
     protected _active = true;
 
     /**
-     * @default 0
-     */
-    @property
-    protected _level = 0;
-
-    /**
      * @default []
      * @readOnly
      */
@@ -446,7 +423,6 @@ export class BaseNode extends CCObject implements IBaseNode {
             if (CC_DEBUG && (value._objFlags & Deactivating)) {
                 cc.errorID(3821);
             }
-            this._level = value._level + 1;
             value._children.push(this);
             if (value.emit) {
                 value.emit(SystemEventType.CHILD_ADDED, this);
