@@ -23,7 +23,7 @@ import { GFXTextureView } from '../gfx/texture-view';
 import { Camera, Model } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass';
 import { programLib } from '../renderer/core/program-lib';
-import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_ENVIRONMENT } from './define';
+import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_ENVIRONMENT, RenderPassStage } from './define';
 import { IInternalBindingInst } from './define';
 import { FrameBufferDesc, RenderPassDesc, RenderTextureDesc } from './pipeline-serialization';
 import { IRenderFlowInfo, RenderFlow } from './render-flow';
@@ -39,11 +39,17 @@ const _v4Zero = new Vec4(0.0, 0.0, 0.0, 0.0);
  * 渲染流程描述信息。
  */
 export interface IRenderPipelineInfo {
+    root: Root;
+    name?: string;
     enablePostProcess?: boolean;
     enableHDR?: boolean;
     enableMSAA?: boolean;
     enableSMAA?: boolean;
     enableIBL?: boolean;
+}
+
+export interface IRenderPipelineDesc {
+    root: Root;
 }
 
 /**
@@ -266,6 +272,7 @@ export abstract class RenderPipeline {
      * @zh
      * 是否为 HDR 管线。
      */
+    // @property
     protected _isHDR: boolean = false;
 
     /**
@@ -326,18 +333,21 @@ export abstract class RenderPipeline {
      * @zh
      * 启用后期处理。
      */
+    // @property
     protected _usePostProcess: boolean = false;
 
     /**
      * @zh
      * 启用MSAA。
      */
+    // @property
     protected _useMSAA: boolean = false;
 
     /**
      * @zh
      * 启用SMAA。
      */
+    // @property
     protected _useSMAA: boolean = false;
 
     /**
@@ -442,7 +452,20 @@ export abstract class RenderPipeline {
      * 初始化函数。
      * @param info 渲染管线描述信息。
      */
-    public initialize (root: Root) {
+    public initialize (info: IRenderPipelineInfo) {
+        this._setRoot(info.root);
+        this._name = info.name || String();
+    }
+
+    /**
+     * 当RenderPipeline资源加载完成后，初始化运行时数据
+     * @param desc
+     */
+    public onAssetLoaded (desc: IRenderPipelineDesc) {
+        this._setRoot(desc.root);
+    }
+
+    private _setRoot (root: Root) {
         this._root = root;
         this._device = root.device;
     }
@@ -562,9 +585,8 @@ export abstract class RenderPipeline {
         clazz: new () => T,
         info: IRenderFlowInfo): RenderFlow | null {
         const flow: RenderFlow = new clazz();
-        flow.setPipeline(this);
         if (flow.initialize(info)) {
-            this.activateFlow(flow);
+            this.addToActiveFlow(flow);
             return flow;
         } else {
             return null;
@@ -575,9 +597,12 @@ export abstract class RenderPipeline {
      * 激活一个RenderFlow，将其添加到可执行的RenderFlow数组中
      * @param flow 运行时会执行的RenderFlow
      */
-    public activateFlow (flow: RenderFlow) {
-        flow.setPipeline(this);
-        flow.activate();
+    protected activateFlow (flow: RenderFlow) {
+        flow.onAssetLoaded({ pipeline: this });
+        this.addToActiveFlow(flow);
+    }
+
+    private addToActiveFlow (flow: RenderFlow) {
         this._activeFlows.push(flow);
         this._activeFlows.sort((a: RenderFlow, b: RenderFlow) => {
             return a.priority - b.priority;
@@ -627,15 +652,25 @@ export abstract class RenderPipeline {
      * 内部初始化函数。
      * @param info 渲染流程描述信息。
      */
-    protected _initialize (): boolean {
+    protected _initialize (info: IRenderPipelineInfo): boolean {
 
-        const info: IRenderPipelineInfo = {};
         if (info.enablePostProcess !== undefined) {
             this._usePostProcess = info.enablePostProcess;
         } else {
             // We disable post process now, post process will be enabled in furture.
             this._usePostProcess = false;
         }
+
+        this._isHDR = (info.enableHDR !== undefined ? info.enableHDR : true);
+
+        // Config Anti-Aliasing
+        this._useSMAA = info.enableSMAA !== undefined ? info.enableSMAA : false;
+        this._useMSAA = info.enableMSAA !== undefined ? info.enableMSAA : false;
+
+        return this._initRenderResource();
+    }
+
+    protected _initRenderResource () {
 
         if (this._usePostProcess) {
             if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F) ||
@@ -647,11 +682,6 @@ export abstract class RenderPipeline {
             // this._isHDRSupported = false;
             this._fboCount = 1;
 
-            this._isHDR = (info.enableHDR !== undefined ? info.enableHDR : true);
-
-            // Config Anti-Aliasing
-            this._useSMAA = info.enableSMAA !== undefined ? info.enableSMAA : false;
-            this._useMSAA = info.enableMSAA !== undefined ? info.enableMSAA : false;
             if (this._useMSAA) {
                 this._useMSAA = this.device.hasFeature(GFXFeature.MSAA);
             }
@@ -685,9 +715,9 @@ export abstract class RenderPipeline {
 
         if (this._device.depthBits === 24) {
             if (this._device.stencilBits === 8) {
-               this._depthStencilFmt = GFXFormat.D24S8;
+                this._depthStencilFmt = GFXFormat.D24S8;
             } else {
-               this._depthStencilFmt = GFXFormat.D24;
+                this._depthStencilFmt = GFXFormat.D24;
             }
         } else {
             this._depthStencilFmt = GFXFormat.D16;
@@ -751,6 +781,20 @@ export abstract class RenderPipeline {
         if (!this.createUBOs()) {
             return false;
         }
+
+        const mainWindow = this._root.mainWindow;
+        let windowPass: GFXRenderPass | null = null;
+
+        if (mainWindow) {
+            windowPass = mainWindow.renderPass;
+        }
+
+        if (!windowPass) {
+            console.error('RenderPass of main window is null.');
+            return false;
+        }
+
+        this.addRenderPass(RenderPassStage.DEFAULT, windowPass);
 
         return true;
     }

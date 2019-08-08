@@ -29,9 +29,14 @@ ccenum(RenderQueueSortMode);
  * 渲染阶段描述信息。
  */
 export interface IRenderStageInfo {
+    flow: RenderFlow;
     name?: string;
     priority: number;
     framebuffer?: GFXFramebuffer;
+}
+
+export interface IRenderStageDesc {
+    flow: RenderFlow;
 }
 
 @ccclass('RenderQueueDesc')
@@ -191,7 +196,7 @@ export abstract class RenderStage {
     constructor () {
     }
 
-    public setFlow (flow: RenderFlow) {
+    private _setFlow (flow: RenderFlow) {
         this._flow = flow;
         this._pipeline = flow.pipeline;
         this._device = flow.device;
@@ -217,13 +222,16 @@ export abstract class RenderStage {
 
         this._priority = info.priority;
 
+        this._setFlow(info.flow);
+
         return true;
     }
 
     /**
      * 把序列化数据转换成运行时数据
      */
-    public activate () {
+    public onAssetLoaded (desc: IRenderStageDesc) {
+        this._setFlow(desc.flow);
         for (let i = 0; i < this.renderQueues.length; i++) {
             let phase = 0;
             for (const p of this.renderQueues[i].stages) {

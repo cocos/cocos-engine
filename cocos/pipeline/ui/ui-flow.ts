@@ -20,11 +20,7 @@ export class UIFlow extends RenderFlow {
 
     public initialize (info: IRenderFlowInfo): boolean {
 
-        if (info.name !== undefined) {
-            this._name = info.name;
-        }
-
-        this._priority = info.priority;
+        super.initialize(info);
 
         const mainWindow = this._pipeline.root.mainWindow;
         if (!mainWindow || !mainWindow.framebuffer) {
@@ -32,6 +28,7 @@ export class UIFlow extends RenderFlow {
         }
 
         this.createStage(UIStage, {
+            flow:this,
             name: 'UIStage',
             priority: 0,
             framebuffer:  mainWindow.framebuffer,

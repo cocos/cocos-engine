@@ -18,12 +18,7 @@ export class ToneMapFlow extends RenderFlow {
     }
 
     public initialize (info: IRenderFlowInfo): boolean {
-
-        if (info.name !== undefined) {
-            this._name = info.name;
-        }
-
-        this._priority = info.priority;
+        super.initialize(info);
 
         const material = this._material;
         material.recompileShaders({
@@ -33,6 +28,7 @@ export class ToneMapFlow extends RenderFlow {
         const framebuffer = this._pipeline.root.mainWindow!.framebuffer!;
 
         this.createStage(ToneMapStage, {
+            flow: this,
             name: 'ToneMapStage',
             priority: 0,
             framebuffer,

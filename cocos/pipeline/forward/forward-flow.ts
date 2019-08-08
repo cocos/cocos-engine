@@ -39,6 +39,7 @@ export class ForwardFlow extends RenderFlow {
         super.initialize(info);
 
         this.createStage(ForwardStage, {
+            flow: this,
             name: 'ForwardStage',
             priority: ForwardStagePriority.FORWARD,
         });

@@ -14,8 +14,13 @@ import { RenderView } from './render-view';
  * 渲染流程描述信息。
  */
 export interface IRenderFlowInfo {
+    pipeline: RenderPipeline;
     name?: string;
     priority: number;
+}
+
+export interface IRenderFlowDesc {
+    pipeline: RenderPipeline;
 }
 
 /**
@@ -106,7 +111,7 @@ export abstract class RenderFlow {
     constructor () {
     }
 
-    public setPipeline (pipeline: RenderPipeline) {
+    private _setPipeline (pipeline: RenderPipeline) {
         this._device = pipeline.device;
         this._pipeline = pipeline;
     }
@@ -116,12 +121,14 @@ export abstract class RenderFlow {
      * 初始化函数。
      * @param info 渲染流程描述信息。
      */
-    public initialize (info: IRenderFlowInfo): boolean{
+    public initialize (info: IRenderFlowInfo): boolean {
         if (info.name !== undefined) {
             this._name = info.name;
         }
 
         this._priority = info.priority;
+
+        this._setPipeline(info.pipeline);
 
         return true;
     }
@@ -129,10 +136,10 @@ export abstract class RenderFlow {
     /**
      * 把序列化数据转换成运行时数据
      */
-    public activate () {
+    public onAssetLoaded (desc: IRenderFlowDesc) {
+        this._setPipeline(desc.pipeline);
         for (let i = 0; i < this._stages.length; i++) {
-            this._stages[i].setFlow(this);
-            this._stages[i].activate();
+            this._stages[i].onAssetLoaded({ flow: this });
         }
     }
 
@@ -182,7 +189,6 @@ export abstract class RenderFlow {
         info: IRenderStageInfo): RenderStage | null {
 
         const stage: RenderStage = new clazz();
-        stage.setFlow(this);
         if (stage.initialize(info)) {
             this._stages.push(stage);
             this._stages.sort((a, b) => {

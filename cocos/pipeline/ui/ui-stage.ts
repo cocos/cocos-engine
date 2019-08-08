@@ -25,11 +25,7 @@ export class UIStage extends RenderStage {
 
     public initialize (info: IRenderStageInfo): boolean {
 
-        if (info.name !== undefined) {
-            this._name = info.name;
-        }
-
-        this._priority = info.priority;
+        super.initialize(info);
 
         if (info.framebuffer !== undefined) {
             this._framebuffer = info.framebuffer;

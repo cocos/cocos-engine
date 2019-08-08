@@ -254,7 +254,7 @@ export class Root {
 
     public setRenderPipeline (rppl: RenderPipeline) {
         this._pipeline = rppl;
-        this._pipeline.initialize(this);
+        this._pipeline.onAssetLoaded({ root: this });
         this._ui = new UI(this);
         if (!this._ui.initialize()) {
             this.destroy();

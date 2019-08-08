@@ -7,7 +7,7 @@ import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXClearFlag, GFXCommandBufferType, GFXFilter, IGFXColor } from '../../gfx/define';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderQueue } from '../render-queue';
-import { IRenderStageInfo, RenderStage } from '../render-stage';
+import { IRenderStageInfo, RenderStage, IRenderStageDesc } from '../render-stage';
 import { RenderView } from '../render-view';
 
 const colors: IGFXColor[] = [];
@@ -37,13 +37,17 @@ export class ForwardStage extends RenderStage {
 
         super.initialize(info);
 
-        this.activate();
+        this._createCmdBuffer();
 
         return true;
     }
 
-    public activate () {
-        super.activate();
+    public onAssetLoaded (desc: IRenderStageDesc) {
+        super.onAssetLoaded(desc);
+        this._createCmdBuffer();
+    }
+
+    private _createCmdBuffer () {
         this._cmdBuff = this._device.createCommandBuffer({
             allocator: this._device.commandAllocator,
             type: GFXCommandBufferType.PRIMARY,

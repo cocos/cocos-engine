@@ -6,7 +6,7 @@ import { ccclass } from '../../core/data/class-decorator';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXClearFlag, GFXCommandBufferType } from '../../gfx/define';
 import { UBOGlobal } from '../define';
-import { IRenderStageInfo, RenderStage } from '../render-stage';
+import { IRenderStageInfo, RenderStage, IRenderStageDesc } from '../render-stage';
 import { RenderView } from '../render-view';
 
 /**
@@ -27,30 +27,32 @@ export class ToneMapStage extends RenderStage {
 
     public initialize (info: IRenderStageInfo): boolean {
 
-        if (info.name !== undefined) {
-            this._name = info.name;
-        }
-
-        this._priority = info.priority;
+        super.initialize(info);
 
         if (info.framebuffer !== undefined) {
             this._framebuffer = info.framebuffer ;
         }
 
-        this.activate();
+        this._createCmdBuffer();
+
+        this.rebuild();
         return true;
     }
 
-    public activate () {
+    public onAssetLoaded (desc: IRenderStageDesc) {
 
-        super.activate();
+        super.onAssetLoaded(desc);
 
+        this._createCmdBuffer();
+
+        this.rebuild();
+    }
+
+    private _createCmdBuffer () {
         this._cmdBuff = this._device.createCommandBuffer({
             allocator: this._device.commandAllocator,
             type: GFXCommandBufferType.PRIMARY,
         });
-
-        this.rebuild();
     }
 
     public destroy () {
