@@ -1443,6 +1443,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
 
     let gpuPipelineState: WebGLGPUPipelineState | null = null;
     let gpuShader: WebGLGPUShader | null = null;
+    let isShaderChanged = false;
     let gpuInputAssembler: IWebGLGPUInputAssembler | null = null;
     let glPrimitive = gl.TRIANGLES;
     let glWrapS;
@@ -1632,6 +1633,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
             case WebGLCmd.BIND_STATES: {
 
                 const cmd2 = cmdPackage.bindStatesCmds.array[cmdId];
+                isShaderChanged = false;
                 if (cmd2.gpuPipelineState) {
                     gpuPipelineState = cmd2.gpuPipelineState;
                     glPrimitive = cmd2.gpuPipelineState.glPrimitive;
@@ -1642,6 +1644,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                         if (cache.glProgram !== glProgram) {
                             gl.useProgram(glProgram);
                             cache.glProgram = glProgram;
+                            isShaderChanged = true;
                         }
 
                         gpuShader = cmd2.gpuPipelineState.gpuShader;
@@ -2165,7 +2168,8 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                     }
                 } // bind binding layout
 
-                if (cmd2.gpuInputAssembler && gpuShader && gpuInputAssembler !== cmd2.gpuInputAssembler) {
+                if (cmd2.gpuInputAssembler && gpuShader && 
+                    (isShaderChanged || gpuInputAssembler !== cmd2.gpuInputAssembler)) {
                     gpuInputAssembler = cmd2.gpuInputAssembler;
 
                     if (device.useVAO) {
