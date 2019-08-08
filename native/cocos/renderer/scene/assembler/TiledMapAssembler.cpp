@@ -54,13 +54,12 @@ void TiledMapAssembler::handle(NodeProxy *node, ModelBatcher* batcher, Scene* sc
     _node = node;
     _batcher = batcher;
     
-    _tileMapWorldMat = _node->getWorldMatrix();
-    _tileMapWorldMat.translate(-_moveX, -_moveY, 0);
     Assembler::handle(node, batcher, scene);
 }
 
 void TiledMapAssembler::beforeFillBuffers(std::size_t index)
 {
+    const auto& worldMat = _node->getWorldMatrix();
     auto it = _nodesMap.find(index);
     if (it != _nodesMap.end())
     {
@@ -72,7 +71,7 @@ void TiledMapAssembler::beforeFillBuffers(std::size_t index)
                 child->enableVisit();
                 child->disaleUpdateWorldMatrix();
                 child->updateLocalMatrix();
-                child->updateWorldMatrix(_tileMapWorldMat);
+                child->updateWorldMatrix(worldMat);
                 flow->visit(child);
                 child->enableUpdateWorldMatrix();
                 child->disableVisit();

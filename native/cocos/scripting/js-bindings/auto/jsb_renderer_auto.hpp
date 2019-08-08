@@ -303,7 +303,6 @@ extern se::Class* __jsb_cocos2d_renderer_TiledMapAssembler_class;
 bool js_register_cocos2d_renderer_TiledMapAssembler(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
 SE_DECLARE_FUNC(js_renderer_TiledMapAssembler_updateNodes);
-SE_DECLARE_FUNC(js_renderer_TiledMapAssembler_setLayerMoveXY);
 SE_DECLARE_FUNC(js_renderer_TiledMapAssembler_clearNodes);
 SE_DECLARE_FUNC(js_renderer_TiledMapAssembler_TiledMapAssembler);
 

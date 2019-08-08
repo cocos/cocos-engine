@@ -1902,18 +1902,6 @@ array
 },
 
 /**
- * @method setLayerMoveXY
- * @param {float} arg0
- * @param {float} arg1
- */
-setLayerMoveXY : function (
-float, 
-float 
-)
-{
-},
-
-/**
  * @method clearNodes
  * @param {unsigned int} arg0
  */

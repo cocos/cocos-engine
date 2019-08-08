@@ -4421,27 +4421,6 @@ static bool js_renderer_TiledMapAssembler_updateNodes(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_TiledMapAssembler_updateNodes)
 
-static bool js_renderer_TiledMapAssembler_setLayerMoveXY(se::State& s)
-{
-    cocos2d::renderer::TiledMapAssembler* cobj = (cocos2d::renderer::TiledMapAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_TiledMapAssembler_setLayerMoveXY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        float arg0 = 0;
-        float arg1 = 0;
-        ok &= seval_to_float(args[0], &arg0);
-        ok &= seval_to_float(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_renderer_TiledMapAssembler_setLayerMoveXY : Error processing arguments");
-        cobj->setLayerMoveXY(arg0, arg1);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_TiledMapAssembler_setLayerMoveXY)
-
 static bool js_renderer_TiledMapAssembler_clearNodes(se::State& s)
 {
     cocos2d::renderer::TiledMapAssembler* cobj = (cocos2d::renderer::TiledMapAssembler*)s.nativeThisObject();
@@ -4498,7 +4477,6 @@ bool js_register_renderer_TiledMapAssembler(se::Object* obj)
     auto cls = se::Class::create("TiledMapAssembler", obj, __jsb_cocos2d_renderer_Assembler_proto, _SE(js_renderer_TiledMapAssembler_constructor));
 
     cls->defineFunction("updateNodes", _SE(js_renderer_TiledMapAssembler_updateNodes));
-    cls->defineFunction("setLayerMoveXY", _SE(js_renderer_TiledMapAssembler_setLayerMoveXY));
     cls->defineFunction("clearNodes", _SE(js_renderer_TiledMapAssembler_clearNodes));
     cls->defineFunction("ctor", _SE(js_renderer_TiledMapAssembler_ctor));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_TiledMapAssembler_finalize));
