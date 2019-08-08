@@ -2,7 +2,6 @@ import { Asset } from '../../assets/asset';
 import { ImageAsset } from '../../assets/image-asset';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { Texture2D } from '../../assets/texture-2d';
-import { Rect, Size } from '../../core/math';
 import { GFXDevice } from '../../gfx/device';
 import { TextureCube } from '../assets/texture-cube';
 import effects from './effects';
