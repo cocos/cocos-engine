@@ -1,4 +1,4 @@
-import { Material } from '../../3d/assets/material';
+import { createPasses } from '../../3d/assets/material';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Color, Mat4, Quat, Vec3 } from '../../core/math';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
@@ -10,6 +10,10 @@ import { DirectionalLight } from './directional-light';
 import { Model } from './model';
 import { RenderScene } from './render-scene';
 import { SphereLight } from './sphere-light';
+import { Pass } from '../core/pass';
+import { selectJointsMediumType } from '../models/joints-texture-utils';
+import { SkinningModel } from '../models/skinning-model';
+import { EffectAsset } from '../../3d/assets/effect-asset';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -76,15 +80,19 @@ export class PlanarShadows {
     protected _globalBindings: IInternalBindingInst;
     protected _cmdBuffs: CachedArray<GFXCommandBuffer>;
     protected _cmdBuffCount = 0;
-    protected _material = new Material();
     protected _psoRecord = new Map<Model, GFXPipelineState>();
     protected _cbRecord = new Map<GFXInputAssembler, GFXCommandBuffer>();
+    protected _passNormal: Pass;
+    protected _passSkinning: Pass;
 
     constructor (scene: RenderScene) {
         this._scene = scene;
         this._globalBindings = scene.root.pipeline.globalBindings.get(UBOShadow.BLOCK.name)!;
         this._cmdBuffs = new CachedArray<GFXCommandBuffer>(64);
-        this._material.initialize({ effectName: 'pipeline/planar-shadow' });
+        const effectAsset = EffectAsset.get('pipeline/planar-shadow')!;
+        const defines = { CC_USE_SKINNING: selectJointsMediumType(scene.root.device) };
+        this._passNormal = createPasses(effectAsset, { techIdx: 0, defines: [], states: [] })[0];
+        this._passSkinning = createPasses(effectAsset, { techIdx: 0, defines: [ defines ], states: [] })[0];
     }
 
     // tslint:disable: one-variable-per-declaration
@@ -179,24 +187,26 @@ export class PlanarShadows {
             cbRes = cbs.next();
         }
         this._cbRecord.clear();
-        const pass = this._material.passes[0];
-        const psos = this._psoRecord.values();
-        let psoRes = psos.next();
-        while (!psoRes.done) {
-            pass.destroyPipelineState(psoRes.value);
-            psoRes = psos.next();
+        const models = this._psoRecord.keys();
+        let modelRes = models.next();
+        while (!modelRes.done) {
+            const pass = modelRes.value instanceof SkinningModel ? this._passSkinning : this._passNormal;
+            pass.destroyPipelineState(this._psoRecord.get(modelRes.value)!);
+            modelRes = models.next();
         }
         this._psoRecord.clear();
     }
 
     public destroy () {
         this.onPipelineChange();
-        this._material.destroy();
+        this._passNormal.destroy();
+        this._passSkinning.destroy();
     }
 
     protected _createPSO (model: Model) {
+        const pass = model instanceof SkinningModel ? this._passSkinning : this._passNormal;
         // @ts-ignore
-        const pso = model._doCreatePSO(this._material.passes[0]);
+        const pso = model._doCreatePSO(pass);
         pso.pipelineLayout.layouts[0].update();
         return pso;
     }
