@@ -35,7 +35,7 @@ import { INode } from '../core/utils/interfaces';
 import { Vec3, Quat } from '../core/math';
 import { getWorldTransformUntilRoot } from './transform-utils';
 import { AnimationClip } from './animation-clip';
-import { SkeletalAnimationClip } from '../../exports/animation';
+import { SkeletalAnimationClip } from '../animation/skeletal-animation-clip';
 
 @ccclass('cc.SkeletalAnimationComponent.Socket')
 export class Socket {

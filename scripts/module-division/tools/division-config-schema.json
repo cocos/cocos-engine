@@ -2,7 +2,69 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "additionalProperties": false,
     "definitions": {
-        "GroupItem": {
+        "ItemGroup": {
+            "additionalProperties": false,
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "items": {
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/definitions/Simple"
+                            },
+                            {
+                                "$ref": "#/definitions/SingleSelection"
+                            }
+                        ]
+                    },
+                    "type": "array"
+                },
+                "required": {
+                    "description": "Whether if at least one item shall be selected.",
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "Simple": {
+            "additionalProperties": false,
+            "properties": {
+                "default": {
+                    "description": "If true, this field indicates the item is marked as bundled by default.",
+                    "type": "boolean"
+                },
+                "description": {
+                    "description": "Item description.",
+                    "type": "string"
+                },
+                "entry": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "Entry(s) to the module."
+                },
+                "name": {
+                    "description": "Item name.",
+                    "type": "string"
+                },
+                "required": {
+                    "description": "Whether if this item is required to provide.",
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "SingleSelection": {
             "additionalProperties": false,
             "properties": {
                 "default": {
@@ -31,8 +93,18 @@
                                 "type": "string"
                             },
                             "entry": {
-                                "description": "Entry of the option.",
-                                "type": "string"
+                                "anyOf": [
+                                    {
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "type": "array"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ],
+                                "description": "Entry(s) of the option."
                             },
                             "name": {
                                 "description": "Name of the option.",
@@ -49,44 +121,24 @@
                 }
             },
             "type": "object"
-        },
-        "SimpleItem": {
-            "additionalProperties": false,
-            "properties": {
-                "default": {
-                    "description": "If true, this field indicates the item is marked as bundled by default.",
-                    "type": "boolean"
-                },
-                "description": {
-                    "description": "Item description.",
-                    "type": "string"
-                },
-                "entry": {
-                    "description": "Entry to the module.",
-                    "type": "string"
-                },
-                "name": {
-                    "description": "Item name.",
-                    "type": "string"
-                },
-                "required": {
-                    "description": "Whether if this item is required to provide.",
-                    "type": "boolean"
-                }
-            },
-            "type": "object"
         }
     },
     "properties": {
+        "$schema": {
+            "type": "string"
+        },
         "items": {
             "description": "Items.",
             "items": {
                 "anyOf": [
                     {
-                        "$ref": "#/definitions/SimpleItem"
+                        "$ref": "#/definitions/Simple"
                     },
                     {
-                        "$ref": "#/definitions/GroupItem"
+                        "$ref": "#/definitions/SingleSelection"
+                    },
+                    {
+                        "$ref": "#/definitions/ItemGroup"
                     }
                 ]
             },

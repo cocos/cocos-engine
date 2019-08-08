@@ -25,3 +25,11 @@ export { cclegacy };
 
 export * from '../cocos/deprecated';
 export { vmath } from '../cocos/vmath';
+
+export * from '../cocos/animation';
+
+import * as primitives from '../cocos/3d/primitive';
+export {
+    primitives,
+};
+cc.primitives = primitives;

@@ -11,7 +11,6 @@ import { PropertyBlendState } from './animation-blend-state';
 import { bezierByTime, BezierControlPoints } from './bezier';
 import * as blending from './blending';
 import * as easing from './easing';
-import { MotionPath } from './motion-path-helper';
 import { ILerpable, isLerpable } from './types';
 
 /**
@@ -66,11 +65,6 @@ export interface IPropertyCurveData {
      * 描述了每一帧时间到下一帧时间之间的渐变方式。
      */
     easingMethods?: EasingMethod[];
-
-    /**
-     * @private
-     */
-    motionPaths?: MotionPath | MotionPath[];
 
     /**
      * 是否进行插值。
