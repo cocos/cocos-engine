@@ -3,7 +3,7 @@
 import config from '../config';
 import Pass from '../core/pass';
 import Technique from '../core/technique';
-import { getInspectorProps, cloneObjArray, getInstanceCtor } from '../types';
+import { getInspectorProps, enums2default } from '../types';
 import enums from '../enums';
 import gfx from '../gfx';
 
@@ -212,16 +212,18 @@ let getInvolvedPrograms = function(json) {
     return programs;
 };
 
-function parseProperties(json, programs) {
+// extract properties from each passes and check whether properties is defined but not used.
+function parseProperties(effectAsset, programs) {
     let props = {};
 
     let properties = {};
-    json.techniques.forEach(tech => {
+    effectAsset.techniques.forEach(tech => {
         tech.passes.forEach(pass => {
             Object.assign(properties, pass.properties);
         })
     });
 
+    // TODO: Should parse properties for each passes separately, refer to Cocos Creator 3D.
     for (let prop in properties) {
         let propInfo = properties[prop], uniformInfo;
         for (let i = 0; i < programs.length; i++) {
@@ -230,10 +232,9 @@ function parseProperties(json, programs) {
         }
         // the property is not defined in all the shaders used in techs
         if (!uniformInfo) {
-            cc.warn(`${json.name} : illegal property: ${prop}`);
+            cc.warn(`${effectAsset.name} : illegal property: ${prop}, myabe defined a not used property`);
             continue;
         }
-        // TODO: different param with same name for different passes
         props[prop] = Object.assign({}, propInfo);
         props[prop].value = propInfo.type === enums.PARAM_TEXTURE_2D ? null : new Float32Array(propInfo.value);
     }
@@ -286,30 +287,33 @@ Effect.parseEffect = function (effect) {
     let techniques = Effect.parseTechniques(effect);
     
     let programs = getInvolvedPrograms(effect);
-    let props = parseProperties(effect, programs), uniforms = {}, defines = {};
+    let props = parseProperties(effect, programs);
+    let uniforms = {}, defines = {};
     programs.forEach(p => {
         // uniforms
         p.uniforms.forEach(u => {
             let name = u.name, uniform = uniforms[name] = Object.assign({}, u);
-            uniform.value = getInstanceCtor(u.type)(u.value);
-            if (props[name]) { // effect info override
-                uniform.type = props[name].type;
+            if (props[name]) {
                 uniform.value = props[name].value;
+            }
+            else {
+                uniform.value = enums2default[u.type];
             }
         });
 
         p.defines.forEach(d => {
-            defines[d.name] = getInstanceCtor(d.type)();
+            defines[d.name] = enums2default[d.type];
         })
     });
     // extensions
     let extensions = programs.reduce((acc, cur) => acc = acc.concat(cur.extensions), []);
-    extensions = cloneObjArray(extensions);
+    extensions = extensions.map(e => Object.assign({}, e) );
 
     return new cc.Effect(effect.name, techniques, uniforms, defines, extensions, effect);
 };
 
 if (CC_EDITOR) {
+    // inspector only need properties defined in CCEffect
     Effect.parseForInspector = function(json) {
         let programs = getInvolvedPrograms(json);
         let props = parseProperties(json, programs), defines = {};
@@ -333,10 +337,5 @@ if (CC_EDITOR) {
     };
 }
 
-export default Effect;
 cc.Effect = Effect;
-cc.Effect.extension = {
-    PARAM_TEXTURE_2D: enums.PARAM_TEXTURE_2D,
-    cloneObjArray: cloneObjArray, 
-    getInstanceCtor: getInstanceCtor
-}
+export default Effect;
