@@ -24,13 +24,14 @@
  THE SOFTWARE.
 */
 
-import { DebugCanvasComponent, LabelComponent, WidgetComponent } from '../../../3d';
-import { ImageAsset, SpriteFrame } from '../../../assets';
-import { LabelAtlas } from '../../../assets';
+import { DebugCanvasComponent, WidgetComponent, Material, ModelComponent } from '../../../3d';
+import { ImageAsset, Texture2D } from '../../../assets';
 import { GFXDevice } from '../../../gfx/device';
 import { Node } from '../../../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
+import { quad } from '../../../3d/primitive';
+import { GFXTexture } from '../../../gfx/texture';
 
 interface IProfilerState {
     frame: ICounterOption;
@@ -47,14 +48,19 @@ interface IProfilerState {
 
 let _showFPS = false;
 const _fontSize = 18;
-const stringLeft = 'left';
-const stringRight = 'right';
+const _lineHeight = _fontSize + 2;
+const _left = 10;
+const _right = 10;
+const _top = 10;
+const _buttom = 10;
 
-let _atlas: LabelAtlas | null = null;
 let _stats: IProfilerState | null = null;
 let _rootNode: Node | null = null;
-const _label = new Map<string, LabelComponent | null>();
 let device: GFXDevice | null = null;
+let _canvas: HTMLCanvasElement;
+let _ctx: CanvasRenderingContext2D;
+let _image: ImageAsset;
+let _texture: Texture2D;
 
 function initDevice (){
     if (device){
@@ -64,83 +70,32 @@ function initDevice (){
     device = cc.director.root.device;
 }
 
-function generateAtlas () {
-    if (_atlas) { return; }
+function generateCanvas () {
 
-    const textureWidth = 256;
-    const textureHeight = 256;
+    if ( _canvas ) { return; }
 
-    const canvas = document.createElement('canvas');
-    canvas.width = textureWidth;
-    canvas.height = textureHeight;
-    canvas.style.width = `${canvas.width}`;
-    canvas.style.height = `${canvas.height}`;
+    const textureWidth = 300;
+    const textureHeight = 200;
 
-    // comment out this to show atlas
-    // document.body.appendChild(canvas)
+    _canvas = document.createElement('canvas');
+    _canvas.width = textureWidth;
+    _canvas.height = textureHeight;
+    _canvas.style.width = `${_canvas.width}`;
+    _canvas.style.height = `${_canvas.height}`;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx){
-       return;
+    _ctx = _canvas.getContext('2d');
+    if (!_ctx){
+        return;
     }
 
-    ctx.font = `${_fontSize}px Arial`;
-    ctx.textBaseline = 'top';
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#fff';
+    _ctx.font = `${_fontSize}px Arial`;
+    _ctx.textBaseline = 'top';
+    _ctx.fillStyle = '#fff';
 
-    const space = 2;
-    let x = space;
-    let y = space;
-    const lineHeight = _fontSize;
-
-    _atlas = new LabelAtlas();
-    _atlas.fntConfig = {
-        atlasName: 'profiler-arial',
-        commonHeight: lineHeight,
-        fontSize: _fontSize,
-        kerningDict: {},
-        fontDefDictionary: {},
-    };
-
-    _atlas.name = 'profiler-arial';
-    _atlas.fontSize = _fontSize;
-
-    const dict = _atlas.fntConfig.fontDefDictionary;
-
-    for (let i = 32; i <= 126; i++) {
-        const char = String.fromCharCode(i);
-        const width = ctx.measureText(char).width;
-
-        if ((x + width) >= textureWidth) {
-            x = space;
-            y += lineHeight + space;
-        }
-        ctx.fillText(char, x, y);
-
-        dict[i] = {
-            xAdvance: width,
-            xOffset: 0,
-            yOffset: 0,
-            rect: {
-                x,
-                y,
-                width,
-                height: lineHeight,
-            },
-        };
-
-        x += width + space;
-    }
-
-    // const texture = new Texture2D();
-    const image = new ImageAsset(canvas);
-
-    const spriteFrame = new SpriteFrame();
-    spriteFrame.image = image;
-    spriteFrame.onLoaded();
-
-    _atlas.spriteFrame = spriteFrame;
+    _image = new ImageAsset(_canvas);
+    _texture = new Texture2D();
+    _texture.image = _image;
+    _texture.onLoaded();
 }
 
 function generateStats () {
@@ -160,9 +115,16 @@ function generateStats () {
         // mode: { desc: cc.game.renderType === cc.game.RENDER_TYPE_WEBGL ? 'WebGL' : 'Canvas', min: 1 },
     };
 
+    // 左侧静态
+    _ctx.textAlign = 'left';
+    let i = 0;
     for (const id of Object.keys(opts)) {
+        _ctx.fillText(opts[id].desc,_left,_top + i * _lineHeight);
         opts[id].counter = new PerfCounter(id, opts[id], now);
+        i++;
     }
+
+    _ctx.textAlign="end";
 
     _stats = opts as IProfilerState;
 }
@@ -173,54 +135,27 @@ function generateNode () {
     }
 
     _rootNode = new Node('PROFILER-NODE');
-    _rootNode.addComponent('cc.UITransformComponent');
-    const screen = _rootNode.addComponent('cc.DebugCanvasComponent') as DebugCanvasComponent;
+    // const screen = _rootNode.addComponent('cc.DebugCanvasComponent') as DebugCanvasComponent;
     cc.game.addPersistRootNode(_rootNode);
     // const camera = cc.director.root.
 
     const managerNode = new Node('ROOT');
-    managerNode.addComponent('cc.UITransformComponent');
     managerNode.parent = _rootNode;
-    managerNode.anchorX = managerNode.anchorY = 0;
-    const widgetComp = managerNode.addComponent('cc.WidgetComponent') as WidgetComponent;
-    if (widgetComp) {
-        widgetComp.isAlignBottom = true;
-        widgetComp.isAlignLeft = true;
-        widgetComp.left = 10;
-        widgetComp.bottom = 10;
-    }
+    // managerNode.anchorX = managerNode.anchorY = 0;
 
+    const modelCom = managerNode.addComponent('cc.ModelComponent') as ModelComponent;
+    const _quad = quad();
+    modelCom.mesh = cc.utils.createMesh(_quad);
+
+    const _material = new Material();
+    _material.initialize({
+        effectName:'builtin-standard',
+    });
+
+    modelCom.material = _material;
     // _rootNode.groupIndex = cc.Node.BuiltinGroupIndex.DEBUG;
     // cc.Camera._setupDebugCamera();
 
-    // _rootNode.zIndex = macro.MAX_ZINDEX;
-
-    const left = new Node('LEFT-PANEL');
-    left.parent = managerNode;
-    const leftLabel = left.addComponent('cc.LabelComponent') as LabelComponent;
-    left.anchorX = left.anchorY = 0;
-    if (leftLabel){
-        leftLabel.font = _atlas;
-        leftLabel.fontSize = _fontSize;
-        leftLabel.lineHeight = _fontSize + 1;
-    }
-
-    const right = new Node('RIGHT-PANEL');
-    right.parent = managerNode;
-    const rightLabel = right.addComponent('cc.LabelComponent') as LabelComponent;
-    right.anchorX = 1;
-    right.anchorY = 0;
-    const pos = right.getPosition();
-    right.setPosition(250, pos.y, pos.z);
-    if (rightLabel){
-        rightLabel.horizontalAlign = cc.LabelComponent.HorizontalAlign.RIGHT;
-        rightLabel.font = _atlas;
-        rightLabel.fontSize = _fontSize;
-        rightLabel.lineHeight = _fontSize + 1;
-    }
-
-    _label[stringLeft] = leftLabel;
-    _label[stringRight] = rightLabel;
 }
 
 function beforeUpdate () {
@@ -295,23 +230,29 @@ function afterDraw () {
     getCounter('render').end(now);
     // getCounter('mode').value = device!.gfxAPI;
 
-    let left = '';
-    let right = '';
+    const x = _left + _ctx.measureText('GFX Texture Mem(M)').width;
+    _ctx.clearRect( x, 0, _canvas.width - x, _canvas.height);
+
+    let i = 0;
     for (const id of Object.keys(_stats)) {
         const stat = _stats[id];
         stat.counter.sample(now);
-
-        left += stat.desc + '\n';
-        right += stat.counter.human(!(stat.desc === 'Framerate (FPS)')) + '\n';
+        _ctx.fillText(stat.counter.human(!(stat.desc === 'Framerate (FPS)')), _canvas.width - _right, _top + i * _lineHeight);
+        i++;
     }
 
-    _label[stringLeft].string = left;
-    _label[stringRight].string = right;
+    updateTexture();
 }
 
 function getCounter (s: string) {
     const stats = _stats!;
     return stats[s].counter as PerfCounter;
+}
+
+function updateTexture () {
+    // 更新材质的贴图
+    // device.copyTexImagesToTexture(_canvas,_texture.getGFXTexture(),)
+
 }
 
 export const profiler = {
@@ -338,7 +279,7 @@ export const profiler = {
     showStats () {
         if (!_showFPS) {
             initDevice();
-            generateAtlas();
+            generateCanvas();
             generateStats();
 
             if (_rootNode) {
@@ -351,6 +292,9 @@ export const profiler = {
             cc.director.on(cc.Director.EVENT_AFTER_PHYSICS, afterPhysics);
             cc.director.on(cc.Director.EVENT_BEFORE_DRAW, beforeDraw);
             cc.director.on(cc.Director.EVENT_AFTER_DRAW, afterDraw);
+
+            // cc.game.canvas.parentNode.appendChild(_canvas);
+
             _showFPS = true;
         }
     },
