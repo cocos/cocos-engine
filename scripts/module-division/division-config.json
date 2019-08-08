@@ -2,38 +2,41 @@
     "$schema": "./tools/division-config-schema.json",
     "items": [
         {
-            "name": "Base",
+            "text": "Core",
+            "description": "Core module.",
             "required": true,
             "entry": "base",
             "default": true
         },
         {
-            "description": "Graphcis API",
+            "text": "Graphcis API",
+            "description": "Graphcis API used by GFX. There can be more than one API existed.",
             "items": [
                 {
-                    "name": "WebGL 1.0",
+                    "text": "WebGL 1.0",
+                    "description": "The WebGL 1.0 is required whenever.",
                     "entry": "gfx-webgl",
                     "required": true
                 },
                 {
-                    "name": "WebGL 2.0",
+                    "text": "WebGL 2.0",
                     "entry": "gfx-webgl2"
                 }
             ]
         },
         {
-            "name": "physics",
-            "description": "Physics implementation",
+            "text": "Physics",
+            "description": "Physics(implementation).",
             "options": [
                 {
-                    "name": "cannon.js",
+                    "text": "cannon.js",
                     "entry": [
                         "physics-cannon",
                         "physics-framework"
                     ]
                 },
                 {
-                    "name": "builtin",
+                    "text": "builtin",
                     "entry": [
                         "physics-builtin",
                         "physics-framework"
@@ -42,13 +45,13 @@
             ]
         },
         {
-            "name": "audio",
-            "description": "Audio",
-            "entry": ""
+            "text": "Audio",
+            "description": "Audio support.",
+            "entry": []
         },
         {
-            "name": "tween",
-            "description": "tween.js Adapter",
+            "text": "tween.js Adapter",
+            "description": "Integrate tween.js in Creator 3D.",
             "entry": "tween"
         }
     ]

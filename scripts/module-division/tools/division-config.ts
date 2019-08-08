@@ -10,17 +10,19 @@ export interface ModuleDivision {
     items: Array<Item | ItemGroup>;
 }
 
-interface BaseItem {
+interface Displayable {
     /**
-     * Item name.
+     * Display text.
      */
-    name: string;
+    text: string;
 
     /**
-     * Item description.
+     * Description.
      */
     description?: string;
+}
 
+interface BaseItem extends Displayable {
     /**
      * Whether if this item is required to provide.
      */
@@ -39,26 +41,18 @@ export interface Simple extends BaseItem {
     entry: string | string[];
 }
 
+export interface SelectionOption extends Displayable {
+    /**
+     * Entry(s) of the option.
+     */
+    entry: string | string[];
+}
+
 export interface SingleSelection extends BaseItem {
     /**
      * Options.
      */
-    options: Array<{
-        /**
-         * Name of the option.
-         */
-        name: string;
-
-        /**
-         * Entry(s) of the option.
-         */
-        entry: string | string[];
-
-        /**
-         * Option description.
-         */
-        description?: string;
-    }>;
+    options: Array<SelectionOption>;
 
     /**
      * Indicates the n-th option is selected by default if the item is marked as bundled.
@@ -67,16 +61,16 @@ export interface SingleSelection extends BaseItem {
     defaultOption?: number;
 }
 
-export interface ItemGroup {
-    description: string;
+export interface ItemGroup extends Displayable {
+    /**
+     * Items in this group.
+     */
+    items: Item[];
 
     /**
      * Whether if at least one item shall be selected.
      */
     required?: boolean;
-
-    
-    items: Item[];
 }
 
 export type Item = Simple | SingleSelection;
