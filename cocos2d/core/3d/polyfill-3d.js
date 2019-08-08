@@ -231,6 +231,27 @@ cc.js.getset(proto, 'z', function () {
     }
 });
 
+if (CC_EDITOR) {
+    let vec3_tmp = cc.v3();
+    cc.js.getset(proto, 'worldEulerAngles', function () {
+        let angles = cc.v3(this._eulerAngles);
+        let parent = this.parent;
+        while (parent) {
+            angles.addSelf(parent._eulerAngles);
+            parent = parent.parent;
+        }
+        return angles;
+    }, function (v) {
+        vec3_tmp.set(v);
+        let parent = this.parent;
+        while (parent) {
+            vec3_tmp.subSelf(parent._eulerAngles);
+            parent = parent.parent;
+        }
+        this.eulerAngles = vec3_tmp;
+    });
+}
+
 cc.js.getset(proto, 'eulerAngles', function () {
     if (CC_EDITOR) {
         return this._eulerAngles;
