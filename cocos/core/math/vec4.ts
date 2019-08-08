@@ -471,6 +471,18 @@ export class Vec4 extends ValueType {
     }
 
     /**
+     * @zh
+     * 拷贝另一个向量
+     * @param other 
+     */
+    public copy (other: Vec4) {
+        this.x = other.x;
+        this.y = other.y;
+        this.z = other.z;
+        this.w = other.w;
+    }
+
+    /**
      * 设置当前向量使其与指定向量相等。
      * @param other 相比较的向量。
      * @returns `this`

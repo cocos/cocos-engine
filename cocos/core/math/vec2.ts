@@ -411,6 +411,16 @@ export class Vec2 extends ValueType {
     }
 
     /**
+     * @zh
+     * 拷贝另一个向量
+     * @param other 
+     */
+    public copy (other: Vec2) {
+        this.x = other.x;
+        this.y = other.y;
+    }
+
+    /**
      * 设置当前向量使其与指定向量相等。
      * @param other 相比较的向量。
      * @returns `this`
