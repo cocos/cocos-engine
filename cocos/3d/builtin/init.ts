@@ -6,6 +6,7 @@ import { Rect, Size } from '../../core/math';
 import { GFXDevice } from '../../gfx/device';
 import { TextureCube } from '../assets/texture-cube';
 import effects from './effects';
+import { selectJointsMediumType } from '../../renderer';
 
 class BuiltinResMgr {
     protected _device: GFXDevice | null = null;
@@ -151,9 +152,10 @@ class BuiltinResMgr {
         // material indicating missing material on skinning model (purple)
         const missingSkinningMtl = new cc.Material();
         missingSkinningMtl._uuid = 'missing-skinning-material';
+        const type = selectJointsMediumType(device);
         missingSkinningMtl.initialize({
             effectName: 'builtin-unlit',
-            defines: { USE_COLOR: true, CC_USE_SKINNING: 1 },
+            defines: { USE_COLOR: true, CC_USE_SKINNING: type },
         });
         missingSkinningMtl.setProperty('color', cc.color('#ff00ff'));
         missingSkinningMtl.onLoaded();

@@ -435,7 +435,7 @@ interface IEffectInfo {
     states: PassOverrides[];
 }
 
-const createPasses = (effect: EffectAsset, info: IEffectInfo) => {
+export function createPasses (effect: EffectAsset, info: IEffectInfo) {
     if (!effect.techniques) { return []; }
     const { techIdx, defines, states } = info;
     const tech = effect.techniques[techIdx || 0];
@@ -452,6 +452,6 @@ const createPasses = (effect: EffectAsset, info: IEffectInfo) => {
         passes.push(pass);
     }
     return passes;
-};
+}
 
 cc.Material = Material;
