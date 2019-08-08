@@ -113,6 +113,7 @@ var textUtils = {
                 sLine = sLine.substring(1);
             }
 
+            // fuzzyLen means end index here
             var sText = text.substring(0, fuzzyLen), result;
 
             //symbol in the first
@@ -123,6 +124,7 @@ var textUtils = {
                     if (fuzzyLen === 0) fuzzyLen = 1;
 
                     sLine = text.substring(fuzzyLen);
+                    // fuzzyLen means end index here
                     sText = text.substring(0, fuzzyLen);
                 }
             }
@@ -134,6 +136,7 @@ var textUtils = {
                 if (result && sText !== result[0]) {
                     fuzzyLen -= result[0].length;
                     sLine = text.substring(fuzzyLen);
+                    // fuzzyLen means end index here
                     sText = text.substring(0, fuzzyLen);
                 }
             }
@@ -144,6 +147,7 @@ var textUtils = {
                 if (result && sText !== result[0]) {
                     fuzzyLen -= result[0].length;
                     sLine = text.substring(fuzzyLen);
+                    // fuzzyLen means end index here
                     sText = text.substring(0, fuzzyLen);
                 }
             }
