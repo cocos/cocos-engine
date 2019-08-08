@@ -123,8 +123,7 @@ function parse (task) {
                         out.url = item.url;
                         out.uuid = item.uuid || item.url;
                         out.ext = item.ext || cc.path.extname(item.url);
-                        if (!out.uuid) out.uuid = '' + ((new Date()).getTime() + Math.random());
-                        out.isNative = item.isNative || true;
+                        out.isNative = item.isNative !== undefined ? item.isNative : true;
                         break;
                     default: out.options[key] = item[key];
                 }

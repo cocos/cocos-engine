@@ -149,7 +149,7 @@ var fontLoader = {
 
         // Already loaded fonts
         if (_fontFaces[fontFamilyName]) {
-            return callInNextTick(onComplete, null, fontFamilyName);
+            return onComplete(null, fontFamilyName);
         }
 
         if (!_canvasContext) {

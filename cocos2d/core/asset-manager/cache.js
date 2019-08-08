@@ -33,9 +33,15 @@ const js = require('../platform/js');
  * 
  * @class Cache
  */
-function Cache () {
-    this._map = js.createMap(true);
-    this._count = 0;
+function Cache (map) {
+    if (map) {
+        this._map = map;
+        this._count = Object.keys(map).length;
+    }
+    else {
+        this._map = js.createMap(true);
+        this._count = 0;
+    }
 }
 
 Cache.prototype = {
