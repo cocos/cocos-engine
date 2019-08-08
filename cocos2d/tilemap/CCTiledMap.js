@@ -414,6 +414,19 @@ let TiledMap = cc.Class({
     },
 
     /**
+     * !#en enable or disable culling
+     * !#zh 开启或关闭裁剪。
+     * @method enableCulling
+     * @param value
+     */
+    enableCulling (value) {
+        let layers = this._layers;
+        for (let i = 0; i < layers.length; ++i) {
+            layers[i].enableCulling(value);
+        }
+    },
+
+    /**
      * !#en Gets the map properties.
      * !#zh 获取地图的属性。
      * @method getProperties
@@ -589,7 +602,7 @@ let TiledMap = cc.Class({
             let layerInfo = this._layers[i];
             let layerNode = layerInfo.node;
             // Tiled layer sync anchor to map because it's old behavior,
-            // do not change the behavior avoid influence user's existing logic.
+            // do not change the behavior avoid influence user's existed logic.
             layerNode.setAnchorPoint(anchor);
         }
 
