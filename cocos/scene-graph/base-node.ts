@@ -367,6 +367,9 @@ export class BaseNode extends CCObject implements IBaseNode {
      */
     protected __eventTargets: any[] = [];
 
+    
+    protected _siblingIndex: number = 0;
+
     /**
      * @method constructor
      * @param {String} [name]
@@ -416,6 +419,8 @@ export class BaseNode extends CCObject implements IBaseNode {
         }
 
         this._parent = value;
+        // Reset sibling index
+        this._siblingIndex = 0;
 
         this._onSetParent(oldParent, keepWorldTransform);
 
@@ -424,6 +429,7 @@ export class BaseNode extends CCObject implements IBaseNode {
                 cc.errorID(3821);
             }
             value._children.push(this);
+            this._siblingIndex = value._children.length - 1;
             if (value.emit) {
                 value.emit(SystemEventType.CHILD_ADDED, this);
             }
@@ -585,11 +591,7 @@ export class BaseNode extends CCObject implements IBaseNode {
      * ```
      */
     public getSiblingIndex () {
-        if (this._parent) {
-            return this._parent._children.indexOf(this);
-        } else {
-            return 0;
-        }
+        return this._siblingIndex;
     }
 
     /**
@@ -618,6 +620,7 @@ export class BaseNode extends CCObject implements IBaseNode {
             } else {
                 siblings.push(this);
             }
+            this._siblingIndex = index;
             if (this._onSiblingIndexChanged) {
                 this._onSiblingIndexChanged(index);
             }
@@ -1291,8 +1294,8 @@ export class BaseNode extends CCObject implements IBaseNode {
         if (!destroyByParent) {
             // remove from parent
             if (parent) {
-                const childIndex = parent._children.indexOf(this);
-                parent._children.splice(childIndex, 1);
+                parent._children.splice(this._siblingIndex, 1);
+                this._siblingIndex = 0;
                 if (parent.emit) {
                     parent.emit('child-removed', this);
                 }
