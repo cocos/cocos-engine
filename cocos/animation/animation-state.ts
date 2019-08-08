@@ -37,7 +37,7 @@ import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { INode } from '../core/utils/interfaces';
 import { BlendFunction, additive3D, additiveQuat } from './blending';
-import { BoundTarget } from './target-modifier';
+import { BoundTarget, TargetModifier } from './target-modifier';
 import { warn } from '../core/platform/CCDebug';
 
 enum PropertySpecialization {
@@ -58,12 +58,14 @@ export class ICurveInstance {
     private _blendTarget: PropertyBlendState | null;
     private _blendFunction: BlendFunction<any> | null;
     private _cached?: any[];
+    private _curveDetail: Omit<IRuntimeCurve, 'sampler'>;
 
     constructor (
         runtimeCurve: Omit<IRuntimeCurve, 'sampler'>,
         target: any,
         blendTarget: PropertyBlendState | null = null) {
         this._curve = runtimeCurve.curve;
+        this._curveDetail = runtimeCurve;
         this._boundTarget = new BoundTarget(target, runtimeCurve.modifiers, runtimeCurve.valueAdapter);
         this._rootTarget = target;
         this._isNodeTarget = target instanceof Node;
@@ -143,6 +145,10 @@ export class ICurveInstance {
     }
 
     get propertyName () { return this._rootTargetProperty || ''; }
+
+    get curveDetail() {
+        return this._curveDetail;
+    }
 }
 
 /**

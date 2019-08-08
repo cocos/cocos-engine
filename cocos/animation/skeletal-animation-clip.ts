@@ -34,10 +34,11 @@ import { ccclass } from '../core/data/class-decorator';
 import { getClassName } from '../core/utils/js';
 import { AnimationClip, ICurveData, IObjectCurveData, IRuntimeCurve } from './animation-clip';
 import { AnimationComponent } from './animation-component';
-import { IPropertyCurveData } from './animation-curve';
+import { IPropertyCurveData, CurveValueAdapter } from './animation-curve';
 import { INode } from '../core/utils/interfaces';
 import { getPathFromRoot } from './transform-utils';
-import { HierachyModifier, ComponentModifier } from './target-modifier';
+import { HierachyModifier, ComponentModifier, isCustomTargetModifier, isPropertyModifier } from './target-modifier';
+import { Node } from '../scene-graph';
 
 function isTargetSkinningModel (comp: RenderableComponent, root: INode) {
     if (!(comp instanceof SkinningModelComponent)) { return false; }
@@ -54,6 +55,28 @@ function isTargetSkinningModel (comp: RenderableComponent, root: INode) {
 type ConvertedData = Record<string, {
     props: Record<string, IPropertyCurveData>;
 }>;
+
+export class FrameIDValueAdapter extends CurveValueAdapter {
+    public path: string;
+
+    public component: string;
+    
+    constructor (path: string, component: string) {
+        super();
+        this.path = path;
+        this.component = component;
+    }
+
+    forTarget (target: any) {
+        const node = new HierachyModifier(this.path).get(target);
+        const component = new ComponentModifier(this.component).get(node) as SkinningModelComponent;
+        return {
+            set: (value: any) => {
+                component.frameID = value;
+            },
+        };
+    }
+}
 
 /**
  * 骨骼动画剪辑。
@@ -76,8 +99,8 @@ export class SkeletalAnimationClip extends AnimationClip {
         this.curves.forEach((curve) => {
             if (!curve.valueAdapter &&
                 curve.modifiers.length === 2 &&
-                curve.modifiers[0] instanceof HierachyModifier &&
-                typeof curve.modifiers[1] === 'string') {
+                isCustomTargetModifier(curve.modifiers[0], HierachyModifier) &&
+                isPropertyModifier(curve.modifiers[1])) {
                 const path = (curve.modifiers[0] as HierachyModifier).path;
                 let cs = convertedData[path];
                 if (!cs) {
@@ -116,23 +139,15 @@ export class SkeletalAnimationClip extends AnimationClip {
                 const compName = getClassName(comp);
                 const curves = this.curves;
                 const dstcurve = curves.find((curve) =>
-                    !curve.valueAdapter &&
-                    curve.modifiers.length === 3 &&
-                    curve.modifiers[0] instanceof HierachyModifier &&
-                    (curve.modifiers[0] as HierachyModifier).path === path &&
-                    curve.modifiers[1] instanceof ComponentModifier &&
-                    (curve.modifiers[1] as ComponentModifier).component === compName &&
-                    curve.modifiers[2] === 'frameID');
+                    curve.valueAdapter && (curve.valueAdapter instanceof FrameIDValueAdapter) &&
+                    curve.valueAdapter.path === path && curve.valueAdapter.component === compName);
                 if (dstcurve) {
                     dstcurve.data = { keys: 0, values, interpolate: false };
                 } else {
                     curves.push({
-                        modifiers: [
-                            new HierachyModifier(path),
-                            new ComponentModifier(compName),
-                            'frameID'
-                        ],
+                        modifiers: [],
                         data: { keys: 0, values, interpolate: false },
+                        valueAdapter: new FrameIDValueAdapter(path, compName),
                     });
                 }
                 this.curves = curves;

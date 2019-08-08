@@ -82,9 +82,7 @@ export class BoundTarget {
         let assignmentModifier: PropertyModifier | ElementModifier | undefined;
         for (let iModifier = 0; iModifier < modifiers.length; ++iModifier) {
             const modifier = modifiers[iModifier];
-            switch (typeof modifier) {
-            case 'string':
-            case 'number':
+            if (isElementModifier(modifier) || isPropertyModifier(modifier)) {
                 if (iModifier !== modifiers.length - 1 || valueAdapter) {
                     if (modifier in target) {
                         target = target[modifier];
@@ -94,10 +92,8 @@ export class BoundTarget {
                 } else {
                     assignmentModifier = modifier;
                 }
-                break;
-            default:
+            } else {
                 target = modifier.get(target);
-                break;
             }
         }
 
