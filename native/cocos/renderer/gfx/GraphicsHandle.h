@@ -51,7 +51,7 @@ public:
     inline GLuint getHandle() const { return _glID; }
 
 protected:
-    GLuint _glID;
+    GLuint _glID = 0;
 };
 
 // end of gfx group
