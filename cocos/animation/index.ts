@@ -21,6 +21,9 @@ export {
     ElementModifier,
     ComponentModifier,
     HierachyModifier,
+    isElementModifier,
+    isPropertyModifier,
+    isCustomTargetModifier,
 } from './target-modifier';
 export * from './curve-value-adapters';
 
