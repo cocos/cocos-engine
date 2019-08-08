@@ -5,9 +5,9 @@ export interface ModuleDivision {
     $schema?: string;
 
     /**
-     * Items.
+     * The group or items.
      */
-    items: Array<Item | ItemGroup>;
+    groupOrItems: Array<Item | ItemGroup>;
 }
 
 interface Displayable {

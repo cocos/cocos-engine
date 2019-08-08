@@ -136,8 +136,8 @@
         "$schema": {
             "type": "string"
         },
-        "items": {
-            "description": "Items.",
+        "groupOrItems": {
+            "description": "The group or items.",
             "items": {
                 "anyOf": [
                     {

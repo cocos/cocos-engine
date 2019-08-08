@@ -1,6 +1,6 @@
 {
     "$schema": "./tools/division-config-schema.json",
-    "items": [
+    "groupOrItems": [
         {
             "text": "Core",
             "description": "Core module.",
