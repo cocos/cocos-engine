@@ -1122,6 +1122,10 @@ _inDispatch should be 1 here.
 
 event is undefined
 
+### 3512
+
+Event manager only support scene graph priority for ui nodes which contain UIComponent
+
 ### 3600
 
 cc.Class will automatically call super constructor of %s, you should not call it manually.
