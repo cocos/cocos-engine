@@ -269,7 +269,7 @@ let _sharedOpts = {
     wrapS: undefined,
     wrapT: undefined,
     format: undefined,
-    mipmap: undefined,
+    genMipmaps: undefined,
     images: undefined,
     image: undefined,
     flipY: undefined,
@@ -313,7 +313,7 @@ var Texture2D = cc.Class({
             },
             override: true
         },
-        _hasMipmap: false,
+        _genMipmaps: false,
         _format: PixelFormat.RGBA8888,
         _premultiplyAlpha: false,
         _flipY: false,
@@ -400,7 +400,7 @@ var Texture2D = cc.Class({
      * @method update
      * @param {Object} options
      * @param {DOMImageElement} options.image
-     * @param {Boolean} options.mipmap
+     * @param {Boolean} options.genMipmaps
      * @param {PixelFormat} options.format
      * @param {Filter} options.minFilter
      * @param {Filter} options.magFilter
@@ -446,8 +446,8 @@ var Texture2D = cc.Class({
                 this._premultiplyAlpha = options.premultiplyAlpha;
                 updateImg = true;
             }
-            if (options.mipmap !== undefined) {
-                this._hasMipmap = options.mipmap;
+            if (options.genMipmaps !== undefined) {
+                this._genMipmaps = options.genMipmaps;
             }
 
             if (updateImg && this._image) {
@@ -519,7 +519,7 @@ var Texture2D = cc.Class({
         opts.image = data;
         // webgl texture 2d uses images
         opts.images = [opts.image];
-        opts.hasMipmap = this._hasMipmap;
+        opts.genMipmaps = this._genMipmaps;
         opts.premultiplyAlpha = this._premultiplyAlpha;
         opts.flipY = this._flipY;
         opts.minFilter = FilterIndex[this._minFilter];
@@ -597,13 +597,13 @@ var Texture2D = cc.Class({
 
     /**
      * !#en
-     * Whether or not use mipmap.
-     * !#zh 检查问题在上传 GPU 时是否生成 mipmap。
-     * @method hasMipmap
+     * Whether or not generate mipmaps.
+     * !#zh 上传 GPU 时是否生成 mipmaps。
+     * @method isGenMipmaps
      * @return {Boolean}
      */
-    hasMipmap () {
-        return this._hasMipmap || false;
+    isGenMipmaps () {
+        return this._genMipmaps || false;
     },
 
     /**
@@ -626,7 +626,7 @@ var Texture2D = cc.Class({
         opts.images = [opts.image];
         opts.width = this.width;
         opts.height = this.height;
-        opts.hasMipmap = this._hasMipmap;
+        opts.genMipmaps = this._genMipmaps;
         opts.format = this._getGFXPixelFormat(this._format);
         opts.premultiplyAlpha = this._premultiplyAlpha;
         opts.flipY = this._flipY;
@@ -742,13 +742,13 @@ var Texture2D = cc.Class({
      * !#en
      * Sets whether generate mipmaps for the texture
      * !#zh 是否为纹理设置生成 mipmaps。
-     * @method setMipmap
-     * @param {Boolean} mipmap
+     * @method setGenMipmaps
+     * @param {Boolean} genMipmaps
      */
-    setMipmap (mipmap) {
-        if (this._hasMipmap !== mipmap) {
+    setGenMipmaps (genMipmaps) {
+        if (this._genMipmaps !== genMipmaps) {
             var opts = _getSharedOptions();
-            opts.mipmap = mipmap;
+            opts.genMipmaps = genMipmaps;
             this.update(opts);
         }
     },
@@ -757,7 +757,7 @@ var Texture2D = cc.Class({
         let opts = _getSharedOptions();
         opts.width = this.width;
         opts.height = this.height;
-        opts.mipmap = this._genMipmap;
+        opts.genMipmaps = this._genMipmaps;
         opts.format = this._format;
         opts.premultiplyAlpha = this._premultiplyAlpha;
         opts.anisotropy = this._anisotropy;
@@ -824,7 +824,7 @@ var Texture2D = cc.Class({
         let asset = "" + extId + "," + 
                     this._minFilter + "," + this._magFilter + "," + 
                     this._wrapS + "," + this._wrapT + "," + 
-                    (this._premultiplyAlpha ? 1 : 0);
+                    (this._premultiplyAlpha ? 1 : 0) + "," + (this._genMipmaps ? 1 : 0);
         return asset;
     },
 
@@ -881,7 +881,7 @@ var Texture2D = cc.Class({
                 cc.warnID(3120, handle.customEnv.url, defaultExt, defaultExt);
             }
         }
-        if (fields.length === 6) {
+        if (fields.length === 7) {
             // decode filters
             this._minFilter = parseInt(fields[1]);
             this._magFilter = parseInt(fields[2]);
@@ -890,6 +890,7 @@ var Texture2D = cc.Class({
             this._wrapT = parseInt(fields[4]);
             // decode premultiply alpha
             this._premultiplyAlpha = fields[5].charCodeAt(0) === CHAR_CODE_1;
+            this._genMipmaps = fields[6].charCodeAt(0) === CHAR_CODE_1;
         }
     },
 
@@ -897,7 +898,7 @@ var Texture2D = cc.Class({
         if (!this._hashDirty) {
             return this._hash;
         }
-        let hasMipmap = this._hasMipmap ? 1 : 0;
+        let genMipmaps = this._genMipmaps ? 1 : 0;
         let premultiplyAlpha = this._premultiplyAlpha ? 1 : 0;
         let flipY = this._flipY ? 1 : 0;
         let minFilter = this._minFilter === Filter.LINEAR ? 1 : 2;
@@ -912,7 +913,7 @@ var Texture2D = cc.Class({
             premultiplyAlpha = image._premultiplyAlpha;
         }
 
-        this._hash = Number(`${minFilter}${magFilter}${pixelFormat}${wrapS}${wrapT}${hasMipmap}${premultiplyAlpha}${flipY}`);
+        this._hash = Number(`${minFilter}${magFilter}${pixelFormat}${wrapS}${wrapT}${genMipmaps}${premultiplyAlpha}${flipY}`);
         this._hashDirty = false;
         return this._hash;
     },
