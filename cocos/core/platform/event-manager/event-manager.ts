@@ -33,12 +33,11 @@ import { Event } from '../../event';
 import { EventTouch } from './CCEvent';
 import { EventListener, TouchOneByOne } from './event-listener';
 import { INode } from '../../utils/interfaces';
-import { CanvasComponent } from '../../../3d/ui/components/canvas-component';
 const ListenerID = EventListener.ListenerID;
 
 function checkUINode (node) {
     while (node) {
-        if (node.getComponent(CanvasComponent)) {
+        if (node.getComponent('cc.CanvasComponent')) {
             return true;
         }
         node = node.parent;

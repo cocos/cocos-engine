@@ -331,6 +331,7 @@ export class Node extends BaseNode implements INode {
     }
 
     public _onBatchCreated () {
+        super._onBatchCreated();
         this._dirtyFlags = this._hasChangedFlags = TransformDirtyBit.TRS;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {

@@ -34,7 +34,7 @@ import { Vec3 } from '../../../core/math';
 import { GFXClearFlag } from '../../../gfx/define';
 import { Camera } from '../../../renderer';
 import { UITransformComponent } from './ui-transfrom-component';
-import { Node } from '../../../scene-graph';
+import { Node } from '../../../scene-graph/node';
 import { RenderTexture } from '../../../assets';
 
 const _worldPos = new Vec3();

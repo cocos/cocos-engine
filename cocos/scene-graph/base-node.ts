@@ -1159,6 +1159,9 @@ export class BaseNode extends CCObject implements IBaseNode {
     }
 
     protected _onBatchCreated () {
+        if (this._parent) {
+            this._siblingIndex = this._parent.children.indexOf(this);
+        }
         return;
     }
 
