@@ -402,6 +402,7 @@ export class SpriteComponent extends UIRenderComponent {
 
         if(this._spriteFrame){
             this._spriteFrame.on('updated', this._markForUpdateUvDirty, this);
+            this._markForUpdateUvDirty();
         }
     }
 
@@ -423,7 +424,7 @@ export class SpriteComponent extends UIRenderComponent {
 
     // onLoad() {}
 
-    public onEnable () {
+    public onEnable() {
         super.onEnable();
 
         // this._flushAssembler();
@@ -601,7 +602,7 @@ export class SpriteComponent extends UIRenderComponent {
         //     this.markForRender(false);
         // }
 
-        if(this._renderData){
+        if (this._renderData) {
             if(oldFrame){
                 oldFrame.off('updated');
             }
@@ -610,10 +611,12 @@ export class SpriteComponent extends UIRenderComponent {
                 spriteFrame.on('updated', this._markForUpdateUvDirty, this);
             }
 
-            if (oldFrame && spriteFrame) {
-                this._renderData!.uvDirty = oldFrame.uvHash !== spriteFrame.uvHash;
-            } else {
-                this._renderData!.uvDirty = true;
+            if (!this._renderData.uvDirty) {
+                if (oldFrame && spriteFrame) {
+                    this._renderData.uvDirty = oldFrame.uvHash !== spriteFrame.uvHash;
+                } else {
+                    this._renderData!.uvDirty = true;
+                }
             }
 
             this._renderDataFlag = this._renderData!.uvDirty
