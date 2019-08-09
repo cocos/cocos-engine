@@ -104,7 +104,6 @@ export class PrivateNode extends Node {
      */
     constructor (name: string) {
         super(name);
-        // this._localZOrder = cc.macro.MIN_ZINDEX << 16;
         // this._originPos = cc.v2();
         this._objFlags |= HideInHierarchy;
 
