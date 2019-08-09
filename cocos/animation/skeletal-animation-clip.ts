@@ -32,11 +32,13 @@ import { SkinningModelComponent } from '../3d/framework/skinning-model-component
 import { Quat, Vec3 } from '../core/math';
 import { ccclass } from '../core/data/class-decorator';
 import { getClassName } from '../core/utils/js';
-import { AnimationClip, ICurveData, IObjectCurveData, IPropertyCurve } from './animation-clip';
+import { AnimationClip, ICurveData, IObjectCurveData, IRuntimeCurve } from './animation-clip';
 import { AnimationComponent } from './animation-component';
-import { IPropertyCurveData } from './animation-curve';
+import { IPropertyCurveData, CurveValueAdapter } from './animation-curve';
 import { INode } from '../core/utils/interfaces';
 import { getPathFromRoot } from './transform-utils';
+import { HierachyModifier, ComponentModifier, isCustomTargetModifier, isPropertyModifier } from './target-modifier';
+import { Node } from '../scene-graph';
 
 function isTargetSkinningModel (comp: RenderableComponent, root: INode) {
     if (!(comp instanceof SkinningModelComponent)) { return false; }
@@ -50,16 +52,42 @@ function isTargetSkinningModel (comp: RenderableComponent, root: INode) {
     return false;
 }
 
+type ConvertedData = Record<string, {
+    props: Record<string, IPropertyCurveData>;
+}>;
+
+export class FrameIDValueAdapter extends CurveValueAdapter {
+    public path: string;
+
+    public component: string;
+    
+    constructor (path: string, component: string) {
+        super();
+        this.path = path;
+        this.component = component;
+    }
+
+    forTarget (target: any) {
+        const node = new HierachyModifier(this.path).get(target);
+        const component = new ComponentModifier(this.component).get(node) as SkinningModelComponent;
+        return {
+            set: (value: any) => {
+                component.frameID = value;
+            },
+        };
+    }
+}
+
 /**
  * 骨骼动画剪辑。
  */
 @ccclass('cc.SkeletalAnimationClip')
 export class SkeletalAnimationClip extends AnimationClip {
 
-    public convertedData: ICurveData = {};
+    public convertedData: ConvertedData = {};
     protected _converted = false;
 
-    public getPropertyCurves (root: INode): ReadonlyArray<IPropertyCurve> {
+    public getPropertyCurves (root: INode): ReadonlyArray<IRuntimeCurve> {
         this.hash; // calculate hash before conversion
         this._convertToSkeletalCurves(root);
         return super.getPropertyCurves(root);
@@ -67,7 +95,25 @@ export class SkeletalAnimationClip extends AnimationClip {
 
     private _convertToSkeletalCurves (root: INode) {
         if (this._converted) { return; }
-        this.convertedData = this.curveDatas; this.curveDatas = {};
+        const convertedData: ConvertedData = {};
+        this.curves.forEach((curve) => {
+            if (!curve.valueAdapter &&
+                curve.modifiers.length === 2 &&
+                isCustomTargetModifier(curve.modifiers[0], HierachyModifier) &&
+                isPropertyModifier(curve.modifiers[1])) {
+                const path = (curve.modifiers[0] as HierachyModifier).path;
+                let cs = convertedData[path];
+                if (!cs) {
+                    cs = {
+                        props: {},
+                    };
+                    convertedData[path] = cs;
+                }
+                const property = curve.modifiers[1] as string;
+                cs.props[property] = curve.data;
+            }
+        });
+        this.convertedData = convertedData; this.curves = [];
         // sort the keys to make sure parent bone always comes first
         const paths = Object.keys(this.convertedData).sort();
         for (const path of paths) {
@@ -90,8 +136,21 @@ export class SkeletalAnimationClip extends AnimationClip {
         for (const comp of root.getComponentsInChildren(RenderableComponent)) {
             if (isTargetSkinningModel(comp, root)) {
                 const path = getPathFromRoot(comp.node, root);
-                if (!this.curveDatas[path]) { this.curveDatas[path] = {}; }
-                this.curveDatas[path].comps = { [getClassName(comp)]: { frameID: { keys: 0, values, interpolate: false } } };
+                const compName = getClassName(comp);
+                const curves = this.curves;
+                const dstcurve = curves.find((curve) =>
+                    curve.valueAdapter && (curve.valueAdapter instanceof FrameIDValueAdapter) &&
+                    curve.valueAdapter.path === path && curve.valueAdapter.component === compName);
+                if (dstcurve) {
+                    dstcurve.data = { keys: 0, values, interpolate: false };
+                } else {
+                    curves.push({
+                        modifiers: [],
+                        data: { keys: 0, values, interpolate: false },
+                        valueAdapter: new FrameIDValueAdapter(path, compName),
+                    });
+                }
+                this.curves = curves;
             }
         }
         this._keys = [values.map((_, i) => i / this.sample)];

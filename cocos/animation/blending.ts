@@ -5,6 +5,12 @@
 import { Quat, Vec3 } from '../core/math';
 import { PropertyBlendState } from './animation-blend-state';
 
+/**
+ * If propertyBlendState.weight equals to zero, the propertyBlendState.value is dirty.
+ * You shall handle this situation correctly.
+ */
+export type BlendFunction<T> = (value: T, weight: number, propertyBlendState: PropertyBlendState) => T;
+
 export function additive1D (value: number, weight: number, propertyBlendState: PropertyBlendState<number>) {
     if (!propertyBlendState.value) {
         propertyBlendState.value = 0;

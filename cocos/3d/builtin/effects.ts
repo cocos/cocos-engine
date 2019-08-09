@@ -152,7 +152,7 @@ export default [
         },
         "builtins": {"globals":{"blocks":[{"name":"CCGlobal", "defines":[]}], "samplers":[{"name":"cc_environment", "defines":[]}]}, "locals":{"blocks":[{"name":"CCSkinningTexture", "defines":["CC_USE_SKINNING"]}], "samplers":[{"name":"cc_jointsTexture", "defines":["CC_USE_SKINNING"]}]}},
         "defines": [
-          {"name":"CC_USE_SKINNING", "type":"number", "defines":[], "range":[0, 2]},
+          {"name":"CC_USE_SKINNING", "type":"number", "defines":[], "range":[0, 3]},
           {"name":"CC_USE_HDR", "type":"boolean", "defines":[]},
           {"name":"USE_RGBE_CUBEMAP", "type":"boolean", "defines":[]}
         ],
@@ -211,7 +211,7 @@ export default [
         },
         "builtins": {"globals":{"blocks":[{"name":"CCGlobal", "defines":[]}], "samplers":[{"name":"cc_environment", "defines":["CC_USE_IBL"]}]}, "locals":{"blocks":[{"name":"CCLocal", "defines":[]}, {"name":"CCSkinningTexture", "defines":["CC_USE_SKINNING"]}, {"name":"CCForwardLight", "defines":[]}], "samplers":[{"name":"cc_jointsTexture", "defines":["CC_USE_SKINNING"]}]}},
         "defines": [
-          {"name":"CC_USE_SKINNING", "type":"number", "defines":[], "range":[0, 2]},
+          {"name":"CC_USE_SKINNING", "type":"number", "defines":[], "range":[0, 3]},
           {"name":"USE_NORMAL_MAP", "type":"boolean", "defines":[]},
           {"name":"USE_ALBEDO_MAP", "type":"boolean", "defines":[]},
           {"name":"CC_USE_IBL", "type":"boolean", "defines":[]},
@@ -305,7 +305,7 @@ export default [
         },
         "builtins": {"globals":{"blocks":[{"name":"CCGlobal", "defines":[]}], "samplers":[]}, "locals":{"blocks":[{"name":"CCLocal", "defines":[]}, {"name":"CCSkinningTexture", "defines":["CC_USE_SKINNING"]}], "samplers":[{"name":"cc_jointsTexture", "defines":["CC_USE_SKINNING"]}]}},
         "defines": [
-          {"name":"CC_USE_SKINNING", "type":"number", "defines":[], "range":[0, 2]},
+          {"name":"CC_USE_SKINNING", "type":"number", "defines":[], "range":[0, 3]},
           {"name":"USE_VERTEX_COLOR", "type":"boolean", "defines":[]},
           {"name":"USE_TEXTURE", "type":"boolean", "defines":[]},
           {"name":"CC_USE_HDR", "type":"boolean", "defines":[]},
@@ -381,7 +381,7 @@ export default [
         },
         "builtins": {"globals":{"blocks":[{"name":"CCGlobal", "defines":[]}, {"name":"CCShadow", "defines":[]}], "samplers":[]}, "locals":{"blocks":[{"name":"CCLocal", "defines":[]}, {"name":"CCSkinningTexture", "defines":["CC_USE_SKINNING"]}], "samplers":[{"name":"cc_jointsTexture", "defines":["CC_USE_SKINNING"]}]}},
         "defines": [
-          {"name":"CC_USE_SKINNING", "type":"number", "defines":[], "range":[0, 2]},
+          {"name":"CC_USE_SKINNING", "type":"number", "defines":[], "range":[0, 3]},
           {"name":"CC_USE_HDR", "type":"boolean", "defines":[]}
         ],
         "blocks": [],
