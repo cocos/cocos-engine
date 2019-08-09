@@ -1,12 +1,8 @@
-import { replaceProperty } from '../deprecated';
 import { BaseNode } from './base-node';
+import { js } from '../core/utils/js';
 
-replaceProperty(BaseNode.prototype, 'BaseNode', [
-    {
-        name: 'childrenCount',
-        custom: function () {
-            // @ts-ignore
-            return this.children.length;
-        }
-    }
-]);
+js.get(BaseNode.prototype, 'childrenCount', function () {
+    cc.warn("`childrenCount` is deprecated, please use `node.children.length` instead.");
+    // @ts-ignore
+    return this.children.length;
+});
