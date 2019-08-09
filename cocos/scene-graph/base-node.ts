@@ -441,6 +441,7 @@ export class BaseNode extends CCObject implements IBaseNode {
                     return cc.errorID(1633);
                 }
                 oldParent._children.splice(removeAt, 1);
+                oldParent._updateSiblingIndex();
                 if (oldParent.emit) {
                     oldParent.emit(SystemEventType.CHILD_REMOVED, this);
                 }
@@ -620,10 +621,16 @@ export class BaseNode extends CCObject implements IBaseNode {
             } else {
                 siblings.push(this);
             }
-            this._siblingIndex = index;
+            this._parent._updateSiblingIndex();
             if (this._onSiblingIndexChanged) {
                 this._onSiblingIndexChanged(index);
             }
+        }
+    }
+
+    protected _updateSiblingIndex () {
+        for (let i = 0; i < this._children.length; ++i) {
+            this._children[i]._siblingIndex = i;
         }
     }
 
