@@ -155,11 +155,11 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  *  const node = new Node("New Sprite");
  *  const sprite = node.addComponent(SpriteComponent);
  *  const spriteFrame = new SpriteFrame();
+ *  (spriteFrame.texture as Texture2D).image = imageAsset;
  *  spriteFrame.initialize({
  *    originalSize: new Size(imageAsset.width, imageAsset.height),
  *    rect: new Rect(0, 0, imageAsset.width, imageAsset.height),
  *  });
- *  (spriteFrame.texture as Texture2D).image = imageAsset;
  *  sprite.spriteFrame = spriteFrame;
  *  node.parent = self.node;
  * });
@@ -313,12 +313,16 @@ export class SpriteFrame extends Asset {
     set image (value) {
         this._image = value;
         let tex = this._texture;
-        if(value instanceof RenderTexture){
+        if (value instanceof RenderTexture) {
+            this._texture.off('load');
             tex = new Texture2D();
+            (tex as Texture2D).image = value;
+            this._texture.on('load', this._textureLoaded, this);
+        } else {
+            (tex as Texture2D).image = value;
         }
 
-        (tex as Texture2D).image = value;
-        this.reset({texture: tex}, true);
+        this._textureLoaded();
     }
 
     set _imageSource(value: ImageAsset) {
@@ -415,6 +419,8 @@ export class SpriteFrame extends Asset {
 
     /**
      * 初始化配置
+     *
+     * @deprecated v1.0.0 beta10 后移除。
      * @param info 配置。
      */
     public initialize(info?: ISpriteFrameInitInfo){
@@ -586,24 +592,32 @@ export class SpriteFrame extends Asset {
      */
     public clone () {
         const cap = this._capInsets;
-        const config: ISpriteFrameInitInfo = {
-            originalSize: this._originalSize,
-            rect: this._rect,
-            borderTop: cap[INSET_TOP],
-            borderBottom: cap[INSET_BOTTOM],
-            borderLeft: cap[INSET_LEFT],
-            borderRight: cap[INSET_RIGHT],
-            offset: this._offset,
-        };
-
-        if(this._texture instanceof RenderTexture){
-            config.texture = this._texture;
-        }
 
         const cloneSprite = new SpriteFrame();
         cloneSprite.name = this.name;
         cloneSprite.atlasUuid = this.atlasUuid;
-        cloneSprite.initialize(config);
+        cloneSprite._image = this._image;
+        const config: ISpriteFrameInitInfo = {
+            originalSize: this._originalSize.clone(),
+            rect: this._rect.clone(),
+            offset: this._offset.clone(),
+            borderLeft: cap[INSET_LEFT],
+            borderRight: cap[INSET_RIGHT],
+            borderTop: cap[INSET_TOP],
+            borderBottom: cap[INSET_BOTTOM],
+            isRotate: this._rotated,
+            isFlipUv: this._flipUv,
+        };
+
+        if (this._texture instanceof RenderTexture) {
+            config.texture = this._texture;
+        } else {
+            const tex = new Texture2D();
+            tex.image = this._image;
+            config.texture = tex;
+        }
+
+        cloneSprite.reset(config);
         cloneSprite.onLoaded();
         return cloneSprite;
     }
@@ -711,7 +725,7 @@ export class SpriteFrame extends Asset {
             this._rotated = !!info.isRotate;
             this._flipUv = !!info.isFlipUv;
             // hack
-            if (!this._texture['image']) {
+            if (this._texture instanceof RenderTexture) {
                 this._flipUv = true;
             }
 
@@ -719,7 +733,7 @@ export class SpriteFrame extends Asset {
         }
 
         if(calUV){
-            this._calculateUV()
+            this._calculateUV();
         }
     }
 
@@ -744,8 +758,8 @@ export class SpriteFrame extends Asset {
         if (maxX > texture.width) {
             cc.errorID(3300, this.name + '/' + texture.name, maxX, texture.width);
             return false;
-
         }
+
         if (maxY > texture.height) {
             cc.errorID(3400, this.name + '/' + texture.name, maxY, texture.height);
             return false;
@@ -1029,21 +1043,25 @@ export class SpriteFrame extends Asset {
         }
     }
 
-    protected _textureLoaded() {
+    protected _textureLoaded () {
         const tex = this._texture;
-        const config = {} as ISpriteFrameInitInfo;
+        const config: ISpriteFrameInitInfo = {};
         let isReset = false;
-        if(!this.checkRect(tex)){
+        if (this._rect.width === 0 || this._rect.height === 0 || !this.checkRect(tex)) {
             config.rect = new Rect(0, 0, tex.width, tex.height);
             isReset = true;
         }
 
-        if(this._originalSize.width > tex.width || this._originalSize.height > tex.height){
+        if (this._originalSize.width === 0 ||
+            this._originalSize.height === 0 ||
+            this._originalSize.width > tex.width ||
+            this._originalSize.height > tex.height
+        ) {
             config.originalSize = new Size(tex.width, tex.height);
             isReset = true;
         }
 
-        if(isReset){
+        if (isReset) {
             this.reset(config);
             this.emit('updated');
         }
