@@ -29,16 +29,18 @@
 
 import { RenderableComponent } from '../3d/framework/renderable-component';
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
-import { Quat, Vec3 } from '../core/math';
+import { Quat, Vec3, Mat3, Mat4 } from '../core/math';
 import { ccclass } from '../core/data/class-decorator';
 import { getClassName } from '../core/utils/js';
-import { AnimationClip, ICurveData, IObjectCurveData, IRuntimeCurve } from './animation-clip';
+import { AnimationClip, IObjectCurveData, IRuntimeCurve } from './animation-clip';
 import { AnimationComponent } from './animation-component';
 import { IPropertyCurveData, CurveValueAdapter } from './animation-curve';
 import { INode } from '../core/utils/interfaces';
 import { getPathFromRoot } from './transform-utils';
 import { HierachyModifier, ComponentModifier, isCustomTargetModifier, isPropertyModifier } from './target-modifier';
-import { Node } from '../scene-graph';
+
+const qt_1 = new Quat();
+const m3_1 = new Mat3();
 
 function isTargetSkinningModel (comp: RenderableComponent, root: INode) {
     if (!(comp instanceof SkinningModelComponent)) { return false; }
@@ -60,7 +62,7 @@ export class FrameIDValueAdapter extends CurveValueAdapter {
     public path: string;
 
     public component: string;
-    
+
     constructor (path: string, component: string) {
         super();
         this.path = path;
@@ -124,10 +126,6 @@ export class SkeletalAnimationClip extends AnimationClip {
             this._convertToUniformSample(position);
             this._convertToUniformSample(rotation);
             this._convertToUniformSample(scale);
-            // turn off interpolation
-            position.interpolate = false;
-            rotation.interpolate = false;
-            scale.interpolate = false;
             // transform to world space
             this._convertToWorldSpace(path, nodeData.props);
         }
@@ -173,32 +171,30 @@ export class SkeletalAnimationClip extends AnimationClip {
     }
 
     private _convertToWorldSpace (path: string, props: IObjectCurveData) {
-        const idx = path.lastIndexOf('/');
-        if (idx < 0) { return; }
-        const name = path.substring(0, idx);
-        const data = this.convertedData[name];
-        if (!data || !data.props) { console.warn('no data for parent bone?'); return; }
-        const pPos = data.props.position.values;
-        const pRot = data.props.rotation.values;
-        const pScale = data.props.scale.values;
-        // parent is already in world space
         const position = props.position.values;
         const rotation = props.rotation.values;
         const scale = props.scale.values;
+        const matrix = position.map(() => new Mat4());
+        const idx = path.lastIndexOf('/');
+        let pMatrix: Mat4[] | null = null;
+        if (idx > 0) {
+            const name = path.substring(0, idx);
+            const data = this.convertedData[name];
+            if (!data || !data.props) { console.warn('no data for parent bone?'); return; }
+            // parent is already in world space
+            pMatrix = data.props.worldMatrix.values;
+        }
         // all props should have the same length now
         for (let i = 0; i < position.length; i++) {
-            const parentT = pPos[i];
-            const parentR = pRot[i];
-            const parentS = pScale[i];
             const T = position[i];
             const R = rotation[i];
             const S = scale[i];
-            Vec3.multiply(T, T, parentS);
-            Vec3.transformQuat(T, T, parentR);
-            Vec3.add(T, T, parentT);
-            Quat.multiply(R, parentR, R);
-            Vec3.multiply(S, parentS, S);
+            const cur = matrix[i];
+            Mat4.fromRTS(cur, R, T, S);
+            if (pMatrix) { Mat4.multiply(cur, pMatrix[i], cur); }
         }
+        Object.keys(props).forEach((k) => delete props[k]);
+        props.worldMatrix = { keys: 0, interpolate: false, values: matrix };
     }
 }
 

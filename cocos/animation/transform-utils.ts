@@ -28,7 +28,9 @@
  */
 
 import { INode } from '../core/utils/interfaces';
-import { Vec3, Quat } from '../core/math';
+import { Vec3, Quat, Mat4 } from '../core/math';
+
+const m4_1 = new Mat4();
 
 export function getPathFromRoot (target: INode | null, root: INode) {
     let node: INode | null = target;
@@ -40,16 +42,11 @@ export function getPathFromRoot (target: INode | null, root: INode) {
     return path.slice(0, -1);
 }
 
-export function getWorldTransformUntilRoot (target: INode, root: INode, outPos: Vec3, outRot: Quat, outScale: Vec3) {
-    Vec3.set(outPos, 0, 0, 0);
-    Quat.set(outRot, 0, 0, 0, 1);
-    Vec3.set(outScale, 1, 1, 1);
+export function getWorldTransformUntilRoot (target: INode, root: INode, outMatrix: Mat4) {
+    Mat4.identity(outMatrix);
     while (target !== root) {
-        Vec3.multiply(outPos, outPos, target.scale);
-        Vec3.transformQuat(outPos, outPos, target.rotation);
-        Vec3.add(outPos, outPos, target.position);
-        Quat.multiply(outRot, target.rotation, outRot);
-        Vec3.multiply(outScale, target.scale, outScale);
+        Mat4.fromRTS(m4_1, target.rotation, target.position, target.scale);
+        Mat4.multiply(outMatrix, m4_1, outMatrix);
         target = target.parent!;
     }
 }

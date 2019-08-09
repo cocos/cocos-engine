@@ -32,10 +32,12 @@ import { SkinningModelComponent } from '../3d';
 import { Socket } from './skeletal-animation-component';
 import { SkeletalAnimationClip, FrameIDValueAdapter } from './skeletal-animation-clip';
 import { IObjectCurveData } from './animation-clip';
-import { Vec3, Quat } from '../core/math';
+import { Mat4 } from '../core/math';
 import { AnimCurve } from './animation-curve';
 import { getPathFromRoot, getWorldTransformUntilRoot } from './transform-utils';
-import { HierachyModifier, isCustomTargetModifier, ComponentModifier, isPropertyModifier } from './target-modifier';
+import { HierachyModifier } from './target-modifier';
+
+const m4_1 = new Mat4();
 
 export class SkeletalAnimationState extends AnimationState {
 
@@ -55,8 +57,7 @@ export class SkeletalAnimationState extends AnimationState {
         const curves = this._samplerSharedGroups[0].curves;
         for (let iCurve = 0; iCurve < curves.length; iCurve++) {
             const curveDetail = curves[iCurve].curveDetail;
-            if (curveDetail.valueAdapter &&
-                (curveDetail.valueAdapter instanceof FrameIDValueAdapter)) {
+            if (curveDetail.valueAdapter && (curveDetail.valueAdapter instanceof FrameIDValueAdapter)) {
                 continue;
             } else {
                 curves.splice(iCurve--, 1);
@@ -64,18 +65,16 @@ export class SkeletalAnimationState extends AnimationState {
         }
         // build new ones
         for (let iSocket = 0; iSocket < sockets.length; ++iSocket) {
-            const anims = this._buildSocketData(sockets[iSocket]);
-            for (let iAnim = 0; iAnim < anims.length; iAnim++) {
-                curves.push(anims[iAnim]);
-            }
+            const curve = this._buildSocketData(sockets[iSocket]);
+            if (curve) { curves.push(curve); }
         }
     }
 
     private _buildSocketData (socket: Socket) {
-        if (!this._targetNode) { return []; }
+        if (!this._targetNode) { return null; }
         const root = this._targetNode;
         const targetNode = root.getChildByPath(socket.path);
-        if (!targetNode || !socket.target) { return []; }
+        if (!targetNode || !socket.target) { return null; }
         const targetPath = socket.path;
         const sourceData = (this.clip as SkeletalAnimationClip).convertedData;
         // find lowest joint animation
@@ -87,85 +86,38 @@ export class SkeletalAnimationState extends AnimationState {
             animPath = animPath.substring(0, idx);
             source = sourceData[animPath];
             animNode = animNode.parent!;
-            if (idx < 0) { return []; }
+            if (idx < 0) { return null; }
         }
         // create animation data
         const data: IObjectCurveData = {
-            position: { keys: 0, interpolate: false, values: source.props.position.values.map((v) => v.clone()) },
-            rotation: { keys: 0, interpolate: false, values: source.props.rotation.values.map((v) => v.clone()) },
-            scale: { keys: 0, interpolate: false, values: source.props.scale.values.map((v) => v.clone()) },
+            matrix: { keys: 0, interpolate: false, values: source.props.worldMatrix.values.map((v) => v.clone()) },
         };
-        const position = data.position.values;
-        const rotation = data.rotation.values;
-        const scale = data.scale.values;
+        const matrix = data.matrix.values;
         // apply downstream default pose
-        getWorldTransformUntilRoot(targetNode, animNode, v3_1, qt_1, v3_2);
-        for (let i = 0; i < position.length; i++) {
-            const T = position[i];
-            const R = rotation[i];
-            const S = scale[i];
-            Vec3.multiply(v3_3, v3_1, S);
-            Vec3.transformQuat(v3_3, v3_3, R);
-            Vec3.add(T, v3_3, T);
-            Quat.multiply(R, R, qt_1);
-            Vec3.multiply(S, S, v3_2);
+        getWorldTransformUntilRoot(targetNode, animNode, m4_1);
+        for (let i = 0; i < matrix.length; i++) {
+            const m = matrix[i];
+            Mat4.multiply(m, m, m4_1);
         }
         if (CC_EDITOR) { // assign back to clip to sync with animation editor
             const path = getPathFromRoot(socket.target, root);
             const curves = this.clip.curves;
-            Object.keys(data).forEach((propertyName) => {
-                const dstcurve = curves.find((curve) =>
-                !curve.valueAdapter &&
-                curve.modifiers.length === 2 &&
-                isCustomTargetModifier(curve.modifiers[0], HierachyModifier) &&
-                (curve.modifiers[0] as HierachyModifier).path === path &&
-                curve.modifiers[1] === propertyName);
-                if (dstcurve) {
-                    dstcurve.data = data[propertyName];
-                } else {
-                    curves.push({
-                        modifiers: [
-                            new HierachyModifier(path),
-                            propertyName,
-                        ],
-                        data: data[propertyName],
-                    });
-                }
+            const dstcurve = curves.find((curve) => {
+                const modifier = curve.modifiers[0];
+                return modifier instanceof HierachyModifier && modifier.path === path && curve.modifiers[1] === 'matrix';
             });
+            if (dstcurve) { dstcurve.data = data.matrix; }
+            else { curves.push({ modifiers: [ new HierachyModifier(path), 'matrix' ], data: data.matrix }); }
             this.clip.curves = curves;
         }
         // wrap up
         const duration = this.clip.duration;
         const hierachyModifier = new HierachyModifier();
-        return [
-            new ICurveInstance({
-                curve: new AnimCurve(data.position, duration),
-                modifiers: [
-                    hierachyModifier,
-                    'position',
-                ],
-            }, socket.target),
-            new ICurveInstance({
-                curve: new AnimCurve(data.position, duration),
-                modifiers: [
-                    hierachyModifier,
-                    'rotation',
-                ],
-            }, socket.target),
-            new ICurveInstance({
-                curve: new AnimCurve(data.position, duration),
-                modifiers: [
-                    hierachyModifier,
-                    'scale',
-                ],
-            }, socket.target),
-        ];
+        return new ICurveInstance({
+            curve: new AnimCurve(data.matrix, duration),
+            modifiers: [ hierachyModifier, 'matrix' ],
+        }, socket.target);
     }
 }
-
-const v3_1 = new Vec3();
-const v3_2 = new Vec3();
-const qt_1 = new Quat();
-const v3_3 = new Vec3();
 
 cc.SkeletalAnimationState = SkeletalAnimationState;

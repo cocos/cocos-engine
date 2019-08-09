@@ -32,7 +32,7 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../c
 import { Node } from '../scene-graph/node';
 import { SkeletalAnimationState } from './skeletal-animation-state';
 import { INode } from '../core/utils/interfaces';
-import { Vec3, Quat } from '../core/math';
+import { Mat4 } from '../core/math';
 import { getWorldTransformUntilRoot } from './transform-utils';
 import { AnimationClip } from './animation-clip';
 import { SkeletalAnimationClip } from '../animation/skeletal-animation-clip';
@@ -49,9 +49,7 @@ export class Socket {
     }
 }
 
-const v3_1 = new Vec3();
-const v3_2 = new Vec3();
-const qt_1 = new Quat();
+const m4_1 = new Mat4();
 
 function collectRecursively (node: INode, prefix = '', out: string[] = []) {
     for (let i = 0; i < node.children.length; i++) {
@@ -114,10 +112,8 @@ export class SkeletalAnimationComponent extends AnimationComponent {
             if (joint && target) {
                 target.name = `${socket.path.substring(socket.path.lastIndexOf('/') + 1)} Socket`;
                 target.parent = this.node;
-                getWorldTransformUntilRoot(joint, this.node, v3_1, qt_1, v3_2);
-                target.setPosition(v3_1);
-                target.setRotation(qt_1);
-                target.setScale(v3_2);
+                getWorldTransformUntilRoot(joint, this.node, m4_1);
+                target.matrix = m4_1;
             }
         }
         for (const stateName of Object.keys(this._nameToState)) {

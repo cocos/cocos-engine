@@ -28,7 +28,6 @@
  */
 
 import CCClass from '../data/class';
-import { Mat4 } from './mat4';
 import { Quat } from './quat';
 import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
 import { EPSILON } from './utils';
@@ -186,6 +185,32 @@ export class Mat3 extends ValueType {
         const b00 = b.m00, b01 = b.m01, b02 = b.m02;
         const b10 = b.m03, b11 = b.m04, b12 = b.m05;
         const b20 = b.m06, b21 = b.m07, b22 = b.m08;
+
+        out.m00 = b00 * _a00 + b01 * _a10 + b02 * _a20;
+        out.m01 = b00 * _a01 + b01 * _a11 + b02 * _a21;
+        out.m02 = b00 * _a02 + b01 * _a12 + b02 * _a22;
+
+        out.m03 = b10 * _a00 + b11 * _a10 + b12 * _a20;
+        out.m04 = b10 * _a01 + b11 * _a11 + b12 * _a21;
+        out.m05 = b10 * _a02 + b11 * _a12 + b12 * _a22;
+
+        out.m06 = b20 * _a00 + b21 * _a10 + b22 * _a20;
+        out.m07 = b20 * _a01 + b21 * _a11 + b22 * _a21;
+        out.m08 = b20 * _a02 + b21 * _a12 + b22 * _a22;
+        return out;
+    }
+
+    /**
+     * 三阶与四阶矩阵乘法
+     */
+    public static multiplyMat4 <Out extends IMat3Like> (out: Out, a: Out, b: IMat4Like) {
+        _a00 = a.m00; _a01 = a.m01; _a02 = a.m02;
+        _a10 = a.m03; _a11 = a.m04; _a12 = a.m05;
+        _a20 = a.m06; _a21 = a.m07; _a22 = a.m08;
+
+        const b00 = b.m00, b01 = b.m01, b02 = b.m02;
+        const b10 = b.m04, b11 = b.m05, b12 = b.m06;
+        const b20 = b.m08, b21 = b.m09, b22 = b.m10;
 
         out.m00 = b00 * _a00 + b01 * _a10 + b02 * _a20;
         out.m01 = b00 * _a01 + b01 * _a11 + b02 * _a21;
@@ -453,7 +478,7 @@ export class Mat3 extends ValueType {
      * @zh 矩阵转数组
      * @param ofs 数组内的起始偏移量
      */
-    public static array (out: IWritableArrayLike<number>, m: Mat4, ofs = 0) {
+    public static array (out: IWritableArrayLike<number>, m: Mat3, ofs = 0) {
         out[ofs + 0] = m.m00;
         out[ofs + 1] = m.m01;
         out[ofs + 2] = m.m02;
@@ -519,15 +544,15 @@ export class Mat3 extends ValueType {
      * @zh 逐元素矩阵标量乘加: A + B * scale
      */
     public static multiplyScalarAndAdd <Out extends IMat3Like> (out: Out, a: Out, b: Out, scale: number) {
-        out.m00 = a.m00 + (b.m00 * scale);
-        out.m01 = a.m01 + (b.m01 * scale);
-        out.m02 = a.m02 + (b.m02 * scale);
-        out.m03 = a.m03 + (b.m03 * scale);
-        out.m04 = a.m04 + (b.m04 * scale);
-        out.m05 = a.m05 + (b.m05 * scale);
-        out.m06 = a.m06 + (b.m06 * scale);
-        out.m07 = a.m07 + (b.m07 * scale);
-        out.m08 = a.m08 + (b.m08 * scale);
+        out.m00 = b.m00 * scale + a.m00;
+        out.m01 = b.m01 * scale + a.m01;
+        out.m02 = b.m02 * scale + a.m02;
+        out.m03 = b.m03 * scale + a.m03;
+        out.m04 = b.m04 * scale + a.m04;
+        out.m05 = b.m05 * scale + a.m05;
+        out.m06 = b.m06 * scale + a.m06;
+        out.m07 = b.m07 * scale + a.m07;
+        out.m08 = b.m08 * scale + a.m08;
         return out;
     }
 
