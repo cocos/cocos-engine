@@ -98,16 +98,22 @@ function getDefaultModuleEntries () {
     };
 
     const divisionConfig: ModuleDivision = require('../../scripts/module-division/division-config.json');
-    const result = [];
+    const result: string[] = [];
+    const addEntry = (entry: string | string[]) => {
+        if (Array.isArray(entry)) {
+            result.push(...entry);
+        } else {
+            result.push(entry);
+        }
+    };
     for (const groupOrItem of divisionConfig.groupOrItems) {
         const items = 'items' in groupOrItem ? groupOrItem.items : [groupOrItem];
         for (const item of items) {
             if (item.required || item.default) {
                 if (isGroupItem(item)) {
-                    result.push(item.options[item.defaultOption || 0].entry);
+                    addEntry(item.options[item.defaultOption || 0].entry);
                 } else {
-                    // @ts-ignore
-                    result.push(item.entry);
+                    addEntry(item.entry);
                 }
             }
         }
