@@ -64,11 +64,6 @@ export interface IBuildOptions extends IBaseOptions {
     platform?: Platform;
 
     /**
-     * 使用的物理引擎。
-     */
-    physics?: Physics;
-
-    /**
      * 引擎标志。
      */
     flags?: IFlags;
@@ -78,7 +73,7 @@ export async function build (options: IBuildOptions) {
     _checkPhysicsFlag(options);
     _ensureUniqueModules(options);
     
-    const globalDefines = getGlobalDefs(options.platform, options.physics, options.flags);
+    const globalDefines = getGlobalDefs(options);
     return await _internalBuild(Object.assign(options, {globalDefines}));
 }
 
@@ -86,28 +81,44 @@ function resolveModuleEntry (moduleEntry: string) {
     return normalize(`${__dirname}/../../exports/${moduleEntry}.ts`);
 }
 
+interface IModuleInfo {
+    requiredFlags: string[];
+}
+
+const moduleInfoTable: Record<string, IModuleInfo> = {
+    'physics-builtin': {
+        requiredFlags: ['CC_PHYSICS_BUILT_IN'],
+    },
+    'physics-cannon': {
+        requiredFlags: ['CC_PHYSICS_CANNON'],
+    },
+    'physics-ammo': {
+        requiredFlags: ['CC_PHYSICS_AMMO'],
+    },
+};
+
 function _checkPhysicsFlag (options: IBuildOptions) {
-    const physicsModulesMap = {
-        [Physics.builtin]: `physics-builtin`,
-        [Physics.cannon]: `physics-cannon`,
-        [Physics.ammo]: `physics-ammo`,
-    };
-    const allowedPhysicsModules = Object.values(physicsModulesMap);
+    // const physicsModulesMap = {
+    //     [Physics.builtin]: `physics-builtin`,
+    //     [Physics.cannon]: `physics-cannon`,
+    //     [Physics.ammo]: `physics-ammo`,
+    // };
+    // const allowedPhysicsModules = Object.values(physicsModulesMap);
 
-    if (options.moduleEntries.some(
-        (moduleEntry) => allowedPhysicsModules.includes(moduleEntry))) {
-        console.warn(
-            `You shall not specify physics module explicitly. ` +
-            `Use 'physics' option instead.`);
-        options.moduleEntries = options.moduleEntries.filter(
-            (moduleEntry) => !allowedPhysicsModules.includes(moduleEntry));
-    }
+    // if (options.moduleEntries.some(
+    //     (moduleEntry) => allowedPhysicsModules.includes(moduleEntry))) {
+    //     console.warn(
+    //         `You shall not specify physics module explicitly. ` +
+    //         `Use 'physics' option instead.`);
+    //     options.moduleEntries = options.moduleEntries.filter(
+    //         (moduleEntry) => !allowedPhysicsModules.includes(moduleEntry));
+    // }
 
-    const physics = options.physics === undefined ? Physics.cannon : options.physics;
-    options.moduleEntries.push(physicsModulesMap[physics]);
+    // const physics = options.physics === undefined ? Physics.cannon : options.physics;
+    // options.moduleEntries.push(physicsModulesMap[physics]);
 
-    // direct push physics-framework for now
-    options.moduleEntries.push(`physics-framework`);
+    // // direct push physics-framework for now
+    // options.moduleEntries.push(`physics-framework`);
 }
 
 function _ensureUniqueModules(options: IBuildOptions) {
@@ -306,7 +317,8 @@ interface IGlobaldefines {
     CC_PHYSICS_BUILT_IN?: boolean;
 }
 
-function getGlobalDefs (platform?: Platform, physics?: Physics, flags?: IFlags): object {
+function getGlobalDefs (options: IBuildOptions): object {
+    let { platform, flags } = options;
     platform = platform || Platform.universal;
 
     const PLATFORM_MACROS = ['CC_EDITOR', 'CC_PREVIEW', 'CC_BUILD', 'CC_TEST'];
@@ -339,30 +351,17 @@ function getGlobalDefs (platform?: Platform, physics?: Physics, flags?: IFlags):
     result.CC_DEV = result.CC_EDITOR || result.CC_PREVIEW || result.CC_TEST;
     result.CC_DEBUG = result.CC_DEBUG || result.CC_DEV;
     result.CC_SUPPORT_JIT = !(result.CC_WECHATGAME || result.CC_QQPLAY || result.CC_RUNTIME);
-
-    // default
-    result.CC_PHYSICS_CANNON = true;
-    result.CC_PHYSICS_AMMO = false;
     result.CC_PHYSICS_BUILT_IN = false;
+    result.CC_PHYSICS_CANNON = false;
+    result.CC_PHYSICS_AMMO = false;
 
-    switch (physics) {
-        case Physics.cannon:
-            result.CC_PHYSICS_CANNON = true;
-            result.CC_PHYSICS_AMMO = false;
-            result.CC_PHYSICS_BUILT_IN = false;
-            break;
-
-        case Physics.ammo:
-            result.CC_PHYSICS_CANNON = false;
-            result.CC_PHYSICS_AMMO = true;
-            result.CC_PHYSICS_BUILT_IN = false;
-            break;
-
-        case Physics.builtin:
-            result.CC_PHYSICS_CANNON = false;
-            result.CC_PHYSICS_AMMO = false;
-            result.CC_PHYSICS_BUILT_IN = true;
-            break;
+    for (const moduleEntry of options.moduleEntries) {
+        if (moduleEntry in moduleInfoTable) {
+            for (const flag of moduleInfoTable[moduleEntry].requiredFlags) {
+                // @ts-ignore
+                result[flag] = true;
+            }
+        }
     }
 
     return result;
