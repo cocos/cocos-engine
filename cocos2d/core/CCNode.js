@@ -2699,7 +2699,10 @@ let NodeDefines = {
         else {
             quat.copy(_swrQuat, val);
         }
-        this._toEuler();
+        trs.fromRotation(this._trs, _swrQuat);
+        if (CC_EDITOR) {
+            this._toEuler();
+        }
         this.setLocalDirty(LocalDirtyFlag.ROTATION);
     },
 
