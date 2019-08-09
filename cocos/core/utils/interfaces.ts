@@ -98,20 +98,6 @@ export interface IBaseNode {
     children: Readonly<this[]>;
 
     /**
-     * @en All children nodes.
-     * @zh 节点的子节点数量。
-     * @property childrenCount
-     * @type {Number}
-     * @readOnly
-     * @example
-     * ```
-     * var count = node.childrenCount;
-     * cc.log("Node Children Count: " + count);
-     * ```
-     */
-    childrenCount: Readonly<number>;
-
-    /**
      * @en
      * The local active state of this node.<br/>
      * Note that a Node may be inactive because a parent is not active, even if this returns true.<br/>

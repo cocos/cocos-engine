@@ -35,6 +35,16 @@ import { EventListener, TouchOneByOne } from './event-listener';
 import { INode } from '../../utils/interfaces';
 const ListenerID = EventListener.ListenerID;
 
+function checkUINode (node) {
+    while (node) {
+        if (node.getComponent('cc.CanvasComponent')) {
+            return true;
+        }
+        node = node.parent;
+    }
+    return false;
+}
+
 class _EventListenerVector {
     public gt0Index = 0;
     private _fixedListeners: EventListener[] = [];
@@ -274,6 +284,10 @@ class EventManager {
             listener._setPaused(false);
             this._addListener(listener);
         } else {
+            if (!checkUINode(nodeOrPriority)) {
+                cc.logID(3512);
+                return;
+            }
             listener._setSceneGraphPriority(nodeOrPriority);
             listener._setFixedPriority(0);
             listener._setRegistered(true);
@@ -744,10 +758,11 @@ class EventManager {
     private _sortEventListenersOfSceneGraphPriorityDes (l1: EventListener, l2: EventListener) {
         const node1 = l1._getSceneGraphPriority();
         const node2 = l2._getSceneGraphPriority();
-        if (!l2 || !node2 || !node2._activeInHierarchy || node2.parent === null) {
+        // Event manager should only care about ui node in the current scene hierarchy
+        if (!l2 || !node2 || !node2._activeInHierarchy) {
             return -1;
         }
-        else if (!l1 || !node1 || !node1._activeInHierarchy || node1.parent === null) {
+        else if (!l1 || !node1 || !node1._activeInHierarchy) {
             return 1;
         }
 
@@ -766,7 +781,10 @@ class EventManager {
             }
         }
 
-        return ex ? p1._localZOrder - p2._localZOrder : p2._localZOrder - p1._localZOrder;
+        let priority1 = p1.getSiblingIndex();
+        let priority2 = p2.getSiblingIndex();
+
+        return ex ? priority1 - priority2 : priority2 - priority1;
     }
 
     private _sortListenersOfFixedPriority (listenerID: string) {

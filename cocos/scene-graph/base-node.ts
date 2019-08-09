@@ -174,23 +174,6 @@ export class BaseNode extends CCObject implements IBaseNode {
     }
 
     /**
-     * @en All children nodes.
-     * @zh 节点的子节点数量。
-     * @property childrenCount
-     * @type {Number}
-     * @readOnly
-     * @example
-     * ```
-     * var count = node.childrenCount;
-     * cc.log("Node Children Count: " + count);
-     * ```
-     */
-    @property
-    get childrenCount () {
-        return this._children.length;
-    }
-
-    /**
      * @en
      * The local active state of this node.<br/>
      * Note that a Node may be inactive because a parent is not active, even if this returns true.<br/>
@@ -351,12 +334,6 @@ export class BaseNode extends CCObject implements IBaseNode {
     protected _active = true;
 
     /**
-     * @default 0
-     */
-    @property
-    protected _level = 0;
-
-    /**
      * @default []
      * @readOnly
      */
@@ -389,6 +366,9 @@ export class BaseNode extends CCObject implements IBaseNode {
      * protected __eventTargets: EventTarget[] = [];
      */
     protected __eventTargets: any[] = [];
+
+    
+    protected _siblingIndex: number = 0;
 
     /**
      * @method constructor
@@ -439,6 +419,8 @@ export class BaseNode extends CCObject implements IBaseNode {
         }
 
         this._parent = value;
+        // Reset sibling index
+        this._siblingIndex = 0;
 
         this._onSetParent(oldParent, keepWorldTransform);
 
@@ -446,8 +428,8 @@ export class BaseNode extends CCObject implements IBaseNode {
             if (CC_DEBUG && (value._objFlags & Deactivating)) {
                 cc.errorID(3821);
             }
-            this._level = value._level + 1;
             value._children.push(this);
+            this._siblingIndex = value._children.length - 1;
             if (value.emit) {
                 value.emit(SystemEventType.CHILD_ADDED, this);
             }
@@ -609,11 +591,7 @@ export class BaseNode extends CCObject implements IBaseNode {
      * ```
      */
     public getSiblingIndex () {
-        if (this._parent) {
-            return this._parent._children.indexOf(this);
-        } else {
-            return 0;
-        }
+        return this._siblingIndex;
     }
 
     /**
@@ -642,6 +620,7 @@ export class BaseNode extends CCObject implements IBaseNode {
             } else {
                 siblings.push(this);
             }
+            this._siblingIndex = index;
             if (this._onSiblingIndexChanged) {
                 this._onSiblingIndexChanged(index);
             }
@@ -1180,6 +1159,9 @@ export class BaseNode extends CCObject implements IBaseNode {
     }
 
     protected _onBatchCreated () {
+        if (this._parent) {
+            this._siblingIndex = this._parent.children.indexOf(this);
+        }
         return;
     }
 
@@ -1315,8 +1297,10 @@ export class BaseNode extends CCObject implements IBaseNode {
         if (!destroyByParent) {
             // remove from parent
             if (parent) {
+                // During destroy process, siblingIndex is not relyable
                 const childIndex = parent._children.indexOf(this);
                 parent._children.splice(childIndex, 1);
+                this._siblingIndex = 0;
                 if (parent.emit) {
                     parent.emit('child-removed', this);
                 }

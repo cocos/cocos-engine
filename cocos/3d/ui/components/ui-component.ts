@@ -134,7 +134,6 @@ export class UIComponent extends Component {
     }
 
     private _sortSiblings () {
-
         const siblings = this.node.parent && this.node.parent.children as Mutable<INode[]>;
         if (siblings) {
             siblings.sort((a: INode, b: INode) => {
