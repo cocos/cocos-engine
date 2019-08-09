@@ -142,7 +142,6 @@ class Assignments {
         else {
             return;
         }
-        // tslint:disable: prefer-for-of
         for (let i = 0; i < this._exps.length; i++) {
             const pair = this._exps[i];
             writeAssignment(codeArray, targetVar + getPropAccessor(pair[0]) + '=', pair[1]);

@@ -74,7 +74,6 @@ function parseNotify (val, propName, notify, properties) {
         const newValue = {};
         properties[newKey] = newValue;
         // 将不能用于get方法中的属性移动到newValue中
-        // tslint:disable: forin
         for (const attr in SerializableAttrs) {
             const v = SerializableAttrs[attr];
             if (val.hasOwnProperty(attr)) {
@@ -224,8 +223,6 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
     }
 }
 
-// tslint:disable: no-shadowed-variable
-
 export function getFullFormOfProperty (options, propname_dev?, classname_dev?) {
     const isLiteral = options && options.constructor === Object;
     if ( !isLiteral ) {
@@ -336,7 +333,6 @@ export function doValidateMethodWithProps_DEV (func, funcName, className, cls, b
         js.isChildClassOf(base, cc.Component) &&
         !CALL_SUPER_DESTROY_REG_DEV.test(func)
     ) {
-        // tslint:disable-next-line: max-line-length
         error(`Overwriting '${funcName}' function in '${className}' class without calling super is not allowed. Call the super function in '${funcName}' please.`);
     }
 }

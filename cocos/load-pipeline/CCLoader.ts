@@ -162,7 +162,6 @@ class CCLoader extends Pipeline {
 
         const assetLoader = new AssetLoader();
         const downloader = new Downloader();
-        // tslint:disable-next-line: no-shadowed-variable
         const loader = new Loader();
 
         super([
@@ -238,8 +237,6 @@ class CCLoader extends Pipeline {
         this.loader.addHandlers(extMap);
     }
 
-    // tslint:disable: max-line-length
-
     // load(resources: string|string[]|{uuid?: string, url?: string, type?: string}, completeCallback?: Function): void
     // load(resources: string|string[]|{uuid?: string, url?: string, type?: string}, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: Function|null): void
     /**
@@ -308,7 +305,6 @@ class CCLoader extends Pipeline {
         }
 
         _sharedResources.length = 0;
-        // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < resources.length; ++i) {
             const resource = resources[i];
             // Backward compatibility
@@ -355,7 +351,6 @@ class CCLoader extends Pipeline {
      */
     public flowInDeps (owner, urlList, callback) {
         _sharedList.length = 0;
-        // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < urlList.length; ++i) {
             const res = getResWithUrl(urlList[i]);
             if (!res.url && !res.uuid) {
@@ -578,7 +573,6 @@ class CCLoader extends Pipeline {
             for (let i = 0; i < assetResLength; ++i) {
                 if (assetRes[i] instanceof cc.SpriteAtlas) {
                     const spriteFrames = assetRes[i].getSpriteFrames();
-                    // tslint:disable: forin
                     for (const k in spriteFrames) {
                         const sf = spriteFrames[k];
                         assetRes.push(sf);
@@ -648,7 +642,6 @@ class CCLoader extends Pipeline {
         completeCallback = args.onComplete;
 
         const uuids: any = [];
-        // tslint:disable: prefer-for-of
         for (let i = 0; i < urls.length; i++) {
             const url = urls[i];
             const uuid = this._getResUuid(url, type, mount, true);

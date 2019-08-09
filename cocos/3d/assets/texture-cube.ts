@@ -277,8 +277,7 @@ export class TextureCube extends TrivialTexture {
 
 }
 
-/* tslint:disable:no-string-literal */
-cc['TextureCube'] = TextureCube;
+cc.TextureCube = TextureCube;
 
 interface ITextureCubeSerializeData {
     base: string;

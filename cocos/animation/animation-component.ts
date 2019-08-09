@@ -179,13 +179,13 @@ export class AnimationComponent extends Component implements IEventTarget {
 
     public onLoad () {
         this.clips = this._clips;
-    }
-
-    public start () {
         for (const stateName of Object.keys(this._nameToState)) {
             const state = this._nameToState[stateName];
             state.initialize(this.node);
         }
+    }
+
+    public start () {
         cc.director.getAnimationManager().addCrossFade(this._crossFade);
         this._crossFade.play();
         if (!CC_EDITOR && this.playOnLoad && this._defaultClip) {
@@ -478,7 +478,6 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     private _removeStateOfAutomaticClip (clip: AnimationClip) {
-        // tslint:disable-next-line:forin
         for (const name in this._nameToState) {
             const state = this._nameToState[name];
             if (equalClips(clip, state.clip)) {

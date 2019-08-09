@@ -12,6 +12,7 @@ import { bezierByTime, BezierControlPoints } from './bezier';
 import * as blending from './blending';
 import * as easing from './easing';
 import { ILerpable, isLerpable } from './types';
+import { deserialize } from '../core';
 
 /**
  * 表示曲线值，曲线值可以是任意类型，但必须符合插值方式的要求。
@@ -22,12 +23,6 @@ export type CurveValue = any;
  * 表示曲线的目标对象。
  */
 export type CurveTarget = Record<string, any>;
-
-/**
- * If propertyBlendState.weight equals to zero, the propertyBlendState.value is dirty.
- * You shall handle this situation correctly.
- */
-export type BlendFunction<T> = (value: T, weight: number, propertyBlendState: PropertyBlendState) => T;
 
 /**
  * 内置帧时间渐变方式名称。
@@ -73,6 +68,25 @@ export interface IPropertyCurveData {
     interpolate?: boolean;
 }
 
+export interface INestedPropertyCurveData {
+    /**
+     * 曲线值适配器。
+     * 若存在曲线值适配器，将从曲线值适配器中获取曲线值代理以获取和设置曲线值；
+     * 否则，直接使用赋值操作符写入曲线值。
+     * @example
+     * ```
+     * [
+     *   'sharedMaterials',
+     *   0,
+     *   new UniformCurveValueAdapter('albedo', 0, 0),
+     * ]
+     * ```
+     */
+    properties: Array<number | string | CurveValueAdapter>;
+    data: IPropertyCurveData;
+}
+
+
 export class RatioSampler {
     public ratios: number[];
 
@@ -102,11 +116,11 @@ export class RatioSampler {
         return this._findRatio(this.ratios, ratio);
     }
 }
+cc.RatioSampler = RatioSampler;
 
 /**
  * 动画曲线。
  */
-@ccclass('cc.AnimCurve')
 export class AnimCurve {
     public static Linear = null;
 
@@ -114,18 +128,13 @@ export class AnimCurve {
         return controlPoints as BezierControlPoints;
     }
 
-    @property
     public types?: Array<(EasingMethod | null)> = undefined;
 
-    @property
     public type?: EasingMethod | null = null;
-
-    public _blendFunction: BlendFunction<any> | undefined = undefined;
 
     /**
      * The values of the keyframes. (y)
      */
-    @property
     private _values: CurveValue[] = [];
 
     /**
@@ -137,7 +146,7 @@ export class AnimCurve {
 
     private _duration: number;
 
-    constructor (propertyCurveData: IPropertyCurveData, propertyName: string, duration: number, isNode: boolean) {
+    constructor (propertyCurveData: Omit<IPropertyCurveData, 'keys'>, duration: number) {
         this._duration = duration;
 
         // Install values.
@@ -173,21 +182,6 @@ export class AnimCurve {
         // Setup the lerp function.
         if (interpolate) {
             this._lerp = selectLerpFx(firstValue);
-        }
-
-        // Setup the blend function.
-        if (isNode) {
-            switch (propertyName) {
-                case 'position':
-                    this._blendFunction = blending.additive3D;
-                    break;
-                case 'scale':
-                    this._blendFunction = blending.additive3D;
-                    break;
-                case 'rotation':
-                    this._blendFunction = blending.additiveQuat;
-                    break;
-            }
         }
     }
 
@@ -247,6 +241,7 @@ export class AnimCurve {
         return this._values.length === 0;
     }
 }
+cc.AnimCurve = AnimCurve;
 
 export class EventInfo {
     public events: any[] = [];
@@ -262,6 +257,60 @@ export class EventInfo {
         });
     }
 }
+
+/**
+ * 曲线值代理用来设置曲线值到目标，是广义的赋值。
+ * 每个曲线值代理都关联着一个目标对象。
+ */
+export interface ICurveValueProxy {
+    /**
+     * 设置曲线值到目标对象上。
+     */
+    set: (value: any) => void;
+}
+
+/**
+ * 曲线值适配器是曲线值代理的工厂。
+ */
+@ccclass('cc.CurveValueAdapter')
+export class CurveValueAdapter {
+    /**
+     * 返回指定目标的曲线值代理。
+     * @param target
+     */
+    public forTarget(target: any): ICurveValueProxy {
+        return {
+            set: (value: any) => {
+                // Empty implementation
+            },
+        };
+    }
+}
+
+cc.CurveValueAdapter = CurveValueAdapter;
+
+/**
+ * 采样动画曲线。
+ * @param curve 动画曲线。
+ * @param sampler 采样器。
+ * @param ratio 采样比率。
+ */
+export function sampleAnimationCurve (curve: AnimCurve, sampler: RatioSampler, ratio: number) {
+    let index = sampler.sample(ratio);
+    if (index < 0) {
+        index = ~index;
+        if (index <= 0) {
+            index = 0;
+        } else if (index >= sampler.ratios.length) {
+            index = sampler.ratios.length - 1;
+        } else {
+            return curve.valueBetween(
+                ratio, index - 1, sampler.ratios[index - 1], index, sampler.ratios[index]);
+        }
+    }
+    return curve.valueAt(index);
+}
+cc.sampleAnimationCurve = sampleAnimationCurve;
 
 /**
  * Compute a new ratio by curve type.

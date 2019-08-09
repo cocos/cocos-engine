@@ -7,10 +7,18 @@ import { Asset, SpriteFrame } from '../assets';
 import { ccclass, property } from '../core/data/class-decorator';
 import { errorID } from '../core/platform/CCDebug';
 import binarySearchEpsilon from '../core/utils/binary-search';
-import { AnimCurve, IPropertyCurveData, RatioSampler } from './animation-curve';
+import { AnimCurve, IPropertyCurveData, RatioSampler, CurveValueAdapter } from './animation-curve';
 import { WrapMode as AnimationWrapMode } from './types';
 import { INode } from '../core/utils/interfaces';
 import { murmurhash2_32_gc } from '../core/utils/murmurhash2_gc';
+import { TargetModifier, HierachyModifier, ComponentModifier, isCustomTargetModifier, PropertyModifier, isPropertyModifier } from './target-modifier';
+import { UniformCurveValueAdapter } from './curve-value-adapters';
+
+export interface ITargetCurveData {
+    modifiers: TargetModifier[];
+    valueAdapter?: CurveValueAdapter;
+    data: IPropertyCurveData;
+}
 
 interface IAnimationEventData {
     frame: number;
@@ -35,31 +43,21 @@ export interface ICurveData {
     [path: string]: INodeCurveData;
 }
 
-export interface IKeySharedCurveData {
-    keys: number[][];
-    curves: ICurveData;
-}
-
-export interface IPropertyCurve {
-    /**
-     * 结点路径。
-     */
-    path: string;
-
-    /**
-     * 组件名称。
-     */
-    component?: string;
-
-    /**
-     * 属性名称。
-     */
-    propertyName: string;
-
+export interface IRuntimeCurve {
     /**
      * 属性曲线。
      */
     curve: AnimCurve;
+
+    /**
+     * 目标修改器。
+     */
+    modifiers: TargetModifier[];
+
+    /**
+     * 曲线值适配器。
+     */
+    valueAdapter?: CurveValueAdapter; 
 
     /**
      * 曲线采样器。
@@ -147,9 +145,13 @@ export class AnimationClip extends Asset {
 
     /**
      * 动画的曲线数据。
+     * @deprecated 请转用 `this.curves`
      */
     @property
-    public curveDatas: ICurveData = {};
+    public curveDatas?: ICurveData = {};
+
+    @property
+    private _curves: ITargetCurveData[] = [];
 
     /**
      * 动画包含的事件数据。
@@ -165,7 +167,7 @@ export class AnimationClip extends Asset {
 
     protected _ratioSamplers: RatioSampler[] = [];
 
-    protected _propertyCurves?: IPropertyCurve[];
+    protected _runtimeCurves?: IRuntimeCurve[];
 
     protected _runtimeEvents?: {
         ratios: number[];
@@ -231,27 +233,36 @@ export class AnimationClip extends Asset {
         return this._hash;
     }
 
-    public onLoad () {
-        this.duration = this._duration;
-        this.speed = this.speed;
-        this.wrapMode = this.wrapMode;
-        this.frameRate = this.sample;
+    get curves () {
+        return this._curves;
     }
 
-    public getPropertyCurves (root: INode): ReadonlyArray<IPropertyCurve> {
-        if (!this._propertyCurves) {
+    set curves (value) {
+        this._curves = value;
+        delete this._runtimeCurves;
+    }
+
+    public onLoaded () {
+        this.frameRate = this.sample;
+        this._migrateCurveDatas();
+    }
+
+    public getPropertyCurves (root: INode): ReadonlyArray<IRuntimeCurve> {
+        if (!this._runtimeCurves) {
             this._createPropertyCurves();
         }
-        return this._propertyCurves!;
+        return this._runtimeCurves!;
     }
 
     /**
      * 提交曲线数据的修改。
      * 当你修改了 `this.curveDatas`、`this.keys` 或 `this.duration`时，
      * 必须调用 `this.updateCurveDatas()` 使修改生效。
+     * @deprecated
      */
     public updateCurveDatas () {
-        delete this._propertyCurves;
+        this._migrateCurveDatas();
+        delete this._runtimeCurves;
     }
 
     /**
@@ -290,36 +301,15 @@ export class AnimationClip extends Asset {
                 keys.map(
                     (key) => key / this._duration)));
 
-        this._propertyCurves = [];
-        for (const curveTargetPath of Object.keys(this.curveDatas)) {
-            const nodeData = this.curveDatas[curveTargetPath];
-            if (nodeData.props) {
-                for (const nodePropertyName of Object.keys(nodeData.props)) {
-                    const propertyCurveData = nodeData.props[nodePropertyName];
-                    this._propertyCurves.push({
-                        path: curveTargetPath,
-                        propertyName: nodePropertyName,
-                        curve: new AnimCurve(propertyCurveData, nodePropertyName, this._duration, true),
-                        sampler: propertyCurveData.keys >= 0 ? this._ratioSamplers[propertyCurveData.keys] : null,
-                    });
-                }
-            }
-            if (nodeData.comps) {
-                for (const componentName of Object.keys(nodeData.comps)) {
-                    const componentData = nodeData.comps[componentName];
-                    for (const componentPropertyName of Object.keys(componentData)) {
-                        const propertyCurveData = componentData[componentPropertyName];
-                        this._propertyCurves.push({
-                            path: curveTargetPath,
-                            component: componentName,
-                            propertyName: componentPropertyName,
-                            curve: new AnimCurve(propertyCurveData, componentPropertyName, this._duration, false),
-                            sampler: propertyCurveData.keys >= 0 ? this._ratioSamplers[propertyCurveData.keys] : null,
-                        });
-                    }
-                }
-            }
-        }
+        this._runtimeCurves = this._curves.map((targetCurve): IRuntimeCurve => {
+            return {
+                curve: new AnimCurve(targetCurve.data, this._duration),
+                modifiers: targetCurve.modifiers,
+                valueAdapter: targetCurve.valueAdapter,
+                sampler: this._ratioSamplers[targetCurve.data.keys],
+            };
+        });
+        
         this._applyStepness();
     }
 
@@ -354,12 +344,97 @@ export class AnimationClip extends Asset {
     }
 
     protected _applyStepness () {
-        if (!this._propertyCurves) {
+        if (!this._runtimeCurves) {
             return;
         }
         // for (const propertyCurve of this._propertyCurves) {
         //     propertyCurve.curve.stepfy(this._stepness);
         // }
+    }
+
+    private _migrateCurveDatas () {
+        if (!this.curveDatas) {
+            return;
+        }
+        for (const curveTargetPath of Object.keys(this.curveDatas)) {
+            const hierachyModifier = new HierachyModifier();
+            hierachyModifier.path = curveTargetPath;
+            const nodeData = this.curveDatas[curveTargetPath];
+            if (nodeData.props) {
+                for (const nodePropertyName of Object.keys(nodeData.props)) {
+                    const propertyCurveData = nodeData.props[nodePropertyName];
+                    this._curves.push({
+                        modifiers: [ hierachyModifier, nodePropertyName ],
+                        data: propertyCurveData,
+                    });
+                }
+            }
+            if (nodeData.comps) {
+                for (const componentName of Object.keys(nodeData.comps)) {
+                    const componentModifier = new ComponentModifier();
+                    componentModifier.component = componentName;
+                    const componentData = nodeData.comps[componentName];
+                    for (const componentPropertyName of Object.keys(componentData)) {
+                        const propertyCurveData = componentData[componentPropertyName];
+                        this._curves.push({
+                            modifiers: [ hierachyModifier, componentModifier, componentPropertyName ],
+                            data: propertyCurveData,
+                        });
+                    }
+                }
+            }
+        }
+        delete this.curveDatas;
+        Object.defineProperty(this, 'curveDatas', {
+            get: () => {
+                const result: ICurveData = {};
+                for (const curve of this._curves) {
+                    if (curve.modifiers.length === 0 ||
+                        !isCustomTargetModifier(curve.modifiers[0], HierachyModifier)) {
+                        continue;
+                    }
+
+                    let componentName: string | null = null;
+                    let propertyName: string | undefined;
+                    if (curve.modifiers.length === 2 &&
+                        isPropertyModifier(curve.modifiers[1])) {
+                        propertyName = curve.modifiers[1] as PropertyModifier;
+                    } else if (curve.modifiers.length === 3 &&
+                        isCustomTargetModifier(curve.modifiers[1], ComponentModifier) &&
+                        isPropertyModifier(curve.modifiers[2])) {
+                        componentName = (curve.modifiers[1] as ComponentModifier).component;
+                        propertyName = curve.modifiers[2] as PropertyModifier;
+                    } else {
+                        continue;
+                    }
+
+                    const path = (curve.modifiers[0] as HierachyModifier).path;
+                    
+                    if (!(path in result)) {
+                        result[path] = {};
+                    }
+                    const nodeCurveData = result[path];
+                    let objectCurveData: IObjectCurveData | undefined;
+                    if (componentName) {
+                        if (!('comps' in nodeCurveData)) {
+                            nodeCurveData.comps = {};
+                        }
+                        const componentCurveData = nodeCurveData.comps!;
+                        if (!(componentName in componentCurveData)) {
+                            componentCurveData[componentName] = {};
+                        }
+                        objectCurveData = componentCurveData[componentName];
+                    } else {
+                        if (!('props' in nodeCurveData)) {
+                            nodeCurveData.props = {};
+                        }
+                        objectCurveData = nodeCurveData.props!;
+                    }
+                    objectCurveData[propertyName] = curve.data;
+                }
+                return result;
+            }
+        });
     }
 }
 

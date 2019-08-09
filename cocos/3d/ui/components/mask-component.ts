@@ -587,5 +587,4 @@ export class MaskComponent extends UIRenderComponent {
     }
 }
 
-// tslint:disable-next-line
 cc.MaskComponent = MaskComponent;

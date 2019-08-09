@@ -1,4 +1,3 @@
-// tslint:disable
 // absolute essential effects
 export default [
   {
@@ -153,7 +152,7 @@ export default [
         },
         "builtins": {"globals":{"blocks":[{"name":"CCGlobal", "defines":[]}], "samplers":[{"name":"cc_environment", "defines":[]}]}, "locals":{"blocks":[{"name":"CCSkinningTexture", "defines":["CC_USE_SKINNING"]}], "samplers":[{"name":"cc_jointsTexture", "defines":["CC_USE_SKINNING"]}]}},
         "defines": [
-          {"name":"CC_USE_SKINNING", "type":"number", "defines":[], "range":[0, 2]},
+          {"name":"CC_USE_SKINNING", "type":"number", "defines":[], "range":[0, 3]},
           {"name":"CC_USE_HDR", "type":"boolean", "defines":[]},
           {"name":"USE_RGBE_CUBEMAP", "type":"boolean", "defines":[]}
         ],
@@ -212,7 +211,7 @@ export default [
         },
         "builtins": {"globals":{"blocks":[{"name":"CCGlobal", "defines":[]}], "samplers":[{"name":"cc_environment", "defines":["CC_USE_IBL"]}]}, "locals":{"blocks":[{"name":"CCLocal", "defines":[]}, {"name":"CCSkinningTexture", "defines":["CC_USE_SKINNING"]}, {"name":"CCForwardLight", "defines":[]}], "samplers":[{"name":"cc_jointsTexture", "defines":["CC_USE_SKINNING"]}]}},
         "defines": [
-          {"name":"CC_USE_SKINNING", "type":"number", "defines":[], "range":[0, 2]},
+          {"name":"CC_USE_SKINNING", "type":"number", "defines":[], "range":[0, 3]},
           {"name":"USE_NORMAL_MAP", "type":"boolean", "defines":[]},
           {"name":"USE_ALBEDO_MAP", "type":"boolean", "defines":[]},
           {"name":"CC_USE_IBL", "type":"boolean", "defines":[]},
@@ -306,7 +305,7 @@ export default [
         },
         "builtins": {"globals":{"blocks":[{"name":"CCGlobal", "defines":[]}], "samplers":[]}, "locals":{"blocks":[{"name":"CCLocal", "defines":[]}, {"name":"CCSkinningTexture", "defines":["CC_USE_SKINNING"]}], "samplers":[{"name":"cc_jointsTexture", "defines":["CC_USE_SKINNING"]}]}},
         "defines": [
-          {"name":"CC_USE_SKINNING", "type":"number", "defines":[], "range":[0, 2]},
+          {"name":"CC_USE_SKINNING", "type":"number", "defines":[], "range":[0, 3]},
           {"name":"USE_VERTEX_COLOR", "type":"boolean", "defines":[]},
           {"name":"USE_TEXTURE", "type":"boolean", "defines":[]},
           {"name":"CC_USE_HDR", "type":"boolean", "defines":[]},
@@ -382,7 +381,7 @@ export default [
         },
         "builtins": {"globals":{"blocks":[{"name":"CCGlobal", "defines":[]}, {"name":"CCShadow", "defines":[]}], "samplers":[]}, "locals":{"blocks":[{"name":"CCLocal", "defines":[]}, {"name":"CCSkinningTexture", "defines":["CC_USE_SKINNING"]}], "samplers":[{"name":"cc_jointsTexture", "defines":["CC_USE_SKINNING"]}]}},
         "defines": [
-          {"name":"CC_USE_SKINNING", "type":"number", "defines":[], "range":[0, 2]},
+          {"name":"CC_USE_SKINNING", "type":"number", "defines":[], "range":[0, 3]},
           {"name":"CC_USE_HDR", "type":"boolean", "defines":[]}
         ],
         "blocks": [],
@@ -394,7 +393,7 @@ export default [
   {
     "name": "pipeline/smaa",
     "techniques": [
-      {"name":"smaa", "passes":[{"program":"pipeline/smaa|smaa-edge-vs:vert|smaa-edge-fs:frag", "depthStencilState":{"depthTest":false, "depthWrite":false}, "properties":{"u_texSampler":{"sampler":[2, 2, null, 2, 2], "type":28}}}, {"program":"pipeline/smaa|smaa-blend-vs:vert|smaa-blend-fs:frag", "depthStencilState":{"depthTest":false, "depthWrite":false}, "properties":{"u_edgeTexSampler":{"sampler":[2, 2, null, 2, 2], "type":28}, "u_areaTexSampler":{"sampler":[2, 2, null, 2, 2], "type":28}, "u_searchTexSampler":{"sampler":[1, 1, null, 2, 2], "type":28}}}]}
+      {"name":"smaa", "passes":[{"program":"pipeline/smaa|smaa-edge-vs:vert|smaa-edge-fs:frag", "depthStencilState":{"depthTest":false, "depthWrite":false}, "properties":{"u_texSampler":{"type":28, "samplerHash":66186}}}, {"program":"pipeline/smaa|smaa-blend-vs:vert|smaa-blend-fs:frag", "depthStencilState":{"depthTest":false, "depthWrite":false}, "properties":{"u_edgeTexSampler":{"type":28, "samplerHash":66186}, "u_areaTexSampler":{"type":28, "samplerHash":66186}, "u_searchTexSampler":{"type":28, "samplerHash":66181}}}]}
     ],
     "shaders": [
       {
@@ -444,7 +443,7 @@ export default [
   {
     "name": "pipeline/tonemap",
     "techniques": [
-      {"name":"tonemap", "passes":[{"program":"pipeline/tonemap|tonemap-vs:vert|tonemap-fs:frag", "depthStencilState":{"depthTest":false, "depthWrite":false}, "properties":{"u_texSampler":{"sampler":[2, 2, null, 2, 2], "type":28}, "u_blendTexSampler":{"sampler":[2, 2, null, 2, 2], "type":28}}}]}
+      {"name":"tonemap", "passes":[{"program":"pipeline/tonemap|tonemap-vs:vert|tonemap-fs:frag", "depthStencilState":{"depthTest":false, "depthWrite":false}, "properties":{"u_texSampler":{"type":28, "samplerHash":66186}, "u_blendTexSampler":{"type":28, "samplerHash":66186}}}]}
     ],
     "shaders": [
       {

@@ -2,8 +2,8 @@ import { Asset } from '../../assets/asset';
 import { ImageAsset } from '../../assets/image-asset';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { Texture2D } from '../../assets/texture-2d';
-import { Rect, Size } from '../../core/math';
 import { GFXDevice } from '../../gfx/device';
+import { selectJointsMediumType } from '../../renderer/models/joints-texture-utils';
 import { TextureCube } from '../assets/texture-cube';
 import effects from './effects';
 
@@ -151,9 +151,10 @@ class BuiltinResMgr {
         // material indicating missing material on skinning model (purple)
         const missingSkinningMtl = new cc.Material();
         missingSkinningMtl._uuid = 'missing-skinning-material';
+        const type = selectJointsMediumType(device);
         missingSkinningMtl.initialize({
             effectName: 'builtin-unlit',
-            defines: { USE_COLOR: true, CC_USE_SKINNING: 1 },
+            defines: { USE_COLOR: true, CC_USE_SKINNING: type },
         });
         missingSkinningMtl.setProperty('color', cc.color('#ff00ff'));
         missingSkinningMtl.onLoaded();

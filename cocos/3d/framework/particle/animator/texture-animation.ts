@@ -10,7 +10,6 @@ import Particle from '../particle';
 import { ParticleSystemComponent } from '../particle-system-component';
 import CurveRange from './curve-range';
 
-// tslint:disable: max-line-length
 const TEXTURE_ANIMATION_RAND_OFFSET = 90794;
 
 /**

@@ -1,6 +1,4 @@
 
-// tslint:disable:interface-name
-
 export interface ModuleDivision {
     $schema?: string;
 

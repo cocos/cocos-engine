@@ -74,7 +74,6 @@ export interface IGFXStencilCompareMask {
  * @zh
  * GFX命令缓冲。
  */
-// tslint:disable: max-line-length
 export abstract class GFXCommandBuffer extends GFXObject {
 
     /**

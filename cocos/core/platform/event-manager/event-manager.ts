@@ -28,7 +28,6 @@
  * @hidden
  */
 
-// tslint:disable:max-line-length
 
 import { Event } from '../../event';
 import { EventTouch } from './CCEvent';
@@ -36,7 +35,6 @@ import { EventListener, TouchOneByOne } from './event-listener';
 import { INode } from '../../utils/interfaces';
 const ListenerID = EventListener.ListenerID;
 
-// tslint:disable-next-line
 class _EventListenerVector {
     public gt0Index = 0;
     private _fixedListeners: EventListener[] = [];
@@ -651,7 +649,6 @@ class EventManager {
 
     private _updateDirtyFlagForSceneGraph () {
         const locDirtyListeners = this._dirtyListeners;
-        // tslint:disable-next-line: forin
         for (const selKey in locDirtyListeners) {
             this._setDirty(selKey, DIRTY_SCENE_GRAPH_PRIORITY);
         }

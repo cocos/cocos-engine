@@ -563,7 +563,6 @@ class Director extends EventTarget {
         const persistNodeList = Object.keys(cc.game._persistRootNodes).map((x) => {
             return cc.game._persistRootNodes[x];
         });
-        // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < persistNodeList.length; i++) {
             const node = persistNodeList[i];
             node.emit(cc.Node.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
@@ -670,7 +669,6 @@ class Director extends EventTarget {
                 key = '/' + key;    // 使用全名匹配
             }
             // search scene
-            // tslint:disable-next-line: prefer-for-of
             for (let i = 0; i < scenes.length; i++) {
                 const info = scenes[i];
                 if (info.url.endsWith(key)) {

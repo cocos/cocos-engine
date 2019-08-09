@@ -27,7 +27,7 @@
  * @category material
  */
 
-import { IPassInfo, IPassStates, IPropertyInfo, IShaderInfo } from '../../3d/assets/effect-asset';
+import { IPassInfo, IPassStates, IPropertyInfo, IShaderInfo, EffectAsset } from '../../3d/assets/effect-asset';
 import { builtinResMgr } from '../../3d/builtin';
 import { TextureBase } from '../../assets/texture-base';
 import { Root } from '../../core/root';
@@ -118,6 +118,12 @@ interface IPassDynamics {
     };
 }
 
+interface IEffectInfo {
+    techIdx: number;
+    defines: IDefineMap[];
+    states: PassOverrides[];
+}
+
 /**
  * @zh
  * 渲染 pass，储存实际描述绘制过程的各项资源。
@@ -138,6 +144,25 @@ export class Pass {
      * 根据 handle 获取 binding。
      */
     public static getBindingFromHandle = getBindingFromHandle;
+
+    public static createPasses (effect: EffectAsset, info: IEffectInfo) {
+        if (!effect.techniques) { return []; }
+        const { techIdx, defines, states } = info;
+        const tech = effect.techniques[techIdx || 0];
+        const passNum = tech.passes.length;
+        const passes: Pass[] = [];
+        for (let k = 0; k < passNum; ++k) {
+            const passInfo = tech.passes[k] as IPassInfoFull;
+            const defs = passInfo.curDefs = defines.length > k ? defines[k] : {};
+            if (passInfo.switch && !defs[passInfo.switch]) { continue; }
+            passInfo.states = states.length > k ? states[k] : {};
+            passInfo.idxInTech = k;
+            const pass = new Pass(cc.game._gfxDevice);
+            pass.initialize(passInfo);
+            passes.push(pass);
+        }
+        return passes;
+    }
 
     protected static getIndexFromHandle = getIndexFromHandle;
     // internal resources

@@ -103,7 +103,6 @@ export function baseNodePolyfill (BaseNode) {
          * @return {Component}
          */
         BaseNode.prototype._getDependComponent = function (depended) {
-            // tslint:disable-next-line: prefer-for-of
             for (let i = 0; i < this._components.length; i++) {
                 const comp = this._components[i];
                 if (comp !== depended && comp.isValid && !cc.Object._willDestroy(comp)) {

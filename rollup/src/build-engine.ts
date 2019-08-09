@@ -290,7 +290,6 @@ interface IGlobaldefines {
     CC_PHYSICS_BUILT_IN?: boolean;
 }
 
-// tslint:disable-next-line: no-shadowed-variable
 function getGlobalDefs (platform?: Platform, physics?: Physics, flags?: IFlags): object {
     platform = platform || Platform.universal;
 

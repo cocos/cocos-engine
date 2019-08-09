@@ -43,7 +43,6 @@ let _a30: number = 0; let _a31: number = 0; let _a32: number = 0; let _a33: numb
 /**
  * 表示四维（4x4）矩阵。
  */
-// tslint:disable:one-variable-per-declaration
 export class Mat4 extends ValueType {
 
     /**

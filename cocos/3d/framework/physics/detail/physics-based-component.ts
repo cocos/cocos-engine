@@ -6,7 +6,6 @@
 
 import { Component } from '../../../../components/component';
 import { Mat4, Quat, Vec3 } from '../../../../core/math';
-// tslint:disable-next-line:max-line-length
 import { AfterStepCallback, BeforeStepCallback, PhysicsWorldBase, RigidBodyBase } from '../../../physics/api';
 import { createRigidBody } from '../../../physics/instance';
 import { ERigidBodyType, ETransformSource } from '../../../physics/physic-enum';

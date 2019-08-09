@@ -106,7 +106,6 @@ export class Node extends BaseNode implements INode {
     protected _eventProcessor: NodeEventProcessor = new cc.NodeEventProcessor(this);
     protected _eventMask = 0;
     private _uiTransfromComp: UITransformComponent | null = null;
-    // tslint:disable-next-line: member-ordering
     public _uiComp: UIComponent | null = null;
 
     /**
@@ -344,7 +343,6 @@ export class Node extends BaseNode implements INode {
     }
 
     public _onBeforeSerialize () {
-        // tslint:disable-next-line: no-unused-expression
         this.eulerAngles; // make sure we save the correct eulerAngles
     }
 
