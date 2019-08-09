@@ -28,6 +28,7 @@ const Asset = require('../CCAsset');
 const Texture = require('../CCTexture2D');
 const PixelFormat = Texture.PixelFormat;
 const EffectAsset = require('../CCEffectAsset');
+const EventTarget = require("../../event/event-target");
 
 import Effect from '../../../renderer/core/effect';
 import murmurhash2 from '../../../renderer/murmurhash2_gc';
@@ -42,6 +43,7 @@ import utils from './utils';
 let Material = cc.Class({
     name: 'cc.Material',
     extends: Asset,
+    mixins: [EventTarget],
 
     ctor () {
         this.loaded = false;

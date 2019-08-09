@@ -46,8 +46,6 @@ function RequestItem () {
     this.config = null;
     this.isNative = false;
     this.options = Object.create(null);
-    this.onError = null;
-    this.onLoad = null;
 }
 
 RequestItem.prototype = {
@@ -68,45 +66,6 @@ RequestItem.prototype = {
             this._id = this.uuid + '@' + (this.isNative ? 'native' : 'import');
         }
         return this._id;
-    },
-
-    /**
-     * !#en
-     * Dispatch event
-     * 
-     * !#zh
-     * 发布事件
-     * 
-     * @method dispatch
-     * @param {string} event - The event name
-     * @param {*} param1 - Parameter 1
-     * @param {*} param2 - Parameter 2
-     * @param {*} param3 - Parameter 3
-     * @param {*} param4 - Parameter 4
-     * 
-     * @example
-     * var requestItem = RequestItem.create();
-     * requestItem.onLoad = (msg) => console.log(msg);
-     * requestItem.dispatch('load', 'hello world');
-     * 
-     * @typescript
-     * dispatch(event: string, param1?: any, param2?: any, param3?: any, param4?: any)
-     */
-    dispatch (event, param1, param2, param3, param4) {
-        switch (event) {
-            case 'load' :
-                this.onLoad && this.onLoad(param1, param2, param3, param4);
-                break; 
-            case 'error': 
-                this.onError && this.onError(param1, param2, param3, param4);
-                break;
-            default:
-                var str = 'on' + event[0].toUpperCase() + event.substr(1);
-                if (typeof this[str] === 'function') {
-                    this[str](param1, param2, param3, param4);
-                }
-                break;
-        }
     },
 
     /**
@@ -132,8 +91,6 @@ RequestItem.prototype = {
         this.config = null;
         this.isNative = false;
         this.options = Object.create(null);
-        this.onError = null;
-        this.onLoad = null;
         _deadPool.length < MAX_DEAD_NUM && _deadPool.push(this);
     }
 };

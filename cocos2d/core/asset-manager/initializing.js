@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 const parser = require('./parser');
-const { cacheAsset, gatherAsset, setProperties, clear, forEach } = require('./utilities');
+const { cache, gatherAsset, setProperties, clear, forEach } = require('./utilities');
 const { assets, parsed, files } = require('./shared');
 
 function initializing (task, done) {
@@ -31,27 +31,27 @@ function initializing (task, done) {
 
     // stage 1, deserialize and prepare
     forEach (input, function (item, cb) {
-        if (item.content) {
-            assetsMap[item.id] = item.content;
+        var { id, isNative, uuid, options, content, file, ext } = item;
+        if (content) {
+            assetsMap[id] = content;
             cb();
         }
-        else if (!item.isNative && assets.has(item.uuid)) {
-            assetsMap[item.id] = item.content = assets.get(item.uuid);
-            item.content._addRef();
+        else if (!isNative && assets.has(uuid)) {
+            var asset = assetsMap[id] = item.content = assets.get(uuid);
+            asset._addRef();
             cb();
         } 
         else {
-            parser.parse(item.id, item.file, item.isNative ? item.ext : 'import', item.options, function (err, data) {
+            parser.parse(id, file, isNative ? ext : 'import', options, function (err, data) {
                 if (err) {
-                    item.dispatch('error', err);
                     if (!task.isFinish && !cc.assetManager.force) {
                         done(err);
                     }
-                    assetsMap[item.id] = null;
+                    assetsMap[id] = null;
                 }
                 else {
-                    assetsMap[item.id] = data;
-                    item.isNative && (item.content = data);
+                    assetsMap[id] = data;
+                    isNative && (item.content = data);
                 }
                 cb();
             });
@@ -66,27 +66,27 @@ function initializing (task, done) {
         // stage 2, set properties
         for (var i = 0, l = input.length; i < l; i++) {
             var item = input[i];
-            parsed.remove(item.id);
-            files.remove(item.id);
-            if (!item.isNative) {
+            var { id, isNative, uuid, options } = item;
+            var { cacheAsset } = options;
+            parsed.remove(id);
+            files.remove(id);
+            if (!isNative) {
                 if (!item.content) {
-                    var asset = assetsMap[item.id];
-                    asset._uuid = item.uuid;
+                    var asset = assetsMap[id];
+                    asset._uuid = uuid;
                     var deferredInit = asset.__depends__.length > 0;
-                    var result = setProperties(item.uuid, asset, assetsMap);
-                    asset = result.asset;
-                    if (!result.missingAsset) {
+                    var missingAsset = setProperties(uuid, asset, assetsMap);
+                    if (!missingAsset) {
                         if (deferredInit) {
-                            asset.onLoad && deferredInits.push(item);
+                            asset.onLoad && deferredInits.push(asset);
                         }
                         else {
-                            asset.onLoad && inits.push(item);
+                            asset.onLoad && inits.push(asset);
                         }
                     }
-                    item.dispatch('load');
-                    cacheAsset(item.uuid, asset, item.options.cacheAsset !== undefined ? item.options.cacheAsset : cc.assetManager.cacheAsset); 
+                    cache(uuid, asset, cacheAsset !== undefined ? cacheAsset : cc.assetManager.cacheAsset); 
                     item.content = asset;
-                    item.content._addRef();
+                    asset._addRef();
                 }
             }
         }
@@ -95,20 +95,20 @@ function initializing (task, done) {
         for (var i = 0, l = inits.length; i < l; i++) {
             var item = inits[i];
             try {
-                item.content.onLoad();
+                item.onLoad();
             }
             catch (e) {
-                item.dispatch('error', e);
+                cc.warn(e);
             }
         }
 
         for (var i = 0, l = deferredInits.length; i < l; i++) {
             var item = deferredInits[i];
             try {
-                item.content.onLoad();
+                item.onLoad();
             }
             catch (e) {
-                item.dispatch('error', e);
+                cc.warn(e);
             }
         }
 

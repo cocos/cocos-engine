@@ -25,7 +25,7 @@
 const packManager = require('./pack-manager');
 const Pipeline = require('./pipeline');
 const parser = require('./parser');
-const { getDepends, cacheAsset, gatherAsset, setProperties, forEach, clear, checkCircleReference } = require('./utilities');
+const { getDepends, cache, gatherAsset, setProperties, forEach, clear, checkCircleReference } = require('./utilities');
 const { assets, files, parsed, pipeline } = require('./shared');
 const Task = require('./task');
 
@@ -77,18 +77,19 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
 
     function (task, done) {
         var item = task.output = task.input;
+        var { options, isNative, uuid, file } = item;
+        var { reload } = options;
 
-        if (!item.options.reload && !item.isNative && assets.has(item.uuid)) {
-            var asset = item.content = assets.get(item.uuid);
+        if (!reload && !isNative && assets.has(uuid)) {
+            var asset = item.content = assets.get(uuid);
             asset._addRef();
             return done();
         }
 
-        if (item.file) return done();
+        if (file) return done();
 
         packManager.load(item, task.options, function (err, data) {
             if (err) {
-                item.dispatch('error', err);
                 if (cc.assetManager.force) {
                     err = null;
                 } else {
@@ -103,64 +104,62 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
 
     function (task, done) {
 
-        var item = task.input, progress = task.progress, exclude = task.options.exclude;
-        task.output = item;
+        var item = task.output = task.input, progress = task.progress, exclude = task.options.exclude;
+        var { isNative, uuid, id, file, ext, options, config } = item;
+        var { reload, asyncLoadAssets, cacheAsset } = options;
 
         if (item.content) {
             task.dispatch('progress', ++progress.finish, progress.total, item);
             done();
         }
-        else if (!item.options.reload && !item.isNative && assets.has(item.uuid)) {
-            item.content = assets.get(item.uuid);
-            item.content._addRef();
+        else if (!reload && !isNative && assets.has(uuid)) {
+            var asset = item.content = assets.get(uuid);
+            asset._addRef();
             task.dispatch('progress', ++progress.finish, progress.total, item);
             done();
         }
-        else if (!item.isNative && item.uuid in exclude) {
+        else if (!isNative && uuid in exclude) {
 
-            var cache = exclude[item.uuid];
+            var { finish, content, err, callbacks } = exclude[uuid];
             task.dispatch('progress', ++progress.finish, progress.total, item);
 
-            if (cache.finish || checkCircleReference(item.uuid, item.uuid, exclude) ) {
-                cache.content && cache.content._addRef();
-                item.content = cache.content;
-                cache.err && item.dispatch('error', cache.err);
-                cache.loaded && item.dispatch('load');
-                done(cache.subTaskError);
+            if (finish || checkCircleReference(uuid, uuid, exclude) ) {
+                content && content._addRef();
+                item.content = content;
+                done(err);
             }
             else {
-                cache.callbacks.push({ done, item });
+                callbacks.push({ done, item });
             }
         }
         else {
-            parser.parse(item.id, item.file, item.isNative ? item.ext : 'import', item.options, function (err, asset) {
+            parser.parse(id, file, isNative ? ext : 'import', options, function (err, asset) {
                 if (err) {
-                    item.dispatch('error', err);
                     if (!cc.assetManager.force) {
                         item.recycle();
                         return done(err);
                     }
                 }
-                if (item.isNative) {
+                if (isNative) {
                     item.content = asset;
                     task.dispatch('progress', ++progress.finish, progress.total, item);
-                    files.remove(item.id);
-                    parsed.remove(item.id);
+                    files.remove(id);
+                    parsed.remove(id);
                     done();
                 }
                 else {
-                    asset._uuid = item.uuid;
+                    asset._uuid = uuid;
 
                     var depends = [];
-                    getDepends(item.uuid, asset, Object.create(null), depends, false, item.options.asyncLoadAssets, item.config);
+                    getDepends(uuid, asset, Object.create(null), depends, false, asyncLoadAssets, config);
                     
                     task.dispatch('progress', ++progress.finish, progress.total += depends.length, item);
 
-                    var cache = exclude[item.uuid] = { content: asset, finish: false, callbacks: [] };
+                    var repeatItem = exclude[uuid] = { content: asset, finish: false, callbacks: [] };
 
                     if (depends.length > 0) {
 
-                        cache.callbacks.push({ done, item });
+                        repeatItem.callbacks.push({ done, item });
                         let subTask = Task.create({ 
                             input: depends, 
                             options: task.options, 
@@ -168,8 +167,8 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                             onError: Task.prototype.recycle, 
                             progress, 
                             onComplete: function (err) {
-                                cache.finish = true;
-                                cache.subTaskError = err;
+                                repeatItem.finish = true;
+                                repeatItem.err = err;
 
                                 if (!err) {
 
@@ -177,38 +176,34 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                                     var map = Object.create(null);
                                     for (let i = 0, l = assets.length; i < l; i++) {
                                         var dependAsset = assets[i];
-                                        dependAsset && (map[dependAsset._uuid ? dependAsset._uuid + '@import' : item.uuid + '@native'] = dependAsset);
+                                        dependAsset && (map[dependAsset._uuid ? dependAsset._uuid + '@import' : uuid + '@native'] = dependAsset);
                                     }
 
-                                    var result = setProperties(item.uuid, asset, map);
-                                    asset = result.asset;
-                                    files.remove(item.id);
-                                    parsed.remove(item.id);
+                                    var missingAsset = setProperties(uuid, asset, map);
+                                    files.remove(id);
+                                    parsed.remove(id);
 
-                                    if (!result.missingAsset) {
+                                    if (!missingAsset) {
                                         try {
                                             asset.onLoad && asset.onLoad();
                                         }
                                         catch (e) {
-                                            cache.err = e;
+                                            cc.warn(e);
                                         }
                                     }
 
-                                    cache.loaded = true;
-                                    cacheAsset(item.uuid, asset, item.options.cacheAsset !== undefined ? item.options.cacheAsset : cc.assetManager.cacheAsset); 
+                                    cache(uuid, asset, cacheAsset !== undefined ? cacheAsset : cc.assetManager.cacheAsset); 
                                     subTask.recycle();
                                 }
 
-                                var callbacks = cache.callbacks;
+                                var callbacks = repeatItem.callbacks;
 
                                 for (var i = 0, l = callbacks.length; i < l; i++) {
 
                                     var cb = callbacks[i];
-                                    cache.content && cache.content._addRef();
-                                    cb.item.content = cache.content;
-                                    cache.err && cb.item.dispatch('error', cache.err);
-                                    cache.loaded && cb.item.dispatch('load');
-                                    cb.done(cache.subTaskError);
+                                    asset._addRef();
+                                    cb.item.content = asset;
+                                    cb.done(err);
 
                                 }
 
@@ -219,24 +214,20 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                         pipeline.async(subTask);
                     }
                     else {
-                        files.remove(item.id);
-                        parsed.remove(item.id);
-                        cache.loaded = true;
-                        cache.finish = true;
+                        files.remove(id);
+                        parsed.remove(id);
+                        repeatItem.finish = true;
                         try {
                             asset.onLoad && asset.onLoad();
                         }
                         catch (e) {
-                            item.dispatch('error', e);
-                            cache.err = e;
+                            cc.warn(e);
                         }
-
-                        item.dispatch('load');
 
                         asset._addRef();
                         item.content = asset;
 
-                        cacheAsset(item.uuid, asset, item.options.cacheAsset !== undefined ? item.options.cacheAsset : cc.assetManager.cacheAsset); 
+                        cache(uuid, asset, cacheAsset !== undefined ? cacheAsset : cc.assetManager.cacheAsset); 
                         done();
                     }
                 }

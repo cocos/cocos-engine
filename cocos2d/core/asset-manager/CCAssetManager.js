@@ -437,7 +437,8 @@ AssetManager.prototype = {
 
         var self = this;
         options.responseType = 'json';
-        downloader.downloadFile(`${root}/config${options.ver || ''}.json`, options, null, function (err, response) {
+        var config = options.ver ? `${root}/config.${options.ver}.json` : `${root}/config.json`;
+        downloader.downloadFile(config, options, null, function (err, response) {
             if (err) {
                 cc.error(err.message);
                 onComplete && onComplete(err);

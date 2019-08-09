@@ -173,7 +173,7 @@ var utils = {
         return err;
     },
     
-    cacheAsset (id, asset, cache) {
+    cache (id, asset, cache) {
         if (!asset) return;
         var _isScene = isScene(asset);
         if (!_isScene && cache) {
@@ -226,7 +226,7 @@ var utils = {
             }
             delete asset['__nativeDepend__'];
         }
-        return {asset, missingAsset};
+        return missingAsset;
     },
 
     gatherAsset (task) {
