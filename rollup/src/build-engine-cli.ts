@@ -12,12 +12,6 @@ yargs.option('platform', {
     demandOption: true,
     choices: enumeratePlatformReps(),
 });
-yargs.option('physics', {
-    type: 'string',
-    alias: 'py',
-    description: 'Physics engine to use.',
-    choices: enumeratePhysicsReps(),
-});
 yargs.option('flags', {
     type: 'array',
     alias: 'f',
@@ -69,9 +63,6 @@ const options: IBuildOptions = {
 };
 if (yargs.argv.platform) {
     options.platform = parsePlatform(yargs.argv.platform as unknown as string);
-}
-if (yargs.argv.physics) {
-    options.physics = parsePhysics(yargs.argv.physics as unknown as string);
 }
 
 build(options).then(
