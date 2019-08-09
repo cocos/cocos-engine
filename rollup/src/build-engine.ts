@@ -202,12 +202,16 @@ async function _internalBuild (options: IAdvancedOptions) {
     const outputPath = options.outputPath;
     const sourcemapFile = options.sourcemapFile || `${options.outputPath}.map`;
 
-    const moduleEntries = options.moduleEntries.map(resolveModuleEntry);
-    for (const moduleEntry of moduleEntries) {
-        if (!existsSync(moduleEntry)) {
-            console.error(`Cannot find engine module ${moduleEntry}`);
+    const moduleEntries = options.moduleEntries.map(resolveModuleEntry).filter((moduleEntry) => {
+        const exists = existsSync(moduleEntry);
+        if (exists) {
+            return true;
+        } else {
+            console.warn(`Cannot find engine module ${moduleEntry}. it's ignored.`);
+            return false;
         }
-    }
+    });
+    
     const rollupBuild = await rollup({
         input: moduleEntries,
         plugins: rollupPlugins,
