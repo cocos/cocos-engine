@@ -76,6 +76,8 @@ export interface IBuildOptions extends IBaseOptions {
 
 export async function build (options: IBuildOptions) {
     _checkPhysicsFlag(options);
+    _ensureUniqueModules(options);
+    
     const globalDefines = getGlobalDefs(options.platform, options.physics, options.flags);
     return await _internalBuild(Object.assign(options, {globalDefines}));
 }
@@ -106,6 +108,16 @@ function _checkPhysicsFlag (options: IBuildOptions) {
 
     // direct push physics-framework for now
     options.moduleEntries.push(`physics-framework`);
+}
+
+function _ensureUniqueModules(options: IBuildOptions) {
+    const uniqueModuleEntries: string[] = [];
+    for (const moduleEntry of options.moduleEntries) {
+        if (uniqueModuleEntries.indexOf(moduleEntry) < 0) {
+            uniqueModuleEntries.push(moduleEntry);
+        }
+    }
+    options.moduleEntries = uniqueModuleEntries;
 }
 
 async function _internalBuild (options: IAdvancedOptions) {
