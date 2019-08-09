@@ -1,4 +1,3 @@
-// tslint:disable
 // absolute essential effects
 export default [
   {
@@ -394,7 +393,7 @@ export default [
   {
     "name": "pipeline/smaa",
     "techniques": [
-      {"name":"smaa", "passes":[{"program":"pipeline/smaa|smaa-edge-vs:vert|smaa-edge-fs:frag", "depthStencilState":{"depthTest":false, "depthWrite":false}, "properties":{"u_texSampler":{"sampler":[2, 2, null, 2, 2], "type":28}}}, {"program":"pipeline/smaa|smaa-blend-vs:vert|smaa-blend-fs:frag", "depthStencilState":{"depthTest":false, "depthWrite":false}, "properties":{"u_edgeTexSampler":{"sampler":[2, 2, null, 2, 2], "type":28}, "u_areaTexSampler":{"sampler":[2, 2, null, 2, 2], "type":28}, "u_searchTexSampler":{"sampler":[1, 1, null, 2, 2], "type":28}}}]}
+      {"name":"smaa", "passes":[{"program":"pipeline/smaa|smaa-edge-vs:vert|smaa-edge-fs:frag", "depthStencilState":{"depthTest":false, "depthWrite":false}, "properties":{"u_texSampler":{"type":28, "samplerHash":66186}}}, {"program":"pipeline/smaa|smaa-blend-vs:vert|smaa-blend-fs:frag", "depthStencilState":{"depthTest":false, "depthWrite":false}, "properties":{"u_edgeTexSampler":{"type":28, "samplerHash":66186}, "u_areaTexSampler":{"type":28, "samplerHash":66186}, "u_searchTexSampler":{"type":28, "samplerHash":66181}}}]}
     ],
     "shaders": [
       {
@@ -444,7 +443,7 @@ export default [
   {
     "name": "pipeline/tonemap",
     "techniques": [
-      {"name":"tonemap", "passes":[{"program":"pipeline/tonemap|tonemap-vs:vert|tonemap-fs:frag", "depthStencilState":{"depthTest":false, "depthWrite":false}, "properties":{"u_texSampler":{"sampler":[2, 2, null, 2, 2], "type":28}, "u_blendTexSampler":{"sampler":[2, 2, null, 2, 2], "type":28}}}]}
+      {"name":"tonemap", "passes":[{"program":"pipeline/tonemap|tonemap-vs:vert|tonemap-fs:frag", "depthStencilState":{"depthTest":false, "depthWrite":false}, "properties":{"u_texSampler":{"type":28, "samplerHash":66186}, "u_blendTexSampler":{"type":28, "samplerHash":66186}}}]}
     ],
     "shaders": [
       {

@@ -1,6 +1,4 @@
 
-// tslint:disable:interface-name
-
 export interface ModuleDivision {
     $schema?: string;
 
@@ -75,7 +73,7 @@ export interface ItemGroup {
      */
     required?: boolean;
 
-    
+
     items: Item[];
 }
 

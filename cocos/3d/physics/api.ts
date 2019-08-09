@@ -6,9 +6,6 @@ import { Mat4, Quat, Vec3 } from '../../core/math';
 import { ERigidBodyType } from './physic-enum';
 import { RaycastResult } from './raycast-result';
 
-// tslint:disable:interface-name
-// tslint:disable:no-empty-interface
-
 export interface IRaycastOptions {
     collisionFilterMask?: number;
     collisionFilterGroup?: number;

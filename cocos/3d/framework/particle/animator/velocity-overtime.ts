@@ -10,7 +10,6 @@ import Particle from '../particle';
 import { calculateTransform } from '../particle-general-function';
 import CurveRange from './curve-range';
 
-// tslint:disable: max-line-length
 const VELOCITY_OVERTIME_RAND_OFFSET = 197866;
 
 const _temp_v3 = cc.v3();

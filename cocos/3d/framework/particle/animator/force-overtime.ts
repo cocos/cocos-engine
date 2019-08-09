@@ -3,14 +3,12 @@
  * @category particle
  */
 
-import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
 import { pseudoRandom, Quat, Vec3 } from '../../../../core/math';
 import { Space } from '../enum';
 import { calculateTransform } from '../particle-general-function';
 import CurveRange from './curve-range';
 
-// tslint:disable: max-line-length
 const FORCE_OVERTIME_RAND_OFFSET = 212165;
 
 const _temp_v3 = cc.v3();

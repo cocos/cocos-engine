@@ -95,7 +95,6 @@ export class CCTweenUnion {
     }
 
     public stop (): boolean {
-        // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < this._actions.length; i++) {
             const tween = this._actions[i].tween;
             if (tween.isPlaying()) {

@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-// tslint:disable
-
 /**
  * System variables
  * @class sys

@@ -786,7 +786,6 @@ export interface IGFXMemoryStatus {
 /**
  * GFX格式信息数组。
  */
-// tslint:disable: max-line-length
 export const GFXFormatInfos: IGFXFormatInfo[] = [
 
     { name: 'UNKNOWN', size: 0, count: 0, type: GFXFormatType.NONE, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
@@ -892,7 +891,6 @@ export const GFXFormatInfos: IGFXFormatInfo[] = [
     { name: 'PVRTC2_2BPP', size: 2, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
     { name: 'PVRTC2_4BPP', size: 2, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: true },
 ];
-// tslint:enable: max-line-length
 
 /**
  * @zh

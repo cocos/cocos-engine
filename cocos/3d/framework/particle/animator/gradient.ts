@@ -2,12 +2,9 @@
  * @hidden
  */
 
-import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
 import { Color, lerp, repeat } from '../../../../core/math';
 import { Enum } from '../../../../core/value-types';
-
-// tslint:disable: max-line-length
 
 const _black: Color = Color.BLACK;
 
