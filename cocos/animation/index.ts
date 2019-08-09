@@ -16,9 +16,6 @@ export * from './skeletal-animation-state';
 export * from './skeletal-animation-component';
 export * from './transform-utils';
 export {
-    TargetModifier,
-    PropertyModifier,
-    ElementModifier,
     ComponentModifier,
     HierachyModifier,
     isElementModifier,
