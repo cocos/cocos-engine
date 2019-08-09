@@ -112,8 +112,8 @@ class Effect {
             }
         }
         else {
-            if (value instanceof cc.Texture2D) {
-                prop.value = value.getImpl();
+            if (prop.type === enums.PARAM_TEXTURE_2D) {
+                prop.value = value ? value.getImpl() : null;
             }
             else if (value.array) {
                 value.array(prop.value)
