@@ -406,12 +406,10 @@ export class CannonRigidBody implements RigidBodyBase {
         // CollisionEventObject.selfRigidBody = getWrap<RigidBodyBase>(event.target).getUserData();
         // CollisionEventObject.otherRigidBody = getWrap<RigidBodyBase>(event.body).getUserData();
         let i = 0;
-        // tslint:disable-next-line:prefer-for-of
         for (i = CollisionEventObject.contacts.length; i--;) {
             contactsPool.push(CollisionEventObject.contacts.pop());
         }
 
-        // tslint:disable-next-line:prefer-for-of
         for (i = 0; i < event.contacts.length; i++) {
             const cq = event.contacts[i];
             if (contactsPool.length > 0) {
@@ -430,7 +428,6 @@ export class CannonRigidBody implements RigidBodyBase {
             }
         }
 
-        // tslint:disable-next-line:prefer-for-of
         for (i = 0; i < this._collisionCallbacks.length; i++) {
             const callback = this._collisionCallbacks[i];
             callback(CollisionEventObject);

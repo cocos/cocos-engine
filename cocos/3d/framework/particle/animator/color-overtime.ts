@@ -3,13 +3,10 @@
  * @category particle
  */
 
-import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
 import { pseudoRandom } from '../../../../core/math';
 import Particle from '../particle';
 import GradientRange from './gradient-range';
-
-// tslint:disable: max-line-length
 
 const COLOR_OVERTIME_RAND_OFFSET = 91041;
 

@@ -4,8 +4,6 @@
  * @category particle
  */
 
-// tslint:disable: max-line-length
-
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../../../core/math';
 import { INT_MAX } from '../../../core/math/bits';

@@ -360,7 +360,7 @@ export class Material extends Asset {
                     pass.destroy();
                 }
             }
-            this._passes = createPasses(this._effectAsset, {
+            this._passes = Pass.createPasses(this._effectAsset, {
                 techIdx: this._techIdx,
                 defines: this._defines,
                 states: this._states,
@@ -427,31 +427,6 @@ export class Material extends Asset {
             if (index >= 0) { comp._onRebuildPSO(index, this); }
         }
     }
-}
-
-interface IEffectInfo {
-    techIdx: number;
-    defines: IDefineMap[];
-    states: PassOverrides[];
-}
-
-export function createPasses (effect: EffectAsset, info: IEffectInfo) {
-    if (!effect.techniques) { return []; }
-    const { techIdx, defines, states } = info;
-    const tech = effect.techniques[techIdx || 0];
-    const passNum = tech.passes.length;
-    const passes: Pass[] = [];
-    for (let k = 0; k < passNum; ++k) {
-        const passInfo = tech.passes[k] as IPassInfoFull;
-        const defs = passInfo.curDefs = defines.length > k ? defines[k] : {};
-        if (passInfo.switch && !defs[passInfo.switch]) { continue; }
-        passInfo.states = states.length > k ? states[k] : {};
-        passInfo.idxInTech = k;
-        const pass = new Pass(cc.game._gfxDevice);
-        pass.initialize(passInfo);
-        passes.push(pass);
-    }
-    return passes;
 }
 
 cc.Material = Material;

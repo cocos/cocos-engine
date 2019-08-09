@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
- // tslint:disable
-
 import { getClassName, getset } from './js';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;

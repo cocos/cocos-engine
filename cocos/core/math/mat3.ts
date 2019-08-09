@@ -42,7 +42,6 @@ let _a20: number = 0; let _a21: number = 0; let _a22: number = 0;
 /**
  * 表示三维（3x3）矩阵。
  */
-// tslint:disable:one-variable-per-declaration
 export class Mat3 extends ValueType {
 
     /**

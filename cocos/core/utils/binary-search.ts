@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-// tslint:disable
-
 const EPSILON = 1e-6;
 
 /**

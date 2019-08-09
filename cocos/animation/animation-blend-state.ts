@@ -5,8 +5,6 @@
 import { Node } from '../scene-graph';
 import { CurveTarget } from './animation-curve';
 
-// tslint:disable:interface-over-type-literal
-
 export type PropertyBlendState<T = any> = {
     name: string;
     weight: number;

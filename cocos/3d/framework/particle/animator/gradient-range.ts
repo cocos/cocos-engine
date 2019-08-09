@@ -9,8 +9,6 @@ import { Color } from '../../../../core/math';
 import { Enum } from '../../../../core/value-types';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
 
-// tslint:disable: max-line-length
-
 const GRADIENT_MODE_FIX = 0;
 const GRADIENT_MODE_BLEND = 1;
 

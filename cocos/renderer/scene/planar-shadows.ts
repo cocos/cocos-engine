@@ -1,4 +1,3 @@
-import { createPasses } from '../../3d/assets/material';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Color, Mat4, Quat, Vec3 } from '../../core/math';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
@@ -91,11 +90,10 @@ export class PlanarShadows {
         this._cmdBuffs = new CachedArray<GFXCommandBuffer>(64);
         const effectAsset = EffectAsset.get('pipeline/planar-shadow')!;
         const defines = { CC_USE_SKINNING: selectJointsMediumType(scene.root.device) };
-        this._passNormal = createPasses(effectAsset, { techIdx: 0, defines: [], states: [] })[0];
-        this._passSkinning = createPasses(effectAsset, { techIdx: 0, defines: [ defines ], states: [] })[0];
+        this._passNormal = Pass.createPasses(effectAsset, { techIdx: 0, defines: [], states: [] })[0];
+        this._passSkinning = Pass.createPasses(effectAsset, { techIdx: 0, defines: [ defines ], states: [] })[0];
     }
 
-    // tslint:disable: one-variable-per-declaration
     public updateSphereLight (light: SphereLight) {
         light.node.getWorldPosition(_v3);
         const n = this._normal, d = this._distance;
@@ -150,7 +148,6 @@ export class PlanarShadows {
         Mat4.array(this.data, this._matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
         this._globalBindings.buffer!.update(this.data);
     }
-    // tslint:enable: one-variable-per-declaration
 
     public updateCommandBuffers () {
         this._cmdBuffs.clear();
