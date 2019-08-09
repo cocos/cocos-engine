@@ -155,11 +155,11 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  *  const node = new Node("New Sprite");
  *  const sprite = node.addComponent(SpriteComponent);
  *  const spriteFrame = new SpriteFrame();
+ *  (spriteFrame.texture as Texture2D).image = imageAsset;
  *  spriteFrame.initialize({
  *    originalSize: new Size(imageAsset.width, imageAsset.height),
  *    rect: new Rect(0, 0, imageAsset.width, imageAsset.height),
  *  });
- *  (spriteFrame.texture as Texture2D).image = imageAsset;
  *  sprite.spriteFrame = spriteFrame;
  *  node.parent = self.node;
  * });
@@ -719,7 +719,7 @@ export class SpriteFrame extends Asset {
         }
 
         if(calUV){
-            this._calculateUV()
+            this._calculateUV();
         }
     }
 
@@ -1045,8 +1045,11 @@ export class SpriteFrame extends Asset {
 
         if(isReset){
             this.reset(config);
-            this.emit('updated');
+        } else {
+            this._calculateUV();
         }
+
+        this.emit('updated');
     }
 }
 
