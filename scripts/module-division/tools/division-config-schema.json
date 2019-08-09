@@ -6,9 +6,11 @@
             "additionalProperties": false,
             "properties": {
                 "description": {
+                    "description": "Description.",
                     "type": "string"
                 },
                 "items": {
+                    "description": "Items in this group.",
                     "items": {
                         "anyOf": [
                             {
@@ -24,6 +26,38 @@
                 "required": {
                     "description": "Whether if at least one item shall be selected.",
                     "type": "boolean"
+                },
+                "text": {
+                    "description": "Display text.",
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "SelectionOption": {
+            "additionalProperties": false,
+            "properties": {
+                "description": {
+                    "description": "Description.",
+                    "type": "string"
+                },
+                "entry": {
+                    "anyOf": [
+                        {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "Entry(s) of the option."
+                },
+                "text": {
+                    "description": "Display text.",
+                    "type": "string"
                 }
             },
             "type": "object"
@@ -36,7 +70,7 @@
                     "type": "boolean"
                 },
                 "description": {
-                    "description": "Item description.",
+                    "description": "Description.",
                     "type": "string"
                 },
                 "entry": {
@@ -53,13 +87,13 @@
                     ],
                     "description": "Entry(s) to the module."
                 },
-                "name": {
-                    "description": "Item name.",
-                    "type": "string"
-                },
                 "required": {
                     "description": "Whether if this item is required to provide.",
                     "type": "boolean"
+                },
+                "text": {
+                    "description": "Display text.",
+                    "type": "string"
                 }
             },
             "type": "object"
@@ -76,48 +110,23 @@
                     "type": "number"
                 },
                 "description": {
-                    "description": "Item description.",
-                    "type": "string"
-                },
-                "name": {
-                    "description": "Item name.",
+                    "description": "Description.",
                     "type": "string"
                 },
                 "options": {
                     "description": "Options.",
                     "items": {
-                        "additionalProperties": false,
-                        "properties": {
-                            "description": {
-                                "description": "Option description.",
-                                "type": "string"
-                            },
-                            "entry": {
-                                "anyOf": [
-                                    {
-                                        "items": {
-                                            "type": "string"
-                                        },
-                                        "type": "array"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ],
-                                "description": "Entry(s) of the option."
-                            },
-                            "name": {
-                                "description": "Name of the option.",
-                                "type": "string"
-                            }
-                        },
-                        "type": "object"
+                        "$ref": "#/definitions/SelectionOption"
                     },
                     "type": "array"
                 },
                 "required": {
                     "description": "Whether if this item is required to provide.",
                     "type": "boolean"
+                },
+                "text": {
+                    "description": "Display text.",
+                    "type": "string"
                 }
             },
             "type": "object"
@@ -127,8 +136,8 @@
         "$schema": {
             "type": "string"
         },
-        "items": {
-            "description": "Items.",
+        "groupOrItems": {
+            "description": "The group or items.",
             "items": {
                 "anyOf": [
                     {

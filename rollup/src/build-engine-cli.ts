@@ -99,13 +99,16 @@ function getDefaultModuleEntries () {
 
     const divisionConfig: ModuleDivision = require('../../scripts/module-division/division-config.json');
     const result = [];
-    for (const item of divisionConfig.items) {
-        if (item.required || item.default) {
-            if (isGroupItem(item)) {
-                result.push(item.options[item.defaultOption || 0].entry);
-            } else {
-                // @ts-ignore
-                result.push(item.entry);
+    for (const groupOrItem of divisionConfig.groupOrItems) {
+        const items = 'items' in groupOrItem ? groupOrItem.items : [groupOrItem];
+        for (const item of items) {
+            if (item.required || item.default) {
+                if (isGroupItem(item)) {
+                    result.push(item.options[item.defaultOption || 0].entry);
+                } else {
+                    // @ts-ignore
+                    result.push(item.entry);
+                }
             }
         }
     }
