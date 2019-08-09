@@ -1774,12 +1774,8 @@ let NodeDefines = {
         if ( !listeners.hasEventListener(type, callback, target) ) {
             listeners.on(type, callback, target);
 
-            if (target) {
-                if (target.__eventTargets) {
-                    target.__eventTargets.push(this);
-                } else if (target.node && target.node.__eventTargets) {
-                    target.node.__eventTargets.push(this);
-                }
+            if (target && target.__eventTargets) {
+                target.__eventTargets.push(this);
             }
         }
 
@@ -1866,12 +1862,8 @@ let NodeDefines = {
             if (listeners) {
                 listeners.off(type, callback, target);
 
-                if (target) {
-                    if (target.__eventTargets) {
-                        js.array.fastRemove(target.__eventTargets, this);
-                    } else if (target.node && target.node.__eventTargets) {
-                        js.array.fastRemove(target.node.__eventTargets, this);
-                    }
+                if (target && target.__eventTargets) {
+                    js.array.fastRemove(target.__eventTargets, this);
                 }
             }
 
