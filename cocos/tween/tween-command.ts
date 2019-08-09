@@ -2,11 +2,11 @@
  * @hidden
  */
 
-import { CCTweenUnion } from './cc-tweenUnion';
+import { TweenUnion } from './tween-union';
 import { getWrap, IWrapped, setWrap } from './util';
 
-export class CCTweenCommand {
-    public readonly quene: CCTweenUnion[] = [];
+export class TweenCommand {
+    public readonly quene: TweenUnion[] = [];
 
     public get length () {
         return this.quene.length;
@@ -51,7 +51,7 @@ export class CCTweenCommand {
                 if (union.length > 0 && union.repeatTimes !== 0) {
                     // wrap
                     const lastAction = union.lastAction;
-                    setWrap<CCTweenUnion>(lastAction.tween, union);
+                    setWrap<TweenUnion>(lastAction.tween, union);
                     // event
                     (lastAction.tween as any).cc_onCompleteCallback(this._onComplete.bind(this));
                 }
@@ -81,25 +81,25 @@ export class CCTweenCommand {
         }
     }
 
-    public union (union: CCTweenUnion) {
+    public union (union: TweenUnion) {
         this.quene.push(union);
     }
 
-    public isExistUnion (union: CCTweenUnion) {
+    public isExistUnion (union: TweenUnion) {
         return this.quene.indexOf(union) !== -1;
     }
 
-    public wrapAndEvent (union: CCTweenUnion) {
+    public wrapAndEvent (union: TweenUnion) {
         // wrap
         const lastAction = union.lastAction;
-        setWrap<CCTweenUnion>(lastAction.tween, union);
+        setWrap<TweenUnion>(lastAction.tween, union);
 
         // event
         (lastAction.tween as any).cc_onCompleteCallback(this._onComplete.bind(this));
     }
 
     private _onComplete (tween: IWrapped<TWEEN.Tween>) {
-        const union = getWrap<CCTweenUnion>(tween);
+        const union = getWrap<TweenUnion>(tween);
 
         // first, the union is need repeat?
         if (union.repeatTimes > 0 && union.lastCount > 0) {
@@ -137,4 +137,4 @@ export class CCTweenCommand {
     }
 }
 
-cc.CCTweenCommand = CCTweenCommand;
+cc.TweenCommand = TweenCommand;

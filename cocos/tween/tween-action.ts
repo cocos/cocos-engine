@@ -3,21 +3,21 @@
  */
 
 import TWEEN from 'tween.js';
-import { ICCTweenOption, ICCTweenProp } from './export-api';
+import { ITweenOption, ITweenProp } from './export-api';
 
-export class CCTweenAction {
+export class TweenAction {
     private static _idCounter: number = 0;
 
     public readonly id: number;
 
     public readonly tween: TWEEN.Tween;
 
-    private _opts: ICCTweenOption | undefined;
+    private _opts: ITweenOption | undefined;
 
-    private _props: ICCTweenProp;
+    private _props: ITweenProp;
 
-    constructor (target: Object, duration: number, props: ICCTweenProp, opts?: ICCTweenOption) {
-        this.id = CCTweenAction._idCounter++;
+    constructor (target: Object, duration: number, props: ITweenProp, opts?: ITweenOption) {
+        this.id = TweenAction._idCounter++;
         this.tween = new TWEEN.Tween(target);
         this._props = props;
         this._opts = opts!;
@@ -66,11 +66,7 @@ export class CCTweenAction {
                 if (typeof opts.interpolation === 'string') {
                     // parse interpolation
                     const i = (opts.interpolation as string).split('-');
-                    if (i.length >= 2) {
-                        // let i0 = i[0] as 'Utils';
-                        // let i1 = i[1] as 'Linear' | 'Bernstein' | 'Factorial' | 'CatmullRom';
-                        // this.tween.interpolation();
-                    } else {
+                    if (i.length >= 1) {
                         const i0 = i[0] as 'Linear' | 'Bezier' | 'CatmullRom';
                         this.tween.interpolation(TWEEN.Interpolation[i0]);
                     }
@@ -98,5 +94,5 @@ export class CCTweenAction {
     }
 }
 
-cc.CCTweenAction = CCTweenAction;
-cc.TWEEN = TWEEN;
+cc.TweenAction = TweenAction;
+window.TWEEN = TWEEN;

@@ -2,9 +2,9 @@
  * @hidden
  */
 
-import { CCTweenAction } from './cc-tweenAction';
+import { TweenAction } from './tween-action';
 
-export class CCTweenUnion {
+export class TweenUnion {
 
     public get actions () {
         return this._actions;
@@ -66,7 +66,7 @@ export class CCTweenUnion {
 
     public readonly id: number;
 
-    private _actions: CCTweenAction[] = [];
+    private _actions: TweenAction[] = [];
 
     private _target: Object;
 
@@ -79,7 +79,7 @@ export class CCTweenUnion {
     private _delay: number = 0;
 
     constructor (target: Object) {
-        this.id = CCTweenUnion._idCounter++;
+        this.id = TweenUnion._idCounter++;
         this._target = target;
     }
 
@@ -95,6 +95,7 @@ export class CCTweenUnion {
     }
 
     public stop (): boolean {
+        // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < this._actions.length; i++) {
             const tween = this._actions[i].tween;
             if (tween.isPlaying()) {
@@ -107,4 +108,4 @@ export class CCTweenUnion {
 
 }
 
-cc.CCTweenUnion = CCTweenUnion;
+cc.TweenUnion = TweenUnion;

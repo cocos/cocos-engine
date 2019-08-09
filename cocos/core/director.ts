@@ -1058,9 +1058,9 @@ class Director extends EventTarget {
             }
 
             if (!CC_EDITOR) {
-                if (cc.TWEEN) {
+                if (window.TWEEN != null) {
                     // Tween update
-                    cc.TWEEN.update(time);
+                    window.TWEEN.update(time);
                 }
             }
 
