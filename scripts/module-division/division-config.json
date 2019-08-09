@@ -20,13 +20,15 @@
                 },
                 {
                     "text": "WebGL 2.0",
-                    "entry": "gfx-webgl2"
+                    "entry": "gfx-webgl2",
+                    "default": true
                 }
             ]
         },
         {
             "text": "Physics",
             "description": "Physics(implementation).",
+            "default": true,
             "options": [
                 {
                     "text": "cannon.js",
@@ -47,12 +49,14 @@
         {
             "text": "Audio",
             "description": "Audio support.",
-            "entry": []
+            "entry": "audio",
+            "default": true
         },
         {
             "text": "tween.js Adapter",
             "description": "Integrate tween.js in Creator 3D.",
-            "entry": "tween"
+            "entry": "tween",
+            "default": true
         }
     ]
 }
