@@ -113,6 +113,7 @@ function getDefaultModuleEntries () {
                 if (isGroupItem(item)) {
                     addEntry(item.options[item.defaultOption || 0].entry);
                 } else {
+                    // @ts-ignore
                     addEntry(item.entry);
                 }
             }
