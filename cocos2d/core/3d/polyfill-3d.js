@@ -199,7 +199,7 @@ cc.js.getset(proto, 'is3DNode', function () {
 
 cc.js.getset(proto, 'scaleZ', function () {
     return this._trs[9];
-}, function (v) {
+}, function (value) {
     if (this._trs[9] !== value) {
         this._trs[9] = value;
         this.setLocalDirty(DirtyFlag.SCALE);
