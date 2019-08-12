@@ -479,7 +479,7 @@ export interface INode extends IBaseNode {
      * 以欧拉角表示的本地旋转值
      */
     eulerAngles: Readonly<Vec3>;
-    
+
     /**
      * @zh
      * 当前节点面向的前方方向
@@ -497,6 +497,12 @@ export interface INode extends IBaseNode {
      * 世界旋转四元数
      */
     worldRotation: Readonly<Quat>;
+
+    /**
+     * @zh
+     * 本地变换矩阵
+     */
+    matrix: Readonly<Mat4>;
 
     /**
      * @zh
@@ -610,7 +616,7 @@ export interface INode extends IBaseNode {
     setWorldRotation (rotation: Quat): void;
     setWorldRotation (x: number, y: number, z: number, w: number): void;
     setWorldRotation (val: Quat | number, y?: number, z?: number, w?: number): void;
-    
+
     /**
      * @zh
      * 通过欧拉角设置世界旋转

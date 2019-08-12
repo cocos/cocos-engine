@@ -54,47 +54,51 @@ export function selectJointsMediumType (device: GFXDevice) {
     }
 }
 
+const id_m4 = Object.freeze(new Mat4());
+const m4_1 = new Mat4();
 const dq_0 = new Quat();
 const dq_1 = new Quat();
-const m4_1 = new Mat4();
+const v3_1 = new Vec3();
+const qt_1 = new Quat();
+const v3_2 = new Vec3();
 
 // Linear Blending Skinning
-function uploadJointDataLBS (out: Float32Array, base: number, pos: Vec3, rot: Quat, scale: Vec3, firstBone: boolean) {
-    Mat4.fromRTS(m4_1, rot, pos, scale);
-    out[base + 0] = m4_1.m00;
-    out[base + 1] = m4_1.m01;
-    out[base + 2] = m4_1.m02;
-    out[base + 3] = m4_1.m12;
-    out[base + 4] = m4_1.m04;
-    out[base + 5] = m4_1.m05;
-    out[base + 6] = m4_1.m06;
-    out[base + 7] = m4_1.m13;
-    out[base + 8] = m4_1.m08;
-    out[base + 9] = m4_1.m09;
-    out[base + 10] = m4_1.m10;
-    out[base + 11] = m4_1.m14;
+function uploadJointDataLBS (out: Float32Array, base: number, mat: Mat4, firstBone: boolean) {
+    out[base + 0] = mat.m00;
+    out[base + 1] = mat.m01;
+    out[base + 2] = mat.m02;
+    out[base + 3] = mat.m12;
+    out[base + 4] = mat.m04;
+    out[base + 5] = mat.m05;
+    out[base + 6] = mat.m06;
+    out[base + 7] = mat.m13;
+    out[base + 8] = mat.m08;
+    out[base + 9] = mat.m09;
+    out[base + 10] = mat.m10;
+    out[base + 11] = mat.m14;
 }
 
 // Dual Quaternion Skinning
-function uploadJointDataDQS (out: Float32Array, base: number, pos: Vec3, rot: Quat, scale: Vec3, firstBone: boolean) {
+function uploadJointDataDQS (out: Float32Array, base: number, mat: Mat4, firstBone: boolean) {
+    Mat4.toRTS(mat, qt_1, v3_1, v3_2);
     // sign consistency
-    if (firstBone) { Quat.copy(dq_0, rot); }
-    else if (Quat.dot(dq_0, rot) < 0) { Quat.multiplyScalar(rot, rot, -1); }
+    if (firstBone) { Quat.copy(dq_0, qt_1); }
+    else if (Quat.dot(dq_0, qt_1) < 0) { Quat.multiplyScalar(qt_1, qt_1, -1); }
     // conversion
-    Quat.set(dq_1, pos.x, pos.y, pos.z, 0);
-    Quat.multiplyScalar(dq_1, Quat.multiply(dq_1, dq_1, rot), 0.5);
+    Quat.set(dq_1, v3_1.x, v3_1.y, v3_1.z, 0);
+    Quat.multiplyScalar(dq_1, Quat.multiply(dq_1, dq_1, qt_1), 0.5);
     // upload
-    out[base + 0] = rot.x;
-    out[base + 1] = rot.y;
-    out[base + 2] = rot.z;
-    out[base + 3] = rot.w;
+    out[base + 0] = qt_1.x;
+    out[base + 1] = qt_1.y;
+    out[base + 2] = qt_1.z;
+    out[base + 3] = qt_1.w;
     out[base + 4] = dq_1.x;
     out[base + 5] = dq_1.y;
     out[base + 6] = dq_1.z;
     out[base + 7] = dq_1.w;
-    out[base + 8] = scale.x;
-    out[base + 9] = scale.y;
-    out[base + 10] = scale.z;
+    out[base + 8] = v3_2.x;
+    out[base + 9] = v3_2.y;
+    out[base + 10] = v3_2.z;
 }
 
 function roundUpTextureSize (targetLength: number) {
@@ -105,10 +109,6 @@ const _jointsFormat = {
     [JointsMediumType.RGBA8]: GFXFormat.RGBA8,
     [JointsMediumType.RGBA32F]: GFXFormat.RGBA32F,
 };
-
-const v3_1 = new Vec3();
-const qt_1 = new Quat();
-const v3_2 = new Vec3();
 
 export interface IJointsTextureHandle {
     pixelOffset: number;
@@ -154,12 +154,9 @@ export class JointsTexturePool {
         const handle = this._pool.alloc(len * 12 * Float32Array.BYTES_PER_ELEMENT);
         if (!handle) { return null; }
         texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, hash: len, handle };
-        Vec3.set(v3_1, 0, 0, 0);
-        Quat.set(qt_1, 0, 0, 0, 1);
-        Vec3.set(v3_2, 1, 1, 1);
         const textureBuffer = new Float32Array(len * 12);
         for (let i = 0; i < len; i++) {
-            uploadJointData(textureBuffer, 12 * i, v3_1, qt_1, v3_2, i === 0);
+            uploadJointData(textureBuffer, 12 * i, id_m4, i === 0);
         }
         this._pool.update(handle, textureBuffer.buffer);
         this._textureBuffers.set(len, texture);
@@ -183,20 +180,12 @@ export class JointsTexturePool {
         for (let i = 0; i < skeleton.joints.length; i++) {
             const nodeData = data[skeleton.joints[i]];
             if (!nodeData || !nodeData.props) { continue; }
-            const bindpose = skeleton.bindTRS[i];
-            const position = nodeData.props.position.values;
-            const rotation = nodeData.props.rotation.values;
-            const scale = nodeData.props.scale.values;
+            const bindpose = skeleton.bindposes[i];
+            const matrix = nodeData.props.worldMatrix.values;
             for (let frame = 0; frame < frames; frame++) {
-                const T = position[frame];
-                const R = rotation[frame];
-                const S = scale[frame];
-                Vec3.multiply(v3_1, bindpose.position, S);
-                Vec3.transformQuat(v3_1, v3_1, R);
-                Vec3.add(v3_1, v3_1, T);
-                Quat.multiply(qt_1, R, bindpose.rotation);
-                Vec3.multiply(v3_2, S, bindpose.scale);
-                uploadJointData(textureBuffer, 12 * (frames * i + frame), v3_1, qt_1, v3_2, i === 0);
+                const m = matrix[frame];
+                Mat4.multiply(m4_1, m, bindpose);
+                uploadJointData(textureBuffer, 12 * (frames * i + frame), m4_1, i === 0);
             }
         }
         this._pool.update(handle, textureBuffer.buffer);

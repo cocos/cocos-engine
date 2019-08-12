@@ -474,11 +474,8 @@ export function calculateSkinnedBounds (out: aabb, comp: SkinningModelComponent)
         const bounds = boundList[i];
         const nodeData = data[skeleton.joints[i]];
         if (!bounds || !nodeData || !nodeData.props) { continue; }
-        const position = nodeData.props.position.values[fid];
-        const rotation = nodeData.props.rotation.values[fid];
-        const scale = nodeData.props.scale.values[fid];
-        Mat4.fromRTS(m4_2, rotation, position, scale);
-        Mat4.multiply(m4_2, m4_1, m4_2);
+        const matrix = nodeData.props.worldMatrix.values[fid];
+        Mat4.multiply(m4_2, m4_1, matrix);
         aabb.transform(ab_1, bounds, m4_2);
         ab_1.getBoundary(v3_1, v3_2);
         Vec3.min(v3_3, v3_3, v3_1);

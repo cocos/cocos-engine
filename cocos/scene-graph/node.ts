@@ -33,7 +33,7 @@ import Event from '../core/event/event';
 import { eventManager } from '../core/platform/event-manager';
 import { SystemEventType } from '../core/platform/event-manager/event-enum';
 import { INode } from '../core/utils/interfaces';
-import { Mat4, Quat, Vec3, Size, Vec2 } from '../core/math';
+import { Mat3, Mat4, Quat, Size, Vec2, Vec3 } from '../core/math';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
 import { NodeEventProcessor } from './node-event-processor';
@@ -44,6 +44,8 @@ const q_a = new Quat();
 const q_b = new Quat();
 const array_a = new Array(10);
 const TRANFORM_ON = 1 << 0;
+const qt_1 = new Quat();
+const m3_1 = new Mat3();
 
 /**
  * @zh
@@ -197,6 +199,20 @@ export class Node extends BaseNode implements INode {
     }
     public set worldScale (val: Readonly<Vec3>) {
         this.setWorldScale(val);
+    }
+
+    /**
+     * @zh
+     * 本地变换矩阵
+     */
+    public set matrix (val: Readonly<Mat4>) {
+        Mat4.toRTS(val, this._lrot, this._lpos, this._lscale);
+        this.invalidateChildren(TransformDirtyBit.TRS);
+        if (this._eventMask & TRANFORM_ON) {
+            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.SCALE_PART);
+        }
     }
 
     /**
@@ -489,10 +505,16 @@ export class Node extends BaseNode implements INode {
                     child._mat.m14 = child._pos.z;
                 }
                 if (dirtyBits & TransformDirtyBit.RS) {
-                    Quat.multiply(child._rot, cur._rot, child._lrot);
-                    Vec3.multiply(child._scale, cur._scale, child._lscale);
                     Mat4.fromRTS(child._mat, child._lrot, child._lpos, child._lscale);
                     Mat4.multiply(child._mat, cur._mat, child._mat);
+                    if (dirtyBits & TransformDirtyBit.ROTATION) {
+                        Quat.multiply(child._rot, cur._rot, child._lrot);
+                    }
+                    Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, child._rot));
+                    Mat3.multiplyMat4(m3_1, m3_1, child._mat);
+                    child._scale.x = m3_1.m00;
+                    child._scale.y = m3_1.m04;
+                    child._scale.z = m3_1.m08;
                 }
             } else {
                 if (dirtyBits & TransformDirtyBit.POSITION) {
@@ -502,8 +524,11 @@ export class Node extends BaseNode implements INode {
                     child._mat.m14 = child._pos.z;
                 }
                 if (dirtyBits & TransformDirtyBit.RS) {
-                    Quat.copy(child._rot, child._lrot);
-                    Vec3.copy(child._scale, child._lscale);
+                    if (dirtyBits & TransformDirtyBit.ROTATION) {
+                        Quat.copy(child._rot, child._lrot);
+                    } else {
+                        Vec3.copy(child._scale, child._lscale);
+                    }
                     Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
                 }
             }
@@ -741,8 +766,8 @@ export class Node extends BaseNode implements INode {
             Quat.set(this._rot, val as number, y, z, w);
         }
         if (this._parent) {
-            this._parent.getWorldRotation(q_a);
-            Quat.multiply(this._lrot, Quat.conjugate(q_a, q_a), this._rot);
+            this._parent.updateWorldTransform();
+            Quat.multiply(this._lrot, Quat.conjugate(this._lrot, this._parent._rot), this._rot);
         } else {
             Quat.copy(this._lrot, this._rot);
         }
@@ -764,8 +789,8 @@ export class Node extends BaseNode implements INode {
     public setWorldRotationFromEuler (x: number, y: number, z: number): void {
         Quat.fromEuler(this._rot, x, y, z);
         if (this._parent) {
-            this._parent.getWorldRotation(q_a);
-            Quat.multiply(this._lrot, this._rot, Quat.conjugate(q_a, q_a));
+            this._parent.updateWorldTransform();
+            Quat.multiply(this._lrot, Quat.conjugate(this._lrot, this._parent._rot), this._rot);
         } else {
             Quat.copy(this._lrot, this._rot);
         }
@@ -814,8 +839,8 @@ export class Node extends BaseNode implements INode {
             Vec3.set(this._scale, val as number, y, z);
         }
         if (this._parent) {
-            this._parent.getWorldScale(v3_a);
-            Vec3.divide(this._lscale, this._scale, v3_a);
+            this._parent.updateWorldTransform();
+            Vec3.divide(this._lscale, this._scale, this._parent._scale);
         } else {
             Vec3.copy(this._lscale, this._scale);
         }
