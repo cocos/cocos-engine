@@ -44,6 +44,8 @@ declare const CC_PHYSICS_AMMO: boolean;
 declare const CC_PHYSICS_BUILT_IN: boolean;
 interface Window {
 
+    [x: string]: any;
+    
     WebGL2RenderingContext: any;
 
     sharedCanvas: any;

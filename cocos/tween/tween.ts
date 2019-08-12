@@ -2,15 +2,20 @@
  * @category tween
  */
 
-import { CCTweenAction } from './cc-tweenAction';
-import { CCTweenCommand } from './cc-tweenCommand';
-import { CCTweenUnion } from './cc-tweenUnion';
-import { ICCTweenOption, ICCTweenProp } from './export-api';
+import { TweenAction } from './tween-action';
+import { TweenCommand } from './tween-command';
+import { TweenUnion } from './tween-union';
+import { ITweenOption, ITweenProp } from './export-api';
 
 /**
- * for Compatible cocos creator
+ * @en
+ * for compatible cocos creator
+ * @zh
+ * 为兼容 cocos creator 的 Tween 而封装的 tween.js
+ * @see
+ * https://github.com/cocos-creator/tween.js
  */
-export class CCTween {
+export class Tween {
 
     private static _recursiveForBy (props: object) {
         let theProp: number | object;
@@ -20,33 +25,35 @@ export class CCTween {
                 const symbol = theProp > 0 ? '+' : '-';
                 props[property] = symbol + theProp;
             } else if (typeof theProp === 'object') {
-                CCTween._recursiveForBy(theProp);
+                Tween._recursiveForBy(theProp);
             }
         }
     }
 
-    private _command: CCTweenCommand = new CCTweenCommand();
+    private _command: TweenCommand = new TweenCommand();
 
-    private _default: CCTweenUnion;
+    private _default: TweenUnion;
 
     private _uionDirty: boolean = false;
 
     constructor (target: Object) {
-        this._default = new CCTweenUnion(target);
+        this._default = new TweenUnion(target);
     }
+
     /**
-     * com
-     * @param duration
-     * @param props
-     * @param opts
+     * @zh
+     * 增加一个相对缓动
+     * @param duration 缓动时间
+     * @param props 缓动的属性，相对值
+     * @param opts 缓动的可选项
      */
-    public to (duration: number, props: ICCTweenProp, opts?: ICCTweenOption) {
+    public to (duration: number, props: ITweenProp, opts?: ITweenOption) {
         if (this._uionDirty) {
-            this._default = new CCTweenUnion(this._default.target);
+            this._default = new TweenUnion(this._default.target);
             this._uionDirty = false;
         }
 
-        const action = new CCTweenAction(this._default.target, duration * 1000, props, opts);
+        const action = new TweenAction(this._default.target, duration * 1000, props, opts);
         if (this._default.length > 0) {
             this._default.actions[this._default.length - 1].tween.chain(action.tween);
         }
@@ -55,20 +62,21 @@ export class CCTween {
     }
 
     /**
-     *
-     * @param duration
-     * @param props
-     * @param opts
+     * @zh
+     * 增加一个绝对缓动
+     * @param duration 缓动时间
+     * @param props 缓动的属性，绝对值
+     * @param opts 缓动的可选项
      */
-    public by (duration: number, props: ICCTweenProp, opts?: ICCTweenOption) {
+    public by (duration: number, props: ITweenProp, opts?: ITweenOption) {
         if (this._uionDirty) {
-            this._default = new CCTweenUnion(this._default.target);
+            this._default = new TweenUnion(this._default.target);
             this._uionDirty = false;
         }
 
-        CCTween._recursiveForBy(props);
+        Tween._recursiveForBy(props);
 
-        const action = new CCTweenAction(this._default.target, duration * 1000, props, opts);
+        const action = new TweenAction(this._default.target, duration * 1000, props, opts);
         if (this._default.length > 0) {
             this._default.actions[this._default.length - 1].tween.chain(action.tween);
         }
@@ -90,7 +98,9 @@ export class CCTween {
 
     /**
      * @zh
-     * 开始执行缓动，注：调用此方法后，请勿再增加缓动行为
+     * 开始执行缓动。
+     * 
+     * 注：调用此方法后，请勿再增加缓动行为。
      */
     public start () {
         if (this._default.length > 0) {
@@ -104,7 +114,9 @@ export class CCTween {
 
     /**
      * @zh
-     * 停止缓动，注：此方法尚不稳定
+     * 停止缓动。
+     * 
+     * 注：此方法尚不稳定。
      */
     public stop () {
         this._command.stop();
@@ -119,7 +131,7 @@ export class CCTween {
      *
      * 注：repeat(1) 代表重复一次，即执行两次。
      *
-     * 注：暂不支持传入 CCTween
+     * 注：暂不支持传入 Tween。
      *
      * @param times 次数
      */
@@ -138,7 +150,7 @@ export class CCTween {
      * @zh
      * 一直重复。
      *
-     * 注：此方法可能会被废弃
+     * 注：此方法可能会被废弃。
      */
     public repeatForever () {
         if (this._uionDirty) {
@@ -224,7 +236,7 @@ export class CCTween {
     */
 }
 
-cc.CCTween = CCTween;
+cc.Tween = Tween;
 
 /**
  * @zh
@@ -233,26 +245,32 @@ cc.CCTween = CCTween;
  *
  * 注：请勿对 node 矩阵相关数据直接进行缓动，例如传入 this.node.position
  * @example
+ * 
  * ```typescript
- * let position = new Vec3();
- * tween(position)
- *    .to(2000, new Vec3(0, 2, 0) }, { easing: TWEEN.Easing.Cubic.In })
+ * 
+ * let position = new math.Vec3();
+ * 
+ * tweenUtil(position)
+ * 
+ *    .to(2, new math.Vec3(0, 2, 0), { easing: 'Cubic-InOut' })
+ * 
  *    .start();
+ * 
  * ```
  */
-export function tween (target: Object): CCTween {
-    return new CCTween(target);
+export function tweenUtil (target: Object): Tween {
+    return new Tween(target);
 }
 
-cc.tween = tween;
+cc.tweenUtil = tweenUtil;
 
 /**
  * creator tween 行为
  * cc.T()
  * .to
- * .to // 变成 uion ? , not
- * .repeat(1, cc.T()) // 传入后会进行 union 操作
- * .repeat(1); // 操作的是创入的一个大 union
+ * .to                  // 不会变成 union 
+ * .repeat(1, cc.T())   // 传入后会进行 union 操作
+ * .repeat(1);          // 操作的是传入的一个大 union
  *
  * cc.T()
  * .to
@@ -262,6 +280,4 @@ cc.tween = tween;
  * .uion
  * .repeat(1);
  *
- * 多次 repeat 为累加
- * repeat 中传入的是 union
  */

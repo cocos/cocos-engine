@@ -2,5 +2,7 @@
  * @hidden
  */
 
-export { CCTween, tween } from './cc-tween';
+export { Tween, tweenUtil } from './tween';
 export * from './export-api';
+
+export * from './deprecated';
