@@ -3,6 +3,7 @@
  */
 
 import * as easing from './easing';
+cc.easing = easing;
 export * from './bezier';
 export { easing };
 export * from './animation-curve';

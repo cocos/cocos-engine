@@ -16,14 +16,17 @@ export type TargetModifier = PropertyModifier | ElementModifier | ICustomTargetM
 export function isPropertyModifier(modifier: TargetModifier): modifier is PropertyModifier {
     return typeof modifier === 'string';
 }
+cc.isPropertyModifier = isPropertyModifier;
 
 export function isElementModifier(modifier: TargetModifier): modifier is ElementModifier {
     return typeof modifier === 'number';
 }
+cc.isElementModifier = isElementModifier;
 
 export function isCustomTargetModifier<T extends ICustomTargetModifier>(modifier: TargetModifier, constructor: Constructor<T>): modifier is T {
     return modifier instanceof constructor;
 }
+cc.isCustomTargetModifier = isCustomTargetModifier;
 
 @ccclass('cc.HierachyModifier')
 export class HierachyModifier implements ICustomTargetModifier {
@@ -120,3 +123,4 @@ export class BoundTarget {
         }
     }
 }
+cc.BoundTarget = BoundTarget;
