@@ -2,16 +2,17 @@
  * @hidden
  */
 
-import { deprecatedWrapper } from '../../deprecated';
-import line from './line'
+import { replaceProperty } from '../../deprecated';
+import line from './line';
 
-deprecatedWrapper({
-    oldTarget: line.prototype,
-    oldPrefix: 'line',
-    newTarget: line.prototype,
-    newPrefix: 'line',
-    pairs: [
-        ['mag', 'len'],
-        ['magnitude', 'len'],
-    ],
-});
+
+replaceProperty(line.prototype, 'line', [
+    {
+        'name': 'mag',
+        'newName': 'len'
+    },
+    {
+        'name': 'magnitude',
+        'newName': 'len'
+    }
+]);
