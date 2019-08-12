@@ -29,11 +29,7 @@ import { replaceProperty } from '../deprecated';
  * 
  * ```
  */
-export function tween (target: Object): Tween {
-    warn("'%s' is deprecated, please use '%s' instead.", `tween`, `tweenUtil`);
-    return tweenUtil(target);
-}
-cc.tween = tween;
+export declare function tween (target: {}): Tween;
 
 replaceProperty(cc, 'cc', [
     {
