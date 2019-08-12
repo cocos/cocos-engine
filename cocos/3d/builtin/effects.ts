@@ -1,9 +1,11 @@
 // tslint:disable
 // absolute essential effects
 export default [
-
   {
-    "name": "builtin-screen-quad",
+    "__type__": "cc.EffectAsset",
+    "_name": "builtin-screen-quad",
+    "_objFlags": 0,
+    "_native": "",
     "techniques": [
       {
         "passes": [
@@ -27,6 +29,9 @@ export default [
               "mainTexture": {
                 "value": "grey",
                 "type": 28
+              },
+              "offset": {
+                "type": 16
               }
             }
           }
@@ -35,13 +40,13 @@ export default [
     ],
     "shaders": [
       {
-        "hash": 4118463434,
+        "hash": 622928450,
         "glsl3": {
-          "vert": "\nprecision mediump float;\nuniform CCGlobal {\n  vec4 cc_time;\n\n  vec4 cc_screenSize;\n\n  vec4 cc_screenScale;\n\n  vec4 cc_nativeSize;\n\n  mat4 cc_matView;\n  mat4 cc_matViewInv;\n  mat4 cc_matProj;\n  mat4 cc_matProjInv;\n  mat4 cc_matViewProj;\n  mat4 cc_matViewProjInv;\n  vec4 cc_cameraPos;\n\n  vec4 cc_exposure;\n\n  vec4 cc_mainLitDir;\n\n  vec4 cc_mainLitColor;\n\n  vec4 cc_ambientSky;\n  vec4 cc_ambientGround;\n};\nuniform CCLocal {\n  highp mat4 cc_matWorld;\n  mat4 cc_matWorldIT;\n};\n\nin vec3 a_position;\n\nvoid CCDecode (out vec3 position) {\n  position = a_position;\n}\n\nin vec2 a_texCoord;\nout vec2 v_uv;\n\nvec4 vert () {\n  vec3 position;\n  CCDecode(position);\n  v_uv = a_texCoord;\n  return vec4(position, 1.0);\n}\n\nvoid main() { gl_Position = vert(); }\n",
+          "vert": "\nprecision mediump float;\nuniform CCGlobal {\n  vec4 cc_time;\n\n  vec4 cc_screenSize;\n\n  vec4 cc_screenScale;\n\n  vec4 cc_nativeSize;\n\n  mat4 cc_matView;\n  mat4 cc_matViewInv;\n  mat4 cc_matProj;\n  mat4 cc_matProjInv;\n  mat4 cc_matViewProj;\n  mat4 cc_matViewProjInv;\n  vec4 cc_cameraPos;\n\n  vec4 cc_exposure;\n\n  vec4 cc_mainLitDir;\n\n  vec4 cc_mainLitColor;\n\n  vec4 cc_ambientSky;\n  vec4 cc_ambientGround;\n};\nuniform CCLocal {\n  highp mat4 cc_matWorld;\n  mat4 cc_matWorldIT;\n};\n\nin vec3 a_position;\n\nvoid CCDecode (out vec3 position) {\n  position = a_position;\n}\n\nin vec2 a_texCoord;\nout vec2 v_uv;\n\nuniform Constants {\n  vec4 offset;\n};\n\nvec4 vert () {\n  vec3 position;\n  CCDecode(position);\n\n  position.y *= cc_screenSize.x * cc_screenSize.w;\n  position.xy += offset.xy + abs(position.xy);\n\n  v_uv = a_texCoord;\n  return vec4(position, 1.0);\n}\n\nvoid main() { gl_Position = vert(); }\n",
           "frag": "\nprecision mediump float;\nuniform CCGlobal {\n  vec4 cc_time;\n\n  vec4 cc_screenSize;\n\n  vec4 cc_screenScale;\n\n  vec4 cc_nativeSize;\n\n  mat4 cc_matView;\n  mat4 cc_matViewInv;\n  mat4 cc_matProj;\n  mat4 cc_matProjInv;\n  mat4 cc_matViewProj;\n  mat4 cc_matViewProjInv;\n  vec4 cc_cameraPos;\n\n  vec4 cc_exposure;\n\n  vec4 cc_mainLitDir;\n\n  vec4 cc_mainLitColor;\n\n  vec4 cc_ambientSky;\n  vec4 cc_ambientGround;\n};\n\nvec3 SRGBToLinear(vec3 gamma)\n{\n\treturn pow(gamma, vec3(2.2));\n\n}\n\nvec3 LinearToSRGB(vec3 linear)\n{\n\treturn pow(linear, vec3(0.454545));\n\n}\n\nvec4 CCFragOutput(vec4 color) {\n  #if CC_USE_HDR\n    color.rgb = mix(color.rgb, SRGBToLinear(color.rgb) * cc_exposure.w, vec3(cc_exposure.z));\n\t#endif\n\treturn color;\n}\n\nin vec2 v_uv;\nuniform sampler2D mainTexture;\n\nvec4 frag () {\n  return CCFragOutput(texture(mainTexture, v_uv));\n}\n\nout vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }\n"
         },
         "glsl1": {
-          "vert": "\nprecision mediump float;\n\nattribute vec3 a_position;\n\nvoid CCDecode (out vec3 position) {\n  position = a_position;\n}\n\nattribute vec2 a_texCoord;\nvarying vec2 v_uv;\n\nvec4 vert () {\n  vec3 position;\n  CCDecode(position);\n  v_uv = a_texCoord;\n  return vec4(position, 1.0);\n}\n\nvoid main() { gl_Position = vert(); }\n",
+          "vert": "\nprecision mediump float;\nuniform vec4 cc_screenSize;\n\nattribute vec3 a_position;\n\nvoid CCDecode (out vec3 position) {\n  position = a_position;\n}\n\nattribute vec2 a_texCoord;\nvarying vec2 v_uv;\n\nuniform vec4 offset;\n\nvec4 vert () {\n  vec3 position;\n  CCDecode(position);\n\n  position.y *= cc_screenSize.x * cc_screenSize.w;\n  position.xy += offset.xy + abs(position.xy);\n\n  v_uv = a_texCoord;\n  return vec4(position, 1.0);\n}\n\nvoid main() { gl_Position = vert(); }\n",
           "frag": "\nprecision mediump float;\nuniform vec4 cc_exposure;\n\nvec3 SRGBToLinear(vec3 gamma)\n{\n\treturn pow(gamma, vec3(2.2));\n\n}\n\nvec3 LinearToSRGB(vec3 linear)\n{\n\treturn pow(linear, vec3(0.454545));\n\n}\n\nvec4 CCFragOutput(vec4 color) {\n  #if CC_USE_HDR\n    color.rgb = mix(color.rgb, SRGBToLinear(color.rgb) * cc_exposure.w, vec3(cc_exposure.z));\n\t#endif\n\treturn color;\n}\n\nvarying vec2 v_uv;\nuniform sampler2D mainTexture;\n\nvec4 frag () {\n  return CCFragOutput(texture2D(mainTexture, v_uv));\n}\n\nvoid main() { gl_FragColor = frag(); }\n"
         },
         "builtins": {
@@ -71,7 +76,20 @@ export default [
             "defines": []
           }
         ],
-        "blocks": [],
+        "blocks": [
+          {
+            "name": "Constants",
+            "members": [
+              {
+                "name": "offset",
+                "type": 16,
+                "count": 1
+              }
+            ],
+            "defines": [],
+            "binding": 0
+          }
+        ],
         "samplers": [
           {
             "name": "mainTexture",

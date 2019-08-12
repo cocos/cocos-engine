@@ -34,6 +34,7 @@ import { GFXTextureType, GFXTextureUsageBit, GFXFormat, GFXTextureViewType, GFXB
 import { GFXTextureView } from '../../../gfx/texture-view';
 import { createMesh } from '../../../3d/misc/utils';
 import director from '../../director';
+import { Vec4 } from '../../math';
 
 interface IProfilerState {
     frame: ICounterOption;
@@ -225,10 +226,10 @@ export class Profiler {
         const modelCom = managerNode.addComponent('cc.ModelComponent') as ModelComponent;
         modelCom.mesh = createMesh({
             positions: [
-                -0.9, -0.9, 0, // bottom-left
-                -0.9, -0.9 + h , 0, // top-left
-                -0.9 + w, -0.9 + h, 0, // top-right
-                -0.9 + w, -0.9, 0, // bottom-right
+                -0.25, -1/7, 0, // bottom-left
+                -0.25,  1/7, 0, // top-left
+                 0.25,  1/7, 0, // top-right
+                 0.25, -1/7, 0, // bottom-right
             ],
             indices: [
                 0, 2, 1,
@@ -246,7 +247,7 @@ export class Profiler {
         _material.initialize({
             effectName:'builtin-screen-quad',
         });
-
+        _material.setProperty('offset', new Vec4(-0.9, -0.9, 0, 0));
         const pass = _material.passes[0];
         const handle = pass.getBinding('mainTexture');
         pass.bindTextureView(handle!, this._textureView);
