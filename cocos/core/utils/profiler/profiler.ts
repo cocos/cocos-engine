@@ -33,6 +33,7 @@ import { GFXTexture } from '../../../gfx/texture';
 import { GFXTextureType, GFXTextureUsageBit, GFXFormat, GFXTextureViewType, GFXBufferTextureCopy } from '../../../gfx/define';
 import { GFXTextureView } from '../../../gfx/texture-view';
 import { createMesh } from '../../../3d/misc/utils';
+import director from '../../director';
 
 interface IProfilerState {
     frame: ICounterOption;
@@ -52,22 +53,22 @@ export class Profiler {
     public _stats: IProfilerState | null = null;
 
     private _showFPS = false;
-    private _fontSize = 22;
-    private _lineHeight = this._fontSize + 2;
-    private _left = 10;
-    private _right = 10;
-    private _top = 10;
-    private _buttom = 10;
+    private readonly _fontSize = 22;
+    private readonly _lineHeight = this._fontSize + 2;
+    private readonly _left = 10;
+    private readonly _right = 10;
+    private readonly _top = 10;
+    private readonly _buttom = 10;
 
     private _rootNode: Node | null = null;
-    private device: GFXDevice | null = null;
-    private _canvas: HTMLCanvasElement;
-    private _ctx: CanvasRenderingContext2D;
+    private _device: GFXDevice | null = null;
+    private readonly _canvas: HTMLCanvasElement;
+    private readonly _ctx: CanvasRenderingContext2D;
     private _texture: GFXTexture;
     private _textureView: GFXTextureView;
-    private _region: GFXBufferTextureCopy = new GFXBufferTextureCopy();
-    private canvasArr = [this._canvas];
-    private regionArr = [this._region];
+    private readonly _region: GFXBufferTextureCopy = new GFXBufferTextureCopy();
+    private readonly _canvasArr = [this._canvas];
+    private readonly _regionArr = [this._region];
 
     constructor () {
         this._canvas = document.createElement('canvas');
@@ -85,12 +86,12 @@ export class Profiler {
                 this._rootNode.active = false;
             }
 
-            cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate);
-            cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.afterUpdate);
-            cc.director.off(cc.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics);
-            cc.director.off(cc.Director.EVENT_AFTER_PHYSICS, this.afterPhysics);
-            cc.director.off(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw);
-            cc.director.off(cc.Director.EVENT_AFTER_DRAW, this.afterDraw);
+            director.off(cc.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
+            director.off(cc.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
+            director.off(cc.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
+            director.off(cc.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
+            director.off(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
+            director.off(cc.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
             this._showFPS = false;
         }
     }
@@ -105,12 +106,12 @@ export class Profiler {
                 this._rootNode.active = true;
             }
 
-            cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate);
-            cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.afterUpdate);
-            cc.director.on(cc.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics);
-            cc.director.on(cc.Director.EVENT_AFTER_PHYSICS, this.afterPhysics);
-            cc.director.on(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw);
-            cc.director.on(cc.Director.EVENT_AFTER_DRAW, this.afterDraw);
+            director.on(cc.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
+            director.on(cc.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
+            director.on(cc.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
+            director.on(cc.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
+            director.on(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
+            director.on(cc.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
 
             // cc.game.canvas.parentNode.appendChild(cc.profiler._canvas);
 
@@ -119,15 +120,15 @@ export class Profiler {
     }
 
     public initDevice (){
-        if (this.device){
+        if (this._device){
             return;
         }
-        this.device = cc.director.root.device;
+        this._device = director.root!.device;
     }
 
     public generateCanvas () {
 
-        const textureWidth = 300;
+        const textureWidth = 350;
         const textureHeight = 200;
 
         this._canvas.width = textureWidth;
@@ -143,7 +144,7 @@ export class Profiler {
         this._ctx.textBaseline = 'top';
         this._ctx.fillStyle = '#fff';
 
-        this._texture = this.device!.createTexture({
+        this._texture = this._device!.createTexture({
             type: GFXTextureType.TEX2D,
             usage: GFXTextureUsageBit.SAMPLED,
             format:GFXFormat.RGBA8,
@@ -152,7 +153,7 @@ export class Profiler {
             mipLevel: 1,
         });
 
-        this._textureView = this.device!.createTextureView({
+        this._textureView = this._device!.createTextureView({
             texture: this._texture,
             type: GFXTextureViewType.TV2D,
             format: GFXFormat.RGBA8,
@@ -192,20 +193,20 @@ export class Profiler {
     }
 
     public generateNode () {
-        if (cc.profiler._rootNode && cc.profiler._rootNode.isValid) {
+        if (this._rootNode && this._rootNode.isValid) {
             return;
         }
 
-        cc.profiler._rootNode = new Node('PROFILER-NODE');
-        cc.game.addPersistRootNode(cc.profiler._rootNode);
+        this._rootNode = new Node('PROFILER-NODE');
+        cc.game.addPersistRootNode(this._rootNode);
 
         const managerNode = new Node('ROOT');
-        managerNode.parent = cc.profiler._rootNode;
+        managerNode.parent = this._rootNode;
 
         let w = 0.5;
         const h = 0.5;
-        const x = cc.director.root.device.width;
-        const y = cc.director.root.device.height;
+        const x = director.root!.device.width;
+        const y = director.root!.device.height;
         if(y>x) {
             w = 2 * w;
         }
@@ -237,103 +238,103 @@ export class Profiler {
 
         const pass = _material.passes[0];
         const handle = pass.getBinding('mainTexture');
-        pass.bindTextureView(handle!, cc.profiler._textureView);
+        pass.bindTextureView(handle!, this._textureView);
 
         modelCom.material = _material;
     }
 
     public beforeUpdate () {
-        if (!cc.profiler._stats) {
+        if (!this._stats) {
             return;
         }
 
-        cc.profiler.generateNode();
+        this.generateNode();
 
-        const now = cc.director._lastUpdate;
-        cc.profiler.getCounter('frame').end(now);
-        cc.profiler.getCounter('frame').start(now);
-        cc.profiler.getCounter('logic').start(now);
+        const now = director._lastUpdate;
+        this.getCounter('frame').end(now);
+        this.getCounter('frame').start(now);
+        this.getCounter('logic').start(now);
     }
 
     public afterUpdate () {
-        if (!cc.profiler._stats) {
+        if (!this._stats) {
             return;
         }
 
         const now = performance.now();
-        if (cc.director.isPaused()) {
-            cc.profiler.getCounter('frame').start(now);
+        if (director.isPaused()) {
+            this.getCounter('frame').start(now);
         } else {
-            cc.profiler.getCounter('logic').end(now);
+            this.getCounter('logic').end(now);
         }
     }
 
     public beforePhysics () {
-        if (!cc.profiler._stats) {
+        if (!this._stats) {
             return;
         }
 
         const now = performance.now();
-        cc.profiler.getCounter('physics').start(now);
+        this.getCounter('physics').start(now);
     }
 
     public afterPhysics () {
-        if (!cc.profiler._stats) {
+        if (!this._stats) {
             return;
         }
 
         const now = performance.now();
-        cc.profiler.getCounter('physics').end(now);
+        this.getCounter('physics').end(now);
     }
 
     public beforeDraw () {
-        if (!cc.profiler._stats) {
+        if (!this._stats) {
             return;
         }
 
         const now = performance.now();
-        cc.profiler.getCounter('render').start(now);
+        this.getCounter('render').start(now);
     }
 
     public afterDraw () {
-        if (!cc.profiler._stats) {
+        if (!this._stats) {
             return;
         }
         const now = performance.now();
 
-        cc.profiler.getCounter('fps').frame(now);
-        cc.profiler.getCounter('draws').value = cc.profiler.device!.numDrawCalls;
-        cc.profiler.getCounter('bufferMemory').value = cc.profiler.device!.memoryStatus.bufferSize / (1024 * 1024);
-        cc.profiler.getCounter('textureMemory').value = cc.profiler.device!.memoryStatus.textureSize / (1024 * 1024);
-        cc.profiler.getCounter('tricount').value = cc.profiler.device!.numTris;
-        cc.profiler.getCounter('render').end(now);
+        this.getCounter('fps').frame(now);
+        this.getCounter('draws').value = this._device!.numDrawCalls;
+        this.getCounter('bufferMemory').value = this._device!.memoryStatus.bufferSize / (1024 * 1024);
+        this.getCounter('textureMemory').value = this._device!.memoryStatus.textureSize / (1024 * 1024);
+        this.getCounter('tricount').value = this._device!.numTris;
+        this.getCounter('render').end(now);
 
-        const x = cc.profiler._left + cc.profiler._ctx.measureText('GFX Texture Mem(M)').width;
-        cc.profiler._ctx.clearRect( x, 0, cc.profiler._canvas.width - x, cc.profiler._canvas.height);
+        const x = this._left + this._ctx.measureText('GFX Texture Mem(M)').width;
+        this._ctx.clearRect( x, 0, this._canvas.width - x, this._canvas.height);
 
         let i = 0;
-        for (const id of Object.keys(cc.profiler._stats)) {
-            const stat = cc.profiler._stats[id];
+        for (const id of Object.keys(this._stats)) {
+            const stat = this._stats[id];
             stat.counter.sample(now);
-            cc.profiler._ctx.fillText(
+            this._ctx.fillText(
                 stat.counter.human(!(stat.desc === 'Framerate (FPS)')),
-                cc.profiler._canvas.width - cc.profiler._right,
-                cc.profiler._top + i * cc.profiler._lineHeight);
+                this._canvas.width - this._right,
+                this._top + i * this._lineHeight);
             i++;
         }
 
-        cc.profiler.canvasArr[0] = cc.profiler._canvas;
-        cc.profiler.updateTexture();
+        this._canvasArr[0] = this._canvas;
+        this.updateTexture();
     }
 
     public getCounter (s: string) {
-        const stats = cc.profiler._stats;
-        return stats[s].counter as PerfCounter;
+        const stats = this._stats;
+        return stats![s].counter as PerfCounter;
     }
 
     public updateTexture () {
         // 更新材质的贴图
-        cc.director.root.device.copyTexImagesToTexture(cc.profiler.canvasArr,cc.profiler._texture, cc.profiler.regionArr);
+        director.root!.device.copyTexImagesToTexture(this._canvasArr,this._texture, this._regionArr);
     }
 
 }
