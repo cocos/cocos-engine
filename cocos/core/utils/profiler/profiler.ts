@@ -70,6 +70,9 @@ export class Profiler {
     private readonly _canvasArr = [this._canvas];
     private readonly _regionArr = [this._region];
 
+    private _canvasDone = false;
+    private _statsDone = false;
+
     constructor () {
         this._canvas = document.createElement('canvas');
         this._ctx = this._canvas.getContext('2d')!;
@@ -113,9 +116,9 @@ export class Profiler {
             director.on(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
             director.on(cc.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
 
-            // cc.game.canvas.parentNode.appendChild(cc.profiler._canvas);
-
             this._showFPS = true;
+            this._canvasDone = true;
+            this._statsDone = true;
         }
     }
 
@@ -127,6 +130,10 @@ export class Profiler {
     }
 
     public generateCanvas () {
+
+        if( this._canvasDone ){
+            return;
+        }
 
         const textureWidth = 350;
         const textureHeight = 200;
@@ -164,6 +171,10 @@ export class Profiler {
     }
 
     public generateStats () {
+        if(this._statsDone){
+            return;
+        }
+
         this._stats = null;
         const now = performance.now();
 
@@ -207,7 +218,7 @@ export class Profiler {
         const h = 0.5;
         const x = director.root!.device.width;
         const y = director.root!.device.height;
-        if(y>x) {
+        if(y > x) {
             w = 2 * w;
         }
 
