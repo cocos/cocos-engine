@@ -29,7 +29,7 @@
 
 import { RenderableComponent } from '../3d/framework/renderable-component';
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
-import { Quat, Vec3, Mat3, Mat4 } from '../core/math';
+import { Mat4 } from '../core/math';
 import { ccclass } from '../core/data/class-decorator';
 import { getClassName } from '../core/utils/js';
 import { AnimationClip, IObjectCurveData, IRuntimeCurve } from './animation-clip';
@@ -38,9 +38,6 @@ import { IPropertyCurveData, CurveValueAdapter } from './animation-curve';
 import { INode } from '../core/utils/interfaces';
 import { getPathFromRoot } from './transform-utils';
 import { HierachyModifier, ComponentModifier, isCustomTargetModifier, isPropertyModifier } from './target-modifier';
-
-const qt_1 = new Quat();
-const m3_1 = new Mat3();
 
 function isTargetSkinningModel (comp: RenderableComponent, root: INode) {
     if (!(comp instanceof SkinningModelComponent)) { return false; }
@@ -118,19 +115,20 @@ export class SkeletalAnimationClip extends AnimationClip {
         this.convertedData = convertedData; this.curves = [];
         // sort the keys to make sure parent bone always comes first
         const paths = Object.keys(this.convertedData).sort();
+        const values: number[] = new Array(Math.ceil(this.sample * this._duration / this.speed));
+        for (let i = 0; i < values.length; i++) { values[i] = i; }
         for (const path of paths) {
             const nodeData = this.convertedData[path];
             if (!nodeData.props) { continue; }
             const { position, rotation, scale } = nodeData.props;
             // fixed step pre-sample
-            this._convertToUniformSample(position);
-            this._convertToUniformSample(rotation);
-            this._convertToUniformSample(scale);
+            this._convertToUniformSample(position, values);
+            this._convertToUniformSample(rotation, values);
+            this._convertToUniformSample(scale, values);
             // transform to world space
             this._convertToWorldSpace(path, nodeData.props);
         }
         // convert to SkinningModelComponent.fid animation
-        const values = [...Array(Math.ceil(this.sample * this._duration))].map((_, i) => i);
         for (const comp of root.getComponentsInChildren(RenderableComponent)) {
             if (isTargetSkinningModel(comp, root)) {
                 const path = getPathFromRoot(comp.node, root);
@@ -156,9 +154,9 @@ export class SkeletalAnimationClip extends AnimationClip {
         this._converted = true;
     }
 
-    private _convertToUniformSample (curve: IPropertyCurveData) {
+    private _convertToUniformSample (curve: IPropertyCurveData, counts: number[]) {
         const keys = this._keys[curve.keys]; curve.keys = 0;
-        curve.values = [...Array(Math.ceil(this._duration * this.sample))].map((_, i) => {
+        curve.values = counts.map((_, i) => {
             if (!keys || keys.length === 1) { return curve.values[0].clone(); } // never forget to clone
             let time = i / this.sample;
             let idx = keys.findIndex((k) => k > time);
@@ -171,10 +169,10 @@ export class SkeletalAnimationClip extends AnimationClip {
     }
 
     private _convertToWorldSpace (path: string, props: IObjectCurveData) {
-        const position = props.position.values;
-        const rotation = props.rotation.values;
-        const scale = props.scale.values;
-        const matrix = position.map(() => new Mat4());
+        const oPos = props.position.values;
+        const oRot = props.rotation.values;
+        const oScale = props.scale.values;
+        const matrix = oPos.map(() => new Mat4());
         const idx = path.lastIndexOf('/');
         let pMatrix: Mat4[] | null = null;
         if (idx > 0) {
@@ -185,13 +183,13 @@ export class SkeletalAnimationClip extends AnimationClip {
             pMatrix = data.props.worldMatrix.values;
         }
         // all props should have the same length now
-        for (let i = 0; i < position.length; i++) {
-            const T = position[i];
-            const R = rotation[i];
-            const S = scale[i];
-            const cur = matrix[i];
-            Mat4.fromRTS(cur, R, T, S);
-            if (pMatrix) { Mat4.multiply(cur, pMatrix[i], cur); }
+        for (let i = 0; i < oPos.length; i++) {
+            const oT = oPos[i];
+            const oR = oRot[i];
+            const oS = oScale[i];
+            const m = matrix[i];
+            Mat4.fromRTS(m, oR, oT, oS);
+            if (pMatrix) { Mat4.multiply(m, pMatrix[i], m); }
         }
         Object.keys(props).forEach((k) => delete props[k]);
         props.worldMatrix = { keys: 0, interpolate: false, values: matrix };
