@@ -147,7 +147,7 @@ export class Mat3 extends ValueType {
         let det = _a00 * b01 + _a01 * b11 + _a02 * b21;
 
         if (!det) {
-            return null;
+            return out;
         }
         det = 1.0 / det;
 

@@ -95,7 +95,7 @@ export class Camera {
     private _aspect: number;
     private _orthoHeight: number = 10.0;
     private _fov: number = toRadian(45);
-    private _nearClip: number = 0.1;
+    private _nearClip: number = 1.0;
     private _farClip: number = 1000.0;
     private _clearStencil: number = 0;
     private _clearDepth: number = 1.0;
