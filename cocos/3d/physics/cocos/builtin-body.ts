@@ -9,6 +9,7 @@ import { ERigidBodyType } from '../physic-enum';
 import { BuiltInWorld } from './builtin-world';
 import { BuiltinObject } from './object/builtin-object';
 import { BuiltinShape } from './shapes/builtin-shape';
+// tslint:disable: prefer-for-of
 
 /**
  * Built-in static collider, no physical forces involved

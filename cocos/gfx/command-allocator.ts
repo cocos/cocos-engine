@@ -9,6 +9,7 @@ import { GFXDevice } from './device';
  * @zh
  * GFX命令分配器描述信息。
  */
+// tslint:disable-next-line:no-empty-interface
 export interface IGFXCommandAllocatorInfo {
 }
 

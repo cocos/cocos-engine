@@ -28,10 +28,10 @@
  */
 
 import CCClass from '../data/class';
+import { ValueType } from '../value-types/value-type';
 import { Mat3 } from './mat3';
 import { IQuatLike, IVec3Like } from './type-define';
 import { EPSILON, toDegree } from './utils';
-import { ValueType } from '../value-types/value-type';
 import { Vec3 } from './vec3';
 
 let _x: number = 0.0;

@@ -3,12 +3,14 @@
  * @category particle
  */
 
+import { CCClass } from '../../../../core/data';
 import { ccclass, property } from '../../../../core/data/class-decorator';
 import { lerp, pseudoRandom, Vec3 } from '../../../../core/math';
 import { Space } from '../enum';
 import Particle from '../particle';
 import CurveRange from './curve-range';
 
+// tslint:disable: max-line-length
 const LIMIT_VELOCITY_RAND_OFFSET = 23541;
 
 const _temp_v3 = cc.v3();

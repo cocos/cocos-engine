@@ -29,15 +29,15 @@
 
 import { RenderableComponent } from '../3d/framework/renderable-component';
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
-import { Mat4 } from '../core/math';
 import { ccclass } from '../core/data/class-decorator';
+import { Mat4 } from '../core/math';
+import { INode } from '../core/utils/interfaces';
 import { getClassName } from '../core/utils/js';
 import { AnimationClip, IObjectCurveData, IRuntimeCurve } from './animation-clip';
 import { AnimationComponent } from './animation-component';
-import { IPropertyCurveData, CurveValueAdapter } from './animation-curve';
-import { INode } from '../core/utils/interfaces';
+import { CurveValueAdapter, IPropertyCurveData } from './animation-curve';
+import { ComponentModifier, HierachyModifier, isCustomTargetModifier, isPropertyModifier } from './target-modifier';
 import { getPathFromRoot } from './transform-utils';
-import { HierachyModifier, ComponentModifier, isCustomTargetModifier, isPropertyModifier } from './target-modifier';
 
 function isTargetSkinningModel (comp: RenderableComponent, root: INode) {
     if (!(comp instanceof SkinningModelComponent)) { return false; }
@@ -66,7 +66,7 @@ export class FrameIDValueAdapter extends CurveValueAdapter {
         this.component = component;
     }
 
-    forTarget (target: any) {
+    public forTarget (target: any) {
         const node = new HierachyModifier(this.path).get(target);
         const component = new ComponentModifier(this.component).get(node) as SkinningModelComponent;
         return {
@@ -87,6 +87,7 @@ export class SkeletalAnimationClip extends AnimationClip {
     protected _converted = false;
 
     public getPropertyCurves (root: INode): ReadonlyArray<IRuntimeCurve> {
+        // tslint:disable-next-line: no-unused-expression
         this.hash; // calculate hash before conversion
         this._convertToSkeletalCurves(root);
         return super.getPropertyCurves(root);

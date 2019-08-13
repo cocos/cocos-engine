@@ -5378,6 +5378,7 @@ var dragonBones;
          * @private
          */
         Surface.prototype._updateGlobalTransformMatrix = function (isCache) {
+            // tslint:disable-next-line:no-unused-expression
             isCache;
             var segmentXD = this._boneData.segmentX * 2;
             var lastIndex = this._vertices.length - 2;
@@ -8201,7 +8202,9 @@ var dragonBones;
             if (fadeOutMode === void 0) { fadeOutMode = 3 /* SameLayerAndGroup */; }
             if (pauseFadeOut === void 0) { pauseFadeOut = true; }
             if (pauseFadeIn === void 0) { pauseFadeIn = true; }
+            // tslint:disable-next-line:no-unused-expression
             pauseFadeOut;
+            // tslint:disable-next-line:no-unused-expression
             pauseFadeIn;
             this._animationConfig.clear();
             this._animationConfig.resetToPose = true;
@@ -10464,7 +10467,7 @@ var dragonBones;
                 var valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex * 1; // ...(timeline value offset)|x|x|(Value offset)|(Next offset)|x|x|...
                 var colorOffset = frameIntArray[valueOffset];
                 if (colorOffset < 0) {
-                    colorOffset += 65536; // Fixed out of bouds bug.
+                    colorOffset += 65536; // Fixed out of bouds bug. 
                 }
                 this._current[0] = intArray[colorOffset++];
                 this._current[1] = intArray[colorOffset++];
@@ -10482,7 +10485,7 @@ var dragonBones;
                         colorOffset = frameIntArray[valueOffset + 1 * 1];
                     }
                     if (colorOffset < 0) {
-                        colorOffset += 65536; // Fixed out of bouds bug.
+                        colorOffset += 65536; // Fixed out of bouds bug. 
                     }
                     this._delta[0] = intArray[colorOffset++] - this._current[0];
                     this._delta[1] = intArray[colorOffset++] - this._current[1];
@@ -10648,7 +10651,7 @@ var dragonBones;
                 var frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + 3 /* TimelineFrameValueCount */];
                 this.meshOffset = this._frameIntArray[frameIntOffset + 0 /* DeformMeshOffset */];
                 if (this.meshOffset < 0) {
-                    this.meshOffset += 65536; // Fixed out of bouds bug.
+                    this.meshOffset += 65536; // Fixed out of bouds bug. 
                 }
                 this._deformCount = this._frameIntArray[frameIntOffset + 1 /* DeformCount */];
                 this._valueCount = this._frameIntArray[frameIntOffset + 2 /* DeformValueCount */];
@@ -12321,7 +12324,9 @@ var dragonBones;
             this._slot = null; //
         };
         ObjectDataParser.prototype._parseFrame = function (rawData, frameStart, frameCount) {
+            // tslint:disable-next-line:no-unused-expression
             rawData;
+            // tslint:disable-next-line:no-unused-expression
             frameCount;
             var frameOffset = this._frameArray.length;
             this._frameArray.length += 1;
@@ -12380,6 +12385,7 @@ var dragonBones;
             return frameOffset;
         };
         ObjectDataParser.prototype._parseActionFrame = function (frame, frameStart, frameCount) {
+            // tslint:disable-next-line:no-unused-expression
             frameCount;
             var frameOffset = this._frameArray.length;
             var actionCount = frame.actions.length;
@@ -12538,7 +12544,7 @@ var dragonBones;
             if (frameStart === 0) {
                 var frameIntOffset = this._frameIntArray.length;
                 this._frameIntArray.length += 1 + 1 + 1 + 1 + 1;
-                this._frameIntArray[frameIntOffset + 0 /* DeformMeshOffset */] = 0; //
+                this._frameIntArray[frameIntOffset + 0 /* DeformMeshOffset */] = 0; // 
                 this._frameIntArray[frameIntOffset + 1 /* DeformCount */] = this._frameFloatArray.length - frameFloatOffset;
                 this._frameIntArray[frameIntOffset + 2 /* DeformValueCount */] = this._frameFloatArray.length - frameFloatOffset;
                 this._frameIntArray[frameIntOffset + 3 /* DeformValueOffset */] = 0;
@@ -12565,6 +12571,7 @@ var dragonBones;
             if (dragonBones.DataParser.VALUE in rawData || dragonBones.DataParser.COLOR in rawData) {
                 var rawColor = dragonBones.DataParser.VALUE in rawData ? rawData[dragonBones.DataParser.VALUE] : rawData[dragonBones.DataParser.COLOR];
                 for (var k in rawColor) {
+                    // tslint:disable-next-line:no-unused-expression
                     k;
                     this._parseColorTransform(rawColor, this._helpColorTransform);
                     colorOffset = this._intArray.length;
@@ -12791,6 +12798,7 @@ var dragonBones;
             color.blueOffset = ObjectDataParser._getNumber(rawData, dragonBones.DataParser.BLUE_OFFSET, 0);
         };
         ObjectDataParser.prototype._parseArray = function (rawData) {
+            // tslint:disable-next-line:no-unused-expression
             rawData;
             this._intArray.length = 0;
             this._floatArray.length = 0;
@@ -13634,7 +13642,7 @@ var dragonBones;
                 armature.addSlot(slot, slotData.parent.name);
                 if (displays !== null) {
                     var displayList = new Array();
-                    // for (const displayData of displays)
+                    // for (const displayData of displays) 
                     for (var i = 0, l = dragonBones.DragonBones.webAssembly ? displays.size() : displays.length; i < l; ++i) {
                         var displayData = dragonBones.DragonBones.webAssembly ? displays.get(i) : displays[i];
                         if (displayData !== null) {
@@ -13653,6 +13661,7 @@ var dragonBones;
          * @private
          */
         BaseFactory.prototype._buildChildArmature = function (dataPackage, slot, displayData) {
+            // tslint:disable-next-line:no-unused-expression
             slot;
             return this.buildArmature(displayData.path, dataPackage !== null ? dataPackage.dataName : "", "", dataPackage !== null ? dataPackage.textureAtlasName : "");
         };
@@ -13712,7 +13721,7 @@ var dragonBones;
                                 childArmature.animation.play();
                             }
                         }
-                        armatureDisplayData.armature = childArmature.armatureData; //
+                        armatureDisplayData.armature = childArmature.armatureData; // 
                     }
                     display = childArmature;
                     break;
@@ -14206,7 +14215,7 @@ var dragonBones;
                 return false;
             }
             var displayIndex = 0;
-            // for (const displayData of displays)
+            // for (const displayData of displays) 
             for (var i = 0, l = dragonBones.DragonBones.webAssembly ? displays.size() : displays.length; i < l; ++i) {
                 var displayData = dragonBones.DragonBones.webAssembly ? displays.get(i) : displays[i];
                 this.replaceDisplay(slot, displayData, displayIndex++);
@@ -14439,6 +14448,7 @@ var dragonBones;
             if (fromSkinName === void 0) { fromSkinName = ""; }
             if (fromDragonBonesDataName === void 0) { fromDragonBonesDataName = ""; }
             if (replaceOriginalAnimation === void 0) { replaceOriginalAnimation = true; }
+            // tslint:disable-next-line:no-unused-expression
             fromSkinName;
             var armatureData = this.getArmatureData(fromArmatreName, fromDragonBonesDataName);
             if (!armatureData) {

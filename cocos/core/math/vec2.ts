@@ -29,11 +29,11 @@
  */
 
 import CCClass from '../data/class';
+import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
 import { IMat3Like, IMat4Like, IVec2Like } from './type-define';
 import { clamp } from './utils';
 import { EPSILON, random } from './utils';
-import { ValueType } from '../value-types/value-type';
 import { Vec3 } from './vec3';
 
 let _x: number = 0.0;
@@ -423,7 +423,7 @@ export class Vec2 extends ValueType {
      * @param y 要设置的 y 分量的值
      * @returns `this`
      */
-    public set (x?:number, y?:number);
+    public set (x?: number, y?: number);
 
     public set (x?: number | Vec2, y?: number) {
         if (x && typeof x === 'object') {
@@ -482,7 +482,7 @@ export class Vec2 extends ValueType {
      * @param y 指定向量的 y 分量。
      * @returns 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
      */
-    public strictEquals2f (x:number, y:number) {
+    public strictEquals2f (x: number, y: number) {
         return this.x === x && this.y === y;
     }
 
@@ -534,7 +534,7 @@ export class Vec2 extends ValueType {
      * @param x 指定的向量的 x 分量。
      * @param y 指定的向量的 y 分量。
      */
-    public add2f (x:number, y:number) {
+    public add2f (x: number, y: number) {
         this.x = this.x + x;
         this.y = this.y + y;
         return this;
@@ -555,7 +555,7 @@ export class Vec2 extends ValueType {
      * @param x 指定的向量的 x 分量。
      * @param y 指定的向量的 y 分量。
      */
-    public subtract2f (x:number, y:number) {
+    public subtract2f (x: number, y: number) {
         this.x = this.x - x;
         this.y = this.y - y;
         return this;
@@ -588,7 +588,7 @@ export class Vec2 extends ValueType {
      * @param x 指定的向量的 x 分量。
      * @param y 指定的向量的 y 分量。
      */
-    public multiply2f (x:number, y:number) {
+    public multiply2f (x: number, y: number) {
         this.x = this.x * x;
         this.y = this.y * y;
         return this;
@@ -609,7 +609,7 @@ export class Vec2 extends ValueType {
      * @param x 指定的向量的 x 分量。
      * @param y 指定的向量的 y 分量。
      */
-    public divide2f (x:number, y:number) {
+    public divide2f (x: number, y: number) {
         this.x = this.x / x;
         this.y = this.y / y;
         return this;

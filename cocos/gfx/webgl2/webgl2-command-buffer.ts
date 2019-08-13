@@ -422,6 +422,7 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
         }
     }
 
+    // tslint:disable: max-line-length
     public execute (cmdBuffs: GFXCommandBuffer[], count: number) {
 
         for (let i = 0; i < count; ++i) {

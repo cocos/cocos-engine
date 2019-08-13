@@ -24,6 +24,8 @@
  THE SOFTWARE.
 */
 
+// tslint:disable
+
 /**
  * @category component
  */

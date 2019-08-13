@@ -22,6 +22,8 @@
         "no-bitwise": false,
         "no-empty": false,
         "radix": false,
+        "prefer-for-of": false,
+
         "max-line-length": [
             true,
             160

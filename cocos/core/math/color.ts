@@ -29,9 +29,9 @@
  */
 
 import CCClass from '../data/class';
+import { ValueType } from '../value-types/value-type';
 import { IColorLike } from './type-define';
 import { EPSILON } from './utils';
-import { ValueType } from '../value-types/value-type';
 
 const toFloat = 1 / 255;
 
@@ -383,6 +383,7 @@ export class Color extends ValueType {
      * 用十六进制颜色字符串中构造颜色。
      * @param hexString 十六进制颜色字符串。
      */
+    // tslint:disable-next-line: unified-signatures
     constructor (hexString: string);
 
     /**
@@ -670,7 +671,7 @@ export class Color extends ValueType {
      * @param other 相比较的颜色。
      * @returns 当前颜色。
      */
-    public set (other:Color);
+    public set (other: Color);
 
     /**
      * 设置当前颜色使其与指定通道值相等。
@@ -680,9 +681,9 @@ export class Color extends ValueType {
      * @param [a=255] 指定的 Alpha 通道。
      * @returns 当前颜色。
      */
-    public set (r?:number, g?:number, b?:number, a?:number);
+    public set (r?: number, g?: number, b?: number, a?: number);
 
-    public set (r?: number|Color, g?:number, b?:number, a?:number ) {
+    public set (r?: number|Color, g?: number, b?: number, a?: number ) {
         if (typeof r === 'object') {
             g = r.g;
             b = r.b;
@@ -734,8 +735,7 @@ export class Color extends ValueType {
 CCClass.fastDefine('cc.Color', Color, {r: 0, g: 0, b: 0, a: 255});
 cc.Color = Color;
 
-export function color (other: Color): Color;
-export function color (hexString: string): Color;
+export function color (other: Color | string): Color;
 export function color (r?: number, g?: number, b?: number, a?: number): Color;
 
 export function color (r?: number | Color | string, g?: number, b?: number, a?: number) {

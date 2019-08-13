@@ -72,7 +72,7 @@ export interface IBuildOptions extends IBaseOptions {
 export async function build (options: IBuildOptions) {
     _checkPhysicsFlag(options);
     _ensureUniqueModules(options);
-    
+
     const globalDefines = getGlobalDefs(options);
     return await _internalBuild(Object.assign(options, {globalDefines}));
 }
@@ -121,7 +121,7 @@ function _checkPhysicsFlag (options: IBuildOptions) {
     // options.moduleEntries.push(`physics-framework`);
 }
 
-function _ensureUniqueModules(options: IBuildOptions) {
+function _ensureUniqueModules (options: IBuildOptions) {
     const uniqueModuleEntries: string[] = [];
     for (const moduleEntry of options.moduleEntries) {
         if (uniqueModuleEntries.indexOf(moduleEntry) < 0) {
@@ -222,7 +222,7 @@ async function _internalBuild (options: IAdvancedOptions) {
             return false;
         }
     });
-    
+
     const rollupBuild = await rollup({
         input: moduleEntries,
         plugins: rollupPlugins,
@@ -318,8 +318,8 @@ interface IGlobaldefines {
 }
 
 function getGlobalDefs (options: IBuildOptions): object {
-    let { platform, flags } = options;
-    platform = platform || Platform.universal;
+    const flags = options.flags;
+    const platform = options.platform || Platform.universal;
 
     const PLATFORM_MACROS = ['CC_EDITOR', 'CC_PREVIEW', 'CC_BUILD', 'CC_TEST'];
 

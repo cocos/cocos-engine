@@ -121,6 +121,7 @@ export class Asset extends RawAsset implements IEventTarget {
      * @zh
      * IEventTarget 实现，它们将被 applyMixins 在 EventTarget 中用相同的实现覆盖
      */
+    // tslint:disable-next-line: member-ordering
     public _callbackTable = createMap(true);
     public on (type: string, callback: Function, target?: Object | undefined): Function | undefined {
         return;

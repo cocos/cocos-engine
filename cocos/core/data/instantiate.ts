@@ -171,6 +171,7 @@ function doInstantiate (obj, parent?) {
 
 function enumerateCCClass (klass, obj, clone, parent) {
     const props = klass.__values__;
+    // tslint:disable: prefer-for-of
     for (let p = 0; p < props.length; p++) {
         const key = props[p];
         const value = obj[key];

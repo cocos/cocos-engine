@@ -148,7 +148,7 @@ export class JointsTexturePool {
      * 获取默认骨骼贴图
      */
     public getDefaultJointsTexture (skeleton?: Skeleton) {
-        let len: number = skeleton && skeleton.joints.length || 1;
+        const len = skeleton && skeleton.joints.length || 1;
         let texture: IJointsTextureHandle | null = this._textureBuffers.get(len) || null;
         if (texture) { texture.refCount++; return texture; }
         const handle = this._pool.alloc(len * 12 * Float32Array.BYTES_PER_ELEMENT);

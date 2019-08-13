@@ -21,6 +21,7 @@ const transform_extent_m3 = (out: Vec3, extent: Vec3, m3: Mat3) => {
  * @zh
  * 基础几何  方向包围盒。
  */
+// tslint:disable-next-line:class-name
 export default class obb {
 
     /**

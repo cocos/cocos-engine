@@ -71,6 +71,7 @@ export interface IGFXDeviceInfo {
  * @zh
  * GFX设备。
  */
+// tslint:disable: max-line-length
 export abstract class GFXDevice {
 
     /**

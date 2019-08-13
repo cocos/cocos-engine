@@ -8,6 +8,8 @@ import { Vec2 } from '../core/math';
 import { AnimCurve, computeRatioByType, CurveType, CurveValue } from './animation-curve';
 import { bezier } from './bezier';
 
+// tslint:disable:no-shadowed-variable
+
 export class Curve {
     public beziers: Bezier[] = [];
 

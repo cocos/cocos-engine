@@ -72,6 +72,8 @@ const SAMPLES: number[] = [
 
 const _f32v4 = new Float32Array(4);
 
+// tslint:disable: max-line-length
+
 function CmpF32NotEuqal (a: number, b: number): boolean {
     const c = a - b;
     return (c > 0.000001 || c < -0.000001);

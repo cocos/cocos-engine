@@ -29,8 +29,8 @@
  */
 
 import CCClass from '../data/class';
-import { ISizeLike } from './type-define';
 import { ValueType } from '../value-types/value-type';
+import { ISizeLike } from './type-define';
 
 /**
  * 二维尺寸。

@@ -28,11 +28,12 @@
  * @hidden
  */
 
+// tslint:disable:max-line-length
 
 import { Event } from '../../event';
+import { INode } from '../../utils/interfaces';
 import { EventTouch } from './CCEvent';
 import { EventListener, TouchOneByOne } from './event-listener';
-import { INode } from '../../utils/interfaces';
 const ListenerID = EventListener.ListenerID;
 
 function checkUINode (node) {
@@ -45,6 +46,7 @@ function checkUINode (node) {
     return false;
 }
 
+// tslint:disable-next-line: class-name
 class _EventListenerVector {
     public gt0Index = 0;
     private _fixedListeners: EventListener[] = [];
@@ -663,6 +665,7 @@ class EventManager {
 
     private _updateDirtyFlagForSceneGraph () {
         const locDirtyListeners = this._dirtyListeners;
+        // tslint:disable-next-line: forin
         for (const selKey in locDirtyListeners) {
             this._setDirty(selKey, DIRTY_SCENE_GRAPH_PRIORITY);
         }
@@ -781,8 +784,8 @@ class EventManager {
             }
         }
 
-        let priority1 = p1.getSiblingIndex();
-        let priority2 = p2.getSiblingIndex();
+        const priority1 = p1.getSiblingIndex();
+        const priority2 = p2.getSiblingIndex();
 
         return ex ? priority1 - priority2 : priority2 - priority1;
     }

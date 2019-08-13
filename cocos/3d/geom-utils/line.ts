@@ -9,6 +9,7 @@ import enums from './enums';
  * @zh
  * 基础几何 line。
  */
+// tslint:disable-next-line:class-name
 export default class line {
 
     /**

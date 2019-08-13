@@ -28,6 +28,13 @@
  * @category core/data
  */
 
+// tslint:disable:only-arrow-functions
+// tslint:disable:prefer-for-of
+// tslint:disable:no-shadowed-variable
+// tslint:disable:max-line-length
+// tslint:disable:jsdoc-format
+// tslint:disable:forin
+
 import { errorID, warnID } from '../platform/CCDebug';
 import * as js from '../utils/js';
 import { getSuper } from '../utils/js';
@@ -374,6 +381,7 @@ function define (className, baseClass, mixins, options) {
                 js._setClassId(uuid, cls);
                 if (CC_EDITOR) {
                     // @ts-ignore
+                    // tslint:disable-next-line:no-unused-expression
                     window.EditorExtends && window.EditorExtends.Component.addMenu(cls, 'i18n:menu.custom_script/' + className, -1);
                     cls.prototype.__scriptUuid = Editor.Utils.UuidUtils.decompressUuid(uuid);
                 }

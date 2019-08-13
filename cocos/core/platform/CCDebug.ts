@@ -187,6 +187,7 @@ export function _resetDebugSetting (mode: DebugMode) {
             if (!condition) {
                 const errorText = formatString(message, ...optionalParams);
                 if (CC_DEV) {
+                    // tslint:disable:no-debugger
                     debugger;
                 }
                 else {
