@@ -65,8 +65,8 @@ export class Profiler {
     private _device: GFXDevice | null = null;
     private readonly _canvas: HTMLCanvasElement;
     private readonly _ctx: CanvasRenderingContext2D;
-    private _texture: GFXTexture;
-    private _textureView: GFXTextureView;
+    private _texture: GFXTexture | null = null;
+    private _textureView: GFXTextureView | null = null;
     private readonly _region: GFXBufferTextureCopy = new GFXBufferTextureCopy();
     private readonly _canvasArr = [this._canvas];
     private readonly _regionArr = [this._region];
@@ -247,7 +247,7 @@ export class Profiler {
         _material.setProperty('offset', new Vec4(-0.9, -0.9, 0, 0));
         const pass = _material.passes[0];
         const handle = pass.getBinding('mainTexture');
-        pass.bindTextureView(handle!, this._textureView);
+        pass.bindTextureView(handle!, this._textureView!);
 
         modelCom.material = _material;
     }
@@ -259,7 +259,7 @@ export class Profiler {
 
         this.generateNode();
 
-        const now = director._lastUpdate;
+        const now = cc.director._lastUpdate;
         this.getCounter('frame').end(now);
         this.getCounter('frame').start(now);
         this.getCounter('logic').start(now);
@@ -342,7 +342,7 @@ export class Profiler {
     }
 
     public updateTexture () {
-        director.root!.device.copyTexImagesToTexture(this._canvasArr,this._texture, this._regionArr);
+        director.root!.device.copyTexImagesToTexture(this._canvasArr,this._texture!, this._regionArr);
     }
 
 }
