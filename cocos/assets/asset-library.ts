@@ -333,12 +333,6 @@ const AssetLibrary = {
 
         _rawAssetsBase = options.rawAssetsBase;
 
-        if (options.subpackages) {
-            const subPackPipe = new SubPackPipe(options.subpackages);
-            cc.loader.insertPipeAfter(cc.loader.assetLoader, subPackPipe);
-            cc.loader.subPackPipe = subPackPipe;
-        }
-
         const md5AssetsMap = options.md5AssetsMap;
         if (md5AssetsMap && md5AssetsMap.import) {
             // decode uuid
@@ -361,6 +355,12 @@ const AssetLibrary = {
             const md5Pipe = new MD5Pipe(md5ImportMap, md5RawAssetsMap, _libraryBase);
             cc.loader.insertPipeAfter(cc.loader.assetLoader, md5Pipe);
             cc.loader.md5Pipe = md5Pipe;
+        }
+
+        if (options.subpackages) {
+            const subPackPipe = new SubPackPipe(options.subpackages);
+            cc.loader.insertPipeAfter(cc.loader.assetLoader, subPackPipe);
+            cc.loader.subPackPipe = subPackPipe;
         }
 
         // init raw assets
