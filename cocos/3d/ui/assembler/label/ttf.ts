@@ -36,7 +36,7 @@ import { IAssembler} from '../base';
 import { ttfUtils } from './ttfUtils';
 import { IRenderData } from '../../../../renderer/ui/renderData';
 
-const WHITE = Color.WHITE;
+const WHITE = Color.WHITE.clone();
 
 /**
  * ttf 组装器

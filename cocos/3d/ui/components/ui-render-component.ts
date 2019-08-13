@@ -204,7 +204,7 @@ export class UIRenderComponent extends UIComponent {
     @property
     protected _dstBlendFactor = GFXBlendFactor.ONE_MINUS_SRC_ALPHA;
     @property
-    protected _color: Color = Color.WHITE;
+    protected _color: Color = Color.WHITE.clone();
     @property
     protected _sharedMaterial: Material | null = null;
 

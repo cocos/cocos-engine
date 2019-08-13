@@ -99,7 +99,7 @@ export class EditBoxImpl {
     public __rotateScreen = false;
     public __orientationChanged: any;
     public _edTxt: HTMLInputElement | HTMLTextAreaElement | null = null;
-    public _textColor: Color = Color.WHITE;
+    public _textColor: Color = Color.WHITE.clone();
     public _edFontSize = 14;
     private _isTextArea = false;
 

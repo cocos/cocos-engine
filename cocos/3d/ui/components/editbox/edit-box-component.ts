@@ -478,13 +478,13 @@ export class EditBoxComponent extends Component {
     @property
     private _maxLength = 20;
     @property
-    private _fontColor: Color = Color.WHITE;
+    private _fontColor: Color = Color.WHITE.clone();
     @property
     private _placeholder = 'Enter text here...';
     @property
     private _placeholderFontSize = 20;
     @property
-    private _placeholderFontColor: Color = Color.GRAY;
+    private _placeholderFontColor: Color = Color.GRAY.clone();
     @property
     private _stayOnTop = false;
 

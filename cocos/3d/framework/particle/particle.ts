@@ -17,7 +17,7 @@ export default class Particle {
     public startSize: Vec3;
     public size: Vec3;
     public startColor: Color;
-    public color = cc.Color.WHITE;
+    public color: Color;
     public randomSeed: number; // uint
     public remainingLifetime: number;
     public startLifetime: number;
@@ -36,8 +36,8 @@ export default class Particle {
         this.rotation = new Vec3(0, 0, 0);
         this.startSize = new Vec3(0, 0, 0);
         this.size = new Vec3(0, 0, 0);
-        this.startColor = cc.Color.WHITE;
-        this.color = cc.Color.WHITE;
+        this.startColor = cc.Color.WHITE.clone();
+        this.color = cc.Color.WHITE.clone();
         this.randomSeed = 0; // uint
         this.remainingLifetime = 0.0;
         this.startLifetime = 0.0;

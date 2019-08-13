@@ -29,6 +29,7 @@
 
 import { Skeleton } from '../../3d/assets/skeleton';
 import { SkeletalAnimationClip } from '../../animation';
+import { INode } from '../../core/utils/interfaces';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { UBOSkinningTexture, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
@@ -36,7 +37,6 @@ import { Pass } from '../core/pass';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 import { getJointsTextureSampler, IJointsTextureHandle } from './joints-texture-utils';
-import { INode } from '../../core/utils/interfaces';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;

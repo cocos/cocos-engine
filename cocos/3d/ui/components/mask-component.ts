@@ -477,7 +477,7 @@ export class MaskComponent extends UIRenderComponent {
             clearGraphics.helpInstanceMaterial();
             clearGraphics._activateMaterial();
             clearGraphics.lineWidth = 0;
-            const color = Color.WHITE;
+            const color = Color.WHITE.clone();
             color.a = 0;
             this._clearGraphics.fillColor = color;
             this._updateClearGraphics();
@@ -489,7 +489,7 @@ export class MaskComponent extends UIRenderComponent {
             graphics.node.getWorldMatrix();
             graphics.helpInstanceMaterial();
             graphics.lineWidth = 0;
-            const color = Color.WHITE;
+            const color = Color.WHITE.clone();
             color.a = 0;
             graphics.fillColor = color;
         }

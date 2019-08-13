@@ -47,8 +47,8 @@ export class Vec2 extends ValueType {
     public static ZERO = Object.freeze(new Vec2(0, 0));
     public static ONE = Object.freeze(new Vec2(1, 1));
     public static NEG_ONE = Object.freeze(new Vec2(-1, -1));
-    public static UP = Object.freeze(new Vec2(0.0, 1.0));
-    public static RIGHT = Object.freeze(new Vec2(1.0, 0.0));
+    public static UNIT_X = Object.freeze(new Vec2(1, 0));
+    public static UNIT_Y = Object.freeze(new Vec2(0, 1));
 
     /**
      * @zh 获得指定向量的拷贝

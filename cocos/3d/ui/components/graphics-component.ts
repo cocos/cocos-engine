@@ -172,13 +172,13 @@ export class GraphicsComponent extends UIRenderComponent {
     @property
     private _lineWidth = 1;
     @property
-    private _strokeColor = Color.BLACK;
+    private _strokeColor = Color.BLACK.clone();
     @property
     private _lineJoin = LineJoin.MITER;
     @property
     private _lineCap = LineCap.BUTT;
     @property
-    private _fillColor = Color.WHITE;
+    private _fillColor = Color.WHITE.clone();
     @property
     private _miterLimit = 10;
 

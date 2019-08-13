@@ -397,7 +397,7 @@ export class AnimationState extends Playable {
             try {
                 samplerSharedGroup.curves.push(new ICurveInstance(propertyCurve, root));
             } catch (err) {
-                warn(`Failed to bind "${root.name}" to curve in clip ${clip.name}: ${err}`);
+                // warn(`Failed to bind "${root.name}" to curve in clip ${clip.name}: ${err}`);
             }
         }
     }

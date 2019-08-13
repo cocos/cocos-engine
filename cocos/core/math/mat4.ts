@@ -46,6 +46,8 @@ let _a30: number = 0; let _a31: number = 0; let _a32: number = 0; let _a33: numb
 // tslint:disable:one-variable-per-declaration
 export class Mat4 extends ValueType {
 
+    public static IDENTITY = Object.freeze(new Mat4());
+
     /**
      * @zh 获得指定矩阵的拷贝
      */

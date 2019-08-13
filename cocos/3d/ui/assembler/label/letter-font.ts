@@ -39,7 +39,7 @@ import { PixelFormat } from '../../../../assets/asset-enum';
 
 // const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutlineComponent, UIComponent);
 const Overflow = LabelComponent.Overflow;
-const WHITE = Color.WHITE;
+const WHITE = Color.WHITE.clone();
 const space = 2;
 const TextAlignment = LabelComponent.HorizontalAlign;
 const VerticalTextAlignment = LabelComponent.VerticalAlign;

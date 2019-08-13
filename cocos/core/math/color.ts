@@ -46,6 +46,17 @@ let _a: number = 0;
  */
 export class Color extends ValueType {
 
+    public static WHITE = Object.freeze(new Color(255, 255, 255, 255));
+    public static GRAY = Object.freeze(new Color(127, 127, 127, 255));
+    public static BLACK = Object.freeze(new Color(0, 0, 0, 255));
+    public static TRANSPARENT = Object.freeze(new Color(0, 0, 0, 0));
+    public static RED = Object.freeze(new Color(255, 0, 0, 255));
+    public static GREEN = Object.freeze(new Color(0, 255, 0, 255));
+    public static BLUE = Object.freeze(new Color(0, 0, 255, 255));
+    public static CYAN = Object.freeze(new Color(0, 255, 255, 255));
+    public static MAGENTA = Object.freeze(new Color(255, 0, 255, 255));
+    public static YELLOW = Object.freeze(new Color(255, 255, 0, 255));
+
     /**
      * @zh 获得指定颜色的拷贝
      */
@@ -200,83 +211,6 @@ export class Color extends ValueType {
      */
     public static hex <Out extends IColorLike> (a: Out) {
         return ((a.r * 255) << 24 | (a.g * 255) << 16 | (a.b * 255) << 8 | a.a * 255) >>> 0;
-    }
-
-    /**
-     * 创建并获取（不透明的）纯白色，各通道值依次为 (255, 255, 255, 255)。
-     */
-    static get WHITE () {
-        return new Color(255, 255, 255, 255);
-    }
-
-    /**
-     * 创建并获取（不透明的）纯黑色，各通道值依次为 (0, 0, 0, 255)。
-     */
-    static get BLACK () {
-        return new Color(0, 0, 0, 255);
-    }
-
-    /**
-     * 创建并获取全透明的纯黑色，各通道值依次为 (0, 0, 0, 0)。
-     */
-    static get TRANSPARENT () {
-        return new Color(0, 0, 0, 0);
-    }
-
-    /**
-     * 创建并获取（不透明的）灰色，各通道值依次为 (127.5, 127.5, 127.5, 255)。
-     */
-    static get GRAY () {
-        return new Color(127.5, 127.5, 127.5, 255);
-    }
-
-    /**
-     * 创建并获取（不透明的）纯红色，各通道值依次为 (255, 0, 0, 255)。
-     */
-    static get RED () {
-        return new Color(255, 0, 0, 255);
-    }
-
-    /**
-     * 创建并获取（不透明的）纯绿色，各通道值依次为 (0, 255, 0, 255)。
-     */
-    static get GREEN () {
-        return new Color(0, 255, 0, 255);
-    }
-
-    /**
-     * 创建并获取（不透明的）纯蓝色，各通道值依次为 (0, 0, 255, 255)。
-     */
-    static get BLUE () {
-        return new Color(0, 0, 255, 255);
-    }
-
-    /**
-     * 创建并获取（不透明的）黄色，各通道值依次为 (255, 235, 4, 255)。
-     */
-    static get YELLOW () {
-        return new Color(255, 235, 4, 255);
-    }
-
-    /**
-     * 创建并获取（不透明的）橙色，各通道值依次为 (255, 127, 0, 255)。
-     */
-    static get ORANGE () {
-        return new Color(255, 127, 0, 255);
-    }
-
-    /**
-     * 创建并获取（不透明的）青色，各通道值依次为 (0, 255, 255, 255)。
-     */
-    static get CYAN () {
-        return new Color(0, 255, 255, 255);
-    }
-
-    /**
-     * 创建并获取（不透明的）洋红色（品红色），各通道值依次为 (255, 0, 255, 255)。
-     */
-    static get MAGENTA () {
-        return new Color(255, 0, 255, 255);
     }
 
     /**

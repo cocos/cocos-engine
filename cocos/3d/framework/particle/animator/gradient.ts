@@ -9,10 +9,6 @@ import { Enum } from '../../../../core/value-types';
 
 // tslint:disable: max-line-length
 
-const _black: Color = Color.BLACK;
-
-const _white: Color = Color.WHITE;
-
 const Mode = Enum({
     Blend: 0,
     Fixed: 1,
@@ -22,14 +18,14 @@ const Mode = Enum({
 export class ColorKey {
 
     @property
-    public color = cc.Color.WHITE;
+    public color = cc.Color.WHITE.clone();
 
     @property
     public time = 0;
 }
 
 // CCClass.fastDefine('cc.ColorKey', ColorKey, {
-//     color: cc.Color.WHITE,
+//     color: cc.Color.WHITE.clone(),
 //     time: 0
 // });
 
@@ -65,7 +61,7 @@ export default class Gradient {
     private _color: Color;
 
     constructor () {
-        this._color = cc.Color.WHITE;
+        this._color = cc.Color.WHITE.clone();
     }
 
     public setKeys (colorKeys: ColorKey[], alphaKeys: AlphaKey[]) {
@@ -113,16 +109,16 @@ export default class Gradient {
             }
             const lastIndex = this.colorKeys.length - 1;
             if (time < this.colorKeys[0].time) {
-                Color.lerp(this._color, _black, this.colorKeys[0].color, time / this.colorKeys[0].time);
+                Color.lerp(this._color, Color.BLACK, this.colorKeys[0].color, time / this.colorKeys[0].time);
             } else if (time > this.colorKeys[lastIndex].time) {
-                Color.lerp(this._color, this.colorKeys[lastIndex].color, _black, (time - this.colorKeys[lastIndex].time) / (1 - this.colorKeys[lastIndex].time));
+                Color.lerp(this._color, this.colorKeys[lastIndex].color, Color.BLACK, (time - this.colorKeys[lastIndex].time) / (1 - this.colorKeys[lastIndex].time));
             }
             // console.warn('something went wrong. can not get gradient color.');
         } else if (this.colorKeys.length === 1) {
             this._color.set(this.colorKeys[0].color);
             return this._color;
         } else {
-            this._color.set(_white);
+            this._color.set(Color.WHITE);
             return this._color;
         }
     }

@@ -44,6 +44,8 @@ let _a20: number = 0; let _a21: number = 0; let _a22: number = 0;
 // tslint:disable:one-variable-per-declaration
 export class Mat3 extends ValueType {
 
+    public static IDENTITY = Object.freeze(new Mat3());
+
     /**
      * @zh 获得指定矩阵的拷贝
      */

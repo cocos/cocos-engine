@@ -67,9 +67,9 @@ export class Impl {
     // inner properties
     public tessTol = 0.25;
     public distTol = 0.01;
-    public fillColor = Color.WHITE;
+    public fillColor = Color.WHITE.clone();
     public lineCap = LineCap.BUTT;
-    public strokeColor = Color.BLACK;
+    public strokeColor = Color.BLACK.clone();
     public lineJoin = LineJoin.MITER;
     public lineWidth = 0;
 
