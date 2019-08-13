@@ -38,7 +38,7 @@ import { genSamplerHash } from '../core/sampler-lib';
 import { ITextureBufferHandle, TextureBufferPool } from '../core/texture-buffer-pool';
 
 // change here and cc-skinning.inc to use other skinning algorithms
-const uploadJointData = uploadJointDataLBS;
+const uploadJointData = uploadJointDataDQS;
 
 export enum JointsMediumType {
     NONE, // for non-skinning models only
