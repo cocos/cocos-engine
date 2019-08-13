@@ -215,21 +215,19 @@ export class Profiler {
         const managerNode = new Node('ROOT');
         managerNode.parent = this._rootNode;
 
-        let w = 0.5;
-        const h = 0.5;
-        const x = director.root!.device.width;
-        const y = director.root!.device.height;
-        if(y > x) {
-            w = 2 * w;
-        }
-
         const modelCom = managerNode.addComponent('cc.ModelComponent') as ModelComponent;
         modelCom.mesh = createMesh({
+            // positions: [
+            //     -0.25, -1/7, 0, // bottom-left
+            //     -0.25,  1/7, 0, // top-left
+            //      0.25,  1/7, 0, // top-right
+            //      0.25, -1/7, 0, // bottom-right
+            // ],
             positions: [
-                -0.25, -1/7, 0, // bottom-left
-                -0.25,  1/7, 0, // top-left
-                 0.25,  1/7, 0, // top-right
-                 0.25, -1/7, 0, // bottom-right
+                -0.3, -0.2, 0, // bottom-left
+                -0.3,  0.2, 0, // top-left
+                 0.3,  0.2, 0, // top-right
+                 0.3, -0.2, 0, // bottom-right
             ],
             indices: [
                 0, 2, 1,
