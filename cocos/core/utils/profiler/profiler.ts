@@ -191,7 +191,6 @@ export class Profiler {
             bufferMemory: { desc: 'GFX Buffer Mem(M)'},
         };
 
-        // 左侧静态
         this._ctx.textAlign = 'left';
         let i = 0;
         for (const id of Object.keys(opts)) {
@@ -343,7 +342,6 @@ export class Profiler {
     }
 
     public updateTexture () {
-        // 更新材质的贴图
         director.root!.device.copyTexImagesToTexture(this._canvasArr,this._texture, this._regionArr);
     }
 
