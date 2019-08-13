@@ -67,7 +67,7 @@ export default class MD5Pipe {
     transformURL (url, hashPatchInFolder) {
         var uuid = getUuidFromURL(url);
         if (uuid) {
-            var isNativeAsset = !url.startsWith(this.libraryBase);
+            var isNativeAsset = !url.match(this.libraryBase);
             var map = isNativeAsset ? this.md5NativeAssetsMap : this.md5AssetsMap;
             let hashValue = map[uuid];
             if (hashValue) {
