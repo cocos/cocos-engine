@@ -88,11 +88,11 @@ export class CameraComponent extends Component {
     @property
     protected _orthoHeight = 10;
     @property
-    protected _near = 0.1;
+    protected _near = 1;
     @property
-    protected _far = 1000.0;
+    protected _far = 1000;
     @property
-    protected _color = new Color('#334C78'); // fromHEX('#334C78');
+    protected _color = new Color('#334C78');
     @property
     protected _depth = 1;
     @property

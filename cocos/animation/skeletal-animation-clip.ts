@@ -97,27 +97,20 @@ export class SkeletalAnimationClip extends AnimationClip {
         const convertedData: ConvertedData = {};
         this.curves.forEach((curve) => {
             if (!curve.valueAdapter &&
-                curve.modifiers.length === 2 &&
                 isCustomTargetModifier(curve.modifiers[0], HierachyModifier) &&
                 isPropertyModifier(curve.modifiers[1])) {
                 const path = (curve.modifiers[0] as HierachyModifier).path;
                 let cs = convertedData[path];
-                if (!cs) {
-                    cs = {
-                        props: {},
-                    };
-                    convertedData[path] = cs;
-                }
+                if (!cs) { cs = convertedData[path] = { props: {} }; }
                 const property = curve.modifiers[1] as string;
                 cs.props[property] = curve.data;
             }
         });
         this.convertedData = convertedData; this.curves = [];
-        // sort the keys to make sure parent bone always comes first
-        const paths = Object.keys(this.convertedData).sort();
-        const values: number[] = new Array(Math.ceil(this.sample * this._duration / this.speed));
+        const values: number[] = new Array(Math.ceil(this.sample * this._duration / this.speed) + 1);
         for (let i = 0; i < values.length; i++) { values[i] = i; }
-        for (const path of paths) {
+        // sort the keys to make sure parent bone always comes first
+        for (const path of Object.keys(this.convertedData).sort()) {
             const nodeData = this.convertedData[path];
             if (!nodeData.props) { continue; }
             const { position, rotation, scale } = nodeData.props;
@@ -149,8 +142,8 @@ export class SkeletalAnimationClip extends AnimationClip {
                 this.curves = curves;
             }
         }
-        this._keys = [values.map((_, i) => i / this.sample)];
-        this._duration = (values.length - 1) / this.sample;
+        this._keys = [values.map((_, i) => i * this.speed / this.sample)];
+        this._duration = this._keys[0][values.length - 1];
         this._converted = true;
     }
 
@@ -158,7 +151,7 @@ export class SkeletalAnimationClip extends AnimationClip {
         const keys = this._keys[curve.keys]; curve.keys = 0;
         curve.values = counts.map((_, i) => {
             if (!keys || keys.length === 1) { return curve.values[0].clone(); } // never forget to clone
-            let time = i / this.sample;
+            let time = i * this.speed / this.sample;
             let idx = keys.findIndex((k) => k > time);
             if (idx < 0) { idx = keys.length - 1; time = keys[idx]; }
             else if (idx === 0) { idx = 1; }
