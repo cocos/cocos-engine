@@ -342,9 +342,8 @@ class Director extends EventTarget {
             });
         }
         */
-
-        {
-            this._physicsSystem = new PhysicsSystem();
+        if (CC_PHYSICS_BUILT_IN || CC_PHYSICS_CANNON || CC_PHYSICS_AMMO) {
+            this._physicsSystem = new cc.PhysicsSystem();
         }
 
         cc.loader.init(this);
@@ -1064,9 +1063,11 @@ class Director extends EventTarget {
                 }
             }
 
-            this.emit(Director.EVENT_BEFORE_PHYSICS);
-            this._physicsSystem!.update(this._deltaTime);
-            this.emit(Director.EVENT_AFTER_PHYSICS);
+            if (CC_PHYSICS_BUILT_IN || CC_PHYSICS_CANNON || CC_PHYSICS_AMMO) {
+                this.emit(Director.EVENT_BEFORE_PHYSICS);
+                this._physicsSystem!.update(this._deltaTime);
+                this.emit(Director.EVENT_AFTER_PHYSICS);
+            }
 
             this.emit(Director.EVENT_BEFORE_DRAW);
             this._root!.frameMove(this._deltaTime);
