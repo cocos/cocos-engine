@@ -31,6 +31,7 @@ const Material = require('../assets/material/CCMaterial');
 import geomUtils from '../geom-utils';
 import gfx from '../../renderer/gfx';
 import CustomProperties from '../assets/material/custom-properties';
+import { postLoadMesh } from '../utils/mesh-util';
 
 
 /**
@@ -184,8 +185,20 @@ let MeshRenderer = cc.Class({
 
     onEnable () {
         this._super();
-        this._setMesh(this._mesh);
-        this._activateMaterial();
+        if (this._mesh && !this._mesh.loaded) {
+            this.disableRender();
+            var self = this;
+            this._mesh.once('load', function () {
+                self._setMesh(self._mesh);
+                self._activateMaterial();
+            });
+            postLoadMesh(this._mesh);
+        }
+        else {
+            this._setMesh(this._mesh);
+            this._activateMaterial();
+        }
+        
     },
 
     onDestroy () {
