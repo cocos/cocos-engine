@@ -27,14 +27,15 @@ import gfx from '../../renderer/gfx';
 import InputAssembler from '../../renderer/core/input-assembler';
 import geomUtils from '../geom-utils';
 import CustomProperties from '../assets/material/custom-properties';
+import { postLoadMesh } from '../utils/mesh-util';
 
 const RenderComponent = require('../components/CCRenderComponent');
 const Mesh = require('./CCMesh');
 const RenderFlow = require('../renderer/render-flow');
 const Renderer = require('../renderer');
 const Material = require('../assets/material/CCMaterial');
-
 const BLACK_COLOR = cc.Color.BLACK;
+
 
 
 /**
@@ -206,8 +207,20 @@ let MeshRenderer = cc.Class({
 
     onEnable () {
         this._super();
-        this._setMesh(this._mesh);
-        this._activateMaterial();
+        if (this._mesh && !this._mesh.loaded) {
+            this.disableRender();
+            var self = this;
+            this._mesh.once('load', function () {
+                self._setMesh(self._mesh);
+                self._activateMaterial();
+            });
+            postLoadMesh(this._mesh);
+        }
+        else {
+            this._setMesh(this._mesh);
+            this._activateMaterial();
+        }
+        
     },
 
     onDestroy () {
