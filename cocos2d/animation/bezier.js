@@ -40,11 +40,8 @@
 //    return bezier;
 //})();
 function bezier (C1, C2, C3, C4, t) {
-   var t1 = 1 - t;
-   return C1 * t1 * t1 * t1 +
-          C2 * 3 * t1 * t1 * t +
-          C3 * 3 * t1 * t * t +
-          C4 * t * t * t;
+    var t1 = 1 - t;
+    return t1 * (t1 * (C1 + (C2 * 3 - C1) * t) + C3 * 3 * t * t) + C4 * t * t * t;
 }
 //function bezier (c0, c1, c2, c3, t) {
 //    var cy = 3.0 * (c1);
@@ -199,15 +196,10 @@ function cardano (curve, x) {
 
 function bezierByTime (controlPoints, x) {
     var percent = cardano(controlPoints, x);    // t
-    var p0y = 0;                // a
     var p1y = controlPoints[1]; // b
     var p2y = controlPoints[3]; // c
-    var p3y = 1;                // d
-    var t1 = 1 - percent;
-    return p0y * t1 * t1 * t1 +
-           p1y * 3 * percent * t1 * t1 +
-           p2y * 3 * percent * percent * t1 +
-           p3y * percent * percent * percent;
+    // return bezier(0, p1y, p2y, 1, percent);
+    return ((1 - percent) * (p1y + (p2y - p1y) * percent) * 3 + percent * percent) * percent;
 }
 
 if (CC_TEST) {
