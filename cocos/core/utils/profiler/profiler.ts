@@ -24,13 +24,13 @@
  THE SOFTWARE.
 */
 
-import { Material, ModelComponent } from '../../../3d';
+import { Material, ModelComponent, CameraComponent } from '../../../3d';
 import { GFXDevice } from '../../../gfx/device';
 import { Node } from '../../../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
 import { GFXTexture } from '../../../gfx/texture';
-import { GFXTextureType, GFXTextureUsageBit, GFXFormat, GFXTextureViewType, GFXBufferTextureCopy } from '../../../gfx/define';
+import { GFXTextureType, GFXTextureUsageBit, GFXFormat, GFXTextureViewType, GFXBufferTextureCopy, GFXClearFlag } from '../../../gfx/define';
 import { GFXTextureView } from '../../../gfx/texture-view';
 import { createMesh } from '../../../3d/misc/utils';
 import director from '../../director';
@@ -208,10 +208,21 @@ export class Profiler {
             return;
         }
 
-        this._rootNode = new Node('PROFILER-NODE');
+        this._rootNode = new Node('PROFILER_NODE');
         cc.game.addPersistRootNode(this._rootNode);
 
-        const managerNode = new Node('ROOT');
+        const cameraNode = new Node('Profiler_Camera');
+        cameraNode.setPosition(0,0,1);
+        cameraNode.parent = this._rootNode;
+        const camera = cameraNode.addComponent('cc.CameraComponent') as CameraComponent;
+        camera.projection = CameraComponent.ProjectionType.ORTHO;
+        camera.near = 0;
+        camera.far = 0;
+        camera.orthoHeight = this._device!.height;
+        camera.visibility = 100;
+        camera.clearFlags = GFXClearFlag.DEPTH | GFXClearFlag.STENCIL;
+
+        const managerNode = new Node('Profiler_Root');
         managerNode.parent = this._rootNode;
 
         const modelCom = managerNode.addComponent('cc.ModelComponent') as ModelComponent;
@@ -250,6 +261,7 @@ export class Profiler {
         pass.bindTextureView(handle!, this._textureView!);
 
         modelCom.material = _material;
+        modelCom.visibility = 100;
     }
 
     public beforeUpdate () {

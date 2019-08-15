@@ -110,7 +110,7 @@ export class CameraComponent extends Component {
 
     protected _camera: Camera | null = null;
     // hack
-    protected _editorWindow: GFXWindow | null = null
+    protected _editorWindow: GFXWindow | null = null;
 
     constructor () {
         super();

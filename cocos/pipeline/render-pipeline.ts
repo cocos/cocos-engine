@@ -1464,7 +1464,7 @@ export abstract class RenderPipeline {
 
             model._resetUBOUpdateFlag();
             // filter model by view visibility
-            if (view.visibility > 0 && model.viewID !== view.visibility || !model.enabled) {
+            if (model.viewID !== view.visibility || !model.enabled) {
                 continue;
             }
 
