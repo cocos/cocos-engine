@@ -401,8 +401,16 @@ module.exports = {
             _labelInfo.margin = 0;
         }
 
-        _contentSize.width = _comp.node._contentSize.width + _labelInfo.margin * 2;
-        _contentSize.height = _comp.node._contentSize.height + _labelInfo.margin * 2;
+        _contentSize.width = _comp.node.width;
+        _contentSize.height = _comp.node.height;
+
+        if (_overflow === Overflow.NONE) {
+            _contentSize.width += _labelInfo.margin * 2;
+            _contentSize.height += _labelInfo.margin * 2;
+        }
+        else if (_overflow === Overflow.RESIZE_HEIGHT) {
+            _contentSize.height += _labelInfo.margin * 2;
+        }
 
         _labelInfo.lineHeight = _lineHeight;
         _labelInfo.fontSize = _fontSize;
