@@ -156,6 +156,9 @@ var textUtils = {
                 if (sText.length > 0) {
                     wrappedWords.push(sText);
                 }
+                else{
+                    sText = sText.trimLeft();
+                }
             }
             text = sLine || tmpText;
             allWidth = measureText(text);
@@ -166,6 +169,7 @@ var textUtils = {
         }
         else {
             if (text.length > 0) {
+                text = text.trimLeft();
                 wrappedWords.push(text);
             }
         }
