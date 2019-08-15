@@ -101,6 +101,7 @@ export class EditBoxImpl {
     public _edTxt: HTMLInputElement | HTMLTextAreaElement | null = null;
     public _textColor: Color = Color.WHITE;
     public _edFontSize = 14;
+    private _isTextArea = false;
 
     get text () {
         return this._text;
@@ -359,11 +360,26 @@ export class EditBoxImpl {
 
     public _updateDomInputType () {
         const inputMode = this._inputMode;
-        const edTxt = this._edTxt as HTMLInputElement;
+        let edTxt = this._edTxt;
         if (!edTxt) { return; }
 
+        if (this._isTextArea) {
+            edTxt = edTxt as HTMLTextAreaElement;
+            let textTransform = 'none';
+            if (this._inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
+                textTransform = 'uppercase';
+            } else if (this._inputFlag === InputFlag.INITIAL_CAPS_WORD) {
+                textTransform = 'capitalize';
+            }
+
+            edTxt.style.textTransform = textTransform;
+            return;
+        }
+
+        edTxt = edTxt as HTMLInputElement;
+
         if (this._inputFlag === InputFlag.PASSWORD) {
-            edTxt!.type = 'password';
+            edTxt.type = 'password';
             return;
         }
 
@@ -490,7 +506,9 @@ export class EditBoxImpl {
     }
 
     public createInput () {
+        this._isTextArea = false;
         if (this._inputMode === InputMode.ANY) {
+            this._isTextArea = true;
             this._createDomTextArea();
         } else {
             this._createDomInput();
