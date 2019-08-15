@@ -17,7 +17,7 @@ if (!String.prototype.endsWith) {
 }
 
 if (!String.prototype.trimLeft) {
-    String.prototype.trimLeft = function (){
+    String.prototype.trimLeft = function () {
         return this.replace(/^\s+/g, '');
-    }
+    };
 }
