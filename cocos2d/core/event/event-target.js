@@ -105,13 +105,8 @@ proto.on = function (type, callback, target, once) {
     if ( !this.hasEventListener(type, callback, target) ) {
         this.__on(type, callback, target, once);
 
-        if (target) {
-            if (target.__eventTargets) {
-                target.__eventTargets.push(this);
-            }
-            else if (target.node && target.node.__eventTargets) {
-                target.node.__eventTargets.push(this);
-            }
+        if (target && target.__eventTargets) {
+            target.__eventTargets.push(this);
         }
     }
     return callback;
@@ -142,9 +137,9 @@ proto.__off = proto.off;
 proto.off = function (type, callback, target) {
     if (!callback) {
         let list = this._callbackTable[type];
-        let targets = list.targets;
-        for (let i = 0; i < targets.length; ++i) {
-            let target = targets[i];
+        let infos = list.callbackInfos;
+        for (let i = 0; i < infos.length; ++i) {
+            let target = infos[i].target;
             if (target && target.__eventTargets) {
                 fastRemove(target.__eventTargets, this);
             }
@@ -154,13 +149,8 @@ proto.off = function (type, callback, target) {
     else {
         this.__off(type, callback, target);
 
-        if (target) {
-            if (target.__eventTargets) {
-                fastRemove(target.__eventTargets, this);
-            }
-            else if (target.node && target.node.__eventTargets) {
-                fastRemove(target.node.__eventTargets, this);
-            }
+        if (target && target.__eventTargets) {
+            fastRemove(target.__eventTargets, this);
         }
     }
 };
