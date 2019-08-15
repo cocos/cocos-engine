@@ -396,7 +396,7 @@ let CollisionManager = cc.Class({
 
         for (let i = 0, l = colliders.length; i < l; i++) {
             let collider = colliders[i];
-            if(collider instanceof cc.PhysicsCollider) {
+            if(cc.PhysicsCollider && collider instanceof cc.PhysicsCollider) {
                 continue;
             }
             this.removeCollider(collider);
