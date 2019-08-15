@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -24,12 +24,13 @@
  ****************************************************************************/
 
 const textUtils = require('../utils/text-utils');
+const callInNextTick = require('../platform/utils').callInNextTick;
 
 let _canvasContext = null;
 // letter symbol number CJK
 let _testString = "BES bswy:->@123\u4E01\u3041\u1101";
 
-let _fontFaces = {};
+let _fontFaces = Object.create(null);
 let _intervalId = -1;
 let _loadingFonts = [];
 // 3 seconds timeout
@@ -74,7 +75,7 @@ function _checkFontLoaded () {
         // load timeout
         if (now - fontLoadHandle.startTime > _timeout) {
             cc.warnID(4933, fontFamily);
-            fontLoadHandle.callback(null, fontFamily);
+            fontLoadHandle.onComplete(null, fontFamily);
             _loadingFonts.splice(i, 1);
             continue;
         }
@@ -85,7 +86,7 @@ function _checkFontLoaded () {
         // loaded successfully
         if (oldWidth !== newWidth) {
             _loadingFonts.splice(i, 1);
-            fontLoadHandle.callback(null, fontFamily);
+            fontLoadHandle.onComplete(null, fontFamily);
         }
         else {
             allFontsLoaded = false;
@@ -143,13 +144,12 @@ function nativeCheckFontLoaded (start, font, callback) {
 }
 
 var fontLoader = {
-    loadFont: function (item, callback) {
-        let url = item.url;
+    loadFont: function (url, options, onComplete) {
         let fontFamilyName = fontLoader._getFontFamily(url);
 
         // Already loaded fonts
         if (_fontFaces[fontFamilyName]) {
-            return fontFamilyName;
+            return onComplete(null, fontFamilyName);
         }
 
         if (!_canvasContext) {
@@ -187,14 +187,14 @@ var fontLoader = {
         document.body.appendChild(preloadDiv);
 
         if (useNativeCheck()) {
-            nativeCheckFontLoaded(Date.now(), fontFamilyName, callback);
+            nativeCheckFontLoaded(Date.now(), fontFamilyName, onComplete);
         }
         else {
             // Save loading font
             let fontLoadHandle = {
                 fontFamilyName,
                 refWidth,
-                callback,
+                onComplete,
                 startTime: Date.now()
             }
             _loadingFonts.push(fontLoadHandle);
@@ -203,7 +203,6 @@ var fontLoader = {
             }
         }
         _fontFaces[fontFamilyName] = fontStyle;
-        
     },
 
     _getFontFamily: function (fontHandle) {

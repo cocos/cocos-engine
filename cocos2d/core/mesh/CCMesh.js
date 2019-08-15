@@ -104,8 +104,8 @@ let Mesh = cc.Class({
 
     ctor () {
         this._subMeshes = [];
-
         this._subDatas = [];
+        this.loaded = false;
     },
 
     onLoad () {
@@ -157,6 +157,8 @@ let Mesh = cc.Class({
                 this._subMeshes.push(new InputAssembler(vbBuffer, ibBuffer));
             }
         }
+        this.loaded = true;
+        this.emit("load");
     },
 
     _canVertexFormatBatch (format) {

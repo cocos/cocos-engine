@@ -1,6 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -23,17 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+var __audioSupport = cc.sys.__audioSupport;
+const { parseParameters, urlAppendTimestamp } = require('./utilities');
 
-const sys = require('../platform/CCSys');
-const debug = require('../CCDebug');
+function downloadDomAudio (url, options, onComplete) {
+    var { options, onComplete } = parseParameters(options, undefined, onComplete);
 
-var __audioSupport = sys.__audioSupport;
-var formatSupport = __audioSupport.format;
-var context = __audioSupport.context;
-
-function loadDomAudio (item, callback) {
     var dom = document.createElement('audio');
-    dom.src = item.url;
+    dom.src = urlAppendTimestamp(url);
 
     var clearEvent = function () {
         clearTimeout(timer);
@@ -42,74 +38,31 @@ function loadDomAudio (item, callback) {
         if(__audioSupport.USE_LOADER_EVENT)
             dom.removeEventListener(__audioSupport.USE_LOADER_EVENT, success, false);
     };
+
     var timer = setTimeout(function () {
         if (dom.readyState === 0)
             failure();
         else
             success();
     }, 8000);
+
     var success = function () {
         clearEvent();
-        callback(null, dom);
+        onComplete && onComplete(null, dom);
     };
+    
     var failure = function () {
         clearEvent();
-        var message = 'load audio failure - ' + item.url;
+        var message = 'load audio failure - ' + url;
         cc.log(message);
-        callback(message);
+        onComplete && onComplete(new Error(message));
     };
+
     dom.addEventListener("canplaythrough", success, false);
     dom.addEventListener("error", failure, false);
     if(__audioSupport.USE_LOADER_EVENT)
         dom.addEventListener(__audioSupport.USE_LOADER_EVENT, success, false);
+    return dom;
 }
 
-function loadWebAudio (item, callback) {
-    if (!context)
-        callback(new Error(debug.getError(4926)));
-
-    var request = cc.loader.getXMLHttpRequest();
-    request.open("GET", item.url, true);
-    request.responseType = "arraybuffer";
-
-    // Our asynchronous callback
-    request.onload = function () {
-        context["decodeAudioData"](request.response, function(buffer){
-            //success
-            callback(null, buffer);
-        }, function(){
-            //error
-            callback('decode error - ' + item.id, null);
-        });
-    };
-
-    request.onerror = function(){
-        callback('request error - ' + item.id, null);
-    };
-
-    request.send();
-}
-
-function downloadAudio (item, callback) {
-    if (formatSupport.length === 0) {
-        return new Error(debug.getError(4927));
-    }
-
-    var loader;
-    if (!__audioSupport.WEB_AUDIO) {
-        // If WebAudio is not supported, load using DOM mode
-        loader = loadDomAudio;
-    }
-    else {
-        var loadByDeserializedAudio = item._owner instanceof cc.AudioClip;
-        if (loadByDeserializedAudio) {
-            loader = (item._owner.loadMode === cc.AudioClip.LoadMode.WEB_AUDIO) ? loadWebAudio : loadDomAudio;
-        }
-        else {
-            loader = (item.urlParam && item.urlParam['useDom']) ? loadDomAudio : loadWebAudio;
-        }
-    }
-    loader(item, callback);
-}
-
-module.exports = downloadAudio;
+module.exports = downloadDomAudio;

@@ -469,7 +469,7 @@ var Sprite = cc.Class({
         // Set atlas
         if (spriteFrame && spriteFrame._atlasUuid) {
             var self = this;
-            cc.AssetLibrary.loadAsset(spriteFrame._atlasUuid, function (err, asset) {
+            cc.assetManager.load(spriteFrame._atlasUuid, function (err, asset) {
                 self._atlas = asset;
             });
         } else {

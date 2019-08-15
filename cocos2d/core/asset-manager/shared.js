@@ -1,6 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -23,30 +22,29 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+const Cache = require('./cache');
+const Pipeline = require('./pipeline');
 
-function downloadBinary (item, callback) {
-    var url = item.url;
-    var xhr = cc.loader.getXMLHttpRequest(),
-        errInfo = 'Load binary data failed: ' + url + '';
-    xhr.open('GET', url, true);
-    xhr.responseType = "arraybuffer";
-    xhr.onload = function () {
-        var arrayBuffer = xhr.response;
-        if (arrayBuffer) {
-            var result = new Uint8Array(arrayBuffer);
-            callback(null, result);
-        }
-        else {
-            callback({status:xhr.status, errorMessage:errInfo + '(no response)'});
-        }
-    };
-    xhr.onerror = function(){
-        callback({status:xhr.status, errorMessage:errInfo + '(error)'});
-    };
-    xhr.ontimeout = function(){
-        callback({status:xhr.status, errorMessage:errInfo + '(time out)'});
-    };
-    xhr.send(null);
-}
+var assets = new Cache();
+var files = new Cache();
+var parsed = new Cache();
+var bundles = new Cache();
+var pipeline = new Pipeline('normal load', []);
+var fetchPipeline = new Pipeline('fetch', []);
+var initializePipeline = new Pipeline('initialize', []);
+var transformPipeline = new Pipeline('transform url', []);
 
-module.exports = downloadBinary;
+var LoadStrategy = {
+    NORMAL: 0,
+    PRELOAD: 1
+};
+
+var RequestType = {
+    UUID: 'uuid',
+    PATH: 'path',
+    DIR: 'dir',
+    URL: 'url',
+    SCENE: 'scene'
+};
+
+module.exports = {assets, files, parsed, pipeline, fetchPipeline, initializePipeline, transformPipeline, LoadStrategy, RequestType, bundles};

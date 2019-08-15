@@ -61,21 +61,7 @@ cc.Asset = cc.Class({
          * @type {Boolean}
          */
         this.loaded = true;
-
-        /**
-         * !#en
-         * Points to the true url of this asset's native object, only valid when asset is loaded and asyncLoadAsset is not enabled.
-         * Url equals nativeUrl on web(web-mobile, web-desktop) or native(iOS, Android etc) platform. The difference between
-         * nativeUrl and url is that url may points to temporary path or cached path on mini game platform which has cache mechanism (WeChat etc).
-         * If you want to make use of the native file on those platforms, you should use url instead of nativeUrl.
-         * !#zh
-         * 资源的原生文件的真实url，只在资源被加载后以及没有启用延迟加载时才有效。在web平台（web-mobile, web-desktop）或者原生平台（iOS，安卓等）上url与
-         * nativeUrl是相等的，nativeUrl与url的区别在于，某些带缓存机制的小游戏平台（微信等）上url可能会指向临时文件路径或者缓存路径，如果你需要在这些平台上使用资源的原生文件，
-         * 请使用url，避免使用nativeUrl
-         * @property url
-         * @type {String}
-         */
-        this.url = '';
+        this._nativeUrl = '';
     },
 
     properties: {
@@ -90,29 +76,25 @@ cc.Asset = cc.Class({
          */
         nativeUrl: {
             get: function () {
-                if (this._native) {
-                    var name = this._native;
-                    if (name.charCodeAt(0) === 47) {    // '/'
-                        // remove library tag
-                        // not imported in library, just created on-the-fly
-                        return name.slice(1);
-                    }
-                    if (cc.AssetLibrary) {
-                        var base = cc.AssetLibrary.getLibUrlNoExt(this._uuid, true);
+                if (!this._nativeUrl) {
+                    if (this._native) {
+                        var name = this._native;
+                        if (name.charCodeAt(0) === 47) {    // '/'
+                            // remove library tag
+                            // not imported in library, just created on-the-fly
+                            return name.slice(1);
+                        }
                         if (name.charCodeAt(0) === 46) {  // '.'
-                            // imported in dir where json exist
-                            return base + name;
+                                // imported in dir where json exist
+                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {ext: name, isNative: true });
                         }
                         else {
                             // imported in an independent dir
-                            return base + '/' + name;
+                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {name, ext: cc.path.extname(name), isNative: true});
                         }
                     }
-                    else {
-                        cc.errorID(6400);
-                    }
                 }
-                return '';
+                return this._nativeUrl;
             },
             visible: false
         },
@@ -141,6 +123,19 @@ cc.Asset = cc.Class({
                 this._$nativeAsset = obj;
             }
         },
+
+        /**
+         * get native dependency likes image or audio, can use 'cc.assetManager.load' to load directly
+         * @property {Object} _nativeDep
+         * @private
+         */
+        _nativeDep: {
+            get () {
+                if (this._native) {
+                    return {isNative: true, uuid: this._uuid, ext: this._native};
+                }
+            }
+        }
     },
 
     statics: {
@@ -175,7 +170,31 @@ cc.Asset = cc.Class({
          * @default false
          * @static
          */
-        preventPreloadNativeObject: false
+        preventPreloadNativeObject: false,
+
+        /**
+         * get dependencies from serialized data
+         * @param {Object} json 
+         * @static
+         * @private
+         */
+        _parseDepsFromJson (json) {
+            var depends = [];
+            parseDependRecursively(json, depends);
+            return depends;
+        },
+
+        /**
+         * get native dependency from serialized data
+         * @param {Object} json 
+         * @static
+         * @private
+         */
+        _parseNativeDepFromJson (json) {
+            if (json._native) return {isNative: true, ext: json._native};
+            return null;
+        }
+
     },
 
     /**
@@ -236,5 +255,23 @@ cc.Asset = cc.Class({
         }
     }
 });
+
+function parseDependRecursively (data, out) {
+    if (!data || typeof data !== 'object' || data.__id__) return;
+    var uuid = data.__uuid__;
+    if (Array.isArray(data)) {
+        for (let i = 0, l = data.length; i < l; i++) {
+            parseDependRecursively(data[i], out);
+        }
+    }
+    else if (uuid) { 
+        out.push(cc.assetManager.utils.decodeUuid(uuid));
+    }
+    else {
+        for (var prop in data) {
+            parseDependRecursively(data[prop], out);
+        }
+    }
+}
 
 module.exports = cc.Asset;

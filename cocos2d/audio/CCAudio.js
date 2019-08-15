@@ -308,11 +308,7 @@ Audio.State = {
                             self._onLoaded();
                         }
                     });
-                    cc.loader.load({
-                            url: clip.nativeUrl,
-                            // For audio, we should skip loader otherwise it will load a new audioClip.
-                            skips: ['Loader'],
-                        },
+                    cc.assetManager.loadNativeFile(clip,
                         function (err, audioNativeAsset) {
                             if (err) {
                                 cc.error(err);

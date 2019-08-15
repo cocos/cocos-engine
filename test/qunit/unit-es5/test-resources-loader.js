@@ -6,9 +6,9 @@
         setup: function () {
             _resetGame();
             Assets = {
-                '0000001': ['grossini/grossini.png', cc.js._getClassId(cc.Texture2D)],
+                '0000001': ['grossini/grossini', cc.js._getClassId(cc.Texture2D)],
                 '123201':  ['grossini/grossini', cc.js._getClassId(TestSprite), 1],
-                '0000000': ['grossini.png', cc.js._getClassId(cc.Texture2D)],
+                '0000000': ['grossini', cc.js._getClassId(cc.Texture2D)],
                 '1232218': ['grossini', cc.js._getClassId(TestSprite), 1],   // sprite in texture
                 '123200':  ['grossini', cc.js._getClassId(TestSprite), 1],   // sprite in plist
             };
@@ -99,7 +99,7 @@
             strictEqual(results.length, urls.length, 'url dict should contains the same count with array');
 
             var url = urls[0];
-            cc.loader.loadRes(url, cc.Texture2D, function (err, result) {
+            cc.assetManager.loadRes(url, cc.Texture2D, null, function (err, result) {
                 strictEqual(result, results[0], 'url is correct');
                 start();
             });
@@ -150,5 +150,4 @@
         args = cc.loader._parseLoadResArgs(onComplete);
         assert(args, null, null, onComplete, 'case 9');
     });
-
 })();

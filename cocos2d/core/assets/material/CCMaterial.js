@@ -28,6 +28,7 @@ const Asset = require('../CCAsset');
 const Texture = require('../CCTexture2D');
 const PixelFormat = Texture.PixelFormat;
 const EffectAsset = require('../CCEffectAsset');
+const EventTarget = require("../../event/event-target");
 
 import Effect from '../../../renderer/core/effect';
 import murmurhash2 from '../../../renderer/murmurhash2_gc';
@@ -42,8 +43,10 @@ import utils from './utils';
 let Material = cc.Class({
     name: 'cc.Material',
     extends: Asset,
+    mixins: [EventTarget],
 
     ctor () {
+        this.loaded = false;
         this._manualHash = false;
         this._dirty = true;
         this._effect = null;
@@ -70,7 +73,7 @@ let Material = cc.Class({
                 return this._effectAsset.name;
             },
             set (val) {
-                let effectAsset = cc.AssetLibrary.getBuiltin('effect', val);
+                let effectAsset = cc.assetManager.builtins.getBuiltin('effect', val);
                 if (!effectAsset) {
                     Editor.warn(`no effect named '${val}' found`);
                     return;
@@ -112,7 +115,7 @@ let Material = cc.Class({
 
     statics: {
         getBuiltinMaterial (name) {
-            return cc.AssetLibrary.getBuiltin('material', 'builtin-' + name);
+            return cc.assetManager.builtins.getBuiltin('material', 'builtin-' + name);
         },
         getInstantiatedBuiltinMaterial (name, renderComponent) {
             let builtinMaterial = this.getBuiltinMaterial(name);
@@ -247,6 +250,8 @@ let Material = cc.Class({
         for (let prop in this._props) {
             this.setProperty(prop, this._props[prop], true);
         }
+        this.loaded = true;
+        this.emit("load");
     },
 });
 

@@ -869,7 +869,7 @@ var ParticleSystem = cc.Class({
                 let Url = require('fire-url');
                 let name = Url.basenameNoExt(metaInfo.assetPath);
                 let uuid = meta.subMetas[name].uuid;
-                cc.AssetLibrary.loadAsset(uuid, function (err, sp) {
+                cc.assetManager.load(uuid, function (err, sp) {
                     if (err) return Editor.error(err);
                     _this._texture = null;
                     _this.spriteFrame = sp;
@@ -1008,8 +1008,8 @@ var ParticleSystem = cc.Class({
     _applyFile: function () {
         let file = this._file;
         if (file) {
-            let self = this;
-            cc.loader.load(file.nativeUrl, function (err, content) {
+            var self = this;
+            cc.assetManager.loadNativeFile(file, function (err, content) {
                 if (err || !content) {
                     cc.errorID(6029);
                     return;
@@ -1049,6 +1049,7 @@ var ParticleSystem = cc.Class({
                     this._initTextureWithDictionary(dict);
                 }
                 else {
+                    cc.assetManager._assets.add(imgPath, texture);
                     this.spriteFrame = new cc.SpriteFrame(texture);
                 }
             }, this);
@@ -1056,7 +1057,7 @@ var ParticleSystem = cc.Class({
             let textureData = dict["textureImageData"];
 
             if (textureData && textureData.length > 0) {
-                let tex = cc.loader.getRes(imgPath);
+                let tex = cc.assetManager._assets.get(imgPath);
                 
                 if (!tex) {
                     let buffer = codec.unzipBase64AsArray(textureData, 1);
@@ -1083,7 +1084,7 @@ var ParticleSystem = cc.Class({
                 
                 if (!tex)
                     cc.logID(6032);
-                // TODO: Use cc.loader to load asynchronously the SpriteFrame object, avoid using textureUtil
+                // TODO: Use cc.assetManager to load asynchronously the SpriteFrame object, avoid using textureUtil
                 this.spriteFrame = new cc.SpriteFrame(tex);
             }
             else {

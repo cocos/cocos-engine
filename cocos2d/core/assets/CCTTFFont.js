@@ -51,6 +51,23 @@ var TTFFont = cc.Class({
                 this._fontFamily = value || 'Arial';
             },
             override: true
+        },
+
+        _nativeDep: {
+            get () {
+                return { uuid: this._uuid, _native: this._native,  ext: cc.path.extname(this._native), isNative: true };
+            },
+            override: true
+        }
+    },
+
+    statics: {
+        _parseDepsFromJson () {
+            return [];
+        },
+
+        _parseNativeDepFromJson (json) {
+            return { _native: json._native,  ext: cc.path.extname(json._native), isNative: true };
         }
     }
 });

@@ -70,6 +70,7 @@
                 return start();
             }
             clearTimeout(timerId);
+            
             ok(asset.texture === asset, 'asset could reference to itself');
             start();
         }, {

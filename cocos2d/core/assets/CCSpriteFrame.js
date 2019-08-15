@@ -53,7 +53,7 @@ let temp_uvs = [{u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}];
  * // load a cc.SpriteFrame with image path (Recommend)
  * var self = this;
  * var url = "test assets/PurpleMonster";
- * cc.loader.loadRes(url, cc.SpriteFrame, function (err, spriteFrame) {
+ * cc.assetManager.loadRes(url, cc.SpriteFrame, null, function (err, spriteFrame) {
  *  var node = new cc.Node("New Sprite");
  *  var sprite = node.addComponent(cc.Sprite);
  *  sprite.spriteFrame = spriteFrame;
@@ -78,20 +78,10 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                     if (this._texture !== texture) {
                         this._refreshTexture(texture);
                     }
-                    this._textureFilename = texture.url;
+                    this._textureFilename = texture.nativeUrl;
                 }
             }
         },
-
-        // _textureFilename: {
-        //     get () {
-        //         return (this._texture && this._texture.url) || "";
-        //     },
-        //     set (url) {
-        //         let texture = cc.textureCache.addImage(url);
-        //         this._refreshTexture(texture);
-        //     }
-        // },
 
         /**
          * !#en Top border of the sprite
@@ -168,6 +158,12 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                 }
             }
         },
+    },
+
+    statics: {
+        _parseDepsFromJson (json) {
+            return [cc.assetManager.utils.decodeUuid(json.content.texture)];
+        }
     },
 
     /**
@@ -502,10 +498,10 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             maxY += rect.height;
         }
         if (maxX > texture.width) {
-            cc.errorID(3300, texture.url + '/' + this.name, maxX, texture.width);
+            cc.errorID(3300, texture.nativeUrl + '/' + this.name, maxX, texture.width);
         }
         if (maxY > texture.height) {
-            cc.errorID(3400, texture.url + '/' + this.name, maxY, texture.height);
+            cc.errorID(3400, texture.nativeUrl + '/' + this.name, maxY, texture.height);
         }
     },
 

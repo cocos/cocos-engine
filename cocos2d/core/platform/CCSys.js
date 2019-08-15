@@ -757,6 +757,8 @@ function initSys () {
             capabilities["touches"] = false;
         }
 
+        capabilities['createImageBitmap'] = typeof createImageBitmap !== 'undefined';
+
         sys.__audioSupport = {
             ONLY_ONE: false,
             WEB_AUDIO: false,
@@ -976,6 +978,7 @@ function initSys () {
             "canvas": _supportCanvas,
             "opengl": _supportWebGL,
             "webp": _supportWebp,
+            'createImageBitmap': typeof createImageBitmap !== 'undefined',
         };
         if (docEle['ontouchstart'] !== undefined || doc['ontouchstart'] !== undefined || nav.msPointerEnabled)
             capabilities["touches"] = true;

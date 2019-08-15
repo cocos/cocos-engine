@@ -98,7 +98,7 @@ var AudioSource = cc.Class({
                     // backward compatibility since 1.10
                     cc.warnID(8401, 'cc.AudioSource', 'cc.AudioClip', 'AudioClip', 'cc.AudioClip', 'audio');
                     let self = this;
-                    AudioClip._loadByUrl(value, function (err, clip) {
+                    AudioClip._loadByUrl(value, {isNative: true}, null, function (err, clip) {
                         if (clip) {
                             self.clip = clip;
                         }

@@ -1,6 +1,6 @@
+
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -23,11 +23,36 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+const { urlAppendTimestamp, parseParameters } = require('./utilities');
 
-require('./downloader');
-require('./loader');
+function downloadScript (url, options, onComplete) {
+    var { options, onComplete } = parseParameters(options, undefined, onComplete);
 
-require('./loading-items');
-require('./pipeline');
+    var d = document, s = document.createElement('script');
 
-require('./CCLoader');
+    if (window.location.protocol !== 'file:') {
+        s.crossOrigin = 'anonymous';
+    }
+
+    s.async = options.isAsync === undefined ? true : options.isAsync;
+    s.src = urlAppendTimestamp(url);
+    function loadHandler () {
+        s.parentNode.removeChild(s);
+        s.removeEventListener('load', loadHandler, false);
+        s.removeEventListener('error', errorHandler, false);
+        onComplete && onComplete(null);
+    }
+
+    function errorHandler() {
+        s.parentNode.removeChild(s);
+        s.removeEventListener('load', loadHandler, false);
+        s.removeEventListener('error', errorHandler, false);
+        onComplete && onComplete(new Error(cc.debug.getError(4928, url)));
+    }
+    
+    s.addEventListener('load', loadHandler, false);
+    s.addEventListener('error', errorHandler, false);
+    d.body.appendChild(s);
+}
+
+module.exports = downloadScript;

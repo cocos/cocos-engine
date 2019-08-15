@@ -29,6 +29,7 @@ let Model = cc.Class({
 
     ctor () {
         this._rootNode = null;
+        this.loaded = false;
     },
 
     properties: {
@@ -83,6 +84,8 @@ let Model = cc.Class({
                 }
             }
         }
+        this.loaded = true;
+        this.emit("load");
     }
 });
 

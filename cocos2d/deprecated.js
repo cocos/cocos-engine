@@ -266,7 +266,7 @@ if (CC_DEBUG) {
         getWinSizeInPixels: 'cc.winSize',
         getVisibleSize: 'cc.view.getVisibleSize',
         getVisibleOrigin: 'cc.view.getVisibleOrigin',
-        purgeCachedData: 'cc.loader.releaseAll',
+        purgeCachedData: 'cc.assetManager.releaseAll',
         setDepthTest: 'cc.Camera.main.depth',
         setClearColor: 'cc.Camera.main.backgroundColor',
         getRunningScene: 'cc.director.getScene',
