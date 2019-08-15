@@ -153,11 +153,9 @@ var textUtils = {
                 wrappedWords.push(sText);
             }
             else {
+                sText = sText.trimLeft();
                 if (sText.length > 0) {
                     wrappedWords.push(sText);
-                }
-                else{
-                    sText = sText.trimLeft();
                 }
             }
             text = sLine || tmpText;
@@ -168,8 +166,8 @@ var textUtils = {
             wrappedWords.push(text);
         }
         else {
+            text = text.trimLeft();
             if (text.length > 0) {
-                text = text.trimLeft();
                 wrappedWords.push(text);
             }
         }
