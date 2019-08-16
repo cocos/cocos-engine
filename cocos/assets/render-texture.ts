@@ -15,7 +15,7 @@ export interface IRenderTextureCreateInfo {
     name?: string;
     width: number;
     height: number;
-    // colorFormat: PixelFormat;
+    colorFormat: PixelFormat;
     depthStencilFormat: DepthStencilFormat;
 }
 
@@ -84,8 +84,8 @@ export class RenderTexture extends TextureBase {
         if (info) {
             this._width = info.width;
             this._height = info.height;
+            this._format = info.colorFormat;
             this._depthStencilFormat = info.depthStencilFormat;
-            // this._format = info.colorFormat;
         }
         this._tryReset();
     }
@@ -129,8 +129,8 @@ export class RenderTexture extends TextureBase {
             name: this._name,
             width: this._width,
             height: this._height,
+            colorFormat: this._format,
             depthStencilFormat: this._depthStencilFormat,
-            // colorFormat: this._format,
         };
     }
 
@@ -140,6 +140,7 @@ export class RenderTexture extends TextureBase {
         this.name = data.name || '';
         this._width = data.width;
         this._height = data.height;
+        this._format = data.colorFormat;
         this._depthStencilFormat = data.depthStencilFormat;
     }
 
@@ -161,7 +162,7 @@ export class RenderTexture extends TextureBase {
             isOffscreen: true,
             width: this._width,
             height: this._height,
-            colorFmt: this._getGFXFormat(),
+            colorFmt: this._format,
             depthStencilFmt: this._depthStencilFormat as unknown as GFXFormat,
         });
     }
