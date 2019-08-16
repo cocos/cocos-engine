@@ -111,16 +111,14 @@ export default class GradientRange {
             case Mode.Color:
                 return this.color;
             case Mode.TwoColors:
-                Color.lerp(this.color, this.colorMin, this.colorMax, rndRatio);
-                return this.color;
+                Color.lerp(this._color, this.colorMin, this.colorMax, rndRatio);
+                return this._color;
             case Mode.RandomColor:
                 return this.gradient.randomColor();
             case Mode.Gradient:
                 return this.gradient.evaluate(time);
             case Mode.TwoGradients:
-                this.colorMin = this.gradientMin.evaluate(time);
-                this.colorMax = this.gradientMax.evaluate(time);
-                Color.lerp(this._color, this.colorMin, this.colorMax, rndRatio);
+                Color.lerp(this._color, this.gradientMin.evaluate(time), this.gradientMax.evaluate(time), rndRatio);
                 return this._color;
         }
     }
