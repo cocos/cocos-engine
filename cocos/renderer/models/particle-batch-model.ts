@@ -130,15 +130,15 @@ export default class ParticleBatchModel extends Model {
         });
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertSize * this._capacity * this._vertCount);
         if (this._mesh) {
-            let vIdx = this._vertAttrs!.findIndex((val) => val.name === GFXAttributeName.ATTR_TEX_COORD2);
+            let vIdx = this._vertAttrs!.findIndex((val) => val.name === GFXAttributeName.ATTR_TEX_COORD3);
             let vOffset = (this._vertAttrs![vIdx++] as any).offset;
-            this._mesh.copyAttribute(0, GFXAttributeName.ATTR_POSITION, vBuffer, this._vertSize, vOffset);
+            this._mesh.copyAttribute(0, GFXAttributeName.ATTR_POSITION, vBuffer, this._vertSize, vOffset);  // copy mesh position to ATTR_TEX_COORD3
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
-            this._mesh.copyAttribute(0, GFXAttributeName.ATTR_NORMAL, vBuffer, this._vertSize, vOffset);
+            this._mesh.copyAttribute(0, GFXAttributeName.ATTR_NORMAL, vBuffer, this._vertSize, vOffset);  // copy mesh normal to ATTR_NORMAL
             vOffset = (this._vertAttrs![this._vertAttrs!.findIndex((val) => val.name === GFXAttributeName.ATTR_TEX_COORD)] as any).offset;
-            this._mesh.copyAttribute(0, GFXAttributeName.ATTR_TEX_COORD, vBuffer, this._vertSize, vOffset);
+            this._mesh.copyAttribute(0, GFXAttributeName.ATTR_TEX_COORD, vBuffer, this._vertSize, vOffset);  // copy mesh uv to ATTR_TEX_COORD
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
-            if (!this._mesh.copyAttribute(0, GFXAttributeName.ATTR_COLOR, vBuffer, this._vertSize, vOffset)) {
+            if (!this._mesh.copyAttribute(0, GFXAttributeName.ATTR_COLOR, vBuffer, this._vertSize, vOffset)) {  // copy mesh color to ATTR_COLOR1
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < this._vertCount; ++iVertex) {
                     vb[iVertex * this._vertAttrsFloatCount + vOffset / 4] = cc.Color.WHITE._val;
@@ -204,33 +204,41 @@ export default class ParticleBatchModel extends Model {
     public addParticleVertexData (index: number, pvdata: any[]) {
         if (!this._mesh) {
             let offset: number = index * this._vertAttrsFloatCount;
-            this._vdataF32![offset++] = pvdata[0].x; // if not a single float?
+            this._vdataF32![offset++] = pvdata[0].x; // position
             this._vdataF32![offset++] = pvdata[0].y;
             this._vdataF32![offset++] = pvdata[0].z;
-            this._vdataF32![offset++] = pvdata[1].x;
+            this._vdataF32![offset++] = pvdata[1].x; // uv
             this._vdataF32![offset++] = pvdata[1].y;
-            this._vdataF32![offset++] = pvdata[1].z;
-            this._vdataF32![offset++] = pvdata[2].x;
+            this._vdataF32![offset++] = pvdata[1].z; // frame idx
+            this._vdataF32![offset++] = pvdata[2].x; // size
             this._vdataF32![offset++] = pvdata[2].y;
-            this._vdataUint32![offset++] = pvdata[3];
-            if (pvdata[4]) {
-                this._vdataF32![offset++] = pvdata[4].x;
-                this._vdataF32![offset++] = pvdata[4].y;
-                this._vdataF32![offset++] = pvdata[4].z;
+            this._vdataF32![offset++] = pvdata[2].z;
+            this._vdataF32![offset++] = pvdata[3].z; // rotation
+            this._vdataF32![offset++] = pvdata[3].z;
+            this._vdataF32![offset++] = pvdata[3].z;
+            this._vdataUint32![offset++] = pvdata[4]; // color
+            if (pvdata[5]) {
+                this._vdataF32![offset++] = pvdata[5].x; // velocity
+                this._vdataF32![offset++] = pvdata[5].y;
+                this._vdataF32![offset++] = pvdata[5].z;
             }
         } else {
             for (let i = 0; i < this._vertCount; i++) {
                 let offset: number = (index * this._vertCount + i) * this._vertAttrsFloatCount;
-                this._vdataF32![offset++] = pvdata[0].x; // if not a single float?
+                this._vdataF32![offset++] = pvdata[0].x; // position
                 this._vdataF32![offset++] = pvdata[0].y;
                 this._vdataF32![offset++] = pvdata[0].z;
                 offset += 2;
                 // this._vdataF32![offset++] = index;
                 // this._vdataF32![offset++] = pvdata[1].y;
-                this._vdataF32![offset++] = pvdata[1].z;
-                this._vdataF32![offset++] = pvdata[2].x;
+                this._vdataF32![offset++] = pvdata[1].z; // frame idx
+                this._vdataF32![offset++] = pvdata[2].x; // size
                 this._vdataF32![offset++] = pvdata[2].y;
-                this._vdataUint32![offset++] = pvdata[3];
+                this._vdataF32![offset++] = pvdata[2].z;
+                this._vdataF32![offset++] = pvdata[3].x; // rotation
+                this._vdataF32![offset++] = pvdata[3].y;
+                this._vdataF32![offset++] = pvdata[3].z;
+                this._vdataUint32![offset++] = pvdata[4]; // color
             }
         }
     }

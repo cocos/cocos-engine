@@ -89,6 +89,10 @@ export default class RotationOvertimeModule {
         }
         else {
             // TODO: separateAxes is temporarily not supported!
+            const rotationRand = pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET);
+            p.rotation.x += this.x.evaluate(normalizedTime, rotationRand)! * dt;
+            p.rotation.y += this.y.evaluate(normalizedTime, rotationRand)! * dt;
+            p.rotation.z += this.z.evaluate(normalizedTime, rotationRand)! * dt;
         }
     }
 }

@@ -70,6 +70,12 @@ export default class SizeOvertimeModule {
     public animate (particle: Particle) {
         if (!this.separateAxes) {
             Vec3.multiplyScalar(particle.size, particle.startSize, this.size.evaluate(1 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + SIZE_OVERTIME_RAND_OFFSET))!);
+        } else {
+            const currLifetime = 1 - particle.remainingLifetime / particle.startLifetime;
+            const sizeRand = pseudoRandom(particle.randomSeed + SIZE_OVERTIME_RAND_OFFSET);
+            particle.size.x = particle.startSize.x * this.x.evaluate(currLifetime, sizeRand)!;
+            particle.size.y = particle.startSize.y * this.y.evaluate(currLifetime, sizeRand)!;
+            particle.size.z = particle.startSize.z * this.z.evaluate(currLifetime, sizeRand)!;
         }
     }
 }
