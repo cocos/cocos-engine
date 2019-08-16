@@ -2,7 +2,16 @@
  * @hidden
  */
 
-import { error, warn, log } from './core/platform/CCDebug';
+import { error, warn } from './core/platform/CCDebug';
+
+
+let defaultLogTimes = 10;
+
+export function setDefaultLogTimes (times: number): void {
+    if (times > 0) {
+        defaultLogTimes = times;
+    }
+};
 
 export interface IWrapOptions {
     oldTarget: Function | {};
@@ -17,7 +26,7 @@ export interface IWrapOptions {
 
 interface IDeprecatedItem {
     name: string;
-    logTimes?: number; // default 100;
+    logTimes?: number; // use default if absent
 }
 
 interface IReplacement extends IDeprecatedItem {
@@ -28,7 +37,6 @@ interface IReplacement extends IDeprecatedItem {
     customSetter?: (v: any) => void;
     customGetter?: () => any;
 }
-
 
 interface IRemoveItem extends IDeprecatedItem {
     // custom?: Function; //use default if absent
@@ -75,7 +83,7 @@ replaceProperty = (owner: object, ownerName: string, properties: IReplacement[])
     properties.forEach(function (item: IReplacement) {
 
         let id = messageID++;
-        messageMap.set(id, { id: id, count: 0, logTimes: item.logTimes != null ? item.logTimes : 100, });
+        messageMap.set(id, { id: id, count: 0, logTimes: item.logTimes !== undefined ? item.logTimes : defaultLogTimes, });
 
         let target = item.target != null ? item.target : owner;
         let newName = item.newName != null ? item.newName : item.name;
@@ -161,7 +169,7 @@ removeProperty = (owner: object, ownerName: string, properties: IRemoveItem[]) =
     properties.forEach(function (item: IRemoveItem) {
 
         let id = messageID++;
-        messageMap.set(id, { id: id, count: 0, logTimes: item.logTimes != null ? item.logTimes : 100, });
+        messageMap.set(id, { id: id, count: 0, logTimes: item.logTimes !== undefined ? item.logTimes : defaultLogTimes, });
 
         Object.defineProperty(owner, item.name, {
             get: function (this) {
@@ -214,7 +222,7 @@ markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
         }
 
         let id = messageID++;
-        messageMap.set(id, { id: id, count: 0, logTimes: item.logTimes != null ? item.logTimes : 100, });
+        messageMap.set(id, { id: id, count: 0, logTimes: item.logTimes !== undefined ? item.logTimes : defaultLogTimes, });
 
         if (descriptor.value != null) {
             if (typeof descriptor.value == 'function') {
