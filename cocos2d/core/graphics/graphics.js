@@ -370,6 +370,9 @@ let Graphics = cc.Class({
      * @method stroke
      */
     stroke () {
+        if (!this._assembler) {
+            this._resetAssembler();
+        }
         this._assembler.stroke(this);
     },
 
@@ -379,6 +382,9 @@ let Graphics = cc.Class({
      * @method fill
      */
     fill () {
+        if (!this._assembler) {
+            this._resetAssembler();
+        }
         this._assembler.fill(this);
     }
 });
