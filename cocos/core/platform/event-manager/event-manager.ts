@@ -153,14 +153,16 @@ class EventManager {
         }
         const listeners = this._nodeListenersMap[node.uuid];
         if (listeners) {
-            for (const listener of listeners) {
+            for (let i = 0; i < listeners.length; ++i) {
+                const listener = listeners[i];
                 listener._setPaused(true);
             }
         }
         if (recursive === true) {
             const locChildren = node.children;
             if (locChildren) {
-                for (const locChild of locChildren) {
+                for (let i = 0; i < locChildren.length; ++i) {
+                    const locChild = locChildren[i];
                     this.pauseTarget(locChild, true);
                 }
             }
@@ -184,7 +186,8 @@ class EventManager {
         }
         const listeners = this._nodeListenersMap[node.uuid];
         if (listeners) {
-            for (const listener of listeners) {
+            for (let i = 0; i < listeners.length; ++i) {
+                const listener = listeners[i];
                 listener._setPaused(false);
             }
         }
@@ -192,7 +195,8 @@ class EventManager {
         if (recursive === true && node.children.length > 0) {
             const locChildren = node.children;
             if (locChildren) {
-                for (const locChild of locChildren) {
+                for (let i = 0; i < locChildren.length; ++i) {
+                    const locChild = locChildren[i];
                     this.resumeTarget(locChild, true);
                 }
             }
@@ -336,7 +340,7 @@ class EventManager {
 
         let isFound = false;
         const locListener = this._listenersMap;
-        for (const selKey of Object.keys(locListener)) {
+        for (const selKey in locListener) {
             const listeners = locListener[selKey];
             const fixedPriorityListeners = listeners.getFixedPriorityListeners();
             const sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
@@ -405,7 +409,8 @@ class EventManager {
             const listeners = this._nodeListenersMap[listenerType._id];
             if (listeners) {
                 const listenersCopy = cc.js.array.copy(listeners);
-                for (const listenerCopy of listenersCopy) {
+                for (let i = 0; i < listenersCopy.length; ++i) {
+                    const listenerCopy = listenersCopy[i];
                     this.removeListener(listenerCopy);
                 }
                 delete this._nodeListenersMap[listenerType._id];
@@ -431,7 +436,8 @@ class EventManager {
 
             if (recursive === true) {
                 const locChildren = listenerType.getChildren();
-                for (const locChild of locChildren) {
+                for (let i = 0; i < locChildren.length; ++i) {
+                    const locChild = locChildren[i];
                     this.removeListeners(locChild, true);
                 }
             }
@@ -498,7 +504,7 @@ class EventManager {
         }
 
         const locListeners = this._listenersMap;
-        for (const selKey of Object.keys(locListeners)) {
+        for (const selKey in locListeners) {
             const selListeners = locListeners[selKey];
             const fixedPriorityListeners = selListeners.getFixedPriorityListeners();
             if (fixedPriorityListeners) {
@@ -896,7 +902,8 @@ class EventManager {
     // Remove all listeners in _toRemoveListeners list and cleanup
     private _cleanToRemovedListeners () {
         const toRemovedListeners = this._toRemovedListeners;
-        for (const selListener of toRemovedListeners) {
+        for (let i = 0; i < toRemovedListeners.length; ++i) {
+            const selListener = toRemovedListeners[i];
             const listeners = this._listenersMap[selListener._getListenerID()];
             if (!listeners) {
                 continue;
@@ -1001,7 +1008,8 @@ class EventManager {
         // process the target handlers 1st
         //
         if (oneByOneListeners) {
-            for (const originalTouch of originalTouches) {
+            for (let i = 0; i < originalTouches.length; ++i) {
+                const originalTouch = originalTouches[i];
                 event.currentTouch = originalTouch;
                 event.propagationStopped = event.propagationImmediateStopped = false;
                 this._dispatchEventToListeners(oneByOneListeners, this._onTouchEventCallback, oneByOneArgsObj);
@@ -1087,7 +1095,8 @@ class EventManager {
         }
 
         if (sceneGraphPriorityListeners && !shouldStopPropagation) {    // priority == 0, scene graph priority
-            for (const selListener of sceneGraphPriorityListeners) {
+            for (let i = 0; i < sceneGraphPriorityListeners.length; ++i) {
+                const selListener = sceneGraphPriorityListeners[i];
                 if (selListener.isEnabled() && !selListener._isPaused() && selListener._isRegistered() && onEvent(selListener, eventOrArgs)) {
                     shouldStopPropagation = true;
                     break;
