@@ -1458,30 +1458,12 @@ let NodeDefines = {
             trs = this._trs = this._spaceInfo.trs;
         }
 
-        // Upgrade _position from v2
-        // TODO: remove in future version, 3.0 ?
-        if (this._position !== undefined) {
-            trs[0] = this._position.x;
-            trs[1] = this._position.y;
-            trs[2] = this._position.z;
-            this._position = undefined;
-        }
-
         if (this._zIndex !== undefined) {
             this._localZOrder = this._zIndex << 16;
             this._zIndex = undefined;
         }
 
         this._fromEuler();
-
-        // Upgrade _scale from v2
-        // TODO: remove in future version, 3.0 ?
-        if (this._scale !== undefined) {
-            trs[7] = this._scale.x;
-            trs[8] = this._scale.y;
-            trs[9] = this._scale.z;
-            this._scale = undefined;
-        }
 
         if (this._localZOrder !== 0) {
             this._zIndex = (this._localZOrder & 0xffff0000) >> 16;
