@@ -1343,22 +1343,6 @@ let NodeDefines = {
             this._zIndex = undefined;
         }
 
-        // TODO: remove _rotationX & _rotationY in future version, 3.0 ?
-        // Update eulerAngles from rotation, when upgrade from 1.x to 2.0
-        // If rotation x & y is 0 in old version, then update rotation from default quaternion is ok too
-        let eulerAngles = this._eulerAngles;
-        if ((this._rotationX || this._rotationY) &&
-            (eulerAngles.x === 0 && eulerAngles.y === 0 && eulerAngles.z === 0)) {
-            if (this._rotationX === this._rotationY) {
-                eulerAngles.z = -this._rotationX;
-            }
-            else {
-                eulerAngles.x = this._rotationX;
-                eulerAngles.y = this._rotationY;
-            }
-            this._rotationX = this._rotationY = undefined;
-        }
-
         this._fromEuler();
 
         // Upgrade from 2.0.0 preview 4 & earlier versions
