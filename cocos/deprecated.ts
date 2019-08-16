@@ -82,7 +82,7 @@ replaceProperty = (owner: object, ownerName: string, properties: IReplacement[])
     properties.forEach(function (item: IReplacement) {
 
         let id = messageID++;
-        messageMap.set(id, { id: id, count: 0, logTimes: item.logTimes != null ? item.logTimes : defaultLogTimes, });
+        messageMap.set(id, { id: id, count: 0, logTimes: item.logTimes !== undefined ? item.logTimes : defaultLogTimes, });
 
         let target = item.target != null ? item.target : owner;
         let newName = item.newName != null ? item.newName : item.name;
@@ -130,7 +130,7 @@ removeProperty = (owner: object, ownerName: string, properties: IRemoveItem[]) =
     properties.forEach(function (item: IRemoveItem) {
 
         let id = messageID++;
-        messageMap.set(id, { id: id, count: 0, logTimes: item.logTimes != null ? item.logTimes : defaultLogTimes, });
+        messageMap.set(id, { id: id, count: 0, logTimes: item.logTimes !== undefined ? item.logTimes : defaultLogTimes, });
 
         Object.defineProperty(owner, item.name, {
             get: function (this) {
@@ -183,7 +183,7 @@ markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
         }
 
         let id = messageID++;
-        messageMap.set(id, { id: id, count: 0, logTimes: item.logTimes != null ? item.logTimes : defaultLogTimes, });
+        messageMap.set(id, { id: id, count: 0, logTimes: item.logTimes !== undefined ? item.logTimes : defaultLogTimes, });
 
         if (descriptor.value != null) {
             if (typeof descriptor.value == 'function') {
