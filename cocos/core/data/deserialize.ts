@@ -842,7 +842,7 @@ _Deserializer.pool.get = function (result, target, classFinder, customEnv, ignor
  * @param {Object} [options]
  * @return {object} the main data(asset)
  */
-export default function deserialize (data, details, options) {
+function deserialize (data, details, options) {
     options = options || {};
     const classFinder = options.classFinder || js._getClassById;
     // 启用 createAssetRefs 后，如果有 url 属性则会被统一强制设置为 { uuid: 'xxx' }，必须后面再特殊处理
@@ -896,3 +896,5 @@ deserialize.reportMissingClass = (id) => {
     }
 };
 cc.deserialize = deserialize;
+
+export default deserialize;
