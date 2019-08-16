@@ -177,7 +177,7 @@ export class Profiler {
         }
 
         this._stats = null;
-        const now = performance.now();
+        const now = director.getCurrentTime();
 
         const opts = {
             frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
@@ -219,7 +219,7 @@ export class Profiler {
         camera.near = 0;
         camera.far = 0;
         camera.orthoHeight = this._device!.height;
-        camera.visibility = 100;
+        camera.visibility = 0xDEADBEEF;
         camera.clearFlags = GFXClearFlag.DEPTH | GFXClearFlag.STENCIL;
 
         const managerNode = new Node('Profiler_Root');
@@ -261,7 +261,7 @@ export class Profiler {
         pass.bindTextureView(handle!, this._textureView!);
 
         modelCom.material = _material;
-        modelCom.visibility = 100;
+        modelCom.visibility = 0xDEADBEEF;
     }
 
     public beforeUpdate () {
@@ -282,7 +282,7 @@ export class Profiler {
             return;
         }
 
-        const now = performance.now();
+        const now = director.getCurrentTime();
         if (director.isPaused()) {
             this.getCounter('frame').start(now);
         } else {
@@ -295,7 +295,7 @@ export class Profiler {
             return;
         }
 
-        const now = performance.now();
+        const now = director.getCurrentTime();
         this.getCounter('physics').start(now);
     }
 
@@ -304,7 +304,7 @@ export class Profiler {
             return;
         }
 
-        const now = performance.now();
+        const now = director.getCurrentTime();
         this.getCounter('physics').end(now);
     }
 
@@ -313,7 +313,7 @@ export class Profiler {
             return;
         }
 
-        const now = performance.now();
+        const now = director.getCurrentTime();
         this.getCounter('render').start(now);
     }
 
@@ -321,7 +321,7 @@ export class Profiler {
         if (!this._stats) {
             return;
         }
-        const now = performance.now();
+        const now = director.getCurrentTime();
 
         this.getCounter('fps').frame(now);
         this.getCounter('draws').value = this._device!.numDrawCalls;
