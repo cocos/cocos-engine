@@ -76,7 +76,7 @@ var textUtils = {
         while (allWidth > maxWidth && text.length > 1) {
 
             var fuzzyLen = text.length * ( maxWidth / allWidth ) | 0;
-            var tmpText = text.substr(fuzzyLen);
+            var tmpText = text.substring(fuzzyLen);
             var width = allWidth - measureText(tmpText);
             var sLine = tmpText;
             var pushNum = 0;
@@ -88,7 +88,7 @@ var textUtils = {
             while (width > maxWidth && checkWhile++ < checkCount) {
                 fuzzyLen *= maxWidth / width;
                 fuzzyLen = fuzzyLen | 0;
-                tmpText = text.substr(fuzzyLen);
+                tmpText = text.substring(fuzzyLen);
                 width = allWidth - measureText(tmpText);
             }
 
@@ -103,17 +103,17 @@ var textUtils = {
                 }
 
                 fuzzyLen = fuzzyLen + pushNum;
-                tmpText = text.substr(fuzzyLen);
+                tmpText = text.substring(fuzzyLen);
                 width = allWidth - measureText(tmpText);
             }
 
             fuzzyLen -= pushNum;
             if (fuzzyLen === 0) {
                 fuzzyLen = 1;
-                sLine = sLine.substr(1);
+                sLine = sLine.substring(1);
             }
 
-            var sText = text.substr(0, fuzzyLen), result;
+            var sText = text.substring(0, 0 + fuzzyLen), result;
 
             //symbol in the first
             if (this.label_wrapinspection) {
@@ -122,8 +122,8 @@ var textUtils = {
                     fuzzyLen -= result ? result[0].length : 0;
                     if (fuzzyLen === 0) fuzzyLen = 1;
 
-                    sLine = text.substr(fuzzyLen);
-                    sText = text.substr(0, fuzzyLen);
+                    sLine = text.substring(fuzzyLen);
+                    sText = text.substring(0, 0 + fuzzyLen);
                 }
             }
 
@@ -133,8 +133,8 @@ var textUtils = {
                 result = this.label_lastEmoji.exec(sText);
                 if (result && sText !== result[0]) {
                     fuzzyLen -= result[0].length;
-                    sLine = text.substr(fuzzyLen);
-                    sText = text.substr(0, fuzzyLen);
+                    sLine = text.substring(fuzzyLen);
+                    sText = text.substring(0, 0 + fuzzyLen);
                 }
             }
 
@@ -143,8 +143,8 @@ var textUtils = {
                 result = this.label_lastEnglish.exec(sText);
                 if (result && sText !== result[0]) {
                     fuzzyLen -= result[0].length;
-                    sLine = text.substr(fuzzyLen);
-                    sText = text.substr(0, fuzzyLen);
+                    sLine = text.substring(fuzzyLen);
+                    sText = text.substring(0, 0 + fuzzyLen);
                 }
             }
 
@@ -153,7 +153,7 @@ var textUtils = {
                 wrappedWords.push(sText);
             }
             else {
-                sText = sText.trim();
+                sText = sText.trimLeft();
                 if (sText.length > 0) {
                     wrappedWords.push(sText);
                 }
@@ -166,7 +166,7 @@ var textUtils = {
             wrappedWords.push(text);
         }
         else {
-            text = text.trim();
+            text = text.trimLeft();
             if (text.length > 0) {
                 wrappedWords.push(text);
             }
