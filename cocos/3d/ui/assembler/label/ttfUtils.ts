@@ -36,7 +36,7 @@ import { CanvasPool, ISharedLabelData } from './font-utils';
 import { LetterRenderTexture } from './letter-font';
 
 const Overflow = LabelComponent.Overflow;
-const WHITE = Color.WHITE;
+const WHITE = Color.WHITE.clone();
 const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutlineComponent, Component);
 
 let _context: CanvasRenderingContext2D | null = null;

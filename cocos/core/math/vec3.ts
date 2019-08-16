@@ -29,10 +29,10 @@
  */
 
 import CCClass from '../data/class';
+import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
 import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
 import { clamp, EPSILON, random } from './utils';
-import { ValueType } from '../value-types/value-type';
 
 let _x: number = 0.0;
 let _y: number = 0.0;
@@ -414,7 +414,8 @@ export class Vec3 extends ValueType {
     /**
      * @zh 缩放 -> 旋转 -> 平移变换向量
      */
-    public static transformRTS<Out extends IVec3Like, VecLike extends IVec3Like, QuatLike extends IQuatLike> (out: Out, a: VecLike, r: QuatLike, t: VecLike, s: VecLike) {
+    public static transformRTS<Out extends IVec3Like, VecLike extends IVec3Like, QuatLike extends IQuatLike>
+        (out: Out, a: VecLike, r: QuatLike, t: VecLike, s: VecLike) {
         const x = a.x * s.x;
         const y = a.y * s.y;
         const z = a.z * s.z;
@@ -687,7 +688,6 @@ export class Vec3 extends ValueType {
         );
     }
 
-
     /**
      * 判断当前向量是否与指定向量相等。
      * @param other 相比较的向量。
@@ -704,7 +704,7 @@ export class Vec3 extends ValueType {
      * @param z 指定向量的 z 分量。
      * @returns 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
      */
-    public strictEquals3f (x:number, y:number, z:number) {
+    public strictEquals3f (x: number, y: number, z: number) {
         return this.x === x && this.y === y && this.z === z;
     }
 
@@ -745,7 +745,7 @@ export class Vec3 extends ValueType {
      * @param y 指定的向量的 y 分量。
      * @param z 指定的向量的 z 分量。
      */
-    public add3f (x:number, y:number, z:number) {
+    public add3f (x: number, y: number, z: number) {
         this.x = this.x + x;
         this.y = this.y + y;
         this.z = this.z + z;
@@ -769,7 +769,7 @@ export class Vec3 extends ValueType {
      * @param y 指定的向量的 y 分量。
      * @param z 指定的向量的 z 分量。
      */
-    public subtract3f (x:number, y:number, z:number) {
+    public subtract3f (x: number, y: number, z: number) {
         this.x = this.x - x;
         this.y = this.y - y;
         this.z = this.z - z;
@@ -806,7 +806,7 @@ export class Vec3 extends ValueType {
      * @param y 指定的向量的 y 分量。
      * @param z 指定的向量的 z 分量。
      */
-    public multiply3f (x:number, y:number, z:number) {
+    public multiply3f (x: number, y: number, z: number) {
         this.x = this.x * x;
         this.y = this.y * y;
         this.z = this.z * z;
@@ -830,7 +830,7 @@ export class Vec3 extends ValueType {
      * @param y 指定的向量的 y 分量。
      * @param z 指定的向量的 z 分量。
      */
-    public divide3f (x:number, y:number, z:number) {
+    public divide3f (x: number, y: number, z: number) {
         this.x = this.x / x;
         this.y = this.y / y;
         this.z = this.z / z;

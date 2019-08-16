@@ -317,6 +317,7 @@ class Game extends EventTarget {
      */
     public restart () {
         cc.director.once(cc.Director.EVENT_AFTER_DRAW, () => {
+            // tslint:disable-next-line: forin
             for (const id in cc.game._persistRootNodes) {
                 cc.game.removePersistRootNode(cc.game._persistRootNodes[id]);
             }
@@ -607,6 +608,7 @@ class Game extends EventTarget {
     }
 
     //  @Game loading section
+    // tslint:disable-next-line: max-line-length
     private _initConfig (config: { debugMode: number; exposeClassName: boolean; frameRate: number; renderMode: number; registerSystemEvent: boolean; showFPS: boolean; scenes: never[]; collisionMatrix: never[]; groupList: never[]; }) {
         // Configs adjustment
         if (typeof config.debugMode !== 'number') {
@@ -674,6 +676,7 @@ class Game extends EventTarget {
         // Avoid setup to be called twice.
         if (this._rendererInitialized) { return; }
 
+// tslint:disable-next-line: no-shadowed-variable
         function addClass (element: { className: string; }, name: string) {
             const hasClass = (' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1;
             if (!hasClass) {
@@ -836,6 +839,7 @@ class Game extends EventTarget {
                 'webkitvisibilitychange',
                 'qbrowserVisibilityChange',
             ];
+            // tslint:disable-next-line: prefer-for-of
             for (let i = 0; i < changeList.length; i++) {
                 document.addEventListener(changeList[i], (event) => {
                     let visible = document[hiddenPropName];

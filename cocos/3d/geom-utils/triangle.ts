@@ -9,6 +9,7 @@ import enums from './enums';
  * @zh
  * 基础几何 三角形。
  */
+// tslint:disable-next-line:class-name
 export default class triangle {
 
     /**

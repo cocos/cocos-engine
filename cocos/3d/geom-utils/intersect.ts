@@ -15,6 +15,11 @@ import ray from './ray';
 import sphere from './sphere';
 import triangle from './triangle';
 
+// tslint:disable:only-arrow-functions
+// tslint:disable:one-variable-per-declaration
+// tslint:disable:prefer-for-of
+// tslint:disable:no-shadowed-variable
+
 /**
  * @en
  * ray-plane intersect

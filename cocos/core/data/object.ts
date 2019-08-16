@@ -95,6 +95,7 @@ function compileDestruct (obj, ctor) {
     if (CCClass._isCCClass(ctor)) {
         const attrs = cc.Class.Attr.getClassAttrs(ctor);
         const propList = ctor.__props__;
+        // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < propList.length; i++) {
             key = propList[i];
             const attrKey = key + cc.Class.Attr.DELIMETER + 'default';
@@ -121,6 +122,7 @@ function compileDestruct (obj, ctor) {
     if (CC_SUPPORT_JIT) {
         // compile code
         let func = '';
+        // tslint:disable: forin
         for (key in propsToReset) {
             let statement;
             if (CCClass.IDENTIFIER_RE.test(key)) {

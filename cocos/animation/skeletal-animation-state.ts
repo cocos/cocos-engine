@@ -27,15 +27,15 @@
  * @category animation
  */
 
-import { AnimationState, ICurveInstance } from './animation-state';
-import { SkinningModelComponent } from '../3d';
-import { Socket } from './skeletal-animation-component';
-import { SkeletalAnimationClip, FrameIDValueAdapter } from './skeletal-animation-clip';
-import { IObjectCurveData } from './animation-clip';
+import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
 import { Mat4 } from '../core/math';
+import { IObjectCurveData } from './animation-clip';
 import { AnimCurve } from './animation-curve';
-import { getPathFromRoot, getWorldTransformUntilRoot } from './transform-utils';
+import { AnimationState, ICurveInstance } from './animation-state';
+import { FrameIDValueAdapter, SkeletalAnimationClip } from './skeletal-animation-clip';
+import { Socket } from './skeletal-animation-component';
 import { HierachyModifier } from './target-modifier';
+import { getPathFromRoot, getWorldTransformUntilRoot } from './transform-utils';
 
 const m4_1 = new Mat4();
 

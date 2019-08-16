@@ -30,14 +30,14 @@
 import { UIComponent, UITransformComponent } from '../3d/ui/components';
 import { ccclass, property } from '../core/data/class-decorator';
 import Event from '../core/event/event';
+import { Mat3, Mat4, Quat, Size, Vec2, Vec3 } from '../core/math';
 import { eventManager } from '../core/platform/event-manager';
 import { SystemEventType } from '../core/platform/event-manager/event-enum';
 import { INode } from '../core/utils/interfaces';
-import { Mat3, Mat4, Quat, Size, Vec2, Vec3 } from '../core/math';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
-import { NodeEventProcessor } from './node-event-processor';
 import { NodeSpace, TransformDirtyBit } from './node-enum';
+import { NodeEventProcessor } from './node-event-processor';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -109,6 +109,7 @@ export class Node extends BaseNode implements INode {
     protected _eventProcessor: NodeEventProcessor = new cc.NodeEventProcessor(this);
     protected _eventMask = 0;
     private _uiTransfromComp: UITransformComponent | null = null;
+    // tslint:disable-next-line: member-ordering
     public _uiComp: UIComponent | null = null;
 
     /**
@@ -361,6 +362,7 @@ export class Node extends BaseNode implements INode {
     }
 
     public _onBeforeSerialize () {
+        // tslint:disable-next-line: no-unused-expression
         this.eulerAngles; // make sure we save the correct eulerAngles
     }
 
@@ -494,7 +496,7 @@ export class Node extends BaseNode implements INode {
             array_a[i++] = cur;
             cur = cur._parent;
         }
-        let child: this, dirtyBits = 0;
+        let child: this; let dirtyBits = 0;
         while (i) {
             child = array_a[--i];
             dirtyBits |= child._dirtyFlags;

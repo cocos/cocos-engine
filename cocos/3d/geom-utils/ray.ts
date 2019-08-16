@@ -9,6 +9,7 @@ import enums from './enums';
  * @zh
  * 基础几何 射线。
  */
+// tslint:disable-next-line:class-name
 export default class ray {
 
     /**

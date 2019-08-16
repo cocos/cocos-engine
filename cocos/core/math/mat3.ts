@@ -28,10 +28,10 @@
  */
 
 import CCClass from '../data/class';
+import { ValueType } from '../value-types/value-type';
 import { Quat } from './quat';
 import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
 import { EPSILON } from './utils';
-import { ValueType } from '../value-types/value-type';
 import { Vec3 } from './vec3';
 
 let _a00: number = 0; let _a01: number = 0; let _a02: number = 0;
@@ -41,7 +41,10 @@ let _a20: number = 0; let _a21: number = 0; let _a22: number = 0;
 /**
  * 表示三维（3x3）矩阵。
  */
+// tslint:disable:one-variable-per-declaration
 export class Mat3 extends ValueType {
+
+    public static IDENTITY = Object.freeze(new Mat3());
 
     /**
      * @zh 获得指定矩阵的拷贝

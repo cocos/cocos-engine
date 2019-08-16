@@ -18,6 +18,7 @@ import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
 import Particle from '../particle';
 
+// tslint:disable: max-line-length
 const PRE_TRIANGLE_INDEX = 1;
 const NEXT_TRIANGLE_INDEX = 1 << 2;
 

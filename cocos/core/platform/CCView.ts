@@ -371,6 +371,7 @@ class View extends EventTarget {
         this._antiAliasEnabled = enabled;
         if (cc.game.renderType === Game.RENDER_TYPE_WEBGL) {
             const cache = cc.loader._cache;
+            // tslint:disable-next-line: forin
             for (const key in cache) {
                 const item = cache[key];
                 const tex = item && item.content instanceof cc.Texture2D ? item.content : null;
@@ -605,6 +606,7 @@ class View extends EventTarget {
         }
     }
 
+    // tslint:disable: max-line-length
     /**
      * @en
      * Sets the resolution policy with designed view size in points.<br/>
@@ -904,6 +906,7 @@ class View extends EventTarget {
             // Avoid adapte multiple times in a frame
             return;
         }
+        // tslint:disable: no-shadowed-variable
         let view;
         if (this.setDesignResolutionSize) {
             view = this;
@@ -1081,6 +1084,7 @@ class View extends EventTarget {
         const scaleY = this._scaleY;
         let selPoint;
         let selPrePoint;
+        // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < touches.length; i++) {
             const selTouch = touches[i];
             selPoint = selTouch._point;

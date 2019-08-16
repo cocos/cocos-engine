@@ -29,10 +29,10 @@
  */
 
 import CCClass from '../data/class';
+import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
 import { IMat4Like, IQuatLike, IVec4Like } from './type-define';
 import { clamp, EPSILON, random } from './utils';
-import { ValueType } from '../value-types/value-type';
 
 let _x: number = 0.0;
 let _y: number = 0.0;
@@ -524,7 +524,7 @@ export class Vec4 extends ValueType {
      * @param epsilon 允许的误差，应为非负数。
      * @returns 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
      */
-    public equals4f (x: number, y: number, z: number, w:number, epsilon = EPSILON) {
+    public equals4f (x: number, y: number, z: number, w: number, epsilon = EPSILON) {
         return (Math.abs(this.x - x) <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(x)) &&
             Math.abs(this.y - y) <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(y)) &&
             Math.abs(this.z - z) <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(z)) &&
@@ -548,7 +548,7 @@ export class Vec4 extends ValueType {
      * @param w 指定向量的 w 分量。
      * @returns 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
      */
-    public strictEquals4f (x: number, y: number, z: number, w:number) {
+    public strictEquals4f (x: number, y: number, z: number, w: number) {
         return this.x === x && this.y === y && this.z === z && this.w === w;
     }
 
@@ -610,7 +610,7 @@ export class Vec4 extends ValueType {
      * @param z 指定的向量的 z 分量。
      * @param w 指定的向量的 w 分量。
      */
-    public add4f (x:number, y:number, z:number, w:number) {
+    public add4f (x: number, y: number, z: number, w: number) {
         this.x = this.x + x;
         this.y = this.y + y;
         this.z = this.z + z;
@@ -637,7 +637,7 @@ export class Vec4 extends ValueType {
      * @param z 指定的向量的 z 分量。
      * @param w 指定的向量的 w 分量。
      */
-    public subtract4f (x:number, y:number, z:number, w:number) {
+    public subtract4f (x: number, y: number, z: number, w: number) {
         this.x = this.x - x;
         this.y = this.y - y;
         this.z = this.z - z;
@@ -678,7 +678,7 @@ export class Vec4 extends ValueType {
      * @param z 指定的向量的 z 分量。
      * @param w 指定的向量的 w 分量。
      */
-    public multiply4f (x:number, y:number, z:number, w:number) {
+    public multiply4f (x: number, y: number, z: number, w: number) {
         this.x = this.x * x;
         this.y = this.y * y;
         this.z = this.z * z;
@@ -705,7 +705,7 @@ export class Vec4 extends ValueType {
      * @param z 指定的向量的 z 分量。
      * @param w 指定的向量的 w 分量。
      */
-    public divide4f (x:number, y:number, z:number, w:number) {
+    public divide4f (x: number, y: number, z: number, w: number) {
         this.x = this.x / x;
         this.y = this.y / y;
         this.z = this.z / z;

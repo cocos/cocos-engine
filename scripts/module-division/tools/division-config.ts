@@ -1,4 +1,6 @@
 
+// tslint:disable:interface-name
+
 export interface ModuleDivision {
     $schema?: string;
 
@@ -50,7 +52,7 @@ export interface SingleSelection extends BaseItem {
     /**
      * Options.
      */
-    options: Array<SelectionOption>;
+    options: SelectionOption[];
 
     /**
      * Indicates the n-th option is selected by default if the item is marked as bundled.

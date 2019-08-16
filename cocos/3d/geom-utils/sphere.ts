@@ -12,6 +12,7 @@ function maxComponent (v: Vec3) { return Math.max(Math.max(v.x, v.y), v.z); }
  * @zh
  * 基础几何 轴对齐球。
  */
+// tslint:disable-next-line: class-name
 export default class sphere {
 
     /**

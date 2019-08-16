@@ -54,7 +54,7 @@ export class Skybox extends Model {
         super(scene, null!);
         this._scene = scene;
         this._material.initialize({
-            effectName: 'builtin-skybox',
+            effectName: 'pipeline/skybox',
             defines: { USE_RGBE_CUBEMAP: this._isRGBE },
         });
         this._globalBinding = this._scene.root.pipeline.globalBindings.get(UNIFORM_ENVIRONMENT.name)!;

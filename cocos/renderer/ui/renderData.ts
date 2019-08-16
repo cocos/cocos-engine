@@ -164,7 +164,7 @@ const _dataPool = new Pool(() => {
         z: 0,
         u: 0,
         v: 0,
-        color: Color.WHITE,
+        color: Color.WHITE.clone(),
     } as IRenderData;
 }, 128);
 

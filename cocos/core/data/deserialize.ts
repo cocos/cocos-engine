@@ -35,6 +35,7 @@ import * as Attr from './utils/attribute';
 
 // HELPERS
 
+// tslint:disable: no-shadowed-variable
 
 /**
  * @en Contains information collected during deserialization
@@ -202,6 +203,7 @@ const compileDeserialize = CC_SUPPORT_JIT ? (self, klass) => {
     ];
     const fastMode = misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
     // sources.push('var vb,vn,vs,vo,vu,vf;');    // boolean, number, string, object, undefined, function
+    // tslint:disable-next-line: prefer-for-of
     for (let p = 0; p < props.length; p++) {
         const propName = props[p];
         if ((CC_PREVIEW || (CC_EDITOR && self._ignoreEditorOnly)) && attrs[propName + EDITOR_ONLY]) {
@@ -308,6 +310,7 @@ const compileDeserialize = CC_SUPPORT_JIT ? (self, klass) => {
         const SAVE_URL_AS_ASSET = Attr.DELIMETER + 'saveUrlAsAsset';
         const FORMERLY_SERIALIZED_AS = Attr.DELIMETER + 'formerlySerializedAs';
 
+        // tslint:disable-next-line: prefer-for-of
         for (let p = 0; p < props.length; p++) {
             const propName = props[p];
             let propNameToRead = propName;
@@ -479,6 +482,7 @@ function _deserializeFireClass (self, obj, serialized, klass, target) {
 //     }
 // }
 
+// tslint:disable-next-line: class-name
 class _Deserializer {
 
     public static pool: js.Pool<{}>;
@@ -764,6 +768,7 @@ class _Deserializer {
         const DEFAULT = Attr.DELIMETER + 'default';
         const attrs = Attr.getClassAttrs(klass);
         const fastDefinedProps = klass.__props__ || Object.keys(instance);    // 遍历 instance，如果具有类型，才不会把 __type__ 也读进来
+        // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < fastDefinedProps.length; i++) {
             const propName = fastDefinedProps[i];
             let value = serialized[propName];

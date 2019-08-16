@@ -30,6 +30,12 @@
 
 // const FIX_BABEL6 = true;
 
+// tslint:disable:only-arrow-functions
+// tslint:disable:prefer-for-of
+// tslint:disable:no-shadowed-variable
+// tslint:disable:max-line-length
+// tslint:disable:no-empty-interface
+
 /**
  * @en Some JavaScript decorators which can be accessed with "cc._decorator".
  * @zh 一些 JavaScript 装饰器，目前可以通过 "cc._decorator" 来访问。

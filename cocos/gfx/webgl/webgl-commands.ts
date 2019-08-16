@@ -148,6 +148,7 @@ function GFXFormatToWebGLType (format: GFXFormat, gl: WebGLRenderingContext): GL
     }
 }
 
+// tslint:disable: max-line-length
 function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
     switch (format) {
         case GFXFormat.A8: return gl.ALPHA;
@@ -191,6 +192,7 @@ function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGLRenderingCo
         }
     }
 }
+// tslint:enable: max-line-length
 
 function GFXFormatToWebGLFormat (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
     switch (format) {

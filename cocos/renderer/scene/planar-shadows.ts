@@ -1,18 +1,18 @@
-import { CachedArray } from '../../core/memop/cached-array';
+import { EffectAsset } from '../../3d/assets/effect-asset';
 import { Color, Mat4, Quat, Vec3 } from '../../core/math';
+import { CachedArray } from '../../core/memop/cached-array';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType } from '../../gfx/define';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { IInternalBindingInst, UBOShadow } from '../../pipeline/define';
+import { Pass } from '../core/pass';
+import { selectJointsMediumType } from '../models/joints-texture-utils';
+import { SkinningModel } from '../models/skinning-model';
 import { DirectionalLight } from './directional-light';
 import { Model } from './model';
 import { RenderScene } from './render-scene';
 import { SphereLight } from './sphere-light';
-import { Pass } from '../core/pass';
-import { selectJointsMediumType } from '../models/joints-texture-utils';
-import { SkinningModel } from '../models/skinning-model';
-import { EffectAsset } from '../../3d/assets/effect-asset';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -96,10 +96,10 @@ export class PlanarShadows {
 
     public updateSphereLight (light: SphereLight) {
         light.node.getWorldPosition(_v3);
-        const n = this._normal, d = this._distance;
+        const n = this._normal; const d = this._distance;
         const NdL = Vec3.dot(n, _v3);
-        const lx = _v3.x, ly = _v3.y, lz = _v3.z;
-        const nx = n.x, ny = n.y, nz = n.z;
+        const lx = _v3.x; const ly = _v3.y; const lz = _v3.z;
+        const nx = n.x; const ny = n.y; const nz = n.z;
         const m = this._matLight;
         m.m00 = NdL - d - lx * nx;
         m.m01 = -ly * nx;
@@ -124,10 +124,10 @@ export class PlanarShadows {
     public updateDirLight (light: DirectionalLight = this._scene.mainLight) {
         light.node.getWorldRotation(_qt);
         Vec3.transformQuat(_v3, _forward, _qt);
-        const n = this._normal, d = this._distance;
-        const NdL = Vec3.dot(n, _v3), scale = 1 / NdL;
-        const lx = _v3.x * scale, ly = _v3.y * scale, lz = _v3.z * scale;
-        const nx = n.x, ny = n.y, nz = n.z;
+        const n = this._normal; const d = this._distance;
+        const NdL = Vec3.dot(n, _v3); const scale = 1 / NdL;
+        const lx = _v3.x * scale; const ly = _v3.y * scale; const lz = _v3.z * scale;
+        const nx = n.x; const ny = n.y; const nz = n.z;
         const m = this._matLight;
         m.m00 = 1 - nx * lx;
         m.m01 = -nx * ly;

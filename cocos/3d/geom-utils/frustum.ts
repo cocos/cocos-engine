@@ -16,6 +16,7 @@ _v[5] = new Vec3(-1, 1, -1);
 _v[6] = new Vec3(-1, -1, -1);
 _v[7] = new Vec3(1, -1, -1);
 
+// tslint:disable-next-line: class-name
 export class frustum {
 
     /**

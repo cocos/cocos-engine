@@ -46,7 +46,7 @@ export class LightComponent extends Component {
     public static PhotometricTerm = PhotometricTerm;
 
     @property
-    protected _color = Color.WHITE;
+    protected _color = Color.WHITE.clone();
     @property
     protected _useColorTemperature = false;
     @property

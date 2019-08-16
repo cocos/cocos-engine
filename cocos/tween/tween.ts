@@ -19,6 +19,7 @@ export class Tween {
 
     private static _recursiveForBy (props: object) {
         let theProp: number | object;
+        // tslint:disable-next-line: forin
         for (const property in props) {
             theProp = props[property];
             if (typeof theProp === 'number') {

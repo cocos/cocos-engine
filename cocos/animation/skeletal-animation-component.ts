@@ -27,22 +27,22 @@
  * @category animation
  */
 
-import { AnimationComponent } from './animation-component';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../core/data/class-decorator';
-import { Node } from '../scene-graph/node';
-import { SkeletalAnimationState } from './skeletal-animation-state';
-import { INode } from '../core/utils/interfaces';
-import { Mat4 } from '../core/math';
-import { getWorldTransformUntilRoot } from './transform-utils';
-import { AnimationClip } from './animation-clip';
 import { SkeletalAnimationClip } from '../animation/skeletal-animation-clip';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../core/data/class-decorator';
+import { Mat4 } from '../core/math';
+import { INode } from '../core/utils/interfaces';
+import { Node } from '../scene-graph/node';
+import { AnimationClip } from './animation-clip';
+import { AnimationComponent } from './animation-component';
+import { SkeletalAnimationState } from './skeletal-animation-state';
+import { getWorldTransformUntilRoot } from './transform-utils';
 
 @ccclass('cc.SkeletalAnimationComponent.Socket')
 export class Socket {
     @property
-    path: string = '';
+    public path: string = '';
     @property(Node)
-    target: INode | null = null;
+    public target: INode | null = null;
     constructor (path = '', target: INode | null = null) {
         this.path = path;
         this.target = target;
@@ -71,10 +71,10 @@ function collectRecursively (node: INode, prefix = '', out: string[] = []) {
 @menu('Components/SkeletalAnimationComponent')
 export class SkeletalAnimationComponent extends AnimationComponent {
 
-    static Socket = Socket;
+    public static Socket = Socket;
 
     @property({ type: [Socket] })
-    _sockets: Socket[] = [];
+    public _sockets: Socket[] = [];
 
     @property({ type: [Socket] })
     get sockets () {
@@ -91,7 +91,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     }
 
     public querySockets () {
-        let out: string[] = [];
+        const out: string[] = [];
         if (!this._defaultClip) { return out; }
         const animPaths = Object.keys((this._defaultClip as SkeletalAnimationClip).convertedData).sort().reduce((acc, cur) =>
             cur.startsWith(acc[acc.length - 1]) ? acc : (acc.push(cur), acc), [] as string[]);
@@ -123,8 +123,8 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     }
 
     public createSocket (path: string): INode | null {
-        let s = this._sockets.find((s) => s.path === path);
-        if (s) { return s.target; }
+        const socket = this._sockets.find((s) => s.path === path);
+        if (socket) { return socket.target; }
         const joint = this.node.getChildByPath(path);
         if (!joint) { console.warn('illegal socket path'); return null; }
         const target = new cc.Node();
@@ -139,6 +139,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     }
 
     protected _doCreateState (clip: AnimationClip, name: string) {
+        if (!(clip instanceof SkeletalAnimationClip)) { console.warn('non-skeletal clip bound to skeletal component'); }
         const state = super._doCreateState(clip, name) as SkeletalAnimationState;
         state.rebuildSocketCurves(this._sockets);
         return state;

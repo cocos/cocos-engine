@@ -4,6 +4,7 @@ import { IRenderingSubmesh } from '../../3d/assets/mesh';
 import { aabb } from '../../3d/geom-utils';
 import Pool from '../../3d/memop/pool';
 import { Mat4, Vec3 } from '../../core/math';
+import { INode } from '../../core/utils/interfaces';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
@@ -14,9 +15,7 @@ import { Pass } from '../core/pass';
 import { customizationManager } from './customization-manager';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
-import { INode } from '../../core/utils/interfaces';
 
-const f32_1 = new Float32Array(16);
 const m4_1 = new Mat4();
 
 const _subMeshPool = new Pool(() => {

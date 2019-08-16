@@ -430,7 +430,7 @@ export class ButtonComponent extends Component {
     @property
     private _hoverColor: Color = new Color(211, 211, 211, 255);
     @property
-    private _pressColor: Color = Color.WHITE;
+    private _pressColor: Color = Color.WHITE.clone();
     @property
     private _disabledColor: Color = new Color(124, 124, 124, 255);
     @property

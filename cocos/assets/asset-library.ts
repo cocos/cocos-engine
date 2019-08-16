@@ -39,6 +39,7 @@ import {initPacks} from '../load-pipeline/pack-downloader';
 import SubPackPipe from '../load-pipeline/subpackage-pipe';
 import { Asset } from './asset';
 
+// tslint:disable: max-line-length
 
 // configs
 
@@ -306,6 +307,7 @@ const AssetLibrary = {
         return AssetLibrary._uuidToAsset[uuid] || null;
     },
 
+    // tslint:disable: no-shadowed-variable
     /**
      * @en
      * init the asset library
@@ -366,6 +368,7 @@ const AssetLibrary = {
         // init raw assets
 
         const assetTables = Loader._assetTables;
+        // tslint:disable: forin
         for (const mount in assetTables) {
             assetTables[mount].reset();
         }

@@ -52,6 +52,7 @@ export function Enum<T> (obj: T): T {
     let lastIndex: number = -1;
     const keys: string[] = Object.keys(obj);
 
+    // tslint:disable-next-line: prefer-for-of
     for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
         let val = obj[key];
@@ -93,6 +94,7 @@ Enum.getList = (enumDef) => {
     }
 
     const enums: any[] = enumDef.__enums__ = [];
+    // tslint:disable-next-line: forin
     for (const name in enumDef) {
         const value = enumDef[name];
         if (Number.isInteger(value)) {

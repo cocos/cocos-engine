@@ -29,9 +29,9 @@
  */
 
 import CCClass from '../data/class';
+import { ValueType } from '../value-types/value-type';
 import { IColorLike } from './type-define';
 import { EPSILON } from './utils';
-import { ValueType } from '../value-types/value-type';
 
 const toFloat = 1 / 255;
 
@@ -45,6 +45,17 @@ let _a: number = 0;
  * 每个通道都为取值范围 [0, 255] 的整数。
  */
 export class Color extends ValueType {
+
+    public static WHITE = Object.freeze(new Color(255, 255, 255, 255));
+    public static GRAY = Object.freeze(new Color(127, 127, 127, 255));
+    public static BLACK = Object.freeze(new Color(0, 0, 0, 255));
+    public static TRANSPARENT = Object.freeze(new Color(0, 0, 0, 0));
+    public static RED = Object.freeze(new Color(255, 0, 0, 255));
+    public static GREEN = Object.freeze(new Color(0, 255, 0, 255));
+    public static BLUE = Object.freeze(new Color(0, 0, 255, 255));
+    public static CYAN = Object.freeze(new Color(0, 255, 255, 255));
+    public static MAGENTA = Object.freeze(new Color(255, 0, 255, 255));
+    public static YELLOW = Object.freeze(new Color(255, 255, 0, 255));
 
     /**
      * @zh 获得指定颜色的拷贝
@@ -203,83 +214,6 @@ export class Color extends ValueType {
     }
 
     /**
-     * 创建并获取（不透明的）纯白色，各通道值依次为 (255, 255, 255, 255)。
-     */
-    static get WHITE () {
-        return new Color(255, 255, 255, 255);
-    }
-
-    /**
-     * 创建并获取（不透明的）纯黑色，各通道值依次为 (0, 0, 0, 255)。
-     */
-    static get BLACK () {
-        return new Color(0, 0, 0, 255);
-    }
-
-    /**
-     * 创建并获取全透明的纯黑色，各通道值依次为 (0, 0, 0, 0)。
-     */
-    static get TRANSPARENT () {
-        return new Color(0, 0, 0, 0);
-    }
-
-    /**
-     * 创建并获取（不透明的）灰色，各通道值依次为 (127.5, 127.5, 127.5, 255)。
-     */
-    static get GRAY () {
-        return new Color(127.5, 127.5, 127.5, 255);
-    }
-
-    /**
-     * 创建并获取（不透明的）纯红色，各通道值依次为 (255, 0, 0, 255)。
-     */
-    static get RED () {
-        return new Color(255, 0, 0, 255);
-    }
-
-    /**
-     * 创建并获取（不透明的）纯绿色，各通道值依次为 (0, 255, 0, 255)。
-     */
-    static get GREEN () {
-        return new Color(0, 255, 0, 255);
-    }
-
-    /**
-     * 创建并获取（不透明的）纯蓝色，各通道值依次为 (0, 0, 255, 255)。
-     */
-    static get BLUE () {
-        return new Color(0, 0, 255, 255);
-    }
-
-    /**
-     * 创建并获取（不透明的）黄色，各通道值依次为 (255, 235, 4, 255)。
-     */
-    static get YELLOW () {
-        return new Color(255, 235, 4, 255);
-    }
-
-    /**
-     * 创建并获取（不透明的）橙色，各通道值依次为 (255, 127, 0, 255)。
-     */
-    static get ORANGE () {
-        return new Color(255, 127, 0, 255);
-    }
-
-    /**
-     * 创建并获取（不透明的）青色，各通道值依次为 (0, 255, 255, 255)。
-     */
-    static get CYAN () {
-        return new Color(0, 255, 255, 255);
-    }
-
-    /**
-     * 创建并获取（不透明的）洋红色（品红色），各通道值依次为 (255, 0, 255, 255)。
-     */
-    static get MAGENTA () {
-        return new Color(255, 0, 255, 255);
-    }
-
-    /**
      * 获取或设置当前颜色的 Red 通道。
      */
     get r () {
@@ -383,6 +317,7 @@ export class Color extends ValueType {
      * 用十六进制颜色字符串中构造颜色。
      * @param hexString 十六进制颜色字符串。
      */
+    // tslint:disable-next-line: unified-signatures
     constructor (hexString: string);
 
     /**
@@ -670,7 +605,7 @@ export class Color extends ValueType {
      * @param other 相比较的颜色。
      * @returns 当前颜色。
      */
-    public set (other:Color);
+    public set (other: Color);
 
     /**
      * 设置当前颜色使其与指定通道值相等。
@@ -680,9 +615,9 @@ export class Color extends ValueType {
      * @param [a=255] 指定的 Alpha 通道。
      * @returns 当前颜色。
      */
-    public set (r?:number, g?:number, b?:number, a?:number);
+    public set (r?: number, g?: number, b?: number, a?: number);
 
-    public set (r?: number|Color, g?:number, b?:number, a?:number ) {
+    public set (r?: number|Color, g?: number, b?: number, a?: number ) {
         if (typeof r === 'object') {
             g = r.g;
             b = r.b;
@@ -734,8 +669,7 @@ export class Color extends ValueType {
 CCClass.fastDefine('cc.Color', Color, {r: 0, g: 0, b: 0, a: 255});
 cc.Color = Color;
 
-export function color (other: Color): Color;
-export function color (hexString: string): Color;
+export function color (other: Color | string): Color;
 export function color (r?: number, g?: number, b?: number, a?: number): Color;
 
 export function color (r?: number | Color | string, g?: number, b?: number, a?: number) {
