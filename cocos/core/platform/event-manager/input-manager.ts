@@ -118,7 +118,8 @@ class InputManager {
         const handleTouches: CCTouch[] = [];
         const locTouchIntDict = this._touchesIntegerDict;
         const now = sys.now();
-        for (const touch of touches) {
+        for (let i = 0; i < touches.length; ++i) {
+            const touch = touches[i];
             const touchID = touch.getID();
             if (touchID === null) {
                 continue;
@@ -151,7 +152,8 @@ class InputManager {
         const handleTouches: CCTouch[] = [];
         const locTouches = this._touches;
         const now = sys.now();
-        for (const touch of touches) {
+        for (let i = 0; i < touches.length; ++i) {
+            const touch = touches[i];
             const touchID = touch.getID();
             if (touchID === null) {
                 continue;
@@ -202,7 +204,8 @@ class InputManager {
         const handleTouches: CCTouch[] = [];
         const locTouches = this._touches;
         const locTouchesIntDict = this._touchesIntegerDict;
-        for (const touch of touches) {
+        for (let i = 0; i < touches.length; ++i) {
+            const touch = touches[i];
             const touchID = touch.getID();
             if (touchID === null) {
                 continue;
@@ -678,7 +681,7 @@ class InputManager {
             MSPointerUp       : this.handleTouchesEnd,
             MSPointerCancel   : this.handleTouchesCancel,
         };
-        for (const eventName of Object.keys(_pointerEventsMap)) {
+        for (const eventName in _pointerEventsMap) {
             const touchEvent = _pointerEventsMap[eventName];
             // @ts-ignore
             element.addEventListener(eventName as MSPointerEventNames, (event: MSPointerEvent) => {
