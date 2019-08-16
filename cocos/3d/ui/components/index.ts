@@ -3,7 +3,6 @@
  */
 
 export { CanvasComponent } from './canvas-component';
-export { DebugCanvasComponent } from './debug-canvas-component';
 export { UIComponent } from './ui-component';
 export { ButtonComponent } from './button-component';
 export { EditBoxComponent } from './editbox/edit-box-component';

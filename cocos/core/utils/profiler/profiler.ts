@@ -24,13 +24,17 @@
  THE SOFTWARE.
 */
 
-import { DebugCanvasComponent, LabelComponent, WidgetComponent } from '../../../3d';
-import { ImageAsset, SpriteFrame } from '../../../assets';
-import { LabelAtlas } from '../../../assets';
+import { Material, ModelComponent, CameraComponent } from '../../../3d';
 import { GFXDevice } from '../../../gfx/device';
 import { Node } from '../../../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
+import { GFXTexture } from '../../../gfx/texture';
+import { GFXTextureType, GFXTextureUsageBit, GFXFormat, GFXTextureViewType, GFXBufferTextureCopy, GFXClearFlag } from '../../../gfx/define';
+import { GFXTextureView } from '../../../gfx/texture-view';
+import { createMesh } from '../../../3d/misc/utils';
+import director from '../../director';
+import { Vec4 } from '../../math';
 
 interface IProfilerState {
     frame: ICounterOption;
@@ -45,315 +49,315 @@ interface IProfilerState {
     bufferMemory: ICounterOption;
 }
 
-let _showFPS = false;
-const _fontSize = 18;
-const stringLeft = 'left';
-const stringRight = 'right';
+export class Profiler {
 
-let _atlas: LabelAtlas | null = null;
-let _stats: IProfilerState | null = null;
-let _rootNode: Node | null = null;
-const _label = new Map<string, LabelComponent | null>();
-let device: GFXDevice | null = null;
+    public _stats: IProfilerState | null = null;
 
-function initDevice (){
-    if (device){
-        return;
+    private _showFPS = false;
+    private readonly _fontSize = 22;
+    private readonly _lineHeight = this._fontSize + 2;
+    private readonly _left = 10;
+    private readonly _right = 10;
+    private readonly _top = 10;
+    private readonly _buttom = 10;
+
+    private _rootNode: Node | null = null;
+    private _device: GFXDevice | null = null;
+    private readonly _canvas: HTMLCanvasElement;
+    private readonly _ctx: CanvasRenderingContext2D;
+    private _texture: GFXTexture | null = null;
+    private _textureView: GFXTextureView | null = null;
+    private readonly _region: GFXBufferTextureCopy = new GFXBufferTextureCopy();
+    private readonly _canvasArr = [this._canvas];
+    private readonly _regionArr = [this._region];
+
+    private _canvasDone = false;
+    private _statsDone = false;
+
+    constructor () {
+        this._canvas = document.createElement('canvas');
+        this._ctx = this._canvas.getContext('2d')!;
+        this._region = new GFXBufferTextureCopy();
     }
 
-    device = cc.director.root.device;
-}
-
-function generateAtlas () {
-    if (_atlas) { return; }
-
-    const textureWidth = 256;
-    const textureHeight = 256;
-
-    const canvas = document.createElement('canvas');
-    canvas.width = textureWidth;
-    canvas.height = textureHeight;
-    canvas.style.width = `${canvas.width}`;
-    canvas.style.height = `${canvas.height}`;
-
-    // comment out this to show atlas
-    // document.body.appendChild(canvas)
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx){
-       return;
+    public isShowingStats () {
+        return this._showFPS;
     }
 
-    ctx.font = `${_fontSize}px Arial`;
-    ctx.textBaseline = 'top';
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#fff';
+    public hideStats () {
+        if (this._showFPS) {
+            if (this._rootNode) {
+                this._rootNode.active = false;
+            }
 
-    const space = 2;
-    let x = space;
-    let y = space;
-    const lineHeight = _fontSize;
-
-    _atlas = new LabelAtlas();
-    _atlas.fntConfig = {
-        atlasName: 'profiler-arial',
-        commonHeight: lineHeight,
-        fontSize: _fontSize,
-        kerningDict: {},
-        fontDefDictionary: {},
-    };
-
-    _atlas.name = 'profiler-arial';
-    _atlas.fontSize = _fontSize;
-
-    const dict = _atlas.fntConfig.fontDefDictionary;
-
-    for (let i = 32; i <= 126; i++) {
-        const char = String.fromCharCode(i);
-        const width = ctx.measureText(char).width;
-
-        if ((x + width) >= textureWidth) {
-            x = space;
-            y += lineHeight + space;
+            director.off(cc.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
+            director.off(cc.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
+            director.off(cc.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
+            director.off(cc.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
+            director.off(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
+            director.off(cc.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+            this._showFPS = false;
         }
-        ctx.fillText(char, x, y);
+    }
 
-        dict[i] = {
-            xAdvance: width,
-            xOffset: 0,
-            yOffset: 0,
-            rect: {
-                x,
-                y,
-                width,
-                height: lineHeight,
-            },
+    public showStats () {
+        if (!this._showFPS) {
+            this.initDevice();
+            this.generateCanvas();
+            this.generateStats();
+
+            if (this._rootNode) {
+                this._rootNode.active = true;
+            }
+
+            director.on(cc.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
+            director.on(cc.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
+            director.on(cc.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
+            director.on(cc.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
+            director.on(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
+            director.on(cc.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+
+            this._showFPS = true;
+            this._canvasDone = true;
+            this._statsDone = true;
+        }
+    }
+
+    public initDevice (){
+        if (this._device){
+            return;
+        }
+        this._device = director.root!.device;
+    }
+
+    public generateCanvas () {
+
+        if( this._canvasDone ){
+            return;
+        }
+
+        const textureWidth = 350;
+        const textureHeight = 200;
+
+        this._canvas.width = textureWidth;
+        this._canvas.height = textureHeight;
+        this._canvas.style.width = `${this._canvas.width}`;
+        this._canvas.style.height = `${this._canvas.height}`;
+
+        if (!this._ctx) {
+            return;
+        }
+
+        this._ctx.font = `${this._fontSize}px Arial`;
+        this._ctx.textBaseline = 'top';
+        this._ctx.fillStyle = '#fff';
+
+        this._texture = this._device!.createTexture({
+            type: GFXTextureType.TEX2D,
+            usage: GFXTextureUsageBit.SAMPLED,
+            format:GFXFormat.RGBA8,
+            width: textureWidth,
+            height: textureHeight,
+            mipLevel: 1,
+        });
+
+        this._textureView = this._device!.createTextureView({
+            texture: this._texture,
+            type: GFXTextureViewType.TV2D,
+            format: GFXFormat.RGBA8,
+        });
+
+        this._region.texExtent.width = textureWidth;
+        this._region.texExtent.height = textureHeight;
+    }
+
+    public generateStats () {
+        if(this._statsDone){
+            return;
+        }
+
+        this._stats = null;
+        const now = director.getCurrentTime();
+
+        const opts = {
+            frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
+            fps: { desc: 'Framerate (FPS)', below: 30, average: 500 },
+            draws: { desc: 'Draw call' },
+            tricount: { desc: 'Triangle' },
+            logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: 500, color: '#080' },
+            physics: { desc: 'Physics (ms)', min: 0, max: 50, average: 500 },
+            render: { desc: 'Renderer (ms)', min: 0, max: 50, average: 500, color: '#f90' },
+            textureMemory: { desc: 'GFX Texture Mem(M)' },
+            bufferMemory: { desc: 'GFX Buffer Mem(M)'},
         };
 
-        x += width + space;
-    }
-
-    // const texture = new Texture2D();
-    const image = new ImageAsset(canvas);
-
-    const spriteFrame = new SpriteFrame();
-    spriteFrame.image = image;
-    spriteFrame.onLoaded();
-
-    _atlas.spriteFrame = spriteFrame;
-}
-
-function generateStats () {
-    _stats = null;
-    const now = performance.now();
-
-    const opts = {
-        frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
-        fps: { desc: 'Framerate (FPS)', below: 30, average: 500 },
-        draws: { desc: 'Draw call' },
-        tricount: { desc: 'Triangle' },
-        logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: 500, color: '#080' },
-        physics: { desc: 'Physics (ms)', min: 0, max: 50, average: 500 },
-        render: { desc: 'Renderer (ms)', min: 0, max: 50, average: 500, color: '#f90' },
-        textureMemory: { desc: 'GFX Texture Mem(M)' },
-        bufferMemory: { desc: 'GFX Buffer Mem(M)'},
-        // mode: { desc: cc.game.renderType === cc.game.RENDER_TYPE_WEBGL ? 'WebGL' : 'Canvas', min: 1 },
-    };
-
-    for (const id of Object.keys(opts)) {
-        opts[id].counter = new PerfCounter(id, opts[id], now);
-    }
-
-    _stats = opts as IProfilerState;
-}
-
-function generateNode () {
-    if (_rootNode && _rootNode.isValid) {
-        return;
-    }
-
-    _rootNode = new Node('PROFILER-NODE');
-    _rootNode.addComponent('cc.UITransformComponent');
-    const screen = _rootNode.addComponent('cc.DebugCanvasComponent') as DebugCanvasComponent;
-    cc.game.addPersistRootNode(_rootNode);
-    // const camera = cc.director.root.
-
-    const managerNode = new Node('ROOT');
-    managerNode.addComponent('cc.UITransformComponent');
-    managerNode.parent = _rootNode;
-    managerNode.anchorX = managerNode.anchorY = 0;
-    const widgetComp = managerNode.addComponent('cc.WidgetComponent') as WidgetComponent;
-    if (widgetComp) {
-        widgetComp.isAlignBottom = true;
-        widgetComp.isAlignLeft = true;
-        widgetComp.left = 10;
-        widgetComp.bottom = 10;
-    }
-
-    // _rootNode.groupIndex = cc.Node.BuiltinGroupIndex.DEBUG;
-    // cc.Camera._setupDebugCamera();
-
-    // _rootNode.zIndex = macro.MAX_ZINDEX;
-
-    const left = new Node('LEFT-PANEL');
-    left.parent = managerNode;
-    const leftLabel = left.addComponent('cc.LabelComponent') as LabelComponent;
-    left.anchorX = left.anchorY = 0;
-    if (leftLabel){
-        leftLabel.font = _atlas;
-        leftLabel.fontSize = _fontSize;
-        leftLabel.lineHeight = _fontSize + 1;
-    }
-
-    const right = new Node('RIGHT-PANEL');
-    right.parent = managerNode;
-    const rightLabel = right.addComponent('cc.LabelComponent') as LabelComponent;
-    right.anchorX = 1;
-    right.anchorY = 0;
-    const pos = right.getPosition();
-    right.setPosition(250, pos.y, pos.z);
-    if (rightLabel){
-        rightLabel.horizontalAlign = cc.LabelComponent.HorizontalAlign.RIGHT;
-        rightLabel.font = _atlas;
-        rightLabel.fontSize = _fontSize;
-        rightLabel.lineHeight = _fontSize + 1;
-    }
-
-    _label[stringLeft] = leftLabel;
-    _label[stringRight] = rightLabel;
-}
-
-function beforeUpdate () {
-    if (!_stats) {
-        return;
-    }
-
-    generateNode();
-
-    const now = cc.director._lastUpdate;
-    getCounter('frame').end(now);
-    getCounter('frame').start(now);
-    getCounter('logic').start(now);
-}
-
-function afterUpdate () {
-    if (!_stats){
-        return;
-    }
-
-    const now = performance.now();
-    if (cc.director.isPaused()) {
-        getCounter('frame').start(now);
-    } else {
-        getCounter('logic').end(now);
-    }
-}
-
-// function updateLabel (stat: IProfilerStateOption) {
-//     stat.label.string = stat.desc + '  ' + stat.counter.human();
-// }
-
-function beforePhysics (){
-    if (!_stats){
-        return;
-    }
-
-    const now = performance.now();
-    getCounter('physics').start(now);
-}
-
-function afterPhysics (){
-    if (!_stats){
-        return;
-    }
-
-    const now = performance.now();
-    getCounter('physics').end(now);
-}
-
-function beforeDraw (){
-    if (!_stats){
-        return;
-    }
-
-    const now = performance.now();
-    getCounter('render').start(now);
-}
-
-function afterDraw () {
-    if (!_stats){
-        return;
-    }
-
-    const now = performance.now();
-
-    getCounter('fps').frame(now);
-    getCounter('draws').value = device!.numDrawCalls;
-    getCounter('bufferMemory').value = device!.memoryStatus.bufferSize / (1024 * 1024);
-    getCounter('textureMemory').value = device!.memoryStatus.textureSize / (1024 * 1024);
-    getCounter('tricount').value = device!.numTris;
-    getCounter('render').end(now);
-    // getCounter('mode').value = device!.gfxAPI;
-
-    let left = '';
-    let right = '';
-    for (const id of Object.keys(_stats)) {
-        const stat = _stats[id];
-        stat.counter.sample(now);
-
-        left += stat.desc + '\n';
-        right += stat.counter.human(!(stat.desc === 'Framerate (FPS)')) + '\n';
-    }
-
-    _label[stringLeft].string = left;
-    _label[stringRight].string = right;
-}
-
-function getCounter (s: string) {
-    const stats = _stats!;
-    return stats[s].counter as PerfCounter;
-}
-
-export const profiler = {
-    isShowingStats () {
-        return _showFPS;
-    },
-
-    hideStats () {
-        if (_showFPS) {
-            if (_rootNode) {
-                _rootNode.active = false;
-            }
-
-            cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, beforeUpdate);
-            cc.director.off(cc.Director.EVENT_AFTER_UPDATE, afterUpdate);
-            cc.director.off(cc.Director.EVENT_BEFORE_PHYSICS, beforePhysics);
-            cc.director.off(cc.Director.EVENT_AFTER_PHYSICS, afterPhysics);
-            cc.director.off(cc.Director.EVENT_BEFORE_DRAW, beforeDraw);
-            cc.director.off(cc.Director.EVENT_AFTER_DRAW, afterDraw);
-            _showFPS = false;
+        this._ctx.textAlign = 'left';
+        let i = 0;
+        for (const id of Object.keys(opts)) {
+            this._ctx.fillText(opts[id].desc,this._left,this._top + i * this._lineHeight);
+            opts[id].counter = new PerfCounter(id, opts[id], now);
+            i++;
         }
-    },
+        this._ctx.textAlign="end";
 
-    showStats () {
-        if (!_showFPS) {
-            initDevice();
-            generateAtlas();
-            generateStats();
+        this._stats = opts as IProfilerState;
+    }
 
-            if (_rootNode) {
-                _rootNode.active = true;
-            }
-
-            cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, beforeUpdate);
-            cc.director.on(cc.Director.EVENT_AFTER_UPDATE, afterUpdate);
-            cc.director.on(cc.Director.EVENT_BEFORE_PHYSICS, beforePhysics);
-            cc.director.on(cc.Director.EVENT_AFTER_PHYSICS, afterPhysics);
-            cc.director.on(cc.Director.EVENT_BEFORE_DRAW, beforeDraw);
-            cc.director.on(cc.Director.EVENT_AFTER_DRAW, afterDraw);
-            _showFPS = true;
+    public generateNode () {
+        if (this._rootNode && this._rootNode.isValid) {
+            return;
         }
-    },
-};
 
+        this._rootNode = new Node('PROFILER_NODE');
+        cc.game.addPersistRootNode(this._rootNode);
+
+        const cameraNode = new Node('Profiler_Camera');
+        cameraNode.setPosition(0,0,1);
+        cameraNode.parent = this._rootNode;
+        const camera = cameraNode.addComponent('cc.CameraComponent') as CameraComponent;
+        camera.projection = CameraComponent.ProjectionType.ORTHO;
+        camera.near = 0;
+        camera.far = 0;
+        camera.orthoHeight = this._device!.height;
+        camera.visibility = 0xDEADBEEF;
+        camera.clearFlags = GFXClearFlag.DEPTH | GFXClearFlag.STENCIL;
+
+        const managerNode = new Node('Profiler_Root');
+        managerNode.parent = this._rootNode;
+
+        const modelCom = managerNode.addComponent('cc.ModelComponent') as ModelComponent;
+        modelCom.mesh = createMesh({
+            // positions: [
+            //     -0.25, -1/7, 0, // bottom-left
+            //     -0.25,  1/7, 0, // top-left
+            //      0.25,  1/7, 0, // top-right
+            //      0.25, -1/7, 0, // bottom-right
+            // ],
+            positions: [
+                -0.3, -0.2, 0, // bottom-left
+                -0.3,  0.2, 0, // top-left
+                 0.3,  0.2, 0, // top-right
+                 0.3, -0.2, 0, // bottom-right
+            ],
+            indices: [
+                0, 2, 1,
+                0, 3, 2,
+            ],
+            uvs: [
+                0, 1,
+                0, 0,
+                1, 0,
+                1, 1,
+            ],
+        });
+
+        const _material = new Material();
+        _material.initialize({
+            effectName:'builtin-screen-quad',
+        });
+        _material.setProperty('offset', new Vec4(-0.9, -0.9, 0, 0));
+        const pass = _material.passes[0];
+        const handle = pass.getBinding('mainTexture');
+        pass.bindTextureView(handle!, this._textureView!);
+
+        modelCom.material = _material;
+        modelCom.visibility = 0xDEADBEEF;
+    }
+
+    public beforeUpdate () {
+        if (!this._stats) {
+            return;
+        }
+
+        this.generateNode();
+
+        const now = cc.director._lastUpdate;
+        this.getCounter('frame').end(now);
+        this.getCounter('frame').start(now);
+        this.getCounter('logic').start(now);
+    }
+
+    public afterUpdate () {
+        if (!this._stats) {
+            return;
+        }
+
+        const now = director.getCurrentTime();
+        if (director.isPaused()) {
+            this.getCounter('frame').start(now);
+        } else {
+            this.getCounter('logic').end(now);
+        }
+    }
+
+    public beforePhysics () {
+        if (!this._stats) {
+            return;
+        }
+
+        const now = director.getCurrentTime();
+        this.getCounter('physics').start(now);
+    }
+
+    public afterPhysics () {
+        if (!this._stats) {
+            return;
+        }
+
+        const now = director.getCurrentTime();
+        this.getCounter('physics').end(now);
+    }
+
+    public beforeDraw () {
+        if (!this._stats) {
+            return;
+        }
+
+        const now = director.getCurrentTime();
+        this.getCounter('render').start(now);
+    }
+
+    public afterDraw () {
+        if (!this._stats) {
+            return;
+        }
+        const now = director.getCurrentTime();
+
+        this.getCounter('fps').frame(now);
+        this.getCounter('draws').value = this._device!.numDrawCalls;
+        this.getCounter('bufferMemory').value = this._device!.memoryStatus.bufferSize / (1024 * 1024);
+        this.getCounter('textureMemory').value = this._device!.memoryStatus.textureSize / (1024 * 1024);
+        this.getCounter('tricount').value = this._device!.numTris;
+        this.getCounter('render').end(now);
+
+        const x = this._left + this._ctx.measureText('GFX Texture Mem(M)').width;
+        this._ctx.clearRect( x, 0, this._canvas.width - x, this._canvas.height);
+
+        let i = 0;
+        for (const id of Object.keys(this._stats)) {
+            const stat = this._stats[id];
+            stat.counter.sample(now);
+            this._ctx.fillText(
+                stat.counter.human(!(stat.desc === 'Framerate (FPS)')),
+                this._canvas.width - this._right,
+                this._top + i * this._lineHeight);
+            i++;
+        }
+
+        this._canvasArr[0] = this._canvas;
+        this.updateTexture();
+    }
+
+    public getCounter (s: string) {
+        const stats = this._stats;
+        return stats![s].counter as PerfCounter;
+    }
+
+    public updateTexture () {
+        director.root!.device.copyTexImagesToTexture(this._canvasArr,this._texture!, this._regionArr);
+    }
+
+}
+
+export const profiler = new Profiler();
 cc.profiler = profiler;
