@@ -1464,19 +1464,17 @@ export abstract class RenderPipeline {
 
             model._resetUBOUpdateFlag();
             // filter model by view visibility
-            if (view.visibility > 0 && model.viewID !== view.visibility || !model.enabled) {
-                continue;
+            if (model.enabled && ((model.viewID & view.visibility) || (view.visibility === 0 && model.viewID <= 0))) {
+                model.updateTransform();
+
+                // frustum culling
+                if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
+                    continue;
+                }
+    
+                model.updateUBOs();
+                this.addVisibleModel(model, camera);
             }
-
-            model.updateTransform();
-
-            // frustum culling
-            if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
-                continue;
-            }
-
-            model.updateUBOs();
-            this.addVisibleModel(model, camera);
         }
 
         if (planarShadows.enabled) {
