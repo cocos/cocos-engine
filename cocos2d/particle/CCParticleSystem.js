@@ -968,7 +968,9 @@ var ParticleSystem = cc.Class({
     resetSystem: function () {
         this._stopped = false;
         this._simulator.reset();
-        this._activateMaterial();
+        if (!this.sharedMaterials[0]) {
+            this._activateMaterial();
+        }
     },
 
     /**
