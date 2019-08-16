@@ -65,7 +65,7 @@ export class SpriteAtlas extends Asset {
         const keys = Object.keys(this.spriteFrames);
         if (keys.length > 0) {
             const spriteFrame = this.spriteFrames[keys[0]];
-            return spriteFrame ? spriteFrame.image : null;
+            return spriteFrame && spriteFrame._image;
         }
         else {
             return null;
