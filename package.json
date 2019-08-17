@@ -28,7 +28,7 @@
     "del": "3.0.0",
     "event-stream": "3.3.2",
     "fire-fs": "0.2.1",
-    "gulp": "^4.0.2",
+    "gulp": "^3.9.1",
     "gulp-babel": "6.1.2",
     "gulp-cached": "1.1.0",
     "gulp-concat": "2.6.0",
