@@ -401,7 +401,7 @@ export class SpriteComponent extends UIRenderComponent {
         }
 
         if(this._spriteFrame){
-            this._spriteFrame.on('updated', this._markForUpdateUvDirty, this);
+            this._spriteFrame.on('load', this._markForUpdateUvDirty, this);
             this._markForUpdateUvDirty();
         }
     }
@@ -439,7 +439,7 @@ export class SpriteComponent extends UIRenderComponent {
         }
 
         if (this._spriteFrame) {
-            this._spriteFrame.off('updated');
+            this._spriteFrame.off('load');
         }
     }
 
@@ -604,11 +604,11 @@ export class SpriteComponent extends UIRenderComponent {
 
         if (this._renderData) {
             if(oldFrame){
-                oldFrame.off('updated');
+                oldFrame.off('load', this._markForUpdateUvDirty);
             }
 
             if(spriteFrame){
-                spriteFrame.on('updated', this._markForUpdateUvDirty, this);
+                spriteFrame.on('load', this._markForUpdateUvDirty, this);
             }
 
             if (!this._renderData.uvDirty) {

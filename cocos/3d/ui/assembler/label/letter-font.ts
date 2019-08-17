@@ -201,7 +201,7 @@ export class LetterRenderTexture extends Texture2D {
      */
     public drawTextureAt (texture: SpriteFrame, x: number, y: number) {
         const gfxTexture = this.getGFXTexture();
-        if (!texture.image || !gfxTexture) {
+        if (!texture._image || !gfxTexture) {
             return;
         }
 
@@ -221,8 +221,8 @@ export class LetterRenderTexture extends Texture2D {
                 z: 0,
             },
             texExtent: {
-                width: texture.image.width,
-                height: texture.image.height,
+                width: texture._image.width,
+                height: texture._image.height,
                 depth: 1,
             },
             texSubres: {
@@ -233,7 +233,7 @@ export class LetterRenderTexture extends Texture2D {
             },
         };
 
-        gfxDevice.copyTexImagesToTexture([texture.image.data as HTMLCanvasElement], gfxTexture, [region]);
+        gfxDevice.copyTexImagesToTexture([texture._image.data as HTMLCanvasElement], gfxTexture, [region]);
     }
 }
 
@@ -268,7 +268,7 @@ export class LetterAtlas {
     public insertLetterTexture (letterTexture: LetterTexture) {
         const texture = letterTexture.spriteframe;
         const device = cc.director.root.device;
-        if (!texture || !this.texture || !device || !texture.image) {
+        if (!texture || !this.texture || !device || !texture._image) {
             return null;
         }
 

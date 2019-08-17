@@ -84,7 +84,7 @@ const pool = new Pool((labelSeg: ILabelSegment) => {
     if (!cc.isValid(labelSeg.node)) {
         return false;
     }
-    else if (labelSeg.node.getComponent(cc.LabelOutlineComponent)) {
+    else if (labelSeg.node.getComponent(LabelOutlineComponent)) {
         return false;
     }
     return true;
@@ -823,8 +823,7 @@ export class RichTextComponent extends UIComponent {
                     if (multilineTexts.length > 1 && j < multilineTexts.length - 1) {
                         this._updateLineInfo();
                     }
-                }
-                else {
+                } else {
                     label = this._addLabelSegment(labelString, i);
                     labelSize = label.node.getContentSize();
 
@@ -906,7 +905,7 @@ export class RichTextComponent extends UIComponent {
             const pos = label.node.getPosition();
             label.node.setPosition(nextTokenX + lineOffsetX,
                 this.lineHeight * (totalLineCount - lineCount) - this._labelHeight / 2,
-                pos.x,
+                pos.z,
             );
 
             if (lineCount === nextLineIndex) {
