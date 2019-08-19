@@ -95,12 +95,12 @@ export class Model {
         return this._modelBounds;
     }
 
-    get viewID () {
-        return this._viewID;
+    get visFlags () {
+        return this._visFlags;
     }
 
-    set viewID (id: number) {
-        this._viewID = id;
+    set visFlags (id: number) {
+        this._visFlags = id;
     }
 
     /**
@@ -142,7 +142,7 @@ export class Model {
     protected _transform: INode;
     protected _id: number;
     protected _enabled = false;
-    protected _viewID = 1;
+    protected _visFlags = 0;
     protected _cameraID = -1;
     protected _userKey = -1;
     protected _worldBounds: aabb | null = null;

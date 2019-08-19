@@ -1056,26 +1056,26 @@ class Director extends EventTarget {
                 this.emit(Director.EVENT_AFTER_UPDATE);
                 // Destroy entities that have been removed recently
                 CCObject._deferredDestroy();
-            }
 
-            if (!CC_EDITOR) {
-                if (window.TWEEN != null) {
-                    // Tween update
-                    window.TWEEN.update(time);
+                if (!CC_EDITOR) {
+                    if (window.TWEEN != null) {
+                        // Tween update
+                        window.TWEEN.update(time);
+                    }
                 }
-            }
 
-            if (CC_PHYSICS_BUILT_IN || CC_PHYSICS_CANNON || CC_PHYSICS_AMMO) {
-                this.emit(Director.EVENT_BEFORE_PHYSICS);
-                this._physicsSystem!.update(this._deltaTime);
-                this.emit(Director.EVENT_AFTER_PHYSICS);
-            }
+                if (CC_PHYSICS_BUILT_IN || CC_PHYSICS_CANNON || CC_PHYSICS_AMMO) {
+                    this.emit(Director.EVENT_BEFORE_PHYSICS);
+                    this._physicsSystem!.update(this._deltaTime);
+                    this.emit(Director.EVENT_AFTER_PHYSICS);
+                }
 
-            this.emit(Director.EVENT_BEFORE_DRAW);
-            this._root!.frameMove(this._deltaTime);
-            // Present current frame
-            this._root!.device.present();
-            this.emit(Director.EVENT_AFTER_DRAW);
+                this.emit(Director.EVENT_BEFORE_DRAW);
+                this._root!.frameMove(this._deltaTime);
+                // Present current frame
+                this._root!.device.present();
+                this.emit(Director.EVENT_AFTER_DRAW);
+            }
 
             eventManager.frameUpdateListeners();
             if (this._scene) { this._scene.resetHasChangedFlags(); }

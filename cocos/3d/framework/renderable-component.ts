@@ -15,7 +15,7 @@ export class RenderableComponent extends Component {
     protected _materials: Array<Material | null> = [];
 
     @property
-    protected _viewID: number = 0;
+    protected _visFlags: number = 0;
 
     constructor () {
         super();
@@ -107,11 +107,11 @@ export class RenderableComponent extends Component {
 
     @property
     get visibility () {
-        return this._viewID;
+        return this._visFlags;
     }
 
     set visibility (val) {
-        this._viewID = val;
+        this._visFlags = val;
         this._onVisiblityChange(val);
     }
 

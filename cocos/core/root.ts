@@ -132,6 +132,23 @@ export class Root {
         return this._fps;
     }
 
+    /**
+     * @zh
+     * 每秒固定帧率
+     */
+    public set fixedFPS (fps: number) {
+        if (fps > 0) {
+            this._fixedFPS = fps;
+            this._fixedFPSFrameTime = 1000.0 / fps;
+        } else {
+            this._fixedFPSFrameTime = 0;
+        }
+    }
+
+    public get fixedFPS (): number {
+        return this._fixedFPS;
+    }
+
     public _createSceneFun;
     public _createViewFun;
 
@@ -148,6 +165,8 @@ export class Root {
     private _fpsTime: number = 0;
     private _frameCount: number = 0;
     private _fps: number = 0;
+    private _fixedFPS: number = 0;
+    private _fixedFPSFrameTime: number = 0;
 
     /**
      * 构造函数
@@ -271,6 +290,18 @@ export class Root {
     public frameMove (deltaTime: number) {
 
         this._frameTime = deltaTime;
+
+        /*
+        if (this._fixedFPSFrameTime > 0) {
+
+            const elapsed = this._frameTime * 1000.0;
+            if (this._fixedFPSFrameTime > elapsed) {
+                // tslint:disable-next-line: only-arrow-functions
+                setTimeout(function () {}, this._fixedFPSFrameTime - elapsed);
+            }
+        }
+        */
+
         ++this._frameCount;
         this._time += this._frameTime;
         this._fpsTime += this._frameTime;
