@@ -727,9 +727,12 @@ export class LabelComponent extends UIRenderComponent {
                 // TODO: old texture in material have been released by loader
                 self._texture = spriteFrame;
                 self._flushMaterial();
+                if (force && this._assembler && this._render) {
+                    this._assembler!.updateRenderData(this);
+                }
             };
             // cannot be activated if texture not loaded yet
-            if (spriteFrame) {
+            if (spriteFrame && spriteFrame.loaded) {
                 onBMFontTextureLoaded();
             }
         } else {
@@ -741,9 +744,7 @@ export class LabelComponent extends UIRenderComponent {
                 this._assemblerData = this._assembler!.getAssemblerData();
                 // this._ttfSpriteFrame.initWithElement(this._assemblerData.canvas);
                 const image = new ImageAsset(this._assemblerData!.canvas);
-                const tex = new Texture2D();
-                tex.image = image;
-                this._ttfSpriteFrame.texture = tex;
+                (this._ttfSpriteFrame.texture as Texture2D).image = image;
             }
 
             if (this.cacheMode !== CacheMode.CHAR) {
@@ -754,8 +755,8 @@ export class LabelComponent extends UIRenderComponent {
             this._flushMaterial();
         }
 
-        if (force && this._assembler ) {
-            this.markForUpdateRenderData();
+        if (force && this._assembler && this._renderData ) {
+           this._assembler!.updateRenderData(this);
         }
     }
 }

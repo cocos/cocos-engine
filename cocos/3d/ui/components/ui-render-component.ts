@@ -279,8 +279,7 @@ export class UIRenderComponent extends UIComponent {
             }
 
             this._renderDataFlag = enable;
-        }
-        else if (!enable) {
+        } else if (!enable) {
             this._renderDataFlag = enable;
         }
     }

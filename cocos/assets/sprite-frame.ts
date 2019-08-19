@@ -34,7 +34,6 @@ import { ccclass } from '../core/data/class-decorator';
 import { Rect, Size, Vec2 } from '../core/math';
 import { ImageAsset } from './image-asset';
 import { murmurhash2_32_gc } from '../core/utils/murmurhash2_gc';
-import { GFXTextureView } from '../gfx/texture-view';
 import { TextureBase } from './texture-base';
 import { Asset } from './asset';
 import { Texture2D } from './texture-2d';
@@ -156,10 +155,6 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  *  const sprite = node.addComponent(SpriteComponent);
  *  const spriteFrame = new SpriteFrame();
  *  (spriteFrame.texture as Texture2D).image = imageAsset;
- *  spriteFrame.initialize({
- *    originalSize: new Size(imageAsset.width, imageAsset.height),
- *    rect: new Rect(0, 0, imageAsset.width, imageAsset.height),
- *  });
  *  sprite.spriteFrame = spriteFrame;
  *  node.parent = self.node;
  * });
@@ -181,19 +176,6 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  */
 @ccclass('cc.SpriteFrame')
 export class SpriteFrame extends Asset {
-    /**
-     * @zh
-     * 一键创建 spriteframe
-     *
-     * @deprecated v1.0.0 beta10 后移除，新方案请参考头部。
-     * @param config - 图片源
-     */
-    public static create (config: ISpriteFrameInitInfo){
-        const spriteframe = new SpriteFrame();
-        spriteframe.initialize(config);
-        spriteframe.onLoaded();
-        return spriteframe;
-    }
     /**
      * @en
      * Top border of the sprite.
@@ -223,9 +205,7 @@ export class SpriteFrame extends Asset {
 
     set insetBottom (value) {
         this._capInsets[INSET_BOTTOM] = value;
-        if (this.image) {
-            this._calculateSlicedUV();
-        }
+        this._calculateSlicedUV();
     }
 
     /**
@@ -241,9 +221,7 @@ export class SpriteFrame extends Asset {
 
     set insetLeft (value) {
         this._capInsets[INSET_LEFT] = value;
-        if (this.image) {
-            this._calculateSlicedUV();
-        }
+        this._calculateSlicedUV();
     }
 
     /**
@@ -259,9 +237,7 @@ export class SpriteFrame extends Asset {
 
     set insetRight (value) {
         this._capInsets[INSET_RIGHT] = value;
-        if (this.image) {
-            this._calculateSlicedUV();
-        }
+        this._calculateSlicedUV();
     }
 
     /**
@@ -279,9 +255,7 @@ export class SpriteFrame extends Asset {
 
     set rect (value) {
         this._rect.set(value);
-        if (this.image) {
-            this._calculateSlicedUV();
-        }
+        this._calculateUV();
     }
 
     /**
@@ -297,32 +271,7 @@ export class SpriteFrame extends Asset {
 
     set originalSize (value) {
         this._originalSize.set(value);
-        if (this.image) {
-            this._calculateSlicedUV();
-        }
-    }
-
-    /**
-     * 图片源 ImageAsset。用户不要设置此参数。
-     * @deprecated v1.0.0 beta10 废弃。
-     */
-    get image () {
-        return this._image;
-    }
-
-    set image (value) {
-        this._image = value;
-        let tex = this._texture;
-        if (value instanceof RenderTexture) {
-            this._texture.off('load');
-            tex = new Texture2D();
-            (tex as Texture2D).image = value;
-            this._texture.on('load', this._textureLoaded, this);
-        } else {
-            (tex as Texture2D).image = value;
-        }
-
-        this._textureLoaded();
+        this._calculateUV();
     }
 
     set _imageSource(value: ImageAsset) {
@@ -343,7 +292,9 @@ export class SpriteFrame extends Asset {
         }
 
         this.reset({ texture: value }, true);
-        this.emit('updated');
+        if(this._texture instanceof RenderTexture){
+            this.onLoaded();
+        }
     }
 
     get atlasUuid () {
@@ -374,6 +325,7 @@ export class SpriteFrame extends Asset {
      */
     public uv: number[] = [];
     public uvHash: number = 0;
+    public _image: ImageAsset | null = null;
 
     /**
      * @zh
@@ -394,8 +346,6 @@ export class SpriteFrame extends Asset {
 
     protected _capInsets = [0, 0, 0, 0];
 
-    protected _image: ImageAsset | null = null;
-
     // store original info before packed to dynamic atlas
     protected _original: ISpriteFrameOriginal | null = null;
 
@@ -415,17 +365,6 @@ export class SpriteFrame extends Asset {
 
         this._texture = new Texture2D();
         this._texture.on('load', this._textureLoaded, this);
-    }
-
-    /**
-     * 初始化配置
-     *
-     * @deprecated v1.0.0 beta10 后移除。
-     * @param info 配置。
-     */
-    public initialize(info?: ISpriteFrameInitInfo){
-        this.reset(info);
-        this.onLoaded();
     }
 
     /**
@@ -555,118 +494,12 @@ export class SpriteFrame extends Asset {
         return this._texture.getGFXTextureView();
     }
 
-    /**
-     * 外置 GFX 贴图视图，一般提供给 FrameBuffer 使用。
-     * 注意： 需要取消使用外置 GFXTextureView 可以使用 set image 方法替换新视图。
-     * @deprecated v1.0.0 beta10 后移除
-     * @param value GFX 贴图视图
-     */
-    public setGFXTextureView (value: GFXTextureView) {
-        // this._tryDestroyTexture();
-        // this._image = null;
-        // const tex = this._gfxTexture = value.texture;
-        // this._resetData({
-        //     originalSize: new Size(tex.width, tex.height),
-        //     rect: new Rect(0, 0, tex.width, tex.height),
-        //     image: null,
-        //     borderBottom: 0,
-        //     borderLeft: 0,
-        //     borderRight: 0,
-        //     borderTop: 0,
-        // });
-        // this._calculateUV(true);
-        // this._gfxTextureView = value;
-        // this._gfxTexture = value.texture;
-        // this.emit('change-texture-view');
-    }
-
-    /**
-     * @en
-     * Clone the sprite frame.
-     *
-     * @zh
-     * 克隆 SpriteFrame。
-     *
-     * @deprecated 建议重新创建，v1.0.0 beta10 后移除
-     * @returns - 复制后的精灵帧
-     */
-    public clone () {
-        const cap = this._capInsets;
-
-        const cloneSprite = new SpriteFrame();
-        cloneSprite.name = this.name;
-        cloneSprite.atlasUuid = this.atlasUuid;
-        cloneSprite._image = this._image;
-        const config: ISpriteFrameInitInfo = {
-            originalSize: this._originalSize.clone(),
-            rect: this._rect.clone(),
-            offset: this._offset.clone(),
-            borderLeft: cap[INSET_LEFT],
-            borderRight: cap[INSET_RIGHT],
-            borderTop: cap[INSET_TOP],
-            borderBottom: cap[INSET_BOTTOM],
-            isRotate: this._rotated,
-            isFlipUv: this._flipUv,
-        };
-
-        if (this._texture instanceof RenderTexture) {
-            config.texture = this._texture;
-        } else {
-            const tex = new Texture2D();
-            tex.image = this._image;
-            config.texture = tex;
-        }
-
-        cloneSprite.reset(config);
-        cloneSprite.onLoaded();
-        return cloneSprite;
-    }
-
     // _loadTexture() {
     //     if (this._textureFilename) {
     //         let texture = textureUtil.loadImage(this._textureFilename);
     //         this._refreshTexture(texture);
     //     }
     // }
-
-    /**
-     * @en
-     * If a loading scene (or prefab) is marked as `asyncLoadAssets`, all the textures of the SpriteFrame which
-     * associated by user's custom Components in the scene, will not preload automatically.
-     * These textures will be load when Sprite component is going to render the SpriteFrames.
-     * You can call this method if you want to load the texture early.
-     *
-     * @zh
-     * 当加载中的场景或 Prefab 被标记为 `asyncLoadAssets` 时，用户在场景中由自定义组件关联到的所有 SpriteFrame 的贴图都不会被提前加载。
-     * 只有当 Sprite 组件要渲染这些 SpriteFrame 时，才会检查贴图是否加载。如果你希望加载过程提前，你可以手工调用这个方法。
-     *
-     * @deprecated v1.0.0 beta10 后移除
-     * @example
-     * ```ts
-     * spriteFrame.once('load', this._onTextureLoaded, this);
-     * spriteFrame.ensureLoadTexture();
-     * ```
-     */
-    public ensureLoadTexture () {
-        // const image = this.image;
-        // if (image && !image.loaded) {
-        //     // load exists texture
-        //     this._refreshTexture(image);
-        //     textureUtil.postLoadImage(image);
-        // }
-    }
-
-    /**
-     * 重新更新 ImageAsset
-     * @deprecated v1.0.0 beta10 后移除
-     */
-    public updateImage () {
-        // 上传图片源数据。
-        if(this._texture instanceof Texture2D){
-            // @ts-ignore
-            (this._texture as Texture2D)._assignImage(this._image!, 0);
-        }
-    }
 
     /**
      * 重置 SpriteFrame 数据。
@@ -774,25 +607,6 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en Sets the texture of the frame.
-     *
-     * @zh 设置使用的纹理实例。
-     *
-     * @deprecated v1.0.0 beta10 后移除
-     * @param image
-     */
-    public _refreshTexture (image: ImageAsset) {
-        // this._image = image;
-        // if (image.loaded) {
-        //     if(this._texture instanceof Texture2D){
-        //         (this._texture as Texture2D).image = this._image;
-        //     }
-        // } else {
-        //     image.once('load', this.ensureLoadTexture, this);
-        // }
-    }
-
-    /**
      * @zh
      * 计算裁切的 UV。
      */
@@ -854,7 +668,7 @@ export class SpriteFrame extends Asset {
     }
 
     public _setDynamicAtlasFrame (frame: SpriteFrame) {
-        if (!frame) {
+        if (!frame || this._texture instanceof RenderTexture) {
             return;
         }
 
@@ -866,20 +680,22 @@ export class SpriteFrame extends Asset {
 
         this._rect.x = frame._rect.x;
         this._rect.y = frame._rect.y;
-        this._image = frame.image;
-        this._calculateUV();
+        this._image = frame._image;
+        (this._texture as Texture2D).image = this._image;
+        // this._calculateUV();
     }
 
     public _resetDynamicAtlasFrame () {
-        if (!this._original) {
+        if (!this._original || this._texture instanceof RenderTexture) {
             return;
         }
 
         this._rect.x = this._original.x;
         this._rect.y = this._original.y;
-        this._image = this._original.spriteframe.image;
+        this._image = this._original.spriteframe._image;
+        (this._texture as Texture2D).image = this._image;
         this._original = null;
-        this._calculateUV();
+        // this._calculateUV();
     }
 
     /**
@@ -1063,7 +879,7 @@ export class SpriteFrame extends Asset {
 
         if (isReset) {
             this.reset(config);
-            this.emit('updated');
+            this.onLoaded();
         }
     }
 }
