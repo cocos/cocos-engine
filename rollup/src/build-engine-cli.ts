@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import * as ps from 'path';
 import yargs from 'yargs';
-import { build, enumeratePhysicsReps, enumeratePlatformReps, IBuildOptions, IFlags, parsePhysics, parsePlatform } from './build-engine';
+import { build, enumeratePhysicsReps, enumeratePlatformReps, IBuildOptions, IFlags, parsePhysics, parsePlatform, enumerateModuleOptionReps, parseModuleOption } from './build-engine';
 
 yargs.help();
 // @ts-ignore
@@ -20,6 +20,7 @@ yargs.option('flags', {
 yargs.option('destination', {
     type: 'string',
     alias: 'd',
+    demandOption: true,
     description: 'Output path.',
 });
 yargs.option('excludes', {
@@ -61,6 +62,9 @@ const options: IBuildOptions = {
     sourcemap: sourceMap,
     flags,
 };
+if (yargs.argv['module']) {
+    options.moduleFormat = parseModuleOption(yargs.argv['module'] as unknown as string);
+}
 if (yargs.argv.platform) {
     options.platform = parsePlatform(yargs.argv.platform as unknown as string);
 }
