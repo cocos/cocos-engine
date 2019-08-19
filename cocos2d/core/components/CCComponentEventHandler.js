@@ -46,8 +46,8 @@ cc.Component.EventHandler = cc.Class({
     name: 'cc.ClickEvent',
     properties: {
         /**
-         * !#en Event target
-         * !#zh 目标节点
+         * !#en the node that contains target callback
+         * !#zh 目标回调函数所在节点
          * @property target
          * @type {Node}
          * @default null
@@ -57,8 +57,8 @@ cc.Component.EventHandler = cc.Class({
             type: cc.Node,
         },
         /**
-         * !#en Component name
-         * !#zh 目标组件名
+         * !#en the component(script) that contains target callback
+         * !#zh 目标回调函数所在组件（脚本）
          * @property component
          * @type {String}
          * @default ''
