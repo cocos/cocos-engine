@@ -261,11 +261,21 @@ export const ttfUtils =  {
 
         // _texture.handleLoadedTexture();
         if (_texture) {
+            let tex: Texture2D | null;
             if (_texture instanceof SpriteFrame) {
-                const tex = (_texture.texture as Texture2D);
-                tex.image = tex.image;
+                tex = (_texture.texture as Texture2D);
             } else {
-                _texture.image = _texture.image;
+                tex = _texture;
+            }
+
+            const uploadAgain = _canvas.width === 0 || _canvas.height === 0;
+            tex.reset({
+                width: _canvas.width,
+                height: _canvas.height,
+                mipmapLevel: uploadAgain ? 0 : 1,
+            });
+            if (!uploadAgain) {
+                tex.uploadData(_canvas);
             }
         }
     },

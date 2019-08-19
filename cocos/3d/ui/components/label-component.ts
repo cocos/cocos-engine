@@ -670,7 +670,7 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     protected _canRender () {
-        if (!super._canRender() || !this.node.width || !this.node.height || !this._string) {
+        if (!super._canRender() || !this._string) {
             return false;
         }
 
@@ -727,7 +727,7 @@ export class LabelComponent extends UIRenderComponent {
                 // TODO: old texture in material have been released by loader
                 self._texture = spriteFrame;
                 self._flushMaterial();
-                if (force && this._assembler && this._render) {
+                if (force && this._renderFlag && this._assembler && this._renderData) {
                     this._assembler!.updateRenderData(this);
                 }
             };
@@ -755,7 +755,7 @@ export class LabelComponent extends UIRenderComponent {
             this._flushMaterial();
         }
 
-        if (force && this._assembler && this._renderData ) {
+        if (force && this._renderFlag && this._assembler && this._renderData) {
            this._assembler!.updateRenderData(this);
         }
     }
