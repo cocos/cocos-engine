@@ -73,7 +73,7 @@ Config.prototype = {
      * @param {Object} options - configuration information
      * 
      * @typescript
-     * init(options: any): void
+     * init(options?: any): void
      */
     init: function (options) {
         processOptions(options);

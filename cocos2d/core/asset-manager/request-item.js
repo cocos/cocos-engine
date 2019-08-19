@@ -106,7 +106,7 @@ RequestItem.prototype = {
  * @returns {RequestItem} requestItem
  * 
  * @typescript 
- * create(): RequestItem
+ * create(): cc.AssetManager.RequestItem
  */
 RequestItem.create = function () {
     var out = null;

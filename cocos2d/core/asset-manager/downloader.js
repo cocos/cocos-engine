@@ -223,7 +223,7 @@ var downloader = {
      * Use Image element to download image
      *  
      * !#zh
-     * 使用Image元素来下载图片
+     * 使用 Image 元素来下载图片
      * 
      * @method downloadDomImage
      * @param {string} url - Url of the image
@@ -247,7 +247,7 @@ var downloader = {
      * Use audio element to download audio
      * 
      * !#zh
-     * 使用Audio元素来下载音频 
+     * 使用 Audio 元素来下载音频 
      * 
      * @method downloadDomAudio
      * @param {string} url - Url of the audio
@@ -292,8 +292,7 @@ var downloader = {
      * downloadFile('http://example.com/test.bin', {responseType: 'arraybuffer'}, null, (err, arrayBuffer) => console.log(err));
      * 
      * @typescript
-     * downloadFile(url: string, options: {responseType?: string, withCredentials?: boolean, mimeType?: string, timeout?: Number, header?: any}|null, onProgress: ((loaded: Number, total: Number) => void)|null, onComplete?: ((err: Error, response: any) => void)|null): XMLHttpRequest
-     * downloadFile(url: string, onComplete?: ((err: Error, response: any) => void)|null): XMLHttpRequest
+     * downloadFile(url: string, options?: {responseType?: string, withCredentials?: boolean, mimeType?: string, timeout?: Number, header?: any}|null, onProgress?: ((loaded: Number, total: Number) => void)|null, onComplete?: ((err: Error, response: any) => void)|null): XMLHttpRequest
      */
     downloadFile: downloadFile,
 
@@ -325,7 +324,7 @@ var downloader = {
      * Initialize downloader
      * 
      * !#zh
-     * 初始化downloader
+     * 初始化 downloader
      * 
      * @method init
      * 
@@ -387,8 +386,8 @@ var downloader = {
      * @param {string} url - The url should be downloaded
      * @param {string} type - The type indicates that which handler should be used to download, such as '.jpg'
      * @param {Object} options - some optional paramters will be transferred to the corresponding handler.
-     * @param {Function} options.onProgress - progressive callback will be transferred to handler.
-     * @param {LoadStrategy} options.loadStrategy - Indicates which strategy should be used.
+     * @param {Function} [options.onProgress] - progressive callback will be transferred to handler.
+     * @param {LoadStrategy} [options.loadStrategy] - Indicates which strategy should be used.
      * @param {Function} onComplete - callback when finishing downloading
      * @param {Error} onComplete.err - The occurred error, null indicetes success
      * @param {*} onComplete.contetnt - The downloaded file
@@ -397,7 +396,7 @@ var downloader = {
      * download('http://example.com/test.tga', '.tga', {onProgress: (loaded, total) => console.lgo(loaded/total)}, onComplete: (err) => console.log(err));
      * 
      * @typescript
-     * download(url: string, type: string, options: {onProgress?: (loaded: Number, total: Number) => void, loadStrategy: cc.AssetManager.LoadStrategy}, onComplete: (err: Error, content: any) => void): void
+     * download(id: string, url: string, type: string, options: {onProgress?: (loaded: Number, total: Number) => void, loadStrategy?: cc.AssetManager.LoadStrategy}, onComplete: (err: Error, content: any) => void): void
      */
     download (id, url, type, options, onComplete) {
         var func = downloaders[type] || downloaders['default'];

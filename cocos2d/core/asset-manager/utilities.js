@@ -173,10 +173,10 @@ var utils = {
         return err;
     },
     
-    cache (id, asset, cache) {
+    cache (id, asset, cacheAsset) {
         if (!asset) return;
         var _isScene = isScene(asset);
-        if (!_isScene && cache) {
+        if (!_isScene && cacheAsset) {
             assets.add(id, asset);
         }
         if (_isScene) {

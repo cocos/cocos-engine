@@ -100,7 +100,7 @@ Pipeline.prototype = {
      * }, 0);
      * 
      * @typescript
-     * insert(func: (task: cc.AssetManager.Task, callback?: (err: Error) => void), index: number): Pipeline
+     * insert(func: (task: cc.AssetManager.Task, callback?: (err: Error) => void), index: number): cc.AssetManager.Pipeline
      */
     insert (func, index) {
 
@@ -135,7 +135,7 @@ Pipeline.prototype = {
      * });
      * 
      * @typescript
-     * append(func: (task: cc.AssetManager.Task, callback?: (err: Error) => void)): Pipeline
+     * append(func: (task: cc.AssetManager.Task, callback?: (err: Error) => void)): cc.AssetManager.Pipeline
      */
     append (func) {
         if (typeof func !== 'function') {
@@ -151,7 +151,7 @@ Pipeline.prototype = {
      * Remove pipe which at specific point
      * 
      * !#zh
-     * 移除特定的位置的管道
+     * 移除特定位置的管道
      * 
      * @method remove
      * @param {number} index - The specific point
@@ -165,7 +165,7 @@ Pipeline.prototype = {
      * pipeline.remove(0);
      * 
      * @typescript
-     * remove(index: number): Pipeline
+     * remove(index: number): cc.AssetManager.Pipeline
      */
     remove (index) {
         if (typeof index !== 'number') {

@@ -24,7 +24,6 @@
  ****************************************************************************/
 const Cache = require('./cache');
 const js = require('../platform/js');
-const { decodeUuid } = require('./helper');
 
 /**
  * !#en
@@ -151,7 +150,7 @@ var dependUtil = {
      * dependUtil.remove('fcmR3XADNLgJ1ByKhqcC5Z');
      * 
      * @typescript
-     * remove(uuid: string);
+     * remove(uuid: string): void;
      */
     remove (uuid) {
         this._depends.remove(uuid);

@@ -37,7 +37,7 @@ var _deadPool = [];
  * @class Task
  * 
  * @typescript
- * Task(options: any): typeof Task
+ * Task(options: any): typeof cc.AssetManager.Task
  */
 function Task () {
     this.id = _taskId++;
@@ -103,7 +103,7 @@ Task.prototype = {
      * Task.dispatch('complete', 'hello world');
      * 
      * @typescript
-     * dispatch(event: string, param1?: any, param2?: any, param3?: any, param4?: any)
+     * dispatch(event: string, param1?: any, param2?: any, param3?: any, param4?: any): void
      */
     dispatch (event, param1, param2, param3, param4) {
         switch (event) {
@@ -172,7 +172,7 @@ Task.prototype = {
  * @returns {Task} task
  * 
  * @typescript 
- * create(options: {onComplete?: ((err: Error, result: any) => void)|null, onProgress?: Function|null, input: any, progress?: any, options?: any}): Task
+ * create(options: {onComplete?: ((err: Error, result: any) => void)|null, onProgress?: Function|null, input: any, progress?: any, options?: any}): cc.AssetManager.Task
  */
 Task.create = function (options) {
     var out = null;

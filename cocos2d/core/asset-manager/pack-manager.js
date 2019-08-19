@@ -167,7 +167,7 @@ var packManager = {
      * });
      * 
      * @typescript
-     * unpack(pack: string, data: any, type: string, options: any, onComplete?: ((err: Error, data: any) => void)|null): void
+     * unpack(pack: string[], data: any, type: string, options: any, onComplete?: ((err: Error, data: any) => void)|null): void
      */
     unpack (pack, data, type, options, onComplete) {
         if (!data) {

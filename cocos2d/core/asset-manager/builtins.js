@@ -30,7 +30,7 @@ const { lock, unlock, release } = require('./finalizer');
  * This module contains the builtin asset 
  * 
  * !#zh
- * 此模块包含内建资源，所有成员能通过`cc.assetManaer.builtins`访问
+ * 此模块包含内建资源，所有成员能通过 `cc.assetManaer.builtins` 访问
  * 
  * @static
  */

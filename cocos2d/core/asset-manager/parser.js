@@ -274,7 +274,7 @@ var parser = {
      * });
      * 
      * @typescript
-     * parsePlist(file: string, options: any, onComplete: ((err: Error, data: any) => void)|null): void
+     * parsePlist(file: string, options: any, onComplete?: ((err: Error, data: any) => void)|null): void
      */
     parsePlist (file, options, onComplete) {
         var err = null;
@@ -303,7 +303,7 @@ var parser = {
      * });
      * 
      * @typescript
-     * parseImport (file: any, options: any, onComplete: ((err: Error, asset: any) => void)|null): void
+     * parseImport (file: any, options: any, onComplete?: ((err: Error, asset: any) => void)|null): void
      */
     parseImport (file, options, onComplete) {
         var result = deserialize(file, options);

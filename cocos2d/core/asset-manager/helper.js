@@ -119,7 +119,7 @@ var helper = {
      * Check if the type of data is cc.Scene or cc.Prefab
      * 
      * !#zh
-     * 检测数据的类型是否是Scene或者prefab
+     * 检测数据的类型是否是Scene或者Prefab
      * 
      * @method isSceneObj
      * @param {Object} json - serialized data
