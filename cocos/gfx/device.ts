@@ -49,6 +49,7 @@ export enum GFXFeature {
     FORMAT_ETC2,
     FORMAT_DXT,
     FORMAT_PVRTC,
+    FORMAT_ASTC,
     MSAA,
     COUNT,
 }

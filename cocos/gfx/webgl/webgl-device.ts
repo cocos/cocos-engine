@@ -235,7 +235,7 @@ export class WebGLGFXDevice extends GFXDevice {
         this._deviceName = 'WebGL';
         const gl = this._webGLRC;
 
-        this._WEBGL_debug_renderer_info = gl.getExtension('WEBGL_debug_renderer_info');
+        this._WEBGL_debug_renderer_info = this.getExtension('WEBGL_debug_renderer_info');
         if (this._WEBGL_debug_renderer_info) {
             this._renderer = gl.getParameter(this._WEBGL_debug_renderer_info.UNMASKED_RENDERER_WEBGL);
             this._vendor = gl.getParameter(this._WEBGL_debug_renderer_info.UNMASKED_VENDOR_WEBGL);
@@ -285,30 +285,30 @@ export class WebGLGFXDevice extends GFXDevice {
             console.debug('EXTENSIONS: ' + extensions);
         }
 
-        this._EXT_texture_filter_anisotropic = gl.getExtension('EXT_texture_filter_anisotropic');
-        this._EXT_frag_depth = gl.getExtension('EXT_frag_depth');
-        this._EXT_shader_texture_lod = gl.getExtension('EXT_shader_texture_lod');
-        this._EXT_sRGB = gl.getExtension('EXT_sRGB');
-        this._OES_vertex_array_object = gl.getExtension('OES_vertex_array_object');
-        this._EXT_color_buffer_half_float = gl.getExtension('EXT_color_buffer_half_float');
-        this._WEBGL_color_buffer_float = gl.getExtension('WEBGL_color_buffer_float');
-        this._WEBGL_compressed_texture_etc1 = gl.getExtension('WEBGL_compressed_texture_etc1');
-        this._WEBGL_compressed_texture_etc = gl.getExtension('WEBGL_compressed_texture_etc');
-        this._WEBGL_compressed_texture_pvrtc = gl.getExtension('WEBGL_compressed_texture_pvrtc');
-        this._WEBGL_compressed_texture_astc = gl.getExtension('WEBGL_compressed_texture_astc');
-        this._WEBGL_compressed_texture_s3tc = gl.getExtension('WEBGL_compressed_texture_s3tc');
-        this._WEBGL_compressed_texture_s3tc_srgb = gl.getExtension('WEBGL_compressed_texture_s3tc_srgb');
-        this._WEBGL_debug_shaders = gl.getExtension('WEBGL_debug_shaders');
-        this._WEBGL_draw_buffers = gl.getExtension('WEBGL_draw_buffers');
-        this._WEBGL_lose_context = gl.getExtension('WEBGL_lose_context');
-        this._WEBGL_depth_texture = gl.getExtension('WEBGL_depth_texture');
-        this._OES_texture_half_float = gl.getExtension('OES_texture_half_float');
-        this._OES_texture_half_float_linear = gl.getExtension('OES_texture_half_float_linear');
-        this._OES_texture_float = gl.getExtension('OES_texture_float');
-        this._OES_texture_float_linear = gl.getExtension('OES_texture_float_linear');
-        this._OES_standard_derivatives = gl.getExtension('OES_standard_derivatives');
-        this._OES_element_index_uint = gl.getExtension('OES_element_index_uint');
-        this._ANGLE_instanced_arrays = gl.getExtension('ANGLE_instanced_arrays');
+        this._EXT_texture_filter_anisotropic = this.getExtension('EXT_texture_filter_anisotropic');
+        this._EXT_frag_depth = this.getExtension('EXT_frag_depth');
+        this._EXT_shader_texture_lod = this.getExtension('EXT_shader_texture_lod');
+        this._EXT_sRGB = this.getExtension('EXT_sRGB');
+        this._OES_vertex_array_object = this.getExtension('OES_vertex_array_object');
+        this._EXT_color_buffer_half_float = this.getExtension('EXT_color_buffer_half_float');
+        this._WEBGL_color_buffer_float = this.getExtension('WEBGL_color_buffer_float');
+        this._WEBGL_compressed_texture_etc1 = this.getExtension('WEBGL_compressed_texture_etc1');
+        this._WEBGL_compressed_texture_etc = this.getExtension('WEBGL_compressed_texture_etc');
+        this._WEBGL_compressed_texture_pvrtc = this.getExtension('WEBGL_compressed_texture_pvrtc');
+        this._WEBGL_compressed_texture_astc = this.getExtension('WEBGL_compressed_texture_astc');
+        this._WEBGL_compressed_texture_s3tc = this.getExtension('WEBGL_compressed_texture_s3tc');
+        this._WEBGL_compressed_texture_s3tc_srgb = this.getExtension('WEBGL_compressed_texture_s3tc_srgb');
+        this._WEBGL_debug_shaders = this.getExtension('WEBGL_debug_shaders');
+        this._WEBGL_draw_buffers = this.getExtension('WEBGL_draw_buffers');
+        this._WEBGL_lose_context = this.getExtension('WEBGL_lose_context');
+        this._WEBGL_depth_texture = this.getExtension('WEBGL_depth_texture');
+        this._OES_texture_half_float = this.getExtension('OES_texture_half_float');
+        this._OES_texture_half_float_linear = this.getExtension('OES_texture_half_float_linear');
+        this._OES_texture_float = this.getExtension('OES_texture_float');
+        this._OES_texture_float_linear = this.getExtension('OES_texture_float_linear');
+        this._OES_standard_derivatives = this.getExtension('OES_standard_derivatives');
+        this._OES_element_index_uint = this.getExtension('OES_element_index_uint');
+        this._ANGLE_instanced_arrays = this.getExtension('ANGLE_instanced_arrays');
 
         this._features.fill(false);
 
@@ -361,6 +361,11 @@ export class WebGLGFXDevice extends GFXDevice {
         if (this._WEBGL_compressed_texture_pvrtc) {
             this._features[GFXFeature.FORMAT_PVRTC] = true;
             compressedFormat += 'pvrtc ';
+        }
+
+        if (this._WEBGL_compressed_texture_astc) {
+            this._features[GFXFeature.FORMAT_ASTC] = true;
+            compressedFormat += 'astc ';
         }
 
         this._features[GFXFeature.MSAA] = false;
@@ -660,6 +665,17 @@ export class WebGLGFXDevice extends GFXDevice {
     }
 
     public blitFramebuffer (src: GFXFramebuffer, dst: GFXFramebuffer, srcRect: IGFXRect, dstRect: IGFXRect, filter: GFXFilter) {
+    }
+
+    private getExtension (ext: string): any {
+        const prefixes = ['', 'WEBKIT_', 'MOZ_'];
+        for (let i = 0; i < prefixes.length; ++i) {
+            const _ext = this._webGLRC!.getExtension(prefixes[i] + ext);
+            if (_ext) {
+                return _ext;
+            }
+        }
+        return null;
     }
 
     private initStates (gl: WebGLRenderingContext) {
