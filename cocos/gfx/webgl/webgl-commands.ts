@@ -2587,7 +2587,6 @@ export function WebGLCmdFuncCopyBuffersToTexture (
 
                 for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
                     const pixels = (fmtInfo.type === GFXFormatType.FLOAT && !isCompressed ? new Float32Array(buffers[n++]) : new Uint8Array(buffers[n++]));
-
                     if (!isCompressed) {
                         gl.texSubImage2D(gl.TEXTURE_2D, m,
                             region.texOffset.x, region.texOffset.y, w, h,

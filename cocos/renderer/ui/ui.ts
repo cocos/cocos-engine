@@ -118,7 +118,7 @@ export class UI {
         });
         this._uiModelPool = new Pool(() => {
             const model = this._scene.createModel<UIBatchModel>(UIBatchModel, null!);
-            model.viewID = 0;
+            model.visFlags = 0;
             return model
         }, 2);
         this._modelInUse = new CachedArray<UIBatchModel>(10);
@@ -290,7 +290,7 @@ export class UI {
 
                 if (batch.model) {
                     if (batch.camera) {
-                        batch.model.viewID = batch.camera.view.visibility;
+                        batch.model.visFlags = batch.camera.view.visibility;
                     }
                     for (let j = 0; j < batch.model.subModelNum; j++) {
                         batch.model.getSubModel(j).priority = batchPriority++;
@@ -310,7 +310,7 @@ export class UI {
                     uiModel.enabled = true;
                     uiModel.getSubModel(0).priority = batchPriority++;
                     if (batch.camera) {
-                        uiModel.viewID = batch.camera.view.visibility;
+                        uiModel.visFlags = batch.camera.view.visibility;
                     }
                     this._modelInUse.push(uiModel);
                 }

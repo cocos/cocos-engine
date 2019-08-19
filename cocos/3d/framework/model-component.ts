@@ -192,7 +192,7 @@ export class ModelComponent extends RenderableComponent {
         if (!this.node.scene) { return; }
         const scene = this._getRenderScene();
         this._model = scene.createModel(this._getModelConstructor(), this.node);
-        this._model.viewID = this.visibility;
+        this._model.visFlags = this.visibility;
     }
 
     protected _getModelConstructor () {
@@ -250,7 +250,7 @@ export class ModelComponent extends RenderableComponent {
 
     protected _onVisiblityChange (val) {
         if (this._model) {
-            this._model.viewID = val;
+            this._model.visFlags = val;
         }
     }
 

@@ -562,7 +562,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         // @ts-ignore
         if (this.renderer._model) {
             // @ts-ignore
-            this.renderer._model.viewID = val;
+            this.renderer._model.visFlags = val;
         }
     }
 
