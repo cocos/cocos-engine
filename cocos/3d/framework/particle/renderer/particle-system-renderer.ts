@@ -31,28 +31,31 @@ const CC_USE_VERTICAL_BILLBOARD = 'CC_USE_VERTICAL_BILLBOARD';
 const CC_USE_MESH = 'CC_USE_MESH';
 
 const _vertex_attrs = [
-    { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },
-    { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGB32F },
-    { name: GFXAttributeName.ATTR_TEX_COORD1, format: GFXFormat.RG32F },
-    { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },
+    { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },                     // position
+    { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGB32F },                    // uv,frame idx
+    { name: GFXAttributeName.ATTR_TEX_COORD1, format: GFXFormat.RGB32F },                    // size
+    { name: GFXAttributeName.ATTR_TEX_COORD2, format: GFXFormat.RGB32F },                    // rotation
+    { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },     // color
 ];
 
 const _vertex_attrs_stretch = [
-    { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },
-    { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGB32F },
-    { name: GFXAttributeName.ATTR_TEX_COORD1, format: GFXFormat.RG32F },
-    { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },
-    { name: GFXAttributeName.ATTR_COLOR1, format: GFXFormat.RGB32F },
+    { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },                     // position
+    { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGB32F },                    // uv,frame idx
+    { name: GFXAttributeName.ATTR_TEX_COORD1, format: GFXFormat.RGB32F },                    // size
+    { name: GFXAttributeName.ATTR_TEX_COORD2, format: GFXFormat.RGB32F },                    // rotation
+    { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },     // color
+    { name: GFXAttributeName.ATTR_COLOR1, format: GFXFormat.RGB32F },                       // particle velocity
 ];
 
 const _vertex_attrs_mesh = [
-    { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },
-    { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGB32F },
-    { name: GFXAttributeName.ATTR_TEX_COORD1, format: GFXFormat.RG32F },
-    { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },
-    { name: GFXAttributeName.ATTR_TEX_COORD2, format: GFXFormat.RGB32F },
-    { name: GFXAttributeName.ATTR_NORMAL, format: GFXFormat.RGB32F },
-    { name: GFXAttributeName.ATTR_COLOR1, format: GFXFormat.RGBA8, isNormalized: true },
+    { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },                     // particle position
+    { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGB32F },                    // uv,frame idx
+    { name: GFXAttributeName.ATTR_TEX_COORD1, format: GFXFormat.RGB32F },                    // size
+    { name: GFXAttributeName.ATTR_TEX_COORD2, format: GFXFormat.RGB32F },                    // rotation
+    { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },     // particle color
+    { name: GFXAttributeName.ATTR_TEX_COORD3, format: GFXFormat.RGB32F },                   // mesh position
+    { name: GFXAttributeName.ATTR_NORMAL, format: GFXFormat.RGB32F },                       // mesh normal
+    { name: GFXAttributeName.ATTR_COLOR1, format: GFXFormat.RGBA8, isNormalized: true },    // mesh color
 ];
 
 @ccclass('cc.ParticleSystemRenderer')
@@ -364,9 +367,8 @@ export default class ParticleSystemRenderer {
                     _tempAttribUV.y = _uvs[2 * j + 1];
                     _tempAttribUV.z = fi;
                     this.attrs[attrNum++] = _tempAttribUV;
-                    _tempAttribUV0.x = p.size.x;
-                    _tempAttribUV0.y = p.rotation.x;
-                    this.attrs[attrNum++] = _tempAttribUV0;
+                    this.attrs[attrNum++] = p.size;
+                    this.attrs[attrNum++] = p.rotation;
                     this.attrs[attrNum++] = p.color._val;
 
                     if (uploadVel) {
@@ -382,8 +384,8 @@ export default class ParticleSystemRenderer {
                 this.attrs[attrNum++] = p.position;
                 _tempAttribUV.z = fi;
                 this.attrs[attrNum++] = _tempAttribUV;
-                _tempAttribUV0.x = p.size.x;
-                _tempAttribUV0.y = p.rotation.x;
+                this.attrs[attrNum++] = p.size;
+                this.attrs[attrNum++] = p.rotation;
                 this.attrs[attrNum++] = _tempAttribUV0;
                 this.attrs[attrNum++] = p.color._val;
                 this._model!.addParticleVertexData(i, this.attrs);

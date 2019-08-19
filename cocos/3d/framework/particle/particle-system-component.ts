@@ -604,7 +604,7 @@ export class ParticleSystemComponent extends RenderableComponent {
             Vec3.set(particle.rotation, this.startRotation.evaluate(this._time / this.duration, rand)!, 0, 0);
 
             // apply startSize. now 2D only.
-            Vec3.set(particle.startSize, this.startSize.evaluate(this._time / this.duration, rand)!, 0, 0);
+            Vec3.set(particle.startSize, this.startSize.evaluate(this._time / this.duration, rand)!, 1, 1);
             Vec3.copy(particle.size, particle.startSize);
 
             // apply startColor.
