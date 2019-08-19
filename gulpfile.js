@@ -76,7 +76,7 @@ gulp.task('watch-jsb-polyfill', function watchJsbPolyfill() {
 
 gulp.task('watch-dev-files', gulp.parallel('watch-preview', 'watch-jsb-polyfill'));
 
-gulp.task('test-in-ci', function testInCi() {
+gulp.task('test-in-ci', function testInCi(done) {
     const { spawn } = require('child_process');
     var gulp = process.platform === 'win32' ? 'gulp.cmd' : 'gulp';
     var child = spawn(gulp, ['test'], {
@@ -88,6 +88,7 @@ gulp.task('test-in-ci', function testInCi() {
             process.exitCode = 1;
             process.exit();
         }
+        done();
     });
 });
 
