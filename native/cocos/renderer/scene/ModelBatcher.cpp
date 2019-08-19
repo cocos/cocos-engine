@@ -53,7 +53,8 @@ ModelBatcher::ModelBatcher(RenderFlow* flow)
 
 ModelBatcher::~ModelBatcher()
 {
-    reset();
+    setCurrentEffect(nullptr);
+    setNode(nullptr);
     
     for (int i = 0; i < _modelPool.size(); i++)
     {
