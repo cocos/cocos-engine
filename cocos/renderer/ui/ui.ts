@@ -116,7 +116,11 @@ export class UI {
         this._scene = this._root.createScene({
             name: 'GUIScene',
         });
-        this._uiModelPool = new Pool(() => this._scene.createModel<UIBatchModel>(UIBatchModel, null!), 2);
+        this._uiModelPool = new Pool(() => {
+            const model = this._scene.createModel<UIBatchModel>(UIBatchModel, null!);
+            model.viewID = 0;
+            return model
+        }, 2);
         this._modelInUse = new CachedArray<UIBatchModel>(10);
         this._batches = new CachedArray(64);
 
