@@ -24,17 +24,17 @@
  THE SOFTWARE.
 */
 
-import { Material, ModelComponent, CameraComponent } from '../../../3d';
-import { GFXDevice } from '../../../gfx/device';
-import { Node } from '../../../scene-graph/node';
-import { ICounterOption } from './counter';
-import { PerfCounter } from './perf-counter';
-import { GFXTexture } from '../../../gfx/texture';
-import { GFXTextureType, GFXTextureUsageBit, GFXFormat, GFXTextureViewType, GFXBufferTextureCopy, GFXClearFlag } from '../../../gfx/define';
-import { GFXTextureView } from '../../../gfx/texture-view';
+import { CameraComponent, Material, ModelComponent } from '../../../3d';
 import { createMesh } from '../../../3d/misc/utils';
+import { GFXBufferTextureCopy, GFXClearFlag, GFXFormat, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../../../gfx/define';
+import { GFXDevice } from '../../../gfx/device';
+import { GFXTexture } from '../../../gfx/texture';
+import { GFXTextureView } from '../../../gfx/texture-view';
+import { Node } from '../../../scene-graph/node';
 import director from '../../director';
 import { Vec4 } from '../../math';
+import { ICounterOption } from './counter';
+import { PerfCounter } from './perf-counter';
 
 interface IProfilerState {
     frame: ICounterOption;
@@ -59,7 +59,7 @@ export class Profiler {
     private readonly _left = 10;
     private readonly _right = 10;
     private readonly _top = 10;
-    private readonly _buttom = 10;
+    private readonly _bottom = 10;
 
     private _rootNode: Node | null = null;
     private _device: GFXDevice | null = null;
@@ -132,7 +132,7 @@ export class Profiler {
 
     public generateCanvas () {
 
-        if( this._canvasDone ){
+        if ( this._canvasDone ){
             return;
         }
 
@@ -155,7 +155,7 @@ export class Profiler {
         this._texture = this._device!.createTexture({
             type: GFXTextureType.TEX2D,
             usage: GFXTextureUsageBit.SAMPLED,
-            format:GFXFormat.RGBA8,
+            format: GFXFormat.RGBA8,
             width: textureWidth,
             height: textureHeight,
             mipLevel: 1,
@@ -172,7 +172,7 @@ export class Profiler {
     }
 
     public generateStats () {
-        if(this._statsDone){
+        if (this._statsDone){
             return;
         }
 
@@ -194,11 +194,11 @@ export class Profiler {
         this._ctx.textAlign = 'left';
         let i = 0;
         for (const id of Object.keys(opts)) {
-            this._ctx.fillText(opts[id].desc,this._left,this._top + i * this._lineHeight);
+            this._ctx.fillText(opts[id].desc, this._left, this._top + i * this._lineHeight);
             opts[id].counter = new PerfCounter(id, opts[id], now);
             i++;
         }
-        this._ctx.textAlign="end";
+        this._ctx.textAlign = 'end';
 
         this._stats = opts as IProfilerState;
     }
@@ -212,7 +212,7 @@ export class Profiler {
         cc.game.addPersistRootNode(this._rootNode);
 
         const cameraNode = new Node('Profiler_Camera');
-        cameraNode.setPosition(0,0,1);
+        cameraNode.setPosition(0, 0, 1);
         cameraNode.parent = this._rootNode;
         const camera = cameraNode.addComponent('cc.CameraComponent') as CameraComponent;
         camera.projection = CameraComponent.ProjectionType.ORTHO;
@@ -253,7 +253,7 @@ export class Profiler {
 
         const _material = new Material();
         _material.initialize({
-            effectName:'builtin-screen-quad',
+            effectName: 'util/profiler',
         });
         _material.setProperty('offset', new Vec4(-0.9, -0.9, 0, 0));
         const pass = _material.passes[0];
@@ -354,7 +354,7 @@ export class Profiler {
     }
 
     public updateTexture () {
-        director.root!.device.copyTexImagesToTexture(this._canvasArr,this._texture!, this._regionArr);
+        director.root!.device.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
     }
 
 }

@@ -33,7 +33,7 @@ import { ccclass } from '../core/data/class-decorator';
 import { Mat4 } from '../core/math';
 import { INode } from '../core/utils/interfaces';
 import { getClassName } from '../core/utils/js';
-import { AnimationClip, IObjectCurveData, IRuntimeCurve } from './animation-clip';
+import { AnimationClip, IObjectCurveData, IRuntimeCurve, ITargetCurveData } from './animation-clip';
 import { AnimationComponent } from './animation-component';
 import { CurveValueAdapter, IPropertyCurveData } from './animation-curve';
 import { ComponentModifier, HierachyModifier, isCustomTargetModifier, isPropertyModifier } from './target-modifier';
@@ -89,7 +89,11 @@ export class SkeletalAnimationClip extends AnimationClip {
     public getPropertyCurves (root: INode): ReadonlyArray<IRuntimeCurve> {
         // tslint:disable-next-line: no-unused-expression
         this.hash; // calculate hash before conversion
-        this._convertToSkeletalCurves(root);
+        if (root.getComponent(cc.SkeletalAnimationComponent)) {
+            this._convertToSkeletalCurves(root);
+        } else {
+            console.warn('skeletal clip in non-skeletal component');
+        }
         return super.getPropertyCurves(root);
     }
 
@@ -127,19 +131,12 @@ export class SkeletalAnimationClip extends AnimationClip {
             if (isTargetSkinningModel(comp, root)) {
                 const path = getPathFromRoot(comp.node, root);
                 const compName = getClassName(comp);
-                const curves = this.curves;
-                const dstcurve = curves.find((curve) =>
-                    curve.valueAdapter && (curve.valueAdapter instanceof FrameIDValueAdapter) &&
-                    curve.valueAdapter.path === path && curve.valueAdapter.component === compName);
-                if (dstcurve) {
-                    dstcurve.data = { keys: 0, values, interpolate: false };
-                } else {
-                    curves.push({
-                        modifiers: [],
-                        data: { keys: 0, values, interpolate: false },
-                        valueAdapter: new FrameIDValueAdapter(path, compName),
-                    });
-                }
+                const curves: ITargetCurveData[] = [];
+                curves.push({
+                    modifiers: [],
+                    data: { keys: 0, values, interpolate: false },
+                    valueAdapter: new FrameIDValueAdapter(path, compName),
+                });
                 this.curves = curves;
             }
         }

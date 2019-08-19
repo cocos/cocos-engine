@@ -220,7 +220,7 @@ export class Pass {
             // create gfx buffer resource
             this._buffers[u.binding] = device.createBuffer({
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: Math.ceil(blockSize / 16) * 16, // https://bugs.chromium.org/p/angleproject/issues/detail?id=3762
+                size: Math.ceil(blockSize / 16) * 16, // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
             });
             // non-builtin UBO data pools, note that the effect compiler

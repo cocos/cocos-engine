@@ -34,7 +34,7 @@ import { ccclass, property } from '../../core/data/class-decorator';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { GFXBindingType } from '../../gfx/define';
 import { GFXTextureView } from '../../gfx/texture-view';
-import { IDefineMap, IPassInfoFull, Pass, PassOverrides } from '../../renderer/core/pass';
+import { IDefineMap, Pass, PassOverrides } from '../../renderer/core/pass';
 import { samplerLib } from '../../renderer/core/sampler-lib';
 import { builtinResMgr } from '../builtin';
 import { RenderableComponent } from '../framework/renderable-component';
