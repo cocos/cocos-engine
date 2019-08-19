@@ -28,17 +28,16 @@
  * @category ui
  */
 
-import { SpriteFrame } from '../../assets';
-import { Component } from '../../../components';
-import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { Color, Size } from '../../../core/math';
-import { ccenum } from '../../../core/value-types/enum';
-import { Node } from '../../../scene-graph';
+import { SpriteFrame } from '../../core/assets';
+import { Component } from '../../core/components';
+import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { Color, Size } from '../../core/math';
+import { ccenum } from '../../core/value-types/enum';
+import { Node } from '../../core/scene-graph';
 import { LayoutComponent } from './layout-component';
 import { PageViewComponent } from './page-view-component';
 import { SpriteComponent } from './sprite-component';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-import { INode } from '../../../core/utils/interfaces';
 
 const _color = new Color();
 

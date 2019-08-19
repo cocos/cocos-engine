@@ -3,7 +3,7 @@
  * @category animation
  */
 
-import { Asset, SpriteFrame } from '../assets';
+import { Asset, SpriteFrame } from '../core/assets';
 import { ccclass, property } from '../core/data/class-decorator';
 import { errorID } from '../core/platform/CCDebug';
 import binarySearchEpsilon from '../core/utils/binary-search';
@@ -12,7 +12,6 @@ import { WrapMode as AnimationWrapMode } from './types';
 import { INode } from '../core/utils/interfaces';
 import { murmurhash2_32_gc } from '../core/utils/murmurhash2_gc';
 import { TargetModifier, HierachyModifier, ComponentModifier, isCustomTargetModifier, PropertyModifier, isPropertyModifier } from './target-modifier';
-import { UniformCurveValueAdapter } from './curve-value-adapters';
 
 export interface ITargetCurveData {
     modifiers: TargetModifier[];

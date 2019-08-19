@@ -3,15 +3,16 @@
  * @category particle
  */
 
-import { ccclass, property, executeInEditMode, menu } from "../../../core/data/class-decorator";
-import { Material, Mesh } from "../../assets";
-import { Texture2D } from "../../../assets";
-import { createMesh } from "../../misc/utils";
-import { GFXPrimitiveMode, GFXAttributeName, GFXFormat } from "../../../gfx";
-import { Model } from "../../../renderer/scene/model";
-import { builtinResMgr } from "../../builtin";
-import { Component } from "../../../components";
-import { Color, toRadian, toDegree } from "../../../core/math";
+import { ccclass, property, executeInEditMode, menu } from "../core/data/class-decorator";
+import { Material, Mesh, Texture2D } from "../core/assets";
+import { createMesh } from "../core/3d/misc/utils";
+import { GFXPrimitiveMode, GFXAttributeName, GFXFormat } from "../core/gfx";
+import { Model } from "../core/renderer/scene/model";
+import { builtinResMgr } from "../core/3d/builtin";
+import { Component } from "../core/components/component";
+import { Color, toRadian, toDegree, Vec4 } from "../core/math";
+
+createMesh
 
 @ccclass('cc.BillboardComponent')
 @menu('Components/BillboardComponent')
@@ -103,7 +104,7 @@ export class BillboardComponent extends Component {
 
     private _material: Material | null = null;
 
-    private _uniform = cc.v4(1, 1, 0, 0);
+    private _uniform = new Vec4(1, 1, 0, 0);
 
     constructor () {
         super();

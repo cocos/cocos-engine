@@ -2,17 +2,14 @@
  * @category animation
  */
 
-import { ccclass, property } from '../core/data/class-decorator';
+import { ccclass } from '../core/data/class-decorator';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { errorID } from '../core/platform/CCDebug';
 import { lerp, Quat } from '../core/math';
 import { ValueType } from '../core/value-types';
-import { PropertyBlendState } from './animation-blend-state';
 import { bezierByTime, BezierControlPoints } from './bezier';
-import * as blending from './blending';
 import * as easing from './easing';
 import { ILerpable, isLerpable } from './types';
-import { deserialize } from '../core';
 
 /**
  * 表示曲线值，曲线值可以是任意类型，但必须符合插值方式的要求。

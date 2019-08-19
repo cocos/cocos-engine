@@ -28,11 +28,11 @@
  * @category ui-assembler
  */
 
-import { Vec3 } from '../../../../core/math';
-import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
-import { UI } from '../../../../renderer/ui/ui';
+import { Vec3 } from '../../../core/math';
+import { IRenderData, RenderData } from '../../../core/renderer/ui/render-data';
+import { UI } from '../../../core/renderer/ui/ui';
 import { SpriteComponent } from '../../components';
-import { IAssembler } from '../base';
+import { IAssembler } from '../../../core/renderer/ui/base';
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());

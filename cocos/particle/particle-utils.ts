@@ -2,10 +2,12 @@
  * @hidden
  */
 
-import { ParticleSystemComponent } from '..';
-import { CCObject } from '../../../core/data/object';
-import { Node } from '../../../scene-graph';
-import { Pool } from '../../memop';
+import { ParticleSystemComponent } from './particle-system-component';
+import { CCObject } from '../core/data/object';
+import { Node } from '../core/scene-graph';
+import { Pool } from '../core/memop';
+import { Director, director } from '../core/director';
+import { instantiate } from '../core/data';
 
 export class ParticleUtils {
     private static particleSystemPool: Map<string, Pool<CCObject>> = new Map<string, Pool<CCObject>>();
@@ -16,12 +18,12 @@ export class ParticleUtils {
      */
     public static instantiate (prefab) {
         if (!this.registeredSceneEvent) {
-            cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, this.onSceneUnload, this);
+            director.on(Director.EVENT_BEFORE_SCENE_LAUNCH, this.onSceneUnload, this);
             this.registeredSceneEvent = true;
         }
         if (!this.particleSystemPool.has(prefab._uuid)) {
             this.particleSystemPool.set(prefab._uuid, new Pool<CCObject>(() => {
-                return cc.instantiate(prefab);
+                return instantiate(prefab);
             }, 1));
         }
         return this.particleSystemPool.get(prefab._uuid)!.alloc();
@@ -44,13 +46,13 @@ export class ParticleUtils {
     }
 
     public static play (rootNode: Node) {
-        for (const ps of rootNode.getComponentsInChildren(cc.ParticleSystemComponent)) {
+        for (const ps of rootNode.getComponentsInChildren(ParticleSystemComponent)) {
             (ps as ParticleSystemComponent).play();
         }
     }
 
     public static stop (rootNode: Node) {
-        for (const ps of rootNode.getComponentsInChildren(cc.ParticleSystemComponent)) {
+        for (const ps of rootNode.getComponentsInChildren(ParticleSystemComponent)) {
             (ps as ParticleSystemComponent).stop();
         }
     }

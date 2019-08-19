@@ -28,12 +28,12 @@
  * @category ui
  */
 
-import { Component, EventHandler as ComponentEventHandler } from '../../../components';
-import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { EventTouch, SystemEventType, Touch } from '../../../core/platform';
-import { Vec3 } from '../../../core/math';
-import { ccenum } from '../../../core/value-types/enum';
-import { clamp01 } from '../../../core/math/utils';
+import { Component, EventHandler as ComponentEventHandler } from '../../core/components';
+import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { EventTouch, SystemEventType, Touch } from '../../core/platform';
+import { Vec3 } from '../../core/math';
+import { ccenum } from '../../core/value-types/enum';
+import { clamp01 } from '../../core/math/utils';
 import { SpriteComponent } from './sprite-component';
 
 const _tempPos = new Vec3();
@@ -223,7 +223,7 @@ export class SliderComponent extends Component {
     protected _onTouchEnded (event?: EventTouch) {
         this._dragging = false;
         this._touchHandle = false;
-        this._offset = cc.v2();
+        this._offset = new Vec3();
 
         if (event) {
             event.propagationStopped = true;
@@ -242,8 +242,13 @@ export class SliderComponent extends Component {
         this._emitSlideEvent();
     }
 
+<<<<<<< refs/remotes/cocos-for-editor/3d-v1.0.0
     protected _emitSlideEvent () {
         cc.Component.EventHandler.emitEvents(this.slideEvents, this);
+=======
+    private _emitSlideEvent () {
+        EventHandler.emitEvents(this.slideEvents, this);
+>>>>>>> Fix import path for all modules except core
         this.node.emit('slide', this);
     }
 

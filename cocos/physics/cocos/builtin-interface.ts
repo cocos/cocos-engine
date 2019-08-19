@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { Mat4, Quat, Vec3 } from '../../../core/math';
+import { Mat4, Quat, Vec3 } from '../../core/math';
 
 /**
  * declare interface

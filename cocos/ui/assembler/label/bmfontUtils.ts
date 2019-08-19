@@ -27,12 +27,13 @@
  * @hidden
  */
 
-import { BitmapFont, IConfig } from '../../../../assets/bitmap-font';
-import { SpriteFrame } from '../../../../assets/sprite-frame';
-import { isUnicodeCJK, isUnicodeSpace } from '../../../../core/utils/text-utils';
-import { Rect, Size, Vec2 } from '../../../../core/math';
+import { BitmapFont, IConfig } from '../../../core/assets/bitmap-font';
+import { SpriteFrame } from '../../../core/assets/sprite-frame';
+import { isUnicodeCJK, isUnicodeSpace } from '../../../core/utils/text-utils';
+import { Rect, Size, Vec2 } from '../../../core/math';
 import { HorizontalTextAlignment, VerticalTextAlignment } from '../../components/label-component';
 import { LabelComponent, Overflow } from '../../components/label-component';
+import { js } from '../../../core/utils';
 
 class FontLetterDefinition {
     public u = 0;
@@ -68,7 +69,7 @@ export class FontAtlas {
         const copyLetterDefinitions: ILetterDefinition = {};
         for (const key of Object.keys(this._letterDefinitions)) {
             const value = new FontLetterDefinition();
-            cc.js.mixin(value, this._letterDefinitions[key]);
+            js.mixin(value, this._letterDefinitions[key]);
             copyLetterDefinitions[key] = value;
         }
         return copyLetterDefinitions;
@@ -78,7 +79,7 @@ export class FontAtlas {
         for (const key of Object.keys(this._letterDefinitions)) {
             const newValue = letterDefinition[key];
             const oldValue = this._letterDefinitions[key];
-            cc.js.mixin(oldValue, newValue);
+            js.mixin(oldValue, newValue);
         }
     }
 

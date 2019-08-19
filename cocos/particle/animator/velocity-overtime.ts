@@ -3,8 +3,8 @@
  * @category particle
  */
 
-import { ccclass, property } from '../../../../core/data/class-decorator';
-import { Mat4, pseudoRandom, Quat, Vec3 } from '../../../../core/math';
+import { ccclass, property } from '../../core/data/class-decorator';
+import { Mat4, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import Particle from '../particle';
 import { calculateTransform } from '../particle-general-function';
@@ -13,7 +13,7 @@ import CurveRange from './curve-range';
 // tslint:disable: max-line-length
 const VELOCITY_OVERTIME_RAND_OFFSET = 197866;
 
-const _temp_v3 = cc.v3();
+const _temp_v3 = new Vec3();
 
 @ccclass('cc.VelocityOvertimeModule')
 export default class VelocityOvertimeModule {

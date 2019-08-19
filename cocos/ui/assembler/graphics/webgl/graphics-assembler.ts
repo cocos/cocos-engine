@@ -30,16 +30,17 @@
 import { Color, Vec3 } from '../../../../core/math';
 import { GFXPrimitiveMode } from '../../../../core/gfx';
 import { Model } from '../../../../core/renderer';
-import { RenderScene } from '../../../../../renderer/scene/render-scene';
-import { IARenderData } from '../../../../../renderer/ui/renderData';
-import { UI } from '../../../../../renderer/ui/ui';
-import { createMesh } from '../../../../misc/utils';
+import { RenderScene } from '../../../../core/renderer/scene/render-scene';
+import { IARenderData } from '../../../../core/renderer/ui/render-data';
+import { UI } from '../../../../core/renderer/ui/ui';
+import { createMesh } from '../../../../core/3d/misc/utils';
 import { GraphicsComponent } from '../../../components';
-import { vfmt } from '../../../ui-vertex-format';
-import { IAssembler } from '../../base';
+import { vfmt } from '../../../../core/renderer/ui/ui-vertex-format';
+import { IAssembler } from '../../../../core/renderer/ui/base';
 import { LineCap, LineJoin, PointFlags } from '../types';
 import { earcut as Earcut } from './earcut';
 import { Impl, Point } from './impl';
+import { director } from '../../../../core/director';
 
 const MAX_VERTEX = 65535;
 const MAX_INDICE = MAX_VERTEX * 2;
@@ -209,7 +210,7 @@ export const graphicsAssembler: IAssembler = {
     },
 
     end (graphics: GraphicsComponent){
-        const scene = cc.director.root.ui.renderScene as RenderScene;
+        const scene = director.root.ui.renderScene as RenderScene;
         if (graphics.model){
             graphics.model.destroy();
             scene.destroyModel(graphics.model);

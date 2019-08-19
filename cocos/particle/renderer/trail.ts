@@ -3,31 +3,33 @@
  * @category particle
  */
 
-import { Color, Vec3 } from '../../../../core/math';
-import { ccclass, property } from '../../../../core/data/class-decorator';
-import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../../../gfx/buffer';
-import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../../../gfx/define';
-import { GFXDevice } from '../../../../gfx/device';
-import { IGFXAttribute } from '../../../../gfx/input-assembler';
-import { Model } from '../../../../renderer';
-import { Material } from '../../../assets';
-import { IRenderingSubmesh } from '../../../assets/mesh';
-import { Pool } from '../../../memop';
+import { Color, Vec3, Mat4, Quat } from '../../core/math';
+import { ccclass, property } from '../../core/data/class-decorator';
+import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
+import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
+import { GFXDevice } from '../../core/gfx/device';
+import { IGFXAttribute } from '../../core/gfx/input-assembler';
+import { Model } from '../../core/renderer';
+import { Material } from '../../core/assets/material';
+import { IRenderingSubmesh } from '../../core/assets/mesh';
+import { Pool } from '../../core/memop';
+import { director } from '../../core/director';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
 import Particle from '../particle';
+import { ParticleSystemComponent } from '../particle-system-component';
 
 // tslint:disable: max-line-length
 const PRE_TRIANGLE_INDEX = 1;
 const NEXT_TRIANGLE_INDEX = 1 << 2;
 
-const _temp_trailEle = { position: cc.v3(), velocity: cc.v3() } as ITrailElement;
-const _temp_quat = cc.quat();
-const _temp_xform = cc.mat4();
-const _temp_vec3 = cc.v3();
-const _temp_vec3_1 = cc.v3();
-const _temp_color = cc.color();
+const _temp_trailEle = { position: new Vec3(), velocity: new Vec3() } as ITrailElement;
+const _temp_quat = new Quat();
+const _temp_xform = new Mat4();
+const _temp_vec3 = new Vec3();
+const _temp_vec3_1 = new Vec3();
+const _temp_color = new Color();
 
 const barycentric = [1,0,0, 0,1,0, 0,0,1]; // <wirframe debug>
 let _bcIdx = 0;
@@ -52,11 +54,11 @@ class TrailSegment {
         this.trailElements = [];
         while (maxTrailElementNum--) {
             this.trailElements.push({
-                position: cc.v3(),
+                position: new Vec3(),
                 lifetime: 0,
                 width: 0,
-                velocity: cc.v3(),
-                color: cc.color(),
+                velocity: new Vec3(),
+                color: new Color(),
             });
         }
     }
@@ -268,7 +270,7 @@ export default class TrailModule {
     private _space = Space.World;
 
     @property({
-        type: cc.ParticleSystemComponent,
+        type: ParticleSystemComponent,
         visible: false,
     })
     private _particleSystem: any = null;
@@ -527,7 +529,7 @@ export default class TrailModule {
         if (this._trailModel) {
             return;
         }
-        const device: GFXDevice = cc.director.root.device;
+        const device: GFXDevice = director.root.device;
         const vertexBuffer = device.createBuffer({
             usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,

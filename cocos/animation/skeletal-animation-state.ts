@@ -27,7 +27,7 @@
  * @category animation
  */
 
-import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
+import { SkinningModelComponent } from '../core/3d/framework/skinning-model-component';
 import { Mat4 } from '../core/math';
 import { IObjectCurveData } from './animation-clip';
 import { AnimCurve } from './animation-curve';

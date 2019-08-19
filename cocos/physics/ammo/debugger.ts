@@ -1,12 +1,12 @@
 
 import Ammo from 'ammo.js';
-import { Color, Vec3 } from '../../../core/math';
-import { GFXComparisonFunc, GFXPrimitiveMode } from '../../../gfx/define';
-import { Node } from '../../../scene-graph';
-import { Material } from '../../assets/material';
-import { Mesh } from '../../assets/mesh';
-import { ModelComponent } from '../../framework';
-import { createMesh } from '../../misc/utils';
+import { Color, Vec3 } from '../../core/math';
+import { GFXPrimitiveMode } from '../../core/gfx/define';
+import { Node } from '../../core/scene-graph';
+import { Material } from '../../core/assets/material';
+import { Mesh } from '../../core/assets/mesh';
+import { ModelComponent } from '../../core/3d/framework/model-component';
+import { createMesh } from '../../core/3d/misc/utils';
 import { IGeometry } from '../../primitive/define';
 
 interface IDebugVertex {

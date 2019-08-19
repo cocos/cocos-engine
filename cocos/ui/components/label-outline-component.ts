@@ -28,9 +28,9 @@
  * @category ui
  */
 
-import { Component } from '../../../components';
-import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { Color } from '../../../core/math';
+import { Component } from '../../core/components/component';
+import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { Color } from '../../core/math';
 import { LabelComponent } from './label-component';
 
 /**

@@ -28,21 +28,21 @@
  * @category ui
  */
 
-import { SpriteFrame } from '../../../../assets/sprite-frame';
-import { Component } from '../../../../components/component';
-import { EventHandler as ComponentEventHandler } from '../../../../components/component-event-handler';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../../core/data/class-decorator';
-import { EventTouch } from '../../../../core/platform';
-import { SystemEventType } from '../../../../core/platform/event-manager/event-enum';
-import { Color, Size } from '../../../../core/math';
+import { SpriteFrame } from '../../../core/assets/sprite-frame';
+import { Component } from '../../../core/components/component';
+import { EventHandler as ComponentEventHandler } from '../../../core/components/component-event-handler';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { EventTouch } from '../../../core/platform';
+import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
+import { Color, Size } from '../../../core/math';
 import { LabelComponent, VerticalTextAlignment } from '../label-component';
 import { SpriteComponent } from '../sprite-component';
 import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-component';
 import { UITransformComponent } from '../../../core/components/ui-base/ui-transfrom-component';
 import { EditBoxImpl } from './edit-box-impl';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import { INode } from '../../../../core/utils/interfaces';
-import { Node } from '../../../../scene-graph/node';
+import { INode } from '../../../core/utils/interfaces';
+import { Node } from '../../../core/scene-graph/node';
 
 const LEFT_PADDING = 2;
 
@@ -593,14 +593,14 @@ export class EditBoxComponent extends Component {
 
     public _createBackgroundSprite () {
         if (!this._background) {
-            this._background = this.node.getComponent(cc.SpriteComponent);
+            this._background = this.node.getComponent(SpriteComponent);
             if (!this._background) {
-                this._background = this.node.addComponent(cc.SpriteComponent);
+                this._background = this.node.addComponent(SpriteComponent);
             }
 
         }
 
-        this._background!.type = cc.SpriteComponent.Type.SLICED;
+        this._background!.type = SpriteComponent.Type.SLICED;
         this._background!.spriteFrame = this._backgroundImage;
         // let background = this._background;
         // if (!background) {

@@ -28,16 +28,18 @@
  * @category ui
  */
 
-import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { Color } from '../../../core/math';
-import { Model } from '../../../renderer';
-import { UI } from '../../../renderer/ui/ui';
-import { Material } from '../../assets';
-import { RenderableComponent } from '../../framework/renderable-component';
-import { IAssembler } from '../assembler/base';
+import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { Color } from '../../core/math';
+import { Model } from '../../core/renderer';
+import { UI } from '../../core/renderer/ui/ui';
+import { Material } from '../../core/assets/material';
+import { RenderableComponent } from '../../core/3d/framework/renderable-component';
+import { IAssembler } from '../../core/renderer/ui/base';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
 import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
+import { director } from '../../core/director';
+import { builtinResMgr } from '../../core/3d/builtin';
 
 /**
  * @zh
@@ -203,7 +205,7 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     public onLoad (){
-       this._sceneGetter = cc.director.root.ui.getRenderSceneGetter();
+       this._sceneGetter = director.root.ui.getRenderSceneGetter();
     }
 
     public onEnable () {
@@ -469,7 +471,7 @@ export class GraphicsComponent extends UIRenderComponent {
         if (this._sharedMaterial) {
             mat = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
         } else {
-            mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-base-material'), new RenderableComponent(), CC_EDITOR ? true : false);
+            mat = Material.getInstantiatedMaterial(builtinResMgr.get('ui-base-material'), new RenderableComponent(), CC_EDITOR ? true : false);
             mat.recompileShaders({ USE_LOCAL: true });
             mat.onLoaded();
         }

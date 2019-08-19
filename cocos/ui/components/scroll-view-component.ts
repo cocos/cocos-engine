@@ -28,17 +28,18 @@
  * @category ui
  */
 
-import { EventHandler as ComponentEventHandler } from '../../../components';
-import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { Event } from '../../../core/event';
-import { EventMouse, EventTouch, SystemEventType, Touch } from '../../../core/platform';
-import { Size, Vec2, Vec3 } from '../../../core/math';
-import { ccenum } from '../../../core/value-types/enum';
+import { EventHandler as ComponentEventHandler } from '../../core/components';
+import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { Event } from '../../core/event';
+import { EventMouse, EventTouch, SystemEventType, Touch } from '../../core/platform';
+import { Size, Vec2, Vec3 } from '../../core/math';
+import { ccenum } from '../../core/value-types/enum';
 import { LayoutComponent } from './layout-component';
 import { ScrollBarComponent } from './scroll-bar-component';
 import { ViewGroupComponent } from './view-group-component';
-import { INode } from '../../../core/utils/interfaces';
-import { Node } from '../../../scene-graph/node';
+import { INode } from '../../core/utils/interfaces';
+import { Node } from '../../core/scene-graph/node';
+import { director, Director } from '../../core/director';
 
 const NodeEvent = SystemEventType;
 
@@ -759,7 +760,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         // Because widget component will adjust content position and scrollview position is correct after visit
         // So this event could make sure the content is on the correct position after loading.
         if (this._content) {
-            cc.director.once(cc.Director.EVENT_BEFORE_DRAW, this._adjustContentOutOfBoundary, this);
+            director.once(Director.EVENT_BEFORE_DRAW, this._adjustContentOutOfBoundary, this);
         }
     }
 
@@ -966,7 +967,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
     // this is for nested scrollview
     protected _hasNestedViewGroup (event?: Event, captureListeners?: any) {
-        if (!event || event.eventPhase !== cc.Event.CAPTURING_PHASE) {
+        if (!event || event.eventPhase !== Event.CAPTURING_PHASE) {
             return;
         }
 
@@ -1221,7 +1222,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
             }
         }
 
-        cc.Component.EventHandler.emitEvents(this.scrollEvents, this, eventMap[event]);
+        ComponentEventHandler.emitEvents(this.scrollEvents, this, eventMap[event]);
         this.node.emit(event, this);
     }
 
@@ -1265,7 +1266,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
     // This is for Scrollview as children of a Button
     protected _stopPropagationIfTargetIsMe (event?: Event) {
-        if (event && event.eventPhase === cc.Event.AT_TARGET && event.target === this.node) {
+        if (event && event.eventPhase === Event.AT_TARGET && event.target === this.node) {
             event.propagationStopped = true;
         }
     }

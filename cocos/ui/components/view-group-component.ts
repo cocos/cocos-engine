@@ -36,8 +36,8 @@
  * 可通过 cc.ViewGroupComponent 获取该组件。
  */
 
-import { Component } from '../../../components';
-import { ccclass, executionOrder } from '../../../core/data/class-decorator';
+import { Component } from '../../core/components';
+import { ccclass, executionOrder } from '../../core/data/class-decorator';
 
 @ccclass('cc.ViewGroupComponent')
 @executionOrder(110)

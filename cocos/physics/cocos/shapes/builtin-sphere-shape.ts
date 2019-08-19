@@ -1,4 +1,4 @@
-import { sphere } from '../../../geom-utils';
+import { sphere } from '../../../core/geom-utils';
 import { BuiltinShape } from './builtin-shape';
 
 export class BuiltinSphereShape extends BuiltinShape {

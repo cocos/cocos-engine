@@ -28,7 +28,7 @@
  */
 
 import { SpriteComponent, UIRenderComponent } from '../../components';
-import { IAssemblerManager } from '../base';
+import { IAssemblerManager } from '../../../core/renderer/ui/base';
 import { barFilled } from './bar-filled';
 import { radialFilled } from './radial-filled';
 import { simple } from './simple';

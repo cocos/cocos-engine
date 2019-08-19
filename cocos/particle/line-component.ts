@@ -5,13 +5,12 @@
  */
 
 
-import { Texture2D } from '../../../assets';
-import { Component } from '../../../components';
-import { ccclass, executeInEditMode, menu, property } from '../../../core/data/class-decorator';
-import { Vec3, Vec2, Vec4 } from '../../../core/math';
-import { LineModel } from '../../../renderer/models/line-model';
-import { Material } from '../../assets';
-import { builtinResMgr } from '../../builtin';
+import { Material, Texture2D } from '../core/assets';
+import { Component } from '../core/components';
+import { ccclass, executeInEditMode, menu, property } from '../core/data/class-decorator';
+import { Vec3, Vec2, Vec4 } from '../core/math';
+import { LineModel } from '../core/renderer/models/line-model';
+import { builtinResMgr } from '../core/3d/builtin';
 import CurveRange from './animator/curve-range';
 import GradientRange from './animator/gradient-range';
 
@@ -118,7 +117,7 @@ export class LineComponent extends Component {
     }
 
     @property
-    private _tile = cc.v2(1, 1);
+    private _tile = new Vec2(1, 1);
 
     /**
      * @zh 图块数。
@@ -141,7 +140,7 @@ export class LineComponent extends Component {
     }
 
     @property
-    private _offset = cc.v2(0, 0);
+    private _offset = new Vec2(0, 0);
 
     @property({
         type: Vec2,
@@ -187,7 +186,7 @@ export class LineComponent extends Component {
      * @ignore
      */
     private _model: LineModel | null = null;
-    private _tile_offset: Vec4 = cc.v4();
+    private _tile_offset: Vec4 = new Vec4();
 
     constructor () {
         super();

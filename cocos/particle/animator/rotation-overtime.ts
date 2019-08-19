@@ -3,9 +3,8 @@
  * @category particle
  */
 
-import { CCClass } from '../../../../core/data';
-import { ccclass, property } from '../../../../core/data/class-decorator';
-import { pseudoRandom } from '../../../../core/math';
+import { ccclass, property } from '../../core/data/class-decorator';
+import { pseudoRandom } from '../../core/math';
 import Particle from '../particle';
 import CurveRange from './curve-range';
 

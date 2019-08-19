@@ -2,11 +2,10 @@
  * @hidden
  */
 
-import { CCClass } from '../../../../core/data';
-import { ccclass, property } from '../../../../core/data/class-decorator';
-import { lerp } from '../../../../core/math';
-import { Enum } from '../../../../core/value-types';
-import { AnimationCurve } from '../../../geom-utils';
+import { ccclass, property } from '../../core/data/class-decorator';
+import { lerp } from '../../core/math';
+import { Enum } from '../../core/value-types';
+import { AnimationCurve } from '../../core/geom-utils';
 
 export const Mode = Enum({
     Constant: 0,

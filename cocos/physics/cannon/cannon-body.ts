@@ -1,5 +1,5 @@
 import CANNON from 'cannon';
-import { Mat4, Quat, Vec3 } from '../../../core/math';
+import { Mat4, Quat, Vec3 } from '../../core/math';
 import { ICollisionCallback, ICollisionEventType, ICreateBodyOptions, PhysicsWorldBase, RigidBodyBase, ShapeBase } from '../api';
 import { ERigidBodyType } from '../physic-enum';
 import { getWrap, setWrap, stringfyVec3 } from '../util';

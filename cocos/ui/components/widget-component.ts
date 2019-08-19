@@ -36,6 +36,8 @@ import { ccenum } from '../../core/value-types/enum';
 import { Node } from '../../core/scene-graph/node';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transfrom-component';
 import { widgetManager } from './widget-manager';
+import { INode } from '../../core/utils/interfaces';
+import { errorID } from '../../core/platform/CCDebug';
 
 /**
  * @zh
@@ -556,7 +558,7 @@ export class WidgetComponent extends Component {
         if (target) {
             const isParent = this.node !== target && this.node.isChildOf(target);
             if (!isParent) {
-                cc.errorID(6500);
+                errorID(6500);
                 this._target = null;
             }
         }

@@ -27,13 +27,15 @@
  * @category ui-assembler
  */
 
-import { BitmapFont } from '../../../../assets';
+import { BitmapFont } from '../../../core/assets';
 import { LabelComponent} from '../../components';
-import { IAssemblerManager } from '../base';
+import { IAssemblerManager } from '../../../core/renderer/ui/base';
 import { bmfont } from './bmfont';
 import { CanvasPool } from './font-utils';
 import { letter } from './letter';
 import { ttf } from './ttf';
+import sys from '../../../core/platform/CCSys';
+import { warn } from '../../../core/platform/CCDebug';
 
 const labelAssembler: IAssemblerManager = {
     getAssembler (comp: LabelComponent) {
@@ -42,8 +44,8 @@ const labelAssembler: IAssemblerManager = {
         if (comp.font instanceof BitmapFont) {
             assembler = bmfont;
         }else if (comp.cacheMode === LabelComponent.CacheMode.CHAR){
-            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB){
-                cc.warn('sorry, subdomain does not support CHAR mode currently!');
+            if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME_SUB){
+                warn('sorry, subdomain does not support CHAR mode currently!');
             } else {
                 assembler = letter;
             }

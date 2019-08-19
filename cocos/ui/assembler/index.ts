@@ -33,4 +33,4 @@ export * from './label';
 export * from './mask';
 export * from './sprite';
 
-export * from './base';
+export * from '../../core/renderer/ui/base';

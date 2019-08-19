@@ -1,14 +1,9 @@
 
-// import { ccclass } from '../../../../../core/data/class-decorator';
 import { Color, Vec2 } from '../../../../core/math';
-import { IARenderData } from '../../../renderer/renderData';
+import { IARenderData } from '../../../../core/renderer/ui/render-data';
 import RecyclePool from '../../../../core/memop/recycle-pool';
 import { arc, ellipse, roundRect, tesselateBezier } from '../helper';
 import { LineCap, LineJoin, PointFlags} from '../types';
-// const renderer = require('../../../index');
-// const renderEngine = renderer.renderEngine;
-// const IARenderData = renderEngine.IARenderData;
-// const InputAssembler = renderEngine.InputAssembler;
 
 export class Point extends Vec2 {
     public dx = 0;

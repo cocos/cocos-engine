@@ -29,15 +29,15 @@
  * @category ui
  */
 
-import { SpriteFrame } from '../../../assets';
-import { Component, EventHandler as ComponentEventHandler } from '../../../components';
-import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { EventMouse, EventTouch, SystemEventType } from '../../../core/platform';
-import { INode } from '../../../core/utils/interfaces';
-import { Color, Vec3 } from '../../../core/math';
-import { ccenum } from '../../../core/value-types/enum';
-import { lerp } from '../../../core/math/utils';
-import { Node } from '../../../scene-graph/node';
+import { SpriteFrame } from '../../core/assets';
+import { Component, EventHandler as ComponentEventHandler } from '../../core/components';
+import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { EventMouse, EventTouch, SystemEventType } from '../../core/platform';
+import { INode } from '../../core/utils/interfaces';
+import { Color, Vec3 } from '../../core/math';
+import { ccenum } from '../../core/value-types/enum';
+import { lerp } from '../../core/math/utils';
+import { Node } from '../../core/scene-graph/node';
 import { SpriteComponent } from './sprite-component';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 

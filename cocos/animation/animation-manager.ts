@@ -9,8 +9,8 @@ import { Node } from '../core/scene-graph';
 import { AnimationBlendState } from './animation-blend-state';
 import { AnimationState } from './animation-state';
 import { CrossFade } from './cross-fade';
-import Director from '../core/director';
-import { Scheduler } from '../core/scheduler';
+import { Director } from '../core/director';
+import Scheduler from '../core/scheduler';
 import System from '../core/components/system';
 
 const director = Director.instance;

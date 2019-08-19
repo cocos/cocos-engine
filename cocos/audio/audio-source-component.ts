@@ -27,10 +27,10 @@
  * @category component/audio
  */
 
-import { Component } from '../../components/component';
-import { ccclass, menu, property } from '../../core/data/class-decorator';
-import { clamp } from '../../core/math';
-import { AudioClip } from '../assets/audio/clip';
+import { Component } from '../core/components/component';
+import { ccclass, menu, property } from '../core/data/class-decorator';
+import { clamp } from '../core/math';
+import { AudioClip } from './assets/clip';
 
 /**
  * @en

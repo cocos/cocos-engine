@@ -98,7 +98,7 @@ const AssetLibrary = {
      * @param {Boolean} options.writeMainCache - 默认为true。如果为true，则结果将缓存到 AssetLibrary，并且必须由用户手动卸载。
      * @param {Asset} options.existingAsset - 加载现有资源，此参数仅在编辑器中可用。
      */
-    loadAsset (uuid: String, callback: Function, options) {
+    loadAsset (uuid: String, callback: Function, options?) {
         if (typeof uuid !== 'string') {
             return callInNextTick(callback, new Error('[AssetLibrary] uuid must be string'), null);
         }

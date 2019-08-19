@@ -1,5 +1,5 @@
-import { Vec3 } from '../../../../core/math';
-import { obb } from '../../../geom-utils';
+import { Vec3 } from '../../../core/math';
+import { obb } from '../../../core/geom-utils';
 import { BuiltinShape } from './builtin-shape';
 
 export class BuiltinBoxShape extends BuiltinShape {

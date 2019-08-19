@@ -1,4 +1,4 @@
-import { Mat4, Quat, Vec3 } from '../../../../core/math';
+import { Mat4, Quat, Vec3 } from '../../../core/math';
 import { ITriggerCallback, ITriggerEvent, ShapeBase } from '../../api';
 import { BuiltInBody } from '../builtin-body';
 import { IBuiltinShape } from '../builtin-interface';

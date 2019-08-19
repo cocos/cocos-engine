@@ -28,16 +28,17 @@
  * @category ui
  */
 
-import { SpriteFrame } from '../../../assets';
-import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
-import { clamp, Color, Mat4, Size, Vec2, Vec3 } from '../../../core/math';
-import { ccenum } from '../../../core/value-types/enum';
-import { UI } from '../../../renderer/ui/ui';
+import { SpriteFrame } from '../../core/assets';
+import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { SystemEventType } from '../../core/platform/event-manager/event-enum';
+import { clamp, Color, Mat4, Size, Vec2, Vec3 } from '../../core/math';
+import { ccenum } from '../../core/value-types/enum';
+import { UI } from '../../core/renderer/ui/ui';
 import { GraphicsComponent } from './graphics-component';
 import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-import { INode } from '../../../core/utils/interfaces';
-import { Node } from '../../../scene-graph';
+import { Node } from '../../core/scene-graph';
+import { view } from '../../core/platform';
+import visibleRect from '../../core/platform/CCVisibleRect';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -48,7 +49,7 @@ function _calculateCircle (center: Vec3, radius: Vec3, segements: number) {
     _circlepoints.length = 0;
     const anglePerStep = Math.PI * 2 / segements;
     for (let step = 0; step < segements; ++step) {
-        _circlepoints.push(cc.v3(radius.x * Math.cos(anglePerStep * step) + center.x,
+        _circlepoints.push(new Vec3(radius.x * Math.cos(anglePerStep * step) + center.x,
             radius.y * Math.sin(anglePerStep * step) + center.y, 0));
     }
 
@@ -316,14 +317,14 @@ export class MaskComponent extends UIRenderComponent {
         this._activateMaterial();
 
         this.node.on(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
-        cc.view.on('design-resolution-changed', this._updateClearGraphics, this);
+        view.on('design-resolution-changed', this._updateClearGraphics, this);
     }
 
     public onDisable () {
         super.onDisable();
         this._disableGraphics();
         this.node.off(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange);
-        cc.view.off('design-resolution-changed', this._updateClearGraphics);
+        view.off('design-resolution-changed', this._updateClearGraphics);
     }
 
     public onDestroy () {
@@ -500,7 +501,7 @@ export class MaskComponent extends UIRenderComponent {
             return;
         }
         console.log('resolution changed');
-        const size = cc.visibleRect;
+        const size = visibleRect;
         this._clearGraphics.node.setWorldPosition(size.width / 2, size.height / 2, 0);
         this._clearGraphics.clear();
         this._clearGraphics.rect(-size.width / 2, -size.height / 2, size.width, size.height);
@@ -525,8 +526,8 @@ export class MaskComponent extends UIRenderComponent {
         if (this._type === MaskType.RECT) {
             graphics.rect(x, y, width, height);
         } else if (this._type === MaskType.ELLIPSE) {
-            const center = cc.v3(x + width / 2, y + height / 2, 0);
-            const radius = cc.v3(width / 2, height / 2, 0,
+            const center = new Vec3(x + width / 2, y + height / 2, 0);
+            const radius = new Vec3(width / 2, height / 2, 0,
             );
             const points = _calculateCircle(center, radius, this._segments);
             for (let i = 0; i < points.length; ++i) {

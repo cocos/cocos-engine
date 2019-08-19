@@ -3,9 +3,8 @@
  * @hidden
  */
 
-import { repeat } from '../../../../core/math';
-import { AnimationCurve, evalOptCurve, OptimizedKey } from '../../../geom-utils/curve';
-import CurveRange, { Mode } from './curve-range';
+import { repeat } from '../../core/math';
+import { AnimationCurve, evalOptCurve, OptimizedKey } from '../../core/geom-utils/curve';
 
 // tslint:disable: max-line-length
 

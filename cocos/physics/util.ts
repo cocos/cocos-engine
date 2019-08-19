@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { Quat, Vec3 } from '../../core/math';
+import { Quat, Vec3 } from '../core/math';
 
 export function stringfyVec3 (value: {x: number; y: number; z: number}): string {
     if (Vec3.strictEquals(value, new Vec3())) {

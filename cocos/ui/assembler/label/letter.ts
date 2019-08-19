@@ -27,14 +27,15 @@
  * @category ui-assembler
  */
 
-import { addon } from '../../../../core/utils/js';
-import { UI } from '../../../../renderer/ui/ui';
+import { addon } from '../../../core/utils/js';
+import { UI } from '../../../core/renderer/ui/ui';
 import { LabelComponent } from '../../components/label-component';
 import { fillMeshVertices3D } from '../utils';
 import { bmfont } from './bmfont';
 import { letterFont} from './letter-font';
+import { Color } from '../../../core/math/color';
 
-const WHITE = cc.color(255, 255, 255, 255);
+const WHITE = new Color(255, 255, 255, 255);
 
 /**
  * letter 组装器

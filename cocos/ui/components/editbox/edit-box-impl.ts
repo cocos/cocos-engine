@@ -30,14 +30,19 @@
  * @hidden
  */
 
-import { ccclass } from '../../../../core/data/class-decorator';
-import { macro } from '../../../../core/platform/CCMacro';
-import { INode } from '../../../../core/utils/interfaces';
-import { contains } from '../../../../core/utils/misc';
-import { Color, Mat4, Size, Vec3 } from '../../../../core/math';
+import { ccclass } from '../../../core/data/class-decorator';
+import { macro } from '../../../core/platform/CCMacro';
+import { INode } from '../../../core/utils/interfaces';
+import { contains } from '../../../core/utils/misc';
+import { Color, Mat4, Size, Vec3 } from '../../../core/math';
 import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-component';
 import { EditBoxComponent} from './edit-box-component';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
+import { warnID } from '../../../core/platform/CCDebug';
+import sys from '../../../core/platform/CCSys';
+import { view } from '../../../core/platform';
+import { director } from '../../../core/director';
+import visibleRect from '../../../core/platform/CCVisibleRect';
 
 // https://segmentfault.com/q/1010000002914610
 const SCROLLY = 40;
@@ -57,9 +62,9 @@ const polyfill = {
     zoomInvalid: false,
 };
 
-if (cc.sys.OS_ANDROID === cc.sys.os &&
-    (cc.sys.browserType === cc.sys.BROWSER_TYPE_SOUGOU ||
-        cc.sys.browserType === cc.sys.BROWSER_TYPE_360)) {
+if (sys.OS_ANDROID === sys.os &&
+    (sys.browserType === sys.BROWSER_TYPE_SOUGOU ||
+        sys.browserType === sys.BROWSER_TYPE_360)) {
     polyfill.zoomInvalid = true;
 }
 
@@ -90,7 +95,7 @@ export class EditBoxImpl {
     public _text = '';
     public _placeholderText = '';
     public _alwaysOnTop = false;
-    public _size: Size = cc.size();
+    public _size: Size = new Size();
     public _node: INode | null = null;
     public _editing = false;
     public __eventListeners: any = {};
@@ -175,7 +180,7 @@ export class EditBoxImpl {
         if (this._edTxt) {
             return document.activeElement === this._edTxt;
         }
-        cc.warnID(4700);
+        warnID(4700);
         return false;
     }
 
@@ -309,7 +314,7 @@ export class EditBoxImpl {
     }
 
     public _beginEditing () {
-        if (cc.sys.isMobile && !this._editing) {
+        if (sys.isMobile && !this._editing) {
             // Pre adaptation
             this._beginEditingOnMobile();
         }
@@ -322,9 +327,9 @@ export class EditBoxImpl {
         if (this._edTxt) {
             this._edTxt.style.display = '';
 
-            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_UC) {
+            if (sys.browserType === sys.BROWSER_TYPE_UC) {
                 setTimeout(startFocus, FOCUS_DELAY_UC);
-            } else if (cc.sys.browserType === cc.sys.BROWSER_TYPE_FIREFOX) {
+            } else if (sys.browserType === sys.BROWSER_TYPE_FIREFOX) {
                 setTimeout(startFocus, FOCUS_DELAY_FIREFOX);
             } else {
                 startFocus();
@@ -345,7 +350,7 @@ export class EditBoxImpl {
             }
         };
         if (this._editing) {
-            if (cc.sys.isMobile) {
+            if (sys.isMobile) {
                 // Delay end editing adaptation to ensure virtual keyboard is disapeared
                 setTimeout(() => {
                     self._endEditingOnMobile();
@@ -416,10 +421,10 @@ export class EditBoxImpl {
         if (!this._edTxt) { return; }
 
         const node = this._node;
-        let scaleX = cc.view._scaleX;
-        let scaleY = cc.view._scaleY;
-        const viewport = cc.view._viewportRect;
-        const dpr = cc.view._devicePixelRatio;
+        let scaleX = view._scaleX;
+        let scaleY = view._scaleY;
+        const viewport = view._viewportRect;
+        const dpr = view._devicePixelRatio;
 
         node!.getWorldMatrix(_matrix);
         const transform = node!.uiTransfromComp;
@@ -442,7 +447,7 @@ export class EditBoxImpl {
             return false;
         }
         // let canvas = cc.CanvasComponent.findView(renderComp);
-        const canvas = cc.director.root.ui.getScreen(renderComp.visibility);
+        const canvas = director.root.ui.getScreen(renderComp.visibility);
         if (!canvas) {
             return;
         }
@@ -451,7 +456,7 @@ export class EditBoxImpl {
         canvas.node.getWorldRT(_matrix_temp);
         const m12 = _matrix_temp.m12;
         const m13 = _matrix_temp.m13;
-        const center = cc.visibleRect.center;
+        const center = visibleRect.center;
         _matrix_temp.m12 = center.x - (_matrix_temp.m00 * m12 + _matrix_temp.m04 * m13);
         _matrix_temp.m13 = center.y - (_matrix_temp.m01 * m12 + _matrix_temp.m05 * m13);
 
@@ -489,8 +494,8 @@ export class EditBoxImpl {
     public _adjustEditBoxPosition () {
         this._node!.getWorldMatrix(_matrix);
         const y = _matrix.m13;
-        const windowHeight = cc.visibleRect.height;
-        const windowWidth = cc.visibleRect.width;
+        const windowHeight = visibleRect.height;
+        const windowWidth = visibleRect.width;
         let factor = 0.5;
         if (windowWidth > windowHeight) {
             factor = 0.7;
@@ -523,15 +528,15 @@ export class EditBoxImpl {
         };
         window.addEventListener('orientationchange', this.__orientationChanged);
 
-        if (cc.view.isAutoFullScreenEnabled()) {
+        if (view.isAutoFullScreenEnabled()) {
             this.__fullscreen = true;
-            cc.view.enableAutoFullScreen(false);
+            view.enableAutoFullScreen(false);
             cc.screen.exitFullScreen();
         } else {
             this.__fullscreen = false;
         }
-        this.__autoResize = cc.view._resizeWithBrowserSize;
-        cc.view.resizeWithBrowserSize(false);
+        this.__autoResize = view._resizeWithBrowserSize;
+        view.resizeWithBrowserSize(false);
         _currentEditBoxImpl = this;
     }
 
@@ -541,7 +546,6 @@ export class EditBoxImpl {
             cc.game.container.style['-webkit-transform'] = 'rotate(90deg)';
             cc.game.container.style.transform = 'rotate(90deg)';
 
-            const view = cc.view;
             const width = view._originalDesignResolutionSize.width;
             const height = view._originalDesignResolutionSize.height;
             if (width > 0) {
@@ -555,7 +559,7 @@ export class EditBoxImpl {
         }
 
         if (this.__fullscreen) {
-            cc.view.enableAutoFullScreen(true);
+            view.enableAutoFullScreen(true);
         }
 
         // In case focus on editBox A from editBox B
@@ -563,7 +567,7 @@ export class EditBoxImpl {
         // whilte B enable resizeWithBrowserSize
         // Only _currentEditBoxImpl can enable resizeWithBrowserSize
         if (this.__autoResize && _currentEditBoxImpl === this) {
-            cc.view.resizeWithBrowserSize(true);
+            view.resizeWithBrowserSize(true);
         }
     }
 
@@ -697,7 +701,7 @@ function registerInputEventListener (tmpEdTxt: HTMLInputElement | HTMLTextAreaEl
             editBoxImpl.editing = true;
         }
 
-        if (cc.sys.isMobile) {
+        if (sys.isMobile) {
             editBoxImpl._beginEditingOnMobile();
         }
 

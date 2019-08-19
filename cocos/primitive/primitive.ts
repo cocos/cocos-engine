@@ -1,8 +1,8 @@
-import { ccclass, property } from '../../core/data/class-decorator';
-import { Enum } from '../../core/value-types';
-import { createMesh } from '../misc/utils';
+import { ccclass, property } from '../core/data/class-decorator';
+import { Enum } from '../core/value-types';
+import { createMesh } from '../core/3d/misc/utils';
 import * as primitives from '../primitive';
-import { Mesh } from './mesh';
+import { Mesh } from '../core/assets';
 
 const PrimitiveType = Enum({
     BOX: 0,

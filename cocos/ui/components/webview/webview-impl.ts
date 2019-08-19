@@ -23,12 +23,14 @@
  THE SOFTWARE.
 */
 
-import { ccclass } from '../../../../core/data/class-decorator';
-import sys from '../../../../core/platform/CCSys';
-import { misc } from '../../../../core/utils';
-import { INode } from '../../../../core/utils/interfaces';
-import { Mat4 } from '../../../../core/math';
+import { ccclass } from '../../../core/data/class-decorator';
+import sys from '../../../core/platform/CCSys';
+import { misc } from '../../../core/utils';
+import { INode } from '../../../core/utils/interfaces';
+import { Mat4 } from '../../../core/math';
 import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-component';
+import { logID, log } from '../../../core/platform/CCDebug';
+import { view } from '../../../core/platform/CCView';
 
 const _mat4_temp = new Mat4();
 
@@ -165,7 +167,7 @@ export class WebViewImpl {
      * Stop loading
      */
     public stopLoading () {
-        cc.logID(7800);
+        logID(7800);
     }
 
     /**
@@ -185,7 +187,7 @@ export class WebViewImpl {
      * Determine whether to go back
      */
     public canGoBack () {
-        cc.logID(7801);
+        logID(7801);
         return true;
     }
 
@@ -193,7 +195,7 @@ export class WebViewImpl {
      * Determine whether to go forward
      */
     public canGoForward () {
-        cc.logID(7802);
+        logID(7802);
         return true;
     }
 
@@ -203,7 +205,7 @@ export class WebViewImpl {
     public goBack () {
         try {
             if (WebViewImpl.Polyfill.closeHistory) {
-                return cc.logID(7803);
+                return logID(7803);
             }
             const iframe = this._iframe;
             if (iframe) {
@@ -213,7 +215,7 @@ export class WebViewImpl {
                 }
             }
         } catch (err) {
-            cc.log(err);
+            log(err);
         }
     }
 
@@ -223,7 +225,7 @@ export class WebViewImpl {
     public goForward () {
         try {
             if (WebViewImpl.Polyfill.closeHistory) {
-                return cc.logID(7804);
+                return logID(7804);
             }
             const iframe = this._iframe;
             if (iframe) {
@@ -233,7 +235,7 @@ export class WebViewImpl {
                 }
             }
         } catch (err) {
-            cc.log(err);
+            log(err);
         }
     }
 
@@ -260,7 +262,7 @@ export class WebViewImpl {
      * Limited scale
      */
     public setScalesPageToFit () {
-        cc.logID(7805);
+        logID(7805);
     }
 
     /**
@@ -327,9 +329,9 @@ export class WebViewImpl {
         this._w = contentSize.width;
         this._h = contentSize.height;
 
-        let scaleX = cc.view._scaleX;
-        let scaleY = cc.view._scaleY;
-        const dpr = cc.view._devicePixelRatio;
+        let scaleX = view._scaleX;
+        let scaleY = view._scaleY;
+        const dpr = view._devicePixelRatio;
 
         scaleX /= dpr;
         scaleY /= dpr;

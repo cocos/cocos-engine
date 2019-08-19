@@ -3,10 +3,9 @@
  * @hidden
  */
 
-import { CCClass } from '../../../../core/data';
-import { ccclass, property } from '../../../../core/data/class-decorator';
-import { Color } from '../../../../core/math';
-import { Enum } from '../../../../core/value-types';
+import { ccclass, property } from '../../core/data/class-decorator';
+import { Color } from '../../core/math';
+import { Enum } from '../../core/value-types';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
 
 // tslint:disable: max-line-length
@@ -61,19 +60,19 @@ export default class GradientRange {
      * @zh 当mode为Color时的颜色。
      */
     @property
-    public color = cc.Color.WHITE.clone();
+    public color = Color.WHITE.clone();
 
     /**
      * @zh 当mode为TwoColors时的颜色下限。
      */
     @property
-    public colorMin = cc.Color.WHITE.clone();
+    public colorMin = Color.WHITE.clone();
 
     /**
      * @zh 当mode为TwoColors时的颜色上限。
      */
     @property
-    public colorMax = cc.Color.WHITE.clone();
+    public colorMax = Color.WHITE.clone();
 
     /**
      * @zh 当mode为Gradient时的颜色渐变。
@@ -104,7 +103,7 @@ export default class GradientRange {
     })
     private _mode = Mode.Color;
 
-    private _color = cc.Color.WHITE.clone();
+    private _color = Color.WHITE.clone();
 
     public evaluate (time: number, rndRatio: number) {
         switch (this.mode) {

@@ -28,13 +28,13 @@
  * @category ui-assembler
  */
 
-import * as js from '../../../../core/utils/js';
-import { Color, Vec3 } from '../../../../core/math';
-import { UI } from '../../../../renderer/ui/ui';
+import * as js from '../../../core/utils/js';
+import { Color, Vec3 } from '../../../core/math';
+import { UI } from '../../../core/renderer/ui/ui';
 import { LabelComponent } from '../../components/label-component';
-import { IAssembler} from '../base';
+import { IAssembler} from '../../../core/renderer/ui/base';
 import { ttfUtils } from './ttfUtils';
-import { IRenderData } from '../../../../renderer/ui/renderData';
+import { IRenderData } from '../../../core/renderer/ui/render-data';
 
 const WHITE = Color.WHITE.clone();
 

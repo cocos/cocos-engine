@@ -2,8 +2,8 @@
  * @category 3d/primitive
  */
 
-import { GFXPrimitiveMode } from '../../gfx/define';
-import { IGFXAttribute } from '../../gfx/input-assembler';
+import { GFXPrimitiveMode } from '../core/gfx/define';
+import { IGFXAttribute } from '../core/gfx/input-assembler';
 
 /**
  * @zh

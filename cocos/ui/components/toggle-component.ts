@@ -28,8 +28,8 @@
  * @category ui
  */
 
-import { EventHandler as ComponentEventHandler } from '../../../components';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { EventHandler as ComponentEventHandler } from '../../core/components';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { ButtonComponent } from './button-component';
 import { SpriteComponent } from './sprite-component';
 import { ToggleContainerComponent } from './toggle-container-component';

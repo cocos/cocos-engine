@@ -28,20 +28,22 @@
  * @category ui
  */
 
-import { Font, SpriteAtlas, TTFFont } from '../../../assets';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { EventTouch } from '../../../core/platform';
+import { Font, SpriteAtlas, TTFFont } from '../../core/assets';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { EventTouch } from '../../core/platform';
 import { fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace } from '../../../core/utils';
-import Pool from '../../../core/utils/pool';
-import { Color, Vec2 } from '../../../core/math';
-import { PrivateNode } from '../../../scene-graph';
+import Pool from '../../core/utils/pool';
+import { Color, Vec2 } from '../../core/math';
+import { PrivateNode, Node } from '../../core/scene-graph';
 import { HorizontalTextAlignment, LabelComponent, VerticalTextAlignment } from './label-component';
 import { LabelOutlineComponent } from './label-outline-component';
 import { SpriteComponent } from './sprite-component';
 import { UIComponent } from '../../core/components/ui-base/ui-component';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transfrom-component';
-import { INode } from '../../../core/utils/interfaces';
+import { INode } from '../../core/utils/interfaces';
+import { assert, warnID } from '../../core/platform/CCDebug';
+import { loader } from '../../core/load-pipeline';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
@@ -79,7 +81,7 @@ const pool = new Pool((labelSeg: ILabelSegment) => {
         return false;
     }
     if (CC_DEV) {
-        cc.assert(!labelSeg.node.parent, 'Recycling node\'s parent should be null!');
+        assert(!labelSeg.node.parent, 'Recycling node\'s parent should be null!');
     }
     if (!cc.isValid(labelSeg.node)) {
         return false;
@@ -417,11 +419,11 @@ export class RichTextComponent extends UIComponent {
     }
 
     private _addEventListeners () {
-        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.on(Node.EventType.TOUCH_END, this._onTouchEnded, this);
     }
 
     private _removeEventListeners () {
-        this.node.off(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.off(Node.EventType.TOUCH_END, this._onTouchEnded, this);
     }
 
     private _updateLabelSegmentTextAttributes () {
@@ -443,7 +445,7 @@ export class RichTextComponent extends UIComponent {
             }
             else {
                 const self = this;
-                cc.loader.load(this._font.nativeUrl, (err, fontFamily) => {
+                loader.load(this._font.nativeUrl, (err, fontFamily) => {
                     self._layoutDirty = true;
                     self._updateRichText();
                 });
@@ -699,8 +701,8 @@ export class RichTextComponent extends UIComponent {
             const spriteNode = new PrivateNode(RichTextChildImageName);
             const spriteComponent = spriteNode.addComponent(SpriteComponent);
             spriteNode.setAnchorPoint(0, 0);
-            spriteComponent!.type = cc.SpriteComponent.Type.SLICED;
-            spriteComponent!.sizeMode = cc.SpriteComponent.SizeMode.CUSTOM;
+            spriteComponent!.type = SpriteComponent.Type.SLICED;
+            spriteComponent!.sizeMode = SpriteComponent.SizeMode.CUSTOM;
             // @ts-ignore
             this.node.addChild(spriteNode);
             const obj: ILabelSegment = {
@@ -759,7 +761,7 @@ export class RichTextComponent extends UIComponent {
             }
         }
         else {
-            cc.warnID(4400);
+            warnID(4400);
         }
     }
 

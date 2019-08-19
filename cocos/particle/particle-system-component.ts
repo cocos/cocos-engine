@@ -6,12 +6,12 @@
 
 // tslint:disable: max-line-length
 
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../../../core/math';
-import { INT_MAX } from '../../../core/math/bits';
-import { Model } from '../../../renderer';
-import { Material } from '../../assets';
-import { RenderableComponent } from '../renderable-component';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../core/data/class-decorator';
+import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
+import { INT_MAX } from '../core/math/bits';
+import { Model } from '../core/renderer';
+import { Material } from '../core/assets/material';
+import { RenderableComponent } from '../core/3d/framework/renderable-component';
 import ColorOverLifetimeModule from './animator/color-overtime';
 import CurveRange, { Mode } from './animator/curve-range';
 import ForceOvertimeModule from './animator/force-overtime';

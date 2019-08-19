@@ -28,14 +28,16 @@
  * @category ui
  */
 
-import { BitmapFont, Font, ImageAsset, SpriteFrame, Texture2D } from '../../../assets';
-import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { ccenum } from '../../../core/value-types/enum';
-import { UI } from '../../../renderer/ui/ui';
+import { BitmapFont, Font, ImageAsset, SpriteFrame, Texture2D } from '../../core/assets';
+import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccenum } from '../../core/value-types/enum';
+import { UI } from '../../core/renderer/ui/ui';
 import { FontAtlas } from '../assembler/label/bmfontUtils';
 import { CanvasPool, ISharedLabelData } from '../assembler/label/font-utils';
 import { LetterRenderTexture } from '../assembler/label/letter-font';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
+import { warnID } from '../../core/platform/CCDebug';
+import sys from '../../core/platform/CCSys';
 
 /**
  * @zh
@@ -376,7 +378,7 @@ export class LabelComponent extends UIRenderComponent {
         //     this._isSystemFontUsed = false;
 
         if (typeof value === 'string') {
-            cc.warnID(4000);
+            warnID(4000);
         }
 
         if (this._renderData) {
@@ -641,7 +643,7 @@ export class LabelComponent extends UIRenderComponent {
 
         this._assemblerData = null;
         if (this._ttfSpriteFrame) {
-            this._ttfSpriteFrame.destroy();
+            // this._ttfSpriteFrame.destroy();
             this._ttfSpriteFrame = null;
         }
 
@@ -736,7 +738,7 @@ export class LabelComponent extends UIRenderComponent {
                 onBMFontTextureLoaded();
             }
         } else {
-            if (this.cacheMode === CacheMode.CHAR && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+            if (this.cacheMode === CacheMode.CHAR && sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
                 this._letterTexture = this._assembler!.getAssemblerData();
                 this._texture = this._letterTexture;
             } else if (!this._ttfSpriteFrame) {

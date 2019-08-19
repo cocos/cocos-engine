@@ -27,17 +27,19 @@
  * @hidden
  */
 
-import { SpriteFrame, Texture2D } from '../../../../assets';
-import { Component } from '../../../../components';
-import { fragmentText, safeMeasureText } from '../../../../core/utils';
-import { Color, Size } from '../../../../core/math';
+import { SpriteFrame, Texture2D } from '../../../core/assets';
+import { Component } from '../../../core/components/component';
+import { fragmentText, safeMeasureText, js } from '../../../core/utils';
+import { Color, Size, Vec2 } from '../../../core/math';
 import { HorizontalTextAlignment, LabelComponent, LabelOutlineComponent, VerticalTextAlignment } from '../../components';
 import { CanvasPool, ISharedLabelData } from './font-utils';
 import { LetterRenderTexture } from './letter-font';
+import { loader } from '../../../core/load-pipeline';
+import { logID } from '../../../core/platform/CCDebug';
 
 const Overflow = LabelComponent.Overflow;
 const WHITE = Color.WHITE.clone();
-const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutlineComponent, Component);
+const OUTLINE_SUPPORTED = js.isChildClassOf(LabelOutlineComponent, Component);
 
 let _context: CanvasRenderingContext2D | null = null;
 let _canvas: HTMLCanvasElement | null = null;
@@ -128,7 +130,7 @@ export const ttfUtils =  {
                     _fontFamily = comp.font._nativeAsset;
                 }
                 else {
-                    cc.loader.load(comp.font.nativeUrl, (err, fontFamily) => {
+                    loader.load(comp.font.nativeUrl, (err, fontFamily) => {
                         _fontFamily = fontFamily || 'Arial';
                         comp.updateRenderData(true);
                     });
@@ -218,7 +220,7 @@ export const ttfUtils =  {
             firstLinelabelY = _canvasSize.height - lineHeight * (lineCount - 1);
         }
 
-        return cc.v2(labelX, firstLinelabelY);
+        return new Vec2(labelX, firstLinelabelY);
     },
 
     _updateTexture () {
@@ -298,7 +300,7 @@ export const ttfUtils =  {
             firstLinelabelY = _canvasSize.height - lineHeight * (lineCount - 1);
         }
 
-        return cc.v2(labelX, firstLinelabelY);
+        return new Vec2(labelX, firstLinelabelY);
     },
 
     _updateLabelDimensions () {
@@ -471,7 +473,7 @@ export const ttfUtils =  {
                         startShrinkFontSize = actualFontSize;
                     }
                     if (actualFontSize <= 0) {
-                        cc.logID(4003);
+                        logID(4003);
                         break;
                     }
                     _fontSize = actualFontSize;

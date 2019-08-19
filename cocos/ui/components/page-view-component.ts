@@ -27,16 +27,17 @@
  * @category ui
  */
 
-import { EventHandler as ComponentEventHandler } from '../../../components';
-import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { EventTouch, SystemEventType } from '../../../core/platform';
-import { Vec2, Vec3 } from '../../../core/math';
-import { ccenum } from '../../../core/value-types/enum';
+import { EventHandler as ComponentEventHandler } from '../../core/components';
+import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { EventTouch, SystemEventType } from '../../core/platform';
+import { Vec2, Vec3 } from '../../core/math';
+import { ccenum } from '../../core/value-types/enum';
 import { LayoutComponent } from './layout-component';
 import { PageViewIndicatorComponent } from './page-view-indicator-component';
 import { ScrollViewComponent } from './scroll-view-component';
 import { ScrollBarComponent } from './scroll-bar-component';
-import { INode } from '../../../core/utils/interfaces';
+import { INode } from '../../core/utils/interfaces';
+import { warnID } from '../../core/platform/CCDebug';
 
 const _temp_vec2 = new Vec2();
 
@@ -410,7 +411,7 @@ export class PageViewComponent extends ScrollViewComponent {
     if (!page || !this.content) { return; }
     const index = this._pages.indexOf(page);
     if (index === -1) {
-      cc.warnID(4300, page.name);
+      warnID(4300, page.name);
       return;
     }
     this.removePageAtIndex(index);

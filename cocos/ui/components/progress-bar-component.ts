@@ -28,12 +28,13 @@
  * @category ui
  */
 
-import { Component} from '../../../components';
-import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { Size, Vec2, Vec3 } from '../../../core/math';
-import { Enum } from '../../../core/value-types';
-import { clamp01 } from '../../../core/math/utils';
+import { Component} from '../../core/components';
+import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { Size, Vec2, Vec3 } from '../../core/math';
+import { Enum } from '../../core/value-types';
+import { clamp01 } from '../../core/math/utils';
 import { SpriteComponent } from './sprite-component';
+import { warn } from '../../core/platform/CCDebug';
 
 /**
  * @zh
@@ -283,8 +284,8 @@ export class ProgressBarComponent extends Component {
 
             // handling filled mode
             if (this._mode === Mode.FILLED) {
-                if (this._barSprite.type !== cc.SpriteComponent.Type.FILLED) {
-                    cc.warn('ProgressBar FILLED mode only works when barSprite\'s Type is FILLED!');
+                if (this._barSprite.type !== SpriteComponent.Type.FILLED) {
+                    warn('ProgressBar FILLED mode only works when barSprite\'s Type is FILLED!');
                 } else {
                     if (this._reverse) {
                         actualLenth = actualLenth * -1;
@@ -292,7 +293,7 @@ export class ProgressBarComponent extends Component {
                     this._barSprite.fillRange = actualLenth;
                 }
             } else {
-                if (this._barSprite.type !== cc.SpriteComponent.Type.FILLED) {
+                if (this._barSprite.type !== SpriteComponent.Type.FILLED) {
 
                     const anchorOffsetX = anchorPoint.x - entityAnchorPoint.x;
                     const anchorOffsetY = anchorPoint.y - entityAnchorPoint.y;
@@ -303,7 +304,7 @@ export class ProgressBarComponent extends Component {
                     entity.setAnchorPoint(anchorPoint);
                     entity.setContentSize(finalContentSize);
                 } else {
-                    cc.warn('ProgressBar non-FILLED mode only works when barSprite\'s Type is non-FILLED!');
+                    warn('ProgressBar non-FILLED mode only works when barSprite\'s Type is non-FILLED!');
                 }
             }
         }

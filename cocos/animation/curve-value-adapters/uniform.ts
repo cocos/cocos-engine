@@ -3,7 +3,7 @@
  */
 
 import { CurveValueAdapter } from '../animation-curve';
-import { Material } from '../../3d';
+import { Material } from '../../core/assets/material';
 import { property, ccclass } from '../../core/data/class-decorator';
 
 @ccclass('cc.UniformCurveValueAdapter')

@@ -28,13 +28,13 @@
  * @category ui
  */
 
-import { SpriteAtlas, SpriteFrame } from '../../../assets';
-import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
-import { Vec2 } from '../../../core/math';
-import { ccenum } from '../../../core/value-types/enum';
-import { clamp } from '../../../core/math/utils';
-import { UI } from '../../../renderer/ui/ui';
+import { SpriteAtlas, SpriteFrame, AssetLibrary } from '../../core/assets';
+import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { SystemEventType } from '../../core/platform/event-manager/event-enum';
+import { Vec2 } from '../../core/math';
+import { ccenum } from '../../core/value-types/enum';
+import { clamp } from '../../core/math/utils';
+import { UI } from '../../core/renderer/ui/ui';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 
 /**
@@ -575,7 +575,7 @@ export class SpriteComponent extends UIRenderComponent {
             if (spriteFrame.atlasUuid.length > 0) {
                 if (!this._atlas || this._atlas._uuid !== spriteFrame.atlasUuid) {
                     const self = this;
-                    cc.AssetLibrary.loadAsset(spriteFrame.atlasUuid, (err, asset) => {
+                    AssetLibrary.loadAsset(spriteFrame.atlasUuid, (err, asset) => {
                         self._atlas = asset;
                     });
                 }

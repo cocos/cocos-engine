@@ -5,7 +5,7 @@
 import { ccclass, property } from '../core/data/class-decorator';
 import { INode } from '../core/utils/interfaces';
 import { CurveValueAdapter, ICurveValueProxy } from './animation-curve';
-import { Node } from '../scene-graph';
+import { Node } from '../core/scene-graph/node';
 
 export type PropertyModifier = string;
 

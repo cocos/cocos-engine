@@ -23,13 +23,12 @@
  THE SOFTWARE.
 */
 
-// const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
-import { Mat4, Vec3 } from '../../../../core/math';
-import { RenderData } from '../../../../renderer/ui/renderData';
-import { UI } from '../../../../renderer/ui/ui';
+import { Mat4, Vec3 } from '../../../core/math';
+import { RenderData } from '../../../core/renderer/ui/render-data';
+import { UI } from '../../../core/renderer/ui/ui';
 import { SpriteComponent } from '../../components/sprite-component';
-import { UIRenderComponent } from '../../components/ui-render-component';
-import { IAssembler } from '../base';
+import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-component';
+import { IAssembler } from '../../../core/renderer/ui/base';
 
 const matrix = new Mat4();
 

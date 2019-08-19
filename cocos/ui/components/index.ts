@@ -2,8 +2,8 @@
  * @hidden
  */
 
-export { CanvasComponent } from './canvas-component';
-export { UIComponent } from './ui-component';
+export { CanvasComponent } from '../../core/components/ui-base/canvas-component';
+export { UIComponent } from '../../core/components/ui-base/ui-component';
 export { ButtonComponent } from './button-component';
 export { EditBoxComponent } from './editbox/edit-box-component';
 export * from './label-component';

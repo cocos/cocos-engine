@@ -27,13 +27,12 @@
  * @category ui-assembler
  */
 
-// const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
-import { SpriteFrame } from '../../../../assets';
-import { Mat4, Vec2, Vec3 } from '../../../../core/math';
-import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
-import { UI } from '../../../../renderer/ui/ui';
+import { SpriteFrame } from '../../../core/assets';
+import { Mat4, Vec2, Vec3 } from '../../../core/math';
+import { IRenderData, RenderData } from '../../../core/renderer/ui/render-data';
+import { UI } from '../../../core/renderer/ui/ui';
 import { SpriteComponent } from '../../components';
-import { IAssembler } from '../base';
+import { IAssembler } from '../../../core/renderer/ui/base';
 import { fillVertices3D } from '../utils';
 
 const PI_2 = Math.PI * 2;

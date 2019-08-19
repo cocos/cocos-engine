@@ -27,15 +27,16 @@
  * @hidden
  */
 
-import { ImageAsset, SpriteFrame, Texture2D } from '../../../../assets';
-import { isUnicodeCJK, isUnicodeSpace, safeMeasureText} from '../../../../core/utils';
-import { mixin } from '../../../../core/utils/js';
-import { Color, Rect, Size, Vec2 } from '../../../../core/math';
-import { GFXBufferTextureCopy } from '../../../../gfx/define';
+import { ImageAsset, SpriteFrame, Texture2D } from '../../../core/assets';
+import { isUnicodeCJK, isUnicodeSpace, safeMeasureText} from '../../../core/utils';
+import { mixin } from '../../../core/utils/js';
+import { Color, Rect, Size, Vec2 } from '../../../core/math';
+import { GFXBufferTextureCopy } from '../../../core/gfx/define';
 import { LabelComponent, LabelOutlineComponent } from '../../components';
-// import { UIComponent } from '../../components/ui-component';
 import { ISharedLabelData } from './font-utils';
-import { PixelFormat } from '../../../../assets/asset-enum';
+import { PixelFormat } from '../../../core/assets/asset-enum';
+import { director, Director } from '../../../core/director';
+import { loader } from '../../../core/load-pipeline';
 
 // const OUTLINE_SUPPORTED = cc.js.isChildClassOf(LabelOutlineComponent, UIComponent);
 const Overflow = LabelComponent.Overflow;
@@ -103,7 +104,7 @@ class LetterTexture {
     }
 
     public destroy () {
-        this.spriteframe!.destroy();
+        // this.spriteframe!.destroy();
         this.spriteframe = null;
         // LabelComponent._canvasPool.put(this._data);
     }
@@ -262,12 +263,12 @@ export class LetterAtlas {
 
         this._width = width;
         this._height = height;
-        cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
+        director.on(Director.EVENT_BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
     }
 
     public insertLetterTexture (letterTexture: LetterTexture) {
         const texture = letterTexture.spriteframe;
-        const device = cc.director.root.device;
+        const device = director.root.device;
         if (!texture || !this.texture || !device || !texture._image) {
             return null;
         }
@@ -561,9 +562,9 @@ export const letterFont = {
                     _fontFamily = comp.font._nativeAsset;
                 }
                 else {
-                    _fontFamily = cc.loader.getRes(comp.font.nativeUrl);
+                    _fontFamily = loader.getRes(comp.font.nativeUrl);
                     if (!_fontFamily) {
-                        cc.loader.load(comp.font.nativeUrl, (err, fontFamily) => {
+                        loader.load(comp.font.nativeUrl, (err, fontFamily) => {
                             _fontFamily = fontFamily || 'Arial';
                             if (comp.font){
                                 comp.font._nativeAsset = fontFamily;

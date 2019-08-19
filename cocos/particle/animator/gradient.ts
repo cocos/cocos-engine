@@ -2,10 +2,9 @@
  * @hidden
  */
 
-import { CCClass } from '../../../../core/data';
-import { ccclass, property } from '../../../../core/data/class-decorator';
-import { Color, lerp, repeat } from '../../../../core/math';
-import { Enum } from '../../../../core/value-types';
+import { ccclass, property } from '../../core/data/class-decorator';
+import { Color, lerp, repeat } from '../../core/math';
+import { Enum } from '../../core/value-types';
 
 // tslint:disable: max-line-length
 
@@ -18,7 +17,7 @@ const Mode = Enum({
 export class ColorKey {
 
     @property
-    public color = cc.Color.WHITE.clone();
+    public color = Color.WHITE.clone();
 
     @property
     public time = 0;
@@ -61,7 +60,7 @@ export default class Gradient {
     private _color: Color;
 
     constructor () {
-        this._color = cc.Color.WHITE.clone();
+        this._color = Color.WHITE.clone();
     }
 
     public setKeys (colorKeys: ColorKey[], alphaKeys: AlphaKey[]) {

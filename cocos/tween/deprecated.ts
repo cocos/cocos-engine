@@ -3,8 +3,7 @@
  */
 
 // deprecated
-import { Tween, tweenUtil } from './tween';
-import { warn } from '../core/platform/CCDebug';
+import { Tween } from './tween';
 import { replaceProperty } from '../deprecated';
 
 /**

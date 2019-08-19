@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { Color, Vec3 } from '../../../core/math';
+import { Color, Vec3 } from '../core/math';
 import { ParticleSystemComponent } from './particle-system-component';
 
 export default class Particle {
@@ -36,8 +36,8 @@ export default class Particle {
         this.rotation = new Vec3(0, 0, 0);
         this.startSize = new Vec3(0, 0, 0);
         this.size = new Vec3(0, 0, 0);
-        this.startColor = cc.Color.WHITE.clone();
-        this.color = cc.Color.WHITE.clone();
+        this.startColor = Color.WHITE.clone();
+        this.color = Color.WHITE.clone();
         this.randomSeed = 0; // uint
         this.remainingLifetime = 0.0;
         this.startLifetime = 0.0;

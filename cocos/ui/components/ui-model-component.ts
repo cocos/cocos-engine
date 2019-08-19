@@ -28,12 +28,13 @@
  * @category ui
  */
 
-import { ccclass, executionOrder, menu } from '../../../core/data/class-decorator';
-import { RenderPriority } from '../../../pipeline/define';
-import { UI } from '../../../renderer/ui/ui';
-import { Material } from '../../assets';
-import { RenderableComponent } from '../../framework/renderable-component';
+import { ccclass, executionOrder, menu } from '../../core/data/class-decorator';
+import { RenderPriority } from '../../core/pipeline/define';
+import { UI } from '../../core/renderer/ui/ui';
+import { Material } from '../../core/assets';
+import { RenderableComponent } from '../../core/3d/framework/renderable-component';
 import { UIComponent } from '../../core/components/ui-base/ui-component';
+import { director } from '../../core/director';
 
 /**
  * @zh
@@ -58,7 +59,7 @@ export class UIModelComponent extends UIComponent {
             return;
         }
 
-        this._modelComponent._sceneGetter = cc.director.root.ui.getRenderSceneGetter();
+        this._modelComponent._sceneGetter = director.root.ui.getRenderSceneGetter();
         this._modelComponent.recreateModel();
     }
 

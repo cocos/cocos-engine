@@ -2,7 +2,7 @@
  * @category 3d/primitive
  */
 
-import { GFXPrimitiveMode } from '../../gfx/define';
+import { GFXPrimitiveMode } from '../core/gfx/define';
 import { applyDefaultGeometryOptions, IGeometry, IGeometryOptions } from './define';
 
 /**

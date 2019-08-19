@@ -1,5 +1,5 @@
 import CANNON from 'cannon';
-import { Vec3 } from '../../../../core/math';
+import { Vec3 } from '../../../core/math';
 import { ShapeBase, SphereShapeBase } from '../../api';
 import { maxComponent, setWrap } from '../../util';
 import { commitShapeUpdates } from '../cannon-util';

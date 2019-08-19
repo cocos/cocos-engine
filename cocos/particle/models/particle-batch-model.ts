@@ -27,15 +27,16 @@
  * @hidden
  */
 
-import { Material } from '../../3d/assets/material';
-import { IRenderingSubmesh, Mesh } from '../../3d/assets/mesh';
-import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../gfx/buffer';
-import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos,
-    GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
-import { IGFXAttribute } from '../../gfx/input-assembler';
-import { Node } from '../../scene-graph';
-import { Model } from '../scene/model';
-import { RenderScene } from '../scene/render-scene';
+import { Material } from '../../core/assets/material';
+import { IRenderingSubmesh, Mesh } from '../../core/assets/mesh';
+import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
+import { GFXAttributeName, GFXBufferUsageBit, GFXFormatInfos,
+    GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
+import { IGFXAttribute } from '../../core/gfx/input-assembler';
+import { Node } from '../../core/scene-graph';
+import { Model } from '../../core/renderer/scene/model';
+import { RenderScene } from '../../core/renderer/scene/render-scene';
+import { Color } from '../../core/math/color';
 
 export default class ParticleBatchModel extends Model {
 
@@ -141,7 +142,7 @@ export default class ParticleBatchModel extends Model {
             if (!this._mesh.copyAttribute(0, GFXAttributeName.ATTR_COLOR, vBuffer, this._vertSize, vOffset)) {  // copy mesh color to ATTR_COLOR1
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < this._vertCount; ++iVertex) {
-                    vb[iVertex * this._vertAttrsFloatCount + vOffset / 4] = cc.Color.WHITE._val;
+                    vb[iVertex * this._vertAttrsFloatCount + vOffset / 4] = Color.WHITE._val;
                 }
             }
             const vbFloatArray = new Float32Array(vBuffer);

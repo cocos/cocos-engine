@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-// const dynamicAtlasManager = require('../../../utils/dynamic-atlas/manager');
-
 let mesh = {
     useModel: false,
 

@@ -27,9 +27,9 @@
  * @category component/audio
  */
 
-import { Asset } from '../../../assets/asset';
-import { ccclass, property } from '../../../core/data/class-decorator';
-import { Enum } from '../../../core/value-types';
+import { Asset } from '../../core/assets/asset';
+import { ccclass, property } from '../../core/data/class-decorator';
+import { Enum } from '../../core/value-types';
 import { AudioPlayer, PlayingState } from './player';
 import { AudioPlayerDOM } from './player-dom';
 import { AudioPlayerWeb } from './player-web';

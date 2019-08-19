@@ -27,13 +27,13 @@
  * @category ui-assembler
  */
 
-// const dynamicAtlasManager = require('../../../../utils/dynamic-atlas/manager');
-import { Mat4, Vec3 } from '../../../../core/math';
-import { IRenderData, RenderData } from '../../../../renderer/ui/renderData';
-import { UI } from '../../../../renderer/ui/ui';
+import { Mat4, Vec3 } from '../../../core/math';
+import { IRenderData, RenderData } from '../../../core/renderer/ui/render-data';
+import { UI } from '../../../core/renderer/ui/ui';
 import { SpriteComponent } from '../../components';
-import { IAssembler } from '../base';
+import { IAssembler } from '../../../core/renderer/ui/base';
 import { fillVerticesWithoutCalc3D } from '../utils';
+import { errorID } from '../../../core/platform/CCDebug';
 
 const FillType = SpriteComponent.FillType;
 const matrix = new Mat4();
@@ -167,7 +167,7 @@ export const barFilled: IAssembler = {
                 datas[3].v = quadUV3 + (quadUV7 - quadUV3) * fillEnd;
                 break;
             default:
-                cc.errorID(2626);
+                errorID(2626);
                 break;
         }
 
@@ -206,7 +206,7 @@ export const barFilled: IAssembler = {
                 t = progressEnd;
                 break;
             default:
-                cc.errorID(2626);
+                errorID(2626);
                 break;
         }
 

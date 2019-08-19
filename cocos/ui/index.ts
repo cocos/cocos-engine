@@ -16,11 +16,11 @@ import {
     simple,
     sliced,
     spriteAssembler,
-    StencilManager,
     ttf,
 } from './assembler';
-import { MeshBuffer } from './mesh-buffer';
-import * as UIVertexFormat from './ui-vertex-format';
+import { MeshBuffer } from '../core/renderer/ui/mesh-buffer';
+import * as UIVertexFormat from '../core/renderer/ui/ui-vertex-format';
+import { StencilManager } from '../core/renderer/ui/stencil-manager';
 
 export * from './components';
 
