@@ -213,13 +213,13 @@ void ParticleSimulator::onDisable()
 
 void ParticleSimulator::render(float dt)
 {
-    // uv size must equal 8,because per particle has 4 vertex.
-    if (_uv.size() != 8)
+    if (_finished || _nodeProxy == nullptr || _effect == nullptr)
     {
         return;
     }
     
-    if (_nodeProxy == nullptr)
+    // uv size must equal 8,because per particle has 4 vertex.
+    if (_uv.size() != 8)
     {
         return;
     }
