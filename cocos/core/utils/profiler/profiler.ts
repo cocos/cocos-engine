@@ -219,7 +219,7 @@ export class Profiler {
         camera.near = 0;
         camera.far = 0;
         camera.orthoHeight = this._device!.height;
-        camera.visibility = 0xDEADBEEF;
+        camera.visibility = 2147483648;
         camera.clearFlags = GFXClearFlag.DEPTH | GFXClearFlag.STENCIL;
 
         const managerNode = new Node('Profiler_Root');
@@ -261,7 +261,7 @@ export class Profiler {
         pass.bindTextureView(handle!, this._textureView!);
 
         modelCom.material = _material;
-        modelCom.visibility = 0xDEADBEEF;
+        modelCom.visibility = 2147483648;
     }
 
     public beforeUpdate () {
