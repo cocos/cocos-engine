@@ -11,6 +11,8 @@ import { AfterStepCallback, BeforeStepCallback, PhysicsWorldBase, RigidBodyBase 
 import { createRigidBody } from '../../../physics/instance';
 import { ERigidBodyType, ETransformSource } from '../../../physics/physic-enum';
 import { INode } from '../../../../core/utils/interfaces';
+import { TransformDirtyBit } from '../../../../scene-graph/node-enum';
+import { error } from '../../../../core/platform/CCDebug';
 
 export class PhysicsBasedComponent extends Component {
 
@@ -24,7 +26,7 @@ export class PhysicsBasedComponent extends Component {
 
     protected get _assertPreload (): boolean {
         if (!this._isPreLoaded) {
-            console.error('Physic Error :', 'Please make sure that the node has been added to the scene');
+            error('Physic Error: Please make sure that the node has been added to the scene');
         }
         return this._isPreLoaded;
     }
@@ -250,8 +252,6 @@ class SharedRigidBody {
     /** 是否只有Collider组件 */
     private _isShapeOnly: boolean = true;
 
-    /** 上一次的缩放 */
-    private _prevScale: Vec3 = new Vec3();
 
     constructor (node: INode, rigidBody: object | null, world: PhysicsWorldBase) {
         this._body = createRigidBody({
@@ -378,9 +378,8 @@ class SharedRigidBody {
         // 开始物理计算之前，用户脚本或引擎功能有可能改变节点的Transform，所以需要判断并进行更新
         if (this._node.hasChangedFlags) {
             // scale 进行单独判断，因为目前的物理系统处理后不会改变scale的属性
-            if (!Vec3.equals(this._prevScale, this._node.worldScale)) {
+            if (this._node.hasChangedFlags === TransformDirtyBit.SCALE) {
                 this._body.scaleAllShapes(this._node.worldScale);
-                Vec3.copy(this._prevScale, this._node.worldScale);
             }
             this._syncPhysWithScene(this._node);
 
