@@ -618,38 +618,12 @@ Object.assign(WebEditBoxImpl.prototype, {
                 break;
         }
 
-        styleEl.innerHTML = `
-            #${this._domId}::-webkit-input-placeholder {
-                text-transform: initial;
-                font-family: ${font};
-                font-size: ${fontSize}px;
-                color: ${fontColor};
-                line-height: ${lineHeight}px;
-                text-align: ${horizontalAlign};
-            }
-            #${this._domId}::-moz-placeholder {
-                text-transform: initial;
-                font-family: ${font};
-                font-size: ${fontSize}px;
-                color: ${fontColor};
-                line-height: ${lineHeight}px;
-                text-align: ${horizontalAlign};
-            }
-            #${this._domId}:-ms-input-placeholder {
-                text-transform: initial;
-                font-family: ${font};
-                font-size: ${fontSize}px;
-                color: ${fontColor};
-                line-height: ${lineHeight}px;
-                text-align: ${horizontalAlign};
-            }
-        `;
+        styleEl.innerHTML = `#${this._domId}::-webkit-input-placeholder,#${this._domId}::-moz-placeholder,#${this._domId}:-ms-input-placeholder` +
+        `{text-transform: initial; font-family: ${font}; font-size: ${fontSize}px; color: ${fontColor}; line-height: ${lineHeight}px; text-align: ${horizontalAlign};}`;
         // EDGE_BUG_FIX: hide clear button, because clearing input box in Edge does not emit input event 
         // issue refference: https://github.com/angular/angular/issues/26307
         if (cc.sys.browserType === cc.sys.BROWSER_TYPE_EDGE) {
-            styleEl.innerHTML += `#${this._domId}::-ms-clear{
-                display: none;
-            }`;
+            styleEl.innerHTML += `#${this._domId}::-ms-clear{display: none;}`;
         }
     },
 
