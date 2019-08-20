@@ -3,14 +3,14 @@
  * @category animation
  */
 
-import { Asset, SpriteFrame } from '../core/assets';
-import { ccclass, property } from '../core/data/class-decorator';
-import { errorID } from '../core/platform/debug';
-import binarySearchEpsilon from '../core/utils/binary-search';
+import { Asset, SpriteFrame } from '../assets';
+import { ccclass, property } from '../data/class-decorator';
+import { errorID } from '../platform/debug';
+import binarySearchEpsilon from '../utils/binary-search';
 import { AnimCurve, IPropertyCurveData, RatioSampler, CurveValueAdapter } from './animation-curve';
 import { WrapMode as AnimationWrapMode } from './types';
-import { INode } from '../core/utils/interfaces';
-import { murmurhash2_32_gc } from '../core/utils/murmurhash2_gc';
+import { INode } from '../utils/interfaces';
+import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { TargetModifier, HierachyModifier, ComponentModifier, isCustomTargetModifier, PropertyModifier, isPropertyModifier } from './target-modifier';
 
 export interface ITargetCurveData {

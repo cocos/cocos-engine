@@ -3,8 +3,8 @@
  * @category animation
  */
 
-import { ccclass, property } from '../core/data/class-decorator';
-import { Quat, Vec2, Vec3, Vec4 } from '../core/math';
+import { ccclass, property } from '../data/class-decorator';
+import { Quat, Vec2, Vec3, Vec4 } from '../math';
 import { ILerpable } from './types';
 
 interface ICubicSplineValue<T> extends ILerpable {

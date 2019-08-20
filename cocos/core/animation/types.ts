@@ -3,7 +3,7 @@
  * @category animation
  */
 
-import { ccenum } from '../core/value-types/enum';
+import { ccenum } from '../value-types/enum';
 
 export enum WrapModeMask {
     Loop = 1 << 1,

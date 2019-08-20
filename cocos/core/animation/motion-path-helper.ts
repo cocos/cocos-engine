@@ -2,9 +2,9 @@
  * @hidden
  */
 
-import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
-import { errorID } from '../core/platform/debug';
-import { Vec2 } from '../core/math';
+import { binarySearchEpsilon as binarySearch } from '../data/utils/binary-search';
+import { errorID } from '../platform/debug';
+import { Vec2, Vec3 } from '../math';
 import { AnimCurve, computeRatioByType, CurveValue, EasingMethod } from './animation-curve';
 import { bezier } from './bezier';
 
@@ -250,7 +250,7 @@ export function sampleMotionPaths (motionPaths: Array<(MotionPath | undefined)>,
     // @ts-ignore
     const values = data.values = data.values.map((value) => {
         if (Array.isArray(value)) {
-            value = value.length === 2 ? cc.v2(value[0], value[1]) : cc.v3(value[0], value[1], value[2]);
+            value = value.length === 2 ? new Vec2(value[0], value[1]) : new Vec3(value[0], value[1], value[2]);
         }
         return value;
     });

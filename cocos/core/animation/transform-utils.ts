@@ -27,8 +27,8 @@
  * @category animation
  */
 
-import { INode } from '../core/utils/interfaces';
-import { Vec3, Quat, Mat4 } from '../core/math';
+import { INode } from '../utils/interfaces';
+import { Mat4 } from '../math';
 
 const m4_1 = new Mat4();
 

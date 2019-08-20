@@ -27,12 +27,12 @@
  * @category animation
  */
 
-import { SkeletalAnimationClip } from '../animation/skeletal-animation-clip';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../core/data/class-decorator';
-import { Mat4 } from '../core/math';
-import { INode } from '../core/utils/interfaces';
-import { IJointsAnimInfo, JointsAnimationInfo } from '../core/renderer/models/skinning-model';
-import { Node } from '../core/scene-graph/node';
+import { SkeletalAnimationClip } from './skeletal-animation-clip';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../data/class-decorator';
+import { Mat4 } from '../math';
+import { INode } from '../utils/interfaces';
+import { IJointsAnimInfo, JointsAnimationInfo } from '../renderer/models/skinning-model';
+import { Node } from '../scene-graph/node';
 import { AnimationClip } from './animation-clip';
 import { AnimationComponent } from './animation-component';
 import { SkeletalAnimationState } from './skeletal-animation-state';
@@ -152,8 +152,8 @@ export class SkeletalAnimationComponent extends AnimationComponent {
         if (socket) { return socket.target; }
         const joint = this.node.getChildByPath(path);
         if (!joint) { console.warn('illegal socket path'); return null; }
-        const target = new cc.Node();
-        target.parent = this.node;
+        const target = new Node();
+        target.parent = this.node as Node;
         this._sockets.push(new Socket(path, target));
         this.rebuildSocketAnimations();
         return target;

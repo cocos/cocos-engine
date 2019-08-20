@@ -27,15 +27,15 @@
  * @category animation
  */
 
-import { Component } from '../core/components/component';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../core/data/class-decorator';
-import { Event, EventTarget } from '../core/event';
-import { CallbacksInvoker, ICallbackTable } from '../core/event/callbacks-invoker';
-import { applyMixins, IEventTarget } from '../core/event/event-target-factory';
-import { warnID } from '../core/platform/debug';
-import * as ArrayUtils from '../core/utils/array';
-import { createMap } from '../core/utils/js-typed';
-import { ccenum } from '../core/value-types/enum';
+import { Component } from '../components/component';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../data/class-decorator';
+import { Event, EventTarget } from '../event';
+import { CallbacksInvoker, ICallbackTable } from '../event/callbacks-invoker';
+import { applyMixins, IEventTarget } from '../event/event-target-factory';
+import { warnID } from '../platform/debug';
+import * as ArrayUtils from '../utils/array';
+import { createMap } from '../utils/js-typed';
+import { ccenum } from '../value-types/enum';
 import { AnimationClip } from './animation-clip';
 import { AnimationState } from './animation-state';
 import { CrossFade } from './cross-fade';

@@ -2,10 +2,10 @@
  * @hidden
  */
 
-import { ccclass, property } from '../core/data/class-decorator';
-import { INode } from '../core/utils/interfaces';
+import { ccclass, property } from '../data/class-decorator';
+import { INode } from '../utils/interfaces';
 import { CurveValueAdapter, ICurveValueProxy } from './animation-curve';
-import { Node } from '../core/scene-graph/node';
+import { Node } from '../scene-graph/node';
 
 export type PropertyModifier = string;
 

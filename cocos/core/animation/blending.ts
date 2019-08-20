@@ -2,7 +2,7 @@
  * @category animation
  */
 
-import { Quat, Vec3 } from '../core/math';
+import { Quat, Vec3 } from '../math';
 import { PropertyBlendState } from './animation-blend-state';
 
 /**

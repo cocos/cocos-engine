@@ -27,14 +27,14 @@
  * @category animation
  */
 
-import { EventArgumentsOf, EventCallbackOf } from '../core/event/defines';
-import { Node } from '../core/scene-graph/node';
+import { EventArgumentsOf, EventCallbackOf } from '../event/defines';
+import { Node } from '../scene-graph/node';
 import { AnimationBlendState, PropertyBlendState } from './animation-blend-state';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
 import { AnimCurve, RatioSampler, ICurveValueProxy } from './animation-curve';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
-import { INode } from '../core/utils/interfaces';
+import { INode } from '../utils/interfaces';
 import { BlendFunction, additive3D, additiveQuat } from './blending';
 import { BoundTarget } from './target-modifier';
 

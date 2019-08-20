@@ -27,8 +27,8 @@
  * @category animation
  */
 
-import { SkinningModelComponent } from '../core/3d/framework/skinning-model-component';
-import { Mat4 } from '../core/math';
+import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
+import { Mat4 } from '../math';
 import { IObjectCurveData } from './animation-clip';
 import { AnimCurve } from './animation-curve';
 import { AnimationState, ICurveInstance } from './animation-state';
@@ -50,7 +50,9 @@ export class SkeletalAnimationState extends AnimationState {
 
     public onPlay () {
         super.onPlay();
-        for (const comp of this._targetNode!.getComponentsInChildren(SkinningModelComponent)) {
+        let comps = this._targetNode!.getComponentsInChildren(SkinningModelComponent);
+        for (let i = 0; i < comps.length; ++i) {
+            const comp = comps[i] as SkinningModelComponent;
             if (comp.skinningRoot === this._targetNode) {
                 comp.uploadAnimation(this.clip as SkeletalAnimationClip);
             }

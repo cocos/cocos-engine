@@ -45,4 +45,15 @@ export * from './game';
 export * from './scheduler';
 export * from './director';
 
+export * from './gfx';
+export * from './renderer';
+export * from './pipeline';
+export * from './primitive';
+export * from './assets';
+export * from './load-pipeline';
+export * from './scene-graph';
+export * from './components';
+export * from './3d';
+export * from './animation';
+
 export * from './utils/profiler/profiler';

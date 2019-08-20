@@ -1,10 +1,11 @@
 /**
  * @category animation
  */
-import { clamp01 } from '../core/math/utils';
+
+import { clamp01 } from '../math/utils';
 import { AnimationState } from './animation-state';
 import { Playable } from './playable';
-import { remove } from '../core/utils/array';
+import { remove } from '../utils/array';
 
 interface IManagedState {
     state: AnimationState | null;

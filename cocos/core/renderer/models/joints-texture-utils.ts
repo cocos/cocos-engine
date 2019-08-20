@@ -32,6 +32,7 @@ import { Mat4, Quat, Vec3 } from '../../math';
 import { GFXFormat, GFXFormatInfos } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { ITextureBufferHandle, TextureBufferPool } from '../core/texture-buffer-pool';
+import { SkeletalAnimationClip } from '../../animation/skeletal-animation-clip';
 
 // change here and cc-skinning.inc to use other skinning algorithms
 const uploadJointData = uploadJointDataDQS;
@@ -164,7 +165,7 @@ export class JointsTexturePool {
     /**
      * 获取指定动画片段的骨骼贴图
      */
-    public getJointsTextureWithAnimation (skeleton: Skeleton, clip) {
+    public getJointsTextureWithAnimation (skeleton: Skeleton, clip: SkeletalAnimationClip) {
         const hash = skeleton.hash ^ clip.hash;
         let texture: IJointsTextureHandle | null = this._textureBuffers.get(hash) || null;
         if (texture) { texture.refCount++; return texture; }

@@ -27,9 +27,9 @@
  * @category animation
  */
 
-import { ccclass } from '../core/data/class-decorator';
-import { Mat4 } from '../core/math';
-import { INode } from '../core/utils/interfaces';
+import { ccclass } from '../data/class-decorator';
+import { Mat4 } from '../math';
+import { INode } from '../utils/interfaces';
 import { AnimationClip, IObjectCurveData, IRuntimeCurve, ITargetCurveData } from './animation-clip';
 import { IPropertyCurveData } from './animation-curve';
 import { ComponentModifier, HierachyModifier, isCustomTargetModifier, isPropertyModifier } from './target-modifier';

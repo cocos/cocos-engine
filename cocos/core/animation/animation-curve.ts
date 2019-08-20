@@ -2,11 +2,11 @@
  * @category animation
  */
 
-import { ccclass } from '../core/data/class-decorator';
-import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
-import { errorID } from '../core/platform/debug';
-import { lerp, Quat } from '../core/math';
-import { ValueType } from '../core/value-types';
+import { ccclass } from '../data/class-decorator';
+import { binarySearchEpsilon as binarySearch } from '../data/utils/binary-search';
+import { errorID } from '../platform/debug';
+import { lerp, Quat } from '../math';
+import { ValueType } from '../value-types';
 import { bezierByTime, BezierControlPoints } from './bezier';
 import * as easing from './easing';
 import { ILerpable, isLerpable } from './types';

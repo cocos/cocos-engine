@@ -37,6 +37,7 @@ import { genSamplerHash, samplerLib } from '../core/sampler-lib';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 import { IJointsTextureHandle } from './joints-texture-utils';
+import { SkeletalAnimationClip } from '../../animation/skeletal-animation-clip';
 
 export interface IJointsAnimInfo {
     buffer: GFXBuffer;
@@ -92,7 +93,7 @@ interface IJointsInfo {
 
 export class SkinningModel extends Model {
 
-    public uploadedAnim: any = null;
+    public uploadedAnim: SkeletalAnimationClip | null = null;
 
     private _jointsMedium: IJointsInfo;
     private _skeleton: Skeleton | null = null;
@@ -132,7 +133,7 @@ export class SkinningModel extends Model {
         this.uploadAnimation(this.uploadedAnim);
     }
 
-    public uploadAnimation (anim: any) {
+    public uploadAnimation (anim: SkeletalAnimationClip | null) {
         if (!this._skeleton) { return; }
         this.uploadedAnim = anim;
         const texture = this.uploadedAnim ?

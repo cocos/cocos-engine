@@ -2,16 +2,16 @@
  * @category animation
  */
 
-import { ccclass } from '../core/data/class-decorator';
-import { errorID } from '../core/platform/debug';
-import { MutableForwardIterator, remove } from '../core/utils/array';
-import { Node } from '../core/scene-graph';
+import { ccclass } from '../data/class-decorator';
+import { errorID } from '../platform/debug';
+import { MutableForwardIterator, remove } from '../utils/array';
+import { Node } from '../scene-graph';
 import { AnimationBlendState } from './animation-blend-state';
 import { AnimationState } from './animation-state';
 import { CrossFade } from './cross-fade';
-import { Director } from '../core/director';
-import { Scheduler } from '../core/scheduler';
-import System from '../core/components/system';
+import { Director } from '../director';
+import { Scheduler } from '../scheduler';
+import System from '../components/system';
 
 const director = Director.instance;
 
