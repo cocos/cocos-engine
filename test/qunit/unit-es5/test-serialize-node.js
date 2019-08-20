@@ -22,8 +22,6 @@ if (TestEditorExtends) {
     var compareKeys = [
         '_localZOrder',
         '_globalZOrder',
-        '_rotationX',
-        '_rotationY',
         '_scale',
         '_position',
         '_skewX',
@@ -41,8 +39,6 @@ if (TestEditorExtends) {
         return {
             '_localZOrder' : getRandomInt(),
             '_globalZOrder' : getRandomInt(),
-            '_rotationX' : getRandomDouble(),
-            '_rotationY' : getRandomDouble(),
             '_scaleX' : 1.5,
             '_scaleY' : 1.5,
             '_position' : cc.v3(getRandomDouble(), getRandomDouble(), 0),
@@ -63,8 +59,6 @@ if (TestEditorExtends) {
 
         ret._localZOrder = getRandomInt();
         ret._globalZOrder = getRandomInt();
-        ret._rotationX = getRandomDouble();
-        ret._rotationY = getRandomDouble();
         ret._scale.x = 1.5;
         ret._scale.y = 1.5;
         ret._position = cc.v2(getRandomDouble(), getRandomDouble());
