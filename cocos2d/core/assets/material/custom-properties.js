@@ -1,6 +1,5 @@
 import murmurhash2 from '../../../renderer/murmurhash2_gc';
 import utils from './utils';
-import enums from '../../../renderer/enums';
 
 export default class CustomProperties {
     constructor () {
