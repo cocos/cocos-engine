@@ -31,8 +31,7 @@
 import { EventHandler as ComponentEventHandler } from '../../../components';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { Event } from '../../../core/event';
-import { EventMouse, EventTouch, SystemEventType } from '../../../core/platform';
-import Touch from '../../../core/platform/event-manager/CCTouch';
+import { EventMouse, EventTouch, SystemEventType, Touch } from '../../../core/platform';
 import { Size, Vec2, Vec3 } from '../../../core/math';
 import { ccenum } from '../../../core/value-types/enum';
 import { LayoutComponent } from './layout-component';

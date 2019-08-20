@@ -34,6 +34,7 @@ import { SystemEventType } from './event-enum';
 import { EventListener } from './event-listener';
 import eventManager from './event-manager';
 import inputManager from './input-manager';
+import { Touch } from './CCTouch';
 
 /**
  * @en
@@ -98,13 +99,13 @@ export class SystemEvent extends EventTarget {
         inputManager.setAccelerometerInterval(interval);
     }
 
-    public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback: (event: EventKeyboard) => void, target?: Object);
+    public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback: (event?: EventKeyboard) => void, target?: Object);
     public on (type: SystemEventType.MOUSE_DOWN | SystemEventType.MOUSE_ENTER | SystemEventType.MOUSE_LEAVE |
                      SystemEventType.MOUSE_MOVE | SystemEventType.MOUSE_UP | SystemEventType.MOUSE_WHEEL ,
-               callback: (event: EventMouse) => void, target?: Object);
+               callback: (event?: EventMouse) => void, target?: Object);
     public on (type: SystemEventType.TOUCH_START | SystemEventType.TOUCH_MOVE | SystemEventType.TOUCH_END | SystemEventType.TOUCH_CANCEL,
-               callback: (event: EventTouch) => void, target?: Object);
-    public on (type: SystemEventType.DEVICEMOTION, callback: (event: EventAcceleration) => void, target?: Object);
+               callback: (touch?: Touch, event?: EventTouch) => void, target?: Object);
+    public on (type: SystemEventType.DEVICEMOTION, callback: (event?: EventAcceleration) => void, target?: Object);
     /**
      * @zh
      * 系统事件注册。
@@ -124,17 +125,15 @@ export class SystemEvent extends EventTarget {
             if (!keyboardListener) {
                 keyboardListener = EventListener.create({
                     event: EventListener.KEYBOARD,
-                    onKeyPressed (keyCode, event) {
+                    onKeyPressed (keyCode: number, event: EventKeyboard) {
                         event.type = SystemEventType.KEY_DOWN;
                         systemEvent.emit(event.type, event);
                     },
-                    onKeyReleased (keyCode, event) {
+                    onKeyReleased (keyCode: number, event: EventKeyboard) {
                         event.type = SystemEventType.KEY_UP;
                         systemEvent.emit(event.type, event);
                     },
                 });
-            }
-            if (!eventManager.hasEventListener(EventListener.ListenerID.KEYBOARD)) {
                 eventManager.addListener(keyboardListener, 256);
             }
         }
@@ -144,13 +143,11 @@ export class SystemEvent extends EventTarget {
             if (!accelerationListener) {
                 accelerationListener = EventListener.create({
                     event: EventListener.ACCELERATION,
-                    callback (acc, event) {
+                    callback (acc: Object, event: EventAcceleration) {
                         event.type = SystemEventType.DEVICEMOTION;
                         cc.systemEvent.emit(event.type, event);
                     },
                 });
-            }
-            if (!eventManager.hasEventListener(EventListener.ListenerID.ACCELERATION)) {
                 eventManager.addListener(accelerationListener!, 256);
             }
         }
@@ -164,20 +161,20 @@ export class SystemEvent extends EventTarget {
             if (!touchListener) {
                 touchListener = EventListener.create({
                     event: EventListener.TOUCH_ONE_BY_ONE,
-                    onTouchBegan (touch, event) {
+                    onTouchBegan (touch: Touch, event: EventTouch) {
                         event.type = SystemEventType.TOUCH_START;
                         cc.systemEvent.emit(event.type, touch, event);
                         return true;
                     },
-                    onTouchMoved (touch, event) {
+                    onTouchMoved (touch: Touch, event: EventTouch) {
                         event.type = SystemEventType.TOUCH_MOVE;
                         cc.systemEvent.emit(event.type, touch, event);
                     },
-                    onTouchEnded (touch, event) {
+                    onTouchEnded (touch: Touch, event: EventTouch) {
                         event.type = SystemEventType.TOUCH_END;
                         cc.systemEvent.emit(event.type, touch, event);
                     },
-                    onTouchCancelled (touch, event) {
+                    onTouchCancelled (touch: Touch, event: EventTouch) {
                         event.type = SystemEventType.TOUCH_CANCEL;
                         cc.systemEvent.emit(event.type, touch, event);
                     },
@@ -195,19 +192,19 @@ export class SystemEvent extends EventTarget {
             if (!mouseListener) {
                 mouseListener = EventListener.create({
                     event: EventListener.MOUSE,
-                    onMouseDown (event) {
+                    onMouseDown (event: EventMouse) {
                         event.type = SystemEventType.MOUSE_DOWN;
                         cc.systemEvent.emit(event.type, event);
                     },
-                    onMouseMove (event) {
+                    onMouseMove (event:EventMouse) {
                         event.type = SystemEventType.MOUSE_MOVE;
                         cc.systemEvent.emit(event.type, event);
                     },
-                    onMouseUp (event) {
+                    onMouseUp (event: EventMouse) {
                         event.type = SystemEventType.MOUSE_UP;
                         cc.systemEvent.emit(event.type, event);
                     },
-                    onMouseScroll (event) {
+                    onMouseScroll (event: EventMouse) {
                         event.type = SystemEventType.MOUSE_WHEEL;
                         cc.systemEvent.emit(event.type, event);
                     },
@@ -239,12 +236,40 @@ export class SystemEvent extends EventTarget {
             const hasKeyUpEventListener = this.hasEventListener(SystemEventType.KEY_UP);
             if (!hasKeyDownEventListener && !hasKeyUpEventListener) {
                 eventManager.removeListener(keyboardListener);
+                keyboardListener = null;
             }
         }
 
         // Acceleration
         if (accelerationListener && type === SystemEventType.DEVICEMOTION) {
             eventManager.removeListener(accelerationListener);
+            accelerationListener = null;
+        }
+
+        if (touchListener && (type === SystemEventType.TOUCH_START || type === SystemEventType.TOUCH_MOVE ||
+            type === SystemEventType.TOUCH_END || type === SystemEventType.TOUCH_CANCEL)
+        ) {
+            const hasTouchStart = this.hasEventListener(SystemEventType.TOUCH_START);
+            const hasTouchMove = this.hasEventListener(SystemEventType.TOUCH_MOVE);
+            const hasTouchEnd = this.hasEventListener(SystemEventType.TOUCH_END);
+            const hasTouchCancel = this.hasEventListener(SystemEventType.TOUCH_CANCEL);
+            if(!hasTouchStart && !hasTouchMove && !hasTouchEnd && !hasTouchCancel){
+                eventManager.removeListener(touchListener);
+                touchListener = null;
+            }
+        }
+
+        if (mouseListener && (type === SystemEventType.MOUSE_DOWN || type === SystemEventType.MOUSE_MOVE ||
+            type === SystemEventType.MOUSE_UP || type === SystemEventType.MOUSE_WHEEL)
+        ) {
+            const hasMouseDown = this.hasEventListener(SystemEventType.MOUSE_DOWN);
+            const hasMouseMove = this.hasEventListener(SystemEventType.MOUSE_MOVE);
+            const hasMouseUp = this.hasEventListener(SystemEventType.MOUSE_UP);
+            const hasMouseWheel = this.hasEventListener(SystemEventType.MOUSE_WHEEL);
+            if (!hasMouseDown && !hasMouseMove && !hasMouseUp && !hasMouseWheel) {
+                eventManager.removeListener(mouseListener);
+                mouseListener = null;
+            }
         }
     }
 }
