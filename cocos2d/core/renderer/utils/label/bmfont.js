@@ -29,6 +29,7 @@ const Label = require('../../../components/CCLabel');
 const Overflow = Label.Overflow;
 
 const textUtils = require('../../../utils/text-utils');
+const packToDynamicAtlas = require('../utils').packToDynamicAtlas;
 
 let FontLetterDefinition = function() {
     this._u = 0;
@@ -222,6 +223,8 @@ module.exports = {
         if (_comp === comp) return;
 
         _comp = comp;
+
+        packToDynamicAtlas(comp, comp._frame);
         
         this._updateProperties();
         this._updateContent();
