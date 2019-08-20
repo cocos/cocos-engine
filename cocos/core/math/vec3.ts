@@ -404,6 +404,17 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @zh 向量仿射变换
+     */
+    public static transformAffine<Out extends IVec3Like, VecLike extends IVec3Like, MatLike extends IMat4Like>
+        (out: Out, v: VecLike, m: MatLike) {
+        out.x = v.x * m.m00 + v.y * m.m01 + v.z * m.m02 + m.m03;
+        out.y = v.x * m.m04 + v.y * m.m05 + v.z * m.m06 + m.m07;
+        out.x = v.x * m.m08 + v.y * m.m09 + v.z * m.m10 + m.m11;
+        return out;
+    }
+
+    /**
      * @zh 向量四元数乘法
      */
     public static transformQuat<Out extends IVec3Like, VecLike extends IVec3Like, QuatLike extends IQuatLike> (out: Out, a: VecLike, q: QuatLike) {
