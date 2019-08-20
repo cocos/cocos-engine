@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { replaceProperty } from '../../deprecated';
+import { replaceProperty } from '../utils/deprecated';
 import line from './line';
 
 

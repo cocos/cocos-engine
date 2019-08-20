@@ -2,8 +2,8 @@
  * @hidden
  */
 
-import { replaceProperty } from './deprecated';
-import { math } from './core';
+import { replaceProperty } from './utils/deprecated';
+import { math } from './';
 
 const vmath = {};
 replaceProperty(vmath,'vmath',[

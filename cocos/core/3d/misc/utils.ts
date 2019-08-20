@@ -1,13 +1,13 @@
 import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXFormatType, GFXPrimitiveMode, IGFXFormatInfo } from '../../gfx/define';
 export { find } from '../../scene-graph/find';
-import { Mat4, Vec3 } from '../../core/math';
-import { INode } from '../../core/utils/interfaces';
+import { Mat4, Vec3 } from '../../math';
+import { INode } from '../../utils/interfaces';
 import { IGFXAttribute } from '../../gfx/input-assembler';
-import { IMeshStruct, IPrimitive, IVertexBundle, Mesh } from '../assets/mesh';
-import { Skeleton } from '../assets/skeleton';
+import { IMeshStruct, IPrimitive, IVertexBundle, Mesh } from '../../assets/mesh';
+import { Skeleton } from '../../assets/skeleton';
 import { SkinningModelComponent } from '../framework';
-import { aabb } from '../geom-utils';
-import { IGeometry } from '../primitive/define';
+import { aabb } from '../../geom-utils';
+import { IGeometry } from '../../primitive/define';
 import { BufferBlob } from './buffer-blob';
 import { JointsAnimationInfo } from '../../renderer/models/skinning-model';
 

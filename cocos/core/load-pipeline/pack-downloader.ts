@@ -31,7 +31,7 @@
 import {pushToMap} from '../utils/misc';
 import {TextureUnpacker, JsonUnpacker} from './unpackers';
 import { decompressJson } from './utils';
-import { errorID } from '../platform/CCDebug';
+import { errorID } from '../platform/debug';
 import { js } from '../utils';
 import { Texture2D, AssetLibrary } from '../assets';
 

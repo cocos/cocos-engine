@@ -2,7 +2,7 @@
  * @category animation
  */
 
-import { getError } from '../core/platform/CCDebug';
+import { getError } from '../core/platform/debug';
 
 export class Playable {
 

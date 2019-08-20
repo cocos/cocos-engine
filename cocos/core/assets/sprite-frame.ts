@@ -30,10 +30,10 @@
  * @category asset
  */
 
-import { ccclass } from '../core/data/class-decorator';
-import { Rect, Size, Vec2 } from '../core/math';
+import { ccclass } from '../data/class-decorator';
+import { Rect, Size, Vec2 } from '../math';
 import { ImageAsset } from './image-asset';
-import { murmurhash2_32_gc } from '../core/utils/murmurhash2_gc';
+import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { TextureBase } from './texture-base';
 import { Asset } from './asset';
 import { Texture2D } from './texture-2d';

@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { error, errorID, warn, warnID } from '../../platform/CCDebug';
+import { error, errorID, warn, warnID } from '../../platform/debug';
 import * as js from '../../utils/js';
 import { PrimitiveType } from './attribute';
 

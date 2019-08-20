@@ -28,17 +28,17 @@
 
 import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { Texture2D } from '../../assets/texture-2d';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
-import { CCInteger, CCString } from '../../core/data/utils/attribute';
-import { Mat4, Vec2 } from '../../core/math';
+import { ccclass, executeInEditMode, executionOrder, property } from '../../data/class-decorator';
+import { CCInteger, CCString } from '../../data/utils/attribute';
+import { Mat4, Vec2 } from '../../math';
 import { GFXFormat } from '../../gfx/define';
 import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
-import { Mesh } from '../assets/mesh';
-import { Skeleton } from '../assets/skeleton';
+import { Mesh } from '../../assets/mesh';
+import { Skeleton } from '../../assets/skeleton';
 import { LCA, mapBuffer } from '../misc/utils';
 import { SkinningModelComponent } from './skinning-model-component';
-import { INode } from '../../core/utils/interfaces';
+import { INode } from '../../utils/interfaces';
 import { Node } from '../../scene-graph/node';
 
 const _vec2 = new Vec2();

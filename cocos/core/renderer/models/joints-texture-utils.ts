@@ -27,9 +27,8 @@
  * @hidden
  */
 
-import { Skeleton } from '../../3d/assets/skeleton';
-import { SkeletalAnimationClip } from '../../animation';
-import { Mat4, Quat, Vec3 } from '../../core/math';
+import { Skeleton } from '../../assets/skeleton';
+import { Mat4, Quat, Vec3 } from '../../math';
 import { GFXFormat, GFXFormatInfos } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { ITextureBufferHandle, TextureBufferPool } from '../core/texture-buffer-pool';
@@ -165,7 +164,7 @@ export class JointsTexturePool {
     /**
      * 获取指定动画片段的骨骼贴图
      */
-    public getJointsTextureWithAnimation (skeleton: Skeleton, clip: SkeletalAnimationClip) {
+    public getJointsTextureWithAnimation (skeleton: Skeleton, clip) {
         const hash = skeleton.hash ^ clip.hash;
         let texture: IJointsTextureHandle | null = this._textureBuffers.get(hash) || null;
         if (texture) { texture.refCount++; return texture; }

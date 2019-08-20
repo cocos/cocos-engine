@@ -27,7 +27,7 @@
  * @category material
  */
 
-import { IBuiltinInfo, IDefineInfo, IShaderInfo } from '../../3d/assets/effect-asset';
+import { IBuiltinInfo, IDefineInfo, IShaderInfo } from '../../assets/effect-asset';
 import { GFXBindingType, GFXShaderType } from '../../gfx/define';
 import { GFXAPI, GFXDevice } from '../../gfx/device';
 import { GFXShader } from '../../gfx/shader';

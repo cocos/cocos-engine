@@ -27,9 +27,9 @@
  * @category scene-graph
  */
 
-import { CCObject } from '../core/data/object';
-import { array, Pool } from '../core/utils/js';
-import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
+import { CCObject } from '../data/object';
+import { array, Pool } from '../utils/js';
+import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import ComponentScheduler from './component-scheduler';
 
 const MAX_POOL_SIZE = 4;

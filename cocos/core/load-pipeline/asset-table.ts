@@ -30,7 +30,7 @@
 import {pushToMap} from '../utils/misc';
 import {createMap, isChildClassOf} from '../utils/js';
 import url from './url';
-import { errorID } from '../platform/CCDebug';
+import { errorID } from '../platform/debug';
 import { extname } from '../utils/path';
 import { SpriteFrame, SpriteAtlas } from '../assets';
 

@@ -2,14 +2,14 @@
  * @hidden
  */
 
-import { IRenderingSubmesh } from '../../3d/assets/mesh';
-import CurveRange from '../../3d/framework/particle/animator/curve-range';
+import { IRenderingSubmesh } from '../../core/assets/mesh';
+import CurveRange from '../animator/curve-range';
 import { Vec3 } from '../../core/math';
-import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../gfx/define';
-import { Model } from '../scene/model';
-import { RenderScene } from '../scene/render-scene';
-import GradientRange from '../../3d/framework/particle/animator/gradient-range';
-import { GFX_DRAW_INFO_SIZE, IGFXIndirectBuffer, GFXBuffer } from '../../gfx/buffer';
+import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
+import { Model } from '../../core/renderer/scene/model';
+import { RenderScene } from '../../core/renderer/scene/render-scene';
+import GradientRange from '../animator/gradient-range';
+import { GFX_DRAW_INFO_SIZE, IGFXIndirectBuffer, GFXBuffer } from '../../core/gfx/buffer';
 import { INode } from '../../core/utils/interfaces';
 
 const _vertex_attrs = [
@@ -19,8 +19,8 @@ const _vertex_attrs = [
     { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },
 ];
 
-const _temp_v1 = cc.v3();
-const _temp_v2 = cc.v3();
+const _temp_v1 = new Vec3();
+const _temp_v2 = new Vec3();
 
 export class LineModel extends Model {
 

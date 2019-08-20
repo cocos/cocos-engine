@@ -27,15 +27,15 @@
  * @category material
  */
 
-import { Asset } from '../../assets/asset';
+import { Asset } from './asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Root } from '../../core/root';
-import { GFXDynamicState, GFXPrimitiveMode } from '../../gfx/define';
-import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
-import { GFXUniformBlock, GFXUniformSampler } from '../../gfx/shader';
-import { RenderPassStage } from '../../pipeline/define';
-import { IDefineMap } from '../../renderer/core/pass';
-import { programLib } from '../../renderer/core/program-lib';
+import { GFXDynamicState, GFXPrimitiveMode } from '../gfx/define';
+import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../gfx/pipeline-state';
+import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
+import { RenderPassStage } from '../pipeline/define';
+import { IDefineMap } from '../renderer/core/pass';
+import { programLib } from '../renderer/core/program-lib';
 
 export interface IPropertyInfo {
     type: number; // auto-extracted

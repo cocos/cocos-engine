@@ -5,7 +5,7 @@
 
 import { Asset, SpriteFrame } from '../core/assets';
 import { ccclass, property } from '../core/data/class-decorator';
-import { errorID } from '../core/platform/CCDebug';
+import { errorID } from '../core/platform/debug';
 import binarySearchEpsilon from '../core/utils/binary-search';
 import { AnimCurve, IPropertyCurveData, RatioSampler, CurveValueAdapter } from './animation-curve';
 import { WrapMode as AnimationWrapMode } from './types';

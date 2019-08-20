@@ -4,10 +4,9 @@
 
 // @ts-check
 import { Component } from '../../components/component';
-import { _decorator } from '../../core/data/index';
-import { Model } from '../../renderer';
-import { VisibilityFlags } from '../../renderer/scene/model';
-import { Material } from '../assets/material';
+import { _decorator } from '../../data/index';
+import { Model, VisibilityFlags } from '../../renderer/scene/model';
+import { Material } from '../../assets/material';
 const { ccclass, property } = _decorator;
 
 @ccclass('cc.RenderableComponent')

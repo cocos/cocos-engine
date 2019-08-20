@@ -27,18 +27,10 @@
  * @hidden
  */
 
-export * from './assets';
 export * from './builtin';
 export * from './framework';
-// export * from '../memop';
-import * as geometry from './geom-utils';
 import * as utils from './misc/utils';
-// export * from '../ui';
 
 export {
     utils,
-    geometry,
 };
-
-cc.geometry = geometry;
-cc.utils = utils;

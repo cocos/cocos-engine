@@ -32,3 +32,4 @@ export { EventHandler } from './component-event-handler';
 export { default as MissingScript } from './missing-script';
 export { BlockInputEventsComponent } from './block-input-events-component';
 export { default as System } from './system';
+export * from './ui-base';

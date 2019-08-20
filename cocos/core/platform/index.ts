@@ -24,11 +24,11 @@
  THE SOFTWARE.
 */
 
-export * from './CCSys';
-export * from './CCMacro';
-export * from './CCVisibleRect';
-export * from './CCView';
+export * from './sys';
+export * from './macro';
+export * from './visible-rect';
+export * from './view';
 export * from './event-manager';
 
-import { screen } from './CCScreen';
+import { screen } from './screen';
 export { screen };

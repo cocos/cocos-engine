@@ -27,11 +27,11 @@
  * @category material
  */
 
-import { EffectAsset, IPassInfo, IPassStates, IPropertyInfo, IShaderInfo } from '../../3d/assets/effect-asset';
+import { EffectAsset, IPassInfo, IPassStates, IPropertyInfo, IShaderInfo } from '../../assets/effect-asset';
 import { builtinResMgr } from '../../3d/builtin';
 import { TextureBase } from '../../assets/texture-base';
-import { Mat3, Mat4, Vec2, Vec3, Vec4 } from '../../core/math';
-import { Root } from '../../core/root';
+import { Mat3, Mat4, Vec2, Vec3, Vec4 } from '../../math';
+import { Root } from '../../root';
 import { GFXBindingLayout, IGFXBinding } from '../../gfx/binding-layout';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXDynamicState,

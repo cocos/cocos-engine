@@ -28,7 +28,7 @@
  * @category asset
  */
 
-import { assertID, error } from '../core/platform/CCDebug';
+import { assertID, error } from '../platform/debug';
 import { LoadCallbackParams, loader } from '../load-pipeline';
 import { ImageAsset, ImageSource } from './image-asset';
 

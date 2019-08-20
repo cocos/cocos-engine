@@ -2,8 +2,8 @@
  * @hidden
  */
 
-import * as debug from './core/platform/CCDebug';
-import { _normalize, basename, changeBasename, changeExtname, dirname, extname, getSeperator, join, mainFileName, stripSep } from './core/utils/path';
+import * as debug from './platform/debug';
+import { _normalize, basename, changeBasename, changeExtname, dirname, extname, getSeperator, join, mainFileName, stripSep } from './utils/path';
 // import Pipeline from './load-pipeline/pipeline';
 // import Url from './load-pipeline/url';
 

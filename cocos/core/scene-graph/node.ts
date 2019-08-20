@@ -27,13 +27,13 @@
  * @category scene-graph
  */
 
-import { UIComponent, UITransformComponent } from '../3d/ui/components';
-import { ccclass, property } from '../core/data/class-decorator';
-import Event from '../core/event/event';
-import { Mat3, Mat4, Quat, Size, Vec2, Vec3 } from '../core/math';
-import { eventManager } from '../core/platform/event-manager';
-import { SystemEventType } from '../core/platform/event-manager/event-enum';
-import { INode } from '../core/utils/interfaces';
+import { UIComponent, UITransformComponent } from '../components/ui-base';
+import { ccclass, property } from '../data/class-decorator';
+import Event from '../event/event';
+import { Mat3, Mat4, Quat, Size, Vec2, Vec3 } from '../math';
+import { eventManager } from '../platform/event-manager';
+import { SystemEventType } from '../platform/event-manager/event-enum';
+import { INode } from '../utils/interfaces';
 import { BaseNode } from './base-node';
 import { Layers } from './layers';
 import { NodeSpace, TransformDirtyBit } from './node-enum';

@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { replaceProperty } from '../deprecated';
+import { replaceProperty } from '../core/utils/deprecated';
 import { AnimationComponent } from './animation-component';
 import { AnimationClip } from './animation-clip';
 

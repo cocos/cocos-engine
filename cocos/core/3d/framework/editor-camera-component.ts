@@ -2,8 +2,8 @@
  * @hidden
  */
 
-import { ccclass } from '../../core/data/class-decorator';
-import { Color, toRadian } from '../../core/math';
+import { ccclass } from '../../data/class-decorator';
+import { Color, toRadian } from '../../math';
 import { Camera } from '../../renderer';
 import { CameraComponent } from './camera-component';
 import { CameraVisFlags } from '../../renderer/scene/camera';

@@ -15,9 +15,6 @@ export { samplerLib };
 export { Light } from './scene/light';
 export { Camera } from './scene/camera';
 export { Model } from './scene/model';
-export * from './terrain/height-field';
-export * from './terrain/terrain';
 
-export { default as ParticleBatchModel } from './models/particle-batch-model';
 export { SkinningModel } from './models/skinning-model';
 export * from './models/joints-texture-utils';

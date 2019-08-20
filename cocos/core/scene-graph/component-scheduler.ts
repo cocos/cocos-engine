@@ -27,10 +27,10 @@
  * @category scene-graph
  */
 
-import { CCObject } from '../core/data/object';
-import { MutableForwardIterator } from '../core/utils/array';
-import { array } from '../core/utils/js';
-import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
+import { CCObject } from '../data/object';
+import { MutableForwardIterator } from '../utils/array';
+import { array } from '../utils/js';
+import { tryCatchFunctor_EDITOR } from '../utils/misc';
 const fastRemoveAt = array.fastRemoveAt;
 
 // @ts-ignore

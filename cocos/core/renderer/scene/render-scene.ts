@@ -1,9 +1,9 @@
-import { IBArray } from '../../3d/assets/mesh';
-import { aabb, intersect, ray, triangle } from '../../3d/geom-utils';
-import { RecyclePool } from '../../3d/memop';
-import { Mat4, Vec3 } from '../../core/math';
-import { Root } from '../../core/root';
-import { INode } from '../../core/utils/interfaces';
+import { IBArray } from '../../assets/mesh';
+import { aabb, intersect, ray, triangle } from '../../geom-utils';
+import { RecyclePool } from '../../memop';
+import { Mat4, Vec3 } from '../../math';
+import { Root } from '../../root';
+import { INode } from '../../utils/interfaces';
 import { GFXPrimitiveMode } from '../../gfx/define';
 import { Layers } from '../../scene-graph/layers';
 import { Node } from '../../scene-graph/node';

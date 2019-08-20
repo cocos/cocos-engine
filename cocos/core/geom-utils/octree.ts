@@ -2,7 +2,7 @@
  * @category gemotry-utils
  */
 
-import { Vec3 } from '../../core/math';
+import { Vec3 } from '../math';
 import { FixedArray } from '../memop';
 import aabb from './aabb';
 import intersect from './intersect';

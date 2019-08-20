@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 const math = require('../../cocos2d/core/renderer/render-engine').math;
-const BlendFactor = require('../../cocos2d/core/platform/CCMacro');
+const BlendFactor = require('../../cocos2d/core/platform/macro');
 const BinaryOffset = dragonBones.BinaryOffset;
 const BoneType  = dragonBones.BoneType;
 

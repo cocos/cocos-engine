@@ -2,8 +2,8 @@
  * @hidden
  */
 
-import { frustum, intersect } from '../3d/geom-utils';
-import { Mat4, Vec3 } from '../core/math';
+import { frustum, intersect } from '../geom-utils';
+import { Mat4, Vec3, Quat } from '../math';
 import { Camera, Light, Model } from '../renderer';
 import { DirectionalLight } from '../renderer/scene/directional-light';
 import { SphereLight } from '../renderer/scene/sphere-light';
@@ -47,15 +47,15 @@ export const cullSceneWithDirectionalLight = (() => {
 })();
 
 export const calcDirectionalLightCullFrustum = (() => {
-    const lightPos = cc.v3();
-    const lightViewCenter = cc.v3();
-    const lightRot = cc.quat();
+    const lightPos = new Vec3();
+    const lightViewCenter = new Vec3();
+    const lightRot = new Quat();
     const camFrustum = new frustum();
     camFrustum.accurate = true;
-    const lightViewMat = cc.mat4();
-    const lightVeiwMatInv = cc.mat4();
-    const minBoxCorner = cc.v3();
-    const maxBoxCorner = cc.v3();
+    const lightViewMat = new Mat4();
+    const lightVeiwMatInv = new Mat4();
+    const minBoxCorner = new Vec3();
+    const maxBoxCorner = new Vec3();
     return (out: frustum, sceneCamera: Camera, light: DirectionalLight, near: number, far: number, nearBias: number) => {
         Mat4.fromRT(lightViewMat, light.node.getWorldRotation(lightRot), sceneCamera.node.getWorldPosition(lightPos));
         Mat4.invert(lightVeiwMatInv, lightViewMat);

@@ -28,14 +28,14 @@
  * @category asset
  */
 
-import { ccclass, property } from '../core/data/class-decorator';
-import { Event } from '../core/event';
-import { CallbacksInvoker } from '../core/event/callbacks-invoker';
-import { EventTarget } from '../core/event/event-target';
-import { applyMixins, IEventTarget } from '../core/event/event-target-factory';
-import { createMap } from '../core/utils/js-typed';
-import { Node } from '../scene-graph';
+import { ccclass, property } from '../data/class-decorator';
+import { Event } from '../event';
+import { CallbacksInvoker } from '../event/callbacks-invoker';
+import { EventTarget } from '../event/event-target';
+import { applyMixins, IEventTarget } from '../event/event-target-factory';
+import { createMap } from '../utils/js-typed';
 import { RawAsset } from './raw-asset';
+import { INode } from '../utils/interfaces';
 
 /**
  * @en
@@ -271,7 +271,7 @@ applyMixins(Asset, [CallbacksInvoker, EventTarget]);
  * @param error - null or the error info
  * @param node - the created node or null
  */
-type CreateNodeCallback = (error: Error | null, node: Node) => void;
+type CreateNodeCallback = (error: Error | null, node: INode) => void;
 
 // @ts-ignore
 Asset.prototype.createNode = null;

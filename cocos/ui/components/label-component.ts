@@ -36,8 +36,8 @@ import { FontAtlas } from '../assembler/label/bmfontUtils';
 import { CanvasPool, ISharedLabelData } from '../assembler/label/font-utils';
 import { LetterRenderTexture } from '../assembler/label/letter-font';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-import { warnID } from '../../core/platform/CCDebug';
-import sys from '../../core/platform/CCSys';
+import { warnID } from '../../core/platform/debug';
+import sys from '../../core/platform/sys';
 
 /**
  * @zh

@@ -1,10 +1,6 @@
-import { Asset } from '../../assets/asset';
-import { ImageAsset } from '../../assets/image-asset';
-import { SpriteFrame } from '../../assets/sprite-frame';
-import { Texture2D } from '../../assets/texture-2d';
+import { Asset, ImageAsset, SpriteFrame, Texture2D, TextureCube } from '../../assets/';
 import { GFXDevice } from '../../gfx/device';
 import { selectJointsMediumType } from '../../renderer/models/joints-texture-utils';
-import { TextureCube } from '../assets/texture-cube';
 import effects from './effects';
 
 class BuiltinResMgr {

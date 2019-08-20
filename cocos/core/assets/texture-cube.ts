@@ -28,12 +28,12 @@
  */
 
 // @ts-check
-import { Texture2D, TrivialTexture } from '../../assets';
-import { ImageAsset } from '../../assets/image-asset';
-import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo } from '../../assets/simple-texture';
-import { ITexture2DCreateInfo } from '../../assets/texture-2d';
+import { Texture2D, ImageAsset } from '../assets';
+import { SimpleTexture as TrivialTexture } from '../assets/simple-texture';
+import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo } from '../assets/simple-texture';
+import { ITexture2DCreateInfo } from '../assets/texture-2d';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { GFXTextureFlagBit, GFXTextureType, GFXTextureViewType } from '../../gfx/define';
+import { GFXTextureFlagBit, GFXTextureType, GFXTextureViewType } from '../gfx/define';
 
 export type ITextureCubeCreateInfo = ITexture2DCreateInfo;
 

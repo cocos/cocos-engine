@@ -1,8 +1,8 @@
-import { Material } from '../../3d/assets/material';
-import { TextureCube } from '../../3d/assets/texture-cube';
+import { Material } from '../../assets/material';
+import { TextureCube } from '../../assets/texture-cube';
 import { builtinResMgr } from '../../3d/builtin';
 import { createMesh } from '../../3d/misc/utils';
-import { box } from '../../3d/primitive';
+import { box } from '../../primitive';
 import { IInternalBindingInst, UNIFORM_ENVIRONMENT } from '../../pipeline/define';
 import { samplerLib } from '../core/sampler-lib';
 import { Model } from './model';

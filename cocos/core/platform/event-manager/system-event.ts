@@ -29,7 +29,7 @@
  */
 
 import { EventTarget } from '../../event/event-target';
-import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './CCEvent';
+import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './events';
 import { SystemEventType } from './event-enum';
 import { EventListener } from './event-listener';
 import eventManager from './event-manager';

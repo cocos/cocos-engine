@@ -4,7 +4,7 @@
 
 import { ccclass } from '../core/data/class-decorator';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
-import { errorID } from '../core/platform/CCDebug';
+import { errorID } from '../core/platform/debug';
 import { lerp, Quat } from '../core/math';
 import { ValueType } from '../core/value-types';
 import { bezierByTime, BezierControlPoints } from './bezier';

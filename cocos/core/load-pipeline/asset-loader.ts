@@ -28,7 +28,7 @@
  */
 
 import {extname} from '../utils/path';
-import * as debug from '../platform/CCDebug';
+import * as debug from '../platform/debug';
 import { Pipeline, IPipe } from './pipeline';
 import { LoadingItems } from './loading-items';
 

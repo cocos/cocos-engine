@@ -33,7 +33,7 @@ import { UI } from '../../../core/renderer/ui/ui';
 import { SpriteComponent } from '../../components';
 import { IAssembler } from '../../../core/renderer/ui/base';
 import { fillVerticesWithoutCalc3D } from '../utils';
-import { errorID } from '../../../core/platform/CCDebug';
+import { errorID } from '../../../core/platform/debug';
 
 const FillType = SpriteComponent.FillType;
 const matrix = new Mat4();

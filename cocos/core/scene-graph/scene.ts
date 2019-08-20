@@ -27,7 +27,7 @@
  * @category scene-graph
  */
 
-import { ccclass, property } from '../core/data/class-decorator';
+import { ccclass, property } from '../data/class-decorator';
 import { RenderScene } from '../renderer/scene/render-scene';
 import { BaseNode } from './base-node';
 import { Node } from './node';

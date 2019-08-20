@@ -27,8 +27,8 @@
  * @category loader
  */
 
-import sys from '../core/platform/CCSys';
-import { log, getError } from '../core/platform/CCDebug';
+import sys from '../core/platform/sys';
+import { log, getError } from '../core/platform/debug';
 import { AudioClip, AudioType } from './assets/clip';
 import { loader } from '../core/load-pipeline';
 

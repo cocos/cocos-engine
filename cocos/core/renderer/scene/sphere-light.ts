@@ -1,8 +1,8 @@
-import { aabb } from '../../3d/geom-utils';
-import { Vec3 } from '../../core/math';
+import { aabb } from '../../geom-utils';
+import { Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
 import { RenderScene } from './render-scene';
-import { INode } from '../../core/utils/interfaces';
+import { INode } from '../../utils/interfaces';
 
 export class SphereLight extends Light {
 

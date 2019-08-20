@@ -1,6 +1,6 @@
-import { frustum, ray } from '../../3d/geom-utils';
-import { lerp, Mat4, Rect, toRadian, Vec3 } from '../../core/math';
-import { INode } from '../../core/utils/interfaces';
+import { frustum, ray } from '../../geom-utils';
+import { lerp, Mat4, Rect, toRadian, Vec3 } from '../../math';
+import { INode } from '../../utils/interfaces';
 import { GFXClearFlag, IGFXColor } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
 import { RenderView } from '../../pipeline/render-view';

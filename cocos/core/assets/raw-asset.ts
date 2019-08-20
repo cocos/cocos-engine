@@ -28,9 +28,9 @@
  * @hidden
  */
 
-import { ccclass } from '../core/data/class-decorator';
-import { CCObject } from '../core/data/object';
-import { isChildClassOf } from '../core/utils/js';
+import { ccclass } from '../data/class-decorator';
+import { CCObject } from '../data/object';
+import { isChildClassOf } from '../utils/js';
 
 /**
  * 原生资源的基类。内部使用。

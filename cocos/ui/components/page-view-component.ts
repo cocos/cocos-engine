@@ -37,7 +37,7 @@ import { PageViewIndicatorComponent } from './page-view-indicator-component';
 import { ScrollViewComponent } from './scroll-view-component';
 import { ScrollBarComponent } from './scroll-bar-component';
 import { INode } from '../../core/utils/interfaces';
-import { warnID } from '../../core/platform/CCDebug';
+import { warnID } from '../../core/platform/debug';
 
 const _temp_vec2 = new Vec2();
 

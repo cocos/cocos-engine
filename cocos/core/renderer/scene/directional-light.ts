@@ -1,5 +1,5 @@
-import { Quat, Vec3 } from '../../core/math';
-import { INode } from '../../core/utils/interfaces';
+import { Quat, Vec3 } from '../../math';
+import { INode } from '../../utils/interfaces';
 import { Light, LightType } from './light';
 import { RenderScene } from './render-scene';
 

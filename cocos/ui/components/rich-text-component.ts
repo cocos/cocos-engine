@@ -42,7 +42,7 @@ import { UIComponent } from '../../core/components/ui-base/ui-component';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transfrom-component';
 import { INode } from '../../core/utils/interfaces';
-import { assert, warnID } from '../../core/platform/CCDebug';
+import { assert, warnID } from '../../core/platform/debug';
 import { loader } from '../../core/load-pipeline';
 
 const _htmlTextParser = new HtmlTextParser();

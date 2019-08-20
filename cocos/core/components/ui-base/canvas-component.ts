@@ -38,8 +38,8 @@ import { Node } from '../../scene-graph/node';
 import { RenderTexture } from '../../assets/render-texture';
 import { GFXWindow } from '../../gfx/window';
 import { director, Director } from '../../director';
-import { view, ResolutionPolicy } from '../../platform/CCView';
-import visibleRect from '../../platform/CCVisibleRect';
+import { view, ResolutionPolicy } from '../../platform/view';
+import visibleRect from '../../platform/visible-rect';
 import { CameraComponent } from '../../3d/framework/camera-component';
 
 const _worldPos = new Vec3();

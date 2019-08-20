@@ -27,13 +27,12 @@
  * @category model
  */
 
-import { builtinResMgr } from '../../3d/builtin';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
-import { Enum } from '../../core/value-types';
+import { builtinResMgr } from '../builtin';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
+import { Enum } from '../../value-types';
 import { Model } from '../../renderer/scene/model';
 import { TransformDirtyBit } from '../../scene-graph/node-enum';
-import { Material } from '../assets/material';
-import { Mesh } from '../assets/mesh';
+import { Material, Mesh } from '../../assets';
 import { RenderableComponent } from './renderable-component';
 
 /**

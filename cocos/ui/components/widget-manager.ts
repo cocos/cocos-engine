@@ -37,9 +37,9 @@ import { AlignFlags, AlignMode, WidgetComponent } from './widget-component';
 import { Node } from '../../core/scene-graph/node';
 import { Scene } from '../../core/scene-graph';
 import { Director, director } from '../../core/director';
-import { View } from '../../core/platform/CCView';
-import visibleRect from '../../core/platform/CCVisibleRect';
-import sys from '../../core/platform/CCSys';
+import { View } from '../../core/platform/view';
+import visibleRect from '../../core/platform/visible-rect';
+import sys from '../../core/platform/sys';
 
 const _tempPos = new Vec3();
 const _zeroVec3 = new Vec3();

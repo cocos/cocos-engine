@@ -30,7 +30,7 @@
 import { WebGLGFXDevice } from './gfx/webgl/webgl-device';
 import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
 import { EventTarget } from './event/event-target';
-import * as debug from './platform/CCDebug';
+import * as debug from './platform/debug';
 import inputManager from './platform/event-manager/input-manager';
 
 /**

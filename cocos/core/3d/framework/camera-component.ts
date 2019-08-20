@@ -27,11 +27,11 @@
  * @category component/camera
  */
 
-import { ray } from '../../3d/geom-utils';
+import { ray } from '../../geom-utils';
 import { Component } from '../../components/component';
-import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
-import { Color, Rect, toRadian, Vec3 } from '../../core/math';
-import { Enum } from '../../core/value-types';
+import { ccclass, executeInEditMode, menu, property } from '../../data/class-decorator';
+import { Color, Rect, toRadian, Vec3 } from '../../math';
+import { Enum } from '../../value-types';
 import { GFXClearFlag } from '../../gfx/define';
 import { Camera } from '../../renderer';
 import { Scene } from '../../scene-graph';

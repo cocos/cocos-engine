@@ -32,7 +32,7 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../c
 import { Event, EventTarget } from '../core/event';
 import { CallbacksInvoker, ICallbackTable } from '../core/event/callbacks-invoker';
 import { applyMixins, IEventTarget } from '../core/event/event-target-factory';
-import { warnID } from '../core/platform/CCDebug';
+import { warnID } from '../core/platform/debug';
 import * as ArrayUtils from '../core/utils/array';
 import { createMap } from '../core/utils/js-typed';
 import { ccenum } from '../core/value-types/enum';

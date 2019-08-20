@@ -519,8 +519,6 @@ export interface INode extends IBaseNode {
 
     _uiComp;
 
-    isValid: boolean;
-
     uiTransfromComp;
 
     /**

@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { error, warn } from './core/platform/CCDebug';
+import { error, warn } from '../platform/debug';
 
 
 let defaultLogTimes = 10;

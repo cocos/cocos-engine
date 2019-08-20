@@ -27,14 +27,14 @@
  * @category scene-graph
  */
 
-import { INode } from '../core/utils/interfaces';
-import { ITargetImpl, EventTarget } from '../core/event/event-target';
-import { eventManager, EventMouse, EventTouch, Touch } from '../core/platform/event-manager';
-import { SystemEventType } from '../core/platform/event-manager/event-enum';
-import { EventListener } from '../core/platform/event-manager/event-listener';
-import { array } from '../core/utils/js';
-import Event from '../core/event/event';
-import { Vec2 } from '../core/math/vec2';
+import { INode } from '../utils/interfaces';
+import { ITargetImpl, EventTarget } from '../event/event-target';
+import { eventManager, EventMouse, EventTouch, Touch } from '../platform/event-manager';
+import { SystemEventType } from '../platform/event-manager/event-enum';
+import { EventListener } from '../platform/event-manager/event-listener';
+import { array } from '../utils/js';
+import Event from '../event/event';
+import { Vec2 } from '../math/vec2';
 
 const fastRemove = array.fastRemove;
 

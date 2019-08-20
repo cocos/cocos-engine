@@ -2,9 +2,9 @@
  * @category pipeline
  */
 
-import { intersect } from '../3d/geom-utils';
-import { Root } from '../core/root';
-import { Mat4, Vec3, Vec4 } from '../core/math';
+import { intersect } from '../geom-utils';
+import { Root } from '../root';
+import { Mat4, Vec3, Vec4 } from '../math';
 import { GFXBuffer } from '../gfx/buffer';
 import {
     GFXBindingType,

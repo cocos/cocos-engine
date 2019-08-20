@@ -28,9 +28,8 @@
  */
 
 // @ts-check
-import {ccclass, property} from '../core/data/class-decorator';
+import {ccclass, property} from '../data/class-decorator';
 import { GFXDevice, GFXFeature } from '../gfx/device';
-// import {addon} from '../core/utils/js';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 

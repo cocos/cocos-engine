@@ -30,7 +30,7 @@
 
 import * as js from '../utils/js';
 import {_getClassById} from '../utils/js';
-import { getError } from '../platform/CCDebug';
+import { getError } from '../platform/debug';
 import { LoadingItems } from './loading-items';
 import {decompressJson} from './utils';
 

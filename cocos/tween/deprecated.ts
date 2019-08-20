@@ -4,7 +4,7 @@
 
 // deprecated
 import { Tween } from './tween';
-import { replaceProperty } from '../deprecated';
+import { replaceProperty } from '../core/utils/deprecated';
 
 /**
  * @zh

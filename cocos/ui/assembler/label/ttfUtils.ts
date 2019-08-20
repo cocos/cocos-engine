@@ -35,7 +35,7 @@ import { HorizontalTextAlignment, LabelComponent, LabelOutlineComponent, Vertica
 import { CanvasPool, ISharedLabelData } from './font-utils';
 import { LetterRenderTexture } from './letter-font';
 import { loader } from '../../../core/load-pipeline';
-import { logID } from '../../../core/platform/CCDebug';
+import { logID } from '../../../core/platform/debug';
 
 const Overflow = LabelComponent.Overflow;
 const WHITE = Color.WHITE.clone();

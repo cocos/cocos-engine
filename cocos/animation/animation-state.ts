@@ -37,7 +37,6 @@ import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { INode } from '../core/utils/interfaces';
 import { BlendFunction, additive3D, additiveQuat } from './blending';
 import { BoundTarget } from './target-modifier';
-import { warn } from '../core/platform/CCDebug';
 
 enum PropertySpecialization {
     NodePosition,

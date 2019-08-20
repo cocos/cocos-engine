@@ -2,7 +2,7 @@
  * @category gemotry-utils
  */
 
-import { Vec3 } from '../../core/math';
+import { Vec3 } from '../math';
 import enums from './enums';
 
 /**

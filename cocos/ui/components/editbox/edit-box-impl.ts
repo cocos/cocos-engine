@@ -31,18 +31,18 @@
  */
 
 import { ccclass } from '../../../core/data/class-decorator';
-import { macro } from '../../../core/platform/CCMacro';
+import { macro } from '../../../core/platform/macro';
 import { INode } from '../../../core/utils/interfaces';
 import { contains } from '../../../core/utils/misc';
 import { Color, Mat4, Size, Vec3 } from '../../../core/math';
 import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-component';
 import { EditBoxComponent} from './edit-box-component';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import { warnID } from '../../../core/platform/CCDebug';
-import sys from '../../../core/platform/CCSys';
+import { warnID } from '../../../core/platform/debug';
+import sys from '../../../core/platform/sys';
 import { view } from '../../../core/platform';
 import { director } from '../../../core/director';
-import visibleRect from '../../../core/platform/CCVisibleRect';
+import visibleRect from '../../../core/platform/visible-rect';
 
 // https://segmentfault.com/q/1010000002914610
 const SCROLLY = 40;

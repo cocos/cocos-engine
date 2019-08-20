@@ -31,14 +31,14 @@
 import { SpriteFrame } from '../../core/assets';
 import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
-import { clamp, Color, Mat4, Size, Vec2, Vec3 } from '../../core/math';
+import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { UI } from '../../core/renderer/ui/ui';
 import { GraphicsComponent } from './graphics-component';
 import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { Node } from '../../core/scene-graph';
 import { view } from '../../core/platform';
-import visibleRect from '../../core/platform/CCVisibleRect';
+import visibleRect from '../../core/platform/visible-rect';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();

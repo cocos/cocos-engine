@@ -27,7 +27,7 @@
  * @category asset
  */
 
-import { Asset } from '../../assets/asset';
+import { Asset } from './asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { CCString } from '../../core/data/utils/attribute';
 import { Mat4, Quat, Vec3 } from '../../core/math';

@@ -39,10 +39,10 @@
  * 该组件没有任何 API 接口，直接添加到场景即可生效。
  */
 
-import { ccclass, menu } from '../core/data/class-decorator';
+import { ccclass, menu } from '../data/class-decorator';
 import { Component } from './component';
-import { Event } from '../core/event';
-import { SystemEventType } from '../core/platform/event-manager/event-enum';
+import { Event } from '../event';
+import { SystemEventType } from '../platform/event-manager/event-enum';
 
 const BlockEvents = [SystemEventType.TOUCH_START, SystemEventType.TOUCH_END, SystemEventType.TOUCH_MOVE,
   SystemEventType.MOUSE_DOWN, SystemEventType.MOUSE_MOVE, SystemEventType.MOUSE_UP,

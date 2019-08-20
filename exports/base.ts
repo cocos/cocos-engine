@@ -23,7 +23,7 @@ export * from '../extensions/ccpool/node-pool';
 const cclegacy = cc;
 export { cclegacy };
 
-export * from '../cocos/deprecated';
+export * from '../cocos/core/utils/deprecated';
 export { vmath } from '../cocos/vmath';
 
 export * from '../cocos/animation';

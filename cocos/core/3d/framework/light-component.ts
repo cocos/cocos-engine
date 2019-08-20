@@ -28,9 +28,9 @@
  */
 
 import { Component } from '../../components/component';
-import { ccclass, property } from '../../core/data/class-decorator';
-import { Color } from '../../core/math';
-import { Enum } from '../../core/value-types';
+import { ccclass, property } from '../../data/class-decorator';
+import { Color } from '../../math';
+import { Enum } from '../../value-types';
 
 import { Light, LightType } from '../../renderer/scene/light';
 import { RenderScene } from '../../renderer/scene/render-scene';

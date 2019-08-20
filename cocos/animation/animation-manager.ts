@@ -3,14 +3,14 @@
  */
 
 import { ccclass } from '../core/data/class-decorator';
-import { errorID } from '../core/platform/CCDebug';
+import { errorID } from '../core/platform/debug';
 import { MutableForwardIterator, remove } from '../core/utils/array';
 import { Node } from '../core/scene-graph';
 import { AnimationBlendState } from './animation-blend-state';
 import { AnimationState } from './animation-state';
 import { CrossFade } from './cross-fade';
 import { Director } from '../core/director';
-import Scheduler from '../core/scheduler';
+import { Scheduler } from '../core/scheduler';
 import System from '../core/components/system';
 
 const director = Director.instance;

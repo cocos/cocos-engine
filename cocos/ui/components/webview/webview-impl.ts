@@ -24,13 +24,13 @@
 */
 
 import { ccclass } from '../../../core/data/class-decorator';
-import sys from '../../../core/platform/CCSys';
+import sys from '../../../core/platform/sys';
 import { misc } from '../../../core/utils';
 import { INode } from '../../../core/utils/interfaces';
 import { Mat4 } from '../../../core/math';
 import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-component';
-import { logID, log } from '../../../core/platform/CCDebug';
-import { view } from '../../../core/platform/CCView';
+import { logID, log } from '../../../core/platform/debug';
+import { view } from '../../../core/platform/view';
 
 const _mat4_temp = new Mat4();
 

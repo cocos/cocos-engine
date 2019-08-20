@@ -30,7 +30,8 @@
 
 import Event from '../../event/event';
 import { Vec2 } from '../../math';
-import { Touch } from './CCTouch';
+import { Touch } from './touch';
+import { view } from '../view';
 
 /**
  * @en The mouse event
@@ -261,7 +262,7 @@ export class EventMouse extends Event {
             out = new Vec2();
         }
 
-        Vec2.set(out, this._x, cc.view._designResolutionSize.height - this._y);
+        Vec2.set(out, this._x, view._designResolutionSize.height - this._y);
         return out;
     }
 

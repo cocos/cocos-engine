@@ -1,5 +1,5 @@
 import '../exports/base';
-import { DebugMode } from "../cocos/core/platform/CCDebug";
+import { DebugMode } from "../cocos/core/platform/debug";
 
 
 // @ts-ignore

@@ -27,7 +27,7 @@
  * @category component/audio
  */
 
-import sys from '../../core/platform/CCSys';
+import sys from '../../core/platform/sys';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 
 const audioSupport = sys.__audioSupport;

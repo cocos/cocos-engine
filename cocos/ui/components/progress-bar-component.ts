@@ -34,7 +34,7 @@ import { Size, Vec2, Vec3 } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { clamp01 } from '../../core/math/utils';
 import { SpriteComponent } from './sprite-component';
-import { warn } from '../../core/platform/CCDebug';
+import { warn } from '../../core/platform/debug';
 
 /**
  * @zh

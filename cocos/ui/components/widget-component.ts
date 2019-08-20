@@ -37,7 +37,7 @@ import { Node } from '../../core/scene-graph/node';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transfrom-component';
 import { widgetManager } from './widget-manager';
 import { INode } from '../../core/utils/interfaces';
-import { errorID } from '../../core/platform/CCDebug';
+import { errorID } from '../../core/platform/debug';
 
 /**
  * @zh

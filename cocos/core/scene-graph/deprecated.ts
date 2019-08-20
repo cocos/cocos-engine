@@ -3,7 +3,7 @@
  */
 
 import { BaseNode } from './base-node';
-import { replaceProperty } from '../deprecated';
+import { replaceProperty } from '../utils/deprecated';
 
 // js.get(BaseNode.prototype, 'childrenCount', function () {
 //     cc.warn("`childrenCount` is deprecated, please use `node.children.length` instead.");

@@ -29,6 +29,7 @@
  */
 
 import { Vec2 } from '../../math';
+import { view } from '../view';
 
 const _vec2 = new Vec2();
 /**
@@ -91,7 +92,7 @@ export class Touch {
         }
 
         out.set(this._point.x, this._point.y);
-        cc.view._convertPointWithScale(out);
+        view._convertPointWithScale(out);
         return out;
     }
 

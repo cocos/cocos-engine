@@ -29,9 +29,8 @@
  */
 
 // @ts-check
-import {ccclass, property} from '../core/data/class-decorator';
-import { error } from '../core/platform/CCDebug';
-import IDGenerator from '../core/utils/id-generator';
+import {ccclass, property} from '../data/class-decorator';
+import IDGenerator from '../utils/id-generator';
 import { GFXDevice } from '../gfx/device';
 import { GFXTextureView } from '../gfx/texture-view';
 import { SamplerInfoIndex, genSamplerHash } from '../renderer/core/sampler-lib';

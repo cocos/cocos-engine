@@ -34,8 +34,8 @@ import { bmfont } from './bmfont';
 import { CanvasPool } from './font-utils';
 import { letter } from './letter';
 import { ttf } from './ttf';
-import sys from '../../../core/platform/CCSys';
-import { warn } from '../../../core/platform/CCDebug';
+import sys from '../../../core/platform/sys';
+import { warn } from '../../../core/platform/debug';
 
 const labelAssembler: IAssemblerManager = {
     getAssembler (comp: LabelComponent) {

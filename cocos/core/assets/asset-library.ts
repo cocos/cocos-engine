@@ -28,15 +28,15 @@
  * @category asset
  */
 
-import decodeUuid from '../core/utils/decode-uuid';
-import {_getClassById, createMap, isChildClassOf} from '../core/utils/js';
-import {callInNextTick} from '../core/utils/misc';
-import AssetTable from '../load-pipeline/asset-table';
+import decodeUuid from '../utils/decode-uuid';
+import {_getClassById, createMap, isChildClassOf} from '../utils/js';
+import {callInNextTick} from '../utils/misc';
+import { AssetTable } from '../load-pipeline/asset-table';
 import {getDependsRecursively} from '../load-pipeline/auto-release-utils';
 import Loader from '../load-pipeline/CCLoader';
 import MD5Pipe from '../load-pipeline/md5-pipe';
 import {initPacks} from '../load-pipeline/pack-downloader';
-import SubPackPipe from '../load-pipeline/subpackage-pipe';
+import { SubPackPipe } from '../load-pipeline/subpackage-pipe';
 import { Asset } from './asset';
 
 // tslint:disable: max-line-length

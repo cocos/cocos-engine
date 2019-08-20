@@ -28,9 +28,9 @@
  * @category component
  */
 
-import {ccclass, inspector, property} from '../core/data/class-decorator';
-import {_getClassById} from '../core/utils/js';
-import {BUILTIN_CLASSID_RE} from '../core/utils/misc';
+import {ccclass, inspector, property} from '../data/class-decorator';
+import {_getClassById} from '../utils/js';
+import {BUILTIN_CLASSID_RE} from '../utils/misc';
 import { Component } from './component';
 
 /**

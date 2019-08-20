@@ -26,7 +26,7 @@
  * @category component/light
  */
 
-import { ccclass, executeInEditMode, menu, property } from '../../core/data/class-decorator';
+import { ccclass, executeInEditMode, menu, property } from '../../data/class-decorator';
 import { LightType, nt2lm } from '../../renderer/scene/light';
 import { RenderScene } from '../../renderer/scene/render-scene';
 import { SphereLight } from '../../renderer/scene/sphere-light';

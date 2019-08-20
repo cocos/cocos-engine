@@ -27,7 +27,7 @@
  * @category scene-graph
  */
 
-import { warnID } from '../core/platform/CCDebug';
+import { warnID } from '../platform/debug';
 import { Node } from './node';
 
 /**

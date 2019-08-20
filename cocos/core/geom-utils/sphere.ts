@@ -2,7 +2,7 @@
  * @category gemotry-utils
  */
 
-import { Mat4, Quat, Vec3 } from '../../core/math';
+import { Mat4, Quat, Vec3 } from '../math';
 import enums from './enums';
 
 const _v3_tmp = new Vec3();

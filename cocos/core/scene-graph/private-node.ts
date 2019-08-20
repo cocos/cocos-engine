@@ -27,8 +27,8 @@
  * @category scene-graph
  */
 
-import { ccclass } from '../core/data/class-decorator';
-import { CCObject } from '../core/data/object';
+import { ccclass } from '../data/class-decorator';
+import { CCObject } from '../data/object';
 import { Node } from './node';
 
 // const LocalDirtyFlag = Node._LocalDirtyFlag;

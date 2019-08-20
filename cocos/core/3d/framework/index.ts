@@ -35,10 +35,6 @@ import { DirectionalLightComponent } from './directional-light-component';
 import { EditorCameraComponent } from './editor-camera-component';
 import { LightComponent } from './light-component';
 import { ModelComponent } from './model-component';
-import { BillboardComponent } from './particle/billboard-component';
-import { LineComponent } from './particle/line-component';
-import { ParticleSystemComponent } from './particle/particle-system-component';
-import { ParticleUtils } from './particle/particle-utils';
 import { RenderableComponent } from './renderable-component';
 import { SkinningModelComponent } from './skinning-model-component';
 import { SphereLightComponent } from './sphere-light-component';
@@ -54,9 +50,6 @@ export {
     BatchedSkinningModelComponent,
     SkinningModelUnit,
 
-    ParticleSystemComponent,
-    BillboardComponent,
-    LineComponent,
     RenderableComponent,
 };
 
@@ -76,9 +69,3 @@ cc.LightComponent = LightComponent;
 cc.DirectionalLightComponent = DirectionalLightComponent;
 cc.SphereLightComponent = SphereLightComponent;
 cc.SpotLightComponent = SpotLightComponent;
-
-cc.ParticleSystemComponent = ParticleSystemComponent;
-cc.BillboardComponent = BillboardComponent;
-cc.LineComponent = LineComponent;
-
-cc.ParticleUtils = ParticleUtils;

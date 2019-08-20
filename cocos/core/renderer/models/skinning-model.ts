@@ -27,9 +27,8 @@
  * @hidden
  */
 
-import { Skeleton } from '../../3d/assets/skeleton';
-import { SkeletalAnimationClip } from '../../animation';
-import { INode } from '../../core/utils/interfaces';
+import { Skeleton } from '../../assets/skeleton';
+import { INode } from '../../utils/interfaces';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXAddress, GFXBufferUsageBit, GFXFilter, GFXMemoryUsageBit } from '../../gfx/define';
 import { UBOSkinningAnimation, UBOSkinningTexture, UniformJointsTexture } from '../../pipeline/define';
@@ -93,7 +92,7 @@ interface IJointsInfo {
 
 export class SkinningModel extends Model {
 
-    public uploadedAnim: SkeletalAnimationClip | null = null;
+    public uploadedAnim: any = null;
 
     private _jointsMedium: IJointsInfo;
     private _skeleton: Skeleton | null = null;
@@ -133,7 +132,7 @@ export class SkinningModel extends Model {
         this.uploadAnimation(this.uploadedAnim);
     }
 
-    public uploadAnimation (anim: SkeletalAnimationClip | null = null) {
+    public uploadAnimation (anim: any) {
         if (!this._skeleton) { return; }
         this.uploadedAnim = anim;
         const texture = this.uploadedAnim ?

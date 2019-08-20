@@ -28,7 +28,7 @@
  * @category event
  */
 
-import {ccclass, property} from '../core/data/class-decorator';
+import {ccclass, property} from '../data/class-decorator';
 import { Node } from '../scene-graph';
 
 /**

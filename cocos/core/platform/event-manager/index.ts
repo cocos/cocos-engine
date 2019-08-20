@@ -31,10 +31,6 @@
 export * from './event-manager';
 export * from './input-manager';
 export * from './system-event';
-export * from './CCEvent';
-export * from './CCTouch';
+export * from './events';
+export * from './touch';
 export * from './event-enum';
-
-if (CC_TEST) {
-    // cc._Test.eventManager = eventManager;
-}

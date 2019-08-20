@@ -28,8 +28,8 @@
  * @category asset
  */
 
-import { ccclass, property } from '../core/data/class-decorator';
-import * as js from '../core/utils/js';
+import { ccclass, property } from '../data/class-decorator';
+import * as js from '../utils/js';
 import { Asset } from './asset';
 import { SpriteFrame } from './sprite-frame';
 

@@ -1,5 +1,5 @@
-import { Material } from '../../3d/assets/material';
-import { IRenderingSubmesh } from '../../3d/assets/mesh';
+import { Material } from '../../assets/material';
+import { IRenderingSubmesh } from '../../assets/mesh';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType, GFXStatus } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';

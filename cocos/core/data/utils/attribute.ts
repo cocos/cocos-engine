@@ -27,7 +27,7 @@
 // tslint:disable:only-arrow-functions
 // tslint:disable:one-variable-per-declaration
 
-import { errorID, log, warnID } from '../../platform/CCDebug';
+import { errorID, log, warnID } from '../../platform/debug';
 import { extend, formatStr, get, getClassName, isChildClassOf, value } from '../../utils/js';
 import { isPlainEmptyObj_DEV } from '../../utils/misc';
 

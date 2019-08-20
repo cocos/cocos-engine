@@ -30,11 +30,11 @@
 
 import { Vec2 } from '../../math/index';
 import { rect } from '../../math/rect';
-import { macro } from '../CCMacro';
-import sys from '../CCSys';
-import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './CCEvent';
+import { macro } from '../macro';
+import sys from '../sys';
+import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './events';
+import { Touch } from './touch';
 import eventManager from './event-manager';
-import { Touch as CCTouch } from './CCTouch';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 
@@ -61,7 +61,7 @@ interface IView {
     _convertMouseToLocation (point: Vec2, elementPosition: IHTMLElementPosition): void;
     // _convertMouseToLocationInView (point: Vec2, elementPosition: IHTMLElementPosition): void;
 
-    // _convertTouchesWithScale (touches: CCTouch[]): void;
+    // _convertTouchesWithScale (touches: Touch[]): void;
 }
 
 /**
@@ -92,10 +92,10 @@ class InputManager {
     private _preTouchPoint = new Vec2();
     private _prevMousePoint = new Vec2();
 
-    private _preTouchPool: CCTouch[] = [];
+    private _preTouchPool: Touch[] = [];
     private _preTouchPoolPointer = 0;
 
-    private _touches: CCTouch[] = [];
+    private _touches: Touch[] = [];
     private _touchesIntegerDict: { [index: number]: number | undefined; } = { };
 
     private _indexBitsUsed = 0;
@@ -114,8 +114,8 @@ class InputManager {
 
     private _pointLocked = false;
 
-    public handleTouchesBegin (touches: CCTouch[]) {
-        const handleTouches: CCTouch[] = [];
+    public handleTouchesBegin (touches: Touch[]) {
+        const handleTouches: Touch[] = [];
         const locTouchIntDict = this._touchesIntegerDict;
         const now = sys.now();
         for (let i = 0; i < touches.length; ++i) {
@@ -132,7 +132,7 @@ class InputManager {
                     continue;
                 }
                 // curTouch = this._touches[unusedIndex] = touch;
-                const curTouch = new CCTouch(touch._point.x, touch._point.y, touch.getID());
+                const curTouch = new Touch(touch._point.x, touch._point.y, touch.getID());
                 this._touches[unusedIndex] = curTouch;
                 curTouch._lastModified = now;
                 curTouch._setPrevPoint(touch._prevPoint);
@@ -148,8 +148,8 @@ class InputManager {
         }
     }
 
-    public handleTouchesMove (touches: CCTouch[]) {
-        const handleTouches: CCTouch[] = [];
+    public handleTouchesMove (touches: Touch[]) {
+        const handleTouches: Touch[] = [];
         const locTouches = this._touches;
         const now = sys.now();
         for (let i = 0; i < touches.length; ++i) {
@@ -178,7 +178,7 @@ class InputManager {
         }
     }
 
-    public handleTouchesEnd (touches: CCTouch[]) {
+    public handleTouchesEnd (touches: Touch[]) {
         const handleTouches = this.getSetOfTouchesEndOrCancel(touches);
         if (handleTouches.length > 0) {
             // this._glView!._convertTouchesWithScale(handleTouches);
@@ -189,7 +189,7 @@ class InputManager {
         this._preTouchPool.length = 0;
     }
 
-    public handleTouchesCancel (touches: CCTouch[]) {
+    public handleTouchesCancel (touches: Touch[]) {
         const handleTouches = this.getSetOfTouchesEndOrCancel(touches);
         if (handleTouches.length > 0) {
             // this._glView!._convertTouchesWithScale(handleTouches);
@@ -200,8 +200,8 @@ class InputManager {
         this._preTouchPool.length = 0;
     }
 
-    public getSetOfTouchesEndOrCancel (touches: CCTouch[]) {
-        const handleTouches: CCTouch[] = [];
+    public getSetOfTouchesEndOrCancel (touches: Touch[]) {
+        const handleTouches: Touch[] = [];
         const locTouches = this._touches;
         const locTouchesIntDict = this._touchesIntegerDict;
         for (let i = 0; i < touches.length; ++i) {
@@ -266,8 +266,8 @@ class InputManager {
         }
     }
 
-    public getPreTouch (touch: CCTouch) {
-        let preTouch: CCTouch | null = null;
+    public getPreTouch (touch: Touch) {
+        let preTouch: Touch | null = null;
         const locPreTouchPool = this._preTouchPool;
         const id = touch.getID();
         for (let i = locPreTouchPool.length - 1; i >= 0; i--) {
@@ -282,7 +282,7 @@ class InputManager {
         return preTouch;
     }
 
-    public setPreTouch (touch: CCTouch) {
+    public setPreTouch (touch: Touch) {
         let find = false;
         const locPreTouchPool = this._preTouchPool;
         const id = touch.getID();
@@ -310,7 +310,7 @@ class InputManager {
             location.x = locPreTouch.x + event.movementX;
             location.y = locPreTouch.y - event.movementY;
         }
-        const touch = new CCTouch(location.x,  location.y, 0);
+        const touch = new Touch(location.x,  location.y, 0);
         touch._setPrevPoint(locPreTouch.x, locPreTouch.y);
         locPreTouch.x = location.x;
         locPreTouch.y = location.y;
@@ -346,7 +346,7 @@ class InputManager {
     }
 
     public getTouchesByEvent (event: TouchEvent, position: IHTMLElementPosition) {
-        const touches: CCTouch[] = [];
+        const touches: Touch[] = [];
         const locView = this._glView;
         const locPreTouch = this._preTouchPoint;
 
@@ -365,15 +365,15 @@ class InputManager {
                 location = locView!.convertToLocationInView(
                     changedTouch.clientX, changedTouch.clientY, position, _vec2);
             }
-            let touch: CCTouch;
+            let touch: Touch;
             if (changedTouch.identifier != null) {
-                touch = new CCTouch(location.x, location.y, changedTouch.identifier);
+                touch = new Touch(location.x, location.y, changedTouch.identifier);
                 // use Touch Pool
                 this.getPreTouch(touch).getLocation(_preLocation);
                 touch._setPrevPoint(_preLocation.x, _preLocation.y);
                 this.setPreTouch(touch);
             } else {
-                touch = new CCTouch(location.x, location.y);
+                touch = new Touch(location.x, location.y);
                 touch._setPrevPoint(locPreTouch.x, locPreTouch.y);
             }
             locPreTouch.x = location.x;

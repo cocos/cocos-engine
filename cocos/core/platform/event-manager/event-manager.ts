@@ -32,7 +32,7 @@
 
 import { Event } from '../../event';
 import { INode } from '../../utils/interfaces';
-import { EventTouch } from './CCEvent';
+import { EventTouch } from './events';
 import { EventListener, TouchOneByOne } from './event-listener';
 const ListenerID = EventListener.ListenerID;
 

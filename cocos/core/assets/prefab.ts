@@ -28,10 +28,10 @@
  * @category asset
  */
 
-import { ccclass, property } from '../core/data/class-decorator';
-import { compile } from '../core/data/instantiate-jit';
-import { obsolete } from '../core/utils/js';
-import { Enum } from '../core/value-types';
+import { ccclass, property } from '../data/class-decorator';
+import { compile } from '../data/instantiate-jit';
+import { obsolete } from '../utils/js';
+import { Enum } from '../value-types';
 import { Asset } from './asset';
 
 /**

@@ -24,18 +24,20 @@
  THE SOFTWARE.
 */
 
-import { CameraComponent, Material, ModelComponent } from '../../../3d';
-import { createMesh } from '../../../3d/misc/utils';
-import { GFXBufferTextureCopy, GFXClearFlag, GFXFormat, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../../../gfx/define';
-import { GFXDevice } from '../../../gfx/device';
-import { GFXTexture } from '../../../gfx/texture';
-import { GFXTextureView } from '../../../gfx/texture-view';
-import { CameraVisFlags } from '../../../renderer/scene/camera';
-import { VisibilityFlags } from '../../../renderer/scene/model';
-import { Node } from '../../../scene-graph/node';
+import { CameraComponent, ModelComponent } from '../../3d';
+import { Material } from '../../assets/material'
+import { createMesh } from '../../3d/misc/utils';
+import { GFXTextureType, GFXTextureUsageBit, GFXFormat, GFXTextureViewType, GFXBufferTextureCopy, GFXClearFlag } from '../../gfx/define';
+import { GFXDevice } from '../../gfx/device';
+import { GFXTexture } from '../../gfx/texture';
+import { GFXTextureView } from '../../gfx/texture-view';
+import { CameraVisFlags } from '../../renderer/scene/camera';
+import { VisibilityFlags } from '../../renderer/scene/model';
+import { Node } from '../../scene-graph/node';
 import { Vec4 } from '../../math';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
+import { director, Director } from '../../director';
 
 interface IProfilerState {
     frame: ICounterOption;
@@ -93,12 +95,12 @@ export class Profiler {
                 this._rootNode.active = false;
             }
 
-            cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
-            cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
-            cc.director.off(cc.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
-            cc.director.off(cc.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
-            cc.director.off(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            cc.director.off(cc.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+            director.off(Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
+            director.off(Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
+            director.off(Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
+            director.off(Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
+            director.off(Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
+            director.off(Director.EVENT_AFTER_DRAW, this.afterDraw, this);
             this._showFPS = false;
         }
     }
@@ -113,12 +115,12 @@ export class Profiler {
                 this._rootNode.active = true;
             }
 
-            cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
-            cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
-            cc.director.on(cc.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
-            cc.director.on(cc.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
-            cc.director.on(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            cc.director.on(cc.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+            director.on(Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
+            director.on(Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
+            director.on(Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
+            director.on(Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
+            director.on(Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
+            director.on(Director.EVENT_AFTER_DRAW, this.afterDraw, this);
 
             this._showFPS = true;
             this._canvasDone = true;
@@ -130,7 +132,7 @@ export class Profiler {
         if (this._device) {
             return;
         }
-        this._device = cc.director.root!.device;
+        this._device = director.root!.device;
     }
 
     public generateCanvas () {
@@ -180,7 +182,7 @@ export class Profiler {
         }
 
         this._stats = null;
-        const now = cc.director.getCurrentTime();
+        const now = director.getCurrentTime();
 
         const opts = {
             frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
@@ -275,7 +277,7 @@ export class Profiler {
 
         this.generateNode();
 
-        const now = cc.director._lastUpdate;
+        const now = director._lastUpdate;
         this.getCounter('frame').end(now);
         this.getCounter('frame').start(now);
         this.getCounter('logic').start(now);
@@ -286,8 +288,8 @@ export class Profiler {
             return;
         }
 
-        const now = cc.director.getCurrentTime();
-        if (cc.director.isPaused()) {
+        const now = director.getCurrentTime();
+        if (director.isPaused()) {
             this.getCounter('frame').start(now);
         } else {
             this.getCounter('logic').end(now);
@@ -299,7 +301,7 @@ export class Profiler {
             return;
         }
 
-        const now = cc.director.getCurrentTime();
+        const now = director.getCurrentTime();
         this.getCounter('physics').start(now);
     }
 
@@ -308,7 +310,7 @@ export class Profiler {
             return;
         }
 
-        const now = cc.director.getCurrentTime();
+        const now = director.getCurrentTime();
         this.getCounter('physics').end(now);
     }
 
@@ -317,7 +319,7 @@ export class Profiler {
             return;
         }
 
-        const now = cc.director.getCurrentTime();
+        const now = director.getCurrentTime();
         this.getCounter('render').start(now);
     }
 
@@ -325,7 +327,7 @@ export class Profiler {
         if (!this._stats || !this._ctx || !this._canvas) {
             return;
         }
-        const now = cc.director.getCurrentTime();
+        const now = director.getCurrentTime();
 
         this.getCounter('fps').frame(now);
         this.getCounter('draws').value = this._device!.numDrawCalls;
@@ -358,7 +360,7 @@ export class Profiler {
     }
 
     public updateTexture () {
-        cc.director.root!.device.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
+        director.root!.device.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
     }
 
 }

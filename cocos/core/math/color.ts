@@ -32,7 +32,6 @@ import CCClass from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { IColorLike } from './type-define';
 import { EPSILON, clamp } from './utils';
-import { ValueType } from '../value-types/value-type';
 
 const toFloat = 1 / 255;
 

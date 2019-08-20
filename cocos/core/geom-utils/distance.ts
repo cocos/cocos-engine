@@ -2,8 +2,8 @@
  * @category gemotry-utils
  */
 
-import { plane } from '.';
-import { Vec3 } from '../../core/math';
+import { Vec3 } from '../math';
+import plane from './plane';
 import aabb from './aabb';
 import obb from './obb';
 const X = new Vec3();

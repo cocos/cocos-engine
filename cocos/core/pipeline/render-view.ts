@@ -2,7 +2,7 @@
  * @category pipeline
  */
 
-import { Root } from '../core/root';
+import { Root } from '../root';
 import { GFXWindow } from '../gfx/window';
 import { Camera, CameraVisFlags } from '../renderer/scene/camera';
 import { RenderFlow } from './render-flow';

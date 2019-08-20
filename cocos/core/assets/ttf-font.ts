@@ -28,7 +28,7 @@
  * @category asset
  */
 
-import {ccclass, property} from '../core/data/class-decorator';
+import {ccclass, property} from '../data/class-decorator';
 import { Font } from './font';
 
 /**

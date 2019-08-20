@@ -3,7 +3,7 @@
  * @category gemotry-utils
  */
 
-import { Mat3, Vec3 } from '../../core/math';
+import { Mat3, Vec3 } from '../math';
 import aabb from './aabb';
 import * as distance from './distance';
 import enums from './enums';
