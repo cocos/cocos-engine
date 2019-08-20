@@ -528,17 +528,12 @@ var Sprite = cc.Class({
         }
 
         if (spriteFrame) {
-            if (!oldFrame || spriteFrame._texture !== oldFrame._texture) {
-                if (spriteFrame.textureLoaded()) {
-                    this._onTextureLoaded(null);
-                }
-                else {
-                    spriteFrame.once('load', this._onTextureLoaded, this);
-                    spriteFrame.ensureLoadTexture();
-                }
+            if (spriteFrame.textureLoaded()) {
+                this._applySpriteSize();
             }
             else {
-                this._applySpriteSize();
+                spriteFrame.once('load', this._onTextureLoaded, this);
+                spriteFrame.ensureLoadTexture();
             }
         }
 
