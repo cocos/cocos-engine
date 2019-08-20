@@ -67,8 +67,6 @@ const CameraClearFlag = Enum({
     DONT_CLEAR: GFXClearFlag.NONE,
 });
 
-const c4_1 = new Color();
-
 /**
  * @en The Camera Component
  * @zh 相机组件。
@@ -214,8 +212,10 @@ export class CameraComponent extends Component {
     set color (val) {
         this._color.set(val);
         if (this._camera) {
-            Color.set(c4_1, val.r / 255, val.g / 255, val.b / 255, val.a / 255);
-            this._camera.clearColor = c4_1;
+            this._camera.clearColor.r = val.r / 255;
+            this._camera.clearColor.g = val.g / 255;
+            this._camera.clearColor.b = val.b / 255;
+            this._camera.clearColor.a = val.a / 255;
         }
     }
 
