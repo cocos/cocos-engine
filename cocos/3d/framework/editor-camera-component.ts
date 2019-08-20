@@ -143,11 +143,7 @@ export class EditorCameraComponent extends CameraComponent {
             this._uiEditorCamera!.fov = this._camera.fov;
             this._uiEditorCamera!.nearClip = this._camera.nearClip;
             this._uiEditorCamera!.farClip = this._camera.farClip;
-            const r = this._camera.clearColor.r / 255;
-            const g = this._camera.clearColor.g / 255;
-            const b = this._camera.clearColor.b / 255;
-            const a = this._camera.clearColor.a / 255;
-            this._uiEditorCamera!.clearColor = {r, g, b, a};
+            this._uiEditorCamera!.clearColor = this._camera.clearColor;
             this._uiEditorCamera!.clearDepth = this._camera.clearDepth;
             this._uiEditorCamera!.clearStencil = this._camera.clearStencil;
             this._uiEditorCamera!.clearFlag = this._camera.clearFlag;
