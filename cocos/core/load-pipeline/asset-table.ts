@@ -27,17 +27,25 @@
  * @category loader
  */
 
-import {pushToMap} from '../core/utils/misc';
-import {createMap, isChildClassOf} from '../core/utils/js';
+import {pushToMap} from '../utils/misc';
+import {createMap, isChildClassOf} from '../utils/js';
+import url from './url';
+import { errorID } from '../platform/CCDebug';
+import { extname } from '../utils/path';
+import { SpriteFrame, SpriteAtlas } from '../assets';
 
-function Entry (uuid, type) {
-    this.uuid = uuid;
-    this.type = type;
+class Entry {
+    public uuid:string;
+    public type;
+    constructor (uuid, type) {
+        this.uuid = uuid;
+        this.type = type;
+    }
 }
 
 function isMatchByWord (path, test) {
     if (path.length > test.length) {
-        var nextAscii = path.charCodeAt(test.length);
+        let nextAscii = path.charCodeAt(test.length);
         return (nextAscii === 47); // '/'
     }
     return true;
@@ -50,30 +58,31 @@ function isMatchByWord (path, test) {
  *
  */
 
-export default class AssetTable {
+export class AssetTable {
+    private _pathToUuid:Map<string, Entry> | Map<string, Array<Entry>>;
     constructor () {
         this._pathToUuid = createMap(true);
     }
 
     getUuid (path, type) {
-        path = cc.url.normalize(path);
-        var item = this._pathToUuid[path];
+        path = url.normalize(path);
+        let item = this._pathToUuid[path];
         if (item) {
             if (Array.isArray(item)) {
                 if (type) {
-                    for (var i = 0; i < item.length; i++) {
-                        var entry = item[i];
+                    for (let i = 0; i < item.length; i++) {
+                        let entry = item[i];
                         if (isChildClassOf(entry.type, type)) {
                             return entry.uuid;
                         }
                     }
                     // not found
-                    if (CC_DEBUG && isChildClassOf(type, cc.SpriteFrame)) {
+                    if (CC_DEBUG && isChildClassOf(type, SpriteFrame)) {
                         for (let i = 0; i < item.length; i++) {
                             let entry = item[i];
-                            if (isChildClassOf(entry.type, cc.SpriteAtlas)) {
+                            if (isChildClassOf(entry.type, SpriteAtlas)) {
                                 // not support sprite frame in atlas
-                                cc.errorID(4932, path);
+                                errorID(4932, path);
                                 break;
                             }
                         }
@@ -86,35 +95,35 @@ export default class AssetTable {
             else if (!type || isChildClassOf(item.type, type)) {
                 return item.uuid;
             }
-            else if (CC_DEBUG && isChildClassOf(type, cc.SpriteFrame) && isChildClassOf(item.type, cc.SpriteAtlas)) {
+            else if (CC_DEBUG && isChildClassOf(type, SpriteFrame) && isChildClassOf(item.type, SpriteAtlas)) {
                 // not support sprite frame in atlas
-                cc.errorID(4932, path);
+                errorID(4932, path);
             }
         }
         return '';
     }
 
     getUuidArray (path, type, out_urls) {
-        path = cc.url.normalize(path);
+        path = url.normalize(path);
         if (path[path.length - 1] === '/') {
             path = path.slice(0, -1);
         }
-        var path2uuid = this._pathToUuid;
-        var uuids = [];
-        var _foundAtlasUrl;
-        for (var p in path2uuid) {
+        let path2uuid = this._pathToUuid;
+        let uuids:Array<string> = [];
+        let _foundAtlasUrl;
+        for (let p in path2uuid) {
             if ((p.startsWith(path) && isMatchByWord(p, path)) || !path) {
-                var item = path2uuid[p];
+                let item = path2uuid[p];
                 if (Array.isArray(item)) {
-                    for (var i = 0; i < item.length; i++) {
-                        var entry = item[i];
+                    for (let i = 0; i < item.length; i++) {
+                        let entry = item[i];
                         if (!type || isChildClassOf(entry.type, type)) {
                             uuids.push(entry.uuid);
                             if (out_urls) {
                                 out_urls.push(p);
                             }
                         }
-                        else if (CC_DEBUG && entry.type === cc.SpriteAtlas) {
+                        else if (CC_DEBUG && entry.type === SpriteAtlas) {
                             _foundAtlasUrl = p;
                         }
                     }
@@ -126,15 +135,15 @@ export default class AssetTable {
                             out_urls.push(p);
                         }
                     }
-                    else if (CC_DEBUG && item.type === cc.SpriteAtlas) {
+                    else if (CC_DEBUG && item.type === SpriteAtlas) {
                         _foundAtlasUrl = p;
                     }
                 }
             }
         }
-        if (CC_DEBUG && uuids.length === 0 && _foundAtlasUrl && isChildClassOf(type, cc.SpriteFrame)) {
+        if (CC_DEBUG && uuids.length === 0 && _foundAtlasUrl && isChildClassOf(type, SpriteFrame)) {
             // not support sprite frame in atlas
-            cc.errorID(4932, _foundAtlasUrl);
+            errorID(4932, _foundAtlasUrl);
         }
         return uuids;
     }
@@ -162,20 +171,20 @@ export default class AssetTable {
     add (path, uuid, type, isMainAsset) {
         // remove extname
         // (can not use path.slice because length of extname maybe 0)
-        isMainAsset && (path = path.substring(0, path.length - cc.path.extname(path).length));
-        var newEntry = new Entry(uuid, type);
+        isMainAsset && (path = path.substring(0, path.length - extname(path).length));
+        let newEntry = new Entry(uuid, type);
         pushToMap(this._pathToUuid, path, newEntry, isMainAsset);
     }
 
     _getInfo_DEBUG (uuid, out_info) {
-        var path2uuid = this._pathToUuid;
-        var paths = Object.keys(path2uuid);
-        for (var p = 0; p < paths.length; ++p) {
-            var path = paths[p];
-            var item = path2uuid[path];
+        let path2uuid = this._pathToUuid;
+        let paths = Object.keys(path2uuid);
+        for (let p = 0; p < paths.length; ++p) {
+            let path = paths[p];
+            let item = path2uuid[path];
             if (Array.isArray(item)) {
-                for (var i = 0; i < item.length; i++) {
-                    var entry = item[i];
+                for (let i = 0; i < item.length; i++) {
+                    let entry = item[i];
                     if (entry.uuid === uuid) {
                         out_info.path = path;
                         out_info.type = entry.type;

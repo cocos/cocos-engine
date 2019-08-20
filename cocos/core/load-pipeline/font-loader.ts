@@ -27,14 +27,21 @@
  * @category loader
  */
 
-import {safeMeasureText} from '../core/utils/text-utils';
+import {safeMeasureText} from '../utils/text-utils';
 
-let _canvasContext = null;
-let _testString = "BES bswy:->@";
+interface IFontLoadHandle {
+    fontFamilyName;
+    refWidth;
+    callback;
+    startTime;
+}
+
+let _canvasContext: CanvasRenderingContext2D|null = null;
+const _testString = "BES bswy:->@";
 
 let _fontFaces = {};
 let _intervalId = -1;
-let _loadingFonts = [];
+let _loadingFonts:Array<IFontLoadHandle> = [];
 // 60 seconds timeout
 let _timeout = 60000;
 
@@ -54,7 +61,9 @@ function _checkFontLoaded () {
         }
 
         let oldWidth = fontLoadHandle.refWidth;
+        // @ts-ignore
         _canvasContext.font = '40px ' + fontFamily;
+        // @ts-ignore
         let newWidth = safeMeasureText(_canvasContext, _testString);
         // loaded successfully
         if (oldWidth !== newWidth) {
@@ -90,7 +99,9 @@ export function loadFont (item, callback) {
 
     // Default width reference to test whether new font is loaded correctly
     let fontDesc = '40px ' + fontFamilyName;
+    // @ts-ignore
     _canvasContext.font = fontDesc;
+    // @ts-ignore
     let refWidth = safeMeasureText(_canvasContext, _testString);
 
     // Setup font face style
@@ -116,7 +127,7 @@ export function loadFont (item, callback) {
     document.body.appendChild(preloadDiv);
 
     // Save loading font
-    let fontLoadHandle = {
+    let fontLoadHandle:IFontLoadHandle = {
         fontFamilyName,
         refWidth,
         callback,
@@ -131,11 +142,11 @@ export function loadFont (item, callback) {
 }
 
 export function _getFontFamily (fontHandle) {
-    var ttfIndex = fontHandle.lastIndexOf(".ttf");
+    let ttfIndex = fontHandle.lastIndexOf(".ttf");
     if (ttfIndex === -1) return fontHandle;
 
-    var slashPos = fontHandle.lastIndexOf("/");
-    var fontFamilyName;
+    let slashPos = fontHandle.lastIndexOf("/");
+    let fontFamilyName;
     if (slashPos === -1) {
         fontFamilyName = fontHandle.substring(0, ttfIndex) + "_LABEL";
     } else {

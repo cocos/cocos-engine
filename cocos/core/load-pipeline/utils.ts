@@ -27,34 +27,34 @@
  * @category loader
  */
 
-import {urlAppendTimestamp} from './utils';
+let _noCacheRex = /\?/;
 
-export default function (item, callback) {
-    var url = item.url;
-    url = urlAppendTimestamp(url);
+export function urlAppendTimestamp (url) {
+    if (cc.game.config['noCache'] && typeof url === 'string') {
+        if (_noCacheRex.test(url))
+            //@ts-ignore
+            url += '&_t=' + (new Date() - 0);
+        else
+            //@ts-ignore
+            url += '?_t=' + (new Date() - 0);
+    }
+    return url;
+}
 
-    var xhr = cc.loader.getXMLHttpRequest(),
-        errInfo = 'Load text file failed: ' + url;
-    xhr.open('GET', url, true);
-    if (xhr.overrideMimeType) xhr.overrideMimeType('text/plain; charset=utf-8');
-    xhr.onload = function () {
-        if (xhr.readyState === 4) {
-            if (xhr.status === 200 || xhr.status === 0) {
-                callback(null, xhr.responseText);
-            }
-            else {
-                callback({status:xhr.status, errorMessage:errInfo + '(wrong status)'});
+
+export function decompressJson (data, keys) {
+    if (Array.isArray(data)) {
+        for (let i = 0, l = data.length; i < l; i++) {
+            decompressJson(data[i], keys);
+        }
+    } else if (typeof data === 'object') {
+        for (let key in data) {
+            decompressJson(data[key], keys);
+            if (!Number.isNaN(Number(key))) {
+                data[keys[key]] = data[key];
+                delete data[key];
             }
         }
-        else {
-            callback({status:xhr.status, errorMessage:errInfo + '(wrong readyState)'});
-        }
-    };
-    xhr.onerror = function(){
-        callback({status:xhr.status, errorMessage:errInfo + '(error)'});
-    };
-    xhr.ontimeout = function(){
-        callback({status:xhr.status, errorMessage:errInfo + '(time out)'});
-    };
-    xhr.send(null);
+    }
+    return null;
 }

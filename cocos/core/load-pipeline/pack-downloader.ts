@@ -28,35 +28,42 @@
  * @category loader
  */
 
-import {pushToMap} from '../core/utils/misc';
+import {pushToMap} from '../utils/misc';
 import {TextureUnpacker, JsonUnpacker} from './unpackers';
 import { decompressJson } from './utils';
+import { errorID } from '../platform/CCDebug';
+import { js } from '../utils';
+import { Texture2D, AssetLibrary } from '../assets';
 
 // when more than one package contains the required asset,
 // choose to load from the package with the largest state value.
-var PackState = {
-    Invalid: 0,
-    Removed: 1,
-    Downloading: 2,
-    Loaded: 3,
+enum PackState {
+    Invalid,
+    Removed,
+    Downloading,
+    Loaded,
 };
 
-function UnpackerData () {
-    this.unpacker = null;
-    this.state = PackState.Invalid;
+class UnpackerData {
+    public unpacker;
+    public state;
+    constructor () {
+        this.unpacker = null;
+        this.state = PackState.Invalid;
+    }
 }
 
 // {assetUuid: packUuid|[packUuid]}
 // If value is array of packUuid, then the first one will be prioritized for download,
 // so the smallest pack must be at the beginning of the array.
-var uuidToPack = {};
+let uuidToPack = {};
 
 // {packUuid: assetIndices}
-var packIndices = {};
+let packIndices = {};
 
 // {packUuid: UnpackerData}
 // We have to cache all packs in global because for now there's no operation context in loader.
-var globalUnpackers = {};
+let globalUnpackers = {};
 
 
 function error (uuid, packUuid) {
@@ -77,11 +84,10 @@ export function initPacks (packs) {
 }
 
 export function _loadNewPack (uuid, packUuid, callback) {
-    var self = this;
-    var packUrl = cc.AssetLibrary.getLibUrlNoExt(packUuid) + '.json';
+    var packUrl = AssetLibrary.getLibUrlNoExt(packUuid) + '.json';
     cc.loader.load({ url: packUrl, ignoreMaxConcurrency: true }, function (err, packJson) {
         if (err) {
-            cc.errorID(4916, uuid);
+            errorID(4916, uuid);
             return callback(err);
         }
         var res = _doLoadNewPack(uuid, packUuid, packJson);
@@ -124,7 +130,7 @@ export function _doLoadNewPack (uuid, packUuid, packedJson) {
         if (Array.isArray(packedJson)) {
             unpackerData.unpacker = new JsonUnpacker();
         }
-        else if (packedJson.type === cc.js._getClassId(cc.Texture2D)) {
+        else if (packedJson.type === js._getClassId(Texture2D)) {
             unpackerData.unpacker = new TextureUnpacker();
         }
         unpackerData.unpacker.load(packIndices[packUuid], packedJson);

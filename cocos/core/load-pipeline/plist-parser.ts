@@ -34,6 +34,8 @@
  * @class saxParser
  */
 class SAXParser {
+    private _isSupportDOMParser;
+    private _parser;
     constructor () {
         if (!(CC_EDITOR && Editor.isMainProcess) && window.DOMParser) {
             this._isSupportDOMParser = true;
@@ -55,7 +57,7 @@ class SAXParser {
 
     _parseXML (textxml) {
         // get a reference to the requested corresponding xml file
-        var xmlDoc;
+        let xmlDoc;
         if (this._isSupportDOMParser) {
             xmlDoc = this._parser.parseFromString(textxml, "text/xml");
         } else {
@@ -81,17 +83,18 @@ class PlistParser extends SAXParser {
      * @return {*} plist object
      */
     parse (xmlTxt) {
-        var xmlDoc = this._parseXML(xmlTxt);
-        var plist = xmlDoc.documentElement;
+        let xmlDoc = this._parseXML(xmlTxt);
+        let plist = xmlDoc.documentElement;
         if (plist.tagName !== 'plist') {
             cc.warnID(5100);
             return {};
         }
 
         // Get first real node
-        var node = null;
-        for (var i = 0, len = plist.childNodes.length; i < len; i++) {
+        let node = null;
+        for (let i = 0, len = plist.childNodes.length; i < len; i++) {
             node = plist.childNodes[i];
+            // @ts-ignore
             if (node.nodeType === 1)
                 break;
         }
@@ -100,7 +103,7 @@ class PlistParser extends SAXParser {
     }
 
     _parseNode (node) {
-        var data = null, tagName = node.tagName;
+        let data:any = null, tagName = node.tagName;
         if(tagName === "dict"){
             data = this._parseDict(node);
         }else if(tagName === "array"){
@@ -111,7 +114,7 @@ class PlistParser extends SAXParser {
             else {
                 //handle Firefox's 4KB nodeValue limit
                 data = "";
-                for (var i = 0; i < node.childNodes.length; i++)
+                for (let i = 0; i < node.childNodes.length; i++)
                     data += node.childNodes[i].nodeValue;
             }
         }else if(tagName === "false"){
@@ -127,9 +130,9 @@ class PlistParser extends SAXParser {
     }
 
     _parseArray (node) {
-        var data = [];
-        for (var i = 0, len = node.childNodes.length; i < len; i++) {
-            var child = node.childNodes[i];
+        let data:Array<any> = [];
+        for (let i = 0, len = node.childNodes.length; i < len; i++) {
+            let child = node.childNodes[i];
             if (child.nodeType !== 1)
                 continue;
             data.push(this._parseNode(child));
@@ -138,10 +141,10 @@ class PlistParser extends SAXParser {
     }
 
     _parseDict (node) {
-        var data = {};
-        var key = null;
-        for (var i = 0, len = node.childNodes.length; i < len; i++) {
-            var child = node.childNodes[i];
+        let data = {};
+        let key = null;
+        for (let i = 0, len = node.childNodes.length; i < len; i++) {
+            let child = node.childNodes[i];
             if (child.nodeType !== 1)
                 continue;
 
@@ -149,6 +152,7 @@ class PlistParser extends SAXParser {
             if (child.tagName === 'key')
                 key = child.firstChild.nodeValue;
             else
+                // @ts-ignore
                 data[key] = this._parseNode(child);                 // Parse the value node
         }
         return data;
@@ -160,6 +164,6 @@ class PlistParser extends SAXParser {
  * @name plistParser
  * A Plist Parser
  */
-var plistParser = new PlistParser();
+let plistParser = new PlistParser();
 
 export default plistParser;

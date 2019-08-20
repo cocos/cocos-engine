@@ -27,33 +27,34 @@
  * @category loader
  */
 
-import {mixin} from '../core/utils/js';
-import * as debug from '../core/platform/CCDebug';
-import Pipeline from './pipeline';
+import {mixin} from '../utils/js';
+import * as debug from '../platform/CCDebug';
+import { Pipeline, IPipe } from './pipeline';
 import * as PackDownloader from './pack-downloader';
 import downloadBinary from './binary-downloader';
 import downloadText from './text-downloader';
-import downloadAudio from './audio-downloader';
 import {urlAppendTimestamp} from './utils';
 
 function skip () {
     return null;
 }
 
-function downloadScript (item, callback, isAsync) {
-    var url = item.url,
+function downloadScript (item, callback, isAsync?) {
+    let url = item.url,
         d = document,
         s = document.createElement('script');
-    s.async = isAsync;
+    s.async = !!isAsync;
     s.src = urlAppendTimestamp(url);
     function loadHandler () {
-        s.parentNode.removeChild(s);
+        if (s.parentNode)
+            s.parentNode.removeChild(s);
         s.removeEventListener('load', loadHandler, false);
         s.removeEventListener('error', errorHandler, false);
         callback(null, url);
     }
     function errorHandler() {
-        s.parentNode.removeChild(s);
+        if (s.parentNode)
+            s.parentNode.removeChild(s);
         s.removeEventListener('load', loadHandler, false);
         s.removeEventListener('error', errorHandler, false);
         callback(new Error(debug.getError(4928, url)));
@@ -75,7 +76,7 @@ function downloadImage (item, callback, isCrossOrigin, img) {
         isCrossOrigin = true;
     }
 
-    var url = urlAppendTimestamp(item.url);
+    let url = urlAppendTimestamp(item.url);
     img = img || new Image();
     if (isCrossOrigin && window.location.protocol !== 'file:') {
         img.crossOrigin = 'anonymous';
@@ -84,31 +85,31 @@ function downloadImage (item, callback, isCrossOrigin, img) {
         img.crossOrigin = null;
     }
 
+    function loadCallback () {
+        img.removeEventListener('load', loadCallback);
+        img.removeEventListener('error', errorCallback);
+
+        img.id = item.id;
+        callback(null, img);
+    }
+    function errorCallback () {
+        img.removeEventListener('load', loadCallback);
+        img.removeEventListener('error', errorCallback);
+
+        // Retry without crossOrigin mark if crossOrigin loading fails
+        // Do not retry if protocol is https, even if the image is loaded, cross origin image isn't renderable.
+        if (window.location.protocol !== 'https:' && img.crossOrigin && img.crossOrigin.toLowerCase() === 'anonymous') {
+            downloadImage(item, callback, false, img);
+        }
+        else {
+            callback(new Error(debug.getError(4930, url)));
+        }
+    }
+
     if (img.complete && img.naturalWidth > 0 && img.src === url) {
         return img;
     }
     else {
-        function loadCallback () {
-            img.removeEventListener('load', loadCallback);
-            img.removeEventListener('error', errorCallback);
-
-            img.id = item.id;
-            callback(null, img);
-        }
-        function errorCallback () {
-            img.removeEventListener('load', loadCallback);
-            img.removeEventListener('error', errorCallback);
-
-            // Retry without crossOrigin mark if crossOrigin loading fails
-            // Do not retry if protocol is https, even if the image is loaded, cross origin image isn't renderable.
-            if (window.location.protocol !== 'https:' && img.crossOrigin && img.crossOrigin.toLowerCase() === 'anonymous') {
-                downloadImage(item, callback, false, img);
-            }
-            else {
-                callback(new Error(debug.getError(4930, url)));
-            }
-        }
-
         img.addEventListener('load', loadCallback);
         img.addEventListener('error', errorCallback);
         img.src = url;
@@ -116,15 +117,16 @@ function downloadImage (item, callback, isCrossOrigin, img) {
 }
 
 function downloadUuid (item, callback) {
-    var result = PackDownloader.load(item, callback);
+    let result = PackDownloader.load(item, callback);
     if (result === undefined) {
+        // @ts-ignore
         return this.extMap['json'](item, callback);
     }
     return result || undefined;
 }
 
 
-var defaultMap = {
+let defaultMap = {
     // JS
     'js' : downloadScript,
 
@@ -140,12 +142,6 @@ var defaultMap = {
     'image' : downloadImage,
     'pvr': downloadBinary,
     'pkm': downloadBinary,
-
-    // Audio
-    'mp3' : downloadAudio,
-    'ogg' : downloadAudio,
-    'wav' : downloadAudio,
-    'm4a' : downloadAudio,
 
     // Txt
     'txt' : downloadText,
@@ -181,7 +177,12 @@ var defaultMap = {
     'default' : downloadText
 };
 
-var ID = 'Downloader';
+const ID = 'Downloader';
+
+interface IDownloadItem {
+    item;
+    callback;
+}
 
 /**
  * The downloader pipe, it can download several types of files:
@@ -201,25 +202,25 @@ var ID = 'Downloader';
  * @param {Object} extMap Custom supported types with corresponded handler
  * @example
  * ```
- *  var downloader = new Downloader({
+ *  let downloader = new Downloader({
  *      // This will match all url with `.scene` extension or all url with `scene` type
  *      'scene' : function (url, callback) {}
  *  });
  * ```
  */
-export default class Downloader {
+export default class Downloader implements IPipe {
     static ID = ID;
     static PackDownloader = PackDownloader;
 
-    constructor (extMap) {
-        this.id = ID;
-        this.async = true;
-        this.pipeline = null;
-        this._curConcurrent = 0;
-        this._loadQueue = [];
+    public id:string = ID;
+    public async:boolean = true;
+    public pipeline:Pipeline | null = null;
+    private extMap:object;
+    private _curConcurrent = 0;
+    private _loadQueue:Array<IDownloadItem> = [];
+    private _subpackages = {};
 
-        this._subpackages = {};
-
+    constructor (extMap?) {
         this.extMap = mixin(extMap, defaultMap);
     }
 
@@ -234,11 +235,11 @@ export default class Downloader {
 
     _handleLoadQueue () {
         while (this._curConcurrent < cc.macro.DOWNLOAD_MAX_CONCURRENT) {
-            var nextOne = this._loadQueue.shift();
+            let nextOne = this._loadQueue.shift();
             if (!nextOne) {
                 break;
             }
-            var syncRet = this.handle(nextOne.item, nextOne.callback);
+            let syncRet = this.handle(nextOne.item, nextOne.callback) as any;
             if (syncRet !== undefined) {
                 if (syncRet instanceof Error) {
                     nextOne.callback(syncRet);
@@ -251,9 +252,9 @@ export default class Downloader {
     }
 
     handle (item, callback) {
-        var self = this;
-        var downloadFunc = this.extMap[item.type] || this.extMap['default'];
-        var syncRet = undefined;
+        let self = this;
+        let downloadFunc = this.extMap[item.type] || this.extMap['default'];
+        let syncRet = undefined;
         if (this._curConcurrent < cc.macro.DOWNLOAD_MAX_CONCURRENT) {
             this._curConcurrent++;
             syncRet = downloadFunc.call(this, item, function (err, result) {
@@ -312,4 +313,4 @@ export default class Downloader {
     }
 }
 
-Pipeline.Downloader = Downloader;
+// Pipeline.Downloader = Downloader;

@@ -29,9 +29,7 @@
  */
 
 export class JsonUnpacker {
-    constructor () {
-        this.jsons = {};
-    }
+    public jsons = {};
 
     /*
      * @param {String[]} indices
@@ -41,9 +39,9 @@ export class JsonUnpacker {
         if (packedJson.length !== indices.length) {
             cc.errorID(4915);
         }
-        for (var i = 0; i < indices.length; i++) {
-            var key = indices[i];
-            var json = packedJson[i];
+        for (let i = 0; i < indices.length; i++) {
+            let key = indices[i];
+            let json = packedJson[i];
             this.jsons[key] = json;
         }
     }
@@ -55,26 +53,24 @@ export class JsonUnpacker {
 
 
 export class TextureUnpacker {
-    constructor () {
-        this.contents = {};
-    }
+    public contents = {};
 
     /*
      * @param {String[]} indices
      * @param {Object[]} packedJson
      */
     load (indices, packedJson) {
-        var datas = packedJson.data;
+        let datas = packedJson.data;
         if (datas.length !== indices.length) {
             cc.errorID(4915);
         }
-        for (var i = 0; i < indices.length; i++) {
+        for (let i = 0; i < indices.length; i++) {
             this.contents[indices[i]] = {base: datas[i][0], mipmaps: datas[i][1]};
         }
     }
 
     retrieve (key) {
-        var content = this.contents[key];
+        let content = this.contents[key];
         if (content) {
             return {
                 __type__: cc.js._getClassId(cc.Texture2D),
@@ -85,9 +81,4 @@ export class TextureUnpacker {
             return null;
         }
     }
-}
-
-if (CC_TEST) {
-    cc._Test.JsonUnpacker = JsonUnpacker;
-    cc._Test.TextureUnpacker = TextureUnpacker;
 }

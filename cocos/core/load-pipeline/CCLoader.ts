@@ -29,16 +29,16 @@
  */
 
 import { Asset, RawAsset } from '../assets';
-import { createMap, getClassName, isChildClassOf } from '../core/utils/js';
-import { callInNextTick } from '../core/utils/misc';
+import { createMap, getClassName, isChildClassOf } from '../utils/js';
+import { callInNextTick } from '../utils/misc';
 import AssetLoader from './asset-loader';
-import AssetTable from './asset-table';
+import { AssetTable } from './asset-table';
 import { getDependsRecursively } from './auto-release-utils';
 import { LoadCompleteCallback, LoadProgressCallback } from './callback-params';
 import Downloader from './downloader';
 import Loader from './loader';
-import LoadingItems from './loading-items';
-import Pipeline from './pipeline';
+import { LoadingItems } from './loading-items';
+import { Pipeline } from './pipeline';
 import ReleasedAssetChecker from './released-asset-checker';
 
 const assetTables = Object.create(null);
@@ -162,7 +162,7 @@ class CCLoader extends Pipeline {
 
         const assetLoader = new AssetLoader();
         const downloader = new Downloader();
-        // tslint:disable-next-line: no-shadowed-variable
+        // tslint:disable-next-line: no-shadowed-letiable
         const loader = new Loader();
 
         super([
@@ -269,12 +269,12 @@ class CCLoader extends Pipeline {
      *
      * cc.loader.load(['a.png', 'b.json'], function (errors, results) {
      *     if (errors) {
-     *         for (var i = 0; i < errors.length; i++) {
+     *         for (let i = 0; i < errors.length; i++) {
      *             cc.log('Error url [' + errors[i] + ']: ' + results.getError(errors[i]));
      *         }
      *     }
-     *     var aTex = results.getContent('a.png');
-     *     var bJsonObj = results.getContent('b.json');
+     *     let aTex = results.getContent('a.png');
+     *     let bJsonObj = results.getContent('b.json');
      * });
      * ```
      * @method load
@@ -371,7 +371,9 @@ class CCLoader extends Pipeline {
         }
         // @ts-ignore
         const queue = LoadingItems.create(this, owner ? (completedCount, totalCount, item) => {
+            // @ts-ignore
             if (queue._ownerQueue && queue._ownerQueue.onProgress) {
+                // @ts-ignore
                 queue._ownerQueue._childOnProgress(item);
             }
         } : null, (errors, items) => {
@@ -538,20 +540,20 @@ class CCLoader extends Pipeline {
      *         cc.error(err);
      *         return;
      *     }
-     *     var texture = assets[0];
-     *     var spriteFrame = assets[1];
+     *     let texture = assets[0];
+     *     let spriteFrame = assets[1];
      * });
      *
      * // load all textures in "resources/imgs/"
      * cc.loader.loadResDir('imgs', cc.Texture2D, function (err, textures) {
-     *     var texture1 = textures[0];
-     *     var texture2 = textures[1];
+     *     let texture1 = textures[0];
+     *     let texture2 = textures[1];
      * });
      *
      * // load all JSONs in "resources/data/"
      * cc.loader.loadResDir('data', function (err, objects, urls) {
-     *     var data = objects[0];
-     *     var url = urls[0];
+     *     let data = objects[0];
+     *     let url = urls[0];
      * });
      * ```
      */

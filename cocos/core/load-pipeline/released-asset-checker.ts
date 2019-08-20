@@ -28,18 +28,18 @@
  * @category loader
  */
 
-import {createMap, getClassName, clear} from '../core/utils/js';
+import {createMap, getClassName, clear} from '../utils/js';
 
-var tmpInfo = null;
+let _tmpInfo:any = null;
 
 function getItemDesc (item) {
     if (item.uuid) {
-        if (!tmpInfo) {
-            tmpInfo = { path: "", type: null };
+        if (!_tmpInfo) {
+            _tmpInfo = { path: "", type: null };
         }
-        if (cc.loader._assetTables.assets._getInfo_DEBUG(item.uuid, tmpInfo)) {
-            tmpInfo.path = 'resources/' + tmpInfo.path;
-            return `"${tmpInfo.path}" (type: ${getClassName(tmpInfo.type)}, uuid: ${item.uuid})`;
+        if (cc.loader._assetTables.assets._getInfo_DEBUG(item.uuid, _tmpInfo)) {
+            _tmpInfo.path = 'resources/' + _tmpInfo.path;
+            return `"${_tmpInfo.path}" (type: ${getClassName(_tmpInfo.type)}, uuid: ${item.uuid})`;
         }
         else {
             return `"${item.rawUrl}" (${item.uuid})`;
@@ -60,6 +60,8 @@ function doCheckCouldRelease (releasedKey, refOwnerItem, caches) {
 // checks if asset was releasable
 
 export default class ReleasedAssetChecker {
+    private _releasedKeys;
+    private _dirty;
     constructor () {
         // { dependKey: true }
         this._releasedKeys = createMap(true);

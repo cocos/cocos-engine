@@ -28,16 +28,15 @@
  * @category loader
  */
 
-import * as js from '../core/utils/js';
-import {_getClassById} from '../core/utils/js';
-import * as debug from '../core/platform/CCDebug';
-import deserialize from '../core/data/deserialize';
-import LoadingItems from './loading-items';
+import * as js from '../utils/js';
+import {_getClassById} from '../utils/js';
+import { getError } from '../platform/CCDebug';
+import { LoadingItems } from './loading-items';
 import {decompressJson} from './utils';
 
 export function isSceneObj (json) {
-    var SCENE_ID = 'cc.Scene';
-    var PREFAB_ID = 'cc.Prefab';
+    let SCENE_ID = 'cc.Scene';
+    let PREFAB_ID = 'cc.Prefab';
     return json && (
                (json[0] && json[0].__type__ === SCENE_ID) ||
                (json[1] && json[1].__type__ === SCENE_ID) ||
@@ -46,26 +45,26 @@ export function isSceneObj (json) {
 }
 
 function parseDepends (item, asset, tdInfo, deferredLoadRawAssetsInRuntime) {
-    var uuidList = tdInfo.uuidList;
-    var objList = tdInfo.uuidObjList;
-    var propList = tdInfo.uuidPropList;
-    var stillUseUrl = tdInfo._stillUseUrl;
-    var depends;
-    var i, dependUuid;
+    let uuidList = tdInfo.uuidList;
+    let objList = tdInfo.uuidObjList;
+    let propList = tdInfo.uuidPropList;
+    let stillUseUrl = tdInfo._stillUseUrl;
+    let depends;
+    let i, dependUuid;
     // cache dependencies for auto release
-    var dependKeys = item.dependKeys = [];
+    let dependKeys:Array<string> = item.dependKeys = [];
 
     if (deferredLoadRawAssetsInRuntime) {
         depends = [];
         // parse depends assets
         for (i = 0; i < uuidList.length; i++) {
             dependUuid = uuidList[i];
-            var obj = objList[i];
-            var prop = propList[i];
-            var info = cc.AssetLibrary._getAssetInfoInRuntime(dependUuid);
+            let obj = objList[i];
+            let prop = propList[i];
+            let info = cc.AssetLibrary._getAssetInfoInRuntime(dependUuid);
             if (info.raw) {
                 // skip preloading raw assets
-                var url = info.url;
+                let url = info.url;
                 obj[prop] = url;
                 dependKeys.push(url);
             }
@@ -113,33 +112,36 @@ function parseDepends (item, asset, tdInfo, deferredLoadRawAssetsInRuntime) {
 function loadDepends (pipeline, item, asset, depends, callback) {
     // Predefine content for dependencies usage
     item.content = asset;
-    var dependKeys = item.dependKeys;
+    let dependKeys = item.dependKeys;
     pipeline.flowInDeps(item, depends, function (errors, items) {
-        var item, missingAssetReporter;
-        var itemsMap = items.map;
-        for (var src in itemsMap) {
+        let item, missingAssetReporter;
+        let itemsMap = items.map;
+        for (let src in itemsMap) {
             item = itemsMap[src];
             if (item.uuid && item.content) {
                 item.content._uuid = item.uuid;
             }
         }
-        for (var i = 0; i < depends.length; i++) {
-            var dep = depends[i];
-            var dependSrc = dep.uuid;
-            var dependUrl = dep.url;
-            var dependObj = dep._owner;
-            var dependProp = dep._ownerProp;
+        for (let i = 0; i < depends.length; i++) {
+            let dep = depends[i];
+            let dependSrc = dep.uuid;
+            let dependUrl = dep.url;
+            let dependObj = dep._owner;
+            let dependProp = dep._ownerProp;
             item = itemsMap[dependUrl];
             if (!item) {
                 continue;
             }
 
-            var loadCallbackCtx = dep;
+            let loadCallbackCtx = dep;
+            // @ts-ignore
             function loadCallback (item) {
-                var value = item.content;
+                let value = item.content;
+                // @ts-ignore
                 if (this._stillUseUrl) {
                     value = value ? value.nativeUrl : item.rawUrl;
                 }
+                // @ts-ignore
                 this._owner[this._ownerProp] = value;
                 if (item.uuid !== asset._uuid && dependKeys.indexOf(item.id) < 0) {
                     dependKeys.push(item.id);
@@ -150,7 +152,7 @@ function loadDepends (pipeline, item, asset, depends, callback) {
                 if (item.error) {
                     if (CC_EDITOR && item.error.errorCode === 'db.NOTFOUND') {
                         if (!missingAssetReporter) {
-                            var MissingObjectReporter = Editor.require('app://editor/page/scene-utils/missing-object-reporter');
+                            let MissingObjectReporter = Editor.require('app://editor/page/scene-utils/missing-object-reporter');
                             missingAssetReporter = new MissingObjectReporter(asset);
                         }
                         missingAssetReporter.stashByOwner(dependObj, dependProp, Editor.serialize.asAsset(dependSrc));
@@ -165,9 +167,9 @@ function loadDepends (pipeline, item, asset, depends, callback) {
             }
             else {
                 // item was removed from cache, but ready in pipeline actually
-                var queue = LoadingItems.getQueue(item);
+                let queue = LoadingItems.getQueue(item);
                 // Hack to get a better behavior
-                var list = queue._callbackTable[dependSrc];
+                let list = queue._callbackTable[dependSrc];
                 if (list) {
                     list.unshift(loadCallback, loadCallbackCtx);
                 }
@@ -193,7 +195,7 @@ function canDeferredLoad (asset, item, isScene) {
     if (CC_EDITOR) {
         return false;
     }
-    var res = item.deferredLoadRaw;
+    let res = item.deferredLoadRaw;
     if (res) {
         // check if asset support deferred
         if ((asset instanceof cc.Asset) && asset.constructor.preventDeferredLoadDependents) {
@@ -211,45 +213,45 @@ function canDeferredLoad (asset, item, isScene) {
     return res;
 }
 
-var MissingClass;
+let MissingClass;
 
 export function loadUuid (item, callback) {
     if (CC_EDITOR) {
         MissingClass = MissingClass || Editor.require('app://editor/page/scene-utils/missing-class-reporter').MissingClass;
     }
 
-    var json;
+    let json;
     if (typeof item.content === 'string') {
         try {
             json = JSON.parse(item.content);
             if (!CC_DEBUG && json.keys && json.data) {
-                var keys = json.keys;
+                let keys = json.keys;
                 json = json.data;
                 decompressJson(json, keys);
             }
         }
         catch (e) {
-            return new Error(debug.getError(4923, item.id, e.stack));
+            return new Error(getError(4923, item.id, e.stack));
         }
     }
     else if (typeof item.content === 'object') {
         json = item.content;
     }
     else {
-        return new Error(debug.getError(4924));
+        return new Error(getError(4924));
     }
 
     if (json === undefined || json === null) {
-        return new Error(debug.getError(4923, item.id));
+        return new Error(getError(4923, item.id));
     }
 
-    var classFinder;
-    var isScene = isSceneObj(json);
+    let classFinder;
+    let isScene = isSceneObj(json);
     if (isScene) {
         if (CC_EDITOR) {
             MissingClass.hasMissingClass = false;
             classFinder = function (type, data, owner, propName) {
-                var res = MissingClass.classFinder(type, data, owner, propName);
+                let res = MissingClass.classFinder(type, data, owner, propName);
                 if (res) {
                     return res;
                 }
@@ -263,7 +265,7 @@ export function loadUuid (item, callback) {
     }
     else {
         classFinder = function (id) {
-            var cls = js._getClassById(id);
+            let cls = js._getClassById(id);
             if (cls) {
                 return cls;
             }
@@ -272,9 +274,9 @@ export function loadUuid (item, callback) {
         };
     }
 
-    var tdInfo = cc.deserialize.Details.pool.get();
+    let tdInfo = cc.deserialize.Details.pool.get();
 
-    var asset;
+    let asset;
     try {
         asset = cc.deserialize(json, tdInfo, {
             classFinder: classFinder,
@@ -295,12 +297,12 @@ export function loadUuid (item, callback) {
         MissingClass.reportMissingClass(asset);
     }
 
-    var deferredLoad = canDeferredLoad(asset, item, isScene);
-    var depends = parseDepends(item, asset, tdInfo, deferredLoad);
+    let deferredLoad = canDeferredLoad(asset, item, isScene);
+    let depends = parseDepends(item, asset, tdInfo, deferredLoad);
 
     cc.deserialize.Details.pool.put(tdInfo);
 
-    var wrappedCallback = function(err, asset) {
+    let wrappedCallback = function(err, asset) {
         if (!err && asset.onLoaded) {
             try {
                 asset.onLoaded();
@@ -309,9 +311,10 @@ export function loadUuid (item, callback) {
             }
         }
         if (CC_EDITOR && !isScene) {
-            var dependListener = cc.AssetLibrary.dependListener;
-            var assetListener = cc.AssetLibrary.assetListener;
+            let dependListener = cc.AssetLibrary.dependListener;
+            let assetListener = cc.AssetLibrary.assetListener;
 
+            // @ts-ignore
             function propSetter (asset, obj, propName, oldAsset, newAsset) {
                 if (oldAsset === newAsset || obj[propName] === newAsset) {
                     return;
@@ -333,13 +336,13 @@ export function loadUuid (item, callback) {
 
             if (dependListener) {
                 item.references = {};
-                for (var i = 0, l = depends.length; i < l; i++) {
-                    var dep = depends[i];
-                    var dependSrc = dep.uuid;
+                for (let i = 0, l = depends.length; i < l; i++) {
+                    let dep = depends[i];
+                    let dependSrc = dep.uuid;
                     if (dependSrc) {
-                        var dependObj = dep._owner;
-                        var dependProp = dep._ownerProp;
-                        var onDirty = propSetter.bind(null, asset, dependObj, dependProp);
+                        let dependObj = dep._owner;
+                        let dependProp = dep._ownerProp;
+                        let onDirty = propSetter.bind(null, asset, dependObj, dependProp);
                         dependListener.on(dependSrc, onDirty);
                         item.references[dependSrc] = onDirty;
                     }
@@ -353,6 +356,7 @@ export function loadUuid (item, callback) {
         return wrappedCallback(null, asset);
     }
 
+    // @ts-ignore
     loadDepends(this.pipeline, item, asset, depends, wrappedCallback);
 }
 

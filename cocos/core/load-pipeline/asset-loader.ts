@@ -27,30 +27,27 @@
  * @category loader
  */
 
-import {extname} from '../core/utils/path';
-import * as debug from '../core/platform/CCDebug';
-import Pipeline from './pipeline';
-import LoadingItems from './loading-items';
+import {extname} from '../utils/path';
+import * as debug from '../platform/CCDebug';
+import { Pipeline, IPipe } from './pipeline';
+import { LoadingItems } from './loading-items';
 
 const ID = 'AssetLoader';
-var reusedArray = [];
+let reusedArray:Array<any> = [];
 
-export default class AssetLoader {
+export default class AssetLoader implements IPipe {
     static ID = ID;
-    constructor (extMap) {
-        this.id = ID;
-        this.async = true;
-        this.pipeline = null;
-    }
+    public id:string = ID;
+    public async:boolean = true;
+    public pipeline:Pipeline | null = null;
 
     handle (item, callback) {
-        var uuid = item.uuid;
+        let uuid = item.uuid;
         if (!uuid) {
             return item.content || null;
         }
 
-        var self = this;
-        cc.AssetLibrary.queryAssetInfo(uuid, function (error, url, isRawAsset) {
+        cc.AssetLibrary.queryAssetInfo(uuid, (error, url, isRawAsset) => {
             if (error) {
                 callback(error);
             }
@@ -58,13 +55,13 @@ export default class AssetLoader {
                 item.url = item.rawUrl = url;
                 item.isRawAsset = isRawAsset;
                 if (isRawAsset) {
-                    var ext = extname(url).toLowerCase();
+                    let ext = extname(url).toLowerCase();
                     if (!ext) {
                         callback(new Error(debug.getError(4931, uuid, url)));
                         return;
                     }
                     ext = ext.substr(1);
-                    var queue = LoadingItems.getQueue(item);
+                    let queue = LoadingItems.getQueue(item);
                     reusedArray[0] = {
                         queueId: item.queueId,
                         id: url,
@@ -74,8 +71,8 @@ export default class AssetLoader {
                         alias: item,
                         complete: true
                     };
-                    if (CC_EDITOR) {
-                        self.pipeline._cache[url] = reusedArray[0];
+                    if (CC_EDITOR && this.pipeline) {
+                        this.pipeline._cache[url] = reusedArray[0];
                     }
                     queue.append(reusedArray);
                     // Dispatch to other raw type downloader
@@ -91,4 +88,4 @@ export default class AssetLoader {
     }
 }
 
-Pipeline.AssetLoader = AssetLoader;
+// Pipeline.AssetLoader = AssetLoader;

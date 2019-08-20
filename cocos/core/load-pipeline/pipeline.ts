@@ -28,15 +28,22 @@
  * @category loader
  */
 
-import {createMap} from '../core/utils/js';
-import LoadingItems from './loading-items';
+import {createMap} from '../utils/js';
+import { LoadingItems, IItem } from './loading-items';
 const ItemState = LoadingItems.ItemState;
 
+export interface IPipe {
+    id:string;
+    async:boolean;
+    handle (item:IItem, callback);
+    next?:IPipe;
+}
+
 function flow (pipe, item) {
-    var pipeId = pipe.id;
-    var itemState = item.states[pipeId];
-    var next = pipe.next;
-    var pipeline = pipe.pipeline;
+    let pipeId = pipe.id;
+    let itemState = item.states[pipeId];
+    let next = pipe.next;
+    let pipeline = pipe.pipeline;
 
     if (item.error || itemState === ItemState.WORKING || itemState === ItemState.ERROR) {
         return;
@@ -52,7 +59,7 @@ function flow (pipe, item) {
     else {
         item.states[pipeId] = ItemState.WORKING;
         // Pass async callback in case it's a async call
-        var result = pipe.handle(item, function (err, result) {
+        let result = pipe.handle(item, function (err, result) {
             if (err) {
                 item.error = err;
                 item.states[pipeId] = ItemState.ERROR;
@@ -110,8 +117,11 @@ function flow (pipe, item) {
  * 最后当所有加载项都流出 pipeline 时，整个加载流程就结束了。
  * @class Pipeline
  */
-export default class Pipeline {
+export class Pipeline {
     static ItemState = ItemState;
+
+    protected _pipes:Array<IPipe>;
+    public _cache = createMap(true);
 
     /**
      * 构造函数，通过一系列的 pipe 来构造一个新的 pipeline，pipes 将会在给定的顺序中被锁定。<br/>
@@ -121,7 +131,7 @@ export default class Pipeline {
      * @param {Array} pipes
      * @example
      * ```
-     *  var pipeline = new Pipeline([
+     *  let pipeline = new Pipeline([
      *      {
      *          id: 'Downloader',
      *          handle: function (item, callback) {},
@@ -133,10 +143,9 @@ export default class Pipeline {
      */
     constructor (pipes) {
         this._pipes = pipes;
-        this._cache = createMap(true);
 
-        for (var i = 0; i < pipes.length; ++i) {
-            var pipe = pipes[i];
+        for (let i = 0; i < pipes.length; ++i) {
+            let pipe = pipes[i];
             // Must have handle and id, handle for flow, id for state flag
             if (!pipe.handle || !pipe.id) {
                 continue;
@@ -172,12 +181,12 @@ export default class Pipeline {
 
         pipe.pipeline = this;
 
-        var nextPipe = null;
+        let nextPipe:IPipe|null = null;
         if (index < this._pipes.length) {
             nextPipe = this._pipes[index];
         }
 
-        var previousPipe = null;
+        let previousPipe:IPipe|null = null;
         if (index > 0) {
             previousPipe = this._pipes[index-1];
         }
@@ -200,7 +209,7 @@ export default class Pipeline {
      * @param {Object} newPipe The pipe to be inserted.
      */
     insertPipeAfter (refPipe, newPipe)  {
-        var index = this._pipes.indexOf(refPipe);
+        let index = this._pipes.indexOf(refPipe);
         if (index < 0) {
             return;
         }
@@ -261,7 +270,7 @@ export default class Pipeline {
      * ```
      */
     flowIn (items) {
-        var i, pipe = this._pipes[0], item;
+        let i, pipe = this._pipes[0], item;
         if (pipe) {
             // Cache all items first, in case synchronous loading flow same item repeatly
             for (i = 0; i < items.length; i++) {
@@ -298,7 +307,7 @@ export default class Pipeline {
      * @return {Array} Items accepted by the pipeline
      */
     flowInDeps (owner, urlList, callback) {
-        var deps = LoadingItems.create(this, function (errors, items) {
+        let deps = LoadingItems.create(this, function (errors, items) {
             callback(errors, items);
             items.destroy();
         });
@@ -340,7 +349,7 @@ export default class Pipeline {
             dstItems.states = srcItem.states;
             return;
         }
-        for (var i = 0; i < dstItems.length; ++i) {
+        for (let i = 0; i < dstItems.length; ++i) {
             dstItems[i].states = srcItem.states;
         }
     }
@@ -353,7 +362,7 @@ export default class Pipeline {
      * @return {Object}
      */
     getItem (id) {
-        var item = this._cache[id];
+        let item = this._cache[id];
 
         if (!item)
             return item;
@@ -378,15 +387,15 @@ export default class Pipeline {
      * @return {Boolean} succeed or not
      */
     removeItem (id) {
-        var removed = this._cache[id];
+        let removed = this._cache[id];
         if (removed && removed.complete) {
             delete this._cache[id];
             if (CC_EDITOR) {
-                var references = removed.references;
+                let references = removed.references;
                 if (references) {
-                    var dependListener = cc.AssetLibrary.dependListener;
+                    let dependListener = cc.AssetLibrary.dependListener;
                     if (dependListener) {
-                        for (var uuid in references) {
+                        for (let uuid in references) {
                             dependListener.off(uuid, references[uuid]);
                         }
                     }
@@ -402,8 +411,8 @@ export default class Pipeline {
      * @zh 清空当前 pipeline，该函数将清理 items。
      */
     clear () {
-        for (var id in this._cache) {
-            var item = this._cache[id];
+        for (let id in this._cache) {
+            let item = this._cache[id];
             delete this._cache[id];
             if (!item.complete) {
                 item.error = new Error('Canceled manually');

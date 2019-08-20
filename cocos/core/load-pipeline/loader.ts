@@ -28,10 +28,10 @@
  * @category loader
  */
 
-import {mixin} from '../core/utils/js';
+import {mixin} from '../utils/js';
 import {ImageAsset} from '../assets/image-asset';
 import plistParser from './plist-parser';
-import Pipeline from './pipeline';
+import { Pipeline, IPipe } from './pipeline';
 import {loadUuid} from './uuid-loader';
 import {loadFont} from './font-loader';
 
@@ -45,7 +45,7 @@ function loadJSON (item) {
     }
 
     try {
-        var result = JSON.parse(item.content);
+        let result = JSON.parse(item.content);
         return result;
     }
     catch (e) {
@@ -54,20 +54,20 @@ function loadJSON (item) {
 }
 
 function loadImage (item) {
-    var loadByDeserializedAsset = (item._owner instanceof cc.Asset);
+    let loadByDeserializedAsset = (item._owner instanceof cc.Asset);
     if (loadByDeserializedAsset) {
         // already has cc.Asset
         return null;
     }
 
-    var image = item.content;
+    let image = item.content;
     if (!CC_WECHATGAME && !CC_QQPLAY && !(image instanceof Image)) {
         return new Error('Image Loader: Input item doesn\'t contain Image content');
     }
 
     // load cc.ImageAsset
-    var rawUrl = item.rawUrl;
-    var imageAsset = item.imageAsset || new ImageAsset();
+    let rawUrl = item.rawUrl;
+    let imageAsset = item.imageAsset || new ImageAsset();
     imageAsset._uuid = item.uuid;
     imageAsset._url = rawUrl;
     imageAsset._setRawAsset(rawUrl, false);
@@ -78,13 +78,13 @@ function loadImage (item) {
 // If audio is loaded by url directly, than this loader will wrap it into a new cc.AudioClip object.
 // If audio is loaded by deserialized AudioClip, than this loader will be skipped.
 function loadAudioAsAsset (item, callback) {
-    var loadByDeserializedAsset = (item._owner instanceof cc.Asset);
+    let loadByDeserializedAsset = (item._owner instanceof cc.Asset);
     if (loadByDeserializedAsset) {
         // already has cc.Asset
         return null;
     }
 
-    var audioClip = new cc.AudioClip();
+    let audioClip = new cc.AudioClip();
     audioClip._setRawAsset(item.rawUrl, false);
     audioClip._nativeAsset = item.content;
     return audioClip;
@@ -94,7 +94,7 @@ function loadPlist (item) {
     if (typeof item.content !== 'string') {
         return new Error('Plist Loader: Input item doesn\'t contain string content');
     }
-    var result = plistParser.parse(item.content);
+    let result = plistParser.parse(item.content);
     if (result) {
         return result;
     }
@@ -151,7 +151,7 @@ function loadPVRTex (item) {
         return pvrAsset;
     }
     else if (header[11] === 0x21525650) {
-        var headerLength = header[0],
+        let headerLength = header[0],
 		height = header[1],
         width = header[2]
         // todo: use new Uint8Array(buffer, headerLength) instead
@@ -214,7 +214,7 @@ function loadPKMTex(item) {
     return etcAsset;
 }
 
-var defaultMap = {
+let defaultMap = {
     // Images
     'png' : loadImage,
     'jpg' : loadImage,
@@ -262,7 +262,7 @@ var defaultMap = {
     'default' : loadNothing
 };
 
-var ID = 'Loader';
+let ID = 'Loader';
 
 /**
  * The loader pipe, it can load several types of files:
@@ -282,20 +282,20 @@ var ID = 'Loader';
  * @param {Object} extMap Custom supported types with corresponded handler
  * @example
  * ```
- * var loader = new Loader({
+ * let loader = new Loader({
  *    // This will match all url with `.scene` extension or all url with `scene` type
  *    'scene' : function (url, callback) {}
  * });
  * ```
  */
-export default class Loader {
+export default class Loader implements IPipe {
     static ID = ID;
-
-    constructor (extMap) {
-        this.id = ID;
-        this.async = true;
-        this.pipeline = null;
-
+    
+    public id = ID;
+    public async = true;
+    public pipeline: Pipeline | null = null;
+    private extMap:object;
+    constructor (extMap?) {
         this.extMap = mixin(extMap, defaultMap);
     }
 
@@ -303,14 +303,14 @@ export default class Loader {
      * Add custom supported types handler or modify existing type handler.
      * @param {Object} extMap Custom supported types with corresponded handler
      */
-    addHandlers (extMap) {
+    addHandlers (extMap?) {
         this.extMap = mixin(this.extMap, extMap);
     }
 
     handle (item, callback) {
-        var loadFunc = this.extMap[item.type] || this.extMap['default'];
+        let loadFunc = this.extMap[item.type] || this.extMap['default'];
         return loadFunc.call(this, item, callback);
     }
 }
 
-Pipeline.Loader = Loader;
+// Pipeline.Loader = Loader;

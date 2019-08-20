@@ -27,15 +27,16 @@
  * @category loader
  */
 
-import {createMap} from '../core/utils/js';
+import {createMap} from '../utils/js';
+import { RawAsset } from '../assets';
 
 function parseDepends (key, parsed) {
-    var item = cc.loader.getItem(key);
+    let item = cc.loader.getItem(key);
     if (item) {
-        var depends = item.dependKeys;
+        let depends = item.dependKeys;
         if (depends) {
-            for (var i = 0; i < depends.length; i++) {
-                var depend = depends[i];
+            for (let i = 0; i < depends.length; i++) {
+                let depend = depends[i];
                 if ( !parsed[depend] ) {
                     parsed[depend] = true;
                     parseDepends(depend, parsed);
@@ -50,7 +51,7 @@ function visitAsset (asset, excludeMap) {
     if (!asset._uuid) {
         return;
     }
-    var key = cc.loader._getReferenceKey(asset);
+    let key = cc.loader._getReferenceKey(asset);
     if ( !excludeMap[key] ) {
         excludeMap[key] = true;
         parseDepends(key, excludeMap);
@@ -58,14 +59,14 @@ function visitAsset (asset, excludeMap) {
 }
 
 function visitComponent (comp, excludeMap) {
-    var props = Object.getOwnPropertyNames(comp);
-    for (var i = 0; i < props.length; i++) {
-        var value = comp[props[i]];
+    let props = Object.getOwnPropertyNames(comp);
+    for (let i = 0; i < props.length; i++) {
+        let value = comp[props[i]];
         if (typeof value === 'object' && value) {
             if (Array.isArray(value)) {
                 for (let j = 0; j < value.length; j++) {
                     let val = value[j];
-                    if (val instanceof cc.RawAsset) {
+                    if (val instanceof RawAsset) {
                         visitAsset(val, excludeMap);
                     }
                 }
@@ -74,12 +75,12 @@ function visitComponent (comp, excludeMap) {
                 let keys = Object.getOwnPropertyNames(value);
                 for (let j = 0; j < keys.length; j++) {
                     let val = value[keys[j]];
-                    if (val instanceof cc.RawAsset) {
+                    if (val instanceof RawAsset) {
                         visitAsset(val, excludeMap);
                     }
                 }
             }
-            else if (value instanceof cc.RawAsset) {
+            else if (value instanceof RawAsset) {
                 visitAsset(value, excludeMap);
             }
         }
@@ -97,8 +98,8 @@ function visitNode (node, excludeMap) {
 
 // do auto release
 export function autoRelease (oldSceneAssets, nextSceneAssets, persistNodes) {
-    var releaseSettings = cc.loader._autoReleaseSetting;
-    var excludeMap = createMap();
+    let releaseSettings = cc.loader._autoReleaseSetting;
+    let excludeMap = createMap();
 
     // collect next scene assets
     if (nextSceneAssets) {
@@ -124,7 +125,7 @@ export function autoRelease (oldSceneAssets, nextSceneAssets, persistNodes) {
 
     // remove auto release assets
     // (releasing asset will change _autoReleaseSetting, so don't use for-in)
-    var keys = Object.keys(releaseSettings);
+    let keys = Object.keys(releaseSettings);
     for (let i = 0; i < keys.length; i++) {
         let key = keys[i];
         if (releaseSettings[key] === true && !excludeMap[key]) {
@@ -135,7 +136,7 @@ export function autoRelease (oldSceneAssets, nextSceneAssets, persistNodes) {
 
 // get dependencies not including self
 export function getDependsRecursively (key) {
-    var depends = {};
+    let depends = {};
     parseDepends(key, depends);
     return Object.keys(depends);
 }

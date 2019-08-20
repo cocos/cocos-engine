@@ -23,56 +23,57 @@
  * @hidden
  */
 
-var decodeUuid = require('../core/utils/decode-uuid');
-var Pipeline = require('./pipeline');
+import decodeUuid from '../utils/decode-uuid';
+import { Pipeline, IPipe } from './pipeline';
 
 const ID = 'SubPackPipe';
 const UuidRegex = /([^/\\]*)\.[^\.]*$/;
 
 function getUuidFromURL(url) {
-    var matches = url.match(UuidRegex);
+    let matches = url.match(UuidRegex);
     if (matches) {
         return matches[1];
     }
     return "";
 }
 
-var _uuidToSubPack = Object.create(null);
+let _uuidToSubPack = Object.create(null);
 
-var SubPackPipe = function (subpackage) {
-    this.id = ID;
-    this.async = false;
-    this.pipeline = null;
-    for (var packName in subpackage) {
-        var pack = subpackage[packName];
-        pack.uuids && pack.uuids.forEach(function (val) {
-            var uuid = decodeUuid(val);
-            const uuids = uuid.split('@').map((name) => {
-                return encodeURIComponent(name);
+export class SubPackPipe implements IPipe {
+    static ID = ID;
+    public id = ID;
+    public async = false;
+    public pipeline = null;
+    constructor (subpackage) {
+        for (let packName in subpackage) {
+            let pack = subpackage[packName];
+            pack.uuids && pack.uuids.forEach(function (val) {
+                let uuid = decodeUuid(val);
+                const uuids = uuid.split('@').map((name) => {
+                    return encodeURIComponent(name);
+                });
+                uuid = uuids.join('@');
+                _uuidToSubPack[uuid] = pack.path;
             });
-            uuid = uuids.join('@');
-            _uuidToSubPack[uuid] = pack.path;
-        });
-    }
-};
-
-SubPackPipe.ID = ID;
-
-SubPackPipe.prototype.handle = function (item) {
-    item.url = this.transformURL(item.url);
-    return null;
-};
-
-SubPackPipe.prototype.transformURL = function (url) {
-    var uuid = getUuidFromURL(url);
-    if (uuid) {
-        var subpackage = _uuidToSubPack[uuid];
-        if (subpackage) {
-            // only replace url of native assets
-            return url.replace('res/raw-assets/', subpackage + 'raw-assets/');
         }
     }
-    return url;
-};
 
-Pipeline.SubPackPipe = module.exports = SubPackPipe;
+    handle (item) {
+        item.url = this.transformURL(item.url);
+        return null;
+    }
+
+    transformURL (url) {
+        let uuid = getUuidFromURL(url);
+        if (uuid) {
+            let subpackage = _uuidToSubPack[uuid];
+            if (subpackage) {
+                // only replace url of native assets
+                return url.replace('res/raw-assets/', subpackage + 'raw-assets/');
+            }
+        }
+        return url;
+    }
+}
+
+// Pipeline.SubPackPipe = SubPackPipe;

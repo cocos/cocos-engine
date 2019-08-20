@@ -28,22 +28,29 @@
  * @category loader
  */
 
-import Pipeline from './pipeline';
+import { Pipeline, IPipe } from './pipeline';
 
 const ID = 'MD5Pipe';
 const ExtnameRegex = /(\.[^.\n\\/]*)$/;
 const UuidRegex = /([^/\\]*)\.[^\.]*$/;
 
 function getUuidFromURL (url) {
-    var matches = url.match(UuidRegex);
+    let matches = url.match(UuidRegex);
     if (matches) {
         return matches[1];
     }
     return "";
 }
 
-export default class MD5Pipe {
+export default class MD5Pipe implements IPipe {
     static ID = ID;
+
+    public id = ID;
+    public async = false;
+    public pipeline = null;
+    public md5AssetsMap;
+    public md5NativeAssetsMap;
+    public libraryBase;
 
     constructor (md5AssetsMap, md5NativeAssetsMap, libraryBase) {
         this.id = ID;
@@ -65,18 +72,18 @@ export default class MD5Pipe {
     }
 
     transformURL (url, hashPatchInFolder) {
-        var uuid = getUuidFromURL(url);
+        let uuid = getUuidFromURL(url);
         if (uuid) {
-            var isNativeAsset = !url.match(this.libraryBase);
-            var map = isNativeAsset ? this.md5NativeAssetsMap : this.md5AssetsMap;
+            let isNativeAsset = !url.match(this.libraryBase);
+            let map = isNativeAsset ? this.md5NativeAssetsMap : this.md5AssetsMap;
             let hashValue = map[uuid];
             if (hashValue) {
                 if (hashPatchInFolder) {
-                    var dirname = cc.path.dirname(url);
-                    var basename = cc.path.basename(url);
+                    let dirname = cc.path.dirname(url);
+                    let basename = cc.path.basename(url);
                     url = `${dirname}.${hashValue}/${basename}`;
                 } else {
-                    var matched = false;
+                    let matched = false;
                     url = url.replace(ExtnameRegex, (function(match, p1) {
                         matched = true;
                         return "." + hashValue + p1;
@@ -91,4 +98,4 @@ export default class MD5Pipe {
     }
 }
 
-Pipeline.MD5Pipe = MD5Pipe;
+// Pipeline.MD5Pipe = MD5Pipe;

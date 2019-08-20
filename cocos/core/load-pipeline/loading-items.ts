@@ -28,45 +28,60 @@
  * @category loader
  */
 
-import {CallbacksInvoker} from '../core/event/callbacks-invoker';
-import {extname} from '../core/utils/path';
-import {createMap, mixin} from '../core/utils/js';
+import {CallbacksInvoker} from '../event/callbacks-invoker';
+import {extname} from '../utils/path';
+import {createMap, mixin} from '../utils/js';
 
-var _qid = (0|(Math.random()*998));
-var _queues = createMap(true);
-var _pool = [];
-var _POOL_MAX_LENGTH = 10;
+let _qid = (0|(Math.random()*998));
+let _queues = createMap(true);
+let _pool:Array<LoadingItems> = [];
+const _POOL_MAX_LENGTH = 10;
 
-var ItemState = {
-    WORKING: 1,
-    COMPLETE: 2,
-    ERROR: 3
+export interface IItem {
+    queueId;
+    id:string;
+    url; // real download url, maybe changed
+    rawUrl; // url used in scripts
+    urlParam;
+    type:string;
+    error:Error|null;
+    content:any;
+    complete:boolean;
+    states:object;
+    deps;
+    isScene:boolean;
+}
+
+enum ItemState {
+    WORKING,
+    COMPLETE,
+    ERROR
 };
 
-var _queueDeps = createMap(true);
+let _queueDeps = createMap(true);
 
 function isIdValid (id) {
-    var realId = id.url || id;
+    let realId = id.url || id;
     return (typeof realId === 'string');
 }
 
 function _parseUrlParam (url) {
     if (!url) return undefined;
-    var split = url.split('?');
+    let split = url.split('?');
     if (!split || !split[0] || !split[1]) {
         return undefined;
     }
-    var urlParam = {};
-    var queries = split[1].split('&');
+    let urlParam = {};
+    let queries = split[1].split('&');
     queries.forEach(function (item) {
-        var itemSplit = item.split('=');
+        let itemSplit = item.split('=');
         urlParam[itemSplit[0]] = itemSplit[1];
     });
     return urlParam;
 }
 function createItem (id, queueId) {
-    var url = (typeof id === 'object') ? id.url : id;
-    var result = {
+    let url = (typeof id === 'object') ? id.url : id;
+    let result = {
         queueId: queueId,
         id: url,
         url: url, // real download url, maybe changed
@@ -84,8 +99,8 @@ function createItem (id, queueId) {
     if (typeof id === 'object') {
         mixin(result, id);
         if (id.skips) {
-            for (var i = 0; i < id.skips.length; i++) {
-                var skip = id.skips[i];
+            for (let i = 0; i < id.skips.length; i++) {
+                let skip = id.skips[i];
                 result.states[skip] = ItemState.COMPLETE;
             }
         }
@@ -97,22 +112,22 @@ function createItem (id, queueId) {
     return result;
 }
 
-var checkedIds = [];
-function checkCircleReference(owner, item, recursiveCall) {
+let _checkedIds:Array<string> = [];
+function checkCircleReference(owner, item:IItem, recursiveCall?) {
     if (!owner || !item) {
         return false;
     }
-    var result = false;
-    checkedIds.push(item.id);
+    let result = false;
+    _checkedIds.push(item.id);
     if (item.deps) {
-        var i, deps = item.deps, subDep;
+        let i, deps = item.deps, subDep;
         for (i = 0; i < deps.length; i++) {
             subDep = deps[i];
             if (subDep.id === owner.id) {
                 result = true;
                 break;
             }
-            else if (checkedIds.indexOf(subDep.id) >= 0) {
+            else if (_checkedIds.indexOf(subDep.id) >= 0) {
                 continue;
             }
             else if (subDep.deps && checkCircleReference(owner, subDep, true)) {
@@ -122,7 +137,7 @@ function checkCircleReference(owner, item, recursiveCall) {
         }
     }
     if (!recursiveCall) {
-        checkedIds.length = 0;
+        _checkedIds.length = 0;
     }
     return result;
 }
@@ -163,7 +178,7 @@ function checkCircleReference(owner, item, recursiveCall) {
  * @class LoadingItems
  * @extends CallbacksInvoker
  */
-export default class LoadingItems extends CallbacksInvoker {
+export class LoadingItems extends CallbacksInvoker {
     /**
      * @en The item states of the LoadingItems, its value could be LoadingItems.ItemState.WORKING | LoadingItems.ItemState.COMPLETET | LoadingItems.ItemState.ERROR
      * @zh LoadingItems 队列中的加载项状态，状态的值可能是 LoadingItems.ItemState.WORKING | LoadingItems.ItemState.COMPLETET | LoadingItems.ItemState.ERROR
@@ -184,100 +199,99 @@ export default class LoadingItems extends CallbacksInvoker {
     static ItemState = new cc.Enum(ItemState);
 
     /**
-     * @class LoadingItems
-     * @extends CallbacksInvoker
+     * @en This is a callback which will be invoked while an item flow out the pipeline.
+     * You can pass the callback function in LoadingItems.create or set it later.
+     * @zh 这个回调函数将在 item 加载结束后被调用。你可以在构造时传递这个回调函数或者是在构造之后直接设置。
+     * @method onProgress
+     * @param {Number} completedCount The number of the items that are already completed.
+     * @param {Number} totalCount The total number of the items.
+     * @param {Object} item The latest item which flow out the pipeline.
+     * @example
+     * ```
+     *  loadingItems.onProgress (completedCount, totalCount, item) {
+     *      let progress = (100 * completedCount / totalCount).toFixed(2);
+     *      cc.log(progress + '%');
+     *  }
+     * ```
      */
+    public onProgress:Function|undefined;
+
+    /**
+     * @en This is a callback which will be invoked while all items is completed,
+     * You can pass the callback function in LoadingItems.create or set it later.
+     * @zh 该函数将在加载队列全部完成时被调用。你可以在构造时传递这个回调函数或者是在构造之后直接设置。
+     * @method onComplete
+     * @param {Array} errors All errored urls will be stored in this array, if no error happened, then it will be null
+     * @param {LoadingItems} items All items.
+     * @example
+     * ```
+     *  loadingItems.onComplete (errors, items) {
+     *      if (error)
+     *          cc.log('Completed with ' + errors.length + ' errors');
+     *      else
+     *          cc.log('Completed ' + items.totalCount + ' items');
+     *  }
+     * ```
+     */
+    public onComplete:Function|undefined;
+    
+    /**
+     * @en The map of all items.
+     * @zh 存储所有加载项的对象。
+     * @property map
+     * @type {Object}
+     */
+    public map = createMap(true);
+
+    /**
+     * @en The map of completed items.
+     * @zh 存储已经完成的加载项。
+     * @property completed
+     * @type {Object}
+     */
+    public completed = {};
+
+    /**
+     * @en Total count of all items.
+     * @zh 所有加载项的总数。
+     * @property totalCount
+     * @type {Number}
+     */
+    public totalCount = 0;
+
+    /**
+     * @en Total count of completed items.
+     * @zh 所有完成加载项的总数。
+     * @property completedCount
+     * @type {Number}
+     */
+    public completedCount = 0;
+
+    /**
+     * @en Activated or not.
+     * @zh 是否启用。
+     * @property active
+     * @type {Boolean}
+     */
+    public active:boolean;
+
+    private _id:number;
+    private _pipeline;
+    private _errorUrls:Array<string> = [];
+    private _appending = false;
+    public _ownerQueue = null;
 
     constructor (pipeline, urlList, onProgress, onComplete) {
         super();
 
         this._id = ++_qid;
-
         _queues[this._id] = this;
 
         this._pipeline = pipeline;
 
-        this._errorUrls = [];
-
-        this._appending = false;
-
-        this._ownerQueue = null;
-
-        /**
-         * @en This is a callback which will be invoked while an item flow out the pipeline.
-         * You can pass the callback function in LoadingItems.create or set it later.
-         * @zh 这个回调函数将在 item 加载结束后被调用。你可以在构造时传递这个回调函数或者是在构造之后直接设置。
-         * @method onProgress
-         * @param {Number} completedCount The number of the items that are already completed.
-         * @param {Number} totalCount The total number of the items.
-         * @param {Object} item The latest item which flow out the pipeline.
-         * @example
-         * ```
-         *  loadingItems.onProgress (completedCount, totalCount, item) {
-         *      var progress = (100 * completedCount / totalCount).toFixed(2);
-         *      cc.log(progress + '%');
-         *  }
-         * ```
-         */
         this.onProgress = onProgress;
-
-        /**
-         * @en This is a callback which will be invoked while all items is completed,
-         * You can pass the callback function in LoadingItems.create or set it later.
-         * @zh 该函数将在加载队列全部完成时被调用。你可以在构造时传递这个回调函数或者是在构造之后直接设置。
-         * @method onComplete
-         * @param {Array} errors All errored urls will be stored in this array, if no error happened, then it will be null
-         * @param {LoadingItems} items All items.
-         * @example
-         * ```
-         *  loadingItems.onComplete (errors, items) {
-         *      if (error)
-         *          cc.log('Completed with ' + errors.length + ' errors');
-         *      else
-         *          cc.log('Completed ' + items.totalCount + ' items');
-         *  }
-         * ```
-         */
         this.onComplete = onComplete;
 
-        /**
-         * @en The map of all items.
-         * @zh 存储所有加载项的对象。
-         * @property map
-         * @type {Object}
-         */
-        this.map = createMap(true);
-
-        /**
-         * @en The map of completed items.
-         * @zh 存储已经完成的加载项。
-         * @property completed
-         * @type {Object}
-         */
-        this.completed = {};
-
-        /**
-         * @en Total count of all items.
-         * @zh 所有加载项的总数。
-         * @property totalCount
-         * @type {Number}
-         */
-        this.totalCount = 0;
-
-        /**
-         * @en Total count of completed items.
-         * @zh 所有完成加载项的总数。
-         * @property completedCount
-         * @type {Number}
-         */
-        this.completedCount = 0;
-
-        /**
-         * @en Activated or not.
-         * @zh 是否启用。
-         * @property active
-         * @type {Boolean}
-         */
         if (this._pipeline) {
             this.active = true;
         }
@@ -310,22 +324,22 @@ export default class LoadingItems extends CallbacksInvoker {
      * @example
      * ```
      *  cc.LoadingItems.create(cc.loader, ['a.png', 'b.plist'], function (completedCount, totalCount, item) {
-     *      var progress = (100 * completedCount / totalCount).toFixed(2);
+     *      let progress = (100 * completedCount / totalCount).toFixed(2);
      *      cc.log(progress + '%');
      *  }, function (errors, items) {
      *      if (errors) {
-     *          for (var i = 0; i < errors.length; ++i) {
+     *          for (let i = 0; i < errors.length; ++i) {
      *              cc.log('Error url: ' + errors[i] + ', error: ' + items.getError(errors[i]));
      *          }
      *      }
      *      else {
-     *          var result_a = items.getContent('a.png');
+     *          let result_a = items.getContent('a.png');
      *          // ...
      *      }
      *  })
      * ```
      */
-    static create (pipeline, urlList, onProgress, onComplete) {
+    static create (pipeline, urlList, onProgress?, onComplete?) {
         if (onProgress === undefined) {
             if (typeof urlList === 'function') {
                 onComplete = urlList;
@@ -344,7 +358,7 @@ export default class LoadingItems extends CallbacksInvoker {
             }
         }
 
-        var queue = _pool.pop();
+        let queue = _pool.pop();
         if (queue) {
             queue._pipeline = pipeline;
             queue.onProgress = onProgress;
@@ -383,7 +397,7 @@ export default class LoadingItems extends CallbacksInvoker {
      * @param {Object} item The item which has completed
      */
     static itemComplete (item) {
-        var queue = _queues[item.queueId];
+        let queue = _queues[item.queueId];
         if (queue) {
             // console.log('----- Completed by pipeline ' + item.id + ', rest: ' + (queue.totalCount - queue.completedCount-1));
             queue.itemComplete(item.id);
@@ -391,7 +405,7 @@ export default class LoadingItems extends CallbacksInvoker {
     }
 
     static initQueueDeps (queue) {
-        var dep = _queueDeps[queue._id];
+        let dep = _queueDeps[queue._id];
         if (!dep) {
             dep = _queueDeps[queue._id] = {
                 completed: [],
@@ -405,11 +419,11 @@ export default class LoadingItems extends CallbacksInvoker {
     }
 
     static registerQueueDep (owner, depId) {
-        var queueId = owner.queueId || owner;
+        let queueId = owner.queueId || owner;
         if (!queueId) {
             return false;
         }
-        var queueDepList = _queueDeps[queueId];
+        let queueDepList = _queueDeps[queueId];
         // Owner is root queue
         if (queueDepList) {
             if (queueDepList.deps.indexOf(depId) === -1) {
@@ -418,8 +432,8 @@ export default class LoadingItems extends CallbacksInvoker {
         }
         // Owner is an item in the intermediate queue
         else if (owner.id) {
-            for (var id in _queueDeps) {
-                var queue = _queueDeps[id];
+            for (let id in _queueDeps) {
+                let queue = _queueDeps[id];
                 // Found root queue
                 if (queue.deps.indexOf(owner.id) !== -1) {
                     if (queue.deps.indexOf(depId) === -1) {
@@ -431,8 +445,8 @@ export default class LoadingItems extends CallbacksInvoker {
     }
 
     static finishDep (depId) {
-        for (var id in _queueDeps) {
-            var queue = _queueDeps[id];
+        for (let id in _queueDeps) {
+            let queue = _queueDeps[id];
             // Found root queue
             if (queue.deps.indexOf(depId) !== -1 && queue.completed.indexOf(depId) === -1) {
                 queue.completed.push(depId);
@@ -448,7 +462,7 @@ export default class LoadingItems extends CallbacksInvoker {
      * @param {any} [owner]
      * @return {Array} The accepted url list, some invalid items could be refused.
      */
-    append (urlList, owner) {
+    append (urlList, owner?) {
         if (!this.active) {
             return [];
         }
@@ -457,7 +471,7 @@ export default class LoadingItems extends CallbacksInvoker {
         }
 
         this._appending = true;
-        var accepted = [], i, url, item;
+        let accepted:Array<IItem> = [], i, url, item;
         for (i = 0; i < urlList.length; ++i) {
             url = urlList[i];
 
@@ -475,8 +489,8 @@ export default class LoadingItems extends CallbacksInvoker {
                 }
                 // Not completed yet, should wait it
                 else {
-                    var self = this;
-                    var queue = _queues[url.queueId];
+                    let self = this;
+                    let queue = _queues[url.queueId];
                     if (queue) {
                         this.totalCount++;
                         LoadingItems.registerQueueDep(owner || this._id, url.id);
@@ -492,7 +506,7 @@ export default class LoadingItems extends CallbacksInvoker {
             // Queue new items
             if (isIdValid(url)) {
                 item = createItem(url, this._id);
-                var key = item.id;
+                let key = item.id;
                 // No duplicated url
                 if (!this.map[key]) {
                     this.map[key] = item;
@@ -520,7 +534,7 @@ export default class LoadingItems extends CallbacksInvoker {
 
     _childOnProgress (item) {
         if (this.onProgress) {
-            var dep = _queueDeps[this._id];
+            let dep = _queueDeps[this._id];
             this.onProgress(dep ? dep.completed.length : this.completedCount, dep ? dep.deps.length : this.totalCount, item);
         }
     }
@@ -531,7 +545,7 @@ export default class LoadingItems extends CallbacksInvoker {
      * @method allComplete
      */
     allComplete () {
-        var errors = this._errorUrls.length === 0 ? null : this._errorUrls;
+        let errors = this._errorUrls.length === 0 ? null : this._errorUrls;
         if (this.onComplete) {
             this.onComplete(errors, this);
         }
@@ -577,8 +591,8 @@ export default class LoadingItems extends CallbacksInvoker {
      * @return {Object}
      */
     getContent (id) {
-        var item = this.map[id];
-        var ret = null;
+        let item = this.map[id];
+        let ret = null;
         if (item) {
             if (item.content) {
                 ret = item.content;
@@ -599,8 +613,8 @@ export default class LoadingItems extends CallbacksInvoker {
      * @return {Object}
      */
     getError (id) {
-        var item = this.map[id];
-        var ret = null;
+        let item = this.map[id];
+        let ret = null;
         if (item) {
             if (item.error) {
                 ret = item.error;
@@ -618,7 +632,7 @@ export default class LoadingItems extends CallbacksInvoker {
      * @param {String} url
      */
     removeItem (url) {
-        var item = this.map[url];
+        let item = this.map[url];
         if (!item) return;
 
         if (!this.completed[item.alias || url]) return;
@@ -641,13 +655,13 @@ export default class LoadingItems extends CallbacksInvoker {
      * @param {String} id The item url
      */
     itemComplete (id) {
-        var item = this.map[id];
+        let item = this.map[id];
         if (!item) {
             return;
         }
 
         // Register or unregister errors
-        var errorListId = this._errorUrls.indexOf(id);
+        let errorListId = this._errorUrls.indexOf(id);
         if (item.error && errorListId === -1) {
             this._errorUrls.push(id);
         }
@@ -660,7 +674,7 @@ export default class LoadingItems extends CallbacksInvoker {
 
         LoadingItems.finishDep(item.id);
         if (this.onProgress) {
-            var dep = _queueDeps[this._id];
+            let dep = _queueDeps[this._id];
             this.onProgress(dep ? dep.completed.length : this.completedCount, dep ? dep.deps.length : this.totalCount, item);
         }
 
@@ -685,8 +699,8 @@ export default class LoadingItems extends CallbacksInvoker {
         this._pipeline = null;
         this._ownerQueue = null;
         this._errorUrls.length = 0;
-        this.onProgress = null;
-        this.onComplete = null;
+        this.onProgress = undefined;
+        this.onComplete = undefined;
 
         this.map = createMap(true);
         this.completed = {};
@@ -706,59 +720,65 @@ export default class LoadingItems extends CallbacksInvoker {
             _pool.push(this);
         }
     }
+
+    /**
+     * @en Add a listener for an item, the callback will be invoked when the item is completed.
+     * @zh 监听加载项（通过 key 指定）的完成事件。
+     * @method addListener
+     * @param {String} key
+     * @param {Function} callback - can be null
+     * @param {Object} target - can be null
+     * @return {Boolean} whether the key is new
+     */
+    addListener (key, callback, target) {
+        return super.on(key, callback, target);
+    }
+
+    /**
+     * @en
+     * Check if the specified key has any registered callback.
+     * If a callback is also specified, it will only return true if the callback is registered.
+     * @zh
+     * 检查指定的加载项是否有完成事件监听器。
+     * 如果同时还指定了一个回调方法，并且回调有注册，它只会返回 true。
+     * @method hasListener
+     * @param {String} key
+     * @param {Function} [callback]
+     * @param {Object} [target]
+     * @return {Boolean}
+     */
+    hasListener (key, callback?, target?) {
+        return super.hasEventListener(key, callback, target);
+    }
+
+    /**
+     * @en
+     * Removes a listener.
+     * It will only remove when key, callback, target all match correctly.
+     * @zh
+     * 移除指定加载项已经注册的完成事件监听器。
+     * 只会删除 key, callback, target 均匹配的监听器。
+     * @method remove
+     * @param {String} key
+     * @param {Function} callback
+     * @param {Object} target
+     * @return {Boolean} removed
+     */
+    removeListener (key, callback?, target?) {
+        return super.off(key, callback, target);
+    }
+
+    /**
+     * @en
+     * Removes all callbacks registered in a certain event
+     * type or all callbacks registered with a certain target.
+     * @zh 删除指定目标的所有完成事件监听器。
+     * @method removeAllListeners
+     * @param {String|Object} key - The event key to be removed or the target to be removed
+     */
+    removeAllListeners (key) {
+        super.removeAll(key);
+    }
 }
-
-let proto = LoadingItems.prototype;
-
-/**
- * @en Add a listener for an item, the callback will be invoked when the item is completed.
- * @zh 监听加载项（通过 key 指定）的完成事件。
- * @method addListener
- * @param {String} key
- * @param {Function} callback - can be null
- * @param {Object} target - can be null
- * @return {Boolean} whether the key is new
- */
-proto.addListener = CallbacksInvoker.prototype.on;
-
-/**
- * @en
- * Check if the specified key has any registered callback.
- * If a callback is also specified, it will only return true if the callback is registered.
- * @zh
- * 检查指定的加载项是否有完成事件监听器。
- * 如果同时还指定了一个回调方法，并且回调有注册，它只会返回 true。
- * @method hasListener
- * @param {String} key
- * @param {Function} [callback]
- * @param {Object} [target]
- * @return {Boolean}
- */
-proto.hasListener = CallbacksInvoker.prototype.hasEventListener;
-
-/**
- * @en
- * Removes a listener.
- * It will only remove when key, callback, target all match correctly.
- * @zh
- * 移除指定加载项已经注册的完成事件监听器。
- * 只会删除 key, callback, target 均匹配的监听器。
- * @method remove
- * @param {String} key
- * @param {Function} callback
- * @param {Object} target
- * @return {Boolean} removed
- */
-proto.removeListener = CallbacksInvoker.prototype.off;
-
-/**
- * @en
- * Removes all callbacks registered in a certain event
- * type or all callbacks registered with a certain target.
- * @zh 删除指定目标的所有完成事件监听器。
- * @method removeAllListeners
- * @param {String|Object} key - The event key to be removed or the target to be removed
- */
-proto.removeAllListeners = CallbacksInvoker.prototype.removeAll;
 
 cc.LoadingItems = LoadingItems;

@@ -27,32 +27,34 @@
  * @category loader
  */
 
-var _noCacheRex = /\?/;
+import {urlAppendTimestamp} from './utils';
 
-export function urlAppendTimestamp (url) {
-    if (cc.game.config['noCache'] && typeof url === 'string') {
-        if (_noCacheRex.test(url))
-            url += '&_t=' + (new Date() - 0);
-        else
-            url += '?_t=' + (new Date() - 0);
-    }
-    return url;
-}
+export default function (item, callback) {
+    let url = item.url;
+    url = urlAppendTimestamp(url);
 
-
-export function decompressJson (data, keys) {
-    if (Array.isArray(data)) {
-        for (var i = 0, l = data.length; i < l; i++) {
-            decompressJson(data[i], keys);
-        }
-    } else if (typeof data === 'object') {
-        for (var key in data) {
-            decompressJson(data[key], keys);
-            if (!Number.isNaN(Number(key))) {
-                data[keys[key]] = data[key];
-                delete data[key];
+    let xhr = cc.loader.getXMLHttpRequest(),
+        errInfo = 'Load text file failed: ' + url;
+    xhr.open('GET', url, true);
+    if (xhr.overrideMimeType) xhr.overrideMimeType('text/plain; charset=utf-8');
+    xhr.onload = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200 || xhr.status === 0) {
+                callback(null, xhr.responseText);
+            }
+            else {
+                callback({status:xhr.status, errorMessage:errInfo + '(wrong status)'});
             }
         }
-    }
-    return null;
+        else {
+            callback({status:xhr.status, errorMessage:errInfo + '(wrong readyState)'});
+        }
+    };
+    xhr.onerror = function(){
+        callback({status:xhr.status, errorMessage:errInfo + '(error)'});
+    };
+    xhr.ontimeout = function(){
+        callback({status:xhr.status, errorMessage:errInfo + '(time out)'});
+    };
+    xhr.send(null);
 }
