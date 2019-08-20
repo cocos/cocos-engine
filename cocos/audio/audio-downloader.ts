@@ -28,11 +28,12 @@
  */
 
 import sys from '../core/platform/CCSys';
-import * as debug from '../core/platform/CCDebug';
-import { AudioClip, AudioType } from '../3d/assets/audio/clip';
+import { log, getError } from '../core/platform/CCDebug';
+import { AudioClip, AudioType } from './assets/clip';
+import { loader } from '../core/load-pipeline';
 
-var __audioSupport = sys.__audioSupport;
-var formatSupport = __audioSupport.format;
+const __audioSupport = sys.__audioSupport;
+const formatSupport = __audioSupport.format;
 
 function loadWXAudio (item, callback) {
     var clip = wx.createInnerAudioContext();
@@ -64,7 +65,7 @@ function loadDomAudio (item, callback) {
     var failure = function () {
         clearEvent();
         var message = 'load audio failure - ' + item.url;
-        cc.log(message);
+        log(message);
         callback(message);
     };
     dom.addEventListener("canplaythrough", success, false);
@@ -76,9 +77,9 @@ function loadDomAudio (item, callback) {
 function loadWebAudio (item, callback) {
     const context = __audioSupport.context;
     if (!context)
-        callback(new Error(debug.getError(4926)));
+        callback(new Error(getError(4926)));
 
-    var request = cc.loader.getXMLHttpRequest();
+    var request = loader.getXMLHttpRequest();
     request.open("GET", item.url, true);
     request.responseType = "arraybuffer";
 
@@ -100,23 +101,31 @@ function loadWebAudio (item, callback) {
     request.send();
 }
 
-export default function downloadAudio (item, callback) {
+function downloadAudio (item, callback) {
     if (formatSupport.length === 0) {
-        return new Error(debug.getError(4927));
+        return new Error(getError(4927));
     }
 
-    let loader;
+    let audioLoader;
     if (CC_WECHATGAME) {
-        loader = loadWXAudio;
+        audioLoader = loadWXAudio;
     } else if (!__audioSupport.WEB_AUDIO) {
-        loader = loadDomAudio; // If WebAudio is not supported, load using DOM mode
+        audioLoader = loadDomAudio; // If WebAudio is not supported, load using DOM mode
     } else {
         let loadByDeserializedAudio = item._owner instanceof AudioClip;
         if (loadByDeserializedAudio) {
-            loader = (item._owner.loadMode === AudioType.WEB_AUDIO) ? loadWebAudio : loadDomAudio;
+            audioLoader = (item._owner.loadMode === AudioType.WEB_AUDIO) ? loadWebAudio : loadDomAudio;
         } else {
-            loader = (item.urlParam && item.urlParam['useDom']) ? loadDomAudio : loadWebAudio;
+            audioLoader = (item.urlParam && item.urlParam['useDom']) ? loadDomAudio : loadWebAudio;
         }
     }
-    loader(item, callback);
+    audioLoader(item, callback);
 }
+
+loader.downloader.addHandlers({
+    // Audio
+    'mp3' : downloadAudio,
+    'ogg' : downloadAudio,
+    'wav' : downloadAudio,
+    'm4a' : downloadAudio,
+});
