@@ -3254,16 +3254,6 @@ if (CC_EDITOR) {
             type: cc.Float,
             editorOnly: true
         },
-        _rotationX: {
-            default: undefined,
-            type: cc.Float,
-            editorOnly: true
-        },
-        _rotationY: {
-            default: undefined,
-            type: cc.Float,
-            editorOnly: true
-        },
     });
 }
 
