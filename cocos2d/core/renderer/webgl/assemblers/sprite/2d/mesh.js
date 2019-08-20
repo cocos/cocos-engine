@@ -41,13 +41,13 @@ module.exports = {
         if (vertices) {
             if (renderData.vertexCount !== vertices.x.length) {
                 renderData.vertexCount = vertices.x.length;
-                renderData.indiceCount = vertices.triangles.length;
                 
                 // 1 for world vertices, 2 for local vertices
                 renderData.dataLength = renderData.vertexCount * 2;
 
                 renderData.uvDirty = renderData.vertDirty = true;
             }
+            renderData.indiceCount = vertices.triangles.length;
 
             if (renderData.uvDirty) {
                 this.updateUVs(sprite);
