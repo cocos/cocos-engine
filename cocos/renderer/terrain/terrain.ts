@@ -253,9 +253,6 @@ export class TerrainBlock {
         };
 
         this._renderable._model = this._renderable._getRenderScene().createModel(Model, this._node);
-        if (this._renderable._model != null) {
-            this._renderable._model.viewID = 0;
-        }
 
         // reset weightmap
         this._updateWeightMap();
