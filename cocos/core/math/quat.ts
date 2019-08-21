@@ -31,7 +31,7 @@ import CCClass from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat3 } from './mat3';
 import { IQuatLike, IVec3Like } from './type-define';
-import { EPSILON, toDegree, toRadian } from './utils';
+import { EPSILON, toDegree } from './utils';
 import { Vec3 } from './vec3';
 
 let _x: number = 0.0;
@@ -474,7 +474,7 @@ export class Quat extends ValueType {
     }
 
     /**
-     * @zh 根据欧拉角信息计算四元数，旋转顺序为 ZYX
+     * @zh 根据欧拉角信息计算四元数，旋转顺序为 YZX
      */
     public static fromEuler <Out extends IQuatLike> (out: Out, x: number, y: number, z: number) {
         x *= halfToRad;
@@ -539,14 +539,14 @@ export class Quat extends ValueType {
 
     /**
      * @zh
-     * 根据四元数计算欧拉角，返回角度 x, y 在 [-180, 180] 区间内, z 默认在 [-90, 90] 区间内，旋转顺序为 ZYX
+     * 根据四元数计算欧拉角，返回角度 x, y 在 [-180, 180] 区间内, z 默认在 [-90, 90] 区间内，旋转顺序为 YZX
      * @param outerZ z 取值范围区间改为 [-180, -90] U [90, 180]
      */
     public static toEuler <Out extends IVec3Like> (out: Out, q: IQuatLike, outerZ?: boolean) {
         const { x, y, z, w } = q;
-        let bank: number = NaN;
-        let heading: number = NaN;
-        let attitude: number = NaN;
+        let bank = 0;
+        let heading = 0;
+        let attitude = 0;
         const test = x * y + z * w;
         if (test > 0.499999) {
             bank = 0; // default to zero
