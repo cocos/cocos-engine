@@ -139,7 +139,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     }
 
     protected _doCreateState (clip: AnimationClip, name: string) {
-        if (!(clip instanceof SkeletalAnimationClip)) { console.warn('non-skeletal clip bound to skeletal component'); }
+        if (!(clip instanceof SkeletalAnimationClip)) { console.warn('non-skeletal clip in skeletal component'); }
         const state = super._doCreateState(clip, name) as SkeletalAnimationState;
         state.rebuildSocketCurves(this._sockets);
         return state;
