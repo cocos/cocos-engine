@@ -498,7 +498,7 @@ var Sprite = cc.Class({
                 var size = this._spriteFrame._originalSize;
                 this.node.setContentSize(size);
             } else if (SizeMode.TRIMMED === this._sizeMode) {
-                var rect = this._spriteFrame.getRect();
+                var rect = this._spriteFrame._rect;
                 this.node.setContentSize(rect.width, rect.height);
             }
             
