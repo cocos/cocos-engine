@@ -38,15 +38,12 @@ var AnimationManager = cc.Class({
     update: function (dt) {
         var iterator = this._anims;
         var array = iterator.array;
-        var iti = iterator.i = 0;
-        var arrLen = array.length;
-        for (iti = 0; iti < arrLen; ++iti) {
-            var anim = array[iti];
+        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+            var anim = array[iterator.i];
             if (anim._isPlaying && !anim._isPaused) {
                 anim.update(dt);
             }
         }
-        iterator.i = iti;
 
         var events = this._delayEvents;
         for (let i = 0, l = events.length; i < l; i++) {
