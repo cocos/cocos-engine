@@ -140,6 +140,7 @@ var _scissorRect = null;
  *  - cc.view.methodName(); <br/>
  *
  * @class View
+ * @extends EventTarget
  */
 var View = function () {
     EventTarget.call(this);
