@@ -125,12 +125,10 @@ let RenderComponent = cc.Class({
 
     _onNodeSizeDirty () {
         this.setVertsDirty();
-        this.markForUpdateRenderData(true);
     },
 
     _on3DNodeChanged () {
         this.setVertsDirty();
-        this.markForUpdateRenderData(true);
     },
     
     _canRender () {
