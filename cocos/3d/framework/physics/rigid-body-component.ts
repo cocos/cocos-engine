@@ -9,6 +9,7 @@ import {
     executionOrder,
     menu,
     property,
+    disallowMultiple,
 } from '../../../core/data/class-decorator';
 import { Quat, Vec3 } from '../../../core/math';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
@@ -27,6 +28,7 @@ const NonRigidBodyProperties = {
 @executionOrder(99)
 @menu('Components/RigidBodyComponent')
 @executeInEditMode
+@disallowMultiple
 export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
@@ -313,6 +315,18 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     public applyLocalImpulse (impulse: Vec3, localPoint?: Vec3) {
         if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
             this._body!.applyLocalImpulse(impulse, localPoint);
+        }
+    }
+    
+    public applyTorque (torque: Vec3) {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+            this._body!.applyTorque(torque);
+        }
+    }
+
+    public applyLocalTorque (torque: Vec3) {
+        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+            this._body!.applyLocalTorque(torque);
         }
     }
 

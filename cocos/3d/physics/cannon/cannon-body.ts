@@ -320,6 +320,26 @@ export class CannonRigidBody implements RigidBodyBase {
         this._body.applyLocalImpulse(Vec3.copy(_tCannonV1, impulse), Vec3.copy(_tCannonV2, localPoint));
     }
 
+    public applyTorque (torque: Vec3): void {
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+        this._body.torque.x += torque.x;
+        this._body.torque.y += torque.y;
+        this._body.torque.z += torque.z;
+    }
+
+    public applyLocalTorque (torque: Vec3): void {
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+        Vec3.copy(_tCannonV1, torque);
+        this._body.vectorToWorldFrame(_tCannonV1, _tCannonV1);        
+        this._body.torque.x += _tCannonV1.x;
+        this._body.torque.y += _tCannonV1.y;
+        this._body.torque.z += _tCannonV1.z;
+    }
+
     public setWorld (world: PhysicsWorldBase | null) {
         if (this._world) {
             this._body.removeEventListener('collide', this._onCollidedListener);
