@@ -436,6 +436,9 @@ var Sprite = cc.Class({
                 this._spriteFrame.ensureLoadTexture();
             }
         }
+        else {
+            this._activateMaterial();
+        }
     },
 
     _on3DNodeChanged () {
@@ -508,6 +511,7 @@ var Sprite = cc.Class({
             }
             
             this.setVertsDirty();
+            this._activateMaterial();
         }
     },
 
