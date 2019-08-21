@@ -618,6 +618,8 @@ export class WidgetComponent extends Component {
 
     protected _registerTargetEvents () {
         const target = this._target || this.node.parent;
+        // Ensure target can be found in unregistration, in case parent is null during setParent(null) process
+        this._target = target;
         if (target){
             target.on(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
             target.on(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
