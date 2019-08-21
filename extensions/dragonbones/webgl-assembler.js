@@ -224,12 +224,16 @@ export default class ArmatureAssembler extends Assembler {
         if (parentMat) {
             let parentMatm = parentMat.m;
             _m00 = parentMatm[0];
-            _m04 = parentMatm[4];
-            _m12 = parentMatm[12];
             _m01 = parentMatm[1];
+            _m04 = parentMatm[4];
             _m05 = parentMatm[5];
+            _m12 = parentMatm[12];
             _m13 = parentMatm[13];
         }
+
+        let justTranslate = _m00 === 1 && _m01 === 0 && _m04 === 0 && _m05 === 1;
+        let needBatch = _handleVal == NEED_BATCH || _handleVal == NEED_COLOR_BATCH;
+        let calcTranslate = needBatch && justTranslate;
 
         let colorOffset = 0;
         let colors = frame.colors;
@@ -265,16 +269,19 @@ export default class ArmatureAssembler extends Assembler {
             segVFCount = segInfo.vfCount;
             vbuf.set(vertices.subarray(frameVFOffset, frameVFOffset + segVFCount), _vfOffset);
             frameVFOffset += segVFCount;
-            switch (_handleVal) {
-                case NEED_BATCH:
-                case NEED_COLOR_BATCH:
-                    for (let ii = _vfOffset, il = _vfOffset + segVFCount; ii < il; ii += 5) {
-                        _x = vbuf[ii];
-                        _y = vbuf[ii + 1];
-                        vbuf[ii] = _x * _m00 + _y * _m04 + _m12;
-                        vbuf[ii + 1] = _x * _m01 + _y * _m05 + _m13;
-                    }
-                break;
+
+            if (calcTranslate) {
+                for (let ii = _vfOffset, il = _vfOffset + segVFCount; ii < il; ii += 5) {
+                    vbuf[ii] += _m12;
+                    vbuf[ii + 1] += _m13;
+                }
+            } else if (needBatch) {
+                for (let ii = _vfOffset, il = _vfOffset + segVFCount; ii < il; ii += 5) {
+                    _x = vbuf[ii];
+                    _y = vbuf[ii + 1];
+                    vbuf[ii] = _x * _m00 + _y * _m04 + _m12;
+                    vbuf[ii + 1] = _x * _m01 + _y * _m05 + _m13;
+                }
             }
 
             if ( !(_handleVal & NEED_COLOR) ) continue;
