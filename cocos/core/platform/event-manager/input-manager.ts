@@ -33,8 +33,8 @@ import { rect } from '../../math/rect';
 import { macro } from '../CCMacro';
 import sys from '../CCSys';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './CCEvent';
-import CCTouch from './CCTouch';
 import eventManager from './event-manager';
+import { Touch as CCTouch } from './CCTouch';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 

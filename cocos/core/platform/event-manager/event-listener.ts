@@ -30,6 +30,7 @@
  */
 
 import { INode } from '../../utils/interfaces';
+import { EventKeyboard, EventAcceleration, EventMouse } from './CCEvent';
 
 export interface IEventListenerCreateInfo {
     event?: number;
@@ -371,7 +372,7 @@ export class Mouse extends EventListener {
         this._onEvent = (event: any) => this._callback(event);
     }
 
-    public _callback (event) {
+    public _callback (event: EventMouse) {
         const eventType = cc.Event.EventMouse;
         switch (event._eventType) {
             case eventType.DOWN:
@@ -492,7 +493,7 @@ export class Acceleration extends EventListener {
         this._onAccelerationEvent = callback;
     }
 
-    public _callback (event) {
+    public _callback (event: EventAcceleration) {
         if (this._onAccelerationEvent) {
             this._onAccelerationEvent(event.acc, event);
         }
@@ -518,7 +519,7 @@ export class Keyboard extends EventListener {
         this._onEvent = (event: any) => this._callback(event);
     }
 
-    public _callback (event) {
+    public _callback (event: EventKeyboard) {
         if (event.isPressed) {
             if (this.onKeyPressed) {
                 this.onKeyPressed(event.keyCode, event);

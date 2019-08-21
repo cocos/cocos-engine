@@ -935,7 +935,7 @@ class EventManager {
         }
 
         const event = argsObj.event;
-        const selTouch = event.currentTouch;
+        const selTouch = event.touch;
         event.currentTarget = listener._getSceneGraphPriority();
 
         let isClaimed = false;
@@ -1010,7 +1010,7 @@ class EventManager {
         if (oneByOneListeners) {
             for (let i = 0; i < originalTouches.length; ++i) {
                 const originalTouch = originalTouches[i];
-                event.currentTouch = originalTouch;
+                event.touch = originalTouch;
                 event.propagationStopped = event.propagationImmediateStopped = false;
                 this._dispatchEventToListeners(oneByOneListeners, this._onTouchEventCallback, oneByOneArgsObj);
             }

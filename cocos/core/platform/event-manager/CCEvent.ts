@@ -30,7 +30,7 @@
 
 import Event from '../../event/event';
 import { Vec2 } from '../../math';
-import Touch from './CCTouch';
+import { Touch } from './CCTouch';
 
 /**
  * @en The mouse event
@@ -162,7 +162,7 @@ export class EventMouse extends Event {
 
     public movementY: number = 0;
 
-    private _eventType: number;
+    public _eventType: number;
 
     private _button: number | null = 0;
 
@@ -520,11 +520,6 @@ export class EventTouch extends Event {
      */
     public touch: Touch | null = null;
 
-    // Actually duplicated, because of history issue,
-    // currentTouch was in the original design, touch was added in creator engine
-    // They should point to the same object
-    public currentTouch: Touch | null = null;
-
     public _eventCode: number = 0;
 
     public simulate = false;
@@ -597,12 +592,34 @@ export class EventTouch extends Event {
 
     /**
      * @en
+     * Returns touch location.
+     *
+     * @zh
+     * 获取触点位置。
+     */
+    public getUILocation(out?: Vec2) {
+        return this.touch ? this.touch.getUILocation(out) : new Vec2();
+    }
+
+    /**
+     * @en
      * Returns the current touch location in screen coordinates.
      *
      * @zh
      * 获取当前触点在游戏窗口中的位置。
      */
     public getLocationInView (out?: Vec2) {
+        return this.touch ? this.touch.getLocationInView(out) : new Vec2();
+    }
+
+    /**
+     * @en
+     * Returns the current touch location in screen coordinates.
+     *
+     * @zh
+     * 获取当前触点在游戏窗口中的位置。
+     */
+    public getUILocationInView(out?: Vec2) {
         return this.touch ? this.touch.getLocationInView(out) : new Vec2();
     }
 
@@ -627,6 +644,17 @@ export class EventTouch extends Event {
 
     /**
      * @en
+     * Returns the start touch location.
+     *
+     * @zh
+     * 获获取触点落下时的 UI 世界下位置对象，对象包含 x 和 y 属性。
+     */
+    public getUIStartLocation(out?: Vec2) {
+        return this.touch ? this.touch.getUIStartLocation(out) : new Vec2();
+    }
+
+    /**
+     * @en
      * Returns the id of cc.Touch.
      *
      * @zh
@@ -645,6 +673,17 @@ export class EventTouch extends Event {
      */
     public getDelta (out?: Vec2) {
         return this.touch ? this.touch.getDelta(out) : new Vec2();
+    }
+
+    /**
+    * @en
+    * Returns the delta distance from the previous location to current location.
+    *
+    * @zh
+    * 获取触点距离上一次事件 UI 世界下移动的距离对象，对象包含 x 和 y 属性。
+    */
+    public getUIDelta(out?: Vec2) {
+        return this.touch ? this.touch.getUIDelta(out) : new Vec2();
     }
 
     /**
