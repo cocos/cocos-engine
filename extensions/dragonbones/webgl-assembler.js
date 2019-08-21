@@ -263,22 +263,16 @@ export default class ArmatureAssembler extends Assembler {
             }
 
             segVFCount = segInfo.vfCount;
+            vbuf.set(vertices.subarray(frameVFOffset, frameVFOffset + segVFCount), _vfOffset);
+            frameVFOffset += segVFCount;
             switch (_handleVal) {
-                case NEED_COLOR:
-                case NEED_NONE:
-                    vbuf.set(vertices.subarray(frameVFOffset, frameVFOffset + segVFCount), _vfOffset);
-                    frameVFOffset += segVFCount;
-                break;
                 case NEED_BATCH:
                 case NEED_COLOR_BATCH:
-                    for (let ii = _vfOffset, il = _vfOffset + segVFCount; ii < il;) {
-                        _x = vertices[frameVFOffset++];
-                        _y = vertices[frameVFOffset++];
-                        vbuf[ii++] = _x * _m00 + _y * _m04 + _m12; // x
-                        vbuf[ii++] = _x * _m01 + _y * _m05 + _m13; // y
-                        vbuf[ii++] = vertices[frameVFOffset++]; // u
-                        vbuf[ii++] = vertices[frameVFOffset++]; // v
-                        uintbuf[ii++] = uintVert[frameVFOffset++];
+                    for (let ii = _vfOffset, il = _vfOffset + segVFCount; ii < il; ii += 5) {
+                        _x = vbuf[ii];
+                        _y = vbuf[ii + 1];
+                        vbuf[ii] = _x * _m00 + _y * _m04 + _m12;
+                        vbuf[ii + 1] = _x * _m01 + _y * _m05 + _m13;
                     }
                 break;
             }
