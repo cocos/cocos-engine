@@ -4,7 +4,7 @@ import { RaycastResult } from '../raycast-result';
 import { setWrap } from '../util';
 import { AfterStepCallback, BeforeStepCallback, IRaycastOptions, PhysicsWorldBase } from './../api';
 import { defaultCannonContactMaterial, defaultCannonMaterial } from './cannon-const';
-import { fillRaycastResult, toCannonRaycastOptions, toCannonVec3, toCocosVec3 } from './cannon-util';
+import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
 import { CannonConstraint } from './constraint/cannon-constraint';
 
 export class CannonWorld implements PhysicsWorldBase {
@@ -33,11 +33,11 @@ export class CannonWorld implements PhysicsWorldBase {
     }
 
     public setGravity (gravity: Vec3): void {
-        this._world.gravity = toCannonVec3(gravity);
+        Vec3.copy(this._world.gravity, gravity);
     }
 
     public getGravity (out: Vec3): void {
-        toCocosVec3(this._world.gravity, out);
+        Vec3.copy(out, this._world.gravity);
     }
 
     public destroy () {
