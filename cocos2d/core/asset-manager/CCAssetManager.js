@@ -438,7 +438,7 @@ AssetManager.prototype = {
         var config = options.ver ? `${root}/config.${options.ver}.json` : `${root}/config.json`;
         downloader.downloadFile(config, options, null, function (err, response) {
             if (err) {
-                cc.error(err.message);
+                cc.error(err);
                 onComplete && onComplete(err);
                 return;
             }
@@ -448,10 +448,7 @@ AssetManager.prototype = {
             if (!response.scripts) return onComplete && onComplete(null, bundle);
             
             self.loadScript(root + '/index.js', options, function (err) {
-                if (err) {
-                    onComplete && onComplete(err);
-                    return;
-                }
+                if (err) cc.error(err);
                 onComplete && onComplete(null, bundle);
             });
 
