@@ -45,7 +45,7 @@ var packManager = {
      * Unpack the json, revert to what was before packing
      * 
      * !#zh
-     * 拆解json包，恢复为打包之前的内容
+     * 拆解 json 包，恢复为打包之前的内容
      * 
      * @method unpackJson
      * @param {String[]} pack - The pack
@@ -102,7 +102,7 @@ var packManager = {
      * Initialize
      * 
      * !#zh
-     * 初始化packManager
+     * 初始化 packManager
      * 
      * @method init
      * 
@@ -118,7 +118,7 @@ var packManager = {
      * Register custom handler if you want to change default behavior or extend packManager to unpack other format pack
      * 
      * !#zh
-     * 当你想修改默认行为或者拓展packManager来拆分其他格式的包时可以注册自定义的handler
+     * 当你想修改默认行为或者拓展 packManager 来拆分其他格式的包时可以注册自定义的 handler
      * 
      * @method register
      * @param {string|Object} type - Extension likes '.bin' or map likes {'.bin': binHandler, '.ab': abHandler}
@@ -150,7 +150,7 @@ var packManager = {
      * Use corresponding handler to unpack package
      * 
      * !#zh
-     * 用对应的handler来进行解包 
+     * 用对应的 handler 来进行解包 
      * 
      * @method unpack
      * @param {String[]} pack - The uuid of packed assets 
@@ -184,7 +184,7 @@ var packManager = {
      * And then retrieve the corresponding content form it.
      * 
      * !#zh
-     * 下载请求对象，如果请求对象不在任何包内，则正常下载，否则下载对应的package并进行拆解，并取回包内对应的内容
+     * 下载请求对象，如果请求对象不在任何包内，则正常下载，否则下载对应的 package 并进行拆解，并取回包内对应的内容
      * 
      * @method load
      * @param {RequestItem} item - Some item you want to download

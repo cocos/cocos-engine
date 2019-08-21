@@ -58,7 +58,7 @@ var dependUtil = {
      * Get asset's native dependency. For example, Texture's native dependency is image.
      * 
      * !#zh
-     * 获取资源的原生依赖，例如Texture的原生依赖是图片
+     * 获取资源的原生依赖，例如 Texture 的原生依赖是图片
      * 
      * @method getNativeDep
      * @param {string} uuid - asset's uuid
@@ -80,7 +80,7 @@ var dependUtil = {
      * Get asset's direct referencing non-native dependency list. For example, Material's non-native dependencies are Texture.
      * 
      * !#zh
-     * 获取资源直接引用的非原生依赖列表，例如，材质的非原生依赖是Texture
+     * 获取资源直接引用的非原生依赖列表，例如，材质的非原生依赖是 Texture
      * 
      * @method getDeps
      * @param {string} uuid - asset's uuid

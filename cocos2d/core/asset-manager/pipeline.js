@@ -83,7 +83,7 @@ Pipeline.prototype = {
      * At specific point insert a new pipe to pipeline
      * 
      * !#zh
-     * 在某个特定的点为管线插入一个新的pipe
+     * 在某个特定的点为管线插入一个新的 pipe
      * 
      * @method insert
      * @param {Function} func - The new pipe

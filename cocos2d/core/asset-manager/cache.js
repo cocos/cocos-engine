@@ -77,7 +77,7 @@ Cache.prototype = {
      * Get the cached content by key
      * 
      * !#zh
-     * 通过key获取对应的value
+     * 通过 key 获取对应的 value
      * 
      * @method get
      * @param {string} key - The key
@@ -100,7 +100,7 @@ Cache.prototype = {
      * Check whether or not content exists by key
      * 
      * !#zh
-     * 通过Key判断是否存在对应的内容
+     * 通过 Key 判断是否存在对应的内容
      * 
      * @method has
      * @param {string} key - The key
@@ -122,7 +122,7 @@ Cache.prototype = {
      * Remove the cached content by key
      * 
      * !#zh
-     * 通过Key移除对应的内容
+     * 通过 Key 移除对应的内容
      * 
      * @method remove
      * @param {string} key - The key
@@ -236,7 +236,7 @@ Cache.prototype = {
      * Destroy this cache
      * 
      * !#zh
-     * 销毁这个cache
+     * 销毁这个 cache
      * 
      * @method destroy
      * 

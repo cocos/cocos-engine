@@ -156,7 +156,7 @@ var handleQueue = function (maxConcurrent, maxRequestsPerFrame) {
  * 5. Scripts
  * 
  * !#zh
- * 管理所有下载过程，downloader是个单例，它能下载以下几种类型的文件：
+ * 管理所有下载过程，downloader 是个单例，它能下载以下几种类型的文件：
  * 1. 文本
  * 2. 图片
  * 3. 音频
@@ -172,8 +172,8 @@ var downloader = {
      * at the same time, the second is maxRequestsPerFrame, it indicates max number of new request can be launched in one frame.
      * 
      * !#zh
-     * 每一种加载策略都有对应的限制，如果使用这种加载策略，网络请求将会受到对应的限制。每个限制存在两个条件，第一个条件是maxConcurrent，它表明最多多少个请求能同时进行工作；
-     * 第二个条件是maxRequestsPerFrame，它表明每帧最多发起多少个新请求
+     * 每一种加载策略都有对应的限制，如果使用这种加载策略，网络请求将会受到对应的限制。每个限制存在两个条件，第一个条件是 maxConcurrent ，它表明最多多少个请求能同时进行工作；
+     * 第二个条件是 maxRequestsPerFrame ，它表明每帧最多发起多少个新请求
      * 
      * @property {Array} limitations
      * 
@@ -270,7 +270,7 @@ var downloader = {
      * Use XMLHttpRequest to download file
      * 
      * !#zh
-     * 使用XMLHttpRequest来下载文件
+     * 使用 XMLHttpRequest 来下载文件
      * 
      * @method downloadFile
      * @param {string} url - Url of the file
@@ -349,7 +349,7 @@ var downloader = {
      * Register custom handler if you want to change default behavior or extend downloader to download other format file
      * 
      * !#zh
-     * 当你想修改默认行为或者拓展downloader来下载其他格式文件时可以注册自定义的handler
+     * 当你想修改默认行为或者拓展 downloader 来下载其他格式文件时可以注册自定义的 handler 
      * 
      * @method register
      * @param {string|Object} type - Extension likes '.jpg' or map likes {'.jpg': jpgHandler, '.png': pngHandler}
@@ -380,7 +380,7 @@ var downloader = {
      * Use corresponding handler to download file under limitation 
      * 
      * !#zh
-     * 在限制下使用对应的handler来下载文件
+     * 在限制下使用对应的 handler 来下载文件
      * 
      * @method download
      * @param {string} url - The url should be downloaded

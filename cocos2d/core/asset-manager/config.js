@@ -204,7 +204,7 @@ Config.prototype = {
      * Get asset's info using path, only valid when asset is in 'paths' directory.
      *  
      * !#zh
-     * 使用path获取资源的配置信息
+     * 使用 path 获取资源的配置信息
      * 
      * @method getInfoWithPath
      * @param {string} path - The relative path of asset, such as 'images/a'
@@ -293,7 +293,7 @@ Config.prototype = {
      * Get asset's info with uuid
      * 
      * !#zh
-     * 通过uuid获取资源信息
+     * 通过 uuid 获取资源信息
      * 
      * @method getAssetInfo
      * @param {string} uuid - The asset's uuid

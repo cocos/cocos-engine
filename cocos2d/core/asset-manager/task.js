@@ -130,7 +130,7 @@ Task.prototype = {
      * Recycle this for reuse
      * 
      * !#zh
-     * 回收task用于复用
+     * 回收 task 用于复用
      * 
      * @method recycle
      * 
@@ -166,7 +166,7 @@ Task.prototype = {
  * Create a new task from pool
  * 
  * !#zh
- * 从对象池中创建task
+ * 从对象池中创建 task
  * 
  * @function create
  * @returns {Task} task

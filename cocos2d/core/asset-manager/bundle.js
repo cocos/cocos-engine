@@ -53,7 +53,7 @@ Bundle.prototype = {
      * Initialize this bundle with options
      * 
      * !#zh
-     * 初始化此bundle
+     * 初始化此 bundle
      * 
      * @method init
      * @param {Object} options 
@@ -147,7 +147,7 @@ Bundle.prototype = {
      * relative to bundle's folder path in project
      * 
      * !#zh
-     * 所有一切与 {{#crossLink "assetManager/loadRes:method"}}{{/crossLink}} 类似，但不是加载 `resources` 目录下的资源。路径是相对bundle在工程中的文件夹路径的相对路径
+     * 所有一切与 {{#crossLink "assetManager/loadRes:method"}}{{/crossLink}} 类似，但不是加载 `resources` 目录下的资源。路径是相对 bundle 在工程中的文件夹路径的相对路径
      *
      * @method loadAsset
      * @param {String|String[]|Task} paths - Paths of the target assets or a preloaded task.The path is relative to the bundle's folder, extensions must be omitted.
@@ -182,7 +182,7 @@ Bundle.prototype = {
      * Everything are like {{#crossLink "assetManager/preloadRes:method"}}{{/crossLink}}
      * 
      * !#zh
-     * 预加载bundle目录下的资源，其他都和 {{#crossLink "assetManager/preloadRes:method"}}{{/crossLink}} 相同
+     * 预加载 bundle 目录下的资源，其他都和 {{#crossLink "assetManager/preloadRes:method"}}{{/crossLink}} 相同
      *
      * @method preloadAsset
      * @param {String|String[]} paths - Paths of the target asset.The path is relative to bundle folder, extensions must be omitted.

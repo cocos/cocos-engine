@@ -226,7 +226,7 @@ AssetManager.prototype = {
      * to finish loading asset
      * 
      * !#zh
-     * 通用预加载资源接口，可传入进度回调以及完成回调，非常建议你使用更简单的API，例如 `preloadRes`, `preloadResDir` 等。`preload` 和 `load` 几乎一样，区别在于 `preload` 只会下载资源，不会去解析资源，你需要调用 `cc.assetManager.load(preloadTask)`
+     * 通用预加载资源接口，可传入进度回调以及完成回调，非常建议你使用更简单的 API ，例如 `preloadRes`, `preloadResDir` 等。`preload` 和 `load` 几乎一样，区别在于 `preload` 只会下载资源，不会去解析资源，你需要调用 `cc.assetManager.load(preloadTask)`
      * 来完成资源加载。
      * 
      * @method preload
@@ -264,7 +264,7 @@ AssetManager.prototype = {
      * Load native file of asset, for example, you can load texture's native file
      * 
      * !#zh
-     * 加载资源的原生文件，例如，你可以加载texture的原生文件
+     * 加载资源的原生文件，例如，你可以加载 texture 的原生文件
      * 
      * @method loadNativeFile
      * @param {Asset} asset - The asset
@@ -306,7 +306,7 @@ AssetManager.prototype = {
      * Load remote texture with url
      * 
      * !#zh
-     * 使用url加载远程图片
+     * 使用 url 加载远程图片
      * 
      * @method loadRemoteTexture
      * @param {string} url - The url of image
@@ -347,7 +347,7 @@ AssetManager.prototype = {
      * Load remote audio with url
      * 
      * !#zh
-     * 使用url加载远程音频
+     * 使用 url 加载远程音频
      * 
      * @method loadRemoteAudio
      * @param {string} url - The url of audio
@@ -686,7 +686,7 @@ AssetManager.prototype = {
      * 
      * !#zh
      * 通过路径与类型获取资源。在你使用 {{#crossLink "assetManager/loadRes:method"}}{{/crossLink}} 或者 {{#crossLink "assetManager/loadResDir:method"}}{{/crossLink}} 之后，
-     * 你能通过传路径通过这个API获取到这些资源。
+     * 你能通过传路径通过这个 API 获取到这些资源。
      * 
      * @method getRes
      * @param {String} path - The path of resource
@@ -778,7 +778,7 @@ AssetManager.prototype = {
      * The parameter of transform is just likes `cc.assetManager.load`, the difference is `cc.assetManager.transform` will only parse requset but not load any asset. 
      * 
      * !#zh
-     * 通用转换URL接口，transform的参数和load几乎一样，区别在于 `cc.assetManager.transform` 只会解析请求，不会去加载任何资源
+     * 通用转换 URL 接口，`transform` 的参数和 `load` 几乎一样，区别在于 `cc.assetManager.transform` 只会解析请求，不会去加载任何资源
      * 
      * @method transform
      * @param {string|string[]|Object|Object[]} input - The request you want to transfrom

@@ -38,7 +38,7 @@ var _parsing = new Cache();
  * Parse the downloaded file, it's a singleton
  * 
  * !#zh
- * 解析已下载的文件，parser是一个单例
+ * 解析已下载的文件，parser 是一个单例
  * 
  * @static
  */
@@ -122,7 +122,7 @@ var parser = {
      * Parse pvr file that is a compressed texture format 
      * 
      * !#zh
-     * 解析压缩纹理格式pvr文件
+     * 解析压缩纹理格式 pvr 文件
      * 
      * @method parsePVRTex
      * @param {ArrayBuffer|ArrayBufferView} file - The downloaded file
@@ -191,7 +191,7 @@ var parser = {
      * Parse pkm file that is a compressed texture format 
      * 
      * !#zh
-     * 解析压缩纹理格式pkm文件
+     * 解析压缩纹理格式 pkm 文件
      * 
      * @method parsePKMTex
      * @param {ArrayBuffer|ArrayBufferView} file - The downloaded file
@@ -259,7 +259,7 @@ var parser = {
      * Parse plist file
      * 
      * !#zh
-     * 解析plist文件
+     * 解析 plist 文件
      * 
      * @method parsePlist
      * @param {string} file - The downloaded file
