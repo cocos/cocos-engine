@@ -214,6 +214,7 @@ export class Profiler {
         const cameraNode = new Node('Profiler_Camera');
         cameraNode.setPosition(0,0,1);
         cameraNode.parent = this._rootNode;
+        cameraNode.active = false; // hack,because the camera's priority cannot be modified at runtime
         const camera = cameraNode.addComponent('cc.CameraComponent') as CameraComponent;
         camera.projection = CameraComponent.ProjectionType.ORTHO;
         camera.near = 0;
@@ -221,6 +222,8 @@ export class Profiler {
         camera.orthoHeight = this._device!.height;
         camera.visibility = 2147483648;
         camera.clearFlags = GFXClearFlag.DEPTH | GFXClearFlag.STENCIL;
+        camera.priority = 1073741928;
+        cameraNode.active = true;
 
         const managerNode = new Node('Profiler_Root');
         managerNode.parent = this._rootNode;
