@@ -31,7 +31,7 @@ import CCClass from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat3 } from './mat3';
 import { IQuatLike, IVec3Like } from './type-define';
-import { EPSILON, toDegree } from './utils';
+import { EPSILON, toDegree, toRadian } from './utils';
 import { Vec3 } from './vec3';
 
 let _x: number = 0.0;
@@ -474,7 +474,7 @@ export class Quat extends ValueType {
     }
 
     /**
-     * @zh 根据欧拉角信息计算四元数
+     * @zh 根据欧拉角信息计算四元数，旋转顺序为 ZYX
      */
     public static fromEuler <Out extends IQuatLike> (out: Out, x: number, y: number, z: number) {
         x *= halfToRad;
@@ -538,38 +538,38 @@ export class Quat extends ValueType {
     }
 
     /**
-     * @zh 根据四元数计算欧拉角，返回角度在 [-180, 180] 区间内
+     * @zh
+     * 根据四元数计算欧拉角，返回角度 x, y 在 [-180, 180] 区间内, z 默认在 [-90, 90] 区间内，旋转顺序为 ZYX
+     * @param outerZ z 取值范围区间改为 [-180, -90] U [90, 180]
      */
-    public static toEuler <Out extends IQuatLike, VecLike extends IVec3Like> (out: VecLike, q: Out) {
+    public static toEuler <Out extends IVec3Like> (out: Out, q: IQuatLike, outerZ?: boolean) {
         const { x, y, z, w } = q;
+        let bank: number = NaN;
         let heading: number = NaN;
         let attitude: number = NaN;
-        let bank: number = NaN;
         const test = x * y + z * w;
-        if (test > 0.499999) { // singularity at north pole
-            heading = 2 * Math.atan2(x, w);
-            attitude = Math.PI / 2;
-            bank = 0;
-        }
-        if (test < -0.499999) { // singularity at south pole
-            heading = -2 * Math.atan2(x, w);
-            attitude = - Math.PI / 2;
-            bank = 0;
-        }
-        if (isNaN(heading)) {
+        if (test > 0.499999) {
+            bank = 0; // default to zero
+            heading = toDegree(2 * Math.atan2(x, w));
+            attitude = 90;
+        } else if (test < -0.499999) {
+            bank = 0; // default to zero
+            heading = -toDegree(2 * Math.atan2(x, w));
+            attitude = -90;
+        } else {
             const sqx = x * x;
             const sqy = y * y;
             const sqz = z * z;
-            heading = Math.atan2(2 * y * w - 2 * x * z, 1 - 2 * sqy - 2 * sqz); // heading
-            attitude = Math.asin(2 * test); // attitude
-            bank = Math.atan2(2 * x * w - 2 * y * z, 1 - 2 * sqx - 2 * sqz); // bank
+            bank = toDegree(Math.atan2(2 * x * w - 2 * y * z, 1 - 2 * sqx - 2 * sqz));
+            heading = toDegree(Math.atan2(2 * y * w - 2 * x * z, 1 - 2 * sqy - 2 * sqz));
+            attitude = toDegree(Math.asin(2 * test));
+            if (outerZ) {
+                bank = -180 * Math.sign(bank + 1e-6) + bank;
+                heading = -180 * Math.sign(heading + 1e-6) + heading;
+                attitude = 180 * Math.sign(attitude + 1e-6) - attitude;
+            }
         }
-
-        // ranged [-180, 180]
-        out.y = toDegree(heading);
-        out.z = toDegree(attitude);
-        out.x = toDegree(bank);
-
+        out.x = bank; out.y = heading; out.z = attitude;
         return out;
     }
 
@@ -654,7 +654,7 @@ export class Quat extends ValueType {
      * @param other 相比较的四元数。
      * @returns `this`
      */
-    public set (other: Quat);
+    public set (other: Quat): Quat;
 
     /**
      * 设置当前四元数指定元素值。
@@ -664,7 +664,7 @@ export class Quat extends ValueType {
      * @param w 四元数 w 元素值
      * @returns `this`
      */
-    public set (x?: number, y?: number, z?: number, w?: number);
+    public set (x?: number, y?: number, z?: number, w?: number): Quat;
 
     public set (x?: number | Quat, y?: number, z?: number, w?: number) {
         if (x && typeof x === 'object') {
@@ -708,36 +708,7 @@ export class Quat extends ValueType {
      * @param out 出口向量。
      */
     public getEulerAngles (out: Vec3) {
-        const { x, y, z, w } = this;
-        let heading: number = NaN;
-        let attitude: number = NaN;
-        let bank: number = NaN;
-        const test = x * y + z * w;
-        if (test > 0.499999) { // singularity at north pole
-            heading = 2 * Math.atan2(x, w);
-            attitude = Math.PI / 2;
-            bank = 0;
-        }
-        if (test < -0.499999) { // singularity at south pole
-            heading = -2 * Math.atan2(x, w);
-            attitude = - Math.PI / 2;
-            bank = 0;
-        }
-        if (isNaN(heading)) {
-            const sqx = x * x;
-            const sqy = y * y;
-            const sqz = z * z;
-            heading = Math.atan2(2 * y * w - 2 * x * z, 1 - 2 * sqy - 2 * sqz); // heading
-            attitude = Math.asin(2 * test); // attitude
-            bank = Math.atan2(2 * x * w - 2 * y * z, 1 - 2 * sqx - 2 * sqz); // bank
-        }
-
-        // ranged [-180, 180]
-        out.y = toDegree(heading);
-        out.z = toDegree(attitude);
-        out.x = toDegree(bank);
-
-        return out;
+        return Quat.toEuler(out, this);
     }
 
     /**
