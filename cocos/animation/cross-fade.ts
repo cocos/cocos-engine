@@ -1,54 +1,75 @@
 /**
  * @category animation
  */
-
-import { removeIf } from '../core/utils/array';
 import { clamp01 } from '../core/math/utils';
 import { AnimationState } from './animation-state';
 import { Playable } from './playable';
+import { remove } from '../core/utils/array';
 
-interface IFadeState {
+interface IManagedState {
     state: AnimationState | null;
+    reference: number;
+}
+
+interface IFading {
+    target: IManagedState;
     easeTime: number;
     easeDuration: number;
 }
 
 export class CrossFade extends Playable {
-    private _fadings: IFadeState[] = [];
+    private readonly _managedStates: IManagedState[] = [];
+    private readonly _fadings: IFading[] = [];
 
     constructor () {
         super();
-        this._unshiftDefault();
     }
 
     public update (deltaTime: number) {
         if (!this.isPlaying || this.isPaused) {
             return;
         }
+
+        // Set all state's weight to 0.
+        for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
+            const state = this._managedStates[iManagedState].state;
+            if (state) {
+                state.weight = 0;
+            }
+        }
+
+        // Allocate weights.
         let absoluteWeight = 1.0;
-        for (let i = 0; i < this._fadings.length; ++i) {
+        let deadFadingBegin = this._fadings.length;
+        for (let iFading = 0; iFading < this._fadings.length; ++iFading) {
             if (absoluteWeight === 0) {
-                for (let j = i; j < this._fadings.length; ++j) {
-                    const follingFading = this._fadings[j];
-                    if (follingFading.state) {
-                        this._directStopState(follingFading.state);
-                    }
-                }
-                this._fadings.splice(i);
+                deadFadingBegin = iFading;
                 break;
             }
-            const fading = this._fadings[i];
+            const fading = this._fadings[iFading];
             fading.easeTime += deltaTime;
             const relativeWeight = clamp01(fading.easeTime / fading.easeDuration);
             const weight = relativeWeight * absoluteWeight;
             absoluteWeight = absoluteWeight * (1.0 - relativeWeight);
-            if (fading.state) {
-                fading.state.weight = weight;
+            if (fading.target.state) {
+                fading.target.state.weight += weight;
             }
         }
-        // if (this._animations.length > 1) {
-        //     console.log(this._animations.map((a) => a.state ? `[${a.state.name}:${a.state.weight}]` : '<null>').join(';'));
-        // }
+
+        // Kill fadings having no lifetime.
+        if (deadFadingBegin !== this._fadings.length) {
+            for (let iDeadFading = deadFadingBegin; iDeadFading < this._fadings.length; ++iDeadFading) {
+                const deadFading = this._fadings[iDeadFading];
+                --deadFading.target.reference;
+                if (deadFading.target.reference <= 0) {
+                    if (deadFading.target.state) {
+                        deadFading.target.state.stop();
+                    }
+                    remove(this._managedStates, deadFading.target);
+                }
+            }
+            this._fadings.splice(deadFadingBegin);
+        }
     }
 
     /**
@@ -57,18 +78,23 @@ export class CrossFade extends Playable {
      * @param duration 切换时间。
      */
     public crossFade (state: AnimationState | null, duration: number) {
-        let es = removeIf(this._fadings, (animation) => animation.state === state);
-        if (es === undefined) {
-            es = {
-                easeDuration: duration,
-                easeTime: 0,
-                state,
-            };
+        if (duration === 0) {
+            this.clear();
         }
-        this._fadings.unshift(es);
-        if (state) {
-            this._directPlayState(state);
+        let target = this._managedStates.find((weightedState) => weightedState.state === state);
+        if (!target) {
+            target = { state, reference: 0, };
+            if (state) {
+                state.play();
+            }
+            this._managedStates.push(target);
         }
+        ++target.reference;
+        this._fadings.unshift({
+            easeDuration: duration,
+            easeTime: 0,
+            target,
+        });
     }
 
     /**
@@ -76,9 +102,10 @@ export class CrossFade extends Playable {
      */
     public onPause () {
         super.onPause();
-        for (const fading of this._fadings) {
-            if (fading.state) {
-                fading.state.pause();
+        for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
+            const state = this._managedStates[iManagedState].state;
+            if (state) {
+                state.pause();
             }
         }
     }
@@ -88,53 +115,30 @@ export class CrossFade extends Playable {
      */
     public onResume () {
         super.onResume();
-        for (const fading of this._fadings) {
-            if (fading.state) {
-                fading.state.resume();
+        for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
+            const state = this._managedStates[iManagedState].state;
+            if (state) {
+                state.resume();
             }
         }
     }
 
     /**
-     * 停止所有淡入淡出的动画状态并移除最后一个动画状态之外的所有动画状态。
+     * 停止所有淡入淡出的动画状态。
      */
     public onStop () {
         super.onStop();
-        const currentFading = this._fadings[0];
-        if (currentFading.state) {
-            currentFading.state.weight = 1;
-        }
-        for (const fading of this._fadings) {
-            if (fading.state) {
-                this._directStopState(fading.state);
-            }
-        }
-        this._fadings.splice(1, this._fadings.length - 1);
-        // this._fadings.length = 0;
-        // this._unshiftDefault();
+        this.clear();
     }
 
     public clear () {
-        this.stop();
+        for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
+            const state = this._managedStates[iManagedState].state;
+            if (state) {
+                state.stop();
+            }
+        }
+        this._managedStates.length = 0;
         this._fadings.length = 0;
-        this._unshiftDefault();
-    }
-
-    private _unshiftDefault () {
-        this._fadings.unshift({
-            state: null,
-            easeDuration: Number.POSITIVE_INFINITY,
-            easeTime: 0,
-        });
-    }
-
-    private _directStopState (state: AnimationState) {
-        // state.weight = 0;
-        state.stop();
-    }
-
-    private _directPlayState (state: AnimationState) {
-        state.weight = 1;
-        state.play();
     }
 }
