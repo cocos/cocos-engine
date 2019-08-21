@@ -33,6 +33,7 @@ let ctor = {
                 } else {
                     ctor = is3DNode ? BarFilled3D : BarFilled;
                 }
+                break;
             case Type.MESH:
                 ctor = is3DNode ? Mesh3D : Mesh;
                 break;
