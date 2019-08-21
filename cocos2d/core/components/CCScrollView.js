@@ -160,6 +160,7 @@ let ScrollView = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/ScrollView',
         help: 'i18n:COMPONENT.help_url.scrollview',
+        inspector: 'packages://inspector/inspectors/comps/scrollview.js',
         executeInEditMode: false,
     },
 
