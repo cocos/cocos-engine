@@ -345,8 +345,10 @@ namespace
         return;
 
     // check length limit after text changed, a little rude
-    if (textField.text.length > g_maxLength)
-        textField.text = [textField.text substringToIndex:g_maxLength];
+    if (textField.text.length > g_maxLength) {
+        NSRange rangeIndex = [textField.text rangeOfComposedCharacterSequenceAtIndex:g_maxLength];
+        textField.text = [textField.text substringToIndex:rangeIndex.location];
+    }
 
     callJSFunc("input", [textField.text UTF8String]);
     setText(textField.text);
