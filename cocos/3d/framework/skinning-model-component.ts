@@ -95,7 +95,7 @@ export class SkinningModelComponent extends ModelComponent {
         return 0;
     }
 
-    public uploadAnimation (clip: SkeletalAnimationClip) {
+    public uploadAnimation (clip: SkeletalAnimationClip | null) {
         if (this._model) { (this._model as SkinningModel).uploadAnimation(clip); }
     }
 

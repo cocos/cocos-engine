@@ -30,11 +30,8 @@
 import { Skeleton } from '../../3d/assets/skeleton';
 import { SkeletalAnimationClip } from '../../animation';
 import { Mat4, Quat, Vec3 } from '../../core/math';
-import { GFXAddress, GFXFilter, GFXFormat, GFXFormatInfos } from '../../gfx/define';
+import { GFXFormat, GFXFormatInfos } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
-import { GFXSampler } from '../../gfx/sampler';
-import { samplerLib } from '../core/sampler-lib';
-import { genSamplerHash } from '../core/sampler-lib';
 import { ITextureBufferHandle, TextureBufferPool } from '../core/texture-buffer-pool';
 
 // change here and cc-skinning.inc to use other skinning algorithms
@@ -199,19 +196,4 @@ export class JointsTexturePool {
             this._textureBuffers.delete(texture.hash);
         }
     }
-}
-
-const jointsTextureSamplerHash = genSamplerHash([
-    GFXFilter.POINT,
-    GFXFilter.POINT,
-    GFXFilter.NONE,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
-]);
-let jointsTextureSampler: GFXSampler | null = null;
-export function getJointsTextureSampler (device: GFXDevice) {
-    if (jointsTextureSampler) { return jointsTextureSampler; }
-    jointsTextureSampler = samplerLib.getSampler(device, jointsTextureSamplerHash);
-    return jointsTextureSampler;
 }

@@ -50,6 +50,15 @@ export class SkeletalAnimationState extends AnimationState {
         }
     }
 
+    public onStop () {
+        super.onStop();
+        for (const comp of this._targetNode!.getComponentsInChildren(SkinningModelComponent)) {
+            if (comp.skinningRoot === this._targetNode) {
+                if (comp.model) { comp.model.uploadedAnim = null; }
+            }
+        }
+    }
+
     public rebuildSocketCurves (sockets: Socket[]) {
         // TODO: curve reuse perhaps?
         // delete previous sockets
