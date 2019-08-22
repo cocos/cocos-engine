@@ -189,7 +189,7 @@ var DynamicAnimCurve = cc.Class({
         if (cachedIndex > 0) {
             let fromRatio = this.ratios[cachedIndex - 1];
             let toRatio = this.ratios[cachedIndex];
-            if (ratio < fromRatio || ratio > toRatio) {
+            if (ratio <= fromRatio || ratio > toRatio) {
                 this._cachedIndex = this._findFrameIndex(ratios, ratio);
             }
         }
