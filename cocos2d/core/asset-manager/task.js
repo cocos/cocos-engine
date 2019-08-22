@@ -69,7 +69,7 @@ Task.prototype = {
      * task.set({input: ['test'], onComplete: (err, result) => console.log(err), onProgress: (finish, total) => console.log(finish / total)});
      * 
      * @typescript
-     * set(options: {onComplete?: (err: Error, result: any) => void, onProgress?: Function, input: any, progress?: any, options?: any}): void
+     * set(options: {onComplete?: (err: Error, result: any) => void, onError?: () => void, onProgress?: Function, input: any, progress?: any, options?: any}): void
      */
     set (options) {
         options = options || Object.create(null);
@@ -169,10 +169,16 @@ Task.prototype = {
  * 从对象池中创建 task
  * 
  * @function create
+ * @param {Object} options - Some optional paramters
+ * @param {Function} [options.onComplete] - Callback when the task complete, if the pipeline is synchronous, onComplete is unnecessary.
+ * @param {Function} [options.onProgress] - Continuously callback when the task is runing, if the pipeline is synchronous, onProgress is unnecessary.
+ * @param {*} options.input - Something will be handled with pipeline
+ * @param {*} [options.progress] - Progress information, you may need to assign it manually when multiple pipeline share one progress
+ * @param {Object} [options.options] - Custom parameters
  * @returns {Task} task
  * 
  * @typescript 
- * create(options: {onComplete?: ((err: Error, result: any) => void)|null, onProgress?: Function|null, input: any, progress?: any, options?: any}): cc.AssetManager.Task
+ * create(options: {onComplete?: ((err: Error, result: any) => void)|null, onError?: () => void, onProgress?: Function|null, input: any, progress?: any, options?: any}): cc.AssetManager.Task
  */
 Task.create = function (options) {
     var out = null;

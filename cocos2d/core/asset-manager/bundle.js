@@ -25,7 +25,7 @@
 const Config = require('./config');
 const Task = require('./task');
 const Cache = require('./cache');
-const { release } = require('./finalizer');
+const finalizer = require('./finalizer');
 const { parseParameters, parseLoadResArgs } = require('./utilities');
 const { pipeline, fetchPipeline, initializePipeline, LoadStrategy, RequestType, assets, bundles } = require('./shared');
 
@@ -411,7 +411,7 @@ Bundle.prototype = {
      * releaseAsset(path: string): void
      */
     releaseAsset (path, type, force) {
-        release(this.getAsset(path, type), force);
+        finalizer.release(this.getAsset(path, type), force);
     },
 
     /**
@@ -431,7 +431,7 @@ Bundle.prototype = {
         var self = this;
         assets.forEach(function (asset) {
             if (self._config.getAssetInfo(asset.uuid)) {
-                release(asset, force);
+                finalizer.release(asset, force);
             }
         });
     },

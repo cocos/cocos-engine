@@ -79,7 +79,7 @@ var helper = {
             if (matches) {
                 return matches[1];
             }
-            return "";
+            return '';
         }
     })(),
 
@@ -96,7 +96,7 @@ var helper = {
      * @returns {string} url
      * 
      * @example
-     * var url = helper.getUrlWithUuid('fcmR3XADNLgJ1ByKhqcC5Z', {isNative: false});
+     * var url = getUrlWithUuid('fcmR3XADNLgJ1ByKhqcC5Z', {isNative: false});
      * 
      * @typescript
      * getUrlWithUuid(uuid: string, options?: any): string

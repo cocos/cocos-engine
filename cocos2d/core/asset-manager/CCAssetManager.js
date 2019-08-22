@@ -726,7 +726,9 @@ AssetManager.prototype = {
      * @typescript
      * release(asset: cc.Asset, force?: boolean): void
      */
-    release: finalizer.release,
+    release (asset, force) {
+        finalizer.release(asset, force);
+    },
 
     /**
      * !#en 
