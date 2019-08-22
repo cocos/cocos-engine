@@ -17,15 +17,7 @@ export function toCannonRaycastOptions (options: IRaycastOptions): ICANNONRaycas
     });
 }
 
-export function toCannonVec3 (value: Vec3) {
-    return new CANNON.Vec3(value.x, value.y, value.z);
-}
-
-export function toCocosVec3 (cannonVec3: CANNON.Vec3, out: Vec3) {
-    return Vec3.copy(out, cannonVec3);
-}
-
-export function toCannonOptions<T> (options: any, optionsRename?: { [x: string]: string; }) {
+export function toCannonOptions<T> (options: any, optionsRename?: { [x: string]: string }) {
     const result = {};
     for (const key of Object.keys(options)) {
         let destKey = key;

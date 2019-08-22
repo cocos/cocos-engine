@@ -4,7 +4,6 @@ import { ICollisionCallback, ICollisionEventType, ICreateBodyOptions, PhysicsWor
 import { ERigidBodyType } from '../physic-enum';
 import { getWrap, setWrap, stringfyVec3 } from '../util';
 import { defaultCannonMaterial } from './cannon-const';
-import { toCannonVec3, toCocosVec3 } from './cannon-util';
 import { CannonWorld } from './cannon-world';
 import { CannonShape } from './shapes/cannon-shape';
 
@@ -119,7 +118,7 @@ export class CannonRigidBody implements RigidBodyBase {
     public addShape (shape: CannonShape, offset?: Vec3) {
         this._shapes.push(shape);
         if (offset != null) {
-            this._body.addShape(shape.impl, toCannonVec3(offset));
+            this._body.addShape(shape.impl, Vec3.copy(_tCannonV1, offset));
         } else {
             this._body.addShape(shape.impl);
         }
@@ -203,8 +202,7 @@ export class CannonRigidBody implements RigidBodyBase {
         this._body.collisionResponse = !value;
     }
 
-    public getLinearVelocity (out?: Vec3): Vec3 {
-        out = out || new Vec3();
+    public getLinearVelocity (out: Vec3): Vec3 {
         Vec3.copy(out, this._body.velocity);
         return out;
     }
@@ -218,8 +216,7 @@ export class CannonRigidBody implements RigidBodyBase {
         Vec3.copy(this._body.velocity, value);
     }
 
-    public getAngularVelocity (out?: Vec3): Vec3 {
-        out = out || new Vec3();
+    public getAngularVelocity (out: Vec3): Vec3 {
         Vec3.copy(out, this._body.angularVelocity);
         return out;
     }
@@ -233,8 +230,7 @@ export class CannonRigidBody implements RigidBodyBase {
         Vec3.copy(this._body.angularVelocity, value);
     }
 
-    public getLinearFactor (out?: Vec3): Vec3 {
-        out = out || new Vec3();
+    public getLinearFactor (out: Vec3): Vec3 {
         Vec3.copy(out, this._body.linearFactor);
         return out;
     }
@@ -248,8 +244,7 @@ export class CannonRigidBody implements RigidBodyBase {
         Vec3.copy(this._body.linearFactor, value);
     }
 
-    public getAngularFactor (out?: Vec3): Vec3 {
-        out = out || new Vec3();
+    public getAngularFactor (out: Vec3): Vec3 {
         Vec3.copy(out, this._body.angularFactor);
         return out;
     }
@@ -279,52 +274,70 @@ export class CannonRigidBody implements RigidBodyBase {
 
     public applyForce (force: Vec3, worldPoint?: Vec3) {
         if (worldPoint == null) {
-            worldPoint = new Vec3();
-            Vec3.copy(worldPoint, this._body.position);
+            worldPoint = Vec3.ZERO;
         }
 
         if (this._body.isSleeping()) {
             this._body.wakeUp();
         }
 
-        this._body.applyForce(toCannonVec3(force), toCannonVec3(worldPoint));
+        this._body.applyForce(Vec3.copy(_tCannonV1, force), Vec3.copy(_tCannonV2, worldPoint));
     }
 
     public applyImpulse (impulse: Vec3, worldPoint?: Vec3) {
         if (worldPoint == null) {
-            worldPoint = new Vec3();
-            Vec3.copy(worldPoint, this._body.position);
+            worldPoint = Vec3.ZERO;
         }
 
         if (this._body.isSleeping()) {
             this._body.wakeUp();
         }
 
-        this._body.applyImpulse(toCannonVec3(impulse), toCannonVec3(worldPoint));
+        this._body.applyImpulse(Vec3.copy(_tCannonV1, impulse), Vec3.copy(_tCannonV2, worldPoint));
     }
 
     public applyLocalForce (force: Vec3, localPoint?: Vec3): void {
         if (localPoint == null) {
-            localPoint = new Vec3();
+            localPoint = Vec3.ZERO;
         }
 
         if (this._body.isSleeping()) {
             this._body.wakeUp();
         }
 
-        this._body.applyLocalForce(toCannonVec3(force), toCannonVec3(localPoint));
+        this._body.applyLocalForce(Vec3.copy(_tCannonV1, force), Vec3.copy(_tCannonV2, localPoint));
     }
 
     public applyLocalImpulse (impulse: Vec3, localPoint?: Vec3): void {
         if (localPoint == null) {
-            localPoint = new Vec3();
+            localPoint = Vec3.ZERO;
         }
 
         if (this._body.isSleeping()) {
             this._body.wakeUp();
         }
 
-        this._body.applyLocalImpulse(toCannonVec3(impulse), toCannonVec3(localPoint));
+        this._body.applyLocalImpulse(Vec3.copy(_tCannonV1, impulse), Vec3.copy(_tCannonV2, localPoint));
+    }
+
+    public applyTorque (torque: Vec3): void {
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+        this._body.torque.x += torque.x;
+        this._body.torque.y += torque.y;
+        this._body.torque.z += torque.z;
+    }
+
+    public applyLocalTorque (torque: Vec3): void {
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+        Vec3.copy(_tCannonV1, torque);
+        this._body.vectorToWorldFrame(_tCannonV1, _tCannonV1);        
+        this._body.torque.x += _tCannonV1.x;
+        this._body.torque.y += _tCannonV1.y;
+        this._body.torque.z += _tCannonV1.z;
     }
 
     public setWorld (world: PhysicsWorldBase | null) {
@@ -348,7 +361,6 @@ export class CannonRigidBody implements RigidBodyBase {
 
     public setPosition (value: Vec3) {
         Vec3.copy(this._body.position, value);
-        // console.log(`[[CANNON]] Set body position to ${stringfyVec3(value)}.`);
     }
 
     public getRotation (out: Quat) {
@@ -400,7 +412,7 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     private _onCollided (event: CANNON.ICollisionEvent) {
-        CollisionEventObject.type = event.event as ICollisionEventType;
+        CollisionEventObject.type = event.event;
         CollisionEventObject.selfCollider = getWrap<ShapeBase>(event.selfShape).getUserData();
         CollisionEventObject.otherCollider = getWrap<ShapeBase>(event.otherShape).getUserData();
         // CollisionEventObject.selfRigidBody = getWrap<RigidBodyBase>(event.target).getUserData();
@@ -416,15 +428,15 @@ export class CannonRigidBody implements RigidBodyBase {
             const cq = event.contacts[i];
             if (contactsPool.length > 0) {
                 const c = contactsPool.pop();
-                toCocosVec3(cq.ri, c.contactA);
-                toCocosVec3(cq.rj, c.contactB);
-                toCocosVec3(cq.ni, c.normal);
+                Vec3.copy(c.contactA, cq.ri);
+                Vec3.copy(c.contactB, cq.rj);
+                Vec3.copy(c.normal, cq.ni);
                 CollisionEventObject.contacts.push(c);
             } else {
                 const c = {
-                    contactA: toCocosVec3(cq.ri, new Vec3()),
-                    contactB: toCocosVec3(cq.rj, new Vec3()),
-                    normal: toCocosVec3(cq.ni, new Vec3()),
+                    contactA: Vec3.copy(new Vec3(), cq.ri),
+                    contactB: Vec3.copy(new Vec3(), cq.rj),
+                    normal: Vec3.copy(new Vec3(), cq.ni),
                 };
                 CollisionEventObject.contacts.push(c);
             }
@@ -449,3 +461,7 @@ const CollisionEventObject = {
 };
 
 const contactsPool = [] as any;
+
+const _tCannonV1 = new CANNON.Vec3();
+
+const _tCannonV2 = new CANNON.Vec3();

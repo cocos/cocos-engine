@@ -171,6 +171,14 @@ export interface RigidBodyBase extends BuiltInRigidBodyBase {
 
     applyLocalImpulse (impulse: Vec3, localPoint?: Vec3): void;
 
+    /**
+     * Torque
+     */
+
+    applyTorque (torque: Vec3): void;
+
+    applyLocalTorque (torque: Vec3): void;
+
     getIsKinematic (): boolean;
 
     setIsKinematic (value: boolean): void;
