@@ -322,6 +322,26 @@ var Texture2D = cc.Class({
         _mipFilter: Filter.LINEAR,
         _wrapS: WrapMode.CLAMP_TO_EDGE,
         _wrapT: WrapMode.CLAMP_TO_EDGE,
+
+        _packable: true,
+        /**
+         * !#en 
+         * Sets whether texture can be packed into texture atlas.
+         * If need use texture uv in custom Effect, please sets packable to false.
+         * !#zh 
+         * 设置纹理是否允许参与合图。
+         * 如果需要在自定义 Effect 中使用纹理 UV，需要禁止该选项。
+         * @property {Boolean} packable
+         * @default texture
+         */
+        packable: {
+            get () {
+                return this._packable;
+            },
+            set (val) {
+                this._packable = val;
+            }
+        }
     },
 
     statics: {
@@ -821,10 +841,8 @@ var Texture2D = cc.Class({
             }
             extId = exts.join('_');
         }
-        let asset = "" + extId + "," + 
-                    this._minFilter + "," + this._magFilter + "," + 
-                    this._wrapS + "," + this._wrapT + "," + 
-                    (this._premultiplyAlpha ? 1 : 0) + "," + (this._genMipmaps ? 1 : 0);
+        let asset = `${extId},${this._minFilter},${this._magFilter},${this._wrapS},${this._wrapT},` +
+                    `${this._premultiplyAlpha ? 1 : 0},${this._genMipmaps ? 1 : 0},${this._packable ? 1 : 0}`;
         return asset;
     },
 
@@ -881,7 +899,7 @@ var Texture2D = cc.Class({
                 cc.warnID(3120, handle.customEnv.url, defaultExt, defaultExt);
             }
         }
-        if (fields.length === 7) {
+        if (fields.length === 8) {
             // decode filters
             this._minFilter = parseInt(fields[1]);
             this._magFilter = parseInt(fields[2]);
@@ -891,6 +909,7 @@ var Texture2D = cc.Class({
             // decode premultiply alpha
             this._premultiplyAlpha = fields[5].charCodeAt(0) === CHAR_CODE_1;
             this._genMipmaps = fields[6].charCodeAt(0) === CHAR_CODE_1;
+            this._packable = fields[7].charCodeAt(0) === CHAR_CODE_1;
         }
     },
 
