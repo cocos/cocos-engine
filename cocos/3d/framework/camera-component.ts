@@ -37,6 +37,7 @@ import { Camera } from '../../renderer';
 import { Scene } from '../../scene-graph';
 import { RenderTexture } from '../../assets';
 import { GFXWindow } from '../../gfx/window';
+import { CameraVisFlags } from '../../renderer/scene/camera';
 
 /**
  * @en
@@ -102,7 +103,7 @@ export class CameraComponent extends Component {
     @property
     protected _screenScale = 1;
     @property
-    protected _visibility = 0;
+    protected _visibility = CameraVisFlags.GENERAL;
     @property
     protected _targetTexture: RenderTexture | null = null;
 
@@ -318,11 +319,11 @@ export class CameraComponent extends Component {
     }
 
     set targetTexture (value){
-        if(this._targetTexture === value){
+        if (this._targetTexture === value){
             return;
         }
 
-        if(!value && this._camera){
+        if (!value && this._camera){
             this._targetTexture!.removeCamera(this._camera);
         }
 

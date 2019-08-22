@@ -6,6 +6,7 @@
 import { Component } from '../../components/component';
 import { _decorator } from '../../core/data/index';
 import { Model } from '../../renderer';
+import { VisibilityFlags } from '../../renderer/scene/model';
 import { Material } from '../assets/material';
 const { ccclass, property } = _decorator;
 
@@ -15,7 +16,7 @@ export class RenderableComponent extends Component {
     protected _materials: Array<Material | null> = [];
 
     @property
-    protected _visFlags: number = 0;
+    protected _visFlags: number = VisibilityFlags.GENERAL;
 
     constructor () {
         super();

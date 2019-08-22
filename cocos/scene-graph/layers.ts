@@ -1,3 +1,5 @@
+import { VisibilityFlags } from "../renderer/scene/model";
+
 /*
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
@@ -38,7 +40,7 @@ export class Layers {
   /**
    * @zh 默认层，所有节点的初始值
    */
-  public static Default = (1 << 0);
+  public static Default = VisibilityFlags.GENERAL;
   /**
    * @zh 忽略射线检测
    */
