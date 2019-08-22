@@ -185,7 +185,10 @@ var DynamicAnimCurve = cc.Class({
         }
 
         // only need to refind frame index when ratio is out of range of last from ratio and to ratio.
-        let cachedIndex = ~this._cachedIndex;
+        let cachedIndex = this._cachedIndex;
+        if (cachedIndex < 0) {
+            cachedIndex = ~cachedIndex;
+        }
         if (cachedIndex > 0) {
             let fromRatio = this.ratios[cachedIndex - 1];
             let toRatio = this.ratios[cachedIndex];
