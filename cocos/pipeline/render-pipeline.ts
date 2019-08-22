@@ -1463,8 +1463,9 @@ export abstract class RenderPipeline {
         for (const model of scene.models) {
 
             model._resetUBOUpdateFlag();
+
             // filter model by view visibility
-            if (model.enabled && ((model.visFlags & view.visibility) || (view.visibility === 0 && model.visFlags <= 0))) {
+            if (model.enabled && (view.visibility & model.visFlags)) {
                 model.updateTransform();
 
                 // frustum culling

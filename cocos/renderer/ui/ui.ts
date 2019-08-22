@@ -17,7 +17,7 @@ import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { UniformBinding } from '../../pipeline/define';
 import { Camera } from '../scene/camera';
-import { Model } from '../scene/model';
+import { Model, VisibilityFlags } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 import { UIBatchModel } from './ui-batch-model';
 import { UIMaterial } from './ui-material';
@@ -118,8 +118,8 @@ export class UI {
         });
         this._uiModelPool = new Pool(() => {
             const model = this._scene.createModel<UIBatchModel>(UIBatchModel, null!);
-            model.visFlags = 0;
-            return model
+            model.visFlags |= VisibilityFlags.ALWAYS;
+            return model;
         }, 2);
         this._modelInUse = new CachedArray<UIBatchModel>(10);
         this._batches = new CachedArray(64);

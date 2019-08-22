@@ -82,6 +82,10 @@ const v_b = cc.v3();
 const _tempMat1 = cc.mat4();
 const _tempMat2 = cc.mat4();
 
+export enum CameraVisFlags {
+    GENERAL = (1 << 30) | (1 << 29),
+}
+
 export class Camera {
 
     private _scene: RenderScene;
@@ -112,7 +116,7 @@ export class Camera {
     private _position: Vec3 = new Vec3();
     private _node: INode | null = null;
     private _view: RenderView;
-    private _visibility: number = 0;
+    private _visibility: number = CameraVisFlags.GENERAL;
     private _priority: number = 0;
     private _aperture: CameraAperture = CameraAperture.F16_0;
     private _apertureValue: number;

@@ -375,9 +375,13 @@ export class Vec4 extends ValueType {
      */
     public static transformAffine<Out extends IVec4Like, VecLike extends IVec4Like, MatLike extends IMat4Like>
         (out: Out, v: VecLike, m: MatLike) {
-        out.x = v.x * m.m00 + v.y * m.m01 + v.z * m.m02 + v.w * m.m03;
-        out.y = v.x * m.m04 + v.y * m.m05 + v.z * m.m06 + v.w * m.m07;
-        out.x = v.x * m.m08 + v.y * m.m09 + v.z * m.m10 + v.w * m.m11;
+        _x = v.x;
+        _y = v.y;
+        _z = v.z;
+        _w = v.w;
+        out.x = m.m00 * _x + m.m01 * _y + m.m02 * _z + m.m03 * _w;
+        out.y = m.m04 * _x + m.m05 * _y + m.m06 * _z + m.m07 * _w;
+        out.x = m.m08 * _x + m.m09 * _y + m.m10 * _z + m.m11 * _w;
         out.w = v.w;
         return out;
     }
