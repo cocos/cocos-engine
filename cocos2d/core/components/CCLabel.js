@@ -168,6 +168,13 @@ let Label = cc.Class({
         this._frame = null;
         this._ttfTexture = null;
         this._letterTexture = null;
+
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            this._activateMaterial = this._activateMaterialCanvas;
+        }
+        else {
+            this._activateMaterial = this._activateMaterialWebgl;
+        }
     },
 
     editor: CC_EDITOR && {
@@ -632,36 +639,38 @@ let Label = cc.Class({
         }
     },
 
-    _activateMaterial (force) {
+    _activateMaterialCanvas (force) {
         if (!force) return;
 
-        // Canvas
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            this._frame._texture.url = this.uuid + '_texture';
+        this._frame._texture.url = this.uuid + '_texture';
+
+        this.markForUpdateRenderData(true);
+        this.markForRender(true);
+    },
+
+    _activateMaterialWebgl (force) {
+        if (!force) return;
+
+
+        // If frame not create, disable render and return.
+        if (!this._frame) {
+            this.disableRender();
+            return;
         }
-        // WebGL
+
+        // Label's texture is generated dynamically,
+        // we should always get a material instance for this label.
+        let material = this.sharedMaterials[0];
+
+        if (!material) {
+            material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
+        }
         else {
-
-            // If frame not create, disable render and return.
-            if (!this._frame) {
-                this.disableRender();
-                return;
-            }
-
-            // Label's texture is generated dynamically,
-            // we should always get a material instance for this label.
-            let material = this.sharedMaterials[0];
-
-            if (!material) {
-                material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
-            }
-            else {
-                material = Material.getInstantiatedMaterial(material, this);
-            }
-
-            material.setProperty('texture', this._frame._texture);
-            this.setMaterial(0, material);
+            material = Material.getInstantiatedMaterial(material, this);
         }
+
+        material.setProperty('texture', this._frame._texture);
+        this.setMaterial(0, material);
 
         this.markForUpdateRenderData(true);
         this.markForRender(true);
