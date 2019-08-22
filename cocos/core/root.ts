@@ -311,6 +311,10 @@ export class Root {
             this._fpsTime = 0.0;
         }
 
+        this._views.sort((a: RenderView, b: RenderView) => {
+            return a.priority - b.priority;
+        });
+
         for (const view of this._views) {
             if (view.isEnable && (view.window &&
                 (view.window.isOffscreen ||
@@ -412,11 +416,7 @@ export class Root {
         const view: RenderView = this._createViewFun(this, info.camera);
         view.initialize(info);
         // view.camera.resize(cc.game.canvas.width, cc.game.canvas.height);
-
         this._views.push(view);
-        this._views.sort((a: RenderView, b: RenderView) => {
-            return a.priority - b.priority;
-        });
 
         return view;
     }
