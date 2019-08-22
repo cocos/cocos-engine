@@ -3,13 +3,13 @@
  */
 
 import { ccclass, property } from '../core/data/class-decorator';
+import { ccenum } from '../core/value-types/enum';
 import { GFXFormat } from '../gfx';
 import { GFXDevice } from '../gfx/device';
 import { GFXWindow } from '../gfx/window';
+import { Camera } from '../renderer';
 import { DepthStencilFormat, PixelFormat } from './asset-enum';
 import { TextureBase } from './texture-base';
-import { ccenum } from '../core/value-types/enum';
-import { Camera } from '../renderer';
 
 export interface IRenderTextureCreateInfo {
     name?: string;
@@ -63,7 +63,7 @@ export class RenderTexture extends TextureBase {
 
     constructor (info?: IRenderTextureCreateInfo) {
         super(true);
-        if(info){
+        if (info){
             this.reset(info);
         }
     }
@@ -92,7 +92,7 @@ export class RenderTexture extends TextureBase {
 
     public destroy () {
         this._tryDestroyWindow();
-        this._cameras.forEach(ca => {
+        this._cameras.forEach((ca) => {
             ca.changeTargetWindow();
         });
         this._cameras.length = 0;
@@ -123,7 +123,7 @@ export class RenderTexture extends TextureBase {
         this.emit('load');
     }
 
-    public _serialize(exporting?: any): any {
+    public _serialize (exporting?: any): any {
         return {
             base: super._serialize(),
             name: this._name,
@@ -151,7 +151,7 @@ export class RenderTexture extends TextureBase {
             return;
         }
         this._window = this._createWindow(device);
-        this._cameras.forEach(ca => {
+        this._cameras.forEach((ca) => {
             ca.changeTargetWindow(this._window);
         });
     }

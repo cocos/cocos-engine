@@ -127,19 +127,19 @@ export class SkeletalAnimationClip extends AnimationClip {
             this._convertToWorldSpace(path, nodeData.props);
         }
         // convert to SkinningModelComponent.fid animation
+        const curves: ITargetCurveData[] = [];
         for (const comp of root.getComponentsInChildren(RenderableComponent)) {
             if (isTargetSkinningModel(comp, root)) {
                 const path = getPathFromRoot(comp.node, root);
                 const compName = getClassName(comp);
-                const curves: ITargetCurveData[] = [];
                 curves.push({
                     modifiers: [],
                     data: { keys: 0, values, interpolate: false },
                     valueAdapter: new FrameIDValueAdapter(path, compName),
                 });
-                this.curves = curves;
             }
         }
+        this.curves = curves;
         this._keys = [values.map((_, i) => i * this.speed / this.sample)];
         this._duration = this._keys[0][values.length - 1];
         this._converted = true;
