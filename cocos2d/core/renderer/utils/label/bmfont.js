@@ -120,20 +120,23 @@ module.exports = {
         _spacingX = comp.spacingX;
         _overflow = comp.overflow;
         _lineHeight = comp._lineHeight;
-                
+        
+        _contentSize.width = _comp.node.width;
+        _contentSize.height = _comp.node.height;
+
         // should wrap text
         if (_overflow === Overflow.NONE) {
             _isWrapText = false;
+            _contentSize.width += shareLabelInfo.margin * 2;
+            _contentSize.height += shareLabelInfo.margin * 2;
         }
         else if (_overflow === Overflow.RESIZE_HEIGHT) {
             _isWrapText = true;
+            _contentSize.height += shareLabelInfo.margin * 2;
         }
         else {
             _isWrapText = comp.enableWrapText;
         }
-
-        _contentSize.width = comp.node._contentSize.width + shareLabelInfo.margin * 2;
-        _contentSize.height = comp.node._contentSize.height + shareLabelInfo.margin * 2;
         
         shareLabelInfo.lineHeight = _lineHeight;
         shareLabelInfo.fontSize = _fontSize;
