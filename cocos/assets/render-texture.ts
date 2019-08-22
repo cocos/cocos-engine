@@ -91,7 +91,10 @@ export class RenderTexture extends TextureBase {
     }
 
     public destroy () {
-        this._tryDestroyWindow();
+        if (this._window) {
+            cc.director.root.destroyWindow(this._window);
+            this._window = null;
+        }
         this._cameras.forEach((ca) => {
             ca.changeTargetWindow();
         });
@@ -145,19 +148,28 @@ export class RenderTexture extends TextureBase {
     }
 
     private _tryReset () {
+        this._createWindow();
         this._tryDestroyWindow();
         const device = this._getGFXDevice();
         if (!device) {
             return;
         }
-        this._window = this._createWindow(device);
+        this._window!.initialize({
+            title: this.name,
+            isOffscreen: true,
+            width: this._width,
+            height: this._height,
+            colorFmt: this._format,
+            depthStencilFmt: this._depthStencilFormat as unknown as GFXFormat,
+        });
         this._cameras.forEach((ca) => {
             ca.changeTargetWindow(this._window);
         });
     }
 
-    private _createWindow (device: GFXDevice) {
-        return cc.director.root!.createWindow({
+    private _createWindow () {
+        if (this._window) { return; }
+        this._window = cc.director.root!.createWindow({
             title: this.name,
             isOffscreen: true,
             width: this._width,
@@ -169,8 +181,7 @@ export class RenderTexture extends TextureBase {
 
     private _tryDestroyWindow () {
         if (this._window) {
-            cc.director.root.destroyWindow(this._window);
-            this._window = null;
+            this._window.destroy();
         }
     }
 }

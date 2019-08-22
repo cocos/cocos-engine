@@ -1,10 +1,10 @@
 import { frustum, ray } from '../../3d/geom-utils';
-import { Color, lerp, Mat4, Rect, toRadian, Vec3 } from '../../core/math';
+import { lerp, Mat4, Rect, toRadian, Vec3 } from '../../core/math';
+import { INode } from '../../core/utils/interfaces';
 import { GFXClearFlag, IGFXColor } from '../../gfx/define';
+import { GFXWindow } from '../../gfx/window';
 import { RenderView } from '../../pipeline/render-view';
 import { RenderScene } from './render-scene';
-import { INode } from '../../core/utils/interfaces';
-import { GFXWindow } from '../../gfx/window';
 
 export enum CameraProjection {
     ORTHO,
@@ -474,11 +474,9 @@ export class Camera {
         const scene = this._scene;
         const win = window || scene.root.mainWindow;
         if (win) {
-            this._width = win.width;
-            this._height = win.height;
             this._view.window = win;
+            this.resize(win.width, win.height);
         }
-        this._aspect = this._width / this._height;
     }
 
     /**
