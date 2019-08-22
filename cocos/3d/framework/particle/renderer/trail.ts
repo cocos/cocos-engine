@@ -29,6 +29,9 @@ const _temp_vec3 = cc.v3();
 const _temp_vec3_1 = cc.v3();
 const _temp_color = cc.color();
 
+const barycentric = [1,0,0, 0,1,0, 0,0,1]; // <wirframe debug>
+let _bcIdx = 0;
+
 interface ITrailElement {
     position: Vec3;
     lifetime: number;
@@ -115,6 +118,16 @@ class TrailSegment {
         this.start = -1;
         this.end = -1;
     }
+
+    // <debug>
+    // public _print () {
+    //     let msg = String();
+    //     this.iterateElement(this, (target: object, e: ITrailElement, p: Particle, dt: number) => {
+    //         msg += 'pos:' + e.position.toString() + '\nlifetime:' + e.lifetime + '\nwidth:' + e.width + '\nvelocity:' + e.velocity.toString() + '\n';
+    //         return false;
+    //     }, null, 0);
+    //     console.log(msg);
+    // }
 }
 
 @ccclass('cc.TrailModule')
@@ -295,6 +308,7 @@ export default class TrailModule {
         this._vertAttrs = [
             { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F }, // xyz:position
             { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGBA32F }, // x:index y:size zw:texcoord
+            // { name: GFXAttributeName.ATTR_TEX_COORD2, format: GFXFormat.RGB32F }, // <wireframe debug>
             { name: GFXAttributeName.ATTR_TEX_COORD1, format: GFXFormat.RGB32F }, // xyz:velocity
             { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },
         ];
@@ -308,6 +322,7 @@ export default class TrailModule {
 
     public onInit (ps) {
         this._particleSystem = ps;
+        this.minParticleDistance = this._minParticleDistance;
         let burstCount = 0;
         for (const b of this._particleSystem.bursts) {
             burstCount += b.getMaxCount(this._particleSystem);
@@ -416,6 +431,9 @@ export default class TrailModule {
             Vec3.subtract(_temp_vec3, lastThirdTrail.position, lastSecondTrail.position);
             Vec3.subtract(_temp_vec3_1, lastSeg.position, lastSecondTrail.position);
             Vec3.subtract(lastSecondTrail.velocity, _temp_vec3_1, _temp_vec3);
+            if (Vec3.equals(Vec3.ZERO, lastSecondTrail.velocity)) {
+                Vec3.copy(lastSecondTrail.velocity, _temp_vec3);
+            }
         }
         if (this.colorFromParticle) {
             lastSeg.color.set(p.color);
@@ -484,7 +502,12 @@ export default class TrailModule {
             }
             _temp_trailEle.width = p.size.x;
             _temp_trailEle.color = p.color;
-            this._fillVertexBuffer(_temp_trailEle, this.colorOverTrail.evaluate(0, 1), indexOffset, 0, trailNum, PRE_TRIANGLE_INDEX);
+
+            if (Vec3.equals(_temp_trailEle.velocity, Vec3.ZERO)) {
+                this.ibOffset -= 3;
+            } else {
+                this._fillVertexBuffer(_temp_trailEle, this.colorOverTrail.evaluate(0, 1), indexOffset, 0, trailNum, PRE_TRIANGLE_INDEX);
+            }
         }
         this.updateIA(this.ibOffset);
     }
@@ -544,6 +567,7 @@ export default class TrailModule {
         };
 
         this._trailModel = this._particleSystem._getRenderScene().createModel(Model, this._particleSystem.node);
+        this._trailModel!.visFlags = this._particleSystem.visibility;
         this._trailModel!.setSubModelMesh(0, this._subMeshData);
         this._trailModel!.enabled = true;
     }
@@ -572,6 +596,10 @@ export default class TrailModule {
         this._vbF32![this.vbOffset++] = trailSeg.width;
         this._vbF32![this.vbOffset++] = xTexCoord;
         this._vbF32![this.vbOffset++] = 0;
+        // this._vbF32![this.vbOffset++] = barycentric[_bcIdx++];  // <wireframe debug>
+        // this._vbF32![this.vbOffset++] = barycentric[_bcIdx++];
+        // this._vbF32![this.vbOffset++] = barycentric[_bcIdx++];
+        // _bcIdx %= 9;
         this._vbF32![this.vbOffset++] = trailSeg.velocity.x;
         this._vbF32![this.vbOffset++] = trailSeg.velocity.y;
         this._vbF32![this.vbOffset++] = trailSeg.velocity.z;
@@ -585,6 +613,10 @@ export default class TrailModule {
         this._vbF32![this.vbOffset++] = trailSeg.width;
         this._vbF32![this.vbOffset++] = xTexCoord;
         this._vbF32![this.vbOffset++] = 1;
+        // this._vbF32![this.vbOffset++] = barycentric[_bcIdx++];  // <wireframe debug>
+        // this._vbF32![this.vbOffset++] = barycentric[_bcIdx++];
+        // this._vbF32![this.vbOffset++] = barycentric[_bcIdx++];
+        // _bcIdx %= 9;
         this._vbF32![this.vbOffset++] = trailSeg.velocity.x;
         this._vbF32![this.vbOffset++] = trailSeg.velocity.y;
         this._vbF32![this.vbOffset++] = trailSeg.velocity.z;

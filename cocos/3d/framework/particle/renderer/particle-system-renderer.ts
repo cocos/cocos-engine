@@ -221,6 +221,7 @@ export default class ParticleSystemRenderer {
         };
         this._trailDefines = {
             CC_USE_WORLD_SPACE: true,
+            // CC_DRAW_WIRE_FRAME: true,   // <wireframe debug>
         };
     }
 
