@@ -323,11 +323,9 @@ export class CameraComponent extends Component {
             return;
         }
 
-        if (!value && this._camera){
-            this._targetTexture!.removeCamera(this._camera);
-        }
-
+        const old = this._targetTexture;
         this._targetTexture = value;
+        this._chechTargetTextureEvent(old);
         this._updateTargetTexture();
     }
 
@@ -350,12 +348,12 @@ export class CameraComponent extends Component {
     public onDestroy () {
         this._editorWindow = null;
         if (this._camera) {
-            if (this._targetTexture) {
-                this._targetTexture.removeCamera(this._camera);
-            }
-
             this._getRenderScene().destroyCamera(this._camera);
             this._camera = null;
+        }
+
+        if (this._targetTexture) {
+            this._targetTexture.off('resize');
         }
     }
 
@@ -409,9 +407,6 @@ export class CameraComponent extends Component {
     protected onSceneChanged (scene: Scene) {
         // to handle scene switch of editor camera
         if (this._camera && this._camera.scene !== scene.renderScene) {
-            if(this._targetTexture){
-                this._targetTexture.removeCamera(this._camera);
-            }
             this._createCamera();
             this._camera.enabled = true;
             this._updateTargetTexture();
@@ -422,6 +417,22 @@ export class CameraComponent extends Component {
     protected _getEditorWindow (){
         if(cc.director.root && CC_EDITOR){
             this._editorWindow = cc.director.root.windows[0];
+        }
+    }
+
+    protected _chechTargetTextureEvent(old: RenderTexture | null) {
+        const resizeFunc = (window: GFXWindow)=>{
+            if(this._camera){
+                this._camera.setFixedSize(window.width, window.height);
+            }
+        }
+
+        if (old) {
+            old.off('resize');
+        }
+
+        if (this._targetTexture) {
+            this._targetTexture.on('resize', resizeFunc, this);
         }
     }
 
@@ -436,7 +447,6 @@ export class CameraComponent extends Component {
             const window = this._targetTexture.getGFXWindow();
             this._camera.changeTargetWindow(window);
             this._camera.setFixedSize(window!.width, window!.height);
-            this._targetTexture.addCamera(this._camera);
         }
     }
 }
