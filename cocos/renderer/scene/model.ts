@@ -161,7 +161,7 @@ export class Model {
     protected _inited = false;
     protected _uboUpdated = false;
     protected _castShadow = false;
-    private _transformUpdated = false;
+    private _transformUpdated = true;
 
     /**
      * Setup a default empty model
