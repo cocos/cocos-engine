@@ -186,7 +186,6 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     public start () {
-        cc.director.getAnimationManager().addCrossFade(this._crossFade);
         this._crossFade.play();
         if (!CC_EDITOR && this.playOnLoad && this._defaultClip) {
             this.crossFade(this._defaultClip.name, 0);
@@ -194,23 +193,15 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     public onEnable () {
-        if (this._crossFade) {
-            this._crossFade.resume();
-        }
+        this._crossFade.resume();
     }
 
     public onDisable () {
-        if (this._crossFade) {
-            this._crossFade.pause();
-        }
+        this._crossFade.pause();
     }
 
     public onDestroy () {
-        if (this._crossFade) {
-            this._crossFade.stop();
-            cc.director.getAnimationManager().removeCrossFade(this._crossFade);
-            this._crossFade.stop();
-        }
+        this._crossFade.stop();
         for (const name of Object.keys(this._nameToState)) {
             const state = this._nameToState[name];
             state.stop();

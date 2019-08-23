@@ -97,11 +97,17 @@ export class CrossFade extends Playable {
         });
     }
 
+    protected onPlay () {
+        super.onPlay();
+        cc.director.getAnimationManager().addCrossFade(this);
+    }
+
     /**
      * 停止我们淡入淡出的所有动画状态并停止淡入淡出。
      */
-    public onPause () {
+    protected onPause () {
         super.onPause();
+        cc.director.getAnimationManager().removeCrossFade(this);
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
             if (state) {
@@ -113,8 +119,9 @@ export class CrossFade extends Playable {
     /**
      * 恢复我们淡入淡出的所有动画状态并继续淡入淡出。
      */
-    public onResume () {
+    protected onResume () {
         super.onResume();
+        cc.director.getAnimationManager().addCrossFade(this);
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
             if (state) {
@@ -126,8 +133,9 @@ export class CrossFade extends Playable {
     /**
      * 停止所有淡入淡出的动画状态。
      */
-    public onStop () {
+    protected onStop () {
         super.onStop();
+        cc.director.getAnimationManager().removeCrossFade(this);
         this.clear();
     }
 
