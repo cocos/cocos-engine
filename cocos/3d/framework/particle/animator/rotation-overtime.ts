@@ -85,7 +85,7 @@ export default class RotationOvertimeModule {
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         if (!this._separateAxes) {
-            p.rotation.x += this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET))! * dt;
+            p.rotation.z += this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET))! * dt;
         }
         else {
             // TODO: separateAxes is temporarily not supported!
