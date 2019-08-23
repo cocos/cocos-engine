@@ -289,6 +289,7 @@ export class SpriteComponent extends UIRenderComponent {
         this._fillStart = clamp(value, -1, 1);
         if (this._type === SpriteType.FILLED && this._renderData) {
             this.markForUpdateRenderData();
+            this._renderData.uvDirty = true;
         }
     }
 
@@ -311,6 +312,7 @@ export class SpriteComponent extends UIRenderComponent {
         this._fillRange = clamp(value, 0, 1);
         if (this._type === SpriteType.FILLED && this._renderData) {
             this.markForUpdateRenderData();
+            this._renderData.uvDirty = true;
         }
     }
     /**
