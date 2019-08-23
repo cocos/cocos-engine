@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { ccclass, property } from '../core/data/class-decorator';
 import { INode } from '../core/utils/interfaces';
 import { CurveValueAdapter, ICurveValueProxy } from './animation-curve';

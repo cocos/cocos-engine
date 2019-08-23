@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { BaseNode } from './base-node';
 import { replaceProperty } from '../deprecated';
 

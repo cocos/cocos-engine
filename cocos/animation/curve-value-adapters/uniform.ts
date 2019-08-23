@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { CurveValueAdapter } from '../animation-curve';
 import { Material } from '../../3d';
 import { property, ccclass } from '../../core/data/class-decorator';

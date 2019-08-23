@@ -1,4 +1,6 @@
-
+/**
+ * @hidden
+ */
 
 export { AudioClip } from '../cocos/3d/assets/audio/clip';
 

@@ -16,17 +16,17 @@ import { replaceProperty } from '../deprecated';
  *
  * 注：请勿对 node 矩阵相关数据直接进行缓动，例如传入 this.node.position
  * @example
- * 
+ *
  * ```typescript
- * 
+ *
  * let position = new math.Vec3();
- * 
+ *
  * tweenUtil(position)
- * 
+ *
  *    .to(2, new math.Vec3(0, 2, 0), { easing: 'Cubic-InOut' })
- * 
+ *
  *    .start();
- * 
+ *
  * ```
  */
 export declare function tween (target: {}): Tween;

@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category scene-graph
+ */
+
 export enum NodeSpace {
     LOCAL,
     WORLD,

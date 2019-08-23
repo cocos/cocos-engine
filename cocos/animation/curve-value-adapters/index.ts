@@ -1,2 +1,5 @@
+/**
+ * @hidden
+ */
 
 export * from './uniform';

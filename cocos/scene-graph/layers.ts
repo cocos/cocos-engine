@@ -1,5 +1,3 @@
-import { VisibilityFlags } from "../renderer/scene/model";
-
 /*
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
@@ -28,6 +26,8 @@ import { VisibilityFlags } from "../renderer/scene/model";
 /**
  * @category scene-graph
  */
+
+import { VisibilityFlags } from '../renderer/scene/model';
 
 /**
  * 场景节点层管理器，用于射线检测、物理碰撞和用户自定义脚本逻辑。
