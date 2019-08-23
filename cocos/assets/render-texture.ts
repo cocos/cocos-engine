@@ -7,7 +7,6 @@ import { ccenum } from '../core/value-types/enum';
 import { GFXFormat } from '../gfx';
 import { GFXDevice } from '../gfx/device';
 import { GFXWindow } from '../gfx/window';
-import { Camera } from '../renderer';
 import { DepthStencilFormat, PixelFormat } from './asset-enum';
 import { TextureBase } from './texture-base';
 
@@ -28,8 +27,6 @@ export class RenderTexture extends TextureBase {
 
     @property
     private _depthStencilFormat: DepthStencilFormat = DepthStencilFormat.NONE;
-
-    private _cameras: Camera[] = [];
 
     @property
     get width () {
@@ -61,13 +58,6 @@ export class RenderTexture extends TextureBase {
         this.reset();
     }
 
-    constructor (info?: IRenderTextureCreateInfo) {
-        super(true);
-        if (info){
-            this.reset(info);
-        }
-    }
-
     public getGFXWindow () {
         return this._window;
     }
@@ -86,8 +76,9 @@ export class RenderTexture extends TextureBase {
             this._height = info.height;
             this._format = info.colorFormat;
             this._depthStencilFormat = info.depthStencilFormat;
+            this._tryResetWindow();
+            this.emit('resize', this);
         }
-        this._tryReset();
     }
 
     public destroy () {
@@ -95,33 +86,12 @@ export class RenderTexture extends TextureBase {
             cc.director.root.destroyWindow(this._window);
             this._window = null;
         }
-        this._cameras.forEach((ca) => {
-            ca.changeTargetWindow();
-        });
-        this._cameras.length = 0;
+
         return super.destroy();
     }
 
-    public addCamera (camera: Camera) {
-        const findIdx = this._cameras.findIndex((ca) => {
-            return ca === camera;
-        });
-        if (findIdx === -1) {
-            this._cameras.push(camera);
-        }
-    }
-
-    public removeCamera (camera: Camera) {
-        const findIdx = this._cameras.findIndex((ca) => {
-            return ca === camera;
-        });
-
-        this._cameras.splice(findIdx, 1);
-    }
-
     public onLoaded (){
-        this._tryReset();
-
+        this._tryResetWindow();
         this.loaded = true;
         this.emit('load');
     }
@@ -147,42 +117,36 @@ export class RenderTexture extends TextureBase {
         this._depthStencilFormat = data.depthStencilFormat;
     }
 
-    private _tryReset () {
-        this._createWindow();
-        this._tryDestroyWindow();
+    protected _tryResetWindow () {
         const device = this._getGFXDevice();
         if (!device) {
             return;
         }
-        this._window!.initialize({
-            title: this.name,
-            isOffscreen: true,
-            width: this._width,
-            height: this._height,
-            colorFmt: this._format,
-            depthStencilFmt: this._depthStencilFormat as unknown as GFXFormat,
-        });
-        this._cameras.forEach((ca) => {
-            ca.changeTargetWindow(this._window);
-        });
-    }
 
-    private _createWindow () {
-        if (this._window) { return; }
-        this._window = cc.director.root!.createWindow({
-            title: this.name,
-            isOffscreen: true,
-            width: this._width,
-            height: this._height,
-            colorFmt: this._format,
-            depthStencilFmt: this._depthStencilFormat as unknown as GFXFormat,
-        });
-    }
-
-    private _tryDestroyWindow () {
         if (this._window) {
             this._window.destroy();
         }
+
+        this._createWindow(device);
+    }
+
+
+    protected _createWindow (device: GFXDevice) {
+        const config = {
+            title: this.name,
+            isOffscreen: true,
+            width: this._width,
+            height: this._height,
+            colorFmt: this._format,
+            depthStencilFmt: this._depthStencilFormat as unknown as GFXFormat,
+        };
+
+        if(this._window){
+            this._window.initialize(config);
+            return this._window;
+        }
+
+        this._window = cc.director.root!.createWindow(config);
     }
 }
 

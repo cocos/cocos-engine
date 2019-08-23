@@ -108,8 +108,6 @@ export class CameraComponent extends Component {
     protected _targetTexture: RenderTexture | null = null;
 
     protected _camera: Camera | null = null;
-    // hack
-    protected _editorWindow: GFXWindow | null = null;
 
     constructor () {
         super();
@@ -326,24 +324,20 @@ export class CameraComponent extends Component {
             return;
         }
 
-        if (!value && this._camera){
-            this._targetTexture!.removeCamera(this._camera);
-        }
-
+        const old = this._targetTexture;
         this._targetTexture = value;
+        this._chechTargetTextureEvent(old);
         this._updateTargetTexture();
     }
 
     public onLoad () {
         cc.director.on(cc.Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneChanged, this);
-        this._getEditorWindow();
     }
 
     public onEnable () {
         if (this._camera) { this._camera.enabled = true; return; }
         this._createCamera();
         this._camera!.enabled = true;
-        this._updateTargetTexture();
     }
 
     public onDisable () {
@@ -351,14 +345,13 @@ export class CameraComponent extends Component {
     }
 
     public onDestroy () {
-        this._editorWindow = null;
         if (this._camera) {
-            if (this._targetTexture) {
-                this._targetTexture.removeCamera(this._camera);
-            }
-
             this._getRenderScene().destroyCamera(this._camera);
             this._camera = null;
+        }
+
+        if (this._targetTexture) {
+            this._targetTexture.off('resize');
         }
     }
 
@@ -407,24 +400,31 @@ export class CameraComponent extends Component {
             this._camera.clearFlag = this._clearFlags;
             this._camera.visibility = this._visibility;
         }
+
+        this._updateTargetTexture();
     }
 
     protected onSceneChanged (scene: Scene) {
         // to handle scene switch of editor camera
         if (this._camera && this._camera.scene !== scene.renderScene) {
-            if(this._targetTexture){
-                this._targetTexture.removeCamera(this._camera);
-            }
             this._createCamera();
             this._camera.enabled = true;
-            this._updateTargetTexture();
-
         }
     }
 
-    protected _getEditorWindow (){
-        if(cc.director.root && CC_EDITOR){
-            this._editorWindow = cc.director.root.windows[0];
+    protected _chechTargetTextureEvent(old: RenderTexture | null) {
+        const resizeFunc = (window: GFXWindow)=>{
+            if(this._camera){
+                this._camera.setFixedSize(window.width, window.height);
+            }
+        }
+
+        if (old) {
+            old.off('resize');
+        }
+
+        if (this._targetTexture) {
+            this._targetTexture.on('resize', resizeFunc, this);
         }
     }
 
@@ -434,12 +434,12 @@ export class CameraComponent extends Component {
         }
 
         if (!this._targetTexture) {
-            this._camera.changeTargetWindow(this._editorWindow);
+            this._camera.changeTargetWindow();
+            this._camera.isWindowSize = true;
         } else {
             const window = this._targetTexture.getGFXWindow();
             this._camera.changeTargetWindow(window);
             this._camera.setFixedSize(window!.width, window!.height);
-            this._targetTexture.addCamera(this._camera);
         }
     }
 }
