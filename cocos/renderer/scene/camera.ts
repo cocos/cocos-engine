@@ -82,8 +82,14 @@ const v_b = cc.v3();
 const _tempMat1 = cc.mat4();
 const _tempMat2 = cc.mat4();
 
+// export const CameraVisFlags = Enum({
+//     GENERAL : (1 << 30) | (1 << 29),
+//     PROFILER : 1 << 28, // profiler used
+// });
+
 export enum CameraVisFlags {
     GENERAL = (1 << 30) | (1 << 29),
+    PROFILER = 1 << 28, // profiler used
 }
 
 export class Camera {

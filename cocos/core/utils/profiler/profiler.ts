@@ -30,6 +30,8 @@ import { GFXBufferTextureCopy, GFXClearFlag, GFXFormat, GFXTextureType, GFXTextu
 import { GFXDevice } from '../../../gfx/device';
 import { GFXTexture } from '../../../gfx/texture';
 import { GFXTextureView } from '../../../gfx/texture-view';
+import { CameraVisFlags } from '../../../renderer/scene/camera';
+import { VisibilityFlags } from '../../../renderer/scene/model';
 import { Node } from '../../../scene-graph/node';
 import { Vec4 } from '../../math';
 import { ICounterOption } from './counter';
@@ -213,16 +215,14 @@ export class Profiler {
         const cameraNode = new Node('Profiler_Camera');
         cameraNode.setPosition(0, 0, 1);
         cameraNode.parent = this._rootNode;
-        cameraNode.active = false; // hack,because the camera's priority cannot be modified at runtime
         const camera = cameraNode.addComponent('cc.CameraComponent') as CameraComponent;
         camera.projection = CameraComponent.ProjectionType.ORTHO;
         camera.near = 0;
         camera.far = 0;
         camera.orthoHeight = this._device!.height;
-        camera.visibility = 2147483648;
+        camera.visibility = CameraVisFlags.PROFILER;
         camera.clearFlags = GFXClearFlag.DEPTH | GFXClearFlag.STENCIL;
         camera.priority = 1073741928;
-        cameraNode.active = true;
 
         const managerNode = new Node('Profiler_Root');
         managerNode.parent = this._rootNode;
@@ -263,7 +263,7 @@ export class Profiler {
         pass.bindTextureView(handle!, this._textureView!);
 
         modelCom.material = _material;
-        modelCom.visibility = 2147483648;
+        modelCom.visibility = VisibilityFlags.PROFILER;
     }
 
     public beforeUpdate () {

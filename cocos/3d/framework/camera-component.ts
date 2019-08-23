@@ -142,6 +142,9 @@ export class CameraComponent extends Component {
 
     set priority (val) {
         this._priority = val;
+        if (this._camera){
+            this._camera.priority = val;
+        }
     }
 
     /**

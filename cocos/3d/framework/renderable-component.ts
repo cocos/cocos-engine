@@ -16,7 +16,7 @@ export class RenderableComponent extends Component {
     protected _materials: Array<Material | null> = [];
 
     @property
-    protected _visFlags: number = VisibilityFlags.GENERAL;
+    protected _visFlags = VisibilityFlags.GENERAL;
 
     constructor () {
         super();
