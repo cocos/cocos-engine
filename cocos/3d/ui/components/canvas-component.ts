@@ -36,6 +36,7 @@ import { Camera } from '../../../renderer';
 import { UITransformComponent } from './ui-transfrom-component';
 import { Node } from '../../../scene-graph/node';
 import { RenderTexture } from '../../../assets';
+import { GFXWindow } from '../../../gfx/window';
 
 const _worldPos = new Vec3();
 
@@ -147,22 +148,14 @@ export class CanvasComponent extends Component {
     }
 
     set targetTexture (value) {
-        if (this._camera) {
-            if (this._targetTexture) {
-                this._targetTexture.removeCamera(this._camera);
-            }
-
-            if (value) {
-                const window = value.getGFXWindow();
-                this._camera.changeTargetWindow(window);
-                this._camera.setFixedSize(window!.width, window!.height);
-                value.addCamera(this._camera);
-            } else {
-                this._camera.changeTargetWindow();
-            }
+        if(this._targetTexture === value){
+            return;
         }
 
+        const old = this._targetTexture;
         this._targetTexture = value;
+        this._chechTargetTextureEvent(old);
+        this._updateTargetTexture();
     }
 
     get visibility () {
@@ -204,7 +197,7 @@ export class CanvasComponent extends Component {
 
     public __preload () {
         const cameraNode = new Node('UICamera_' + this.node.name);
-        cameraNode.setPosition(0, 0, 999);
+        cameraNode.setPosition(0, 0, 1000);
         if (!CC_EDITOR) {
             this._camera = cc.director.root.ui.renderScene.createCamera({
                 name: 'ui_' + this.node.name,
@@ -212,6 +205,7 @@ export class CanvasComponent extends Component {
                 projection: cc.CameraComponent.ProjectionType.ORTHO,
                 priority: this._priority,
                 isUI: true,
+                farClip: 2000,
                 flows: ['UIFlow'],
             });
 
@@ -224,7 +218,6 @@ export class CanvasComponent extends Component {
                 const window = this._targetTexture.getGFXWindow();
                 this._camera!.changeTargetWindow(window);
                 this._camera!.setFixedSize(window!.width, window!.height);
-                this._targetTexture.addCamera(this._camera!);
             }
         }
 
@@ -251,13 +244,14 @@ export class CanvasComponent extends Component {
     public onDestroy () {
         if (this._camera) {
             cc.director.root.ui.renderScene.destroyCamera(this._camera);
-            if(this._targetTexture){
-                this._targetTexture.removeCamera(this._camera);
-            }
         }
 
         if (CC_EDITOR) {
             cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
+        }
+
+        if (this._targetTexture) {
+            this._targetTexture.off('resize');
         }
 
         cc.view.off('design-resolution-changed', this._thisOnResized);
@@ -351,6 +345,37 @@ export class CanvasComponent extends Component {
     //         cc.view.setDesignResolutionSize(designRes.width, designRes.height, policy);
     //     }
     // }
+
+    protected _chechTargetTextureEvent(old: RenderTexture | null) {
+        const resizeFunc = (window: GFXWindow) => {
+            if (this._camera) {
+                this._camera.setFixedSize(window.width, window.height);
+            }
+        }
+
+        if (old) {
+            old.off('resize');
+        }
+
+        if (this._targetTexture) {
+            this._targetTexture.on('resize', resizeFunc, this);
+        }
+    }
+
+    protected _updateTargetTexture() {
+        if (!this._camera) {
+            return;
+        }
+
+        if (!this._targetTexture) {
+            this._camera.changeTargetWindow();
+            this._camera.isWindowSize = true;
+        } else {
+            const window = this._targetTexture.getGFXWindow();
+            this._camera.changeTargetWindow(window);
+            this._camera.setFixedSize(window!.width, window!.height);
+        }
+    }
 }
 
 cc.CanvasComponent = CanvasComponent;

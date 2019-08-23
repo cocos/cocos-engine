@@ -267,6 +267,10 @@ export class Camera {
         return this._isWindowSize;
     }
 
+    set isWindowSize(value) {
+        this._isWindowSize = value;
+    }
+
     set orthoHeight (val) {
         this._orthoHeight = val;
         this._isProjDirty = true;
