@@ -203,7 +203,9 @@ let RenderComponent = cc.Class({
             this._assembler.updateColor(this);
         }
 
-        this.node._renderFlag &= ~RenderFlow.FLAG_OPACITY;
+        if (!CC_NATIVERENDERER) {
+            this.node._renderFlag &= ~RenderFlow.FLAG_OPACITY;
+        }
     },
 
     _checkBacth (renderer, cullingMask) {
