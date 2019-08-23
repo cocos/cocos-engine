@@ -262,6 +262,7 @@ export const graphicsAssembler: IAssembler = {
         graphics.model = scene.createModel(Model, graphics.node);
         graphics.model.initSubModel(0, mesh.getSubMesh(0), graphics.material!);
         graphics.model.enabled = true;
+        graphics.markForUpdateRenderData();
     },
 
     _expandStroke (graphics: GraphicsComponent) {

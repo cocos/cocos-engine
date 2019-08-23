@@ -425,10 +425,11 @@ export class GraphicsComponent extends UIRenderComponent {
 
         this.impl.clear(clean);
         if (this.model) {
-            this.model.destroy();
             this.model.scene.destroyModel(this.model);
             this.model = null;
         }
+
+        this.markForUpdateRenderData();
     }
 
     /**
