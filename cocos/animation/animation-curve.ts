@@ -272,22 +272,27 @@ export interface ICurveValueProxy {
 /**
  * 曲线值适配器是曲线值代理的工厂。
  */
-@ccclass('cc.CurveValueAdapter')
-export class CurveValueAdapter {
+export interface CurveValueAdapter {
     /**
      * 返回指定目标的曲线值代理。
      * @param target
      */
-    public forTarget(target: any): ICurveValueProxy {
-        return {
-            set: (value: any) => {
-                // Empty implementation
-            },
-        };
-    }
+    forTarget (target: any): ICurveValueProxy;
+
+    equals (other: this): boolean;
 }
 
-cc.CurveValueAdapter = CurveValueAdapter;
+/**
+ * 返回两个曲线值适配器是否相等。
+ * 两个曲线值适配器相等当且仅当：
+ *  - 它们是同一个曲线值适配器，或者
+ *  - 它们是同一类型的曲线值适配器（`lhs.constructor === rhs.constructor`）且 `lhs.equals(rhs)` 返回 `true`。
+ * @param lhs 相比较的曲线值适配器。
+ * @param rhs 相比较的曲线值适配器。
+ */
+export function isEqualToCurveValueAdapter (lhs: CurveValueAdapter, rhs: CurveValueAdapter) {
+    return lhs === rhs || lhs.constructor === rhs.constructor && lhs.equals(rhs);
+}
 
 /**
  * 采样动画曲线。

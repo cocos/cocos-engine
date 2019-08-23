@@ -7,37 +7,39 @@ export type PropertyModifier = string;
 
 export type ElementModifier = number;
 
-export interface ICustomTargetModifier {
-    get(target: any): any;
+export interface CustomTargetModifier {
+    get (target: any): any;
+
+    equals (other: this): boolean;
 }
 
-export type TargetModifier = PropertyModifier | ElementModifier | ICustomTargetModifier;
+export type TargetModifier = PropertyModifier | ElementModifier | CustomTargetModifier;
 
-export function isPropertyModifier(modifier: TargetModifier): modifier is PropertyModifier {
+export function isPropertyModifier (modifier: TargetModifier): modifier is PropertyModifier {
     return typeof modifier === 'string';
 }
 cc.isPropertyModifier = isPropertyModifier;
 
-export function isElementModifier(modifier: TargetModifier): modifier is ElementModifier {
+export function isElementModifier (modifier: TargetModifier): modifier is ElementModifier {
     return typeof modifier === 'number';
 }
 cc.isElementModifier = isElementModifier;
 
-export function isCustomTargetModifier<T extends ICustomTargetModifier>(modifier: TargetModifier, constructor: Constructor<T>): modifier is T {
+export function isCustomTargetModifier<T extends CustomTargetModifier> (modifier: TargetModifier, constructor: Constructor<T>): modifier is T {
     return modifier instanceof constructor;
 }
 cc.isCustomTargetModifier = isCustomTargetModifier;
 
 @ccclass('cc.HierachyModifier')
-export class HierachyModifier implements ICustomTargetModifier {
+export class HierachyModifier implements CustomTargetModifier {
     @property
-    path: string = '';
+    public path: string = '';
 
     constructor (path?: string) {
         this.path = path || '';
     }
 
-    get(target: INode) {
+    public get(target: INode) {
         if (!(target instanceof Node)) {
             throw new Error(`Target of hierachy modifier shall be Node.`);
         }
@@ -47,19 +49,23 @@ export class HierachyModifier implements ICustomTargetModifier {
         }
         return result;
     }
+
+    public equals (other: this) {
+        return this.path === other.path;
+    }
 }
 cc.HierachyModifier = HierachyModifier;
 
 @ccclass('cc.ComponentModifier')
-export class ComponentModifier implements ICustomTargetModifier {
+export class ComponentModifier implements CustomTargetModifier {
     @property
-    component: string = '';
+    public component: string = '';
 
     constructor (component?: string) {
         this.component = component || '';
     }
 
-    get (target: INode) {
+    public get (target: INode) {
         if (!(target instanceof Node)) {
             throw new Error(`Target of hierachy modifier shall be Node.`);
         }
@@ -69,8 +75,33 @@ export class ComponentModifier implements ICustomTargetModifier {
         }
         return result;
     }
+
+    public equals (other: this) {
+        return this.component === other.component;
+    }
 }
 cc.ComponentModifier = ComponentModifier;
+
+/**
+ * 返回两个目标修改器是否相等。
+ * 两个目标修改器相等当切仅当：
+ *  - 它们都是属性修改器且修改的属性值相同，或者
+ *  - 它们都是元素修改器且修改相同索引的元素，或者
+ *  - 它们是同一个自定义目标修改器，或者
+ *  - 它们是同一类型的自定义目标修改器（`lhs.constructor === rhs.constructor`）且 `lhs.equals(rhs)` 返回 `true`。
+ * @param lhs 相比较的目标修改器。
+ * @param rhs 相比较的目标修改器。
+ */
+export function isEqualToTargetModifier (lhs: TargetModifier, rhs: TargetModifier) {
+    if (lhs === rhs) {
+        return true;
+    } else if (lhs.constructor !== rhs.constructor || !lhs.constructor) {
+        return false;
+    } else {
+        // @ts-ignore
+        return lhs.equals(rhs);
+    }
+}
 
 type AssignmentOrProxy = ICurveValueProxy | {
     object: any,

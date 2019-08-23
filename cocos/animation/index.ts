@@ -22,6 +22,7 @@ export {
     isElementModifier,
     isPropertyModifier,
     isCustomTargetModifier,
+    isEqualToTargetModifier,
 } from './target-modifier';
 export * from './curve-value-adapters';
 
