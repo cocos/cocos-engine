@@ -30,7 +30,7 @@
 import CCClass from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Quat } from './quat';
-import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
+import { IMat3Like, IMat4Like, IQuatLike, IVec2Like, IVec3Like } from './type-define';
 import { EPSILON } from './utils';
 import { Vec3 } from './vec3';
 
@@ -204,7 +204,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 三阶与四阶矩阵乘法
+     * 取四阶矩阵的前三阶，与三阶矩阵相乘
      */
     public static multiplyMat4 <Out extends IMat3Like> (out: Out, a: Out, b: IMat4Like) {
         _a00 = a.m00; _a01 = a.m01; _a02 = a.m02;
@@ -299,7 +299,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @zh 根据指定四维矩阵计算三维矩阵
+     * @zh 取四阶矩阵的前三阶
      */
     public static fromMat4 <Out extends IMat3Like> (out: Out, a: IMat4Like) {
         out.m00 = a.m00;
@@ -347,7 +347,7 @@ export class Mat3 extends ValueType {
     /**
      * @zh 计算位移矩阵
      */
-    public static fromTranslation <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, v: VecLike) {
+    public static fromTranslation <Out extends IMat3Like, VecLike extends IVec2Like> (out: Out, v: VecLike) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -363,7 +363,7 @@ export class Mat3 extends ValueType {
     /**
      * @zh 计算缩放矩阵
      */
-    public static fromScaling <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, v: VecLike) {
+    public static fromScaling <Out extends IMat3Like, VecLike extends IVec2Like> (out: Out, v: VecLike) {
         out.m00 = v.x;
         out.m01 = 0;
         out.m02 = 0;

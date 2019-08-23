@@ -846,7 +846,7 @@ export class Node extends BaseNode implements INode {
             parent.updateWorldTransform();
             Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, parent._rot));
             Mat3.multiplyMat4(m3_1, m3_1, parent._mat);
-            Mat3.fromScaling(m3_2, this._scale);
+            Mat3.fromScaling(m3_2, this._scale); m3_2.m08 = this._scale.z;
             Mat3.multiply(m3_1, m3_2, Mat3.invert(m3_1, m3_1));
             this._lscale.x = m3_1.m00;
             this._lscale.y = m3_1.m04;
