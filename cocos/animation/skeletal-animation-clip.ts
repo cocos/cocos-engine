@@ -55,28 +55,6 @@ type ConvertedData = Record<string, {
     props: Record<string, IPropertyCurveData>;
 }>;
 
-export class FrameIDValueAdapter extends CurveValueAdapter {
-    public path: string;
-
-    public component: string;
-
-    constructor (path: string, component: string) {
-        super();
-        this.path = path;
-        this.component = component;
-    }
-
-    public forTarget (target: any) {
-        const node = new HierachyModifier(this.path).get(target);
-        const component = new ComponentModifier(this.component).get(node) as SkinningModelComponent;
-        return {
-            set: (value: any) => {
-                component.frameID = value;
-            },
-        };
-    }
-}
-
 /**
  * 骨骼动画剪辑。
  */
@@ -133,9 +111,12 @@ export class SkeletalAnimationClip extends AnimationClip {
                 const path = getPathFromRoot(comp.node, root);
                 const compName = getClassName(comp);
                 curves.push({
-                    modifiers: [],
+                    modifiers: [
+                        new HierachyModifier(path),
+                        new ComponentModifier(compName),
+                        'frameID',
+                    ],
                     data: { keys: 0, values, interpolate: false },
-                    valueAdapter: new FrameIDValueAdapter(path, compName),
                 });
             }
         }

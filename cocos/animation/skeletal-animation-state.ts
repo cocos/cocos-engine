@@ -32,12 +32,19 @@ import { Mat4 } from '../core/math';
 import { IObjectCurveData } from './animation-clip';
 import { AnimCurve } from './animation-curve';
 import { AnimationState, ICurveInstance } from './animation-state';
-import { FrameIDValueAdapter, SkeletalAnimationClip } from './skeletal-animation-clip';
+import { SkeletalAnimationClip } from './skeletal-animation-clip';
 import { Socket } from './skeletal-animation-component';
-import { HierachyModifier } from './target-modifier';
+import { HierachyModifier, TargetModifier, ComponentModifier } from './target-modifier';
 import { getPathFromRoot, getWorldTransformUntilRoot } from './transform-utils';
 
 const m4_1 = new Mat4();
+
+function isFrameIDCurve (modifiers: TargetModifier[]) {
+    return modifiers.length === 3 &&
+        modifiers[0] instanceof HierachyModifier &&
+        modifiers[1] instanceof ComponentModifier &&
+        modifiers[2] === 'frameID';
+}
 
 export class SkeletalAnimationState extends AnimationState {
 
@@ -57,7 +64,7 @@ export class SkeletalAnimationState extends AnimationState {
         const curves = this._samplerSharedGroups[0].curves;
         for (let iCurve = 0; iCurve < curves.length; iCurve++) {
             const curveDetail = curves[iCurve].curveDetail;
-            if (curveDetail.valueAdapter && (curveDetail.valueAdapter instanceof FrameIDValueAdapter)) {
+            if (isFrameIDCurve(curveDetail.modifiers)) {
                 continue;
             } else {
                 curves.splice(iCurve--, 1);
