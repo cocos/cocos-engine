@@ -35,19 +35,17 @@ import { VisibilityFlags } from '../renderer/scene/model';
  */
 export class Layers {
 
-  // built-in layers, reserved up to (1 << 7)
+  // built-in layers, users can use 0~20 bits, 21~31 are system preserve bits.
 
   /**
    * @zh 默认层，所有节点的初始值
    */
-  public static Default = VisibilityFlags.GENERAL;
-  /**
-   * @zh 忽略射线检测
-   */
-  public static IgnoreRaycast = (1 << 1);
-  public static Gizmos = (1 << 2);
-  public static Editor = (1 << 3);
-  public static UI = (1 << 4);
+  public static Default = 1 << 30;
+  public static Always = 1 << 29;
+  public static IgnoreRaycast = (1 << 20);
+  public static Gizmos = (1 << 21);
+  public static Editor = (1 << 22);
+  public static UI = (1 << 23);
 
   // masks
 
