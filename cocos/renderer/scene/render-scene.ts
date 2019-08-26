@@ -1,8 +1,9 @@
 import { IBArray } from '../../3d/assets/mesh';
 import { aabb, intersect, ray, triangle } from '../../3d/geom-utils';
 import { RecyclePool } from '../../3d/memop';
-import { Root } from '../../core/root';
 import { Mat4, Vec3 } from '../../core/math';
+import { Root } from '../../core/root';
+import { INode } from '../../core/utils/interfaces';
 import { GFXPrimitiveMode } from '../../gfx/define';
 import { Layers } from '../../scene-graph/layers';
 import { Node } from '../../scene-graph/node';
@@ -15,7 +16,6 @@ import { PlanarShadows } from './planar-shadows';
 import { Skybox } from './skybox';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
-import { INode } from '../../core/utils/interfaces';
 
 export interface IRenderSceneInfo {
     name: string;
