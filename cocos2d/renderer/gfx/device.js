@@ -565,6 +565,13 @@ function _attach(gl, location, attachment, face = 0) {
 
 export default class Device {
   /**
+   * @property caps
+   */
+  get caps() {
+    return this._caps;
+  }
+
+  /**
    * @param {HTMLElement} canvasEL
    * @param {object} opts
    */
@@ -689,6 +696,7 @@ export default class Device {
     this._caps.maxFragUniforms = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
     this._caps.maxTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
     this._caps.maxVertexAttribs = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
+    this._caps.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
 
     this._caps.maxDrawBuffers = extDrawBuffers ? gl.getParameter(extDrawBuffers.MAX_DRAW_BUFFERS_WEBGL) : 1;
     this._caps.maxColorAttachments = extDrawBuffers ? gl.getParameter(extDrawBuffers.MAX_COLOR_ATTACHMENTS_WEBGL) : 1;
