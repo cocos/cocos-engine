@@ -37,7 +37,7 @@ var _deadPool = [];
  * @class Task
  * 
  * @typescript
- * Task(options: any): typeof Task
+ * Task(options: any): typeof cc.AssetManager.Task
  */
 function Task () {
     this.id = _taskId++;
@@ -69,7 +69,7 @@ Task.prototype = {
      * task.set({input: ['test'], onComplete: (err, result) => console.log(err), onProgress: (finish, total) => console.log(finish / total)});
      * 
      * @typescript
-     * set(options: {onComplete?: (err: Error, result: any) => void, onProgress?: Function, input: any, progress?: any, options?: any}): void
+     * set(options: {onComplete?: (err: Error, result: any) => void, onError?: () => void, onProgress?: Function, input: any, progress?: any, options?: any}): void
      */
     set (options) {
         options = options || Object.create(null);
@@ -103,7 +103,7 @@ Task.prototype = {
      * Task.dispatch('complete', 'hello world');
      * 
      * @typescript
-     * dispatch(event: string, param1?: any, param2?: any, param3?: any, param4?: any)
+     * dispatch(event: string, param1?: any, param2?: any, param3?: any, param4?: any): void
      */
     dispatch (event, param1, param2, param3, param4) {
         switch (event) {
@@ -130,7 +130,7 @@ Task.prototype = {
      * Recycle this for reuse
      * 
      * !#zh
-     * 回收task用于复用
+     * 回收 task 用于复用
      * 
      * @method recycle
      * 
@@ -166,13 +166,19 @@ Task.prototype = {
  * Create a new task from pool
  * 
  * !#zh
- * 从对象池中创建task
+ * 从对象池中创建 task
  * 
  * @function create
+ * @param {Object} options - Some optional paramters
+ * @param {Function} [options.onComplete] - Callback when the task complete, if the pipeline is synchronous, onComplete is unnecessary.
+ * @param {Function} [options.onProgress] - Continuously callback when the task is runing, if the pipeline is synchronous, onProgress is unnecessary.
+ * @param {*} options.input - Something will be handled with pipeline
+ * @param {*} [options.progress] - Progress information, you may need to assign it manually when multiple pipeline share one progress
+ * @param {Object} [options.options] - Custom parameters
  * @returns {Task} task
  * 
  * @typescript 
- * create(options: {onComplete?: ((err: Error, result: any) => void)|null, onProgress?: Function|null, input: any, progress?: any, options?: any}): Task
+ * create(options: {onComplete?: ((err: Error, result: any) => void)|null, onError?: () => void, onProgress?: Function|null, input: any, progress?: any, options?: any}): cc.AssetManager.Task
  */
 Task.create = function (options) {
     var out = null;

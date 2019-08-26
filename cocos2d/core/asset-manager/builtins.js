@@ -23,14 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 const Cache = require('./cache');
-const { lock, unlock, release } = require('./finalizer');
+const finalizer = require('./finalizer');
 
 /**
  * !#en
  * This module contains the builtin asset 
  * 
  * !#zh
- * 此模块包含内建资源，所有成员能通过`cc.assetManaer.builtins`访问
+ * 此模块包含内建资源，所有成员能通过 `cc.assetManaer.builtins` 访问
  * 
  * @static
  */
@@ -50,7 +50,7 @@ var builtins = {
             else {
                 for (let i = 0; i < assets.length; i++) {
                     var asset = assets[i];
-                    lock(asset);
+                    finalizer.lock(asset);
                     builtin.add(asset.name, asset);
                 }
             }
@@ -122,8 +122,8 @@ var builtins = {
     clear () {
         this._assets.forEach(function (assets) {
             assets.forEach(function (asset) {
-                unlock(asset);
-                release(asset, true);
+                finalizer.unlock(asset);
+                finalizer.release(asset, true);
             });
             assets.destroy();
         })

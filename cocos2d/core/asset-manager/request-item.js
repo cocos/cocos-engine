@@ -57,7 +57,7 @@ RequestItem.prototype = {
      * The id of request, combined from uuid and isNative
      * 
      * !#zh
-     * 请求的id, 由uuid和isNative组合而成
+     * 请求的 id, 由 uuid 和 isNative 组合而成
      * 
      * @property id
      */
@@ -73,7 +73,7 @@ RequestItem.prototype = {
      * Recycle this for reuse
      * 
      * !#zh
-     * 回收requestItem用于复用
+     * 回收 requestItem 用于复用
      * 
      * @method recycle
      * 
@@ -100,13 +100,13 @@ RequestItem.prototype = {
  * Create a new request item from pool
  * 
  * !#zh
- * 从对象池中创建requestItem
+ * 从对象池中创建 requestItem
  * 
  * @function create
  * @returns {RequestItem} requestItem
  * 
  * @typescript 
- * create(): RequestItem
+ * create(): cc.AssetManager.RequestItem
  */
 RequestItem.create = function () {
     var out = null;

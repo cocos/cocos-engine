@@ -156,7 +156,7 @@ var handleQueue = function (maxConcurrent, maxRequestsPerFrame) {
  * 5. Scripts
  * 
  * !#zh
- * 管理所有下载过程，downloader是个单例，它能下载以下几种类型的文件：
+ * 管理所有下载过程，downloader 是个单例，它能下载以下几种类型的文件：
  * 1. 文本
  * 2. 图片
  * 3. 音频
@@ -172,8 +172,8 @@ var downloader = {
      * at the same time, the second is maxRequestsPerFrame, it indicates max number of new request can be launched in one frame.
      * 
      * !#zh
-     * 每一种加载策略都有对应的限制，如果使用这种加载策略，网络请求将会受到对应的限制。每个限制存在两个条件，第一个条件是maxConcurrent，它表明最多多少个请求能同时进行工作；
-     * 第二个条件是maxRequestsPerFrame，它表明每帧最多发起多少个新请求
+     * 每一种加载策略都有对应的限制，如果使用这种加载策略，网络请求将会受到对应的限制。每个限制存在两个条件，第一个条件是 maxConcurrent ，它表明最多多少个请求能同时进行工作；
+     * 第二个条件是 maxRequestsPerFrame ，它表明每帧最多发起多少个新请求
      * 
      * @property {Array} limitations
      * 
@@ -223,7 +223,7 @@ var downloader = {
      * Use Image element to download image
      *  
      * !#zh
-     * 使用Image元素来下载图片
+     * 使用 Image 元素来下载图片
      * 
      * @method downloadDomImage
      * @param {string} url - Url of the image
@@ -247,7 +247,7 @@ var downloader = {
      * Use audio element to download audio
      * 
      * !#zh
-     * 使用Audio元素来下载音频 
+     * 使用 Audio 元素来下载音频 
      * 
      * @method downloadDomAudio
      * @param {string} url - Url of the audio
@@ -270,7 +270,7 @@ var downloader = {
      * Use XMLHttpRequest to download file
      * 
      * !#zh
-     * 使用XMLHttpRequest来下载文件
+     * 使用 XMLHttpRequest 来下载文件
      * 
      * @method downloadFile
      * @param {string} url - Url of the file
@@ -292,8 +292,7 @@ var downloader = {
      * downloadFile('http://example.com/test.bin', {responseType: 'arraybuffer'}, null, (err, arrayBuffer) => console.log(err));
      * 
      * @typescript
-     * downloadFile(url: string, options: {responseType?: string, withCredentials?: boolean, mimeType?: string, timeout?: Number, header?: any}|null, onProgress: ((loaded: Number, total: Number) => void)|null, onComplete?: ((err: Error, response: any) => void)|null): XMLHttpRequest
-     * downloadFile(url: string, onComplete?: ((err: Error, response: any) => void)|null): XMLHttpRequest
+     * downloadFile(url: string, options?: {responseType?: string, withCredentials?: boolean, mimeType?: string, timeout?: Number, header?: any}|null, onProgress?: ((loaded: Number, total: Number) => void)|null, onComplete?: ((err: Error, response: any) => void)|null): XMLHttpRequest
      */
     downloadFile: downloadFile,
 
@@ -325,7 +324,7 @@ var downloader = {
      * Initialize downloader
      * 
      * !#zh
-     * 初始化downloader
+     * 初始化 downloader
      * 
      * @method init
      * 
@@ -350,7 +349,7 @@ var downloader = {
      * Register custom handler if you want to change default behavior or extend downloader to download other format file
      * 
      * !#zh
-     * 当你想修改默认行为或者拓展downloader来下载其他格式文件时可以注册自定义的handler
+     * 当你想修改默认行为或者拓展 downloader 来下载其他格式文件时可以注册自定义的 handler 
      * 
      * @method register
      * @param {string|Object} type - Extension likes '.jpg' or map likes {'.jpg': jpgHandler, '.png': pngHandler}
@@ -381,14 +380,14 @@ var downloader = {
      * Use corresponding handler to download file under limitation 
      * 
      * !#zh
-     * 在限制下使用对应的handler来下载文件
+     * 在限制下使用对应的 handler 来下载文件
      * 
      * @method download
      * @param {string} url - The url should be downloaded
      * @param {string} type - The type indicates that which handler should be used to download, such as '.jpg'
      * @param {Object} options - some optional paramters will be transferred to the corresponding handler.
-     * @param {Function} options.onProgress - progressive callback will be transferred to handler.
-     * @param {LoadStrategy} options.loadStrategy - Indicates which strategy should be used.
+     * @param {Function} [options.onProgress] - progressive callback will be transferred to handler.
+     * @param {LoadStrategy} [options.loadStrategy] - Indicates which strategy should be used.
      * @param {Function} onComplete - callback when finishing downloading
      * @param {Error} onComplete.err - The occurred error, null indicetes success
      * @param {*} onComplete.contetnt - The downloaded file
@@ -397,7 +396,7 @@ var downloader = {
      * download('http://example.com/test.tga', '.tga', {onProgress: (loaded, total) => console.lgo(loaded/total)}, onComplete: (err) => console.log(err));
      * 
      * @typescript
-     * download(url: string, type: string, options: {onProgress?: (loaded: Number, total: Number) => void, loadStrategy: cc.AssetManager.LoadStrategy}, onComplete: (err: Error, content: any) => void): void
+     * download(id: string, url: string, type: string, options: {onProgress?: (loaded: Number, total: Number) => void, loadStrategy?: cc.AssetManager.LoadStrategy}, onComplete: (err: Error, content: any) => void): void
      */
     download (id, url, type, options, onComplete) {
         var func = downloaders[type] || downloaders['default'];

@@ -29,7 +29,7 @@ const { bundles } = require('./shared');
  * Provide some helpful function, it is a singleton.
  * 
  * !#zh
- * 提供一些辅助方法，helper是一个单例
+ * 提供一些辅助方法，helper 是一个单例
  * 
  * @static
  */
@@ -39,7 +39,7 @@ var helper = {
      * Decode uuid, returns the original uuid
      * 
      * !#zh
-     * 解码uuid，返回原始uuid
+     * 解码 uuid，返回原始 uuid
      * 
      * @method decodeUuid
      * @param {String} base64 - the encoded uuid
@@ -59,7 +59,7 @@ var helper = {
      * Extract uuid from url
      * 
      * !#zh
-     * 从url中提取uuid
+     * 从 url 中提取 uuid
      * 
      * @method getUuidFromURL
      * @param {String} url - url
@@ -79,7 +79,7 @@ var helper = {
             if (matches) {
                 return matches[1];
             }
-            return "";
+            return '';
         }
     })(),
 
@@ -88,7 +88,7 @@ var helper = {
      * Transform uuid to url
      * 
      * !#zh
-     * 转换uuid为url
+     * 转换 uuid 为 url
      * 
      * @method getUrlWithUuid
      * @param {string} uuid - The uuid of asset
@@ -96,7 +96,7 @@ var helper = {
      * @returns {string} url
      * 
      * @example
-     * var url = helper.getUrlWithUuid('fcmR3XADNLgJ1ByKhqcC5Z', {isNative: false});
+     * var url = getUrlWithUuid('fcmR3XADNLgJ1ByKhqcC5Z', {isNative: false});
      * 
      * @typescript
      * getUrlWithUuid(uuid: string, options?: any): string
@@ -119,7 +119,7 @@ var helper = {
      * Check if the type of data is cc.Scene or cc.Prefab
      * 
      * !#zh
-     * 检测数据的类型是否是Scene或者prefab
+     * 检测数据的类型是否是 Scene 或者 Prefab
      * 
      * @method isSceneObj
      * @param {Object} json - serialized data
@@ -160,7 +160,7 @@ var helper = {
      * Normalize url, strip './' and '/'
      * 
      * !#zh
-     * 标准化url，去除'./'和'/'
+     * 标准化 url ，去除 './' 和 '/' 
      * 
      * @method normalize
      * @param {string} url - url

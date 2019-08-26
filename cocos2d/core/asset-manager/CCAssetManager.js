@@ -47,10 +47,10 @@ const { assets, files, parsed, pipeline, transformPipeline, fetchPipeline, initi
 /**
  * !#en
  * This module controls asset's behaviors and information, include loading, releasing etc. 
- * All member can be accessed with 'cc.assetManager'.
+ * All member can be accessed with `cc.assetManager`.
  * 
  * !#zh
- * 此模块管理资源的行为和信息，包括加载，释放等，所有成员能够通过cc.assetManager调用
+ * 此模块管理资源的行为和信息，包括加载，释放等，所有成员能够通过 `cc.assetManager` 调用
  * 
  * @static
  * @class AssetManager
@@ -163,10 +163,10 @@ AssetManager.prototype = {
      * Please DO NOT use these words as custom options!
      * 
      * !#zh
-     * 通用加载资源接口，可传入进度回调以及完成回调，通过组合`request`和`options`参数，几乎可以实现和扩展所有想要的加载效果。非常建议你使用更简单的API，例如`loadRes`、`loadResDir`等。
-     * `options`中的自定义参数将会分发到`requests`的每一项中，如果request中已存在同名的参数则以`requests`中为准，同时如果有其他
-     * 依赖资源，则`options`中的参数会继续向依赖项中分发。request中的自定义参数都会以`options`形式传入加载流程中的`downloader`, `parser`的方法中, 你可以
-     * 扩展`downloader`, `parser`收集参数完成想实现的效果。 注意：options在request是Task时是无效的。
+     * 通用加载资源接口，可传入进度回调以及完成回调，通过组合 `request` 和 `options` 参数，几乎可以实现和扩展所有想要的加载效果。非常建议你使用更简单的API，例如 `loadRes`、`loadResDir` 等。
+     * `options` 中的自定义参数将会分发到 `requests` 的每一项中，如果request中已存在同名的参数则以 `requests` 中为准，同时如果有其他
+     * 依赖资源，则 `options` 中的参数会继续向依赖项中分发。request中的自定义参数都会以 `options` 形式传入加载流程中的 `downloader`, `parser` 的方法中, 你可以
+     * 扩展 `downloader`, `parser` 收集参数完成想实现的效果。 注意：options在request是Task时是无效的。
      * 
      * 保留关键字: [`uuid`, `url`, `path`, `dir`, `scene`, `requestType`, `type`, `isNative`, `priority`, `loadStrategy`, `loadMode`, `name`, `ext`, `bundle`, `exclude`],
      * 请不要使用这些字段为自定义参数!
@@ -203,8 +203,7 @@ AssetManager.prototype = {
      * cc.assetManager.load({ url: 'http://example.com/my.asset', skin: 'xxx', model: 'xxx', userName: 'xxx', password: 'xxx' });
      * 
      * @typescript
-     * load(requests: string | string[] | Object | Object[] | cc.AssetManager.Task, onComplete?: ((err: Error, data: any) => void)|null): cc.AssetManager.Task
-     * load(requests: string | string[] | Object | Object[] | cc.AssetManager.Task, options: any, onProgress: ((finished: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((err: Error, data: any) => void)|null): cc.AssetManager.Task
+     * load(requests: string | string[] | Object | Object[] | cc.AssetManager.Task, options?: any, onProgress?: ((finished: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((err: Error, data: any) => void)|null): cc.AssetManager.Task
      */
     load (requests, options, onProgress, onComplete) {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
@@ -227,7 +226,7 @@ AssetManager.prototype = {
      * to finish loading asset
      * 
      * !#zh
-     * 通用预加载资源接口，可传入进度回调以及完成回调，非常建议你使用更简单的API，例如preloadRes, preloadResDir等。preload和load几乎一样，区别在于`preload`只会下载资源，不会去解析资源，你需要调用`cc.assetManager.load(preloadTask)`
+     * 通用预加载资源接口，可传入进度回调以及完成回调，非常建议你使用更简单的 API ，例如 `preloadRes`, `preloadResDir` 等。`preload` 和 `load` 几乎一样，区别在于 `preload` 只会下载资源，不会去解析资源，你需要调用 `cc.assetManager.load(preloadTask)`
      * 来完成资源加载。
      * 
      * @method preload
@@ -241,15 +240,14 @@ AssetManager.prototype = {
      * @param {RequestItem} onProgress.item - The current request item
      * @param {Function} [onComplete] - Callback invoked when finish preloading
      * @param {Error} onComplete.err - The error occured in preloading process.
-     * @param {Object} onComplete.data - The preloaded content
+     * @param {RequestItem[]} onComplete.items - The preloaded content
      * @returns {Task} preloading task
      * 
      * @example
      * var task = cc.assetManager.preload('0cbZa5Y71CTZAccaIFluuZ', (err) => cc.assetManager.load(task));
      * 
      * @typescript
-     * preload(requests: string | string[] | Object | Object[], onComplete?: ((err: Error, data: any) => void)|null): cc.AssetManager.Task
-     * preload(requests: string | string[] | Object | Object[], options: any, onProgress: ((finished: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((err: Error, data: any) => void)|null): cc.AssetManager.Task
+     * preload(requests: string | string[] | Object | Object[], options?: any, onProgress?: ((finished: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((err: Error, items: cc.AssetManager.RequestItem[]) => void)|null): cc.AssetManager.Task
      */
     preload (requests, options, onProgress, onComplete) {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
@@ -266,7 +264,7 @@ AssetManager.prototype = {
      * Load native file of asset, for example, you can load texture's native file
      * 
      * !#zh
-     * 加载资源的原生文件，例如，你可以加载texture的原生文件
+     * 加载资源的原生文件，例如，你可以加载 texture 的原生文件
      * 
      * @method loadNativeFile
      * @param {Asset} asset - The asset
@@ -308,7 +306,7 @@ AssetManager.prototype = {
      * Load remote texture with url
      * 
      * !#zh
-     * 使用url加载远程图片
+     * 使用 url 加载远程图片
      * 
      * @method loadRemoteTexture
      * @param {string} url - The url of image
@@ -349,7 +347,7 @@ AssetManager.prototype = {
      * Load remote audio with url
      * 
      * !#zh
-     * 使用url加载远程音频
+     * 使用 url 加载远程音频
      * 
      * @method loadRemoteAudio
      * @param {string} url - The url of audio
@@ -415,7 +413,7 @@ AssetManager.prototype = {
      * load bundle
      * 
      * !#zh
-     * 下载子包
+     * 下载资源包
      * 
      * @method loadBundle
      * @param {string} root - The root path of bundle
@@ -440,7 +438,7 @@ AssetManager.prototype = {
         var config = options.ver ? `${root}/config.${options.ver}.json` : `${root}/config.json`;
         downloader.downloadFile(config, options, null, function (err, response) {
             if (err) {
-                cc.error(err.message);
+                cc.error(err);
                 onComplete && onComplete(err);
                 return;
             }
@@ -450,10 +448,7 @@ AssetManager.prototype = {
             if (!response.scripts) return onComplete && onComplete(null, bundle);
             
             self.loadScript(root + '/index.js', options, function (err) {
-                if (err) {
-                    onComplete && onComplete(err);
-                    return;
-                }
+                if (err) cc.error(err);
                 onComplete && onComplete(null, bundle);
             });
 
@@ -468,7 +463,7 @@ AssetManager.prototype = {
      * Note: All asset paths in Creator use forward slashes, paths using backslashes will not work.
      * 
      * !#zh
-     * 加载resources目录下的资源，注意：所有资源路径应该使用斜杠，反斜杠将停止工作
+     * 加载 `resources` 目录下的资源，注意：所有资源路径应该使用斜杠，反斜杠将停止工作
      *
      * @method loadRes
      * @param {String|String[]|Task} paths - Paths of the target resource or a preloaded task.The path is relative to the "resources" folder, extensions must be omitted.
@@ -490,9 +485,7 @@ AssetManager.prototype = {
      * cc.assetManager.loadRes('imgs/cocos', cc.SpriteFrame, null, (err, spriteFrame) => console.log(err));
      * 
      * @typescript
-     * loadRes(paths: string|string[]|cc.AssetManager.Task, type: typeof cc.Asset, onProgress: ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error, resources: cc.Asset|cc.Asset[]) => void)|null): cc.AssetManager.Task
-     * loadRes(paths: string|string[]|cc.AssetManager.Task, type: typeof cc.Asset): cc.AssetManager.Task
-     * loadRes(paths: string|string[]|cc.AssetManager.Task): cc.AssetManager.Task
+     * loadRes(paths: string|string[]|cc.AssetManager.Task, type?: typeof cc.Asset, onProgress?: ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error, resources: cc.Asset|cc.Asset[]) => void)|null): cc.AssetManager.Task
      */
     loadRes (paths, type, onProgress, onComplete) {
         return bundles.get('resources').loadAsset(paths, type, onProgress, onComplete);
@@ -504,7 +497,7 @@ AssetManager.prototype = {
      * Everything are like loadRes
      * 
      * !#zh
-     * 预加载resources目录下的资源，其他都和loadRes相同
+     * 预加载 `resources` 目录下的资源，其他都和 `loadRes` 相同
      *
      * @method preloadRes
      * @param {String|String[]} paths - Paths of the target resource.The path is relative to the "resources" folder, extensions must be omitted.
@@ -526,9 +519,7 @@ AssetManager.prototype = {
      * cc.assetManager.preloadRes('imgs/cocos', cc.SpriteFrame, null, (err) => console.log(err));
      * 
      * @typescript
-     * preloadRes(paths: string|string[], type: typeof cc.Asset, onProgress: ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error, resources: cc.Asset|cc.Asset[]) => void)|null): cc.AssetManager.Task
-     * preloadRes(paths: string|string[], type: typeof cc.Asset): cc.AssetManager.Task
-     * preloadRes(paths: string|string[]): cc.AssetManager.Task
+     * preloadRes(paths: string|string[], type?: typeof cc.Asset, onProgress?: ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error, items: cc.AssetManager.RequestItem[]) => void)|null): cc.AssetManager.Task
      */
     preloadRes (path, type, onProgress, onComplete) {
         return bundles.get('resources').preloadAsset(path, type, onProgress, onComplete);
@@ -577,8 +568,7 @@ AssetManager.prototype = {
      * });
      *
      * @typescript
-     * loadResDir(dir: string|cc.AssetManager.Task, type: typeof cc.Asset, onProgress: ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error, assets: any[]) => void)|null): cc.AssetManager.Task
-     * loadResDir(dir: string|cc.AssetManager.Task, onComplete?: ((error: Error, assets: any[]) => void)|null): cc.AssetManager.Task
+     * loadResDir(dir: string|cc.AssetManager.Task, type?: typeof cc.Asset, onProgress?: ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error, assets: cc.Asset|cc.Asset[]) => void)|null): cc.AssetManager.Task
      */
     loadResDir (dir, type, onProgress, onComplete) {
         return bundles.get('resources').loadDir(dir, type, onProgress, onComplete);
@@ -588,10 +578,10 @@ AssetManager.prototype = {
      * !#en
      * Preload all assets in a folder inside the "assets/resources" folder of your project.<br>
      * <br>
-     * Everything are like loadResDir
+     * Everything are like `loadResDir`
      * 
      * !#zh
-     * 预加载目标文件夹中的所有资源, 其他和loadResDir一样
+     * 预加载目标文件夹中的所有资源, 其他和 `loadResDir` 一样
      *
      * @method preloadResDir
      * @param {string} dir - path of the target folder.
@@ -621,8 +611,7 @@ AssetManager.prototype = {
      * });
      *
      * @typescript
-     * preloadResDir(dir: string, type: typeof cc.Asset, onProgress: ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error, items: cc.AssetManager.RequestItem[]) => void)|null): cc.AssetManager.Task
-     * preloadResDir(dir: string, onComplete?: ((error: Error, items: cc.AssetManager.RequestItem[]) => void)|null): cc.AssetManager.Task
+     * preloadResDir(dir: string, type?: typeof cc.Asset, onProgress?: ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error, items: cc.AssetManager.RequestItem[]) => void)|null): cc.AssetManager.Task
      */
     preloadResDir (dir, type, onProgress, onComplete) {
         return bundles.get('resources').preloadDir(dir, type, onProgress, onComplete);
@@ -652,8 +641,7 @@ AssetManager.prototype = {
      * cc.assetManager.loadScene('first', (err) => console.log(err));
      * 
      * @typescript
-     * loadScene(sceneName: string, options: {onBeforeLoadScene?: Function, onAfterLoadScene?: Function}|null, ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error) => void)|null): cc.AssetManager.Task
-     * loadScene(sceneName: string, onComplete?: ((error: Error) => void)|null): cc.AssetManager.Task
+     * loadScene(sceneName: string, options?: any, onProgress?: ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error) => void)|null): cc.AssetManager.Task
      */
     loadScene (sceneName, options, onProgress, onComplete) {
         return bundles.get('scenes').loadScene(sceneName, options, onProgress, onComplete);
@@ -662,12 +650,12 @@ AssetManager.prototype = {
     /**
      * !#en
      * Preloads the scene to reduces loading time. You can call this method at any time you want.
-     * After calling this method, you still need to launch the scene by `cc.assetManager.loadScene`.
+     * After calling this method, you still need to finish loading by `cc.assetManager.loadScene` or `cc.director.loadScene`.
      * You must wait for preloading callback before calling `cc.assetManager.loadScene`
      * 
      * !#zh 
      * 预加载场景，你可以在任何时候调用这个方法。
-     * 调用完后，你仍然需要通过 `cc.director.loadScene` 来启动场景，你必须等待预加载完成后再调用`cc.assetManager.loadScene`
+     * 调用完后，你仍然需要通过 `cc.assetManager.loadScene` 或 `cc.director.loadScene` 来完成加载，你必须等待预加载完成后再调用 `cc.assetManager.loadScene`
      *
      * @method preloadScene
      * @param {String} sceneName - The name of the scene to preload.
@@ -684,8 +672,7 @@ AssetManager.prototype = {
      * cc.assetManager.preloadScene('first', (err) => cc.assetManager.loadScene('first'));
      * 
      * @typescript
-     * preloadScene(sceneName: string, options: any, ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error) => void)|null): cc.AssetManager.Task
-     * preloadScene(sceneName: string, onComplete?: ((error: Error) => void)|null): cc.AssetManager.Task
+     * preloadScene(sceneName: string, options?: any, onProgress?: ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error) => void)|null): cc.AssetManager.Task
      */
     preloadScene (sceneName, options, onProgress, onComplete) {
         return bundles.get('scenes').preloadScene(sceneName, options, onProgress, onComplete);
@@ -698,8 +685,8 @@ AssetManager.prototype = {
      * you can acquire them by passing the path to this API.
      * 
      * !#zh
-     * 通过路径与类型获取资源。在你使用{{#crossLink "assetManager/loadRes:method"}}{{/crossLink}}或者{{#crossLink "assetManager/loadResDir:method"}}{{/crossLink}}之后，
-     * 你能通过传路径通过这个API获取到这些资源。
+     * 通过路径与类型获取资源。在你使用 {{#crossLink "assetManager/loadRes:method"}}{{/crossLink}} 或者 {{#crossLink "assetManager/loadResDir:method"}}{{/crossLink}} 之后，
+     * 你能通过传路径通过这个 API 获取到这些资源。
      * 
      * @method getRes
      * @param {String} path - The path of resource
@@ -726,7 +713,7 @@ AssetManager.prototype = {
      * 释放资源, 这个方法不仅会从 assetManager 中删除资源的缓存引用，还会清理它的资源内容。
      * 比如说，当你释放一个 texture 资源，这个 texture 和它的 gl 贴图数据都会被释放。
      * 注意，这个函数可能会导致资源贴图或资源所依赖的贴图不可用，如果场景中存在节点仍然依赖同样的贴图，它们可能会变黑并报 GL 错误。
-     * 当`force`为`true`或者`undefined`时，引擎会尝试计算资源被引用的数量，如果数量为零，则资源会被释放。你也能将`force`置为true来强制释放这个资源
+     * 当 `force` 为 `true` 或者 `undefined` 时，引擎会尝试计算资源被引用的数量，如果数量为零，则资源会被释放。你也能将 `force` 置为true来强制释放这个资源
      *
      * @method release
      * @param {Asset|RawAsset} asset - The asset to be released
@@ -739,7 +726,9 @@ AssetManager.prototype = {
      * @typescript
      * release(asset: cc.Asset, force?: boolean): void
      */
-    release: finalizer.release,
+    release (asset, force) {
+        finalizer.release(asset, force);
+    },
 
     /**
      * !#en 
@@ -777,7 +766,7 @@ AssetManager.prototype = {
      * @param {boolean} [force] - Indicates whether or not release this asset forcely
      * 
      * @typescript
-     * releaseAll(force: boolean): void
+     * releaseAll(force?: boolean): void
      */
     releaseAll (force) {
         assets.forEach(function (asset) {
@@ -791,7 +780,7 @@ AssetManager.prototype = {
      * The parameter of transform is just likes `cc.assetManager.load`, the difference is `cc.assetManager.transform` will only parse requset but not load any asset. 
      * 
      * !#zh
-     * 通用转换URL接口，transform的参数和load几乎一样，区别在于`cc.assetManager.transform`只会解析请求，不会去加载任何资源
+     * 通用转换 URL 接口，`transform` 的参数和 `load` 几乎一样，区别在于 `cc.assetManager.transform` 只会解析请求，不会去加载任何资源
      * 
      * @method transform
      * @param {string|string[]|Object|Object[]} input - The request you want to transfrom
@@ -804,7 +793,7 @@ AssetManager.prototype = {
      * var urls = cc.assetManager.transform({ uuid: '0cbZa5Y71CTZAccaIFluuZ'});
      * 
      * @typescript
-     * transform(input: string | string[] | Object | Object[], options: any): string|string[]
+     * transform(input: string | string[] | Object | Object[], options?: any): string|string[]
      */
     transform (input, options) {
         var subTask = Task.create({input, options});
