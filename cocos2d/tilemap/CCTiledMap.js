@@ -297,7 +297,7 @@ let TiledMap = cc.Class({
         this._images = [];
         this._properties = [];
         this._tileProperties = [];
-        
+
         this._mapSize = cc.size(0, 0);
         this._tileSize = cc.size(0, 0);
     },
@@ -651,18 +651,23 @@ let TiledMap = cc.Class({
         this._fillAniGrids(texGrids, animations);
 
         let mapInfo = this._mapInfo;
-        let layers = this._layers;
-        let groups = this._groups;
-        let images = this._images;
+
+        let layers = this._layers = [];
+        let groups = this._groups = [];
+        let images = this._images = [];
+
         let node = this.node;
         let layerInfos = mapInfo.getAllChildren();
         let textures = this._textures;
+
+        let nodeNames = {};
         if (layerInfos && layerInfos.length > 0) {
             for (let i = 0, len = layerInfos.length; i < len; i++) {
                 let layerInfo = layerInfos[i];
                 let name = layerInfo.name;
 
                 let child = this.node.getChildByName(name);
+                nodeNames[name] = true;
 
                 if (!child) {
                     child = new cc.Node();
@@ -712,14 +717,20 @@ let TiledMap = cc.Class({
             }
         }
 
+        let children = node.children;
+        for (let i = 0, n = children.length; i < n; i++) {
+            let c = children[i];
+            if (!nodeNames[c._name]) {
+                c.destroy();
+            }
+        }
+
         this.node.width = this._mapSize.width * this._tileSize.width;
         this.node.height = this._mapSize.height * this._tileSize.height;
         this._syncAnchorPoint();
     },
 
     _buildWithMapInfo (mapInfo) {
-        this._releaseMapInfo();
-
         this._mapInfo = mapInfo;
         this._mapSize = mapInfo.getMapSize();
         this._tileSize = mapInfo.getTileSize();

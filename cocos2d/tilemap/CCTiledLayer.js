@@ -334,6 +334,7 @@ let TiledLayer = cc.Class({
     },
 
     onDisable () {
+        this._super();
         this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     },
 
@@ -1193,6 +1194,7 @@ let TiledLayer = cc.Class({
 
     _init (layerInfo, mapInfo, tilesets, textures, texGrids) {
         
+        this._cullingDirty = true;
         this._layerInfo = layerInfo;
         this._mapInfo = mapInfo;
 
