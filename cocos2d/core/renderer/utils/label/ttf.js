@@ -25,14 +25,13 @@
 
 const macro = require('../../../platform/CCMacro');
 const textUtils = require('../../../utils/text-utils');
-
-const Component = require('../../../components/CCComponent');
 const Label = require('../../../components/CCLabel');
 const LabelOutline = require('../../../components/CCLabelOutline');
 const LabelShadow = require('../../../components/CCLabelShadow');
 const Overflow = Label.Overflow;
 const packToDynamicAtlas = require('../utils').packToDynamicAtlas;
 const deleteFromDynamicAtlas = require('../utils').deleteFromDynamicAtlas;
+const getFontFamily = require('../utils').getFontFamily;
 
 const MAX_SIZE = 2048;
 const _invisibleAlpha = (1 / 255).toFixed(3);
@@ -118,32 +117,6 @@ module.exports = {
     _updateVerts () {
     },
 
-    _updateFontFamily (comp) {
-        if (!comp.useSystemFont) {
-            if (comp.font) {
-                if (comp.font._nativeAsset) {
-                    _fontFamily = comp.font._nativeAsset;
-                }
-                else {
-                    _fontFamily = cc.loader.getRes(comp.font.nativeUrl);
-                    if (!_fontFamily) {
-                        cc.loader.load(comp.font.nativeUrl, function (err, fontFamily) {
-                            _fontFamily = fontFamily || 'Arial';
-                            comp.font._nativeAsset = fontFamily;
-                            comp._updateRenderData(true);
-                        });
-                    }
-                }
-            }
-            else {
-                _fontFamily = 'Arial';
-            }
-        }
-        else {
-            _fontFamily = comp.fontFamily;
-        }
-    },
-
     _updatePaddingRect () {
         let top = 0, bottom = 0, left = 0, right = 0;
         let outlineWidth = 0;
@@ -170,6 +143,10 @@ module.exports = {
         _canvasPadding.y = top;
         _canvasPadding.width = left + right;
         _canvasPadding.height = top + bottom;
+    },
+
+    _updateFontFamily (comp) {
+        _fontFamily = getFontFamily(comp);
     },
 
     _updateProperties (comp) {

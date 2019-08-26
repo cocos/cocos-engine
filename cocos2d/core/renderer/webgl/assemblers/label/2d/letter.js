@@ -41,4 +41,5 @@ module.exports = js.addon({
     },
 
     appendQuad: bmfontAssembler.appendQuad
+
 }, fontUtils);
