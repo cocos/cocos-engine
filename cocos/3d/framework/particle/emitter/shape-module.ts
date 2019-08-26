@@ -96,7 +96,7 @@ export default class ShapeModule {
     @property({
         displayOrder: 0,
     })
-    public enable = false;
+    public enable = true;
 
     /**
      * @zh 粒子发射器类型 [[ShapeType]]。
@@ -105,7 +105,7 @@ export default class ShapeModule {
         type: ShapeType,
         displayOrder: 1,
     })
-    public shapeType = ShapeType.Box;
+    public shapeType = ShapeType.Cone;
 
     /**
      * @zh 粒子从发射器哪个部位发射 [[EmitLocation]]。
@@ -182,7 +182,7 @@ export default class ShapeModule {
     @property({
         displayOrder: 9,
     })
-    public arcSpread = 8;
+    public arcSpread = 0;
 
     /**
      * @zh 粒子沿圆周发射的速度。
@@ -200,7 +200,7 @@ export default class ShapeModule {
     @property({
         displayOrder: 11,
     })
-    public length = 0;
+    public length = 5;
 
     /**
      * @zh 粒子发射器发射位置（针对 Box 类型的粒子发射器）。

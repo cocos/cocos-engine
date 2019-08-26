@@ -387,7 +387,6 @@ export default class ParticleSystemRenderer {
                 this.attrs[attrNum++] = _tempAttribUV;
                 this.attrs[attrNum++] = p.size;
                 this.attrs[attrNum++] = p.rotation;
-                this.attrs[attrNum++] = _tempAttribUV0;
                 this.attrs[attrNum++] = p.color._val;
                 this._model!.addParticleVertexData(i, this.attrs);
             }
