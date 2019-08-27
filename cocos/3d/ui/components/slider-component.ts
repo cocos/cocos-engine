@@ -105,6 +105,7 @@ export class SliderComponent extends Component {
         }
 
         this._direction = value;
+        this._changeLayout();
     }
 
     /**
@@ -183,7 +184,7 @@ export class SliderComponent extends Component {
         }
     }
 
-    private _onHandleDragStart (event?: EventTouch) {
+    protected _onHandleDragStart (event?: EventTouch) {
         if (!event || !this._handle || !this._handle.node.uiTransfromComp) {
             return;
         }
@@ -197,7 +198,7 @@ export class SliderComponent extends Component {
         event.propagationStopped = true;
     }
 
-    private _onTouchBegan (event?: EventTouch) {
+    protected _onTouchBegan (event?: EventTouch) {
         if (!this._handle || !event) {
             return;
         }
@@ -210,7 +211,7 @@ export class SliderComponent extends Component {
         event.propagationStopped = true;
     }
 
-    private _onTouchMoved (event?: EventTouch) {
+    protected _onTouchMoved (event?: EventTouch) {
         if (!this._dragging || !event) {
             return;
         }
@@ -219,7 +220,7 @@ export class SliderComponent extends Component {
         event.propagationStopped = true;
     }
 
-    private _onTouchEnded (event?: EventTouch) {
+    protected _onTouchEnded (event?: EventTouch) {
         this._dragging = false;
         this._touchHandle = false;
         this._offset = cc.v2();
@@ -229,24 +230,24 @@ export class SliderComponent extends Component {
         }
     }
 
-    private _onTouchCancelled (event?: EventTouch) {
+    protected _onTouchCancelled (event?: EventTouch) {
         this._dragging = false;
         if (event) {
             event.propagationStopped = true;
         }
     }
 
-    private _handleSliderLogic (touch: Touch | null) {
+    protected _handleSliderLogic (touch: Touch | null) {
         this._updateProgress(touch);
         this._emitSlideEvent();
     }
 
-    private _emitSlideEvent () {
+    protected _emitSlideEvent () {
         cc.Component.EventHandler.emitEvents(this.slideEvents, this);
         this.node.emit('slide', this);
     }
 
-    private _updateProgress (touch: Touch | null) {
+    protected _updateProgress (touch: Touch | null) {
         if (!this._handle || !touch) {
             return;
         }
@@ -261,7 +262,7 @@ export class SliderComponent extends Component {
         }
     }
 
-    private _updateHandlePosition () {
+    protected _updateHandlePosition () {
         if (!this._handle) {
             return;
         }
@@ -273,6 +274,21 @@ export class SliderComponent extends Component {
         }
 
         this._handle.node.setPosition(this._handlelocalPos);
+    }
+
+    private _changeLayout () {
+        const contentSize = this.node.getContentSize();
+        this.node.setContentSize(contentSize.height, contentSize.width);
+        if(this._handle){
+            const pos = this._handle.node.position;
+            if (this._direction === Direction.Horizontal) {
+                this._handle.node.setPosition(pos.x, 0, pos.z);
+            } else {
+                this._handle.node.setPosition(0, pos.y, pos.z);
+            }
+
+            this._updateHandlePosition();
+        }
     }
 }
 
