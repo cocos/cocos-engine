@@ -381,6 +381,7 @@ export class CameraComponent extends Component {
             name: this.node.name,
             node: this.node,
             projection: this._projection,
+            window: cc.director.root.tempWindow,
             priority: this._priority,
         });
 

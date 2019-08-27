@@ -56,8 +56,24 @@ export class Root {
      * @zh
      * 当前窗口
      */
+    public set curWindow (window: GFXWindow | null) {
+        this._curWindow = window;
+    }
+
     public get curWindow (): GFXWindow | null {
         return this._curWindow;
+    }
+
+    /**
+     * @zh
+     * 临时窗口（用于数据传输）
+     */
+    public set tempWindow (window: GFXWindow | null) {
+        this._tempWindow = window;
+    }
+
+    public get tempWindow (): GFXWindow | null {
+        return this._tempWindow;
     }
 
     /**
@@ -156,6 +172,7 @@ export class Root {
     private _windows: GFXWindow[] = [];
     private _mainWindow: GFXWindow | null = null;
     private _curWindow: GFXWindow | null = null;
+    private _tempWindow: GFXWindow | null = null;
     private _pipeline: RenderPipeline | null = null;
     private _ui: UI | null = null;
     private _scenes: RenderScene[] = [];
