@@ -339,11 +339,15 @@ const AssetLibrary = {
         if (md5AssetsMap && md5AssetsMap.import) {
             // decode uuid
             let i = 0;
-            let uuid = 0;
+            let uuid = '';
             const md5ImportMap = createMap(true);
             let md5Entries = md5AssetsMap.import;
             for (i = 0; i < md5Entries.length; i += 2) {
                 uuid = decodeUuid(md5Entries[i]);
+                const uuids = uuid.split('@').map((name) => {
+                    return encodeURIComponent(name);
+                });
+                uuid = uuids.join('@');
                 md5ImportMap[uuid] = md5Entries[i + 1];
             }
 
@@ -351,6 +355,10 @@ const AssetLibrary = {
             md5Entries = md5AssetsMap['raw-assets'];
             for (i = 0; i < md5Entries.length; i += 2) {
                 uuid = decodeUuid(md5Entries[i]);
+                const uuids = uuid.split('@').map((name) => {
+                    return encodeURIComponent(name);
+                });
+                uuid = uuids.join('@');
                 md5RawAssetsMap[uuid] = md5Entries[i + 1];
             }
 

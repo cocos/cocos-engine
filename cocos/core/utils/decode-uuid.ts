@@ -32,8 +32,24 @@ const _t = ['', '', '', ''];
 const UuidTemplate = _t.concat(_t, '-', _t, '-', _t, '-', _t, '-', _t, _t, _t);
 const Indices = UuidTemplate.map((x, i) => x === '-' ? NaN : i).filter(isFinite);
 
-// fcmR3XADNLgJ1ByKhqcC5Z -> fc991dd7-0033-4b80-9d41-c8a86a702e59
-export default function decodeUuid (base64) {
+/**
+ * @en
+ * Decode uuid, returns the original uuid
+ *
+ * @zh
+ * 解码 uuid，返回原始 uuid
+ *
+ * @method decodeUuid
+ * @param  base64 - the encoded uuid
+ * @returns the original uuid
+ *
+ * @example
+ * ```typescript
+ * const uuid = 'fcmR3XADNLgJ1ByKhqcC5Z';
+ * const originalUuid = decodeUuid(uuid); // fc991dd7-0033-4b80-9d41-c8a86a702e59
+ * ```
+ */
+export default function decodeUuid (base64: string) {
     const strs = base64.split('@');
     const uuid = strs[0];
     if (uuid.length !== 22) {
