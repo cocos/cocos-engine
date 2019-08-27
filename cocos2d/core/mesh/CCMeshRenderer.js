@@ -128,7 +128,8 @@ let MeshRenderer = cc.Class({
                 this.markForUpdateRenderData(true);
                 this.node._renderFlag |= RenderFlow.FLAG_TRANSFORM;
             },
-            type: Mesh
+            type: Mesh,
+            animatable: false
         },
 
         textures: {
@@ -151,7 +152,8 @@ let MeshRenderer = cc.Class({
             set (val) {
                 this._receiveShadows = val;
                 this._updateReceiveShadow();
-            }
+            },
+            animatable: false
         },
 
         /**
@@ -169,7 +171,8 @@ let MeshRenderer = cc.Class({
                 this._shadowCastingMode = val;
                 this._updateCastShadow();
             },
-            type: ShadowCastingMode
+            type: ShadowCastingMode,
+            animatable: false
         }
     },
 

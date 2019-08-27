@@ -69,7 +69,8 @@ let RenderComponent = cc.Class({
                 this._activateMaterial(true);
             },
             type: [Material],
-            displayName: 'Materials'
+            displayName: 'Materials',
+            animatable: false
         }
     },
     
