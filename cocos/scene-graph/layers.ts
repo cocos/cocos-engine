@@ -27,8 +27,6 @@
  * @category scene-graph
  */
 
-import { VisibilityFlags } from '../renderer/scene/model';
-
 /**
  * 场景节点层管理器，用于射线检测、物理碰撞和用户自定义脚本逻辑。
  * 每个节点可属于一个或多个层，可通过 “包含式” 或 “排除式” 两种检测器进行层检测。

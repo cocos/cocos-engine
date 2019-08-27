@@ -88,8 +88,11 @@ const _tempMat2 = cc.mat4();
 // });
 
 export enum CameraVisFlags {
-    GENERAL = (1 << 30) | (1 << 29),
-    PROFILER = 1 << 28, // profiler used
+    GENERAL = (1 << 30) | (1 << 29) | (1 << 23),
+    PROFILER = (1 << 28), // profiler used
+    GIZMOS = (1 << 21),
+    EDITOR = (1 << 22),
+    UI = (1 << 23),
 }
 
 export class Camera {

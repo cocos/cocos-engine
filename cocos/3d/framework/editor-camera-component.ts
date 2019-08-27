@@ -6,6 +6,7 @@ import { ccclass } from '../../core/data/class-decorator';
 import { Color, toRadian } from '../../core/math';
 import { Camera } from '../../renderer';
 import { CameraComponent } from './camera-component';
+import { CameraVisFlags } from '../../renderer/scene/camera';
 
 @ccclass('cc.EditorCameraComponent')
 export class EditorCameraComponent extends CameraComponent {
@@ -138,6 +139,7 @@ export class EditorCameraComponent extends CameraComponent {
                 flows: ['UIFlow'],
             });
 
+            this._uiEditorCamera!.visibility |= (CameraVisFlags.EDITOR | CameraVisFlags.GIZMOS);
             this._uiEditorCamera!.viewport = this._camera.viewport;
             this._uiEditorCamera!.fov = this._camera.fov;
             this._uiEditorCamera!.nearClip = this._camera.nearClip;
