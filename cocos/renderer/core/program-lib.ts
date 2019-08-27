@@ -154,11 +154,10 @@ class ProgramLib {
             let cnt = 1;
             if (def.type === 'number') {
                 const range = def.range!;
-                cnt = getBitCount(range[1] - range[0]);
+                cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
                 def._map = (value: number) => (value - range[0]) << def._offset;
             } else if (def.type === 'string') {
-                const range = [0, def.options!.length - 1];
-                cnt = getBitCount(range[1] - range[0]);
+                cnt = getBitCount(def.options!.length);
                 def._map = (value: any) => Math.max(0, def.options!.findIndex((s) => s === value)) << def._offset;
             } else if (def.type === 'boolean') {
                 def._map = (value: any) => value ? (1 << def._offset) : 0;

@@ -3,7 +3,7 @@
  */
 
 import { Vec3 } from '../../core/math';
-import { ColliderComponent } from '../framework';
+import { ColliderComponent } from '../framework/physics/collider/collider-component';
 
 /**
  * @zh
