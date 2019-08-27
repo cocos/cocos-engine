@@ -134,6 +134,7 @@ export class EditorCameraComponent extends CameraComponent {
                 name: 'Editor UICamera',
                 node: this._camera.node,
                 projection: this._projection,
+                window: cc.director.root.mainWindow,
                 priority: this._priority,
                 isUI: true,
                 flows: ['UIFlow'],
