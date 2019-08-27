@@ -118,7 +118,7 @@ export class UI {
         });
         this._uiModelPool = new Pool(() => {
             const model = this._scene.createModel<UIBatchModel>(UIBatchModel, null!);
-            model.visFlags |= VisibilityFlags.ALWAYS;
+            model.visFlags |= VisibilityFlags.UI;
             return model;
         }, 2);
         this._modelInUse = new CachedArray<UIBatchModel>(10);
