@@ -37,12 +37,7 @@ export default class RotationOvertimeModule {
     }
 
     set separateAxes (val) {
-        if (!val) {
-            this._separateAxes = val;
-        }
-        else {
-            console.error('rotation overtime separateAxes is not supported!');
-        }
+        this._separateAxes = val;
     }
 
     /**

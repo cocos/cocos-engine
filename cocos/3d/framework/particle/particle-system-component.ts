@@ -366,7 +366,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         this.rateOverTime.constant = 10;
         this.startLifetime.constant = 5;
         this.startSize.constant = 1;
-        this.startSpeed.constant = 1;
+        this.startSpeed.constant = 5;
 
         // internal status
         this._isPlaying = false;
@@ -601,7 +601,7 @@ export class ParticleSystemComponent extends RenderableComponent {
             }
             Vec3.copy(particle.ultimateVelocity, particle.velocity);
             // apply startRotation. now 2D only.
-            Vec3.set(particle.rotation, this.startRotation.evaluate(this._time / this.duration, rand)!, 0, 0);
+            Vec3.set(particle.rotation, 0, 0, this.startRotation.evaluate(this._time / this.duration, rand)!);
 
             // apply startSize. now 2D only.
             Vec3.set(particle.startSize, this.startSize.evaluate(this._time / this.duration, rand)!, 1, 1);

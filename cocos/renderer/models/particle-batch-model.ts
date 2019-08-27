@@ -213,8 +213,8 @@ export default class ParticleBatchModel extends Model {
             this._vdataF32![offset++] = pvdata[2].x; // size
             this._vdataF32![offset++] = pvdata[2].y;
             this._vdataF32![offset++] = pvdata[2].z;
-            this._vdataF32![offset++] = pvdata[3].z; // rotation
-            this._vdataF32![offset++] = pvdata[3].z;
+            this._vdataF32![offset++] = pvdata[3].x; // rotation
+            this._vdataF32![offset++] = pvdata[3].y;
             this._vdataF32![offset++] = pvdata[3].z;
             this._vdataUint32![offset++] = pvdata[4]; // color
             if (pvdata[5]) {
