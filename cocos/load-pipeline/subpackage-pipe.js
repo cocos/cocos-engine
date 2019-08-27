@@ -47,6 +47,10 @@ var SubPackPipe = function (subpackage) {
         var pack = subpackage[packName];
         pack.uuids && pack.uuids.forEach(function (val) {
             var uuid = decodeUuid(val);
+            const uuids = uuid.split('@').map((name) => {
+                return encodeURIComponent(name);
+            });
+            uuid = uuids.join('@');
             _uuidToSubPack[uuid] = pack.path;
         });
     }
