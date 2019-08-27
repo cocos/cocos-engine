@@ -32,7 +32,7 @@ function getUniformBlockSize (block: GFXUniformBlock): number {
 
 export enum VisibilityFlags {
     GENERAL = 0,
-    ALWALWAYSAYS = (1 << 29),   // without frustum culling
+    ALWALS = (1 << 29),   // without frustum culling
     PROFILER = (1 << 28), // profiler used
     GIZMOS = (1 << 21),
     EDITOR = (1 << 22),
