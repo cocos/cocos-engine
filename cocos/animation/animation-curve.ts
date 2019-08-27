@@ -5,7 +5,7 @@
 import { ccclass, property } from '../core/data/class-decorator';
 import { binarySearchEpsilon as binarySearch } from '../core/data/utils/binary-search';
 import { errorID } from '../core/platform/CCDebug';
-import { lerp } from '../core/math';
+import { lerp, Quat } from '../core/math';
 import { ValueType } from '../core/value-types';
 import { PropertyBlendState } from './animation-blend-state';
 import { bezierByTime, BezierControlPoints } from './bezier';
@@ -379,6 +379,13 @@ const selectLerpFx = (() => {
         return from.lerp(to, t, dt);
     }
 
+    function makeQuatSlerpFx () {
+        const tempValue = new Quat();
+        return (from: Quat, to: Quat, t: number, dt: number) => {
+            return Quat.slerp(tempValue, from, to, t);
+        };
+    }
+
     return (value: any): LerpFunction<any> | undefined => {
         if (value === null) {
             return undefined;
@@ -386,7 +393,9 @@ const selectLerpFx = (() => {
         if (typeof value === 'number') {
             return lerp;
         } else if (typeof value === 'object' && value.constructor) {
-            if (value instanceof ValueType) {
+            if (value instanceof Quat) {
+                return makeQuatSlerpFx();
+            } else if (value instanceof ValueType) {
                 return makeValueTypeLerpFx(value.constructor as typeof ValueType);
             } else if (value.constructor === Number) {
                 return lerp;
