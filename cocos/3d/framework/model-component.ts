@@ -31,6 +31,7 @@ import { builtinResMgr } from '../../3d/builtin';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { Enum } from '../../core/value-types';
 import { Model } from '../../renderer/scene/model';
+import { TransformDirtyBit } from '../../scene-graph/node-enum';
 import { Material } from '../assets/material';
 import { Mesh } from '../assets/mesh';
 import { RenderableComponent } from './renderable-component';
@@ -203,8 +204,7 @@ export class ModelComponent extends RenderableComponent {
         if (!this._mesh || !this._model) {
             return;
         }
-        // @ts-ignore
-        this.node._hasChangedFlags = this._model.transform._hasChangedFlags = true;
+        this.node.hasChangedFlags = this._model.transform.hasChangedFlags = TransformDirtyBit.POSITION;
         const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
         for (let i = 0; i < meshCount; ++i) {
             const material = this.getSharedMaterial(i);

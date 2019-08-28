@@ -106,13 +106,18 @@ export class SkinningModel extends Model {
     }
 
     public setFrameID (val: number) {
-        const { buffer, jointsTextureInfo } = this._jointsMedium;
-        jointsTextureInfo[3] = val;
-        if (buffer) { buffer.update(jointsTextureInfo); }
+        this._jointsMedium.jointsTextureInfo[3] = val;
     }
 
     public getFrameID () {
         return this._jointsMedium.jointsTextureInfo[3];
+    }
+
+    public updateUBOs () {
+        if (!super.updateUBOs()) { return false; }
+        const { buffer, jointsTextureInfo } = this._jointsMedium;
+        if (buffer) { buffer.update(jointsTextureInfo); }
+        return true;
     }
 
     protected _applyJointsTexture (texture: IJointsTextureHandle | null) {

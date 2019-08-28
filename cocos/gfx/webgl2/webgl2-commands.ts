@@ -924,14 +924,14 @@ export function WebGL2CmdFuncUpdateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
                 if (buffer instanceof Float32Array) {
                     buf = buffer;
                 } else {
-                    buf = new Float32Array(buffer as ArrayBuffer, 0, size / 4);
+                    buf = new Float32Array(buff, 0, size / 4);
                 }
 
                 if (size === buf.byteLength) {
                     gl.bufferSubData(gpuBuffer.glTarget, offset, buf);
                     // if (gl.getBufferParameter(gl.UNIFORM_BUFFER, gl.BUFFER_SIZE) !== buff.length * 4) { debugger; }
                 } else {
-                    gl.bufferSubData(gpuBuffer.glTarget, offset, new Float32Array(buff, 0, size / 4));
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, new Float32Array(buf.buffer, 0, size / 4));
                 }
                 break;
             }
@@ -2228,7 +2228,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                     }
                 } // bind binding layout
 
-                if (cmd2.gpuInputAssembler && gpuShader && 
+                if (cmd2.gpuInputAssembler && gpuShader &&
                     (isShaderChanged || gpuInputAssembler !== cmd2.gpuInputAssembler)) {
                     gpuInputAssembler = cmd2.gpuInputAssembler;
 

@@ -47,6 +47,7 @@ const TRANFORM_ON = 1 << 0;
 const qt_1 = new Quat();
 const m3_1 = new Mat3();
 const m3_2 = new Mat3();
+const bookOfChange = new Map<string, number>();
 
 /**
  * @zh
@@ -57,6 +58,8 @@ const m3_2 = new Mat3();
  */
 @ccclass('cc.Node')
 export class Node extends BaseNode implements INode {
+    public static bookOfChange = bookOfChange;
+
     /**
      * @zh
      * 节点可能发出的事件类型
@@ -103,7 +106,6 @@ export class Node extends BaseNode implements INode {
     protected _euler = new Vec3();
 
     protected _dirtyFlags = TransformDirtyBit.NONE; // does the world transform need to update?
-    protected _hasChangedFlags = TransformDirtyBit.NONE; // has the transform changed in this frame?
     protected _eulerDirty = false;
 
     protected _eventProcessor: NodeEventProcessor = new cc.NodeEventProcessor(this);
@@ -275,7 +277,10 @@ export class Node extends BaseNode implements INode {
      * 这个节点的空间变换信息在当前帧内是否有变过？
      */
     get hasChangedFlags () {
-        return this._hasChangedFlags;
+        return bookOfChange.get(this._id) || 0;
+    }
+    set hasChangedFlags (val: number) {
+        bookOfChange.set(this._id, val);
     }
 
     // ===============================
@@ -366,7 +371,8 @@ export class Node extends BaseNode implements INode {
 
     public _onBatchCreated () {
         super._onBatchCreated();
-        this._dirtyFlags = this._hasChangedFlags = TransformDirtyBit.TRS;
+        bookOfChange.set(this._id, TransformDirtyBit.TRS);
+        this._dirtyFlags = TransformDirtyBit.TRS;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._onBatchCreated();
@@ -467,29 +473,15 @@ export class Node extends BaseNode implements INode {
 
     /**
      * @en
-     * Reset the `hasChangedFlags` flag recursively
-     * @zh
-     * 递归重置节点的 hasChangedFlags 标记为 false
-     */
-    public resetHasChangedFlags (): void {
-        this._hasChangedFlags = TransformDirtyBit.NONE;
-        const len = this._children.length;
-        for (let i = 0; i < len; ++i) {
-            this._children[i].resetHasChangedFlags();
-        }
-    }
-
-    /**
-     * @en
      * invalidate the world transform information
      * for this node and all its children recursively
      * @zh
      * 递归标记节点世界变换为 dirty
      */
     public invalidateChildren (dirtyBit: TransformDirtyBit) {
-        if ((this._dirtyFlags & this._hasChangedFlags & dirtyBit) === dirtyBit) { return; }
+        if ((this._dirtyFlags & this.hasChangedFlags & dirtyBit) === dirtyBit) { return; }
         this._dirtyFlags |= dirtyBit;
-        this._hasChangedFlags |= dirtyBit;
+        bookOfChange.set(this._id, this.hasChangedFlags | dirtyBit);
         dirtyBit |= TransformDirtyBit.POSITION;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {

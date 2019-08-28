@@ -713,14 +713,6 @@ export interface INode extends IBaseNode {
 
     /**
      * @en
-     * Reset the `hasChangedFlags` flag recursively
-     * @zh
-     * 递归重置节点的 hasChangedFlags 标记为 false
-     */
-    resetHasChangedFlags (): void;
-
-    /**
-     * @en
      * invalidate the world transform information
      * for this node and all its children recursively, one part at a time
      * @zh

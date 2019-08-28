@@ -32,7 +32,7 @@ import { widgetManager } from '../3d/ui/components/widget-manager';
 // import SkinningModelSystem from '../3d/framework/skinning-model-system';
 import { PhysicsSystem } from '../3d/framework/physics/physics-system';
 import { autoRelease } from '../load-pipeline/auto-release-utils';
-import { Scene } from '../scene-graph';
+import { Scene, Node } from '../scene-graph';
 import ComponentScheduler from '../scene-graph/component-scheduler';
 import NodeActivator from '../scene-graph/node-activator';
 import { CCObject } from './data/object';
@@ -1078,7 +1078,7 @@ export default class Director extends EventTarget {
             }
 
             eventManager.frameUpdateListeners();
-            if (this._scene) { this._scene.resetHasChangedFlags(); }
+            Node.bookOfChange.clear();
             this._totalFrames++;
         }
     }

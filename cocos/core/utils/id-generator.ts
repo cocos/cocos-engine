@@ -52,6 +52,6 @@ export default class IDGenerator {
         if (CC_EDITOR && (this.prefix === 'Node.' || this.prefix === 'Comp.')) {
             return Editor.Utils.UuidUtils.uuid();
         }
-        return this.prefix + (++this.id);
+        return ++this.id;
     }
 }

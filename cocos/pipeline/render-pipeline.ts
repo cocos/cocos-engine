@@ -1385,11 +1385,9 @@ export abstract class RenderPipeline {
 
         Mat4.array(fv, camera.matView, UBOGlobal.MAT_VIEW_OFFSET);
 
-        Mat4.invert(_outMat, camera.matView);
-        Mat4.array(fv, _outMat, UBOGlobal.MAT_VIEW_INV_OFFSET);
+        Mat4.array(fv, camera.node.worldMatrix, UBOGlobal.MAT_VIEW_INV_OFFSET);
         Mat4.array(fv, camera.matProj, UBOGlobal.MAT_PROJ_OFFSET);
-        Mat4.invert(_outMat, camera.matProj);
-        Mat4.array(fv, _outMat, UBOGlobal.MAT_PROJ_INV_OFFSET);
+        Mat4.array(fv, camera.matProjInv, UBOGlobal.MAT_PROJ_INV_OFFSET);
         Mat4.array(fv, camera.matViewProj, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
         Mat4.array(fv, camera.matViewProjInv, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
         Vec3.array(fv, camera.position, UBOGlobal.CAMERA_POS_OFFSET);
