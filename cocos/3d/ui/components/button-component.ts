@@ -551,7 +551,7 @@ export class ButtonComponent extends Component {
         }
     }
 
-    private _resetState () {
+    protected _resetState () {
         this._pressed = false;
         this._hovered = false;
         // Restore button status
@@ -573,7 +573,7 @@ export class ButtonComponent extends Component {
         this._transitionFinished = true;
     }
 
-    private _registerEvent () {
+    protected _registerEvent () {
         this.node.on(SystemEventType.TOUCH_START, this._onTouchBegan, this);
         this.node.on(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
         this.node.on(SystemEventType.TOUCH_END, this._onTouchEnded, this);
@@ -583,7 +583,7 @@ export class ButtonComponent extends Component {
         this.node.on(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
     }
 
-    private _getTargetSprite (target: INode | null) {
+    protected _getTargetSprite (target: INode | null) {
         let sprite: SpriteComponent | null = null;
         if (target) {
             sprite = target.getComponent(SpriteComponent);
@@ -591,7 +591,7 @@ export class ButtonComponent extends Component {
         return sprite;
     }
 
-    private _applyTarget () {
+    protected _applyTarget () {
         this._sprite = this._getTargetSprite(this._target);
         if (this._target) {
             Vec3.copy(this._originalScale, this._target.getScale());
@@ -599,7 +599,7 @@ export class ButtonComponent extends Component {
     }
 
     // touch event handler
-    private _onTouchBegan (event?: EventTouch) {
+    protected _onTouchBegan (event?: EventTouch) {
         if (!this._interactable || !this.enabledInHierarchy) { return; }
 
         this._pressed = true;
@@ -609,7 +609,7 @@ export class ButtonComponent extends Component {
         }
     }
 
-    private _onTouchMove (event?: EventTouch) {
+    protected _onTouchMove (event?: EventTouch) {
         if (!this._interactable || !this.enabledInHierarchy || !this._pressed) { return; }
         // mobile phone will not emit _onMouseMoveOut,
         // so we have to do hit test when touch moving
@@ -651,7 +651,7 @@ export class ButtonComponent extends Component {
         }
     }
 
-    private _onTouchEnded (event?: EventTouch) {
+    protected _onTouchEnded (event?: EventTouch) {
         if (!this._interactable || !this.enabledInHierarchy) {
             return;
         }
@@ -668,14 +668,14 @@ export class ButtonComponent extends Component {
         }
     }
 
-    private _onTouchCancel (event?: EventTouch) {
+    protected _onTouchCancel (event?: EventTouch) {
         if (!this._interactable || !this.enabledInHierarchy) { return; }
 
         this._pressed = false;
         this._updateState();
     }
 
-    private _onMouseMoveIn (event?: EventMouse) {
+    protected _onMouseMoveIn (event?: EventMouse) {
         if (this._pressed || !this.interactable || !this.enabledInHierarchy) { return; }
         if (this._transition === Transition.SPRITE && !this._hoverSprite) { return; }
 
@@ -685,7 +685,7 @@ export class ButtonComponent extends Component {
         }
     }
 
-    private _onMouseMoveOut (event?: EventMouse) {
+    protected _onMouseMoveOut (event?: EventMouse) {
         if (this._hovered) {
             this._hovered = false;
             this._updateState();
@@ -693,13 +693,13 @@ export class ButtonComponent extends Component {
     }
 
     // state handler
-    private _updateState () {
+    protected _updateState () {
         const state = this._getButtonState();
         this._applyTransition(state);
         // this._updateDisabledState();
     }
 
-    private _getButtonState () {
+    protected _getButtonState () {
         let state = State.NORMAL;
         if (!this._interactable) {
             state = State.DISABLED;
@@ -711,7 +711,7 @@ export class ButtonComponent extends Component {
         return state.toString();
     }
 
-    private _updateColorTransition (state: string) {
+    protected _updateColorTransition (state: string) {
         const color = this[state + 'Color'];
         const target = this._target;
         if (!target) {
@@ -733,14 +733,14 @@ export class ButtonComponent extends Component {
         }
     }
 
-    private _updateSpriteTransition (state: string) {
+    protected _updateSpriteTransition (state: string) {
         const sprite = this[state + 'Sprite'];
         if (this._sprite && sprite) {
             this._sprite.spriteFrame = sprite;
         }
     }
 
-    private _updateScaleTransition (state: string) {
+    protected _updateScaleTransition (state: string) {
         if (!this._interactable) {
             return;
         }
@@ -752,14 +752,14 @@ export class ButtonComponent extends Component {
         }
     }
 
-    private _zoomUp () {
+    protected _zoomUp () {
         Vec3.copy(this._fromScale, this._originalScale);
         Vec3.multiplyScalar(this._toScale, this._originalScale, this._zoomScale);
         this._time = 0;
         this._transitionFinished = false;
     }
 
-    private _zoomBack () {
+    protected _zoomBack () {
         if (!this._target) {
             return;
         }
@@ -770,7 +770,7 @@ export class ButtonComponent extends Component {
         this._transitionFinished = false;
     }
 
-    private _applyTransition (state: string) {
+    protected _applyTransition (state: string) {
         const transition = this._transition;
         if (transition === Transition.COLOR) {
             this._updateColorTransition(state);
