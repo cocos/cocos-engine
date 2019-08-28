@@ -141,7 +141,7 @@ export class Profiler {
 
         const textureWidth = 350;
         const textureHeight = 200;
-        
+
         if (!this._ctx || !this._canvas) {
             return;
         }
@@ -265,7 +265,7 @@ export class Profiler {
         pass.bindTextureView(handle!, this._textureView!);
 
         modelCom.material = _material;
-        modelCom.visibility = VisibilityFlags.PROFILER;
+        modelCom.node.layer = VisibilityFlags.PROFILER;
     }
 
     public beforeUpdate () {
