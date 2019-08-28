@@ -1,6 +1,5 @@
 import murmurhash2 from '../../../renderer/murmurhash2_gc';
 import utils from './utils';
-import effect from '../../../renderer/core/effect';
 
 export default class CustomProperties {
     constructor () {
@@ -22,8 +21,7 @@ export default class CustomProperties {
         
         this._dirty = true;
         uniform.directly = directly;
-
-        effect.prototype.setProperty.call(this, name, value);
+        uniform.value = value;
     }
 
     getProperty(name) {

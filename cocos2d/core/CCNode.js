@@ -3365,7 +3365,7 @@ let NodeDefines = {
         this._localMatDirty = LocalDirtyFlag.ALL;
         this._worldMatDirty = true;
 
-        this._toEuler();
+        this._fromEuler();
 
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (this._renderComponent) {
@@ -3408,16 +3408,6 @@ if (CC_EDITOR) {
             editorOnly: true
         },
         _scaleY: {
-            default: undefined,
-            type: cc.Float,
-            editorOnly: true
-        },
-        _rotationX: {
-            default: undefined,
-            type: cc.Float,
-            editorOnly: true
-        },
-        _rotationY: {
             default: undefined,
             type: cc.Float,
             editorOnly: true

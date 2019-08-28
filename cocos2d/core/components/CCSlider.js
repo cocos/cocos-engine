@@ -113,8 +113,8 @@ var Slider = cc.Class({
         },
 
         /**
-         * !#en The slider events callback
-         * !#zh 滑动器组件事件回调函数
+         * !#en The slider slide events' callback array
+         * !#zh 滑动器组件滑动事件回调函数数组
          * @property {Component.EventHandler[]} slideEvents
          */
         slideEvents: {

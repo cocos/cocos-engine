@@ -115,6 +115,11 @@ var DynamicAnimCurve = cc.Class({
     name: 'cc.DynamicAnimCurve',
     extends: AnimCurve,
 
+    ctor () {
+        // cache last frame index
+        this._cachedIndex = 0;
+    },
+
     properties: {
 
         // The object being animated.
@@ -171,18 +176,33 @@ var DynamicAnimCurve = cc.Class({
     })(),
 
     sample (time, ratio, state) {
-        var values = this.values;
-        var ratios = this.ratios;
-        var frameCount = ratios.length;
+        let values = this.values;
+        let ratios = this.ratios;
+        let frameCount = ratios.length;
 
         if (frameCount === 0) {
             return;
         }
 
-        // evaluate value
-        var value;
-        var index = this._findFrameIndex(ratios, ratio);
+        // only need to refind frame index when ratio is out of range of last from ratio and to ratio.
+        let cachedIndex = this._cachedIndex;
+        if (cachedIndex < 0) {
+            cachedIndex = ~cachedIndex;
+        }
+        if (cachedIndex > 0) {
+            let fromRatio = this.ratios[cachedIndex - 1];
+            let toRatio = this.ratios[cachedIndex];
+            if (ratio <= fromRatio || ratio > toRatio) {
+                this._cachedIndex = this._findFrameIndex(ratios, ratio);
+            }
+        }
+        else {
+            this._cachedIndex = this._findFrameIndex(ratios, ratio);
+        }
 
+        // evaluate value
+        let value;
+        let index = this._cachedIndex;
         if (index < 0) {
             index = ~index;
 

@@ -108,6 +108,11 @@ let SkeletonAnimation = cc.Class({
     },
 
     searchClips: CC_EDITOR && function () {
+        if (!this._model) {
+            cc.warn('There was no model provided.');
+            return;
+        }
+
         this._clips.length = 0;
         let self = this;
         Editor.assetdb.queryPathByUuid(this._model._uuid, function (err, modelPath) {

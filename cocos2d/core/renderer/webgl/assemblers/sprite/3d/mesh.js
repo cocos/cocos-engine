@@ -23,52 +23,31 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const spriteAssembler = require('../sprite');
-const js = require('../../../../../platform/js');
-const assembler2D = require('../2d/mesh');
-const fillVerticesWithoutCalc3D = require('../../utils').fillVerticesWithoutCalc3D;
+const Assembler3D = require('../../../../assembler-3d');
+const MeshAssembler = require('../2d/mesh');
 
-const vec3 = cc.vmath.vec3;
-let vec3_temp = vec3.create();
+let vec3 = cc.vmath.vec3;
+let vec3_temp = cc.v3();
 
-module.exports = spriteAssembler.mesh3D = js.addon({
-    updateWorldVerts (sprite) {
-        let node = sprite.node,
-            renderData = sprite._renderData,
-            verts = renderData.vertices;
+export default class MeshAssembler3D extends MeshAssembler {
+    
+}
 
-        let matrix = node._worldMatrix;
-        for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-            let local = verts[i + l];
-            let world = verts[i];
-            vec3.set(vec3_temp, local.x, local.y, 0);
-            vec3.transformMat4(world, vec3_temp, matrix);
+cc.js.mixin(MeshAssembler3D.prototype, Assembler3D, {
+    updateWorldVerts (comp) {
+        let matrix = comp.node._worldMatrix;
+        let local = this._local;
+        let world = this._renderData.vDatas[0];
+     
+        let floatsPerVert = this.floatsPerVert;
+        for (let i = 0, l = local.length/2; i < l; i++) {
+            vec3.set(vec3_temp, local[i*2], local[i*2+1], 0);
+            vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+
+            let dstOffset = floatsPerVert * i;
+            world[dstOffset] = vec3_temp.x;
+            world[dstOffset+1] = vec3_temp.y;
+            world[dstOffset+2] = vec3_temp.z;
         }
-    },
-
-    fillBuffers (sprite, renderer) {
-        let vertices = sprite.spriteFrame.vertices;
-        if (!vertices) {
-            return;
-        }
-
-        // update world verts
-        if (renderer.worldMatDirty) {
-            this.updateWorldVerts(sprite);
-        }
-
-        // buffer
-        let buffer = renderer._meshBuffer3D;
-        let node = sprite.node;
-        let offsetInfo = fillVerticesWithoutCalc3D(node, buffer, sprite._renderData, node._color._val);
-
-        let ibuf = buffer._iData,
-            indiceOffset = offsetInfo.indiceOffset,
-            vertexId = offsetInfo.vertexOffset;
-
-        let triangles = vertices.triangles;
-        for (let i = 0, l = triangles.length; i < l; i++) {
-            ibuf[indiceOffset++] = vertexId + triangles[i];
-        }
-    },
-}, assembler2D);
+    }
+});

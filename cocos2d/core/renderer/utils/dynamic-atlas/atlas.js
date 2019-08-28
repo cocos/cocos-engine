@@ -42,7 +42,7 @@ cc.js.mixin(Atlas.prototype, {
                 this._y = this._nexty;
             }
 
-            if ((this._y + height) > this._nexty) {
+            if ((this._y + height + space) > this._nexty) {
                 this._nexty = this._y + height + space;
             }
 
