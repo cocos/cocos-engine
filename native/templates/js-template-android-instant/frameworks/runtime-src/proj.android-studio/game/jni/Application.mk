@@ -1,9 +1,10 @@
-APP_STL := c++_static
+# use the same stl as v8
+APP_STL := none
 
 # Uncomment this line to compile to armeabi-v7a, your application will run faster but support less devices
 APP_ABI := armeabi-v7a
 
-APP_CPPFLAGS := -frtti -std=c++11 -fsigned-char
+APP_CPPFLAGS := -frtti -std=c++11 -fsigned-char -D_LIBCPP_ABI_UNSTABLE
 APP_LDFLAGS := -latomic
 
 # To solve windows commands char length too long

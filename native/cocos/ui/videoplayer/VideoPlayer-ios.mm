@@ -143,11 +143,10 @@ USING_NS_CC;
 -(void) setFullScreenEnabled:(BOOL) enabled
 {
     if (self.moviePlayer != nullptr) {
+        _fullscreen = enabled;
         if (enabled)
         {
-            _fullscreen = enabled;
-            self.moviePlayer.scalingMode = MPMovieScalingModeFill;
-            [self.moviePlayer.view setFrame:[[UIScreen mainScreen] bounds]];
+            [self.moviePlayer setFullscreen:enabled animated:(true)];
         }
         else
         {
@@ -190,7 +189,7 @@ USING_NS_CC;
         [self.moviePlayer prepareToPlay];
     }
     self.moviePlayer.allowsAirPlay = NO;
-    self.moviePlayer.controlStyle = MPMovieControlStyleNone;
+    self.moviePlayer.controlStyle = MPMovieControlStyleEmbedded;
     self.moviePlayer.view.userInteractionEnabled = YES;
 
     auto clearColor = [UIColor clearColor];
