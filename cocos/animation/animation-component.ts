@@ -202,7 +202,7 @@ export class AnimationComponent extends Component implements IEventTarget {
 
     public onDestroy () {
         this._crossFade.stop();
-        for (const name of Object.keys(this._nameToState)) {
+        for (const name in this._nameToState) {
             const state = this._nameToState[name];
             state.stop();
         }

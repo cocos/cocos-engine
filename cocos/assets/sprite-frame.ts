@@ -555,8 +555,13 @@ export class SpriteFrame extends Asset {
                 this._capInsets[INSET_RIGHT] = info.borderRight;
             }
 
-            this._rotated = !!info.isRotate;
-            this._flipUv = !!info.isFlipUv;
+            if (info.isRotate !== undefined) {
+                this._rotated = !!info.isRotate;
+            }
+
+            if (info.isFlipUv !== undefined) {
+                this._flipUv = !!info.isFlipUv;
+            }
             // hack
             if (this._texture instanceof RenderTexture) {
                 this._flipUv = true;
@@ -606,7 +611,38 @@ export class SpriteFrame extends Asset {
        this.emit('load');
     }
 
-    /**
+    public _setDynamicAtlasFrame (frame: SpriteFrame) {
+        if (!frame || this._texture instanceof RenderTexture) {
+            return;
+        }
+
+        this._original = {
+            spriteframe: this,
+            x: this._rect.x,
+            y: this._rect.y,
+        };
+
+        this._rect.x = frame._rect.x;
+        this._rect.y = frame._rect.y;
+        this._image = frame._image;
+        (this._texture as Texture2D).image = this._image;
+        // this._calculateUV();
+    }
+
+    public _resetDynamicAtlasFrame () {
+        if (!this._original || this._texture instanceof RenderTexture) {
+            return;
+        }
+
+        this._rect.x = this._original.x;
+        this._rect.y = this._original.y;
+        this._image = this._original.spriteframe._image;
+        (this._texture as Texture2D).image = this._image;
+        this._original = null;
+        // this._calculateUV();
+    }
+
+    /*
      * @zh
      * 计算裁切的 UV。
      */
@@ -667,37 +703,6 @@ export class SpriteFrame extends Asset {
         }
     }
 
-    public _setDynamicAtlasFrame (frame: SpriteFrame) {
-        if (!frame || this._texture instanceof RenderTexture) {
-            return;
-        }
-
-        this._original = {
-            spriteframe: this,
-            x: this._rect.x,
-            y: this._rect.y,
-        };
-
-        this._rect.x = frame._rect.x;
-        this._rect.y = frame._rect.y;
-        this._image = frame._image;
-        (this._texture as Texture2D).image = this._image;
-        // this._calculateUV();
-    }
-
-    public _resetDynamicAtlasFrame () {
-        if (!this._original || this._texture instanceof RenderTexture) {
-            return;
-        }
-
-        this._rect.x = this._original.x;
-        this._rect.y = this._original.y;
-        this._image = this._original.spriteframe._image;
-        (this._texture as Texture2D).image = this._image;
-        this._original = null;
-        // this._calculateUV();
-    }
-
     /**
      * @zh
      * 计算 UV。
@@ -711,8 +716,8 @@ export class SpriteFrame extends Asset {
         if (this._rotated) {
             const l = texw === 0 ? 0 : rect.x / texw;
             const r = texw === 0 ? 0 : (rect.x + rect.height) / texw;
-            const b = texh === 0 ? 0 : (rect.y + rect.width) / texh;
             const t = texh === 0 ? 0 : rect.y / texh;
+            const b = texh === 0 ? 0 : (rect.y + rect.width) / texh;
             if (this._flipUv) {
                 uv[0] = l;
                 uv[1] = t;
@@ -868,10 +873,10 @@ export class SpriteFrame extends Asset {
             isReset = true;
         }
 
+        // If original size is not set or rect check failed, we should reset the original size
         if (this._originalSize.width === 0 ||
             this._originalSize.height === 0 ||
-            this._originalSize.width > tex.width ||
-            this._originalSize.height > tex.height
+            isReset
         ) {
             config.originalSize = new Size(tex.width, tex.height);
             isReset = true;
