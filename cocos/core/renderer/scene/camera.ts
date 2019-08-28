@@ -70,7 +70,7 @@ export interface ICameraInfo {
     node: INode;
     projection: number;
     targetDisplay?: number;
-    window?: GFXWindow;
+    window?: GFXWindow | null;
     priority: number;
     pipeline?: string;
     isUI?: boolean;
