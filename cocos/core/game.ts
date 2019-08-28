@@ -40,7 +40,7 @@ import inputManager from './platform/event-manager/input-manager';
  * @static
  */
 
-class Game extends EventTarget {
+export default class Game extends EventTarget {
     /**
      * @en Event triggered when game hide to background.<br>
      * Please note that this event is not 100% guaranteed to be fired on Web platform,<br>
@@ -385,7 +385,7 @@ class Game extends EventTarget {
      * @param {String} type - A string representing the event type to listen for.
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.<br>
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
-     * @param {any} [callback.arg1] arg1
+     * @param {any} [callback.arg1] arg1 
      * @param {any} [callback.arg2] arg2
      * @param {any} [callback.arg3] arg3
      * @param {any} [callback.arg4] arg4
@@ -890,5 +890,6 @@ class Game extends EventTarget {
 }
 
 cc.Game = Game;
-cc.game = new Game();
-export default Game;
+
+export const game: Game = new Game();
+cc.game = game; 

@@ -116,7 +116,7 @@ import { getClassByName } from './utils/js';
  * @class Director
  * @extends EventTarget
  */
-class Director extends EventTarget {
+export default class Director extends EventTarget {
 
     /**
      * @en The event which will be triggered before loading a new scene.
@@ -1085,14 +1085,11 @@ class Director extends EventTarget {
 
 }
 
-/**
- * @module cc
- */
+cc.Director = Director;
 
 /**
  * 导演类。
  * @property director
  */
-const director: Director = cc.director = new Director();
-cc.Director = Director;
-export default director;
+export const director: Director = new Director();
+cc.director = director;

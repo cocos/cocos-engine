@@ -47,8 +47,8 @@ export * from './utils';
 export * from './data';
 export * from './event';
 export * from './platform';
-import './game';
+export * from './game';
 export * from './scheduler';
-import './director';
+export * from './director';
 
 export * from './utils/profiler/profiler';
