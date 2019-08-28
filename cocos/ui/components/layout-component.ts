@@ -35,6 +35,7 @@ import { ccenum } from '../../core/value-types/enum';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transfrom-component';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { INode } from '../../core/utils/interfaces';
+import { director, Director } from '../../core/director';
 const NodeEvent = SystemEventType;
 /**
  * @zh
@@ -515,7 +516,7 @@ export class LayoutComponent extends Component {
     }
 
     private _addEventListeners () {
-        cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
+        director.on(Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
         this.node.on(NodeEvent.SIZE_CHANGED, this._resized, this);
         this.node.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
         this.node.on(NodeEvent.CHILD_ADDED, this._childAdded, this);
@@ -525,7 +526,7 @@ export class LayoutComponent extends Component {
     }
 
     private _removeEventListeners () {
-        cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
+        director.off(Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
         this.node.off(NodeEvent.SIZE_CHANGED, this._resized, this);
         this.node.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
         this.node.off(NodeEvent.CHILD_ADDED, this._childAdded, this);

@@ -32,6 +32,7 @@ import {ccclass, property} from '../data/class-decorator';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
+import { director } from '../director';
 
 /**
  * 内存图像源。
@@ -276,8 +277,8 @@ export class ImageAsset extends Asset {
 }
 
 function _getGlobalDevice (): GFXDevice | null {
-    if (cc.director && cc.director.root) {
-        return cc.director.root.device;
+    if (director.root) {
+        return director.root.device;
     } else {
         return null;
     }

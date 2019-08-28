@@ -102,7 +102,7 @@ export default class ReleasedAssetChecker {
         }
 
         // // check current scene
-        // let depends = cc.director.getScene().dependAssets;
+        // let depends = director.getScene().dependAssets;
         // for (let i = 0; i < depends.length; ++i) {
         //     let depend = depends[i];
         //     if (released[depend]) {

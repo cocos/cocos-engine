@@ -29,6 +29,7 @@
 
 import sys from '../../core/platform/sys';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
+import { director, Director } from '../../core';
 
 const audioSupport = sys.__audioSupport;
 
@@ -74,7 +75,7 @@ export class AudioPlayerWeb extends AudioPlayer {
             this._state = PlayingState.PLAYING;
             this._startTime = this._context.currentTime;
             // delay eval here to yield uniform behavior with other platforms
-            cc.director.once(cc.Director.EVENT_AFTER_UPDATE, () => { this._eventTarget.emit('started'); });
+            director.once(Director.EVENT_AFTER_UPDATE, () => { this._eventTarget.emit('started'); });
             /* still not supported by all platforms *
             this._sourceNode.onended = this._on_ended;
             /* doing it manually for now */

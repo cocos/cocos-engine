@@ -9,6 +9,7 @@ import { GFXWindow } from '../gfx/window';
 import { DepthStencilFormat, PixelFormat } from './asset-enum';
 import { TextureBase } from './texture-base';
 import { ccenum } from '../value-types/enum';
+import { director } from '../director';
 
 export interface IRenderTextureCreateInfo {
     name?: string;
@@ -83,7 +84,7 @@ export class RenderTexture extends TextureBase {
 
     public destroy () {
         if (this._window) {
-            cc.director.root.destroyWindow(this._window);
+            director.root!.destroyWindow(this._window);
             this._window = null;
         }
 
@@ -146,7 +147,7 @@ export class RenderTexture extends TextureBase {
             return this._window;
         }
 
-        this._window = cc.director.root!.createWindow(config);
+        this._window = director.root!.createWindow(config);
     }
 }
 

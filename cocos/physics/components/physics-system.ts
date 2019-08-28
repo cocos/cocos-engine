@@ -119,7 +119,7 @@ export class PhysicsSystem extends System {
     public static instance: PhysicsSystem;
     public static ID: 'physics';
 
-    private _world: PhysicsWorldBase;
+    public _world: PhysicsWorldBase;
     private _enable = true;
     private _deltaTime = 1.0 / 60.0;
     private _maxSubStep = 2;

@@ -16,6 +16,7 @@ import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
 import { INode } from '../../utils/interfaces';
 import { TransformDirtyBit } from '../../scene-graph/node-enum';
+import { director } from '../../director';
 
 const m4_1 = new Mat4();
 
@@ -172,7 +173,7 @@ export class Model {
      * Setup a default empty model
      */
     constructor (scene: RenderScene, node: INode) {
-        this._device = cc.director.root.device;
+        this._device = director.root!.device;
         this._scene = scene;
         this._id = this._scene.generateModelId();
         this._transform = this._node = node;
@@ -366,7 +367,7 @@ export class Model {
                 break;
             }
         }
-        if (hasForwardLight && cc.director.root.pipeline.name === 'ForwardPipeline') {
+        if (hasForwardLight && director.root!.pipeline.name === 'ForwardPipeline') {
             if (!this._localBindings.has(UBOForwardLight.BLOCK.name)) {
                 this._localBindings.set(UBOForwardLight.BLOCK.name, {
                     type: GFXBindingType.UNIFORM_BUFFER,

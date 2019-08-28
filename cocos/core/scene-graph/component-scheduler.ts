@@ -367,7 +367,7 @@ class ComponentScheduler {
         }
     }
 
-    public enableComp (comp, invoker) {
+    public enableComp (comp, invoker?) {
         if (!(comp._objFlags & IsOnEnableCalled)) {
             if (comp.onEnable) {
                 if (invoker) {

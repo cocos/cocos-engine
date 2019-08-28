@@ -37,6 +37,7 @@ import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { INode } from '../utils/interfaces';
 import { BlendFunction, additive3D, additiveQuat } from './blending';
 import { BoundTarget } from './target-modifier';
+import { director } from '../director';
 
 enum PropertySpecialization {
     NodePosition,
@@ -413,7 +414,7 @@ export class AnimationState extends Playable {
         for (let i = 0, l = args.length; i < l; i++) {
             args[i] = restargs[i];
         }
-        cc.director.getAnimationManager().pushDelayEvent(this, '_emit', args);
+        director.getAnimationManager().pushDelayEvent(this, '_emit', args);
     }
 
     public on<K extends string> (type: K, callback: EventCallbackOf<K, IAnimationEventDefinitionMap>, target?: any): void;
@@ -677,26 +678,26 @@ export class AnimationState extends Playable {
         this.setTime(0);
         this._delayTime = this._delay;
 
-        cc.director.getAnimationManager().addAnimation(this);
+        director.getAnimationManager().addAnimation(this);
 
         this.emit('play', this);
     }
 
     protected onStop () {
         if (!this.isPaused) {
-            cc.director.getAnimationManager().removeAnimation(this);
+            director.getAnimationManager().removeAnimation(this);
         }
 
         this.emit('stop', this);
     }
 
     protected onResume () {
-        cc.director.getAnimationManager().addAnimation(this);
+        director.getAnimationManager().addAnimation(this);
         this.emit('resume', this);
     }
 
     protected onPause () {
-        cc.director.getAnimationManager().removeAnimation(this);
+        director.getAnimationManager().removeAnimation(this);
         this.emit('pause', this);
     }
 
@@ -803,7 +804,7 @@ export class AnimationState extends Playable {
 
                 lastIndex += direction;
 
-                cc.director.getAnimationManager().pushDelayEvent(this, '_fireEvent', [lastIndex]);
+                director.getAnimationManager().pushDelayEvent(this, '_fireEvent', [lastIndex]);
             } while (lastIndex !== eventIndex && lastIndex > -1 && lastIndex < length);
         }
 

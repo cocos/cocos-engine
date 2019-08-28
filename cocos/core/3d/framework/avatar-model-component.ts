@@ -40,6 +40,7 @@ import { LCA, mapBuffer } from '../misc/utils';
 import { SkinningModelComponent } from './skinning-model-component';
 import { INode } from '../../utils/interfaces';
 import { Node } from '../../scene-graph/node';
+import { director } from '../../director';
 
 const _vec2 = new Vec2();
 
@@ -280,7 +281,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
         }
 
         const gfxTex = this._combinedTex!.getGFXTexture();
-        const device: GFXDevice = cc.director.root.device;
+        const device: GFXDevice = director.root!.device;
 
         if (texBuffers.length > 0) {
             device.copyBuffersToTexture(texBuffers, gfxTex!, texBufferRegions);

@@ -38,6 +38,7 @@ import { Scene } from '../../scene-graph';
 import { RenderTexture } from '../../assets';
 import { GFXWindow } from '../../gfx/window';
 import { CameraVisFlags } from '../../renderer/scene/camera';
+import { director, Director } from '../../director';
 
 /**
  * @en
@@ -331,7 +332,7 @@ export class CameraComponent extends Component {
     }
 
     public onLoad () {
-        cc.director.on(cc.Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneChanged, this);
+        director.on(Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneChanged, this);
     }
 
     public onEnable () {
@@ -381,7 +382,7 @@ export class CameraComponent extends Component {
             name: this.node.name,
             node: this.node,
             projection: this._projection,
-            window: cc.director.root.tempWindow,
+            window: director.root && director.root.tempWindow,
             priority: this._priority,
         });
 

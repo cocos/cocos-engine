@@ -16,6 +16,7 @@ import { AfterStepCallback, BeforeStepCallback,
     IRaycastOptions, LockConstraintBase, PhysicsWorldBase,
     PointToPointConstraintBase, RigidBodyBase, ShapeBase, SphereShapeBase } from './api';
 import { RaycastResult } from './raycast-result';
+import { director } from '../core/director';
 
 export class CollisionEvent {
     get target () {
@@ -189,7 +190,7 @@ export class AmmoWorld implements PhysicsWorldBase {
         this._callCustomAfterSteps();
 
         if (!this._debugger.avaiable) {
-            const scene = cc.director.getScene();
+            const scene = director.getScene();
             if (scene) {
                 const node = new Node('bullet-debugger');
                 scene.addChild(node);

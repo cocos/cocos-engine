@@ -29,6 +29,7 @@ import '../data/class';
 import { EventTarget } from '../event/event-target';
 import { Game } from '../game';
 import { Rect, Size } from '../math';
+import { director } from '../director';
 
 let _currentFrame = 0;
 
@@ -900,7 +901,7 @@ export class View extends EventTarget {
 
     // Resize helper functions
     private _resizeEvent () {
-        const frameId = cc.director.getTotalFrames();
+        const frameId = director.getTotalFrames();
         if (_currentFrame !== frameId) {
             _currentFrame = frameId;
         }

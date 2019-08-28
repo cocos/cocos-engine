@@ -16,7 +16,6 @@ import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXP
 import { GFXDevice } from '../core/gfx/device';
 import { IGFXAttribute } from '../core/gfx/input-assembler';
 import { Model } from '../core/renderer/scene/model';
-import { Node } from '../core/scene-graph/node';
 import { PrivateNode } from '../core/scene-graph/private-node';
 import { IDefineMap } from '../core/renderer/core/pass';
 import { HeightField } from './height-field';
@@ -200,7 +199,8 @@ export class TerrainBlock {
         this._index[1] = j;
 
         this._node = new PrivateNode('');
-        this._node.setParent(this._terrain.node as Node);
+        // @ts-ignore
+        this._node.setParent(this._terrain.node);
         // @ts-ignore
         this._node._objFlags |= cc.Object.Flags.DontSave;
 
@@ -253,6 +253,7 @@ export class TerrainBlock {
             primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
         };
 
+        // @ts-ignore
         this._renderable._model = this._renderable._getRenderScene().createModel(Model, this._node);
 
         // reset weightmap

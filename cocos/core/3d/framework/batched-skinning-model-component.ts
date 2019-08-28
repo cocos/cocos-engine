@@ -40,6 +40,7 @@ import { IMeshStruct, Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { mapBuffer } from '../misc/utils';
 import { SkinningModelComponent } from './skinning-model-component';
+import { director } from '../../director';
 
 const repeat = (n: number) => n - Math.floor(n);
 const batch_id: IGFXAttribute = { name: GFXAttributeName.ATTR_BATCH_ID, format: GFXFormat.R32F, isNormalized: false };
@@ -400,7 +401,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
             }
         }
         const gfxTex = target.getGFXTexture()!;
-        const device: GFXDevice = cc.director.root.device;
+        const device: GFXDevice = director.root!.device;
         if (texBuffers.length > 0) { device.copyBuffersToTexture(texBuffers, gfxTex, texBufferRegions); }
         if (texImages.length > 0) { device.copyTexImagesToTexture(texImages, gfxTex, texImageRegions); }
     }

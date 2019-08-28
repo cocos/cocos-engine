@@ -36,6 +36,7 @@ import { GFXTextureView } from '../gfx/texture-view';
 import { SamplerInfoIndex, genSamplerHash } from '../renderer/core/sampler-lib';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
+import { director } from '../director';
 
 const CHAR_CODE_1 = 49;    // '1'
 
@@ -284,7 +285,7 @@ export class TextureBase extends Asset {
     }
 
     protected _getGFXDevice (): GFXDevice | null {
-        return cc.director.root && cc.director.root.device;
+        return director.root && director.root.device;
     }
 
     protected _getGFXFormat () {

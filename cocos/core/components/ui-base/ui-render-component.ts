@@ -45,6 +45,7 @@ import { RenderableComponent } from '../../../core/3d/framework/renderable-compo
 import { IAssembler, IAssemblerManager } from '../../renderer/ui/base';
 import { UIComponent } from './ui-component';
 import { UITransformComponent } from './ui-transfrom-component';
+import { director } from '../../director';
 
 // hack
 ccenum(GFXBlendFactor);
@@ -257,7 +258,7 @@ export class UIRenderComponent extends UIComponent {
         this.destroyRenderData();
         if (this._material){
             this._material.destroy();
-            cc.director.root.ui._removeUIMaterial(this._material.hash);
+            director.root!.ui._removeUIMaterial(this._material.hash);
         }
 
         this._updateMaterial(null);

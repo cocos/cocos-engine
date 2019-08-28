@@ -34,6 +34,7 @@ import { EventListener, ILinstenerMask } from '../../../core/platform/event-mana
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/math';
 import { aabb } from '../../geom-utils';
 import { CanvasComponent } from './canvas-component';
+import { director } from '../../director';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -304,7 +305,7 @@ export class UITransformComponent extends Component {
             visibility = renderComp.visibility;
         }
 
-        const canvas = cc.director.root.ui.getScreen(visibility);
+        const canvas = director.root.ui.getScreen(visibility);
         if (!canvas) {
             return;
         }

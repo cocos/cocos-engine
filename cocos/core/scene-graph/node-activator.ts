@@ -180,7 +180,7 @@ export default class NodeActivator {
         node.emit('active-in-hierarchy-changed', node);
     }
 
-    public activateComp (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) {
+    public activateComp (comp, preloadInvoker?, onLoadInvoker?, onEnableInvoker?) {
         if (!(comp._objFlags & IsPreloadStarted)) {
             comp._objFlags |= IsPreloadStarted;
             if (comp.__preload) {

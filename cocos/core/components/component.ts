@@ -39,6 +39,7 @@ import { RenderScene } from '../renderer/scene/render-scene';
 import { Rect } from '../math';
 import * as RF from '../data/utils/requiring-frame';
 import { INode } from '../utils/interfaces';
+import { director } from '../director';
 
 const idGenerator = new IDGenerator('Comp');
 // @ts-ignore
@@ -136,7 +137,7 @@ class Component extends CCObject {
         if (this._enabled !== value) {
             this._enabled = value;
             if (this.node.activeInHierarchy) {
-                const compScheduler = cc.director._compScheduler;
+                const compScheduler = director._compScheduler;
                 if (value) {
                     compScheduler.enableComp(this);
                 }
@@ -390,7 +391,7 @@ class Component extends CCObject {
         }
         if (super.destroy()) {
             if (this._enabled && this.node.activeInHierarchy) {
-                cc.director._compScheduler.disableComp(this);
+                director._compScheduler.disableComp(this);
             }
         }
     }
@@ -414,7 +415,7 @@ class Component extends CCObject {
         }
 
         // onDestroy
-        cc.director._nodeActivator.destroyComp(this);
+        director._nodeActivator.destroyComp(this);
 
         // do remove component
         this.node._removeComponent(this);
@@ -458,7 +459,7 @@ class Component extends CCObject {
         repeat = isNaN(repeat) ? cc.macro.REPEAT_FOREVER : repeat;
         delay = delay || 0;
 
-        const scheduler = cc.director.getScheduler();
+        const scheduler = director.getScheduler();
 
         // should not use enabledInHierarchy to judge whether paused,
         // because enabledInHierarchy is assigned after onEnable.
@@ -504,7 +505,7 @@ class Component extends CCObject {
             return;
         }
 
-        cc.director.getScheduler().unschedule(callback_fn, this);
+        director.getScheduler().unschedule(callback_fn, this);
     }
 
     /**
@@ -519,7 +520,7 @@ class Component extends CCObject {
      * ```
      */
     public unscheduleAllCallbacks () {
-        cc.director.getScheduler().unscheduleAllForTarget(this);
+        director.getScheduler().unscheduleAllForTarget(this);
     }
 
     // LIFECYCLE METHODS

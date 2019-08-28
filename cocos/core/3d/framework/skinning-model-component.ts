@@ -38,6 +38,7 @@ import { Material } from '../../assets/material';
 import { Skeleton } from '../../assets/skeleton';
 import { builtinResMgr } from '../builtin';
 import { ModelComponent } from './model-component';
+import { director } from '../../director';
 
 /**
  * @en The Skinning Model Component
@@ -97,7 +98,7 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     protected _onMaterialModified (index: number, material: Material | null) {
-        const device: GFXDevice = cc.director.root && cc.director.root.device;
+        const device: GFXDevice = director.root!.device;
         const type = selectJointsMediumType(device);
         const mat = this.getMaterial(index) || this._getBuiltinMaterial();
         mat.recompileShaders({ CC_USE_SKINNING: type });

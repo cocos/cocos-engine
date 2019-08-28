@@ -37,6 +37,7 @@ import { IGFXAttribute } from '../gfx/input-assembler';
 import { BufferBlob } from '../3d/misc/buffer-blob';
 import { IBufferView } from './utils/buffer-view';
 import { postLoadMesh } from './utils/mesh-utils';
+import { director } from '../director';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -338,7 +339,7 @@ export class Mesh extends Asset {
             postLoadMesh(this);
         }
         const buffer = this._data.buffer;
-        const gfxDevice: GFXDevice = cc.director.root.device;
+        const gfxDevice: GFXDevice = director.root!.device;
         const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
         const indexBuffers: GFXBuffer[] = [];
         const submeshes: IRenderingSubmesh[] = [];

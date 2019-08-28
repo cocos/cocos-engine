@@ -254,6 +254,8 @@ export class Director extends EventTarget {
 
     public static instance: Director;
 
+    public _compScheduler: ComponentScheduler;
+    public _nodeActivator: NodeActivator;
     private invalid: boolean;
     private _paused: boolean;
     private _purgeDirectorInNextLoop: boolean;
@@ -264,8 +266,6 @@ export class Director extends EventTarget {
     private _lastUpdate: number;
     private _deltaTime: number;
     private _scheduler: Scheduler;
-    private _compScheduler: ComponentScheduler;
-    private _nodeActivator: NodeActivator;
     private _systems: System[];
 
     constructor () {
@@ -307,7 +307,6 @@ export class Director extends EventTarget {
     }
 
     public init () {
-
         this._totalFrames = 0;
         this._lastUpdate = performance.now();
         this._paused = false;
@@ -766,7 +765,7 @@ export class Director extends EventTarget {
         console.time('LoadScene ' + uuid);
         cc.AssetLibrary.loadAsset(uuid, (error, sceneAsset) => {
             console.timeEnd('LoadScene ' + uuid);
-            const self = cc.director;
+            const self = director;
             self._loadingScene = '';
             if (error) {
                 error = 'Failed to load scene: ' + error;
@@ -988,7 +987,7 @@ export class Director extends EventTarget {
      * @zh 获取和 director 相关联的 cc.AnimationManager（动画管理器）。请使用 getSystem(AnimationManager.ID) 来替代
      * @deprecated
      */
-    public getAnimationManager () {
+    public getAnimationManager ():any {
         return this.getSystem(cc.AnimationManager.ID);
     }
 

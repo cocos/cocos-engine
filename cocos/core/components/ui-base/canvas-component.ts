@@ -341,7 +341,7 @@ export class CanvasComponent extends Component {
     //         // cc.engine.setDesignResolutionSize(designRes.width, designRes.height);
     //     }
     //     else {
-    //         const root = cc.director.root;
+    //         const root = director.root;
     //         if (root && root.ui && root.ui.debugScreen && root.ui.debugScreen === this ){
     //             return;
     //         }

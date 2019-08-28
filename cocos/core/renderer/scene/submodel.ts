@@ -7,6 +7,7 @@ import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../../gfx/input-assem
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { RenderPriority } from '../../pipeline/define';
 import { Pass } from '../core/pass';
+import { director } from '../../director';
 
 export class SubModel {
     protected _subMeshObject: IRenderingSubmesh | null;
@@ -71,7 +72,7 @@ export class SubModel {
         if (this._inputAssembler) {
             this._inputAssembler.initialize(iaInfo);
         } else {
-            this._inputAssembler = (cc.director.root.device as GFXDevice).createInputAssembler(iaInfo);
+            this._inputAssembler = (director.root!.device as GFXDevice).createInputAssembler(iaInfo);
         }
     }
 
@@ -122,7 +123,7 @@ export class SubModel {
     }
 
     protected recordCommandBuffer (index: number) {
-        const device = cc.director.root.device as GFXDevice;
+        const device = director.root!.device as GFXDevice;
         const pso = this._psos![index];
         if (this._cmdBuffers[index] == null) {
             const cmdBufferInfo = {
