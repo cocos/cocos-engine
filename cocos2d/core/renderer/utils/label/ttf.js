@@ -379,7 +379,6 @@ export default class TTFAssembler extends Assembler2D {
     }
 
     _calculateTextBaseline () {
-        let node = this._node;
         let hAlign;
 
         if (_hAlign === macro.TextAlignment.RIGHT) {

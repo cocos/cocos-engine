@@ -46,11 +46,12 @@ var AnimationManager = cc.Class({
         }
 
         var events = this._delayEvents;
-        for (let i = 0, l = events.length; i < l; i++) {
+        for (let i = 0; i < events.length; i++) {
             var event = events[i];
             event.target[event.func].apply(event.target, event.args);
         }
         events.length = 0;
+        
     },
 
     destruct: function () {},

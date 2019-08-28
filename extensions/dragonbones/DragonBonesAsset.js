@@ -57,6 +57,7 @@ var DragonBonesAsset = cc.Class({
             },
             set: function (value) {
                 this._dragonBonesJson = value;
+                this._dragonBonesJsonData = JSON.parse(value);
                 this.reset();
             }
         },
@@ -99,9 +100,13 @@ var DragonBonesAsset = cc.Class({
             this._factory = factory;
         }
 
+        if (!this._dragonBonesJsonData && this.dragonBonesJson) {
+            this._dragonBonesJsonData = JSON.parse(this.dragonBonesJson);
+        }
+
         let rawData = null;
-        if (this.dragonBonesJson) {
-            rawData = JSON.parse(this.dragonBonesJson);
+        if (this._dragonBonesJsonData) {
+            rawData = this._dragonBonesJsonData;
         } else {
             rawData = this._nativeAsset;
         }

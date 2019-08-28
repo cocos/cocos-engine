@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -23,31 +23,16 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Assembler3D = require('../../../../assembler-3d');
-const MeshAssembler = require('../2d/mesh');
-
-let vec3 = cc.vmath.vec3;
-let vec3_temp = cc.v3();
-
-export default class MeshAssembler3D extends MeshAssembler {
-    
-}
-
-cc.js.mixin(MeshAssembler3D.prototype, Assembler3D, {
-    updateWorldVerts (comp) {
-        let matrix = comp.node._worldMatrix;
-        let local = this._local;
-        let world = this._renderData.vDatas[0];
-     
-        let floatsPerVert = this.floatsPerVert;
-        for (let i = 0, l = local.length/2; i < l; i++) {
-            vec3.set(vec3_temp, local[i*2], local[i*2+1], 0);
-            vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-
-            let dstOffset = floatsPerVert * i;
-            world[dstOffset] = vec3_temp.x;
-            world[dstOffset+1] = vec3_temp.y;
-            world[dstOffset+2] = vec3_temp.z;
-        }
+export function postLoadMesh (mesh, callback) {
+    if (mesh.loaded || !mesh.nativeUrl) {
+        callback && callback();
+        return;
     }
-});
+    // load image
+    cc.loader.load(mesh.nativeUrl, function (err, buffer) {
+        if (buffer) {
+            mesh._nativeAsset = buffer;
+        }
+        callback && callback(err);
+    });
+}

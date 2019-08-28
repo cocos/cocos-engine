@@ -35,19 +35,29 @@
  * 并可通过 emit 方法调用目标函数。
  * @class Component.EventHandler
  * @example
+ * // Let's say we have a MainMenu component on newTarget
+ * // file: MainMenu.js
+ * cc.Class({
+ *   extends: cc.Component,
+ *   // sender: the node MainMenu.js belongs to
+ *   // eventType: CustomEventData
+ *   onClick (sender, eventType) {
+ *     cc.log('click');
+ *   }
+ * })
  * // Create new EventHandler
  * var eventHandler = new cc.Component.EventHandler();
  * eventHandler.target = newTarget;
  * eventHandler.component = "MainMenu";
- * eventHandler.handler = "OnClick";
+ * eventHandler.handler = "onClick";
  * eventHandler.customEventData = "my data";
  */
 cc.Component.EventHandler = cc.Class({
     name: 'cc.ClickEvent',
     properties: {
         /**
-         * !#en Event target
-         * !#zh 目标节点
+         * !#en the node that contains target callback, such as the node example script belongs to
+         * !#zh 事件响应函数所在节点 ，比如例子中脚本归属的节点本身
          * @property target
          * @type {Node}
          * @default null
@@ -57,8 +67,8 @@ cc.Component.EventHandler = cc.Class({
             type: cc.Node,
         },
         /**
-         * !#en Component name
-         * !#zh 目标组件名
+         * !#en name of the component(script) that contains target callback, such as the name 'MainMenu' of script in example
+         * !#zh 事件响应函数所在组件名（脚本名）, 比如例子中的脚本名 'MainMenu'
          * @property component
          * @type {String}
          * @default ''
@@ -77,8 +87,8 @@ cc.Component.EventHandler = cc.Class({
             },
         },
         /**
-         * !#en Event handler
-         * !#zh 响应事件函数名
+         * !#en Event handler, such as function's name 'onClick' in example
+         * !#zh 响应事件函数名，比如例子中的 'onClick'
          * @property handler
          * @type {String}
          * @default ''
@@ -88,8 +98,8 @@ cc.Component.EventHandler = cc.Class({
         },
 
         /**
-         * !#en Custom Event Data
-         * !#zh 自定义事件数据
+         * !#en Custom Event Data, such as 'eventType' in example
+         * !#zh 自定义事件数据，比如例子中的 eventType
          * @property customEventData
          * @default ''
          * @type {String}

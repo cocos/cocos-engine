@@ -202,6 +202,7 @@ cc.js.mixin(LetterAtlas.prototype, {
     destroy () {
         this.reset();
         this._fontDefDictionary._texture.destroy();
+        this._fontDefDictionary._texture = null;
     },
 
     beforeSceneLoad () {

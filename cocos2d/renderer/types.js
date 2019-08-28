@@ -12,8 +12,8 @@ if (CC_JSB && CC_NATIVERENDERER) {
 const CCObject = cc.Object;
 
 let ctor2default = {
-    [Number]: v => v || 0,
     [Boolean]: v => v || false,
+    [Number]: v => v ? (ArrayBuffer.isView(v) ? v[0] : v) : 0,
     [Vec2]: v => v ? cc.v2(v[0], v[1]) : cc.v2(),
     [Vec3]: v => v ? cc.v3(v[0], v[1], v[2]) : cc.v3(),
     [Vec4]: v => v ? cc.v4(v[0], v[1], v[2], v[3]) : cc.v4(),
@@ -60,11 +60,24 @@ export let ctor2enums = {
     [gfxTexture2D]: enums.PARAM_TEXTURE_2D,
 };
 
+export let enums2default = {
+    [enums.PARAM_INT]: new Uint32Array([0]),
+    [enums.PARAM_INT2]: new Uint32Array([0, 0]),
+    [enums.PARAM_INT3]: new Uint32Array([0, 0, 0]),
+    [enums.PARAM_INT4]: new Uint32Array([0, 0, 0, 0]),
+    [enums.PARAM_FLOAT]: new Float32Array([0]),
+    [enums.PARAM_FLOAT2]: new Float32Array([0, 0]),
+    [enums.PARAM_FLOAT3]: new Float32Array([0, 0, 0]),
+    [enums.PARAM_FLOAT4]: new Float32Array([0, 0, 0, 0]),
+    [enums.PARAM_MAT4]: cc.mat4().m,
+    [enums.PARAM_TEXTURE_2D]: null,
+    
+    number: 0,
+    boolean: false,
+}
+
 export let getInstanceType = function (t) {
     return enums2ctor[t] || enums2ctor.default;
-};
-export let cloneObjArray = function (val) {
-    return val.map(obj => Object.assign({}, obj));
 };
 export let getInstanceCtor = function (t) {
     return ctor2default[getInstanceType(t)];

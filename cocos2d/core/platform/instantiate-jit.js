@@ -55,6 +55,11 @@ const DEFAULT_MODULE_CACHE = {
     'cc.PrefabInfo': false
 };
 
+!Float32Array.name && (Float32Array.name = 'Float32Array');
+!Uint32Array.name && (Uint32Array.name = 'Uint32Array');
+!Int32Array.name && (Int32Array.name = 'Int32Array');
+!Uint8Array.name && (Uint8Array.name = 'Uint8Array');
+
 // HELPER CLASSES
 
 // ('foo', 'bar')
@@ -380,9 +385,10 @@ proto.instantiateTypedArray = function (value) {
     this.objsToClear_iN$t.push(value);
 
     for (var i = 0; i < value.length; ++i) {
-        var statement = arrayVar + '[' + i + ']=';
-        var expression = this.enumerateField(value, i, value[i]);
-        writeAssignment(codeArray, statement, expression);
+        if (value[i] !== 0) {
+            var statement = arrayVar + '[' + i + ']=';
+            writeAssignment(codeArray, statement, value[i]);
+        }
     }
     return codeArray;
 };

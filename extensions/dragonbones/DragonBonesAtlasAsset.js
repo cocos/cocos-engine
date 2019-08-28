@@ -55,6 +55,7 @@ var DragonBonesAtlasAsset = cc.Class({
             },
             set: function (value) {
                 this._atlasJson = value;
+                this._atlasJsonData = JSON.parse(this.atlasJson);
                 this._clear();
             }
         },
@@ -96,7 +97,10 @@ var DragonBonesAtlasAsset = cc.Class({
     init (factory) {
         this._factory = factory;
 
-        let atlasJsonObj = JSON.parse(this.atlasJson);
+        if (!this._atlasJsonData) {
+            this._atlasJsonData = JSON.parse(this.atlasJson);
+        }
+        let atlasJsonObj = this._atlasJsonData;
 
         // If create by manual, uuid is empty.
         this._uuid = this._uuid || atlasJsonObj.name;

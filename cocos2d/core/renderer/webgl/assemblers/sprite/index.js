@@ -6,12 +6,14 @@ import Sliced from "./2d/sliced";
 import Tiled from "./2d/tiled";
 import RadialFilled from "./2d/radial-filled";
 import BarFilled from "./2d/bar-filled";
+import Mesh from './2d/mesh';
 
 import Simple3D from "./3d/simple";
 import Sliced3D from "./3d/sliced";
 import Tiled3D from "./3d/tiled";
 import RadialFilled3D from "./3d/radial-filled";
 import BarFilled3D from "./3d/bar-filled";
+import Mesh3D from './3d/mesh';
 
 let ctor = {
     getConstructor(sprite) {
@@ -32,6 +34,9 @@ let ctor = {
                     ctor = is3DNode ? BarFilled3D : BarFilled;
                 }
                 break;
+            case Type.MESH:
+                ctor = is3DNode ? Mesh3D : Mesh;
+                break;
         }
 
         return ctor;
@@ -42,12 +47,14 @@ let ctor = {
     Tiled,
     RadialFilled,
     BarFilled,
+    Mesh,
 
     Simple3D,
     Sliced3D,
     Tiled3D,
     RadialFilled3D,
-    BarFilled3D
+    BarFilled3D,
+    Mesh3D,
 };
 
 Asembler.register(cc.Sprite, ctor);

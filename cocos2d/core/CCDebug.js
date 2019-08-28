@@ -23,6 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const utils = require('./platform/utils');
 const debugInfos = require('../../DebugInfos') || {};
 const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md';
 
@@ -211,13 +212,9 @@ let resetDebugSetting = function (mode) {
 };
 
 cc._throw = CC_EDITOR ? Editor.error : function (error) {
-    var stack = error.stack;
-    if (stack) {
-        cc.error(CC_JSB || CC_RUNTIME ? (error + '\n' + stack) : stack);
-    }
-    else {
-        cc.error(error);
-    }
+    utils.callInNextTick(function () {
+        throw error;
+    });
 };
 
 function getTypedFormatter (type) {

@@ -1458,46 +1458,12 @@ let NodeDefines = {
             trs = this._trs = this._spaceInfo.trs;
         }
 
-        // Upgrade _position from v2
-        // TODO: remove in future version, 3.0 ?
-        if (this._position !== undefined) {
-            trs[0] = this._position.x;
-            trs[1] = this._position.y;
-            trs[2] = this._position.z;
-            this._position = undefined;
-        }
-
         if (this._zIndex !== undefined) {
             this._localZOrder = this._zIndex << 16;
             this._zIndex = undefined;
         }
 
-        // TODO: remove _rotationX & _rotationY in future version, 3.0 ?
-        // Update eulerAngles from rotation, when upgrade from 1.x to 2.0
-        // If rotation x & y is 0 in old version, then update rotation from default quaternion is ok too
-        let eulerAngles = this._eulerAngles;
-        if ((this._rotationX || this._rotationY) &&
-            (eulerAngles.x === 0 && eulerAngles.y === 0 && eulerAngles.z === 0)) {
-            if (this._rotationX === this._rotationY) {
-                eulerAngles.z = -this._rotationX;
-            }
-            else {
-                eulerAngles.x = this._rotationX;
-                eulerAngles.y = this._rotationY;
-            }
-            this._rotationX = this._rotationY = undefined;
-        }
-
         this._fromEuler();
-
-        // Upgrade _scale from v2
-        // TODO: remove in future version, 3.0 ?
-        if (this._scale !== undefined) {
-            trs[7] = this._scale.x;
-            trs[8] = this._scale.y;
-            trs[9] = this._scale.z;
-            this._scale = undefined;
-        }
 
         if (this._localZOrder !== 0) {
             this._zIndex = (this._localZOrder & 0xffff0000) >> 16;
@@ -1774,12 +1740,8 @@ let NodeDefines = {
         if ( !listeners.hasEventListener(type, callback, target) ) {
             listeners.on(type, callback, target);
 
-            if (target) {
-                if (target.__eventTargets) {
-                    target.__eventTargets.push(this);
-                } else if (target.node && target.node.__eventTargets) {
-                    target.node.__eventTargets.push(this);
-                }
+            if (target && target.__eventTargets) {
+                target.__eventTargets.push(this);
             }
         }
 
@@ -1866,12 +1828,8 @@ let NodeDefines = {
             if (listeners) {
                 listeners.off(type, callback, target);
 
-                if (target) {
-                    if (target.__eventTargets) {
-                        js.array.fastRemove(target.__eventTargets, this);
-                    } else if (target.node && target.node.__eventTargets) {
-                        js.array.fastRemove(target.node.__eventTargets, this);
-                    }
+                if (target && target.__eventTargets) {
+                    js.array.fastRemove(target.__eventTargets, this);
                 }
             }
 
@@ -2650,7 +2608,7 @@ let NodeDefines = {
         else {
             vec3.copy(_swpVec3, pos);
         }
-        trs.toPosition(_swpVec3, ltrs);
+        trs.fromPosition(ltrs, _swpVec3);
         this.setLocalDirty(LocalDirtyFlag.POSITION);
 
         // fast check event
@@ -2699,7 +2657,10 @@ let NodeDefines = {
         else {
             quat.copy(_swrQuat, val);
         }
-        this._toEuler();
+        trs.fromRotation(this._trs, _swrQuat);
+        if (CC_EDITOR) {
+            this._toEuler();
+        }
         this.setLocalDirty(LocalDirtyFlag.ROTATION);
     },
 
@@ -2736,7 +2697,7 @@ let NodeDefines = {
         else {
             vec3.copy(_swsVec3, scale);
         }
-        _swsVec3.toScale(this._trs);
+        trs.fromScale(this._trs, _swsVec3);
         this.setLocalDirty(LocalDirtyFlag.SCALE);
     },
 
@@ -3404,7 +3365,7 @@ let NodeDefines = {
         this._localMatDirty = LocalDirtyFlag.ALL;
         this._worldMatDirty = true;
 
-        this._toEuler();
+        this._fromEuler();
 
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (this._renderComponent) {
@@ -3447,16 +3408,6 @@ if (CC_EDITOR) {
             editorOnly: true
         },
         _scaleY: {
-            default: undefined,
-            type: cc.Float,
-            editorOnly: true
-        },
-        _rotationX: {
-            default: undefined,
-            type: cc.Float,
-            editorOnly: true
-        },
-        _rotationY: {
             default: undefined,
             type: cc.Float,
             editorOnly: true

@@ -164,6 +164,15 @@ var Sprite = cc.Class({
         inspector: 'packages://inspector/inspectors/comps/sprite.js',
     },
 
+    ctor () {
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            this._activateMaterial = this._activateMaterialCanvas;
+        }
+        else {
+            this._activateMaterial = this._activateMaterialWebgl;
+        }
+    },
+
     properties: {
         _spriteFrame: {
             default: null,
@@ -427,22 +436,21 @@ var Sprite = cc.Class({
                 this._spriteFrame.ensureLoadTexture();
             }
         }
-        
-        this._activateMaterial();
+        else {
+            this._activateMaterial();
+        }
     },
 
     _on3DNodeChanged () {
         this._resetAssembler();
     },
 
-    _activateMaterial: function () {
-        // If render type is canvas, just return.
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            this.markForUpdateRenderData(true);
-            this.markForRender(true);
-            return;
-        }
+    _activateMaterialCanvas () {
+        this.markForUpdateRenderData(true);
+        this.markForRender(true);
+    },
 
+    _activateMaterialWebgl () {
         let spriteFrame = this._spriteFrame;
         // If spriteframe not loaded, disable render and return.
         if (!spriteFrame || !spriteFrame.textureLoaded()) {
@@ -498,7 +506,7 @@ var Sprite = cc.Class({
                 var size = this._spriteFrame._originalSize;
                 this.node.setContentSize(size);
             } else if (SizeMode.TRIMMED === this._sizeMode) {
-                var rect = this._spriteFrame.getRect();
+                var rect = this._spriteFrame._rect;
                 this.node.setContentSize(rect.width, rect.height);
             }
             
@@ -516,30 +524,23 @@ var Sprite = cc.Class({
     },
 
     _applySpriteFrame: function (oldFrame) {
-        if (oldFrame && oldFrame.off) {
+        if (oldFrame && !oldFrame.textureLoaded()) {
             oldFrame.off('load', this._onTextureLoaded, this);
         }
 
-        var spriteFrame = this._spriteFrame;
-        let material = this.sharedMaterials[0];
-        if (!spriteFrame || (material && material._texture) !== (spriteFrame && spriteFrame._texture)) {
-            // disable render flow until texture is loaded
-            this.markForRender(false);
-        }
-
+        let spriteFrame = this._spriteFrame;
         if (spriteFrame) {
-            if (!oldFrame || spriteFrame._texture !== oldFrame._texture) {
-                if (spriteFrame.textureLoaded()) {
-                    this._onTextureLoaded(null);
-                }
-                else {
-                    spriteFrame.once('load', this._onTextureLoaded, this);
-                    spriteFrame.ensureLoadTexture();
-                }
-            }
-            else {
+            if (spriteFrame.textureLoaded()) {
                 this._applySpriteSize();
             }
+            else {
+                this.markForRender(false);
+                spriteFrame.once('load', this._onTextureLoaded, this);
+                spriteFrame.ensureLoadTexture();
+            }
+        }
+        else {
+            this.markForRender(false);
         }
 
         if (CC_EDITOR) {

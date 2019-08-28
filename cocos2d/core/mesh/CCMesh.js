@@ -67,6 +67,7 @@ let Mesh = cc.Class({
             },
             set (bin) {
                 this._buffer = ArrayBuffer.isView(bin) ? bin.buffer : bin;
+                this.initWithBuffer();
             }
         },
 
@@ -108,7 +109,7 @@ let Mesh = cc.Class({
         this.loaded = false;
     },
 
-    onLoad () {
+    initWithBuffer () {
         this._subMeshes.length = 0;
 
         let primitives = this._primitives;
@@ -158,7 +159,7 @@ let Mesh = cc.Class({
             }
         }
         this.loaded = true;
-        this.emit("load");
+        this.emit('load');
     },
 
     _canVertexFormatBatch (format) {
@@ -201,6 +202,8 @@ let Mesh = cc.Class({
         }
 
         this._subDatas.push(meshData);
+        this.loaded = true;
+        this.emit('load');
         this.emit('init-format');
     },
 

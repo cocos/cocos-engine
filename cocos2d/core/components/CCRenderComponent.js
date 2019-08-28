@@ -67,7 +67,8 @@ let RenderComponent = cc.Class({
                 this._activateMaterial(true);
             },
             type: [Material],
-            displayName: 'Materials'
+            displayName: 'Materials',
+            animatable: false
         }
     },
     
@@ -124,12 +125,10 @@ let RenderComponent = cc.Class({
 
     _onNodeSizeDirty () {
         this.setVertsDirty();
-        this.markForUpdateRenderData(true);
     },
 
     _on3DNodeChanged () {
         this.setVertsDirty();
-        this.markForUpdateRenderData(true);
     },
     
     _canRender () {
@@ -204,7 +203,9 @@ let RenderComponent = cc.Class({
             this._assembler.updateColor(this);
         }
 
-        this.node._renderFlag &= ~RenderFlow.FLAG_OPACITY;
+        if (!CC_NATIVERENDERER) {
+            this.node._renderFlag &= ~RenderFlow.FLAG_OPACITY;
+        }
     },
 
     _checkBacth (renderer, cullingMask) {

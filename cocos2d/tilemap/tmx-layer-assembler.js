@@ -54,8 +54,6 @@ function _visitUserNode (userNode) {
     if (CC_NATIVERENDERER) return;
     userNode._updateLocalMatrix();
     mat4.mul(userNode._worldMatrix, _layerMat, userNode._matrix);
-    vec3.set(_vec3_temp, -_moveX, -_moveY, 0);
-    mat4.translate(userNode._worldMatrix, userNode._worldMatrix, _vec3_temp);
     userNode._renderFlag &= ~(RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_BREAK_FLOW);
     RenderFlow.visitRootNode(userNode);
     userNode._renderFlag |= RenderFlow.FLAG_BREAK_FLOW;
@@ -67,6 +65,7 @@ function _flush () {
     }
 
     _renderer.material = _renderData.material;
+    _renderer.node = _comp.node;
     _renderer._flushIA(_renderData.ia);
 
     let needSwitchBuffer = (_fillGrids >= MaxGridsLimit);
@@ -227,10 +226,10 @@ export default class TmxAssembler extends Assembler {
                     }
                     renderer.worldMatDirty--;
                     renderer._flush();
-                    renderer.node = layerNode;
                 }
                 if (renderData.ia._count > 0) {
                     renderer.material = renderData.material;
+                    renderer.node = layerNode;
                     renderer._flushIA(renderData.ia);
                 }
             }
@@ -418,6 +417,7 @@ export default class TmxAssembler extends Assembler {
         // last flush
         if (_ia._count > 0) {
             _renderer.material = _renderData.material;
+            _renderer.node = _comp.node;
             _renderer._flushIA(_renderData.ia);
         }
     }

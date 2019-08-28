@@ -40,7 +40,7 @@
  */
 
 var _global = typeof window === 'undefined' ? global : window;
-if (!CC_JSB) {
+if (!CC_NATIVERENDERER) {
     _global.dragonBones = require('./lib/dragonBones');
 }
 
@@ -149,7 +149,7 @@ if (_global.dragonBones !== undefined) {
 
     if (!CC_EDITOR || !Editor.isMainProcess) {
 
-        if (!CC_JSB && !CC_NATIVERENDERER) {
+        if (!CC_NATIVERENDERER) {
             require('./CCFactory');
             require('./CCSlot');
             require('./CCTextureData');

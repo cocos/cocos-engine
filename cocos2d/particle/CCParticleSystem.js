@@ -748,8 +748,6 @@ var ParticleSystem = cc.Class({
     },
 
     initProperties () {
-        this._simulator = new ParticleSimulator(this);
-
         this._previewTimer = null;
         this._focused = false;
 

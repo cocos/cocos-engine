@@ -15,3 +15,9 @@ if (!String.prototype.endsWith) {
         return lastIndex !== -1 && lastIndex === position;
     };
 }
+
+if (!String.prototype.trimLeft) {
+    String.prototype.trimLeft = function () {
+        return this.replace(/^\s+/, '');
+    };
+}

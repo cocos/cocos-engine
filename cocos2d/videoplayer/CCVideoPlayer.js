@@ -241,7 +241,7 @@ let VideoPlayer = cc.Class({
             default: true,
             type: cc.Boolean,
             notify: function () {
-                this._impl.setKeepAspectRatioEnabled(this.keepAspectRatio);
+                this._impl && this._impl.setKeepAspectRatioEnabled(this.keepAspectRatio);
             }
         },
 
@@ -258,12 +258,12 @@ let VideoPlayer = cc.Class({
         },
         isFullscreen: {
             get () {
-                this._isFullscreen = this._impl.isFullScreenEnabled();
+                this._isFullscreen = this._impl && this._impl.isFullScreenEnabled();
                 return this._isFullscreen;
             },
             set (enable) {
                 this._isFullscreen = enable;
-                this._impl.setFullScreenEnabled(enable);
+                this._impl && this._impl.setFullScreenEnabled(enable);
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.isFullscreen'

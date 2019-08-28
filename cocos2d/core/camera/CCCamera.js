@@ -518,13 +518,14 @@ let Camera = cc.Class({
         if (!camera) return;
         camera.setNode(this.node);
         camera.setClearFlags(this._clearFlags);
-        camera._priority = this._depth;
+        camera.setPriority(this._depth);
         this._updateBackgroundColor();
         this._updateCameraMask();
         this._updateTargetTexture();
         this._updateClippingpPlanes();
         this._updateProjection();
         this._updateStages();
+        this.beforeDraw();
     },
 
     onLoad () {
