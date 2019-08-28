@@ -213,6 +213,9 @@ export class Texture2D extends SimpleTexture {
         return {
             base: super._serialize(exporting),
             mipmaps: this._mipmaps.map((mipmap) => {
+                if (!mipmap || !mipmap._uuid) {
+                    return null;
+                }
                 if (exporting) {
                     return Editor.Utils.UuidUtils.compressUuid(mipmap._uuid, true);
                 }
@@ -229,6 +232,9 @@ export class Texture2D extends SimpleTexture {
         for (let i = 0; i < data.mipmaps.length; ++i) {
             // Prevent resource load failed
             this._mipmaps[i] = new ImageAsset();
+            if (!data.mipmaps[i]) {
+                continue;
+            }
             const mipmapUUID = data.mipmaps[i];
             handle.result.push(this._mipmaps, `${i}`, mipmapUUID);
         }
