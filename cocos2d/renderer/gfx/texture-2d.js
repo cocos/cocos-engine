@@ -77,8 +77,8 @@ export default class Texture2D extends Texture {
         genMipmaps = options.genMipmaps;
       }
 
-      let maxSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-      let textureMaxSize = (options.width && options.height) ? Math.max(options.width, options.height) : 0;
+      let maxSize = this._device.caps.maxTextureSize || Number.MAX_VALUE;
+      let textureMaxSize = Math.max(options.width || 0, options.height || 0);
       if (maxSize < textureMaxSize)
         console.warn(`The current texture size ${textureMaxSize} exceeds the maximum size [${maxSize}] supported on the device.`);
 

@@ -160,6 +160,7 @@ let ScrollView = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/ScrollView',
         help: 'i18n:COMPONENT.help_url.scrollview',
+        inspector: 'packages://inspector/inspectors/comps/scrollview.js',
         executeInEditMode: false,
     },
 
@@ -865,30 +866,14 @@ let ScrollView = cc.Class({
         if (contentSize.height < scrollViewSize.height) {
             totalScrollDelta = contentSize.height - scrollViewSize.height;
             moveDelta.y = bottomDeta - totalScrollDelta;
-
-            if (this.verticalScrollBar) {
-                this.verticalScrollBar.hide();
-            }
-        } else {
-            if (this.verticalScrollBar) {
-                this.verticalScrollBar.show();
-            }
         }
 
         if (contentSize.width < scrollViewSize.width) {
             totalScrollDelta = contentSize.width - scrollViewSize.width;
             moveDelta.x = leftDeta;
-
-            if (this.horizontalScrollBar) {
-                this.horizontalScrollBar.hide();
-            }
-
-        } else {
-            if (this.horizontalScrollBar) {
-                this.horizontalScrollBar.show();
-            }
         }
 
+        this._updateScrollBarState();
         this._moveContent(moveDelta);
         this._adjustContentOutOfBoundary();
     },
@@ -1004,7 +989,7 @@ let ScrollView = cc.Class({
             this._stopPropagationIfTargetIsMe(event);
         }
     },
-    
+
     _onTouchCancelled (event, captureListeners) {
         if (!this.enabledInHierarchy) return;
         if (this._hasNestedViewGroup(event, captureListeners)) return;
@@ -1173,7 +1158,7 @@ let ScrollView = cc.Class({
     _handleReleaseLogic (touch) {
         let delta = touch.getDelta();
         this._gatherTouchMove(delta);
-        this._processInertiaScroll();    
+        this._processInertiaScroll();
         if (this._scrolling) {
             this._scrolling = false;
             if (!this._autoScrolling) {
@@ -1253,7 +1238,7 @@ let ScrollView = cc.Class({
         this._moveContent(this._clampDelta(deltaMove), reachedEnd);
         this._dispatchEvent('scrolling');
 
-        // scollTo API controll move 
+        // scollTo API controll move
         if (!this._autoScrolling) {
             this._isBouncing = false;
             this._scrolling = false;
@@ -1424,6 +1409,29 @@ let ScrollView = cc.Class({
         return outOfBoundaryAmount;
     },
 
+    _updateScrollBarState () {
+        if (!this.content) {
+            return;
+        }
+        let contentSize = this.content.getContentSize();
+        let scrollViewSize = this._view.getContentSize();
+        if (this.verticalScrollBar) {
+            if (contentSize.height < scrollViewSize.height) {
+                this.verticalScrollBar.hide();
+            } else {
+                this.verticalScrollBar.show();
+            }
+        }
+
+        if (this.horizontalScrollBar) {
+            if (contentSize.width < scrollViewSize.width) {
+                this.horizontalScrollBar.hide();
+            } else {
+                this.horizontalScrollBar.show();
+            }
+        }
+    },
+
     _updateScrollBar (outOfBoundary) {
         if (this.horizontalScrollBar) {
             this.horizontalScrollBar._onScroll(outOfBoundary);
@@ -1506,16 +1514,6 @@ let ScrollView = cc.Class({
         }
     },
 
-    _showScrollbar () {
-        if (this.horizontalScrollBar) {
-            this.horizontalScrollBar.show();
-        }
-
-        if (this.verticalScrollBar) {
-            this.verticalScrollBar.show();
-        }
-    },
-
     onDisable () {
         if (!CC_EDITOR) {
             this._unregisterEvent();
@@ -1546,7 +1544,7 @@ let ScrollView = cc.Class({
                 }
             }
         }
-        this._showScrollbar();
+        this._updateScrollBarState();
     },
 
     update (dt) {

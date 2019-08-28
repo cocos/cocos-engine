@@ -616,10 +616,9 @@ let Animation = cc.Class({
         let ret = this._EventTargetOn(type, callback, target, useCapture);
         
         if (type === 'lastframe') {
-            let array = this._animator._anims.array;
-            for (let i = 0; i < array.length; ++i) {
-                let state = array[i];
-                state._lastframeEventOn = true;
+            let states = this._nameToState;
+            for (let name in states) {
+                states[name]._lastframeEventOn = true;
             }
         }
 
@@ -649,10 +648,9 @@ let Animation = cc.Class({
         this._init();
 
         if (type === 'lastframe') {
-            let nameToState = this._nameToState;
-            for (let name in nameToState) {
-                let state = nameToState[name];
-                state._lastframeEventOn = false;
+            let states = this._nameToState;
+            for (let name in states) {
+                states[name]._lastframeEventOn = false;
             }
         }
 

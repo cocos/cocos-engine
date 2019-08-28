@@ -22,8 +22,6 @@ if (TestEditorExtends) {
     var compareKeys = [
         '_localZOrder',
         '_globalZOrder',
-        '_rotationX',
-        '_rotationY',
         '_scale',
         '_position',
         '_skewX',
