@@ -46,9 +46,6 @@ export * from './scheduler';
 export * from './director';
 
 export * from './gfx';
-export * from './renderer';
-export * from './pipeline';
-export * from './primitive';
 export * from './assets';
 export * from './load-pipeline';
 export * from './scene-graph';
