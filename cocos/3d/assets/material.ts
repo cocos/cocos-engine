@@ -163,7 +163,7 @@ export class Material extends Asset {
      * 根据所给信息初始化这个材质，初始化正常结束后材质即可立即用于渲染。
      * @param info 初始化材质需要的基本信息。
      */
-    public initialize (info: IMaterialInfo) {
+    public reset (info: IMaterialInfo) {
         if (!this._defines) { this._defines = []; }
         if (!this._states) { this._states = []; }
         if (!this._props) { this._props = []; }
@@ -173,6 +173,9 @@ export class Material extends Asset {
         if (info.defines) { this._prepareInfo(info.defines, this._defines); }
         if (info.states) { this._prepareInfo(info.states, this._states); }
         this._update();
+    }
+    public initialize (info: IMaterialInfo) {
+        this.reset(info);
     }
 
     /**
