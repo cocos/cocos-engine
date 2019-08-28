@@ -125,8 +125,8 @@ export default class BmfontAssembler extends Assembler2D {
         _overflow = comp.overflow;
         _lineHeight = comp._lineHeight;
         
-        _contentSize.width = _comp.node.width;
-        _contentSize.height = _comp.node.height;
+        _contentSize.width = comp.node.width;
+        _contentSize.height = comp.node.height;
 
         // should wrap text
         if (_overflow === Overflow.NONE) {
