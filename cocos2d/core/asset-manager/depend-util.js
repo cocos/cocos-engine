@@ -26,13 +26,16 @@ const Cache = require('./cache');
 const js = require('../platform/js');
 
 /**
+ * @module cc.AssetManager
+ */
+/**
  * !#en
- * Control asset's dependency list, it is a singleton.
+ * Control asset's dependency list, it is a singleton. All member can be accessed with `cc.assetManager.dependUtil`
  * 
  * !#zh
- * 控制资源的依赖列表，这是一个单例
+ * 控制资源的依赖列表，这是一个单例, 所有成员能通过 `cc.assetManager.dependUtil` 访问
  * 
- * @static
+ * @class DependUtil
  */
 var dependUtil = {
     _depends: new Cache(),
@@ -68,7 +71,7 @@ var dependUtil = {
      * var dep = dependUtil.getNativeDep('fcmR3XADNLgJ1ByKhqcC5Z');
      * 
      * @typescript
-     * getNativeDep(uuid: string): any
+     * getNativeDep(uuid: string): Record<string, any>
      */
     getNativeDep (uuid) {
         if (this._depends.has(uuid)) return this._depends.get(uuid).nativeDep;

@@ -22,7 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+/**
+ * @module cc.AssetManager
+ */
 const dependUtil = require('./depend-util');
 const Cache = require('./cache');
 require('../assets/CCAsset');
@@ -99,12 +101,12 @@ Object.assign(cc.Asset.prototype, {
 
 /**
  * !#en
- * Control resource release, it's a singleton
+ * Control resource release, it's a singleton, all member can be accessed with cc.assetManager.finalizer
  * 
  * !#zh
- * 控制资源释放，这是一个单例
+ * 控制资源释放，这是一个单例，所有成员能通过 `cc.assetManager.finalizer` 访问
  * 
- * @static
+ * @class Finalizer
  */
 var finalizer = {
     /**
@@ -191,7 +193,7 @@ var finalizer = {
 
     /**
      * !#en
-     * Lock this asset, this asset can not be released unless unlock it
+     * Lock this asset, it can not be released unless unlock it
      * 
      * !#zh
      * 锁上此资源，除非解锁，否则此资源不能被释放
@@ -210,7 +212,7 @@ var finalizer = {
 
     /**
      * !#en
-     * Unlock this asset, this asset can be released normally
+     * Unlock this asset, so it can be released normally
      * 
      * !#zh
      * 解锁此资源，此资源能被正常释放
@@ -310,13 +312,13 @@ var finalizer = {
 
     /**
      * !#en
-     * Refer to {{#crossLink "assetManager/release:method"}}{{/crossLink}} for detailed informations
+     * Refer to {{#crossLink "AssetManager/release:method"}}{{/crossLink}} for detailed informations
      * 
      * !#zh
-     * 详细信息请参考 {{#crossLink "assetManager/release:method"}}{{/crossLink}}
+     * 详细信息请参考 {{#crossLink "AssetManager/release:method"}}{{/crossLink}}
      * 
      * @method release
-     * @param {Asset|RawAsset} asset - The asset to be released
+     * @param {Asset} asset - The asset to be released
      * @param {boolean} [force] - Indicates whether or not release this asset forcely
      *
      * @typescript

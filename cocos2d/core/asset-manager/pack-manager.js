@@ -30,19 +30,22 @@ const { files } = require('./shared');
 var _loading = new Cache();
 
 /**
+ * @module cc.AssetManager
+ */
+/**
  * !#en
- * Handle the packed asset, include unpacking, loading, cache and so on. It is a singleton.
+ * Handle the packed asset, include unpacking, loading, cache and so on. It is a singleton. All member can be accessed with `cc.assetManager.packManager`
  * 
  * !#zh
- * 处理打包资源，包括拆包，加载，缓存等等，这是一个单例
+ * 处理打包资源，包括拆包，加载，缓存等等，这是一个单例, 所有成员能通过 `cc.assetManager.packManager` 访问
  * 
- * @static
+ * @class PackManager
  */
 var packManager = {
 
     /**
      * !#en
-     * Unpack the json, revert to what was before packing
+     * Unpack the json, revert to what it was before packing
      * 
      * !#zh
      * 拆解 json 包，恢复为打包之前的内容
@@ -61,7 +64,7 @@ var packManager = {
      * });
      * 
      * @typescript
-     * unpackJson(pack: string[], json: any, options: any, onComplete?: ((err: Error, content: any) => void)|null): void
+     * unpackJson(pack: string[], json: any, options: Record<string, any>, onComplete?: (err: Error, content: any) => void): void
      */
     unpackJson (pack, json, options, onComplete) {
 
@@ -133,8 +136,8 @@ var packManager = {
      * packManager.register({'.bin': (packUuid, file, options, onComplete) => onComplete(null, null), '.ab': (packUuid, file, options, onComplete) => onComplete(null, null)});
      * 
      * @typescript
-     * register(type: string, handler: (packUuid: string, data: any, options: any, onComplete: (err: Error, content: any) => void) => void): void
-     * register(map: any): void
+     * register(type: string, handler: (packUuid: string, data: any, options: Record<string, any>, onComplete: (err: Error, content: any) => void) => void): void
+     * register(map: Record<string, (packUuid: string, data: any, options: Record<string, any>, onComplete: (err: Error, content: any) => void) => void>): void
      */
     register (type, handler) {
         if (typeof type === 'object') {
@@ -167,7 +170,7 @@ var packManager = {
      * });
      * 
      * @typescript
-     * unpack(pack: string[], data: any, type: string, options: any, onComplete?: ((err: Error, data: any) => void)|null): void
+     * unpack(pack: string[], data: any, type: string, options: Record<string, any>, onComplete?: (err: Error, data: any) => void): void
      */
     unpack (pack, data, type, options, onComplete) {
         if (!data) {
@@ -200,7 +203,7 @@ var packManager = {
      * packManager.load(requestItem, null, (err, data) => console.log(err));
      * 
      * @typescript
-     * load(item: cc.AssetManager.RequestItem, options: any, onComplete: (err: Error, data: any) => void): void
+     * load(item: RequestItem, options: Record<string, any>, onComplete: (err: Error, data: any) => void): void
      * 
      */
     load (item, options, onComplete) {

@@ -26,13 +26,16 @@ const Cache = require('./cache');
 const finalizer = require('./finalizer');
 
 /**
+ * @module cc.AssetManager
+ */
+/**
  * !#en
- * This module contains the builtin asset 
+ * This module contains the builtin asset, it's a singleton, all member can be accessed with `cc.assetManager.builtin` 
  * 
  * !#zh
- * 此模块包含内建资源，所有成员能通过 `cc.assetManaer.builtins` 访问
+ * 此模块包含内建资源，这是一个单例，所有成员能通过 `cc.assetManager.builtins` 访问
  * 
- * @static
+ * @class Builtins
  */
 var builtins = {
     
@@ -93,13 +96,13 @@ var builtins = {
      * @method getBuiltin
      * @param {string} type - The type of asset, such as `effect`
      * @param {string} name - The name of asset, such as `phong`
-     * @return {*} Builtin-assets
+     * @return {Asset} Builtin-assets
      * 
      * @example
      * cc.assetManaer.builtins.getBuiltin('effect', 'phone');
      * 
      * @typescript
-     * getBuiltin(type: string, name: string): any
+     * getBuiltin(type: string, name: string): cc.Asset
      */
     getBuiltin (type, name) {
         if (arguments.length === 0) return this._assets;

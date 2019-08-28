@@ -23,6 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * @module cc.AssetManager
+ */
+
 var MAX_DEAD_NUM = 50;
 var _deadPool = [];
 
@@ -36,20 +40,132 @@ var _deadPool = [];
  * @class RequestItem
  */
 function RequestItem () {
+
     this._id = '';
+
+    /**
+     * !#en 
+     * The uuid of request
+     * 
+     * !#zh 
+     * 请求资源的uuid
+     * 
+     * @property uuid
+     * @type {String}
+     */
     this.uuid = '';
+
+    /**
+     * !#en 
+     * The final url of request
+     * 
+     * !#zh
+     * 请求的最终url
+     * 
+     * @property url
+     * @type {String}
+     */
     this.url = '';
+
+    /**
+     * !#en
+     * The extension name of asset
+     * 
+     * !#zh
+     * 资源的扩展名
+     * 
+     * @property ext
+     * @type {String}
+     */
     this.ext = '.json';
+
+    /**
+     * !#en
+     * The content of asset
+     * 
+     * !#zh
+     * 资源的内容
+     * 
+     * @property content
+     * @type {*}
+     */
     this.content = null;
+
+    /**
+     * !#en
+     * The file of asset
+     * 
+     * !#zh
+     * 资源的文件
+     * 
+     * @property file
+     * @type {*}
+     */
     this.file = null;
+
+    /**
+     * !#en
+     * The information of asset
+     * 
+     * !#zh
+     * 资源的相关信息
+     * 
+     * @property info
+     * @type {Object}
+     */
     this.info = null;
+
+    /**
+     * !#en
+     * The bundle of asset
+     * 
+     * !#zh
+     * 资源所在的 bundle
+     * 
+     * @property config
+     * @type {Config}
+     */
     this.config = null;
+
+    /**
+     * !#en
+     * Whether or not it is native asset
+     * 
+     * !#zh
+     * 资源是否是原生资源
+     * 
+     * @property isNative
+     * @type {Boolean}
+     */
     this.isNative = false;
+
+    /**
+     * !#en
+     * Custom options
+     * 
+     * !#zh
+     * 自定义参数
+     * 
+     * @property options
+     * @type {Object}
+     */
     this.options = Object.create(null);
 }
 
 RequestItem.prototype = {
 
+    /**
+     * !#en
+     * Create a request item
+     * 
+     * !#zh
+     * 创建一个 request item
+     * 
+     * @method constructor
+     * 
+     * @typescript
+     * constructor()
+     */
     constructor: RequestItem,
 
     /**
@@ -60,6 +176,7 @@ RequestItem.prototype = {
      * 请求的 id, 由 uuid 和 isNative 组合而成
      * 
      * @property id
+     * @type {String}
      */
     get id () {
         if (!this._id) {
@@ -102,11 +219,12 @@ RequestItem.prototype = {
  * !#zh
  * 从对象池中创建 requestItem
  * 
- * @function create
+ * @static
+ * @method create
  * @returns {RequestItem} requestItem
  * 
  * @typescript 
- * create(): cc.AssetManager.RequestItem
+ * create(): RequestItem
  */
 RequestItem.create = function () {
     var out = null;
