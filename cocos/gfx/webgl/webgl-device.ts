@@ -371,7 +371,7 @@ export class WebGLGFXDevice extends GFXDevice {
         this._features[GFXFeature.MSAA] = false;
 
         if (this._OES_vertex_array_object) {
-            this._useVAO = false;
+            this._useVAO = true;
         }
 
         console.info('RENDERER: ' + this._renderer);

@@ -77,7 +77,7 @@ export enum UniformBinding {
 
     UBO_LOCAL = MAX_BINDING_SUPPORTED - 3,
     UBO_FORWARD_LIGHTS = MAX_BINDING_SUPPORTED - 4,
-    UBO_SKINNING = MAX_BINDING_SUPPORTED - 5,
+    UBO_SKINNING_ANIMATION = MAX_BINDING_SUPPORTED - 5,
     UBO_SKINNING_TEXTURE = MAX_BINDING_SUPPORTED - 6,
     UBO_UI = MAX_BINDING_SUPPORTED - 7,
 
@@ -253,16 +253,31 @@ localBindingsDesc.set(UBOSkinningTexture.BLOCK.name, {
     type: GFXBindingType.UNIFORM_BUFFER,
     blockInfo: UBOSkinningTexture.BLOCK,
 });
+export class UBOSkinningAnimation {
+    public static JOINTS_ANIM_INFO_OFFSET: number = 0;
+    public static COUNT: number = UBOSkinningAnimation.JOINTS_ANIM_INFO_OFFSET + 4;
+    public static SIZE: number = UBOSkinningAnimation.COUNT * 4;
+
+    public static BLOCK: GFXUniformBlock = {
+        binding: UniformBinding.UBO_SKINNING_ANIMATION, name: 'CCSkinningAnimation', members: [
+            { name: 'cc_jointsAnimInfo', type: GFXType.FLOAT4, count: 1 },
+        ],
+    };
+}
+localBindingsDesc.set(UBOSkinningAnimation.BLOCK.name, {
+    type: GFXBindingType.UNIFORM_BUFFER,
+    blockInfo: UBOSkinningAnimation.BLOCK,
+});
 
 /**
  * 骨骼纹理采样器。
  */
-export const UNIFORM_JOINTS_TEXTURE: GFXUniformSampler = {
+export const UniformJointsTexture: GFXUniformSampler = {
     binding: UniformBinding.SAMPLER_JOINTS, name: 'cc_jointsTexture', type: GFXType.SAMPLER2D, count: 1,
 };
-localBindingsDesc.set(UNIFORM_JOINTS_TEXTURE.name, {
+localBindingsDesc.set(UniformJointsTexture.name, {
     type: GFXBindingType.SAMPLER,
-    samplerInfo: UNIFORM_JOINTS_TEXTURE,
+    samplerInfo: UniformJointsTexture,
 });
 
 export interface IInternalBindingDesc {

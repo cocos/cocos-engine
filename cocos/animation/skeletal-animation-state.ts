@@ -34,7 +34,7 @@ import { AnimCurve } from './animation-curve';
 import { AnimationState, ICurveInstance } from './animation-state';
 import { SkeletalAnimationClip } from './skeletal-animation-clip';
 import { Socket } from './skeletal-animation-component';
-import { HierachyModifier, TargetModifier, ComponentModifier } from './target-modifier';
+import { ComponentModifier, HierachyModifier, TargetModifier } from './target-modifier';
 import { getPathFromRoot, getWorldTransformUntilRoot } from './transform-utils';
 
 const m4_1 = new Mat4();
