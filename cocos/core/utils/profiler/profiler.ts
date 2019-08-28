@@ -64,8 +64,8 @@ export class Profiler {
 
     private _rootNode: Node | null = null;
     private _device: GFXDevice | null = null;
-    private readonly _canvas: HTMLCanvasElement;
-    private readonly _ctx: CanvasRenderingContext2D;
+    private readonly _canvas: HTMLCanvasElement | null = null;
+    private readonly _ctx: CanvasRenderingContext2D | null = null;
     private _texture: GFXTexture | null = null;
     private _textureView: GFXTextureView | null = null;
     private readonly _region: GFXBufferTextureCopy = new GFXBufferTextureCopy();
@@ -76,9 +76,11 @@ export class Profiler {
     private _statsDone = false;
 
     constructor () {
-        this._canvas = document.createElement('canvas');
-        this._ctx = this._canvas.getContext('2d')!;
-        this._region = new GFXBufferTextureCopy();
+        if (!CC_TEST) {
+            this._canvas = document.createElement('canvas');
+            this._ctx = this._canvas.getContext('2d')!;
+            this._region = new GFXBufferTextureCopy();
+        }
     }
 
     public isShowingStats () {
@@ -139,15 +141,15 @@ export class Profiler {
 
         const textureWidth = 350;
         const textureHeight = 200;
+        
+        if (!this._ctx || !this._canvas) {
+            return;
+        }
 
         this._canvas.width = textureWidth;
         this._canvas.height = textureHeight;
         this._canvas.style.width = `${this._canvas.width}`;
         this._canvas.style.height = `${this._canvas.height}`;
-
-        if (!this._ctx) {
-            return;
-        }
 
         this._ctx.font = `${this._fontSize}px Arial`;
         this._ctx.textBaseline = 'top';
@@ -173,7 +175,7 @@ export class Profiler {
     }
 
     public generateStats () {
-        if (this._statsDone) {
+        if (this._statsDone || !this._ctx) {
             return;
         }
 
@@ -320,7 +322,7 @@ export class Profiler {
     }
 
     public afterDraw () {
-        if (!this._stats) {
+        if (!this._stats || !this._ctx || !this._canvas) {
             return;
         }
         const now = cc.director.getCurrentTime();
