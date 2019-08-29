@@ -107,20 +107,16 @@ export class AnimationClip extends Asset {
             values[i] = spriteFrames[i];
         }
         clip.keys = [keys];
-        clip.curveDatas = {
-            '/': {
-                comps: {
-                    // component
-                    'cc.SpriteComponent': {
-                        // component properties
-                        spriteFrame: {
-                            keys: 0,
-                            values,
-                        },
-                    },
-                },
-            },
-        };
+        clip.curves = [{
+            modifiers: [
+                new ComponentModifier('cc.SpriteComponent'),
+                'spriteFrame'
+            ],
+            data: {
+                keys: 0,
+                values,
+            }
+        }];
 
         return clip;
     }
@@ -148,7 +144,7 @@ export class AnimationClip extends Asset {
      * @deprecated 请转用 `this.curves`
      */
     @property
-    public curveDatas?: ICurveData = {};
+    private curveDatas?: ICurveData = {};
 
     @property
     private _curves: ITargetCurveData[] = [];
@@ -229,7 +225,7 @@ export class AnimationClip extends Asset {
     }
 
     get hash () {
-        if (!this._hash) { this._hash = murmurhash2_32_gc(JSON.stringify(this.curveDatas), 666); }
+        if (!this._hash) { this._hash = murmurhash2_32_gc(JSON.stringify(this._getDeprecatedCurveDatas()), 666); }
         return this._hash;
     }
 
@@ -385,56 +381,55 @@ export class AnimationClip extends Asset {
             }
         }
         delete this.curveDatas;
-        Object.defineProperty(this, 'curveDatas', {
-            get: () => {
-                const result: ICurveData = {};
-                for (const curve of this._curves) {
-                    if (curve.modifiers.length === 0 ||
-                        !isCustomTargetModifier(curve.modifiers[0], HierachyModifier)) {
-                        continue;
-                    }
+    }
 
-                    let componentName: string | null = null;
-                    let propertyName: string | undefined;
-                    if (curve.modifiers.length === 2 &&
-                        isPropertyModifier(curve.modifiers[1])) {
-                        propertyName = curve.modifiers[1] as PropertyModifier;
-                    } else if (curve.modifiers.length === 3 &&
-                        isCustomTargetModifier(curve.modifiers[1], ComponentModifier) &&
-                        isPropertyModifier(curve.modifiers[2])) {
-                        componentName = (curve.modifiers[1] as ComponentModifier).component;
-                        propertyName = curve.modifiers[2] as PropertyModifier;
-                    } else {
-                        continue;
-                    }
-
-                    const path = (curve.modifiers[0] as HierachyModifier).path;
-                    
-                    if (!(path in result)) {
-                        result[path] = {};
-                    }
-                    const nodeCurveData = result[path];
-                    let objectCurveData: IObjectCurveData | undefined;
-                    if (componentName) {
-                        if (!('comps' in nodeCurveData)) {
-                            nodeCurveData.comps = {};
-                        }
-                        const componentCurveData = nodeCurveData.comps!;
-                        if (!(componentName in componentCurveData)) {
-                            componentCurveData[componentName] = {};
-                        }
-                        objectCurveData = componentCurveData[componentName];
-                    } else {
-                        if (!('props' in nodeCurveData)) {
-                            nodeCurveData.props = {};
-                        }
-                        objectCurveData = nodeCurveData.props!;
-                    }
-                    objectCurveData[propertyName] = curve.data;
-                }
-                return result;
+    private _getDeprecatedCurveDatas () {
+        const result: ICurveData = {};
+        for (const curve of this._curves) {
+            if (curve.modifiers.length === 0 ||
+                !isCustomTargetModifier(curve.modifiers[0], HierachyModifier)) {
+                continue;
             }
-        });
+
+            let componentName: string | null = null;
+            let propertyName: string | undefined;
+            if (curve.modifiers.length === 2 &&
+                isPropertyModifier(curve.modifiers[1])) {
+                propertyName = curve.modifiers[1] as PropertyModifier;
+            } else if (curve.modifiers.length === 3 &&
+                isCustomTargetModifier(curve.modifiers[1], ComponentModifier) &&
+                isPropertyModifier(curve.modifiers[2])) {
+                componentName = (curve.modifiers[1] as ComponentModifier).component;
+                propertyName = curve.modifiers[2] as PropertyModifier;
+            } else {
+                continue;
+            }
+
+            const path = (curve.modifiers[0] as HierachyModifier).path;
+            
+            if (!(path in result)) {
+                result[path] = {};
+            }
+            const nodeCurveData = result[path];
+            let objectCurveData: IObjectCurveData | undefined;
+            if (componentName) {
+                if (!('comps' in nodeCurveData)) {
+                    nodeCurveData.comps = {};
+                }
+                const componentCurveData = nodeCurveData.comps!;
+                if (!(componentName in componentCurveData)) {
+                    componentCurveData[componentName] = {};
+                }
+                objectCurveData = componentCurveData[componentName];
+            } else {
+                if (!('props' in nodeCurveData)) {
+                    nodeCurveData.props = {};
+                }
+                objectCurveData = nodeCurveData.props!;
+            }
+            objectCurveData[propertyName] = curve.data;
+        }
+        return result;
     }
 }
 
