@@ -960,7 +960,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
                 const glTexture = gl.createTexture();
                 if (glTexture && gpuTexture.size > 0) {
                     gpuTexture.glTexture = glTexture;
-                    const glTexUnit = device.stateCache.glTex2DUnits[device.stateCache.texUnit];
+                    const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
 
                     if (glTexUnit.glTexture !== gpuTexture.glTexture) {
                         gl.bindTexture(gl.TEXTURE_2D, gpuTexture.glTexture);
@@ -1030,7 +1030,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
             const glTexture = gl.createTexture();
             if (glTexture && gpuTexture.size > 0) {
                 gpuTexture.glTexture = glTexture;
-                const glTexUnit = device.stateCache.glTexCubeUnits[device.stateCache.texUnit];
+                const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
 
                 if (glTexUnit.glTexture !== gpuTexture.glTexture) {
                     gl.bindTexture(gl.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
@@ -1123,7 +1123,7 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2GFXDevice, gpuTexture:
             gpuTexture.glTarget = gl.TEXTURE_2D;
 
             if (gpuTexture.samples === GFXSampleCount.X1) {
-                const glTexUnit = device.stateCache.glTex2DUnits[device.stateCache.texUnit];
+                const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
 
                 if (glTexUnit.glTexture !== gpuTexture.glTexture) {
                     gl.bindTexture(gl.TEXTURE_2D, gpuTexture.glTexture);
@@ -1168,7 +1168,7 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2GFXDevice, gpuTexture:
             gpuTexture.viewType = GFXTextureViewType.CUBE;
             gpuTexture.glTarget = gl.TEXTURE_CUBE_MAP;
 
-            const glTexUnit = device.stateCache.glTexCubeUnits[device.stateCache.texUnit];
+            const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
 
             if (glTexUnit.glTexture !== gpuTexture.glTexture) {
                 gl.bindTexture(gl.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
@@ -2169,45 +2169,23 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                     if (glSampler) {
                                         for (const texUnit of glSampler.units) {
 
-                                            let glTexUnit: IWebGL2TexUnit | null = null;
+                                            const glTexUnit = cache.glTexUnits[texUnit];
 
                                             if (gpuBinding.gpuTexView &&
                                                 gpuBinding.gpuTexView.gpuTexture.size > 0) {
 
-                                                if (cache.texUnit !== texUnit) {
-                                                    gl.activeTexture(gl.TEXTURE0 + texUnit);
-                                                    cache.texUnit = texUnit;
-                                                }
-
                                                 const gpuTexture = gpuBinding.gpuTexView.gpuTexture;
-                                                switch (glSampler.glType) {
-                                                    case gl.SAMPLER_2D: {
-                                                        glTexUnit = cache.glTex2DUnits[texUnit];
-                                                        if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                                                            if (gpuTexture.glTexture) {
-                                                                gl.bindTexture(gl.TEXTURE_2D, gpuTexture.glTexture);
-                                                            } else {
-                                                                gl.bindTexture(gl.TEXTURE_2D, device.nullTex2D!.gpuTexture.glTexture);
-                                                            }
-                                                            glTexUnit.glTexture = gpuTexture.glTexture;
-                                                        }
-                                                        break;
+                                                if (glTexUnit.glTexture !== gpuTexture.glTexture) {
+                                                    if (cache.texUnit !== texUnit) {
+                                                        gl.activeTexture(gl.TEXTURE0 + texUnit);
+                                                        cache.texUnit = texUnit;
                                                     }
-                                                    case gl.SAMPLER_CUBE: {
-                                                        glTexUnit = cache.glTexCubeUnits[texUnit];
-                                                        if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                                                            if (gpuTexture.glTexture) {
-                                                                gl.bindTexture(gl.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
-                                                            } else {
-                                                                gl.bindTexture(gl.TEXTURE_CUBE_MAP, device.nullTexCube!.gpuTexture.glTexture);
-                                                            }
-                                                            glTexUnit.glTexture = gpuTexture.glTexture;
-                                                        }
-                                                        break;
+                                                    if (gpuTexture.glTexture) {
+                                                        gl.bindTexture(gpuTexture.glTarget, gpuTexture.glTexture);
+                                                    } else {
+                                                        gl.bindTexture(gpuTexture.glTarget, device.nullTex2D!.gpuTexture.glTexture);
                                                     }
-                                                    default: {
-                                                        console.error('Unsupported GL Texture type.');
-                                                    }
+                                                    glTexUnit.glTexture = gpuTexture.glTexture;
                                                 }
 
                                                 const gpuSampler = gpuBinding.gpuSampler;
@@ -2557,17 +2535,17 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
     regions: GFXBufferTextureCopy[]) {
 
     const gl = device.gl;
+    const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
+    if (glTexUnit.glTexture !== gpuTexture.glTexture) {
+        gl.bindTexture(gpuTexture.glTarget, gpuTexture.glTexture);
+        glTexUnit.glTexture = gpuTexture.glTexture;
+    }
+
     let m = 0;
     let n = 0;
     let f = 0;
     switch (gpuTexture.glTarget) {
         case gl.TEXTURE_2D: {
-            const glTexUnit = device.stateCache.glTex2DUnits[device.stateCache.texUnit];
-            if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                gl.bindTexture(gl.TEXTURE_2D, gpuTexture.glTexture);
-                glTexUnit.glTexture = gpuTexture.glTexture;
-            }
-
             for (const region of regions) {
                 for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
                     gl.texSubImage2D(gl.TEXTURE_2D, m,
@@ -2578,12 +2556,6 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
             break;
         }
         case gl.TEXTURE_CUBE_MAP: {
-            const glTexUnit = device.stateCache.glTexCubeUnits[device.stateCache.texUnit];
-            if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                gl.bindTexture(gl.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
-                glTexUnit.glTexture = gpuTexture.glTexture;
-            }
-
             for (const region of regions) {
                 const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
                 for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
@@ -2614,6 +2586,12 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
     regions: GFXBufferTextureCopy[]) {
 
     const gl = device.gl;
+    const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
+    if (glTexUnit.glTexture !== gpuTexture.glTexture) {
+        gl.bindTexture(gpuTexture.glTarget, gpuTexture.glTexture);
+        glTexUnit.glTexture = gpuTexture.glTexture;
+    }
+
     let m = 0;
     let n = 0;
     let w = 1;
@@ -2623,12 +2601,6 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
     const isCompressed = fmtInfo.isCompressed;
     switch (gpuTexture.glTarget) {
         case gl.TEXTURE_2D: {
-            const glTexUnit = device.stateCache.glTex2DUnits[device.stateCache.texUnit];
-            if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                gl.bindTexture(gl.TEXTURE_2D, gpuTexture.glTexture);
-                glTexUnit.glTexture = gpuTexture.glTexture;
-            }
-
             for (const region of regions) {
                 w = region.texExtent.width;
                 h = region.texExtent.height;
@@ -2655,12 +2627,6 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
             break;
         }
         case gl.TEXTURE_CUBE_MAP: {
-            const glTexUnit = device.stateCache.glTexCubeUnits[device.stateCache.texUnit];
-            if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                gl.bindTexture(gl.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
-                glTexUnit.glTexture = gpuTexture.glTexture;
-            }
-
             for (const region of regions) {
                 n = 0;
                 const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
