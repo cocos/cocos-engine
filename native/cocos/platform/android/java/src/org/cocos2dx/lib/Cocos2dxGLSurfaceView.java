@@ -118,6 +118,7 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
                 Cocos2dxGLSurfaceView.this.mCocos2dxRenderer.handleOnResume();
             }
         });
+        mCocos2dxRenderer.setPauseInMainThread(false);
     }
 
     @Override
@@ -129,7 +130,8 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
             }
         });
         this.setRenderMode(RENDERMODE_WHEN_DIRTY);
-        super.onPause();
+        mCocos2dxRenderer.setPauseInMainThread(true);
+        //super.onPause();
     }
 
     @Override
