@@ -2173,10 +2173,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                 }
 
                                 if (glAttrib) {
-                                    if (cache.glArrayBuffer !== glAttrib.glBuffer) {
-                                        gl.bindBuffer(gl.ARRAY_BUFFER, glAttrib.glBuffer);
-                                        cache.glArrayBuffer = glAttrib.glBuffer;
-                                    }
+                                    gl.bindBuffer(gl.ARRAY_BUFFER, glAttrib.glBuffer);
 
                                     for (let c = 0; c < glAttrib.componentCount; ++c) {
                                         const glLoc = glInput.glLoc + c;
