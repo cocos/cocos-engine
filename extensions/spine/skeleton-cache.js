@@ -501,6 +501,20 @@ let SkeletonCache = cc.Class({
         return animationsCache[animationName];
     },
 
+    updateSkeletonAttachment(uuid, slotName, attachmentName) {
+        let skeletonInfo = this._skeletonCache[uuid];
+        let skeleton = skeletonInfo && skeletonInfo.skeleton;
+        if (!skeleton) return;
+        skeleton.setAttachment(slotName, attachmentName);
+
+        skeletonInfo.curAnimationCache = null;
+        let animationsCache = skeletonInfo.animationsCache;
+        for (var aniKey in animationsCache) {
+            let animationCache = animationsCache[aniKey];
+            animationCache.updateAllFrame();
+        }
+    },
+
     updateSkeletonSkin (uuid, skinName) {
         let skeletonInfo = this._skeletonCache[uuid];
         let skeleton = skeletonInfo && skeletonInfo.skeleton;

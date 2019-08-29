@@ -637,8 +637,6 @@ sp.Skeleton = cc.Class({
 
     _emitCacheCompleteEvent () {
         if (!this._listener) return;
-        // Animation complete, the event diffrent from dragonbones inner event,
-        // It has no event object.
         this._endEntry.animation.name = this._animationName;
         this._listener.complete && this._listener.complete(this._endEntry);
         this._listener.end && this._listener.end(this._endEntry);
@@ -826,8 +824,7 @@ sp.Skeleton = cc.Class({
      */
     updateAnimationCache (animName) {
         if (!this.isAnimationCached()) return;
-        let cache = this._skeletonCache.updateAnimationCache(this.skeletonData._uuid, animName);
-        this._frameCache = cache || this._frameCache;
+        this._skeletonCache.updateAnimationCache(this.skeletonData._uuid, animName);
     },
 
     /**
@@ -928,8 +925,12 @@ sp.Skeleton = cc.Class({
      * @param {String} attachmentName
      */
     setAttachment (slotName, attachmentName) {
-        if (this._skeleton) {
-            this._skeleton.setAttachment(slotName, attachmentName);
+        if (this.isAnimationCached()) {
+            this._skeletonCache.updateSkeletonAttachment(this.skeletonData._uuid, slotName, attachmentName);
+        } else {
+            if (this._skeleton) {
+                this._skeleton.setAttachment(slotName, attachmentName);
+            }
         }
     },
 
