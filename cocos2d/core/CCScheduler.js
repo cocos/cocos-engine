@@ -236,10 +236,16 @@ proto.getCallback = function(){
 };
 
 proto.trigger = function () {
-    if (this._target && this._callback) {
-        this._lock = true;
-        this._callback.call(this._target, this._elapsed);
-        this._lock = false;
+    try {
+        if (this._target && this._callback) {
+            this._lock = true;
+            this._callback.call(this._target, this._elapsed);
+            this._lock = false;
+        }
+    }
+    catch (e) {
+        cc._throw(e);
+        this.cancel();
     }
 };
 
