@@ -2144,7 +2144,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                     }
                 } // bind binding layout
 
-                if (cmd2.gpuInputAssembler && gpuShader && 
+                if (cmd2.gpuInputAssembler && gpuShader &&
                     (isShaderChanged || gpuInputAssembler !== cmd2.gpuInputAssembler)) {
                     gpuInputAssembler = cmd2.gpuInputAssembler;
 
@@ -2160,6 +2160,8 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                             vao.bindVertexArrayOES(glVAO);
                             gl.bindBuffer(gl.ARRAY_BUFFER, null);
                             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+                            cache.glArrayBuffer = null;
+                            cache.glElementArrayBuffer = null;
 
                             let glAttrib: WebGLAttrib | null;
                             for (const glInput of gpuShader.glInputs) {
