@@ -32,7 +32,6 @@
     "@babel/plugin-transform-for-of": "^7.4.4",
     "@babel/preset-env": "^7.2.0",
     "@babel/preset-typescript": "^7.1.0",
-    "@types/cannon": "github:cocos-creator/cannon.d.ts#cocos-master",
     "@types/fs-extra": "^5.0.4",
     "@types/jest": "^24.0.15",
     "@types/uglify-js": "^3.0.4",
