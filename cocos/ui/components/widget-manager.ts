@@ -318,7 +318,7 @@ function refreshScene () {
         // }
     // }
 
-    const scene = Director.instance.getScene();
+    const scene = director.getScene();
     if (scene) {
         widgetManager.isAligning = true;
         if (widgetManager._nodesOrderDirty) {

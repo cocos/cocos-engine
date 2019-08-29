@@ -161,8 +161,9 @@ export class PlanarShadows {
             for (let i = 0; i < model.subModelNum; i++) {
                 const ia = model.getSubModel(i).inputAssembler;
                 if (!ia) { continue; }
-                let cb = this._cbRecord.get(ia) || this._createCommandBuffer();
-                if (cb) {
+                let cb = this._cbRecord.get(ia);
+                if (!cb) {
+                    cb = this._createCommandBuffer();
                     cb.begin();
                     cb.bindPipelineState(pso);
                     cb.bindBindingLayout(pso.pipelineLayout.layouts[0]);
@@ -170,8 +171,8 @@ export class PlanarShadows {
                     cb.draw(ia);
                     cb.end();
                     this._cbRecord.set(ia, cb);
-                    this.cmdBuffs.push(cb);
                 }
+                this.cmdBuffs.push(cb);
             }
         }
     }
