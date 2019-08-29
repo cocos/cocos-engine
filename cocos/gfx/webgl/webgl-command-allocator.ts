@@ -27,11 +27,12 @@ export class WebGLGFXCommandPool<T extends WebGLCmdObject> {
         this._freeIdx = count - 1;
     }
 
+    /*
     public alloc (clazz: new() => T): T {
         return new clazz();
     }
+    */
 
-    /*
     public alloc (clazz: new() => T): T {
         if (this._freeIdx < 0) {
             const size = this._frees.length * 2;
@@ -55,7 +56,6 @@ export class WebGLGFXCommandPool<T extends WebGLCmdObject> {
         ++cmd.refCount;
         return cmd;
     }
-    */
 
     public free (cmd: T) {
         if (--cmd.refCount === 0) {
@@ -64,7 +64,7 @@ export class WebGLGFXCommandPool<T extends WebGLCmdObject> {
     }
 
     public freeCmds (cmds: CachedArray<T>) {
-        return ;
+        // return ;
         for (let i = 0; i < cmds.length; ++i) {
             if (--cmds.array[i].refCount === 0) {
                 this._freeCmds.push(cmds.array[i]);
@@ -92,11 +92,11 @@ export class WebGLGFXCommandAllocator extends GFXCommandAllocator {
 
     constructor (device: GFXDevice) {
         super(device);
-        this.beginRenderPassCmdPool = new WebGLGFXCommandPool(WebGLCmdBeginRenderPass, 16);
-        this.bindStatesCmdPool = new WebGLGFXCommandPool(WebGLCmdBindStates, 16);
-        this.drawCmdPool = new WebGLGFXCommandPool(WebGLCmdDraw, 16);
-        this.updateBufferCmdPool = new WebGLGFXCommandPool(WebGLCmdUpdateBuffer, 16);
-        this.copyBufferToTextureCmdPool = new WebGLGFXCommandPool(WebGLCmdCopyBufferToTexture, 16);
+        this.beginRenderPassCmdPool = new WebGLGFXCommandPool(WebGLCmdBeginRenderPass, 1);
+        this.bindStatesCmdPool = new WebGLGFXCommandPool(WebGLCmdBindStates, 1);
+        this.drawCmdPool = new WebGLGFXCommandPool(WebGLCmdDraw, 1);
+        this.updateBufferCmdPool = new WebGLGFXCommandPool(WebGLCmdUpdateBuffer, 1);
+        this.copyBufferToTextureCmdPool = new WebGLGFXCommandPool(WebGLCmdCopyBufferToTexture, 1);
     }
 
     public initialize (info: IGFXCommandAllocatorInfo): boolean {
