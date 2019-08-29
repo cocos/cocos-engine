@@ -2,9 +2,10 @@
  * @category pipeline
  */
 
-import { CameraComponent, UITransformComponent } from '../3d';
-import { Vec3 } from '../core/math';
-import { Node } from '../scene-graph';
+import { UITransformComponent } from '../../3d/ui';
+import { CameraComponent } from '../../3d/framework';
+import { Vec3 } from '../math';
+import { Node } from '../../scene-graph';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -26,7 +27,7 @@ export function WorldNode3DToLocalNodeUI (mainCamera: CameraComponent, wpos: Vec
     mainCamera.worldToScreen(wpos, _temp_vec3_1);
     _temp_vec3_1.x = _temp_vec3_1.x / cc.view.getScaleX();
     _temp_vec3_1.y = _temp_vec3_1.y / cc.view.getScaleY();
-    const cmp = uiNode.getComponent(UITransformComponent);
+    const cmp = uiNode.getComponent('cc.UITransformComponent') as UITransformComponent;
 
     if (!cmp){
         return out;
@@ -59,7 +60,10 @@ export function WorldNode3DToWorldNodeUI (mainCamera: CameraComponent, wpos: Vec
     return out;
 }
 
-cc.pipelineUtils = {
+const convertUtils = {
     WorldNode3DToLocalNodeUI,
     WorldNode3DToWorldNodeUI,
 };
+
+export { convertUtils };
+cc.pipelineUtils = convertUtils;
