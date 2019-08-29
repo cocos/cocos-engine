@@ -39,7 +39,7 @@ export interface ITextureBufferPoolInfo {
     format: GFXFormat; // target texture format
     maxChunks: number; // maximum number of textures to allocate until exception
     inOrderFree?: boolean; // will the handles be freed exactly in the order of their allocation?
-    roundUpFn?: (size: number) => number; // given a target size, how will the actual texture size round up?
+    roundUpFn?: (size: number, formatSize: number) => number; // given a target size, how will the actual texture size round up?
 }
 
 export class TextureBufferPool {
@@ -53,7 +53,7 @@ export class TextureBufferPool {
     private _region0: GFXBufferTextureCopy = new GFXBufferTextureCopy();
     private _region1: GFXBufferTextureCopy = new GFXBufferTextureCopy();
     private _region2: GFXBufferTextureCopy = new GFXBufferTextureCopy();
-    private _roundUpFn: ((size: number) => number) | null = null;
+    private _roundUpFn: ((targetSize: number, formatSize: number) => number) | null = null;
     private _inOrderFree = false;
 
     public constructor (device: GFXDevice) {
@@ -146,7 +146,7 @@ export class TextureBufferPool {
 
         // create a new one
         const targetSize = Math.sqrt(size / this._formatSize);
-        const texWidth = this._roundUpFn && this._roundUpFn(targetSize) || Math.max(1024, nearestPO2(targetSize));
+        const texWidth = this._roundUpFn && this._roundUpFn(targetSize, this._formatSize) || Math.max(1024, nearestPO2(targetSize));
         const texSize = texWidth * texWidth * this._formatSize;
 
         console.info('TextureBufferPool: Allocate chunk ' + this._chunkCount + ', size: ' + texSize);
