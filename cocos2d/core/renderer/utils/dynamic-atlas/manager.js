@@ -112,8 +112,7 @@ let dynamicAtlasManager = {
 
         let w = texture.width, h = texture.height;
         if (w > _maxFrameSize || h > _maxFrameSize || w <= _minFrameSize || h <= _minFrameSize
-         || texture._getHash() !== Atlas.DEFAULT_HASH
-         || !texture._image) {
+         || texture._getHash() !== Atlas.DEFAULT_HASH) {
             return null;
         }
 
