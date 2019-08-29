@@ -24,3 +24,5 @@ export {
     isCustomTargetModifier,
 } from './target-modifier';
 export * from './curve-value-adapters';
+
+import './deprecated'; 

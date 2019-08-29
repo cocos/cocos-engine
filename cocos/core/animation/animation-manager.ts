@@ -9,11 +9,9 @@ import { Node } from '../scene-graph';
 import { AnimationBlendState } from './animation-blend-state';
 import { AnimationState } from './animation-state';
 import { CrossFade } from './cross-fade';
-import { Director } from '../director';
+import { director, Director } from '../director';
 import { Scheduler } from '../scheduler';
 import System from '../components/system';
-
-const director = Director.instance;
 
 @ccclass
 export class AnimationManager extends System {
