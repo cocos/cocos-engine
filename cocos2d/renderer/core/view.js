@@ -54,8 +54,8 @@ export default class View {
 
   /**
    * Get the view's forward direction
-   * @param {vec3} out the receiving vector
-   * @returns {vec3} the receiving vector
+   * @param {Vec3} out the receiving vector
+   * @returns {Vec3} the receiving vector
    */
   getForward(out) {
     return vec3.set(
@@ -68,8 +68,8 @@ export default class View {
 
   /**
    * Get the view's observing location
-   * @param {vec3} out the receiving vector
-   * @returns {vec3} the receiving vector
+   * @param {Vec3} out the receiving vector
+   * @returns {Vec3} the receiving vector
    */
   getPosition(out) {
     mat4.invert(_m4_tmp, this._matView);

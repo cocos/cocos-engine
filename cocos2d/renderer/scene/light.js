@@ -240,7 +240,7 @@ export default class Light {
 
   /**
    * get the view-projection matrix of the light source
-   * @returns {mat4} light source view-projection matrix
+   * @returns {Mat4} light source view-projection matrix
    */
   get viewProjMatrix() {
     return this._viewProjMatrix;

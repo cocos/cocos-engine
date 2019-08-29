@@ -128,6 +128,11 @@ const Overflow = cc.Enum({
  * @property {Number} SystemFont
  */
 
+/**
+ * !#en Enum for cache mode.
+ * !#zh CacheMode 类型
+ * @enum Label.CacheMode
+ */
  /**
  * !#en Do not do any caching.
  * !#zh 不做任何缓存。
