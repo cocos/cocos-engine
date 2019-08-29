@@ -598,7 +598,7 @@ var Texture2D = cc.Class({
      * @param {Boolean} [premultiplied]
      */
     handleLoadedTexture () {
-        if (!this._image || !this._image.width || !this._image.height)
+        if (!this._image || this._image.width == null || this._image.height == null)
             return;
         
         this.width = this._image.width;
