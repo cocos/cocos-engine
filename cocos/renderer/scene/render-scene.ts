@@ -269,9 +269,11 @@ export class RenderScene {
         poolUI.reset();
         const canvasComs = cc.director.getScene().getComponentsInChildren(cc.CanvasComponent);
         if (canvasComs != null && canvasComs.length > 0) {
-            const canvasNode = canvasComs[0].node as Node;
-            if (canvasNode != null && canvasNode.active) {
-                this._raycastUINodeRecursiveChildren(worldRay, mask, canvasNode);
+            for (let i = 0; i < canvasComs.length; i++) {
+                const canvasNode = canvasComs[i].node as Node;
+                if (canvasNode != null && canvasNode.active) {
+                    this._raycastUINodeRecursiveChildren(worldRay, canvasNode, mask);
+                }
             }
         }
         resultUIs.length = poolUI.length;
@@ -285,9 +287,9 @@ export class RenderScene {
      * @param uiNode the ui node
      * @returns IRaycastResult | undefined
      */
-    public raycastUINode (worldRay: ray, mask: number = Layers.UI, uiNode: INode) {
+    public raycastUINode (worldRay: ray, uiNode: INode, mask: number = Layers.UI) {
         const uiTransfrom = uiNode.uiTransfromComp;
-        if (uiTransfrom == null || !cc.Layers.check(uiNode.layer, mask)) { return; }
+        if (uiTransfrom == null || !(uiNode.layer & mask)) { return; }
         uiTransfrom.getComputeAABB(aabbUI);
         distance = intersect.ray_aabb(worldRay, aabbUI);
 
@@ -301,14 +303,14 @@ export class RenderScene {
         }
     }
 
-    private _raycastUINodeRecursiveChildren (worldRay: ray, mask: number, parent: INode) {
-        const result = this.raycastUINode(worldRay, mask, parent);
+    private _raycastUINodeRecursiveChildren (worldRay: ray, parent: INode, mask: number = Layers.UI) {
+        const result = this.raycastUINode(worldRay, parent, mask);
         if (result != null) {
             resultUIs[poolUI.length - 1] = result;
         }
         for (const node of parent.children) {
             if (node != null && node.active) {
-                this._raycastUINodeRecursiveChildren(worldRay, mask, node);
+                this._raycastUINodeRecursiveChildren(worldRay, node, mask);
             }
         }
     }
