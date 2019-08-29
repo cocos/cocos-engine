@@ -536,7 +536,7 @@ let Label = cc.Class({
         this.node.on(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
 
         this._checkStringEmpty();
-        this._updateRenderData(true);
+        this._updateRenderData(!!this.string);
     },
 
     onDisable () {
