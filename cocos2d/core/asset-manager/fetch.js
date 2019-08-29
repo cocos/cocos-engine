@@ -106,7 +106,7 @@ function handle (item, task, content, file, loadDepends, depends, last, done) {
 
     if (loadDepends) {
         exclude[item.uuid] = true;
-        var err = getDepends(item.uuid, file, exclude, depends, true, item.config);
+        var err = getDepends(item.uuid, file, exclude, depends, true, false, item.config);
         if (err) {
             if (!cc.assetManager.force) {
                 return done(err);

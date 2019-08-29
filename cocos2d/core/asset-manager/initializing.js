@@ -88,6 +88,15 @@ function initializing (task, done) {
                     item.content = asset;
                     asset._addRef();
                 }
+                else {
+                    var asset = item.content;
+                    if (asset.__nativeDepend__) {
+                        var missingAsset = setProperties(uuid, asset, assetsMap);
+                        if (!missingAsset) {
+                            asset.onLoad && inits.push(asset);
+                        }
+                    }
+                }
             }
         }
 
