@@ -124,11 +124,6 @@ cc.Asset = cc.Class({
             }
         },
 
-        /**
-         * get native dependency likes image or audio, can use 'cc.assetManager.load' to load directly
-         * @property {Object} _nativeDep
-         * @private
-         */
         _nativeDep: {
             get () {
                 if (this._native) {
@@ -172,24 +167,12 @@ cc.Asset = cc.Class({
          */
         preventPreloadNativeObject: false,
 
-        /**
-         * get dependencies from serialized data
-         * @param {Object} json 
-         * @static
-         * @private
-         */
         _parseDepsFromJson (json) {
             var depends = [];
             parseDependRecursively(json, depends);
             return depends;
         },
 
-        /**
-         * get native dependency from serialized data
-         * @param {Object} json 
-         * @static
-         * @private
-         */
         _parseNativeDepFromJson (json) {
             if (json._native) return {isNative: true, ext: json._native};
             return null;

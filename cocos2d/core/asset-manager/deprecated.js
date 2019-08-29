@@ -27,9 +27,18 @@ const utilities = require('./utilities');
 const { getDepsRecursively } = require('./depend-util');
 const finalizer = require('./finalizer');
 
+
+/**
+ * `cc.loader` is deprecated now, please backup your project and upgrade to {{#crossLink "AssetManager"}}{{/crossLink}}
+ * 
+ * @class loader
+ * @static
+ * @deprecated `cc.loader` is deprecated now, please backup your project and upgrade to `cc.assetManager`
+ */
 var loader = {
     _onProgress: null,
     _autoReleaseSetting: Object.create(null),
+    
     /**
      * @deprecated `cc.loader._cache` is deprecated now, please use `cc.assetManager._assets` instead
      */
@@ -38,7 +47,20 @@ var loader = {
     },
 
     /**
+     * `cc.loader.load` is deprecated now, please use {{#crossLink "AssetManager/load:method"}}{{/crossLink}} instead
+     * 
      * @deprecated `cc.loader.load` is deprecated now, please use `cc.assetManager.load` instead
+     * 
+     * @method load
+     * @param {String|String[]|Object} resources - Url list in an array
+     * @param {Function} [progressCallback] - Callback invoked when progression change
+     * @param {Number} progressCallback.completedCount - The number of the items that are already completed
+     * @param {Number} progressCallback.totalCount - The total number of the items
+     * @param {Object} progressCallback.item - The latest item which flow out the pipeline
+     * @param {Function} [completeCallback] - Callback invoked when all resources loaded
+     * @typescript
+     * load(resources: string|string[]|{uuid?: string, url?: string, type?: string}, completeCallback?: Function): void
+     * load(resources: string|string[]|{uuid?: string, url?: string, type?: string}, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: Function|null): void
      */
     load (resources, progressCallback, completeCallback) {
         if (completeCallback === undefined) {
@@ -119,14 +141,18 @@ var loader = {
     },
 
     /**
-     * @deprecated cc.loader.getXMLHttpRequest is deprecated now, please use `XMLHttpRequest` directly
+     * `cc.loader.getXMLHttpRequest` is deprecated now, please use `XMLHttpRequest` directly
+     *
+     * @method getXMLHttpRequest
+     * @deprecated `cc.loader.getXMLHttpRequest` is deprecated now, please use `XMLHttpRequest` directly
+     * @returns {XMLHttpRequest}
      */
     getXMLHttpRequest () {
         return new XMLHttpRequest();
     },
 
     /**
-     * @deprecated cc.loader.onProgress is deprecated now, please transfer onProgress to API as a parameter
+     * @deprecated `cc.loader.onProgress` is deprecated now, please transfer onProgress to API as a parameter
      */
     set onProgress (val) {
         this._onProgress = val;
@@ -139,14 +165,41 @@ var loader = {
     _parseLoadResArgs: utilities.parseLoadResArgs,
 
     /**
-     * @deprecated `cc.loader.getItem` is deprecated now, please use `cc.assetManager._assets` instead
+     * `cc.loader.getItem` is deprecated now, please use `cc.assetManager._asset.get`  instead
+     * 
+     * @method getItem
+     * @param {Object} id The id of the item
+     * @return {Object}
+     * @deprecated `cc.loader.getItem` is deprecated now, please use `cc.assetManager._asset.get`  instead
      */
+    
     getItem (key) {
         return cc.assetManager._assets.has(key) ? { content: cc.assetManager._assets.get(key)} : null; 
     },
 
     /**
-     * @deprecated `cc.loader.loadRes` is deprecated now, please use `cc.assetManager.loadRes` instead
+     * `cc.loader.loadRes` is deprecated now, please use {{#crossLink "AssetManager/loadRes:method"}}{{/crossLink}}  instead
+     * 
+     * @deprecated `cc.loader.loadRes` is deprecated now, please use `cc.assetManager.loadRes`  instead
+     * @method loadRes
+     * @param {String} url - Url of the target resource.
+     *                       The url is relative to the "resources" folder, extensions must be omitted.
+     * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
+     * @param {Function} [progressCallback] - Callback invoked when progression change.
+     * @param {Number} progressCallback.completedCount - The number of the items that are already completed.
+     * @param {Number} progressCallback.totalCount - The total number of the items.
+     * @param {Object} progressCallback.item - The latest item which flow out the pipeline.
+     * @param {Function} [completeCallback] - Callback invoked when the resource loaded.
+     * @param {Error} completeCallback.error - The error info or null if loaded successfully.
+     * @param {Object} completeCallback.resource - The loaded resource if it can be found otherwise returns null.
+     *
+     * @typescript
+     * loadRes(url: string, type: typeof cc.Asset, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any) => void)|null): void
+     * loadRes(url: string, type: typeof cc.Asset, completeCallback: (error: Error, resource: any) => void): void
+     * loadRes(url: string, type: typeof cc.Asset): void
+     * loadRes(url: string, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any) => void)|null): void
+     * loadRes(url: string, completeCallback: (error: Error, resource: any) => void): void
+     * loadRes(url: string): void
      */
     loadRes (url, type, progressCallback, completeCallback) {
         var { type, onProgress, onComplete } = this._parseLoadResArgs(type, progressCallback, completeCallback);
@@ -154,7 +207,30 @@ var loader = {
     },
 
     /**
+     * `cc.loader.loadResArray` is deprecated now, please use {{#crossLink "AssetManager/loadRes:method"}}{{/crossLink}} instead
+     * 
      * @deprecated `cc.loader.loadResArray` is deprecated now, please use `cc.assetManager.loadRes` instead
+     * @method loadResArray
+     * @param {String[]} urls - Array of URLs of the target resource.
+     *                          The url is relative to the "resources" folder, extensions must be omitted.
+     * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
+     * @param {Function} [progressCallback] - Callback invoked when progression change.
+     * @param {Number} progressCallback.completedCount - The number of the items that are already completed.
+     * @param {Number} progressCallback.totalCount - The total number of the items.
+     * @param {Object} progressCallback.item - The latest item which flow out the pipeline.
+     * @param {Function} [completeCallback] - A callback which is called when all assets have been loaded, or an error occurs.
+     * @param {Error} completeCallback.error - If one of the asset failed, the complete callback is immediately called
+     *                                         with the error. If all assets are loaded successfully, error will be null.
+     * @param {Asset[]|Array} completeCallback.assets - An array of all loaded assets.
+     *                                                     If nothing to load, assets will be an empty array.
+     * @typescript
+     * loadResArray(url: string[], type: typeof cc.Asset, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any[]) => void)|null): void
+     * loadResArray(url: string[], type: typeof cc.Asset, completeCallback: (error: Error, resource: any[]) => void): void
+     * loadResArray(url: string[], type: typeof cc.Asset): void
+     * loadResArray(url: string[], progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any[]) => void)|null): void
+     * loadResArray(url: string[], completeCallback: (error: Error, resource: any[]) => void): void
+     * loadResArray(url: string[]): void
+     * loadResArray(url: string[], type: typeof cc.Asset[]): void
      */
     loadResArray (urls, type, progressCallback, completeCallback) {
         var { type, onProgress, onComplete } = this._parseLoadResArgs(type, progressCallback, completeCallback);
@@ -162,7 +238,31 @@ var loader = {
     },
 
     /**
+     * `cc.loader.loadResDir` is deprecated now, please use {{#crossLink "AssetManager/loadResDir:method"}}{{/crossLink}} instead
+     * 
      * @deprecated `cc.loader.loadResDir` is deprecated now, please use `cc.assetManager.loadResDir` instead
+     * @method loadResDir
+     * @param {String} url - Url of the target folder.
+     *                       The url is relative to the "resources" folder, extensions must be omitted.
+     * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
+     * @param {Function} [progressCallback] - Callback invoked when progression change.
+     * @param {Number} progressCallback.completedCount - The number of the items that are already completed.
+     * @param {Number} progressCallback.totalCount - The total number of the items.
+     * @param {Object} progressCallback.item - The latest item which flow out the pipeline.
+     * @param {Function} [completeCallback] - A callback which is called when all assets have been loaded, or an error occurs.
+     * @param {Error} completeCallback.error - If one of the asset failed, the complete callback is immediately called
+     *                                         with the error. If all assets are loaded successfully, error will be null.
+     * @param {Asset[]|Array} completeCallback.assets - An array of all loaded assets.
+     *                                             If nothing to load, assets will be an empty array.
+     * @param {String[]} completeCallback.urls - An array that lists all the URLs of loaded assets.
+     *
+     * @typescript
+     * loadResDir(url: string, type: typeof cc.Asset, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any[], urls: string[]) => void)|null): void
+     * loadResDir(url: string, type: typeof cc.Asset, completeCallback: (error: Error, resource: any[], urls: string[]) => void): void
+     * loadResDir(url: string, type: typeof cc.Asset): void
+     * loadResDir(url: string, progressCallback: (completedCount: number, totalCount: number, item: any) => void, completeCallback: ((error: Error, resource: any[], urls: string[]) => void)|null): void
+     * loadResDir(url: string, completeCallback: (error: Error, resource: any[], urls: string[]) => void): void
+     * loadResDir(url: string): void
      */
     loadResDir (url, type, progressCallback, completeCallback) {
         var { type, onProgress, onComplete } = this._parseLoadResArgs(type, progressCallback, completeCallback);
@@ -179,6 +279,12 @@ var loader = {
     },
 
     /**
+     * `cc.loader.getRes` is deprecated now, please use {{#crossLink "AssetManager/getRes:method"}}{{/crossLink}} instead
+     * 
+     * @method getRes
+     * @param {String} url
+     * @param {Function} [type] - Only asset of type will be returned if this argument is supplied.
+     * @returns {*}
      * @deprecated `cc.loader.getRes` is deprecated now, please use `cc.assetManager.getRes` instead
      */
     getRes (url, type) {
@@ -193,19 +299,35 @@ var loader = {
     },
 
     /**
+     * `cc.loader.getDependsRecursively` is deprecated now, please use use {{#crossLink "DependUtil/getDepsRecursively:method"}}{{/crossLink}} instead
+     * 
      * @deprecated `cc.loader.getDependsRecursively` is deprecated now, please use use `cc.assetManager.dependUtil.getDepsRecursively` instead
+     * @method getDependsRecursively
+     * @param {Asset|RawAsset|String} owner - The owner asset or the resource url or the asset's uuid
+     * @returns {Array}
      */
     getDependsRecursively (owner) {
         if (!owner) return [];
         return cc.assetManager.dependUtil.getDepsRecursively(typeof owner === 'string' ? owner : owner._uuid);
     },
 
+    /**
+     * `cc.loader.assetLoader` is not supported anymore, assetLoader and md5Pipe were merged into {{#crossLink "AssetManager/_transformPipeline:property"}}{{/crossLink}}
+     * 
+     * @property assetLoader
+     * @deprecated `cc.loader.assetLoader` is not supported anymore, assetLoader and md5Pipe were merged into `cc.assetManager._transformPipeline`
+     * @type {Object}
+     */
     get assetLoader () {
         cc.error('cc.loader.assetLoader is not supported anymore, assetLoader and md5Pipe were merged into cc.assetManager._transformPipeline');
     },
 
     /**
+     * `cc.loader.md5Pipe` is deprecated now, assetLoader and md5Pipe were merged into {{#crossLink "AssetManager/_transformPipeline:property"}}{{/crossLink}}
+     * 
+     * @property md5Pipe
      * @deprecated `cc.loader.md5Pipe` is deprecated now, assetLoader and md5Pipe were merged into `cc.assetManager._transformPipeline`
+     * @type {Object}
      */
     get md5Pipe () {
         return {
@@ -232,13 +354,21 @@ var loader = {
     },
 
     /**
+     * `cc.loader.downloader` is deprecated now, please use {{#crossLink "AssetManager/downloader:property"}}{{/crossLink}} instead
+     * 
      * @deprecated `cc.loader.downloader` is deprecated now, please use `cc.assetManager.downloader` instead
+     * @property downloader
+     * @type {Object}
      */
     get downloader () {
         return cc.assetManager.downloader;
     },
 
     /**
+     * `cc.loader.loader` is deprecated now, please use {{#crossLink "AssetManager/parser:property"}}{{/crossLink}} instead
+     * 
+     * @property loader
+     * @type {Object}
      * @deprecated `cc.loader.loader` is deprecated now, please use `cc.assetManager.parser` instead
      */
     get loader () {
@@ -246,8 +376,12 @@ var loader = {
     },
 
     /**
+     * `cc.loader.addDownloadHandlers` is deprecated, please use `cc.assetManager.downloader.register` instead
+     * 
+     * @method addDownloadHandlers
+     * @param {Object} extMap Custom supported types with corresponded handler
      * @deprecated `cc.loader.addDownloadHandlers` is deprecated, please use `cc.assetManager.downloader.register` instead
-     */
+    */
     addDownloadHandlers (extMap) {
         var handler = Object.create(null);
         for (var type in extMap) {
@@ -260,6 +394,10 @@ var loader = {
     },
 
     /**
+     * `cc.loader.addLoadHandlers` is deprecated, please use `cc.assetManager.parser.register` instead
+     * 
+     * @method addLoadHandlers
+     * @param {Object} extMap Custom supported types with corresponded handler
      * @deprecated `cc.loader.addLoadHandlers` is deprecated, please use `cc.assetManager.parser.register` instead
      */
     addLoadHandlers (extMap) {
@@ -278,6 +416,10 @@ var loader = {
     },
 
     /**
+     * `cc.loader.release` is deprecated now, please use {{#crossLink "AssetManager/release:method"}}{{/crossLink}} instead
+     * 
+     * @method release
+     * @param {Asset|RawAsset|String|Array} asset
      * @deprecated `cc.loader.release` is deprecated now, please use `cc.assetManager.release` instead
      */
     release (asset) {
@@ -295,25 +437,43 @@ var loader = {
     },
 
     /**
+     * `cc.loader.releaseAsset` is deprecated now, please use {{#crossLink "AssetManager/release:method"}}{{/crossLink}} instead
+     * 
      * @deprecated `cc.loader.releaseAsset` is deprecated now, please use `cc.assetManager.release` instead
+     * @method releaseAsset
+     * @param {Asset} asset
      */
     releaseAsset (asset) {
         cc.assetManager.release(asset, true);
     },
 
     /**
+     * `cc.loader.releaseRes` is deprecated now, please use {{#crossLink "AssetManager/releaseRes:method"}}{{/crossLink}} instead
+     * 
      * @deprecated `cc.loader.releaseRes` is deprecated now, please use `cc.assetManager.releaseRes` instead
+     * @method releaseRes
+     * @param {String} url
+     * @param {Function} [type] - Only asset of type will be released if this argument is supplied.
      */
     releaseRes (url, type) {
         cc.assetManager.releaseRes(url, type, true);
     },
 
+    /**
+     * `cc.loader.releaseResDir` is not supported any more, please use {{#crossLink "AssetManager/releaseRes:method"}}{{/crossLink}} instead
+     * 
+     * @deprecated `cc.loader.releaseResDir` is not supported any more, please use `cc.assetManager.releaseRes` instead
+     * @method releaseResDir
+     */
     releaseResDir () {
         cc.error('cc.loader.releaseResDir is not supported any more, please use cc.assetManager.release instead');
     },
 
     /**
+     * `cc.loader.releaseAll` is deprecated now, please use {{#crossLink "AssetManager/releaseAll:method"}}{{/crossLink}} instead
+     * 
      * @deprecated `cc.loader.releaseAll` is deprecated now, please use `cc.assetManager.releaseAll` instead
+     * @method releaseAll
      */
     releaseAll () {
         cc.assetManager.releaseAll(true);
@@ -321,14 +481,24 @@ var loader = {
     },
 
     /**
+     * `cc.loader.removeItem` is deprecated now, please use `cc.assetManager._assets.remove` instead
+     * 
      * @deprecated `cc.loader.removeItem` is deprecated now, please use `cc.assetManager._assets.remove` instead
+     * @method removeItem
+     * @param {Object} id The id of the item
+     * @return {Boolean} succeed or not
      */
     removeItem (key) {
         cc.assetManager._assets.remove(key);
     },
     
     /**
+     * `cc.loader.setAutoRelease` is deprecated now, if you want to lock some asset, please use {{#crossLink "Finalizer/lock:method"}}{{/crossLink}} instead
+     * 
      * @deprecated `cc.loader.setAutoRelease` is deprecated now, if you want to lock some asset, please use `cc.assetManager.finalizer.lock` instead
+     * @method setAutoRelease
+     * @param {Asset|String} assetOrUrlOrUuid - asset object or the raw asset's url or uuid
+     * @param {Boolean} autoRelease - indicates whether should release automatically
      */
     setAutoRelease (asset, autoRelease) {
         if (typeof asset === 'object') asset = asset._uuid;
@@ -336,6 +506,11 @@ var loader = {
     },
     
     /**
+     * `cc.loader.setAutoReleaseRecursively` is deprecated now, if you want to lock some asset, please use {{#crossLink "Finalizer/lock:method"}}{{/crossLink}} instead
+     * 
+     * @method setAutoReleaseRecursively
+     * @param {Asset|String} assetOrUrlOrUuid - asset object or the raw asset's url or uuid
+     * @param {Boolean} autoRelease - indicates whether should release automatically
      * @deprecated `cc.loader.setAutoReleaseRecursively` is deprecated now, if you want to lock some asset, please use `cc.assetManager.finalizer.lock` instead
      */
     setAutoReleaseRecursively (asset, autoRelease) {
@@ -350,6 +525,11 @@ var loader = {
     },
 
     /**
+     * `cc.loader.isAutoRelease` is deprecated now
+     * 
+     * @method isAutoRelease
+     * @param {Asset|String} assetOrUrl - asset object or the raw asset's url
+     * @returns {Boolean}
      * @deprecated `cc.loader.isAutoRelease` is deprecated now
      */
     isAutoRelease (asset) {
@@ -358,6 +538,9 @@ var loader = {
     }
 };
 
+/**
+ * @deprecated `cc.AssetLibrary` is deprecated, please backup your project and upgrade to `cc.assetManager`
+ */
 var AssetLibrary = {
 
     /**
@@ -389,6 +572,13 @@ var AssetLibrary = {
     }
 };
 
+/**
+ * `cc.url` is deprecated now
+ * 
+ * @deprecated `cc.url` is deprecated now
+ * @class url
+ * @static
+ */
 cc.url = {
     /**
      * @deprecated `cc.url.normalize` is deprecated now, please use `cc.assetManager.utils.normalize` instead
@@ -398,7 +588,12 @@ cc.url = {
     },
 
     /**
+     * `cc.url.raw` is deprecated now, please use `cc.assetManager.loadRes` directly, or use `Asset.nativeUrl` instead.
+     * 
      * @deprecated `cc.url.raw` is deprecated now, please use `cc.assetManager.loadRes` directly, or use `Asset.nativeUrl` instead.
+     * @method raw
+     * @param {String} url
+     * @return {String}
      */
     raw (url) {
         if (url.startsWith('resources/')) {
@@ -409,28 +604,38 @@ cc.url = {
 };
 
 Object.defineProperties(cc, {
-    /**
-     * @deprecated `cc.loader` is deprecated now, please backup your project and upgrade to `cc.assetManager`
-     */
     loader: {
         get () {
             return loader;
         }
     },
 
-    /**
-     * @deprecated `cc.AssetLibrary` is deprecated, please backup your project and upgrade to `cc.assetManager`
-     */
     AssetLibrary: {
         get () {
             return AssetLibrary;
         }
     },
 
+    /**
+     * `cc.LoadingItems` is not supported any more, please use {{#crossLink "Task"}}{{/crossLink}} instead
+     * 
+     * @deprecated `cc.LoadingItems` is not supported any more, please use `cc.AssetManager.Task` instead
+     * @class LoadingItems
+     */
     LoadingItems: {
         get () {
-            cc.error('cc.LoadingItems is not supported any more, please backup your project and upgrade to cc.assetManager');
-            return function () {};
+            cc.error('cc.LoadingItems is not supported any more, please use cc.AssetManager.Task instead');
+            return cc.AssetManager.Task;
+        }
+    },
+
+    /**
+     * @deprecated `cc.Pipeline` is not supported any more, please use `cc.AssetManager.Pipeline` instead
+     */
+    Pipeline: {
+        get () {
+            cc.error('cc.Pipeline is not supported any more, please use cc.AssetManager.Pipeline instead');
+            return cc.AssetManager.Pipeline;
         }
     }
 });
@@ -446,8 +651,16 @@ Object.defineProperties(cc.Asset.prototype, {
     } 
 }); 
 
+/**
+ * @class macro
+ * @static
+ */
 Object.defineProperties(cc.macro, {
     /**
+     * `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use {{#crossLink "Downloader/limitations:property"}}{{/crossLink}} instead
+     * 
+     * @property DOWNLOAD_MAX_CONCURRENT
+     * @type {Number}
      * @deprecated `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use `cc.assetManager.downloader.limitations` instead
      */
     DOWNLOAD_MAX_CONCURRENT: {
@@ -461,9 +674,22 @@ Object.defineProperties(cc.macro, {
     }
 }); 
 
+/**
+ * @class Director
+ */
 Object.assign(cc.director, {
     /**
+     * `cc.director.preloadScene` is deprecated now, please use {{#crossLink "AssetManager/preloadScene:method"}}{{/crossLink}} instead
+     * 
      * @deprecated `cc.director.preloadScene` is deprecated now, please use `cc.assetManager.preloadScene` instead
+     * @method preloadScene
+     * @param {String} sceneName - The name of the scene to preload.
+     * @param {Function} [onProgress] - callback, will be called when the load progression change.
+     * @param {Number} onProgress.completedCount - The number of the items that are already completed
+     * @param {Number} onProgress.totalCount - The total number of the items
+     * @param {Object} onProgress.item - The latest item which flow out the pipeline
+     * @param {Function} [onLoaded] - callback, will be called after scene loaded.
+     * @param {Error} onLoaded.error - null or the error object.
      */
     preloadScene (sceneName, onProgress, onLoaded) {
         cc.assetManager.preloadScene(sceneName, null, onProgress, onLoaded);

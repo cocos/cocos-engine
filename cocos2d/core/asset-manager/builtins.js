@@ -96,13 +96,13 @@ var builtins = {
      * @method getBuiltin
      * @param {string} type - The type of asset, such as `effect`
      * @param {string} name - The name of asset, such as `phong`
-     * @return {Asset} Builtin-assets
+     * @return {Asset|Cache} Builtin-assets
      * 
      * @example
      * cc.assetManaer.builtins.getBuiltin('effect', 'phone');
      * 
      * @typescript
-     * getBuiltin(type: string, name: string): cc.Asset
+     * getBuiltin(type: string, name: string): cc.Asset | Cache
      */
     getBuiltin (type, name) {
         if (arguments.length === 0) return this._assets;
@@ -117,7 +117,7 @@ var builtins = {
      * !#zh
      * 清空所有内置资源
      * 
-     * @method getBuiltin
+     * @method clear
      * 
      * @typescript
      * clear(): void
