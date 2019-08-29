@@ -28,7 +28,7 @@
  * @category ui
  */
 
-import { Component, EventHandler as ComponentEventHandler } from '../../core/components';
+import { Component, EventHandler } from '../../core/components';
 import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { EventTouch, SystemEventType, Touch } from '../../core/platform';
 import { Vec3 } from '../../core/math';
@@ -136,9 +136,9 @@ export class SliderComponent extends Component {
      * 滑动器组件事件回调函数。
      */
     @property({
-        type: ComponentEventHandler,
+        type: EventHandler,
     })
-    public slideEvents: ComponentEventHandler[] = [];
+    public slideEvents: EventHandler[] = [];
     @property
     private _handle: SpriteComponent | null = null;
     @property
@@ -242,13 +242,8 @@ export class SliderComponent extends Component {
         this._emitSlideEvent();
     }
 
-<<<<<<< refs/remotes/cocos-for-editor/3d-v1.0.0
     protected _emitSlideEvent () {
-        cc.Component.EventHandler.emitEvents(this.slideEvents, this);
-=======
-    private _emitSlideEvent () {
         EventHandler.emitEvents(this.slideEvents, this);
->>>>>>> Fix import path for all modules except core
         this.node.emit('slide', this);
     }
 

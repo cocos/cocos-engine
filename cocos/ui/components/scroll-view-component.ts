@@ -838,9 +838,6 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
         let deltaMove = new Vec3();
         let wheelPrecision = -0.1;
-        if (CC_JSB) {
-            wheelPrecision = -7;
-        }
         if (this.vertical) {
             deltaMove = new Vec3(0, event.getScrollY() * wheelPrecision, 0);
         }
@@ -945,7 +942,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     protected _calculateBoundary () {
         if (this.content) {
             // refresh content size
-            const layout = this.content.getComponent(LayoutComponent);
+            const layout:LayoutComponent = this.content.getComponent(LayoutComponent);
             if (layout && layout.enabledInHierarchy) {
                 layout.updateLayout();
             }

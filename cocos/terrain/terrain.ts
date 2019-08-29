@@ -208,7 +208,7 @@ export class TerrainBlock {
     }
 
     public build () {
-        const gfxDevice = director.root.device as GFXDevice;
+        const gfxDevice = director.root!.device as GFXDevice;
 
         // vertex buffer
         const vertexData = new Float32Array(TERRAIN_BLOCK_VERTEX_SIZE * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY);
@@ -676,7 +676,7 @@ export class Terrain extends Component {
     }
 
     public onLoad () {
-        const gfxDevice = director.root.device as GFXDevice;
+        const gfxDevice = director.root!.device as GFXDevice;
 
         // initialize shared index buffer
         const indexData = new Uint16Array(TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6);

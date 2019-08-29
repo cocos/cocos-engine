@@ -122,7 +122,8 @@
 // PREDEFINE
 
 // window may be undefined when first load engine from editor
-var _global = typeof window === 'undefined' ? global : window;
+// @ts-ignore
+const _global = typeof window === 'undefined' ? global : window;
 
 /**
  * !#en
@@ -132,7 +133,7 @@ var _global = typeof window === 'undefined' ? global : window;
  * @module cc
  * @main cc
  */
-let cc = _global.cc = _global.cc || {};
+const cc = _global.cc = _global.cc || {};
 
 // For internal usage
 cc.internal = cc.internal || {};
@@ -164,7 +165,6 @@ if (CC_BUILD) {
     _global.CC_DEV = CC_DEV;
     _global.CC_DEBUG = CC_DEBUG;
     _global.CC_JSB = CC_JSB;
-    _global.CC_WECHATGAME_SUB = CC_WECHATGAMESUB;
     _global.CC_WECHATGAME = CC_WECHATGAME;
     _global.CC_QQPLAY = CC_QQPLAY;
     _global.CC_RUNTIME = CC_RUNTIME;
@@ -176,6 +176,7 @@ if (CC_BUILD) {
 else {
     // Defauled value for editor
     defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
+    // @ts-ignore
     defineMacro('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
     defineMacro('CC_PREVIEW', !CC_EDITOR);
     defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
@@ -184,6 +185,7 @@ else {
     defineMacro('CC_WECHATGAME_SUB', !!(defined('wx') && wx.getSharedCanvas));
     defineMacro('CC_WECHATGAME', !!(defined('wx') && (wx.getSystemInfoSync || wx.getSharedCanvas)));
     defineMacro('CC_QQPLAY', defined('bk'));
+    // @ts-ignore
     defineMacro('CC_RUNTIME', 'function' === typeof loadRuntime);
     defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY || CC_RUNTIME));
     defineMacro('CC_PHYSICS_BUILT_IN', true);

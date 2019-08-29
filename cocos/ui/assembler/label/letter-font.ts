@@ -121,7 +121,7 @@ class LetterTexture {
             this.height = this.labelInfo.fontSize;
         }
 
-        if (this.canvas.width !== this.width || CC_QQPLAY) {
+        if (this.canvas.width !== this.width) {
             this.canvas.width = this.width;
         }
 
@@ -268,7 +268,7 @@ export class LetterAtlas {
 
     public insertLetterTexture (letterTexture: LetterTexture) {
         const texture = letterTexture.spriteframe;
-        const device = director.root.device;
+        const device = director.root!.device;
         if (!texture || !this.texture || !device || !texture._image) {
             return null;
         }
@@ -533,7 +533,7 @@ export const letterFont = {
         }
 
         // outline
-        const outline = /*OUTLINE_SUPPORTED && */_comp.getComponent(LabelOutlineComponent);
+        const outline:LabelOutlineComponent|null = /*OUTLINE_SUPPORTED && */_comp.getComponent(LabelOutlineComponent);
         if (outline && outline.enabled) {
             _labelInfo.isOutlined = true;
             _labelInfo.margin = outline.width;
@@ -562,7 +562,7 @@ export const letterFont = {
                     _fontFamily = comp.font._nativeAsset;
                 }
                 else {
-                    _fontFamily = loader.getRes(comp.font.nativeUrl);
+                    _fontFamily = loader.getRes(comp.font.nativeUrl) || '';
                     if (!_fontFamily) {
                         loader.load(comp.font.nativeUrl, (err, fontFamily) => {
                             _fontFamily = fontFamily || 'Arial';

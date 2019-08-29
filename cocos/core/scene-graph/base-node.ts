@@ -799,7 +799,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
      * node.isChildOf(newNode);
      * ```
      */
-    public isChildOf (parent: BaseNode | null): boolean {
+    public isChildOf (parent: this | null): boolean {
         let child: BaseNode | null = this;
         do {
             if (child === parent) {
@@ -1216,7 +1216,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         }
 
         if (CC_EDITOR || CC_TEST) {
-            const scene = director.getScene();
+            const scene = director.getScene() as this | null;
             const inCurrentSceneBefore = oldParent && oldParent.isChildOf(scene);
             const inCurrentSceneNow = newParent && newParent.isChildOf(scene);
             if (!inCurrentSceneBefore && inCurrentSceneNow) {

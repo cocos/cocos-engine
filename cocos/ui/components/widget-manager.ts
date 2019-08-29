@@ -40,13 +40,14 @@ import { Director, director } from '../../core/director';
 import { View } from '../../core/platform/view';
 import visibleRect from '../../core/platform/visible-rect';
 import sys from '../../core/platform/sys';
+import { INode } from '../../core/utils/interfaces';
 
 const _tempPos = new Vec3();
 const _zeroVec3 = new Vec3();
 const _defaultAnchor = new Vec2();
 
 // returns a readonly size of the node
-export function getReadonlyNodeSize (parent: Node) {
+export function getReadonlyNodeSize (parent: INode) {
     if (parent instanceof Scene) {
         // @ts-ignore
         if (CC_EDITOR) {
@@ -64,7 +65,7 @@ export function getReadonlyNodeSize (parent: Node) {
     }
 }
 
-export function computeInverseTransForTarget (widgetNode: Node, target: Node, out_inverseTranslate: Vec3, out_inverseScale: Vec3) {
+export function computeInverseTransForTarget (widgetNode: INode, target: INode, out_inverseTranslate: Vec3, out_inverseScale: Vec3) {
     let scale = widgetNode.parent ? widgetNode.parent.getScale() : _zeroVec3;
     let scaleX = scale.x;
     let scaleY = scale.y;
@@ -388,12 +389,15 @@ function adjustWidgetToAllowMovingInEditor (this: WidgetComponent, eventType: Sy
     const delta = new Vec3(newPos);
     delta.subtract(oldPos);
 
-    let target = self.node.parent as Node;
+    let target = self.node.parent;
     const inverseScale = new Vec3(1, 1, 1);
 
     if (self.target) {
         target = self.target;
-        computeInverseTransForTarget(self.node as Node, target, new Vec3(), inverseScale);
+        computeInverseTransForTarget(self.node, target, new Vec3(), inverseScale);
+    }
+    if (!target) {
+        return;
     }
 
     const targetSize = getReadonlyNodeSize(target);
@@ -439,11 +443,14 @@ function adjustWidgetToAllowResizingInEditor (this: WidgetComponent/*, oldSize: 
     const oldSize = this._lastSize;
     const delta = new Vec3(newSize.width - oldSize.width, newSize.height - oldSize.height, 0);
 
-    let target = self.node.parent as Node;
+    let target = self.node.parent;
     const inverseScale = new Vec3(1, 1, 1);
     if (self.target) {
         target = self.target;
-        computeInverseTransForTarget(self.node as Node, target, new Vec3(), inverseScale);
+        computeInverseTransForTarget(self.node, target, new Vec3(), inverseScale);
+    }
+    if (!target) {
+        return;
     }
 
     const targetSize = getReadonlyNodeSize(target);
@@ -520,9 +527,9 @@ export const widgetManager = cc._widgetManager = {
     add (widget: WidgetComponent) {
         this._nodesOrderDirty = true;
         // if (CC_EDITOR && !cc.engine.isPlaying) {
-        const renderComp = widget.node.getComponent(UIRenderComponent);
+        const renderComp:UIRenderComponent = widget.node.getComponent(UIRenderComponent);
         if (renderComp) {
-                const canvasComp = director.root.ui.getScreen(renderComp.visibility);
+                const canvasComp = director.root!.ui.getScreen(renderComp.visibility);
                 if (canvasComp && canvasList.indexOf(canvasComp) === -1) {
                     canvasList.push(canvasComp);
                     canvasComp.node.on('design-resolution-changed', this.onResized, this);
@@ -568,8 +575,8 @@ export const widgetManager = cc._widgetManager = {
         function i (t: number, c: number) {
             return Math.abs(t - c) > 1e-10 ? c : t;
         }
-        const widgetNode = widget.node as Node;
-        let widgetParent = widgetNode.parent as Node;
+        const widgetNode = widget.node;
+        let widgetParent = widgetNode.parent;
         if (widgetParent) {
             const zero = new Vec3();
             const one = new Vec3(1, 1, 1);

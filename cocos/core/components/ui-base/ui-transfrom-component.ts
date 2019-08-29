@@ -305,7 +305,7 @@ export class UITransformComponent extends Component {
             visibility = renderComp.visibility;
         }
 
-        const canvas = director.root.ui.getScreen(visibility);
+        const canvas = director.root!.ui.getScreen(visibility);
         if (!canvas) {
             return;
         }

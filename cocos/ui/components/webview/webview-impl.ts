@@ -329,9 +329,9 @@ export class WebViewImpl {
         this._w = contentSize.width;
         this._h = contentSize.height;
 
-        let scaleX = view._scaleX;
-        let scaleY = view._scaleY;
-        const dpr = view._devicePixelRatio;
+        let scaleX = view.getScaleX();
+        let scaleY = view.getScaleY();
+        const dpr = view.getDevicePixelRatio();
 
         scaleX /= dpr;
         scaleY /= dpr;

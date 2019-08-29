@@ -529,7 +529,7 @@ export default class TrailModule {
         if (this._trailModel) {
             return;
         }
-        const device: GFXDevice = director.root.device;
+        const device: GFXDevice = director.root!.device;
         const vertexBuffer = device.createBuffer({
             usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,

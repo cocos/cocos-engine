@@ -59,7 +59,7 @@ export class UIModelComponent extends UIComponent {
             return;
         }
 
-        this._modelComponent._sceneGetter = director.root.ui.getRenderSceneGetter();
+        this._modelComponent._sceneGetter = director.root!.ui.getRenderSceneGetter();
         this._modelComponent.recreateModel();
     }
 

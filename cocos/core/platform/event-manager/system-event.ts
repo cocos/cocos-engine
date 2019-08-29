@@ -34,7 +34,7 @@ import { SystemEventType } from './event-enum';
 import { EventListener } from './event-listener';
 import eventManager from './event-manager';
 import inputManager from './input-manager';
-import { Touch } from './CCTouch';
+import { Touch } from './touch';
 
 /**
  * @en

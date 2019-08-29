@@ -117,7 +117,7 @@ export class EditorCameraComponent extends CameraComponent {
     public onDestroy () {
         super.onDestroy();
         if (this._uiEditorCamera) {
-            director.root.ui.renderScene.destroyCamera(this._uiEditorCamera);
+            director.root!.ui.renderScene.destroyCamera(this._uiEditorCamera);
             this._uiEditorCamera = null;
         }
     }
@@ -128,14 +128,14 @@ export class EditorCameraComponent extends CameraComponent {
 
         if (this._camera !== priorCamera && this._camera) {
             if (this._uiEditorCamera) {
-                director.root.ui.renderScene.destroyCamera(this._uiEditorCamera);
+                director.root!.ui.renderScene.destroyCamera(this._uiEditorCamera);
                 this._uiEditorCamera = null;
             }
-            this._uiEditorCamera = director.root.ui.renderScene.createCamera({
+            this._uiEditorCamera = director.root!.ui.renderScene.createCamera({
                 name: 'Editor UICamera',
                 node: this._camera.node,
                 projection: this._projection,
-                window: director.root.mainWindow,
+                window: director.root!.mainWindow,
                 priority: this._priority,
                 isUI: true,
                 flows: ['UIFlow'],

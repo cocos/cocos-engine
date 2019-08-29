@@ -41,6 +41,7 @@ import { director, Director } from '../../director';
 import { view, ResolutionPolicy } from '../../platform/view';
 import visibleRect from '../../platform/visible-rect';
 import { CameraComponent } from '../../3d/framework/camera-component';
+import { INode } from '../../utils/interfaces';
 
 const _worldPos = new Vec3();
 
@@ -203,20 +204,19 @@ export class CanvasComponent extends Component {
         const cameraNode = new Node('UICamera_' + this.node.name);
         cameraNode.setPosition(0, 0, 1000);
         if (!CC_EDITOR) {
-            this._camera = director.root.ui.renderScene.createCamera({
+            this._camera = director.root!.ui.renderScene.createCamera({
                 name: 'ui_' + this.node.name,
-                node: cameraNode,
+                node: cameraNode as INode,
                 projection: CameraComponent.ProjectionType.ORTHO,
                 priority: this._priority,
                 isUI: true,
-                farClip: 2000,
                 flows: ['UIFlow'],
             });
 
             this._camera!.fov = 45;
             this._camera!.clearFlag = GFXClearFlag.COLOR | GFXClearFlag.DEPTH | GFXClearFlag.STENCIL;
 
-            const device = director.root.device;
+            const device = director.root!.device;
             this._camera!.resize(device.width, device.height);
             if (this._targetTexture) {
                 const window = this._targetTexture.getGFXWindow();
@@ -234,7 +234,7 @@ export class CanvasComponent extends Component {
         // this.applySettings();
         this.alignWithScreen();
 
-        director.root.ui.addScreen(this);
+        director.root!.ui.addScreen(this);
     }
 
     // public onEnable (){
@@ -247,7 +247,7 @@ export class CanvasComponent extends Component {
 
     public onDestroy () {
         if (this._camera) {
-            director.root.ui.renderScene.destroyCamera(this._camera);
+            director.root!.ui.renderScene.destroyCamera(this._camera);
         }
 
         if (CC_EDITOR) {
@@ -259,7 +259,7 @@ export class CanvasComponent extends Component {
         }
 
         view.off('design-resolution-changed', this._thisOnResized);
-        director.root.ui.removeScreen(this);
+        director.root!.ui.removeScreen(this);
         // if (CanvasComponent.instance === this) {
         //     CanvasComponent.instance = null;
         // }

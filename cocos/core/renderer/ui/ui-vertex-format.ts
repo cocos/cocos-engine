@@ -25,7 +25,7 @@
 /**
  * @category ui
  */
-import { GFXAttributeName, GFXFormat } from '../core/gfx/define';
+import { GFXAttributeName, GFXFormat } from '../../gfx/define';
 
 export const vfmt = [
     {

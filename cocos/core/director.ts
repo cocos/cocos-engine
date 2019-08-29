@@ -877,7 +877,7 @@ export class Director extends EventTarget {
      *  cc.director.getScene().getChildByName('Canvas');
      * ```
      */
-    public getScene () {
+    public getScene (): Scene | null {
         return this._scene;
     }
 

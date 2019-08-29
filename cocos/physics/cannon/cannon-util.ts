@@ -1,5 +1,4 @@
 import CANNON from 'cannon';
-import { Vec3 } from '../../core/math';
 import { IRaycastOptions, RigidBodyBase, ShapeBase } from '../api';
 import { RaycastResult } from '../raycast-result';
 import { getWrap } from '../util';

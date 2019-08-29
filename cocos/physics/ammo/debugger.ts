@@ -7,7 +7,7 @@ import { Material } from '../../core/assets/material';
 import { Mesh } from '../../core/assets/mesh';
 import { ModelComponent } from '../../core/3d/framework/model-component';
 import { createMesh } from '../../core/3d/misc/utils';
-import { IGeometry } from '../../primitive/define';
+import { IGeometry } from '../../core/primitive/define';
 
 interface IDebugVertex {
     position: Vec3;
@@ -62,7 +62,7 @@ export class Debugger implements Ammo.btIDebugDraw {
                     USE_COLOR: true,
                 },
                 states: {
-                    primitive: cc.GFXPrimitiveMode.LINE_LIST,
+                    primitive: GFXPrimitiveMode.LINE_LIST,
                     // depthStencilState: {
                     //     depthFunc: GFXComparisonFunc.LESS_EQUAL,
                     // },

@@ -31,7 +31,7 @@
 import { Font, SpriteAtlas, TTFFont } from '../../core/assets';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { EventTouch } from '../../core/platform';
-import { fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace } from '../../../core/utils';
+import { fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace } from '../../core/utils';
 import Pool from '../../core/utils/pool';
 import { Color, Vec2 } from '../../core/math';
 import { PrivateNode, Node } from '../../core/scene-graph';

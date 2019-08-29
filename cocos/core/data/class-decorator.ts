@@ -53,6 +53,7 @@ import './class';
 import { IExposedAttributes } from './utils/attribute-defines';
 import { doValidateMethodWithProps_DEV, getFullFormOfProperty } from './utils/preprocess-class';
 import { CCString, CCInteger, CCFloat, CCBoolean } from './utils/attribute';
+import { Enum } from '../value-types';
 
 // caches for class construction
 const CACHE_KEY = '__ccclassCache__';
@@ -307,7 +308,7 @@ export const ccclass = checkCtorArgument(function (ctor, name) {
     return res;
 });
 
-export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCFloat | typeof CCBoolean;
+export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCFloat | typeof CCBoolean | Enum;
 
 export type PropertyType = SimplePropertyType | SimplePropertyType[];
 

@@ -40,9 +40,10 @@ import { EditBoxComponent} from './edit-box-component';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { warnID } from '../../../core/platform/debug';
 import sys from '../../../core/platform/sys';
-import { view } from '../../../core/platform';
+import { view, screen } from '../../../core/platform';
 import { director } from '../../../core/director';
 import visibleRect from '../../../core/platform/visible-rect';
+import { game } from '../../../core/game';
 
 // https://segmentfault.com/q/1010000002914610
 const SCROLLY = 40;
@@ -421,10 +422,10 @@ export class EditBoxImpl {
         if (!this._edTxt) { return; }
 
         const node = this._node;
-        let scaleX = view._scaleX;
-        let scaleY = view._scaleY;
-        const viewport = view._viewportRect;
-        const dpr = view._devicePixelRatio;
+        let scaleX = view.getScaleX();
+        let scaleY = view.getScaleY();
+        const viewport = view.getViewportRect();
+        const dpr = view.getDevicePixelRatio();
 
         node!.getWorldMatrix(_matrix);
         const transform = node!.uiTransfromComp;
@@ -442,12 +443,12 @@ export class EditBoxImpl {
         // else {
         //     camera = cc.Camera.findCamera(node);
         // }
-        const renderComp = node!.getComponent(UIRenderComponent);
+        const renderComp:UIRenderComponent = node!.getComponent(UIRenderComponent);
         if (!renderComp) {
             return false;
         }
         // let canvas = cc.CanvasComponent.findView(renderComp);
-        const canvas = director.root.ui.getScreen(renderComp.visibility);
+        const canvas = director.root!.ui.getScreen(renderComp.visibility);
         if (!canvas) {
             return;
         }
@@ -465,15 +466,15 @@ export class EditBoxImpl {
         scaleX /= dpr;
         scaleY /= dpr;
 
-        const container = cc.game.container;
+        const container = game.container;
         let a = _matrix_temp.m00 * scaleX;
         const b = _matrix.m01;
         const c = _matrix.m04;
         let d = _matrix_temp.m05 * scaleY;
 
-        let offsetX = container && container.style.paddingLeft && parseInt(container.style.paddingLeft);
+        let offsetX = parseInt((container && container.style.paddingLeft) || '0');
         offsetX += viewport.x / dpr;
-        let offsetY = container && container.style.paddingBottom && parseInt(container.style.paddingBottom);
+        let offsetY = parseInt((container && container.style.paddingBottom) || '0');
         offsetY += viewport.y / dpr;
         const tx = _matrix_temp.m12 * scaleX + offsetX;
         const ty = _matrix_temp.m13 * scaleY + offsetY;
@@ -531,7 +532,7 @@ export class EditBoxImpl {
         if (view.isAutoFullScreenEnabled()) {
             this.__fullscreen = true;
             view.enableAutoFullScreen(false);
-            cc.screen.exitFullScreen();
+            screen.exitFullScreen();
         } else {
             this.__fullscreen = false;
         }
@@ -543,13 +544,15 @@ export class EditBoxImpl {
     // Called after keyboard disappeared to readapte the game view
     public _endEditingOnMobile () {
         if (this.__rotateScreen) {
-            cc.game.container.style['-webkit-transform'] = 'rotate(90deg)';
-            cc.game.container.style.transform = 'rotate(90deg)';
+            if (game.container) {
+                game.container.style['-webkit-transform'] = 'rotate(90deg)';
+                game.container.style.transform = 'rotate(90deg)';
+            }
 
             const width = view._originalDesignResolutionSize.width;
             const height = view._originalDesignResolutionSize.height;
             if (width > 0) {
-                view.setDesignResolutionSize(width, height, view._resolutionPolicy);
+                view.setDesignResolutionSize(width, height, view.getResolutionPolicy());
             }
             this.__rotateScreen = false;
         }
@@ -629,7 +632,9 @@ export class EditBoxImpl {
     }
 
     public _addDomToGameContainer () {
-        cc.game.container.appendChild(this._edTxt);
+        if (game.container && this._edTxt) {
+            game.container.appendChild(this._edTxt);
+        }
     }
 
     public removeDom () {
@@ -650,9 +655,9 @@ export class EditBoxImpl {
             cbs.keypress = null;
             cbs.blur = null;
 
-            const hasChild = contains(cc.game.container, edTxt);
-            if (hasChild) {
-                cc.game.container.removeChild(edTxt);
+            const hasChild = contains(game.container, edTxt);
+            if (hasChild && game.container) {
+                game.container.removeChild(edTxt);
             }
         }
         this._edTxt = null;
@@ -722,7 +727,7 @@ function registerInputEventListener (tmpEdTxt: HTMLInputElement | HTMLTextAreaEl
             if (!isTextarea) {
                 editBoxImpl.text = this.value;
                 editBoxImpl._endEditing();
-                cc.game.canvas.focus();
+                game.canvas && game.canvas.focus();
             }
         }
     };

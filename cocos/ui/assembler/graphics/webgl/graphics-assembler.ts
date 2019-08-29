@@ -210,7 +210,7 @@ export const graphicsAssembler: IAssembler = {
     },
 
     end (graphics: GraphicsComponent){
-        const scene = director.root.ui.renderScene as RenderScene;
+        const scene = director.root!.ui.renderScene as RenderScene;
         if (graphics.model){
             graphics.model.destroy();
             scene.destroyModel(graphics.model);

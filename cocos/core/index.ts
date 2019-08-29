@@ -46,11 +46,13 @@ export * from './scheduler';
 export * from './director';
 
 export * from './gfx';
+import './pipeline';
 export * from './assets';
 export * from './load-pipeline';
 export * from './scene-graph';
 export * from './components';
 export * from './3d';
 export * from './animation';
+import './primitive';
 
 export * from './utils/profiler/profiler';

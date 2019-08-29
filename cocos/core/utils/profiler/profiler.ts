@@ -71,7 +71,7 @@ export class Profiler {
     private _texture: GFXTexture | null = null;
     private _textureView: GFXTextureView | null = null;
     private readonly _region: GFXBufferTextureCopy = new GFXBufferTextureCopy();
-    private readonly _canvasArr = [this._canvas];
+    private readonly _canvasArr: HTMLCanvasElement[] = [];
     private readonly _regionArr = [this._region];
 
     private _canvasDone = false;
@@ -82,6 +82,7 @@ export class Profiler {
             this._canvas = document.createElement('canvas');
             this._ctx = this._canvas.getContext('2d')!;
             this._region = new GFXBufferTextureCopy();
+            this._canvasArr.push(this._canvas);
         }
     }
 
@@ -277,7 +278,7 @@ export class Profiler {
 
         this.generateNode();
 
-        const now = director._lastUpdate;
+        const now = director.getCurrentTime();
         this.getCounter('frame').end(now);
         this.getCounter('frame').start(now);
         this.getCounter('logic').start(now);
@@ -362,7 +363,6 @@ export class Profiler {
     public updateTexture () {
         director.root!.device.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
     }
-
 }
 
 export const profiler = new Profiler();

@@ -137,7 +137,7 @@ export class WidgetComponent extends Component {
         return this._target;
     }
 
-    set target (value: Node | null) {
+    set target (value: INode | null) {
         if (this._target === value){
             return;
         }

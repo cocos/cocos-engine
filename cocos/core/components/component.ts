@@ -451,7 +451,7 @@ class Component extends CCObject {
      * this.schedule(timeCallback, 1);
      * ```
      */
-    public schedule (callback, interval: Number = 0, repeat: number = cc.macro.REPEAT_FOREVER, delay: Number = 0) {
+    public schedule (callback, interval: number = 0, repeat: number = cc.macro.REPEAT_FOREVER, delay: number = 0) {
         cc.assertID(callback, 1619);
         cc.assertID(interval >= 0, 1620);
 
@@ -485,7 +485,7 @@ class Component extends CCObject {
      * this.scheduleOnce(timeCallback, 2);
      * ```
      */
-    public scheduleOnce (callback, delay: Number = 0) {
+    public scheduleOnce (callback, delay: number = 0) {
         this.schedule(callback, 0, 0, delay);
     }
 

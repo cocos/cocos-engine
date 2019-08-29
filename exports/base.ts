@@ -23,3 +23,4 @@ export {
     primitives,
 };
 cc.primitives = primitives;
+export * from '../cocos/core/primitive/primitive';

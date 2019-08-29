@@ -129,8 +129,6 @@ let _scissorRect: Rect | null = null;
 export class View extends EventTarget {
 
     private _frameSize: Size;
-    public _designResolutionSize: Size;
-    private _originalDesignResolutionSize: Size;
     private _scaleX: number;
     private _scaleY: number;
     private _viewportRect: Rect;
@@ -140,7 +138,6 @@ export class View extends EventTarget {
     private _retinaEnabled: boolean;
     private _resizeCallback: null;
     private _resizing: boolean;
-    private _resizeWithBrowserSize: boolean;
     private _orientationChanging: boolean;
     private _isRotated: boolean;
     private _orientation: any;
@@ -152,6 +149,9 @@ export class View extends EventTarget {
     private _rpNoBorder: ResolutionPolicy;
     private _rpFixedHeight: ResolutionPolicy;
     private _rpFixedWidth: ResolutionPolicy;
+    public _resizeWithBrowserSize: boolean;
+    public _designResolutionSize: Size;
+    public _originalDesignResolutionSize: Size;
 
     public static instance: View;
 

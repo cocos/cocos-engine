@@ -172,7 +172,7 @@ export interface IBaseNode {
      * node.isChildOf(newNode);
      * ```
      */
-    isChildOf (parent: this): boolean;
+    isChildOf (parent: this | null): boolean;
 
     /**
      * @zh 增加一个孩子节点

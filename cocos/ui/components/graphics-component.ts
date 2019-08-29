@@ -205,7 +205,7 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     public onLoad (){
-       this._sceneGetter = director.root.ui.getRenderSceneGetter();
+       this._sceneGetter = director.root!.ui.getRenderSceneGetter();
     }
 
     public onEnable () {
