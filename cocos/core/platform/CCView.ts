@@ -27,7 +27,7 @@
 
 import '../data/class';
 import { EventTarget } from '../event/event-target';
-import Game from '../game';
+import { Game } from '../game';
 import { Rect, Size } from '../math';
 
 let _currentFrame = 0;
@@ -148,7 +148,7 @@ class View extends EventTarget {
     private _resolutionPolicy: any;
     private _rpExactFit: ResolutionPolicy;
     private _rpShowAll: ResolutionPolicy;
-    private  _rpNoBorder: ResolutionPolicy;
+    private _rpNoBorder: ResolutionPolicy;
     private _rpFixedHeight: ResolutionPolicy;
     private _rpFixedWidth: ResolutionPolicy;
 
@@ -533,8 +533,8 @@ class View extends EventTarget {
      * @return {Size}
      */
     public getVisibleSizeInPixel () {
-        return cc.size( this._visibleRect.width * this._scaleX,
-                        this._visibleRect.height * this._scaleY );
+        return cc.size(this._visibleRect.width * this._scaleX,
+            this._visibleRect.height * this._scaleY);
     }
 
     /**
@@ -557,7 +557,7 @@ class View extends EventTarget {
      */
     public getVisibleOriginInPixel () {
         return cc.v2(this._visibleRect.x * this._scaleX,
-                    this._visibleRect.y * this._scaleY);
+            this._visibleRect.y * this._scaleY);
     }
 
     /**
@@ -625,7 +625,7 @@ class View extends EventTarget {
      */
     public setDesignResolutionSize (width, height, resolutionPolicy) {
         // Defensive code
-        if ( !(width > 0 || height > 0) ){
+        if (!(width > 0 || height > 0)) {
             cc.logID(2200);
             return;
         }
@@ -658,12 +658,12 @@ class View extends EventTarget {
 
         const result = policy.apply(this, this._designResolutionSize);
 
-        if (result.scale && result.scale.length === 2){
+        if (result.scale && result.scale.length === 2) {
             this._scaleX = result.scale[0];
             this._scaleY = result.scale[1];
         }
 
-        if (result.viewport){
+        if (result.viewport) {
             const vp = this._viewportRect;
             const vb = this._visibleRect;
             const rv = result.viewport;
@@ -723,7 +723,7 @@ class View extends EventTarget {
     public setRealPixelResolution (width, height, resolutionPolicy) {
         if (!CC_JSB && !CC_WECHATGAME && !CC_QQPLAY) {
             // Set viewport's width
-            this._setViewportMeta({width}, true);
+            this._setViewportMeta({ width }, true);
 
             // Set body width to the exact pixel resolution
             document.documentElement.style.width = width + 'px';
@@ -1050,7 +1050,7 @@ class View extends EventTarget {
         }
     }
 
-    private _convertMouseToLocation (in_out_point, relatedPos){
+    private _convertMouseToLocation (in_out_point, relatedPos) {
         in_out_point.x = this._devicePixelRatio * (in_out_point.x - relatedPos.left);
         in_out_point.y = this._devicePixelRatio * (relatedPos.top + relatedPos.height - in_out_point.y);
     }
@@ -1067,7 +1067,7 @@ class View extends EventTarget {
         point.y = (point.y - viewport.y) / this._scaleY;
     }
 
-    private _convertTouchWidthScale (selTouch){
+    private _convertTouchWidthScale (selTouch) {
         const viewport = this._viewportRect;
         const scaleX = this._scaleX;
         const scaleY = this._scaleY;
@@ -1230,7 +1230,7 @@ class ContentStrategy {
      * @return {Object} scaleAndViewportRect
      */
     public apply (view, designedResolution) {
-        return {scale: [1, 1]};
+        return { scale: [1, 1] };
     }
 
     /**
@@ -1245,19 +1245,19 @@ class ContentStrategy {
 
     public _buildResult (containerW, containerH, contentW, contentH, scaleX, scaleY) {
         // Makes content fit better the canvas
-        if ( Math.abs(containerW - contentW) < 2 ) {
-                contentW = containerW;
+        if (Math.abs(containerW - contentW) < 2) {
+            contentW = containerW;
         }
-        if ( Math.abs(containerH - contentH) < 2 ) {
+        if (Math.abs(containerH - contentH) < 2) {
             contentH = containerH;
         }
 
         const viewport = new Rect(Math.round((containerW - contentW) / 2),
-                               Math.round((containerH - contentH) / 2),
-                               contentW, contentH);
+            Math.round((containerH - contentH) / 2),
+            contentW, contentH);
 
         // Translate the content
-        if (cc.game.renderType === Game.RENDER_TYPE_CANVAS){
+        if (cc.game.renderType === Game.RENDER_TYPE_CANVAS) {
             // TODO: modify something for setTransform
             // game._renderContext.translate(viewport.x, viewport.y + contentH);
         }
@@ -1270,7 +1270,7 @@ class ContentStrategy {
 
 (() => {
 
-// Container scale strategys
+    // Container scale strategys
     /**
      * @class EqualToFrame
      * @extends ContainerStrategy
@@ -1334,12 +1334,12 @@ class ContentStrategy {
         }
     }
 
-// Alias: Strategy that makes the container's size equals to the frame's size
+    // Alias: Strategy that makes the container's size equals to the frame's size
     ContainerStrategy.EQUAL_TO_FRAME = new EqualToFrame();
-// Alias: Strategy that scale proportionally the container's size to frame's size
+    // Alias: Strategy that scale proportionally the container's size to frame's size
     ContainerStrategy.PROPORTION_TO_FRAME = new ProportionalToFrame();
 
-// Content scale strategys
+    // Content scale strategys
     class ExactFit extends ContentStrategy {
         public name = 'ExactFit';
         public apply (view, designedResolution) {
@@ -1420,15 +1420,15 @@ class ContentStrategy {
         }
     }
 
-// Alias: Strategy to scale the content's size to container's size, non proportional
+    // Alias: Strategy to scale the content's size to container's size, non proportional
     ContentStrategy.EXACT_FIT = new ExactFit();
-// Alias: Strategy to scale the content's size proportionally to maximum size and keeps the whole content area to be visible
+    // Alias: Strategy to scale the content's size proportionally to maximum size and keeps the whole content area to be visible
     ContentStrategy.SHOW_ALL = new ShowAll();
-// Alias: Strategy to scale the content's size proportionally to fill the whole container area
+    // Alias: Strategy to scale the content's size proportionally to fill the whole container area
     ContentStrategy.NO_BORDER = new NoBorder();
-// Alias: Strategy to scale the content's height to container's height and proportionally scale its width
+    // Alias: Strategy to scale the content's height to container's height and proportionally scale its width
     ContentStrategy.FIXED_HEIGHT = new FixedHeight();
-// Alias: Strategy to scale the content's width to container's width and proportionally scale its height
+    // Alias: Strategy to scale the content's width to container's width and proportionally scale its height
     ContentStrategy.FIXED_WIDTH = new FixedWidth();
 
 })();

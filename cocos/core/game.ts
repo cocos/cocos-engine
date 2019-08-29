@@ -40,7 +40,7 @@ import inputManager from './platform/event-manager/input-manager';
  * @static
  */
 
-export default class Game extends EventTarget {
+export class Game extends EventTarget {
     /**
      * @en Event triggered when game hide to background.<br>
      * Please note that this event is not 100% guaranteed to be fired on Web platform,<br>

@@ -37,7 +37,7 @@ import ComponentScheduler from '../scene-graph/component-scheduler';
 import NodeActivator from '../scene-graph/node-activator';
 import { CCObject } from './data/object';
 import { EventTarget } from './event/event-target';
-import Game from './game';
+import { Game } from './game';
 import eventManager from './platform/event-manager/event-manager';
 import { Root } from './root';
 import Scheduler from './scheduler';
@@ -116,7 +116,7 @@ import { getClassByName } from './utils/js';
  * @class Director
  * @extends EventTarget
  */
-export default class Director extends EventTarget {
+export class Director extends EventTarget {
 
     /**
      * @en The event which will be triggered before loading a new scene.
