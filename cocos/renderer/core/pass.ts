@@ -310,8 +310,11 @@ export class Pass {
      * @param value 目标 buffer。
      */
     public bindBuffer (binding: number, value: GFXBuffer) {
+        if (this._buffers[binding] === value) { return; }
         this._buffers[binding] = value;
-        for (const res of this._resources) {
+        const len = this._resources.length;
+        for (let i = 0; i < len; i++) {
+            const res = this._resources[i];
             res.bindingLayout.bindBuffer(binding, value);
         }
     }
@@ -323,8 +326,11 @@ export class Pass {
      * @param value 目标 texture view。
      */
     public bindTextureView (binding: number, value: GFXTextureView) {
+        if (this._textureViews[binding] === value) { return; }
         this._textureViews[binding] = value;
-        for (const res of this._resources) {
+        const len = this._resources.length;
+        for (let i = 0; i < len; i++) {
+            const res = this._resources[i];
             res.bindingLayout.bindTextureView(binding, value);
         }
     }
@@ -336,8 +342,11 @@ export class Pass {
      * @param value 目标 sampler。
      */
     public bindSampler (binding: number, value: GFXSampler) {
+        if (this._samplers[binding] === value) { return; }
         this._samplers[binding] = value;
-        for (const res of this._resources) {
+        const len = this._resources.length;
+        for (let i = 0; i < len; i++) {
+            const res = this._resources[i];
             res.bindingLayout.bindSampler(binding, value);
         }
     }
@@ -383,7 +392,9 @@ export class Pass {
         }
         const source = (cc.director.root as Root).pipeline.globalBindings;
         const target = this._shaderInfo.builtins.globals;
-        for (const s of target.samplers) {
+        const samplerLen = target.samplers.length;
+        for (let i = 0; i < samplerLen; i++) {
+            const s = target.samplers[i];
             const info = source.get(s.name)!;
             if (info.sampler) { this.bindSampler(info.samplerInfo!.binding, info.sampler); }
             this.bindTextureView(info.samplerInfo!.binding, info.textureView!);
