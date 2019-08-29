@@ -4,6 +4,7 @@ import yargs from 'yargs';
 import { build, enumeratePhysicsReps, enumeratePlatformReps, IBuildOptions, IFlags, parsePhysics, parsePlatform } from './build-engine';
 
 yargs.help();
+// @ts-ignore
 yargs.option('platform', {
     type: 'string',
     alias: 'p',
