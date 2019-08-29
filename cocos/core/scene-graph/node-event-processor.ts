@@ -35,7 +35,6 @@ import { EventListener } from '../platform/event-manager/event-listener';
 import { array } from '../utils/js';
 import Event from '../event/event';
 import { Vec2 } from '../math/vec2';
-import { director } from '../director';
 
 const fastRemove = array.fastRemove;
 
@@ -686,7 +685,7 @@ export class NodeEventProcessor {
             forDispatch = true;
         }
         if (newAdded && !this._node.activeInHierarchy) {
-            director.getScheduler().schedule(() => {
+            cc.director.getScheduler().schedule(() => {
                 if (!this._node.activeInHierarchy) {
                     // @ts-ignore;
                     eventManager.pauseTarget(this._node);

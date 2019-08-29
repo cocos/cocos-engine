@@ -3,7 +3,7 @@
  */
 
 import '../predefine';
-import '../cocos/legacy';
+import '../cocos/core/legacy';
 
 // LOAD ENGINE CORE
 export * from '../cocos/core';
@@ -15,8 +15,6 @@ export * from '../extensions/ccpool/node-pool';
 
 const cclegacy = cc;
 export { cclegacy };
-
-export * from '../cocos/core/utils/deprecated';
 
 import * as primitives from '../cocos/core/primitive';
 export {

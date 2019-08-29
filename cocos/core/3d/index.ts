@@ -34,3 +34,4 @@ import * as utils from './misc/utils';
 export {
     utils,
 };
+cc.utils = utils;

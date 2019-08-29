@@ -2,8 +2,8 @@
  * @hidden
  */
 
-import { Component } from '../../cocos/components/component';
-import { Node } from '../../cocos/scene-graph';
+import { Component } from '../../cocos/core/components/component';
+import { Node } from '../../cocos/core/scene-graph';
 
 /****************************************************************************
  Copyright (c) 2016 Chukong Technologies Inc.

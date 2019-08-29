@@ -1,5 +1,5 @@
-import { Node } from '../../cocos/scene-graph/node';
-import { AnimationClip, AnimationState } from '../../cocos/animation';
+import { Node } from '../../cocos/core/scene-graph/node';
+import { AnimationClip, AnimationState } from '../../cocos/core/animation';
 
 test('curve types', function () {
     var entity = new Node();

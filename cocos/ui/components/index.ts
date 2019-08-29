@@ -2,8 +2,6 @@
  * @hidden
  */
 
-export { CanvasComponent } from '../../core/components/ui-base/canvas-component';
-export { UIComponent } from '../../core/components/ui-base/ui-component';
 export { ButtonComponent } from './button-component';
 export { EditBoxComponent } from './editbox/edit-box-component';
 export * from './label-component';
@@ -18,8 +16,6 @@ export { SpriteComponent } from './sprite-component';
 export { ToggleComponent } from './toggle-component';
 export { ToggleContainerComponent } from './toggle-container-component';
 export { UIModelComponent } from './ui-model-component';
-export { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-export { UITransformComponent } from '../../core/components/ui-base/ui-transfrom-component';
 export { ViewGroupComponent } from './view-group-component';
 export { WebviewComponent } from './webview/webView-component';
 export { WidgetComponent } from './widget-component';

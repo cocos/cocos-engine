@@ -13,7 +13,6 @@ import { ERigidBodyType, ETransformSource } from '../../physic-enum';
 import { INode } from '../../../core/utils/interfaces';
 import { TransformDirtyBit } from '../../../core/scene-graph/node-enum';
 import { error } from '../../../core/platform/debug';
-import { RigidBodyComponent } from '../rigid-body-component';
 import { PhysicsSystem } from '../physics-system';
 
 export class PhysicsBasedComponent extends Component {
@@ -159,7 +158,7 @@ export class PhysicsBasedComponent extends Component {
                     // }
 
                     // binding collider to self rigidybody, if it exist.
-                    const rigidbody = this.getComponent(RigidBodyComponent);
+                    const rigidbody = this.getComponent(cc.RigidBodyComponent);
                     sharedBody = new SharedRigidBody(this.node, rigidbody, PhysicsSystem.instance._world);
                 }
                 sharedBody!.ref();
