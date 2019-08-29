@@ -27,29 +27,12 @@
  * @category animation
  */
 
-import { RenderableComponent } from '../3d/framework/renderable-component';
-import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
 import { ccclass } from '../core/data/class-decorator';
 import { Mat4 } from '../core/math';
 import { INode } from '../core/utils/interfaces';
-import { getClassName } from '../core/utils/js';
 import { AnimationClip, IObjectCurveData, IRuntimeCurve, ITargetCurveData } from './animation-clip';
-import { AnimationComponent } from './animation-component';
-import { CurveValueAdapter, IPropertyCurveData } from './animation-curve';
+import { IPropertyCurveData } from './animation-curve';
 import { ComponentModifier, HierachyModifier, isCustomTargetModifier, isPropertyModifier } from './target-modifier';
-import { getPathFromRoot } from './transform-utils';
-
-function isTargetSkinningModel (comp: RenderableComponent, root: INode) {
-    if (!(comp instanceof SkinningModelComponent)) { return false; }
-    const curRoot = comp.skinningRoot;
-    if (curRoot === root) { return true; }
-    if (curRoot && curRoot.getComponent(AnimationComponent)) { return false; }
-    // find the lowest AnimationComponent node
-    let node: INode | null = comp.node;
-    while (node && !node.getComponent(AnimationComponent)) { node = node.parent; }
-    if (node === root) { return true; }
-    return false;
-}
 
 type ConvertedData = Record<string, {
     props: Record<string, IPropertyCurveData>;
@@ -104,22 +87,15 @@ export class SkeletalAnimationClip extends AnimationClip {
             // transform to world space
             this._convertToWorldSpace(path, nodeData.props);
         }
-        // convert to SkinningModelComponent.fid animation
-        const curves: ITargetCurveData[] = [];
-        for (const comp of root.getComponentsInChildren(RenderableComponent)) {
-            if (isTargetSkinningModel(comp, root)) {
-                const path = getPathFromRoot(comp.node, root);
-                const compName = getClassName(comp);
-                curves.push({
-                    modifiers: [
-                        new HierachyModifier(path),
-                        new ComponentModifier(compName),
-                        'frameID',
-                    ],
-                    data: { keys: 0, values, interpolate: false },
-                });
-            }
-        }
+        // create frameID animation
+        const curves: ITargetCurveData[] = [{
+            modifiers: [
+                new HierachyModifier(''),
+                new ComponentModifier('cc.SkeletalAnimationComponent'),
+                'frameID',
+            ],
+            data: { keys: 0, values, interpolate: false },
+        }];
         this.curves = curves;
         this._keys = [values.map((_, i) => i * this.speed / this.sample)];
         this._duration = this._keys[0][values.length - 1];

@@ -32,12 +32,49 @@ import { SkeletalAnimationClip } from '../../animation';
 import { INode } from '../../core/utils/interfaces';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXAddress, GFXBufferUsageBit, GFXFilter, GFXMemoryUsageBit } from '../../gfx/define';
-import { UBOSkinningTexture, UNIFORM_JOINTS_TEXTURE } from '../../pipeline/define';
+import { UBOSkinningAnimation, UBOSkinningTexture, UniformJointsTexture } from '../../pipeline/define';
 import { Pass } from '../core/pass';
 import { genSamplerHash, samplerLib } from '../core/sampler-lib';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 import { IJointsTextureHandle } from './joints-texture-utils';
+
+export interface IJointsAnimInfo {
+    buffer: GFXBuffer;
+    data: Float32Array;
+}
+
+export class JointsAnimationInfo {
+    public static pool = new Map<string, IJointsAnimInfo>();
+
+    public static create (nodeID: string) {
+        const buffer = cc.director.root.device.createBuffer({
+            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: UBOSkinningAnimation.SIZE,
+            stride: UBOSkinningAnimation.SIZE,
+        });
+        const data = new Float32Array([1, 0, 0, 0]);
+        const info = { buffer, data };
+        JointsAnimationInfo.pool.set(nodeID, info);
+        return info;
+    }
+
+    public static destroy (nodeID: string) {
+        const info = JointsAnimationInfo.pool.get(nodeID);
+        if (!info) { return; }
+        info.buffer.destroy();
+        JointsAnimationInfo.pool.delete(nodeID);
+    }
+
+    public static switchClip (nodeID: string, clip: SkeletalAnimationClip | null) {
+        const info = JointsAnimationInfo.pool.get(nodeID);
+        if (!info) { return; }
+        info.data[0] = clip ? clip.keys[0].length : 1;
+        info.data[1] = 0;
+        info.buffer.update(info.data);
+    }
+}
 
 const jointsTextureSamplerHash = genSamplerHash([
     GFXFilter.POINT,
@@ -102,17 +139,8 @@ export class SkinningModel extends Model {
         const texture = this.uploadedAnim ?
         this._scene.texturePool.getJointsTextureWithAnimation(this._skeleton, this.uploadedAnim) :
             this._scene.texturePool.getDefaultJointsTexture(this._skeleton);
+        JointsAnimationInfo.switchClip(this._transform.uuid, anim);
         this._applyJointsTexture(texture);
-    }
-
-    public setFrameID (val: number) {
-        const { buffer, jointsTextureInfo } = this._jointsMedium;
-        jointsTextureInfo[3] = val;
-        if (buffer) { buffer.update(jointsTextureInfo); }
-    }
-
-    public getFrameID () {
-        return this._jointsMedium.jointsTextureInfo[3];
     }
 
     protected _applyJointsTexture (texture: IJointsTextureHandle | null) {
@@ -124,16 +152,15 @@ export class SkinningModel extends Model {
         this._jointsMedium.texture = texture;
         const { buffer, jointsTextureInfo } = this._jointsMedium;
         jointsTextureInfo[0] = texture.handle.texture.width;
-        jointsTextureInfo[1] = texture.pixelOffset + 0.1; // guard against floor() underflow
-        jointsTextureInfo[2] = this.uploadedAnim ? this.uploadedAnim.keys[0].length : 1;
-        jointsTextureInfo[3] = 0; // restore fid
+        jointsTextureInfo[1] = 1 / jointsTextureInfo[0];
+        jointsTextureInfo[2] = texture.pixelOffset + 0.1; // guard against floor() underflow
         if (buffer) { buffer.update(jointsTextureInfo); }
         const sampler = samplerLib.getSampler(this._device, jointsTextureSamplerHash);
         for (const submodel of this._subModels) {
             if (!submodel.psos) { continue; }
             for (const pso of submodel.psos) {
-                pso.pipelineLayout.layouts[0].bindTextureView(UNIFORM_JOINTS_TEXTURE.binding, texture.handle.texView);
-                pso.pipelineLayout.layouts[0].bindSampler(UNIFORM_JOINTS_TEXTURE.binding, sampler);
+                pso.pipelineLayout.layouts[0].bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
+                pso.pipelineLayout.layouts[0].bindSampler(UniformJointsTexture.binding, sampler);
             }
         }
     }
@@ -141,11 +168,13 @@ export class SkinningModel extends Model {
     protected _doCreatePSO (pass: Pass) {
         const pso = super._doCreatePSO(pass);
         const { buffer, texture } = this._jointsMedium;
+        const animInfo = JointsAnimationInfo.pool.get(this._transform.uuid)!;
         pso.pipelineLayout.layouts[0].bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
+        pso.pipelineLayout.layouts[0].bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
         const sampler = samplerLib.getSampler(this._device, jointsTextureSamplerHash);
         if (texture) {
-            pso.pipelineLayout.layouts[0].bindTextureView(UNIFORM_JOINTS_TEXTURE.binding, texture.handle.texView);
-            pso.pipelineLayout.layouts[0].bindSampler(UNIFORM_JOINTS_TEXTURE.binding, sampler);
+            pso.pipelineLayout.layouts[0].bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
+            pso.pipelineLayout.layouts[0].bindSampler(UniformJointsTexture.binding, sampler);
         }
         return pso;
     }

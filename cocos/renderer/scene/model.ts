@@ -214,7 +214,7 @@ export class Model {
     public updateTransform () {
         const node = this._transform;
         // @ts-ignore
-        if (node._hasChangedFlags || node._dirtyFlags) {
+        if (node.hasChangedFlags || node._dirtyFlags) {
             node.updateWorldTransform();
             this._transformUpdated = true;
             if (this._modelBounds && this._worldBounds) {

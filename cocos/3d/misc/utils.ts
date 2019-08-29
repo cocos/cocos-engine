@@ -1,6 +1,7 @@
 import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXFormatType, GFXPrimitiveMode, IGFXFormatInfo } from '../../gfx/define';
 export { find } from '../../scene-graph/find';
 import { Mat4, Vec3 } from '../../core/math';
+import { INode } from '../../core/utils/interfaces';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { IMeshStruct, IPrimitive, IVertexBundle, Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
@@ -8,7 +9,7 @@ import { SkinningModelComponent } from '../framework';
 import { aabb } from '../geom-utils';
 import { IGeometry } from '../primitive/define';
 import { BufferBlob } from './buffer-blob';
-import { INode } from '../../core/utils/interfaces';
+import { JointsAnimationInfo } from '../../renderer/models/skinning-model';
 
 /**
  * save a color buffer to a PPM file
@@ -458,7 +459,8 @@ export function calculateSkinnedBounds (out: aabb, comp: SkinningModelComponent)
     const skeleton = comp.skeleton;
     const root = comp.skinningRoot;
     const clip = comp.model.uploadedAnim;
-    if (!skeleton || !root || !clip) {
+    const animInfo = root && JointsAnimationInfo.pool.get(root.uuid);
+    if (!skeleton || !root || !clip || !animInfo) {
         if (!comp.model.worldBounds) { return; }
         aabb.copy(out, comp.model.worldBounds);
         return true;
@@ -469,7 +471,7 @@ export function calculateSkinnedBounds (out: aabb, comp: SkinningModelComponent)
     const boundList = boneSpaceBoundsManager.use(comp.mesh, skeleton);
     const len = skeleton.joints.length;
     const data = clip.convertedData;
-    const fid = comp.model.getFrameID();
+    const fid = animInfo.data[1];
     for (let i = 0; i < len; ++i) {
         const bounds = boundList[i];
         const nodeData = data[skeleton.joints[i]];

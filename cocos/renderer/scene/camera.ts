@@ -118,6 +118,7 @@ export class Camera {
     private _isProjDirty = true;
     private _matView: Mat4 = new Mat4();
     private _matProj: Mat4 = new Mat4();
+    private _matProjInv: Mat4 = new Mat4();
     private _matViewProj: Mat4 = new Mat4();
     private _matViewProjInv: Mat4 = new Mat4();
     private _frustum: frustum = new frustum();
@@ -204,6 +205,7 @@ export class Camera {
                     const y = this._orthoHeight;
                     Mat4.ortho(this._matProj, -x, x, -y, y, this._nearClip, this._farClip);
                 }
+                Mat4.invert(this._matProjInv, this._matProj);
             }
 
             // view-projection
@@ -276,7 +278,7 @@ export class Camera {
         return this._isWindowSize;
     }
 
-    set isWindowSize(value) {
+    set isWindowSize (value) {
         this._isWindowSize = value;
     }
 
@@ -394,6 +396,10 @@ export class Camera {
 
     get matProj () {
         return this._matProj;
+    }
+
+    get matProjInv () {
+        return this._matProjInv;
     }
 
     get matViewProj () {

@@ -86,15 +86,6 @@ export class SkinningModelComponent extends ModelComponent {
         return (this._model as SkinningModel);
     }
 
-    set frameID (val: number) {
-        if (this._model) { (this._model as SkinningModel).setFrameID(val); }
-    }
-
-    get frameID () {
-        if (this._model) { return (this._model as SkinningModel).getFrameID(); }
-        return 0;
-    }
-
     public uploadAnimation (clip: SkeletalAnimationClip | null) {
         if (this._model) { (this._model as SkinningModel).uploadAnimation(clip); }
     }

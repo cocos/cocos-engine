@@ -128,7 +128,6 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
 
     public onLoad () {
         super.onLoad();
-        this._batchMaterial = this.getSharedMaterial(0);
         this.cook();
     }
 
@@ -151,6 +150,9 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     }
 
     public cookMaterials () {
+        if (!this._batchMaterial) {
+            this._batchMaterial = this.getSharedMaterial(0);
+        }
         const mat = this.getMaterial(0);
         if (!mat || !this._batchMaterial || !this._batchMaterial.effectAsset) {
             console.warn('incomplete batch material!'); return;
