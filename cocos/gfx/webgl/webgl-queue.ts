@@ -33,7 +33,9 @@ export class WebGLGFXQueue extends GFXQueue {
 
         // TODO: Async
         if (!this._isAsync) {
-            for (const cmdBuff of cmdBuffs) {
+            const len = cmdBuffs.length;
+            for (let i = 0; i < len; i++) {
+                const cmdBuff = cmdBuffs[i];
                 WebGLCmdFuncExecuteCmds( this._device as WebGLGFXDevice, (cmdBuff as WebGLGFXCommandBuffer).cmdPackage);
                 this.numDrawCalls += cmdBuff.numDrawCalls;
                 this.numTris += cmdBuff.numTris;

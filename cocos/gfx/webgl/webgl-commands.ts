@@ -1880,8 +1880,9 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                 } // bind pso
 
                 if (cmd2.gpuBindingLayout && gpuShader) {
-                    for (const gpuBinding of cmd2.gpuBindingLayout.gpuBindings) {
-
+                    const bindingLen = cmd2.gpuBindingLayout.gpuBindings.length;
+                    for (let j = 0; j < bindingLen; j++) {
+                        const gpuBinding = cmd2.gpuBindingLayout.gpuBindings[j];
                         switch (gpuBinding.type) {
                             case GFXBindingType.UNIFORM_BUFFER: {
 
@@ -1889,7 +1890,9 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
 
                                     let glBlock: WebGLGPUUniformBlock | null = null;
 
-                                    for (const block of gpuShader.glBlocks) {
+                                    const blockLen = gpuShader.glBlocks.length;
+                                    for (let k = 0; k < blockLen; k++) {
+                                        const block = gpuShader.glBlocks[k];
                                         if (block.binding === gpuBinding.binding) {
                                             glBlock = block;
                                             break;
@@ -1897,7 +1900,9 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                     }
 
                                     if (glBlock && gpuBinding.gpuBuffer.vf32) {
-                                        for (const glUniform of glBlock.glActiveUniforms) {
+                                        const uniformLen = glBlock.glActiveUniforms.length;
+                                        for (let k = 0; k < uniformLen; k++) {
+                                            const glUniform = glBlock.glActiveUniforms[k];
                                             switch (glUniform.glType) {
                                                 case gl.BOOL:
                                                 case gl.INT: {
@@ -2060,7 +2065,9 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
 
                                     let glSampler: WebGLGPUUniformSampler | null = null;
 
-                                    for (const sampler of gpuShader.glSamplers) {
+                                    const samplerLen = gpuShader.glSamplers.length;
+                                    for (let k = 0; k < samplerLen; k++) {
+                                        const sampler = gpuShader.glSamplers[k];
                                         if (sampler.binding === gpuBinding.binding) {
                                             glSampler = sampler;
                                             break;
@@ -2068,7 +2075,9 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                     }
 
                                     if (glSampler) {
-                                        for (const texUnit of glSampler.units) {
+                                        const texUnitLen = glSampler.units.length;
+                                        for (let k = 0; k < texUnitLen; k++) {
+                                            const texUnit = glSampler.units[k];
 
                                             if (gpuBinding.gpuTexView &&
                                                 gpuBinding.gpuTexView.gpuTexture.size > 0) {
@@ -2144,7 +2153,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                     }
                 } // bind binding layout
 
-                if (cmd2.gpuInputAssembler && gpuShader && 
+                if (cmd2.gpuInputAssembler && gpuShader &&
                     (isShaderChanged || gpuInputAssembler !== cmd2.gpuInputAssembler)) {
                     gpuInputAssembler = cmd2.gpuInputAssembler;
 
@@ -2162,10 +2171,14 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
                             let glAttrib: WebGLAttrib | null;
-                            for (const glInput of gpuShader.glInputs) {
+                            const inputLen = gpuShader.glInputs.length;
+                            for (let j = 0; j < inputLen; j++) {
+                                const glInput = gpuShader.glInputs[j];
                                 glAttrib = null;
 
-                                for (const attrib of gpuInputAssembler.glAttribs) {
+                                const attribLen = gpuInputAssembler.glAttribs.length;
+                                for (let k = 0; k < attribLen; k++) {
+                                    const attrib = gpuInputAssembler.glAttribs[k];
                                     if (attrib.name === glInput.name) {
                                         glAttrib = attrib;
                                         break;
@@ -2209,10 +2222,14 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                             cache.glCurrentAttribLocs[a] = false;
                         }
 
-                        for (const glInput of gpuShader.glInputs) {
+                        const inputLen = gpuShader.glInputs.length;
+                        for (let j = 0; j < inputLen; j++) {
+                            const glInput = gpuShader.glInputs[j];
                             let glAttrib: WebGLAttrib | null = null;
 
-                            for (const attrib of gpuInputAssembler.glAttribs) {
+                            const attribLen = gpuInputAssembler.glAttribs.length;
+                            for (let k = 0; k < attribLen; k++) {
+                                const attrib = gpuInputAssembler.glAttribs[k];
                                 if (attrib.name === glInput.name) {
                                     glAttrib = attrib;
                                     break;
@@ -2258,7 +2275,9 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                 }
 
                 if (gpuPipelineState) {
-                    for (const dynamicState of gpuPipelineState.dynamicStates) {
+                    const dsLen = gpuPipelineState.dynamicStates.length;
+                    for (let j = 0; j < dsLen; j++) {
+                        const dynamicState = gpuPipelineState.dynamicStates[j];
                         switch (dynamicState) {
                             case GFXDynamicState.VIEWPORT: {
                                 if (cmd2.viewport) {
@@ -2430,7 +2449,9 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                         }
                     } else {
                         if (gpuInputAssembler.gpuIndirectBuffer) {
-                            for (const drawInfo of gpuInputAssembler.gpuIndirectBuffer.indirects) {
+                            const diLen = gpuInputAssembler.gpuIndirectBuffer.indirects.length;
+                            for (let j = 0; j < diLen; j++) {
+                                const drawInfo = gpuInputAssembler.gpuIndirectBuffer.indirects[j];
                                 const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
                                 if (gpuBuffer && drawInfo.indexCount > -1) {
                                     const offset = drawInfo.firstIndex * gpuBuffer.stride;

@@ -98,8 +98,10 @@ function uploadJointDataDQS (out: Float32Array, base: number, mat: Mat4, firstBo
     out[base + 10] = v3_2.z;
 }
 
-function roundUpTextureSize (targetLength: number) {
-    return Math.max(204, Math.ceil(targetLength / 12) * 12);
+function roundUpTextureSize (targetLength: number, formatSize: number) {
+    const minSize = 204;
+    const formatScale = 4 / Math.sqrt(formatSize);
+    return Math.ceil(Math.max(minSize * formatScale, targetLength) / 12) * 12;
 }
 
 const _jointsFormat = {
