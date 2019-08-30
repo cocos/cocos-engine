@@ -640,8 +640,16 @@ Object.defineProperties(cc, {
     }
 });
 
+/**
+ * @class Asset
+ */
 Object.defineProperties(cc.Asset.prototype, {
+
     /**
+     * `cc.Asset.url` is deprecated now, please use {{#crossLink "Asset/nativeUrl:property"}}{{/crossLink}} instead
+     * 
+     * @property url
+     * @type {String}
      * @deprecated `cc.Asset.url` is deprecated now, please use `cc.Asset.nativeUrl` instead
      */
     url: {

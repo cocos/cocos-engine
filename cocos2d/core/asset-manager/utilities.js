@@ -138,6 +138,8 @@ var utils = {
         var err = null;
         try {
             var info = dependUtil.parse(uuid, data);
+            var includeNative = true;
+            if (data instanceof cc.Asset && (!data.__nativeDepend__ || data._nativeAsset)) includeNative = false; 
             if (!preload) {
                 asyncLoadAssets = !CC_EDITOR && (data.asyncLoadAssets || (asyncLoadAssets && !info.preventDeferredLoadDependents));
                 for (var i = 0, l = info.deps.length; i < l; i++) {
@@ -148,7 +150,7 @@ var utils = {
                     }
                 }
 
-                if (!asyncLoadAssets && !info.preventPreloadNativeObject && info.nativeDep) {
+                if (includeNative && !asyncLoadAssets && !info.preventPreloadNativeObject && info.nativeDep) {
                     config && (info.nativeDep.bundle = config.name);
                     depends.push(info.nativeDep);
                 }
@@ -161,7 +163,7 @@ var utils = {
                         depends.push({uuid: dep, bundle: config && config.name});
                     }
                 }
-                if (info.nativeDep) {
+                if (includeNative && info.nativeDep) {
                     config && (info.nativeDep.bundle = config.name);
                     depends.push(info.nativeDep);
                 }
@@ -215,13 +217,15 @@ var utils = {
         }
         
         if (asset.__nativeDepend__) {
-            if (assetsMap[uuid + '@native']) {
-                asset._nativeAsset = assetsMap[uuid + '@native'];
-            }
-            else {
-                missingAsset = true;
-                if (CC_EDITOR) {
-                    console.error(`the native asset of ${uuid} is missing!`);
+            if (!asset._nativeAsset) {
+                if (assetsMap[uuid + '@native']) {
+                    asset._nativeAsset = assetsMap[uuid + '@native'];
+                }
+                else {
+                    missingAsset = true;
+                    if (CC_EDITOR) {
+                        console.error(`the native asset of ${uuid} is missing!`);
+                    }
                 }
             }
             delete asset['__nativeDepend__'];

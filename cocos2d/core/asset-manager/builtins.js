@@ -30,7 +30,7 @@ const finalizer = require('./finalizer');
  */
 /**
  * !#en
- * This module contains the builtin asset, it's a singleton, all member can be accessed with `cc.assetManager.builtin` 
+ * This module contains the builtin asset, it's a singleton, all member can be accessed with `cc.assetManager.builtins` 
  * 
  * !#zh
  * 此模块包含内建资源，这是一个单例，所有成员能通过 `cc.assetManager.builtins` 访问
