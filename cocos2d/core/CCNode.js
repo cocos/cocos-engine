@@ -2753,9 +2753,9 @@ let NodeDefines = {
 
     /**
      * !#en
-     * Converts a Point to node (local) space coordinates in which the anchor point is the origin position.
+     * Converts a Point to node (local) space coordinates.
      * !#zh
-     * 将一个点转换到节点 (局部) 空间坐标系，这个坐标系以锚点为原点。
+     * 将一个点转换到节点 (局部) 空间坐标系。
      * @method convertToNodeSpaceAR
      * @param {Vec3|Vec2} worldPoint
      * @param {Vec3|Vec2} [out]
