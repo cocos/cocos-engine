@@ -13897,7 +13897,7 @@ var RenderData = (function (BaseRenderData$$1) {
 
   RenderData.free = function free (data) {
     if (data instanceof RenderData) {
-      for (var i = data.length-1; i > 0; i--) {
+      for (var i = data._data.length-1; i >= 0; i--) {
         _dataPool.free(data._data[i]);
       }
       data._data.length = 0;
