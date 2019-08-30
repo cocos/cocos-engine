@@ -36,7 +36,6 @@ import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
 import { RenderPassStage } from '../pipeline/define';
 import { IDefineMap } from '../renderer/core/pass';
 import { programLib } from '../renderer/core/program-lib';
-import { director } from '../director';
 
 export interface IPropertyInfo {
     type: number; // auto-extracted
@@ -182,7 +181,7 @@ export class EffectAsset extends Asset {
     }
 
     protected _precompile () {
-        const root = director.root as Root;
+        const root = cc.director.root as Root;
         for (let i = 0; i < this.shaders.length; i++) {
             const shader = this.shaders[i];
             const combination = this.combinations[i];

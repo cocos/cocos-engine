@@ -18,7 +18,6 @@ import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
 import Particle from '../particle';
-import { ParticleSystemComponent } from '../particle-system-component';
 
 // tslint:disable: max-line-length
 const PRE_TRIANGLE_INDEX = 1;
@@ -270,7 +269,7 @@ export default class TrailModule {
     private _space = Space.World;
 
     @property({
-        type: ParticleSystemComponent,
+        type: cc.ParticleSystemComponent,
         visible: false,
     })
     private _particleSystem: any = null;

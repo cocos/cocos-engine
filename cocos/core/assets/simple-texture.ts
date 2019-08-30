@@ -11,7 +11,6 @@ import { GFXTextureView, IGFXTextureViewInfo } from '../gfx/texture-view';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { TextureBase } from './texture-base';
-import { postLoadImage } from './texture-util';
 
 const _regions: GFXBufferTextureCopy[] = [{
     buffOffset: 0,
@@ -151,7 +150,7 @@ export class SimpleTexture extends TextureBase {
                 const defaultImg = cc.builtinResMgr.get('black-texture').image as ImageAsset;
                 this.uploadData(defaultImg.data as HTMLCanvasElement, level, arrayIndex);
             }
-            postLoadImage(image);
+            cc.textureUtil.postLoadImage(image);
         }
     }
 

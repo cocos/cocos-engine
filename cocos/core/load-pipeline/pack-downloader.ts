@@ -33,7 +33,7 @@ import {TextureUnpacker, JsonUnpacker} from './unpackers';
 import { decompressJson } from './utils';
 import { errorID } from '../platform/debug';
 import { js } from '../utils';
-import { Texture2D, AssetLibrary } from '../assets';
+import { Texture2D } from '../assets/texture-2d';
 
 // when more than one package contains the required asset,
 // choose to load from the package with the largest state value.
@@ -84,7 +84,7 @@ export function initPacks (packs) {
 }
 
 export function _loadNewPack (uuid, packUuid, callback) {
-    var packUrl = AssetLibrary.getLibUrlNoExt(packUuid) + '.json';
+    var packUrl = cc.AssetLibrary.getLibUrlNoExt(packUuid) + '.json';
     cc.loader.load({ url: packUrl, ignoreMaxConcurrency: true }, function (err, packJson) {
         if (err) {
             errorID(4916, uuid);

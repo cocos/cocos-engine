@@ -29,13 +29,12 @@
  */
 
 import decodeUuid from '../utils/decode-uuid';
-import {_getClassById, createMap, isChildClassOf} from '../utils/js';
-import {callInNextTick} from '../utils/misc';
+import { _getClassById, createMap, isChildClassOf } from '../utils/js';
+import { callInNextTick } from '../utils/misc';
 import { AssetTable } from '../load-pipeline/asset-table';
-import {getDependsRecursively} from '../load-pipeline/auto-release-utils';
-import Loader from '../load-pipeline/CCLoader';
+import { getDependsRecursively } from '../load-pipeline/auto-release-utils';
 import MD5Pipe from '../load-pipeline/md5-pipe';
-import {initPacks} from '../load-pipeline/pack-downloader';
+import { initPacks } from '../load-pipeline/pack-downloader';
 import { SubPackPipe } from '../load-pipeline/subpackage-pipe';
 import { Asset } from './asset';
 
@@ -375,7 +374,7 @@ const AssetLibrary = {
 
         // init raw assets
 
-        const assetTables = Loader._assetTables;
+        const assetTables = cc.loader._assetTables;
         // tslint:disable: forin
         for (const mount in assetTables) {
             assetTables[mount].reset();

@@ -31,7 +31,6 @@ import { WebGLGFXDevice } from './gfx/webgl/webgl-device';
 import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/debug';
-import inputManager from './platform/event-manager/input-manager';
 
 /**
  * @en An object to boot the game.
@@ -799,11 +798,6 @@ export class Game extends EventTarget {
     private _initEvents () {
         const win = window;
         let hiddenPropName: string;
-
-        // register system events
-        if (this.config.registerSystemEvent) {
-            inputManager.registerSystemEvent(this.canvas!);
-        }
 
         if (typeof document.hidden !== 'undefined') {
             hiddenPropName = 'hidden';

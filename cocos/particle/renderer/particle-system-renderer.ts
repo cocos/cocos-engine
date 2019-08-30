@@ -10,7 +10,6 @@ import { builtinResMgr } from '../../core/3d/builtin';
 import RecyclePool from '../../core/memop/recycle-pool';
 import { RenderMode, Space } from '../enum';
 import Particle from '../particle';
-import { ParticleSystemComponent } from '../particle-system-component';
 
 const _tempAttribUV = new Vec3();
 const _tempAttribUV0 = new Vec2();
@@ -136,7 +135,7 @@ export default class ParticleSystemRenderer {
     private _mesh: Mesh | null = null;
 
     @property({
-        type: ParticleSystemComponent,
+        type: cc.ParticleSystemComponent,
         visible: false,
     })
     private _particleSystem: any = null;

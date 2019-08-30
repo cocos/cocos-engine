@@ -44,7 +44,7 @@ class BrowserGetter {
     public adaptationType: any = cc.sys.browserType;
 
     public init () {
-        if (!CC_WECHATGAME && !CC_QQPLAY) {
+        if (!CC_WECHATGAME) {
             this.html = document.getElementsByTagName('html')[0];
         }
     }
@@ -198,7 +198,7 @@ export class View extends EventTarget {
         this._rpFixedHeight = new ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_HEIGHT);
         this._rpFixedWidth = new ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_WIDTH);
 
-        cc.game.once(Game.EVENT_ENGINE_INITED, this.init, this);
+        cc.game.once(cc.Game.EVENT_ENGINE_INITED, this.init, this);
     }
 
     public init () {
@@ -372,7 +372,7 @@ export class View extends EventTarget {
             return;
         }
         this._antiAliasEnabled = enabled;
-        if (cc.game.renderType === Game.RENDER_TYPE_WEBGL) {
+        if (cc.game.renderType === cc.Game.RENDER_TYPE_WEBGL) {
             const cache = cc.loader._cache;
             // tslint:disable-next-line: forin
             for (const key in cache) {
@@ -389,7 +389,7 @@ export class View extends EventTarget {
                 }
             }
         }
-        else if (cc.game.renderType === Game.RENDER_TYPE_CANVAS) {
+        else if (cc.game.renderType === cc.Game.RENDER_TYPE_CANVAS) {
             const ctx = cc.game.canvas.getContext('2d');
             ctx.imageSmoothingEnabled = enabled;
             ctx.mozImageSmoothingEnabled = enabled;

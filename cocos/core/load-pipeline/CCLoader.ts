@@ -99,7 +99,7 @@ const _sharedList: any = [];
  * @zh
  * 资源加载程序，这是一个单例对象。
  */
-class CCLoader extends Pipeline {
+export class CCLoader extends Pipeline {
 
     /**
      * @en
@@ -1160,7 +1160,7 @@ class CCLoader extends Pipeline {
     }
 }
 
-const loader = cc.loader = new CCLoader();
+export const loader = cc.loader = new CCLoader();
 
 if (CC_EDITOR) {
     cc.loader.refreshUrl = function (uuid, oldUrl, newUrl) {
@@ -1178,5 +1178,3 @@ if (CC_EDITOR) {
         }
     };
 }
-
-export default loader;

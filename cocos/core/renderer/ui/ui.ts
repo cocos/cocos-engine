@@ -48,8 +48,7 @@ import { RenderScene } from '../../renderer/scene/render-scene';
 import { UIBatchModel } from './ui-batch-model';
 import { UIMaterial } from './ui-material';
 import { INode } from '../../utils/interfaces';
-import { RenderableComponent } from '../../3d/framework';
-import { Director, director } from '../../director';
+import { RenderableComponent } from '../../3d/framework/renderable-component';
 
 export class UIDrawBatch {
     public camera: Camera | null = null;
@@ -152,7 +151,7 @@ export class UI {
         this._modelInUse = new CachedArray<UIBatchModel>(10);
         this._batches = new CachedArray(64);
 
-        director.on(Director.EVENT_BEFORE_DRAW, this.update, this);
+        cc.director.on(cc.Director.EVENT_BEFORE_DRAW, this.update, this);
     }
 
     public initialize () {
