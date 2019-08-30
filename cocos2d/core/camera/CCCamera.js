@@ -69,14 +69,26 @@ function repositionDebugCamera () {
  */
 let ClearFlags = cc.Enum({
     /**
+     * !#en
+     * Clear the background color.
+     * !#zh
+     * 清除背景颜色
      * @property COLOR
      */
     COLOR: 1,
     /**
+     * !#en
+     * Clear the depth buffer.
+     * !#zh
+     * 清除深度缓冲区
      * @property DEPTH
      */
     DEPTH: 2,
     /**
+     * !#en
+     * Clear the stencil.
+     * !#zh
+     * 清除模板缓冲区
      * @property STENCIL
      */
     STENCIL: 4,
@@ -153,7 +165,8 @@ let Camera = cc.Class({
             },
             set (value) {
                 this._zoomRatio = value;
-            }
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.camera.zoomRatio',
         },
 
         /**
@@ -170,7 +183,8 @@ let Camera = cc.Class({
             },
             set (v) {
                 this._fov = v;
-            }
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.camera.fov',
         },
 
         /**
@@ -187,7 +201,8 @@ let Camera = cc.Class({
             },
             set (v) {
                 this._orthoSize = v;
-            }
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.camera.orthoSize',
         },
 
         /**
@@ -205,7 +220,8 @@ let Camera = cc.Class({
             set (v) {
                 this._nearClip = v;
                 this._updateClippingpPlanes();
-            }
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.camera.nearClip',
         },
 
         /**
@@ -223,7 +239,8 @@ let Camera = cc.Class({
             set (v) {
                 this._farClip = v;
                 this._updateClippingpPlanes();
-            }
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.camera.farClip',
         },
 
         /**
@@ -241,14 +258,15 @@ let Camera = cc.Class({
             set (v) {
                 this._ortho = v;
                 this._updateProjection();
-            }
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.camera.ortho',
         },
 
         /**
          * !#en
-         * Four values (0-1) that indicate where on the screen this camera view will be drawn.
+         * Four values (0 ~ 1) that indicate where on the screen this camera view will be drawn.
          * !#zh
-         * 决定摄像机绘制在屏幕上哪个位置，值为 0-1。
+         * 决定摄像机绘制在屏幕上哪个位置，值为（0 ~ 1）。
          * @property {Rect} rect
          * @default cc.rect(0,0,1,1)
          */
@@ -259,7 +277,8 @@ let Camera = cc.Class({
             set (v) {
                 this._rect = v;
                 this._updateRect();
-            }
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.camera.rect',
         },
 
         /**
@@ -276,7 +295,8 @@ let Camera = cc.Class({
             set (value) {
                 this._cullingMask = value;
                 this._updateCameraMask();
-            }
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.camera.cullingMask',
         },
 
         /**
@@ -295,7 +315,8 @@ let Camera = cc.Class({
                 if (this._camera) {
                     this._camera.setClearFlags(value);
                 }
-            }
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.camera.clearFlags',
         },
 
         /**
@@ -312,7 +333,8 @@ let Camera = cc.Class({
             set (value) {
                 this._backgroundColor = value;
                 this._updateBackgroundColor();
-            }
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.camera.backgroundColor',
         },
 
         /**
@@ -331,7 +353,8 @@ let Camera = cc.Class({
                 if (this._camera) {
                     this._camera.setPriority(value);
                 }
-            }
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.camera.depth',
         },
 
         /**
@@ -350,9 +373,17 @@ let Camera = cc.Class({
             set (value) {
                 this._targetTexture = value;
                 this._updateTargetTexture();
-            }
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.camera.targetTexture',
         },
 
+        /**
+         * !#en
+         * Sets the camera's render stages.
+         * !#zh
+         * 设置摄像机渲染的阶段
+         * @property {Number} renderStages
+         */
         renderStages: {
             get () {
                 return this._renderStages;
@@ -360,7 +391,8 @@ let Camera = cc.Class({
             set (val) {
                 this._renderStages = val;
                 this._updateStages();
-            }
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.camera.renderStages',
         },
 
         _is3D: {
@@ -495,7 +527,8 @@ let Camera = cc.Class({
 
     _updateRect () {
         if (!this._camera) return;
-        this._camera.setRect(this._rect);
+        let rect = this._rect;
+        this._camera.setRect(rect.x, rect.y, rect.width, rect.height);
     },
 
     _updateStages () {
@@ -525,6 +558,7 @@ let Camera = cc.Class({
         this._updateClippingpPlanes();
         this._updateProjection();
         this._updateStages();
+        this._updateRect();
         this.beforeDraw();
     },
 

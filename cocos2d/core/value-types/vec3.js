@@ -448,7 +448,7 @@ proto.normalize = function (out) {
 /**
  * Transforms the vec3 with a mat4. 4th vector component is implicitly '1'
  * @method transformMat4
- * @param {mat4} m matrix to transform with
+ * @param {Mat4} m matrix to transform with
  * @param {Vec3} [out] the receiving vector, you can pass the same vec3 to save result to itself, if not provided, a new vec3 will be created
  * @returns {Vec3} out
  */

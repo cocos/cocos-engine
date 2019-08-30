@@ -33,8 +33,8 @@ let proto = aabb.prototype;
 /**
  * Get the bounding points of this shape
  * @method getBoundary
- * @param {vec3} minPos
- * @param {vec3} maxPos
+ * @param {Vec3} minPos
+ * @param {Vec3} maxPos
  */
 proto.getBoundary = function (minPos, maxPos) {
     vec3.sub(minPos, this.center, this.halfExtents);
@@ -44,10 +44,10 @@ proto.getBoundary = function (minPos, maxPos) {
 /**
  * Transform this shape
  * @method transform
- * @param {mat4} m the transform matrix
- * @param {vec3} pos the position part of the transform
- * @param {quat} rot the rotation part of the transform
- * @param {vec3} scale the scale part of the transform
+ * @param {Mat4} m the transform matrix
+ * @param {Vec3} pos the position part of the transform
+ * @param {Quat} rot the rotation part of the transform
+ * @param {Vec3} scale the scale part of the transform
  * @param {geomUtils.Aabb} [out] the target shape
  */
 proto.transform = function (m, pos, rot, scale, out) {
@@ -101,8 +101,8 @@ aabb.copy = function (out, a) {
  * create a new aabb from two corner points
  * @method fromPoints
  * @param {geomUtils.Aabb} out the receiving aabb
- * @param {vec3} minPos lower corner position of the aabb
- * @param {vec3} maxPos upper corner position of the aabb
+ * @param {Vec3} minPos lower corner position of the aabb
+ * @param {Vec3} maxPos upper corner position of the aabb
  * @return {geomUtils.Aabb}
  */
 aabb.fromPoints = function (out, minPos, maxPos) {
