@@ -87,6 +87,21 @@ module.exports = {
             "fit_height": "Canvas allows designers to automatically scale the resolution  to the full height of devices screen",
             "fit_width": "Canvas allows designers to automatically scale the resolution  to the full width of devices screen"
         },
+        "camera": {
+            'zoomRatio': 'The camera zoom ratio.',
+            'fov': 'Field of view. The width of the Camera’s view angle, measured in degrees along the local Y axis.',
+            'orthoSize': 'The viewport size of the Camera when set to orthographic projection.',
+            'nearClip': 'The near clipping plane.',
+            'farClip': 'The far clipping plane.',
+            'ortho': 'Is the camera orthographic (true) or perspective (false)?',
+            'rect': 'Four values (0 ~ 1) that indicate where on the screen this camera view will be drawn.',
+            'cullingMask': 'This is used to render parts of the scene selectively.',
+            'clearFlags': 'Determining what to clear when camera rendering. \n - Color：Clear the background color. \n - Depth：Clear the depth buffer. \n - STENCIL：Clear the stencil.',
+            'backgroundColor': 'The color with which the screen will be cleared.',
+            'depth': 'Camera\'s depth in the camera rendering order.',
+            'targetTexture': 'Destination render texture. \n Usually cameras render directly to screen, but for some effects it is useful to make a camera render into a texture.',
+            'renderStages': 'Sets the camera\'s render stages.',
+        },
         "label": {
             "string": "Text of the Label",
             "horizontal_align": "Horizontal alignment",
