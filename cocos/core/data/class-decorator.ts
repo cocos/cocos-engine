@@ -308,7 +308,7 @@ export const ccclass = checkCtorArgument(function (ctor, name) {
     return res;
 });
 
-export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCFloat | typeof CCBoolean | Enum;
+export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCFloat | typeof CCBoolean | typeof Enum;
 
 export type PropertyType = SimplePropertyType | SimplePropertyType[];
 
