@@ -56,6 +56,7 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
     private String mDefaultResourcePath = "";
     private long mOldNanoTime = 0;
     private long mFrameCount = 0;
+    private boolean mNeedToPause = false;
 
     // ===========================================================
     // Constructors
@@ -122,6 +123,9 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(final GL10 gl) {
+        if (mNeedToPause)
+            return;
+
         if (mNeedShowFPS) {
             /////////////////////////////////////////////////////////////////////
             //IDEA: show FPS in Android Text control rather than outputing log.
@@ -177,6 +181,11 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
     private static native void nativeOnSurfaceChanged(final int width, final int height);
     private static native void nativeOnPause();
     private static native void nativeOnResume();
+
+    // This function will be invoked in main thread.
+    public void setPauseInMainThread(boolean value) {
+        mNeedToPause = value;
+    }
 
     public void handleActionDown(final int id, final float x, final float y) {
         if (! mNativeInitCompleted)
