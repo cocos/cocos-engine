@@ -3,7 +3,10 @@
  */
 
 import { replaceProperty } from './utils/deprecated';
-import { math } from './';
+import { math } from '.';
+import { Scheduler } from './scheduler';
+
+// VMATH
 
 const vmath = {};
 replaceProperty(vmath,'vmath',[
@@ -161,3 +164,14 @@ replaceProperty(vmath,'vmath',[
 cc.vmath = vmath;
 
 export { vmath };
+
+// Scheduler
+
+replaceProperty(Scheduler.prototype, 'Scheduler.prototype', [
+    {
+        name: 'enableForTarget',
+        newName: 'enableForTarget',
+        target: Scheduler,
+        targetName: 'Scheduler'
+    }
+]);
