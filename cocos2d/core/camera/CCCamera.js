@@ -491,7 +491,8 @@ let Camera = cc.Class({
 
     _updateRect () {
         if (!this._camera) return;
-        this._camera.setRect(this._rect);
+        let rect = this._rect;
+        this._camera.setRect(rect.x, rect.y, rect.width, rect.height);
     },
 
     _updateStages () {
@@ -521,6 +522,7 @@ let Camera = cc.Class({
         this._updateClippingpPlanes();
         this._updateProjection();
         this._updateStages();
+        this._updateRect();
         this.beforeDraw();
     },
 
