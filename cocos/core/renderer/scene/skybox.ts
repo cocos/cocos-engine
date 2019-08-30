@@ -62,7 +62,6 @@ export class Skybox extends Model {
         const mesh = createMesh(box({ width: 2, height: 2, length: 2 }));
         const subMeshData = mesh.renderingMesh.getSubmesh(0)!;
         this.initSubModel(0, subMeshData, this._material);
-        this._updateGlobalBinding();
     }
 
     protected _updateGlobalBinding () {
