@@ -69,9 +69,9 @@ triangle.copy = function (out, t) {
  * Create a triangle from three points
  * @method fromPoints
  * @param {geomUtils.Triangle} out the receiving triangle
- * @param {vec3} a
- * @param {vec3} b
- * @param {vec3} c
+ * @param {Vec3} a
+ * @param {Vec3} b
+ * @param {Vec3} c
  * @return {geomUtils.Triangle}
  */
 triangle.fromPoints = function (out, a, b, c) {

@@ -63,14 +63,14 @@ ray.copy = function (out, a) {
 /**
  * Set the components of a vec3 to the given values
  * @method set
- * @param {vec3} out the receiving vector
+ * @param {Vec3} out the receiving vector
  * @param {Number} ox origin X component
  * @param {Number} oy origin Y component
  * @param {Number} oz origin Z component
  * @param {Number} dx dir X component
  * @param {Number} dy dir Y component
  * @param {Number} dz dir Z component
- * @returns {vec3} out
+ * @returns {Vec3} out
  */
 ray.set = function (out, ox, oy, oz, dx, dy, dz) {
     out.o.x = ox;
@@ -87,8 +87,8 @@ ray.set = function (out, ox, oy, oz, dx, dy, dz) {
  * create ray from 2 points
  * @method fromPoints
  * @param {geomUtils.Ray} out the receiving plane
- * @param {vec3} origin
- * @param {vec3} lookAt
+ * @param {Vec3} origin
+ * @param {Vec3} lookAt
  * @returns {geomUtils.Ray} out
  */
 ray.fromPoints = function (out, origin, lookAt) {

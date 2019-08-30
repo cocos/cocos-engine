@@ -126,7 +126,7 @@ const LightShadowType = Enum({
  *
  * !#zh 光源组件
  * @class Light
- * @extends CCComponent
+ * @extends Component
  */
 @ccclass('cc.Light')
 @menu('i18n:MAIN_MENU.component.renderers/Light')

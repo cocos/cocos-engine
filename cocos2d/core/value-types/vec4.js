@@ -70,7 +70,7 @@ class Vec4 extends ValueType {
          */
         this.z = z || 0;
         /**
-         * @property {Number} z
+         * @property {Number} w
          */
         this.w = w || 0;
     }
@@ -470,9 +470,9 @@ class Vec4 extends ValueType {
     /**
      * Transforms the vec4 with a mat4. 4th vector component is implicitly '1'
      * @method transformMat4
-     * @param {mat4} m matrix to transform with
-     * @param {vec4} [out] the receiving vector, you can pass the same vec4 to save result to itself, if not provided, a new vec4 will be created
-     * @returns {vec4} out
+     * @param {Mat4} m matrix to transform with
+     * @param {Vec4} [out] the receiving vector, you can pass the same vec4 to save result to itself, if not provided, a new vec4 will be created
+     * @returns {Vec4} out
      */
     transformMat4 (m, out) {
         out = out || new Vec4();
