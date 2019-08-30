@@ -29,7 +29,7 @@
  */
 
 import { assertID, error } from '../platform/debug';
-import loader from '../load-pipeline/loader';
+import { loader } from '../load-pipeline/CCLoader';
 import { LoadCallbackParams } from '../load-pipeline/callback-params';
 import { ImageAsset, ImageSource } from './image-asset';
 
