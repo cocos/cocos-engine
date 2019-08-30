@@ -1221,7 +1221,7 @@ function initSys () {
      * !#zh
      * 网络类型枚举
      *
-     * @enum NetworkType
+     * @enum sys.NetworkType
      */
     sys.NetworkType = {
         /**

@@ -36,8 +36,8 @@ export default class Model {
   
   /**
    * Create the bounding shape of this model
-   * @param {vec3} minPos the min position of the model
-   * @param {vec3} maxPos the max position of the model
+   * @param {Vec3} minPos the min position of the model
+   * @param {Vec3} maxPos the max position of the model
    */
   createBoundingShape(minPos, maxPos) {
     if (!geomUtils) return

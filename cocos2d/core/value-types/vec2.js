@@ -586,7 +586,7 @@ proto.project = function (vector) {
 /**
  * Transforms the vec2 with a mat4. 3rd vector component is implicitly '0', 4th vector component is implicitly '1'
  * @method transformMat4
- * @param {mat4} m matrix to transform with
+ * @param {Mat4} m matrix to transform with
  * @param {Vec2} [out] the receiving vector, you can pass the same vec2 to save result to itself, if not provided, a new vec2 will be created
  * @returns {Vec2} out
  */
