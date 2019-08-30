@@ -90,6 +90,21 @@ module.exports = {
             'fit_height': '自动缩放 Canvas 使设计分辨率的高度充满设备屏幕的高度',
             'fit_width': '自动缩放 Canvas 使设计分辨率的宽度充满设备屏幕的宽度'
         },
+        'camera': {
+            'zoomRatio': '摄像机缩放比率',
+            'fov': '决定摄像机视角的宽度，当摄像机处于透视投影模式下这个属性才会生效',
+            'orthoSize': '摄像机在正交投影模式下的视窗大小',
+            'nearClip': '摄像机的近剪裁面',
+            'farClip': '摄像机的远剪裁面',
+            'ortho': '设置摄像机的投影模式是正交还是透视模式',
+            'rect': '决定摄像机绘制在屏幕上哪个位置，值为（0 ~ 1）',
+            'cullingMask': '决定摄像机会渲染场景的哪一部分',
+            'clearFlags': '决定摄像机渲染时会清除哪些状态 \n - Color：清除背景颜色 \n - Depth：清除深度缓冲区 \n - Stencil：清除模板缓冲区',
+            'backgroundColor': '摄像机用于清除屏幕的背景色',
+            'depth': '摄像机深度，用于决定摄像机的渲染顺序',
+            'targetTexture': '摄像机渲染的目标 RenderTexture \n 一般摄像机会直接渲染到屏幕上，但是有一些效果可以使用摄像机渲染到 RenderTexture 上再对 RenderTexture 进行处理来实现',
+            'renderStages': '设置摄像机渲染的阶段',
+        },
         'label': {
             'string': 'Label 显示的文本内容字符串',
             'horizontal_align': '文字水平对齐模式',
