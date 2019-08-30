@@ -26,6 +26,18 @@
             ]
         },
         {
+            "text": "UI",
+            "description": "UI module",
+            "entry": "ui",
+            "default": true
+        },
+        {
+            "text": "Particle System",
+            "description": "Particle system module",
+            "entry": "particle",
+            "default": true
+        },
+        {
             "text": "Physics",
             "description": "Physics(implementation).",
             "default": true,
@@ -56,6 +68,12 @@
             "text": "tween.js Adapter",
             "description": "Integrate tween.js in Creator 3D.",
             "entry": "tween",
+            "default": true
+        },
+        {
+            "text": "Terrain",
+            "description": "Integrate tween.js in Creator 3D.",
+            "entry": "terrain",
             "default": true
         }
     ]
