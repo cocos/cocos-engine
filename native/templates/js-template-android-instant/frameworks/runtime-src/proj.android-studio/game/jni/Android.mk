@@ -23,9 +23,4 @@ LOCAL_EXPORT_CFLAGS := -DCOCOS2D_DEBUG=2
 
 include $(BUILD_SHARED_LIBRARY)
 
-ifneq ($(filter x86 armeabi-v7a, $(TARGET_ARCH_ABI)),)
-	LOCAL_WHOLE_STATIC_LIBRARIES += android_support
-endif 
-
-
 $(call import-module, cocos)
