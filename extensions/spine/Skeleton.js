@@ -442,14 +442,15 @@ sp.Skeleton = cc.Class({
 
     _updateUseTint () {
         let baseMaterial = this.getMaterial(0);
+        let useTint = this.useTint || this.isAnimationCached();
         if (baseMaterial) {
-            baseMaterial.define('USE_TINT', this.useTint);
+            baseMaterial.define('USE_TINT', useTint);
         }
         var cache = this._materialCache;
         for (var mKey in cache) {
             var material = cache[mKey];
             if (material) {
-                material.define('USE_TINT', this.useTint);
+                material.define('USE_TINT', useTint);
             }
         }
     },
@@ -564,10 +565,6 @@ sp.Skeleton = cc.Class({
             }
         }
 
-        if (CC_JSB) {
-            this._cacheMode = AnimationCacheMode.REALTIME;
-        }
-
         this._resetAssembler();
         this._updateSkeletonData();
         this._updateDebugDraw();
@@ -589,10 +586,10 @@ sp.Skeleton = cc.Class({
      * skeleton.setAnimationCacheMode(sp.Skeleton.AnimationCacheMode.SHARED_CACHE);
      */
     setAnimationCacheMode (cacheMode) {
-        if (CC_JSB) return;
         if (this._preCacheMode !== cacheMode) {
             this._cacheMode = cacheMode;
             this._updateSkeletonData();
+            this._updateUseTint();
         }
     },
 
