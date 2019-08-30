@@ -33,5 +33,5 @@ export {default as Downloader} from './downloader';
 export {default as Loader} from './loader';
 export * from './loading-items';
 export { Pipeline } from './pipeline';
-export {default as loader} from './CCLoader';
+export { loader } from './CCLoader';
 export * from './callback-params';
