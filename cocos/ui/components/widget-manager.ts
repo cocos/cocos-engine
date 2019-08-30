@@ -115,7 +115,7 @@ function align (node: Node, widget: WidgetComponent) {
         target = hasTarget;
         // inverseTranslate = tInverseTranslate;
         // inverseScale = tInverseScale;
-        computeInverseTransForTarget(node, target, inverseTranslate, inverseScale);
+        computeInverseTransForTarget(node as INode, target, inverseTranslate, inverseScale);
     } else {
         target = node.parent;
     }
@@ -393,7 +393,7 @@ function adjustWidgetToAllowMovingInEditor (this: WidgetComponent, eventType: Sy
     const inverseScale = new Vec3(1, 1, 1);
 
     if (self.target) {
-        target = self.target;
+        target = self.target as INode;
         computeInverseTransForTarget(self.node, target, new Vec3(), inverseScale);
     }
     if (!target) {
@@ -446,7 +446,7 @@ function adjustWidgetToAllowResizingInEditor (this: WidgetComponent/*, oldSize: 
     let target = self.node.parent;
     const inverseScale = new Vec3(1, 1, 1);
     if (self.target) {
-        target = self.target;
+        target = self.target as INode;
         computeInverseTransForTarget(self.node, target, new Vec3(), inverseScale);
     }
     if (!target) {
@@ -581,7 +581,7 @@ export const widgetManager = cc._widgetManager = {
             const zero = new Vec3();
             const one = new Vec3(1, 1, 1);
             if (widget.target) {
-                widgetParent = widget.target;
+                widgetParent = widget.target as INode;
                 computeInverseTransForTarget(widgetNode, widgetParent, zero, one);
             }
 

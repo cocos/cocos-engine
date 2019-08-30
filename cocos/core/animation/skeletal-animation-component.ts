@@ -152,8 +152,8 @@ export class SkeletalAnimationComponent extends AnimationComponent {
         if (socket) { return socket.target; }
         const joint = this.node.getChildByPath(path);
         if (!joint) { console.warn('illegal socket path'); return null; }
-        const target = new Node();
-        target.parent = this.node as Node;
+        const target = new Node() as INode;
+        target.parent = this.node;
         this._sockets.push(new Socket(path, target));
         this.rebuildSocketAnimations();
         return target;

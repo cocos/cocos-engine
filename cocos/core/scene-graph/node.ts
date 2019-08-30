@@ -108,7 +108,7 @@ export class Node extends BaseNode implements INode {
     protected _dirtyFlags = TransformDirtyBit.NONE; // does the world transform need to update?
     protected _eulerDirty = false;
 
-    protected _eventProcessor: NodeEventProcessor = new NodeEventProcessor(this);
+    protected _eventProcessor: NodeEventProcessor = new NodeEventProcessor(this as INode);
     protected _eventMask = 0;
     private _uiTransfromComp: UITransformComponent | null = null;
     // tslint:disable-next-line: member-ordering
