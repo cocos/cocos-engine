@@ -29,7 +29,7 @@
     "del": "3.0.0",
     "event-stream": "3.3.2",
     "fire-fs": "0.2.1",
-    "glsl-tokenizer": "^2.1.5",
+    "glsl-tokenizer": "2.1.5",
     "gulp": "^4.0.2",
     "gulp-babel": "6.1.2",
     "gulp-cached": "1.1.0",
@@ -40,11 +40,11 @@
     "gulp-mirror": "0.4.0",
     "gulp-optimize-js": "^1.1.0",
     "gulp-plumber": "0.6.6",
-    "gulp-qunit": "^2.0.1",
+    "gulp-qunit": "2.0.1",
     "gulp-rename": "1.2.2",
     "gulp-shell": "0.4.1",
     "gulp-size": "2.1.0",
-    "gulp-sourcemaps": "^2.6.5",
+    "gulp-sourcemaps": "2.6.5",
     "gulp-uglify": "^3.0.0",
     "gulp-util": "3.0.6",
     "js-sha1": "^0.6.0",
@@ -52,12 +52,12 @@
     "multipipe": "0.3.0",
     "persistify": "^1.1.1",
     "require-dir": "0.3.0",
-    "rollup": "^0.66.6",
-    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup": "0.66.6",
+    "rollup-plugin-node-resolve": "3.4.0",
     "uglify-es": "3.3.7",
     "vinyl": "1.1.0",
     "vinyl-buffer": "1.0.1",
     "vinyl-source-stream": "2.0.0",
-    "watchify": "^3.7.0"
+    "watchify": "3.7.0"
   }
 }
