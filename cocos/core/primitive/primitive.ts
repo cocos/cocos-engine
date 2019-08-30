@@ -1,23 +1,24 @@
 import { ccclass, property } from '../data/class-decorator';
-import { Enum } from '../value-types';
 import { createMesh } from '../3d/misc/utils';
 import * as primitives from '../primitive';
 import { Mesh } from '../assets/mesh';
+import { ccenum } from '../value-types/enum';
 
-const PrimitiveType = Enum({
-    BOX: 0,
-    SPHERE: 1,
-    CYLINDER: 2,
-    CONE: 3,
-    CAPSULE: 4,
-    TORUS: 5,
-    PLANE: 6,
-    QUAD: 7,
-});
+enum PrimitiveType {
+    BOX = 0,
+    SPHERE = 1,
+    CYLINDER = 2,
+    CONE = 3,
+    CAPSULE = 4,
+    TORUS = 5,
+    PLANE = 6,
+    QUAD = 7,
+}
+ccenum(PrimitiveType);
 
 @ccclass('cc.Primitive')
 export class Primitive extends Mesh {
-    @property(PrimitiveType)
+    @property({type: PrimitiveType})
     public type: number = PrimitiveType.BOX;
     @property
     public info: Record<string, number> = {};
