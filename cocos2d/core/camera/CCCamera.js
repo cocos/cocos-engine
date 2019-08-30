@@ -646,6 +646,30 @@ let Camera = cc.Class({
     },
 
     /**
+     * @method getScreenToWorldPoint3D
+     * @param {Vec3} screenPoint 
+     * @param {Vec3} [out] 
+     * @return {Vec3}
+     */
+    getScreenToWorldPoint3D (screenPoint, out) {
+        out = out || new cc.Vec3();
+        this._camera.screenToWorld(out, screenPoint, cc.visibleRect.width, cc.visibleRect.height);
+        return out;
+    },
+
+    /**
+     * @method getWorldToScreenPoint3D
+     * @param {Vec3} worldPoint 
+     * @param {Vec3} [out] 
+     * @return {Vec3}
+     */
+    getWorldToScreenPoint3D (worldPoint, out) {
+        out = out || new cc.Vec3();
+        this._camera.worldToScreen(out, worldPoint, cc.visibleRect.width, cc.visibleRect.height);
+        return out;
+    },
+
+    /**
      * !#en
      * Get a ray from screen position
      * !#zh
