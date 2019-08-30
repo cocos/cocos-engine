@@ -414,11 +414,11 @@ export default class Camera {
 
   /**
    * transform a screen position to world space
-   * @param {vec3} out the resulting vector
-   * @param {vec3} screenPos the screen position to be transformed
+   * @param {Vec3} out the resulting vector
+   * @param {Vec3} screenPos the screen position to be transformed
    * @param {number} width framebuffer width
    * @param {number} height framebuffer height
-   * @returns {vec3} the resulting vector
+   * @returns {Vec3} the resulting vector
    */
   screenToWorld(out, screenPos, width, height) {
     this._calcMatrices(width, height);
@@ -459,11 +459,11 @@ export default class Camera {
 
   /**
    * transform a world space position to screen space
-   * @param {vec3} out the resulting vector
-   * @param {vec3} worldPos the world space position to be transformed
+   * @param {Vec3} out the resulting vector
+   * @param {Vec3} worldPos the world space position to be transformed
    * @param {number} width framebuffer width
    * @param {number} height framebuffer height
-   * @returns {vec3} the resulting vector
+   * @returns {Vec3} the resulting vector
    */
   worldToScreen(out, worldPos, width, height) {
     this._calcMatrices(width, height);

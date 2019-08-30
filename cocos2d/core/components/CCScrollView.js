@@ -729,7 +729,7 @@ let ScrollView = cc.Class({
      * !#en Query the content's position in its parent space.
      * !#zh 获取当前视图内容的坐标点。
      * @method getContentPosition
-     * @returns {Position} - The content's position in its parent space.
+     * @returns {Vec2} - The content's position in its parent space.
      */
     getContentPosition () {
         return this.content.getPosition();

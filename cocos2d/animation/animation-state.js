@@ -70,6 +70,7 @@ function AnimationState (clip, name) {
     /**
      * @property animator
      * @type {AnimationAnimator}
+     * @private
      */
     this.animator = null;
 
