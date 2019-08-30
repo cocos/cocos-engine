@@ -30,7 +30,7 @@
  * @category component
  */
 
-import { Script } from '../assets';
+import { Script } from '../assets/scripts';
 import { ccclass, property } from '../data/class-decorator';
 import { CCObject } from '../data/object';
 import IDGenerator from '../utils/id-generator';
@@ -39,7 +39,6 @@ import { RenderScene } from '../renderer/scene/render-scene';
 import { Rect } from '../math';
 import * as RF from '../data/utils/requiring-frame';
 import { INode } from '../utils/interfaces';
-import { director } from '../director';
 
 const idGenerator = new IDGenerator('Comp');
 // @ts-ignore
@@ -137,7 +136,7 @@ class Component extends CCObject {
         if (this._enabled !== value) {
             this._enabled = value;
             if (this.node.activeInHierarchy) {
-                const compScheduler = director._compScheduler;
+                const compScheduler = cc.director._compScheduler;
                 if (value) {
                     compScheduler.enableComp(this);
                 }
@@ -391,7 +390,7 @@ class Component extends CCObject {
         }
         if (super.destroy()) {
             if (this._enabled && this.node.activeInHierarchy) {
-                director._compScheduler.disableComp(this);
+                cc.director._compScheduler.disableComp(this);
             }
         }
     }
@@ -415,7 +414,7 @@ class Component extends CCObject {
         }
 
         // onDestroy
-        director._nodeActivator.destroyComp(this);
+        cc.director._nodeActivator.destroyComp(this);
 
         // do remove component
         this.node._removeComponent(this);
@@ -459,7 +458,7 @@ class Component extends CCObject {
         repeat = isNaN(repeat) ? cc.macro.REPEAT_FOREVER : repeat;
         delay = delay || 0;
 
-        const scheduler = director.getScheduler();
+        const scheduler = cc.director.getScheduler();
 
         // should not use enabledInHierarchy to judge whether paused,
         // because enabledInHierarchy is assigned after onEnable.
@@ -505,7 +504,7 @@ class Component extends CCObject {
             return;
         }
 
-        director.getScheduler().unschedule(callback_fn, this);
+        cc.director.getScheduler().unschedule(callback_fn, this);
     }
 
     /**
@@ -520,7 +519,7 @@ class Component extends CCObject {
      * ```
      */
     public unscheduleAllCallbacks () {
-        director.getScheduler().unscheduleAllForTarget(this);
+        cc.director.getScheduler().unscheduleAllForTarget(this);
     }
 
     // LIFECYCLE METHODS

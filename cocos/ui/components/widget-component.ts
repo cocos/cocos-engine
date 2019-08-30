@@ -35,7 +35,6 @@ import { Size, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { Node } from '../../core/scene-graph/node';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transfrom-component';
-import { widgetManager } from './widget-manager';
 import { INode } from '../../core/utils/interfaces';
 import { errorID } from '../../core/platform/debug';
 
@@ -147,7 +146,7 @@ export class WidgetComponent extends Component {
         this._registerTargetEvents();
         if (CC_EDITOR /*&& !cc.engine._isPlaying*/ && this.node.parent) {
             // adjust the offsets to keep the size and position unchanged after target chagned
-            widgetManager.updateOffsetsToStayPut(this);
+            cc._widgetManager.updateOffsetsToStayPut(this);
         }
 
         this._validateTargetInDEV();
@@ -546,7 +545,7 @@ export class WidgetComponent extends Component {
      * ```
      */
     public updateAlignment () {
-        widgetManager.updateAlignment(this.node as Node);
+        cc._widgetManager.updateAlignment(this.node as Node);
     }
 
     public _validateTargetInDEV () {
@@ -575,7 +574,7 @@ export class WidgetComponent extends Component {
     public onEnable () {
         this.node.getPosition(this._lastPos);
         this.node.getContentSize(this._lastSize);
-        widgetManager.add(this);
+        cc._widgetManager.add(this);
         this._registerTargetEvents();
     }
 
@@ -591,7 +590,7 @@ export class WidgetComponent extends Component {
     }
 
     public onDisable () {
-        widgetManager.remove(this);
+        cc._widgetManager.remove(this);
         this._unregisterTargetEvents();
     }
 
@@ -676,7 +675,7 @@ export class WidgetComponent extends Component {
 
             if (CC_EDITOR && this.node.parent) {
                 // adjust the offsets to keep the size and position unchanged after alignment chagned
-                widgetManager.updateOffsetsToStayPut(this, flag);
+                cc._widgetManager.updateOffsetsToStayPut(this, flag);
             }
         } else {
             if (isHorizontal) {

@@ -2,8 +2,8 @@
  * @category gemotry-utils
  */
 
-import { CCClass } from '../../core/data';
-import { Enum } from '../../core/value-types';
+import CCClass from '../../core/data/class';
+import { Enum } from '../../core/value-types/enum';
 import { clamp, inverseLerp, pingPong, repeat } from '../../core/math/utils';
 
 const LOOK_FORWARD = 3;

@@ -37,7 +37,6 @@ import * as js from '../utils/js';
 import { baseNodePolyfill } from './base-node-dev';
 import { Scene } from './scene';
 import { ISchedulable } from '../scheduler';
-import { director } from '../director';
 
 /**
  *
@@ -203,7 +202,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             if (parent) {
                 const couldActiveInScene = parent._activeInHierarchy;
                 if (couldActiveInScene) {
-                    director._nodeActivator.activateNode(this, isActive);
+                    cc.director._nodeActivator.activateNode(this, isActive);
                 }
             }
         }
@@ -1027,7 +1026,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             cc.engine.attachedObjsForEditor[component._id] = component;
         }
         if (this._activeInHierarchy) {
-            director._nodeActivator.activateComp(component);
+            cc.director._nodeActivator.activateComp(component);
         }
 
         return component;
@@ -1216,7 +1215,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         }
 
         if (CC_EDITOR || CC_TEST) {
-            const scene = director.getScene() as this | null;
+            const scene = cc.director.getScene() as this | null;
             const inCurrentSceneBefore = oldParent && oldParent.isChildOf(scene);
             const inCurrentSceneNow = newParent && newParent.isChildOf(scene);
             if (!inCurrentSceneBefore && inCurrentSceneNow) {
@@ -1255,7 +1254,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
 
         const shouldActiveNow = this._active && !!(newParent && newParent._activeInHierarchy);
         if (this._activeInHierarchy !== shouldActiveNow) {
-            director._nodeActivator.activateNode(this, shouldActiveNow);
+            cc.director._nodeActivator.activateNode(this, shouldActiveNow);
         }
     }
 
@@ -1321,7 +1320,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         for (let i = 0; i < comps.length; ++i) {
             const component = comps[i];
             if (component._enabled) {
-                director._compScheduler.disableComp(component);
+                cc.director._compScheduler.disableComp(component);
             }
         }
         // deactivate recursively

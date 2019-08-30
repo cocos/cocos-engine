@@ -32,7 +32,7 @@ import * as js from '../utils/js';
 import {_getClassById} from '../utils/js';
 import { getError } from '../platform/debug';
 import { LoadingItems } from './loading-items';
-import {decompressJson} from './utils';
+import { decompressJson } from './utils';
 
 export function isSceneObj (json) {
     let SCENE_ID = 'cc.Scene';

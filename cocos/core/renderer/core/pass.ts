@@ -28,7 +28,7 @@
  */
 
 import { EffectAsset, IPassInfo, IPassStates, IPropertyInfo, IShaderInfo } from '../../assets/effect-asset';
-import { builtinResMgr } from '../../3d/builtin';
+import { builtinResMgr } from '../../3d/builtin/init';
 import { TextureBase } from '../../assets/texture-base';
 import { Mat3, Mat4, Vec2, Vec3, Vec4 } from '../../math';
 import { Root } from '../../root';
@@ -48,7 +48,6 @@ import { RenderPassStage, RenderPriority, UniformBinding } from '../../pipeline/
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
-import { director } from '../../director';
 
 export interface IDefineMap { [name: string]: number | boolean | string; }
 export interface IPassInfoFull extends IPassInfo {
@@ -391,7 +390,7 @@ export class Pass {
                 block.dirty = false;
             }
         }
-        const source = (director.root as Root).pipeline.globalBindings;
+        const source = (cc.director.root as Root).pipeline.globalBindings;
         const target = this._shaderInfo.builtins.globals;
         const samplerLen = target.samplers.length;
         for (let i = 0; i < samplerLen; i++) {
@@ -465,7 +464,7 @@ export class Pass {
      */
     public tryCompile (defineOverrides?: IDefineMap) {
         if (defineOverrides) { Object.assign(this._defines, defineOverrides); }
-        const pipeline = (director.root as Root).pipeline;
+        const pipeline = (cc.director.root as Root).pipeline;
         if (!pipeline) { return false; }
         this._renderPass = pipeline.getRenderPass(this._stage);
         if (!this._renderPass) { console.warn(`illegal pass stage.`); return false; }
@@ -506,7 +505,7 @@ export class Pass {
             bindingLayout.bindTextureView(parseInt(t), this._textureViews[t]);
         }
         // bind pipeline builtins
-        const source = (director.root as Root).pipeline.globalBindings;
+        const source = (cc.director.root as Root).pipeline.globalBindings;
         const target = this._shaderInfo.builtins.globals;
         for (const b of target.blocks) {
             const info = source.get(b.name);

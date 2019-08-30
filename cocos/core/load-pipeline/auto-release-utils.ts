@@ -28,7 +28,7 @@
  */
 
 import {createMap} from '../utils/js';
-import { RawAsset } from '../assets';
+import { RawAsset } from '../assets/raw-asset';
 
 function parseDepends (key, parsed) {
     let item = cc.loader.getItem(key);

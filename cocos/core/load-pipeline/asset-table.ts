@@ -32,7 +32,8 @@ import {createMap, isChildClassOf} from '../utils/js';
 import url from './url';
 import { errorID } from '../platform/debug';
 import { extname } from '../utils/path';
-import { SpriteFrame, SpriteAtlas } from '../assets';
+import { SpriteFrame } from '../assets/sprite-frame';
+import { SpriteAtlas } from '../assets/sprite-atlas';
 
 class Entry {
     public uuid:string;

@@ -29,7 +29,6 @@
 
 import { CCObject } from '../data/object';
 import * as js from '../utils/js';
-import { director } from '../director';
 
 // @ts-ignore
 const Destroying = CCObject.Flags.Destroying;
@@ -94,7 +93,7 @@ export function baseNodePolyfill (BaseNode) {
                 cc.engine.attachedObjsForEditor[comp._id] = comp;
             }
             if (this._activeInHierarchy) {
-                director._nodeActivator.activateComp(comp);
+                cc.director._nodeActivator.activateComp(comp);
             }
         };
 
@@ -121,7 +120,7 @@ export function baseNodePolyfill (BaseNode) {
             // check activity state
             const shouldActiveNow = this._active && !!(this._parent && this._parent._activeInHierarchy);
             if (this._activeInHierarchy !== shouldActiveNow) {
-                director._nodeActivator.activateNode(this, shouldActiveNow);
+                cc.director._nodeActivator.activateNode(this, shouldActiveNow);
             }
         };
 

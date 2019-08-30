@@ -31,7 +31,7 @@
 export {default as url} from './url';
 export {default as Downloader} from './downloader';
 export {default as Loader} from './loader';
-export {default as LoadingItems} from './loading-items';
-export {default as Pipeline} from './pipeline';
+export * from './loading-items';
+export { Pipeline } from './pipeline';
 export {default as loader} from './CCLoader';
 export * from './callback-params';

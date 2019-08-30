@@ -6,7 +6,6 @@ import { UITransformComponent } from '../components/ui-base/ui-transfrom-compone
 import { CameraComponent } from '../3d/framework';
 import { Vec3 } from '../math';
 import { Node } from '../scene-graph';
-import { view } from '../platform';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -26,8 +25,8 @@ export function WorldNode3DToLocalNodeUI (mainCamera: CameraComponent, wpos: Vec
     }
 
     mainCamera.worldToScreen(wpos, _temp_vec3_1);
-    _temp_vec3_1.x = _temp_vec3_1.x / view.getScaleX();
-    _temp_vec3_1.y = _temp_vec3_1.y / view.getScaleY();
+    _temp_vec3_1.x = _temp_vec3_1.x / cc.view.getScaleX();
+    _temp_vec3_1.y = _temp_vec3_1.y / cc.view.getScaleY();
     const cmp = uiNode.getComponent('cc.UITransformComponent') as UITransformComponent;
 
     if (!cmp){
@@ -56,8 +55,8 @@ export function WorldNode3DToWorldNodeUI (mainCamera: CameraComponent, wpos: Vec
     }
 
     mainCamera.worldToScreen(wpos, out);
-    out.x = out.x / view.getScaleX();
-    out.y = out.y / view.getScaleY();
+    out.x = out.x / cc.view.getScaleX();
+    out.y = out.y / cc.view.getScaleY();
     return out;
 }
 

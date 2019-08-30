@@ -106,7 +106,7 @@ const tInverseTranslate = new Vec3();
 const tInverseScale = new Vec3(1, 1, 1);
 
 // align to borders by adjusting node's position and size (ignore rotation)
-function align (node: Node, widget: WidgetComponent) {
+function align (node: INode, widget: WidgetComponent) {
     const hasTarget = widget.target;
     let target: any;
     const inverseTranslate = tInverseTranslate;
@@ -358,7 +358,7 @@ function refreshScene () {
             for (iterator.i = 0; iterator.i < activeWidgets.length; ++iterator.i) {
                 widget = activeWidgets[iterator.i];
                 if (widget._dirty) {
-                    align(widget.node as Node, widget);
+                    align(widget.node, widget);
                     widget._dirty = false;
                 }
             }
