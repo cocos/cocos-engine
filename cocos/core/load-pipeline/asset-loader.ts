@@ -88,4 +88,5 @@ export default class AssetLoader implements IPipe {
     }
 }
 
-// Pipeline.AssetLoader = AssetLoader;
+// @ts-ignore
+Pipeline.AssetLoader = AssetLoader;

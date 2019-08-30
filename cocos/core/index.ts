@@ -56,3 +56,5 @@ export * from './animation';
 import './primitive';
 
 export * from './utils/profiler/profiler';
+
+import './deprecated';

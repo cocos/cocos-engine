@@ -76,4 +76,5 @@ export class SubPackPipe implements IPipe {
     }
 }
 
-// Pipeline.SubPackPipe = SubPackPipe;
+// @ts-ignore
+Pipeline.SubPackPipe = SubPackPipe;

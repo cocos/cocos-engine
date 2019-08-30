@@ -98,4 +98,5 @@ export default class MD5Pipe implements IPipe {
     }
 }
 
-// Pipeline.MD5Pipe = MD5Pipe;
+// @ts-ignore
+Pipeline.MD5Pipe = MD5Pipe;

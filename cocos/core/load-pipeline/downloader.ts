@@ -313,4 +313,5 @@ export default class Downloader implements IPipe {
     }
 }
 
-// Pipeline.Downloader = Downloader;
+// @ts-ignore
+Pipeline.Downloader = Downloader;

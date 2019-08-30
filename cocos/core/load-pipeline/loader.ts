@@ -313,4 +313,5 @@ export default class Loader implements IPipe {
     }
 }
 
-// Pipeline.Loader = Loader;
+// @ts-ignore
+Pipeline.Loader = Loader;
