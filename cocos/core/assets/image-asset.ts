@@ -32,6 +32,7 @@ import {ccclass, property} from '../data/class-decorator';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
+import { Texture2D } from './texture-2d';
 
 /**
  * 内存图像源。
@@ -112,9 +113,25 @@ export class ImageAsset extends Asset {
         return this._url;
     }
 
+    set _texture (tex) {
+        this._tex = tex;
+    }
+
+    get _texture () {
+        if (!this._tex) {
+            let tex = new cc.Texture2D();
+            tex.name = this._url;
+            tex.image = this;
+            this._tex = tex;
+        }
+        return this._tex;
+    }
+
     private static extnames = ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm'];
 
     private _nativeData: ImageSource;
+
+    private _tex;
 
     private _url: string;
 
