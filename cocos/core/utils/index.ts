@@ -35,7 +35,7 @@ import * as misc from './misc';
  * 用于处理文件与目录的路径的模块
  */
 import * as path from './path';
-import { replaceProperty } from '../../deprecated';
+import { replaceProperty } from './deprecated';
 import * as math from '../math';
 
 // replaceProperty(misc,'misc',[
@@ -71,9 +71,9 @@ import * as math from '../math';
 //     },
 // ]);
 
+export * from './deprecated';
 export * from './text-utils';
 export * from './html-text-parser';
-
 export * from './prefab-helper';
 export {
     js,

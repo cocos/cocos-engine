@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { removeProperty, replaceProperty } from '../../deprecated';
+import { removeProperty, replaceProperty } from '../utils/deprecated';
 import { Color } from './color';
 import { Mat3 } from './mat3';
 import { Mat4 } from './mat4';

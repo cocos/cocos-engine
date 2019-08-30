@@ -2,4 +2,4 @@
  * @hidden
  */
 
-// import '../cocos/3d/physics/ammo/instantiate';
+// import '../physics/ammo/instantiate';

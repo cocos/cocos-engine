@@ -30,7 +30,7 @@
  */
 
 import { INode } from '../../utils/interfaces';
-import { EventKeyboard, EventAcceleration, EventMouse } from './CCEvent';
+import { EventKeyboard, EventAcceleration, EventMouse } from './events';
 
 export interface IEventListenerCreateInfo {
     event?: number;

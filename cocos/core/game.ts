@@ -27,10 +27,10 @@
  * @category core
  */
 
-import { WebGLGFXDevice } from '../gfx/webgl/webgl-device';
-import { WebGL2GFXDevice } from '../gfx/webgl2/webgl2-device';
+import { WebGLGFXDevice } from './gfx/webgl/webgl-device';
+import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
 import { EventTarget } from './event/event-target';
-import * as debug from './platform/CCDebug';
+import * as debug from './platform/debug';
 import inputManager from './platform/event-manager/input-manager';
 
 /**
@@ -39,7 +39,6 @@ import inputManager from './platform/event-manager/input-manager';
  * @class game
  * @static
  */
-
 export class Game extends EventTarget {
     /**
      * @en Event triggered when game hide to background.<br>
@@ -890,6 +889,4 @@ export class Game extends EventTarget {
 }
 
 cc.Game = Game;
-
-export const game: Game = new Game();
-cc.game = game; 
+export const game = cc.game = new Game();

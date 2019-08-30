@@ -28,20 +28,18 @@
  * @category core
  */
 
-import { widgetManager } from '../3d/ui/components/widget-manager';
-// import SkinningModelSystem from '../3d/framework/skinning-model-system';
-import { PhysicsSystem } from '../3d/framework/physics/physics-system';
-import { autoRelease } from '../load-pipeline/auto-release-utils';
-import { Scene, Node } from '../scene-graph';
-import ComponentScheduler from '../scene-graph/component-scheduler';
-import NodeActivator from '../scene-graph/node-activator';
+import { autoRelease } from './load-pipeline/auto-release-utils';
+import { Scene, Node } from './scene-graph';
+import ComponentScheduler from './scene-graph/component-scheduler';
+import NodeActivator from './scene-graph/node-activator';
 import { CCObject } from './data/object';
 import { EventTarget } from './event/event-target';
 import { Game } from './game';
 import eventManager from './platform/event-manager/event-manager';
 import { Root } from './root';
-import Scheduler from './scheduler';
-import { getClassByName } from './utils/js';
+import { Scheduler } from './scheduler';
+import System from './components/system';
+import { js } from './utils';
 
 // const ComponentScheduler = require('./component-scheduler');
 // const NodeActivator = require('./node-activator');
@@ -119,9 +117,35 @@ import { getClassByName } from './utils/js';
 export class Director extends EventTarget {
 
     /**
+     * @en The event which will be triggered when the singleton of Director initialized.
+     * @zh Director 单例初始化时触发的事件
+     * @event Director.EVENT_INIT
+     */
+    /**
+     * @en The event which will be triggered when the singleton of Director initialized.
+     * @zh Director 单例初始化时触发的事件
+     * @property {String} EVENT_INIT
+     * @readonly
+     */
+    public static readonly EVENT_INIT = 'director_init';
+
+    /**
+     * @en The event which will be triggered when the singleton of Director reset.
+     * @zh Director 单例重置时触发的事件
+     * @event Director.EVENT_RESET
+     */
+    /**
+     * @en The event which will be triggered when the singleton of Director reset.
+     * @zh Director 单例重置时触发的事件
+     * @property {String} EVENT_RESET
+     * @readonly
+     */
+    public static readonly EVENT_RESET = 'director_reset';
+
+    /**
      * @en The event which will be triggered before loading a new scene.
      * @zh 加载新场景之前所触发的事件。
-     * @event cc.Director.EVENT_BEFORE_SCENE_LOADING
+     * @event Director.EVENT_BEFORE_SCENE_LOADING
      * @param {String} sceneName - The loading scene name
      */
     /**
@@ -132,12 +156,12 @@ export class Director extends EventTarget {
      */
     public static readonly EVENT_BEFORE_SCENE_LOADING = 'director_before_scene_loading';
 
-    /*
-    * @en The event which will be triggered before launching a new scene.
-    * @zh 运行新场景之前所触发的事件。
-    * @event cc.Director.EVENT_BEFORE_SCENE_LAUNCH
-    * @param {String} sceneName - New scene which will be launched
-    */
+    /**
+     * @en The event which will be triggered before launching a new scene.
+     * @zh 运行新场景之前所触发的事件。
+     * @event Director.EVENT_BEFORE_SCENE_LAUNCH
+     * @param {String} sceneName - New scene which will be launched
+     */
     /**
      * @en The event which will be triggered before launching a new scene.
      * @zh 运行新场景之前所触发的事件。
@@ -149,7 +173,7 @@ export class Director extends EventTarget {
     /**
      * @en The event which will be triggered after launching a new scene.
      * @zh 运行新场景之后所触发的事件。
-     * @event cc.Director.EVENT_AFTER_SCENE_LAUNCH
+     * @event Director.EVENT_AFTER_SCENE_LAUNCH
      * @param {String} sceneName - New scene which is launched
      */
     /**
@@ -163,7 +187,7 @@ export class Director extends EventTarget {
     /**
      * @en The event which will be triggered at the beginning of every frame.
      * @zh 每个帧的开始时所触发的事件。
-     * @event cc.Director.EVENT_BEFORE_UPDATE
+     * @event Director.EVENT_BEFORE_UPDATE
      */
     /**
      * @en The event which will be triggered at the beginning of every frame.
@@ -176,7 +200,7 @@ export class Director extends EventTarget {
     /**
      * @en The event which will be triggered after engine and components update logic.
      * @zh 将在引擎和组件 “update” 逻辑之后所触发的事件。
-     * @event cc.Director.EVENT_AFTER_UPDATE
+     * @event Director.EVENT_AFTER_UPDATE
      */
     /**
      * @en The event which will be triggered after engine and components update logic.
@@ -189,7 +213,7 @@ export class Director extends EventTarget {
     /**
      * @en The event which will be triggered before the rendering process.
      * @zh 渲染过程之前所触发的事件。
-     * @event cc.Director.EVENT_BEFORE_DRAW
+     * @event Director.EVENT_BEFORE_DRAW
      */
     /**
      * @en The event which will be triggered before the rendering process.
@@ -202,7 +226,7 @@ export class Director extends EventTarget {
     /**
      * @en The event which will be triggered after the rendering process.
      * @zh 渲染过程之后所触发的事件。
-     * @event cc.Director.EVENT_AFTER_DRAW
+     * @event Director.EVENT_AFTER_DRAW
      */
     /**
      * @en The event which will be triggered after the rendering process.
@@ -215,7 +239,7 @@ export class Director extends EventTarget {
     /**
      * @en The event which will be triggered before the physics process.
      * @zh 物理过程之前所触发的事件。
-     * @event cc.Director.EVENT_BEFORE_PHYSICS
+     * @event Director.EVENT_BEFORE_PHYSICS
      * @readonly
      */
     public static readonly EVENT_BEFORE_PHYSICS = 'director_before_physics';
@@ -223,11 +247,15 @@ export class Director extends EventTarget {
     /**
      * @en The event which will be triggered after the physics process.
      * @zh 物理过程之后所触发的事件。
-     * @event cc.Director.EVENT_AFTER_PHYSICS
+     * @event Director.EVENT_AFTER_PHYSICS
      * @readonly
      */
     public static readonly EVENT_AFTER_PHYSICS = 'director_after_physics';
 
+    public static instance: Director;
+
+    public _compScheduler: ComponentScheduler;
+    public _nodeActivator: NodeActivator;
     private invalid: boolean;
     private _paused: boolean;
     private _purgeDirectorInNextLoop: boolean;
@@ -238,11 +266,7 @@ export class Director extends EventTarget {
     private _lastUpdate: number;
     private _deltaTime: number;
     private _scheduler: Scheduler;
-    private _compScheduler: ComponentScheduler;
-    private _nodeActivator: NodeActivator;
-    private _physicsSystem: PhysicsSystem | null;
-    private _systems: any[];
-    private _animationManager: any;
+    private _systems: System[];
 
     constructor () {
         super();
@@ -272,11 +296,6 @@ export class Director extends EventTarget {
         // Node activator
         this._nodeActivator = new NodeActivator();
 
-        /**
-         * @type {PhysicsSystem}
-         */
-        this._physicsSystem = null;
-
         this._systems = [];
 
         const self = this;
@@ -288,13 +307,23 @@ export class Director extends EventTarget {
     }
 
     public init () {
-
         this._totalFrames = 0;
         this._lastUpdate = performance.now();
         this._paused = false;
         this._purgeDirectorInNextLoop = false;
 
-        this.sharedInit();
+        cc.loader.init(this);
+
+        // Event manager
+        if (eventManager) {
+            eventManager.setEnabled(true);
+        }
+
+        // Scheduler
+        // TODO: have a solid organization of priority and expose to user
+        this.registerSystem(Scheduler.ID, this._scheduler, 200);
+
+        this.emit(Director.EVENT_INIT);
 
         this._root = new Root(cc.game._gfxDevice);
         const rootInfo = {};
@@ -303,50 +332,6 @@ export class Director extends EventTarget {
         }
 
         return true;
-    }
-
-    /*
-     * Manage all init process shared between the web engine and jsb engine.
-     * All platform independent init process should be occupied here.
-     */
-    public sharedInit () {
-
-        // Event manager
-        if (eventManager) {
-            eventManager.setEnabled(true);
-        }
-
-        // Animation manager
-        if (cc.AnimationManager) {
-            this._animationManager = new cc.AnimationManager();
-            this._scheduler.scheduleUpdate(this._animationManager, Scheduler.PRIORITY_SYSTEM, false);
-        }
-        else {
-            this._animationManager = null;
-        }
-
-        // widgetManager
-        if (widgetManager) {
-            widgetManager.init(this);
-        }
-
-        // this.registerSystem('animation', AnimationSystem, ['AnimationComponent'], 200);
-        // this.registerSystem('skinning-model', SkinningModelSystem, ['SkinningModelComponent'], 100);
-        // init renderSystem
-        /*
-        {
-            this._renderSystem = new RenderSystem();
-            let renderComps = ['cc.CameraComponent'];
-            renderComps.forEach((compName) => {
-                getClassByName(compName).system = this._renderSystem;
-            });
-        }
-        */
-        if (CC_PHYSICS_BUILT_IN || CC_PHYSICS_CANNON || CC_PHYSICS_AMMO) {
-            this._physicsSystem = new cc.PhysicsSystem();
-        }
-
-        cc.loader.init(this);
     }
 
     /**
@@ -515,19 +500,12 @@ export class Director extends EventTarget {
      */
     public reset () {
         this.purgeDirector();
+        
+        this.emit(Director.EVENT_RESET);
 
         if (eventManager) {
             eventManager.setEnabled(true);
         }
-
-        // Animation manager
-        if (this._animationManager) {
-            this._scheduler.scheduleUpdate(this._animationManager, cc.Scheduler.PRIORITY_SYSTEM, false);
-        }
-
-        this._systems.forEach((sys) => {
-            this._scheduler.scheduleUpdate(sys, sys._priority, false);
-        });
 
         this.startAnimation();
     }
@@ -787,7 +765,7 @@ export class Director extends EventTarget {
         console.time('LoadScene ' + uuid);
         cc.AssetLibrary.loadAsset(uuid, (error, sceneAsset) => {
             console.timeEnd('LoadScene ' + uuid);
-            const self = cc.director;
+            const self = director;
             self._loadingScene = '';
             if (error) {
                 error = 'Failed to load scene: ' + error;
@@ -899,7 +877,7 @@ export class Director extends EventTarget {
      *  cc.director.getScene().getChildByName('Canvas');
      * ```
      */
-    public getScene () {
+    public getScene (): Scene | null {
         return this._scene;
     }
 
@@ -971,7 +949,9 @@ export class Director extends EventTarget {
      */
     public setScheduler (scheduler: Scheduler) {
         if (this._scheduler !== scheduler) {
+            this.unregisterSystem(this._scheduler);
             this._scheduler = scheduler;
+            this.registerSystem(Scheduler.ID, scheduler, 200);
         }
     }
 
@@ -979,17 +959,17 @@ export class Director extends EventTarget {
      * @en register a system.
      * @zh 注册一个 system。
      */
-    public registerSystem (name, cls, compClsNames, priority) {
-        const sys = new cls();
-        sys._id = name;
-        sys._priority = priority;
-        compClsNames.forEach((compName) => {
-            getClassByName(compName).system = sys;
-        });
-        this._scheduler.scheduleUpdate(sys, priority, false);
+    public registerSystem (name: string, sys: System, priority: number) {
+        sys.id = name;
+        sys.priority = priority;
         sys.init();
         this._systems.push(sys);
-        return sys;
+        this._systems.sort(System.sortByPriority);
+    }
+
+    public unregisterSystem (sys: System) {
+        js.array.fastRemove(this._systems, sys);
+        this._systems.sort(System.sortByPriority);
     }
 
     /**
@@ -998,16 +978,17 @@ export class Director extends EventTarget {
      */
     public getSystem (name) {
         return this._systems.find((sys) => {
-            return sys._id === name;
+            return sys.id === name;
         });
     }
 
     /**
-     * @en Returns the cc.AnimationManager associated with this director.
-     * @zh 获取和 director 相关联的 cc.AnimationManager（动画管理器）。
+     * @en Returns the cc.AnimationManager associated with this director. Please use getSystem(AnimationManager.ID)
+     * @zh 获取和 director 相关联的 cc.AnimationManager（动画管理器）。请使用 getSystem(AnimationManager.ID) 来替代
+     * @deprecated
      */
-    public getAnimationManager () {
-        return this._animationManager;
+    public getAnimationManager ():any {
+        return this.getSystem(cc.AnimationManager.ID);
     }
 
     // Loop management
@@ -1040,6 +1021,7 @@ export class Director extends EventTarget {
         else if (!this.invalid) {
             // calculate "global" dt
             this.calculateDeltaTime();
+            let dt = this._deltaTime;
 
             // Update
             if (!this._paused) {
@@ -1047,42 +1029,35 @@ export class Director extends EventTarget {
                 // Call start for new added components
                 this._compScheduler.startPhase();
                 // Update for components
-                this._compScheduler.updatePhase(this._deltaTime);
-                // Engine update with scheduler
-                this._scheduler.update(this._deltaTime);
+                this._compScheduler.updatePhase(dt);
+                // Update systems
+                for (let i = 0; i < this._systems.length; ++i) {
+                    this._systems[i].update(dt);
+                }
                 // Late update for components
-                this._compScheduler.lateUpdatePhase(this._deltaTime);
+                this._compScheduler.lateUpdatePhase(dt);
                 // User can use this event to do things after update
                 this.emit(Director.EVENT_AFTER_UPDATE);
                 // Destroy entities that have been removed recently
                 CCObject._deferredDestroy();
 
-                if (!CC_EDITOR) {
-                    if (window.TWEEN != null) {
-                        // Tween update
-                        window.TWEEN.update(time);
-                    }
+                // Post update systems
+                for (let i = 0; i < this._systems.length; ++i) {
+                    this._systems[i].postUpdate(dt);
                 }
-
-                if (CC_PHYSICS_BUILT_IN || CC_PHYSICS_CANNON || CC_PHYSICS_AMMO) {
-                    this.emit(Director.EVENT_BEFORE_PHYSICS);
-                    this._physicsSystem!.update(this._deltaTime);
-                    this.emit(Director.EVENT_AFTER_PHYSICS);
-                }
-
-                this.emit(Director.EVENT_BEFORE_DRAW);
-                this._root!.frameMove(this._deltaTime);
-                // Present current frame
-                this._root!.device.present();
-                this.emit(Director.EVENT_AFTER_DRAW);
             }
+
+            this.emit(Director.EVENT_BEFORE_DRAW);
+            this._root!.frameMove(this._deltaTime);
+            // Present current frame
+            this._root!.device.present();
+            this.emit(Director.EVENT_AFTER_DRAW);
 
             eventManager.frameUpdateListeners();
             Node.bookOfChange.clear();
             this._totalFrames++;
         }
     }
-
 }
 
 cc.Director = Director;
@@ -1091,5 +1066,4 @@ cc.Director = Director;
  * 导演类。
  * @property director
  */
-export const director: Director = new Director();
-cc.director = director;
+export const director: Director = Director.instance = cc.director = new Director();

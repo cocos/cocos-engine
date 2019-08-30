@@ -2,12 +2,12 @@
  * @hidden
  */
 
-import { BoxColliderComponent } from '../cocos/3d/framework/physics/collider/box-collider-component';
-import { ColliderComponent } from '../cocos/3d/framework/physics/collider/collider-component';
-import { SphereColliderComponent } from '../cocos/3d/framework/physics/collider/sphere-collider-component';
-import { RigidBodyComponent } from '../cocos/3d/framework/physics/rigid-body-component';
+import { BoxColliderComponent } from '../cocos/physics/components/collider/box-collider-component';
+import { ColliderComponent } from '../cocos/physics/components/collider/collider-component';
+import { SphereColliderComponent } from '../cocos/physics/components/collider/sphere-collider-component';
+import { RigidBodyComponent } from '../cocos/physics/components/rigid-body-component';
 
-export * from '../cocos/3d/framework/physics';
+export * from '../cocos/physics/components';
 export {
     ColliderComponent,
     BoxColliderComponent,

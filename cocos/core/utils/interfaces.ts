@@ -25,11 +25,11 @@
 
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { Mat4, Quat, Size, Vec2, Vec3 } from '../math';
-import { Scene } from '../../scene-graph/scene';
-import { NodeEventProcessor } from '../../scene-graph/node-event-processor';
-import { Component } from '../../components/component';
+import { Scene } from '../scene-graph/scene';
+import { NodeEventProcessor } from '../scene-graph/node-event-processor';
+import { Component } from '../components/component';
 import { Event } from '../event';
-import { TransformDirtyBit, NodeSpace } from '../../scene-graph/node-enum';
+import { TransformDirtyBit, NodeSpace } from '../scene-graph/node-enum';
 
 export interface IBaseNode {
 
@@ -172,7 +172,7 @@ export interface IBaseNode {
      * node.isChildOf(newNode);
      * ```
      */
-    isChildOf (parent: this): boolean;
+    isChildOf (parent: this | null): boolean;
 
     /**
      * @zh 增加一个孩子节点
@@ -518,8 +518,6 @@ export interface INode extends IBaseNode {
     anchorY: number;
 
     _uiComp;
-
-    isValid: boolean;
 
     uiTransfromComp;
 

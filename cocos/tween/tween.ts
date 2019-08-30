@@ -6,6 +6,8 @@ import { TweenAction } from './tween-action';
 import { TweenCommand } from './tween-command';
 import { TweenUnion } from './tween-union';
 import { ITweenOption, ITweenProp } from './export-api';
+import System from '../core/components/system';
+import { director, Director } from '../core/director';
 
 /**
  * @en
@@ -282,3 +284,20 @@ cc.tweenUtil = tweenUtil;
  * .repeat(1);
  *
  */
+
+export class TweenSystem extends System {
+    public static ID = 'tween';
+    public postUpdate (dt: number) {
+        if (!CC_EDITOR || this._executeInEditMode) {
+            if (cc.TWEEN) {
+                // Tween update
+                cc.TWEEN.update(performance.now());
+            }
+        }
+    }
+}
+
+director.on(Director.EVENT_INIT, function () {
+    let sys = new TweenSystem();
+    director.registerSystem(TweenSystem.ID, sys, 100);
+});

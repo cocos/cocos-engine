@@ -28,7 +28,7 @@
  * @category core/value-types
  */
 
-import { errorID } from '../platform/CCDebug';
+import { errorID } from '../platform/debug';
 import * as js from '../utils/js';
 
 /**

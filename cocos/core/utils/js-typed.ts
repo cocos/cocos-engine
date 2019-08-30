@@ -1,4 +1,4 @@
-import { warnID } from '../platform/CCDebug';
+import { warnID } from '../platform/debug';
 
 import IDGenerator from './id-generator';
 const tempCIDGenerator = new IDGenerator('TmpCId.');

@@ -2,14 +2,14 @@
  * @category core
  */
 
-import { builtinResMgr } from '../3d/builtin';
-import { GFXDevice } from '../gfx/device';
-import { GFXWindow, IGFXWindowInfo } from '../gfx/window';
-import { ForwardPipeline } from '../pipeline/forward/forward-pipeline';
-import { RenderPipeline } from '../pipeline/render-pipeline';
-import { IRenderViewInfo, RenderView } from '../pipeline/render-view';
-import { IRenderSceneInfo, RenderScene } from '../renderer/scene/render-scene';
-import { UI } from '../renderer/ui/ui';
+import { builtinResMgr } from './3d/builtin';
+import { GFXDevice } from './gfx/device';
+import { GFXWindow, IGFXWindowInfo } from './gfx/window';
+import { ForwardPipeline } from './pipeline/forward/forward-pipeline';
+import { RenderPipeline } from './pipeline/render-pipeline';
+import { IRenderViewInfo, RenderView } from './pipeline/render-view';
+import { IRenderSceneInfo, RenderScene } from './renderer/scene/render-scene';
+import { UI } from './renderer/ui/ui';
 
 export let _createSceneFun;
 export let _createViewFun;

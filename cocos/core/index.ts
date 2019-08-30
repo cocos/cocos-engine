@@ -28,20 +28,14 @@
  */
 
 import * as math from './math';
+import * as geometry from './geom-utils';
 cc.math = math;
-export { math };
+cc.geometry = geometry;
 
-export { AffineTransform } from './math/affine-transform';
-export { Color } from './math/color';
-export { Mat3 } from './math/mat3';
-export { Mat4 } from './math/mat4';
-export { Quat } from './math/quat';
-export { Rect } from './math/rect';
-export { Size } from './math/size';
-export { Vec2 } from './math/vec2';
-export { Vec3 } from './math/vec3';
-export { Vec4 } from './math/vec4';
+export { math, geometry };
 
+export * from './math';
+export * from './memop';
 export * from './value-types';
 export * from './utils';
 export * from './data';
@@ -50,5 +44,15 @@ export * from './platform';
 export * from './game';
 export * from './scheduler';
 export * from './director';
+
+export * from './gfx';
+import './pipeline';
+export * from './assets';
+export * from './load-pipeline';
+export * from './scene-graph';
+export * from './components';
+export * from './3d';
+export * from './animation';
+import './primitive';
 
 export * from './utils/profiler/profiler';

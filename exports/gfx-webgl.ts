@@ -2,5 +2,5 @@
  * @hidden
  */
 
-import { WebGLGFXDevice } from '../cocos/gfx/webgl/webgl-device';
+import { WebGLGFXDevice } from '../cocos/core/gfx/webgl/webgl-device';
 cc.WebGLGFXDevice = WebGLGFXDevice;

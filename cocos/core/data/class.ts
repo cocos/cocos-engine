@@ -35,7 +35,7 @@
 // tslint:disable:jsdoc-format
 // tslint:disable:forin
 
-import { errorID, warnID } from '../platform/CCDebug';
+import { errorID, warnID } from '../platform/debug';
 import * as js from '../utils/js';
 import { getSuper } from '../utils/js';
 import { cloneable_DEV, isPlainEmptyObj_DEV } from '../utils/misc';

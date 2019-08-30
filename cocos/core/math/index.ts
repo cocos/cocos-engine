@@ -46,4 +46,4 @@ export { Rect } from './rect';
 export { Color } from './color';
 export * from './utils';
 
-import './deprecated';
+import './deprecated'; 
