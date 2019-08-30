@@ -341,7 +341,7 @@ var Texture2D = cc.Class({
             set (val) {
                 this._packable = val;
             }
-        },
+        }
         
         _nativeDep: {
             get () {
