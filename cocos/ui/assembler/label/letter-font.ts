@@ -92,6 +92,7 @@ class LetterTexture {
     public width = 0;
     public height = 0;
     public hash: string;
+    private _lastImage: ImageAsset | null = null;
     constructor (char: string, labelInfo: ILabelInfo) {
         this.char = char;
         this.labelInfo = labelInfo;
@@ -104,7 +105,12 @@ class LetterTexture {
     }
 
     public destroy () {
-        // this.spriteframe!.destroy();
+        if (!this.spriteframe) {
+            return;
+        }
+
+        this.spriteframe.texture.destroy();
+        this.spriteframe.destroy();
         this.spriteframe = null;
         // LabelComponent._canvasPool.put(this._data);
     }
@@ -129,9 +135,16 @@ class LetterTexture {
             this.canvas.height = this.height;
         }
 
-        // this.texture.initWithElement(this.canvas);
+        // Note: after the optimization
+        if (this._lastImage) {
+            this._lastImage._texture.destroy();
+            this._lastImage.destroy();
+        }
+
         const image = new ImageAsset(this.canvas);
-        (this.spriteframe.texture as Texture2D).image = image;
+        this._lastImage = image;
+        const tex = image._texture;
+        this.spriteframe.texture = tex;
     }
 
     private _updateTexture () {

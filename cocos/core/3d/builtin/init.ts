@@ -118,7 +118,8 @@ class BuiltinResMgr {
         resources[defaultCubeTexture._uuid] = defaultCubeTexture;
 
         const spriteFrame = new SpriteFrame();
-        (spriteFrame.texture as Texture2D).image = imgAsset;
+        const texture = imgAsset._texture;
+        spriteFrame.texture = texture;
         spriteFrame._uuid = 'default-spriteframe';
         resources[spriteFrame._uuid] = spriteFrame;
 

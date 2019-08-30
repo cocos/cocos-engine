@@ -154,7 +154,8 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  *  const node = new Node("New Sprite");
  *  const sprite = node.addComponent(SpriteComponent);
  *  const spriteFrame = new SpriteFrame();
- *  (spriteFrame.texture as Texture2D).image = imageAsset;
+ *  const tex = imageAsset._texture;
+ *  spriteFrame.texture = tex;
  *  sprite.spriteFrame = spriteFrame;
  *  node.parent = self.node;
  * });
@@ -274,18 +275,29 @@ export class SpriteFrame extends Asset {
         this._calculateUV();
     }
 
-    set _imageSource(value: ImageAsset) {
+    set _imageSource (value: ImageAsset) {
         this._image = value;
-        const tex = this._texture as Texture2D;
-        tex.image = this._image;
+        // const tex = this._texture as Texture2D;
+        // @ts-ignore
+        if (window.Editor && Editor.isBuilder){
+            return;
+        }
+        this._texture = value._texture;
+        this._texture.on('load', this._textureLoaded, this);
         this._calculateUV();
     }
 
-    get texture (){
+    get texture () {
+        if (!this._texture) {
+            // @ts-ignore
+            this._texture = this._image && !(window.Editor && Editor.isBuilder) ? this._image._texture : new Texture2D();
+            this._texture.on('load', this._textureLoaded, this);
+        }
+
         return this._texture;
     }
 
-    set texture(value){
+    set texture (value){
         if(!value){
             console.warn(`Error Texture in ${this.name}`);
             return;
@@ -303,10 +315,6 @@ export class SpriteFrame extends Asset {
 
     set atlasUuid (value: string) {
         this._atlasUuid = value;
-    }
-
-    get original (){
-        return this._original;
     }
 
     get width () {
@@ -346,9 +354,6 @@ export class SpriteFrame extends Asset {
 
     protected _capInsets = [0, 0, 0, 0];
 
-    // store original info before packed to dynamic atlas
-    protected _original: ISpriteFrameOriginal | null = null;
-
     protected _atlasUuid: string = '';
     // @ts-ignore
     protected _texture: TextureBase;
@@ -362,9 +367,6 @@ export class SpriteFrame extends Asset {
             // Atlas asset uuid
             this._atlasUuid = '';
         }
-
-        this._texture = new Texture2D();
-        this._texture.on('load', this._textureLoaded, this);
     }
 
     /**
@@ -521,7 +523,9 @@ export class SpriteFrame extends Asset {
                 this._rect.x = this._rect.y = 0;
                 this._rect.width = info.texture.width;
                 this._rect.height = info.texture.height;
-                this._texture.off('load');
+                if(this._texture){
+                    this._texture.off('load');
+                }
                 this._texture = info.texture;
                 this.checkRect(this._texture);
                 this._texture.on('load', this._textureLoaded, this);
@@ -606,40 +610,16 @@ export class SpriteFrame extends Asset {
         return true;
     }
 
-    public onLoaded (){
-       this.loaded = true;
-       this.emit('load');
+    public onLoaded () {
+        this.loaded = true;
+        this.emit('load');
     }
 
-    public _setDynamicAtlasFrame (frame: SpriteFrame) {
-        if (!frame || this._texture instanceof RenderTexture) {
-            return;
+    public destroy (){
+        if(this._texture){
+            this._texture.off('load');
         }
-
-        this._original = {
-            spriteframe: this,
-            x: this._rect.x,
-            y: this._rect.y,
-        };
-
-        this._rect.x = frame._rect.x;
-        this._rect.y = frame._rect.y;
-        this._image = frame._image;
-        (this._texture as Texture2D).image = this._image;
-        // this._calculateUV();
-    }
-
-    public _resetDynamicAtlasFrame () {
-        if (!this._original || this._texture instanceof RenderTexture) {
-            return;
-        }
-
-        this._rect.x = this._original.x;
-        this._rect.y = this._original.y;
-        this._image = this._original.spriteframe._image;
-        (this._texture as Texture2D).image = this._image;
-        this._original = null;
-        // this._calculateUV();
+        return super.destroy();
     }
 
     /*
@@ -649,8 +629,9 @@ export class SpriteFrame extends Asset {
     public _calculateSlicedUV () {
         const rect = this._rect;
         // const texture = this._getCalculateTarget()!;
-        const atlasWidth = this._texture.width;
-        const atlasHeight = this._texture.height;
+        const tex = this.texture;
+        const atlasWidth = tex.width;
+        const atlasHeight = tex.height;
         const leftWidth = this._capInsets[INSET_LEFT];
         const rightWidth = this._capInsets[INSET_RIGHT];
         const centerWidth = rect.width - leftWidth - rightWidth;
@@ -710,8 +691,9 @@ export class SpriteFrame extends Asset {
     public _calculateUV () {
         const rect = this._rect;
         const uv = this.uv;
-        const texw = this._texture.width;
-        const texh = this._texture.height;
+        const tex = this.texture;
+        const texw = tex.width;
+        const texh = tex.height;
 
         if (this._rotated) {
             const l = texw === 0 ? 0 : rect.x / texw;

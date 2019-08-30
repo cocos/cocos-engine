@@ -643,8 +643,20 @@ export class LabelComponent extends UIRenderComponent {
 
         this._assemblerData = null;
         if (this._ttfSpriteFrame) {
-            // this._ttfSpriteFrame.destroy();
+            const tex = this._ttfSpriteFrame.texture;
+            if (tex) {
+                const tex2d = tex as Texture2D;
+                if (tex2d.image) {
+                    tex2d.image.destroy();
+                }
+                tex.destroy();
+            }
             this._ttfSpriteFrame = null;
+        }
+
+        if (this._letterTexture) {
+            this._letterTexture.destroy();
+            this._letterTexture = null;
         }
 
         super.onDestroy();
@@ -744,9 +756,9 @@ export class LabelComponent extends UIRenderComponent {
             } else if (!this._ttfSpriteFrame) {
                 this._ttfSpriteFrame = new SpriteFrame();
                 this._assemblerData = this._assembler!.getAssemblerData();
-                // this._ttfSpriteFrame.initWithElement(this._assemblerData.canvas);
                 const image = new ImageAsset(this._assemblerData!.canvas);
-                (this._ttfSpriteFrame.texture as Texture2D).image = image;
+                const tex = image._texture;
+                this._ttfSpriteFrame.texture = tex;
             }
 
             if (this.cacheMode !== CacheMode.CHAR) {
