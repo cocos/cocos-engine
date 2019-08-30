@@ -65,25 +65,25 @@ function repositionDebugCamera () {
  */
 let ClearFlags = cc.Enum({
     /**
-     * #en
+     * !#en
      * Clear the background color.
-     * #zh
+     * !#zh
      * 清除背景颜色
      * @property COLOR
      */
     COLOR: 1,
     /**
-     * #en
+     * !#en
      * Clear the depth buffer.
-     * #zh
+     * !#zh
      * 清除深度缓冲区
      * @property DEPTH
      */
     DEPTH: 2,
     /**
-     * #en
+     * !#en
      * Clear the stencil.
-     * #zh
+     * !#zh
      * 清除模板缓冲区
      * @property STENCIL
      */
