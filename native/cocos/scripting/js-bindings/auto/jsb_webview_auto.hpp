@@ -22,6 +22,7 @@ SE_DECLARE_FUNC(js_webview_WebView_loadURL);
 SE_DECLARE_FUNC(js_webview_WebView_setBounces);
 SE_DECLARE_FUNC(js_webview_WebView_evaluateJS);
 SE_DECLARE_FUNC(js_webview_WebView_setOnJSCallback);
+SE_DECLARE_FUNC(js_webview_WebView_setBackgroundTransparent);
 SE_DECLARE_FUNC(js_webview_WebView_getOnJSCallback);
 SE_DECLARE_FUNC(js_webview_WebView_canGoForward);
 SE_DECLARE_FUNC(js_webview_WebView_getOnShouldStartLoading);

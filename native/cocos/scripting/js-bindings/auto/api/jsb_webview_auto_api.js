@@ -137,6 +137,16 @@ func
 },
 
 /**
+ * @method setBackgroundTransparent
+ * @param {bool} arg0
+ */
+setBackgroundTransparent : function (
+bool 
+)
+{
+},
+
+/**
  * @method getOnJSCallback
  * @return {function}
  */
