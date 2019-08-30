@@ -138,9 +138,9 @@ let Camera = cc.Class({
 
         /**
          * !#en
-         * The camera zoom ratio.
+         * The camera zoom ratio, only support 2D camera.
          * !#zh
-         * 摄像机缩放比率
+         * 摄像机缩放比率, 只支持 2D camera。
          * @property {Number} zoomRatio
          */
         zoomRatio: {
@@ -646,6 +646,10 @@ let Camera = cc.Class({
     },
 
     /**
+     * !#en
+     * Convert point from screen to world for 3d camera.
+     * !#zh
+     * 将坐标从屏幕坐标系转换到世界坐标系，适用于 3D 摄像机。
      * @method getScreenToWorldPoint3D
      * @param {Vec3} screenPoint 
      * @param {Vec3} [out] 
@@ -658,6 +662,10 @@ let Camera = cc.Class({
     },
 
     /**
+     * !#en
+     * Convert point from world to screen for 3d camera.
+     * !#zh
+     * 将坐标从世界坐标系转化到屏幕坐标系，适用于 3D 摄像机。
      * @method getWorldToScreenPoint3D
      * @param {Vec3} worldPoint 
      * @param {Vec3} [out] 
@@ -727,7 +735,7 @@ let Camera = cc.Class({
         renderer._forward.renderCamera(this._camera, renderer.scene);
     },
 
-    _layout () {
+    _layout2D () {
         let height = cc.game.canvas.height / cc.view._scaleY;
 
         let targetTexture = this._targetTexture;
@@ -747,7 +755,7 @@ let Camera = cc.Class({
         if (!this._camera) return;
 
         if (!this.node._is3DNode) {
-            this._layout();
+            this._layout2D();
         }
         else {
             this._camera.setFov(this._fov * cc.macro.RAD);
