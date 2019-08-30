@@ -546,84 +546,29 @@ let Camera = cc.Class({
 
     /**
      * !#en
-     * Returns the matrix that transform the node's (local) space coordinates into the camera's space coordinates.
+     * Get the screen toworld matrix, only support 2D camera.
      * !#zh
-     * 返回一个将节点坐标系转换到摄像机坐标系下的矩阵
-     * @method getNodeToCameraTransform
-     * @param {Node} node - the node which should transform
-     * @return {AffineTransform}
-     */
-    getNodeToCameraTransform (node) {
-        let out = AffineTrans.identity();
-        node.getWorldMatrix(_mat4_temp_2);
-        if (this.containsNode(node)) {
-            this.getWorldToCameraMatrix(_mat4_temp_1);
-            mat4.mul(_mat4_temp_2, _mat4_temp_2, _mat4_temp_1);
-        }
-        AffineTrans.fromMat4(out, _mat4_temp_2);
-        return out;
-    },
-
-    /**
-     * !#en
-     * Conver a camera coordinates point to world coordinates.
-     * !#zh
-     * 将一个摄像机坐标系下的点转换到世界坐标系下。
-     * @method getCameraToWorldPoint
-     * @param {Vec2} point - the point which should transform
-     * @param {Vec2} out - the point to receive the result
-     * @return {Vec2}
-     */
-    getCameraToWorldPoint (point, out) {
-        out = out || cc.v2();
-        this.getCameraToWorldMatrix(_mat4_temp_1);
-        vec2.transformMat4(out, point, _mat4_temp_1);
-        return out;
-    },
-
-    /**
-     * !#en
-     * Conver a world coordinates point to camera coordinates.
-     * !#zh
-     * 将一个世界坐标系下的点转换到摄像机坐标系下。
-     * @method getWorldToCameraPoint
-     * @param {Vec2} point 
-     * @param {Vec2} out - the point to receive the result
-     * @return {Vec2}
-     */
-    getWorldToCameraPoint (point, out) {
-        out = out || cc.v2();
-        this.getWorldToCameraMatrix(_mat4_temp_1);
-        vec2.transformMat4(out, point, _mat4_temp_1);
-        return out;
-    },
-
-    /**
-     * !#en
-     * Get the camera to world matrix
-     * !#zh
-     * 获取摄像机坐标系到世界坐标系的矩阵
-     * @method getCameraToWorldMatrix
+     * 获取屏幕坐标系到世界坐标系的矩阵，只适用于 2D 摄像机。
+     * @method getScreenToWorldMatrix2D
      * @param {Mat4} out - the matrix to receive the result
      * @return {Mat4}
      */
-    getCameraToWorldMatrix (out) {
-        this.getWorldToCameraMatrix(out);
+    getScreenToWorldMatrix2D (out) {
+        this.getWorldToScreenMatrix2D(out);
         mat4.invert(out, out);
         return out;
     },
 
-
     /**
      * !#en
-     * Get the world to camera matrix
+     * Get the world to camera matrix, only support 2D camera.
      * !#zh
-     * 获取世界坐标系到摄像机坐标系的矩阵
-     * @method getWorldToCameraMatrix
+     * 获取世界坐标系到摄像机坐标系的矩阵，只适用于 2D 摄像机。
+     * @method getWorldToScreenMatrix2D
      * @param {Mat4} out - the matrix to receive the result
      * @return {Mat4}
      */
-    getWorldToCameraMatrix (out) {
+    getWorldToScreenMatrix2D (out) {
         this.node.getWorldRT(_mat4_temp_1);
 
         let zoomRatio = this.zoomRatio;
@@ -647,33 +592,48 @@ let Camera = cc.Class({
 
     /**
      * !#en
-     * Convert point from screen to world for 3d camera.
+     * Convert point from screen to world.
      * !#zh
-     * 将坐标从屏幕坐标系转换到世界坐标系，适用于 3D 摄像机。
-     * @method getScreenToWorldPoint3D
-     * @param {Vec3} screenPoint 
-     * @param {Vec3} [out] 
-     * @return {Vec3}
+     * 将坐标从屏幕坐标系转换到世界坐标系。
+     * @method getScreenToWorldPoint
+     * @param {Vec3|Vec2} screenPosition 
+     * @param {Vec3|Vec2} [out] 
+     * @return {Vec3|Vec2}
      */
-    getScreenToWorldPoint3D (screenPoint, out) {
-        out = out || new cc.Vec3();
-        this._camera.screenToWorld(out, screenPoint, cc.visibleRect.width, cc.visibleRect.height);
+    getScreenToWorldPoint (screenPosition, out) {
+        if (this.node.is3DNode) {
+            out = out || new cc.Vec3();
+            this._camera.screenToWorld(out, screenPosition, cc.visibleRect.width, cc.visibleRect.height);
+        }
+        else {
+            out = out || new cc.Vec2();
+            this.getScreenToWorldMatrix2D(_mat4_temp_1);
+            vec2.transformMat4(out, screenPosition, _mat4_temp_1);
+        }
         return out;
     },
 
     /**
      * !#en
-     * Convert point from world to screen for 3d camera.
+     * Convert point from world to screen.
      * !#zh
-     * 将坐标从世界坐标系转化到屏幕坐标系，适用于 3D 摄像机。
-     * @method getWorldToScreenPoint3D
-     * @param {Vec3} worldPoint 
-     * @param {Vec3} [out] 
-     * @return {Vec3}
+     * 将坐标从世界坐标系转化到屏幕坐标系。
+     * @method getWorldToScreenPoint
+     * @param {Vec3|Vec2} worldPosition 
+     * @param {Vec3|Vec2} [out] 
+     * @return {Vec3|Vec2}
      */
-    getWorldToScreenPoint3D (worldPoint, out) {
-        out = out || new cc.Vec3();
-        this._camera.worldToScreen(out, worldPoint, cc.visibleRect.width, cc.visibleRect.height);
+    getWorldToScreenPoint (worldPosition, out) {
+        if (this.node.is3DNode) {
+            out = out || new cc.Vec3();
+            this._camera.worldToScreen(out, worldPosition, cc.visibleRect.width, cc.visibleRect.height);
+        }
+        else {
+            out = out || new cc.Vec2();
+            this.getWorldToScreenMatrix2D(_mat4_temp_1);
+            vec2.transformMat4(out, worldPosition, _mat4_temp_1);
+        }
+        
         return out;
     },
 
@@ -765,5 +725,88 @@ let Camera = cc.Class({
         this._camera.dirty = true;
     }
 });
+
+// deprecated
+cc.js.mixin(Camera.prototype, {
+    /**
+     * !#en
+     * Returns the matrix that transform the node's (local) space coordinates into the camera's space coordinates.
+     * !#zh
+     * 返回一个将节点坐标系转换到摄像机坐标系下的矩阵
+     * @method getNodeToCameraTransform
+     * @deprecated since v2.0.0
+     * @param {Node} node - the node which should transform
+     * @return {AffineTransform}
+     */
+    getNodeToCameraTransform (node) {
+        let out = AffineTrans.identity();
+        node.getWorldMatrix(_mat4_temp_2);
+        if (this.containsNode(node)) {
+            this.getWorldToCameraMatrix(_mat4_temp_1);
+            mat4.mul(_mat4_temp_2, _mat4_temp_2, _mat4_temp_1);
+        }
+        AffineTrans.fromMat4(out, _mat4_temp_2);
+        return out;
+    },
+
+    /**
+     * !#en
+     * Conver a camera coordinates point to world coordinates.
+     * !#zh
+     * 将一个摄像机坐标系下的点转换到世界坐标系下。
+     * @method getCameraToWorldPoint
+     * @deprecated since v2.1.3
+     * @param {Vec2} point - the point which should transform
+     * @param {Vec2} out - the point to receive the result
+     * @return {Vec2}
+     */
+    getCameraToWorldPoint (point, out) {
+        return this.getScreenToWorldPoint(point, out);
+    },
+
+    /**
+     * !#en
+     * Conver a world coordinates point to camera coordinates.
+     * !#zh
+     * 将一个世界坐标系下的点转换到摄像机坐标系下。
+     * @method getWorldToCameraPoint
+     * @deprecated since v2.1.3
+     * @param {Vec2} point 
+     * @param {Vec2} out - the point to receive the result
+     * @return {Vec2}
+     */
+    getWorldToCameraPoint (point, out) {
+        return this.getWorldToScreenPoint(point, out);
+    },
+
+    /**
+     * !#en
+     * Get the camera to world matrix
+     * !#zh
+     * 获取摄像机坐标系到世界坐标系的矩阵
+     * @method getCameraToWorldMatrix
+     * @deprecated since v2.1.3
+     * @param {Mat4} out - the matrix to receive the result
+     * @return {Mat4}
+     */
+    getCameraToWorldMatrix (out) {
+        return this.getScreenToWorldMatrix2D(out);
+    },
+
+
+    /**
+     * !#en
+     * Get the world to camera matrix
+     * !#zh
+     * 获取世界坐标系到摄像机坐标系的矩阵
+     * @method getWorldToCameraMatrix
+     * @deprecated since v2.1.3
+     * @param {Mat4} out - the matrix to receive the result
+     * @return {Mat4}
+     */
+    getWorldToCameraMatrix (out) {
+        return this.getWorldToScreenMatrix2D(out);
+    },
+})
 
 module.exports = cc.Camera = Camera;

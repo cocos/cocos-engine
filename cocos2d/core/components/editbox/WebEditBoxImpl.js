@@ -356,7 +356,7 @@ Object.assign(WebEditBoxImpl.prototype, {
         }
         else {
             let camera = cc.Camera.findCamera(node);
-            camera.getWorldToCameraMatrix(this._cameraMat);
+            camera.getWorldToScreenMatrix2D(this._cameraMat);
             cameraMat = this._cameraMat;
             math.mat4.mul(cameraMat, cameraMat, worldMat);
         }

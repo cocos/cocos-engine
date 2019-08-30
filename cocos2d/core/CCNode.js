@@ -1857,7 +1857,7 @@ let NodeDefines = {
         
         let camera = cc.Camera.findCamera(this);
         if (camera) {
-            camera.getCameraToWorldPoint(point, cameraPt);
+            camera.getScreenToWorldPoint(point, cameraPt);
         }
         else {
             cameraPt.set(point);
