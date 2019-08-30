@@ -25,7 +25,7 @@
 */
 
 import { CameraComponent, ModelComponent } from '../../3d';
-import { Material } from '../../assets/material'
+import { Material } from '../../assets/material';
 import { createMesh } from '../../3d/misc/utils';
 import { GFXTextureType, GFXTextureUsageBit, GFXFormat, GFXTextureViewType, GFXBufferTextureCopy, GFXClearFlag } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
@@ -183,7 +183,7 @@ export class Profiler {
         }
 
         this._stats = null;
-        const now = director.getCurrentTime();
+        const now = performance.now();
 
         const opts = {
             frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
@@ -278,7 +278,7 @@ export class Profiler {
 
         this.generateNode();
 
-        const now = director.getCurrentTime();
+        const now = performance.now();
         this.getCounter('frame').end(now);
         this.getCounter('frame').start(now);
         this.getCounter('logic').start(now);
@@ -289,7 +289,7 @@ export class Profiler {
             return;
         }
 
-        const now = director.getCurrentTime();
+        const now = performance.now();
         if (director.isPaused()) {
             this.getCounter('frame').start(now);
         } else {
@@ -302,7 +302,7 @@ export class Profiler {
             return;
         }
 
-        const now = director.getCurrentTime();
+        const now = performance.now();
         this.getCounter('physics').start(now);
     }
 
@@ -311,7 +311,7 @@ export class Profiler {
             return;
         }
 
-        const now = director.getCurrentTime();
+        const now = performance.now();
         this.getCounter('physics').end(now);
     }
 
@@ -320,7 +320,7 @@ export class Profiler {
             return;
         }
 
-        const now = director.getCurrentTime();
+        const now = performance.now();
         this.getCounter('render').start(now);
     }
 
@@ -328,7 +328,7 @@ export class Profiler {
         if (!this._stats || !this._ctx || !this._canvas) {
             return;
         }
-        const now = director.getCurrentTime();
+        const now = performance.now();
 
         this.getCounter('fps').frame(now);
         this.getCounter('draws').value = this._device!.numDrawCalls;
