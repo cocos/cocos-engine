@@ -546,7 +546,7 @@ let Camera = cc.Class({
 
     /**
      * !#en
-     * Get the screen toworld matrix, only support 2D camera.
+     * Get the screen to world matrix, only support 2D camera.
      * !#zh
      * 获取屏幕坐标系到世界坐标系的矩阵，只适用于 2D 摄像机。
      * @method getScreenToWorldMatrix2D
