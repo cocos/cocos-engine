@@ -3,7 +3,7 @@
  */
 
 import { replaceProperty } from './utils/deprecated';
-import { math } from '.';
+import * as math from './math';
 import { Scheduler } from './scheduler';
 
 // VMATH
