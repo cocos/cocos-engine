@@ -2107,10 +2107,14 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                     glWrapT = gl.CLAMP_TO_EDGE;
                                                 }
 
-                                                if (gpuTexture.isPowerOf2
-                                                    // && gpuTexture.mipLevel > 1
-                                                    ) {
-                                                    glMinFilter = gpuSampler.glMinFilter;
+                                                if (gpuTexture.isPowerOf2) {
+                                                    if (gpuTexture.mipLevel <= 1 &&
+                                                        (gpuSampler.glMinFilter === gl.LINEAR_MIPMAP_NEAREST ||
+                                                        gpuSampler.glMinFilter === gl.LINEAR_MIPMAP_LINEAR)) {
+                                                        glMinFilter = gl.LINEAR;
+                                                    } else {
+                                                        glMinFilter = gpuSampler.glMinFilter;
+                                                    }
                                                 } else {
                                                     if (gpuSampler.glMinFilter === gl.LINEAR ||
                                                         gpuSampler.glMinFilter === gl.LINEAR_MIPMAP_NEAREST ||

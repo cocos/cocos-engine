@@ -57,6 +57,10 @@ export class Model {
         return this._id;
     }
 
+    get subModels () {
+        return this._subModels;
+    }
+
     get subModelNum () {
         return this._subModels.length;
     }
