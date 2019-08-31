@@ -100,11 +100,38 @@ export class ForwardStage extends RenderStage {
         this._opaqueQueue.clear();
         this._transparentQueue.clear();
 
-        for (const ro of this._pipeline.renderObjects) {
-            for (let i = 0; i < ro.model.subModelNum; i++) {
-                for (let j = 0; j < ro.model.getSubModel(i).passes.length; j++) {
-                    this._opaqueQueue.insertRenderPass(ro, i, j);
-                    this._transparentQueue.insertRenderPass(ro, i, j);
+        const renderObjects = this._pipeline.renderObjects;
+        for (let i = 0; i < renderObjects.length; ++i) {
+            const ro = renderObjects[i];
+            const subModels = ro.model.subModels;
+            for (let m = 0; m < subModels.length; ++m) {
+                const subModel = subModels[m];
+                const passes = subModel.passes;
+                for (let p = 0; p < passes.length; ++p) {
+                    const pass = subModel.passes[p];
+                    const pso = subModel.psos![p];
+                    const isTransparent = pso.blendState.targets[0].blend;
+                    const hash = (0 << 30) | pass.priority << 16 | subModel.priority << 8 | p;
+                    if (isTransparent) {
+                        this._transparentQueue.queue.push({
+                            hash,
+                            depth: ro.depth,
+                            shaderId: pso.shader.id,
+                            subModel,
+                            cmdBuff: subModel.commandBuffers[p],
+                        });
+                    } else {
+                        this._opaqueQueue.queue.push({
+                            hash,
+                            depth: ro.depth,
+                            shaderId: pso.shader.id,
+                            subModel,
+                            cmdBuff: subModel.commandBuffers[p],
+                        });
+                    }
+
+                    // this._opaqueQueue.insertRenderPass(ro, m, j);
+                    // this._transparentQueue.insertRenderPass(ro, m, j);
                 }
             }
         }
