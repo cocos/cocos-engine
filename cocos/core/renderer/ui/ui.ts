@@ -26,14 +26,8 @@
  * @hidden
  */
 
-import { CanvasComponent, UIComponent, UIRenderComponent } from '../../components/ui-base';
-import { MeshBuffer } from './mesh-buffer';
-import * as UIVertexFormat from './ui-vertex-format';
-import { StencilManager } from './stencil-manager';
 import { Material } from '../../assets/material';
-import { Pool, RecyclePool } from '../../memop';
-import { CachedArray } from '../../memop/cached-array';
-import { Root } from '../../root';
+import { CanvasComponent, UIComponent, UIRenderComponent } from '../../components/ui-base';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType  } from '../../gfx/define';
@@ -41,14 +35,19 @@ import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { GFXTextureView } from '../../gfx/texture-view';
+import { Pool, RecyclePool } from '../../memop';
+import { CachedArray } from '../../memop/cached-array';
 import { UniformBinding } from '../../pipeline/define';
 import { Camera } from '../../renderer/scene/camera';
 import { Model, VisibilityFlags } from '../../renderer/scene/model';
 import { RenderScene } from '../../renderer/scene/render-scene';
+import { Root } from '../../root';
+import { INode } from '../../utils/interfaces';
+import { MeshBuffer } from './mesh-buffer';
+import { StencilManager } from './stencil-manager';
 import { UIBatchModel } from './ui-batch-model';
 import { UIMaterial } from './ui-material';
-import { INode } from '../../utils/interfaces';
-import { RenderableComponent } from '../../3d/framework/renderable-component';
+import * as UIVertexFormat from './ui-vertex-format';
 
 export class UIDrawBatch {
     public camera: Camera | null = null;
@@ -132,7 +131,7 @@ export class UI {
     private _uiModelPool: Pool<UIBatchModel> | null = null;
     private _modelInUse: CachedArray<UIBatchModel>;
     // batcher
-    private _emptyMaterial = Material.getInstantiatedMaterial(new Material(), new RenderableComponent(), CC_EDITOR ? true : false);
+    private _emptyMaterial = new Material();
     private _currMeshBuffer: MeshBuffer | null = null;
     private _currMaterial: Material = this._emptyMaterial;
     private _currTexView: GFXTextureView | null = null;
@@ -240,9 +239,9 @@ export class UI {
      * @param visibility - 屏幕编号。
      */
     public getScreen (visibility: number) {
-        let screens = this._screens;
+        const screens = this._screens;
         for (let i = 0; i < screens.length; ++i) {
-            let screen = screens[i];
+            const screen = screens[i];
             if (screen.camera) {
                 if (screen.camera.view.visibility === visibility) {
                     return screen;
@@ -288,7 +287,7 @@ export class UI {
 
         // update buffers
         if (this._batches.length > 0) {
-            let buffers = this._meshBuffers;
+            const buffers = this._meshBuffers;
             for (let i = 0; i < buffers.length; ++i) {
                 const bufferBatch = buffers[i];
                 bufferBatch.uploadData();
@@ -488,9 +487,9 @@ export class UI {
 
         this._preprocess(node);
         if (len > 0) {
-            let children = node.children;
+            const children = node.children;
             for (let i = 0; i < children.length; ++i) {
-                let child = children[i];
+                const child = children[i];
                 this._walk(child, level);
             }
         }
@@ -500,9 +499,9 @@ export class UI {
     }
 
     private _renderScreens () {
-        let screens = this._screens;
+        const screens = this._screens;
         for (let i = 0; i < screens.length; ++i) {
-            let screen = screens[i];
+            const screen = screens[i];
             if (!screen.enabledInHierarchy) {
                 continue;
             }
@@ -514,17 +513,17 @@ export class UI {
             this._recursiveScreenNode(this._debugScreen.node);
         }
     }
-    
+
     private _preprocess (c: INode) {
         // ts-ignore
-        let render = c._uiComp;
+        const render = c._uiComp;
         if (render && render.enabledInHierarchy) {
             render.updateAssembler(this);
         }
     }
 
     private _postprocess (c: INode) {
-        let render = c._uiComp;
+        const render = c._uiComp;
         if (render && render.enabledInHierarchy) {
             render.postUpdateAssembler(this);
         }

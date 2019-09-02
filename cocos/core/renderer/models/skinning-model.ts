@@ -27,17 +27,17 @@
  * @hidden
  */
 
+import { SkeletalAnimationClip } from '../../animation/skeletal-animation-clip';
 import { Skeleton } from '../../assets/skeleton';
-import { INode } from '../../utils/interfaces';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXAddress, GFXBufferUsageBit, GFXFilter, GFXMemoryUsageBit } from '../../gfx/define';
 import { UBOSkinningAnimation, UBOSkinningTexture, UniformJointsTexture } from '../../pipeline/define';
+import { INode } from '../../utils/interfaces';
 import { Pass } from '../core/pass';
 import { genSamplerHash, samplerLib } from '../core/sampler-lib';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 import { IJointsTextureHandle } from './joints-texture-utils';
-import { SkeletalAnimationClip } from '../../animation/skeletal-animation-clip';
 
 export interface IJointsAnimInfo {
     buffer: GFXBuffer;

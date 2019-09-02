@@ -27,17 +27,17 @@
  */
 
 import { Filter, PixelFormat } from '../../assets/asset-enum';
+import { Material } from '../../assets/material';
+import { IMeshStruct, Mesh } from '../../assets/mesh';
+import { Skeleton } from '../../assets/skeleton';
 import { Texture2D } from '../../assets/texture-2d';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
 import { CCString } from '../../data/utils/attribute';
-import { Mat4, Vec2 } from '../../math';
 import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
 import { GFXFormat, GFXType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
-import { Material } from '../../assets/material';
-import { IMeshStruct, Mesh } from '../../assets/mesh';
-import { Skeleton } from '../../assets/skeleton';
+import { Mat4, Vec2 } from '../../math';
 import { mapBuffer } from '../misc/utils';
 import { SkinningModelComponent } from './skinning-model-component';
 

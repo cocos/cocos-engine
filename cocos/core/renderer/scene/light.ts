@@ -1,6 +1,6 @@
 import { Vec3 } from '../../math';
-import { RenderScene } from './render-scene';
 import { INode } from '../../utils/interfaces';
+import { RenderScene } from './render-scene';
 
 // Color temperature (in Kelvin) to RGB
 export function ColorTemperatureToRGB (rgb: Vec3, kelvin: number) {

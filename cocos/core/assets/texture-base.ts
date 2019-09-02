@@ -30,10 +30,10 @@
 
 // @ts-check
 import {ccclass, property} from '../data/class-decorator';
-import IDGenerator from '../utils/id-generator';
 import { GFXDevice } from '../gfx/device';
 import { GFXTextureView } from '../gfx/texture-view';
-import { SamplerInfoIndex, genSamplerHash } from '../renderer/core/sampler-lib';
+import { genSamplerHash, SamplerInfoIndex } from '../renderer/core/sampler-lib';
+import IDGenerator from '../utils/id-generator';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 
@@ -55,14 +55,14 @@ export class TextureBase extends Asset {
     /**
      * 此贴图的像素宽度。
      */
-    public get width(): number {
+    public get width (): number {
         return this._width;
     }
 
     /**
      * 此贴图的像素高度。
      */
-    public get height(): number {
+    public get height (): number {
         return this._height;
     }
 
@@ -108,7 +108,6 @@ export class TextureBase extends Asset {
     private _id: string;
     private _samplerInfo: Array<number | undefined> = [];
     private _samplerHash: number = 0;
-
 
     constructor (flipY: boolean = false) {
         super();

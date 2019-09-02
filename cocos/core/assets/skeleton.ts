@@ -27,11 +27,11 @@
  * @category asset
  */
 
-import { Asset } from './asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { CCString } from '../../core/data/utils/attribute';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
+import { Asset } from './asset';
 
 export interface IBindTRS {
     position: Vec3;

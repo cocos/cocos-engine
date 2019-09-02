@@ -27,11 +27,9 @@
  * @category material
  */
 
-import { EffectAsset, IPassInfo, IPassStates, IPropertyInfo, IShaderInfo } from '../../assets/effect-asset';
 import { builtinResMgr } from '../../3d/builtin/init';
+import { EffectAsset, IPassInfo, IPassStates, IPropertyInfo, IShaderInfo } from '../../assets/effect-asset';
 import { TextureBase } from '../../assets/texture-base';
-import { Mat3, Mat4, Vec2, Vec3, Vec4 } from '../../math';
-import { Root } from '../../root';
 import { GFXBindingLayout, IGFXBinding } from '../../gfx/binding-layout';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXDynamicState,
@@ -44,8 +42,10 @@ import { GFXRenderPass } from '../../gfx/render-pass';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
+import { Mat3, Mat4, Vec2, Vec3, Vec4 } from '../../math';
 import { RenderPassStage, RenderPriority, UniformBinding } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
+import { Root } from '../../root';
 import { programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
 

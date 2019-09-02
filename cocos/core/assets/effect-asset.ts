@@ -27,7 +27,6 @@
  * @category material
  */
 
-import { Asset } from './asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Root } from '../../core/root';
 import { GFXDynamicState, GFXPrimitiveMode } from '../gfx/define';
@@ -36,6 +35,7 @@ import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
 import { RenderPassStage } from '../pipeline/define';
 import { IDefineMap } from '../renderer/core/pass';
 import { programLib } from '../renderer/core/program-lib';
+import { Asset } from './asset';
 
 export interface IPropertyInfo {
     type: number; // auto-extracted

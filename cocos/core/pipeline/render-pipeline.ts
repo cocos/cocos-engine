@@ -3,8 +3,6 @@
  */
 
 import { intersect } from '../geom-utils';
-import { Root } from '../root';
-import { Mat4, Vec3, Vec4 } from '../math';
 import { GFXBuffer } from '../gfx/buffer';
 import {
     GFXBindingType,
@@ -24,9 +22,11 @@ import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
+import { Mat4, Vec3, Vec4 } from '../math';
 import { Camera, Model } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass';
 import { programLib } from '../renderer/core/program-lib';
+import { Root } from '../root';
 import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_ENVIRONMENT } from './define';
 import { IInternalBindingInst } from './define';
 import { IRenderFlowInfo, RenderFlow } from './render-flow';

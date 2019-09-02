@@ -28,7 +28,6 @@
  * @category asset
  */
 
-// @ts-check
 import { ccclass, property } from '../data/class-decorator';
 import { GFXTextureType, GFXTextureViewType } from '../gfx/define';
 import { PixelFormat } from './asset-enum';
@@ -259,17 +258,17 @@ export class Texture2D extends SimpleTexture {
         }, presumed);
     }
 
-    protected _checkTextureLoaded() {
+    protected _checkTextureLoaded () {
         let ready = true;
         for (let i = 0; i < this._mipmaps.length; ++i) {
             const image = this._mipmaps[i];
-            if(!image.loaded){
+            if (!image.loaded){
                 ready = false;
                 break;
             }
         }
 
-        if(ready){
+        if (ready){
             super._textureReady();
         }
     }

@@ -27,18 +27,18 @@
  * @category model
  */
 
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
-import { INode } from '../../utils/interfaces';
-import { GFXDevice } from '../../gfx/device';
 import { SkeletalAnimationClip } from '../../animation/skeletal-animation-clip';
+import { Material } from '../../assets/material';
+import { Skeleton } from '../../assets/skeleton';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
+import { director } from '../../director';
+import { GFXDevice } from '../../gfx/device';
 import { selectJointsMediumType } from '../../renderer/models/joints-texture-utils';
 import { SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
-import { Material } from '../../assets/material';
-import { Skeleton } from '../../assets/skeleton';
+import { INode } from '../../utils/interfaces';
 import { builtinResMgr } from '../builtin';
 import { ModelComponent } from './model-component';
-import { director } from '../../director';
 
 /**
  * @en The Skinning Model Component

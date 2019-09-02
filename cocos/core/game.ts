@@ -27,9 +27,9 @@
  * @category core
  */
 
+import { EventTarget } from './event/event-target';
 import { WebGLGFXDevice } from './gfx/webgl/webgl-device';
 import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
-import { EventTarget } from './event/event-target';
 import * as debug from './platform/debug';
 
 /**
@@ -383,7 +383,7 @@ export class Game extends EventTarget {
      * @param {String} type - A string representing the event type to listen for.
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.<br>
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
-     * @param {any} [callback.arg1] arg1 
+     * @param {any} [callback.arg1] arg1
      * @param {any} [callback.arg2] arg2
      * @param {any} [callback.arg3] arg3
      * @param {any} [callback.arg4] arg4
