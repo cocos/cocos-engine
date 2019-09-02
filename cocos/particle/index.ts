@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { BillboardComponent } from './billboard-component';
 import { LineComponent } from './line-component';
 import { ParticleSystemComponent } from './particle-system-component';
