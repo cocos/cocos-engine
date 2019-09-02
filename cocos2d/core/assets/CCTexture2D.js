@@ -540,6 +540,9 @@ var Texture2D = cc.Class({
         }
         this.width = pixelsWidth;
         this.height = pixelsHeight;
+
+        this._checkPackable();
+
         this.loaded = true;
         this.emit("load");
         return true;
@@ -647,6 +650,8 @@ var Texture2D = cc.Class({
         else {
             this._texture.update(opts);
         }
+
+        this._checkPackable();
 
         //dispatch load event to listener.
         this.loaded = true;
@@ -756,6 +761,25 @@ var Texture2D = cc.Class({
             var opts = _getSharedOptions();
             opts.genMipmaps = genMipmaps;
             this.update(opts);
+        }
+    },
+
+    _checkPackable () {
+        let dynamicAtlas = cc.dynamicAtlasManager;
+        if (!dynamicAtlas) return;
+
+        if (this._isCompressed()) {
+            this._packable = false;
+            return;
+        }
+
+        let w = this.width, h = this.height;
+        if (!this._image ||
+            w > dynamicAtlas.maxFrameSize || h > dynamicAtlas.maxFrameSize || 
+            w <= dynamicAtlas.minFrameSize || h <= dynamicAtlas.minFrameSize || 
+            this._getHash() !== dynamicAtlas.Atlas.DEFAULT_HASH) {
+            this._packable = false;
+            return;
         }
     },
 

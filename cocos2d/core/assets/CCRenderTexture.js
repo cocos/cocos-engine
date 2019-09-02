@@ -14,6 +14,7 @@ let RenderTexture = cc.Class({
 
     ctor () {
         this._framebuffer = null;
+        this._checkPackable = false;
     },
 
     /**
