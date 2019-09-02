@@ -33,9 +33,9 @@ import { Event } from '../event';
 import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { EventTarget } from '../event/event-target';
 import { applyMixins, IEventTarget } from '../event/event-target-factory';
+import { INode } from '../utils/interfaces';
 import { createMap } from '../utils/js-typed';
 import { RawAsset } from './raw-asset';
-import { INode } from '../utils/interfaces';
 
 /**
  * @en

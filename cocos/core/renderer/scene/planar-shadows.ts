@@ -1,11 +1,11 @@
 
-import { CachedArray } from '../../memop/cached-array';
-import { Color, Mat4, Quat, Vec3 } from '../../math';
 import { EffectAsset } from '../../assets/effect-asset';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType } from '../../gfx/define';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
+import { Color, Mat4, Quat, Vec3 } from '../../math';
+import { CachedArray } from '../../memop/cached-array';
 import { IInternalBindingInst, UBOShadow } from '../../pipeline/define';
 import { Pass } from '../core/pass';
 import { selectJointsMediumType } from '../models/joints-texture-utils';

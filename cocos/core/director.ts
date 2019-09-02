@@ -28,17 +28,17 @@
  * @category core
  */
 
-import { autoRelease } from './load-pipeline/auto-release-utils';
-import { Scene, Node } from './scene-graph';
-import ComponentScheduler from './scene-graph/component-scheduler';
-import NodeActivator from './scene-graph/node-activator';
+import System from './components/system';
 import { CCObject } from './data/object';
 import { EventTarget } from './event/event-target';
 import { Game } from './game';
+import { autoRelease } from './load-pipeline/auto-release-utils';
 import eventManager from './platform/event-manager/event-manager';
 import { Root } from './root';
+import { Node, Scene } from './scene-graph';
+import ComponentScheduler from './scene-graph/component-scheduler';
+import NodeActivator from './scene-graph/node-activator';
 import { Scheduler } from './scheduler';
-import System from './components/system';
 import { js } from './utils';
 
 // const ComponentScheduler = require('./component-scheduler');
@@ -500,7 +500,7 @@ export class Director extends EventTarget {
      */
     public reset () {
         this.purgeDirector();
-        
+
         this.emit(Director.EVENT_RESET);
 
         if (eventManager) {
@@ -987,7 +987,7 @@ export class Director extends EventTarget {
      * @zh 获取和 director 相关联的 cc.AnimationManager（动画管理器）。请使用 getSystem(AnimationManager.ID) 来替代
      * @deprecated
      */
-    public getAnimationManager ():any {
+    public getAnimationManager (): any {
         return this.getSystem(cc.AnimationManager.ID);
     }
 
@@ -1021,7 +1021,7 @@ export class Director extends EventTarget {
         else if (!this.invalid) {
             // calculate "global" dt
             this.calculateDeltaTime();
-            let dt = this._deltaTime;
+            const dt = this._deltaTime;
 
             // Update
             if (!this._paused) {

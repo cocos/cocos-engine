@@ -28,17 +28,17 @@
  * @category material
  */
 
-import { Asset } from './asset';
-import { TextureBase } from './texture-base';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
+import { builtinResMgr } from '../3d/builtin';
+import { RenderableComponent } from '../3d/framework/renderable-component';
 import { GFXBindingType } from '../gfx/define';
 import { GFXTextureView } from '../gfx/texture-view';
 import { IDefineMap, Pass, PassOverrides } from '../renderer/core/pass';
 import { samplerLib } from '../renderer/core/sampler-lib';
-import { RenderableComponent } from '../3d/framework/renderable-component';
+import { Asset } from './asset';
 import { EffectAsset } from './effect-asset';
-import { builtinResMgr } from '../3d/builtin';
+import { TextureBase } from './texture-base';
 
 /**
  * @zh

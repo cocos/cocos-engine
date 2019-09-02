@@ -3,16 +3,16 @@
  */
 
 import { intersect, sphere } from '../../geom-utils';
-import { Root } from '../../root';
-import { Vec3 } from '../../math';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXRenderPass } from '../../gfx/render-pass';
+import { Vec3 } from '../../math';
 import { Light, Model } from '../../renderer';
 import { DirectionalLight } from '../../renderer/scene/directional-light';
 import { LightType } from '../../renderer/scene/light';
 import { SphereLight } from '../../renderer/scene/sphere-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
+import { Root } from '../../root';
 import { cullDirectionalLight, cullSphereLight, cullSpotLight } from '../culling';
 import { PIPELINE_FLOW_FORWARD, PIPELINE_FLOW_TONEMAP, RenderPassStage, UBOForwardLight } from '../define';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';

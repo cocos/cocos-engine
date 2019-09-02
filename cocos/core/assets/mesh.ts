@@ -27,14 +27,14 @@
  * @category asset
  */
 
-import { Asset } from './asset';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Vec3 } from '../../core/math';
+import { BufferBlob } from '../3d/misc/buffer-blob';
 import { GFXBuffer } from '../gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXFormatType, GFXMemoryUsageBit, GFXPrimitiveMode } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
 import { IGFXAttribute } from '../gfx/input-assembler';
-import { BufferBlob } from '../3d/misc/buffer-blob';
+import { Asset } from './asset';
 import { IBufferView } from './utils/buffer-view';
 import { postLoadMesh } from './utils/mesh-utils';
 

@@ -1,15 +1,16 @@
+
 import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXFormatType, GFXPrimitiveMode, IGFXFormatInfo } from '../../gfx/define';
 export { find } from '../../scene-graph/find';
-import { Mat4, Vec3 } from '../../math';
-import { INode } from '../../utils/interfaces';
-import { IGFXAttribute } from '../../gfx/input-assembler';
 import { IMeshStruct, IPrimitive, IVertexBundle, Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
-import { SkinningModelComponent } from '../framework';
 import { aabb } from '../../geom-utils';
+import { IGFXAttribute } from '../../gfx/input-assembler';
+import { Mat4, Vec3 } from '../../math';
 import { IGeometry } from '../../primitive/define';
-import { BufferBlob } from './buffer-blob';
 import { JointsAnimationInfo } from '../../renderer/models/skinning-model';
+import { INode } from '../../utils/interfaces';
+import { SkinningModelComponent } from '../framework';
+import { BufferBlob } from './buffer-blob';
 
 /**
  * save a color buffer to a PPM file
