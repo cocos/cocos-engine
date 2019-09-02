@@ -44,6 +44,9 @@ export class AudioPlayerWX extends AudioPlayer {
     protected _oneShoting = false;
     protected _audio: InnerAudioContext;
 
+    private _playFn: Function = this.play.bind(this);
+    private _pauseFn: Function = this.pause.bind(this);
+
     constructor (info: IAudioInfo) {
         super(info);
         this._audio = info.clip;
@@ -75,6 +78,10 @@ export class AudioPlayerWX extends AudioPlayer {
             }
         });
         this._audio.onError((res: any) => console.error(res.errMsg));
+        wx.onHide(this._pauseFn);
+        wx.onShow(this._playFn);
+        wx.onAudioInterruptionBegin(this._pauseFn);
+        wx.onAudioInterruptionEnd(this._playFn);
     }
 
     public play () {
@@ -139,5 +146,9 @@ export class AudioPlayerWX extends AudioPlayer {
 
     public destroy () {
         if (this._audio) { this._audio.destroy(); }
+        wx.offHide(this._pauseFn);
+        wx.offShow(this._playFn);
+        wx.offAudioInterruptionBegin(this._pauseFn);
+        wx.offAudioInterruptionEnd(this._playFn);
     }
 }
