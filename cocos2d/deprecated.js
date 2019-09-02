@@ -408,7 +408,7 @@ if (CC_DEBUG) {
 
     // cc.Camera
     markFunctionWarning(cc.Camera.prototype, {
-        getNodeToCameraTransform: 'getWorldToCameraMatrix',
+        getNodeToCameraTransform: 'getWorldToScreenMatrix2D',
         getCameraToWorldPoint: 'getScreenToWorldPoint',
         getWorldToCameraPoint: 'getWorldToScreenPoint',
         getCameraToWorldMatrix: 'getScreenToWorldMatrix2D',
