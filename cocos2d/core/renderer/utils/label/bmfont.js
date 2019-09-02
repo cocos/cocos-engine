@@ -244,7 +244,7 @@ module.exports = {
                     letterPosition.x = letterX;
                 }
 
-                letterPosition.y = nextTokenY - letterDef.offsetY * _bmfontScale  + shareLabelInfo.margin + _fontSize * textUtils.MIDDLE_RATIO / 2;
+                letterPosition.y = nextTokenY - letterDef.offsetY * _bmfontScale  + shareLabelInfo.margin;
                 this._recordLetterInfo(letterPosition, character, letterIndex, lineIndex);
 
                 if (letterIndex + 1 < _horizontalKernings.length && letterIndex < textLen - 1) {
@@ -297,7 +297,7 @@ module.exports = {
             _contentSize.width = parseFloat(longestLine.toFixed(2)) + shareLabelInfo.margin * 2;
         }
         if (_labelHeight <= 0) {
-            _contentSize.height = parseFloat(_textDesiredHeight.toFixed(2)) + shareLabelInfo.margin * 2 + _fontSize * textUtils.BASELINE_RATIO;
+            _contentSize.height = parseFloat(_textDesiredHeight.toFixed(2)) + shareLabelInfo.margin * 2;
         }
 
         _tailoredTopY = _contentSize.height;
@@ -629,13 +629,13 @@ module.exports = {
 
         switch (_vAlign) {
             case macro.VerticalTextAlignment.TOP:
-                _letterOffsetY = _contentSize.height;
+                _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2;
                 break;
             case macro.VerticalTextAlignment.CENTER:
-                _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2 - (_lineHeight - _originFontSize) / 2;
+                _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2 - (_lineHeight - _originFontSize) / 2 * _bmfontScale;
                 break;
             case macro.VerticalTextAlignment.BOTTOM:
-                _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2 - (_lineHeight - _originFontSize);
+                _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2 - (_lineHeight - _originFontSize) * _bmfontScale;
                 break;
             default:
                 break;
