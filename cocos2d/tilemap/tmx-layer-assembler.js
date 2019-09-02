@@ -150,7 +150,7 @@ let tmxAssembler = {
         if (enabledCulling) {
             let camera = cc.Camera.findCamera(comp.node);
             if (camera) {
-                camera.getWorldToCameraMatrix(_mat4_temp2);
+                camera.getWorldToScreenMatrix2D(_mat4_temp2);
                 mat4.mul(_mat4_temp, _mat4_temp2, _mat4_temp);
                 cullingA = _mat4_temp.m00;
                 cullingD = _mat4_temp.m05;
