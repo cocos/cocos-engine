@@ -47,6 +47,7 @@ const TRANFORM_ON = 1 << 0;
 const qt_1 = new Quat();
 const m3_1 = new Mat3();
 const m3_2 = new Mat3();
+const m4_1 = new Mat4();
 const bookOfChange = new Map<string, number>();
 
 /**
@@ -350,14 +351,10 @@ export class Node extends BaseNode implements INode {
         super._onSetParent(oldParent, keepWorldTransform);
         if (keepWorldTransform) {
             const parent = this._parent;
-            const local = this._lpos;
             if (parent) {
                 parent.updateWorldTransform();
-                Vec3.subtract(local, this._pos, parent._pos);
-                Vec3.transformQuat(local, local, Quat.conjugate(q_a, parent._rot));
-                Vec3.divide(local, local, parent._scale);
-                Quat.multiply(this._lrot, Quat.conjugate(q_a, parent._rot), this._rot);
-                Vec3.divide(this._lscale, this._scale, parent._scale);
+                Mat4.multiply(m4_1, Mat4.invert(m4_1, parent._mat), this._mat);
+                Mat4.toRTS(m4_1, this._lrot, this._lpos, this._lscale);
             } else {
                 Vec3.copy(this._lpos, this._pos);
                 Quat.copy(this._lrot, this._rot);
@@ -366,7 +363,7 @@ export class Node extends BaseNode implements INode {
             this._eulerDirty = true;
         }
 
-        this._onBatchCreated();
+        this.invalidateChildren(TransformDirtyBit.TRS);
     }
 
     public _onBatchCreated () {

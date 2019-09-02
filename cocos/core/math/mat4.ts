@@ -189,7 +189,7 @@ export class Mat4 extends ValueType {
         // Calculate the determinant
         let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
-        if (det === 0) { return null; }
+        if (det === 0) { return out; }
         det = 1.0 / det;
 
         out.m00 = (_a11 * b11 - _a12 * b10 + _a13 * b09) * det;
