@@ -543,7 +543,7 @@ module.exports = {
                     py = py - clipTop;
                 }
 
-                if (py - letterDef.h * _bmfontScale < _tailoredBottomY) {
+                if ((py - letterDef.h * _bmfontScale < _tailoredBottomY) && _overflow === Overflow.CLAMP) {
                     _tmpRect.height = (py < _tailoredBottomY) ? 0 : (py - _tailoredBottomY);
                 }
             }
