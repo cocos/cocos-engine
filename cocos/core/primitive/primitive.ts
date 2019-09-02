@@ -1,3 +1,7 @@
+/**
+ * @category 3d/primitive
+ */
+
 import { ccclass, property } from '../data/class-decorator';
 import { createMesh } from '../3d/misc/utils';
 import * as primitives from '../primitive';

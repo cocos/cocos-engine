@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 export * from './canvas-component';
 export * from './ui-component';
 export * from './ui-render-component';

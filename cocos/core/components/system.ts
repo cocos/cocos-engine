@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 import { ISchedulable } from "../scheduler";
 
 export default class System implements ISchedulable {
