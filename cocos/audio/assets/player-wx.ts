@@ -44,32 +44,38 @@ export class AudioPlayerWX extends AudioPlayer {
     protected _oneShoting = false;
     protected _audio: InnerAudioContext;
 
-    private _playFn: Function = this.play.bind(this);
-    private _pauseFn: Function = this.pause.bind(this);
+    private _pauseFn: Function;
+    private _playFn: Function;
+    private _interrupted = false;
 
     constructor (info: IAudioInfo) {
         super(info);
         this._audio = info.clip;
         this._audio.onPlay(() => {
-            this._startTime = performance.now();
+            if (this._state === PlayingState.PLAYING) { return; }
             this._state = PlayingState.PLAYING;
+            this._startTime = performance.now();
             this._eventTarget.emit('started');
         });
         this._audio.onPause(() => {
-            this._offset += performance.now() - this._startTime;
+            if (this._state === PlayingState.STOPPED) { return; }
             this._state = PlayingState.STOPPED;
-            this._oneShoting = false;
+            this._offset += performance.now() - this._startTime;
         });
         this._audio.onStop(() => {
+            if (this._state === PlayingState.STOPPED) { return; }
             this._state = PlayingState.STOPPED;
-            this._oneShoting = false;
             this._offset = 0;
-            this._audio.seek(0);
+            if (this._oneShoting) {
+                this._audio.volume = this._volume;
+                this._audio.loop = this._loop;
+                this._oneShoting = false;
+            }
         });
         this._audio.onEnded(() => {
-            this._offset = 0;
-            this._startTime = performance.now();
+            if (this._state === PlayingState.STOPPED) { return; }
             this._state = PlayingState.STOPPED;
+            this._offset = 0;
             this._eventTarget.emit('ended');
             if (this._oneShoting) {
                 this._audio.volume = this._volume;
@@ -78,6 +84,14 @@ export class AudioPlayerWX extends AudioPlayer {
             }
         });
         this._audio.onError((res: any) => console.error(res.errMsg));
+        this._pauseFn = () => {
+            if (this._state !== PlayingState.PLAYING) { return; }
+            this.pause(); this._interrupted = true;
+        };
+        this._playFn = () => {
+            if (!this._interrupted) { return; }
+            this.play(); this._interrupted = false;
+        };
         wx.onHide(this._pauseFn);
         wx.onShow(this._playFn);
         wx.onAudioInterruptionBegin(this._pauseFn);

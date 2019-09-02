@@ -81,7 +81,7 @@ export class AudioClip extends Asset {
             if (CC_WECHATGAME) {
                 ctor = AudioPlayerWX;
                 this._loadMode = AudioType.WX_GAME_AUDIO;
-            } else if (clip instanceof AudioBuffer) {
+            } else if (AudioBuffer && clip instanceof AudioBuffer) {
                 ctor = AudioPlayerWeb;
                 this._loadMode = AudioType.WEB_AUDIO;
             } else {
