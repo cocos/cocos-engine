@@ -3,8 +3,11 @@ import { Quat, Vec3 } from '../../../core/math';
 import { ITriggerCallback, ITriggerEventType, ShapeBase } from '../../api';
 import { getWrap, stringfyVec3 } from '../../util';
 import { commitShapeUpdates } from '../cannon-util';
+import { PhysicMaterial } from '../../assets/physic-material';
 
 export class CannonShape implements ShapeBase {
+
+    public static readonly idToMaterial = {};
 
     public get impl () {
         return this._shape!;
@@ -25,6 +28,20 @@ export class CannonShape implements ShapeBase {
     private _onTriggerListener: (event: CANNON.ITriggeredEvent) => any;
 
     private _triggeredCB: ITriggerCallback[] = [];
+
+    public set material (mat: PhysicMaterial) {
+        if (mat == null) {
+            (this._shape!.material as unknown) = null;
+        } else {
+            if (CannonShape.idToMaterial[mat._uuid] == null) {
+                CannonShape.idToMaterial[mat._uuid] = new CANNON.Material(mat._uuid);
+            }
+
+            this._shape!.material = CannonShape.idToMaterial[mat._uuid];
+            this._shape!.material.friction = mat.friction;
+            this._shape!.material.restitution = mat.restitution;
+        }
+    }
 
     public constructor () {
         this._onTriggerListener = this.onTrigger.bind(this);
@@ -49,7 +66,7 @@ export class CannonShape implements ShapeBase {
         this._userData = data;
     }
 
-    public setBody (body: CANNON.Body | null, index: number){
+    public setBody (body: CANNON.Body | null, index: number) {
         if (body == null) {
             this._shape!.removeEventListener('triggered', this._onTriggerListener);
         } else {

@@ -13,6 +13,8 @@ import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventTyp
 import { ERigidBodyType } from '../../physic-enum';
 import { PhysicsBasedComponent } from '../detail/physics-based-component';
 import { RigidBodyComponent } from '../rigid-body-component';
+import { PhysicMaterial } from '../../assets/physic-material';
+import { PhysicsSystem } from '../physics-system';
 
 /**
  * @zh
@@ -29,20 +31,58 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
-    // Shielding physics material for alpha version
-    // @property({
-    //     type: PhysicsMaterial,
-    // })
-    // get material () {
-    //     return this._material;
-    // }
+    @property({
+        type: PhysicMaterial,
+        displayName: 'Material',
+        displayOrder: -1,
+    })
+    public get sharedMaterial () {
+        return this._material;
+    }
 
-    // set material (value) {
-    //     this._material = value;
-    //     // if (!CC_EDITOR && !CC_PHYISCS_BUILT_IN) {
-    //     //     this._body.material = (this._material || DefaultPhysicsMaterial)._getImpl();
-    //     // }
-    // }
+    public set sharedMaterial (value) {
+        if (CC_EDITOR) {
+            this._material = value;
+        } else {
+            this.material = value;
+        }
+    }
+
+    public get material () {
+        if (!CC_PHYSICS_BUILT_IN) {
+            if (this._isSharedMaterial && this._material != null) {
+                this._material.off('physics_material_update', this._updateMaterial, this);
+                this._material = this._material.clone();
+                this._material.on('physics_material_update', this._updateMaterial, this);
+                this._isSharedMaterial = false;
+            }
+        }
+        return this._material;
+    }
+
+    public set material (value) {
+        if (!CC_EDITOR) {
+            if (!CC_PHYSICS_BUILT_IN) {
+                if (value != null && this._material != null) {
+                    if (this._material._uuid != value._uuid) {
+                        this._material.off('physics_material_update', this._updateMaterial, this);
+                        value.on('physics_material_update', this._updateMaterial, this);
+                        this._isSharedMaterial = false;
+                        this._material = value;
+                    }
+                } else if (value != null && this._material == null) {
+                    value.on('physics_material_update', this._updateMaterial, this);
+                    this._material = value;
+                } else if (value == null && this._material != null) {
+                    this._material!.off('physics_material_update', this._updateMaterial, this);
+                    this._material = value;
+                }
+                this._updateMaterial();
+            } else {
+                this._material = value;
+            }
+        }
+    }
 
     /**
      * @en
@@ -113,17 +153,22 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
 
     protected _shapeBase!: ShapeBase;
 
+    private _isSharedMaterial: boolean = true;
+
     private _trrigerCallback!: ITriggerCallback;
 
     private _collisionCallBack!: ICollisionCallback;
 
     /// PRIVATE PROPERTY ///
 
+    @property({ type: PhysicMaterial })
+    private _material: PhysicMaterial | null = null;
+
     @property
     private _isTrigger: boolean = false;
 
     @property
-    private _center: Vec3 = new cc.Vec3(0, 0, 0);
+    private readonly _center: Vec3 = new cc.Vec3(0, 0, 0);
 
     constructor () {
         super();
@@ -196,6 +241,7 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
         if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
             // init collider
             this.isTrigger = this._isTrigger;
+            this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
         }
 
         this.center = this._center;
@@ -242,8 +288,22 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
     protected onDestroy () {
         if (!CC_EDITOR) {
             this.sharedBody.body.removeShape(this._shapeBase!);
+            if (!CC_PHYSICS_BUILT_IN) {
+                if (this._material != null) {
+                    if (this._material._uuid != PhysicsSystem.instance.defaultMaterial!._uuid) {                        
+                        this._material.destroy();
+                        this._material = null;
+                    }
+                }
+            }
         }
         super.onDestroy();
+    }
+
+    private _updateMaterial () {
+        if (!CC_PHYSICS_BUILT_IN) {
+            this._shapeBase.material = this._material;
+        }
     }
 
     private _onTrigger (event: ITriggerEvent) {

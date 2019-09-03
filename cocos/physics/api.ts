@@ -81,6 +81,8 @@ export interface BuiltInWorldBase {
 
 export interface PhysicsWorldBase extends BuiltInWorldBase {
 
+    defaultMaterial: any;
+
     setGravity (gravity: Vec3): void;
 
     getGravity (out: Vec3): void;
@@ -252,7 +254,15 @@ export interface RigidBodyBase extends BuiltInRigidBodyBase {
     setAllowSleep (v: boolean): void;
 }
 
+export interface PhysicMaterialBase {
+    friction: number;
+    restitution: number;
+}
+
 export interface ShapeBase {
+
+    material: PhysicMaterialBase | null;
+
     setCenter (center: Vec3): void;
 
     setScale (scale: Vec3): void;

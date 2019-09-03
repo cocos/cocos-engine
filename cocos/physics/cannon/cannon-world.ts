@@ -3,9 +3,10 @@ import { Vec3 } from '../../core/math';
 import { RaycastResult } from '../raycast-result';
 import { setWrap } from '../util';
 import { AfterStepCallback, BeforeStepCallback, IRaycastOptions, PhysicsWorldBase } from './../api';
-import { defaultCannonContactMaterial, defaultCannonMaterial } from './cannon-const';
 import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
 import { CannonConstraint } from './constraint/cannon-constraint';
+import { CannonShape } from './shapes/cannon-shape';
+import { PhysicMaterial } from '../assets/physic-material';
 
 export class CannonWorld implements PhysicsWorldBase {
 
@@ -21,8 +22,18 @@ export class CannonWorld implements PhysicsWorldBase {
         this._world = new CANNON.World();
         setWrap<PhysicsWorldBase>(this._world, this);
         this._world.broadphase = new CANNON.NaiveBroadphase();
-        this._world.defaultMaterial = defaultCannonMaterial;
-        this._world.defaultContactMaterial = defaultCannonContactMaterial;
+    }
+
+    // public get defaultMaterial () {
+    //     return this.defaultMaterial;
+    // }
+
+    public set defaultMaterial (mat: PhysicMaterial) {
+        this._world.defaultMaterial.friction = mat.friction;
+        this._world.defaultMaterial.restitution = mat.restitution;
+        if (CannonShape.idToMaterial[mat._uuid] != null) {
+            CannonShape.idToMaterial[mat._uuid] = this._world.defaultMaterial;
+        }
     }
 
     public getAllowSleep (): boolean {

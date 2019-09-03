@@ -7,6 +7,7 @@ import { PhysicsWorldBase } from '../api';
 import { createPhysicsWorld } from '../instance';
 import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
+import { PhysicMaterial } from '../assets/physic-material';
 
 /**
  * @zh
@@ -99,6 +100,14 @@ export class PhysicsSystem extends System {
         }
     }
 
+    /**
+     * @zh
+     * 获取全局的默认物理材质，注意：builtin 时为 null
+     */
+    public get defaultMaterial (): PhysicMaterial | null {
+        return this._material;
+    }
+
     // get world () {
     //     return this._world;
     // }
@@ -120,19 +129,28 @@ export class PhysicsSystem extends System {
     public static ID: 'physics';
 
     public _world: PhysicsWorldBase;
+
     private _enable = true;
     private _deltaTime = 1.0 / 60.0;
     private _maxSubStep = 2;
     // private _frameRate = 60;
     // private _singleStep = false;
     private _allowSleep = true;
-    private _gravity = new Vec3(0, -10, 0);
+    private readonly _gravity = new Vec3(0, -10, 0);
+    private readonly _material: PhysicMaterial | null = null;
 
     constructor () {
         super();
         this._world = createPhysicsWorld();
-        this.gravity = this._gravity;
-        this.allowSleep = this._allowSleep;
+        if (!CC_PHYSICS_BUILT_IN) {
+            this.gravity = this._gravity;
+            this.allowSleep = this._allowSleep;
+            this._material = new PhysicMaterial();
+            this._material.friction = 0.6;
+            this._material.restitution = -1;
+            this._material.on('physics_material_update', this._updateMaterial, this);
+            this._world.defaultMaterial = this._material;
+        }
     }
 
     /**
@@ -156,6 +174,12 @@ export class PhysicsSystem extends System {
         // }
 
         director.emit(Director.EVENT_AFTER_PHYSICS);
+    }
+
+    private _updateMaterial () {
+        if (!CC_PHYSICS_BUILT_IN) {
+            this._world.defaultMaterial = this._material;
+        }
     }
 }
 cc.PhysicsSystem = PhysicsSystem;

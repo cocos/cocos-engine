@@ -3,7 +3,6 @@ import { Mat4, Quat, Vec3 } from '../../core/math';
 import { ICollisionCallback, ICollisionEventType, ICreateBodyOptions, PhysicsWorldBase, RigidBodyBase, ShapeBase } from '../api';
 import { ERigidBodyType } from '../physic-enum';
 import { getWrap, setWrap, stringfyVec3 } from '../util';
-import { defaultCannonMaterial } from './cannon-const';
 import { CannonWorld } from './cannon-world';
 import { CannonShape } from './shapes/cannon-shape';
 
@@ -14,7 +13,6 @@ export class CannonRigidBody implements RigidBodyBase {
     }
 
     private _body: CANNON.Body;
-    private _material: CANNON.Material;
     private _onCollidedListener: (event: CANNON.ICollisionEvent) => any;
     private _collisionCallbacks: ICollisionCallback[] = [];
     private _shapes: CannonShape[] = [];
@@ -25,9 +23,7 @@ export class CannonRigidBody implements RigidBodyBase {
     constructor (options?: ICreateBodyOptions) {
         options = options || {};
         this._name = options.name || '';
-        this._material = defaultCannonMaterial;
         this._body = new CANNON.Body({
-            material: this._material,
             type: ERigidBodyType.DYNAMIC,
         });
         setWrap<RigidBodyBase>(this._body, this);
@@ -334,7 +330,7 @@ export class CannonRigidBody implements RigidBodyBase {
             this._body.wakeUp();
         }
         Vec3.copy(_tCannonV1, torque);
-        this._body.vectorToWorldFrame(_tCannonV1, _tCannonV1);        
+        this._body.vectorToWorldFrame(_tCannonV1, _tCannonV1);
         this._body.torque.x += _tCannonV1.x;
         this._body.torque.y += _tCannonV1.y;
         this._body.torque.z += _tCannonV1.z;
@@ -351,6 +347,9 @@ export class CannonRigidBody implements RigidBodyBase {
         if (cworld) {
             cworld.impl.addBody(this._body);
             this._body.addEventListener('collide', this._onCollidedListener);
+            if (this._body.material == null) {
+                this._body.material = cworld.impl.defaultMaterial;
+            }
         }
         this._world = cworld;
     }

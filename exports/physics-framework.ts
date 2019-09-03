@@ -2,6 +2,7 @@
  * @hidden
  */
 
+import { PhysicMaterial } from '../cocos/physics/assets/physic-material';
 import { BoxColliderComponent } from '../cocos/physics/components/collider/box-collider-component';
 import { ColliderComponent } from '../cocos/physics/components/collider/collider-component';
 import { SphereColliderComponent } from '../cocos/physics/components/collider/sphere-collider-component';
@@ -13,9 +14,11 @@ export {
     BoxColliderComponent,
     SphereColliderComponent,
     RigidBodyComponent,
+    PhysicMaterial
 };
 
 cc.ColliderComponent = ColliderComponent;
 cc.BoxColliderComponent = BoxColliderComponent;
 cc.SphereColliderComponent = SphereColliderComponent;
 cc.RigidBodyComponent = RigidBodyComponent;
+cc.PhysicMaterial = PhysicMaterial;
