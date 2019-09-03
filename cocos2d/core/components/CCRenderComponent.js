@@ -97,7 +97,6 @@ let RenderComponent = cc.Class({
 
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
-        this.node.on(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
 
         this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_OPACITY;
     },
@@ -106,7 +105,6 @@ let RenderComponent = cc.Class({
         this.node._renderComponent = null;
         this.node.off(cc.Node.EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
         this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
-        this.node.off(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
         this.disableRender();
     },
 
@@ -201,10 +199,6 @@ let RenderComponent = cc.Class({
     _updateColor () {
         if (this._assembler.updateColor) {
             this._assembler.updateColor(this);
-        }
-
-        if (!CC_NATIVERENDERER) {
-            this.node._renderFlag &= ~RenderFlow.FLAG_OPACITY;
         }
     },
 
