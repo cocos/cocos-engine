@@ -38,6 +38,7 @@ import { IDefineMap, Pass, PassOverrides } from '../renderer/core/pass';
 import { samplerLib } from '../renderer/core/sampler-lib';
 import { Asset } from './asset';
 import { EffectAsset } from './effect-asset';
+import { SpriteFrame } from './sprite-frame';
 import { TextureBase } from './texture-base';
 
 /**
@@ -404,14 +405,16 @@ export class Material extends Asset {
             const binding = Pass.getBindingFromHandle(handle);
             if (val instanceof GFXTextureView) {
                 pass.bindTextureView(binding, val);
-            } else if (val instanceof TextureBase) {
+            } else if (val instanceof TextureBase || val instanceof SpriteFrame) {
                 const textureView: GFXTextureView | null = val.getGFXTextureView();
                 if (!textureView || !textureView.texture.width || !textureView.texture.height) {
                     // console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);
                     return false;
                 }
                 pass.bindTextureView(binding, textureView);
-                pass.bindSampler(binding, samplerLib.getSampler(cc.game._gfxDevice, val.getSamplerHash()));
+                if (val instanceof TextureBase) {
+                    pass.bindSampler(binding, samplerLib.getSampler(cc.game._gfxDevice, val.getSamplerHash()));
+                }
             }
         }
         return true;

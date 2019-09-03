@@ -17,7 +17,7 @@ import { GFXShader } from './shader';
 import { GFXTexture } from './texture';
 import { GFXTextureView } from './texture-view';
 
-export { GFXAttributeName, GFXFormat, GFXPrimitiveMode } from './define';
+export * from './define';
 
 cc.GFXDevice = GFXDevice;
 cc.GFXBuffer = GFXBuffer;
