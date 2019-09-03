@@ -379,7 +379,7 @@ class SharedRigidBody {
         // 开始物理计算之前，用户脚本或引擎功能有可能改变节点的Transform，所以需要判断并进行更新
         if (this._node.hasChangedFlags) {
             // scale 进行单独判断，因为目前的物理系统处理后不会改变scale的属性
-            if (this._node.hasChangedFlags === TransformDirtyBit.SCALE) {
+            if (this._node.hasChangedFlags & TransformDirtyBit.SCALE) {
                 this._body.scaleAllShapes(this._node.worldScale);
             }
             this._syncPhysWithScene(this._node);
