@@ -30,7 +30,7 @@
 
 import { Component } from '../component';
 import { ccclass, disallowMultiple, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../data/class-decorator';
-import { Vec3 } from '../../math';
+import { Vec3, Color } from '../../math';
 import { GFXClearFlag } from '../../gfx/define';
 import { Camera } from '../../renderer';
 import { UITransformComponent } from './ui-transfrom-component';
@@ -42,8 +42,20 @@ import { view, ResolutionPolicy } from '../../platform/view';
 import visibleRect from '../../platform/visible-rect';
 import { CameraComponent } from '../../3d/framework/camera-component';
 import { INode } from '../../utils/interfaces';
+import { Enum } from '../../value-types';
 
 const _worldPos = new Vec3();
+
+const CanvasClearFlag = Enum({
+    SOLID_COLOR: GFXClearFlag.ALL,
+    DEPTH_STENCIL: GFXClearFlag.DEPTH_STENCIL,
+    NONE: GFXClearFlag.NONE,
+});
+
+const RenderMode = Enum({
+    OVERLAY: 0,
+    INTERSPERSE: 1,
+});
 
 /**
  * @zh
@@ -124,6 +136,49 @@ export class CanvasComponent extends Component {
     //     }
     // }
 
+    @property({
+        type: CanvasClearFlag,
+    })
+    get clearFlag () {
+        return this._clearFlag;
+    }
+
+    set clearFlag (val) {
+        this._clearFlag = val;
+        if (this._camera) {
+            this._camera.clearFlag = this._clearFlag;
+        }
+    }
+
+    @property
+    get color () {
+        return this._color;
+    }
+
+    set color (val) {
+        Color.copy(this._color, val);
+        if (this._camera) {
+            this._camera.clearColor.r = val.r / 255;
+            this._camera.clearColor.g = val.g / 255;
+            this._camera.clearColor.b = val.b / 255;
+            this._camera.clearColor.a = val.a / 255;
+        }
+    }
+
+    @property({
+        type: RenderMode,
+    })
+    get renderMode () {
+        return this._renderMode;
+    }
+
+    set renderMode (val) {
+        this._renderMode = val;
+        if (this._camera) {
+            this._camera.priority = this._getViewPriority();
+        }
+    }
+
     /**
      * @zh
      * 渲染优先级。
@@ -138,7 +193,7 @@ export class CanvasComponent extends Component {
     set priority (val: number) {
         this._priority = val;
         if (this._camera) {
-            this._camera.priority = val;
+            this._camera.priority = this._getViewPriority();
         }
     }
 
@@ -185,6 +240,16 @@ export class CanvasComponent extends Component {
     protected _priority = 0;
     @property
     protected _targetTexture: RenderTexture | null = null;
+    @property({
+        type: CanvasClearFlag,
+    })
+    protected _clearFlag = CanvasClearFlag.NONE;
+    @property
+    protected _color = new Color(0, 0, 0, 0);
+    @property({
+        type: RenderMode,
+    })
+    protected _renderMode = RenderMode.OVERLAY;
 
     protected _thisOnResized: () => void;
 
@@ -208,13 +273,13 @@ export class CanvasComponent extends Component {
                 name: 'ui_' + this.node.name,
                 node: cameraNode as INode,
                 projection: CameraComponent.ProjectionType.ORTHO,
-                priority: this._priority,
-                isUI: true,
+                priority: this._getViewPriority(),
                 flows: ['UIFlow'],
             });
 
             this._camera!.fov = 45;
-            this._camera!.clearFlag = GFXClearFlag.COLOR | GFXClearFlag.DEPTH | GFXClearFlag.STENCIL;
+            this._camera!.clearFlag = this.clearFlag;
+            this.color = this._color;
 
             const device = director.root!.device;
             this._camera!.resize(device.width, device.height);
@@ -379,6 +444,10 @@ export class CanvasComponent extends Component {
             this._camera.changeTargetWindow(window);
             this._camera.setFixedSize(window!.width, window!.height);
         }
+    }
+
+    private _getViewPriority () {
+        return this._renderMode === RenderMode.OVERLAY ? this._priority | 1 << 30 : this._priority;
     }
 }
 

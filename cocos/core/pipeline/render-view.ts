@@ -23,7 +23,6 @@ export interface IRenderViewInfo {
     camera: Camera;
     name: string;
     priority: number;
-    isUI: boolean;
     flows?: string[];
 }
 
@@ -72,9 +71,6 @@ export class RenderView {
 
     public set priority (val: number) {
         this._priority = val;
-        if (this.isUI) {
-            this._priority |= 1 << 30;
-        }
     }
 
     /**
@@ -102,14 +98,6 @@ export class RenderView {
      */
     public get isEnable (): boolean {
         return this._isEnable;
-    }
-
-    /**
-     * @zh
-     * 是否是UI视图。
-     */
-    public get isUI (): boolean {
-        return this._isUI;
     }
 
     /**
@@ -168,12 +156,6 @@ export class RenderView {
 
     /**
      * @zh
-     * 是否是UI视图。
-     */
-    private _isUI: boolean = false;
-
-    /**
-     * @zh
      * 渲染流程列表。
      */
     private _flows: RenderFlow[] = [];
@@ -197,7 +179,6 @@ export class RenderView {
     public initialize (info: IRenderViewInfo): boolean {
 
         this._name = info.name;
-        this._isUI = info.isUI;
         this.priority = info.priority;
         if (!info.flows) {
             info.flows = ['ForwardFlow', 'ToneMapFlow', 'SMAAFlow'];

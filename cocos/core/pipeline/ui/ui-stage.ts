@@ -87,7 +87,7 @@ export class UIStage extends RenderStage {
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(framebuffer, this._renderArea,
-            GFXClearFlag.DEPTH_STENCIL, [], camera.clearDepth, camera.clearStencil);
+            camera.clearFlag, [camera.clearColor], camera.clearDepth, camera.clearStencil);
 
         cmdBuff.execute(this._uiQueue.cmdBuffs.array, this._uiQueue.cmdBuffCount);
 
