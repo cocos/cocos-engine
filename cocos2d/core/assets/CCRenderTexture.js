@@ -14,7 +14,6 @@ let RenderTexture = cc.Class({
 
     ctor () {
         this._framebuffer = null;
-        this._checkPackable = false;
     },
 
     /**
@@ -54,6 +53,8 @@ let RenderTexture = cc.Class({
         if (this._framebuffer) this._framebuffer.destroy();
         this._framebuffer = new gfx.FrameBuffer(renderer.device, width, height, opts);
 
+        this._packable = false;
+        
         this.loaded = true;
         this.emit("load");
     },
