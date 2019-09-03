@@ -8,7 +8,7 @@ const ArrayBufferView = Object.getPrototypeOf(Object.getPrototypeOf(new Uint8Arr
 /**
  * @typedef {HTMLImageElement | HTMLCanvasElement} HTMLImageSource
  * @typedef {HTMLImageSource | ArrayBufferView} ImageSource
- * @typedef {{width?: number, height?: number, minFilter?: number, magFilter?: number, mipFilter?: number, wrapS?: number, wrapT?: number, format?: number, mipmap?: boolean, images?: ImageSource[], image?: ImageSource, flipY?: boolean, premultiplyAlpha?: boolean, anisotropy?: number}} TextureUpdateOpts
+ * @typedef {{width?: number, height?: number, minFilter?: number, magFilter?: number, mipFilter?: number, wrapS?: number, wrapT?: number, format?: number, genMipmaps?: boolean, images?: ImageSource[], image?: ImageSource, flipY?: boolean, premultiplyAlpha?: boolean, anisotropy?: number}} TextureUpdateOpts
  * @typedef {import("../gfx/device").default} Device
  */
 
@@ -36,7 +36,7 @@ export default class Texture2D extends Texture {
    */
   update(options) {
     let gl = this._device._gl;
-    let genMipmap = this._hasMipmap;
+    let genMipmaps = this._genMipmap;
 
     if (options) {
       if (options.width !== undefined) {
@@ -72,9 +72,9 @@ export default class Texture2D extends Texture {
       }
 
       // check if generate mipmap
-      if (options.mipmap !== undefined) {
-        this._hasMipmap = options.mipmap;
-        genMipmap = options.mipmap;
+      if (options.genMipmaps !== undefined) {
+        this._genMipmap = options.genMipmaps;
+        genMipmaps = options.genMipmaps;
       }
 
       let maxSize = this._device.caps.maxTextureSize || Number.MAX_VALUE;
@@ -84,7 +84,7 @@ export default class Texture2D extends Texture {
 
       if (options.images !== undefined) {
         if (options.images.length > 1) {
-          genMipmap = false;
+          genMipmaps = false;
           let maxLength = options.width > options.height ? options.width : options.height;
           if (maxLength >> (options.images.length - 1) !== 1) {
             console.error('texture-2d mipmap is invalid, should have a 1x1 mipmap.');
@@ -96,19 +96,19 @@ export default class Texture2D extends Texture {
     // NOTE: get pot after this._width, this._height has been assigned.
     let pot = isPow2(this._width) && isPow2(this._height);
     if (!pot) {
-      genMipmap = false;
+      genMipmaps = false;
     }
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this._glID);
     if (options.images !== undefined && options.images.length > 0) {
       this._setMipmap(options.images, options.flipY, options.premultiplyAlpha);
-      if (options.images.length > 1) this._hasMipmap = true;
+      if (options.images.length > 1) this._genMipmap = true;
     }
-    if (genMipmap) {
+    if (genMipmaps) {
       gl.hint(gl.GENERATE_MIPMAP_HINT, gl.NICEST);
       gl.generateMipmap(gl.TEXTURE_2D);
-      this._hasMipmap = true;
+      this._genMipmap = true;
     }
 
     this._setTexInfo();
@@ -313,7 +313,7 @@ export default class Texture2D extends Texture {
       this._wrapT = enums.WRAP_CLAMP;
     }
 
-    let mipFilter = this._hasMipmap ? this._mipFilter : -1;
+    let mipFilter = this._genMipmap ? this._mipFilter : -1;
     if (!pot && mipFilter !== -1) {
       console.warn('NPOT textures do not support mipmap filter');
       mipFilter = -1;

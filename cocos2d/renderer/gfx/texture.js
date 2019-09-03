@@ -20,7 +20,7 @@ export default class Texture {
 
     this._width = 4;
     this._height = 4;
-    this._hasMipmap = false;
+    this._genMipmaps = false;
     this._compressed = false;
 
     this._anisotropy = 1;
