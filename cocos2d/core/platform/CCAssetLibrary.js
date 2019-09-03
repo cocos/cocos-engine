@@ -48,13 +48,13 @@ var _libraryBase = '';
 var _rawAssetsBase = '';     // The base dir for raw assets in runtime
 var _uuidToRawAsset = js.createMap(true);
 
-function isScene (asset) {
+function isScene(asset) {
     return asset && (asset.constructor === cc.SceneAsset || asset instanceof cc.Scene);
 }
 
 // types
 
-function RawAssetEntry (url, type) {
+function RawAssetEntry(url, type) {
     this.url = url;
     this.type = type;
 }
@@ -144,12 +144,12 @@ var AssetLibrary = {
                     error.errorCode = 'db.NOTFOUND';
                     callback(error);
                 }
-            });
+            }, -1);
         }
     },
 
     _getAssetInfoInRuntime: function (uuid, result) {
-        result = result || {url: null, raw: false};
+        result = result || { url: null, raw: false };
         var info = _uuidToRawAsset[uuid];
         if (info && !js.isChildClassOf(info.type, cc.Asset)) {
             // backward compatibility since 1.10
@@ -226,7 +226,7 @@ var AssetLibrary = {
             uuid: randomUuid,
             type: 'uuid',
             content: json,
-            skips: [ Loader.assetLoader.id, Loader.downloader.id ]
+            skips: [Loader.assetLoader.id, Loader.downloader.id]
         };
         Loader.load(item, function (error, asset) {
             if (error) {
@@ -292,7 +292,7 @@ var AssetLibrary = {
             cc.loader.insertPipeAfter(cc.loader.assetLoader, subPackPipe);
             cc.loader.subPackPipe = subPackPipe;
         }
-        
+
         var md5AssetsMap = options.md5AssetsMap;
         if (md5AssetsMap && md5AssetsMap.import) {
             // decode uuid
@@ -322,7 +322,7 @@ var AssetLibrary = {
         for (var mount in assetTables) {
             assetTables[mount].reset();
         }
-        
+
         var rawAssets = options.rawAssets;
         if (rawAssets) {
             for (var mountPoint in rawAssets) {
@@ -348,7 +348,7 @@ var AssetLibrary = {
                     var isSubAsset = info[2] === 1;
                     if (!assetTables[mountPoint]) {
                         assetTables[mountPoint] = new AssetTable();
-                    } 
+                    }
 
                     assetTables[mountPoint].add(url, uuid, type, !isSubAsset);
                 }
@@ -402,8 +402,8 @@ let _builtins = {
 
 let _builtinDeps = {};
 
-function loadBuiltins (name, type, cb) {
-    let dirname = name  + 's';
+function loadBuiltins(name, type, cb) {
+    let dirname = name + 's';
     let builtin = _builtins[name] = {};
     let internalMountPath = 'internal';
     // internal path will be changed when run simulator
