@@ -26,6 +26,7 @@ require('../CCDirector');
 const utilities = require('./utilities');
 const { getDepsRecursively } = require('./depend-util');
 const finalizer = require('./finalizer');
+const downloader = require('./downloader');
 
 
 /**
@@ -536,6 +537,22 @@ var loader = {
         if (typeof asset === 'object') asset = asset._uuid;
         return !!this._autoReleaseSetting[asset];
     }
+};
+
+/**
+ * @class Downloader
+ */
+/**
+ * `cc.loader.downloader.loadSubpackage` is deprecated now, please use {{#crossLink "AssetManager/loadBundle:method"}}{{/crossLink}} instead
+ * 
+ * @deprecated `cc.loader.downloader.loadSubpackage` is deprecated now, please use {{#crossLink "AssetManager/loadBundle:method"}}{{/crossLink}} instead
+ * @method loadSubpackage
+ * @param {String} name - Subpackage name
+ * @param {Function} [completeCallback] -  Callback invoked when subpackage loaded
+ * @param {Error} completeCallback.error - error information
+ */
+downloader.loadSubpackage = function (name, completeCallback) {
+    cc.assetManager.loadBundle('assets/' + name, null, completeCallback);
 };
 
 /**
