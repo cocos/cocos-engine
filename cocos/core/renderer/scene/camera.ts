@@ -73,7 +73,6 @@ export interface ICameraInfo {
     window?: GFXWindow | null;
     priority: number;
     pipeline?: string;
-    isUI?: boolean;
     flows?: string[];
 }
 
@@ -151,13 +150,10 @@ export class Camera {
 
         this._aspect = this._width = this._height = this._screenScale = 1;
 
-        const isUI = (info.isUI !== undefined ? info.isUI : false);
-
         this._view = this._scene.root.createView({
             camera: this,
             name: this._name,
             priority: this._priority,
-            isUI,
             flows: info.flows,
         });
 

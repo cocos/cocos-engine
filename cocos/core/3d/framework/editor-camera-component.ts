@@ -7,6 +7,7 @@ import { toRadian } from '../../math';
 import { Camera } from '../../renderer';
 import { CameraComponent } from './camera-component';
 import { CameraVisFlags } from '../../renderer/scene/camera';
+import { GFXClearFlag } from '../../gfx/define';
 
 @ccclass('cc.EditorCameraComponent')
 export class EditorCameraComponent extends CameraComponent {
@@ -135,8 +136,7 @@ export class EditorCameraComponent extends CameraComponent {
                 node: this._camera.node,
                 projection: this._projection,
                 window: cc.director.root!.mainWindow,
-                priority: this._priority,
-                isUI: true,
+                priority: this._priority + 1,
                 flows: ['UIFlow'],
             });
 
@@ -148,7 +148,7 @@ export class EditorCameraComponent extends CameraComponent {
             this._uiEditorCamera!.clearColor = this._camera.clearColor;
             this._uiEditorCamera!.clearDepth = this._camera.clearDepth;
             this._uiEditorCamera!.clearStencil = this._camera.clearStencil;
-            this._uiEditorCamera!.clearFlag = this._camera.clearFlag;
+            this._uiEditorCamera!.clearFlag = GFXClearFlag.DEPTH_STENCIL;
         }
     }
 }
