@@ -641,10 +641,6 @@ function initSys () {
      * @param name
      */
     sys.glExtension = function (name) {
-        // TODO: should check support on native platform
-        if (CC_JSB && CC_NATIVERENDERER) {
-            return true;
-        }
         return !!cc.renderer.device.ext(name);
     }
 

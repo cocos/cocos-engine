@@ -376,16 +376,26 @@ var game = {
     },
 
     _prepareFinished (cb) {
+
         if (CC_PREVIEW && window.__modular) {
             window.__modular.run();
         }
-        // Log engine version
-        console.log('Cocos Creator v' + cc.ENGINE_VERSION);
-        
+
         this._prepared = true;
-        this._runMainLoop();
-        this.emit(this.EVENT_GAME_INITED);
-        cb && cb();
+
+        // Init engine
+        this._initEngine();
+        cc.assetManager.builtins.init(() => {
+            // Log engine version
+            console.log('Cocos Creator v' + cc.ENGINE_VERSION);
+
+            this._setAnimFrame();
+            this._runMainLoop();
+
+            this.emit(this.EVENT_GAME_INITED);
+
+            if (cb) cb();
+        });
     },
 
     eventTargetOn: EventTarget.prototype.on,
@@ -463,28 +473,23 @@ var game = {
             if (cb) cb();
             return;
         }
-        let self = this;
-        // Init engine
-        this._initEngine();
-        this._setAnimFrame();
-        // Load builtin assets
-        cc.assetManager.builtins.init(function () {
-            // Load game scripts
-            let jsList = self.config.jsList;
-            if (jsList && jsList.length > 0) {
-                var count = 0;
-                for (var i = 0, l = jsList.length; i < l; i++) {
-                    cc.assetManager.loadScript(jsList[i], function (err) {
-                        if (err) throw new Error(JSON.stringify(err));
-                        count++;
-                        if (count === l) self._prepareFinished(cb);
-                    });
-                }
+
+        // Load game scripts
+        let jsList = this.config.jsList;
+        if (jsList && jsList.length > 0) {
+            var self = this;
+            var count = 0;
+            for (var i = 0, l = jsList.length; i < l; i++) {
+                cc.assetManager.loadScript(jsList[i], function (err) {
+                    if (err) throw new Error(JSON.stringify(err));
+                    count++;
+                    if (count === l) self._prepareFinished(cb);
+                });
             }
-            else {
-                self._prepareFinished(cb);
-            }
-        });
+        }
+        else {
+            this._prepareFinished(cb);
+        }
     },
 
     /**
