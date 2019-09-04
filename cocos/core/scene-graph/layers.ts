@@ -44,17 +44,18 @@ export class Layers {
   public static Gizmos = (1 << 21);
   public static Editor = (1 << 22);
   public static UI = (1 << 23);
+  public static SceneGizmo = (1 << 24);
 
   // masks
 
   /**
    * @zh 接受所有用户创建的节点
    */
-  public static All = Layers.makeExclusiveMask([Layers.Gizmos, Layers.Editor]);
+  public static All = Layers.makeExclusiveMask([Layers.Gizmos, Layers.SceneGizmo, Layers.Editor]);
   /**
    * @zh 接受所有支持射线检测的节点
    */
-  public static RaycastMask = Layers.makeExclusiveMask([Layers.Gizmos, Layers.Editor, Layers.IgnoreRaycast]);
+  public static RaycastMask = Layers.makeExclusiveMask([Layers.Gizmos, Layers.SceneGizmo, Layers.Editor, Layers.IgnoreRaycast]);
 
   /**
    * @en
