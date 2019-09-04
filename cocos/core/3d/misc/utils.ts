@@ -460,7 +460,7 @@ export function calculateSkinnedBounds (out: aabb, comp: SkinningModelComponent)
     const skeleton = comp.skeleton;
     const root = comp.skinningRoot;
     const clip = comp.model.uploadedAnim;
-    const animInfo = root && JointsAnimationInfo.pool.get(root.uuid);
+    const animInfo = root && JointsAnimationInfo.get(root.uuid);
     if (!skeleton || !root || !clip || !animInfo) {
         if (!comp.model.worldBounds) { return; }
         aabb.copy(out, comp.model.worldBounds);

@@ -27,8 +27,8 @@
  * @category animation
  */
 
-import { INode } from '../utils/interfaces';
 import { Mat4 } from '../math';
+import { INode } from '../utils/interfaces';
 
 const m4_1 = new Mat4();
 

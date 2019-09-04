@@ -27,12 +27,12 @@
  * @hidden
  */
 
+import { SkeletalAnimationClip } from '../../animation/skeletal-animation-clip';
 import { Skeleton } from '../../assets/skeleton';
-import { Mat4, Quat, Vec3 } from '../../math';
 import { GFXFormat, GFXFormatInfos } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
+import { Mat4, Quat, Vec3 } from '../../math';
 import { ITextureBufferHandle, TextureBufferPool } from '../core/texture-buffer-pool';
-import { SkeletalAnimationClip } from '../../animation/skeletal-animation-clip';
 
 // change here and cc-skinning.inc to use other skinning algorithms
 const uploadJointData = uploadJointDataDQS;

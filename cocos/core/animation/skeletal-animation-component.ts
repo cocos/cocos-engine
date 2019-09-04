@@ -27,14 +27,14 @@
  * @category animation
  */
 
-import { SkeletalAnimationClip } from './skeletal-animation-clip';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../data/class-decorator';
 import { Mat4 } from '../math';
-import { INode } from '../utils/interfaces';
 import { IJointsAnimInfo, JointsAnimationInfo } from '../renderer/models/skinning-model';
 import { Node } from '../scene-graph/node';
+import { INode } from '../utils/interfaces';
 import { AnimationClip } from './animation-clip';
 import { AnimationComponent } from './animation-component';
+import { SkeletalAnimationClip } from './skeletal-animation-clip';
 import { SkeletalAnimationState } from './skeletal-animation-state';
 import { getWorldTransformUntilRoot } from './transform-utils';
 

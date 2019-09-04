@@ -213,6 +213,7 @@ export class Node extends BaseNode implements INode {
     public set matrix (val: Readonly<Mat4>) {
         Mat4.toRTS(val, this._lrot, this._lpos, this._lscale);
         this.invalidateChildren(TransformDirtyBit.TRS);
+        this._eulerDirty = true;
         if (this._eventMask & TRANFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
             this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);

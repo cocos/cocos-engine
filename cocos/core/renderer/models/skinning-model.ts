@@ -45,9 +45,9 @@ export interface IJointsAnimInfo {
 }
 
 export class JointsAnimationInfo {
-    public static pool = new Map<string, IJointsAnimInfo>();
-
     public static create (nodeID: string) {
+        const res = JointsAnimationInfo.pool.get(nodeID);
+        if (res) { return res; }
         const buffer = cc.director.root.device.createBuffer({
             usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
@@ -55,6 +55,7 @@ export class JointsAnimationInfo {
             stride: UBOSkinningAnimation.SIZE,
         });
         const data = new Float32Array([1, 0, 0, 0]);
+        buffer.update(data);
         const info = { buffer, data };
         JointsAnimationInfo.pool.set(nodeID, info);
         return info;
@@ -74,6 +75,12 @@ export class JointsAnimationInfo {
         info.data[1] = 0;
         info.buffer.update(info.data);
     }
+
+    public static get (nodeID: string) {
+        return JointsAnimationInfo.pool.get(nodeID) || JointsAnimationInfo.create(-1 as any);
+    }
+
+    protected static pool = new Map<string, IJointsAnimInfo>();
 }
 
 const jointsTextureSamplerHash = genSamplerHash([
@@ -168,7 +175,7 @@ export class SkinningModel extends Model {
     protected _doCreatePSO (pass: Pass) {
         const pso = super._doCreatePSO(pass);
         const { buffer, texture } = this._jointsMedium;
-        const animInfo = JointsAnimationInfo.pool.get(this._transform.uuid)!;
+        const animInfo = JointsAnimationInfo.get(this._transform.uuid);
         pso.pipelineLayout.layouts[0].bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
         pso.pipelineLayout.layouts[0].bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
         const sampler = samplerLib.getSampler(this._device, jointsTextureSamplerHash);
