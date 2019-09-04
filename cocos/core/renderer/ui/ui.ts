@@ -127,6 +127,7 @@ export class UI {
     private _meshBuffers: MeshBuffer[] = [];
     private _meshBufferUseCount = 0;
     private _uiMaterials: Map<number, UIMaterial> = new Map<number, UIMaterial>();
+    private _canvasMaterials: Map<number, Map<number, number>> = new Map<number, Map<number, number>>();
     private _batches: CachedArray<UIDrawBatch>;
     private _uiModelPool: Pool<UIBatchModel> | null = null;
     private _modelInUse: CachedArray<UIBatchModel>;
@@ -209,8 +210,10 @@ export class UI {
     }
 
     public _removeUIMaterial (hash: number){
-        if (this._uiMaterials.has(hash)){
-            this._uiMaterials.delete(hash);
+        if (this._uiMaterials.has(hash)) {
+            if (this._uiMaterials.get(hash)!.decrease() === 0) {
+                this._uiMaterials.delete(hash);
+            }
         }
     }
 
@@ -225,6 +228,7 @@ export class UI {
 
         if (comp.camera) {
             comp.camera.view.visibility = this._screens.length;
+            this._canvasMaterials.set(comp.camera.view.visibility, new Map<number, number>());
         }
 
         if (this._debugScreen && this._debugScreen.camera) {
@@ -269,6 +273,14 @@ export class UI {
         }
 
         this._screens.splice(idx, 1);
+        if (comp.camera) {
+            const matHashInter = this._canvasMaterials.get(comp.camera.view.visibility)!.keys();
+            let matHash = matHashInter.next();
+            while (!matHash.done) {
+                this._removeUIMaterial(matHash.value);
+                matHash = matHashInter.next();
+            }
+        }
         if (this._debugScreen && this._debugScreen.camera ) {
             this._debugScreen.camera.view.visibility = this._screens.length + 1;
         }
@@ -337,6 +349,10 @@ export class UI {
                     uiModel.getSubModel(0).priority = batchPriority++;
                     if (batch.camera) {
                         uiModel.visFlags = batch.camera.view.visibility;
+                        if (this._canvasMaterials.get(batch.camera.view.visibility)!.get(batch.material!.hash) == null) {
+                            this._uiMaterials.get(batch.material!.hash)!.increase();
+                            this._canvasMaterials.get(batch.camera.view.visibility)!.set(batch.material!.hash, 1);
+                        }
                     }
                     this._modelInUse.push(uiModel);
                 }
