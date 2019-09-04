@@ -244,7 +244,7 @@ module.exports = {
                     letterPosition.x = letterX;
                 }
 
-                letterPosition.y = nextTokenY - letterDef.offsetY * _bmfontScale  + shareLabelInfo.margin + _fontSize * textUtils.MIDDLE_RATIO / 2;
+                letterPosition.y = nextTokenY - letterDef.offsetY * _bmfontScale  + shareLabelInfo.margin;
                 this._recordLetterInfo(letterPosition, character, letterIndex, lineIndex);
 
                 if (letterIndex + 1 < _horizontalKernings.length && letterIndex < textLen - 1) {
@@ -297,7 +297,7 @@ module.exports = {
             _contentSize.width = parseFloat(longestLine.toFixed(2)) + shareLabelInfo.margin * 2;
         }
         if (_labelHeight <= 0) {
-            _contentSize.height = parseFloat(_textDesiredHeight.toFixed(2)) + shareLabelInfo.margin * 2 + _fontSize * textUtils.BASELINE_RATIO;
+            _contentSize.height = parseFloat(_textDesiredHeight.toFixed(2)) + shareLabelInfo.margin * 2;
         }
 
         _tailoredTopY = _contentSize.height;
@@ -543,7 +543,7 @@ module.exports = {
                     py = py - clipTop;
                 }
 
-                if (py - letterDef.h * _bmfontScale < _tailoredBottomY) {
+                if ((py - letterDef.h * _bmfontScale < _tailoredBottomY) && _overflow === Overflow.CLAMP) {
                     _tmpRect.height = (py < _tailoredBottomY) ? 0 : (py - _tailoredBottomY);
                 }
             }
@@ -627,18 +627,17 @@ module.exports = {
                 break;
         }
 
-        switch (_vAlign) {
-            case macro.VerticalTextAlignment.TOP:
-                _letterOffsetY = _contentSize.height;
-                break;
-            case macro.VerticalTextAlignment.CENTER:
-                _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2 - (_lineHeight - _originFontSize) / 2;
-                break;
-            case macro.VerticalTextAlignment.BOTTOM:
-                _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2 - (_lineHeight - _originFontSize);
-                break;
-            default:
-                break;
+        // TOP
+        _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2;
+        if (_vAlign !== macro.VerticalTextAlignment.TOP) {
+            let blank = (_lineHeight - _originFontSize) * _bmfontScale;
+            if (_vAlign === macro.VerticalTextAlignment.BOTTOM) {
+                // BOTTOM
+                _letterOffsetY -= blank;
+            } else {
+                // CENTER:
+                _letterOffsetY -= blank / 2;
+            }
         }
     },
 
