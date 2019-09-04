@@ -48,6 +48,7 @@ export class UIMaterial {
     protected _material: Material | null = null;
     protected _pass: Pass | null = null;
     private _psos: Pool<GFXPipelineState> | null;
+    private _refCount: number = 0;
 
     constructor () {
         this._psos = null;
@@ -59,7 +60,9 @@ export class UIMaterial {
             return false;
         }
 
-        this._material = info.material;
+        this._material = new Material();
+
+        this._material.copy(info.material);
 
         this._pass = this._material.passes[0];
 
@@ -71,6 +74,19 @@ export class UIMaterial {
         return true;
     }
 
+    public increase () {
+        this._refCount++;
+        return this._refCount;
+    }
+
+    public decrease () {
+        this._refCount--;
+        if (this._refCount === 0) {
+            this.destroy();
+        }
+        return this._refCount;
+    }
+
     public getPipelineState (): GFXPipelineState {
         return this._psos!.alloc();
     }
@@ -80,11 +96,15 @@ export class UIMaterial {
     }
 
     public destroy () {
-        this._material = null;
         if (this._psos) {
             this._psos.clear((obj: GFXPipelineState) => {
                 this._pass!.destroyPipelineState(obj);
             });
         }
+        if (this._material) {
+            this._material.destroy();
+            this._material = null;
+        }
+        this._refCount = 0;
     }
 }
