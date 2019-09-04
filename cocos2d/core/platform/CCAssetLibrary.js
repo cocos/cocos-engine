@@ -143,7 +143,7 @@ var AssetLibrary = {
                     error.errorCode = 'db.NOTFOUND';
                     callback(error);
                 }
-            });
+            }, -1);
         }
     },
 

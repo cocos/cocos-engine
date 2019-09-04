@@ -134,6 +134,7 @@ proto.on = function (type, callback, target) {
 proto.off = function (type, callback, target) {
     if (!callback) {
         let list = this._callbackTable[type];
+        if (!list) return;
         let targets = list.targets;
         for (let i = 0; i < targets.length; ++i) {
             let target = targets[i];
