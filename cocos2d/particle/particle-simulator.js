@@ -399,7 +399,8 @@ Simulator.prototype.step = function (dt) {
             let newPos = _tpa;
             let diff = _tpb;
             if (psys.positionType === cc.ParticleSystem.PositionType.FREE) {
-                diff.subSelf(particle.startPos);
+                diff.set(particle.startPos);
+                diff.negSelf();  // Unify direction with other positionType
                 newPos.set(particle.pos);
                 newPos.subSelf(diff);
             }
