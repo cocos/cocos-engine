@@ -1013,26 +1013,26 @@ static bool js_gfx_DeviceGraphics_setCullMode(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_DeviceGraphics_setCullMode)
 
-static bool js_gfx_DeviceGraphics_supportGLExtension(se::State& s)
+static bool js_gfx_DeviceGraphics_ext(se::State& s)
 {
     cocos2d::renderer::DeviceGraphics* cobj = (cocos2d::renderer::DeviceGraphics*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_DeviceGraphics_supportGLExtension : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_DeviceGraphics_ext : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         std::string arg0;
         ok &= seval_to_std_string(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_gfx_DeviceGraphics_supportGLExtension : Error processing arguments");
-        bool result = cobj->supportGLExtension(arg0);
+        SE_PRECONDITION2(ok, false, "js_gfx_DeviceGraphics_ext : Error processing arguments");
+        bool result = cobj->ext(arg0);
         ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_DeviceGraphics_supportGLExtension : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_DeviceGraphics_ext : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_DeviceGraphics_supportGLExtension)
+SE_BIND_FUNC(js_gfx_DeviceGraphics_ext)
 
 static bool js_gfx_DeviceGraphics_setStencilOp(se::State& s)
 {
@@ -1125,7 +1125,7 @@ bool js_register_gfx_DeviceGraphics(se::Object* obj)
     cls->defineFunction("setStencilFuncBack", _SE(js_gfx_DeviceGraphics_setStencilFuncBack));
     cls->defineFunction("setBlendFunc", _SE(js_gfx_DeviceGraphics_setBlendFunc));
     cls->defineFunction("setCullMode", _SE(js_gfx_DeviceGraphics_setCullMode));
-    cls->defineFunction("supportGLExtension", _SE(js_gfx_DeviceGraphics_supportGLExtension));
+    cls->defineFunction("ext", _SE(js_gfx_DeviceGraphics_ext));
     cls->defineFunction("setStencilOp", _SE(js_gfx_DeviceGraphics_setStencilOp));
     cls->defineFunction("enableStencilTest", _SE(js_gfx_DeviceGraphics_enableStencilTest));
     cls->defineStaticFunction("getInstance", _SE(js_gfx_DeviceGraphics_getInstance));

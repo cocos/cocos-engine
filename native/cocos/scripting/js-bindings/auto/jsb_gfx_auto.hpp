@@ -73,7 +73,7 @@ SE_DECLARE_FUNC(js_gfx_DeviceGraphics_setStencilOpFront);
 SE_DECLARE_FUNC(js_gfx_DeviceGraphics_setStencilFuncBack);
 SE_DECLARE_FUNC(js_gfx_DeviceGraphics_setBlendFunc);
 SE_DECLARE_FUNC(js_gfx_DeviceGraphics_setCullMode);
-SE_DECLARE_FUNC(js_gfx_DeviceGraphics_supportGLExtension);
+SE_DECLARE_FUNC(js_gfx_DeviceGraphics_ext);
 SE_DECLARE_FUNC(js_gfx_DeviceGraphics_setStencilOp);
 SE_DECLARE_FUNC(js_gfx_DeviceGraphics_enableStencilTest);
 SE_DECLARE_FUNC(js_gfx_DeviceGraphics_getInstance);

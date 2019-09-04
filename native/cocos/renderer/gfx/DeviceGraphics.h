@@ -98,7 +98,7 @@ public:
     /**
      * Checks whether a gl extension is supported
      */
-    bool supportGLExtension(const std::string& extension) const;
+    bool ext(const std::string& extension) const;
 
     /**
      * Sets the target FrameBuffer

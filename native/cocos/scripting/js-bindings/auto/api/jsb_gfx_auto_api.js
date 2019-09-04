@@ -533,11 +533,11 @@ cullmode
 },
 
 /**
- * @method supportGLExtension
+ * @method ext
  * @param {String} arg0
  * @return {bool}
  */
-supportGLExtension : function (
+ext : function (
 str 
 )
 {
