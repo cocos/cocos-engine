@@ -30,6 +30,7 @@ const Material = require('../assets/material/CCMaterial');
 const LabelFrame = require('../renderer/utils/label/label-frame');
 const RenderFlow = require('../renderer/render-flow');
 const opacityFlag = RenderFlow.FLAG_COLOR | RenderFlow.FLAG_OPACITY;
+const BlendFunc = require('../utils/blend-func');
 
 /**
  * !#en Enum for text alignment.
@@ -163,6 +164,7 @@ const CacheMode = cc.Enum({
 let Label = cc.Class({
     name: 'cc.Label',
     extends: RenderComponent,
+    mixins: [BlendFunc],
 
     ctor () {
         if (CC_EDITOR) {
@@ -521,6 +523,10 @@ let Label = cc.Class({
             this.cacheMode = CacheMode.BITMAP;
             this._batchAsBitmap = false;
         }
+
+        // default blend factor
+        this.srcBlendFactor = cc.macro.BlendFactor.SRC_ALPHA;
+        this.dstBlendFactor = cc.macro.BlendFactor.ONE_MINUS_SRC_ALPHA;
     },
 
     onEnable () {
