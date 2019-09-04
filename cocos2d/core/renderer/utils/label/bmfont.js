@@ -627,18 +627,17 @@ module.exports = {
                 break;
         }
 
-        switch (_vAlign) {
-            case macro.VerticalTextAlignment.TOP:
-                _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2;
-                break;
-            case macro.VerticalTextAlignment.CENTER:
-                _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2 - (_lineHeight - _originFontSize) / 2 * _bmfontScale;
-                break;
-            case macro.VerticalTextAlignment.BOTTOM:
-                _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2 - (_lineHeight - _originFontSize) * _bmfontScale;
-                break;
-            default:
-                break;
+        // TOP
+        _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2;
+        if (_vAlign !== macro.VerticalTextAlignment.TOP) {
+            let blank = (_lineHeight - _originFontSize) * _bmfontScale;
+            if (_vAlign === macro.VerticalTextAlignment.BOTTOM) {
+                // BOTTOM
+                _letterOffsetY -= blank;
+            } else {
+                // CENTER:
+                _letterOffsetY -= blank / 2;
+            }
         }
     },
 
