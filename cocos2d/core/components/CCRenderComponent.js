@@ -98,7 +98,7 @@ let RenderComponent = cc.Class({
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
 
-        this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_OPACITY;
+        this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_OPACITY_COLOR;
     },
 
     onDisable () {
