@@ -31,12 +31,12 @@ import { Component } from '../components/component';
 import { ccclass, property } from '../data/class-decorator';
 import { CCObject } from '../data/object';
 import { SystemEventType } from '../platform/event-manager/event-enum';
+import { ISchedulable } from '../scheduler';
 import IdGenerator from '../utils/id-generator';
 import { IBaseNode } from '../utils/interfaces';
 import * as js from '../utils/js';
 import { baseNodePolyfill } from './base-node-dev';
 import { Scene } from './scene';
-import { ISchedulable } from '../scheduler';
 
 /**
  *

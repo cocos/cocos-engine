@@ -146,9 +146,9 @@ export class Pass {
     public static getBindingFromHandle = getBindingFromHandle;
 
     public static createPasses (effect: EffectAsset, info: IEffectInfo) {
-        if (!effect.techniques) { return []; }
         const { techIdx, defines, states } = info;
         const tech = effect.techniques[techIdx || 0];
+        if (!tech) { return []; }
         const passNum = tech.passes.length;
         const passes: Pass[] = [];
         for (let k = 0; k < passNum; ++k) {
