@@ -267,7 +267,9 @@ export class UI {
         for (let i = idx; i < this._screens.length; i++) {
             camera = this._screens[i].camera;
             if (camera) {
-                camera.view.visibility = -1;
+                const matRecord = this._canvasMaterials.get(camera.view.visibility)!;
+                camera.view.visibility -= 1;
+                this._canvasMaterials.set(camera.view.visibility, matRecord);
             }
         }
     }

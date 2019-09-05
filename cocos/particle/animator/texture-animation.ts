@@ -202,6 +202,10 @@ export default class TextureAnimationModule {
         this.ps = ps;
     }
 
+    public init (p: Particle) {
+        p.startRow = Math.floor(Math.random() * this.numTilesY);
+    }
+
     public animate (p: Particle) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const startFrame = this.startFrame.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! / (this.numTilesX * this.numTilesY);
@@ -212,8 +216,7 @@ export default class TextureAnimationModule {
             const rowLength = 1 / this.numTilesY;
             if (this.randomRow) {
                 const f = repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! + startFrame), 1);
-                const startRow = Math.floor(Math.random() * this.numTilesY);
-                const from = startRow * rowLength;
+                const from = p.startRow * rowLength;
                 const to = from + rowLength;
                 p.frameIndex = lerp(from, to, f);
             }
