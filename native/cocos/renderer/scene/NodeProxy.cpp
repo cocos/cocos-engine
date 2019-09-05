@@ -121,7 +121,7 @@ void NodeProxy::addChild(NodeProxy* child)
     auto assertNotSelfChild
         ( [ this, child ]() -> bool
           {
-              for ( NodeProxy* parent( getParent() ); parent != nullptr;
+              for ( NodeProxy* parent( this ); parent != nullptr;
                     parent = parent->getParent() )
                   if ( parent == child )
                       return false;
