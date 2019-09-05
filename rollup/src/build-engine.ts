@@ -249,6 +249,7 @@ async function _internalBuild (options: IAdvancedOptions) {
         format,
         sourcemap: options.sourcemap,
         sourcemapFile,
+        name: (format === 'iife' ? 'ccm' : undefined),
     });
 
     const chunk0 = generated.output[0];
