@@ -407,7 +407,7 @@ const char *Json::parseArray(Json *item, const char *value) {
 		return value + 1; /* empty array. */
 	}
 
-	item->_child = child = new(__FILE__, __LINE__) Json(NULL);
+	item->_child = child = new Json(NULL);
 	if (!item->_child) {
 		return NULL; /* memory fail */
 	}
@@ -421,7 +421,7 @@ const char *Json::parseArray(Json *item, const char *value) {
 	item->_size = 1;
 
 	while (*value == ',') {
-		Json *new_item = new(__FILE__, __LINE__) Json(NULL);
+		Json *new_item = new Json(NULL);
 		if (!new_item) {
 			return NULL; /* memory fail */
 		}
@@ -463,7 +463,7 @@ const char *Json::parseObject(Json *item, const char *value) {
 		return value + 1; /* empty array. */
 	}
 
-	item->_child = child = new(__FILE__, __LINE__) Json(NULL);
+	item->_child = child = new Json(NULL);
 	if (!item->_child) {
 		return NULL;
 	}
@@ -486,7 +486,7 @@ const char *Json::parseObject(Json *item, const char *value) {
 	item->_size = 1;
 
 	while (*value == ',') {
-		Json *new_item = new(__FILE__, __LINE__) Json(NULL);
+		Json *new_item = new Json(NULL);
 		if (!new_item) {
 			return NULL; /* memory fail */
 		}

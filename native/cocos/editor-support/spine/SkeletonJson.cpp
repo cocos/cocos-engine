@@ -122,7 +122,7 @@ SkeletonData *SkeletonJson::readSkeletonData(const char *json) {
 	_error = "";
 	_linkedMeshes.clear();
 
-	root = new(__FILE__, __LINE__) Json(json);
+	root = new Json(json);
 
 	if (!root) {
 		setError(NULL, "Invalid skeleton JSON: ", Json::getError());
