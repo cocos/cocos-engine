@@ -67,13 +67,23 @@ export class UIComponent extends Component {
      * 查找被渲染相机。
      */
     get visibility () {
-        return this._visibility;
+        if(!this._screen){
+            return -1;
+        }
+
+        return this._screen.visibility;
+        // return this._visibility;
+    }
+
+    get _screen (){
+        return this._followScreen;
     }
 
     @property
     protected _priority = 0;
 
-    protected _visibility = -1;
+    // protected _visibility = -1;
+    protected _followScreen: CanvasComponent | null = null;
 
     private _lastParent: INode | null = null;
     public onEnable () {
@@ -116,9 +126,16 @@ export class UIComponent extends Component {
     /**
      * @zh
      * 设置当前组件的可视编号。（我们不希望用户自行做处理，除非用户自己知道在做什么）
+     *
+     * @deprecated 会在 Cocos Creator 3D beta18 及之后的版本废除
      */
     public setVisibility (value: number) {
-        this._visibility = value;
+        return;
+        // this._visibility = value;
+    }
+
+    public _setScreen(value: CanvasComponent){
+        this._followScreen = value;
     }
 
     protected _parentChanged (node: INode) {
@@ -153,7 +170,7 @@ export class UIComponent extends Component {
             if (parent) {
                 const canvasComp = parent.getComponent(CanvasComponent);
                 if (canvasComp) {
-                    this._visibility = canvasComp.visibility;
+                    this._followScreen = canvasComp;
                     break;
                 }
             }
@@ -169,6 +186,6 @@ export class UIComponent extends Component {
             this._lastParent = null;
         }
 
-        this._visibility = -1;
+        this._followScreen = null;
     }
 }

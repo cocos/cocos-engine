@@ -37,6 +37,7 @@ export enum VisibilityFlags {
     GIZMOS = (1 << 21),
     EDITOR = (1 << 22),
     UI = (1 << 23),
+    UI2D = (1 << 25),
 }
 
 /**

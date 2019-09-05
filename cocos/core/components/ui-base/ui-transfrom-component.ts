@@ -186,7 +186,7 @@ export class UITransformComponent extends Component {
 
     public __preload () {
         this.node.uiTransfromComp = this;
-        this.node.layer |= cc.Layers.UI;
+        this.node.layer = cc.Layers.UI2D;
     }
 
     public onDestroy () {

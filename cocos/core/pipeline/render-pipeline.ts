@@ -31,6 +31,7 @@ import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_ENVIRONMENT } from './defi
 import { IInternalBindingInst } from './define';
 import { IRenderFlowInfo, RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
+import { CameraVisFlags } from '../renderer/scene/camera';
 
 const _vec4Array = new Float32Array(4);
 const _outMat = new Mat4();
@@ -1463,18 +1464,29 @@ export abstract class RenderPipeline {
             model._resetUBOUpdateFlag();
 
             // filter model by view visibility
-            if (model.enabled &&
-                ((model.node && (view.visibility & model.node.layer)) ||
-                (view.visibility & model.visFlags))) {
-                model.updateTransform();
+            if (model.enabled) {
+                const vis = view.visibility & CameraVisFlags.UI2D;
+                if (vis) {
+                    if ((model.node && (view.visibility === model.node.layer)) ||
+                        view.visibility === model.visFlags) {
+                        model.updateTransform();
+                        model.updateUBOs();
+                        this.addVisibleModel(model, camera);
+                    }
+                }else{
+                    if ((model.node && (view.visibility & model.node.layer)) ||
+                        (view.visibility & model.visFlags)) {
+                        model.updateTransform();
 
-                // frustum culling
-                if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
-                    continue;
+                        // frustum culling
+                        if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
+                            continue;
+                        }
+
+                        model.updateUBOs();
+                        this.addVisibleModel(model, camera);
+                    }
                 }
-
-                model.updateUBOs();
-                this.addVisibleModel(model, camera);
             }
         }
 

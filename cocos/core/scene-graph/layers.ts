@@ -43,7 +43,10 @@ export class Layers {
   public static IgnoreRaycast = (1 << 20);
   public static Gizmos = (1 << 21);
   public static Editor = (1 << 22);
+  // 3D UI
   public static UI = (1 << 23);
+  // 2D UI
+  public static UI2D = (1 << 25);
   public static SceneGizmo = (1 << 24);
 
   // masks

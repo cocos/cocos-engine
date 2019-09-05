@@ -566,11 +566,11 @@ export class MaskComponent extends UIRenderComponent {
 
     private _flushVisibility () {
         if (this._clearGraphics) {
-            this._clearGraphics.setVisibility(this._visibility);
+            this._clearGraphics._setScreen(this._screen);
         }
 
         if (this._graphics) {
-            this._graphics.setVisibility(this._visibility);
+            this._graphics._setScreen(this._screen);
         }
     }
 

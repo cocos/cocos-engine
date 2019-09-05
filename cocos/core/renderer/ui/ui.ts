@@ -38,7 +38,7 @@ import { GFXTextureView } from '../../gfx/texture-view';
 import { Pool, RecyclePool } from '../../memop';
 import { CachedArray } from '../../memop/cached-array';
 import { UniformBinding } from '../../pipeline/define';
-import { Camera } from '../../renderer/scene/camera';
+import { Camera, CameraVisFlags } from '../../renderer/scene/camera';
 import { Model, VisibilityFlags } from '../../renderer/scene/model';
 import { RenderScene } from '../../renderer/scene/render-scene';
 import { Root } from '../../root';
@@ -101,20 +101,8 @@ export class UI {
         return this._currMeshBuffer;
     }
 
-    get debugScreen () {
-        return this._debugScreen;
-    }
-
-    set debugScreen (value){
-        this._debugScreen = value;
-        if (this._debugScreen && this._debugScreen.camera ) {
-            this._debugScreen.camera.view.visibility = this._screens.length + 1;
-        }
-    }
-
     public device: GFXDevice;
     private _screens: CanvasComponent[] = [];
-    private _debugScreen: CanvasComponent | null = null;
     private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => {
         return new MeshBuffer(this);
     }, 128);
@@ -225,15 +213,12 @@ export class UI {
      */
     public addScreen (comp: CanvasComponent) {
         this._screens.push(comp);
-
         if (comp.camera) {
-            comp.camera.view.visibility = this._screens.length;
+            comp.camera.view.visibility = CameraVisFlags.UI2D | this._screens.length;
             this._canvasMaterials.set(comp.camera.view.visibility, new Map<number, number>());
         }
 
-        if (this._debugScreen && this._debugScreen.camera) {
-            this._debugScreen.camera.view.visibility = this._screens.length + 1;
-        }
+        this._screens.sort(this._screenSort);
     }
 
     /**
@@ -251,10 +236,6 @@ export class UI {
                     return screen;
                 }
             }
-        }
-
-        if (this._debugScreen && this._debugScreen.camera && this._debugScreen.camera.view.visibility === visibility) {
-            return this._debugScreen;
         }
 
         return null;
@@ -281,15 +262,12 @@ export class UI {
                 matHash = matHashInter.next();
             }
         }
-        if (this._debugScreen && this._debugScreen.camera ) {
-            this._debugScreen.camera.view.visibility = this._screens.length + 1;
-        }
 
         let camera: Camera | null;
         for (let i = idx; i < this._screens.length; i++) {
             camera = this._screens[i].camera;
             if (camera) {
-                camera.view.visibility = i;
+                camera.view.visibility = -1;
             }
         }
     }
@@ -328,7 +306,9 @@ export class UI {
 
                 if (batch.model) {
                     if (batch.camera) {
-                        batch.model.visFlags = batch.camera.view.visibility;
+                        const visFlags = batch.camera.view.visibility;
+                        batch.model.visFlags = visFlags;
+                        batch.model.node.layer = visFlags;
                     }
                     for (let j = 0; j < batch.model.subModelNum; j++) {
                         batch.model.getSubModel(j).priority = batchPriority++;
@@ -490,7 +470,6 @@ export class UI {
         const matIter = this._uiMaterials.values();
         let result = matIter.next();
         while (!result.done) {
-            console.log('111111111');
             const uiMat = result.value;
             uiMat.destroy();
             result = matIter.next();
@@ -523,10 +502,6 @@ export class UI {
             }
 
             this._recursiveScreenNode(screen.node);
-        }
-
-        if (!CC_EDITOR && this._debugScreen && this._debugScreen.enabledInHierarchy) {
-            this._recursiveScreenNode(this._debugScreen.node);
         }
     }
 
@@ -585,5 +560,9 @@ export class UI {
         if (arguments.length === 2){
             this._currMeshBuffer.request(arguments[0], arguments[1]);
         }
+    }
+
+    private _screenSort(a: CanvasComponent, b: CanvasComponent){
+        return a.priority - b.priority;
     }
 }
