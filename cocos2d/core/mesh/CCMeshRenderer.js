@@ -224,14 +224,15 @@ let MeshRenderer = cc.Class({
             this._activateMaterial();
         }
         
+        this._setRenderNode();
     },
 
     onDestroy () {
         this._setMesh(null);
     },
 
-    getRenderNode () {
-        return this.node;
+    _setRenderNode () {
+        this._assembler.setRenderNode(this.node);
     },
 
     _setMesh (mesh) {
