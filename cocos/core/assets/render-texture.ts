@@ -74,8 +74,14 @@ export class RenderTexture extends TextureBase {
         if (info) {
             this._width = info.width;
             this._height = info.height;
-            this._format = info.colorFormat;
-            this._depthStencilFormat = info.depthStencilFormat;
+            if(info.colorFormat){
+                this._format = info.colorFormat;
+            }
+
+            if(info.depthStencilFormat){
+                this._depthStencilFormat = info.depthStencilFormat;
+            }
+
             this._tryResetWindow();
             this.emit('resize', this);
         }

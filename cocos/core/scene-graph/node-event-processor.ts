@@ -715,15 +715,6 @@ export class NodeEventProcessor {
 
         if (!listeners.hasEventListener(type, callback, target)) {
             listeners.on(type, callback, target);
-
-            const targetImpl = target as ITargetImpl;
-            if (target) {
-                if (targetImpl.__eventTargets) {
-                    targetImpl.__eventTargets.push(this);
-                } else if (targetImpl.node && targetImpl.node.__eventTargets) {
-                    targetImpl.node.__eventTargets.push(this);
-                }
-            }
         }
 
         return callback;
@@ -747,15 +738,6 @@ export class NodeEventProcessor {
             const listeners = useCapture ? this.capturingTargets : this.bubblingTargets;
             if (listeners) {
                 listeners.off(type, callback, target);
-
-                const targetImpl = target as ITargetImpl;
-                if (target) {
-                    if (targetImpl.__eventTargets) {
-                        fastRemove(targetImpl.__eventTargets, this);
-                    } else if (targetImpl.node && targetImpl.node.__eventTargets) {
-                        fastRemove(targetImpl.node.__eventTargets, this);
-                    }
-                }
             }
 
         }
