@@ -65,10 +65,11 @@ public:
         TRANSFORM = LOCAL_TRANSFORM | WORLD_TRANSFORM,
         UPDATE_RENDER_DATA = 1 << 4,
         OPACITY = 1 << 5,
-        RENDER = 1 << 6,
-        CHILDREN = 1 << 7,
-        POST_RENDER = 1 << 8,
-        FINAL = 1 << 9,
+        COLOR = 1 << 6,
+        RENDER = 1 << 7,
+        CHILDREN = 1 << 8,
+        POST_RENDER = 1 << 9,
+        FINAL = 1 << 10,
         
         PRE_CALCULATE_VERTICES = 1 << 28,
         // native render flag
