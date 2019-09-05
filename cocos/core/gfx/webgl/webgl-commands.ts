@@ -2126,21 +2126,37 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                                 }
 
                                                 if (gpuTexture.glWrapS !== glWrapS) {
+                                                    if (cache.texUnit !== texUnit) {
+                                                        gl.activeTexture(gl.TEXTURE0 + texUnit);
+                                                        cache.texUnit = texUnit;
+                                                    }
                                                     gl.texParameteri(gpuTexture.glTarget, gl.TEXTURE_WRAP_S, glWrapS);
                                                     gpuTexture.glWrapS = glWrapS;
                                                 }
 
                                                 if (gpuTexture.glWrapT !== glWrapT) {
+                                                    if (cache.texUnit !== texUnit) {
+                                                        gl.activeTexture(gl.TEXTURE0 + texUnit);
+                                                        cache.texUnit = texUnit;
+                                                    }
                                                     gl.texParameteri(gpuTexture.glTarget, gl.TEXTURE_WRAP_T, glWrapT);
                                                     gpuTexture.glWrapT = glWrapT;
                                                 }
 
                                                 if (gpuTexture.glMinFilter !== glMinFilter) {
+                                                    if (cache.texUnit !== texUnit) {
+                                                        gl.activeTexture(gl.TEXTURE0 + texUnit);
+                                                        cache.texUnit = texUnit;
+                                                    }
                                                     gl.texParameteri(gpuTexture.glTarget, gl.TEXTURE_MIN_FILTER, glMinFilter);
                                                     gpuTexture.glMinFilter = glMinFilter;
                                                 }
 
                                                 if (gpuTexture.glMagFilter !== gpuSampler.glMagFilter) {
+                                                    if (cache.texUnit !== texUnit) {
+                                                        gl.activeTexture(gl.TEXTURE0 + texUnit);
+                                                        cache.texUnit = texUnit;
+                                                    }
                                                     gl.texParameteri(gpuTexture.glTarget, gl.TEXTURE_MAG_FILTER, gpuSampler.glMagFilter);
                                                     gpuTexture.glMagFilter = gpuSampler.glMagFilter;
                                                 }
