@@ -289,9 +289,9 @@ export class TweenSystem extends System {
     public static ID = 'tween';
     public postUpdate (dt: number) {
         if (!CC_EDITOR || this._executeInEditMode) {
-            if (cc.TWEEN) {
+            if (window.TWEEN) {
                 // Tween update
-                cc.TWEEN.update(performance.now());
+                window.TWEEN.update(performance.now());
             }
         }
     }
