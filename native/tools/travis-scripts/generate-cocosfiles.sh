@@ -100,14 +100,22 @@ COCOS_BRANCH=update_cocosfiles_"$ELAPSEDSECS"
 pushd "${DIR}"
 
 cd "${PROJECT_ROOT}"
-git add .
+git add templates/cocos2dx_files.json
 git checkout -b "$COCOS_BRANCH"
 git commit -m "$COMMITTAG"
 #Set remotes
-git remote add upstream https://${GH_USER}:${GH_PASSWORD}@github.com/${GH_USER}/cocos2d-x-lite.git 2> /dev/null > /dev/null
-echo "Pushing to Robot's repo ..."
-git push -fq upstream "$COCOS_BRANCH" 2> /dev/null
+# should not add remote twice
+upstream_cnt=$(git remote get-url upstream 2>/dev/null | wc -l)
+if [ $upstream_cnt -eq 0 ]
+  then
+  git remote add upstream https://${GH_USER}:${GH_PASSWORD}@github.com/${GH_USER}/cocos2d-x-lite.git 2> /dev/null > /dev/null
+fi
 
+git fetch upstream --no-recurse-submodules
+
+echo "Pushing to Robot's repo ..."
+# print log
+git push -fq upstream "$COCOS_BRANCH" 
 
 # 5. 
 echo "Sending Pull Request to base repo ..."
