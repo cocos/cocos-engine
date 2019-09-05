@@ -27,17 +27,17 @@
  * @category component/camera
  */
 
-import { ray } from '../../geom-utils';
+import { RenderTexture } from '../../assets';
 import { Component } from '../../components/component';
 import { ccclass, executeInEditMode, menu, property } from '../../data/class-decorator';
-import { Color, Rect, toRadian, Vec3 } from '../../math';
-import { Enum } from '../../value-types';
+import { ray } from '../../geom-utils';
 import { GFXClearFlag } from '../../gfx/define';
-import { Camera } from '../../renderer';
-import { Scene } from '../../scene-graph';
-import { RenderTexture } from '../../assets';
 import { GFXWindow } from '../../gfx/window';
+import { Color, Rect, toRadian, Vec3 } from '../../math';
+import { Camera } from '../../renderer';
 import { CameraVisFlags } from '../../renderer/scene/camera';
+import { Scene } from '../../scene-graph';
+import { Enum } from '../../value-types';
 
 /**
  * @en
@@ -108,10 +108,6 @@ export class CameraComponent extends Component {
     protected _targetTexture: RenderTexture | null = null;
 
     protected _camera: Camera | null = null;
-
-    constructor () {
-        super();
-    }
 
     /**
      * @en The projection type of the camera
@@ -214,10 +210,10 @@ export class CameraComponent extends Component {
     set color (val) {
         this._color.set(val);
         if (this._camera) {
-            this._camera.clearColor.r = val.r / 255;
-            this._camera.clearColor.g = val.g / 255;
-            this._camera.clearColor.b = val.b / 255;
-            this._camera.clearColor.a = val.a / 255;
+            this._camera.clearColor.r = val.x;
+            this._camera.clearColor.g = val.y;
+            this._camera.clearColor.b = val.z;
+            this._camera.clearColor.a = val.w;
         }
     }
 
@@ -391,10 +387,10 @@ export class CameraComponent extends Component {
             this._camera.orthoHeight = this._orthoHeight;
             this._camera.nearClip = this._near;
             this._camera.farClip = this._far;
-            const r = this._color.r / 255;
-            const g = this._color.g / 255;
-            const b = this._color.b / 255;
-            const a = this._color.a / 255;
+            const r = this._color.x;
+            const g = this._color.y;
+            const b = this._color.z;
+            const a = this._color.w;
             this._camera.clearColor = { r, g, b, a };
             this._camera.clearDepth = this._depth;
             this._camera.clearStencil = this._stencil;
@@ -413,12 +409,12 @@ export class CameraComponent extends Component {
         }
     }
 
-    protected _chechTargetTextureEvent(old: RenderTexture | null) {
-        const resizeFunc = (window: GFXWindow)=>{
-            if(this._camera){
+    protected _chechTargetTextureEvent (old: RenderTexture | null) {
+        const resizeFunc = (window: GFXWindow) => {
+            if (this._camera){
                 this._camera.setFixedSize(window.width, window.height);
             }
-        }
+        };
 
         if (old) {
             old.off('resize');

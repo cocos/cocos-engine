@@ -26,12 +26,12 @@ import { Mat4, Vec3, Vec4 } from '../math';
 import { Camera, Model } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass';
 import { programLib } from '../renderer/core/program-lib';
+import { CameraVisFlags } from '../renderer/scene/camera';
 import { Root } from '../root';
 import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_ENVIRONMENT } from './define';
 import { IInternalBindingInst } from './define';
 import { IRenderFlowInfo, RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
-import { CameraVisFlags } from '../renderer/scene/camera';
 
 const _vec4Array = new Float32Array(4);
 const _outMat = new Mat4();
