@@ -1,9 +1,9 @@
 import { frustum, ray } from '../../geom-utils';
-import { lerp, Mat4, Rect, toRadian, Vec3 } from '../../math';
-import { INode } from '../../utils/interfaces';
 import { GFXClearFlag, IGFXColor } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
+import { lerp, Mat4, Rect, toRadian, Vec3 } from '../../math';
 import { RenderView } from '../../pipeline/render-view';
+import { INode } from '../../utils/interfaces';
 import { RenderScene } from './render-scene';
 
 export enum CameraProjection {
@@ -76,15 +76,10 @@ export interface ICameraInfo {
     flows?: string[];
 }
 
-const v_a = cc.v3();
-const v_b = cc.v3();
-const _tempMat1 = cc.mat4();
-const _tempMat2 = cc.mat4();
-
-// export const CameraVisFlags = Enum({
-//     GENERAL : (1 << 30) | (1 << 29),
-//     PROFILER : 1 << 28, // profiler used
-// });
+const v_a = new Vec3();
+const v_b = new Vec3();
+const _tempMat1 = new Mat4();
+const _tempMat2 = new Mat4();
 
 export enum CameraVisFlags {
     GENERAL = (1 << 30) | (1 << 29) | (1 << 23),
