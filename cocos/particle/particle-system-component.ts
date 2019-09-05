@@ -583,6 +583,10 @@ export class ParticleSystemComponent extends RenderableComponent {
                 Vec3.copy(particle.velocity, particleEmitZAxis);
             }
 
+            if (this.textureAnimationModule.enable) {
+                this.textureAnimationModule.init(particle);
+            }
+
             Vec3.multiplyScalar(particle.velocity, particle.velocity, this.startSpeed.evaluate(this._time / this.duration, rand)!);
 
             switch (this._simulationSpace) {

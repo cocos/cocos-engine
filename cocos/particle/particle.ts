@@ -24,6 +24,7 @@ export default class Particle {
     public emitAccumulator0: number;
     public emitAccumulator1: number;
     public frameIndex: number;
+    public startRow: number;
 
     constructor (particleSystem: any) {
         this.particleSystem = particleSystem;
@@ -44,5 +45,6 @@ export default class Particle {
         this.emitAccumulator0 = 0.0;
         this.emitAccumulator1 = 0.0;
         this.frameIndex = 0.0;
+        this.startRow = 0;
     }
 }
