@@ -29,16 +29,16 @@
  */
 
 import { SpriteFrame } from '../../core/assets';
-import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
-import { SystemEventType } from '../../core/platform/event-manager/event-enum';
-import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
-import { ccenum } from '../../core/value-types/enum';
-import { UI } from '../../core/renderer/ui/ui';
-import { GraphicsComponent } from './graphics-component';
 import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-import { Node } from '../../core/scene-graph';
+import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { view } from '../../core/platform';
+import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import visibleRect from '../../core/platform/visible-rect';
+import { UI } from '../../core/renderer/ui/ui';
+import { Node } from '../../core/scene-graph';
+import { ccenum } from '../../core/value-types/enum';
+import { GraphicsComponent } from './graphics-component';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -379,11 +379,11 @@ export class MaskComponent extends UIRenderComponent {
         // }
     }
 
-    protected _render(render: UI) {
+    protected _render (render: UI) {
         render.commitComp(this, null, this._assembler!);
     }
 
-    protected _postRender(render: UI) {
+    protected _postRender (render: UI) {
         if (!this._postAssembler) {
             return;
         }
@@ -566,11 +566,11 @@ export class MaskComponent extends UIRenderComponent {
 
     private _flushVisibility () {
         if (this._clearGraphics) {
-            this._clearGraphics._setScreen(this._screen);
+            this._clearGraphics._setScreen(this._screen!);
         }
 
         if (this._graphics) {
-            this._graphics._setScreen(this._screen);
+            this._graphics._setScreen(this._screen!);
         }
     }
 

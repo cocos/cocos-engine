@@ -227,7 +227,7 @@ export class Quat extends ValueType {
 
     /**
      * @zh 绕世界空间下指定轴旋转四元数
-     * @param axis 旋转轴
+     * @param axis 旋转轴，默认已归一化
      * @param rad 旋转弧度
      */
     public static rotateAround <Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, rot: Out, axis: VecLike, rad: number) {

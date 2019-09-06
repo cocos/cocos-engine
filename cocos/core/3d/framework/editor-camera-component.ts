@@ -3,11 +3,11 @@
  */
 
 import { ccclass } from '../../data/class-decorator';
+import { GFXClearFlag } from '../../gfx/define';
 import { toRadian } from '../../math';
 import { Camera } from '../../renderer';
-import { CameraComponent } from './camera-component';
 import { CameraVisFlags } from '../../renderer/scene/camera';
-import { GFXClearFlag } from '../../gfx/define';
+import { CameraComponent } from './camera-component';
 
 @ccclass('cc.EditorCameraComponent')
 export class EditorCameraComponent extends CameraComponent {
