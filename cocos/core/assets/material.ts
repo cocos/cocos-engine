@@ -206,7 +206,7 @@ export class Material extends Asset {
      */
     public resetUniforms (clearPasses = true) {
         this._props.length = this._passes.length;
-        this._props.fill({});
+        for (let i = 0; i < this._props.length; i++) { this._props[i] = {}; }
         if (!clearPasses) { return; }
         for (const pass of this._passes) {
             pass.resetUBOs();
@@ -336,16 +336,17 @@ export class Material extends Asset {
     public copy (mat: Material) {
         this._techIdx = mat._techIdx;
         this._props.length = mat._props.length;
-        this._props.fill({});
         for (let i = 0; i < mat._props.length; i++) {
-            Object.assign(this._props[i], mat._props[i]);
+            this._props[i] = Object.assign({}, mat._props[i]);
         }
         this._defines.length = mat._defines.length;
-        this._defines.fill({});
         for (let i = 0; i < mat._defines.length; i++) {
-            Object.assign(this._defines[i], mat._defines[i]);
+            this._defines[i] = Object.assign({}, mat._defines[i]);
         }
-        Object.assign(this._states, mat._states);
+        this._states.length = mat._states.length;
+        for (let i = 0; i < mat._states.length; i++) {
+            this._states[i] = Object.assign({}, mat._states[i]);
+        }
         this._effectAsset = mat._effectAsset;
         this._update();
     }
@@ -386,7 +387,7 @@ export class Material extends Asset {
                     }
                 });
             } else {
-                this._props.fill({});
+                for (let i = 0; i < this._props.length; i++) { this._props[i] = {}; }
             }
         } else { // ugly yellow indicating missing effect
             this._passes = builtinResMgr.get<Material>('missing-effect-material')._passes.slice();
