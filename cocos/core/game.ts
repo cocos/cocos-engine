@@ -497,7 +497,7 @@ export class Game extends EventTarget {
      */
     public addPersistRootNode (node: { uuid: any; parent: any; _persistNode: boolean; }) {
         if (!cc.Node.isNode(node) || !node.uuid) {
-            cc.warnID(3800);
+            debug.warnID(3800);
             return;
         }
         const id = node.uuid;
@@ -508,11 +508,11 @@ export class Game extends EventTarget {
                     node.parent = scene;
                 }
                 else if (!(node.parent instanceof cc.Scene)) {
-                    cc.warnID(3801);
+                    debug.warnID(3801);
                     return;
                 }
                 else if (node.parent !== scene) {
-                    cc.warnID(3802);
+                    debug.warnID(3802);
                     return;
                 }
             }
@@ -787,7 +787,7 @@ export class Game extends EventTarget {
         else {
             const element = !el ? null : ((el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el)));
             if (!element || !(element instanceof HTMLCanvasElement)) {
-                throw new Error(`Specified canvas is not found.`);
+                throw new Error(debug.getError(200));
             }
 
             if (element.tagName === 'CANVAS') {
@@ -803,7 +803,7 @@ export class Game extends EventTarget {
             } else {
                 // we must make a new canvas and place into this element
                 if (element.tagName !== 'DIV') {
-                    cc.warnID(3819);
+                    debug.warnID(3819);
                 }
                 width = element.clientWidth;
                 height = element.clientHeight;
