@@ -180,7 +180,14 @@ function loadDepends (pipeline, item, asset, depends, callback) {
             callback(null, asset);
         }
         else {
-            if (!errors && asset.onLoad) asset.onLoad();
+            if (!errors && asset.onLoad) {
+                try {
+                    asset.onLoad();
+                }
+                catch (e) {
+                    cc._throw(e);
+                } 
+            }
             callback(errors, asset);
         }
     });
