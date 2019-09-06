@@ -33,6 +33,129 @@ import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
 import * as debug from './platform/debug';
 
 /**
+ * @en
+ * The current game configuration, including:<br/>
+ * 1. debugMode<br/>
+ *      "debugMode"                  <br/>
+ * <br/>
+ * Please DO NOT modify this object directly, it won't have any effect.<br/>
+ * @zh
+ * 当前的游戏配置，包括：                                                                  <br/
+ * 7. scenes                                                                         <br/>
+ *      “scenes” 当前包中可用场景。                                                   <br/>
+ * <br/>
+ * 注意：请不要直接修改这个对象，它不会有任何效果。
+ * @property config
+ */
+
+/**
+ * @zh
+ * 游戏配置。
+ * @en
+ * Game configuration.
+ */
+export interface GameConfig {
+    /**
+     * @zh
+     * 设置 debug 模式，在浏览器中这个选项会被忽略。
+     * 各种设置选项的意义：
+     *  - 0 - 没有消息被打印出来。
+     *  - 1 - cc.error，cc.assert，cc.warn，cc.log 将打印在 console 中。
+     *  - 2 - cc.error，cc.assert，cc.warn 将打印在 console 中。
+     *  - 3 - cc.error，cc.assert 将打印在 console 中。
+     *  - 4 - cc.error，cc.assert，cc.warn，cc.log 将打印在 canvas 中（仅适用于 web 端）。
+     *  - 5 - cc.error，cc.assert，cc.warn 将打印在 canvas 中（仅适用于 web 端）。
+     *  - 6 - cc.error，cc.assert 将打印在 canvas 中（仅适用于 web 端）。
+     * @en
+     * Set debug mode, only valid in non-browser environment.
+     * Possible values:
+     * 0 - No message will be printed.
+     * 1 - cc.error, cc.assert, cc.warn, cc.log will print in console.
+     * 2 - cc.error, cc.assert, cc.warn will print in console.
+     * 3 - cc.error, cc.assert will print in console.
+     * 4 - cc.error, cc.assert, cc.warn, cc.log will print on canvas, available only on web.
+     * 5 - cc.error, cc.assert, cc.warn will print on canvas, available only on web.
+     * 6 - cc.error, cc.assert will print on canvas, available only on web.
+     */
+    debugMode?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+    /**
+     * @zh
+     * 当 showFPS 为 true 的时候界面的左下角将显示 fps 的信息，否则被隐藏。
+     * @en
+     * Left bottom corner fps information will show when "showFPS" equals true, otherwise it will be hide.
+     */
+    showFPS?: boolean;
+
+    /**
+     * @zh
+     * 暴露类名让 Chrome DevTools 可以识别，如果开启会稍稍降低类的创建过程的性能，但对对象构造没有影响。
+     * @en
+     * Expose class name to chrome debug tools, the class intantiate performance is a little bit slower when exposed.
+     */
+    exposeClassName?: boolean;
+
+    /**
+     * @zh
+     * 设置想要的帧率你的游戏，但真正的FPS取决于你的游戏实现和运行环境。
+     * @en
+     * Set the wanted frame rate for your game, but the real fps depends on your game implementation and the running environment.
+     */
+    frameRate?: number;
+
+    /**
+     * @zh
+     * Web 页面上的 Canvas Element ID，仅适用于 web 端。
+     * @en
+     * Sets the id of your canvas element on the web page, it's useful only on web.
+     */
+    id?: string | HTMLElement;
+
+    /**
+     * @zh
+     * 渲染模式。
+     * 设置渲染器类型，仅适用于 web 端：
+     * - 0 - 通过引擎自动选择。
+     * - 1 - 强制使用 canvas 渲染。
+     * - 2 - 强制使用 WebGL 渲染，但是在部分 Android 浏览器中这个选项会被忽略。
+     * @en
+     * Sets the renderer type, only useful on web:
+     * - 0 - Automatically chosen by engine.
+     * - 1 - Forced to use canvas renderer.
+     * - 2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers.
+     */
+    renderMode?: 0 | 1 | 2;
+
+    /**
+     * @zh
+     * 当前包中可用场景。
+     * @en
+     * Include available scenes in the current bundle.
+     */
+    scenes?: string[];
+
+    /**
+     * For internal use.
+     */
+    registerSystemEvent?: boolean;
+
+    /**
+     * For internal use.
+     */
+    collisionMatrix?: never[];
+
+    /**
+     * For internal use.
+     */
+    groupList?: any[];
+
+    /**
+     * For internal use.
+     */
+    jsList?: string[];
+}
+
+/**
  * @en An object to boot the game.
  * @zh 包含游戏主体信息并负责驱动游戏的游戏对象。
  * @class game
@@ -128,7 +251,7 @@ export class Game extends EventTarget {
      * @zh 游戏的画布。
      * @property canvas
      */
-    public canvas: HTMLElement |HTMLCanvasElement | null = null;
+    public canvas: HTMLCanvasElement | null = null;
 
     /**
      * @en The renderer backend of the game.
@@ -142,64 +265,13 @@ export class Game extends EventTarget {
 
     /**
      * @en
-     * The current game configuration, including:<br/>
-     * 1. debugMode<br/>
-     *      "debugMode" possible values :<br/>
-     *      0 - No message will be printed.                                                      <br/>
-     *      1 - cc.error, cc.assert, cc.warn, cc.log will print in console.                      <br/>
-     *      2 - cc.error, cc.assert, cc.warn will print in console.                              <br/>
-     *      3 - cc.error, cc.assert will print in console.                                       <br/>
-     *      4 - cc.error, cc.assert, cc.warn, cc.log will print on canvas, available only on web.<br/>
-     *      5 - cc.error, cc.assert, cc.warn will print on canvas, available only on web.        <br/>
-     *      6 - cc.error, cc.assert will print on canvas, available only on web.                 <br/>
-     * 2. showFPS<br/>
-     *      Left bottom corner fps information will show when "showFPS" equals true, otherwise it will be hide.<br/>
-     * 3. exposeClassName<br/>
-     *      Expose class name to chrome debug tools, the class intantiate performance is a little bit slower when exposed.<br/>
-     * 4. frameRate<br/>
-     *      "frameRate" set the wanted frame rate for your game, but the real fps depends on your game implementation and the running environment.<br/>
-     * 5. id<br/>
-     *      "gameCanvas" sets the id of your canvas element on the web page, it's useful only on web.<br/>
-     * 6. renderMode<br/>
-     *      "renderMode" sets the renderer type, only useful on web :<br/>
-     *      0 - Automatically chosen by engine<br/>
-     *      1 - Forced to use canvas renderer<br/>
-     *      2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers<br/>
-     * 7. scenes<br/>
-     *      "scenes" include available scenes in the current bundle.<br/>
-     * <br/>
-     * Please DO NOT modify this object directly, it won't have any effect.<br/>
+     * The current game configuration.
+     * Please DO NOT modify this object directly, it won't have any effect.
      * @zh
-     * 当前的游戏配置，包括：                                                                  <br/>
-     * 1. debugMode（debug 模式，但是在浏览器中这个选项会被忽略）                                <br/>
-     *      "debugMode" 各种设置选项的意义。                                                   <br/>
-     *          0 - 没有消息被打印出来。
-     *          1 - cc.error，cc.assert，cc.warn，cc.log 将打印在 console 中。
-     *          2 - cc.error，cc.assert，cc.warn 将打印在 console 中。
-     *          3 - cc.error，cc.assert 将打印在 console 中。
-     *          4 - cc.error，cc.assert，cc.warn，cc.log 将打印在 canvas 中（仅适用于 web 端）。
-     *          5 - cc.error，cc.assert，cc.warn 将打印在 canvas 中（仅适用于 web 端）。
-     *          6 - cc.error，cc.assert 将打印在 canvas 中（仅适用于 web 端）。
-     * 2. showFPS（显示 FPS）                                                            <br/>
-     *      当 showFPS 为 true 的时候界面的左下角将显示 fps 的信息，否则被隐藏。              <br/>
-     * 3. exposeClassName                                                           <br/>
-     *      暴露类名让 Chrome DevTools 可以识别，如果开启会稍稍降低类的创建过程的性能，但对对象构造没有影响。 <br/>
-     * 4. frameRate (帧率)                                                              <br/>
-     *      “frameRate” 设置想要的帧率你的游戏，但真正的FPS取决于你的游戏实现和运行环境。      <br/>
-     * 5. id                                                                            <br/>
-     *      "gameCanvas" Web 页面上的 Canvas Element ID，仅适用于 web 端。                         <br/>
-     * 6. renderMode（渲染模式）                                                         <br/>
-     *      “renderMode” 设置渲染器类型，仅适用于 web 端：                              <br/>
-     *          0 - 通过引擎自动选择。
-     *          1 - 强制使用 canvas 渲染。
-     *          2 - 强制使用 WebGL 渲染，但是在部分 Android 浏览器中这个选项会被忽略。
-     * 7. scenes                                                                         <br/>
-     *      “scenes” 当前包中可用场景。                                                   <br/>
-     * <br/>
+     * 当前的游戏配置。
      * 注意：请不要直接修改这个对象，它不会有任何效果。
-     * @property config
      */
-    public config: any = {};
+    public config: GameConfig = {};
 
     /**
      * @en Callback when the scripts of engine have been load.
@@ -225,9 +297,9 @@ export class Game extends EventTarget {
     public _frameTime: number|null = null;
 
     // Scenes list
-    public _sceneInfos = [];
+    public _sceneInfos: string[] = [];
     public collisionMatrix = [];
-    public groupList = [];
+    public groupList: any[] = [];
 
     // @Methods
 
@@ -261,7 +333,7 @@ export class Game extends EventTarget {
      * @return {Number} frame rate
      */
     public getFrameRate (): number {
-        return this.config.frameRate;
+        return this.config.frameRate || 0;
     }
 
     /**
@@ -586,7 +658,7 @@ export class Game extends EventTarget {
         let skip: boolean = true;
         const frameRate = config.frameRate;
 
-        debug.setDisplayStats(config.showFPS);
+        debug.setDisplayStats(!!config.showFPS);
 
         callback = (time: number) => {
             if (!self._paused) {
@@ -607,7 +679,7 @@ export class Game extends EventTarget {
 
     //  @Game loading section
     // tslint:disable-next-line: max-line-length
-    private _initConfig (config: { debugMode: number; exposeClassName: boolean; frameRate: number; renderMode: number; registerSystemEvent: boolean; showFPS: boolean; scenes: never[]; collisionMatrix: never[]; groupList: never[]; }) {
+    private _initConfig (config: GameConfig) {
         // Configs adjustment
         if (typeof config.debugMode !== 'number') {
             config.debugMode = 0;
@@ -640,7 +712,7 @@ export class Game extends EventTarget {
 
     private _determineRenderType () {
         const config = this.config;
-        const userRenderMode = parseInt(config.renderMode) || 0;
+        const userRenderMode = config.renderMode || 0;
 
         // Determine RenderType
         this.renderType = Game.RENDER_TYPE_CANVAS;
@@ -688,7 +760,7 @@ export class Game extends EventTarget {
         const el = this.config.id;
         let width: any;
         let height: any;
-        let localCanvas: HTMLElement | HTMLCanvasElement;
+        let localCanvas: HTMLCanvasElement;
         let localContainer: HTMLElement;
         const isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME;
         const isQQPlay = cc.sys.platform === cc.sys.QQ_PLAY;
@@ -713,7 +785,10 @@ export class Game extends EventTarget {
             this.canvas = localCanvas = window.canvas;
         }
         else {
-            const element = (el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el));
+            const element = !el ? null : ((el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el)));
+            if (!element || !(element instanceof HTMLCanvasElement)) {
+                throw new Error(`Specified canvas is not found.`);
+            }
 
             if (element.tagName === 'CANVAS') {
                 width = element.width;
@@ -733,7 +808,7 @@ export class Game extends EventTarget {
                 width = element.clientWidth;
                 height = element.clientHeight;
 
-                this.canvas = localCanvas = document.createElement('CANVAS');
+                this.canvas = localCanvas = document.createElement('canvas');
                 this.container = localContainer = document.createElement<'div'>('div');
                 element.appendChild(localContainer);
             }

@@ -34,16 +34,16 @@ import * as bits from './bits';
  */
 
 export { bits };
-export { Vec2 } from './vec2';
-export { Vec3 } from './vec3';
-export { Vec4 } from './vec4';
-export { Quat } from './quat';
+export { Vec2, v2 } from './vec2';
+export { Vec3, v3 } from './vec3';
+export { Vec4, v4 } from './vec4';
+export { Quat, quat } from './quat';
 export { Mat3 } from './mat3';
-export { Mat4 } from './mat4';
+export { Mat4, mat4 } from './mat4';
 export { AffineTransform } from './affine-transform';
-export { Size } from './size';
-export { Rect } from './rect';
-export { Color } from './color';
+export { Size, size } from './size';
+export { Rect, rect } from './rect';
+export { Color, color } from './color';
 export * from './utils';
 
 import './deprecated'; 

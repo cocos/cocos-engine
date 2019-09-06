@@ -29,6 +29,17 @@ export * from './macro';
 export * from './visible-rect';
 export * from './view';
 export * from './event-manager';
+export {
+    log,
+    error,
+    warn,
+    assert,
+    logID,
+    errorID,
+    warnID,
+    assertID,
+    isDisplayStats,
+    setDisplayStats,
+} from './debug';
 
-import { screen } from './screen';
-export { screen };
+export { screen } from './screen';
