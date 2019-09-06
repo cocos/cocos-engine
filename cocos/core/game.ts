@@ -712,7 +712,7 @@ export class Game extends EventTarget {
 
     private _determineRenderType () {
         const config = this.config;
-        const userRenderMode = config.renderMode || 0;
+        const userRenderMode = parseInt(config.renderMode as any);
 
         // Determine RenderType
         this.renderType = Game.RENDER_TYPE_CANVAS;
