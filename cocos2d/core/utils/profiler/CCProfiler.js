@@ -71,7 +71,6 @@ function generateNode () {
     let leftLabel = left.addComponent(cc.Label);
     leftLabel.fontSize = _fontSize;
     leftLabel.lineHeight = _fontSize;
-    leftLabel.cacheMode = cc.Label.CacheMode.CHAR;
     left.parent = _rootNode;
 
     let right = new cc.Node('RIGHT-PANEL');
@@ -82,8 +81,12 @@ function generateNode () {
     rightLabel.horizontalAlign = cc.Label.HorizontalAlign.RIGHT;
     rightLabel.fontSize = _fontSize;
     rightLabel.lineHeight = _fontSize;
-    rightLabel.cacheMode = cc.Label.CacheMode.CHAR;
     right.parent = _rootNode;
+    if (cc.sys.browserType !== cc.sys.BROWSER_TYPE_BAIDU_GAME_SUB &&
+        cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+        leftLabel.cacheMode = cc.Label.CacheMode.CHAR;
+        rightLabel.cacheMode = cc.Label.CacheMode.CHAR;
+    }
 
     _label = {
         left: leftLabel,
