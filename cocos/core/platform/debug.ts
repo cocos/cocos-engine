@@ -171,10 +171,7 @@ export function _resetDebugSetting (mode: DebugMode) {
             console.warn = console.log;
         }
 
-        if (CC_EDITOR) {
-            ccError = Editor.error;
-        }
-        else if (console.error.bind) {
+        if (CC_EDITOR || console.error.bind) {
             // use bind to avoid pollute call stacks
             ccError = console.error.bind(console);
         }
@@ -199,7 +196,7 @@ export function _resetDebugSetting (mode: DebugMode) {
 
     if (mode !== DebugMode.ERROR) {
         if (CC_EDITOR) {
-            ccWarn = Editor.warn;
+            ccWarn = console.warn.bind(console);
         }
         else if (console.warn.bind) {
             // use bind to avoid pollute call stacks
@@ -213,7 +210,7 @@ export function _resetDebugSetting (mode: DebugMode) {
     }
 
     if (CC_EDITOR) {
-        ccLog = Editor.log;
+        ccLog = console.log.bind(console);
     }
     else if (mode === DebugMode.INFO) {
         if (CC_JSB) {
@@ -242,7 +239,7 @@ export function _resetDebugSetting (mode: DebugMode) {
 export function _throw (error_: any) {
     if (CC_EDITOR) {
         // @ts-ignore
-        return Editor.error(error_);
+        return error(error_);
     } else {
         const stack = error_.stack;
         if (stack) {

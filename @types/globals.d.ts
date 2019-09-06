@@ -109,14 +109,9 @@ declare type Getter = () => any;
 declare type Setter = (value: any) => void;
 
 declare namespace Editor {
-    function log (message?: any, ...optionalParams: any[]): void;
-    function error (message?: any, ...optionalParams: any[]): void;
-    function warn (message?: any, ...optionalParams: any[]): void;
     function require (str: String): any;
     const isMainProcess: boolean | undefined;
-    const Ipc: any;
     const Utils: any;
-    const assets: any;
     const serialize: any;
     const Selection: any;
 }

@@ -37,6 +37,7 @@ import MD5Pipe from '../load-pipeline/md5-pipe';
 import { initPacks } from '../load-pipeline/pack-downloader';
 import { SubPackPipe } from '../load-pipeline/subpackage-pipe';
 import { Asset } from './asset';
+import * as debug from '../platform/debug';
 
 // tslint:disable: max-line-length
 
@@ -117,7 +118,7 @@ const AssetLibrary = {
             else {
                 if (asset.constructor === cc.SceneAsset) {
                     if (CC_EDITOR && !asset.scene) {
-                        Editor.error('Sorry, the scene data of "%s" is corrupted!', uuid);
+                        debug.error('Sorry, the scene data of "%s" is corrupted!', uuid);
                     }
                     else {
                         const key = cc.loader._getReferenceKey(uuid);
@@ -154,25 +155,26 @@ const AssetLibrary = {
      * @protected
      */
     _queryAssetInfoInEditor (uuid, callback) {
-        if (CC_EDITOR) {
-            Editor.Ipc.sendToMain('scene:query-asset-info-by-uuid', uuid, (err, info) => {
-                if (info) {
-                    Editor.Utils.UuidCache.cache(info.url, uuid);
-                    const ctor = Editor.assets[info.type];
-                    if (ctor) {
-                        const isRawAsset = !isChildClassOf(ctor, Asset);
-                        callback(null, info.url, isRawAsset, ctor);
-                    }
-                    else {
-                        callback(new Error('Can not find asset type ' + info.type));
-                    }
+        if (window.EditorExtends) {
+            window.EditorExtends.Asset.queryAssetInfo(uuid, (error: Error, info: any) => {
+                if (error) {
+                    const loadError: any = new Error('Can not get asset url by uuid "' + uuid + '", the asset may be deleted.');
+                    loadError.errorCode = 'db.NOTFOUND';
+                    debug.error(error);
+                    return callback(loadError);
                 }
-                else {
-                    const error: any = new Error('Can not get asset url by uuid "' + uuid + '", the asset may be deleted.');
-                    error.errorCode = 'db.NOTFOUND';
-                    callback(error);
+
+                const ctor = cc.js.getClassByName(info.type);
+                if (ctor) {
+                    const isRawAsset = !isChildClassOf(ctor, Asset);
+                    const url = `import://${info.uuid.substr(0, 2)}/${info.uuid}.json`;
+                    callback(null, url, isRawAsset, ctor);
+                } else {
+                    callback(new Error('Can not find asset type ' + info.type));
                 }
             });
+        } else {
+            callback(new Error('Unable to load resource: EditorExtends is not defined.'));
         }
     },
 

@@ -67,25 +67,6 @@ export default class MissingScript extends Component {
     //        }
     //        return '';
     //    },
-    //    set: function (value) {
-    //        if ( !sandbox.compiled ) {
-    //            cc.error('Scripts not yet compiled, please fix script errors and compile first.');
-    //            return;
-    //        }
-    //        if (value && Editor.Utils.UuidUtils.isUuid(value._uuid)) {
-    //            var classId = Editor.Utils.UuidUtils.compressUuid(value);
-    //            if (_getClassById(classId)) {
-    //                this._$erialized.__type__ = classId;
-    //                Editor.Ipc.sendToWins('reload:window-scripts', sandbox.compiled);
-    //            }
-    //            else {
-    //                cc.error('Can not find a component in the script which uuid is "%s".', value);
-    //            }
-    //        }
-    //        else {
-    //            cc.error('invalid script');
-    //        }
-    //    }
     // },
 
     /*

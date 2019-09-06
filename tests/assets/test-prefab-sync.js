@@ -36,36 +36,36 @@
 
     (function beforeAll () {
 
-        // CREATE PREFAB ASSET
+        // // CREATE PREFAB ASSET
 
-        var PrefabUtils = Editor.require('scene://utils/prefab');
-        PrefabUtils.createPrefabFrom(nodeToCreatePrefab);
-        //var asset = new cc.Prefab();
-        //asset.data = parent;
-        nodeToCreatePrefab._prefab.asset._uuid = UUID;
-        //PrefabUtils.setPrefabAsset(parent, Editor.serialize.asAsset());
-        PrefabUtils.setPrefabSync(nodeToCreatePrefab, true);
+        // var PrefabUtils = Editor.require('scene://utils/prefab');
+        // PrefabUtils.createPrefabFrom(nodeToCreatePrefab);
+        // //var asset = new cc.Prefab();
+        // //asset.data = parent;
+        // nodeToCreatePrefab._prefab.asset._uuid = UUID;
+        // //PrefabUtils.setPrefabAsset(parent, Editor.serialize.asAsset());
+        // PrefabUtils.setPrefabSync(nodeToCreatePrefab, true);
 
-        otherSyncedNode = cc.instantiate(nodeToCreatePrefab);
-        otherSyncedNode.x = 1234;
-        otherSyncedNode.name = 'otherSyncedNode';
+        // otherSyncedNode = cc.instantiate(nodeToCreatePrefab);
+        // otherSyncedNode.x = 1234;
+        // otherSyncedNode.name = 'otherSyncedNode';
 
-        // apply sync property
-        prefabAsset = PrefabUtils.createAppliedPrefab(nodeToCreatePrefab);
+        // // apply sync property
+        // prefabAsset = PrefabUtils.createAppliedPrefab(nodeToCreatePrefab);
 
-        // 重新生成已经加载好的 prefab，去除类型，去除 runtime node
-        prefabJson = Editor.serialize(prefabAsset, { stringify: false });
-        prefabAsset = cc.deserialize(prefabJson);
-        prefabAsset._uuid = UUID;
+        // // 重新生成已经加载好的 prefab，去除类型，去除 runtime node
+        // prefabJson = Editor.serialize(prefabAsset, { stringify: false });
+        // prefabAsset = cc.deserialize(prefabJson);
+        // prefabAsset._uuid = UUID;
 
-        // SAVE SCENE ASSET
-        parentJson = Editor.serialize(otherSyncedNode, { stringify: false });
-        if (DEBUG_SERIALIZED_PREFAB) {
-            console.log(JSON.stringify(parentJson, null, 4));
-        }
-        reloadedParent = cc.deserialize(parentJson);
-        reloadedParent._prefab.asset = prefabAsset;
-        //reloadedParent.children[0]._prefab.asset = prefabAsset;
+        // // SAVE SCENE ASSET
+        // parentJson = Editor.serialize(otherSyncedNode, { stringify: false });
+        // if (DEBUG_SERIALIZED_PREFAB) {
+        //     console.log(JSON.stringify(parentJson, null, 4));
+        // }
+        // reloadedParent = cc.deserialize(parentJson);
+        // reloadedParent._prefab.asset = prefabAsset;
+        // //reloadedParent.children[0]._prefab.asset = prefabAsset;
     })();
 
     test('prefab info', function () {
