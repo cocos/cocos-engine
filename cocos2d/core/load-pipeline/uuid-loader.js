@@ -185,7 +185,7 @@ function loadDepends (pipeline, item, asset, depends, callback) {
                     asset.onLoad();
                 }
                 catch (e) {
-                    console.error(e);
+                    cc._throw(e);
                 } 
             }
             callback(errors, asset);
