@@ -129,7 +129,7 @@ export class SkyboxInfo {
     }
 
     /**
-     * @zh 是否启用天空盒？
+     * @zh 是否启用环境光照？
      */
     @property({ type: CCBoolean })
     set useIBL (val) {

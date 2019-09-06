@@ -90,6 +90,8 @@ export enum CameraVisFlags {
     UI2D = (1 << 25),
 }
 
+export const SKYBOX_FLAG = GFXClearFlag.STENCIL << 1;
+
 export class Camera {
 
     private _scene: RenderScene;

@@ -35,7 +35,7 @@ import { GFXClearFlag } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
 import { Color, Rect, toRadian, Vec3 } from '../../math';
 import { Camera } from '../../renderer';
-import { CameraVisFlags } from '../../renderer/scene/camera';
+import { CameraVisFlags, SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
 
@@ -63,6 +63,7 @@ const ProjectionType = Enum({
 });
 
 const CameraClearFlag = Enum({
+    SKYBOX: SKYBOX_FLAG | GFXClearFlag.DEPTH_STENCIL,
     SOLID_COLOR: GFXClearFlag.ALL,
     DEPTH_ONLY: GFXClearFlag.DEPTH_STENCIL,
     DONT_CLEAR: GFXClearFlag.NONE,
@@ -77,6 +78,7 @@ const CameraClearFlag = Enum({
 @executeInEditMode
 export class CameraComponent extends Component {
     public static ProjectionType = ProjectionType;
+    public static CameraClearFlag = CameraClearFlag;
 
     @property
     protected _projection = ProjectionType.PERSPECTIVE;

@@ -26,7 +26,7 @@ import { Mat4, Vec3, Vec4 } from '../math';
 import { Camera, Model } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass';
 import { programLib } from '../renderer/core/program-lib';
-import { CameraVisFlags } from '../renderer/scene/camera';
+import { CameraVisFlags, SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Root } from '../root';
 import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_ENVIRONMENT } from './define';
 import { IInternalBindingInst } from './define';
@@ -1455,7 +1455,7 @@ export abstract class RenderPipeline {
             planarShadows.updateDirLight(mainLight);
         }
 
-        if (scene.skybox.enabled) {
+        if (scene.skybox.enabled && (camera.clearFlag & SKYBOX_FLAG)) {
             this.addVisibleModel(scene.skybox, camera);
         }
 

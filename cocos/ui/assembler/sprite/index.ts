@@ -27,14 +27,13 @@
  * @hidden
  */
 
-import { SpriteComponent, UIRenderComponent } from '../../components';
+import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-component';
 import { IAssemblerManager } from '../../../core/renderer/ui/base';
+import { SpriteComponent } from '../../components';
 import { barFilled } from './bar-filled';
 import { radialFilled } from './radial-filled';
 import { simple } from './simple';
 import { sliced } from './sliced';
-// import { tilled } from './tiled';
-// import meshRenderUtil from './mesh';
 
 const SpriteType = SpriteComponent.Type;
 const FillType = SpriteComponent.FillType;

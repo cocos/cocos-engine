@@ -23,8 +23,9 @@
  THE SOFTWARE.
 */
 
-import { GraphicsComponent, UIRenderComponent } from '../../../components';
+import { UIRenderComponent } from '../../../../core/components/ui-base/ui-render-component';
 import { IAssemblerManager } from '../../../../core/renderer/ui/base';
+import { GraphicsComponent } from '../../../components';
 import { graphicsAssembler as graphics } from './graphics-assembler';
 
 const graphicsAssemblerManager: IAssemblerManager = {
