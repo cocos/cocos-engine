@@ -380,7 +380,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         this._name = name !== undefined ? name : 'New Node';
 
         // @ts-ignore
-        if (CC_EDITOR && window.EditorExtends) {
+        if (CC_EDITOR && EditorExtends) {
             // @ts-ignore
             EditorExtends.Node.add(this._id, this);
         }

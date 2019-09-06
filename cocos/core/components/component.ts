@@ -99,8 +99,7 @@ class Component extends CCObject {
     })
     get uuid () {
         // @ts-ignore
-        if (CC_EDITOR && window.EditorExtends) {
-            // @ts-ignore
+        if (CC_EDITOR && EditorExtends) {
             EditorExtends.Component.add(this._id, this);
         }
 
@@ -757,8 +756,8 @@ value(Component, '_registerEditorProps', function (cls, props) {
                     if (frame) {
                         menu = 'i18n:menu.custom_script/' + menu;
                     }
-                    // @ts-ignore
-                    window.EditorExtends && window.EditorExtends.Component.addMenu(cls, menu, props.menuPriority);
+
+                    EditorExtends && EditorExtends.Component.addMenu(cls, menu, props.menuPriority);
                     break;
 
                 case 'disallowMultiple':
