@@ -786,16 +786,16 @@ export class Game extends EventTarget {
         }
         else {
             const element = !el ? null : ((el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el)));
-            if (!element || !(element instanceof HTMLCanvasElement)) {
+            if (!element) {
                 throw new Error(debug.getError(200));
             }
 
             if (element.tagName === 'CANVAS') {
-                width = element.width;
-                height = element.height;
+                width = (element as HTMLCanvasElement).width;
+                height = (element as HTMLCanvasElement).height;
 
                 // it is already a canvas, we wrap it around with a div
-                this.canvas = localCanvas = element;
+                this.canvas = localCanvas = (element as HTMLCanvasElement);
                 this.container = localContainer = document.createElement<'div'>('div');
                 if (localCanvas && localCanvas.parentNode) {
                     localCanvas.parentNode.insertBefore(localContainer, localCanvas);
