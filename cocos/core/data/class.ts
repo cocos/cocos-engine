@@ -355,7 +355,7 @@ function define (className, baseClass, mixins, options) {
     const frame = RF.peek();
 
     // @ts-ignore
-    if (CC_EDITOR && frame && EditorExtends && EditorExtends.Script) {
+    if (CC_EDITOR && frame) {
         // @ts-ignore
         EditorExtends.Script.add(frame.uuid, options.ctor);
     }
@@ -382,7 +382,7 @@ function define (className, baseClass, mixins, options) {
                 if (CC_EDITOR) {
                     // @ts-ignore
                     // tslint:disable-next-line:no-unused-expression
-                    EditorExtends && EditorExtends.Component.addMenu(cls, 'i18n:menu.custom_script/' + className, -1);
+                    EditorExtends.Component.addMenu(cls, 'i18n:menu.custom_script/' + className, -1);
                     cls.prototype.__scriptUuid = Editor.Utils.UuidUtils.decompressUuid(uuid);
                 }
             }

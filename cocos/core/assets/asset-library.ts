@@ -155,7 +155,7 @@ const AssetLibrary = {
      * @protected
      */
     _queryAssetInfoInEditor (uuid, callback) {
-        if (EditorExtends) {
+        if (CC_EDITOR) {
             EditorExtends.Asset.queryAssetInfo(uuid, (error: Error, info: any) => {
                 if (error) {
                     const loadError: any = new Error('Can not get asset url by uuid "' + uuid + '", the asset may be deleted.');
