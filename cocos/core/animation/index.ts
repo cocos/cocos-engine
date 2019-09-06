@@ -9,7 +9,9 @@ export { easing };
 export * from './animation-curve';
 export * from './animation-clip';
 export * from './animation-manager';
-export * from './animation-state';
+export {
+    AnimationState,
+} from './animation-state';
 export * from './cubic-spline-value';
 export * from './animation-component';
 export * from './skeletal-animation-clip';

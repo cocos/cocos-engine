@@ -4,6 +4,10 @@
 
 %s not yet implemented.
 
+### 0200
+
+You should specify a valid DOM canvas element.
+
 ### 1000
 
 <!-- DEPRECATED -->

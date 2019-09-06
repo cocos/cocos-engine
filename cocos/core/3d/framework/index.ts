@@ -51,6 +51,10 @@ export {
     SkinningModelUnit,
 
     RenderableComponent,
+
+    DirectionalLightComponent,
+    SphereLightComponent,
+    SpotLightComponent,
 };
 
 // cc.AnimationComponent = AnimationComponent;

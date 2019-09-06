@@ -127,4 +127,3 @@ export class BoundTarget {
         }
     }
 }
-cc.BoundTarget = BoundTarget;
