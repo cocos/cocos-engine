@@ -99,7 +99,7 @@ class TextureParser {
             return tex;
         }
         else if (!Fs.existsSync(path)) {
-            Editor.error('Can not find texture "%s" for atlas "%s"', line, this.atlasPath);
+            console.error('Can not find texture "%s" for atlas "%s"', line, this.atlasPath);
         }
         else {
             // AssetDB may call postImport more than once, we can get uuid in the next time.

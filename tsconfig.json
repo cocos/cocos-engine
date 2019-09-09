@@ -14,6 +14,7 @@
       "experimentalDecorators": true,
       "types": [
         "./@types/globals",
+        "./@types/editor-extends",
         "./@types/ammo.js",
         "./@types/wx",
         "./cocos/core/gfx/webgl/WebGL",

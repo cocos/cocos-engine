@@ -380,7 +380,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         this._name = name !== undefined ? name : 'New Node';
 
         // @ts-ignore
-        if (CC_EDITOR && window.EditorExtends) {
+        if (CC_EDITOR) {
             // @ts-ignore
             EditorExtends.Node.add(this._id, this);
         }
@@ -1184,10 +1184,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
 
         const thisPrefabInfo = this._prefab;
         if (CC_EDITOR && thisPrefabInfo) {
-            if (this !== thisPrefabInfo.root) {
-                // var PrefabUtils = Editor.require('scene://utils/prefab');
-                // PrefabUtils.initClonedChildOfPrefab(cloned);
-            }
+            if (this !== thisPrefabInfo.root) {}
         }
         const syncing = thisPrefabInfo && this === thisPrefabInfo.root && thisPrefabInfo.sync;
         if (syncing) {

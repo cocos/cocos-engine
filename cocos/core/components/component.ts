@@ -99,8 +99,7 @@ class Component extends CCObject {
     })
     get uuid () {
         // @ts-ignore
-        if (CC_EDITOR && window.EditorExtends) {
-            // @ts-ignore
+        if (CC_EDITOR) {
             EditorExtends.Component.add(this._id, this);
         }
 
@@ -195,24 +194,6 @@ class Component extends CCObject {
         visible: false,
     })
     public node: INode = NullNode;
-    // set __scriptAsset (value) {
-    //    if (this.__scriptUuid !== value) {
-    //        if (value && Editor.Utils.UuidUtils.isUuid(value._uuid)) {
-    //            var classId = Editor.Utils.UuidUtils.compressUuid(value._uuid);
-    //            var NewComp = cc.js._getClassById(classId);
-    //            if (cc.js.isChildClassOf(NewComp, cc.Component)) {
-    //                cc.warn('Sorry, replacing component script is not yet implemented.');
-    //                //Editor.Ipc.sendToWins('reload:window-scripts', Editor._Sandbox.compiled);
-    //            }
-    //            else {
-    //                cc.error('Can not find a component in the script which uuid is "%s".', value._uuid);
-    //            }
-    //        }
-    //        else {
-    //            cc.error('Invalid Script');
-    //        }
-    //    }
-    // }
 
     /**
      * @property _enabled
@@ -775,8 +756,8 @@ value(Component, '_registerEditorProps', function (cls, props) {
                     if (frame) {
                         menu = 'i18n:menu.custom_script/' + menu;
                     }
-                    // @ts-ignore
-                    window.EditorExtends && window.EditorExtends.Component.addMenu(cls, menu, props.menuPriority);
+
+                    CC_EDITOR && EditorExtends.Component.addMenu(cls, menu, props.menuPriority);
                     break;
 
                 case 'disallowMultiple':

@@ -79,7 +79,7 @@ class DragonBonesAtlasMeta extends CustomAssetMeta {
                 this.texture = uuid;
             }
             else if (!Fs.existsSync(imgPath)) {
-                Editor.error('Can not find texture "%s" for atlas "%s"', json.imagePath, fspath);
+                console.error('Can not find texture "%s" for atlas "%s"', json.imagePath, fspath);
             }
             else {
                 // AssetDB may call postImport more than once, we can get uuid in the next time.

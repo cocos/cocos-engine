@@ -1011,6 +1011,12 @@ export class CCLoader extends Pipeline {
      */
     public _getResUuid (url, type, mount, quiet) {
         mount = mount || 'assets';
+
+        if (CC_EDITOR) {
+            const info = EditorExtends.Asset.getAssetInfoFromUrl(`db://${mount}/resources/${url}`);
+            return info ? info.uuid : '';
+        }
+
         const assetTable = assetTables[mount];
         if (!url || !assetTable) {
             return null;

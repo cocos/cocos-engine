@@ -77,13 +77,13 @@ export default function syncWithPrefab (node) {
     if (!_prefab.asset) {
         if (CC_EDITOR) {
             // @ts-ignore
-            const NodeUtils = Editor.require('scene://utils/node');
-            // @ts-ignore
-            const PrefabUtils = Editor.require('scene://utils/prefab');
+            // const NodeUtils = Editor.require('scene://utils/node');
+            // // @ts-ignore
+            // const PrefabUtils = Editor.require('scene://utils/prefab');
 
-            // @ts-ignore
-            cc.warn(Editor.T('MESSAGE.prefab.missing_prefab', { node: NodeUtils.getNodePath(node) }));
-            node.name += PrefabUtils.MISSING_PREFAB_SUFFIX;
+            // // @ts-ignore
+            // cc.warn(Editor.T('MESSAGE.prefab.missing_prefab', { node: NodeUtils.getNodePath(node) }));
+            // node.name += PrefabUtils.MISSING_PREFAB_SUFFIX;
         }
         else {
             cc.errorID(3701, node.name);

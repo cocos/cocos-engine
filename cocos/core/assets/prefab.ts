@@ -183,12 +183,6 @@ export default class Prefab extends Asset {
         }
         ++this._instantiatedTimes;
 
-        // link prefab in editor
-        if (CC_EDITOR || CC_TEST) {
-            const PrefabUtils = Editor.require('scene://utils/prefab');
-            // This operation is not necessary, but some old prefab asset may not contain complete data.
-            PrefabUtils.linkPrefab(this, node);
-        }
         return node;
     }
 }

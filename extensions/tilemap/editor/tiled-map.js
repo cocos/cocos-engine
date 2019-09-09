@@ -72,7 +72,7 @@ function searchDependFiles(tmxFile, tmxFileData, cb) {
         if (tsxDoc) {
           parseTilesetImages(tsxDoc, tsxPath);
         } else {
-          Editor.warn('Parse %s failed.', tsxPath);
+          console.warn('Parse %s failed.', tsxPath);
         }
       }
     }
@@ -136,7 +136,7 @@ class TiledMapMeta extends CustomAssetMeta {
             asset.tsxFileNames.push(p);
             return Editor.serialize.asAsset(uuid);
         } else {
-            Editor.error(`Can not find file ${tsxPath}`);
+            console.error(`Can not find file ${tsxPath}`);
             asset.tsxFileNames.push('');
         }
         return null;
