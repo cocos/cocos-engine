@@ -73,8 +73,13 @@ export class ImageAsset extends Asset {
      * 此图像资源的图像数据。
      */
     get data () {
-        let data:any = (this._nativeData as IMemoryImageSource)._data;
-        return (ArrayBuffer.isView(data) || data instanceof ArrayBuffer) ? data : this._nativeData;
+        if ('_data' in this._nativeData) {
+            let data:any = this._nativeData._data;
+            if (ArrayBuffer.isView(data) || data instanceof ArrayBuffer) {
+                return data;
+            }
+        }
+        return this._nativeData;
     }
 
     /**
