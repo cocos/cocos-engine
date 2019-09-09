@@ -27,74 +27,78 @@
  * @category loader
  */
 
-import sys from '../core/platform/sys';
-import { log, getError } from '../core/platform/debug';
-import { AudioClip, AudioType } from './assets/clip';
 import { loader } from '../core/load-pipeline';
+import { getError, log } from '../core/platform/debug';
+import sys from '../core/platform/sys';
+import { AudioClip, AudioType } from './assets/clip';
 
 const __audioSupport = sys.__audioSupport;
 const formatSupport = __audioSupport.format;
 
 function loadWXAudio (item, callback) {
-    var clip = wx.createInnerAudioContext();
+    const clip = wx.createInnerAudioContext();
     clip.src = item.url;
     clip.onCanplay(() => callback(null, clip));
 }
 
 function loadDomAudio (item, callback) {
-    var dom = document.createElement('audio');
+    const dom = document.createElement('audio');
     dom.src = item.url;
 
-    var clearEvent = function () {
+    const clearEvent = () => {
         clearTimeout(timer);
-        dom.removeEventListener("canplaythrough", success, false);
-        dom.removeEventListener("error", failure, false);
-        if(__audioSupport.USE_LOADER_EVENT)
+        dom.removeEventListener('canplaythrough', success, false);
+        dom.removeEventListener('error', failure, false);
+        if (__audioSupport.USE_LOADER_EVENT) {
             dom.removeEventListener(__audioSupport.USE_LOADER_EVENT, success, false);
+        }
     };
-    var timer = setTimeout(function () {
-        if (dom.readyState === 0)
+    const timer = setTimeout(() => {
+        if (dom.readyState === 0) {
             failure();
-        else
+        } else {
             success();
+        }
     }, 8000);
-    var success = function () {
+    const success = () => {
         clearEvent();
         callback(null, dom);
     };
-    var failure = function () {
+    const failure = () => {
         clearEvent();
-        var message = 'load audio failure - ' + item.url;
+        const message = 'load audio failure - ' + item.url;
         log(message);
         callback(message);
     };
-    dom.addEventListener("canplaythrough", success, false);
-    dom.addEventListener("error", failure, false);
-    if(__audioSupport.USE_LOADER_EVENT)
+    dom.addEventListener('canplaythrough', success, false);
+    dom.addEventListener('error', failure, false);
+    if (__audioSupport.USE_LOADER_EVENT) {
         dom.addEventListener(__audioSupport.USE_LOADER_EVENT, success, false);
+    }
 }
 
 function loadWebAudio (item, callback) {
     const context = __audioSupport.context;
-    if (!context)
+    if (!context) {
         callback(new Error(getError(4926)));
+    }
 
-    var request = loader.getXMLHttpRequest();
-    request.open("GET", item.url, true);
-    request.responseType = "arraybuffer";
+    const request = loader.getXMLHttpRequest();
+    request.open('GET', item.url, true);
+    request.responseType = 'arraybuffer';
 
     // Our asynchronous callback
-    request.onload = function () {
-        context["decodeAudioData"](request.response, function(buffer){
-            //success
+    request.onload = () => {
+        context.decodeAudioData(request.response, (buffer) => {
+            // success
             callback(null, buffer);
-        }, function(){
-            //error
+        }, () => {
+            // error
             callback('decode error - ' + item.id, null);
         });
     };
 
-    request.onerror = function(){
+    request.onerror = () => {
         callback('request error - ' + item.id, null);
     };
 
@@ -112,11 +116,11 @@ function downloadAudio (item, callback) {
     } else if (!__audioSupport.WEB_AUDIO) {
         audioLoader = loadDomAudio; // If WebAudio is not supported, load using DOM mode
     } else {
-        let loadByDeserializedAudio = item._owner instanceof AudioClip;
+        const loadByDeserializedAudio = item._owner instanceof AudioClip;
         if (loadByDeserializedAudio) {
             audioLoader = (item._owner.loadMode === AudioType.WEB_AUDIO) ? loadWebAudio : loadDomAudio;
         } else {
-            audioLoader = (item.urlParam && item.urlParam['useDom']) ? loadDomAudio : loadWebAudio;
+            audioLoader = (item.urlParam && item.urlParam.useDom) ? loadDomAudio : loadWebAudio;
         }
     }
     audioLoader(item, callback);
@@ -124,8 +128,8 @@ function downloadAudio (item, callback) {
 
 loader.downloader.addHandlers({
     // Audio
-    'mp3' : downloadAudio,
-    'ogg' : downloadAudio,
-    'wav' : downloadAudio,
-    'm4a' : downloadAudio,
+    mp3 : downloadAudio,
+    ogg : downloadAudio,
+    wav : downloadAudio,
+    m4a : downloadAudio,
 });

@@ -3,8 +3,8 @@
  */
 
 import CCClass from '../../core/data/class';
-import { Enum } from '../../core/value-types/enum';
 import { clamp, inverseLerp, pingPong, repeat } from '../../core/math/utils';
+import { Enum } from '../../core/value-types/enum';
 
 const LOOK_FORWARD = 3;
 

@@ -27,19 +27,19 @@
  */
 
 import { Filter, PixelFormat } from '../../assets/asset-enum';
+import { Mesh } from '../../assets/mesh';
+import { Skeleton } from '../../assets/skeleton';
 import { Texture2D } from '../../assets/texture-2d';
 import { ccclass, executeInEditMode, executionOrder, property } from '../../data/class-decorator';
 import { CCInteger, CCString } from '../../data/utils/attribute';
-import { Mat4, Vec2 } from '../../math';
 import { GFXFormat } from '../../gfx/define';
 import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
-import { Mesh } from '../../assets/mesh';
-import { Skeleton } from '../../assets/skeleton';
+import { Mat4, Vec2 } from '../../math';
+import { Node } from '../../scene-graph/node';
+import { INode } from '../../utils/interfaces';
 import { LCA, mapBuffer } from '../misc/utils';
 import { SkinningModelComponent } from './skinning-model-component';
-import { INode } from '../../utils/interfaces';
-import { Node } from '../../scene-graph/node';
 
 const _vec2 = new Vec2();
 

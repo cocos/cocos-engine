@@ -1,8 +1,8 @@
 import { aabb, frustum } from '../../geom-utils';
 import { Mat4, Quat, Vec3 } from '../../math';
+import { INode } from '../../utils/interfaces';
 import { Light, LightType, nt2lm } from './light';
 import { RenderScene } from './render-scene';
-import { INode } from '../../utils/interfaces';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
