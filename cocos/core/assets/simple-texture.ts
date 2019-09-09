@@ -133,9 +133,9 @@ export class SimpleTexture extends TextureBase {
             }
             let source: HTMLCanvasElement | HTMLImageElement | ArrayBuffer;
             if (ArrayBuffer.isView(data)) {
-                source = data.buffer;
+                source = (data as ArrayBufferView).buffer;
             } else {
-                source = data;
+                source = (data as HTMLCanvasElement | HTMLImageElement);
             }
             this.uploadData(source, level, arrayIndex);
             this._checkTextureLoaded();

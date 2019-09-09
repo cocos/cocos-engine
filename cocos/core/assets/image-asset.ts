@@ -32,7 +32,6 @@ import {ccclass, property} from '../data/class-decorator';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
-import { Texture2D } from './texture-2d';
 
 /**
  * 内存图像源。
@@ -74,7 +73,8 @@ export class ImageAsset extends Asset {
      * 此图像资源的图像数据。
      */
     get data () {
-        return '_data' in this._nativeData ? this._nativeData._data : this._nativeData;
+        let data:any = (this._nativeData as IMemoryImageSource)._data;
+        return (ArrayBuffer.isView(data) || data instanceof ArrayBuffer) ? data : this._nativeData;
     }
 
     /**
