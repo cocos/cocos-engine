@@ -164,7 +164,7 @@ const AssetLibrary = {
                     return callback(loadError);
                 }
 
-                const ctor = cc.js.getClassByName(info.type);
+                const ctor = cc.js.getClassByName(info.type + 'Asset') || cc.js.getClassByName(info.type);
                 if (ctor) {
                     const isRawAsset = !isChildClassOf(ctor, Asset);
                     const url = `import://${info.uuid.substr(0, 2)}/${info.uuid}.json`;
