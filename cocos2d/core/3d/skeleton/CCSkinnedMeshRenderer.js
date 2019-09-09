@@ -126,7 +126,7 @@ let SkinnedMeshRenderer = cc.Class({
         this._initJoints();
         this._initJointsTexture();
         this._initCalcFunc();
-        this._setRenderNode();
+        this._updateRenderNode();
     },
 
     _calcWorldMatrixToRoot (joint) {
@@ -270,7 +270,7 @@ let SkinnedMeshRenderer = cc.Class({
         return this._model && this._model.precomputeJointMatrix;
     },
 
-    _setRenderNode () {
+    _updateRenderNode () {
         if (this._useJointMatrix()) {
             this._assembler.setRenderNode(this.rootBone)
         } else {
