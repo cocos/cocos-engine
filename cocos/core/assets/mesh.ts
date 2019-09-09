@@ -31,12 +31,13 @@ import { ccclass, property } from '../../core/data/class-decorator';
 import { Vec3 } from '../../core/math';
 import { BufferBlob } from '../3d/misc/buffer-blob';
 import { GFXBuffer } from '../gfx/buffer';
-import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXFormatType, GFXMemoryUsageBit, GFXPrimitiveMode } from '../gfx/define';
+import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXFormatType, GFXMemoryUsageBit, GFXPrimitiveMode, GFXBufferFlagBit } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
 import { IGFXAttribute } from '../gfx/input-assembler';
 import { Asset } from './asset';
 import { IBufferView } from './utils/buffer-view';
 import { postLoadMesh } from './utils/mesh-utils';
+import { Root } from '../root';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -134,7 +135,7 @@ export interface IGeometricInfo {
     /**
      * 索引数据。
      */
-    indices: IBArray;
+    indices?: IBArray;
 
     /**
      * 是否将图元按双面对待。
@@ -342,6 +343,7 @@ export class Mesh extends Asset {
         const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
         const indexBuffers: GFXBuffer[] = [];
         const submeshes: IRenderingSubmesh[] = [];
+        const useDynamicBatching = (cc.director.root as Root).pipeline.useDynamicBatching;
 
         for (const prim of this._struct.primitives) {
             if (prim.vertexBundelIndices.length === 0) {
@@ -358,6 +360,7 @@ export class Mesh extends Asset {
                     memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                     size: idxView.length,
                     stride: idxView.stride,
+                    flags: useDynamicBatching ? GFXBufferFlagBit.BAKUP_BUFFER : GFXBufferFlagBit.NONE,
                 });
                 indexBuffers.push(indexBuffer);
 
@@ -928,11 +931,15 @@ export class Mesh extends Asset {
 
     private _createVertexBuffers (gfxDevice: GFXDevice, data: ArrayBuffer): GFXBuffer[] {
         return this._struct.vertexBundles.map((vertexBundle) => {
+
+            const useDynamicBatching = (cc.director.root as Root).pipeline.useDynamicBatching;
+
             const vertexBuffer = gfxDevice.createBuffer({
                 usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: vertexBundle.view.length,
                 stride: vertexBundle.view.stride,
+                flags: useDynamicBatching ? GFXBufferFlagBit.BAKUP_BUFFER : GFXBufferFlagBit.NONE,
             });
 
             const view = new Uint8Array(data, vertexBundle.view.offset, vertexBundle.view.length);

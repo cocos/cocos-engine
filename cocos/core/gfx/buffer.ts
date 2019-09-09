@@ -3,6 +3,8 @@
  */
 
 import {
+    GFXBufferFlagBit,
+    GFXBufferFlags,
     GFXBufferUsage,
     GFXBufferUsageBit,
     GFXMemoryUsage,
@@ -61,6 +63,7 @@ export interface IGFXBufferInfo {
     memUsage: GFXMemoryUsage;
     size: number;
     stride?: number;
+    flags?: GFXBufferFlags;
 }
 
 /**
@@ -109,48 +112,30 @@ export abstract class GFXBuffer extends GFXObject {
         return this._count;
     }
 
-    /*
-    public get buffer (): GFXBufferSource | null {
-        return this._buffer;
+    /**
+     * @zh
+     * 缓冲标识
+     */
+    public get flags (): GFXBufferFlags {
+        return this._flags;
     }
-    */
 
     /**
      * @zh
-     * GFX设备。
+     * 备份缓冲视图
      */
+    public get bufferView (): Uint8Array | null {
+        return this._bufferView;
+    }
+
     protected _device: GFXDevice;
-
-    /**
-     * @zh
-     * 缓冲使用方式。
-     */
     protected _usage: GFXBufferUsage = GFXBufferUsageBit.NONE;
-
-    /**
-     * @zh
-     * 缓冲的内存使用方式。
-     */
     protected _memUsage: GFXMemoryUsage = GFXMemoryUsageBit.NONE;
-
-    /**
-     * @zh
-     * 缓冲大小。
-     */
     protected _size: number = 0;
-
-    /**
-     * @zh
-     * 缓冲步长。
-     */
     protected _stride: number = 1;
-
-    /**
-     * @zh
-     * 缓冲条目数量。
-     */
     protected _count: number = 0;
-    // protected _buffer: GFXBufferSource | null = null;
+    protected _flags: GFXBufferFlags = GFXBufferFlagBit.NONE;
+    protected _bufferView: Uint8Array | null = null;
 
     /**
      * 构造函数。

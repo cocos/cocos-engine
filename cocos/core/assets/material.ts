@@ -34,6 +34,7 @@ import { builtinResMgr } from '../3d/builtin';
 import { RenderableComponent } from '../3d/framework/renderable-component';
 import { GFXBindingType } from '../gfx/define';
 import { GFXTextureView } from '../gfx/texture-view';
+import { BatchedBuffer } from '../pipeline/batched-buffer';
 import { IDefineMap, Pass, PassOverrides } from '../renderer/core/pass';
 import { samplerLib } from '../renderer/core/sampler-lib';
 import { Asset } from './asset';
@@ -113,6 +114,7 @@ export class Material extends Asset {
     protected _passes: Pass[] = [];
     protected _owner: RenderableComponent | null = null;
     protected _hash = 0;
+    protected _batchedBuffer: BatchedBuffer | null = null;
 
     /**
      * @zh
@@ -351,12 +353,18 @@ export class Material extends Asset {
         this._update();
     }
 
+    public createBatchedBuffer () {
+        this._batchedBuffer = {
+
+        };
+    }
+
     protected _prepareInfo (patch: object | object[], cur: object[]) {
         if (!Array.isArray(patch)) { // fill all the passes if not specified
             const len = this._effectAsset ? this._effectAsset.techniques[this._techIdx].passes.length : 1;
             patch = Array(len).fill(patch);
         }
-        for (let i = 0; i < (patch as object[]).length; i++) {
+        for (let i = 0; i < (patch as object[]).length; ++i) {
             Object.assign(cur[i] || (cur[i] = {}), patch[i]);
         }
     }

@@ -302,6 +302,17 @@ export type GFXMemoryUsage = GFXMemoryUsageBit;
 
 /**
  * @zh
+ * GFX缓冲标识位。
+ */
+export enum GFXBufferFlagBit {
+    NONE = 0,
+    BAKUP_BUFFER = 0x4,
+}
+
+export type GFXBufferFlags = GFXBufferFlagBit;
+
+/**
+ * @zh
  * GFX缓冲访问标识位。
  */
 export enum GFXBufferAccessBit {
