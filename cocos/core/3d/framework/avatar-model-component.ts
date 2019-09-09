@@ -272,7 +272,7 @@ export class AvatarModelComponent extends SkinningModelComponent {
                         texImages.push(data);
                         texImageRegions.push(region);
                     } else {
-                        texBuffers.push(data.buffer);
+                        texBuffers.push((data as ArrayBufferView).buffer);
                         texBufferRegions.push(region);
                     }
                 }
