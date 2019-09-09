@@ -114,6 +114,7 @@ export class Material extends Asset {
     protected _passes: Pass[] = [];
     protected _owner: RenderableComponent | null = null;
     protected _hash = 0;
+    protected _batchedBuffer: BatchedBuffer | null = null;
 
     /**
      * @zh
@@ -350,6 +351,12 @@ export class Material extends Asset {
         }
         this._effectAsset = mat._effectAsset;
         this._update();
+    }
+
+    public createBatchedBuffer () {
+        this._batchedBuffer = {
+
+        };
     }
 
     protected _prepareInfo (patch: object | object[], cur: object[]) {
