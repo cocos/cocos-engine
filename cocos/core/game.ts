@@ -31,6 +31,7 @@ import { EventTarget } from './event/event-target';
 import { WebGLGFXDevice } from './gfx/webgl/webgl-device';
 import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
 import * as debug from './platform/debug';
+import { SplashImage } from './splash-image';
 /**
  * @en
  * The current game configuration, including:<br/>
@@ -493,11 +494,10 @@ export class Game extends EventTarget {
         this.onStart = onStart;
 
         if (!CC_EDITOR && CC_WECHATGAME/* && !CC_PREVIEW*/) {
-            cc.splashImage.main(this._gfxDevice as any, () => { this.prepare(cc.game.onStart && cc.game.onStart.bind(cc.game)); });
-        } else {
-            this.prepare(cc.game.onStart && cc.game.onStart.bind(cc.game));
+            SplashImage.instance.main(this._gfxDevice as any);
         }
 
+        this.prepare(cc.game.onStart && cc.game.onStart.bind(cc.game));
     }
 
     //  @ Persist root node section
@@ -605,12 +605,21 @@ export class Game extends EventTarget {
         // Log engine version
         console.log('Cocos Creator 3D v' + cc.ENGINE_VERSION);
 
-        this._setAnimFrame();
-        this._runMainLoop();
+        const start = () => {
+            this._setAnimFrame();
+            this._runMainLoop();
 
-        this.emit(Game.EVENT_GAME_INITED);
+            this.emit(Game.EVENT_GAME_INITED);
 
-        if (cb) { cb(); }
+            if (cb) { cb(); }
+        };
+
+        if (!CC_EDITOR && CC_WECHATGAME) {
+            SplashImage.instance.onFinish(start);
+            SplashImage.instance.loadFinish = true;
+        } else {
+            start();
+        }
     }
 
     // @Methods
