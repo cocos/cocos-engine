@@ -230,6 +230,8 @@ let SkinnedMeshRenderer = cc.Class({
             }
 
             let texture = this._jointsTexture || new cc.Texture2D();
+            let NEAREST = cc.Texture2D.Filter.NEAREST;
+            texture.setFilters(NEAREST, NEAREST);
             texture.initWithData(this._jointsData, pixelFormat, width, height);
             this._jointsTexture = texture;
             this._jointsTextureOptions = {

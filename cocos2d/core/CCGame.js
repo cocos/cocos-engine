@@ -388,8 +388,6 @@ var game = {
             window.__modular.run();
         }
 
-        this._prepared = true;
-
         // Init engine
         this._initEngine();
         
@@ -397,7 +395,7 @@ var game = {
         cc.AssetLibrary._loadBuiltins(() => {
             // Log engine version
             console.log('Cocos Creator v' + cc.ENGINE_VERSION);
-
+            this._prepared = true;
             this._runMainLoop();
 
             this.emit(this.EVENT_GAME_INITED);
@@ -626,6 +624,8 @@ var game = {
         if (CC_EDITOR) {
             return;
         }
+        if (!this._prepared) return;
+
         var self = this, callback, config = self.config,
             director = cc.director,
             skip = true, frameRate = config.frameRate;

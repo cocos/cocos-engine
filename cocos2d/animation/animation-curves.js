@@ -86,7 +86,7 @@ function quickFindIndex (ratios, ratio) {
     if (ratio < start) return 0;
 
     var end = ratios[length];
-    if (ratio > end) return length;
+    if (ratio > end) return ~length;
 
     ratio = (ratio - start) / (end - start);
 
@@ -185,18 +185,20 @@ var DynamicAnimCurve = cc.Class({
         }
 
         // only need to refind frame index when ratio is out of range of last from ratio and to ratio.
+        let shoudRefind = true;
         let cachedIndex = this._cachedIndex;
         if (cachedIndex < 0) {
             cachedIndex = ~cachedIndex;
-        }
-        if (cachedIndex > 0) {
-            let fromRatio = this.ratios[cachedIndex - 1];
-            let toRatio = this.ratios[cachedIndex];
-            if (ratio <= fromRatio || ratio > toRatio) {
-                this._cachedIndex = this._findFrameIndex(ratios, ratio);
+            if (cachedIndex > 0 && cachedIndex < ratios.length) {
+                let fromRatio = ratios[cachedIndex - 1];
+                let toRatio = ratios[cachedIndex];
+                if (ratio > fromRatio && ratio < toRatio) {
+                    shoudRefind = false;
+                }
             }
         }
-        else {
+
+        if (shoudRefind) {
             this._cachedIndex = this._findFrameIndex(ratios, ratio);
         }
 
