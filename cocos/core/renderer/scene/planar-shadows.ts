@@ -48,7 +48,7 @@ export class PlanarShadows {
     }
 
     set shadowColor (color: Color) {
-        Color.array(this._data, color, UBOShadow.SHADOW_COLOR_OFFSET);
+        Color.toArray(this._data, color, UBOShadow.SHADOW_COLOR_OFFSET);
         this._globalBindings.buffer!.update(this.data);
     }
 
@@ -118,7 +118,7 @@ export class PlanarShadows {
         m.m13 = ly * d;
         m.m14 = lz * d;
         m.m15 = NdL;
-        Mat4.array(this.data, this._matLight);
+        Mat4.toArray(this.data, this._matLight);
         this._globalBindings.buffer!.update(this.data);
     }
 
@@ -146,7 +146,7 @@ export class PlanarShadows {
         m.m13 = ly * d;
         m.m14 = lz * d;
         m.m15 = 1;
-        Mat4.array(this.data, this._matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
+        Mat4.toArray(this.data, this._matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
         this._globalBindings.buffer!.update(this.data);
     }
 

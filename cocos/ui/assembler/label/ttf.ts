@@ -56,7 +56,7 @@ export const ttf: IAssembler = {
         vData[4] = vData[12] = vData[13] = vData[30] = 1;
         let offset = 5;
         for (let i = 0; i < 4; i++) {
-            Color.array(vData, WHITE, offset);
+            Color.toArray(vData, WHITE, offset);
             offset += 9;
         }
         return renderData;

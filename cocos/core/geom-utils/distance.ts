@@ -3,9 +3,9 @@
  */
 
 import { Vec3 } from '../math';
-import plane from './plane';
 import aabb from './aabb';
 import obb from './obb';
+import plane from './plane';
 const X = new Vec3();
 const Y = new Vec3();
 const Z = new Vec3();

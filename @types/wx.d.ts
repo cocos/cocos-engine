@@ -8,7 +8,8 @@ declare namespace wx {
     const onTouchMove: IWXEventManager<TouchEvent>;
     const onTouchEnd: IWXEventManager<TouchEvent>;
     const onTouchCancel: IWXEventManager<TouchEvent>;
-    function getSystemInfoSync(): any;
+	function getSystemInfoSync(): any;
+	function createInnerAudioContext(): InnerAudioContext;
 
     class FileSystemManager {
 

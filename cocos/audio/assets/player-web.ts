@@ -27,9 +27,9 @@
  * @category component/audio
  */
 
+import { director, Director } from '../../core';
 import sys from '../../core/platform/sys';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
-import { director, Director } from '../../core';
 
 const audioSupport = sys.__audioSupport;
 

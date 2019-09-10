@@ -40,7 +40,7 @@ export function fillVertices3D (node: INode, renderer: UI, renderData: RenderDat
         vbuf[vertexOffset++] = vec3_temp.z;
         vbuf[vertexOffset++] = vert.u;
         vbuf[vertexOffset++] = vert.v;
-        Color.array(vbuf!, color, vertexOffset);
+        Color.toArray(vbuf!, color, vertexOffset);
         vertexOffset += 4;
     }
 
@@ -83,7 +83,7 @@ export function fillMeshVertices3D (node: INode, renderer: UI, renderData: Rende
         vbuf[vertexOffset++] = vec3_temp.z;
         vbuf[vertexOffset++] = vert.u;
         vbuf[vertexOffset++] = vert.v;
-        Color.array(vbuf!, color, vertexOffset);
+        Color.toArray(vbuf!, color, vertexOffset);
         vertexOffset += 4;
     }
 
@@ -126,7 +126,7 @@ export function fillVerticesWithoutCalc3D (node: INode, renderer: UI, renderData
         vbuf[vertexOffset++] = vert.z;
         vbuf[vertexOffset++] = vert.u;
         vbuf[vertexOffset++] = vert.v;
-        Color.array(vbuf!, color, vertexOffset);
+        Color.toArray(vbuf!, color, vertexOffset);
         vertexOffset += 4;
     }
 

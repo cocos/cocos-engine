@@ -481,7 +481,7 @@ export class Mat3 extends ValueType {
      * @zh 矩阵转数组
      * @param ofs 数组内的起始偏移量
      */
-    public static array (out: IWritableArrayLike<number>, m: Mat3, ofs = 0) {
+    public static toArray <Out extends IMat3Like> (out: IWritableArrayLike<number>, m: Out, ofs = 0) {
         out[ofs + 0] = m.m00;
         out[ofs + 1] = m.m01;
         out[ofs + 2] = m.m02;
@@ -491,7 +491,23 @@ export class Mat3 extends ValueType {
         out[ofs + 6] = m.m06;
         out[ofs + 7] = m.m07;
         out[ofs + 8] = m.m08;
+        return out;
+    }
 
+    /**
+     * @zh 数组转矩阵
+     * @param ofs 数组起始偏移量
+     */
+    public static fromArray <Out extends IMat3Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {
+        out.m00 = arr[ofs + 0];
+        out.m01 = arr[ofs + 1];
+        out.m02 = arr[ofs + 2];
+        out.m03 = arr[ofs + 3];
+        out.m04 = arr[ofs + 4];
+        out.m05 = arr[ofs + 5];
+        out.m06 = arr[ofs + 6];
+        out.m07 = arr[ofs + 7];
+        out.m08 = arr[ofs + 8];
         return out;
     }
 

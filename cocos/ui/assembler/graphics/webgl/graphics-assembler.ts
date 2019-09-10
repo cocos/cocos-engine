@@ -800,7 +800,7 @@ export const graphicsAssembler: IAssembler = {
         vData[dataOffset++] = 0;
         vData[dataOffset++] = 1;
         vData[dataOffset++] = 1;
-        Color.array(vData!, _curColor, dataOffset);
+        Color.toArray(vData!, _curColor, dataOffset);
         meshbuffer.vertexStart ++;
     },
 };

@@ -43,7 +43,7 @@ import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { Mat3, Mat4, Vec2, Vec3, Vec4 } from '../../math';
-import { RenderPassStage, RenderPriority, UniformBinding } from '../../pipeline/define';
+import { isBuiltinBinding, RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { programLib } from './program-lib';
@@ -58,50 +58,64 @@ export interface IPassInfoFull extends IPassInfo {
 }
 export type PassOverrides = RecursivePartial<IPassStates>;
 
-const _type2fn = {
-  [GFXType.INT]: (a: Float32Array, v: any, idx: number = 0) => a[idx] = v,
-  [GFXType.INT2]: (a: Float32Array, v: any, idx: number = 0) => Vec2.array(a, v, idx * 2),
-  [GFXType.INT3]: (a: Float32Array, v: any, idx: number = 0) => Vec3.array(a, v, idx * 3),
-  [GFXType.INT4]: (a: Float32Array, v: any, idx: number = 0) => Vec4.array(a, v, idx * 4),
-  [GFXType.FLOAT]: (a: Float32Array, v: any, idx: number = 0) => a[idx] = v,
-  [GFXType.FLOAT2]: (a: Float32Array, v: any, idx: number = 0) => Vec2.array(a, v, idx * 2),
-  [GFXType.FLOAT3]: (a: Float32Array, v: any, idx: number = 0) => Vec3.array(a, v, idx * 3),
-  [GFXType.FLOAT4]: (a: Float32Array, v: any, idx: number = 0) => Vec4.array(a, v, idx * 4),
-  [GFXType.MAT3]: (a: Float32Array, v: any, idx: number = 0) => Mat3.array(a, v, idx * 9),
-  [GFXType.MAT4]: (a: Float32Array, v: any, idx: number = 0) => Mat4.array(a, v, idx * 16),
+const _type2writer = {
+    [GFXType.UNKNOWN]: (a: Float32Array, v: any, idx: number = 0) => console.warn('illegal uniform handle'),
+    [GFXType.INT]: (a: Float32Array, v: any, idx: number = 0) => a[idx] = v,
+    [GFXType.INT2]: (a: Float32Array, v: any, idx: number = 0) => Vec2.toArray(a, v, idx),
+    [GFXType.INT3]: (a: Float32Array, v: any, idx: number = 0) => Vec3.toArray(a, v, idx),
+    [GFXType.INT4]: (a: Float32Array, v: any, idx: number = 0) => Vec4.toArray(a, v, idx),
+    [GFXType.FLOAT]: (a: Float32Array, v: any, idx: number = 0) => a[idx] = v,
+    [GFXType.FLOAT2]: (a: Float32Array, v: any, idx: number = 0) => Vec2.toArray(a, v, idx),
+    [GFXType.FLOAT3]: (a: Float32Array, v: any, idx: number = 0) => Vec3.toArray(a, v, idx),
+    [GFXType.FLOAT4]: (a: Float32Array, v: any, idx: number = 0) => Vec4.toArray(a, v, idx),
+    [GFXType.MAT3]: (a: Float32Array, v: any, idx: number = 0) => Mat3.toArray(a, v, idx),
+    [GFXType.MAT4]: (a: Float32Array, v: any, idx: number = 0) => Mat4.toArray(a, v, idx),
+};
+
+const _type2reader = {
+    [GFXType.UNKNOWN]: (a: Float32Array, v: any, idx: number = 0) => console.warn('illegal uniform handle'),
+    [GFXType.INT]: (a: Float32Array, v: any, idx: number = 0) => a[idx],
+    [GFXType.INT2]: (a: Float32Array, v: any, idx: number = 0) => Vec2.fromArray(v, a, idx),
+    [GFXType.INT3]: (a: Float32Array, v: any, idx: number = 0) => Vec3.fromArray(v, a, idx),
+    [GFXType.INT4]: (a: Float32Array, v: any, idx: number = 0) => Vec4.fromArray(v, a, idx),
+    [GFXType.FLOAT]: (a: Float32Array, v: any, idx: number = 0) => a[idx],
+    [GFXType.FLOAT2]: (a: Float32Array, v: any, idx: number = 0) => Vec2.fromArray(v, a, idx),
+    [GFXType.FLOAT3]: (a: Float32Array, v: any, idx: number = 0) => Vec3.fromArray(v, a, idx),
+    [GFXType.FLOAT4]: (a: Float32Array, v: any, idx: number = 0) => Vec4.fromArray(v, a, idx),
+    [GFXType.MAT3]: (a: Float32Array, v: any, idx: number = 0) => Mat3.fromArray(v, a, idx),
+    [GFXType.MAT4]: (a: Float32Array, v: any, idx: number = 0) => Mat4.fromArray(v, a, idx),
 };
 
 const _type2default = {
-  [GFXType.INT]: [0],
-  [GFXType.INT2]: [0, 0],
-  [GFXType.INT3]: [0, 0, 0],
-  [GFXType.INT4]: [0, 0, 0, 0],
-  [GFXType.FLOAT]: [0],
-  [GFXType.FLOAT2]: [0, 0],
-  [GFXType.FLOAT3]: [0, 0, 0],
-  [GFXType.FLOAT4]: [0, 0, 0, 0],
-  [GFXType.MAT3]: [1, 0, 0, 0, 1, 0, 0, 0, 1],
-  [GFXType.MAT4]: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-  [GFXType.SAMPLER2D]: 'default-texture',
-  [GFXType.SAMPLER_CUBE]: 'default-cube-texture',
+    [GFXType.INT]: [0],
+    [GFXType.INT2]: [0, 0],
+    [GFXType.INT3]: [0, 0, 0],
+    [GFXType.INT4]: [0, 0, 0, 0],
+    [GFXType.FLOAT]: [0],
+    [GFXType.FLOAT2]: [0, 0],
+    [GFXType.FLOAT3]: [0, 0, 0],
+    [GFXType.FLOAT4]: [0, 0, 0, 0],
+    [GFXType.MAT3]: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+    [GFXType.MAT4]: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+    [GFXType.SAMPLER2D]: 'default-texture',
+    [GFXType.SAMPLER_CUBE]: 'default-cube-texture',
 };
 
-const btMask      = 0xf0000000; // 4 bits, 16 slots
-const typeMask    = 0x0fc00000; // 6 bits, 64 slots
-const bindingMask = 0x003ff800; // 11 bits, 2048 slots
-const indexMask   = 0x000007ff; // 11 bits, 2048 slots
+const btMask      = 0xf0000000; //  4 bits => 16 binding types
+const typeMask    = 0x0fc00000; //  6 bits => 64 types
+const bindingMask = 0x003fc000; //  8 bits => 256 bindings
+const offsetMask  = 0x00003fff; // 14 bits => 4096 vectors
 const genHandle = (bt: GFXBindingType, binding: number, type: GFXType, index: number = 0) =>
-    ((bt << 28) & btMask) | ((type << 22) & typeMask) | ((binding << 11) & bindingMask) | (index & indexMask);
+    ((bt << 28) & btMask) | ((type << 22) & typeMask) | ((binding << 14) & bindingMask) | (index & offsetMask);
 const getBindingTypeFromHandle = (handle: number) => (handle & btMask) >>> 28;
 const getTypeFromHandle = (handle: number) => (handle & typeMask) >>> 22;
-const getBindingFromHandle = (handle: number) => (handle & bindingMask) >>> 11;
-const getIndexFromHandle = (handle: number) => (handle & indexMask);
-
-const isBuiltin = (binding: number) => binding >= UniformBinding.CUSTUM_UBO_BINDING_END_POINT;
+const getBindingFromHandle = (handle: number) => (handle & bindingMask) >>> 14;
+const getOffsetFromHandle = (handle: number) => (handle & offsetMask);
+const customizeType = (handle: number, type: GFXType) => (handle & ~typeMask) | ((type << 22) & typeMask);
 
 interface IBlock {
     buffer: ArrayBuffer;
-    views: Float32Array[];
+    view: Float32Array;
     dirty: boolean;
 }
 
@@ -164,7 +178,7 @@ export class Pass {
         return passes;
     }
 
-    protected static getIndexFromHandle = getIndexFromHandle;
+    protected static getOffsetFromHandle = getOffsetFromHandle;
     // internal resources
     protected _buffers: Record<number, GFXBuffer> = {};
     protected _samplers: Record<number, GFXSampler> = {};
@@ -214,7 +228,7 @@ export class Pass {
         this._fillinPipelineInfo(info.states);
 
         for (const u of this._shaderInfo.blocks) {
-            if (isBuiltin(u.binding)) { continue; }
+            if (isBuiltinBinding(u.binding)) { continue; }
             const blockSize = u.members.reduce((s, m) => s + GFXGetTypeSize(m.type) * m.count, 0);
 
             // create gfx buffer resource
@@ -225,21 +239,15 @@ export class Pass {
             });
             // non-builtin UBO data pools, note that the effect compiler
             // guarantees these bindings to be consecutive, starting from 0
-            const block: IBlock = this._blocks[u.binding] = {
-                buffer: new ArrayBuffer(blockSize),
-                dirty: false,
-                views: [],
-            };
-            u.members.reduce((acc, cur, idx) => {
-                const size = GFXGetTypeSize(cur.type) * cur.count;
-                // create property-specific buffer views
-                const view = new Float32Array(block.buffer, acc, size / Float32Array.BYTES_PER_ELEMENT);
-                block.views.push(view);
+            const buffer = new ArrayBuffer(blockSize);
+            this._blocks[u.binding] = { buffer, dirty: false, view: new Float32Array(buffer) };
+
+            u.members.reduce((acc, cur) => {
                 // store handle map
-                this._handleMap[cur.name] = genHandle(GFXBindingType.UNIFORM_BUFFER, u.binding, cur.type, idx);
+                this._handleMap[cur.name] = genHandle(GFXBindingType.UNIFORM_BUFFER, u.binding, cur.type, acc);
                 // proceed the counter
-                return acc + size;
-            }, 0); // === blockSize
+                return acc + (GFXGetTypeSize(cur.type) >> 2) * cur.count;
+            }, 0);
         }
         for (const u of this._shaderInfo.samplers) {
             this._handleMap[u.name] = genHandle(GFXBindingType.SAMPLER, u.binding, u.type);
@@ -252,11 +260,27 @@ export class Pass {
 
     /**
      * @zh
-     * 获取指定 uniform 的 handle。
-     * @param name 目标 uniform 名。
+     * 获取指定 UBO 成员，或其更具体分量的读写句柄。默认以成员自身的类型为目标读写类型（即读写时必须传入与成员类型相同的变量）。
+     * @param name 目标 UBO 成员名
+     * @param offset 目标分量在成员内的偏移量
+     * @param targetType 目标读写类型，用于定制化在使用此句柄时，将以什么类型进行读写操作
+     * @example
+     * ```
+     * // say 'pbrParams' is a uniform vec4
+     * const hParams = pass.getHandle('pbrParams'); // get the default handle
+     * pass.setUniform(hAlbedo, cc.v3(1, 0, 0)); // wrong! pbrParams.w is NaN now
+     *
+     * // say 'albedoScale' is a uniform vec4, and we only want to modify the w component in the form of a single float
+     * const hThreshold = pass.getHandle('albedoScale', 3, cc.GFXType.FLOAT);
+     * pass.setUniform(hThreshold, 0.5); // now, albedoScale.w = 0.5
+     * ```
      */
-    public getHandle (name: string): number | undefined {
-        return this._handleMap[name];
+    public getHandle (name: string, offset = 0, targetType = GFXType.UNKNOWN): number | undefined {
+        let handle = this._handleMap[name];
+        if (!handle) { return; }
+        if (targetType) { handle = customizeType(handle, targetType); }
+        else if (offset) { handle = customizeType(handle, getTypeFromHandle(handle) - offset); }
+        return handle + offset;
     }
 
     /**
@@ -279,10 +303,24 @@ export class Pass {
     public setUniform (handle: number, value: any) {
         const binding = Pass.getBindingFromHandle(handle);
         const type = Pass.getTypeFromHandle(handle);
-        const idx = Pass.getIndexFromHandle(handle);
+        const ofs = Pass.getOffsetFromHandle(handle);
         const block = this._blocks[binding];
-        _type2fn[type](block.views[idx], value);
+        _type2writer[type](block.view, value, ofs);
         block.dirty = true;
+    }
+
+    /**
+     * @zh
+     * 获取指定普通向量类 uniform 的值。
+     * @param handle 目标 uniform 的 handle。
+     * @param out 输出向量。
+     */
+    public getUniform (handle: number, out: any) {
+        const binding = Pass.getBindingFromHandle(handle);
+        const type = Pass.getTypeFromHandle(handle);
+        const ofs = Pass.getOffsetFromHandle(handle);
+        const block = this._blocks[binding];
+        return _type2reader[type](block.view, out, ofs);
     }
 
     /**
@@ -294,11 +332,12 @@ export class Pass {
     public setUniformArray (handle: number, value: any[]) {
         const binding = Pass.getBindingFromHandle(handle);
         const type = Pass.getTypeFromHandle(handle);
-        const idx = Pass.getIndexFromHandle(handle);
+        const stride = GFXGetTypeSize(type) >> 2;
         const block = this._blocks[binding];
-        for (let i = 0; i < value.length; i++) {
+        let ofs = Pass.getOffsetFromHandle(handle);
+        for (let i = 0; i < value.length; i++, ofs += stride) {
             if (value[i] === null) { continue; }
-            _type2fn[type](block.views[idx], value[i], i);
+            _type2writer[type](block.view, value[i], ofs);
         }
         block.dirty = true;
     }
@@ -407,7 +446,7 @@ export class Pass {
      */
     public destroy () {
         for (const u of this._shaderInfo.blocks) {
-            if (isBuiltin(u.binding)) { continue; }
+            if (isBuiltinBinding(u.binding)) { continue; }
             this._buffers[u.binding].destroy();
         }
         this._buffers = {};
@@ -422,15 +461,17 @@ export class Pass {
      */
     public resetUBOs () {
         for (const u of this._shaderInfo.blocks) {
-            if (isBuiltin(u.binding)) { continue; }
+            if (isBuiltinBinding(u.binding)) { continue; }
             const block: IBlock = this._blocks[u.binding];
+            let ofs = 0;
             for (let i = 0; i < u.members.length; i++) {
                 const cur = u.members[i];
-                const view = block.views[i];
                 const inf = this._properties[cur.name];
                 const givenDefault = inf && inf.value;
-                const value: number[] = givenDefault ? givenDefault : _type2default[cur.type];
-                for (let j = 0; j < cur.count; j++) { view.set(value, j * value.length); }
+                const value = givenDefault ? givenDefault : _type2default[cur.type];
+                const stride = GFXGetTypeSize(cur.type) >> 2;
+                for (let j = 0; j < cur.count; j++) { block.view.set(value, ofs + j * stride); }
+                ofs += stride * cur.count;
             }
             block.dirty = true;
         }
@@ -441,19 +482,21 @@ export class Pass {
      * 重置所有 texture 和 sampler 为初始默认值。
      */
     public resetTextures () {
-        const device = this._device;
         for (const u of this._shaderInfo.samplers) {
+            if (isBuiltinBinding(u.binding)) { continue; }
             const inf = this._properties[u.name];
-            if (inf && (inf.samplerHash !== undefined)) { this._samplers[u.binding] = samplerLib.getSampler(device, inf.samplerHash); }
             const texName = inf && inf.value ? inf.value + '-texture' : _type2default[u.type];
             const texture = builtinResMgr.get<TextureBase>(texName);
-            if (texture) {
-                this._textureViews[u.binding] = texture.getGFXTextureView()!;
-                const samplerHash = texture.getSamplerHash();
-                if (!this._samplers[u.binding] || samplerHash > 0) {
-                    this._samplers[u.binding] = samplerLib.getSampler(device, samplerHash);
-                }
-            } else { console.warn('illegal texture default value ' + texName); }
+            const textureView = texture && texture.getGFXTextureView();
+            if (!textureView) { console.warn('illegal texture default value: ' + texName); continue; }
+            this._textureViews[u.binding] = textureView;
+            const samplerHash = inf && (inf.samplerHash !== undefined) ? inf.samplerHash : texture.getSamplerHash();
+            const sampler = this._samplers[u.binding] = samplerLib.getSampler(this._device, samplerHash);
+            for (let i = 0; i < this._resources.length; i++) {
+                const res = this._resources[i];
+                res.bindingLayout.bindSampler(u.binding, sampler);
+                res.bindingLayout.bindTextureView(u.binding, textureView);
+            }
         }
     }
 

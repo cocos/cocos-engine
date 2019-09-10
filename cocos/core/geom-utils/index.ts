@@ -17,4 +17,4 @@ export { frustum } from './frustum';
 export { default as Octree } from './octree';
 export { Keyframe, AnimationCurve } from './curve';
 
-import './deprecated'; 
+import './deprecated';

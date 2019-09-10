@@ -58,6 +58,12 @@ export class Size extends ValueType {
         return out;
     }
 
+    // compatibility with vector interfaces
+    set x (val) { this.width = val; }
+    get x () { return this.width; }
+    set y (val) { this.height = val; }
+    get y () { return this.height; }
+
     /**
      * 宽度。
      */

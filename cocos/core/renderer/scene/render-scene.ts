@@ -1,12 +1,12 @@
 import { IBArray } from '../../assets/mesh';
 import { aabb, intersect, ray, triangle } from '../../geom-utils';
-import { RecyclePool } from '../../memop';
-import { Mat4, Vec3 } from '../../math';
-import { Root } from '../../root';
-import { INode } from '../../utils/interfaces';
 import { GFXPrimitiveMode } from '../../gfx/define';
+import { Mat4, Vec3 } from '../../math';
+import { RecyclePool } from '../../memop';
+import { Root } from '../../root';
 import { Layers } from '../../scene-graph/layers';
 import { Node } from '../../scene-graph/node';
+import { INode } from '../../utils/interfaces';
 import { JointsTexturePool } from '../models/joints-texture-utils';
 import { Ambient } from './ambient';
 import { Camera, ICameraInfo } from './camera';

@@ -47,89 +47,6 @@ let _h: number = 0.0;
  */
 export class Rect extends ValueType {
     /**
-     * 获取或设置矩形在 x 轴上的最小值。
-     */
-    get xMin () {
-        return this.x;
-    }
-
-    set xMin (value) {
-        this.width += this.x - value;
-        this.x = value;
-    }
-
-    /**
-     * 获取或设置矩形在 y 轴上的最小值。
-     */
-    get yMin () {
-        return this.y;
-    }
-
-    set yMin (value) {
-        this.height += this.y - value;
-        this.y = value;
-    }
-
-    /**
-     * 获取或设置矩形在 x 轴上的最大值。
-     */
-    get xMax () {
-        return this.x + this.width;
-    }
-
-    set xMax (value) {
-        this.width = value - this.x;
-    }
-
-    /**
-     * 获取或设置矩形在 y 轴上的最大值。
-     */
-    get yMax () {
-        return this.y + this.height;
-    }
-
-    set yMax (value) {
-        this.height = value - this.y;
-    }
-
-    /**
-     * 获取或设置矩形中心点的坐标。
-     */
-    get center () {
-        return new Vec2(this.x + this.width * 0.5,
-            this.y + this.height * 0.5);
-    }
-
-    set center (value) {
-        this.x = value.x - this.width * 0.5;
-        this.y = value.y - this.height * 0.5;
-    }
-
-    /**
-     * 获取或设置矩形最小点的坐标。
-     */
-    get origin () {
-        return new cc.Vec2(this.x, this.y);
-    }
-
-    set origin (value) {
-        this.x = value.x;
-        this.y = value.y;
-    }
-
-    /**
-     * 获取或设置矩形的尺寸。
-     */
-    get size () {
-        return new Size(this.width, this.height);
-    }
-
-    set size (value) {
-        this.width = value.width;
-        this.height = value.height;
-    }
-
-    /**
      * 由任意两个点创建一个矩形，目标矩形即是这两个点各向 x、y 轴作线所得到的矩形。
      * @param v1 指定的点。
      * @param v2 指定的点。
@@ -213,6 +130,95 @@ export class Rect extends ValueType {
 
         return out;
     }
+
+    /**
+     * 获取或设置矩形在 x 轴上的最小值。
+     */
+    get xMin () {
+        return this.x;
+    }
+
+    set xMin (value) {
+        this.width += this.x - value;
+        this.x = value;
+    }
+
+    /**
+     * 获取或设置矩形在 y 轴上的最小值。
+     */
+    get yMin () {
+        return this.y;
+    }
+
+    set yMin (value) {
+        this.height += this.y - value;
+        this.y = value;
+    }
+
+    /**
+     * 获取或设置矩形在 x 轴上的最大值。
+     */
+    get xMax () {
+        return this.x + this.width;
+    }
+
+    set xMax (value) {
+        this.width = value - this.x;
+    }
+
+    /**
+     * 获取或设置矩形在 y 轴上的最大值。
+     */
+    get yMax () {
+        return this.y + this.height;
+    }
+
+    set yMax (value) {
+        this.height = value - this.y;
+    }
+
+    /**
+     * 获取或设置矩形中心点的坐标。
+     */
+    get center () {
+        return new Vec2(this.x + this.width * 0.5,
+            this.y + this.height * 0.5);
+    }
+
+    set center (value) {
+        this.x = value.x - this.width * 0.5;
+        this.y = value.y - this.height * 0.5;
+    }
+
+    /**
+     * 获取或设置矩形最小点的坐标。
+     */
+    get origin () {
+        return new cc.Vec2(this.x, this.y);
+    }
+
+    set origin (value) {
+        this.x = value.x;
+        this.y = value.y;
+    }
+
+    /**
+     * 获取或设置矩形的尺寸。
+     */
+    get size () {
+        return new Size(this.width, this.height);
+    }
+
+    set size (value) {
+        this.width = value.width;
+        this.height = value.height;
+    }
+
+    // compatibility with vector interfaces
+    set z (val) { this.width = val; }
+    get z () { return this.width; }
+    set w (val) { this.height = val; }
+    get w () { return this.height; }
 
     /**
      * 获取或设置矩形最小点的 x 坐标。
