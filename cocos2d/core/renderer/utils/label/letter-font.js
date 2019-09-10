@@ -52,6 +52,7 @@ function LetterTexture(char, labelInfo) {
     this._context = null;
     this._width = 0;
     this._height = 0;
+    this._offsetY = 0;
     this._hash = char.charCodeAt(0) + labelInfo.hash;
 }
 
@@ -71,7 +72,8 @@ LetterTexture.prototype = {
         let width = textUtils.safeMeasureText(this._context, this._char);
         this._width = parseFloat(width.toFixed(2)) + this._labelInfo.margin * 2;
         this._height = (1 + textUtils.BASELINE_RATIO) * this._labelInfo.fontSize + this._labelInfo.margin * 2;
-        
+        this._offsetY = - (this._labelInfo.fontSize * textUtils.BASELINE_RATIO) / 2;
+
         if (this._canvas.width !== this._width) {
             this._canvas.width = this._width;
         }
@@ -168,6 +170,7 @@ cc.js.mixin(LetterAtlas.prototype, {
         letter.w = letterTexture._width;
         letter.h = letterTexture._height;
         letter.xAdvance = letterTexture._width;
+        letter.offsetY = letterTexture._offsetY;
 
         this._x += width + space;
 
