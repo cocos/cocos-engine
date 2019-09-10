@@ -57,4 +57,5 @@ import './primitive';
 
 export * from './utils/profiler/profiler';
 
+import './splash-image';
 import './deprecated';

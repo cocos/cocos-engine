@@ -31,7 +31,6 @@ import { EventTarget } from './event/event-target';
 import { WebGLGFXDevice } from './gfx/webgl/webgl-device';
 import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
 import * as debug from './platform/debug';
-
 /**
  * @en
  * The current game configuration, including:<br/>
@@ -202,15 +201,23 @@ export class Game extends EventTarget {
 
     /**
      * @en Event triggered after engine inited, at this point you will be able to use all engine classes.<br>
-     * It was defined as EVENT_RENDERER_INITED in cocos creator v1.x and renamed in v2.0
+     * It was defined as EVENT_RENDERER_INITED in cocos creator v1.x and renamed in v2.0.
+     * In cocos creator 3d, EVENT_RENDERER_INITED is a new event, look up define for details.
      * @zh 在引擎初始化之后触发的事件，此时您能够使用引擎所有的类。<br>
      * 它在 cocos creator v1.x 版本中名字为 EVENT_RENDERER_INITED ,在 v2.0 版本中更名为 EVENT_ENGINE_INITED
+     * 并在 cocos creator 3d 版本中将 EVENT_RENDERER_INITED 用作为渲染器初始化的事件。
      * @property EVENT_ENGINE_INITED
      * @constant
      */
     public static EVENT_ENGINE_INITED: string = 'engine_inited';
-    // deprecated
-    public static EVENT_RENDERER_INITED: string = 'engine_inited';
+
+    /**
+     * @en Event triggered after renderer inited, at this point you will be able to use all gfx renderer feature.<br>
+     * @zh 在渲染器初始化之后触发的事件，此事件在 EVENT_ENGINE_INITED 之前触发，此时开始可使用 gfx 渲染框架。
+     * @property EVENT_RENDERER_INITED
+     * @readonly
+     */
+    public static readonly EVENT_RENDERER_INITED: string = 'renderer_inited';
 
     /**
      * @en Web Canvas 2d API as renderer backend.
@@ -278,7 +285,7 @@ export class Game extends EventTarget {
      * @zh 当引擎完成启动后的回调函数。
      * @method onStart
      */
-    public onStart: Function|null = null;
+    public onStart: Function | null = null;
 
     public _persistRootNodes = {};
 
@@ -291,10 +298,10 @@ export class Game extends EventTarget {
 
     public _gfxDevice: WebGL2GFXDevice | WebGLGFXDevice | null = null;
 
-    public _intervalId: number|null = null; // interval target of main
+    public _intervalId: number | null = null; // interval target of main
 
-    public _lastTime: Date|null = null;
-    public _frameTime: number|null = null;
+    public _lastTime: Date | null = null;
+    public _frameTime: number | null = null;
 
     // Scenes list
     public _sceneInfos: string[] = [];
@@ -435,7 +442,7 @@ export class Game extends EventTarget {
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
      */
-    public on (type: string, callback: Function, target?: object ): any {
+    public on (type: string, callback: Function, target?: object): any {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if (this._prepared && type === Game.EVENT_ENGINE_INITED) {
             callback.call(target);
@@ -481,8 +488,16 @@ export class Game extends EventTarget {
      */
     public run (config: any, onStart: Function | null) {
         this._initConfig(config);
+        this._initRenderer();
+
         this.onStart = onStart;
-        this.prepare(cc.game.onStart && cc.game.onStart.bind(cc.game));
+
+        if (!CC_EDITOR && CC_WECHATGAME/* && !CC_PREVIEW*/) {
+            cc.splashImage.main(this._gfxDevice as any, () => { this.prepare(cc.game.onStart && cc.game.onStart.bind(cc.game)); });
+        } else {
+            this.prepare(cc.game.onStart && cc.game.onStart.bind(cc.game));
+        }
+
     }
 
     //  @ Persist root node section
@@ -573,9 +588,6 @@ export class Game extends EventTarget {
     //  @Game loading
 
     private _initEngine () {
-        if (this._rendererInitialized) { return; }
-
-        this._initRenderer();
 
         if (!CC_EDITOR) {
             this._initEvents();
@@ -746,7 +758,7 @@ export class Game extends EventTarget {
         // Avoid setup to be called twice.
         if (this._rendererInitialized) { return; }
 
-// tslint:disable-next-line: no-shadowed-variable
+        // tslint:disable-next-line: no-shadowed-variable
         function addClass (element: { className: string; }, name: string) {
             const hasClass = (' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1;
             if (!hasClass) {
@@ -868,6 +880,8 @@ export class Game extends EventTarget {
         };
 
         this._rendererInitialized = true;
+
+        this.emit(Game.EVENT_RENDERER_INITED);
     }
 
     private _initEvents () {
@@ -932,10 +946,10 @@ export class Game extends EventTarget {
         }
 
         if (CC_WECHATGAME && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-            if ( wx.onShow ){
+            if (wx.onShow) {
                 wx.onShow(onShown);
             }
-            if ( wx.onHide ){
+            if (wx.onHide) {
                 wx.onHide(onHidden);
             }
         }

@@ -303,10 +303,21 @@ export class Director extends EventTarget {
             self._lastUpdate = performance.now();
         });
 
-        cc.game.once(Game.EVENT_ENGINE_INITED, this.init, this);
+        cc.game.once(Game.EVENT_RENDERER_INITED, this.initOnRenererInited, this);
+        cc.game.once(Game.EVENT_ENGINE_INITED, this.initOnEngineInited, this);
     }
 
-    public init () {
+    public initOnRenererInited () {
+        this._root = new Root(cc.game._gfxDevice);
+        const rootInfo = {};
+        if (!this._root.initialize(rootInfo)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public initOnEngineInited () {
         this._totalFrames = 0;
         this._lastUpdate = performance.now();
         this._paused = false;
@@ -324,14 +335,6 @@ export class Director extends EventTarget {
         this.registerSystem(Scheduler.ID, this._scheduler, 200);
 
         this.emit(Director.EVENT_INIT);
-
-        this._root = new Root(cc.game._gfxDevice);
-        const rootInfo = {};
-        if (!this._root.initialize(rootInfo)) {
-            return false;
-        }
-
-        return true;
     }
 
     /**
