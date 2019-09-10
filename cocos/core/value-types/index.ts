@@ -28,5 +28,6 @@
  * @hidden
  */
 
+export { BitMask } from './bitmask';
 export { Enum } from './enum';
 export { ValueType } from './value-type';

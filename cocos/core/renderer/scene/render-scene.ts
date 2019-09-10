@@ -265,7 +265,7 @@ export class RenderScene {
      * @param mask the layer mask to filter the ui aabb
      * @returns the results array
      */
-    public raycastUI (worldRay: ray, mask: number = Layers.UI): IRaycastResult[] {
+    public raycastUI (worldRay: ray, mask: number = Layers.LayersEnum.UI): IRaycastResult[] {
         poolUI.reset();
         const canvasComs = cc.director.getScene().getComponentsInChildren(cc.CanvasComponent);
         if (canvasComs != null && canvasComs.length > 0) {
@@ -287,7 +287,7 @@ export class RenderScene {
      * @param uiNode the ui node
      * @returns IRaycastResult | undefined
      */
-    public raycastUINode (worldRay: ray, uiNode: INode, mask: number = Layers.UI) {
+    public raycastUINode (worldRay: ray, uiNode: INode, mask: number = Layers.LayersEnum.UI) {
         const uiTransfrom = uiNode.uiTransfromComp;
         if (uiTransfrom == null || !(uiNode.layer & mask)) { return; }
         uiTransfrom.getComputeAABB(aabbUI);
@@ -303,7 +303,7 @@ export class RenderScene {
         }
     }
 
-    private _raycastUINodeRecursiveChildren (worldRay: ray, parent: INode, mask: number = Layers.UI) {
+    private _raycastUINodeRecursiveChildren (worldRay: ray, parent: INode, mask: number = Layers.LayersEnum.UI) {
         const result = this.raycastUINode(worldRay, parent, mask);
         if (result != null) {
             resultUIs[poolUI.length - 1] = result;

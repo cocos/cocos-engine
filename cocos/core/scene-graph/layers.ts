@@ -27,6 +27,34 @@
  * @category scene-graph
  */
 
+import { BitMask, Enum } from '../value-types';
+
+const LayersEnum = Enum({
+  IgnoreRaycast : (1 << 20),
+  Gizmos : (1 << 21),
+  Editor : (1 << 22),
+  UI : (1 << 23),
+  SceneGizmo : (1 << 24),
+  UI2D : (1 << 25),
+
+  PROFILER : (1 << 28),
+  Always : (1 << 29),
+  Default : (1 << 30),
+});
+
+const BitMaskList = BitMask({
+  IgnoreRaycast : (1 << 20),
+  Gizmos : (1 << 21),
+  Editor : (1 << 22),
+  UI : (1 << 23),
+  SceneGizmo : (1 << 24),
+  UI2D : (1 << 25),
+
+  PROFILER : (1 << 28),
+  Always : (1 << 29),
+  Default : (1 << 30),
+});
+
 /**
  * 场景节点层管理器，用于射线检测、物理碰撞和用户自定义脚本逻辑。
  * 每个节点可属于一个或多个层，可通过 “包含式” 或 “排除式” 两种检测器进行层检测。
@@ -34,6 +62,9 @@
 export class Layers {
 
   // built-in layers, users can use 0~20 bits, 21~31 are system preserve bits.
+
+  public static LayersEnum = LayersEnum;
+  public static BitMaskList = BitMaskList;
 
   /**
    * @zh 默认层，所有节点的初始值
@@ -54,11 +85,12 @@ export class Layers {
   /**
    * @zh 接受所有用户创建的节点
    */
-  public static All = Layers.makeExclusiveMask([Layers.Gizmos, Layers.SceneGizmo, Layers.Editor]);
+  public static All = Layers.makeExclusiveMask([Layers.LayersEnum.Gizmos, Layers.LayersEnum.SceneGizmo, Layers.LayersEnum.Editor]);
   /**
    * @zh 接受所有支持射线检测的节点
    */
-  public static RaycastMask = Layers.makeExclusiveMask([Layers.Gizmos, Layers.SceneGizmo, Layers.Editor, Layers.IgnoreRaycast]);
+  public static RaycastMask = Layers.makeExclusiveMask([Layers.LayersEnum.Gizmos, Layers.LayersEnum.SceneGizmo,
+    Layers.LayersEnum.Editor, Layers.LayersEnum.IgnoreRaycast]);
 
   /**
    * @en
@@ -100,6 +132,30 @@ export class Layers {
   public static check (layer: number, mask: number): boolean {
     return (layer & mask) === layer;
   }
+
+  public static addLayer ( name: string, bitNum: number) {
+    if ( bitNum > 20 || bitNum < 0) {
+      console.warn('maximum layers reached.');
+      return;
+    }
+    LayersEnum[name] = 1 << bitNum;
+    LayersEnum[bitNum] = name;
+    BitMaskList[name] = 1 << bitNum;
+    BitMaskList[bitNum] = name;
+  }
+
+  public static deleteLayer (bitNum: number) {
+    if ( bitNum > 20 || bitNum < 0) {
+      console.warn('do not change buildin layers.');
+      return;
+    }
+    delete LayersEnum[LayersEnum[bitNum]];
+    delete LayersEnum[bitNum];
+    delete BitMaskList[BitMaskList[bitNum]];
+    delete BitMaskList[bitNum];
+  }
+
+  // private static _nextAvailable = 8;
 }
 
 cc.Layers = Layers;

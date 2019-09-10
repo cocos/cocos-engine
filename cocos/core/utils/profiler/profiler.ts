@@ -25,19 +25,19 @@
 */
 
 import { CameraComponent, ModelComponent } from '../../3d';
-import { Material } from '../../assets/material';
 import { createMesh } from '../../3d/misc/utils';
-import { GFXTextureType, GFXTextureUsageBit, GFXFormat, GFXTextureViewType, GFXBufferTextureCopy, GFXClearFlag } from '../../gfx/define';
+import { Material } from '../../assets/material';
+import { director, Director } from '../../director';
+import { GFXBufferTextureCopy, GFXClearFlag, GFXFormat, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXTexture } from '../../gfx/texture';
 import { GFXTextureView } from '../../gfx/texture-view';
+import { Vec4 } from '../../math';
 import { CameraVisFlags } from '../../renderer/scene/camera';
 import { VisibilityFlags } from '../../renderer/scene/model';
 import { Node } from '../../scene-graph/node';
-import { Vec4 } from '../../math';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
-import { director, Director } from '../../director';
 
 interface IProfilerState {
     frame: ICounterOption;
