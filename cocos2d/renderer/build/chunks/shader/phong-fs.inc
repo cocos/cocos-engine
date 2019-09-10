@@ -11,7 +11,6 @@ precision highp float;
 #include <specular>
 #include <emissive>
 #include <alpha-test>
-#include <shadow>
 
 #define CC_USE_TEXTURE CC_USE_ATTRIBUTE_UV0 && (USE_DIFFUSE_TEXTURE || USE_EMISSIVE_TEXTURE || USE_SPECULAR_TEXTURE || USE_NORMAL_TEXTURE)
 

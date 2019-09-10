@@ -73,19 +73,19 @@ vec4 composePhongShading (Lighting lighting, PhongMaterial mtl) {
   //diffuse is always calculated
   o.rgb = lighting.diffuse * mtl.diffuse;
   
-//   #if USE_EMISSIVE
-//     o.rgb += mtl.emissive;
-//   #endif
+  #if USE_EMISSIVE
+    o.rgb += mtl.emissive;
+  #endif
 
-//   #if USE_SPECULAR
-//     o.rgb += lighting.specular * mtl.specular;
-//   #endif
+  #if USE_SPECULAR
+    o.rgb += lighting.specular * mtl.specular;
+  #endif
   
-//   #if CC_USE_SHADOW_MAP
-//     o.rgb *= computeShadow();
-//   #endif
+  #if CC_USE_SHADOW_MAP
+    o.rgb *= computeShadow();
+  #endif
 
-//   o.a = mtl.opacity;
+  o.a = mtl.opacity;
 
   return o;
 }
