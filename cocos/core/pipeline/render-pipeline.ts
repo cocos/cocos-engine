@@ -1384,14 +1384,14 @@ export abstract class RenderPipeline {
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET];
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1];
 
-        Mat4.array(fv, camera.matView, UBOGlobal.MAT_VIEW_OFFSET);
+        Mat4.toArray(fv, camera.matView, UBOGlobal.MAT_VIEW_OFFSET);
 
-        Mat4.array(fv, camera.node.worldMatrix, UBOGlobal.MAT_VIEW_INV_OFFSET);
-        Mat4.array(fv, camera.matProj, UBOGlobal.MAT_PROJ_OFFSET);
-        Mat4.array(fv, camera.matProjInv, UBOGlobal.MAT_PROJ_INV_OFFSET);
-        Mat4.array(fv, camera.matViewProj, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
-        Mat4.array(fv, camera.matViewProjInv, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
-        Vec3.array(fv, camera.position, UBOGlobal.CAMERA_POS_OFFSET);
+        Mat4.toArray(fv, camera.node.worldMatrix, UBOGlobal.MAT_VIEW_INV_OFFSET);
+        Mat4.toArray(fv, camera.matProj, UBOGlobal.MAT_PROJ_OFFSET);
+        Mat4.toArray(fv, camera.matProjInv, UBOGlobal.MAT_PROJ_INV_OFFSET);
+        Mat4.toArray(fv, camera.matViewProj, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
+        Mat4.toArray(fv, camera.matViewProjInv, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
+        Vec3.toArray(fv, camera.position, UBOGlobal.CAMERA_POS_OFFSET);
 
         const exposure = camera.exposure;
         fv[UBOGlobal.EXPOSURE_OFFSET] = exposure;
@@ -1399,10 +1399,10 @@ export abstract class RenderPipeline {
         fv[UBOGlobal.EXPOSURE_OFFSET + 2] = this._isHDR ? 1.0 : 0.0;
         fv[UBOGlobal.EXPOSURE_OFFSET + 3] = this._fpScale / exposure;
 
-        Vec3.array(fv, mainLight.direction, UBOGlobal.MAIN_LIT_DIR_OFFSET);
+        Vec3.toArray(fv, mainLight.direction, UBOGlobal.MAIN_LIT_DIR_OFFSET);
 
         if (mainLight.enabled) {
-            Vec3.array(fv, mainLight.color, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
+            Vec3.toArray(fv, mainLight.color, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
             if (mainLight.useColorTemperature) {
                 const colorTempRGB = mainLight.colorTemperatureRGB;
                 fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET] *= colorTempRGB.x;
@@ -1416,7 +1416,7 @@ export abstract class RenderPipeline {
                 fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
             }
         } else {
-            Vec4.array(fv, _v4Zero, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
+            Vec4.toArray(fv, _v4Zero, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
         }
 
         _vec4Array.set(ambient.skyColor);

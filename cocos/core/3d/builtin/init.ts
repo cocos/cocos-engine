@@ -44,7 +44,6 @@ class BuiltinResMgr {
             top: new ImageAsset(canvas),
             bottom: new ImageAsset(canvas),
         };
-        blackCubeTexture.onLoaded();
         resources[blackCubeTexture._uuid] = blackCubeTexture;
 
         // grey texture
@@ -53,7 +52,6 @@ class BuiltinResMgr {
         const greyTexture = new Texture2D();
         greyTexture._uuid = 'grey-texture';
         greyTexture.image = imgAsset;
-        greyTexture.onLoaded();
         resources[greyTexture._uuid] = greyTexture;
 
         // white texture
@@ -62,7 +60,6 @@ class BuiltinResMgr {
         const whiteTexture = new Texture2D();
         whiteTexture._uuid = 'white-texture';
         whiteTexture.image = imgAsset;
-        whiteTexture.onLoaded();
         resources[whiteTexture._uuid] = whiteTexture;
 
         // white cube texture
@@ -77,7 +74,6 @@ class BuiltinResMgr {
             top: new ImageAsset(canvas),
             bottom: new ImageAsset(canvas),
         };
-        whiteCubeTexture.onLoaded();
         resources[whiteCubeTexture._uuid] = whiteCubeTexture;
 
         // normal texture
@@ -99,7 +95,6 @@ class BuiltinResMgr {
         const defaultTexture = new Texture2D();
         defaultTexture._uuid = 'default-texture';
         defaultTexture.image = imgAsset;
-        defaultTexture.onLoaded();
         resources[defaultTexture._uuid] = defaultTexture;
 
         // default cube texture
@@ -114,7 +109,6 @@ class BuiltinResMgr {
             top: new ImageAsset(canvas),
             bottom: new ImageAsset(canvas),
         };
-        defaultCubeTexture.onLoaded();
         resources[defaultCubeTexture._uuid] = defaultCubeTexture;
 
         const spriteFrame = new SpriteFrame();
@@ -135,7 +129,6 @@ class BuiltinResMgr {
         standardMtl.initialize({
             effectName: 'builtin-standard',
         });
-        standardMtl.onLoaded();
         resources[standardMtl._uuid] = standardMtl;
 
         // material indicating missing material (purple)
@@ -146,7 +139,6 @@ class BuiltinResMgr {
             defines: { USE_COLOR: true },
         });
         missingMtl.setProperty('color', cc.color('#ff00ff'));
-        missingMtl.onLoaded();
         resources[missingMtl._uuid] = missingMtl;
 
         // material indicating missing material on skinning model (purple)
@@ -158,7 +150,6 @@ class BuiltinResMgr {
             defines: { USE_COLOR: true, CC_USE_SKINNING: type },
         });
         missingSkinningMtl.setProperty('color', cc.color('#ff00ff'));
-        missingSkinningMtl.onLoaded();
         resources[missingSkinningMtl._uuid] = missingSkinningMtl;
 
         // material indicating missing effect (yellow)
@@ -169,42 +160,36 @@ class BuiltinResMgr {
             defines: { USE_COLOR: true },
         });
         missingEfxMtl.setProperty('color', cc.color('#ffff00'));
-        missingEfxMtl.onLoaded();
         resources[missingEfxMtl._uuid] = missingEfxMtl;
 
         // sprite material
         const spriteMtl = new cc.Material();
         spriteMtl._uuid = 'ui-base-material';
         spriteMtl.initialize({ defines: { USE_TEXTURE: false }, effectName: 'builtin-sprite' });
-        spriteMtl.onLoaded();
         resources[spriteMtl._uuid] = spriteMtl;
 
         // sprite material
         const spriteColorMtl = new cc.Material();
         spriteColorMtl._uuid = 'ui-sprite-material';
         spriteColorMtl.initialize({ defines: { USE_TEXTURE: true }, effectName: 'builtin-sprite' });
-        spriteColorMtl.onLoaded();
         resources[spriteColorMtl._uuid] = spriteColorMtl;
 
         // default particle material
         const defaultParticleMtl = new cc.Material();
         defaultParticleMtl._uuid = 'default-particle-material';
         defaultParticleMtl.initialize({ effectName: 'builtin-particle' });
-        defaultParticleMtl.onLoaded();
         resources[defaultParticleMtl._uuid] = defaultParticleMtl;
 
         // default particle material
         const defaultTrailMtl = new cc.Material();
         defaultTrailMtl._uuid = 'default-trail-material';
         defaultTrailMtl.initialize({ effectName: 'builtin-particle-trail' });
-        defaultTrailMtl.onLoaded();
         resources[defaultTrailMtl._uuid] = defaultTrailMtl;
 
         // default particle material
         const defaultBillboardMtl = new cc.Material();
         defaultBillboardMtl._uuid = 'default-billboard-material';
         defaultBillboardMtl.initialize({ effectName: 'builtin-billboard' });
-        defaultBillboardMtl.onLoaded();
         resources[defaultBillboardMtl._uuid] = defaultBillboardMtl;
     }
 

@@ -91,6 +91,9 @@ export enum UniformBinding {
     CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 6,
 }
 
+export const isBuiltinBinding = (binding: number) =>
+    binding >= UniformBinding.CUSTUM_UBO_BINDING_END_POINT && binding < UniformBinding.CUSTOM_SAMPLER_BINDING_START_POINT;
+
 /**
  * @zh
  * 全局 UBO。

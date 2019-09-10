@@ -1164,7 +1164,7 @@ export class Mat4 extends ValueType {
      * @zh 矩阵转数组
      * @param ofs 数组内的起始偏移量
      */
-    public static array <Out extends IMat4Like> (out: IWritableArrayLike<number>, m: Out, ofs = 0) {
+    public static toArray <Out extends IMat4Like> (out: IWritableArrayLike<number>, m: Out, ofs = 0) {
         out[ofs + 0] = m.m00;
         out[ofs + 1] = m.m01;
         out[ofs + 2] = m.m02;
@@ -1181,7 +1181,30 @@ export class Mat4 extends ValueType {
         out[ofs + 13] = m.m13;
         out[ofs + 14] = m.m14;
         out[ofs + 15] = m.m15;
+        return out;
+    }
 
+    /**
+     * @zh 数组转矩阵
+     * @param ofs 数组起始偏移量
+     */
+    public static fromArray <Out extends IMat4Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {
+        out.m00 = arr[ofs + 0];
+        out.m01 = arr[ofs + 1];
+        out.m02 = arr[ofs + 2];
+        out.m03 = arr[ofs + 3];
+        out.m04 = arr[ofs + 4];
+        out.m05 = arr[ofs + 5];
+        out.m06 = arr[ofs + 6];
+        out.m07 = arr[ofs + 7];
+        out.m08 = arr[ofs + 8];
+        out.m09 = arr[ofs + 9];
+        out.m10 = arr[ofs + 10];
+        out.m11 = arr[ofs + 11];
+        out.m12 = arr[ofs + 12];
+        out.m13 = arr[ofs + 13];
+        out.m14 = arr[ofs + 14];
+        out.m15 = arr[ofs + 15];
         return out;
     }
 

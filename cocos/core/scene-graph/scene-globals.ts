@@ -61,7 +61,7 @@ export class AmbientInfo {
     @property({ type: Color })
     set skyColor (val: Color) {
         this._skyColor.set(val);
-        if (this._resource) { Color.array(this._resource.skyColor, this.skyColor); }
+        if (this._resource) { Color.toArray(this._resource.skyColor, this.skyColor); }
     }
     get skyColor () {
         return this._skyColor;
@@ -85,7 +85,7 @@ export class AmbientInfo {
     @property({ type: Color })
     set groundAlbedo (val: Color) {
         this._groundAlbedo.set(val);
-        if (this._resource) { Color.array(this._resource.groundAlbedo, this.groundAlbedo); }
+        if (this._resource) { Color.toArray(this._resource.groundAlbedo, this.groundAlbedo); }
     }
     get groundAlbedo () {
         return this._groundAlbedo;

@@ -155,7 +155,7 @@ export const sliced: IAssembler = {
             vbuf![vertexOffset++] = vert.z;
             vbuf![vertexOffset++] = uvs.u;
             vbuf![vertexOffset++] = uvs.v;
-            Color.array(vbuf!, sprite.color, vertexOffset);
+            Color.toArray(vbuf!, sprite.color, vertexOffset);
             vertexOffset += 4;
             // uintbuf[vertexOffset++] = color;
         }

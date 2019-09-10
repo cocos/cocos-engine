@@ -173,7 +173,7 @@ export class Material extends Asset {
         else if (info.effectName) { this._effectAsset = EffectAsset.get(info.effectName); }
         if (info.defines) { this._prepareInfo(info.defines, this._defines); }
         if (info.states) { this._prepareInfo(info.states, this._states); }
-        this._update();
+        this.onLoaded();
     }
     public initialize (info: IMaterialInfo) {
         this.reset(info);

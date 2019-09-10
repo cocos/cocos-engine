@@ -337,9 +337,19 @@ export class Vec2 extends ValueType {
      * @zh 向量转数组
      * @param ofs 数组起始偏移量
      */
-    public static array <Out extends IVec2Like> (out: IWritableArrayLike<number>, v: Out, ofs = 0) {
+    public static toArray <Out extends IVec2Like> (out: IWritableArrayLike<number>, v: Out, ofs = 0) {
         out[ofs + 0] = v.x;
         out[ofs + 1] = v.y;
+        return out;
+    }
+
+    /**
+     * @zh 数组转向量
+     * @param ofs 数组起始偏移量
+     */
+    public static fromArray <Out extends IVec2Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {
+        out.x = arr[ofs + 0];
+        out.y = arr[ofs + 1];
         return out;
     }
 

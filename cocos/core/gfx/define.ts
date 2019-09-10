@@ -981,46 +981,46 @@ export function GFXFormatSurfaceSize (
     return size;
 }
 
+const _type2size = [
+    0,  // UNKNOWN
+    4,  // BOOL
+    8,  // BOOL2
+    12, // BOOL3
+    16, // BOOL4
+    4,  // INT
+    8,  // INT2
+    12, // INT3
+    16, // INT4
+    4,  // UINT
+    8,  // UINT2
+    12, // UINT3
+    16, // UINT4
+    4,  // FLOAT
+    8,  // FLOAT2
+    12, // FLOAT3
+    16, // FLOAT4
+    16, // MAT2
+    24, // MAT2X3
+    32, // MAT2X4
+    24, // MAT3X2
+    36, // MAT3
+    48, // MAT3X4
+    32, // MAT4X2
+    48, // MAT4X3
+    64, // MAT4
+    4,  // SAMPLER1D
+    4,  // SAMPLER1D_ARRAY
+    4,  // SAMPLER2D
+    4,  // SAMPLER2D_ARRAY
+    4,  // SAMPLER3D
+    4,  // SAMPLER_CUBE
+];
+
 /**
  * @zh
  * 得到GFX数据类型的大小。
  * @param type GFX数据类型。
  */
 export function GFXGetTypeSize (type: GFXType): number {
-    switch (type) {
-        case GFXType.BOOL:
-        case GFXType.INT:
-        case GFXType.UINT:
-        case GFXType.FLOAT: return 4;
-        case GFXType.BOOL2:
-        case GFXType.INT2:
-        case GFXType.UINT2:
-        case GFXType.FLOAT2: return 8;
-        case GFXType.BOOL3:
-        case GFXType.INT3:
-        case GFXType.UINT3:
-        case GFXType.FLOAT3: return 12;
-        case GFXType.BOOL4:
-        case GFXType.INT4:
-        case GFXType.UINT4:
-        case GFXType.FLOAT4:
-        case GFXType.MAT2: return 16;
-        case GFXType.MAT2X3: return 24;
-        case GFXType.MAT2X4: return 32;
-        case GFXType.MAT3X2: return 24;
-        case GFXType.MAT3: return 36;
-        case GFXType.MAT3X4: return 48;
-        case GFXType.MAT4X2: return 32;
-        case GFXType.MAT4X2: return 32;
-        case GFXType.MAT4: return 64;
-        case GFXType.SAMPLER1D:
-        case GFXType.SAMPLER1D_ARRAY:
-        case GFXType.SAMPLER2D:
-        case GFXType.SAMPLER2D_ARRAY:
-        case GFXType.SAMPLER3D:
-        case GFXType.SAMPLER_CUBE: return 4;
-        default: {
-            return 0;
-        }
-    }
+    return _type2size[type] || 0;
 }

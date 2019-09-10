@@ -179,13 +179,24 @@ export class Color extends ValueType {
      * @zh 颜色转数组
      * @param ofs 数组起始偏移量
      */
-    public static array <Out extends IColorLike> (out: IWritableArrayLike<number>, a: Out, ofs = 0) {
+    public static toArray <Out extends IColorLike> (out: IWritableArrayLike<number>, a: Out, ofs = 0) {
         const scale = (a instanceof Color || a.a > 1) ? 1 / 255 : 1;
         out[ofs + 0] = a.r * scale;
         out[ofs + 1] = a.g * scale;
         out[ofs + 2] = a.b * scale;
         out[ofs + 3] = a.a * scale;
+        return out;
+    }
 
+    /**
+     * @zh 数组转颜色
+     * @param ofs 数组起始偏移量
+     */
+    public static fromArray <Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs = 0) {
+        out.r = arr[ofs + 0] * 255;
+        out.g = arr[ofs + 1] * 255;
+        out.b = arr[ofs + 2] * 255;
+        out.a = arr[ofs + 3] * 255;
         return out;
     }
 
@@ -261,49 +272,15 @@ export class Color extends ValueType {
         this._val = ((this._val & 0x00ffffff) | ((alpha << 24) >>> 0)) >>> 0;
     }
 
-    /**
-     * 通过除以 255，将当前颜色的各个通道都视为范围 [0, 1] 内，设置 Red 通道的值。
-     */
-    get x () {
-        return this.r * toFloat;
-    }
-
-    set x (value) {
-        this.r = value * 255;
-    }
-
-    /**
-     * 通过除以 255，将当前颜色的各个通道都视为范围 [0, 1] 内，设置 Green 通道的值。
-     */
-    get y () {
-        return this.g * toFloat;
-    }
-
-    set y (value) {
-        this.g = value * 255;
-    }
-
-    /**
-     * 通过除以 255，将当前颜色的各个通道都视为范围 [0, 1] 内，设置 Blue 通道的值。
-     */
-    get z () {
-        return this.b * toFloat;
-    }
-
-    set z (value) {
-        this.b = value * 255;
-    }
-
-    /**
-     * 通过除以 255，将当前颜色的各个通道都视为范围 [0, 1] 内，设置 Alpha 通道的值。
-     */
-    get w () {
-        return this.a * toFloat;
-    }
-
-    set w (value) {
-        this.a = value * 255;
-    }
+    // compatibility with vector interfaces
+    get x () { return this.r * toFloat; }
+    set x (value) { this.r = value * 255; }
+    get y () { return this.g * toFloat; }
+    set y (value) { this.g = value * 255; }
+    get z () { return this.b * toFloat; }
+    set z (value) { this.b = value * 255; }
+    get w () { return this.a * toFloat; }
+    set w (value) { this.a = value * 255; }
 
     public _val = 0;
 
