@@ -299,7 +299,7 @@ let ArmatureDisplay = cc.Class({
         timeScale: {
             default: 1,
             notify () {
-                if (this._armature) {
+                if (this._armature && !this.isAnimationCached()) {
                     this._armature.animation.timeScale = this.timeScale;
                 }  
             },

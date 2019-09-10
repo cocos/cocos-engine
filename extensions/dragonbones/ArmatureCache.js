@@ -143,7 +143,7 @@ let AnimationCache = cc.Class({
 
         let segments = this._tempSegments = frame.segments;
         let colors = this._tempColors = frame.colors;
-        this._traverseArmature(armature);
+        this._traverseArmature(armature, 1.0);
         // At last must handle pre color and segment.
         // Because vertex count will right at the end.
         // Handle pre color.
@@ -190,7 +190,7 @@ let AnimationCache = cc.Class({
         frame.indices = indices;
     },
 
-    _traverseArmature (armature) {
+    _traverseArmature (armature, parentOpacity) {
         let colors = this._tempColors;
         let segments = this._tempSegments;
         let gVertices = _vertices;
@@ -205,16 +205,15 @@ let AnimationCache = cc.Class({
             if (!slot._visible || !slot._displayData) continue;
 
             slot.updateWorldMatrix();
+            slotColor = slot._color;
 
             if (slot.childArmature) {
-                this._traverseArmature(slot.childArmature);
+                this._traverseArmature(slot.childArmature, parentOpacity * slotColor.a / 255);
                 continue;
             }
 
             texture = slot.getTexture();
             if (!texture) continue;
-
-            slotColor = slot._color;
 
             if (_preTexUrl !== texture.url || _preBlendMode !== slot._blendMode) {
                 _preTexUrl = texture.url;
@@ -245,7 +244,7 @@ let AnimationCache = cc.Class({
                 _segVCount = 0;
             }
 
-            colorVal = ((slotColor.a<<24) >>> 0) + (slotColor.b<<16) + (slotColor.g<<8) + slotColor.r;
+            colorVal = ((slotColor.a * parentOpacity << 24) >>> 0) + (slotColor.b << 16) + (slotColor.g << 8) + slotColor.r;
 
             if (_preColor !== colorVal) {
                 _preColor = colorVal;
@@ -256,7 +255,7 @@ let AnimationCache = cc.Class({
                     r : slotColor.r,
                     g : slotColor.g,
                     b : slotColor.b,
-                    a : slotColor.a,
+                    a : slotColor.a * parentOpacity,
                     vfOffset : 0
                 }
             }

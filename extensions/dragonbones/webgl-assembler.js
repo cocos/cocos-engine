@@ -284,7 +284,7 @@ export default class ArmatureAssembler extends Assembler {
 
             // handle color
             let frameColorOffset = frameVFOffset - segVFCount;
-            for (let ii = _vfOffset + 4, il = _vfOffset + 4 + segVFCount; ii < il; ii+=5, frameColorOffset += 5) {
+            for (let ii = _vfOffset + 4, il = _vfOffset + 4 + segVFCount; ii < il; ii += 5, frameColorOffset += 5) {
                 if (frameColorOffset >= maxVFOffset) {
                     nowColor = colors[colorOffset++];
                     _handleColor(nowColor, 1.0);
