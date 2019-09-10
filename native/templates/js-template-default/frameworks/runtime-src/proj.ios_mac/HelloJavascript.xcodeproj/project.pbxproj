@@ -30,6 +30,7 @@
 		4033CDC120E493CF00DAA37B /* jsb-adapter in Resources */ = {isa = PBXBuildFile; fileRef = 4033CDBF20E493CF00DAA37B /* jsb-adapter */; };
 		40CEC422212BDAB0004BCE66 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 40CEC424212BDAB0004BCE66 /* LaunchScreen.storyboard */; };
 		40CEC429212BDB03004BCE66 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 40CEC42B212BDB03004BCE66 /* Localizable.strings */; };
+		467AF6052321FBD400770112 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 467AF6042321FBD400770112 /* WebKit.framework */; };
 		4D3EB2581F8F4A6C007DA644 /* jsb_module_register.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D3EB2571F8F4A6C007DA644 /* jsb_module_register.cpp */; };
 		4D3EB26B1F8F77C9007DA644 /* jsb_module_register.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D3EB2571F8F4A6C007DA644 /* jsb_module_register.cpp */; };
 		4D697BDE1CBD303100A5AF29 /* libjs_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D697BDC1CBD303100A5AF29 /* libjs_static.a */; };
@@ -137,6 +138,7 @@
 		40CEC425212BDAC1004BCE66 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		40CEC42C212BDB19004BCE66 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		40CEC42D212BDB36004BCE66 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
+		467AF6042321FBD400770112 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.2.sdk/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
 		4D3EB2571F8F4A6C007DA644 /* jsb_module_register.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_module_register.cpp; sourceTree = "<group>"; };
 		4D697BD91CBD301C00A5AF29 /* libjs_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjs_static.a; path = "../../cocos2d-x/external/ios/libs/libjs_static.a"; sourceTree = "<group>"; };
 		4D697BDC1CBD303100A5AF29 /* libjs_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjs_static.a; path = "../../cocos2d-x/external/mac/libs/libjs_static.a"; sourceTree = "<group>"; };
@@ -216,6 +218,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				467AF6052321FBD400770112 /* WebKit.framework in Frameworks */,
 				1A37E9D4200DEEF40078AF72 /* SystemConfiguration.framework in Frameworks */,
 				1AC62C111F4D1E7400F43CB1 /* JavaScriptCore.framework in Frameworks */,
 				1A499EA91F0CD97F004E6AEC /* libicucore.A.tbd in Frameworks */,
@@ -316,6 +319,7 @@
 		A92275401517C094001B78AA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				467AF6042321FBD400770112 /* WebKit.framework */,
 				1A37E9D3200DEEF40078AF72 /* SystemConfiguration.framework */,
 				1A37E9D5200DEEFB0078AF72 /* SystemConfiguration.framework */,
 				1AC62C121F4D1E7F00F43CB1 /* JavaScriptCore.framework */,
