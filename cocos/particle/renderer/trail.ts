@@ -85,6 +85,13 @@ class TrailSegment {
             return this.trailElements[0];
         }
         if (this.start === this.end) {
+            this.trailElements.splice(this.end, 0, {
+                position: new Vec3(),
+                lifetime: 0,
+                width: 0,
+                velocity: new Vec3(),
+                color: new Color(),
+            });
             this.start++;
             this.start %= this.trailElements.length;
         }
@@ -329,7 +336,7 @@ export default class TrailModule {
             burstCount += b.getMaxCount(this._particleSystem);
         }
         this._trailNum = Math.ceil(this._particleSystem.startLifetime.getMax() * this.lifeTime.getMax() * 60 * (this._particleSystem.rateOverTime.getMax() * this._particleSystem.duration + burstCount));
-        this._trailSegments = new Pool(() => new TrailSegment(Math.ceil(this._particleSystem.startLifetime.getMax() * this.lifeTime.getMax() * 60)), Math.ceil(this._particleSystem.rateOverTime.getMax() * this._particleSystem.duration));
+        this._trailSegments = new Pool(() => new TrailSegment(10), Math.ceil(this._particleSystem.rateOverTime.getMax() * this._particleSystem.duration));
         if (this._enable) {
             this.enable = this._enable;
             this._updateMaterial();
@@ -352,6 +359,10 @@ export default class TrailModule {
         if (this._trailModel) {
             this._particleSystem._getRenderScene().destroyModel(this._trailModel!);
             this._trailModel = null;
+        }
+        if (this._trailSegments) {
+            this._trailSegments.clear((obj: TrailSegment) => { obj.trailElements = null; });
+            this._trailSegments = null;
         }
     }
 
