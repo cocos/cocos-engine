@@ -91,7 +91,7 @@ export class BatchedBuffer {
                     batch.vbIdx.update(vbIdxView.buffer, batch.vbCount * 4);
 
                     // update world matrix
-                    Mat4.array(batch.uboLocal.view, model.transform.worldMatrix, UBOLocal.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
+                    Mat4.toArray(batch.uboLocal.view, model.transform.worldMatrix, UBOLocal.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
 
                     ++batch.mergeCount;
                     batch.vbCount += vbCount;
@@ -157,7 +157,7 @@ export class BatchedBuffer {
             uboLocal: new UBOLocal(),
         };
 
-        Mat4.array(newBatch.uboLocal.view, model.transform.worldMatrix, UBOLocal.MAT_WORLDS_OFFSET);
+        Mat4.toArray(newBatch.uboLocal.view, model.transform.worldMatrix, UBOLocal.MAT_WORLDS_OFFSET);
 
         this.batches.push(newBatch);
         this.pass.bindBuffer(UniformBinding.UBO_LOCAL, this.ubo);
