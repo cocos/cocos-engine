@@ -179,7 +179,7 @@ export class Color extends ValueType {
      * @zh 颜色转数组
      * @param ofs 数组起始偏移量
      */
-    public static toArray <Out extends IColorLike> (out: IWritableArrayLike<number>, a: Out, ofs = 0) {
+    public static toArray <Out extends IWritableArrayLike<number>> (out: Out, a: IColorLike, ofs = 0) {
         const scale = (a instanceof Color || a.a > 1) ? 1 / 255 : 1;
         out[ofs + 0] = a.r * scale;
         out[ofs + 1] = a.g * scale;

@@ -577,7 +577,7 @@ export class Quat extends ValueType {
      * @zh 四元数转数组
      * @param ofs 数组内的起始偏移量
      */
-    public static toArray <Out extends IQuatLike> (out: IWritableArrayLike<number>, q: Out, ofs = 0) {
+    public static toArray <Out extends IWritableArrayLike<number>> (out: Out, q: IQuatLike, ofs = 0) {
         out[ofs + 0] = q.x;
         out[ofs + 1] = q.y;
         out[ofs + 2] = q.z;

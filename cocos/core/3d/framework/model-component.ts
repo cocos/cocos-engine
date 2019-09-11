@@ -118,7 +118,7 @@ export class ModelComponent extends RenderableComponent {
     @property
     set enableDynamicBatching (enable: boolean) {
         this._enableDynamicBatching = enable;
-        if (this._mesh && !this._mesh.hasFlatBuffers) {
+        if (this._mesh) {
             if (enable) {
                 this._mesh.createFlatBuffers();
             } else {
