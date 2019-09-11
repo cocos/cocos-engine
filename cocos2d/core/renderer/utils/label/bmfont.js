@@ -446,8 +446,8 @@ module.exports = {
                 break;
             }
 
-            let scale = newFontSize / fontSize;
-            _bmfontScale = scale;
+            _bmfontScale = newFontSize / _originFontSize;
+            
             if (!_lineBreakWithoutSpaces) {
                 this._multilineTextWrapByWord();
             } else {
