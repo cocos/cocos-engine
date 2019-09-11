@@ -370,7 +370,6 @@ export class Mesh extends Asset {
         const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
         const indexBuffers: GFXBuffer[] = [];
         const submeshes: IRenderingSubmesh[] = [];
-        const useDynamicBatching = (cc.director.root as Root).pipeline.useDynamicBatching;
 
         for (const prim of this._struct.primitives) {
             if (prim.vertexBundelIndices.length === 0) {
@@ -387,7 +386,6 @@ export class Mesh extends Asset {
                     memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                     size: idxView.length,
                     stride: idxView.stride,
-                    flags: useDynamicBatching ? GFXBufferFlagBit.BAKUP_BUFFER : GFXBufferFlagBit.NONE,
                 });
                 indexBuffers.push(indexBuffer);
 
