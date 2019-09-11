@@ -51,6 +51,7 @@ let SkinnedMeshRenderer = cc.Class({
         this._jointsData = this._jointsFloat32Data = null;
         this._jointsTexture = null;
         this._joints = [];
+        this._usingRGBA8Texture = false;
     },
 
     properties: {
@@ -213,6 +214,8 @@ let SkinnedMeshRenderer = cc.Class({
                 pixelFormat = cc.Texture2D.PixelFormat.RGBA8888;
                 width *= 4;
 
+                this._usingRGBA8Texture = true;
+
                 cc.warn(`SkinnedMeshRenderer [${this.node.name}] has too many joints [${jointCount}] and device do not support float32 texture, fallback to use RGBA8888 texture, which is much slower.`);
             }
 
@@ -269,7 +272,7 @@ let SkinnedMeshRenderer = cc.Class({
     },
 
     getRenderNode () {
-        return this._useJointMatrix() ? this.rootBone : dummyNode;
+        return (this._useJointMatrix() || this._usingRGBA8Texture) ? this.rootBone : dummyNode;
     },
 
     calcJointMatrix () {
@@ -292,11 +295,27 @@ let SkinnedMeshRenderer = cc.Class({
                 }
             }
         }
+        // Some device rgba8 texture precision is low, when encode a big number it may loss precision.
+        // Invert root bone matrix can effectively avoid big position encode into rgba8 texture.
+        else if (this._usingRGBA8Texture) {
+            this.rootBone._updateWorldMatrix();
+            let rootMatrix = this.rootBone._worldMatrix;
+            let invRootMat = mat4.invert(cc.mat4(), rootMatrix);
+
+            for (let i = 0; i < joints.length; ++i) {
+                let joint = joints[i];
+                joint._updateWorldMatrix();
+
+                mat4.multiply(_m4_tmp, invRootMat, joint._worldMatrix);
+                mat4.multiply(_m4_tmp, _m4_tmp, bindposes[i]);
+                this._setJointsDataWithMatrix(i, _m4_tmp);
+            }
+        }
         else {
             for (let i = 0; i < joints.length; ++i) {
                 let joint = joints[i];
-    
                 joint._updateWorldMatrix();
+
                 mat4.multiply(_m4_tmp, joint._worldMatrix, bindposes[i]);
                 this._setJointsDataWithMatrix(i, _m4_tmp);
             }
