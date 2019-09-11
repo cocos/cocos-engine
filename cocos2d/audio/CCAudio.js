@@ -130,7 +130,7 @@ Audio.State = {
         if (this._nextTime !== 0) {
             this.setCurrentTime(this._nextTime);
         }
-        if (this._state === Audio.State.PLAYING) {
+        if (this.getState() === Audio.State.PLAYING) {
             this.play();
         }
         else {
@@ -177,14 +177,14 @@ Audio.State = {
     };
 
     proto.pause = function () {
-        if (!this._element || this._state !== Audio.State.PLAYING) return;
+        if (!this._element || this.getState() !== Audio.State.PLAYING) return;
         this._unbindEnded();
         this._element.pause();
         this._state = Audio.State.PAUSED;
     };
 
     proto.resume = function () {
-        if (!this._element || this._state !== Audio.State.PAUSED) return;
+        if (!this._element || this.getState() !== Audio.State.PAUSED) return;
         this._bindEnded();
         this._element.play();
         this._state = Audio.State.PLAYING;
