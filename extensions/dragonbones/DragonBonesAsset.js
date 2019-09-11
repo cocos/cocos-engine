@@ -174,7 +174,6 @@ var DragonBonesAsset = cc.Class({
     },
 
     _clear () {
-        if (CC_JSB) return;
         if (this._factory) {
             ArmatureCache.resetArmature(this._uuid);
             this._factory.removeDragonBonesDataByUUID(this._uuid, true);
