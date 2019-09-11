@@ -315,10 +315,11 @@ export class Vec3 extends ValueType {
      * @zh 向量叉积（向量积）
      */
     public static cross<Out extends IVec3Like, Vec3Like_1 extends IVec3Like, Vec3Like_2 extends IVec3Like > (out: Out, a: Vec3Like_1, b: Vec3Like_2) {
-
-        out.x = a.y * b.z - a.z * b.y;
-        out.y = a.z * b.x - a.x * b.z;
-        out.z = a.x * b.y - a.y * b.x;
+        const { x: ax, y: ay, z: az } = a;
+        const { x: bx, y: by, z: bz } = b;
+        out.x = ay * bz - az * by;
+        out.y = az * bx - ax * bz;
+        out.z = ax * by - ay * bx;
         return out;
     }
 
