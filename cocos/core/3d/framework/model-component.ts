@@ -127,6 +127,17 @@ export class ModelComponent extends RenderableComponent {
         }
         if (this._model) {
             this._model.isDynamicBatching = enable;
+            if (this._model.isDynamicBatching) {
+                for (let i = 0; i < this._model.subModels.length; ++i) {
+                    const subModel = this._model.subModels[i];
+                    for (let p = 0; p < subModel.passes.length; ++p) {
+                        const pass = subModel.passes[p];
+                        if (!pass.batchedBuffer) {
+                            pass.createBatchedBuffer();
+                        }
+                    }
+                }
+            }
         }
     }
 
