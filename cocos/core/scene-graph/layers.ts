@@ -30,29 +30,29 @@
 import { BitMask, Enum } from '../value-types';
 
 const LayersEnum = Enum({
-  IgnoreRaycast : (1 << 20),
-  Gizmos : (1 << 21),
-  Editor : (1 << 22),
+  IGNORE_RAYCAST : (1 << 20),
+  GIZMOS : (1 << 21),
+  EDITOR : (1 << 22),
   UI : (1 << 23),
-  SceneGizmo : (1 << 24),
-  UI2D : (1 << 25),
+  SCENE_GIZMO : (1 << 24),
+  UI_2D : (1 << 25),
 
   PROFILER : (1 << 28),
-  Always : (1 << 29),
-  Default : (1 << 30),
+  ALWAYS : (1 << 29),
+  DEFAULT : (1 << 30),
 });
 
 const BitMaskList = BitMask({
-  IgnoreRaycast : (1 << 20),
-  Gizmos : (1 << 21),
-  Editor : (1 << 22),
+  IGNORE_RAYCAST : (1 << 20),
+  GIZMOS : (1 << 21),
+  EDITOR : (1 << 22),
   UI : (1 << 23),
-  SceneGizmo : (1 << 24),
-  UI2D : (1 << 25),
+  SCENE_GIZMO : (1 << 24),
+  UI_2D : (1 << 25),
 
   PROFILER : (1 << 28),
-  Always : (1 << 29),
-  Default : (1 << 30),
+  ALWAYS : (1 << 29),
+  DEFAULT : (1 << 30),
 });
 
 /**
@@ -63,12 +63,9 @@ export class Layers {
 
   // built-in layers, users can use 0~20 bits, 21~31 are system preserve bits.
 
-  public static LayersEnum = LayersEnum;
-  public static BitMaskList = BitMaskList;
+  public static Enum = LayersEnum;
+  public static BitMask = BitMaskList;
 
-  /**
-   * @zh 默认层，所有节点的初始值
-   */
   public static Default = 1 << 30;
   public static Always = 1 << 29;
   public static IgnoreRaycast = (1 << 20);
@@ -85,12 +82,12 @@ export class Layers {
   /**
    * @zh 接受所有用户创建的节点
    */
-  public static All = Layers.makeExclusiveMask([Layers.LayersEnum.Gizmos, Layers.LayersEnum.SceneGizmo, Layers.LayersEnum.Editor]);
+  public static All = Layers.makeExclusiveMask([Layers.Enum.GIZMOS, Layers.Enum.SCENE_GIZMO, Layers.Enum.EDITOR]);
   /**
    * @zh 接受所有支持射线检测的节点
    */
-  public static RaycastMask = Layers.makeExclusiveMask([Layers.LayersEnum.Gizmos, Layers.LayersEnum.SceneGizmo,
-    Layers.LayersEnum.Editor, Layers.LayersEnum.IgnoreRaycast]);
+  public static RaycastMask = Layers.makeExclusiveMask([Layers.Enum.GIZMOS, Layers.Enum.SCENE_GIZMO,
+    Layers.Enum.EDITOR, Layers.Enum.IGNORE_RAYCAST]);
 
   /**
    * @en
@@ -133,8 +130,14 @@ export class Layers {
     return (layer & mask) === layer;
   }
 
+  /**
+   *  @zh
+   * 添加一个新层，用户可编辑 0 - 19 位为用户自定义层
+   * @param name 层名字
+   * @param bitNum 层序号
+   */
   public static addLayer ( name: string, bitNum: number) {
-    if ( bitNum > 20 || bitNum < 0) {
+    if ( bitNum > 19 || bitNum < 0) {
       console.warn('maximum layers reached.');
       return;
     }
@@ -144,8 +147,13 @@ export class Layers {
     BitMaskList[bitNum] = name;
   }
 
+  /**
+   * @zh
+   * 移除一个层，用户可编辑 0 - 19 位为用户自定义层
+   * @param bitNum 层序号
+   */
   public static deleteLayer (bitNum: number) {
-    if ( bitNum > 20 || bitNum < 0) {
+    if ( bitNum > 19 || bitNum < 0) {
       console.warn('do not change buildin layers.');
       return;
     }
@@ -154,8 +162,6 @@ export class Layers {
     delete BitMaskList[BitMaskList[bitNum]];
     delete BitMaskList[bitNum];
   }
-
-  // private static _nextAvailable = 8;
 }
 
 cc.Layers = Layers;

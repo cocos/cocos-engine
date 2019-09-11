@@ -100,7 +100,7 @@ export class Node extends BaseNode implements INode {
     @property
     protected _lscale = new Vec3(1, 1, 1);
     @property
-    protected _layer = Layers.LayersEnum.Default; // the layer this node belongs to
+    protected _layer = Layers.Enum.DEFAULT; // the layer this node belongs to
 
     // local rotation in euler angles, maintained here so that rotation angles could be greater than 360 degree.
     @property

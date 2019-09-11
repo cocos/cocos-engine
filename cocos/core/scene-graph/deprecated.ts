@@ -37,3 +37,39 @@ removeProperty(Node.prototype, 'Node.prototype', [
         'name': 'removeLayer',
     }
 ]);
+
+
+replaceProperty(Layers, 'Layers', [
+    {
+        name: 'Default',
+        newName: 'Enum.DEFAULT'
+    },
+    {
+        name: 'Always',
+        newName: 'Enum.ALWAYS'
+    },
+    {
+        name: 'IgnoreRaycast',
+        newName: 'Enum.IGNORE_RAYCAST'
+    },
+    {
+        name: 'Gizmos',
+        newName: 'Enum.GIZMOS'
+    },
+    {
+        name: 'Editor',
+        newName: 'Enum.EDITOR'
+    },
+    {
+        name: 'UI',
+        newName: 'Enum.UI'
+    },
+    {
+        name: 'UI2D',
+        newName: 'Enum.UI_2D'
+    },
+    {
+        name: 'SceneGizmo',
+        newName: 'Enum.SCENE_GIZMO'
+    },
+]);
