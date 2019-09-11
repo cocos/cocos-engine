@@ -48,6 +48,7 @@ import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
+import { BatchedBuffer } from '../../pipeline/batched-buffer';
 
 export interface IDefineMap { [name: string]: number | boolean | string; }
 export interface IPassInfoFull extends IPassInfo {
@@ -207,6 +208,8 @@ export class Pass {
     protected _device: GFXDevice;
     protected _renderPass: GFXRenderPass | null = null;
     protected _shader: GFXShader | null = null;
+    // for dynamic batching
+    protected _batchedBuffer: BatchedBuffer | null = null;
 
     public constructor (device: GFXDevice) {
         this._device = device;
@@ -453,6 +456,10 @@ export class Pass {
         // textures are reused
         this._samplers = {};
         this._textureViews = {};
+        if (this._batchedBuffer) {
+            this._batchedBuffer.destroy();
+            this._batchedBuffer = null;
+        }
     }
 
     /**
@@ -605,6 +612,27 @@ export class Pass {
         return res;
     }
 
+    /**
+     * @zh
+     * 创建合批缓冲。
+     */
+    public createBatchedBuffer () {
+        if (!this._batchedBuffer) {
+            this._batchedBuffer = new BatchedBuffer(this);
+        }
+    }
+
+    /**
+     * @zh
+     * 销毁合批缓冲。
+     */
+    public destroyBatchedBuffer () {
+        if (this._batchedBuffer) {
+            this._batchedBuffer.destroy();
+            this._batchedBuffer = null;
+        }
+    }
+
     protected _fillinPipelineInfo (info: PassOverrides) {
         if (info.priority !== undefined) { this._priority = info.priority; }
         if (info.primitive !== undefined) { this._primitive = info.primitive; }
@@ -630,6 +658,7 @@ export class Pass {
         Object.assign(this._dss, info.depthStencilState);
     }
 
+    get device () { return this._device; }
     get idxInTech () { return this._idxInTech; }
     get programName () { return this._programName; }
     get priority () { return this._priority; }
@@ -643,6 +672,7 @@ export class Pass {
     get dynamics () { return this._dynamics; }
     get customizations () { return this._customizations; }
     get shader (): GFXShader { return this._shader!; }
+    get batchedBuffer (): BatchedBuffer | null { return this._batchedBuffer; }
 }
 
 const serializeBlendState = (bs: GFXBlendState) => {

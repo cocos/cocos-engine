@@ -31,13 +31,22 @@ import { ccclass, property } from '../../core/data/class-decorator';
 import { Vec3 } from '../../core/math';
 import { BufferBlob } from '../3d/misc/buffer-blob';
 import { GFXBuffer } from '../gfx/buffer';
-import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXFormatType, GFXMemoryUsageBit, GFXPrimitiveMode, GFXBufferFlagBit } from '../gfx/define';
+import {
+    GFXAttributeName,
+    GFXBufferFlagBit,
+    GFXBufferUsageBit,
+    GFXFormat,
+    GFXFormatInfos,
+    GFXFormatType,
+    GFXMemoryUsageBit,
+    GFXPrimitiveMode,
+} from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
 import { IGFXAttribute } from '../gfx/input-assembler';
+import { Root } from '../root';
 import { Asset } from './asset';
 import { IBufferView } from './utils/buffer-view';
 import { postLoadMesh } from './utils/mesh-utils';
-import { Root } from '../root';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -143,6 +152,12 @@ export interface IGeometricInfo {
     doubleSided?: boolean;
 }
 
+export interface IFlatBuffer {
+    stride: number;
+    count: number;
+    buffer: ArrayBuffer;
+}
+
 /**
  * 渲染子网格。
  */
@@ -161,6 +176,11 @@ export interface IRenderingSubmesh {
      * 间接绘制缓冲区。
      */
     indirectBuffer?: GFXBuffer;
+
+    /**
+     * 扁平化的顶点缓冲区。
+     */
+    flatBuffers: IFlatBuffer[];
 
     /**
      * 所有顶点属性。
@@ -209,12 +229,13 @@ export class RenderingMesh {
     }
 
     /**
-     * 移除所有渲染子网格。
+     * 销毁所有渲染子网格。
      */
-    public clearSubMeshes () {
-        for (const subMesh of this._subMeshes) {
-            for (const vb of subMesh.vertexBuffers) {
-                vb.destroy();
+    public destroySubMeshes () {
+        for (let i = 0; i < this._subMeshes.length; ++i) {
+            const subMesh = this._subMeshes[i];
+            for (let j = 0; j < subMesh.vertexBuffers.length; ++j) {
+                subMesh.vertexBuffers[j].destroy();
             }
             if (subMesh.indexBuffer) {
                 subMesh.indexBuffer.destroy();
@@ -227,7 +248,7 @@ export class RenderingMesh {
      * 销毁此渲染网格，移除其所有渲染子网格。
      */
     public destroy () {
-        this.clearSubMeshes();
+        this.destroySubMeshes();
         this._subMeshes.length = 0;
     }
 }
@@ -307,6 +328,13 @@ export class Mesh extends Asset {
         return this._data;
     }
 
+    /**
+     * 是否具有平铺的缓冲。
+     */
+    get hasFlatBuffers () {
+        return this._hasFlatBuffers;
+    }
+
     @property
     private _struct: IMeshStruct = {
         vertexBundles: [],
@@ -317,9 +345,8 @@ export class Mesh extends Asset {
     private _dataLength: number = 0;
 
     private _data: Uint8Array | null = null;
-
     private _initialized = false;
-
+    private _hasFlatBuffers = false;
     private _renderingMesh: RenderingMesh | null = null;
 
     constructor () {
@@ -343,7 +370,6 @@ export class Mesh extends Asset {
         const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
         const indexBuffers: GFXBuffer[] = [];
         const submeshes: IRenderingSubmesh[] = [];
-        const useDynamicBatching = (cc.director.root as Root).pipeline.useDynamicBatching;
 
         for (const prim of this._struct.primitives) {
             if (prim.vertexBundelIndices.length === 0) {
@@ -360,7 +386,6 @@ export class Mesh extends Asset {
                     memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                     size: idxView.length,
                     stride: idxView.stride,
-                    flags: useDynamicBatching ? GFXBufferFlagBit.BAKUP_BUFFER : GFXBufferFlagBit.NONE,
                 });
                 indexBuffers.push(indexBuffer);
 
@@ -387,6 +412,7 @@ export class Mesh extends Asset {
             const subMesh: IRenderingSubmesh = {
                 primitiveMode: prim.primitiveMode,
                 vertexBuffers: vbReference,
+                flatBuffers: [],
                 indexBuffer,
                 attributes: gfxAttributes,
             };
@@ -908,6 +934,93 @@ export class Mesh extends Asset {
         return true;
     }
 
+    /**
+     * @zh
+     * 生成平铺的缓冲（用于动态合批）。
+     */
+    public createFlatBuffers (): boolean {
+        if (this._renderingMesh && !this._hasFlatBuffers) {
+            const gfxDevice: GFXDevice = cc.director.root!.device;
+
+            let idxCount = 0;
+            let idxStride = 0;
+            let ibView: Uint8Array | Uint16Array | Uint32Array;
+            for (let i = 0; i < this._struct.primitives.length; ++i) {
+                const prim = this._struct.primitives[i];
+                const subMesh = this._renderingMesh.subMeshes[i];
+                if (prim.indexView) {
+                    idxCount = prim.indexView.count;
+                }
+
+                for (const bundleIdx of prim.vertexBundelIndices) {
+                    const vertexBundle = this._struct.vertexBundles[bundleIdx];
+                    const vbCount = prim.indexView ? prim.indexView.count : vertexBundle.view.count;
+                    const vbStride = vertexBundle.view.stride;
+                    const vbSize = vbStride * vbCount;
+
+                    const view = new Uint8Array(this._data!.buffer, vertexBundle.view.offset, vertexBundle.view.length);
+
+                    if (prim.indexView) {
+                        const vbView = new Uint8Array(vbSize);
+
+                        if (idxCount < 65536) {
+                            idxStride = 2;
+                        } else {
+                            idxStride = 4;
+                        }
+                        if (idxStride === 2) {
+                            ibView = new Uint16Array(this._data!.buffer, prim.indexView.offset, prim.indexView.count);
+                        } else { // Uint32
+                            ibView = new Uint32Array(this._data!.buffer, prim.indexView.offset, prim.indexView.count);
+                        }
+
+                        // transform to flat buffer
+                        for (let n = 0; n < idxCount; ++n) {
+                            const idx = ibView[n];
+                            const offset = n * vbStride;
+                            const srcOffset = idx * vbStride;
+
+                            for (let m = 0; m < vbStride; ++m) {
+                                vbView[offset + m] = view[srcOffset + m];
+                            }
+                        }
+                        subMesh.flatBuffers.push({
+                            stride: vbStride,
+                            count: vbCount,
+                            buffer: vbView.buffer,
+                        });
+                    } else {
+                        subMesh.flatBuffers.push({
+                            stride: vbStride,
+                            count: vbCount,
+                            buffer: view.buffer,
+                        });
+                    }
+                }
+            } // for
+            this._hasFlatBuffers = true;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @zh
+     * 销毁平铺的缓冲（用于动态合批）。
+     */
+    public destroyFlatBuffers () {
+        if (this._hasFlatBuffers) {
+            if (this._renderingMesh) {
+                const subMeshes = this._renderingMesh.subMeshes;
+                for (let i = 0; i < subMeshes.length; ++i) {
+                    subMeshes[i].flatBuffers.splice(0);
+                }
+            }
+            this._hasFlatBuffers = false;
+        }
+    }
+
     private _accessAttribute (
         primitiveIndex: number,
         attributeName: GFXAttributeName,
@@ -932,14 +1045,11 @@ export class Mesh extends Asset {
     private _createVertexBuffers (gfxDevice: GFXDevice, data: ArrayBuffer): GFXBuffer[] {
         return this._struct.vertexBundles.map((vertexBundle) => {
 
-            const useDynamicBatching = (cc.director.root as Root).pipeline.useDynamicBatching;
-
             const vertexBuffer = gfxDevice.createBuffer({
                 usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: vertexBundle.view.length,
                 stride: vertexBundle.view.stride,
-                flags: useDynamicBatching ? GFXBufferFlagBit.BAKUP_BUFFER : GFXBufferFlagBit.NONE,
             });
 
             const view = new Uint8Array(data, vertexBundle.view.offset, vertexBundle.view.length);
