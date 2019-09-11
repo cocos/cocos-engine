@@ -96,7 +96,7 @@ export class SubModel {
     }
 
     get material (): Material | null {
-        return this._material!;
+        return this._material;
     }
 
     get inputAssembler (): GFXInputAssembler | null {

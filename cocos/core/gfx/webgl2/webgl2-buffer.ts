@@ -1,5 +1,5 @@
 import { GFXBuffer, GFXBufferSource, IGFXBufferInfo, IGFXIndirectBuffer } from '../buffer';
-import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXStatus } from '../define';
+import { GFXBufferFlagBit, GFXBufferUsageBit, GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import {
     WebGL2CmdFuncCreateBuffer,
@@ -30,9 +30,14 @@ export class WebGL2GFXBuffer extends GFXBuffer {
         this._size = info.size;
         this._stride = Math.max(info.stride || this._size, 1);
         this._count = this._size / this._stride;
+        this._flags = (info.flags !== undefined ? info.flags : GFXBufferFlagBit.NONE);
 
         if (this._usage & GFXBufferUsageBit.INDIRECT) {
             this._indirectBuffer = { drawInfos: [] };
+        }
+
+        if (this._flags & GFXBufferFlagBit.BAKUP_BUFFER) {
+            this._bufferView = new Uint8Array(this._size);
         }
 
         this._gpuBuffer = {
@@ -66,6 +71,7 @@ export class WebGL2GFXBuffer extends GFXBuffer {
             this._gpuBuffer = null;
         }
 
+        this._bufferView = null;
         this._status = GFXStatus.UNREADY;
     }
 
@@ -74,12 +80,25 @@ export class WebGL2GFXBuffer extends GFXBuffer {
         this._size = size;
         this._count = this._size / this._stride;
 
+        if (this._bufferView && oldSize !== size) {
+            const oldView = this._bufferView;
+            this._bufferView = new Uint8Array(this._size);
+            this._bufferView.set(oldView);
+            if (this._gpuBuffer) {
+                this._gpuBuffer.buffer = this._bufferView.buffer;
+            }
+        }
+
         if (this._gpuBuffer) {
             this._gpuBuffer.size = this._size;
             if (this._size > 0) {
                 WebGL2CmdFuncResizeBuffer(this._device as WebGL2GFXDevice, this._gpuBuffer);
                 this._device.memoryStatus.bufferSize -= oldSize;
                 this._device.memoryStatus.bufferSize += this._size;
+                if (this._bufferView) {
+                    this._device.memoryStatus.bufferSize -= oldSize;
+                    this._device.memoryStatus.bufferSize += this._size;
+                }
             }
         }
     }
@@ -93,6 +112,10 @@ export class WebGL2GFXBuffer extends GFXBuffer {
             buffSize = 0;
         } else {
             buffSize = (buffer as ArrayBuffer).byteLength;
+        }
+        if (this._bufferView) {
+            const view = new Uint8Array(buffer as ArrayBuffer, 0, size);
+            this._bufferView.set(view, offset);
         }
 
         WebGL2CmdFuncUpdateBuffer(

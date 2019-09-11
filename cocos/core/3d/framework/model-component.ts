@@ -112,9 +112,34 @@ export class ModelComponent extends RenderableComponent {
         return this._model;
     }
 
+    /**
+     * @zh 是否启用动态合批？
+     */
+    @property
+    set enableDynamicBatching (enable: boolean) {
+        this._enableDynamicBatching = enable;
+        if (this._mesh && !this._mesh.hasFlatBuffers) {
+            if (enable) {
+                this._mesh.createFlatBuffers();
+            } else {
+                this._mesh.destroyFlatBuffers();
+            }
+        }
+        if (this._model) {
+            this._model.isDynamicBatching = enable;
+        }
+    }
+
+    get enableDynamicBatching (): boolean {
+        return this._enableDynamicBatching;
+    }
+
     public static ShadowCastingMode = ModelShadowCastingMode;
 
     protected _model: Model | null = null;
+
+    @property
+    protected _enableDynamicBatching = false;
 
     @property
     protected _mesh: Mesh | null = null;
@@ -185,6 +210,22 @@ export class ModelComponent extends RenderableComponent {
 
         if (this._model) {
             this._model.enabled = true;
+            this._model.isDynamicBatching = this._enableDynamicBatching;
+            if (this._enableDynamicBatching) {
+                if (!this._mesh.hasFlatBuffers) {
+                    this._mesh.createFlatBuffers();
+                }
+                for (let i = 0; i < this._model.subModels.length; ++i) {
+                    const subModel = this._model.subModels[i];
+                    for (let p = 0; p < subModel.passes.length; ++p) {
+                        const pass = subModel.passes[p];
+                        if (!pass.batchedBuffer) {
+                            pass.createBatchedBuffer();
+                        }
+                    }
+                }
+            }
+
         }
     }
 
@@ -222,6 +263,17 @@ export class ModelComponent extends RenderableComponent {
             return;
         }
         this._onRebuildPSO(idx, material || this._getBuiltinMaterial());
+
+        if (this._enableDynamicBatching) {
+            if (material) {
+                for (let p = 0; p < material.passes.length; ++p) {
+                    const pass = material.passes[p];
+                    if (!pass.batchedBuffer) {
+                        pass.createBatchedBuffer();
+                    }
+                }
+            }
+        }
     }
 
     protected _onRebuildPSO (idx: number, material: Material) {

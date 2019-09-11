@@ -245,7 +245,7 @@ export class RenderScene {
                 const subModel = m.getSubModel(i).subMeshData;
                 if (subModel && subModel.geometricInfo) {
                     const { positions: vb, indices: ib, doubleSided: sides } = subModel.geometricInfo;
-                    narrowphase(vb, ib, subModel.primitiveMode, sides as boolean);
+                    narrowphase(vb, ib!, subModel.primitiveMode, sides as boolean);
                 }
                 if (distance < Infinity) {
                     const r = pool.add();

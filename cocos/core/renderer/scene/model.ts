@@ -145,6 +145,14 @@ export class Model {
         this._castShadow = val;
     }
 
+    get isDynamicBatching () {
+        return this._isDynamicBatching;
+    }
+
+    set isDynamicBatching (val: boolean) {
+        this._isDynamicBatching = val;
+    }
+
     get UBOUpdated () {
         return this._uboUpdated;
     }
@@ -170,6 +178,7 @@ export class Model {
     protected _inited: boolean = false;
     protected _uboUpdated: boolean = false;
     protected _castShadow: boolean = false;
+    protected _isDynamicBatching: boolean = false;
     private _transformUpdated: boolean = true;
 
     /**

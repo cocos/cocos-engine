@@ -294,291 +294,61 @@ export abstract class RenderPipeline {
 
     /**
      * @zh
-     * Root类对象。
+     * 启用动态合批。
      */
+    public get useDynamicBatching (): boolean {
+        return this._useDynamicBatching;
+    }
+
     protected _root: Root;
-
-    /**
-     * @zh
-     * GFX设备。
-     */
     protected _device: GFXDevice;
-
-    /**
-     * @zh
-     * 名称。
-     */
     protected _name: string = 'BasePipeline';
-
-    /**
-     * @zh
-     * 渲染对象数组。
-     */
     protected _renderObjects: IRenderObject[] = [];
-
-    /**
-     * @zh
-     * 渲染过程数组。
-     */
     protected _renderPasses: Map<number, GFXRenderPass> = new Map();
-
-    /**
-     * @zh
-     * 渲染流程数组。
-     */
     protected _flows: RenderFlow[] = [];
-
-    /**
-     * @zh
-     * 是否支持 HDR。
-     */
     protected _isHDRSupported: boolean = false;
-
-    /**
-     * @zh
-     * 是否为 HDR 管线。
-     */
     protected _isHDR: boolean = false;
-
-    /**
-     * @zh
-     * 灯光距离缩放系数（以米为单位）。
-     */
     protected _lightMeterScale: number = 10000.0;
-
-    /**
-     * @zh
-     * 着色渲染过程。
-     */
     protected _shadingPass: GFXRenderPass | null = null;
-
-    /**
-     * @zh
-     * 帧缓冲数量。
-     */
     protected _fboCount: number = 0;
-
-    /**
-     * @zh
-     * MSAA着色纹理。
-     */
     protected _msaaShadingTex: GFXTexture | null = null;
-
-    /**
-     * @zh
-     * MSAA着色纹理视图。
-     */
     protected _msaaShadingTexView: GFXTextureView | null = null;
-
-    /**
-     * @zh
-     * MSAA深度模板纹理。
-     */
     protected _msaaDepthStencilTex: GFXTexture | null = null;
-
-    /**
-     * @zh
-     * MSAA深度模板纹理视图。
-     */
     protected _msaaDepthStencilTexView: GFXTextureView | null = null;
-
-    /**
-     * @zh
-     * MSAA着色帧缓冲。
-     */
     protected _msaaShadingFBO: GFXFramebuffer | null = null;
-
-    /**
-     * @zh
-     * 颜色格式。
-     */
     protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;
-
-    /**
-     * @zh
-     * 深度模板格式。
-     */
     protected _depthStencilFmt: GFXFormat = GFXFormat.UNKNOWN;
-
-    /**
-     * @zh
-     * 着色纹理数组。
-     */
     protected _shadingTextures: GFXTexture[] = [];
-
-    /**
-     * @zh
-     * 着色纹理视图数组。
-     */
     protected _shadingTexViews: GFXTextureView[] = [];
-
-    /**
-     * @zh
-     * 深度模板纹理。
-     */
     protected _depthStencilTex: GFXTexture | null = null;
-
-    /**
-     * @zh
-     * 深度模板纹理视图。
-     */
     protected _depthStencilTexView: GFXTextureView | null = null;
-
-    /**
-     * @zh
-     * 着色帧缓冲数组。
-     */
     protected _shadingFBOs: GFXFramebuffer[] = [];
-
-    /**
-     * @zh
-     * 着色尺寸宽度。
-     */
     protected _shadingWidth: number = 0.0;
-
-    /**
-     * @zh
-     * 着色尺寸高度。
-     */
     protected _shadingHeight: number = 0.0;
-
-    /**
-     * @zh
-     * 着色尺寸缩放。
-     */
     protected _shadingScale: number = 1.0;
-
-    /**
-     * @zh
-     * 当前帧缓冲索引。
-     */
     protected _curIdx: number = 0;
-
-    /**
-     * @zh
-     * 上一帧缓冲索引。
-     */
     protected _prevIdx: number = 1;
-
-    /**
-     * @zh
-     * 启用后期处理。
-     */
     protected _usePostProcess: boolean = false;
-
-    /**
-     * @zh
-     * 启用MSAA。
-     */
     protected _useMSAA: boolean = false;
-
-    /**
-     * @zh
-     * 启用SMAA。
-     */
     protected _useSMAA: boolean = false;
-
-    /**
-     * @zh
-     * SMAA渲染过程。
-     */
     protected _smaaPass: GFXRenderPass | null = null;
-
-    /**
-     * @zh
-     * SMAA边缘帧缓冲。
-     */
     protected _smaaEdgeFBO: GFXFramebuffer | null = null;
-
-    /**
-     * @zh
-     * SMAA边缘纹理。
-     */
     protected _smaaEdgeTex: GFXTexture | null = null;
-
-    /**
-     * @zh
-     * SMAA边缘纹理视图。
-     */
     protected _smaaEdgeTexView: GFXTextureView | null = null;
-
-    /**
-     * @zh
-     * SMAA混合帧缓冲。
-     */
     protected _smaaBlendFBO: GFXFramebuffer | null = null;
-
-    /**
-     * @zh
-     * SMAA混合纹理。
-     */
     protected _smaaBlendTex: GFXTexture | null = null;
-
-    /**
-     * @zh
-     * SMAA混合纹理视图。
-     */
     protected _smaaBlendTexView: GFXTextureView | null = null;
-
-    /**
-     * @zh
-     * 四边形顶点缓冲。
-     */
     protected _quadVB: GFXBuffer | null = null;
-
-    /**
-     * @zh
-     * 四边形索引缓冲。
-     */
     protected _quadIB: GFXBuffer | null = null;
-
-    /**
-     * @zh
-     * 四边形输入汇集器。
-     */
     protected _quadIA: GFXInputAssembler | null = null;
-
-    /**
-     * @zh
-     * 默认的全局UBO。
-     */
     protected _uboGlobal: UBOGlobal = new UBOGlobal();
-
-    /**
-     * @zh
-     * 默认的全局绑定表。
-     */
     protected _globalBindings: Map<string, IInternalBindingInst> = new Map<string, IInternalBindingInst>();
-
-    /**
-     * @zh
-     * 默认纹理。
-     */
     protected _defaultTex: GFXTexture | null = null;
-
-    /**
-     * @zh
-     * 默认纹理视图。
-     */
     protected _defaultTexView: GFXTextureView | null = null;
-
-    /**
-     * @zh
-     * 浮点精度缩放。
-     */
     protected _fpScale: number = 1.0 / 1024.0;
-
-    /**
-     * @zh
-     * 浮点精度缩放的倒数。
-     */
     protected _fpScaleInv: number = 1024.0;
-
-    /**
-     * @zh
-     * 管线宏定义。
-     */
     protected _macros: IDefineMap = {};
+    protected _useDynamicBatching = false;
 
     /**
      * 构造函数。
