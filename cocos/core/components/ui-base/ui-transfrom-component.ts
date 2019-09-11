@@ -35,6 +35,7 @@ import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/math';
 import { aabb } from '../../geom-utils';
 import { CanvasComponent } from './canvas-component';
 import { director } from '../../director';
+import { Layers } from '../../scene-graph/layers';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -186,7 +187,7 @@ export class UITransformComponent extends Component {
 
     public __preload () {
         this.node.uiTransfromComp = this;
-        this.node.layer = cc.Layers.Enum.UI_2D;
+        this.node.layer = Layers.Enum.UI_2D;
     }
 
     public onDestroy () {
