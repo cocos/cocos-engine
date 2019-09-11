@@ -436,10 +436,6 @@ let ArmatureDisplay = cc.Class({
     _init () {
         if (this._inited) return;
         this._inited = true;
-
-        if (CC_JSB) {
-            this._cacheMode = AnimationCacheMode.REALTIME;
-        }
         
         this._parseDragonAtlasAsset();
         this._refresh();
