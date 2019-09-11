@@ -66,19 +66,6 @@ export class Layers {
   public static Enum = LayersEnum;
   public static BitMask = BitMaskList;
 
-  public static Default = 1 << 30;
-  public static Always = 1 << 29;
-  public static IgnoreRaycast = (1 << 20);
-  public static Gizmos = (1 << 21);
-  public static Editor = (1 << 22);
-  // 3D UI
-  public static UI = (1 << 23);
-  // 2D UI
-  public static UI2D = (1 << 25);
-  public static SceneGizmo = (1 << 24);
-
-  // masks
-
   /**
    * @zh 接受所有用户创建的节点
    */
