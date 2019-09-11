@@ -2708,3 +2708,11 @@ Stencil manager does not support level bigger than %d in this device.
 ### 9001
 
 Stencil manager is already empty, cannot pop any mask
+
+### 9100
+
+Warning: there is no raw texture file in '%s' bitmap font.
+
+### 9101
+
+Warning: there is no font configuration in '%s' bitmap font.
