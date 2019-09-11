@@ -260,22 +260,6 @@ export class Node extends BaseNode implements INode {
 
     /**
      * @zh
-     * 向节点添加一个层分组，参考 [[Layers]]
-     */
-    public addLayer (layer: number) {
-        this._layer |= layer;
-    }
-
-    /**
-     * @zh
-     * 从节点中移除一个层分组，参考 [[Layers]]
-     */
-    public removeLayer (layer: number) {
-        this._layer &= ~layer;
-    }
-
-    /**
-     * @zh
      * 这个节点的空间变换信息在当前帧内是否有变过？
      */
     get hasChangedFlags () {

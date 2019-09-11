@@ -3,7 +3,9 @@
  */
 
 import { BaseNode } from './base-node';
-import { replaceProperty } from '../utils/deprecated';
+import { replaceProperty, removeProperty } from '../utils/deprecated';
+import { Layers } from './layers';
+import { Node } from './node';
 
 // js.get(BaseNode.prototype, 'childrenCount', function () {
 //     cc.warn("`childrenCount` is deprecated, please use `node.children.length` instead.");
@@ -18,5 +20,20 @@ replaceProperty(BaseNode.prototype, 'BaseNode', [
         'customGetter': function (this: BaseNode) {
             return this.children.length;
         }
+    }
+]);
+
+removeProperty(Layers, 'Layers', [
+    {
+        'name': 'addLayer',
+    }
+]);
+
+removeProperty(Node.prototype, 'Node.prototype', [
+    {
+        'name': 'addLayer',
+    },
+    {
+        'name': 'removeLayer',
     }
 ]);

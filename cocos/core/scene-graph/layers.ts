@@ -62,23 +62,6 @@ export class Layers {
 
   /**
    * @en
-   * Add a new layer
-   * @zh
-   * 添加一个新层
-   * @param name 层名字
-   * @return 新层的检测值
-   */
-  public static addLayer (name: string): number | undefined {
-    if (Layers._nextAvailable > 31) {
-      console.warn('maximum layers reached.');
-      return;
-    }
-    Layers[name] = (1 << Layers._nextAvailable++);
-    return Layers[name];
-  }
-
-  /**
-   * @en
    * Make a layer mask accepting nothing but the listed layers
    * @zh
    * 创建一个包含式层检测器，只接受列表中的层
@@ -117,8 +100,6 @@ export class Layers {
   public static check (layer: number, mask: number): boolean {
     return (layer & mask) === layer;
   }
-
-  private static _nextAvailable = 8;
 }
 
 cc.Layers = Layers;
