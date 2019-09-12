@@ -122,6 +122,7 @@ export class LineModel extends Model {
             indirectBuffer: this._iaInfoBuffer,
             attributes: _vertex_attrs,
             primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
+            flatBuffers: [],
         };
         this.setSubModelMesh(0, this._subMeshData);
         return vBuffer;
