@@ -32,6 +32,18 @@ removeProperty(Node.prototype, 'Node.prototype', [
     }
 ]);
 
+removeProperty(Layers, 'Layers', [
+    {
+        'name': 'All',
+    },
+    {
+        'name': 'RaycastMask',
+    },
+    {
+        'name': 'check',
+    }
+]);
+
 replaceProperty(Layers, 'Layers', [
     {
         name: 'Default',

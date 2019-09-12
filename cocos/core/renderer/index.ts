@@ -18,3 +18,5 @@ export { Model } from './scene/model';
 
 export { SkinningModel } from './models/skinning-model';
 export * from './models/joints-texture-utils';
+
+import './scene/deprecated';

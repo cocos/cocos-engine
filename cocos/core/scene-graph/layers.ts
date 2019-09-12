@@ -53,16 +53,6 @@ export class Layers {
   public static BitMask = BitMask(Object.assign({}, layerList));
 
   /**
-   * @zh 接受所有用户创建的节点
-   */
-  public static All = Layers.makeExclusiveMask([Layers.Enum.GIZMOS, Layers.Enum.SCENE_GIZMO, Layers.Enum.EDITOR]);
-  /**
-   * @zh 接受所有支持射线检测的节点
-   */
-  public static RaycastMask = Layers.makeExclusiveMask([Layers.Enum.GIZMOS, Layers.Enum.SCENE_GIZMO,
-    Layers.Enum.EDITOR, Layers.Enum.IGNORE_RAYCAST]);
-
-  /**
    * @en
    * Make a layer mask accepting nothing but the listed layers
    * @zh
@@ -88,19 +78,6 @@ export class Layers {
    */
   public static makeExclusiveMask (excludes: number[]): number {
     return ~Layers.makeInclusiveMask(excludes);
-  }
-
-  /**
-   * @en
-   * Check a layer is accepted by the mask or not
-   * @zh
-   * 检查一个层是否被检测器接受
-   * @param layer 待检测的层
-   * @param mask 层检测器
-   * @return 是否通过检测
-   */
-  public static check (layer: number, mask: number): boolean {
-    return (layer & mask) === layer;
   }
 
   /**
