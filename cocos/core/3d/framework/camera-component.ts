@@ -295,7 +295,7 @@ export class CameraComponent extends Component {
     /**
      * @zh 设置摄像机可见掩码，与Component中的visibility同时使用，用于过滤摄像机不需要渲染的物体
      */
-    @property
+    @property({ visible: false })
     get visibility () {
         return this._visibility;
     }
