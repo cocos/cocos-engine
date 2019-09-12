@@ -29,7 +29,8 @@
 
 import { BitMask, Enum } from '../value-types';
 
-const LayersEnum = Enum({
+// built-in layers, users can use 0~19 bits, 20~31 are system preserve bits.
+const layerList = {
   IGNORE_RAYCAST : (1 << 20),
   GIZMOS : (1 << 21),
   EDITOR : (1 << 22),
@@ -40,20 +41,7 @@ const LayersEnum = Enum({
   PROFILER : (1 << 28),
   ALWAYS : (1 << 29),
   DEFAULT : (1 << 30),
-});
-
-const BitMaskList = BitMask({
-  IGNORE_RAYCAST : (1 << 20),
-  GIZMOS : (1 << 21),
-  EDITOR : (1 << 22),
-  UI : (1 << 23),
-  SCENE_GIZMO : (1 << 24),
-  UI_2D : (1 << 25),
-
-  PROFILER : (1 << 28),
-  ALWAYS : (1 << 29),
-  DEFAULT : (1 << 30),
-});
+};
 
 /**
  * 场景节点层管理器，用于射线检测、物理碰撞和用户自定义脚本逻辑。
@@ -61,10 +49,8 @@ const BitMaskList = BitMask({
  */
 export class Layers {
 
-  // built-in layers, users can use 0~20 bits, 21~31 are system preserve bits.
-
-  public static Enum = LayersEnum;
-  public static BitMask = BitMaskList;
+  public static Enum = Enum(layerList);
+  public static BitMask = BitMask(Object.assign({}, layerList));
 
   /**
    * @zh 接受所有用户创建的节点
@@ -124,14 +110,18 @@ export class Layers {
    * @param bitNum 层序号
    */
   public static addLayer ( name: string, bitNum: number) {
+    if ( bitNum === undefined ) {
+      console.warn('bitNum can\'t be undefined');
+      return;
+    }
     if ( bitNum > 19 || bitNum < 0) {
       console.warn('maximum layers reached.');
       return;
     }
-    LayersEnum[name] = 1 << bitNum;
-    LayersEnum[bitNum] = name;
-    BitMaskList[name] = 1 << bitNum;
-    BitMaskList[bitNum] = name;
+    Layers.Enum[name] = 1 << bitNum;
+    Layers.Enum[bitNum] = name;
+    Layers.BitMask[name] = 1 << bitNum;
+    Layers.BitMask[bitNum] = name;
   }
 
   /**
@@ -144,10 +134,10 @@ export class Layers {
       console.warn('do not change buildin layers.');
       return;
     }
-    delete LayersEnum[LayersEnum[bitNum]];
-    delete LayersEnum[bitNum];
-    delete BitMaskList[BitMaskList[bitNum]];
-    delete BitMaskList[bitNum];
+    delete Layers.Enum[Layers.Enum[bitNum]];
+    delete Layers.Enum[bitNum];
+    delete Layers.BitMask[Layers.BitMask[bitNum]];
+    delete Layers.BitMask[bitNum];
   }
 }
 

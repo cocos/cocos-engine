@@ -87,21 +87,6 @@ BitMask.getList = (BitMaskDef) => {
     return bitlist;
 };
 
-if (CC_DEV) {
-    // check key order in object literal
-    const _TestBitMask = BitMask({
-        IgnoreRaycast : (1 << 20),
-        Gizmos : (1 << 21),
-        Editor : (1 << 22),
-        UI : (1 << 23),
-        SceneGizmo : (1 << 24),
-        UI2D : (1 << 25),
-        PROFILER : (1 << 28),
-        Always : (1 << 29),
-        Default : (1 << 30),
-    });
-}
-
 export function ccbitmask (bitmaskx) {
     if ('__bitmask__' in bitmaskx) {
         return;
