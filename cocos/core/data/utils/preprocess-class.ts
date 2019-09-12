@@ -324,7 +324,7 @@ export function preprocessAttrs (properties, className, cls, es6) {
     }
 }
 
-const CALL_SUPER_DESTROY_REG_DEV = /\b\._super\b|destroy\s*\.\s*call\s*\(\s*\w+\s*[,|)]/;
+const CALL_SUPER_DESTROY_REG_DEV = /\b\._super\b|destroy.*\.call\s*\(\s*\w+\s*[,|)]/;
 export function doValidateMethodWithProps_DEV (func, funcName, className, cls, base) {
     if (cls.__props__ && cls.__props__.indexOf(funcName) >= 0) {
         // find class that defines this method as a property
