@@ -65,6 +65,7 @@ let AnimationCache = cc.Class({
             let frame = this.frames[i];
             frame.segments.length = 0;
         }
+        this.invalidAllFrame();
     },
 
     begin () {
@@ -185,8 +186,13 @@ let AnimationCache = cc.Class({
         if (segments.length === 0) return;
 
         // Fill vertices
-        let vertices = frame.vertices || new Float32Array(_vfOffset);
-        let uintVert = frame.uintVert || new Uint32Array(vertices.buffer);
+        let vertices = frame.vertices;
+        let uintVert = frame.uintVert;
+        if (!vertices || vertices.length < _vfOffset) {
+            vertices = frame.vertices = new Float32Array(_vfOffset);
+            uintVert = frame.uintVert = new Uint32Array(vertices.buffer);
+        }
+
         for (let i = 0, j = 0; i < _vfOffset;) {
             vertices[i++] = _vertices[j++]; // x
             vertices[i++] = _vertices[j++]; // y
@@ -196,7 +202,11 @@ let AnimationCache = cc.Class({
         }
 
         // Fill indices
-        let indices = frame.indices || new Uint16Array(_indexOffset);
+        let indices = frame.indices;
+        if (!indices || indices.length < _indexOffset) {
+            indices = frame.indices = new Uint16Array(_indexOffset);
+        }
+
         for (let i = 0; i < _indexOffset; i++) {
             indices[i] = _indices[i];
         }
