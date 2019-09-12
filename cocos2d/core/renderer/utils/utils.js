@@ -49,16 +49,12 @@ module.exports = {
     getFontFamily (comp) {
         if (!comp.useSystemFont) {
             if (comp.font) {
-                if (comp.font._nativeAsset) {
-                    return comp.font._nativeAsset;
-                }
-                else {
-                    let fontFamily = cc.loader.getRes(comp.font.nativeUrl);
-                    if (fontFamily) {
-                        return fontFamily;
-                    }
-                    console.log("Font " + comp.font.nativeUrl + " for label is not loaded!");
-                }
+                if (comp.font._nativeAsset) return comp.font._nativeAsset;
+                cc.loader.load(comp.font.nativeUrl, (err, asset) => {
+                    comp.font._nativeAsset = asset;
+                    comp._updateRenderData(true);
+                });
+                return 'Arial';
             }
     
             return 'Arial';
