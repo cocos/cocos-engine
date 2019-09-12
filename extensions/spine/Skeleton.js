@@ -821,7 +821,12 @@ sp.Skeleton = cc.Class({
      */
     updateAnimationCache (animName) {
         if (!this.isAnimationCached()) return;
-        this._skeletonCache.updateAnimationCache(this.skeletonData._uuid, animName);
+        let uuid = this.skeletonData._uuid;
+        if (animName) {
+            this._skeletonCache.updateAnimationCache(uuid, animName);
+        } else {
+            this._skeletonCache.updateAllAnimationCache(uuid);
+        }        
     },
 
     /**

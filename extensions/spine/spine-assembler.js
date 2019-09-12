@@ -35,10 +35,6 @@ const gfx = cc.gfx;
 
 const FLAG_BATCH = 0x10;
 const FLAG_TWO_COLOR = 0x01;
-const NOT_BATCH_ONE_COLOR = 0x00;
-const NOT_BATCH_TWO_COLOR = 0x01;
-const BATCH_ONE_COLOR = 0x10;
-const BATCH_TWO_COLOR = 0x11;
 
 let _handleVal = 0x00;
 let _quadTriangles = [0, 1, 2, 2, 3, 0];

@@ -807,8 +807,11 @@ let ArmatureDisplay = cc.Class({
      */
     updateAnimationCache (animName) {
         if (!this.isAnimationCached()) return;
-        let cache = this._armatureCache.updateAnimationCache(this._armatureKey, animName);
-        this._frameCache = cache || this._frameCache;
+        if (animName) {
+            this._armatureCache.updateAnimationCache(this._armatureKey, animName);
+        } else {
+            this._armatureCache.updateAllAnimationCache(this._armatureKey);
+        }
     },
 
     /**

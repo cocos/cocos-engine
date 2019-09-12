@@ -566,7 +566,20 @@ let SkeletonCache = cc.Class({
             cc.warn("Animation cache is overflow, maybe animation's frame is infinite, please change skeleton render mode to REALTIME, animation name is [%s]",animationName);
         }
         return animationCache;
-    }
+    },
+
+    updateAllAnimationCache (uuid) {
+        let skeletonInfo = this._skeletonCache[uuid];
+        let skeleton = skeletonInfo && skeletonInfo.skeleton;
+        if (!skeleton) return;
+
+        skeletonInfo.curAnimationCache = null;
+        let animationsCache = skeletonInfo.animationsCache;
+        for (var aniKey in animationsCache) {
+            let animationCache = animationsCache[aniKey];
+            animationCache.updateAllFrame();
+        }
+    },
 });
 
 SkeletonCache.FrameTime = FrameTime;

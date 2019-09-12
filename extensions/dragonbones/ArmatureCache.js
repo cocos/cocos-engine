@@ -404,7 +404,19 @@ let ArmatureCache = cc.Class({
             cc.warn("Animation cache is overflow, maybe animation's frame is infinite, please change armature render mode to REALTIME, dragonbones uuid is [%s], animation name is [%s]", armatureKey, animationName);
         }
         return animationCache;
-    }
+    },
+
+    updateAllAnimationCache (armatureKey) {
+        let armatureInfo = this._armatureCache[armatureKey];
+        let armature = armatureInfo && armatureInfo.armature;
+        if (!armature) return null;
+
+        let animationsCache = armatureInfo.animationsCache;
+        for (var aniKey in animationsCache) {
+            let animationCache = animationsCache[aniKey];
+            animationCache.updateAllFrame();
+        }
+    },
 });
 
 ArmatureCache.FrameTime = FrameTime;
