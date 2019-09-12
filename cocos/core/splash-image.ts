@@ -97,7 +97,7 @@ export class SplashImage {
         }
     }
 
-    public onFinish (cb: Function) {
+    public setOnFinish (cb: Function) {
         this.callBack = cb;
     }
 

@@ -615,7 +615,7 @@ export class Game extends EventTarget {
         };
 
         if (!CC_EDITOR && CC_WECHATGAME) {
-            SplashImage.instance.onFinish(start);
+            SplashImage.instance.setOnFinish(start);
             SplashImage.instance.loadFinish = true;
         } else {
             start();
