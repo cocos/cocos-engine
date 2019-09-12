@@ -27,38 +27,40 @@
  * @category scene-graph
  */
 
+import { BitMask, Enum } from '../value-types';
+
+// built-in layers, users can use 0~19 bits, 20~31 are system preserve bits.
+const layerList = {
+  IGNORE_RAYCAST : (1 << 20),
+  GIZMOS : (1 << 21),
+  EDITOR : (1 << 22),
+  UI : (1 << 23),
+  SCENE_GIZMO : (1 << 24),
+  UI_2D : (1 << 25),
+
+  PROFILER : (1 << 28),
+  ALWAYS : (1 << 29),
+  DEFAULT : (1 << 30),
+};
+
 /**
  * 场景节点层管理器，用于射线检测、物理碰撞和用户自定义脚本逻辑。
  * 每个节点可属于一个或多个层，可通过 “包含式” 或 “排除式” 两种检测器进行层检测。
  */
 export class Layers {
 
-  // built-in layers, users can use 0~20 bits, 21~31 are system preserve bits.
-
-  /**
-   * @zh 默认层，所有节点的初始值
-   */
-  public static Default = 1 << 30;
-  public static Always = 1 << 29;
-  public static IgnoreRaycast = (1 << 20);
-  public static Gizmos = (1 << 21);
-  public static Editor = (1 << 22);
-  // 3D UI
-  public static UI = (1 << 23);
-  // 2D UI
-  public static UI2D = (1 << 25);
-  public static SceneGizmo = (1 << 24);
-
-  // masks
+  public static Enum = Enum(layerList);
+  public static BitMask = BitMask(Object.assign({}, layerList));
 
   /**
    * @zh 接受所有用户创建的节点
    */
-  public static All = Layers.makeExclusiveMask([Layers.Gizmos, Layers.SceneGizmo, Layers.Editor]);
+  public static All = Layers.makeExclusiveMask([Layers.Enum.GIZMOS, Layers.Enum.SCENE_GIZMO, Layers.Enum.EDITOR]);
   /**
    * @zh 接受所有支持射线检测的节点
    */
-  public static RaycastMask = Layers.makeExclusiveMask([Layers.Gizmos, Layers.SceneGizmo, Layers.Editor, Layers.IgnoreRaycast]);
+  public static RaycastMask = Layers.makeExclusiveMask([Layers.Enum.GIZMOS, Layers.Enum.SCENE_GIZMO,
+    Layers.Enum.EDITOR, Layers.Enum.IGNORE_RAYCAST]);
 
   /**
    * @en
@@ -99,6 +101,43 @@ export class Layers {
    */
   public static check (layer: number, mask: number): boolean {
     return (layer & mask) === layer;
+  }
+
+  /**
+   *  @zh
+   * 添加一个新层，用户可编辑 0 - 19 位为用户自定义层
+   * @param name 层名字
+   * @param bitNum 层序号
+   */
+  public static addLayer ( name: string, bitNum: number) {
+    if ( bitNum === undefined ) {
+      console.warn('bitNum can\'t be undefined');
+      return;
+    }
+    if ( bitNum > 19 || bitNum < 0) {
+      console.warn('maximum layers reached.');
+      return;
+    }
+    Layers.Enum[name] = 1 << bitNum;
+    Layers.Enum[bitNum] = name;
+    Layers.BitMask[name] = 1 << bitNum;
+    Layers.BitMask[bitNum] = name;
+  }
+
+  /**
+   * @zh
+   * 移除一个层，用户可编辑 0 - 19 位为用户自定义层
+   * @param bitNum 层序号
+   */
+  public static deleteLayer (bitNum: number) {
+    if ( bitNum > 19 || bitNum < 0) {
+      console.warn('do not change buildin layers.');
+      return;
+    }
+    delete Layers.Enum[Layers.Enum[bitNum]];
+    delete Layers.Enum[bitNum];
+    delete Layers.BitMask[Layers.BitMask[bitNum]];
+    delete Layers.BitMask[bitNum];
   }
 }
 

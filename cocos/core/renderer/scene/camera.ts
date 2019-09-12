@@ -123,7 +123,7 @@ export class Camera {
     private _position: Vec3 = new Vec3();
     private _node: INode | null = null;
     private _view: RenderView;
-    private _visibility: number = CameraVisFlags.GENERAL;
+    private _visibility = CameraVisFlags.GENERAL;
     private _priority: number = 0;
     private _aperture: CameraAperture = CameraAperture.F16_0;
     private _apertureValue: number;

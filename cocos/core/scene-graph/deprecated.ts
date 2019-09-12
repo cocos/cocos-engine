@@ -23,12 +23,6 @@ replaceProperty(BaseNode.prototype, 'BaseNode', [
     }
 ]);
 
-removeProperty(Layers, 'Layers', [
-    {
-        'name': 'addLayer',
-    }
-]);
-
 removeProperty(Node.prototype, 'Node.prototype', [
     {
         'name': 'addLayer',
@@ -36,4 +30,55 @@ removeProperty(Node.prototype, 'Node.prototype', [
     {
         'name': 'removeLayer',
     }
+]);
+
+replaceProperty(Layers, 'Layers', [
+    {
+        name: 'Default',
+        newName: 'DEFAULT',
+        target: Layers.Enum,
+        targetName: 'Layers.Enum',
+    },
+    {
+        name: 'Always',
+        newName: 'ALWAYS',
+        target: Layers.Enum,
+        targetName: 'Layers.Enum',
+    },
+    {
+        name: 'IgnoreRaycast',
+        newName: 'IGNORE_RAYCAST',
+        target: Layers.Enum,
+        targetName: 'Layers.Enum',
+    },
+    {
+        name: 'Gizmos',
+        newName: 'GIZMOS',
+        target: Layers.Enum,
+        targetName: 'Layers.Enum',
+    },
+    {
+        name: 'Editor',
+        newName: 'EDITOR',
+        target: Layers.Enum,
+        targetName: 'Layers.Enum',
+    },
+    {
+        name: 'UI',
+        newName: 'UI',
+        target: Layers.Enum,
+        targetName: 'Layers.Enum',
+    },
+    {
+        name: 'UI2D',
+        newName: 'UI_2D',
+        target: Layers.Enum,
+        targetName: 'Layers.Enum',
+    },
+    {
+        name: 'SceneGizmo',
+        newName: 'SCENE_GIZMO',
+        target: Layers.Enum,
+        targetName: 'Layers.Enum',
+    },
 ]);
