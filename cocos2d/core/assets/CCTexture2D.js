@@ -788,6 +788,10 @@ var Texture2D = cc.Class({
             this._packable = false;
             return;
         }
+
+        if (this._image && this._image instanceof HTMLCanvasElement) {
+            this._packable = true;
+        }
     },
 
     _getOpts() {

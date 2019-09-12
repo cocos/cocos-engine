@@ -337,7 +337,6 @@ export default class TTFAssembler extends Assembler2D {
         if (!frame._original) {
             frame.setRect(cc.rect(0, 0, _canvas.width, _canvas.height));
         }
-        frame._texture.packable = true;
         this.packToDynamicAtlas(comp, frame);
     }
 
