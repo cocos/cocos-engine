@@ -2711,8 +2711,8 @@ Stencil manager is already empty, cannot pop any mask
 
 ### 9100
 
-Warning: there is no raw texture file in '%s' bitmap font.
+Warning: Render failed, there is no raw texture file in '%s', please set in '%s' inspector panel.
 
 ### 9101
 
-Warning: there is no font configuration in '%s' bitmap font.
+Warning: Render failed, there is no information in '%s', please set in '%s' inspector panel.
