@@ -261,7 +261,7 @@ export interface PhysicMaterialBase {
 
 export interface ShapeBase {
 
-    material: PhysicMaterialBase | null;
+    material?: PhysicMaterialBase | null;
 
     setCenter (center: Vec3): void;
 
