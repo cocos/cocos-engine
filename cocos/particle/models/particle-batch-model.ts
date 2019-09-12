@@ -192,6 +192,7 @@ export default class ParticleBatchModel extends Model {
             indirectBuffer: this._iaInfoBuffer,
             attributes: this._vertAttrs!,
             primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
+            flatBuffers: [],
         };
         this.setSubModelMesh(0, this._subMeshData);
         return vBuffer;

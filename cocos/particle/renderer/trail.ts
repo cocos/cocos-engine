@@ -361,7 +361,7 @@ export default class TrailModule {
             this._trailModel = null;
         }
         if (this._trailSegments) {
-            this._trailSegments.clear((obj: TrailSegment) => { obj.trailElements = null; });
+            this._trailSegments.clear((obj: TrailSegment) => { obj.trailElements.length = 0; });
             this._trailSegments = null;
         }
     }
@@ -576,6 +576,7 @@ export default class TrailModule {
             indirectBuffer: this._iaInfoBuffer,
             attributes: this._vertAttrs!,
             primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
+            flatBuffers: [],
         };
 
         this._trailModel = this._particleSystem._getRenderScene().createModel(Model, this._particleSystem.node);
