@@ -335,7 +335,6 @@ module.exports = {
         if (!frame._original) {
             frame.setRect(cc.rect(0, 0, _canvas.width, _canvas.height));
         }
-        frame._texture.packable = true;
         // Add font images to the dynamic atlas for batch rendering.
         packToDynamicAtlas(comp, frame);
     },
