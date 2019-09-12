@@ -29,14 +29,14 @@
  */
 
 import { Component} from '../../core/components';
-import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
-import { SystemEventType } from '../../core/platform/event-manager/event-enum';
-import { Size, Vec3 } from '../../core/math';
-import { ccenum } from '../../core/value-types/enum';
-import { Node } from '../../core/scene-graph/node';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transfrom-component';
-import { INode } from '../../core/utils/interfaces';
+import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
+import { Size, Vec3 } from '../../core/math';
 import { errorID } from '../../core/platform/debug';
+import { SystemEventType } from '../../core/platform/event-manager/event-enum';
+import { Node } from '../../core/scene-graph/node';
+import { INode } from '../../core/utils/interfaces';
+import { ccenum } from '../../core/value-types/enum';
 
 /**
  * @zh
@@ -579,14 +579,6 @@ export class WidgetComponent extends Component {
     }
 
     public update (){
-        if (this._dirty){
-            return;
-        }
-
-        // changed by parent
-        if (this.node.hasChangedFlags) {
-            this._recursiveDirty();
-        }
     }
 
     public onDisable () {
@@ -699,10 +691,7 @@ export class WidgetComponent extends Component {
             return;
         }
 
-        const widgets = this.node.getComponentsInChildren(WidgetComponent);
-        widgets.forEach((widget) => {
-            widget._dirty = true;
-        });
+        this._dirty = true;
     }
 }
 

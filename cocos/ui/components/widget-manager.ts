@@ -28,19 +28,19 @@
  * @hidden
  */
 
-import { SystemEventType } from '../../core/platform/event-manager/event-enum';
-import { array } from '../../core/utils/js';
-import { Vec2, Vec3 } from '../../core/math';
 import { CanvasComponent } from '../../core/components/ui-base/canvas-component';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-import { AlignFlags, AlignMode, WidgetComponent } from './widget-component';
-import { Node } from '../../core/scene-graph/node';
-import { Scene } from '../../core/scene-graph';
 import { Director, director } from '../../core/director';
+import { Vec2, Vec3 } from '../../core/math';
+import { SystemEventType } from '../../core/platform/event-manager/event-enum';
+import sys from '../../core/platform/sys';
 import { View } from '../../core/platform/view';
 import visibleRect from '../../core/platform/visible-rect';
-import sys from '../../core/platform/sys';
+import { Scene } from '../../core/scene-graph';
+import { Node } from '../../core/scene-graph/node';
 import { INode } from '../../core/utils/interfaces';
+import { array } from '../../core/utils/js';
+import { AlignFlags, AlignMode, WidgetComponent } from './widget-component';
 
 const _tempPos = new Vec3();
 const _zeroVec3 = new Vec3();
@@ -480,6 +480,10 @@ function adjustWidgetToAnchorChanged (this: WidgetComponent) {
     this.setDirty();
 }
 
+function adjustTargetToParentChanged (this: WidgetComponent) {
+    this.target = this.node.parent;
+}
+
 const activeWidgets: WidgetComponent[] = [];
 
 // updateAlignment from scene to node recursively
@@ -527,7 +531,7 @@ export const widgetManager = cc._widgetManager = {
     add (widget: WidgetComponent) {
         this._nodesOrderDirty = true;
         // if (CC_EDITOR && !cc.engine.isPlaying) {
-        const renderComp:UIRenderComponent = widget.node.getComponent(UIRenderComponent);
+        const renderComp: UIRenderComponent = widget.node.getComponent(UIRenderComponent);
         if (renderComp) {
                 const canvasComp = director.root!.ui.getScreen(renderComp.visibility);
                 if (canvasComp && canvasList.indexOf(canvasComp) === -1) {
@@ -538,6 +542,7 @@ export const widgetManager = cc._widgetManager = {
         widget.node.on(SystemEventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
         widget.node.on(SystemEventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
         widget.node.on(SystemEventType.ANCHOR_CHANGED, adjustWidgetToAnchorChanged, widget);
+        widget.node.on(SystemEventType.PARENT_CHANGED, adjustTargetToParentChanged, widget);
         // }
     },
     remove (widget: WidgetComponent) {
@@ -546,13 +551,10 @@ export const widgetManager = cc._widgetManager = {
         widget.node.off(SystemEventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
         widget.node.off(SystemEventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
         widget.node.off(SystemEventType.ANCHOR_CHANGED, adjustWidgetToAnchorChanged, widget);
+        widget.node.off(SystemEventType.PARENT_CHANGED, adjustTargetToParentChanged, widget);
         // }
     },
     onResized () {
-        const scene = director.getScene();
-        if (scene) {
-            this.refreshWidgetOnResized(scene);
-        }
     },
     refreshWidgetOnResized (node: Node) {
         if (Node.isNode(node)){
@@ -654,6 +656,6 @@ export const widgetManager = cc._widgetManager = {
     AlignFlags,
 };
 
-director.on(Director.EVENT_INIT, function () {
+director.on(Director.EVENT_INIT, () => {
     widgetManager.init(director);
 });

@@ -445,6 +445,10 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             }
         }
         this._onHierarchyChanged(oldParent);
+
+        if (this.emit) {
+            this.emit(SystemEventType.PARENT_CHANGED, this);
+        }
     }
 
     // ABSTRACT INTERFACES
