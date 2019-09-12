@@ -86,7 +86,7 @@ function quickFindIndex (ratios, ratio) {
     if (ratio < start) return 0;
 
     var end = ratios[length];
-    if (ratio > end) return ~length;
+    if (ratio > end) return ~ratios.length;
 
     ratio = (ratio - start) / (end - start);
 
