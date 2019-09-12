@@ -469,6 +469,7 @@ AssetManager.prototype = {
      * @method loadRemoteTexture
      * @param {string} url - The url of image
      * @param {Object} [options] - Some optional parameters
+     * @param {boolean} [options.isCrossOrigin] - Indicate whether or not image is CORS
      * @param {Function} [onComplete] - Callback invoked when finish loading
      * @param {Error} onComplete.err - The error occured in loading process.
      * @param {cc.Texture2D} onComplete.texture - The loaded texture
@@ -576,6 +577,7 @@ AssetManager.prototype = {
      * @method loadBundle
      * @param {string} root - The root path of bundle
      * @param {Object} [options] - Some optional paramter, same like downloader.downloadFile
+     * @param {string} [options.ver] - The version of this bundle, you can check config.json in this bundle
      * @param {Function} [onComplete] - Callback when bundle loaded or failed
      * @param {Error} onComplete.err - The occurred error, null indicetes success
      * @param {Bundle} onComplete.bundle - The loaded bundle
@@ -590,12 +592,11 @@ AssetManager.prototype = {
     loadBundle (root, options, onComplete) {
         if (!root) return;
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
-
+        options.priority = options.priority || 2;
         if (root.endsWith('/')) root = root.substr(0, root.length - 1);
         var self = this;
-        options.responseType = 'json';
         var config = options.ver ? `${root}/config.${options.ver}.json` : `${root}/config.json`;
-        downloader.downloadFile(config, options, null, function (err, response) {
+        downloader.download(root, config, '.json', options, function (err, response) {
             if (err) {
                 cc.error(err);
                 onComplete && onComplete(err);
@@ -786,8 +787,6 @@ AssetManager.prototype = {
      * @method loadScene
      * @param {String} sceneName - The name of the scene to load.
      * @param {Object} [options] - Some optional parameters
-     * @param {Function} [options.onBeforeLoadScene] - Callback before run this scene
-     * @param {Function} [options.onAfterLoadScene] - Callback after run this scene
      * @param {Function} [onProgress] - Callback invoked when progression change.
      * @param {Number} onProgress.finish - The number of the items that are already completed.
      * @param {Number} onProgress.total - The total number of the items.

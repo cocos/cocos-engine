@@ -390,7 +390,9 @@ var downloader = {
      * @param {string} type - The type indicates that which handler should be used to download, such as '.jpg'
      * @param {Object} options - some optional paramters will be transferred to the corresponding handler.
      * @param {Function} [options.onProgress] - progressive callback will be transferred to handler.
+     * @param {Number} [options.maxRetryCount] - How many times should retry when download failed
      * @param {LoadStrategy} [options.loadStrategy] - Indicates which strategy should be used.
+     * @param {Number} [options.priority] - The priority of this url, default is 0, the greater number is higher priority.
      * @param {Function} onComplete - callback when finishing downloading
      * @param {Error} onComplete.err - The occurred error, null indicetes success
      * @param {*} onComplete.contetnt - The downloaded file
