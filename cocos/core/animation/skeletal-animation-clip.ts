@@ -27,6 +27,7 @@
  * @category animation
  */
 
+import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
 import { ccclass } from '../data/class-decorator';
 import { Mat4 } from '../math';
 import { INode } from '../utils/interfaces';
@@ -44,6 +45,7 @@ type ConvertedData = Record<string, {
 @ccclass('cc.SkeletalAnimationClip')
 export class SkeletalAnimationClip extends AnimationClip {
 
+    public originalKeys: number[][] = [];
     public convertedData: ConvertedData = {};
     protected _converted = false;
 
@@ -73,20 +75,28 @@ export class SkeletalAnimationClip extends AnimationClip {
             }
         });
         this.convertedData = convertedData; this.curves = [];
+        // lazy eval the conversion due to memory-heavy ops
+        // many animation paths may not be actually in-use
+        for (const path of Object.keys(convertedData)) {
+            const props = convertedData[path] && convertedData[path].props;
+            if (!props) { continue; }
+            Object.defineProperty(props, 'worldMatrix', {
+                get: () => {
+                    if (!props._worldMatrix) {
+                        const { position, rotation, scale } = props;
+                        // fixed step pre-sample
+                        this._convertToUniformSample(position);
+                        this._convertToUniformSample(rotation);
+                        this._convertToUniformSample(scale);
+                        // transform to world space
+                        this._convertToWorldSpace(path, props);
+                    }
+                    return props._worldMatrix;
+                },
+            });
+        }
         const values: number[] = new Array(Math.ceil(this.sample * this._duration / this.speed) + 1);
         for (let i = 0; i < values.length; i++) { values[i] = i; }
-        // sort the keys to make sure parent bone always comes first
-        for (const path of Object.keys(this.convertedData).sort()) {
-            const nodeData = this.convertedData[path];
-            if (!nodeData.props) { continue; }
-            const { position, rotation, scale } = nodeData.props;
-            // fixed step pre-sample
-            this._convertToUniformSample(position, values);
-            this._convertToUniformSample(rotation, values);
-            this._convertToUniformSample(scale, values);
-            // transform to world space
-            this._convertToWorldSpace(path, nodeData.props);
-        }
         // create frameID animation
         const curves: ITargetCurveData[] = [{
             modifiers: [
@@ -97,23 +107,45 @@ export class SkeletalAnimationClip extends AnimationClip {
             data: { keys: 0, values, interpolate: false },
         }];
         this.curves = curves;
+        this.originalKeys = this._keys;
         this._keys = [values.map((_, i) => i * this.speed / this.sample)];
         this._duration = this._keys[0][values.length - 1];
         this._converted = true;
+        if (!root || !root.scene) { return; }
+        // try eval for the existing skinning models
+        const comps = root.getComponentsInChildren(SkinningModelComponent);
+        for (let i = 0; i < comps.length; ++i) {
+            const comp = comps[i] as SkinningModelComponent;
+            if (comp.skinningRoot === root && comp.skeleton) {
+                for (const path of comp.skeleton.joints) {
+                    const data = convertedData[path];
+                    // tslint:disable-next-line: no-unused-expression
+                    data && data.props && data.props.worldMatrix;
+                }
+            }
+        }
     }
 
-    private _convertToUniformSample (curve: IPropertyCurveData, counts: number[]) {
-        const keys = this._keys[curve.keys]; curve.keys = 0;
-        curve.values = counts.map((_, i) => {
-            if (!keys || keys.length === 1) { return curve.values[0].clone(); } // never forget to clone
-            let time = i * this.speed / this.sample;
-            let idx = keys.findIndex((k) => k > time);
-            if (idx < 0) { idx = keys.length - 1; time = keys[idx]; }
-            else if (idx === 0) { idx = 1; }
-            const from = curve.values[idx - 1].clone();
-            from.lerp(curve.values[idx], (time - keys[idx - 1]) / (keys[idx] - keys[idx - 1]));
-            return from;
-        });
+    private _convertToUniformSample (curve: IPropertyCurveData) {
+        const keys = this.originalKeys[curve.keys]; curve.keys = 0;
+        const len = this._keys[0].length;
+        const values: any[] = [];
+        if (!keys || keys.length === 1) {
+            for (let i = 0; i < len; i++) {
+                values[i] = curve.values[0].clone(); // never forget to clone
+            }
+        } else {
+            for (let i = 0, idx = 0; i < len; i++) {
+               let time = i * this.speed / this.sample;
+               while (keys[idx] <= time) { idx++; }
+               if (idx > keys.length - 1) { idx = keys.length - 1; time = keys[idx]; }
+               else if (idx === 0) { idx = 1; }
+               const from = curve.values[idx - 1].clone();
+               from.lerp(curve.values[idx], (time - keys[idx - 1]) / (keys[idx] - keys[idx - 1]));
+               values[i] = from;
+           }
+        }
+        curve.values = values;
     }
 
     private _convertToWorldSpace (path: string, props: IObjectCurveData) {
@@ -127,7 +159,6 @@ export class SkeletalAnimationClip extends AnimationClip {
             const name = path.substring(0, idx);
             const data = this.convertedData[name];
             if (!data || !data.props) { console.warn('no data for parent bone?'); return; }
-            // parent is already in world space
             pMatrix = data.props.worldMatrix.values;
         }
         // all props should have the same length now
@@ -140,7 +171,7 @@ export class SkeletalAnimationClip extends AnimationClip {
             if (pMatrix) { Mat4.multiply(m, pMatrix[i], m); }
         }
         Object.keys(props).forEach((k) => delete props[k]);
-        props.worldMatrix = { keys: 0, interpolate: false, values: matrix };
+        props._worldMatrix = { keys: 0, interpolate: false, values: matrix };
     }
 }
 

@@ -43,12 +43,12 @@ import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { Mat3, Mat4, Vec2, Vec3, Vec4 } from '../../math';
+import { BatchedBuffer } from '../../pipeline/batched-buffer';
 import { isBuiltinBinding, RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
-import { BatchedBuffer } from '../../pipeline/batched-buffer';
 
 export interface IDefineMap { [name: string]: number | boolean | string; }
 export interface IPassInfoFull extends IPassInfo {
