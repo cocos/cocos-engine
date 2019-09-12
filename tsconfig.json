@@ -3,7 +3,6 @@
       "target": "es5",
       "lib": ["es2015", "es2017", "dom"],
       "module": "commonjs",
-      "allowJs": true,
       "sourceMap": true,
       "outDir": "./bin/.ts",
       "rootDir": "./",
@@ -21,7 +20,7 @@
         "./cocos/core/gfx/webgl2/WebGL2",
         "./node_modules/tween.js/TWEEN",
         "./node_modules/@types/jest/index"
-      ],
+      ]
     },
     "files": [
         "./index.ts"
