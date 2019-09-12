@@ -6,8 +6,7 @@ export { addStage };
 
 export * from './core/texture-buffer-pool';
 export { RenderQueue, PassStage } from './core/constants';
-export { Pass } from './core/pass';
-export { IDefineMap} from './core/pass';
+export { Pass, IDefineMap } from './core/pass';
 export { programLib } from './core/program-lib';
 import { samplerLib } from './core/sampler-lib';
 cc.samplerLib = samplerLib;
