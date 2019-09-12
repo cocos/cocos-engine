@@ -527,10 +527,18 @@ let ArmatureDisplay = cc.Class({
 
     update (dt) {
         if (!this.isAnimationCached()) return;
-        if (!this._playing) return;
+        if (!this._frameCache) return;
 
         let frameCache = this._frameCache;
         let frames = frameCache.frames;
+        if (!this._playing) {
+            if (frameCache.isInvalid()) {
+                frameCache.updateToFrame();
+                this._curFrame = frames[frames.length - 1];
+            }
+            return;
+        }
+
         let frameTime = ArmatureCache.FrameTime;
 
         // Animation Start, the event diffrent from dragonbones inner event,
@@ -781,12 +789,12 @@ let ArmatureDisplay = cc.Class({
             let cache = this._armatureCache.getAnimationCache(this._armatureKey, animName);
             if (!cache) {
                 cache = this._armatureCache.initAnimationCache(this._armatureKey, animName);
-                cache.begin();
             }
             if (cache) {
                 this._accTime = 0;
                 this._playCount = 0;
                 this._frameCache = cache;
+                this._frameCache.updateToFrame(0);
                 this._playing = true;
                 this._curFrame = this._frameCache.frames[0];
             }
@@ -799,19 +807,30 @@ let ArmatureDisplay = cc.Class({
 
     /**
      * !#en
-     * Update an animation cache.
+     * Updating an animation cache to calculate all frame data in the animation is a cost in 
+     * performance due to calculating all data in a single frame.
+     * To update the cache, use the invalidAnimationCache method with high performance.
      * !#zh
-     * 更新某个动画缓存。
+     * 更新某个动画缓存, 预计算动画中所有帧数据，由于在单帧计算所有数据，所以较消耗性能。
+     * 若想更新缓存，可使用 invalidAnimationCache 方法，具有较高性能。
      * @method updateAnimationCache
      * @param {String} animName
      */
     updateAnimationCache (animName) {
         if (!this.isAnimationCached()) return;
-        if (animName) {
-            this._armatureCache.updateAnimationCache(this._armatureKey, animName);
-        } else {
-            this._armatureCache.updateAllAnimationCache(this._armatureKey);
-        }
+        this._armatureCache.updateAnimationCache(this._armatureKey, animName);
+    },
+
+    /**
+     * !#en
+     * Invalidates the animation cache, which is then recomputed on each frame..
+     * !#zh
+     * 使动画缓存失效，之后会在每帧重新计算。
+     * @method invalidAnimationCache
+     */
+    invalidAnimationCache () {
+        if (!this.isAnimationCached()) return;
+        this._armatureCache.invalidAnimationCache(this._armatureKey);
     },
 
     /**

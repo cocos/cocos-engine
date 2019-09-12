@@ -42,6 +42,7 @@ let _x, _y;
 //Cache all frames in an animation
 let AnimationCache = cc.Class({
     ctor () {
+        this._invalid = true;
         this.frames = [];
         this.totalTime = 0;
         this.isCompleted = false;
@@ -67,15 +68,19 @@ let AnimationCache = cc.Class({
     },
 
     begin () {
+        if (!this._invalid) return;
+
         let armatureInfo = this._armatureInfo;
-        if (armatureInfo.curAnimationCache) {
-            armatureInfo.curAnimationCache.updateToFrame();
+        let curAnimationCache = armatureInfo.curAnimationCache;
+        if (curAnimationCache && curAnimationCache != this) {
+            curAnimationCache.updateToFrame();
         }
         let armature = armatureInfo.armature;
         let animation = armature.animation;
         animation.play(this._animationName, 1);
 
         armatureInfo.curAnimationCache = this;
+        this._invalid = false;
         this._frameIdx = -1;
         this.totalTime = 0;
         this.isCompleted = false;
@@ -99,6 +104,8 @@ let AnimationCache = cc.Class({
     },
 
     updateToFrame (toFrameIdx) {
+        this.begin();
+
         if (!this._needToUpdate(toFrameIdx)) return;
 
         let armatureInfo = this._armatureInfo;
@@ -115,8 +122,17 @@ let AnimationCache = cc.Class({
         this.end();
     },
 
+    isInvalid () {
+        return this._invalid;
+    },
+
+    invalidAllFrame () {
+        this.isCompleted = false;
+        this._invalid = true;
+    },
+
     updateAllFrame () {
-        this.begin();
+        this.invalidAllFrame();
         this.updateToFrame();
     },
 
@@ -396,17 +412,7 @@ let ArmatureCache = cc.Class({
         return animationCache;
     },
 
-    updateAnimationCache (armatureKey, animationName) {
-        let animationCache = this.initAnimationCache(armatureKey, animationName);
-        if (!animationCache) return;
-        animationCache.updateAllFrame();
-        if (animationCache.totalTime >= MaxCacheTime) {
-            cc.warn("Animation cache is overflow, maybe animation's frame is infinite, please change armature render mode to REALTIME, dragonbones uuid is [%s], animation name is [%s]", armatureKey, animationName);
-        }
-        return animationCache;
-    },
-
-    updateAllAnimationCache (armatureKey) {
+    invalidAnimationCache (armatureKey) {
         let armatureInfo = this._armatureCache[armatureKey];
         let armature = armatureInfo && armatureInfo.armature;
         if (!armature) return null;
@@ -414,7 +420,25 @@ let ArmatureCache = cc.Class({
         let animationsCache = armatureInfo.animationsCache;
         for (var aniKey in animationsCache) {
             let animationCache = animationsCache[aniKey];
+            animationCache.invalidAllFrame();
+        }
+    },
+
+    updateAnimationCache (armatureKey, animationName) {
+        if (animationName) {
+            let animationCache = this.initAnimationCache(armatureKey, animationName);
+            if (!animationCache) return;
             animationCache.updateAllFrame();
+        } else {
+            let armatureInfo = this._armatureCache[armatureKey];
+            let armature = armatureInfo && armatureInfo.armature;
+            if (!armature) return null;
+
+            let animationsCache = armatureInfo.animationsCache;
+            for (var aniKey in animationsCache) {
+                let animationCache = animationsCache[aniKey];
+                animationCache.updateAllFrame();
+            }
         }
     },
 });

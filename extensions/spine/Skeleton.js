@@ -613,7 +613,15 @@ sp.Skeleton = cc.Class({
 
             // Cache mode and has animation queue.
             if (this._isAniComplete) {
-                if (this._animationQueue.length === 0 && !this._headAniInfo) return;
+                if (this._animationQueue.length === 0 && !this._headAniInfo) {
+                    let frameCache = this._frameCache;
+                    if (frameCache && frameCache.isInvalid()) {
+                        frameCache.updateToFrame();
+                        let frames = frameCache.frames;
+                        this._curFrame = frames[frames.length - 1];
+                    }
+                    return;
+                }
                 if (!this._headAniInfo) {
                     this._headAniInfo = this._animationQueue.shift();
                 }
@@ -764,12 +772,8 @@ sp.Skeleton = cc.Class({
      * @method setToSetupPose
      */
     setToSetupPose () {
-        if (this.isAnimationCached()) {
-            cc.warn("'SetToSetupPose' interface can not be invoked in cached mode.");
-        } else {
-            if (this._skeleton) {
-                this._skeleton.setToSetupPose();
-            }
+        if (this._skeleton) {
+            this._skeleton.setToSetupPose();
         }
     },
 
@@ -783,12 +787,8 @@ sp.Skeleton = cc.Class({
      * @method setBonesToSetupPose
      */
     setBonesToSetupPose () {
-        if (this.isAnimationCached()) {
-            cc.warn("'setBonesToSetupPose' interface can not be invoked in cached mode.");
-        } else {
-            if (this._skeleton) {
-                this._skeleton.setBonesToSetupPose();
-            }
+        if (this._skeleton) {
+            this._skeleton.setBonesToSetupPose();
         }
     },
 
@@ -802,31 +802,38 @@ sp.Skeleton = cc.Class({
      * @method setSlotsToSetupPose
      */
     setSlotsToSetupPose () {
-        if (this.isAnimationCached()) {
-            cc.warn("'setSlotsToSetupPose' interface can not be invoked in cached mode.");
-        } else {
-            if (this._skeleton) {
-                this._skeleton.setSlotsToSetupPose();
-            }
+        if (this._skeleton) {
+            this._skeleton.setSlotsToSetupPose();
         }
     },
 
     /**
      * !#en
-     * Update an animation cache.
+     * Updating an animation cache to calculate all frame data in the animation is a cost in 
+     * performance due to calculating all data in a single frame.
+     * To update the cache, use the invalidAnimationCache method with high performance.
      * !#zh
-     * 更新某个动画缓存。
+     * 更新某个动画缓存, 预计算动画中所有帧数据，由于在单帧计算所有数据，所以较消耗性能。
+     * 若想更新缓存，可使用 invalidAnimationCache 方法，具有较高性能。
      * @method updateAnimationCache
      * @param {String} animName
      */
     updateAnimationCache (animName) {
         if (!this.isAnimationCached()) return;
         let uuid = this.skeletonData._uuid;
-        if (animName) {
-            this._skeletonCache.updateAnimationCache(uuid, animName);
-        } else {
-            this._skeletonCache.updateAllAnimationCache(uuid);
-        }        
+        this._skeletonCache.updateAnimationCache(uuid, animName);
+    },
+
+    /**
+     * !#en
+     * Invalidates the animation cache, which is then recomputed on each frame..
+     * !#zh
+     * 使动画缓存失效，之后会在每帧重新计算。
+     * @method invalidAnimationCache
+     */
+    invalidAnimationCache () {
+        if (!this.isAnimationCached()) return;
+        this._skeletonCache.invalidAnimationCache(this.skeletonData._uuid);
     },
 
     /**
@@ -884,14 +891,11 @@ sp.Skeleton = cc.Class({
      * @param {String} skinName
      */
     setSkin (skinName) {
-        if (this.isAnimationCached()) {
-            this._skeletonCache.updateSkeletonSkin(this.skeletonData._uuid, skinName);
-        } else {
-            if (this._skeleton) {
-                this._skeleton.setSkinByName(skinName);
-                this._skeleton.setSlotsToSetupPose();
-            }
+        if (this._skeleton) {
+            this._skeleton.setSkinByName(skinName);
+            this._skeleton.setSlotsToSetupPose();
         }
+        this.invalidAnimationCache();
     },
 
     /**
@@ -927,13 +931,10 @@ sp.Skeleton = cc.Class({
      * @param {String} attachmentName
      */
     setAttachment (slotName, attachmentName) {
-        if (this.isAnimationCached()) {
-            this._skeletonCache.updateSkeletonAttachment(this.skeletonData._uuid, slotName, attachmentName);
-        } else {
-            if (this._skeleton) {
-                this._skeleton.setAttachment(slotName, attachmentName);
-            }
+        if (this._skeleton) {
+            this._skeleton.setAttachment(slotName, attachmentName);
         }
+        this.invalidAnimationCache();
     },
 
     /**
@@ -986,13 +987,13 @@ sp.Skeleton = cc.Class({
             let cache = this._skeletonCache.getAnimationCache(this.skeletonData._uuid, name);
             if (!cache) {
                 cache = this._skeletonCache.initAnimationCache(this.skeletonData._uuid, name);
-                cache.begin();
             }
             if (cache) {
                 this._isAniComplete = false;
                 this._accTime = 0;
                 this._playCount = 0;
                 this._frameCache = cache;
+                this._frameCache.updateToFrame(0);
                 this._curFrame = this._frameCache.frames[0];
             }
         } else {
