@@ -5,11 +5,11 @@
 
 import {
     ccclass,
+    disallowMultiple,
     executeInEditMode,
     executionOrder,
     menu,
     property,
-    disallowMultiple,
 } from '../../core/data/class-decorator';
 import { Vec3 } from '../../core/math';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
@@ -46,7 +46,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     public set allowSleep (v: boolean) {
         this._allowSleep = v;
-        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this.sharedBody.body.setAllowSleep(v);
         }
     }
@@ -64,7 +64,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     public set mass (value) {
         this._mass = value;
-        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.setMass(value);
         }
     }
@@ -82,7 +82,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     public set linearDamping (value) {
         this._linearDamping = value;
-        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.setLinearDamping(value);
         }
     }
@@ -100,7 +100,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     public set angularDamping (value) {
         this._angularDamping = value;
-        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.setAngularDamping(value);
         }
     }
@@ -118,7 +118,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     public set isKinematic (value) {
         this._isKinematic = value;
-        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.setIsKinematic(value);
         }
     }
@@ -136,7 +136,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     public set useGravity (value) {
         this._useGravity = value;
-        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.setUseGravity(value);
         }
     }
@@ -154,7 +154,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     public set fixedRotation (value) {
         this._fixedRotation = value;
-        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.setFreezeRotation(value);
         }
     }
@@ -176,7 +176,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     public set linearFactor (value: Vec3) {
         Vec3.copy(this._linearFactor, value);
-        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.setLinearFactor(this._linearFactor);
         }
     }
@@ -197,7 +197,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     public set angularFactor (value: Vec3) {
         Vec3.copy(this._angularFactor, value);
-        if (!CC_EDITOR && !CC_PHYSICS_BUILT_IN) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.setAngularFactor(this._angularFactor);
         }
     }
@@ -207,7 +207,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * 获取是否是唤醒的状态。
      */
     public get isAwake (): boolean {
-        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
             return this._body.isAwake();
         }
         return false;
@@ -218,7 +218,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * 获取是否是可进入休眠的状态。
      */
     public get isSleepy (): boolean {
-        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
             return this._body.isSleepy();
         }
         return false;
@@ -229,7 +229,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * 获取是否是正在休眠的状态。
      */
     public get isSleeping (): boolean {
-        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
             return this._body.isSleeping();
         }
         return false;
@@ -277,7 +277,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * @param relativePoint - 作用点，相对于刚体的中心点
      */
     public applyForce (force: Vec3, relativePoint?: Vec3) {
-        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
             this._body!.applyForce(force, relativePoint);
         }
     }
@@ -289,7 +289,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * @param localPoint - 作用点
      */
     public applyLocalForce (force: Vec3, localPoint?: Vec3) {
-        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
             this._body!.applyLocalForce(force, localPoint);
         }
     }
@@ -301,7 +301,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * @param relativePoint - 作用点，相对于刚体的中心点
      */
     public applyImpulse (impulse: Vec3, relativePoint?: Vec3) {
-        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
             this._body!.applyImpulse(impulse, relativePoint);
         }
     }
@@ -313,19 +313,19 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * @param localPoint - 作用点
      */
     public applyLocalImpulse (impulse: Vec3, localPoint?: Vec3) {
-        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
             this._body!.applyLocalImpulse(impulse, localPoint);
         }
     }
-    
+
     public applyTorque (torque: Vec3) {
-        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
             this._body!.applyTorque(torque);
         }
     }
 
     public applyLocalTorque (torque: Vec3) {
-        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
             this._body!.applyLocalTorque(torque);
         }
     }
@@ -335,7 +335,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * 唤醒刚体。
      */
     public wakeUp () {
-        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
             this._body!.wakeUp();
         }
     }
@@ -345,7 +345,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * 休眠刚体。
      */
     public sleep () {
-        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
             this._body!.sleep();
         }
     }
@@ -356,7 +356,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * @param out 速度 Vec3
      */
     public getLinearVelocity (out: Vec3) {
-        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
             this._body.getLinearVelocity(out);
         }
     }
@@ -367,7 +367,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * @param value 速度 Vec3
      */
     public setLinearVelocity (value: Vec3): void {
-        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
             this._body.setLinearVelocity(value);
         }
     }
@@ -378,7 +378,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * @param out 速度 Vec3
      */
     public getAngularVelocity (out: Vec3) {
-        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
             this._body.getAngularVelocity(out);
         }
     }
@@ -389,7 +389,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      * @param value 速度 Vec3
      */
     public setAngularVelocity (value: Vec3): void {
-        if (!CC_PHYSICS_BUILT_IN && this._assertPreload) {
+        if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
             this._body.setAngularVelocity(value);
         }
     }
@@ -397,7 +397,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
     /// COMPONENT LIFECYCLE ///
 
     protected onLoad () {
-        if (!CC_PHYSICS_BUILT_IN) {
+        if (!CC_PHYSICS_BUILTIN) {
             /**
              * 此处设置刚体属性是因为__preload不受executionOrder的顺序影响，
              * 从而导致ColliderComponent后添加会导致刚体的某些属性被重写

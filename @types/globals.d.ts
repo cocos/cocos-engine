@@ -41,7 +41,7 @@ declare const jsb: any;
 
 declare const CC_PHYSICS_CANNON: boolean;
 declare const CC_PHYSICS_AMMO: boolean;
-declare const CC_PHYSICS_BUILT_IN: boolean;
+declare const CC_PHYSICS_BUILTIN: boolean;
 interface Window {
 
     [x: string]: any;

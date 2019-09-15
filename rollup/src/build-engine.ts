@@ -94,7 +94,7 @@ interface IModuleInfo {
 
 const moduleInfoTable: Record<string, IModuleInfo> = {
     'physics-builtin': {
-        requiredFlags: ['CC_PHYSICS_BUILT_IN'],
+        requiredFlags: ['CC_PHYSICS_BUILTIN'],
     },
     'physics-cannon': {
         requiredFlags: ['CC_PHYSICS_CANNON'],
@@ -346,7 +346,7 @@ interface IGlobaldefines {
     // Physics macros
     CC_PHYSICS_CANNON?: boolean;
     CC_PHYSICS_AMMO?: boolean;
-    CC_PHYSICS_BUILT_IN?: boolean;
+    CC_PHYSICS_BUILTIN?: boolean;
 }
 
 function getGlobalDefs (options: IBuildOptions): object {
@@ -383,7 +383,7 @@ function getGlobalDefs (options: IBuildOptions): object {
     result.CC_DEV = result.CC_EDITOR || result.CC_PREVIEW || result.CC_TEST;
     result.CC_DEBUG = result.CC_DEBUG || result.CC_DEV;
     result.CC_SUPPORT_JIT = !(result.CC_WECHATGAME || result.CC_QQPLAY || result.CC_RUNTIME);
-    result.CC_PHYSICS_BUILT_IN = false;
+    result.CC_PHYSICS_BUILTIN = false;
     result.CC_PHYSICS_CANNON = false;
     result.CC_PHYSICS_AMMO = false;
 
