@@ -193,6 +193,17 @@ else {
     defineMacro('CC_PHYSICS_AMMO', false);
 }
 
+/**
+ * it will be remove when editor CC_PHYSICS_BUILT_IN rename to CC_PHYSICS_BUILTIN
+ */
+if (CC_PREVIEW) {
+    if (CC_PHYSICS_CANNON || CC_PHYSICS_AMMO) {
+        _global.CC_PHYSICS_BUILTIN = false;
+    }
+
+    _global.CC_PHYSICS_BUILT_IN = _global.CC_PHYSICS_BUILTIN;
+}
+
 //
 
 if (CC_DEV) {
