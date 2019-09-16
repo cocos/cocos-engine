@@ -113,11 +113,11 @@ var SystemEvent = cc.Class({
         inputManger.setAccelerometerInterval(interval);
     },
 
-    on: function (type, callback, target) {
+    on: function (type, callback, target, once) {
         if (CC_EDITOR) {
             return;
         }
-        this._super(type, callback, target);
+        this._super(type, callback, target, once);
 
         // Keyboard
         if (type === EventType.KEY_DOWN || type === EventType.KEY_UP) {
