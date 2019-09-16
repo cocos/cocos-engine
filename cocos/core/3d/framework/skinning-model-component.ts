@@ -47,7 +47,7 @@ import { ModelComponent } from './model-component';
 @ccclass('cc.SkinningModelComponent')
 @executionOrder(100)
 @executeInEditMode
-@menu('Components/SkinningModelComponent')
+@menu('Components/SkinningModel')
 export class SkinningModelComponent extends ModelComponent {
 
     @property(Skeleton)

@@ -56,7 +56,7 @@ const ModelShadowCastingMode = Enum({
  */
 @ccclass('cc.ModelComponent')
 @executionOrder(100)
-@menu('Components/ModelComponent')
+@menu('Components/Model')
 @executeInEditMode
 export class ModelComponent extends RenderableComponent {
 

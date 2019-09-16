@@ -20,7 +20,7 @@ import { ColliderComponent } from './collider-component';
  */
 @ccclass('cc.BoxColliderComponent')
 @executionOrder(98)
-@menu('Components/BoxColliderComponent')
+@menu('Components/BoxCollider')
 @executeInEditMode
 export class BoxColliderComponent extends ColliderComponent {
 

@@ -19,7 +19,7 @@ import { ColliderComponent } from './collider-component';
  */
 @ccclass('cc.SphereColliderComponent')
 @executionOrder(98)
-@menu('Components/SphereColliderComponent')
+@menu('Components/SphereCollider')
 @executeInEditMode
 export class SphereColliderComponent extends ColliderComponent {
 

@@ -19,18 +19,18 @@ import { GFXTextureView } from './texture-view';
 
 export * from './define';
 
-cc.GFXDevice = GFXDevice;
-cc.GFXBuffer = GFXBuffer;
-cc.GFXTexture = GFXTexture;
-cc.GFXTextureView = GFXTextureView;
-cc.GFXSampler = GFXSampler;
-cc.GFXShader = GFXShader;
-cc.GFXInputAssembler = GFXInputAssembler;
-cc.GFXRenderPass = GFXRenderPass;
-cc.GFXFramebuffer = GFXFramebuffer;
-cc.GFXPipelineLayout = GFXPipelineLayout;
-cc.GFXPipelineState = GFXPipelineState;
-cc.GFXCommandBuffer = GFXCommandBuffer;
-cc.GFXQueue = GFXQueue;
+cc.GFXDevice = GFXDevice; export { GFXDevice };
+cc.GFXBuffer = GFXBuffer; export { GFXBuffer };
+cc.GFXTexture = GFXTexture; export { GFXTexture };
+cc.GFXTextureView = GFXTextureView; export { GFXTextureView };
+cc.GFXSampler = GFXSampler; export { GFXSampler };
+cc.GFXShader = GFXShader; export { GFXShader };
+cc.GFXInputAssembler = GFXInputAssembler; export { GFXInputAssembler };
+cc.GFXRenderPass = GFXRenderPass; export { GFXRenderPass };
+cc.GFXFramebuffer = GFXFramebuffer; export { GFXFramebuffer };
+cc.GFXPipelineLayout = GFXPipelineLayout; export { GFXPipelineLayout };
+cc.GFXPipelineState = GFXPipelineState; export { GFXPipelineState };
+cc.GFXCommandBuffer = GFXCommandBuffer; export { GFXCommandBuffer };
+cc.GFXQueue = GFXQueue; export { GFXQueue };
 
 Object.assign(cc, GFXDefines);
