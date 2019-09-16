@@ -36,7 +36,7 @@ export class PhysicsSystem extends System {
     public set allowSleep (v: boolean) {
         this._allowSleep = v;
         if (!CC_EDITOR) {
-            if (!CC_PHYSICS_BUILT_IN) {
+            if (!CC_PHYSICS_BUILTIN) {
                 this._world.setAllowSleep(this._allowSleep);
             }
         }
@@ -83,7 +83,7 @@ export class PhysicsSystem extends System {
      */
     public get gravity (): Vec3 {
         if (!CC_EDITOR) {
-            if (!CC_PHYSICS_BUILT_IN) {
+            if (!CC_PHYSICS_BUILTIN) {
                 this._world.getGravity(this._gravity);
             }
         }
@@ -94,7 +94,7 @@ export class PhysicsSystem extends System {
         this._gravity.y = gravity.y;
         this._gravity.z = gravity.z;
         if (!CC_EDITOR) {
-            if (!CC_PHYSICS_BUILT_IN) {
+            if (!CC_PHYSICS_BUILTIN) {
                 this._world.setGravity(gravity);
             }
         }
@@ -142,7 +142,7 @@ export class PhysicsSystem extends System {
     constructor () {
         super();
         this._world = createPhysicsWorld();
-        if (!CC_PHYSICS_BUILT_IN) {
+        if (!CC_PHYSICS_BUILTIN) {
             this.gravity = this._gravity;
             this.allowSleep = this._allowSleep;
             this._material = new PhysicMaterial();
@@ -177,7 +177,7 @@ export class PhysicsSystem extends System {
     }
 
     private _updateMaterial () {
-        if (!CC_PHYSICS_BUILT_IN) {
+        if (!CC_PHYSICS_BUILTIN) {
             this._world.defaultMaterial = this._material;
         }
     }

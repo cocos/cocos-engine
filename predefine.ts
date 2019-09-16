@@ -169,7 +169,7 @@ if (CC_BUILD) {
     _global.CC_QQPLAY = CC_QQPLAY;
     _global.CC_RUNTIME = CC_RUNTIME;
     _global.CC_SUPPORT_JIT = CC_SUPPORT_JIT;
-    _global.CC_PHYSICS_BUILT_IN = CC_PHYSICS_BUILT_IN;
+    _global.CC_PHYSICS_BUILTIN = CC_PHYSICS_BUILTIN;
     _global.CC_PHYSICS_CANNON = CC_PHYSICS_CANNON;
     _global.CC_PHYSICS_AMMO = CC_PHYSICS_AMMO;
 }
@@ -188,9 +188,20 @@ else {
     // @ts-ignore
     defineMacro('CC_RUNTIME', 'function' === typeof loadRuntime);
     defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY || CC_RUNTIME));
-    defineMacro('CC_PHYSICS_BUILT_IN', true);
+    defineMacro('CC_PHYSICS_BUILTIN', true);
     defineMacro('CC_PHYSICS_CANNON', false);
     defineMacro('CC_PHYSICS_AMMO', false);
+}
+
+/**
+ * it will be remove when editor CC_PHYSICS_BUILT_IN rename to CC_PHYSICS_BUILTIN
+ */
+if (CC_PREVIEW) {
+    if (CC_PHYSICS_CANNON || CC_PHYSICS_AMMO) {
+        _global.CC_PHYSICS_BUILTIN = false;
+    }
+
+    _global.CC_PHYSICS_BUILT_IN = _global.CC_PHYSICS_BUILTIN;
 }
 
 //

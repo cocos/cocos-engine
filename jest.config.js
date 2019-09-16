@@ -9,6 +9,6 @@ module.exports = {
   globals: {
     CC_DEV: true,
     CC_TEST: true,
-    CC_PHYSICS_BUILT_IN: true
+    CC_PHYSICS_BUILTIN: true
   }
 };

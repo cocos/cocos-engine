@@ -264,7 +264,7 @@ class SharedRigidBody {
         this._body.setUserData(this._rigidBody);
 
         this._beforeStepCallback = this._beforeStep.bind(this);
-        if (!CC_PHYSICS_BUILT_IN) {
+        if (!CC_PHYSICS_BUILTIN) {
             this._afterStepCallback = this._afterStep.bind(this);
 
             if (this._rigidBody) {
@@ -303,7 +303,7 @@ class SharedRigidBody {
         (this._body as any) = null;
 
         (this._beforeStepCallback as any) = null;
-        if (!CC_PHYSICS_BUILT_IN) {
+        if (!CC_PHYSICS_BUILTIN) {
             (this._afterStepCallback as any) = null;
         }
 
@@ -354,7 +354,7 @@ class SharedRigidBody {
         this._body.setWorld(this._world);
 
         this._world.addBeforeStep(this._beforeStepCallback);
-        if (!CC_PHYSICS_BUILT_IN) {
+        if (!CC_PHYSICS_BUILTIN) {
             this._world.addAfterStep(this._afterStepCallback);
             this._body.wakeUp();
         }
@@ -367,7 +367,7 @@ class SharedRigidBody {
         this._actived = false;
 
         this._world.removeBeforeStep(this._beforeStepCallback);
-        if (!CC_PHYSICS_BUILT_IN) {
+        if (!CC_PHYSICS_BUILTIN) {
             this._world.removeAfterStep(this._afterStepCallback);
             this._body.sleep();
         }
@@ -384,7 +384,7 @@ class SharedRigidBody {
             }
             this._syncPhysWithScene(this._node);
 
-            if (!CC_PHYSICS_BUILT_IN) {
+            if (!CC_PHYSICS_BUILTIN) {
                 if (this._body.isSleeping()) {
                     this._body.wakeUp();
                 }
@@ -393,7 +393,7 @@ class SharedRigidBody {
     }
 
     private _afterStep () {
-        if (!CC_PHYSICS_BUILT_IN) {
+        if (!CC_PHYSICS_BUILTIN) {
             // 物理计算之后，除了只有形状组件的节点，其它有刚体组件的节点，并且刚体类型为DYNAMIC的，需要将计算结果同步到Scene中
             if (!this._isShapeOnly && this._body.getType() === ERigidBodyType.DYNAMIC) {
                 this._syncSceneWithPhys();
