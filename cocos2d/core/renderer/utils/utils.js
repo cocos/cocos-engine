@@ -36,9 +36,11 @@ module.exports = {
                 if (comp.font._nativeAsset) {
                     return comp.font._nativeAsset;
                 }
-                else {
-                    console.error("Font " + comp.font.nativeUrl + " for label is not loaded!");
-                }
+                cc.assetManager.loadNativeFile(comp.font, function (err, font) {
+                    comp.font._nativeAsset = font;
+                    comp._updateRenderData(true);
+                });
+                return 'Arial';
             }
     
             return 'Arial';

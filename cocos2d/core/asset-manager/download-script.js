@@ -23,7 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-const { urlAppendTimestamp, parseParameters } = require('./utilities');
+const { parseParameters } = require('./utilities');
 
 function downloadScript (url, options, onComplete) {
     var { options, onComplete } = parseParameters(options, undefined, onComplete);
@@ -35,7 +35,7 @@ function downloadScript (url, options, onComplete) {
     }
 
     s.async = options.isAsync === undefined ? true : options.isAsync;
-    s.src = urlAppendTimestamp(url);
+    s.src = url;
     function loadHandler () {
         s.parentNode.removeChild(s);
         s.removeEventListener('load', loadHandler, false);

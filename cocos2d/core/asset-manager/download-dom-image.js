@@ -24,14 +24,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const { parseParameters, urlAppendTimestamp } = require('./utilities');
+const { parseParameters } = require('./utilities');
 
 function downloadDomImage (url, options, onComplete) {
     var { options, onComplete } = parseParameters(options, undefined, onComplete);
     
     var isCrossOrigin = options.isCrossOrigin;
 
-    url = urlAppendTimestamp(url);
     var img = new Image();
 
     if (isCrossOrigin && window.location.protocol !== 'file:') {

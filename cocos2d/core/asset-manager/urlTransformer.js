@@ -25,6 +25,7 @@
 const { decodeUuid } = require('./helper');
 const RequestItem = require('./request-item');
 const { RequestType, bundles } = require('./shared');
+const { urlAppendTimestamp } = require('./utilities');
 
 function parse (task) {
 
@@ -120,7 +121,7 @@ function parse (task) {
                         out[key] = item[key];
                         break;
                     case RequestType.URL: 
-                        out.url = item.url;
+                        out.url = urlAppendTimestamp(item.url);
                         out.uuid = item.uuid || item.url;
                         out.ext = item.ext || cc.path.extname(item.url);
                         out.isNative = item.isNative !== undefined ? item.isNative : true;
@@ -172,7 +173,7 @@ function combine (task) {
             url = `${base}/${uuid.slice(0, 2)}/${uuid}${ver}${item.ext}`;
         }
         
-        item.url = url;
+        item.url = urlAppendTimestamp(url);
     }
     return null;
 }

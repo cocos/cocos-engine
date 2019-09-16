@@ -650,6 +650,9 @@ var Texture2D = cc.Class({
      * @return {Boolean} inherit from the CCObject
      */
     destroy () {
+        if (this._image instanceof ImageBitmap) {
+            this._image.close();
+        }
         this._image = null;
         this._texture && this._texture.destroy();
         this._super();

@@ -41,7 +41,7 @@ const packManager = require('./pack-manager');
 const Bundle = require('./bundle');
 const builtins = require('./builtins')
 const { parse, combine } = require('./urlTransformer');
-const { parseParameters } = require('./utilities');
+const { parseParameters, urlAppendTimestamp } = require('./utilities');
 const { assets, files, parsed, pipeline, transformPipeline, fetchPipeline, initializePipeline, LoadStrategy, RequestType, bundles } = require('./shared');
 /**
  * @module cc
@@ -564,7 +564,7 @@ AssetManager.prototype = {
      * loadScript(url: string, options?: Record<string, any>, onComplete?: (err: Error) => void): void;
      */
     loadScript (url, options, onComplete) {
-        downloader.downloadScript(url, options, onComplete);
+        downloader.downloadScript(urlAppendTimestamp(url), options, onComplete);
     },
 
     /**
