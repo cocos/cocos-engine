@@ -24,7 +24,6 @@ export class ForwardStage extends RenderStage {
     private _opaqueQueue: RenderQueue;
     private _transparentQueue: RenderQueue;
     private _opaqueBatchedQueue: RenderBatchedQueue;
-    private _transparentBatchedQueue: RenderBatchedQueue;
 
     /**
      * 构造函数。
@@ -44,7 +43,6 @@ export class ForwardStage extends RenderStage {
             sortFunc: transparentCompareFn,
         });
         this._opaqueBatchedQueue = new RenderBatchedQueue();
-        this._transparentBatchedQueue = new RenderBatchedQueue();
     }
 
     /**
@@ -103,7 +101,6 @@ export class ForwardStage extends RenderStage {
     public render (view: RenderView) {
 
         this._opaqueBatchedQueue.clear();
-        this._transparentBatchedQueue.clear();
         this._opaqueQueue.clear();
         this._transparentQueue.clear();
 
@@ -120,11 +117,17 @@ export class ForwardStage extends RenderStage {
                             const pso = subModel.psos![p];
                             const isTransparent = pso.blendState.targets[0].blend;
                             if (!isTransparent) {
-                                pass.batchedBuffer.merge(subModel, ro.model);
+                                pass.batchedBuffer.merge(subModel, ro);
                                 this._opaqueBatchedQueue.queue.add(pass.batchedBuffer);
                             } else {
-                                pass.batchedBuffer.merge(subModel, ro.model);
-                                this._transparentBatchedQueue.queue.add(pass.batchedBuffer);
+                                const hash = (0 << 30) | pass.priority << 16 | subModel.priority << 8 | p;
+                                this._transparentQueue.queue.push({
+                                    hash,
+                                    depth: ro.depth,
+                                    shaderId: pso.shader.id,
+                                    subModel,
+                                    cmdBuff: subModel.commandBuffers[p],
+                                });
                             }
                         }
                     }
@@ -162,6 +165,7 @@ export class ForwardStage extends RenderStage {
                 }
             }
         }
+
         this._opaqueQueue.sort();
         this._transparentQueue.sort();
 
@@ -209,8 +213,6 @@ export class ForwardStage extends RenderStage {
 
         cmdBuff.execute(planarShadow.cmdBuffs.array, planarShadow.cmdBuffCount);
         cmdBuff.execute(this._transparentQueue.cmdBuffs.array, this._transparentQueue.cmdBuffCount);
-
-        this._transparentBatchedQueue.recordCommandBuffer(cmdBuff);
 
         cmdBuff.endRenderPass();
         cmdBuff.end();

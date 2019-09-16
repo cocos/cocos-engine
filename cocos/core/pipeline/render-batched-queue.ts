@@ -2,8 +2,8 @@
  * @category pipeline
  */
 
-import { BatchedBuffer } from './batched-buffer';
 import { GFXCommandBuffer } from '../gfx/command-buffer';
+import { BatchedBuffer } from './batched-buffer';
 
 /**
  * @zh

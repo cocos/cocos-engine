@@ -248,7 +248,7 @@ export class Model {
         }
         this._uboUpdated = true;
         // @ts-ignore
-        if (this._transformUpdated) {
+        if (this._transformUpdated && !this._isDynamicBatching) {
             // @ts-ignore
             const worldMatrix = this._transform._mat; const rot = this._transform._rot;
             Mat4.toArray(this._uboLocal.view, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
