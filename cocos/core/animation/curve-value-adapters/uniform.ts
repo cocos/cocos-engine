@@ -31,15 +31,19 @@ export class UniformCurveValueAdapter extends CurveValueAdapter {
         }
         const bindingType = Pass.getBindingTypeFromHandle(handle);
         if (bindingType === GFXBindingType.UNIFORM_BUFFER) {
-            return {
-                set: (value: any) => {
-                    if (Array.isArray(value)) {
+            if (isUniformArray(pass, this.uniformName)) {
+                return {
+                    set: (value: any) => {
                         pass.setUniformArray(handle, value);
-                    } else {
+                    },
+                };
+            } else {
+                return {
+                    set: (value: any) => {
                         pass.setUniform(handle, value);
-                    }
-                },
-            };
+                    },
+                };
+            }
         } else if (bindingType === GFXBindingType.SAMPLER) {
             const binding = Pass.getBindingFromHandle(handle);
             return {
@@ -63,6 +67,17 @@ export class UniformCurveValueAdapter extends CurveValueAdapter {
             throw new Error(`Animations are not avaiable for uniforms with binding type ${bindingType}.`);
         }
     }
+}
+
+function isUniformArray (pass: Pass, name: string) {
+    for (const block of pass.shaderInfo.blocks) {
+        for (const uniform of block.members) {
+            if (uniform.name === name) {
+                return uniform.count > 1;
+            }
+        }
+    }
+    return false;
 }
 
 cc.UniformCurveValueAdapter = UniformCurveValueAdapter;
