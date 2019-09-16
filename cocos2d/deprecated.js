@@ -368,8 +368,10 @@ if (CC_DEBUG) {
         getNodeToWorldTransformAR: 'getWorldMatrix',
         getParentToNodeTransform: 'getLocalMatrix',
         getWorldToNodeTransform: 'getWorldMatrix',
-        convertTouchToNodeSpace: 'convertToNodeSpace',
+        convertTouchToNodeSpace: 'convertToNodeSpaceAR',
         convertTouchToNodeSpaceAR: 'convertToNodeSpaceAR',
+        convertToWorldSpace: 'convertToWorldSpaceAR',
+        convertToNodeSpace: 'convertToNodeSpaceAR'
     });
 
     provideClearError(cc.Node.prototype, {
@@ -411,7 +413,11 @@ if (CC_DEBUG) {
 
     // cc.Camera
     markFunctionWarning(cc.Camera.prototype, {
-        getNodeToCameraTransform: 'getWorldToCameraMatrix'
+        getNodeToCameraTransform: 'getWorldToScreenMatrix2D',
+        getCameraToWorldPoint: 'getScreenToWorldPoint',
+        getWorldToCameraPoint: 'getWorldToScreenPoint',
+        getCameraToWorldMatrix: 'getScreenToWorldMatrix2D',
+        getWorldToCameraMatrix: 'getWorldToScreenMatrix2D'
     });
 
     markAsRemoved(cc.Camera, [

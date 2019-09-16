@@ -136,8 +136,11 @@ var Scrollbar = cc.Class({
     },
 
     _convertToScrollViewSpace: function(content) {
-        var worldSpacePos = content.convertToWorldSpace(cc.v2(0, 0));
-        var scrollViewSpacePos = this._scrollView.node.convertToNodeSpace(worldSpacePos);
+        let scrollViewNode = this._scrollView.node;
+        var worldSpacePos = content.convertToWorldSpaceAR(cc.v2(-content.anchorX * content.width, -content.anchorY * content.height));
+        var scrollViewSpacePos = scrollViewNode.convertToNodeSpaceAR(worldSpacePos);
+        scrollViewSpacePos.x += scrollViewNode.anchorX * scrollViewNode.width;
+        scrollViewSpacePos.y += scrollViewNode.anchorY * scrollViewNode.height;
         return scrollViewSpacePos;
     },
 

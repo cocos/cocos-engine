@@ -126,6 +126,11 @@ const Overflow = cc.Enum({
  * @property {Number} SystemFont
  */
 
+/**
+ * !#en Enum for cache mode.
+ * !#zh CacheMode 类型
+ * @enum Label.CacheMode
+ */
  /**
  * !#en Do not do any caching.
  * !#zh 不做任何缓存。
@@ -532,17 +537,15 @@ let Label = cc.Class({
         // Keep track of Node size
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._lazyUpdateRenderData, this);
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._lazyUpdateRenderData, this);
-        this.node.on(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
 
-        this._checkStringEmpty();
         this._forceUpdateRenderData();
+        this._checkStringEmpty();
     },
 
     onDisable () {
         this._super();
         this.node.off(cc.Node.EventType.SIZE_CHANGED, this._lazyUpdateRenderData, this);
         this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._lazyUpdateRenderData, this);
-        this.node.off(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
     },
 
     onDestroy () {
@@ -560,7 +563,7 @@ let Label = cc.Class({
         if (!(this.font instanceof cc.BitmapFont)) {
             this._lazyUpdateRenderData();
         }
-        this._assembler.updateColor(this);
+       RenderComponent.prototype._updateColor.call(this);
     },
 
     _canRender () {

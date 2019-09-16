@@ -7,6 +7,8 @@ const WORLD_TRANSFORM = 1 << FlagOfset++;
 const TRANSFORM = LOCAL_TRANSFORM | WORLD_TRANSFORM;
 const UPDATE_RENDER_DATA = 1 << FlagOfset++;
 const OPACITY = 1 << FlagOfset++;
+const COLOR = 1 << FlagOfset++;
+const OPACITY_COLOR = OPACITY | COLOR;
 const RENDER = 1 << FlagOfset++;
 const CHILDREN = 1 << FlagOfset++;
 const POST_RENDER = 1 << FlagOfset++;
@@ -50,15 +52,20 @@ _proto._worldTransform = function (node) {
 _proto._opacity = function (node) {
     _batcher.parentOpacityDirty++;
 
+    node._renderFlag &= ~OPACITY;
+    this._next._func(node);
+
+    _batcher.parentOpacityDirty--;
+};
+
+_proto._color = function (node) {
     let comp = node._renderComponent;
     if (comp) {
         comp._updateColor();
     }
 
-    node._renderFlag &= ~OPACITY;
+    node._renderFlag &= ~COLOR;
     this._next._func(node);
-
-    _batcher.parentOpacityDirty--;
 };
 
 _proto._updateRenderData = function (node) {
@@ -84,7 +91,7 @@ _proto._children = function (node) {
     let opacity = (batcher.parentOpacity *= (node._opacity / 255));
 
     let worldTransformFlag = batcher.worldMatDirty ? WORLD_TRANSFORM : 0;
-    let worldOpacityFlag = batcher.parentOpacityDirty ? OPACITY : 0;
+    let worldOpacityFlag = batcher.parentOpacityDirty ? OPACITY_COLOR : 0;
     let worldDirtyFlag = worldTransformFlag | worldOpacityFlag;
 
     let children = node._children;
@@ -141,6 +148,9 @@ function createFlow (flag, next) {
             break;
         case OPACITY:
             flow._func = flow._opacity;
+            break;
+        case COLOR:
+            flow._func = flow._color;
             break;
         case UPDATE_RENDER_DATA:
             flow._func = flow._updateRenderData;
@@ -229,6 +239,8 @@ RenderFlow.FLAG_LOCAL_TRANSFORM = LOCAL_TRANSFORM;
 RenderFlow.FLAG_WORLD_TRANSFORM = WORLD_TRANSFORM;
 RenderFlow.FLAG_TRANSFORM = TRANSFORM;
 RenderFlow.FLAG_OPACITY = OPACITY;
+RenderFlow.FLAG_COLOR = COLOR;
+RenderFlow.FLAG_OPACITY_COLOR = OPACITY_COLOR;
 RenderFlow.FLAG_UPDATE_RENDER_DATA = UPDATE_RENDER_DATA;
 RenderFlow.FLAG_RENDER = RENDER;
 RenderFlow.FLAG_CHILDREN = CHILDREN;

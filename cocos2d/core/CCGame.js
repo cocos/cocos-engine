@@ -383,16 +383,25 @@ var game = {
     },
 
     _prepareFinished (cb) {
+
         if (CC_PREVIEW && window.__modular) {
             window.__modular.run();
         }
-        // Log engine version
-        console.log('Cocos Creator v' + cc.ENGINE_VERSION);
+
+        // Init engine
+        this._initEngine();
         
-        this._prepared = true;
-        this._runMainLoop();
-        this.emit(this.EVENT_GAME_INITED);
-        cb && cb();
+        this._setAnimFrame();
+        cc.AssetLibrary._loadBuiltins(() => {
+            // Log engine version
+            console.log('Cocos Creator v' + cc.ENGINE_VERSION);
+            this._prepared = true;
+            this._runMainLoop();
+
+            this.emit(this.EVENT_GAME_INITED);
+
+            if (cb) cb();
+        });
     },
 
     eventTargetOn: EventTarget.prototype.on,
@@ -470,24 +479,19 @@ var game = {
             if (cb) cb();
             return;
         }
-        let self = this;
-        // Init engine
-        this._initEngine();
-        this._setAnimFrame();
-        // Load builtin assets
-        cc.AssetLibrary._loadBuiltins(function () {
-            // Load game scripts
-            let jsList = self.config.jsList;
-            if (jsList && jsList.length > 0) {
-                cc.loader.load(jsList, function (err) {
-                    if (err) throw new Error(JSON.stringify(err));
-                    self._prepareFinished(cb);
-                });
-            }
-            else {
+
+        // Load game scripts
+        let jsList = this.config.jsList;
+        if (jsList && jsList.length > 0) {
+            var self = this;
+            cc.loader.load(jsList, function (err) {
+                if (err) throw new Error(JSON.stringify(err));
                 self._prepareFinished(cb);
-            }
-        });
+            });
+        }
+        else {
+            this._prepareFinished(cb);
+        }
     },
 
     /**
@@ -620,6 +624,8 @@ var game = {
         if (CC_EDITOR) {
             return;
         }
+        if (!this._prepared) return;
+
         var self = this, callback, config = self.config,
             director = cc.director,
             skip = true, frameRate = config.frameRate;

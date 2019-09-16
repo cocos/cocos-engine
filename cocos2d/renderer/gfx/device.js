@@ -627,6 +627,7 @@ export default class Device {
       drawcalls: 0,
     };
 
+    // https://developer.mozilla.org/zh-CN/docs/Web/API/WebGL_API/Using_Extensions
     this._initExtensions([
       'EXT_texture_filter_anisotropic',
       'EXT_shader_texture_lod',

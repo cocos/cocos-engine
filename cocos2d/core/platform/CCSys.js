@@ -641,10 +641,6 @@ function initSys () {
      * @param name
      */
     sys.glExtension = function (name) {
-        // TODO: should check support on native platform
-        if (CC_JSB && CC_NATIVERENDERER) {
-            return true;
-        }
         return !!cc.renderer.device.ext(name);
     }
 
@@ -1082,7 +1078,7 @@ function initSys () {
      * !#zh
      * 网络类型枚举
      *
-     * @enum NetworkType
+     * @enum sys.NetworkType
      */
     sys.NetworkType = {
         /**

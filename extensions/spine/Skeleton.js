@@ -122,7 +122,7 @@ sp.Skeleton = cc.Class({
          * 骨骼数据包含了骨骼信息（绑定骨骼动作，slots，渲染顺序，
          * attachments，皮肤等等）和动画但不持有任何状态。<br/>
          * 多个 Skeleton 可以共用相同的骨骼数据。
-         * @property {SkeletonData} skeletonData
+         * @property {sp.SkeletonData} skeletonData
          */
         skeletonData: {
             default: null,
@@ -513,7 +513,8 @@ sp.Skeleton = cc.Class({
      * !#en Sets slots visible range.
      * !#zh 设置骨骼插槽可视范围。
      * @method setSlotsRange
-     * @param {sp.spine.SkeletonData} skeletonData
+     * @param {Number} startSlotIndex
+     * @param {Number} endSlotIndex
      */
     setSlotsRange (startSlotIndex, endSlotIndex) {
         if (this.isAnimationCached()) {

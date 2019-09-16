@@ -373,15 +373,9 @@ let WebAudioElement = function (buffer, audio) {
     this._buffer = buffer;
 
     this._gainObj = this._context['createGain']();
-    this._volume = 1;
-    // https://www.chromestatus.com/features/5287995770929152
-    if (this._gainObj['gain'].setTargetAtTime) {
-        this._gainObj['gain'].setTargetAtTime(this._volume, this._context.currentTime, TIME_CONSTANT);
-    } else {
-        this._gainObj['gain'].value = 1;
-    }
-    this._gainObj['connect'](this._context['destination']);
+    this.volume = 1;
 
+    this._gainObj['connect'](this._context['destination']);
     this._loop = false;
     // The time stamp on the audio time axis when the recording begins to play.
     this._startTime = -1;
@@ -511,18 +505,26 @@ let WebAudioElement = function (buffer, audio) {
         },
         set: function (num) {
             this._volume = num;
-            if (this._gainObj['gain'].setTargetAtTime) {
-                this._gainObj['gain'].setTargetAtTime(this._volume, this._context.currentTime, TIME_CONSTANT);
-            } else {
-                this._volume['gain'].value = num;
+            // https://www.chromestatus.com/features/5287995770929152
+            if (this._gainObj.gain.setTargetAtTime) {
+                try {
+                    this._gainObj.gain.setTargetAtTime(num, this._context.currentTime, TIME_CONSTANT);
+                }
+                catch (e) {
+                    // Some other unknown browsers may crash if TIME_CONSTANT is 0
+                    this._gainObj.gain.setTargetAtTime(num, this._context.currentTime, 0.01);
+                }
             }
+            else {
+                this._gainObj.gain.value = num;
+            }
+
             if (sys.os === sys.OS_IOS && !this.paused && this._currentSource) {
                 // IOS must be stop webAudio
                 this._currentSource.onended = null;
                 this.pause();
                 this.play();
             }
-            return num;
         },
         enumerable: true,
         configurable: true
