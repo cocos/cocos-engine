@@ -166,6 +166,7 @@ function _spineColorToInt32 (spineColor) {
 
 export default class SpineAssembler extends Assembler {
     updateRenderData (comp) {
+        if (comp.isAnimationCached()) return;
         let skeleton = comp._skeleton;
         if (skeleton) {
             skeleton.updateWorldTransform();
