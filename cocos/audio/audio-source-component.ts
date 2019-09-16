@@ -41,7 +41,7 @@ import { AudioClip } from './assets/clip';
  * 用户可通过 cc.AudioSourceComponent 调用此类。
  */
 @ccclass('cc.AudioSourceComponent')
-@menu('Components/AudioSourceComponent')
+@menu('Components/AudioSource')
 export class AudioSourceComponent extends Component {
     @property(AudioClip)
     protected _clip: AudioClip | null = null;

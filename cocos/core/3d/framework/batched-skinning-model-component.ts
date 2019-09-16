@@ -95,7 +95,7 @@ export class SkinningModelUnit {
 @ccclass('cc.BatchedSkinningModelComponent')
 @executionOrder(100)
 @executeInEditMode
-@menu('Components/BatchedSkinningModelComponent')
+@menu('Components/BatchedSkinningModel')
 export class BatchedSkinningModelComponent extends SkinningModelComponent {
 
     @property

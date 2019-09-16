@@ -15,7 +15,7 @@ import { Color, toRadian, toDegree, Vec4 } from "../core/math";
 createMesh
 
 @ccclass('cc.BillboardComponent')
-@menu('Components/BillboardComponent')
+@menu('Components/Billboard')
 @executeInEditMode
 export class BillboardComponent extends Component {
 

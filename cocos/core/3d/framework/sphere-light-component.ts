@@ -33,7 +33,7 @@ import { SphereLight } from '../../renderer/scene/sphere-light';
 import { LightComponent, PhotometricTerm } from './light-component';
 
 @ccclass('cc.SphereLightComponent')
-@menu('Components/SphereLightComponent')
+@menu('Components/SphereLight')
 @executeInEditMode
 export class SphereLightComponent extends LightComponent {
 

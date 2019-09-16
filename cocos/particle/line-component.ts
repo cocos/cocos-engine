@@ -18,7 +18,7 @@ const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
 const define = { CC_USE_WORLD_SPACE: false };
 
 @ccclass('cc.LineComponent')
-@menu('Components/LineComponent')
+@menu('Components/Line')
 @executeInEditMode
 export class LineComponent extends Component {
     @property({

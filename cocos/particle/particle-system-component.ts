@@ -31,7 +31,7 @@ import TrailModule from './renderer/trail';
 const _world_mat = new Mat4();
 
 @ccclass('cc.ParticleSystemComponent')
-@menu('Components/ParticleSystemComponent')
+@menu('Components/ParticleSystem')
 @executionOrder(99)
 @executeInEditMode
 export class ParticleSystemComponent extends RenderableComponent {

@@ -69,7 +69,7 @@ function collectRecursively (node: INode, prefix = '', out: string[] = []) {
 @ccclass('cc.SkeletalAnimationComponent')
 @executionOrder(99)
 @executeInEditMode
-@menu('Components/SkeletalAnimationComponent')
+@menu('Components/SkeletalAnimation')
 export class SkeletalAnimationComponent extends AnimationComponent {
 
     public static Socket = Socket;

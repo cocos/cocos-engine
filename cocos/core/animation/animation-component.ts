@@ -91,7 +91,7 @@ ccenum(EventType);
 @ccclass('cc.AnimationComponent')
 @executionOrder(99)
 @executeInEditMode
-@menu('Components/AnimationComponent')
+@menu('Components/Animation')
 export class AnimationComponent extends Component implements IEventTarget {
     /**
      * 获取此动画组件的自有动画剪辑。

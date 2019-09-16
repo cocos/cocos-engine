@@ -111,7 +111,7 @@ export class SkeletalAnimationClip extends AnimationClip {
         this._keys = [values.map((_, i) => i * this.speed / this.sample)];
         this._duration = this._keys[0][values.length - 1];
         this._converted = true;
-        if (!root || !root.scene) { return; }
+        if (!root) { return; }
         // try eval for the existing skinning models
         const comps = root.getComponentsInChildren(SkinningModelComponent);
         for (let i = 0; i < comps.length; ++i) {
