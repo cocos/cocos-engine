@@ -108,7 +108,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * @zh 逐元素向量乘法
+     * @zh 逐元素向量乘法 (分量积)
      */
     public static multiply<Out extends IVec3Like, Vec3Like_1 extends IVec3Like, Vec3Like_2 extends IVec3Like> (out: Out, a: Vec3Like_1, b: Vec3Like_2) {
         out.x = a.x * b.x;
