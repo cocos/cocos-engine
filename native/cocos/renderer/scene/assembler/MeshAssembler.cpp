@@ -1,6 +1,6 @@
 /****************************************************************************
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
-
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+ 
  http://www.cocos2d-x.org
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,19 +22,48 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#pragma once
+#include "MeshAssembler.hpp"
 
-#include "MemPool.hpp"
-#include "NodeMemPool.hpp"
-#include "NodeProxy.hpp"
-#include "ModelBatcher.hpp"
-#include "RenderFlow.hpp"
-#include "MeshBuffer.hpp"
+RENDERER_BEGIN
 
-#include "assembler/Assembler.hpp"
-#include "assembler/MaskAssembler.hpp"
-#include "assembler/TiledMapAssembler.hpp"
-#include "assembler/AssemblerSprite.hpp"
-#include "assembler/SimpleSprite2D.hpp"
-#include "assembler/SlicedSprite2D.hpp"
-#include "assembler/MeshAssembler.hpp"
+MeshAssembler::MeshAssembler()
+{
+    
+}
+
+MeshAssembler::~MeshAssembler()
+{
+    RENDERER_SAFE_RELEASE(_renderNode);
+}
+
+void MeshAssembler::handle(NodeProxy *node, ModelBatcher *batcher, Scene *scene)
+{
+    if (_renderNode != nullptr)
+    {
+        Assembler::handle(_renderNode, batcher, scene);
+    }
+    else
+    {
+        Assembler::handle(node, batcher, scene);
+    }
+}
+
+void MeshAssembler::setNode(NodeProxy* node)
+{
+    if (_renderNode == node)
+    {
+        return;
+    }
+    
+    if (_renderNode != nullptr)
+    {
+        _renderNode->release();
+    }
+    _renderNode = node;
+    if (_renderNode != nullptr)
+    {
+        _renderNode->retain();
+    }
+}
+
+RENDERER_END

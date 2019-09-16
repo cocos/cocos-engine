@@ -652,6 +652,8 @@
         "cocos/renderer/scene/assembler/SlicedSprite2D.hpp", 
         "cocos/renderer/scene/assembler/TiledMapAssembler.cpp", 
         "cocos/renderer/scene/assembler/TiledMapAssembler.hpp", 
+        "cocos/renderer/scene/assembler/MeshAssembler.cpp", 
+        "cocos/renderer/scene/assembler/MeshAssembler.hpp", 
         "cocos/renderer/scene/scene-bindings.h", 
         "cocos/storage/local-storage/LocalStorage-android.cpp", 
         "cocos/storage/local-storage/LocalStorage.cpp", 

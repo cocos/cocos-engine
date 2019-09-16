@@ -4543,6 +4543,78 @@ bool js_register_renderer_SlicedSprite2D(se::Object* obj)
     return true;
 }
 
+se::Object* __jsb_cocos2d_renderer_MeshAssembler_proto = nullptr;
+se::Class* __jsb_cocos2d_renderer_MeshAssembler_class = nullptr;
+
+static bool js_renderer_MeshAssembler_setNode(se::State& s)
+{
+    cocos2d::renderer::MeshAssembler* cobj = (cocos2d::renderer::MeshAssembler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_renderer_MeshAssembler_setNode : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        cocos2d::renderer::NodeProxy* arg0 = nullptr;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_MeshAssembler_setNode : Error processing arguments");
+        cobj->setNode(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_renderer_MeshAssembler_setNode)
+
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_MeshAssembler_finalize)
+
+static bool js_renderer_MeshAssembler_constructor(se::State& s)
+{
+    cocos2d::renderer::MeshAssembler* cobj = new (std::nothrow) cocos2d::renderer::MeshAssembler();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_renderer_MeshAssembler_constructor, __jsb_cocos2d_renderer_MeshAssembler_class, js_cocos2d_renderer_MeshAssembler_finalize)
+
+static bool js_renderer_MeshAssembler_ctor(se::State& s)
+{
+    cocos2d::renderer::MeshAssembler* cobj = new (std::nothrow) cocos2d::renderer::MeshAssembler();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_SUB_CLS_CTOR(js_renderer_MeshAssembler_ctor, __jsb_cocos2d_renderer_MeshAssembler_class, js_cocos2d_renderer_MeshAssembler_finalize)
+
+
+    
+
+extern se::Object* __jsb_cocos2d_renderer_Assembler_proto;
+
+static bool js_cocos2d_renderer_MeshAssembler_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::MeshAssembler)", s.nativeThisObject());
+    cocos2d::renderer::MeshAssembler* cobj = (cocos2d::renderer::MeshAssembler*)s.nativeThisObject();
+    cobj->release();
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_MeshAssembler_finalize)
+
+bool js_register_renderer_MeshAssembler(se::Object* obj)
+{
+    auto cls = se::Class::create("MeshAssembler", obj, __jsb_cocos2d_renderer_Assembler_proto, _SE(js_renderer_MeshAssembler_constructor));
+
+    cls->defineFunction("setNode", _SE(js_renderer_MeshAssembler_setNode));
+    cls->defineFunction("ctor", _SE(js_renderer_MeshAssembler_ctor));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_MeshAssembler_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::renderer::MeshAssembler>(cls);
+
+    __jsb_cocos2d_renderer_MeshAssembler_proto = cls->getProto();
+    __jsb_cocos2d_renderer_MeshAssembler_class = cls;
+
+    jsb_set_extend_property("renderer", "MeshAssembler");
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
 bool register_all_renderer(se::Object* obj)
 {
     // Get the ns
@@ -4564,6 +4636,7 @@ bool register_all_renderer(se::Object* obj)
     js_register_renderer_AssemblerSprite(ns);
     js_register_renderer_SimpleSprite2D(ns);
     js_register_renderer_Effect(ns);
+    js_register_renderer_MeshAssembler(ns);
     js_register_renderer_CustomProperties(ns);
     js_register_renderer_MaskAssembler(ns);
     js_register_renderer_Light(ns);

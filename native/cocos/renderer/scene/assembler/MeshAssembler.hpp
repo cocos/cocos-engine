@@ -1,6 +1,6 @@
 /****************************************************************************
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
-
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+ 
  http://www.cocos2d-x.org
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,17 +24,25 @@
 
 #pragma once
 
-#include "MemPool.hpp"
-#include "NodeMemPool.hpp"
-#include "NodeProxy.hpp"
-#include "ModelBatcher.hpp"
-#include "RenderFlow.hpp"
-#include "MeshBuffer.hpp"
+#include "../../Macro.h"
+#include "Assembler.hpp"
+#include "../NodeProxy.hpp"
 
-#include "assembler/Assembler.hpp"
-#include "assembler/MaskAssembler.hpp"
-#include "assembler/TiledMapAssembler.hpp"
-#include "assembler/AssemblerSprite.hpp"
-#include "assembler/SimpleSprite2D.hpp"
-#include "assembler/SlicedSprite2D.hpp"
-#include "assembler/MeshAssembler.hpp"
+RENDERER_BEGIN
+
+class MeshAssembler: public Assembler
+{
+public:
+    MeshAssembler();
+    virtual ~MeshAssembler();
+    virtual void handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene) override;
+    /**
+     *  @brief Sets the related node proxy which provids model matrix for render.
+     */
+    void setNode(NodeProxy* node);
+protected:
+    NodeProxy* _renderNode = nullptr;
+};
+
+RENDERER_END
+

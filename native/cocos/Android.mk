@@ -147,6 +147,7 @@ renderer/scene/assembler/TiledMapAssembler.cpp \
 renderer/scene/assembler/AssemblerSprite.cpp \
 renderer/scene/assembler/SimpleSprite2D.cpp \
 renderer/scene/assembler/SlicedSprite2D.cpp \
+renderer/scene/assembler/MeshAssembler.cpp \
 renderer/scene/MeshBuffer.cpp \
 renderer/scene/ModelBatcher.cpp \
 renderer/scene/NodeProxy.cpp \

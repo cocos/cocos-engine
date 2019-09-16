@@ -213,6 +213,7 @@
     <ClCompile Include="..\cocos\renderer\scene\assembler\SimpleSprite2D.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\assembler\SlicedSprite2D.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\assembler\TiledMapAssembler.cpp" />
+    <ClCompile Include="..\cocos\renderer\scene\assembler\MeshAssembler.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\MemPool.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\MeshBuffer.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\ModelBatcher.cpp" />
@@ -541,6 +542,7 @@
     <ClInclude Include="..\cocos\renderer\scene\assembler\SimpleSprite2D.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\assembler\SlicedSprite2D.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\assembler\TiledMapAssembler.hpp" />
+    <ClInclude Include="..\cocos\renderer\scene\assembler\MeshAssembler.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\MemPool.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\MeshBuffer.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\ModelBatcher.hpp" />

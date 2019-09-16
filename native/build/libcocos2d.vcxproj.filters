@@ -806,6 +806,9 @@
     <ClCompile Include="..\cocos\renderer\scene\assembler\TiledMapAssembler.cpp">
       <Filter>renderer\scene\assembler</Filter>
     </ClCompile>
+        <ClCompile Include="..\cocos\renderer\scene\assembler\MeshAssembler.cpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClCompile>
     <ClCompile Include="..\cocos\renderer\renderer\CustomProperties.cpp">
       <Filter>renderer\renderer</Filter>
     </ClCompile>
@@ -1821,6 +1824,9 @@
       <Filter>renderer\scene\assembler</Filter>
     </ClInclude>
     <ClInclude Include="..\cocos\renderer\scene\assembler\TiledMapAssembler.hpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\assembler\MeshAssembler.hpp">
       <Filter>renderer\scene\assembler</Filter>
     </ClInclude>
     <ClInclude Include="..\cocos\renderer\memop\RecyclePool.hpp">

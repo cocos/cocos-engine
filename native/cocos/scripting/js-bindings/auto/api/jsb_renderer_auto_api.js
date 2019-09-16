@@ -1937,3 +1937,29 @@ SlicedSprite2D : function (
 },
 
 };
+
+/**
+ * @class MeshAssembler
+ */
+renderer.MeshAssembler = {
+
+/**
+ * @method setNode
+ * @param {cc.renderer::NodeProxy} arg0
+ */
+setNode : function (
+nodeproxy 
+)
+{
+},
+
+/**
+ * @method MeshAssembler
+ * @constructor
+ */
+MeshAssembler : function (
+)
+{
+},
+
+};

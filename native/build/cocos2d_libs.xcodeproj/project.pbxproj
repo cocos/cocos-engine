@@ -848,6 +848,10 @@
 		425D3FF222D86BEF00BCED11 /* Mat3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 425D3FEF22D86BEF00BCED11 /* Mat3.cpp */; };
 		425D3FF322D86BEF00BCED11 /* Mat3.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 425D3FF022D86BEF00BCED11 /* Mat3.hpp */; };
 		425D3FF422D86BEF00BCED11 /* Mat3.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 425D3FF022D86BEF00BCED11 /* Mat3.hpp */; };
+		427475F923214E2A00139DF8 /* MeshAssembler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 427475F723214E2900139DF8 /* MeshAssembler.cpp */; };
+		427475FA23214E2A00139DF8 /* MeshAssembler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 427475F723214E2900139DF8 /* MeshAssembler.cpp */; };
+		427475FB23214E2A00139DF8 /* MeshAssembler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 427475F823214E2A00139DF8 /* MeshAssembler.hpp */; };
+		427475FC23214E2A00139DF8 /* MeshAssembler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 427475F823214E2A00139DF8 /* MeshAssembler.hpp */; };
 		4617861920522469008256E1 /* SocketIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 461785FE20522468008256E1 /* SocketIO.cpp */; };
 		4617861A20522469008256E1 /* SocketIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 461785FE20522468008256E1 /* SocketIO.cpp */; };
 		4617862120522469008256E1 /* HttpCookie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4617860220522468008256E1 /* HttpCookie.cpp */; };
@@ -1854,6 +1858,8 @@
 		423379A222BB8DEA00E5D8A2 /* CustomProperties.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CustomProperties.hpp; sourceTree = "<group>"; };
 		425D3FEF22D86BEF00BCED11 /* Mat3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Mat3.cpp; sourceTree = "<group>"; };
 		425D3FF022D86BEF00BCED11 /* Mat3.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Mat3.hpp; sourceTree = "<group>"; };
+		427475F723214E2900139DF8 /* MeshAssembler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MeshAssembler.cpp; sourceTree = "<group>"; };
+		427475F823214E2A00139DF8 /* MeshAssembler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MeshAssembler.hpp; sourceTree = "<group>"; };
 		461785FE20522468008256E1 /* SocketIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SocketIO.cpp; sourceTree = "<group>"; };
 		4617860220522468008256E1 /* HttpCookie.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HttpCookie.cpp; sourceTree = "<group>"; };
 		4617860420522469008256E1 /* CCIDownloaderImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCIDownloaderImpl.h; sourceTree = "<group>"; };
@@ -2609,6 +2615,8 @@
 		04F8563122ABCB1F00063A20 /* assembler */ = {
 			isa = PBXGroup;
 			children = (
+				427475F723214E2900139DF8 /* MeshAssembler.cpp */,
+				427475F823214E2A00139DF8 /* MeshAssembler.hpp */,
 				045F672622A50A8C0033F7BD /* RenderData.cpp */,
 				045F672722A50A8C0033F7BD /* RenderData.hpp */,
 				042058CB22A61B340092DE5D /* RenderDataList.cpp */,
@@ -3595,6 +3603,7 @@
 				04DBD45922AE2DBD00DBE4CD /* PointAttachment.h in Headers */,
 				04ED68DA21F8188F006E82F8 /* MeshBuffer.h in Headers */,
 				46FDDBCF202ADDCE00931238 /* CCMap.h in Headers */,
+				427475FB23214E2A00139DF8 /* MeshAssembler.hpp in Headers */,
 				1A52DB34205BCD9200350EE3 /* Object.hpp in Headers */,
 				469303962046AE05004A3D6C /* Class.hpp in Headers */,
 				1A52DB6F205BCDC700350EE3 /* ScriptEngine.hpp in Headers */,
@@ -4154,6 +4163,7 @@
 				04DBD43E22AE2DBD00DBE4CD /* SkeletonBinary.h in Headers */,
 				046E06E02185B49F00B24E2D /* DragonBonesData.h in Headers */,
 				04DBD3C222AE2DBD00DBE4CD /* TextureLoader.h in Headers */,
+				427475FC23214E2A00139DF8 /* MeshAssembler.hpp in Headers */,
 				04AF6302219190ED00AED9DE /* TypedArrayPool.h in Headers */,
 				46FDDB50202ADDCE00931238 /* CCValue.h in Headers */,
 				46FDDADA202ACC6A00931238 /* Program.h in Headers */,
@@ -4703,6 +4713,7 @@
 				04DBD41B22AE2DBD00DBE4CD /* SlotData.cpp in Sources */,
 				046E06392185B41100B24E2D /* WorldClock.cpp in Sources */,
 				1A28FF931F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.m in Sources */,
+				427475F923214E2A00139DF8 /* MeshAssembler.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4874,6 +4885,7 @@
 				468A967F22F43F4C005034BE /* Class.cpp in Sources */,
 				46FDDA8C202ACC6A00931238 /* ForwardRenderer.cpp in Sources */,
 				04DBD41C22AE2DBD00DBE4CD /* SlotData.cpp in Sources */,
+				427475FA23214E2A00139DF8 /* MeshAssembler.cpp in Sources */,
 				ED30579D1BEC77B90083C3ED /* ConvertUTF.c in Sources */,
 				46AE3FE22092F3A600F3A228 /* node.cc in Sources */,
 				4617864D205224CC008256E1 /* WebSocket-apple.mm in Sources */,

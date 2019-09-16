@@ -313,4 +313,12 @@ bool js_register_cocos2d_renderer_SlicedSprite2D(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
 SE_DECLARE_FUNC(js_renderer_SlicedSprite2D_SlicedSprite2D);
 
+extern se::Object* __jsb_cocos2d_renderer_MeshAssembler_proto;
+extern se::Class* __jsb_cocos2d_renderer_MeshAssembler_class;
+
+bool js_register_cocos2d_renderer_MeshAssembler(se::Object* obj);
+bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_MeshAssembler_setNode);
+SE_DECLARE_FUNC(js_renderer_MeshAssembler_MeshAssembler);
+
 #endif //#if (USE_GFX_RENDERER > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
