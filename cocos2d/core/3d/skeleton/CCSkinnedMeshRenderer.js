@@ -29,6 +29,7 @@ const RenderFlow = require('../../renderer/render-flow');
 const mat4 = cc.vmath.mat4;
 
 let _m4_tmp = mat4.create();
+let _m4_tmp2 = mat4.create();
 
 const dummyNode = new cc.Node();
 
@@ -300,7 +301,7 @@ let SkinnedMeshRenderer = cc.Class({
         else if (this._usingRGBA8Texture) {
             this.rootBone._updateWorldMatrix();
             let rootMatrix = this.rootBone._worldMatrix;
-            let invRootMat = mat4.invert(cc.mat4(), rootMatrix);
+            let invRootMat = mat4.invert(_m4_tmp2, rootMatrix);
 
             for (let i = 0; i < joints.length; ++i) {
                 let joint = joints[i];
