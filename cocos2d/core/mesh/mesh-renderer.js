@@ -34,6 +34,11 @@ export default class MeshRendererAssembler extends Assembler {
     constructor (comp) {
         super(comp);
         this._ias = [];
+        this._renderNode = null;
+    }
+
+    setRenderNode (node) {
+        this._renderNode = node;
     }
 
     updateRenderData (comp) {
@@ -76,7 +81,7 @@ export default class MeshRendererAssembler extends Assembler {
                 renderer.material = material;
                 renderer.cullingMask = comp.node._cullingMask;
                 renderer.customProperties = comp._customProperties;
-                renderer.node = comp.getRenderNode();
+                renderer.node = this._renderNode;
 
                 renderer._flushIA(ia);
 
@@ -156,7 +161,7 @@ export default class MeshRendererAssembler extends Assembler {
         renderer._flush();
         
         comp._updateWireFrameDatas();
-        renderer.node = comp.getRenderNode();
+        renderer.node = this._renderNode;
         
         let wireFrameDatas = comp._wireFrameDatas;
         for (let i = 0; i < wireFrameDatas.length; i++) {

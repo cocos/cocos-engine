@@ -2707,3 +2707,11 @@ Stencil manager does not support level bigger than %d in this device.
 ### 9001
 
 Stencil manager is already empty, cannot pop any mask
+
+### 9100
+
+Warning: Render failed, there is no raw texture file in '%s', please set in '%s' inspector panel.
+
+### 9101
+
+Warning: Render failed, there is no information in '%s', please set in '%s' inspector panel.

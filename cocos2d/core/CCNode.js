@@ -1042,7 +1042,7 @@ let NodeDefines = {
                     if (CC_JSB && CC_NATIVERENDERER) {
                         this._proxy.updateOpacity();
                     };
-                    this._renderFlag |= RenderFlow.FLAG_OPACITY;
+                    this._renderFlag |= RenderFlow.FLAG_OPACITY_COLOR;
                 }
             },
             range: [0, 255]
@@ -1066,6 +1066,8 @@ let NodeDefines = {
                     if (CC_DEV && value.a !== 255) {
                         cc.warnID(1626);
                     }
+
+                    this._renderFlag |= RenderFlow.FLAG_COLOR;
 
                     if (this._eventMask & COLOR_ON) {
                         this.emit(EventType.COLOR_CHANGED, value);
@@ -1258,7 +1260,7 @@ let NodeDefines = {
             this._proxy.init(this);
         }
         else {
-            this._renderFlag = RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_OPACITY;
+            this._renderFlag = RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_OPACITY_COLOR;
         }
     },
 
@@ -1477,7 +1479,7 @@ let NodeDefines = {
         }
 
         if (CC_JSB && CC_NATIVERENDERER) {
-            this._renderFlag |= RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_OPACITY;
+            this._renderFlag |= RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_OPACITY_COLOR;
         }
     },
 

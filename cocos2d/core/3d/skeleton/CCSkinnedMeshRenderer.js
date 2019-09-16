@@ -126,6 +126,7 @@ let SkinnedMeshRenderer = cc.Class({
         this._initJoints();
         this._initJointsTexture();
         this._initCalcFunc();
+        this._updateRenderNode();
     },
 
     _calcWorldMatrixToRoot (joint) {
@@ -230,6 +231,8 @@ let SkinnedMeshRenderer = cc.Class({
             }
 
             let texture = this._jointsTexture || new cc.Texture2D();
+            let NEAREST = cc.Texture2D.Filter.NEAREST;
+            texture.setFilters(NEAREST, NEAREST);
             texture.initWithData(this._jointsData, pixelFormat, width, height);
             this._jointsTexture = texture;
             this._jointsTextureOptions = {
@@ -269,8 +272,12 @@ let SkinnedMeshRenderer = cc.Class({
         return this._model && this._model.precomputeJointMatrix;
     },
 
-    getRenderNode () {
-        return this._useJointMatrix() ? this.rootBone : this._dummyNode;
+    _updateRenderNode () {
+        if (this._useJointMatrix()) {
+            this._assembler.setRenderNode(this.rootBone)
+        } else {
+            this._assembler.setRenderNode(this._dummyNode);
+        }
     },
 
     _initCalcFunc () {

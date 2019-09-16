@@ -63,6 +63,8 @@
 
   {
     "name": "Canvas Renderer",
+    "locked": true,
+    "hide": true,
     "entries": [
       "./cocos2d/core/renderer/canvas/index.js"
     ]
@@ -289,6 +291,8 @@
   },
   {
     "name": "WebGL Renderer",
+    "locked": true,
+    "hide": true,
     "entries": [
       "./cocos2d/core/renderer/webgl/model-batcher.js",
       "./cocos2d/core/renderer/webgl/assemblers/index.js",

@@ -203,7 +203,12 @@ var Prefab = cc.Class({
             PrefabUtils.linkPrefab(this, node);
         }
         return node;
-    }
+    },
+
+    destroy () {
+        this.data && this.data.destroy();
+        this._super();
+    },
 });
 
 cc.Prefab = module.exports = Prefab;
