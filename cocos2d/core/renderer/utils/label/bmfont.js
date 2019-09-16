@@ -79,7 +79,8 @@ let _maxLineWidth = 0;
 export default class BmfontAssembler extends Assembler2D {
     updateRenderData (comp) {
         if (!comp._vertsDirty) return;
-        if (_comp === comp) return;
+        let fontAsset = comp.font;
+        if (_comp === comp || !fontAsset || !fontAsset.spriteFrame || !fontAsset._fntConfig) return;
 
         _comp = comp;
         
@@ -449,8 +450,8 @@ export default class BmfontAssembler extends Assembler2D {
                 break;
             }
 
-            let scale = newFontSize / fontSize;
-            _bmfontScale = scale;
+            _bmfontScale = newFontSize / _originFontSize;
+            
             if (!_lineBreakWithoutSpaces) {
                 this._multilineTextWrapByWord();
             } else {
