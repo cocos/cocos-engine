@@ -44,7 +44,7 @@ import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { Mat3, Mat4, Vec2, Vec3, Vec4 } from '../../math';
 import { BatchedBuffer } from '../../pipeline/batched-buffer';
-import { isBuiltinBinding, RenderPassStage, RenderPriority } from '../../pipeline/define';
+import { isBuiltinBinding, RenderPassStage, RenderPriority, UBOLocal } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { programLib } from './program-lib';
@@ -630,6 +630,17 @@ export class Pass {
         if (this._batchedBuffer) {
             this._batchedBuffer.destroy();
             this._batchedBuffer = null;
+        }
+    }
+
+    /**
+     * @zh
+     * 清空合批缓冲。
+     */
+    public clearBatchedBuffer () {
+        if (this._batchedBuffer) {
+            const uboLocal = new UBOLocal();
+            this._batchedBuffer.ubo.update(uboLocal.view.buffer);
         }
     }
 

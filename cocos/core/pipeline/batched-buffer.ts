@@ -7,9 +7,9 @@ import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { GFXPipelineState } from '../gfx/pipeline-state';
 import { Mat4 } from '../math';
-import { Model, Pass } from '../renderer';
+import { Pass } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
-import { UBOLocal, UniformBinding } from './define';
+import { IRenderObject, UBOLocal, UniformBinding } from './define';
 
 export interface IBatchedItem {
     vbs: GFXBuffer[];
@@ -50,7 +50,7 @@ export class BatchedBuffer {
         this.ubo.destroy();
     }
 
-    public merge (subModel: SubModel, model: Model) {
+    public merge (subModel: SubModel, ro: IRenderObject) {
         const flatBuffers = subModel.subMeshData.flatBuffers;
         if (flatBuffers.length === 0) {
             return ;
@@ -91,7 +91,7 @@ export class BatchedBuffer {
                     batch.vbIdx.update(vbIdxView.buffer, batch.vbCount * 4);
 
                     // update world matrix
-                    Mat4.toArray(batch.uboLocal.view, model.transform.worldMatrix, UBOLocal.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
+                    Mat4.toArray(batch.uboLocal.view, ro.model.transform.worldMatrix, UBOLocal.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
 
                     ++batch.mergeCount;
                     batch.vbCount += vbCount;
@@ -157,7 +157,9 @@ export class BatchedBuffer {
             uboLocal: new UBOLocal(),
         };
 
-        Mat4.toArray(newBatch.uboLocal.view, model.transform.worldMatrix, UBOLocal.MAT_WORLDS_OFFSET);
+        // newBatch.subModels.push(subModel);
+
+        Mat4.toArray(newBatch.uboLocal.view, ro.model.transform.worldMatrix, UBOLocal.MAT_WORLDS_OFFSET);
 
         this.batches.push(newBatch);
         this.pass.bindBuffer(UniformBinding.UBO_LOCAL, this.ubo);
