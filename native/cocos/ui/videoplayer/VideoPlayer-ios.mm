@@ -87,22 +87,28 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
 -(id)init:(void*)videoPlayer
 {
     if (self = [super init]) {
-        self.playerController = [AVPlayerViewController new];
+        _keepRatioEnabled = FALSE;
+        _left = _top = _width = _height = 0;
 
-        [self showPlaybackControls:TRUE];
-        [self setKeepRatioEnabled:FALSE];
-
+        [self initPlayerController];
         _videoPlayer = (VideoPlayer*)videoPlayer;
-        _state = PlayerbackStateUnknown;
     }
 
     return self;
 }
 
+-(void)initPlayerController
+{
+    self.playerController = [AVPlayerViewController new];
+    [self setFrame:_left :_top :_width :_height];
+    [self showPlaybackControls:TRUE];
+    [self setKeepRatioEnabled:_keepRatioEnabled];
+    _state = PlayerbackStateUnknown;
+}
+
 -(void) dealloc
 {
     [self cleanup];
-    [self.playerController release];
     [super dealloc];
 }
 
@@ -137,17 +143,13 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
 -(void) setURL:(int)videoSource :(std::string &)videoUrl
 {
     [self cleanup];
+    [self initPlayerController];
 
     if (videoSource == 1)
         self.playerController.player = [[[AVPlayer alloc] initWithURL:[NSURL URLWithString:@(videoUrl.c_str())]] autorelease];
     else
         self.playerController.player = [[[AVPlayer alloc] initWithURL:[NSURL fileURLWithPath:@(videoUrl.c_str())]] autorelease];
 
-    [self setKeepRatioEnabled:_keepRatioEnabled];
-    [self showPlaybackControls:TRUE];
-
-    auto eaglview = (CCEAGLView*)cocos2d::Application::getInstance()->getView();
-    [eaglview addSubview:self.playerController.view];
     [self registerPlayerEventListener];
 }
 
@@ -184,9 +186,9 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
 {
     _keepRatioEnabled = enabled;
     if (_keepRatioEnabled)
-        self.playerController.videoGravity = AVLayerVideoGravityResizeAspect;
-    else
         self.playerController.videoGravity = AVLayerVideoGravityResizeAspectFill;
+    else
+        self.playerController.videoGravity = AVLayerVideoGravityResize;
 }
 
 -(void) play
@@ -216,7 +218,7 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
 -(void) stop
 {
     // AVPlayer doesn't have stop, so just pause it, and seek time to 0.
-    if (self.playerController.player && _state != PlayerbackStopped) {
+    if (self.playerController.player && _state != PlayerbackStopped && _state != PlayerbackStateUnknown) {
         [self seekTo:0];
         [self.playerController.player pause];
         _state = PlayerbackStopped;
@@ -231,6 +233,7 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
     [self stop];
     [self removePlayerEventListener];
     [self.playerController.view removeFromSuperview];
+    [self.playerController release];
 }
 
 -(void) removePlayerEventListener {
@@ -279,6 +282,7 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
     auto player = self.playerController.player;
     if (object == player && [keyPath isEqualToString:@"status"]) {
         if (player.status == AVPlayerStatusReadyToPlay) {
+            [self addPlayerControllerSubView];
             _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::META_LOADED);
             _videoPlayer->onPlayEvent((int)VideoPlayer::EventType::READY_TO_PLAY);
         } else if (player.status == AVPlayerStatusFailed) {
@@ -286,6 +290,11 @@ typedef NS_ENUM(NSInteger, PlayerbackState) {
             NSLog(@"Failed to load video");
         }
     }
+}
+
+-(void)addPlayerControllerSubView {
+    auto eaglview = (CCEAGLView*)cocos2d::Application::getInstance()->getView();
+    [eaglview addSubview:self.playerController.view];
 }
 
 @end
