@@ -3,12 +3,19 @@ const RenderComponent = require('../components/CCRenderComponent');
 const BlendFactor = require('../platform/CCMacro').BlendFactor;
 const gfx = require('../../renderer/gfx');
 
+/**
+ * !#en
+ * Helper class for setting material blend function.
+ * !#zh
+ * 设置材质混合模式的辅助类。
+ * @class BlendFunc
+ */
 let BlendFunc = cc.Class({
     properties: {
         _srcBlendFactor: BlendFactor.SRC_ALPHA,
         _dstBlendFactor: BlendFactor.ONE_MINUS_SRC_ALPHA,
 
-          /**
+        /**
          * !#en specify the source Blend Factor, this will generate a custom material object, please pay attention to the memory cost.
          * !#zh 指定原图的混合模式，这会克隆一个新的材质对象，注意这带来的开销
          * @property srcBlendFactor
@@ -17,16 +24,16 @@ let BlendFunc = cc.Class({
          * sprite.srcBlendFactor = cc.macro.BlendFactor.ONE;
          */
         srcBlendFactor: {
-            get: function() {
+            get () {
                 return this._srcBlendFactor;
             },
-            set: function(value) {
+            set (value) {
                 if (this._srcBlendFactor === value) return;
                 this._srcBlendFactor = value;
                 this._updateBlendFunc();
             },
             animatable: false,
-            type:BlendFactor,
+            type: BlendFactor,
             tooltip: CC_DEV && 'i18n:COMPONENT.sprite.src_blend_factor',
             visible: true
         },
@@ -40,10 +47,10 @@ let BlendFunc = cc.Class({
          * sprite.dstBlendFactor = cc.macro.BlendFactor.ONE;
          */
         dstBlendFactor: {
-            get: function() {
+            get () {
                 return this._dstBlendFactor;
             },
-            set: function(value) {
+            set (value) {
                 if (this._dstBlendFactor === value) return;
                 this._dstBlendFactor = value;
                 this._updateBlendFunc();
@@ -87,4 +94,4 @@ let BlendFunc = cc.Class({
     },
 });
 
-module.exports = BlendFunc;
+module.exports = cc.BlendFunc = BlendFunc;
