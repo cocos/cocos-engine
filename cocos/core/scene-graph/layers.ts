@@ -34,7 +34,7 @@ const layerList = {
   IGNORE_RAYCAST : (1 << 20),
   GIZMOS : (1 << 21),
   EDITOR : (1 << 22),
-  UI : (1 << 23),
+  UI_3D : (1 << 23),
   SCENE_GIZMO : (1 << 24),
   UI_2D : (1 << 25),
 
