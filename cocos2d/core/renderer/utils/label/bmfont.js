@@ -79,8 +79,7 @@ let _maxLineWidth = 0;
 export default class BmfontAssembler extends Assembler2D {
     updateRenderData (comp) {
         if (!comp._vertsDirty) return;
-        let fontAsset = comp.font;
-        if (_comp === comp || !fontAsset || !fontAsset.spriteFrame || !fontAsset._fntConfig) return;
+        if (_comp === comp) return;
 
         _comp = comp;
         
