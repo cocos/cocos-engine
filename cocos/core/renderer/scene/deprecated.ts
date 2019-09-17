@@ -1,17 +1,34 @@
-import { replaceProperty } from "../../utils";
+import { replaceProperty, removeProperty } from "../../utils";
 import { RenderScene } from "./render-scene";
 
 replaceProperty(RenderScene.prototype, 'RenderScene.prototype', [
     {
         'name': 'raycastUI',
-        'newName': 'raycastUI2D'
+        'newName': 'raycastAllCanvas'
     },
     {
-        'name': 'raycastUINode',
-        'newName': 'raycastUI2DNode'
+        'name': 'raycastUI2D',
+        'newName': 'raycastAllCanvas'
     },
     {
         'name': 'raycast',
-        'newName': 'raycastModels'
+        'newName': 'raycastAllModels'
+    },
+    {
+        'name': 'raycastModels',
+        'newName': 'raycastAllModels'
+    },
+    {
+        'name': 'raycastModel',
+        'newName': 'raycastSingleModel'
+    },
+]);
+
+removeProperty(RenderScene.prototype, 'RenderScene.prototype', [
+    {
+        'name': 'raycastUI2DNode'
+    },
+    {
+        'name': 'raycastUINode',
     }
-])
+]);
