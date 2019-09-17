@@ -385,7 +385,8 @@ export class LabelComponent extends UIRenderComponent {
             this.destroyRenderData();
             this._renderData = null;
         }
-        // this._fontAtlas = null;
+
+        this._fontAtlas = null;
         this.updateRenderData(true);
     }
 
