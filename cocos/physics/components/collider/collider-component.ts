@@ -260,6 +260,7 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
             } else {
                 this.sharedBody.body.addShape(this._shapeBase!, this._center);
             }
+            this.center = this._center;
 
             this._shapeBase.addTriggerCallback(this._trrigerCallback);
             if (!CC_PHYSICS_BUILTIN) {
