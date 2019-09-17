@@ -4,6 +4,7 @@
 
 import { Vec3 } from '../math';
 import enums from './enums';
+import { IVec3Like } from '../math/type-define';
 
 /**
  * @zh
@@ -125,9 +126,14 @@ export default class ray {
      * @param {number} dz 方向的 z 部分。
      */
     constructor (ox: number = 0, oy: number = 0, oz: number = 0,
-                 dx: number = 0, dy: number = 0, dz: number = -1) {
+        dx: number = 0, dy: number = 0, dz: number = -1) {
         this._type = enums.SHAPE_RAY;
         this.o = new Vec3(ox, oy, oz);
         this.d = new Vec3(dx, dy, dz);
+    }
+
+    public computeHit (out: IVec3Like, distance: number) {
+        Vec3.normalize(out, this.d)
+        Vec3.scaleAndAdd(out, this.o, out, distance);
     }
 }
