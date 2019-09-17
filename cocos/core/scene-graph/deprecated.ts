@@ -77,7 +77,7 @@ replaceProperty(Layers, 'Layers', [
     },
     {
         name: 'UI',
-        newName: 'UI',
+        newName: 'UI_3D',
         target: Layers.Enum,
         targetName: 'Layers.Enum',
     },
