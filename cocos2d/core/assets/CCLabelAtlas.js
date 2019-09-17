@@ -46,7 +46,7 @@ var LabelAtlas = cc.Class({
         }
         let fntConfig = this._fntConfig;
         if (!fntConfig) {
-            cc.warnID(9100);
+            cc.warnID(9101);
             return;
         }
         this._super();
