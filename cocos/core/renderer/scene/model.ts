@@ -250,7 +250,7 @@ export class Model {
         // @ts-ignore
         if (this._transformUpdated && !this._isDynamicBatching) {
             // @ts-ignore
-            const worldMatrix = this._transform._mat; const rot = this._transform._rot;
+            const worldMatrix = this._transform._mat;
             Mat4.toArray(this._uboLocal.view, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
             Mat4.inverseTranspose(m4_1, worldMatrix);
             Mat4.toArray(this._uboLocal.view, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);

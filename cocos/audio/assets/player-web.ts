@@ -92,14 +92,14 @@ export class AudioPlayerWeb extends AudioPlayer {
         this._on_gesture = () => {
             this._context.resume().then(() => {
                 if (this._alreadyDelayed) { this._do_play(); }
-                window.removeEventListener('touchend', this._on_gesture);
-                document.removeEventListener('mouseup', this._on_gesture);
+                cc.game.canvas.removeEventListener('touchend', this._on_gesture);
+                cc.game.canvas.removeEventListener('mouseup', this._on_gesture);
             });
         };
 
         if (this._context.state === 'running') { return; }
-        window.addEventListener('touchend', this._on_gesture);
-        document.addEventListener('mouseup', this._on_gesture);
+        cc.game.canvas.addEventListener('touchend', this._on_gesture);
+        cc.game.canvas.addEventListener('mouseup', this._on_gesture);
     }
 
     public play () {
