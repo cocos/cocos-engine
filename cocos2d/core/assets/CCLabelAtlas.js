@@ -39,14 +39,12 @@ var LabelAtlas = cc.Class({
     extends: cc.BitmapFont,
 
     onLoad () {
-        let spriteFrame = this.spriteFrame;
-        if (!spriteFrame) {
-            cc.warnID(9100);
+        if (!this.spriteFrame) {
+            cc.warnID(9100, this.name);
             return;
         }
-        let fntConfig = this._fntConfig;
-        if (!fntConfig) {
-            cc.warnID(9101);
+        if (!this._fntConfig) {
+            cc.warnID(9101, this.name);
             return;
         }
         this._super();
