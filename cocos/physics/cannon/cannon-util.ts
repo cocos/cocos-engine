@@ -1,42 +1,21 @@
 import CANNON from 'cannon';
-import { IRaycastOptions, RigidBodyBase, ShapeBase } from '../api';
-import { RaycastResult } from '../raycast-result';
+import { IRaycastOptions, ShapeBase } from '../api';
+import { PhysicsRayResult } from '../physics-ray-result';
 import { getWrap } from '../util';
+import { Vec3 } from '../../core';
 
-interface ICANNONRaycastOptions {
-    collisionFilterMask?: number;
-    collisionFilterGroup?: number;
-    checkCollisionResponse?: boolean;
-    skipBackfaces?: boolean;
+export function toCannonRaycastOptions (out: CANNON.IRaycastOptions, options: IRaycastOptions) {
+    out.checkCollisionResponse = !options.queryTrigger;
+    // out.collisionFilterGroup = options.group;
+    // out.collisionFilterMask = options.mask;
+    out.skipBackFaces = false;
 }
 
-export function toCannonRaycastOptions (options: IRaycastOptions): ICANNONRaycastOptions {
-    return toCannonOptions(options, {
-        queryTriggerInteraction: 'checkCollisionResponse',
-    });
-}
-
-export function toCannonOptions<T> (options: any, optionsRename?: { [x: string]: string }) {
-    const result = {};
-    for (const key of Object.keys(options)) {
-        let destKey = key;
-        if (optionsRename) {
-            const rename = optionsRename[key];
-            if (rename) {
-                destKey = rename;
-            }
-        }
-        result[destKey] = options[key];
-    }
-    return result as T;
-}
-
-export function fillRaycastResult (result: RaycastResult, cannonResult: CANNON.RaycastResult) {
+export function fillRaycastResult (result: PhysicsRayResult, cannonResult: CANNON.RaycastResult) {
     result._assign(
-        cannonResult.hitPointWorld,
+        Vec3.copy(new Vec3(), cannonResult.hitPointWorld),
         cannonResult.distance,
-        getWrap<ShapeBase>(cannonResult.shape),
-        getWrap<RigidBodyBase>(cannonResult.body),
+        getWrap<ShapeBase>(cannonResult.shape)
     );
 }
 

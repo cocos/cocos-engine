@@ -3,6 +3,7 @@ import { ITriggerCallback, ITriggerEvent, ShapeBase } from '../../api';
 import { BuiltInBody } from '../builtin-body';
 import { IBuiltinShape } from '../builtin-interface';
 import { BuiltinObject } from '../object/builtin-object';
+import { ColliderComponent } from '../../../../exports/physics-framework';
 
 export class BuiltinShape extends BuiltinObject implements ShapeBase {
 
@@ -28,7 +29,7 @@ export class BuiltinShape extends BuiltinObject implements ShapeBase {
 
     private readonly _id: number;
 
-    private userData: any;
+    private userData!: ColliderComponent | null;
 
     private _triggeredCB: ITriggerCallback[] = [];
 
@@ -58,8 +59,8 @@ export class BuiltinShape extends BuiltinObject implements ShapeBase {
         Vec3.copy(this._localShape.center, center);
     }
 
-    public getUserData () {
-        return this.userData;
+    public getUserData (): ColliderComponent {
+        return this.userData!;
     }
 
     public setUserData (data: any): void {
@@ -74,7 +75,7 @@ export class BuiltinShape extends BuiltinObject implements ShapeBase {
 
     }
 
-    public setPosition (position: Vec3){
+    public setPosition (position: Vec3) {
 
     }
 
@@ -86,7 +87,7 @@ export class BuiltinShape extends BuiltinObject implements ShapeBase {
         this._localShape.transform(m, pos, rot, scale, this._worldShape);
     }
 
-    public translateAndRotate (m: Mat4, rot: Quat){
+    public translateAndRotate (m: Mat4, rot: Quat) {
         this._localShape.translateAndRotate(m, rot, this._worldShape);
     }
 

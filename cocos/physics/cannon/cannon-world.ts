@@ -1,12 +1,14 @@
 import CANNON from 'cannon';
 import { Vec3 } from '../../core/math';
-import { RaycastResult } from '../raycast-result';
+import { PhysicsRayResult } from '../physics-ray-result';
 import { setWrap } from '../util';
 import { AfterStepCallback, BeforeStepCallback, IRaycastOptions, PhysicsWorldBase } from './../api';
 import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
 import { CannonConstraint } from './constraint/cannon-constraint';
 import { CannonShape } from './shapes/cannon-shape';
 import { PhysicMaterial } from '../assets/physic-material';
+import { ray } from '../../core/geom-utils';
+import { RecyclePool } from '../../core';
 
 export class CannonWorld implements PhysicsWorldBase {
 
@@ -88,28 +90,35 @@ export class CannonWorld implements PhysicsWorldBase {
         this._customAfterStepListener.splice(i, 1);
     }
 
-    public raycastClosest (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean {
-        const hit = (this._world as any).raycastClosest(from, to, toCannonRaycastOptions(options), this._raycastResult);
+    public raycastClosest (worldRay: ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
+        setupFromAndTo(worldRay, options.maxDistance);
+        toCannonRaycastOptions(raycastOpt, options);
+        const hit = this._world.raycastClosest(from, to, raycastOpt, this._raycastResult);
         if (hit) {
             fillRaycastResult(result, this._raycastResult);
         }
         return hit;
     }
 
-    public raycastAny (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean {
-        const hit = (this._world as any).raycastAny(from, to, toCannonRaycastOptions(options), this._raycastResult);
+    public raycastAny (worldRay: ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
+        setupFromAndTo(worldRay, options.maxDistance);
+        toCannonRaycastOptions(raycastOpt, options);
+        const hit = this._world.raycastAny(from, to, raycastOpt, this._raycastResult);
         if (hit) {
             fillRaycastResult(result, this._raycastResult);
         }
         return hit;
     }
 
-    public raycastAll (from: Vec3, to: Vec3, options: IRaycastOptions, callback: (result: RaycastResult) => void): boolean {
-        return (this._world as any).raycastAll(from, to, toCannonRaycastOptions(options), (cannonResult: CANNON.RaycastResult) => {
-            const result = new RaycastResult();
-            fillRaycastResult(result, cannonResult);
-            callback(result);
+    public raycastAll (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        setupFromAndTo(worldRay, options.maxDistance);
+        toCannonRaycastOptions(raycastOpt, options);
+        const hit = this._world.raycastAll(from, to, raycastOpt, (result: CANNON.RaycastResult): any => {
+            const r = pool.add();
+            fillRaycastResult(r, result);
+            results.push(r);
         });
+        return hit
     }
 
     // public addContactMaterial (contactMaterial: ContactMaterial) {
@@ -131,4 +140,18 @@ export class CannonWorld implements PhysicsWorldBase {
     private _callCustomAfterSteps () {
         this._customAfterStepListener.forEach((fx) => fx());
     }
+}
+
+const from = new CANNON.Vec3();
+const to = new CANNON.Vec3();
+function setupFromAndTo (worldRay: ray, distance: number) {
+    Vec3.copy(from, worldRay.o);
+    worldRay.computeHit(to, distance);
+}
+
+const raycastOpt: CANNON.IRaycastOptions = {
+    'checkCollisionResponse': false,
+    'collisionFilterGroup': -1,
+    'collisionFilterMask': -1,
+    'skipBackFaces': false
 }

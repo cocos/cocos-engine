@@ -28,7 +28,7 @@ export class BuiltInBody extends BuiltinObject implements BuiltInRigidBodyBase {
 
     private _world!: BuiltInWorld;
 
-    private _shapes: BuiltinShape[] = [];
+    public readonly shapes: BuiltinShape[] = [];
 
     private userData: any;
 
@@ -38,11 +38,11 @@ export class BuiltInBody extends BuiltinObject implements BuiltInRigidBodyBase {
     }
 
     public intersects (body: BuiltInBody) {
-        for (let i = 0; i < this._shapes.length; i++) {
-            const shapeA = this._shapes[i];
+        for (let i = 0; i < this.shapes.length; i++) {
+            const shapeA = this.shapes[i];
 
-            for (let j = 0; j < body._shapes.length; j++) {
-                const shapeB = body._shapes[j];
+            for (let j = 0; j < body.shapes.length; j++) {
+                const shapeB = body.shapes[j];
 
                 // first, Check collision filter masks
                 if ((shapeA.collisionFilterGroup & shapeB.collisionFilterMask) === 0 ||
@@ -59,14 +59,14 @@ export class BuiltInBody extends BuiltinObject implements BuiltInRigidBodyBase {
     }
 
     public addShape (shape: BuiltinShape): void {
-        this._shapes.push(shape);
+        this.shapes.push(shape);
         shape.body = this;
     }
 
     public removeShape (shape: BuiltinShape): void {
-        const i = this._shapes.indexOf(shape);
+        const i = this.shapes.indexOf(shape);
         if (i >= 0) {
-            this._shapes.splice(i, 1);
+            this.shapes.splice(i, 1);
         }
     }
 
@@ -90,7 +90,7 @@ export class BuiltInBody extends BuiltinObject implements BuiltInRigidBodyBase {
 
     public setPosition (pos: Vec3): void {
         /** 更新所有形状的位置 */
-        for (const shape of this._shapes) {
+        for (const shape of this.shapes) {
             shape.setPosition(pos);
         }
     }
@@ -101,13 +101,13 @@ export class BuiltInBody extends BuiltinObject implements BuiltInRigidBodyBase {
 
     public setRotation (rot: Quat): void {
         /** 更新所有形状的方向 */
-        for (const shape of this._shapes) {
+        for (const shape of this.shapes) {
             shape.setRotation(rot);
         }
     }
 
     public scaleAllShapes (scale: Vec3): void {
-        for (const shape of this._shapes) {
+        for (const shape of this.shapes) {
             shape.setScale(scale);
         }
     }
@@ -121,14 +121,14 @@ export class BuiltInBody extends BuiltinObject implements BuiltInRigidBodyBase {
     }
 
     public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3) {
-        for (let i = this._shapes.length; i--;) {
-            this._shapes[i].transform(m, pos, rot, scale);
+        for (let i = this.shapes.length; i--;) {
+            this.shapes[i].transform(m, pos, rot, scale);
         }
     }
 
     public translateAndRotate (m: Mat4, rot: Quat): void {
-        for (let i = this._shapes.length; i--;) {
-            this._shapes[i].translateAndRotate(m, rot);
+        for (let i = this.shapes.length; i--;) {
+            this.shapes[i].translateAndRotate(m, rot);
         }
     }
 }
