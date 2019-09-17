@@ -480,8 +480,13 @@ function adjustWidgetToAnchorChanged (this: WidgetComponent) {
     this.setDirty();
 }
 
-function adjustTargetToParentChanged (this: WidgetComponent) {
-    this.target = this.node.parent;
+function adjustTargetToParentChanged (this: WidgetComponent, thisNode: Node, oldParent: Node ) {
+    if (oldParent) {
+        this._unregisterTargetEvents(oldParent);
+    }
+    if (thisNode.getParent()) {
+        this._registerTargetEvents();
+    }
 }
 
 const activeWidgets: WidgetComponent[] = [];
@@ -533,12 +538,12 @@ export const widgetManager = cc._widgetManager = {
         // if (CC_EDITOR && !cc.engine.isPlaying) {
         const renderComp: UIRenderComponent = widget.node.getComponent(UIRenderComponent);
         if (renderComp) {
-                const canvasComp = director.root!.ui.getScreen(renderComp.visibility);
-                if (canvasComp && canvasList.indexOf(canvasComp) === -1) {
-                    canvasList.push(canvasComp);
-                    canvasComp.node.on('design-resolution-changed', this.onResized, this);
-                }
+            const canvasComp = director.root!.ui.getScreen(renderComp.visibility);
+            if (canvasComp && canvasList.indexOf(canvasComp) === -1) {
+                canvasList.push(canvasComp);
+                canvasComp.node.on('design-resolution-changed', this.onResized, this);
             }
+        }
         widget.node.on(SystemEventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
         widget.node.on(SystemEventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
         widget.node.on(SystemEventType.ANCHOR_CHANGED, adjustWidgetToAnchorChanged, widget);
@@ -551,8 +556,10 @@ export const widgetManager = cc._widgetManager = {
         widget.node.off(SystemEventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
         widget.node.off(SystemEventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
         widget.node.off(SystemEventType.ANCHOR_CHANGED, adjustWidgetToAnchorChanged, widget);
-        widget.node.off(SystemEventType.PARENT_CHANGED, adjustTargetToParentChanged, widget);
         // }
+    },
+    removeParentEvent (widget: WidgetComponent) {
+        widget.node.off(SystemEventType.PARENT_CHANGED, adjustTargetToParentChanged, widget);
     },
     onResized () {
     },

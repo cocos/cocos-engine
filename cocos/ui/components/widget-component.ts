@@ -549,7 +549,7 @@ export class WidgetComponent extends Component {
     }
 
     public _validateTargetInDEV () {
-        if (!CC_DEV){
+        if (!CC_DEV) {
             return;
         }
 
@@ -558,7 +558,7 @@ export class WidgetComponent extends Component {
             const isParent = this.node !== target && this.node.isChildOf(target);
             if (!isParent) {
                 errorID(6500);
-                this._target = null;
+                this.target = null;
             }
         }
 
@@ -583,7 +583,10 @@ export class WidgetComponent extends Component {
 
     public onDisable () {
         cc._widgetManager.remove(this);
-        this._unregisterTargetEvents();
+    }
+
+    public onDestroy () {
+        cc._widgetManager.removeParentEvent(this);
     }
 
     protected _aotuChangedValue (flag: AlignFlags, isAbs: boolean){
@@ -612,16 +615,14 @@ export class WidgetComponent extends Component {
 
     protected _registerTargetEvents () {
         const target = this._target || this.node.parent;
-        // Ensure target can be found in unregistration, in case parent is null during setParent(null) process
-        this._target = target;
         if (target){
             target.on(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
             target.on(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
         }
     }
 
-    protected _unregisterTargetEvents () {
-        const target = this._target || this.node.parent;
+    protected _unregisterTargetEvents (oldParent: Node|null = null) {
+        const target = this._target || this.node.parent || oldParent;
         if (target) {
             target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
             target.off(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
