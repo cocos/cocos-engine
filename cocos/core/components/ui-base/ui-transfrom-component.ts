@@ -42,7 +42,7 @@ const _vec2b = new Vec2();
 const _mat4_temp = new Mat4();
 const _matrix = new Mat4();
 const _worldMatrix = new Mat4();
-
+const _rect = new Rect();
 /**
  * @zh
  * UI 变换组件。
@@ -478,16 +478,26 @@ export class UITransformComponent extends Component {
     }
 
     /**
+     * @en
      * compute the corresponding aabb in world space for raycast
+     * @zh
+     * 计算出此 UI_2D 节点在世界空间下的 aabb 包围盒
      */
     public getComputeAABB (out?: aabb) {
-        const rectWorld = this.getBoundingBoxToWorld();
-        const px = rectWorld.center.x;
-        const py = rectWorld.center.y;
+        const width = this._contentSize.width;
+        const height = this._contentSize.height;
+        _rect.set(
+            -this._anchorPoint.x * width,
+            -this._anchorPoint.y * height,
+            width,
+            height);
+        _rect.transformMat4(this.node.worldMatrix);
+        const px = _rect.x + _rect.width * 0.5;
+        const py = _rect.y + _rect.height * 0.5;;
         const pz = this.node.worldPosition.z;
-        const w = rectWorld.width / 2;
-        const h = rectWorld.height / 2;
-        const l = 0.01;
+        const w = _rect.width / 2;
+        const h = _rect.height / 2;
+        const l = 0.001;
         if (out != null) {
             aabb.set(out, px, py, pz, w, h, l);
         } else {
