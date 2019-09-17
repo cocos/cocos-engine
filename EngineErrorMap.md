@@ -2711,8 +2711,8 @@ Stencil manager is already empty, cannot pop any mask.
 
 ### 9100
 
-The rendering failed. The raw texture file is missing from %s.
+LabelAtlas '%s' cannot be loaded, raw texture does not exist.
 
 ### 9101
 
-The rendering failed. Missing fnt information in %s.
+LabelAtlas '%s' cannot be loaded, fnt data does not exist.
