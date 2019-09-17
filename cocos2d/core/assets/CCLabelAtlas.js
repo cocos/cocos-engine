@@ -36,7 +36,20 @@
  */
 var LabelAtlas = cc.Class({
     name: 'cc.LabelAtlas',
-    extends: cc.BitmapFont
+    extends: cc.BitmapFont,
+
+    onLoad () {
+        if (!this.spriteFrame) {
+            cc.warnID(9100, this.name);
+            return;
+        }
+        if (!this._fntConfig) {
+            cc.warnID(9101, this.name);
+            return;
+        }
+        this._super();
+    }
+
 });
 
 cc.LabelAtlas = LabelAtlas;
