@@ -58,8 +58,8 @@ export class AudioPlayerDOM extends AudioPlayer {
             promise.then(() => {
                 if (this._alreadyDelayed) { this._post_play(); }
                 else { this._audio!.pause(); this._audio!.currentTime = 0; }
-                window.removeEventListener('touchend', this._on_gesture);
-                document.removeEventListener('mouseup', this._on_gesture);
+                cc.game.canvas.removeEventListener('touchend', this._on_gesture);
+                cc.game.canvas.removeEventListener('mouseup', this._on_gesture);
             });
         };
 
@@ -74,8 +74,8 @@ export class AudioPlayerDOM extends AudioPlayer {
         });
         /* play & stop immediately after receiving a gesture so that
            we can freely invoke play() outside event listeners later */
-        window.addEventListener('touchend', this._on_gesture);
-        document.addEventListener('mouseup', this._on_gesture);
+        cc.game.canvas.addEventListener('touchend', this._on_gesture);
+        cc.game.canvas.addEventListener('mouseup', this._on_gesture);
     }
 
     public play () {
