@@ -77,9 +77,7 @@ let _maxLineWidth = 0;
 module.exports = {
     updateRenderData (comp) {
         if (!comp._renderData.vertDirty) return;
-        let fontAsset = comp.font;
         if (_comp === comp) return;
-        if (!comp.useSystemFont && (!fontAsset || !fontAsset.spriteFrame || !fontAsset._fntConfig)) return;
 
         _comp = comp;
         
