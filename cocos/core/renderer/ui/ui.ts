@@ -48,6 +48,7 @@ import { StencilManager } from './stencil-manager';
 import { UIBatchModel } from './ui-batch-model';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
+import { Layers } from '../../scene-graph';
 
 export class UIDrawBatch {
     public camera: Camera | null = null;
@@ -309,9 +310,11 @@ export class UI {
                 if (batch.model) {
                     if (batch.camera) {
                         const visFlags = batch.camera.view.visibility;
-                        batch.model.visFlags = visFlags;
                         batch.model.node.layer = visFlags;
+                    } else {
+                        batch.model.node.layer = Layers.Enum.UI_3D;
                     }
+
                     for (let j = 0; j < batch.model.subModelNum; j++) {
                         batch.model.getSubModel(j).priority = batchPriority++;
                     }
