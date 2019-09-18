@@ -362,7 +362,7 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsTop = value;
-        this._aotuChangedValue(AlignFlags.TOP, this._isAbsTop);
+        this._autoChangedValue(AlignFlags.TOP, this._isAbsTop);
     }
 
     /**
@@ -379,7 +379,7 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsBottom = value;
-        this._aotuChangedValue(AlignFlags.BOT, this._isAbsBottom);
+        this._autoChangedValue(AlignFlags.BOT, this._isAbsBottom);
     }
 
     /**
@@ -396,7 +396,7 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsLeft = value;
-        this._aotuChangedValue(AlignFlags.LEFT, this._isAbsLeft);
+        this._autoChangedValue(AlignFlags.LEFT, this._isAbsLeft);
     }
 
     /**
@@ -413,7 +413,7 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsRight = value;
-        this._aotuChangedValue(AlignFlags.RIGHT, this._isAbsRight);
+        this._autoChangedValue(AlignFlags.RIGHT, this._isAbsRight);
     }
 
     /**
@@ -452,7 +452,7 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsHorizontalCenter = value;
-        this._aotuChangedValue(AlignFlags.CENTER, this._isAbsHorizontalCenter);
+        this._autoChangedValue(AlignFlags.CENTER, this._isAbsHorizontalCenter);
     }
 
     /**
@@ -469,7 +469,7 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsVerticalCenter = value;
-        this._aotuChangedValue(AlignFlags.MID, this._isAbsVerticalCenter);
+        this._autoChangedValue(AlignFlags.MID, this._isAbsVerticalCenter);
     }
 
     /**
@@ -587,7 +587,7 @@ export class WidgetComponent extends Component {
         this._removeParentEvent();
     }
 
-    public adjustWidgetToAllowMovingInEditor (eventType: SystemEventType) {
+    public _adjustWidgetToAllowMovingInEditor (eventType: SystemEventType) {
         if (/*!CC_EDITOR ||*/ eventType !== SystemEventType.POSITION_PART) {
             return;
         }
@@ -639,7 +639,7 @@ export class WidgetComponent extends Component {
         }
     }
 
-    public adjustWidgetToAllowResizingInEditor () {
+    public _adjustWidgetToAllowResizingInEditor () {
         // if (!CC_EDITOR) {
         //     return;
         // }
@@ -687,11 +687,11 @@ export class WidgetComponent extends Component {
         }
     }
 
-    public adjustWidgetToAnchorChanged () {
+    public _adjustWidgetToAnchorChanged () {
         this.setDirty();
     }
 
-    public adjustTargetToParentChanged (oldParent: Node) {
+    public _adjustTargetToParentChanged (oldParent: Node) {
         if (oldParent) {
             this._unregisterOldParentEvents(oldParent);
         }
@@ -701,23 +701,23 @@ export class WidgetComponent extends Component {
     }
 
     protected _registerEvent () {
-        this.node.on(SystemEventType.TRANSFORM_CHANGED, this.adjustWidgetToAllowMovingInEditor, this);
-        this.node.on(SystemEventType.SIZE_CHANGED, this.adjustWidgetToAllowResizingInEditor, this);
-        this.node.on(SystemEventType.ANCHOR_CHANGED, this.adjustWidgetToAnchorChanged, this);
-        this.node.on(SystemEventType.PARENT_CHANGED, this.adjustTargetToParentChanged, this);
+        this.node.on(SystemEventType.TRANSFORM_CHANGED, this._adjustWidgetToAllowMovingInEditor, this);
+        this.node.on(SystemEventType.SIZE_CHANGED, this._adjustWidgetToAllowResizingInEditor, this);
+        this.node.on(SystemEventType.ANCHOR_CHANGED, this._adjustWidgetToAnchorChanged, this);
+        this.node.on(SystemEventType.PARENT_CHANGED, this._adjustTargetToParentChanged, this);
     }
 
     protected _unregisterEvent () {
-        this.node.off(SystemEventType.TRANSFORM_CHANGED, this.adjustWidgetToAllowMovingInEditor, this);
-        this.node.off(SystemEventType.SIZE_CHANGED, this.adjustWidgetToAllowResizingInEditor, this);
-        this.node.off(SystemEventType.ANCHOR_CHANGED, this.adjustWidgetToAnchorChanged, this);
+        this.node.off(SystemEventType.TRANSFORM_CHANGED, this._adjustWidgetToAllowMovingInEditor, this);
+        this.node.off(SystemEventType.SIZE_CHANGED, this._adjustWidgetToAllowResizingInEditor, this);
+        this.node.off(SystemEventType.ANCHOR_CHANGED, this._adjustWidgetToAnchorChanged, this);
     }
 
     protected _removeParentEvent () {
-        this.node.off(SystemEventType.PARENT_CHANGED, this.adjustTargetToParentChanged, this);
+        this.node.off(SystemEventType.PARENT_CHANGED, this._adjustTargetToParentChanged, this);
     }
 
-    protected _aotuChangedValue (flag: AlignFlags, isAbs: boolean){
+    protected _autoChangedValue (flag: AlignFlags, isAbs: boolean){
         const current = (this._alignFlags & flag) > 0;
         if (!current || !this.node.parent || !this.node.parent.uiTransfromComp){
             return;

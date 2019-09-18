@@ -436,6 +436,10 @@ export const widgetManager = cc._widgetManager = {
         // }
     },
     onResized () {
+        const scene = director.getScene();
+        if (scene) {
+            this.refreshWidgetOnResized(scene);
+        }
     },
     refreshWidgetOnResized (node: Node) {
         if (Node.isNode(node)){
