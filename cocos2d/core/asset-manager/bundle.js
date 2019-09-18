@@ -121,9 +121,13 @@ Bundle.prototype = {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
 
         if (requests instanceof Task) {
+            if (requests.isFinish !== true) {
+                cc.error('preloading task is not finished');
+                return null;
+            }
             requests.onComplete = onComplete;
             initializePipeline.async(requests);
-            return null;
+            return requests;
         }
         
         options = options || Object.create(null);
