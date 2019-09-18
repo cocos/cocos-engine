@@ -253,22 +253,38 @@ namespace
         g_textView.text = [NSString stringWithUTF8String: showInfo.defaultValue.c_str()];
         [g_textViewConfirmButton setTitle:getConfirmButtonTitle(showInfo.confirmType) forState:UIControlStateNormal];
     }
-    
-    void addTextInput(const cocos2d::EditBox::ShowInfo& showInfo)
+
+    CGRect getSafeAreaRect()
     {
         UIView* view = (UIView*)cocos2d::Application::getInstance()->getView();
         CGRect viewRect = view.frame;
+
+        // safeAreaInsets is avaible since iOS 11.
+        if (@available(iOS 11.0, *))
+        {
+            auto safeAreaInsets = view.safeAreaInsets;
+            viewRect.origin.x += safeAreaInsets.left;
+            viewRect.size.width -= safeAreaInsets.left;
+        }
+
+        return viewRect;
+    }
+    
+    void addTextInput(const cocos2d::EditBox::ShowInfo& showInfo)
+    {
+        auto safeAreaRect = getSafeAreaRect();
         int height = getTextInputHeight();
-        CGRect rect = CGRectMake(viewRect.origin.x,
-                                 viewRect.size.height - height,
-                                 viewRect.size.width,
+        CGRect rect = CGRectMake(safeAreaRect.origin.x,
+                                 safeAreaRect.size.height - height,
+                                 safeAreaRect.size.width,
                                  height);
         if (showInfo.isMultiline)
-            initTextView(viewRect, rect, showInfo);
+            initTextView(safeAreaRect, rect, showInfo);
         else
             initTextField(rect, showInfo);
         
         UIView* textInput = getCurrentView();
+        UIView* view = (UIView*)cocos2d::Application::getInstance()->getView();
         [view addSubview:textInput];
         [textInput becomeFirstResponder];
     }
@@ -317,9 +333,7 @@ namespace
 
     int textHeight = getTextInputHeight();
 
-    UIView* screenView = (UIView*)cocos2d::Application::getInstance()->getView();
-    CGRect screenRect = screenView.frame;
-
+    CGRect screenRect = getSafeAreaRect();
     textView.frame = CGRectMake(screenRect.origin.x,
                                 screenRect.size.height - textHeight - kbSize.height,
                                 screenRect.size.width,
