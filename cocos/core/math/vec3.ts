@@ -427,7 +427,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * @zh 缩放 -> 旋转 -> 平移变换向量
+     * @zh 以缩放 -> 旋转 -> 平移顺序变换向量
      */
     public static transformRTS<Out extends IVec3Like, VecLike extends IVec3Like, QuatLike extends IQuatLike> (
         out: Out, a: VecLike, r: QuatLike, t: VecLike, s: VecLike) {
@@ -441,6 +441,24 @@ export class Vec3 extends ValueType {
         out.x = ix * r.w + iw * -r.x + iy * -r.z - iz * -r.y + t.x;
         out.y = iy * r.w + iw * -r.y + iz * -r.x - ix * -r.z + t.y;
         out.z = iz * r.w + iw * -r.z + ix * -r.y - iy * -r.x + t.z;
+        return out;
+    }
+
+    /**
+     * @zh 以平移 -> 旋转 -> 缩放顺序逆变换向量
+     */
+    public static transformInverseRTS<Out extends IVec3Like, VecLike extends IVec3Like, QuatLike extends IQuatLike> (
+        out: Out, a: VecLike, r: QuatLike, t: VecLike, s: VecLike) {
+        const x = a.x - t.x;
+        const y = a.y - t.y;
+        const z = a.z - t.z;
+        const ix = r.w * x - r.y * z + r.z * y;
+        const iy = r.w * y - r.z * x + r.x * z;
+        const iz = r.w * z - r.x * y + r.y * x;
+        const iw = r.x * x + r.y * y + r.z * z;
+        out.x = (ix * r.w + iw * r.x + iy * r.z - iz * r.y) / s.x;
+        out.y = (iy * r.w + iw * r.y + iz * r.x - ix * r.z) / s.y;
+        out.z = (iz * r.w + iw * r.z + ix * r.y - iy * r.x) / s.z;
         return out;
     }
 

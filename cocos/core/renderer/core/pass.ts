@@ -684,7 +684,8 @@ export class Pass {
     get customizations () { return this._customizations; }
     get shader (): GFXShader { return this._shader!; }
     get batchedBuffer (): BatchedBuffer | null { return this._batchedBuffer; }
-    get shaderInfo() { return this._shaderInfo; }
+    get shaderInfo () { return this._shaderInfo; }
+    get properties () { return this._properties; }
 }
 
 const serializeBlendState = (bs: GFXBlendState) => {
