@@ -8,7 +8,6 @@ import { SpriteFrame } from '../../assets/sprite-frame';
 import { TextureBase } from '../../assets/texture-base';
 import { ccclass, property } from '../../data/class-decorator';
 import { GFXBindingType } from '../../gfx/define';
-import { GFXTextureView } from '../../gfx/texture-view';
 import { _type2default, Pass } from '../../renderer/core/pass';
 import { samplerLib } from '../../renderer/core/sampler-lib';
 import { CurveValueAdapter } from '../animation-curve';
@@ -45,16 +44,17 @@ export class UniformCurveValueAdapter extends CurveValueAdapter {
         } else if (bindingType === GFXBindingType.SAMPLER) {
             const binding = Pass.getBindingFromHandle(handle);
             const prop = pass.properties[this.uniformName];
-            const defaultTexName = prop && prop.value ? prop.value + '-texture' : _type2default[prop.type];
-            const defaultTexture = builtinResMgr.get<TextureBase>(defaultTexName);
+            const texName = prop && prop.value ? prop.value + '-texture' : _type2default[prop.type];
+            let dftTex = builtinResMgr.get<TextureBase>(texName);
+            if (!dftTex) {
+                console.warn('illegal texture default value: ' + texName);
+                dftTex = builtinResMgr.get<TextureBase>('default-texture');
+            }
             return {
                 set: (value: TextureBase | SpriteFrame) => {
-                    if (!value) { value = defaultTexture; }
-                    const textureView: GFXTextureView | null = value.getGFXTextureView();
-                    if (!textureView || !textureView.texture.width || !textureView.texture.height) {
-                        return;
-                    }
-                    pass.bindTextureView(binding, textureView);
+                    const tv = (value || dftTex).getGFXTextureView();
+                    if (!tv || !tv.texture.width || !tv.texture.height) { return; }
+                    pass.bindTextureView(binding, tv);
                     if (value instanceof TextureBase) {
                         pass.bindSampler(binding, samplerLib.getSampler(cc.game._gfxDevice, value.getSamplerHash()));
                     }
