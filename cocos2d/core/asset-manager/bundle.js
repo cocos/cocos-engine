@@ -304,7 +304,7 @@ Bundle.prototype = {
      * 通过场景名称进行加载场景。所有和 {{#crossLink "AssetManager/loadScene:method"}}{{/crossLink}} 一样，但只能加载此包中的场景
      *
      * @method loadScene
-     * @param {String} sceneName - The name of the scene to load.
+     * @param {String|Task} sceneName - The name of the scene to load.
      * @param {Object} [options] - Some optional parameters
      * @param {Function} [onProgress] - Callback invoked when progression change.
      * @param {Number} onProgress.finish - The number of the items that are already completed.
@@ -319,22 +319,26 @@ Bundle.prototype = {
      * bundle1.loadScene('first', (err, scene) => cc.director.runScene(scene));
      * 
      * @typescript
-     * loadScene(sceneName: string, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, scene: cc.Scene) => void): Task
+     * loadScene(sceneName: string|Task, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, scene: cc.Scene) => void): Task
      */
     loadScene (sceneName, options, onProgress, onComplete) {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
 
         var request = null;
-        if (this._preloadedScene.has(sceneName)) {
-            request = this._preloadedScene.get(sceneName);
-            if (!request.isFinish) {
-                cc.warn('preloading task have not finished yet, please wait for preloading');
-                return null;
+        if (sceneName instanceof Task) {
+            request = sceneName;
+        } else {
+            if (this._preloadedScene.has(sceneName)) {
+                request = this._preloadedScene.get(sceneName);
+                if (!request.isFinish) {
+                    cc.warn('preloading task have not finished yet, please wait for preloading');
+                    return null;
+                }
+                this._preloadedScene.remove(sceneName);
             }
-            this._preloadedScene.remove(sceneName);
-        }
-        else {
-            request = {'scene': sceneName};
+            else {
+                request = {'scene': sceneName};
+            }
         }
     
         options.priority = options.priority !== undefined ? options.priority : 1;

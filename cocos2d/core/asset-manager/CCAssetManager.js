@@ -785,7 +785,7 @@ AssetManager.prototype = {
      * 通过场景名称进行加载场景。
      *
      * @method loadScene
-     * @param {String} sceneName - The name of the scene to load.
+     * @param {String|Task} sceneName - The name of the scene to load.
      * @param {Object} [options] - Some optional parameters
      * @param {Function} [onProgress] - Callback invoked when progression change.
      * @param {Number} onProgress.finish - The number of the items that are already completed.
@@ -800,7 +800,7 @@ AssetManager.prototype = {
      * cc.assetManager.loadScene('first', (err, scene) => cc.director.runScene(scene));
      * 
      * @typescript
-     * loadScene(sceneName: string, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, scene: cc.Scene) => void): cc.AssetManager.Task
+     * loadScene(sceneName: string|cc.AssetManager.Task, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, scene: cc.Scene) => void): cc.AssetManager.Task
      */
     loadScene (sceneName, options, onProgress, onComplete) {
         return bundles.get('scenes').loadScene(sceneName, options, onProgress, onComplete);
