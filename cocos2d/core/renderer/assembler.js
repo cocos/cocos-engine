@@ -1,3 +1,5 @@
+import { vfmtPosUvColor } from './webgl/vertex-format';
+
 export default class Assembler {
     init (renderComp) {
         this._renderComp = renderComp;
@@ -7,6 +9,10 @@ export default class Assembler {
     }
 
     fillBuffers (comp, renderer) {
+    }
+    
+    getVfmt () {
+        return vfmtPosUvColor;
     }
 }
 

@@ -74,6 +74,10 @@ export default class GraphicsAssembler extends Assembler {
         this._bufferOffset = 0;
     }
 
+    getVfmt () {
+        return vfmtPosColor;
+    }
+
     requestBuffer () {
         let buffer = {
             indiceStart: 0,
