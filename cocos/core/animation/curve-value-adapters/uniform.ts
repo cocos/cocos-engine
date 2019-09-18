@@ -2,29 +2,25 @@
  * @hidden
  */
 
-import { CurveValueAdapter } from '../animation-curve';
+import { builtinResMgr } from '../../3d/builtin/init';
 import { Material } from '../../assets/material';
-import { property, ccclass } from '../../data/class-decorator';
-import { Pass, samplerLib } from '../../renderer';
+import { SpriteFrame } from '../../assets/sprite-frame';
+import { TextureBase } from '../../assets/texture-base';
+import { ccclass, property } from '../../data/class-decorator';
 import { GFXBindingType } from '../../gfx';
 import { GFXTextureView } from '../../gfx/texture-view';
-import { TextureBase } from '../../assets/texture-base';
-import { SpriteFrame, Texture2D } from '../../assets';
-import { builtinResMgr } from '../../3d';
+import { Pass, samplerLib } from '../../renderer';
+import { CurveValueAdapter } from '../animation-curve';
 
 @ccclass('cc.UniformCurveValueAdapter')
 export class UniformCurveValueAdapter extends CurveValueAdapter {
     @property
-    passIndex: number = 0;
+    public passIndex: number = 0;
 
     @property
-    uniformName: string = '';
+    public uniformName: string = '';
 
-    constructor() {
-        super();
-    }
-    
-    public forTarget(target: Material) {
+    public forTarget (target: Material) {
         const pass = target.passes[this.passIndex];
         const handle = pass.getHandle(this.uniformName);
         if (handle === undefined) {
@@ -47,24 +43,18 @@ export class UniformCurveValueAdapter extends CurveValueAdapter {
             }
         } else if (bindingType === GFXBindingType.SAMPLER) {
             const binding = Pass.getBindingFromHandle(handle);
-            let defaultTexture: Texture2D | null = null;
+            const prop = pass.properties[name];
+            const defaultTexture: TextureBase = builtinResMgr.get<TextureBase>(prop && prop.value as string || 'default-texture');
             return {
-                set: (value: any) => {
-                    if (!value) {
-                        value = defaultTexture || (defaultTexture = builtinResMgr.get<Texture2D>('default-texture'));
+                set: (value: TextureBase | SpriteFrame) => {
+                    if (!value) { value = defaultTexture; }
+                    const textureView: GFXTextureView | null = value.getGFXTextureView();
+                    if (!textureView || !textureView.texture.width || !textureView.texture.height) {
+                        return;
                     }
-                    if (value instanceof GFXTextureView) {
-                        pass.bindTextureView(binding, value);
-                    } else if (value instanceof TextureBase || value instanceof SpriteFrame) {
-                        const textureView: GFXTextureView | null = value.getGFXTextureView();
-                        if (!textureView || !textureView.texture.width || !textureView.texture.height) {
-                            // console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);
-                            return;
-                        }
-                        pass.bindTextureView(binding, textureView);
-                        if (value instanceof TextureBase) {
-                            pass.bindSampler(binding, samplerLib.getSampler(cc.game._gfxDevice, value.getSamplerHash()));
-                        }
+                    pass.bindTextureView(binding, textureView);
+                    if (value instanceof TextureBase) {
+                        pass.bindSampler(binding, samplerLib.getSampler(cc.game._gfxDevice, value.getSamplerHash()));
                     }
                 },
             };

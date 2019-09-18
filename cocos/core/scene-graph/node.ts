@@ -46,7 +46,7 @@ const array_a = new Array(10);
 const TRANFORM_ON = 1 << 0;
 const qt_1 = new Quat();
 const m3_1 = new Mat3();
-const m3_2 = new Mat3();
+const m3_scaling = new Mat3();
 const m4_1 = new Mat4();
 const bookOfChange = new Map<string, number>();
 
@@ -689,9 +689,7 @@ export class Node extends BaseNode implements INode {
             cur = cur._parent;
         }
         while (i >= 0) {
-            Vec3.subtract(out, out, cur._lpos);
-            Vec3.transformQuat(out, out, Quat.conjugate(q_a, cur._lrot));
-            Vec3.divide(out, out, cur._lscale);
+            Vec3.transformInverseRTS(out, out, cur._lrot, cur._lpos, cur._lscale);
             cur = array_a[--i];
         }
         return out;
@@ -855,8 +853,8 @@ export class Node extends BaseNode implements INode {
             parent.updateWorldTransform();
             Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, parent._rot));
             Mat3.multiplyMat4(m3_1, m3_1, parent._mat);
-            Mat3.fromScaling(m3_2, this._scale); m3_2.m08 = this._scale.z;
-            Mat3.multiply(m3_1, m3_2, Mat3.invert(m3_1, m3_1));
+            m3_scaling.m00 = this._scale.x; m3_scaling.m04 = this._scale.x; m3_scaling.m08 = this._scale.z;
+            Mat3.multiply(m3_1, m3_scaling, Mat3.invert(m3_1, m3_1));
             this._lscale.x = m3_1.m00;
             this._lscale.y = m3_1.m04;
             this._lscale.z = m3_1.m08;
