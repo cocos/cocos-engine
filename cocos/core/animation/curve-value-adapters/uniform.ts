@@ -7,9 +7,10 @@ import { Material } from '../../assets/material';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { TextureBase } from '../../assets/texture-base';
 import { ccclass, property } from '../../data/class-decorator';
-import { GFXBindingType } from '../../gfx';
+import { GFXBindingType } from '../../gfx/define';
 import { GFXTextureView } from '../../gfx/texture-view';
-import { Pass, samplerLib } from '../../renderer';
+import { _type2default, Pass } from '../../renderer/core/pass';
+import { samplerLib } from '../../renderer/core/sampler-lib';
 import { CurveValueAdapter } from '../animation-curve';
 
 @ccclass('cc.UniformCurveValueAdapter')
@@ -44,7 +45,8 @@ export class UniformCurveValueAdapter extends CurveValueAdapter {
         } else if (bindingType === GFXBindingType.SAMPLER) {
             const binding = Pass.getBindingFromHandle(handle);
             const prop = pass.properties[name];
-            const defaultTexture: TextureBase = builtinResMgr.get<TextureBase>(prop && prop.value as string || 'default-texture');
+            const defaultTexName = prop && prop.value ? prop.value + '-texture' : _type2default[prop.type];
+            const defaultTexture = builtinResMgr.get<TextureBase>(defaultTexName);
             return {
                 set: (value: TextureBase | SpriteFrame) => {
                     if (!value) { value = defaultTexture; }
