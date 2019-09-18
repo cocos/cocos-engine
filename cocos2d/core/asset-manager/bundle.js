@@ -331,8 +331,7 @@ Bundle.prototype = {
             if (this._preloadedScene.has(sceneName)) {
                 request = this._preloadedScene.get(sceneName);
                 if (!request.isFinish) {
-                    cc.warn('preloading task have not finished yet, please wait for preloading');
-                    return null;
+                    request = {'scene': sceneName};
                 }
                 this._preloadedScene.remove(sceneName);
             }

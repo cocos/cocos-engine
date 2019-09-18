@@ -810,11 +810,11 @@ AssetManager.prototype = {
      * !#en
      * Preloads the scene to reduces loading time. You can call this method at any time you want.
      * After calling this method, you still need to finish loading by `cc.assetManager.loadScene` or `cc.director.loadScene`.
-     * You must wait for preloading callback before calling `cc.assetManager.loadScene`
+     * You don't have to wait for preloading callback before calling `cc.assetManager.loadScene`
      * 
      * !#zh 
      * 预加载场景，你可以在任何时候调用这个方法。
-     * 调用完后，你仍然需要通过 `cc.assetManager.loadScene` 或 `cc.director.loadScene` 来完成加载，你必须等待预加载完成后再调用 `cc.assetManager.loadScene`
+     * 调用完后，你仍然需要通过 `cc.assetManager.loadScene` 或 `cc.director.loadScene` 来完成加载，你不必等待预加载完成再调用 `cc.assetManager.loadScene`
      *
      * @method preloadScene
      * @param {String} sceneName - The name of the scene to preload.
