@@ -326,6 +326,11 @@ export class CameraComponent extends Component {
         this._targetTexture = value;
         this._chechTargetTextureEvent(old);
         this._updateTargetTexture();
+
+        if (!value && this._camera){
+            this._camera.changeTargetWindow(CC_EDITOR? cc.director.root.tempWindow: null);
+            this._camera.isWindowSize = true;
+        }
     }
 
     public onLoad () {
@@ -432,10 +437,7 @@ export class CameraComponent extends Component {
             return;
         }
 
-        if (!this._targetTexture) {
-            this._camera.changeTargetWindow();
-            this._camera.isWindowSize = true;
-        } else {
+        if (this._targetTexture) {
             const window = this._targetTexture.getGFXWindow();
             this._camera.changeTargetWindow(window);
             this._camera.setFixedSize(window!.width, window!.height);
