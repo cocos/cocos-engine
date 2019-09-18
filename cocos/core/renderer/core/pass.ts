@@ -87,7 +87,7 @@ const _type2reader = {
     [GFXType.MAT4]: (a: Float32Array, v: any, idx: number = 0) => Mat4.fromArray(v, a, idx),
 };
 
-const _type2default = {
+export const _type2default = {
     [GFXType.INT]: [0],
     [GFXType.INT2]: [0, 0],
     [GFXType.INT3]: [0, 0, 0],
