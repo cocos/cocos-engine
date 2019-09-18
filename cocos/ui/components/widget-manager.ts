@@ -28,19 +28,19 @@
  * @hidden
  */
 
-import { SystemEventType } from '../../core/platform/event-manager/event-enum';
-import { array } from '../../core/utils/js';
-import { Vec2, Vec3 } from '../../core/math';
 import { CanvasComponent } from '../../core/components/ui-base/canvas-component';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-import { AlignFlags, AlignMode, WidgetComponent } from './widget-component';
-import { Node } from '../../core/scene-graph/node';
-import { Scene } from '../../core/scene-graph';
 import { Director, director } from '../../core/director';
+import { Vec2, Vec3 } from '../../core/math';
+import { SystemEventType } from '../../core/platform/event-manager/event-enum';
+import sys from '../../core/platform/sys';
 import { View } from '../../core/platform/view';
 import visibleRect from '../../core/platform/visible-rect';
-import sys from '../../core/platform/sys';
+import { Scene } from '../../core/scene-graph';
+import { Node } from '../../core/scene-graph/node';
 import { INode } from '../../core/utils/interfaces';
+import { array } from '../../core/utils/js';
+import { AlignFlags, AlignMode, WidgetComponent } from './widget-component';
 
 const _tempPos = new Vec3();
 const _zeroVec3 = new Vec3();
@@ -373,113 +373,6 @@ function refreshScene () {
     }
 }
 
-// 节点自身移动对相对应的 Widgetcomponent 的数据改动
-function adjustWidgetToAllowMovingInEditor (this: WidgetComponent, eventType: SystemEventType) {
-    if (/*!CC_EDITOR ||*/ eventType !== SystemEventType.POSITION_PART) {
-        return;
-    }
-
-    if (widgetManager.isAligning) {
-        return;
-    }
-
-    const self = this;
-    const newPos = self.node.getPosition();
-    const oldPos = this._lastPos;
-    const delta = new Vec3(newPos);
-    delta.subtract(oldPos);
-
-    let target = self.node.parent;
-    const inverseScale = new Vec3(1, 1, 1);
-
-    if (self.target) {
-        target = self.target as INode;
-        computeInverseTransForTarget(self.node, target, new Vec3(), inverseScale);
-    }
-    if (!target) {
-        return;
-    }
-
-    const targetSize = getReadonlyNodeSize(target);
-    const deltaInPercent = new Vec3();
-    if (targetSize.width !== 0 && targetSize.height !== 0) {
-        Vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
-    }
-
-    if (self.isAlignTop) {
-        self.top -= (self.isAbsoluteTop ? delta.y : deltaInPercent.y) * inverseScale.y;
-    }
-    if (self.isAlignBottom) {
-        self.bottom += (self.isAbsoluteBottom ? delta.y : deltaInPercent.y) * inverseScale.y;
-    }
-    if (self.isAlignLeft) {
-        self.left += (self.isAbsoluteLeft ? delta.x : deltaInPercent.x) * inverseScale.x;
-    }
-    if (self.isAlignRight) {
-        self.right -= (self.isAbsoluteRight ? delta.x : deltaInPercent.x) * inverseScale.x;
-    }
-    if (self.isAlignHorizontalCenter) {
-        self.horizontalCenter += (self.isAbsoluteHorizontalCenter ? delta.x : deltaInPercent.x) * inverseScale.x;
-    }
-    if (self.isAlignVerticalCenter) {
-        self.verticalCenter += (self.isAbsoluteVerticalCenter ? delta.y : deltaInPercent.y) * inverseScale.y;
-    }
-}
-
-// 节点被父节点或者 target 的尺寸影响而重新更新
-function adjustWidgetToAllowResizingInEditor (this: WidgetComponent/*, oldSize: Size*/) {
-    // if (!CC_EDITOR) {
-    //     return;
-    // }
-
-    if (widgetManager.isAligning) {
-        return;
-    }
-
-    this.setDirty();
-
-    const self = this;
-    const newSize = self.node.getContentSize();
-    const oldSize = this._lastSize;
-    const delta = new Vec3(newSize.width - oldSize.width, newSize.height - oldSize.height, 0);
-
-    let target = self.node.parent;
-    const inverseScale = new Vec3(1, 1, 1);
-    if (self.target) {
-        target = self.target as INode;
-        computeInverseTransForTarget(self.node, target, new Vec3(), inverseScale);
-    }
-    if (!target) {
-        return;
-    }
-
-    const targetSize = getReadonlyNodeSize(target);
-    const deltaInPercent = new Vec3();
-    if (targetSize.width !== 0 && targetSize.height !== 0) {
-        Vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
-    }
-
-    const anchor = self.node.getAnchorPoint();
-
-    if (self.isAlignTop) {
-        self.top -= (self.isAbsoluteTop ? delta.y : deltaInPercent.y) * (1 - anchor.y) * inverseScale.y;
-    }
-    if (self.isAlignBottom) {
-        self.bottom -= (self.isAbsoluteBottom ? delta.y : deltaInPercent.y) * anchor.y * inverseScale.y;
-    }
-    if (self.isAlignLeft) {
-        self.left -= (self.isAbsoluteLeft ? delta.x : deltaInPercent.x) * anchor.x * inverseScale.x;
-    }
-    if (self.isAlignRight) {
-        self.right -= (self.isAbsoluteRight ? delta.x : deltaInPercent.x) * (1 - anchor.x) * inverseScale.x;
-    }
-}
-
-// 节点被父节点或者 target 的尺寸影响而重新更新
-function adjustWidgetToAnchorChanged (this: WidgetComponent) {
-    this.setDirty();
-}
-
 const activeWidgets: WidgetComponent[] = [];
 
 // updateAlignment from scene to node recursively
@@ -527,25 +420,19 @@ export const widgetManager = cc._widgetManager = {
     add (widget: WidgetComponent) {
         this._nodesOrderDirty = true;
         // if (CC_EDITOR && !cc.engine.isPlaying) {
-        const renderComp:UIRenderComponent = widget.node.getComponent(UIRenderComponent);
+        const renderComp: UIRenderComponent = widget.node.getComponent(UIRenderComponent);
         if (renderComp) {
-                const canvasComp = director.root!.ui.getScreen(renderComp.visibility);
-                if (canvasComp && canvasList.indexOf(canvasComp) === -1) {
-                    canvasList.push(canvasComp);
-                    canvasComp.node.on('design-resolution-changed', this.onResized, this);
-                }
+            const canvasComp = director.root!.ui.getScreen(renderComp.visibility);
+            if (canvasComp && canvasList.indexOf(canvasComp) === -1) {
+                canvasList.push(canvasComp);
+                canvasComp.node.on('design-resolution-changed', this.onResized, this);
             }
-        widget.node.on(SystemEventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
-        widget.node.on(SystemEventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
-        widget.node.on(SystemEventType.ANCHOR_CHANGED, adjustWidgetToAnchorChanged, widget);
+        }
         // }
     },
     remove (widget: WidgetComponent) {
         this._activeWidgetsIterator.remove(widget);
         // if (CC_EDITOR && !cc.engine.isPlaying) {
-        widget.node.off(SystemEventType.TRANSFORM_CHANGED, adjustWidgetToAllowMovingInEditor, widget);
-        widget.node.off(SystemEventType.SIZE_CHANGED, adjustWidgetToAllowResizingInEditor, widget);
-        widget.node.off(SystemEventType.ANCHOR_CHANGED, adjustWidgetToAnchorChanged, widget);
         // }
     },
     onResized () {
@@ -654,6 +541,6 @@ export const widgetManager = cc._widgetManager = {
     AlignFlags,
 };
 
-director.on(Director.EVENT_INIT, function () {
+director.on(Director.EVENT_INIT, () => {
     widgetManager.init(director);
 });

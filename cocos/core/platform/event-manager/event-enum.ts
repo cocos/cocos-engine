@@ -198,6 +198,13 @@ export enum SystemEventType {
      * 节点子类移除。
      */
     CHILD_REMOVED = 'child-removed',
+
+    /**
+     * @en
+     * @zh
+     * 父节点改变时触发的事件。
+     */
+    PARENT_CHANGED = 'parent-changed',
 }
 
 ccenum(SystemEventType);
