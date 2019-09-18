@@ -569,9 +569,6 @@ export class WidgetComponent extends Component {
         this._recursiveDirty();
     }
 
-    public onLoad () {
-    }
-
     public onEnable () {
         this.node.getPosition(this._lastPos);
         this.node.getContentSize(this._lastSize);
@@ -590,8 +587,7 @@ export class WidgetComponent extends Component {
         this._removeParentEvent();
     }
 
-    // 节点自身移动对相对应的 Widgetcomponent 的数据改动
-    public adjustWidgetToAllowMovingInEditor (this: WidgetComponent, eventType: SystemEventType) {
+    public adjustWidgetToAllowMovingInEditor (eventType: SystemEventType) {
         if (/*!CC_EDITOR ||*/ eventType !== SystemEventType.POSITION_PART) {
             return;
         }
@@ -643,8 +639,7 @@ export class WidgetComponent extends Component {
         }
     }
 
-    // 节点被父节点或者 target 的尺寸影响而重新更新
-    public adjustWidgetToAllowResizingInEditor (this: WidgetComponent/*, oldSize: Size*/) {
+    public adjustWidgetToAllowResizingInEditor () {
         // if (!CC_EDITOR) {
         //     return;
         // }
@@ -692,12 +687,11 @@ export class WidgetComponent extends Component {
         }
     }
 
-    // 节点被父节点或者 target 的尺寸影响而重新更新
-    public adjustWidgetToAnchorChanged (this: WidgetComponent) {
+    public adjustWidgetToAnchorChanged () {
         this.setDirty();
     }
 
-    public adjustTargetToParentChanged (this: WidgetComponent, oldParent: Node ) {
+    public adjustTargetToParentChanged (oldParent: Node) {
         if (oldParent) {
             this._unregisterOldParentEvents(oldParent);
         }
