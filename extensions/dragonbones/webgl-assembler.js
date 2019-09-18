@@ -298,6 +298,9 @@ export default class ArmatureAssembler extends Assembler {
     fillBuffers (comp, renderer) {
         comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
         
+        let armature = comp._armature;
+        if (!armature) return;
+
         // Init temp var.
         _mustFlush = true;
         _premultipliedAlpha = comp.premultipliedAlpha;
@@ -328,9 +331,6 @@ export default class ArmatureAssembler extends Assembler {
             this.cacheTraverse(comp._curFrame, worldMat);
         } else {
             // Traverse all armature.
-            let armature = comp._armature;
-            if (!armature) return;
-
             this.realTimeTraverse(armature, worldMat, 1.0);
 
             let graphics = comp._debugDraw;
