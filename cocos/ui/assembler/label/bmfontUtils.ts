@@ -57,9 +57,6 @@ export class FontAtlas {
     }
 
     private _letterDefinitions: ILetterDefinition = {};
-    constructor (fntConfig) {
-        // this._letterDefinitions = {};
-    }
 
     public addLetterDefinitions (letter: string, letterDefinition: FontLetterDefinition) {
         this._letterDefinitions[letter] = letterDefinition;
@@ -194,7 +191,7 @@ export const bmfontUtils = {
 
         _fontAtlas = _comp.fontAtlas;
         if (!_fontAtlas) {
-            _fontAtlas = new FontAtlas(_fntConfig);
+            _fontAtlas = new FontAtlas();
 
             const fontDict = _fntConfig.fontDefDictionary;
 

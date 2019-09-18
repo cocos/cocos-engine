@@ -928,18 +928,19 @@ class EventManager {
         toRemovedListeners.length = 0;
     }
 
-    private _onTouchEventCallback (listener: TouchOneByOne, argsObj) {
+    private _onTouchEventCallback (listener: TouchOneByOne, argsObj: any) {
         // Skip if the listener was removed.
         if (!listener._isRegistered()) {
             return false;
         }
+
 
         const event = argsObj.event;
         const selTouch = event.touch;
         event.currentTarget = listener._getSceneGraphPriority();
 
         let isClaimed = false;
-        let removedIdx;
+        let removedIdx = -1;
         const getCode = event.getEventCode();
         // const EventTouch = cc.Event.EventTouch;
         if (getCode === EventTouch.BEGAN) {
@@ -1028,7 +1029,7 @@ class EventManager {
         this._updateTouchListeners(event);
     }
 
-    private _onTouchesEventCallback (listener: any, callbackParams) {
+    private _onTouchesEventCallback (listener: any, callbackParams: any) {
         // Skip if the listener was removed.
         if (!listener._isRegistered()) {
             return false;
