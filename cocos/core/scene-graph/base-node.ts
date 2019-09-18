@@ -422,7 +422,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         this._onSetParent(oldParent, keepWorldTransform);
 
         if (this.emit) {
-            this.emit(SystemEventType.PARENT_CHANGED, this, oldParent);
+            this.emit(SystemEventType.PARENT_CHANGED, oldParent);
         }
 
         if (value) {

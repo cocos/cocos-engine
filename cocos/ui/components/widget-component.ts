@@ -37,6 +37,7 @@ import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { Node } from '../../core/scene-graph/node';
 import { INode } from '../../core/utils/interfaces';
 import { ccenum } from '../../core/value-types/enum';
+import { computeInverseTransForTarget, getReadonlyNodeSize } from './widget-manager';
 
 /**
  * @zh
@@ -575,18 +576,151 @@ export class WidgetComponent extends Component {
         this.node.getPosition(this._lastPos);
         this.node.getContentSize(this._lastSize);
         cc._widgetManager.add(this);
+        this._registerEvent();
         this._registerTargetEvents();
-    }
-
-    public update (){
     }
 
     public onDisable () {
         cc._widgetManager.remove(this);
+        this._unregisterEvent();
+        this._unregisterTargetEvents();
     }
 
     public onDestroy () {
-        cc._widgetManager.removeParentEvent(this);
+        this._removeParentEvent();
+    }
+
+    // 节点自身移动对相对应的 Widgetcomponent 的数据改动
+    public adjustWidgetToAllowMovingInEditor (this: WidgetComponent, eventType: SystemEventType) {
+        if (/*!CC_EDITOR ||*/ eventType !== SystemEventType.POSITION_PART) {
+            return;
+        }
+
+        if (cc._widgetManager.isAligning) {
+            return;
+        }
+
+        const self = this;
+        const newPos = self.node.getPosition();
+        const oldPos = this._lastPos;
+        const delta = new Vec3(newPos);
+        delta.subtract(oldPos);
+
+        let target = self.node.parent;
+        const inverseScale = new Vec3(1, 1, 1);
+
+        if (self.target) {
+            target = self.target as INode;
+            computeInverseTransForTarget(self.node, target, new Vec3(), inverseScale);
+        }
+        if (!target) {
+            return;
+        }
+
+        const targetSize = getReadonlyNodeSize(target);
+        const deltaInPercent = new Vec3();
+        if (targetSize.width !== 0 && targetSize.height !== 0) {
+            Vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
+        }
+
+        if (self.isAlignTop) {
+            self.top -= (self.isAbsoluteTop ? delta.y : deltaInPercent.y) * inverseScale.y;
+        }
+        if (self.isAlignBottom) {
+            self.bottom += (self.isAbsoluteBottom ? delta.y : deltaInPercent.y) * inverseScale.y;
+        }
+        if (self.isAlignLeft) {
+            self.left += (self.isAbsoluteLeft ? delta.x : deltaInPercent.x) * inverseScale.x;
+        }
+        if (self.isAlignRight) {
+            self.right -= (self.isAbsoluteRight ? delta.x : deltaInPercent.x) * inverseScale.x;
+        }
+        if (self.isAlignHorizontalCenter) {
+            self.horizontalCenter += (self.isAbsoluteHorizontalCenter ? delta.x : deltaInPercent.x) * inverseScale.x;
+        }
+        if (self.isAlignVerticalCenter) {
+            self.verticalCenter += (self.isAbsoluteVerticalCenter ? delta.y : deltaInPercent.y) * inverseScale.y;
+        }
+    }
+
+    // 节点被父节点或者 target 的尺寸影响而重新更新
+    public adjustWidgetToAllowResizingInEditor (this: WidgetComponent/*, oldSize: Size*/) {
+        // if (!CC_EDITOR) {
+        //     return;
+        // }
+
+        if (cc._widgetManager.isAligning) {
+            return;
+        }
+
+        this.setDirty();
+
+        const self = this;
+        const newSize = self.node.getContentSize();
+        const oldSize = this._lastSize;
+        const delta = new Vec3(newSize.width - oldSize.width, newSize.height - oldSize.height, 0);
+
+        let target = self.node.parent;
+        const inverseScale = new Vec3(1, 1, 1);
+        if (self.target) {
+            target = self.target as INode;
+            computeInverseTransForTarget(self.node, target, new Vec3(), inverseScale);
+        }
+        if (!target) {
+            return;
+        }
+
+        const targetSize = getReadonlyNodeSize(target);
+        const deltaInPercent = new Vec3();
+        if (targetSize.width !== 0 && targetSize.height !== 0) {
+            Vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
+        }
+
+        const anchor = self.node.getAnchorPoint();
+
+        if (self.isAlignTop) {
+            self.top -= (self.isAbsoluteTop ? delta.y : deltaInPercent.y) * (1 - anchor.y) * inverseScale.y;
+        }
+        if (self.isAlignBottom) {
+            self.bottom -= (self.isAbsoluteBottom ? delta.y : deltaInPercent.y) * anchor.y * inverseScale.y;
+        }
+        if (self.isAlignLeft) {
+            self.left -= (self.isAbsoluteLeft ? delta.x : deltaInPercent.x) * anchor.x * inverseScale.x;
+        }
+        if (self.isAlignRight) {
+            self.right -= (self.isAbsoluteRight ? delta.x : deltaInPercent.x) * (1 - anchor.x) * inverseScale.x;
+        }
+    }
+
+    // 节点被父节点或者 target 的尺寸影响而重新更新
+    public adjustWidgetToAnchorChanged (this: WidgetComponent) {
+        this.setDirty();
+    }
+
+    public adjustTargetToParentChanged (this: WidgetComponent, oldParent: Node ) {
+        if (oldParent) {
+            this._unregisterOldParentEvents(oldParent);
+        }
+        if (this.node.getParent()) {
+            this._registerTargetEvents();
+        }
+    }
+
+    protected _registerEvent () {
+        this.node.on(SystemEventType.TRANSFORM_CHANGED, this.adjustWidgetToAllowMovingInEditor, this);
+        this.node.on(SystemEventType.SIZE_CHANGED, this.adjustWidgetToAllowResizingInEditor, this);
+        this.node.on(SystemEventType.ANCHOR_CHANGED, this.adjustWidgetToAnchorChanged, this);
+        this.node.on(SystemEventType.PARENT_CHANGED, this.adjustTargetToParentChanged, this);
+    }
+
+    protected _unregisterEvent () {
+        this.node.off(SystemEventType.TRANSFORM_CHANGED, this.adjustWidgetToAllowMovingInEditor, this);
+        this.node.off(SystemEventType.SIZE_CHANGED, this.adjustWidgetToAllowResizingInEditor, this);
+        this.node.off(SystemEventType.ANCHOR_CHANGED, this.adjustWidgetToAnchorChanged, this);
+    }
+
+    protected _removeParentEvent () {
+        this.node.off(SystemEventType.PARENT_CHANGED, this.adjustTargetToParentChanged, this);
     }
 
     protected _aotuChangedValue (flag: AlignFlags, isAbs: boolean){
@@ -621,8 +755,16 @@ export class WidgetComponent extends Component {
         }
     }
 
-    protected _unregisterTargetEvents (oldParent: Node|null = null) {
-        const target = this._target || this.node.parent || oldParent;
+    protected _unregisterTargetEvents () {
+        const target = this._target || this.node.parent;
+        if (target) {
+            target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
+            target.off(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
+        }
+    }
+
+    protected _unregisterOldParentEvents ( oldParent: Node ) {
+        const target = this._target || oldParent;
         if (target) {
             target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
             target.off(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
