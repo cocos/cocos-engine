@@ -359,7 +359,7 @@ export class UITransformComponent extends Component {
      * @returns - 返回与目标节点的相对位置。
      * @example
      * ```typescript
-     * var newVec2 = uiTransform.convertToNodeSpaceAR(cc.v3(100, 100, 0));
+     * var newVec3 = uiTransform.convertToNodeSpaceAR(cc.v3(100, 100, 0));
      * ```
      */
     public convertToNodeSpaceAR (worldPoint: Vec3, out?: Vec3) {
@@ -374,14 +374,14 @@ export class UITransformComponent extends Component {
 
     /**
      * @zh
-     * 将当前节点坐标系下的一个点转换到世界坐标系。
+     * 将距当前节点坐标系下的一个点转换到世界坐标系。
      *
      * @param nodePoint - 节点坐标。
      * @param out - 转换后坐标。
      * @returns - 返回 UI 世界坐标系。
      * @example
      * ```typescript
-     * var newVec2 = uiTransform.convertToWorldSpaceAR(3(100, 100, 0));
+     * var newVec3 = uiTransform.convertToWorldSpaceAR(3(100, 100, 0));
      * ```
      */
     public convertToWorldSpaceAR (nodePoint: Vec3, out?: Vec3) {
