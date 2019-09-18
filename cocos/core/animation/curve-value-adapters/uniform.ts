@@ -2,29 +2,29 @@
  * @hidden
  */
 
-import { CurveValueAdapter } from '../animation-curve';
+import { builtinResMgr } from '../../3d';
+import { SpriteFrame, Texture2D } from '../../assets';
 import { Material } from '../../assets/material';
-import { property, ccclass } from '../../data/class-decorator';
-import { Pass, samplerLib } from '../../renderer';
+import { TextureBase } from '../../assets/texture-base';
+import { ccclass, property } from '../../data/class-decorator';
 import { GFXBindingType } from '../../gfx';
 import { GFXTextureView } from '../../gfx/texture-view';
-import { TextureBase } from '../../assets/texture-base';
-import { SpriteFrame, Texture2D } from '../../assets';
-import { builtinResMgr } from '../../3d';
+import { Pass, samplerLib } from '../../renderer';
+import { CurveValueAdapter } from '../animation-curve';
 
 @ccclass('cc.UniformCurveValueAdapter')
 export class UniformCurveValueAdapter extends CurveValueAdapter {
     @property
-    passIndex: number = 0;
+    public passIndex: number = 0;
 
     @property
-    uniformName: string = '';
+    public uniformName: string = '';
 
-    constructor() {
+    constructor () {
         super();
     }
-    
-    public forTarget(target: Material) {
+
+    public forTarget (target: Material) {
         const pass = target.passes[this.passIndex];
         const handle = pass.getHandle(this.uniformName);
         if (handle === undefined) {
