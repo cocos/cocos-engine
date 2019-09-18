@@ -9,7 +9,8 @@ import { Pass, samplerLib } from '../../renderer';
 import { GFXBindingType } from '../../gfx';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { TextureBase } from '../../assets/texture-base';
-import { SpriteFrame } from '../../assets';
+import { SpriteFrame, Texture2D } from '../../assets';
+import { builtinResMgr } from '../../3d';
 
 @ccclass('cc.UniformCurveValueAdapter')
 export class UniformCurveValueAdapter extends CurveValueAdapter {
@@ -46,8 +47,12 @@ export class UniformCurveValueAdapter extends CurveValueAdapter {
             }
         } else if (bindingType === GFXBindingType.SAMPLER) {
             const binding = Pass.getBindingFromHandle(handle);
+            let defaultTexture: Texture2D | null = null;
             return {
                 set: (value: any) => {
+                    if (!value) {
+                        value = defaultTexture || (defaultTexture = builtinResMgr.get<Texture2D>('default-texture'));
+                    }
                     if (value instanceof GFXTextureView) {
                         pass.bindTextureView(binding, value);
                     } else if (value instanceof TextureBase || value instanceof SpriteFrame) {
