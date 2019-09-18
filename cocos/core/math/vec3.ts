@@ -429,8 +429,8 @@ export class Vec3 extends ValueType {
     /**
      * @zh 缩放 -> 旋转 -> 平移变换向量
      */
-    public static transformRTS<Out extends IVec3Like, VecLike extends IVec3Like, QuatLike extends IQuatLike>
-        (out: Out, a: VecLike, r: QuatLike, t: VecLike, s: VecLike) {
+    public static transformRTS<Out extends IVec3Like, VecLike extends IVec3Like, QuatLike extends IQuatLike> (
+        out: Out, a: VecLike, r: QuatLike, t: VecLike, s: VecLike) {
         const x = a.x * s.x;
         const y = a.y * s.y;
         const z = a.z * s.z;

@@ -492,7 +492,7 @@ export class Node extends BaseNode implements INode {
             dirtyBits |= child._dirtyFlags;
             if (cur) {
                 if (dirtyBits & TransformDirtyBit.POSITION) {
-                    Vec3.transformRTS(child._pos, child._lpos, cur._rot, cur._pos, cur._scale);
+                    Vec3.transformMat4(child._pos, child._lpos, cur._mat);
                     child._mat.m12 = child._pos.x;
                     child._mat.m13 = child._pos.y;
                     child._mat.m14 = child._pos.z;
@@ -681,6 +681,22 @@ export class Node extends BaseNode implements INode {
         }
     }
 
+    public inverseTransformPoint (out: Vec3, p: Vec3) {
+        Vec3.copy(out, p);
+        let cur = this; let i = 0;
+        while (cur._parent) {
+            array_a[i++] = cur;
+            cur = cur._parent;
+        }
+        while (i >= 0) {
+            Vec3.subtract(out, out, cur._lpos);
+            Vec3.transformQuat(out, out, Quat.conjugate(q_a, cur._lrot));
+            Vec3.divide(out, out, cur._lscale);
+            cur = array_a[--i];
+        }
+        return out;
+    }
+
     /**
      * @zh
      * 设置世界坐标
@@ -707,10 +723,13 @@ export class Node extends BaseNode implements INode {
         const parent = this._parent;
         const local = this._lpos;
         if (parent) {
+            // TODO: benchmark these approaches
+            /* */
             parent.updateWorldTransform();
-            Vec3.subtract(local, this._pos, parent._pos);
-            Vec3.transformQuat(local, local, Quat.conjugate(q_a, parent._rot));
-            Vec3.divide(local, local, parent._scale);
+            Vec3.transformMat4(local, this._pos, Mat4.invert(m4_1, parent._mat));
+            /* *
+            parent.inverseTransformPoint(local, this._pos);
+            /* */
         } else {
             Vec3.copy(local, this._pos);
         }
