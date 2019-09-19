@@ -124,24 +124,22 @@ export default class Assembler2D extends Assembler {
     }
 
     packToDynamicAtlas (comp, frame) {
-        // TODO: Material API design and export from editor could affect the material activation process
-        // need to update the logic here
-        if (frame && !CC_TEST) {
-            if (!frame._original && dynamicAtlasManager && frame._texture.packable) {
-                let packedFrame = dynamicAtlasManager.insertSpriteFrame(frame);
-                if (packedFrame) {
-                    frame._setDynamicAtlasFrame(packedFrame);
-                }
+        if (CC_TEST) return;
+        
+        if (!frame._original && dynamicAtlasManager && frame._texture.packable) {
+            let packedFrame = dynamicAtlasManager.insertSpriteFrame(frame);
+            if (packedFrame) {
+                frame._setDynamicAtlasFrame(packedFrame);
             }
-            let material = comp.sharedMaterials[0];
-            if (!material) return;
-            
-            if (material.getProperty('texture') !== frame._texture) {
-                // texture was packed to dynamic atlas, should update uvs
-                comp._vertsDirty = true;
+        }
+        let material = comp.sharedMaterials[0];
+        if (!material) return;
+        
+        if (material.getProperty('texture') !== frame._texture) {
+            // texture was packed to dynamic atlas, should update uvs
+            comp._vertsDirty = true;
 
-                comp._activateMaterial(true);
-            }
+            comp._activateMaterial(true);
         }
     }
 }

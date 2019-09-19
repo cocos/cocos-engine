@@ -219,8 +219,6 @@ var Sprite = cc.Class({
                     }
                 }
                 this._spriteFrame = value;
-                // render & update render data flag will be triggered while applying new sprite frame
-                this.markForUpdateRenderData(false);
                 this._applySpriteFrame(lastSprite);
                 if (CC_EDITOR) {
                     this.node.emit('spriteframe-changed', this);
@@ -425,24 +423,19 @@ var Sprite = cc.Class({
      */
     getState () {},
 
-    onEnable: function () {
+    onEnable () {
         this._super();
+        this._applySpriteFrame();
 
-        if (!this._spriteFrame || !this._spriteFrame.textureLoaded()) {
-            // Do not render when sprite frame is not ready
-            this.disableRender();
-            if (this._spriteFrame) {
-                this._spriteFrame.once('load', this._onTextureLoaded, this);
-                this._spriteFrame.ensureLoadTexture();
-            }
-        }
-        else {
-            this._activateMaterial();
-        }
+        this.node.on(cc.Node.EventType.SIZE_CHANGED, this.setVertsDirty, this);
+        this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this.setVertsDirty, this);
     },
 
-    _on3DNodeChanged () {
-        this._resetAssembler();
+    onDisable () {
+        this._super();
+        
+        this.node.off(cc.Node.EventType.SIZE_CHANGED, this.setVertsDirty, this);
+        this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this.setVertsDirty, this);
     },
 
     _activateMaterialCanvas () {
@@ -452,9 +445,7 @@ var Sprite = cc.Class({
 
     _activateMaterialWebgl () {
         let spriteFrame = this._spriteFrame;
-        // If spriteframe not loaded, disable render and return.
-        if (!spriteFrame || !spriteFrame.textureLoaded()) {
-            this.disableRender();
+        if (!spriteFrame) {
             return;
         }
         
@@ -485,34 +476,31 @@ var Sprite = cc.Class({
         }
     },
 
-    _canRender () {
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            if (!this._enabled) return false;
-        }
-        else {
-            if (!this._enabled || !this.sharedMaterials[0] || !this.node._activeInHierarchy) return false;
+    _validateRender () {
+        let spriteFrame = this._spriteFrame;
+        if (this.enabledInHierarchy && 
+            this.sharedMaterials[0] &&
+            spriteFrame && 
+            spriteFrame.textureLoaded()) {
+            return;
         }
 
-        let spriteFrame = this._spriteFrame;
-        if (!spriteFrame || !spriteFrame.textureLoaded()) {
-            return false;
-        }
-        return true;
+        this.disableRender();
     },
 
     _applySpriteSize: function () {
-        if (this._spriteFrame) {
-            if (SizeMode.RAW === this._sizeMode) {
-                var size = this._spriteFrame._originalSize;
-                this.node.setContentSize(size);
-            } else if (SizeMode.TRIMMED === this._sizeMode) {
-                var rect = this._spriteFrame._rect;
-                this.node.setContentSize(rect.width, rect.height);
-            }
-            
-            this.setVertsDirty();
-            this._activateMaterial();
+        if (!this._spriteFrame)  return;
+        
+        if (SizeMode.RAW === this._sizeMode) {
+            var size = this._spriteFrame._originalSize;
+            this.node.setContentSize(size);
+        } else if (SizeMode.TRIMMED === this._sizeMode) {
+            var rect = this._spriteFrame._rect;
+            this.node.setContentSize(rect.width, rect.height);
         }
+        
+        this.setVertsDirty();
+        this._activateMaterial();
     },
 
     _onTextureLoaded: function () {
@@ -520,27 +508,26 @@ var Sprite = cc.Class({
             return;
         }
 
+        this._activateMaterial();
         this._applySpriteSize();
     },
 
     _applySpriteFrame: function (oldFrame) {
-        if (oldFrame && !oldFrame.textureLoaded()) {
+        let oldTexture = oldFrame && oldFrame.getTexture();
+        if (oldTexture && !oldTexture.loaded) {
             oldFrame.off('load', this._onTextureLoaded, this);
         }
 
         let spriteFrame = this._spriteFrame;
         if (spriteFrame) {
-            if (spriteFrame.textureLoaded()) {
+            let newTexture = spriteFrame.getTexture();
+            if (oldTexture === newTexture && newTexture.loaded) {
                 this._applySpriteSize();
             }
             else {
-                this.markForRender(false);
-                spriteFrame.once('load', this._onTextureLoaded, this);
-                spriteFrame.ensureLoadTexture();
+                this.disableRender();
+                spriteFrame.onTextureLoaded(this._onTextureLoaded, this);
             }
-        }
-        else {
-            this.markForRender(false);
         }
 
         if (CC_EDITOR) {
@@ -548,8 +535,10 @@ var Sprite = cc.Class({
             this._applyAtlas(spriteFrame);
         }
     },
+});
 
-    _resized: CC_EDITOR && function () {
+if (CC_EDITOR) {
+    Sprite.prototype._resizedInEditor = function () {
         if (this._spriteFrame) {
             var actualSize = this.node.getContentSize();
             var expectedW = actualSize.width;
@@ -569,21 +558,19 @@ var Sprite = cc.Class({
                 this._sizeMode = SizeMode.CUSTOM;
             }
         }
-    },
-});
+    };
 
-if (CC_EDITOR) {
     // override __preload
     Sprite.prototype.__superPreload = cc.RenderComponent.prototype.__preload;
     Sprite.prototype.__preload = function () {
         if (this.__superPreload) this.__superPreload();
-        this.node.on(NodeEvent.SIZE_CHANGED, this._resized, this);
+        this.node.on(NodeEvent.SIZE_CHANGED, this._resizedInEditor, this);
     };
     // override onDestroy
     Sprite.prototype.__superOnDestroy = cc.Component.prototype.onDestroy;
     Sprite.prototype.onDestroy = function () {
         if (this.__superOnDestroy) this.__superOnDestroy();
-        this.node.off(NodeEvent.SIZE_CHANGED, this._resized, this);
+        this.node.off(NodeEvent.SIZE_CHANGED, this._resizedInEditor, this);
     };
 }
 

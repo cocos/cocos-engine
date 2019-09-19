@@ -79,9 +79,7 @@ let RenderComponent = cc.Class({
     },
 
     _resetAssembler () {
-        this.setVertsDirty(true);
         Assembler.init(this);
-
         this._updateColor();
     },
 
@@ -95,16 +93,12 @@ let RenderComponent = cc.Class({
         }
         this.node._renderComponent = this;
 
-        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
-        this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
-
-        this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_OPACITY_COLOR;
+        this.node._renderFlag |= RenderFlow.FLAG_OPACITY_COLOR;
+        this.markForValidate();
     },
 
     onDisable () {
         this.node._renderComponent = null;
-        this.node.off(cc.Node.EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
-        this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
         this.disableRender();
     },
 
@@ -121,33 +115,36 @@ let RenderComponent = cc.Class({
         this.markForUpdateRenderData(true);
     },
 
-    _onNodeSizeDirty () {
-        this.setVertsDirty();
-    },
-
     _on3DNodeChanged () {
-        this.setVertsDirty();
+        this._resetAssembler();
     },
     
-    _canRender () {
-        // When the node is activated, it will execute onEnable and the renderflag will also be reset.
-        return this._enabled && this.node._activeInHierarchy;
+    _validateRender () {
+        if (this.enabledInHierarchy) {
+            return;
+        }
+
+        this.disableRender();
+    },
+
+    markForValidate () {
+        cc.RenderFlow.registerValidate(this);
     },
 
     markForUpdateRenderData (enable) {
-        if (enable && this._canRender()) {
+        if (enable) {
             this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
         }
-        else if (!enable) {
+        else {
             this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
         }
     },
 
     markForRender (enable) {
-        if (enable && this._canRender()) {
+        if (enable) {
             this.node._renderFlag |= RenderFlow.FLAG_RENDER;
         }
-        else if (!enable) {
+        else {
             this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
         }
     },
@@ -184,13 +181,15 @@ let RenderComponent = cc.Class({
      * !#zh 根据指定索引设置材质
      * @method setMaterial
      * @param {Number} index 
-     * @param {Material} material 
+     * @param {Material} material
+     * @return {Material}
      */
     setMaterial (index, material) {
-        this._materials[index] = material;
-        if (material) {
-            this.markForUpdateRenderData(true);
+        if (material !== this._materials[index]) {
+            material = Material.getInstantiatedMaterial(material, this);
+            this._materials[index] = material;
         }
+        return material;
     },
 
     _activateMaterial (force) {

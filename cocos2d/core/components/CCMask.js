@@ -279,18 +279,11 @@ let Mask = cc.Class({
     onEnable () {
         this._super();
         if (this._type === MaskType.IMAGE_STENCIL) {
-            if (!this._spriteFrame || !this._spriteFrame.textureLoaded()) {
-                // Do not render when sprite frame is not ready
-                this.markForRender(false);
-                if (this._spriteFrame) {
-                    this.markForUpdateRenderData(false);
-                    this._spriteFrame.once('load', this._onTextureLoaded, this);
-                    this._spriteFrame.ensureLoadTexture();
-                }
-            }
+            this._applySpriteFrame();
         }
         else {
             this._updateGraphics();
+            this._activateMaterial();
         }
 
         this.node.on(cc.Node.EventType.POSITION_CHANGED, this._updateGraphics, this);
@@ -300,7 +293,6 @@ let Mask = cc.Class({
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._updateGraphics, this);
 
         this.node._renderFlag |= RenderFlow.FLAG_POST_RENDER;
-        this._activateMaterial();
     },
 
     onDisable () {
@@ -328,34 +320,32 @@ let Mask = cc.Class({
     },
 
     _onTextureLoaded () {
-        // Mark render data dirty
         this.setVertsDirty();
-        if (this._renderData) {
-            this.markForUpdateRenderData(true);
-        }
-        // Reactivate material
-        if (this.enabledInHierarchy) {
-            this._activateMaterial();
-        }
+        this._activateMaterial();
     },
 
     _applySpriteFrame (oldFrame) {
         if (oldFrame && oldFrame.off) {
             oldFrame.off('load', this._onTextureLoaded, this);
         }
+        this.disableRender();
         let spriteFrame = this._spriteFrame;
         if (spriteFrame) {
-            if (spriteFrame.textureLoaded()) {
-                this._onTextureLoaded(null);
-            }
-            else {
-                spriteFrame.once('load', this._onTextureLoaded, this);
-                spriteFrame.ensureLoadTexture();
-            }
+            spriteFrame.onTextureLoaded(this._onTextureLoaded, this);
         }
-        else {
-            this.disableRender();
+    },
+
+    _validateRender () {
+        if (this._type !== MaskType.IMAGE_STENCIL) return;
+
+        let spriteFrame = this._spriteFrame;
+        if (this.enabledInHierarchy && 
+            spriteFrame && 
+            spriteFrame.textureLoaded()) {
+            return;
         }
+
+        this.disableRender();
     },
 
     _activateMaterial () {
@@ -406,6 +396,8 @@ let Mask = cc.Class({
             }
 
             this.setMaterial(0, material);
+
+            this._graphics && (this._graphics.sharedMaterials[0] = material);
         }
 
         this.markForRender(true);
@@ -418,16 +410,6 @@ let Mask = cc.Class({
             this._graphics.node = this.node;
             this._graphics.lineWidth = 0;
             this._graphics.strokeColor = cc.color(0, 0, 0, 0);
-        }
-        
-        if (!this._clearGraphics) {
-            this._clearGraphics = new Graphics();
-            cc.Assembler.init(this._clearGraphics);
-            this._clearGraphics.node = new Node();
-            this._clearGraphics._activateMaterial();
-            this._clearGraphics.lineWidth = 0;
-            this._clearGraphics.rect(-1, -1, 2, 2);
-            this._clearGraphics.fill();
         }
     },
 
@@ -474,11 +456,6 @@ let Mask = cc.Class({
             this._graphics.destroy();
             this._graphics = null;
         }
-
-        if (this._clearGraphics) {
-            this._clearGraphics.destroy();
-            this._clearGraphics = null;
-        }
     },
 
     _hitTest (cameraPt) {
@@ -513,7 +490,7 @@ let Mask = cc.Class({
     },
 
     markForUpdateRenderData (enable) {
-        if (enable && this.enabledInHierarchy) {
+        if (enable) {
             this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
         }
         else if (!enable) {
@@ -522,7 +499,7 @@ let Mask = cc.Class({
     },
 
     markForRender (enable) {
-        if (enable && this.enabledInHierarchy) {
+        if (enable) {
             this.node._renderFlag |= (RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | 
                                       RenderFlow.FLAG_POST_RENDER);
         }

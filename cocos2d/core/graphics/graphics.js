@@ -203,6 +203,7 @@ let Graphics = cc.Class({
         
         material.define('CC_USE_MODEL', true);
         this.setMaterial(0, material);
+        this.markForRender(true);
     },
 
     /**
