@@ -187,7 +187,11 @@ export class UITransformComponent extends Component {
 
     public __preload () {
         this.node.uiTransfromComp = this;
-        this.node.layer = Layers.Enum.UI_2D;
+        if (CC_EDITOR) {
+            this.node.layer = Layers.Enum.UI_3D;
+        } else {
+            this.node.layer = Layers.Enum.UI_2D;
+        }
     }
 
     public onDestroy () {
