@@ -206,7 +206,7 @@ let SkinnedMeshRenderer = cc.Class({
         }
 
         if (!inited) {
-            let SUPPORT_FLOAT_TEXTURE = false;//!!cc.sys.glExtension('OES_texture_float');
+            let SUPPORT_FLOAT_TEXTURE = !!cc.sys.glExtension('OES_texture_float');
             let size;
             if (jointCount > 256) {
                 size = 64;
