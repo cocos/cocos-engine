@@ -44,7 +44,7 @@ export class UniformCurveValueAdapter extends CurveValueAdapter {
             }
         } else if (bindingType === GFXBindingType.SAMPLER) {
             const binding = Pass.getBindingFromHandle(handle);
-            const prop = pass.properties[name];
+            const prop = pass.properties[this.uniformName];
             const defaultTexName = prop && prop.value ? prop.value + '-texture' : _type2default[prop.type];
             const defaultTexture = builtinResMgr.get<TextureBase>(defaultTexName);
             return {
