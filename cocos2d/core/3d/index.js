@@ -1,6 +1,5 @@
 
 if (!CC_TEST && (!CC_EDITOR || !Editor.isMainProcess)) {
-    require('./polyfill-3d');
     require('./primitive');
 }
 
