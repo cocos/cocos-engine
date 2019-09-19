@@ -52,7 +52,8 @@ export class UniformCurveValueAdapter extends CurveValueAdapter {
             }
             return {
                 set: (value: TextureBase | SpriteFrame) => {
-                    const tv = (value || dftTex).getGFXTextureView();
+                    if (!value) { value = dftTex; }
+                    const tv = value.getGFXTextureView();
                     if (!tv || !tv.texture.width || !tv.texture.height) { return; }
                     pass.bindTextureView(binding, tv);
                     if (value instanceof TextureBase) {
