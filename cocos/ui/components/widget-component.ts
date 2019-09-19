@@ -803,9 +803,13 @@ export class WidgetComponent extends Component {
 
     protected _registerTargetEvents () {
         const target = this._target || this.node.parent;
-        if (target){
-            target.on(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
-            target.on(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
+        if (target) {
+            if (target.getComponent(UITransformComponent)) {
+                target.on(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
+                target.on(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
+            } else {
+                cc.warnID(6501, this.node.name);
+            }
         }
     }
 
