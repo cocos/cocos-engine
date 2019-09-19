@@ -423,7 +423,7 @@ export const widgetManager = cc._widgetManager = {
             }
 
             if (!widgetParent.getComponent(UITransformComponent)) {
-                console.warn(widget.node.name + '\'s widget target must have UITransformComponent,please add it in target');
+                cc.warnID(6501, this.node.name);
                 return;
             }
             const parentAP = widgetParent!.getAnchorPoint();

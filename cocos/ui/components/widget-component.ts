@@ -808,7 +808,7 @@ export class WidgetComponent extends Component {
                 target.on(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
                 target.on(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
             } else {
-                console.warn(this.node.name + '\'s widget target must have UITransformComponent,please add it in target');
+                cc.warnID(6501, this.node.name);
             }
         }
     }
