@@ -34,10 +34,70 @@ import { ccclass, executeInEditMode, executionOrder, menu, property, requireComp
 import { Size, Vec3 } from '../../core/math';
 import { errorID } from '../../core/platform/debug';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
+import { View } from '../../core/platform/view';
+import visibleRect from '../../core/platform/visible-rect';
+import { Scene } from '../../core/scene-graph';
 import { Node } from '../../core/scene-graph/node';
 import { INode } from '../../core/utils/interfaces';
 import { ccenum } from '../../core/value-types/enum';
-import { computeInverseTransForTarget, getReadonlyNodeSize } from './widget-manager';
+
+const _zeroVec3 = new Vec3();
+
+// returns a readonly size of the node
+export function getReadonlyNodeSize (parent: INode) {
+    if (parent instanceof Scene) {
+        // @ts-ignore
+        if (CC_EDITOR) {
+            // const canvasComp = parent.getComponentInChildren(CanvasComponent);
+            if (!View.instance) {
+                throw new Error('cc.view uninitiated');
+            }
+
+            return View.instance.getDesignResolutionSize();
+        }
+
+        return visibleRect;
+    } else {
+        return parent.getContentSize();
+    }
+}
+
+export function computeInverseTransForTarget (widgetNode: INode, target: INode, out_inverseTranslate: Vec3, out_inverseScale: Vec3) {
+    let scale = widgetNode.parent ? widgetNode.parent.getScale() : _zeroVec3;
+    let scaleX = scale.x;
+    let scaleY = scale.y;
+    let translateX = 0;
+    let translateY = 0;
+    for (let node = widgetNode.parent; ;) {
+        if (!node) {
+            // ERROR: widgetNode should be child of target
+            out_inverseTranslate.x = out_inverseTranslate.y = 0;
+            out_inverseScale.x = out_inverseScale.y = 1;
+            return;
+        }
+
+        const pos = node.getPosition();
+        translateX += pos.x;
+        translateY += pos.y;
+        node = node.parent;    // loop increment
+
+        if (node !== target) {
+            scale = node ? node.getScale() : _zeroVec3;
+            const sx = scale.x;
+            const sy = scale.y;
+            translateX *= sx;
+            translateY *= sy;
+            scaleX *= sx;
+            scaleY *= sy;
+        } else {
+            break;
+        }
+    }
+    out_inverseScale.x = scaleX !== 0 ? (1 / scaleX) : 1;
+    out_inverseScale.y = scaleY !== 0 ? (1 / scaleY) : 1;
+    out_inverseTranslate.x = -translateX;
+    out_inverseTranslate.y = -translateY;
+}
 
 /**
  * @zh
