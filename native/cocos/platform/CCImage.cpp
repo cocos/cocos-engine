@@ -78,6 +78,7 @@ extern "C"
 #endif // CC_USE_JPEG
 
 #include "base/etc1.h"
+#include "base/etc2.h"
 }
 
 #if CC_USE_WEBP
@@ -133,6 +134,14 @@ namespace
         PixelFormatInfoMapValue(Image::PixelFormat::ETC, Image::PixelFormatInfo(GL_ETC1_RGB8_OES, 0xFFFFFFFF, 0xFFFFFFFF, 4, true, false)),
 #endif
 
+#ifdef GL_COMPRESSED_RGB8_ETC2
+        PixelFormatInfoMapValue(Image::PixelFormat::ETC2_RGB, Image::PixelFormatInfo(GL_COMPRESSED_RGB8_ETC2, 0xFFFFFFFF, 0xFFFFFFFF, 4, true, false)),
+#endif
+
+#ifdef GL_COMPRESSED_RGBA8_ETC2_EAC
+        PixelFormatInfoMapValue(Image::PixelFormat::ETC2_RGBA, Image::PixelFormatInfo(GL_COMPRESSED_RGBA8_ETC2_EAC, 0xFFFFFFFF, 0xFFFFFFFF, 8, true, true)),
+#endif
+        
 #ifdef GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
         PixelFormatInfoMapValue(Image::PixelFormat::S3TC_DXT1, Image::PixelFormatInfo(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, 0xFFFFFFFF, 0xFFFFFFFF, 4, true, false)),
 #endif
@@ -584,6 +593,9 @@ bool Image::initWithImageData(const unsigned char * data, ssize_t dataLen)
         case Format::ETC:
             ret = initWithETCData(unpackedData, unpackedLen);
             break;
+        case Format::ETC2:
+            ret = initWithETC2Data(unpackedData, unpackedLen);
+            break;
         case Format::S3TC:
             ret = initWithS3TCData(unpackedData, unpackedLen);
             break;
@@ -631,6 +643,12 @@ bool Image::isEtc(const unsigned char * data, ssize_t dataLen)
 {
     return etc1_pkm_is_valid((etc1_byte*)data) ? true : false;
 }
+
+bool Image::isEtc2(const unsigned char * data, ssize_t dataLen)
+{
+    return etc2_pkm_is_valid((etc2_byte*)data) ? true : false;
+}
+
 
 bool Image::isS3TC(const unsigned char * data, ssize_t /*dataLen*/)
 {
@@ -721,6 +739,10 @@ Image::Format Image::detectFormat(const unsigned char * data, ssize_t dataLen)
     else if (isEtc(data, dataLen))
     {
         return Format::ETC;
+    }
+    else if (isEtc2(data, dataLen))
+    {
+        return Format::ETC2;
     }
     else if (isS3TC(data, dataLen))
     {
@@ -1581,6 +1603,43 @@ bool Image::initWithETCData(const unsigned char * data, ssize_t dataLen)
 #endif
 
     return false;
+}
+
+bool Image::initWithETC2Data(const unsigned char * data, ssize_t dataLen)
+{
+    const etc2_byte* header = static_cast<const etc2_byte*>(data);
+    
+    //check the data
+    if (! etc2_pkm_is_valid(header))
+    {
+        return  false;
+    }
+    
+    _width = etc2_pkm_get_width(header);
+    _height = etc2_pkm_get_height(header);
+    
+    if (0 == _width || 0 == _height)
+    {
+        return false;
+    }
+    
+    assert(Configuration::getInstance()->supportsETC2());
+    
+    etc2_uint32 format = etc2_pkm_get_format(header);
+    if (format == ETC2_RGB_NO_MIPMAPS)
+    {
+        _renderFormat = Image::PixelFormat::ETC2_RGB;
+    }
+    else
+    {
+        _renderFormat = Image::PixelFormat::ETC2_RGBA;
+    }
+    
+    _dataLen = dataLen - ETC2_PKM_HEADER_SIZE;
+    _data = static_cast<unsigned char*>(malloc(_dataLen * sizeof(unsigned char)));
+    memcpy(_data, static_cast<const unsigned char*>(data) + ETC2_PKM_HEADER_SIZE, _dataLen);
+    
+    return true;
 }
 
 bool Image::initWithTGAData(tImageTGA* tgaData)

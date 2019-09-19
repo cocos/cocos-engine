@@ -30,6 +30,7 @@
 #include "cocos/scripting/js-bindings/manual/jsb_opengl_utils.hpp"
 #include "platform/CCGL.h"
 #include "cocos/base/CCGLUtils.h"
+#include "cocos/base/CCConfiguration.h"
 
 #include <regex>
 
@@ -3544,7 +3545,7 @@ static bool JSB_glGetSupportedExtensions(se::State& s) {
     GLubyte* copy = new (std::nothrow) GLubyte[len+1];
     copy[len] = '\0';
     strncpy((char*)copy, (const char*)extensions, len );
-
+    
     size_t start_extension = 0;
     uint32_t element = 0;
     for( size_t i=0; i<len+1; i++) {
@@ -3565,6 +3566,14 @@ static bool JSB_glGetSupportedExtensions(se::State& s) {
             ++element;
             ++i;
         }
+    }
+
+    if (Configuration::getInstance()->supportsFloatTexture()) {
+        jsobj->setArrayElement(element++, se::Value("OES_texture_float"));
+    }
+
+    if (Configuration::getInstance()->supportsETC2()) {
+        jsobj->setArrayElement(element++, se::Value("WEBGL_compressed_texture_etc"));
     }
 
     s.rval().setObject(jsobj.get());

@@ -98,12 +98,19 @@ public:
      */
     bool supportsPVRTC() const;
 
-    /** Whether or not ETC Texture Compressed is supported.
+    /** Whether or not ETC1 Texture Compressed is supported.
      *
      *
      * @return Is true if supports ETC Texture Compressed.
      */
     bool supportsETC() const;
+    
+    /** Whether or not ETC2 Texture Compressed is supported.
+     *
+     *
+     * @return Is true if supports ETC2 Texture Compressed.
+     */
+    bool supportsETC2() const;
 
     /** Whether or not S3TC Texture Compressed is supported.
      *
@@ -150,6 +157,13 @@ public:
      * @since v3.9.0
      */
     bool supportsOESPackedDepthStencil() const;
+    
+    /** Whether or not float texture is supported.
+     *
+     * @return Is true if supports texture.
+     * @since v3.9.0
+     */
+    bool supportsFloatTexture() const;
 
     /** Whether or not glMapBuffer() is supported.
      *
@@ -233,12 +247,17 @@ private:
     Configuration(void);
     static Configuration    *s_sharedConfiguration;
     static std::string        s_configfile;
-
+    
+    /**
+     * Check whether or not ETC2 Texture Compressed is supported.
+     */
+    bool checkForETC2() const;
 protected:
     GLint           _maxTextureSize;
     GLint           _maxModelviewStackDepth;
     bool            _supportsPVRTC;
     bool            _supportsETC1;
+    bool            _supportsETC2;
     bool            _supportsS3TC;
     bool            _supportsATITC;
     bool            _supportsNPOT;
@@ -248,6 +267,8 @@ protected:
     bool            _supportsOESMapBuffer;
     bool            _supportsOESDepth24;
     bool            _supportsOESPackedDepthStencil;
+    bool            _supportsFloatTexture;
+    bool            _isOpenglES3;
     GLint           _maxSamplesAllowed;
     GLint           _maxTextureUnits;
     char *          _glExtensions;

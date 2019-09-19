@@ -82,6 +82,8 @@ public:
         PVR,
         //! ETC
         ETC,
+        //! ETC2
+        ETC2,
         //! S3TC
         S3TC,
         //! ATITC
@@ -129,6 +131,10 @@ public:
         PVRTC2A,
         //! ETC-compressed texture: ETC
         ETC,
+        //! ETC-compressed texture: GL_COMPRESSED_RGB8_ETC2
+        ETC2_RGB,
+        //! ETC-compressed texture: GL_COMPRESSED_RGBA8_ETC2
+        ETC2_RGBA,
         //! S3TC-compressed texture: S3TC_Dxt1
         S3TC_DXT1,
         //! S3TC-compressed texture: S3TC_Dxt3
@@ -237,6 +243,7 @@ protected:
     bool initWithPVRv2Data(const unsigned char * data, ssize_t dataLen);
     bool initWithPVRv3Data(const unsigned char * data, ssize_t dataLen);
     bool initWithETCData(const unsigned char * data, ssize_t dataLen);
+    bool initWithETC2Data(const unsigned char * data, ssize_t dataLen);
     bool initWithS3TCData(const unsigned char * data, ssize_t dataLen);
 
     typedef struct sImageTGA tImageTGA;
@@ -291,6 +298,7 @@ protected:
     bool isWebp(const unsigned char * data, ssize_t dataLen);
     bool isPvr(const unsigned char * data, ssize_t dataLen);
     bool isEtc(const unsigned char * data, ssize_t dataLen);
+    bool isEtc2(const unsigned char * data, ssize_t dataLen);
     bool isS3TC(const unsigned char * data,ssize_t dataLen);
 };
 

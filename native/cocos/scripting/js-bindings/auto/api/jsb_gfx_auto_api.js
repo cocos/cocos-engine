@@ -533,18 +533,6 @@ cullmode
 },
 
 /**
- * @method ext
- * @param {String} arg0
- * @return {bool}
- */
-ext : function (
-str 
-)
-{
-    return false;
-},
-
-/**
  * @method setStencilOp
  * @param {cc.renderer::StencilOp} arg0
  * @param {cc.renderer::StencilOp} arg1

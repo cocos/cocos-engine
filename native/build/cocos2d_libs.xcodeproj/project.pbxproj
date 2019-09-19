@@ -1276,6 +1276,10 @@
 		46FDDC69202D733800931238 /* CCApplication-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDC68202D733700931238 /* CCApplication-ios.mm */; };
 		4DC57D211F7A58B5005B6546 /* xxtea.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DC57D1F1F7A58B5005B6546 /* xxtea.cpp */; };
 		4DC57D331F7B840E005B6546 /* xxtea.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DC57D1F1F7A58B5005B6546 /* xxtea.cpp */; };
+		4DCEC126233236D60020F8E3 /* etc2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DCEC124233236D60020F8E3 /* etc2.cpp */; };
+		4DCEC127233236D60020F8E3 /* etc2.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DCEC125233236D60020F8E3 /* etc2.h */; };
+		4DCEC128233238110020F8E3 /* etc2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DCEC124233236D60020F8E3 /* etc2.cpp */; };
+		4DCEC129233238110020F8E3 /* etc2.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DCEC125233236D60020F8E3 /* etc2.h */; };
 		5027253A190BF1B900AAF4ED /* cocos2d.h in Headers */ = {isa = PBXBuildFile; fileRef = 50272538190BF1B900AAF4ED /* cocos2d.h */; };
 		5027253B190BF1B900AAF4ED /* cocos2d.h in Headers */ = {isa = PBXBuildFile; fileRef = 50272538190BF1B900AAF4ED /* cocos2d.h */; };
 		5027253C190BF1B900AAF4ED /* cocos2d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50272539190BF1B900AAF4ED /* cocos2d.cpp */; };
@@ -2074,6 +2078,8 @@
 		46FDDC68202D733700931238 /* CCApplication-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCApplication-ios.mm"; sourceTree = "<group>"; };
 		4DC57D1F1F7A58B5005B6546 /* xxtea.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xxtea.cpp; sourceTree = "<group>"; };
 		4DC57D201F7A58B5005B6546 /* xxtea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xxtea.h; sourceTree = "<group>"; };
+		4DCEC124233236D60020F8E3 /* etc2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = etc2.cpp; sourceTree = "<group>"; };
+		4DCEC125233236D60020F8E3 /* etc2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = etc2.h; sourceTree = "<group>"; };
 		50272538190BF1B900AAF4ED /* cocos2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cocos2d.h; path = ../cocos/cocos2d.h; sourceTree = "<group>"; };
 		50272539190BF1B900AAF4ED /* cocos2d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cocos2d.cpp; path = ../cocos/cocos2d.cpp; sourceTree = "<group>"; };
 		503DD8D11926736A00CD74DD /* CCDevice-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCDevice-ios.mm"; sourceTree = "<group>"; };
@@ -3326,6 +3332,8 @@
 		46FDDAE9202ADDCE00931238 /* base */ = {
 			isa = PBXGroup;
 			children = (
+				4DCEC124233236D60020F8E3 /* etc2.cpp */,
+				4DCEC125233236D60020F8E3 /* etc2.h */,
 				46FDDAFD202ADDCE00931238 /* base64.cpp */,
 				46FDDAFA202ADDCE00931238 /* base64.h */,
 				46FDDB0A202ADDCE00931238 /* CCAutoreleasePool.cpp */,
@@ -3713,6 +3721,7 @@
 				0482F1B1228D87970019ECF7 /* ModelBatcher.hpp in Headers */,
 				1A29D76B205665BE00168D9A /* jsb_cocos2dx_auto.hpp in Headers */,
 				1A52DB3D205BCD9200350EE3 /* SeApi.h in Headers */,
+				4DCEC129233238110020F8E3 /* etc2.h in Headers */,
 				04DBD44F22AE2DBD00DBE4CD /* Json.h in Headers */,
 				46FDDABD202ACC6A00931238 /* DeviceGraphics.h in Headers */,
 				469303982046AE05004A3D6C /* HelperMacros.h in Headers */,
@@ -4285,6 +4294,7 @@
 				46AE400A2092F3A600F3A228 /* node_debug_options.h in Headers */,
 				4617862620522469008256E1 /* CCDownloader.h in Headers */,
 				04DBD46622AE2DBD00DBE4CD /* ScaleTimeline.h in Headers */,
+				4DCEC127233236D60020F8E3 /* etc2.h in Headers */,
 				46FDDBD2202ADDCE00931238 /* ccUTF8.h in Headers */,
 				04DBD4A822AE2DBD00DBE4CD /* RegionAttachment.h in Headers */,
 				1A14FD942080B4E300E10ABE /* CCGLUtils.h in Headers */,
@@ -4693,6 +4703,7 @@
 				ED3057A11BEC77D50083C3ED /* xxhash.c in Sources */,
 				46FDDA6F202ACC6A00931238 /* Pass.cpp in Sources */,
 				4617863520522469008256E1 /* HttpAsynConnection-apple.m in Sources */,
+				4DCEC128233238110020F8E3 /* etc2.cpp in Sources */,
 				461786612052607E008256E1 /* jsb_socketio.cpp in Sources */,
 				1A28FF8B1F20AFAB007A1D9D /* SRURLUtilities.m in Sources */,
 				04DBD3CB22AE2DBD00DBE4CD /* Atlas.cpp in Sources */,
@@ -4792,6 +4803,7 @@
 				046E06F82189990700B24E2D /* middleware-adapter.cpp in Sources */,
 				04DBD4AC22AE2DBD00DBE4CD /* Slot.cpp in Sources */,
 				04DBD4A422AE2DBD00DBE4CD /* AttachmentLoader.cpp in Sources */,
+				4DCEC126233236D60020F8E3 /* etc2.cpp in Sources */,
 				046E070A218B015100B24E2D /* jsb_cocos2dx_dragonbones_auto.cpp in Sources */,
 				04DBD46C22AE2DBD00DBE4CD /* AttachmentTimeline.cpp in Sources */,
 				469301D2203FC696004A3D6C /* CCConfiguration.cpp in Sources */,

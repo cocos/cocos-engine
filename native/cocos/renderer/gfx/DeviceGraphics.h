@@ -94,11 +94,6 @@ public:
      * Returns a shared instance of the director.
      */
     static DeviceGraphics* getInstance();
-    
-    /**
-     * Checks whether a gl extension is supported
-     */
-    bool ext(const std::string& extension) const;
 
     /**
      * Sets the target FrameBuffer

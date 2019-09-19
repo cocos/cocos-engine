@@ -28,6 +28,10 @@ THE SOFTWARE.
 #include "platform/CCFileUtils.h"
 #include "base/CCLog.h"
 
+#include "base/etc2.h"
+
+#include <regex>
+
 NS_CC_BEGIN
 
 //cjh extern const char* cocos2dVersion();
@@ -41,6 +45,7 @@ Configuration::Configuration()
 , _maxModelviewStackDepth(0)
 , _supportsPVRTC(false)
 , _supportsETC1(false)
+, _supportsETC2(false)
 , _supportsS3TC(false)
 , _supportsATITC(false)
 , _supportsNPOT(false)
@@ -50,6 +55,8 @@ Configuration::Configuration()
 , _supportsOESDepth24(false)
 , _supportsOESPackedDepthStencil(false)
 , _supportsOESMapBuffer(false)
+, _supportsFloatTexture(false)
+, _isOpenglES3(false)
 , _maxSamplesAllowed(0)
 , _maxTextureUnits(0)
 , _glExtensions(nullptr)
@@ -108,9 +115,18 @@ void Configuration::gatherGPUInfo()
 {
     _valueDict["gl.vendor"] = Value((const char*)glGetString(GL_VENDOR));
     _valueDict["gl.renderer"] = Value((const char*)glGetString(GL_RENDERER));
-    _valueDict["gl.version"] = Value((const char*)glGetString(GL_VERSION));
 
+    const char* version = (const char*)glGetString(GL_VERSION);
+    _valueDict["gl.version"] = Value(version);
+    
+    if (std::regex_match(version, std::regex("OpenGL ES 3.*"))) {
+        _isOpenglES3 = true;
+    }
+    
     _glExtensions = (char *)glGetString(GL_EXTENSIONS);
+    
+    _supportsETC2 = checkForETC2();
+    _valueDict["gl.supports_ETC2"] = Value(_supportsETC2);
 
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &_maxTextureSize);
     _valueDict["gl.max_texture_size"] = Value((int)_maxTextureSize);
@@ -144,8 +160,6 @@ void Configuration::gatherGPUInfo()
     _supportsDiscardFramebuffer = checkForGLExtension("GL_EXT_discard_framebuffer");
     _valueDict["gl.supports_discard_framebuffer"] = Value(_supportsDiscardFramebuffer);
 
-    _supportsShareableVAO = checkForGLExtension("vertex_array_object");
-    _valueDict["gl.supports_vertex_array_object"] = Value(_supportsShareableVAO);
 
     _supportsOESMapBuffer = checkForGLExtension("GL_OES_mapbuffer");
     _valueDict["gl.supports_OES_map_buffer"] = Value(_supportsOESMapBuffer);
@@ -155,6 +169,18 @@ void Configuration::gatherGPUInfo()
 
     _supportsOESPackedDepthStencil = checkForGLExtension("GL_OES_packed_depth_stencil");
     _valueDict["gl.supports_OES_packed_depth_stencil"] = Value(_supportsOESPackedDepthStencil);
+    
+    if (_isOpenglES3) {
+        _supportsFloatTexture = true;
+        _supportsShareableVAO = true;
+    }
+    else {
+        _supportsFloatTexture = checkForGLExtension("GL_ARB_texture_float");
+        _valueDict["gl.supports_float_texture"] = Value(_supportsFloatTexture);
+        
+        _supportsShareableVAO = checkForGLExtension("vertex_array_object");
+        _valueDict["gl.supports_vertex_array_object"] = Value(_supportsShareableVAO);
+    }
 
     CHECK_GL_ERROR_DEBUG();
 }
@@ -219,6 +245,29 @@ bool Configuration::supportsETC() const
 #endif
 }
 
+bool Configuration::checkForETC2() const
+{
+    GLint numFormats = 0;
+    glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
+    GLint* formats = new GLint[numFormats];
+    glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS, formats);
+    
+    int supportNum = 0;
+    for (GLint i = 0; i < numFormats; ++i)
+    {
+        if (formats[i] == GL_COMPRESSED_RGB8_ETC2 || formats[i] == GL_COMPRESSED_RGBA8_ETC2_EAC)
+        supportNum++;
+    }
+    delete [] formats;
+    
+    return supportNum >= 2;
+}
+
+bool Configuration::supportsETC2() const
+{
+    return _supportsETC2;
+}
+
 bool Configuration::supportsS3TC() const
 {
 #ifdef GL_EXT_texture_compression_s3tc
@@ -272,6 +321,11 @@ bool Configuration::supportsMapBuffer() const
 bool Configuration::supportsOESDepth24() const
 {
     return _supportsOESDepth24;
+}
+
+bool Configuration::supportsFloatTexture() const
+{
+    return _supportsFloatTexture;
 }
 
 bool Configuration::supportsOESPackedDepthStencil() const

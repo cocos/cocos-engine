@@ -64,23 +64,6 @@ DeviceGraphics* DeviceGraphics::getInstance()
     return __instance;
 }
 
-bool DeviceGraphics::ext(const std::string& extension) const
-{
-    const char* ext = extension.c_str();
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-    // TODO:
-    // Opengl Es extension maybe different from Opengl extension,
-    // should change extension name if needed.
-    // https://www.khronos.org/registry/webgl/extensions/
-    // https://www.khronos.org/opengl/wiki/OpenGL_Extension
-    if (strcmp(ext, "OES_texture_float") == 0) {
-        ext = "GL_ARB_texture_float";
-    }
-#endif
-    
-    return  (_glExtensions && strstr(_glExtensions, ext ) ) ? true : false;
-}
-
 void DeviceGraphics::setFrameBuffer(const FrameBuffer* fb)
 {
     if (fb == _frameBuffer)
@@ -573,8 +556,6 @@ DeviceGraphics::DeviceGraphics()
 , _sh(0)
 , _frameBuffer(nullptr)
 {
-    _glExtensions = (char *)glGetString(GL_EXTENSIONS);
-    
     initCaps();
     initStates();
     
@@ -594,7 +575,6 @@ DeviceGraphics::DeviceGraphics()
 
 DeviceGraphics::~DeviceGraphics()
 {
-    delete _glExtensions;
     RENDERER_SAFE_RELEASE(_frameBuffer);
     
     delete _currentState;
