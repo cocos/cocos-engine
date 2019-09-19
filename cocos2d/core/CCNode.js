@@ -3374,6 +3374,8 @@ let NodeDefines = {
          * The node will be destroyed when deleting in the editor,
          * but it will be reserved and reused for undo.
         */
+        // restore 3d node
+        this.is3DNode = this.is3DNode;
         if (!this._matrix) {
             this._matrix = mat4.create(this._spaceInfo.localMat);
             mat4.identity(this._matrix);
