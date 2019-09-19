@@ -40,6 +40,7 @@ import { Node } from '../../core/scene-graph/node';
 import { INode } from '../../core/utils/interfaces';
 import { array } from '../../core/utils/js';
 import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, WidgetComponent } from './widget-component';
+import { UITransformComponent } from '../../core/components';
 
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();
@@ -60,6 +61,9 @@ function align (node: INode, widget: WidgetComponent) {
         computeInverseTransForTarget(node as INode, target, inverseTranslate, inverseScale);
     } else {
         target = node.parent;
+    }
+    if (!target.getComponent (UITransformComponent)) {
+        return;
     }
     const targetSize = getReadonlyNodeSize(target);
     const isScene = target instanceof Scene;
@@ -415,6 +419,11 @@ export const widgetManager = cc._widgetManager = {
             }
 
             if (!e) {
+                return;
+            }
+
+            if (!widgetParent.getComponent(UITransformComponent)) {
+                cc.warnID(6501, widget.node.name);
                 return;
             }
 
