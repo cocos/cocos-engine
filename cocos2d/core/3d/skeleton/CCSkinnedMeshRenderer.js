@@ -30,6 +30,7 @@ const enums = require('../../../renderer/enums');
 const mat4 = cc.vmath.mat4;
 
 let _m4_tmp = mat4.create();
+let _m4_tmp2 = mat4.create();
 
 /**
  * !#en
@@ -52,6 +53,7 @@ let SkinnedMeshRenderer = cc.Class({
         this._joints = [];
         this._dummyNode = new cc.Node();
         this._jointsTextureOptions = null;
+        this._usingRGBA8Texture = false;
     },
 
     properties: {
@@ -227,6 +229,8 @@ let SkinnedMeshRenderer = cc.Class({
                 pixelFormat = cc.Texture2D.PixelFormat.RGBA8888;
                 width *= 4;
 
+                this._usingRGBA8Texture = true;
+
                 cc.warn(`SkinnedMeshRenderer [${this.node.name}] has too many joints [${jointCount}] and device do not support float32 texture, fallback to use RGBA8888 texture, which is much slower.`);
             }
 
@@ -273,7 +277,7 @@ let SkinnedMeshRenderer = cc.Class({
     },
 
     _updateRenderNode () {
-        if (this._useJointMatrix()) {
+        if (this._useJointMatrix() || this._usingRGBA8Texture) {
             this._assembler.setRenderNode(this.rootBone)
         } else {
             this._assembler.setRenderNode(this._dummyNode);
@@ -283,7 +287,11 @@ let SkinnedMeshRenderer = cc.Class({
     _initCalcFunc () {
         if (this._useJointMatrix()) {
             this._calFunc = this._calJointMatrix;
-        } else {
+        } 
+        else if (this._usingRGBA8Texture) {
+            this._calFunc = this._calRGBA8WorldMatrix;
+        }
+        else {
             this._calFunc = this._calWorldMatrix;
         }
     },
@@ -303,6 +311,26 @@ let SkinnedMeshRenderer = cc.Class({
                 mat4.multiply(_m4_tmp, jointMatrix, bindposes[i]);
                 this._setJointsDataWithMatrix(i, _m4_tmp);
             }
+        }
+    },
+
+    // Some device rgba8 texture precision is low, when encode a big number it may loss precision.
+    // Invert root bone matrix can effectively avoid big position encode into rgba8 texture.
+    _calRGBA8WorldMatrix () {
+        const joints = this._joints;
+        const bindposes = this.skeleton.bindposes;
+
+        this.rootBone._updateWorldMatrix();
+        let rootMatrix = this.rootBone._worldMatrix;
+        let invRootMat = mat4.invert(_m4_tmp2, rootMatrix);
+
+        for (let i = 0; i < joints.length; ++i) {
+            let joint = joints[i];
+            joint._updateWorldMatrix();
+
+            mat4.multiply(_m4_tmp, invRootMat, joint._worldMatrix);
+            mat4.multiply(_m4_tmp, _m4_tmp, bindposes[i]);
+            this._setJointsDataWithMatrix(i, _m4_tmp);
         }
     },
 
