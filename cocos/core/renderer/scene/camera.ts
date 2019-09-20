@@ -5,6 +5,7 @@ import { lerp, Mat4, Rect, toRadian, Vec3 } from '../../math';
 import { RenderView } from '../../pipeline/render-view';
 import { INode } from '../../utils/interfaces';
 import { RenderScene } from './render-scene';
+import { CameraDefaultMask } from '../../pipeline/define';
 
 export enum CameraProjection {
     ORTHO,
@@ -81,15 +82,6 @@ const v_b = new Vec3();
 const _tempMat1 = new Mat4();
 const _tempMat2 = new Mat4();
 
-export enum CameraVisFlags {
-    GENERAL = (1 << 30) | (1 << 29) | (1 << 23),
-    PROFILER = (1 << 28), // profiler used
-    GIZMOS = (1 << 21),
-    EDITOR = (1 << 22),
-    UI = (1 << 23),
-    UI2D = (1 << 25),
-}
-
 export const SKYBOX_FLAG = GFXClearFlag.STENCIL << 1;
 
 export class Camera {
@@ -123,7 +115,7 @@ export class Camera {
     private _position: Vec3 = new Vec3();
     private _node: INode | null = null;
     private _view: RenderView;
-    private _visibility = CameraVisFlags.GENERAL;
+    private _visibility = CameraDefaultMask;
     private _priority: number = 0;
     private _aperture: CameraAperture = CameraAperture.F16_0;
     private _apertureValue: number;

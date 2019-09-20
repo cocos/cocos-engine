@@ -31,6 +31,7 @@ import { BitMask, Enum } from '../value-types';
 
 // built-in layers, users can use 0~19 bits, 20~31 are system preserve bits.
 const layerList = {
+  NONE: 0,
   IGNORE_RAYCAST : (1 << 20),
   GIZMOS : (1 << 21),
   EDITOR : (1 << 22),
@@ -41,6 +42,7 @@ const layerList = {
   PROFILER : (1 << 28),
   ALWAYS : (1 << 29),
   DEFAULT : (1 << 30),
+  ALL : 0xffffffff,
 };
 
 /**
@@ -60,7 +62,7 @@ export class Layers {
    * @param includes 可接受的层数组
    * @return 指定功能的层检测器
    */
-  public static makeInclusiveMask (includes: number[]): number {
+  public static makeMaskInclude (includes: number[]): number {
     let mask = 0;
     for (const inc of includes) {
       mask |= inc;
@@ -76,8 +78,8 @@ export class Layers {
    * @param  excludes 将拒绝的层数组
    * @return 指定功能的层检测器
    */
-  public static makeExclusiveMask (excludes: number[]): number {
-    return ~Layers.makeInclusiveMask(excludes);
+  public static makeMaskExclude (excludes: number[]): number {
+    return ~Layers.makeMaskInclude(excludes);
   }
 
   /**

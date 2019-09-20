@@ -26,8 +26,9 @@ import { Mat4, Vec3, Vec4 } from '../math';
 import { Camera, Model } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass';
 import { programLib } from '../renderer/core/program-lib';
-import { CameraVisFlags, SKYBOX_FLAG } from '../renderer/scene/camera';
+import { SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Root } from '../root';
+import { Layers } from '../scene-graph';
 import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_ENVIRONMENT } from './define';
 import { IInternalBindingInst } from './define';
 import { IRenderFlowInfo, RenderFlow } from './render-flow';
@@ -1235,7 +1236,7 @@ export abstract class RenderPipeline {
 
             // filter model by view visibility
             if (model.enabled) {
-                const vis = view.visibility & CameraVisFlags.UI2D;
+                const vis = view.visibility & Layers.BitMask.UI_2D;
                 if (vis) {
                     if ((model.node && (view.visibility === model.node.layer)) ||
                         view.visibility === model.visFlags) {

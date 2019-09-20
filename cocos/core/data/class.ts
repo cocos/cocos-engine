@@ -39,6 +39,7 @@ import { errorID, warnID } from '../platform/debug';
 import * as js from '../utils/js';
 import { getSuper } from '../utils/js';
 import { cloneable_DEV, isPlainEmptyObj_DEV } from '../utils/misc';
+import { BitMask } from '../value-types';
 import { Enum } from '../value-types/enum';
 import * as attributeUtils from './utils/attribute';
 import { IAcceptableAttributes } from './utils/attribute-defines';
@@ -1104,6 +1105,7 @@ interface IParsedAttribute {
     _onAfterProp?: OnAfterProp;
     ctor?: Function;
     enumList?: any[];
+    bitmaskList?: any[];
 }
 const tmpAttrs = [];
 
@@ -1146,6 +1148,12 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
                 result.push({
                     type: 'Enum',
                     enumList: Enum.getList(type),
+                });
+            }
+            else if (BitMask.isBitMask(type)) {
+                result.push({
+                    type: 'BitMask',
+                    bitmaskList: BitMask.getList(type),
                 });
             }
             else if (CC_DEV) {
