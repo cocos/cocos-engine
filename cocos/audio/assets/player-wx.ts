@@ -27,6 +27,7 @@
  * @category component/audio
  */
 
+import { clamp } from '../../core/math/utils';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 
 /**
@@ -123,8 +124,8 @@ export class AudioPlayerWX extends AudioPlayer {
 
     public setCurrentTime (val: number) {
         if (!this._audio) { return; }
+        this._offset = clamp(val, 0, this._duration) * 1000;
         this._startTime = performance.now();
-        this._offset = val * 1000;
         this._audio.seek(val);
     }
 
