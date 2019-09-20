@@ -193,17 +193,6 @@ else {
     defineMacro('CC_PHYSICS_AMMO', false);
 }
 
-/**
- * it will be remove when editor CC_PHYSICS_BUILT_IN rename to CC_PHYSICS_BUILTIN
- */
-if (CC_PREVIEW) {
-    if (CC_PHYSICS_CANNON || CC_PHYSICS_AMMO) {
-        _global.CC_PHYSICS_BUILTIN = false;
-    }
-
-    _global.CC_PHYSICS_BUILT_IN = _global.CC_PHYSICS_BUILTIN;
-}
-
 //
 
 if (CC_DEV) {
@@ -228,3 +217,14 @@ const engineVersion = '1.0.0 beta';
 _global['CocosEngine'] = cc.ENGINE_VERSION = engineVersion;
 
 export default cc;
+
+/**
+ * deprecated
+ */
+
+Object.defineProperty(_global, 'CC_PHYSICS_BUILT_IN', {
+    'get': () => {
+        console.warn('CC_PHYSICS_BUILT_IN is deprecated, please using CC_PHYSICS_BUILTIN instead.');
+        return _global.CC_PHYSICS_BUILTIN;
+    }
+})
