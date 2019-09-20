@@ -27,7 +27,8 @@
  * @category component/audio
  */
 
-import { director, Director } from '../../core';
+import { director, Director } from '../../core/director';
+import { clamp } from '../../core/math/utils';
 import sys from '../../core/platform/sys';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 
@@ -136,7 +137,8 @@ export class AudioPlayerWeb extends AudioPlayer {
     }
 
     public setCurrentTime (val: number) {
-        this._offset = val;
+        // throws InvalidState Error on mobile if we don't do the clamp here
+        this._offset = clamp(val, 0, this._duration);
         if (this._state !== PlayingState.PLAYING) { return; }
         this._sourceNode.stop(); this._do_play();
     }

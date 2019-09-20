@@ -27,6 +27,7 @@
  * @category component/audio
  */
 
+import { clamp } from '../../core/math/utils';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 
 export class AudioPlayerDOM extends AudioPlayer {
@@ -126,7 +127,7 @@ export class AudioPlayerDOM extends AudioPlayer {
 
     public setCurrentTime (val: number) {
         if (!this._audio) { return; }
-        this._audio.currentTime = val;
+        this._audio.currentTime = clamp(val, 0, this._duration);
     }
 
     public getCurrentTime () {
