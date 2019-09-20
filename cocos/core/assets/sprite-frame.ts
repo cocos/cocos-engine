@@ -32,12 +32,12 @@
 
 import { ccclass } from '../data/class-decorator';
 import { Rect, Size, Vec2 } from '../math';
-import { ImageAsset } from './image-asset';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
-import { TextureBase } from './texture-base';
 import { Asset } from './asset';
-import { Texture2D } from './texture-2d';
+import { ImageAsset } from './image-asset';
 import { RenderTexture } from './render-texture';
+import { Texture2D } from './texture-2d';
+import { TextureBase } from './texture-base';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -298,13 +298,13 @@ export class SpriteFrame extends Asset {
     }
 
     set texture (value){
-        if(!value){
+        if (!value){
             console.warn(`Error Texture in ${this.name}`);
             return;
         }
 
         this.reset({ texture: value }, true);
-        if(this._texture instanceof RenderTexture){
+        if (this._texture instanceof RenderTexture){
             this.onLoaded();
         }
     }
@@ -509,9 +509,9 @@ export class SpriteFrame extends Asset {
      */
     public reset (info?: ISpriteFrameInitInfo, clearData = false) {
         let calUV = false;
-        if(clearData){
+        if (clearData){
             this._originalSize.set(0, 0);
-            this._rect.set(0, 0, 0 ,0);
+            this._rect.set(0, 0, 0 , 0);
             this._offset.set(0, 0);
             this._capInsets = [0 , 0, 0, 0];
             this._rotated = false;
@@ -523,7 +523,7 @@ export class SpriteFrame extends Asset {
                 this._rect.x = this._rect.y = 0;
                 this._rect.width = info.texture.width;
                 this._rect.height = info.texture.height;
-                if(this._texture){
+                if (this._texture){
                     this._texture.off('load');
                 }
                 this._texture = info.texture;
@@ -574,7 +574,7 @@ export class SpriteFrame extends Asset {
             calUV = true;
         }
 
-        if(calUV){
+        if (calUV){
             this._calculateUV();
         }
     }
@@ -616,7 +616,7 @@ export class SpriteFrame extends Asset {
     }
 
     public destroy (){
-        if(this._texture){
+        if (this._texture){
             this._texture.off('load');
         }
         return super.destroy();

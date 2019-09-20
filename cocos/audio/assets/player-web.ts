@@ -47,7 +47,6 @@ export class AudioPlayerWeb extends AudioPlayer {
     private _on_ended: () => void;
     private _do_play: () => void;
     private _on_gesture: () => void;
-    private _alreadyDelayed = false;
 
     constructor (info: IAudioInfo) {
         super(info);
@@ -91,22 +90,21 @@ export class AudioPlayerWeb extends AudioPlayer {
 
         this._on_gesture = () => {
             this._context.resume().then(() => {
-                if (this._alreadyDelayed) { this._do_play(); }
+                if (this._interrupted) { this._do_play(); this._interrupted = false; }
                 cc.game.canvas.removeEventListener('touchend', this._on_gesture);
                 cc.game.canvas.removeEventListener('mouseup', this._on_gesture);
             });
         };
-
-        if (this._context.state === 'running') { return; }
-        cc.game.canvas.addEventListener('touchend', this._on_gesture);
-        cc.game.canvas.addEventListener('mouseup', this._on_gesture);
+        if (this._context.state !== 'running') {
+            cc.game.canvas.addEventListener('touchend', this._on_gesture);
+            cc.game.canvas.addEventListener('mouseup', this._on_gesture);
+        }
     }
 
     public play () {
         if (!this._audio || this._state === PlayingState.PLAYING) { return; }
-        if (this._context.state === 'running') {
-            this._do_play();
-        } else { this._alreadyDelayed = true; }
+        if (this._blocking || this._context.state !== 'running') { this._interrupted = true; return; }
+        this._do_play();
     }
 
     public pause () {
@@ -170,5 +168,5 @@ export class AudioPlayerWeb extends AudioPlayer {
         return this._loop;
     }
 
-    public destroy () {}
+    public destroy () { super.destroy(); }
 }

@@ -37,7 +37,6 @@ export class AudioPlayerDOM extends AudioPlayer {
 
     private _post_play: () => void;
     private _on_gesture: () => void;
-    private _alreadyDelayed = false;
 
     constructor (info: IAudioInfo) {
         super(info);
@@ -56,7 +55,7 @@ export class AudioPlayerDOM extends AudioPlayer {
                 return;
             }
             promise.then(() => {
-                if (this._alreadyDelayed) { this._post_play(); }
+                if (this._interrupted) { this._post_play(); this._interrupted = false; }
                 else { this._audio!.pause(); this._audio!.currentTime = 0; }
                 cc.game.canvas.removeEventListener('touchend', this._on_gesture);
                 cc.game.canvas.removeEventListener('mouseup', this._on_gesture);
@@ -80,12 +79,13 @@ export class AudioPlayerDOM extends AudioPlayer {
 
     public play () {
         if (!this._audio || this._state === PlayingState.PLAYING) { return; }
+        if (this._blocking) { this._interrupted = true; return; }
         const promise = this._audio.play();
         if (!promise) {
             console.warn('no promise returned from HTMLMediaElement.play()');
             return;
         }
-        promise.then(this._post_play).catch(() => { this._alreadyDelayed = true; });
+        promise.then(this._post_play).catch(() => { this._interrupted = true; });
     }
 
     public pause () {
@@ -154,5 +154,8 @@ export class AudioPlayerDOM extends AudioPlayer {
         return this._loop;
     }
 
-    public destroy () {}
+    public destroy () {
+        if (this._audio) { this._audio.src = ''; }
+        super.destroy();
+    }
 }

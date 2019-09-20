@@ -38,7 +38,6 @@ export function BitMask<T> (obj: T): T {
     let lastIndex: number = -1;
     const keys: string[] = Object.keys(obj);
 
-    // tslint:disable-next-line: prefer-for-of
     for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
         let val = obj[key];

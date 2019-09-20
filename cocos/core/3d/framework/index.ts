@@ -28,7 +28,6 @@
  * @hidden
  */
 
-import { AvatarModelComponent, AvatarUnit } from './avatar-model-component';
 import { BatchedSkinningModelComponent, SkinningModelUnit } from './batched-skinning-model-component';
 import { CameraComponent } from './camera-component';
 import { DirectionalLightComponent } from './directional-light-component';
@@ -45,8 +44,6 @@ export {
     LightComponent,
     ModelComponent,
     SkinningModelComponent,
-    AvatarModelComponent,
-    AvatarUnit,
     BatchedSkinningModelComponent,
     SkinningModelUnit,
 
@@ -64,8 +61,6 @@ cc.RenderableComponent = RenderableComponent;
 cc.ModelComponent = ModelComponent;
 cc.SkinningModelComponent = SkinningModelComponent;
 
-cc.AvatarModelComponent = AvatarModelComponent;
-cc.AvatarUnit = AvatarUnit;
 cc.BatchedSkinningModelComponent = BatchedSkinningModelComponent;
 cc.SkinningModelUnit = SkinningModelUnit;
 

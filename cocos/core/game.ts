@@ -54,7 +54,7 @@ import { SplashImage } from './splash-image';
  * @en
  * Game configuration.
  */
-export interface GameConfig {
+export interface IGameConfig {
     /**
      * @zh
      * 设置 debug 模式，在浏览器中这个选项会被忽略。
@@ -279,7 +279,7 @@ export class Game extends EventTarget {
      * 当前的游戏配置。
      * 注意：请不要直接修改这个对象，它不会有任何效果。
      */
-    public config: GameConfig = {};
+    public config: IGameConfig = {};
 
     /**
      * @en Callback when the scripts of engine have been load.
@@ -700,7 +700,7 @@ export class Game extends EventTarget {
 
     //  @Game loading section
     // tslint:disable-next-line: max-line-length
-    private _initConfig (config: GameConfig) {
+    private _initConfig (config: IGameConfig) {
         // Configs adjustment
         if (typeof config.debugMode !== 'number') {
             config.debugMode = 0;
