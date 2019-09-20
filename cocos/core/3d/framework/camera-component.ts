@@ -35,9 +35,10 @@ import { GFXClearFlag } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
 import { Color, Rect, toRadian, Vec3 } from '../../math';
 import { Camera } from '../../renderer';
-import { CameraVisFlags, SKYBOX_FLAG } from '../../renderer/scene/camera';
-import { Scene } from '../../scene-graph';
+import { SKYBOX_FLAG } from '../../renderer/scene/camera';
+import { Layers, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
+import { CameraGeneralMask } from '../../pipeline/define';
 
 /**
  * @en
@@ -105,7 +106,7 @@ export class CameraComponent extends Component {
     @property
     protected _screenScale = 1;
     @property
-    protected _visibility = CameraVisFlags.GENERAL;
+    protected _visibility = CameraGeneralMask;
     @property
     protected _targetTexture: RenderTexture | null = null;
 
@@ -295,7 +296,9 @@ export class CameraComponent extends Component {
     /**
      * @zh 设置摄像机可见掩码，与Component中的visibility同时使用，用于过滤摄像机不需要渲染的物体
      */
-    @property({ visible: false })
+    @property({
+        type: Layers.BitMask,
+    })
     get visibility () {
         return this._visibility;
     }

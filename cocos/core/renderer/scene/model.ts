@@ -30,16 +30,6 @@ function getUniformBlockSize (block: GFXUniformBlock): number {
     return size;
 }
 
-export enum VisibilityFlags {
-    GENERAL = 0,
-    ALWALS = (1 << 29),   // without frustum culling
-    PROFILER = (1 << 28), // profiler used
-    GIZMOS = (1 << 21),
-    EDITOR = (1 << 22),
-    UI = (1 << 23),
-    UI2D = (1 << 25),
-}
-
 /**
  * A representation of a model
  */
@@ -164,7 +154,7 @@ export class Model {
     protected _transform: INode;
     protected _id: number;
     protected _enabled: boolean = false;
-    protected _visFlags = VisibilityFlags.GENERAL;
+    protected _visFlags = 0;
     protected _cameraID: number = -1;
     protected _userKey: number = -1;
     protected _worldBounds: aabb | null = null;

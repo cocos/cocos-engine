@@ -38,8 +38,8 @@ import { GFXTextureView } from '../../gfx/texture-view';
 import { Pool, RecyclePool } from '../../memop';
 import { CachedArray } from '../../memop/cached-array';
 import { UniformBinding } from '../../pipeline/define';
-import { Camera, CameraVisFlags } from '../../renderer/scene/camera';
-import { Model, VisibilityFlags } from '../../renderer/scene/model';
+import { Camera } from '../../renderer/scene/camera';
+import { Model } from '../../renderer/scene/model';
 import { RenderScene } from '../../renderer/scene/render-scene';
 import { Root } from '../../root';
 import { INode } from '../../utils/interfaces';
@@ -134,7 +134,7 @@ export class UI {
         });
         this._uiModelPool = new Pool(() => {
             const model = this._scene.createModel<UIBatchModel>(UIBatchModel, null!);
-            model.visFlags |= VisibilityFlags.UI;
+            model.visFlags |= Layers.Enum.UI_3D;
             return model;
         }, 2);
         this._modelInUse = new CachedArray<UIBatchModel>(10);
@@ -215,7 +215,7 @@ export class UI {
     public addScreen (comp: CanvasComponent) {
         this._screens.push(comp);
         if (comp.camera) {
-            comp.camera.view.visibility = CameraVisFlags.UI2D | this._screens.length;
+            comp.camera.view.visibility = Layers.BitMask.UI_2D | this._screens.length;
             this._canvasMaterials.set(comp.camera.view.visibility, new Map<number, number>());
         }
 

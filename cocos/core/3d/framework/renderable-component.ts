@@ -6,7 +6,7 @@
 import { Material } from '../../assets/material';
 import { Component } from '../../components/component';
 import { _decorator } from '../../data/index';
-import { Model, VisibilityFlags } from '../../renderer/scene/model';
+import { Model } from '../../renderer/scene/model';
 const { ccclass, property } = _decorator;
 
 @ccclass('cc.RenderableComponent')
@@ -15,7 +15,7 @@ export class RenderableComponent extends Component {
     protected _materials: Array<Material | null> = [];
 
     @property
-    protected _visFlags = VisibilityFlags.GENERAL;
+    protected _visFlags = 0;
 
     constructor () {
         super();
@@ -105,7 +105,7 @@ export class RenderableComponent extends Component {
         return this.getSharedMaterial(0);
     }
 
-    @property
+    @property({ visible: false })
     get visibility () {
         return this._visFlags;
     }

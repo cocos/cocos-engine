@@ -4,8 +4,9 @@
 
 import { Root } from '../root';
 import { GFXWindow } from '../gfx/window';
-import { Camera, CameraVisFlags } from '../renderer/scene/camera';
+import { Camera } from '../renderer/scene/camera';
 import { RenderFlow } from './render-flow';
+import { CameraGeneralMask } from './define';
 
 /**
  * @zh
@@ -140,7 +141,7 @@ export class RenderView {
      * @zh
      * 可见性。
      */
-    private _visibility: number = CameraVisFlags.GENERAL;
+    private _visibility: number = CameraGeneralMask;
 
     /**
      * @zh

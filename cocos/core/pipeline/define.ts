@@ -10,6 +10,7 @@ import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
 import { GFXTextureView } from '../gfx/texture-view';
 import { Model, Pass } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
+import { Layers } from '../scene-graph/layers';
 
 export const PIPELINE_FLOW_FORWARD: string = 'ForwardFlow';
 export const PIPELINE_FLOW_SMAA: string = 'SMAAFlow';
@@ -306,3 +307,10 @@ export interface IInternalBindingInst extends IInternalBindingDesc {
     sampler?: GFXSampler;
     textureView?: GFXTextureView;
 }
+
+export const CameraGeneralMask = Layers.makeExclusiveMask([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
+    Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
+
+export const CameraEditMask = Layers.makeExclusiveMask([Layers.BitMask.UI_2D, Layers.BitMask.PROFILER]);
+
+export const ModelAlwaysMask = 2147483647;
