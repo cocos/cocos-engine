@@ -48,6 +48,7 @@ import { StencilManager } from './stencil-manager';
 import { UIBatchModel } from './ui-batch-model';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
+import { Layers } from '../../scene-graph';
 
 export class UIDrawBatch {
     public camera: Camera | null = null;
