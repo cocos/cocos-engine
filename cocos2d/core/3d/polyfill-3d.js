@@ -189,7 +189,6 @@ cc.js.getset(proto, 'position', proto.getPosition, setPosition, false, true);
 cc.js.getset(proto, 'is3DNode', function () {
     return this._is3DNode;
 }, function (v) {
-    if (this._is3DNode === v) return;
     this._is3DNode = v;
     this._update3DFunction();
 });
