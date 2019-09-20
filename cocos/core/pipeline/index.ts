@@ -5,4 +5,4 @@
 import { RenderPassStage } from './define';
 import './render-view';
 
-cc.RenderPassStage = RenderPassStage;
+cc.RenderPassStage = RenderPassStage; export { RenderPassStage };
