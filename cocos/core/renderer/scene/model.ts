@@ -15,6 +15,7 @@ import { Pass } from '../core/pass';
 import { customizationManager } from './customization-manager';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
+import { Layers } from '../../scene-graph/layers';
 
 const m4_1 = new Mat4();
 
@@ -154,7 +155,7 @@ export class Model {
     protected _transform: INode;
     protected _id: number;
     protected _enabled: boolean = false;
-    protected _visFlags = 0;
+    protected _visFlags = Layers.Enum.NONE;
     protected _cameraID: number = -1;
     protected _userKey: number = -1;
     protected _worldBounds: aabb | null = null;

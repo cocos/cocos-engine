@@ -308,9 +308,9 @@ export interface IInternalBindingInst extends IInternalBindingDesc {
     textureView?: GFXTextureView;
 }
 
-export const CameraGeneralMask = Layers.makeExclusiveMask([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
+export const CameraDefaultMask = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
 
-export const CameraEditMask = Layers.makeExclusiveMask([Layers.BitMask.UI_2D, Layers.BitMask.PROFILER]);
+export const CameraEditorMask = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.PROFILER]);
 
-export const ModelAlwaysMask = 2147483647;
+export const ModelAlwaysMask = Layers.Enum.ALL;

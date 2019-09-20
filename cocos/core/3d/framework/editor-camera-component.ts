@@ -7,7 +7,7 @@ import { GFXClearFlag } from '../../gfx/define';
 import { toRadian } from '../../math';
 import { Camera } from '../../renderer';
 import { CameraComponent } from './camera-component';
-import { CameraEditMask } from '../../pipeline/define';
+import { CameraEditorMask } from '../../pipeline/define';
 
 @ccclass('cc.EditorCameraComponent')
 export class EditorCameraComponent extends CameraComponent {
@@ -143,7 +143,7 @@ export class EditorCameraComponent extends CameraComponent {
                 flows: ['UIFlow'],
             });
 
-            this._uiEditorCamera!.visibility = CameraEditMask;
+            this._uiEditorCamera!.visibility = CameraEditorMask;
             this._uiEditorCamera!.viewport = this._camera.viewport;
             this._uiEditorCamera!.fov = this._camera.fov;
             this._uiEditorCamera!.nearClip = this._camera.nearClip;

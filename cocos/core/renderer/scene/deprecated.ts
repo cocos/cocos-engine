@@ -1,6 +1,5 @@
 import { replaceProperty, removeProperty } from "../../utils";
 import { RenderScene } from "./render-scene";
-import { CameraGeneralMask } from "../../pipeline/define";
 import { Layers } from "../../scene-graph";
 
 replaceProperty(RenderScene.prototype, 'RenderScene.prototype', [

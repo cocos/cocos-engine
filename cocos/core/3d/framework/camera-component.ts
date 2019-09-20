@@ -38,7 +38,7 @@ import { Camera } from '../../renderer';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Layers, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
-import { CameraGeneralMask } from '../../pipeline/define';
+import { CameraDefaultMask } from '../../pipeline/define';
 
 /**
  * @en
@@ -106,7 +106,7 @@ export class CameraComponent extends Component {
     @property
     protected _screenScale = 1;
     @property
-    protected _visibility = CameraGeneralMask;
+    protected _visibility = CameraDefaultMask;
     @property
     protected _targetTexture: RenderTexture | null = null;
 

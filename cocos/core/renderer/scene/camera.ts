@@ -5,7 +5,7 @@ import { lerp, Mat4, Rect, toRadian, Vec3 } from '../../math';
 import { RenderView } from '../../pipeline/render-view';
 import { INode } from '../../utils/interfaces';
 import { RenderScene } from './render-scene';
-import { CameraGeneralMask } from '../../pipeline/define';
+import { CameraDefaultMask } from '../../pipeline/define';
 
 export enum CameraProjection {
     ORTHO,
@@ -115,7 +115,7 @@ export class Camera {
     private _position: Vec3 = new Vec3();
     private _node: INode | null = null;
     private _view: RenderView;
-    private _visibility = CameraGeneralMask;
+    private _visibility = CameraDefaultMask;
     private _priority: number = 0;
     private _aperture: CameraAperture = CameraAperture.F16_0;
     private _apertureValue: number;
