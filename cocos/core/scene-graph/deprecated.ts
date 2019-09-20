@@ -93,4 +93,16 @@ replaceProperty(Layers, 'Layers', [
         target: Layers.Enum,
         targetName: 'Layers.Enum',
     },
+    {
+        name: 'makeInclusiveMask',
+        newName: 'makeMaskInclude',
+        target: Layers,
+        targetName: 'Layers',
+    },
+    {
+        name: 'makeExclusiveMask',
+        newName: 'makeMaskExclude',
+        target: Layers,
+        targetName: 'Layers',
+    },
 ]);
