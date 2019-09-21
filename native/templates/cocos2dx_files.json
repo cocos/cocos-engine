@@ -142,6 +142,8 @@
         "cocos/base/csscolorparser.hpp", 
         "cocos/base/etc1.cpp", 
         "cocos/base/etc1.h", 
+        "cocos/base/etc2.cpp", 
+        "cocos/base/etc2.h", 
         "cocos/base/pvr.cpp", 
         "cocos/base/pvr.h", 
         "cocos/base/uthash.h", 
