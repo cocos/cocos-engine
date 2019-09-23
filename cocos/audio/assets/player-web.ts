@@ -137,7 +137,7 @@ export class AudioPlayerWeb extends AudioPlayer {
     }
 
     public setCurrentTime (val: number) {
-        // throws InvalidState Error on mobile if we don't do the clamp here
+        // throws InvalidState Error on some device if we don't do the clamp here
         this._offset = clamp(val, 0, this._duration);
         if (this._state !== PlayingState.PLAYING) { return; }
         this._sourceNode.stop(); this._do_play();

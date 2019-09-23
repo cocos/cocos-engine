@@ -47,9 +47,10 @@ export class WebGL2GFXTextureView extends GFXTextureView {
             levelCount: info.levelCount ? info.levelCount : 1,
         };
 
-        const maxSize = this._type === GFXTextureViewType.CUBE ? this._device.maxCubeMapTextureSize : this._device.maxTextureSize;
-        if (this._texture.width > maxSize || this._texture.height > maxSize) {
-            console.warn(`texture size exceeds current device limits ${Math.max(this._texture.width, this._texture.height)}/${maxSize}`);
+        const maxSizeLimit = this._type === GFXTextureViewType.CUBE ? this._device.maxCubeMapTextureSize : this._device.maxTextureSize;
+        const maxSize = Math.max(this._texture.width, this._texture.height);
+        if (maxSize > maxSizeLimit) {
+            console.warn(`texture size exceeds current device limits ${maxSize}/${maxSizeLimit}`);
         }
 
         this._status = GFXStatus.SUCCESS;
