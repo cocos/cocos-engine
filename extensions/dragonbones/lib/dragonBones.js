@@ -4730,14 +4730,27 @@ var dragonBones;
                 if (origin !== null) {
                     // global.copyFrom(this.origin).add(this.offset).add(this.animationPose);
                     global.x = origin.x + offset.x + animationPose.x;
-                    global.y = origin.y + offset.y + animationPose.y;
-                    global.skew = origin.skew + offset.skew + animationPose.skew;
-                    global.rotation = origin.rotation + offset.rotation + animationPose.rotation;
                     global.scaleX = origin.scaleX * offset.scaleX * animationPose.scaleX;
                     global.scaleY = origin.scaleY * offset.scaleY * animationPose.scaleY;
+                    if (dragonBones.DragonBones.yDown) {
+                        global.y = origin.y + offset.y + animationPose.y;
+                        global.skew = origin.skew + offset.skew + animationPose.skew;
+                        global.rotation = origin.rotation + offset.rotation + animationPose.rotation;
+                    }
+                    else {
+                        global.y = origin.y - offset.y + animationPose.y;
+                        global.skew = origin.skew - offset.skew + animationPose.skew;
+                        global.rotation = origin.rotation - offset.rotation + animationPose.rotation;
+                    }
                 }
                 else {
-                    global.copyFrom(offset).add(animationPose);
+                    global.copyFrom(offset);
+                    if (!dragonBones.DragonBones.yDown) {
+                        global.y = -global.y;
+                        global.skew = -global.skew;
+                        global.rotation = -global.rotation;
+                    }
+                    global.add(animationPose);
                 }
             }
             else if (this.offsetMode === 0 /* None */) {
@@ -4751,6 +4764,11 @@ var dragonBones;
             else {
                 inherit = false;
                 global.copyFrom(offset);
+                if (!dragonBones.DragonBones.yDown) {
+                    global.y = -global.y;
+                    global.skew = -global.skew;
+                    global.rotation = -global.rotation;
+                }
             }
             if (inherit) {
                 var parentMatrix = parent._boneData.type === 0 /* Bone */ ? parent.globalTransformMatrix : parent._getGlobalTransformMatrix(global.x, global.y);
@@ -4815,6 +4833,9 @@ var dragonBones;
                             rotation -= global.rotation * 2.0;
                             if (flipX !== flipY || boneData.inheritReflection) {
                                 global.skew += Math.PI;
+                            }
+                            if (!dragonBones.DragonBones.yDown) {
+                                global.skew = -global.skew;
                             }
                         }
                         global.rotation = rotation;

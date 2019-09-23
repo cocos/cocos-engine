@@ -27,13 +27,10 @@ import Assembler from '../../cocos2d/core/renderer/assembler';
 
 const Armature = require('./ArmatureDisplay');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
-const Material = require('../../cocos2d/core/assets/material/CCMaterial');
 const gfx = cc.gfx;
 const mat4 = cc.vmath.mat4;
-const NEED_NONE = 0x00;
 const NEED_COLOR = 0x01;
 const NEED_BATCH = 0x10;
-const NEED_COLOR_BATCH = 0x11;
 
 let _boneColor = cc.color(255, 0, 0, 255);
 let _slotColor = cc.color(0, 0, 255, 255);
@@ -218,7 +215,6 @@ export default class ArmatureAssembler extends Assembler {
         let offsetInfo;
         let vertices = frame.vertices;
         let indices = frame.indices;
-        let uintVert = frame.uintVert;
         
         let frameVFOffset = 0, frameIndexOffset = 0, segVFCount = 0;
         if (parentMat) {
@@ -232,7 +228,7 @@ export default class ArmatureAssembler extends Assembler {
         }
 
         let justTranslate = _m00 === 1 && _m01 === 0 && _m04 === 0 && _m05 === 1;
-        let needBatch = _handleVal == NEED_BATCH || _handleVal == NEED_COLOR_BATCH;
+        let needBatch = (_handleVal & NEED_BATCH);
         let calcTranslate = needBatch && justTranslate;
 
         let colorOffset = 0;
@@ -288,7 +284,7 @@ export default class ArmatureAssembler extends Assembler {
 
             // handle color
             let frameColorOffset = frameVFOffset - segVFCount;
-            for (let ii = _vfOffset + 4, il = _vfOffset + 4 + segVFCount; ii < il; ii+=5, frameColorOffset += 5) {
+            for (let ii = _vfOffset + 4, il = _vfOffset + 4 + segVFCount; ii < il; ii += 5, frameColorOffset += 5) {
                 if (frameColorOffset >= maxVFOffset) {
                     nowColor = colors[colorOffset++];
                     _handleColor(nowColor, 1.0);
@@ -302,6 +298,9 @@ export default class ArmatureAssembler extends Assembler {
     fillBuffers (comp, renderer) {
         comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
         
+        let armature = comp._armature;
+        if (!armature) return;
+
         // Init temp var.
         _mustFlush = true;
         _premultipliedAlpha = comp.premultipliedAlpha;
@@ -332,9 +331,6 @@ export default class ArmatureAssembler extends Assembler {
             this.cacheTraverse(comp._curFrame, worldMat);
         } else {
             // Traverse all armature.
-            let armature = comp._armature;
-            if (!armature) return;
-
             this.realTimeTraverse(armature, worldMat, 1.0);
 
             let graphics = comp._debugDraw;
