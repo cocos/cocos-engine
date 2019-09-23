@@ -19,6 +19,7 @@
         "./cocos/core/gfx/webgl/WebGL",
         "./cocos/core/gfx/webgl2/WebGL2",
         "./node_modules/tween.js/TWEEN",
+        "./node_modules/cannon/index",
         "./node_modules/@types/jest/index"
       ]
     },

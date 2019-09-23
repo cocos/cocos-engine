@@ -132,3 +132,5 @@ export class CannonWorld implements PhysicsWorldBase {
         this._customAfterStepListener.forEach((fx) => fx());
     }
 }
+
+window.CANNON = CANNON;
