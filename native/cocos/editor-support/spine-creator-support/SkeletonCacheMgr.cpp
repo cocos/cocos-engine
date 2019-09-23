@@ -27,50 +27,25 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#pragma once
-
-#include "spine/spine.h"
-#include "spine-creator-support/SkeletonRenderer.h"
-#include "spine-creator-support/SkeletonAnimation.h"
-#include "spine-creator-support/SkeletonDataMgr.h"
-#include "spine-creator-support/SkeletonCacheMgr.h"
-#include "spine-creator-support/SkeletonCacheAnimation.h"
-#include "middleware-adapter.h"
+#include "SkeletonCacheMgr.h"
 
 namespace spine {
-    typedef cocos2d::middleware::Texture2D* (*CustomTextureLoader)(const char* path);
-    // set custom texture loader for _spAtlasPage_createTexture
-    void spAtlasPage_setCustomTextureLoader(CustomTextureLoader texLoader);
-
-    class Cocos2dAtlasAttachmentLoader: public AtlasAttachmentLoader {
-    public:
-        Cocos2dAtlasAttachmentLoader(Atlas* atlas);
-        virtual ~Cocos2dAtlasAttachmentLoader();
-        virtual void configureAttachment(Attachment* attachment);
-    };
+    SkeletonCacheMgr* SkeletonCacheMgr::_instance = nullptr;
+    SkeletonCache* SkeletonCacheMgr::buildSkeletonCache(const std::string& uuid) {
+        SkeletonCache* animation = _caches.at(uuid);
+        if (!animation) {
+            animation = new SkeletonCache();
+            animation->initWithUUID(uuid);
+            _caches.insert(uuid, animation);
+            animation->autorelease();
+        }
+        return animation;
+    }
     
-    class Cocos2dTextureLoader: public TextureLoader {
-    public:
-        Cocos2dTextureLoader();
-        
-        virtual ~Cocos2dTextureLoader();
-        
-        virtual void load(AtlasPage& page, const String& path);
-        
-        virtual void unload(void* texture);
-    };
-    
-    class Cocos2dExtension: public DefaultSpineExtension {
-    public:
-        Cocos2dExtension();
-        
-        virtual ~Cocos2dExtension();
-        
-        virtual void _free(void *mem, const char *file, int line);
-    protected:
-        virtual char *_readFile(const String &path, int *length);
-    };
-    
-    typedef void (*SpineObjectDisposeCallback)(void*);
-    void setSpineObjectDisposeCallback(SpineObjectDisposeCallback callback);
+    void SkeletonCacheMgr::removeSkeletonCache (const std::string& uuid) {
+        auto it = _caches.find(uuid);
+        if (it != _caches.end()) {
+            _caches.erase(it);
+        }
+    }
 }

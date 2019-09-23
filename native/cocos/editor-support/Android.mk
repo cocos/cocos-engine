@@ -92,6 +92,9 @@ spine-creator-support/SkeletonDataMgr.cpp \
 spine-creator-support/SkeletonRenderer.cpp \
 spine-creator-support/spine-cocos2dx.cpp \
 spine-creator-support/VertexEffectDelegate.cpp \
+spine-creator-support/SkeletonCacheMgr.cpp \
+spine-creator-support/SkeletonCache.cpp \
+spine-creator-support/SkeletonCacheAnimation.cpp \
 ../scripting/js-bindings/manual/jsb_spine_manual.cpp \
 ../scripting/js-bindings/auto/jsb_cocos2dx_spine_auto.cpp
 endif # USE_SPINE
@@ -133,6 +136,9 @@ dragonbones-creator-support/CCArmatureDisplay.cpp \
 dragonbones-creator-support/CCFactory.cpp \
 dragonbones-creator-support/CCSlot.cpp \
 dragonbones-creator-support/CCTextureAtlasData.cpp \
+dragonbones-creator-support/ArmatureCache.cpp \
+dragonbones-creator-support/ArmatureCacheMgr.cpp \
+dragonbones-creator-support/CCArmatureCacheDisplay.cpp \
 ../scripting/js-bindings/manual/jsb_dragonbones_manual.cpp \
 ../scripting/js-bindings/auto/jsb_cocos2dx_dragonbones_auto.cpp
 endif # USE_DRAGONBONES

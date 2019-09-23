@@ -134,8 +134,8 @@ namespace spine {
         void setOpacityModifyRGB (bool value);
         bool isOpacityModifyRGB () const;
         
-        void beginSchedule();
-        void stopSchedule();
+        virtual void beginSchedule();
+        virtual void stopSchedule();
         void onEnable();
         void onDisable();
         
@@ -157,7 +157,6 @@ namespace spine {
         void initWithBinaryFile (const std::string& skeletonDataFile, const std::string& atlasFile, float scale = 1);
 
         virtual void initialize ();
-        
     protected:
         void setSkeletonData (SkeletonData* skeletonData, bool ownsSkeletonData);
         

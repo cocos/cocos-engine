@@ -41,15 +41,30 @@ void Bone::_updateGlobalTransformMatrix(bool isCache)
             // global = *origin; // Copy.
             // global.add(offset).add(animationPose);
             global.x = origin->x + offset.x + animationPose.x;
-            global.y = origin->y + offset.y + animationPose.y;
-            global.skew = origin->skew + offset.skew + animationPose.skew;
-            global.rotation = origin->rotation + offset.rotation + animationPose.rotation;
             global.scaleX = origin->scaleX * offset.scaleX * animationPose.scaleX;
             global.scaleY = origin->scaleY * offset.scaleY * animationPose.scaleY;
+            if (DragonBones::yDown)
+            {
+                global.y = origin->y + offset.y + animationPose.y;
+                global.skew = origin->skew + offset.skew + animationPose.skew;
+                global.rotation = origin->rotation + offset.rotation + animationPose.rotation;
+            }
+            else
+            {
+                global.y = origin->y - offset.y + animationPose.y;
+                global.skew = origin->skew - offset.skew + animationPose.skew;
+                global.rotation = origin->rotation - offset.rotation + animationPose.rotation;
+            }
         }
         else 
         {
             global = offset; // Copy.
+            if (!DragonBones::yDown)
+            {
+                global.y = -global.y;
+                global.skew = -global.skew;
+                global.rotation = -global.rotation;
+            }
             global.add(animationPose);
         }
     }
@@ -69,6 +84,12 @@ void Bone::_updateGlobalTransformMatrix(bool isCache)
     {
         inherit = false;
         global = offset;
+        if (!DragonBones::yDown)
+        {
+            global.y = -global.y;
+            global.skew = -global.skew;
+            global.rotation = -global.rotation;
+        }
     }
 
     if (inherit) 
@@ -165,6 +186,11 @@ void Bone::_updateGlobalTransformMatrix(bool isCache)
                     if (flipX != flipY || _boneData->inheritReflection) 
                     {
                         global.skew += Transform::PI;
+                    }
+                    
+                    if (!DragonBones::yDown)
+                    {
+                        global.skew = -global.skew;
                     }
                 }
 

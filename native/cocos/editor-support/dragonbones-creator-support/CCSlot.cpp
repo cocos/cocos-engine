@@ -103,7 +103,7 @@ void CCSlot::_onUpdateDisplay()
 
 void CCSlot::_addDisplay()
 {
-    
+    _visible = true;
 }
 
 void CCSlot::_replaceDisplay(void* value, bool isArmatureDisplay)
@@ -113,12 +113,17 @@ void CCSlot::_replaceDisplay(void* value, bool isArmatureDisplay)
 
 void CCSlot::_removeDisplay()
 {
-    
+    _visible = false;
 }
 
 void CCSlot::_updateZOrder()
 {
     
+}
+
+void CCSlot::_updateVisible()
+{
+    _visible = _parent->getVisible();
 }
 
 middleware::Texture2D* CCSlot::getTexture() const
@@ -496,11 +501,6 @@ void CCSlot::_identityTransform()
     _localMatrix.m[13] = 0.0f;
     
     _worldMatDirty = true;
-}
-
-void CCSlot::_updateVisible()
-{
-    
 }
 
 void CCSlot::_updateBlendMode()

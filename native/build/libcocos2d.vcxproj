@@ -41,6 +41,9 @@
     <ClCompile Include="..\cocos\base\TGAlib.cpp" />
     <ClCompile Include="..\cocos\base\ZipUtils.cpp" />
     <ClCompile Include="..\cocos\cocos2d.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\ArmatureCache.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\ArmatureCacheMgr.cpp" />
+    <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\CCArmatureCacheDisplay.cpp" />
     <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\CCArmatureDisplay.cpp" />
     <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\CCFactory.cpp" />
     <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\CCSlot.cpp" />
@@ -84,6 +87,9 @@
     <ClCompile Include="..\cocos\editor-support\particle\ParticleSimulator.cpp" />
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\AttachmentVertices.cpp" />
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\SkeletonAnimation.cpp" />
+    <ClCompile Include="..\cocos\editor-support\spine-creator-support\SkeletonCache.cpp" />
+    <ClCompile Include="..\cocos\editor-support\spine-creator-support\SkeletonCacheAnimation.cpp" />
+    <ClCompile Include="..\cocos\editor-support\spine-creator-support\SkeletonCacheMgr.cpp" />
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\SkeletonDataMgr.cpp" />
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\SkeletonRenderer.cpp" />
     <ClCompile Include="..\cocos\editor-support\spine-creator-support\spine-cocos2dx.cpp" />
@@ -325,6 +331,9 @@
     <ClInclude Include="..\cocos\base\utlist.h" />
     <ClInclude Include="..\cocos\base\ZipUtils.h" />
     <ClInclude Include="..\cocos\cocos2d.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\ArmatureCache.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\ArmatureCacheMgr.h" />
+    <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCArmatureCacheDisplay.h" />
     <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCArmatureDisplay.h" />
     <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCDragonBonesHeaders.h" />
     <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCFactory.h" />
@@ -377,6 +386,9 @@
     <ClInclude Include="..\cocos\editor-support\particle\ParticleSimulator.h" />
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\AttachmentVertices.h" />
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\SkeletonAnimation.h" />
+    <ClInclude Include="..\cocos\editor-support\spine-creator-support\SkeletonCache.h" />
+    <ClInclude Include="..\cocos\editor-support\spine-creator-support\SkeletonCacheAnimation.h" />
+    <ClInclude Include="..\cocos\editor-support\spine-creator-support\SkeletonCacheMgr.h" />
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\SkeletonDataMgr.h" />
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\SkeletonRenderer.h" />
     <ClInclude Include="..\cocos\editor-support\spine-creator-support\spine-cocos2dx.h" />

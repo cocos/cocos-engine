@@ -249,12 +249,6 @@ void RenderFlow::calculateLevelWorldMatrix(int tid, int stage)
                 *dirty &= ~OPACITY;
             }
         }
-
-//        if (!(*dirty & PRE_CALCULATE_VERTICES)) continue;
-//        AssemblerSprite* assemblerSprite = (AssemblerSprite*)info.node->getAssembler();
-//        if (!(*dirty & WORLD_TRANSFORM_CHANGED) && !assemblerSprite->isDirty(AssemblerBase::VERTICES_DIRTY)) continue;
-//        assemblerSprite->generateWorldVertices();
-//        assemblerSprite->calculateWorldVertices(*info.worldMat);
     }
 }
 

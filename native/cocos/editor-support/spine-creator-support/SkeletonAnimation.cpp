@@ -66,9 +66,9 @@ static _TrackEntryListeners* getListeners (TrackEntry* entry) {
     return (_TrackEntryListeners*)entry->getRendererObject();
 }
 
-static float globalTimeScale = 1.0f;
+float SkeletonAnimation::GlobalTimeScale = 1.0f;
 void SkeletonAnimation::setGlobalTimeScale(float timeScale) {
-    globalTimeScale = timeScale;
+    GlobalTimeScale = timeScale;
 }
 
 SkeletonAnimation* SkeletonAnimation::create() {
@@ -143,7 +143,7 @@ SkeletonAnimation::~SkeletonAnimation () {
 void SkeletonAnimation::update (float deltaTime) {
 	if (!_skeleton) return;
     if (!_paused) {
-        deltaTime *= _timeScale * globalTimeScale;
+        deltaTime *= _timeScale * GlobalTimeScale;
         if (_ownsSkeleton) _skeleton->update(deltaTime);
         _state->update(deltaTime);
         _state->apply(*_skeleton);

@@ -109,7 +109,7 @@ private:
     void _clearRemoveList();
 private:
 
-    std::map<IMiddleware*, bool> _updateMap;
+    std::vector<IMiddleware*> _updateList;
     std::vector<IMiddleware*> _removeList;
     std::map<int, MeshBuffer*> _mbMap;
     

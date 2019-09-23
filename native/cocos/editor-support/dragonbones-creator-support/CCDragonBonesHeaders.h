@@ -27,5 +27,7 @@
 #include "dragonbones-creator-support/CCArmatureDisplay.h"
 #include "dragonbones-creator-support/CCSlot.h"
 #include "dragonbones-creator-support/CCFactory.h"
+#include "dragonbones-creator-support/ArmatureCacheMgr.h"
+#include "dragonbones-creator-support/CCArmatureCacheDisplay.h"
 
 #endif // DRAGONBONES_CC_HEADERS_H

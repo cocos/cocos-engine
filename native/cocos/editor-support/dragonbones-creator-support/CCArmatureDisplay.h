@@ -101,6 +101,13 @@ public:
      * @inheritDoc
      */
     virtual void removeDBEventListener(const std::string& type, const std::function<void(EventObject*)>& listener) override;
+
+	typedef std::function<void(EventObject*)> dbEventCallback;
+	void setDBEventCallback(dbEventCallback callback)
+	{
+		_dbEventCallback = callback;
+	}
+
     /**
      * @inheritDoc
      */
@@ -167,12 +174,6 @@ public:
         _premultipliedAlpha = value;
     }
     
-    typedef std::function<void(EventObject*)> dbEventCallback;
-    void setDBEventCallback(dbEventCallback callback)
-    {
-        _dbEventCallback = callback;
-    }
-    
     /**
      * @brief Convert component position to global position.
      * @param[in] pos Component position
@@ -184,15 +185,14 @@ public:
      * @return root display,if this diplay is root,then return itself.
      */
     CCArmatureDisplay* getRootDisplay();
-    
 private:
     std::map<std::string,bool> _listenerIDMap;
     cocos2d::middleware::IOTypedArray* _debugBuffer = nullptr;
     cocos2d::Color4F _nodeColor = cocos2d::Color4F::WHITE;
     
     int _preBlendMode = -1;
-    int _preTextureIndex = -1;
-    int _curTextureIndex = -1;
+    GLuint _preTextureIndex = -1;
+    GLuint _curTextureIndex = -1;
     cocos2d::renderer::BlendFactor _curBlendSrc;
     cocos2d::renderer::BlendFactor _curBlendDst;
     

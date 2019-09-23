@@ -25,6 +25,7 @@
 #include "MiddlewareMacro.h"
 #include "renderer/renderer/Pass.h"
 #include "renderer/renderer/Technique.h"
+#include "renderer/gfx/Texture.h"
 
 USING_NS_CC;
 USING_NS_MW;
@@ -32,7 +33,6 @@ using namespace cocos2d::renderer;
 
 static const std::string techStage = "opaque";
 static const std::string textureKey = "texture";
-static const uint8_t moduleID = MiddlewareManager::generateModuleID();
 
 DRAGONBONES_NAMESPACE_BEGIN
 
@@ -93,12 +93,6 @@ void CCArmatureDisplay::dbUpdate() {}
 
 void CCArmatureDisplay::dbRender()
 {
-    if (this->_armature->getParent())
-        return;
-    
-    auto mgr = MiddlewareManager::getInstance();
-    if (!mgr->isRendering) return;
-	
     if (_nodeProxy == nullptr)
     {
         return;
@@ -111,6 +105,12 @@ void CCArmatureDisplay::dbRender()
     }
     _assembler->reset();
     _assembler->setUseModel(!_batch);
+    
+    if (this->_armature->getParent())
+        return;
+    
+    auto mgr = MiddlewareManager::getInstance();
+    if (!mgr->isRendering) return;
     
     _preBlendMode = -1;
     _preTextureIndex = -1;
@@ -141,7 +141,7 @@ void CCArmatureDisplay::dbRender()
         auto& bones = _armature->getBones();
         std::size_t count = bones.size();
         
-       _debugBuffer->writeFloat32(count*4);
+       _debugBuffer->writeFloat32(count * 4);
         for (int i = 0; i < count; i++)
         {
             Bone* bone = (Bone*)bones[i];
@@ -216,6 +216,7 @@ void CCArmatureDisplay::traverseArmature(Armature* armature, float parentOpacity
     IOBuffer& ib = mb->getIB();
 	float realOpacity = _nodeProxy->getRealOpacity() / 255.0f;
     
+	// range [0.0, 255.0]
 	float r, g, b, a;
     CCSlot* slot = nullptr;
 	middleware::Texture2D* texture = nullptr;
@@ -250,7 +251,7 @@ void CCArmatureDisplay::traverseArmature(Armature* armature, float parentOpacity
                 break;
         }
         
-        double curHash = _curTextureIndex + (moduleID << 16) + ((uint8_t)slot->_blendMode << 24);
+        double curHash = _curTextureIndex + ((uint8_t)slot->_blendMode << 16) + ((uint8_t)_batch << 24);
         
         Effect* renderEffect = _assembler->getEffect(_materialLen);
         Technique::Parameter* param = nullptr;
@@ -337,7 +338,7 @@ void CCArmatureDisplay::traverseArmature(Armature* armature, float parentOpacity
         
         texture = slot->getTexture();
         if (!texture) continue;
-        _curTextureIndex = texture->getRealTextureIndex();
+        _curTextureIndex = texture->getNativeTexture()->getHandle();
         
         auto vbSize = slot->triangles.vertCount * sizeof(middleware::V2F_T2F_C4B);
         isFull |= vb.checkSpace(vbSize, true);
@@ -415,12 +416,12 @@ void CCArmatureDisplay::addDBEventListener(const std::string& type, const std::f
 
 void CCArmatureDisplay::dispatchDBEvent(const std::string& type, EventObject* value)
 {
-    auto it = _listenerIDMap.find(type);
-    if (it == _listenerIDMap.end())
-    {
-        return;
-    }
-    
+	auto it = _listenerIDMap.find(type);
+	if (it == _listenerIDMap.end())
+	{
+		return;
+	}
+
     if (_dbEventCallback)
     {
         _dbEventCallback(value);

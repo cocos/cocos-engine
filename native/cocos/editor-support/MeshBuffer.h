@@ -34,7 +34,7 @@ class MeshBuffer
 {
 public:
     MeshBuffer(int vertexFormat);
-    ~MeshBuffer();
+    virtual ~MeshBuffer();
 
     inline cocos2d::renderer::VertexBuffer* getGLVB()
     {

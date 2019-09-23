@@ -99,7 +99,9 @@ CC_CONSTRUCTOR_ACCESS:
     SkeletonAnimation ();
     virtual ~SkeletonAnimation ();
     virtual void initialize () override;
-
+    
+public:
+    static float GlobalTimeScale;
 protected:
     AnimationState*       _state = nullptr;
     bool                    _ownsAnimationStateData = false;

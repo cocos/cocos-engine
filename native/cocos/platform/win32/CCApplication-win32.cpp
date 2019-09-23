@@ -210,6 +210,7 @@ void Application::start()
                     _renderTexture->draw();
 
                 CAST_VIEW(_view)->swapBuffers();
+                PoolManager::getInstance()->getCurrentPool()->clear();
             }
             else
             {

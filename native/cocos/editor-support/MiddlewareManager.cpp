@@ -24,6 +24,7 @@
 #include "MiddlewareManager.h"
 #include "base/CCGLUtils.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
+#include <algorithm>
 
 MIDDLEWARE_BEGIN
     
@@ -63,10 +64,10 @@ void MiddlewareManager::_clearRemoveList()
     for (std::size_t i = 0; i < _removeList.size(); i++)
     {
         auto editor = _removeList[i];
-        auto it = _updateMap.find(editor);
-        if (it != _updateMap.end())
+        auto it = std::find(_updateList.begin(), _updateList.end(), editor);
+        if (it != _updateList.end())
         {
-            _updateMap.erase(it);
+            _updateList.erase(it);
         }
     }
     
@@ -77,9 +78,9 @@ void MiddlewareManager::update(float dt)
 {
     isUpdating = true;
     
-    for (auto it = _updateMap.begin(); it != _updateMap.end(); it++)
+    for (auto it = _updateList.begin(); it != _updateList.end(); it++)
     {
-        auto editor = it->first;
+        auto editor = *it;
         if (_removeList.size() > 0)
         {
             auto removeIt = std::find(_removeList.begin(), _removeList.end(), editor);
@@ -112,9 +113,9 @@ void MiddlewareManager::render(float dt)
     
     isRendering = true;
     
-    for (auto it = _updateMap.begin(); it != _updateMap.end(); it++)
+    for (auto it = _updateList.begin(); it != _updateList.end(); it++)
     {
-        auto editor = it->first;
+        auto editor = *it;
         if (_removeList.size() > 0)
         {
             auto removeIt = std::find(_removeList.begin(), _removeList.end(), editor);
@@ -146,12 +147,17 @@ void MiddlewareManager::render(float dt)
 
 void MiddlewareManager::addTimer(IMiddleware* editor)
 {
-    auto it = std::find(_removeList.begin(), _removeList.end(), editor);
-    if (it != _removeList.end())
-    {
-        _removeList.erase(it);
+    auto it0 = std::find(_updateList.begin(), _updateList.end(), editor);
+    if (it0 != _updateList.end()) {
+        return;
     }
-    _updateMap[editor] = true;
+    
+    auto it1 = std::find(_removeList.begin(), _removeList.end(), editor);
+    if (it1 != _removeList.end())
+    {
+        _removeList.erase(it1);
+    }
+    _updateList.push_back(editor);
 }
 
 void MiddlewareManager::removeTimer(IMiddleware* editor)
@@ -162,10 +168,10 @@ void MiddlewareManager::removeTimer(IMiddleware* editor)
     }
     else
     {
-        auto it = _updateMap.find(editor);
-        if (it != _updateMap.end())
+        auto it = std::find(_updateList.begin(), _updateList.end(), editor);
+        if (it != _updateList.end())
         {
-            _updateMap.erase(it);
+            _updateList.erase(it);
         }
     }
 }

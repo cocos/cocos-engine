@@ -37,6 +37,7 @@
 #include "renderer/renderer/Technique.h"
 #include "renderer/scene/assembler/CustomAssembler.hpp"
 #include "SkeletonDataMgr.h"
+#include "renderer/gfx/Texture.h"
 
 USING_NS_CC;
 USING_NS_MW;
@@ -49,7 +50,6 @@ using namespace cocos2d::renderer;
 
 static const std::string techStage = "opaque";
 static const std::string textureKey = "texture";
-static const uint8_t moduleID = MiddlewareManager::generateModuleID();
 
 static Cocos2dTextureLoader textureLoader;
 
@@ -257,10 +257,6 @@ void SkeletonRenderer::initWithBinaryFile (const std::string& skeletonDataFile, 
 }
 
 void SkeletonRenderer::render (float deltaTime) {
-    if (!_skeleton) return;
-    // avoid other place call update.
-    auto mgr = MiddlewareManager::getInstance();
-    if (!mgr->isRendering) return;
     
     if (_nodeProxy == nullptr) {
         return;
@@ -273,6 +269,11 @@ void SkeletonRenderer::render (float deltaTime) {
     assembler->reset();
     assembler->setUseModel(!_batch);
     
+    if (!_skeleton) return;
+    // avoid other place call update.
+    auto mgr = MiddlewareManager::getInstance();
+    if (!mgr->isRendering) return;
+    
     _nodeColor.a = _nodeProxy->getRealOpacity() / (float)255;
     
 	// If opacity is 0,then return.
@@ -280,6 +281,7 @@ void SkeletonRenderer::render (float deltaTime) {
         return;
     }
 	
+	// color range is [0.0, 1.0]
     Color4F color;
     Color4F darkColor;
     AttachmentVertices* attachmentVertices = nullptr;
@@ -306,8 +308,8 @@ void SkeletonRenderer::render (float deltaTime) {
     BlendFactor curBlendDst = BlendFactor::ZERO;
     int curBlendMode = -1;
     int preBlendMode = -1;
-    int preTextureIndex = -1;
-    int curTextureIndex = -1;
+    GLuint preTextureIndex = -1;
+    GLuint curTextureIndex = -1;
     
 	int preISegWritePos = -1;
     int curISegLen = 0;
@@ -352,7 +354,7 @@ void SkeletonRenderer::render (float deltaTime) {
                 curBlendDst = BlendFactor::ONE_MINUS_SRC_ALPHA;
         }
         
-		double curHash = curTextureIndex + (moduleID << 16) + (curBlendMode << 24) + ((int)_useTint << 25) + ((int)_batch << 27);
+		double curHash = curTextureIndex + (curBlendMode << 16) + ((int)_useTint << 24) + ((int)_batch << 25);
         Effect* renderEffect = assembler->getEffect(materialLen);
         Technique::Parameter* param = nullptr;
         Pass* pass = nullptr;
@@ -812,7 +814,7 @@ void SkeletonRenderer::render (float deltaTime) {
         }
         
         texture = attachmentVertices->_texture;
-        curTextureIndex = attachmentVertices->_texture->getRealTextureIndex();
+        curTextureIndex = attachmentVertices->_texture->getNativeTexture()->getHandle();
         // If texture or blendMode change,will change material.
         if (preTextureIndex != curTextureIndex || preBlendMode != slot->getData().getBlendMode() || isFull) {
             flush();

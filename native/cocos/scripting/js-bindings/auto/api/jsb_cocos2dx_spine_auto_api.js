@@ -6786,3 +6786,360 @@ SkeletonDataMgr : function (
 },
 
 };
+
+/**
+ * @class SkeletonCacheMgr
+ */
+spine.SkeletonCacheMgr = {
+
+/**
+ * @method removeSkeletonCache
+ * @param {String} arg0
+ */
+removeSkeletonCache : function (
+str 
+)
+{
+},
+
+/**
+ * @method buildSkeletonCache
+ * @param {String} arg0
+ * @return {sp.SkeletonCache}
+ */
+buildSkeletonCache : function (
+str 
+)
+{
+    return sp.SkeletonCache;
+},
+
+/**
+ * @method destroyInstance
+ */
+destroyInstance : function (
+)
+{
+},
+
+/**
+ * @method getInstance
+ * @return {sp.SkeletonCacheMgr}
+ */
+getInstance : function (
+)
+{
+    return sp.SkeletonCacheMgr;
+},
+
+};
+
+/**
+ * @class SkeletonCacheAnimation
+ */
+spine.SkeletonCacheAnimation = {
+
+/**
+ * @method setTimeScale
+ * @param {float} arg0
+ */
+setTimeScale : function (
+float 
+)
+{
+},
+
+/**
+ * @method findAnimation
+ * @param {String} arg0
+ * @return {sp.Animation}
+ */
+findAnimation : function (
+str 
+)
+{
+    return sp.Animation;
+},
+
+/**
+ * @method setCompleteListener
+ * @param {function} arg0
+ */
+setCompleteListener : function (
+func 
+)
+{
+},
+
+/**
+ * @method paused
+ * @param {bool} arg0
+ */
+paused : function (
+bool 
+)
+{
+},
+
+/**
+ * @method setAttachment
+* @param {String|String} str
+* @param {char|String} char
+* @return {bool|bool}
+*/
+setAttachment : function(
+str,
+str 
+)
+{
+    return false;
+},
+
+/**
+ * @method setAnimation
+ * @param {String} arg0
+ * @param {bool} arg1
+ */
+setAnimation : function (
+str, 
+bool 
+)
+{
+},
+
+/**
+ * @method onEnable
+ */
+onEnable : function (
+)
+{
+},
+
+/**
+ * @method setStartListener
+ * @param {function} arg0
+ */
+setStartListener : function (
+func 
+)
+{
+},
+
+/**
+ * @method setEffect
+ * @param {cc.renderer::Effect} arg0
+ */
+setEffect : function (
+effect 
+)
+{
+},
+
+/**
+ * @method isOpacityModifyRGB
+ * @return {bool}
+ */
+isOpacityModifyRGB : function (
+)
+{
+    return false;
+},
+
+/**
+ * @method setOpacityModifyRGB
+ * @param {bool} arg0
+ */
+setOpacityModifyRGB : function (
+bool 
+)
+{
+},
+
+/**
+ * @method setEndListener
+ * @param {function} arg0
+ */
+setEndListener : function (
+func 
+)
+{
+},
+
+/**
+ * @method beginSchedule
+ */
+beginSchedule : function (
+)
+{
+},
+
+/**
+ * @method updateAllAnimationCache
+ */
+updateAllAnimationCache : function (
+)
+{
+},
+
+/**
+ * @method addAnimation
+ * @param {String} arg0
+ * @param {bool} arg1
+ * @param {float} arg2
+ */
+addAnimation : function (
+str, 
+bool, 
+float 
+)
+{
+},
+
+/**
+ * @method update
+ * @param {float} arg0
+ */
+update : function (
+float 
+)
+{
+},
+
+/**
+ * @method getAttachment
+ * @param {String} arg0
+ * @param {String} arg1
+ * @return {sp.Attachment}
+ */
+getAttachment : function (
+str, 
+str 
+)
+{
+    return sp.Attachment;
+},
+
+/**
+ * @method updateAnimationCache
+ * @param {String} arg0
+ */
+updateAnimationCache : function (
+str 
+)
+{
+},
+
+/**
+ * @method getTimeScale
+ * @return {float}
+ */
+getTimeScale : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method findBone
+ * @param {String} arg0
+ * @return {sp.Bone}
+ */
+findBone : function (
+str 
+)
+{
+    return sp.Bone;
+},
+
+/**
+ * @method onDisable
+ */
+onDisable : function (
+)
+{
+},
+
+/**
+ * @method setColor
+ * @param {color4b_object} arg0
+ */
+setColor : function (
+color4b 
+)
+{
+},
+
+/**
+ * @method bindNodeProxy
+ * @param {cc.renderer::NodeProxy} arg0
+ */
+bindNodeProxy : function (
+nodeproxy 
+)
+{
+},
+
+/**
+ * @method setBatchEnabled
+ * @param {bool} arg0
+ */
+setBatchEnabled : function (
+bool 
+)
+{
+},
+
+/**
+ * @method setSkin
+* @param {char|String} char
+*/
+setSkin : function(
+str 
+)
+{
+},
+
+/**
+ * @method findSlot
+ * @param {String} arg0
+ * @return {sp.Slot}
+ */
+findSlot : function (
+str 
+)
+{
+    return sp.Slot;
+},
+
+/**
+ * @method getSkeleton
+ * @return {sp.Skeleton}
+ */
+getSkeleton : function (
+)
+{
+    return sp.Skeleton;
+},
+
+/**
+ * @method stopSchedule
+ */
+stopSchedule : function (
+)
+{
+},
+
+/**
+ * @method SkeletonCacheAnimation
+ * @constructor
+ * @param {String} arg0
+ * @param {bool} arg1
+ */
+SkeletonCacheAnimation : function (
+str, 
+bool 
+)
+{
+},
+
+};

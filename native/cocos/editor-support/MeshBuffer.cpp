@@ -34,9 +34,9 @@ MIDDLEWARE_BEGIN
 MeshBuffer::MeshBuffer(int vertexFormat)
 : _vertexFormat(vertexFormat)
 , _ib(INIT_INDEX_BUFFER_SIZE)
-, _vb(MAX_VERTEX_BUFFER_SIZE * vertexFormat)
+, _vb(MAX_VERTEX_BUFFER_SIZE * vertexFormat * sizeof(float))
 {
-    _vb.setMaxSize(MAX_VERTEX_BUFFER_SIZE * _vertexFormat);
+    _vb.setMaxSize(MAX_VERTEX_BUFFER_SIZE * _vertexFormat * sizeof(float));
     _vb.setFullCallback([this]
     {
         uploadVB();
