@@ -959,10 +959,18 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
     gpuTexture.glFormat = GFXFormatToWebGLFormat(gpuTexture.format, gl);
     gpuTexture.glType = GFXFormatToWebGLType(gpuTexture.format, gl);
 
+    let w = gpuTexture.width;
+    let h = gpuTexture.height;
+
     switch (gpuTexture.viewType) {
         case GFXTextureViewType.TV2D: {
             gpuTexture.viewType = GFXTextureViewType.TV2D;
             gpuTexture.glTarget = gl.TEXTURE_2D;
+
+            const maxSize = Math.max(w, h);
+            if (maxSize > device.maxTextureSize) {
+                console.error(`texture size exceeds current device limits ${maxSize}/${device.maxTextureSize}`);
+            }
 
             if (gpuTexture.samples === GFXSampleCount.X1) {
                 const glTexture = gl.createTexture();
@@ -974,9 +982,6 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
                         gl.bindTexture(gl.TEXTURE_2D, gpuTexture.glTexture);
                         glTexUnit.glTexture = gpuTexture.glTexture;
                     }
-
-                    let w = gpuTexture.width;
-                    let h = gpuTexture.height;
 
                     if (!GFXFormatInfos[gpuTexture.format].isCompressed) {
                         for (let i = 0; i < gpuTexture.mipLevel; ++i) {
@@ -1035,6 +1040,11 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
             gpuTexture.viewType = GFXTextureViewType.CUBE;
             gpuTexture.glTarget = gl.TEXTURE_CUBE_MAP;
 
+            const maxSize = Math.max(w, h);
+            if (maxSize > device.maxCubeMapTextureSize) {
+                console.error(`texture size exceeds current device limits ${maxSize}/${device.maxCubeMapTextureSize}`);
+            }
+
             const glTexture = gl.createTexture();
             if (glTexture && gpuTexture.size > 0) {
                 gpuTexture.glTexture = glTexture;
@@ -1047,8 +1057,8 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
 
                 if (!GFXFormatInfos[gpuTexture.format].isCompressed) {
                     for (let f = 0; f < 6; ++f) {
-                        let w = gpuTexture.width;
-                        let h = gpuTexture.height;
+                        w = gpuTexture.width;
+                        h = gpuTexture.height;
                         for (let i = 0; i < gpuTexture.mipLevel; ++i) {
                             gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
                             w = Math.max(1, w >> 1);
@@ -1058,8 +1068,8 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2GFXDevice, gpuTexture:
                 } else {
                     if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
                         for (let f = 0; f < 6; ++f) {
-                            let w = gpuTexture.width;
-                            let h = gpuTexture.height;
+                            w = gpuTexture.width;
+                            h = gpuTexture.height;
                             for (let i = 0; i < gpuTexture.mipLevel; ++i) {
                                 const imgSize = GFXFormatSize(gpuTexture.format, w, h, 1);
                                 const view: Uint8Array = new Uint8Array(imgSize);
@@ -1125,10 +1135,18 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2GFXDevice, gpuTexture:
     gpuTexture.glFormat = GFXFormatToWebGLFormat(gpuTexture.format, gl);
     gpuTexture.glType = GFXFormatToWebGLType(gpuTexture.format, gl);
 
+    let w = gpuTexture.width;
+    let h = gpuTexture.height;
+
     switch (gpuTexture.viewType) {
         case GFXTextureViewType.TV2D: {
             gpuTexture.viewType = GFXTextureViewType.TV2D;
             gpuTexture.glTarget = gl.TEXTURE_2D;
+
+            const maxSize = Math.max(w, h);
+            if (maxSize > device.maxTextureSize) {
+                console.error(`texture size exceeds current device limits ${maxSize}/${device.maxTextureSize}`);
+            }
 
             if (gpuTexture.samples === GFXSampleCount.X1) {
                 const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
@@ -1137,9 +1155,6 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2GFXDevice, gpuTexture:
                     gl.bindTexture(gl.TEXTURE_2D, gpuTexture.glTexture);
                     glTexUnit.glTexture = gpuTexture.glTexture;
                 }
-
-                let w = gpuTexture.width;
-                let h = gpuTexture.height;
 
                 if (!GFXFormatInfos[gpuTexture.format].isCompressed) {
                     for (let i = 0; i < gpuTexture.mipLevel; ++i) {
@@ -1176,6 +1191,11 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2GFXDevice, gpuTexture:
             gpuTexture.viewType = GFXTextureViewType.CUBE;
             gpuTexture.glTarget = gl.TEXTURE_CUBE_MAP;
 
+            const maxSize = Math.max(w, h);
+            if (maxSize > device.maxCubeMapTextureSize) {
+                console.error(`texture size exceeds current device limits ${maxSize}/${device.maxCubeMapTextureSize}`);
+            }
+
             const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
 
             if (glTexUnit.glTexture !== gpuTexture.glTexture) {
@@ -1185,8 +1205,8 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2GFXDevice, gpuTexture:
 
             if (!GFXFormatInfos[gpuTexture.format].isCompressed) {
                 for (let f = 0; f < 6; ++f) {
-                    let w = gpuTexture.width;
-                    let h = gpuTexture.height;
+                    w = gpuTexture.width;
+                    h = gpuTexture.height;
                     for (let i = 0; i < gpuTexture.mipLevel; ++i) {
                         gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternelFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
                         w = Math.max(1, w >> 1);
@@ -1196,8 +1216,8 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2GFXDevice, gpuTexture:
             } else {
                 if (gpuTexture.glInternelFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
                     for (let f = 0; f < 6; ++f) {
-                        let w = gpuTexture.width;
-                        let h = gpuTexture.height;
+                        w = gpuTexture.width;
+                        h = gpuTexture.height;
                         for (let i = 0; i < gpuTexture.mipLevel; ++i) {
                             const imgSize = GFXFormatSize(gpuTexture.format, w, h, 1);
                             const view: Uint8Array = new Uint8Array(imgSize);
