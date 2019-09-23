@@ -265,6 +265,7 @@ export default class LetterFontAssembler extends WebglBmfontAssembler {
     _getAssemblerData () {
         if (!_shareAtlas) {
             _shareAtlas = new LetterAtlas(_atlasWidth, _atlasHeight);
+            cc.Label.shareAtlas = _shareAtlas;
         }
         
         return _shareAtlas.getTexture();
@@ -308,13 +309,3 @@ export default class LetterFontAssembler extends WebglBmfontAssembler {
         return false;
     }
 }
-
-cc.js.addon(cc.Label, {
-    // zh: 需要保证当前场景中没有使用CHAR缓存的Label才可以清除，否则已渲染的文字没有重新绘制会不显示
-    // en: It can be cleared that need to ensure there is not use the CHAR cache in the current scene. Otherwise, the rendered text will not be displayed without repainting.
-    clearCharCache () {
-        if (_shareAtlas) {
-            _shareAtlas.clearAllCache();
-        }
-    },
-});
