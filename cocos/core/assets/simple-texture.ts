@@ -3,11 +3,11 @@
  */
 
 import { ccclass } from '../data/class-decorator';
-import { error } from '../platform/debug';
 import { GFXBufferTextureCopy, GFXTextureFlagBit, GFXTextureUsageBit } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
 import { GFXTexture, IGFXTextureInfo } from '../gfx/texture';
 import { GFXTextureView, IGFXTextureViewInfo } from '../gfx/texture-view';
+import { error } from '../platform/debug';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { TextureBase } from './texture-base';
@@ -45,9 +45,9 @@ export type PresumedGFXTextureViewInfo = Pick<IGFXTextureViewInfo, 'texture' | '
  */
 @ccclass('cc.SimpleTexture')
 export class SimpleTexture extends TextureBase {
-    private _mipmapLevel = 1;
     protected _gfxTexture: GFXTexture | null = null;
     protected _gfxTextureView: GFXTextureView | null = null;
+    private _mipmapLevel = 1;
 
     /**
      * 获取此贴图底层的 GFX 贴图对象。
@@ -154,11 +154,11 @@ export class SimpleTexture extends TextureBase {
         }
     }
 
-    protected _checkTextureLoaded(){
+    protected _checkTextureLoaded () {
         this._textureReady();
     }
 
-    protected _textureReady(){
+    protected _textureReady () {
         this.loaded = true;
         this.emit('load');
     }

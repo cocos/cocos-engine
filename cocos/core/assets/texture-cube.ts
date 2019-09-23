@@ -27,11 +27,11 @@
  * @category asset
  */
 
-import { Texture2D, ITexture2DCreateInfo } from './texture-2d';
-import { ImageAsset } from './image-asset';
-import { SimpleTexture as TrivialTexture, PresumedGFXTextureInfo, PresumedGFXTextureViewInfo } from './simple-texture';
 import { ccclass, property } from '../data/class-decorator';
 import { GFXTextureFlagBit, GFXTextureType, GFXTextureViewType } from '../gfx/define';
+import { ImageAsset } from './image-asset';
+import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
+import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
 
 export type ITextureCubeCreateInfo = ITexture2DCreateInfo;
 
@@ -64,7 +64,7 @@ enum FaceIndex {
  * 立方体贴图资源的每个 Mipmap 层级都为 6 张图像资源，分别代表了立方体贴图的 6 个面。
  */
 @ccclass('cc.TextureCube')
-export class TextureCube extends TrivialTexture {
+export class TextureCube extends SimpleTexture {
     public static FaceIndex = FaceIndex;
 
     /**
