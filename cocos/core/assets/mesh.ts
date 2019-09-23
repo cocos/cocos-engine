@@ -45,7 +45,6 @@ import { GFXDevice } from '../gfx/device';
 import { IGFXAttribute } from '../gfx/input-assembler';
 import { Root } from '../root';
 import { Asset } from './asset';
-import { IBufferView } from './utils/buffer-view';
 import { postLoadMesh } from './utils/mesh-utils';
 
 function getIndexStrideCtor (stride: number) {
@@ -55,76 +54,6 @@ function getIndexStrideCtor (stride: number) {
         case 4: return Uint32Array;
     }
     return Uint8Array;
-}
-
-/**
- * @zh
- * 顶点块。顶点块描述了一组**交错排列**（interleaved）的顶点属性并存储了顶点属性的实际数据。<br>
- * 交错排列是指在实际数据的缓冲区中，每个顶点的所有属性总是依次排列，并总是出现在下一个顶点的所有属性之前。
- */
-export interface IVertexBundle {
-    /**
-     * 所有顶点属性的实际数据块。
-     */
-    view: IBufferView;
-
-    /**
-     * 包含的所有顶点属性。
-     */
-    attributes: IGFXAttribute[];
-}
-
-/**
- * 子网格。子网格由一系列相同类型的图元组成（例如点、线、面等）。
- */
-export interface IPrimitive {
-    /**
-     * 此子网格引用的顶点块，索引至网格的顶点块数组。
-     */
-    vertexBundelIndices: number[];
-
-    /**
-     * 此子网格的图元类型。
-     */
-    primitiveMode: GFXPrimitiveMode;
-
-    /**
-     * 此子网格使用的索引数据。
-     */
-    indexView?: IBufferView;
-
-    /**
-     * （用于射线检测的）几何信息。
-     */
-    geometricInfo?: {
-        doubleSided?: boolean;
-        view: IBufferView;
-    };
-}
-
-/**
- * 描述了网格的结构。
- */
-export interface IMeshStruct {
-    /**
-     * 此网格所有的顶点块。
-     */
-    vertexBundles: IVertexBundle[];
-
-    /**
-     * 此网格的所有子网格。
-     */
-    primitives: IPrimitive[];
-
-    /**
-     * （各分量都）小于等于此网格任何顶点位置的最大位置。
-     */
-    minPosition?: Vec3;
-
-    /**
-     * （各分量都）大于等于此网格任何顶点位置的最小位置。
-     */
-    maxPosition?: Vec3;
 }
 
 /**
@@ -253,16 +182,95 @@ export class RenderingMesh {
     }
 }
 
-export interface IMeshCreateInfo {
-    /**
-     * 网格结构。
-     */
-    struct: IMeshStruct;
+export declare namespace Mesh {
+    export interface BufferView {
+        offset: number;
+        length: number;
+        count: number;
+        stride: number;
+    }
 
     /**
-     * 网格二进制数据。
+     * @zh
+     * 顶点块。顶点块描述了一组**交错排列**（interleaved）的顶点属性并存储了顶点属性的实际数据。<br>
+     * 交错排列是指在实际数据的缓冲区中，每个顶点的所有属性总是依次排列，并总是出现在下一个顶点的所有属性之前。
      */
-    data: Uint8Array;
+    export interface VertexBundle {
+        /**
+         * 所有顶点属性的实际数据块。
+         */
+        view: BufferView;
+
+        /**
+         * 包含的所有顶点属性。
+         */
+        attributes: IGFXAttribute[];
+    }
+
+    /**
+     * 子网格。子网格由一系列相同类型的图元组成（例如点、线、面等）。
+     */
+    export interface Submesh {
+        /**
+         * 此子网格引用的顶点块，索引至网格的顶点块数组。
+         */
+        vertexBundelIndices: number[];
+
+        /**
+         * 此子网格的图元类型。
+         */
+        primitiveMode: GFXPrimitiveMode;
+
+        /**
+         * 此子网格使用的索引数据。
+         */
+        indexView?: BufferView;
+
+        /**
+         * （用于射线检测的）几何信息。
+         */
+        geometricInfo?: {
+            doubleSided?: boolean;
+            view: BufferView;
+        };
+    }
+
+    /**
+     * 描述了网格的结构。
+     */
+    export interface Struct {
+        /**
+         * 此网格所有的顶点块。
+         */
+        vertexBundles: VertexBundle[];
+
+        /**
+         * 此网格的所有子网格。
+         */
+        primitives: Submesh[];
+
+        /**
+         * （各分量都）小于等于此网格任何顶点位置的最大位置。
+         */
+        minPosition?: Vec3;
+
+        /**
+         * （各分量都）大于等于此网格任何顶点位置的最小位置。
+         */
+        maxPosition?: Vec3;
+    }
+
+    export interface CreateInfo {
+        /**
+         * 网格结构。
+         */
+        struct: Mesh.Struct;
+
+        /**
+         * 网格二进制数据。
+         */
+        data: Uint8Array;
+    }
 }
 
 /**
@@ -336,7 +344,7 @@ export class Mesh extends Asset {
     }
 
     @property
-    private _struct: IMeshStruct = {
+    private _struct: Mesh.Struct = {
         vertexBundles: [],
         primitives: [],
     };
@@ -458,7 +466,7 @@ export class Mesh extends Asset {
      * @param data 新的数据。
      * @deprecated 将在 V1.0.0 移除，请转用 `this.reset()`。
      */
-    public assign (struct: IMeshStruct, data: Uint8Array) {
+    public assign (struct: Mesh.Struct, data: Uint8Array) {
         this.reset({
             struct,
             data,
@@ -469,7 +477,7 @@ export class Mesh extends Asset {
      * 重置此网格。
      * @param info 网格重置选项。
      */
-    public reset (info: IMeshCreateInfo) {
+    public reset (info: Mesh.CreateInfo) {
         this.destroyRenderingMesh();
         this._struct = info.struct;
         this._data = info.data;
@@ -535,7 +543,7 @@ export class Mesh extends Asset {
         let dstAttrView: Uint8Array;
         let hasAttr = false;
 
-        const vertexBundles = new Array<IVertexBundle>(this._struct.vertexBundles.length);
+        const vertexBundles = new Array<Mesh.VertexBundle>(this._struct.vertexBundles.length);
         for (let i = 0; i < this._struct.vertexBundles.length; ++i) {
             const bundle = this._struct.vertexBundles[i];
             const dstBundle = mesh._struct.vertexBundles[i];
@@ -600,7 +608,7 @@ export class Mesh extends Asset {
         let srcIBView: Uint8Array | Uint16Array | Uint32Array;
         let dstIBView: Uint8Array | Uint16Array | Uint32Array;
 
-        const primitives: IPrimitive[] = new Array<IPrimitive>(this._struct.primitives.length);
+        const primitives: Mesh.Submesh[] = new Array<Mesh.Submesh>(this._struct.primitives.length);
         for (let i = 0; i < this._struct.primitives.length; ++i) {
             const prim = this._struct.primitives[i];
             const dstPrim = mesh._struct.primitives[i];
@@ -704,7 +712,7 @@ export class Mesh extends Asset {
         }
 
         // Create mesh struct.
-        const meshStruct: IMeshStruct = {
+        const meshStruct: Mesh.Struct = {
             vertexBundles,
             primitives,
             minPosition: this._struct.minPosition,
@@ -1024,7 +1032,7 @@ export class Mesh extends Asset {
     private _accessAttribute (
         primitiveIndex: number,
         attributeName: GFXAttributeName,
-        accessor: (vertexBundle: IVertexBundle, iAttribute: number) => void) {
+        accessor: (vertexBundle: Mesh.VertexBundle, iAttribute: number) => void) {
         if (!this._data ||
             primitiveIndex >= this._struct.primitives.length) {
             return;

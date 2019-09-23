@@ -1,7 +1,7 @@
 
 import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXFormatType, GFXPrimitiveMode, IGFXFormatInfo } from '../../gfx/define';
 export { find } from '../../scene-graph/find';
-import { IMeshStruct, IPrimitive, IVertexBundle, Mesh } from '../../assets/mesh';
+import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geom-utils';
 import { IGFXAttribute } from '../../gfx/input-assembler';
@@ -156,7 +156,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
         writeBuffer(vertexBufferView, channel.data, channel.attribute.format, channel.offset, stride);
     }
     bufferBlob.setNextAlignment(0);
-    const vertexBundle: IVertexBundle = {
+    const vertexBundle: Mesh.VertexBundle = {
         attributes,
         view: {
             offset: bufferBlob.getLength(),
@@ -180,7 +180,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
     }
 
     // Create primitive.
-    const primitive: IPrimitive = {
+    const primitive: Mesh.Submesh = {
         primitiveMode: geometry.primitiveMode || GFXPrimitiveMode.TRIANGLE_LIST,
         vertexBundelIndices: [0],
     };
@@ -229,7 +229,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
     }
 
     // Create mesh struct.
-    const meshStruct: IMeshStruct = {
+    const meshStruct: Mesh.Struct = {
         vertexBundles: [vertexBundle],
         primitives: [primitive],
     };
