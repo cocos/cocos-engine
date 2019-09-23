@@ -211,9 +211,9 @@ let graphicsAssembler = {
                 let dy = dPos.y;
     
                 if (lineCap === LineCap.BUTT)
-                    this._buttCap(p0, dx, dy, w, 0);
+                    this._buttCapStart(p0, dx, dy, w, 0);
                 else if (lineCap === LineCap.SQUARE)
-                    this._buttCap(p0, dx, dy, w, w);
+                    this._buttCapStart(p0, dx, dy, w, w);
                 else if (lineCap === LineCap.ROUND)
                     this._roundCapStart(p0, dx, dy, w, ncap);
             }
@@ -248,9 +248,9 @@ let graphicsAssembler = {
                 let dy = dPos.y;
     
                 if (lineCap === LineCap.BUTT)
-                    this._buttCap(p1, dx, dy, w, 0);
-                else if (lineCap === LineCap.BUTT || lineCap === LineCap.SQUARE)
-                    this._buttCap(p1, dx, dy, w, w);
+                    this._buttCapEnd(p1, dx, dy, w, 0);
+                else if (lineCap === LineCap.SQUARE)
+                    this._buttCapEnd(p1, dx, dy, w, w);
                 else if (lineCap === LineCap.ROUND)
                     this._roundCapEnd(p1, dx, dy, w, ncap);
             }
@@ -461,9 +461,19 @@ let graphicsAssembler = {
         return [x0, y0, x1, y1];
     },
     
-    _buttCap (p, dx, dy, w, d) {
+    _buttCapStart (p, dx, dy, w, d) {
         let px = p.x - dx * d;
         let py = p.y - dy * d;
+        let dlx = dy;
+        let dly = -dx;
+    
+        this._vset(px + dlx * w, py + dly * w);
+        this._vset(px - dlx * w, py - dly * w);
+    },
+
+    _buttCapEnd (p, dx, dy, w, d) {
+        let px = p.x + dx * d;
+        let py = p.y + dy * d;
         let dlx = dy;
         let dly = -dx;
     
