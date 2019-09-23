@@ -27,13 +27,13 @@
  * @category core/value-types
  */
 
-import * as js from '../utils/js';
+import { value } from '../utils/js';
 
 export function BitMask<T> (obj: T): T {
     if ('__bitmask__' in obj) {
         return obj;
     }
-    js.value(obj, '__bitmask__', null, true);
+    value(obj, '__bitmask__', null, true);
 
     let lastIndex: number = -1;
     const keys: string[] = Object.keys(obj);
@@ -59,7 +59,7 @@ export function BitMask<T> (obj: T): T {
                 cc.errorID(7100, reverseKey);
                 continue;
             }
-            js.value(obj, reverseKey, key);
+            value(obj, reverseKey, key);
         }
     }
     return obj;
@@ -77,9 +77,9 @@ BitMask.getList = (BitMaskDef) => {
     const bitlist: any[] = BitMaskDef.__bitmask__ = [];
     // tslint:disable-next-line: forin
     for (const name in BitMaskDef) {
-        const value = BitMaskDef[name];
-        if (Number.isInteger(value)) {
-            bitlist.push({ name, value });
+        const v = BitMaskDef[name];
+        if (Number.isInteger(v)) {
+            bitlist.push({ name, value: v });
         }
     }
     bitlist.sort((a, b) => a.value - b.value);
@@ -90,7 +90,7 @@ export function ccbitmask (bitmaskx) {
     if ('__bitmask__' in bitmaskx) {
         return;
     }
-    js.value(bitmaskx, '__bitmask__', null, true);
+    value(bitmaskx, '__bitmask__', null, true);
 }
 
 cc.BitMask = BitMask;
