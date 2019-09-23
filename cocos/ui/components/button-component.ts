@@ -79,9 +79,9 @@ enum State {
     DISABLED = 'disabled',
 }
 
-export enum TestButtonEventType {
-    Click = 'click',
-}
+// export enum TestButtonEventType {
+//     Click = 'click',
+// }
 
 /**
  * @zh
@@ -125,7 +125,7 @@ export enum TestButtonEventType {
 @executionOrder(110)
 @menu('UI/Button')
 export class ButtonComponent extends Component {
-    public static TestEventType = TestButtonEventType;
+    // public static TestEventType = TestButtonEventType;
 
     /**
      * @zh

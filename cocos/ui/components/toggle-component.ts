@@ -35,9 +35,9 @@ import { SpriteComponent } from './sprite-component';
 import { ToggleContainerComponent } from './toggle-container-component';
 import { extendsEnum } from '../../core/data/utils/extends-enum';
 
-enum TestToggleEventType {
-    Toggle = 'toggle',
-}
+// enum TestToggleEventType {
+//     Toggle = 'toggle',
+// }
 
 /**
  * @zh
@@ -49,7 +49,7 @@ enum TestToggleEventType {
 @menu('UI/Toggle')
 @executeInEditMode
 export class ToggleComponent extends ButtonComponent {
-    public static TestEventType = extendsEnum(ButtonComponent.TestEventType, TestToggleEventType);
+    // public static TestEventType = extendsEnum(ButtonComponent.TestEventType, TestToggleEventType);
 
     /**
      * @zh
@@ -258,8 +258,6 @@ export class ToggleComponent extends ButtonComponent {
         }
     }
 }
-
-ToggleComponent.TestEventType.Toggle + 0;
 
 cc.ToggleComponent = ToggleComponent;
 
