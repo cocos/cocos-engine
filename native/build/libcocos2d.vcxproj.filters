@@ -806,7 +806,7 @@
     <ClCompile Include="..\cocos\renderer\scene\assembler\TiledMapAssembler.cpp">
       <Filter>renderer\scene\assembler</Filter>
     </ClCompile>
-        <ClCompile Include="..\cocos\renderer\scene\assembler\MeshAssembler.cpp">
+    <ClCompile Include="..\cocos\renderer\scene\assembler\MeshAssembler.cpp">
       <Filter>renderer\scene\assembler</Filter>
     </ClCompile>
     <ClCompile Include="..\cocos\renderer\renderer\CustomProperties.cpp">
@@ -835,6 +835,9 @@
     </ClCompile>
     <ClCompile Include="..\cocos\editor-support\dragonbones-creator-support\CCArmatureCacheDisplay.cpp">
       <Filter>editor-support\dragonbones-creator-support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\base\etc2.cpp">
+      <Filter>base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1876,6 +1879,9 @@
     </ClInclude>
     <ClInclude Include="..\cocos\editor-support\dragonbones-creator-support\CCArmatureCacheDisplay.h">
       <Filter>editor-support\dragonbones-creator-support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\base\etc2.h">
+      <Filter>base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

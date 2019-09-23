@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 #include "base/etc2.h"
-
+#include <stdint.h>
 #include <string.h>
 
 static const char kMagic[] = { 'P', 'K', 'M', ' ', '2', '0' };

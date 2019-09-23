@@ -37,6 +37,7 @@
     <ClCompile Include="..\cocos\base\CCValue.cpp" />
     <ClCompile Include="..\cocos\base\csscolorparser.cpp" />
     <ClCompile Include="..\cocos\base\etc1.cpp" />
+    <ClCompile Include="..\cocos\base\etc2.cpp" />
     <ClCompile Include="..\cocos\base\pvr.cpp" />
     <ClCompile Include="..\cocos\base\TGAlib.cpp" />
     <ClCompile Include="..\cocos\base\ZipUtils.cpp" />
@@ -325,6 +326,7 @@
     <ClInclude Include="..\cocos\base\CCVector.h" />
     <ClInclude Include="..\cocos\base\csscolorparser.hpp" />
     <ClInclude Include="..\cocos\base\etc1.h" />
+    <ClInclude Include="..\cocos\base\etc2.h" />
     <ClInclude Include="..\cocos\base\pvr.h" />
     <ClInclude Include="..\cocos\base\TGAlib.h" />
     <ClInclude Include="..\cocos\base\uthash.h" />
