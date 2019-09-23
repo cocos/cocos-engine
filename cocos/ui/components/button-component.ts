@@ -79,6 +79,10 @@ enum State {
     DISABLED = 'disabled',
 }
 
+export enum TestButtonEventType {
+    Click = 'click',
+}
+
 /**
  * @zh
  * 按钮组件。可以被按下,或者点击。<br/>
@@ -121,6 +125,7 @@ enum State {
 @executionOrder(110)
 @menu('UI/Button')
 export class ButtonComponent extends Component {
+    public static TestEventType = TestButtonEventType;
 
     /**
      * @zh
