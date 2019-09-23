@@ -874,6 +874,9 @@ var Texture2D = cc.Class({
                     else if ((tmpFormat === PixelFormat.RGB_ETC2 || tmpFormat === PixelFormat.RGBA_ETC2) && !device.ext('WEBGL_compressed_texture_etc')) {
                         continue;
                     }
+                    else if (tmpExt === '.webp' && !cc.sys.capabilities.webp) {
+                        continue;
+                    }
 
                     bestIndex = index;
                     bestExt = tmpExt;
