@@ -265,7 +265,7 @@ export default class LetterFontAssembler extends WebglBmfontAssembler {
     _getAssemblerData () {
         if (!_shareAtlas) {
             _shareAtlas = new LetterAtlas(_atlasWidth, _atlasHeight);
-            cc.Label.shareAtlas = _shareAtlas;
+            cc.Label._shareAtlas = _shareAtlas;
         }
         
         return _shareAtlas.getTexture();
