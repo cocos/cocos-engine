@@ -293,9 +293,7 @@ var SkeletonData = cc.Class({
     },
 
     destroy () {
-        if (!CC_JSB) {
-            SkeletonCache.removeSkeleton(this._uuid);
-        }
+        SkeletonCache.removeSkeleton(this._uuid);
         this._super();
     },
 });
