@@ -2760,6 +2760,8 @@ let NodeDefines = {
      * @param {Vec3|Vec2} worldPoint
      * @param {Vec3|Vec2} [out]
      * @return {Vec3|Vec2}
+     * @typescript
+     * convertToNodeSpaceAR<T extends cc.Vec2 | cc.Vec3>(worldPoint: T, out?: T): T
      * @example
      * var newVec2 = node.convertToNodeSpaceAR(cc.v2(100, 100));
      * var newVec3 = node.convertToNodeSpaceAR(cc.v3(100, 100, 100));
@@ -2787,6 +2789,8 @@ let NodeDefines = {
      * @param {Vec3|Vec2} nodePoint
      * @param {Vec3|Vec2} [out]
      * @return {Vec3|Vec2}
+     * @typescript
+     * convertToWorldSpaceAR<T extends cc.Vec2 | cc.Vec3>(nodePoint: T, out?: T): T
      * @example
      * var newVec2 = node.convertToWorldSpaceAR(cc.v2(100, 100));
      * var newVec3 = node.convertToWorldSpaceAR(cc.v3(100, 100, 100));
@@ -3361,7 +3365,7 @@ let Node = cc.Class(NodeDefines);
  * 显示透明度是基于自身透明度和父节点透明度计算的。
  *
  * @method getDisplayedOpacity
- * @returns {number} displayed opacity
+ * @return {number} displayed opacity
  * @deprecated since v2.0, please use opacity property, cascade opacity is removed
  */
 
@@ -3375,7 +3379,7 @@ let Node = cc.Class(NodeDefines);
  * 显示颜色是基于自身颜色和父节点颜色计算的。
  *
  * @method getDisplayedColor
- * @returns {Color}
+ * @return {Color}
  * @deprecated since v2.0, please use color property, cascade color is removed
  */
 
@@ -3396,7 +3400,7 @@ let Node = cc.Class(NodeDefines);
  * 返回节点的不透明度值是否影响其子节点。
  * @method isCascadeOpacityEnabled
  * @deprecated since v2.0
- * @returns {Boolean}
+ * @return {Boolean}
  */
 
 /**
