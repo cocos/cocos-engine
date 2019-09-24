@@ -2757,6 +2757,9 @@ let NodeDefines = {
      * !#zh
      * 将一个点转换到节点 (局部) 空间坐标系。
      * @method convertToNodeSpaceAR
+     * @param {Vec3|Vec2} worldPoint
+     * @param {Vec3|Vec2} [out]
+     * @return {Vec3|Vec2}
      * @typescript
      * convertToNodeSpaceAR<T extends cc.Vec2 | cc.Vec3>(worldPoint: T, out?: T): T
      * @example
@@ -2783,6 +2786,9 @@ let NodeDefines = {
      * !#zh
      * 将节点坐标系下的一个点转换到世界空间坐标系。
      * @method convertToWorldSpaceAR
+     * @param {Vec3|Vec2} nodePoint
+     * @param {Vec3|Vec2} [out]
+     * @return {Vec3|Vec2}
      * @typescript
      * convertToWorldSpaceAR<T extends cc.Vec2 | cc.Vec3>(nodePoint: T, out?: T): T
      * @example
