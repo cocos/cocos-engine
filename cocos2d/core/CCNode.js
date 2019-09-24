@@ -2783,6 +2783,7 @@ let NodeDefines = {
      * !#zh
      * 将节点坐标系下的一个点转换到世界空间坐标系。
      * @method convertToWorldSpaceAR
+     * @typescript
      * convertToWorldSpaceAR<T extends cc.Vec2 | cc.Vec3>(nodePoint: T, out?: T): T
      * @example
      * var newVec2 = node.convertToWorldSpaceAR(cc.v2(100, 100));
