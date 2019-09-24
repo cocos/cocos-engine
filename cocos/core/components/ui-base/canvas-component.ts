@@ -43,6 +43,7 @@ import visibleRect from '../../platform/visible-rect';
 import { CameraComponent } from '../../3d/framework/camera-component';
 import { INode } from '../../utils/interfaces';
 import { Enum } from '../../value-types';
+import { game } from '../../game';
 
 const _worldPos = new Vec3();
 
@@ -310,9 +311,9 @@ export class CanvasComponent extends Component {
 
         this.node.getWorldPosition(_worldPos);
         if (this._camera) {
-            const size = view.getVisibleSize();
+            const size = game.canvas!;
             this._camera.resize(size.width, size.height);
-            this._camera.orthoHeight = this._camera.height / 2;
+            this._camera.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
             this._camera.node.setPosition(_worldPos.x, _worldPos.y, 999);
             this._camera.update();
         }
