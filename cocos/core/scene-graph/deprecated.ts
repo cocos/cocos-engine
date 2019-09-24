@@ -113,7 +113,6 @@ removeProperty(Layers.Enum,'Layers.Enum',[
     }
 ]);
 
-
 removeProperty(Layers.BitMask,'Layers.BitMask',[
     {
         'name': 'ALWAYS',
