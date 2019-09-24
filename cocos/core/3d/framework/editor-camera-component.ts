@@ -6,8 +6,8 @@ import { ccclass } from '../../data/class-decorator';
 import { GFXClearFlag } from '../../gfx/define';
 import { toRadian } from '../../math';
 import { Camera } from '../../renderer';
-import { CameraVisFlags } from '../../renderer/scene/camera';
 import { CameraComponent } from './camera-component';
+import { CameraEditorMask } from '../../pipeline/define';
 
 @ccclass('cc.EditorCameraComponent')
 export class EditorCameraComponent extends CameraComponent {
@@ -125,6 +125,9 @@ export class EditorCameraComponent extends CameraComponent {
     protected _createCamera () {
         const priorCamera = this._camera;
         super._createCamera();
+        if(this._camera){
+            this._camera.changeTargetWindow(cc.director.root.mainWindow);
+        }
 
         if (this._camera !== priorCamera && this._camera) {
             if (this._uiEditorCamera) {
@@ -140,7 +143,7 @@ export class EditorCameraComponent extends CameraComponent {
                 flows: ['UIFlow'],
             });
 
-            this._uiEditorCamera!.visibility |= (CameraVisFlags.EDITOR | CameraVisFlags.GIZMOS);
+            this._uiEditorCamera!.visibility = CameraEditorMask;
             this._uiEditorCamera!.viewport = this._camera.viewport;
             this._uiEditorCamera!.fov = this._camera.fov;
             this._uiEditorCamera!.nearClip = this._camera.nearClip;

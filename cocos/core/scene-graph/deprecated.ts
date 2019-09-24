@@ -77,7 +77,7 @@ replaceProperty(Layers, 'Layers', [
     },
     {
         name: 'UI',
-        newName: 'UI',
+        newName: 'UI_3D',
         target: Layers.Enum,
         targetName: 'Layers.Enum',
     },
@@ -92,5 +92,17 @@ replaceProperty(Layers, 'Layers', [
         newName: 'SCENE_GIZMO',
         target: Layers.Enum,
         targetName: 'Layers.Enum',
+    },
+    {
+        name: 'makeInclusiveMask',
+        newName: 'makeMaskInclude',
+        target: Layers,
+        targetName: 'Layers',
+    },
+    {
+        name: 'makeExclusiveMask',
+        newName: 'makeMaskExclude',
+        target: Layers,
+        targetName: 'Layers',
     },
 ]);

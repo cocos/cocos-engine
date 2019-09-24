@@ -888,7 +888,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         }
 
         const deltaMove = new Vec2(touch.getUILocation());
-        deltaMove.subtract(touch.getStartLocation());
+        deltaMove.subtract(touch.getUIStartLocation());
         // FIXME: touch move delta should be calculated by DPI.
         if (deltaMove.length() > 7) {
             if (!this._touchMoved && event.target !== this.node) {

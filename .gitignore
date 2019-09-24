@@ -14,7 +14,6 @@ node_modules
 npm-debug.log
 DebugInfos.json
 /rollup/out
-/package-lock.json
 playground/library
 /declarations
 3d-api-docs

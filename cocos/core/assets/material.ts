@@ -174,7 +174,7 @@ export class Material extends Asset {
         else if (info.effectName) { this._effectAsset = EffectAsset.get(info.effectName); }
         if (info.defines) { this._prepareInfo(info.defines, this._defines); }
         if (info.states) { this._prepareInfo(info.states, this._states); }
-        this.onLoaded();
+        this._update();
     }
     public initialize (info: IMaterialInfo) {
         this.reset(info);
@@ -391,7 +391,8 @@ export class Material extends Asset {
                 for (let i = 0; i < this._props.length; i++) { this._props[i] = {}; }
             }
         } else { // ugly yellow indicating missing effect
-            this._passes = builtinResMgr.get<Material>('missing-effect-material')._passes.slice();
+            const missing = builtinResMgr.get<Material>('missing-effect-material');
+            if (missing) { this._passes = missing._passes.slice(); }
         }
         this._onPassesChange();
     }

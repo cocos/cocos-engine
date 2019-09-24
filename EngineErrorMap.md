@@ -2171,6 +2171,10 @@ AssetLibrary has already been initialized!
 
 Widget target must be one of the parent nodes of it
 
+### 6501
+
+%s's widget target must have UITransformComponent, Please add it in target
+
 ### 6600
 
 collider not added or already removed
