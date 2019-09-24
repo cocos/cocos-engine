@@ -1,4 +1,5 @@
 import { CachedArray } from '../../memop/cached-array';
+import { errorID } from '../../platform/debug';
 import { GFXBufferSource, IGFXDrawInfo, IGFXIndirectBuffer } from '../buffer';
 import {
     GFXBindingType,
@@ -38,7 +39,6 @@ import { WebGLGFXDevice } from './webgl-device';
 import { IWebGLGPUInputAssembler, IWebGLGPUUniform, WebGLAttrib, WebGLGPUBindingLayout,
     WebGLGPUBuffer, WebGLGPUFramebuffer, WebGLGPUInput,
     WebGLGPUPipelineState, WebGLGPUShader, WebGLGPUTexture, WebGLGPUUniformBlock, WebGLGPUUniformSampler } from './webgl-gpu-objects';
-import { IWebGLTexUnit } from './webgl-state-cache';
 
 function CmpF32NotEuqal (a: number, b: number): boolean {
     const c = a - b;
@@ -789,7 +789,7 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
 
             const maxSize = Math.max(w, h);
             if (maxSize > device.maxTextureSize) {
-                console.error(`texture size exceeds current device limits ${maxSize}/${device.maxTextureSize}`);
+                errorID(9100, maxSize, device.maxTextureSize);
             }
 
             if (gpuTexture.samples === GFXSampleCount.X1) {
@@ -853,7 +853,7 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
 
             const maxSize = Math.max(w, h);
             if (maxSize > device.maxCubeMapTextureSize) {
-                console.error(`texture size exceeds current device limits ${maxSize}/${device.maxCubeMapTextureSize}`);
+                errorID(9100, maxSize, device.maxTextureSize);
             }
 
             const glTexture = gl.createTexture();
@@ -956,7 +956,7 @@ export function WebGLCmdFuncResizeTexture (device: WebGLGFXDevice, gpuTexture: W
 
             const maxSize = Math.max(w, h);
             if (maxSize > device.maxTextureSize) {
-                console.error(`texture size exceeds current device limits ${maxSize}/${device.maxTextureSize}`);
+                errorID(9100, maxSize, device.maxTextureSize);
             }
 
             if (gpuTexture.samples === GFXSampleCount.X1) {
@@ -993,7 +993,7 @@ export function WebGLCmdFuncResizeTexture (device: WebGLGFXDevice, gpuTexture: W
 
             const maxSize = Math.max(w, h);
             if (maxSize > device.maxCubeMapTextureSize) {
-                console.error(`texture size exceeds current device limits ${maxSize}/${device.maxCubeMapTextureSize}`);
+                errorID(9100, maxSize, device.maxTextureSize);
             }
 
             const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];

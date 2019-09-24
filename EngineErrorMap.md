@@ -2705,3 +2705,7 @@ Stencil manager does not support level bigger than %d in this device.
 ### 9001
 
 Stencil manager is already empty, cannot pop any mask
+
+### 9100
+
+texture size exceeds current device limits %d/%d
