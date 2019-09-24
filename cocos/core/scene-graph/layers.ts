@@ -40,7 +40,6 @@ const layerList = {
   UI_2D : (1 << 25),
 
   PROFILER : (1 << 28),
-  ALWAYS : (1 << 29),
   DEFAULT : (1 << 30),
   ALL : 0xffffffff,
 };
