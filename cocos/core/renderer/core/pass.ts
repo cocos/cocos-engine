@@ -252,6 +252,13 @@ export class Pass {
                 return acc + (GFXGetTypeSize(cur.type) >> 2) * cur.count;
             }, 0);
         }
+        // store indirect property handles
+        for (const name of Object.keys(this._properties)) {
+            const prop = this._properties[name];
+            if (!prop.handleInfo) { continue; }
+            this._handleMap[name] = this.getHandle.apply(this, prop.handleInfo)!;
+        }
+        // store sampler handles
         for (const u of this._shaderInfo.samplers) {
             this._handleMap[u.name] = genHandle(GFXBindingType.SAMPLER, u.binding, u.type);
         }
