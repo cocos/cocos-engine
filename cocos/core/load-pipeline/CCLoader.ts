@@ -29,6 +29,9 @@
  */
 
 import { Asset, RawAsset } from '../assets';
+import { SpriteFrame } from '../assets/sprite-frame';
+import { Texture2D } from '../assets/texture-2d';
+import { TextureCube } from '../assets/texture-cube';
 import { createMap, getClassName, isChildClassOf } from '../utils/js';
 import { callInNextTick } from '../utils/misc';
 import AssetLoader from './asset-loader';
@@ -1011,33 +1014,56 @@ export class CCLoader extends Pipeline {
      */
     public _getResUuid (url, type, mount, quiet) {
         mount = mount || 'assets';
-
+        let uuid = '';
         if (CC_EDITOR) {
-            const info = EditorExtends.Asset.getAssetInfoFromUrl(`db://${mount}/resources/${url}`);
-            return info ? info.uuid : '';
+            let info = EditorExtends.Asset.getAssetInfoFromUrl(`db://${mount}/resources/${url}`);
+            if (!info && type) {
+                if (isChildClassOf(type, SpriteFrame)) {
+                    info = EditorExtends.Asset.getAssetInfoFromUrl(`db://${mount}/resources/${url}/spriteFrame`);
+                }
+                else if (isChildClassOf(type, Texture2D)) {
+                    info = EditorExtends.Asset.getAssetInfoFromUrl(`db://${mount}/resources/${url}/texture`);
+                }
+                else if (isChildClassOf(type, TextureCube)) {
+                    info = EditorExtends.Asset.getAssetInfoFromUrl(`db://${mount}/resources/${url}/textureCube`);
+                }
+            }
+            uuid = info ? info.uuid : '';
         }
-
-        const assetTable = assetTables[mount];
-        if (!url || !assetTable) {
-            return null;
-        }
-        // Ignore parameter
-        const index = url.indexOf('?');
-        if (index !== -1) {
-            url = url.substr(0, index);
-        }
-        let uuid = assetTable.getUuid(url, type);
-        if (!uuid) {
-            const extname = cc.path.extname(url);
-            if (extname) {
-                // strip extname
-                url = url.slice(0, - extname.length);
+        else {
+            const assetTable = assetTables[mount];
+            if (url && assetTable) {
+                // Ignore parameter
+                const index = url.indexOf('?');
+                if (index !== -1) {
+                    url = url.substr(0, index);
+                }
                 uuid = assetTable.getUuid(url, type);
-                if (uuid && !quiet) {
-                    cc.warnID(4901, url, extname);
+                if (!uuid) {
+                    const extname = cc.path.extname(url);
+                    if (extname) {
+                        // strip extname
+                        url = url.slice(0, - extname.length);
+                        uuid = assetTable.getUuid(url, type);
+                        if (uuid && !quiet) {
+                            cc.warnID(4901, url, extname);
+                        }
+                    }
+                }
+                if (!uuid && type) {
+                    if (isChildClassOf(type, SpriteFrame)) {
+                        uuid = assetTable.getUuid(url + '/spriteFrame', type);
+                    }
+                    else if (isChildClassOf(type, Texture2D)) {
+                        uuid = assetTable.getUuid(url + '/texture', type);
+                    }
+                    else if (isChildClassOf(type, TextureCube)) {
+                        uuid = assetTable.getUuid(url + '/textureCube', type);
+                    }
                 }
             }
         }
+
         return uuid;
     }
 
