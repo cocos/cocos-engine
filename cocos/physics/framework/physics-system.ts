@@ -173,14 +173,18 @@ export class PhysicsSystem extends System {
     private constructor () {
         super();
         this.physicsWorld = createPhysicsWorld();
-        if (!CC_PHYSICS_BUILTIN) {
-            this.gravity = this._gravity;
-            this.allowSleep = this._allowSleep;
-            this._material = new PhysicMaterial();
-            this._material.friction = 0.6;
-            this._material.restitution = -1;
-            this._material.on('physics_material_update', this._updateMaterial, this);
-            this.physicsWorld.defaultMaterial = this._material;
+        if (CC_PHYSICS_AMMO) {
+
+        } else {
+            if (!CC_PHYSICS_BUILTIN) {
+                this.gravity = this._gravity;
+                this.allowSleep = this._allowSleep;
+                this._material = new PhysicMaterial();
+                this._material.friction = 0.6;
+                this._material.restitution = -1;
+                this._material.on('physics_material_update', this._updateMaterial, this);
+                this.physicsWorld.defaultMaterial = this._material;
+            }
         }
     }
 

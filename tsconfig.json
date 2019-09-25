@@ -14,11 +14,11 @@
       "types": [
         "./@types/globals",
         "./@types/editor-extends",
-        "./@types/ammo.js",
         "./@types/wx",
         "./@types/webGL.extras", 
         "./@types/webGL2.extras",
         "./node_modules/@cocos/cannon/CANNON",
+        "./node_modules/ammo.js/Ammo",
         "./node_modules/@types/jest/index"
       ]
     },

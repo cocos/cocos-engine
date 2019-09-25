@@ -1,5 +1,4 @@
 
-import Ammo from 'ammo.js';
 import { Color, Vec3 } from '../../core/math';
 import { GFXPrimitiveMode } from '../../core/gfx/define';
 import { Node } from '../../core/scene-graph';
@@ -14,7 +13,16 @@ interface IDebugVertex {
     color: Vec3;
 }
 
-export class Debugger implements Ammo.btIDebugDraw {
+export class AmmoDebugger implements Ammo.btIDebugDraw {
+    drawLine (from: Ammo.btVector3, to: Ammo.btVector3, color: Ammo.btVector3): void {
+        // throw new Error("Method not implemented.");
+    }
+    drawContactPoint (pointOnB: Ammo.btVector3, normalOnB: Ammo.btVector3, distance: number, lifeTime: number, color: Ammo.btVector3): void {
+        // throw new Error("Method not implemented.");
+    }
+    draw3dText (location: Ammo.btVector3, textString: string): void {
+        // throw new Error("Method not implemented.");
+    }
     private _node: Node | null = null;
     private _debugMode = defaultDebugDrawMode;
     private _iVertex = 0;
@@ -69,7 +77,7 @@ export class Debugger implements Ammo.btIDebugDraw {
                 }
             });
             material.setProperty('color', new Color(0, 255, 0, 255));
-            this._modelComponent.sharedMaterials = [ material ];
+            this._modelComponent.sharedMaterials = [material];
         }
     }
 
@@ -112,27 +120,19 @@ export class Debugger implements Ammo.btIDebugDraw {
         this._modelComponent.mesh = this._mesh;
     }
 
-    public drawLine (pfrom: Ammo.Pointer, pto: Ammo.Pointer, pcolor: Ammo.Pointer) {
-        const from = Ammo.wrapPointer<Ammo.btVector3>(pfrom, Ammo.btVector3);
-        const to = Ammo.wrapPointer<Ammo.btVector3>(pto, Ammo.btVector3);
-        const color = Ammo.wrapPointer<Ammo.btVector3>(pcolor, Ammo.btVector3);
-        Vec3.set(this._tmpVertex.color, color.x(), color.y(), color.z());
-        Vec3.set(this._tmpVertex.position, from.x(), from.y(), from.z());
-        this._addVertex(this._tmpVertex);
-        Vec3.set(this._tmpVertex.position, to.x(), to.y(), to.z());
-        this._addVertex(this._tmpVertex);
-    }
-
-    public drawContactPoint (pointOnB: Ammo.Pointer, normalOnB: Ammo.Pointer, distance: number, liftTime: number, color: Ammo.Pointer) {
-
-    }
+    // public drawLine (pfrom: Ammo.Pointer, pto: Ammo.Pointer, pcolor: Ammo.Pointer) {
+    //     const from = Ammo.wrapPointer<Ammo.btVector3>(pfrom, Ammo.btVector3);
+    //     const to = Ammo.wrapPointer<Ammo.btVector3>(pto, Ammo.btVector3);
+    //     const color = Ammo.wrapPointer<Ammo.btVector3>(pcolor, Ammo.btVector3);
+    //     Vec3.set(this._tmpVertex.color, color.x(), color.y(), color.z());
+    //     Vec3.set(this._tmpVertex.position, from.x(), from.y(), from.z());
+    //     this._addVertex(this._tmpVertex);
+    //     Vec3.set(this._tmpVertex.position, to.x(), to.y(), to.z());
+    //     this._addVertex(this._tmpVertex);
+    // }
 
     public reportErrorWarning (warningString: string): void {
         console.warn(`[Bullet warning]::${warningString}`);
-    }
-
-    public draw3dText (location: Ammo.Pointer, textString: string): void {
-
     }
 
     public setDebugMode (debugMode: number): void {
