@@ -110,7 +110,7 @@ export enum GFXAttributeName {
 export enum GFXType {
     // assumptions about the order of this enum: (exploited by other parts of the engine)
     // * vectors always come before samplers
-    // * vectors with the same data type are always continuous and in an ascending order component-wise
+    // * vectors with the same data type are always consecutive and in an ascending order component-wise
     // * unknown is always zero
     UNKNOWN,
     // vectors
