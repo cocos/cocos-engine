@@ -755,7 +755,7 @@ let TiledLayer = cc.Class({
             if (camera) {
                 _vec2_temp.x = 0;
                 _vec2_temp.y = 0;
-                camera.getCameraToWorldPoint(_vec2_temp, _vec2_temp);
+                camera.getScreenToWorldPoint(_vec2_temp, _vec2_temp);
                 _vec2_temp2.x = _vec2_temp.x + rect.width;
                 _vec2_temp2.y = _vec2_temp.y + rect.height;
                 vec2.transformMat4(_vec2_temp, _vec2_temp, _mat4_temp);
