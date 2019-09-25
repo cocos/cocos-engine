@@ -176,7 +176,7 @@ var dependUtil = {
      * });
      * 
      * @typescript
-     * parse(uuid: string, json: any): any
+     * parse(uuid: string, json: any): { deps?: string[], nativeDep?: any }
      */
     parse (uuid, json) {
         if (!CC_EDITOR && this._depends.has(uuid)) return this._depends.get(uuid);

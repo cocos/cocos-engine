@@ -317,7 +317,8 @@ AssetManager.prototype = {
      * Every custom parameter in `requests` will be tranfered to handler of `downloader` and `parser` as `options`. 
      * You can register you own handler downloader or parser to collect these custom parameters for some effect. notice: when requests is a preloaded task, options will be ignored.
      * 
-     * Reserverd Keyword: [`uuid`, `url`, `path`, `dir`, `scene`, `requestType`, `type`, `isNative`, `priority`, `loadStrategy`, `loadMode`, `name`, `ext`, `bundle`, `exclude`],
+     * Reserved Keyword: [`uuid`, `url`, `path`, `dir`, `scene`, `requestType`, `type`, `isNative`, `priority`, `loadStrategy`, `loadMode`, `name`, `ext`, `bundle`, `exclude`, `onProgress`,
+     * `maxRetryCount`, `ver`, `isCrossOrigin`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload` , `asyncLoadAssets`, `cacheAsset`, `saveFile`],
      * Please DO NOT use these words as custom options!
      * 
      * !#zh
@@ -326,7 +327,8 @@ AssetManager.prototype = {
      * 依赖资源，则 `options` 中的参数会继续向依赖项中分发。request中的自定义参数都会以 `options` 形式传入加载流程中的 `downloader`, `parser` 的方法中, 你可以
      * 扩展 `downloader`, `parser` 收集参数完成想实现的效果。 注意：options在request是Task时是无效的。
      * 
-     * 保留关键字: [`uuid`, `url`, `path`, `dir`, `scene`, `requestType`, `type`, `isNative`, `priority`, `loadStrategy`, `loadMode`, `name`, `ext`, `bundle`, `exclude`],
+     * 保留关键字: [`uuid`, `url`, `path`, `dir`, `scene`, `requestType`, `type`, `isNative`, `priority`, `loadStrategy`, `loadMode`, `name`, `ext`, `bundle`, `exclude`, `onProgress`,
+     * `maxRetryCount`, `ver`, `isCrossOrigin`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload` , `asyncLoadAssets`, `cacheAsset`, `saveFile`],
      * 请不要使用这些字段为自定义参数!
      * 
      * @method load
@@ -472,7 +474,7 @@ AssetManager.prototype = {
      * @param {boolean} [options.isCrossOrigin] - Indicate whether or not image is CORS
      * @param {Function} [onComplete] - Callback invoked when finish loading
      * @param {Error} onComplete.err - The error occured in loading process.
-     * @param {cc.Texture2D} onComplete.texture - The loaded texture
+     * @param {Texture2D} onComplete.texture - The loaded texture
      * @returns {Task} loading task
      * 
      * @example
@@ -514,7 +516,7 @@ AssetManager.prototype = {
      * @param {cc.AudioClip.LoadMode} [options.loadMode] - Indicate which mode audio you want to load
      * @param {Function} [onComplete] - Callback invoked when finish loading
      * @param {Error} onComplete.err - The error occured in loading process.
-     * @param {cc.AudioClip} onComplete.audioClip - The loaded audio clip
+     * @param {AudioClip} onComplete.audioClip - The loaded audio clip
      * @returns {Task} loading task
      * 
      * @example
