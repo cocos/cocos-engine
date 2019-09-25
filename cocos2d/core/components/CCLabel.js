@@ -665,6 +665,11 @@ let Label = cc.Class({
     _activateMaterial (force) {
         if (!force) return;
 
+        if (!this._frame) {
+            this.disableRender();
+            return
+        }
+
         // Canvas
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
             this._frame._texture.url = this.uuid + '_texture';
