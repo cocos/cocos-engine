@@ -111,6 +111,7 @@ export class CameraComponent extends Component {
     protected _targetTexture: RenderTexture | null = null;
 
     protected _camera: Camera | null = null;
+    protected _inEditorMode = false;
 
     /**
      * @en The projection type of the camera
@@ -336,6 +337,17 @@ export class CameraComponent extends Component {
         }
     }
 
+    get inEditorMode() {
+        return this._inEditorMode;
+    }
+
+    set inEditorMode(value) {
+        this._inEditorMode = value;
+        if (this._camera) {
+            this._camera.changeTargetWindow(value ? cc.director.root && cc.director.root.mainWindow : cc.director.root && cc.director.root.tempWindow);
+        }
+    }
+
     public onLoad () {
         cc.director.on(cc.Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneChanged, this);
     }
@@ -387,7 +399,7 @@ export class CameraComponent extends Component {
             name: this.node.name,
             node: this.node,
             projection: this._projection,
-            window: cc.director.root && cc.director.root.tempWindow,
+            window: this._inEditorMode ? cc.director.root && cc.director.root.mainWindow : cc.director.root && cc.director.root.tempWindow,
             priority: this._priority,
         });
 

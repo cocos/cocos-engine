@@ -2,29 +2,29 @@
  * @category animation
  */
 
+import System from '../components/system';
 import { ccclass } from '../data/class-decorator';
+import { director, Director } from '../director';
 import { errorID } from '../platform/debug';
-import { MutableForwardIterator, remove } from '../utils/array';
 import { Node } from '../scene-graph';
+import { Scheduler } from '../scheduler';
+import { MutableForwardIterator, remove } from '../utils/array';
 import { AnimationBlendState } from './animation-blend-state';
 import { AnimationState } from './animation-state';
 import { CrossFade } from './cross-fade';
-import { director, Director } from '../director';
-import { Scheduler } from '../scheduler';
-import System from '../components/system';
 
 @ccclass
 export class AnimationManager extends System {
-    private _anims = new MutableForwardIterator<AnimationState>([]);
-    private _delayEvents: Array<{target: Node; func: string; args: any[]; }> = [];
-    private _blendState: AnimationBlendState = new AnimationBlendState();
-    private _crossFades: CrossFade[] = [];
-
-    public static ID = 'animation';
 
     public get blendState () {
         return this._blendState;
     }
+
+    public static ID = 'animation';
+    private _anims = new MutableForwardIterator<AnimationState>([]);
+    private _delayEvents: Array<{target: Node; func: string; args: any[]; }> = [];
+    private _blendState: AnimationBlendState = new AnimationBlendState();
+    private _crossFades: CrossFade[] = [];
 
     public addCrossFade (crossFade: CrossFade) {
         this._crossFades.push(crossFade);
@@ -88,8 +88,8 @@ export class AnimationManager extends System {
     }
 }
 
-director.on(Director.EVENT_INIT, function () {
-    let animationManager = new AnimationManager();
+director.on(Director.EVENT_INIT, () => {
+    const animationManager = new AnimationManager();
     director.registerSystem(AnimationManager.ID, animationManager, Scheduler.PRIORITY_SYSTEM);
 });
 

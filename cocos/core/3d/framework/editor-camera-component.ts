@@ -104,6 +104,8 @@ export class EditorCameraComponent extends CameraComponent {
 
     public onLoad () {
         super.onLoad();
+
+        this._inEditorMode = true;
     }
 
     public onEnable () {
@@ -125,9 +127,6 @@ export class EditorCameraComponent extends CameraComponent {
     protected _createCamera () {
         const priorCamera = this._camera;
         super._createCamera();
-        if(this._camera){
-            this._camera.changeTargetWindow(cc.director.root.mainWindow);
-        }
 
         if (this._camera !== priorCamera && this._camera) {
             if (this._uiEditorCamera) {

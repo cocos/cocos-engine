@@ -106,3 +106,15 @@ replaceProperty(Layers, 'Layers', [
         targetName: 'Layers',
     },
 ]);
+
+removeProperty(Layers.Enum,'Layers.Enum',[
+    {
+        'name': 'ALWAYS',
+    }
+]);
+
+removeProperty(Layers.BitMask,'Layers.BitMask',[
+    {
+        'name': 'ALWAYS',
+    }
+]);

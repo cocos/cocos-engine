@@ -38,9 +38,10 @@ import { programLib } from '../renderer/core/program-lib';
 import { Asset } from './asset';
 
 export interface IPropertyInfo {
-    type: number; // auto-extracted
+    type: number; // auto-extracted from shader
+    handleInfo?: [string, number, number]; // auto-generated from 'target'
+    samplerHash?: number; // auto-generated from 'sampler'
     value?: number[] | string;
-    samplerHash?: number;
 }
 export interface IPassStates {
     priority?: number;
@@ -54,7 +55,7 @@ export interface IPassStates {
     phase?: string;
 }
 export interface IPassInfo extends IPassStates {
-    program: string; // auto-generated
+    program: string; // auto-generated from 'vert' and 'frag'
     switch?: string;
     properties?: Record<string, IPropertyInfo>;
 }
@@ -93,7 +94,6 @@ export interface IShaderInfo {
     defines: IDefineInfo[];
     blocks: IBlockInfo[];
     samplers: ISamplerInfo[];
-    dependencies: Record<string, string>;
 }
 export interface IPreCompileInfo {
     [name: string]: boolean[] | number[] | string[];

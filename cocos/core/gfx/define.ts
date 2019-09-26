@@ -108,24 +108,32 @@ export enum GFXAttributeName {
  * GFX数据类型。
  */
 export enum GFXType {
+    // assumptions about the order of this enum: (exploited by other parts of the engine)
+    // * vectors always come before samplers
+    // * vectors with the same data type are always consecutive and in an ascending order component-wise
+    // * unknown is always zero
     UNKNOWN,
     // vectors
     BOOL,
     BOOL2,
     BOOL3,
     BOOL4,
+
     INT,
     INT2,
     INT3,
     INT4,
+
     UINT,
     UINT2,
     UINT3,
     UINT4,
+
     FLOAT,
     FLOAT2,
     FLOAT3,
     FLOAT4,
+
     MAT2,
     MAT2X3,
     MAT2X4,

@@ -73,17 +73,6 @@ const prepareDefines = (defs: IDefineMap, tDefs: IDefineInfo[]) => {
     return defines;
 };
 
-const validateDefines = (defines: IDefineValue[], device: GFXDevice, deps: Record<string, string>) => {
-    for (const info of defines) {
-        const name = info.name;
-        // fallback if extension dependency not supported
-        if (info.result !== '0' && deps[name] && !device[deps[name]]) {
-            console.warn(`${deps[name]} not supported on this platform, disabled ${name}`);
-            info.result = '0';
-        }
-    }
-};
-
 const getShaderInstanceName = (name: string, defs: IDefineValue[]) => {
     return name + defs.reduce((acc, cur) => cur.result !== '0' ? `${acc}|${cur.name}${cur.result}` : acc, '');
 };
@@ -137,7 +126,6 @@ class ProgramLib {
      *       { name: 'color', type: 'vec4', count: 1, size: 16 }], defines: [], size: 16 }
      *     ],
      *     samplers: [],
-     *     dependencies: { 'USE_NORMAL_TEXTURE': 'OES_standard_derivatives' },
      *   };
      *   programLib.define(program);
      * ```
@@ -244,7 +232,6 @@ class ProgramLib {
         if (!tmpl.globalsInited) { insertBuiltinBindings(tmpl, pipeline.globalBindings, 'globals'); tmpl.globalsInited = true; }
 
         const defs = prepareDefines(defines, tmpl.defines);
-        validateDefines(defs, device, tmpl.dependencies);
         const customDef = defs.reduce((acc, cur) => {
             return `${acc}#define ${cur.name} ${cur.result}\n`;
         }, '');

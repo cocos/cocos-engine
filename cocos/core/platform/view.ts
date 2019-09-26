@@ -27,11 +27,8 @@
 
 import '../data/class';
 import { EventTarget } from '../event/event-target';
-import { Game } from '../game';
 import { Rect, Size } from '../math';
-import { director } from '../director';
-
-let _currentFrame = 0;
+import '../game';
 
 class BrowserGetter {
 
@@ -91,6 +88,14 @@ switch (__BrowserGetter.adaptationType) {
     case cc.sys.BROWSER_TYPE_SAFARI:
         __BrowserGetter.meta['minimal-ui'] = 'true';
     case cc.sys.BROWSER_TYPE_SOUGOU:
+    case cc.sys.BROWSER_TYPE_UC:
+        __BrowserGetter.availWidth = function(frame){
+            return frame.clientWidth;
+        };
+        __BrowserGetter.availHeight = function(frame){
+            return frame.clientHeight;
+        };
+        break;
     case cc.sys.BROWSER_TYPE_WECHAT_GAME:
         __BrowserGetter.availWidth = () => {
             return window.innerWidth;
@@ -901,14 +906,6 @@ export class View extends EventTarget {
 
     // Resize helper functions
     private _resizeEvent () {
-        const frameId = director.getTotalFrames();
-        if (_currentFrame !== frameId) {
-            _currentFrame = frameId;
-        }
-        else {
-            // Avoid adapte multiple times in a frame
-            return;
-        }
         // tslint:disable: no-shadowed-variable
         let view;
         if (this.setDesignResolutionSize) {
@@ -1249,7 +1246,7 @@ class ContentStrategy {
     public _buildResult (containerW, containerH, contentW, contentH, scaleX, scaleY) {
         // Makes content fit better the canvas
         if ( Math.abs(containerW - contentW) < 2 ) {
-                contentW = containerW;
+            contentW = containerW;
         }
         if ( Math.abs(containerH - contentH) < 2 ) {
             contentH = containerH;
@@ -1258,12 +1255,6 @@ class ContentStrategy {
         const viewport = new Rect(Math.round((containerW - contentW) / 2),
                                Math.round((containerH - contentH) / 2),
                                contentW, contentH);
-
-        // Translate the content
-        if (cc.game.renderType === Game.RENDER_TYPE_CANVAS){
-            // TODO: modify something for setTransform
-            // game._renderContext.translate(viewport.x, viewport.y + contentH);
-        }
 
         this._result.scale = [scaleX, scaleY];
         this._result.viewport = viewport;
