@@ -138,7 +138,8 @@ export class AudioPlayerWeb extends AudioPlayer {
 
     public setCurrentTime (val: number) {
         // throws InvalidState Error on some device if we don't do the clamp here
-        this._offset = clamp(val, 0, this._duration);
+        // the serialized duration is not accurate, use the actual duration first
+        this._offset = clamp(val, 0, this._audio && this._audio.duration || this._duration);
         if (this._state !== PlayingState.PLAYING) { return; }
         this._sourceNode.stop(); this._do_play();
     }
