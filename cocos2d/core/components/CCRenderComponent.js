@@ -208,7 +208,7 @@ let RenderComponent = cc.Class({
             renderer.cullingMask !== cullingMask) {
             renderer._flush();
     
-            renderer.node = material && material.getDefine('CC_USE_MODEL') ? this.node : renderer._dummyNode;
+            renderer.node = material.getDefine('CC_USE_MODEL') ? this.node : renderer._dummyNode;
             renderer.material = material;
             renderer.cullingMask = cullingMask;
         }
