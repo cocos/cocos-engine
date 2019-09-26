@@ -1016,18 +1016,7 @@ export class CCLoader extends Pipeline {
         mount = mount || 'assets';
         let uuid = '';
         if (CC_EDITOR) {
-            let info = EditorExtends.Asset.getAssetInfoFromUrl(`db://${mount}/resources/${url}`);
-            if (!info && type) {
-                if (isChildClassOf(type, SpriteFrame)) {
-                    info = EditorExtends.Asset.getAssetInfoFromUrl(`db://${mount}/resources/${url}/spriteFrame`);
-                }
-                else if (isChildClassOf(type, Texture2D)) {
-                    info = EditorExtends.Asset.getAssetInfoFromUrl(`db://${mount}/resources/${url}/texture`);
-                }
-                else if (isChildClassOf(type, TextureCube)) {
-                    info = EditorExtends.Asset.getAssetInfoFromUrl(`db://${mount}/resources/${url}/textureCube`);
-                }
-            }
+            const info = EditorExtends.Asset.getAssetInfoFromUrl(`db://${mount}/resources/${url}`);
             uuid = info ? info.uuid : '';
         }
         else {
@@ -1050,20 +1039,13 @@ export class CCLoader extends Pipeline {
                         }
                     }
                 }
-                if (!uuid && type) {
-                    if (isChildClassOf(type, SpriteFrame)) {
-                        uuid = assetTable.getUuid(url + '/spriteFrame', type);
-                    }
-                    else if (isChildClassOf(type, Texture2D)) {
-                        uuid = assetTable.getUuid(url + '/texture', type);
-                    }
-                    else if (isChildClassOf(type, TextureCube)) {
-                        uuid = assetTable.getUuid(url + '/textureCube', type);
-                    }
-                }
             }
         }
-
+        if (!uuid && type) {
+            if (isChildClassOf(type, SpriteFrame) || isChildClassOf(type, Texture2D) || isChildClassOf(type, TextureCube)) {
+                cc.warnID(4934);
+            }
+        }
         return uuid;
     }
 
