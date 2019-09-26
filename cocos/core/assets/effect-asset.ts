@@ -94,7 +94,6 @@ export interface IShaderInfo {
     defines: IDefineInfo[];
     blocks: IBlockInfo[];
     samplers: ISamplerInfo[];
-    dependencies: Record<string, string>;
 }
 export interface IPreCompileInfo {
     [name: string]: boolean[] | number[] | string[];

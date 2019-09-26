@@ -10,12 +10,12 @@ import { GFXUniformBlock } from '../../gfx/shader';
 import { Mat4, Vec3 } from '../../math';
 import Pool from '../../memop/pool';
 import { IInternalBindingInst, UBOForwardLight, UBOLocal } from '../../pipeline/define';
+import { Layers } from '../../scene-graph/layers';
 import { INode } from '../../utils/interfaces';
 import { Pass } from '../core/pass';
 import { customizationManager } from './customization-manager';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
-import { Layers } from '../../scene-graph/layers';
 
 const m4_1 = new Mat4();
 
