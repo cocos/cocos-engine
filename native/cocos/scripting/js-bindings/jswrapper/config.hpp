@@ -43,14 +43,11 @@
     #endif
 
     #if TARGET_OS_IOS
-    // As no performance improved when using v8, so use JSC now.
-    // Can change to use v8 if needed.
-    #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC
-//        #ifdef __arm64__
-//            #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
-//        #else
-//            #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC
-//        #endif
+        #ifdef __arm64__
+            #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
+        #else
+            #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_JSC
+        #endif
     #endif
 
     //TODO how to make simulator build with v8 too? Because in release mode, it will build
