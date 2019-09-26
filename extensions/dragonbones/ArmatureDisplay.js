@@ -648,7 +648,7 @@ let ArmatureDisplay = cc.Class({
 
     _prepareToRender () {
         // only when component's onEnable function has been invoke, need to enable render
-        if (this.node._renderComponent == this) {
+        if (this.node && this.node._renderComponent == this) {
             this.markForRender(true);
         }
     },
