@@ -108,7 +108,7 @@ export default class MeshRendererAssembler extends Assembler {
 
     _fillBuffer (comp, meshData, renderer) {
         let matrix = comp.node._worldMatrix;
-        let vData = meshData.vData;
+        let vData = meshData.getVData(Float32Array);
 
         let vtxFormat = meshData.vfm;
         let attrPos = vtxFormat._attr2el[gfx.ATTR_POSITION];
@@ -117,7 +117,7 @@ export default class MeshRendererAssembler extends Assembler {
 
         let vertexCount = vData.length / elementCount | 0;
         
-        let indices = meshData.iData;
+        let indices = meshData.getIData(Uint16Array);
         let indicesCount = indices.length;
 
         let buffer = renderer.getBuffer('mesh', vtxFormat);
