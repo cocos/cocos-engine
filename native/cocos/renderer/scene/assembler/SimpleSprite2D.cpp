@@ -51,7 +51,7 @@ void SimpleSprite2D::fillBuffers(NodeProxy* node, MeshBuffer* buffer, std::size_
     uint32_t indexId = bufferOffset.index;
     uint32_t vertexId = bufferOffset.vertex;
     
-    if (*_dirty & VERTICES_DIRTY || node->isDirty(RenderFlow::WORLD_TRANSFORM_CHANGED))
+    if (*_dirty & VERTICES_DIRTY || node->isDirty(RenderFlow::WORLD_TRANSFORM_CHANGED | RenderFlow::NODE_OPACITY_CHANGED))
     {
         float vl = _localData[0],
         vr = _localData[2],

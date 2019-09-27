@@ -93,7 +93,7 @@ void AssemblerSprite::fillBuffers(NodeProxy* node, MeshBuffer* buffer, std::size
     uint32_t vertexId = bufferOffset.vertex;
     uint32_t vertexOffset = vertexId - vertexStart;
     
-    if (*_dirty & VERTICES_DIRTY || node->isDirty(RenderFlow::WORLD_TRANSFORM_CHANGED))
+    if (*_dirty & VERTICES_DIRTY || node->isDirty(RenderFlow::WORLD_TRANSFORM_CHANGED | RenderFlow::NODE_OPACITY_CHANGED))
     {
         generateWorldVertices();
         calculateWorldVertices(node->getWorldMatrix());
