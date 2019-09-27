@@ -40,10 +40,7 @@ export default class WebglBmfontAssembler extends BmfontAssembler {
         flexBuffer.reserve(this.verticesCount, this.indicesCount);
         flexBuffer.used(this.verticesCount, this.indicesCount);
        
-        let vData = this._renderData.vDatas[0];
         let iData = this._renderData.iDatas[0];
-        vData.fill(0);
-        iData.fill(0, this.indicesCount);
 
         for (let i = 0, vid = 0, l = this.indicesCount; i < l; i += 6, vid += 4) {
             iData[i] = vid;
@@ -67,6 +64,9 @@ export default class WebglBmfontAssembler extends BmfontAssembler {
         let renderData = this._renderData;
         let verts = renderData.vDatas[0],
             uintVerts = renderData.uintVDatas[0];
+
+        this.verticesCount += 4;
+        this.indicesCount = this.verticesCount / 2 * 3;
 
         let texw = texture.width,
             texh = texture.height,

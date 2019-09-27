@@ -109,8 +109,7 @@ export default class Assembler2D extends Assembler {
 
         if (vData.length + vertexOffset > vbuf.length) {
             vbuf.set(vData.subarray(0, this.verticesFloats), vertexOffset);
-        }
-        else {
+        } else {
             vbuf.set(vData, vertexOffset);
         }
 

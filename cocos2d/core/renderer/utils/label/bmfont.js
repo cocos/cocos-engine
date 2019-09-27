@@ -519,6 +519,8 @@ export default class BmfontAssembler extends Assembler2D {
 
         let node = _comp.node;
 
+        this.verticesCount = this.indicesCount = 0;
+
         let contentSize = _contentSize,
             appx = node._anchorPoint.x * contentSize.width,
             appy = node._anchorPoint.y * contentSize.height;
