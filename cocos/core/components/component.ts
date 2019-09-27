@@ -531,6 +531,9 @@ class Component extends CCObject {
      * It is used to initialize the builtin components internally,
      * to avoid checking whether onLoad is called before every public method calls.
      * This method should be removed if script priority is supported.
+     * `__preload` 在每次onLoad之前调用。
+     * 它用于在内部初始化内置组件，以避免在每次公有方法调用之前检查是否调用了onLoad。
+     * 如果支持脚本优先级，则应删除此方法。
      * @private
      */
     protected __preload? (): void;

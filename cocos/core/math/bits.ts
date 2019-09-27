@@ -19,6 +19,7 @@ export const INT_MIN = -1 << (INT_BITS - 1);
 
 /**
  * @en Returns -1, 0, +1 depending on sign of x.
+ * @zh 根据x的符号返回 -1，0，+1。
  */
 export function sign (v: number) {
     return ((v > 0) as unknown as number) - ((v < 0) as unknown as number);
@@ -26,6 +27,7 @@ export function sign (v: number) {
 
 /**
  * @en Computes absolute value of integer.
+ * @zh 计算整数的绝对值。
  */
 export function abs (v: number) {
     const mask = v >> (INT_BITS - 1);
@@ -34,6 +36,7 @@ export function abs (v: number) {
 
 /**
  * @en Computes minimum of integers x and y.
+ * @zh 计算整数x和y中的最小值。
  */
 export function min (x: number, y: number) {
     return y ^ ((x ^ y) & -(x < y));
@@ -41,6 +44,7 @@ export function min (x: number, y: number) {
 
 /**
  * @en Computes maximum of integers x and y.
+ * @zh 计算整数x和y中的最大值。
  */
 export function max (x: number, y: number) {
     return x ^ ((x ^ y) & -(x < y));
@@ -86,6 +90,7 @@ export function popCount (v: number) {
 
 /**
  * @en Counts number of trailing zeros.
+ * @zh 计算数字后面零的数量。
  */
 export function countTrailingZeros (v: number) {
     let c = 32;

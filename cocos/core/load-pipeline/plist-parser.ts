@@ -79,6 +79,7 @@ class SAXParser {
 class PlistParser extends SAXParser {
     /**
      * parse a xml string as plist object.
+     * 将xml字符串解析为plist对象。
      * @param {String} xmlTxt - plist xml contents
      * @return {*} plist object
      */

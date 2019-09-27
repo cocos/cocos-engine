@@ -174,6 +174,7 @@ export class SimpleTexture extends TextureBase {
 
     /**
      * This method is overrided by derived classes to provide GFX texture info.
+     * 这个方法被派生类重写以提供GFX纹理信息。
      * @param presumed The presumed GFX texture info.
      */
     protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): IGFXTextureInfo | null {

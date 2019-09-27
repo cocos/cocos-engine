@@ -1442,7 +1442,7 @@ export class Mat4 extends ValueType {
         }
     }
     /**
-     * 克隆当前矩阵。
+     * @zh 克隆当前矩阵。
      */
     public clone () {
         const t = this;
@@ -1454,7 +1454,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * 设置当前矩阵使其与指定矩阵相等。
+     * @zh 设置当前矩阵使其与指定矩阵相等。
      * @param other 相比较的矩阵。
      * @return this
      */
@@ -1489,7 +1489,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * 判断当前矩阵是否在误差范围内与指定矩阵相等。
+     * @zh 判断当前矩阵是否在误差范围内与指定矩阵相等。
      * @param other 相比较的矩阵。
      * @param epsilon 允许的误差，应为非负数。
      * @return 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
@@ -1516,7 +1516,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * 判断当前矩阵是否与指定矩阵相等。
+     * @zh 判断当前矩阵是否与指定矩阵相等。
      * @param other 相比较的矩阵。
      * @return 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
      */
@@ -1565,7 +1565,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * 计算当前矩阵的转置矩阵。
+     * @zh 计算当前矩阵的转置矩阵。
      */
     public transpose () {
         const a01 = this.m01, a02 = this.m02, a03 = this.m03, a12 = this.m06, a13 = this.m07, a23 = this.m11;
@@ -1585,7 +1585,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * 计算当前矩阵的逆矩阵。
+     * @zh 计算当前矩阵的逆矩阵。
      */
     public invert () {
         _a00 = this.m00; _a01 = this.m01; _a02 = this.m02; _a03 = this.m03;
@@ -1660,7 +1660,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * 矩阵加法。将当前矩阵与指定矩阵的相加，结果返回给当前矩阵。
+     * @zh 矩阵加法。将当前矩阵与指定矩阵的相加，结果返回给当前矩阵。
      * @param mat 相加的矩阵
      */
     public add (mat: Mat4) {
@@ -1684,7 +1684,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * 计算矩阵减法。将当前矩阵减去指定矩阵的结果赋值给当前矩阵。
+     * @zh 计算矩阵减法。将当前矩阵减去指定矩阵的结果赋值给当前矩阵。
      * @param mat 减数矩阵。
      */
     public subtract (mat: Mat4) {
@@ -1708,7 +1708,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * 矩阵乘法。将当前矩阵左乘指定矩阵的结果赋值给当前矩阵。
+     * @zh 矩阵乘法。将当前矩阵左乘指定矩阵的结果赋值给当前矩阵。
      * @param mat 指定的矩阵。
      */
     public multiply (mat: Mat4) {
@@ -1745,7 +1745,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * 矩阵数乘。将当前矩阵与指定标量的数乘结果赋值给当前矩阵。
+     * @zh 矩阵数乘。将当前矩阵与指定标量的数乘结果赋值给当前矩阵。
      * @param scalar 指定的标量。
      */
     public multiplyScalar (scalar: number) {
@@ -1769,7 +1769,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * 将当前矩阵左乘位移矩阵的结果赋值给当前矩阵，位移矩阵由各个轴的位移给出。
+     * @zh 将当前矩阵左乘位移矩阵的结果赋值给当前矩阵，位移矩阵由各个轴的位移给出。
      * @param vec 位移向量。
      */
     public translate (vec: Vec3) {
@@ -1781,7 +1781,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * 将当前矩阵左乘缩放矩阵的结果赋值给当前矩阵，缩放矩阵由各个轴的缩放给出。
+     * @zh 将当前矩阵左乘缩放矩阵的结果赋值给当前矩阵，缩放矩阵由各个轴的缩放给出。
      * @param vec 各个轴的缩放。
      */
     public scale (vec: Vec3) {
@@ -1806,7 +1806,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * 将当前矩阵左乘旋转矩阵的结果赋值给当前矩阵，旋转矩阵由旋转轴和旋转角度给出。
+     * @zh 将当前矩阵左乘旋转矩阵的结果赋值给当前矩阵，旋转矩阵由旋转轴和旋转角度给出。
      * @param mat 矩阵
      * @param rad 旋转角度（弧度制）
      * @param axis 旋转轴
@@ -1856,7 +1856,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * 从当前矩阵中计算出位移变换的部分，并以各个轴上位移的形式赋值给出口向量。
+     * @zh 从当前矩阵中计算出位移变换的部分，并以各个轴上位移的形式赋值给出口向量。
      * @param out 返回向量，当未指定时将创建为新的向量。
      */
     public getTranslation (out: Vec3) {
@@ -1868,7 +1868,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * 从当前矩阵中计算出缩放变换的部分，并以各个轴上缩放的形式赋值给出口向量。
+     * @zh 从当前矩阵中计算出缩放变换的部分，并以各个轴上缩放的形式赋值给出口向量。
      * @param out 返回值，当未指定时将创建为新的向量。
      */
     public getScale (out: Vec3) {
@@ -1890,7 +1890,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * 从当前矩阵中计算出旋转变换的部分，并以四元数的形式赋值给出口四元数。
+     * @zh 从当前矩阵中计算出旋转变换的部分，并以四元数的形式赋值给出口四元数。
      * @param out 返回值，当未指定时将创建为新的四元数。
      */
     public getRotation (out: Quat) {
@@ -1927,7 +1927,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * 重置当前矩阵的值，使其表示指定的旋转、缩放、位移依次组合的变换。
+     * @zh 重置当前矩阵的值，使其表示指定的旋转、缩放、位移依次组合的变换。
      * @param q 四元数表示的旋转变换。
      * @param v 位移变换，表示为各个轴的位移。
      * @param s 缩放变换，表示为各个轴的缩放。
@@ -1973,7 +1973,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * 重置当前矩阵的值，使其表示指定四元数表示的旋转变换。
+     * @zh 重置当前矩阵的值，使其表示指定四元数表示的旋转变换。
      * @param q 四元数表示的旋转变换。
      * @return `this`
      */

@@ -23,7 +23,7 @@ export function equals (a: number, b: number) {
 
 /**
  * Tests whether or not the arguments have approximately the same value by given maxDiff
- *
+ * 通过给定的最大差异，测试参数是否具有近似相同的值。
  * @param a The first number to test.
  * @param b The second number to test.
  * @param maxDiff Maximum difference.
@@ -36,7 +36,7 @@ export function approx (a: number, b: number, maxDiff: number) {
 
 /**
  * Clamps a value between a minimum float and maximum float value.
- *
+ * 返回最小浮点数和最大浮点数之间的一个数值。可以使用 clamp 函数将不断变化的数值限制在范围内。
  * @param val
  * @param min
  * @param max
@@ -53,7 +53,7 @@ export function clamp (val: number, min: number, max: number) {
 
 /**
  * Clamps a value between 0 and 1.
- *
+ * 将值限制在0和1之间。
  * @param val
  */
 export function clamp01 (val: number) {
@@ -71,7 +71,7 @@ export function lerp (from: number, to: number, ratio: number) {
 
 /**
  * Convert Degree To Radian
- *
+ * 把角度换算成弧度。
  * @param {Number} a Angle in Degrees
  */
 export function toRadian (a: number) {
@@ -80,7 +80,7 @@ export function toRadian (a: number) {
 
 /**
  * Convert Radian To Degree
- *
+ * 把弧度换算成角度。
  * @param {Number} a Angle in Radian
  */
 export function toDegree (a: number) {
@@ -94,7 +94,7 @@ export const random = Math.random;
 
 /**
  * Returns a floating-point random number between min (inclusive) and max (exclusive).
- *
+ * 返回最小(包含)和最大(不包含)之间的浮点随机数。
  * @method randomRange
  * @param min
  * @param max
@@ -106,7 +106,7 @@ export function randomRange (min: number, max: number) {
 
 /**
  * Returns a random integer between min (inclusive) and max (exclusive).
- *
+ * 返回最小(包含)和最大(不包含)之间的随机整数。
  * @param min
  * @param max
  * @return The random integer.
