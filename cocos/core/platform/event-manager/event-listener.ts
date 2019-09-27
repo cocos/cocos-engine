@@ -54,7 +54,7 @@ export interface ILinstenerMask {
  *
  * @zh
  * 封装用户的事件处理逻辑。<br/>
- * 注意：这是一个抽象类，开发者不应该直接实例化这个类，请参考 [[cc.EventListener.create]] 。
+ * 注意：这是一个抽象类，开发者不应该直接实例化这个类，请参考 [[create]] 。
  */
 export class EventListener {
 

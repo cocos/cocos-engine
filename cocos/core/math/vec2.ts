@@ -423,7 +423,7 @@ export class Vec2 extends ValueType {
     /**
      * 设置当前向量使其与指定向量相等。
      * @param other 相比较的向量。
-     * @returns `this`
+     * @return `this`
      */
     public set (other: Vec2);
 
@@ -431,7 +431,7 @@ export class Vec2 extends ValueType {
      * 设置当前向量的具体分量值。
      * @param x 要设置的 x 分量的值
      * @param y 要设置的 y 分量的值
-     * @returns `this`
+     * @return `this`
      */
     public set (x?: number, y?: number);
 
@@ -450,7 +450,7 @@ export class Vec2 extends ValueType {
      * 判断当前向量是否在误差范围内与指定向量相等。
      * @param other 相比较的向量。
      * @param epsilon 允许的误差，应为非负数。
-     * @returns 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
+     * @return 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
      */
     public equals (other: Vec2, epsilon = EPSILON) {
         return (
@@ -466,7 +466,7 @@ export class Vec2 extends ValueType {
      * @param x 相比较的向量的 x 分量。
      * @param y 相比较的向量的 y 分量。
      * @param epsilon 允许的误差，应为非负数。
-     * @returns 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
+     * @return 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
      */
     public equals2f (x: number, y: number, epsilon = EPSILON) {
         return (
@@ -480,7 +480,7 @@ export class Vec2 extends ValueType {
     /**
      * 判断当前向量是否与指定向量相等。
      * @param other 相比较的向量。
-     * @returns 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
+     * @return 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
      */
     public strictEquals (other: Vec2) {
         return other && this.x === other.x && this.y === other.y;
@@ -490,7 +490,7 @@ export class Vec2 extends ValueType {
      * 判断当前向量是否与指定分量的向量相等。
      * @param x 指定向量的 x 分量。
      * @param y 指定向量的 y 分量。
-     * @returns 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
+     * @return 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
      */
     public strictEquals2f (x: number, y: number) {
         return this.x === x && this.y === y;
@@ -498,7 +498,7 @@ export class Vec2 extends ValueType {
 
     /**
      * 返回当前向量的字符串表示。
-     * @returns 当前向量的字符串表示。
+     * @return 当前向量的字符串表示。
      */
     public toString () {
         return `(${this.x.toFixed(2)}, ${this.y.toFixed(2)})`;
@@ -521,7 +521,7 @@ export class Vec2 extends ValueType {
      * 设置当前向量的值，使其各个分量都处于指定的范围内。
      * @param minInclusive 每个分量都代表了对应分量允许的最小值。
      * @param maxInclusive 每个分量都代表了对应分量允许的最大值。
-     * @returns `this`
+     * @return `this`
      */
     public clampf (minInclusive: Vec2, maxInclusive: Vec2) {
         this.x = clamp(this.x, minInclusive.x, maxInclusive.x);
@@ -637,7 +637,7 @@ export class Vec2 extends ValueType {
     /**
      * 向量点乘。
      * @param other 指定的向量。
-     * @returns 当前向量与指定向量点乘的结果。
+     * @return 当前向量与指定向量点乘的结果。
      */
     public dot (other: Vec2) {
         return this.x * other.x + this.y * other.y;
@@ -646,7 +646,7 @@ export class Vec2 extends ValueType {
     /**
      * 向量叉乘。
      * @param other 指定的向量。
-     * @returns `out`
+     * @return `out`
      */
     public cross (other: Vec2) {
         return this.x * other.y - this.y * other.x;
@@ -654,7 +654,7 @@ export class Vec2 extends ValueType {
 
     /**
      * 计算向量的长度（模）。
-     * @returns 向量的长度（模）。
+     * @return 向量的长度（模）。
      */
     public length () {
         return Math.sqrt(this.x * this.x + this.y * this.y);
@@ -662,7 +662,7 @@ export class Vec2 extends ValueType {
 
     /**
      * 计算向量长度（模）的平方。
-     * @returns 向量长度（模）的平方。
+     * @return 向量长度（模）的平方。
      */
     public lengthSqr () {
         return this.x * this.x + this.y * this.y;
@@ -686,7 +686,7 @@ export class Vec2 extends ValueType {
     /**
      * 获取当前向量和指定向量之间的角度。
      * @param other 指定的向量。
-     * @returns 当前向量和指定向量之间的角度（弧度制）；若当前向量和指定向量中存在零向量，将返回 0。
+     * @return 当前向量和指定向量之间的角度（弧度制）；若当前向量和指定向量中存在零向量，将返回 0。
      */
     public angle (other: Vec2) {
         const magSqr1 = this.lengthSqr();
@@ -707,7 +707,7 @@ export class Vec2 extends ValueType {
      * 获取当前向量和指定向量之间的有符号角度。
      * 有符号角度的取值范围为 (-180, 180]，当前向量可以通过逆时针旋转有符号角度与指定向量同向。
      * @param other 指定的向量。
-     * @returns 当前向量和指定向量之间的有符号角度（弧度制）；若当前向量和指定向量中存在零向量，将返回 0。
+     * @return 当前向量和指定向量之间的有符号角度（弧度制）；若当前向量和指定向量中存在零向量，将返回 0。
      */
     public signAngle (other: Vec2) {
         const angle = this.angle(other);
