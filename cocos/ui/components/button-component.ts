@@ -417,7 +417,7 @@ export class ButtonComponent extends Component {
      * 按钮的点击事件列表。
      */
     @property({
-        type: ComponentEventHandler,
+        type: [ComponentEventHandler],
         displayOrder: 3,
     })
     public clickEvents: ComponentEventHandler[] = [];

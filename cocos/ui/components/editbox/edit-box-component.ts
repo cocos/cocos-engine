@@ -413,7 +413,7 @@ export class EditBoxComponent extends Component {
      * 开始编辑文本输入框触发的事件回调。
      */
     @property({
-        type: ComponentEventHandler,
+        type: [ComponentEventHandler],
     })
     public editingDidBegan: ComponentEventHandler[] = [];
 
@@ -425,7 +425,7 @@ export class EditBoxComponent extends Component {
      * 编辑文本输入框时触发的事件回调。
      */
     @property({
-        type: ComponentEventHandler,
+        type: [ComponentEventHandler],
     })
     public textChanged: ComponentEventHandler[] = [];
 
@@ -437,7 +437,7 @@ export class EditBoxComponent extends Component {
      * 结束编辑文本输入框时触发的事件回调。
      */
     @property({
-        type: ComponentEventHandler,
+        type: [ComponentEventHandler],
     })
     public editingDidEnded: ComponentEventHandler[] = [];
 
@@ -449,7 +449,7 @@ export class EditBoxComponent extends Component {
      * 当用户按下回车按键时的事件回调，目前不支持 windows 平台
      */
     @property({
-        type: ComponentEventHandler,
+        type: [ComponentEventHandler],
     })
     public editingReturn: ComponentEventHandler[] = [];
 

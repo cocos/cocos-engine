@@ -271,6 +271,7 @@ export class PageViewComponent extends ScrollViewComponent {
   @property({
     visible: false,
     override: true,
+    type: [ComponentEventHandler]
   })
   public scrollEvents: ComponentEventHandler[] = [];
 
@@ -287,7 +288,7 @@ export class PageViewComponent extends ScrollViewComponent {
    * @zh 滚动视图的事件回调函数
    */
   @property({
-    type: ComponentEventHandler,
+    type: [ComponentEventHandler],
   })
   public pageEvents: ComponentEventHandler[] = [];
 
