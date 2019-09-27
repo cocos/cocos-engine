@@ -304,7 +304,7 @@ export class AnimationState extends Playable {
 
     /**
      * @en The iteration duration of this animation in seconds. (length)
-     * @zh 单次动画的持续时间，秒。
+     * @zh 单次动画的持续时间，秒。（动画长度）
      * @readOnly
      */
     public duration = 1;

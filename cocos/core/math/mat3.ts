@@ -683,13 +683,13 @@ export class Mat3 extends ValueType {
     /**
      * 设置当前矩阵使其与指定矩阵相等。
      * @param other 相比较的矩阵。
-     * @returns `this`
+     * @return this
      */
     public set (other: Mat3);
 
     /**
      * 设置当前矩阵指定元素值。
-     * @returns `this`
+     * @return this
      */
     public set (m00?: number, m01?: number, m02?: number,
                 m03?: number, m04?: number, m05?: number,
@@ -714,7 +714,7 @@ export class Mat3 extends ValueType {
      * 判断当前矩阵是否在误差范围内与指定矩阵相等。
      * @param other 相比较的矩阵。
      * @param epsilon 允许的误差，应为非负数。
-     * @returns 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
+     * @return 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
      */
     public equals (other: Mat3, epsilon = EPSILON): boolean {
         return (
@@ -733,7 +733,7 @@ export class Mat3 extends ValueType {
     /**
      * 判断当前矩阵是否与指定矩阵相等。
      * @param other 相比较的矩阵。
-     * @returns 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
+     * @return 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
      */
     public strictEquals (other: Mat3): boolean {
         return this.m00 === other.m00 && this.m01 === other.m01 && this.m02 === other.m02 &&
@@ -743,7 +743,7 @@ export class Mat3 extends ValueType {
 
     /**
      * 返回当前矩阵的字符串表示。
-     * @returns 当前矩阵的字符串表示。
+     * @return 当前矩阵的字符串表示。
      */
     public toString () {
         const t = this;
@@ -756,7 +756,7 @@ export class Mat3 extends ValueType {
 
     /**
      * 将当前矩阵设为单位矩阵。
-     * @returns `this`
+     * @return `this`
      */
     public identity () {
         this.m00 = 1;
@@ -819,7 +819,7 @@ export class Mat3 extends ValueType {
 
     /**
      * 计算当前矩阵的行列式。
-     * @returns 当前矩阵的行列式。
+     * @return 当前矩阵的行列式。
      */
     public determinant (): number {
         _a00 = this.m00; _a01 = this.m01; _a02 = this.m02;
@@ -958,7 +958,7 @@ export class Mat3 extends ValueType {
     /**
      * 重置当前矩阵的值，使其表示指定四元数表示的旋转变换。
      * @param q 四元数表示的旋转变换。
-     * @returns `this`
+     * @returns this
      */
     public fromQuat (q: Quat) {
         const x = q.x, y = q.y, z = q.z, w = q.w;

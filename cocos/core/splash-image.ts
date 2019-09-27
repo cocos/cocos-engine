@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { GFXDevice } from "./gfx/device";
 import { GFXCommandBuffer } from "./gfx/command-buffer";
 import { GFXCommandBufferType, GFXBufferUsageBit, GFXClearFlag, IGFXRect, GFXTextureType, GFXTextureUsageBit, GFXFormat, GFXTextureViewType, GFXMemoryUsageBit, GFXBufferTextureCopy } from "./gfx/define";

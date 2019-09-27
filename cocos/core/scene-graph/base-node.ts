@@ -177,12 +177,12 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
      * @en
      * The local active state of this node.<br/>
      * Note that a Node may be inactive because a parent is not active, even if this returns true.<br/>
-     * Use {{#crossLink "Node/activeInHierarchy:property"}}{{/crossLink}}
+     * Use [[activeInHierarchy]]
      * if you want to check if the Node is actually treated as active in the scene.
      * @zh
      * 当前节点的自身激活状态。<br/>
      * 值得注意的是，一个节点的父节点如果不被激活，那么即使它自身设为激活，它仍然无法激活。<br/>
-     * 如果你想检查节点在场景中实际的激活状态可以使用 {{#crossLink "Node/activeInHierarchy:property"}}{{/crossLink}}。
+     * 如果你想检查节点在场景中实际的激活状态可以使用 [[activeInHierarchy]]
      * @property active
      * @type {Boolean}
      * @default true
@@ -216,6 +216,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
      * @example
      * ```
      * cc.log("activeInHierarchy: " + node.activeInHierarchy);
+     * ```
      */
     @property
     get activeInHierarchy () {

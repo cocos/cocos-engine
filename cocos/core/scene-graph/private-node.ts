@@ -38,7 +38,7 @@ const HideInHierarchy = CCObject.Flags.HideInHierarchy;
 
 /**
  * @en
- * Class of private entities in Cocos Creator scenes.<br/>
+ * Class of private entities in Cocos Creator 3d scenes.<br/>
  * The PrivateNode is hidden in editor, and completely transparent to users.<br/>
  * It's normally used as Node's private content created by components in parent node.<br/>
  * So in theory private nodes are not children, they are part of the parent node.<br/>
@@ -48,7 +48,7 @@ const HideInHierarchy = CCObject.Flags.HideInHierarchy;
  *    In this way, they can be easily kept inside the bounding box.<br/>
  * Currently, it's used by RichText component and TileMap component.
  * @zh
- * Cocos Creator 场景中的私有节点类。<br/>
+ * Cocos Creator 3d场景中的私有节点类。<br/>
  * 私有节点在编辑器中不可见，对用户透明。<br/>
  * 通常私有节点是被一些特殊的组件创建出来作为父节点的一部分而存在的，理论上来说，它们不是子节点，而是父节点的组成部分。<br/>
  * 私有节点有两个非常重要的特性：<br/>

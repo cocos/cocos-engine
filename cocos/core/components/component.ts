@@ -454,7 +454,7 @@ class Component extends CCObject {
      * @en Schedules a callback function that runs only once, with a delay of 0 or larger.
      * @zh 调度一个只运行一次的回调函数，可以指定 0 让回调函数在下一帧立即执行或者在一定的延时之后执行。
      * @method scheduleOnce
-     * @see [[cc.Node.schedule]]
+     * @see [[Node.schedule]]
      * @param {function} callback  回调函数。
      * @param {Number} delay  第一次执行前等待的时间（延时执行）。
      * @example
@@ -472,8 +472,6 @@ class Component extends CCObject {
     /**
      * @en Unschedules a custom callback function.
      * @zh 取消调度一个自定义的回调函数。
-     * @method unschedule
-     * @see [[cc.Node.schedule]]
      * @param {function} callback_fn  回调函数。
      * @example
      * ```typescript

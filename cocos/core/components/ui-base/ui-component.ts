@@ -72,7 +72,6 @@ export class UIComponent extends Component {
         }
 
         return this._screen.visibility;
-        // return this._visibility;
     }
 
     get _screen (){
@@ -82,7 +81,6 @@ export class UIComponent extends Component {
     @property
     protected _priority = 0;
 
-    // protected _visibility = -1;
     protected _followScreen: CanvasComponent | null = null;
 
     private _lastParent: INode | null = null;
@@ -103,35 +101,10 @@ export class UIComponent extends Component {
         }
     }
 
-    /**
-     * @zh
-     * 渲染数据收集。每个渲染组件都由此自身决定是否渲染以及渲染状态的更新。
-     *
-     * @param render 数据处理中转站。
-     */
     public updateAssembler(render: UI) {
     }
 
-
-    /**
-     * @zh
-     * 后渲染数据收集。每个渲染组件都由此接口决定是否渲染以及渲染状态的更新。
-     * 一般是在自身子节点 updateAssembler 执行完调用。
-     *
-     * @param render 数据处理中转站。
-     */
     public postUpdateAssembler(render: UI) {
-    }
-
-    /**
-     * @zh
-     * 设置当前组件的可视编号。（我们不希望用户自行做处理，除非用户自己知道在做什么）
-     *
-     * @deprecated 会在 Cocos Creator 3D beta18 及之后的版本废除
-     */
-    public setVisibility (value: number) {
-        return;
-        // this._visibility = value;
     }
 
     public _setScreen(value: CanvasComponent){

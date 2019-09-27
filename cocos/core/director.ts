@@ -885,8 +885,8 @@ export class Director extends EventTarget {
     }
 
     /**
-     * @en Returns the FPS value. Please use {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}} to control animation interval.
-     * @zh 获取单位帧执行时间。请使用 {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}} 来控制游戏帧率。
+     * @en Returns the FPS value. Please use [[Game.setFrameRate]] to control animation interval.
+     * @zh 获取单位帧执行时间。请使用 [[Game.setFrameRate]] 来控制游戏帧率。
      * @deprecated since v2.0
      * @return {Number}
      */

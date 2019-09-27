@@ -499,7 +499,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     /**
-     * @zh 获取当前。
+     * @zh 获取当前粒子数量
      */
     public getParticleCount () {
         return this.renderer!.getParticleCount();
