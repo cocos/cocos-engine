@@ -164,10 +164,6 @@ function _update3DFunction () {
     }
     this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
     this._localMatDirty = DirtyFlag.ALL;
-
-    if (CC_JSB && CC_NATIVERENDERER) {
-        this._proxy.update3DNode();
-    }
 }
 
 function _upgrade_1x_to_2x () {

@@ -7,7 +7,7 @@ for (let i = 0; i < 4; i++) {
     vec3_temps.push(vec3.create());
 }
 
-let Assembler3D = {
+export default {
     floatsPerVert: 6,
 
     uvOffset: 3,
@@ -43,6 +43,3 @@ let Assembler3D = {
         }
     },
 };
-
-cc.Assembler3D = Assembler3D;
-export default Assembler3D;
