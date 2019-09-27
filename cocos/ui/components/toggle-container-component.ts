@@ -45,7 +45,7 @@ import { ToggleComponent} from './toggle-component';
 @executeInEditMode
 export class ToggleContainerComponent extends Component {
     @property({
-        type: ComponentEventHandler,
+        type: [ComponentEventHandler],
     })
     public checkEvents: ComponentEventHandler[] = [];
     @property

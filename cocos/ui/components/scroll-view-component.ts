@@ -288,7 +288,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @zh
      * 滚动视图的事件回调函数。
      */
-    @property
+    @property({
+        type: [ComponentEventHandler],
+    })
     public scrollEvents: ComponentEventHandler[] = [];
 
     /**
