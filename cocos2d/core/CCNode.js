@@ -646,8 +646,8 @@ let NodeDefines = {
             },
             set (value) {
                 this._groupIndex = value;
-                this.emit(EventType.GROUP_CHANGED, this);
                 _updateCullingMask(this);
+                this.emit(EventType.GROUP_CHANGED, this);
             }
         },
 
