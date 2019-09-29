@@ -70,6 +70,21 @@ export class ParticleSystemComponent extends RenderableComponent {
     })
     public scaleSpace = Space.Local;
 
+    @property({
+        displayOrder: 10,
+    })
+    public startSize3D = false;
+
+    /**
+     * @zh 粒子初始大小。
+     */
+    @property({
+        type: CurveRange,
+        displayOrder: 10,
+        formerlySerializedAs: 'startSize',
+    })
+    public startSizeX = new CurveRange();
+
     /**
      * @zh 粒子初始大小。
      */
@@ -77,7 +92,16 @@ export class ParticleSystemComponent extends RenderableComponent {
         type: CurveRange,
         displayOrder: 10,
     })
-    public startSize = new CurveRange();
+    public startSizeY = new CurveRange();
+
+    /**
+     * @zh 粒子初始大小。
+     */
+    @property({
+        type: CurveRange,
+        displayOrder: 10,
+    })
+    public startSizeZ = new CurveRange();
 
     /**
      * @zh 粒子初始速度。
@@ -89,6 +113,11 @@ export class ParticleSystemComponent extends RenderableComponent {
     })
     public startSpeed = new CurveRange();
 
+    @property({
+        displayOrder:12,
+    })
+    public startRotation3D = false;
+
     /**
      * @zh 粒子初始旋转角度。
      */
@@ -98,7 +127,30 @@ export class ParticleSystemComponent extends RenderableComponent {
         radian: true,
         displayOrder: 12,
     })
-    public startRotation = new CurveRange();
+    public startRotationX = new CurveRange();
+
+    /**
+     * @zh 粒子初始旋转角度。
+     */
+    @property({
+        type: CurveRange,
+        range: [-1, 1],
+        radian: true,
+        displayOrder: 12,
+    })
+    public startRotationY = new CurveRange();
+
+    /**
+     * @zh 粒子初始旋转角度。
+     */
+    @property({
+        type: CurveRange,
+        range: [-1, 1],
+        radian: true,
+        displayOrder: 12,
+        formerlySerializedAs: 'startRotation',
+    })
+    public startRotationZ = new CurveRange();
 
     /**
      * @zh 粒子系统开始运行后，延迟粒子发射的时间。
@@ -365,7 +417,7 @@ export class ParticleSystemComponent extends RenderableComponent {
 
         this.rateOverTime.constant = 10;
         this.startLifetime.constant = 5;
-        this.startSize.constant = 1;
+        this.startSizeX.constant = 1;
         this.startSpeed.constant = 5;
 
         // internal status
@@ -604,12 +656,24 @@ export class ParticleSystemComponent extends RenderableComponent {
                     break;
             }
             Vec3.copy(particle.ultimateVelocity, particle.velocity);
-            // apply startRotation. now 2D only.
-            Vec3.set(particle.rotation, 0, 0, this.startRotation.evaluate(this._time / this.duration, rand)!);
+            // apply startRotation.
+            if (this.startRotation3D) {
+                Vec3.set(particle.rotation, this.startRotationX.evaluate(this._time / this.duration, rand)!,
+                    this.startRotationY.evaluate(this._time / this.duration, rand)!,
+                    this.startRotationZ.evaluate(this._time / this.duration, rand)!);
+            } else {
+                Vec3.set(particle.rotation, 0, 0, this.startRotationZ.evaluate(this._time / this.duration, rand)!);
+            }
 
-            // apply startSize. now 2D only.
-            Vec3.set(particle.startSize, this.startSize.evaluate(this._time / this.duration, rand)!, 1, 1);
-            particle.startSize.y = particle.startSize.x;
+            // apply startSize.
+            if (this.startSize3D) {
+                Vec3.set(particle.startSize, this.startSizeX.evaluate(this._time / this.duration, rand)!,
+                    this.startSizeY.evaluate(this._time / this.duration, rand)!,
+                    this.startSizeZ.evaluate(this._time / this.duration, rand)!);
+            } else {
+                Vec3.set(particle.startSize, this.startSizeX.evaluate(this._time / this.duration, rand)!, 1, 1);
+                particle.startSize.y = particle.startSize.x;
+            }
             Vec3.copy(particle.size, particle.startSize);
 
             // apply startColor.
