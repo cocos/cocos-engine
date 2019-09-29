@@ -657,7 +657,7 @@ export class ParticleSystemComponent extends RenderableComponent {
             }
             Vec3.copy(particle.ultimateVelocity, particle.velocity);
             // apply startRotation.
-            if (this.startSize3D) {
+            if (this.startRotation3D) {
                 Vec3.set(particle.rotation, this.startRotationX.evaluate(this._time / this.duration, rand)!,
                     this.startRotationY.evaluate(this._time / this.duration, rand)!,
                     this.startRotationZ.evaluate(this._time / this.duration, rand)!);
