@@ -579,7 +579,9 @@ function _getActualGroupIndex (node) {
 function _updateCullingMask (node) {
     let index = _getActualGroupIndex(node);
     node._cullingMask = 1 << index;
-    node.emit(EventType.GROUP_CHANGED, node);
+    if (CC_JSB && CC_NATIVERENDERER) {
+        node._proxy && node._proxy.updateCullingMask();
+    };
     for (let i = 0; i < node._children.length; i++) {
         _updateCullingMask(node._children[i]);
     }
@@ -645,6 +647,7 @@ let NodeDefines = {
             set (value) {
                 this._groupIndex = value;
                 _updateCullingMask(this);
+                this.emit(EventType.GROUP_CHANGED, this);
             }
         },
 
