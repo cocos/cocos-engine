@@ -76,7 +76,7 @@ public:
     Mat4 matView;
     Mat4 matProj;
     Mat4 matViewProj;
-    Mat4 matInvViewPorj;
+    Mat4 matInvViewProj;
     
     // stages & framebuffer
     std::vector<std::string> stages;

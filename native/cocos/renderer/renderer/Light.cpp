@@ -168,7 +168,7 @@ void Light::extractView(View& out, const std::vector<std::string>& stages)
     
     // view-porjection
     Mat4::multiply(out.matProj, out.matView, &out.matViewProj);
-    out.matInvViewPorj = out.matViewProj.getInversed();
+    out.matInvViewProj = out.matViewProj.getInversed();
     
     _viewProjMatrix.set(out.matViewProj);
     

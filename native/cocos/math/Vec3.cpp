@@ -177,6 +177,17 @@ void Vec3::transformMat3(const Vec3& v, const Mat3 &m)
     z = ix * m.m[2] + iy * m.m[5] + iz * m.m[8];
 }
 
+void Vec3::transformMat4(const Vec3& v, const Mat4 &m)
+{
+    float ix = v.x, iy = v.y, iz = v.z;
+    float rhw = m.m[3] * ix + m.m[7] * iy + m.m[11] * iz + m.m[15];
+    rhw = rhw ? 1 / rhw : 1;
+    
+    x = (m.m[0] * x + m.m[4] * y + m.m[8] * z + m.m[12]) * rhw;
+    y = (m.m[1] * x + m.m[5] * y + m.m[9] * z + m.m[13]) * rhw;
+    z = (m.m[2] * x + m.m[6] * y + m.m[10] * z + m.m[14]) * rhw;
+}
+
 void Vec3::transformQuat(const Quaternion& q)
 {
     float qx = q.x, qy = q.y, qz = q.z, qw = q.w;

@@ -181,11 +181,15 @@ public:
     /**
      *  @brief Transform a screen position to world in the current camera projection.
      */
-    Vec3& screenToWorld(Vec3& out, const Vec3& screenPos, int width, int height) const;
+    Vec3& screenToWorld(Vec3& out, const Vec3& screenPos, int width, int height);
     /**
      *  @brief Transform a world position to screen in the current camera projection.
      */
-    Vec3& worldToScreen(Vec3& out, const Vec3& worldPos, int width, int height) const;
+    Vec3& worldToScreen(Vec3& out, const Vec3& worldPos, int width, int height);
+    /**
+     *  @brief Transform a screen position to world space
+     */
+    Mat4& worldMatrixToScreen(Mat4& out, const Mat4& worldMatrix, int width, int height);
     /**
      *  @brief Sets the related node proxy which provids model matrix for camera.
      */
@@ -202,6 +206,8 @@ public:
      *  @brief Gets the camera render priority.
      */
     int getPriority() const { return _priority; }
+private:
+    void calcMatrices(const int width, const int height);
 private:
     NodeProxy* _node = nullptr;
     ProjectionType _projection = ProjectionType::PERSPECTIVE;
@@ -228,7 +234,15 @@ private:
     
     Mat4 _worldRTInv;
     Vec3 _worldPos;
-
+    
+    Mat4 _matView;
+    Mat4 _matProj;
+    Mat4 _matViewProj;
+    Mat4 _matInvViewProj;
+    
+    Vec3 _temp_v3;
+    Mat4 _temp_mat4;
+    
     int _priority = 0;
 };
 
