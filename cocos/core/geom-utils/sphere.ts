@@ -75,8 +75,8 @@ export default class sphere {
     }
 
     /**
-     * Set the components of a sphere to the given values
-     * 将球体的属性设置为给定的值。
+     * @en Set the components of a sphere to the given values
+     * @zh 将球体的属性设置为给定的值。
      * 
      * @param {sphere} out 接受操作的 sphere。
      * @param cx 形状的相对于原点的 X 坐标。

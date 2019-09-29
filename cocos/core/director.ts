@@ -237,16 +237,16 @@ export class Director extends EventTarget {
     public static readonly EVENT_AFTER_DRAW = 'director_after_draw';
 
     /**
-     * @en The event which will be triggered before the physics process.
-     * @zh 物理过程之前所触发的事件。
+     * The event which will be triggered before the physics process.<br/>
+     * 物理过程之前所触发的事件。
      * @event Director.EVENT_BEFORE_PHYSICS
      * @readonly
      */
     public static readonly EVENT_BEFORE_PHYSICS = 'director_before_physics';
 
     /**
-     * @en The event which will be triggered after the physics process.
-     * @zh 物理过程之后所触发的事件。
+     * The event which will be triggered after the physics process.<br/>
+     * 物理过程之后所触发的事件。
      * @event Director.EVENT_AFTER_PHYSICS
      * @readonly
      */

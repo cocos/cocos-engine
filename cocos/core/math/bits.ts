@@ -51,14 +51,14 @@ export function max (x: number, y: number) {
 }
 
 /**
- * @en Checks if a number is a power of two.
+ * Checks if a number is a power of two.
  */
 export function isPow2 (v: number) {
     return !(v & (v - 1)) && (!!v);
 }
 
 /**
- * @en Computes log base 2 of v.
+ * Computes log base 2 of v.
  */
 export function log2 (v: number) {
     let r: number;
@@ -71,7 +71,7 @@ export function log2 (v: number) {
 }
 
 /**
- * @en Computes log base 10 of v.
+ * Computes log base 10 of v.
  */
 export function log10 (v: number) {
     return (v >= 1000000000) ? 9 : (v >= 100000000) ? 8 : (v >= 10000000) ? 7 :
@@ -80,7 +80,7 @@ export function log10 (v: number) {
 }
 
 /**
- * @en Counts number of bits.
+ * Counts number of bits.
  */
 export function popCount (v: number) {
     v = v - ((v >>> 1) & 0x55555555);
@@ -105,7 +105,7 @@ export function countTrailingZeros (v: number) {
 }
 
 /**
- * @en Rounds to next power of 2.
+ * Rounds to next power of 2.
  */
 export function nextPow2 (v: number) {
     v += ((v === 0) as unknown as number);
@@ -119,7 +119,7 @@ export function nextPow2 (v: number) {
 }
 
 /**
- * @en Rounds down to previous power of 2.
+ * Rounds down to previous power of 2.
  */
 export function prevPow2 (v: number) {
     v |= v >>> 1;
@@ -131,7 +131,7 @@ export function prevPow2 (v: number) {
 }
 
 /**
- * @en Computes parity of word.
+ * Computes parity of word.
  */
 export function parity (v: number) {
     v ^= v >>> 16;
@@ -158,7 +158,7 @@ const REVERSE_TABLE: number[] = new Array(256);
 })(REVERSE_TABLE);
 
 /**
- * @en Reverse bits in a 32 bit word.
+ * Reverse bits in a 32 bit word.
  */
 export function reverse (v: number) {
     return (REVERSE_TABLE[v & 0xff] << 24) |
@@ -168,7 +168,7 @@ export function reverse (v: number) {
 }
 
 /**
- * @en Interleave bits of 2 coordinates with 16 bits. Useful for fast quadtree codes.
+ * Interleave bits of 2 coordinates with 16 bits. Useful for fast quadtree codes.
  */
 export function interleave2 (x: number, y: number) {
     x &= 0xFFFF;
@@ -187,7 +187,7 @@ export function interleave2 (x: number, y: number) {
 }
 
 /**
- * @en Extracts the nth interleaved component.
+ * Extracts the nth interleaved component.
  */
 export function deinterleave2 (v: number, n: number) {
     v = (v >>> n) & 0x55555555;
@@ -199,7 +199,7 @@ export function deinterleave2 (v: number, n: number) {
 }
 
 /**
- * @en Interleave bits of 3 coordinates, each with 10 bits.  Useful for fast octree codes.
+ * Interleave bits of 3 coordinates, each with 10 bits.  Useful for fast octree codes.
  */
 export function interleave3 (x: number, y: number, z: number) {
     x &= 0x3FF;
@@ -225,7 +225,7 @@ export function interleave3 (x: number, y: number, z: number) {
 }
 
 /**
- * @en Extracts nth interleaved component of a 3-tuple.
+ * Extracts nth interleaved component of a 3-tuple.
  */
 export function deinterleave3 (v: number, n: number) {
     v = (v >>> n) & 1227133513;
@@ -237,7 +237,7 @@ export function deinterleave3 (v: number, n: number) {
 }
 
 /**
- * @en Computes next combination in colexicographic order (this is
+ * Computes next combination in colexicographic order (this is
  * mistakenly called nextPermutation on the bit twiddling hacks page).
  */
 export function nextCombination (v: number) {

@@ -87,17 +87,18 @@ function getConstructor (typeOrClassName: string | Function): Function | null {
 @ccclass('cc._BaseNode')
 export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
     /**
-     * Gets all components attached to this node.
-     * 获取附加到此节点的所有组件。
+     * @en Gets all components attached to this node.
+     * @zh 获取附加到此节点的所有组件。
      */
     get components (): ReadonlyArray<Component> {
         return this._components;
     }
 
     /**
-     * If true, the node is an persist node which won't be destroyed during scene transition.
+     * @en If true, the node is an persist node which won't be destroyed during scene transition.<br/>
      * If false, the node will be destroyed automatically when loading a new scene. Default is false.
-     * 如果为true，则该节点是一个常驻节点，不会在场景转换期间被销毁。如果为false，节点将在加载新场景时自动销毁。默认为false。
+     * @zh 如果为true，则该节点是一个常驻节点，不会在场景转换期间被销毁。<br/>
+     * 如果为false，节点将在加载新场景时自动销毁。默认为false。
      * @property _persistNode
      * @type {Boolean}
      * @default false

@@ -137,8 +137,8 @@ function _onLoadInEditor (comp) {
 }
 
 /**
- * The class used to perform activating and deactivating operations of node and component.
- * 用于执行节点和组件的激活和停用操作的类。
+ * @en The class used to perform activating and deactivating operations of node and component.
+ * @zh 用于执行节点和组件的激活和停用操作的类。
  */
 export default class NodeActivator {
     public resetComp: any;

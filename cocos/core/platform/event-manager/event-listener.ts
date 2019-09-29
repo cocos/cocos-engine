@@ -44,15 +44,12 @@ export interface ILinstenerMask {
 }
 
 /**
- * @en
- * <p>
+ * <p><br/>
  *     The base class of event listener.                                                                        <br/>
  *     If you need custom listener which with different callback, you need to inherit this class.               <br/>
  *     For instance, you could refer to EventListenerAcceleration, EventListenerKeyboard,                       <br/>
- *      EventListenerTouchOneByOne, EventListenerCustom.
- * </p>
- *
- * @zh
+ *      EventListenerTouchOneByOne, EventListenerCustom.<br/>
+ * </p><br/>
  * 封装用户的事件处理逻辑。<br/>
  * 注意：这是一个抽象类，开发者不应该直接实例化这个类，请参考 [[create]] 。
  */
@@ -62,44 +59,44 @@ export class EventListener {
         return this._onEvent;
     }
     /**
-     * @en The type code of unknown event listener.
-     * @zh 未知的事件监听器类型
+     * The type code of unknown event listener.<br/>
+     * 未知的事件监听器类型
      */
     public static UNKNOWN = 0;
 
     /**
-     * @en The type code of one by one touch event listener.
-     * @zh 触摸事件监听器类型，触点会一个一个得分开被派发
+     * The type code of one by one touch event listener.<br/>
+     * 触摸事件监听器类型，触点会一个一个得分开被派发
      */
     public static TOUCH_ONE_BY_ONE = 1;
 
     /**
-     * @en The type code of all at once touch event listener.
-     * @zh 触摸事件监听器类型，触点会被一次性全部派发
+     * The type code of all at once touch event listener.<br/>
+     * 触摸事件监听器类型，触点会被一次性全部派发
      */
     public static TOUCH_ALL_AT_ONCE = 2;
 
     /**
-     * @en The type code of keyboard event listener.
-     * @zh 键盘事件监听器类型
+     * The type code of keyboard event listener.<br/>
+     * 键盘事件监听器类型
      */
     public static KEYBOARD = 3;
 
     /**
-     * @en The type code of mouse event listener.
-     * @zh 鼠标事件监听器类型
+     * The type code of mouse event listener.<br/>
+     * 鼠标事件监听器类型
      */
     public static MOUSE = 4;
 
     /**
-     * @en The type code of acceleration event listener.
-     * @zh 加速器事件监听器类型
+     * The type code of acceleration event listener.<br/>
+     * 加速器事件监听器类型
      */
     public static ACCELERATION = 6;
 
     /**
-     * @en The type code of custom event listener.
-     * @zh 自定义事件监听器类型
+     * The type code of custom event listener.<br/>
+     * 自定义事件监听器类型
      */
     public static CUSTOM = 8;
 
@@ -112,12 +109,11 @@ export class EventListener {
     };
 
     /**
-     * @en
-     * Create a EventListener object with configuration including the event type, handlers and other parameters.
-     * In handlers, this refer to the event listener object itself.
-     * You can also pass custom parameters in the configuration object,
-     * all custom parameters will be polyfilled into the event listener object and can be accessed in handlers.
-     * @zh 通过指定不同的 Event 对象来设置想要创建的事件监听器。
+     * Create a EventListener object with configuration including the event type, handlers and other parameters.<br/>
+     * In handlers, this refer to the event listener object itself.<br/>
+     * You can also pass custom parameters in the configuration object,<br/>
+     * all custom parameters will be polyfilled into the event listener object and can be accessed in handlers.<br/>
+     * 通过指定不同的 Event 对象来设置想要创建的事件监听器。
      * @param {Object} argObj a json object
      */
     public static create (argObj: IEventListenerCreateInfo): EventListener {
@@ -189,24 +185,22 @@ export class EventListener {
     }
 
     /**
-     * @en
-     * <p>
-     *     Sets paused state for the listener
-     *     The paused state is only used for scene graph priority listeners.
-     *     `EventDispatcher::resumeAllEventListenersForTarget(node)` will set the paused state to `true`,
-     *     while `EventDispatcher::pauseAllEventListenersForTarget(node)` will set it to `false`.
-     *     @note 1) Fixed priority listeners will never get paused. If a fixed priority doesn't want to receive events,
-     *              call `setEnabled(false)` instead.
-     *            2) In `Node`'s onEnter and onExit, the `paused state` of the listeners
-     *              which associated with that node will be automatically updated.
-     * </p>
-     * @zh
-     * *为侦听器设置暂停状态
-     * 暂停状态仅用于场景图优先级侦听器。
-     * `EventDispatcher :: resumeAllEventListenersForTarget（node）`将暂停状态设置为`true`，
-     * 而`EventDispatcher :: pauseAllEventListenersForTarget（node）`将它设置为`false`。
-     * 注意：
-     * - 固定优先级侦听器永远不会被暂停。 如果固定优先级不想接收事件，改为调用`setEnabled（false）`。
+     * <p><br/>
+     *     Sets paused state for the listener<br/>
+     *     The paused state is only used for scene graph priority listeners.<br/>
+     *     `EventDispatcher::resumeAllEventListenersForTarget(node)` will set the paused state to `true`,<br/>
+     *     while `EventDispatcher::pauseAllEventListenersForTarget(node)` will set it to `false`.<br/>
+     *     @note 1) Fixed priority listeners will never get paused. If a fixed priority doesn't want to receive events,<br/>
+     *              call `setEnabled(false)` instead.<br/>
+     *            2) In `Node`'s onEnter and onExit, the `paused state` of the listeners<br/>
+     *              which associated with that node will be automatically updated.<br/>
+     * </p><br/>
+     * *为侦听器设置暂停状态<br/>
+     * 暂停状态仅用于场景图优先级侦听器。<br/>
+     * `EventDispatcher :: resumeAllEventListenersForTarget（node）`将暂停状态设置为`true`，<br/>
+     * 而`EventDispatcher :: pauseAllEventListenersForTarget（node）`将它设置为`false`。<br/>
+     * 注意：<br/>
+     * - 固定优先级侦听器永远不会被暂停。 如果固定优先级不想接收事件，改为调用`setEnabled（false）`。<br/>
      * - 在“Node”的onEnter和onExit中，监听器的“暂停状态”与该节点关联的*将自动更新。
      */
     public _setPaused (paused: boolean) {
@@ -214,9 +208,7 @@ export class EventListener {
     }
 
     /**
-     * @en
-     * Checks whether the listener is paused.
-     * @zh
+     * Checks whether the listener is paused.<br/>
      * 检查侦听器是否已暂停。
      */
     public _isPaused () {
@@ -224,9 +216,7 @@ export class EventListener {
     }
 
     /**
-     * @en
-     * Marks the listener was registered by EventDispatcher.
-     * @zh
+     * Marks the listener was registered by EventDispatcher.<br/>
      * 标记监听器已由 EventDispatcher 注册。
      */
     public _setRegistered (registered: boolean) {
@@ -234,9 +224,7 @@ export class EventListener {
     }
 
     /**
-     * @en
-     * Checks whether the listener was registered by EventDispatcher
-     * @zh
+     * Checks whether the listener was registered by EventDispatcher<br/>
      * 检查监听器是否已由 EventDispatcher 注册。
      * @private
      */
@@ -245,13 +233,11 @@ export class EventListener {
     }
 
     /**
-     * @en
-     * Gets the type of this listener
-     * note： It's different from `EventType`, e.g.
-     * TouchEvent has two kinds of event listeners - EventListenerOneByOne, EventListenerAllAtOnce
-     * @zh
-     * 获取此侦听器的类型
-     * 注意：它与`EventType`不同，例如
+     * Gets the type of this listener<br/>
+     * note： It's different from `EventType`, e.g.<br/>
+     * TouchEvent has two kinds of event listeners - EventListenerOneByOne, EventListenerAllAtOnce<br/>
+     * 获取此侦听器的类型<br/>
+     * 注意：它与`EventType`不同，例如<br/>
      * TouchEvent 有两种事件监听器 -  EventListenerOneByOne，EventListenerAllAtOnce
      */
     public _getType () {
@@ -259,11 +245,9 @@ export class EventListener {
     }
 
     /**
-     * @en
-     * Gets the listener ID of this listener
-     * When event is being dispatched, listener ID is used as key for searching listeners according to event type.
-     * @zh
-     * 获取此侦听器的侦听器 ID。
+     * Gets the listener ID of this listener<br/>
+     * When event is being dispatched, listener ID is used as key for searching listeners according to event type.<br/>
+     * 获取此侦听器的侦听器 ID。<br/>
      * 调度事件时，侦听器 ID 用作根据事件类型搜索侦听器的键。
      */
     public _getListenerID () {
@@ -271,13 +255,11 @@ export class EventListener {
     }
 
     /**
-     * @en
-     * Sets the fixed priority for this listener
-     * note: This method is only used for `fixed priority listeners`,
-     *   it needs to access a non-zero value. 0 is reserved for scene graph priority listeners
-     * @zh
-     * 设置此侦听器的固定优先级。
-     * 注意：此方法仅用于“固定优先级侦听器”，
+     * Sets the fixed priority for this listener<br/>
+     * note: This method is only used for `fixed priority listeners`,<br/>
+     *   it needs to access a non-zero value. 0 is reserved for scene graph priority listeners<br/>
+     * 设置此侦听器的固定优先级。<br/>
+     * 注意：此方法仅用于“固定优先级侦听器”，<br/>
      * 它需要访问非零值。 0保留给场景图优先级侦听器。
      */
     public _setFixedPriority (fixedPriority: number) {
@@ -285,9 +267,7 @@ export class EventListener {
     }
 
     /**
-     * @en
-     * Gets the fixed priority of this listener
-     * @zh
+     * Gets the fixed priority of this listener<br/>
      * 获取此侦听器的固定优先级。
      * @return 如果它是场景图优先级侦听器则返回 0 ，则对于固定优先级侦听器则不为零
      */
@@ -296,9 +276,7 @@ export class EventListener {
     }
 
     /**
-     * @en
-     * Sets scene graph priority for this listener
-     * @zh
+     * Sets scene graph priority for this listener<br/>
      * 设置此侦听器的场景图优先级。
      * @param {Node} node
      */
@@ -308,9 +286,7 @@ export class EventListener {
     }
 
     /**
-     * @en
-     * Gets scene graph priority of this listener
-     * @zh
+     * Gets scene graph priority of this listener<br/>
      * 获取此侦听器的场景图优先级。
      * @return 如果它是固定优先级侦听器，则为场景图优先级侦听器非 null 。
      */
@@ -319,16 +295,16 @@ export class EventListener {
     }
 
     /**
-     * @en Checks whether the listener is available.
-     * @zh 检测监听器是否有效
+     * Checks whether the listener is available.<br/>
+     * 检测监听器是否有效
      */
     public checkAvailable () {
         return this._onEvent !== null;
     }
 
     /**
-     * @en Clones the listener, its subclasses have to override this method.
-     * @zh 克隆监听器,它的子类必须重写此方法。
+     * Clones the listener, its subclasses have to override this method.<br/>
+     * 克隆监听器,它的子类必须重写此方法。
      */
     public clone (): EventListener | null {
         return null;
@@ -351,8 +327,8 @@ export class EventListener {
     }
 
     /**
-     * @en Checks whether the listener is enabled
-     * @zh 检查监听器是否可用。
+     * Checks whether the listener is enabled<br/>
+     * 检查监听器是否可用。
      */
     public isEnabled () {
         return this._isEnabled;

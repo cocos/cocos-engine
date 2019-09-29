@@ -425,8 +425,8 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     /**
-     * IEventTarget implementations, they will be overwrote with the same implementation in EventTarget by applyMixins
-     * IEventTarget 实现，它们将被 applyMixins 在 EventTarget 中用相同的实现覆盖。
+     * @en IEventTarget implementations, they will be overwrote with the same implementation in EventTarget by applyMixins
+     * @zh IEventTarget 实现，它们将被 applyMixins 在 EventTarget 中用相同的实现覆盖。
      */
     public targetOff (keyOrTarget?: string | Object | undefined): void {}
     public once (type: string, callback: Function, target?: Object | undefined): Function | undefined {
