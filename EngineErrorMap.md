@@ -1629,6 +1629,9 @@ The texture of Font '%s' must be already loaded on JSB. Using system font instea
 
 Sorry, lineHeight of system font not supported on JSB.
 
+### 4014
+You should set a custom font, or use system font by default.
+
 ### 4100
 
 Property padding is deprecated, please use paddingLeft, paddingRight, paddingTop and paddingBottom instead

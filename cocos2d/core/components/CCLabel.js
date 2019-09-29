@@ -164,7 +164,7 @@ let Label = cc.Class({
 
     ctor () {
         if (CC_EDITOR) {
-            this._userDefinedFont = null;
+            this._fontCache = null;
         }
 
         this._actualFontSize = 0;
@@ -368,18 +368,7 @@ let Label = cc.Class({
             },
             set (value) {
                 if (this.font === value) return;
-                
-                //if delete the font, we should change isSystemFontUsed to true
-                if (!value) {
-                    this._isSystemFontUsed = true;
-                }
-
-                if (CC_EDITOR && value) {
-                    this._userDefinedFont = value;
-                }
                 this._N$file = value;
-                if (value && this._isSystemFontUsed)
-                    this._isSystemFontUsed = false;
 
                 if ( typeof value === 'string' ) {
                     cc.warnID(4000);
@@ -389,6 +378,8 @@ let Label = cc.Class({
                 this._resetAssembler();
                 this._applyFontTexture(true);
                 this._lazyUpdateRenderData();
+
+                this.useSystemFont = value ? false : true;
             },
             type: cc.Font,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.font',
@@ -408,26 +399,29 @@ let Label = cc.Class({
             },
             set (value) {
                 if (this._isSystemFontUsed === value) return;
-               
+                if (!(value || this.font || this._fontCache)) {
+                    cc.warnID(4014);
+                    return;
+                }
+                this._isSystemFontUsed = !!value;
+
                 if (CC_EDITOR) {
-                    if (!value && this._isSystemFontUsed && this._userDefinedFont) {
-                        this.font = this._userDefinedFont;
+                    if (value) {
+                        this._fontCache = this.font;
+                    }
+                    else if (this._fontCache) {
+                        this.font = this._fontCache;
                         this.spacingX = this._spacingX;
                         return;
                     }
                 }
 
-                this._isSystemFontUsed = !!value;
                 if (value) {
                     this.font = null;
-                    this._resetAssembler();
-                    this._lazyUpdateRenderData();
-                    this._checkStringEmpty();
                 }
-                else if (!this._userDefinedFont) {
-                    this.disableRender();
-                }
-
+                this._resetAssembler();
+                this._lazyUpdateRenderData();
+                this._checkStringEmpty();
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.system_font',
