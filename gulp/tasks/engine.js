@@ -229,6 +229,8 @@ exports.buildPreview = function (sourceFile, outputFile, callback, devMode) {
 };
 
 exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) {
+    var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
+
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
@@ -243,6 +245,7 @@ exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) 
         .pipe(HandleErrors())
         .pipe(Source(outFile))
         .pipe(Buffer())
+        .pipe(FixJavaScriptCore())
         .pipe(Utils.uglify('preview', { jsb: true, nativeRenderer: true }))
         .pipe(Optimizejs({
             sourceMap: false
@@ -269,6 +272,8 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
         opts.aliasifyConfig = jsbAliasify;
     }
 
+    var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
+
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
@@ -284,6 +289,7 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
         .pipe(HandleErrors())
         .pipe(Source(outFile))
         .pipe(Buffer())
+        .pipe(FixJavaScriptCore())
         .pipe(Utils.uglify('build', flags))
         .pipe(Optimizejs({
             sourceMap: false
@@ -310,6 +316,8 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
         opts.aliasifyConfig = jsbAliasify;
     }
     
+    var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
+
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
@@ -328,6 +336,7 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
         .pipe(HandleErrors())
         .pipe(Source(outFile))
         .pipe(Buffer())
+        .pipe(FixJavaScriptCore())
         .pipe(Utils.uglify('build', flags))
         .pipe(Optimizejs({
             sourceMap: false
@@ -354,6 +363,8 @@ exports.buildRuntime = function (sourceFile, outputFile, excludes, opt_macroFlag
         opts.aliasifyConfig = jsbAliasify;
     }
 
+    var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
+
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
@@ -367,6 +378,7 @@ exports.buildRuntime = function (sourceFile, outputFile, excludes, opt_macroFlag
         .pipe(HandleErrors())
         .pipe(Source(outFile))
         .pipe(Buffer())
+        .pipe(FixJavaScriptCore())
         .pipe(Utils.uglify('build', flags))
         .pipe(Optimizejs({
             sourceMap: false
@@ -393,6 +405,8 @@ exports.buildRuntimeMin = function (sourceFile, outputFile, excludes, opt_macroF
         opts.aliasifyConfig = jsbAliasify;
     }
     
+    var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
+
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
@@ -408,6 +422,7 @@ exports.buildRuntimeMin = function (sourceFile, outputFile, excludes, opt_macroF
         .pipe(HandleErrors())
         .pipe(Source(outFile))
         .pipe(Buffer())
+        .pipe(FixJavaScriptCore())
         .pipe(Utils.uglify('build', flags))
         .pipe(Optimizejs({
             sourceMap: false
