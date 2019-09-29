@@ -33,6 +33,7 @@ let _enabled = false;
  * @class DynamicAtlasManager
  */
 let dynamicAtlasManager = {
+    Atlas: Atlas,
     
     /**
      * !#en Enabled or Disabled dynamic atlas.
@@ -97,6 +98,19 @@ let dynamicAtlasManager = {
     },
 
     /**
+     * !#en The minimum size of the picture that can be added to the atlas.
+     * !#zh 可以添加进图集的图片的最小尺寸。
+     * @property minFrameSize
+     * @type {Number}
+     */
+    get minFrameSize () {
+        return _minFrameSize;
+    },
+    set minFrameSize (value) {
+        _minFrameSize = value;
+    },
+    
+    /**
      * !#en Append a sprite frame into the dynamic atlas.
      * !#zh 添加碎图进入动态图集。
      * @method insertSpriteFrame
@@ -107,14 +121,7 @@ let dynamicAtlasManager = {
         if (!_enabled || _atlasIndex === _maxAtlasCount ||
             !spriteFrame || spriteFrame._original) return null;
         
-        let texture = spriteFrame._texture;
-        if (texture instanceof cc.RenderTexture || texture._isCompressed()) return null;
-
-        let w = texture.width, h = texture.height;
-        if (w > _maxFrameSize || h > _maxFrameSize || w <= _minFrameSize || h <= _minFrameSize
-         || texture._getHash() !== Atlas.DEFAULT_HASH) {
-            return null;
-        }
+        if (!spriteFrame._texture.packable) return null;
 
         let atlas = _atlases[_atlasIndex];
         if (!atlas) {

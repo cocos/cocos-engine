@@ -111,11 +111,14 @@ var BitmapFont = cc.Class({
 
     onLoad () {
         let spriteFrame = this.spriteFrame;
-        let fntConfig = this._fntConfig;
-        if (!this._fontDefDictionary) {
+        if (!this._fontDefDictionary && spriteFrame) {
             this._fontDefDictionary = new FontAtlas(spriteFrame._texture);
         }
-        
+
+        let fntConfig = this._fntConfig;
+        if (!fntConfig) {
+            return;
+        }
         let fontDict = fntConfig.fontDefDictionary;
         for (let fontDef in fontDict) {
             let letter = new FontLetterDefinition();

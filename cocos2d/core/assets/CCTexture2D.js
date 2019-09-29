@@ -313,7 +313,6 @@ var Texture2D = cc.Class({
             },
             override: true
         },
-        _genMipmaps: false,
         _format: PixelFormat.RGBA8888,
         _premultiplyAlpha: false,
         _flipY: false,
@@ -322,6 +321,26 @@ var Texture2D = cc.Class({
         _mipFilter: Filter.LINEAR,
         _wrapS: WrapMode.CLAMP_TO_EDGE,
         _wrapT: WrapMode.CLAMP_TO_EDGE,
+
+        _genMipmaps: false,
+        /**
+         * !#en Sets whether generate mipmaps for the texture
+         * !#zh 是否为纹理设置生成 mipmaps。
+         * @property {Boolean} genMipmaps
+         * @default false
+         */
+        genMipmaps: {
+            get () {
+                return this._genMipmaps;
+            },
+            set (genMipmaps) {
+                if (this._genMipmaps !== genMipmaps) {
+                    var opts = _getSharedOptions();
+                    opts.genMipmaps = genMipmaps;
+                    this.update(opts);
+                }
+            }
+        },
 
         _packable: true,
         /**
@@ -332,7 +351,7 @@ var Texture2D = cc.Class({
          * 设置纹理是否允许参与合图。
          * 如果需要在自定义 Effect 中使用纹理 UV，需要禁止该选项。
          * @property {Boolean} packable
-         * @default texture
+         * @default true
          */
         packable: {
             get () {
@@ -625,6 +644,9 @@ var Texture2D = cc.Class({
         }
         this.width = pixelsWidth;
         this.height = pixelsHeight;
+
+        this._checkPackable();
+
         this.loaded = true;
         this.emit("load");
         return true;
@@ -686,17 +708,6 @@ var Texture2D = cc.Class({
 
     /**
      * !#en
-     * Whether or not generate mipmaps.
-     * !#zh 上传 GPU 时是否生成 mipmaps。
-     * @method isGenMipmaps
-     * @return {Boolean}
-     */
-    isGenMipmaps () {
-        return this._genMipmaps || false;
-    },
-
-    /**
-     * !#en
      * Handler of texture loaded event.
      * Since v2.0, you don't need to invoke this function, it will be invoked automatically after texture loaded.
      * !#zh 贴图加载事件处理器。v2.0 之后你将不在需要手动执行这个函数，它会在贴图加载成功之后自动执行。
@@ -704,7 +715,7 @@ var Texture2D = cc.Class({
      * @param {Boolean} [premultiplied]
      */
     handleLoadedTexture () {
-        if (!this._image || this._image.width == null || this._image.height == null)
+        if (!this._image || !this._image.width || !this._image.height)
             return;
         
         this.width = this._image.width;
@@ -730,6 +741,8 @@ var Texture2D = cc.Class({
         else {
             this._texture.update(opts);
         }
+
+        this._checkPackable();
 
         //dispatch load event to listener.
         this.loaded = true;
@@ -831,19 +844,27 @@ var Texture2D = cc.Class({
             this.update(opts);
         }
     },
-    
-    /**
-     * !#en
-     * Sets whether generate mipmaps for the texture
-     * !#zh 是否为纹理设置生成 mipmaps。
-     * @method setGenMipmaps
-     * @param {Boolean} genMipmaps
-     */
-    setGenMipmaps (genMipmaps) {
-        if (this._genMipmaps !== genMipmaps) {
-            var opts = _getSharedOptions();
-            opts.genMipmaps = genMipmaps;
-            this.update(opts);
+
+    _checkPackable () {
+        let dynamicAtlas = cc.dynamicAtlasManager;
+        if (!dynamicAtlas) return;
+
+        if (this._isCompressed()) {
+            this._packable = false;
+            return;
+        }
+
+        let w = this.width, h = this.height;
+        if (!this._image ||
+            w > dynamicAtlas.maxFrameSize || h > dynamicAtlas.maxFrameSize || 
+            w <= dynamicAtlas.minFrameSize || h <= dynamicAtlas.minFrameSize || 
+            this._getHash() !== dynamicAtlas.Atlas.DEFAULT_HASH) {
+            this._packable = false;
+            return;
+        }
+
+        if (this._image && this._image instanceof HTMLCanvasElement) {
+            this._packable = true;
         }
     },
 

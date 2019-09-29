@@ -1,7 +1,6 @@
 import Assembler from './assembler';
 import dynamicAtlasManager from './utils/dynamic-atlas/manager';
 import RenderData from './webgl/render-data';
-import { vfmtPosUvColor } from './webgl/vertex-format';
 
 export default class Assembler2D extends Assembler {
     init (comp) {
@@ -40,10 +39,6 @@ export default class Assembler2D extends Assembler {
 
     getBuffer () {
         return cc.renderer._handle._meshBuffer;
-    }
-
-    getVfmt () {
-        return vfmtPosUvColor;
     }
 
     updateWorldVerts (comp) {
@@ -145,7 +140,7 @@ export default class Assembler2D extends Assembler {
                 // texture was packed to dynamic atlas, should update uvs
                 comp._vertsDirty = true;
 
-                comp._activateMaterial();
+                comp._activateMaterial(true);
             }
         }
     }

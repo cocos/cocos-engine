@@ -537,7 +537,6 @@ let Label = cc.Class({
         // Keep track of Node size
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._lazyUpdateRenderData, this);
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._lazyUpdateRenderData, this);
-        this.node.on(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
 
         this._forceUpdateRenderData();
         this._checkStringEmpty();
@@ -547,7 +546,6 @@ let Label = cc.Class({
         this._super();
         this.node.off(cc.Node.EventType.SIZE_CHANGED, this._lazyUpdateRenderData, this);
         this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._lazyUpdateRenderData, this);
-        this.node.off(cc.Node.EventType.COLOR_CHANGED, this._updateColor, this);
     },
 
     onDestroy () {
@@ -565,7 +563,7 @@ let Label = cc.Class({
         if (!(this.font instanceof cc.BitmapFont)) {
             this._lazyUpdateRenderData();
         }
-        this._assembler.updateColor(this);
+       RenderComponent.prototype._updateColor.call(this);
     },
 
     _canRender () {

@@ -1042,7 +1042,7 @@ let NodeDefines = {
                     if (CC_JSB && CC_NATIVERENDERER) {
                         this._proxy.updateOpacity();
                     };
-                    this._renderFlag |= RenderFlow.FLAG_OPACITY;
+                    this._renderFlag |= RenderFlow.FLAG_OPACITY_COLOR;
                 }
             },
             range: [0, 255]
@@ -1066,6 +1066,8 @@ let NodeDefines = {
                     if (CC_DEV && value.a !== 255) {
                         cc.warnID(1626);
                     }
+
+                    this._renderFlag |= RenderFlow.FLAG_COLOR;
 
                     if (this._eventMask & COLOR_ON) {
                         this.emit(EventType.COLOR_CHANGED, value);
@@ -1258,7 +1260,7 @@ let NodeDefines = {
             this._proxy.init(this);
         }
         else {
-            this._renderFlag = RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_OPACITY;
+            this._renderFlag = RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_OPACITY_COLOR;
         }
     },
 
@@ -1477,7 +1479,7 @@ let NodeDefines = {
         }
 
         if (CC_JSB && CC_NATIVERENDERER) {
-            this._renderFlag |= RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_OPACITY;
+            this._renderFlag |= RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_OPACITY_COLOR;
         }
     },
 
@@ -1983,7 +1985,7 @@ let NodeDefines = {
         
         let camera = cc.Camera.findCamera(this);
         if (camera) {
-            camera.getCameraToWorldPoint(point, cameraPt);
+            camera.getScreenToWorldPoint(point, cameraPt);
         }
         else {
             cameraPt.set(point);
@@ -2907,6 +2909,59 @@ let NodeDefines = {
     },
 
     /**
+     * !#en
+     * Converts a Point to node (local) space coordinates.
+     * !#zh
+     * 将一个点转换到节点 (局部) 空间坐标系。
+     * @method convertToNodeSpaceAR
+     * @param {Vec3|Vec2} worldPoint
+     * @param {Vec3|Vec2} [out]
+     * @return {Vec3|Vec2}
+     * @example
+     * var newVec2 = node.convertToNodeSpaceAR(cc.v2(100, 100));
+     * var newVec3 = node.convertToNodeSpaceAR(cc.v3(100, 100, 100));
+     */
+    convertToNodeSpaceAR (worldPoint, out) {
+        this._updateWorldMatrix();
+        mat4.invert(_mat4_temp, this._worldMatrix);
+
+        if (worldPoint instanceof cc.Vec2) {
+            out = out || new cc.Vec2();
+            return vec2.transformMat4(out, worldPoint, _mat4_temp);
+        }
+        else {
+            out = out || new cc.Vec3();
+            return vec3.transformMat4(out, worldPoint, _mat4_temp);
+        }
+    },
+
+    /**
+     * !#en
+     * Converts a Point in node coordinates to world space coordinates.
+     * !#zh
+     * 将节点坐标系下的一个点转换到世界空间坐标系。
+     * @method convertToWorldSpaceAR
+     * @param {Vec3|Vec2} nodePoint
+     * @param {Vec3|Vec2} [out]
+     * @return {Vec3|Vec2}
+     * @example
+     * var newVec2 = node.convertToWorldSpaceAR(cc.v2(100, 100));
+     * var newVec3 = node.convertToWorldSpaceAR(cc.v3(100, 100, 100));
+     */
+    convertToWorldSpaceAR (nodePoint, out) {
+        this._updateWorldMatrix();
+        if (nodePoint instanceof cc.Vec2) {
+            out = out || new cc.Vec2();
+            return vec2.transformMat4(out, nodePoint, this._worldMatrix);
+        }
+        else {
+            out = out || new cc.Vec3();
+            return vec3.transformMat4(out, nodePoint, this._worldMatrix);
+        }
+    },
+
+// OLD TRANSFORM ACCESS APIs
+ /**
      * !#en Converts a Point to node (local) space coordinates then add the anchor point position.
      * So the return position will be related to the left bottom corner of the node's bounding box.
      * This equals to the API behavior of cocos2d-x, you probably want to use convertToNodeSpaceAR instead
@@ -2914,6 +2969,7 @@ let NodeDefines = {
      * 也就是说返回的坐标是相对于节点包围盒左下角的坐标。<br/>
      * 这个 API 的设计是为了和 cocos2d-x 中行为一致，更多情况下你可能需要使用 convertToNodeSpaceAR。
      * @method convertToNodeSpace
+     * @deprecated since v2.1.3
      * @param {Vec2} worldPoint
      * @return {Vec2}
      * @example
@@ -2935,6 +2991,7 @@ let NodeDefines = {
      * !#zh 将一个相对于节点左下角的坐标位置转换到世界空间坐标系。
      * 这个 API 的设计是为了和 cocos2d-x 中行为一致，更多情况下你可能需要使用 convertToWorldSpaceAR
      * @method convertToWorldSpace
+     * @deprecated since v2.1.3
      * @param {Vec2} nodePoint
      * @return {Vec2}
      * @example
@@ -2949,42 +3006,6 @@ let NodeDefines = {
         return vec2.transformMat4(out, out, this._worldMatrix);
     },
 
-    /**
-     * !#en
-     * Converts a Point to node (local) space coordinates in which the anchor point is the origin position.
-     * !#zh
-     * 将一个点转换到节点 (局部) 空间坐标系，这个坐标系以锚点为原点。
-     * @method convertToNodeSpaceAR
-     * @param {Vec2} worldPoint
-     * @return {Vec2}
-     * @example
-     * var newVec2 = node.convertToNodeSpaceAR(cc.v2(100, 100));
-     */
-    convertToNodeSpaceAR (worldPoint) {
-        this._updateWorldMatrix();
-        mat4.invert(_mat4_temp, this._worldMatrix);
-        let out = new cc.Vec2();
-        return vec2.transformMat4(out, worldPoint, _mat4_temp);
-    },
-
-    /**
-     * !#en
-     * Converts a Point in node coordinates to world space coordinates.
-     * !#zh
-     * 将节点坐标系下的一个点转换到世界空间坐标系。
-     * @method convertToWorldSpaceAR
-     * @param {Vec2} nodePoint
-     * @return {Vec2}
-     * @example
-     * var newVec2 = node.convertToWorldSpaceAR(cc.v2(100, 100));
-     */
-    convertToWorldSpaceAR (nodePoint) {
-        this._updateWorldMatrix();
-        let out = new cc.Vec2();
-        return vec2.transformMat4(out, nodePoint, this._worldMatrix);
-    },
-
-// OLD TRANSFORM ACCESS APIs
     /**
      * !#en
      * Returns the matrix that transform the node's (local) space coordinates into the parent's space coordinates.<br/>
@@ -3353,6 +3374,8 @@ let NodeDefines = {
          * The node will be destroyed when deleting in the editor,
          * but it will be reserved and reused for undo.
         */
+        // restore 3d node
+        this.is3DNode = this.is3DNode;
         if (!this._matrix) {
             this._matrix = mat4.create(this._spaceInfo.localMat);
             mat4.identity(this._matrix);

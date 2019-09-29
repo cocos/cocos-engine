@@ -326,14 +326,6 @@ cc.js.mixin(View.prototype, {
         }
     },
 
-    // hack
-    _adjustSizeKeepCanvasSize: function () {
-        var designWidth = this._originalDesignResolutionSize.width;
-        var designHeight = this._originalDesignResolutionSize.height;
-        if (designWidth > 0)
-            this.setDesignResolutionSize(designWidth, designHeight, this._resolutionPolicy);
-    },
-
     _setViewportMeta: function (metas, overwrite) {
         var vp = document.getElementById("cocosMetaElement");
         if(vp && overwrite){
@@ -1250,6 +1242,18 @@ cc.ContentStrategy = cc.Class({
         }
     });
 
+    // need to adapt prototype before instantiating
+    let _global = typeof window === 'undefined' ? global : window;
+    let globalAdapter = _global.__globalAdapter;
+    if (globalAdapter) {
+        if (globalAdapter.adaptContainerStrategy) {
+            globalAdapter.adaptContainerStrategy(cc.ContainerStrategy.prototype);
+        }
+        if (globalAdapter.adaptView) {
+            globalAdapter.adaptView(View.prototype);
+        }
+    }
+
 // #NOT STABLE on Android# Alias: Strategy that makes the container's size equals to the window's size
 //    cc.ContainerStrategy.EQUAL_TO_WINDOW = new EqualToWindow();
 // #NOT STABLE on Android# Alias: Strategy that scale proportionally the container's size to window's size
@@ -1490,21 +1494,6 @@ cc.ResolutionPolicy.FIXED_WIDTH = 4;
  */
 cc.ResolutionPolicy.UNKNOWN = 5;
 
-// need to adapt prototype before instantiating
-let _global = typeof window === 'undefined' ? global : window;
-if (_global.__globalAdapter && _global.__globalAdapter.adaptBrowserGetter) {
-    let globalAdapter = _global.__globalAdapter;
-    if (globalAdapter.adaptBrowserGetter) {
-        globalAdapter.adaptBrowserGetter(__BrowserGetter);
-    }
-    if (globalAdapter.adaptContainerStrategy) {
-        globalAdapter.adaptContainerStrategy(cc.ContainerStrategy.prototype);
-    }
-    if (globalAdapter.adaptView) {
-        globalAdapter.adaptView(View.prototype);
-    }
-}
-
 /**
  * @module cc
  */
@@ -1524,6 +1513,6 @@ cc.view = new View();
  * @property winSize
  * @type Size
  */
-cc.winSize = cc.v2();
+cc.winSize = cc.size();
 
 module.exports = cc.view;
