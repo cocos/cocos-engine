@@ -57,8 +57,6 @@ var downloadAudio = function (url, options, onComplete) {
 
 var downloadAudio = formatSupport.length === 0 ? unsupported : (__audioSupport.WEB_AUDIO ? downloadAudio : downloadDomAudio);
 
-var downloadWebp = capabilities && capabilities.webp ? downloadDomImage : unsupported;
-
 var downloadImage = function (url, options, onComplete) {
     // if createImageBitmap is valid, we can transform blob to ImageBitmap. Otherwise, just use HTMLImageElement to load
     var func = capabilities.createImageBitmap && (window.location.protocol === 'file:' || !options.isCrossOrigin) ? downloadBlob : downloadDomImage;
@@ -490,11 +488,11 @@ var downloaders = {
     '.jpg' : downloadImage,
     '.bmp' : downloadImage,
     '.jpeg' : downloadImage,
-    '.gif' : downloadDomImage,
-    '.ico' : downloadDomImage,
-    '.tiff' : downloadDomImage,
-    '.webp' : downloadWebp,
-    '.image' : downloadDomImage,
+    '.gif' : downloadImage,
+    '.ico' : downloadImage,
+    '.tiff' : downloadImage,
+    '.webp' : downloadImage,
+    '.image' : downloadImage,
     '.pvr': downloadArrayBuffer,
     '.pkm': downloadArrayBuffer,
 
