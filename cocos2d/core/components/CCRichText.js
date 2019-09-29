@@ -127,6 +127,7 @@ let RichText = cc.Class({
         this._linesWidth = [];
 
         if (CC_EDITOR) {
+            this._fontCache = null;
             this._updateRichTextStatus = debounce(this._updateRichText, 200);
         }
         else {
@@ -245,12 +246,34 @@ let RichText = cc.Class({
                 return this._isSystemFontUsed;
             },
             set (value) {
-                if (!value && !this.font || (this._isSystemFontUsed === value)) {
+                if (this._isSystemFontUsed === value) {
                     return;
                 }
                 this._isSystemFontUsed = value;
                 this._layoutDirty = true;
-                this._updateRichTextStatus();
+
+                if (CC_EDITOR) {
+                    if (value) {
+                        this._fontCache = this.font;
+                    }
+                    else if (this._fontCache) {
+                        this.font = this._fontCache;
+                        return;
+                    }
+                }
+
+                if (value) {
+                    this.font = null;
+                    this._updateRichTextStatus();
+                }
+                else if (!this.font) {
+                    this._labelSegments.forEach(node => {
+                        let comp = node.getComponent(cc.RenderComponent);
+                        if (comp) {
+                            comp.disableRender()
+                        }
+                    });
+                }
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.richtext.system_font',
