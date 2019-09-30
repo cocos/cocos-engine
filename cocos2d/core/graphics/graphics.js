@@ -352,7 +352,9 @@ let Graphics = cc.Class({
      */
     clear (clean) {
         this._impl.clear(clean);
-        this._assembler.clear(clean);
+        if (this._assembler) {
+            this._assembler.clear(clean);
+        }
     },
 
     /**
