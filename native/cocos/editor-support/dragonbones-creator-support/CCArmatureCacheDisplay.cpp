@@ -240,7 +240,7 @@ void CCArmatureCacheDisplay::render(float dt)
         if (needColor) 
         {
             auto frameFloatOffset = srcVertexBytesOffset / sizeof(float);
-            for (auto colorIndex = 0; colorIndex < segment->vertexFloatCount; colorIndex += 5)
+            for (auto colorIndex = 0; colorIndex < segment->vertexFloatCount; colorIndex += 5, frameFloatOffset += 5)
             {
                 if (frameFloatOffset >= maxVFOffset) 
                 {

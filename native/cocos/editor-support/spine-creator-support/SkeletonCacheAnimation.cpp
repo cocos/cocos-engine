@@ -247,7 +247,7 @@ namespace spine {
             // handle vertex color
             if (needColor) {
                 int frameFloatOffset = srcVertexBytesOffset / sizeof(float);
-                for (auto colorIndex = 0; colorIndex < segment->vertexFloatCount; colorIndex += 6)
+                for (auto colorIndex = 0; colorIndex < segment->vertexFloatCount; colorIndex += 6, frameFloatOffset += 6)
                 {
                     if (frameFloatOffset >= maxVFOffset) {
                         nowColor = colors[colorOffset++];
