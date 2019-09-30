@@ -29,10 +29,11 @@
  */
 
 import { Vec3 } from '../../../core/math';
+import { IAssembler } from '../../../core/renderer/ui/base';
 import { IRenderData, RenderData } from '../../../core/renderer/ui/render-data';
 import { UI } from '../../../core/renderer/ui/ui';
 import { SpriteComponent } from '../../components';
-import { IAssembler } from '../../../core/renderer/ui/base';
+
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
@@ -111,34 +112,6 @@ export const simple: IAssembler = {
         const vData = sprite!.renderData!.vData!;
         const data0 = datas[0];
         const data3 = datas[3];
-        /* */
-        node.updateWorldTransform();
-        // @ts-ignore
-        const pos = node._pos as Vec3; const rot = node._rot; const scale = node._scale;
-        const ax = data0.x * scale.x; const bx = data3.x * scale.x;
-        const ay = data0.y * scale.y; const by = data3.y * scale.y;
-        const qx = rot.x; const qy = rot.y; const qz = rot.z; const qw = rot.w;
-        const qxy = qx * qy; const qzw = qz * qw;
-        const qxy2 = qx * qx - qy * qy;
-        const qzw2 = qw * qw - qz * qz;
-        const cx1 = qzw2 + qxy2;
-        const cx2 = (qxy - qzw) * 2;
-        const cy1 = qzw2 - qxy2;
-        const cy2 = (qxy + qzw) * 2;
-        const x = pos.x; const y = pos.y;
-        // left bottom
-        vData[0] = cx1 * ax + cx2 * ay + x;
-        vData[1] = cy1 * ay + cy2 * ax + y;
-        // right bottom
-        vData[9] = cx1 * bx + cx2 * ay + x;
-        vData[10] = cy1 * ay + cy2 * bx + y;
-        // left top
-        vData[18] = cx1 * ax + cx2 * by + x;
-        vData[19] = cy1 * by + cy2 * ax + y;
-        // right top
-        vData[27] = cx1 * bx + cx2 * by + x;
-        vData[28] = cy1 * by + cy2 * bx + y;
-        /* *
         const matrix = node.worldMatrix;
         const a = matrix.m00; const b = matrix.m01;
         const c = matrix.m04; const d = matrix.m05;
@@ -161,7 +134,6 @@ export const simple: IAssembler = {
         // right top
         vData[27] = ar + ct + tx;
         vData[28] = br + dt + ty;
-        /* */
 
         vbuf.set(vData, vertexOffset);
 

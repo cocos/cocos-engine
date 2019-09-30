@@ -28,7 +28,7 @@
  * @category core/value-types
  */
 
-import * as js from '../utils/js';
+import { value } from '../utils/js';
 
 /**
  * @en
@@ -47,7 +47,7 @@ export function Enum<T> (obj: T): T {
     if ('__enums__' in obj) {
         return obj;
     }
-    js.value(obj, '__enums__', null, true);
+    value(obj, '__enums__', null, true);
 
     let lastIndex: number = -1;
     const keys: string[] = Object.keys(obj);
@@ -74,7 +74,7 @@ export function Enum<T> (obj: T): T {
                 cc.errorID(7100, reverseKey);
                 continue;
             }
-            js.value(obj, reverseKey, key);
+            value(obj, reverseKey, key);
         }
     }
     return obj;
@@ -96,9 +96,9 @@ Enum.getList = (enumDef) => {
     const enums: any[] = enumDef.__enums__ = [];
     // tslint:disable-next-line: forin
     for (const name in enumDef) {
-        const value = enumDef[name];
-        if (Number.isInteger(value)) {
-            enums.push({ name, value });
+        const v = enumDef[name];
+        if (Number.isInteger(v)) {
+            enums.push({ name, value: v });
         }
     }
     enums.sort((a, b) => a.value - b.value);
@@ -122,7 +122,7 @@ export function ccenum (enumx) {
     if ('__enums__' in enumx) {
         return;
     }
-    js.value(enumx, '__enums__', null, true);
+    value(enumx, '__enums__', null, true);
 }
 
 cc.Enum = Enum;

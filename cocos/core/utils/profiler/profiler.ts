@@ -33,8 +33,7 @@ import { GFXDevice } from '../../gfx/device';
 import { GFXTexture } from '../../gfx/texture';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { Vec4 } from '../../math';
-import { CameraVisFlags } from '../../renderer/scene/camera';
-import { VisibilityFlags } from '../../renderer/scene/model';
+import { Layers } from '../../scene-graph';
 import { Node } from '../../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
@@ -225,7 +224,7 @@ export class Profiler {
         camera.near = 0;
         camera.far = 0;
         camera.orthoHeight = this._device!.height;
-        camera.visibility = CameraVisFlags.PROFILER;
+        camera.visibility = Layers.BitMask.PROFILER;
         camera.clearFlags = GFXClearFlag.DEPTH | GFXClearFlag.STENCIL;
         camera.priority = 1073741928;
 
@@ -268,7 +267,7 @@ export class Profiler {
         pass.bindTextureView(handle!, this._textureView!);
 
         modelCom.material = _material;
-        modelCom.node.layer = VisibilityFlags.PROFILER;
+        modelCom.node.layer = Layers.Enum.PROFILER;
     }
 
     public beforeUpdate () {

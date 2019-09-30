@@ -1,7 +1,6 @@
 import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import { GFXTextureView, IGFXTextureViewInfo } from '../texture-view';
-import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUTextureView } from './webgl-gpu-objects';
 import { WebGLGFXTexture } from './webgl-texture';
 

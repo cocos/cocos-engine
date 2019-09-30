@@ -4,8 +4,8 @@
 
 import { ccclass } from '../data/class-decorator';
 import { binarySearchEpsilon as binarySearch } from '../data/utils/binary-search';
-import { errorID } from '../platform/debug';
 import { lerp, Quat } from '../math';
+import { errorID } from '../platform/debug';
 import { ValueType } from '../value-types';
 import { bezierByTime, BezierControlPoints } from './bezier';
 import * as easing from './easing';
@@ -82,7 +82,6 @@ export interface INestedPropertyCurveData {
     properties: Array<number | string | CurveValueAdapter>;
     data: IPropertyCurveData;
 }
-
 
 export class RatioSampler {
     public ratios: number[];
@@ -275,7 +274,7 @@ export class CurveValueAdapter {
      * 返回指定目标的曲线值代理。
      * @param target
      */
-    public forTarget(target: any): ICurveValueProxy {
+    public forTarget (target: any): ICurveValueProxy {
         return {
             set: (value: any) => {
                 // Empty implementation

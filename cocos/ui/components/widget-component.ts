@@ -29,14 +29,75 @@
  */
 
 import { Component} from '../../core/components';
-import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
-import { SystemEventType } from '../../core/platform/event-manager/event-enum';
-import { Size, Vec3 } from '../../core/math';
-import { ccenum } from '../../core/value-types/enum';
-import { Node } from '../../core/scene-graph/node';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transfrom-component';
-import { INode } from '../../core/utils/interfaces';
+import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
+import { Size, Vec3 } from '../../core/math';
 import { errorID } from '../../core/platform/debug';
+import { SystemEventType } from '../../core/platform/event-manager/event-enum';
+import { View } from '../../core/platform/view';
+import visibleRect from '../../core/platform/visible-rect';
+import { Scene } from '../../core/scene-graph';
+import { Node } from '../../core/scene-graph/node';
+import { INode } from '../../core/utils/interfaces';
+import { ccenum } from '../../core/value-types/enum';
+
+const _zeroVec3 = new Vec3();
+
+// returns a readonly size of the node
+export function getReadonlyNodeSize (parent: INode) {
+    if (parent instanceof Scene) {
+        // @ts-ignore
+        if (CC_EDITOR) {
+            // const canvasComp = parent.getComponentInChildren(CanvasComponent);
+            if (!View.instance) {
+                throw new Error('cc.view uninitiated');
+            }
+
+            return View.instance.getDesignResolutionSize();
+        }
+
+        return visibleRect;
+    } else {
+        return parent.getContentSize();
+    }
+}
+
+export function computeInverseTransForTarget (widgetNode: INode, target: INode, out_inverseTranslate: Vec3, out_inverseScale: Vec3) {
+    let scale = widgetNode.parent ? widgetNode.parent.getScale() : _zeroVec3;
+    let scaleX = scale.x;
+    let scaleY = scale.y;
+    let translateX = 0;
+    let translateY = 0;
+    for (let node = widgetNode.parent; ;) {
+        if (!node) {
+            // ERROR: widgetNode should be child of target
+            out_inverseTranslate.x = out_inverseTranslate.y = 0;
+            out_inverseScale.x = out_inverseScale.y = 1;
+            return;
+        }
+
+        const pos = node.getPosition();
+        translateX += pos.x;
+        translateY += pos.y;
+        node = node.parent;    // loop increment
+
+        if (node !== target) {
+            scale = node ? node.getScale() : _zeroVec3;
+            const sx = scale.x;
+            const sy = scale.y;
+            translateX *= sx;
+            translateY *= sy;
+            scaleX *= sx;
+            scaleY *= sy;
+        } else {
+            break;
+        }
+    }
+    out_inverseScale.x = scaleX !== 0 ? (1 / scaleX) : 1;
+    out_inverseScale.y = scaleY !== 0 ? (1 / scaleY) : 1;
+    out_inverseTranslate.x = -translateX;
+    out_inverseTranslate.y = -translateY;
+}
 
 /**
  * @zh
@@ -361,7 +422,7 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsTop = value;
-        this._aotuChangedValue(AlignFlags.TOP, this._isAbsTop);
+        this._autoChangedValue(AlignFlags.TOP, this._isAbsTop);
     }
 
     /**
@@ -378,7 +439,7 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsBottom = value;
-        this._aotuChangedValue(AlignFlags.BOT, this._isAbsBottom);
+        this._autoChangedValue(AlignFlags.BOT, this._isAbsBottom);
     }
 
     /**
@@ -395,7 +456,7 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsLeft = value;
-        this._aotuChangedValue(AlignFlags.LEFT, this._isAbsLeft);
+        this._autoChangedValue(AlignFlags.LEFT, this._isAbsLeft);
     }
 
     /**
@@ -412,7 +473,7 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsRight = value;
-        this._aotuChangedValue(AlignFlags.RIGHT, this._isAbsRight);
+        this._autoChangedValue(AlignFlags.RIGHT, this._isAbsRight);
     }
 
     /**
@@ -451,7 +512,7 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsHorizontalCenter = value;
-        this._aotuChangedValue(AlignFlags.CENTER, this._isAbsHorizontalCenter);
+        this._autoChangedValue(AlignFlags.CENTER, this._isAbsHorizontalCenter);
     }
 
     /**
@@ -468,7 +529,7 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsVerticalCenter = value;
-        this._aotuChangedValue(AlignFlags.MID, this._isAbsVerticalCenter);
+        this._autoChangedValue(AlignFlags.MID, this._isAbsVerticalCenter);
     }
 
     /**
@@ -549,7 +610,7 @@ export class WidgetComponent extends Component {
     }
 
     public _validateTargetInDEV () {
-        if (!CC_DEV){
+        if (!CC_DEV) {
             return;
         }
 
@@ -558,7 +619,7 @@ export class WidgetComponent extends Component {
             const isParent = this.node !== target && this.node.isChildOf(target);
             if (!isParent) {
                 errorID(6500);
-                this._target = null;
+                this.target = null;
             }
         }
 
@@ -568,33 +629,155 @@ export class WidgetComponent extends Component {
         this._recursiveDirty();
     }
 
-    public onLoad () {
-    }
-
     public onEnable () {
         this.node.getPosition(this._lastPos);
         this.node.getContentSize(this._lastSize);
         cc._widgetManager.add(this);
+        this._registerEvent();
         this._registerTargetEvents();
-    }
-
-    public update (){
-        if (this._dirty){
-            return;
-        }
-
-        // changed by parent
-        if (this.node.hasChangedFlags) {
-            this._recursiveDirty();
-        }
     }
 
     public onDisable () {
         cc._widgetManager.remove(this);
+        this._unregisterEvent();
         this._unregisterTargetEvents();
     }
 
-    protected _aotuChangedValue (flag: AlignFlags, isAbs: boolean){
+    public onDestroy () {
+        this._removeParentEvent();
+    }
+
+    public _adjustWidgetToAllowMovingInEditor (eventType: SystemEventType) {
+        if (/*!CC_EDITOR ||*/ eventType !== SystemEventType.POSITION_PART) {
+            return;
+        }
+
+        if (cc._widgetManager.isAligning) {
+            return;
+        }
+
+        const self = this;
+        const newPos = self.node.getPosition();
+        const oldPos = this._lastPos;
+        const delta = new Vec3(newPos);
+        delta.subtract(oldPos);
+
+        let target = self.node.parent;
+        const inverseScale = new Vec3(1, 1, 1);
+
+        if (self.target) {
+            target = self.target as INode;
+            computeInverseTransForTarget(self.node, target, new Vec3(), inverseScale);
+        }
+        if (!target) {
+            return;
+        }
+
+        const targetSize = getReadonlyNodeSize(target);
+        const deltaInPercent = new Vec3();
+        if (targetSize.width !== 0 && targetSize.height !== 0) {
+            Vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
+        }
+
+        if (self.isAlignTop) {
+            self.top -= (self.isAbsoluteTop ? delta.y : deltaInPercent.y) * inverseScale.y;
+        }
+        if (self.isAlignBottom) {
+            self.bottom += (self.isAbsoluteBottom ? delta.y : deltaInPercent.y) * inverseScale.y;
+        }
+        if (self.isAlignLeft) {
+            self.left += (self.isAbsoluteLeft ? delta.x : deltaInPercent.x) * inverseScale.x;
+        }
+        if (self.isAlignRight) {
+            self.right -= (self.isAbsoluteRight ? delta.x : deltaInPercent.x) * inverseScale.x;
+        }
+        if (self.isAlignHorizontalCenter) {
+            self.horizontalCenter += (self.isAbsoluteHorizontalCenter ? delta.x : deltaInPercent.x) * inverseScale.x;
+        }
+        if (self.isAlignVerticalCenter) {
+            self.verticalCenter += (self.isAbsoluteVerticalCenter ? delta.y : deltaInPercent.y) * inverseScale.y;
+        }
+    }
+
+    public _adjustWidgetToAllowResizingInEditor () {
+        // if (!CC_EDITOR) {
+        //     return;
+        // }
+
+        if (cc._widgetManager.isAligning) {
+            return;
+        }
+
+        this.setDirty();
+
+        const self = this;
+        const newSize = self.node.getContentSize();
+        const oldSize = this._lastSize;
+        const delta = new Vec3(newSize.width - oldSize.width, newSize.height - oldSize.height, 0);
+
+        let target = self.node.parent;
+        const inverseScale = new Vec3(1, 1, 1);
+        if (self.target) {
+            target = self.target as INode;
+            computeInverseTransForTarget(self.node, target, new Vec3(), inverseScale);
+        }
+        if (!target) {
+            return;
+        }
+
+        const targetSize = getReadonlyNodeSize(target);
+        const deltaInPercent = new Vec3();
+        if (targetSize.width !== 0 && targetSize.height !== 0) {
+            Vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
+        }
+
+        const anchor = self.node.getAnchorPoint();
+
+        if (self.isAlignTop) {
+            self.top -= (self.isAbsoluteTop ? delta.y : deltaInPercent.y) * (1 - anchor.y) * inverseScale.y;
+        }
+        if (self.isAlignBottom) {
+            self.bottom -= (self.isAbsoluteBottom ? delta.y : deltaInPercent.y) * anchor.y * inverseScale.y;
+        }
+        if (self.isAlignLeft) {
+            self.left -= (self.isAbsoluteLeft ? delta.x : deltaInPercent.x) * anchor.x * inverseScale.x;
+        }
+        if (self.isAlignRight) {
+            self.right -= (self.isAbsoluteRight ? delta.x : deltaInPercent.x) * (1 - anchor.x) * inverseScale.x;
+        }
+    }
+
+    public _adjustWidgetToAnchorChanged () {
+        this.setDirty();
+    }
+
+    public _adjustTargetToParentChanged (oldParent: Node) {
+        if (oldParent) {
+            this._unregisterOldParentEvents(oldParent);
+        }
+        if (this.node.getParent()) {
+            this._registerTargetEvents();
+        }
+    }
+
+    protected _registerEvent () {
+        this.node.on(SystemEventType.TRANSFORM_CHANGED, this._adjustWidgetToAllowMovingInEditor, this);
+        this.node.on(SystemEventType.SIZE_CHANGED, this._adjustWidgetToAllowResizingInEditor, this);
+        this.node.on(SystemEventType.ANCHOR_CHANGED, this._adjustWidgetToAnchorChanged, this);
+        this.node.on(SystemEventType.PARENT_CHANGED, this._adjustTargetToParentChanged, this);
+    }
+
+    protected _unregisterEvent () {
+        this.node.off(SystemEventType.TRANSFORM_CHANGED, this._adjustWidgetToAllowMovingInEditor, this);
+        this.node.off(SystemEventType.SIZE_CHANGED, this._adjustWidgetToAllowResizingInEditor, this);
+        this.node.off(SystemEventType.ANCHOR_CHANGED, this._adjustWidgetToAnchorChanged, this);
+    }
+
+    protected _removeParentEvent () {
+        this.node.off(SystemEventType.PARENT_CHANGED, this._adjustTargetToParentChanged, this);
+    }
+
+    protected _autoChangedValue (flag: AlignFlags, isAbs: boolean){
         const current = (this._alignFlags & flag) > 0;
         if (!current || !this.node.parent || !this.node.parent.uiTransfromComp){
             return;
@@ -620,16 +803,26 @@ export class WidgetComponent extends Component {
 
     protected _registerTargetEvents () {
         const target = this._target || this.node.parent;
-        // Ensure target can be found in unregistration, in case parent is null during setParent(null) process
-        this._target = target;
-        if (target){
-            target.on(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
-            target.on(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
+        if (target) {
+            if (target.getComponent(UITransformComponent)) {
+                target.on(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
+                target.on(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
+            } else {
+                cc.warnID(6501, this.node.name);
+            }
         }
     }
 
     protected _unregisterTargetEvents () {
         const target = this._target || this.node.parent;
+        if (target) {
+            target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
+            target.off(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
+        }
+    }
+
+    protected _unregisterOldParentEvents ( oldParent: Node ) {
+        const target = this._target || oldParent;
         if (target) {
             target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
             target.off(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
@@ -699,10 +892,7 @@ export class WidgetComponent extends Component {
             return;
         }
 
-        const widgets = this.node.getComponentsInChildren(WidgetComponent);
-        widgets.forEach((widget) => {
-            widget._dirty = true;
-        });
+        this._dirty = true;
     }
 }
 

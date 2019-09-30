@@ -2171,6 +2171,10 @@ AssetLibrary has already been initialized!
 
 Widget target must be one of the parent nodes of it
 
+### 6501
+
+%s's widget target must have UITransformComponent, Please add it in target
+
 ### 6600
 
 collider not added or already removed
@@ -2701,3 +2705,7 @@ Stencil manager does not support level bigger than %d in this device.
 ### 9001
 
 Stencil manager is already empty, cannot pop any mask
+
+### 9100
+
+texture size exceeds current device limits %d/%d

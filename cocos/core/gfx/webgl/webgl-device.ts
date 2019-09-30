@@ -250,6 +250,8 @@ export class WebGLGFXDevice extends GFXDevice {
         this._maxFragmentUniformVectors = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
         this._maxTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
         this._maxVertexTextureUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+        this._maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+        this._maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
         this._depthBits = gl.getParameter(gl.DEPTH_BITS);
         this._stencilBits = gl.getParameter(gl.STENCIL_BITS);
 
@@ -402,10 +404,11 @@ export class WebGLGFXDevice extends GFXDevice {
         this._queue = this.createQueue({ type: GFXQueueType.GRAPHICS });
 
         // create primary window
+        const canvas = this._webGLRC.canvas as HTMLCanvasElement;
         this._mainWindow = this.createWindow({
-            title: this._webGLRC.canvas.title,
-            left: this._webGLRC.canvas.offsetLeft,
-            top: this._webGLRC.canvas.offsetTop,
+            title: canvas.title || '',
+            left: canvas.offsetLeft || 0,
+            top: canvas.offsetTop || 0,
             width: this._webGLRC.drawingBufferWidth,
             height: this._webGLRC.drawingBufferHeight,
             colorFmt: this._colorFmt,

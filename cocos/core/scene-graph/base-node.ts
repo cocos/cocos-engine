@@ -421,6 +421,10 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
 
         this._onSetParent(oldParent, keepWorldTransform);
 
+        if (this.emit) {
+            this.emit(SystemEventType.PARENT_CHANGED, oldParent);
+        }
+
         if (value) {
             if (CC_DEBUG && (value._objFlags & Deactivating)) {
                 cc.errorID(3821);
@@ -445,6 +449,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             }
         }
         this._onHierarchyChanged(oldParent);
+
     }
 
     // ABSTRACT INTERFACES

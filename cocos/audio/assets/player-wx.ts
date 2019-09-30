@@ -27,6 +27,7 @@
  * @category component/audio
  */
 
+import { clamp } from '../../core/math/utils';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 
 /**
@@ -43,10 +44,6 @@ export class AudioPlayerWX extends AudioPlayer {
     protected _loop = false;
     protected _oneShoting = false;
     protected _audio: InnerAudioContext;
-
-    private _pauseFn: Function;
-    private _playFn: Function;
-    private _interrupted = false;
 
     constructor (info: IAudioInfo) {
         super(info);
@@ -84,22 +81,14 @@ export class AudioPlayerWX extends AudioPlayer {
             }
         });
         this._audio.onError((res: any) => console.error(res.errMsg));
-        this._pauseFn = () => {
-            if (this._state !== PlayingState.PLAYING) { return; }
-            this.pause(); this._interrupted = true;
-        };
-        this._playFn = () => {
-            if (!this._interrupted) { return; }
-            this.play(); this._interrupted = false;
-        };
-        wx.onHide(this._pauseFn);
-        wx.onShow(this._playFn);
-        wx.onAudioInterruptionBegin(this._pauseFn);
-        wx.onAudioInterruptionEnd(this._playFn);
+        /* handle hide & show */
+        wx.onAudioInterruptionBegin(this._onHide);
+        wx.onAudioInterruptionEnd(this._onShow);
     }
 
     public play () {
         if (!this._audio || this._state === PlayingState.PLAYING) { return; }
+        if (this._blocking) { this._interrupted = true; return; }
         this._audio.play();
     }
 
@@ -135,8 +124,8 @@ export class AudioPlayerWX extends AudioPlayer {
 
     public setCurrentTime (val: number) {
         if (!this._audio) { return; }
+        this._offset = clamp(val, 0, this._duration) * 1000;
         this._startTime = performance.now();
-        this._offset = val * 1000;
         this._audio.seek(val);
     }
 
@@ -160,9 +149,8 @@ export class AudioPlayerWX extends AudioPlayer {
 
     public destroy () {
         if (this._audio) { this._audio.destroy(); }
-        wx.offHide(this._pauseFn);
-        wx.offShow(this._playFn);
-        wx.offAudioInterruptionBegin(this._pauseFn);
-        wx.offAudioInterruptionEnd(this._playFn);
+        wx.offAudioInterruptionBegin(this._onHide);
+        wx.offAudioInterruptionEnd(this._onShow);
+        super.destroy();
     }
 }

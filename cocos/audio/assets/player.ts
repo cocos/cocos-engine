@@ -44,9 +44,27 @@ export abstract class AudioPlayer {
     protected _duration = 0;
     protected _eventTarget: any;
 
+    protected _onHide: Function;
+    protected _onShow: Function;
+    protected _interrupted = false;
+    protected _blocking = false;
+
     constructor (info: IAudioInfo) {
         this._duration = info.duration;
         this._eventTarget = info.eventTarget;
+        this._onHide = () => {
+            this._blocking = true;
+            if (this._state !== PlayingState.PLAYING) { return; }
+            this.pause(); this._interrupted = true;
+        };
+        this._onShow = () => {
+            this._blocking = false;
+            if (!this._interrupted) { return; }
+            this.play(); this._interrupted = false;
+        };
+        /* handle hide & show */
+        cc.game.on(cc.Game.EVENT_HIDE, this._onHide);
+        cc.game.on(cc.Game.EVENT_SHOW, this._onShow);
     }
 
     public abstract play (): void;
@@ -61,5 +79,8 @@ export abstract class AudioPlayer {
     public abstract getLoop (): boolean;
     public getState () { return this._state; }
     public getDuration () { return this._duration; }
-    public destroy () {}
+    public destroy () {
+        cc.game.off(cc.Game.EVENT_HIDE, this._onHide);
+        cc.game.off(cc.Game.EVENT_SHOW, this._onShow);
+    }
 }

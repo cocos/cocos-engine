@@ -237,6 +237,22 @@ export abstract class GFXDevice {
 
     /**
      * @zh
+     * 最大贴图尺寸。
+     */
+    public get maxTextureSize (): number {
+        return this._maxTextureSize;
+    }
+
+    /**
+     * @zh
+     * 最大立方贴图尺寸。
+     */
+    public get maxCubeMapTextureSize (): number {
+        return this._maxCubeMapTextureSize;
+    }
+
+    /**
+     * @zh
      * 深度位数。
      */
     public get depthBits (): number {
@@ -322,6 +338,8 @@ export abstract class GFXDevice {
     protected _maxVertexTextureUnits: number = 0;
     protected _maxUniformBufferBindings: number = GFX_MAX_BUFFER_BINDINGS;
     protected _maxUniformBlockSize: number = 0;
+    protected _maxTextureSize: number = 0;
+    protected _maxCubeMapTextureSize: number = 0;
     protected _depthBits: number = 0;
     protected _stencilBits: number = 0;
     protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;

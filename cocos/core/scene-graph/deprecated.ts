@@ -93,4 +93,28 @@ replaceProperty(Layers, 'Layers', [
         target: Layers.Enum,
         targetName: 'Layers.Enum',
     },
+    {
+        name: 'makeInclusiveMask',
+        newName: 'makeMaskInclude',
+        target: Layers,
+        targetName: 'Layers',
+    },
+    {
+        name: 'makeExclusiveMask',
+        newName: 'makeMaskExclude',
+        target: Layers,
+        targetName: 'Layers',
+    },
+]);
+
+removeProperty(Layers.Enum,'Layers.Enum',[
+    {
+        'name': 'ALWAYS',
+    }
+]);
+
+removeProperty(Layers.BitMask,'Layers.BitMask',[
+    {
+        'name': 'ALWAYS',
+    }
 ]);

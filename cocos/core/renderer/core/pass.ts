@@ -87,7 +87,7 @@ const _type2reader = {
     [GFXType.MAT4]: (a: Float32Array, v: any, idx: number = 0) => Mat4.fromArray(v, a, idx),
 };
 
-const _type2default = {
+export const _type2default = {
     [GFXType.INT]: [0],
     [GFXType.INT2]: [0, 0],
     [GFXType.INT3]: [0, 0, 0],
@@ -252,6 +252,13 @@ export class Pass {
                 return acc + (GFXGetTypeSize(cur.type) >> 2) * cur.count;
             }, 0);
         }
+        // store indirect property handles
+        for (const name of Object.keys(this._properties)) {
+            const prop = this._properties[name];
+            if (!prop.handleInfo) { continue; }
+            this._handleMap[name] = this.getHandle.apply(this, prop.handleInfo)!;
+        }
+        // store sampler handles
         for (const u of this._shaderInfo.samplers) {
             this._handleMap[u.name] = genHandle(GFXBindingType.SAMPLER, u.binding, u.type);
         }
@@ -684,7 +691,8 @@ export class Pass {
     get customizations () { return this._customizations; }
     get shader (): GFXShader { return this._shader!; }
     get batchedBuffer (): BatchedBuffer | null { return this._batchedBuffer; }
-    get shaderInfo() { return this._shaderInfo; }
+    get shaderInfo () { return this._shaderInfo; }
+    get properties () { return this._properties; }
 }
 
 const serializeBlendState = (bs: GFXBlendState) => {
