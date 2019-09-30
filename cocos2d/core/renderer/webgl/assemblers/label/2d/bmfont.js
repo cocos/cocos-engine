@@ -33,15 +33,16 @@ export default class WebglBmfontAssembler extends BmfontAssembler {
     }
 
     _reserveQuads (comp, count) {
-        this.verticesCount = count * 4;
-        this.indicesCount = count * 6;
+        let verticesCount = count * 4;
+        let indicesCount = count * 6;
         
         let flexBuffer = this._renderData._flexBuffer;
-        flexBuffer.reserve(this.verticesCount, this.indicesCount);
-        flexBuffer.used(this.verticesCount, this.indicesCount);
+        flexBuffer.reserve(verticesCount, indicesCount);
+        flexBuffer.used(verticesCount, indicesCount);
        
         let iData = this._renderData.iDatas[0];
-        for (let i = 0, vid = 0, l = this.indicesCount; i < l; i += 6, vid += 4) {
+
+        for (let i = 0, vid = 0, l = indicesCount; i < l; i += 6, vid += 4) {
             iData[i] = vid;
             iData[i + 1] = vid + 1;
             iData[i + 2] = vid + 2;
@@ -63,6 +64,9 @@ export default class WebglBmfontAssembler extends BmfontAssembler {
         let renderData = this._renderData;
         let verts = renderData.vDatas[0],
             uintVerts = renderData.uintVDatas[0];
+
+        this.verticesCount += 4;
+        this.indicesCount = this.verticesCount / 2 * 3;
 
         let texw = texture.width,
             texh = texture.height,

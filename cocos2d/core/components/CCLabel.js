@@ -385,7 +385,6 @@ let Label = cc.Class({
                     cc.warnID(4000);
                 }
 
-                this._fontAtlas = null;
                 this._resetAssembler();
                 this._applyFontTexture(true);
                 this._lazyUpdateRenderData();
@@ -420,7 +419,9 @@ let Label = cc.Class({
                 this._isSystemFontUsed = !!value;
                 if (value) {
                     this.font = null;
+                    this._frame = null;
                     this._resetAssembler();
+                    this._applyFontTexture(true);
                     this._lazyUpdateRenderData();
                     this._checkStringEmpty();
                 }
