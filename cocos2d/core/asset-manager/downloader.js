@@ -27,7 +27,6 @@
  */
 const js = require('../platform/js');
 const debug = require('../CCDebug');
-const retry = require('./utilities').retry;
 const { loadFont } = require('./font-loader');
 const callInNextTick = require('../platform/utils').callInNextTick;
 const downloadDomImage = require('./download-dom-image');
@@ -37,6 +36,7 @@ const downloadScript = require('./download-script.js');
 const Cache = require('./cache');
 const { files, LoadStrategy } = require('./shared');
 const { __audioSupport, capabilities } = require('../platform/CCSys');
+const { urlAppendTimestamp, retry } = require('./utilities');
 
 
 var formatSupport = __audioSupport.format || [];
@@ -433,13 +433,13 @@ var downloader = {
                     _downloading.add(id, [onComplete]);
                 }
                 
-                if (!self.limited) return func(url, options, callback);
+                if (!self.limited) return func(urlAppendTimestamp(url), options, callback);
 
                 // refresh
                 updateTime();
 
                 function invoke () {
-                    func(url, options, function () {
+                    func(urlAppendTimestamp(url), options, function () {
                         // when finish downloading, update _totalNum
                         _totalNum--;
                         if (!_checkNextPeriod && _queue.length > 0) {

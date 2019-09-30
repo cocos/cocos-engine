@@ -422,7 +422,13 @@ var parser = {
 var parsers = {
     '.png' : parser.parseImage,
     '.jpg' : parser.parseImage,
+    '.bmp' : parser.parseImage,
     '.jpeg' : parser.parseImage,
+    '.gif' : parser.parseImage,
+    '.ico' : parser.parseImage,
+    '.tiff' : parser.parseImage,
+    '.webp' : parser.parseImage,
+    '.image' : parser.parseImage,
     '.pvr' : parser.parsePVRTex,
     '.pkm' : parser.parsePKMTex,
     // Audio

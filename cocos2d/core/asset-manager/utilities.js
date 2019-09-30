@@ -110,11 +110,12 @@ var utils = {
     },
 
     urlAppendTimestamp (url) {
+        
         if (cc.assetManager.appendTimeStamp && typeof url === 'string') {
             if (/\?/.test(url))
-                url += '&_t=' + (new Date() - 0);
+                return url + '&_t=' + (new Date() - 0);
             else
-                url += '?_t=' + (new Date() - 0);
+                return url + '?_t=' + (new Date() - 0);
         }
         return url;
     },

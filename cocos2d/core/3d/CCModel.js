@@ -84,8 +84,6 @@ let Model = cc.Class({
                 }
             }
         }
-        this.loaded = true;
-        this.emit("load");
     }
 });
 

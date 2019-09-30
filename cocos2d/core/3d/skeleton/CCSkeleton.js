@@ -78,8 +78,6 @@ let Skeleton = cc.Class({
                 bindposes[i] = node.bindpose[this._skinIndex];
             }
         }
-        this.loaded = true;
-        this.emit("load");
     }
 });
 
