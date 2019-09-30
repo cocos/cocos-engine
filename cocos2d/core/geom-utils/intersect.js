@@ -230,7 +230,7 @@ intersect.raycast = (function () {
             // raycast with bounding box
             let distance = Infinity;
             let component = node._renderComponent;
-            if (component && component._boundingBox) {
+            if (component instanceof cc.MeshRenderer ) {
                 distance = intersect.rayAabb(modelRay, component._boundingBox);
             }
             else if (node.width && node.height) {
