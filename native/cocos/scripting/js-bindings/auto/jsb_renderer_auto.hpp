@@ -278,6 +278,7 @@ extern se::Class* __jsb_cocos2d_renderer_AssemblerSprite_class;
 bool js_register_cocos2d_renderer_AssemblerSprite(se::Object* obj);
 bool register_all_renderer(se::Object* obj);
 SE_DECLARE_FUNC(js_renderer_AssemblerSprite_setLocalData);
+SE_DECLARE_FUNC(js_renderer_AssemblerSprite_AssemblerSprite);
 
 extern se::Object* __jsb_cocos2d_renderer_SimpleSprite2D_proto;
 extern se::Class* __jsb_cocos2d_renderer_SimpleSprite2D_class;

@@ -4203,21 +4203,52 @@ static bool js_renderer_AssemblerSprite_setLocalData(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_AssemblerSprite_setLocalData)
 
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_AssemblerSprite_finalize)
+
+static bool js_renderer_AssemblerSprite_constructor(se::State& s)
+{
+    cocos2d::renderer::AssemblerSprite* cobj = new (std::nothrow) cocos2d::renderer::AssemblerSprite();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_renderer_AssemblerSprite_constructor, __jsb_cocos2d_renderer_AssemblerSprite_class, js_cocos2d_renderer_AssemblerSprite_finalize)
+
+static bool js_renderer_AssemblerSprite_ctor(se::State& s)
+{
+    cocos2d::renderer::AssemblerSprite* cobj = new (std::nothrow) cocos2d::renderer::AssemblerSprite();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_SUB_CLS_CTOR(js_renderer_AssemblerSprite_ctor, __jsb_cocos2d_renderer_AssemblerSprite_class, js_cocos2d_renderer_AssemblerSprite_finalize)
+
+
+    
 
 extern se::Object* __jsb_cocos2d_renderer_Assembler_proto;
 
+static bool js_cocos2d_renderer_AssemblerSprite_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::AssemblerSprite)", s.nativeThisObject());
+    cocos2d::renderer::AssemblerSprite* cobj = (cocos2d::renderer::AssemblerSprite*)s.nativeThisObject();
+    cobj->release();
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_AssemblerSprite_finalize)
 
 bool js_register_renderer_AssemblerSprite(se::Object* obj)
 {
-    auto cls = se::Class::create("AssemblerSprite", obj, __jsb_cocos2d_renderer_Assembler_proto, nullptr);
+    auto cls = se::Class::create("AssemblerSprite", obj, __jsb_cocos2d_renderer_Assembler_proto, _SE(js_renderer_AssemblerSprite_constructor));
 
     cls->defineFunction("setLocalData", _SE(js_renderer_AssemblerSprite_setLocalData));
+    cls->defineFunction("ctor", _SE(js_renderer_AssemblerSprite_ctor));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_AssemblerSprite_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::AssemblerSprite>(cls);
 
     __jsb_cocos2d_renderer_AssemblerSprite_proto = cls->getProto();
     __jsb_cocos2d_renderer_AssemblerSprite_class = cls;
 
+    jsb_set_extend_property("renderer", "AssemblerSprite");
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }

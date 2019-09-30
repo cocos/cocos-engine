@@ -1818,6 +1818,15 @@ object
 {
 },
 
+/**
+ * @method AssemblerSprite
+ * @constructor
+ */
+AssemblerSprite : function (
+)
+{
+},
+
 };
 
 /**
