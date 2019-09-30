@@ -2203,33 +2203,6 @@ static bool js_renderer_Camera_getClearFlags(se::State& s)
 }
 SE_BIND_FUNC(js_renderer_Camera_getClearFlags)
 
-static bool js_renderer_Camera_worldMatrixToScreen(se::State& s)
-{
-    cocos2d::renderer::Camera* cobj = (cocos2d::renderer::Camera*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_renderer_Camera_worldMatrixToScreen : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 4) {
-        cocos2d::Mat4 arg0;
-        cocos2d::Mat4 arg1;
-        int arg2 = 0;
-        int arg3 = 0;
-        ok &= seval_to_Mat4(args[0], &arg0);
-        ok &= seval_to_Mat4(args[1], &arg1);
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (int)tmp; } while(false);
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (int)tmp; } while(false);
-        SE_PRECONDITION2(ok, false, "js_renderer_Camera_worldMatrixToScreen : Error processing arguments");
-        cocos2d::Mat4& result = cobj->worldMatrixToScreen(arg0, arg1, arg2, arg3);
-        ok &= Mat4_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_renderer_Camera_worldMatrixToScreen : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-    return false;
-}
-SE_BIND_FUNC(js_renderer_Camera_worldMatrixToScreen)
-
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_Camera_finalize)
 
 static bool js_renderer_Camera_constructor(se::State& s)
@@ -2283,7 +2256,6 @@ bool js_register_renderer_Camera(se::Object* obj)
     cls->defineFunction("setWorldMatrix", _SE(js_renderer_Camera_setWorldMatrix));
     cls->defineFunction("getNear", _SE(js_renderer_Camera_getNear));
     cls->defineFunction("getClearFlags", _SE(js_renderer_Camera_getClearFlags));
-    cls->defineFunction("worldMatrixToScreen", _SE(js_renderer_Camera_worldMatrixToScreen));
     cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_Camera_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::renderer::Camera>(cls);

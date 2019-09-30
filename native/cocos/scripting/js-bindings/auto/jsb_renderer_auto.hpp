@@ -138,7 +138,6 @@ SE_DECLARE_FUNC(js_renderer_Camera_setColor);
 SE_DECLARE_FUNC(js_renderer_Camera_setWorldMatrix);
 SE_DECLARE_FUNC(js_renderer_Camera_getNear);
 SE_DECLARE_FUNC(js_renderer_Camera_getClearFlags);
-SE_DECLARE_FUNC(js_renderer_Camera_worldMatrixToScreen);
 SE_DECLARE_FUNC(js_renderer_Camera_Camera);
 
 extern se::Object* __jsb_cocos2d_renderer_ForwardRenderer_proto;

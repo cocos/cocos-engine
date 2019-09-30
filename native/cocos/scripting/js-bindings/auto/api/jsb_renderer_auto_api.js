@@ -839,24 +839,6 @@ getClearFlags : function (
 },
 
 /**
- * @method worldMatrixToScreen
- * @param {mat4_object} arg0
- * @param {mat4_object} arg1
- * @param {int} arg2
- * @param {int} arg3
- * @return {mat4_object}
- */
-worldMatrixToScreen : function (
-mat4, 
-mat4, 
-int, 
-int 
-)
-{
-    return cc.Mat4;
-},
-
-/**
  * @method Camera
  * @constructor
  */
