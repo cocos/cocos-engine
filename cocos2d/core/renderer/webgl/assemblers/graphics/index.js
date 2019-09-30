@@ -512,7 +512,7 @@ export default class GraphicsAssembler extends Assembler {
     
         this._vset(px + dlx * w, py + dly * w);
         this._vset(px - dlx * w, py - dly * w);
-    },
+    }
 
     _buttCapEnd (p, dx, dy, w, d) {
         let px = p.x + dx * d;
