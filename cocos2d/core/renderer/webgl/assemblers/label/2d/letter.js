@@ -33,8 +33,13 @@ export default class WebglLetterFontAssembler extends LetterFontAssembler {
         return comp.requestRenderData();
     }
 
+    _getColor (comp) {
+        WHITE._fastSetA(comp.node._color.a);
+        return WHITE._val;
+    }
+
     updateColor (comp) {
-        WHITE._fastSetA(comp.node.color.a);
+        WHITE._fastSetA(comp.node._color.a);
         let color = WHITE._val;
 
         super.updateColor(comp, color);

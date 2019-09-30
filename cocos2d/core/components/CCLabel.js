@@ -488,7 +488,9 @@ let Label = cc.Class({
                 if (oldValue === CacheMode.CHAR) {
                     this._ttfTexture = null;
                 }
-
+                
+                this._resetAssembler();
+                this._applyFontTexture(true);
                 this._lazyUpdateRenderData();
             },
             animatable: false

@@ -58,7 +58,9 @@ export default class WebglBmfontAssembler extends BmfontAssembler {
         _dataOffset = 0;
     }
 
-    updateColor () {}
+    _getColor (comp) {
+        return comp.node._color._val;
+    }
 
     appendQuad (comp, texture, rect, rotated, x, y, scale) {
         let renderData = this._renderData;
@@ -72,7 +74,7 @@ export default class WebglBmfontAssembler extends BmfontAssembler {
             texh = texture.height,
             rectWidth = rect.width,
             rectHeight = rect.height,
-            color = comp.node._color._val;
+            color = this._getColor(comp);
 
         let l, b, r, t;
         let floatsPerVert = this.floatsPerVert;
