@@ -1,4 +1,5 @@
 
+import Ammo from 'ammo.js';
 import { Color, Vec3 } from '../../core/math';
 import { GFXPrimitiveMode } from '../../core/gfx/define';
 import { Node } from '../../core/scene-graph';

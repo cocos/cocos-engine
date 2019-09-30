@@ -1,4 +1,5 @@
-import { Quat, Vec3 } from "../../core";
+import Ammo from 'ammo.js';
+import { Quat, Vec3, quat } from "../../core";
 import { RigidBodyBase, ShapeBase, PhysicsWorldBase } from "../api";
 import { AmmoWorld } from "./ammo-world";
 import { AmmoShape } from "./shapes/ammo-shape";
@@ -148,17 +149,29 @@ export class AmmoRigidBody implements RigidBodyBase {
     private _motionState!: Ammo.btDefaultMotionState;
 
     constructor () {
-        this._transformBuffer.setIdentity();
-        this._ammoTransform.setIdentity();
-        this._compoundShape = new Ammo.btCompoundShape(true);
-        this._id = AmmoRigidBody.ID_COUNTER++;
-        this._ammoBody = this._reconstructBody();
+        // this._transformBuffer.setIdentity();
+        // this._ammoTransform.setIdentity();
+        // this._compoundShape = new Ammo.btCompoundShape(true);
+        // this._id = AmmoRigidBody.ID_COUNTER++;
+        // this._ammoBody = this._reconstructBody();
         this._beforeWorldStepCallback = this._beforeWorldStep.bind(this);
+
+        var startTransform = new Ammo.btTransform();
+        startTransform.setIdentity();
+        var mass = 1;
+        var localInertia = new Ammo.btVector3(0, 0, 0);
+
+        var boxShape = new Ammo.btBoxShape(new Ammo.btVector3(1, 1, 1));
+        boxShape.calculateLocalInertia(mass, localInertia);
+
+        var myMotionState = new Ammo.btDefaultMotionState(startTransform);
+        var rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, myMotionState, boxShape, localInertia);
+        this._ammoBody = new Ammo.btRigidBody(rbInfo);
     }
 
     public addShape (shape_: ShapeBase) {
         const shape = shape_ as AmmoShape;
-        shape._setBody(this);
+        shape._setBody(this.impl);
         this._shapes.push(shape);
         this.commitShapeUpdates();
     }
@@ -468,12 +481,12 @@ export class AmmoRigidBody implements RigidBodyBase {
         this._changeRequests.forces.length = 0;
     }
 
-    rigidbody!: RigidBodyComponent;
+    rigidBody!: RigidBodyComponent;
 
     public __preload () {
-        this._ammoBody.setMassProps(this.rigidbody.mass, _btVec3_0);
-        this._ammoBody.setLinearFactor(Cocos2AmmoVec3(_btVec3_0, this.rigidbody.linearFactor));
-        this._ammoBody.setAngularFactor(Cocos2AmmoVec3(_btVec3_0, this.rigidbody.angularFactor));        
+        this._ammoBody.setMassProps(this.rigidBody._mass, _btVec3_0);
+        this._ammoBody.setLinearFactor(Cocos2AmmoVec3(_btVec3_0, this.rigidBody._linearFactor));
+        this._ammoBody.setAngularFactor(Cocos2AmmoVec3(_btVec3_0, this.rigidBody._angularFactor));
     }
 
     public onLoad () {
@@ -485,11 +498,38 @@ export class AmmoRigidBody implements RigidBodyBase {
     }
 
     public onEnable () {
-
+        AmmoWorld.instance.impl.addRigidBody(this.impl);
+        AmmoWorld.instance.bodys.push(this);
     }
 
     public onDisable () {
+        AmmoWorld.instance.impl.removeRigidBody(this.impl);
+        //remove
+    }
 
+    public beforeStep () {
+        let wp = this.rigidBody.node.worldPosition;
+        var origin = this.impl.getWorldTransform().getOrigin();
+        origin.setX(wp.x);
+        origin.setY(wp.y);
+        origin.setZ(wp.z);
+        this.impl.activate();
+
+        let wr = this.rigidBody.node.worldRotation;
+        var rotation = this.impl.getWorldTransform().getRotation();
+        rotation.setX(wr.x);
+        rotation.setY(wr.y);
+        rotation.setZ(wr.z);
+        rotation.setW(wr.w);
+    }
+
+    public afterStep () {
+        let transform = new Ammo.btTransform();
+        this.impl.getMotionState().getWorldTransform(transform);
+        let origin = transform.getOrigin();
+        this.rigidBody.node.worldPosition = new Vec3(origin.x(), origin.y(), origin.z());
+        let rotation = transform.getRotation();
+        this.rigidBody.node.worldRotation = new Quat(rotation.x(), rotation.y(), rotation.z(), rotation.w());
     }
 }
 

@@ -1,7 +1,7 @@
+import Ammo from 'ammo.js';
 import { SphereShapeBase } from "../../api";
 import { Vec3 } from "../../../core";
 import { AmmoShape } from "./ammo-shape";
-
 
 export class AmmoSphereShape extends AmmoShape implements SphereShapeBase {
 

@@ -1,9 +1,10 @@
+import Ammo from 'ammo.js';
 import { Vec3 } from "../../core/math";
 import { PhysicsWorldBase, ConstraintBase } from "../api";
 import { AmmoRigidBody } from "./ammo-body";
 import { AmmoDebugger } from "./ammo-debugger";
-import { director, Node } from "../../core";
 import { RaycastResult } from "../raycast-result";
+import { PhysicsSystem } from '../components';
 
 export class AmmoWorld implements PhysicsWorldBase {
     defaultMaterial: any;
@@ -27,6 +28,11 @@ export class AmmoWorld implements PhysicsWorldBase {
     get impl () {
         return this._ammoWorld;
     }
+
+    public static get instance (): AmmoWorld {
+        return PhysicsSystem.instance._world as AmmoWorld;
+    }
+
     private _ammoWorld: Ammo.btDiscreteDynamicsWorld;
     private _customBeforeStepListener: Function[] = [];
     private _customAfterStepListener: Function[] = [];
@@ -45,6 +51,8 @@ export class AmmoWorld implements PhysicsWorldBase {
     private _hitPoint: Vec3 = new Vec3();
     private _hitNormal = new Vec3();
 
+    public readonly bodys: AmmoRigidBody[] = [];
+
     constructor (options?: any) {
         const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
         const dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
@@ -60,9 +68,19 @@ export class AmmoWorld implements PhysicsWorldBase {
     }
 
     public step (deltaTime: number, time?: number, maxSubStep?: number) {
-        this._callCustomBeforeSteps();
+        // this._callCustomBeforeSteps();
+
+        for (let i = 0; i < this.bodys.length; i++) {
+            this.bodys[i].beforeStep();
+        }
+
         this._ammoWorld.stepSimulation(deltaTime, maxSubStep, time);
-        this._callCustomAfterSteps();
+
+        for (let i = 0; i < this.bodys.length; i++) {
+            this.bodys[i].afterStep();
+        }
+
+        // this._callCustomAfterSteps();
 
         // if (!this._debugger.avaiable) {
         //     const scene = director.getScene();

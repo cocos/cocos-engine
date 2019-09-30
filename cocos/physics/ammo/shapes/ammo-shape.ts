@@ -1,3 +1,4 @@
+import Ammo from 'ammo.js';
 import { ShapeBase } from "../../api";
 import { Vec3, Quat } from "../../../core/math";
 import { AmmoRigidBody } from "../ammo-body";
@@ -32,9 +33,9 @@ export class AmmoShape implements ShapeBase {
 
     protected _scale: Vec3 = new Vec3(1, 1, 1);
 
-    protected _ammoShape: Ammo.btCollisionShape | null = null;
+    protected _ammoShape!: Ammo.btCollisionShape;
 
-    protected _body: AmmoRigidBody | null = null;
+    protected _body!: Ammo.btCollisionObject;
 
     private _transform: Ammo.btTransform;
 
@@ -57,8 +58,12 @@ export class AmmoShape implements ShapeBase {
         this._userData = data;
     }
 
-    public _setBody (body: AmmoRigidBody | null) {
-        this._body = body;
+    public _setBody (body: Ammo.btCollisionObject | null) {
+        if (body) {
+            this._body = body;
+        } else {
+            // 
+        }
     }
 
     public setCenter (center: Vec3): void {
@@ -80,5 +85,25 @@ export class AmmoShape implements ShapeBase {
             return;
         }
         // TO DO
+    }
+
+    public __preload () {
+
+    }
+
+    public onLoad () {
+
+    }
+
+    public start () {
+
+    }
+
+    public onEnable () {
+
+    }
+
+    public onDisable () {
+
     }
 }

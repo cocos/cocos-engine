@@ -9,3 +9,4 @@ import '../cocos/physics/ammo/instantiate';
 import '../cocos/physics/ammo/ammo-debugger';
 
 import '../cocos/physics/ammo/ammo-util';
+import '../cocos/physics/ammo/ammo-typing';

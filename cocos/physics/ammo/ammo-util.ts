@@ -1,3 +1,4 @@
+import Ammo from 'ammo.js';
 import { Vec3 } from "../../core";
 
 export function Cocos2AmmoVec3 (out: Ammo.btVector3, v: Vec3): Ammo.btVector3 {
