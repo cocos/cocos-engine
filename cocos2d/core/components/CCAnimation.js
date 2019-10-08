@@ -160,24 +160,11 @@ let Animation = cc.Class({
                 return this._defaultClip;
             },
             set: function (value) {
-                if (!CC_EDITOR || (cc.engine && cc.engine.isPlaying)) {
+                if (!CC_EDITOR || (cc.engine && cc.engine.isPlaying) || !value) {
                     return;
                 }
-
+                this.removeClip(value, true);
                 this._defaultClip = value;
-
-                if (!value) {
-                    return;
-                }
-
-                let clips = this._clips;
-
-                for (let i = 0, l = clips.length; i < l; i++) {
-                    if (equalClips(value, clips[i])) {
-                        return;
-                    }
-                }
-
                 this.addClip(value);
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.animation.default_clip'
@@ -547,7 +534,7 @@ let Animation = cc.Class({
         }
 
         this._clips = this._clips.filter(function (item) {
-            return item !== clip;
+            return !equalClips(item, clip);
         });
 
         if (state) {
