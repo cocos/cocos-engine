@@ -147,6 +147,8 @@ function AssetManager () {
 
     this.generalNativeBase = '';
 
+    this.bundleVers = null;
+
     /**
      * !#en 
      * Manage relationship between asset and its dependencies
@@ -296,6 +298,7 @@ AssetManager.prototype = {
      * init(options: Record<string, any>): void
      */
     init (options) {
+        options = options || Object.create(null);
         this._assets.clear();
         this._files.clear();
         this._parsed.clear();
@@ -305,8 +308,9 @@ AssetManager.prototype = {
         this.parser.init();
         this.finalizer.init();
         this.dependUtil.init();
-        this.generalImportBase = options && options.importBase;
-        this.generalNativeBase = options && options.nativeBase;
+        this.bundleVers = options.bundleVers || Object.create(null);
+        this.generalImportBase = options.importBase;
+        this.generalNativeBase = options.nativeBase;
     },
 
     /**
@@ -596,24 +600,31 @@ AssetManager.prototype = {
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
         options.priority = options.priority || 2;
         if (root.endsWith('/')) root = root.substr(0, root.length - 1);
-        var self = this;
-        var config = options.ver ? `${root}/config.${options.ver}.json` : `${root}/config.json`;
+        var ver = options.ver || this.bundleVers[cc.path.basename(root)];
+        var config = ver ?  `${root}/config.${ver}.json`: `${root}/config.json`;
+        var bundle = null;
+        var count = 0;
         downloader.download(root, config, '.json', options, function (err, response) {
             if (err) {
                 cc.error(err);
                 onComplete && onComplete(err);
                 return;
             }
-            var bundle = new Bundle();
+            bundle = new Bundle();
             response.base = root + '/';
             bundle.init(response);
-            if (!response.scripts) return onComplete && onComplete(null, bundle);
-            
-            self.loadScript(root + '/index.js', options, function (err) {
-                if (err) cc.error(err);
+            count++;
+            if (count === 2) {
                 onComplete && onComplete(null, bundle);
-            });
+            }
+        });
 
+        this.loadScript(root + '/index.js', options, function (err) {
+            if (err) cc.warn(err);
+            count++;
+            if (count === 2) {
+                onComplete && onComplete(null, bundle);
+            }
         });
         
     },
@@ -805,7 +816,7 @@ AssetManager.prototype = {
      * loadScene(sceneName: string|cc.AssetManager.Task, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, scene: cc.Scene) => void): cc.AssetManager.Task
      */
     loadScene (sceneName, options, onProgress, onComplete) {
-        return bundles.get('scenes').loadScene(sceneName, options, onProgress, onComplete);
+        return bundles.get('main').loadScene(sceneName, options, onProgress, onComplete);
     },
 
     /**
@@ -836,7 +847,7 @@ AssetManager.prototype = {
      * preloadScene(sceneName: string, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error) => void): cc.AssetManager.Task
      */
     preloadScene (sceneName, options, onProgress, onComplete) {
-        return bundles.get('scenes').preloadScene(sceneName, options, onProgress, onComplete);
+        return bundles.get('main').preloadScene(sceneName, options, onProgress, onComplete);
     },
 
     /**

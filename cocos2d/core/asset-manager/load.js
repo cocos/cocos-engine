@@ -170,7 +170,7 @@ function loadDepends (task, asset, done, init) {
     var { asyncLoadAssets, cacheAsset } = options;
 
     var depends = [];
-    asset._addRef();
+    asset._addRef && asset._addRef();
     getDepends(uuid, asset, Object.create(null), depends, false, asyncLoadAssets, config);
     task.dispatch('progress', ++progress.finish, progress.total += depends.length, item);
 
@@ -183,7 +183,7 @@ function loadDepends (task, asset, done, init) {
         onError: Task.prototype.recycle, 
         progress, 
         onComplete: function (err) {
-            asset._removeRef();
+            asset._removeRef && asset._removeRef();
             asset.__asyncLoadAssets__ = asyncLoadAssets;
             repeatItem.finish = true;
             repeatItem.err = err;
@@ -232,7 +232,7 @@ function loadDepends (task, asset, done, init) {
             for (var i = 0, l = callbacks.length; i < l; i++) {
 
                 var cb = callbacks[i];
-                asset._addRef();
+                asset._addRef && asset._addRef();
                 cb.item.content = asset;
                 cb.done(err);
 

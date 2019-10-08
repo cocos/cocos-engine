@@ -724,7 +724,7 @@ Object.assign(cc.director, {
      * @deprecated `cc.director._getSceneUuid` is deprecated now, please use `config.getSceneInfo` instead
      */
     _getSceneUuid (sceneName) {
-        cc.assetManager._bundles.get('scenes')._config.getSceneInfo(sceneName);
+        cc.assetManager._bundles.get('main')._config.getSceneInfo(sceneName);
     }
 }); 
 
@@ -735,7 +735,7 @@ Object.defineProperties(cc.game, {
     _sceneInfos: {
         get () {
             var scenes = [];
-            cc.assetManager._bundles.get('scenes')._config.scenes.forEach(function (val) {
+            cc.assetManager._bundles.get('main')._config.scenes.forEach(function (val) {
                 scenes.push(val);
             });
             return scenes;
