@@ -27,8 +27,8 @@ const Asset = require('../CCAsset');
 const Texture = require('../CCTexture2D');
 const PixelFormat = Texture.PixelFormat;
 const EffectAsset = require('../CCEffectAsset');
+const textureUtil = require('../../utils/texture-util');
 
-import Effect from '../../../renderer/core/effect';
 import murmurhash2 from '../../../renderer/murmurhash2_gc';
 import utils from './utils';
 
@@ -160,12 +160,22 @@ let Material = cc.Class({
 
         if (this._effect) {
             if (val instanceof Texture) {
-                this._effect.setProperty(name, val);
-                let format = val.getPixelFormat();
-                if (format === PixelFormat.RGBA_ETC1 ||
-                    format === PixelFormat.RGB_A_PVRTC_4BPPV1 ||
-                    format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
-                    this.define('CC_USE_ALPHA_ATLAS_' + name.toUpperCase(), true);
+                function loaded () {
+                    this._effect.setProperty(name, val);
+                    let format = val.getPixelFormat();
+                    if (format === PixelFormat.RGBA_ETC1 ||
+                        format === PixelFormat.RGB_A_PVRTC_4BPPV1 ||
+                        format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
+                        this.define('CC_USE_ALPHA_ATLAS_' + name.toUpperCase(), true);
+                    }
+                }
+
+                if (!val.loaded) {
+                    val.once('load', loaded, this);
+                    textureUtil.postLoadTexture(val);
+                }
+                else {
+                    loaded.call(this);
                 }
             }
             else {
