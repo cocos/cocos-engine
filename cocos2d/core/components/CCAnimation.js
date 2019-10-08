@@ -30,11 +30,11 @@ const EventTarget = require('../event/event-target');
 const js = require('../platform/js');
 
 function equalClips (clip1, clip2) {
-    if (clip1 === clip2) {
-        return true;
+    let equal = clip1 === clip2;
+    if (CC_EDITOR && !equal) {
+        return clip1 && clip2 && (clip1.name === clip2.name || clip1._uuid === clip2._uuid);
     }
-
-    return clip1 && clip2 && (clip1.name === clip2.name || clip1._uuid === clip2._uuid);
+    return equal;
 }
 
 /**
@@ -160,12 +160,17 @@ let Animation = cc.Class({
                 return this._defaultClip;
             },
             set: function (value) {
-                if (!CC_EDITOR || (cc.engine && cc.engine.isPlaying) || !value) {
+                if (!CC_EDITOR || (cc.engine && cc.engine.isPlaying)) {
                     return;
                 }
-                this.removeClip(value, true);
+
+                if (this._defaultClip) {
+                    this.removeClip(this._defaultClip, true);
+                }
+                if (value) {
+                    this.addClip(value);
+                }
                 this._defaultClip = value;
-                this.addClip(value);
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.animation.default_clip'
         },
@@ -511,8 +516,7 @@ let Animation = cc.Class({
         let state;
         for (let name in this._nameToState) {
             state = this._nameToState[name];
-            let stateClip = state.clip;
-            if (stateClip === clip) {
+            if (equalClips(state.clip, clip)) {
                 break;
             }
         }
