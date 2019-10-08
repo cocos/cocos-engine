@@ -236,8 +236,6 @@ export class UIRenderComponent extends UIComponent {
         if (this._flushAssembler){
             this._flushAssembler();
         }
-
-        this._updateColor();
     }
 
     public onEnable () {
