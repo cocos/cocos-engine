@@ -51,7 +51,8 @@ export function max (x: number, y: number) {
 }
 
 /**
- * Checks if a number is a power of two.
+ * @en Checks if a number is a power of two.
+ * @zh 检查一个数字是否是2的幂。
  */
 export function isPow2 (v: number) {
     return !(v & (v - 1)) && (!!v);

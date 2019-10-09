@@ -103,7 +103,8 @@ class OctreeBlock {
 export default class Octree {
 
     /**
-     * Create sub blocks and populate them with given entries
+     * @en Create sub blocks and populate them with given entries
+     * @zh 创建子块，并用给定的条目填充它们
      * @param {Vec3} worldMin - min position of the parent bounding box
      * @param {Vec3} worldMax - max position of the parent bounding box
      * @param {Array<Object>} entries - the entries to be inserted
@@ -162,8 +163,9 @@ export default class Octree {
     }
 
     /**
-     * Build this octree from given entries.
+     * @en Build this octree from given entries.<br/>
      * Root Boundary is the bounding box of all the entries.
+     * @zh 从给定的项中构建这个八叉树。根边界是所有这些条目的边界框。
      * @param {Array<Object>} entries - a collection of entries to be queried later
      * @param {function(entry: Object): Object} getBoundingShape
      *  - a function takes an entry and returns its primitive info
@@ -193,7 +195,8 @@ export default class Octree {
     }
 
     /**
-     * Add an entry to this tree. Should be called after `build`.
+     * @en Add an entry to this tree. Should be called after `build`.
+     * @zh 在这个树中添加一个条目。应该在构建之后调用。
      * @param {Object} entry - the new entry
      */
     public addEntry (entry) {
@@ -207,7 +210,8 @@ export default class Octree {
     }
 
     /**
-     * Remove an entry from this tree. Should be called after `build`.
+     * @en Remove an entry from this tree. Should be called after `build`.
+     * @zh 从这个树中删除一个条目。应该在构建之后调用。
      * @param {Object} entry - the entry to be removed
      */
     public removeEntry (entry) {
@@ -221,7 +225,8 @@ export default class Octree {
     }
 
     /**
-     * Select all the entries overlapping the given primitive
+     * @en Select all the entries overlapping the given primitive
+     * @zh 选择与给定原语重叠的所有项
      * @param {Object} shape - the selecting primitive
      * @return {Set<Object>} the resulting set of entries
      */

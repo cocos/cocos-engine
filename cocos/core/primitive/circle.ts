@@ -26,6 +26,7 @@ function applyDefaultCircleOptions (options?: RecursivePartial<ICircleOptions>):
 }
 
 /**
+ * @en
  * Generate a circle with radius 1, centered at origin.
  * @zh
  * 生成一个圆，其半径是单位1，中心点在原点。
