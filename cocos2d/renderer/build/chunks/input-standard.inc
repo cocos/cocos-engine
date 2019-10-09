@@ -5,7 +5,8 @@
 #endif
 
 struct StandardVertInput {
-  highp vec4 position;
+  vec2 uv;
+  vec4 position;
   vec3 normal;
   vec4 tangent;
 };
@@ -14,6 +15,7 @@ void CCAttrToInput (in StandardAttributes attr, out StandardVertInput In) {
   In.position = attr.position;
   In.normal = attr.normal;
   In.tangent = attr.tangent;
+  In.uv = attr.uv;
 }
 
 void CCVertInput (out StandardVertInput In) {

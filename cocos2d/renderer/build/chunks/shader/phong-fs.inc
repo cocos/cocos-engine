@@ -25,7 +25,7 @@ in vec3 v_worldPos;
   in lowp vec4 v_color;
 #endif
 
-#include <phong>
+#include <shading-phong>
 
 void main () {
   vec4 diffuse = vec4(1, 1, 1, 1);

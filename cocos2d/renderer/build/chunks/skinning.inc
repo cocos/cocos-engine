@@ -1,5 +1,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
+#include <decode-standard>
+
 #if CC_USE_SKINNING
 
   in vec4 a_weights;
