@@ -126,3 +126,10 @@ void SKIN_VERTEX(inout vec4 a1, inout vec4 a2, inout vec4 a3) {
     a3 = m * a3;
   #endif
 }
+
+void CCSkin(inout StandardAttributes attr) {
+  mat4 m = skinMatrix();
+  attr.position = m * attr.position;
+  attr.normal = (m * vec4(attr.normal, 0)).xyz;
+  attr.tangent = m * attr.tangent;
+}
