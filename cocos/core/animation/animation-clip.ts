@@ -13,18 +13,6 @@ import { INode } from '../utils/interfaces';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { TargetModifier, HierachyModifier, ComponentModifier, isCustomTargetModifier, PropertyModifier, isPropertyModifier } from './target-modifier';
 
-export interface ITargetCurveData {
-    modifiers: TargetModifier[];
-    valueAdapter?: CurveValueAdapter;
-    data: IPropertyCurveData;
-}
-
-interface IAnimationEventData {
-    frame: number;
-    func: string;
-    params: string[];
-}
-
 export interface IObjectCurveData {
     [propertyName: string]: IPropertyCurveData;
 }
@@ -36,10 +24,6 @@ export interface IComponentsCurveData {
 export interface INodeCurveData {
     props?: IObjectCurveData;
     comps?: IComponentsCurveData;
-}
-
-export interface ICurveData {
-    [path: string]: INodeCurveData;
 }
 
 export interface IRuntimeCurve {
@@ -71,6 +55,26 @@ export interface IAnimationEvent {
 
 export interface IAnimationEventGroup {
     events: IAnimationEvent[];
+}
+
+export declare namespace AnimationClip {
+    export interface ICurveData {
+        [path: string]: INodeCurveData;
+    }
+
+    export type PropertyCurveData = IPropertyCurveData;
+
+    export interface Curve {
+        modifiers: TargetModifier[];
+        valueAdapter?: CurveValueAdapter;
+        data: PropertyCurveData;
+    }
+
+    export interface Event {
+        frame: number;
+        func: string;
+        params: string[];
+    }
 }
 
 /**
@@ -143,16 +147,16 @@ export class AnimationClip extends Asset {
      * @deprecated 请转用 `this.curves`
      */
     @property
-    private curveDatas?: ICurveData = {};
+    private curveDatas?: AnimationClip.ICurveData = {};
 
     @property
-    private _curves: ITargetCurveData[] = [];
+    private _curves: AnimationClip.Curve[] = [];
 
     /**
      * 动画包含的事件数据。
      */
     @property({visible: false})
-    public events: IAnimationEventData[] = [];
+    public events: AnimationClip.Event[] = [];
 
     @property
     protected _duration = 0;
@@ -383,7 +387,7 @@ export class AnimationClip extends Asset {
     }
 
     private _getDeprecatedCurveDatas () {
-        const result: ICurveData = {};
+        const result: AnimationClip.ICurveData = {};
         for (const curve of this._curves) {
             if (curve.modifiers.length === 0 ||
                 !isCustomTargetModifier(curve.modifiers[0], HierachyModifier)) {

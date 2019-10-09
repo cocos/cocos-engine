@@ -31,7 +31,7 @@ import { SkinningModelComponent } from '../3d/framework/skinning-model-component
 import { ccclass } from '../data/class-decorator';
 import { Mat4 } from '../math';
 import { INode } from '../utils/interfaces';
-import { AnimationClip, IObjectCurveData, IRuntimeCurve, ITargetCurveData } from './animation-clip';
+import { AnimationClip, IObjectCurveData, IRuntimeCurve } from './animation-clip';
 import { IPropertyCurveData } from './animation-curve';
 import { ComponentModifier, HierachyModifier, isCustomTargetModifier, isPropertyModifier } from './target-modifier';
 
@@ -98,7 +98,7 @@ export class SkeletalAnimationClip extends AnimationClip {
         const values: number[] = new Array(Math.ceil(this.sample * this._duration / this.speed) + 1);
         for (let i = 0; i < values.length; i++) { values[i] = i; }
         // create frameID animation
-        const curves: ITargetCurveData[] = [{
+        const curves: AnimationClip.Curve[] = [{
             modifiers: [
                 new HierachyModifier(''),
                 new ComponentModifier('cc.SkeletalAnimationComponent'),
