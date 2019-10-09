@@ -480,7 +480,8 @@ export class MaskComponent extends UIRenderComponent {
             clearGraphics.lineWidth = 0;
             const color = Color.WHITE.clone();
             color.a = 0;
-            this._clearGraphics.fillColor = color;
+            clearGraphics.fillColor = color;
+            clearGraphics.simulate = true;
             this._updateClearGraphics();
         }
 
@@ -500,7 +501,7 @@ export class MaskComponent extends UIRenderComponent {
         if (!this._clearGraphics) {
             return;
         }
-        console.log('resolution changed');
+
         const size = visibleRect;
         this._clearGraphics.node.setWorldPosition(size.width / 2, size.height / 2, 0);
         this._clearGraphics.clear();

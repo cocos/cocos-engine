@@ -84,18 +84,26 @@ export class UIComponent extends Component {
     protected _followScreen: CanvasComponent | null = null;
 
     private _lastParent: INode | null = null;
+
+    public __preload () {
+        this.node._uiComp = this;
+    }
+
     public onEnable () {
         this._lastParent = this.node.parent;
         this._updateVisibility();
+
         if (this._lastParent) {
             this.node.on(SystemEventType.CHILD_REMOVED, this._parentChanged, this);
         }
-        this.node._uiComp = this;
         this._sortSiblings();
     }
 
     public onDisable () {
         this._cancelEventFromParent();
+    }
+
+    public onDestroy () {
         if (this.node._uiComp === this) {
             this.node._uiComp = null;
         }
