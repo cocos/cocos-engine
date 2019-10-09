@@ -26,7 +26,7 @@ GraySpriteState.prototype._switchGrayMaterial = function (useGrayMaterial, rende
     else {
         material = this._spriteMaterial;
         if (!material) {
-            material = Material.getBuiltinMaterial('2d-sprite', renderComp);
+            material = renderComp.sharedMaterials[0] || Material.getBuiltinMaterial('2d-sprite', renderComp);
         }
         material = this._spriteMaterial = Material.getInstantiatedMaterial(material, renderComp);
     }

@@ -417,7 +417,7 @@ proto.getPreviousLocation = function () {
 
 /**
  * !#en Returns the start touch location.
- * !#zh 获获取触点落下时的位置对象，对象包含 x 和 y 属性。
+ * !#zh 获取触点落下时的位置对象，对象包含 x 和 y 属性。
  * @method getStartLocation
  * @returns {Vec2}
  */

@@ -447,7 +447,7 @@ let TiledMap = cc.Class({
      * @method getLayers
      * @returns {TiledLayer[]}
      * @example
-     * let layers = titledMap.allLayers();
+     * let layers = titledMap.getLayers();
      * for (let i = 0; i < layers.length; ++i) {
      *     cc.log("Layers: " + layers[i]);
      * }

@@ -22,9 +22,11 @@ const TYPEOF_SHIM = `\n${getRealTypeOfObj}\nvar __typeofVal = "";`;
 const TYPEOF_REG = /typeof\s+([$A-Za-z_][0-9A-Za-z_$\.\[\]]*)([\s!=;\)])/g;
 const TYPEOF_REPLACEMENT = '(__typeofVal = typeof $1, __typeofVal === "object" ? __realTypeOfObj($1) : __typeofVal)$2';
 
+const SUPPORT_JSC = false;
+
 module.exports = function () {
     return ES.through(function (file) {
-        if (Path.extname(file.path) === '.js') {
+        if (Path.extname(file.path) === '.js' && SUPPORT_JSC) {
             var content = file.contents.toString();
 
             content = content.replace(TYPEOF_REG, TYPEOF_REPLACEMENT);

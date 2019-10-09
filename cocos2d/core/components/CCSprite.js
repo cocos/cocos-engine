@@ -446,6 +446,7 @@ var Sprite = cc.Class({
     },
 
     _activateMaterialCanvas () {
+        this.setVertsDirty();
         this.markForUpdateRenderData(true);
         this.markForRender(true);
     },
@@ -469,6 +470,7 @@ var Sprite = cc.Class({
         
         material.setProperty('texture', spriteFrame.getTexture());
 
+        this.setVertsDirty();
         this.setMaterial(0, material);
         this.markForRender(true);
     },

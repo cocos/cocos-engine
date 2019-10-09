@@ -698,11 +698,13 @@ sp.Skeleton = cc.Class({
 
     _activateMaterial () {
         if (!this.skeletonData) {
+            this.disableRender();
             return;
         }
         
         this.skeletonData.ensureTexturesLoaded(function (result) {
             if (!result) {
+                this.disableRender();
                 return;
             }
             
@@ -720,6 +722,10 @@ sp.Skeleton = cc.Class({
 
     _prepareToRender (material) {
         this.setMaterial(0, material);
+        // only when component's onEnable function has been invoke, need to enable render
+        if (this.node && this.node._renderComponent == this) {
+            this.markForRender(true);
+        }
     },
 
     onEnable () {

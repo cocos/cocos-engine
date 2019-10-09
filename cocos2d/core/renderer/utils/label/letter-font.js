@@ -209,6 +209,10 @@ cc.js.mixin(LetterAtlas.prototype, {
     },
 
     beforeSceneLoad () {
+        this.clearAllCache();
+    },
+
+    clearAllCache () {
         this.destroy();
 
         let texture = new RenderTexture();
@@ -261,6 +265,7 @@ export default class LetterFontAssembler extends WebglBmfontAssembler {
     _getAssemblerData () {
         if (!_shareAtlas) {
             _shareAtlas = new LetterAtlas(_atlasWidth, _atlasHeight);
+            cc.Label._shareAtlas = _shareAtlas;
         }
         
         return _shareAtlas.getTexture();
@@ -275,7 +280,7 @@ export default class LetterFontAssembler extends WebglBmfontAssembler {
         if (outline && outline.enabled) {
             shareLabelInfo.isOutlined = true;
             shareLabelInfo.margin = outline.width;
-            shareLabelInfo.out = outline.color;
+            shareLabelInfo.out = outline.color.clone();
             shareLabelInfo.out.a = outline.color.a * comp.node.color.a / 255.0;
         }
         else {
