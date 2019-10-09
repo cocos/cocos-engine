@@ -516,10 +516,6 @@ js.value(CCObject, 'Flags', {
 });
 
 /**
- * @module cc
- */
-
-/**
  * @en
  * Checks whether the object is non-nil and not yet destroyed.<br>
  * When an object's `destroy` is called, it is actually destroyed after the end of this frame.
@@ -534,11 +530,12 @@ js.value(CCObject, 'Flags', {
  * 如果希望判断当前帧是否调用过 `destroy`，请使用 `cc.isValid(obj, true)`，不过这往往是特殊的业务需求引起的，通常情况下不需要这样。
  *
  * @method isValid
- * @param {any} value
- * @param {Boolean} [strictMode=false] - If true, Object called destroy() in this frame will also treated as invalid.
- * @return {Boolean} whether is valid
+ * @param value
+ * @param [strictMode=false] - If true, Object called destroy() in this frame will also treated as invalid.
+ * @return whether is valid
  * @example
  * ```
+ * import * as cc from 'cc';
  * var node = new cc.Node();
  * cc.log(cc.isValid(node));    // true
  * node.destroy();
@@ -547,14 +544,14 @@ js.value(CCObject, 'Flags', {
  * cc.log(cc.isValid(node));    // false, destroyed in the end of last frame
  * ```
  */
-cc.isValid = (value, strictMode) => {
+export function isValid (value: any, strictMode?: boolean) {
     if (typeof value === 'object') {
         return !!value && !(value._objFlags & (strictMode ? (Destroyed | ToDestroy) : Destroyed));
-    }
-    else {
+    } else {
         return typeof value !== 'undefined';
     }
-};
+}
+cc.isValid = isValid;
 
 if (CC_EDITOR || CC_TEST) {
     js.value(CCObject, '_willDestroy', (obj) => {

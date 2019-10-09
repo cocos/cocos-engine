@@ -1,30 +1,40 @@
-const { spawn, execSync } = require('child_process');
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-var-requires */
+
 const { join, extname, basename, dirname, isAbsolute } = require('path');
 const { copyFileSync, existsSync, readFileSync, unlinkSync, writeFileSync, ensureDirSync } = require('fs-extra');
-const ts = require('typescript');
+// const ts = require('typescript');
+const ts = require('../../../../Leslie/TypeScript/built/local/typescript');
 const gift = require('tfig');
 
-const tscExecutableName = process.platform === 'win32' ? 'tsc.cmd' : 'tsc';
-const tscExecutablePath = join(__dirname, '..', '..', 'node_modules', '.bin', tscExecutableName);
 const tsConfigDir = join(__dirname, '..', '..');
 const tsConfigPath = join(tsConfigDir, 'tsconfig.json');
-const tempTsConfigPath = join(tsConfigDir, '__tsconfig-gendecls.json');
 
 async function generate (options) {
-    const tsConfig = ts.readConfigFile(tsConfigPath, (path) => readFileSync(path).toString());
-    if (tsConfig.error) {
-        console.error(`Bad tsconfig.json: ${tsConfig.error.messageText}`);
-        return undefined;
-    }
+    console.log(`Typescript version: ${ts.version}`);
 
     const { outDir } = options;
     ensureDirSync(outDir);
 
-    tsConfig.config.compilerOptions.declaration = true;
-    tsConfig.config.compilerOptions.emitDeclarationOnly = true;
-    tsConfig.config.compilerOptions.outFile = join(outDir, `index.js`);
+    const unbundledOutFile = join(outDir, `cc-before-rollup.js`);
+    const parsedCommandLine = ts.getParsedCommandLineOfConfigFile(
+        tsConfigPath, {
+            declaration: true,
+            emitDeclarationOnly: true,
+            outFile: unbundledOutFile,
+            outDir: undefined,
+        }, {
+            onUnRecoverableConfigFileDiagnostic: () => {},
+            useCaseSensitiveFileNames: ts.sys.useCaseSensitiveFileNames,
+            readDirectory: ts.sys.readDirectory,
+            getCurrentDirectory: ts.sys.getCurrentDirectory,
+            fileExists: ts.sys.fileExists,
+            readFile: ts.sys.readFile,
+        }
+    );
 
-    const outputJSPath = join(tsConfigDir, tsConfig.config.compilerOptions.outFile);
+    const outputJSPath = join(tsConfigDir, unbundledOutFile);
     // console.log(outputJSPath);
 
     const extName = extname(outputJSPath);
@@ -46,53 +56,16 @@ async function generate (options) {
         }
     }
 
-    console.log(`Make temp config file ${tempTsConfigPath}.`);
-
-    writeFileSync(tempTsConfigPath, JSON.stringify(tsConfig.config, undefined, 4));
-
     console.log(`Generating...`);
 
-    await new Promise((resolve) => {
-        const tscProcess = spawn(tscExecutablePath, [
-            '--version',
-        ]);
-        tscProcess.on('exit', (code) => {
-            resolve(code);
-        });
-        tscProcess.stdout.on('data', (data) => {
-            console.log(`Typescript version: ${data.toString()}`);
-        });
-        tscProcess.stderr.on('data', (data) => {
-            console.error(data.toString());
-        });
-    });
-
-    const tscExitCode = await new Promise((resolve) => {
-        const tscProcess = spawn(tscExecutablePath, [
-            '-p',
-            tempTsConfigPath,
-        ], {
-            cwd: process.cwd(),
-            env: process.env,
-        });
-        tscProcess.on('exit', (code) => {
-            resolve(code);
-        });
-        tscProcess.stdout.on('data', (data) => {
-            console.log(data.toString());
-        });
-        tscProcess.stderr.on('data', (data) => {
-            console.error(data.toString());
-        });
-    });
-
-    console.log(`Delete temp config file ${tempTsConfigPath}.`);
-
-    unlinkSync(tempTsConfigPath);
-
-    if (tscExitCode !== 0) {
-        console.warn(`tsc exited with non-zero status code ${tscExitCode}.`);
-    }
+    const program = ts.createProgram(parsedCommandLine.fileNames, parsedCommandLine.options);
+    const emitResult = program.emit(
+        undefined, // targetSourceFile
+        undefined, // writeFile
+        undefined, // cancellationToken,
+        true, // emitOnlyDtsFiles
+        undefined, // customTransformers
+    );
 
     const tscOutputDtsFile = join(dirName, baseName + '.d.ts');
     if (!existsSync(tscOutputDtsFile)) {
@@ -100,7 +73,7 @@ async function generate (options) {
         return false;
     }
 
-    const types = tsConfig.config.compilerOptions.types.map((typeFile) => `${typeFile}.d.ts`);
+    const types = parsedCommandLine.options.types.map((typeFile) => `${typeFile}.d.ts`);
     types.forEach((file) => {
         const destPath = join(outDir, isAbsolute(file) ? basename(file) : file);
         ensureDirSync(dirname(destPath));
@@ -121,7 +94,7 @@ async function generate (options) {
         return false;
     }
     writeFileSync(giftOutputPath, giftResult.code);
-    unlinkSync(giftInputPath);
+    // unlinkSync(giftInputPath);
 
     return true;
 }

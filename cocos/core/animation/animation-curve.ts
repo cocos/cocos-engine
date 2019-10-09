@@ -2,7 +2,7 @@
  * @category animation
  */
 
-import { ccclass } from '../data/class-decorator';
+import { ccclass, property } from '../data/class-decorator';
 import { binarySearchEpsilon as binarySearch } from '../data/utils/binary-search';
 import { lerp, Quat } from '../math';
 import { errorID } from '../platform/debug';
