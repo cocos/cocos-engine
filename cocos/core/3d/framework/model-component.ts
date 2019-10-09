@@ -194,7 +194,7 @@ export class ModelComponent extends RenderableComponent {
 
     public onDestroy () {
         if (this._model) {
-            this._getRenderScene().destroyModel(this._model);
+            this._model.scene.destroyModel(this._model);
             this._model = null;
         }
     }

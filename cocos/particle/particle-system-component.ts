@@ -466,7 +466,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         if (this.isValid) {
             const r = this.renderer as any;
             if (r && r._model) {
-                r._model.destroy();
+                r._model.scene.destroyModel(r._model);
                 r._model = null;
                 r.onEnable();
                 r._updateModel();
