@@ -172,17 +172,17 @@ export class GraphicsComponent extends UIRenderComponent {
     public impl: Impl | null = null;
     public model: Model | null = null;
     @property
-    private _lineWidth = 1;
+    protected _lineWidth = 1;
     @property
-    private _strokeColor = Color.BLACK.clone();
+    protected _strokeColor = Color.BLACK.clone();
     @property
-    private _lineJoin = LineJoin.MITER;
+    protected _lineJoin = LineJoin.MITER;
     @property
-    private _lineCap = LineCap.BUTT;
+    protected _lineCap = LineCap.BUTT;
     @property
-    private _fillColor = Color.WHITE.clone();
+    protected _fillColor = Color.WHITE.clone();
     @property
-    private _miterLimit = 10;
+    protected _miterLimit = 10;
 
     constructor (){
         super();

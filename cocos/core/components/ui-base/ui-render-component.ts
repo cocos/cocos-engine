@@ -196,6 +196,11 @@ export class UIRenderComponent extends UIComponent {
         return this._renderData;
     }
 
+    // Render data can be submitted even if it is not on the node tree
+    set simulate (value) {
+        this._simulate = value;
+    }
+
     public static BlendState = GFXBlendFactor;
     public static Assembler: IAssemblerManager | null = null;
     public static PostAssembler: IAssemblerManager | null = null;
@@ -230,8 +235,10 @@ export class UIRenderComponent extends UIComponent {
         depthStencilState: {},
         rasterizerState: {},
     };
+    protected _simulate = false;
 
     public __preload (){
+        super.__preload();
         this._instanceMaterial();
         if (this._flushAssembler){
             this._flushAssembler();
@@ -253,6 +260,7 @@ export class UIRenderComponent extends UIComponent {
     }
 
     public onDestroy () {
+        super.onDestroy();
         this.destroyRenderData();
         if (this._material){
             this._material.destroy();
@@ -337,7 +345,7 @@ export class UIRenderComponent extends UIComponent {
     }
 
     protected _canRender () {
-        return this.material !== null && this.enabled && this.enabledInHierarchy;
+        return this.material !== null && this.enabled && (this._simulate? true: this.enabledInHierarchy);
     }
 
     protected _postCanRender(){}
