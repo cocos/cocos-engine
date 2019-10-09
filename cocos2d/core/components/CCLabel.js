@@ -419,7 +419,7 @@ let Label = cc.Class({
                 this._isSystemFontUsed = !!value;
                 if (value) {
                     this.font = null;
-                    this._frame = null;
+
                     this._resetAssembler();
                     this._applyFontTexture(true);
                     this._lazyUpdateRenderData();
@@ -580,6 +580,12 @@ let Label = cc.Class({
             this._lazyUpdateRenderData();
         }
        RenderComponent.prototype._updateColor.call(this);
+    },
+
+    _resetAssembler () {
+        this._frame = null;
+
+        RenderComponent.prototype._resetAssembler.call(this);
     },
 
     _canRender () {
