@@ -45,8 +45,7 @@ VertexBuffer::~VertexBuffer()
 bool VertexBuffer::init(DeviceGraphics* device, VertexFormat* format, Usage usage, const void* data, size_t dataByteLength, uint32_t numVertices)
 {
     _device = device;
-    _format = format;
-    CC_SAFE_RETAIN(_format);
+    setFormat(format);
     _usage = usage;
     _numVertices = numVertices;
 

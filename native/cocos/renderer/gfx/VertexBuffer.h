@@ -132,8 +132,8 @@ public:
     void destroy();
 
 private:
-    DeviceGraphics* _device;
-    VertexFormat* _format;
+    DeviceGraphics* _device = nullptr;
+    VertexFormat* _format = nullptr;
     Usage _usage;
     uint32_t _numVertices;
     uint32_t _bytes;

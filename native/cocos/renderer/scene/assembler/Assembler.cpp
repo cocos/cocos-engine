@@ -77,6 +77,7 @@ Assembler::Assembler()
 Assembler::~Assembler()
 {
     CC_SAFE_RELEASE_NULL(_datas);
+    CC_SAFE_RELEASE(_vfmt);
 }
 
 void Assembler::updateMeshIndex(std::size_t iaIndex, int meshIndex)
@@ -205,6 +206,8 @@ void Assembler::fillBuffers(NodeProxy* node, MeshBuffer* buffer, std::size_t ind
 void Assembler::setVertexFormat(VertexFormat* vfmt)
 {
     if (_vfmt == vfmt) return;
+    CC_SAFE_RETAIN(vfmt);
+    CC_SAFE_RELEASE(_vfmt);
     _vfmt = vfmt;
     if (_vfmt)
     {

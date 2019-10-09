@@ -847,7 +847,7 @@ static bool js_cocos2d_renderer_VertexFormat_finalize(se::State& s)
 {
     cocos2d::renderer::VertexFormat* cobj = (cocos2d::renderer::VertexFormat*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_gfx_VertexFormat_getElement : Invalid Native Object");
-    delete cobj;
+    cobj->release();
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_VertexFormat_finalize)
