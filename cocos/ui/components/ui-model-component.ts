@@ -70,7 +70,9 @@ export class UIModelComponent extends UIComponent {
         }
 
         this._modelComponent._sceneGetter = null;
-        this._modelComponent.recreateModel();
+        if (cc.isValid(this.node, true)) {
+            this._modelComponent.recreateModel();
+        }
     }
 
     public updateAssembler (render: UI) {
