@@ -215,6 +215,7 @@ namespace
         if (! g_textField)
         {
             g_textField = [[UITextField alloc] initWithFrame:rect];
+            g_textField.textColor = [UIColor blackColor];
             [g_textField setBorderStyle:UITextBorderStyleLine];
             g_textField.backgroundColor = [UIColor whiteColor];
             
@@ -240,7 +241,7 @@ namespace
         if (!g_textView)
         {
             g_textView = [[UITextView alloc] initWithFrame:btnRect];
-            
+            g_textView.textColor = [UIColor blackColor];
             g_textViewDelegate = [[TextViewDelegate alloc] init];
             g_textView.delegate = g_textViewDelegate;
             
