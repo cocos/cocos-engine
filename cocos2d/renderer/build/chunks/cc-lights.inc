@@ -75,3 +75,4 @@ LightInfo computeSpotLighting(
   ret.radiance = lightColor.rgb * attenuation * cosConeAngle;
   return ret;
 }
+
