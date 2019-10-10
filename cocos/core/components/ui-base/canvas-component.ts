@@ -213,16 +213,17 @@ export class CanvasComponent extends Component {
                 flows: ['UIFlow'],
             });
 
-            this._camera!.fov = 45;
-            this._camera!.clearFlag = this.clearFlag;
+            this._camera.fov = 45;
+            this._camera.clearFlag = this.clearFlag;
+            this._camera.farClip = 2000;
             this.color = this._color;
 
             const device = director.root!.device;
-            this._camera!.resize(device.width, device.height);
+            this._camera.resize(device.width, device.height);
             if (this._targetTexture) {
                 const window = this._targetTexture.getGFXWindow();
-                this._camera!.changeTargetWindow(window);
-                this._camera!.setFixedSize(window!.width, window!.height);
+                this._camera.changeTargetWindow(window);
+                this._camera.setFixedSize(window!.width, window!.height);
             }
         }
 
@@ -314,7 +315,7 @@ export class CanvasComponent extends Component {
             const size = game.canvas!;
             this._camera.resize(size.width, size.height);
             this._camera.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
-            this._camera.node.setPosition(_worldPos.x, _worldPos.y, 999);
+            this._camera.node.setPosition(_worldPos.x, _worldPos.y, 1000);
             this._camera.update();
         }
     }
