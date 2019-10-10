@@ -256,6 +256,7 @@ module.exports = {
             "currentTime": "The start time when video start to play.",
             "keepAspectRatio": "Whether keep the original video's aspect ratio.",
             "isFullscreen": "Whether keep the video fullscreen when it is playing.",
+            "stayOnBottom": "Always below the game view (only useful on Web。Note: The specific effects are not guaranteed to be consistent, depending on whether each browser supports or restricts)."
         },
         "webview": {
             "url": "A given URL to be loaded by the WebView, it should have a http or https prefix."

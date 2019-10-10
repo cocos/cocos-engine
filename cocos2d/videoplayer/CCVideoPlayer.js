@@ -270,6 +270,26 @@ let VideoPlayer = cc.Class({
         },
 
         /**
+         * !#en Always below the game view (only useful on Web。Note: The specific effects are not guaranteed to be consistent, depending on whether each browser supports or restricts).
+         * !zh 永远在游戏视图最底层（这个属性只有在 Web 平台上有效果。注意：具体效果无法保证一致，跟各个浏览器是否支持与限制有关）
+         * @property {Boolean} stayOnBottom
+         */
+        _stayOnBottom: false,
+        stayOnBottom: {
+            get () {
+                return this._stayOnBottom
+            },
+            set (enable) {
+                this._stayOnBottom = enable;
+                if (this._impl) {
+                    this._impl.setStayOnBottom(enable);
+                }
+            },
+            animatable: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.stayOnBottom',
+        },
+
+        /**
          * !#en the video player's callback, it will be triggered when certain event occurs, like: playing, paused, stopped and completed.
          * !#zh 视频播放回调函数，该回调函数会在特定情况被触发，比如播放中，暂时，停止和完成播放。
          * @property {Component.EventHandler[]} videoPlayerEvent
@@ -321,6 +341,7 @@ let VideoPlayer = cc.Class({
             impl.seekTo(this.currentTime);
             impl.setKeepAspectRatioEnabled(this.keepAspectRatio);
             impl.setFullScreenEnabled(this.isFullscreen);
+            impl.setStayOnBottom(this._stayOnBottom);
             this.pause();
 
             if (!CC_EDITOR) {
