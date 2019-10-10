@@ -499,8 +499,6 @@ export class Vec2 extends ValueType {
     /**
      * @zh 返回当前向量的字符串表示。
      * @returns 当前向量的字符串表示。
-     * 返回当前向量的字符串表示。
-     * @return 当前向量的字符串表示。
      */
     public toString () {
         return `(${this.x.toFixed(2)}, ${this.y.toFixed(2)})`;
