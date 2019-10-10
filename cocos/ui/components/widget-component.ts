@@ -676,7 +676,7 @@ export class WidgetComponent extends Component {
         const targetSize = getReadonlyNodeSize(target);
         const deltaInPercent = new Vec3();
         if (targetSize.width !== 0 && targetSize.height !== 0) {
-            Vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
+            Vec3.set(deltaInPercent, delta.x / targetSize.width * 100, delta.y / targetSize.height * 100, deltaInPercent.z);
         }
 
         if (self.isAlignTop) {
@@ -728,7 +728,7 @@ export class WidgetComponent extends Component {
         const targetSize = getReadonlyNodeSize(target);
         const deltaInPercent = new Vec3();
         if (targetSize.width !== 0 && targetSize.height !== 0) {
-            Vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
+            Vec3.set(deltaInPercent, delta.x / targetSize.width * 100, delta.y / targetSize.height * 100, deltaInPercent.z);
         }
 
         const anchor = self.node.getAnchorPoint();
@@ -785,17 +785,17 @@ export class WidgetComponent extends Component {
 
         const size = this.node.parent!.getContentSize();
         if (this.isAlignLeft && flag === AlignFlags.LEFT) {
-            this._left = isAbs ? this._left * size.width : this._left / size.width;
+            this._left = isAbs ? this._left / 100 * size.width : this._left * 100 / size.width;
         } else if (this.isAlignRight && flag === AlignFlags.RIGHT) {
-            this._right = isAbs ? this._right * size.width : this._right / size.width;
+            this._right = isAbs ? this._right / 100 * size.width : this._right * 100 / size.width;
         } else if (this.isAlignHorizontalCenter && flag === AlignFlags.CENTER) {
-            this._horizontalCenter = isAbs ? this._horizontalCenter * size.width : this._horizontalCenter / size.width;
+            this._horizontalCenter = isAbs ? this._horizontalCenter / 100 * size.width : this._horizontalCenter * 100 / size.width;
         } else if (this.isAlignTop && flag === AlignFlags.TOP) {
-            this._top = isAbs ? this._top * size.height : this._top / size.height;
+            this._top = isAbs ? this._top / 100 * size.height : this._top * 100 / size.height;
         } else if (this.isAlignBottom && flag === AlignFlags.BOT) {
-            this._bottom = isAbs ? this._bottom * size.height : this._bottom / size.height;
+            this._bottom = isAbs ? this._bottom / 100 * size.height : this._bottom * 100 / size.height;
         } else if (this.isAbsoluteVerticalCenter && flag === AlignFlags.MID) {
-            this._verticalCenter = isAbs ? this._verticalCenter * size.height : this._verticalCenter / size.height;
+            this._verticalCenter = isAbs ? this._verticalCenter / 100 * size.height : this._verticalCenter * 100 / size.height;
         }
 
         this._recursiveDirty();
