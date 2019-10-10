@@ -36,7 +36,7 @@
 #include "base/CCRef.h"
 #include "base/ccUtils.h"
 
-#define MAX_AUDIOINSTANCES 24
+#define MAX_AUDIOINSTANCES 13
 
 #define ERRORLOG(msg) log("fun:%s,line:%d,msg:%s",__func__,__LINE__,#msg)
 
