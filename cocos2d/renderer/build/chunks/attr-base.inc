@@ -5,4 +5,5 @@ struct StandardAttributes {
   vec4 position;
   vec3 normal;
   vec4 tangent;
+  vec4 color;
 };

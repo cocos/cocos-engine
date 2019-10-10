@@ -1,7 +1,5 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-#include <decode-standard>
-
 #if CC_USE_SKINNING
 
   in vec4 a_weights;
@@ -127,11 +125,4 @@ void SKIN_VERTEX(inout vec4 a1, inout vec4 a2, inout vec4 a3) {
     a2 = m * a2;
     a3 = m * a3;
   #endif
-}
-
-void CCSkin(inout StandardAttributes attr) {
-  mat4 m = skinMatrix();
-  attr.position = m * attr.position;
-  attr.normal = (m * vec4(attr.normal, 0)).xyz;
-  attr.tangent = m * attr.tangent;
 }

@@ -16,14 +16,8 @@ precision highp float;
 
 in vec3 v_worldNormal;
 in vec3 v_worldPos;
-
-#if CC_USE_TEXTURE
-  in mediump vec2 v_uv0;
-#endif
-
-#if CC_USE_ATTRIBUTE_COLOR
-  in lowp vec4 v_color;
-#endif
+in mediump vec2 v_uv0;
+in lowp vec4 v_color;
 
 #include <shading-phong>
 

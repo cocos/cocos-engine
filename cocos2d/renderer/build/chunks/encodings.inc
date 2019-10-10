@@ -21,19 +21,20 @@ vec4 linearToGammaSpaceRGBA(in vec4 RGBA) {
   return vec4(linearToGammaSpaceRGB(RGBA.rgb), RGBA.a);
 }
 
-vec4 linearToLinear (in vec4 value) {
-  return value;
+
+vec4 TEXEL_TO_LINEAR (in vec4 color) {
+  #if INPUT_IS_GAMMA
+    return gammaToLinearSpaceRGBA(color);
+  #else
+    return color;
+  #endif
 }
 
+vec4 LINEAR_TO_OUTPUT_TEXEL (in vec4 color) {
+  #if OUTPUT_TO_GAMMA
+    return linearToGammaSpaceRGBA(color);
+  #else
+    return color;
+  #endif
+}
 
-// #if INPUT_IS_GAMMA
-//   #define TEXEL_TO_LINEAR gammaToLinearSpaceRGBA
-// #else
-  #define TEXEL_TO_LINEAR linearToLinear
-// #endif
-
-// #if OUTPUT_TO_GAMMA
-//   #define LINEAR_TO_OUTPUT_TEXEL linearToGammaSpaceRGBA
-// #else
-  #define LINEAR_TO_OUTPUT_TEXEL linearToLinear
-// #endif
