@@ -166,7 +166,7 @@ function combine (task) {
 
         // ugly hack
         if (item.ext === '.ttf') {
-            url = `${base}/${uuid.slice(0, 2)}/${uuid}${ver}/${item.options.name}`;
+            url = `${base}/${uuid.slice(0, 2)}/${uuid}${ver}/${item.options._native}`;
         }
         else {
             url = `${base}/${uuid.slice(0, 2)}/${uuid}${ver}${item.ext}`;

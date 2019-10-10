@@ -619,7 +619,8 @@ AssetManager.prototype = {
             }
         });
 
-        this.loadScript(root + '/index.js', options, function (err) {
+        var js = ver ?  `${root}/index.${ver}.js`: `${root}/index.js`;
+        this.loadScript(js, options, function (err) {
             if (err) cc.warn(err);
             count++;
             if (count === 2) {

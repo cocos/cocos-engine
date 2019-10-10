@@ -90,7 +90,7 @@ cc.Asset = cc.Class({
                         }
                         else {
                             // imported in an independent dir
-                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {name, ext: cc.path.extname(name), isNative: true});
+                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {_native: name, ext: cc.path.extname(name), isNative: true});
                         }
                     }
                 }
