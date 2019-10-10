@@ -1,5 +1,5 @@
 
-#include <lights>
+#include <cc-lights>
 #include <shadow>
 
 uniform PHONG {
