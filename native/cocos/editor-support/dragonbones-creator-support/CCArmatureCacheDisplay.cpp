@@ -152,6 +152,10 @@ void CCArmatureCacheDisplay::render(float dt)
     auto mgr = MiddlewareManager::getInstance();
     if (!mgr->isRendering) return;
 
+    auto& segments = frameData->getSegments();
+    auto& colors = frameData->getColors();
+    if (segments.size() == 0 || colors.size() == 0) return;
+    
     _nodeColor.a = _nodeProxy->getRealOpacity() / (float)255;
 
     middleware::MeshBuffer* mb = mgr->getMeshBuffer(VF_XYUVC);
@@ -161,15 +165,13 @@ void CCArmatureCacheDisplay::render(float dt)
     const auto& srcIB = frameData->ib;
 
     const cocos2d::Mat4& nodeWorldMat = _nodeProxy->getWorldMatrix();
-    auto& segments = frameData->getSegments();
-    auto& colors = frameData->getColors();
 
     int colorOffset = 0;
     ArmatureCache::ColorData* nowColor = colors[colorOffset++];
     auto maxVFOffset = nowColor->vertexFloatOffset;
 
     Color4B color;
-    float tempR = 0.0f, tempG = 0.0f, tempB = 0.0f;
+    float tempR = 0.0f, tempG = 0.0f, tempB = 0.0f, tempA = 0.0f;
     float multiplier = 1.0f;
     std::size_t srcVertexBytesOffset = 0;
     std::size_t srcIndexBytesOffset = 0;
@@ -196,12 +198,13 @@ void CCArmatureCacheDisplay::render(float dt)
 
     auto handleColor = [&](ArmatureCache::ColorData* colorData) 
     {
-        color.a = (GLubyte)(colorData->color.a * _nodeColor.a);
-        multiplier = _premultipliedAlpha ? color.a / 255 : 1;
+        tempA = colorData->color.a * _nodeColor.a;
+        multiplier = _premultipliedAlpha ? tempA / 255 : 1;
         tempR = _nodeColor.r * multiplier;
         tempG = _nodeColor.g * multiplier;
         tempB = _nodeColor.b * multiplier;
         
+        color.a = (GLubyte)tempA;
         color.r = (GLubyte)(colorData->color.r * tempR);
         color.g = (GLubyte)(colorData->color.g * tempG);
         color.b = (GLubyte)(colorData->color.b * tempB);

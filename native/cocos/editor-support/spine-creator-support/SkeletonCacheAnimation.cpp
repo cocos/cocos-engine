@@ -154,6 +154,10 @@ namespace spine {
         SkeletonCache::FrameData* frameData = _animationData->getFrameData(_curFrameIndex);
         if (!frameData) return;
         
+        auto& segments = frameData->getSegments();
+        auto& colors = frameData->getColors();
+        if (segments.size() == 0 || colors.size() == 0) return;
+        
         auto mgr = MiddlewareManager::getInstance();
         if (!mgr->isRendering) return;
         
@@ -166,16 +170,14 @@ namespace spine {
         const auto& srcIB = frameData->ib;
         
         const cocos2d::Mat4& nodeWorldMat = _nodeProxy->getWorldMatrix();
-        auto& segments = frameData->getSegments();
-        auto& colors = frameData->getColors();
-        
+
         int colorOffset = 0;
         SkeletonCache::ColorData* nowColor = colors[colorOffset++];
         auto maxVFOffset = nowColor->vertexFloatOffset;
         
         Color4B finalColor;
         Color4B darkColor;
-        float tempR = 0.0f, tempG = 0.0f, tempB = 0.0f;
+        float tempR = 0.0f, tempG = 0.0f, tempB = 0.0f, tempA = 0.0f;
         float multiplier = 1.0f;
         int srcVertexBytesOffset = 0;
         int vertexBytes = 0;
@@ -201,12 +203,13 @@ namespace spine {
         }
         
         auto handleColor = [&](SkeletonCache::ColorData* colorData){
-            finalColor.a = (GLubyte)(colorData->finalColor.a * _nodeColor.a);
-            multiplier = _premultipliedAlpha ? finalColor.a / 255 : 1;
+            tempA = colorData->finalColor.a * _nodeColor.a;
+            multiplier = _premultipliedAlpha ? tempA / 255 : 1;
             tempR = _nodeColor.r * multiplier;
             tempG = _nodeColor.g * multiplier;
             tempB = _nodeColor.b * multiplier;
             
+            finalColor.a = (GLubyte)tempA;
             finalColor.r = (GLubyte)(colorData->finalColor.r * tempR);
             finalColor.g = (GLubyte)(colorData->finalColor.g * tempG);
             finalColor.b = (GLubyte)(colorData->finalColor.b * tempB);
