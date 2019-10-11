@@ -90,8 +90,8 @@ function align (node: INode, widget: WidgetComponent) {
         }
 
         // adjust borders according to offsets
-        localLeft += widget.isAbsoluteLeft ? widget.left : widget.left * targetWidth;
-        localRight -= widget.isAbsoluteRight ? widget.right : widget.right * targetWidth;
+        localLeft += widget.isAbsoluteLeft ? widget.left : widget.left / 100 * targetWidth;
+        localRight -= widget.isAbsoluteRight ? widget.right : widget.right / 100 * targetWidth;
 
         if (hasTarget) {
             localLeft += inverseTranslate.x;
@@ -117,7 +117,7 @@ function align (node: INode, widget: WidgetComponent) {
             width = node.width * scaleX;
             if (widget.isAlignHorizontalCenter) {
                 let localHorizontalCenter = widget.isAbsoluteHorizontalCenter ?
-                    widget.horizontalCenter : widget.horizontalCenter * targetWidth;
+                    widget.horizontalCenter : widget.horizontalCenter / 100 * targetWidth;
                 let targetCenter = (0.5 - targetAnchor.x) * targetSize.width;
                 if (hasTarget) {
                     localHorizontalCenter *= inverseScale.x;
@@ -149,8 +149,8 @@ function align (node: INode, widget: WidgetComponent) {
         }
 
         // adjust borders according to offsets
-        localBottom += widget.isAbsoluteBottom ? widget.bottom : widget.bottom * targetHeight;
-        localTop -= widget.isAbsoluteTop ? widget.top : widget.top * targetHeight;
+        localBottom += widget.isAbsoluteBottom ? widget.bottom : widget.bottom / 100 * targetHeight;
+        localTop -= widget.isAbsoluteTop ? widget.top : widget.top / 100 * targetHeight;
 
         if (hasTarget) {
             // transform
@@ -177,7 +177,7 @@ function align (node: INode, widget: WidgetComponent) {
             height = node.height * scaleY;
             if (widget.isAlignVerticalCenter) {
                 let localVerticalCenter = widget.isAbsoluteVerticalCenter ?
-                    widget.verticalCenter : widget.verticalCenter * targetHeight;
+                    widget.verticalCenter : widget.verticalCenter / 100 * targetHeight;
                 let targetMiddle = (0.5 - targetAnchor.y) * targetSize.height;
                 if (hasTarget) {
                     localVerticalCenter *= inverseScale.y;
