@@ -569,14 +569,7 @@ var Widget = cc.Class({
     },
 
     onEnable: function () {
-        if (cc.director.getLifeCycleState() < cc.director.getLifeCycleStateDefaultValue()) {
-            WidgetManager.add(this);
-        }
-        else {
-            cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, function() {
-                WidgetManager.add(this);
-            }, this, true);
-        }
+        WidgetManager.add(this);
     },
 
     onDisable: function () {
