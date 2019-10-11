@@ -182,6 +182,13 @@ cc.Director.prototype = {
     },
 
     /*
+     * Get life cycle state default value by key
+     */
+    getLifeCycleStateDefaultValue: function (key) {
+        return this._lifeCycleStateMap[key];
+    },
+    
+    /*
      * Manage all init process shared between the web engine and jsb engine.
      * All platform independent init process should be occupied here.
      */

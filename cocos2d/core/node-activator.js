@@ -247,7 +247,7 @@ var NodeActivator = cc.Class({
 
             // if node active after start stage, delay active time to next frame 
             this._activateNodeRecursively(node, task.preload, task.onLoad, task.onEnable);
-            if (cc.director.getLifeCycleState() < cc.Director.LIFE_CYCLE_STAGE_START) {
+            if (cc.director.getLifeCycleState() < cc.director.getLifeCycleStateDefaultValue("start")) {
                 task.preload.invoke();
                 task.onLoad.invoke();
                 task.onEnable.invoke();
