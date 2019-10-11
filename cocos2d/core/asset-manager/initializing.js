@@ -38,7 +38,7 @@ function initializing (task, done) {
         }
         else if (!isNative && assets.has(uuid)) {
             var asset = assetsMap[id] = item.content = assets.get(uuid);
-            asset._addRef();
+            asset.addRef();
             cb();
         } 
         else {
@@ -86,7 +86,7 @@ function initializing (task, done) {
                     }
                     cache(uuid, asset, cacheAsset !== undefined ? cacheAsset : cc.assetManager.cacheAsset); 
                     item.content = asset;
-                    asset._addRef();
+                    asset.addRef();
                     asset.__asyncLoadAssets__ = false;
                 }
                 else {

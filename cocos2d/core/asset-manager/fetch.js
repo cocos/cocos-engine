@@ -42,7 +42,7 @@ function fetch (task, done) {
         
         if (!item.isNative && assets.has(item.uuid)) {
             var asset = assets.get(item.uuid);
-            asset._addRef();
+            asset.addRef();
             handle(item, task, asset, null, asset.__asyncLoadAssets__, depends, total, done);
             return cb();
         }

@@ -7,16 +7,16 @@ test('reference', function () {
     var tex = new cc.Texture2D();
     tex._uuid = 'AAA';
     strictEqual(tex._ref, 0, 'should equal to 0');
-    tex._addRef();
+    tex.addRef();
     strictEqual(tex._ref, 1, 'should equal to 1');
-    tex._removeRef();
+    tex.removeRef();
     strictEqual(tex._ref, 0, 'should equal to 0');
 });
 
 test('release', function () {
     var tex = new cc.Texture2D();
     tex._uuid = 'AAA';
-    tex._addRef();
+    tex.addRef();
     cc.assetManager._assets.add('AAA', tex);
     ok(cc.isValid(tex, true), 'tex should be valid');
     cc.assetManager.finalizer._free(tex, false);
@@ -33,7 +33,7 @@ test('release dependencies', function () {
     cc.assetManager._assets.add('AAA', texA);
     var texB = new cc.Texture2D();
     texB._uuid = 'BBB';
-    texB._addRef();
+    texB.addRef();
     cc.assetManager._assets.add('BBB', texB);
     cc.assetManager.dependUtil._depends.add('AAA', {deps: ['BBB']});
     cc.assetManager.finalizer._free(texA);
@@ -43,19 +43,19 @@ test('release dependencies', function () {
 test('release circle reference', function () {
     var texA = new cc.Texture2D();
     texA._uuid = 'AAA';
-    texA._addRef();
+    texA.addRef();
     cc.assetManager._assets.add('AAA', texA);
     var texB = new cc.Texture2D();
     texB._uuid = 'BBB';
-    texB._addRef();
+    texB.addRef();
     cc.assetManager._assets.add('BBB', texB);
     var texC = new cc.Texture2D();
     texC._uuid = 'CCC';
-    texC._addRef();
+    texC.addRef();
     cc.assetManager._assets.add('CCC', texC);
     var texD = new cc.Texture2D();
     texD._uuid = 'DDD';
-    texD._addRef();
+    texD.addRef();
     cc.assetManager._assets.add('DDD', texD);
     cc.assetManager.dependUtil._depends.add('AAA', {deps: ['BBB']});
     cc.assetManager.dependUtil._depends.add('BBB', {deps: ['CCC']});
@@ -86,7 +86,7 @@ test('AutoRelease', function () {
     scene2._id = 'scene 2';
     var texA = new cc.Texture2D();
     texA._uuid = 'AAA';
-    texA._addRef();
+    texA.addRef();
     cc.assetManager._assets.add('AAA', texA);
     var texB = new cc.Texture2D();
     texB._uuid = 'BBB';
@@ -98,7 +98,7 @@ test('AutoRelease', function () {
     cc.assetManager._assets.add('CCC', texC);
     var texD = new cc.Texture2D();
     texD._uuid = 'DDD';
-    texD._addRef();
+    texD.addRef();
     cc.assetManager._assets.add('DDD', texD);
 
     cc.assetManager.dependUtil._depends.add('scene 1', {deps: ['AAA', 'BBB', 'CCC', 'DDD']});
@@ -139,7 +139,7 @@ test('persistNode', function () {
     scene3._id = 'scene 3';
     var sp = new cc.SpriteFrame();
     sp._uuid = 'AAA';
-    sp._addRef();
+    sp.addRef();
     cc.assetManager._assets.add('AAA', sp);
     var persistNode = new cc.Node();
     persistNode.addComponent(cc.Sprite).spriteFrame = sp;

@@ -62,6 +62,7 @@ cc.Asset = cc.Class({
          */
         this.loaded = true;
         this._nativeUrl = '';
+        this._ref = 0;
     },
 
     properties: {
@@ -236,6 +237,38 @@ cc.Asset = cc.Class({
         else {
             this._native = '/' + filename;  // simply use '/' to tag location where is not in the library
         }
+    },
+
+    /**
+     * !#zh
+     * 增加资源的引用
+     * 
+     * !#en
+     * Add references of asset
+     * 
+     * @method addRef
+     * 
+     * @typescript
+     * addRef(): void
+     */
+    addRef () {
+        this._ref++;
+    },
+
+    /**
+     * !#zh
+     * 减少资源的引用
+     * 
+     * !#en
+     * Reduce references of asset
+     * 
+     * @method removeRef
+     * 
+     * @typescript
+     * removeRef(): void
+     */
+    removeRef () {
+        this._ref--;
     }
 });
 

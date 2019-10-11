@@ -102,7 +102,7 @@ var utils = {
         for (var i = 0, l = task.input.length; i < l; i++) {
             var item = task.input[i];
             if (clearRef) {
-                !item.isNative && item.content && item.content._removeRef();
+                !item.isNative && item.content && item.content.removeRef();
             }
             item.recycle();
         }
@@ -209,7 +209,7 @@ var utils = {
                 }
                 else {
                     depend.owner[depend.prop] = dependAsset;
-                    dependAsset._addRef();
+                    dependAsset.addRef();
                 }
             }
 

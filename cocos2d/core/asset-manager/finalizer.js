@@ -82,22 +82,6 @@ var _lockedAsset = Object.create(null);
 var _persistNodeDeps = new Cache();
 var _toDelete = new Cache();
 var eventListener = false;
-Object.assign(cc.Asset.prototype, {
-    get _ref () {
-        return this.__ref__ || 0;
-    },
-
-    set _ref (val) {
-        this.__ref__ = val;
-    },
-
-    _addRef () {
-        this._ref++;
-    },
-    _removeRef () {
-        this._ref--;
-    }
-});
 
 /**
  * !#en
@@ -132,7 +116,7 @@ var finalizer = {
         for (let i = 0, l = deps.length; i < l; i++) {
             var dependAsset = assets.get(deps[i]);
             if (dependAsset) {
-                dependAsset._addRef();
+                dependAsset.addRef();
             }
         }
         _persistNodeDeps.add(node.uuid, deps);
@@ -144,7 +128,7 @@ var finalizer = {
             for (let i = 0, l = deps.length; i < l; i++) {
                 var dependAsset = assets.get(deps[i]);
                 if (dependAsset) {
-                    dependAsset._removeRef();
+                    dependAsset.removeRef();
                 }
             }
             _persistNodeDeps.remove(node.uuid);
@@ -162,7 +146,7 @@ var finalizer = {
             for (let i = 0, l = deps.length; i < l; i++) {
                 var dependAsset = assets.get(deps[i]);
                 if (dependAsset) {
-                    dependAsset._addRef();
+                    dependAsset.addRef();
                 }
             }
             if (sceneDeps) {
@@ -175,7 +159,7 @@ var finalizer = {
             var childs = dependUtil.getDeps(oldScene._id);
             for (let i = 0, l = childs.length; i < l; i++) {
                 let asset = assets.get(childs[i]);
-                asset && asset._removeRef();
+                asset && asset.removeRef();
                 if (CC_TEST || oldScene.autoReleaseAssets) this.release(asset);
             }
             var dependencies = dependUtil._depends.get(oldScene._id);
@@ -183,7 +167,7 @@ var finalizer = {
                 var persistDeps = dependencies.persistDeps;
                 for (let i = 0, l = persistDeps.length; i < l; i++) {
                     let asset = assets.get(persistDeps[i]);
-                    asset && asset._removeRef();
+                    asset && asset.removeRef();
                     if (CC_TEST || oldScene.autoReleaseAssets) this.release(asset);
                 }
             }
@@ -302,7 +286,7 @@ var finalizer = {
         for (let i = 0, l = depends.length; i < l; i++) {
             var dependAsset = assets.get(depends[i]);
             if (dependAsset) {
-                dependAsset._removeRef();
+                dependAsset.removeRef();
                 finalizer._free(dependAsset, force);
             }
         }
