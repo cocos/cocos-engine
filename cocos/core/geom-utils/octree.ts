@@ -226,7 +226,7 @@ export default class Octree {
 
     /**
      * @en Select all the entries overlapping the given primitive
-     * @zh 选择与给定原语重叠的所有项
+     * @zh 选择与给定原始项重叠的所有项
      * @param {Object} shape - the selecting primitive
      * @return {Set<Object>} the resulting set of entries
      */
