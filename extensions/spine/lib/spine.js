@@ -5641,6 +5641,15 @@ var spine;
 				}
 			}
 			if (root.skins) {
+                var skins = root.skins;
+                var isArray = skins instanceof Array;
+                if (!isArray) {
+                    var skinArr = [];
+                    for (var skinName in skins) {
+                        skinArr.push({name: skinName, attachments: skins[skinName]});
+                    }
+                    skins = skinArr;
+                }
 				for (var i = 0; i < skins.length; i++) {
 					var skinMap = skins[i];
 					var skin = new spine.Skin(skinMap.name);
@@ -5675,7 +5684,7 @@ var spine;
 								throw new Error("Skin path constraint not found: " + skinMap.path[i]);
 							skin.constraints.push(constraint);
 						}
-					}
+                    }
 					for (var slotName in skinMap.attachments) {
 						var slot = skeletonData.findSlot(slotName);
 						if (slot == null)
