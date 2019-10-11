@@ -70,7 +70,7 @@ test('widget should be added in next frame when node is actived in this frame', 
     var nodes = createNodes({
         comp: cc.Component,
         child: {
-            comp: cc.Widget
+            comp: cc.Widget,
         },
     });
     nodes.child.active = false;
