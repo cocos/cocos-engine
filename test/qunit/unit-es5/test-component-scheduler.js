@@ -66,13 +66,11 @@ test('life cycle logic for component', function () {
     cc.js.unregisterClass(MyComponent);
 });
 
-test('the lifeCycle should start in next frame if node active after start in this frame', function() {
+test('widget should be added in next frame when node is actived in this frame', function() {
     var nodes = createNodes({
         comp: cc.component,
         child: {
-            comp: {
-                extends: CallbackTester,
-            }
+            comp: cc.Widget
         },
     });
     nodes.child.active = false;
@@ -82,17 +80,11 @@ test('the lifeCycle should start in next frame if node active after start in thi
 
     cc.director.getScene().addChild(node);
     // active child in this frame
-    nodes.child.comp.notexpect(CallbackTester.OnLoad, "should not call OnLoad when actived after start");
-    nodes.child.comp.notexpect(CallbackTester.OnEnable, 'should not call OnEnable when actived after start');
-    nodes.child.comp.notExpect(CallbackTester.start, "should not call start when actived after start");
-    nodes.child.comp.notExpect(CallbackTester.update, "should not call update when actived after start");
+    WidgetManager.add.disable("Widget should not be added if node is actived after start");
     cc.game.step();
 
     // next frame
-    nodes.child.comp.expect(CallbackTester.OnLoad, "should call OnLoad first in next frame");
-    nodes.child.comp.expect(CallbackTester.OnEnable, 'should call OnEnable after OnLoad');
-    nodes.child.comp.expect(CallbackTester.start, "should call start in this frame");
-    nodes.child.comp.expect(CallbackTester.update, "should call update in this frame");
+    WidgetManager.add.enable();
     cc.game.step();
 
     // end test
