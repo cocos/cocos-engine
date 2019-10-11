@@ -66,7 +66,7 @@ test('life cycle logic for component', function () {
     cc.js.unregisterClass(MyComponent);
 });
 
-test('node should execute start and update in next frame but not this frame after being actived', function() {
+test('the lifeCycle should start in next frame if node active after start in this frame', function() {
     var nodes = createNodes({
         comp: cc.component,
         child: {
@@ -82,15 +82,17 @@ test('node should execute start and update in next frame but not this frame afte
 
     cc.director.getScene().addChild(node);
     // active child in this frame
-    nodes.child.comp.expect(CallbackTester.OnLoad, "should call OnLoad first when actived");
-    nodes.child.comp.expect(CallbackTester.OnEnable, 'should call OnEnable after OnLoad');
-    nodes.child.comp.notExpect(CallbackTester.start, "should not call start when actived");
-    nodes.child.comp.notExpect(CallbackTester.update, "should not call update when actived");
+    nodes.child.comp.notexpect(CallbackTester.OnLoad, "should not call OnLoad when actived after start");
+    nodes.child.comp.notexpect(CallbackTester.OnEnable, 'should not call OnEnable when actived after start');
+    nodes.child.comp.notExpect(CallbackTester.start, "should not call start when actived after start");
+    nodes.child.comp.notExpect(CallbackTester.update, "should not call update when actived after start");
     cc.game.step();
 
     // next frame
-    nodes.child.expect(CallbackTester.start, "should call start in this frame");
-    nodes.child.expect(CallbackTester.update, "should call update in this frame");
+    nodes.child.comp.expect(CallbackTester.OnLoad, "should call OnLoad first in next frame");
+    nodes.child.comp.expect(CallbackTester.OnEnable, 'should call OnEnable after OnLoad');
+    nodes.child.comp.expect(CallbackTester.start, "should call start in this frame");
+    nodes.child.comp.expect(CallbackTester.update, "should call update in this frame");
     cc.game.step();
 
     // end test
