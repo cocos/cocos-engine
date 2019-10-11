@@ -56,6 +56,9 @@ export default class WebglBmfontAssembler extends BmfontAssembler {
 
     _quadsUpdated (comp) {
         _dataOffset = 0;
+
+        let flexBuffer = this._renderData._flexBuffer;
+        flexBuffer.used(this.verticesCount, this.indicesCount);
     }
 
     _getColor (comp) {
