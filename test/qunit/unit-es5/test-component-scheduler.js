@@ -66,6 +66,37 @@ test('life cycle logic for component', function () {
     cc.js.unregisterClass(MyComponent);
 });
 
+test('node should execute start and update in next frame but not this frame after being actived', function() {
+    var nodes = createNodes({
+        comp: cc.component,
+        child: {
+            comp: {
+                extends: CallbackTester,
+            }
+        },
+    });
+    nodes.child.active = false;
+    nodes.comp.update = function () {
+        nodes.child.active = true;
+    };
+
+    cc.director.getScene().addChild(node);
+    // active child in this frame
+    nodes.child.comp.expect(CallbackTester.OnLoad, "should call OnLoad first when actived");
+    nodes.child.comp.expect(CallbackTester.OnEnable, 'should call OnEnable after OnLoad');
+    nodes.child.comp.notExpect(CallbackTester.start, "should not call start when actived");
+    nodes.child.comp.notExpect(CallbackTester.update, "should not call update when actived");
+    cc.game.step();
+
+    // next frame
+    nodes.child.expect(CallbackTester.start, "should call start in this frame");
+    nodes.child.expect(CallbackTester.update, "should call update in this frame");
+    cc.game.step();
+
+    // end test
+    this.node.active = false;
+});
+
 test('activation logic for component in hierarchy', function () {
     var parent = new cc.Node();
     var child = new cc.Node();
