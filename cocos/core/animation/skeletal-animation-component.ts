@@ -34,7 +34,7 @@ import { Node } from '../scene-graph/node';
 import { INode } from '../utils/interfaces';
 import { AnimationClip } from './animation-clip';
 import { AnimationComponent } from './animation-component';
-import { SkeletalAnimationClip } from './skeletal-animation-clip';
+import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { SkeletalAnimationState } from './skeletal-animation-state';
 import { getWorldTransformUntilRoot } from './transform-utils';
 
@@ -116,7 +116,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     }
 
     public querySockets () {
-        const animPaths = this._defaultClip && Object.keys((this._defaultClip as SkeletalAnimationClip).convertedData).sort().reduce((acc, cur) =>
+        const animPaths = this._defaultClip && Object.keys(SkelAnimDataHub.getOrExtract(this._defaultClip)).sort().reduce((acc, cur) =>
             cur.startsWith(acc[acc.length - 1]) ? acc : (acc.push(cur), acc), [] as string[]) || [];
         if (!animPaths.length) { return ['default animation clip missing/invalid']; }
         const out: string[] = [];
@@ -164,7 +164,6 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     }
 
     protected _doCreateState (clip: AnimationClip, name: string) {
-        if (!(clip instanceof SkeletalAnimationClip)) { console.warn('non-skeletal clip in skeletal component'); }
         const state = super._doCreateState(clip, name) as SkeletalAnimationState;
         state.rebuildSocketCurves(this._sockets);
         return state;

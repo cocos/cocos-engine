@@ -1,6 +1,7 @@
 
 import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXFormatType, GFXPrimitiveMode, IGFXFormatInfo } from '../../gfx/define';
 export { find } from '../../scene-graph/find';
+import { SkelAnimDataHub } from '../../animation/skeletal-animation-data-hub';
 import { IMeshStruct, IPrimitive, IVertexBundle, Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geom-utils';
@@ -471,7 +472,7 @@ export function calculateSkinnedBounds (out: aabb, comp: SkinningModelComponent)
     root.getWorldMatrix(m4_1);
     const boundList = boneSpaceBoundsManager.use(comp.mesh, skeleton);
     const len = skeleton.joints.length;
-    const data = clip.convertedData;
+    const data = SkelAnimDataHub.getOrExtract(clip);
     const fid = animInfo.data[1];
     for (let i = 0; i < len; ++i) {
         const bounds = boundList[i];

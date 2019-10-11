@@ -29,11 +29,12 @@
 
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
 import { Mat4 } from '../math';
+import { INode } from '../utils/interfaces';
 import { IObjectCurveData } from './animation-clip';
 import { AnimCurve } from './animation-curve';
 import { AnimationState, ICurveInstance } from './animation-state';
-import { SkeletalAnimationClip } from './skeletal-animation-clip';
 import { Socket } from './skeletal-animation-component';
+import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { ComponentModifier, HierachyModifier, TargetModifier } from './target-modifier';
 import { getPathFromRoot, getWorldTransformUntilRoot } from './transform-utils';
 
@@ -48,13 +49,18 @@ function isFrameIDCurve (modifiers: TargetModifier[]) {
 
 export class SkeletalAnimationState extends AnimationState {
 
+    public initialize (root: INode) {
+        SkelAnimDataHub.getOrExtract(this.clip);
+        super.initialize(root);
+    }
+
     public onPlay () {
         super.onPlay();
         const comps = this._targetNode!.getComponentsInChildren(SkinningModelComponent);
         for (let i = 0; i < comps.length; ++i) {
             const comp = comps[i] as SkinningModelComponent;
             if (comp.skinningRoot === this._targetNode) {
-                comp.uploadAnimation(this.clip as SkeletalAnimationClip);
+                comp.uploadAnimation(this.clip);
             }
         }
     }
@@ -85,7 +91,7 @@ export class SkeletalAnimationState extends AnimationState {
         const targetNode = root.getChildByPath(socket.path);
         if (!targetNode || !socket.target) { return null; }
         const targetPath = socket.path;
-        const sourceData = (this.clip as SkeletalAnimationClip).convertedData;
+        const sourceData = SkelAnimDataHub.getOrExtract(this.clip);
         // find lowest joint animation
         let animPath = targetPath;
         let source = sourceData[animPath];

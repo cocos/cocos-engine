@@ -27,7 +27,7 @@
  * @category model
  */
 
-import { SkeletalAnimationClip } from '../../animation/skeletal-animation-clip';
+import { AnimationClip } from '../../animation';
 import { Material } from '../../assets/material';
 import { Skeleton } from '../../assets/skeleton';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
@@ -87,7 +87,7 @@ export class SkinningModelComponent extends ModelComponent {
         return (this._model as SkinningModel);
     }
 
-    public uploadAnimation (clip: SkeletalAnimationClip | null) {
+    public uploadAnimation (clip: AnimationClip | null) {
         if (this._model) { (this._model as SkinningModel).uploadAnimation(clip); }
     }
 

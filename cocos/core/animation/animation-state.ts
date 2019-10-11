@@ -27,17 +27,17 @@
  * @category animation
  */
 
+import { director } from '../director';
 import { EventArgumentsOf, EventCallbackOf } from '../event/defines';
 import { Node } from '../scene-graph/node';
+import { INode } from '../utils/interfaces';
 import { AnimationBlendState, PropertyBlendState } from './animation-blend-state';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
-import { AnimCurve, RatioSampler, ICurveValueProxy } from './animation-curve';
+import { AnimCurve, ICurveValueProxy, RatioSampler } from './animation-curve';
+import { additive3D, additiveQuat, BlendFunction } from './blending';
 import { Playable } from './playable';
-import { WrapMode, WrapModeMask, WrappedInfo } from './types';
-import { INode } from '../utils/interfaces';
-import { BlendFunction, additive3D, additiveQuat } from './blending';
 import { BoundTarget } from './target-modifier';
-import { director } from '../director';
+import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 
 enum PropertySpecialization {
     NodePosition,
@@ -145,7 +145,7 @@ export class ICurveInstance {
 
     get propertyName () { return this._rootTargetProperty || ''; }
 
-    get curveDetail() {
+    get curveDetail () {
         return this._curveDetail;
     }
 }
@@ -384,7 +384,7 @@ export class AnimationState extends Playable {
             this.repeatCount = 1;
         }
 
-        const propertyCurves = clip.getPropertyCurves(root);
+        const propertyCurves = clip.getPropertyCurves();
         for (let iPropertyCurve = 0; iPropertyCurve < propertyCurves.length; ++iPropertyCurve) {
             const propertyCurve = propertyCurves[iPropertyCurve];
             let samplerSharedGroup = this._samplerSharedGroups.find((value) => value.sampler === propertyCurve.sampler);

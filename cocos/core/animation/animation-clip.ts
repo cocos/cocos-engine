@@ -7,11 +7,11 @@ import { Asset, SpriteFrame } from '../assets';
 import { ccclass, property } from '../data/class-decorator';
 import { errorID } from '../platform/debug';
 import binarySearchEpsilon from '../utils/binary-search';
-import { AnimCurve, IPropertyCurveData, RatioSampler, CurveValueAdapter } from './animation-curve';
-import { WrapMode as AnimationWrapMode } from './types';
 import { INode } from '../utils/interfaces';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
-import { TargetModifier, HierachyModifier, ComponentModifier, isCustomTargetModifier, PropertyModifier, isPropertyModifier } from './target-modifier';
+import { AnimCurve, CurveValueAdapter, IPropertyCurveData, RatioSampler } from './animation-curve';
+import { ComponentModifier, HierachyModifier, isCustomTargetModifier, isPropertyModifier, PropertyModifier, TargetModifier } from './target-modifier';
+import { WrapMode as AnimationWrapMode } from './types';
 
 export interface ITargetCurveData {
     modifiers: TargetModifier[];
@@ -56,7 +56,7 @@ export interface IRuntimeCurve {
     /**
      * 曲线值适配器。
      */
-    valueAdapter?: CurveValueAdapter; 
+    valueAdapter?: CurveValueAdapter;
 
     /**
      * 曲线采样器。
@@ -78,103 +78,6 @@ export interface IAnimationEventGroup {
  */
 @ccclass('cc.AnimationClip')
 export class AnimationClip extends Asset {
-    public static WrapMode = AnimationWrapMode;
-
-    /**
-     * @en Crate clip with a set of sprite frames
-     * @zh 使用一组序列帧图片来创建动画剪辑
-     * @example
-     * ```
-     * const clip = cc.AnimationClip.createWithSpriteFrames(spriteFrames, 10);
-     * ```
-     */
-    public static createWithSpriteFrames (spriteFrames: SpriteFrame[], sample: number) {
-        if (!Array.isArray(spriteFrames)) {
-            errorID(3905);
-            return null;
-        }
-
-        const clip = new AnimationClip();
-        clip.sample = sample || clip.sample;
-
-        clip.duration = spriteFrames.length / clip.sample;
-        const step = 1 / clip.sample;
-        const keys = new Array<number>(spriteFrames.length);
-        const values = new Array<SpriteFrame>(keys.length);
-        for (let i = 0; i < spriteFrames.length; i++) {
-            keys[i] = i * step;
-            values[i] = spriteFrames[i];
-        }
-        clip.keys = [keys];
-        clip.curves = [{
-            modifiers: [
-                new ComponentModifier('cc.SpriteComponent'),
-                'spriteFrame'
-            ],
-            data: {
-                keys: 0,
-                values,
-            }
-        }];
-
-        return clip;
-    }
-
-    /**
-     * 动画帧率，单位为帧/秒。
-     */
-    @property
-    public sample = 60;
-
-    /**
-     * 动画的播放速度。
-     */
-    @property
-    public speed = 1;
-
-    /**
-     * 动画的循环模式。
-     */
-    @property
-    public wrapMode = AnimationWrapMode.Normal;
-
-    /**
-     * 动画的曲线数据。
-     * @deprecated 请转用 `this.curves`
-     */
-    @property
-    private curveDatas?: ICurveData = {};
-
-    @property
-    private _curves: ITargetCurveData[] = [];
-
-    /**
-     * 动画包含的事件数据。
-     */
-    @property({visible: false})
-    public events: IAnimationEventData[] = [];
-
-    @property
-    protected _duration = 0;
-
-    @property
-    protected _keys: number[][] = [];
-
-    protected _ratioSamplers: RatioSampler[] = [];
-
-    protected _runtimeCurves?: IRuntimeCurve[];
-
-    protected _runtimeEvents?: {
-        ratios: number[];
-        eventGroups: IAnimationEventGroup[];
-    };
-
-    protected frameRate = 0;
-
-    @property
-    protected _stepness = 0;
-
-    protected _hash = 0;
 
     /**
      * 动画的周期。
@@ -224,7 +127,7 @@ export class AnimationClip extends Asset {
     }
 
     get hash () {
-        if (!this._hash) { this._hash = murmurhash2_32_gc(JSON.stringify(this._getDeprecatedCurveDatas()), 666); }
+        if (!this._hash) { this._hash = murmurhash2_32_gc(JSON.stringify(this.curves), 666); }
         return this._hash;
     }
 
@@ -236,13 +139,110 @@ export class AnimationClip extends Asset {
         this._curves = value;
         delete this._runtimeCurves;
     }
+    public static WrapMode = AnimationWrapMode;
+
+    /**
+     * @en Crate clip with a set of sprite frames
+     * @zh 使用一组序列帧图片来创建动画剪辑
+     * @example
+     * ```
+     * const clip = cc.AnimationClip.createWithSpriteFrames(spriteFrames, 10);
+     * ```
+     */
+    public static createWithSpriteFrames (spriteFrames: SpriteFrame[], sample: number) {
+        if (!Array.isArray(spriteFrames)) {
+            errorID(3905);
+            return null;
+        }
+
+        const clip = new AnimationClip();
+        clip.sample = sample || clip.sample;
+
+        clip.duration = spriteFrames.length / clip.sample;
+        const step = 1 / clip.sample;
+        const keys = new Array<number>(spriteFrames.length);
+        const values = new Array<SpriteFrame>(keys.length);
+        for (let i = 0; i < spriteFrames.length; i++) {
+            keys[i] = i * step;
+            values[i] = spriteFrames[i];
+        }
+        clip.keys = [keys];
+        clip.curves = [{
+            modifiers: [
+                new ComponentModifier('cc.SpriteComponent'),
+                'spriteFrame',
+            ],
+            data: {
+                keys: 0,
+                values,
+            },
+        }];
+
+        return clip;
+    }
+
+    /**
+     * 动画帧率，单位为帧/秒。
+     */
+    @property
+    public sample = 60;
+
+    /**
+     * 动画的播放速度。
+     */
+    @property
+    public speed = 1;
+
+    /**
+     * 动画的循环模式。
+     */
+    @property
+    public wrapMode = AnimationWrapMode.Normal;
+
+    /**
+     * 动画包含的事件数据。
+     */
+    @property({visible: false})
+    public events: IAnimationEventData[] = [];
+
+    @property
+    protected _duration = 0;
+
+    @property
+    protected _keys: number[][] = [];
+
+    protected _ratioSamplers: RatioSampler[] = [];
+
+    protected _runtimeCurves?: IRuntimeCurve[];
+
+    protected _runtimeEvents?: {
+        ratios: number[];
+        eventGroups: IAnimationEventGroup[];
+    };
+
+    protected frameRate = 0;
+
+    @property
+    protected _stepness = 0;
+
+    protected _hash = 0;
+
+    /**
+     * 动画的曲线数据。
+     * @deprecated 请转用 `this.curves`
+     */
+    @property
+    private curveDatas?: ICurveData = {};
+
+    @property
+    private _curves: ITargetCurveData[] = [];
 
     public onLoaded () {
         this.frameRate = this.sample;
         this._migrateCurveDatas();
     }
 
-    public getPropertyCurves (root: INode): ReadonlyArray<IRuntimeCurve> {
+    public getPropertyCurves (): ReadonlyArray<IRuntimeCurve> {
         if (!this._runtimeCurves) {
             this._createPropertyCurves();
         }
@@ -304,7 +304,7 @@ export class AnimationClip extends Asset {
                 sampler: this._ratioSamplers[targetCurve.data.keys],
             };
         });
-        
+
         this._applyStepness();
     }
 
@@ -380,55 +380,6 @@ export class AnimationClip extends Asset {
             }
         }
         delete this.curveDatas;
-    }
-
-    private _getDeprecatedCurveDatas () {
-        const result: ICurveData = {};
-        for (const curve of this._curves) {
-            if (curve.modifiers.length === 0 ||
-                !isCustomTargetModifier(curve.modifiers[0], HierachyModifier)) {
-                continue;
-            }
-
-            let componentName: string | null = null;
-            let propertyName: string | undefined;
-            if (curve.modifiers.length === 2 &&
-                isPropertyModifier(curve.modifiers[1])) {
-                propertyName = curve.modifiers[1] as PropertyModifier;
-            } else if (curve.modifiers.length === 3 &&
-                isCustomTargetModifier(curve.modifiers[1], ComponentModifier) &&
-                isPropertyModifier(curve.modifiers[2])) {
-                componentName = (curve.modifiers[1] as ComponentModifier).component;
-                propertyName = curve.modifiers[2] as PropertyModifier;
-            } else {
-                continue;
-            }
-
-            const path = (curve.modifiers[0] as HierachyModifier).path;
-            
-            if (!(path in result)) {
-                result[path] = {};
-            }
-            const nodeCurveData = result[path];
-            let objectCurveData: IObjectCurveData | undefined;
-            if (componentName) {
-                if (!('comps' in nodeCurveData)) {
-                    nodeCurveData.comps = {};
-                }
-                const componentCurveData = nodeCurveData.comps!;
-                if (!(componentName in componentCurveData)) {
-                    componentCurveData[componentName] = {};
-                }
-                objectCurveData = componentCurveData[componentName];
-            } else {
-                if (!('props' in nodeCurveData)) {
-                    nodeCurveData.props = {};
-                }
-                objectCurveData = nodeCurveData.props!;
-            }
-            objectCurveData[propertyName] = curve.data;
-        }
-        return result;
     }
 }
 
