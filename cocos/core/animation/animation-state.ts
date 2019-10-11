@@ -29,15 +29,14 @@
 
 import { EventArgumentsOf, EventCallbackOf } from '../event/defines';
 import { Node } from '../scene-graph/node';
+import { INode } from '../utils/interfaces';
 import { AnimationBlendState, PropertyBlendState } from './animation-blend-state';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
-import { AnimCurve, RatioSampler, ICurveValueProxy } from './animation-curve';
+import { AnimCurve, ICurveValueProxy, RatioSampler } from './animation-curve';
+import { additive3D, additiveQuat, BlendFunction } from './blending';
 import { Playable } from './playable';
-import { WrapMode, WrapModeMask, WrappedInfo } from './types';
-import { INode } from '../utils/interfaces';
-import { BlendFunction, additive3D, additiveQuat } from './blending';
 import { BoundTarget } from './target-modifier';
-import { director } from '../director';
+import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 
 enum PropertySpecialization {
     NodePosition,
@@ -145,7 +144,7 @@ export class ICurveInstance {
 
     get propertyName () { return this._rootTargetProperty || ''; }
 
-    get curveDetail() {
+    get curveDetail () {
         return this._curveDetail;
     }
 }
@@ -384,7 +383,7 @@ export class AnimationState extends Playable {
             this.repeatCount = 1;
         }
 
-        const propertyCurves = clip.getPropertyCurves(root);
+        const propertyCurves = clip.getPropertyCurves();
         for (let iPropertyCurve = 0; iPropertyCurve < propertyCurves.length; ++iPropertyCurve) {
             const propertyCurve = propertyCurves[iPropertyCurve];
             let samplerSharedGroup = this._samplerSharedGroups.find((value) => value.sampler === propertyCurve.sampler);
@@ -414,7 +413,7 @@ export class AnimationState extends Playable {
         for (let i = 0, l = args.length; i < l; i++) {
             args[i] = restargs[i];
         }
-        director.getAnimationManager().pushDelayEvent(this, '_emit', args);
+        cc.director.getAnimationManager().pushDelayEvent(this, '_emit', args);
     }
 
     public on<K extends string> (type: K, callback: EventCallbackOf<K, IAnimationEventDefinitionMap>, target?: any): void;
@@ -678,26 +677,26 @@ export class AnimationState extends Playable {
         this.setTime(0);
         this._delayTime = this._delay;
 
-        director.getAnimationManager().addAnimation(this);
+        cc.director.getAnimationManager().addAnimation(this);
 
         this.emit('play', this);
     }
 
     protected onStop () {
         if (!this.isPaused) {
-            director.getAnimationManager().removeAnimation(this);
+            cc.director.getAnimationManager().removeAnimation(this);
         }
 
         this.emit('stop', this);
     }
 
     protected onResume () {
-        director.getAnimationManager().addAnimation(this);
+        cc.director.getAnimationManager().addAnimation(this);
         this.emit('resume', this);
     }
 
     protected onPause () {
-        director.getAnimationManager().removeAnimation(this);
+        cc.director.getAnimationManager().removeAnimation(this);
         this.emit('pause', this);
     }
 
@@ -804,7 +803,7 @@ export class AnimationState extends Playable {
 
                 lastIndex += direction;
 
-                director.getAnimationManager().pushDelayEvent(this, '_fireEvent', [lastIndex]);
+                cc.director.getAnimationManager().pushDelayEvent(this, '_fireEvent', [lastIndex]);
             } while (lastIndex !== eventIndex && lastIndex > -1 && lastIndex < length);
         }
 
