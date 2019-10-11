@@ -245,10 +245,20 @@ var NodeActivator = cc.Class({
             var task = activateTasksPool.get();
             this._activatingStack.push(task);
 
+            // if node active after start stage, delay active time to next frame 
             this._activateNodeRecursively(node, task.preload, task.onLoad, task.onEnable);
-            task.preload.invoke();
-            task.onLoad.invoke();
-            task.onEnable.invoke();
+            if (cc.director.getLifeCycleState() < cc.Director.LIFE_CYCLE_STAGE_START) {
+                task.preload.invoke();
+                task.onLoad.invoke();
+                task.onEnable.invoke();
+            }
+            else {
+                cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, function () {
+                    task.preload.invoke();
+                    task.onLoad.invoke();
+                    task.onEnable.invoke();
+                }, this, true);
+            }
 
             this._activatingStack.pop();
             activateTasksPool.put(task);

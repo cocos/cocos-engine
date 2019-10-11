@@ -107,6 +107,18 @@ const Scheduler = require('./CCScheduler');
  */
 cc.Director = function () {
     EventTarget.call(this);
+    
+    // life cycle state, default -1 means init state
+    this._lifeCycleState = -1;
+
+    // life cycle state map
+    this._lifeCycleStateMap = {
+        "before-update": 0,
+        "start": 1,
+        "update": 2,
+        "late-update": 3,
+        "render": 4
+    };
 
     // paused?
     this._paused = false;
@@ -160,6 +172,13 @@ cc.Director.prototype = {
 
         this.sharedInit();
         return true;
+    },
+
+    /*
+     * Get life cycle state value
+     */
+    getLifeCycleState: function () {
+        return this._lifeCycleState;
     },
 
     /*
@@ -941,22 +960,33 @@ cc.Director.prototype = {
 
             // Update
             if (!this._paused) {
+                // before update
+                this._lifeCycleState = this._lifeCycleStateMap["before-update"];
                 this.emit(cc.Director.EVENT_BEFORE_UPDATE);
+
                 // Call start for new added components
+                this._lifeCycleState = this._lifeCycleStateMap["start"];
                 this._compScheduler.startPhase();
+
                 // Update for components
+                this._lifeCycleState = this._lifeCycleStateMap["update"];
                 this._compScheduler.updatePhase(this._deltaTime);
                 // Engine update with scheduler
                 this._scheduler.update(this._deltaTime);
+
                 // Late update for components
+                this._lifeCycleState = this._lifeCycleStateMap["late-update"];
                 this._compScheduler.lateUpdatePhase(this._deltaTime);
+
                 // User can use this event to do things after update
                 this.emit(cc.Director.EVENT_AFTER_UPDATE);
+                
                 // Destroy entities that have been removed recently
                 Obj._deferredDestroy();
             }
 
             // Render
+            this._lifeCycleState = this._lifeCycleStateMap["render"];
             this.emit(cc.Director.EVENT_BEFORE_DRAW);
             renderer.render(this._scene, this._deltaTime);
 
