@@ -66,11 +66,11 @@ test('life cycle logic for component', function () {
     cc.js.unregisterClass(MyComponent);
 });
 
-test('widget should be added in next frame when node is actived in this frame', function() {
+test('component should call start before render when its node is actived', function() {
     var nodes = createNodes({
-        comp: cc.Component,
+        comp: cc.component,
         child: {
-            comp: cc.Widget,
+            comp: CallbackTester,
         },
     });
     nodes.child.active = false;
@@ -78,13 +78,19 @@ test('widget should be added in next frame when node is actived in this frame', 
         nodes.child.active = true;
     };
 
-    cc.director.getScene().addChild(node);
+    nodes.attachToScene();
     // active child in this frame
-    WidgetManager.add.disable("Widget should not be added if node is actived after start");
+    nodes.child.comp.expect(CallbackTester.onLoad, "should onLoad in this frame");
+    nodes.child.comp.expect(CallbackTester.onEnable, "should onEnable in this frame");
+    nodes.child.comp.expect(CallbackTester.start, "should start in this frame");
+    nodes.child.comp.notExpect(CallbackTester.update, "should not update in this frame");
     cc.game.step();
 
     // next frame
-    WidgetManager.add.enable();
+    nodes.child.comp.notExpect(CallbackTester.onLoad, "should not onLoad in this frame");
+    nodes.child.comp.notExpect(CallbackTester.onEnable, "should not onEnable in this frame");
+    nodes.child.comp.notExpect(CallbackTester.start, "should not start in this frame");
+    nodes.child.comp.expect(CallbackTester.update, "should update in this frame");
     cc.game.step();
 
     // end test
