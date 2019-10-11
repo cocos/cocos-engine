@@ -245,7 +245,6 @@ var NodeActivator = cc.Class({
             var task = activateTasksPool.get();
             this._activatingStack.push(task);
 
-            // if node active after start stage, delay active time to next frame 
             this._activateNodeRecursively(node, task.preload, task.onLoad, task.onEnable);
             task.preload.invoke();
             task.onLoad.invoke();

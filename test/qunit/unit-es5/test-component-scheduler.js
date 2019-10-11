@@ -68,7 +68,7 @@ test('life cycle logic for component', function () {
 
 test('widget should be added in next frame when node is actived in this frame', function() {
     var nodes = createNodes({
-        comp: cc.component,
+        comp: cc.Component,
         child: {
             comp: cc.Widget
         },
