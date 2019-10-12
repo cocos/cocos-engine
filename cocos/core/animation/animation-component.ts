@@ -186,7 +186,6 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     public start () {
-        this._crossFade.play();
         if (!CC_EDITOR && this.playOnLoad && this._defaultClip) {
             this.crossFade(this._defaultClip.name, 0);
         }
@@ -232,6 +231,7 @@ export class AnimationComponent extends Component implements IEventTarget {
     public crossFade (name: string, duration = 0.3) {
         const state = this._nameToState[name];
         if (state) {
+            this._crossFade.play();
             this._crossFade.crossFade(state, duration);
         }
     }
