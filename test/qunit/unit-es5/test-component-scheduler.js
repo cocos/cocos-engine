@@ -68,13 +68,11 @@ test('life cycle logic for component', function () {
 
 test('component should call start before render when its node is actived', function() {
     var nodes = createNodes({
-        child: {
-            childComp: CallbackTester
-        },
+        child:{}
     });
     nodes.child.active = false;
     var rootComp = nodes.root.addComponent(cc.Component);
-    var childComp = nodes.childComps[0];
+    var childComp = nodes.child.addComponent(CallbackTester);
     rootComp.update = function () {
         childComp.expect(CallbackTester.onLoad, "should onLoad in this frame");
         childComp.expect(CallbackTester.onEnable, "should onEnable in this frame");
