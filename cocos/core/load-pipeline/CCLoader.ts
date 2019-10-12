@@ -29,6 +29,9 @@
  */
 
 import { Asset, RawAsset } from '../assets';
+import { SpriteFrame } from '../assets/sprite-frame';
+import { Texture2D } from '../assets/texture-2d';
+import { TextureCube } from '../assets/texture-cube';
 import { createMap, getClassName, isChildClassOf } from '../utils/js';
 import { callInNextTick } from '../utils/misc';
 import AssetLoader from './asset-loader';
@@ -761,14 +764,14 @@ export class CCLoader extends Pipeline {
      * For example, if you release a texture, the texture asset and its gl texture data will be freed up.<br>
      * In complexe project, you can use this function with [[getDependsRecursively]] to free up memory in critical circumstances.<br>
      * Notice, this method may cause the texture to be unusable, if there are still other nodes use the same texture, they may turn to black and report gl errors.<br>
-     * If you only want to remove the cache of an asset, please use [[pipeline.removeItem]]
+     * If you only want to remove the cache of an asset, please use [[Pipeline.removeItem]]
      * @zh
      * 通过 id（通常是资源 url）来释放一个资源或者一个资源数组。<br>
      * 从 v1.3 开始，这个方法不仅会从 loader 中删除资源的缓存引用，还会清理它的资源内容。<br>
      * 比如说，当你释放一个 texture 资源，这个 texture 和它的 gl 贴图数据都会被释放。<br>
      * 在复杂项目中，我们建议你结合 [[getDependsRecursively]] 来使用，便于在设备内存告急的情况下更快地释放不再需要的资源的内存。<br>
      * 注意，这个函数可能会导致资源贴图或资源所依赖的贴图不可用，如果场景中存在节点仍然依赖同样的贴图，它们可能会变黑并报 GL 错误。<br>
-     * 如果你只想删除一个资源的缓存引用，请使用 [[pipeline.removeItem]]
+     * 如果你只想删除一个资源的缓存引用，请使用 [[Pipeline.removeItem]]
      *
      * @example
      * ```typescript
@@ -1011,31 +1014,36 @@ export class CCLoader extends Pipeline {
      */
     public _getResUuid (url, type, mount, quiet) {
         mount = mount || 'assets';
-
+        let uuid = '';
         if (CC_EDITOR) {
             const info = EditorExtends.Asset.getAssetInfoFromUrl(`db://${mount}/resources/${url}`);
-            return info ? info.uuid : '';
+            uuid = info ? info.uuid : '';
         }
-
-        const assetTable = assetTables[mount];
-        if (!url || !assetTable) {
-            return null;
-        }
-        // Ignore parameter
-        const index = url.indexOf('?');
-        if (index !== -1) {
-            url = url.substr(0, index);
-        }
-        let uuid = assetTable.getUuid(url, type);
-        if (!uuid) {
-            const extname = cc.path.extname(url);
-            if (extname) {
-                // strip extname
-                url = url.slice(0, - extname.length);
-                uuid = assetTable.getUuid(url, type);
-                if (uuid && !quiet) {
-                    cc.warnID(4901, url, extname);
+        else {
+            const assetTable = assetTables[mount];
+            if (url && assetTable) {
+                // Ignore parameter
+                const index = url.indexOf('?');
+                if (index !== -1) {
+                    url = url.substr(0, index);
                 }
+                uuid = assetTable.getUuid(url, type);
+                if (!uuid) {
+                    const extname = cc.path.extname(url);
+                    if (extname) {
+                        // strip extname
+                        url = url.slice(0, - extname.length);
+                        uuid = assetTable.getUuid(url, type);
+                        if (uuid && !quiet) {
+                            cc.warnID(4901, url, extname);
+                        }
+                    }
+                }
+            }
+        }
+        if (!uuid && type) {
+            if (isChildClassOf(type, SpriteFrame) || isChildClassOf(type, Texture2D) || isChildClassOf(type, TextureCube)) {
+                cc.warnID(4934);
             }
         }
         return uuid;

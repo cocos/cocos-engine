@@ -1806,6 +1806,10 @@ Since v1.10, for any atlas ("%s") in the "resources" directory, it is not possib
 
 Download Font [ %s ] failed, using Arial or system default font instead
 
+### 4934
+
+Please assure that the full path of sub asset is correct!
+
 ### 5000
 
 object already destroyed

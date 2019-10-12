@@ -204,7 +204,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 取四阶矩阵的前三阶，与三阶矩阵相乘
+     * @zh 取四阶矩阵的前三阶，与三阶矩阵相乘
      */
     public static multiplyMat4 <Out extends IMat3Like> (out: Out, a: Out, b: IMat4Like) {
         _a00 = a.m00; _a01 = a.m01; _a02 = a.m02;
@@ -670,7 +670,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 克隆当前矩阵。
+     * @zh 克隆当前矩阵。
      */
     public clone () {
         const t = this;
@@ -681,15 +681,15 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 设置当前矩阵使其与指定矩阵相等。
+     * @zh 设置当前矩阵使其与指定矩阵相等。
      * @param other 相比较的矩阵。
-     * @returns `this`
+     * @return this
      */
     public set (other: Mat3);
 
     /**
      * 设置当前矩阵指定元素值。
-     * @returns `this`
+     * @return this
      */
     public set (m00?: number, m01?: number, m02?: number,
                 m03?: number, m04?: number, m05?: number,
@@ -711,10 +711,10 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 判断当前矩阵是否在误差范围内与指定矩阵相等。
+     * @zh 判断当前矩阵是否在误差范围内与指定矩阵相等。
      * @param other 相比较的矩阵。
      * @param epsilon 允许的误差，应为非负数。
-     * @returns 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
+     * @return 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
      */
     public equals (other: Mat3, epsilon = EPSILON): boolean {
         return (
@@ -731,9 +731,9 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 判断当前矩阵是否与指定矩阵相等。
+     * @zh 判断当前矩阵是否与指定矩阵相等。
      * @param other 相比较的矩阵。
-     * @returns 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
+     * @return 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
      */
     public strictEquals (other: Mat3): boolean {
         return this.m00 === other.m00 && this.m01 === other.m01 && this.m02 === other.m02 &&
@@ -743,7 +743,7 @@ export class Mat3 extends ValueType {
 
     /**
      * 返回当前矩阵的字符串表示。
-     * @returns 当前矩阵的字符串表示。
+     * @return 当前矩阵的字符串表示。
      */
     public toString () {
         const t = this;
@@ -756,7 +756,7 @@ export class Mat3 extends ValueType {
 
     /**
      * 将当前矩阵设为单位矩阵。
-     * @returns `this`
+     * @return `this`
      */
     public identity () {
         this.m00 = 1;
@@ -772,7 +772,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 计算当前矩阵的转置矩阵。
+     * @zh 计算当前矩阵的转置矩阵。
      */
     public transpose () {
         const a01 = this.m01, a02 = this.m02, a12 = this.m05;
@@ -786,7 +786,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 计算当前矩阵的逆矩阵。
+     * @zh 计算当前矩阵的逆矩阵。
      */
     public invert () {
         _a00 = this.m00; _a01 = this.m01; _a02 = this.m02;
@@ -819,7 +819,7 @@ export class Mat3 extends ValueType {
 
     /**
      * 计算当前矩阵的行列式。
-     * @returns 当前矩阵的行列式。
+     * @return 当前矩阵的行列式。
      */
     public determinant (): number {
         _a00 = this.m00; _a01 = this.m01; _a02 = this.m02;
@@ -830,7 +830,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 矩阵加法。将当前矩阵与指定矩阵的相加，结果返回给当前矩阵。
+     * @zh 矩阵加法。将当前矩阵与指定矩阵的相加，结果返回给当前矩阵。
      * @param mat 相加的矩阵
      */
     public add (mat: Mat3) {
@@ -847,7 +847,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 计算矩阵减法。将当前矩阵减去指定矩阵的结果赋值给当前矩阵。
+     * @zh 计算矩阵减法。将当前矩阵减去指定矩阵的结果赋值给当前矩阵。
      * @param mat 减数矩阵。
      */
     public subtract (mat: Mat3) {
@@ -864,7 +864,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 矩阵乘法。将当前矩阵左乘指定矩阵的结果赋值给当前矩阵。
+     * @zh 矩阵乘法。将当前矩阵左乘指定矩阵的结果赋值给当前矩阵。
      * @param mat 指定的矩阵。
      */
     public multiply (mat: Mat3) {
@@ -891,7 +891,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 矩阵数乘。将当前矩阵与指定标量的数乘结果赋值给当前矩阵。
+     * @zh 矩阵数乘。将当前矩阵与指定标量的数乘结果赋值给当前矩阵。
      * @param scalar 指定的标量。
      */
     public multiplyScalar (scalar: number) {
@@ -908,7 +908,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 将当前矩阵左乘缩放矩阵的结果赋值给当前矩阵，缩放矩阵由各个轴的缩放给出。
+     * @zh 将当前矩阵左乘缩放矩阵的结果赋值给当前矩阵，缩放矩阵由各个轴的缩放给出。
      * @param vec 各个轴的缩放。
      */
     public scale (vec: Vec3) {
@@ -929,7 +929,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 将当前矩阵左乘旋转矩阵的结果赋值给当前矩阵，旋转矩阵由旋转轴和旋转角度给出。
+     * @zh 将当前矩阵左乘旋转矩阵的结果赋值给当前矩阵，旋转矩阵由旋转轴和旋转角度给出。
      * @param mat 矩阵
      * @param rad 旋转角度（弧度制）
      */
@@ -956,9 +956,9 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 重置当前矩阵的值，使其表示指定四元数表示的旋转变换。
+     * @zh 重置当前矩阵的值，使其表示指定四元数表示的旋转变换。
      * @param q 四元数表示的旋转变换。
-     * @returns `this`
+     * @returns this
      */
     public fromQuat (q: Quat) {
         const x = q.x, y = q.y, z = q.z, w = q.w;

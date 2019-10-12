@@ -125,25 +125,25 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * 动画帧率，单位为帧/秒。
+     * @zh 动画帧率，单位为帧/秒。
      */
     @property
     public sample = 60;
 
     /**
-     * 动画的播放速度。
+     * @zh 动画的播放速度。
      */
     @property
     public speed = 1;
 
     /**
-     * 动画的循环模式。
+     * @zh 动画的循环模式。
      */
     @property
     public wrapMode = AnimationWrapMode.Normal;
 
     /**
-     * 动画的曲线数据。
+     * @zh 动画的曲线数据。
      * @deprecated 请转用 `this.curves`
      */
     @property
@@ -153,7 +153,7 @@ export class AnimationClip extends Asset {
     private _curves: AnimationClip.Curve[] = [];
 
     /**
-     * 动画包含的事件数据。
+     * @zh 动画包含的事件数据。
      */
     @property({visible: false})
     public events: AnimationClip.Event[] = [];
@@ -181,7 +181,7 @@ export class AnimationClip extends Asset {
     protected _hash = 0;
 
     /**
-     * 动画的周期。
+     * @zh 动画的周期。
      */
     get duration () {
         return this._duration;
@@ -192,7 +192,7 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * 动画所有时间轴。
+     * @zh 动画所有时间轴。
      */
     get keys () {
         return this._keys;
@@ -254,8 +254,8 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * 提交曲线数据的修改。
-     * 当你修改了 `this.curveDatas`、`this.keys` 或 `this.duration`时，
+     * @zh 提交曲线数据的修改。<br/>
+     * 当你修改了 `this.curveDatas`、`this.keys` 或 `this.duration`时，<br/>
      * 必须调用 `this.updateCurveDatas()` 使修改生效。
      * @deprecated
      */
@@ -265,7 +265,7 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * 提交事件数据的修改。
+     * @zh 提交事件数据的修改。<br/>
      * 当你修改了 `this.events` 时，必须调用 `this.updateEventDatas()` 使修改生效。
      * @protected
      */
@@ -274,7 +274,8 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * Gets the event group shall be processed at specified ratio.
+     * @en Gets the event group shall be processed at specified ratio.
+     * @zh 获取事件组应按指定比例处理。
      * @param ratio The ratio.
      * @protected
      */
@@ -287,7 +288,7 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * 返回本动画是否包含事件数据。
+     * @zh 返回本动画是否包含事件数据。
      * @protected
      */
     public hasEvents () {

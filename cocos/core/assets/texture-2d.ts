@@ -77,6 +77,7 @@ export class Texture2D extends SimpleTexture {
 
     set mipmaps (value) {
         this._mipmaps = value;
+        this._setMipmapLevel(this._mipmaps.length);
         if (this._mipmaps.length > 0) {
             const imageAsset: ImageAsset = this._mipmaps[0];
             this.reset({

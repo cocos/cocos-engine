@@ -36,8 +36,8 @@ import { builtinResMgr } from '../builtin';
 import { RenderableComponent } from './renderable-component';
 
 /**
- * @en Shadow projection mode
- * @zh 阴影投射方式。
+ * Shadow projection mode<br/>
+ * 阴影投射方式。
  */
 const ModelShadowCastingMode = Enum({
     /**
@@ -194,7 +194,7 @@ export class ModelComponent extends RenderableComponent {
 
     public onDestroy () {
         if (this._model) {
-            this._getRenderScene().destroyModel(this._model);
+            this._model.scene.destroyModel(this._model);
             this._model = null;
         }
     }

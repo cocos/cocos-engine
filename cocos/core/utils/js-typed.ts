@@ -342,7 +342,7 @@ export function mixin (object?: any, ...sources: any[]) {
 /**
  * Derive the class from the supplied base class.
  * Both classes are just native javascript constructors, not created by cc.Class, so
- * usually you will want to inherit using {{#crossLink "cc/Class:method"}}cc.Class {{/crossLink}} instead.
+ * usually you will want to inherit using [[Class]] instead.
  * @param base The baseclass to inherit.
  * @return The result class.
  */

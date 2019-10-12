@@ -230,7 +230,7 @@ export class SpriteFrame extends Asset {
      * Right border of the sprite.
      *
      * @zh
-     * sprite 的左边边框。
+     * sprite 的右边边框。
      */
     get insetRight () {
         return this._capInsets[INSET_RIGHT];

@@ -258,8 +258,10 @@ export default class ParticleSystemRenderer {
     }
 
     public onDestroy () {
-        this._particleSystem._getRenderScene().destroyModel(this._model!);
-        this._model = null;
+        if (this._model) {
+            this._model.scene.destroyModel(this._model);
+            this._model = null;
+        }
     }
 
     public clear () {

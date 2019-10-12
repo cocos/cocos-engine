@@ -82,8 +82,7 @@ export class Layers {
   }
 
   /**
-   *  @zh
-   * 添加一个新层，用户可编辑 0 - 19 位为用户自定义层
+   * @zh 添加一个新层，用户可编辑 0 - 19 位为用户自定义层
    * @param name 层名字
    * @param bitNum 层序号
    */

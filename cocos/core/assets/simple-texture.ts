@@ -38,6 +38,15 @@ export type PresumedGFXTextureInfo = Pick<IGFXTextureInfo, 'usage' | 'flags' | '
 
 export type PresumedGFXTextureViewInfo = Pick<IGFXTextureViewInfo, 'texture' | 'format'>;
 
+function getMipLevel (width: number, height: number) {
+    let size = Math.max(width, height);
+    let level = 0;
+    while (size) { size >>= 1; level++; }
+    return level;
+}
+
+function isPOT (n: number) { return n && (n & (n - 1)) === 0; }
+
 /**
  * 简单贴图基类。
  * 简单贴图内部创建了 GFX 贴图和该贴图上的 GFX 贴图视图。
@@ -173,7 +182,8 @@ export class SimpleTexture extends TextureBase {
     }
 
     /**
-     * This method is overrided by derived classes to provide GFX texture info.
+     * @en This method is overrided by derived classes to provide GFX texture info.
+     * @zh 这个方法被派生类重写以提供GFX纹理信息。
      * @param presumed The presumed GFX texture info.
      */
     protected _getGfxTextureCreateInfo (presumed: PresumedGFXTextureInfo): IGFXTextureInfo | null {
@@ -198,11 +208,16 @@ export class SimpleTexture extends TextureBase {
     }
 
     protected _createTexture (device: GFXDevice) {
+        let flags = GFXTextureFlagBit.NONE;
+        if (this._mipFilter !== Filter.NONE && isPOT(this._width) && isPOT(this._height)) {
+            this._mipmapLevel = getMipLevel(this._width, this._height);
+            flags = GFXTextureFlagBit.GEN_MIPMAP;
+        }
         const textureCreateInfo = this._getGfxTextureCreateInfo({
             usage: GFXTextureUsageBit.SAMPLED | GFXTextureUsageBit.TRANSFER_DST,
             format: this._getGFXFormat(),
             mipLevel: this._mipmapLevel,
-            flags: (this._mipFilter !== Filter.NONE ? GFXTextureFlagBit.GEN_MIPMAP : GFXTextureFlagBit.NONE),
+            flags,
         });
         if (!textureCreateInfo) {
             return;
