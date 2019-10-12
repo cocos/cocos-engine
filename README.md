@@ -61,6 +61,12 @@ This is all you have to do to set engine development environment.
 gulp build
 ```
 
+If the compilation process encounters a "JavaScript heap out memory" warning, you can use the following command line
+
+```bash
+gulp build --max-old-space-size=8192
+```
+
 ### Test
 
 #### Prerequisite
