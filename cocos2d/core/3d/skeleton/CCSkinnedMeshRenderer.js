@@ -201,7 +201,7 @@ let SkinnedMeshRenderer = cc.Class({
             inited = true;
 
             this._jointsData = this._jointsFloat32Data = new Float32Array(jointCount * 16);
-            customProperties.setProperty('cc_jointMatrices', this._jointsFloat32Data, enums.PARAM_FLOAT4);
+            customProperties.setProperty('cc_jointMatrices', this._jointsFloat32Data, enums.PARAM_FLOAT4, true);
             customProperties.define('CC_USE_JOINTS_TEXTRUE', false);
         }
 
