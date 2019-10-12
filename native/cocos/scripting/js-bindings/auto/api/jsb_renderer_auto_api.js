@@ -1972,3 +1972,35 @@ MeshAssembler : function (
 },
 
 };
+
+/**
+ * @class SimpleSprite3D
+ */
+renderer.SimpleSprite3D = {
+
+/**
+ * @method SimpleSprite3D
+ * @constructor
+ */
+SimpleSprite3D : function (
+)
+{
+},
+
+};
+
+/**
+ * @class SlicedSprite3D
+ */
+renderer.SlicedSprite3D = {
+
+/**
+ * @method SlicedSprite3D
+ * @constructor
+ */
+SlicedSprite3D : function (
+)
+{
+},
+
+};

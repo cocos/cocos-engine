@@ -872,6 +872,14 @@
 		425D3FF222D86BEF00BCED11 /* Mat3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 425D3FEF22D86BEF00BCED11 /* Mat3.cpp */; };
 		425D3FF322D86BEF00BCED11 /* Mat3.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 425D3FF022D86BEF00BCED11 /* Mat3.hpp */; };
 		425D3FF422D86BEF00BCED11 /* Mat3.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 425D3FF022D86BEF00BCED11 /* Mat3.hpp */; };
+		426947B9234ED0130044C66E /* SimpleSprite3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 426947B7234ED0130044C66E /* SimpleSprite3D.cpp */; };
+		426947BA234ED0130044C66E /* SimpleSprite3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 426947B7234ED0130044C66E /* SimpleSprite3D.cpp */; };
+		426947BB234ED0130044C66E /* SimpleSprite3D.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 426947B8234ED0130044C66E /* SimpleSprite3D.hpp */; };
+		426947BC234ED0130044C66E /* SimpleSprite3D.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 426947B8234ED0130044C66E /* SimpleSprite3D.hpp */; };
+		426947BF234ED02E0044C66E /* SlicedSprite3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 426947BD234ED02E0044C66E /* SlicedSprite3D.cpp */; };
+		426947C0234ED02E0044C66E /* SlicedSprite3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 426947BD234ED02E0044C66E /* SlicedSprite3D.cpp */; };
+		426947C1234ED02E0044C66E /* SlicedSprite3D.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 426947BE234ED02E0044C66E /* SlicedSprite3D.hpp */; };
+		426947C2234ED02E0044C66E /* SlicedSprite3D.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 426947BE234ED02E0044C66E /* SlicedSprite3D.hpp */; };
 		427475F923214E2A00139DF8 /* MeshAssembler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 427475F723214E2900139DF8 /* MeshAssembler.cpp */; };
 		427475FA23214E2A00139DF8 /* MeshAssembler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 427475F723214E2900139DF8 /* MeshAssembler.cpp */; };
 		427475FB23214E2A00139DF8 /* MeshAssembler.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 427475F823214E2A00139DF8 /* MeshAssembler.hpp */; };
@@ -1898,6 +1906,10 @@
 		423379A222BB8DEA00E5D8A2 /* CustomProperties.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CustomProperties.hpp; sourceTree = "<group>"; };
 		425D3FEF22D86BEF00BCED11 /* Mat3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Mat3.cpp; sourceTree = "<group>"; };
 		425D3FF022D86BEF00BCED11 /* Mat3.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Mat3.hpp; sourceTree = "<group>"; };
+		426947B7234ED0130044C66E /* SimpleSprite3D.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SimpleSprite3D.cpp; sourceTree = "<group>"; };
+		426947B8234ED0130044C66E /* SimpleSprite3D.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SimpleSprite3D.hpp; sourceTree = "<group>"; };
+		426947BD234ED02E0044C66E /* SlicedSprite3D.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SlicedSprite3D.cpp; sourceTree = "<group>"; };
+		426947BE234ED02E0044C66E /* SlicedSprite3D.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SlicedSprite3D.hpp; sourceTree = "<group>"; };
 		427475F723214E2900139DF8 /* MeshAssembler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MeshAssembler.cpp; sourceTree = "<group>"; };
 		427475F823214E2A00139DF8 /* MeshAssembler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MeshAssembler.hpp; sourceTree = "<group>"; };
 		461785FE20522468008256E1 /* SocketIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SocketIO.cpp; sourceTree = "<group>"; };
@@ -2691,6 +2703,10 @@
 				0431A06E22CCA7C1003356C9 /* SimpleSprite2D.hpp */,
 				04886B3F22CE22F2008CEB66 /* SlicedSprite2D.cpp */,
 				04886B4022CE22F2008CEB66 /* SlicedSprite2D.hpp */,
+				426947B7234ED0130044C66E /* SimpleSprite3D.cpp */,
+				426947B8234ED0130044C66E /* SimpleSprite3D.hpp */,
+				426947BD234ED02E0044C66E /* SlicedSprite3D.cpp */,
+				426947BE234ED02E0044C66E /* SlicedSprite3D.hpp */,
 			);
 			path = assembler;
 			sourceTree = "<group>";
@@ -3704,6 +3720,7 @@
 				46FDDA73202ACC6A00931238 /* ProgramLib.h in Headers */,
 				1A28FF751F20AFAB007A1D9D /* SRHTTPConnectMessage.h in Headers */,
 				46FDDADF202ACC6A00931238 /* RenderTarget.h in Headers */,
+				426947BB234ED0130044C66E /* SimpleSprite3D.hpp in Headers */,
 				04DBD43D22AE2DBD00DBE4CD /* SkeletonBinary.h in Headers */,
 				4617862920522469008256E1 /* Uri.h in Headers */,
 				04DBD42D22AE2DBD00DBE4CD /* PathConstraintSpacingTimeline.h in Headers */,
@@ -4016,6 +4033,7 @@
 				1A14FD932080B4E300E10ABE /* CCGLUtils.h in Headers */,
 				50ABC0171926664800A911A9 /* CCImage.h in Headers */,
 				ED30577F1BEC76C90083C3ED /* ioapi_mem.h in Headers */,
+				426947C1234ED02E0044C66E /* SlicedSprite3D.hpp in Headers */,
 				46AE3FED2092F3A600F3A228 /* http_parser.h in Headers */,
 				4617864B20522469008256E1 /* HttpCookie.h in Headers */,
 				04DBD31522AE2D8200DBE4CD /* VertexEffectDelegate.h in Headers */,
@@ -4273,6 +4291,7 @@
 				1A29D7A420566CAC00168D9A /* CCCanvasRenderingContext2D.h in Headers */,
 				046E06812185B43B00B24E2D /* IEventDispatcher.h in Headers */,
 				1A52DB7C205BCDD000350EE3 /* SeApi.h in Headers */,
+				426947C2234ED02E0044C66E /* SlicedSprite3D.hpp in Headers */,
 				469303A92046AE05004A3D6C /* SeApi.h in Headers */,
 				46FDDAAE202ACC6A00931238 /* Macro.h in Headers */,
 				04ED68DB21F8188F006E82F8 /* MeshBuffer.h in Headers */,
@@ -4288,6 +4307,7 @@
 				1A28FF4E1F20AFAB007A1D9D /* SRDelegateController.h in Headers */,
 				469301D0203FC696004A3D6C /* CCConfiguration.h in Headers */,
 				04DBD45A22AE2DBD00DBE4CD /* PointAttachment.h in Headers */,
+				426947BC234ED0130044C66E /* SimpleSprite3D.hpp in Headers */,
 				46FDDB6E202ADDCE00931238 /* etc1.h in Headers */,
 				04DBD40222AE2DBD00DBE4CD /* AtlasAttachmentLoader.h in Headers */,
 				461DCA3720BBFA2D00B22827 /* EditBox.h in Headers */,
@@ -4544,6 +4564,7 @@
 				04FB24132328D42A0021DD02 /* CCArmatureCacheDisplay.cpp in Sources */,
 				046E06202185B37100B24E2D /* CCArmatureDisplay.cpp in Sources */,
 				0494CFD422BEFC6D00B73B79 /* ParallelTask.cpp in Sources */,
+				426947BF234ED02E0044C66E /* SlicedSprite3D.cpp in Sources */,
 				046E06882185B44A00B24E2D /* BaseFactory.cpp in Sources */,
 				1A52DB30205BCD9200350EE3 /* ScriptEngine.cpp in Sources */,
 				0482F1A1228D87970019ECF7 /* NodeProxy.cpp in Sources */,
@@ -4717,6 +4738,7 @@
 				046E06372185B41100B24E2D /* AnimationState.cpp in Sources */,
 				046E06BF2185B49F00B24E2D /* BoundingBoxData.cpp in Sources */,
 				4617864720522469008256E1 /* CCDownloaderImpl-apple.mm in Sources */,
+				426947B9234ED0130044C66E /* SimpleSprite3D.cpp in Sources */,
 				1A52DB24205BCD9200350EE3 /* ObjectWrap.cpp in Sources */,
 				04DBD3ED22AE2DBD00DBE4CD /* Timeline.cpp in Sources */,
 				1AAAC8F1205CB6E9005321B9 /* AudioEngine.cpp in Sources */,
@@ -4803,6 +4825,7 @@
 				04DBD41222AE2DBD00DBE4CD /* Constraint.cpp in Sources */,
 				ED30578D1BEC77550083C3ED /* unzip.cpp in Sources */,
 				46FDDA9E202ACC6A00931238 /* BaseRenderer.cpp in Sources */,
+				426947C0234ED02E0044C66E /* SlicedSprite3D.cpp in Sources */,
 				1A586C462064C90500B47573 /* EJConvertTypedArray.m in Sources */,
 				46FDDAC6202ACC6A00931238 /* RenderTarget.cpp in Sources */,
 				4617864820522469008256E1 /* CCDownloaderImpl-apple.mm in Sources */,
@@ -4815,6 +4838,7 @@
 				50ABC0161926664800A911A9 /* CCImage.cpp in Sources */,
 				425D3FF222D86BEF00BCED11 /* Mat3.cpp in Sources */,
 				04DBD40E22AE2DBD00DBE4CD /* VertexAttachment.cpp in Sources */,
+				426947BA234ED0130044C66E /* SimpleSprite3D.cpp in Sources */,
 				469303852046AE05004A3D6C /* MappingUtils.cpp in Sources */,
 				0431A06A22CCA441003356C9 /* AssemblerSprite.cpp in Sources */,
 				046E06F02185B4A500B24E2D /* BinaryDataParser.cpp in Sources */,

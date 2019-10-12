@@ -803,6 +803,12 @@
     <ClCompile Include="..\cocos\renderer\scene\assembler\SlicedSprite2D.cpp">
       <Filter>renderer\scene\assembler</Filter>
     </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\assembler\SimpleSprite3D.cpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\scene\assembler\SlicedSprite3D.cpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClCompile>
     <ClCompile Include="..\cocos\renderer\scene\assembler\TiledMapAssembler.cpp">
       <Filter>renderer\scene\assembler</Filter>
     </ClCompile>
@@ -1842,6 +1848,12 @@
       <Filter>renderer\scene\assembler</Filter>
     </ClInclude>
     <ClInclude Include="..\cocos\renderer\scene\assembler\SlicedSprite2D.hpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\assembler\SimpleSprite3D.hpp">
+      <Filter>renderer\scene\assembler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\scene\assembler\SlicedSprite3D.hpp">
       <Filter>renderer\scene\assembler</Filter>
     </ClInclude>
     <ClInclude Include="..\cocos\renderer\scene\assembler\TiledMapAssembler.hpp">

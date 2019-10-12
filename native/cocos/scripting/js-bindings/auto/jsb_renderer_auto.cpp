@@ -4646,6 +4646,110 @@ bool js_register_renderer_MeshAssembler(se::Object* obj)
     return true;
 }
 
+se::Object* __jsb_cocos2d_renderer_SimpleSprite3D_proto = nullptr;
+se::Class* __jsb_cocos2d_renderer_SimpleSprite3D_class = nullptr;
+
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_SimpleSprite3D_finalize)
+
+static bool js_renderer_SimpleSprite3D_constructor(se::State& s)
+{
+    cocos2d::renderer::SimpleSprite3D* cobj = new (std::nothrow) cocos2d::renderer::SimpleSprite3D();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_renderer_SimpleSprite3D_constructor, __jsb_cocos2d_renderer_SimpleSprite3D_class, js_cocos2d_renderer_SimpleSprite3D_finalize)
+
+static bool js_renderer_SimpleSprite3D_ctor(se::State& s)
+{
+    cocos2d::renderer::SimpleSprite3D* cobj = new (std::nothrow) cocos2d::renderer::SimpleSprite3D();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_SUB_CLS_CTOR(js_renderer_SimpleSprite3D_ctor, __jsb_cocos2d_renderer_SimpleSprite3D_class, js_cocos2d_renderer_SimpleSprite3D_finalize)
+
+
+    
+
+extern se::Object* __jsb_cocos2d_renderer_AssemblerSprite_proto;
+
+static bool js_cocos2d_renderer_SimpleSprite3D_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::SimpleSprite3D)", s.nativeThisObject());
+    cocos2d::renderer::SimpleSprite3D* cobj = (cocos2d::renderer::SimpleSprite3D*)s.nativeThisObject();
+    cobj->release();
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_SimpleSprite3D_finalize)
+
+bool js_register_renderer_SimpleSprite3D(se::Object* obj)
+{
+    auto cls = se::Class::create("SimpleSprite3D", obj, __jsb_cocos2d_renderer_AssemblerSprite_proto, _SE(js_renderer_SimpleSprite3D_constructor));
+
+    cls->defineFunction("ctor", _SE(js_renderer_SimpleSprite3D_ctor));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_SimpleSprite3D_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::renderer::SimpleSprite3D>(cls);
+
+    __jsb_cocos2d_renderer_SimpleSprite3D_proto = cls->getProto();
+    __jsb_cocos2d_renderer_SimpleSprite3D_class = cls;
+
+    jsb_set_extend_property("renderer", "SimpleSprite3D");
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cocos2d_renderer_SlicedSprite3D_proto = nullptr;
+se::Class* __jsb_cocos2d_renderer_SlicedSprite3D_class = nullptr;
+
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_renderer_SlicedSprite3D_finalize)
+
+static bool js_renderer_SlicedSprite3D_constructor(se::State& s)
+{
+    cocos2d::renderer::SlicedSprite3D* cobj = new (std::nothrow) cocos2d::renderer::SlicedSprite3D();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_renderer_SlicedSprite3D_constructor, __jsb_cocos2d_renderer_SlicedSprite3D_class, js_cocos2d_renderer_SlicedSprite3D_finalize)
+
+static bool js_renderer_SlicedSprite3D_ctor(se::State& s)
+{
+    cocos2d::renderer::SlicedSprite3D* cobj = new (std::nothrow) cocos2d::renderer::SlicedSprite3D();
+    s.thisObject()->setPrivateData(cobj);
+    return true;
+}
+SE_BIND_SUB_CLS_CTOR(js_renderer_SlicedSprite3D_ctor, __jsb_cocos2d_renderer_SlicedSprite3D_class, js_cocos2d_renderer_SlicedSprite3D_finalize)
+
+
+    
+
+extern se::Object* __jsb_cocos2d_renderer_AssemblerSprite_proto;
+
+static bool js_cocos2d_renderer_SlicedSprite3D_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::renderer::SlicedSprite3D)", s.nativeThisObject());
+    cocos2d::renderer::SlicedSprite3D* cobj = (cocos2d::renderer::SlicedSprite3D*)s.nativeThisObject();
+    cobj->release();
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_renderer_SlicedSprite3D_finalize)
+
+bool js_register_renderer_SlicedSprite3D(se::Object* obj)
+{
+    auto cls = se::Class::create("SlicedSprite3D", obj, __jsb_cocos2d_renderer_AssemblerSprite_proto, _SE(js_renderer_SlicedSprite3D_constructor));
+
+    cls->defineFunction("ctor", _SE(js_renderer_SlicedSprite3D_ctor));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_renderer_SlicedSprite3D_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::renderer::SlicedSprite3D>(cls);
+
+    __jsb_cocos2d_renderer_SlicedSprite3D_proto = cls->getProto();
+    __jsb_cocos2d_renderer_SlicedSprite3D_class = cls;
+
+    jsb_set_extend_property("renderer", "SlicedSprite3D");
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
 bool register_all_renderer(se::Object* obj)
 {
     // Get the ns
@@ -4661,11 +4765,13 @@ bool register_all_renderer(se::Object* obj)
     js_register_renderer_ProgramLib(ns);
     js_register_renderer_Camera(ns);
     js_register_renderer_AssemblerBase(ns);
-    js_register_renderer_MemPool(ns);
-    js_register_renderer_NodeProxy(ns);
     js_register_renderer_Assembler(ns);
     js_register_renderer_AssemblerSprite(ns);
+    js_register_renderer_SimpleSprite3D(ns);
+    js_register_renderer_MemPool(ns);
+    js_register_renderer_NodeProxy(ns);
     js_register_renderer_SimpleSprite2D(ns);
+    js_register_renderer_SlicedSprite3D(ns);
     js_register_renderer_Effect(ns);
     js_register_renderer_MeshAssembler(ns);
     js_register_renderer_CustomProperties(ns);

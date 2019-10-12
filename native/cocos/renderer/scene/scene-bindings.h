@@ -38,3 +38,5 @@
 #include "assembler/SimpleSprite2D.hpp"
 #include "assembler/SlicedSprite2D.hpp"
 #include "assembler/MeshAssembler.hpp"
+#include "assembler/SimpleSprite3D.hpp"
+#include "assembler/SlicedSprite3D.hpp"

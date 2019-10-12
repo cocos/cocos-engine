@@ -183,9 +183,9 @@ void Vec3::transformMat4(const Vec3& v, const Mat4 &m)
     float rhw = m.m[3] * ix + m.m[7] * iy + m.m[11] * iz + m.m[15];
     rhw = rhw ? 1 / rhw : 1;
     
-    x = (m.m[0] * x + m.m[4] * y + m.m[8] * z + m.m[12]) * rhw;
-    y = (m.m[1] * x + m.m[5] * y + m.m[9] * z + m.m[13]) * rhw;
-    z = (m.m[2] * x + m.m[6] * y + m.m[10] * z + m.m[14]) * rhw;
+    x = (m.m[0] * ix + m.m[4] * iy + m.m[8] * iz + m.m[12]) * rhw;
+    y = (m.m[1] * ix + m.m[5] * iy + m.m[9] * iz + m.m[13]) * rhw;
+    z = (m.m[2] * ix + m.m[6] * iy + m.m[10] * iz + m.m[14]) * rhw;
 }
 
 void Vec3::transformQuat(const Quaternion& q)

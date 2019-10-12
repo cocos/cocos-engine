@@ -136,7 +136,7 @@ void AssemblerSprite::calculateWorldVertices(const Mat4& worldMat)
             case 3:
                 for (uint32_t i = 0; i < vertexCount; ++i)
                 {
-                    worldMat.transformPoint((cocos2d::Vec3*)srcWorldVerts);
+                    ((cocos2d::Vec3*)srcWorldVerts)->transformMat4(*((cocos2d::Vec3*)srcWorldVerts), worldMat);
                     srcWorldVerts += dataPerVertex;
                 }
                 break;

@@ -322,4 +322,18 @@ bool register_all_renderer(se::Object* obj);
 SE_DECLARE_FUNC(js_renderer_MeshAssembler_setNode);
 SE_DECLARE_FUNC(js_renderer_MeshAssembler_MeshAssembler);
 
+extern se::Object* __jsb_cocos2d_renderer_SimpleSprite3D_proto;
+extern se::Class* __jsb_cocos2d_renderer_SimpleSprite3D_class;
+
+bool js_register_cocos2d_renderer_SimpleSprite3D(se::Object* obj);
+bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_SimpleSprite3D_SimpleSprite3D);
+
+extern se::Object* __jsb_cocos2d_renderer_SlicedSprite3D_proto;
+extern se::Class* __jsb_cocos2d_renderer_SlicedSprite3D_class;
+
+bool js_register_cocos2d_renderer_SlicedSprite3D(se::Object* obj);
+bool register_all_renderer(se::Object* obj);
+SE_DECLARE_FUNC(js_renderer_SlicedSprite3D_SlicedSprite3D);
+
 #endif //#if (USE_GFX_RENDERER > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)

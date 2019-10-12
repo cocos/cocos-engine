@@ -176,7 +176,7 @@ void Assembler::fillBuffers(NodeProxy* node, MeshBuffer* buffer, std::size_t ind
             case 3:
                 for (uint32_t i = 0; i < vertexCount; ++i)
                 {
-                    worldMat.transformPoint((cocos2d::Vec3*)ptrPos);
+                    ((cocos2d::Vec3*)ptrPos)->transformMat4(*((cocos2d::Vec3*)ptrPos), worldMat);
                     ptrPos += dataPerVertex;
                 }
                 break;

@@ -219,6 +219,8 @@
     <ClCompile Include="..\cocos\renderer\scene\assembler\RenderDataList.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\assembler\SimpleSprite2D.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\assembler\SlicedSprite2D.cpp" />
+    <ClCompile Include="..\cocos\renderer\scene\assembler\SimpleSprite3D.cpp" />
+    <ClCompile Include="..\cocos\renderer\scene\assembler\SlicedSprite3D.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\assembler\TiledMapAssembler.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\assembler\MeshAssembler.cpp" />
     <ClCompile Include="..\cocos\renderer\scene\MemPool.cpp" />
@@ -555,6 +557,8 @@
     <ClInclude Include="..\cocos\renderer\scene\assembler\RenderDataList.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\assembler\SimpleSprite2D.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\assembler\SlicedSprite2D.hpp" />
+    <ClInclude Include="..\cocos\renderer\scene\assembler\SimpleSprite3D.hpp" />
+    <ClInclude Include="..\cocos\renderer\scene\assembler\SlicedSprite3D.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\assembler\TiledMapAssembler.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\assembler\MeshAssembler.hpp" />
     <ClInclude Include="..\cocos\renderer\scene\MemPool.hpp" />
