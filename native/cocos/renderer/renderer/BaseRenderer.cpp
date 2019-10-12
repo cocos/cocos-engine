@@ -251,25 +251,6 @@ void BaseRenderer::setProperty (Effect::Property& prop)
     }
     else
     {
-        if (0 != prop.getCount())
-        {
-//            if (Technique::Parameter::Type::COLOR3 == propType ||
-//                Technique::Parameter::Type::INT3 == propType ||
-//                Technique::Parameter::Type::FLOAT3 == propType ||
-//                Technique::Parameter::Type::MAT3 == propType)
-//            {
-//                RENDERER_LOGW("Uinform array of color3/int3/float3/mat3 can not be supported!");
-//                return;
-//            }
-            
-            uint8_t size = Technique::Parameter::getElements(propType);
-            if (size * prop.getCount() > 64)
-            {
-                RENDERER_LOGW("Uniform array is too long!");
-                return;
-            }
-        }
-        
         uint16_t bytes = prop.getBytes();
         if (Effect::Property::Type::INT == propType ||
             Effect::Property::Type::INT2 == propType ||

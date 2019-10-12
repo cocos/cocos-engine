@@ -157,7 +157,7 @@ static bool js_renderer_Effect_setProperty(se::State& s)
         ok &= (propType != cocos2d::renderer::Technique::Parameter::Type::UNKNOWN);
         SE_PRECONDITION2(ok, false, "js_renderer_Effect_setProperty : Type Error");
         cocos2d::renderer::Technique::Parameter arg1(arg0, propType);
-        ok &= seval_to_TechniqueParameter_not_constructor(args[1], &arg1);
+        ok &= seval_to_TechniqueParameter_not_constructor(args[1], &arg1, false);
         SE_PRECONDITION2(ok, false, "js_renderer_Effect_setProperty : Error processing arguments");
         cobj->setProperty(arg0, arg1);
         return true;
@@ -588,18 +588,35 @@ static bool js_renderer_CustomProperties_setProperty(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 3) {
+    if (argc == 3)
+    {
         std::string arg0;
         ok &= seval_to_std_string(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_renderer_CustomProperties_setProperty : Name Error");
         std::uint8_t arg1;
         ok &= seval_to_uint8(args[1], &arg1);
         cocos2d::renderer::Technique::Parameter arg2(arg0, static_cast<cocos2d::renderer::Technique::Parameter::Type>(arg1));
-        ok &= seval_to_TechniqueParameter_not_constructor(args[2], &arg2);
+        ok &= seval_to_TechniqueParameter_not_constructor(args[2], &arg2, false);
         SE_PRECONDITION2(ok, false, "js_renderer_CustomProperties_setProperty : Error processing arguments");
         cobj->setProperty(arg0, arg2);
         return true;
     }
+    else if (argc == 4)
+    {
+        std::string arg0;
+        ok &= seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_renderer_CustomProperties_setProperty : Name Error");
+        std::uint8_t arg1;
+        ok &= seval_to_uint8(args[1], &arg1);
+        cocos2d::renderer::Technique::Parameter arg2(arg0, static_cast<cocos2d::renderer::Technique::Parameter::Type>(arg1));
+        bool arg3;
+        ok &= seval_to_boolean(args[3], &arg3);
+        ok &= seval_to_TechniqueParameter_not_constructor(args[2], &arg2, arg3);
+        SE_PRECONDITION2(ok, false, "js_renderer_CustomProperties_setProperty : Error processing arguments");
+        cobj->setProperty(arg0, arg2);
+        return true;
+    }
+    
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }

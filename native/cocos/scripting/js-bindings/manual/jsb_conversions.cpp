@@ -1819,7 +1819,7 @@ bool seval_to_EffectDefineTemplate(const se::Value& v, std::vector<cocos2d::Valu
     return true;
 }
 
-bool seval_to_TechniqueParameter_not_constructor(const se::Value& v, cocos2d::renderer::Technique::Parameter* ret)
+bool seval_to_TechniqueParameter_not_constructor(const se::Value& v, cocos2d::renderer::Technique::Parameter* ret, bool directly)
 {
     assert(ret != nullptr);
     auto paramType = ret->getType();
@@ -1867,13 +1867,23 @@ bool seval_to_TechniqueParameter_not_constructor(const se::Value& v, cocos2d::re
         {
             se::Object* obj = v.toObject();
             SE_PRECONDITION2(obj->isTypedArray(), false, "Convert parameter to float array failed!");
-            uint8_t* data = nullptr;
-            size_t len = 0;
-            obj->getTypedArrayData(&data, &len);
-            uint8_t el = cocos2d::renderer::Technique::Parameter::getElements(paramType);
-            uint8_t count = (len / sizeof(float)) / el;
-            cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, (float*)data, count);
-            *ret = std::move(param);
+            
+            if (directly)
+            {
+                cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, obj);
+                *ret = std::move(param);
+            }
+            else
+            {
+                uint8_t* data = nullptr;
+                size_t len = 0;
+                obj->getTypedArrayData(&data, &len);
+                uint8_t el = cocos2d::renderer::Technique::Parameter::getElements(paramType);
+                uint8_t count = (len / sizeof(float)) / el;
+                cocos2d::renderer::Technique::Parameter param(ret->getName(), paramType, (float*)data, count);
+                *ret = std::move(param);
+            }
+
             break;
         }
         case cocos2d::renderer::Technique::Parameter::Type::TEXTURE_2D:

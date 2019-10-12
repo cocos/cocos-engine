@@ -31,6 +31,11 @@
 #include "base/CCRef.h"
 #include "../Macro.h"
 
+namespace se {
+    class Object;
+    class HandleObject;
+}
+
 RENDERER_BEGIN
 
 class Pass;
@@ -63,7 +68,6 @@ class Texture;
 class Technique : public Ref
 {
 public:
-    
     /*
      *  @brief Uniform parameter of Technique, defines the uniform name and type
      */
@@ -109,6 +113,10 @@ public:
          */
         Parameter(const std::string& name, Type type, float* value, uint8_t count = 1);
         /*
+         *  @brief Constructor with Object.
+         */
+        Parameter(const std::string& name, Type type, se::Object* value);
+        /*
          *  @brief Constructor with texture.
          */
         Parameter(const std::string& name, Type type, Texture* texture);
@@ -140,7 +148,14 @@ public:
         /*
          *  @brief Gets parameter value.
          */
-        inline void* getValue() const { return _value; }
+        inline void* getValue() const
+        {
+            if(_jsValue != nullptr)
+            {
+                return _shareValue;
+            }
+            return _value;
+        };
         /*
          *  @brief Gets bytes occupied by primitive uniform parameter.
          */
@@ -153,11 +168,14 @@ public:
          *  @brief Sets directly value.
          */
         inline void setDirectly(bool value) { _directly = value; };
-        
         /*
          *  @brief Gets the texture array.
          */
         std::vector<Texture*> getTextureArray() const;
+        /*
+         *  @brief Set the typed array.
+         */
+        void setShareValue(se::Object* jsValue);
         /*
          *  @brief Sets the texture pointer.
          */
@@ -167,6 +185,8 @@ public:
          */
         Texture* getTexture() const;
         
+        uint8_t* _shareValue = nullptr;
+        se::Object* _jsValue = nullptr;
     private:
         
         void freeValue();

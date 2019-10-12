@@ -26,7 +26,7 @@
 #include "Config.h"
 #include "Pass.h"
 #include "gfx/Texture.h"
-#include "gfx/Texture.h"
+#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
 RENDERER_BEGIN
 
@@ -68,7 +68,8 @@ uint8_t Technique::Parameter::getElements(Type type)
 }
 
 Technique::Parameter::Parameter()
-{}
+{
+}
 
 Technique::Parameter::Parameter(const std::string& name, Type type)
 : _name(name)
@@ -199,6 +200,21 @@ Technique::Parameter::Parameter(const std::string& name, Type type, float* value
         if (_value)
             memcpy(_value, value, _bytes);
     }
+}
+
+Technique::Parameter::Parameter(const std::string& name, Type type, se::Object* jsValue)
+:_name(name)
+,_count(1)
+,_type(type)
+{
+    _hashName = std::hash<std::string>{}(name);
+    
+    assert(_type == Type::FLOAT4);
+    
+    se::ScriptEngine::getInstance()->clearException();
+    se::AutoHandleScope hs;
+    
+    setShareValue(jsValue);
 }
 
 Technique::Parameter::Parameter(const std::string& name, Type type, Texture* value)
@@ -359,10 +375,34 @@ void Technique::Parameter::copyValue(const Parameter& rh)
     {
         if (_count > 0)
         {
-            _value = malloc(_bytes);
-            memcpy(_value, rh._value, _bytes);
+            if (rh._jsValue != nullptr)
+            {
+                setShareValue(rh._jsValue);
+            }
+            else
+            {
+                _value = malloc(_bytes);
+                memcpy(_value, rh._value, _bytes);
+            }
         }
     }
+}
+
+void Technique::Parameter::setShareValue(se::Object *jsValue)
+{
+    if (!jsValue || jsValue == _jsValue)
+       return;
+    if (_jsValue)
+    {
+      _jsValue->unroot();
+      _jsValue->decRef();
+    }
+    _jsValue = jsValue;
+    _jsValue->root();
+    _jsValue->incRef();
+    _shareValue = nullptr;
+    _bytes = 0;
+    _jsValue->getTypedArrayData(&_shareValue, (std::size_t*)&_bytes);
 }
 
 void Technique::Parameter::freeValue()
@@ -391,6 +431,15 @@ void Technique::Parameter::freeValue()
         
         free(_value);
         _value = nullptr;
+    }
+    
+    if(_jsValue)
+    {
+        _jsValue->unroot();
+        _jsValue->decRef();
+        _jsValue = nullptr;
+        _shareValue = nullptr;
+        _bytes = 0;
     }
 }
 
