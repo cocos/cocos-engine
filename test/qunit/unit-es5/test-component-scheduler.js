@@ -76,7 +76,7 @@ test('component should call start before render when its node is actived', funct
         },
     });
     nodes.child.active = false;
-    nodes.root.parentComp.update = function () {
+    nodes.rootComps[0].update = function () {
         nodes.child.childComp.expect(CallbackTester.onLoad, "should onLoad in this frame");
         nodes.child.childComp.expect(CallbackTester.onEnable, "should onEnable in this frame");
         nodes.child.childComp.expect(CallbackTester.start, "should start in this frame");
