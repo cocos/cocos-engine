@@ -454,7 +454,7 @@ class Component extends CCObject {
      * @en Schedules a callback function that runs only once, with a delay of 0 or larger.
      * @zh 调度一个只运行一次的回调函数，可以指定 0 让回调函数在下一帧立即执行或者在一定的延时之后执行。
      * @method scheduleOnce
-     * @see [[Node.schedule]]
+     * @see [[schedule]]
      * @param {function} callback  回调函数。
      * @param {Number} delay  第一次执行前等待的时间（延时执行）。
      * @example
@@ -527,10 +527,14 @@ class Component extends CCObject {
     protected lateUpdate? (dt: number): void;
 
     /**
-     * `__preload` is called before every onLoad.
-     * It is used to initialize the builtin components internally,
-     * to avoid checking whether onLoad is called before every public method calls.
+     * @en `__preload` is called before every onLoad.<br/>
+     * It is used to initialize the builtin components internally,<br/>
+     * to avoid checking whether onLoad is called before every public method calls.<br/>
      * This method should be removed if script priority is supported.
+     * @zh `__preload` 在每次onLoad之前调用。<br/>
+     * 它用于在内部初始化内置组件，<br/>
+     * 以避免在每次公有方法调用之前检查是否调用了onLoad。<br/>
+     * 如果支持脚本优先级，则应删除此方法。
      * @private
      */
     protected __preload? (): void;

@@ -464,7 +464,7 @@ export class GraphicsComponent extends UIRenderComponent {
 
     /**
      * @zh
-     * 辅助材质实例化。可用于只取数据而无实体情况下渲染使用。特殊情况可参考：[[_instanceMaterial]]
+     * 辅助材质实例化。可用于只取数据而无实体情况下渲染使用。特殊情况可参考：[[instanceMaterial]]
      */
     public helpInstanceMaterial () {
         let mat: Material | null = null;

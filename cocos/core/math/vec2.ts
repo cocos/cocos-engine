@@ -414,21 +414,21 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 克隆当前向量。
+     * @zh 克隆当前向量。
      */
     public clone () {
         return new Vec2(this.x, this.y);
     }
 
     /**
-     * 设置当前向量使其与指定向量相等。
+     * @zh 设置当前向量使其与指定向量相等。
      * @param other 相比较的向量。
      * @return `this`
      */
     public set (other: Vec2);
 
     /**
-     * 设置当前向量的具体分量值。
+     * @zh 设置当前向量的具体分量值。
      * @param x 要设置的 x 分量的值
      * @param y 要设置的 y 分量的值
      * @return `this`
@@ -447,7 +447,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 判断当前向量是否在误差范围内与指定向量相等。
+     * @zh 判断当前向量是否在误差范围内与指定向量相等。
      * @param other 相比较的向量。
      * @param epsilon 允许的误差，应为非负数。
      * @return 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
@@ -462,7 +462,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 判断当前向量是否在误差范围内与指定分量的向量相等。
+     * @zh 判断当前向量是否在误差范围内与指定分量的向量相等。
      * @param x 相比较的向量的 x 分量。
      * @param y 相比较的向量的 y 分量。
      * @param epsilon 允许的误差，应为非负数。
@@ -478,7 +478,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 判断当前向量是否与指定向量相等。
+     * @zh 判断当前向量是否与指定向量相等。
      * @param other 相比较的向量。
      * @return 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
      */
@@ -487,7 +487,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 判断当前向量是否与指定分量的向量相等。
+     * @zh 判断当前向量是否与指定分量的向量相等。
      * @param x 指定向量的 x 分量。
      * @param y 指定向量的 y 分量。
      * @return 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
@@ -497,15 +497,15 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 返回当前向量的字符串表示。
-     * @return 当前向量的字符串表示。
+     * @zh 返回当前向量的字符串表示。
+     * @returns 当前向量的字符串表示。
      */
     public toString () {
         return `(${this.x.toFixed(2)}, ${this.y.toFixed(2)})`;
     }
 
     /**
-     * 根据指定的插值比率，从当前向量到目标向量之间做插值。
+     * @zh 根据指定的插值比率，从当前向量到目标向量之间做插值。
      * @param to 目标向量。
      * @param ratio 插值比率，范围为 [0,1]。
      */
@@ -518,7 +518,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 设置当前向量的值，使其各个分量都处于指定的范围内。
+     * @zh 设置当前向量的值，使其各个分量都处于指定的范围内。
      * @param minInclusive 每个分量都代表了对应分量允许的最小值。
      * @param maxInclusive 每个分量都代表了对应分量允许的最大值。
      * @return `this`
@@ -530,7 +530,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 向量加法。将当前向量与指定向量的相加
+     * @zh 向量加法。将当前向量与指定向量的相加
      * @param other 指定的向量。
      */
     public add (other: Vec2) {
@@ -540,7 +540,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 向量加法。将当前向量与指定分量的向量相加
+     * @zh 向量加法。将当前向量与指定分量的向量相加
      * @param x 指定的向量的 x 分量。
      * @param y 指定的向量的 y 分量。
      */
@@ -551,7 +551,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 向量减法。将当前向量减去指定向量
+     * @zh 向量减法。将当前向量减去指定向量
      * @param other 减数向量。
      */
     public subtract (other: Vec2) {
@@ -561,7 +561,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 向量减法。将当前向量减去指定分量的向量
+     * @zh 向量减法。将当前向量减去指定分量的向量
      * @param x 指定的向量的 x 分量。
      * @param y 指定的向量的 y 分量。
      */
@@ -572,7 +572,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 向量数乘。将当前向量数乘指定标量
+     * @zh 向量数乘。将当前向量数乘指定标量
      * @param scalar 标量乘数。
      */
     public multiplyScalar (scalar: number) {
@@ -583,7 +583,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 向量乘法。将当前向量乘以与指定向量的结果赋值给当前向量。
+     * @zh 向量乘法。将当前向量乘以与指定向量的结果赋值给当前向量。
      * @param other 指定的向量。
      */
     public multiply (other: Vec2) {
@@ -594,7 +594,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 向量乘法。将当前向量与指定分量的向量相乘的结果赋值给当前向量。
+     * @zh 向量乘法。将当前向量与指定分量的向量相乘的结果赋值给当前向量。
      * @param x 指定的向量的 x 分量。
      * @param y 指定的向量的 y 分量。
      */
@@ -605,7 +605,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 向量逐元素相除。将当前向量与指定分量的向量相除的结果赋值给当前向量。
+     * @zh 向量逐元素相除。将当前向量与指定分量的向量相除的结果赋值给当前向量。
      * @param other 指定的向量
      */
     public divide (other: Vec2) {
@@ -615,7 +615,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 向量逐元素相除。将当前向量与指定分量的向量相除的结果赋值给当前向量。
+     * @zh 向量逐元素相除。将当前向量与指定分量的向量相除的结果赋值给当前向量。
      * @param x 指定的向量的 x 分量。
      * @param y 指定的向量的 y 分量。
      */
@@ -626,7 +626,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 将当前向量的各个分量取反
+     * @zh 将当前向量的各个分量取反
      */
     public negative () {
         this.x = -this.x;
@@ -635,7 +635,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 向量点乘。
+     * @zh 向量点乘。
      * @param other 指定的向量。
      * @return 当前向量与指定向量点乘的结果。
      */
@@ -644,7 +644,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 向量叉乘。
+     * @zh 向量叉乘。
      * @param other 指定的向量。
      * @return `out`
      */
@@ -669,7 +669,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 将当前向量归一化。
+     * @zh 将当前向量归一化。
      */
     public normalize () {
         _x = this.x;
@@ -684,7 +684,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 获取当前向量和指定向量之间的角度。
+     * @zh 获取当前向量和指定向量之间的角度。
      * @param other 指定的向量。
      * @return 当前向量和指定向量之间的角度（弧度制）；若当前向量和指定向量中存在零向量，将返回 0。
      */
@@ -704,8 +704,8 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 获取当前向量和指定向量之间的有符号角度。
-     * 有符号角度的取值范围为 (-180, 180]，当前向量可以通过逆时针旋转有符号角度与指定向量同向。
+     * @zh 获取当前向量和指定向量之间的有符号角度。<br/>
+     * 有符号角度的取值范围为 (-180, 180]，当前向量可以通过逆时针旋转有符号角度与指定向量同向。<br/>
      * @param other 指定的向量。
      * @return 当前向量和指定向量之间的有符号角度（弧度制）；若当前向量和指定向量中存在零向量，将返回 0。
      */
@@ -715,7 +715,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 将当前向量的旋转
+     * @zh 将当前向量的旋转
      * @param radians 旋转角度（弧度制）。
      */
     public rotate (radians: number) {
@@ -730,7 +730,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 计算当前向量在指定向量上的投影向量。
+     * @zh 计算当前向量在指定向量上的投影向量。
      * @param other 指定的向量。
      */
     public project (other: Vec2) {
@@ -741,8 +741,8 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * 将当前向量视为 z 分量为 0、w 分量为 1 的四维向量，
-     * 应用四维矩阵变换到当前矩阵
+     * @zh 将当前向量视为 z 分量为 0、w 分量为 1 的四维向量，<br/>
+     * 应用四维矩阵变换到当前矩阵<br/>
      * @param matrix 变换矩阵。
      */
     public transformMat4 (matrix: Mat4) {

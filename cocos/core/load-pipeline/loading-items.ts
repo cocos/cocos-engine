@@ -458,9 +458,9 @@ export class LoadingItems extends CallbacksInvoker {
      * @en Add urls to the LoadingItems queue.
      * @zh 向一个 LoadingItems 队列添加加载项。
      * @method append
-     * @param {Array} urlList The url list to be appended, the url can be object or string
+     * @param {Array} urlList 要追加的url列表，url可以是对象或字符串
      * @param {any} [owner]
-     * @return {Array} The accepted url list, some invalid items could be refused.
+     * @return {Array} 在已接受的url列表中，可以拒绝某些无效项
      */
     append (urlList, owner?) {
         if (!this.active) {

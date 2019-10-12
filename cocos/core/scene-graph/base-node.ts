@@ -87,15 +87,18 @@ function getConstructor (typeOrClassName: string | Function): Function | null {
 @ccclass('cc._BaseNode')
 export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
     /**
-     * Gets all components attached to this node.
+     * @en Gets all components attached to this node.
+     * @zh 获取附加到此节点的所有组件。
      */
     get components (): ReadonlyArray<Component> {
         return this._components;
     }
 
     /**
-     * If true, the node is an persist node which won't be destroyed during scene transition.
+     * @en If true, the node is an persist node which won't be destroyed during scene transition.<br/>
      * If false, the node will be destroyed automatically when loading a new scene. Default is false.
+     * @zh 如果为true，则该节点是一个常驻节点，不会在场景转换期间被销毁。<br/>
+     * 如果为false，节点将在加载新场景时自动销毁。默认为false。
      * @property _persistNode
      * @type {Boolean}
      * @default false
@@ -573,7 +576,9 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
      * @zh
      * 插入子节点到指定位置
      * @param child - the child node to be inserted
+     * 要插入的子节点
      * @param siblingIndex - the sibling index to place the child in
+     * 用于放置子节点的同级索引
      * @example
      * ```
      * node.insertChild(child, 2);
@@ -761,6 +766,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
      * @zh
      * 移除节点中指定的子节点。
      * @param child - The child node which will be removed.
+     * 将被移除的子节点
      * @example
      * ```
      * node.removeChild(newNode);
@@ -799,6 +805,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
      * @en Is this node a child of the given node?
      * @zh 是否是指定节点的子节点？
      * @return True if this node is a child, deep child or identical to the given node.
+     * @return 如果此节点是子节点、深度子节点或与给定节点相同，则为True。
      * @example
      * ```
      * node.isChildOf(newNode);
@@ -1046,6 +1053,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
      * 删除节点上的指定组件，传入参数可以是一个组件构造函数或组件名，也可以是已经获得的组件引用。
      * 如果你已经获得组件引用，你也可以直接调用 component.destroy()
      * @deprecated please destroy the component to remove it.
+     * 请销毁组件以移除它。
      * @example
      * ```
      * node.removeComponent(cc.SpriteComponent);

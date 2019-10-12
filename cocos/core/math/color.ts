@@ -41,8 +41,8 @@ let _b: number = 0;
 let _a: number = 0;
 
 /**
- * 通过 Red、Green、Blue 颜色通道表示颜色，并通过 Alpha 通道表示不透明度。
- * 每个通道都为取值范围 [0, 255] 的整数。
+ * @zh 通过 Red、Green、Blue 颜色通道表示颜色，并通过 Alpha 通道表示不透明度。<br/>
+ * 每个通道都为取值范围 [0, 255] 的整数。<br/>
  */
 export class Color extends ValueType {
 
@@ -225,7 +225,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * 获取或设置当前颜色的 Red 通道。
+     * @zh 获取或设置当前颜色的 Red 通道。
      */
     get r () {
         return this._val & 0x000000ff;
@@ -237,7 +237,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * 获取或设置当前颜色的 Green 通道。
+     * @zh 获取或设置当前颜色的 Green 通道。
      */
     get g () {
         return (this._val & 0x0000ff00) >> 8;
@@ -249,7 +249,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * 获取或设置当前颜色的 Blue 通道。
+     * @zh 获取或设置当前颜色的 Blue 通道。
      */
     get b () {
         return (this._val & 0x00ff0000) >> 16;
@@ -261,7 +261,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * 获取或设置当前颜色的 Alpha 通道。
+     * @zh 获取或设置当前颜色的 Alpha 通道。
      */
     get a () {
         return (this._val & 0xff000000) >>> 24;
@@ -291,14 +291,14 @@ export class Color extends ValueType {
     constructor (other: Color);
 
     /**
-     * 用十六进制颜色字符串中构造颜色。
+     * @zh 用十六进制颜色字符串中构造颜色。
      * @param hexString 十六进制颜色字符串。
      */
     // tslint:disable-next-line: unified-signatures
     constructor (hexString: string);
 
     /**
-     * 构造具有指定通道的颜色。
+     * @zh 构造具有指定通道的颜色。
      * @param [r=0] 指定的 Red 通道。
      * @param [g=0] 指定的 Green 通道。
      * @param [b=0] 指定的 Blue 通道。
@@ -327,7 +327,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * 克隆当前颜色。
+     * @zh 克隆当前颜色。
      */
     public clone () {
         const ret = new Color();
@@ -336,7 +336,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * 判断当前颜色是否与指定颜色相等。
+     * @zh 判断当前颜色是否与指定颜色相等。
      * @param other 相比较的颜色。
      * @returns 两颜色的各通道都相等时返回 `true`；否则返回 `false`。
      */
@@ -345,7 +345,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * 根据指定的插值比率，从当前颜色到目标颜色之间做插值。
+     * @zh 根据指定的插值比率，从当前颜色到目标颜色之间做插值。
      * @param to 目标颜色。
      * @param ratio 插值比率，范围为 [0,1]。
      */
@@ -363,7 +363,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * 返回当前颜色的字符串表示。
+     * @zh 返回当前颜色的字符串表示。
      * @returns 当前颜色的字符串表示。
      */
     public toString () {
@@ -375,7 +375,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * 将当前颜色转换为 CSS 格式。
+     * @zh 将当前颜色转换为 CSS 格式。
      * @param opt 格式选项。
      * @returns 当前颜色的 CSS 格式。
      */
@@ -399,10 +399,10 @@ export class Color extends ValueType {
     }
 
     /**
-     * 从十六进制颜色字符串中读入当前颜色。
-     * 十六进制颜色字符串应该以可选的 "#" 开头，紧跟最多 8 个代表十六进制数字的字符；
-     * 每两个连续字符代表的数值依次作为 Red、Green、Blue 和 Alpha 通道；
-     * 缺省的颜色通道将视为 0；缺省的透明通道将视为 255。
+     * @zh 从十六进制颜色字符串中读入当前颜色。<br/>
+     * 十六进制颜色字符串应该以可选的 "#" 开头，紧跟最多 8 个代表十六进制数字的字符；<br/>
+     * 每两个连续字符代表的数值依次作为 Red、Green、Blue 和 Alpha 通道；<br/>
+     * 缺省的颜色通道将视为 0；缺省的透明通道将视为 255。<br/>
      * @param hexString 十六进制颜色字符串。
      * @returns `this`
      */
@@ -417,7 +417,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * 转换当前颜色为十六进制颜色字符串。
+     * @zh 转换当前颜色为十六进制颜色字符串。
      * @param fmt 格式选项。
      * - `'#rrggbbaa'` 获取Red、Green、Blue、Alpha通道的十六进制值（**两位**，高位补 0）并依次连接；
      * - `'#rrggbb` 与 `'#rrggbbaa'` 类似但不包括 Alpha 通道。
@@ -454,7 +454,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * 将当前颜色转换为 RGB 整数值。
+     * @zh 将当前颜色转换为 RGB 整数值。
      * @returns RGB 整数值。从最低有效位开始，每8位分别是 Red、Green、Blue 通道的值。
      * @example
      * ```
@@ -467,7 +467,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * 从 HSV 颜色中读入当前颜色。
+     * @zh 从 HSV 颜色中读入当前颜色。
      * @param h H 通道。
      * @param s S 通道。
      * @param v V 通道。
@@ -544,7 +544,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * 转换当前颜色为 HSV 颜色。
+     * @zh 转换当前颜色为 HSV 颜色。
      * @returns HSV 颜色。成员 `h`、`s`、`v` 分别代表 HSV 颜色的 H、S、V 通道。
      * @example
      * ```
@@ -578,14 +578,14 @@ export class Color extends ValueType {
     }
 
     /**
-     * 设置当前颜色使其与指定颜色相等。
+     * @zh 设置当前颜色使其与指定颜色相等。
      * @param other 相比较的颜色。
      * @returns 当前颜色。
      */
     public set (other: Color);
 
     /**
-     * 设置当前颜色使其与指定通道值相等。
+     * @zh 设置当前颜色使其与指定通道值相等。
      * @param [r=0] 指定的 Red 通道。
      * @param [g=0] 指定的 Green 通道。
      * @param [b=0] 指定的 Blue 通道。
@@ -610,7 +610,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * 将当前颜色乘以与指定颜色
+     * @zh 将当前颜色乘以与指定颜色
      * @param other 指定的颜色。
      */
     public multiply (other: Color) {
