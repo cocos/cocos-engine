@@ -29,6 +29,9 @@
 #include "base/ccMacros.h"
 #include "audio/include/Export.h"
 
+#include "scripting/js-bindings/event/EventDispatcher.h"
+#include "scripting/js-bindings/event/CustomEventTypes.h"
+
 #include <functional>
 #include <list>
 #include <string>
@@ -371,6 +374,14 @@ protected:
     static AudioEngineThreadPool* s_threadPool;
     
     static bool _isEnabled;
+    
+private:
+    static uint32_t _onPauseListenerID;
+    static uint32_t _onResumeListenerID;
+    static std::vector<int> _breakAudioID;
+    
+    static void onEnterBackground(const CustomEvent&);
+    static void onEnterForeground(const CustomEvent&);
     
     friend class AudioEngineImpl;
 };

@@ -75,10 +75,6 @@ public:
 
     void setAudioFocusForAllPlayers(bool isFocus);
 private:
-
-    void onEnterBackground(const CustomEvent&);
-    void onEnterForeground(const CustomEvent&);
-
     // engine interfaces
     SLObjectItf _engineObject;
     SLEngineItf _engineEngine;
@@ -94,8 +90,6 @@ private:
     std::unordered_map<int, IAudioPlayer*> _urlAudioPlayersNeedResume;
 
     AudioPlayerProvider* _audioPlayerProvider;
-    uint32_t _onPauseListenerID;
-    uint32_t _onResumeListenerID;
 
     int _audioIDIndex;
     

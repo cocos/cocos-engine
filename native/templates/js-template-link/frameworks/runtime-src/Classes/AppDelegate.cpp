@@ -27,7 +27,6 @@
 
 #include "cocos2d.h"
 
-#include "cocos/audio/include/AudioEngine.h"
 #include "cocos/scripting/js-bindings/manual/jsb_module_register.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
@@ -79,12 +78,10 @@ bool AppDelegate::applicationDidFinishLaunching()
 void AppDelegate::applicationDidEnterBackground()
 {
     EventDispatcher::dispatchEnterBackgroundEvent();
-    AudioEngine::pauseAll();
 }
 
 // this function will be called when the app is active again
 void AppDelegate::applicationWillEnterForeground()
 {
-    AudioEngine::resumeAll();
     EventDispatcher::dispatchEnterForegroundEvent();
 }

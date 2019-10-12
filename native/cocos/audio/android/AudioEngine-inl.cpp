@@ -119,8 +119,6 @@ AudioEngineImpl::AudioEngineImpl()
     , _engineEngine(nullptr)
     , _outputMixObject(nullptr)
     , _audioPlayerProvider(nullptr)
-    , _onPauseListenerID(0)
-    , _onResumeListenerID(0)
     , _audioIDIndex(0)
     , _lazyInitLoop(true)
 {
@@ -143,16 +141,6 @@ AudioEngineImpl::~AudioEngineImpl()
     if (_engineObject)
     {
         (*_engineObject)->Destroy(_engineObject);
-    }
-
-    if (_onPauseListenerID != 0)
-    {
-        EventDispatcher::removeCustomEventListener(EVENT_COME_TO_BACKGROUND, _onPauseListenerID);
-    }
-
-    if (_onResumeListenerID != 0)
-    {
-        EventDispatcher::removeCustomEventListener(EVENT_COME_TO_FOREGROUND, _onResumeListenerID);
     }
 
     __impl = nullptr;
@@ -187,53 +175,10 @@ bool AudioEngineImpl::init()
 
         _audioPlayerProvider = new AudioPlayerProvider(_engineEngine, _outputMixObject, getDeviceSampleRateJNI(), getDeviceAudioBufferSizeInFramesJNI(), fdGetter, &__callerThreadUtils);
 
-        _onPauseListenerID = EventDispatcher::addCustomEventListener(EVENT_COME_TO_BACKGROUND, CC_CALLBACK_1(AudioEngineImpl::onEnterBackground, this));
-
-        _onResumeListenerID = EventDispatcher::addCustomEventListener(EVENT_COME_TO_FOREGROUND, CC_CALLBACK_1(AudioEngineImpl::onEnterForeground, this));
-
         ret = true;
     }while (false);
 
     return ret;
-}
-
-void AudioEngineImpl::onEnterBackground(const CustomEvent& event)
-{
-    // _audioPlayerProvider->pause() pauses AudioMixer and PcmAudioService,
-    // but UrlAudioPlayers could not be paused.
-    if (_audioPlayerProvider != nullptr)
-    {
-        _audioPlayerProvider->pause();
-    }
-
-    // pause UrlAudioPlayers which are playing.
-    for (auto&& e : _audioPlayers)
-    {
-        auto player = e.second;
-        if (dynamic_cast<UrlAudioPlayer*>(player) != nullptr
-            && player->getState() == IAudioPlayer::State::PLAYING)
-        {
-            _urlAudioPlayersNeedResume.emplace(e.first, player);
-            player->pause();
-        }
-    }
-}
-
-void AudioEngineImpl::onEnterForeground(const CustomEvent& event)
-{
-    // _audioPlayerProvider->resume() resumes AudioMixer and PcmAudioService,
-    // but UrlAudioPlayers could not be resumed.
-    if (_audioPlayerProvider != nullptr)
-    {
-        _audioPlayerProvider->resume();
-    }
-
-    // resume UrlAudioPlayers
-    for (auto&& iter : _urlAudioPlayersNeedResume)
-    {
-        iter.second->resume();
-    }
-    _urlAudioPlayersNeedResume.clear();
 }
 
 void AudioEngineImpl::setAudioFocusForAllPlayers(bool isFocus)
