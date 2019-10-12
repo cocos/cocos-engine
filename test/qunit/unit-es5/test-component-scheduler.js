@@ -74,23 +74,25 @@ test('component should call start before render when its node is actived', funct
         },
     });
     nodes.child.active = false;
-    nodes.root.comp.update = function () {
+    var childComp = nodes.childComps[0];
+    nodes.rootComps[0].update = function () {
+        childComp.notExpect(CallbackTester.start, "start should be called asynced");
         nodes.child.active = true;
+        childComp.expect(CallbackTester.onLoad, "should onLoad in this frame");
+        childComp.expect(CallbackTester.onEnable, "should onEnable in this frame");
+        childComp.expect(CallbackTester.start, "should start in this frame");
+        childComp.notExpect(CallbackTester.update, "should not update in this frame");
     };
 
     nodes.attachToScene();
     // active child in this frame
-    nodes.child.comp.expect(CallbackTester.onLoad, "should onLoad in this frame");
-    nodes.child.comp.expect(CallbackTester.onEnable, "should onEnable in this frame");
-    nodes.child.comp.expect(CallbackTester.start, "should start in this frame");
-    nodes.child.comp.notExpect(CallbackTester.update, "should not update in this frame");
     cc.game.step();
 
     // next frame
-    nodes.child.comp.notExpect(CallbackTester.onLoad, "should not onLoad in this frame");
-    nodes.child.comp.notExpect(CallbackTester.onEnable, "should not onEnable in this frame");
-    nodes.child.comp.notExpect(CallbackTester.start, "should not start in this frame");
-    nodes.child.comp.expect(CallbackTester.update, "should update in this frame");
+    childComp.notExpect(CallbackTester.onLoad, "should not onLoad in this frame");
+    childComp.notExpect(CallbackTester.onEnable, "should not onEnable in this frame");
+    childComp.notExpect(CallbackTester.start, "should not start in this frame");
+    childComp.expect(CallbackTester.update, "should update in this frame");
     cc.game.step();
 
     // end test
