@@ -174,7 +174,6 @@ public:
      * @since v3.13
      */
     bool supportsMapBuffer() const;
-
     
     /** Max support directional light in shader, for Sprite3D.
      *

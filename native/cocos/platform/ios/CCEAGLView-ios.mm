@@ -255,11 +255,18 @@ namespace
                                     [NSNumber numberWithBool:_preserveBackbuffer], kEAGLDrawablePropertyRetainedBacking,
                                     _pixelformatString, kEAGLDrawablePropertyColorFormat, nil];
     
-    EAGLRenderingAPI renderingAPI = _multisampling ? kEAGLRenderingAPIOpenGLES2 : kEAGLRenderingAPIOpenGLES3;
     if(! _sharegroup)
-        _context = [[EAGLContext alloc] initWithAPI:renderingAPI];
+    {
+        _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
+        if (!_context)
+            _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+    }
     else
-        _context = [[EAGLContext alloc] initWithAPI:renderingAPI sharegroup:_sharegroup];
+    {
+        _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3 sharegroup:_sharegroup];
+        if (!_context)
+            _context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:_sharegroup];
+    }
     
     if (!_context || ![EAGLContext setCurrentContext:_context] )
     {
