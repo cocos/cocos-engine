@@ -449,7 +449,10 @@ let previousAsInputActions = {
      * @param {Action | Tween} [action]
      * @return {Tween}
      */
-    repeatForever: cc.repeatForever,
+    repeatForever: function (action) {
+        // TODO: fixed with cc.repeatForever
+        return cc.repeat(action, 10e8);
+    },
     /**
      * !#en
      * Add an reverse time action.

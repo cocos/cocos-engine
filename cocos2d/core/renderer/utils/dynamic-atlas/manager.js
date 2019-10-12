@@ -8,7 +8,7 @@ let _textureSize = 2048;
 // Smaller frame is more likely to be affected by linear filter
 let _minFrameSize = 8;
 let _maxFrameSize = 512;
-
+let _textureBleeding = true;
 
 let _debugNode = null;
 
@@ -69,6 +69,20 @@ let dynamicAtlasManager = {
     },
     set maxAtlasCount (value) {
         _maxAtlasCount = value;
+    },
+
+    /**
+     * !#en Is enable textureBleeding.
+     * !#zh 是否开启 textureBleeding
+     * @property textureBleeding
+     * @type {Boolean}
+     */
+    get textureBleeding () {
+        return _textureBleeding;
+    },
+
+    set textureBleeding (enable) {
+        _textureBleeding = enable;
     },
 
     /**

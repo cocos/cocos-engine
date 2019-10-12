@@ -27,13 +27,10 @@ export default class FlexBuffer {
         this._vfmt = vfmt;
         this._verticesBytes = vfmt._bytes;
 
-        let floatsCount = verticesCount * this._verticesBytes >> 2;
-        this._reallocVData(floatsCount);
-        this._reallocIData(indicesCount);
+        this._initVerticesCount = verticesCount;
+        this._initIndicesCount = indicesCount;
 
-        this.usedVertices = 0;
-        this.usedVerticesFloats = 0;
-        this.usedIndices = 0;
+        this.reset();
     }
 
     _reallocVData (floatsCount, oldData) {
@@ -91,6 +88,10 @@ export default class FlexBuffer {
     }
 
     reset () {
+        let floatsCount = this._initVerticesCount * this._verticesBytes >> 2;
+        this._reallocVData(floatsCount);
+        this._reallocIData(this._initIndicesCount);
+
         this.usedVertices = 0;
         this.usedVerticesFloats = 0;
         this.usedIndices = 0;

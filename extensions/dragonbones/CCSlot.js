@@ -83,8 +83,8 @@ dragonBones.CCSlot = cc.Class({
     _disposeDisplay (object) {
     },
 
-    // just for adapt to dragonbones api,no need to do any thing
     _updateVisible () {
+        this._visible = this.parent._visible;
     },
 
     // just for adapt to dragonbones api,no need to do any thing

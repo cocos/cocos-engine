@@ -313,7 +313,8 @@ export default class TmxAssembler extends Assembler {
 
                 gid = tiles[colData.index];
                 grid = texGrids[(gid & FLIPPED_MASK) >>> 0];
-                
+                if (!grid) continue;
+
                 // check init or new material
                 if (curTexIdx !== grid.texId) {
                     // need flush

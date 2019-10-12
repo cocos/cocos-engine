@@ -51,10 +51,13 @@ cc.js.mixin(Atlas.prototype, {
             }
 
             // texture bleeding
-            this._texture.drawTextureAt(texture, this._x-1, this._y);
-            this._texture.drawTextureAt(texture, this._x+1, this._y);
-            this._texture.drawTextureAt(texture, this._x, this._y-1);
-            this._texture.drawTextureAt(texture, this._x, this._y+1);
+            if (cc.dynamicAtlasManager.textureBleeding) {
+                this._texture.drawTextureAt(texture, this._x-1, this._y);
+                this._texture.drawTextureAt(texture, this._x+1, this._y);
+                this._texture.drawTextureAt(texture, this._x, this._y-1);
+                this._texture.drawTextureAt(texture, this._x, this._y+1);
+            }
+
             this._texture.drawTextureAt(texture, this._x, this._y);
 
             this._innerTextureInfos[texture._id] = {
