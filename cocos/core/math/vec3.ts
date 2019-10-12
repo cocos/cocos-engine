@@ -661,21 +661,21 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 克隆当前向量。
+     * @zh 克隆当前向量。
      */
     public clone () {
         return new Vec3(this.x, this.y, this.z);
     }
 
     /**
-     * 设置当前向量使其与指定向量相等。
+     * @zh 设置当前向量使其与指定向量相等。
      * @param other 相比较的向量。
      * @returns `this`
      */
     public set (other: Vec3);
 
     /**
-     * 设置当前向量的具体分量值。
+     * @zh 设置当前向量的具体分量值。
      * @param x 要设置的 x 分量的值
      * @param y 要设置的 y 分量的值
      * @param z 要设置的 z 分量的值
@@ -697,7 +697,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 判断当前向量是否在误差范围内与指定向量相等。
+     * @zh 判断当前向量是否在误差范围内与指定向量相等。
      * @param other 相比较的向量。
      * @param epsilon 允许的误差，应为非负数。
      * @returns 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
@@ -714,7 +714,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 判断当前向量是否在误差范围内与指定分量的向量相等。
+     * @zh 判断当前向量是否在误差范围内与指定分量的向量相等。
      * @param x 相比较的向量的 x 分量。
      * @param y 相比较的向量的 y 分量。
      * @param z 相比较的向量的 z 分量。
@@ -733,7 +733,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 判断当前向量是否与指定向量相等。
+     * @zh 判断当前向量是否与指定向量相等。
      * @param other 相比较的向量。
      * @returns 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
      */
@@ -742,7 +742,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 判断当前向量是否与指定分量的向量相等。
+     * @zh 判断当前向量是否与指定分量的向量相等。
      * @param x 指定向量的 x 分量。
      * @param y 指定向量的 y 分量。
      * @param z 指定向量的 z 分量。
@@ -753,7 +753,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 返回当前向量的字符串表示。
+     * @zh 返回当前向量的字符串表示。
      * @returns 当前向量的字符串表示。
      */
     public toString () {
@@ -761,7 +761,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 根据指定的插值比率，从当前向量到目标向量之间做插值。
+     * @zh 根据指定的插值比率，从当前向量到目标向量之间做插值。
      * @param to 目标向量。
      * @param ratio 插值比率，范围为 [0,1]。
      */
@@ -773,7 +773,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 向量加法。将当前向量与指定向量的相加
+     * @zh 向量加法。将当前向量与指定向量的相加
      * @param other 指定的向量。
      */
     public add (other: Vec3) {
@@ -784,7 +784,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 向量加法。将当前向量与指定分量的向量相加
+     * @zh 向量加法。将当前向量与指定分量的向量相加
      * @param x 指定的向量的 x 分量。
      * @param y 指定的向量的 y 分量。
      * @param z 指定的向量的 z 分量。
@@ -797,7 +797,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 向量减法。将当前向量减去指定向量的结果。
+     * @zh 向量减法。将当前向量减去指定向量的结果。
      * @param other 减数向量。
      */
     public subtract (other: Vec3) {
@@ -808,7 +808,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 向量减法。将当前向量减去指定分量的向量
+     * @zh 向量减法。将当前向量减去指定分量的向量
      * @param x 指定的向量的 x 分量。
      * @param y 指定的向量的 y 分量。
      * @param z 指定的向量的 z 分量。
@@ -821,7 +821,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 向量数乘。将当前向量数乘指定标量
+     * @zh 向量数乘。将当前向量数乘指定标量
      * @param scalar 标量乘数。
      */
     public multiplyScalar (scalar: number) {
@@ -833,7 +833,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 向量乘法。将当前向量乘以与指定向量的结果赋值给当前向量。
+     * @zh 向量乘法。将当前向量乘以与指定向量的结果赋值给当前向量。
      * @param other 指定的向量。
      */
     public multiply (other: Vec3) {
@@ -845,7 +845,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 向量乘法。将当前向量与指定分量的向量相乘的结果赋值给当前向量。
+     * @zh 向量乘法。将当前向量与指定分量的向量相乘的结果赋值给当前向量。
      * @param x 指定的向量的 x 分量。
      * @param y 指定的向量的 y 分量。
      * @param z 指定的向量的 z 分量。
@@ -858,7 +858,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 向量逐元素相除。将当前向量与指定分量的向量相除的结果赋值给当前向量。
+     * @zh 向量逐元素相除。将当前向量与指定分量的向量相除的结果赋值给当前向量。
      * @param other 指定的向量
      */
     public divide (other: Vec3) {
@@ -869,7 +869,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 向量逐元素相除。将当前向量与指定分量的向量相除的结果赋值给当前向量。
+     * @zh 向量逐元素相除。将当前向量与指定分量的向量相除的结果赋值给当前向量。
      * @param x 指定的向量的 x 分量。
      * @param y 指定的向量的 y 分量。
      * @param z 指定的向量的 z 分量。
@@ -882,7 +882,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 将当前向量的各个分量取反
+     * @zh 将当前向量的各个分量取反
      */
     public negative () {
         this.x = -this.x;
@@ -892,7 +892,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 设置当前向量的值，使其各个分量都处于指定的范围内。
+     * @zh 设置当前向量的值，使其各个分量都处于指定的范围内。
      * @param minInclusive 每个分量都代表了对应分量允许的最小值。
      * @param maxInclusive 每个分量都代表了对应分量允许的最大值。
      * @returns `this`
@@ -905,7 +905,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 向量点乘。
+     * @zh 向量点乘。
      * @param other 指定的向量。
      * @returns 当前向量与指定向量点乘的结果。
      */
@@ -914,7 +914,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 向量叉乘。将当前向量左叉乘指定向量
+     * @zh 向量叉乘。将当前向量左叉乘指定向量
      * @param other 指定的向量。
      */
     public cross (other: Vec3) {
@@ -928,7 +928,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 计算向量的长度（模）。
+     * @zh 计算向量的长度（模）。
      * @returns 向量的长度（模）。
      */
     public length () {
@@ -936,7 +936,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 计算向量长度（模）的平方。
+     * @zh 计算向量长度（模）的平方。
      * @returns 向量长度（模）的平方。
      */
     public lengthSqr () {
@@ -944,7 +944,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 将当前向量归一化
+     * @zh 将当前向量归一化
      */
     public normalize () {
         _x = this.x;
@@ -962,8 +962,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * 将当前向量视为 w 分量为 1 的四维向量，
-     * 应用四维矩阵变换到当前矩阵
+     * @zh 将当前向量视为 w 分量为 1 的四维向量，应用四维矩阵变换到当前矩阵
      * @param matrix 变换矩阵。
      */
     public transformMat4 (matrix: Mat4) {

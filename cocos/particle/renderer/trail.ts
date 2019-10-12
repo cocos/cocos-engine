@@ -357,7 +357,7 @@ export default class TrailModule {
 
     public destroy () {
         if (this._trailModel) {
-            this._particleSystem._getRenderScene().destroyModel(this._trailModel!);
+            this._trailModel.scene.destroyModel(this._trailModel);
             this._trailModel = null;
         }
         if (this._trailSegments) {

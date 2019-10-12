@@ -162,8 +162,7 @@ export class RenderView {
     private _flows: RenderFlow[] = [];
 
     /**
-     * @zh
-     * 构造函数。
+     * 构造函数。<br/>
      * @param root Root类实例。
      * @param camera 相机。
      */

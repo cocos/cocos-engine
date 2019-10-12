@@ -75,8 +75,9 @@ export default class sphere {
     }
 
     /**
-     * Set the components of a sphere to the given values
-     *
+     * @en Set the components of a sphere to the given values
+     * @zh 将球体的属性设置为给定的值。
+     * 
      * @param {sphere} out 接受操作的 sphere。
      * @param cx 形状的相对于原点的 X 坐标。
      * @param cy 形状的相对于原点的 Y 坐标。
@@ -110,9 +111,9 @@ export default class sphere {
 
     /**
      * 构造一个球。
-     * @param cx 形状的相对于原点的 X 坐标。
-     * @param cy 形状的相对于原点的 Y 坐标。
-     * @param cz 形状的相对于原点的 Z 坐标。
+     * @param cx 该球的世界坐标的 X 坐标。
+     * @param cy 该球的世界坐标的 Y 坐标。
+     * @param cz 该球的世界坐标的 Z 坐标。
      * @param {number} r 半径。
      */
     constructor (cx: number = 0, cy: number = 0, cz: number = 0, r: number = 1) {

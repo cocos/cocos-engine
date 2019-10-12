@@ -280,7 +280,9 @@ export class SpriteComponent extends UIRenderComponent {
      * sprite.fillStart = 0.5;
      * ```
      */
-    @property
+    @property({
+        range: [0, 1, 0.1]
+    })
     get fillStart () {
         return this._fillStart;
     }
@@ -303,7 +305,9 @@ export class SpriteComponent extends UIRenderComponent {
      * sprite.fillRange = 1;
      * ```
      */
-    @property
+    @property({
+        range: [0, 1, 0.1]
+    })
     get fillRange () {
         return this._fillRange;
     }
@@ -486,6 +490,7 @@ export class SpriteComponent extends UIRenderComponent {
                 this._renderData = this._assembler.createData(this);
                 this._renderData!.material = this._material;
                 this.markForUpdateRenderData();
+                this._updateColor();
             }
         }
     }

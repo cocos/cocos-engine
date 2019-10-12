@@ -73,8 +73,7 @@ function debounce (func: Function, wait: number, immediate?: boolean) {
 }
 
 /**
- * @zh
- * 富文本池。
+ * 富文本池。<br/>
  */
 const pool = new Pool((labelSeg: ILabelSegment) => {
     if (CC_EDITOR) {

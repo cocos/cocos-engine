@@ -27,7 +27,7 @@ import decodeUuid from '../utils/decode-uuid';
 import { Pipeline, IPipe } from './pipeline';
 
 const ID = 'SubPackPipe';
-const UuidRegex = /([^/\\]*)\.[^\.]*$/;
+const UuidRegex = /.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-@]{8,}).*/;
 
 function getUuidFromURL(url) {
     let matches = url.match(UuidRegex);

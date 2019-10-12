@@ -378,10 +378,10 @@ export class Pipeline {
      * @en Removes an completed item in pipeline.
      * It will only remove the cache in the pipeline or loader, its dependencies won't be released.
      * cc.loader provided another method to completely cleanup the resource and its dependencies,
-     * please refer to {{#crossLink "loader/release:method"}}cc.loader.release{{/crossLink}}
+     * please refer to [[CCLoader.release]]
      * @zh 移除指定的已完成 item。
      * 这将仅仅从 pipeline 或者 loader 中删除其缓存，并不会释放它所依赖的资源。
-     * cc.loader 中提供了另一种删除资源及其依赖的清理方法，请参考 {{#crossLink "loader/release:method"}}cc.loader.release{{/crossLink}}
+     * cc.loader 中提供了另一种删除资源及其依赖的清理方法，请参考 [[CCLoader.release]]
      * @method removeItem
      * @param {Object} id The id of the item
      * @return {Boolean} succeed or not

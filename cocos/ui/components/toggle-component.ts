@@ -126,7 +126,7 @@ export class ToggleComponent extends ButtonComponent {
      * Toggle 按钮的点击事件列表。
      */
     @property({
-        type: ComponentEventHandler,
+        type: [ComponentEventHandler],
     })
     public checkEvents: ComponentEventHandler[] = [];
     @property
