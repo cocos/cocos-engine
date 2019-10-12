@@ -69,9 +69,7 @@ test('life cycle logic for component', function () {
 test('component should call start before render when its node is actived', function() {
     var nodes = createNodes({
         child: {
-            childComp: {
-                extends: CallbackTester,
-            }
+            childComp: CallbackTester
         },
     });
     nodes.child.active = false;
