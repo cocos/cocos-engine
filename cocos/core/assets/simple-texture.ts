@@ -58,6 +58,10 @@ export class SimpleTexture extends TextureBase {
     protected _gfxTextureView: GFXTextureView | null = null;
     private _mipmapLevel = 1;
 
+    get mipmapLevel () {
+        return this._mipmapLevel;
+    }
+
     /**
      * 获取此贴图底层的 GFX 贴图对象。
      */
