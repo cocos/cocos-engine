@@ -3,7 +3,7 @@
  * @category particle
  */
 
-import { Color, Vec3, Mat4, Quat } from '../../core/math';
+import { Color, Vec3, Mat4, Quat, toRadian } from '../../core/math';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
@@ -22,6 +22,7 @@ import Particle from '../particle';
 // tslint:disable: max-line-length
 const PRE_TRIANGLE_INDEX = 1;
 const NEXT_TRIANGLE_INDEX = 1 << 2;
+const DIRECTION_THRESHOLD = Math.cos(toRadian(100));
 
 const _temp_trailEle = { position: new Vec3(), velocity: new Vec3() } as ITrailElement;
 const _temp_quat = new Quat();
@@ -38,6 +39,7 @@ interface ITrailElement {
     lifetime: number;
     width: number;
     velocity: Vec3;
+    direction: number; //if one element's direction differs from the previous one,it means the trail's direction reverse.
     color: Color;
 }
 
@@ -57,6 +59,7 @@ class TrailSegment {
                 lifetime: 0,
                 width: 0,
                 velocity: new Vec3(),
+                direction: 0,
                 color: new Color(),
             });
         }
@@ -90,6 +93,7 @@ class TrailSegment {
                 lifetime: 0,
                 width: 0,
                 velocity: new Vec3(),
+                direction: 0,
                 color: new Color(),
             });
             this.start++;
@@ -446,6 +450,8 @@ export default class TrailModule {
             if (Vec3.equals(Vec3.ZERO, lastSecondTrail.velocity)) {
                 Vec3.copy(lastSecondTrail.velocity, _temp_vec3);
             }
+            Vec3.normalize(lastSecondTrail.velocity, lastSecondTrail.velocity);
+            this._checkDirectionReverse(lastSecondTrail, lastThirdTrail);
         }
         if (this.colorFromParticle) {
             lastSeg.color.set(p.color);
@@ -488,7 +494,7 @@ export default class TrailModule {
             } else {
                 Vec3.copy(_temp_trailEle.position, p.position);
             }
-            if (trailNum === 1) {
+            if (trailNum === 1 || trailNum === 2) {
                 const lastSecondTrail = trailSeg.getElement(trailSeg.end - 1)!;
                 Vec3.subtract(lastSecondTrail.velocity, _temp_trailEle.position, lastSecondTrail.position);
                 this._vbF32![this.vbOffset - this._vertSize / 4 - 4] = lastSecondTrail.velocity.x;
@@ -498,12 +504,15 @@ export default class TrailModule {
                 this._vbF32![this.vbOffset - 3] = lastSecondTrail.velocity.y;
                 this._vbF32![this.vbOffset - 2] = lastSecondTrail.velocity.z;
                 Vec3.subtract(_temp_trailEle.velocity, _temp_trailEle.position, lastSecondTrail.position);
+                this._checkDirectionReverse(_temp_trailEle, lastSecondTrail);
             } else if (trailNum > 2) {
                 const lastSecondTrail = trailSeg.getElement(trailSeg.end - 1)!;
                 const lastThirdTrail = trailSeg.getElement(trailSeg.end - 2)!;
                 Vec3.subtract(_temp_vec3, lastThirdTrail.position, lastSecondTrail.position);
                 Vec3.subtract(_temp_vec3_1, _temp_trailEle.position, lastSecondTrail.position);
                 Vec3.subtract(lastSecondTrail.velocity, _temp_vec3_1, _temp_vec3);
+                Vec3.normalize(lastSecondTrail.velocity, lastSecondTrail.velocity);
+                this._checkDirectionReverse(lastSecondTrail, lastThirdTrail);
                 this._vbF32![this.vbOffset - this._vertSize / 4 - 4] = lastSecondTrail.velocity.x;
                 this._vbF32![this.vbOffset - this._vertSize / 4 - 3] = lastSecondTrail.velocity.y;
                 this._vbF32![this.vbOffset - this._vertSize / 4 - 2] = lastSecondTrail.velocity.z;
@@ -511,6 +520,8 @@ export default class TrailModule {
                 this._vbF32![this.vbOffset - 3] = lastSecondTrail.velocity.y;
                 this._vbF32![this.vbOffset - 2] = lastSecondTrail.velocity.z;
                 Vec3.subtract(_temp_trailEle.velocity, _temp_trailEle.position, lastSecondTrail.position);
+                Vec3.normalize(_temp_trailEle.velocity, _temp_trailEle.velocity);
+                this._checkDirectionReverse(_temp_trailEle, lastSecondTrail);
             }
             _temp_trailEle.width = p.size.x;
             _temp_trailEle.color = p.color;
@@ -605,7 +616,7 @@ export default class TrailModule {
         this._vbF32![this.vbOffset++] = trailSeg.position.x;
         this._vbF32![this.vbOffset++] = trailSeg.position.y;
         this._vbF32![this.vbOffset++] = trailSeg.position.z;
-        this._vbF32![this.vbOffset++] = 0;
+        this._vbF32![this.vbOffset++] = trailSeg.direction;
         this._vbF32![this.vbOffset++] = trailSeg.width;
         this._vbF32![this.vbOffset++] = xTexCoord;
         this._vbF32![this.vbOffset++] = 0;
@@ -622,7 +633,7 @@ export default class TrailModule {
         this._vbF32![this.vbOffset++] = trailSeg.position.x;
         this._vbF32![this.vbOffset++] = trailSeg.position.y;
         this._vbF32![this.vbOffset++] = trailSeg.position.z;
-        this._vbF32![this.vbOffset++] = 1;
+        this._vbF32![this.vbOffset++] = 1 - trailSeg.direction;
         this._vbF32![this.vbOffset++] = trailSeg.width;
         this._vbF32![this.vbOffset++] = xTexCoord;
         this._vbF32![this.vbOffset++] = 1;
@@ -643,6 +654,14 @@ export default class TrailModule {
             this._iBuffer![this.ibOffset++] = indexOffset + 2 * trailEleIdx;
             this._iBuffer![this.ibOffset++] = indexOffset + 2 * trailEleIdx + 1;
             this._iBuffer![this.ibOffset++] = indexOffset + 2 * trailEleIdx + 2;
+        }
+    }
+
+    private _checkDirectionReverse (currElement: ITrailElement, prevElement: ITrailElement) {
+        if (Vec3.dot(currElement.velocity, prevElement.velocity) < DIRECTION_THRESHOLD) {
+            currElement.direction = 1 - prevElement.direction;
+        } else {
+            currElement.direction = prevElement.direction;
         }
     }
 }
