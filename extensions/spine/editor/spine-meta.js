@@ -110,8 +110,6 @@ class TextureParser {
     }
 }
 
-const RAW_SKELETON_FILE = 'raw-skeleton.json';
-
 class SpineMeta extends CustomAssetMeta {
     constructor (assetdb) {
         super(assetdb);
@@ -121,12 +119,10 @@ class SpineMeta extends CustomAssetMeta {
 
     // HACK - for inspector
     get texture () {
-        //return this.textures[0];
         return Editor.assetdb.uuidToUrl(this.textures[0]);
     }
     set texture (value) {
         this.textures[0] = Editor.assetdb.urlToUuid(value);
-        //this.textures[0] = value;
     }
 
     static version () { return '1.2.2'; }
