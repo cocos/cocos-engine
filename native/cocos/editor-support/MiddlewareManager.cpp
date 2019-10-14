@@ -78,9 +78,9 @@ void MiddlewareManager::update(float dt)
 {
     isUpdating = true;
     
-    for (auto it = _updateList.begin(); it != _updateList.end(); it++)
+    for (std::size_t i = 0, n = _updateList.size(); i < n; i++)
     {
-        auto editor = *it;
+        auto editor = _updateList[i];
         if (_removeList.size() > 0)
         {
             auto removeIt = std::find(_removeList.begin(), _removeList.end(), editor);
@@ -113,9 +113,9 @@ void MiddlewareManager::render(float dt)
     
     isRendering = true;
     
-    for (auto it = _updateList.begin(); it != _updateList.end(); it++)
+    for (std::size_t i = 0, n = _updateList.size(); i < n; i++)
     {
-        auto editor = *it;
+        auto editor = _updateList[i];
         if (_removeList.size() > 0)
         {
             auto removeIt = std::find(_removeList.begin(), _removeList.end(), editor);
