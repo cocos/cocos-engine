@@ -226,7 +226,6 @@ function createInvokeImpl (indiePath, useDt, ensureFlag, fastPath) {
         catch (e) {
             // slow path
             cc._throw(e);
-            cc.error(e);
             var array = iterator.array;
             if (ensureFlag) {
                 array[iterator.i]._objFlags |= ensureFlag;
