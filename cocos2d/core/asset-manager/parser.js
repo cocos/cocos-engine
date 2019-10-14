@@ -30,7 +30,6 @@
 const plistParser = require('../platform/CCSAXParser').plistParser;
 const js = require('../platform/js');
 const deserialize = require('./deserialize');
-const downloader = require('./downloader');
 const Cache = require('./cache');
 const { isScene } = require('./helper');
 const { parsed, files } = require('./shared');
@@ -75,11 +74,7 @@ var parser = {
             createImageBitmap(file).then(function (result) {
                 onComplete && onComplete(null, result);
             }, function (err) {
-                var url = URL.createObjectURL(file);
-                downloader.downloadDomImage(url, null, function (err, img) {
-                    URL.revokeObjectURL(url);
-                    onComplete && onComplete(err, img);
-                });
+                onComplete && onComplete(err, null);
             });
         }
         else {
