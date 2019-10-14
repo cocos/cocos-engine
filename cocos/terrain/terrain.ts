@@ -250,6 +250,7 @@ export class TerrainBlock {
             attributes: gfxAttributes,
             vertexBuffers: [vertexBuffer],
             indexBuffer : this._terrain.getSharedIndexBuffer(),
+            flatBuffers : [],
             primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
         };
 
