@@ -11,7 +11,9 @@ import { calculateTransform } from '../particle-general-function';
 import CurveRange from './curve-range';
 
 // tslint:disable: max-line-length
-const VELOCITY_OVERTIME_RAND_OFFSET = 197866;
+const VELOCITY_X_OVERTIME_RAND_OFFSET = 197866;
+const VELOCITY_Y_OVERTIME_RAND_OFFSET = 156497;
+const VELOCITY_Z_OVERTIME_RAND_OFFSET = 984136;
 
 const _temp_v3 = new Vec3();
 
@@ -90,13 +92,13 @@ export default class VelocityOvertimeModule {
 
     public animate (p: Particle) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const vel = Vec3.set(_temp_v3, this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET))!, this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET))!, this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET))!);
+        const vel = Vec3.set(_temp_v3, this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET))!, this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_Y_OVERTIME_RAND_OFFSET))!, this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_Z_OVERTIME_RAND_OFFSET))!);
         if (this.needTransform) {
             Vec3.transformQuat(vel, vel, this.rotation);
         }
         Vec3.add(p.animatedVelocity, p.animatedVelocity, vel);
         Vec3.add(p.ultimateVelocity, p.velocity, p.animatedVelocity);
-        Vec3.multiplyScalar(p.ultimateVelocity, p.ultimateVelocity, this.speedModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed + VELOCITY_OVERTIME_RAND_OFFSET))!);
+        Vec3.multiplyScalar(p.ultimateVelocity, p.ultimateVelocity, this.speedModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed + VELOCITY_X_OVERTIME_RAND_OFFSET))!);
     }
 
 }
