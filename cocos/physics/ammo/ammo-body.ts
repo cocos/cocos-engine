@@ -109,13 +109,8 @@ export class AmmoRigidBody implements RigidBodyBase {
         throw new Error("Method not implemented.");
     }
 
-    get impl (): Ammo.btRigidBody {
-        return this._ammoBody;
-    }
     private static ID_COUNTER = 0;
 
-    private _ammoBody!: Ammo.btRigidBody;
-    private _compoundShape!: Ammo.btCompoundShape;
     private _id: number = -1;
     private _worldPosition = new Vec3(0, 0, 0);
     private _worldRotation = new Quat();
@@ -151,21 +146,10 @@ export class AmmoRigidBody implements RigidBodyBase {
 
     private _motionState!: Ammo.btDefaultMotionState;
 
-    public addShape (shape_: ShapeBase) {
-        const shape = shape_ as AmmoShape;
-        shape._setBody(this.impl);
-        this._shapes.push(shape);
-        this.commitShapeUpdates();
+    public addShape (shape_: ShapeBase) {        
     }
 
     public removeShape (shape_: ShapeBase) {
-        const shape = shape_ as AmmoShape;
-        shape._setBody(null);
-        const iShape = this._shapes.indexOf(shape);
-        if (iShape >= 0) {
-            this._shapes.splice(iShape, 1);
-        }
-        this.commitShapeUpdates();
     }
 
     public commitShapeUpdates () {
@@ -184,7 +168,7 @@ export class AmmoRigidBody implements RigidBodyBase {
             this._world.impl.removeRigidBody(this.impl);
         }
         const localInertia = new Ammo.btVector3(0, 0, 0);
-        this._compoundShape.calculateLocalInertia(this._mass, localInertia);
+        this.ammoCompoundShape.calculateLocalInertia(this._mass, localInertia);
         this._ammoBody.setMassProps(this._mass, localInertia);
         if (this._world) {
             this._world.impl.addRigidBody(this.impl);
@@ -389,11 +373,11 @@ export class AmmoRigidBody implements RigidBodyBase {
     }
 
     private _reconstructCompoundShape () {
-        this._compoundShape = new Ammo.btCompoundShape();
-        for (const shape of this._shapes) {
-            this._compoundShape.addChildShape(shape.transform, shape.impl);
-        }
-        ++this._nReconstructBodyRequest;
+        // this._compoundShape = new Ammo.btCompoundShape();
+        // for (const shape of this._shapes) {
+        //     this._compoundShape.addChildShape(shape.transform, shape.impl);
+        // }
+        // ++this._nReconstructBodyRequest;
     }
 
     private _reconstructBody () {
@@ -410,10 +394,10 @@ export class AmmoRigidBody implements RigidBodyBase {
         transform.setRotation(this._ammoWorldRotationBuffer);
 
         const localInertia = new Ammo.btVector3(0, 0, 0);
-        this._compoundShape.calculateLocalInertia(this._mass, localInertia);
+        this.ammoCompoundShape.calculateLocalInertia(this._mass, localInertia);
 
         this._motionState = new Ammo.btDefaultMotionState(transform);
-        const rigidBodyConstructionInfo = new Ammo.btRigidBodyConstructionInfo(this._mass, this._motionState, this._compoundShape, localInertia);
+        const rigidBodyConstructionInfo = new Ammo.btRigidBodyConstructionInfo(this._mass, this._motionState, this.ammoCompoundShape, localInertia);
         this._ammoBody = new Ammo.btRigidBody(rigidBodyConstructionInfo);
         this._ammoBody.setUserIndex(this._id);
 
@@ -465,6 +449,12 @@ export class AmmoRigidBody implements RigidBodyBase {
 
     rigidBody!: RigidBodyComponent;
 
+    get impl (): Ammo.btRigidBody {
+        return this._ammoBody;
+    }
+    private _ammoBody!: Ammo.btRigidBody;
+    public ammoCompoundShape!: Ammo.btCompoundShape;
+
     constructor () {
         // this._transformBuffer.setIdentity();
         // this._ammoTransform.setIdentity();
@@ -491,16 +481,17 @@ export class AmmoRigidBody implements RigidBodyBase {
 
     public onLoad () {
         /** 构造复合形状 */
-        this._compoundShape = new Ammo.btCompoundShape(true);
+        this.ammoCompoundShape = new Ammo.btCompoundShape(true);
 
         /** 添加子形状 */
         let allColliders = this.rigidBody.getComponents(ColliderComponent);
         for (let i = 0; i < allColliders.length; i++) {
             if (!allColliders[i].isTrigger) {
-                var lt = new Ammo.btTransform();
-                lt.setIdentity();
+                const ammoShape = (allColliders[i] as any)._shapeBase as AmmoShape;
+                const lt = ammoShape.localTransform;                
                 Cocos2AmmoVec3(lt.getOrigin(), allColliders[i].center);
-                this._compoundShape.addChildShape(lt, (allColliders[i] as any)._shapeBase.impl);
+                Cocos2AmmoVec3(ammoShape.impl.getLocalScaling(), allColliders[i].node.worldScale);
+                this.ammoCompoundShape.addChildShape(lt, (allColliders[i] as any)._shapeBase.impl);
             }
         }
 
@@ -510,9 +501,9 @@ export class AmmoRigidBody implements RigidBodyBase {
         Cocos2AmmoVec3(st.getOrigin(), this.rigidBody.node.worldPosition);
         Cocos2AmmoQuat(st.getRotation(), this.rigidBody.node.worldRotation);
         var localInertia = new Ammo.btVector3(0, 0, 0);
-        this._compoundShape.calculateLocalInertia(this.rigidBody.mass, localInertia);
+        this.ammoCompoundShape.calculateLocalInertia(this.rigidBody.mass, localInertia);
         var myMotionState = new Ammo.btDefaultMotionState(st);
-        var rbInfo = new Ammo.btRigidBodyConstructionInfo(this.rigidBody.mass, myMotionState, this._compoundShape, localInertia);
+        var rbInfo = new Ammo.btRigidBodyConstructionInfo(this.rigidBody.mass, myMotionState, this.ammoCompoundShape, localInertia);
         rbInfo.m_linearDamping = this.rigidBody.linearDamping;
         rbInfo.m_angularDamping = this.rigidBody.angularDamping;
         this._ammoBody = new Ammo.btRigidBody(rbInfo);

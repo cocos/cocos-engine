@@ -50,7 +50,7 @@ export class AmmoBoxShape extends AmmoShape implements BoxShapeBase {
         halfExtents.multiplyScalar(0.5);
         this._ammoShape = new Ammo.btBoxShape(new Ammo.btVector3(halfExtents.x, halfExtents.y, halfExtents.z));
         /** 初始化Box形状属性 */
-
+        // this._ammoShape.getLocalScaling()
     }
 
     public onLoad () {
@@ -64,70 +64,6 @@ export class AmmoBoxShape extends AmmoShape implements BoxShapeBase {
     public onEnable () {
         super.onEnable();
 
-        // if (this.collider.isTrigger) {
-        //     const key = this.collider.node.uuid + '1';
-        //     let co: Ammo.btCollisionObject;
-        //     if (CollisionObjectPool[key]) {
-        //         co = CollisionObjectPool[key] as Ammo.btCollisionObject;
-        //     } else {
-        //         co = CollisionObjectPool[key] = new Ammo.btCollisionObject();
-        //         co.setCollisionFlags(AmmoCollisionFlags.CF_NO_CONTACT_RESPONSE);
-        //     }
-        //     co.setCollisionShape(this.impl);
-        // } else {
-        //     let rigidBody = this.collider.getComponent(RigidBodyComponent);
-        //     if (rigidBody) {
-        //         let ammoBody = (rigidBody as any)._impl as AmmoRigidBody;
-        //         ammoBody.impl.setCollisionShape(this.impl);
-        //     } else {
-        //         const key = this.collider.node.uuid + '0';
-        //         let co: Ammo.btCollisionObject;
-        //         if (CollisionObjectPool[key]) {
-        //             co = CollisionObjectPool[key] as Ammo.btCollisionObject;
-        //         } else {
-        //             co = CollisionObjectPool[key] = new Ammo.btCollisionObject();
-        //         }
-        //         co.setCollisionShape(this.impl);
-        //     }
-        // }
-
-        if (this.collider.isTrigger) {
-            const key = this.collider.node.uuid + '1';
-            let co: Ammo.btRigidBody;
-            if (CollisionObjectPool[key]) {
-                co = CollisionObjectPool[key] as Ammo.btRigidBody;
-            } else {
-                co = CollisionObjectPool[key] = new Ammo.btRigidBody(defaultRigidBodyInfo);
-                co.setCollisionFlags(AmmoCollisionFlags.CF_NO_CONTACT_RESPONSE);
-            }
-            co.setCollisionShape(this.impl);
-
-            AmmoWorld.instance.impl.addRigidBody(co);
-        } else {
-            let rigidBody = this.collider.getComponent(RigidBodyComponent);
-            if (rigidBody) {
-                // let ammoBody = (rigidBody as any)._impl as AmmoRigidBody;
-                // ammoBody.impl.setCollisionShape(this.impl);
-            } else {
-                const key = this.collider.node.uuid + '0';
-                let co: Ammo.btRigidBody;
-                if (CollisionObjectPool[key]) {
-                    co = CollisionObjectPool[key] as Ammo.btRigidBody;
-                } else {
-                    /** 单形状 */
-                    let wt = new Ammo.btTransform();
-                    wt.setIdentity();
-                    Cocos2AmmoVec3(wt.getOrigin(), this.collider.node.worldPosition);
-                    Cocos2AmmoQuat(wt.getRotation(), this.collider.node.worldRotation);
-                    
-                    const defaultInertia = new Ammo.btVector3(0, 0, 0);
-                    const defaultMotionState = new Ammo.btDefaultMotionState(wt);
-                    const defaultRigidBodyInfo = new Ammo.btRigidBodyConstructionInfo(0, defaultMotionState, this.impl, defaultInertia);
-                    co = CollisionObjectPool[key] = new Ammo.btRigidBody(defaultRigidBodyInfo);
-                }
-                AmmoWorld.instance.impl.addRigidBody(co);
-            }
-        }
     }
 
     public onDisable () {
@@ -135,5 +71,3 @@ export class AmmoBoxShape extends AmmoShape implements BoxShapeBase {
     }
 
 }
-
-var CollisionObjectPool = {};

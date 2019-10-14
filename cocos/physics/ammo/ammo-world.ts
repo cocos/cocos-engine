@@ -5,6 +5,8 @@ import { AmmoRigidBody } from "./ammo-body";
 import { AmmoDebugger } from "./ammo-debugger";
 import { RaycastResult } from "../raycast-result";
 import { PhysicsSystem } from '../components';
+import { AmmoCollisionFlags } from './ammo-enum';
+import { AmmoShape } from './shapes/ammo-shape';
 
 export class AmmoWorld implements PhysicsWorldBase {
     defaultMaterial: any;
@@ -33,6 +35,11 @@ export class AmmoWorld implements PhysicsWorldBase {
         return PhysicsSystem.instance._world as AmmoWorld;
     }
 
+    public readonly sharedStaticCompoundShape: Ammo.btCompoundShape;
+    public readonly sharedStaticBody: Ammo.btRigidBody;
+    public readonly sharedTriggerCompoundShape: Ammo.btCompoundShape;
+    public readonly sharedTriggerBody: Ammo.btRigidBody;
+
     private _ammoWorld: Ammo.btDiscreteDynamicsWorld;
     private _customBeforeStepListener: Function[] = [];
     private _customAfterStepListener: Function[] = [];
@@ -53,6 +60,10 @@ export class AmmoWorld implements PhysicsWorldBase {
 
     public readonly bodys: AmmoRigidBody[] = [];
 
+    public readonly staticShapes: AmmoShape[] = [];
+
+    public readonly triggerShapes: AmmoShape[] = [];
+
     constructor (options?: any) {
         const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
         const dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
@@ -61,6 +72,30 @@ export class AmmoWorld implements PhysicsWorldBase {
         const solver = new Ammo.btSequentialImpulseConstraintSolver();
         this._ammoWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
         this._ammoWorld.setGravity(new Ammo.btVector3(this._gravity.x, this._gravity.y, this._gravity.z));
+
+        /** static body */
+        {
+            this.sharedStaticCompoundShape = new Ammo.btCompoundShape(true);
+            let localInertia = new Ammo.btVector3(0, 0, 0);
+            this.sharedStaticCompoundShape.calculateLocalInertia(0, localInertia);
+            let myMotionState = new Ammo.btDefaultMotionState();
+            let rbInfo = new Ammo.btRigidBodyConstructionInfo(0, myMotionState, this.sharedStaticCompoundShape, localInertia);
+            this.sharedStaticBody = new Ammo.btRigidBody(rbInfo);
+            this._ammoWorld.addRigidBody(this.sharedStaticBody);
+        }
+
+        /** trigger body */
+        {
+            this.sharedTriggerCompoundShape = new Ammo.btCompoundShape(true);
+            let localInertia = new Ammo.btVector3(0, 0, 0);
+            this.sharedStaticCompoundShape.calculateLocalInertia(0, localInertia);
+            let myMotionState = new Ammo.btDefaultMotionState();
+            let rbInfo = new Ammo.btRigidBodyConstructionInfo(0, myMotionState, this.sharedStaticCompoundShape, localInertia);
+            this.sharedTriggerBody = new Ammo.btRigidBody(rbInfo);
+            this.sharedTriggerBody.setCollisionFlags(AmmoCollisionFlags.CF_NO_CONTACT_RESPONSE);
+            this._ammoWorld.addRigidBody(this.sharedTriggerBody);
+        }
+
     }
 
     public destroy () {
@@ -72,6 +107,18 @@ export class AmmoWorld implements PhysicsWorldBase {
 
         for (let i = 0; i < this.bodys.length; i++) {
             this.bodys[i].beforeStep();
+        }
+
+        for (let i = 0; i < this.staticShapes.length; i++) {
+            if (this.staticShapes[i].collider.node.hasChangedFlags) {
+                this.staticShapes[i].beforeStep();
+            }
+        }
+
+        for (let i = 0; i < this.triggerShapes.length; i++) {
+            if (this.triggerShapes[i].collider.node.hasChangedFlags) {
+                this.triggerShapes[i].beforeStep();
+            }
         }
 
         this._ammoWorld.stepSimulation(deltaTime, maxSubStep, time);
