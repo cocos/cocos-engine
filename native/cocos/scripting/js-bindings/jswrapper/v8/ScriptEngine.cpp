@@ -633,8 +633,10 @@ namespace se {
             sourceUrl = sourceUrl.substr(prefixPos + prefixKey.length());
         }
 
-        std::string scriptStr(script, length);
+        // It is needed, or will crash if invoked from non C++ context, such as invoked from objective-c context(for example, handler of UIKit).
+        v8::HandleScope handle_scope(_isolate);
 
+        std::string scriptStr(script, length);
         v8::MaybeLocal<v8::String> source = v8::String::NewFromUtf8(_isolate, scriptStr.c_str(), v8::NewStringType::kNormal);
         if (source.IsEmpty())
             return false;
