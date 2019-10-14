@@ -570,10 +570,6 @@ let Label = cc.Class({
         this._super();
     },
 
-    _lazyUpdateRenderData () {
-        this.setVertsDirty();  
-    },
-
     _updateColor () {
         if (!(this.font instanceof cc.BitmapFont)) {
             this.setVertsDirty();
