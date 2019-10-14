@@ -137,8 +137,7 @@ export default class Assembler2D extends Assembler {
         if (material.getProperty('texture') !== frame._texture) {
             // texture was packed to dynamic atlas, should update uvs
             comp._vertsDirty = true;
-
-            comp._activateMaterial(true);
+            comp._updateMaterial();
         }
     }
 }

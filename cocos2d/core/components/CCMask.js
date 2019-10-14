@@ -168,7 +168,9 @@ let Mask = cc.Class({
                     }
                 }
                 this._spriteFrame = value;
-                this._applySpriteFrame(lastSprite);
+                
+                this.setVertsDirty();
+                this._updateMaterial();
             },
         },
 
@@ -200,10 +202,7 @@ let Mask = cc.Class({
                     cc.warnID(4201);
                     return;
                 }
-                let material = this.sharedMaterials[0];
-                if (material) {
-                    material.setProperty('alphaThreshold', this.alphaThreshold);
-                }
+                this._updateMaterial();
             }
         },
 
@@ -261,28 +260,14 @@ let Mask = cc.Class({
         Type: MaskType,
     },
 
-    onLoad () {
-        this._createGraphics();
-    },
-
     onRestore () {
-        this._createGraphics();
-        if (this._type !== MaskType.IMAGE_STENCIL) {
-            this._updateGraphics();
-        }
-        else {
-            this._applySpriteFrame();
-        }
+        this._activateMaterial();
     },
 
     onEnable () {
         this._super();
-        if (this._type === MaskType.IMAGE_STENCIL) {
-            this._applySpriteFrame();
-        }
-        else {
+        if (this._type !== MaskType.IMAGE_STENCIL) {
             this._updateGraphics();
-            this._activateMaterial();
         }
 
         this.node.on(cc.Node.EventType.POSITION_CHANGED, this._updateGraphics, this);
@@ -290,8 +275,6 @@ let Mask = cc.Class({
         this.node.on(cc.Node.EventType.SCALE_CHANGED, this._updateGraphics, this);
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._updateGraphics, this);
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._updateGraphics, this);
-
-        this.node._renderFlag |= RenderFlow.FLAG_POST_RENDER;
     },
 
     onDisable () {
@@ -318,22 +301,6 @@ let Mask = cc.Class({
         }
     },
 
-    _onTextureLoaded () {
-        this.setVertsDirty();
-        this._activateMaterial();
-    },
-
-    _applySpriteFrame (oldFrame) {
-        if (oldFrame && oldFrame.off) {
-            oldFrame.off('load', this._onTextureLoaded, this);
-        }
-        this.disableRender();
-        let spriteFrame = this._spriteFrame;
-        if (spriteFrame) {
-            spriteFrame.onTextureLoaded(this._onTextureLoaded, this);
-        }
-    },
-
     _validateRender () {
         if (this._type !== MaskType.IMAGE_STENCIL) return;
 
@@ -348,58 +315,59 @@ let Mask = cc.Class({
     },
 
     _activateMaterial () {
-        // cannot be activated if texture not loaded yet
-        if (this._type === MaskType.IMAGE_STENCIL && (!this.spriteFrame || !this.spriteFrame.textureLoaded())) {
-            this.markForRender(false);
-            return;
-        }
-
-        // WebGL
-        if (cc.game.renderType !== cc.game.RENDER_TYPE_CANVAS) {
-            // Init material
-            let material = this.sharedMaterials[0];
-            if (!material) {
-                material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
-            }
-            else {
-                material = Material.getInstantiatedMaterial(material, this);
-            }
-
-            material.define('USE_ALPHA_TEST', true);
-
-            // Reset material
-            if (this._type === MaskType.IMAGE_STENCIL) {
-                let texture = this.spriteFrame.getTexture();
-                material.define('CC_USE_MODEL', false);
-                material.define('USE_TEXTURE', true);
-
-                material.setProperty('texture', texture);
-                material.setProperty('alphaThreshold', this.alphaThreshold);
-            }
-            else {
-                material.define('CC_USE_MODEL', true);
-                material.define('USE_TEXTURE', false);
-            }
-
-            if (!this._enableMaterial) {
-                this._enableMaterial = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
-            }
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) return;
         
-            if (!this._exitMaterial) {
-                this._exitMaterial = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
-                this._exitMaterial.effect.setStencilEnabled(gfx.STENCIL_DISABLE);
-            }
-
-            if (!this._clearMaterial) {
-                this._clearMaterial = Material.getInstantiatedBuiltinMaterial('clear-stencil', this);
-            }
-
-            this.setMaterial(0, material);
-
-            this._graphics && (this._graphics.sharedMaterials[0] = material);
+        // Init material
+        let material = this.sharedMaterials[0];
+        if (!material) {
+            material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
+        }
+        else {
+            material = Material.getInstantiatedMaterial(material, this);
         }
 
-        this.markForRender(true);
+        material.define('USE_ALPHA_TEST', true);
+
+        // Reset material
+        if (this._type === MaskType.IMAGE_STENCIL) {
+            material.define('CC_USE_MODEL', false);
+            material.define('USE_TEXTURE', true);
+        }
+        else {
+            material.define('CC_USE_MODEL', true);
+            material.define('USE_TEXTURE', false);
+        }
+
+        if (!this._enableMaterial) {
+            this._enableMaterial = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
+        }
+    
+        if (!this._exitMaterial) {
+            this._exitMaterial = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
+            this._exitMaterial.effect.setStencilEnabled(gfx.STENCIL_DISABLE);
+        }
+
+        if (!this._clearMaterial) {
+            this._clearMaterial = Material.getInstantiatedBuiltinMaterial('clear-stencil', this);
+        }
+
+        this.setMaterial(0, material);
+
+        this._createGraphics();
+        this._graphics.sharedMaterials[0] = material
+
+        this._updateMaterial();
+    },
+
+    _updateMaterial () {
+        let material = this.sharedMaterials[0];
+        if (!material) return;
+
+        if (this._type === MaskType.IMAGE_STENCIL && this.spriteFrame) {
+            let texture = this.spriteFrame.getTexture();
+            material.setProperty('texture', texture);
+        }
+        material.setProperty('alphaThreshold', this.alphaThreshold);
     },
 
     _createGraphics () {
@@ -488,22 +456,13 @@ let Mask = cc.Class({
         return result;
     },
 
-    markForUpdateRenderData (enable) {
-        if (enable) {
-            this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
-        }
-        else if (!enable) {
-            this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
-        }
-    },
-
     markForRender (enable) {
+        let flag = RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_POST_RENDER;
         if (enable) {
-            this.node._renderFlag |= (RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | 
-                                      RenderFlow.FLAG_POST_RENDER);
+            this.node._renderFlag |= flag;
         }
         else if (!enable) {
-            this.node._renderFlag &= ~(RenderFlow.FLAG_RENDER | RenderFlow.FLAG_POST_RENDER);
+            this.node._renderFlag &= ~flag;
         }
     },
 

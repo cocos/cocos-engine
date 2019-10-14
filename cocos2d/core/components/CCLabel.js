@@ -175,10 +175,10 @@ let Label = cc.Class({
         this._letterTexture = null;
 
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            this._activateMaterial = this._activateMaterialCanvas;
+            this._updateMaterial = this._updateMaterialCanvas;
         }
         else {
-            this._activateMaterial = this._activateMaterialWebgl;
+            this._updateMaterial = this._updateMaterialWebgl;
         }
     },
 
@@ -422,7 +422,7 @@ let Label = cc.Class({
 
                     this._resetAssembler();
                     this.setVertsDirty();
-                    this._applyFontTexture(true);
+                    this._applyFontTexture();
                 }
                 this.markForValidate();
             },
@@ -487,7 +487,7 @@ let Label = cc.Class({
 
                 this.setVertsDirty();
                 this._resetAssembler();
-                this._applyFontTexture(true);
+                this._applyFontTexture();
             },
             animatable: false
         },
@@ -621,8 +621,8 @@ let Label = cc.Class({
 
     _onBMFontTextureLoaded () {
         this._frame._texture = this.font.spriteFrame._texture;
-        this.markForValidate();
-        this._activateMaterial();
+        this.markForRender(true);
+        this._updateMaterial();
         this._assembler && this._assembler.updateRenderData(this);
     },
 
@@ -631,7 +631,6 @@ let Label = cc.Class({
         if (font instanceof cc.BitmapFont) {
             let spriteFrame = font.spriteFrame;
             this._frame = spriteFrame;
-            this.disableRender();
             if (spriteFrame) {
                 spriteFrame.onTextureLoaded(this._onBMFontTextureLoaded, this);
             }
@@ -655,41 +654,25 @@ let Label = cc.Class({
                 this._frame._refreshTexture(this._ttfTexture);
             }
             
-            this.markForValidate();
-            this._activateMaterial();
+            this._updateMaterial();
             this._assembler && this._assembler.updateRenderData(this);
         }
+        this.markForValidate();
     },
 
-    _activateMaterialCanvas () {
+    _updateMaterialCanvas () {
+        if (!this._frame) return;
         this._frame._texture.url = this.uuid + '_texture';
-
-        this.markForUpdateRenderData(true);
-        this.markForRender(true);
     },
 
-    _activateMaterialWebgl () {
-        // Label's texture is generated dynamically,
-        // we should always get a material instance for this label.
+    _updateMaterialWebgl () {
+        if (!this._frame) return;
         let material = this.sharedMaterials[0];
-
-        if (!material) {
-            material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
-        }
-        else {
-            material = Material.getInstantiatedMaterial(material, this);
-        }
-
-        material.setProperty('texture', this._frame._texture);
-        this.setMaterial(0, material);
-
-        this.markForUpdateRenderData(true);
-        this.markForRender(true);
+        material && material.setProperty('texture', this._frame._texture);
     },
 
     _forceUpdateRenderData () {
         this.setVertsDirty();
-        this._resetAssembler();
         this._applyFontTexture();
     },
 

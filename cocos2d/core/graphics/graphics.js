@@ -175,11 +175,6 @@ let Graphics = cc.Class({
         }
     },
 
-    onEnable () {
-        this._super();
-        this._activateMaterial();
-    },
-
     onDestroy () {
         this.clear(true);
         this._super();

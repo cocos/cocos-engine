@@ -1211,42 +1211,12 @@ var ParticleSystem = cc.Class({
         return true;
     },
 
-    _onTextureLoaded: function () {
-        this._texture = this._renderSpriteFrame.getTexture();
+    _applySpriteFrame () {
         this._simulator.updateUVs(true);
-        // Reactivate material
-        this._activateMaterial();
+        this._updateMaterial();
     },
 
-    _applySpriteFrame: function (oldFrame) {
-        if (oldFrame && oldFrame.off) {
-            oldFrame.off('load', this._onTextureLoaded, this);
-        }
-
-        let spriteFrame = this._renderSpriteFrame = this._renderSpriteFrame || this._spriteFrame;
-        if (spriteFrame) {
-            if (spriteFrame.textureLoaded()) {
-                this._onTextureLoaded(null);
-            }
-            else {
-                spriteFrame.once('load', this._onTextureLoaded, this);
-                spriteFrame.ensureLoadTexture();
-            }
-        }
-    },
-
-    _activateMaterial: function () {
-        if (!this._texture || !this._texture.loaded) {
-            this.markForUpdateRenderData(false);
-            this.markForRender(false);
-
-            if (this._renderSpriteFrame) {
-                this._applySpriteFrame();
-            }
-
-            return;
-        }
-
+    _activateMaterial () {
         let material = this.sharedMaterials[0];
         if (!material) {
             material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
@@ -1260,7 +1230,18 @@ var ParticleSystem = cc.Class({
         material.setProperty('texture', this._texture);
 
         this.setMaterial(0, material);
-        this.markForRender(true);
+
+        this._updateMaterial();
+    },
+
+    _updateMaterial () {
+        this._texture = this._renderSpriteFrame && this._renderSpriteFrame.getTexture();
+
+        let material = this.sharedMaterials[0];
+        if (!material) return;
+        
+        material.define('CC_USE_MODEL', this._positionType !== PositionType.FREE);
+        material.setProperty('texture', this._texture);
     },
     
     _finishedSimulation: function () {

@@ -64,7 +64,7 @@ let RenderComponent = cc.Class({
             },
             set (val) {
                 this._materials = val;
-                this._activateMaterial(true);
+                this._activateMaterial();
             },
             type: [Material],
             displayName: 'Materials',
@@ -85,6 +85,7 @@ let RenderComponent = cc.Class({
 
     __preload () {
         this._resetAssembler();
+        this._activateMaterial();
     },
 
     onEnable () {
@@ -92,9 +93,9 @@ let RenderComponent = cc.Class({
             this.node._renderComponent.enabled = false;
         }
         this.node._renderComponent = this;
-
         this.node._renderFlag |= RenderFlow.FLAG_OPACITY_COLOR;
-        this.markForValidate();
+        
+        this.setVertsDirty();
     },
 
     onDisable () {
@@ -112,7 +113,7 @@ let RenderComponent = cc.Class({
 
     setVertsDirty () {
         this._vertsDirty = true;
-        this.markForUpdateRenderData(true);
+        this.markForRender(true);
     },
 
     _on3DNodeChanged () {
@@ -131,21 +132,14 @@ let RenderComponent = cc.Class({
         cc.RenderFlow.registerValidate(this);
     },
 
-    markForUpdateRenderData (enable) {
-        if (enable) {
-            this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
-        }
-        else {
-            this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
-        }
-    },
-
     markForRender (enable) {
+        let flag = RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
         if (enable) {
-            this.node._renderFlag |= RenderFlow.FLAG_RENDER;
+            this.node._renderFlag |= flag;
+            this.markForValidate();
         }
         else {
-            this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
+            this.node._renderFlag &= ~flag;
         }
     },
 
@@ -192,7 +186,31 @@ let RenderComponent = cc.Class({
         return material;
     },
 
-    _activateMaterial (force) {
+    /**
+     * Init material.
+     */
+    _activateMaterial () {
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) return;
+
+        // make sure material is belong to self.
+        let material = this.sharedMaterials[0];
+        if (!material) {
+            material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
+        }
+        else {
+            material = Material.getInstantiatedMaterial(material, this);
+        }
+        
+        this.setMaterial(0, material);
+
+        this._updateMaterial();
+    },
+
+    /**
+     * Update material properties.
+     */
+    _updateMaterial () {
+
     },
 
     _updateColor () {

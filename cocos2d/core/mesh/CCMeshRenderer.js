@@ -131,7 +131,6 @@ let MeshRenderer = cc.Class({
                 }
                 this.markForRender(true);
                 this._activateMaterial(true);
-                this.markForUpdateRenderData(true);
                 this.node._renderFlag |= RenderFlow.FLAG_TRANSFORM;
             },
             type: Mesh,
@@ -212,18 +211,19 @@ let MeshRenderer = cc.Class({
         this._super();
         if (this._mesh && !this._mesh.loaded) {
             this.disableRender();
-            var self = this;
-            this._mesh.once('load', function () {
-                self._setMesh(self._mesh);
-                self._activateMaterial();
+            this._mesh.once('load', () => {
+                this._setMesh(this._mesh);
+                this.markForRender(true);
             });
             postLoadMesh(this._mesh);
         }
         else {
             this._setMesh(this._mesh);
-            this._activateMaterial();
         }
-        
+
+        this._updateReceiveShadow();
+        this._updateCastShadow();
+        this._updateBoundingBox();
         this._updateRenderNode();
     },
 
@@ -242,6 +242,7 @@ let MeshRenderer = cc.Class({
         if (mesh) {
             mesh.on('init-format', this._updateMeshAttribute, this);
         }
+        this._updateMeshAttribute();
         this._mesh = mesh;
     },
 
@@ -250,17 +251,21 @@ let MeshRenderer = cc.Class({
     },
 
     _activateMaterial (force) {
-        let mesh = this._mesh;
+        let materials = this.sharedMaterials;
+        if (!materials[0]) {
+            let material = this._getDefaultMaterial();
+            materials[0] = material;
+        }
+    },
 
-        if (!mesh || mesh._subDatas.length === 0) {
-            this.disableRender();
+    _validateRender () {
+        if (mesh && mesh._subDatas.length > 0) {
             return;
         }
+        this._super();
+    },
 
-        if (geomUtils) {
-            this._boundingBox = geomUtils.Aabb.fromPoints(geomUtils.Aabb.create(), mesh._minPos, mesh._maxPos);
-        }
-
+    _updateMaterial () {
         // TODO: used to upgrade from 2.1, should be removed
         let textures = this.textures;
         if (textures && textures.length > 0) {
@@ -272,19 +277,13 @@ let MeshRenderer = cc.Class({
                 this.setMaterial(i, material);
             }
         }
+    },
 
-        let materials = this.sharedMaterials;
-        if (!materials[0]) {
-            let material = this._getDefaultMaterial();
-            materials[0] = material;
+    _updateBoundingBox () {
+        let mesh = this._mesh;
+        if (geomUtils && mesh) {
+            this._boundingBox = geomUtils.Aabb.fromPoints(geomUtils.Aabb.create(), mesh._minPos, mesh._maxPos);
         }
-
-        this._updateReceiveShadow();
-        this._updateCastShadow();
-        this._updateMeshAttribute();
-        
-        this.markForUpdateRenderData(true);
-        this.markForRender(true);
     },
 
     _updateReceiveShadow () {

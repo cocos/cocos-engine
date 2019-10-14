@@ -1292,14 +1292,12 @@ let TiledLayer = cc.Class({
                 material = Material.getInstantiatedMaterial(material, this);
             }
 
-            material.define('USE_TEXTURE', true);
             material.define('CC_USE_MODEL', true);
             material.setProperty('texture', texture);
             this.setMaterial(i, material);
             texIdMatIdx[tilesetIdx] = i;
         }
 
-        this.markForUpdateRenderData(true);
         this.markForRender(true);
     },
 });

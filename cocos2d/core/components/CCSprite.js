@@ -28,9 +28,7 @@ const misc = require('../utils/misc');
 const NodeEvent = require('../CCNode').EventType;
 const RenderComponent = require('./CCRenderComponent');
 const BlendFunc = require('../utils/blend-func');
-const RenderFlow = require('../renderer/render-flow');
 
-const Material = require('../assets/material/CCMaterial');
 
 /**
  * !#en Enum for sprite type.
@@ -164,15 +162,6 @@ var Sprite = cc.Class({
         inspector: 'packages://inspector/inspectors/comps/sprite.js',
     },
 
-    ctor () {
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            this._activateMaterial = this._activateMaterialCanvas;
-        }
-        else {
-            this._activateMaterial = this._activateMaterialWebgl;
-        }
-    },
-
     properties: {
         _spriteFrame: {
             default: null,
@@ -203,10 +192,10 @@ var Sprite = cc.Class({
          * sprite.spriteFrame = newSpriteFrame;
          */
         spriteFrame: {
-            get: function () {
+            get () {
                 return this._spriteFrame;
             },
-            set: function (value, force) {
+            set (value, force) {
                 var lastSprite = this._spriteFrame;
                 if (CC_EDITOR) {
                     if (!force && ((lastSprite && lastSprite._uuid) === (value && value._uuid))) {
@@ -236,10 +225,10 @@ var Sprite = cc.Class({
          * sprite.type = cc.Sprite.Type.SIMPLE;
          */
         type: {
-            get: function () {
+            get () {
                 return this._type;
             },
-            set: function (value) {
+            set (value) {
                 if (this._type !== value) {
                     this._type = value;
                     this._resetAssembler();
@@ -261,10 +250,10 @@ var Sprite = cc.Class({
          * sprite.fillType = cc.Sprite.FillType.HORIZONTAL;
          */
         fillType : {
-            get: function () {
+            get () {
                 return this._fillType;
             },
-            set: function(value) {
+            set(value) {
                 if (value !== this._fillType) {
                     this._fillType = value;
                     this._resetAssembler();
@@ -285,10 +274,10 @@ var Sprite = cc.Class({
          * sprite.fillCenter = new cc.Vec2(0, 0);
          */
         fillCenter: {
-            get: function() {
+            get() {
                 return this._fillCenter;
             },
-            set: function(value) {
+            set(value) {
                 this._fillCenter.x = value.x;
                 this._fillCenter.y = value.y;
                 if (this._type === SpriteType.FILLED) {
@@ -310,10 +299,10 @@ var Sprite = cc.Class({
          * sprite.fillStart = 0.5;
          */
         fillStart: {
-            get: function() {
+            get() {
                 return this._fillStart;
             },
-            set: function(value) {
+            set(value) {
                 this._fillStart = misc.clampf(value, -1, 1);
                 if (this._type === SpriteType.FILLED) {
                     this.setVertsDirty();
@@ -334,10 +323,10 @@ var Sprite = cc.Class({
          * sprite.fillRange = 1;
          */
         fillRange: {
-            get: function() {
+            get() {
                 return this._fillRange;
             },
-            set: function(value) {
+            set(value) {
                 this._fillRange = misc.clampf(value, -1, 1);
                 if (this._type === SpriteType.FILLED) {
                     this.setVertsDirty();
@@ -354,10 +343,10 @@ var Sprite = cc.Class({
          * sprite.trim = true;
          */
         trim: {
-            get: function () {
+            get () {
                 return this._isTrimmedMode;
             },
-            set: function (value) {
+            set (value) {
                 if (this._isTrimmedMode !== value) {
                     this._isTrimmedMode = value;
                     if (this._type === SpriteType.SIMPLE || this._type === SpriteType.MESH) {
@@ -379,10 +368,10 @@ var Sprite = cc.Class({
          * sprite.sizeMode = cc.Sprite.SizeMode.CUSTOM;
          */
         sizeMode: {
-            get: function () {
+            get () {
                 return this._sizeMode;
             },
-            set: function (value) {
+            set (value) {
                 this._sizeMode = value;
                 if (value !== SizeMode.CUSTOM) {
                     this._applySpriteSize();
@@ -401,7 +390,7 @@ var Sprite = cc.Class({
         State: State,
     },
 
-    setVisible: function (visible) {
+    setVisible (visible) {
         this.enabled = visible;
     },
 
@@ -438,32 +427,12 @@ var Sprite = cc.Class({
         this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this.setVertsDirty, this);
     },
 
-    _activateMaterialCanvas () {
-        this.setVertsDirty();
-        this.markForUpdateRenderData(true);
-        this.markForRender(true);
-    },
-
-    _activateMaterialWebgl () {
-        let spriteFrame = this._spriteFrame;
-        if (!spriteFrame) {
-            return;
-        }
+    _updateMaterial () {
+        let texture = this._spriteFrame && this._spriteFrame.getTexture();
         
         // make sure material is belong to self.
         let material = this.sharedMaterials[0];
-        if (!material) {
-            material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
-        }
-        else {
-            material = Material.getInstantiatedMaterial(material, this);
-        }
-        
-        material.setProperty('texture', spriteFrame.getTexture());
-
-        this.setVertsDirty();
-        this.setMaterial(0, material);
-        this.markForRender(true);
+        material && material.setProperty('texture', texture);
     },
 
     _applyAtlas: CC_EDITOR && function (spriteFrame) {
@@ -490,8 +459,8 @@ var Sprite = cc.Class({
         this.disableRender();
     },
 
-    _applySpriteSize: function () {
-        if (!this._spriteFrame)  return;
+    _applySpriteSize () {
+        if (!this._spriteFrame || !this.isValid)  return;
         
         if (SizeMode.RAW === this._sizeMode) {
             var size = this._spriteFrame._originalSize;
@@ -502,34 +471,27 @@ var Sprite = cc.Class({
         }
         
         this.setVertsDirty();
-        this._activateMaterial();
     },
 
-    _onTextureLoaded: function () {
-        if (!this.isValid) {
-            return;
-        }
-
-        this._activateMaterial();
-        this._applySpriteSize();
-    },
-
-    _applySpriteFrame: function (oldFrame) {
+    _applySpriteFrame (oldFrame) {
         let oldTexture = oldFrame && oldFrame.getTexture();
         if (oldTexture && !oldTexture.loaded) {
-            oldFrame.off('load', this._onTextureLoaded, this);
+            oldFrame.off('load', this._applySpriteSize, this);
         }
 
         let spriteFrame = this._spriteFrame;
         if (spriteFrame) {
+            this._updateMaterial();
             let newTexture = spriteFrame.getTexture();
             if (oldTexture === newTexture && newTexture.loaded) {
                 this._applySpriteSize();
             }
             else {
-                this.disableRender();
-                spriteFrame.onTextureLoaded(this._onTextureLoaded, this);
+                spriteFrame.onTextureLoaded(this._applySpriteSize, this);
             }
+        }
+        else {
+            this.disableRender();
         }
 
         if (CC_EDITOR) {
