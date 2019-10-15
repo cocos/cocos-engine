@@ -18,6 +18,12 @@ struct ToonSurface {
   float shadeFeather;
 };
 
+const float T_H = 0.25;
+float TreshHoldLighting(float lThreshold, float smoothness, float v)
+{
+  return smoothstep(lThreshold-smoothness*T_H, lThreshold+smoothness*T_H, v);
+}
+
 // Inspired by UTS2, (C)UTJ/UCL
 vec4 CCToonShading (ToonSurface s) {
   vec3 V = normalize(cc_cameraPos.xyz - s.position);
@@ -35,10 +41,13 @@ vec4 CCToonShading (ToonSurface s) {
         float NL = 0.5 * dot(N, L) + 0.5;
         float NH = 0.5 * dot(normalize(V + L), N) + 0.5;
 
-        vec3 diffuse = mix(s.shade1, s.shade2,
-          clamp(1.0 + (s.shadeStep - s.shadeFeather - NL) / s.shadeFeather, 0.0, 1.0));
-        diffuse = mix(s.baseColor.rgb, diffuse,
-          clamp(1.0 + (s.baseStep - s.baseFeather - NL) / s.baseFeather, 0.0, 1.0));
+        // vec3 diffuse = mix(s.shade1, s.shade2,
+        //   clamp(1.0 + (s.shadeStep - s.shadeFeather - NL) / s.shadeFeather, 0.0, 1.0));
+        // diffuse = mix(s.baseColor.rgb, diffuse,
+        //   clamp(1.0 + (s.baseStep - s.baseFeather - NL) / s.baseFeather, 0.0, 1.0));
+
+        // lightColor *= TreshHoldLighting(s.baseStep, s.baseFeather, NL);
+        vec3 diffuse = mix(vec3(0.0), s.baseColor.rgb, TreshHoldLighting(s.baseStep, s.baseFeather, NL));
 
         float specularMask = step(specularWeight, NH);
         vec3 specular = s.specular.rgb * specularMask;
