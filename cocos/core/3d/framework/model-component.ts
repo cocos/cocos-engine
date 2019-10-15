@@ -173,6 +173,7 @@ export class ModelComponent extends RenderableComponent {
 
     public onLoad () {
         this._updateModels();
+        if (this._model) { this._model.enabled = false; } // don't enable before onEnable
         this._updateCastShadow();
         this._updateReceiveShadow();
     }
