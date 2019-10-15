@@ -230,8 +230,12 @@ export class PlanarShadows {
             allocator: device.commandAllocator,
             type: GFXCommandBufferType.SECONDARY,
         };
-        if (cb) { if (cb.status === GFXStatus.SUCCESS) { cb.destroy(); } cb.initialize(info); }
-        else { cb = device.createCommandBuffer(info); }
+        if (cb) {
+            if (cb.status === GFXStatus.SUCCESS) { cb.destroy(); }
+            cb.initialize(info);
+        } else {
+            cb = device.createCommandBuffer(info);
+        }
         return cb;
     }
 }

@@ -11,6 +11,7 @@ import { RenderFlow } from '../render-flow';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
+import { Layers } from '../../scene-graph';
 
 const colors: IGFXColor[] = [];
 const bufs: GFXCommandBuffer[] = [];
@@ -211,7 +212,9 @@ export class ForwardStage extends RenderStage {
 
         this._opaqueBatchedQueue.recordCommandBuffer(cmdBuff);
 
-        cmdBuff.execute(planarShadow.cmdBuffs.array, planarShadow.cmdBuffCount);
+        if (camera.visibility & Layers.BitMask.DEFAULT) {
+            cmdBuff.execute(planarShadow.cmdBuffs.array, planarShadow.cmdBuffCount);
+        }
         cmdBuff.execute(this._transparentQueue.cmdBuffs.array, this._transparentQueue.cmdBuffCount);
 
         cmdBuff.endRenderPass();
