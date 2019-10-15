@@ -247,9 +247,9 @@ function createInvokeImpl (indiePath, useDt, ensureFlag, fastPath) {
 }
 
 var invokeStart = CC_SUPPORT_JIT ?
-    createInvokeImpl(' c._objFlags & ' + IsStartCalled + ' || c.start();c._objFlags|=' + IsStartCalled, false, IsStartCalled) :
+    createInvokeImpl('c.start();c._objFlags|=' + IsStartCalled, false, IsStartCalled) :
     createInvokeImpl(function (c) {
-            c._objFlags & IsStartCalled || c.start();
+            c.start();
             c._objFlags |= IsStartCalled;
         },
         false,
@@ -258,7 +258,7 @@ var invokeStart = CC_SUPPORT_JIT ?
             var array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 let comp = array[iterator.i];
-                comp._objFlags & IsStartCalled || comp.start();
+                comp.start();
                 comp._objFlags |= IsStartCalled;
             }
         }
@@ -464,6 +464,18 @@ var ComponentScheduler = cc.Class({
         comps.length = 0;
     },
 
+    // Call new registered start schedule immediately since last time start phase calling in this frame
+    // See cocos-creator/2d-tasks/issues/256
+    _earlyStartForNewComps () {
+        // In broad scene, _deferredSchedule should clear scheduleInNextFrame,
+        // once not cleared, means new node activated during start
+        if (this.scheduleInNextFrame.length > 0) {
+            // TODO: unit test me
+            this._deferredSchedule();
+            this.startInvoker.invoke();
+        }
+    },
+
     startPhase () {
         // Start of this frame
         this._updating = true;
@@ -474,6 +486,9 @@ var ComponentScheduler = cc.Class({
 
         // call start
         this.startInvoker.invoke();
+
+        this._earlyStartForNewComps();
+
         // if (CC_PREVIEW) {
         //     try {
         //         this.startInvoker.invoke();
@@ -500,7 +515,11 @@ var ComponentScheduler = cc.Class({
 
         // End of this frame
         this._updating = false;
-    }
+    },
+
+    clearup () {
+        this._earlyStartForNewComps();
+    },
 });
 
 module.exports = ComponentScheduler;

@@ -107,18 +107,6 @@ const Scheduler = require('./CCScheduler');
  */
 cc.Director = function () {
     EventTarget.call(this);
-    
-    // life cycle state, default -1 means init state
-    this._lifeCycleState = -1;
-
-    // life cycle state map
-    this._lifeCycleStateMap = {
-        "before-update": 1,
-        "start": 2,
-        "update": 3,
-        "late-update": 4,
-        "render": 0
-    };
 
     // paused?
     this._paused = false;
@@ -174,20 +162,6 @@ cc.Director.prototype = {
         return true;
     },
 
-    /*
-     * Get life cycle state value
-     */
-    getLifeCycleState: function () {
-        return this._lifeCycleState;
-    },
-
-    /*
-     * Get life cycle state default value by key
-     */
-    getLifeCycleStateDefaultValue: function (key) {
-        return this._lifeCycleStateMap[key];
-    },
-    
     /*
      * Manage all init process shared between the web engine and jsb engine.
      * All platform independent init process should be occupied here.
@@ -968,25 +942,21 @@ cc.Director.prototype = {
             // Update
             if (!this._paused) {
                 // before update
-                this._lifeCycleState = this._lifeCycleStateMap["before-update"];
                 this.emit(cc.Director.EVENT_BEFORE_UPDATE);
 
-                // Call start for new added components
-                this._lifeCycleState = this._lifeCycleStateMap["start"];
+                // Call start for new added components before
                 this._compScheduler.startPhase();
 
                 // Update for components
-                this._lifeCycleState = this._lifeCycleStateMap["update"];
                 this._compScheduler.updatePhase(this._deltaTime);
                 // Engine update with scheduler
                 this._scheduler.update(this._deltaTime);
 
                 // Late update for components
-                this._lifeCycleState = this._lifeCycleStateMap["late-update"];
                 this._compScheduler.lateUpdatePhase(this._deltaTime);
 
-                // execute start in async
-                this.emit(cc.Director.EVENT_START_IN_ASYNC);
+                // After life-cycle executed
+                this._compScheduler.clearup();
 
                 // User can use this event to do things after update
                 this.emit(cc.Director.EVENT_AFTER_UPDATE);
@@ -996,7 +966,6 @@ cc.Director.prototype = {
             }
 
             // Render
-            this._lifeCycleState = this._lifeCycleStateMap["render"];
             this.emit(cc.Director.EVENT_BEFORE_DRAW);
             renderer.render(this._scene, this._deltaTime);
 
@@ -1150,20 +1119,6 @@ cc.Director.EVENT_BEFORE_DRAW = "director_before_draw";
  * @static
  */
 cc.Director.EVENT_AFTER_DRAW = "director_after_draw";
-
-/**
- * !#en The event which will be triggered for executing start in async
- * !#zh 由节点激活等操作所触发的异步执行 start 事件。
- * @event cc.Director.EVENT_START_IN_ASYNC
- */
-/**
- * !#en The event which will be triggered for executing start in async
- * !#zh 由节点激活等操作所触发的异步执行 start 事件。
- * @property {String} EVENT_START_IN_ASYNC
- * @readonly
- * @static
- */
-cc.Director.EVENT_START_IN_ASYNC = "director_start_in_async";
 
 //Possible OpenGL projections used by director
 
