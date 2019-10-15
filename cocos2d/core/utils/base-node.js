@@ -54,18 +54,22 @@ function getConstructor(typeOrClassName) {
 
 function findComponent(node, constructor) {
     if (constructor._sealed) {
-        for (let i = 0; i < node._components.length; ++i) {
-            let comp = node._components[i];
-            if (comp.constructor === constructor) {
-                return comp;
+        if (node._components) {
+            for (let i = 0; i < node._components.length; ++i) {
+                let comp = node._components[i];
+                if (comp.constructor === constructor) {
+                    return comp;
+                }
             }
         }
     }
     else {
-        for (let i = 0; i < node._components.length; ++i) {
-            let comp = node._components[i];
-            if (comp instanceof constructor) {
-                return comp;
+        if (node._components) {
+            for (let i = 0; i < node._components.length; ++i) {
+                let comp = node._components[i];
+                if (comp instanceof constructor) {
+                    return comp;
+                }
             }
         }
     }
@@ -144,6 +148,7 @@ var BaseNode = cc.Class({
         _children: [],
 
         _active: true,
+        _gonnaStartInAsync: false,
 
         /**
          * @property _components
@@ -288,9 +293,27 @@ var BaseNode = cc.Class({
                         var couldActiveInScene = parent._activeInHierarchy;
                         if (couldActiveInScene) {
                             cc.director._nodeActivator.activateNode(this, value);
+                            this._gonnaStartInAsync = value;
                         }
                     }
                 }
+            }
+        },
+
+        /**
+         * !#en Indicates whether this node should execute start in async.
+         * !#zh 表示此节点是否将要执行异步 start。
+         * @property gonnaStartInAsync
+         * @type {Boolean}
+         * @example
+         * cc.log("gonnaStartInAsync: " + node.gonnaStartInAsync);
+         */
+        gonnaStartInAsync: {
+            get () {
+                return this._gonnaStartInAsync;
+            },
+            set (value) {
+                this._gonnaStartInAsync = value;
             }
         },
 
@@ -817,6 +840,35 @@ var BaseNode = cc.Class({
             findComponents(this, constructor, components);
         }
         return components;
+    },
+
+    /**
+     * !#en Return all components in the node by execution order in asc.
+     * !#zh 返回节点上的所有组件，默认按执行顺序升序列排序。
+     * @method getAllComponents
+     * @return {Component[]}
+     * @example
+     * var comps = node.getComponents();
+     * @typescript
+     * getComponents<T extends Component>(): T[]
+     * getComponents(): any[]
+     */
+    getAllComponents () {
+        var comps = new Array();
+        var i, j;
+        for (i = 0; i < this._components.length; i++) {
+            comps.push(this._components[i]);
+        }
+        for (i = comps.length - 1; i > 0; i--) {
+            for (j = 0; j < i; j++) {
+                if (comps[j]._executionOrder > comps[j + 1]._executionOrder) {
+                    var tempComp = comps[j];
+                    comps[j] = comps[j + 1];
+                    comps[j + 1] = tempComp;
+                }
+            } 
+        }
+        return comps;
     },
 
     /**

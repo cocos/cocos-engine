@@ -247,9 +247,9 @@ function createInvokeImpl (indiePath, useDt, ensureFlag, fastPath) {
 }
 
 var invokeStart = CC_SUPPORT_JIT ?
-    createInvokeImpl('c.start();c._objFlags|=' + IsStartCalled, false, IsStartCalled) :
+    createInvokeImpl(' c._objFlags & ' + IsStartCalled + ' || c.start();c._objFlags|=' + IsStartCalled, false, IsStartCalled) :
     createInvokeImpl(function (c) {
-            c.start();
+            c._objFlags & IsStartCalled || c.start();
             c._objFlags |= IsStartCalled;
         },
         false,
@@ -258,7 +258,7 @@ var invokeStart = CC_SUPPORT_JIT ?
             var array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 let comp = array[iterator.i];
-                comp.start();
+                comp._objFlags & IsStartCalled || comp.start();
                 comp._objFlags |= IsStartCalled;
             }
         }

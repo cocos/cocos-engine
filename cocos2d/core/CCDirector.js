@@ -113,11 +113,11 @@ cc.Director = function () {
 
     // life cycle state map
     this._lifeCycleStateMap = {
-        "before-update": 0,
-        "start": 1,
-        "update": 2,
-        "late-update": 3,
-        "render": 4
+        "before-update": 1,
+        "start": 2,
+        "update": 3,
+        "late-update": 4,
+        "render": 0
     };
 
     // paused?
@@ -985,6 +985,9 @@ cc.Director.prototype = {
                 this._lifeCycleState = this._lifeCycleStateMap["late-update"];
                 this._compScheduler.lateUpdatePhase(this._deltaTime);
 
+                // execute start in async
+                this.emit(cc.Director.EVENT_START_IN_ASYNC);
+
                 // User can use this event to do things after update
                 this.emit(cc.Director.EVENT_AFTER_UPDATE);
                 
@@ -1147,6 +1150,20 @@ cc.Director.EVENT_BEFORE_DRAW = "director_before_draw";
  * @static
  */
 cc.Director.EVENT_AFTER_DRAW = "director_after_draw";
+
+/**
+ * !#en The event which will be triggered for executing start in async
+ * !#zh 由节点激活等操作所触发的异步执行 start 事件。
+ * @event cc.Director.EVENT_START_IN_ASYNC
+ */
+/**
+ * !#en The event which will be triggered for executing start in async
+ * !#zh 由节点激活等操作所触发的异步执行 start 事件。
+ * @property {String} EVENT_START_IN_ASYNC
+ * @readonly
+ * @static
+ */
+cc.Director.EVENT_START_IN_ASYNC = "director_start_in_async";
 
 //Possible OpenGL projections used by director
 

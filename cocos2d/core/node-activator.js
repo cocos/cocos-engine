@@ -34,6 +34,7 @@ var MAX_POOL_SIZE = 4;
 var IsPreloadStarted = Flags.IsPreloadStarted;
 var IsOnLoadStarted = Flags.IsOnLoadStarted;
 var IsOnLoadCalled = Flags.IsOnLoadCalled;
+var IsStartCalled = Flags.IsStartCalled;
 var Deactivating = Flags.Deactivating;
 
 var callPreloadInTryCatch = CC_EDITOR && callerFunctor('__preload');
@@ -249,6 +250,36 @@ var NodeActivator = cc.Class({
             task.preload.invoke();
             task.onLoad.invoke();
             task.onEnable.invoke();
+
+            // start invoke in async
+            var startInAsyncInvoke = function () {
+                if (node.name === 'parent' || node.name === 'child') {
+                    console.log("got it"); 
+                }
+                if (node && !(node instanceof cc.Scene) && node.gonnaStartInAsync) {
+                    node.start && node.start();
+                    if (node._objFlags !== null && node._objFlags !== 'undefined') {
+                        node._objFlags |= IsStartCalled;
+                    }
+                    if (node.getAllComponents) {
+                        var comps = node.getAllComponents();
+                        var i;
+                        if (comps) {
+                            // execute start
+                            for (i = 0; i < comps.length; i++) {
+                                var comp = comps[i];
+                                comp.start && comp.start();
+                                if (comp._objFlags !== null && comp._objFlags !== 'undefined') {
+                                    comp._objFlags |= IsStartCalled;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (cc.director.getLifeCycleState() > cc.director.getLifeCycleStateDefaultValue('start')) {
+                cc.director.once(cc.Director.EVENT_START_IN_ASYNC, startInAsyncInvoke);
+            }
 
             this._activatingStack.pop();
             activateTasksPool.put(task);

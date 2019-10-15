@@ -66,40 +66,6 @@ test('life cycle logic for component', function () {
     cc.js.unregisterClass(MyComponent);
 });
 
-test('component should call start before render when its node is actived', function() {
-    var nodes = createNodes({
-        child:{}
-    });
-    nodes.child.active = false;
-    var rootComp = nodes.root.addComponent(cc.Component);
-    var childComp = nodes.child.addComponent(CallbackTester);
-    rootComp.update = function () {
-        childComp.expect(CallbackTester.onLoad, "should onLoad in this frame");
-        childComp.expect(CallbackTester.onEnable, "should onEnable in this frame");
-        childComp.expect(CallbackTester.start, "should start in this frame");
-        childComp.notExpect(CallbackTester.update, "should not update in this frame");
-        nodes.child.active = true;
-    };
-
-    nodes.attachToScene();
-    // active child in this frame
-    childComp.notExpect(CallbackTester.onLoad, "should not onLoad before node is actived");
-    childComp.notExpect(CallbackTester.onEnable, "should not onEnable before node is actived");
-    childComp.notExpect(CallbackTester.start, "start should not be called before node is actived");
-    childComp.notExpect(CallbackTester.update, "should not update before node is actived");
-    cc.game.step();
-
-    // next frame
-    childComp.notExpect(CallbackTester.onLoad, "should not onLoad in this frame");
-    childComp.notExpect(CallbackTester.onEnable, "should not onEnable in this frame");
-    childComp.notExpect(CallbackTester.start, "should not start in this frame");
-    childComp.expect(CallbackTester.update, "should update in this frame");
-    cc.game.step();
-
-    // end test
-    this.node.active = false;
-});
-
 test('activation logic for component in hierarchy', function () {
     var parent = new cc.Node();
     var child = new cc.Node();
@@ -986,6 +952,41 @@ test('lateUpdate', function () {
     // run comp
     cc.game.step();
     // run TestComp
+    cc.game.step();
+});
+
+test('should re-call start (to init) before rendering when it is enabled after start phase', function() {
+    var nodes = createNodes({
+        comps: cc.Component,
+        child: {
+            comps: CallbackTester,
+        }
+    });
+    nodes.child.active = false;
+    var rootComp = nodes.rootComps[0];
+    var childComp = nodes.childComps[0];
+    var flag = true;
+    rootComp.update = function () {
+        if (flag) {
+            childComp.expect(CallbackTester.OnLoad, "should onLoad in this frame");
+            childComp.expect(CallbackTester.OnEnable, "should onEnable in this frame", true);
+            childComp.expect(CallbackTester.start, "should start in this frame", true);
+            nodes.child.active = true;
+            flag = false;
+        }
+    };
+
+    nodes.attachToScene();
+
+    // active child in this frame
+    cc.game.step();
+
+    // next frame
+    childComp.notExpect(CallbackTester.OnLoad, "should not onLoad in this frame");
+    childComp.notExpect(CallbackTester.OnEnable, "should not onEnable in this frame");
+    childComp.notExpect(CallbackTester.start, "should not start in this frame");
+    childComp.expect(CallbackTester.update, "should update (first time) in this frame");
+    childComp.expect(CallbackTester.lateUpdate, "should lateUpdate in this frame", true);
     cc.game.step();
 });
 
