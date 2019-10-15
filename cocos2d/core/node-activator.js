@@ -253,9 +253,6 @@ var NodeActivator = cc.Class({
 
             // start invoke in async
             var startInAsyncInvoke = function () {
-                if (node.name === 'parent' || node.name === 'child') {
-                    console.log("got it"); 
-                }
                 if (node && !(node instanceof cc.Scene) && node.gonnaStartInAsync) {
                     node.start && node.start();
                     if (node._objFlags !== null && node._objFlags !== 'undefined') {
