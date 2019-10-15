@@ -58,6 +58,7 @@ void MaskAssembler::setClearSubHandle(Assembler* clearSubHandle)
 void MaskAssembler::handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene)
 {
     batcher->flush();
+    batcher->flushIA();
 
     StencilManager* instance = StencilManager::getInstance();
     instance->pushMask(_inverted);
@@ -82,6 +83,7 @@ void MaskAssembler::handle(NodeProxy *node, ModelBatcher* batcher, Scene* scene)
 void MaskAssembler::postHandle(NodeProxy *node, ModelBatcher *batcher, Scene *scene)
 {
     batcher->flush();
+    batcher->flushIA();
     StencilManager::getInstance()->exitMask();
 }
 
