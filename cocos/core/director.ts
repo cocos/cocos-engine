@@ -303,10 +303,6 @@ export class Director extends EventTarget {
             self._lastUpdate = performance.now();
         });
 
-        cc.game.on(Game.EVENT_GAME_INITED, () => {
-            self._lastUpdate = performance.now();
-        });
-
         cc.game.once(Game.EVENT_RENDERER_INITED, this.initOnRenererInited, this);
         cc.game.once(Game.EVENT_ENGINE_INITED, this.initOnEngineInited, this);
     }
