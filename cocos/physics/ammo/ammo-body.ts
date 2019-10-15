@@ -8,6 +8,7 @@ import { Cocos2AmmoVec3, Cocos2AmmoQuat } from "./ammo-util";
 import { defaultRigidBodyInfo } from './ammo-const';
 import { ColliderComponent } from '../../../exports/physics-framework';
 import { AmmoCollisionFlags } from './ammo-enum';
+import { TransformDirtyBit } from '../../core/scene-graph/node-enum';
 
 export class AmmoRigidBody implements RigidBodyBase {
 
@@ -146,7 +147,7 @@ export class AmmoRigidBody implements RigidBodyBase {
 
     private _motionState!: Ammo.btDefaultMotionState;
 
-    public addShape (shape_: ShapeBase) {        
+    public addShape (shape_: ShapeBase) {
     }
 
     public removeShape (shape_: ShapeBase) {
@@ -488,7 +489,7 @@ export class AmmoRigidBody implements RigidBodyBase {
         for (let i = 0; i < allColliders.length; i++) {
             if (!allColliders[i].isTrigger) {
                 const ammoShape = (allColliders[i] as any)._shapeBase as AmmoShape;
-                const lt = ammoShape.localTransform;                
+                const lt = ammoShape.localTransform;
                 Cocos2AmmoVec3(lt.getOrigin(), allColliders[i].center);
                 Cocos2AmmoVec3(ammoShape.impl.getLocalScaling(), allColliders[i].node.worldScale);
                 this.ammoCompoundShape.addChildShape(lt, (allColliders[i] as any)._shapeBase.impl);
@@ -520,6 +521,9 @@ export class AmmoRigidBody implements RigidBodyBase {
         if (!this.rigidBody.useGravity) {
             Cocos2AmmoVec3(this._ammoBody.getGravity(), Vec3.ZERO);
         }
+
+        /** disable sleep */
+        this._ammoBody.setActivationState(4);
     }
 
     public start () {
@@ -537,19 +541,23 @@ export class AmmoRigidBody implements RigidBodyBase {
     }
 
     public beforeStep () {
-        let wp = this.rigidBody.node.worldPosition;
-        var origin = this.impl.getWorldTransform().getOrigin();
-        origin.setX(wp.x);
-        origin.setY(wp.y);
-        origin.setZ(wp.z);
-        this.impl.activate();
-
-        let wr = this.rigidBody.node.worldRotation;
-        var rotation = this.impl.getWorldTransform().getRotation();
-        rotation.setX(wr.x);
-        rotation.setY(wr.y);
-        rotation.setZ(wr.z);
-        rotation.setW(wr.w);
+        if (this.rigidBody.node.hasChangedFlags & TransformDirtyBit.POSITION) {
+            let wp = this.rigidBody.node.worldPosition;
+            var origin = this.impl.getWorldTransform().getOrigin();
+            origin.setX(wp.x);
+            origin.setY(wp.y);
+            origin.setZ(wp.z);
+            this.impl.activate();
+        }
+        if (this.rigidBody.node.hasChangedFlags & TransformDirtyBit.ROTATION) {
+            let wr = this.rigidBody.node.worldRotation;
+            var rotation = this.impl.getWorldTransform().getRotation();
+            rotation.setX(wr.x);
+            rotation.setY(wr.y);
+            rotation.setZ(wr.z);
+            rotation.setW(wr.w);
+            this.impl.activate();
+        }
     }
 
     public afterStep () {

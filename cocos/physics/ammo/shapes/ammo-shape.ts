@@ -7,11 +7,9 @@ import { AmmoWorld } from '../ammo-world';
 import { AmmoCollisionFlags } from '../ammo-enum';
 import { defaultRigidBodyInfo } from '../ammo-const';
 import { Cocos2AmmoVec3, Cocos2AmmoQuat } from '../ammo-util';
+import { TransformDirtyBit } from '../../../core/scene-graph/node-enum';
 
 export class AmmoShape implements ShapeBase {
-
-    collider!: ColliderComponent;
-    rigidbody!: RigidBodyComponent;
 
     material?: import("../../api").PhysicMaterialBase;
     getCollisionResponse (): boolean {
@@ -27,29 +25,13 @@ export class AmmoShape implements ShapeBase {
         throw new Error("Method not implemented.");
     }
 
-    public get impl () {
-        return this._ammoShape!;
-    }
-
     protected _scale: Vec3 = new Vec3(1, 1, 1);
 
-    protected _ammoShape!: Ammo.btCollisionShape;
-
-    protected _ammoBody!: Ammo.btCollisionObject;
-
-    protected _attachRigidBody: RigidBodyComponent | null = null;
-
-    public readonly localTransform: Ammo.btTransform = new Ammo.btTransform();;
-
-    private _index: number = -1;
 
     private _center: Vec3 = new Vec3(0, 0, 0);
 
     private _userData: any;
 
-    public constructor () {
-        this.localTransform.setIdentity();
-    }
 
     public getUserData (): any {
         return this._userData;
@@ -80,6 +62,31 @@ export class AmmoShape implements ShapeBase {
         // TO DO
     }
 
+    public get impl () {
+        return this._ammoShape!;
+    }
+
+    protected _ammoShape!: Ammo.btCollisionShape;
+    protected _ammoBody!: Ammo.btCollisionObject;
+    public readonly localTransform: Ammo.btTransform;
+    public readonly localPosition: Ammo.btVector3;
+    public readonly localQuaternion: Ammo.btQuaternion;
+    public readonly scale: Ammo.btVector3;
+
+    public collider!: ColliderComponent;
+    public attachRigidBody: RigidBodyComponent | null = null;
+
+    private _index: number = -1;
+
+    public constructor () {
+        this.localPosition = new Ammo.btVector3(0, 0, 0);
+        this.localQuaternion = new Ammo.btQuaternion();
+        this.localTransform = new Ammo.btTransform(this.localQuaternion, this.localPosition);
+        this.localTransform.setIdentity();
+
+        this.scale = new Ammo.btVector3(1, 1, 1);
+    }
+
     public __preload () {
 
     }
@@ -96,12 +103,17 @@ export class AmmoShape implements ShapeBase {
         if (this.collider.isTrigger) {
             /** scale \ translation \ rotation */
             this.localTransform.setIdentity();
-            const origin = this.localTransform.getOrigin();
-            origin.setX(this.collider.center.x + this.collider.node.worldPosition.x);
-            origin.setY(this.collider.center.y + this.collider.node.worldPosition.y);
-            origin.setZ(this.collider.center.z + this.collider.node.worldPosition.z);
-            Cocos2AmmoQuat(this.localTransform.getRotation(), this.collider.node.worldRotation);
-            Cocos2AmmoVec3(this._ammoShape.getLocalScaling(), this.collider.node.worldScale);
+
+            const pos = this.collider.center.clone();
+            Vec3.transformQuat(pos, pos, this.collider.node.worldRotation);
+            pos.multiply(this.collider.node.worldScale);
+            Cocos2AmmoVec3(this.localTransform.getOrigin(), pos);
+
+            Cocos2AmmoQuat(this.localQuaternion, this.collider.node.worldRotation);
+            this.localTransform.setRotation(this.localQuaternion);
+
+            Cocos2AmmoVec3(this.scale, this.collider.node.worldScale);
+            this._ammoShape.setLocalScaling(this.scale);
 
             AmmoWorld.instance.sharedTriggerCompoundShape.addChildShape(this.localTransform, this._ammoShape);
             this._index = AmmoWorld.instance.sharedTriggerCompoundShape.getNumChildShapes() - 1;
@@ -109,16 +121,21 @@ export class AmmoShape implements ShapeBase {
             /** TODO: 将形状记录下来，并及时更新 transform */
             AmmoWorld.instance.triggerShapes.push(this);
         } else {
-            this._attachRigidBody = this.collider.getComponent(RigidBodyComponent);
-            if (this._attachRigidBody == null) {
+            this.attachRigidBody = this.collider.getComponent(RigidBodyComponent);
+            if (this.attachRigidBody == null) {
                 /** scale \ translation \ rotation */
                 this.localTransform.setIdentity();
-                const origin = this.localTransform.getOrigin();
-                origin.setX(this.collider.center.x + this.collider.node.worldPosition.x);
-                origin.setY(this.collider.center.y + this.collider.node.worldPosition.y);
-                origin.setZ(this.collider.center.z + this.collider.node.worldPosition.z);
-                Cocos2AmmoQuat(this.localTransform.getRotation(), this.collider.node.worldRotation);
-                Cocos2AmmoVec3(this._ammoShape.getLocalScaling(), this.collider.node.worldScale);
+
+                const pos = this.collider.center.clone();
+                Vec3.transformQuat(pos, pos, this.collider.node.worldRotation);
+                pos.multiply(this.collider.node.worldScale);
+                Cocos2AmmoVec3(this.localTransform.getOrigin(), pos);
+
+                Cocos2AmmoQuat(this.localQuaternion, this.collider.node.worldRotation);
+                this.localTransform.setRotation(this.localQuaternion);
+
+                Cocos2AmmoVec3(this.scale, this.collider.node.worldScale);
+                this._ammoShape.setLocalScaling(this.scale);
 
                 AmmoWorld.instance.sharedStaticCompoundShape.addChildShape(this.localTransform, this._ammoShape);
                 this._index = AmmoWorld.instance.sharedStaticCompoundShape.getNumChildShapes() - 1;
@@ -145,7 +162,7 @@ export class AmmoShape implements ShapeBase {
                 AmmoWorld.instance.triggerShapes.splice(this._index, 1);
                 this._index = -1;
             } else {
-                if (this._attachRigidBody == null) {
+                if (this.attachRigidBody == null) {
                     AmmoWorld.instance.sharedStaticCompoundShape.removeChildShapeByIndex(this._index)
                     AmmoWorld.instance.staticShapes.splice(this._index, 1);
                     this._index = -1;
@@ -160,18 +177,55 @@ export class AmmoShape implements ShapeBase {
     }
 
     public beforeStep () {
-        /** scale \ translation \ rotation */
-        this.localTransform.setIdentity();
-        const origin = this.localTransform.getOrigin();
-        origin.setX(this.collider.center.x + this.collider.node.worldPosition.x);
-        origin.setY(this.collider.center.y + this.collider.node.worldPosition.y);
-        origin.setZ(this.collider.center.z + this.collider.node.worldPosition.z);
-        Cocos2AmmoQuat(this.localTransform.getRotation(), this.collider.node.worldRotation);
-        Cocos2AmmoVec3(this._ammoShape.getLocalScaling(), this.collider.node.worldScale);
-        if (this.collider.isTrigger) {
-            AmmoWorld.instance.sharedTriggerCompoundShape.updateChildTransform(this._index, this.localTransform, true);
-        } else {
-            AmmoWorld.instance.sharedStaticCompoundShape.updateChildTransform(this._index, this.localTransform, true);
+
+        let dirty = false;
+        // /** scale */
+        // if (this.collider.node.hasChangedFlags & TransformDirtyBit.SCALE) {
+        //     Cocos2AmmoVec3(this._ammoShape.getLocalScaling(), this.collider.node.worldScale);
+        //     dirty = true;
+        // }
+
+        // /** rotation */
+        // if (this.collider.node.hasChangedFlags & TransformDirtyBit.ROTATION) {
+        //     Cocos2AmmoQuat(this.localQuaternion, this.collider.node.worldRotation);
+        //     this.localTransform.setRotation(this.localQuaternion);
+        //     dirty = true;
+        // }
+
+        // /** position */
+        // if (this.collider.node.hasChangedFlags & TransformDirtyBit.POSITION) {
+        //     const origin = this.localTransform.getOrigin();
+        //     origin.setValue(
+        //         this.collider.center.x + this.collider.node.worldPosition.x,
+        //         this.collider.center.y + this.collider.node.worldPosition.y,
+        //         this.collider.center.z + this.collider.node.worldPosition.z
+        //     );
+        //     dirty = true;
+        // }
+
+        if (this.collider.node.hasChangedFlags) {
+            dirty = true;
+
+            Cocos2AmmoVec3(this.scale, this.collider.node.worldScale);
+            this._ammoShape.setLocalScaling(this.scale);
+
+            Cocos2AmmoQuat(this.localQuaternion, this.collider.node.worldRotation);
+            this.localTransform.setRotation(this.localQuaternion);
+
+            const pos = this.collider.center.clone();
+            pos.multiply(this.collider.node.worldScale);
+            Vec3.transformQuat(pos, pos, this.collider.node.worldRotation);
+            pos.add(this.collider.node.worldPosition);
+            Cocos2AmmoVec3(this.localTransform.getOrigin(), pos);
+        }
+
+        if (dirty) {
+            if (this.collider.isTrigger) {
+                AmmoWorld.instance.sharedTriggerCompoundShape.updateChildTransform(this._index, this.localTransform, true);
+            } else {
+                AmmoWorld.instance.sharedStaticCompoundShape.updateChildTransform(this._index, this.localTransform, true);
+            }
         }
     }
+
 }
