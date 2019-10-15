@@ -298,7 +298,7 @@ let MeshRenderer = cc.Class({
 
     _updateMeshAttribute () {
         let subDatas = this._mesh && this._mesh.subDatas;
-        if (!subDatas) return;
+        if (!subDatas || !subDatas[0]) return;
 
         let vfm = subDatas[0].vfm;
         this._customProperties.define('CC_USE_ATTRIBUTE_COLOR', !!vfm.element(gfx.ATTR_COLOR));
