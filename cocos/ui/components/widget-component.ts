@@ -410,7 +410,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @zh
-     * 如果为 true，"top" 将会以像素作为边距，否则将会以相对父物体高度的百分比（0 到 1）作为边距。
+     * 如果为 true，"top" 将会以像素作为边距，否则将会以相对父物体高度的百分比（0 到 100）作为边距。
      */
     @property
     get isAbsoluteTop () {
@@ -427,7 +427,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @zh
-     * 如果为 true，"bottom" 将会以像素作为边距，否则将会以相对父物体高度的百分比（0 到 1）作为边距。
+     * 如果为 true，"bottom" 将会以像素作为边距，否则将会以相对父物体高度的百分比（0 到 100）作为边距。
      */
     @property
     get isAbsoluteBottom () {
@@ -444,7 +444,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @zh
-     * 如果为 true，"left" 将会以像素作为边距，否则将会以相对父物体宽度的百分比（0 到 1）作为边距。
+     * 如果为 true，"left" 将会以像素作为边距，否则将会以相对父物体宽度的百分比（0 到 100）作为边距。
      */
     @property
     get isAbsoluteLeft () {
@@ -461,7 +461,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @zh
-     * 如果为 true，"right" 将会以像素作为边距，否则将会以相对父物体宽度的百分比（0 到 1）作为边距。
+     * 如果为 true，"right" 将会以像素作为边距，否则将会以相对父物体宽度的百分比（0 到 100）作为边距。
      */
     @property
     get isAbsoluteRight () {
@@ -499,7 +499,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @zh
-     * 如果为 true，"horizontalCenter" 将会以像素作为偏移值，反之为百分比（0 到 1）。
+     * 如果为 true，"horizontalCenter" 将会以像素作为偏移值，反之为百分比（0 到 100）。
      */
     @property
     get isAbsoluteHorizontalCenter () {
@@ -517,7 +517,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @zh
-     * 如果为 true，"verticalCenter" 将会以像素作为偏移值，反之为百分比（0 到 1）。
+     * 如果为 true，"verticalCenter" 将会以像素作为偏移值，反之为百分比（0 到 100）。
      */
     @property
     get isAbsoluteVerticalCenter () {
