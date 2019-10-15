@@ -31,7 +31,7 @@ import * as _decorator from './class-decorator';
 cc._decorator = _decorator;
 export { _decorator };
 export { default as CCClass } from './class';
-export { CCObject } from './object';
+export { CCObject, isValid } from './object';
 export { default as deserialize } from './deserialize';
 export { default as instantiate } from './instantiate';
 export { CCInteger, CCFloat, CCBoolean, CCString} from './utils/attribute';
