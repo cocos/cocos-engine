@@ -230,6 +230,7 @@ export class RenderScene {
     public destroyModel (model: Model) {
         for (let i = 0; i < this._models.length; ++i) {
             if (this._models[i] === model) {
+                this._planarShadows.destroyShadowModel(model);
                 this._models.splice(i, 1)[0].destroy();
                 return;
             }
@@ -238,6 +239,7 @@ export class RenderScene {
 
     public destroyModels () {
         for (const m of this._models) {
+            this._planarShadows.destroyShadowModel(m);
             m.destroy();
         }
         this._models = [];
