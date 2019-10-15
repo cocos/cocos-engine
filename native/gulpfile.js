@@ -150,7 +150,7 @@ gulp.task('gen-simulator', function(cb) {
     if (process.platform === 'darwin') {
         args = ['gen-simulator', '-m', 'debug', '-p', 'mac'];
     } else {
-        args = ['gen-simulator', '-c', '-m', 'debug', '-p', 'win32', '--vs', '2015', '--ol', 'en'];
+        args = ['gen-simulator', '-c', '-m', 'debug', '-p', 'win32', '--vs', '2017', '--ol', 'en'];
     }
     try {
         var child = spawn(cocosConsoleBin, args);
