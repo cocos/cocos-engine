@@ -38,4 +38,8 @@ export default class FrameBuffer {
 
     this._glID = null;
   }
+
+  getHandle() {
+    return this._glID;
+  }
 }
