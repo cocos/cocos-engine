@@ -466,7 +466,7 @@ export default [
   {
     "name": "util/profiler",
     "techniques": [
-      {"passes":[{"blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":4, "blendDstAlpha":4}]}, "program":"util/profiler|profiler-vs:vert|profiler-fs:frag", "depthStencilState":{"depthTest":true, "depthWrite":false}, "properties":{"mainTexture":{"value":"grey", "type":28}, "offset":{"type":16}}}]}
+      {"passes":[{"blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":4, "blendDstAlpha":4}]}, "rasterizerState":{"cullMode":0}, "program":"util/profiler|profiler-vs:vert|profiler-fs:frag", "depthStencilState":{"depthTest":false, "depthWrite":false}, "properties":{"mainTexture":{"value":"grey", "type":28}, "offset":{"type":16}}}]}
     ],
     "shaders": [
       {
