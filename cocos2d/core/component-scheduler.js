@@ -467,10 +467,7 @@ var ComponentScheduler = cc.Class({
     // Call new registered start schedule immediately since last time start phase calling in this frame
     // See cocos-creator/2d-tasks/issues/256
     _earlyStartForNewComps () {
-        // In broad scene, _deferredSchedule should clear scheduleInNextFrame,
-        // once not cleared, means new node activated during start
         if (this.scheduleInNextFrame.length > 0) {
-            // TODO: unit test me
             this._deferredSchedule();
             this.startInvoker.invoke();
         }
@@ -487,6 +484,8 @@ var ComponentScheduler = cc.Class({
         // call start
         this.startInvoker.invoke();
 
+        // As is often the case, _deferredSchedule should clear scheduleInNextFrame,
+        // once not cleared, it indicates that there is a node activated during start
         this._earlyStartForNewComps();
 
         // if (CC_PREVIEW) {

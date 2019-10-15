@@ -944,7 +944,7 @@ cc.Director.prototype = {
                 // before update
                 this.emit(cc.Director.EVENT_BEFORE_UPDATE);
 
-                // Call start for new added components before
+                // Call start for new added components
                 this._compScheduler.startPhase();
 
                 // Update for components
