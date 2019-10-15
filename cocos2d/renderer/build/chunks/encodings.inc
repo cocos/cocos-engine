@@ -28,4 +28,3 @@ vec4 LINEAR_TO_OUTPUT_TEXEL (in vec4 color) {
     return color;
   #endif
 }
-

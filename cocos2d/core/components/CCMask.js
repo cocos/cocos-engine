@@ -96,7 +96,6 @@ let Mask = cc.Class({
     },
 
     ctor () {
-        this._renderData = null;
         this._graphics = null;
 
         this._enableMaterial = null;
@@ -330,7 +329,7 @@ let Mask = cc.Class({
     _onTextureLoaded () {
         // Mark render data dirty
         this.setVertsDirty();
-        if (this._renderData) {
+        if (this._assembler._renderData) {
             this.markForUpdateRenderData(true);
         }
         // Reactivate material

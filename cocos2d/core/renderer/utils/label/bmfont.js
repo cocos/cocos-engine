@@ -518,10 +518,8 @@ export default class BmfontAssembler extends Assembler2D {
         let texture = shareLabelInfo.fontAtlas.getTexture();
 
         let node = _comp.node;
-        let renderData = _comp._renderData;
-        if (renderData) {
-            renderData.dataLength = renderData.vertexCount = renderData.indiceCount = 0;
-        }
+
+        this.verticesCount = this.indicesCount = 0;
 
         let contentSize = _contentSize,
             appx = node._anchorPoint.x * contentSize.width,

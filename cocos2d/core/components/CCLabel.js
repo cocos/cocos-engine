@@ -385,7 +385,6 @@ let Label = cc.Class({
                     cc.warnID(4000);
                 }
 
-                this._fontAtlas = null;
                 this._resetAssembler();
                 this._applyFontTexture(true);
                 this._lazyUpdateRenderData();
@@ -420,7 +419,9 @@ let Label = cc.Class({
                 this._isSystemFontUsed = !!value;
                 if (value) {
                     this.font = null;
+
                     this._resetAssembler();
+                    this._applyFontTexture(true);
                     this._lazyUpdateRenderData();
                     this._checkStringEmpty();
                 }
@@ -487,7 +488,9 @@ let Label = cc.Class({
                 if (oldValue === CacheMode.CHAR) {
                     this._ttfTexture = null;
                 }
-
+                
+                this._resetAssembler();
+                this._applyFontTexture(true);
                 this._lazyUpdateRenderData();
             },
             animatable: false
@@ -512,6 +515,19 @@ let Label = cc.Class({
         VerticalAlign: VerticalAlign,
         Overflow: Overflow,
         CacheMode: CacheMode,
+
+        _shareAtlas: null,
+        /**
+         * !#zh 需要保证当前场景中没有使用CHAR缓存的Label才可以清除，否则已渲染的文字没有重新绘制会不显示
+         * !#en It can be cleared that need to ensure there is not use the CHAR cache in the current scene. Otherwise, the rendered text will not be displayed without repainting.
+         * @method clearCharCache
+         * @static
+         */
+        clearCharCache () {
+            if (Label._shareAtlas) {
+                Label._shareAtlas.clearAllCache();
+            }
+        }
     },
 
     onLoad () {
@@ -564,6 +580,12 @@ let Label = cc.Class({
             this._lazyUpdateRenderData();
         }
        RenderComponent.prototype._updateColor.call(this);
+    },
+
+    _resetAssembler () {
+        this._frame = null;
+
+        RenderComponent.prototype._resetAssembler.call(this);
     },
 
     _canRender () {
