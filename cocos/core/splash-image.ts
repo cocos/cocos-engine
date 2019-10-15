@@ -70,8 +70,8 @@ export class SplashScreen {
     }
 
     public main (device: GFXDevice) {
-        if (window._CCSettings && window._CCSettings.SplashImage) {
-            this.setting = window._CCSettings.SplashImage;
+        if (window._CCSettings && window._CCSettings.SplashScreen) {
+            this.setting = window._CCSettings.SplashScreen;
             (this.setting.totalTime as number) = this.setting.totalTime != null ? this.setting.totalTime : 3000;
             (this.setting.base64src as string) = this.setting.base64src != null ? this.setting.base64src : defaultSrcBase64;
             (this.setting.effect as SplashEffectType) = this.setting.effect != null ? this.setting.effect : "none";
