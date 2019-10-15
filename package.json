@@ -84,7 +84,7 @@
     "rollup-plugin-terser": "^5.1.1",
     "rollup-plugin-uglify": "^6.0.2",
     "rollup-watch": "^4.3.1",
-    "tfig": "^1.0.28",
+    "tfig": "^1.1.0",
     "ts-jest": "^24.0.2",
     "tween.js": "github:cocos-creator/tween.js#cocos-master",
     "typedoc": "^0.14.2",
