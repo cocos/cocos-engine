@@ -968,8 +968,6 @@ test('should re-call start (to init) before rendering when it is enabled after s
     var flag = true;
     rootComp.update = function () {
         if (flag) {
-            childComp.expect(CallbackTester.OnLoad, "should onLoad in this frame");
-            childComp.expect(CallbackTester.OnEnable, "should onEnable in this frame", true);
             childComp.expect(CallbackTester.start, "should start in this frame", true);
             nodes.child.active = true;
             flag = false;
@@ -982,8 +980,6 @@ test('should re-call start (to init) before rendering when it is enabled after s
     cc.game.step();
 
     // next frame
-    childComp.notExpect(CallbackTester.OnLoad, "should not onLoad in this frame");
-    childComp.notExpect(CallbackTester.OnEnable, "should not onEnable in this frame");
     childComp.notExpect(CallbackTester.start, "should not start in this frame");
     childComp.expect(CallbackTester.update, "should update (first time) in this frame");
     childComp.expect(CallbackTester.lateUpdate, "should lateUpdate in this frame", true);
