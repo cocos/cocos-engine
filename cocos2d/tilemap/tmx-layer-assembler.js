@@ -132,7 +132,7 @@ function _flipTexture (outGrid, inGrid, gid) {
     }
 
     // flip y
-    if ((gid & TileFlag.HORIZONTAL) >>> 0) {
+    if ((gid & TileFlag.VERTICAL) >>> 0) {
         tempVal = inGrid.b;
         outGrid.b = inGrid.t;
         outGrid.t = tempVal;
@@ -371,30 +371,30 @@ export default class TmxAssembler extends Assembler {
                 
                 // vice diagonal
                 if ((gid & TileFlag.DIAGONAL) >>> 0) {
-                    // bl
-                    _vbuf[_vfOffset + 7] = ur;
-                    _vbuf[_vfOffset + 8] = vt;
+                    // tl
+                    _vbuf[_vfOffset + 2] = ur;
+                    _vbuf[_vfOffset + 3] = vb;
 
-                    // tr
-                    _vbuf[_vfOffset + 12] = ul;
-                    _vbuf[_vfOffset + 13] = vb;
+                    // br
+                    _vbuf[_vfOffset + 17] = ul;
+                    _vbuf[_vfOffset + 18] = vt;
                 } else {
-                    // bl
-                    _vbuf[_vfOffset + 7] = ul;
-                    _vbuf[_vfOffset + 8] = vb;
+                    // tl
+                    _vbuf[_vfOffset + 2] = ul;
+                    _vbuf[_vfOffset + 3] = vt;
 
-                    // tr
-                    _vbuf[_vfOffset + 12] = ur;
-                    _vbuf[_vfOffset + 13] = vt;
+                    // br
+                    _vbuf[_vfOffset + 17] = ur;
+                    _vbuf[_vfOffset + 18] = vb;
                 }
 
-                // tl
-                _vbuf[_vfOffset + 2] = ul;
-                _vbuf[_vfOffset + 3] = vt;
+                // bl
+                _vbuf[_vfOffset + 7] = ul;
+                _vbuf[_vfOffset + 8] = vb;
 
-                // br
-                _vbuf[_vfOffset + 17] = ur;
-                _vbuf[_vfOffset + 18] = vb;
+                // tr
+                _vbuf[_vfOffset + 12] = ur;
+                _vbuf[_vfOffset + 13] = vt;
 
                 // modify buffer all kinds of offset
                 _vfOffset += 20;
