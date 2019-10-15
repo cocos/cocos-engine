@@ -40,6 +40,7 @@ const FontAtlas = cc.BitmapFont.FontAtlas;
 
 const WHITE = cc.Color.WHITE;
 const space = 2;
+const bleed = 2;
 const _invisibleAlpha = (1 / 255).toFixed(3);
 
 function LetterTexture(char, labelInfo) {
@@ -70,8 +71,8 @@ LetterTexture.prototype = {
         this._context = this._data.context;
         this._context.font = this._labelInfo.fontDesc;
         let width = textUtils.safeMeasureText(this._context, this._char);
-        this._width = parseFloat(width.toFixed(2)) + this._labelInfo.margin * 2;
-        this._height = (1 + textUtils.BASELINE_RATIO) * this._labelInfo.fontSize + this._labelInfo.margin * 2;
+        this._width = parseFloat(width.toFixed(2)) + this._labelInfo.margin * 2 + bleed;
+        this._height = (1 + textUtils.BASELINE_RATIO) * this._labelInfo.fontSize + this._labelInfo.margin * 2 + bleed;
         this._offsetY = - (this._labelInfo.fontSize * textUtils.BASELINE_RATIO) / 2;
 
         if (this._canvas.width !== this._width) {
@@ -163,13 +164,13 @@ cc.js.mixin(LetterAtlas.prototype, {
         this._dirty = true;
         
         let letter = new FontLetterDefinition();
-        letter.u = this._x;
-        letter.v = this._y;
+        letter.u = this._x + bleed/2;
+        letter.v = this._y + bleed/2;
         letter.texture = this._fontDefDictionary._texture;
         letter.valid = true;
-        letter.w = letterTexture._width;
-        letter.h = letterTexture._height;
-        letter.xAdvance = letterTexture._width;
+        letter.w = letterTexture._width - bleed;
+        letter.h = letterTexture._height - bleed;
+        letter.xAdvance = letterTexture._width - bleed;
         letter.offsetY = letterTexture._offsetY;
 
         this._x += width + space;
