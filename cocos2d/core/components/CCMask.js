@@ -302,6 +302,7 @@ let Mask = cc.Class({
     },
 
     _validateRender () {
+        if (!this.isValid) return;
         if (this._type !== MaskType.IMAGE_STENCIL) return;
 
         let spriteFrame = this._spriteFrame;

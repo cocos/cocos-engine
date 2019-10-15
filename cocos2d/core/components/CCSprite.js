@@ -448,6 +448,7 @@ var Sprite = cc.Class({
     },
 
     _validateRender () {
+        if (!this.isValid) return;
         let spriteFrame = this._spriteFrame;
         if (this.enabledInHierarchy && 
             this.sharedMaterials[0] &&
@@ -487,6 +488,7 @@ var Sprite = cc.Class({
                 this._applySpriteSize();
             }
             else {
+                this.disableRender();
                 spriteFrame.onTextureLoaded(this._applySpriteSize, this);
             }
         }

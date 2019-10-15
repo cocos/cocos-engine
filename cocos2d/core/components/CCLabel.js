@@ -578,6 +578,7 @@ let Label = cc.Class({
     },
 
     _validateRender () {
+        if (!this.isValid) return;
         if (!this.string) {
             this.disableRender();
             return;
@@ -669,6 +670,7 @@ let Label = cc.Class({
 
     _forceUpdateRenderData () {
         this.setVertsDirty();
+        this._resetAssembler();
         this._applyFontTexture();
     },
 

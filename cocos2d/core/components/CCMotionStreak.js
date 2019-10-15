@@ -245,14 +245,14 @@ var MotionStreak = cc.Class({
      */
     reset () {
         this._points.length = 0;
-        this._assembler._renderData.clear();
+        this._assembler && this._assembler._renderData.clear();
         if (CC_EDITOR) {
             cc.engine.repaintInEditMode();
         }
     },
 
     update (dt) {
-        this._assembler.update(this, dt);
+        this._assembler && this._assembler.update(this, dt);
     }
 });
 
