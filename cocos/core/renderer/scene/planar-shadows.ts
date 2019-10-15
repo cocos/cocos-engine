@@ -1,7 +1,7 @@
 
 import { EffectAsset } from '../../assets/effect-asset';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXCommandBufferType } from '../../gfx/define';
+import { GFXCommandBufferType, GFXStatus } from '../../gfx/define';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Color, Mat4, Quat, Vec3 } from '../../math';
@@ -163,7 +163,7 @@ export class PlanarShadows {
                 if (!ia) { continue; }
                 let cb = this._cbRecord.get(ia);
                 if (newOne || !cb) {
-                    cb = this._createCommandBuffer();
+                    cb = this._createOrReuseCommandBuffer(cb);
                     cb.begin();
                     cb.bindPipelineState(pso);
                     cb.bindBindingLayout(pso.pipelineLayout.layouts[0]);
@@ -174,6 +174,17 @@ export class PlanarShadows {
                 }
                 this.cmdBuffs.push(cb);
             }
+        }
+    }
+
+    public destroyShadowModel (model: Model) {
+        const pso = this._psoRecord.get(model);
+        if (pso) { this._destroyPSO(model, pso); this._psoRecord.delete(model); }
+        for (let i = 0; i < model.subModelNum; i++) {
+            const ia = model.getSubModel(i).inputAssembler;
+            const cb = this._cbRecord.get(ia!);
+            if (!ia || !cb) { continue; }
+            cb.destroy(); this._cbRecord.delete(ia);
         }
     }
 
@@ -188,8 +199,7 @@ export class PlanarShadows {
         const models = this._psoRecord.keys();
         let modelRes = models.next();
         while (!modelRes.done) {
-            const pass = modelRes.value instanceof SkinningModel ? this._passSkinning : this._passNormal;
-            pass.destroyPipelineState(this._psoRecord.get(modelRes.value)!);
+            this._destroyPSO(modelRes.value, this._psoRecord.get(modelRes.value)!);
             modelRes = models.next();
         }
         this._psoRecord.clear();
@@ -209,11 +219,19 @@ export class PlanarShadows {
         return pso;
     }
 
-    protected _createCommandBuffer () {
+    protected _destroyPSO (model: Model, pso: GFXPipelineState) {
+        const pass = model instanceof SkinningModel ? this._passSkinning : this._passNormal;
+        return pass.destroyPipelineState(pso);
+    }
+
+    protected _createOrReuseCommandBuffer (cb?: GFXCommandBuffer) {
         const device = this._scene.root.device;
-        return device.createCommandBuffer({
+        const info = {
             allocator: device.commandAllocator,
             type: GFXCommandBufferType.SECONDARY,
-        });
+        };
+        if (cb) { if (cb.status === GFXStatus.SUCCESS) { cb.destroy(); } cb.initialize(info); }
+        else { cb = device.createCommandBuffer(info); }
+        return cb;
     }
 }
