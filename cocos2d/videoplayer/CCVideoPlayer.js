@@ -270,8 +270,8 @@ let VideoPlayer = cc.Class({
         },
 
         /**
-         * !#en Always below the game view (only useful on Web。Note: The specific effects are not guaranteed to be consistent, depending on whether each browser supports or restricts).
-         * !zh 永远在游戏视图最底层（这个属性只有在 Web 平台上有效果。注意：具体效果无法保证一致，跟各个浏览器是否支持与限制有关）
+         * !#en Always below the game view (only useful on Web. Note: The specific effects are not guaranteed to be consistent, depending on whether each browser supports or restricts).
+         * !#zh 永远在游戏视图最底层（这个属性只有在 Web 平台上有效果。注意：具体效果无法保证一致，跟各个浏览器是否支持与限制有关）
          * @property {Boolean} stayOnBottom
          */
         _stayOnBottom: false,
