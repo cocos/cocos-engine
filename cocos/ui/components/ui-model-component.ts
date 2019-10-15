@@ -28,13 +28,13 @@
  * @category ui
  */
 
+import { RenderableComponent } from '../../core/3d/framework/renderable-component';
+import { Material } from '../../core/assets';
+import { UIComponent } from '../../core/components/ui-base/ui-component';
 import { ccclass, executionOrder, menu } from '../../core/data/class-decorator';
+import { director } from '../../core/director';
 import { RenderPriority } from '../../core/pipeline/define';
 import { UI } from '../../core/renderer/ui/ui';
-import { Material } from '../../core/assets';
-import { RenderableComponent } from '../../core/3d/framework/renderable-component';
-import { UIComponent } from '../../core/components/ui-base/ui-component';
-import { director } from '../../core/director';
 
 /**
  * @zh
@@ -54,8 +54,8 @@ export class UIModelComponent extends UIComponent {
 
     public onLoad () {
         this._modelComponent = this.getComponent('cc.RenderableComponent') as RenderableComponent;
-        if (!this._modelComponent){
-            console.warn(`Use this component on a node（${this.node && this.node.name}） that has a model component`);
+        if (!this._modelComponent) {
+            console.warn(`node '${this.node && this.node.name}' doesn't have any renderable component`);
             return;
         }
 
@@ -65,7 +65,7 @@ export class UIModelComponent extends UIComponent {
 
     public onDestroy () {
         this._modelComponent = this.getComponent('cc.RenderableComponent') as RenderableComponent;
-        if (!this._modelComponent){
+        if (!this._modelComponent) {
             return;
         }
 

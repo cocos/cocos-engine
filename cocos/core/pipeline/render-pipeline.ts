@@ -4,18 +4,8 @@
 
 import { intersect } from '../geom-utils';
 import { GFXBuffer } from '../gfx/buffer';
-import {
-    GFXBindingType,
-    GFXBufferUsageBit,
-    GFXFormat,
-    GFXFormatInfos,
-    GFXLoadOp,
-    GFXMemoryUsageBit,
-    GFXStoreOp,
-    GFXTextureLayout,
-    GFXTextureType,
-    GFXTextureUsageBit,
-    GFXTextureViewType} from '../gfx/define';
+import { GFXBindingType, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXLoadOp, GFXMemoryUsageBit,
+    GFXStoreOp, GFXTextureLayout, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../gfx/define';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
@@ -35,7 +25,6 @@ import { IRenderFlowInfo, RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 
 const _vec4Array = new Float32Array(4);
-const _outMat = new Mat4();
 const _v3tmp = new Vec3();
 const _v4Zero = new Vec4(0.0, 0.0, 0.0, 0.0);
 

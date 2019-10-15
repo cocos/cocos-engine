@@ -228,7 +228,6 @@ export class ForwardPipeline extends RenderPipeline {
                                 _vec4Array[1] *= tempRGB.y;
                                 _vec4Array[2] *= tempRGB.z;
                             }
-                            _vec4Array[3] = sphereLit.luminance * this._lightMeterScale;
                             if (this._isHDR) {
                                 _vec4Array[3] = sphereLit.luminance * this._fpScale * this._lightMeterScale;
                             } else {
