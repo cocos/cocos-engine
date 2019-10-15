@@ -304,7 +304,7 @@ private:
     cocos2d::Mat4* _localMat = nullptr;
     cocos2d::Mat4* _worldMat = nullptr;
     ParentInfo* _parentInfo = nullptr;
-    uint32_t* _localZOrder = nullptr;
+    int32_t* _localZOrder = nullptr;
     int32_t* _cullingMask = nullptr;
     uint8_t* _opacity = nullptr;
     uint8_t* _is3DNode = nullptr;

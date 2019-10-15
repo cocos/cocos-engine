@@ -91,7 +91,7 @@ public:
         return (ParentInfo*)parentData + index;
     }
     
-    uint32_t* getZOrder(std::size_t index)
+    int32_t* getZOrder(std::size_t index)
     {
         return zOrderData + index;
     }
@@ -137,7 +137,7 @@ protected:
     std::size_t parentLen = 0;
     
     se::Object* zOrder = nullptr;
-    uint32_t* zOrderData = nullptr;
+    int32_t* zOrderData = nullptr;
     std::size_t zOrderLen = 0;
     
     se::Object* cullingMask = nullptr;
