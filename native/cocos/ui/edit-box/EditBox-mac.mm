@@ -186,6 +186,8 @@ namespace
         if (! g_textView)
         {
             g_textView = [[NSTextView alloc] initWithFrame:rect];
+            g_textView.textColor = [NSColor blackColor];
+            g_textView.backgroundColor = [NSColor whiteColor];
             g_textView.editable = TRUE;
             g_textView.hidden = FALSE;
             g_textView.delegate = [[TextViewDelegate alloc] init];
@@ -230,6 +232,8 @@ namespace
             if (! g_secureTextField)
             {
                 g_secureTextField = [[NSSecureTextField alloc] init];
+                g_secureTextField.textColor = [NSColor blackColor];
+                g_secureTextField.backgroundColor = [NSColor whiteColor];
                 g_secureTextField.delegate = [[TextFieldDelegate alloc] init];
                 g_secureTextField.formatter = [[TextFieldFormatter alloc] init];
             }
@@ -240,6 +244,8 @@ namespace
             if (! g_textField)
             {
                 g_textField = [[NSTextField alloc] init];
+                g_textField.textColor = [NSColor blackColor];
+                g_textField.backgroundColor = [NSColor whiteColor];
                 g_textField.delegate = [[TextFieldDelegate alloc] init];
                 g_textField.formatter = [[TextFieldFormatter alloc] init];
             }
