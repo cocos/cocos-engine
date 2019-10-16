@@ -632,6 +632,10 @@ you can declare a texture object directly in properties by using:
 
 browser does not support getters
 
+### 3659
+
+Violation error: extending enumerations shall have non-overlaped member names or member values
+
 ### 3700
 
 internal error: _prefab is undefined
