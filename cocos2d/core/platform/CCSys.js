@@ -823,7 +823,7 @@ function initSys () {
             osVersion = uaResult[2] || '';
             osMainVersion = parseInt(osVersion) || 0;
         }
-        else if (/(iPhone|iPad|iPod)/.exec(nav.platform)) {
+        else if (/(iPhone|iPad|iPod|MacIntel)/.exec(nav.platform)) {
             iOS = true;
             osVersion = '';
             osMainVersion = 0;
