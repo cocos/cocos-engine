@@ -54,7 +54,7 @@ export class WebGLGFXFramebuffer extends GFXFramebuffer {
                 gpuRenderPass: (info.renderPass as WebGLGFXRenderPass).gpuRenderPass,
                 gpuColorViews: [],
                 gpuDepthStencilView: null,
-                isOffscreen: info.isOffscreen,
+                isOffscreen: false,
                 glFramebuffer: null,
             };
         }
