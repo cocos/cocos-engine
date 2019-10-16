@@ -7,7 +7,7 @@ import { RigidBodyComponent } from "../components/rigid-body-component";
 import { Cocos2AmmoVec3, Cocos2AmmoQuat } from "./ammo-util";
 import { defaultRigidBodyInfo } from './ammo-const';
 import { ColliderComponent } from '../../../exports/physics-framework';
-import { AmmoCollisionFlags } from './ammo-enum';
+import { AmmoCollisionFlags, AmmoRigidBodyFlags } from './ammo-enum';
 import { TransformDirtyBit } from '../../core/scene-graph/node-enum';
 
 export class AmmoRigidBody implements RigidBodyBase {
@@ -455,6 +455,7 @@ export class AmmoRigidBody implements RigidBodyBase {
     }
     private _ammoBody!: Ammo.btRigidBody;
     public ammoCompoundShape!: Ammo.btCompoundShape;
+    public readonly wroldQuaternion: Ammo.btQuaternion;
 
     constructor () {
         // this._transformBuffer.setIdentity();
@@ -474,6 +475,8 @@ export class AmmoRigidBody implements RigidBodyBase {
 
         // var myMotionState = new Ammo.btDefaultMotionState(startTransform);
         // var rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, myMotionState, boxShape, localInertia);
+
+        this.wroldQuaternion = new Ammo.btQuaternion();
     }
 
     public __preload () {
@@ -489,9 +492,13 @@ export class AmmoRigidBody implements RigidBodyBase {
         for (let i = 0; i < allColliders.length; i++) {
             if (!allColliders[i].isTrigger) {
                 const ammoShape = (allColliders[i] as any)._shapeBase as AmmoShape;
+                ammoShape.index = i;
                 const lt = ammoShape.localTransform;
                 Cocos2AmmoVec3(lt.getOrigin(), allColliders[i].center);
-                Cocos2AmmoVec3(ammoShape.impl.getLocalScaling(), allColliders[i].node.worldScale);
+
+                Cocos2AmmoVec3(ammoShape.scale, allColliders[i].node.worldScale);
+                ammoShape.impl.setLocalScaling(ammoShape.scale);
+
                 this.ammoCompoundShape.addChildShape(lt, (allColliders[i] as any)._shapeBase.impl);
             }
         }
@@ -499,8 +506,11 @@ export class AmmoRigidBody implements RigidBodyBase {
         /** 构造和初始化刚体*/
         var st = new Ammo.btTransform();
         st.setIdentity();
-        Cocos2AmmoVec3(st.getOrigin(), this.rigidBody.node.worldPosition);
-        Cocos2AmmoQuat(st.getRotation(), this.rigidBody.node.worldRotation);
+        Cocos2AmmoVec3(st.getOrigin(), this.rigidBody.node.worldPosition)
+
+        Cocos2AmmoQuat(this.wroldQuaternion, this.rigidBody.node.worldRotation);
+        st.setRotation(this.wroldQuaternion);
+
         var localInertia = new Ammo.btVector3(0, 0, 0);
         this.ammoCompoundShape.calculateLocalInertia(this.rigidBody.mass, localInertia);
         var myMotionState = new Ammo.btDefaultMotionState(st);
@@ -510,6 +520,14 @@ export class AmmoRigidBody implements RigidBodyBase {
         this._ammoBody = new Ammo.btRigidBody(rbInfo);
 
         /** 初始化其它的属性 */
+
+        let wr = this.rigidBody.node.worldRotation;
+        var rotation = this.impl.getWorldTransform().getRotation();
+        rotation.setX(wr.x);
+        rotation.setY(wr.y);
+        rotation.setZ(wr.z);
+        rotation.setW(wr.w);
+
         this._ammoBody.setLinearFactor(Cocos2AmmoVec3(new Ammo.btVector3(), this.rigidBody.linearFactor));
         this._ammoBody.setAngularFactor(Cocos2AmmoVec3(new Ammo.btVector3(), this.rigidBody.angularFactor));
         if (this.rigidBody.fixedRotation) {
@@ -519,7 +537,9 @@ export class AmmoRigidBody implements RigidBodyBase {
             this._ammoBody.setCollisionFlags(AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
         }
         if (!this.rigidBody.useGravity) {
-            Cocos2AmmoVec3(this._ammoBody.getGravity(), Vec3.ZERO);
+            /** TODO : wait new ammo version */
+            // Cocos2AmmoVec3(this._ammoBody.getGravity(), Vec3.ZERO);
+            // this._ammoBody.setFlags(AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
         }
 
         /** disable sleep */
@@ -541,21 +561,12 @@ export class AmmoRigidBody implements RigidBodyBase {
     }
 
     public beforeStep () {
-        if (this.rigidBody.node.hasChangedFlags & TransformDirtyBit.POSITION) {
-            let wp = this.rigidBody.node.worldPosition;
-            var origin = this.impl.getWorldTransform().getOrigin();
-            origin.setX(wp.x);
-            origin.setY(wp.y);
-            origin.setZ(wp.z);
-            this.impl.activate();
-        }
-        if (this.rigidBody.node.hasChangedFlags & TransformDirtyBit.ROTATION) {
-            let wr = this.rigidBody.node.worldRotation;
-            var rotation = this.impl.getWorldTransform().getRotation();
-            rotation.setX(wr.x);
-            rotation.setY(wr.y);
-            rotation.setZ(wr.z);
-            rotation.setW(wr.w);
+        if (this.rigidBody.node.hasChangedFlags) {
+            const wt = this.impl.getWorldTransform();
+            Cocos2AmmoVec3(wt.getOrigin(), this.rigidBody.node.worldPosition)
+
+            Cocos2AmmoQuat(this.wroldQuaternion, this.rigidBody.node.worldRotation);
+            wt.setRotation(this.wroldQuaternion);
             this.impl.activate();
         }
     }

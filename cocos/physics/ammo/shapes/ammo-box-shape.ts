@@ -1,7 +1,7 @@
 import Ammo from 'ammo.js';
 import { BoxShapeBase } from "../../api";
 import { AmmoShape } from "./ammo-shape";
-import { Vec3 } from "../../../core";
+import { Vec3, Node } from "../../../core";
 import { AmmoCollisionFlags } from '../ammo-enum';
 import { RigidBodyComponent } from '../../components/rigid-body-component';
 import { AmmoRigidBody } from '../ammo-body';
@@ -68,6 +68,11 @@ export class AmmoBoxShape extends AmmoShape implements BoxShapeBase {
 
     public onDisable () {
         super.onDisable();
+    }
+
+    public UP (n: Node) {
+        super.UP(n);
+        
     }
 
 }

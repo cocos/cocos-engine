@@ -8,6 +8,7 @@ import { AmmoCollisionFlags } from '../ammo-enum';
 import { defaultRigidBodyInfo } from '../ammo-const';
 import { Cocos2AmmoVec3, Cocos2AmmoQuat } from '../ammo-util';
 import { TransformDirtyBit } from '../../../core/scene-graph/node-enum';
+import { Node } from '../../../core';
 
 export class AmmoShape implements ShapeBase {
 
@@ -27,9 +28,6 @@ export class AmmoShape implements ShapeBase {
 
     protected _scale: Vec3 = new Vec3(1, 1, 1);
 
-
-    private _center: Vec3 = new Vec3(0, 0, 0);
-
     private _userData: any;
 
 
@@ -39,11 +37,6 @@ export class AmmoShape implements ShapeBase {
 
     public setUserData (data: any): void {
         this._userData = data;
-    }
-
-    public setCenter (center: Vec3): void {
-        Vec3.copy(this._center, center);
-        this._recalcCenter();
     }
 
     public setScale (scale: Vec3): void {
@@ -76,7 +69,7 @@ export class AmmoShape implements ShapeBase {
     public collider!: ColliderComponent;
     public attachRigidBody: RigidBodyComponent | null = null;
 
-    private _index: number = -1;
+    public index: number = -1;
 
     public constructor () {
         this.localPosition = new Ammo.btVector3(0, 0, 0);
@@ -88,7 +81,7 @@ export class AmmoShape implements ShapeBase {
     }
 
     public __preload () {
-
+        this.attachRigidBody = this.collider.getComponent(RigidBodyComponent);
     }
 
     public onLoad () {
@@ -116,7 +109,7 @@ export class AmmoShape implements ShapeBase {
             this._ammoShape.setLocalScaling(this.scale);
 
             AmmoWorld.instance.sharedTriggerCompoundShape.addChildShape(this.localTransform, this._ammoShape);
-            this._index = AmmoWorld.instance.sharedTriggerCompoundShape.getNumChildShapes() - 1;
+            this.index = AmmoWorld.instance.sharedTriggerCompoundShape.getNumChildShapes() - 1;
 
             /** TODO: 将形状记录下来，并及时更新 transform */
             AmmoWorld.instance.triggerShapes.push(this);
@@ -138,7 +131,7 @@ export class AmmoShape implements ShapeBase {
                 this._ammoShape.setLocalScaling(this.scale);
 
                 AmmoWorld.instance.sharedStaticCompoundShape.addChildShape(this.localTransform, this._ammoShape);
-                this._index = AmmoWorld.instance.sharedStaticCompoundShape.getNumChildShapes() - 1;
+                this.index = AmmoWorld.instance.sharedStaticCompoundShape.getNumChildShapes() - 1;
 
                 /** TODO: 将形状记录下来，并及时更新 transform */
                 AmmoWorld.instance.staticShapes.push(this);
@@ -156,22 +149,42 @@ export class AmmoShape implements ShapeBase {
     }
 
     public onDisable () {
-        if (this._index >= 0) {
+        if (this.index >= 0) {
             if (this.collider.isTrigger) {
-                AmmoWorld.instance.sharedTriggerCompoundShape.removeChildShapeByIndex(this._index)
-                AmmoWorld.instance.triggerShapes.splice(this._index, 1);
-                this._index = -1;
+                AmmoWorld.instance.sharedTriggerCompoundShape.removeChildShapeByIndex(this.index)
+                AmmoWorld.instance.triggerShapes.splice(this.index, 1);
+                this.index = -1;
             } else {
                 if (this.attachRigidBody == null) {
-                    AmmoWorld.instance.sharedStaticCompoundShape.removeChildShapeByIndex(this._index)
-                    AmmoWorld.instance.staticShapes.splice(this._index, 1);
-                    this._index = -1;
+                    AmmoWorld.instance.sharedStaticCompoundShape.removeChildShapeByIndex(this.index)
+                    AmmoWorld.instance.staticShapes.splice(this.index, 1);
+                    this.index = -1;
                 } else {
                     // /** TODO：将形状从 rigid body 中移除 */
                     // const ammoBody = this._attachRigidBody._impl as AmmoRigidBody;
                     // ammoBody.ammoCompoundShape.removeChildShapeByIndex(this._index);
                     // this._index = -1;
                 }
+            }
+        }
+    }
+
+    public setCenter (center: Vec3): void {
+
+        if (this.attachRigidBody) {
+            Cocos2AmmoVec3(this.localTransform.getOrigin(), center);
+            const impl = this.attachRigidBody._impl as AmmoRigidBody;
+            impl.ammoCompoundShape.updateChildTransform(this.index, this.localTransform, true);
+        } else {
+            const pos = center.clone();
+            pos.multiply(this.collider.node.worldScale);
+            Vec3.transformQuat(pos, pos, this.collider.node.worldRotation);
+            pos.add(this.collider.node.worldPosition);
+            Cocos2AmmoVec3(this.localTransform.getOrigin(), pos);
+            if (this.collider.isTrigger) {
+                AmmoWorld.instance.sharedTriggerCompoundShape.updateChildTransform(this.index, this.localTransform, true);
+            } else {
+                AmmoWorld.instance.sharedStaticCompoundShape.updateChildTransform(this.index, this.localTransform, true);
             }
         }
     }
@@ -221,11 +234,35 @@ export class AmmoShape implements ShapeBase {
 
         if (dirty) {
             if (this.collider.isTrigger) {
-                AmmoWorld.instance.sharedTriggerCompoundShape.updateChildTransform(this._index, this.localTransform, true);
+                AmmoWorld.instance.sharedTriggerCompoundShape.updateChildTransform(this.index, this.localTransform, true);
             } else {
-                AmmoWorld.instance.sharedStaticCompoundShape.updateChildTransform(this._index, this.localTransform, true);
+                AmmoWorld.instance.sharedStaticCompoundShape.updateChildTransform(this.index, this.localTransform, true);
             }
         }
     }
 
+    public UP (n: Node) {
+        if (this.attachRigidBody) {
+            const body = this.attachRigidBody._impl as AmmoRigidBody;
+            const wt = body.impl.getWorldTransform();
+            const lt = this.localTransform;
+            _trans.setIdentity();
+            _trans.op_mul(wt).op_mul(lt);
+            let origin = _trans.getOrigin();
+            n.worldPosition = new Vec3(origin.x(), origin.y(), origin.z());
+            let rotation = _trans.getRotation();
+            n.worldRotation = new Quat(rotation.x(), rotation.y(), rotation.z(), rotation.w());
+        } else {
+            let origin = this.localTransform.getOrigin();
+            n.worldPosition = new Vec3(origin.x(), origin.y(), origin.z());
+            let rotation = this.localTransform.getRotation();
+            n.worldRotation = new Quat(rotation.x(), rotation.y(), rotation.z(), rotation.w());
+        }
+
+        let scale = this.impl.getLocalScaling();
+        n.scale = new Vec3(scale.x(), scale.y(), scale.z());
+    }
+
 }
+const _trans = new Ammo.btTransform();
+_trans.setIdentity();
