@@ -71,8 +71,9 @@ LetterTexture.prototype = {
         this._context = this._data.context;
         this._context.font = this._labelInfo.fontDesc;
         let width = textUtils.safeMeasureText(this._context, this._char);
-        this._width = parseFloat(width.toFixed(2)) + this._labelInfo.margin * 2 + bleed;
-        this._height = (1 + textUtils.BASELINE_RATIO) * this._labelInfo.fontSize + this._labelInfo.margin * 2 + bleed;
+        let blank = this._labelInfo.margin * 2 + bleed;
+        this._width = parseFloat(width.toFixed(2)) + blank;
+        this._height = (1 + textUtils.BASELINE_RATIO) * this._labelInfo.fontSize + blank;
         this._offsetY = - (this._labelInfo.fontSize * textUtils.BASELINE_RATIO) / 2;
 
         if (this._canvas.width !== this._width) {
@@ -170,7 +171,7 @@ cc.js.mixin(LetterAtlas.prototype, {
         letter.valid = true;
         letter.w = letterTexture._width - bleed;
         letter.h = letterTexture._height - bleed;
-        letter.xAdvance = letterTexture._width - bleed;
+        letter.xAdvance = letter.w;
         letter.offsetY = letterTexture._offsetY;
 
         this._x += width + space;
