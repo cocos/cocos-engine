@@ -39,6 +39,7 @@ const FontLetterDefinition = cc.BitmapFont.FontLetterDefinition;
 const FontAtlas = cc.BitmapFont.FontAtlas;
 
 const WHITE = cc.Color.WHITE;
+const space = 2;
 const bleed = 2;
 const _invisibleAlpha = (1 / 255).toFixed(3);
 
@@ -131,9 +132,9 @@ function LetterAtlas (width, height) {
 
     this._fontDefDictionary = new FontAtlas(texture);
     
-    this._x = 0;
-    this._y = 0;
-    this._nexty = 0;
+    this._x = space;
+    this._y = space;
+    this._nexty = space;
 
     this._width = width;
     this._height = height;
@@ -146,13 +147,13 @@ cc.js.mixin(LetterAtlas.prototype, {
         let texture = letterTexture._texture;
         let width = texture.width, height = texture.height;        
 
-        if ((this._x + width) > this._width) {
-            this._x = 0;
+        if ((this._x + width + space) > this._width) {
+            this._x = space;
             this._y = this._nexty;
         }
 
         if ((this._y + height) > this._nexty) {
-            this._nexty = this._y + height;
+            this._nexty = this._y + height + space;
         }
 
         if (this._nexty > this._height) {
@@ -173,7 +174,7 @@ cc.js.mixin(LetterAtlas.prototype, {
         letter.xAdvance = letter.w;
         letter.offsetY = letterTexture._offsetY;
 
-        this._x += width;
+        this._x += width + space;
 
         this._fontDefDictionary.addLetterDefinitions(letterTexture._hash, letter);
         
@@ -187,9 +188,9 @@ cc.js.mixin(LetterAtlas.prototype, {
     },
 
     reset () {
-        this._x = 0;
-        this._y = 0;
-        this._nexty = 0;
+        this._x = space;
+        this._y = space;
+        this._nexty = space;
 
         let chars = this._fontDefDictionary._letterDefinitions;
         for (let i = 0, l = chars.length; i < l; i++) {
