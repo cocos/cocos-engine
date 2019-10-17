@@ -268,15 +268,11 @@ export class RigidBodyComponent extends Component {
     @property
     private _angularFactor: Vec3 = new Vec3(1, 1, 1);
 
-<<<<<<< HEAD:cocos/physics/framework/components/rigid-body-component.ts
     protected get _assertOnload (): boolean {
         const r = this._isOnLoadCalled == 0;
         if (r) { error('Physics Error: Please make sure that the node has been added to the scene'); }
         return !r;
     }
-=======
-    public readonly _impl!: RigidBodyBase;
->>>>>>> stash:cocos/physics/components/rigid-body-component.ts
 
     constructor () {
         super();

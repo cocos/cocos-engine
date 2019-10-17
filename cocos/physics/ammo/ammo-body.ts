@@ -1,5 +1,5 @@
 import Ammo from 'ammo.js';
-import { Quat, Vec3, quat } from "../../core";
+import { Quat, Vec3, quat, math } from "../../core";
 import { RigidBodyBase, ShapeBase, PhysicsWorldBase } from "../api";
 import { AmmoWorld } from "./ammo-world";
 import { AmmoShape } from "./shapes/ammo-shape";
@@ -7,8 +7,10 @@ import { RigidBodyComponent } from "../components/rigid-body-component";
 import { Cocos2AmmoVec3, Cocos2AmmoQuat } from "./ammo-util";
 import { defaultRigidBodyInfo } from './ammo-const';
 import { ColliderComponent } from '../../../exports/physics-framework';
-import { AmmoCollisionFlags, AmmoRigidBodyFlags } from './ammo-enum';
+import { AmmoCollisionFlags, AmmoRigidBodyFlags, AmmoBroadphaseNativeTypes } from './ammo-enum';
 import { TransformDirtyBit } from '../../core/scene-graph/node-enum';
+import { max, abs } from '../../core/math/bits';
+import { AmmoSphereShape } from './shapes/ammo-sphere-shape';
 
 export class AmmoRigidBody implements RigidBodyBase {
 
@@ -493,13 +495,32 @@ export class AmmoRigidBody implements RigidBodyBase {
             if (!allColliders[i].isTrigger) {
                 const ammoShape = (allColliders[i] as any)._shapeBase as AmmoShape;
                 ammoShape.index = i;
-                const lt = ammoShape.localTransform;
-                Cocos2AmmoVec3(lt.getOrigin(), allColliders[i].center);
 
-                Cocos2AmmoVec3(ammoShape.scale, allColliders[i].node.worldScale);
-                ammoShape.impl.setLocalScaling(ammoShape.scale);
+                if (ammoShape.type == AmmoBroadphaseNativeTypes.SPHERE_SHAPE_PROXYTYPE) {
+                    const ws = allColliders[i].node.worldScale;
+                    const max_sp = abs(max(max(ws.x, ws.y), ws.z));
+                    const sphere = ammoShape as AmmoSphereShape;
+                    const rs = sphere.sphereCollider.radius;
+                    const scale = new Vec3(rs, rs, rs);
+                    scale.multiplyScalar(max_sp * 2);
+                    Cocos2AmmoVec3(ammoShape.scale, scale);
+                    ammoShape.impl.setLocalScaling(ammoShape.scale);
 
-                this.ammoCompoundShape.addChildShape(lt, (allColliders[i] as any)._shapeBase.impl);
+                    const lt = ammoShape.localTransform;
+                    scale.set(max_sp, max_sp, max_sp);
+                    Vec3.multiply(scale, allColliders[i].center, scale);
+                    Cocos2AmmoVec3(lt.getOrigin(), scale);
+
+                    this.ammoCompoundShape.addChildShape(lt, (allColliders[i] as any)._shapeBase.impl);
+                } else {
+                    const lt = ammoShape.localTransform;
+                    Cocos2AmmoVec3(lt.getOrigin(), allColliders[i].center);
+
+                    Cocos2AmmoVec3(ammoShape.scale, allColliders[i].node.worldScale);
+                    ammoShape.impl.setLocalScaling(ammoShape.scale);
+
+                    this.ammoCompoundShape.addChildShape(lt, (allColliders[i] as any)._shapeBase.impl);
+                }
             }
         }
 
@@ -556,7 +577,7 @@ export class AmmoRigidBody implements RigidBodyBase {
     }
 
     public onDisable () {
-        AmmoWorld.instance.impl.removeRigidBody(this.impl);
+        // AmmoWorld.instance.impl.removeRigidBody(this.impl);
         //remove
     }
 

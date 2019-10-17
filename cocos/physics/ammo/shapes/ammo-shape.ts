@@ -4,11 +4,12 @@ import { Vec3, Quat } from "../../../core/math";
 import { AmmoRigidBody } from "../ammo-body";
 import { ColliderComponent, RigidBodyComponent } from "../../../../exports/physics-framework";
 import { AmmoWorld } from '../ammo-world';
-import { AmmoCollisionFlags } from '../ammo-enum';
+import { AmmoCollisionFlags, AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { defaultRigidBodyInfo } from '../ammo-const';
 import { Cocos2AmmoVec3, Cocos2AmmoQuat } from '../ammo-util';
 import { TransformDirtyBit } from '../../../core/scene-graph/node-enum';
 import { Node } from '../../../core';
+import { max } from '../../../core/math/bits';
 
 export class AmmoShape implements ShapeBase {
 
@@ -70,7 +71,7 @@ export class AmmoShape implements ShapeBase {
     public attachRigidBody: RigidBodyComponent | null = null;
 
     public index: number = -1;
-
+    public type: AmmoBroadphaseNativeTypes = AmmoBroadphaseNativeTypes.INVALID_SHAPE_PROXYTYPE;
     public constructor () {
         this.localPosition = new Ammo.btVector3(0, 0, 0);
         this.localQuaternion = new Ammo.btQuaternion();
@@ -126,9 +127,6 @@ export class AmmoShape implements ShapeBase {
 
                 Cocos2AmmoQuat(this.localQuaternion, this.collider.node.worldRotation);
                 this.localTransform.setRotation(this.localQuaternion);
-
-                Cocos2AmmoVec3(this.scale, this.collider.node.worldScale);
-                this._ammoShape.setLocalScaling(this.scale);
 
                 AmmoWorld.instance.sharedStaticCompoundShape.addChildShape(this.localTransform, this._ammoShape);
                 this.index = AmmoWorld.instance.sharedStaticCompoundShape.getNumChildShapes() - 1;
@@ -189,56 +187,30 @@ export class AmmoShape implements ShapeBase {
         }
     }
 
+    /**
+     * 针对 static 或 trigger
+     */
     public beforeStep () {
 
-        let dirty = false;
-        // /** scale */
-        // if (this.collider.node.hasChangedFlags & TransformDirtyBit.SCALE) {
-        //     Cocos2AmmoVec3(this._ammoShape.getLocalScaling(), this.collider.node.worldScale);
-        //     dirty = true;
+        // if (this.collider.node.hasChangedFlags) {
+            // Cocos2AmmoVec3(this.scale, this.collider.node.worldScale);
+            // this._ammoShape.setLocalScaling(this.scale);
+
+            // Cocos2AmmoQuat(this.localQuaternion, this.collider.node.worldRotation);
+            // this.localTransform.setRotation(this.localQuaternion);
+
+            // const pos = this.collider.center.clone();
+            // pos.multiply(this.collider.node.worldScale);
+            // Vec3.transformQuat(pos, pos, this.collider.node.worldRotation);
+            // pos.add(this.collider.node.worldPosition);
+            // Cocos2AmmoVec3(this.localTransform.getOrigin(), pos);
+
+            // if (this.collider.isTrigger) {
+            //     AmmoWorld.instance.sharedTriggerCompoundShape.updateChildTransform(this.index, this.localTransform, true);
+            // } else {
+            //     AmmoWorld.instance.sharedStaticCompoundShape.updateChildTransform(this.index, this.localTransform, true);
+            // }
         // }
-
-        // /** rotation */
-        // if (this.collider.node.hasChangedFlags & TransformDirtyBit.ROTATION) {
-        //     Cocos2AmmoQuat(this.localQuaternion, this.collider.node.worldRotation);
-        //     this.localTransform.setRotation(this.localQuaternion);
-        //     dirty = true;
-        // }
-
-        // /** position */
-        // if (this.collider.node.hasChangedFlags & TransformDirtyBit.POSITION) {
-        //     const origin = this.localTransform.getOrigin();
-        //     origin.setValue(
-        //         this.collider.center.x + this.collider.node.worldPosition.x,
-        //         this.collider.center.y + this.collider.node.worldPosition.y,
-        //         this.collider.center.z + this.collider.node.worldPosition.z
-        //     );
-        //     dirty = true;
-        // }
-
-        if (this.collider.node.hasChangedFlags) {
-            dirty = true;
-
-            Cocos2AmmoVec3(this.scale, this.collider.node.worldScale);
-            this._ammoShape.setLocalScaling(this.scale);
-
-            Cocos2AmmoQuat(this.localQuaternion, this.collider.node.worldRotation);
-            this.localTransform.setRotation(this.localQuaternion);
-
-            const pos = this.collider.center.clone();
-            pos.multiply(this.collider.node.worldScale);
-            Vec3.transformQuat(pos, pos, this.collider.node.worldRotation);
-            pos.add(this.collider.node.worldPosition);
-            Cocos2AmmoVec3(this.localTransform.getOrigin(), pos);
-        }
-
-        if (dirty) {
-            if (this.collider.isTrigger) {
-                AmmoWorld.instance.sharedTriggerCompoundShape.updateChildTransform(this.index, this.localTransform, true);
-            } else {
-                AmmoWorld.instance.sharedStaticCompoundShape.updateChildTransform(this.index, this.localTransform, true);
-            }
-        }
     }
 
     public UP (n: Node) {
@@ -259,8 +231,14 @@ export class AmmoShape implements ShapeBase {
             n.worldRotation = new Quat(rotation.x(), rotation.y(), rotation.z(), rotation.w());
         }
 
-        let scale = this.impl.getLocalScaling();
-        n.scale = new Vec3(scale.x(), scale.y(), scale.z());
+        if (this.type == AmmoBroadphaseNativeTypes.SPHERE_SHAPE_PROXYTYPE) {
+            let scale = this.impl.getLocalScaling();
+            let diameter = max(max(scale.x(), scale.y()), scale.z());
+            n.scale = new Vec3(diameter, diameter, diameter);
+        } else {
+            let scale = this.impl.getLocalScaling();
+            n.scale = new Vec3(scale.x(), scale.y(), scale.z());
+        }
     }
 
 }
