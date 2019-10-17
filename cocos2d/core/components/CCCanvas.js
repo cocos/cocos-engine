@@ -194,40 +194,44 @@ var Canvas = cc.Class({
         }
     },
 
-    //
-
+    // align canvas
     alignWithScreen: function () {
-        var designSize, nodeSize;
-        if (CC_EDITOR) {
-            nodeSize = designSize = cc.engine.getDesignResolutionSize();
-            this.node.setPosition(designSize.width * 0.5, designSize.height * 0.5);
+        let widget = this.node.getComponent(cc.Widget);
+        if (widget) {
+            widget.isAlignTop = true;
+            widget.isAlignBottom = true;
+            widget.isAlignLeft = true;
+            widget.isAlignRight = true;
+            widget.left = 0;
+            widget.right = 0;
+            widget.top = 0;
+            widget.bottom = 0;
         }
-        else {
-            var canvasSize = nodeSize = cc.visibleRect;
-            designSize = cc.view.getDesignResolutionSize();
-            var clipTopRight = !this.fitHeight && !this.fitWidth;
-            var offsetX = 0;
-            var offsetY = 0;
-            if (clipTopRight) {
-                // offset the canvas to make it in the center of screen
-                offsetX = (designSize.width - canvasSize.width) * 0.5;
-                offsetY = (designSize.height - canvasSize.height) * 0.5;
-            }
-            this.node.setPosition(canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY);
-        }
-        this.node.width = nodeSize.width;
-        this.node.height = nodeSize.height;
     },
 
+    // set policy and calculate
     applySettings: function () {
         var ResolutionPolicy = cc.ResolutionPolicy;
         var policy;
+        var hasWidget = this.getComponent(cc.Widget);
 
         if (this.fitHeight && this.fitWidth) {
-            policy = ResolutionPolicy.SHOW_ALL;
+            if (hasWidget) {
+                var designSize = CC_EDITOR ? cc.engine.getDesignResolutionSize() : cc.view.getDesignResolutionSize();
+                var canvasWidth = cc.game.canvas.width, canvasHeight = cc.game.canvas.height;
+                if (canvasWidth / designSize.width > canvasHeight / designSize.height) {
+                    policy = ResolutionPolicy.FIXED_HEIGHT;
+                }
+                else {
+                    policy = ResolutionPolicy.FIXED_WIDTH;
+                }
+            }
+            else {
+                policy = ResolutionPolicy.SHOW_ALL;
+            }
         }
         else if (!this.fitHeight && !this.fitWidth) {
-            policy = ResolutionPolicy.NO_BORDER;
+            policy = hasWidget ? ResolutionPolicy.NO_BORDER : ResolutionPolicy.UNKNOWN;
         }
         else if (this.fitWidth) {
             policy = ResolutionPolicy.FIXED_WIDTH;
