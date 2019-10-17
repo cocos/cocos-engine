@@ -1105,15 +1105,15 @@ class mat4 {
     if (skewX || skewY) {
         let a = outm[0], b = outm[1], c = outm[4], d = outm[5];
         let skx = Math.tan(skewX * ONE_DEGREE);
-        let sky = Math.tan(skewX * ONE_DEGREE);
+        let sky = Math.tan(skewY * ONE_DEGREE);
         if (skx === Infinity)
             skx = 99999999;
         if (sky === Infinity)
             sky = 99999999;
-            outm[0] = a + c * sky;
-            outm[1] = b + d * sky;
-            outm[4] = c + a * skx;
-            outm[5] = d + b * skx;
+        outm[0] = a + c * sky;
+        outm[1] = b + d * sky;
+        outm[4] = c + a * skx;
+        outm[5] = d + b * skx;
     }
 
     return out;
