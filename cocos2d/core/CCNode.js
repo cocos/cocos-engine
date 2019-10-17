@@ -591,24 +591,7 @@ function _updateCullingMask (node) {
 function updateLocalMatrix3D () {
     if (this._localMatDirty) {
         // Update transform
-        let t = this._matrix;
-        let tm = t.m;
-        mat4.fromTRSArray(t, this._trs);
-
-        // skew
-        if (this._skewX || this._skewY) {
-            let a = tm[0], b = tm[1], c = tm[4], d = tm[5];
-            let skx = Math.tan(this._skewX * ONE_DEGREE);
-            let sky = Math.tan(this._skewY * ONE_DEGREE);
-            if (skx === Infinity)
-                skx = 99999999;
-            if (sky === Infinity)
-                sky = 99999999;
-            tm[0] = a + c * sky;
-            tm[1] = b + d * sky;
-            tm[4] = c + a * skx;
-            tm[5] = d + b * skx;
-        }
+        mat4.fromTRSArray(this._matrix, this._trs);
         this._localMatDirty = 0;
         // Register dirty status of world matrix so that it can be recalculated
         this._worldMatDirty = true;
@@ -626,7 +609,7 @@ function updateLocalMatrix2D () {
 
     if (dirtyFlag & (LocalDirtyFlag.RS | LocalDirtyFlag.SKEW)) {
         let rotation = -this._eulerAngles.z;
-        let hasSkew = this._skewX || this._skewY;
+        let hasSkew = trs[10] || trs[11]; // skewX skewY
         let sx = trs[7], sy = trs[8];
 
         if (rotation || hasSkew) {
@@ -647,8 +630,8 @@ function updateLocalMatrix2D () {
             // skew
             if (hasSkew) {
                 let a = tm[0], b = tm[1], c = tm[4], d = tm[5];
-                let skx = Math.tan(this._skewX * ONE_DEGREE);
-                let sky = Math.tan(this._skewY * ONE_DEGREE);
+                let skx = Math.tan(trs[10] * ONE_DEGREE);
+                let sky = Math.tan(trs[11] * ONE_DEGREE);
                 if (skx === Infinity)
                     skx = 99999999;
                 if (sky === Infinity)
@@ -757,8 +740,8 @@ let NodeDefines = {
         _scale: undefined,
         _trs: null,
         _eulerAngles: cc.Vec3,
-        _skewX: 0.0,
-        _skewY: 0.0,
+        _skewX: undefined,
+        _skewY: undefined,
         _zIndex: {
             default: undefined,
             type: cc.Integer
@@ -1213,10 +1196,10 @@ let NodeDefines = {
          */
         skewX: {
             get () {
-                return this._skewX;
+                return this._trs[10];
             },
             set (value) {
-                this._skewX = value;
+                this._trs[10] = value;
                 this.setLocalDirty(LocalDirtyFlag.SKEW);
             }
         },
@@ -1232,10 +1215,10 @@ let NodeDefines = {
          */
         skewY: {
             get () {
-                return this._skewY;
+                return this._trs[11];
             },
             set (value) {
-                this._skewY = value;
+                this._trs[11] = value;
                 this.setLocalDirty(LocalDirtyFlag.SKEW);
             }
         },
@@ -1641,7 +1624,7 @@ let NodeDefines = {
         if (!this._spaceInfo) {
             if (CC_EDITOR || CC_TEST) {
                 this._spaceInfo = {
-                    trs: new Float32Array(10),
+                    trs: new Float32Array(12),
                     localMat: new Float32Array(16),
                     worldMat: new Float32Array(16),
                 }
@@ -1669,6 +1652,8 @@ let NodeDefines = {
         trs[7] = 1; // scale.x
         trs[8] = 1; // scale.y
         trs[9] = 1; // scale.z
+        trs[10] = 0; // skewX
+        trs[11] = 0; // skewY
     },
 
     _backDataIntoPool () {
@@ -3018,7 +3003,7 @@ let NodeDefines = {
 
         if (dirtyFlag & (LocalDirtyFlag.RS | LocalDirtyFlag.SKEW)) {
             let rotation = -this._eulerAngles.z;
-            let hasSkew = this._skewX || this._skewY;
+            let hasSkew = trs[10] || trs[11];
             let sx = trs[7], sy = trs[8];
 
             if (rotation || hasSkew) {
@@ -3039,8 +3024,8 @@ let NodeDefines = {
                 // skew
                 if (hasSkew) {
                     let a = tm[0], b = tm[1], c = tm[4], d = tm[5];
-                    let skx = Math.tan(this._skewX * ONE_DEGREE);
-                    let sky = Math.tan(this._skewY * ONE_DEGREE);
+                    let skx = Math.tan(trs[10] * ONE_DEGREE);
+                    let sky = Math.tan(trs[11] * ONE_DEGREE);
                     if (skx === Infinity)
                         skx = 99999999;
                     if (sky === Infinity)

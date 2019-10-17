@@ -34,7 +34,7 @@ const Dirty_Stride = Dirty_Members * Uint32_Bytes;
 
 // Space : [TRS]                                    [Size:4 * 10 Float32]
 const TRS_Type = Float32Array;
-const TRS_Members = 10;
+const TRS_Members = 12;
 const TRS_Stride = TRS_Members * Float32_Bytes;
 
 // Space : [LocalMatrix]                            [Size:4 * 16 Float32]
