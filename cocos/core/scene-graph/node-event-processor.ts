@@ -27,18 +27,17 @@
  * @category scene-graph
  */
 
-import { INode } from '../utils/interfaces';
-import { ITargetImpl, EventTarget } from '../event/event-target';
-import { eventManager, EventMouse, EventTouch, Touch } from '../platform/event-manager';
+import Event from '../event/event';
+import { EventTarget } from '../event/event-target';
+import { Vec2 } from '../math/vec2';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { EventListener } from '../platform/event-manager/event-listener';
-import { array } from '../utils/js';
-import Event from '../event/event';
-import { Vec2 } from '../math/vec2';
+import { eventManager } from '../platform/event-manager/event-manager';
+import { EventMouse, EventTouch } from '../platform/event-manager/events';
+import { Touch } from '../platform/event-manager/touch';
+import { INode } from '../utils/interfaces';
 
-const fastRemove = array.fastRemove;
-
-let _cachedArray = new Array<INode>(16);
+const _cachedArray = new Array<INode>(16);
 let _currentHovered: INode | null = null;
 let pos = new Vec2();
 
@@ -349,7 +348,7 @@ export class NodeEventProcessor {
 
     public reattach (): void {
         if (this.touchListener) {
-            var mask = this.touchListener.mask = _searchMaskInParent(this._node);
+            const mask = this.touchListener.mask = _searchMaskInParent(this._node);
             if (this.mouseListener) {
                 this.mouseListener.mask = mask;
             }

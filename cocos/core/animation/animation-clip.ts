@@ -3,15 +3,15 @@
  * @category animation
  */
 
-import { Asset, SpriteFrame } from '../assets';
+import { Asset } from '../assets/asset';
+import { SpriteFrame } from '../assets/sprite-frame';
 import { ccclass, property } from '../data/class-decorator';
 import { errorID } from '../platform/debug';
 import binarySearchEpsilon from '../utils/binary-search';
-import { AnimCurve, IPropertyCurveData, RatioSampler, CurveValueAdapter } from './animation-curve';
-import { WrapMode as AnimationWrapMode } from './types';
-import { INode } from '../utils/interfaces';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
-import { TargetModifier, HierachyModifier, ComponentModifier, isCustomTargetModifier, PropertyModifier, isPropertyModifier } from './target-modifier';
+import { AnimCurve, CurveValueAdapter, IPropertyCurveData, RatioSampler } from './animation-curve';
+import { ComponentModifier, HierachyModifier, TargetModifier } from './target-modifier';
+import { WrapMode as AnimationWrapMode } from './types';
 
 export interface IObjectCurveData {
     [propertyName: string]: IPropertyCurveData;
@@ -40,7 +40,7 @@ export interface IRuntimeCurve {
     /**
      * 曲线值适配器。
      */
-    valueAdapter?: CurveValueAdapter; 
+    valueAdapter?: CurveValueAdapter;
 
     /**
      * 曲线采样器。
@@ -64,13 +64,13 @@ export declare namespace AnimationClip {
 
     export type PropertyCurveData = IPropertyCurveData;
 
-    export interface Curve {
+    export interface ICurve {
         modifiers: TargetModifier[];
         valueAdapter?: CurveValueAdapter;
         data: PropertyCurveData;
     }
 
-    export interface Event {
+    export interface IEvent {
         frame: number;
         func: string;
         params: string[];
@@ -82,6 +82,7 @@ export declare namespace AnimationClip {
  */
 @ccclass('cc.AnimationClip')
 export class AnimationClip extends Asset {
+
     public static WrapMode = AnimationWrapMode;
 
     /**
@@ -113,12 +114,12 @@ export class AnimationClip extends Asset {
         clip.curves = [{
             modifiers: [
                 new ComponentModifier('cc.SpriteComponent'),
-                'spriteFrame'
+                'spriteFrame',
             ],
             data: {
                 keys: 0,
                 values,
-            }
+            },
         }];
 
         return clip;
@@ -143,6 +144,21 @@ export class AnimationClip extends Asset {
     public wrapMode = AnimationWrapMode.Normal;
 
     /**
+     * @zh 动画包含的事件数据。
+     */
+    @property({visible: false})
+    public events: AnimationClip.IEvent[] = [];
+
+    @property
+    private _duration = 0;
+
+    @property
+    private _keys: number[][] = [];
+
+    @property
+    private _stepness = 0;
+
+    /**
      * @zh 动画的曲线数据。
      * @deprecated 请转用 `this.curves`
      */
@@ -150,35 +166,16 @@ export class AnimationClip extends Asset {
     private curveDatas?: AnimationClip.ICurveData = {};
 
     @property
-    private _curves: AnimationClip.Curve[] = [];
+    private _curves: AnimationClip.ICurve[] = [];
 
-    /**
-     * @zh 动画包含的事件数据。
-     */
-    @property({visible: false})
-    public events: AnimationClip.Event[] = [];
-
-    @property
-    protected _duration = 0;
-
-    @property
-    protected _keys: number[][] = [];
-
-    protected _ratioSamplers: RatioSampler[] = [];
-
-    protected _runtimeCurves?: IRuntimeCurve[];
-
-    protected _runtimeEvents?: {
+    private _hash = 0;
+    private frameRate = 0;
+    private _ratioSamplers: RatioSampler[] = [];
+    private _runtimeCurves?: IRuntimeCurve[];
+    private _runtimeEvents?: {
         ratios: number[];
         eventGroups: IAnimationEventGroup[];
     };
-
-    protected frameRate = 0;
-
-    @property
-    protected _stepness = 0;
-
-    protected _hash = 0;
 
     /**
      * @zh 动画的周期。
@@ -228,7 +225,7 @@ export class AnimationClip extends Asset {
     }
 
     get hash () {
-        if (!this._hash) { this._hash = murmurhash2_32_gc(JSON.stringify(this._getDeprecatedCurveDatas()), 666); }
+        if (!this._hash) { this._hash = murmurhash2_32_gc(JSON.stringify(this._curves), 666); }
         return this._hash;
     }
 
@@ -246,7 +243,7 @@ export class AnimationClip extends Asset {
         this._migrateCurveDatas();
     }
 
-    public getPropertyCurves (root: INode): ReadonlyArray<IRuntimeCurve> {
+    public getPropertyCurves (): ReadonlyArray<IRuntimeCurve> {
         if (!this._runtimeCurves) {
             this._createPropertyCurves();
         }
@@ -309,7 +306,7 @@ export class AnimationClip extends Asset {
                 sampler: this._ratioSamplers[targetCurve.data.keys],
             };
         });
-        
+
         this._applyStepness();
     }
 
@@ -385,55 +382,6 @@ export class AnimationClip extends Asset {
             }
         }
         delete this.curveDatas;
-    }
-
-    private _getDeprecatedCurveDatas () {
-        const result: AnimationClip.ICurveData = {};
-        for (const curve of this._curves) {
-            if (curve.modifiers.length === 0 ||
-                !isCustomTargetModifier(curve.modifiers[0], HierachyModifier)) {
-                continue;
-            }
-
-            let componentName: string | null = null;
-            let propertyName: string | undefined;
-            if (curve.modifiers.length === 2 &&
-                isPropertyModifier(curve.modifiers[1])) {
-                propertyName = curve.modifiers[1] as PropertyModifier;
-            } else if (curve.modifiers.length === 3 &&
-                isCustomTargetModifier(curve.modifiers[1], ComponentModifier) &&
-                isPropertyModifier(curve.modifiers[2])) {
-                componentName = (curve.modifiers[1] as ComponentModifier).component;
-                propertyName = curve.modifiers[2] as PropertyModifier;
-            } else {
-                continue;
-            }
-
-            const path = (curve.modifiers[0] as HierachyModifier).path;
-            
-            if (!(path in result)) {
-                result[path] = {};
-            }
-            const nodeCurveData = result[path];
-            let objectCurveData: IObjectCurveData | undefined;
-            if (componentName) {
-                if (!('comps' in nodeCurveData)) {
-                    nodeCurveData.comps = {};
-                }
-                const componentCurveData = nodeCurveData.comps!;
-                if (!(componentName in componentCurveData)) {
-                    componentCurveData[componentName] = {};
-                }
-                objectCurveData = componentCurveData[componentName];
-            } else {
-                if (!('props' in nodeCurveData)) {
-                    nodeCurveData.props = {};
-                }
-                objectCurveData = nodeCurveData.props!;
-            }
-            objectCurveData[propertyName] = curve.data;
-        }
-        return result;
     }
 }
 

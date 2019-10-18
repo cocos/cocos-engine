@@ -27,11 +27,10 @@
  * @category model
  */
 
-import { SkeletalAnimationClip } from '../../animation/skeletal-animation-clip';
+import { AnimationClip } from '../../animation';
 import { Material } from '../../assets/material';
 import { Skeleton } from '../../assets/skeleton';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
-import { director } from '../../director';
 import { GFXDevice } from '../../gfx/device';
 import { selectJointsMediumType } from '../../renderer/models/joints-texture-utils';
 import { SkinningModel } from '../../renderer/models/skinning-model';
@@ -87,7 +86,7 @@ export class SkinningModelComponent extends ModelComponent {
         return (this._model as SkinningModel);
     }
 
-    public uploadAnimation (clip: SkeletalAnimationClip | null) {
+    public uploadAnimation (clip: AnimationClip | null) {
         if (this._model) { (this._model as SkinningModel).uploadAnimation(clip); }
     }
 
@@ -98,7 +97,7 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     protected _onMaterialModified (index: number, material: Material | null) {
-        const device: GFXDevice = director.root!.device;
+        const device: GFXDevice = cc.director.root!.device;
         const type = selectJointsMediumType(device);
         const mat = this.getMaterial(index) || this._getBuiltinMaterial();
         mat.recompileShaders({ CC_USE_SKINNING: type });

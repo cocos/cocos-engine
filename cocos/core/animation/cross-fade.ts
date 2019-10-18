@@ -3,10 +3,9 @@
  */
 
 import { clamp01 } from '../math/utils';
+import { remove } from '../utils/array';
 import { AnimationState } from './animation-state';
 import { Playable } from './playable';
-import { remove } from '../utils/array';
-import { director } from '../director';
 
 interface IManagedState {
     state: AnimationState | null;
@@ -85,7 +84,7 @@ export class CrossFade extends Playable {
         }
         let target = this._managedStates.find((weightedState) => weightedState.state === state);
         if (!target) {
-            target = { state, reference: 0, };
+            target = { state, reference: 0 };
             if (state) {
                 state.play();
             }
@@ -99,9 +98,20 @@ export class CrossFade extends Playable {
         });
     }
 
+    public clear () {
+        for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
+            const state = this._managedStates[iManagedState].state;
+            if (state) {
+                state.stop();
+            }
+        }
+        this._managedStates.length = 0;
+        this._fadings.length = 0;
+    }
+
     protected onPlay () {
         super.onPlay();
-        director.getAnimationManager().addCrossFade(this);
+        cc.director.getAnimationManager().addCrossFade(this);
     }
 
     /**
@@ -109,7 +119,7 @@ export class CrossFade extends Playable {
      */
     protected onPause () {
         super.onPause();
-        director.getAnimationManager().removeCrossFade(this);
+        cc.director.getAnimationManager().removeCrossFade(this);
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
             if (state) {
@@ -123,7 +133,7 @@ export class CrossFade extends Playable {
      */
     protected onResume () {
         super.onResume();
-        director.getAnimationManager().addCrossFade(this);
+        cc.director.getAnimationManager().addCrossFade(this);
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
             if (state) {
@@ -137,18 +147,7 @@ export class CrossFade extends Playable {
      */
     protected onStop () {
         super.onStop();
-        director.getAnimationManager().removeCrossFade(this);
+        cc.director.getAnimationManager().removeCrossFade(this);
         this.clear();
-    }
-
-    public clear () {
-        for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
-            const state = this._managedStates[iManagedState].state;
-            if (state) {
-                state.stop();
-            }
-        }
-        this._managedStates.length = 0;
-        this._fadings.length = 0;
     }
 }

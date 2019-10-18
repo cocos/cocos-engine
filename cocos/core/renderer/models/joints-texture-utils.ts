@@ -27,7 +27,8 @@
  * @hidden
  */
 
-import { SkeletalAnimationClip } from '../../animation/skeletal-animation-clip';
+import { AnimationClip } from '../../animation/animation-clip';
+import { SkelAnimDataHub } from '../../animation/skeletal-animation-data-hub';
 import { Skeleton } from '../../assets/skeleton';
 import { GFXFormat, GFXFormatInfos } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
@@ -165,7 +166,7 @@ export class JointsTexturePool {
     /**
      * 获取指定动画片段的骨骼贴图
      */
-    public getJointsTextureWithAnimation (skeleton: Skeleton, clip: SkeletalAnimationClip) {
+    public getJointsTextureWithAnimation (skeleton: Skeleton, clip: AnimationClip) {
         const hash = skeleton.hash ^ clip.hash;
         let texture: IJointsTextureHandle | null = this._textureBuffers.get(hash) || null;
         if (texture) { texture.refCount++; return texture; }
@@ -175,7 +176,7 @@ export class JointsTexturePool {
         if (!handle) { return null; }
         texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, hash, handle };
         const textureBuffer = new Float32Array(bufSize);
-        const data = clip.convertedData;
+        const data = SkelAnimDataHub.getOrExtract(clip);
         for (let i = 0; i < skeleton.joints.length; i++) {
             const nodeData = data[skeleton.joints[i]];
             if (!nodeData || !nodeData.props) { continue; }
