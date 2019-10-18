@@ -751,17 +751,15 @@ utilities.parseParameters = function () {
 };
 
 var autoRelease = finalizer._autoRelease;
-finalizer._autoRelease = function (oldScene) {
+finalizer._autoRelease = function () {
     var result = autoRelease.apply(this, arguments);
-    if (CC_TEST || (oldScene && oldScene.autoReleaseAssets)) {
-        var releaseSettings = loader._autoReleaseSetting;
-        var keys = Object.keys(releaseSettings);
-        for (let i = 0; i < keys.length; i++) {
-            let key = keys[i];
-            if (releaseSettings[key] === true) {
-                var asset = cc.assetManager._assets.get(key);
-                asset && finalizer.release(asset);
-            }
+    var releaseSettings = loader._autoReleaseSetting;
+    var keys = Object.keys(releaseSettings);
+    for (let i = 0; i < keys.length; i++) {
+        let key = keys[i];
+        if (releaseSettings[key] === true) {
+            var asset = cc.assetManager._assets.get(key);
+            asset && finalizer.release(asset);
         }
     }
     return result;
