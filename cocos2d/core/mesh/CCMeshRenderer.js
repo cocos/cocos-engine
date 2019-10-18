@@ -28,14 +28,13 @@ import InputAssembler from '../../renderer/core/input-assembler';
 import geomUtils from '../geom-utils';
 import CustomProperties from '../assets/material/custom-properties';
 import { postLoadMesh } from '../utils/mesh-util';
+import vec3 from '../vmath/vec3';
 
 const RenderComponent = require('../components/CCRenderComponent');
 const Mesh = require('./CCMesh');
 const RenderFlow = require('../renderer/render-flow');
 const Renderer = require('../renderer');
 const Material = require('../assets/material/CCMaterial');
-const BLACK_COLOR = cc.Color.BLACK;
-
 
 
 /**
@@ -203,9 +202,15 @@ let MeshRenderer = cc.Class({
     },
 
     ctor () {
-        this._wireFrameDatas = [];
         this._boundingBox = null;
         this._customProperties = new cc.CustomProperties();
+
+        if (CC_DEBUG) {
+            this._debugDatas = {
+                wireFrame: [],
+                normal: []
+            };
+        }
     },
 
     onEnable () {
@@ -305,56 +310,141 @@ let MeshRenderer = cc.Class({
         this._customProperties.define('CC_USE_ATTRIBUTE_NORMAL', !!vfm.element(gfx.ATTR_NORMAL));
         this._customProperties.define('CC_USE_ATTRIBUTE_TANGENT', !!vfm.element(gfx.ATTR_TANGENT));
 
-        this._wireFrameDatas.length = 0;
+        if (CC_DEBUG) {
+            this._updateDebugDatas.length = 0;
+        }
 
         if (CC_JSB && CC_NATIVERENDERER) {
             this._assembler.updateMeshData(this);
         }
     },
 
-    _updateWireFrameDatas () {
-        let wireFrameDatas = this._wireFrameDatas;
-        let subMeshes = this._mesh.subMeshes;
-        if (subMeshes.length === wireFrameDatas.length) return;
-
-        wireFrameDatas.length = subMeshes.length;
-        let subDatas = this._mesh._subDatas;
-        for (let i = 0; i < subMeshes.length; i++) {
-            wireFrameDatas[i] = this._createWireFrameData(subMeshes[i], subDatas[i].iData);
-        }
-    },
-
-    _createWireFrameData (ia, oldIbData) {
-        let m = new Material();
-        m.copy(Material.getBuiltinMaterial('unlit'));
-        m.setProperty('diffuseColor', BLACK_COLOR);
-
-        let indices = [];
-        for (let i = 0; i < oldIbData.length; i+=3) {
-            let a = oldIbData[ i + 0 ];
-            let b = oldIbData[ i + 1 ];
-            let c = oldIbData[ i + 2 ];
-            indices.push(a, b, b, c, c, a);
-        }
-
-        let ibData = new Uint16Array(indices);
-        let ib = new gfx.IndexBuffer(
-            Renderer.device,
-            gfx.INDEX_FMT_UINT16,
-            gfx.USAGE_STATIC,
-            ibData,
-            ibData.length
-        );
-
-        return {
-            material: m,
-            ia: new InputAssembler(ia._vertexBuffer, ib, gfx.PT_LINES)
-        };
-    },
-
     _checkBacth () {
-        
-    }
+    },
 });
+
+if (CC_DEBUG) {
+    const BLACK_COLOR = cc.Color.BLACK;
+    const RED_COLOR = cc.Color.RED;
+
+    let v3_tmp1 = cc.v3();
+    let v3_tmp2 = cc.v3();
+
+    let createDebugDataFns = {
+        normal (comp, ia, subData) {
+            let oldVfm = subData.vfm;
+            if (oldVfm._bytes / 4) {
+
+            }
+
+            let normalEle = oldVfm.element(gfx.ATTR_NORMAL);
+            let posEle = oldVfm.element(gfx.ATTR_POSITION);
+            
+            if (!normalEle || !posEle) {
+                return;
+            }
+            let normalOffset = normalEle.offset / 4;
+            let posOffset = posEle.offset / 4;
+
+            let oldVdata = subData.getVData(Float32Array);
+
+            let indices = [];
+            let vbData = [];
+
+            let floatCount = oldVfm._bytes / 4;
+            let vertexCount = oldVdata.length / floatCount | 0;
+
+            let extents = comp._boundingBox.halfExtents;
+            let size = Math.max(extents.x, extents.y, extents.z) / 10;
+
+            for (let i = 0; i < vertexCount; i++) {
+                let normalIndex = i * floatCount + normalOffset;
+                let posIndex = i * floatCount + posOffset;
+
+                vec3.set(v3_tmp1, oldVdata[normalIndex], oldVdata[normalIndex+1], oldVdata[normalIndex+2]);
+                vec3.set(v3_tmp2, oldVdata[posIndex], oldVdata[posIndex+1], oldVdata[posIndex+2]);
+                vec3.scaleAndAdd(v3_tmp1, v3_tmp2, v3_tmp1, size);
+
+                vbData.push(v3_tmp2.x, v3_tmp2.y, v3_tmp2.z, v3_tmp1.x, v3_tmp1.y, v3_tmp1.z);
+                indices.push(i*2, i*2+1);
+            }
+
+            let gfxVFmt = new gfx.VertexFormat([
+                { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 3 }
+            ]);
+
+            let vb = new gfx.VertexBuffer(
+                Renderer.device,
+                gfxVFmt,
+                gfx.USAGE_STATIC,
+                new Float32Array(vbData)
+            );
+
+            let ibData = new Uint16Array(indices);
+            let ib = new gfx.IndexBuffer(
+                Renderer.device,
+                gfx.INDEX_FMT_UINT16,
+                gfx.USAGE_STATIC,
+                ibData,
+                ibData.length
+            );
+
+            let m = new Material();
+            m.copy(Material.getBuiltinMaterial('unlit'));
+            m.setProperty('diffuseColor', RED_COLOR);
+
+            return {
+                material: m,
+                ia: new InputAssembler(vb, ib, gfx.PT_LINES)
+            };
+        },
+
+        wireFrame (comp, ia, subData) {
+            let oldIbData = subData.getIData(Uint16Array);
+            let m = new Material();
+            m.copy(Material.getBuiltinMaterial('unlit'));
+            m.setProperty('diffuseColor', BLACK_COLOR);
+
+            let indices = [];
+            for (let i = 0; i < oldIbData.length; i+=3) {
+                let a = oldIbData[ i + 0 ];
+                let b = oldIbData[ i + 1 ];
+                let c = oldIbData[ i + 2 ];
+                indices.push(a, b, b, c, c, a);
+            }
+
+            let ibData = new Uint16Array(indices);
+            let ib = new gfx.IndexBuffer(
+                Renderer.device,
+                gfx.INDEX_FMT_UINT16,
+                gfx.USAGE_STATIC,
+                ibData,
+                ibData.length
+            );
+
+            return {
+                material: m,
+                ia: new InputAssembler(ia._vertexBuffer, ib, gfx.PT_LINES)
+            };
+        }
+    };
+
+    let _proto = MeshRenderer.prototype;
+    _proto._updateDebugDatas = function () {
+        let debugDatas = this._debugDatas;
+        let subMeshes = this._mesh.subMeshes;
+        let subDatas = this._mesh._subDatas;
+        for (let name in debugDatas) {
+            let debugData = debugDatas[name];
+            if (debugData.length === subMeshes.length) continue;
+            if (!cc.macro['SHOW_MESH_' + name.toUpperCase()]) continue;
+
+            debugData.length = subMeshes.length;
+            for (let i = 0; i < subMeshes.length; i++) {
+                debugData[i] = createDebugDataFns[name](this, subMeshes[i], subDatas[i]);
+            }
+        }
+    };
+}
 
 cc.MeshRenderer = module.exports = MeshRenderer;
