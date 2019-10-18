@@ -1,4 +1,5 @@
 import { EPSILON } from './utils';
+const ONE_DEGREE = Math.PI / 180;
 
 /**
  * Mathematical 4x4 matrix.
@@ -1081,6 +1082,8 @@ class mat4 {
     var sx = trs[7];
     var sy = trs[8];
     var sz = trs[9];
+    var skewX = trs[10];
+    var skewY = trs[11];
   
     outm[0] = (1 - (yy + zz)) * sx;
     outm[1] = (xy + wz) * sx;
@@ -1099,6 +1102,20 @@ class mat4 {
     outm[14] = trs[2];
     outm[15] = 1;
   
+    if (skewX || skewY) {
+        let a = outm[0], b = outm[1], c = outm[4], d = outm[5];
+        let skx = Math.tan(skewX * ONE_DEGREE);
+        let sky = Math.tan(skewY * ONE_DEGREE);
+        if (skx === Infinity)
+            skx = 99999999;
+        if (sky === Infinity)
+            sky = 99999999;
+        outm[0] = a + c * sky;
+        outm[1] = b + d * sky;
+        outm[4] = c + a * skx;
+        outm[5] = d + b * skx;
+    }
+
     return out;
 }
 

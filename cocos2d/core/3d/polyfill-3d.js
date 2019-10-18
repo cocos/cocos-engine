@@ -42,24 +42,7 @@ const ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
 function _updateLocalMatrix3d () {
     if (this._localMatDirty) {
         // Update transform
-        let t = this._matrix;
-        let tm = t.m;
-        mat4.fromTRSArray(t, this._trs);
-
-        // skew
-        if (this._skewX || this._skewY) {
-            let a = tm[0], b = tm[1], c = tm[4], d = tm[5];
-            let skx = Math.tan(this._skewX * ONE_DEGREE);
-            let sky = Math.tan(this._skewY * ONE_DEGREE);
-            if (skx === Infinity)
-                skx = 99999999;
-            if (sky === Infinity)
-                sky = 99999999;
-            tm[0] = a + c * sky;
-            tm[1] = b + d * sky;
-            tm[4] = c + a * skx;
-            tm[5] = d + b * skx;
-        }
+        mat4.fromTRSArray(this._matrix, this._trs);
         this._localMatDirty = 0;
         // Register dirty status of world matrix so that it can be recalculated
         this._worldMatDirty = true;
