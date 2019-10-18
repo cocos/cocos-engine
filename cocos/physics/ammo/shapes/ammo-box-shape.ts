@@ -2,7 +2,7 @@ import Ammo from 'ammo.js';
 import { BoxShapeBase } from "../../api";
 import { AmmoShape } from "./ammo-shape";
 import { Vec3, Node } from "../../../core";
-import { BoxColliderComponent } from '../../../../exports/physics-framework';
+import { BoxColliderComponent, RigidBodyComponent } from '../../../../exports/physics-framework';
 import { AmmoRigidBody } from '../ammo-body';
 import { AmmoWorld } from '../ammo-world';
 import { TransformDirtyBit } from '../../../core/scene-graph/node-enum';
@@ -61,11 +61,57 @@ export class AmmoBoxShape extends AmmoShape implements BoxShapeBase {
 
     public onEnable () {
         super.onEnable();
+        this.attachRigidBody = this.collider.getComponent(RigidBodyComponent);
+        if (this.attachRigidBody == null || this.collider.isTrigger) {
+            Vec3.multiplyScalar(tmpv3, this.boxCollider.size, 1);
+            tmpv3.multiply(this.collider.node.worldScale);
+            Cocos2AmmoVec3(this.scale, tmpv3);
+            this._ammoShape.setLocalScaling(this.scale);
 
+            Cocos2AmmoQuat(this.localQuaternion, this.collider.node.worldRotation);
+            this.localTransform.setRotation(this.localQuaternion);
+
+            const pos = this.collider.center.clone();
+            pos.multiply(this.collider.node.worldScale);
+            Vec3.transformQuat(pos, pos, this.collider.node.worldRotation);
+            pos.add(this.collider.node.worldPosition);
+            Cocos2AmmoVec3(this.localTransform.getOrigin(), pos);
+
+            if (this.collider.isTrigger) {
+                AmmoWorld.instance.sharedTriggerCompoundShape.addChildShape(this.localTransform, this._ammoShape);
+                this.index = AmmoWorld.instance.sharedTriggerCompoundShape.getNumChildShapes() - 1;
+                AmmoWorld.instance.triggerShapes.push(this);
+            } else {
+                AmmoWorld.instance.sharedStaticCompoundShape.addChildShape(this.localTransform, this._ammoShape);
+                this.index = AmmoWorld.instance.sharedStaticCompoundShape.getNumChildShapes() - 1;
+                AmmoWorld.instance.staticShapes.push(this);
+            }
+        } else {
+
+        }
     }
 
     public onDisable () {
         super.onDisable();
+    }
+
+    public setCenter (center: Vec3): void {
+        if (this.attachRigidBody == null || this.collider.isTrigger) {
+            const pos = center.clone();
+            pos.multiply(this.collider.node.worldScale);
+            Vec3.transformQuat(pos, pos, this.collider.node.worldRotation);
+            pos.add(this.collider.node.worldPosition);
+            Cocos2AmmoVec3(this.localTransform.getOrigin(), pos);
+            if (this.collider.isTrigger) {
+                AmmoWorld.instance.sharedTriggerCompoundShape.updateChildTransform(this.index, this.localTransform, true);
+            } else {
+                AmmoWorld.instance.sharedStaticCompoundShape.updateChildTransform(this.index, this.localTransform, true);
+            }
+        } else {
+            Cocos2AmmoVec3(this.localTransform.getOrigin(), center);
+            const impl = this.attachRigidBody._impl as AmmoRigidBody;
+            impl.ammoCompoundShape.updateChildTransform(this.index, this.localTransform, true);
+        }
     }
 
     public setSize (size: Vec3) {
@@ -135,14 +181,12 @@ export class AmmoBoxShape extends AmmoShape implements BoxShapeBase {
     }
 
 
-    public UP (n: Node) {
-        super.UP(n);
-
-        // let scale = this.impl.getLocalScaling();
-        // tmpv3.set(scale.x(), scale.y(), scale.z());
-        // n.worldScale = tmpv3;
-
-    }
+    // public UP (n: Node) {
+    //     super.UP(n);
+    //     // let scale = this.impl.getLocalScaling();
+    //     // tmpv3.set(scale.x(), scale.y(), scale.z());
+    //     // n.worldScale = tmpv3;
+    // }
 }
 
 const tmpv3 = new Vec3();

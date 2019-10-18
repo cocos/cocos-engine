@@ -73,7 +73,7 @@ export class AmmoWorld implements PhysicsWorldBase {
         this._ammoWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
         this._ammoWorld.setGravity(new Ammo.btVector3(this._gravity.x, this._gravity.y, this._gravity.z));
 
-        /** static body */
+        /** shared static body */
         {
             this.sharedStaticCompoundShape = new Ammo.btCompoundShape(true);
             let localInertia = new Ammo.btVector3(0, 0, 0);
@@ -84,13 +84,13 @@ export class AmmoWorld implements PhysicsWorldBase {
             this._ammoWorld.addRigidBody(this.sharedStaticBody);
         }
 
-        /** trigger body */
+        /** shared trigger body */
         {
             this.sharedTriggerCompoundShape = new Ammo.btCompoundShape(true);
             let localInertia = new Ammo.btVector3(0, 0, 0);
-            this.sharedStaticCompoundShape.calculateLocalInertia(0, localInertia);
+            this.sharedTriggerCompoundShape.calculateLocalInertia(0, localInertia);
             let myMotionState = new Ammo.btDefaultMotionState();
-            let rbInfo = new Ammo.btRigidBodyConstructionInfo(0, myMotionState, this.sharedStaticCompoundShape, localInertia);
+            let rbInfo = new Ammo.btRigidBodyConstructionInfo(0, myMotionState, this.sharedTriggerCompoundShape, localInertia);
             this.sharedTriggerBody = new Ammo.btRigidBody(rbInfo);
             this.sharedTriggerBody.setCollisionFlags(AmmoCollisionFlags.CF_NO_CONTACT_RESPONSE);
             this._ammoWorld.addRigidBody(this.sharedTriggerBody);
@@ -110,21 +110,25 @@ export class AmmoWorld implements PhysicsWorldBase {
         }
 
         for (let i = 0; i < this.staticShapes.length; i++) {
-            if (this.staticShapes[i].collider.node.hasChangedFlags) {
-                this.staticShapes[i].beforeStep();
-            }
+            this.staticShapes[i].beforeStep();
         }
 
         for (let i = 0; i < this.triggerShapes.length; i++) {
-            if (this.triggerShapes[i].collider.node.hasChangedFlags) {
-                this.triggerShapes[i].beforeStep();
-            }
+            this.triggerShapes[i].beforeStep();
         }
 
         this._ammoWorld.stepSimulation(deltaTime, maxSubStep, time);
 
         for (let i = 0; i < this.bodys.length; i++) {
             this.bodys[i].afterStep();
+        }
+
+        for (let i = 0; i < this.staticShapes.length; i++) {
+            this.staticShapes[i].beforeStep();
+        }
+
+        for (let i = 0; i < this.triggerShapes.length; i++) {
+            this.triggerShapes[i].beforeStep();
         }
 
         // this._callCustomAfterSteps();
@@ -143,30 +147,30 @@ export class AmmoWorld implements PhysicsWorldBase {
         // this._ammoWorld.debugDrawWorld();
         // this._debugger.present();
 
-        // this._collisionManager.invalidateAll();
-        // const nManifolds = this._dispatcher.getNumManifolds();
-        // for (let iManifold = 0; iManifold < nManifolds; ++iManifold) {
-        //     const manifold = this._dispatcher.getManifoldByIndexInternal(iManifold);
-        //     const bodyA = this._getWrappedBody(manifold.getBody0());
-        //     if (!bodyA) {
-        //         continue;
-        //     }
-        //     const bodyB = this._getWrappedBody(manifold.getBody1());
-        //     if (!bodyB) {
-        //         continue;
-        //     }
-        //     const indexA = manifold.getBody0().getUserIndex();
-        //     const indexB = manifold.getBody1().getUserIndex();
-        //     const collisionState = this._collisionManager.query(indexA, indexB);
-        //     if (!collisionState) {
-        //         // this._dispatchCollisionEvent(manifold, bodyA, bodyB);
-        //         this._collisionManager.emplace(indexA, indexB, { valid: true });
-        //         // console.log(`haha`);
-        //     } else {
-        //         collisionState.valid = true;
-        //     }
-        // }
-        // this._collisionManager.clear();
+        const numManifolds = this._dispatcher.getNumManifolds();
+        for (let i = 0; i < numManifolds; i++) {
+            const manifold = this._dispatcher.getManifoldByIndexInternal(i);
+            const body0 = manifold.getBody0();
+            const body1 = manifold.getBody1();
+            // const indexA = body0.getUserIndex();
+            // const indexB = body1.getUserIndex();
+            // console.log('A:', indexA, 'B:', indexB);            
+            // console.log('A:', indexA, 'B:', indexB);
+            const numContacts = manifold.getNumContacts();
+            for (let j = 0; j < numContacts; j++) {
+                const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
+                const d = manifoldPoint.getDistance();
+                if (d <= 0) {
+                    // manifoldPoint.getPositionWorldOnA();
+                    // manifoldPoint.getPositionWorldOnB();
+                    // manifoldPoint.m_localPointA
+                    // manifoldPoint.m_localPointB
+                    // manifoldPoint.m_normalWorldOnB
+                    console.log("contact");
+                    break;
+                }
+            }
+        }
     }
 
     public addBeforeStep (cb: Function) {
