@@ -141,9 +141,6 @@ export default class MeshRendererAssembler extends Assembler {
             vbuf = buffer._vData,
             ibuf = buffer._iData;
 
-        let wolrdMatrixInv = _tmp_mat4;
-        mat4.invert(wolrdMatrixInv, wolrdMatrix);
-        mat4.transpose(wolrdMatrixInv, wolrdMatrixInv);
 
         let elements = vtxFormat._elements;
         for (let i = 0, n = elements.length; i < n; i++) {
@@ -187,6 +184,7 @@ export default class MeshRendererAssembler extends Assembler {
         if (!debugDatas) return;
         for (let i = 0; i < debugDatas.length; i++) {
             let debugData = debugDatas[i];
+            if (!debugData) continue;
             let material = debugData.material;
             renderer.material = material;
             renderer._flushIA(debugData.ia);

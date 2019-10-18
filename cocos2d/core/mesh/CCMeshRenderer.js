@@ -311,7 +311,9 @@ let MeshRenderer = cc.Class({
         this._customProperties.define('CC_USE_ATTRIBUTE_TANGENT', !!vfm.element(gfx.ATTR_TANGENT));
 
         if (CC_DEBUG) {
-            this._updateDebugDatas.length = 0;
+            for (let name in this._debugDatas) {
+                this._debugDatas[name].length = 0;
+            }
         }
 
         if (CC_JSB && CC_NATIVERENDERER) {
