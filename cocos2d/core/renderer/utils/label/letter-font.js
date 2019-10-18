@@ -39,7 +39,7 @@ const FontLetterDefinition = cc.BitmapFont.FontLetterDefinition;
 const FontAtlas = cc.BitmapFont.FontAtlas;
 
 const WHITE = cc.Color.WHITE;
-const space = 2;
+const space = 0;
 const bleed = 2;
 const _invisibleAlpha = (1 / 255).toFixed(3);
 
