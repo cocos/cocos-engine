@@ -825,7 +825,9 @@ sp.Skeleton = cc.Class({
     updateAnimationCache (animName) {
         if (!this.isAnimationCached()) return;
         let uuid = this.skeletonData._uuid;
-        this._skeletonCache.updateAnimationCache(uuid, animName);
+        if (this._skeletonCache) {
+            this._skeletonCache.updateAnimationCache(uuid, animName);
+        }
     },
 
     /**
@@ -837,7 +839,9 @@ sp.Skeleton = cc.Class({
      */
     invalidAnimationCache () {
         if (!this.isAnimationCached()) return;
-        this._skeletonCache.invalidAnimationCache(this.skeletonData._uuid);
+        if (this._skeletonCache) {
+            this._skeletonCache.invalidAnimationCache(this.skeletonData._uuid);
+        }
     },
 
     /**
@@ -988,6 +992,7 @@ sp.Skeleton = cc.Class({
             if (trackIndex !== 0) {
                 cc.warn("Track index can not greater than 0 in cached mode.");
             }
+            if (!this._skeletonCache) return null;
             let cache = this._skeletonCache.getAnimationCache(this.skeletonData._uuid, name);
             if (!cache) {
                 cache = this._skeletonCache.initAnimationCache(this.skeletonData._uuid, name);
