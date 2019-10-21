@@ -1,4 +1,4 @@
-import CANNON from 'cannon';
+import CANNON from '@cocos/cannon';
 import { IRaycastOptions, ShapeBase } from '../api';
 import { PhysicsRayResult } from '../physics-ray-result';
 import { getWrap } from '../util';

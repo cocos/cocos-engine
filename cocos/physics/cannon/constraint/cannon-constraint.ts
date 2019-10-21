@@ -1,4 +1,4 @@
-import CANNON from 'cannon';
+import CANNON from '@cocos/cannon';
 import { ConstraintBase } from '../../api';
 import { getWrap, setWrap } from '../../util';
 import { CannonRigidBody } from '../cannon-body';
