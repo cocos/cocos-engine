@@ -100,7 +100,7 @@ export class RenderScene {
 
     /**
      * @zh
-     * 获取 raycastAll 后的检测结果     
+     * 获取 raycastAll 后的检测结果
      */
     get rayResultAll () {
         return resultAll;
@@ -230,6 +230,7 @@ export class RenderScene {
     public destroyModel (model: Model) {
         for (let i = 0; i < this._models.length; ++i) {
             if (this._models[i] === model) {
+                this._planarShadows.destroyShadowModel(model);
                 this._models.splice(i, 1)[0].destroy();
                 return;
             }
@@ -238,6 +239,7 @@ export class RenderScene {
 
     public destroyModels () {
         for (const m of this._models) {
+            this._planarShadows.destroyShadowModel(m);
             m.destroy();
         }
         this._models = [];
@@ -260,7 +262,7 @@ export class RenderScene {
      * Cast a ray into the scene, record all the intersected models and ui2d nodes in the result array
      * @param worldRay the testing ray
      * @param mask the layer mask to filter the models
-     * @param distance the max distance , Infinity by default  
+     * @param distance the max distance , Infinity by default
      * @returns boolean , ray is hit or not
      * @note getter of this.rayResultAll can get recently result
      * @zh
@@ -285,7 +287,7 @@ export class RenderScene {
 
     /**
      * @en
-     * Cast a ray into the scene, record all the intersected models in the result array     
+     * Cast a ray into the scene, record all the intersected models in the result array
      * @param worldRay the testing ray
      * @param mask the layer mask to filter the models
      * @param distance the max distance , Infinity by default
@@ -347,7 +349,7 @@ export class RenderScene {
      */
     public raycastSingleModel (worldRay: ray, model: Model, mask = Layers.Enum.DEFAULT, distance = Infinity): boolean {
         if (CC_PREVIEW) {
-            if (model == null) console.error(" 检测前请保证 model 不为 null ");
+            if (model == null) { console.error(' 检测前请保证 model 不为 null '); }
         }
         pool.reset();
         const m = model;
@@ -410,7 +412,7 @@ export class RenderScene {
 
     private _raycastUI2DNode (worldRay: ray, ui2dNode: INode, mask = Layers.Enum.UI_2D, distance = Infinity) {
         if (CC_PREVIEW) {
-            if (ui2dNode == null) console.error(" 检测前请保证 uiNode 不为 null ");
+            if (ui2dNode == null) { console.error('make sure UINode is not null'); }
         }
         const uiTransfrom = ui2dNode.uiTransfromComp;
         if (uiTransfrom == null || ui2dNode.layer & Layers.Enum.IGNORE_RAYCAST || !(ui2dNode.layer & mask)) { return; }

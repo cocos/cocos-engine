@@ -225,8 +225,8 @@ export class Profiler {
         camera.far = 0;
         camera.orthoHeight = this._device!.height;
         camera.visibility = Layers.BitMask.PROFILER;
-        camera.clearFlags = GFXClearFlag.DEPTH | GFXClearFlag.STENCIL;
-        camera.priority = 1073741928;
+        camera.clearFlags = GFXClearFlag.NONE;
+        camera.priority = 0xffffffff; // after everything else
 
         const managerNode = new Node('Profiler_Root');
         managerNode.parent = this._rootNode;
