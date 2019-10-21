@@ -741,7 +741,12 @@ let Camera = cc.Class({
 
         let targetTexture = this._targetTexture;
         if (targetTexture) {
-            height = cc.visibleRect.height;
+            if (CC_EDITOR) {
+                height = cc.engine.getDesignResolutionSize().height;
+            }
+            else {
+                height = cc.visibleRect.height;
+            }
         }
 
         let fov = this._fov * cc.macro.RAD;
