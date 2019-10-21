@@ -35,3 +35,4 @@ export { CCObject, isValid } from './object';
 export { default as deserialize } from './deserialize';
 export { default as instantiate } from './instantiate';
 export { CCInteger, CCFloat, CCBoolean, CCString} from './utils/attribute';
+export { CompactValueTypeArray } from './utils/compact-value-type-array';

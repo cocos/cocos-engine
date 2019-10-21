@@ -12,6 +12,7 @@ import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { AnimCurve, CurveValueAdapter, IPropertyCurveData, RatioSampler } from './animation-curve';
 import { ComponentModifier, HierachyModifier, TargetModifier } from './target-modifier';
 import { WrapMode as AnimationWrapMode } from './types';
+import { CompactValueTypeArray } from '../data/utils/compact-value-type-array';
 
 export interface IObjectCurveData {
     [propertyName: string]: IPropertyCurveData;
@@ -75,6 +76,16 @@ export declare namespace AnimationClip {
         func: string;
         params: string[];
     }
+
+    export namespace _impl {
+        type MaybeCompactCurve = Omit<AnimationClip.ICurve, 'data'> & {
+            data: Omit<AnimationClip.PropertyCurveData, 'values'> & {
+                values: any[] | CompactValueTypeArray;
+            };
+        };
+
+        type MaybeCompactKeys = Array<number[] | CompactValueTypeArray>;
+    }
 }
 
 /**
@@ -82,6 +93,7 @@ export declare namespace AnimationClip {
  */
 @ccclass('cc.AnimationClip')
 export class AnimationClip extends Asset {
+    public static preventDeferredLoadDependents = true;
 
     public static WrapMode = AnimationWrapMode;
 
@@ -177,6 +189,8 @@ export class AnimationClip extends Asset {
         eventGroups: IAnimationEventGroup[];
     };
 
+    private _data: Uint8Array | null = null;
+
     /**
      * @zh 动画的周期。
      */
@@ -238,9 +252,17 @@ export class AnimationClip extends Asset {
         delete this._runtimeCurves;
     }
 
+    /**
+     * 此动画的数据。
+     */
+    get data () {
+        return this._data;
+    }
+
     public onLoaded () {
         this.frameRate = this.sample;
         this._migrateCurveDatas();
+        this._decodeCVTAs();
     }
 
     public getPropertyCurves (): ReadonlyArray<IRuntimeCurve> {
@@ -382,6 +404,28 @@ export class AnimationClip extends Asset {
             }
         }
         delete this.curveDatas;
+    }
+
+    private _decodeCVTAs () {
+        const binaryBuffer: ArrayBuffer = this._nativeAsset;
+        if (!binaryBuffer) {
+            return;
+        }
+
+        const maybeCompressedKeys = this._keys as AnimationClip._impl.MaybeCompactKeys;
+        for (let iKey = 0; iKey < maybeCompressedKeys.length; ++iKey) {
+            const keys = maybeCompressedKeys[iKey];
+            if (keys instanceof CompactValueTypeArray) {
+                maybeCompressedKeys[iKey] = keys.decompress(binaryBuffer);
+            }
+        }
+
+        for (let iCurve = 0; iCurve < this._curves.length; ++iCurve) {
+            const curve = this._curves[iCurve] as AnimationClip._impl.MaybeCompactCurve;
+            if (curve.data.values instanceof CompactValueTypeArray) {
+                curve.data.values = curve.data.values.decompress(binaryBuffer);
+            }
+        }
     }
 }
 
