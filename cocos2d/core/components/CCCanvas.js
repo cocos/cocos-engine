@@ -196,16 +196,25 @@ var Canvas = cc.Class({
 
     // align canvas
     alignWithScreen: function () {
-        let widget = this.node.getComponent(cc.Widget);
-        if (widget) {
-            widget.isAlignTop = true;
-            widget.isAlignBottom = true;
-            widget.isAlignLeft = true;
-            widget.isAlignRight = true;
-            widget.left = 0;
-            widget.right = 0;
-            widget.top = 0;
-            widget.bottom = 0;
+        // canvas should not be moved to another place but canvas area in editor
+        if (CC_EDITOR) {
+            let designRes = cc.engine.getDesignResolutionSize();
+            this.node.width = designRes.width;
+            this.node.height = designRes.height;
+            this.node.setPosition(designRes.width * 0.5, designRes.height * 0.5);
+        }
+        else {
+            let widget = this.node.getComponent(cc.Widget);
+            if (widget) {
+                widget.isAlignTop = true;
+                widget.isAlignBottom = true;
+                widget.isAlignLeft = true;
+                widget.isAlignRight = true;
+                widget.left = 0;
+                widget.right = 0;
+                widget.top = 0;
+                widget.bottom = 0;
+            }
         }
     },
 
