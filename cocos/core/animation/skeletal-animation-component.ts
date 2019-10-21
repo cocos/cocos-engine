@@ -51,6 +51,7 @@ export class Socket {
 }
 
 const m4_1 = new Mat4();
+const m4_2 = new Mat4();
 
 function collectRecursively (node: INode, prefix = '', out: string[] = []) {
     for (let i = 0; i < node.children.length; i++) {
@@ -138,7 +139,8 @@ export class SkeletalAnimationComponent extends AnimationComponent {
                 target.name = `${socket.path.substring(socket.path.lastIndexOf('/') + 1)} Socket`;
                 target.parent = this.node;
                 getWorldTransformUntilRoot(joint, this.node, m4_1);
-                if (!Mat4.equals(target.matrix, m4_1)) { target.matrix = m4_1; }
+                Mat4.fromRTS(m4_2, target.rotation, target.position, target.scale);
+                if (!Mat4.equals(m4_2, m4_1)) { target.matrix = m4_1; }
             }
         }
         for (const stateName of Object.keys(this._nameToState)) {
