@@ -458,6 +458,7 @@ export class AmmoRigidBody implements RigidBodyBase {
     private _ammoBody!: Ammo.btRigidBody;
     public ammoCompoundShape!: Ammo.btCompoundShape;
     public readonly wroldQuaternion: Ammo.btQuaternion;
+    public index: number = -1;
 
     constructor () {
         // this._transformBuffer.setIdentity();
@@ -574,11 +575,15 @@ export class AmmoRigidBody implements RigidBodyBase {
     public onEnable () {
         AmmoWorld.instance.impl.addRigidBody(this._ammoBody);
         AmmoWorld.instance.bodys.push(this);
+        this.index = AmmoWorld.instance.bodys.length;
+        this._ammoBody.setUserIndex(this.index);
     }
 
     public onDisable () {
-        // AmmoWorld.instance.impl.removeRigidBody(this.impl);
-        //remove
+        AmmoWorld.instance.impl.removeRigidBody(this.impl);
+        AmmoWorld.instance.bodys.splice(this.index, 1);
+        this.index = -1;
+        this._ammoBody.setUserIndex(this.index);
     }
 
     public beforeStep () {

@@ -82,6 +82,7 @@ export class AmmoWorld implements PhysicsWorldBase {
             let rbInfo = new Ammo.btRigidBodyConstructionInfo(0, myMotionState, this.sharedStaticCompoundShape, localInertia);
             this.sharedStaticBody = new Ammo.btRigidBody(rbInfo);
             this._ammoWorld.addRigidBody(this.sharedStaticBody);
+            this.sharedStaticBody.setUserIndex(-2);
         }
 
         /** shared trigger body */
@@ -94,6 +95,7 @@ export class AmmoWorld implements PhysicsWorldBase {
             this.sharedTriggerBody = new Ammo.btRigidBody(rbInfo);
             this.sharedTriggerBody.setCollisionFlags(AmmoCollisionFlags.CF_NO_CONTACT_RESPONSE);
             this._ammoWorld.addRigidBody(this.sharedTriggerBody);
+            this.sharedTriggerBody.setUserIndex(-3);
         }
 
     }
@@ -152,8 +154,8 @@ export class AmmoWorld implements PhysicsWorldBase {
             const manifold = this._dispatcher.getManifoldByIndexInternal(i);
             const body0 = manifold.getBody0();
             const body1 = manifold.getBody1();
-            // const indexA = body0.getUserIndex();
-            // const indexB = body1.getUserIndex();
+            const indexA = body0.getUserIndex();
+            const indexB = body1.getUserIndex();
             // console.log('A:', indexA, 'B:', indexB);            
             // console.log('A:', indexA, 'B:', indexB);
             const numContacts = manifold.getNumContacts();
@@ -161,12 +163,7 @@ export class AmmoWorld implements PhysicsWorldBase {
                 const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
                 const d = manifoldPoint.getDistance();
                 if (d <= 0) {
-                    // manifoldPoint.getPositionWorldOnA();
-                    // manifoldPoint.getPositionWorldOnB();
-                    // manifoldPoint.m_localPointA
-                    // manifoldPoint.m_localPointB
-                    // manifoldPoint.m_normalWorldOnB
-                    console.log("contact");
+                    console.log("contact:");
                     break;
                 }
             }
