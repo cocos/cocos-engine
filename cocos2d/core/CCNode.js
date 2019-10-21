@@ -1218,6 +1218,9 @@ let NodeDefines = {
             set (value) {
                 this._skewX = value;
                 this.setLocalDirty(LocalDirtyFlag.SKEW);
+                if (CC_JSB && CC_NATIVERENDERER) {
+                    this._proxy.updateSkew();
+                }
             }
         },
 
@@ -1237,6 +1240,9 @@ let NodeDefines = {
             set (value) {
                 this._skewY = value;
                 this.setLocalDirty(LocalDirtyFlag.SKEW);
+                if (CC_JSB && CC_NATIVERENDERER) {
+                    this._proxy.updateSkew();
+                }
             }
         },
 
