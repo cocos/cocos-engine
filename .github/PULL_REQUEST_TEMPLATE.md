@@ -1,4 +1,4 @@
-Re: cocos-creator/fireball#
+Re: cocos-creator/3d-tasks#
 
 Changelog:
  * 

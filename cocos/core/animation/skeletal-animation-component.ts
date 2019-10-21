@@ -138,7 +138,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
                 target.name = `${socket.path.substring(socket.path.lastIndexOf('/') + 1)} Socket`;
                 target.parent = this.node;
                 getWorldTransformUntilRoot(joint, this.node, m4_1);
-                target.matrix = m4_1;
+                if (!Mat4.equals(target.matrix, m4_1)) { target.matrix = m4_1; }
             }
         }
         for (const stateName of Object.keys(this._nameToState)) {
