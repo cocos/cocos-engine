@@ -3,13 +3,16 @@
  */
 
 import { Vec3 } from '../../core/math';
-import { AfterStepCallback, BeforeStepCallback, BuiltInRigidBodyBase, BuiltInWorldBase,
-    IRaycastOptions, ITriggerEventType, ShapeBase } from '../api';
-import { RaycastResult } from '../raycast-result';
-import { getWrap } from '../util';
+import {
+    AfterStepCallback, BeforeStepCallback, BuiltInRigidBodyBase, BuiltInWorldBase,
+    IRaycastOptions, ITriggerEventType
+} from '../api';
+import { PhysicsRayResult } from '../physics-ray-result';
 import { BuiltInBody } from './builtin-body';
 import { BuiltinShape } from './shapes/builtin-shape';
 import { ArrayCollisionMatrix } from './utils/array-collision-matrix';
+import { ray, intersect } from '../../core/geom-utils';
+import { RecyclePool } from '../../core';
 
 /**
  * Built-in collision system, intended for use as a
@@ -83,10 +86,10 @@ export class BuiltInWorld implements BuiltInWorldBase {
 
             if (this._collisionMatrixPrev.get(shapeA.id, shapeB.id)) {
                 // emit stay
-                 TriggerEventObject.type = 'onTriggerStay';
+                TriggerEventObject.type = 'onTriggerStay';
             } else {
                 // first trigger, emit enter
-                 TriggerEventObject.type = 'onTriggerEnter';
+                TriggerEventObject.type = 'onTriggerEnter';
             }
             shapeA.onTrigger(TriggerEventObject);
 
@@ -167,24 +170,66 @@ export class BuiltInWorld implements BuiltInWorldBase {
         this._customAfterStepListener.splice(i, 1);
     }
 
-    public raycastClosest (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean {
-        return false;
+    public raycastClosest (worldRay: ray, options: IRaycastOptions, out: PhysicsRayResult): boolean {
+        let tmp_d = Infinity;
+        const max_d = options.maxDistance!;
+        const mask = options.mask!;
+        for (let i = 0; i < this._bodies.length; i++) {
+            const body = this._bodies[i] as BuiltInBody;
+            for (let i = 0; i < body.shapes.length; i++) {
+                const shape = body.shapes[i];
+                // const collider = shape.getUserData();
+                // if (!(collider!.node.layer & mask)) {
+                //     continue;
+                // }
+                const distance = intersect.resolve(worldRay, shape.worldShape);
+                if (distance == 0 || distance > max_d) {
+                    continue;
+                }
+                if (tmp_d > distance) {
+                    tmp_d = distance;
+                    Vec3.normalize(hitPoint, worldRay.d)
+                    Vec3.scaleAndAdd(hitPoint, worldRay.o, hitPoint, distance);
+                    out._assign(hitPoint, distance, shape);
+                }
+            }
+        }
+
+        return !(tmp_d == Infinity);
     }
 
-    public raycastAny (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean {
-        return false;
+    public raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        const max_d = options.maxDistance!;
+        const mask = options.mask!;
+        for (let i = 0; i < this._bodies.length; i++) {
+            const body = this._bodies[i] as BuiltInBody;
+            for (let i = 0; i < body.shapes.length; i++) {
+                const shape = body.shapes[i];
+                // const collider = shape.getUserData();
+                // if (!(collider!.node.layer & mask)) {
+                //     continue;
+                // }
+                const distance = intersect.resolve(worldRay, shape.worldShape);
+                if (distance == 0 || distance > max_d) {
+                    continue;
+                } else {
+                    const r = pool.add();
+                    worldRay.computeHit(hitPoint, distance);
+                    r._assign(hitPoint, distance, shape);
+                    results.push(r);
+                }
+            }
+        }
+        return results.length > 0;
     }
-
-    public raycastAll (from: Vec3, to: Vec3, options: IRaycastOptions, callback: (result: RaycastResult) => void): boolean {
-        return false;
-    }
-
 }
 
 const TriggerEventObject = {
     type: '' as unknown as ITriggerEventType,
-    selfCollider: null,
-    otherCollider: null,
+    selfCollider: null as any,
+    otherCollider: null as any,
     // selfRigidBody: null,
     // otherRigidBody: null,
 };
+
+const hitPoint = new Vec3();
