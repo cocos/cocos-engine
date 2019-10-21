@@ -1,4 +1,4 @@
-import CANNON from 'cannon';
+import CANNON from '@cocos/cannon';
 import { DistanceConstraintBase, IDistanceConstraintOptions } from '../../api';
 import { CannonRigidBody } from '../cannon-body';
 import { CannonConstraint } from './cannon-constraint';

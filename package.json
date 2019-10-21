@@ -43,7 +43,6 @@
     "babel-preset-env": "^1.2.2",
     "babelify": "7.3.0",
     "browserify": "^16.2.3",
-    "cannon": "github:cocos-creator/cannon.js#cc1.0.2",
     "chalk": "1.1.0",
     "commander": "^2.20.0",
     "dat.gui": "^0.7.5",
@@ -98,5 +97,8 @@
     "vinyl-source-stream": "1.0.0",
     "watchify": "^3.7.0",
     "yargs": "^12.0.5"
+  },
+  "dependencies": {
+    "@cocos/cannon": "^1.0.1"
   }
 }

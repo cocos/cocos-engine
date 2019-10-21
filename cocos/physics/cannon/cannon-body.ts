@@ -1,4 +1,4 @@
-import CANNON from 'cannon';
+import CANNON from '@cocos/cannon';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { ICollisionCallback, ICollisionEventType, ICreateBodyOptions, PhysicsWorldBase, RigidBodyBase, ShapeBase } from '../api';
 import { ERigidBodyType } from '../physic-enum';

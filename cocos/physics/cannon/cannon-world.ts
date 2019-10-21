@@ -1,4 +1,4 @@
-import CANNON from 'cannon';
+import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../core/math';
 import { PhysicsRayResult } from '../physics-ray-result';
 import { setWrap } from '../util';
