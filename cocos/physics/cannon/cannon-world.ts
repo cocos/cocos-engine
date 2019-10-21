@@ -62,6 +62,8 @@ export class CannonWorld implements PhysicsWorldBase {
         this._callCustomBeforeSteps();
         this._world.step(deltaTime, time, maxSubStep);
         this._callCustomAfterSteps();
+        this._world.emitTriggeredEvents();
+        this._world.emitCollisionEvents();
     }
 
     public addBeforeStep (cb: BeforeStepCallback) {
