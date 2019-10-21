@@ -143,8 +143,7 @@ export class PhysicsSystem extends System {
     private readonly _material: PhysicMaterial | null = null;
 
     public readonly raycastClosestResult = new PhysicsRayResult();
-    public readonly raycastAnyResult = new PhysicsRayResult();
-    public readonly raycastAllResults: PhysicsRayResult[] = [];
+    public readonly raycastResults: PhysicsRayResult[] = [];
 
     private readonly raycastOptions: IRaycastOptions = {
         'group': -1,
@@ -196,7 +195,7 @@ export class PhysicsSystem extends System {
 
     /**
      * @zh
-     * 检测所有的碰撞盒，并记录所有被检测到的结果，通过 PhysicsSystem.instance.raycastAllResults 访问结果
+     * 检测所有的碰撞盒，并记录所有被检测到的结果，通过 PhysicsSystem.instance.raycastResults 访问结果
      * @param worldRay 世界空间下的一条射线
      * @param mask 掩码
      * @param maxDistance 最大检测距离
@@ -204,30 +203,13 @@ export class PhysicsSystem extends System {
      * @return boolean 表示是否有检测到碰撞盒
      * @note 由于目前 Layer 还未完善，mask 暂时失效，请留意更新公告
      */
-    public raycastAll (worldRay: ray, mask: number = Layers.Enum.DEFAULT, maxDistance = Infinity, queryTrigger = true): boolean {
+    public raycast (worldRay: ray, mask: number = Layers.Enum.DEFAULT, maxDistance = Infinity, queryTrigger = true): boolean {
         this.raycastResultPool.reset();
-        this.raycastAllResults.length = 0;
+        this.raycastResults.length = 0;
         this.raycastOptions.mask = mask;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
-        return this._world.raycastAll(worldRay, this.raycastOptions, this.raycastResultPool, this.raycastAllResults);
-    }
-
-    /**
-     * @zh
-     * 检测所有的碰撞盒，一旦检测成功就会停止检测，通过 PhysicsSystem.instance.raycastAnyResult 访问结果
-     * @param worldRay 世界空间下的一条射线
-     * @param mask 掩码
-     * @param maxDistance 最大检测距离
-     * @param queryTrigger 是否检测触发器
-     * @return boolean 表示是否有检测到碰撞盒
-     * @note 由于目前 Layer 还未完善，mask 暂时失效，请留意更新公告
-     */
-    public raycastAny (worldRay: ray, mask: number = Layers.Enum.DEFAULT, maxDistance = Infinity, queryTrigger = true): boolean {
-        this.raycastOptions.mask = mask;
-        this.raycastOptions.maxDistance = maxDistance;
-        this.raycastOptions.queryTrigger = queryTrigger;
-        return this._world.raycastAny(worldRay, this.raycastOptions, this.raycastAnyResult);
+        return this._world.raycast(worldRay, this.raycastOptions, this.raycastResultPool, this.raycastResults);
     }
 
     /**

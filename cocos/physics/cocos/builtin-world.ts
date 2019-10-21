@@ -198,31 +198,7 @@ export class BuiltInWorld implements BuiltInWorldBase {
         return !(tmp_d == Infinity);
     }
 
-    public raycastAny (worldRay: ray, options: IRaycastOptions, out: PhysicsRayResult): boolean {
-        const max_d = options.maxDistance!;
-        const mask = options.mask!;
-        for (let i = 0; i < this._bodies.length; i++) {
-            const body = this._bodies[i] as BuiltInBody;
-            for (let i = 0; i < body.shapes.length; i++) {
-                const shape = body.shapes[i];
-                // const collider = shape.getUserData();
-                // if (!(collider!.node.layer & mask)) {
-                //     continue;
-                // }
-                const distance = intersect.resolve(worldRay, shape.worldShape);
-                if (distance == 0 || distance > max_d) {
-                    continue;
-                } else {
-                    worldRay.computeHit(hitPoint, distance);
-                    out._assign(hitPoint, distance, shape);
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public raycastAll (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    public raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         const max_d = options.maxDistance!;
         const mask = options.mask!;
         for (let i = 0; i < this._bodies.length; i++) {

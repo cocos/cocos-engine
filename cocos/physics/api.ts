@@ -70,16 +70,10 @@ export interface BuiltInWorldBase {
     raycastClosest (worldRay: ray, options: IRaycastOptions, out: PhysicsRayResult): boolean;
 
     /**
-     * Ray cast, and stop at the first result. Note that the order is random - but the method is fast.
-     * @return True if any body was hit.
-     */
-    raycastAny (worldRay: ray, options: IRaycastOptions, out: PhysicsRayResult): boolean;
-
-    /**
      * Ray cast against all bodies. The provided callback will be executed for each hit with a RaycastResult as single argument.
      * @return True if any body was hit.
      */
-    raycastAll (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, resultes: PhysicsRayResult[]): boolean
+    raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, resultes: PhysicsRayResult[]): boolean
 }
 
 export interface PhysicsWorldBase extends BuiltInWorldBase {

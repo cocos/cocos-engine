@@ -100,17 +100,7 @@ export class CannonWorld implements PhysicsWorldBase {
         return hit;
     }
 
-    public raycastAny (worldRay: ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
-        setupFromAndTo(worldRay, options.maxDistance);
-        toCannonRaycastOptions(raycastOpt, options);
-        const hit = this._world.raycastAny(from, to, raycastOpt, this._raycastResult);
-        if (hit) {
-            fillRaycastResult(result, this._raycastResult);
-        }
-        return hit;
-    }
-
-    public raycastAll (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    public raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         setupFromAndTo(worldRay, options.maxDistance);
         toCannonRaycastOptions(raycastOpt, options);
         const hit = this._world.raycastAll(from, to, raycastOpt, (result: CANNON.RaycastResult): any => {
