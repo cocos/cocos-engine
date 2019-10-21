@@ -731,7 +731,9 @@ let Camera = cc.Class({
         this.node.getWorldMatrix(_mat4_temp_1);
         this.beforeDraw();
         RenderFlow.render(root);
-        renderer._forward.renderCamera(this._camera, renderer.scene);
+        if (!CC_JSB) {
+            renderer._forward.renderCamera(this._camera, renderer.scene);
+        }
     },
 
     _layout2D () {
