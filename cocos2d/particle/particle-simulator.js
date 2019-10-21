@@ -234,7 +234,7 @@ Simulator.prototype.updateUVs = function (force) {
 Simulator.prototype.updateParticleBuffer = function (particle, pos, buffer, offset) {
     let vbuf = buffer._vData;
     let uintbuf = buffer._uintVData;
-    
+
     let x = pos.x, y = pos.y;
     let size_2 = particle.size / 2;
     // pos
@@ -278,6 +278,12 @@ Simulator.prototype.updateParticleBuffer = function (particle, pos, buffer, offs
 };
 
 Simulator.prototype.step = function (dt) {
+    if(!this.lastFrameTime) {
+        this.lastFrameTime = dt;
+    }
+    else {
+        dt = Math.min(this.lastFrameTime, dt);
+    }
     let psys = this.sys;
     let node = psys.node;
     let particles = this.particles;
