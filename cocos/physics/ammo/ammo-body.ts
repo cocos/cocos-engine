@@ -559,9 +559,8 @@ export class AmmoRigidBody implements RigidBodyBase {
             this._ammoBody.setCollisionFlags(AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
         }
         if (!this.rigidBody.useGravity) {
-            /** TODO : wait new ammo version */
-            // Cocos2AmmoVec3(this._ammoBody.getGravity(), Vec3.ZERO);
-            // this._ammoBody.setFlags(AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
+            Cocos2AmmoVec3(this._ammoBody.getGravity(), Vec3.ZERO);
+            this._ammoBody.setFlags(AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
         }
 
         /** disable sleep */
@@ -575,7 +574,7 @@ export class AmmoRigidBody implements RigidBodyBase {
     public onEnable () {
         AmmoWorld.instance.impl.addRigidBody(this._ammoBody);
         AmmoWorld.instance.bodys.push(this);
-        this.index = AmmoWorld.instance.bodys.length;
+        this.index = AmmoWorld.instance.bodys.length - 1;
         this._ammoBody.setUserIndex(this.index);
     }
 

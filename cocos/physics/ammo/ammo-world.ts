@@ -154,8 +154,8 @@ export class AmmoWorld implements PhysicsWorldBase {
             const manifold = this._dispatcher.getManifoldByIndexInternal(i);
             const body0 = manifold.getBody0();
             const body1 = manifold.getBody1();
-            const indexA = body0.getUserIndex();
-            const indexB = body1.getUserIndex();
+            const index0 = body0.getUserIndex();
+            const index1 = body1.getUserIndex();
             // console.log('A:', indexA, 'B:', indexB);            
             // console.log('A:', indexA, 'B:', indexB);
             const numContacts = manifold.getNumContacts();
@@ -163,7 +163,27 @@ export class AmmoWorld implements PhysicsWorldBase {
                 const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
                 const d = manifoldPoint.getDistance();
                 if (d <= 0) {
-                    console.log("contact:");
+                    let ammoShape0: AmmoShape | Ammo.btCollisionShape;
+                    let isTrigger = false;
+                    if (index0 == -2) {
+                        ammoShape0 = this.staticShapes[manifoldPoint.m_index0];
+                    } else if (index0 == -3) {
+                        ammoShape0 = this.triggerShapes[manifoldPoint.m_index0];
+                        isTrigger = true;
+                    } else {
+                        ammoShape0 = this.bodys[index0].ammoCompoundShape.getChildShape(manifoldPoint.m_index0);
+                    }
+
+                    let ammoShape1: AmmoShape | Ammo.btCollisionShape;
+                    if (index1 == -2) {
+                        ammoShape1 = this.staticShapes[manifoldPoint.m_index1];
+                    } else if (index1 == -3) {
+                        ammoShape1 = this.triggerShapes[manifoldPoint.m_index1];
+                        isTrigger = true;
+                    } else {
+                        ammoShape1 = this.bodys[index1].ammoCompoundShape.getChildShape(manifoldPoint.m_index1);
+                    }
+                    console.log("contact:", isTrigger, ammoShape0, ammoShape1);
                     break;
                 }
             }
