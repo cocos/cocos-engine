@@ -1215,7 +1215,7 @@ var ParticleSystem = cc.Class({
     _applySpriteFrame () {
         this._updateMaterial();
         if (this._renderSpriteFrame) {
-            if (this._renderSpriteFrame.textureLoaded) {
+            if (this._renderSpriteFrame.textureLoaded()) {
                 this._onTextureLoaded();
             }
             else {

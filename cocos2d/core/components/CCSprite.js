@@ -253,7 +253,7 @@ var Sprite = cc.Class({
             get () {
                 return this._fillType;
             },
-            set(value) {
+            set (value) {
                 if (value !== this._fillType) {
                     this._fillType = value;
                     this._resetAssembler();
@@ -274,10 +274,10 @@ var Sprite = cc.Class({
          * sprite.fillCenter = new cc.Vec2(0, 0);
          */
         fillCenter: {
-            get() {
+            get () {
                 return this._fillCenter;
             },
-            set(value) {
+            set (value) {
                 this._fillCenter.x = value.x;
                 this._fillCenter.y = value.y;
                 if (this._type === SpriteType.FILLED) {
@@ -299,10 +299,10 @@ var Sprite = cc.Class({
          * sprite.fillStart = 0.5;
          */
         fillStart: {
-            get() {
+            get () {
                 return this._fillStart;
             },
-            set(value) {
+            set (value) {
                 this._fillStart = misc.clampf(value, -1, 1);
                 if (this._type === SpriteType.FILLED) {
                     this.setVertsDirty();
@@ -323,10 +323,10 @@ var Sprite = cc.Class({
          * sprite.fillRange = 1;
          */
         fillRange: {
-            get() {
+            get () {
                 return this._fillRange;
             },
-            set(value) {
+            set (value) {
                 this._fillRange = misc.clampf(value, -1, 1);
                 if (this._type === SpriteType.FILLED) {
                     this.setVertsDirty();
