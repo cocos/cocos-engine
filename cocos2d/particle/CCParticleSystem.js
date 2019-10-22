@@ -562,11 +562,8 @@ var properties = {
             return this._positionType;
         },
         set (val) {
-            let material = this.getMaterial(0);
-            if (material) {
-                material.define('CC_USE_MODEL', val !== PositionType.FREE);
-            }
             this._positionType = val;
+            this._updateMaterial();
         }
     },
 
@@ -909,11 +906,6 @@ var ParticleSystem = cc.Class({
         }
     },
 
-    onEnable () {
-        this._super();
-        this._activateMaterial();
-    },
-
     onDestroy () {
         if (this.autoRemoveOnFinish) {
             this.autoRemoveOnFinish = false;    // already removed
@@ -969,7 +961,7 @@ var ParticleSystem = cc.Class({
     resetSystem: function () {
         this._stopped = false;
         this._simulator.reset();
-        this._activateMaterial();
+        this.markForRender(true);
     },
 
     /**
