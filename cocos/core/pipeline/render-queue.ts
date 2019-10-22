@@ -10,7 +10,7 @@ import { IRenderObject, IRenderPass, IRenderQueueDesc } from './define';
  * @en
  * Comparison sorting function. Opaque objects are sorted by depth priority -> depth front to back -> shader id.
  * @zh
- * 比较排序函数。不透对象按优先级 -> 深度由前向后 -> ShaderId 顺序排序。
+ * 比较排序函数。不透明对象按优先级 -> 深度由前向后 -> ShaderId 顺序排序。
  */
 export function opaqueCompareFn (a: IRenderPass, b: IRenderPass) {
     if (a.hash === b.hash) {
@@ -28,7 +28,7 @@ export function opaqueCompareFn (a: IRenderPass, b: IRenderPass) {
  * @en
  * Comparison sorting function. Transparent objects are sorted by pass priority -> depth back to front -> shader id.
  * @zh
- * 比较排序函数。半透对象按优先级 -> 深度由后向前 -> ShaderId 顺序排序。
+ * 比较排序函数。半透明对象按优先级 -> 深度由后向前 -> ShaderId 顺序排序。
  */
 export function transparentCompareFn (a: IRenderPass, b: IRenderPass) {
     if (a.hash === b.hash) {

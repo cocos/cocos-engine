@@ -85,7 +85,8 @@ export class AmbientInfo {
     @property({ type: Color })
     set groundAlbedo (val: Color) {
         this._groundAlbedo.set(val);
-        if (this._resource) { Color.toArray(this._resource.groundAlbedo, this.groundAlbedo); }
+        // only RGB channels are used, alpha channel are intensionally left unchanged here
+        if (this._resource) { Vec3.toArray(this._resource.groundAlbedo, this.groundAlbedo); }
     }
     get groundAlbedo () {
         return this._groundAlbedo;

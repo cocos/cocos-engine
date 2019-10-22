@@ -31,7 +31,7 @@ import { EventTarget } from './event/event-target';
 import { WebGLGFXDevice } from './gfx/webgl/webgl-device';
 import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
 import * as debug from './platform/debug';
-import { SplashImage } from './splash-image';
+import { SplashScreen } from './splash-image';
 /**
  * @en
  * The current game configuration, including:<br/>
@@ -494,7 +494,7 @@ export class Game extends EventTarget {
         this.onStart = onStart;
 
         if (!CC_EDITOR && CC_WECHATGAME/* && !CC_PREVIEW*/) {
-            SplashImage.instance.main(this._gfxDevice as any);
+            SplashScreen.instance.main(this._gfxDevice as any);
         }
 
         this.prepare(cc.game.onStart && cc.game.onStart.bind(cc.game));
@@ -615,8 +615,8 @@ export class Game extends EventTarget {
         };
 
         if (!CC_EDITOR && CC_WECHATGAME) {
-            SplashImage.instance.setOnFinish(start);
-            SplashImage.instance.loadFinish = true;
+            SplashScreen.instance.setOnFinish(start);
+            SplashScreen.instance.loadFinish = true;
         } else {
             start();
         }

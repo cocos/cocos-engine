@@ -42,13 +42,13 @@ import { Camera } from '../../renderer/scene/camera';
 import { Model } from '../../renderer/scene/model';
 import { RenderScene } from '../../renderer/scene/render-scene';
 import { Root } from '../../root';
+import { Layers } from '../../scene-graph';
 import { INode } from '../../utils/interfaces';
 import { MeshBuffer } from './mesh-buffer';
 import { StencilManager } from './stencil-manager';
 import { UIBatchModel } from './ui-batch-model';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
-import { Layers } from '../../scene-graph';
 
 export class UIDrawBatch {
     public camera: Camera | null = null;
@@ -509,7 +509,6 @@ export class UI {
     }
 
     private _preprocess (c: INode) {
-        // ts-ignore
         const render = c._uiComp;
         if (render && render.enabledInHierarchy) {
             render.updateAssembler(this);
@@ -565,7 +564,7 @@ export class UI {
         }
     }
 
-    private _screenSort(a: CanvasComponent, b: CanvasComponent){
+    private _screenSort (a: CanvasComponent, b: CanvasComponent){
         return a.priority - b.priority;
     }
 }

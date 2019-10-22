@@ -116,10 +116,10 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     }
 
     public querySockets () {
+        const animPaths = this._defaultClip && Object.keys((this._defaultClip as SkeletalAnimationClip).convertedData).sort().reduce((acc, cur) =>
+            cur.startsWith(acc[acc.length - 1]) ? acc : (acc.push(cur), acc), [] as string[]) || [];
+        if (!animPaths.length) { return ['default animation clip missing/invalid']; }
         const out: string[] = [];
-        if (!this._defaultClip) { return out; }
-        const animPaths = Object.keys((this._defaultClip as SkeletalAnimationClip).convertedData).sort().reduce((acc, cur) =>
-            cur.startsWith(acc[acc.length - 1]) ? acc : (acc.push(cur), acc), [] as string[]);
         for (let i = 0; i < animPaths.length; i++) {
             const path = animPaths[i];
             const node = this.node.getChildByPath(path);

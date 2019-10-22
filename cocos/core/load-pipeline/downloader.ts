@@ -225,7 +225,8 @@ export default class Downloader implements IPipe {
     }
 
     /**
-     * Add custom supported types handler or modify existing type handler.
+     * @en Add custom supported types handler or modify existing type handler.
+     * @zh 添加自定义支持的类型处理程序或修改现有的类型处理程序。
      * @method addHandlers
      * @param {Object} extMap Custom supported types with corresponded handler
      */

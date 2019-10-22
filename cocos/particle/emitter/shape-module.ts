@@ -104,8 +104,38 @@ export default class ShapeModule {
     @property({
         type: ShapeType,
         displayOrder: 1,
+        formerlySerializedAs: 'shapeType',
     })
-    public shapeType = ShapeType.Cone;
+    public _shapeType = ShapeType.Cone;
+
+    @property({
+        type: ShapeType,
+    })
+    public get shapeType () {
+        return this._shapeType;
+    }
+
+    public set shapeType (val) {
+        this._shapeType = val;
+        switch (this._shapeType) {
+            case ShapeType.Box:
+                if (this.emitFrom === EmitLocation.Base) {
+                    this.emitFrom = EmitLocation.Volume;
+                }
+                break;
+            case ShapeType.Cone:
+                if (this.emitFrom === EmitLocation.Edge) {
+                    this.emitFrom = EmitLocation.Base;
+                }
+                break;
+            case ShapeType.Sphere:
+            case ShapeType.Hemisphere:
+                if (this.emitFrom === EmitLocation.Base || this.emitFrom === EmitLocation.Edge) {
+                    this.emitFrom = EmitLocation.Volume;
+                }
+                break;
+        }
+    }
 
     /**
      * @zh 粒子从发射器哪个部位发射 [[EmitLocation]]。

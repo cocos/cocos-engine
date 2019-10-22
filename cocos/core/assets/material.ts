@@ -34,7 +34,6 @@ import { builtinResMgr } from '../3d/builtin';
 import { RenderableComponent } from '../3d/framework/renderable-component';
 import { GFXBindingType } from '../gfx/define';
 import { GFXTextureView } from '../gfx/texture-view';
-import { BatchedBuffer } from '../pipeline/batched-buffer';
 import { IDefineMap, Pass, PassOverrides } from '../renderer/core/pass';
 import { samplerLib } from '../renderer/core/sampler-lib';
 import { Asset } from './asset';

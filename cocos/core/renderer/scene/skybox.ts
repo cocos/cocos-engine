@@ -12,34 +12,31 @@ export class Skybox extends Model {
 
     set useIBL (val) {
         this._useIBL = val;
-        const pipeline = this._scene.root.pipeline;
-        if (!!pipeline.macros.CC_USE_IBL === val) { return; }
-        pipeline.macros.CC_USE_IBL = val;
-        this._scene.onPipelineChange();
-        this._updateGlobalBinding();
+        this._updatePipeline();
     }
     get useIBL () {
         return this._useIBL;
     }
 
-    set envmap (val: TextureCube | null) {
-        const newEnvmap = val || this._default;
-        this._envmap = newEnvmap;
-        this._updateGlobalBinding();
-    }
-    get envmap () {
-        return this._envmap;
-    }
-
-    set isRGBE (val: boolean) {
-        if (val === this._isRGBE) { return; }
+    set isRGBE (val) {
         this._isRGBE = val;
         this._material.recompileShaders({ USE_RGBE_CUBEMAP: this._isRGBE });
         this.setSubModelMaterial(0, this._material);
         this._updateGlobalBinding();
+        this._updatePipeline();
     }
     get isRGBE () {
         return this._isRGBE;
+    }
+
+    set envmap (val: TextureCube | null) {
+        const newEnvmap = val || this._default;
+        this._envmap = newEnvmap;
+        this._scene.ambient.groundAlbedo[3] = this._envmap.mipmapLevel;
+        this._updateGlobalBinding();
+    }
+    get envmap () {
+        return this._envmap;
     }
 
     protected _default = builtinResMgr.get<TextureCube>('default-cube-texture');
@@ -53,15 +50,20 @@ export class Skybox extends Model {
     constructor (scene: RenderScene) {
         super(scene, null!);
         this._scene = scene;
-        this._material.initialize({
-            effectName: 'pipeline/skybox',
-            defines: { USE_RGBE_CUBEMAP: this._isRGBE },
-        });
+        this._material.initialize({ effectName: 'pipeline/skybox', defines: { USE_RGBE_CUBEMAP: this._isRGBE } });
         this._globalBinding = this._scene.root.pipeline.globalBindings.get(UNIFORM_ENVIRONMENT.name)!;
 
         const mesh = createMesh(box({ width: 2, height: 2, length: 2 }));
         const subMeshData = mesh.renderingMesh.getSubmesh(0)!;
         this.initSubModel(0, subMeshData, this._material);
+    }
+
+    protected _updatePipeline () {
+        const value = this._useIBL ? this._isRGBE ? 2 : 1 : 0;
+        const pipeline = this._scene.root.pipeline;
+        if (pipeline.macros.CC_USE_IBL === value) { return; }
+        pipeline.macros.CC_USE_IBL = value;
+        this._scene.onPipelineChange();
     }
 
     protected _updateGlobalBinding () {

@@ -21,9 +21,7 @@ import triangle from './triangle';
 // tslint:disable:no-shadowed-variable
 
 /**
- * @en
- * ray-plane intersect
- * @zh
+ * ray-plane intersect<br/>
  * 射线与平面的相交性检测。
  * @param {ray} ray 射线
  * @param {plane} plane 平面
@@ -43,9 +41,7 @@ const ray_plane = (function () {
 })();
 
 /**
- * @en
- * line-plane intersect
- * @zh
+ * line-plane intersect<br/>
  * 线段与平面的相交性检测。
  * @param {line} line 线段
  * @param {plane} plane 平面
@@ -64,9 +60,7 @@ const line_plane = (function () {
 
 // based on http://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/raytri/
 /**
- * @en
- * ray-triangle intersect
- * @zh
+ * ray-triangle intersect<br/>
  * 射线与三角形的相交性检测。
  * @param {ray} ray 射线
  * @param {triangle} triangle 三角形
@@ -104,9 +98,7 @@ const ray_triangle = (function () {
 })();
 
 /**
- * @en
- * line-triangle intersect
- * @zh
+ * line-triangle intersect<br/>
  * 线段与三角形的相交性检测。
  * @param {line} line 线段
  * @param {triangle} triangle 三角形
@@ -169,9 +161,7 @@ const line_triangle = (function () {
 })();
 
 /**
- * @en
- * line-quad intersect
- * @zh
+ * line-quad intersect<br/>
  * 线段与四边形的相交性检测。
  * @param {Vec3} p 线段的一点
  * @param {Vec3} q 线段的另一点
@@ -262,9 +252,7 @@ const line_quad = (function () {
 })();
 
 /**
- * @en
- * ray-sphere intersect
- * @zh
+ * ray-sphere intersect<br/>
  * 射线和球的相交性检测。
  * @param {ray} ray 射线
  * @param {sphere} sphere 球
@@ -293,9 +281,7 @@ const ray_sphere = (function () {
 })();
 
 /**
- * @en
- * ray-aabb intersect
- * @zh
+ * ray-aabb intersect<br/>
  * 射线和轴对齐包围盒的相交性检测。
  * @param {ray} ray 射线
  * @param {aabb} aabb 轴对齐包围盒
@@ -323,9 +309,7 @@ const ray_aabb = (function () {
 })();
 
 /**
- * @en
- * ray-obb intersect
- * @zh
+ * ray-obb intersect<br/>
  * 射线和方向包围盒的相交性检测。
  * @param {ray} ray 射线
  * @param {obb} obb 方向包围盒
@@ -401,9 +385,7 @@ const ray_obb = (function () {
 })();
 
 /**
- * @en
- * aabb-aabb intersect
- * @zh
+ * aabb-aabb intersect<br/>
  * 轴对齐包围盒和轴对齐包围盒的相交性检测。
  * @param {aabb} aabb1 轴对齐包围盒1
  * @param {aabb} aabb2 轴对齐包围盒2
@@ -490,9 +472,7 @@ function getInterval (vertices: any[] | Vec3[], axis: Vec3) {
 }
 
 /**
- * @en
- * aabb-obb intersect
- * @zh
+ * aabb-obb intersect<br/>
  * 轴对齐包围盒和方向包围盒的相交性检测。
  * @param {aabb} aabb 轴对齐包围盒
  * @param {obb} obb 方向包围盒
@@ -543,9 +523,7 @@ const aabb_obb = (function () {
 })();
 
 /**
- * @en
- * aabb-plane intersect
- * @zh
+ * aabb-plane intersect<br/>
  * 轴对齐包围盒和平面的相交性检测。
  * @param {aabb} aabb 轴对齐包围盒
  * @param {plane} plane 平面
@@ -562,9 +540,7 @@ const aabb_plane = function (aabb: aabb, plane: plane): number {
 };
 
 /**
- * @en
- * aabb-frustum intersect, faster but has false positive corner cases
- * @zh
+ * aabb-frustum intersect, faster but has false positive corner cases<br/>
  * 轴对齐包围盒和锥台相交性检测，速度快，但有错误情况。
  * @param {aabb} aabb 轴对齐包围盒
  * @param {frustum} frustum 锥台
@@ -582,9 +558,7 @@ const aabb_frustum = function (aabb: aabb, frustum: frustum): number {
 
 // https://cesium.com/blog/2017/02/02/tighter-frustum-culling-and-why-you-may-want-to-disregard-it/
 /**
- * @en
- * aabb-frustum intersect, handles most of the false positives correctly
- * @zh
+ * aabb-frustum intersect, handles most of the false positives correctly<br/>
  * 轴对齐包围盒和锥台相交性检测，正确处理大多数错误情况。
  * @param {aabb} aabb 轴对齐包围盒
  * @param {frustum} frustum 锥台
@@ -634,9 +608,7 @@ const aabb_frustum_accurate = (function () {
 })();
 
 /**
- * @en
- * obb-point intersect
- * @zh
+ * obb-point intersect<br/>
  * 方向包围盒和点的相交性检测。
  * @param {obb} obb 方向包围盒
  * @param {Vec3} point 点
@@ -653,9 +625,7 @@ const obb_point = (function () {
 })();
 
 /**
- * @en
- * obb-plane intersect
- * @zh
+ * obb-plane intersect<br/>
  * 方向包围盒和平面的相交性检测。
  * @param {obb} obb 方向包围盒
  * @param {plane} plane 平面
@@ -679,9 +649,7 @@ const obb_plane = (function () {
 })();
 
 /**
- * @en
- * obb-frustum intersect, faster but has false positive corner cases
- * @zh
+ * obb-frustum intersect, faster but has false positive corner cases<br/>
  * 方向包围盒和锥台相交性检测，速度快，但有错误情况。
  * @param {obb} obb 方向包围盒
  * @param {frustum} frustum 锥台
@@ -699,9 +667,7 @@ const obb_frustum = function (obb: obb, frustum: frustum): number {
 
 // https://cesium.com/blog/2017/02/02/tighter-frustum-culling-and-why-you-may-want-to-disregard-it/
 /**
- * @en
- * obb-frustum intersect, handles most of the false positives correctly
- * @zh
+ * obb-frustum intersect, handles most of the false positives correctly<br/>
  * 方向包围盒和锥台相交性检测，正确处理大多数错误情况。
  * @param {obb} obb 方向包围盒
  * @param {frustum} frustum 锥台
@@ -757,9 +723,7 @@ const obb_frustum_accurate = (function () {
 })();
 
 /**
- * @en
- * obb-obb intersect
- * @zh
+ * obb-obb intersect<br/>
  * 方向包围盒和方向包围盒的相交性检测。
  * @param {obb} obb1 方向包围盒1
  * @param {obb} obb2 方向包围盒2
@@ -808,11 +772,9 @@ const obb_obb = (function () {
 })();
 
 /**
- * @en
- * sphere-plane intersect, not necessarily faster than obb-plane
- * due to the length calculation of the plane normal to factor out
- * the unnomalized plane distance
- * @zh
+ * sphere-plane intersect, not necessarily faster than obb-plane<br/>
+ * due to the length calculation of the plane normal to factor out<br/>
+ * the unnomalized plane distance<br/>
  * 球与平面的相交性检测。
  * @param {sphere} sphere 球
  * @param {plane} plane 平面
@@ -827,9 +789,7 @@ const sphere_plane = function (sphere: sphere, plane: plane): number {
 };
 
 /**
- * @en
- * sphere-frustum intersect, faster but has false positive corner cases
- * @zh
+ * sphere-frustum intersect, faster but has false positive corner cases<br/>
  * 球和锥台的相交性检测，速度快，但有错误情况。
  * @param {sphere} sphere 球
  * @param {frustum} frustum 锥台
@@ -847,9 +807,7 @@ const sphere_frustum = function (sphere: sphere, frustum: frustum): number {
 
 // https://stackoverflow.com/questions/20912692/view-frustum-culling-corner-cases
 /**
- * @en
- * sphere-frustum intersect, handles the false positives correctly
- * @zh
+ * sphere-frustum intersect, handles the false positives correctly<br/>
  * 球和锥台的相交性检测，正确处理大多数错误情况。
  * @param {sphere} sphere 球
  * @param {frustum} frustum 锥台
@@ -880,9 +838,7 @@ const sphere_frustum_accurate = (function () {
 })();
 
 /**
- * @en
- * sphere-sphere intersect
- * @zh
+ * sphere-sphere intersect<br/>
  * 球和球的相交性检测。
  * @param {sphere} sphere0 球0
  * @param {sphere} sphere1 球1
@@ -894,9 +850,7 @@ const sphere_sphere = function (sphere0: sphere, sphere1: sphere): boolean {
 };
 
 /**
- * @en
- * sphere-aabb intersect
- * @zh
+ * sphere-aabb intersect<br/>
  * 球和轴对齐包围盒的相交性检测。
  * @param {sphere} sphere 球
  * @param {aabb} aabb 轴对齐包围盒
@@ -911,9 +865,7 @@ const sphere_aabb = (function () {
 })();
 
 /**
- * @en
- * sphere-obb intersect
- * @zh
+ * sphere-obb intersect<br/>
  * 球和方向包围盒的相交性检测。
  * @param {sphere} sphere 球
  * @param {obb} obb 方向包围盒

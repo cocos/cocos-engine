@@ -538,8 +538,7 @@ export class Quat extends ValueType {
     }
 
     /**
-     * @zh
-     * 根据四元数计算欧拉角，返回角度 x, y 在 [-180, 180] 区间内, z 默认在 [-90, 90] 区间内，旋转顺序为 YZX
+     * @zh 根据四元数计算欧拉角，返回角度 x, y 在 [-180, 180] 区间内, z 默认在 [-90, 90] 区间内，旋转顺序为 YZX
      * @param outerZ z 取值范围区间改为 [-180, -90] U [90, 180]
      */
     public static toEuler <Out extends IVec3Like> (out: Out, q: IQuatLike, outerZ?: boolean) {
@@ -654,21 +653,21 @@ export class Quat extends ValueType {
     }
 
     /**
-     * 克隆当前四元数。
+     * @zh 克隆当前四元数。
      */
     public clone () {
         return new Quat(this.x, this.y, this.z, this.w);
     }
 
     /**
-     * 设置当前四元数使其与指定四元数相等。
+     * @zh 设置当前四元数使其与指定四元数相等。
      * @param other 相比较的四元数。
      * @returns `this`
      */
     public set (other: Quat): Quat;
 
     /**
-     * 设置当前四元数指定元素值。
+     * @zh 设置当前四元数指定元素值。
      * @param x 四元数 x 元素值
      * @param y 四元数 y 元素值
      * @param z 四元数 z 元素值
@@ -693,7 +692,7 @@ export class Quat extends ValueType {
     }
 
     /**
-     * 判断当前向量是否在误差范围内与指定向量相等。
+     * @zh 判断当前向量是否在误差范围内与指定向量相等。
      * @param other 相比较的向量。
      * @param epsilon 允许的误差，应为非负数。
      * @returns 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
@@ -706,7 +705,7 @@ export class Quat extends ValueType {
     }
 
     /**
-     * 判断当前四元数是否与指定四元数相等。
+     * @zh 判断当前四元数是否与指定四元数相等。
      * @param other 相比较的四元数。
      * @returns 两四元数的各分量都相等时返回 `true`；否则返回 `false`。
      */
@@ -715,7 +714,7 @@ export class Quat extends ValueType {
     }
 
     /**
-     * 将当前四元数转化为欧拉角（x-y-z）并赋值给出口向量。
+     * @zh 将当前四元数转化为欧拉角（x-y-z）并赋值给出口向量。
      * @param out 出口向量。
      */
     public getEulerAngles (out: Vec3) {
@@ -723,7 +722,7 @@ export class Quat extends ValueType {
     }
 
     /**
-     * 根据指定的插值比率，从当前四元数到目标四元数之间做插值。
+     * @zh 根据指定的插值比率，从当前四元数到目标四元数之间做插值。
      * @param to 目标四元数。
      * @param ratio 插值比率，范围为 [0,1]。
      */

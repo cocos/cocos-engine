@@ -41,9 +41,7 @@ import { Enum } from '../../value-types';
 import { CameraDefaultMask } from '../../pipeline/define';
 
 /**
- * @en
- * The projection type
- * @zh
+ * The projection type<br/>
  * 投影类型。
  * @static
  * @enum CameraComponent.Projection

@@ -37,8 +37,8 @@
 // tslint:disable:no-empty-interface
 
 /**
- * @en Some JavaScript decorators which can be accessed with "cc._decorator".
- * @zh 一些 JavaScript 装饰器，目前可以通过 "cc._decorator" 来访问。
+ * Some JavaScript decorators which can be accessed with "cc._decorator".
+ * 一些 JavaScript 装饰器，目前可以通过 "cc._decorator" 来访问。
  * （这些 API 仍不完全稳定，有可能随着 JavaScript 装饰器的标准实现而调整）
  *
  * @submodule _decorator
@@ -312,26 +312,26 @@ export type SimplePropertyType = Function | string | typeof CCString | typeof CC
 export type PropertyType = SimplePropertyType | SimplePropertyType[];
 
 /**
- * cc 属性选项。
+ * @zh cc 属性选项。
  */
 export interface IPropertyOptions extends IExposedAttributes {
 }
 
 /**
- * 标注属性为 cc 属性。
+ * @zh 标注属性为 cc 属性。
  * @param options 选项。
  */
 export function property (options?: IPropertyOptions): PropertyDecorator;
 
 /**
- * 标注属性为 cc 属性。
+ * @zh 标注属性为 cc 属性。<br/>
  * 等价于`@property({type})`。
  * @param type cc 属性的类型。
  */
 export function property (type: PropertyType): PropertyDecorator;
 
 /**
- * 标注属性为 cc 属性。
+ * @zh 标注属性为 cc 属性。<br/>
  * 等价于`@property()`。
  */
 export function property (target: Object, propertyKey: string | symbol): void;
@@ -373,12 +373,10 @@ function createDummyDecorator (argCheckFunc) {
 }
 
 /**
- * @en
- * Makes a CCClass that inherit from component execute in edit mode.<br>
- * By default, all components are only executed in play mode,
- * which means they will not have their callback functions executed while the Editor is in edit mode.
- * @zh
- * 允许继承自 Component 的 CCClass 在编辑器里执行。<br>
+ * Makes a CCClass that inherit from component execute in edit mode.<br/>
+ * By default, all components are only executed in play mode,<br/>
+ * which means they will not have their callback functions executed while the Editor is in edit mode.<br/>
+ * 允许继承自 Component 的 CCClass 在编辑器里执行。<br/>
  * 默认情况下，所有 Component 都只会在运行时才会执行，也就是说它们的生命周期回调不会在编辑器里触发。
  *
  * @method executeInEditMode

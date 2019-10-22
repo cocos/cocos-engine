@@ -237,16 +237,16 @@ export class Director extends EventTarget {
     public static readonly EVENT_AFTER_DRAW = 'director_after_draw';
 
     /**
-     * @en The event which will be triggered before the physics process.
-     * @zh 物理过程之前所触发的事件。
+     * The event which will be triggered before the physics process.<br/>
+     * 物理过程之前所触发的事件。
      * @event Director.EVENT_BEFORE_PHYSICS
      * @readonly
      */
     public static readonly EVENT_BEFORE_PHYSICS = 'director_before_physics';
 
     /**
-     * @en The event which will be triggered after the physics process.
-     * @zh 物理过程之后所触发的事件。
+     * The event which will be triggered after the physics process.<br/>
+     * 物理过程之后所触发的事件。
      * @event Director.EVENT_AFTER_PHYSICS
      * @readonly
      */
@@ -885,8 +885,8 @@ export class Director extends EventTarget {
     }
 
     /**
-     * @en Returns the FPS value. Please use {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}} to control animation interval.
-     * @zh 获取单位帧执行时间。请使用 {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}} 来控制游戏帧率。
+     * @en Returns the FPS value. Please use [[Game.setFrameRate]] to control animation interval.
+     * @zh 获取单位帧执行时间。请使用 [[Game.setFrameRate]] 来控制游戏帧率。
      * @deprecated since v2.0
      * @return {Number}
      */
