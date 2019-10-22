@@ -200,7 +200,13 @@ RenderFlow.registerValidate = function (renderComp) {
 RenderFlow.validateRenderers = function () {
     for (let i = 0, l = _validateList.length; i < l; i++) {
         let renderComp = _validateList[i];
-        renderComp._validateRender();
+        if (!renderComp.isValid) continue;
+        if (!renderComp.enabledInHierarchy) {
+            renderComp.disableRender();
+        }
+        else {
+            renderComp._validateRender();
+        }
         renderComp._inValidateList = false;
     }
     _validateList.length = 0;

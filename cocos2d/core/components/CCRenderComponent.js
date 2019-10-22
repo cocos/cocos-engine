@@ -121,12 +121,6 @@ let RenderComponent = cc.Class({
     },
     
     _validateRender () {
-        if (!this.isValid) return;
-        if (this.enabledInHierarchy) {
-            return;
-        }
-
-        this.disableRender();
     },
 
     markForValidate () {

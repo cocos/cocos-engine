@@ -578,13 +578,12 @@ let Label = cc.Class({
     },
 
     _validateRender () {
-        if (!this.isValid) return;
         if (!this.string) {
             this.disableRender();
             return;
         }
 
-        if (this.enabledInHierarchy && this.sharedMaterials[0]) {
+        if (this.sharedMaterials[0]) {
             let font = this.font;
             if (font instanceof cc.BitmapFont) {
                 let spriteFrame = font.spriteFrame;

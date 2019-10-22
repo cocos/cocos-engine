@@ -265,12 +265,10 @@ let MeshRenderer = cc.Class({
     },
 
     _validateRender () {
-        if (!this.isValid) return;
         let mesh = this._mesh;
         if (mesh && mesh._subDatas.length > 0) {
             return;
         }
-        this._super();
     },
 
     _updateMaterial () {

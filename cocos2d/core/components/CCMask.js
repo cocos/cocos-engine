@@ -302,12 +302,10 @@ let Mask = cc.Class({
     },
 
     _validateRender () {
-        if (!this.isValid) return;
         if (this._type !== MaskType.IMAGE_STENCIL) return;
 
         let spriteFrame = this._spriteFrame;
-        if (this.enabledInHierarchy && 
-            spriteFrame && 
+        if (spriteFrame && 
             spriteFrame.textureLoaded()) {
             return;
         }
