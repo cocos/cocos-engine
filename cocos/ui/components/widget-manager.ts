@@ -90,8 +90,8 @@ function align (node: INode, widget: WidgetComponent) {
         }
 
         // adjust borders according to offsets
-        localLeft += widget.isAbsoluteLeft ? widget.left : widget.left / 100 * targetWidth;
-        localRight -= widget.isAbsoluteRight ? widget.right : widget.right / 100 * targetWidth;
+        localLeft += widget.runtimeLeft;
+        localRight -= widget.runtimeRight;
 
         if (hasTarget) {
             localLeft += inverseTranslate.x;
@@ -116,8 +116,7 @@ function align (node: INode, widget: WidgetComponent) {
         } else {
             width = node.width * scaleX;
             if (widget.isAlignHorizontalCenter) {
-                let localHorizontalCenter = widget.isAbsoluteHorizontalCenter ?
-                    widget.horizontalCenter : widget.horizontalCenter / 100 * targetWidth;
+                let localHorizontalCenter = widget.runtimeHorizontalCenter;
                 let targetCenter = (0.5 - targetAnchor.x) * targetSize.width;
                 if (hasTarget) {
                     localHorizontalCenter *= inverseScale.x;
@@ -149,8 +148,8 @@ function align (node: INode, widget: WidgetComponent) {
         }
 
         // adjust borders according to offsets
-        localBottom += widget.isAbsoluteBottom ? widget.bottom : widget.bottom / 100 * targetHeight;
-        localTop -= widget.isAbsoluteTop ? widget.top : widget.top / 100 * targetHeight;
+        localBottom += widget.runtimeBottom;
+        localTop -= widget.runtimeTop;
 
         if (hasTarget) {
             // transform
@@ -176,8 +175,7 @@ function align (node: INode, widget: WidgetComponent) {
         } else {
             height = node.height * scaleY;
             if (widget.isAlignVerticalCenter) {
-                let localVerticalCenter = widget.isAbsoluteVerticalCenter ?
-                    widget.verticalCenter : widget.verticalCenter / 100 * targetHeight;
+                let localVerticalCenter = widget.runtimeVerticalCenter;
                 let targetMiddle = (0.5 - targetAnchor.y) * targetSize.height;
                 if (hasTarget) {
                     localVerticalCenter *= inverseScale.y;
@@ -441,36 +439,27 @@ export const widgetManager = cc._widgetManager = {
                 l += zero.x;
                 l *= one.x;
                 temp = pos.x - myAP.x * widgetNode.width! * widgetNodeScale.x - l;
-                if (!widget.isAbsoluteLeft) {
-                    temp /= matchSize.width;
-                }
 
                 temp /= one.x;
-                widget.left = i(widget.left, temp);
+                widget.runtimeLeft = i(widget.runtimeLeft, temp);
             }
 
             if (e & alignFlags.RIGHT) {
                 let r = (1 - parentAP.x) * matchSize.width;
                 r += zero.x;
                 temp = (r *= one.x) - (pos.x + (1 - myAP.x) * widgetNode.width! * widgetNodeScale.x);
-                if (!widget.isAbsoluteRight) {
-                    temp /= matchSize.width;
-                }
 
                 temp /= one.x;
-                widget.right = i(widget.right, temp);
+                widget.runtimeRight = i(widget.runtimeRight, temp);
             }
 
             if (e & alignFlags.TOP) {
                 let t = (1 - parentAP.y) * matchSize.height;
                 t += zero.y;
                 temp = (t *= one.y) - (pos.y + (1 - myAP.y) * widgetNode.height! * widgetNodeScale.y);
-                if (!widget.isAbsoluteTop){
-                    temp /= matchSize.height;
-                }
 
                 temp /= one.y;
-                widget.top = i(widget.top, temp);
+                widget.runtimeTop = i(widget.runtimeTop, temp);
             }
 
             if (e & alignFlags.BOT) {
@@ -478,12 +467,9 @@ export const widgetManager = cc._widgetManager = {
                 b += zero.y;
                 b *= one.y;
                 temp = pos.y - myAP.y * widgetNode.height! * widgetNodeScale.y - b;
-                if (!widget.isAbsoluteBottom){
-                    temp /= matchSize.height;
-                }
 
                 temp /= one.y;
-                widget.bottom = i(widget.bottom, temp);
+                widget.runtimeBottom = i(widget.runtimeBottom, temp);
             }
         }
     },

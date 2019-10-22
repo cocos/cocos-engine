@@ -336,10 +336,20 @@ export class WidgetComponent extends Component {
      */
     @property
     get top () {
-        return this._top;
+        const size = this.target ? this.target : this.node.parent;
+        return this.isAbsoluteTop ? this.runtimeTop : this.runtimeTop * 100 / size!.height;
     }
     set top (value) {
         this._top = value;
+        this.runtimeTop = this._changeValue(AlignFlags.TOP);
+        this._recursiveDirty();
+    }
+
+    get runtimeTop () {
+        return this._runtimeTop;
+    }
+    set runtimeTop (value) {
+        this._runtimeTop = value;
         this._recursiveDirty();
     }
 
@@ -349,10 +359,20 @@ export class WidgetComponent extends Component {
      */
     @property
     get bottom () {
-        return this._bottom;
+        const size = this.target ? this.target : this.node.parent;
+        return this.isAbsoluteBottom ? this.runtimeBottom : this.runtimeBottom * 100 / size!.height;
     }
     set bottom (value) {
         this._bottom = value;
+        this.runtimeBottom = this._changeValue(AlignFlags.BOT);
+        this._recursiveDirty();
+    }
+
+    get runtimeBottom () {
+        return this._runtimeBottom;
+    }
+    set runtimeBottom (value) {
+        this._runtimeBottom = value;
         this._recursiveDirty();
     }
 
@@ -362,10 +382,20 @@ export class WidgetComponent extends Component {
      */
     @property
     get left () {
-        return this._left;
+        const size = this.target ? this.target : this.node.parent;
+        return this.isAbsoluteLeft ? this.runtimeLeft : this.runtimeLeft * 100 / size!.width;
     }
     set left (value) {
         this._left = value;
+        this.runtimeLeft = this._changeValue(AlignFlags.LEFT);
+        this._recursiveDirty();
+    }
+
+    get runtimeLeft () {
+        return this._runtimeLeft;
+    }
+    set runtimeLeft (value) {
+        this._runtimeLeft = value;
         this._recursiveDirty();
     }
 
@@ -375,10 +405,20 @@ export class WidgetComponent extends Component {
      */
     @property
     get right () {
-        return this._right;
+        const size = this.target ? this.target : this.node.parent;
+        return this.isAbsoluteRight ? this.runtimeRight : this.runtimeRight * 100 / size!.width;
     }
     set right (value) {
         this._right = value;
+        this.runtimeRight = this._changeValue(AlignFlags.RIGHT);
+        this._recursiveDirty();
+    }
+
+    get runtimeRight () {
+        return this._runtimeRight;
+    }
+    set runtimeRight (value) {
+        this._runtimeRight = value;
         this._recursiveDirty();
     }
 
@@ -388,10 +428,20 @@ export class WidgetComponent extends Component {
      */
     @property
     get horizontalCenter () {
-        return this._horizontalCenter;
+        const size = this.target ? this.target : this.node.parent;
+        return this.isAlignHorizontalCenter ? this.runtimeHorizontalCenter : this.runtimeHorizontalCenter * 100 / size!.width;
     }
     set horizontalCenter (value) {
         this._horizontalCenter = value;
+        this.runtimeHorizontalCenter = this._changeValue(AlignFlags.HORIZONTAL);
+        this._recursiveDirty();
+    }
+
+    get runtimeHorizontalCenter () {
+        return this._runtimeHorizontalCenter;
+    }
+    set runtimeHorizontalCenter (value) {
+        this._runtimeHorizontalCenter = value;
         this._recursiveDirty();
     }
 
@@ -401,16 +451,26 @@ export class WidgetComponent extends Component {
      */
     @property
     get verticalCenter () {
-        return this._verticalCenter;
+        const size = this.target ? this.target : this.node.parent;
+        return this.isAbsoluteVerticalCenter ? this.runtimeVerticalCenter : this.runtimeVerticalCenter * 100 / size!.height;
     }
     set verticalCenter (value) {
         this._verticalCenter = value;
+        this.runtimeVerticalCenter = this._changeValue(AlignFlags.VERTICAL);
+        this._recursiveDirty();
+    }
+
+    get runtimeVerticalCenter () {
+        return this._runtimeVerticalCenter;
+    }
+    set runtimeVerticalCenter (value) {
+        this._runtimeVerticalCenter = value;
         this._recursiveDirty();
     }
 
     /**
      * @zh
-     * 如果为 true，"top" 将会以像素作为边距，否则将会以相对父物体高度的百分比（0 到 1）作为边距。
+     * 如果为 true，"top" 将会以像素作为边距，否则将会以相对父物体高度的百分比（0 到 100）作为边距。
      */
     @property
     get isAbsoluteTop () {
@@ -422,12 +482,13 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsTop = value;
-        this._autoChangedValue(AlignFlags.TOP, this._isAbsTop);
+        this.top = this.top;
+        this._recursiveDirty();
     }
 
     /**
      * @zh
-     * 如果为 true，"bottom" 将会以像素作为边距，否则将会以相对父物体高度的百分比（0 到 1）作为边距。
+     * 如果为 true，"bottom" 将会以像素作为边距，否则将会以相对父物体高度的百分比（0 到 100）作为边距。
      */
     @property
     get isAbsoluteBottom () {
@@ -439,12 +500,13 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsBottom = value;
-        this._autoChangedValue(AlignFlags.BOT, this._isAbsBottom);
+        this.bottom = this.bottom;
+        this._recursiveDirty();
     }
 
     /**
      * @zh
-     * 如果为 true，"left" 将会以像素作为边距，否则将会以相对父物体宽度的百分比（0 到 1）作为边距。
+     * 如果为 true，"left" 将会以像素作为边距，否则将会以相对父物体宽度的百分比（0 到 100）作为边距。
      */
     @property
     get isAbsoluteLeft () {
@@ -456,12 +518,13 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsLeft = value;
-        this._autoChangedValue(AlignFlags.LEFT, this._isAbsLeft);
+        this.left = this.left;
+        this._recursiveDirty();
     }
 
     /**
      * @zh
-     * 如果为 true，"right" 将会以像素作为边距，否则将会以相对父物体宽度的百分比（0 到 1）作为边距。
+     * 如果为 true，"right" 将会以像素作为边距，否则将会以相对父物体宽度的百分比（0 到 100）作为边距。
      */
     @property
     get isAbsoluteRight () {
@@ -473,7 +536,8 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsRight = value;
-        this._autoChangedValue(AlignFlags.RIGHT, this._isAbsRight);
+        this.right = this.right;
+        this._recursiveDirty();
     }
 
     /**
@@ -499,7 +563,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @zh
-     * 如果为 true，"horizontalCenter" 将会以像素作为偏移值，反之为百分比（0 到 1）。
+     * 如果为 true，"horizontalCenter" 将会以像素作为偏移值，反之为百分比（0 到 100）。
      */
     @property
     get isAbsoluteHorizontalCenter () {
@@ -512,12 +576,13 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsHorizontalCenter = value;
-        this._autoChangedValue(AlignFlags.CENTER, this._isAbsHorizontalCenter);
+        this.horizontalCenter = this.horizontalCenter;
+        this._recursiveDirty();
     }
 
     /**
      * @zh
-     * 如果为 true，"verticalCenter" 将会以像素作为偏移值，反之为百分比（0 到 1）。
+     * 如果为 true，"verticalCenter" 将会以像素作为偏移值，反之为百分比（0 到 100）。
      */
     @property
     get isAbsoluteVerticalCenter () {
@@ -529,7 +594,8 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsVerticalCenter = value;
-        this._autoChangedValue(AlignFlags.MID, this._isAbsVerticalCenter);
+        this.verticalCenter = this.verticalCenter;
+        this._recursiveDirty();
     }
 
     /**
@@ -591,6 +657,23 @@ export class WidgetComponent extends Component {
     private _originalHeight = 0;
     @property
     private _alignMode = AlignMode.ALWAYS;
+
+    // The value actually use in runtime
+    private _runtimeLeft = 0;
+    private _runtimeRight = 0;
+    private _runtimeTop = 0;
+    private _runtimeBottom = 0;
+    private _runtimeHorizontalCenter = 0;
+    private _runtimeVerticalCenter = 0;
+
+    public onLoad () {
+        this.runtimeLeft = this._changeValue(AlignFlags.LEFT);
+        this.runtimeRight = this._changeValue(AlignFlags.RIGHT);
+        this.runtimeTop = this._changeValue(AlignFlags.TOP);
+        this.runtimeBottom = this._changeValue(AlignFlags.BOT);
+        this.runtimeHorizontalCenter = this._changeValue(AlignFlags.HORIZONTAL);
+        this.runtimeVerticalCenter = this._changeValue(AlignFlags.VERTICAL);
+    }
 
     /**
      * @zh
@@ -680,22 +763,22 @@ export class WidgetComponent extends Component {
         }
 
         if (self.isAlignTop) {
-            self.top -= (self.isAbsoluteTop ? delta.y : deltaInPercent.y) * inverseScale.y;
+            self.runtimeTop -= delta.y * inverseScale.y;
         }
         if (self.isAlignBottom) {
-            self.bottom += (self.isAbsoluteBottom ? delta.y : deltaInPercent.y) * inverseScale.y;
+            self.runtimeBottom += delta.y * inverseScale.y;
         }
         if (self.isAlignLeft) {
-            self.left += (self.isAbsoluteLeft ? delta.x : deltaInPercent.x) * inverseScale.x;
+            self.runtimeLeft += delta.x * inverseScale.x;
         }
         if (self.isAlignRight) {
-            self.right -= (self.isAbsoluteRight ? delta.x : deltaInPercent.x) * inverseScale.x;
+            self.runtimeRight -= delta.x * inverseScale.x;
         }
         if (self.isAlignHorizontalCenter) {
-            self.horizontalCenter += (self.isAbsoluteHorizontalCenter ? delta.x : deltaInPercent.x) * inverseScale.x;
+            self.runtimeHorizontalCenter += delta.x * inverseScale.x;
         }
         if (self.isAlignVerticalCenter) {
-            self.verticalCenter += (self.isAbsoluteVerticalCenter ? delta.y : deltaInPercent.y) * inverseScale.y;
+            self.runtimeVerticalCenter += delta.y * inverseScale.y;
         }
     }
 
@@ -734,16 +817,16 @@ export class WidgetComponent extends Component {
         const anchor = self.node.getAnchorPoint();
 
         if (self.isAlignTop) {
-            self.top -= (self.isAbsoluteTop ? delta.y : deltaInPercent.y) * (1 - anchor.y) * inverseScale.y;
+            self.runtimeTop -= delta.y * (1 - anchor.y) * inverseScale.y;
         }
         if (self.isAlignBottom) {
-            self.bottom -= (self.isAbsoluteBottom ? delta.y : deltaInPercent.y) * anchor.y * inverseScale.y;
+            self.runtimeBottom -= delta.y * anchor.y * inverseScale.y;
         }
         if (self.isAlignLeft) {
-            self.left -= (self.isAbsoluteLeft ? delta.x : deltaInPercent.x) * anchor.x * inverseScale.x;
+            self.runtimeLeft -= delta.x * anchor.x * inverseScale.x;
         }
         if (self.isAlignRight) {
-            self.right -= (self.isAbsoluteRight ? delta.x : deltaInPercent.x) * (1 - anchor.x) * inverseScale.x;
+            self.runtimeRight -= delta.x * (1 - anchor.x) * inverseScale.x;
         }
     }
 
@@ -777,28 +860,26 @@ export class WidgetComponent extends Component {
         this.node.off(SystemEventType.PARENT_CHANGED, this._adjustTargetToParentChanged, this);
     }
 
-    protected _autoChangedValue (flag: AlignFlags, isAbs: boolean){
+    protected _changeValue (flag: AlignFlags) {
         const current = (this._alignFlags & flag) > 0;
-        if (!current || !this.node.parent || !this.node.parent.uiTransfromComp){
-            return;
+        if (!current || !this.node.parent || !this.node.parent.uiTransfromComp) {
+            return 0;
         }
-
-        const size = this.node.parent!.getContentSize();
+        const size = this.target ? this.target.getContentSize() : this.node.parent.getContentSize();
         if (this.isAlignLeft && flag === AlignFlags.LEFT) {
-            this._left = isAbs ? this._left / 100 * size.width : this._left * 100 / size.width;
+            return this.isAbsoluteLeft ? this._left : this._left / 100 * size.width;
         } else if (this.isAlignRight && flag === AlignFlags.RIGHT) {
-            this._right = isAbs ? this._right / 100 * size.width : this._right * 100 / size.width;
+            return this.isAbsoluteRight ? this._right : this._right / 100 * size.width;
         } else if (this.isAlignHorizontalCenter && flag === AlignFlags.CENTER) {
-            this._horizontalCenter = isAbs ? this._horizontalCenter / 100 * size.width : this._horizontalCenter * 100 / size.width;
+            return this.isAbsoluteHorizontalCenter ? this._horizontalCenter : this._horizontalCenter / 100 * size.width;
         } else if (this.isAlignTop && flag === AlignFlags.TOP) {
-            this._top = isAbs ? this._top / 100 * size.height : this._top * 100 / size.height;
+            return this.isAbsoluteTop ? this._top : this._top / 100 * size.height;
         } else if (this.isAlignBottom && flag === AlignFlags.BOT) {
-            this._bottom = isAbs ? this._bottom / 100 * size.height : this._bottom * 100 / size.height;
-        } else if (this.isAbsoluteVerticalCenter && flag === AlignFlags.MID) {
-            this._verticalCenter = isAbs ? this._verticalCenter / 100 * size.height : this._verticalCenter * 100 / size.height;
+            return this.isAbsoluteBottom ? this._bottom : this._bottom / 100 * size.height;
+        } else if (this.isAlignVerticalCenter && flag === AlignFlags.MID) {
+            return this.isAbsoluteVerticalCenter ? this._verticalCenter : this._verticalCenter / 100 * size.height;
         }
-
-        this._recursiveDirty();
+        return 0;
     }
 
     protected _registerTargetEvents () {
