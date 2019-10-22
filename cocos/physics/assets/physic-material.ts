@@ -17,10 +17,34 @@ export class PhysicMaterial extends Asset {
     private static _idCounter: number = 0;
 
     @property
-    private _friction = -1;
+    private _friction = 0.1;
 
     @property
-    private _restitution = -1;
+    private _restitution = 0.1;
+
+    @property({
+        override: true,
+        visible: false
+    })
+    public _native: string | undefined;
+
+    @property({
+        override: true,
+        visible: false
+    })
+    public _objFlags!: number;
+
+    @property({
+        override: true,
+        visible: false,
+    })
+    public _nativeAsset!: string;
+
+    @property({
+        override: true,
+        visible: false,
+    })
+    public nativeUrl!: string;
 
     /**
      * Friction for this material.
