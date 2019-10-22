@@ -459,6 +459,7 @@ let Mask = cc.Class({
         let flag = RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_POST_RENDER;
         if (enable) {
             this.node._renderFlag |= flag;
+            this.markForValidate();
         }
         else if (!enable) {
             this.node._renderFlag &= ~flag;
