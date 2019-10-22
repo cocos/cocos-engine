@@ -60,6 +60,9 @@ export class AmmoShape implements ShapeBase {
         return this._ammoShape!;
     }
 
+    public readonly id: number;
+    private static idCounter = 0;
+
     protected _ammoShape!: Ammo.btCollisionShape;
     protected _ammoBody!: Ammo.btCollisionObject;
     public readonly localTransform: Ammo.btTransform;
@@ -73,6 +76,8 @@ export class AmmoShape implements ShapeBase {
     public index: number = -1;
     public type: AmmoBroadphaseNativeTypes = AmmoBroadphaseNativeTypes.INVALID_SHAPE_PROXYTYPE;
     public constructor () {
+        this.id = AmmoShape.idCounter++;
+
         this.localPosition = new Ammo.btVector3(0, 0, 0);
         this.localQuaternion = new Ammo.btQuaternion();
         this.localTransform = new Ammo.btTransform(this.localQuaternion, this.localPosition);

@@ -7,6 +7,11 @@ import { RaycastResult } from "../raycast-result";
 import { PhysicsSystem } from '../components';
 import { AmmoCollisionFlags } from './ammo-enum';
 import { AmmoShape } from './shapes/ammo-shape';
+import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
+import { ObjectCollisionMatrix } from '../utils/object-collision-matrix';
+import { TupleDictionary } from '../utils/tuple-dictionary';
+import { TriggerEventObject, CollisionEventObject } from './ammo-const';
+import { Ammo2CocosVec3 } from './ammo-util';
 
 export class AmmoWorld implements PhysicsWorldBase {
     defaultMaterial: any;
@@ -35,12 +40,6 @@ export class AmmoWorld implements PhysicsWorldBase {
         return PhysicsSystem.instance._world as AmmoWorld;
     }
 
-    public readonly sharedStaticCompoundShape: Ammo.btCompoundShape;
-    public readonly sharedStaticBody: Ammo.btRigidBody;
-    public readonly sharedTriggerCompoundShape: Ammo.btCompoundShape;
-    public readonly sharedTriggerBody: Ammo.btRigidBody;
-
-    private _ammoWorld: Ammo.btDiscreteDynamicsWorld;
     private _customBeforeStepListener: Function[] = [];
     private _customAfterStepListener: Function[] = [];
 
@@ -58,11 +57,19 @@ export class AmmoWorld implements PhysicsWorldBase {
     private _hitPoint: Vec3 = new Vec3();
     private _hitNormal = new Vec3();
 
+    private _ammoWorld: Ammo.btDiscreteDynamicsWorld;
+    public readonly sharedStaticCompoundShape: Ammo.btCompoundShape;
+    public readonly sharedStaticBody: Ammo.btRigidBody;
+    public readonly sharedTriggerCompoundShape: Ammo.btCompoundShape;
+    public readonly sharedTriggerBody: Ammo.btRigidBody;
     public readonly bodys: AmmoRigidBody[] = [];
-
     public readonly staticShapes: AmmoShape[] = [];
-
     public readonly triggerShapes: AmmoShape[] = [];
+
+    public readonly triggerArrayMat = new ArrayCollisionMatrix();
+    public readonly collisionArrayMat = new ArrayCollisionMatrix();
+    public readonly contactsDic = new TupleDictionary();
+    public readonly oldContactsDic = new TupleDictionary();
 
     constructor (options?: any) {
         const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
@@ -105,7 +112,6 @@ export class AmmoWorld implements PhysicsWorldBase {
     }
 
     public step (deltaTime: number, time?: number, maxSubStep?: number) {
-        // this._callCustomBeforeSteps();
 
         for (let i = 0; i < this.bodys.length; i++) {
             this.bodys[i].beforeStep();
@@ -133,8 +139,6 @@ export class AmmoWorld implements PhysicsWorldBase {
             this.triggerShapes[i].beforeStep();
         }
 
-        // this._callCustomAfterSteps();
-
         // if (!this._debugger.avaiable) {
         //     const scene = director.getScene();
         //     if (scene) {
@@ -156,38 +160,188 @@ export class AmmoWorld implements PhysicsWorldBase {
             const body1 = manifold.getBody1();
             const index0 = body0.getUserIndex();
             const index1 = body1.getUserIndex();
-            // console.log('A:', indexA, 'B:', indexB);            
-            // console.log('A:', indexA, 'B:', indexB);
             const numContacts = manifold.getNumContacts();
             for (let j = 0; j < numContacts; j++) {
                 const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
                 const d = manifoldPoint.getDistance();
                 if (d <= 0) {
-                    let ammoShape0: AmmoShape | Ammo.btCollisionShape;
-                    let isTrigger = false;
+                    let shape0: AmmoShape;
                     if (index0 == -2) {
-                        ammoShape0 = this.staticShapes[manifoldPoint.m_index0];
+                        shape0 = this.staticShapes[manifoldPoint.m_index0];
                     } else if (index0 == -3) {
-                        ammoShape0 = this.triggerShapes[manifoldPoint.m_index0];
-                        isTrigger = true;
+                        shape0 = this.triggerShapes[manifoldPoint.m_index0];
                     } else {
-                        ammoShape0 = this.bodys[index0].ammoCompoundShape.getChildShape(manifoldPoint.m_index0);
+                        shape0 = this.bodys[index0].shapes[manifoldPoint.m_index0];
                     }
 
-                    let ammoShape1: AmmoShape | Ammo.btCollisionShape;
+                    let shape1: AmmoShape;
                     if (index1 == -2) {
-                        ammoShape1 = this.staticShapes[manifoldPoint.m_index1];
+                        shape1 = this.staticShapes[manifoldPoint.m_index1];
                     } else if (index1 == -3) {
-                        ammoShape1 = this.triggerShapes[manifoldPoint.m_index1];
-                        isTrigger = true;
+                        shape1 = this.triggerShapes[manifoldPoint.m_index1];
                     } else {
-                        ammoShape1 = this.bodys[index1].ammoCompoundShape.getChildShape(manifoldPoint.m_index1);
+                        shape1 = this.bodys[index1].shapes[manifoldPoint.m_index1];
                     }
-                    console.log("contact:", isTrigger, ammoShape0, ammoShape1);
-                    break;
+                    /** TODO */
+                    // if shape0 & shape1 not care events, just continue
+
+                    // Current contact
+                    var item = this.contactsDic.get(shape0.id, shape1.id) as any;
+                    if (item == null) {
+                        item = this.contactsDic.set(shape0.id, shape1.id,
+                            {
+                                shape0: shape0,
+                                shape1: shape1,
+                                contacts: []
+                            }
+                        );
+                    }
+                    item.contacts.push(manifoldPoint);
                 }
             }
         }
+
+        // is enter or stay
+        var i = this.contactsDic.getLength();
+        var key: string;
+        var data: any;
+        while (i--) {
+            for (let j = CollisionEventObject.contacts.length; j--;) {
+                contactsPool.push(CollisionEventObject.contacts.pop());
+            }
+
+            key = this.contactsDic.getKeyByIndex(i);
+            data = this.contactsDic.getDataByKey(key);
+            const shape0: AmmoShape = data.shape0;
+            const shape1: AmmoShape = data.shape1;
+            this.oldContactsDic.set(shape0.id, shape1.id, data);
+
+            const collider0 = shape0.collider;
+            const collider1 = shape1.collider;
+            const isTrigger = collider0.isTrigger || collider1.isTrigger;
+            if (isTrigger) {
+                if (this.triggerArrayMat.get(shape0.id, shape1.id)) {
+                    TriggerEventObject.type = 'onTriggerStay';
+                } else {
+                    TriggerEventObject.type = 'onTriggerEnter';
+                    this.triggerArrayMat.set(shape0.id, shape1.id, true);
+                }
+                TriggerEventObject.selfCollider = collider0;
+                TriggerEventObject.otherCollider = collider1;
+                collider0.emit(TriggerEventObject.type, TriggerEventObject);
+
+                TriggerEventObject.selfCollider = collider1;
+                TriggerEventObject.otherCollider = collider0;
+                collider1.emit(TriggerEventObject.type, TriggerEventObject);
+            } else {
+                if (this.collisionArrayMat.get(shape0.id, shape1.id)) {
+                    CollisionEventObject.type = 'onCollisionStay';
+                } else {
+                    CollisionEventObject.type = 'onCollisionEnter';
+                    this.collisionArrayMat.set(shape0.id, shape1.id, true);
+                }
+
+                for (i = 0; i < data.contacts.length; i++) {
+                    const cq = data.contacts[i] as Ammo.btManifoldPoint;
+                    if (contactsPool.length > 0) {
+                        const c = contactsPool.pop();
+                        Ammo2CocosVec3(c.contactA, cq.m_positionWorldOnA);
+                        Ammo2CocosVec3(c.contactB, cq.m_positionWorldOnB);
+                        Ammo2CocosVec3(c.normal, cq.m_normalWorldOnB);
+                        CollisionEventObject.contacts.push(c);
+                    } else {
+                        const c = {
+                            contactA: Ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnA),
+                            contactB: Ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnB),
+                            normal: Ammo2CocosVec3(new Vec3(), cq.m_normalWorldOnB),
+                        };
+                        CollisionEventObject.contacts.push(c);
+                    }
+                }
+
+                CollisionEventObject.selfCollider = collider0;
+                CollisionEventObject.otherCollider = collider1;
+                collider0.emit(CollisionEventObject.type, CollisionEventObject);
+
+                CollisionEventObject.selfCollider = collider1;
+                CollisionEventObject.otherCollider = collider0;
+                collider1.emit(CollisionEventObject.type, CollisionEventObject);
+                break;
+            }
+            if (this.oldContactsDic.get(shape0.id, shape1.id) == null) {
+                this.oldContactsDic.set(shape0.id, shape1.id, data);
+            }
+        }
+
+        // is exit
+        i = this.oldContactsDic.getLength();
+        while (i--) {
+            key = this.oldContactsDic.getKeyByIndex(i);
+            data = this.oldContactsDic.getDataByKey(key);
+            const shape0: AmmoShape = data.shape0;
+            const shape1: AmmoShape = data.shape1;
+            const collider0 = shape0.collider;
+            const collider1 = shape1.collider;
+            const isTrigger = collider0.isTrigger || collider1.isTrigger;
+            if (this.contactsDic.getDataByKey(key) == null) {
+                if (isTrigger) {
+                    // emit exit
+                    if (this.triggerArrayMat.get(shape0.id, shape1.id)) {
+                        TriggerEventObject.type = 'onTriggerExit';
+                        TriggerEventObject.selfCollider = collider0;
+                        TriggerEventObject.otherCollider = collider1;
+                        collider0.emit(TriggerEventObject.type, TriggerEventObject);
+
+                        TriggerEventObject.selfCollider = collider1;
+                        TriggerEventObject.otherCollider = collider0;
+                        collider1.emit(TriggerEventObject.type, TriggerEventObject);
+
+                        this.triggerArrayMat.set(shape0.id, shape1.id, false);
+                        this.oldContactsDic.set(shape0.id, shape1.id, null);
+                    }
+                }
+                else {
+                    // emit exit
+                    if (this.collisionArrayMat.get(shape0.id, shape1.id)) {
+                        for (let j = CollisionEventObject.contacts.length; j--;) {
+                            contactsPool.push(CollisionEventObject.contacts.pop());
+                        }
+
+                        for (i = 0; i < data.contacts.length; i++) {
+                            const cq = data.contacts[i] as Ammo.btManifoldPoint;
+                            if (contactsPool.length > 0) {
+                                const c = contactsPool.pop();
+                                Ammo2CocosVec3(c.contactA, cq.m_positionWorldOnA);
+                                Ammo2CocosVec3(c.contactB, cq.m_positionWorldOnB);
+                                Ammo2CocosVec3(c.normal, cq.m_normalWorldOnB);
+                                CollisionEventObject.contacts.push(c);
+                            } else {
+                                const c = {
+                                    contactA: Ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnA),
+                                    contactB: Ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnB),
+                                    normal: Ammo2CocosVec3(new Vec3(), cq.m_normalWorldOnB),
+                                };
+                                CollisionEventObject.contacts.push(c);
+                            }
+                        }
+
+                        CollisionEventObject.type = 'onCollisionExit';
+                        CollisionEventObject.selfCollider = collider0;
+                        CollisionEventObject.otherCollider = collider1;
+                        collider0.emit(CollisionEventObject.type, CollisionEventObject);
+
+                        CollisionEventObject.selfCollider = collider1;
+                        CollisionEventObject.otherCollider = collider0;
+                        collider1.emit(CollisionEventObject.type, CollisionEventObject);
+
+                        this.collisionArrayMat.set(shape0.id, shape1.id, false);
+                        this.oldContactsDic.set(shape0.id, shape1.id, null);
+                    }
+                }
+            }
+        }
+
+        this.contactsDic.reset();
     }
 
     public addBeforeStep (cb: Function) {
@@ -307,3 +461,5 @@ export class AmmoWorld implements PhysicsWorldBase {
         this._customAfterStepListener.forEach((fx) => fx());
     }
 }
+
+const contactsPool = [] as any;

@@ -452,15 +452,20 @@ export class AmmoRigidBody implements RigidBodyBase {
 
     rigidBody!: RigidBodyComponent;
 
+    public readonly id: number;
+    private static idCounter = 0;
     get impl (): Ammo.btRigidBody {
         return this._ammoBody;
     }
     private _ammoBody!: Ammo.btRigidBody;
     public ammoCompoundShape!: Ammo.btCompoundShape;
+    public shapes: AmmoShape[] = [];
     public readonly wroldQuaternion: Ammo.btQuaternion;
     public index: number = -1;
 
     constructor () {
+        this.id = AmmoRigidBody.idCounter++;
+
         // this._transformBuffer.setIdentity();
         // this._ammoTransform.setIdentity();
         // this._compoundShape = new Ammo.btCompoundShape(true);
@@ -496,6 +501,7 @@ export class AmmoRigidBody implements RigidBodyBase {
             if (!allColliders[i].isTrigger) {
                 const ammoShape = (allColliders[i] as any)._shapeBase as AmmoShape;
                 ammoShape.index = i;
+                this.shapes.push(ammoShape);
 
                 if (ammoShape.type == AmmoBroadphaseNativeTypes.SPHERE_SHAPE_PROXYTYPE) {
                     const ws = allColliders[i].node.worldScale;
