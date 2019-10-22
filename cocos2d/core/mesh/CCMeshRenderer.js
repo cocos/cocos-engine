@@ -126,11 +126,10 @@ let MeshRenderer = cc.Class({
                 if (this._mesh === v) return;
                 this._setMesh(v);
                 if (!v) {
-                    this.markForRender(false);
+                    this.disableRender();
                     return;
                 }
                 this.markForRender(true);
-                this._activateMaterial(true);
                 this.node._renderFlag |= RenderFlow.FLAG_TRANSFORM;
             },
             type: Mesh,
@@ -256,7 +255,7 @@ let MeshRenderer = cc.Class({
         return Material.getBuiltinMaterial('unlit');
     },
 
-    _activateMaterial (force) {
+    _activateMaterial () {
         let materials = this.sharedMaterials;
         if (!materials[0]) {
             let material = this._getDefaultMaterial();
@@ -269,6 +268,8 @@ let MeshRenderer = cc.Class({
         if (mesh && mesh._subDatas.length > 0) {
             return;
         }
+
+        this.disableRender();
     },
 
     _updateMaterial () {
