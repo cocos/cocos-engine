@@ -283,6 +283,7 @@ Simulator.prototype.step = function (dt) {
     }
     else {
         dt = Math.min(this.lastFrameTime, dt);
+        this.lastFrameTime = dt;
     }
     let psys = this.sys;
     let node = psys.node;
