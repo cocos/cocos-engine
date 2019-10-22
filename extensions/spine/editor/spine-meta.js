@@ -142,7 +142,7 @@ class SpineMeta extends CustomAssetMeta {
 
     static validate (assetpath) {
         // handle binary file
-        if (assetpath.indexOf(".skel") > 0) {
+        if (assetpath.endsWith(".skel")) {
             return true;
         }
         // TODO - import as a folder named '***.spine'
@@ -221,11 +221,11 @@ class SpineMeta extends CustomAssetMeta {
 
     _importBinary (fspath, cb) {
         // import native asset
-        let extname = Path.extname(fspath).toLowerCase(); // 注意，这里会把所有后缀统一改成小写
+        let extname = Path.extname(fspath).toLowerCase();
         let dest = this._assetdb._uuidToImportPathNoExt(this.uuid) + extname;
         Fs.copy(fspath, dest, err => {
             if (err) {
-            return cb(err);
+                return cb(err);
             }
 
             // import asset
@@ -239,15 +239,15 @@ class SpineMeta extends CustomAssetMeta {
     }
 
     import (fspath, cb) {
-        if (fspath.indexOf(".skel") > 0) {
+        if (fspath.endsWith(".skel")) {
             this._importBinary(fspath, cb);
         } else {
-            CustomAssetMeta.prototype.import.call(this, fspath, cb);
+            super.import(fspath, cb);
         }
     }
 
     postImport (fspath, cb) {
-        if (fspath.indexOf(".skel") < 0) {
+        if (!fspath.endsWith(".skel")) {
             this._importJson(fspath, cb);
         } else {
             cb();
