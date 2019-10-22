@@ -27,6 +27,7 @@ import { mat4 } from '../core/vmath';
 
 const utils = require('../core/platform/utils');
 const sys = require('../core/platform/CCSys');
+const macro = require('../core/platform/CCMacro');
 
 const READY_STATE = {
     HAVE_NOTHING: 0,
@@ -50,6 +51,7 @@ let VideoPlayerImpl = cc.Class({
 
         this._waitingFullscreen = false;
         this._fullScreenEnabled = false;
+        this._stayOnBottom = false;
 
         this._loadedmeta = false;
         this._loaded = false;
@@ -162,6 +164,7 @@ let VideoPlayerImpl = cc.Class({
         video.style.position = "absolute";
         video.style.bottom = "0px";
         video.style.left = "0px";
+        video.style['z-index'] = this._stayOnBottom ? macro.MIN_ZINDEX : 0;
         video.className = "cocosVideo";
         video.setAttribute('preload', 'auto');
         video.setAttribute('webkit-playsinline', '');
@@ -378,6 +381,12 @@ let VideoPlayerImpl = cc.Class({
         } else if (cc.screen.fullScreen()) {
             cc.screen.exitFullScreen(video);
         }
+    },
+
+    setStayOnBottom: function (enabled) {
+        this._stayOnBottom = enabled;
+        if (!this._video) return;
+        this._video.style['z-index'] = enabled ? macro.MIN_ZINDEX : 0;
     },
 
     setFullScreenEnabled: function (enable) {

@@ -731,7 +731,9 @@ let Camera = cc.Class({
         this.node.getWorldMatrix(_mat4_temp_1);
         this.beforeDraw();
         RenderFlow.render(root);
-        renderer._forward.renderCamera(this._camera, renderer.scene);
+        if (!CC_JSB) {
+            renderer._forward.renderCamera(this._camera, renderer.scene);
+        }
     },
 
     _layout2D () {
@@ -739,7 +741,12 @@ let Camera = cc.Class({
 
         let targetTexture = this._targetTexture;
         if (targetTexture) {
-            height = cc.visibleRect.height;
+            if (CC_EDITOR) {
+                height = cc.engine.getDesignResolutionSize().height;
+            }
+            else {
+                height = cc.visibleRect.height;
+            }
         }
 
         let fov = this._fov * cc.macro.RAD;

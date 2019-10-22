@@ -204,8 +204,10 @@ function getWorldRotation (node) {
 }
 
 Simulator.prototype.updateUVs = function (force) {
-    let particleCount = this.particles.length;
     let assembler = this.sys._assembler;
+    if (!assembler) {
+        return;
+    }
     let buffer = assembler.getBuffer();
     if (buffer && this.sys._renderSpriteFrame) {
         const FLOAT_PER_PARTICLE = 4 * assembler._vfmt._bytes / 4;
@@ -213,6 +215,7 @@ Simulator.prototype.updateUVs = function (force) {
         let uv = this.sys._renderSpriteFrame.uv;
 
         let start = force ? 0 : this._uvFilled;
+        let particleCount = this.particles.length;
         for (let i = start; i < particleCount; i++) {
             let offset = i * FLOAT_PER_PARTICLE;
             vbuf[offset+2] = uv[0];

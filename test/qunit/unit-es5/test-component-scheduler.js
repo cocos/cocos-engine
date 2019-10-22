@@ -955,6 +955,75 @@ test('lateUpdate', function () {
     cc.game.step();
 });
 
+test('should re-call start (to init) before rendering when it is enabled after start phase', function() {
+    var nodes = createNodes({
+        comps: cc.Component,
+        updateChild: {
+            comps: CallbackTester,
+        },
+        startChild: {
+            comps: CallbackTester,
+        },
+        lateUpdateChild: {
+            comps: CallbackTester,
+        },
+    });
+    nodes.updateChild.active = false;
+    nodes.startChild.active = false;
+    nodes.lateUpdateChild.active = false;
+    var rootComp = nodes.rootComps[0];
+    var updateChildComp = nodes.updateChildComps[0];
+    var startChildComp = nodes.startChildComps[0];
+    var lateUpdateChildComp = nodes.lateUpdateChildComps[0];
+
+    rootComp.start = function () {
+        if (!nodes.startChild.active) {
+            startChildComp.expect(CallbackTester.OnLoad, "OnLoad before OnEnable");
+            startChildComp.expect(CallbackTester.OnEnable, "OnEnable before start",true);
+            startChildComp.expect(CallbackTester.start, "should execute start in this frame when activated in start",true);
+            startChildComp.expect(CallbackTester.update, "should execute update in this frame when activated in start",true);
+            startChildComp.expect(CallbackTester.lateUpdate, "should execute lateUpdate in this frame when activated in start",true);
+            nodes.startChild.active = true;
+        }
+    };
+
+    rootComp.update = function () {
+        if (!nodes.updateChild.active) {
+            updateChildComp.expect(CallbackTester.OnLoad, "OnLoad before OnEnable");
+            updateChildComp.expect(CallbackTester.OnEnable, "OnEnable before start",true);
+            updateChildComp.expect(CallbackTester.start, "should execute start before rendering in this frame when activated in update",true);
+            nodes.updateChild.active = true;
+        }
+    };
+
+    rootComp.lateUpdate = function () {
+        if (!nodes.lateUpdateChild.active) {
+            lateUpdateChildComp.expect(CallbackTester.OnLoad, "OnLoad before OnEnable");
+            lateUpdateChildComp.expect(CallbackTester.OnEnable, "OnEnable before start",true);
+            lateUpdateChildComp.expect(CallbackTester.start, "should execute start in this frame when activated in start",true);
+            nodes.lateUpdateChild.active = true;
+        }
+    }
+
+    nodes.attachToScene();
+
+    // active child in this frame
+    cc.game.step();
+
+    // next frame
+    updateChildComp.notExpect(CallbackTester.start, "updateChildComp should not execute start in this frame");
+    lateUpdateChildComp.notExpect(CallbackTester.start, "lateUpdateChildComp should not execute start in this frame");
+
+    startChildComp.expect(CallbackTester.update, "startChildComp should execute update(second time) in this frame");
+    updateChildComp.expect(CallbackTester.update, "updateChildComp should execute update(first time) in this frame");
+    lateUpdateChildComp.expect(CallbackTester.update, "lateUpdateChildComp should execute update(first time) in this frame");
+
+    startChildComp.expect(CallbackTester.lateUpdate, "startChildComp should execute lateUpdate(second time) in this frame", true);
+    updateChildComp.expect(CallbackTester.lateUpdate, "updateChildComp should execute lateUpdate(first time) in this frame", true);
+    lateUpdateChildComp.expect(CallbackTester.lateUpdate, "lateUpdateChildComp should execute lateUpdate(first time) in this frame", true);
+    cc.game.step();
+});
+
 //test('should not call lifecycle methods if not executeInEditMode', function () {
 //    var Comp = cc.Class({
 //        extends: CallbackTester,

@@ -442,7 +442,7 @@ sp.Skeleton = cc.Class({
 
     _updateUseTint () {
         let baseMaterial = this.getMaterial(0);
-        let useTint = this.useTint || this.isAnimationCached();
+        let useTint = this.useTint || (this.isAnimationCached() && !CC_NATIVERENDERER);
         if (baseMaterial) {
             baseMaterial.define('USE_TINT', useTint);
         }

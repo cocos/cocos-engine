@@ -28,14 +28,14 @@ import InputAssembler from '../../renderer/core/input-assembler';
 import geomUtils from '../geom-utils';
 import CustomProperties from '../assets/material/custom-properties';
 import { postLoadMesh } from '../utils/mesh-util';
+import vec3 from '../vmath/vec3';
+import mat4 from '../vmath/mat4';
 
 const RenderComponent = require('../components/CCRenderComponent');
 const Mesh = require('./CCMesh');
 const RenderFlow = require('../renderer/render-flow');
 const Renderer = require('../renderer');
 const Material = require('../assets/material/CCMaterial');
-const BLACK_COLOR = cc.Color.BLACK;
-
 
 
 /**
@@ -202,9 +202,15 @@ let MeshRenderer = cc.Class({
     },
 
     ctor () {
-        this._wireFrameDatas = [];
         this._boundingBox = null;
         this._customProperties = new cc.CustomProperties();
+
+        if (CC_DEBUG) {
+            this._debugDatas = {
+                wireFrame: [],
+                normal: []
+            };
+        }
     },
 
     onEnable () {
@@ -306,56 +312,168 @@ let MeshRenderer = cc.Class({
         this._customProperties.define('CC_USE_ATTRIBUTE_NORMAL', !!vfm.element(gfx.ATTR_NORMAL));
         this._customProperties.define('CC_USE_ATTRIBUTE_TANGENT', !!vfm.element(gfx.ATTR_TANGENT));
 
-        this._wireFrameDatas.length = 0;
+        if (CC_DEBUG) {
+            for (let name in this._debugDatas) {
+                this._debugDatas[name].length = 0;
+            }
+        }
 
         if (CC_JSB && CC_NATIVERENDERER) {
             this._assembler.updateMeshData(this);
         }
     },
 
-    _updateWireFrameDatas () {
-        let wireFrameDatas = this._wireFrameDatas;
-        let subMeshes = this._mesh.subMeshes;
-        if (subMeshes.length === wireFrameDatas.length) return;
-
-        wireFrameDatas.length = subMeshes.length;
-        let subDatas = this._mesh._subDatas;
-        for (let i = 0; i < subMeshes.length; i++) {
-            wireFrameDatas[i] = this._createWireFrameData(subMeshes[i], subDatas[i].iData);
-        }
-    },
-
-    _createWireFrameData (ia, oldIbData) {
-        let m = new Material();
-        m.copy(Material.getBuiltinMaterial('unlit'));
-        m.setProperty('diffuseColor', BLACK_COLOR);
-
-        let indices = [];
-        for (let i = 0; i < oldIbData.length; i+=3) {
-            let a = oldIbData[ i + 0 ];
-            let b = oldIbData[ i + 1 ];
-            let c = oldIbData[ i + 2 ];
-            indices.push(a, b, b, c, c, a);
-        }
-
-        let ibData = new Uint16Array(indices);
-        let ib = new gfx.IndexBuffer(
-            Renderer.device,
-            gfx.INDEX_FMT_UINT16,
-            gfx.USAGE_STATIC,
-            ibData,
-            ibData.length
-        );
-
-        return {
-            material: m,
-            ia: new InputAssembler(ia._vertexBuffer, ib, gfx.PT_LINES)
-        };
-    },
-
     _checkBacth () {
-        
-    }
+    },
 });
+
+if (CC_DEBUG) {
+    const BLACK_COLOR = cc.Color.BLACK;
+    const RED_COLOR = cc.Color.RED;
+
+    let v3_tmp = [cc.v3(), cc.v3()];
+    let mat4_tmp = cc.mat4();
+
+    let createDebugDataFns = {
+        normal (comp, ia, subData, subIndex) {
+            let oldVfm = subData.vfm;
+
+            let normalEle = oldVfm.element(gfx.ATTR_NORMAL);
+            let posEle = oldVfm.element(gfx.ATTR_POSITION);
+            let jointEle = oldVfm.element(gfx.ATTR_JOINTS);
+            let weightEle = oldVfm.element(gfx.ATTR_WEIGHTS);
+            
+            if (!normalEle || !posEle) {
+                return;
+            }
+
+            let indices = [];
+            let vbData = [];
+
+            let lineLength = 100;
+            vec3.set(v3_tmp[0], 5, 0, 0);
+            mat4.invert(mat4_tmp, comp.node._worldMatrix);
+            vec3.transformMat4Normal(v3_tmp[0], v3_tmp[0], mat4_tmp);
+            lineLength = v3_tmp[0].mag();
+
+            let mesh = comp.mesh;
+            let posData = mesh._getAttrMeshData(subIndex, gfx.ATTR_POSITION);
+            let normalData = mesh._getAttrMeshData(subIndex, gfx.ATTR_NORMAL);
+            let jointData = mesh._getAttrMeshData(subIndex, gfx.ATTR_JOINTS);
+            let weightData = mesh._getAttrMeshData(subIndex, gfx.ATTR_WEIGHTS);
+
+            let vertexCount = posData.length / posEle.num;
+
+            for (let i = 0; i < vertexCount; i++) {
+                let normalIndex = i * normalEle.num;
+                let posIndex = i * posEle.num;
+
+                vec3.set(v3_tmp[0], normalData[normalIndex], normalData[normalIndex+1], normalData[normalIndex+2]);
+                vec3.set(v3_tmp[1], posData[posIndex], posData[posIndex+1], posData[posIndex+2]);
+                vec3.scaleAndAdd(v3_tmp[0], v3_tmp[1], v3_tmp[0], lineLength);
+
+                for (let lineIndex = 0; lineIndex < 2; lineIndex++) {
+                    vbData.push(v3_tmp[lineIndex].x, v3_tmp[lineIndex].y, v3_tmp[lineIndex].z);
+                    if (jointEle) {
+                        let jointIndex = i * jointEle.num;
+                        for (let j = 0; j < jointEle.num; j++) {
+                            vbData.push(jointData[jointIndex + j]);
+                        }
+                    }
+                    if (weightEle) {
+                        let weightIndex = i * weightEle.num;
+                        for (let j = 0; j < weightEle.num; j++) {
+                            vbData.push(weightData[weightIndex + j]);
+                        }
+                    }
+                }
+
+                indices.push(i*2, i*2+1);
+            }
+
+            let formatOpts = [
+                { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 3 },
+            ];
+            if (jointEle) {
+                formatOpts.push({ name: gfx.ATTR_JOINTS, type: gfx.ATTR_TYPE_FLOAT32, num: jointEle.num })
+            }
+            if (weightEle) {
+                formatOpts.push({ name: gfx.ATTR_WEIGHTS, type: gfx.ATTR_TYPE_FLOAT32, num: weightEle.num })
+            }
+            let gfxVFmt = new gfx.VertexFormat(formatOpts);
+
+            let vb = new gfx.VertexBuffer(
+                Renderer.device,
+                gfxVFmt,
+                gfx.USAGE_STATIC,
+                new Float32Array(vbData)
+            );
+
+            let ibData = new Uint16Array(indices);
+            let ib = new gfx.IndexBuffer(
+                Renderer.device,
+                gfx.INDEX_FMT_UINT16,
+                gfx.USAGE_STATIC,
+                ibData,
+                ibData.length
+            );
+
+            let m = new Material();
+            m.copy(Material.getBuiltinMaterial('unlit'));
+            m.setProperty('diffuseColor', RED_COLOR);
+
+            return {
+                material: m,
+                ia: new InputAssembler(vb, ib, gfx.PT_LINES)
+            };
+        },
+
+        wireFrame (comp, ia, subData) {
+            let oldIbData = subData.getIData(Uint16Array);
+            let m = new Material();
+            m.copy(Material.getBuiltinMaterial('unlit'));
+            m.setProperty('diffuseColor', BLACK_COLOR);
+
+            let indices = [];
+            for (let i = 0; i < oldIbData.length; i+=3) {
+                let a = oldIbData[ i + 0 ];
+                let b = oldIbData[ i + 1 ];
+                let c = oldIbData[ i + 2 ];
+                indices.push(a, b, b, c, c, a);
+            }
+
+            let ibData = new Uint16Array(indices);
+            let ib = new gfx.IndexBuffer(
+                Renderer.device,
+                gfx.INDEX_FMT_UINT16,
+                gfx.USAGE_STATIC,
+                ibData,
+                ibData.length
+            );
+
+            return {
+                material: m,
+                ia: new InputAssembler(ia._vertexBuffer, ib, gfx.PT_LINES)
+            };
+        }
+    };
+
+    let _proto = MeshRenderer.prototype;
+    _proto._updateDebugDatas = function () {
+        let debugDatas = this._debugDatas;
+        let subMeshes = this._mesh.subMeshes;
+        let subDatas = this._mesh._subDatas;
+        for (let name in debugDatas) {
+            let debugData = debugDatas[name];
+            if (debugData.length === subMeshes.length) continue;
+            if (!cc.macro['SHOW_MESH_' + name.toUpperCase()]) continue;
+
+            debugData.length = subMeshes.length;
+            for (let i = 0; i < subMeshes.length; i++) {
+                debugData[i] = createDebugDataFns[name](this, subMeshes[i], subDatas[i], i);
+            }
+        }
+    };
+}
 
 cc.MeshRenderer = module.exports = MeshRenderer;

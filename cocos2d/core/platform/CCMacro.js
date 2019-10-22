@@ -354,6 +354,16 @@ cc.macro = {
 
     /**
      * !#en
+     * Whether or not show mesh normal.
+     * !#zh
+     * 是否显示网格的法线。
+     * @property {Boolean} SHOW_MESH_NORMAL
+     * @default false
+     */
+    SHOW_MESH_NORMAL: false,
+
+    /**
+     * !#en
      * Set cc.RotateTo/cc.RotateBy rotate direction.
      * If need set rotate positive direction to counterclockwise, please change setting to : cc.macro.ROTATE_ACTION_CCW = true;
      * !#zh
