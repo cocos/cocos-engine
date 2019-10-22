@@ -351,7 +351,7 @@ export class UITransformComponent extends Component {
     /**
      * @zh
      * 将一个 UI 节点世界坐标系下点转换到另一个 UI 节点 (局部) 空间坐标系，这个坐标系以锚点为原点。
-     * 非 UI 节点转换到 UI 节点(局部) 空间坐标系，请走 `cc.pipelineUtils.ConvertWorldToUISpaceAR`。
+     * 非 UI 节点转换到 UI 节点(局部) 空间坐标系，请走 `cc.pipelineUtils.WorldNode3DToLocalNodeUI`。
      *
      * @param worldPoint - 世界坐标点。
      * @param out - 转换后坐标。
