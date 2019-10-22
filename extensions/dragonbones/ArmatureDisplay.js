@@ -530,6 +530,10 @@ let ArmatureDisplay = cc.Class({
         if (!this._frameCache) return;
 
         let frameCache = this._frameCache;
+        if (!frameCache.isInited()) {
+            return;
+        }
+        
         let frames = frameCache.frames;
         if (!this._playing) {
             if (frameCache.isInvalid()) {
