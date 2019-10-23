@@ -247,7 +247,7 @@ export class Asset extends RawAsset implements IEventTarget {
      */
     public _setRawAsset (filename: string, inLibrary: boolean = true) {
         if (inLibrary !== false) {
-            this._native = filename || undefined;
+            this._native = filename || '';
         }
         else {
             this._native = '/' + filename;  // simply use '/' to tag location where is not in the library
