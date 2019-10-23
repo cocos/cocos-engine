@@ -278,8 +278,7 @@ Simulator.prototype.updateParticleBuffer = function (particle, pos, buffer, offs
 };
 
 Simulator.prototype.step = function (dt) {
-    var maxFrameTime = cc.game._frameTime / 1000;
-    dt = dt > maxFrameTime ? maxFrameTime : dt;
+    dt = dt > cc.game._maxFrameTime ? cc.game._maxFrameTime : dt;
     let psys = this.sys;
     let node = psys.node;
     let particles = this.particles;
