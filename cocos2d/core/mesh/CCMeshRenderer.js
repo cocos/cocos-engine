@@ -203,7 +203,7 @@ let MeshRenderer = cc.Class({
     },
 
     ctor () {
-        this._boundingBox = null;
+        this._boundingBox = geomUtils.Aabb.create();
         this._customProperties = new cc.CustomProperties();
 
         if (CC_DEBUG) {
@@ -242,6 +242,10 @@ let MeshRenderer = cc.Class({
     },
 
     _setMesh (mesh) {
+        if (geomUtils && mesh) {
+            geomUtils.Aabb.fromPoints(this._boundingBox, mesh._minPos, mesh._maxPos);
+        }
+
         if (this._mesh) {
             this._mesh.off('init-format', this._updateMeshAttribute, this);
         }
@@ -261,10 +265,6 @@ let MeshRenderer = cc.Class({
         if (!mesh || mesh._subDatas.length === 0) {
             this.disableRender();
             return;
-        }
-
-        if (geomUtils) {
-            this._boundingBox = geomUtils.Aabb.fromPoints(geomUtils.Aabb.create(), mesh._minPos, mesh._maxPos);
         }
 
         // TODO: used to upgrade from 2.1, should be removed
