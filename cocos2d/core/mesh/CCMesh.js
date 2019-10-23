@@ -53,6 +53,7 @@ function applyVec3 (data, offset, value) {
  * !#zh 网格资源。
  * @class Mesh
  * @extends Asset
+ * @uses EventTarget
  */
 let Mesh = cc.Class({
     name: 'cc.Mesh',
