@@ -1233,8 +1233,8 @@ export abstract class RenderPipeline {
                         model.updateUBOs();
                         this.addVisibleModel(model, camera);
                     }
-                }else{
-                    if ((model.node && (view.visibility & model.node.layer)) ||
+                } else {
+                    if (model.node && ((view.visibility & model.node.layer) === model.node.layer) ||
                         (view.visibility & model.visFlags)) {
                         model.updateTransform();
 
