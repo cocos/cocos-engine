@@ -33,6 +33,7 @@ import { GFXDevice } from '../../gfx/device';
 import { GFXTexture } from '../../gfx/texture';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { Vec4 } from '../../math';
+import { IBlock } from '../../renderer/core/pass';
 import { Layers } from '../../scene-graph';
 import { Node } from '../../scene-graph/node';
 import { ICounterOption } from './counter';
@@ -51,17 +52,16 @@ interface IProfilerState {
     bufferMemory: ICounterOption;
 }
 
+const characters = '0123456789. ';
+
 export class Profiler {
 
     public _stats: IProfilerState | null = null;
 
     private _showFPS = false;
-    private readonly _fontSize = 22;
+    private readonly _fontSize = 24;
     private readonly _lineHeight = this._fontSize + 2;
-    private readonly _left = 10;
-    private readonly _right = 10;
-    private readonly _top = 10;
-    private readonly _bottom = 10;
+    private _wordHeight = 0;
 
     private _rootNode: Node | null = null;
     private _device: GFXDevice | null = null;
@@ -72,9 +72,34 @@ export class Profiler {
     private readonly _region: GFXBufferTextureCopy = new GFXBufferTextureCopy();
     private readonly _canvasArr: HTMLCanvasElement[] = [];
     private readonly _regionArr = [this._region];
+    private digitsData: IBlock = null!;
 
     private _canvasDone = false;
     private _statsDone = false;
+
+    private _rowNumber = 9;
+    private _columnNumber = 8;
+
+    private _posWordWidth = 0.18; // 文字宽度
+    private _posBaseHigh = 0.18;  // 文字高度
+    private _posNumWidth = 0.09;  // 数字区域宽度
+    private _eachNumWidth = 0;    // 每个数字宽度
+
+    private _string2offset = {
+        '0': 0,
+        '1': 1,
+        '2': 2,
+        '3': 3,
+        '4': 4,
+        '5': 5,
+        '6': 6,
+        '7': 7,
+        '8': 8,
+        '9': 9,
+        '.': 10,
+    };
+
+    private _uvOffset: Vec4[] = [];
 
     constructor () {
         if (!CC_TEST) {
@@ -141,8 +166,8 @@ export class Profiler {
             return;
         }
 
-        const textureWidth = 350;
-        const textureHeight = 200;
+        const textureWidth = 256;
+        const textureHeight = 256;
 
         if (!this._ctx || !this._canvas) {
             return;
@@ -177,7 +202,7 @@ export class Profiler {
     }
 
     public generateStats () {
-        if (this._statsDone || !this._ctx) {
+        if (this._statsDone || !this._ctx || !this._canvas ) {
             return;
         }
 
@@ -199,13 +224,30 @@ export class Profiler {
         this._ctx.textAlign = 'left';
         let i = 0;
         for (const id of Object.keys(opts)) {
-            this._ctx.fillText(opts[id].desc, this._left, this._top + i * this._lineHeight);
+            this._ctx.fillText(opts[id].desc, 0, i * this._lineHeight);
             opts[id].counter = new PerfCounter(id, opts[id], now);
             i++;
         }
+        this._ctx.fillText(characters, 0, i * this._lineHeight);
         this._ctx.textAlign = 'end';
+        this._wordHeight = i * this._lineHeight / this._canvas.height;
+
+        const offsets = characters.split('').map((c) => this._ctx!.measureText(c).width / this._canvas!.width);
+        for (let j = 0; j < offsets.length; j++) {
+            if (j === 0) { continue; }
+            offsets[j] += offsets[j - 1];
+        }
+        offsets.unshift(0);
+        const len = Math.ceil(offsets.length / 4);
+        for (let k = 0; k < len; k++) {
+            this._uvOffset.push(new Vec4(offsets[k * 4], offsets[k * 4 + 1], offsets[k * 4 + 2], offsets[k * 4 + 3]));
+        }
+
+        this._eachNumWidth = this._ctx.measureText('0').width / this._canvas!.width;
 
         this._stats = opts as IProfilerState;
+        this._canvasArr[0] = this._canvas;
+        this.updateTexture();
     }
 
     public generateNode () {
@@ -231,24 +273,48 @@ export class Profiler {
         const managerNode = new Node('Profiler_Root');
         managerNode.parent = this._rootNode;
 
+        const columnWidth = this._posNumWidth / this._columnNumber;
+        const rowHigh = this._posBaseHigh / this._rowNumber;
+        const vertexPos: number[] = [
+            0, this._posBaseHigh, 0, // top-left
+            this._posBaseHigh, this._posBaseHigh, 0, // top-right
+            this._posWordWidth,   0, 0, // bottom-right
+            0,   0, 0, // bottom-left
+        ];
+        const vertexindices: number[] = [
+            0, 2, 1,
+            0, 3, 2,
+        ];
+        const vertexUV: number[] = [
+            0, 0, -1, 0,
+            1, 0, -1, 0,
+            1, this._wordHeight, -1, 0,
+            0, this._wordHeight, -1, 0,
+        ];
+        let offset;
+        for (let i = 0; i < this._rowNumber; i++) {
+            for (let j = 0; j < this._columnNumber; j++) {
+                vertexPos.push(this._posWordWidth + j * columnWidth, this._posBaseHigh - i * rowHigh, 0 ); // 0xyz
+                vertexPos.push(this._posWordWidth + (j + 1) * columnWidth, this._posBaseHigh - i * rowHigh, 0); // 1xyz
+                vertexPos.push(this._posWordWidth + (j + 1) * columnWidth, this._posBaseHigh - (i + 1) * rowHigh, 0); // 2xyz
+                vertexPos.push(this._posWordWidth + j * columnWidth, this._posBaseHigh - (i + 1) * rowHigh, 0); // 3xyz
+                offset = (i * this._columnNumber + j + 1) * 4;
+                vertexindices.push(0 + offset, 2 + offset, 1 + offset, 0 + offset, 3 + offset, 2 + offset);
+                const idx = i * this._columnNumber + j;
+                const z = Math.floor(idx / 4);
+                const w = idx - z * 4;
+                vertexUV.push(0, this._wordHeight, z, w ); // 0uvindex
+                vertexUV.push(this._eachNumWidth, this._wordHeight, z, w ); // 1uvindex
+                vertexUV.push(this._eachNumWidth, 1, z, w ); // 2uvindex
+                vertexUV.push(0, 1, z, w ); // 3uvindex
+            }
+        }
+
         const modelCom = managerNode.addComponent('cc.ModelComponent') as ModelComponent;
         modelCom.mesh = createMesh({
-            positions: [
-                -0.35, -0.2, 0, // bottom-left
-                -0.35,  0.2, 0, // top-left
-                 0.35,  0.2, 0, // top-right
-                 0.35, -0.2, 0, // bottom-right
-            ],
-            indices: [
-                0, 2, 1,
-                0, 3, 2,
-            ],
-            uvs: [
-                0, 1,
-                0, 0,
-                1, 0,
-                1, 1,
-            ],
+            positions : vertexPos,
+            indices: vertexindices,
+            colors: vertexUV, //  使用 colors，实为 x 为 u，y 为 v，z 为 index
         });
 
         const _material = new Material();
@@ -256,9 +322,13 @@ export class Profiler {
             effectName: 'util/profiler',
         });
         _material.setProperty('offset', new Vec4(-0.9, -0.9, 0, 0));
+        _material.setProperty('symbols', this._uvOffset);
         const pass = _material.passes[0];
         const handle = pass.getBinding('mainTexture');
         pass.bindTextureView(handle!, this._textureView!);
+
+        const binding = pass.getBinding('digits')!;
+        this.digitsData = pass.blocks[binding];
 
         modelCom.material = _material;
         modelCom.node.layer = Layers.Enum.PROFILER;
@@ -318,7 +388,7 @@ export class Profiler {
     }
 
     public afterDraw () {
-        if (!this._stats || !this._ctx || !this._canvas) {
+        if (!this._stats) {
             return;
         }
         const now = performance.now();
@@ -330,22 +400,22 @@ export class Profiler {
         this.getCounter('tricount').value = this._device!.numTris;
         this.getCounter('render').end(now);
 
-        const x = this._left + this._ctx.measureText('GFX Texture Mem(M)').width;
-        this._ctx.clearRect( x, 0, this._canvas.width - x, this._canvas.height);
-
         let i = 0;
+        const view = this.digitsData.view;
         for (const id of Object.keys(this._stats)) {
             const stat = this._stats[id];
             stat.counter.sample(now);
-            this._ctx.fillText(
-                stat.counter.human(!(stat.desc === 'Framerate (FPS)')),
-                this._canvas.width - this._right,
-                this._top + i * this._lineHeight);
+            const result = stat.counter.human(!(stat.desc === 'Framerate (FPS)')).toString(); // 结果，需要对应为 shader 识别的信息
+            for (let j = this._columnNumber - 1; j >= 0; j--) {
+                const index = i * this._columnNumber + j;
+                const character = result[result.length - (this._columnNumber - j)];
+                let offset = this._string2offset[character];
+                if (offset === undefined) { offset = 11; }
+                view[index] = offset;
+            }
             i++;
         }
-
-        this._canvasArr[0] = this._canvas;
-        this.updateTexture();
+        this.digitsData.dirty = true;
     }
 
     public getCounter (s: string) {
