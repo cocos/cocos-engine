@@ -22,35 +22,12 @@ export class PhysicMaterial extends Asset {
     @property
     private _restitution = 0.1;
 
-    @property({
-        override: true,
-        visible: false
-    })
-    public _native: string | undefined;
-
-    @property({
-        override: true,
-        visible: false
-    })
-    public _objFlags!: number;
-
-    @property({
-        override: true,
-        visible: false,
-    })
-    public _nativeAsset!: string;
-
-    @property({
-        override: true,
-        visible: false,
-    })
-    public nativeUrl!: string;
-
     /**
      * Friction for this material.
      * If non-negative, it will be used instead of the friction given by ContactMaterials.
      * If there's no matching ContactMaterial, the value from .defaultContactMaterial in the World will be used.
      */
+    @property
     get friction () {
         return this._friction;
     }
@@ -67,6 +44,7 @@ export class PhysicMaterial extends Asset {
      * If non-negative, it will be used instead of the restitution given by ContactMaterials.
      * If there's no matching ContactMaterial, the value from .defaultContactMaterial in the World will be used
      */
+    @property
     get restitution () {
         return this._restitution;
     }
