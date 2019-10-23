@@ -156,6 +156,7 @@ export class RenderScene {
         this.destroyPointLights();
         this.destroySpotLights();
         this.destroyModels();
+        this._skybox.destroy();
         this._planarShadows.destroy();
         this._texturePool.destroy();
     }
