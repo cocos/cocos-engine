@@ -610,8 +610,6 @@ export class Game extends EventTarget {
             this._runMainLoop();
 
             this.emit(Game.EVENT_GAME_INITED);
-
-            if (cb) { cb(); }
         };
 
         if (!CC_EDITOR && CC_WECHATGAME) {
@@ -620,6 +618,8 @@ export class Game extends EventTarget {
         } else {
             start();
         }
+        
+        if (cb) { cb(); }
     }
 
     // @Methods
