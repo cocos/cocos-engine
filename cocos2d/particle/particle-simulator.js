@@ -278,6 +278,13 @@ Simulator.prototype.updateParticleBuffer = function (particle, pos, buffer, offs
 };
 
 Simulator.prototype.step = function (dt) {
+    if(!this.lastFrameTime) {
+        this.lastFrameTime = dt;
+    }
+    else {
+        dt = Math.min(this.lastFrameTime, dt);
+        this.lastFrameTime = dt;
+    }
     let psys = this.sys;
     let node = psys.node;
     let particles = this.particles;
