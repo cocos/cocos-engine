@@ -106,8 +106,8 @@ export class Asset extends RawAsset implements IEventTarget {
      * 用于本机资产的可序列化URL。供内部使用。
      * @default ""
      */
-    @property
-    public _native: string | undefined = '';
+    @property(cc.String)
+    public _native: string = '';
 
     private _file: any = null;
 
