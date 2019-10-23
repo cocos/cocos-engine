@@ -136,7 +136,8 @@ var game = {
 
     _lastTime: null,
     _frameTime: null,
-
+    _maxFrameTime: null,
+    
     // Scenes list
     _sceneInfos: [],
 
@@ -576,7 +577,7 @@ var game = {
         this._lastTime = performance.now();
         var frameRate = game.config.frameRate;
         this._frameTime = 1000 / frameRate;
-
+        this._maxFrameTime = this._frameTime / 1000;
         if (CC_JSB || CC_RUNTIME) {
             jsb.setPreferredFramesPerSecond(frameRate);
             window.requestAnimFrame = window.requestAnimationFrame;
