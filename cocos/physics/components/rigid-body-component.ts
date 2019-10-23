@@ -413,6 +413,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
                 this.fixedRotation = this._fixedRotation;
                 this.linearFactor = this._linearFactor;
                 this.angularFactor = this._angularFactor;
+                this.sharedBody.isShapeOnly = false;
             }
         }
     }
