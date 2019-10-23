@@ -106,8 +106,8 @@ export class Asset extends RawAsset implements IEventTarget {
      * 用于本机资产的可序列化URL。供内部使用。
      * @default ""
      */
-    @property
-    public _native: string | undefined = '';
+    @property(cc.String)
+    public _native: string = '';
 
     private _file: any = null;
 
@@ -247,7 +247,7 @@ export class Asset extends RawAsset implements IEventTarget {
      */
     public _setRawAsset (filename: string, inLibrary: boolean = true) {
         if (inLibrary !== false) {
-            this._native = filename || undefined;
+            this._native = filename || '';
         }
         else {
             this._native = '/' + filename;  // simply use '/' to tag location where is not in the library
