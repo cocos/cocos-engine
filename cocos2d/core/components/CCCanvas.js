@@ -76,7 +76,7 @@ var Canvas = cc.Class({
                 this._designResolution.width = value.width;
                 this._designResolution.height = value.height;
                 this.applySettings();
-                this.alignWithScreen();
+                CC_EDITOR && this._fitDesignResolution();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.canvas.design_resolution'
         },
@@ -98,7 +98,6 @@ var Canvas = cc.Class({
                 if (this._fitHeight !== value) {
                     this._fitHeight = value;
                     this.applySettings();
-                    this.alignWithScreen();
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.canvas.fit_height'
@@ -118,7 +117,6 @@ var Canvas = cc.Class({
                 if (this._fitWidth !== value) {
                     this._fitWidth = value;
                     this.applySettings();
-                    this.alignWithScreen();
                 }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.canvas.fit_width'
@@ -126,7 +124,14 @@ var Canvas = cc.Class({
     },
 
     ctor: function () {
-        this._thisOnResized = this.alignWithScreen.bind(this);
+        if (CC_EDITOR) {
+            var fitDesignResolution = function () {
+                var designSize = cc.engine.getDesignResolutionSize();
+                this.node.setPosition(designSize.width * 0.5, designSize.height * 0.5);
+                this.node.setContentSize(designSize);
+            };
+            this._fitDesignResolution = fitDesignResolution.bind(this);
+        }
     },
 
     __preload: function () {
@@ -142,20 +147,12 @@ var Canvas = cc.Class({
         Canvas.instance = this;
 
         if (CC_EDITOR) {
-            cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
-            cc.engine.on('design-resolution-changed', this._thisOnResized);
-        }
-        else {
-            if (cc.sys.isMobile) {
-                window.addEventListener('resize', this._thisOnResized);
-            }
-            else {
-                cc.view.on('canvas-resize', this._thisOnResized);
-            }
+            cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution, this);
+            cc.engine.on('design-resolution-changed', this._fitDesignResolution);
         }
 
         this.applySettings();
-        this.alignWithScreen();
+        CC_EDITOR && this._fitDesignResolution();
 
         // Camera could be removed in canvas render mode
         let cameraNode = cc.find('Main Camera', this.node);
@@ -177,46 +174,13 @@ var Canvas = cc.Class({
 
     onDestroy: function () {
         if (CC_EDITOR) {
-            cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
-            cc.engine.off('design-resolution-changed', this._thisOnResized);
-        }
-        else {
-            if (cc.sys.isMobile) {
-                window.removeEventListener('resize', this._thisOnResized);
-            }
-            else {
-                cc.view.off('canvas-resize', this._thisOnResized);
-            }
+            cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution, this);
+            cc.engine.off('design-resolution-changed', this._fitDesignResolution);
         }
 
         if (Canvas.instance === this) {
             Canvas.instance = null;
         }
-    },
-
-    //
-
-    alignWithScreen: function () {
-        var designSize, nodeSize;
-        if (CC_EDITOR) {
-            nodeSize = designSize = cc.engine.getDesignResolutionSize();
-            this.node.setPosition(designSize.width * 0.5, designSize.height * 0.5);
-        }
-        else {
-            var canvasSize = nodeSize = cc.visibleRect;
-            designSize = cc.view.getDesignResolutionSize();
-            var clipTopRight = !this.fitHeight && !this.fitWidth;
-            var offsetX = 0;
-            var offsetY = 0;
-            if (clipTopRight) {
-                // offset the canvas to make it in the center of screen
-                offsetX = (designSize.width - canvasSize.width) * 0.5;
-                offsetY = (designSize.height - canvasSize.height) * 0.5;
-            }
-            this.node.setPosition(canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY);
-        }
-        this.node.width = nodeSize.width;
-        this.node.height = nodeSize.height;
     },
 
     applySettings: function () {
