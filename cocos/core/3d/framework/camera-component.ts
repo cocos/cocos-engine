@@ -346,6 +346,12 @@ export class CameraComponent extends Component {
         }
     }
 
+    set flows (val) {
+        if (this._camera) {
+            this._camera.flows = val;
+        }
+    }
+
     public onLoad () {
         cc.director.on(cc.Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneChanged, this);
     }

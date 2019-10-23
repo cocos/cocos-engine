@@ -7,6 +7,7 @@ import { GFXWindow } from '../gfx/window';
 import { Camera } from '../renderer/scene/camera';
 import { RenderFlow } from './render-flow';
 import { CameraDefaultMask } from './define';
+import { indexOf } from '../utils/array';
 
 /**
  * @zh
@@ -183,12 +184,7 @@ export class RenderView {
         if (!info.flows) {
             info.flows = ['ForwardFlow', 'ToneMapFlow', 'SMAAFlow'];
         }
-        const pipelineFlows = cc.director.root.pipeline.flows;
-        for (const f of pipelineFlows) {
-            if (info.flows.indexOf(f.name) !== -1) {
-                this.flows.push(f);
-            }
-        }
+        this.setExecuteFlows(info.flows);
 
         return true;
     }
@@ -208,5 +204,15 @@ export class RenderView {
      */
     public enable (isEnable: boolean) {
         this._isEnable = isEnable;
+    }
+
+    public setExecuteFlows (flows: string[]) {
+        this.flows.length = 0;
+        const pipelineFlows = cc.director.root.pipeline.flows;
+        for (const f of pipelineFlows) {
+            if (flows.indexOf(f.name) !== -1) {
+                this.flows.push(f);
+            }
+        }
     }
 }

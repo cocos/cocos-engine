@@ -82,8 +82,11 @@ export class UIStage extends RenderStage {
 
         const camera = view.camera!;
 
-        this._renderArea.width = this.flow.pipeline.root.device.width;
-        this._renderArea.height = this.flow.pipeline.root.device.height;
+        const vp = camera.viewport;
+        this._renderArea.x = vp.x * camera.width;
+        this._renderArea.y = vp.y * camera.height;
+        this._renderArea.width = vp.width * camera.width;
+        this._renderArea.height = vp.height * camera.height;
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(framebuffer, this._renderArea,
