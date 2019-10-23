@@ -125,12 +125,11 @@ var Canvas = cc.Class({
 
     ctor: function () {
         if (CC_EDITOR) {
-            var fitDesignResolution = function () {
+            this._fitDesignResolution = (function () {
                 var designSize = cc.engine.getDesignResolutionSize();
                 this.node.setPosition(designSize.width * 0.5, designSize.height * 0.5);
                 this.node.setContentSize(designSize);
-            };
-            this._fitDesignResolution = fitDesignResolution.bind(this);
+            }).bind(this);
         }
     },
 
