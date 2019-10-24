@@ -90,6 +90,7 @@ export class AmmoWorld implements PhysicsWorldBase {
             this.sharedStaticBody = new Ammo.btRigidBody(rbInfo);
             this._ammoWorld.addRigidBody(this.sharedStaticBody);
             this.sharedStaticBody.setUserIndex(-2);
+            this.sharedStaticBody.setActivationState(4);
         }
 
         /** shared trigger body */
@@ -103,6 +104,7 @@ export class AmmoWorld implements PhysicsWorldBase {
             this.sharedTriggerBody.setCollisionFlags(AmmoCollisionFlags.CF_NO_CONTACT_RESPONSE);
             this._ammoWorld.addRigidBody(this.sharedTriggerBody);
             this.sharedTriggerBody.setUserIndex(-3);
+            this.sharedTriggerBody.setActivationState(4);
         }
 
     }
