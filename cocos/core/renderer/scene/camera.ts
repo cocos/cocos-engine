@@ -479,6 +479,12 @@ export class Camera {
         return this._exposure;
     }
 
+    set flows (val: string[]) {
+        if (this._view) {
+            this._view.setExecuteFlows(val);
+        }
+    }
+
     public changeTargetWindow (window: GFXWindow | null = null) {
         const scene = this._scene;
         const win = window || scene.root.mainWindow;
