@@ -201,7 +201,7 @@ let MeshRenderer = cc.Class({
     },
 
     ctor () {
-        this._boundingBox = null;
+        this._boundingBox = geomUtils && geomUtils.Aabb.create();
         this._customProperties = new cc.CustomProperties();
 
         if (CC_DEBUG) {
@@ -241,6 +241,10 @@ let MeshRenderer = cc.Class({
     },
 
     _setMesh (mesh) {
+        if (geomUtils && mesh) {
+            geomUtils.Aabb.fromPoints(this._boundingBox, mesh._minPos, mesh._maxPos);
+        }
+
         if (this._mesh) {
             this._mesh.off('init-format', this._updateMeshAttribute, this);
         }
