@@ -3,7 +3,7 @@ import { Vec3 } from "../../core/math";
 import { PhysicsWorldBase, ConstraintBase } from "../api";
 import { AmmoRigidBody } from "./ammo-body";
 import { AmmoDebugger } from "./ammo-debugger";
-import { RaycastResult } from "../raycast-result";
+import { PhysicsRayResult } from "../physics-ray-result";
 import { PhysicsSystem } from '../components';
 import { AmmoCollisionFlags } from './ammo-enum';
 import { AmmoShape } from './shapes/ammo-shape';
@@ -12,8 +12,12 @@ import { ObjectCollisionMatrix } from '../utils/object-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
 import { TriggerEventObject, CollisionEventObject } from './ammo-const';
 import { Ammo2CocosVec3 } from './ammo-util';
+import { ray } from '../../core/geom-utils';
 
 export class AmmoWorld implements PhysicsWorldBase {
+    raycast (worldRay: ray, options: import("../api").IRaycastOptions, pool: import("../../core").RecyclePool<PhysicsRayResult>, resultes: PhysicsRayResult[]): boolean {
+        throw new Error("Method not implemented.");
+    }
     defaultMaterial: any;
     setGravity (gravity: Vec3): void {
         throw new Error("Method not implemented.");
@@ -37,7 +41,7 @@ export class AmmoWorld implements PhysicsWorldBase {
     }
 
     public static get instance (): AmmoWorld {
-        return PhysicsSystem.instance._world as AmmoWorld;
+        return PhysicsSystem.instance._world as any as AmmoWorld;
     }
 
     private _customBeforeStepListener: Function[] = [];
@@ -166,7 +170,7 @@ export class AmmoWorld implements PhysicsWorldBase {
             for (let j = 0; j < numContacts; j++) {
                 const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
                 const d = manifoldPoint.getDistance();
-                if (d <= 0) {
+                if (d <= 0.0001) {
                     let shape0: AmmoShape;
                     if (index0 == -2) {
                         shape0 = this.staticShapes[manifoldPoint.m_index0];
@@ -374,7 +378,7 @@ export class AmmoWorld implements PhysicsWorldBase {
      * Ray cast, and return information of the closest hit.
      * @return True if any body was hit.
      */
-    public raycastClosest (from: Vec3, to: Vec3, options: any, result: RaycastResult): boolean {
+    public raycastClosest (worldRay: ray, options: any, result: PhysicsRayResult): boolean {
         const ammoFrom = new Ammo.btVector3();
         const ammoTo = new Ammo.btVector3();
         // vec3CreatorToAmmo(ammoFrom, from);
@@ -400,7 +404,7 @@ export class AmmoWorld implements PhysicsWorldBase {
 
         // vec3AmmoToCreator(this._hitPoint, closestRayResultCallback.get_m_hitPointWorld());
         // vec3AmmoToCreator(this._hitNormal, closestRayResultCallback.get_m_hitNormalWorld());
-        const distance = Vec3.distance(from, this._hitPoint);
+        // const distance = Vec3.distance(from, this._hitPoint);
 
         throw new Error(`not impl.`);
         // result._assign(this._hitPoint, distance, null, wrappedBody);
@@ -411,7 +415,7 @@ export class AmmoWorld implements PhysicsWorldBase {
      * Ray cast, and stop at the first result. Note that the order is random - but the method is fast.
      * @return True if any body was hit.
      */
-    public raycastAny (from: Vec3, to: Vec3, options: any, result: RaycastResult): boolean {
+    public raycastAny (worldRay: ray, options: any, result: PhysicsRayResult): boolean {
         return false;
     }
 
@@ -419,7 +423,7 @@ export class AmmoWorld implements PhysicsWorldBase {
      * Ray cast against all bodies. The provided callback will be executed for each hit with a RaycastResult as single argument.
      * @return True if any body was hit.
      */
-    public raycastAll (from: Vec3, to: Vec3, options: any, callback: (result: RaycastResult) => void): boolean {
+    public raycastAll (from: Vec3, to: Vec3, options: any, callback: (result: PhysicsRayResult) => void): boolean {
         return false;
     }
 
