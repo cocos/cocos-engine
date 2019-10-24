@@ -519,37 +519,44 @@ export class Pass {
      * 尝试编译 shader 并获取相关资源引用。
      * @param defineOverrides shader 预处理宏定义重载
      */
-    public tryCompile (defineOverrides?: IDefineMap) {
-        if (defineOverrides) { Object.assign(this._defines, defineOverrides); }
+    public tryCompile (defineOverrides?: IDefineMap, saveOverrides = true) {
         const pipeline = (cc.director.root as Root).pipeline;
-        if (!pipeline) { return false; }
+        if (!pipeline) { return null; }
         this._renderPass = pipeline.getRenderPass(this._stage);
-        if (!this._renderPass) { console.warn(`illegal pass stage.`); return false; }
-        this._shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
-        if (!this._shader) { console.warn(`create shader ${this._programName} failed`); return false; }
+        if (!this._renderPass) { console.warn(`illegal pass stage.`); return null; }
+        let defines = this._defines;
+        if (defineOverrides) {
+            if (saveOverrides) { Object.assign(this._defines, defineOverrides); }
+            else { Object.assign(defineOverrides, this._defines); defines = defineOverrides; }
+        }
+        const shader = programLib.getGFXShader(this._device, this._programName, defines, pipeline);
+        if (!shader) { console.warn(`create shader ${this._programName} failed`); return null; }
+        if (saveOverrides) { this._shader = shader; }
         this._bindings = this._shaderInfo.blocks.reduce((acc, cur) => {
-            if (cur.defines.every((d) => this._defines[d])) {
+            if (cur.defines.every((d) => defines[d])) {
                 acc.push({ name: cur.name, binding: cur.binding, type: GFXBindingType.UNIFORM_BUFFER });
             }
             return acc;
         }, [] as IGFXBinding[]).concat(this._shaderInfo.samplers.reduce((acc, cur) => {
-            if (cur.defines.every((d) => this._defines[d])) {
+            if (cur.defines.every((d) => defines[d])) {
                 acc.push({ name: cur.name, binding: cur.binding, type: GFXBindingType.SAMPLER });
             }
             return acc;
         }, [] as IGFXBinding[]));
-        return true;
+        return shader;
     }
 
     /**
      * @zh
      * 根据当前 pass 持有的信息创建 [[GFXPipelineState]]。
      */
-    public createPipelineState (): GFXPipelineState | null {
+    public createPipelineState (defineOverrides?: IDefineMap): GFXPipelineState | null {
         if ((!this._renderPass || !this._shader || !this._bindings.length) && !this.tryCompile()) {
             console.warn(`pass resources not complete, create PSO failed`);
             return null;
         }
+        let shader = this._shader!;
+        if (defineOverrides) { shader = this.tryCompile(defineOverrides, false)!; }
         // bind resources
         const bindingLayout = this._device.createBindingLayout({ bindings: this._bindings });
         for (const b of Object.keys(this._buffers)) {
@@ -587,7 +594,7 @@ export class Pass {
             primitive: this._primitive,
             renderPass: this._renderPass!,
             rs: this._rs,
-            shader: this._shader!,
+            shader,
         });
         this._resources.push({ bindingLayout, pipelineLayout, pipelineState });
         return pipelineState;
