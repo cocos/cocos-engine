@@ -208,16 +208,14 @@ export class AmmoWorld implements PhysicsWorldBase {
         }
 
         // is enter or stay
-        var i = this.contactsDic.getLength();
-        var key: string;
-        var data: any;
-        while (i--) {
+        let dicL = this.contactsDic.getLength();
+        while (dicL--) {
             for (let j = CollisionEventObject.contacts.length; j--;) {
                 contactsPool.push(CollisionEventObject.contacts.pop());
             }
 
-            key = this.contactsDic.getKeyByIndex(i);
-            data = this.contactsDic.getDataByKey(key);
+            let key = this.contactsDic.getKeyByIndex(dicL);
+            let data = this.contactsDic.getDataByKey(key) as any;
             const shape0: AmmoShape = data.shape0;
             const shape1: AmmoShape = data.shape1;
             this.oldContactsDic.set(shape0.id, shape1.id, data);
@@ -247,7 +245,7 @@ export class AmmoWorld implements PhysicsWorldBase {
                     this.collisionArrayMat.set(shape0.id, shape1.id, true);
                 }
 
-                for (i = 0; i < data.contacts.length; i++) {
+                for (let i = 0; i < data.contacts.length; i++) {
                     const cq = data.contacts[i] as Ammo.btManifoldPoint;
                     if (contactsPool.length > 0) {
                         const c = contactsPool.pop();
@@ -272,18 +270,38 @@ export class AmmoWorld implements PhysicsWorldBase {
                 CollisionEventObject.selfCollider = collider1;
                 CollisionEventObject.otherCollider = collider0;
                 collider1.emit(CollisionEventObject.type, CollisionEventObject);
-                break;
             }
+
             if (this.oldContactsDic.get(shape0.id, shape1.id) == null) {
                 this.oldContactsDic.set(shape0.id, shape1.id, data);
+            }
+
+            if (collider0.node.hasChangedFlags) {
+                const impl = (collider0 as any)._shape as AmmoShape;
+                if (impl.attachRigidBody) {
+                    const body = impl.attachRigidBody._impl as AmmoRigidBody;
+                    body.beforeStep();
+                } else {
+                    impl.beforeStep();
+                }
+            }
+
+            if (collider1.node.hasChangedFlags) {
+                const impl = (collider1 as any)._shape as AmmoShape;
+                if (impl.attachRigidBody) {
+                    const body = impl.attachRigidBody._impl as AmmoRigidBody;
+                    body.beforeStep();
+                } else {
+                    impl.beforeStep();
+                }
             }
         }
 
         // is exit
-        i = this.oldContactsDic.getLength();
-        while (i--) {
-            key = this.oldContactsDic.getKeyByIndex(i);
-            data = this.oldContactsDic.getDataByKey(key);
+        let oldDicL = this.oldContactsDic.getLength();
+        while (oldDicL--) {
+            let key = this.oldContactsDic.getKeyByIndex(oldDicL);
+            let data = this.oldContactsDic.getDataByKey(key) as any;
             const shape0: AmmoShape = data.shape0;
             const shape1: AmmoShape = data.shape1;
             const collider0 = shape0.collider;
@@ -302,6 +320,16 @@ export class AmmoWorld implements PhysicsWorldBase {
                         TriggerEventObject.otherCollider = collider0;
                         collider1.emit(TriggerEventObject.type, TriggerEventObject);
 
+                        if (collider0.node.hasChangedFlags) {
+                            const impl = (collider0 as any)._shape;
+                            impl.beforeStep();
+                        }
+
+                        if (collider1.node.hasChangedFlags) {
+                            const impl = (collider1 as any)._shape;
+                            impl.beforeStep();
+                        }
+
                         this.triggerArrayMat.set(shape0.id, shape1.id, false);
                         this.oldContactsDic.set(shape0.id, shape1.id, null);
                     }
@@ -313,7 +341,7 @@ export class AmmoWorld implements PhysicsWorldBase {
                             contactsPool.push(CollisionEventObject.contacts.pop());
                         }
 
-                        for (i = 0; i < data.contacts.length; i++) {
+                        for (let i = 0; i < data.contacts.length; i++) {
                             const cq = data.contacts[i] as Ammo.btManifoldPoint;
                             if (contactsPool.length > 0) {
                                 const c = contactsPool.pop();
@@ -342,6 +370,26 @@ export class AmmoWorld implements PhysicsWorldBase {
 
                         this.collisionArrayMat.set(shape0.id, shape1.id, false);
                         this.oldContactsDic.set(shape0.id, shape1.id, null);
+                    }
+                }
+
+                if (collider0.node.hasChangedFlags) {
+                    const impl = (collider0 as any)._shape as AmmoShape;
+                    if (impl.attachRigidBody) {
+                        const body = impl.attachRigidBody._impl as AmmoRigidBody;
+                        body.beforeStep();
+                    } else {
+                        impl.beforeStep();
+                    }
+                }
+
+                if (collider1.node.hasChangedFlags) {
+                    const impl = (collider1 as any)._shape as AmmoShape;
+                    if (impl.attachRigidBody) {
+                        const body = impl.attachRigidBody._impl as AmmoRigidBody;
+                        body.beforeStep();
+                    } else {
+                        impl.beforeStep();
                     }
                 }
             }
@@ -441,30 +489,10 @@ export class AmmoWorld implements PhysicsWorldBase {
         this._reverseBodyMap.delete(rigidBody.impl);
     }
 
-    private _dispatchCollisionEvent (contactPoint: Ammo.btManifoldPoint, bodyA: AmmoRigidBody, bodyB: AmmoRigidBody) {
-        // const collisionEvent = this._collisionEvent;
-        // vec3AmmoToCreator(collisionEvent._position, contactPoint.getPositionWorldOnA());
-        // vec3AmmoToCreator(collisionEvent._targetPosition, contactPoint.get_m_positionWorldOnB());
-        // vec3AmmoToCreator(collisionEvent._targetNormal, contactPoint.get_m_normalWorldOnB());
-        // Vec3.negate(collisionEvent.normal, collisionEvent.targetNormal);
-        // bodyA.dispatchCollisionWith(bodyB);
-        // bodyB.dispatchCollisionWith(bodyA);
-    }
-
     private _getWrappedBody (ammoObject: Ammo.btCollisionObject) {
         const ammoRigid = Ammo.castObject<Ammo.btRigidBody>(ammoObject, Ammo.btRigidBody);
         const body = this._reverseBodyMap.get(ammoRigid);
         return body;
-    }
-
-    private _callCustomBeforeSteps () {
-        // TO DO
-        // Note there may be BUG if fx call removeFunction
-        this._customBeforeStepListener.forEach((fx) => fx());
-    }
-
-    private _callCustomAfterSteps () {
-        this._customAfterStepListener.forEach((fx) => fx());
     }
 }
 
