@@ -100,7 +100,7 @@ export class TextureBase extends Asset {
     protected _wrapR: number = WrapMode.REPEAT;
 
     @property
-    protected _anisotropy = 16;
+    protected _anisotropy = 8;
 
     protected _width: number = 0;
     protected _height: number = 0;
@@ -192,7 +192,7 @@ export class TextureBase extends Asset {
     public setMipFilter (mipFilter: Filter) {
         this._mipFilter = mipFilter;
         this._samplerInfo[SamplerInfoIndex.mipFilter] = mipFilter;
-        this._samplerInfo[SamplerInfoIndex.maxLOD] = mipFilter === Filter.NONE ? 0 : 1000; // WebGL2 on some platform need this
+        this._samplerInfo[SamplerInfoIndex.maxLOD] = mipFilter === Filter.NONE ? 0 : 15; // WebGL2 on some platform need this
         this._samplerHash = genSamplerHash(this._samplerInfo);
     }
 
