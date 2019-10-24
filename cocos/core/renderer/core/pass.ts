@@ -197,7 +197,7 @@ export class Pass {
         if (info.stage !== undefined) { target._stage = info.stage; }
         if (info.dynamicStates !== undefined) { target._dynamicStates = info.dynamicStates as GFXDynamicState[]; }
         if (info.customizations) { target._customizations = info.customizations as string[]; }
-        if (info.phase) { target._phase = info.phase; }
+        if (info.phase) { target._phase = getPhaseID(info.phase); }
 
         const bs = target._bs;
         if (info.blendState) {
@@ -234,7 +234,7 @@ export class Pass {
     protected _textureViews: Record<number, GFXTextureView> = {};
     protected _resources: IPassResources[] = [];
     // internal data
-    protected _phase: number = getPhaseID('default');
+    protected _phase = getPhaseID('default');
     protected _idxInTech = 0;
     protected _programName = '';
     protected _priority: RenderPriority = RenderPriority.DEFAULT;

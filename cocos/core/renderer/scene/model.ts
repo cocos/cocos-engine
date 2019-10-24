@@ -1,4 +1,5 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+import { IPassStates } from '../../assets/effect-asset';
 import { Material } from '../../assets/material';
 import { IRenderingSubmesh } from '../../assets/mesh';
 import { aabb } from '../../geom-utils';
@@ -12,7 +13,7 @@ import Pool from '../../memop/pool';
 import { IInternalBindingInst, UBOForwardLight, UBOLocal } from '../../pipeline/define';
 import { Layers } from '../../scene-graph/layers';
 import { INode } from '../../utils/interfaces';
-import { Pass, IDefineMap } from '../core/pass';
+import { IDefineMap, Pass } from '../core/pass';
 import { customizationManager } from './customization-manager';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
@@ -347,8 +348,8 @@ export class Model {
         }
     }
 
-    protected _doCreatePSO (pass: Pass, defineOverrides?: IDefineMap) {
-        const pso = pass.createPipelineState(defineOverrides)!;
+    protected _doCreatePSO (pass: Pass, defineOverrides?: IDefineMap, stateOverrides?: IPassStates) {
+        const pso = pass.createPipelineState(defineOverrides, stateOverrides)!;
         pso.pipelineLayout.layouts[0].bindBuffer(UBOLocal.BLOCK.binding, this._localBindings.get(UBOLocal.BLOCK.name)!.buffer!);
         if (this._localBindings.has(UBOForwardLight.BLOCK.name)) {
             pso.pipelineLayout.layouts[0].bindBuffer(UBOForwardLight.BLOCK.binding, this._localBindings.get(UBOForwardLight.BLOCK.name)!.buffer!);

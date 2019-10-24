@@ -53,7 +53,7 @@ export interface IPassStates {
     blendState?: GFXBlendState;
     dynamicStates?: GFXDynamicState[];
     customizations?: string[];
-    phase?: number;
+    phase?: string | number;
 }
 export interface IPassInfo extends IPassStates {
     program: string; // auto-generated from 'vert' and 'frag'
