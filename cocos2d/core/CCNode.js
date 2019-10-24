@@ -3580,12 +3580,7 @@ let NodeDefines = {
 
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (this._renderComponent) {
-            if (this._renderComponent.enabled) {
-                this._renderComponent.markForUpdateRenderData(true);
-            }
-            else {
-                this._renderComponent.disableRender();
-            }
+            this._renderComponent.markForRender(true);
         }
 
         if (this._children.length > 0) {

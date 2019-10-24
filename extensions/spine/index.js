@@ -44,7 +44,9 @@
 var _global = typeof window === 'undefined' ? global : window;
 var _isUseSpine = true;
 
-if (CC_NATIVERENDERER && _global.spine === undefined) {
+if (!CC_NATIVERENDERER) {
+    _global.spine = require('./lib/spine');
+} else if (!_global.spine) {
     _isUseSpine = false;
 }
 
@@ -125,10 +127,8 @@ if (_isUseSpine) {
      */
     if (!CC_EDITOR || !Editor.isMainProcess) {
         
-        if (CC_NATIVERENDERER) {
-            sp.spine = _global.spine;
-        } else {
-            sp.spine = require('./lib/spine');
+        sp.spine = _global.spine;
+        if (!CC_NATIVERENDERER) {
             require('./skeleton-texture');
         }
 

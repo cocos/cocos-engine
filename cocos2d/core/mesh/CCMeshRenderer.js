@@ -126,12 +126,10 @@ let MeshRenderer = cc.Class({
                 if (this._mesh === v) return;
                 this._setMesh(v);
                 if (!v) {
-                    this.markForRender(false);
+                    this.disableRender();
                     return;
                 }
                 this.markForRender(true);
-                this._activateMaterial(true);
-                this.markForUpdateRenderData(true);
                 this.node._renderFlag |= RenderFlow.FLAG_TRANSFORM;
             },
             type: Mesh,
@@ -218,18 +216,19 @@ let MeshRenderer = cc.Class({
         this._super();
         if (this._mesh && !this._mesh.loaded) {
             this.disableRender();
-            var self = this;
-            this._mesh.once('load', function () {
-                self._setMesh(self._mesh);
-                self._activateMaterial();
+            this._mesh.once('load', () => {
+                this._setMesh(this._mesh);
+                this.markForRender(true);
             });
             postLoadMesh(this._mesh);
         }
         else {
             this._setMesh(this._mesh);
-            this._activateMaterial();
         }
-        
+
+        this._updateReceiveShadow();
+        this._updateCastShadow();
+        this._updateBoundingBox();
         this._updateRenderNode();
     },
 
@@ -253,20 +252,31 @@ let MeshRenderer = cc.Class({
             mesh.on('init-format', this._updateMeshAttribute, this);
         }
         this._mesh = mesh;
+        this._updateMeshAttribute();
     },
 
     _getDefaultMaterial () {
         return Material.getBuiltinMaterial('unlit');
     },
 
-    _activateMaterial (force) {
-        let mesh = this._mesh;
+    _activateMaterial () {
+        let materials = this.sharedMaterials;
+        if (!materials[0]) {
+            let material = this._getDefaultMaterial();
+            materials[0] = material;
+        }
+    },
 
-        if (!mesh || mesh._subDatas.length === 0) {
-            this.disableRender();
+    _validateRender () {
+        let mesh = this._mesh;
+        if (mesh && mesh._subDatas.length > 0) {
             return;
         }
 
+        this.disableRender();
+    },
+
+    _updateMaterial () {
         // TODO: used to upgrade from 2.1, should be removed
         let textures = this.textures;
         if (textures && textures.length > 0) {
@@ -278,19 +288,13 @@ let MeshRenderer = cc.Class({
                 this.setMaterial(i, material);
             }
         }
+    },
 
-        let materials = this.sharedMaterials;
-        if (!materials[0]) {
-            let material = this._getDefaultMaterial();
-            materials[0] = material;
+    _updateBoundingBox () {
+        let mesh = this._mesh;
+        if (geomUtils && mesh) {
+            this._boundingBox = geomUtils.Aabb.fromPoints(geomUtils.Aabb.create(), mesh._minPos, mesh._maxPos);
         }
-
-        this._updateReceiveShadow();
-        this._updateCastShadow();
-        this._updateMeshAttribute();
-        
-        this.markForUpdateRenderData(true);
-        this.markForRender(true);
     },
 
     _updateReceiveShadow () {
@@ -303,7 +307,7 @@ let MeshRenderer = cc.Class({
 
     _updateMeshAttribute () {
         let subDatas = this._mesh && this._mesh.subDatas;
-        if (!subDatas) return;
+        if (!subDatas || !subDatas[0]) return;
 
         let vfm = subDatas[0].vfm;
         this._customProperties.define('CC_USE_ATTRIBUTE_COLOR', !!vfm.element(gfx.ATTR_COLOR));

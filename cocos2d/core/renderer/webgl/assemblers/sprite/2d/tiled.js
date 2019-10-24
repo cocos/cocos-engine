@@ -56,8 +56,6 @@ export default class TiledAssembler extends Assembler2D {
 
     updateRenderData (sprite) {
         let frame = sprite._spriteFrame;
-        if (!frame) return;
-
         this.packToDynamicAtlas(sprite, frame);
 
         let node = sprite.node;

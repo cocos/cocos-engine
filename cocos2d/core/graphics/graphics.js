@@ -175,11 +175,6 @@ let Graphics = cc.Class({
         }
     },
 
-    onEnable () {
-        this._super();
-        this._activateMaterial();
-    },
-
     onDestroy () {
         this.clear(true);
         this._super();
@@ -203,6 +198,7 @@ let Graphics = cc.Class({
         
         material.define('CC_USE_MODEL', true);
         this.setMaterial(0, material);
+        this.markForRender(true);
     },
 
     /**

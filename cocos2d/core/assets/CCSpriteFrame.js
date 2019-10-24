@@ -239,6 +239,19 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         return this._texture && this._texture.loaded;
     },
 
+    onTextureLoaded (callback, target) {
+        if (this.textureLoaded()) {
+            callback.call(target);
+        }
+        else {
+            this.once('load', callback, target);
+            this.ensureLoadTexture();
+            return false;
+        }
+
+        return true;
+    },
+
     /**
      * !#en Returns whether the sprite frame is rotated in the texture.
      * !#zh 获取 SpriteFrame 是否旋转
