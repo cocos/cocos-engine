@@ -76,14 +76,15 @@ export class Profiler {
 
     private _canvasDone = false;
     private _statsDone = false;
+    private _inited = false;
 
     private _rowNumber = 9;
     private _columnNumber = 8;
 
-    private _posWordWidth = 0.18; // 文字宽度
-    private _posBaseHigh = 0.18;  // 文字高度
-    private _posNumWidth = 0.09;  // 数字区域宽度
-    private _eachNumWidth = 0;    // 每个数字宽度
+    private _posWordWidth = 0.18;   // profiler left side width
+    private _posBaseHeight = 0.18;  // profiler left side height
+    private _posNumWidth = 0.09;    // profiler right side width
+    private _eachNumWidth = 0;      // profiler each number width
 
     private _string2offset = {
         '0': 0,
@@ -207,6 +208,7 @@ export class Profiler {
         }
 
         this._stats = null;
+        this._inited = false;
         const now = performance.now();
 
         const opts = {
@@ -223,21 +225,25 @@ export class Profiler {
 
         this._ctx.textAlign = 'left';
         let i = 0;
-        for (const id of Object.keys(opts)) {
-            this._ctx.fillText(opts[id].desc, 0, i * this._lineHeight);
-            opts[id].counter = new PerfCounter(id, opts[id], now);
-            i++;
+        for (const id in opts) {
+            if (opts.hasOwnProperty(id)) {
+                const element = opts[id];
+                this._ctx.fillText(element.desc, 0, i * this._lineHeight);
+                element.counter = new PerfCounter(id, element, now);
+                i++;
+            }
         }
         this._ctx.fillText(characters, 0, i * this._lineHeight);
-        this._ctx.textAlign = 'end';
         this._wordHeight = i * this._lineHeight / this._canvas.height;
 
-        const offsets = characters.split('').map((c) => this._ctx!.measureText(c).width / this._canvas!.width);
-        for (let j = 0; j < offsets.length; j++) {
-            if (j === 0) { continue; }
-            offsets[j] += offsets[j - 1];
+        const offsets = new Array();
+        let offset = 0;
+        offsets[0] = 0;
+        for (let j = 0; j < characters.length; ++j) {
+            offset += this._ctx.measureText(characters[j]).width / this._canvas.width;
+            offsets[j + 1] = offset; // cause offsets[0] = 0
         }
-        offsets.unshift(0);
+
         const len = Math.ceil(offsets.length / 4);
         for (let k = 0; k < len; k++) {
             this._uvOffset.push(new Vec4(offsets[k * 4], offsets[k * 4 + 1], offsets[k * 4 + 2], offsets[k * 4 + 3]));
@@ -248,6 +254,7 @@ export class Profiler {
         this._stats = opts as IProfilerState;
         this._canvasArr[0] = this._canvas;
         this.updateTexture();
+        this._inited = true;
     }
 
     public generateNode () {
@@ -274,10 +281,10 @@ export class Profiler {
         managerNode.parent = this._rootNode;
 
         const columnWidth = this._posNumWidth / this._columnNumber;
-        const rowHigh = this._posBaseHigh / this._rowNumber;
+        const rowHeight = this._posBaseHeight / this._rowNumber;
         const vertexPos: number[] = [
-            0, this._posBaseHigh, 0, // top-left
-            this._posBaseHigh, this._posBaseHigh, 0, // top-right
+            0, this._posBaseHeight, 0, // top-left
+            this._posBaseHeight, this._posBaseHeight, 0, // top-right
             this._posWordWidth,   0, 0, // bottom-right
             0,   0, 0, // bottom-left
         ];
@@ -294,10 +301,10 @@ export class Profiler {
         let offset;
         for (let i = 0; i < this._rowNumber; i++) {
             for (let j = 0; j < this._columnNumber; j++) {
-                vertexPos.push(this._posWordWidth + j * columnWidth, this._posBaseHigh - i * rowHigh, 0 ); // 0xyz
-                vertexPos.push(this._posWordWidth + (j + 1) * columnWidth, this._posBaseHigh - i * rowHigh, 0); // 1xyz
-                vertexPos.push(this._posWordWidth + (j + 1) * columnWidth, this._posBaseHigh - (i + 1) * rowHigh, 0); // 2xyz
-                vertexPos.push(this._posWordWidth + j * columnWidth, this._posBaseHigh - (i + 1) * rowHigh, 0); // 3xyz
+                vertexPos.push(this._posWordWidth + j * columnWidth, this._posBaseHeight - i * rowHeight, 0 ); // 0xyz
+                vertexPos.push(this._posWordWidth + (j + 1) * columnWidth, this._posBaseHeight - i * rowHeight, 0); // 1xyz
+                vertexPos.push(this._posWordWidth + (j + 1) * columnWidth, this._posBaseHeight - (i + 1) * rowHeight, 0); // 2xyz
+                vertexPos.push(this._posWordWidth + j * columnWidth, this._posBaseHeight - (i + 1) * rowHeight, 0); // 3xyz
                 offset = (i * this._columnNumber + j + 1) * 4;
                 vertexindices.push(0 + offset, 2 + offset, 1 + offset, 0 + offset, 3 + offset, 2 + offset);
                 const idx = i * this._columnNumber + j;
@@ -314,7 +321,7 @@ export class Profiler {
         modelCom.mesh = createMesh({
             positions : vertexPos,
             indices: vertexindices,
-            colors: vertexUV, //  使用 colors，实为 x 为 u，y 为 v，z 为 index
+            colors: vertexUV, //  use colors,actually x is u,y is v,z is index
         });
 
         const _material = new Material();
@@ -388,7 +395,7 @@ export class Profiler {
     }
 
     public afterDraw () {
-        if (!this._stats) {
+        if (!this._stats || !this._inited) {
             return;
         }
         const now = performance.now();
@@ -402,18 +409,20 @@ export class Profiler {
 
         let i = 0;
         const view = this.digitsData.view;
-        for (const id of Object.keys(this._stats)) {
-            const stat = this._stats[id];
-            stat.counter.sample(now);
-            const result = stat.counter.human(!(stat.desc === 'Framerate (FPS)')).toString(); // 结果，需要对应为 shader 识别的信息
-            for (let j = this._columnNumber - 1; j >= 0; j--) {
-                const index = i * this._columnNumber + j;
-                const character = result[result.length - (this._columnNumber - j)];
-                let offset = this._string2offset[character];
-                if (offset === undefined) { offset = 11; }
-                view[index] = offset;
+        for (const id in this._stats) {
+            if (this._stats.hasOwnProperty(id)) {
+                const stat = this._stats[id];
+                stat.counter.sample(now);
+                const result = stat.counter.human(!(stat.desc === 'Framerate (FPS)')).toString();
+                for (let j = this._columnNumber - 1; j >= 0; j--) {
+                    const index = i * this._columnNumber + j;
+                    const character = result[result.length - (this._columnNumber - j)];
+                    let offset = this._string2offset[character];
+                    if (offset === undefined) { offset = 11; }
+                    view[index] = offset;
+                }
+                i++;
             }
-            i++;
         }
         this.digitsData.dirty = true;
     }
