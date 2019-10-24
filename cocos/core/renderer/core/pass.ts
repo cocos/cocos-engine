@@ -114,7 +114,7 @@ const getBindingFromHandle = (handle: number) => (handle & bindingMask) >>> 14;
 const getOffsetFromHandle = (handle: number) => (handle & offsetMask);
 const customizeType = (handle: number, type: GFXType) => (handle & ~typeMask) | ((type << 22) & typeMask);
 
-interface IBlock {
+export interface IBlock {
     buffer: ArrayBuffer;
     view: Float32Array;
     dirty: boolean;
@@ -676,6 +676,7 @@ export class Pass {
         Object.assign(this._dss, info.depthStencilState);
     }
 
+    get blocks () { return this._blocks; }
     get device () { return this._device; }
     get idxInTech () { return this._idxInTech; }
     get programName () { return this._programName; }
