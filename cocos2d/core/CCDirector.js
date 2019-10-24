@@ -783,8 +783,8 @@ cc.Director.prototype = {
     },
 
     /**
-     * !#en Returns the total passed time since game start
-     * !#zh 获取从游戏开始到现在总共经过的时间
+     * !#en Returns the total passed time since game start, unit: ms
+     * !#zh 获取从游戏开始到现在总共经过的时间，单位为 ms
      * @method getTotalTime
      * @return {Number}
      */
