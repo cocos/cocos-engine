@@ -58,9 +58,9 @@ export default function (radius = 0.5, opts = {}) {
 
   return new VertexData(
     positions,
-    indices,
     normals,
     uvs,
+    indices,
     minPos,
     maxPos,
     boundingRadius
