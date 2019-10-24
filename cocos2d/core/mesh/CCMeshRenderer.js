@@ -203,7 +203,7 @@ let MeshRenderer = cc.Class({
     },
 
     ctor () {
-        this._boundingBox = geomUtils.Aabb.create();
+        this._boundingBox = geomUtils && geomUtils.Aabb.create();
         this._customProperties = new cc.CustomProperties();
 
         if (CC_DEBUG) {
