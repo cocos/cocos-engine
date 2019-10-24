@@ -398,30 +398,6 @@ export class AmmoWorld implements PhysicsWorldBase {
         this.contactsDic.reset();
     }
 
-    public addBeforeStep (cb: Function) {
-        this._customBeforeStepListener.push(cb);
-    }
-
-    public removeBeforeStep (cb: Function) {
-        const i = this._customBeforeStepListener.indexOf(cb);
-        if (i < 0) {
-            return;
-        }
-        this._customBeforeStepListener.splice(i, 1);
-    }
-
-    public addAfterStep (cb: Function) {
-        this._customAfterStepListener.push(cb);
-    }
-
-    public removeAfterStep (cb: Function) {
-        const i = this._customAfterStepListener.indexOf(cb);
-        if (i < 0) {
-            return;
-        }
-        this._customAfterStepListener.splice(i, 1);
-    }
-
     /**
      * Ray cast, and return information of the closest hit.
      * @return True if any body was hit.
@@ -445,10 +421,10 @@ export class AmmoWorld implements PhysicsWorldBase {
         }
 
         const ammoObject = closestRayResultCallback.get_m_collisionObject()!;
-        const wrappedBody = this._getWrappedBody(ammoObject);
-        if (!wrappedBody) {
-            return false;
-        }
+        // const wrappedBody = this._getWrappedBody(ammoObject);
+        // if (!wrappedBody) {
+        //     return false;
+        // }
 
         // vec3AmmoToCreator(this._hitPoint, closestRayResultCallback.get_m_hitPointWorld());
         // vec3AmmoToCreator(this._hitNormal, closestRayResultCallback.get_m_hitNormalWorld());
@@ -459,41 +435,6 @@ export class AmmoWorld implements PhysicsWorldBase {
         // return true;
     }
 
-    /**
-     * Ray cast, and stop at the first result. Note that the order is random - but the method is fast.
-     * @return True if any body was hit.
-     */
-    public raycastAny (worldRay: ray, options: any, result: PhysicsRayResult): boolean {
-        return false;
-    }
-
-    /**
-     * Ray cast against all bodies. The provided callback will be executed for each hit with a RaycastResult as single argument.
-     * @return True if any body was hit.
-     */
-    public raycastAll (from: Vec3, to: Vec3, options: any, callback: (result: PhysicsRayResult) => void): boolean {
-        return false;
-    }
-
-    public addConstraint (constraint: ConstraintBase) {
-    }
-
-    public removeConstraint (constraint: ConstraintBase) {
-    }
-
-    public associate (rigidBody: AmmoRigidBody) {
-        this._reverseBodyMap.set(rigidBody.impl, rigidBody);
-    }
-
-    public decouple (rigidBody: AmmoRigidBody) {
-        this._reverseBodyMap.delete(rigidBody.impl);
-    }
-
-    private _getWrappedBody (ammoObject: Ammo.btCollisionObject) {
-        const ammoRigid = Ammo.castObject<Ammo.btRigidBody>(ammoObject, Ammo.btRigidBody);
-        const body = this._reverseBodyMap.get(ammoRigid);
-        return body;
-    }
 }
 
 const contactsPool = [] as any;

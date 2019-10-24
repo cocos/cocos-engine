@@ -63,30 +63,7 @@ export class AmmoRigidBody implements RigidBodyBase {
     setAllowSleep (v: boolean): void {
         throw new Error("Method not implemented.");
     }
-    getGroup (): number {
-        throw new Error("Method not implemented.");
-    }
-    setGroup (v: number): void {
-        throw new Error("Method not implemented.");
-    }
-    addGroup (v: number): void {
-        throw new Error("Method not implemented.");
-    }
-    removeGroup (v: number): void {
-        throw new Error("Method not implemented.");
-    }
-    setMask (v: number): void {
-        throw new Error("Method not implemented.");
-    }
-    getMask (): number {
-        throw new Error("Method not implemented.");
-    }
-    addMask (v: number): void {
-        throw new Error("Method not implemented.");
-    }
-    removeMask (v: number): void {
-        throw new Error("Method not implemented.");
-    }
+
     translateAndRotate (m: import("../../core").Mat4, rot: Quat): void {
         throw new Error("Method not implemented.");
     }
@@ -115,11 +92,8 @@ export class AmmoRigidBody implements RigidBodyBase {
     private static ID_COUNTER = 0;
 
     private _id: number = -1;
-    private _worldPosition = new Vec3(0, 0, 0);
-    private _worldRotation = new Quat();
     private _ammoWorldPositionBuffer = new Ammo.btVector3();
     private _ammoWorldRotationBuffer = new Ammo.btQuaternion();
-    private _ammoShapeScalling = new Ammo.btVector3();
     private _mass = 0;
     private _isKinematic: boolean = false;
     private _linearDamping = 0;
@@ -127,12 +101,10 @@ export class AmmoRigidBody implements RigidBodyBase {
     private _velocityResult: Vec3 = new Vec3();
     private _world: AmmoWorld | null = null;
     private _useGravity = true;
-    private _collisionCallbacks: Function[] = [];
     private _userData: any;
     private _shapes: AmmoShape[] = [];
     private _transformBuffer = new Ammo.btTransform();
     private _ammoTransform = new Ammo.btTransform();
-    private _beforeWorldStepCallback: () => void;
     private _nReconstructShapeRequest = 1;
     private _nReconstructBodyRequest = 1;
     private _changeRequests = {
@@ -148,12 +120,6 @@ export class AmmoRigidBody implements RigidBodyBase {
     };
 
     private _motionState!: Ammo.btDefaultMotionState;
-
-    public addShape (shape_: ShapeBase) {
-    }
-
-    public removeShape (shape_: ShapeBase) {
-    }
 
     public commitShapeUpdates () {
         ++this._nReconstructShapeRequest;
@@ -268,58 +234,6 @@ export class AmmoRigidBody implements RigidBodyBase {
         // this._ammoRigidBody.applyCentralImpulse(ammoImpulse);
     }
 
-    public setCollisionFilter (group: number, mask: number) {
-        // TO DO
-    }
-
-    public _getInternalID () {
-        return this._id;
-    }
-
-    public setWorld (world_: PhysicsWorldBase | null) {
-        if (this._world) {
-            this._world.decouple(this);
-            this._world.impl.removeRigidBody(this.impl);
-            this._world.removeBeforeStep(this._beforeWorldStepCallback);
-            this._world = null;
-        }
-
-        const world = world_ as unknown as (AmmoWorld | null);
-        if (world) {
-            world.associate(this);
-            world.impl.addRigidBody(this.impl);
-            world.addBeforeStep(this._beforeWorldStepCallback);
-        }
-        this._world = world;
-    }
-
-    public getPosition (out: Vec3) {
-        const physTransform = this._transformBuffer;
-        this._ammoBody.getMotionState().getWorldTransform(physTransform);
-        const physOrigin = physTransform.getOrigin();
-        // vec3AmmoToCreator(this._worldPosition, physOrigin);
-        Vec3.copy(out, this._worldPosition);
-    }
-
-    public setPosition (value: Vec3) {
-        Vec3.copy(this._worldPosition, value);
-        this._updateTransform();
-    }
-
-    public getRotation (out: Quat) {
-        const physTransform = this._transformBuffer;
-
-        this._ammoBody.getMotionState().getWorldTransform(physTransform);
-        const physRotation = physTransform.getRotation();
-        // quatAmmoToCreator(this._worldRotation, physRotation);
-        Quat.copy(out, this._worldRotation);
-    }
-
-    public setRotation (value: Quat) {
-        Quat.copy(this._worldRotation, value);
-        this._updateTransform();
-    }
-
     public _updateTransform () {
         this._ammoTransform.setIdentity();
         // vec3CreatorToAmmo(this._ammoWorldPositionBuffer, this._worldPosition);
@@ -332,43 +246,6 @@ export class AmmoRigidBody implements RigidBodyBase {
         //     `Name: ${this._getName()}; ` +
         //     `Position: ${toString(this._worldPosition)}; ` +
         //     `Rotation: ${toString(this._worldRotation)}`);
-    }
-
-    public scaleAllShapes (scale: Vec3) {
-        // vec3CreatorToAmmo(this._ammoShapeScalling, scale);
-        for (const shape of this._shapes) {
-            shape.setScale(scale);
-        }
-    }
-
-    public addCollisionCallback (callback: Function): void {
-        this._collisionCallbacks.push(callback);
-    }
-
-    public removeCollisionCllback (callback: Function): void {
-        const i = this._collisionCallbacks.indexOf(callback);
-        if (i >= 0) {
-            this._collisionCallbacks.splice(i, 1);
-        }
-    }
-
-    public getUserData (): any {
-        return this._userData;
-    }
-
-    public setUserData (data: any): void {
-        this._userData = data;
-    }
-
-    public dispatchCollisionWith (target: AmmoRigidBody) {
-        this._collisionCallbacks.forEach((fx) => {
-            fx({
-                type: 'onCollisionEnter',
-                selfCollider: null,
-                otherCollider: null,
-                contacts: []
-            });
-        });
     }
 
     private _updateDamping () {
@@ -386,7 +263,7 @@ export class AmmoRigidBody implements RigidBodyBase {
     private _reconstructBody () {
         if (this._world) {
             this._world.impl.removeRigidBody(this.impl);
-            this._world.decouple(this);
+            // this._world.decouple(this);
         }
 
         // vec3CreatorToAmmo(this._ammoWorldPositionBuffer, this._worldPosition);
@@ -416,7 +293,7 @@ export class AmmoRigidBody implements RigidBodyBase {
 
         if (this._world) {
             this._world.impl.addRigidBody(this.impl);
-            this._world.associate(this);
+            // this._world.associate(this);
         }
         // console.log(`[[Reconstruct AMMO Rigidbody]] ` +
         //     `Name: ${this._getName()}; ` +
@@ -471,7 +348,6 @@ export class AmmoRigidBody implements RigidBodyBase {
         // this._compoundShape = new Ammo.btCompoundShape(true);
         // this._id = AmmoRigidBody.ID_COUNTER++;
         // this._ammoBody = this._reconstructBody();
-        this._beforeWorldStepCallback = this._beforeWorldStep.bind(this);
 
         // var startTransform = new Ammo.btTransform();
         // startTransform.setIdentity();
@@ -513,14 +389,14 @@ export class AmmoRigidBody implements RigidBodyBase {
                     Cocos2AmmoVec3(ammoShape.scale, scale);
                     ammoShape.impl.setLocalScaling(ammoShape.scale);
 
-                    const lt = ammoShape.localTransform;
+                    const lt = ammoShape.transform;
                     scale.set(max_sp, max_sp, max_sp);
                     Vec3.multiply(scale, allColliders[i].center, scale);
                     Cocos2AmmoVec3(lt.getOrigin(), scale);
 
                     this.ammoCompoundShape.addChildShape(lt, (allColliders[i] as any)._shapeBase.impl);
                 } else {
-                    const lt = ammoShape.localTransform;
+                    const lt = ammoShape.transform;
                     Cocos2AmmoVec3(lt.getOrigin(), allColliders[i].center);
 
                     Cocos2AmmoVec3(ammoShape.scale, allColliders[i].node.worldScale);

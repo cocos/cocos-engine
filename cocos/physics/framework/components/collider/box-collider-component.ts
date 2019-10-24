@@ -24,6 +24,45 @@ import { IBoxShape } from '../../../spec/i-physics-shape';
 @executeInEditMode
 export class BoxColliderComponent extends ColliderComponent {
 
+<<<<<<< HEAD:cocos/physics/framework/components/collider/box-collider-component.ts
+=======
+    private _shape!: BoxShapeBase;
+
+    /// PRIVATE PROPERTY ///
+
+    @property
+    private _size: Vec3 = new Vec3(0, 0, 0);
+
+    constructor () {
+        super();
+
+        if (CC_PHYSICS_AMMO) {
+            this._shape = createBoxShape(this._size);
+            this._shapeBase = this._shape;
+        } else {
+            if (!CC_EDITOR) {
+                this._shape = createBoxShape(this._size);
+                this._shape.setUserData(this);
+                this._shapeBase = this._shape;
+            }
+        }
+    }
+
+    /// COMPONENT LIFECYCLE ///
+
+    protected onLoad () {
+        if (CC_PHYSICS_AMMO) {
+            super.onLoad();
+        } else {
+            super.onLoad();
+            if (!CC_EDITOR) {
+                this.size = this._size;
+                this._shape.setScale(this.node.worldScale);
+            }
+        }
+    }
+
+>>>>>>> tweaks:cocos/physics/components/collider/box-collider-component.ts
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
     /**
