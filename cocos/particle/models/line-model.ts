@@ -3,14 +3,14 @@
  */
 
 import { IRenderingSubmesh } from '../../core/assets/mesh';
-import CurveRange from '../animator/curve-range';
-import { Vec3 } from '../../core/math';
+import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
+import { Vec3 } from '../../core/math';
 import { Model } from '../../core/renderer/scene/model';
 import { RenderScene } from '../../core/renderer/scene/render-scene';
-import GradientRange from '../animator/gradient-range';
-import { GFX_DRAW_INFO_SIZE, IGFXIndirectBuffer, GFXBuffer } from '../../core/gfx/buffer';
 import { INode } from '../../core/utils/interfaces';
+import CurveRange from '../animator/curve-range';
+import GradientRange from '../animator/gradient-range';
 
 const _vertex_attrs = [
     { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F }, // xyz:position
@@ -110,7 +110,6 @@ export class LineModel extends Model {
         });
 
         indexBuffer.update(indices);
-
 
         this._iaInfo.drawInfos[0].vertexCount = this._capacity * this._vertCount;
         this._iaInfo.drawInfos[0].indexCount = (this._capacity - 1) * this._indexCount;

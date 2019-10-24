@@ -613,9 +613,9 @@ export class Pass {
             dynamicStates: stateOverrides && stateOverrides.dynamicStates || this._dynamicStates,
             is: new GFXInputState(),
             layout: pipelineLayout,
-            primitive: this._primitive,
+            primitive: stateOverrides && stateOverrides.primitive || this._primitive,
             renderPass: this._renderPass!,
-            rs: this._rs,
+            rs: stateOverrides && stateOverrides.rasterizerState || this._rs,
             shader,
         });
         this._resources.push({ bindingLayout, pipelineLayout, pipelineState });
