@@ -47,6 +47,7 @@ import { BatchedBuffer } from '../../pipeline/batched-buffer';
 import { isBuiltinBinding, RenderPassStage, RenderPriority, UBOLocal } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
+import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
 
@@ -139,6 +140,17 @@ interface IEffectInfo {
     states: PassOverrides[];
 }
 
+interface IPSOHashInfo {
+    program: string;
+    defines: IDefineMap;
+    stage: RenderPassStage;
+    primitive: GFXPrimitiveMode;
+    rasterizerState: GFXRasterizerState;
+    depthStencilState: GFXDepthStencilState;
+    blendState: GFXBlendState;
+    dynamicStates: GFXDynamicState[];
+}
+
 /**
  * @zh
  * 渲染 pass，储存实际描述绘制过程的各项资源。
@@ -199,6 +211,20 @@ export class Pass {
         }
         Object.assign(target._rs, info.rasterizerState);
         Object.assign(target._dss, info.depthStencilState);
+    }
+
+    /**
+     * @zh
+     * 根据指定 PSO 信息计算 hash
+     * @param psoInfo 用于计算 PSO hash 的最小必要信息
+     */
+    public static getPSOHash (psoInfo: IPSOHashInfo) {
+        const shaderKey = programLib.getKey(psoInfo.program, psoInfo.defines);
+        let res = `${shaderKey},${psoInfo.stage},${psoInfo.primitive}`;
+        res += serializeBlendState(psoInfo.blendState);
+        res += serializeDepthStencilState(psoInfo.depthStencilState);
+        res += serializeRasterizerState(psoInfo.rasterizerState);
+        return murmurhash2_32_gc(res, 666);
     }
 
     protected static getOffsetFromHandle = getOffsetFromHandle;
@@ -577,7 +603,7 @@ export class Pass {
             console.warn(`pass resources not complete, create PSO failed`);
             return null;
         }
-        let shader = this._shader!;
+        let shader = this._shader!; const defines = defineOverrides || this._defines;
         if (defineOverrides) { shader = this.tryCompile(defineOverrides, false)!; }
         // bind resources
         const bindingLayout = this._device.createBindingLayout({ bindings: this._bindings });
@@ -607,16 +633,23 @@ export class Pass {
 
         // create pipeline state
         const pipelineLayout = this._device.createPipelineLayout({ layouts: [bindingLayout] });
+        const primitive = stateOverrides && stateOverrides.primitive || this._primitive;
+        const rasterizerState = stateOverrides && stateOverrides.rasterizerState || this._rs;
+        const depthStencilState = stateOverrides && stateOverrides.depthStencilState || this._dss;
+        const blendState = stateOverrides && stateOverrides.blendState || this._bs;
+        const dynamicStates = stateOverrides && stateOverrides.dynamicStates || this._dynamicStates;
         const pipelineState = this._device.createPipelineState({
-            bs: stateOverrides && stateOverrides.blendState || this._bs,
-            dss: stateOverrides && stateOverrides.depthStencilState || this._dss,
-            dynamicStates: stateOverrides && stateOverrides.dynamicStates || this._dynamicStates,
-            is: new GFXInputState(),
-            layout: pipelineLayout,
-            primitive: stateOverrides && stateOverrides.primitive || this._primitive,
-            renderPass: this._renderPass!,
-            rs: stateOverrides && stateOverrides.rasterizerState || this._rs,
             shader,
+            primitive,
+            dynamicStates,
+            is: new GFXInputState(),
+            bs: blendState,
+            dss: depthStencilState,
+            rs: rasterizerState,
+            layout: pipelineLayout,
+            renderPass: this._renderPass!,
+            hash: Pass.getPSOHash({ stage: this._stage, program: this._programName, defines, primitive,
+                rasterizerState, depthStencilState, blendState, dynamicStates }),
         });
         this._resources.push({ bindingLayout, pipelineLayout, pipelineState });
         return pipelineState;
@@ -633,19 +666,6 @@ export class Pass {
             bl.destroy(); pl.destroy(); ps.destroy();
             this._resources.splice(idx, 1);
         }
-    }
-
-    /**
-     * @zh
-     * 返回这个 pass 的序列化信息，用于计算 hash。
-     */
-    public serializePipelineStates () {
-        const shaderKey = programLib.getKey(this._programName, this._defines);
-        let res = `${shaderKey},${this._stage},${this._primitive}`;
-        res += serializeBlendState(this._bs);
-        res += serializeDepthStencilState(this._dss);
-        res += serializeRasterizerState(this._rs);
-        return res;
     }
 
     /**
@@ -694,6 +714,7 @@ export class Pass {
     get shaderInfo () { return this._shaderInfo; }
     get program () { return this._programName; }
     get properties () { return this._properties; }
+    get defines () { return this._defines; }
     get idxInTech () { return this._idxInTech; }
     // resources
     get device () { return this._device; }

@@ -35,13 +35,11 @@ import { IInternalBindingDesc, localBindingsDesc } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { IDefineMap } from './pass';
 
-let _shdID = 0;
 interface IDefineRecord extends IDefineInfo {
     _map: (value: any) => number;
     _offset: number;
 }
 interface IProgramInfo extends IShaderInfo {
-    id: number;
     defines: IDefineRecord[];
     globalsInited: boolean;
     localsInited: boolean;
@@ -133,7 +131,7 @@ class ProgramLib {
     public define (prog: IShaderInfo) {
         const cur = this._templates[prog.name];
         if (cur && cur.hash === prog.hash) { return; }
-        const tmpl = Object.assign({ id: ++_shdID }, prog) as IProgramInfo;
+        const tmpl = prog as IProgramInfo;
         if (!tmpl.localsInited) { insertBuiltinBindings(tmpl, localBindingsDesc, 'locals'); tmpl.localsInited = true; }
 
         // calculate option mask offset
@@ -190,7 +188,7 @@ class ProgramLib {
             const offset = tmplDef._offset;
             key |= mapped << offset;
         }
-        return `${key.toString(16)}|${tmpl.id}`;
+        return `${key.toString(16)}|${tmpl.hash}`;
     }
 
     /**

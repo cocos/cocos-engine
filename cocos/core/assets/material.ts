@@ -428,7 +428,7 @@ export class Material extends Asset {
     protected _onPassesChange () {
         let str = '';
         for (const pass of this._passes) {
-            str += pass.serializePipelineStates();
+            str += Pass.getPSOHash(pass);
         }
         this._hash = murmurhash2_32_gc(str, 666);
         if (this._owner) {
