@@ -419,7 +419,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             return;
         }
         const oldParent = this._parent;
-        if (CC_DEBUG && oldParent && 
+        if (CC_DEBUG && oldParent &&
             // Change parent when old parent desactivating or activating
             (oldParent._objFlags & ChangingState)) {
             errorID(3821);
@@ -1158,7 +1158,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         }
     }
 
-    protected _updateSiblingIndex () {
+    public _updateSiblingIndex () {
         for (let i = 0; i < this._children.length; ++i) {
             this._children[i]._siblingIndex = i;
         }
