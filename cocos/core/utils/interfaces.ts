@@ -144,6 +144,12 @@ export interface IBaseNode {
     components: ReadonlyArray<Component>;
 
     /**
+     * @zh
+     * 节点事件相关的处理器
+     */
+    eventProcessor: Readonly<NodeEventProcessor>;
+
+    /**
      * @en Get parent of the node.
      * @zh 获取该节点的父节点。
      * @example
@@ -409,6 +415,18 @@ export interface IBaseNode {
 
     /**
      * @zh
+     * 节点事件API，注：未来可能会移除
+     */
+    on (type: string | SystemEventType, callback: Function, target?: Object, useCapture?: boolean): void;
+    off (type: string, callback?: Function, target?: Object, useCapture?: boolean): void;
+    once (type: string, callback: Function, target?: Object, useCapture?: boolean): void;
+    emit (type: string, ...args: any[]): void;
+    dispatchEvent (event: Event): void;
+    hasEventListener (type: string): boolean;
+    targetOff (target: string | Object): void;
+
+    /**
+     * @zh
      * 销毁实例，实际销毁操作会延迟到当前帧渲染前执行。
      * @returns true 代表销毁成功
      */
@@ -442,12 +460,6 @@ export interface INode extends IBaseNode {
      * 这个节点的空间变换信息在当前帧内是否有变过？
      */
     hasChangedFlags: Readonly<TransformDirtyBit>;
-
-    /**
-     * @zh
-     * 节点事件相关的处理器
-     */
-    eventProcessor: Readonly<NodeEventProcessor>;
 
     /**
      * @zh
@@ -727,13 +739,6 @@ export interface INode extends IBaseNode {
      * @zh
      * 节点事件API，注：未来可能会移除
      */
-    on (type: string | SystemEventType, callback: Function, target?: Object, useCapture?: boolean): void;
-    off (type: string, callback?: Function, target?: Object, useCapture?: boolean): void;
-    once (type: string, callback: Function, target?: Object, useCapture?: boolean): void;
-    emit (type: string, ...args: any[]): void;
-    dispatchEvent (event: Event): void;
-    hasEventListener (type: string): boolean;
-    targetOff (target: string | Object): void;
     pauseSystemEvents (recursive: boolean): void;
     resumeSystemEvents (recursive: boolean): void;
 }
