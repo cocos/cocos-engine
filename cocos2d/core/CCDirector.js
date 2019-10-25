@@ -123,6 +123,9 @@ cc.Director = function () {
     this._totalFrames = 0;
     this._lastUpdate = 0;
     this._deltaTime = 0.0;
+    
+    // ParticleSystem max step delta time
+    this._maxParticleDeltaTime = 0.0;
 
     // Scheduler for user registration update
     this._scheduler = null;
@@ -216,6 +219,9 @@ cc.Director.prototype = {
     calculateDeltaTime: function (now) {
         if (!now) now = performance.now();
         this._deltaTime = (now - this._lastUpdate) / 1000;
+        if (this._maxParticleDeltaTime === 0) {
+            this._maxParticleDeltaTime = cc.game._frameTime / 1000 * 2;
+        }
         if (CC_DEBUG && (this._deltaTime > 1))
             this._deltaTime = 1 / 60.0;
 
