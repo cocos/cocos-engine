@@ -336,20 +336,10 @@ export class WidgetComponent extends Component {
      */
     @property
     get top () {
-        const size = this.target ? this.target : this.node.parent;
-        return this.isAbsoluteTop ? this.runtimeTop : this.runtimeTop * 100 / size!.height;
+        return this._top;
     }
     set top (value) {
         this._top = value;
-        this.runtimeTop = this._changeValue(AlignFlags.TOP);
-        this._recursiveDirty();
-    }
-
-    get runtimeTop () {
-        return this._runtimeTop;
-    }
-    set runtimeTop (value) {
-        this._runtimeTop = value;
         this._recursiveDirty();
     }
 
@@ -359,20 +349,10 @@ export class WidgetComponent extends Component {
      */
     @property
     get bottom () {
-        const size = this.target ? this.target : this.node.parent;
-        return this.isAbsoluteBottom ? this.runtimeBottom : this.runtimeBottom * 100 / size!.height;
+        return this._bottom;
     }
     set bottom (value) {
         this._bottom = value;
-        this.runtimeBottom = this._changeValue(AlignFlags.BOT);
-        this._recursiveDirty();
-    }
-
-    get runtimeBottom () {
-        return this._runtimeBottom;
-    }
-    set runtimeBottom (value) {
-        this._runtimeBottom = value;
         this._recursiveDirty();
     }
 
@@ -382,20 +362,10 @@ export class WidgetComponent extends Component {
      */
     @property
     get left () {
-        const size = this.target ? this.target : this.node.parent;
-        return this.isAbsoluteLeft ? this.runtimeLeft : this.runtimeLeft * 100 / size!.width;
+        return this._left;
     }
     set left (value) {
         this._left = value;
-        this.runtimeLeft = this._changeValue(AlignFlags.LEFT);
-        this._recursiveDirty();
-    }
-
-    get runtimeLeft () {
-        return this._runtimeLeft;
-    }
-    set runtimeLeft (value) {
-        this._runtimeLeft = value;
         this._recursiveDirty();
     }
 
@@ -405,20 +375,10 @@ export class WidgetComponent extends Component {
      */
     @property
     get right () {
-        const size = this.target ? this.target : this.node.parent;
-        return this.isAbsoluteRight ? this.runtimeRight : this.runtimeRight * 100 / size!.width;
+        return this._right;
     }
     set right (value) {
         this._right = value;
-        this.runtimeRight = this._changeValue(AlignFlags.RIGHT);
-        this._recursiveDirty();
-    }
-
-    get runtimeRight () {
-        return this._runtimeRight;
-    }
-    set runtimeRight (value) {
-        this._runtimeRight = value;
         this._recursiveDirty();
     }
 
@@ -428,20 +388,10 @@ export class WidgetComponent extends Component {
      */
     @property
     get horizontalCenter () {
-        const size = this.target ? this.target : this.node.parent;
-        return this.isAlignHorizontalCenter ? this.runtimeHorizontalCenter : this.runtimeHorizontalCenter * 100 / size!.width;
+        return this._horizontalCenter;
     }
     set horizontalCenter (value) {
         this._horizontalCenter = value;
-        this.runtimeHorizontalCenter = this._changeValue(AlignFlags.HORIZONTAL);
-        this._recursiveDirty();
-    }
-
-    get runtimeHorizontalCenter () {
-        return this._runtimeHorizontalCenter;
-    }
-    set runtimeHorizontalCenter (value) {
-        this._runtimeHorizontalCenter = value;
         this._recursiveDirty();
     }
 
@@ -451,20 +401,10 @@ export class WidgetComponent extends Component {
      */
     @property
     get verticalCenter () {
-        const size = this.target ? this.target : this.node.parent;
-        return this.isAbsoluteVerticalCenter ? this.runtimeVerticalCenter : this.runtimeVerticalCenter * 100 / size!.height;
+        return this._verticalCenter;
     }
     set verticalCenter (value) {
         this._verticalCenter = value;
-        this.runtimeVerticalCenter = this._changeValue(AlignFlags.VERTICAL);
-        this._recursiveDirty();
-    }
-
-    get runtimeVerticalCenter () {
-        return this._runtimeVerticalCenter;
-    }
-    set runtimeVerticalCenter (value) {
-        this._runtimeVerticalCenter = value;
         this._recursiveDirty();
     }
 
@@ -482,8 +422,7 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsTop = value;
-        this.top = this.top;
-        this._recursiveDirty();
+        this._autoChangedValue(AlignFlags.TOP, this._isAbsTop);
     }
 
     /**
@@ -500,8 +439,7 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsBottom = value;
-        this.bottom = this.bottom;
-        this._recursiveDirty();
+        this._autoChangedValue(AlignFlags.BOT, this._isAbsBottom);
     }
 
     /**
@@ -518,8 +456,7 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsLeft = value;
-        this.left = this.left;
-        this._recursiveDirty();
+        this._autoChangedValue(AlignFlags.LEFT, this._isAbsLeft);
     }
 
     /**
@@ -536,8 +473,7 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsRight = value;
-        this.right = this.right;
-        this._recursiveDirty();
+        this._autoChangedValue(AlignFlags.RIGHT, this._isAbsRight);
     }
 
     /**
@@ -576,8 +512,7 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsHorizontalCenter = value;
-        this.horizontalCenter = this.horizontalCenter;
-        this._recursiveDirty();
+        this._autoChangedValue(AlignFlags.CENTER, this._isAbsHorizontalCenter);
     }
 
     /**
@@ -594,8 +529,7 @@ export class WidgetComponent extends Component {
         }
 
         this._isAbsVerticalCenter = value;
-        this.verticalCenter = this.verticalCenter;
-        this._recursiveDirty();
+        this._autoChangedValue(AlignFlags.MID, this._isAbsVerticalCenter);
     }
 
     /**
@@ -657,23 +591,6 @@ export class WidgetComponent extends Component {
     private _originalHeight = 0;
     @property
     private _alignMode = AlignMode.ALWAYS;
-
-    // The value actually use in runtime
-    private _runtimeLeft = 0;
-    private _runtimeRight = 0;
-    private _runtimeTop = 0;
-    private _runtimeBottom = 0;
-    private _runtimeHorizontalCenter = 0;
-    private _runtimeVerticalCenter = 0;
-
-    public onLoad () {
-        this.runtimeLeft = this._changeValue(AlignFlags.LEFT);
-        this.runtimeRight = this._changeValue(AlignFlags.RIGHT);
-        this.runtimeTop = this._changeValue(AlignFlags.TOP);
-        this.runtimeBottom = this._changeValue(AlignFlags.BOT);
-        this.runtimeHorizontalCenter = this._changeValue(AlignFlags.HORIZONTAL);
-        this.runtimeVerticalCenter = this._changeValue(AlignFlags.VERTICAL);
-    }
 
     /**
      * @zh
@@ -763,23 +680,24 @@ export class WidgetComponent extends Component {
         }
 
         if (self.isAlignTop) {
-            self.runtimeTop -= delta.y * inverseScale.y;
+            self._top -= (self._isAbsTop ? delta.y : deltaInPercent.y) * inverseScale.y;
         }
         if (self.isAlignBottom) {
-            self.runtimeBottom += delta.y * inverseScale.y;
+            self._bottom += (self._isAbsBottom ? delta.y : deltaInPercent.y) * inverseScale.y;
         }
         if (self.isAlignLeft) {
-            self.runtimeLeft += delta.x * inverseScale.x;
+            self._left += (self._isAbsLeft ? delta.x : deltaInPercent.x) * inverseScale.x;
         }
         if (self.isAlignRight) {
-            self.runtimeRight -= delta.x * inverseScale.x;
+            self._right -= (self._isAbsRight ? delta.x : deltaInPercent.x) * inverseScale.x;
         }
         if (self.isAlignHorizontalCenter) {
-            self.runtimeHorizontalCenter += delta.x * inverseScale.x;
+            self._horizontalCenter += (self._isAbsHorizontalCenter ? delta.x : deltaInPercent.x) * inverseScale.x;
         }
         if (self.isAlignVerticalCenter) {
-            self.runtimeVerticalCenter += delta.y * inverseScale.y;
+            self._verticalCenter += (self._isAbsVerticalCenter ? delta.y : deltaInPercent.y) * inverseScale.y;
         }
+        this._recursiveDirty();
     }
 
     public _adjustWidgetToAllowResizingInEditor () {
@@ -817,17 +735,18 @@ export class WidgetComponent extends Component {
         const anchor = self.node.getAnchorPoint();
 
         if (self.isAlignTop) {
-            self.runtimeTop -= delta.y * (1 - anchor.y) * inverseScale.y;
+            self._top -= (self._isAbsTop ? delta.y : deltaInPercent.y) * (1 - anchor.y) * inverseScale.y;
         }
         if (self.isAlignBottom) {
-            self.runtimeBottom -= delta.y * anchor.y * inverseScale.y;
+            self._bottom -= (self._isAbsBottom ? delta.y : deltaInPercent.y) * anchor.y * inverseScale.y;
         }
         if (self.isAlignLeft) {
-            self.runtimeLeft -= delta.x * anchor.x * inverseScale.x;
+            self._left -= (self._isAbsLeft ? delta.x : deltaInPercent.x) * anchor.x * inverseScale.x;
         }
         if (self.isAlignRight) {
-            self.runtimeRight -= delta.x * (1 - anchor.x) * inverseScale.x;
+            self._right -= (self._isAbsRight ? delta.x : deltaInPercent.x) * (1 - anchor.x) * inverseScale.x;
         }
+        this._recursiveDirty();
     }
 
     public _adjustWidgetToAnchorChanged () {
@@ -860,26 +779,28 @@ export class WidgetComponent extends Component {
         this.node.off(SystemEventType.PARENT_CHANGED, this._adjustTargetToParentChanged, this);
     }
 
-    protected _changeValue (flag: AlignFlags) {
+    protected _autoChangedValue (flag: AlignFlags, isAbs: boolean){
         const current = (this._alignFlags & flag) > 0;
-        if (!current || !this.node.parent || !this.node.parent.uiTransfromComp) {
-            return 0;
+        if (!current || !this.node.parent || !this.node.parent.uiTransfromComp){
+            return;
         }
-        const size = this.target ? this.target.getContentSize() : this.node.parent.getContentSize();
+
+        const size = this.node.parent!.getContentSize();
         if (this.isAlignLeft && flag === AlignFlags.LEFT) {
-            return this.isAbsoluteLeft ? this._left : this._left / 100 * size.width;
+            this._left = isAbs ? this._left / 100 * size.width : this._left * 100 / size.width;
         } else if (this.isAlignRight && flag === AlignFlags.RIGHT) {
-            return this.isAbsoluteRight ? this._right : this._right / 100 * size.width;
+            this._right = isAbs ? this._right / 100 * size.width : this._right * 100 / size.width;
         } else if (this.isAlignHorizontalCenter && flag === AlignFlags.CENTER) {
-            return this.isAbsoluteHorizontalCenter ? this._horizontalCenter : this._horizontalCenter / 100 * size.width;
+            this._horizontalCenter = isAbs ? this._horizontalCenter / 100 * size.width : this._horizontalCenter * 100 / size.width;
         } else if (this.isAlignTop && flag === AlignFlags.TOP) {
-            return this.isAbsoluteTop ? this._top : this._top / 100 * size.height;
+            this._top = isAbs ? this._top / 100 * size.height : this._top * 100 / size.height;
         } else if (this.isAlignBottom && flag === AlignFlags.BOT) {
-            return this.isAbsoluteBottom ? this._bottom : this._bottom / 100 * size.height;
-        } else if (this.isAlignVerticalCenter && flag === AlignFlags.MID) {
-            return this.isAbsoluteVerticalCenter ? this._verticalCenter : this._verticalCenter / 100 * size.height;
+            this._bottom = isAbs ? this._bottom / 100 * size.height : this._bottom * 100 / size.height;
+        } else if (this.isAbsoluteVerticalCenter && flag === AlignFlags.MID) {
+            this._verticalCenter = isAbs ? this._verticalCenter / 100 * size.height : this._verticalCenter * 100 / size.height;
         }
-        return 0;
+
+        this._recursiveDirty();
     }
 
     protected _registerTargetEvents () {
