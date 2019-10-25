@@ -24,6 +24,7 @@
         "no-empty": false,
         "radix": false,
         "prefer-for-of": false,
+        "forin":false,
 
         "max-line-length": [
             true,
