@@ -214,14 +214,15 @@ export default class TTFAssembler extends Assembler2D {
         let firstLinelabelY = 0;
         let lineHeight = this._getLineHeight();
         let drawStartY = lineHeight * (_splitedStrings.length - 1);
+        let blank = _fontSize * textUtils.BASELINE_RATIO;
         if (_vAlign === macro.VerticalTextAlignment.TOP) {
-            firstLinelabelY = _fontSize;
+            firstLinelabelY = _fontSize - blank / 2;
         }
         else if (_vAlign === macro.VerticalTextAlignment.CENTER) {
             firstLinelabelY = (_canvasSize.height - drawStartY) * 0.5 + _fontSize * textUtils.MIDDLE_RATIO - _canvasPadding.height / 2;
         }
         else {
-            firstLinelabelY = _canvasSize.height - drawStartY - _fontSize * textUtils.BASELINE_RATIO - _canvasPadding.height;
+            firstLinelabelY = _canvasSize.height - drawStartY - blank / 2 - _canvasPadding.height;
         }
 
         return cc.v2(labelX + _canvasPadding.x, firstLinelabelY + _canvasPadding.y);
