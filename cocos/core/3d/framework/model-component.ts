@@ -196,14 +196,11 @@ export class ModelComponent extends RenderableComponent {
         if (this._model) {
             this._model.scene.destroyModel(this._model);
             this._model = null;
+            this._models.length = 0;
         }
     }
 
-    public _getModel (): Model | null {
-        return this._model;
-    }
-
-    public recreateModel () {
+    public _changeSceneInModel () {
         if (this.isValid) {
             if (this._model) {
                 this._model.destroy();
@@ -255,6 +252,8 @@ export class ModelComponent extends RenderableComponent {
         const scene = this._getRenderScene();
         this._model = scene.createModel(this._getModelConstructor(), this.node);
         this._model.visFlags = this.visibility;
+        this._models.length = 0;
+        this._models.push(this._model);
     }
 
     protected _getModelConstructor () {

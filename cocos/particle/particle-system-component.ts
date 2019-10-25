@@ -458,11 +458,16 @@ export class ParticleSystemComponent extends RenderableComponent {
         this.renderer._onRebuildPSO(index, material);
     }
 
-    public _getModel (): Model | null {
-        return (this.renderer as any)._model;
+    public _collectModels (): Model[] {
+        this._models.length = 0;
+        this._models.push((this.renderer as any)._model);
+        if (this.trailModule.enable && (this.trailModule as any)._trailModel) {
+            this._models.push((this.trailModule as any)._trailModel);
+        }
+        return this._models;
     }
 
-    public recreateModel () {
+    public _changeSceneInModel () {
         if (this.isValid) {
             const r = this.renderer as any;
             if (r && r._model) {
@@ -471,6 +476,12 @@ export class ParticleSystemComponent extends RenderableComponent {
                 r.onEnable();
                 r._updateModel();
                 r._updateMaterialParams();
+            }
+            const t = this.trailModule as any;
+            if (t && t._trailModel) {
+                t._trailModel.scene.destroyModel(t._trailModel);
+                t._trailModel = null;
+                t.enable = t._enable;
                 r._updateTrailMaterial();
             }
         }

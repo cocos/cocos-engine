@@ -18,6 +18,8 @@ export class RenderableComponent extends Component {
     @property
     protected _visFlags = Layers.Enum.NONE;
 
+    protected _models: Model[] = [];
+
     constructor () {
         super();
     }
@@ -123,11 +125,11 @@ export class RenderableComponent extends Component {
         }
     }
 
-    public _getModel (): Model | null {
-        return null;
+    public _collectModels (): Model[] {
+        return this._models;
     }
 
-    public recreateModel () {
+    public _changeSceneInModel () {
 
     }
 
