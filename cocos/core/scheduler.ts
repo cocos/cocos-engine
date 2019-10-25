@@ -565,7 +565,7 @@ export class Scheduler extends System {
      * @param {Number} [delay=0]
      * @param {Boolean} [paused=fasle]
      */
-    public schedule (callback: Function, target: ISchedulable, interval: number, repeat: number, delay: number, paused?: boolean) {
+    public schedule (callback: Function, target: ISchedulable, interval: number, repeat?: number, delay?: number, paused?: boolean) {
         'use strict';
         if (typeof callback !== 'function') {
             const tmp = callback;
@@ -575,7 +575,7 @@ export class Scheduler extends System {
         }
         // selector, target, interval, repeat, delay, paused
         // selector, target, interval, paused
-        if (arguments.length === 4 || arguments.length === 5) {
+        if (arguments.length === 3 || arguments.length === 4 || arguments.length === 5) {
             paused = !!repeat;
             repeat = cc.macro.REPEAT_FOREVER;
             delay = 0;
@@ -1082,7 +1082,7 @@ export class Scheduler extends System {
         let targetId = target.uuid || target.id;
         if (!targetId) {
             cc.errorID(1510);
-            return;
+            return false;
         }
 
         // Custom selectors
