@@ -736,4 +736,5 @@ export interface INode extends IBaseNode {
     targetOff (target: string | Object): void;
     pauseSystemEvents (recursive: boolean): void;
     resumeSystemEvents (recursive: boolean): void;
+    _updateSiblingIndex(): void;
 }

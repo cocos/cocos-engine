@@ -139,8 +139,14 @@ export class UIComponent extends Component {
                 const bComp = b._uiComp;
                 const ca = aComp ? aComp.priority : 0;
                 const cb = bComp ? bComp.priority : 0;
-                return ca - cb;
+                const diff = ca - cb;
+                if(diff === 0){
+                    return a.getSiblingIndex() - b.getSiblingIndex();
+                }
+                return diff;
             });
+
+            this.node.parent!._updateSiblingIndex();
         }
     }
 
