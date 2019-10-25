@@ -30,7 +30,7 @@
 import { Component } from '../component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
-import { EventListener, ILinstenerMask } from '../../../core/platform/event-manager/event-listener';
+import { EventListener, IListenerMask } from '../../../core/platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/math';
 import { aabb } from '../../geom-utils';
 import { CanvasComponent } from './canvas-component';
@@ -328,7 +328,7 @@ export class UITransformComponent extends Component {
 
         if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
             if (listener && listener.mask) {
-                const mask = listener.mask as ILinstenerMask;
+                const mask = listener.mask as IListenerMask;
                 let parent: any = this.node;
                 // find mask parent, should hit test it
                 for (let i = 0; parent && i < mask.index; ++i, parent = parent.parent) {
