@@ -226,30 +226,29 @@ export class Profiler {
         this._ctx.textAlign = 'left';
         let i = 0;
         for (const id in opts) {
-            if (opts.hasOwnProperty(id)) {
-                const element = opts[id];
-                this._ctx.fillText(element.desc, 0, i * this._lineHeight);
-                element.counter = new PerfCounter(id, element, now);
-                i++;
-            }
+            const element = opts[id];
+            this._ctx.fillText(element.desc, 0, i * this._lineHeight);
+            element.counter = new PerfCounter(id, element, now);
+            i++;
         }
-        this._ctx.fillText(characters, 0, i * this._lineHeight);
         this._wordHeight = i * this._lineHeight / this._canvas.height;
+
+        this._eachNumWidth = this._ctx.measureText('0').width / this._canvas.width; // each number uv width
+        const canvasNumWidth = this._eachNumWidth * this._canvas.width; // each number width in canvas
 
         const offsets = new Array();
         let offset = 0;
         offsets[0] = 0;
         for (let j = 0; j < characters.length; ++j) {
-            offset += this._ctx.measureText(characters[j]).width / this._canvas.width;
+            this._ctx.fillText(characters[j], j * canvasNumWidth, i * this._lineHeight);
+            offset += this._eachNumWidth;
             offsets[j + 1] = offset; // cause offsets[0] = 0
         }
 
         const len = Math.ceil(offsets.length / 4);
-        for (let k = 0; k < len; k++) {
-            this._uvOffset.push(new Vec4(offsets[k * 4], offsets[k * 4 + 1], offsets[k * 4 + 2], offsets[k * 4 + 3]));
+        for (let j = 0; j < len; j++) {
+            this._uvOffset.push(new Vec4(offsets[j * 4], offsets[j * 4 + 1], offsets[j * 4 + 2], offsets[j * 4 + 3]));
         }
-
-        this._eachNumWidth = this._ctx.measureText('0').width / this._canvas!.width;
 
         this._stats = opts as IProfilerState;
         this._canvasArr[0] = this._canvas;
@@ -410,19 +409,17 @@ export class Profiler {
         let i = 0;
         const view = this.digitsData.view;
         for (const id in this._stats) {
-            if (this._stats.hasOwnProperty(id)) {
-                const stat = this._stats[id];
-                stat.counter.sample(now);
-                const result = stat.counter.human(!(stat.desc === 'Framerate (FPS)')).toString();
-                for (let j = this._columnNumber - 1; j >= 0; j--) {
-                    const index = i * this._columnNumber + j;
-                    const character = result[result.length - (this._columnNumber - j)];
-                    let offset = this._string2offset[character];
-                    if (offset === undefined) { offset = 11; }
-                    view[index] = offset;
-                }
-                i++;
+            const stat = this._stats[id];
+            stat.counter.sample(now);
+            const result = stat.counter.human(!(stat.desc === 'Framerate (FPS)')).toString();
+            for (let j = this._columnNumber - 1; j >= 0; j--) {
+                const index = i * this._columnNumber + j;
+                const character = result[result.length - (this._columnNumber - j)];
+                let offset = this._string2offset[character];
+                if (offset === undefined) { offset = 11; }
+                view[index] = offset;
             }
+            i++;
         }
         this.digitsData.dirty = true;
     }
