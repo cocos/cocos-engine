@@ -732,6 +732,10 @@ The renderer doesn't support the renderMode %s
 
 Cannot change hierarchy while activating or deactivating the parent.
 
+### 3822
+
+addComponent: Cannot add any component to the scene.
+
 ### 3900
 
 Invalid clip to add

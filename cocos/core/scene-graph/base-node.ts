@@ -36,8 +36,9 @@ import IdGenerator from '../utils/id-generator';
 import { IBaseNode } from '../utils/interfaces';
 import * as js from '../utils/js';
 import { baseNodePolyfill } from './base-node-dev';
-import { Scene } from './scene';
 import { errorID, warnID } from '../platform/debug';
+import { Event } from '../event';
+import { NodeEventProcessor } from './node-event-processor';
 
 /**
  *
@@ -54,12 +55,14 @@ const Deactivating = CCObject.Flags.Deactivating;
 const Activating = CCObject.Flags.Activating;
 const ChangingState = Activating | Deactivating;
 
+export const TRANFORM_ON = 1 << 0;
+
 // const CHILD_ADDED = 'child-added';
 // const CHILD_REMOVED = 'child-removed';
 
 const idGenerator = new IdGenerator('Node');
 
-const NullScene = null as unknown as Scene;
+const NullScene = null;
 
 function getConstructor (typeOrClassName: string | Function): Function | null {
     if (!typeOrClassName) {
@@ -247,9 +250,13 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         return this._scene;
     }
 
+    get eventProcessor () {
+        return this._eventProcessor;
+    }
+
     public static _setScene (node: BaseNode) {
         if (node instanceof cc.Scene) {
-            node._scene = node as Scene;
+            node._scene = node;
         } else {
             if (node._parent == null) {
                 cc.error('Node %s(%s) has not attached to a scene.', node.name, node.uuid);
@@ -360,7 +367,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
      * @zh 此节点属于哪个场景。
      * @type {cc.Scene}}
      */
-    protected _scene: Scene = NullScene;
+    protected _scene: any = NullScene;
 
     protected _activeInHierarchy = false;
 
@@ -370,6 +377,8 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
 
     protected _name: string;
 
+    protected _eventProcessor: NodeEventProcessor = new NodeEventProcessor(this as IBaseNode);
+    protected _eventMask = 0;
     /**
      * Register all related EventTargets,
      * all event callbacks will be removed in _onPreDestroy
@@ -393,6 +402,26 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             EditorExtends.Node.add(this._id, this);
         }
     }
+
+    /**
+     * @en
+     * Properties configuration function <br/>
+     * All properties in attrs will be set to the node, <br/>
+     * when the setter of the node is available, <br/>
+     * the property will be set via setter function.<br/>
+     * @zh 属性配置函数。在 attrs 的所有属性将被设置为节点属性。
+     * @param attrs - Properties to be set to node
+     * @example
+     * ```
+     * var attrs = { key: 0, num: 100 };
+     * node.attr(attrs);
+     * ```
+     */
+    public attr (attrs: Object) {
+        js.mixin(this, attrs);
+    }
+
+    // HIERARCHY METHODS
 
     /**
      * @en Get parent of the node.
@@ -461,28 +490,6 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         this._onHierarchyChanged(oldParent);
 
     }
-
-    // ABSTRACT INTERFACES
-
-    /**
-     * @en
-     * Properties configuration function <br/>
-     * All properties in attrs will be set to the node, <br/>
-     * when the setter of the node is available, <br/>
-     * the property will be set via setter function.<br/>
-     * @zh 属性配置函数。在 attrs 的所有属性将被设置为节点属性。
-     * @param attrs - Properties to be set to node
-     * @example
-     * ```
-     * var attrs = { key: 0, num: 100 };
-     * node.attr(attrs);
-     * ```
-     */
-    public attr (attrs: Object) {
-        js.mixin(this, attrs);
-    }
-
-    // composition: GET
 
     /**
      * @en Returns a child from the container given its uuid.
@@ -561,8 +568,6 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         return lastNode;
     }
 
-    // composition: ADD
-
     public addChild (child: this): void {
 
         if (CC_DEV && !(child instanceof cc._BaseNode)) {
@@ -594,8 +599,6 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         child.parent = this;
         child.setSiblingIndex(siblingIndex);
     }
-
-    // HIERARCHY METHODS
 
     /**
      * @en Get the sibling index.
@@ -1102,6 +1105,56 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         }
     }
 
+
+    // EVENT PROCESSING
+
+    public on (type: string | SystemEventType, callback: Function, target?: Object, useCapture?: any) {
+        switch (type) {
+            case SystemEventType.TRANSFORM_CHANGED:
+                this._eventMask |= TRANFORM_ON;
+                break;
+        }
+        this._eventProcessor.on(type, callback, target, useCapture);
+    }
+
+    public off (type: string, callback?: Function, target?: Object, useCapture?: any) {
+        this._eventProcessor.off(type, callback, target, useCapture);
+
+        const hasListeners = this._eventProcessor.hasEventListener(type);
+        // All listener removed
+        if (!hasListeners) {
+            switch (type) {
+                case SystemEventType.TRANSFORM_CHANGED:
+                    this._eventMask &= ~TRANFORM_ON;
+                    break;
+            }
+        }
+    }
+
+    public once (type: string, callback: Function, target?: Object, useCapture?: any) {
+        this._eventProcessor.once(type, callback, target, useCapture);
+    }
+
+    public emit (type: string, ...args: any[]) {
+        this._eventProcessor.emit(type, ...args);
+    }
+
+    public dispatchEvent (event: Event) {
+        this._eventProcessor.dispatchEvent(event);
+    }
+
+    public hasEventListener (type: string) {
+        return this._eventProcessor.hasEventListener(type);
+    }
+
+    public targetOff (target: string | Object) {
+        this._eventProcessor.targetOff(target);
+        // Check for event mask reset
+        if ((this._eventMask & TRANFORM_ON) && !this._eventProcessor.hasEventListener(SystemEventType.TRANSFORM_CHANGED)) {
+            this._eventMask &= ~TRANFORM_ON;
+        }
+    }
+
     public destroy () {
         if (super.destroy()) {
             // disable hierarchy
@@ -1133,8 +1186,6 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             children[i].destroy();
         }
     }
-
-    public emit? (type: string, ...args: any[]): void;
 
     // Do remove component, only used internally.
     public _removeComponent (component: Component) {
@@ -1173,6 +1224,8 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             }
         }
     }
+
+    // PRIVATE
 
     protected _onPostActivated (active: boolean) {
         return;
@@ -1349,6 +1402,8 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             }
         }
     }
+
+    // ABSTRACT INTERFACES
 
     protected _onSiblingIndexChanged? (siblingIndex: number): void;
 
