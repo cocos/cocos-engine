@@ -576,7 +576,7 @@ var game = {
         this._lastTime = performance.now();
         var frameRate = game.config.frameRate;
         this._frameTime = 1000 / frameRate;
-
+        cc.director._maxParticleDeltaTime = this._frameTime / 1000 * 2;
         if (CC_JSB || CC_RUNTIME) {
             jsb.setPreferredFramesPerSecond(frameRate);
             window.requestAnimFrame = window.requestAnimationFrame;

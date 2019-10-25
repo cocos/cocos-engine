@@ -125,6 +125,9 @@ cc.Director = function () {
     this._deltaTime = 0.0;
     this._startTime = 0.0;
 
+    // ParticleSystem max step delta time
+    this._maxParticleDeltaTime = 0.0;
+
     // Scheduler for user registration update
     this._scheduler = null;
     // Scheduler for life-cycle methods in component
