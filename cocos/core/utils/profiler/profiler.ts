@@ -24,6 +24,7 @@
  THE SOFTWARE.
 */
 
+import { ISchedulable } from '../../../core/scheduler';
 import { CameraComponent, ModelComponent } from '../../3d';
 import { createMesh } from '../../3d/misc/utils';
 import { Material } from '../../assets/material';
@@ -54,9 +55,10 @@ interface IProfilerState {
 
 const characters = '0123456789. ';
 
-export class Profiler {
+export class Profiler implements ISchedulable {
 
     public _stats: IProfilerState | null = null;
+    public id = '__Profiler__';
 
     private _showFPS = false;
     private readonly _fontSize = 24;
@@ -101,6 +103,7 @@ export class Profiler {
     };
 
     private _uvOffset: Vec4[] = [];
+    private _hadSchedule: boolean = false; // schedule register flag
 
     constructor () {
         if (!CC_TEST) {
@@ -127,6 +130,8 @@ export class Profiler {
             director.off(Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
             director.off(Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
             director.off(Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+            cc.director.getScheduler().unscheduleAllForTarget(this);
+            this._hadSchedule = false;
             this._showFPS = false;
         }
     }
@@ -421,7 +426,13 @@ export class Profiler {
             }
             i++;
         }
-        this.digitsData.dirty = true;
+
+        if (!this._hadSchedule) {
+            cc.director.getScheduler().schedule(() => {
+                this.digitsData.dirty = true;
+            }, this, 0.5, false);
+            this._hadSchedule = true;
+        }
     }
 
     public getCounter (s: string) {
