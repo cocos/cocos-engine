@@ -650,6 +650,9 @@ sp.Skeleton = cc.Class({
 
     _updateCache (dt) {
         let frameCache = this._frameCache;
+        if (!frameCache.isInited()) {
+            return;
+        }
         let frames = frameCache.frames;
         let frameTime = SkeletonCache.FrameTime;
 
