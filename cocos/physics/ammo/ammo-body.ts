@@ -4,69 +4,22 @@ import { RigidBodyBase, ShapeBase, PhysicsWorldBase } from "../api";
 import { AmmoWorld } from "./ammo-world";
 import { AmmoShape } from "./shapes/ammo-shape";
 import { RigidBodyComponent } from "../components/rigid-body-component";
-import { Cocos2AmmoVec3, Cocos2AmmoQuat } from "./ammo-util";
+import { Cocos2AmmoVec3, Cocos2AmmoQuat, Ammo2CocosQuat, Ammo2CocosVec3 } from "./ammo-util";
 import { defaultRigidBodyInfo } from './ammo-const';
 import { ColliderComponent } from '../../../exports/physics-framework';
-import { AmmoCollisionFlags, AmmoRigidBodyFlags, AmmoBroadphaseNativeTypes } from './ammo-enum';
+import { AmmoCollisionFlags, AmmoRigidBodyFlags, AmmoBroadphaseNativeTypes, AmmoCollisionObjectStates } from './ammo-enum';
 import { TransformDirtyBit } from '../../core/scene-graph/node-enum';
 import { max, abs } from '../../core/math/bits';
 import { AmmoSphereShape } from './shapes/ammo-sphere-shape';
 
 export class AmmoRigidBody implements RigidBodyBase {
-    getMass (): number {
-        throw new Error("Method not implemented.");
-    }
-    getUseGravity (): boolean {
-        throw new Error("Method not implemented.");
-    }
-    applyLocalForce (force: Vec3, localPoint?: Vec3 | undefined): void {
-        // throw new Error("Method not implemented.");
-    }
-    applyLocalImpulse (impulse: Vec3, localPoint?: Vec3 | undefined): void {
-        // throw new Error("Method not implemented.");
-    }
-    applyTorque (torque: Vec3): void {
-        // throw new Error("Method not implemented.");
-    }
-    applyLocalTorque (torque: Vec3): void {
-        // throw new Error("Method not implemented.");
-    }
+
     getCollisionResponse (): boolean {
         // throw new Error("Method not implemented.");
         return false;
     }
     setCollisionResponse (value: boolean): void {
         // throw new Error("Method not implemented.");
-    }
-    getLinearVelocity (out?: Vec3 | undefined): Vec3 {
-        throw new Error("Method not implemented.");
-    }
-    setLinearVelocity (value: Vec3): void {
-        throw new Error("Method not implemented.");
-    }
-    getAngularVelocity (out?: Vec3 | undefined): Vec3 {
-        throw new Error("Method not implemented.");
-    }
-    setAngularVelocity (value: Vec3): void {
-        throw new Error("Method not implemented.");
-    }
-    getLinearFactor (out?: Vec3 | undefined): Vec3 {
-        throw new Error("Method not implemented.");
-    }
-    setLinearFactor (value: Vec3): void {
-        throw new Error("Method not implemented.");
-    }
-    getAngularFactor (out?: Vec3 | undefined): Vec3 {
-        throw new Error("Method not implemented.");
-    }
-    setAngularFactor (value: Vec3): void {
-        throw new Error("Method not implemented.");
-    }
-    getAllowSleep (): boolean {
-        throw new Error("Method not implemented.");
-    }
-    setAllowSleep (v: boolean): void {
-        throw new Error("Method not implemented.");
     }
 
     translateAndRotate (m: import("../../core").Mat4, rot: Quat): void {
@@ -76,21 +29,6 @@ export class AmmoRigidBody implements RigidBodyBase {
         throw new Error("Method not implemented.");
     }
     setType (v: import("../physic-enum").ERigidBodyType): void {
-        throw new Error("Method not implemented.");
-    }
-    wakeUp (): void {
-        throw new Error("Method not implemented.");
-    }
-    sleep (): void {
-        throw new Error("Method not implemented.");
-    }
-    isAwake (): boolean {
-        throw new Error("Method not implemented.");
-    }
-    isSleepy (): boolean {
-        throw new Error("Method not implemented.");
-    }
-    isSleeping (): boolean {
         throw new Error("Method not implemented.");
     }
 
@@ -125,24 +63,6 @@ export class AmmoRigidBody implements RigidBodyBase {
 
     public commitShapeUpdates () {
         ++this._nReconstructShapeRequest;
-    }
-
-    public applyForce (force: Vec3, position?: Vec3) {
-        // if (!position) {
-        //     position = new Vec3();
-        //     const p = this._ammoRigidBody.getWorldTransform().getOrigin();
-        // vec3AmmoToCreator(position, p);
-        // }
-        // this._changeRequests.forces.push({
-        //     force,
-        //     position,
-        // });
-    }
-
-    public applyImpulse (impulse: Vec3) {
-        // const ammoImpulse = new Ammo.btVector3(0, 0, 0);
-        // vec3CreatorToAmmo(ammoImpulse, impulse);
-        // this._ammoRigidBody.applyCentralImpulse(ammoImpulse);
     }
 
     public _updateTransform () {
@@ -347,8 +267,8 @@ export class AmmoRigidBody implements RigidBodyBase {
         if (this.rigidBody.isKinematic) {
             this._btBody.setCollisionFlags(AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
         }
-        this._btBody.setGravity(Cocos2AmmoVec3(_btVec3_0, Vec3.ZERO));
         if (!this.rigidBody.useGravity) {
+            this._btBody.setGravity(Cocos2AmmoVec3(_btVec3_0, Vec3.ZERO));
             this._btBody.setFlags(AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
         }
 
@@ -394,6 +314,8 @@ export class AmmoRigidBody implements RigidBodyBase {
         let rotation = transform.getRotation();
         this.rigidBody.node.worldRotation = new Quat(rotation.x(), rotation.y(), rotation.z(), rotation.w());
     }
+
+    /** property */
 
     public setMass (value: number) {
         // See https://studiofreya.com/game-maker/bullet-physics/bullet-physics-how-to-change-body-mass/
@@ -454,6 +376,116 @@ export class AmmoRigidBody implements RigidBodyBase {
             this._btBody.setAngularFactor(Cocos2AmmoVec3(_btVec3_0, this.rigidBody.angularFactor));
         }
     }
+
+    public setLinearFactor (value: Vec3): void {
+        this._btBody.setLinearFactor(Cocos2AmmoVec3(new Ammo.btVector3(), this.rigidBody.linearFactor));
+    }
+
+    public setAngularFactor (value: Vec3): void {
+        this._btBody.setAngularFactor(Cocos2AmmoVec3(new Ammo.btVector3(), this.rigidBody.angularFactor));
+    }
+
+    /** function */
+
+    /** state */
+
+    isAwake (): boolean {
+        throw new Error("Method not implemented.");
+        const state = this._btBody.getActivationState();
+        return state == AmmoCollisionObjectStates.ACTIVE_TAG ||
+            state == AmmoCollisionObjectStates.DISABLE_DEACTIVATION;
+    }
+
+    isSleepy (): boolean {
+        throw new Error("Method not implemented.");
+        const state = this._btBody.getActivationState();
+        return state == AmmoCollisionObjectStates.WANTS_DEACTIVATION;
+    }
+
+    isSleeping (): boolean {
+        throw new Error("Method not implemented.");
+        const state = this._btBody.getActivationState();
+        return state == AmmoCollisionObjectStates.ISLAND_SLEEPING;
+    }
+
+    getAllowSleep (): boolean {
+        throw new Error("Method not implemented.");
+        const state = this._btBody.getActivationState();
+        return state == AmmoCollisionObjectStates.DISABLE_DEACTIVATION;
+    }
+
+    setAllowSleep (v: boolean): void {
+        throw new Error("Method not implemented.");
+        if (this.rigidBody.allowSleep) {
+            this._btBody.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+        } else {
+            const state = this._btBody.getActivationState();
+            if (state == AmmoCollisionObjectStates.DISABLE_DEACTIVATION) {
+                this._btBody.setActivationState(AmmoCollisionObjectStates.ACTIVE_TAG);
+            }
+        }
+    }
+
+    wakeUp (): void {
+        throw new Error("Method not implemented.");
+        this._btBody.activate();
+    }
+
+    sleep (): void {
+        throw new Error("Method not implemented.");
+        return this._btBody.wantsSleeping();
+    }
+
+    /** kinematic */
+
+    getLinearVelocity (out: Vec3): Vec3 {
+        return Ammo2CocosVec3(out, this._btBody.getLinearVelocity());
+    }
+
+    setLinearVelocity (value: Vec3): void {
+        Cocos2AmmoVec3(this._btBody.getLinearVelocity(), value);
+    }
+
+    getAngularVelocity (out: Vec3): Vec3 {
+        return Ammo2CocosVec3(out, this._btBody.getAngularFactor());
+    }
+
+    setAngularVelocity (value: Vec3): void {
+        Cocos2AmmoVec3(this._btBody.getAngularFactor(), value);
+    }
+
+    /** dynamic */
+
+    applyLocalForce (force: Vec3, localPoint?: Vec3): void {
+        /** TODO: */
+    }
+
+    applyLocalTorque (torque: Vec3): void {
+        this._btBody.applyLocalTorque(Cocos2AmmoVec3(_btVec3_0, torque));
+    }
+
+    applyLocalImpulse (impulse: Vec3, localPoint?: Vec3): void {
+        /** TODO: */
+    }
+
+    applyForce (force: Vec3, worldPoint: Vec3): void {
+        this._btBody.applyForce(
+            Cocos2AmmoVec3(_btVec3_0, force),
+            Cocos2AmmoVec3(_btVec3_1, worldPoint)
+        )
+    }
+
+    applyTorque (torque: Vec3): void {
+        this._btBody.applyTorque(Cocos2AmmoVec3(_btVec3_0, torque));
+    }
+
+    applyImpulse (impulse: Vec3, worldPoint: Vec3): void {
+        this._btBody.applyImpulse(
+            Cocos2AmmoVec3(_btVec3_0, impulse),
+            Cocos2AmmoVec3(_btVec3_1, worldPoint)
+        )
+    }
 }
 
 const _btVec3_0 = new Ammo.btVector3();
+const _btVec3_1 = new Ammo.btVector3();

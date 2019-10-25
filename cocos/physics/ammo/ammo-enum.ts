@@ -24,6 +24,14 @@ export enum AmmoCollisionObjectTypes {
 };
 (Ammo as any).AmmoCollisionObjectTypes = AmmoCollisionObjectTypes;
 
+export enum AmmoCollisionObjectStates {
+    ACTIVE_TAG = 1,
+    ISLAND_SLEEPING = 2,
+    WANTS_DEACTIVATION = 3,
+    DISABLE_DEACTIVATION = 4,
+    DISABLE_SIMULATION = 5,
+}
+
 export enum AmmoAnisotropicFrictionFlags {
     CF_ANISOTROPIC_FRICTION_DISABLED = 0,
     CF_ANISOTROPIC_FRICTION = 1,
