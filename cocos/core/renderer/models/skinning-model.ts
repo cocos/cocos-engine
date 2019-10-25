@@ -27,7 +27,7 @@
  * @hidden
  */
 
-import { SkeletalAnimationClip } from '../../animation/skeletal-animation-clip';
+import { AnimationClip } from '../../animation/animation-clip';
 import { Skeleton } from '../../assets/skeleton';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXAddress, GFXBufferUsageBit, GFXFilter, GFXMemoryUsageBit } from '../../gfx/define';
@@ -68,7 +68,7 @@ export class JointsAnimationInfo {
         JointsAnimationInfo.pool.delete(nodeID);
     }
 
-    public static switchClip (nodeID: string, clip: SkeletalAnimationClip | null) {
+    public static switchClip (nodeID: string, clip: AnimationClip | null) {
         const info = JointsAnimationInfo.pool.get(nodeID);
         if (!info) { return; }
         info.data[0] = clip ? clip.keys[0].length : 1;
@@ -100,7 +100,7 @@ interface IJointsInfo {
 
 export class SkinningModel extends Model {
 
-    public uploadedAnim: SkeletalAnimationClip | null = null;
+    public uploadedAnim: AnimationClip | null = null;
 
     private _jointsMedium: IJointsInfo;
     private _skeleton: Skeleton | null = null;
@@ -140,7 +140,7 @@ export class SkinningModel extends Model {
         this.uploadAnimation(this.uploadedAnim);
     }
 
-    public uploadAnimation (anim: SkeletalAnimationClip | null) {
+    public uploadAnimation (anim: AnimationClip | null) {
         if (!this._skeleton) { return; }
         this.uploadedAnim = anim;
         const texture = this.uploadedAnim ?

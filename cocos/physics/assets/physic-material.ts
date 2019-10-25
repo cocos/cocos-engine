@@ -17,16 +17,17 @@ export class PhysicMaterial extends Asset {
     private static _idCounter: number = 0;
 
     @property
-    private _friction = -1;
+    private _friction = 0.1;
 
     @property
-    private _restitution = -1;
+    private _restitution = 0.1;
 
     /**
      * Friction for this material.
      * If non-negative, it will be used instead of the friction given by ContactMaterials.
      * If there's no matching ContactMaterial, the value from .defaultContactMaterial in the World will be used.
      */
+    @property
     get friction () {
         return this._friction;
     }
@@ -43,6 +44,7 @@ export class PhysicMaterial extends Asset {
      * If non-negative, it will be used instead of the restitution given by ContactMaterials.
      * If there's no matching ContactMaterial, the value from .defaultContactMaterial in the World will be used
      */
+    @property
     get restitution () {
         return this._restitution;
     }

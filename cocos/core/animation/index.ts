@@ -14,7 +14,7 @@ export {
 } from './animation-state';
 export * from './cubic-spline-value';
 export * from './animation-component';
-export * from './skeletal-animation-clip';
+export * from './skeletal-animation-data-hub';
 export * from './skeletal-animation-state';
 export * from './skeletal-animation-component';
 export * from './transform-utils';
@@ -27,4 +27,4 @@ export {
 } from './target-modifier';
 export * from './curve-value-adapters';
 
-import './deprecated'; 
+import './deprecated';

@@ -1,11 +1,11 @@
-const { generate } = require('./generate-declarations');
-
-generate({
-    outDir: './bin/.declarations',
-}).then((successed) => {
-    if (successed) {
-        console.log(`Successed.`);
-    } else {
-        console.error(`Failed to generate declaration files.`);
-    }
-});
+/* eslint-disable @typescript-eslint/no-require-imports */ 
+/* eslint-disable @typescript-eslint/no-var-requires */ 
+ 
+const { generate } = require('./generate-declarations'); 
+const fs = require('fs-extra'); 
+ 
+const outDir = './bin/.declarations'; 
+(async () => { 
+    await fs.emptyDir(outDir); 
+    await generate({ outDir }); 
+})();

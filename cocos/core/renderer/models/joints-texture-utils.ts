@@ -27,7 +27,8 @@
  * @hidden
  */
 
-import { SkeletalAnimationClip } from '../../animation/skeletal-animation-clip';
+import { AnimationClip } from '../../animation/animation-clip';
+import { SkelAnimDataHub } from '../../animation/skeletal-animation-data-hub';
 import { Skeleton } from '../../assets/skeleton';
 import { GFXFormat, GFXFormatInfos } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
@@ -59,20 +60,24 @@ const v3_1 = new Vec3();
 const qt_1 = new Quat();
 const v3_2 = new Vec3();
 
+// negative zeros cannot be decoded correctly at GLSL 100 minimum highp float precision, 1/1024
+// and it has a significant effect on the final transformation
+function makeStable (n: number) { return n ? n : 0; }
+
 // Linear Blending Skinning
 function uploadJointDataLBS (out: Float32Array, base: number, mat: Mat4, firstBone: boolean) {
-    out[base + 0] = mat.m00;
-    out[base + 1] = mat.m01;
-    out[base + 2] = mat.m02;
-    out[base + 3] = mat.m12;
-    out[base + 4] = mat.m04;
-    out[base + 5] = mat.m05;
-    out[base + 6] = mat.m06;
-    out[base + 7] = mat.m13;
-    out[base + 8] = mat.m08;
-    out[base + 9] = mat.m09;
-    out[base + 10] = mat.m10;
-    out[base + 11] = mat.m14;
+    out[base + 0] = makeStable(mat.m00);
+    out[base + 1] = makeStable(mat.m01);
+    out[base + 2] = makeStable(mat.m02);
+    out[base + 3] = makeStable(mat.m12);
+    out[base + 4] = makeStable(mat.m04);
+    out[base + 5] = makeStable(mat.m05);
+    out[base + 6] = makeStable(mat.m06);
+    out[base + 7] = makeStable(mat.m13);
+    out[base + 8] = makeStable(mat.m08);
+    out[base + 9] = makeStable(mat.m09);
+    out[base + 10] = makeStable(mat.m10);
+    out[base + 11] = makeStable(mat.m14);
 }
 
 // Dual Quaternion Skinning
@@ -85,17 +90,17 @@ function uploadJointDataDQS (out: Float32Array, base: number, mat: Mat4, firstBo
     Quat.set(dq_1, v3_1.x, v3_1.y, v3_1.z, 0);
     Quat.multiplyScalar(dq_1, Quat.multiply(dq_1, dq_1, qt_1), 0.5);
     // upload
-    out[base + 0] = qt_1.x;
-    out[base + 1] = qt_1.y;
-    out[base + 2] = qt_1.z;
-    out[base + 3] = qt_1.w;
-    out[base + 4] = dq_1.x;
-    out[base + 5] = dq_1.y;
-    out[base + 6] = dq_1.z;
-    out[base + 7] = dq_1.w;
-    out[base + 8] = v3_2.x;
-    out[base + 9] = v3_2.y;
-    out[base + 10] = v3_2.z;
+    out[base + 0] = makeStable(qt_1.x);
+    out[base + 1] = makeStable(qt_1.y);
+    out[base + 2] = makeStable(qt_1.z);
+    out[base + 3] = makeStable(qt_1.w);
+    out[base + 4] = makeStable(dq_1.x);
+    out[base + 5] = makeStable(dq_1.y);
+    out[base + 6] = makeStable(dq_1.z);
+    out[base + 7] = makeStable(dq_1.w);
+    out[base + 8] = makeStable(v3_2.x);
+    out[base + 9] = makeStable(v3_2.y);
+    out[base + 10] = makeStable(v3_2.z);
 }
 
 function roundUpTextureSize (targetLength: number, formatSize: number) {
@@ -165,7 +170,7 @@ export class JointsTexturePool {
     /**
      * 获取指定动画片段的骨骼贴图
      */
-    public getJointsTextureWithAnimation (skeleton: Skeleton, clip: SkeletalAnimationClip) {
+    public getJointsTextureWithAnimation (skeleton: Skeleton, clip: AnimationClip) {
         const hash = skeleton.hash ^ clip.hash;
         let texture: IJointsTextureHandle | null = this._textureBuffers.get(hash) || null;
         if (texture) { texture.refCount++; return texture; }
@@ -175,7 +180,7 @@ export class JointsTexturePool {
         if (!handle) { return null; }
         texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, hash, handle };
         const textureBuffer = new Float32Array(bufSize);
-        const data = clip.convertedData;
+        const data = SkelAnimDataHub.getOrExtract(clip);
         for (let i = 0; i < skeleton.joints.length; i++) {
             const nodeData = data[skeleton.joints[i]];
             if (!nodeData || !nodeData.props) { continue; }

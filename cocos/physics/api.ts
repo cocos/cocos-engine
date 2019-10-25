@@ -4,15 +4,18 @@
 
 import { Mat4, Quat, Vec3 } from '../core/math';
 import { ERigidBodyType } from './physic-enum';
-import { RaycastResult } from './raycast-result';
+import { PhysicsRayResult } from './physics-ray-result';
+import { ray } from '../core/geom-utils';
+import { RecyclePool } from '../core';
 
 // tslint:disable:interface-name
 // tslint:disable:no-empty-interface
 
 export interface IRaycastOptions {
-    collisionFilterMask?: number;
-    collisionFilterGroup?: number;
-    queryTriggerInteraction?: boolean;
+    mask: number;
+    group: number;
+    queryTrigger: boolean;
+    maxDistance: number;
 }
 
 export interface ICreateBodyOptions {
@@ -64,19 +67,13 @@ export interface BuiltInWorldBase {
      * Ray cast, and return information of the closest hit.
      * @return True if any body was hit.
      */
-    raycastClosest (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean;
-
-    /**
-     * Ray cast, and stop at the first result. Note that the order is random - but the method is fast.
-     * @return True if any body was hit.
-     */
-    raycastAny (from: Vec3, to: Vec3, options: IRaycastOptions, result: RaycastResult): boolean;
+    raycastClosest (worldRay: ray, options: IRaycastOptions, out: PhysicsRayResult): boolean;
 
     /**
      * Ray cast against all bodies. The provided callback will be executed for each hit with a RaycastResult as single argument.
      * @return True if any body was hit.
      */
-    raycastAll (from: Vec3, to: Vec3, options: IRaycastOptions, callback: (result: RaycastResult) => void): boolean;
+    raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, resultes: PhysicsRayResult[]): boolean
 }
 
 export interface PhysicsWorldBase extends BuiltInWorldBase {

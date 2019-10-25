@@ -174,7 +174,7 @@ async function _internalBuild (options: IAdvancedOptions) {
             extensions: ['.js', '.ts'],
             highlightCode: true,
             ignore: [
-                'node_modules/cannon/**',
+                'node_modules/@cocos/cannon/**',
                 'node_modules/tween.js/**',
             ],
             plugins: [
@@ -196,7 +196,7 @@ async function _internalBuild (options: IAdvancedOptions) {
 
         commonjs({
             namedExports: {
-                'cannon': ['CANNON', 'Shape'],
+                '@cocos/cannon': ['CANNON'],
                 'tween.js': ['TWEEN'],
             },
         }),

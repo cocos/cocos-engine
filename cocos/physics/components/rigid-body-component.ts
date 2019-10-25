@@ -396,7 +396,8 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
 
     /// COMPONENT LIFECYCLE ///
 
-    protected onLoad () {
+    protected onEnable () {
+        super.onEnable();
         if (!CC_PHYSICS_BUILTIN) {
             /**
              * 此处设置刚体属性是因为__preload不受executionOrder的顺序影响，
@@ -412,6 +413,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
                 this.fixedRotation = this._fixedRotation;
                 this.linearFactor = this._linearFactor;
                 this.angularFactor = this._angularFactor;
+                this.sharedBody.isShapeOnly = false;
             }
         }
     }

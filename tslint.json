@@ -13,6 +13,7 @@
             true,
             "check-open-brace"
         ],
+        "no-namespace": false,
         "no-console": false,
         "space-before-function-paren": true,
         "max-classes-per-file": false,
@@ -23,6 +24,7 @@
         "no-empty": false,
         "radix": false,
         "prefer-for-of": false,
+        "forin":false,
 
         "max-line-length": [
             true,

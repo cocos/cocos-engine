@@ -34,7 +34,7 @@ import { Node } from '../scene-graph/node';
 import { INode } from '../utils/interfaces';
 import { AnimationClip } from './animation-clip';
 import { AnimationComponent } from './animation-component';
-import { SkeletalAnimationClip } from './skeletal-animation-clip';
+import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { SkeletalAnimationState } from './skeletal-animation-state';
 import { getWorldTransformUntilRoot } from './transform-utils';
 
@@ -51,6 +51,7 @@ export class Socket {
 }
 
 const m4_1 = new Mat4();
+const m4_2 = new Mat4();
 
 function collectRecursively (node: INode, prefix = '', out: string[] = []) {
     for (let i = 0; i < node.children.length; i++) {
@@ -116,7 +117,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     }
 
     public querySockets () {
-        const animPaths = this._defaultClip && Object.keys((this._defaultClip as SkeletalAnimationClip).convertedData).sort().reduce((acc, cur) =>
+        const animPaths = this._defaultClip && Object.keys(SkelAnimDataHub.getOrExtract(this._defaultClip)).sort().reduce((acc, cur) =>
             cur.startsWith(acc[acc.length - 1]) ? acc : (acc.push(cur), acc), [] as string[]) || [];
         if (!animPaths.length) { return ['default animation clip missing/invalid']; }
         const out: string[] = [];
@@ -138,7 +139,8 @@ export class SkeletalAnimationComponent extends AnimationComponent {
                 target.name = `${socket.path.substring(socket.path.lastIndexOf('/') + 1)} Socket`;
                 target.parent = this.node;
                 getWorldTransformUntilRoot(joint, this.node, m4_1);
-                target.matrix = m4_1;
+                Mat4.fromRTS(m4_2, target.rotation, target.position, target.scale);
+                if (!Mat4.equals(m4_2, m4_1)) { target.matrix = m4_1; }
             }
         }
         for (const stateName of Object.keys(this._nameToState)) {
@@ -164,7 +166,6 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     }
 
     protected _doCreateState (clip: AnimationClip, name: string) {
-        if (!(clip instanceof SkeletalAnimationClip)) { console.warn('non-skeletal clip in skeletal component'); }
         const state = super._doCreateState(clip, name) as SkeletalAnimationState;
         state.rebuildSocketCurves(this._sockets);
         return state;

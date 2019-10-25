@@ -50,8 +50,8 @@ function makeCubicSplineValueConstructor<T> (
             const p0 = this.dataPoint;
             const p1 = to.dataPoint;
             // dt => t_k+1 - t_k
-            m0 = scaleFx(m0, this.outTangent, dt);
-            m1 = scaleFx(m1, to.inTangent, dt);
+            m0 = scaleFx(m0, this.inTangent, dt);
+            m1 = scaleFx(m1, to.outTangent, dt);
             const t_3 = t * t * t;
             const t_2 = t * t;
             const f_0 = 2 * t_3 - 3 * t_2 + 1;
@@ -68,6 +68,16 @@ function makeCubicSplineValueConstructor<T> (
         public getNoLerp () {
             return this.dataPoint;
         }
+    }
+
+    // @ts-ignore TS2367
+    if (constructorX === Quat) {
+        const lerp = CubicSplineValueClass.prototype.lerp;
+        CubicSplineValueClass.prototype.lerp = function (this: CubicSplineValueClass, to: CubicSplineValueClass, t: number, dt: number) {
+            const result = lerp.call(this, to, t, dt) as Quat;
+            Quat.normalize(result, result);
+            return result;
+        };
     }
 
     return CubicSplineValueClass;

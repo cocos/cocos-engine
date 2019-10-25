@@ -82,6 +82,38 @@ export class RenderScene {
         return this._texturePool;
     }
 
+    /**
+     * @zh
+     * 获取 raycastAllCanvas 后的检测结果
+     */
+    get rayResultCanvas () {
+        return resultCanvas;
+    }
+
+    /**
+     * @zh
+     * 获取 raycastAllModels 后的检测结果
+     */
+    get rayResultModels () {
+        return resultModels;
+    }
+
+    /**
+     * @zh
+     * 获取 raycastAll 后的检测结果
+     */
+    get rayResultAll () {
+        return resultAll;
+    }
+
+    /**
+     * @zh
+     * 获取 raycastSingleModel 后的检测结果
+     */
+    get rayResultSingleModel () {
+        return this.rayResultSingleModel;
+    }
+
     public static registerCreateFunc (root: Root) {
         root._createSceneFun = (_root: Root): RenderScene => new RenderScene(_root);
     }
@@ -124,6 +156,7 @@ export class RenderScene {
         this.destroyPointLights();
         this.destroySpotLights();
         this.destroyModels();
+        this._skybox.destroy();
         this._planarShadows.destroy();
         this._texturePool.destroy();
     }
@@ -198,6 +231,7 @@ export class RenderScene {
     public destroyModel (model: Model) {
         for (let i = 0; i < this._models.length; ++i) {
             if (this._models[i] === model) {
+                this._planarShadows.destroyShadowModel(model);
                 this._models.splice(i, 1)[0].destroy();
                 return;
             }
@@ -206,6 +240,7 @@ export class RenderScene {
 
     public destroyModels () {
         for (const m of this._models) {
+            this._planarShadows.destroyShadowModel(m);
             m.destroy();
         }
         this._models = [];
@@ -225,18 +260,49 @@ export class RenderScene {
 
     /**
      * @en
-     * Cast a ray into the scene, record all the intersected models in the result array     
+     * Cast a ray into the scene, record all the intersected models and ui2d nodes in the result array
      * @param worldRay the testing ray
      * @param mask the layer mask to filter the models
      * @param distance the max distance , Infinity by default
+     * @returns boolean , ray is hit or not
+     * @note getter of this.rayResultAll can get recently result
+     * @zh
+     * 传入一条射线检测场景中所有的 3D 模型和 UI2D Node
+     * @param worldRay 世界射线
+     * @param mask mask 用于标记所有要检测的层，默认为 Default | UI2D
+     * @param distance 射线检测的最大距离, 默认为 Infinity
+     * @returns boolean , 射线是否有击中
+     * @nete 通过 this.rayResultAll 可以获取到最近的结果
+     */
+    public raycastAll (worldRay: ray, mask = Layers.Enum.DEFAULT | Layers.Enum.UI_2D, distance = Infinity): boolean {
+        const r_3d = this.raycastAllModels(worldRay, mask, distance);
+        const r_ui2d = this.raycastAllCanvas(worldRay, mask, distance);
+        const isHit = r_3d || r_ui2d;
+        resultAll.length = 0;
+        if (isHit) {
+            Array.prototype.push.apply(resultAll, resultModels);
+            Array.prototype.push.apply(resultAll, resultCanvas);
+        }
+        return isHit;
+    }
+
+    /**
+     * @en
+     * Cast a ray into the scene, record all the intersected models in the result array
+     * @param worldRay the testing ray
+     * @param mask the layer mask to filter the models
+     * @param distance the max distance , Infinity by default
+     * @returns boolean , ray is hit or not
+     * @note getter of this.rayResultModels can get recently result
      * @zh
      * 传入一条射线检测场景中所有的 3D 模型。
      * @param worldRay 世界射线
      * @param mask 用于标记所有要检测的层，默认为 Default
      * @param distance 射线检测的最大距离, 默认为 Infinity
-     * @returns IRaycastResult[]
+     * @returns boolean , 射线是否有击中
+     * @nete 通过 this.rayResultModels 可以获取到最近的结果
      */
-    public raycastModels (worldRay: ray, mask = Layers.Enum.DEFAULT, distance = Infinity): IRaycastResult[] {
+    public raycastAllModels (worldRay: ray, mask = Layers.Enum.DEFAULT, distance = Infinity): boolean {
         pool.reset();
         for (const m of this._models) {
             const transform = m.transform;
@@ -258,43 +324,45 @@ export class RenderScene {
                     const r = pool.add();
                     r.node = m.node;
                     r.distance = narrowDis * Vec3.multiply(v3, modelRay.d, transform.worldScale).length();
-                    results[pool.length - 1] = r;
+                    resultModels[pool.length - 1] = r;
                 }
             }
         }
-        results.length = pool.length;
-        return results;
+        resultModels.length = pool.length;
+        return resultModels.length > 0;
     }
 
     /**
      * @en
      * Before you raycast the model, make sure the model is not null
      * @param worldRay the testing ray
+     * @param model the testing model
      * @param mask the layer mask to filter the models
      * @param distance the max distance , Infinity by default
+     * @returns boolean , ray is hit or not
      * @zh
      * 传入一条射线和一个 3D 模型进行射线检测。
      * @param worldRay 世界射线
+     * @param model 进行检测的模型
      * @param mask 用于标记所有要检测的层，默认为 Default
      * @param distance 射线检测的最大距离, 默认为 Infinity
-     * @returns IRaycastResult[]
+     * @returns boolean , 射线是否有击中
      */
-    public raycastModel (worldRay: ray, model: Model, mask = Layers.Enum.DEFAULT, distance = Infinity): IRaycastResult[] {
+    public raycastSingleModel (worldRay: ray, model: Model, mask = Layers.Enum.DEFAULT, distance = Infinity): boolean {
         if (CC_PREVIEW) {
-            if (model == null) console.error(" 检测前请保证 model 不为 null ");
+            if (model == null) { console.error(' 检测前请保证 model 不为 null '); }
         }
         pool.reset();
-        results.length = 0;
         const m = model;
         const transform = m.transform;
-        if (!transform || !m.enabled || m.node.layer & Layers.Enum.IGNORE_RAYCAST || !(m.node.layer & mask) || !m.modelBounds) { return results; }
+        if (!transform || !m.enabled || m.node.layer & Layers.Enum.IGNORE_RAYCAST || !(m.node.layer & mask) || !m.modelBounds) { return false; }
         // transform ray back to model space
         Mat4.invert(m4, transform.getWorldMatrix(m4));
         Vec3.transformMat4(modelRay.o, worldRay.o, m4);
         Vec3.normalize(modelRay.d, Vec3.transformMat4Normal(modelRay.d, worldRay.d, m4));
         // broadphase
         const d = intersect.ray_aabb(modelRay, m.modelBounds);
-        if (d <= 0 || d > distance) { return results; }
+        if (d <= 0 || d > distance) { return false; }
         for (let i = 0; i < m.subModelNum; ++i) {
             const subModel = m.getSubModel(i).subMeshData;
             if (subModel && subModel.geometricInfo) {
@@ -305,27 +373,30 @@ export class RenderScene {
                 const r = pool.add();
                 r.node = m.node;
                 r.distance = narrowDis * Vec3.multiply(v3, modelRay.d, transform.worldScale).length();
-                results[pool.length - 1] = r;
+                resultSingleModel[pool.length - 1] = r;
             }
         }
-        return results;
+        resultSingleModel.length = pool.length;
+        return resultSingleModel.length > 0;
     }
 
     /**
      * @en
-     * Cast a ray into the scene, record all the intersected ui aabb in the result array
+     * Cast a ray into the scene, detect all canvas and its children
      * @param worldRay the testing ray
      * @param mask the layer mask to filter all ui2d aabb
      * @param distance the max distance , Infinity by default
-     * @returns IRaycastResult[]
+     * @returns boolean , ray is hit or not
+     * @note getter of this.rayResultCanvas can get recently result
      * @zh
-     * 传入一条射线检测场景中所有的 UI2D Node，mask 标记了要检测的所有的层，默认为 UI2D* 
+     * 传入一条射线检测场景中所有的 Canvas 以及 Canvas 下的 Node
      * @param worldRay 世界射线
      * @param mask 用于标记所有要检测的层，默认为 UI2D
      * @param distance 射线检测的最大距离, 默认为 Infinity
-     * @returns IRaycastResult[]
+     * @returns boolean , 射线是否有击中
+     * @nete 通过 this.rayResultCanvas 可以获取到最近的结果
      */
-    public raycastUI2D (worldRay: ray, mask = Layers.Enum.UI_2D, distance = Infinity): IRaycastResult[] {
+    public raycastAllCanvas (worldRay: ray, mask = Layers.Enum.UI_2D, distance = Infinity): boolean {
         poolUI.reset();
         const canvasComs = cc.director.getScene().getComponentsInChildren(cc.CanvasComponent);
         if (canvasComs != null && canvasComs.length > 0) {
@@ -336,28 +407,13 @@ export class RenderScene {
                 }
             }
         }
-        resultUIs.length = poolUI.length;
-        return resultUIs;
+        resultCanvas.length = poolUI.length;
+        return resultCanvas.length > 0;
     }
 
-    /**
-     * @en
-     * Before you raycast the ui node, make sure the node is not null
-     * @param worldRay the testing ray
-     * @param ui2dNode the ui2d node
-     * @param mask the layer mask to filter the ui2d node aabb
-     * @param distance the max distance , Infinity by default
-     * @returns IRaycastResult | undefined
-     * @zh
-     * 传入一条射线和一个 UI2D Node 进行射线检测。
-     * @param worldRay 世界射线
-     * @param ui2dNode UI2D 的节点
-     * @param mask 用于标记所有要检测的层，默认为 UI2D
-     * @param distance 射线检测的最大距离, 默认为 Infinity
-     */
-    public raycastUI2DNode (worldRay: ray, ui2dNode: INode, mask = Layers.Enum.UI_2D, distance = Infinity) {
+    private _raycastUI2DNode (worldRay: ray, ui2dNode: INode, mask = Layers.Enum.UI_2D, distance = Infinity) {
         if (CC_PREVIEW) {
-            if (ui2dNode == null) console.error(" 检测前请保证 uiNode 不为 null ");
+            if (ui2dNode == null) { console.error('make sure UINode is not null'); }
         }
         const uiTransfrom = ui2dNode.uiTransfromComp;
         if (uiTransfrom == null || ui2dNode.layer & Layers.Enum.IGNORE_RAYCAST || !(ui2dNode.layer & mask)) { return; }
@@ -374,30 +430,10 @@ export class RenderScene {
         }
     }
 
-    // /**
-    //  * @en
-    //  * Cast a ray into the scene, record all the intersected models and ui2d nodes in the result array
-    //  * @param worldRay the testing ray
-    //  * @param mask the layer mask to filter the models
-    //  * @param distance the max distance , Infinity by default  
-    //  * @returns IRaycastResult[]   
-    //  * @zh
-    //  * 传入一条射线检测场景中所有的 3D 模型和 UI2D Node
-    //  * @param worldRay 世界射线
-    //  * @param mask mask 用于标记所有要检测的层，默认为 Default | UI2D
-    //  * @param distance 射线检测的最大距离, 默认为 Infinity
-    //  * @returns IRaycastResult[]
-    //  */
-    // public raycastAll (worldRay: ray, mask = Layers.Default | Layers.UI2D, distance = Infinity): IRaycastResult[] {
-    //     const r_3d = this.raycastModels(worldRay, mask, distance);
-    //     const r_ui2d = this.raycastUI2D(worldRay, mask, distance);
-    //     return r_3d.concat(r_ui2d);
-    // }
-
     private _raycastUI2DNodeRecursiveChildren (worldRay: ray, parent: INode, mask = Layers.Enum.UI_2D, distance = Infinity) {
-        const result = this.raycastUI2DNode(worldRay, parent, mask, distance);
+        const result = this._raycastUI2DNode(worldRay, parent, mask, distance);
         if (result != null) {
-            resultUIs[poolUI.length - 1] = result;
+            resultCanvas[poolUI.length - 1] = result;
         }
         for (const node of parent.children) {
             if (node != null && node.active) {
@@ -415,13 +451,17 @@ const tri = triangle.create();
 const pool = new RecyclePool<IRaycastResult>(() => {
     return { node: null!, distance: Infinity };
 }, 8);
-const results: IRaycastResult[] = [];
-/** UI raycast result pool */
+const resultModels: IRaycastResult[] = [];
+/** Canavas raycast result pool */
 const aabbUI = new aabb();
 const poolUI = new RecyclePool<IRaycastResult>(() => {
     return { node: null!, distance: Infinity };
 }, 8);
-const resultUIs: IRaycastResult[] = [];
+const resultCanvas: IRaycastResult[] = [];
+/** raycast all */
+const resultAll: IRaycastResult[] = [];
+/** raycast single model */
+const resultSingleModel: IRaycastResult[] = [];
 
 const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides: boolean, distance = Infinity) => {
     narrowDis = distance;

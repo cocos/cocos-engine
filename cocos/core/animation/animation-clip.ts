@@ -3,27 +3,16 @@
  * @category animation
  */
 
-import { Asset, SpriteFrame } from '../assets';
+import { Asset } from '../assets/asset';
+import { SpriteFrame } from '../assets/sprite-frame';
 import { ccclass, property } from '../data/class-decorator';
 import { errorID } from '../platform/debug';
 import binarySearchEpsilon from '../utils/binary-search';
-import { AnimCurve, IPropertyCurveData, RatioSampler, CurveValueAdapter } from './animation-curve';
-import { WrapMode as AnimationWrapMode } from './types';
-import { INode } from '../utils/interfaces';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
-import { TargetModifier, HierachyModifier, ComponentModifier, isCustomTargetModifier, PropertyModifier, isPropertyModifier } from './target-modifier';
-
-export interface ITargetCurveData {
-    modifiers: TargetModifier[];
-    valueAdapter?: CurveValueAdapter;
-    data: IPropertyCurveData;
-}
-
-interface IAnimationEventData {
-    frame: number;
-    func: string;
-    params: string[];
-}
+import { AnimCurve, CurveValueAdapter, IPropertyCurveData, RatioSampler } from './animation-curve';
+import { ComponentModifier, HierachyModifier, TargetModifier } from './target-modifier';
+import { WrapMode as AnimationWrapMode } from './types';
+import { CompactValueTypeArray } from '../data/utils/compact-value-type-array';
 
 export interface IObjectCurveData {
     [propertyName: string]: IPropertyCurveData;
@@ -36,10 +25,6 @@ export interface IComponentsCurveData {
 export interface INodeCurveData {
     props?: IObjectCurveData;
     comps?: IComponentsCurveData;
-}
-
-export interface ICurveData {
-    [path: string]: INodeCurveData;
 }
 
 export interface IRuntimeCurve {
@@ -56,7 +41,7 @@ export interface IRuntimeCurve {
     /**
      * 曲线值适配器。
      */
-    valueAdapter?: CurveValueAdapter; 
+    valueAdapter?: CurveValueAdapter;
 
     /**
      * 曲线采样器。
@@ -73,11 +58,43 @@ export interface IAnimationEventGroup {
     events: IAnimationEvent[];
 }
 
+export declare namespace AnimationClip {
+    export interface ICurveData {
+        [path: string]: INodeCurveData;
+    }
+
+    export type PropertyCurveData = IPropertyCurveData;
+
+    export interface ICurve {
+        modifiers: TargetModifier[];
+        valueAdapter?: CurveValueAdapter;
+        data: PropertyCurveData;
+    }
+
+    export interface IEvent {
+        frame: number;
+        func: string;
+        params: string[];
+    }
+
+    export namespace _impl {
+        type MaybeCompactCurve = Omit<AnimationClip.ICurve, 'data'> & {
+            data: Omit<AnimationClip.PropertyCurveData, 'values'> & {
+                values: any[] | CompactValueTypeArray;
+            };
+        };
+
+        type MaybeCompactKeys = Array<number[] | CompactValueTypeArray>;
+    }
+}
+
 /**
  * 动画剪辑。
  */
 @ccclass('cc.AnimationClip')
 export class AnimationClip extends Asset {
+    public static preventDeferredLoadDependents = true;
+
     public static WrapMode = AnimationWrapMode;
 
     /**
@@ -109,12 +126,12 @@ export class AnimationClip extends Asset {
         clip.curves = [{
             modifiers: [
                 new ComponentModifier('cc.SpriteComponent'),
-                'spriteFrame'
+                'spriteFrame',
             ],
             data: {
                 keys: 0,
                 values,
-            }
+            },
         }];
 
         return clip;
@@ -139,42 +156,40 @@ export class AnimationClip extends Asset {
     public wrapMode = AnimationWrapMode.Normal;
 
     /**
+     * @zh 动画包含的事件数据。
+     */
+    @property({visible: false})
+    public events: AnimationClip.IEvent[] = [];
+
+    @property
+    private _duration = 0;
+
+    @property
+    private _keys: number[][] = [];
+
+    @property
+    private _stepness = 0;
+
+    /**
      * @zh 动画的曲线数据。
      * @deprecated 请转用 `this.curves`
      */
     @property
-    private curveDatas?: ICurveData = {};
+    private curveDatas?: AnimationClip.ICurveData = {};
 
     @property
-    private _curves: ITargetCurveData[] = [];
+    private _curves: AnimationClip.ICurve[] = [];
 
-    /**
-     * @zh 动画包含的事件数据。
-     */
-    @property({visible: false})
-    public events: IAnimationEventData[] = [];
-
-    @property
-    protected _duration = 0;
-
-    @property
-    protected _keys: number[][] = [];
-
-    protected _ratioSamplers: RatioSampler[] = [];
-
-    protected _runtimeCurves?: IRuntimeCurve[];
-
-    protected _runtimeEvents?: {
+    private _hash = 0;
+    private frameRate = 0;
+    private _ratioSamplers: RatioSampler[] = [];
+    private _runtimeCurves?: IRuntimeCurve[];
+    private _runtimeEvents?: {
         ratios: number[];
         eventGroups: IAnimationEventGroup[];
     };
 
-    protected frameRate = 0;
-
-    @property
-    protected _stepness = 0;
-
-    protected _hash = 0;
+    private _data: Uint8Array | null = null;
 
     /**
      * @zh 动画的周期。
@@ -224,7 +239,7 @@ export class AnimationClip extends Asset {
     }
 
     get hash () {
-        if (!this._hash) { this._hash = murmurhash2_32_gc(JSON.stringify(this._getDeprecatedCurveDatas()), 666); }
+        if (!this._hash) { this._hash = murmurhash2_32_gc(JSON.stringify(this._curves), 666); }
         return this._hash;
     }
 
@@ -237,12 +252,20 @@ export class AnimationClip extends Asset {
         delete this._runtimeCurves;
     }
 
+    /**
+     * 此动画的数据。
+     */
+    get data () {
+        return this._data;
+    }
+
     public onLoaded () {
         this.frameRate = this.sample;
         this._migrateCurveDatas();
+        this._decodeCVTAs();
     }
 
-    public getPropertyCurves (root: INode): ReadonlyArray<IRuntimeCurve> {
+    public getPropertyCurves (): ReadonlyArray<IRuntimeCurve> {
         if (!this._runtimeCurves) {
             this._createPropertyCurves();
         }
@@ -305,7 +328,7 @@ export class AnimationClip extends Asset {
                 sampler: this._ratioSamplers[targetCurve.data.keys],
             };
         });
-        
+
         this._applyStepness();
     }
 
@@ -383,53 +406,26 @@ export class AnimationClip extends Asset {
         delete this.curveDatas;
     }
 
-    private _getDeprecatedCurveDatas () {
-        const result: ICurveData = {};
-        for (const curve of this._curves) {
-            if (curve.modifiers.length === 0 ||
-                !isCustomTargetModifier(curve.modifiers[0], HierachyModifier)) {
-                continue;
-            }
-
-            let componentName: string | null = null;
-            let propertyName: string | undefined;
-            if (curve.modifiers.length === 2 &&
-                isPropertyModifier(curve.modifiers[1])) {
-                propertyName = curve.modifiers[1] as PropertyModifier;
-            } else if (curve.modifiers.length === 3 &&
-                isCustomTargetModifier(curve.modifiers[1], ComponentModifier) &&
-                isPropertyModifier(curve.modifiers[2])) {
-                componentName = (curve.modifiers[1] as ComponentModifier).component;
-                propertyName = curve.modifiers[2] as PropertyModifier;
-            } else {
-                continue;
-            }
-
-            const path = (curve.modifiers[0] as HierachyModifier).path;
-            
-            if (!(path in result)) {
-                result[path] = {};
-            }
-            const nodeCurveData = result[path];
-            let objectCurveData: IObjectCurveData | undefined;
-            if (componentName) {
-                if (!('comps' in nodeCurveData)) {
-                    nodeCurveData.comps = {};
-                }
-                const componentCurveData = nodeCurveData.comps!;
-                if (!(componentName in componentCurveData)) {
-                    componentCurveData[componentName] = {};
-                }
-                objectCurveData = componentCurveData[componentName];
-            } else {
-                if (!('props' in nodeCurveData)) {
-                    nodeCurveData.props = {};
-                }
-                objectCurveData = nodeCurveData.props!;
-            }
-            objectCurveData[propertyName] = curve.data;
+    private _decodeCVTAs () {
+        const binaryBuffer: ArrayBuffer = this._nativeAsset;
+        if (!binaryBuffer) {
+            return;
         }
-        return result;
+
+        const maybeCompressedKeys = this._keys as AnimationClip._impl.MaybeCompactKeys;
+        for (let iKey = 0; iKey < maybeCompressedKeys.length; ++iKey) {
+            const keys = maybeCompressedKeys[iKey];
+            if (keys instanceof CompactValueTypeArray) {
+                maybeCompressedKeys[iKey] = keys.decompress(binaryBuffer);
+            }
+        }
+
+        for (let iCurve = 0; iCurve < this._curves.length; ++iCurve) {
+            const curve = this._curves[iCurve] as AnimationClip._impl.MaybeCompactCurve;
+            if (curve.data.values instanceof CompactValueTypeArray) {
+                curve.data.values = curve.data.values.decompress(binaryBuffer);
+            }
+        }
     }
 }
 

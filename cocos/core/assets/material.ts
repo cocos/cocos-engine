@@ -30,7 +30,7 @@
 
 import { ccclass, property } from '../../core/data/class-decorator';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
-import { builtinResMgr } from '../3d/builtin';
+import { builtinResMgr } from '../3d/builtin/init';
 import { RenderableComponent } from '../3d/framework/renderable-component';
 import { GFXBindingType } from '../gfx/define';
 import { GFXTextureView } from '../gfx/texture-view';

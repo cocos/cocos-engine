@@ -46,9 +46,9 @@ interface IProgramInfo extends IShaderInfo {
     globalsInited: boolean;
     localsInited: boolean;
 }
-export interface IDefineValue {
+export interface IMacroInfo {
     name: string;
-    result: string | boolean;
+    value: string;
 }
 
 const getBitCount = (cnt: number) => Math.ceil(Math.log2(Math.max(cnt, 2)));
@@ -64,17 +64,17 @@ const mapDefine = (info: IDefineInfo, def: number | string | boolean) => {
 };
 
 const prepareDefines = (defs: IDefineMap, tDefs: IDefineInfo[]) => {
-    const defines: IDefineValue[] = [];
+    const macros: IMacroInfo[] = [];
     for (const tmpl of tDefs) {
         const name = tmpl.name;
-        const result = mapDefine(tmpl, defs[name]);
-        defines.push({ name, result });
+        const value = mapDefine(tmpl, defs[name]);
+        macros.push({ name, value });
     }
-    return defines;
+    return macros;
 };
 
-const getShaderInstanceName = (name: string, defs: IDefineValue[]) => {
-    return name + defs.reduce((acc, cur) => cur.result !== '0' ? `${acc}|${cur.name}${cur.result}` : acc, '');
+const getShaderInstanceName = (name: string, macros: IMacroInfo[]) => {
+    return name + macros.reduce((acc, cur) => cur.value !== '0' ? `${acc}|${cur.name}${cur.value}` : acc, '');
 };
 
 const insertBuiltinBindings = (tmpl: IProgramInfo, source: Map<string, IInternalBindingDesc>, type: string) => {
@@ -143,12 +143,12 @@ class ProgramLib {
             if (def.type === 'number') {
                 const range = def.range!;
                 cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
-                def._map = (value: number) => (value - range[0]) << def._offset;
+                def._map = (value: number) => value - range[0];
             } else if (def.type === 'string') {
                 cnt = getBitCount(def.options!.length);
-                def._map = (value: any) => Math.max(0, def.options!.findIndex((s) => s === value)) << def._offset;
+                def._map = (value: any) => Math.max(0, def.options!.findIndex((s) => s === value));
             } else if (def.type === 'boolean') {
-                def._map = (value: any) => value ? (1 << def._offset) : 0;
+                def._map = (value: any) => value ? 1 : 0;
             }
             def._offset = offset;
             offset += cnt;
@@ -186,9 +186,11 @@ class ProgramLib {
             if (value === undefined || !tmplDef._map) {
                 continue;
             }
-            key |= tmplDef._map(value);
+            const mapped = tmplDef._map(value);
+            const offset = tmplDef._offset;
+            key |= mapped << offset;
         }
-        return key << 8 | (tmpl.id & 0xff);
+        return `${key.toString(16)}|${tmpl.id}`;
     }
 
     /**
@@ -197,9 +199,9 @@ class ProgramLib {
      * @param defines 用于筛选的预处理宏列表
      */
     public destroyShaderByDefines (defines: IDefineMap) {
-        const defs = Object.keys(defines); if (!defs.length) { return; }
-        const regexes = defs.map((cur) => {
-            let val = defs[cur];
+        const names = Object.keys(defines); if (!names.length) { return; }
+        const regexes = names.map((cur) => {
+            let val = defines[cur];
             if (typeof val === 'boolean') { val = val ? '1' : '0'; }
             return new RegExp(cur + val);
         });
@@ -231,9 +233,9 @@ class ProgramLib {
         const tmpl = this._templates[name];
         if (!tmpl.globalsInited) { insertBuiltinBindings(tmpl, pipeline.globalBindings, 'globals'); tmpl.globalsInited = true; }
 
-        const defs = prepareDefines(defines, tmpl.defines);
-        const customDef = defs.reduce((acc, cur) => {
-            return `${acc}#define ${cur.name} ${cur.result}\n`;
+        const macroArray = prepareDefines(defines, tmpl.defines);
+        const customDef = macroArray.reduce((acc, cur) => {
+            return `${acc}#define ${cur.name} ${cur.value}\n`;
         }, '');
 
         let vert: string = '';
@@ -247,7 +249,7 @@ class ProgramLib {
         }
 
         program = device.createShader({
-            name: getShaderInstanceName(name, defs),
+            name: getShaderInstanceName(name, macroArray),
             blocks: tmpl.blocks,
             samplers: tmpl.samplers,
             stages: [

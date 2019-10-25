@@ -207,19 +207,9 @@ export class PhysicsBasedComponent extends Component {
 }
 
 class SharedRigidBody {
-    public get isShapeOnly (): boolean { return this._isShapeOnly; }
 
     public get body () {
         return this._body;
-    }
-
-    /** the source to manage body transfrom */
-    public set transfromSource (v: ETransformSource) {
-        if (v === ETransformSource.SCENE) {
-            this._isShapeOnly = true;
-        } else {
-            this._isShapeOnly = false;
-        }
     }
 
     public get rigidBody () {
@@ -250,9 +240,15 @@ class SharedRigidBody {
 
     private _afterStepCallback!: AfterStepCallback;
 
-    /** 是否只有Collider组件 */
     private _isShapeOnly: boolean = true;
 
+    public get isShapeOnly (): boolean {
+        return this._isShapeOnly;
+    }
+
+    public set isShapeOnly (v: boolean) {
+        this._isShapeOnly = v;
+    }
 
     constructor (node: INode, rigidBody: object | null, world: PhysicsWorldBase) {
         this._body = createRigidBody({
@@ -394,11 +390,11 @@ class SharedRigidBody {
 
     private _afterStep () {
         if (!CC_PHYSICS_BUILTIN) {
-            // 物理计算之后，除了只有形状组件的节点，其它有刚体组件的节点，并且刚体类型为DYNAMIC的，需要将计算结果同步到Scene中
-            if (!this._isShapeOnly && this._body.getType() === ERigidBodyType.DYNAMIC) {
+            // sync, if body is not static
+            if (this._body.getType() !== ERigidBodyType.STATIC) {
                 this._syncSceneWithPhys();
             } else {
-                // 对于只有形状组件的节点，需要将Scene中节点的Transform同步到Phyisc。
+                // 对于只有形状组件的节点，需要将Scene中节点的Transform同步到Physics。
                 // 这是因为物理计算后可能会改变一些节点，这会导致这些子节点的Transform也发生改变。
                 if (this._node.hasChangedFlags) {
                     this._syncPhysWithScene(this._node);

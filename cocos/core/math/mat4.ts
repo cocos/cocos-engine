@@ -1314,7 +1314,8 @@ export class Mat4 extends ValueType {
      * @zh 排除浮点数误差的矩阵近似等价判断
      */
     public static equals <Out extends IMat4Like> (a: Out, b: Out, epsilon = EPSILON) {
-
+        // TAOCP vol.2, 3rd ed., s.4.2.4, p.213-225
+        // defines a 'close enough' relationship between u and v that scales for magnitude
         return (
             Math.abs(a.m00 - b.m00) <= epsilon * Math.max(1.0, Math.abs(a.m00), Math.abs(b.m00)) &&
             Math.abs(a.m01 - b.m01) <= epsilon * Math.max(1.0, Math.abs(a.m01), Math.abs(b.m01)) &&

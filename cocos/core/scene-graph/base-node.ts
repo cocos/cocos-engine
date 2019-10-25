@@ -37,6 +37,7 @@ import { IBaseNode } from '../utils/interfaces';
 import * as js from '../utils/js';
 import { baseNodePolyfill } from './base-node-dev';
 import { Scene } from './scene';
+import { errorID, warnID } from '../platform/debug';
 
 /**
  *
@@ -49,6 +50,9 @@ const Destroying = CCObject.Flags.Destroying;
 const DontDestroy = CCObject.Flags.DontDestroy;
 // @ts-ignore
 const Deactivating = CCObject.Flags.Deactivating;
+// @ts-ignore
+const Activating = CCObject.Flags.Activating;
+const ChangingState = Activating | Deactivating;
 
 // const CHILD_ADDED = 'child-added';
 // const CHILD_REMOVED = 'child-removed';
@@ -59,7 +63,7 @@ const NullScene = null as unknown as Scene;
 
 function getConstructor (typeOrClassName: string | Function): Function | null {
     if (!typeOrClassName) {
-        cc.errorID(3804);
+        errorID(3804);
         return null;
     }
     if (typeof typeOrClassName === 'string') {
@@ -135,7 +139,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
     }
     set name (value) {
         if (CC_DEV && value.indexOf('/') !== -1) {
-            cc.errorID(1632);
+            errorID(1632);
             return;
         }
         this._name = value;
@@ -415,8 +419,10 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             return;
         }
         const oldParent = this._parent;
-        if (CC_DEBUG && oldParent && (oldParent._objFlags & Deactivating)) {
-            cc.errorID(3821);
+        if (CC_DEBUG && oldParent &&
+            // Change parent when old parent desactivating or activating
+            (oldParent._objFlags & ChangingState)) {
+            errorID(3821);
         }
 
         this._parent = value;
@@ -431,7 +437,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
 
         if (value) {
             if (CC_DEBUG && (value._objFlags & Deactivating)) {
-                cc.errorID(3821);
+                errorID(3821);
             }
             value._children.push(this);
             this._siblingIndex = value._children.length - 1;
@@ -443,7 +449,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             if (!(oldParent._objFlags & Destroying)) {
                 const removeAt = oldParent._children.indexOf(this);
                 if (CC_DEV && removeAt < 0) {
-                    return cc.errorID(1633);
+                    return errorID(1633);
                 }
                 oldParent._children.splice(removeAt, 1);
                 oldParent._updateSiblingIndex();
@@ -560,7 +566,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
     public addChild (child: this): void {
 
         if (CC_DEV && !(child instanceof cc._BaseNode)) {
-            return cc.errorID(1634, cc.js.getClassName(child));
+            return errorID(1634, cc.js.getClassName(child));
         }
         cc.assertID(child, 1606);
         cc.assertID(child._parent === null, 1605);
@@ -616,7 +622,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             return;
         }
         if (this._parent._objFlags & Deactivating) {
-            cc.errorID(3821);
+            errorID(3821);
             return;
         }
         const siblings = this._parent._children;
@@ -982,15 +988,15 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         if (typeof typeOrClassName === 'string') {
             constructor = js.getClassByName(typeOrClassName);
             if (!constructor) {
-                cc.errorID(3807, typeOrClassName);
+                errorID(3807, typeOrClassName);
                 if (cc._RF.peek()) {
-                    cc.errorID(3808, typeOrClassName);
+                    errorID(3808, typeOrClassName);
                 }
                 return null;
             }
         } else {
             if (!typeOrClassName) {
-                cc.errorID(3804);
+                errorID(3804);
                 return null;
             }
             constructor = typeOrClassName;
@@ -999,11 +1005,11 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         // check component
 
         if (typeof constructor !== 'function') {
-            cc.errorID(3809);
+            errorID(3809);
             return null;
         }
         if (!js.isChildClassOf(constructor, cc.Component)) {
-            cc.errorID(3810);
+            errorID(3810);
             return null;
         }
 
@@ -1082,7 +1088,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
 
     public removeComponent (component: any) {
         if (!component) {
-            cc.errorID(3813);
+            errorID(3813);
             return;
         }
         let componentInstance: Component | null = null;
@@ -1133,7 +1139,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
     // Do remove component, only used internally.
     public _removeComponent (component: Component) {
         if (!component) {
-            cc.errorID(3814);
+            errorID(3814);
             return;
         }
 
@@ -1147,12 +1153,12 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             }
             // @ts-ignore
             else if (component.node !== this) {
-                cc.errorID(3815);
+                errorID(3815);
             }
         }
     }
 
-    protected _updateSiblingIndex () {
+    public _updateSiblingIndex () {
         for (let i = 0; i < this._children.length; ++i) {
             this._children[i]._siblingIndex = i;
         }
@@ -1221,7 +1227,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         if (this._persistNode && !(newParent instanceof cc.Scene)) {
             cc.game.removePersistRootNode(this);
             if (CC_EDITOR) {
-                cc.warnID(1623);
+                warnID(1623);
             }
         }
 

@@ -1,4 +1,4 @@
-import CANNON from 'cannon';
+import CANNON from '@cocos/cannon';
 import { Quat, Vec3 } from '../../../core/math';
 import { ITriggerCallback, ITriggerEventType, ShapeBase } from '../../api';
 import { getWrap, stringfyVec3 } from '../../util';

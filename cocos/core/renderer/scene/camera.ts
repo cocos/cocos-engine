@@ -2,10 +2,10 @@ import { frustum, ray } from '../../geom-utils';
 import { GFXClearFlag, IGFXColor } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
 import { lerp, Mat4, Rect, toRadian, Vec3 } from '../../math';
+import { CameraDefaultMask } from '../../pipeline/define';
 import { RenderView } from '../../pipeline/render-view';
 import { INode } from '../../utils/interfaces';
 import { RenderScene } from './render-scene';
-import { CameraDefaultMask } from '../../pipeline/define';
 
 export enum CameraProjection {
     ORTHO,
@@ -62,7 +62,7 @@ export enum CameraShutter {
 }
 
 const FSTOPS: number[] = [1.8, 2.0, 2.2, 2.5, 2.8, 3.2, 3.5, 4.0, 4.5, 5.0, 5.6, 6.3, 7.1, 8.0, 9.0, 10.0, 11.0, 13.0, 14.0, 16.0, 18.0, 20.0, 22.0];
-const SHUTERS: number[] = [1.0, 1.0 / 2.0, 1.0 / 4.0, 1.0 / 8.0, 1.0 / 15.0, 1.0 / 30.0, 1.0 / 60.0, 1.0 / 125.0,
+const SHUTTERS: number[] = [1.0, 1.0 / 2.0, 1.0 / 4.0, 1.0 / 8.0, 1.0 / 15.0, 1.0 / 30.0, 1.0 / 60.0, 1.0 / 125.0,
     1.0 / 250.0, 1.0 / 500.0, 1.0 / 1000.0, 1.0 / 2000.0, 1.0 / 4000.0];
 const ISOS: number[] = [100.0, 200.0, 400.0, 800.0];
 
@@ -134,7 +134,7 @@ export class Camera {
         this._priority = info.priority || 0;
 
         this._apertureValue = FSTOPS[this._aperture];
-        this._shutterValue = SHUTERS[this._shutter];
+        this._shutterValue = SHUTTERS[this._shutter];
         this._isoValue = ISOS[this._iso];
         this.updateExposure();
 
@@ -441,7 +441,7 @@ export class Camera {
 
     set shutter (val: CameraShutter) {
         this._shutter = val;
-        this._shutterValue = SHUTERS[this._shutter];
+        this._shutterValue = SHUTTERS[this._shutter];
         this.updateExposure();
     }
 
@@ -477,6 +477,12 @@ export class Camera {
 
     get exposure (): number {
         return this._exposure;
+    }
+
+    set flows (val: string[]) {
+        if (this._view) {
+            this._view.setExecuteFlows(val);
+        }
     }
 
     public changeTargetWindow (window: GFXWindow | null = null) {

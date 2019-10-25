@@ -28,7 +28,7 @@
 
 import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { Material } from '../../assets/material';
-import { IMeshStruct, Mesh } from '../../assets/mesh';
+import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { Texture2D } from '../../assets/texture-2d';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
@@ -256,7 +256,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
 
             // add batch ID to this temp mesh
             // first, update bookkeepping
-            const newMeshStruct: IMeshStruct = JSON.parse(JSON.stringify(unit.mesh.struct));
+            const newMeshStruct: Mesh.Struct = JSON.parse(JSON.stringify(unit.mesh.struct));
             let newOffset = 0;
             for (const vb of newMeshStruct.vertexBundles) {
                 vb.attributes.push(batch_id);

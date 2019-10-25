@@ -28,14 +28,14 @@
  * @hidden
  */
 
+import { game, Game } from '../../game';
 import { Vec2 } from '../../math/index';
 import { rect } from '../../math/rect';
 import { macro } from '../macro';
 import sys from '../sys';
+import eventManager from './event-manager';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './events';
 import { Touch } from './touch';
-import eventManager from './event-manager';
-import { game, Game } from '../../game';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 
@@ -682,6 +682,7 @@ class InputManager {
             MSPointerUp       : this.handleTouchesEnd,
             MSPointerCancel   : this.handleTouchesCancel,
         };
+        // tslint:disable-next-line: forin
         for (const eventName in _pointerEventsMap) {
             const touchEvent = _pointerEventsMap[eventName];
             // @ts-ignore
@@ -818,7 +819,7 @@ class InputManager {
 
 const inputManager = new InputManager();
 
-game.on(Game.EVENT_ENGINE_INITED, function () {
+game.on(Game.EVENT_ENGINE_INITED, () => {
     // register system events
     if (!CC_EDITOR && game.config.registerSystemEvent) {
         inputManager.registerSystemEvent(game.canvas);

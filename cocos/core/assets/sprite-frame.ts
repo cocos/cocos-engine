@@ -603,7 +603,7 @@ export class SpriteFrame extends Asset {
         }
 
         if (maxY > texture.height) {
-            cc.errorID(3400, this.name + '/' + texture.name, maxY, texture.height);
+            cc.errorID(3301, this.name + '/' + texture.name, maxY, texture.height);
             return false;
         }
 
