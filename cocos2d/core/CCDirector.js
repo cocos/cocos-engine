@@ -147,7 +147,7 @@ cc.Director.prototype = {
     init: function () {
         this._totalFrames = 0;
         this._lastUpdate = performance.now();
-        this._startTime = performance.now();
+        this._startTime = this._lastUpdate;
         this._paused = false;
         this._purgeDirectorInNextLoop = false;
         this._winSizeInPoints = cc.size(0, 0);
