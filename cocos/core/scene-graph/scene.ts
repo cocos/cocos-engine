@@ -32,6 +32,7 @@ import { RenderScene } from '../renderer/scene/render-scene';
 import { BaseNode } from './base-node';
 import { SceneGlobals } from './scene-globals';
 import { Vec3, Quat, Mat4 } from '../math';
+import { warnID } from '../platform/debug';
 
 /**
  * @en
@@ -119,6 +120,11 @@ export class Scene extends BaseNode {
     }
 
     public updateWorldTransform () { }
+
+    public addComponent (typeOrClassName: string | Function) {
+        warnID(3822);
+        return null;
+    }
 
     public _onHierarchyChanged () { }
 
