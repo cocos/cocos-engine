@@ -1,3 +1,4 @@
+import sys from '../../platform/sys';
 import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
@@ -314,7 +315,6 @@ export class WebGLGFXDevice extends GFXDevice {
 
         this._features.fill(false);
 
-        // if (cc.sys.platform !== cc.sys.WECHAT_GAME) {
         if (this._WEBGL_color_buffer_float) {
             this._features[GFXFeature.COLOR_FLOAT] = true;
         }
@@ -373,7 +373,7 @@ export class WebGLGFXDevice extends GFXDevice {
         this._features[GFXFeature.MSAA] = false;
 
         if (this._OES_vertex_array_object) {
-            this._useVAO = true;
+            if (sys.platform !== sys.WECHAT_GAME || sys.os !== sys.OS_IOS) { this._useVAO = true; }
         }
 
         console.info('RENDERER: ' + this._renderer);

@@ -132,6 +132,14 @@ export class AudioSourceComponent extends Component {
         if (this._playOnAwake) { this.play(); }
     }
 
+    public onDisable () {
+        this.pause();
+    }
+
+    public onDestroy () {
+        this.stop();
+    }
+
     /**
      * @en
      * Plays the clip
