@@ -347,8 +347,8 @@ export class AmmoRigidBody implements RigidBodyBase {
         if (this.rigidBody.isKinematic) {
             this._btBody.setCollisionFlags(AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
         }
+        this._btBody.setGravity(Cocos2AmmoVec3(_btVec3_0, Vec3.ZERO));
         if (!this.rigidBody.useGravity) {
-            Cocos2AmmoVec3(this._btBody.getGravity(), Vec3.ZERO);
             this._btBody.setFlags(AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
         }
 
@@ -430,15 +430,16 @@ export class AmmoRigidBody implements RigidBodyBase {
         if (this._world) {
             this._world.impl.removeRigidBody(this.impl);
         }
-        
+
         let m_rigidBodyFlag = this._btBody.getFlags()
         if (this.rigidBody.useGravity) {
             m_rigidBodyFlag &= (~AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
         } else {
+            this._btBody.setGravity(Cocos2AmmoVec3(_btVec3_0, Vec3.ZERO));
             m_rigidBodyFlag |= AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY;
         }
         this._btBody.setFlags(m_rigidBodyFlag);
-        
+
         if (this._world) {
             this._world.impl.addRigidBody(this.impl);
         }
@@ -446,6 +447,8 @@ export class AmmoRigidBody implements RigidBodyBase {
 
     public setFreezeRotation (value: boolean) {
         if (this.rigidBody.fixedRotation) {
+            /** TODO : should i reset angular velocity & torque ? */
+
             this._btBody.setAngularFactor(Cocos2AmmoVec3(_btVec3_0, Vec3.ZERO));
         } else {
             this._btBody.setAngularFactor(Cocos2AmmoVec3(_btVec3_0, this.rigidBody.angularFactor));
