@@ -24,7 +24,6 @@
  THE SOFTWARE.
 */
 
-import { ISchedulable } from '../../../core/scheduler';
 import { CameraComponent, ModelComponent } from '../../3d';
 import { createMesh } from '../../3d/misc/utils';
 import { Material } from '../../assets/material';
@@ -55,7 +54,7 @@ interface IProfilerState {
 
 const characters = '0123456789. ';
 
-export class Profiler implements ISchedulable {
+export class Profiler {
 
     public _stats: IProfilerState | null = null;
     public id = '__Profiler__';
@@ -88,6 +87,8 @@ export class Profiler implements ISchedulable {
     private _posNumWidth = 0.09;    // profiler right side width
     private _eachNumWidth = 0;      // profiler each number width
 
+    private lastTime = 0;   // update use time
+
     private _string2offset = {
         '0': 0,
         '1': 1,
@@ -103,7 +104,6 @@ export class Profiler implements ISchedulable {
     };
 
     private _uvOffset: Vec4[] = [];
-    private _hadSchedule: boolean = false; // schedule register flag
 
     constructor () {
         if (!CC_TEST) {
@@ -130,8 +130,6 @@ export class Profiler implements ISchedulable {
             director.off(Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
             director.off(Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
             director.off(Director.EVENT_AFTER_DRAW, this.afterDraw, this);
-            cc.director.getScheduler().unscheduleAllForTarget(this);
-            this._hadSchedule = false;
             this._showFPS = false;
         }
     }
@@ -405,11 +403,18 @@ export class Profiler implements ISchedulable {
         const now = performance.now();
 
         this.getCounter('fps').frame(now);
-        this.getCounter('draws').value = this._device!.numDrawCalls;
-        this.getCounter('bufferMemory').value = this._device!.memoryStatus.bufferSize / (1024 * 1024);
-        this.getCounter('textureMemory').value = this._device!.memoryStatus.textureSize / (1024 * 1024);
-        this.getCounter('tricount').value = this._device!.numTris;
         this.getCounter('render').end(now);
+
+        if (now - this.lastTime < 500) {
+            return;
+        }
+        this.lastTime = now;
+
+        const device = this._device!;
+        this.getCounter('draws').value = device.numDrawCalls;
+        this.getCounter('bufferMemory').value = device.memoryStatus.bufferSize / (1024 * 1024);
+        this.getCounter('textureMemory').value = device.memoryStatus.textureSize / (1024 * 1024);
+        this.getCounter('tricount').value = device.numTris;
 
         let i = 0;
         const view = this.digitsData.view;
@@ -427,12 +432,7 @@ export class Profiler implements ISchedulable {
             i++;
         }
 
-        if (!this._hadSchedule) {
-            cc.director.getScheduler().schedule(() => {
-                this.digitsData.dirty = true;
-            }, this, 0.5, false);
-            this._hadSchedule = true;
-        }
+        this.digitsData.dirty = true;
     }
 
     public getCounter (s: string) {
