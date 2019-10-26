@@ -727,6 +727,7 @@ var properties = {
  *
  * @class ParticleSystem
  * @extends RenderComponent
+ * @uses BlendFunc
  */
 var ParticleSystem = cc.Class({
     name: 'cc.ParticleSystem',

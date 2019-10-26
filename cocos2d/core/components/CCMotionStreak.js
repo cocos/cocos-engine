@@ -41,6 +41,7 @@ const BlendFunc = require('../../core/utils/blend-func');
  * !#zh 运动轨迹，用于游戏对象的运动轨迹上实现拖尾渐隐效果。
  * @class MotionStreak
  * @extends Component
+ * @uses BlendFunc
  */
 var MotionStreak = cc.Class({
     name: 'cc.MotionStreak',
