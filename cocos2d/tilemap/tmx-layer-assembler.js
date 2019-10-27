@@ -43,7 +43,10 @@ const RenderFlow = require('../core/renderer/render-flow');
 let _mat4_temp = mat4.create();
 let _vec3_temp = vec3.create();
 let _leftDown = {row:0, col:0};
-let _tempUV = {r:0, l:0, t:0, b:0};
+let _uva = {x:0, y:0};
+let _uvb = {x:0, y:0};
+let _uvc = {x:0, y:0};
+let _uvd = {x:0, y:0};
 
 let _renderData = null, _ia = null, _fillGrids = 0,
     _vfOffset = 0, _moveX = 0, _moveY = 0, _layerMat = null,
@@ -116,26 +119,50 @@ function _renderNodes (nodeRow, nodeCol) {
     _renderer.node = _comp.node;
 }
 
-function _flipTexture (outGrid, inGrid, gid) {
-    outGrid.r = inGrid.r;
-    outGrid.l = inGrid.l;
-    outGrid.b = inGrid.b;
-    outGrid.t = inGrid.t;
+/*
+texture coordinate
+a b 
+c d
+*/
+function _flipTexture (inGrid, gid) {
+    _uva.x = inGrid.l;
+    _uva.y = inGrid.t;
+    _uvb.x = inGrid.r;
+    _uvb.y = inGrid.t;
+    _uvc.x = inGrid.l;
+    _uvc.y = inGrid.b;
+    _uvd.x = inGrid.r;
+    _uvd.y = inGrid.b;
 
-    let tempVal = 0;
+    let tempVal = null;
+
+    // vice
+    if ((gid & TileFlag.DIAGONAL) >>> 0) {
+        tempVal = _uvb;
+        _uvb = _uvc;
+        _uvc = tempVal;
+    }
 
     // flip x
     if ((gid & TileFlag.HORIZONTAL) >>> 0) {
-        tempVal = inGrid.r;
-        outGrid.r = inGrid.l;
-        outGrid.l = tempVal;
+        tempVal = _uva;
+        _uva = _uvb;
+        _uvb = tempVal;
+
+        tempVal = _uvc;
+        _uvc = _uvd;
+        _uvd = tempVal;
     }
 
     // flip y
-    if ((gid & TileFlag.HORIZONTAL) >>> 0) {
-        tempVal = inGrid.b;
-        outGrid.b = inGrid.t;
-        outGrid.t = tempVal;
+    if ((gid & TileFlag.VERTICAL) >>> 0) {
+        tempVal = _uva;
+        _uva = _uvc;
+        _uvc = tempVal;
+
+        tempVal = _uvb;
+        _uvb = _uvd;
+        _uvd = tempVal;
     }
 };
 
@@ -276,7 +303,6 @@ export default class TmxAssembler extends Assembler {
         let rowData, col, cols, row, rows, colData, tileSize, grid = null, gid = 0;
         let left = 0, bottom = 0, right = 0, top = 0; // x, y
         let tiledNode = null, curTexIdx = -1, matIdx;
-        let ul, ur, vt, vb;// u, v
         let colNodesCount = 0, checkColRange = true;
 
         if (rowMoveDir == -1) {
@@ -362,39 +388,23 @@ export default class TmxAssembler extends Assembler {
                     this.fillByTiledNode(tiledNode.node, _vbuf, _uintbuf, left, right, top, bottom);
                 }
 
-                _flipTexture(_tempUV, grid, gid);
-                // calc rect uv
-                ul = _tempUV.l;
-                ur = _tempUV.r;
-                vt = _tempUV.t;
-                vb = _tempUV.b;
-                
-                // vice diagonal
-                if ((gid & TileFlag.DIAGONAL) >>> 0) {
-                    // bl
-                    _vbuf[_vfOffset + 7] = ur;
-                    _vbuf[_vfOffset + 8] = vt;
+                _flipTexture(grid, gid);
 
-                    // tr
-                    _vbuf[_vfOffset + 12] = ul;
-                    _vbuf[_vfOffset + 13] = vb;
-                } else {
-                    // bl
-                    _vbuf[_vfOffset + 7] = ul;
-                    _vbuf[_vfOffset + 8] = vb;
+                // tl -> a
+                _vbuf[_vfOffset + 2] = _uva.x;
+                _vbuf[_vfOffset + 3] = _uva.y;
 
-                    // tr
-                    _vbuf[_vfOffset + 12] = ur;
-                    _vbuf[_vfOffset + 13] = vt;
-                }
+                // bl -> c
+                _vbuf[_vfOffset + 7] = _uvc.x;
+                _vbuf[_vfOffset + 8] = _uvc.y;
 
-                // tl
-                _vbuf[_vfOffset + 2] = ul;
-                _vbuf[_vfOffset + 3] = vt;
+                // tr -> b
+                _vbuf[_vfOffset + 12] = _uvb.x;
+                _vbuf[_vfOffset + 13] = _uvb.y;
 
-                // br
-                _vbuf[_vfOffset + 17] = ur;
-                _vbuf[_vfOffset + 18] = vb;
+                // br -> d
+                _vbuf[_vfOffset + 17] = _uvd.x;
+                _vbuf[_vfOffset + 18] = _uvd.y;
 
                 // modify buffer all kinds of offset
                 _vfOffset += 20;

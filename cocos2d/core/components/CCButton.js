@@ -115,6 +115,7 @@ const State = cc.Enum({
  * 用户可以通过获取 __点击事件__ 回调函数的参数 event 的 target 属性获取当前点击对象。
  * @class Button
  * @extends Component
+ * @uses GraySpriteState
  * @example
  *
  * // Add an event to the button.

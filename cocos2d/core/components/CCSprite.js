@@ -147,6 +147,7 @@ var State = cc.Enum({
  * !#zh 该组件用于在场景中渲染精灵。
  * @class Sprite
  * @extends RenderComponent
+ * @uses BlendFunc
  * @example
  *  // Create a new node and add sprite components.
  *  var node = new cc.Node("New Sprite");

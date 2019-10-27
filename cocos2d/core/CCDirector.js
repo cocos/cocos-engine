@@ -123,6 +123,7 @@ cc.Director = function () {
     this._totalFrames = 0;
     this._lastUpdate = 0;
     this._deltaTime = 0.0;
+    this._startTime = 0.0;
 
     // Scheduler for user registration update
     this._scheduler = null;
@@ -146,6 +147,7 @@ cc.Director.prototype = {
     init: function () {
         this._totalFrames = 0;
         this._lastUpdate = performance.now();
+        this._startTime = this._lastUpdate;
         this._paused = false;
         this._purgeDirectorInNextLoop = false;
         this._winSizeInPoints = cc.size(0, 0);
@@ -778,6 +780,16 @@ cc.Director.prototype = {
      */
     getDeltaTime: function () {
         return this._deltaTime;
+    },
+
+    /**
+     * !#en Returns the total passed time since game start, unit: ms
+     * !#zh 获取从游戏开始到现在总共经过的时间，单位为 ms
+     * @method getTotalTime
+     * @return {Number}
+     */
+    getTotalTime: function () {
+        return performance.now() - this._startTime;
     },
 
     /**

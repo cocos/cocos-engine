@@ -172,6 +172,7 @@ function _getVertAngle (start, end) {
 export default class RadialFilledAssembler extends Assembler2D {
     initData (sprite) {
         this._renderData.createFlexData(0, 4, 6, this.getVfmt());
+        this.updateIndices();
     }
 
     updateRenderData (sprite) {
@@ -286,10 +287,7 @@ export default class RadialFilledAssembler extends Assembler2D {
 
         let flexBuffer = renderData._flexBuffer;
         if (flexBuffer.reserve(verticesCount, verticesCount)) {
-            let iData = renderData.iDatas[0];
-            for (let i = 0; i < verticesCount; i ++) {
-                iData[i] = i;
-            }
+            this.updateIndices();
         }
         flexBuffer.used(this.verticesCount, this.indicesCount);
 
@@ -302,6 +300,13 @@ export default class RadialFilledAssembler extends Assembler2D {
             verts[start] = local[start];
             verts[start + 1] = local[start + 1];
             uintVerts[start + 2] = color;
+        }
+    }
+
+    updateIndices () {
+        let iData = this._renderData.iDatas[0];
+        for (let i = 0; i < iData.length; i ++) {
+            iData[i] = i;
         }
     }
 

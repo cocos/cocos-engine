@@ -3,7 +3,7 @@
 
 // TODO: lights uniform should move back to cc-global
 
-#define CC_MAX_LIGHTS 2
+#define CC_MAX_LIGHTS 4
 
 #if CC_NUM_DIR_LIGHTS > 0 || CC_NUM_POINT_LIGHTS > 0 || CC_NUM_SPOT_LIGHTS > 0 || CC_NUM_AMBIENT_LIGHTS > 0
 

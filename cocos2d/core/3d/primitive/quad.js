@@ -37,9 +37,9 @@ let boundingRadius = Math.sqrt(0.5 * 0.5 + 0.5 * 0.5);
 export default function () {
   return new VertexData(
     positions,
-    indices,
     normals,
     uvs,
+    indices,
     minPos,
     maxPos,
     boundingRadius

@@ -87,6 +87,7 @@ let Simulator = function (system) {
     this.sys = system;
     this.particles = [];
     this.active = false;
+    this.readyToPlay = true;
     this.finished = false;
     this.elapsed = 0;
     this.emitCounter = 0;
@@ -95,12 +96,14 @@ let Simulator = function (system) {
 
 Simulator.prototype.stop = function () {
     this.active = false;
+    this.readyToPlay = false;
     this.elapsed = this.sys.duration;
     this.emitCounter = 0;
 }
 
 Simulator.prototype.reset = function () {
     this.active = true;
+    this.readyToPlay = true;
     this.elapsed = 0;
     this.emitCounter = 0;
     this.finished = false;
@@ -204,8 +207,10 @@ function getWorldRotation (node) {
 }
 
 Simulator.prototype.updateUVs = function (force) {
-    let particleCount = this.particles.length;
     let assembler = this.sys._assembler;
+    if (!assembler) {
+        return;
+    }
     let buffer = assembler.getBuffer();
     if (buffer && this.sys._renderSpriteFrame) {
         const FLOAT_PER_PARTICLE = 4 * assembler._vfmt._bytes / 4;
@@ -213,6 +218,7 @@ Simulator.prototype.updateUVs = function (force) {
         let uv = this.sys._renderSpriteFrame.uv;
 
         let start = force ? 0 : this._uvFilled;
+        let particleCount = this.particles.length;
         for (let i = start; i < particleCount; i++) {
             let offset = i * FLOAT_PER_PARTICLE;
             vbuf[offset+2] = uv[0];
@@ -231,7 +237,7 @@ Simulator.prototype.updateUVs = function (force) {
 Simulator.prototype.updateParticleBuffer = function (particle, pos, buffer, offset) {
     let vbuf = buffer._vData;
     let uintbuf = buffer._uintVData;
-    
+
     let x = pos.x, y = pos.y;
     let size_2 = particle.size / 2;
     // pos
@@ -437,7 +443,7 @@ Simulator.prototype.step = function (dt) {
         buffer.uploadData();
         psys._assembler._ia._count = particles.length * 6;
     }
-    else if (!this.active) {
+    else if (!this.active && !this.readyToPlay) {
         this.finished = true;
         psys._finishedSimulation();
     }
