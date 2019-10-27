@@ -1009,6 +1009,7 @@ let NodeDefines = {
          * @example
          * node.skewX = 0;
          * cc.log("Node SkewX: " + node.skewX);
+         * @deprecated since v2.2.1
          */
         skewX: {
             get () {
@@ -1033,6 +1034,7 @@ let NodeDefines = {
          * @example
          * node.skewY = 0;
          * cc.log("Node SkewY: " + node.skewY);
+         * @deprecated since v2.2.1
          */
         skewY: {
             get () {
