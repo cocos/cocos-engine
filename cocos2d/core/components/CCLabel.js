@@ -407,16 +407,15 @@ let Label = cc.Class({
             },
             set (value) {
                 if (this._isSystemFontUsed === value) return;
-               
+                this._isSystemFontUsed = !!value;
                 if (CC_EDITOR) {
-                    if (!value && this._isSystemFontUsed && this._userDefinedFont) {
+                    if (!value && this._userDefinedFont) {
                         this.font = this._userDefinedFont;
                         this.spacingX = this._spacingX;
                         return;
                     }
                 }
 
-                this._isSystemFontUsed = !!value;
                 if (value) {
                     this.font = null;
 
@@ -425,10 +424,6 @@ let Label = cc.Class({
                     this._lazyUpdateRenderData();
                     this._checkStringEmpty();
                 }
-                else if (!this._userDefinedFont) {
-                    this.disableRender();
-                }
-
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.system_font',
@@ -540,15 +535,6 @@ let Label = cc.Class({
 
     onEnable () {
         this._super();
-
-        // TODO: Hack for barbarians
-        if (!this.font && !this._isSystemFontUsed) {
-            this.useSystemFont = true;
-        }
-        // Reapply default font family if necessary
-        if (this.useSystemFont && !this.fontFamily) {
-            this.fontFamily = 'Arial';
-        }
 
         // Keep track of Node size
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this._lazyUpdateRenderData, this);
