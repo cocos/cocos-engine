@@ -37,7 +37,7 @@ import { Pass } from '../core/pass';
 import { genSamplerHash, samplerLib } from '../core/sampler-lib';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
-import { IJointsTextureHandle } from './joints-texture-utils';
+import { IJointsTextureHandle, selectJointsMediumType } from './joints-texture-utils';
 
 export interface IJointsAnimInfo {
     buffer: GFXBuffer;
@@ -173,7 +173,7 @@ export class SkinningModel extends Model {
     }
 
     protected _doCreatePSO (pass: Pass) {
-        const pso = super._doCreatePSO(pass);
+        const pso = super._doCreatePSO(pass, { CC_USE_SKINNING: selectJointsMediumType(this._device) });
         const { buffer, texture } = this._jointsMedium;
         const animInfo = JointsAnimationInfo.get(this._transform.uuid);
         pso.pipelineLayout.layouts[0].bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);

@@ -27,11 +27,11 @@
  * @category ui
  */
 
-import { Component } from '../component';
 import { ccclass, disallowMultiple, executeInEditMode, executionOrder, property } from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { INode } from '../../../core/utils/interfaces';
 import { UI } from '../../renderer/ui/ui';
+import { Component } from '../component';
 import { CanvasComponent } from './canvas-component';
 
 /**
@@ -67,7 +67,7 @@ export class UIComponent extends Component {
      * 查找被渲染相机。
      */
     get visibility () {
-        if(!this._screen){
+        if (!this._screen){
             return -1;
         }
 
@@ -109,13 +109,13 @@ export class UIComponent extends Component {
         }
     }
 
-    public updateAssembler(render: UI) {
+    public updateAssembler (render: UI) {
     }
 
-    public postUpdateAssembler(render: UI) {
+    public postUpdateAssembler (render: UI) {
     }
 
-    public _setScreen(value: CanvasComponent){
+    public _setScreen (value: CanvasComponent){
         this._followScreen = value;
     }
 

@@ -176,6 +176,7 @@ export interface IGFXPipelineStateInfo {
     dynamicStates?: GFXDynamicState[];
     layout: GFXPipelineLayout;
     renderPass: GFXRenderPass;
+    hash: number;
 }
 
 /**
@@ -250,6 +251,14 @@ export abstract class GFXPipelineState extends GFXObject {
 
     /**
      * @zh
+     * 此管线状态的 hash。
+     */
+    public get hash (): number {
+        return this._hash;
+    }
+
+    /**
+     * @zh
      * GFX设备。
      */
     protected _device: GFXDevice;
@@ -307,6 +316,12 @@ export abstract class GFXPipelineState extends GFXObject {
      * GFX渲染过程。
      */
     protected _renderPass: GFXRenderPass | null = null;
+
+    /**
+     * @zh
+     * 此管线状态的 hash。
+     */
+    protected _hash: number = 0;
 
     /**
      * 构造函数。

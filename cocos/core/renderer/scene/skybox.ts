@@ -10,6 +10,7 @@ import { Model } from './model';
 import { RenderScene } from './render-scene';
 
 let skybox_mesh: Mesh | null = null;
+let skybox_material: Material | null = null;
 
 export class Skybox extends Model {
 
@@ -23,8 +24,8 @@ export class Skybox extends Model {
 
     set isRGBE (val) {
         this._isRGBE = val;
-        this._material.recompileShaders({ USE_RGBE_CUBEMAP: this._isRGBE });
-        this.setSubModelMaterial(0, this._material);
+        skybox_material!.recompileShaders({ USE_RGBE_CUBEMAP: this._isRGBE });
+        this.setSubModelMaterial(0, skybox_material);
         this._updateGlobalBinding();
         this._updatePipeline();
     }
@@ -47,16 +48,18 @@ export class Skybox extends Model {
     protected _isRGBE = false;
     protected _useIBL = false;
 
-    protected _material = new Material();
     protected _globalBinding: IInternalBindingInst;
 
     constructor (scene: RenderScene) {
         super(scene, null!);
         this._scene = scene;
-        this._material.initialize({ effectName: 'pipeline/skybox', defines: { USE_RGBE_CUBEMAP: this._isRGBE } });
         this._globalBinding = this._scene.root.pipeline.globalBindings.get(UNIFORM_ENVIRONMENT.name)!;
+        if (!skybox_material) {
+            skybox_material = new Material();
+            skybox_material.initialize({ effectName: 'pipeline/skybox', defines: { USE_RGBE_CUBEMAP: this._isRGBE } });
+        }
         if (!skybox_mesh) { skybox_mesh = createMesh(box({ width: 2, height: 2, length: 2 })); }
-        this.initSubModel(0, skybox_mesh.renderingMesh.getSubmesh(0), this._material);
+        this.initSubModel(0, skybox_mesh.renderingMesh.getSubmesh(0), skybox_material);
     }
 
     protected _updatePipeline () {
@@ -74,7 +77,7 @@ export class Skybox extends Model {
         this._globalBinding.textureView = textureView;
         // update skybox material, need to do this every time pso is created
         // because skybox.updateUBOs is not called in pipeline per frame
-        const mat = this._material;
+        const mat = skybox_material!;
         mat.passes[0].bindSampler(UNIFORM_ENVIRONMENT.binding, sampler);
         mat.passes[0].bindTextureView(UNIFORM_ENVIRONMENT.binding, textureView);
         for (const pso of this._matPSORecord.get(mat)!) {

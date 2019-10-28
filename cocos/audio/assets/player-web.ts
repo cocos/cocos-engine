@@ -96,7 +96,8 @@ export class AudioPlayerWeb extends AudioPlayer {
                 cc.game.canvas.removeEventListener('mouseup', this._on_gesture);
             });
         };
-        if (this._context.state !== 'running') {
+        // Chrome41/Firefox40 below don't have resume
+        if (this._context.state !== 'running' && this._context.resume) {
             cc.game.canvas.addEventListener('touchend', this._on_gesture);
             cc.game.canvas.addEventListener('mouseup', this._on_gesture);
         }

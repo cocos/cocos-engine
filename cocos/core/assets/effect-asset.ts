@@ -43,6 +43,7 @@ export interface IPropertyInfo {
     samplerHash?: number; // auto-generated from 'sampler'
     value?: number[] | string;
 }
+// Pass instance itself are compliant to IPassStates too
 export interface IPassStates {
     priority?: number;
     primitive?: GFXPrimitiveMode;
@@ -50,9 +51,9 @@ export interface IPassStates {
     rasterizerState?: GFXRasterizerState;
     depthStencilState?: GFXDepthStencilState;
     blendState?: GFXBlendState;
-    dynamics?: GFXDynamicState[];
+    dynamicStates?: GFXDynamicState[];
     customizations?: string[];
-    phase?: string;
+    phase?: string | number;
 }
 export interface IPassInfo extends IPassStates {
     program: string; // auto-generated from 'vert' and 'frag'

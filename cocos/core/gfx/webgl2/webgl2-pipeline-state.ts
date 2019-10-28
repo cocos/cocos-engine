@@ -44,6 +44,7 @@ export class WebGL2GFXPipelineState extends GFXPipelineState {
         this._dss = info.dss;
         this._bs = info.bs;
         this._dynamicStates = info.dynamicStates || [];
+        this._hash = info.hash;
 
         this._layout = info.layout;
         this._renderPass = info.renderPass;

@@ -95,6 +95,17 @@ export class UIModelComponent extends UIComponent {
         this._fitUIRenderQueue();
     }
 
+    /**
+     * TODO: refactor using Pass.createPipelineState(null, overriddenPass)
+     * ```
+     * const overriddenPass = new Pass(); // global scope
+     * // when creating PSO
+     * Pass.fillinPipelineInfo(overriddenPass, passes[j]);
+     * Pass.fillinPipelineInfo(overriddenPass, { priority: RenderPriority.MAX - 11, blendState: { targets: [ { blend: true } ] } });
+     * const pso = passes[j].createPipelineState(null, overriddenPass);
+     * // ...
+     * ```
+     */
     private _fitUIRenderQueue () {
         if (!this._modelComponent) {
             return;

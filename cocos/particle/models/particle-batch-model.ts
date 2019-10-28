@@ -33,10 +33,10 @@ import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gf
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormatInfos,
     GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
 import { IGFXAttribute } from '../../core/gfx/input-assembler';
-import { Node } from '../../core/scene-graph';
+import { Color } from '../../core/math/color';
 import { Model } from '../../core/renderer/scene/model';
 import { RenderScene } from '../../core/renderer/scene/render-scene';
-import { Color } from '../../core/math/color';
+import { Node } from '../../core/scene-graph';
 
 export default class ParticleBatchModel extends Model {
 
