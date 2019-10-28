@@ -630,13 +630,13 @@ export default class BmfontAssembler extends Assembler2D {
         // TOP
         _letterOffsetY = _contentSize.height;
         if (_vAlign !== macro.VerticalTextAlignment.TOP) {
-            let blank = (_lineHeight - _originFontSize) * _bmfontScale;
+            let blank = _contentSize.height - _textDesiredHeight + (_lineHeight - _originFontSize) * _bmfontScale;
             if (_vAlign === macro.VerticalTextAlignment.BOTTOM) {
                 // BOTTOM
-                _letterOffsetY = _textDesiredHeight - blank;
+                _letterOffsetY -= blank;
             } else {
                 // CENTER:
-                _letterOffsetY = (_contentSize.height + _textDesiredHeight - blank) / 2;
+                _letterOffsetY -= blank / 2;
             }
         }
     }

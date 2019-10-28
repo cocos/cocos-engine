@@ -217,13 +217,13 @@ export default class TTFAssembler extends Assembler2D {
         let firstLinelabelY = _fontSize * (1 - textUtils.BASELINE_RATIO / 2);
         if (_vAlign !== macro.VerticalTextAlignment.TOP) {
             // free space in vertical direction
-            let blank = _canvasSize.height - drawStartY - _canvasPadding.height - _fontSize;
+            let blank = drawStartY + _canvasPadding.height + _fontSize - _canvasSize.height;
             if (_vAlign === macro.VerticalTextAlignment.BOTTOM) {
-              // BOTTOM
-              firstLinelabelY += blank;
+                // BOTTOM
+                firstLinelabelY -= blank;
             } else {
-              // CENTER
-              firstLinelabelY += blank / 2;
+                // CENTER
+                firstLinelabelY -= blank / 2;
             }
         }
 
