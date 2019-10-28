@@ -334,11 +334,22 @@ export class WidgetComponent extends Component {
      * @zh
      * 本节点顶边和父节点顶边的距离，可填写负值，只有在 isAlignTop 开启时才有作用。
      */
-    @property
     get top () {
-        return this._isAbsTop ? this._top : (this._top * 100);
+        return this._top;
     }
     set top (value) {
+        this._top = value;
+        this._recursiveDirty();
+    }
+
+    /**
+     * @EditorOnly Not for user
+     */
+    @property
+    get editorTop () {
+        return this._isAbsTop ? this._top : (this._top * 100);
+    }
+    set editorTop (value) {
         this._top = this._isAbsTop ? value : (value / 100);
         this._recursiveDirty();
     }
@@ -347,11 +358,22 @@ export class WidgetComponent extends Component {
      * @zh
      * 本节点底边和父节点底边的距离，可填写负值，只有在 isAlignBottom 开启时才有作用。
      */
-    @property
     get bottom () {
-        return this._isAbsBottom ? this._bottom : (this._bottom * 100);
+        return this._bottom;
     }
     set bottom (value) {
+        this._bottom = value;
+        this._recursiveDirty();
+    }
+
+    /**
+     * @EditorOnly Not for user
+     */
+    @property
+    get editorBottom () {
+        return this._isAbsBottom ? this._bottom : (this._bottom * 100);
+    }
+    set editorBottom (value) {
         this._bottom = this._isAbsBottom ? value : (value / 100);
         this._recursiveDirty();
     }
@@ -360,11 +382,22 @@ export class WidgetComponent extends Component {
      * @zh
      * 本节点左边和父节点左边的距离，可填写负值，只有在 isAlignLeft 开启时才有作用。
      */
-    @property
     get left () {
-        return this._isAbsLeft ? this._left : (this._left * 100);
+        return this._left;
     }
     set left (value) {
+        this._left = value;
+        this._recursiveDirty();
+    }
+
+    /**
+     * @EditorOnly Not for user
+     */
+    @property
+    get editorLeft () {
+        return this._isAbsLeft ? this._left : (this._left * 100);
+    }
+    set editorLeft (value) {
         this._left = this._isAbsLeft ? value : (value / 100);
         this._recursiveDirty();
     }
@@ -373,11 +406,22 @@ export class WidgetComponent extends Component {
      * @zh
      * 本节点右边和父节点右边的距离，可填写负值，只有在 isAlignRight 开启时才有作用。
      */
-    @property
     get right () {
-        return this._isAbsRight ? this._right : (this._right * 100);
+        return this._right;
     }
     set right (value) {
+        this._right = value;
+        this._recursiveDirty();
+    }
+
+    /**
+     * @EditorOnly Not for user
+     */
+    @property
+    get editorRight () {
+        return this._isAbsRight ? this._right : (this._right * 100);
+    }
+    set editorRight (value) {
         this._right = this._isAbsRight ? value : (value / 100);
         this._recursiveDirty();
     }
@@ -386,11 +430,22 @@ export class WidgetComponent extends Component {
      * @zh
      * 水平居中的偏移值，可填写负值，只有在 isAlignHorizontalCenter 开启时才有作用。
      */
-    @property
     get horizontalCenter () {
-        return this._isAbsHorizontalCenter ? this._horizontalCenter : (this._horizontalCenter * 100);
+        return this._horizontalCenter;
     }
     set horizontalCenter (value) {
+        this._horizontalCenter = value;
+        this._recursiveDirty();
+    }
+
+    /**
+     * @EditorOnly Not for user
+     */
+    @property
+    get editorHorizontalCenter () {
+        return this._isAbsHorizontalCenter ? this._horizontalCenter : (this._horizontalCenter * 100);
+    }
+    set editorHorizontalCenter (value) {
         this._horizontalCenter = this._isAbsHorizontalCenter ? value : (value / 100);
         this._recursiveDirty();
     }
@@ -399,18 +454,29 @@ export class WidgetComponent extends Component {
      * @zh
      * 垂直居中的偏移值，可填写负值，只有在 isAlignVerticalCenter 开启时才有作用。
      */
-    @property
     get verticalCenter () {
-        return this._isAbsVerticalCenter ? this._verticalCenter : (this._verticalCenter * 100);
+        return this._verticalCenter;
     }
     set verticalCenter (value) {
+        this._verticalCenter = value;
+        this._recursiveDirty();
+    }
+
+    /**
+     * @EditorOnly Not for user
+     */
+    @property
+    get editorVerticalCenter () {
+        return this._isAbsVerticalCenter ? this._verticalCenter : (this._verticalCenter * 100);
+    }
+    set editorVerticalCenter (value) {
         this._verticalCenter = this._isAbsVerticalCenter ? value : (value / 100);
         this._recursiveDirty();
     }
 
     /**
      * @zh
-     * 如果为 true，"top" 将会以像素作为边距，否则将会以相对父物体高度的百分比（0 到 100）作为边距。
+     * 如果为 true，"top" 将会以像素作为边距，否则将会以相对父物体高度的比例（0 到 1）作为边距。
      */
     @property
     get isAbsoluteTop () {
@@ -427,7 +493,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @zh
-     * 如果为 true，"bottom" 将会以像素作为边距，否则将会以相对父物体高度的百分比（0 到 100）作为边距。
+     * 如果为 true，"bottom" 将会以像素作为边距，否则将会以相对父物体高度的比例（0 到 1）作为边距。
      */
     @property
     get isAbsoluteBottom () {
@@ -444,7 +510,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @zh
-     * 如果为 true，"left" 将会以像素作为边距，否则将会以相对父物体宽度的百分比（0 到 100）作为边距。
+     * 如果为 true，"left" 将会以像素作为边距，否则将会以相对父物体宽度的比例（0 到 1）作为边距。
      */
     @property
     get isAbsoluteLeft () {
@@ -461,7 +527,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @zh
-     * 如果为 true，"right" 将会以像素作为边距，否则将会以相对父物体宽度的百分比（0 到 100）作为边距。
+     * 如果为 true，"right" 将会以像素作为边距，否则将会以相对父物体宽度的比例（0 到 1）作为边距。
      */
     @property
     get isAbsoluteRight () {
@@ -499,7 +565,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @zh
-     * 如果为 true，"horizontalCenter" 将会以像素作为偏移值，反之为百分比（0 到 100）。
+     * 如果为 true，"horizontalCenter" 将会以像素作为偏移值，反之为比例（0 到 1）。
      */
     @property
     get isAbsoluteHorizontalCenter () {
@@ -517,7 +583,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @zh
-     * 如果为 true，"verticalCenter" 将会以像素作为偏移值，反之为百分比（0 到 100）。
+     * 如果为 true，"verticalCenter" 将会以像素作为偏移值，反之为比例（0 到 1）。
      */
     @property
     get isAbsoluteVerticalCenter () {
