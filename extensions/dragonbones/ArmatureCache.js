@@ -42,6 +42,7 @@ let _x, _y;
 //Cache all frames in an animation
 let AnimationCache = cc.Class({
     ctor () {
+        this._inited = false;
         this._invalid = true;
         this.frames = [];
         this.totalTime = 0;
@@ -55,12 +56,14 @@ let AnimationCache = cc.Class({
     },
 
     init (armatureInfo, animationName) {
+        this._inited = true;
         this._armatureInfo = armatureInfo;
         this._animationName = animationName;
     },
 
     // Clear texture quote.
     clear () {
+        this._inited = false;
         for (let i = 0, n = this.frames.length; i < n; i++) {
             let frame = this.frames[i];
             frame.segments.length = 0;
@@ -105,6 +108,8 @@ let AnimationCache = cc.Class({
     },
 
     updateToFrame (toFrameIdx) {
+        if (!this._inited) return;
+
         this.begin();
 
         if (!this._needToUpdate(toFrameIdx)) return;
@@ -121,6 +126,10 @@ let AnimationCache = cc.Class({
         } while (this._needToUpdate(toFrameIdx));
        
         this.end();
+    },
+
+    isInited () {
+        return this._inited;
     },
 
     isInvalid () {

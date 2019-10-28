@@ -68,38 +68,12 @@ function serializeUniforms (uniforms) {
         if (!prop) {
             continue;
         }
-        switch (param.type) {
-            case enums.PARAM_INT:
-            case enums.PARAM_FLOAT:
-                hashData += prop + ';';
-                break;
-            case enums.PARAM_INT2:
-            case enums.PARAM_FLOAT2:
-                hashData += prop.x + ',' + prop.y + ';';
-                break;
-            case enums.PARAM_INT4:
-            case enums.PARAM_FLOAT4:
-                hashData += prop.x + ',' + prop.y + ',' + prop.z + ',' + prop.w + ';';
-                break;
-            case enums.PARAM_COLOR4:
-                hashData += prop.r + ',' + prop.g + ',' + prop.b + ',' + prop.a + ';';
-                break;
-            case enums.PARAM_MAT2:
-                hashData += prop.m[0] + ',' + prop.m[1] + ',' + prop.m[2] + ',' + prop.m[3] + ';';
-                break;
-            case enums.PARAM_TEXTURE_2D:
-            case enums.PARAM_TEXTURE_CUBE:
-                hashData += prop._id + ';';
-                break;
-            case enums.PARAM_INT3:
-            case enums.PARAM_FLOAT3:
-            case enums.PARAM_COLOR3:
-            case enums.PARAM_MAT3:
-            case enums.PARAM_MAT4:
-                hashData += JSON.stringify(prop) + ';';
-                break;
-            default:
-                break;
+
+        if (param.type === enums.PARAM_TEXTURE_2D || param.type === enums.PARAM_TEXTURE_CUBE) {
+            hashData += prop._id + ';';
+        }
+        else {
+            hashData += prop.toString() + ';';
         }
     }
 
