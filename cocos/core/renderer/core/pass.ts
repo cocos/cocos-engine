@@ -28,27 +28,28 @@
  */
 
 import { builtinResMgr } from '../../3d/builtin/init';
-import { EffectAsset, IPassInfo, IPassStates, IPropertyInfo, IShaderInfo } from '../../assets/effect-asset';
+import { EffectAsset, IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { TextureBase } from '../../assets/texture-base';
-import { GFXBindingLayout, IGFXBinding } from '../../gfx/binding-layout';
-import { GFXBuffer } from '../../gfx/buffer';
+import { GFXBindingLayout, IGFXBinding, IGFXBindingLayoutInfo } from '../../gfx/binding-layout';
+import { GFXBuffer, IGFXBufferInfo } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXDynamicState,
     GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode, GFXType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
-import { GFXPipelineLayout } from '../../gfx/pipeline-layout';
+import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from '../../gfx/pipeline-layout';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
-    GFXInputState, GFXPipelineState, GFXRasterizerState } from '../../gfx/pipeline-state';
+    GFXInputState, GFXPipelineState, GFXRasterizerState, IGFXPipelineStateInfo } from '../../gfx/pipeline-state';
 import { GFXRenderPass } from '../../gfx/render-pass';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
-import { Mat3, Mat4, Vec2, Vec3, Vec4 } from '../../math';
 import { BatchedBuffer } from '../../pipeline/batched-buffer';
 import { isBuiltinBinding, RenderPassStage, RenderPriority, UBOLocal } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
-import { programLib } from './program-lib';
+import { customizeType, getBindingFromHandle, getBindingTypeFromHandle,
+    getOffsetFromHandle, getTypeFromHandle, type2default, type2reader, type2writer } from './pass-utils';
+import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
 
 export interface IDefineMap { [name: string]: number | boolean | string; }
@@ -59,61 +60,6 @@ export interface IPassInfoFull extends IPassInfo {
     states: PassOverrides;
 }
 export type PassOverrides = RecursivePartial<IPassStates>;
-
-const _type2writer = {
-    [GFXType.UNKNOWN]: (a: Float32Array, v: any, idx: number = 0) => console.warn('illegal uniform handle'),
-    [GFXType.INT]: (a: Float32Array, v: any, idx: number = 0) => a[idx] = v,
-    [GFXType.INT2]: (a: Float32Array, v: any, idx: number = 0) => Vec2.toArray(a, v, idx),
-    [GFXType.INT3]: (a: Float32Array, v: any, idx: number = 0) => Vec3.toArray(a, v, idx),
-    [GFXType.INT4]: (a: Float32Array, v: any, idx: number = 0) => Vec4.toArray(a, v, idx),
-    [GFXType.FLOAT]: (a: Float32Array, v: any, idx: number = 0) => a[idx] = v,
-    [GFXType.FLOAT2]: (a: Float32Array, v: any, idx: number = 0) => Vec2.toArray(a, v, idx),
-    [GFXType.FLOAT3]: (a: Float32Array, v: any, idx: number = 0) => Vec3.toArray(a, v, idx),
-    [GFXType.FLOAT4]: (a: Float32Array, v: any, idx: number = 0) => Vec4.toArray(a, v, idx),
-    [GFXType.MAT3]: (a: Float32Array, v: any, idx: number = 0) => Mat3.toArray(a, v, idx),
-    [GFXType.MAT4]: (a: Float32Array, v: any, idx: number = 0) => Mat4.toArray(a, v, idx),
-};
-
-const _type2reader = {
-    [GFXType.UNKNOWN]: (a: Float32Array, v: any, idx: number = 0) => console.warn('illegal uniform handle'),
-    [GFXType.INT]: (a: Float32Array, v: any, idx: number = 0) => a[idx],
-    [GFXType.INT2]: (a: Float32Array, v: any, idx: number = 0) => Vec2.fromArray(v, a, idx),
-    [GFXType.INT3]: (a: Float32Array, v: any, idx: number = 0) => Vec3.fromArray(v, a, idx),
-    [GFXType.INT4]: (a: Float32Array, v: any, idx: number = 0) => Vec4.fromArray(v, a, idx),
-    [GFXType.FLOAT]: (a: Float32Array, v: any, idx: number = 0) => a[idx],
-    [GFXType.FLOAT2]: (a: Float32Array, v: any, idx: number = 0) => Vec2.fromArray(v, a, idx),
-    [GFXType.FLOAT3]: (a: Float32Array, v: any, idx: number = 0) => Vec3.fromArray(v, a, idx),
-    [GFXType.FLOAT4]: (a: Float32Array, v: any, idx: number = 0) => Vec4.fromArray(v, a, idx),
-    [GFXType.MAT3]: (a: Float32Array, v: any, idx: number = 0) => Mat3.fromArray(v, a, idx),
-    [GFXType.MAT4]: (a: Float32Array, v: any, idx: number = 0) => Mat4.fromArray(v, a, idx),
-};
-
-export const _type2default = {
-    [GFXType.INT]: [0],
-    [GFXType.INT2]: [0, 0],
-    [GFXType.INT3]: [0, 0, 0],
-    [GFXType.INT4]: [0, 0, 0, 0],
-    [GFXType.FLOAT]: [0],
-    [GFXType.FLOAT2]: [0, 0],
-    [GFXType.FLOAT3]: [0, 0, 0],
-    [GFXType.FLOAT4]: [0, 0, 0, 0],
-    [GFXType.MAT3]: [1, 0, 0, 0, 1, 0, 0, 0, 1],
-    [GFXType.MAT4]: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-    [GFXType.SAMPLER2D]: 'default-texture',
-    [GFXType.SAMPLER_CUBE]: 'default-cube-texture',
-};
-
-const btMask      = 0xf0000000; //  4 bits => 16 binding types
-const typeMask    = 0x0fc00000; //  6 bits => 64 types
-const bindingMask = 0x003fc000; //  8 bits => 256 bindings
-const offsetMask  = 0x00003fff; // 14 bits => 4096 vectors
-const genHandle = (bt: GFXBindingType, binding: number, type: GFXType, index: number = 0) =>
-    ((bt << 28) & btMask) | ((type << 22) & typeMask) | ((binding << 14) & bindingMask) | (index & offsetMask);
-const getBindingTypeFromHandle = (handle: number) => (handle & btMask) >>> 28;
-const getTypeFromHandle = (handle: number) => (handle & typeMask) >>> 22;
-const getBindingFromHandle = (handle: number) => (handle & bindingMask) >>> 14;
-const getOffsetFromHandle = (handle: number) => (handle & offsetMask);
-const customizeType = (handle: number, type: GFXType) => (handle & ~typeMask) | ((type << 22) & typeMask);
 
 export interface IBlock {
     buffer: ArrayBuffer;
@@ -150,6 +96,44 @@ interface IPSOHashInfo {
     blendState: GFXBlendState;
     dynamicStates: GFXDynamicState[];
 }
+
+const _bfInfo: IGFXBufferInfo = {
+    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+    size: 0,
+    usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+};
+
+const _blInfo: IGFXBindingLayoutInfo = {
+    bindings: null!,
+};
+
+const _plInfo: IGFXPipelineLayoutInfo = {
+    layouts: null!,
+};
+
+const _psoInfo: IGFXPipelineStateInfo = {
+    primitive: 0,
+    shader: null!,
+    is: new GFXInputState(),
+    rs: null!,
+    dss: null!,
+    bs: null!,
+    dynamicStates: null!,
+    layout: null!,
+    renderPass: null!,
+    hash: 0,
+};
+
+const _psoHashInfo: IPSOHashInfo = {
+    program: '',
+    defines: null!,
+    stage: 0,
+    primitive: 0,
+    rasterizerState: null!,
+    depthStencilState: null!,
+    blendState: null!,
+    dynamicStates: null!,
+};
 
 /**
  * @zh
@@ -249,7 +233,7 @@ export class Pass {
     protected _customizations: string[] = [];
     protected _handleMap: Record<string, number> = {};
     protected _blocks: IBlock[] = [];
-    protected _shaderInfo: IShaderInfo = null!;
+    protected _shaderInfo: IProgramInfo = null!;
     protected _defines: IDefineMap = {};
     protected _properties: Record<string, IPropertyInfo> = {};
     // external references
@@ -278,38 +262,27 @@ export class Pass {
         Pass.fillinPipelineInfo(this, info);
         Pass.fillinPipelineInfo(this, info.states);
 
-        for (const u of this._shaderInfo.blocks) {
-            if (isBuiltinBinding(u.binding)) { continue; }
-            const blockSize = u.members.reduce((s, m) => s + GFXGetTypeSize(m.type) * m.count, 0);
-
+        const blocks = this._shaderInfo.blocks;
+        for (let i = 0; i < blocks.length; i++) {
+            const { size, binding } = blocks[i];
+            if (isBuiltinBinding(binding)) { continue; }
             // create gfx buffer resource
-            this._buffers[u.binding] = device.createBuffer({
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: Math.ceil(blockSize / 16) * 16, // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
-                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            });
+            _bfInfo.size = Math.ceil(size / 16) * 16; // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
+            this._buffers[binding] = device.createBuffer(_bfInfo);
             // non-builtin UBO data pools, note that the effect compiler
             // guarantees these bindings to be consecutive, starting from 0
-            const buffer = new ArrayBuffer(blockSize);
-            this._blocks[u.binding] = { buffer, dirty: false, view: new Float32Array(buffer) };
-
-            u.members.reduce((acc, cur) => {
-                // store handle map
-                this._handleMap[cur.name] = genHandle(GFXBindingType.UNIFORM_BUFFER, u.binding, cur.type, acc);
-                // proceed the counter
-                return acc + (GFXGetTypeSize(cur.type) >> 2) * cur.count;
-            }, 0);
+            const buffer = new ArrayBuffer(size);
+            this._blocks[binding] = { buffer, dirty: false, view: new Float32Array(buffer) };
         }
-        // store indirect property handles
-        for (const name of Object.keys(this._properties)) {
+        // store handles
+        const directHandleMap = this._handleMap = this._shaderInfo.handleMap;
+        const indirectHandleMap: Record<string, number> = {};
+        for (const name in this._properties) {
             const prop = this._properties[name];
             if (!prop.handleInfo) { continue; }
-            this._handleMap[name] = this.getHandle.apply(this, prop.handleInfo)!;
+            indirectHandleMap[name] = this.getHandle.apply(this, prop.handleInfo)!;
         }
-        // store sampler handles
-        for (const u of this._shaderInfo.samplers) {
-            this._handleMap[u.name] = genHandle(GFXBindingType.SAMPLER, u.binding, u.type);
-        }
+        Object.assign(directHandleMap, indirectHandleMap);
 
         this.resetUBOs();
         this.resetTextures();
@@ -334,8 +307,7 @@ export class Pass {
      * ```
      */
     public getHandle (name: string, offset = 0, targetType = GFXType.UNKNOWN): number | undefined {
-        let handle = this._handleMap[name];
-        if (!handle) { return; }
+        let handle = this._handleMap[name]; if (!handle) { return; }
         if (targetType) { handle = customizeType(handle, targetType); }
         else if (offset) { handle = customizeType(handle, getTypeFromHandle(handle) - offset); }
         return handle + offset;
@@ -363,7 +335,7 @@ export class Pass {
         const type = Pass.getTypeFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
         const block = this._blocks[binding];
-        _type2writer[type](block.view, value, ofs);
+        type2writer[type](block.view, value, ofs);
         block.dirty = true;
     }
 
@@ -378,7 +350,7 @@ export class Pass {
         const type = Pass.getTypeFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
         const block = this._blocks[binding];
-        return _type2reader[type](block.view, out, ofs);
+        return type2reader[type](block.view, out, ofs);
     }
 
     /**
@@ -395,7 +367,7 @@ export class Pass {
         let ofs = Pass.getOffsetFromHandle(handle);
         for (let i = 0; i < value.length; i++, ofs += stride) {
             if (value[i] === null) { continue; }
-            _type2writer[type](block.view, value[i], ofs);
+            type2writer[type](block.view, value[i], ofs);
         }
         block.dirty = true;
     }
@@ -530,7 +502,7 @@ export class Pass {
                 const cur = u.members[i];
                 const inf = this._properties[cur.name];
                 const givenDefault = inf && inf.value;
-                const value = givenDefault ? givenDefault : _type2default[cur.type];
+                const value = givenDefault ? givenDefault : type2default[cur.type];
                 const stride = GFXGetTypeSize(cur.type) >> 2;
                 for (let j = 0; j < cur.count; j++) { block.view.set(value, ofs + j * stride); }
                 ofs += stride * cur.count;
@@ -547,7 +519,7 @@ export class Pass {
         for (const u of this._shaderInfo.samplers) {
             if (isBuiltinBinding(u.binding)) { continue; }
             const inf = this._properties[u.name];
-            const texName = inf && inf.value ? inf.value + '-texture' : _type2default[u.type];
+            const texName = inf && inf.value ? inf.value + '-texture' : type2default[u.type];
             const texture = builtinResMgr.get<TextureBase>(texName);
             const textureView = texture && texture.getGFXTextureView();
             if (!textureView) { console.warn('illegal texture default value: ' + texName); continue; }
@@ -580,17 +552,7 @@ export class Pass {
         const shader = programLib.getGFXShader(this._device, this._programName, defines, pipeline);
         if (!shader) { console.warn(`create shader ${this._programName} failed`); return null; }
         if (saveOverrides) { this._shader = shader; }
-        this._bindings = this._shaderInfo.blocks.reduce((acc, cur) => {
-            if (cur.defines.every((d) => defines[d])) {
-                acc.push({ name: cur.name, binding: cur.binding, type: GFXBindingType.UNIFORM_BUFFER });
-            }
-            return acc;
-        }, [] as IGFXBinding[]).concat(this._shaderInfo.samplers.reduce((acc, cur) => {
-            if (cur.defines.every((d) => defines[d])) {
-                acc.push({ name: cur.name, binding: cur.binding, type: GFXBindingType.SAMPLER });
-            }
-            return acc;
-        }, [] as IGFXBinding[]));
+        this._bindings = this._shaderInfo.bindings.filter((b) => b.defines.every((d) => defines[d]));
         return shader;
     }
 
@@ -603,10 +565,11 @@ export class Pass {
             console.warn(`pass resources not complete, create PSO failed`);
             return null;
         }
-        let shader = this._shader!; const defines = defineOverrides || this._defines;
+        let shader = this._shader!;
         if (defineOverrides) { shader = this.tryCompile(defineOverrides, false)!; }
         // bind resources
-        const bindingLayout = this._device.createBindingLayout({ bindings: this._bindings });
+        _blInfo.bindings = this._bindings;
+        const bindingLayout = this._device.createBindingLayout(_blInfo);
         for (const b of Object.keys(this._buffers)) {
             bindingLayout.bindBuffer(parseInt(b), this._buffers[b]);
         }
@@ -630,27 +593,22 @@ export class Pass {
             if (info.sampler) { bindingLayout.bindSampler(info.samplerInfo!.binding, info.sampler); }
             bindingLayout.bindTextureView(info.samplerInfo!.binding, info.textureView!);
         }
-
+        _plInfo.layouts = [bindingLayout];
+        const pipelineLayout = this._device.createPipelineLayout(_plInfo);
         // create pipeline state
-        const pipelineLayout = this._device.createPipelineLayout({ layouts: [bindingLayout] });
-        const primitive = stateOverrides && stateOverrides.primitive || this._primitive;
-        const rasterizerState = stateOverrides && stateOverrides.rasterizerState || this._rs;
-        const depthStencilState = stateOverrides && stateOverrides.depthStencilState || this._dss;
-        const blendState = stateOverrides && stateOverrides.blendState || this._bs;
-        const dynamicStates = stateOverrides && stateOverrides.dynamicStates || this._dynamicStates;
-        const pipelineState = this._device.createPipelineState({
-            shader,
-            primitive,
-            dynamicStates,
-            is: new GFXInputState(),
-            bs: blendState,
-            dss: depthStencilState,
-            rs: rasterizerState,
-            layout: pipelineLayout,
-            renderPass: this._renderPass!,
-            hash: Pass.getPSOHash({ stage: this._stage, program: this._programName, defines, primitive,
-                rasterizerState, depthStencilState, blendState, dynamicStates }),
-        });
+        _psoInfo.primitive = _psoHashInfo.primitive = stateOverrides && stateOverrides.primitive || this._primitive;
+        _psoInfo.shader = shader;
+        _psoInfo.rs = _psoHashInfo.rasterizerState = stateOverrides && stateOverrides.rasterizerState || this._rs;
+        _psoInfo.dss = _psoHashInfo.depthStencilState = stateOverrides && stateOverrides.depthStencilState || this._dss;
+        _psoInfo.bs = _psoHashInfo.blendState = stateOverrides && stateOverrides.blendState || this._bs;
+        _psoInfo.dynamicStates = _psoHashInfo.dynamicStates = stateOverrides && stateOverrides.dynamicStates || this._dynamicStates;
+        _psoInfo.layout = pipelineLayout;
+        _psoInfo.renderPass = this._renderPass!;
+        _psoHashInfo.program = this._programName;
+        _psoHashInfo.defines = defineOverrides || this._defines;
+        _psoHashInfo.stage = this._stage;
+        _psoInfo.hash = Pass.getPSOHash(_psoHashInfo);
+        const pipelineState = this._device.createPipelineState(_psoInfo);
         this._resources.push({ bindingLayout, pipelineLayout, pipelineState });
         return pipelineState;
     }

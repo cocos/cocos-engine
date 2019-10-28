@@ -8,7 +8,8 @@ import { SpriteFrame } from '../../assets/sprite-frame';
 import { TextureBase } from '../../assets/texture-base';
 import { ccclass, property } from '../../data/class-decorator';
 import { GFXBindingType } from '../../gfx/define';
-import { _type2default, Pass } from '../../renderer/core/pass';
+import { Pass } from '../../renderer/core/pass';
+import { type2default } from '../../renderer/core/pass-utils';
 import { samplerLib } from '../../renderer/core/sampler-lib';
 import { CurveValueAdapter } from '../animation-curve';
 
@@ -44,7 +45,7 @@ export class UniformCurveValueAdapter extends CurveValueAdapter {
         } else if (bindingType === GFXBindingType.SAMPLER) {
             const binding = Pass.getBindingFromHandle(handle);
             const prop = pass.properties[this.uniformName];
-            const texName = prop && prop.value ? prop.value + '-texture' : _type2default[prop.type];
+            const texName = prop && prop.value ? prop.value + '-texture' : type2default[prop.type];
             let dftTex = builtinResMgr.get<TextureBase>(texName);
             if (!dftTex) {
                 console.warn('illegal texture default value: ' + texName);

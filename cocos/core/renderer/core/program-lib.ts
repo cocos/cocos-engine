@@ -27,20 +27,32 @@
  * @category material
  */
 
-import { IBuiltinInfo, IDefineInfo, IShaderInfo } from '../../assets/effect-asset';
-import { GFXBindingType, GFXShaderType } from '../../gfx/define';
+import { IBlockInfo, IBuiltinInfo, IDefineInfo, IShaderInfo } from '../../assets/effect-asset';
+import { IGFXBinding } from '../../gfx/binding-layout';
+import { GFXBindingType, GFXGetTypeSize, GFXShaderType } from '../../gfx/define';
 import { GFXAPI, GFXDevice } from '../../gfx/device';
-import { GFXShader } from '../../gfx/shader';
+import { GFXShader, GFXUniformBlock } from '../../gfx/shader';
 import { IInternalBindingDesc, localBindingsDesc } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { IDefineMap } from './pass';
+import { genHandle } from './pass-utils';
 
 interface IDefineRecord extends IDefineInfo {
     _map: (value: any) => number;
     _offset: number;
 }
-interface IProgramInfo extends IShaderInfo {
+interface IBlockInfoRT extends IBlockInfo {
+    size: number;
+}
+interface IBindingInfo extends IGFXBinding {
+    defines: string[];
+}
+export interface IProgramInfo extends IShaderInfo {
+    blocks: IBlockInfoRT[];
     defines: IDefineRecord[];
+    handleMap: Record<string, number>;
+    bindings: IBindingInfo[];
+    offsets: number[][];
     globalsInited: boolean;
     localsInited: boolean;
 }
@@ -49,9 +61,11 @@ export interface IMacroInfo {
     value: string;
 }
 
-const getBitCount = (cnt: number) => Math.ceil(Math.log2(Math.max(cnt, 2)));
+function getBitCount (cnt: number) {
+    return Math.ceil(Math.log2(Math.max(cnt, 2)));
+}
 
-const mapDefine = (info: IDefineInfo, def: number | string | boolean) => {
+function mapDefine (info: IDefineInfo, def: number | string | boolean) {
     switch (info.type) {
         case 'boolean': return def as boolean ? '1' : '0';
         case 'string': return def !== undefined ? def as string : info.options![0];
@@ -59,9 +73,9 @@ const mapDefine = (info: IDefineInfo, def: number | string | boolean) => {
     }
     console.warn(`unknown define type '${info.type}'`);
     return '-1'; // should neven happen
-};
+}
 
-const prepareDefines = (defs: IDefineMap, tDefs: IDefineInfo[]) => {
+function prepareDefines (defs: IDefineMap, tDefs: IDefineInfo[]) {
     const macros: IMacroInfo[] = [];
     for (const tmpl of tDefs) {
         const name = tmpl.name;
@@ -69,20 +83,22 @@ const prepareDefines = (defs: IDefineMap, tDefs: IDefineInfo[]) => {
         macros.push({ name, value });
     }
     return macros;
-};
+}
 
-const getShaderInstanceName = (name: string, macros: IMacroInfo[]) => {
+function getShaderInstanceName (name: string, macros: IMacroInfo[]) {
     return name + macros.reduce((acc, cur) => cur.value !== '0' ? `${acc}|${cur.name}${cur.value}` : acc, '');
-};
+}
 
-const insertBuiltinBindings = (tmpl: IProgramInfo, source: Map<string, IInternalBindingDesc>, type: string) => {
+function insertBuiltinBindings (tmpl: IProgramInfo, source: Map<string, IInternalBindingDesc>, type: string) {
     const target = tmpl.builtins[type] as IBuiltinInfo;
     const blocks = tmpl.blocks;
+    const bindings = tmpl.bindings;
     for (const b of target.blocks) {
         const info = source.get(b.name);
         if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b.name}' not available!`); continue; }
-        const builtin = Object.assign({ defines: b.defines }, info.blockInfo);
+        const builtin: IBlockInfoRT = Object.assign({ defines: b.defines, size: getSize(info.blockInfo!) }, info.blockInfo!);
         blocks.push(builtin);
+        bindings.push({ name: builtin.name, binding: builtin.binding, defines: builtin.defines, type: GFXBindingType.UNIFORM_BUFFER });
     }
     const samplers = tmpl.samplers;
     for (const s of target.samplers) {
@@ -90,8 +106,44 @@ const insertBuiltinBindings = (tmpl: IProgramInfo, source: Map<string, IInternal
         if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`builtin sampler '${s.name}' not available!`); continue; }
         const builtin = Object.assign({ defines: s.defines }, info.samplerInfo);
         samplers.push(builtin);
+        bindings.push({ name: builtin.name, binding: builtin.binding, defines: builtin.defines, type: GFXBindingType.SAMPLER });
     }
-};
+}
+
+function getSize (block: GFXUniformBlock) {
+    return block.members.reduce((s, m) => s + GFXGetTypeSize(m.type) * m.count, 0);
+}
+
+function genBindings (tmpl: IShaderInfo) {
+    return tmpl.blocks.reduce((acc, cur) => {
+        acc.push({ name: cur.name, binding: cur.binding, defines: cur.defines, type: GFXBindingType.UNIFORM_BUFFER });
+        return acc;
+    }, [] as IBindingInfo[]).concat(tmpl.samplers.reduce((acc, cur) => {
+        acc.push({ name: cur.name, binding: cur.binding, defines: cur.defines, type: GFXBindingType.SAMPLER });
+        return acc;
+    }, [] as IBindingInfo[]));
+}
+
+function genHandles (tmpl: IProgramInfo) {
+    const handleMap: Record<string, number> = {};
+    // block member handles
+    for (let i = 0; i < tmpl.blocks.length; i++) {
+        const block = tmpl.blocks[i];
+        const members = block.members;
+        let offset = 0;
+        for (let j = 0; j < members.length; j++) {
+            const uniform = members[j];
+            handleMap[uniform.name] = genHandle(GFXBindingType.UNIFORM_BUFFER, block.binding, uniform.type, offset);
+            offset += (GFXGetTypeSize(uniform.type) >> 2) * uniform.count;
+        }
+    }
+    // sampler handles
+    for (let i = 0; i < tmpl.samplers.length; i++) {
+        const sampler = tmpl.samplers[i];
+        handleMap[sampler.name] = genHandle(GFXBindingType.SAMPLER, sampler.binding, sampler.type);
+    }
+    return handleMap;
+}
 
 /**
  * @zh
@@ -109,31 +161,11 @@ class ProgramLib {
     /**
      * @zh
      * 根据 effect 信息注册 shader 模板。
-     * @example
-     * ```typescript
-     *   // this object is auto-generated from your actual shaders
-     *   let program = {
-     *     name: 'foobar',
-     *     glsl1: { vert: '...', frag: '...' },
-     *     glsl3: { vert: '...', frag: '...' },
-     *     defines: [
-     *       { name: 'shadow', type: 'boolean', defines: [] },
-     *       { name: 'lightCount', type: 'number', range: [1, 4], defines: [] }
-     *     ],
-     *     blocks: [{ name: 'Constants', binding: 0, members: [
-     *       { name: 'color', type: 'vec4', count: 1, size: 16 }], defines: [], size: 16 }
-     *     ],
-     *     samplers: [],
-     *   };
-     *   programLib.define(program);
-     * ```
      */
     public define (prog: IShaderInfo) {
-        const cur = this._templates[prog.name];
-        if (cur && cur.hash === prog.hash) { return; }
+        const curTmpl = this._templates[prog.name];
+        if (curTmpl && curTmpl.hash === prog.hash) { return; }
         const tmpl = prog as IProgramInfo;
-        if (!tmpl.localsInited) { insertBuiltinBindings(tmpl, localBindingsDesc, 'locals'); tmpl.localsInited = true; }
-
         // calculate option mask offset
         let offset = 0;
         for (const def of tmpl.defines) {
@@ -151,6 +183,10 @@ class ProgramLib {
             def._offset = offset;
             offset += cnt;
         }
+        tmpl.blocks.forEach((b) => b.size = getSize(b));
+        tmpl.handleMap = genHandles(tmpl);
+        tmpl.bindings = genBindings(tmpl);
+        if (!tmpl.localsInited) { insertBuiltinBindings(tmpl, localBindingsDesc, 'locals'); tmpl.localsInited = true; }
         // store it
         this._templates[prog.name] = tmpl;
     }
