@@ -152,7 +152,7 @@ let TiledLayer = cc.Class({
     addUserNode (node) {
         let dataComp = node.getComponent(TiledUserNodeData);
         if (dataComp) {
-            cc.warn("CCTiledLayer:addUserNode node has add");
+            cc.warn("CCTiledLayer:addUserNode node has added");
             return false;
         }
 
