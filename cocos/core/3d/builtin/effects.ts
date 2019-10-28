@@ -466,18 +466,18 @@ export default [
   {
     "name": "util/profiler",
     "techniques": [
-      {"passes":[{"blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":4, "blendDstAlpha":4}]}, "rasterizerState":{"cullMode":0}, "program":"util/profiler|profiler-vs:vert|profiler-fs:frag", "depthStencilState":{"depthTest":false, "depthWrite":false}, "properties":{"mainTexture":{"value":"grey", "type":28}, "offset":{"type":16}}}]}
+      {"passes":[{"blendState":{"targets":[{"blend":true, "blendSrc":2, "blendDst":4, "blendDstAlpha":4}]}, "rasterizerState":{"cullMode":0}, "program":"util/profiler|profiler-vs:vert|profiler-fs:frag", "depthStencilState":{"depthTest":false, "depthWrite":false}}]}
     ],
     "shaders": [
       {
         "name": "util/profiler|profiler-vs:vert|profiler-fs:frag",
-        "hash": 3710757766,
+        "hash": 3801970600,
         "glsl3": {
-          "vert": `\nprecision mediump float;\nuniform CCGlobal {\n  vec4 cc_time;\n  vec4 cc_screenSize;\n  vec4 cc_screenScale;\n  vec4 cc_nativeSize;\n  mat4 cc_matView;\n  mat4 cc_matViewInv;\n  mat4 cc_matProj;\n  mat4 cc_matProjInv;\n  mat4 cc_matViewProj;\n  mat4 cc_matViewProjInv;\n  vec4 cc_cameraPos;\n  vec4 cc_exposure;\n  vec4 cc_mainLitDir;\n  vec4 cc_mainLitColor;\n  vec4 cc_ambientSky;\n  vec4 cc_ambientGround;\n};\nin vec3 a_position;\nvoid CCDecode (out vec4 position) {\n  position = vec4(a_position, 1.0);\n}\nin vec2 a_texCoord;\nout vec2 v_uv;\nuniform Constants {\n  vec4 offset;\n};\nvec4 vert () {\n  vec4 position;\n  CCDecode(position);\n  position.x *= cc_screenSize.y * cc_screenSize.z;\n  position.xy += offset.xy + abs(position.xy);\n  v_uv = a_texCoord;\n  return position;\n}\nvoid main() { gl_Position = vert(); }\n`,
+          "vert": `\nprecision mediump float;\nuniform CCGlobal {\n  vec4 cc_time;\n  vec4 cc_screenSize;\n  vec4 cc_screenScale;\n  vec4 cc_nativeSize;\n  mat4 cc_matView;\n  mat4 cc_matViewInv;\n  mat4 cc_matProj;\n  mat4 cc_matProjInv;\n  mat4 cc_matViewProj;\n  mat4 cc_matViewProjInv;\n  vec4 cc_cameraPos;\n  vec4 cc_exposure;\n  vec4 cc_mainLitDir;\n  vec4 cc_mainLitColor;\n  vec4 cc_ambientSky;\n  vec4 cc_ambientGround;\n};\nin vec3 a_position;\nvoid CCDecode (out vec4 position) {\n  position = vec4(a_position, 1.0);\n}\nin vec4 a_color;\nout vec2 v_uv;\nuniform Constants {\n  vec4 offset;\n  vec4 symbols[4];\n};\nuniform PerFrameInfo {\n  vec4 digits[16 * 9 / 4];\n};\nfloat getComponent(vec4 v, float i) {\n  if (i < 1.0) { return v[0]; }\n  else if (i < 2.0) { return v[1]; }\n  else if (i < 3.0) { return v[2]; }\n  else { return v[3]; }\n}\nvec4 vert () {\n  vec4 position;\n  CCDecode(position);\n  position.x *= cc_screenSize.y * cc_screenSize.z;\n  position.xy += offset.xy + abs(position.xy);\n  if(a_color.z < 0.0){\n    v_uv = a_color.xy;\n  }\n  else{\n    float n = getComponent(digits[int(a_color.z)], a_color.w);\n    float row = floor(n / 4.0), col = n - row * 4.0;\n    v_uv = a_color.xy + vec2(getComponent(symbols[int(row)], col), 0.0);\n  }\n  return position;\n}\nvoid main() { gl_Position = vert(); }\n`,
           "frag": `\nprecision mediump float;\nuniform CCGlobal {\n  vec4 cc_time;\n  vec4 cc_screenSize;\n  vec4 cc_screenScale;\n  vec4 cc_nativeSize;\n  mat4 cc_matView;\n  mat4 cc_matViewInv;\n  mat4 cc_matProj;\n  mat4 cc_matProjInv;\n  mat4 cc_matViewProj;\n  mat4 cc_matViewProjInv;\n  vec4 cc_cameraPos;\n  vec4 cc_exposure;\n  vec4 cc_mainLitDir;\n  vec4 cc_mainLitColor;\n  vec4 cc_ambientSky;\n  vec4 cc_ambientGround;\n};\nvec3 SRGBToLinear(vec3 gamma)\n{\n	return pow(gamma, vec3(2.2));\n}\nvec3 LinearToSRGB(vec3 linear)\n{\n	return pow(linear, vec3(0.454545));\n}\nvec4 CCFragOutput(vec4 color) {\n  #if CC_USE_HDR\n    color.rgb = mix(color.rgb, SRGBToLinear(color.rgb) * cc_exposure.w, vec3(cc_exposure.z));\n	#endif\n	return color;\n}\nin vec2 v_uv;\nuniform sampler2D mainTexture;\nvec4 frag () {\n  return CCFragOutput(texture(mainTexture, v_uv));\n}\nout vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }\n`
         },
         "glsl1": {
-          "vert": `\nprecision mediump float;\nuniform vec4 cc_screenSize;\nattribute vec3 a_position;\nvoid CCDecode (out vec4 position) {\n  position = vec4(a_position, 1.0);\n}\nattribute vec2 a_texCoord;\nvarying vec2 v_uv;\nuniform vec4 offset;\nvec4 vert () {\n  vec4 position;\n  CCDecode(position);\n  position.x *= cc_screenSize.y * cc_screenSize.z;\n  position.xy += offset.xy + abs(position.xy);\n  v_uv = a_texCoord;\n  return position;\n}\nvoid main() { gl_Position = vert(); }\n`,
+          "vert": `\nprecision mediump float;\nuniform vec4 cc_screenSize;\nattribute vec3 a_position;\nvoid CCDecode (out vec4 position) {\n  position = vec4(a_position, 1.0);\n}\nattribute vec4 a_color;\nvarying vec2 v_uv;\nuniform vec4 offset;\nuniform vec4 symbols[4];\nuniform vec4 digits[36];\nfloat getComponent(vec4 v, float i) {\n  if (i < 1.0) { return v[0]; }\n  else if (i < 2.0) { return v[1]; }\n  else if (i < 3.0) { return v[2]; }\n  else { return v[3]; }\n}\nvec4 vert () {\n  vec4 position;\n  CCDecode(position);\n  position.x *= cc_screenSize.y * cc_screenSize.z;\n  position.xy += offset.xy + abs(position.xy);\n  if(a_color.z < 0.0){\n    v_uv = a_color.xy;\n  }\n  else{\n    float n = getComponent(digits[int(a_color.z)], a_color.w);\n    float row = floor(n / 4.0), col = n - row * 4.0;\n    v_uv = a_color.xy + vec2(getComponent(symbols[int(row)], col), 0.0);\n  }\n  return position;\n}\nvoid main() { gl_Position = vert(); }\n`,
           "frag": `\nprecision mediump float;\nuniform vec4 cc_exposure;\nvec3 SRGBToLinear(vec3 gamma)\n{\n	return pow(gamma, vec3(2.2));\n}\nvec3 LinearToSRGB(vec3 linear)\n{\n	return pow(linear, vec3(0.454545));\n}\nvec4 CCFragOutput(vec4 color) {\n  #if CC_USE_HDR\n    color.rgb = mix(color.rgb, SRGBToLinear(color.rgb) * cc_exposure.w, vec3(cc_exposure.z));\n	#endif\n	return color;\n}\nvarying vec2 v_uv;\nuniform sampler2D mainTexture;\nvec4 frag () {\n  return CCFragOutput(texture2D(mainTexture, v_uv));\n}\nvoid main() { gl_FragColor = frag(); }\n`
         },
         "builtins": {"globals":{"blocks":[{"name":"CCGlobal", "defines":[]}], "samplers":[]}, "locals":{"blocks":[], "samplers":[]}},
@@ -486,7 +486,11 @@ export default [
         ],
         "blocks": [
           {"name": "Constants", "defines": [], "binding": 0, "members": [
-            {"name":"offset", "type":16, "count":1}
+            {"name":"offset", "type":16, "count":1},
+            {"name":"symbols", "type":16, "count":4}
+          ]},
+          {"name": "PerFrameInfo", "defines": [], "binding": 1, "members": [
+            {"name":"digits", "type":16, "count":36}
           ]}
         ],
         "samplers": [
