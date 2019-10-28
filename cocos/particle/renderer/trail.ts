@@ -31,7 +31,7 @@ const _temp_vec3 = new Vec3();
 const _temp_vec3_1 = new Vec3();
 const _temp_color = new Color();
 
-const barycentric = [1,0,0, 0,1,0, 0,0,1]; // <wirframe debug>
+const barycentric = [1,0,0, 0,1,0, 0,0,1]; // <wireframe debug>
 let _bcIdx = 0;
 
 interface ITrailElement {
@@ -510,6 +510,8 @@ export default class TrailModule {
                 const lastThirdTrail = trailSeg.getElement(trailSeg.end - 2)!;
                 Vec3.subtract(_temp_vec3, lastThirdTrail.position, lastSecondTrail.position);
                 Vec3.subtract(_temp_vec3_1, _temp_trailEle.position, lastSecondTrail.position);
+                Vec3.normalize(_temp_vec3,_temp_vec3);
+                Vec3.normalize(_temp_vec3_1,_temp_vec3_1);
                 Vec3.subtract(lastSecondTrail.velocity, _temp_vec3_1, _temp_vec3);
                 Vec3.normalize(lastSecondTrail.velocity, lastSecondTrail.velocity);
                 this._checkDirectionReverse(lastSecondTrail, lastThirdTrail);
@@ -523,7 +525,11 @@ export default class TrailModule {
                 Vec3.normalize(_temp_trailEle.velocity, _temp_trailEle.velocity);
                 this._checkDirectionReverse(_temp_trailEle, lastSecondTrail);
             }
-            _temp_trailEle.width = p.size.x;
+            if (this.widthFromParticle) {
+                _temp_trailEle.width = p.size.x * this.widthRatio.evaluate(0, 1)!;
+            } else {
+                _temp_trailEle.width = this.widthRatio.evaluate(0, 1)!;
+            }
             _temp_trailEle.color = p.color;
 
             if (Vec3.equals(_temp_trailEle.velocity, Vec3.ZERO)) {
