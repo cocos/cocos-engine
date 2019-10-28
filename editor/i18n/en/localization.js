@@ -79,6 +79,8 @@ module.exports = {
             "pressed_sprite": "The Sprite that is used when the button is in a pressed sate.",
             "hover_sprite": "The Sprite that is used when the button is hovered over.",
             "disabled_sprite": "The Sprite that is used when the button is in a disabled sate.",
+            'normal_material': 'The material used for the background image specified by the button under normal conditions',
+            'gray_material': 'The material used for the background image specified by the button in the disabled state',
             "target": "reference to the Sprite as button's background. When the state of the button changes the sprite's color or spriteFrame will be updated.",
             "click_events": "What method is called on the click event?"
         },
