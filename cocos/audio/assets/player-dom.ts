@@ -35,7 +35,9 @@ export class AudioPlayerDOM extends AudioPlayer {
     protected _loop = false;
     protected _oneShoting = false;
     protected _audio: HTMLAudioElement;
+    protected _cbRegistered = false;
 
+    private _remove_cb: () => void;
     private _post_play: () => void;
     private _on_gesture: () => void;
     private _post_gesture: () => void;
@@ -44,16 +46,22 @@ export class AudioPlayerDOM extends AudioPlayer {
         super(info);
         this._audio = info.clip;
 
+        this._remove_cb = () => {
+            if (!this._cbRegistered) { return; }
+            cc.game.canvas.removeEventListener('touchend', this._on_gesture);
+            cc.game.canvas.removeEventListener('mouseup', this._on_gesture);
+            this._cbRegistered = false;
+        };
+
         this._post_play = () => {
             this._state = PlayingState.PLAYING;
             this._eventTarget.emit('started');
+            this._remove_cb(); // should remove callbacks after any success play
         };
 
         this._post_gesture = () => {
             if (this._interrupted) { this._post_play(); this._interrupted = false; }
             else { this._audio!.pause(); this._audio!.currentTime = 0; }
-            cc.game.canvas.removeEventListener('touchend', this._on_gesture);
-            cc.game.canvas.removeEventListener('mouseup', this._on_gesture);
         };
 
         this._on_gesture = () => {
@@ -65,6 +73,7 @@ export class AudioPlayerDOM extends AudioPlayer {
                 return;
             }
             promise.then(this._post_gesture);
+            this._remove_cb();
         };
 
         this._audio.volume = this._volume;
@@ -80,6 +89,7 @@ export class AudioPlayerDOM extends AudioPlayer {
            we can freely invoke play() outside event listeners later */
         cc.game.canvas.addEventListener('touchend', this._on_gesture);
         cc.game.canvas.addEventListener('mouseup', this._on_gesture);
+        this._cbRegistered = true;
     }
 
     public play () {
@@ -87,7 +97,8 @@ export class AudioPlayerDOM extends AudioPlayer {
         if (this._blocking) { this._interrupted = true; return; }
         const promise = this._audio.play();
         if (!promise) {
-            console.warn('no promise returned from HTMLMediaElement.play()');
+            // delay eval here to yield uniform behavior with other platforms
+            cc.director.once(cc.Director.EVENT_AFTER_UPDATE, this._post_play);
             return;
         }
         promise.then(this._post_play).catch(() => { this._interrupted = true; });
