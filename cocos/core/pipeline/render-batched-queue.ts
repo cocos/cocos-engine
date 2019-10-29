@@ -40,15 +40,12 @@ export class RenderBatchedQueue {
      * 记录命令缓冲。
      */
     public recordCommandBuffer (cmdBuff: GFXCommandBuffer) {
-        for (const batchedBuffer of this.queue.values()){
-            if (batchedBuffer.pso) {
-                cmdBuff.bindPipelineState(batchedBuffer.pso);
-                cmdBuff.bindBindingLayout(batchedBuffer.pso.pipelineLayout.layouts[0]);
-            }
-
+        for (const batchedBuffer of this.queue.values()) {
             for (let b = 0; b < batchedBuffer.batches.length; ++b) {
                 const batch = batchedBuffer.batches[b];
-                batchedBuffer.ubo.update(batch.uboLocal.view);
+                batch.ubo.update(batch.uboData.view);
+                cmdBuff.bindPipelineState(batch.pso);
+                cmdBuff.bindBindingLayout(batch.pso.pipelineLayout.layouts[0]);
                 cmdBuff.bindInputAssembler(batch.ia);
                 cmdBuff.draw(batch.ia);
             }

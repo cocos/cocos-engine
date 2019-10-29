@@ -9,7 +9,7 @@ import { GFXPipelineState } from '../gfx/pipeline-state';
 import { Mat4 } from '../math';
 import { Pass } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
-import { IRenderObject, UBOLocal, UniformBinding } from './define';
+import { IRenderObject, UBOLocalBatched, UniformBinding } from './define';
 
 export interface IBatchedItem {
     vbs: GFXBuffer[];
@@ -17,23 +17,19 @@ export interface IBatchedItem {
     vbCount: number;
     mergeCount: number;
     ia: GFXInputAssembler;
-    uboLocal: UBOLocal;
+    ubo: GFXBuffer;
+    uboData: UBOLocalBatched;
+    pso: GFXPipelineState;
 }
+
+const _localBatched = new UBOLocalBatched();
 
 export class BatchedBuffer {
     public batches: IBatchedItem[] = [];
-    public pso: GFXPipelineState | null = null;
-    public ubo: GFXBuffer;
     public pass: Pass;
-    private _limitCount = 10;
 
     constructor (pass: Pass) {
         this.pass = pass;
-        this.ubo = pass.device.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOLocal.SIZE,
-        });
     }
 
     public destroy () {
@@ -44,24 +40,21 @@ export class BatchedBuffer {
             }
             batch.vbIdx.destroy();
             batch.ia.destroy();
+            batch.ubo.destroy();
         }
         this.batches.splice(0);
-        this.pso = null;
-        this.ubo.destroy();
     }
 
-    public merge (subModel: SubModel, ro: IRenderObject) {
+    public merge (subModel: SubModel, ro: IRenderObject, pso: GFXPipelineState) {
         const flatBuffers = subModel.subMeshData.flatBuffers;
-        if (flatBuffers.length === 0) {
-            return ;
-        }
+        if (flatBuffers.length === 0) { return; }
         let vbSize = 0;
         let vbIdxSize = 0;
         const vbCount = flatBuffers[0].count;
         let isBatchExist = false;
         for (let i = 0; i < this.batches.length; ++i) {
             const batch = this.batches[i];
-            if (batch.vbs.length === flatBuffers.length && batch.mergeCount <= this._limitCount) {
+            if (batch.vbs.length === flatBuffers.length && batch.mergeCount < UBOLocalBatched.BATCHING_COUNT) {
                 isBatchExist = true;
                 for (let j = 0; j < batch.vbs.length; ++j) {
                     const vb = batch.vbs[j];
@@ -76,22 +69,18 @@ export class BatchedBuffer {
                         const flatBuff = flatBuffers[j];
                         const batchVB = batch.vbs[j];
                         vbSize = (vbCount + batch.vbCount) * flatBuff.stride;
-                        if (vbSize > batchVB.size) {
-                            batchVB.resize(vbSize);
-                        }
+                        if (vbSize > batchVB.size) { batchVB.resize(vbSize); }
                         batchVB.update(flatBuff.buffer, batch.vbCount * flatBuff.stride);
                     }
 
                     vbIdxSize = (vbCount + batch.vbCount) * 4;
-                    if (vbIdxSize > batch.vbIdx.size) {
-                        batch.vbIdx.resize(vbIdxSize);
-                    }
-                    const vbIdxView = new Float32Array(flatBuffers[0].count);
+                    if (vbIdxSize > batch.vbIdx.size) { batch.vbIdx.resize(vbIdxSize); }
+                    const vbIdxView = new Float32Array(vbCount);
                     vbIdxView.fill(batch.mergeCount);
                     batch.vbIdx.update(vbIdxView.buffer, batch.vbCount * 4);
 
                     // update world matrix
-                    Mat4.toArray(batch.uboLocal.view, ro.model.transform.worldMatrix, UBOLocal.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
+                    Mat4.toArray(batch.uboData.view, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
 
                     ++batch.mergeCount;
                     batch.vbCount += vbCount;
@@ -138,7 +127,7 @@ export class BatchedBuffer {
             attrs[a] = attributes[a];
         }
         attrs[attributes.length] = {
-            name: 'a_index',
+            name: 'a_dyn_batch_id',
             format: GFXFormat.R32F,
             stream: flatBuffers.length,
         };
@@ -148,27 +137,24 @@ export class BatchedBuffer {
             vertexBuffers: totalVBS,
         });
 
-        const newBatch: IBatchedItem = {
+        const ubo = this.pass.device.createBuffer({
+            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: UBOLocalBatched.SIZE,
+        });
+
+        const bindingLayout = pso.pipelineLayout.layouts[0];
+        bindingLayout.bindBuffer(UniformBinding.UBO_LOCAL_BATCHED, ubo);
+        bindingLayout.update();
+
+        const uboData = new UBOLocalBatched();
+        Mat4.toArray(uboData.view, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET);
+
+        this.batches.push({
             vbs: newVBs,
-            vbIdx,
-            vbCount,
             mergeCount: 1,
-            ia,
-            uboLocal: new UBOLocal(),
-        };
-
-        // newBatch.subModels.push(subModel);
-
-        Mat4.toArray(newBatch.uboLocal.view, ro.model.transform.worldMatrix, UBOLocal.MAT_WORLDS_OFFSET);
-
-        this.batches.push(newBatch);
-        this.pass.bindBuffer(UniformBinding.UBO_LOCAL, this.ubo);
-        this.pass.update();
-        if (!this.pso) {
-            this.pso = subModel.psos![this.pass.idxInTech];
-            const bindingLayout =  this.pso.pipelineLayout.layouts[0];
-            bindingLayout.update();
-        }
+            vbIdx, vbCount, ia, ubo, uboData, pso,
+        });
     }
 
     public clear () {
@@ -177,6 +163,13 @@ export class BatchedBuffer {
             batch.vbCount = 0;
             batch.mergeCount = 0;
             batch.ia.vertexCount = 0;
+        }
+    }
+
+    public clearUBO () {
+        for (let i = 0; i < this.batches.length; ++i) {
+            const batch = this.batches[i];
+            batch.ubo.update(_localBatched.view.buffer);
         }
     }
 }

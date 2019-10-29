@@ -43,7 +43,7 @@ import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { BatchedBuffer } from '../../pipeline/batched-buffer';
-import { isBuiltinBinding, RenderPassStage, RenderPriority, UBOLocal } from '../../pipeline/define';
+import { isBuiltinBinding, RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
@@ -570,13 +570,13 @@ export class Pass {
         // bind resources
         _blInfo.bindings = this._bindings;
         const bindingLayout = this._device.createBindingLayout(_blInfo);
-        for (const b of Object.keys(this._buffers)) {
+        for (const b in this._buffers) {
             bindingLayout.bindBuffer(parseInt(b), this._buffers[b]);
         }
-        for (const s of Object.keys(this._samplers)) {
+        for (const s in this._samplers) {
             bindingLayout.bindSampler(parseInt(s), this._samplers[s]);
         }
-        for (const t of Object.keys(this._textureViews)) {
+        for (const t in this._textureViews) {
             bindingLayout.bindTextureView(parseInt(t), this._textureViews[t]);
         }
         // bind pipeline builtins
@@ -638,23 +638,11 @@ export class Pass {
 
     /**
      * @zh
-     * 销毁合批缓冲。
-     */
-    public destroyBatchedBuffer () {
-        if (this._batchedBuffer) {
-            this._batchedBuffer.destroy();
-            this._batchedBuffer = null;
-        }
-    }
-
-    /**
-     * @zh
      * 清空合批缓冲。
      */
     public clearBatchedBuffer () {
         if (this._batchedBuffer) {
-            const uboLocal = new UBOLocal();
-            this._batchedBuffer.ubo.update(uboLocal.view.buffer);
+            this._batchedBuffer.clearUBO();
         }
     }
 
