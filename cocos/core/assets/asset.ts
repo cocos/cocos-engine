@@ -28,7 +28,7 @@
  * @category asset
  */
 
-import { ccclass, property } from '../data/class-decorator';
+import { ccclass, property, string } from '../data/class-decorator';
 import { Event } from '../event';
 import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { EventTarget } from '../event/event-target';
@@ -106,7 +106,7 @@ export class Asset extends RawAsset implements IEventTarget {
      * 用于本机资产的可序列化URL。供内部使用。
      * @default ""
      */
-    @property(cc.String)
+    @string
     public _native: string = '';
 
     private _file: any = null;
