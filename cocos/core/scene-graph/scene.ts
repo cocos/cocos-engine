@@ -119,6 +119,18 @@ export class Scene extends BaseNode {
         }
     }
 
+    public getWorldPosition (out?: Vec3) {
+        return this.getPosition(out);
+    }
+
+    public getWorldRotation (out?: Quat) {
+        return this.getRotation(out);
+    }
+
+    public getWorldScale (out?: Vec3) {
+        return this.getScale(out);
+    }
+
     public updateWorldTransform () { }
 
     public addComponent (typeOrClassName: string | Function) {
