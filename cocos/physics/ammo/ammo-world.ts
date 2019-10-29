@@ -45,9 +45,9 @@ export class AmmoWorld implements PhysicsWorldBase {
     public readonly staticShapes: AmmoShape[] = [];
     public readonly triggerShapes: AmmoShape[] = [];
     public readonly sharedStaticCompoundShape: Ammo.btCompoundShape;
-    public readonly sharedStaticBody: Ammo.btRigidBody;
+    public readonly sharedStaticBody: Ammo.btCollisionObject;
     public readonly sharedTriggerCompoundShape: Ammo.btCompoundShape;
-    public readonly sharedTriggerBody: Ammo.btRigidBody;
+    public readonly sharedTriggerBody: Ammo.btCollisionObject;
 
     public readonly triggerArrayMat = new ArrayCollisionMatrix();
     public readonly collisionArrayMat = new ArrayCollisionMatrix();
@@ -74,9 +74,12 @@ export class AmmoWorld implements PhysicsWorldBase {
             let myMotionState = new Ammo.btDefaultMotionState();
             let rbInfo = new Ammo.btRigidBodyConstructionInfo(0, myMotionState, this.sharedStaticCompoundShape, localInertia);
             this.sharedStaticBody = new Ammo.btRigidBody(rbInfo);
-            this._btWorld.addRigidBody(this.sharedStaticBody);
+
+            /** TODO: change to btCollisionObject */
+            // this.sharedStaticBody = new Ammo.btCollisionObject();
+
+            this._btWorld.addCollisionObject(this.sharedStaticBody);
             this.sharedStaticBody.setUserIndex(-2);
-            this.sharedStaticBody.setActivationState(4);
         }
 
         /** shared trigger body */
@@ -87,10 +90,13 @@ export class AmmoWorld implements PhysicsWorldBase {
             let myMotionState = new Ammo.btDefaultMotionState();
             let rbInfo = new Ammo.btRigidBodyConstructionInfo(0, myMotionState, this.sharedTriggerCompoundShape, localInertia);
             this.sharedTriggerBody = new Ammo.btRigidBody(rbInfo);
+
+            /** TODO: change to btCollisionObject */
+            // this.sharedTriggerBody = new Ammo.btCollisionObject();
+
             this.sharedTriggerBody.setCollisionFlags(AmmoCollisionFlags.CF_NO_CONTACT_RESPONSE);
-            this._btWorld.addRigidBody(this.sharedTriggerBody);
+            this._btWorld.addCollisionObject(this.sharedTriggerBody);
             this.sharedTriggerBody.setUserIndex(-3);
-            this.sharedTriggerBody.setActivationState(4);
         }
 
     }
