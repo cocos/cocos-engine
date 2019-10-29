@@ -151,11 +151,6 @@ def main():
                     'cocos2dx_extension.ini' : ('cocos2dx_extension', 'jsb_cocos2dx_extension_auto'),
                     'cocos2dx_network.ini' : ('cocos2dx_network', 'jsb_cocos2dx_network_auto'),
                     'gfx.ini': ('gfx', 'jsb_gfx_auto'),
-                    'renderer.ini': ('renderer', 'jsb_renderer_auto'),
-                    'cocos2dx_spine.ini': ('cocos2dx_spine','jsb_cocos2dx_spine_auto'),
-                    'cocos2dx_editor_support.ini': ('cocos2dx_editor_support','jsb_cocos2dx_editor_support_auto'),
-                    'cocos2dx_dragonbones.ini': ('cocos2dx_dragonbones','jsb_cocos2dx_dragonbones_auto'),
-					'cocos2dx_particle.ini': ('cocos2dx_particle', 'jsb_cocos2dx_particle_auto')
                     }
         target = 'spidermonkey'
         generator_py = '%s/generator.py' % cxx_generator_root

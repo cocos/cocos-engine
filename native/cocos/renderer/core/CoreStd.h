@@ -31,10 +31,10 @@
 #include <mutex>
 
 #include "TypeDef.h"
-#include "Kernel/Assertion.h"
-#include "Memory/Memory.h"
-#include "Math/CCMath.h"
-#include "Kernel/Log.h"
-#include "Kernel/Object.h"
+#include "kernel/Assertion.h"
+#include "memory/Memory.h"
+#include "math/CCMath.h"
+#include "kernel/Log.h"
+#include "kernel/Object.h"
 
 #endif // CC_CORE_CORE_STD_H_

@@ -1,6 +1,6 @@
 #include "CoreStd.h"
 #include "MemTracker.h"
-#include "Util/StringUtil.h"
+#include "util/StringUtil.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
 #  include <android/log.h>

@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "Log.h"
 #include "UTFString.h"
-#include "Util/StringUtil.h"
+#include "util/StringUtil.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #  ifndef WIN32_LEAN_AND_MEAN

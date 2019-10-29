@@ -2,16 +2,16 @@
 #define __gles2w_h_
 
 #if defined(__APPLE__) || defined(__APPLE_CC__)
-#   include <OpenGLES/ES2/gl.h>
+#   include <khronos/OpenGLES/ES2/gl.h>
     // Prevent Apple's non-standard extension header from being included
 #   define __gl_es20ext_h_
 #else
-#   include <GLES2/gl2.h>
+#   include <khronos/GLES2/gl2.h>
 #endif
 
-#include <KHR/khrplatform.h>
-#include <GLES2/gl2platform.h>
-#include <GLES2/gl2ext.h>
+#include <khronos/KHR/khrplatform.h>
+#include <khronos/GLES2/gl2platform.h>
+#include <khronos/GLES2/gl2ext.h>
 
 typedef khronos_int64_t  GLint64EXT;
 typedef khronos_uint64_t GLuint64EXT;

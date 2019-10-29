@@ -3,12 +3,12 @@
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
 #   ifdef __OBJC__
-#       include <OpenGLES/EAGL.h>
+#       include <khronos/OpenGLES/EAGL.h>
 #   endif
 #else
-#   include <EGL/egl.h>
-#   include <EGL/eglext.h>
-#   include <EGL/eglplatform.h>
+#   include <khronos/EGL/egl.h>
+#   include <khronos/EGL/eglext.h>
+#   include <khronos/EGL/eglplatform.h>
 #endif
 
 #ifndef EGL_KHR_create_context
