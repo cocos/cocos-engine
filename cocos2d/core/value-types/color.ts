@@ -58,7 +58,9 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    static WHITE: Color = Object.freeze(new Color(255, 255, 255, 255));
+    static get WHITE () { return new Color(255, 255, 255, 255); }
+    static readonly WHITE_R: Color = Color.WHITE;
+
     /**
      * !#en Solid black, RGBA is [0, 0, 0, 255].
      * !#zh 纯黑色，RGBA 是 [0, 0, 0, 255]。
@@ -66,7 +68,8 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    static BLACK: Color = Object.freeze(new Color(0, 0, 0, 255));
+    static get BLACK () { return new Color(0, 0, 0, 255); }
+    static readonly BLACK_R: Color = Color.BLACK;
 
     /**
      * !#en Transparent, RGBA is [0, 0, 0, 0].
@@ -75,7 +78,9 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    static TRANSPARENT: Color = Object.freeze(new Color(0, 0, 0, 0));
+    static get TRANSPARENT () { return new Color(0, 0, 0, 0); }
+    static readonly TRANSPARENT_R: Color = Color.TRANSPARENT;
+
     /**
      * !#en Grey, RGBA is [127.5, 127.5, 127.5].
      * !#zh 灰色，RGBA 是 [127.5, 127.5, 127.5]。
@@ -83,7 +88,9 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    static GRAY: Color = Object.freeze(new Color(127.5, 127.5, 127.5));
+    static get GRAY () { return new Color(127.5, 127.5, 127.5); }
+    static readonly GRAY_R: Color = Color.GRAY;
+
     /**
      * !#en Solid red, RGBA is [255, 0, 0].
      * !#zh 纯红色，RGBA 是 [255, 0, 0]。
@@ -91,8 +98,8 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    static RED: Color = Object.freeze(new Color(255, 0, 0));
-
+    static get RED () { return new Color(255, 0, 0); }
+    static readonly RED_R: Color = Color.RED;
     /**
      * !#en Solid green, RGBA is [0, 255, 0].
      * !#zh 纯绿色，RGBA 是 [0, 255, 0]。
@@ -100,7 +107,8 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    static GREEN: Color = Object.freeze(new Color(0, 255, 0));
+    static get GREEN () { return new Color(0, 255, 0); }
+    static readonly GREEN_R: Color = Color.GREEN;
     /**
      * !#en Solid blue, RGBA is [0, 0, 255].
      * !#zh 纯蓝色，RGBA 是 [0, 0, 255]。
@@ -108,7 +116,8 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    static BLUE: Color = Object.freeze(new Color(0, 0, 255));
+    static get BLUE () { return new Color(0, 0, 255); }
+    static readonly BLUE_R: Color = Color.BLUE;
     /**
      * !#en Yellow, RGBA is [255, 235, 4].
      * !#zh 黄色，RGBA 是 [255, 235, 4]。
@@ -116,7 +125,8 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    static YELLOW: Color = Object.freeze(new Color(255, 235, 4));
+    static get YELLOW () { return new Color(255, 235, 4); }
+    static readonly YELLOW_R: Color = Color.YELLOW;
     /**
      * !#en Orange, RGBA is [255, 127, 0].
      * !#zh 橙色，RGBA 是 [255, 127, 0]。
@@ -124,7 +134,8 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    static ORANGE: Color = Object.freeze(new Color(255, 127, 0));
+    static get ORANGE () { return new Color(255, 127, 0); }
+    static readonly ORANGE_R: Color = Color.ORANGE;
     /**
      * !#en Cyan, RGBA is [0, 255, 255].
      * !#zh 青色，RGBA 是 [0, 255, 255]。
@@ -132,7 +143,8 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    static CYAN: Color = Object.freeze(new Color(0, 255, 255));
+    static get CYAN () { return new Color(0, 255, 255); }
+    static readonly CYAN_R: Color = Color.CYAN;
     /**
      * !#en Magenta, RGBA is [255, 0, 255].
      * !#zh 洋红色（品红色），RGBA 是 [255, 0, 255]。
@@ -140,7 +152,8 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    static MAGENTA: Color = Object.freeze(new Color(255, 0, 255));
+    static get MAGENTA () { return new Color(255, 0, 255); }
+    static readonly MAGENTA_R: Color = Color.MAGENTA;
 
     /**
    * Copy content of a color into another.

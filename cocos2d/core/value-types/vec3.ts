@@ -58,7 +58,8 @@ export default class Vec3 extends ValueType {
      * @type Vec3
      * @static
      */
-    public static ONE = Object.freeze(new Vec3(1, 1, 1));
+    public static get ONE () { return new Vec3(1, 1, 1); }
+    public static readonly ONE_R = Vec3.ONE;
 
     /**
      * !#en return a Vec3 object with x = 0, y = 0, z = 0.
@@ -67,7 +68,8 @@ export default class Vec3 extends ValueType {
      * @type Vec3
      * @static
      */
-    public static ZERO = Object.freeze(new Vec3(0, 0, 0));
+    public static get ZERO () { return new Vec3(0, 0, 0); }
+    public static readonly ZERO_R = Vec3.ZERO;
 
     /**
      * !#en return a Vec3 object with x = 0, y = 1, z = 0.
@@ -76,7 +78,8 @@ export default class Vec3 extends ValueType {
      * @type Vec3
      * @static
      */
-    public static UP = Object.freeze(new Vec3(0, 1, 0));
+    public static get UP () { return new Vec3(0, 1, 0); }
+    public static readonly UP_R = Vec3.UP;
 
     /**
      * !#en return a Vec3 object with x = 1, y = 0, z = 0.
@@ -85,8 +88,9 @@ export default class Vec3 extends ValueType {
      * @type Vec3
      * @static
      */
-    public static RIGHT = Object.freeze(new Vec3(1, 0, 0));
-
+    public static get RIGHT () { return new Vec3(1, 0, 0); }
+    public static readonly RIGHT_R = Vec3.RIGHT;
+    
     /**
      * !#en return a Vec3 object with x = 0, y = 0, z = 1.
      * !#zh 返回 x = 0，y = 0，z = 1 的 Vec3 对象。
@@ -94,7 +98,8 @@ export default class Vec3 extends ValueType {
      * @type Vec3
      * @static
      */
-    public static FRONT = Object.freeze(new Vec3(0, 0, 1));
+    public static get FRONT () { return new Vec3(0, 0, 1); }
+    public static readonly FRONT_R = Vec3.FRONT;
 
 
     /**

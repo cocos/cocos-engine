@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import Mat4 from '../../cocos2d/core/value-types';
+import Mat4 from '../../cocos2d/core/value-types/mat4';
 
 const BinaryOffset = dragonBones.BinaryOffset;
 const BoneType  = dragonBones.BoneType;

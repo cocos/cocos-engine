@@ -57,8 +57,8 @@ export default class Size extends ValueType {
      * @default new Size(0, 0)
      * @static
      */
-    public static ZERO = Object.freeze(new Size(0, 0));
-
+    public static get ZERO () { return new Size(); }
+    public static readonly ZERO_R = Size.ZERO;
 
     /**
      * @property {Number} width
@@ -72,8 +72,8 @@ export default class Size extends ValueType {
     constructor (width: Size | number = 0, height: number = 0) {
         super();
         if (width && typeof width === 'object') {
-            height = width.height;
-            width = width.width;
+            this.height = width.height;
+            this.width = width.width;
         }
         else {
             this.width = width as number || 0;
@@ -158,9 +158,6 @@ export default class Size extends ValueType {
 }
 
 CCClass.fastDefine('cc.Size', Size, { width: 0, height: 0 });
-
-
-
 
 
 /**

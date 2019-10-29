@@ -49,10 +49,15 @@ export default class Vec4 extends ValueType {
     static mag   = Vec4.len;
     static squaredMagnitude = Vec4.lengthSqr;
 
-    public static ZERO = Object.freeze(new Vec4(0, 0, 0, 0));
-    public static ONE = Object.freeze(new Vec4(1, 1, 1, 1));
-    public static NEG_ONE = Object.freeze(new Vec4(-1, -1, -1, -1));
+    public static get ZERO () { return new Vec4(0, 0, 0, 0); }
+    public static readonly ZERO_R = Vec4.ZERO;
 
+    public static get ONE () { return new Vec4(1, 1, 1, 1); }
+    public static readonly ONE_R = Vec4.ONE;
+
+    public static get NEG_ONE () { return new Vec4(-1, -1, -1, -1); }
+    public static readonly NEG_ONE_R = Vec4.NEG_ONE;
+    
     /**
      * @zh 获得指定向量的拷贝
      */

@@ -56,7 +56,8 @@ export default class Vec2 extends ValueType {
      * @type Vec2
      * @static
      */
-    public static ONE = Object.freeze(new Vec2(1, 1));
+    public static get ONE () { return new Vec2(1, 1) };
+    public static readonly ONE_R = Vec2.ONE;
 
     /**
      * !#en return a Vec2 object with x = 0 and y = 0.
@@ -65,7 +66,8 @@ export default class Vec2 extends ValueType {
      * @type Vec2
      * @static
      */
-    public static ZERO = Object.freeze(new Vec2(0, 0));
+    public static get ZERO () { return new Vec2(0, 0) };
+    public static readonly ZERO_R = Vec2.ZERO;
 
     /**
      * !#en return a Vec2 object with x = 0 and y = 1.
@@ -74,7 +76,8 @@ export default class Vec2 extends ValueType {
      * @type Vec2
      * @static
      */
-    public static UP = Object.freeze(new Vec2(0, 1));
+    public static get UP () { return new Vec2(0, 1) };
+    public static readonly UP_R = Vec2.UP;
 
     /**
      * !#en return a Vec2 object with x = 1 and y = 0.
@@ -83,7 +86,8 @@ export default class Vec2 extends ValueType {
      * @type Vec2
      * @static
      */
-    public static RIGHT = Object.freeze(new Vec2(1, 0));
+    public static get RIGHT () { return new Vec2(1, 0) };
+    public static readonly RIGHT_R = Vec2.RIGHT;
 
     /**
      * @zh 获得指定向量的拷贝
@@ -432,8 +436,8 @@ export default class Vec2 extends ValueType {
         super();
 
         if (x && typeof x === 'object') {
-            y = x.y || 0;
-            x = x.x || 0;
+            this.y = x.y || 0;
+            this.x = x.x || 0;
         }
         else {
             this.x = x as number;
