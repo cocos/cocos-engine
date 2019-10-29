@@ -54,6 +54,7 @@ var fastRemove = js.array.fastRemove;
  * 但是其他对象也可以是事件目标。<br/>
  *
  * @class EventTarget
+ * @extends CallbacksInvoker
  */
 function EventTarget () {
     CallbacksInvoker.call(this);
