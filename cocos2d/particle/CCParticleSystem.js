@@ -1032,6 +1032,7 @@ var ParticleSystem = cc.Class({
                 else if (!self._renderSpriteFrame && self._spriteFrame) {
                     self._applySpriteFrame(self.spriteFrame);
                 }
+                self._initProperties && self._initProperties();
             });
         }
     },
