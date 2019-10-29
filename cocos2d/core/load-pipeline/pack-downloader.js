@@ -27,6 +27,9 @@
 var Unpackers = require('./unpackers');
 var pushToMap = require('../utils/misc').pushToMap;
 
+// two minutes
+const timeToRemove = 1000 * 60 * 2;
+
 // when more than one package contains the required asset,
 // choose to load from the package with the largest state value.
 var PackState = {
@@ -39,6 +42,7 @@ var PackState = {
 function UnpackerData () {
     this.unpacker = null;
     this.state = PackState.Invalid;
+    this.timer = null;
 }
 
 // {assetUuid: packUuid|[packUuid]}
@@ -76,6 +80,7 @@ module.exports = {
     _loadNewPack: function (uuid, packUuid, callback) {
         var self = this;
         var packUrl = cc.AssetLibrary.getLibUrlNoExt(packUuid) + '.json';
+        globalUnpackers[packUuid].url = packUrl;
         cc.loader.load({ url: packUrl, ignoreMaxConcurrency: true }, function (err, packJson) {
             if (err) {
                 cc.errorID(4916, uuid);
@@ -163,8 +168,15 @@ module.exports = {
             packUuid = this._selectLoadedPack(packUuid);
         }
 
+        var self = this;
         var unpackerData = globalUnpackers[packUuid];
         if (unpackerData && unpackerData.state === PackState.Loaded) {
+            if (unpackerData.timer) {
+                clearTimeout(unpackerData.timer);
+                unpackerData.timer = setTimeout(function () {
+                    self.remove(packUuid);
+                }, timeToRemove);
+            }
             // ensure async
             var json = unpackerData.unpacker.retrieve(uuid);
             if (json) {
@@ -181,11 +193,23 @@ module.exports = {
                 }
                 unpackerData = globalUnpackers[packUuid] = new UnpackerData();
                 unpackerData.state = PackState.Downloading;
+                unpackerData.timer = setTimeout(function () {
+                    self.remove(packUuid);
+                }, timeToRemove);
             }
             this._loadNewPack(uuid, packUuid, callback);
         }
         // Return null to let caller know it's loading asynchronously
         return null;
+    },
+
+    remove (packUuid) {
+        var unpackerData = globalUnpackers[packUuid];
+        if (unpackerData) {
+            cc.loader.release(unpackerData.url);
+            clearTimeout(unpackerData.timer);
+            delete globalUnpackers[packUuid];
+        }
     }
 };
 
