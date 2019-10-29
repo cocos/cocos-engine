@@ -204,25 +204,6 @@ proto.once = function (type, callback, target) {
 
 /**
  * !#en
- * Trigger an event directly with the event name and necessary arguments, this function has been defined in CallbackInvoker and extended by this class .
- * !#zh
- * 通过事件名发送自定义事件, 该方法在 CallbackInvoker 中实现，由该类继承而来
- *
- * @method emit
- * @param {String} key - event type
- * @param {*} [arg1] - First argument
- * @param {*} [arg2] - Second argument
- * @param {*} [arg3] - Third argument
- * @param {*} [arg4] - Fourth argument
- * @param {*} [arg5] - Fifth argument
- * @example
- *
- * eventTarget.emit('fire', event);
- * eventTarget.emit('fire', message, emitter);
- */
-
-/**
- * !#en
  * Send an event with the event object.
  * !#zh
  * 通过事件对象派发事件
