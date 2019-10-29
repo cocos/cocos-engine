@@ -38,6 +38,7 @@ export class AudioPlayerDOM extends AudioPlayer {
 
     private _post_play: () => void;
     private _on_gesture: () => void;
+    private _post_gesture: () => void;
 
     constructor (info: IAudioInfo) {
         super(info);
@@ -48,19 +49,22 @@ export class AudioPlayerDOM extends AudioPlayer {
             this._eventTarget.emit('started');
         };
 
+        this._post_gesture = () => {
+            if (this._interrupted) { this._post_play(); this._interrupted = false; }
+            else { this._audio!.pause(); this._audio!.currentTime = 0; }
+            cc.game.canvas.removeEventListener('touchend', this._on_gesture);
+            cc.game.canvas.removeEventListener('mouseup', this._on_gesture);
+        };
+
         this._on_gesture = () => {
             if (!this._audio) { return; }
             const promise = this._audio.play();
-            if (!promise) {
-                console.warn('no promise returned from HTMLMediaElement.play()');
+            if (!promise) { // Chrome50/Firefox53 below
+                // delay eval here to yield uniform behavior with other platforms
+                cc.director.once(cc.Director.EVENT_AFTER_UPDATE, this._post_gesture);
                 return;
             }
-            promise.then(() => {
-                if (this._interrupted) { this._post_play(); this._interrupted = false; }
-                else { this._audio!.pause(); this._audio!.currentTime = 0; }
-                cc.game.canvas.removeEventListener('touchend', this._on_gesture);
-                cc.game.canvas.removeEventListener('mouseup', this._on_gesture);
-            });
+            promise.then(this._post_gesture);
         };
 
         this._audio.volume = this._volume;
