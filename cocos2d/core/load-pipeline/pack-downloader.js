@@ -27,9 +27,6 @@
 var Unpackers = require('./unpackers');
 var pushToMap = require('../utils/misc').pushToMap;
 
-// two minutes
-const timeToRemove = 1000 * 60 * 2;
-
 // when more than one package contains the required asset,
 // choose to load from the package with the largest state value.
 var PackState = {
@@ -63,6 +60,9 @@ function error (uuid, packUuid) {
 }
 
 module.exports = {
+    // two minutes
+    timeToRemove: 1000 * 60 * 2,
+
     initPacks: function (packs) {
         packIndices = packs;
         uuidToPack = {};
@@ -175,7 +175,7 @@ module.exports = {
                 clearTimeout(unpackerData.timer);
                 unpackerData.timer = setTimeout(function () {
                     self.remove(packUuid);
-                }, timeToRemove);
+                }, this.timeToRemove);
             }
             // ensure async
             var json = unpackerData.unpacker.retrieve(uuid);
@@ -195,7 +195,7 @@ module.exports = {
                 unpackerData.state = PackState.Downloading;
                 unpackerData.timer = setTimeout(function () {
                     self.remove(packUuid);
-                }, timeToRemove);
+                }, this.timeToRemove);
             }
             this._loadNewPack(uuid, packUuid, callback);
         }
