@@ -69,6 +69,9 @@ let _a30: number = 0; let _a31: number = 0; let _a32: number = 0; let _a33: numb
  * @param {Number} m33 Component in column 3, row 3 position (index 15)
  */
 export default class Mat4 extends ValueType {
+    public static mul = Mat4.multiply;
+    public static sub = Mat4.subtract;
+
     public static IDENTITY = Object.freeze(new Mat4());
 
     /**

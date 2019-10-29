@@ -36,7 +36,7 @@ const vfmtPosUvColor = require('../core/renderer/webgl/vertex-format').vfmtPosUv
 const MaxGridsLimit = parseInt(65535 / 6);
 const RenderOrder = TiledMap.RenderOrder;
 
-import { mat4, vec3 } from '../core/vmath';
+import { Mat4, Vec3 } from '../core/value-types';
 
 const RenderFlow = require('../core/renderer/render-flow');
 
@@ -56,7 +56,7 @@ let _renderData = null, _ia = null, _fillGrids = 0,
 function _visitUserNode (userNode) {
     if (CC_NATIVERENDERER) return;
     userNode._updateLocalMatrix();
-    mat4.mul(userNode._worldMatrix, _layerMat, userNode._matrix);
+    Mat4.mul(userNode._worldMatrix, _layerMat, userNode._matrix);
     userNode._renderFlag &= ~(RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_BREAK_FLOW);
     RenderFlow.visitRootNode(userNode);
     userNode._renderFlag |= RenderFlow.FLAG_BREAK_FLOW;
@@ -435,9 +435,9 @@ export default class TmxAssembler extends Assembler {
 
     fillByTiledNode (tiledNode, vbuf, uintbuf, left, right, top, bottom) {
         tiledNode._updateLocalMatrix();
-        mat4.copy(_mat4_temp, tiledNode._matrix);
-        vec3.set(_vec3_temp, -(left + _moveX), -(bottom + _moveY), 0);
-        mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
+        Mat4.copy(_mat4_temp, tiledNode._matrix);
+        Vec3.set(_vec3_temp, -(left + _moveX), -(bottom + _moveY), 0);
+        Mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
         let m = _mat4_temp.m;
         let a = m[0];
         let b = m[1];

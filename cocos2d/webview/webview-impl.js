@@ -23,8 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { mat4 } from '../core/vmath';
-
 const utils = require('../core/platform/utils');
 const sys = require('../core/platform/CCSys');
 

@@ -47,6 +47,9 @@ import CCClass from '../platform/CCClass';
  * @extends ValueType
  */
 export default class Color extends ValueType {
+    static div = Color.divide;
+    static sub = Color.subtract;
+    static mul = Color.multiply;
 
     /**
      * !#en Solid white, RGBA is [255, 255, 255, 255].
@@ -138,6 +141,161 @@ export default class Color extends ValueType {
      * @static
      */
     static MAGENTA: Color = Object.freeze(new Color(255, 0, 255));
+
+    /**
+   * Copy content of a color into another.
+   *
+   * @param {Color} out - The color to modified.
+   * @param {Color} a - The specified color.
+   * @returns {Color} out.
+   */
+    static copy (out, a) {
+        out.r = a.r;
+        out.g = a.g;
+        out.b = a.b;
+        out.a = a.a;
+        return out;
+    }
+
+    /**
+     * Set the components of a color to the given values.
+     *
+     * @param {Color} out - The color to modified.
+     * @param {number} r - Value assigned to r component.
+     * @param {number} g - Value assigned to g component.
+     * @param {number} b - Value assigned to b component.
+     * @param {number} a - Value assigned to a component.
+     * @returns {Color} out.
+     */
+    static set (out, r, g, b, a) {
+        out.r = r;
+        out.g = g;
+        out.b = b;
+        out.a = a;
+        return out;
+    }
+
+    /**
+     * Converts the hexadecimal formal color into rgb formal.
+     *
+     * @param {Color} out - Color to store result.
+     * @param {Number} hex - The color's hexadecimal formal.
+     * @returns {Color} out.
+     * @function
+     */
+    static fromHex (out, hex) {
+        let r = ((hex >> 24)) / 255.0;
+        let g = ((hex >> 16) & 0xff) / 255.0;
+        let b = ((hex >> 8) & 0xff) / 255.0;
+        let a = ((hex) & 0xff) / 255.0;
+
+        out.r = r;
+        out.g = g;
+        out.b = b;
+        out.a = a;
+        return out;
+    }
+
+    /**
+     * Add components of two colors, respectively.
+     *
+     * @param {Color} out - Color to store result.
+     * @param {Color} a - The first operand.
+     * @param {Color} b - The second operand.
+     * @returns {Color} out.
+     */
+    static add (out, a, b) {
+        out.r = a.r + b.r;
+        out.g = a.g + b.g;
+        out.b = a.b + b.b;
+        out.a = a.a + b.a;
+        return out;
+    }
+
+    /**
+     * Subtract components of color b from components of color a, respectively.
+     *
+     * @param {Color} out - Color to store result.
+     * @param {Color} a - The a.
+     * @param {Color} b - The b.
+     * @returns {Color} out.
+     */
+    static subtract (out, a, b) {
+        out.r = a.r - b.r;
+        out.g = a.g - b.g;
+        out.b = a.b - b.b;
+        out.a = a.a - b.a;
+        return out;
+    }
+
+    /**
+     * Multiply components of two colors, respectively.
+     *
+     * @param {Color} out - Color to store result.
+     * @param {Color} a - The first operand.
+     * @param {Color} b - The second operand.
+     * @returns {Color} out.
+     */
+    static multiply (out, a, b) {
+        out.r = a.r * b.r;
+        out.g = a.g * b.g;
+        out.b = a.b * b.b;
+        out.a = a.a * b.a;
+        return out;
+    }
+
+    /**
+     * Divide components of color a by components of color b, respectively.
+     *
+     * @param {Color} out - Color to store result.
+     * @param {Color} a - The first operand.
+     * @param {Color} b - The second operand.
+     * @returns {Color} out.
+     */
+    static divide (out, a, b) {
+        out.r = a.r / b.r;
+        out.g = a.g / b.g;
+        out.b = a.b / b.b;
+        out.a = a.a / b.a;
+        return out;
+    }
+
+    /**
+     * Scales a color by a number.
+     *
+     * @param {Color} out - Color to store result.
+     * @param {Color} a - Color to scale.
+     * @param {number} b - The scale number.
+     * @returns {Color} out.
+     */
+    static scale (out, a, b) {
+        out.r = a.r * b;
+        out.g = a.g * b;
+        out.b = a.b * b;
+        out.a = a.a * b;
+        return out;
+    }
+
+    /**
+     * Performs a linear interpolation between two colors.
+     *
+     * @param {Color} out - Color to store result.
+     * @param {Color} a - The first operand.
+     * @param {Color} b - The second operand.
+     * @param {Number} t - The interpolation coefficient.
+     * @returns {Color} out.
+     */
+    static lerp (out, a, b, t) {
+        let ar = a.r,
+            ag = a.g,
+            ab = a.b,
+            aa = a.a;
+        out.r = ar + t * (b.r - ar);
+        out.g = ag + t * (b.g - ag);
+        out.b = ab + t * (b.b - ab);
+        out.a = aa + t * (b.a - aa);
+        return out;
+    }
 
     _val: number = 0;
 

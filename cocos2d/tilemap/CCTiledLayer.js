@@ -27,10 +27,10 @@ const RenderComponent = require('../core/components/CCRenderComponent');
 const Material = require('../core/assets/material/CCMaterial');
 const RenderFlow = require('../core/renderer/render-flow');
 
-import { mat4, vec2 } from '../core/vmath';
+import { Mat4, Vec2 } from '../core/value-types';
 let _mat4_temp = cc.mat4();
-let _vec2_temp = vec2.create();
-let _vec2_temp2 = vec2.create();
+let _vec2_temp = cc.v2();
+let _vec2_temp2 = cc.v2();
 let _tempRowCol = {row:0, col:0};
 
 let TiledUserNodeData = cc.Class({
@@ -749,7 +749,7 @@ let TiledLayer = cc.Class({
             this.enableCulling(false);
         } else if (this._enableCulling) {
             this.node._updateWorldMatrix();
-            mat4.invert(_mat4_temp, this.node._worldMatrix);
+            Mat4.invert(_mat4_temp, this.node._worldMatrix);
             let rect = cc.visibleRect;
             let camera = cc.Camera.findCamera(this.node);
             if (camera) {
@@ -759,8 +759,8 @@ let TiledLayer = cc.Class({
                 _vec2_temp2.y = _vec2_temp.y + rect.height;
                 camera.getScreenToWorldPoint(_vec2_temp, _vec2_temp);
                 camera.getScreenToWorldPoint(_vec2_temp2, _vec2_temp2);
-                vec2.transformMat4(_vec2_temp, _vec2_temp, _mat4_temp);
-                vec2.transformMat4(_vec2_temp2, _vec2_temp2, _mat4_temp);
+                Vec2.transformMat4(_vec2_temp, _vec2_temp, _mat4_temp);
+                Vec2.transformMat4(_vec2_temp2, _vec2_temp2, _mat4_temp);
                 this._updateViewPort(_vec2_temp.x, _vec2_temp.y, _vec2_temp2.x - _vec2_temp.x, _vec2_temp2.y - _vec2_temp.y);
             }
         }

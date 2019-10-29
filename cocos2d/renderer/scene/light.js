@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { color3, color4, mat4, mat3, vec3, toRadian } from '../../core/vmath';
+import { Color, Mat4, Mat3, Vec3, toRadian } from '../../core/value-types';
 import gfx from '../gfx';
 
 import enums from '../enums';
@@ -8,39 +8,39 @@ import enums from '../enums';
 const _forward = cc.v3(0, 0, -1);
 
 let _m4_tmp = cc.mat4();
-let _m3_tmp = mat3.create();
+let _m3_tmp = Mat3.create();
 let _transformedLightDirection = cc.v3(0, 0, 0);
 
 // compute light viewProjMat for shadow.
 function _computeSpotLightViewProjMatrix(light, outView, outProj) {
   // view matrix
   light._node.getWorldRT(outView);
-  mat4.invert(outView, outView);
+  Mat4.invert(outView, outView);
 
   // proj matrix
-  mat4.perspective(outProj, light._spotAngle * light._spotAngleScale, 1, light._shadowMinDepth, light._shadowMaxDepth);
+  Mat4.perspective(outProj, light._spotAngle * light._spotAngleScale, 1, light._shadowMinDepth, light._shadowMaxDepth);
 }
 
 function _computeDirectionalLightViewProjMatrix(light, outView, outProj) {
   // view matrix
   light._node.getWorldRT(outView);
-  mat4.invert(outView, outView);
+  Mat4.invert(outView, outView);
 
   // TODO: should compute directional light frustum based on rendered meshes in scene.
   // proj matrix
   let halfSize = light._shadowFrustumSize / 2;
-  mat4.ortho(outProj, -halfSize, halfSize, -halfSize, halfSize, light._shadowMinDepth, light._shadowMaxDepth);
+  Mat4.ortho(outProj, -halfSize, halfSize, -halfSize, halfSize, light._shadowMinDepth, light._shadowMaxDepth);
 }
 
 function _computePointLightViewProjMatrix(light, outView, outProj) {
   // view matrix
   light._node.getWorldRT(outView);
-  mat4.invert(outView, outView);
+  Mat4.invert(outView, outView);
 
   // The transformation from Cartesian to polar coordinates is not a linear function,
   // so it cannot be achieved by means of a fixed matrix multiplication.
   // Here we just use a nearly 180 degree perspective matrix instead.
-  mat4.perspective(outProj, toRadian(179), 1, light._shadowMinDepth, light._shadowMaxDepth);
+  Mat4.perspective(outProj, toRadian(179), 1, light._shadowMinDepth, light._shadowMaxDepth);
 }
 
 /**
@@ -57,7 +57,7 @@ export default class Light {
 
     this._type = enums.LIGHT_DIRECTIONAL;
 
-    this._color = color3.create(1, 1, 1);
+    this._color = cc.color(1, 1, 1);
     this._intensity = 1;
 
     // used for spot and point light
@@ -112,7 +112,7 @@ export default class Light {
    * @param {number} b blue channel of the light color
    */
   setColor(r, g, b) {
-    color3.set(this._color, r, g, b);
+    Color.set(this._color, r, g, b);
     this._colorUniform[0] = r * this._intensity;
     this._colorUniform[1] = g * this._intensity;
     this._colorUniform[2] = b * this._intensity;
@@ -402,7 +402,7 @@ export default class Light {
     out._rect.h = this._shadowResolution;
 
     // clear opts
-    color4.set(out._color, 1, 1, 1, 1);
+    Color.set(out._color, 1, 1, 1, 1);
     out._depth = 1;
     out._stencil = 1;
     out._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
@@ -431,9 +431,9 @@ export default class Light {
     }
 
     // view-projection
-    mat4.mul(out._matViewProj, out._matProj, out._matView);
+    Mat4.mul(out._matViewProj, out._matProj, out._matView);
     this._viewProjMatrix = out._matViewProj;
-    mat4.invert(out._matInvViewProj, out._matViewProj);
+    Mat4.invert(out._matInvViewProj, out._matViewProj);
 
     // update view's frustum
     // out._frustum.update(out._matViewProj, out._matInvViewProj);
@@ -443,9 +443,9 @@ export default class Light {
 
   _updateLightPositionAndDirection() {
     this._node.getWorldMatrix(_m4_tmp);
-    mat3.fromMat4(_m3_tmp, _m4_tmp);
-    vec3.transformMat3(_transformedLightDirection, _forward, _m3_tmp);
-    vec3.array(this._directionUniform, _transformedLightDirection);
+    Mat3.fromMat4(_m3_tmp, _m4_tmp);
+    Vec3.transformMat3(_transformedLightDirection, _forward, _m3_tmp);
+    _transformedLightDirection.array(this._directionUniform);
     let pos = this._positionUniform;
     let m = _m4_tmp.m;
     pos[0] = m[12];
