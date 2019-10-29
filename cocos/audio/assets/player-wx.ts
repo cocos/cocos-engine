@@ -81,9 +81,6 @@ export class AudioPlayerWX extends AudioPlayer {
             }
         });
         this._audio.onError((res: any) => console.error(res.errMsg));
-        /* handle hide & show */
-        wx.onAudioInterruptionBegin(this._onHide);
-        wx.onAudioInterruptionEnd(this._onShow);
     }
 
     public play () {
