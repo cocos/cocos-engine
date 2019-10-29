@@ -37,7 +37,7 @@ const READY_STATE = {
     HAVE_ENOUGH_DATA: 4
 };
 
-let _mat4_temp = mat4.create();
+let _mat4_temp = cc.mat4();
 
 let VideoPlayerImpl = cc.Class({
     name: 'VideoPlayerImpl',

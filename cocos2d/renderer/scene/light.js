@@ -5,11 +5,11 @@ import gfx from '../gfx';
 
 import enums from '../enums';
 
-const _forward = vec3.create(0, 0, -1);
+const _forward = cc.v3(0, 0, -1);
 
-let _m4_tmp = mat4.create();
+let _m4_tmp = cc.mat4();
 let _m3_tmp = mat3.create();
-let _transformedLightDirection = vec3.create(0, 0, 0);
+let _transformedLightDirection = cc.v3(0, 0, 0);
 
 // compute light viewProjMat for shadow.
 function _computeSpotLightViewProjMatrix(light, outView, outProj) {
@@ -84,7 +84,7 @@ export default class Light {
     this._shadowMaxDepth = 1000;
     this._shadowDepthScale = 50; // maybe need to change it if the distance between shadowMaxDepth and shadowMinDepth is small.
     this._frustumEdgeFalloff = 0; // used by directional and spot light.
-    this._viewProjMatrix = mat4.create();
+    this._viewProjMatrix = cc.mat4();
     this._spotAngleScale = 1; // used for spot light.
     this._shadowFrustumSize = 50; // used for directional light.
   }

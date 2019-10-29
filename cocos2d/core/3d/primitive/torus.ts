@@ -20,8 +20,8 @@ export default function (radius = 0.4, tube = 0.1, opts = {}) {
   let normals = [];
   let uvs = [];
   let indices = [];
-  let minPos = vec3.create(-radius - tube, -tube, -radius - tube);
-  let maxPos = vec3.create(radius + tube, tube, radius + tube);
+  let minPos = cc.v3(-radius - tube, -tube, -radius - tube);
+  let maxPos = cc.v3(radius + tube, tube, radius + tube);
   let boundingRadius = radius + tube;
 
   for (let j = 0; j <= radialSegments; j++) {

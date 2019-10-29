@@ -4,12 +4,12 @@ import { color4, vec3, mat4, lerp } from '../../core/vmath';
 import geomUtils from '../../core/geom-utils';
 import enums from '../enums';
 
-let _tmp_mat4 = mat4.create();
+let _tmp_mat4 = cc.mat4();
 
-let _matView = mat4.create();
-let _matProj = mat4.create();
-let _matViewProj = mat4.create();
-let _matInvViewProj = mat4.create();
+let _matView = cc.mat4();
+let _matProj = cc.mat4();
+let _matViewProj = cc.mat4();
+let _matInvViewProj = cc.mat4();
 let _tmp_v3 = cc.v3();
 let _tmp2_v3 = cc.v3();
 

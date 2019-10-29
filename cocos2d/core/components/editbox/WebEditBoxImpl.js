@@ -72,8 +72,8 @@ function WebEditBoxImpl () {
     this._editing = false;
 
     // matrix
-    this._worldMat = math.mat4.create();
-    this._cameraMat = math.mat4.create();
+    this._worldMat = cc.mat4();
+    this._cameraMat = cc.mat4();
     // matrix cache
     this._m00 = 0;
     this._m01 = 0;

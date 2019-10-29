@@ -30,8 +30,8 @@ let indices = [
 ];
 
 // TODO: ?
-let minPos = vec3.create(-0.5, -0.5, 0);
-let maxPos = vec3.create(0.5, 0.5, 0);
+let minPos = cc.v3(-0.5, -0.5, 0);
+let maxPos = cc.v3(0.5, 0.5, 0);
 let boundingRadius = Math.sqrt(0.5 * 0.5 + 0.5 * 0.5);
 
 export default function () {

@@ -1,20 +1,20 @@
 'use strict';
 
-import { vec3 } from '../../vmath';
+import Vec3 from '../../value-types/vec3';
 import VertexData from './vertex-data';
 
-let temp1 = vec3.create(0, 0, 0);
-let temp2 = vec3.create(0, 0, 0);
-let temp3 = vec3.create(0, 0, 0);
-let r = vec3.create(0, 0, 0);
-let c0 = vec3.create(0, 0, 0);
-let c1 = vec3.create(0, 0, 0);
-let c2 = vec3.create(0, 0, 0);
-let c3 = vec3.create(0, 0, 0);
-let c4 = vec3.create(0, 0, 0);
-let c5 = vec3.create(0, 0, 0);
-let c6 = vec3.create(0, 0, 0);
-let c7 = vec3.create(0, 0, 0);
+let temp1 = cc.v3(0, 0, 0);
+let temp2 = cc.v3(0, 0, 0);
+let temp3 = cc.v3(0, 0, 0);
+let r = cc.v3(0, 0, 0);
+let c0 = cc.v3(0, 0, 0);
+let c1 = cc.v3(0, 0, 0);
+let c2 = cc.v3(0, 0, 0);
+let c3 = cc.v3(0, 0, 0);
+let c4 = cc.v3(0, 0, 0);
+let c5 = cc.v3(0, 0, 0);
+let c6 = cc.v3(0, 0, 0);
+let c7 = cc.v3(0, 0, 0);
 
 /**
  * @param {Number} width
@@ -25,25 +25,25 @@ let c7 = vec3.create(0, 0, 0);
  * @param {Number} opts.heightSegments
  * @param {Number} opts.lengthSegments
  */
-export default function (width = 1, height = 1, length = 1, opts = {}) {
-  let ws = opts.widthSegments !== undefined ? opts.widthSegments : 1;
-  let hs = opts.heightSegments !== undefined ? opts.heightSegments : 1;
-  let ls = opts.lengthSegments !== undefined ? opts.lengthSegments : 1;
-  let inv = opts.invWinding !== undefined ? opts.invWinding : false;
+export default function (width = 1, height = 1, length = 1, opts = {widthSegments: 1, heightSegments: 1, lengthSegments: 1, invWinding: false}) {
+  let ws = opts.widthSegments;
+  let hs = opts.heightSegments;
+  let ls = opts.lengthSegments;
+  let inv = opts.invWinding;
 
   let hw = width * 0.5;
   let hh = height * 0.5;
   let hl = length * 0.5;
 
   let corners = [
-    vec3.set(c0, -hw, -hh,  hl),
-    vec3.set(c1,  hw, -hh,  hl),
-    vec3.set(c2,  hw,  hh,  hl),
-    vec3.set(c3, -hw,  hh,  hl),
-    vec3.set(c4,  hw, -hh, -hl),
-    vec3.set(c5, -hw, -hh, -hl),
-    vec3.set(c6, -hw,  hh, -hl),
-    vec3.set(c7,  hw,  hh, -hl),
+    Vec3.set(c0, -hw, -hh,  hl),
+    Vec3.set(c1,  hw, -hh,  hl),
+    Vec3.set(c2,  hw,  hh,  hl),
+    Vec3.set(c3, -hw,  hh,  hl),
+    Vec3.set(c4,  hw, -hh, -hl),
+    Vec3.set(c5, -hw, -hh, -hl),
+    Vec3.set(c6, -hw,  hh, -hl),
+    Vec3.set(c7,  hw,  hh, -hl),
   ];
 
   let faceAxes = [
@@ -68,8 +68,8 @@ export default function (width = 1, height = 1, length = 1, opts = {}) {
   let normals = [];
   let uvs = [];
   let indices = [];
-  let minPos = vec3.create(-hw, -hh, -hl);
-  let maxPos = vec3.create(hw, hh, hl);
+  let minPos = cc.v3(-hw, -hh, -hl);
+  let maxPos = cc.v3(hw, hh, hl);
   let boundingRadius = Math.sqrt(hw * hw + hh * hh + hl * hl);
 
   function _buildPlane (side, uSegments, vSegments) {
@@ -84,10 +84,10 @@ export default function (width = 1, height = 1, length = 1, opts = {}) {
         u = ix / uSegments;
         v = iy / vSegments;
 
-        vec3.lerp(temp1, corners[faceAxe[0]], corners[faceAxe[1]], u);
-        vec3.lerp(temp2, corners[faceAxe[0]], corners[faceAxe[2]], v);
-        vec3.sub(temp3, temp2, corners[faceAxe[0]]);
-        vec3.add(r, temp1, temp3);
+        Vec3.lerp(temp1, corners[faceAxe[0]], corners[faceAxe[1]], u);
+        Vec3.lerp(temp2, corners[faceAxe[0]], corners[faceAxe[2]], v);
+        Vec3.subtract(temp3, temp2, corners[faceAxe[0]]);
+        Vec3.add(r, temp1, temp3);
 
         positions.push(r.x, r.y, r.z);
         normals.push(faceNormal[0], faceNormal[1], faceNormal[2]);

@@ -8,7 +8,7 @@ import View from './view';
 import gfx from '../gfx';
 
 let _m3_tmp = mat3.create();
-let _m4_tmp = mat4.create();
+let _m4_tmp = cc.mat4();
 
 let _stageInfos = new RecyclePool(() => {
   return {
@@ -275,17 +275,17 @@ export default class Base {
     this._type2defaultValue = {
       [enums.PARAM_INT]: 0,
       [enums.PARAM_INT2]: vec2.create(0, 0),
-      [enums.PARAM_INT3]: vec3.create(0, 0, 0),
+      [enums.PARAM_INT3]: cc.v3(0, 0, 0),
       [enums.PARAM_INT4]: vec4.create(0, 0, 0, 0),
       [enums.PARAM_FLOAT]: 0.0,
       [enums.PARAM_FLOAT2]: vec2.create(0, 0),
-      [enums.PARAM_FLOAT3]: vec3.create(0, 0, 0),
+      [enums.PARAM_FLOAT3]: cc.v3(0, 0, 0),
       [enums.PARAM_FLOAT4]: vec4.create(0, 0, 0, 0),
       [enums.PARAM_COLOR3]: color3.create(0, 0, 0),
       [enums.PARAM_COLOR4]: color4.create(0, 0, 0, 1),
       [enums.PARAM_MAT2]: mat2.create(),
       [enums.PARAM_MAT3]: mat3.create(),
-      [enums.PARAM_MAT4]: mat4.create(),
+      [enums.PARAM_MAT4]: cc.mat4(),
       [enums.PARAM_TEXTURE_2D]: opts.defaultTexture,
       [enums.PARAM_TEXTURE_CUBE]: opts.defaultTextureCube,
     };

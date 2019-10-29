@@ -4,7 +4,7 @@ const vec3 = cc.vmath.vec3;
 
 let vec3_temps = [];
 for (let i = 0; i < 4; i++) {
-    vec3_temps.push(vec3.create());
+    vec3_temps.push(cc.v3());
 }
 
 let Assembler3D = {

@@ -1,10 +1,10 @@
 'use strict';
 
-import { vec3 } from '../../vmath';
+import Vec3 from '../../value-types/vec3';
 import VertexData from './vertex-data';
 
-let temp1 = vec3.create(0, 0, 0);
-let temp2 = vec3.create(0, 0, 0);
+let temp1 = cc.v3(0, 0, 0);
+let temp2 = cc.v3(0, 0, 0);
 
 /**
  * @param {Number} radiusTop
@@ -16,12 +16,12 @@ let temp2 = vec3.create(0, 0, 0);
  * @param {Boolean} opts.capped
  * @param {Number} opts.arc
  */
-export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts = {}) {
+export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts = {radialSegments: 32, heightSegments: 1, capped: true, arc: 2.0 * Math.PI}) {
   let halfHeight = height * 0.5;
-  let radialSegments = opts.radialSegments || 32;
-  let heightSegments = opts.heightSegments || 1;
+  let radialSegments = opts.radialSegments;
+  let heightSegments = opts.heightSegments;
   let capped = opts.capped !== undefined ? opts.capped : true;
-  let arc = opts.arc || 2.0 * Math.PI;
+  let arc = opts.arc;
 
   let cntCap = 0;
   if (!capped) {
@@ -51,8 +51,8 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
   let normals = new Array(vertCount * 3);
   let uvs = new Array(vertCount * 2);
   let maxRadius = Math.max(radiusTop, radiusBottom);
-  let minPos = vec3.create(-maxRadius, -halfHeight, -maxRadius);
-  let maxPos = vec3.create(maxRadius, halfHeight, maxRadius);
+  let minPos = cc.v3(-maxRadius, -halfHeight, -maxRadius);
+  let maxPos = cc.v3(maxRadius, halfHeight, maxRadius);
   let boundingRadius = Math.sqrt(maxRadius * maxRadius + halfHeight * halfHeight);
 
   let index = 0;
@@ -112,7 +112,7 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
         positions[3 * index + 2] = radius * cosTheta;
 
         // normal
-        vec3.normalize(temp1, vec3.set(temp2, sinTheta, -slope, cosTheta));
+        Vec3.normalize(temp1, Vec3.set(temp2, sinTheta, -slope, cosTheta));
         normals[3 * index] = temp1.x;
         normals[3 * index + 1] = temp1.y;
         normals[3 * index + 2] = temp1.z;

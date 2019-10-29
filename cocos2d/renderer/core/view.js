@@ -3,7 +3,7 @@
 import { vec3, color4, mat4 } from '../../core/vmath';
 import enums from '../enums';
 
-let _m4_tmp = mat4.create();
+let _m4_tmp = cc.mat4();
 let _genID = 0;
 
 /**
@@ -37,10 +37,10 @@ export default class View {
     this._clearModel = null;
 
     // matrix
-    this._matView = mat4.create();
-    this._matProj = mat4.create();
-    this._matViewProj = mat4.create();
-    this._matInvViewProj = mat4.create();
+    this._matView = cc.mat4();
+    this._matProj = cc.mat4();
+    this._matViewProj = cc.mat4();
+    this._matInvViewProj = cc.mat4();
 
     // stages & framebuffer
     this._stages = [];

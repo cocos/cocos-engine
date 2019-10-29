@@ -40,8 +40,8 @@ import { mat4, vec3 } from '../core/vmath';
 
 const RenderFlow = require('../core/renderer/render-flow');
 
-let _mat4_temp = mat4.create();
-let _vec3_temp = vec3.create();
+let _mat4_temp = cc.mat4();
+let _vec3_temp = cc.v3();
 let _leftDown = {row:0, col:0};
 let _uva = {x:0, y:0};
 let _uvb = {x:0, y:0};

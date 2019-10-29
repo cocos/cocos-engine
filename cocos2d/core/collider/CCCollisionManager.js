@@ -225,7 +225,7 @@ let CollisionManager = cc.Class({
             let world = collider.world = {};
             world.aabb = cc.rect();
             world.preAabb = cc.rect();
-            world.matrix = math.mat4.create();
+            world.matrix = cc.mat4();
 
             world.radius = 0;
 

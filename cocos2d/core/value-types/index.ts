@@ -24,17 +24,35 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./value-type');
+import Vec2 from './vec2';
+import Vec3 from './vec3';
+import Vec4 from './vec4';
+import Mat4 from './mat4';
+import Mat3 from './mat3';
+import Mat23 from './mat23';
+import Mat2 from './mat2';
+import Rect from './rect';
+import Size from './size';
+import Color from './color';
+import Quat from './quat';
+import * as utils from './utils';
 
-cc.vmath = require('../vmath').default;
+export * from './utils';
 
-module.exports = {
-    Vec2: require('./vec2'),
-    Vec3: require('./vec3'),
-    Vec4: require('./vec4'),
-    Quat: require('./quat'),
-    Mat4: require('./mat4'),
-    Size: require('./size'),
-    Rect: require('./rect'),
-    Color: require('./color'),
+cc.vmath = {
+    vec2: Vec2,
+    vec3: Vec3,
+    vec4: Vec4,
+    mat4: Mat4,
+    mat3: Mat3,
+    mat23: Mat23,
+    mat2: Mat2,
+    rect: Rect,
+    size: Size,
+    color: Color,
+    quat: Quat
 };
+
+for (let name in utils) {
+    cc.vmath[name] = utils[name];
+}

@@ -1,4 +1,4 @@
-import { vec3 } from '../../vmath';
+import Vec3 from '../../value-types/vec3';
 
 export function wireframe(indices) {
   const offsets = [[0, 1], [1, 2], [2, 0]];
@@ -92,9 +92,9 @@ export function calcNormals (positions, indices, normals) {
       fromArray(pB, positions, vB);
       fromArray(pC, positions, vC);
 
-      vec3.sub(cb, pC, pB);
-      vec3.sub(ab, pA, pB);
-      vec3.cross(cb, cb, ab);
+      Vec3.subtract(cb, pC, pB);
+      Vec3.subtract(ab, pA, pB);
+      Vec3.cross(cb, cb, ab);
 
       normals[vA] += cb.x;
       normals[vA + 1] += cb.y;

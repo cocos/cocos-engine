@@ -41,8 +41,8 @@ const mat4 = cc.vmath.mat4;
 const vec2 = cc.vmath.vec2;
 const vec3 = cc.vmath.vec3;
 
-let _mat4_temp_1 = mat4.create();
-let _mat4_temp_2 = mat4.create();
+let _mat4_temp_1 = cc.mat4();
+let _mat4_temp_2 = cc.mat4();
 
 let _v3_temp_1 = cc.v3();
 let _v3_temp_2 = cc.v3();

@@ -29,8 +29,8 @@ const RenderFlow = require('../../renderer/render-flow');
 const enums = require('../../../renderer/enums');
 const mat4 = cc.vmath.mat4;
 
-let _m4_tmp = mat4.create();
-let _m4_tmp2 = mat4.create();
+let _m4_tmp = cc.mat4();
+let _m4_tmp2 = cc.mat4();
 
 /**
  * !#en

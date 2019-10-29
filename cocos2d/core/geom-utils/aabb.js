@@ -1,8 +1,8 @@
 let vec3 = cc.vmath.vec3;
 let mat3 = cc.vmath.mat3;
 
-let _v3_tmp = vec3.create();
-let _v3_tmp2 = vec3.create();
+let _v3_tmp = cc.v3();
+let _v3_tmp2 = cc.v3();
 let _m3_tmp = mat3.create();
 
 // https://zeuxcg.org/2010/10/17/aabb-from-obb-with-component-wise-abs/
@@ -24,8 +24,8 @@ let transform_extent_m4 = function (out, extent, m4) {
  * @param {Number} l 
  */
 function aabb(px, py, pz, w, h, l) {
-    this.center = vec3.create(px, py, pz);
-    this.halfExtents = vec3.create(w, h, l);
+    this.center = cc.v3(px, py, pz);
+    this.halfExtents = cc.v3(w, h, l);
 }
 
 let proto = aabb.prototype;

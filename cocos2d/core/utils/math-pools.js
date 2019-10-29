@@ -37,7 +37,7 @@ mat4Pool.get = function () {
         mat4.identity(matrix);
     }
     else {
-        matrix = mat4.create();
+        matrix = cc.mat4();
     }
     return matrix;
 };
@@ -74,7 +74,7 @@ quatPool.get = function () {
         q.w = 1;
     }
     else {
-        q = quat.create();
+        q = cc.quat();
     }
     return q;
 };

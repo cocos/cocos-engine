@@ -11,6 +11,6 @@ import cylinder from './cylinder';
  * @param {Boolean} opts.capped
  * @param {Number} opts.arc
  */
-export default function (radius = 0.5, height = 1, opts = {}) {
+export default function (radius = 0.5, height = 1, opts = {radialSegments: 32, heightSegments: 1, capped: true, arc: 2.0 * Math.PI}) {
   return cylinder(0, radius, height, opts);
 }

@@ -128,8 +128,8 @@ export const polyhedron = function (type, size = 1, opts = {}) {
   let indices = [];
   let normals = [];
   let uvs = [];
-  let minPos = vec3.create(Infinity, Infinity, Infinity);
-  let maxPos = vec3.create(-Infinity, -Infinity, -Infinity);
+  let minPos = cc.v3(Infinity, Infinity, Infinity);
+  let maxPos = cc.v3(-Infinity, -Infinity, -Infinity);
 
   for (let i = 0; i < data.vertex.length; i++) {
     let x = data.vertex[i][0] * sizeX;

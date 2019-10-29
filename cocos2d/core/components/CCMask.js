@@ -36,7 +36,7 @@ const Node = require('../CCNode');
 import { mat4, vec2 } from '../vmath';
 
 let _vec2_temp = cc.v2();
-let _mat4_temp = mat4.create();
+let _mat4_temp = cc.mat4();
 
 let _circlepoints =[];
 function _calculateCircle (center, radius, segements) {

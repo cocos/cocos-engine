@@ -35,8 +35,8 @@ dragonBones.CCSlot = cc.Class({
     ctor () {
         this._localVertices = [];
         this._indices = [];
-        this._matrix = mat4.create();
-        this._worldMatrix = mat4.create();
+        this._matrix = cc.mat4();
+        this._worldMatrix = cc.mat4();
         this._worldMatrixDirty = true;
         this._visible = false;
         this._color = cc.color();

@@ -28,8 +28,8 @@ const RadialFilledAssembler = require('../2d/radial-filled');
 
 const vec3 = cc.vmath.vec3;
 
-const vec3_temp_local = vec3.create();
-const vec3_temp_world = vec3.create();
+const vec3_temp_local = cc.v3();
+const vec3_temp_world = cc.v3();
 
 export default class RadialFilledAssembler3D extends RadialFilledAssembler {
     

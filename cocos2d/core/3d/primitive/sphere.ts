@@ -18,8 +18,8 @@ export default function (radius = 0.5, opts = {}) {
   let normals = [];
   let uvs = [];
   let indices = [];
-  let minPos = vec3.create(-radius, -radius, -radius);
-  let maxPos = vec3.create(radius, radius, radius);
+  let minPos = cc.v3(-radius, -radius, -radius);
+  let maxPos = cc.v3(radius, radius, radius);
   let boundingRadius = radius;
 
   for (let lat = 0; lat <= segments; ++lat) {

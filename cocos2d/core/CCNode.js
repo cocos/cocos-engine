@@ -74,7 +74,7 @@ var _gwrtQuatb = cc.quat();
 
 // lookAt temp var
 var _laVec3 = cc.v3();
-var _laQuat = quat.create();
+var _laQuat = cc.quat();
 
 // _hitTest temp var
 var _htVec3a = cc.v3();
@@ -87,8 +87,8 @@ var _gwrQuat = cc.quat();
 var _swrQuat = cc.quat();
 
 var _quata = cc.quat();
-var _mat4_temp = mat4.create();
-var _vec3_temp = vec3.create();
+var _mat4_temp = cc.mat4();
+var _vec3_temp = cc.v3();
 
 var _cachedArray = new Array(16);
 _cachedArray.length = 0;
@@ -1651,9 +1651,9 @@ let NodeDefines = {
         }
 
         let spaceInfo = this._spaceInfo;
-        this._matrix = mat4.create(spaceInfo.localMat);
+        this._matrix = cc.mat4(spaceInfo.localMat);
         mat4.identity(this._matrix);
-        this._worldMatrix = mat4.create(spaceInfo.worldMat);
+        this._worldMatrix = cc.mat4(spaceInfo.worldMat);
         mat4.identity(this._worldMatrix);
         this._localMatDirty = LocalDirtyFlag.ALL;
         this._worldMatDirty = true;
@@ -3565,11 +3565,11 @@ let NodeDefines = {
         this.is3DNode = this.is3DNode;
 
         if (!this._matrix) {
-            this._matrix = mat4.create(this._spaceInfo.localMat);
+            this._matrix = cc.mat4(this._spaceInfo.localMat);
             mat4.identity(this._matrix);
         }
         if (!this._worldMatrix) {
-            this._worldMatrix = mat4.create(this._spaceInfo.worldMat);
+            this._worldMatrix = cc.mat4(this._spaceInfo.worldMat);
             mat4.identity(this._worldMatrix);
         }
 

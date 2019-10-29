@@ -28,8 +28,8 @@ let intersect = {};
  * @return {Number}
 */
 intersect.rayAabb = (function () {
-    let min = vec3.create();
-    let max = vec3.create();
+    let min = cc.v3();
+    let max = cc.v3();
     return function (ray, aabb) {
         let o = ray.o, d = ray.d;
         let ix = 1 / d.x, iy = 1 / d.y, iz = 1 / d.z;
@@ -58,11 +58,11 @@ intersect.rayAabb = (function () {
  * @param {geomUtils.Triangle} triangle
 */
 intersect.rayTriangle = (function () {
-    let ab = vec3.create(0, 0, 0);
-    let ac = vec3.create(0, 0, 0);
-    let pvec = vec3.create(0, 0, 0);
-    let tvec = vec3.create(0, 0, 0);
-    let qvec = vec3.create(0, 0, 0);
+    let ab = cc.v3(0, 0, 0);
+    let ac = cc.v3(0, 0, 0);
+    let pvec = cc.v3(0, 0, 0);
+    let tvec = cc.v3(0, 0, 0);
+    let qvec = cc.v3(0, 0, 0);
 
     return function (ray, triangle) {
         vec3.sub(ab, triangle.b, triangle.a);
@@ -182,13 +182,13 @@ intersect.raycast = (function () {
 
     // temp variable
     let nodeAabb = Aabb.create();
-    let minPos = vec3.create();
-    let maxPos = vec3.create();
+    let minPos = cc.v3();
+    let maxPos = cc.v3();
 
     let modelRay = Ray.create();
-    let m4_1 = mat4.create();
-    let m4_2 = mat4.create();
-    let d = vec3.create();
+    let m4_1 = cc.mat4();
+    let m4_2 = cc.mat4();
+    let d = cc.v3();
 
     function distanceValid (distance) {
         return distance > 0 && distance < Infinity;

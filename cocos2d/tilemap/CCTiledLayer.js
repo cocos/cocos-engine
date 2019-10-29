@@ -28,7 +28,7 @@ const Material = require('../core/assets/material/CCMaterial');
 const RenderFlow = require('../core/renderer/render-flow');
 
 import { mat4, vec2 } from '../core/vmath';
-let _mat4_temp = mat4.create();
+let _mat4_temp = cc.mat4();
 let _vec2_temp = vec2.create();
 let _vec2_temp2 = vec2.create();
 let _tempRowCol = {row:0, col:0};

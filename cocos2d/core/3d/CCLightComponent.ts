@@ -22,8 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-// @ts-check
+
 import enums from '../../renderer/enums';
+import Color from '../value-types/color';
+import { toRadian } from '../value-types';
+
 let RendererLight = null;
 if (CC_JSB && CC_NATIVERENDERER) {
     RendererLight = window.renderer.Light;
@@ -31,16 +34,10 @@ if (CC_JSB && CC_NATIVERENDERER) {
     RendererLight = require('../../renderer/scene/light');
 }
 
-import { Color } from '../value-types';
-import { toRadian } from '../vmath';
-import mat4 from '../vmath/mat4';
-
 const renderer = require('../renderer/index');
 const Enum = require('../platform/CCEnum');
 const CCComponent = require('../components/CCComponent');
 const { ccclass, menu, inspector, property, executeInEditMode } = require('../platform/CCClassDecorator');
-
-let _mat4_temp = mat4.create();
 
 /**
  * !#en The light source type

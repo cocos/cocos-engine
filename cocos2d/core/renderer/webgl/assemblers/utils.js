@@ -1,6 +1,6 @@
 
 const vec3 = cc.vmath.vec3;
-let vec3_temp = vec3.create();
+let vec3_temp = cc.v3();
 
 function fillVertices (node, buffer, renderData, color) {
     let vertexCount = renderData.vertexCount;

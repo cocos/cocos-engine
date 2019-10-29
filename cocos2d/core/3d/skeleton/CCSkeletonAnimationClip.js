@@ -176,7 +176,7 @@ let SkeletonAnimationClip = cc.Class({
                     }
                 }
 
-                matrix = mat4.create();
+                matrix = cc.mat4();
                 mat4.fromRTS(matrix, node.quat, node.position, node.scale);
 
                 if (pm) {
@@ -189,7 +189,7 @@ let SkeletonAnimationClip = cc.Class({
 
                 let bindWorldMatrix;
                 if (node.uniqueBindPose) {
-                    bindWorldMatrix = mat4.create();
+                    bindWorldMatrix = cc.mat4();
                     mat4.mul(bindWorldMatrix, matrix, node.uniqueBindPose);
                 }
 

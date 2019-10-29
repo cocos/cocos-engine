@@ -27,8 +27,8 @@ const Assembler3D = require('../../../../assembler-3d');
 const SlicedAssembler = require('../2d/sliced');
 
 const vec3 = cc.vmath.vec3;
-const vec3_temp_local = vec3.create();
-const vec3_temp_world = vec3.create();
+const vec3_temp_local = cc.v3();
+const vec3_temp_world = cc.v3();
 
 export default class SlicedAssembler3D extends SlicedAssembler {
     

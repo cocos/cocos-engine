@@ -3,13 +3,13 @@
 import { vec3 } from '../../vmath';
 import VertexData from './vertex-data';
 
-let temp1 = vec3.create(0, 0, 0);
-let temp2 = vec3.create(0, 0, 0);
-let temp3 = vec3.create(0, 0, 0);
-let r = vec3.create(0, 0, 0);
-let c00 = vec3.create(0, 0, 0);
-let c10 = vec3.create(0, 0, 0);
-let c01 = vec3.create(0, 0, 0);
+let temp1 = cc.v3(0, 0, 0);
+let temp2 = cc.v3(0, 0, 0);
+let temp3 = cc.v3(0, 0, 0);
+let r = cc.v3(0, 0, 0);
+let c00 = cc.v3(0, 0, 0);
+let c10 = cc.v3(0, 0, 0);
+let c01 = cc.v3(0, 0, 0);
 
 /**
  * @param {Number} width
@@ -29,8 +29,8 @@ export default function (width = 10, length = 10, opts = {}) {
   let normals = [];
   let uvs = [];
   let indices = [];
-  let minPos = vec3.create(-hw, 0, -hl);
-  let maxPos = vec3.create(hw, 0, hl);
+  let minPos = cc.v3(-hw, 0, -hl);
+  let maxPos = cc.v3(hw, 0, hl);
   let boundingRadius = Math.sqrt(width * width + length * length);
 
   vec3.set(c00, -hw, 0,  hl);

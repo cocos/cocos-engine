@@ -1,10 +1,10 @@
 'use strict';
 
-import { vec3 } from '../../vmath';
+import Vec3 from '../../value-types/vec3';
 import VertexData from './vertex-data';
 
-let temp1 = vec3.create(0, 0, 0);
-let temp2 = vec3.create(0, 0, 0);
+let temp1 = cc.v3(0, 0, 0);
+let temp2 = cc.v3(0, 0, 0);
 
 /**
  * @param {Number} radiusTop
@@ -16,10 +16,10 @@ let temp2 = vec3.create(0, 0, 0);
  * @param {Boolean} opts.capped
  * @param {Number} opts.arc
  */
-export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts = {}) {
+export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts = {sides: 32, heightSegments: 32, arc: 2.0 * Math.PI}) {
   let torsoHeight = height - radiusTop - radiusBottom;
-  let sides = opts.sides || 32;
-  let heightSegments = opts.heightSegments || 32;
+  let sides = opts.sides;
+  let heightSegments = opts.heightSegments;
   let bottomProp = radiusBottom / height;
   let torProp = torsoHeight / height;
   let topProp = radiusTop / height;
@@ -29,8 +29,7 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
   let topOffset = torsoHeight + radiusBottom - height / 2;
   let torOffset = radiusBottom - height / 2;
   let bottomOffset = radiusBottom - height / 2;
-
-  let arc = opts.arc || 2.0 * Math.PI;
+  let arc = opts.arc;
 
   // calculate vertex count
   let positions = [];
@@ -38,8 +37,8 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
   let uvs = [];
   let indices = [];
   let maxRadius = Math.max(radiusTop, radiusBottom);
-  let minPos = vec3.create(-maxRadius, -height / 2, -maxRadius);
-  let maxPos = vec3.create(maxRadius, height / 2, maxRadius);
+  let minPos = cc.v3(-maxRadius, -height / 2, -maxRadius);
+  let maxPos = cc.v3(maxRadius, height / 2, maxRadius);
   let boundingRadius = height / 2;
 
   let index = 0;
@@ -90,7 +89,7 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
         positions.push(radius * cosTheta);
 
         // normal
-        vec3.normalize(temp1, vec3.set(temp2, sinTheta, -slope, cosTheta));
+        Vec3.normalize(temp1, Vec3.set(temp2, sinTheta, -slope, cosTheta));
         normals.push(temp1.x);
         normals.push(temp1.y);
         normals.push(temp1.z);
