@@ -79,7 +79,7 @@ export class AmmoBoxShape extends AmmoShape implements BoxShapeBase {
         } else {
             Cocos2AmmoVec3(this.transform.getOrigin(), center);
             const impl = this.attachRigidBody._impl as AmmoRigidBody;
-            impl.ammoCompoundShape.updateChildTransform(this.index, this.transform, true);
+            impl._btCompoundShape.updateChildTransform(this.index, this.transform, true);
         }
     }
 
@@ -90,7 +90,7 @@ export class AmmoBoxShape extends AmmoShape implements BoxShapeBase {
         this._btShape.setLocalScaling(this.scale);
         if (this.attachRigidBody) {
             const impl = this.attachRigidBody._impl as AmmoRigidBody;
-            impl.ammoCompoundShape.updateChildTransform(this.index, this.transform, true);
+            impl._btCompoundShape.updateChildTransform(this.index, this.transform, true);
         } else {
             if (this.collider.isTrigger) {
                 AmmoWorld.instance.sharedTriggerCompoundShape.updateChildTransform(this.index, this.transform, true);

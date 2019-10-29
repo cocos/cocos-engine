@@ -11,7 +11,7 @@ import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { ObjectCollisionMatrix } from '../utils/object-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
 import { TriggerEventObject, CollisionEventObject } from './ammo-const';
-import { Ammo2CocosVec3 } from './ammo-util';
+import { Ammo2CocosVec3, Cocos2AmmoVec3 } from './ammo-util';
 import { ray } from '../../core/geom-utils';
 
 export class AmmoWorld implements PhysicsWorldBase {
@@ -19,12 +19,6 @@ export class AmmoWorld implements PhysicsWorldBase {
         throw new Error("Method not implemented.");
     }
     defaultMaterial: any;
-    setGravity (gravity: Vec3): void {
-        throw new Error("Method not implemented.");
-    }
-    getGravity (out: Vec3): void {
-        throw new Error("Method not implemented.");
-    }
     getAllowSleep (): boolean {
         throw new Error("Method not implemented.");
     }
@@ -32,43 +26,28 @@ export class AmmoWorld implements PhysicsWorldBase {
         throw new Error("Method not implemented.");
     }
 
-    get gravity () {
-        return this._gravity;
-    }
-
     get impl () {
-        return this._ammoWorld;
+        return this._btWorld;
     }
 
     public static get instance (): AmmoWorld {
         return PhysicsSystem.instance._world as any as AmmoWorld;
     }
 
-    private _customBeforeStepListener: Function[] = [];
-    private _customAfterStepListener: Function[] = [];
+    private readonly _btWorld: Ammo.btDiscreteDynamicsWorld;
+    private readonly _btBroadphase: Ammo.btDbvtBroadphase;
+    private readonly _btSolver: Ammo.btSequentialImpulseConstraintSolver;
+    private readonly _btDispatcher: Ammo.btCollisionDispatcher;
 
-    private _gravity: Vec3 = new Vec3(0, -9.81, 0);
+    private readonly _btGravity: Ammo.btVector3;
 
-    private _dispatcher: Ammo.btCollisionDispatcher;
-
-    private _reverseBodyMap = new Map<Ammo.btRigidBody, AmmoRigidBody>();
-
-    private _debugger: AmmoDebugger = new AmmoDebugger();
-
-    // private _collisionEvent: CollisionEvent = new CollisionEvent();
-    // private _collisionManager = new CollisionStateManager();
-
-    private _hitPoint: Vec3 = new Vec3();
-    private _hitNormal = new Vec3();
-
-    private _ammoWorld: Ammo.btDiscreteDynamicsWorld;
+    public readonly bodys: AmmoRigidBody[] = [];
+    public readonly staticShapes: AmmoShape[] = [];
+    public readonly triggerShapes: AmmoShape[] = [];
     public readonly sharedStaticCompoundShape: Ammo.btCompoundShape;
     public readonly sharedStaticBody: Ammo.btRigidBody;
     public readonly sharedTriggerCompoundShape: Ammo.btCompoundShape;
     public readonly sharedTriggerBody: Ammo.btRigidBody;
-    public readonly bodys: AmmoRigidBody[] = [];
-    public readonly staticShapes: AmmoShape[] = [];
-    public readonly triggerShapes: AmmoShape[] = [];
 
     public readonly triggerArrayMat = new ArrayCollisionMatrix();
     public readonly collisionArrayMat = new ArrayCollisionMatrix();
@@ -77,12 +56,15 @@ export class AmmoWorld implements PhysicsWorldBase {
 
     constructor (options?: any) {
         const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
-        const dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
-        this._dispatcher = dispatcher;
-        const overlappingPairCache = new Ammo.btDbvtBroadphase();
-        const solver = new Ammo.btSequentialImpulseConstraintSolver();
-        this._ammoWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
-        this._ammoWorld.setGravity(new Ammo.btVector3(this._gravity.x, this._gravity.y, this._gravity.z));
+        this._btDispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
+        this._btBroadphase = new Ammo.btDbvtBroadphase();
+        // this._btBroadphase.getOverlappingPairCache().setInternalGhostPairCallback(new Ammo.btGhostPairCallback());
+        this._btSolver = new Ammo.btSequentialImpulseConstraintSolver();
+        this._btWorld = new Ammo.btDiscreteDynamicsWorld(this._btDispatcher, this._btBroadphase, this._btSolver, collisionConfiguration);
+        this._btGravity = new Ammo.btVector3(0, -10, 0);
+        this._btWorld.setGravity(this._btGravity);
+
+        // btGImpactCollisionAlgorithm::registerAlgorithm((btCollisionDispatcher *)dispatcher);
 
         /** shared static body */
         {
@@ -92,7 +74,7 @@ export class AmmoWorld implements PhysicsWorldBase {
             let myMotionState = new Ammo.btDefaultMotionState();
             let rbInfo = new Ammo.btRigidBodyConstructionInfo(0, myMotionState, this.sharedStaticCompoundShape, localInertia);
             this.sharedStaticBody = new Ammo.btRigidBody(rbInfo);
-            this._ammoWorld.addRigidBody(this.sharedStaticBody);
+            this._btWorld.addRigidBody(this.sharedStaticBody);
             this.sharedStaticBody.setUserIndex(-2);
             this.sharedStaticBody.setActivationState(4);
         }
@@ -106,7 +88,7 @@ export class AmmoWorld implements PhysicsWorldBase {
             let rbInfo = new Ammo.btRigidBodyConstructionInfo(0, myMotionState, this.sharedTriggerCompoundShape, localInertia);
             this.sharedTriggerBody = new Ammo.btRigidBody(rbInfo);
             this.sharedTriggerBody.setCollisionFlags(AmmoCollisionFlags.CF_NO_CONTACT_RESPONSE);
-            this._ammoWorld.addRigidBody(this.sharedTriggerBody);
+            this._btWorld.addRigidBody(this.sharedTriggerBody);
             this.sharedTriggerBody.setUserIndex(-3);
             this.sharedTriggerBody.setActivationState(4);
         }
@@ -117,7 +99,7 @@ export class AmmoWorld implements PhysicsWorldBase {
 
     }
 
-    public step (deltaTime: number, time?: number, maxSubStep?: number) {
+    public step (timeStep: number, fixTimeStep?: number, maxSubStep?: number) {
 
         for (let i = 0; i < this.bodys.length; i++) {
             this.bodys[i].beforeStep();
@@ -131,7 +113,7 @@ export class AmmoWorld implements PhysicsWorldBase {
             this.triggerShapes[i].beforeStep();
         }
 
-        this._ammoWorld.stepSimulation(deltaTime, maxSubStep, time);
+        this._btWorld.stepSimulation(timeStep, maxSubStep, fixTimeStep);
 
         for (let i = 0; i < this.bodys.length; i++) {
             this.bodys[i].afterStep();
@@ -145,23 +127,9 @@ export class AmmoWorld implements PhysicsWorldBase {
             this.triggerShapes[i].beforeStep();
         }
 
-        // if (!this._debugger.avaiable) {
-        //     const scene = director.getScene();
-        //     if (scene) {
-        //         const node = new Node('bullet-debugger');
-        //         scene.addChild(node as any);
-        //         this._debugger.bind(node);
-        //         this._ammoWorld.setDebugDrawer(this._debugger.ammoDrawDebugger);
-        //     }
-        // }
-
-        // this._debugger.clear();
-        // this._ammoWorld.debugDrawWorld();
-        // this._debugger.present();
-
-        const numManifolds = this._dispatcher.getNumManifolds();
+        const numManifolds = this._btDispatcher.getNumManifolds();
         for (let i = 0; i < numManifolds; i++) {
-            const manifold = this._dispatcher.getManifoldByIndexInternal(i);
+            const manifold = this._btDispatcher.getManifoldByIndexInternal(i);
             const body0 = manifold.getBody0();
             const body1 = manifold.getBody1();
             const index0 = body0.getUserIndex();
@@ -276,25 +244,25 @@ export class AmmoWorld implements PhysicsWorldBase {
                 this.oldContactsDic.set(shape0.id, shape1.id, data);
             }
 
-            if (collider0.node.hasChangedFlags) {
-                const impl = (collider0 as any)._shape as AmmoShape;
-                if (impl.attachRigidBody) {
-                    const body = impl.attachRigidBody._impl as AmmoRigidBody;
-                    body.beforeStep();
-                } else {
-                    impl.beforeStep();
-                }
-            }
+            // if (collider0.node.hasChangedFlags) {
+            //     const impl = (collider0 as any)._shape as AmmoShape;
+            //     if (impl.attachRigidBody) {
+            //         const body = impl.attachRigidBody._impl as AmmoRigidBody;
+            //         body.beforeStep();
+            //     } else {
+            //         impl.beforeStep();
+            //     }
+            // }
 
-            if (collider1.node.hasChangedFlags) {
-                const impl = (collider1 as any)._shape as AmmoShape;
-                if (impl.attachRigidBody) {
-                    const body = impl.attachRigidBody._impl as AmmoRigidBody;
-                    body.beforeStep();
-                } else {
-                    impl.beforeStep();
-                }
-            }
+            // if (collider1.node.hasChangedFlags) {
+            //     const impl = (collider1 as any)._shape as AmmoShape;
+            //     if (impl.attachRigidBody) {
+            //         const body = impl.attachRigidBody._impl as AmmoRigidBody;
+            //         body.beforeStep();
+            //     } else {
+            //         impl.beforeStep();
+            //     }
+            // }
         }
 
         // is exit
@@ -319,16 +287,6 @@ export class AmmoWorld implements PhysicsWorldBase {
                         TriggerEventObject.selfCollider = collider1;
                         TriggerEventObject.otherCollider = collider0;
                         collider1.emit(TriggerEventObject.type, TriggerEventObject);
-
-                        if (collider0.node.hasChangedFlags) {
-                            const impl = (collider0 as any)._shape;
-                            impl.beforeStep();
-                        }
-
-                        if (collider1.node.hasChangedFlags) {
-                            const impl = (collider1 as any)._shape;
-                            impl.beforeStep();
-                        }
 
                         this.triggerArrayMat.set(shape0.id, shape1.id, false);
                         this.oldContactsDic.set(shape0.id, shape1.id, null);
@@ -373,29 +331,38 @@ export class AmmoWorld implements PhysicsWorldBase {
                     }
                 }
 
-                if (collider0.node.hasChangedFlags) {
-                    const impl = (collider0 as any)._shape as AmmoShape;
-                    if (impl.attachRigidBody) {
-                        const body = impl.attachRigidBody._impl as AmmoRigidBody;
-                        body.beforeStep();
-                    } else {
-                        impl.beforeStep();
-                    }
-                }
+                // if (collider0.node.hasChangedFlags) {
+                //     const impl = (collider0 as any)._shape as AmmoShape;
+                //     if (impl.attachRigidBody) {
+                //         const body = impl.attachRigidBody._impl as AmmoRigidBody;
+                //         body.beforeStep();
+                //     } else {
+                //         impl.beforeStep();
+                //     }
+                // }
 
-                if (collider1.node.hasChangedFlags) {
-                    const impl = (collider1 as any)._shape as AmmoShape;
-                    if (impl.attachRigidBody) {
-                        const body = impl.attachRigidBody._impl as AmmoRigidBody;
-                        body.beforeStep();
-                    } else {
-                        impl.beforeStep();
-                    }
-                }
+                // if (collider1.node.hasChangedFlags) {
+                //     const impl = (collider1 as any)._shape as AmmoShape;
+                //     if (impl.attachRigidBody) {
+                //         const body = impl.attachRigidBody._impl as AmmoRigidBody;
+                //         body.beforeStep();
+                //     } else {
+                //         impl.beforeStep();
+                //     }
+                // }
             }
         }
 
         this.contactsDic.reset();
+    }
+
+    public setGravity (gravity: Vec3): void {
+        Cocos2AmmoVec3(this._btGravity, gravity);
+        this._btWorld.setGravity(this._btGravity);
+    }
+
+    public getGravity (out: Vec3): void {
+        Ammo2CocosVec3(out, this._btWorld.getGravity());
     }
 
     /**
@@ -415,7 +382,7 @@ export class AmmoWorld implements PhysicsWorldBase {
         // closestRayResultCallback.get_m_rayFromWorld().setValue(from.x, from.y, from.z);
         // closestRayResultCallback.get_m_rayToWorld().setValue(to.x, to.y, to.z);
 
-        this._ammoWorld.rayTest(ammoFrom, ammoTo, closestRayResultCallback);
+        this._btWorld.rayTest(ammoFrom, ammoTo, closestRayResultCallback);
         if (!closestRayResultCallback.hasHit()) {
             return false;
         }
