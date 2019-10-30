@@ -208,13 +208,12 @@ export class ModelComponent extends RenderableComponent {
             this._createModel();
         }
 
-        this._model!.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
-
         this._updateModelParams();
 
         if (this._model) {
+            this._model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
             this._model.enabled = true;
-            this._model.isDynamicBatching = this._enableDynamicBatching;
+
             if (this._enableDynamicBatching) {
                 if (!this._mesh.hasFlatBuffers) {
                     this._mesh.createFlatBuffers();
@@ -229,8 +228,8 @@ export class ModelComponent extends RenderableComponent {
                     }
                 }
             }
-
         }
+
     }
 
     protected _createModel () {
@@ -251,6 +250,7 @@ export class ModelComponent extends RenderableComponent {
             return;
         }
         this.node.hasChangedFlags = this._model.transform.hasChangedFlags = TransformDirtyBit.POSITION;
+        this._model.isDynamicBatching = this._enableDynamicBatching;
         const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
         for (let i = 0; i < meshCount; ++i) {
             const material = this.getSharedMaterial(i);
