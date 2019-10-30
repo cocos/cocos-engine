@@ -1,5 +1,5 @@
 
-declare const cc: {
+declare let cc: {
     // polyfills: {
     //     destroyObject? (object: any): void;
     // };
