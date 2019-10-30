@@ -741,7 +741,11 @@ export default class Mat3 {
     }
 
     /**
-     * @zh 矩阵转数组
+     * !#zh 矩阵转数组
+     * !#en Matrix transpose array
+     * @method toArray
+     * @typescript
+     * public static toArray <Out extends IWritableArrayLike<number>> (out: Out, mat: IMat3Like, ofs = 0)
      * @param ofs 数组内的起始偏移量
      */
     public static toArray <Out extends IWritableArrayLike<number>> (out: Out, mat: IMat3Like, ofs = 0) {
@@ -753,7 +757,11 @@ export default class Mat3 {
     }
 
     /**
-     * @zh 数组转矩阵
+     * !#zh 数组转矩阵
+     * !#en Transfer matrix array
+     * @method fromArray
+     * @typescript
+     * public static fromArray <Out extends IMat3Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0)
      * @param ofs 数组起始偏移量
      */
     public static fromArray <Out extends IMat3Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {

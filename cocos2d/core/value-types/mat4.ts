@@ -74,7 +74,11 @@ export default class Mat4 extends ValueType {
     public static IDENTITY = Object.freeze(new Mat4());
 
     /**
-     * @zh 获得指定矩阵的拷贝
+     * !#zh 获得指定矩阵的拷贝
+     * !#en Copy of the specified matrix to obtain
+     * @method clone
+     * @typescript
+     * public static clone<Out extends IMat4Like> (a: Out)
      */
     public static clone<Out extends IMat4Like> (a: Out) {
         let m = a.m;
@@ -87,7 +91,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 复制目标矩阵
+     * !#zh 复制目标矩阵
+     * !#en Copy the target matrix
+     * @method copy
+     * @typescript
+     * public static copy<Out extends IMat4Like> (out: Out, a: Out)
      */
     public static copy<Out extends IMat4Like> (out: Out, a: Out) {
         let m = out.m, am = a.m;
@@ -111,7 +119,8 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 设置矩阵值
+     * !#zh 设置矩阵值
+     * !#en Setting matrix values
      */
     public static set<Out extends IMat4Like> (
         out: Out,
@@ -129,7 +138,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 将目标赋值为单位矩阵
+     * !#zh 将目标赋值为单位矩阵
+     * !#en The target of an assignment is the identity matrix
+     * @method identity
+     * @typescript
+     * public static identity<Out extends IMat4Like> (out: Out)
      */
     public static identity<Out extends IMat4Like> (out: Out) {
         let m = out.m;
@@ -153,7 +166,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 转置矩阵
+     * !#zh 转置矩阵
+     * !#en Transposed matrix
+     * @method transpose
+     * @typescript
+     * public static transpose<Out extends IMat4Like> (out: Out, a: Out)
      */
     public static transpose<Out extends IMat4Like> (out: Out, a: Out) {
         let m = out.m, am = a.m;
@@ -194,7 +211,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 矩阵求逆
+     * !#zh 矩阵求逆
+     * !#en Matrix inversion
+     * @method invert
+     * @typescript
+     * public static invert<Out extends IMat4Like> (out: Out, a: Out)
      */
     public static invert<Out extends IMat4Like> (out: Out, a: Out) {
         let am = a.m;
@@ -244,7 +265,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 矩阵行列式
+     * !#zh 矩阵行列式
+     * !#en Matrix determinant
+     * @method determinant
+     * @typescript
+     * public static determinant<Out extends IMat4Like> (a: Out): number
      */
     public static determinant<Out extends IMat4Like> (a: Out): number {
         let m = a.m;
@@ -271,7 +296,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 矩阵乘法
+     * !#zh 矩阵乘法
+     * !#en Matrix Multiplication
+     * @method multiply
+     * @typescript
+     * public static multiply<Out extends IMat4Like> (out: Out, a: Out, b: Out)
      */
     public static multiply<Out extends IMat4Like> (out: Out, a: Out, b: Out) {
         let m = out.m, am = a.m, bm = b.m;
@@ -308,7 +337,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 在给定矩阵变换基础上加入变换
+     * !#zh 在给定矩阵变换基础上加入变换
+     * !#en Was added in a given transformation matrix transformation on the basis of
+     * @method transform
+     * @typescript
+     * public static transform<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike)
      */
     public static transform<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
         const x = v.x, y = v.y, z = v.z;
@@ -337,7 +370,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 在给定矩阵变换基础上加入新位移变换
+     * !#zh 在给定矩阵变换基础上加入新位移变换
+     * !#en Add new displacement transducer in a matrix transformation on the basis of a given
+     * @method translate
+     * @typescript
+     * public static translate<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike)
      */
     public static translate<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
         let m = out.m, am = a.m;
@@ -358,7 +395,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 在给定矩阵变换基础上加入新缩放变换
+     * !#zh 在给定矩阵变换基础上加入新缩放变换
+     * !#en Add new scaling transformation in a given matrix transformation on the basis of
+     * @method scale
+     * @typescript
+     * public static scale<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike)
      */
     public static scale<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
         const x = v.x, y = v.y, z = v.z;
@@ -383,7 +424,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 在给定矩阵变换基础上加入新旋转变换
+     * !#zh 在给定矩阵变换基础上加入新旋转变换
+     * !#en Add a new rotational transform matrix transformation on the basis of a given
+     * @method rotate
+     * @typescript
+     * public static rotate<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, rad: number, axis: VecLike)
      * @param rad 旋转角度
      * @param axis 旋转轴
      */
@@ -442,7 +487,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 在给定矩阵变换基础上加入绕 X 轴的旋转变换
+     * !#zh 在给定矩阵变换基础上加入绕 X 轴的旋转变换
+     * !#en Add rotational transformation around the X axis at a given matrix transformation on the basis of
+     * @method rotateX
+     * @typescript
+     * public static rotateX<Out extends IMat4Like> (out: Out, a: Out, rad: number)
      * @param rad 旋转角度
      */
     public static rotateX<Out extends IMat4Like> (out: Out, a: Out, rad: number) {
@@ -483,7 +532,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 在给定矩阵变换基础上加入绕 Y 轴的旋转变换
+     * !#zh 在给定矩阵变换基础上加入绕 Y 轴的旋转变换
+     * !#en Add about the Y axis rotation transformation in a given matrix transformation on the basis of
+     * @method rotateY
+     * @typescript
+     * public static rotateY<Out extends IMat4Like> (out: Out, a: Out, rad: number)
      * @param rad 旋转角度
      */
     public static rotateY<Out extends IMat4Like> (out: Out, a: Out, rad: number) {
@@ -524,7 +577,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 在给定矩阵变换基础上加入绕 Z 轴的旋转变换
+     * !#zh 在给定矩阵变换基础上加入绕 Z 轴的旋转变换
+     * !#en Added about the Z axis at a given rotational transformation matrix transformation on the basis of
+     * @method rotateZ
+     * @typescript
+     * public static rotateZ<Out extends IMat4Like> (out: Out, a: Out, rad: number)
      * @param rad 旋转角度
      */
     public static rotateZ<Out extends IMat4Like> (out: Out, a: Out, rad: number) {
@@ -567,7 +624,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 计算位移矩阵
+     * !#zh 计算位移矩阵
+     * !#en Displacement matrix calculation
+     * @method fromTranslation
+     * @typescript
+     * public static fromTranslation<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike)
      */
     public static fromTranslation<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike) {
         let m = out.m;
@@ -591,7 +652,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 计算缩放矩阵
+     * !#zh 计算缩放矩阵
+     * !#en Scaling matrix calculation
+     * @method fromScaling
+     * @typescript
+     * public static fromScaling<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike)
      */
     public static fromScaling<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike) {
         let m = out.m;
@@ -615,7 +680,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 计算旋转矩阵
+     * !#zh 计算旋转矩阵
+     * !#en Calculates the rotation matrix
+     * @method fromRotation
+     * @typescript
+     * public static fromRotation<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, rad: number, axis: VecLike)
      */
     public static fromRotation<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, rad: number, axis: VecLike) {
         let x = axis.x, y = axis.y, z = axis.z;
@@ -656,7 +725,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 计算绕 X 轴的旋转矩阵
+     * !#zh 计算绕 X 轴的旋转矩阵
+     * !#en Calculating rotation matrix about the X axis
+     * @method fromXRotation
+     * @typescript
+     * public static fromXRotation<Out extends IMat4Like> (out: Out, rad: number)
      */
     public static fromXRotation<Out extends IMat4Like> (out: Out, rad: number) {
         const s = Math.sin(rad), c = Math.cos(rad);
@@ -683,7 +756,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 计算绕 Y 轴的旋转矩阵
+     * !#zh 计算绕 Y 轴的旋转矩阵
+     * !#en Calculating rotation matrix about the Y axis
+     * @method fromYRotation
+     * @typescript
+     * public static fromYRotation<Out extends IMat4Like> (out: Out, rad: number)
      */
     public static fromYRotation<Out extends IMat4Like> (out: Out, rad: number) {
         const s = Math.sin(rad), c = Math.cos(rad);
@@ -710,7 +787,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 计算绕 Z 轴的旋转矩阵
+     * !#zh 计算绕 Z 轴的旋转矩阵
+     * !#en Calculating rotation matrix about the Z axis
+     * @method fromZRotation
+     * @typescript
+     * public static fromZRotation<Out extends IMat4Like> (out: Out, rad: number)
      */
     public static fromZRotation<Out extends IMat4Like> (out: Out, rad: number) {
         const s = Math.sin(rad), c = Math.cos(rad);
@@ -737,7 +818,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 根据旋转和位移信息计算矩阵
+     * !#zh 根据旋转和位移信息计算矩阵
+     * !#en The rotation and displacement information calculating matrix
+     * @method fromRT
+     * @typescript
+     * public static fromRT<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike)
      */
     public static fromRT<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
@@ -777,7 +862,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 提取矩阵的位移信息, 默认矩阵中的变换以 S->R->T 的顺序应用
+     * !#zh 提取矩阵的位移信息, 默认矩阵中的变换以 S->R->T 的顺序应用
+     * !#en Extracting displacement information of the matrix, the matrix transform to the default sequential application S-> R-> T is
+     * @method getTranslation
+     * @typescript
+     * public static getTranslation<Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out)
      */
     public static getTranslation<Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out) {
         let m = mat.m;
@@ -789,7 +878,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 提取矩阵的缩放信息, 默认矩阵中的变换以 S->R->T 的顺序应用
+     * !#zh 提取矩阵的缩放信息, 默认矩阵中的变换以 S->R->T 的顺序应用
+     * !#en Scaling information extraction matrix, the matrix transform to the default sequential application S-> R-> T is
+     * @method getScaling
+     * @typescript
+     * public static getScaling<Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out)
      */
     public static getScaling<Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out) {
         let m = mat.m;
@@ -812,7 +905,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 提取矩阵的旋转信息, 默认输入矩阵不含有缩放信息，如考虑缩放应使用 `toRTS` 函数。
+     * !#zh 提取矩阵的旋转信息, 默认输入矩阵不含有缩放信息，如考虑缩放应使用 `toRTS` 函数。
+     * !#en Rotation information extraction matrix, the matrix containing no default input scaling information, such as the use of `toRTS` should consider the scaling function.
+     * @method getRotation
+     * @typescript
+     * public static getRotation<Out extends IMat4Like> (out: Quat, mat: Out)
      */
     public static getRotation<Out extends IMat4Like> (out: Quat, mat: Out) {
         let m = mat.m;
@@ -849,7 +946,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 提取旋转、位移、缩放信息， 默认矩阵中的变换以 S->R->T 的顺序应用
+     * !#zh 提取旋转、位移、缩放信息， 默认矩阵中的变换以 S->R->T 的顺序应用
+     * !#en Extracting rotational displacement, zoom information, the default matrix transformation in order S-> R-> T applications
+     * @method toRTS
+     * @typescript
+     * public static toRTS<Out extends IMat4Like, VecLike extends IVec3Like> (mat: Out, q: Quat, v: VecLike, s: VecLike)
      */
     public static toRTS<Out extends IMat4Like, VecLike extends IVec3Like> (mat: Out, q: Quat, v: VecLike, s: VecLike) {
         let m = mat.m;
@@ -873,7 +974,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 根据旋转、位移、缩放信息计算矩阵，以 S->R->T 的顺序应用
+     * !#zh 根据旋转、位移、缩放信息计算矩阵，以 S->R->T 的顺序应用
+     * !#en The rotary displacement, the scaling matrix calculation information, the order S-> R-> T applications
+     * @method fromRTS
+     * @typescript
+     * public static fromRTS<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike, s: VecLike)
      */
     public static fromRTS<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike, s: VecLike) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
@@ -916,7 +1021,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 根据指定的旋转、位移、缩放及变换中心信息计算矩阵，以 S->R->T 的顺序应用
+     * !#zh 根据指定的旋转、位移、缩放及变换中心信息计算矩阵，以 S->R->T 的顺序应用
+     * !#en According to the specified rotation, displacement, and scale conversion matrix calculation information center, order S-> R-> T applications
+     * @method fromRTSOrigin
+     * @typescript
+     * public static fromRTSOrigin<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike, s: VecLike, o: VecLike)
      * @param q 旋转值
      * @param v 位移值
      * @param s 缩放值
@@ -968,7 +1077,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 根据指定的旋转信息计算矩阵
+     * !#zh 根据指定的旋转信息计算矩阵
+     * !#en The rotation matrix calculation information specified
+     * @method fromQuat
+     * @typescript
+     * public static fromQuat<Out extends IMat4Like> (out: Out, q: Quat)
      */
     public static fromQuat<Out extends IMat4Like> (out: Out, q: Quat) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
@@ -1011,7 +1124,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 根据指定的视锥体信息计算矩阵
+     * !#zh 根据指定的视锥体信息计算矩阵
+     * !#en The matrix calculation information specified frustum
+     * @method frustum
+     * @typescript
+     * public static frustum<Out extends IMat4Like> (out: Out, left: number, right: number, bottom: number, top: number, near: number, far: number)
      * @param left 左平面距离
      * @param right 右平面距离
      * @param bottom 下平面距离
@@ -1045,7 +1162,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 计算透视投影矩阵
+     * !#zh 计算透视投影矩阵
+     * !#en Perspective projection matrix calculation
+     * @method perspective
+     * @typescript
+     * public static perspective<Out extends IMat4Like> (out: Out, fovy: number, aspect: number, near: number, far: number)
      * @param fovy 纵向视角高度
      * @param aspect 长宽比
      * @param near 近平面距离
@@ -1076,7 +1197,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 计算正交投影矩阵
+     * !#zh 计算正交投影矩阵
+     * !#en Computing orthogonal projection matrix
+     * @method ortho
+     * @typescript
+     * public static ortho<Out extends IMat4Like> (out: Out, left: number, right: number, bottom: number, top: number, near: number, far: number)
      * @param left 左平面距离
      * @param right 右平面距离
      * @param bottom 下平面距离
@@ -1109,7 +1234,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 根据视点计算矩阵，注意 `eye - center` 不能为零向量或与 `up` 向量平行
+     * !#zh 根据视点计算矩阵，注意 `eye - center` 不能为零向量或与 `up` 向量平行
+     * !#en `Up` parallel vector or vector center` not be zero - the matrix calculation according to the viewpoint, note` eye
+     * @method lookAt
+     * @typescript
+     * public static lookAt<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, eye: VecLike, center: VecLike, up: VecLike)
      * @param eye 当前位置
      * @param center 目标视点
      * @param up 视口上方向
@@ -1168,7 +1297,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 计算逆转置矩阵
+     * !#zh 计算逆转置矩阵
+     * !#en Reversal matrix calculation
+     * @method inverseTranspose
+     * @typescript
+     * public static inverseTranspose<Out extends IMat4Like> (out: Out, a: Out)
      */
     public static inverseTranspose<Out extends IMat4Like> (out: Out, a: Out) {
 
@@ -1224,7 +1357,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 逐元素矩阵加法
+     * !#zh 逐元素矩阵加法
+     * !#en Element by element matrix addition
+     * @method add
+     * @typescript
+     * public static add<Out extends IMat4Like> (out: Out, a: Out, b: Out)
      */
     public static add<Out extends IMat4Like> (out: Out, a: Out, b: Out) {
         let m = out.m, am = a.m, bm = b.m;
@@ -1248,7 +1385,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 逐元素矩阵减法
+     * !#zh 逐元素矩阵减法
+     * !#en Matrix element by element subtraction
+     * @method subtract
+     * @typescript
+     * public static subtract<Out extends IMat4Like> (out: Out, a: Out, b: Out)
      */
     public static subtract<Out extends IMat4Like> (out: Out, a: Out, b: Out) {
         let m = out.m, am = a.m, bm = b.m;
@@ -1272,7 +1413,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 矩阵标量乘法
+     * !#zh 矩阵标量乘法
+     * !#en Matrix scalar multiplication
+     * @method multiplyScalar
+     * @typescript
+     * public static multiplyScalar<Out extends IMat4Like> (out: Out, a: Out, b: number)
      */
     public static multiplyScalar<Out extends IMat4Like> (out: Out, a: Out, b: number) {
         let m = out.m, am = a.m;
@@ -1296,7 +1441,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 逐元素矩阵标量乘加: A + B * scale
+     * !#zh 逐元素矩阵标量乘加: A + B * scale
+     * !#en Elements of the matrix by the scalar multiplication and addition: A + B * scale
+     * @method multiplyScalarAndAdd
+     * @typescript
+     * public static multiplyScalarAndAdd<Out extends IMat4Like> (out: Out, a: Out, b: Out, scale: number)
      */
     public static multiplyScalarAndAdd<Out extends IMat4Like> (out: Out, a: Out, b: Out, scale: number) {
         let m = out.m, am = a.m, bm = b.m;
@@ -1320,7 +1469,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 矩阵等价判断
+     * !#zh 矩阵等价判断
+     * !#en Analyzing the equivalent matrix
+     * @method strictEquals
+     * @typescript
+     * public static strictEquals<Out extends IMat4Like> (a: Out, b: Out)
      */
     public static strictEquals<Out extends IMat4Like> (a: Out, b: Out) {
         let am = a.m, bm = b.m;
@@ -1331,7 +1484,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 排除浮点数误差的矩阵近似等价判断
+     * !#zh 排除浮点数误差的矩阵近似等价判断
+     * !#en Negative floating point error is approximately equivalent to determining a matrix
+     * @method equals
+     * @typescript
+     * public static equals<Out extends IMat4Like> (a: Out, b: Out, epsilon = EPSILON)
      */
     public static equals<Out extends IMat4Like> (a: Out, b: Out, epsilon = EPSILON) {
 
@@ -1390,7 +1547,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 矩阵转数组
+     * !#zh 矩阵转数组
+     * !#en Matrix transpose array
+     * @method toArray
+     * @typescript
+     * public static toArray <Out extends IWritableArrayLike<number>> (out: Out, mat: IMat4Like, ofs = 0)
      * @param ofs 数组内的起始偏移量
      */
     public static toArray <Out extends IWritableArrayLike<number>> (out: Out, mat: IMat4Like, ofs = 0) {
@@ -1402,7 +1563,11 @@ export default class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 数组转矩阵
+     * !#zh 数组转矩阵
+     * !#en Transfer matrix array
+     * @method fromArray
+     * @typescript
+     * public static fromArray <Out extends IMat4Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0)
      * @param ofs 数组起始偏移量
      */
     public static fromArray <Out extends IMat4Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {

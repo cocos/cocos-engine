@@ -310,7 +310,11 @@ export default class Color extends ValueType {
     }
 
     /**
-     * @zh 颜色转数组
+     * !#zh 颜色转数组
+     * !#en Turn an array of colors
+     * @method toArray
+     * @typescript
+     * public static toArray <Out extends IWritableArrayLike<number>> (out: Out, a: IColorLike, ofs = 0)
      * @param ofs 数组起始偏移量
      */
     public static toArray <Out extends IWritableArrayLike<number>> (out: Out, a: IColorLike, ofs = 0) {
@@ -323,7 +327,11 @@ export default class Color extends ValueType {
     }
 
     /**
-     * @zh 数组转颜色
+     * !#zh 数组转颜色
+     * !#en An array of colors turn
+     * @method fromArray
+     * @typescript
+     * public static fromArray <Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs = 0)
      * @param ofs 数组起始偏移量
      */
     public static fromArray <Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs = 0) {
