@@ -11,178 +11,30 @@ import { AmmoCollisionFlags, AmmoRigidBodyFlags, AmmoBroadphaseNativeTypes, Ammo
 import { TransformDirtyBit } from '../../core/scene-graph/node-enum';
 import { max, abs } from '../../core/math/bits';
 import { AmmoSphereShape } from './shapes/ammo-sphere-shape';
+import { ERigidBodyType } from '../physic-enum';
 
 export class AmmoRigidBody implements RigidBodyBase {
 
-    getCollisionResponse (): boolean {
-        // throw new Error("Method not implemented.");
-        return false;
-    }
-    setCollisionResponse (value: boolean): void {
-        // throw new Error("Method not implemented.");
-    }
-
-    translateAndRotate (m: import("../../core").Mat4, rot: Quat): void {
-        throw new Error("Method not implemented.");
-    }
-    getType (): import("../physic-enum").ERigidBodyType {
-        throw new Error("Method not implemented.");
-    }
-    setType (v: import("../physic-enum").ERigidBodyType): void {
-        throw new Error("Method not implemented.");
-    }
-
-    private static ID_COUNTER = 0;
-
-    private _id: number = -1;
-    private _ammoWorldPositionBuffer = new Ammo.btVector3();
-    private _ammoWorldRotationBuffer = new Ammo.btQuaternion();
-    private _world: AmmoWorld | null = null;
-    private _mass: number = 0;
-    private _ammoTransform = new Ammo.btTransform();
-    private _nReconstructShapeRequest = 1;
-    private _nReconstructBodyRequest = 1;
-    private _changeRequests = {
-        velocity: {
-            hasValue: false,
-            storage: new Vec3(),
-        },
-        forces: [],
-        applyImpulse: {
-            hasValue: false,
-            storage: new Vec3(),
-        },
-    };
-
-    private _motionState!: Ammo.btDefaultMotionState;
-
-    public commitShapeUpdates () {
-        ++this._nReconstructShapeRequest;
-    }
-
-    public _updateTransform () {
-        this._ammoTransform.setIdentity();
-        // vec3CreatorToAmmo(this._ammoWorldPositionBuffer, this._worldPosition);
-        this._ammoTransform.setOrigin(this._ammoWorldPositionBuffer);
-        // quatCreatorToAmmo(this._ammoWorldRotationBuffer, this._worldRotation);
-        this._ammoTransform.setRotation(this._ammoWorldRotationBuffer);
-        this._btBody.setWorldTransform(this._ammoTransform);
-        this._motionState.setWorldTransform(this._ammoTransform);
-        // console.log(`[[Set AMMO Transform]] ` +
-        //     `Name: ${this._getName()}; ` +
-        //     `Position: ${toString(this._worldPosition)}; ` +
-        //     `Rotation: ${toString(this._worldRotation)}`);
-    }
-
-    private _reconstructCompoundShape () {
-        // this._compoundShape = new Ammo.btCompoundShape();
-        // for (const shape of this._shapes) {
-        //     this._compoundShape.addChildShape(shape.transform, shape.impl);
-        // }
-        // ++this._nReconstructBodyRequest;
-    }
-
-    private _reconstructBody () {
-        if (this._world) {
-            this._world.impl.removeRigidBody(this.impl);
-            // this._world.decouple(this);
-        }
-
-        // vec3CreatorToAmmo(this._ammoWorldPositionBuffer, this._worldPosition);
-        // quatCreatorToAmmo(this._ammoWorldRotationBuffer, this._worldRotation);
-        const transform = new Ammo.btTransform();
-        transform.setIdentity();
-        transform.setOrigin(this._ammoWorldPositionBuffer);
-        transform.setRotation(this._ammoWorldRotationBuffer);
-
-        const localInertia = new Ammo.btVector3(0, 0, 0);
-        this._btCompoundShape.calculateLocalInertia(this._mass, localInertia);
-
-        this._motionState = new Ammo.btDefaultMotionState(transform);
-        const rigidBodyConstructionInfo = new Ammo.btRigidBodyConstructionInfo(this._mass, this._motionState, this._btCompoundShape, localInertia);
-        this._btBody = new Ammo.btRigidBody(rigidBodyConstructionInfo);
-        this._btBody.setUserIndex(this._id);
-
-        // this.setUseGravity(this._useGravity);
-
-        this._btBody.setRestitution(0);
-        this._btBody.setFriction(0.7745967);
-        // this._bodyImpl.setRollingFriction(0.3);
-
-        // this._ammoRigidBody.setCollisionFlags(this._ammoRigidBody.getCollisionFlags() | CF_CUSTOM_MATERIAL_CALLBACK);
-
-        // this._updateDamping();
-
-        if (this._world) {
-            this._world.impl.addRigidBody(this.impl);
-            // this._world.associate(this);
-        }
-        // console.log(`[[Reconstruct AMMO Rigidbody]] ` +
-        //     `Name: ${this._getName()}; ` +
-        //     `Position: ${toString(this._worldPosition)}; ` +
-        //     `Rotation: ${toString(this._worldRotation)}`);
-        return this._btBody;
-    }
-
-    private _beforeWorldStep () {
-        if (this._nReconstructShapeRequest) {
-            this._reconstructCompoundShape();
-            this._nReconstructShapeRequest = 0;
-        }
-        if (this._nReconstructBodyRequest) {
-            this._reconstructBody();
-            this._nReconstructBodyRequest = 0;
-        }
-        if (this._changeRequests.velocity.hasValue) {
-            this._changeRequests.velocity.hasValue = false;
-            const v = new Ammo.btVector3();
-            // vec3CreatorToAmmo(v, this._changeRequests.velocity.storage);
-            this._btBody.setLinearVelocity(v);
-        }
-        for (const { force, position } of this._changeRequests.forces) {
-            const ammoForce = new Ammo.btVector3(0, 0, 0);
-            // vec3CreatorToAmmo(ammoForce, force);
-            const ammoPosition = new Ammo.btVector3(0, 0, 0);
-            // vec3CreatorToAmmo(ammoPosition, position);
-            this._btBody.applyForce(ammoForce, ammoPosition);
-        }
-        this._changeRequests.forces.length = 0;
-    }
-
     private static idCounter = 0;
     public readonly id: number;
+
     public index: number = -1;
+    public rigidBody!: RigidBodyComponent;
 
-    rigidBody!: RigidBodyComponent;
-    get impl (): Ammo.btRigidBody { return this._btBody; }
+    public get impl (): Ammo.btRigidBody { return this._btBody; }
     private _btBody!: Ammo.btRigidBody;
-
     public _btCompoundShape!: Ammo.btCompoundShape;
+
+    private _world!: AmmoWorld;
     public readonly shapes: AmmoShape[] = [];
     public readonly wroldQuaternion: Ammo.btQuaternion;
+    public readonly localInertia: Ammo.btVector3;
     public motionState!: Ammo.btMotionState;
 
     constructor () {
         this.id = AmmoRigidBody.idCounter++;
-
-        // this._transformBuffer.setIdentity();
-        // this._ammoTransform.setIdentity();
-        // this._compoundShape = new Ammo.btCompoundShape(true);
-        // this._id = AmmoRigidBody.ID_COUNTER++;
-        // this._ammoBody = this._reconstructBody();
-
-        // var startTransform = new Ammo.btTransform();
-        // startTransform.setIdentity();
-        // var mass = 1;
-        // var localInertia = new Ammo.btVector3(0, 0, 0);
-
-        // var boxShape = new Ammo.btBoxShape(new Ammo.btVector3(1, 1, 1));
-        // boxShape.calculateLocalInertia(mass, localInertia);
-
-        // var myMotionState = new Ammo.btDefaultMotionState(startTransform);
-        // var rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, myMotionState, boxShape, localInertia);
-
         this.wroldQuaternion = new Ammo.btQuaternion();
+        this.localInertia = new Ammo.btVector3(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
     }
 
     public __preload () {
@@ -237,10 +89,11 @@ export class AmmoRigidBody implements RigidBodyBase {
         Cocos2AmmoQuat(this.wroldQuaternion, this.rigidBody.node.worldRotation);
         st.setRotation(this.wroldQuaternion);
 
-        var localInertia = new Ammo.btVector3(0, 0, 0);
-        this._btCompoundShape.calculateLocalInertia(this.rigidBody.mass, localInertia);
+        if (this._btCompoundShape.getNumChildShapes() > 0) {
+            this._btCompoundShape.calculateLocalInertia(this.rigidBody.mass, this.localInertia);
+        }
         this.motionState = new Ammo.btDefaultMotionState(st);
-        var rbInfo = new Ammo.btRigidBodyConstructionInfo(this.rigidBody.mass, this.motionState, this._btCompoundShape, localInertia);
+        var rbInfo = new Ammo.btRigidBodyConstructionInfo(this.rigidBody.mass, this.motionState, this._btCompoundShape, this.localInertia);
         rbInfo.m_linearDamping = this.rigidBody.linearDamping;
         rbInfo.m_angularDamping = this.rigidBody.angularDamping;
         this._btBody = new Ammo.btRigidBody(rbInfo);
@@ -279,12 +132,12 @@ export class AmmoRigidBody implements RigidBodyBase {
             this._btBody.setCollisionFlags(AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
         }
         if (!this.rigidBody.useGravity) {
-            this._btBody.setGravity(Cocos2AmmoVec3(_btVec3_0, Vec3.ZERO));
+            this._btBody.setGravity(Cocos2AmmoVec3(new Ammo.btVector3(), Vec3.ZERO));
             this._btBody.setFlags(AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
         }
 
         /** disable sleep */
-        // this._btBody.setActivationState(4);
+        this._btBody.setActivationState(4);
 
         /** hack */
         (this.rigidBody as any)._isPreLoaded = true;
@@ -343,25 +196,27 @@ export class AmmoRigidBody implements RigidBodyBase {
         if (this._world) {
             this._world.impl.removeRigidBody(this.impl);
         }
-        const localInertia = new Ammo.btVector3(0, 0, 0);
-        this._btCompoundShape.calculateLocalInertia(this.rigidBody.mass, localInertia);
-        this._btBody.setMassProps(this.rigidBody.mass, localInertia);
+        this.localInertia.setValue(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
+        if (this._btCompoundShape.getNumChildShapes() > 0) {
+            this._btCompoundShape.calculateLocalInertia(this.rigidBody.mass, this.localInertia);
+        }
+        this._btBody.setMassProps(value, this.localInertia);
         if (this._world) {
             this._world.impl.addRigidBody(this.impl);
         }
     }
 
     public setLinearDamping (value: number) {
-        this._btBody.setDamping(this.rigidBody.linearDamping, this.rigidBody.angularDamping);
+        this._btBody.setDamping(value, this.rigidBody.angularDamping);
     }
 
     public setAngularDamping (value: number) {
-        this._btBody.setDamping(this.rigidBody.linearDamping, this.rigidBody.angularDamping);
+        this._btBody.setDamping(value, this.rigidBody.angularDamping);
     }
 
     public setIsKinematic (value: boolean) {
         let m_collisionFlags = this._btBody.getCollisionFlags();
-        if (this.rigidBody.isKinematic) {
+        if (value) {
             m_collisionFlags |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
         } else {
             m_collisionFlags &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
@@ -375,10 +230,10 @@ export class AmmoRigidBody implements RigidBodyBase {
         }
 
         let m_rigidBodyFlag = this._btBody.getFlags()
-        if (this.rigidBody.useGravity) {
+        if (value) {
             m_rigidBodyFlag &= (~AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
         } else {
-            this._btBody.setGravity(Cocos2AmmoVec3(_btVec3_0, Vec3.ZERO));
+            this._btBody.setGravity(Cocos2AmmoVec3(new Ammo.btVector3(), Vec3.ZERO));
             m_rigidBodyFlag |= AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY;
         }
         this._btBody.setFlags(m_rigidBodyFlag);
@@ -389,21 +244,21 @@ export class AmmoRigidBody implements RigidBodyBase {
     }
 
     public setFreezeRotation (value: boolean) {
-        if (this.rigidBody.fixedRotation) {
+        if (value) {
             /** TODO : should i reset angular velocity & torque ? */
 
-            this._btBody.setAngularFactor(Cocos2AmmoVec3(_btVec3_0, Vec3.ZERO));
+            this._btBody.setAngularFactor(Cocos2AmmoVec3(new Ammo.btVector3(), Vec3.ZERO));
         } else {
-            this._btBody.setAngularFactor(Cocos2AmmoVec3(_btVec3_0, this.rigidBody.angularFactor));
+            this._btBody.setAngularFactor(Cocos2AmmoVec3(new Ammo.btVector3(), this.rigidBody.angularFactor));
         }
     }
 
     public setLinearFactor (value: Vec3): void {
-        this._btBody.setLinearFactor(Cocos2AmmoVec3(new Ammo.btVector3(), this.rigidBody.linearFactor));
+        this._btBody.setLinearFactor(Cocos2AmmoVec3(new Ammo.btVector3(), value));
     }
 
     public setAngularFactor (value: Vec3): void {
-        this._btBody.setAngularFactor(Cocos2AmmoVec3(new Ammo.btVector3(), this.rigidBody.angularFactor));
+        this._btBody.setAngularFactor(Cocos2AmmoVec3(new Ammo.btVector3(), value));
     }
 
     /** state */
@@ -430,7 +285,7 @@ export class AmmoRigidBody implements RigidBodyBase {
     }
 
     setAllowSleep (v: boolean): void {
-        if (this.rigidBody.allowSleep) {
+        if (v) {
             this._btBody.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
         } else {
             const state = this._btBody.getActivationState();
@@ -446,6 +301,20 @@ export class AmmoRigidBody implements RigidBodyBase {
 
     sleep (): void {
         return this._btBody.wantsSleeping() as any;
+    }
+
+    /** type */
+
+    getType (): ERigidBodyType {
+        if (this._btBody.isStaticOrKinematicObject()) {
+            if (this._btBody.isKinematicObject()) {
+                return ERigidBodyType.KINEMATIC
+            } else {
+                return ERigidBodyType.STATIC
+            }
+        } else {
+            return ERigidBodyType.DYNAMIC
+        }
     }
 
     /** kinematic */
