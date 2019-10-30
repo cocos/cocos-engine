@@ -39,7 +39,7 @@ var PackState = {
 function UnpackerData () {
     this.unpacker = null;
     this.state = PackState.Invalid;
-    this.timer = null;
+    this.timeStamp = 0;
 }
 
 // {assetUuid: packUuid|[packUuid]}
@@ -54,6 +54,10 @@ var packIndices = {};
 // We have to cache all packs in global because for now there's no operation context in loader.
 var globalUnpackers = {};
 
+var toBeChecked = {};
+
+var timer = null;
+var checkPeriod = 5000;
 
 function error (uuid, packUuid) {
     return new Error('Can not retrieve ' + uuid + ' from packer ' + packUuid);
@@ -61,7 +65,7 @@ function error (uuid, packUuid) {
 
 module.exports = {
     // two minutes
-    timeToRemove: 1000 * 60 * 2,
+    timeToRelease: 2 * 60 * 1000,
 
     initPacks: function (packs) {
         packIndices = packs;
@@ -80,12 +84,12 @@ module.exports = {
     _loadNewPack: function (uuid, packUuid, callback) {
         var self = this;
         var packUrl = cc.AssetLibrary.getLibUrlNoExt(packUuid) + '.json';
-        globalUnpackers[packUuid].url = packUrl;
         cc.loader.load({ url: packUrl, ignoreMaxConcurrency: true }, function (err, packJson) {
             if (err) {
                 cc.errorID(4916, uuid);
                 return callback(err);
             }
+            globalUnpackers[packUuid].url = packUrl;
             var res = self._doLoadNewPack(uuid, packUuid, packJson);
             if (res) {
                 callback(null, res);
@@ -125,6 +129,26 @@ module.exports = {
             }
             unpackerData.unpacker.load(packIndices[packUuid], packedJson);
             unpackerData.state = PackState.Loaded;
+            unpackerData.timeStamp = performance.now();
+            toBeChecked[packUuid] = unpackerData;
+            var self = this;
+            if (!timer) timer = setInterval(function () {
+                var now = performance.now();
+                var empty = true;
+                for (var packUuid in toBeChecked) {
+                    var pack = toBeChecked[packUuid];
+                    if (now - pack.timeStamp > self.timeToRelease) {
+                        self.remove(packUuid);
+                    }
+                    else {
+                        empty = false;
+                    }
+                }
+                if (empty) { 
+                    clearInterval(timer);
+                    timer = null;
+                }
+            }, checkPeriod);
         }
 
         return unpackerData.unpacker.retrieve(uuid);
@@ -168,15 +192,10 @@ module.exports = {
             packUuid = this._selectLoadedPack(packUuid);
         }
 
-        var self = this;
         var unpackerData = globalUnpackers[packUuid];
         if (unpackerData && unpackerData.state === PackState.Loaded) {
-            if (unpackerData.timer) {
-                clearTimeout(unpackerData.timer);
-                unpackerData.timer = setTimeout(function () {
-                    self.remove(packUuid);
-                }, this.timeToRemove);
-            }
+            // update timestamp
+            unpackerData.timeStamp = performance.now();
             // ensure async
             var json = unpackerData.unpacker.retrieve(uuid);
             if (json) {
@@ -193,9 +212,6 @@ module.exports = {
                 }
                 unpackerData = globalUnpackers[packUuid] = new UnpackerData();
                 unpackerData.state = PackState.Downloading;
-                unpackerData.timer = setTimeout(function () {
-                    self.remove(packUuid);
-                }, this.timeToRemove);
             }
             this._loadNewPack(uuid, packUuid, callback);
         }
@@ -207,8 +223,8 @@ module.exports = {
         var unpackerData = globalUnpackers[packUuid];
         if (unpackerData) {
             cc.loader.release(unpackerData.url);
-            clearTimeout(unpackerData.timer);
             delete globalUnpackers[packUuid];
+            delete toBeChecked[packUuid];
         }
     }
 };
