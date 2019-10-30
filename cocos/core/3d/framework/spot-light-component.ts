@@ -35,7 +35,7 @@ import { SpotLight } from '../../renderer/scene/spot-light';
 import { LightComponent, PhotometricTerm } from './light-component';
 
 @ccclass('cc.SpotLightComponent')
-@menu('Components/SpotLight')
+@menu('Light/SpotLight')
 @executeInEditMode
 export class SpotLightComponent extends LightComponent {
 
