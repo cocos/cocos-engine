@@ -347,16 +347,16 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     @property
-    get grayMode () {
-        return this._useGrayMode;
+    get grayscale () {
+        return this._useGrayscale;
     }
-    set grayMode (value) {
-        if (this._useGrayMode === value) {
+    set grayscale (value) {
+        if (this._useGrayscale === value) {
             return;
         }
-        this._useGrayMode = value;
+        this._useGrayscale = value;
         if (value === true) {
-            this._instanceMaterialType = InstanceMaterialType.GRAYMOD; }
+            this._instanceMaterialType = InstanceMaterialType.GRAYSCALE; }
         else {
             this._instanceMaterialType = InstanceMaterialType.ADDCOLORANDTEXTURE;
         }
@@ -409,7 +409,7 @@ export class SpriteComponent extends UIRenderComponent {
     @property
     private _isTrimmedMode = true;
     @property
-    private _useGrayMode = false;
+    private _useGrayscale = false;
     // _state = 0;
     @property
     private _atlas: SpriteAtlas | null = null;

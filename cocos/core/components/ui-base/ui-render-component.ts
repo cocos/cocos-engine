@@ -71,7 +71,7 @@ export enum InstanceMaterialType {
      * @zh
      * 着色器带颜色和贴图属性,并使用灰度模式。
      */
-    GRAYMOD = 2,
+    GRAYSCALE = 2,
 }
 
 /**
@@ -409,7 +409,7 @@ export class UIRenderComponent extends UIComponent {
                 case InstanceMaterialType.ADDCOLORANDTEXTURE:
                     mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-material'), new RenderableComponent(), CC_EDITOR ? true : false);
                     break;
-                case InstanceMaterialType.GRAYMOD:
+                case InstanceMaterialType.GRAYSCALE:
                     mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-gray-material'), new RenderableComponent(), CC_EDITOR ? true : false);
                     break;
             }
