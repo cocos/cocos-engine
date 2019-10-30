@@ -25,7 +25,6 @@
 
 import ValueType from './value-type';
 import CCClass from '../platform/CCClass';
-import { IQuatLike, IVec3Like } from './type-define';
 import Vec3 from './vec3';
 import Mat3 from './mat3';
 import { EPSILON, toDegree } from './utils';

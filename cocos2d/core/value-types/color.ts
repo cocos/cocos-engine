@@ -26,7 +26,6 @@
 
 import ValueType from './value-type';
 import CCClass from '../platform/CCClass';
-import { IColorLike } from './type-define';
 
 /**
  * !#en

@@ -29,7 +29,6 @@ import CCClass from '../platform/CCClass';
 import misc from '../utils/misc';
 import Vec2 from './vec2';
 import Mat4 from './mat4';
-import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
 import { EPSILON, random } from './utils';
 
 let _x: number = 0.0;

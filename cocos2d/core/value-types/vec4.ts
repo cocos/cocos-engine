@@ -27,7 +27,6 @@
 import CCClass from '../platform/CCClass';
 import ValueType from './value-type';
 import Mat4 from './mat4';
-import { IMat4Like, IQuatLike, IVec4Like } from './type-define';
 import { clamp, EPSILON, random } from './utils';
 
 let _x: number = 0.0;
