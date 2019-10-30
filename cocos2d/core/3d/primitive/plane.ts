@@ -1,15 +1,15 @@
 'use strict';
 
-import { vec3 } from '../../vmath';
+import Vec3 from '../../value-types/vec3';
 import VertexData from './vertex-data';
 
-let temp1 = cc.v3(0, 0, 0);
-let temp2 = cc.v3(0, 0, 0);
-let temp3 = cc.v3(0, 0, 0);
-let r = cc.v3(0, 0, 0);
-let c00 = cc.v3(0, 0, 0);
-let c10 = cc.v3(0, 0, 0);
-let c01 = cc.v3(0, 0, 0);
+let temp1 = new Vec3(0, 0, 0);
+let temp2 = new Vec3(0, 0, 0);
+let temp3 = new Vec3(0, 0, 0);
+let r = new Vec3(0, 0, 0);
+let c00 = new Vec3(0, 0, 0);
+let c10 = new Vec3(0, 0, 0);
+let c01 = new Vec3(0, 0, 0);
 
 /**
  * @param {Number} width
@@ -18,7 +18,7 @@ let c01 = cc.v3(0, 0, 0);
  * @param {Number} opts.widthSegments
  * @param {Number} opts.lengthSegments
  */
-export default function (width = 10, length = 10, opts = {}) {
+export default function (width = 10, length = 10, opts = {widthSegments: 10, lengthSegments: 10}) {
   let uSegments = opts.widthSegments !== undefined ? opts.widthSegments : 10;
   let vSegments = opts.lengthSegments !== undefined ? opts.lengthSegments : 10;
 
@@ -29,23 +29,23 @@ export default function (width = 10, length = 10, opts = {}) {
   let normals = [];
   let uvs = [];
   let indices = [];
-  let minPos = cc.v3(-hw, 0, -hl);
-  let maxPos = cc.v3(hw, 0, hl);
+  let minPos = new Vec3(-hw, 0, -hl);
+  let maxPos = new Vec3(hw, 0, hl);
   let boundingRadius = Math.sqrt(width * width + length * length);
 
-  vec3.set(c00, -hw, 0,  hl);
-  vec3.set(c10,  hw, 0,  hl);
-  vec3.set(c01, -hw, 0, -hl);
+  Vec3.set(c00, -hw, 0,  hl);
+  Vec3.set(c10,  hw, 0,  hl);
+  Vec3.set(c01, -hw, 0, -hl);
 
   for (let y = 0; y <= vSegments; y++) {
     for (let x = 0; x <= uSegments; x++) {
       let u = x / uSegments;
       let v = y / vSegments;
 
-      vec3.lerp(temp1, c00, c10, u);
-      vec3.lerp(temp2, c00, c01, v);
-      vec3.sub(temp3, temp2, c00);
-      vec3.add(r, temp1, temp3);
+      Vec3.lerp(temp1, c00, c10, u);
+      Vec3.lerp(temp2, c00, c01, v);
+      Vec3.sub(temp3, temp2, c00);
+      Vec3.add(r, temp1, temp3);
 
       positions.push(r.x, r.y, r.z);
       normals.push(0, 1, 0);

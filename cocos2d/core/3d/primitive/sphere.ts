@@ -1,15 +1,15 @@
 'use strict';
 
-import { vec3 } from '../../vmath';
 import VertexData from './vertex-data';
+import { Vec3 } from '../../value-types';
 
 /**
  * @param {Number} radius
  * @param {Object} opts
  * @param {Number} opts.segments
  */
-export default function (radius = 0.5, opts = {}) {
-  let segments = opts.segments !== undefined ? opts.segments : 32;
+export default function (radius = 0.5, opts = {segments: 32}) {
+  let segments = opts.segments;
 
   // lat === latitude
   // lon === longitude
@@ -18,8 +18,8 @@ export default function (radius = 0.5, opts = {}) {
   let normals = [];
   let uvs = [];
   let indices = [];
-  let minPos = cc.v3(-radius, -radius, -radius);
-  let maxPos = cc.v3(radius, radius, radius);
+  let minPos = new Vec3(-radius, -radius, -radius);
+  let maxPos = new Vec3(radius, radius, radius);
   let boundingRadius = radius;
 
   for (let lat = 0; lat <= segments; ++lat) {

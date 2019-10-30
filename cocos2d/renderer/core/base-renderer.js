@@ -2,13 +2,12 @@
 
 import { RecyclePool } from '../memop';
 import enums from '../enums';
-import { vec2, vec3, vec4, mat2, mat3, mat4, color3, color4 } from '../../core/vmath';
+import { Vec2, Vec4, Mat3, Mat4, Color, Vec3 } from '../../core/value-types';
 import ProgramLib from './program-lib';
 import View from './view';
 import gfx from '../gfx';
 
-let _m3_tmp = mat3.create();
-let _m4_tmp = cc.mat4();
+let _m4_tmp = new Mat4();
 
 let _stageInfos = new RecyclePool(() => {
   return {
@@ -57,210 +56,6 @@ let _int64_pool = new RecyclePool(() => {
   return new Int32Array(64);
 }, 8);
 
-let _type2uniformValue = {
-  [enums.PARAM_INT]: function (value) {
-    return value;
-  },
-
-  [enums.PARAM_INT2]: function (value) {
-    return vec2.array(_int2_pool.add(), value);
-  },
-
-  [enums.PARAM_INT3]: function (value) {
-    return vec3.array(_int3_pool.add(), value);
-  },
-
-  [enums.PARAM_INT4]: function (value) {
-    return vec4.array(_int4_pool.add(), value);
-  },
-
-  [enums.PARAM_FLOAT]: function (value) {
-    return value;
-  },
-
-  [enums.PARAM_FLOAT2]: function (value) {
-    return vec2.array(_float2_pool.add(), value);
-  },
-
-  [enums.PARAM_FLOAT3]: function (value) {
-    return vec3.array(_float3_pool.add(), value);
-  },
-
-  [enums.PARAM_FLOAT4]: function (value) {
-    return vec4.array(_float4_pool.add(), value);
-  },
-
-  [enums.PARAM_COLOR3]: function (value) {
-    return color3.array(_float3_pool.add(), value);
-  },
-
-  [enums.PARAM_COLOR4]: function (value) {
-    return color4.array(_float4_pool.add(), value);
-  },
-
-  [enums.PARAM_MAT2]: function (value) {
-    return mat2.array(_float4_pool.add(), value);
-  },
-
-  [enums.PARAM_MAT3]: function (value) {
-    return mat3.array(_float9_pool.add(), value);
-  },
-
-  [enums.PARAM_MAT4]: function (value) {
-    return mat4.array(_float16_pool.add(), value);
-  },
-
-  // [enums.PARAM_TEXTURE_2D]: function (value) {
-  // },
-
-  // [enums.PARAM_TEXTURE_CUBE]: function (value) {
-  // },
-};
-
-let _type2uniformArrayValue = {
-  [enums.PARAM_INT]: {
-    func (values) {
-      let result = _int64_pool.add();
-      for (let i = 0; i < values.length; ++i) {
-        result[i] = values[i];
-      }
-      return result;
-    },
-    size: 1,
-  },
-
-  [enums.PARAM_INT2]: {
-    func (values) {
-      let result = _int64_pool.add();
-      for (let i = 0; i < values.length; ++i) {
-        result[2 * i] = values[i].x;
-        result[2 * i + 1] = values[i].y;
-      }
-      return result;
-    },
-    size: 2,
-  },
-
-  [enums.PARAM_INT3]: {
-    func: undefined,
-    size: 3,
-  },
-
-  [enums.PARAM_INT4]: {
-    func (values) {
-      let result = _int64_pool.add();
-      for (let i = 0; i < values.length; ++i) {
-        let v = values[i];
-        result[4 * i] = v.x;
-        result[4 * i + 1] = v.y;
-        result[4 * i + 2] = v.z;
-        result[4 * i + 3] = v.w;
-      }
-      return result;
-    },
-    size: 4,
-  },
-
-  [enums.PARAM_FLOAT]: {
-    func (values) {
-      let result = _float64_pool.add();
-      for (let i = 0; i < values.length; ++i) {
-        result[i] = values[i];
-      }
-      return result;
-    },
-    size: 1
-  },
-
-  [enums.PARAM_FLOAT2]: {
-    func (values) {
-      let result = _float64_pool.add();
-      for (let i = 0; i < values.length; ++i) {
-        result[2 * i] = values[i].x;
-        result[2 * i + 1] = values[i].y;
-      }
-      return result;
-    },
-    size: 2,
-  },
-
-  [enums.PARAM_FLOAT3]: {
-    func: undefined,
-    size: 3,
-  },
-
-  [enums.PARAM_FLOAT4]: {
-    func (values) {
-      let result = _float64_pool.add();
-      for (let i = 0; i < values.length; ++i) {
-        let v = values[i];
-        result[4 * i] = v.x;
-        result[4 * i + 1] = v.y;
-        result[4 * i + 2] = v.z;
-        result[4 * i + 3] = v.w;
-      }
-      return result;
-    },
-    size: 4,
-  },
-
-  [enums.PARAM_COLOR3]: {
-    func: undefined,
-    size: 3,
-  },
-
-  [enums.PARAM_COLOR4]: {
-    func (values) {
-      let result = _float64_pool.add();
-      for (let i = 0; i < values.length; ++i) {
-        let v = values[i];
-        result[4 * i] = v.r;
-        result[4 * i + 1] = v.g;
-        result[4 * i + 2] = v.b;
-        result[4 * i + 3] = v.a;
-      }
-      return result;
-    },
-    size: 4,
-  },
-
-  [enums.PARAM_MAT2]: {
-    func (values) {
-      let result = _float64_pool.add();
-      for (let i = 0; i < values.length; ++i) {
-        let v = values[i];
-        result.set(v.m, 4 * i);
-      }
-      return result;
-    },
-    size: 4
-  },
-
-  [enums.PARAM_MAT3]: {
-    func: undefined,
-    size: 9
-  },
-
-
-  [enums.PARAM_MAT4]: {
-    func (values) {
-      let result = _float64_pool.add();
-      for (let i = 0; i < values.length; ++i) {
-        let v = values[i];
-        result.set(v.m, 16 * i);
-      }
-      return result;
-    },
-    size: 16
-  },
-
-  // [enums.PARAM_TEXTURE_2D]: function (value) {
-  // },
-
-  // [enums.PARAM_TEXTURE_CUBE]: function (value) {
-  // },
-};
-
 export default class Base {
   /**
    * @param {gfx.Device} device
@@ -274,18 +69,16 @@ export default class Base {
     this._opts = opts;
     this._type2defaultValue = {
       [enums.PARAM_INT]: 0,
-      [enums.PARAM_INT2]: vec2.create(0, 0),
-      [enums.PARAM_INT3]: cc.v3(0, 0, 0),
-      [enums.PARAM_INT4]: vec4.create(0, 0, 0, 0),
+      [enums.PARAM_INT2]: new Vec2(0, 0),
+      [enums.PARAM_INT3]: new Vec3(0, 0, 0),
+      [enums.PARAM_INT4]: new Vec4(0, 0, 0, 0),
       [enums.PARAM_FLOAT]: 0.0,
-      [enums.PARAM_FLOAT2]: vec2.create(0, 0),
-      [enums.PARAM_FLOAT3]: cc.v3(0, 0, 0),
-      [enums.PARAM_FLOAT4]: vec4.create(0, 0, 0, 0),
-      [enums.PARAM_COLOR3]: color3.create(0, 0, 0),
-      [enums.PARAM_COLOR4]: color4.create(0, 0, 0, 1),
-      [enums.PARAM_MAT2]: mat2.create(),
-      [enums.PARAM_MAT3]: mat3.create(),
-      [enums.PARAM_MAT4]: cc.mat4(),
+      [enums.PARAM_FLOAT2]: new Vec2(0, 0),
+      [enums.PARAM_FLOAT3]: new Vec3(0, 0, 0),
+      [enums.PARAM_FLOAT4]: new Vec4(0, 0, 0, 0),
+      [enums.PARAM_COLOR4]: new Color(0, 0, 0, 1),
+      [enums.PARAM_MAT3]: new Mat3(),
+      [enums.PARAM_MAT4]: new Mat4(),
       [enums.PARAM_TEXTURE_2D]: opts.defaultTexture,
       [enums.PARAM_TEXTURE_CUBE]: opts.defaultTextureCube,
     };
@@ -510,12 +303,12 @@ export default class Base {
     // TODO: try commit this depends on effect
     // {
     node.getWorldMatrix(_m4_tmp);
-    device.setUniform('cc_matWorld', mat4.array(_float16_pool.add(), _m4_tmp));
+    device.setUniform('cc_matWorld', Mat4.toArray(_float16_pool.add(), _m4_tmp));
 
     // let wq = node.getWorldRotation(cc.quat());
-    mat4.invert(_m4_tmp, _m4_tmp);
-    mat4.transpose(_m4_tmp, _m4_tmp);
-    device.setUniform('cc_matWorldIT', mat4.array(_float16_pool.add(), _m4_tmp));
+    Mat4.invert(_m4_tmp, _m4_tmp);
+    Mat4.transpose(_m4_tmp, _m4_tmp);
+    device.setUniform('cc_matWorldIT', Mat4.toArray(_float16_pool.add(), _m4_tmp));
     // }
 
     for (let i = 0; i < uniforms.length; i++) {

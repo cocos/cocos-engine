@@ -1,9 +1,9 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { vec3, color4, mat4 } from '../../core/vmath';
+import { Vec3, Color, Mat4 } from '../../core/value-types';
 import enums from '../enums';
 
-let _m4_tmp = cc.mat4();
+let _m4_tmp = new Mat4();
 let _genID = 0;
 
 /**
@@ -30,7 +30,7 @@ export default class View {
     // };
 
     // clear options
-    this._color = color4.create(0.3, 0.3, 0.3, 1);
+    this._color = new Color(0.3, 0.3, 0.3, 1);
     this._depth = 1;
     this._stencil = 0;
     this._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
@@ -59,7 +59,7 @@ export default class View {
    */
   getForward(out) {
     let m = this._matView.m;
-    return vec3.set(
+    return Vec3.set(
       out,
       -m[2],
       -m[6],
@@ -73,7 +73,7 @@ export default class View {
    * @returns {Vec3} the receiving vector
    */
   getPosition(out) {
-    mat4.invert(_m4_tmp, this._matView);
-    return mat4.getTranslation(out, _m4_tmp);
+    Mat4.invert(_m4_tmp, this._matView);
+    return Mat4.getTranslation(out, _m4_tmp);
   }
 }

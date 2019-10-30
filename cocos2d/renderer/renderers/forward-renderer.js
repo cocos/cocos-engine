@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
 
-import { vec3, vec4, mat4 } from '../../core/vmath';
+import { Vec3, Vec4, Mat4 } from '../../core/value-types';
 import BaseRenderer from '../core/base-renderer';
 import enums from '../enums';
 import { RecyclePool } from '../memop';
@@ -14,9 +14,9 @@ let _a64_shadow_lightViewProj = new Float32Array(64);
 let _a16_shadow_lightViewProjs = [];
 let _a4_shadow_info = new Float32Array(4);
 
-let _camPos = cc.v4(0, 0, 0, 0);
-let _camFwd = cc.v3(0, 0, 0);
-let _v3_tmp1 = cc.v3(0, 0, 0);
+let _camPos = new Vec4(0, 0, 0, 0);
+let _camFwd = new Vec3(0, 0, 0);
+let _v3_tmp1 = new Vec3(0, 0, 0);
 
 const CC_MAX_LIGHTS = 4;
 
@@ -223,7 +223,7 @@ export default class ForwardRenderer extends BaseRenderer {
     shadowInfo[2] = light.shadowDepthScale;
     shadowInfo[3] = light.shadowDarkness;
 
-    this._device.setUniform('cc_shadow_map_lightViewProjMatrix', mat4.array(_a16_viewProj, view._matViewProj));
+    this._device.setUniform('cc_shadow_map_lightViewProjMatrix', Mat4.toArray(_a16_viewProj, view._matViewProj));
     this._device.setUniform('cc_shadow_map_info', shadowInfo);
     this._device.setUniform('cc_shadow_map_bias', light.shadowBias);
   }
@@ -237,7 +237,7 @@ export default class ForwardRenderer extends BaseRenderer {
       if (!view) {
         view = _a16_shadow_lightViewProjs[i] = new Float32Array(_a64_shadow_lightViewProj.buffer, i * 16, 16);
       }
-      mat4.array(view, light.viewProjMatrix);
+      Mat4.toArray(view, light.viewProjMatrix);
       
       let infoIndex = i*4;
       shadowInfo[infoIndex] = light.shadowMinDepth;
@@ -320,10 +320,10 @@ export default class ForwardRenderer extends BaseRenderer {
     view.getPosition(_camPos);
 
     // update uniforms
-    this._device.setUniform('cc_matView', mat4.array(_a16_view, view._matView));
-    this._device.setUniform('cc_matpProj', mat4.array(_a16_proj, view._matProj));
-    this._device.setUniform('cc_matViewProj', mat4.array(_a16_viewProj, view._matViewProj));
-    this._device.setUniform('cc_cameraPos', vec4.array(_a4_camPos, _camPos));
+    this._device.setUniform('cc_matView', Mat4.toArray(_a16_view, view._matView));
+    this._device.setUniform('cc_matpProj', Mat4.toArray(_a16_proj, view._matProj));
+    this._device.setUniform('cc_matViewProj', Mat4.toArray(_a16_viewProj, view._matViewProj));
+    this._device.setUniform('cc_cameraPos', Vec4.toArray(_a4_camPos, _camPos));
 
     // update rendering
     this._submitLightsUniforms();
@@ -337,10 +337,10 @@ export default class ForwardRenderer extends BaseRenderer {
     view.getForward(_camFwd);
 
     // update uniforms
-    this._device.setUniform('cc_matView', mat4.array(_a16_view, view._matView));
-    this._device.setUniform('cc_matpProj', mat4.array(_a16_proj, view._matProj));
-    this._device.setUniform('cc_matViewProj', mat4.array(_a16_viewProj, view._matViewProj));
-    this._device.setUniform('cc_cameraPos', vec4.array(_a4_camPos, _camPos));
+    this._device.setUniform('cc_matView', Mat4.toArray(_a16_view, view._matView));
+    this._device.setUniform('cc_matpProj', Mat4.toArray(_a16_proj, view._matProj));
+    this._device.setUniform('cc_matViewProj', Mat4.toArray(_a16_viewProj, view._matViewProj));
+    this._device.setUniform('cc_cameraPos', Vec4.toArray(_a4_camPos, _camPos));
 
     this._submitLightsUniforms();
     this._submitOtherStagesUniforms();
@@ -352,8 +352,8 @@ export default class ForwardRenderer extends BaseRenderer {
       // TODO: we should use mesh center instead!
       item.node.getWorldPosition(_v3_tmp1);
 
-      vec3.sub(_v3_tmp1, _v3_tmp1, _camPos);
-      item.sortKey = -vec3.dot(_v3_tmp1, _camFwd);
+      Vec3.sub(_v3_tmp1, _v3_tmp1, _camPos);
+      item.sortKey = -Vec3.dot(_v3_tmp1, _camFwd);
     }
 
     this._sortItems(items);

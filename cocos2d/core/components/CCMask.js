@@ -31,12 +31,12 @@ const Material = require('../assets/material/CCMaterial');
 const RenderComponent = require('./CCRenderComponent');
 const RenderFlow = require('../renderer/render-flow');
 const Graphics = require('../graphics/graphics');
-const Node = require('../CCNode');
 
-import { mat4, vec2 } from '../vmath';
+import Mat4 from '../value-types/mat4';
+import Vec2 from '../value-types/vec2';
 
-let _vec2_temp = cc.v2();
-let _mat4_temp = cc.mat4();
+let _vec2_temp = new Vec2();
+let _mat4_temp = new Mat4();
 
 let _circlepoints =[];
 function _calculateCircle (center, radius, segements) {
@@ -433,10 +433,10 @@ let Mask = cc.Class({
         
         node._updateWorldMatrix();
         // If scale is 0, it can't be hit.
-        if (!mat4.invert(_mat4_temp, node._worldMatrix)) {
+        if (!Mat4.invert(_mat4_temp, node._worldMatrix)) {
             return false;
         }
-        vec2.transformMat4(testPt, cameraPt, _mat4_temp);
+        Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
         testPt.x += node._anchorPoint.x * w;
         testPt.y += node._anchorPoint.y * h;
 

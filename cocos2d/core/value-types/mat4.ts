@@ -341,7 +341,6 @@ export default class Mat4 extends ValueType {
      * @zh 在给定矩阵变换基础上加入新位移变换
      */
     public static translate<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
-        console.warn('function changed');
         let m = out.m, am = a.m;
         if (a === out) {
             m[12] += v.x;
@@ -1391,6 +1390,30 @@ export default class Mat4 extends ValueType {
         return out;
     }
 
+    /**
+     * @zh 矩阵转数组
+     * @param ofs 数组内的起始偏移量
+     */
+    public static toArray <Out extends IWritableArrayLike<number>> (out: Out, mat: IMat4Like, ofs = 0) {
+        let m = mat.m;
+        for (let i = 0; i < 16; i++) {
+            out[ofs + i] = m[i];
+        }
+        return out;
+    }
+
+    /**
+     * @zh 数组转矩阵
+     * @param ofs 数组起始偏移量
+     */
+    public static fromArray <Out extends IMat4Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {
+        let m = out.m;
+        for (let i = 0; i < 16; i++) {
+            m[i] = arr[ofs + i];
+        }
+        return out;
+    }
+
     m: Float32Array;
 
     constructor (
@@ -1706,28 +1729,6 @@ export default class Mat4 extends ValueType {
      */
     fromQuat (quat) {
         return Mat4.fromQuat(this, quat);
-    }
-
-    array (out: number[]) {
-        let mm = this.m;
-        out[0] = mm[0];
-        out[1] = mm[1];
-        out[2] = mm[2];
-        out[3] = mm[3];
-        out[4] = mm[4];
-        out[5] = mm[5];
-        out[6] = mm[6];
-        out[7] = mm[7];
-        out[8] = mm[8];
-        out[9] = mm[9];
-        out[10] = mm[10];
-        out[11] = mm[11];
-        out[12] = mm[12];
-        out[13] = mm[13];
-        out[14] = mm[14];
-        out[15] = mm[15];
-
-        return out;
     }
 }
 

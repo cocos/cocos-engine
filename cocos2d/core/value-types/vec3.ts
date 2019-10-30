@@ -661,6 +661,29 @@ export default class Vec3 extends ValueType {
         }
     }
 
+    /**
+     * @zh 向量转数组
+     * @param ofs 数组起始偏移量
+     */
+    public static toArray <Out extends IWritableArrayLike<number>> (out: Out, v: IVec3Like, ofs = 0) {
+        out[ofs + 0] = v.x;
+        out[ofs + 1] = v.y;
+        out[ofs + 2] = v.z;
+
+        return out;
+    }
+
+    /**
+     * @zh 数组转向量
+     * @param ofs 数组起始偏移量
+     */
+    public static fromArray <Out extends IVec3Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {
+        out.x = arr[ofs + 0];
+        out.y = arr[ofs + 1];
+        out.z = arr[ofs + 2];
+        return out;
+    }
+
 
     /**
      * @property {Number} x
@@ -1150,13 +1173,6 @@ export default class Vec3 extends ValueType {
     rotateSelf (radians) {
         cc.warnID(1408, 'vec3.rotateSelf', 'v2.1', 'cc.v2(selfVector).rotateSelf(radians)');
         return Vec2.prototype.rotateSelf.call(this, radians);
-    }
-
-    array (out: number[]) {
-        out[0] = this.x;
-        out[1] = this.y;
-        out[2] = this.z;
-        return out;
     }
 }
 

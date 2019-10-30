@@ -1,7 +1,7 @@
 'use strict';
 
-import { vec3 } from '../../vmath';
 import VertexData from './vertex-data';
+import { Vec3 } from '../../value-types';
 
 let positions = [
   -0.5, -0.5, 0, // bottom-left
@@ -30,8 +30,8 @@ let indices = [
 ];
 
 // TODO: ?
-let minPos = cc.v3(-0.5, -0.5, 0);
-let maxPos = cc.v3(0.5, 0.5, 0);
+let minPos = new Vec3(-0.5, -0.5, 0);
+let maxPos = new Vec3(0.5, 0.5, 0);
 let boundingRadius = Math.sqrt(0.5 * 0.5 + 0.5 * 0.5);
 
 export default function () {

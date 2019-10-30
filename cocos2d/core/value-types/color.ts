@@ -26,7 +26,7 @@
 
 import ValueType from './value-type';
 import CCClass from '../platform/CCClass';
-
+import { IColorLike } from './type-define';
 
 /**
  * !#en
@@ -307,6 +307,31 @@ export default class Color extends ValueType {
         out.g = ag + t * (b.g - ag);
         out.b = ab + t * (b.b - ab);
         out.a = aa + t * (b.a - aa);
+        return out;
+    }
+
+    /**
+     * @zh 颜色转数组
+     * @param ofs 数组起始偏移量
+     */
+    public static toArray <Out extends IWritableArrayLike<number>> (out: Out, a: IColorLike, ofs = 0) {
+        const scale = (a instanceof Color || a.a > 1) ? 1 / 255 : 1;
+        out[ofs + 0] = a.r * scale;
+        out[ofs + 1] = a.g * scale;
+        out[ofs + 2] = a.b * scale;
+        out[ofs + 3] = a.a * scale;
+        return out;
+    }
+
+    /**
+     * @zh 数组转颜色
+     * @param ofs 数组起始偏移量
+     */
+    public static fromArray <Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs = 0) {
+        out.r = arr[ofs + 0] * 255;
+        out.g = arr[ofs + 1] * 255;
+        out.b = arr[ofs + 2] * 255;
+        out.a = arr[ofs + 3] * 255;
         return out;
     }
 
@@ -751,14 +776,6 @@ export default class Color extends ValueType {
             this.a = color.a;
         }
         return this;
-    }
-
-    array (out: number[]) {
-        let scale = 1 / 255;
-        out[0] = this.r * scale;
-        out[1] = this.g * scale;
-        out[2] = this.b * scale;
-        out[3] = this.a * scale;
     }
 
     _fastSetA (alpha) {

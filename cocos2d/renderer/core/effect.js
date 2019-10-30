@@ -5,7 +5,7 @@ import Pass from '../core/pass';
 import Technique from '../core/technique';
 import { getInspectorProps, enums2default } from '../types';
 import enums from '../enums';
-import gfx from '../gfx';
+import ValueType from '../../core/value-types/value-type';
 
 class Effect {
     /**
@@ -112,16 +112,21 @@ class Effect {
             }
         }
         else {
-            if (prop.type === enums.PARAM_TEXTURE_2D) {
-                prop.value = value ? value.getImpl() : null;
-            }
-            else if (value.array) {
-                value.array(prop.value);
+            if (value) {
+                if (prop.type === enums.PARAM_TEXTURE_2D) {
+                    prop.value = value.getImpl();
+                }
+                else if (value instanceof ValueType) {
+                    value.constructor.toArray(prop.value, value);
+                }
+                else {
+                    if (typeof value === 'object') {
+                        cc.warn(`Set effect property ${this._name} warning : should transform object to ArrayBuffer`);
+                    }
+                    prop.value = value;
+                }
             }
             else {
-                if (value && typeof value === 'object') {
-                    cc.warn(`Set effect property ${this._name} warning : should transform object to ArrayBuffer`);
-                }
                 prop.value = value;
             }
         }

@@ -3,18 +3,18 @@
 import Vec3 from '../../value-types/vec3';
 import VertexData from './vertex-data';
 
-let temp1 = cc.v3(0, 0, 0);
-let temp2 = cc.v3(0, 0, 0);
-let temp3 = cc.v3(0, 0, 0);
-let r = cc.v3(0, 0, 0);
-let c0 = cc.v3(0, 0, 0);
-let c1 = cc.v3(0, 0, 0);
-let c2 = cc.v3(0, 0, 0);
-let c3 = cc.v3(0, 0, 0);
-let c4 = cc.v3(0, 0, 0);
-let c5 = cc.v3(0, 0, 0);
-let c6 = cc.v3(0, 0, 0);
-let c7 = cc.v3(0, 0, 0);
+let temp1 = new Vec3(0, 0, 0);
+let temp2 = new Vec3(0, 0, 0);
+let temp3 = new Vec3(0, 0, 0);
+let r = new Vec3(0, 0, 0);
+let c0 = new Vec3(0, 0, 0);
+let c1 = new Vec3(0, 0, 0);
+let c2 = new Vec3(0, 0, 0);
+let c3 = new Vec3(0, 0, 0);
+let c4 = new Vec3(0, 0, 0);
+let c5 = new Vec3(0, 0, 0);
+let c6 = new Vec3(0, 0, 0);
+let c7 = new Vec3(0, 0, 0);
 
 /**
  * @param {Number} width
@@ -68,8 +68,8 @@ export default function (width = 1, height = 1, length = 1, opts = {widthSegment
   let normals = [];
   let uvs = [];
   let indices = [];
-  let minPos = cc.v3(-hw, -hh, -hl);
-  let maxPos = cc.v3(hw, hh, hl);
+  let minPos = new Vec3(-hw, -hh, -hl);
+  let maxPos = new Vec3(hw, hh, hl);
   let boundingRadius = Math.sqrt(hw * hw + hh * hh + hl * hl);
 
   function _buildPlane (side, uSegments, vSegments) {

@@ -24,46 +24,16 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import Vec2 from './vec2';
-import Vec3 from './vec3';
-import Vec4 from './vec4';
-import Mat4 from './mat4';
-import Mat3 from './mat3';
-import Mat23 from './mat23';
-import Mat2 from './mat2';
-import Rect from './rect';
-import Size from './size';
-import Color from './color';
-import Quat from './quat';
-import * as utils from './utils';
-
 export { default as Vec2 } from './vec2';
 export { default as Vec3} from './vec3';
 export { default as Vec4} from './vec4';
 export { default as Mat4} from './mat4';
 export { default as Mat3} from './mat3';
-export { default as Mat23} from './mat23';
-export { default as Mat2} from './mat2';
 export { default as Rect} from './rect';
 export { default as Size} from './size';
 export { default as Color} from './color';
 export { default as Quat} from './quat';
+export { default as Trs} from './trs';
 export * from './utils';
 
-cc.vmath = {
-    vec2: Vec2,
-    vec3: Vec3,
-    vec4: Vec4,
-    mat4: Mat4,
-    mat3: Mat3,
-    mat23: Mat23,
-    mat2: Mat2,
-    rect: Rect,
-    size: Size,
-    color: Color,
-    quat: Quat
-};
-
-for (let name in utils) {
-    cc.vmath[name] = utils[name];
-}
+cc.math = module.exports;

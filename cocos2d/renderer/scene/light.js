@@ -445,7 +445,7 @@ export default class Light {
     this._node.getWorldMatrix(_m4_tmp);
     Mat3.fromMat4(_m3_tmp, _m4_tmp);
     Vec3.transformMat3(_transformedLightDirection, _forward, _m3_tmp);
-    _transformedLightDirection.array(this._directionUniform);
+    Vec3.toArray(this._directionUniform, _transformedLightDirection);
     let pos = this._positionUniform;
     let m = _m4_tmp.m;
     pos[0] = m[12];

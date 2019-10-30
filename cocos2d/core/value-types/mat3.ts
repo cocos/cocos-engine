@@ -3,7 +3,7 @@ import Vec3 from './vec3';
 import Vec2 from './vec2';
 import Mat4 from './mat4';
 import Quat from './quat';
-import Mat23 from './mat23';
+import { IMat3Like } from './type-define';
 
 /**
  * Mathematical 3x3 matrix.
@@ -463,29 +463,6 @@ export default class Mat3 {
     }
 
     /**
-     * Copies the values from a 2x3 matrix into a 3x3 matrix.
-     *
-     * @param {mat3} out - Matrix to store result.
-     * @param {mat23} a - The 2x3 matrix.
-     * @returns {mat3} out.
-     **/
-    static fromMat2d (out: Mat3, a: Mat23): Mat3 {
-        let am = a.m, outm = out.m;
-        outm[0] = am[0];
-        outm[1] = am[1];
-        outm[2] = 0;
-
-        outm[3] = am[2];
-        outm[4] = am[3];
-        outm[5] = 0;
-
-        outm[6] = am[4];
-        outm[7] = am[5];
-        outm[8] = 1;
-        return out;
-    }
-
-    /**
      * Calculates a 3x3 matrix from the given quaternion.
      *
      * @param {mat3} out - Matrix to store result.
@@ -764,6 +741,30 @@ export default class Mat3 {
         );
     }
 
+    /**
+     * @zh 矩阵转数组
+     * @param ofs 数组内的起始偏移量
+     */
+    public static toArray <Out extends IWritableArrayLike<number>> (out: Out, mat: IMat3Like, ofs = 0) {
+        let m = mat.m;
+        for (let i = 0; i < 9; i++) {
+            out[ofs + i] = m[i];
+        }
+        return out;
+    }
+
+    /**
+     * @zh 数组转矩阵
+     * @param ofs 数组起始偏移量
+     */
+    public static fromArray <Out extends IMat3Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {
+        let m = out.m;
+        for (let i = 0; i < 9; i++) {
+            m[i] = arr[ofs + i];
+        }
+        return out;
+    }
+
     m: Float32Array;
     /**
      * Creates a matrix, with elements specified separately.
@@ -860,28 +861,6 @@ export default class Mat3 {
     toString () {
         let am = this.m;
         return `mat3(${am[0]}, ${am[1]}, ${am[2]}, ${am[3]}, ${am[4]}, ${am[5]}, ${am[6]}, ${am[7]}, ${am[8]})`;
-    }
-
-    /**
-     * Store elements of a matrix into array.
-     *
-     * @param {array} out - Array to store result.
-     * @param {mat3} m - The matrix.
-     * @returns {Array} out.
-     */
-    array (out: number[]) {
-        let mm = this.m;
-        out[0] = mm[0];
-        out[1] = mm[1];
-        out[2] = mm[2];
-        out[3] = mm[3];
-        out[4] = mm[4];
-        out[5] = mm[5];
-        out[6] = mm[6];
-        out[7] = mm[7];
-        out[8] = mm[8];
-
-        return out;
     }
 }
 

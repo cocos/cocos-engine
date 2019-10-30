@@ -1,7 +1,7 @@
 
 import { calcNormals } from './utils';
-import { vec3 } from '../../vmath';
 import VertexData from './vertex-data';
+import { Vec3 } from '../../value-types';
 
 /**
  * @enum primitive.PolyhedronType
@@ -116,7 +116,7 @@ polyhedra[14] = {
   face: [[15, 18, 21], [12, 20, 16], [6, 10, 2], [3, 0, 1], [9, 7, 13], [2, 8, 4, 0], [0, 4, 5, 1], [1, 5, 11, 7], [7, 11, 17, 13], [13, 17, 22, 18], [18, 22, 24, 21], [21, 24, 23, 20], [20, 23, 19, 16], [16, 19, 14, 10], [10, 14, 8, 2], [15, 9, 13, 18], [12, 15, 21, 20], [6, 12, 16, 10], [3, 6, 2, 0], [9, 3, 1, 7], [9, 15, 12, 6, 3], [22, 17, 11, 5, 4, 8, 14, 19, 23, 24]]
 };
 
-export const polyhedron = function (type, size = 1, opts = {}) {
+export const polyhedron = function (type, size = 1, opts = {sizeX: 0, sizeY: 0, sizeZ: 0}) {
   type = type && (type < 0 || type >= polyhedra.length) ? 0 : type || 0;
   let sizeX = opts.sizeX || size;
   let sizeY = opts.sizeY || size;
@@ -128,8 +128,8 @@ export const polyhedron = function (type, size = 1, opts = {}) {
   let indices = [];
   let normals = [];
   let uvs = [];
-  let minPos = cc.v3(Infinity, Infinity, Infinity);
-  let maxPos = cc.v3(-Infinity, -Infinity, -Infinity);
+  let minPos = new Vec3(Infinity, Infinity, Infinity);
+  let maxPos = new Vec3(-Infinity, -Infinity, -Infinity);
 
   for (let i = 0; i < data.vertex.length; i++) {
     let x = data.vertex[i][0] * sizeX;

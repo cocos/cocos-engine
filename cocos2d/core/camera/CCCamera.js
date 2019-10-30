@@ -24,22 +24,20 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import { Mat4, Vec2, Vec3 } from '../value-types';
+import { Ray } from '../geom-utils';
+
 const AffineTrans = require('../utils/affine-transform');
 const renderer = require('../renderer/index');
 const RenderFlow = require('../renderer/render-flow');
 const game = require('../CCGame');
 
-import geomUtils from '../geom-utils';
 let RendererCamera = null;
 if (CC_JSB && CC_NATIVERENDERER) {
     RendererCamera = window.renderer.Camera;
 } else {
     RendererCamera = require('../../renderer/scene/camera');
 }
-
-const mat4 = cc.vmath.mat4;
-const vec2 = cc.vmath.vec2;
-const vec3 = cc.vmath.vec3;
 
 let _mat4_temp_1 = cc.mat4();
 let _mat4_temp_2 = cc.mat4();
@@ -593,7 +591,7 @@ let Camera = cc.Class({
      */
     getScreenToWorldMatrix2D (out) {
         this.getWorldToScreenMatrix2D(out);
-        mat4.invert(out, out);
+        Mat4.invert(out, out);
         return out;
     },
 
@@ -624,7 +622,7 @@ let Camera = cc.Class({
         _mat4_temp_1m[13] = center.y - (_mat4_temp_1m[1] * m12 + _mat4_temp_1m[5] * m13);
 
         if (out !== _mat4_temp_1) {
-            mat4.copy(out, _mat4_temp_1);
+            Mat4.copy(out, _mat4_temp_1);
         }
         return out;
     },
@@ -647,7 +645,7 @@ let Camera = cc.Class({
         else {
             out = out || new cc.Vec2();
             this.getScreenToWorldMatrix2D(_mat4_temp_1);
-            vec2.transformMat4(out, screenPosition, _mat4_temp_1);
+            Vec2.transformMat4(out, screenPosition, _mat4_temp_1);
         }
         return out;
     },
@@ -670,7 +668,7 @@ let Camera = cc.Class({
         else {
             out = out || new cc.Vec2();
             this.getWorldToScreenMatrix2D(_mat4_temp_1);
-            vec2.transformMat4(out, worldPosition, _mat4_temp_1);
+            Vec2.transformMat4(out, worldPosition, _mat4_temp_1);
         }
         
         return out;
@@ -686,20 +684,20 @@ let Camera = cc.Class({
      * @return {Ray}
      */
     getRay (screenPos) {
-        if (!geomUtils) return screenPos;
+        if (!cc.geomUtils) return screenPos;
         
-        vec3.set(_v3_temp_3, screenPos.x, screenPos.y, 1);
+        Vec3.set(_v3_temp_3, screenPos.x, screenPos.y, 1);
         this._camera.screenToWorld(_v3_temp_2, _v3_temp_3, cc.visibleRect.width, cc.visibleRect.height);
 
         if (this.ortho) {
-            vec3.set(_v3_temp_3, screenPos.x, screenPos.y, -1);
+            Vec3.set(_v3_temp_3, screenPos.x, screenPos.y, -1);
             this._camera.screenToWorld(_v3_temp_1, _v3_temp_3, cc.visibleRect.width, cc.visibleRect.height);
         }
         else {
             this.node.getWorldPosition(_v3_temp_1);
         }
 
-        return geomUtils.Ray.fromPoints(geomUtils.Ray.create(), _v3_temp_1, _v3_temp_2);
+        return Ray.fromPoints(new Ray(), _v3_temp_1, _v3_temp_2);
     },
 
     /**
@@ -789,7 +787,7 @@ cc.js.mixin(Camera.prototype, {
         node.getWorldMatrix(_mat4_temp_2);
         if (this.containsNode(node)) {
             this.getWorldToCameraMatrix(_mat4_temp_1);
-            mat4.mul(_mat4_temp_2, _mat4_temp_2, _mat4_temp_1);
+            Mat4.mul(_mat4_temp_2, _mat4_temp_2, _mat4_temp_1);
         }
         AffineTrans.fromMat4(out, _mat4_temp_2);
         return out;

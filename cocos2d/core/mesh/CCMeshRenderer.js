@@ -28,8 +28,8 @@ import InputAssembler from '../../renderer/core/input-assembler';
 import geomUtils from '../geom-utils';
 import CustomProperties from '../assets/material/custom-properties';
 import { postLoadMesh } from '../utils/mesh-util';
-import vec3 from '../vmath/vec3';
-import mat4 from '../vmath/mat4';
+import Vec3 from '../value-types/vec3';
+import Mat4 from '../value-types/mat4';
 
 const RenderComponent = require('../components/CCRenderComponent');
 const Mesh = require('./CCMesh');
@@ -354,9 +354,9 @@ if (CC_DEBUG) {
             let vbData = [];
 
             let lineLength = 100;
-            vec3.set(v3_tmp[0], 5, 0, 0);
-            mat4.invert(mat4_tmp, comp.node._worldMatrix);
-            vec3.transformMat4Normal(v3_tmp[0], v3_tmp[0], mat4_tmp);
+            Vec3.set(v3_tmp[0], 5, 0, 0);
+            Mat4.invert(mat4_tmp, comp.node._worldMatrix);
+            Vec3.transformMat4Normal(v3_tmp[0], v3_tmp[0], mat4_tmp);
             lineLength = v3_tmp[0].mag();
 
             let mesh = comp.mesh;
@@ -371,9 +371,9 @@ if (CC_DEBUG) {
                 let normalIndex = i * normalEle.num;
                 let posIndex = i * posEle.num;
 
-                vec3.set(v3_tmp[0], normalData[normalIndex], normalData[normalIndex+1], normalData[normalIndex+2]);
-                vec3.set(v3_tmp[1], posData[posIndex], posData[posIndex+1], posData[posIndex+2]);
-                vec3.scaleAndAdd(v3_tmp[0], v3_tmp[1], v3_tmp[0], lineLength);
+                Vec3.set(v3_tmp[0], normalData[normalIndex], normalData[normalIndex+1], normalData[normalIndex+2]);
+                Vec3.set(v3_tmp[1], posData[posIndex], posData[posIndex+1], posData[posIndex+2]);
+                Vec3.scaleAndAdd(v3_tmp[0], v3_tmp[1], v3_tmp[0], lineLength);
 
                 for (let lineIndex = 0; lineIndex < 2; lineIndex++) {
                     vbData.push(v3_tmp[lineIndex].x, v3_tmp[lineIndex].y, v3_tmp[lineIndex].z);

@@ -24,8 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { quat } from '../vmath';
-
 cc._PrefabInfo = cc.Class({
     name: 'cc.PrefabInfo',
     // extends: require('../platform/CCObject'),

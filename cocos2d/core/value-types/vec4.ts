@@ -57,7 +57,7 @@ export default class Vec4 extends ValueType {
 
     public static get NEG_ONE () { return new Vec4(-1, -1, -1, -1); }
     public static readonly NEG_ONE_R = Vec4.NEG_ONE;
-    
+
     /**
      * @zh 获得指定向量的拷贝
      */
@@ -438,6 +438,30 @@ export default class Vec4 extends ValueType {
             Math.abs(a.y - b.y) <= epsilon * Math.max(1.0, Math.abs(a.y), Math.abs(b.y)) &&
             Math.abs(a.z - b.z) <= epsilon * Math.max(1.0, Math.abs(a.z), Math.abs(b.z)) &&
             Math.abs(a.w - b.w) <= epsilon * Math.max(1.0, Math.abs(a.w), Math.abs(b.w)));
+    }
+
+    /**
+     * @zh 向量转数组
+     * @param ofs 数组起始偏移量
+     */
+    public static toArray <Out extends IWritableArrayLike<number>> (out: Out, v: IVec4Like, ofs = 0) {
+        out[ofs + 0] = v.x;
+        out[ofs + 1] = v.y;
+        out[ofs + 2] = v.z;
+        out[ofs + 3] = v.w;
+        return out;
+    }
+
+    /**
+     * @zh 数组转向量
+     * @param ofs 数组起始偏移量
+     */
+    public static fromArray <Out extends IVec4Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {
+        out.x = arr[ofs + 0];
+        out.y = arr[ofs + 1];
+        out.z = arr[ofs + 2];
+        out.w = arr[ofs + 3];
+        return out;
     }
 
     /**
@@ -946,14 +970,6 @@ export default class Vec4 extends ValueType {
         out.w = m[3] * _x + m[7] * _y + m[11] * _z + m[15] * _w;
         return out;
     }
-
-    array (out: number[]) {
-        out[0] = this.x;
-        out[1] = this.y;
-        out[2] = this.z;
-        out[3] = this.w;
-        return out;
-    }
 }
 
 CCClass.fastDefine('cc.Vec4', Vec4, { x: 0, y: 0, z: 0, w: 0 });
@@ -966,3 +982,4 @@ export function v4 (x?: number | Vec4, y?: number, z?: number, w?: number) {
 }
 
 cc.v4 = v4;
+cc.Vec4 = Vec4;

@@ -1,7 +1,7 @@
 'use strict';
 
-import { vec3 } from '../../vmath';
 import VertexData from './vertex-data';
+import { Vec3 } from '../../value-types';
 
 /**
  * @param {Number} radius
@@ -11,17 +11,17 @@ import VertexData from './vertex-data';
  * @param {Number} opts.tubularSegments
  * @param {Number} opts.arc
  */
-export default function (radius = 0.4, tube = 0.1, opts = {}) {
-  let radialSegments = opts.radialSegments || 32;
-  let tubularSegments = opts.tubularSegments || 32;
-  let arc = opts.arc || 2.0 * Math.PI;
+export default function (radius = 0.4, tube = 0.1, opts = {radialSegments: 32, tubularSegments: 32, arc: 2.0 * Math.PI}) {
+  let radialSegments = opts.radialSegments;
+  let tubularSegments = opts.tubularSegments;
+  let arc = opts.arc;
 
   let positions = [];
   let normals = [];
   let uvs = [];
   let indices = [];
-  let minPos = cc.v3(-radius - tube, -tube, -radius - tube);
-  let maxPos = cc.v3(radius + tube, tube, radius + tube);
+  let minPos = new Vec3(-radius - tube, -tube, -radius - tube);
+  let maxPos = new Vec3(radius + tube, tube, radius + tube);
   let boundingRadius = radius + tube;
 
   for (let j = 0; j <= radialSegments; j++) {

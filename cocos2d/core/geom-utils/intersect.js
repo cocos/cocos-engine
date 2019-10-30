@@ -3,11 +3,11 @@ const Aabb = require('./aabb');
 const Ray = require('./ray');
 const Triangle = require('./triangle');
 
+import Mat4 from '../value-types/mat4';
+import Vec3 from '../value-types/vec3';
 import gfx from '../../renderer/gfx';
 import RecyclePool from '../../renderer/memop/recycle-pool';
 
-const mat4 = cc.vmath.mat4;
-const vec3 = cc.vmath.vec3;
 
 /**
  * !#en 3D intersection helper class
@@ -28,13 +28,13 @@ let intersect = {};
  * @return {Number}
 */
 intersect.rayAabb = (function () {
-    let min = cc.v3();
-    let max = cc.v3();
+    let min = new Vec3();
+    let max = new Vec3();
     return function (ray, aabb) {
         let o = ray.o, d = ray.d;
         let ix = 1 / d.x, iy = 1 / d.y, iz = 1 / d.z;
-        vec3.sub(min, aabb.center, aabb.halfExtents);
-        vec3.add(max, aabb.center, aabb.halfExtents);
+        Vec3.sub(min, aabb.center, aabb.halfExtents);
+        Vec3.add(max, aabb.center, aabb.halfExtents);
         let t1 = (min.x - o.x) * ix;
         let t2 = (max.x - o.x) * ix;
         let t3 = (min.y - o.y) * iy;
@@ -58,36 +58,36 @@ intersect.rayAabb = (function () {
  * @param {geomUtils.Triangle} triangle
 */
 intersect.rayTriangle = (function () {
-    let ab = cc.v3(0, 0, 0);
-    let ac = cc.v3(0, 0, 0);
-    let pvec = cc.v3(0, 0, 0);
-    let tvec = cc.v3(0, 0, 0);
-    let qvec = cc.v3(0, 0, 0);
+    let ab = new Vec3(0, 0, 0);
+    let ac = new Vec3(0, 0, 0);
+    let pvec = new Vec3(0, 0, 0);
+    let tvec = new Vec3(0, 0, 0);
+    let qvec = new Vec3(0, 0, 0);
 
     return function (ray, triangle) {
-        vec3.sub(ab, triangle.b, triangle.a);
-        vec3.sub(ac, triangle.c, triangle.a);
+        Vec3.sub(ab, triangle.b, triangle.a);
+        Vec3.sub(ac, triangle.c, triangle.a);
 
-        vec3.cross(pvec, ray.d, ac);
-        let det = vec3.dot(ab, pvec);
+        Vec3.cross(pvec, ray.d, ac);
+        let det = Vec3.dot(ab, pvec);
 
         if (det <= 0) {
             return 0;
         }
 
-        vec3.sub(tvec, ray.o, triangle.a);
-        let u = vec3.dot(tvec, pvec);
+        Vec3.sub(tvec, ray.o, triangle.a);
+        let u = Vec3.dot(tvec, pvec);
         if (u < 0 || u > det) {
             return 0;
         }
 
-        vec3.cross(qvec, tvec, ab);
-        let v = vec3.dot(ray.d, qvec);
+        Vec3.cross(qvec, tvec, ab);
+        let v = Vec3.dot(ray.d, qvec);
         if (v < 0 || u + v > det) {
             return 0;
         }
 
-        let t = vec3.dot(ac, qvec) / det;
+        let t = Vec3.dot(ac, qvec) / det;
         if (t < 0) return 0;
         return t;
     };
@@ -99,7 +99,7 @@ intersect.rayMesh = (function () {
     let minDist = Infinity;
 
     function getVec3 (out, data, idx, stride) {
-        vec3.set(out, data[idx*stride], data[idx*stride + 1], data[idx*stride + 2]);
+        Vec3.set(out, data[idx*stride], data[idx*stride + 1], data[idx*stride + 2]);
     }
     
     return function (ray, mesh) {
@@ -182,13 +182,13 @@ intersect.raycast = (function () {
 
     // temp variable
     let nodeAabb = Aabb.create();
-    let minPos = cc.v3();
-    let maxPos = cc.v3();
+    let minPos = new Vec3();
+    let maxPos = new Vec3();
 
-    let modelRay = Ray.create();
+    let modelRay = new Ray();
     let m4_1 = cc.mat4();
     let m4_2 = cc.mat4();
-    let d = cc.v3();
+    let d = new Vec3();
 
     function distanceValid (distance) {
         return distance > 0 && distance < Infinity;
@@ -203,9 +203,9 @@ intersect.raycast = (function () {
             if (filter && !filter(node)) return;
 
             // transform world ray to model ray
-            mat4.invert(m4_2, node.getWorldMatrix(m4_1));
-            vec3.transformMat4(modelRay.o, worldRay.o, m4_2);
-            vec3.normalize(modelRay.d, transformMat4Normal(modelRay.d, worldRay.d, m4_2));
+            Mat4.invert(m4_2, node.getWorldMatrix(m4_1));
+            Vec3.transformMat4(modelRay.o, worldRay.o, m4_2);
+            Vec3.normalize(modelRay.d, transformMat4Normal(modelRay.d, worldRay.d, m4_2));
 
             // raycast with bounding box
             let distance = Infinity;
@@ -214,8 +214,8 @@ intersect.raycast = (function () {
                 distance = intersect.rayAabb(modelRay, component._boundingBox);
             }
             else if (node.width && node.height) {
-                vec3.set(minPos, -node.width * node.anchorX, -node.height * node.anchorY, node.z);
-                vec3.set(maxPos, node.width * (1 - node.anchorX), node.height * (1 - node.anchorY), node.z);
+                Vec3.set(minPos, -node.width * node.anchorX, -node.height * node.anchorY, node.z);
+                Vec3.set(maxPos, node.width * (1 - node.anchorX), node.height * (1 - node.anchorY), node.z);
                 Aabb.fromPoints(nodeAabb, minPos, maxPos);
                 distance = intersect.rayAabb(modelRay, nodeAabb);
             }
@@ -227,11 +227,11 @@ intersect.raycast = (function () {
             }
 
             if (distanceValid(distance)) {
-                vec3.scale(d, modelRay.d, distance);
+                Vec3.scale(d, modelRay.d, distance);
                 transformMat4Normal(d, d, m4_1);
                 let res = resultsPool.add();
                 res.node = node;
-                res.distance = cc.vmath.vec3.mag(d);
+                res.distance = Vec3.mag(d);
                 results.push(res);
             }
         });
@@ -241,4 +241,4 @@ intersect.raycast = (function () {
     }
 })();
 
-module.exports = intersect;
+export default intersect;
