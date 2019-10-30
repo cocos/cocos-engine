@@ -13,7 +13,9 @@ import { IRenderObject, UBOLocalBatched, UniformBinding } from './define';
 
 export interface IBatchedItem {
     vbs: GFXBuffer[];
+    vbDatas: Uint8Array[];
     vbIdx: GFXBuffer;
+    vbIdxData: Float32Array;
     vbCount: number;
     mergeCount: number;
     ia: GFXInputAssembler;
@@ -69,16 +71,30 @@ export class BatchedBuffer {
                     for (let j = 0; j < batch.vbs.length; ++j) {
                         const flatBuff = flatBuffers[j];
                         const batchVB = batch.vbs[j];
+                        let vbBuf = batch.vbDatas[j];
                         vbSize = (vbCount + batch.vbCount) * flatBuff.stride;
-                        if (vbSize > batchVB.size) { batchVB.resize(vbSize); }
-                        batchVB.update(flatBuff.buffer, batch.vbCount * flatBuff.stride);
+                        if (vbSize > batchVB.size) {
+                            batchVB.resize(vbSize);
+                            vbBuf = batch.vbDatas[j] = new Uint8Array(batchVB.bufferView!.buffer);
+                        }
+                        vbBuf.set(flatBuff.buffer, batch.vbCount * flatBuff.stride);
                     }
 
                     vbIdxSize = (vbCount + batch.vbCount) * 4;
-                    if (vbIdxSize > batch.vbIdx.size) { batch.vbIdx.resize(vbIdxSize); }
-                    const vbIdxView = new Float32Array(vbCount);
-                    vbIdxView.fill(batch.mergeCount);
-                    batch.vbIdx.update(vbIdxView.buffer, batch.vbCount * 4);
+                    if (vbIdxSize > batch.vbIdx.size) {
+                        batch.vbIdx.resize(vbIdxSize);
+                        batch.vbIdxData = new Float32Array(batch.vbIdx.bufferView!.buffer);
+                    }
+
+                    const start = batch.vbCount;
+                    const end = start + vbCount;
+                    const vbIdxBuf = batch.vbIdxData;
+                    const mergeCount = batch.mergeCount;
+                    if (vbIdxBuf[start] !== mergeCount || vbIdxBuf[end - 1] !== mergeCount) {
+                        for (let j = start; j < end; j++) {
+                            vbIdxBuf[j] = mergeCount;
+                        }
+                    }
 
                     // update world matrix
                     Mat4.toArray(batch.uboData.view, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
@@ -100,7 +116,8 @@ export class BatchedBuffer {
         const device = this.pass.device;
 
         // Create a new batch
-        const newVBs: GFXBuffer[] = [];
+        const vbs: GFXBuffer[] = [];
+        const vbDatas: Uint8Array[] = [];
         const totalVBS: GFXBuffer[] = [];
         for (let i = 0; i < flatBuffers.length; ++i) {
             const flatBuff = flatBuffers[i];
@@ -111,8 +128,9 @@ export class BatchedBuffer {
                 stride: flatBuff.stride,
                 flags: GFXBufferFlagBit.BAKUP_BUFFER,
             });
-            newVB.update(flatBuff.buffer);
-            newVBs.push(newVB);
+            newVB.update(flatBuff.buffer.buffer);
+            vbs.push(newVB);
+            vbDatas.push(new Uint8Array(newVB.bufferView!.buffer));
             totalVBS.push(newVB);
         }
 
@@ -127,6 +145,7 @@ export class BatchedBuffer {
         vbIndices.fill(0);
         vbIdx.update(vbIndices);
         totalVBS.push(vbIdx);
+        const vbIdxData = new Float32Array(vbIdx.bufferView!.buffer);
 
         const attributes = subModel.inputAssembler!.attributes;
         const attrs = new Array<IGFXAttribute>(attributes.length + 1);
@@ -157,9 +176,8 @@ export class BatchedBuffer {
         Mat4.toArray(uboData.view, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET);
 
         this.batches.push({
-            vbs: newVBs,
             mergeCount: 1,
-            vbIdx, vbCount, ia, ubo, uboData, pso,
+            vbs, vbDatas, vbIdx, vbIdxData, vbCount, ia, ubo, uboData, pso,
         });
     }
 
