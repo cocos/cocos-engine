@@ -164,7 +164,7 @@ function combine (task) {
             }
         }
 
-        // ugly hack
+        // ugly hack, WeChat does not support loading font likes 'myfont.dw213.ttf'. So append hash to directory
         if (item.ext === '.ttf') {
             url = `${base}/${uuid.slice(0, 2)}/${uuid}${ver}/${item.options._native}`;
         }
