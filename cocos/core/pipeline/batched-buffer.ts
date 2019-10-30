@@ -51,6 +51,7 @@ export class BatchedBuffer {
         let vbSize = 0;
         let vbIdxSize = 0;
         const vbCount = flatBuffers[0].count;
+        const bindingLayout = pso.pipelineLayout.layouts[0];
         let isBatchExist = false;
         for (let i = 0; i < this.batches.length; ++i) {
             const batch = this.batches[i];
@@ -81,10 +82,14 @@ export class BatchedBuffer {
 
                     // update world matrix
                     Mat4.toArray(batch.uboData.view, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
+                    bindingLayout.bindBuffer(UniformBinding.UBO_LOCAL_BATCHED, batch.ubo);
+                    bindingLayout.update();
+                    batch.pso = pso;
 
                     ++batch.mergeCount;
                     batch.vbCount += vbCount;
                     batch.ia.vertexCount += vbCount;
+
                     return;
                 }
             }
@@ -143,7 +148,6 @@ export class BatchedBuffer {
             size: UBOLocalBatched.SIZE,
         });
 
-        const bindingLayout = pso.pipelineLayout.layouts[0];
         bindingLayout.bindBuffer(UniformBinding.UBO_LOCAL_BATCHED, ubo);
         bindingLayout.update();
 
