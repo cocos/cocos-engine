@@ -34,7 +34,7 @@ import { RenderScene } from '../../renderer/scene/render-scene';
 import { LightComponent } from './light-component';
 
 @ccclass('cc.DirectionalLightComponent')
-@menu('Components/DirectionalLight')
+@menu('Light/DirectionalLight')
 @executeInEditMode
 export class DirectionalLightComponent extends LightComponent {
 
