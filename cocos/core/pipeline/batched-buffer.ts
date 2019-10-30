@@ -82,9 +82,11 @@ export class BatchedBuffer {
 
                     // update world matrix
                     Mat4.toArray(batch.uboData.view, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
-                    bindingLayout.bindBuffer(UniformBinding.UBO_LOCAL_BATCHED, batch.ubo);
-                    bindingLayout.update();
-                    batch.pso = pso;
+                    if (!batch.mergeCount && batch.pso !== pso) {
+                        bindingLayout.bindBuffer(UniformBinding.UBO_LOCAL_BATCHED, batch.ubo);
+                        bindingLayout.update();
+                        batch.pso = pso;
+                    }
 
                     ++batch.mergeCount;
                     batch.vbCount += vbCount;

@@ -29,7 +29,7 @@ export class RenderBatchedQueue {
      * 清空渲染队列。
      */
     public clear () {
-        for (const batchedBuff of this.queue.values()){
+        for (const batchedBuff of this.queue.values()) {
             batchedBuff.clear();
         }
         this.queue.clear();
@@ -41,11 +41,12 @@ export class RenderBatchedQueue {
      */
     public recordCommandBuffer (cmdBuff: GFXCommandBuffer) {
         for (const batchedBuffer of this.queue.values()) {
+            let boundPSO = false;
             for (let b = 0; b < batchedBuffer.batches.length; ++b) {
                 const batch = batchedBuffer.batches[b];
                 if (!batch.mergeCount) { continue; }
                 batch.ubo.update(batch.uboData.view);
-                cmdBuff.bindPipelineState(batch.pso);
+                if (!boundPSO) { cmdBuff.bindPipelineState(batch.pso); boundPSO = true; }
                 cmdBuff.bindBindingLayout(batch.pso.pipelineLayout.layouts[0]);
                 cmdBuff.bindInputAssembler(batch.ia);
                 cmdBuff.draw(batch.ia);
