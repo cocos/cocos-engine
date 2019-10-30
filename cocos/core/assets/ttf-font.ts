@@ -28,7 +28,7 @@
  * @category asset
  */
 
-import {ccclass, property} from '../data/class-decorator';
+import {ccclass, property, string} from '../data/class-decorator';
 import { Font } from './font';
 
 /**
@@ -45,9 +45,9 @@ export class TTFFont extends Font {
     public _fontFamily: any = null;
 
     @property({
-        type: cc.String,
         override: true,
     })
+    @string
     get _nativeAsset () {
         return this._fontFamily;
     }

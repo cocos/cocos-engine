@@ -574,15 +574,11 @@ Please do not specifiy "default" attribute in decorator of "%s" property in "%s"
 Default value must be initialized at their declaration:
 ```
 // Before:
-@property({
-  type: cc.Integer
-  default: 0  // <--
-})
+@property({ default: 0 }) // <-- 
+@integer
 value;
 // After:
-@property({
-  type: cc.Integer
-})
+@integer
 value = 0;    // <--
 ```
 
