@@ -84,7 +84,7 @@ export interface IGeometricInfo {
 export interface IFlatBuffer {
     stride: number;
     count: number;
-    buffer: ArrayBuffer;
+    buffer: Uint8Array;
 }
 
 /**
@@ -995,13 +995,13 @@ export class Mesh extends Asset {
                         subMesh.flatBuffers.push({
                             stride: vbStride,
                             count: vbCount,
-                            buffer: vbView.buffer,
+                            buffer: vbView,
                         });
                     } else {
                         subMesh.flatBuffers.push({
                             stride: vbStride,
                             count: vbCount,
-                            buffer: view.buffer,
+                            buffer: view,
                         });
                     }
                 }

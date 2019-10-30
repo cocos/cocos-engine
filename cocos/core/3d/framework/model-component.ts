@@ -250,7 +250,7 @@ export class ModelComponent extends RenderableComponent {
             return;
         }
         this.node.hasChangedFlags = this._model.transform.hasChangedFlags = TransformDirtyBit.POSITION;
-        this._model.isDynamicBatching = this._enableDynamicBatching;
+        this._model.isDynamicBatching = this._enableDynamicBatching; // should pass this in before create PSO
         const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
         for (let i = 0; i < meshCount; ++i) {
             const material = this.getSharedMaterial(i);

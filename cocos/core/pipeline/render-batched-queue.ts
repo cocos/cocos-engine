@@ -45,6 +45,10 @@ export class RenderBatchedQueue {
             for (let b = 0; b < batchedBuffer.batches.length; ++b) {
                 const batch = batchedBuffer.batches[b];
                 if (!batch.mergeCount) { continue; }
+                for (let v = 0; v < batch.vbs.length; ++v) {
+                    batch.vbs[v].update(batch.vbDatas[v]);
+                }
+                batch.vbIdx.update(batch.vbIdxData.buffer);
                 batch.ubo.update(batch.uboData.view);
                 if (!boundPSO) { cmdBuff.bindPipelineState(batch.pso); boundPSO = true; }
                 cmdBuff.bindBindingLayout(batch.pso.pipelineLayout.layouts[0]);
