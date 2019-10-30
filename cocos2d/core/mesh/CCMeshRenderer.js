@@ -23,10 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import '../assets/material/custom-properties';
 import gfx from '../../renderer/gfx';
 import InputAssembler from '../../renderer/core/input-assembler';
-import geomUtils from '../geom-utils';
-import CustomProperties from '../assets/material/custom-properties';
+import Aabb from '../geom-utils/aabb';
 import { postLoadMesh } from '../utils/mesh-util';
 import Vec3 from '../value-types/vec3';
 import Mat4 from '../value-types/mat4';
@@ -201,7 +201,7 @@ let MeshRenderer = cc.Class({
     },
 
     ctor () {
-        this._boundingBox = geomUtils && geomUtils.Aabb.create();
+        this._boundingBox = cc.geomUtils && new Aabb();
         this._customProperties = new cc.CustomProperties();
 
         if (CC_DEBUG) {
@@ -228,7 +228,6 @@ let MeshRenderer = cc.Class({
 
         this._updateReceiveShadow();
         this._updateCastShadow();
-        this._updateBoundingBox();
         this._updateRenderNode();
     },
 
@@ -241,8 +240,8 @@ let MeshRenderer = cc.Class({
     },
 
     _setMesh (mesh) {
-        if (geomUtils && mesh) {
-            geomUtils.Aabb.fromPoints(this._boundingBox, mesh._minPos, mesh._maxPos);
+        if (cc.geomUtils && mesh) {
+            Aabb.fromPoints(this._boundingBox, mesh._minPos, mesh._maxPos);
         }
 
         if (this._mesh) {
@@ -287,13 +286,6 @@ let MeshRenderer = cc.Class({
                 material.setProperty('diffuseTexture', textures[i]);
                 this.setMaterial(i, material);
             }
-        }
-    },
-
-    _updateBoundingBox () {
-        let mesh = this._mesh;
-        if (geomUtils && mesh) {
-            this._boundingBox = geomUtils.Aabb.fromPoints(geomUtils.Aabb.create(), mesh._minPos, mesh._maxPos);
         }
     },
 

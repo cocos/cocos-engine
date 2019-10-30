@@ -138,6 +138,3 @@ export default class aabb {
         transform_extent_m4(out.halfExtents, this.halfExtents, m);
     }
 }
-
-
-module.exports = aabb;
