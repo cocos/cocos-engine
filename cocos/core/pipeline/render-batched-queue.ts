@@ -43,6 +43,7 @@ export class RenderBatchedQueue {
         for (const batchedBuffer of this.queue.values()) {
             for (let b = 0; b < batchedBuffer.batches.length; ++b) {
                 const batch = batchedBuffer.batches[b];
+                if (!batch.mergeCount) { continue; }
                 batch.ubo.update(batch.uboData.view);
                 cmdBuff.bindPipelineState(batch.pso);
                 cmdBuff.bindBindingLayout(batch.pso.pipelineLayout.layouts[0]);
