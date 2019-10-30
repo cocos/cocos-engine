@@ -35,7 +35,7 @@ import { Vec2 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp } from '../../core/math/utils';
 import { UI } from '../../core/renderer/ui/ui';
-import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
+import { UIRenderComponent, InstanceMaterialType } from '../../core/components/ui-base/ui-render-component';
 
 /**
  * @zh
@@ -346,6 +346,23 @@ export class SpriteComponent extends UIRenderComponent {
         }
     }
 
+    @property
+    get grayMode () {
+        return this._useGrayMode;
+    }
+    set grayMode (value) {
+        if (this._useGrayMode === value) {
+            return;
+        }
+        this._useGrayMode = value;
+        if (value === true) {
+            this._instanceMaterialType = InstanceMaterialType.GRAYMOD; }
+        else {
+            this._instanceMaterialType = InstanceMaterialType.ADDCOLORANDTEXTURE;
+        }
+        this._instanceMaterial();
+    }
+
     /**
      * @zh  精灵尺寸调整模式。
      *
@@ -391,6 +408,8 @@ export class SpriteComponent extends UIRenderComponent {
     private _fillRange = 0;
     @property
     private _isTrimmedMode = true;
+    @property
+    private _useGrayMode = false;
     // _state = 0;
     @property
     private _atlas: SpriteAtlas | null = null;

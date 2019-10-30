@@ -157,19 +157,6 @@ export class ButtonComponent extends Component {
 
     /**
      * @zh
-     * 如果这个标记为 true，当 button 的 interactable 属性为 false 的时候，会使用内置 shader 让 button 的 target 节点的 sprite 组件变灰。
-     */
-    // TODO:
-    // enableAutoGrayEffect: {
-    //             default: false,
-    //         tooltip: CC_DEV && 'i18n:COMPONENT.button.auto_gray_effect',
-    //             notify() {
-    //         this._updateDisabledState();
-    //     }
-    // },
-
-    /**
-     * @zh
      * 按钮状态改变时过渡方式。
      */
     @property({
@@ -696,7 +683,6 @@ export class ButtonComponent extends Component {
     protected _updateState () {
         const state = this._getButtonState();
         this._applyTransition(state);
-        // this._updateDisabledState();
     }
 
     protected _getButtonState () {
@@ -781,19 +767,6 @@ export class ButtonComponent extends Component {
         }
     }
 
-    // _updateDisabledState() {
-    //     if (this._sprite) {
-    //         if (this.enableAutoGrayEffect) {
-    //             if (!(this._transition === Transition.SPRITE && this._disabledSprite)) {
-    //                 if (!this._interactable) {
-    //                     this._sprite.setState(cc.SpriteComponent.State.GRAY);
-    //                     return;
-    //                 }
-    //             }
-    //         }
-    //         this._sprite.setState(cc.SpriteComponent.State.NORMAL);
-    //     }
-    // }
 }
 
 cc.ButtonComponent = ButtonComponent;

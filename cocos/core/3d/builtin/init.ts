@@ -171,8 +171,14 @@ class BuiltinResMgr {
         // sprite material
         const spriteColorMtl = new cc.Material();
         spriteColorMtl._uuid = 'ui-sprite-material';
-        spriteColorMtl.initialize({ defines: { USE_TEXTURE: true }, effectName: 'builtin-sprite' });
+        spriteColorMtl.initialize({ defines: { USE_TEXTURE: true, IS_GRAY: false }, effectName: 'builtin-sprite' });
         resources[spriteColorMtl._uuid] = spriteColorMtl;
+
+        // sprite gray material
+        const spriteGrayMtl = new cc.Material();
+        spriteGrayMtl._uuid = 'ui-sprite-gray-material';
+        spriteGrayMtl.initialize({ defines: { USE_TEXTURE: true, IS_GRAY: true }, effectName: 'builtin-sprite' });
+        resources[spriteGrayMtl._uuid] = spriteGrayMtl;
 
         // default particle material
         const defaultParticleMtl = new cc.Material();

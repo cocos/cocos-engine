@@ -42,7 +42,6 @@ import { ToggleContainerComponent } from './toggle-container-component';
 @ccclass('cc.ToggleComponent')
 @executionOrder(110)
 @menu('UI/Toggle')
-@executeInEditMode
 export class ToggleComponent extends ButtonComponent {
 
     /**
@@ -223,19 +222,6 @@ export class ToggleComponent extends ButtonComponent {
             this._checkMark.node.active = !!this.isChecked;
         }
     }
-
-    // _updateDisabledState() {
-    //     this._super();
-
-    //     if (this._checkMark) {
-    //         this._checkMark.setState(0);
-    //     }
-    //     if (this.enableAutoGrayEffect) {
-    //         if (this._checkMark && !this.interactable) {
-    //             this._checkMark.setState(1);
-    //         }
-    //     }
-    // }
 
     private _registerToggleEvent () {
         this.node.on('click', this.toggle, this);
