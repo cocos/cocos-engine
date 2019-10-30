@@ -18,7 +18,6 @@
     "@babel/plugin-proposal-decorators": "^7.1.6",
     "@babel/preset-env": "^7.1.6",
     "@babel/preset-typescript": "^7.1.0",
-    "@base/electron-profile": "1.0.9",
     "aliasify": "^2.1.0",
     "async": "1.5.2",
     "babelify": "10.0.0",
