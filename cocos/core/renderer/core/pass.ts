@@ -43,7 +43,7 @@ import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { BatchedBuffer } from '../../pipeline/batched-buffer';
-import { isBuiltinBinding, RenderPassStage, RenderPriority, UBOLocal } from '../../pipeline/define';
+import { isBuiltinBinding, RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
@@ -111,28 +111,21 @@ const _plInfo: IGFXPipelineLayoutInfo = {
     layouts: null!,
 };
 
-const _psoInfo: IGFXPipelineStateInfo = {
+const _psoInfo: IGFXPipelineStateInfo & IPSOHashInfo = {
     primitive: 0,
     shader: null!,
-    is: new GFXInputState(),
-    rs: null!,
-    dss: null!,
-    bs: null!,
-    dynamicStates: null!,
-    layout: null!,
-    renderPass: null!,
-    hash: 0,
-};
-
-const _psoHashInfo: IPSOHashInfo = {
-    program: '',
-    defines: null!,
-    stage: 0,
-    primitive: 0,
+    inputState: new GFXInputState(),
     rasterizerState: null!,
     depthStencilState: null!,
     blendState: null!,
     dynamicStates: null!,
+    layout: null!,
+    renderPass: null!,
+    hash: 0,
+
+    program: '',
+    defines: null!,
+    stage: 0,
 };
 
 /**
@@ -552,7 +545,25 @@ export class Pass {
         const shader = programLib.getGFXShader(this._device, this._programName, defines, pipeline);
         if (!shader) { console.warn(`create shader ${this._programName} failed`); return null; }
         if (saveOverrides) { this._shader = shader; }
-        this._bindings = this._shaderInfo.bindings.filter((b) => b.defines.every((d) => defines[d]));
+
+        const { blocks, samplers } = this._shaderInfo;
+        this._bindings.length = 0;
+        blocks:
+        for (let i = 0; i < blocks.length; i++) {
+            const block = blocks[i];
+            for (let j = 0; j < block.defines.length; j++) {
+                if (!defines[block.defines[j]]) { continue blocks; }
+            }
+            this._bindings.push(block);
+        }
+        samplers:
+        for (let i = 0; i < samplers.length; i++) {
+            const sampler = samplers[i];
+            for (let j = 0; j < sampler.defines.length; j++) {
+                if (!defines[sampler.defines[j]]) { continue samplers; }
+            }
+            this._bindings.push(sampler);
+        }
         return shader;
     }
 
@@ -570,13 +581,13 @@ export class Pass {
         // bind resources
         _blInfo.bindings = this._bindings;
         const bindingLayout = this._device.createBindingLayout(_blInfo);
-        for (const b of Object.keys(this._buffers)) {
+        for (const b in this._buffers) {
             bindingLayout.bindBuffer(parseInt(b), this._buffers[b]);
         }
-        for (const s of Object.keys(this._samplers)) {
+        for (const s in this._samplers) {
             bindingLayout.bindSampler(parseInt(s), this._samplers[s]);
         }
-        for (const t of Object.keys(this._textureViews)) {
+        for (const t in this._textureViews) {
             bindingLayout.bindTextureView(parseInt(t), this._textureViews[t]);
         }
         // bind pipeline builtins
@@ -596,18 +607,18 @@ export class Pass {
         _plInfo.layouts = [bindingLayout];
         const pipelineLayout = this._device.createPipelineLayout(_plInfo);
         // create pipeline state
-        _psoInfo.primitive = _psoHashInfo.primitive = stateOverrides && stateOverrides.primitive || this._primitive;
+        _psoInfo.primitive = stateOverrides && stateOverrides.primitive || this._primitive;
         _psoInfo.shader = shader;
-        _psoInfo.rs = _psoHashInfo.rasterizerState = stateOverrides && stateOverrides.rasterizerState || this._rs;
-        _psoInfo.dss = _psoHashInfo.depthStencilState = stateOverrides && stateOverrides.depthStencilState || this._dss;
-        _psoInfo.bs = _psoHashInfo.blendState = stateOverrides && stateOverrides.blendState || this._bs;
-        _psoInfo.dynamicStates = _psoHashInfo.dynamicStates = stateOverrides && stateOverrides.dynamicStates || this._dynamicStates;
+        _psoInfo.rasterizerState = stateOverrides && stateOverrides.rasterizerState || this._rs;
+        _psoInfo.depthStencilState = stateOverrides && stateOverrides.depthStencilState || this._dss;
+        _psoInfo.blendState = stateOverrides && stateOverrides.blendState || this._bs;
+        _psoInfo.dynamicStates = stateOverrides && stateOverrides.dynamicStates || this._dynamicStates;
         _psoInfo.layout = pipelineLayout;
         _psoInfo.renderPass = this._renderPass!;
-        _psoHashInfo.program = this._programName;
-        _psoHashInfo.defines = defineOverrides || this._defines;
-        _psoHashInfo.stage = this._stage;
-        _psoInfo.hash = Pass.getPSOHash(_psoHashInfo);
+        _psoInfo.program = this._programName;
+        _psoInfo.defines = defineOverrides || this._defines;
+        _psoInfo.stage = this._stage;
+        _psoInfo.hash = Pass.getPSOHash(_psoInfo);
         const pipelineState = this._device.createPipelineState(_psoInfo);
         this._resources.push({ bindingLayout, pipelineLayout, pipelineState });
         return pipelineState;
@@ -638,23 +649,11 @@ export class Pass {
 
     /**
      * @zh
-     * 销毁合批缓冲。
-     */
-    public destroyBatchedBuffer () {
-        if (this._batchedBuffer) {
-            this._batchedBuffer.destroy();
-            this._batchedBuffer = null;
-        }
-    }
-
-    /**
-     * @zh
      * 清空合批缓冲。
      */
     public clearBatchedBuffer () {
         if (this._batchedBuffer) {
-            const uboLocal = new UBOLocal();
-            this._batchedBuffer.ubo.update(uboLocal.view.buffer);
+            this._batchedBuffer.clearUBO();
         }
     }
 

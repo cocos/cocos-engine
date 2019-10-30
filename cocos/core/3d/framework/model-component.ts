@@ -117,35 +117,21 @@ export class ModelComponent extends RenderableComponent {
      */
     @property
     set enableDynamicBatching (enable: boolean) {
+        if (this._enableDynamicBatching === enable) { return; }
         this._enableDynamicBatching = enable;
         if (this._mesh) {
-            if (enable) {
-                this._mesh.createFlatBuffers();
-            } else {
-                this._mesh.destroyFlatBuffers();
-            }
+            if (enable) { this._mesh.createFlatBuffers(); }
+            else { this._mesh.destroyFlatBuffers(); }
         }
         if (this._model) {
             this._model.isDynamicBatching = enable;
-            if (this._model.isDynamicBatching) {
-                for (let i = 0; i < this._model.subModels.length; ++i) {
-                    const subModel = this._model.subModels[i];
-                    for (let p = 0; p < subModel.passes.length; ++p) {
-                        const pass = subModel.passes[p];
-                        if (!pass.batchedBuffer) {
-                            pass.createBatchedBuffer();
-                        }
-                    }
-                }
-            } else {
-                for (let i = 0; i < this._model.subModels.length; ++i) {
-                    const subModel = this._model.subModels[i];
-                    for (let p = 0; p < subModel.passes.length; ++p) {
-                        const pass = subModel.passes[p];
-                        if (pass.batchedBuffer) {
-                            pass.clearBatchedBuffer();
-                        }
-                    }
+            this._model.onPipelineChange(); // update material
+            for (let i = 0; i < this._model.subModels.length; ++i) {
+                const subModel = this._model.subModels[i];
+                for (let p = 0; p < subModel.passes.length; ++p) {
+                    const pass = subModel.passes[p];
+                    if (enable) { pass.createBatchedBuffer(); }
+                    else { pass.clearBatchedBuffer(); }
                 }
             }
         }

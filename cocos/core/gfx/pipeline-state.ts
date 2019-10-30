@@ -169,10 +169,10 @@ export class GFXInputState {
 export interface IGFXPipelineStateInfo {
     primitive: GFXPrimitiveMode;
     shader: GFXShader;
-    is: GFXInputState;
-    rs: GFXRasterizerState;
-    dss: GFXDepthStencilState;
-    bs: GFXBlendState;
+    inputState: GFXInputState;
+    rasterizerState: GFXRasterizerState;
+    depthStencilState: GFXDepthStencilState;
+    blendState: GFXBlendState;
     dynamicStates?: GFXDynamicState[];
     layout: GFXPipelineLayout;
     renderPass: GFXRenderPass;
@@ -223,6 +223,14 @@ export abstract class GFXPipelineState extends GFXObject {
      */
     public get blendState (): GFXBlendState {
         return  this._bs as GFXBlendState;
+    }
+
+    /**
+     * @zh
+     * GFX输入状态。
+     */
+    public get inputState (): GFXInputState {
+        return this._is as GFXInputState;
     }
 
     /**

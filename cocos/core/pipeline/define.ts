@@ -97,7 +97,7 @@ export enum UniformBinding {
 
     // rooms left for custom bindings
     // effect importer prepares bindings according to this
-    CUSTUM_UBO_BINDING_END_POINT = MAX_BINDING_SUPPORTED - 7,
+    CUSTUM_UBO_BINDING_END_POINT = MAX_BINDING_SUPPORTED - 8,
     CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 6,
 }
 
@@ -184,18 +184,15 @@ export const localBindingsDesc: Map<string, IInternalBindingDesc> = new Map<stri
  * 本地 UBO。
  */
 export class UBOLocal {
-    public static BATCHING_COUNT: number = 10;
     public static MAT_WORLD_OFFSET: number = 0;
     public static MAT_WORLD_IT_OFFSET: number = UBOLocal.MAT_WORLD_OFFSET + 16;
-    public static MAT_WORLDS_OFFSET: number = UBOLocal.MAT_WORLD_IT_OFFSET + 16;
-    public static COUNT: number = UBOLocal.MAT_WORLDS_OFFSET + 16 * UBOLocal.BATCHING_COUNT;
+    public static COUNT: number = UBOLocal.MAT_WORLD_IT_OFFSET + 16;
     public static SIZE: number = UBOLocal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
         binding: UniformBinding.UBO_LOCAL, name: 'CCLocal', members: [
             { name: 'cc_matWorld', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matWorldIT', type: GFXType.MAT4, count: 1 },
-            { name: 'cc_matWorlds', type: GFXType.MAT4, count: UBOLocal.BATCHING_COUNT },
         ],
     };
 
@@ -204,6 +201,25 @@ export class UBOLocal {
 localBindingsDesc.set(UBOLocal.BLOCK.name, {
     type: GFXBindingType.UNIFORM_BUFFER,
     blockInfo: UBOLocal.BLOCK,
+});
+
+export class UBOLocalBatched {
+    public static BATCHING_COUNT: number = 10;
+    public static MAT_WORLDS_OFFSET: number = 0;
+    public static COUNT: number = 16 * UBOLocalBatched.BATCHING_COUNT;
+    public static SIZE: number = UBOLocalBatched.COUNT * 4;
+
+    public static BLOCK: GFXUniformBlock = {
+        binding: UniformBinding.UBO_LOCAL_BATCHED, name: 'CCLocalBatched', members: [
+            { name: 'cc_matWorlds', type: GFXType.MAT4, count: UBOLocalBatched.BATCHING_COUNT },
+        ],
+    };
+
+    public view: Float32Array = new Float32Array(UBOLocalBatched.COUNT);
+}
+localBindingsDesc.set(UBOLocalBatched.BLOCK.name, {
+    type: GFXBindingType.UNIFORM_BUFFER,
+    blockInfo: UBOLocalBatched.BLOCK,
 });
 
 /**
