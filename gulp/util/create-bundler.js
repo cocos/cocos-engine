@@ -58,6 +58,7 @@ function allowReturnOutsideFunctionInBrowserifyTransform () {
 module.exports = function createBundler(entryFiles, options) {
     // https://github.com/substack/node-browserify#methods
     var browserifyOpt = {
+        extensions: ['.js', '.json', '.ts'],
         entries: [].concat(entryFiles),
         debug: (options && 'sourcemaps' in options) ? options.sourcemaps : true,
         detectGlobals: false,    // dont insert `process`, `global`, `__filename`, and `__dirname`
@@ -73,13 +74,13 @@ module.exports = function createBundler(entryFiles, options) {
     var presets = [
         // [ 'es2015', { loose: true } ],
         [
-            'env',
+            '@babel/preset-env',
             {
                 "loose": true,
-                "exclude": ['transform-es2015-typeof-symbol']
+                // "exclude": ['transform-es2015-typeof-symbol']
             }
-        ]
-
+        ],
+        '@babel/preset-typescript',
     ];
 
     var plugins = [
@@ -92,10 +93,22 @@ module.exports = function createBundler(entryFiles, options) {
 
     //     // < 6.16.0
     //     [ 'babel-plugin-parser-opts', { allowReturnOutsideFunction: true } ]
-        'transform-decorators-legacy',
-        'transform-class-properties',
+        // 'transform-decorators-legacy',
+        // 'transform-class-properties',
 
-        'add-module-exports',
+        // 'add-module-exports',
+        // make sure that transform-decorators-legacy comes before transform-class-properties.
+        [
+            '@babel/plugin-proposal-decorators',
+            { legacy: true },
+        ],
+        [
+            '@babel/plugin-proposal-class-properties',
+            { loose: true },
+        ],
+        [
+            'babel-plugin-add-module-exports',
+        ],
     ];
 
     var Babelify;
@@ -131,6 +144,7 @@ module.exports = function createBundler(entryFiles, options) {
     return b
         .exclude(Path.join(__dirname, '../../package.json'))
         .transform(Babelify, (options && options.babelifyOpt) || {
+            extensions: ['.js', '.ts'],
             presets: presets,
             plugins: plugins,
 
