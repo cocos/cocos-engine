@@ -2,7 +2,7 @@
 #define __gles3w_h_
 
 #if defined(__APPLE__) || defined(__APPLE_CC__)
-#   include <khronos/OpenGLES/ES3/gl.h>
+#   include <OpenGLES/ES3/gl.h>
     // Prevent Apple's non-standard extension header from being included
 #   define __gl_es30ext_h_
 #else

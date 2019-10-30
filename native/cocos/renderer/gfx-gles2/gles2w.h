@@ -2,7 +2,7 @@
 #define __gles2w_h_
 
 #if defined(__APPLE__) || defined(__APPLE_CC__)
-#   include <khronos/OpenGLES/ES2/gl.h>
+#   include <OpenGLES/ES2/gl.h>
     // Prevent Apple's non-standard extension header from being included
 #   define __gl_es20ext_h_
 #else

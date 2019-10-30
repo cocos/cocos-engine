@@ -3,7 +3,7 @@
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
 #   ifdef __OBJC__
-#       include <khronos/OpenGLES/EAGL.h>
+#       include <OpenGLES/EAGL.h>
 #   endif
 #else
 #   include <khronos/EGL/egl.h>
