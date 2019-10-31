@@ -4,6 +4,7 @@
 
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXClearFlag, GFXCommandBufferType, GFXFilter, IGFXColor } from '../../gfx/define';
+import { Layers } from '../../scene-graph';
 import { getPhaseID } from '../pass-phase';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
@@ -11,7 +12,6 @@ import { RenderFlow } from '../render-flow';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
-import { Layers } from '../../scene-graph';
 
 const colors: IGFXColor[] = [];
 const bufs: GFXCommandBuffer[] = [];
@@ -118,7 +118,7 @@ export class ForwardStage extends RenderStage {
                             const pso = subModel.psos![p];
                             const isTransparent = pso.blendState.targets[0].blend;
                             if (!isTransparent) {
-                                pass.batchedBuffer.merge(subModel, ro);
+                                pass.batchedBuffer.merge(subModel, ro, pso);
                                 this._opaqueBatchedQueue.queue.add(pass.batchedBuffer);
                             } else {
                                 const hash = (0 << 30) | pass.priority << 16 | subModel.priority << 8 | p;

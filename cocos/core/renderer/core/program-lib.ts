@@ -27,7 +27,7 @@
  * @category material
  */
 
-import { IBlockInfo, IBuiltinInfo, IDefineInfo, IShaderInfo } from '../../assets/effect-asset';
+import { IBlockInfo, IBuiltinInfo, IDefineInfo, ISamplerInfo, IShaderInfo } from '../../assets/effect-asset';
 import { IGFXBinding } from '../../gfx/binding-layout';
 import { GFXBindingType, GFXGetTypeSize, GFXShaderType } from '../../gfx/define';
 import { GFXAPI, GFXDevice } from '../../gfx/device';
@@ -41,17 +41,16 @@ interface IDefineRecord extends IDefineInfo {
     _map: (value: any) => number;
     _offset: number;
 }
-interface IBlockInfoRT extends IBlockInfo {
+interface IBlockInfoRT extends IBlockInfo, IGFXBinding {
     size: number;
 }
-interface IBindingInfo extends IGFXBinding {
-    defines: string[];
+interface ISamplerInfoRT extends ISamplerInfo, IGFXBinding {
 }
 export interface IProgramInfo extends IShaderInfo {
     blocks: IBlockInfoRT[];
+    samplers: ISamplerInfoRT[];
     defines: IDefineRecord[];
     handleMap: Record<string, number>;
-    bindings: IBindingInfo[];
     offsets: number[][];
     globalsInited: boolean;
     localsInited: boolean;
@@ -92,36 +91,27 @@ function getShaderInstanceName (name: string, macros: IMacroInfo[]) {
 function insertBuiltinBindings (tmpl: IProgramInfo, source: Map<string, IInternalBindingDesc>, type: string) {
     const target = tmpl.builtins[type] as IBuiltinInfo;
     const blocks = tmpl.blocks;
-    const bindings = tmpl.bindings;
     for (const b of target.blocks) {
         const info = source.get(b.name);
         if (!info || info.type !== GFXBindingType.UNIFORM_BUFFER) { console.warn(`builtin UBO '${b.name}' not available!`); continue; }
-        const builtin: IBlockInfoRT = Object.assign({ defines: b.defines, size: getSize(info.blockInfo!) }, info.blockInfo!);
+        const builtin: IBlockInfoRT = Object.assign({
+            defines: b.defines,
+            size: getSize(info.blockInfo!),
+            bindingType: GFXBindingType.UNIFORM_BUFFER,
+        }, info.blockInfo!);
         blocks.push(builtin);
-        bindings.push({ name: builtin.name, binding: builtin.binding, defines: builtin.defines, type: GFXBindingType.UNIFORM_BUFFER });
     }
     const samplers = tmpl.samplers;
     for (const s of target.samplers) {
         const info = source.get(s.name);
         if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`builtin sampler '${s.name}' not available!`); continue; }
-        const builtin = Object.assign({ defines: s.defines }, info.samplerInfo);
+        const builtin = Object.assign({ defines: s.defines, bindingType: GFXBindingType.SAMPLER }, info.samplerInfo);
         samplers.push(builtin);
-        bindings.push({ name: builtin.name, binding: builtin.binding, defines: builtin.defines, type: GFXBindingType.SAMPLER });
     }
 }
 
 function getSize (block: GFXUniformBlock) {
     return block.members.reduce((s, m) => s + GFXGetTypeSize(m.type) * m.count, 0);
-}
-
-function genBindings (tmpl: IShaderInfo) {
-    return tmpl.blocks.reduce((acc, cur) => {
-        acc.push({ name: cur.name, binding: cur.binding, defines: cur.defines, type: GFXBindingType.UNIFORM_BUFFER });
-        return acc;
-    }, [] as IBindingInfo[]).concat(tmpl.samplers.reduce((acc, cur) => {
-        acc.push({ name: cur.name, binding: cur.binding, defines: cur.defines, type: GFXBindingType.SAMPLER });
-        return acc;
-    }, [] as IBindingInfo[]));
 }
 
 function genHandles (tmpl: IProgramInfo) {
@@ -183,9 +173,9 @@ class ProgramLib {
             def._offset = offset;
             offset += cnt;
         }
-        tmpl.blocks.forEach((b) => b.size = getSize(b));
+        tmpl.blocks.forEach((b) => (b.size = getSize(b), b.bindingType = GFXBindingType.UNIFORM_BUFFER));
+        tmpl.samplers.forEach((s) => (s.bindingType = GFXBindingType.SAMPLER));
         tmpl.handleMap = genHandles(tmpl);
-        tmpl.bindings = genBindings(tmpl);
         if (!tmpl.localsInited) { insertBuiltinBindings(tmpl, localBindingsDesc, 'locals'); tmpl.localsInited = true; }
         // store it
         this._templates[prog.name] = tmpl;
