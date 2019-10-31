@@ -12,6 +12,7 @@ import {
 import { SphereShapeBase } from '../../api';
 import { createSphereShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
+import { ISphereShape } from '../../spec/IPhysicsSpahe';
 
 /**
  * @zh
@@ -23,7 +24,9 @@ import { ColliderComponent } from './collider-component';
 @executeInEditMode
 export class SphereColliderComponent extends ColliderComponent {
 
-    private _shape!: SphereShapeBase;
+    private get _shape (): ISphereShape {
+        return this._shapeBase as ISphereShape;
+    }
 
     /// PRIVATE PROPERTY ///
 
@@ -32,21 +35,21 @@ export class SphereColliderComponent extends ColliderComponent {
 
     constructor () {
         super();
-        this._shape = createSphereShape(this._radius);
-        this._shape.setUserData(this);
-        this._shapeBase = this._shape;
+        // this._shape = createSphereShape(this._radius);
+        // this._shape.setUserData(this);
+        // this._shapeBase = this._shape;
     }
 
     /// COMPONENT LIFECYCLE ///
 
-    protected onLoad () {
-        super.onLoad();
+    // protected onLoad () {
+    //     super.onLoad();
 
-        if (!CC_EDITOR) {
-            this.radius = this._radius;
-            this._shape.setScale(this.node.worldScale);
-        }
-    }
+    //     // if (!CC_EDITOR) {
+    //     //     this.radius = this._radius;
+    //     //     this._shape.setScale(this.node.worldScale);
+    //     // }
+    // }
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -66,11 +69,11 @@ export class SphereColliderComponent extends ColliderComponent {
     public set radius (value) {
         this._radius = value;
 
-        if (!CC_EDITOR) {
-            this._shape.setRadius(this._radius);
-            if (CC_PHYSICS_BUILTIN) {
-                this._shape.setScale(this.node.worldScale);
-            }
-        }
+        // if (!CC_EDITOR) {
+        //     this._shape.setRadius(this._radius);
+        //     if (CC_PHYSICS_BUILTIN) {
+        //         this._shape.setScale(this.node.worldScale);
+        //     }
+        // }
     }
 }

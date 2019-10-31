@@ -15,13 +15,15 @@ import { PhysicsBasedComponent } from '../detail/physics-based-component';
 import { RigidBodyComponent } from '../rigid-body-component';
 import { PhysicMaterial } from '../../assets/physic-material';
 import { PhysicsSystem } from '../physics-system';
+import { Component } from '../../../core';
+import { IBaseShape } from '../../spec/IPhysicsSpahe';
 
 /**
  * @zh
  * 碰撞器的基类
  */
 @ccclass('cc.ColliderComponent')
-export class ColliderComponent extends PhysicsBasedComponent implements IEventTarget {
+export class ColliderComponent extends Component implements IEventTarget {
 
     /**
      * @zh
@@ -101,16 +103,18 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
 
     public set isTrigger (value) {
         this._isTrigger = value;
-
         if (!CC_EDITOR) {
-            if (!CC_PHYSICS_BUILTIN) {
-                if (this.sharedBody) {
-                    const type = this._isTrigger ? ERigidBodyType.DYNAMIC : ERigidBodyType.STATIC;
-                    this.sharedBody.body.setType(type);
-                    this._shapeBase.setCollisionResponse!(!this._isTrigger);
-                }
-            }
+            this._shapeBase.isTrigger = this._isTrigger;
         }
+        // if (!CC_EDITOR) {
+        //     if (!CC_PHYSICS_BUILTIN) {
+        //         if (this.sharedBody) {
+        //             const type = this._isTrigger ? ERigidBodyType.DYNAMIC : ERigidBodyType.STATIC;
+        //             this.sharedBody.body.setType(type);
+        //             this._shapeBase.setCollisionResponse!(!this._isTrigger);
+        //         }
+        //     }
+        // }
     }
 
     /**
@@ -130,17 +134,20 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
 
     public set center (value: Vec3) {
         Vec3.copy(this._center, value);
-
         if (!CC_EDITOR) {
-            const rigidBody = this.sharedBody.rigidBody as RigidBodyComponent | null;
-            if (rigidBody != null) {
-                Vec3.subtract(offset, this.node.worldPosition, rigidBody.node.worldPosition);
-                Vec3.add(offset, offset, this._center);
-                this._shapeBase.setCenter(offset);
-            } else {
-                this._shapeBase.setCenter(this._center);
-            }
+            this._shapeBase.center = this._center;
         }
+
+        // if (!CC_EDITOR) {
+        //     const rigidBody = this.sharedBody.rigidBody as RigidBodyComponent | null;
+        //     if (rigidBody != null) {
+        //         Vec3.subtract(offset, this.node.worldPosition, rigidBody.node.worldPosition);
+        //         Vec3.add(offset, offset, this._center);
+        //         this._shapeBase.setCenter(offset);
+        //     } else {
+        //         this._shapeBase.setCenter(this._center);
+        //     }
+        // }
     }
 
     /**
@@ -150,16 +157,16 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
      * 获取碰撞器所绑定的刚体组件，可能为 null
      */
     public get attachedRigidbody (): RigidBodyComponent | null {
-        return this.sharedBody.rigidBody as RigidBodyComponent | null;
+        return null;
     }
 
-    protected _shapeBase!: ShapeBase;
+    public get shape () {
+        return this._shapeBase;
+    }
+
+    protected _shapeBase!: IBaseShape;
 
     private _isSharedMaterial: boolean = true;
-
-    private _trrigerCallback!: ITriggerCallback;
-
-    private _collisionCallBack!: ICollisionCallback;
 
     /// PRIVATE PROPERTY ///
 
@@ -170,17 +177,10 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
     private _isTrigger: boolean = false;
 
     @property
-    private readonly _center: Vec3 = new cc.Vec3(0, 0, 0);
+    private readonly _center: Vec3 = new Vec3(0, 0, 0);
 
     constructor () {
         super();
-
-        if (!CC_EDITOR) {
-            this._trrigerCallback = this._onTrigger.bind(this);
-            if (!CC_PHYSICS_BUILTIN) {
-                this._collisionCallBack = this._onCollision.bind(this);
-            }
-        }
     }
 
     /// PRIVATE METHOD ///
@@ -240,82 +240,87 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
     /// COMPONENT LIFECYCLE ///
 
     protected onLoad () {
-        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
-            // init collider
-            this.isTrigger = this._isTrigger;
-            this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
+        // if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
+        //     // init collider
+        //     this.isTrigger = this._isTrigger;
+        //     this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
+        // }
+
+        // this.center = this._center;
+        if (!CC_EDITOR) {
+            this._shapeBase.onLoad!();
         }
 
-        this.center = this._center;
     }
 
     protected onEnable () {
 
+        // if (!CC_EDITOR) {
+        //     super.onEnable();
+
+        //     const rigidBody = this.sharedBody.rigidBody as RigidBodyComponent | null;
+        //     if (rigidBody != null) {
+        //         Vec3.subtract(offset, this.node.worldPosition, rigidBody.node.worldPosition);
+        //         Vec3.add(offset, offset, this._center);
+        //         this.sharedBody.body.addShape(this._shapeBase!, offset);
+        //     } else {
+        //         this.sharedBody.body.addShape(this._shapeBase!, this._center);
+        //     }
+        //     this.center = this._center;
+
+        //     this._shapeBase.addTriggerCallback(this._trrigerCallback);
+        //     if (!CC_PHYSICS_BUILTIN) {
+        //         this.sharedBody.body.addCollisionCallback(this._collisionCallBack);
+        //     }
+        //     // sync after add shape
+        //     this.sharedBody.syncPhysWithScene();
+        // }
         if (!CC_EDITOR) {
-            super.onEnable();
-
-            const rigidBody = this.sharedBody.rigidBody as RigidBodyComponent | null;
-            if (rigidBody != null) {
-                Vec3.subtract(offset, this.node.worldPosition, rigidBody.node.worldPosition);
-                Vec3.add(offset, offset, this._center);
-                this.sharedBody.body.addShape(this._shapeBase!, offset);
-            } else {
-                this.sharedBody.body.addShape(this._shapeBase!, this._center);
-            }
-            this.center = this._center;
-
-            this._shapeBase.addTriggerCallback(this._trrigerCallback);
-            if (!CC_PHYSICS_BUILTIN) {
-                this.sharedBody.body.addCollisionCallback(this._collisionCallBack);
-            }
-            // sync after add shape
-            this.sharedBody.syncPhysWithScene();
+            this._shapeBase.onEnable!();
         }
     }
 
     protected onDisable () {
-        if (!CC_EDITOR) {
-            this._shapeBase.removeTriggerCallback(this._trrigerCallback);
-            if (!CC_PHYSICS_BUILTIN) {
-                this.sharedBody.body.removeCollisionCllback(this._collisionCallBack);
-            }
-            this.sharedBody.body.removeShape(this._shapeBase!);
+        // if (!CC_EDITOR) {
+        //     this._shapeBase.removeTriggerCallback(this._trrigerCallback);
+        //     if (!CC_PHYSICS_BUILTIN) {
+        //         this.sharedBody.body.removeCollisionCllback(this._collisionCallBack);
+        //     }
+        //     this.sharedBody.body.removeShape(this._shapeBase!);
 
-            // TODO : Change to determine the reference count
-            if (this.sharedBody.isShapeOnly) {
-                super.onDisable();
-            }
+        //     // TODO : Change to determine the reference count
+        //     if (this.sharedBody.isShapeOnly) {
+        //         super.onDisable();
+        //     }
+        // }
+        if (!CC_EDITOR) {
+            this._shapeBase.onDisable!();
         }
     }
 
     protected onDestroy () {
+        // if (!CC_EDITOR) {
+        //     this.sharedBody.body.removeShape(this._shapeBase!);
+        //     if (!CC_PHYSICS_BUILTIN) {
+        //         if (this._material != null) {
+        //             if (this._material._uuid != PhysicsSystem.instance.defaultMaterial!._uuid) {
+        //                 this._material.destroy();
+        //                 this._material = null;
+        //             }
+        //         }
+        //     }
+        // }
         if (!CC_EDITOR) {
-            this.sharedBody.body.removeShape(this._shapeBase!);
-            if (!CC_PHYSICS_BUILTIN) {
-                if (this._material != null) {
-                    if (this._material._uuid != PhysicsSystem.instance.defaultMaterial!._uuid) {                        
-                        this._material.destroy();
-                        this._material = null;
-                    }
-                }
-            }
+            this._shapeBase.onDestroy!();
         }
-        super.onDestroy();
     }
 
     private _updateMaterial () {
-        if (!CC_PHYSICS_BUILTIN) {
+        if (!CC_EDITOR) {
             this._shapeBase.material = this._material;
         }
     }
 
-    private _onTrigger (event: ITriggerEvent) {
-        this.emit(event.type, event);
-    }
-
-    private _onCollision (event: ICollisionEvent) {
-        this.emit(event.type, event);
-    }
 }
 
 applyMixins(ColliderComponent, [CallbacksInvoker, EventTarget]);

@@ -55,13 +55,13 @@ export interface BuiltInWorldBase {
 
     step (deltaTime: number, ...args: any): void;
 
-    addBeforeStep (cb: BeforeStepCallback): void;
+    // addBeforeStep (cb: BeforeStepCallback): void;
 
-    removeBeforeStep (cb: BeforeStepCallback): void;
+    // removeBeforeStep (cb: BeforeStepCallback): void;
 
-    addAfterStep (cb: AfterStepCallback): void;
+    // addAfterStep (cb: AfterStepCallback): void;
 
-    removeAfterStep (cb: AfterStepCallback): void;
+    // removeAfterStep (cb: AfterStepCallback): void;
 
     /**
      * Ray cast, and return information of the closest hit.

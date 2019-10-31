@@ -9,6 +9,9 @@ import { CannonShape } from './shapes/cannon-shape';
 import { PhysicMaterial } from '../assets/physic-material';
 import { ray } from '../../core/geom-utils';
 import { RecyclePool } from '../../core';
+import { CannonRigidBody } from './cannon-body';
+import { PhysicsSystem } from '../components';
+import { string } from '../../core/data/class-decorator';
 
 export class CannonWorld implements PhysicsWorldBase {
 
@@ -16,19 +19,29 @@ export class CannonWorld implements PhysicsWorldBase {
         return this._world;
     }
     private _world: CANNON.World;
-    private _customBeforeStepListener: BeforeStepCallback[] = [];
-    private _customAfterStepListener: AfterStepCallback[] = [];
     private _raycastResult = new CANNON.RaycastResult();
 
+    public rigidBodes: CannonRigidBody[] = [];
+    public static
+    public idToBodes: { [x: string]: CANNON.Body | null; } = {};
+    public physicsSystem!: PhysicsSystem;
     constructor () {
         this._world = new CANNON.World();
-        setWrap<PhysicsWorldBase>(this._world, this);
         this._world.broadphase = new CANNON.NaiveBroadphase();
     }
 
     // public get defaultMaterial () {
     //     return this.defaultMaterial;
     // }
+
+    public getBody (uuid: string): CANNON.Body {
+        if (this.idToBodes[uuid] != null) {
+            return this.idToBodes[uuid] as CANNON.Body;
+        } else {
+            this.idToBodes[uuid] = new CANNON.Body();
+            return this.idToBodes[uuid] as CANNON.Body;
+        }
+    }
 
     public set defaultMaterial (mat: PhysicMaterial) {
         this._world.defaultMaterial.friction = mat.friction;
@@ -61,38 +74,18 @@ export class CannonWorld implements PhysicsWorldBase {
     // }
 
     public step (deltaTime: number, time?: number, maxSubStep?: number) {
-        this._callCustomBeforeSteps();
+        for (let i = 0; i < this.rigidBodes.length; i++) {
+            this.rigidBodes[i].syncSceneToPhysics();
+        }
+
         this._world.step(deltaTime, time, maxSubStep);
-        this._callCustomAfterSteps();
+
+        for (let i = 0; i < this.rigidBodes.length; i++) {
+            this.rigidBodes[i].syncPhysicsToScene();
+        }
+
         this._world.emitTriggeredEvents();
         this._world.emitCollisionEvents();
-
-        // hack, node transform may be dirty
-        this._callCustomBeforeSteps();
-    }
-
-    public addBeforeStep (cb: BeforeStepCallback) {
-        this._customBeforeStepListener.push(cb);
-    }
-
-    public removeBeforeStep (cb: BeforeStepCallback) {
-        const i = this._customBeforeStepListener.indexOf(cb);
-        if (i < 0) {
-            return;
-        }
-        this._customBeforeStepListener.splice(i, 1);
-    }
-
-    public addAfterStep (cb: AfterStepCallback) {
-        this._customAfterStepListener.push(cb);
-    }
-
-    public removeAfterStep (cb: AfterStepCallback) {
-        const i = this._customAfterStepListener.indexOf(cb);
-        if (i < 0) {
-            return;
-        }
-        this._customAfterStepListener.splice(i, 1);
     }
 
     public raycastClosest (worldRay: ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
@@ -126,14 +119,6 @@ export class CannonWorld implements PhysicsWorldBase {
 
     public removeConstraint (constraint: CannonConstraint) {
         this._world.removeConstraint(constraint.impl);
-    }
-
-    private _callCustomBeforeSteps () {
-        this._customBeforeStepListener.forEach((fx) => fx());
-    }
-
-    private _callCustomAfterSteps () {
-        this._customAfterStepListener.forEach((fx) => fx());
     }
 }
 

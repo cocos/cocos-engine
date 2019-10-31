@@ -5,41 +5,156 @@ import { ERigidBodyType } from '../physic-enum';
 import { getWrap, setWrap, stringfyVec3 } from '../util';
 import { CannonWorld } from './cannon-world';
 import { CannonShape } from './shapes/cannon-shape';
+import { IRigidBody } from '../spec/IRigidBody';
+import { RigidBodyComponent } from '../components/rigid-body-component';
+import { ColliderComponent, PhysicsSystem } from '../../../exports/physics-framework';
+import { INode } from '../../core/utils/interfaces';
 
-export class CannonRigidBody implements RigidBodyBase {
+/**
+ * sharedbody, node : sharedbody = 1 : 1
+ * static
+ */
+export class CannonSharedBody {
+    private _node: INode;
+    private _body: CANNON.Body;
+    private _shapes: CannonShape[] = [];
+
+    
+
+    addShape (shape: CannonShape) {
+        const offset = Vec3.subtract(new Vec3(), shape.collider.node.worldPosition, this._node.worldPosition);
+        offset.add(shape.collider.center);
+        this._body.addShape(shape.impl, new CANNON.Vec3(offset.x, offset.y, offset.z));
+        this._shapes.push(shape);
+        shape.setBody(this._body, this._body.shapes.length - 1);
+    }
+
+    removeShape (shape: CannonShape) {
+        const index = this._shapes.indexOf(shape);
+        if (index >= 0) {
+            this._shapes.splice(index, 1);
+            (this._body as any).removeShape(shape.impl);
+            shape.setBody(null as any, -1);
+        }
+    }
+
+    syncSceneToPhysics () {
+        if (this._node.hasChangedFlags) {
+            Vec3.copy(this._body.position, this._node.worldPosition);
+            Quat.copy(this._body.quaternion, this._node.worldRotation);
+        }
+    }
+}
+
+/**
+ * wraped shared body
+ * dynamic
+ * kinematic
+ */
+export class CannonRigidBody implements IRigidBody {
 
     get impl (): CANNON.Body {
         return this._body;
     }
 
+    private _shareBody: CannonSharedBody;
     private _body: CANNON.Body;
+    index: number = -1;
     private _onCollidedListener: (event: CANNON.ICollisionEvent) => any;
-    private _collisionCallbacks: ICollisionCallback[] = [];
     private _shapes: CannonShape[] = [];
-    private _userData: any;
-    private _world: CannonWorld | null = null;
-    private _name: string;
+    private _world!: CannonWorld;
+
+    rigidBody!: RigidBodyComponent;
 
     constructor (options?: ICreateBodyOptions) {
-        options = options || {};
-        this._name = options.name || '';
-        this._body = new CANNON.Body({
-            type: ERigidBodyType.DYNAMIC,
-        });
-        setWrap<RigidBodyBase>(this._body, this);
-
-        this._body.sleepSpeedLimit = 0.1; // Body will feel sleepy if speed<1 (speed == norm of velocity)
-        this._body.sleepTimeLimit = 1; // Body falls asleep after 1s of sleepiness
-
+        super();
         this._onCollidedListener = this._onCollided.bind(this);
     }
 
+    /** LIFECYCLE */
+
+    __preload () {
+        this._world = PhysicsSystem.instance._world as CannonWorld;
+        this._body = this._world.getBody(this.rigidBody.node.uuid);
+        this._body.addEventListener('collide', this._onCollidedListener);
+    }
+
+    onLoad () {
+        /** initialize */
+        const colliders = this.rigidBody.getComponents(ColliderComponent);
+        let hasEnabled = false;
+        if (colliders.length > 0) {
+            for (let i = 0; i < colliders.length; i++) {
+                if (colliders[i].enabled) {
+                    hasEnabled = true;
+                }
+            }
+        }
+
+        if (hasEnabled) {
+            this._world.impl.addBody(this._body);
+            this.index = this._world.impl.bodies.length - 1;
+        }
+    }
+
+    onEnable () {
+        if (this.index < 0) { this._world.impl.addBody(this._body); }
+        this.mass = this.rigidBody.mass;
+        this.allowSleep = this.rigidBody.allowSleep;
+        this.linearDamping = this.rigidBody.linearDamping;
+        this.angularDamping = this.rigidBody.angularDamping;
+        this.useGravity = this.rigidBody.useGravity;
+        this.isKinematic = this.rigidBody.isKinematic;
+        this.fixedRotation = this.rigidBody.fixedRotation;
+        this.linearFactor = this.rigidBody.linearFactor;
+        this.angularFactor = this.rigidBody.angularFactor;
+    }
+
+    onDisable () {
+        this._world.impl.remove(this._body);
+        this.index = -1;
+    }
+
+    onDestroy () {
+
+    }
+
+    /** */
+
+    addShape (shape: CannonShape) {
+        const offset = Vec3.subtract(new Vec3(), shape.collider.node.worldPosition, this.rigidBody.node.worldPosition);
+        offset.add(shape.collider.center);
+        this._body.addShape(shape.impl, new CANNON.Vec3(offset.x, offset.y, offset.z));
+        this._shapes.push(shape);
+        shape.setBody(this._body, this._body.shapes.length - 1);
+    }
+
+    removeShape (shape: CannonShape) {
+        const index = this._shapes.indexOf(shape);
+        if (index >= 0) {
+            this._shapes.splice(index, 1);
+            (this._body as any).removeShape(shape.impl);
+            shape.setBody(null as any, -1);
+        }
+    }
+
+    syncSceneToPhysics () {
+        Vec3.copy(this._body.position, this.rigidBody.node.worldPosition);
+        Quat.copy(this._body.quaternion, this.rigidBody.node.worldRotation);
+    }
+
+    syncPhysicsToScene () {
+        this.rigidBody.node.worldPosition = Vec3.clone(this._body.position);
+        this.rigidBody.node.worldRotation = Quat.clone(this._body.quaternion);
+    }
+
+
     /** allow sleep */
-    public getAllowSleep (): boolean {
+    public get allowSleep (): boolean {
         return this._body.allowSleep;
     }
 
-    public setAllowSleep (v: boolean): void {
+    public set allowSleep (v: boolean) {
         if (this._body.isSleeping()) {
             this._body.wakeUp();
         }
@@ -87,54 +202,19 @@ export class CannonRigidBody implements RigidBodyBase {
         return this._body.sleep();
     }
 
-    public name () {
-        return this._name;
-    }
-
-    public getType (): ERigidBodyType {
-        return this._body.type;
-    }
-
-    public setType (v: ERigidBodyType): void {
-        this._body.type = v;
-    }
-
-    public isAwake (): boolean {
+    public get isAwake (): boolean {
         return this._body.isAwake();
     }
 
-    public isSleepy (): boolean {
+    public get isSleepy (): boolean {
         return this._body.isSleepy();
     }
 
-    public isSleeping (): boolean {
+    public get isSleeping (): boolean {
         return this._body.isSleeping();
     }
 
-    public addShape (shape: CannonShape, offset?: Vec3) {
-        this._shapes.push(shape);
-        if (offset != null) {
-            this._body.addShape(shape.impl, Vec3.copy(_tCannonV1, offset));
-        } else {
-            this._body.addShape(shape.impl);
-        }
-        shape.setBody(this._body, this._shapes.length - 1);
-    }
-
-    public removeShape (shape: CannonShape) {
-        const index = this._shapes.indexOf(shape);
-        if (index >= 0) {
-            this._shapes.splice(index, 1);
-            (this._body as any).removeShape(shape.impl);
-            shape.setBody(null, -1);
-        }
-    }
-
-    public getMass () {
-        return this._body.mass;
-    }
-
-    public setMass (value: number) {
+    public set mass (value: number) {
 
         if (this._body.isSleeping()) {
             this._body.wakeUp();
@@ -144,11 +224,7 @@ export class CannonRigidBody implements RigidBodyBase {
         this._body.updateMassProperties();
     }
 
-    public getIsKinematic () {
-        return this._body.type === CANNON.Body.KINEMATIC;
-    }
-
-    public setIsKinematic (value: boolean) {
+    public set isKinematic (value: boolean) {
         if (value) {
             this._body.type = CANNON.Body.KINEMATIC;
         } else {
@@ -156,27 +232,33 @@ export class CannonRigidBody implements RigidBodyBase {
         }
     }
 
-    public getLinearDamping () {
+    public set fixedRotation (value: boolean) {
+
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+
+        this._body.fixedRotation = value;
+        this._body.updateMassProperties();
+    }
+
+    public get linearDamping () {
         return this._body.linearDamping;
     }
 
-    public setLinearDamping (value: number) {
+    public set linearDamping (value: number) {
         this._body.linearDamping = value;
     }
 
-    public getAngularDamping () {
+    public get angularDamping () {
         return this._body.angularDamping;
     }
 
-    public setAngularDamping (value: number) {
+    public set angularDamping (value: number) {
         this._body.angularDamping = value;
     }
 
-    public getUseGravity (): boolean {
-        return this._body.useGravity;
-    }
-
-    public setUseGravity (value: boolean) {
+    public set useGravity (value: boolean) {
 
         if (this._body.isSleeping()) {
             this._body.wakeUp();
@@ -185,17 +267,22 @@ export class CannonRigidBody implements RigidBodyBase {
         this._body.useGravity = value;
     }
 
-    public getCollisionResponse (): boolean {
-        return this._body.collisionResponse;
-    }
-
-    public setCollisionResponse (value: boolean): void {
+    public set linearFactor (value: Vec3) {
 
         if (this._body.isSleeping()) {
             this._body.wakeUp();
         }
 
-        this._body.collisionResponse = !value;
+        Vec3.copy(this._body.linearFactor, value);
+    }
+
+    public set angularFactor (value: Vec3) {
+
+        if (this._body.isSleeping()) {
+            this._body.wakeUp();
+        }
+
+        Vec3.copy(this._body.angularFactor, value);
     }
 
     public getLinearVelocity (out: Vec3): Vec3 {
@@ -224,48 +311,6 @@ export class CannonRigidBody implements RigidBodyBase {
         }
 
         Vec3.copy(this._body.angularVelocity, value);
-    }
-
-    public getLinearFactor (out: Vec3): Vec3 {
-        Vec3.copy(out, this._body.linearFactor);
-        return out;
-    }
-
-    public setLinearFactor (value: Vec3): void {
-
-        if (this._body.isSleeping()) {
-            this._body.wakeUp();
-        }
-
-        Vec3.copy(this._body.linearFactor, value);
-    }
-
-    public getAngularFactor (out: Vec3): Vec3 {
-        Vec3.copy(out, this._body.angularFactor);
-        return out;
-    }
-
-    public setAngularFactor (value: Vec3): void {
-
-        if (this._body.isSleeping()) {
-            this._body.wakeUp();
-
-        }
-        Vec3.copy(this._body.angularFactor, value);
-    }
-
-    public getFreezeRotation (): boolean {
-        return this._body.fixedRotation;
-    }
-
-    public setFreezeRotation (value: boolean) {
-
-        if (this._body.isSleeping()) {
-            this._body.wakeUp();
-        }
-
-        this._body.fixedRotation = value;
-        this._body.updateMassProperties();
     }
 
     public applyForce (force: Vec3, worldPoint?: Vec3) {
@@ -336,79 +381,11 @@ export class CannonRigidBody implements RigidBodyBase {
         this._body.torque.z += _tCannonV1.z;
     }
 
-    public setWorld (world: PhysicsWorldBase | null) {
-        if (this._world) {
-            this._body.removeEventListener('collide', this._onCollidedListener);
-            this._body.world.remove(this._body);
-            this._world = null;
-        }
-
-        const cworld = world as unknown as (CannonWorld | null);
-        if (cworld) {
-            cworld.impl.addBody(this._body);
-            this._body.addEventListener('collide', this._onCollidedListener);
-            if (this._body.material == null) {
-                this._body.material = cworld.impl.defaultMaterial;
-            }
-        }
-        this._world = cworld;
-    }
-
-    public getPosition (out: Vec3) {
-        Vec3.copy(out, this._body.position);
-    }
-
-    public setPosition (value: Vec3) {
-        Vec3.copy(this._body.position, value);
-    }
-
-    public getRotation (out: Quat) {
-        Quat.copy(out, this._body.quaternion);
-    }
-
-    public setRotation (value: Quat) {
-        Quat.copy(this._body.quaternion, value);
-        // console.log(`[[CANNON]] Set body rotation to ${stringfyQuat(value)}.`);
-    }
-
-    public translateAndRotate (m: Mat4, rot: Quat): void {
-        Mat4.getTranslation(this._body.position, m);
-        Quat.copy(this._body.quaternion, rot);
-    }
-
-    public scaleAllShapes (scale: Vec3) {
-        for (const shape of this._shapes) {
-            shape.setScale(scale);
-        }
-    }
-
-    public addCollisionCallback (callback: ICollisionCallback): void {
-        this._collisionCallbacks.push(callback);
-    }
-
-    public removeCollisionCllback (callback: ICollisionCallback): void {
-        const i = this._collisionCallbacks.indexOf(callback);
-        if (i >= 0) {
-            this._collisionCallbacks.splice(i, 1);
-        }
-    }
-
-    public getUserData (): any {
-        return this._userData;
-    }
-
-    public setUserData (data: any): void {
-        this._userData = data;
-    }
-
-    public _stringfyThis () {
-        return `${this._name.length ? this._name : '<No-name>'}`;
-    }
-
-    public _devStrinfy () {
-        const shapes = this._body.shapes.map((s) => getWrap<CannonShape>(s)._devStrinfy()).join('; ');
-        return `Name: [[${this._name.length ? this._name : '<No-name>'}]], position: ${stringfyVec3(this._body.position)}, shapes: [${shapes}]`;
-    }
+    // public scaleAllShapes (scale: Vec3) {
+    //     for (const shape of this._shapes) {
+    //         shape.setScale(scale);
+    //     }
+    // }
 
     private _onCollided (event: CANNON.ICollisionEvent) {
         CollisionEventObject.type = event.event;
@@ -416,13 +393,12 @@ export class CannonRigidBody implements RigidBodyBase {
         CollisionEventObject.otherCollider = getWrap<ShapeBase>(event.otherShape).getUserData();
         // CollisionEventObject.selfRigidBody = getWrap<RigidBodyBase>(event.target).getUserData();
         // CollisionEventObject.otherRigidBody = getWrap<RigidBodyBase>(event.body).getUserData();
+
         let i = 0;
-        // tslint:disable-next-line:prefer-for-of
         for (i = CollisionEventObject.contacts.length; i--;) {
             contactsPool.push(CollisionEventObject.contacts.pop());
         }
 
-        // tslint:disable-next-line:prefer-for-of
         for (i = 0; i < event.contacts.length; i++) {
             const cq = event.contacts[i];
             if (contactsPool.length > 0) {
@@ -441,10 +417,9 @@ export class CannonRigidBody implements RigidBodyBase {
             }
         }
 
-        // tslint:disable-next-line:prefer-for-of
-        for (i = 0; i < this._collisionCallbacks.length; i++) {
-            const callback = this._collisionCallbacks[i];
-            callback(CollisionEventObject);
+        for (i = 0; i < this._shapes.length; i++) {
+            const shape = this._shapes[i];
+            shape.collider.emit(CollisionEventObject.type, CollisionEventObject);
         }
     }
 

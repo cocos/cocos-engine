@@ -13,6 +13,7 @@ import { Vec3 } from '../../../core/math';
 import { BoxShapeBase } from '../../api';
 import { createBoxShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
+import { IBoxShape } from '../../spec/IPhysicsSpahe';
 
 /**
  * @zh
@@ -24,7 +25,9 @@ import { ColliderComponent } from './collider-component';
 @executeInEditMode
 export class BoxColliderComponent extends ColliderComponent {
 
-    private _shape!: BoxShapeBase;
+    private get _shape (): IBoxShape {
+        return this._shapeBase as IBoxShape;
+    }
 
     /// PRIVATE PROPERTY ///
 
@@ -33,23 +36,23 @@ export class BoxColliderComponent extends ColliderComponent {
 
     constructor () {
         super();
-        if (!CC_EDITOR) {
-            this._shape = createBoxShape(this._size);
-            this._shape.setUserData(this);
-            this._shapeBase = this._shape;
-        }
+        // if (!CC_EDITOR) {
+        //     this._shape = createBoxShape(this._size);
+        //     this._shape.setUserData(this);
+        //     this._shapeBase = this._shape;
+        // }
     }
 
     /// COMPONENT LIFECYCLE ///
 
-    protected onLoad () {
-        super.onLoad();
+    // protected onLoad () {
+    //     super.onLoad();
 
-        if (!CC_EDITOR) {
-            this.size = this._size;
-            this._shape.setScale(this.node.worldScale);
-        }
-    }
+    //     // if (!CC_EDITOR) {
+    //     //     this.size = this._size;
+    //     //     this._shape.setScale(this.node.worldScale);
+    //     // }
+    // }
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -70,11 +73,11 @@ export class BoxColliderComponent extends ColliderComponent {
     public set size (value) {
         Vec3.copy(this._size, value);
 
-        if (!CC_EDITOR) {
-            this._shape.setSize(this._size);
-            if (CC_PHYSICS_BUILTIN) {
-                this._shape.setScale(this.node.worldScale);
-            }
-        }
+        // if (!CC_EDITOR) {
+        //     this._shape.setSize(this._size);
+        //     if (CC_PHYSICS_BUILTIN) {
+        //         this._shape.setScale(this.node.worldScale);
+        //     }
+        // }
     }
 }

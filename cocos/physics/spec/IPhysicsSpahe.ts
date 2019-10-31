@@ -1,7 +1,10 @@
 import { ILifecycle } from './ILifecycle'
 import { IVec3Like } from '../../core/math/type-define';
+import { ColliderComponent } from '../../../exports/physics-framework';
 
 export interface IBaseShape extends ILifecycle {
+    collider: ColliderComponent;
+
     material: any;
     isTrigger: boolean;
     center: IVec3Like;
