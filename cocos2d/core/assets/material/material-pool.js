@@ -5,10 +5,13 @@ let _pool = {};
 
 export function getMaterial (exampleMat, renderComponent) {
     let instance;
-    let uuid = exampleMat.effectAsset._uuid;
-    if (_pool[uuid]) {
-        let key = utils.serializeDefines(exampleMat._effect._defines);
-        instance = _pool[uuid][key] && _pool[uuid][key].pop();
+
+    if (!CC_EDITOR) {
+        let uuid = exampleMat.effectAsset._uuid;
+        if (_pool[uuid]) {
+            let key = utils.serializeDefines(exampleMat._effect._defines);
+            instance = _pool[uuid][key] && _pool[uuid][key].pop();
+        }
     }
 
     if (!instance) {
