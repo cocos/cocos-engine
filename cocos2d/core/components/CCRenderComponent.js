@@ -115,9 +115,11 @@ let RenderComponent = cc.Class({
         }
         materials.length = 0;
 
-        if (CC_JSB && CC_NATIVERENDERER) {
-            this._assembler && this._assembler.destroy && this._assembler.destroy();
-        }
+        Assembler.recycle(this._assembler);
+
+        // if (CC_JSB && CC_NATIVERENDERER) {
+        //     this._assembler && this._assembler.destroy && this._assembler.destroy();
+        // }
     },
 
     setVertsDirty () {

@@ -1,6 +1,9 @@
 import { vfmtPosUvColor } from './webgl/vertex-format';
 
 export default class Assembler {
+    constructor () {
+        this._extendNative && this._extendNative();
+    }
     init (renderComp) {
         this._renderComp = renderComp;
     }
@@ -16,6 +19,7 @@ export default class Assembler {
     }
 }
 
+let _pool = {};
 
 Assembler.register = function (renderCompCtor, assembler) {
     renderCompCtor.__assembler__ = assembler;
@@ -37,9 +41,21 @@ Assembler.init = function (renderComp) {
     }
     
     if (!renderComp._assembler || renderComp._assembler.constructor !== assemblerCtor) {
-        renderComp._assembler = new assemblerCtor();
-        renderComp._assembler.init(renderComp);
+        let assembler = _pool[assemblerCtor.name] && _pool[assemblerCtor.name].pop();
+        if (!assembler) {
+            assembler = new assemblerCtor();
+        }
+        assembler.init(renderComp);
+        renderComp._assembler = assembler;
     }
 };
+
+Assembler.recycle = function (assembler) {
+    let ctorName = assembler.constructor.name;
+    if (!_pool[ctorName]) {
+        _pool[ctorName] = []
+    }
+    _pool[ctorName].push(assembler);
+}
 
 cc.Assembler = Assembler;
