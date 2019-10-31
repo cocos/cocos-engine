@@ -3,7 +3,7 @@
  */
 
 import * as easing from './animation/easing';
-import { EffectAsset } from './assets/effect-asset';
+import { EffectAsset, ITechniqueInfo, IShaderInfo } from './assets/effect-asset';
 import { Material } from './assets/material';
 import { GFXBuffer } from './gfx/buffer';
 import { GFXCommandBuffer } from './gfx/command-buffer';
@@ -47,7 +47,7 @@ export class SplashScreen {
     private cancelAnimate: boolean = false;
     private startTime: number = -1;
     private setting!: ISplashSetting;
-    private image!: HTMLImageElement;
+    private image!: TexImageSource;
     private device!: GFXDevice;
     private cmdBuff!: GFXCommandBuffer;
     private assmebler!: GFXInputAssembler;
@@ -64,6 +64,21 @@ export class SplashScreen {
 
     private _splashFinish: boolean = false;
     private _loadFinish: boolean = false;
+
+    /** text */
+    private textImg!: TexImageSource;
+    private textRegion!: GFXBufferTextureCopy;
+    private textTexture!: GFXTexture;
+    private textTextureView!: GFXTextureView;
+    private textVB!: GFXBuffer;
+    private textIB!: GFXBuffer;
+    private textAssmebler!: GFXInputAssembler;
+    private textMaterial!: Material;
+    private textPSO!: GFXPipelineState;
+
+    /** shader */
+    private program!: { name: string, techniques: any[], shaders: any[] };
+    private effect!: EffectAsset;
 
     public main (device: GFXDevice) {
         if (window._CCSettings && window._CCSettings.SplashScreen) {
@@ -94,6 +109,59 @@ export class SplashScreen {
                 cc.director._lateUpdate = performance.now();
             }, cc.director);
 
+            // this.program = effects.find(function (element) {
+            //     return element.name == 'util/splash-image';
+            // });
+
+            this.program = {
+                name: 'util/splash-image',
+                techniques: [
+                    {
+                        passes: [{
+                            blendState: { targets: [{ blend: true, blendSrc: 2, blendDst: 4, blendDstAlpha: 4 }] },
+                            program: 'util/splash-image|splash-vs:vert|splash-fs:frag',
+                            depthStencilState: { depthTest: true, depthWrite: false },
+                            properties: { mainTexture: { value: 'grey', type: 28 }, u_precent: { type: 13 } }
+                        }],
+                    },
+                ],
+                shaders: [
+                    {
+                        name: 'util/splash-image|splash-vs:vert|splash-fs:frag',
+                        hash: 2381344969,
+                        glsl3: {
+                            // tslint:disable: max-line-length
+                            vert: `\nprecision mediump float;\nin vec2 a_position;\nin vec2 a_texCoord;\nout vec2 v_uv;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 0, 1);\n  v_uv = a_texCoord;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
+                            frag: `\nprecision mediump float;\nin vec2 v_uv;\nuniform sampler2D mainTexture;\nuniform splashFrag {\n  float u_precent;\n};\nvec4 frag () {\n  vec4 color = texture(mainTexture, v_uv);\n  float precent = clamp(u_precent, 0.0, 1.0);\n  color.xyz *= precent;\n  return color;\n}\nout vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }\n`,
+                        },
+                        glsl1: {
+                            vert: `\nprecision mediump float;\nattribute vec2 a_position;\nattribute vec2 a_texCoord;\nvarying vec2 v_uv;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 0, 1);\n  v_uv = a_texCoord;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
+                            frag: `\nprecision mediump float;\nvarying vec2 v_uv;\nuniform sampler2D mainTexture;\nuniform float u_precent;\nvec4 frag () {\n  vec4 color = texture2D(mainTexture, v_uv);\n  float precent = clamp(u_precent, 0.0, 1.0);\n  color.xyz *= precent;\n  return color;\n}\nvoid main() { gl_FragColor = frag(); }\n`,
+                            // tslint:enable: max-line-length
+                        },
+                        builtins: { globals: { blocks: [], samplers: [] }, locals: { blocks: [], samplers: [] } },
+                        defines: [],
+                        blocks: [
+                            {
+                                name: 'splashFrag', defines: [], binding: 0, members: [
+                                    { name: 'u_precent', type: 13, count: 1 },
+                                ],
+                            },
+                        ],
+                        samplers: [
+                            { name: 'mainTexture', type: 28, count: 1, defines: [], binding: 30 },
+                        ],
+                        dependencies: {},
+                    },
+                ],
+            };
+
+            this.effect = new EffectAsset();
+            this.effect.name = this.program.name;
+            this.effect.techniques = this.program.techniques;
+            this.effect.shaders = this.program.shaders;
+            this.effect.onLoaded();
+
             this.callBack = null;
             this.cancelAnimate = false;
             this.startTime = -1;
@@ -122,6 +190,7 @@ export class SplashScreen {
         this.initCMD();
         this.initIA();
         this.initPSO();
+        this.initText();
 
         const animate = (time: number) => {
             if (this.cancelAnimate) {
@@ -137,6 +206,9 @@ export class SplashScreen {
             const precent = clamp01(elapsedTime / this.setting.totalTime);
             this.material.setProperty('u_precent', easing.cubicOut(precent));
             this.material.passes[0].update();
+
+            this.textMaterial.setProperty('u_precent', easing.cubicOut(precent));
+            this.textMaterial.passes[0].update();
 
             this.frame(time);
 
@@ -157,24 +229,149 @@ export class SplashScreen {
 
     private frame (time: number) {
         const device = this.device;
-        const pso = this.pso;
         const cmdBuff = this.cmdBuff;
         const framebuffer = this.framebuffer;
         const renderArea = this.renderArea;
-        const assmebler = this.assmebler;
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(framebuffer, renderArea,
             GFXClearFlag.ALL, this.clearColors, 1.0, 0);
-        cmdBuff.bindPipelineState(pso);
-        cmdBuff.bindBindingLayout(pso.pipelineLayout.layouts[0]);
-        cmdBuff.bindInputAssembler(assmebler);
-        cmdBuff.draw(assmebler);
+
+        cmdBuff.bindPipelineState(this.pso);
+        cmdBuff.bindBindingLayout(this.pso.pipelineLayout.layouts[0]);
+        cmdBuff.bindInputAssembler(this.assmebler);
+        cmdBuff.draw(this.assmebler);
+
+        cmdBuff.bindPipelineState(this.textPSO);
+        cmdBuff.bindBindingLayout(this.textPSO.pipelineLayout.layouts[0]);
+        cmdBuff.bindInputAssembler(this.textAssmebler);
+        cmdBuff.draw(this.textAssmebler);
+
         cmdBuff.endRenderPass();
         cmdBuff.end();
 
         device.queue.submit([cmdBuff]);
         device.present();
+    }
+
+    private initText () {
+        /** texure */
+        this.textImg = document.createElement('canvas');
+        this.textImg.width = 300;
+        this.textImg.height = 30;
+        this.textImg.style.width = `${this.textImg.width}`;
+        this.textImg.style.height = `${this.textImg.height}`;
+
+        const ctx = this.textImg.getContext('2d')!;
+        ctx.font = `${18}px Arial`
+        ctx.textBaseline = 'top';
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '`#424242`';
+        ctx.fillText("Powered by Cocos Creator 3D", 30, 8);
+
+        this.textRegion = new GFXBufferTextureCopy();
+        this.textRegion.texExtent.width = this.textImg.width;
+        this.textRegion.texExtent.height = this.textImg.height;
+        this.textRegion.texExtent.depth = 1;
+
+        this.textTexture = this.device.createTexture({
+            type: GFXTextureType.TEX2D,
+            usage: GFXTextureUsageBit.SAMPLED,
+            format: GFXFormat.RGBA8,
+            width: this.textImg.width,
+            height: this.textImg.height,
+            mipLevel: 1,
+        });
+
+        this.textTextureView = this.device.createTextureView({
+            texture: this.textTexture,
+            type: GFXTextureViewType.TV2D,
+            format: GFXFormat.RGBA8,
+        });
+
+        this.device.copyTexImagesToTexture([this.textImg], this.textTexture, [this.textRegion]);
+
+
+        /** PSO */
+        this.textMaterial = new Material();
+        this.textMaterial.initialize({
+            effectAsset: this.effect,
+        });
+
+        const pass = this.textMaterial.passes[0];
+        const binding = pass.getBinding('mainTexture');
+        pass.bindTextureView(binding!, this.textTextureView!);
+
+        this.textPSO = pass.createPipelineState() as GFXPipelineState;
+        this.textPSO.pipelineLayout.layouts[0].update();
+
+        /** Assembler */
+        // create vertex buffer
+        const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
+        const vbSize = vbStride * 4;
+        this.textVB = this.device.createBuffer({
+            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: vbSize,
+            stride: vbStride,
+        });
+
+        const verts = new Float32Array(4 * 4);
+        let w = -this.textImg.width / 2;
+        let h = -this.textImg!.height / 2;
+        if (this.device.width < this.device.height) {
+            w = -this.device.width / 2 * 0.5;
+            h = w / (this.textImg.width / this.textImg.height);
+        } else {
+            w = -this.device.height / 2 * 0.5;
+            h = w / (this.textImg.width / this.textImg.height);
+        }
+        let n = 0;
+        verts[n++] = w; verts[n++] = h; verts[n++] = 0.0; verts[n++] = 1.0;
+        verts[n++] = -w; verts[n++] = h; verts[n++] = 1.0; verts[n++] = 1.0;
+        verts[n++] = w; verts[n++] = -h; verts[n++] = 0.0; verts[n++] = 0.0;
+        verts[n++] = -w; verts[n++] = -h; verts[n++] = 1.0; verts[n++] = 0.0;
+
+        // translate to bottom
+        for (let i = 0; i < verts.length; i += 4) {
+            verts[i] = verts[i] + this.device.width / 2;
+            verts[i + 1] = verts[i + 1] + this.device.height * 0.1;
+        }
+
+        // transform to clipspace
+        for (let i = 0; i < verts.length; i += 4) {
+            verts[i] = verts[i] / this.device.width * 2 - 1;
+            verts[i + 1] = verts[i + 1] / this.device.height * 2 - 1;
+        }
+
+        this.textVB.update(verts);
+
+        // create index buffer
+        const ibStride = Uint8Array.BYTES_PER_ELEMENT;
+        const ibSize = ibStride * 6;
+
+        this.textIB = this.device.createBuffer({
+            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: ibSize,
+            stride: ibStride,
+        });
+
+        const indices = new Uint8Array(6);
+        indices[0] = 0; indices[1] = 1; indices[2] = 2;
+        indices[3] = 1; indices[4] = 3; indices[5] = 2;
+        this.textIB.update(indices);
+
+        const attributes: IGFXAttribute[] = [
+            { name: 'a_position', format: GFXFormat.RG32F },
+            { name: 'a_texCoord', format: GFXFormat.RG32F },
+        ];
+
+        this.textAssmebler = this.device.createInputAssembler({
+            attributes,
+            vertexBuffers: [this.textVB],
+            indexBuffer: this.textIB,
+        });
     }
 
     private initCMD () {
@@ -264,62 +461,9 @@ export class SplashScreen {
 
         const device = this.device as GFXDevice;
 
-        // const program = effects.find(function (element) {
-        //     return element.name == 'util/splash-image';
-        // });
-
-        const program = {
-            name: 'util/splash-image',
-            techniques: [
-                {
-                    passes: [{
-                        blendState: { targets: [{ blend: true, blendSrc: 2, blendDst: 4, blendDstAlpha: 4 }] },
-                        program: 'util/splash-image|splash-vs:vert|splash-fs:frag',
-                        depthStencilState: { depthTest: true, depthWrite: false },
-                        properties: { mainTexture: { value: 'grey', type: 28 }, u_precent: { type: 13 } }
-                    }],
-                },
-            ],
-            shaders: [
-                {
-                    name: 'util/splash-image|splash-vs:vert|splash-fs:frag',
-                    hash: 2381344969,
-                    glsl3: {
-                        // tslint:disable: max-line-length
-                        vert: `\nprecision mediump float;\nin vec2 a_position;\nin vec2 a_texCoord;\nout vec2 v_uv;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 0, 1);\n  v_uv = a_texCoord;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
-                        frag: `\nprecision mediump float;\nin vec2 v_uv;\nuniform sampler2D mainTexture;\nuniform splashFrag {\n  float u_precent;\n};\nvec4 frag () {\n  vec4 color = texture(mainTexture, v_uv);\n  float precent = clamp(u_precent, 0.0, 1.0);\n  color.xyz *= precent;\n  return color;\n}\nout vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }\n`,
-                    },
-                    glsl1: {
-                        vert: `\nprecision mediump float;\nattribute vec2 a_position;\nattribute vec2 a_texCoord;\nvarying vec2 v_uv;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 0, 1);\n  v_uv = a_texCoord;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
-                        frag: `\nprecision mediump float;\nvarying vec2 v_uv;\nuniform sampler2D mainTexture;\nuniform float u_precent;\nvec4 frag () {\n  vec4 color = texture2D(mainTexture, v_uv);\n  float precent = clamp(u_precent, 0.0, 1.0);\n  color.xyz *= precent;\n  return color;\n}\nvoid main() { gl_FragColor = frag(); }\n`,
-                        // tslint:enable: max-line-length
-                    },
-                    builtins: { globals: { blocks: [], samplers: [] }, locals: { blocks: [], samplers: [] } },
-                    defines: [],
-                    blocks: [
-                        {
-                            name: 'splashFrag', defines: [], binding: 0, members: [
-                                { name: 'u_precent', type: 13, count: 1 },
-                            ],
-                        },
-                    ],
-                    samplers: [
-                        { name: 'mainTexture', type: 28, count: 1, defines: [], binding: 30 },
-                    ],
-                    dependencies: {},
-                },
-            ],
-        };
-
-        const effect = new EffectAsset();
-        effect.name = program!.name;
-        effect.techniques = program!.techniques as any;
-        effect.shaders = program!.shaders;
-        effect.onLoaded();
-
         this.material = new Material();
         this.material.initialize({
-            effectAsset: effect,
+            effectAsset: this.effect,
         });
 
         this.texture = device.createTexture({
@@ -360,6 +504,10 @@ export class SplashScreen {
         (this.framebuffer as any) = null;
         (this.renderArea as any) = null;
         (this.region as any) = null;
+        (this.program as any) = null;
+
+        this.effect.destroy();
+        (this.effect as any) = null;
 
         this.cmdBuff.destroy();
         (this.cmdBuff as any) = null;
@@ -384,6 +532,31 @@ export class SplashScreen {
 
         this.indicesBuffers.destroy();
         (this.indicesBuffers as any) = null;
+
+        /** text */
+        (this.textImg as any) = null;
+        (this.textRegion as any) = null;
+
+        this.textPSO.destroy();
+        (this.textPSO as any) = null;
+
+        this.textMaterial.destroy();
+        (this.textMaterial as any) = null;
+
+        this.textTextureView.destroy();
+        (this.textTextureView as any) = null;
+
+        this.textTexture.destroy();
+        (this.textTexture as any) = null;
+
+        this.textAssmebler.destroy();
+        (this.textAssmebler as any) = null;
+
+        this.textVB.destroy();
+        (this.textVB as any) = null;
+
+        this.textIB.destroy();
+        (this.textIB as any) = null;
 
         delete SplashScreen._ins;
     }
