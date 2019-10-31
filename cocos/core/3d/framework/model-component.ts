@@ -202,11 +202,7 @@ export class ModelComponent extends RenderableComponent {
             return;
         }
 
-        if (this._model && this._model.inited) {
-            this._model.destroy();
-        } else {
-            this._createModel();
-        }
+        this._createModel();
 
         this._updateModelParams();
 
@@ -229,12 +225,12 @@ export class ModelComponent extends RenderableComponent {
                 }
             }
         }
-
     }
 
     protected _createModel () {
         if (!this.node.scene) { return; }
         const scene = this._getRenderScene();
+        if (this._model) { scene.destroyModel(this._model); }
         this._model = scene.createModel(this._getModelConstructor(), this.node);
         this._model.visFlags = this.visibility;
         this._models.length = 0;
