@@ -21,13 +21,13 @@ interface EditorAssetInfo {
 
 interface EditorExtendsScript {
     add(uuid: string, ctor: any): any;
-    delete(uuid: string, ctor: any): any;
+    remove(uuid: string, ctor: any): any;
     getCtors(uuid: string): { [uuid: string]: any }
 }
 
 interface EditorExtendsNode {
     add(uuid: string, node: any): any;
-    delete(uuid: string): any;
+    remove(uuid: string): any;
     clear(): any;
     getNode(uuid: string): any;
     getNodes(): {[uuid: string]: any};
@@ -35,10 +35,10 @@ interface EditorExtendsNode {
 
 interface EditorExtendsComponent {
     addMenu(component: Function, path: string, priority?: number);
-    deleteMenu(component: Function);
+    removeMenu(component: Function);
     getMenus(): { [uuid: string]: Object };
     add(uuid: string, component: any): any;
-    delete(uuid: string): any;
+    remove(uuid: string): any;
     clear(): any;
     getComponent(uuid: string): any;
     getComponents(): {[uuid: string]: any};

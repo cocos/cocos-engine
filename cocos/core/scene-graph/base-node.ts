@@ -386,12 +386,6 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
     constructor (name?: string) {
         super(name);
         this._name = name !== undefined ? name : 'New Node';
-
-        // @ts-ignore
-        if (CC_EDITOR) {
-            // @ts-ignore
-            EditorExtends.Node.add(this._id, this);
-        }
     }
 
     /**
@@ -1041,8 +1035,11 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         const component = new constructor();
         component.node = this;
         this._components.push(component);
-        if ((CC_EDITOR || CC_TEST) && cc.engine && (this._id in cc.engine.attachedObjsForEditor)) {
-            cc.engine.attachedObjsForEditor[component._id] = component;
+        if ((CC_EDITOR || CC_TEST) && EditorExtends.Node && EditorExtends.Component) {
+            let node = EditorExtends.Node.getNode(this._id);
+            if (node) {
+                EditorExtends.Component.add(component._id, component);
+            }
         }
         if (this._activeInHierarchy) {
             cc.director._nodeActivator.activateComp(component);
@@ -1147,8 +1144,8 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             const i = this._components.indexOf(component);
             if (i !== -1) {
                 this._components.splice(i, 1);
-                if ((CC_EDITOR || CC_TEST) && cc.engine) {
-                    delete cc.engine.attachedObjsForEditor[component._id];
+                if ((CC_EDITOR || CC_TEST) && EditorExtends.Component) {
+                    EditorExtends.Component.remove(component._id);
                 }
             }
             // @ts-ignore
@@ -1350,9 +1347,34 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         }
     }
 
-    protected _onSiblingIndexChanged? (siblingIndex: number): void;
+    protected _registerIfAttached = !(CC_EDITOR || CC_TEST) ? undefined : function (this: BaseNode, register) {
+        if (EditorExtends.Node && EditorExtends.Component) {
+            if (register) {         
+                EditorExtends.Node.add(this._id, this);
 
-    protected _registerIfAttached? (attached: boolean): void;
+                for (let i = 0; i < this._components.length; i++) {
+                    let comp = this._components[i];
+                    EditorExtends.Component.add(comp._id, comp);
+                }
+            }
+            else {
+                EditorExtends.Node.remove(this._id);
+
+                for (let i = 0; i < this._components.length; i++) {
+                    let comp = this._components[i];
+                    EditorExtends.Component.remove(comp._id);
+                }
+            }
+        }
+
+        var children = this._children;
+        for (let i = 0, len = children.length; i < len; ++i) {
+            var child = children[i];
+            child._registerIfAttached!(register);
+        }
+    };
+
+    protected _onSiblingIndexChanged? (siblingIndex: number): void;
 
     protected _checkMultipleComp? (constructor: Function): boolean;
 }

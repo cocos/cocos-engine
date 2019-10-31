@@ -98,11 +98,6 @@ class Component extends CCObject {
         visible: false,
     })
     get uuid () {
-        // @ts-ignore
-        if (CC_EDITOR) {
-            EditorExtends.Component.add(this._id, this);
-        }
-
         return this._id;
     }
 
