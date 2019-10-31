@@ -103,6 +103,15 @@ export class ColliderComponent extends Component implements IEventTarget {
         if (!CC_EDITOR) {
             this._shape.isTrigger = this._isTrigger;
         }
+        // if (!CC_EDITOR) {
+        //     if (!CC_PHYSICS_BUILTIN) {
+        //         if (this.sharedBody) {
+        //             const type = this._isTrigger ? ERigidBodyType.DYNAMIC : ERigidBodyType.STATIC;
+        //             this.sharedBody.body.setType(type);
+        //             this._shapeBase.setCollisionResponse!(!this._isTrigger);
+        //         }
+        //     }
+        // }
     }
 
     /**
@@ -125,6 +134,17 @@ export class ColliderComponent extends Component implements IEventTarget {
         if (!CC_EDITOR) {
             this._shape.center = this._center;
         }
+
+        // if (!CC_EDITOR) {
+        //     const rigidBody = this.sharedBody.rigidBody as RigidBodyComponent | null;
+        //     if (rigidBody != null) {
+        //         Vec3.subtract(offset, this.node.worldPosition, rigidBody.node.worldPosition);
+        //         Vec3.add(offset, offset, this._center);
+        //         this._shapeBase.setCenter(offset);
+        //     } else {
+        //         this._shapeBase.setCenter(this._center);
+        //     }
+        // }
     }
 
     /**
