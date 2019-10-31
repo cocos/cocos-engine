@@ -84,11 +84,11 @@ export class WebGL2GFXSampler extends GFXSampler {
             minLOD: this._state.minLOD,
             maxLOD: this._state.maxLOD,
 
-            glMinFilter: WebGL2RenderingContext.NONE,
-            glMagFilter: WebGL2RenderingContext.NONE,
-            glWrapS: WebGL2RenderingContext.NONE,
-            glWrapT: WebGL2RenderingContext.NONE,
-            glWrapR: WebGL2RenderingContext.NONE,
+            glMinFilter: 0,
+            glMagFilter: 0,
+            glWrapS: 0,
+            glWrapT: 0,
+            glWrapR: 0,
         };
 
         WebGL2CmdFuncCreateSampler(this._device as WebGL2GFXDevice, this._gpuSampler);
