@@ -1,7 +1,10 @@
 import { ILifecycle } from './ILifecycle'
 import { IVec3Like } from "../../core/math/type-define";
+import { RigidBodyComponent } from '../components/rigid-body-component';
 
 export interface IRigidBody extends ILifecycle {
+    rigidBody: RigidBodyComponent;
+
     mass: number;
     linearDamping: number;
     angularDamping: number;
@@ -9,7 +12,7 @@ export interface IRigidBody extends ILifecycle {
     useGravity: boolean;
     fixedRotation: boolean;
     linearFactor: IVec3Like;
-    angluarFactor: IVec3Like;
+    angularFactor: IVec3Like;
     allowSleep: boolean;
     readonly isAwake: boolean;
     readonly isSleepy: boolean;
