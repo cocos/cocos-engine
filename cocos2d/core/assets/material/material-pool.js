@@ -1,43 +1,66 @@
-
 import utils from './utils';
+import Pool from '../../utils/pool';
 
-let _pool = {};
+/**
+ * {
+ *   effectUuid: {
+ *     defineSerializeKey: []
+ *   }
+ * }
+ */
+class MaterialPool extends Pool {
+    get (exampleMat, renderComponent) {
+        let pool = this._pool;
 
-export function getMaterial (exampleMat, renderComponent) {
-    let instance;
-
-    if (!CC_EDITOR) {
-        let uuid = exampleMat.effectAsset._uuid;
-        if (_pool[uuid]) {
-            let key = utils.serializeDefines(exampleMat._effect._defines);
-            instance = _pool[uuid][key] && _pool[uuid][key].pop();
+        let instance;
+        if (!CC_EDITOR && this.enabled) {
+            let uuid = exampleMat.effectAsset._uuid;
+            if (pool[uuid]) {
+                let key = utils.serializeDefines(exampleMat._effect._defines);
+                instance = pool[uuid][key] && pool[uuid][key].pop();
+            }
         }
+    
+        if (!instance) {
+            instance = new cc.Material();
+            instance.copy(exampleMat);
+            instance._name = exampleMat._name + ' (Instance)';
+            instance._uuid = exampleMat._uuid;
+        }
+        else {
+            this.size--;
+        }
+    
+        instance._owner = renderComponent;
+    
+        return instance;
     }
+    
+    put (mat) {
+        if (!this.enabled) {
+            return;
+        }
 
-    if (!instance) {
-        instance = new cc.Material();
-        instance.copy(exampleMat);
-        instance._name = exampleMat._name + ' (Instance)';
-        instance._uuid = exampleMat._uuid;
+        let pool = this._pool;
+        let uuid = mat.effectAsset._uuid;
+        if (!pool[uuid]) {
+            pool[uuid] = {};
+        }
+        let key = utils.serializeDefines(mat._effect._defines);
+        if (!pool[uuid][key]) {
+            pool[uuid][key] = [];
+        }
+        if (this.size > this.maxSize) return;
+        pool[uuid][key].push(mat);
+        this.size++;
     }
-
-    instance._owner = renderComponent;
-
-    return instance;
+    
+    clear () {
+        this._pool = {};
+        this.size = 0;
+    }
 }
 
-export function putMaterial (mat) {
-    let uuid = mat.effectAsset._uuid;
-    if (!_pool[uuid]) {
-        _pool[uuid] = {};
-    }
-    let key = utils.serializeDefines(mat._effect._defines);
-    if (!_pool[uuid][key]) {
-        _pool[uuid][key] = [];
-    }
-    _pool[uuid][key].push(mat);
-}
-
-export function clear () {
-    _pool = {};
-}
+let materialPool = new MaterialPool();
+Pool.register('material', materialPool);
+export default materialPool;

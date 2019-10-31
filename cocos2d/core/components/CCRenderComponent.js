@@ -111,15 +111,11 @@ let RenderComponent = cc.Class({
     onDestroy () {
         let materials = this._materials;
         for (let i = 0; i < materials.length; i++) {
-            cc.Material.pool.putMaterial(materials[i]);
+            cc.pool.material.put(materials[i]);
         }
         materials.length = 0;
 
-        Assembler.recycle(this._assembler);
-
-        // if (CC_JSB && CC_NATIVERENDERER) {
-        //     this._assembler && this._assembler.destroy && this._assembler.destroy();
-        // }
+        cc.pool.assembler.put(this._assembler);
     },
 
     setVertsDirty () {

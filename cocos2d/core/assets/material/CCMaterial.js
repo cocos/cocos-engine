@@ -31,7 +31,7 @@ const textureUtil = require('../../utils/texture-util');
 
 import murmurhash2 from '../../../renderer/murmurhash2_gc';
 import utils from './utils';
-import * as pool from './material-pool';
+import materialPool from './material-pool';
 
 /**
  * !#en Material Asset.
@@ -123,10 +123,9 @@ let Material = cc.Class({
                 return mat;
             }
             else {
-                return pool.getMaterial(mat, renderComponent);
+                return materialPool.get(mat, renderComponent);
             }
-        },
-        pool: pool
+        }
     },
 
     /**

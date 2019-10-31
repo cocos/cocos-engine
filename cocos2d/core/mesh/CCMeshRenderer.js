@@ -229,6 +229,7 @@ let MeshRenderer = cc.Class({
 
     onDestroy () {
         this._setMesh(null);
+        cc.pool.assembler.put(this._assembler);
     },
 
     _updateRenderNode () {

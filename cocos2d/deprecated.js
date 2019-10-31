@@ -621,12 +621,6 @@ if (CC_DEBUG) {
         return cc.easing;
     });
 
-    // cc.pool
-    js.get(cc, 'pool', function () {
-        cc.errorID(1407);
-        return js.Pool;
-    });
-
     // cc.isChildClassOf
     js.get(cc, 'isChildClassOf', function () {
         cc.errorID(1400, 'cc.isChildClassOf', 'cc.js.isChildClassOf');
