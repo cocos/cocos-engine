@@ -1035,7 +1035,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         const component = new constructor();
         component.node = this;
         this._components.push(component);
-        if ((CC_EDITOR || CC_TEST) && EditorExtends.Node && EditorExtends.Component) {
+        if (CC_EDITOR && EditorExtends.Node && EditorExtends.Component) {
             let node = EditorExtends.Node.getNode(this._id);
             if (node) {
                 EditorExtends.Component.add(component._id, component);
@@ -1144,7 +1144,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             const i = this._components.indexOf(component);
             if (i !== -1) {
                 this._components.splice(i, 1);
-                if ((CC_EDITOR || CC_TEST) && EditorExtends.Component) {
+                if (CC_EDITOR && EditorExtends.Component) {
                     EditorExtends.Component.remove(component._id);
                 }
             }
@@ -1228,7 +1228,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             }
         }
 
-        if (CC_EDITOR || CC_TEST) {
+        if (CC_EDITOR) {
             const scene = cc.director.getScene() as this | null;
             const inCurrentSceneBefore = oldParent && oldParent.isChildOf(scene);
             const inCurrentSceneNow = newParent && newParent.isChildOf(scene);
@@ -1279,7 +1279,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         // detach self and children from editor
         const parent = this._parent;
         const destroyByParent: boolean = (parent !== null) && ((parent._objFlags & Destroying) !== 0);
-        if (!destroyByParent && (CC_EDITOR || CC_TEST)) {
+        if (!destroyByParent && CC_EDITOR) {
             this._registerIfAttached!(false);
         }
 
@@ -1347,7 +1347,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         }
     }
 
-    protected _registerIfAttached = !(CC_EDITOR || CC_TEST) ? undefined : function (this: BaseNode, register) {
+    protected _registerIfAttached = !CC_EDITOR ? undefined : function (this: BaseNode, register) {
         if (EditorExtends.Node && EditorExtends.Component) {
             if (register) {         
                 EditorExtends.Node.add(this._id, this);
