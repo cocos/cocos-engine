@@ -533,6 +533,8 @@ export interface INode extends IBaseNode {
 
     uiTransfromComp;
 
+    _static: boolean;
+
     /**
      * @zh
      * 获取本地坐标

@@ -20,3 +20,4 @@ export { SkinningModel } from './models/skinning-model';
 export * from './models/joints-texture-utils';
 
 import './scene/deprecated';
+import './ui/render-data';

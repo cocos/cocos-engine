@@ -45,7 +45,6 @@ import { RenderableComponent } from '../../../core/3d/framework/renderable-compo
 import { IAssembler, IAssemblerManager } from '../../renderer/ui/base';
 import { UIComponent } from './ui-component';
 import { UITransformComponent } from './ui-transfrom-component';
-import { director } from '../../director';
 
 // hack
 ccenum(GFXBlendFactor);
@@ -329,7 +328,7 @@ export class UIRenderComponent extends UIComponent {
         }
     }
 
-    public postUpdateAssembler(render: UI) {
+    public postUpdateAssembler (render: UI) {
         super.postUpdateAssembler(render);
         if (this._renderFlag) {
             this._postRender(render);
@@ -337,10 +336,10 @@ export class UIRenderComponent extends UIComponent {
     }
 
     // 开始提交渲染数据给中转站
-    protected _render(render: UI) { }
+    protected _render (render: UI) { }
 
     // 开始提交渲染数据给中转站
-    protected _postRender(render: UI) { }
+    protected _postRender (render: UI) { }
 
     // 像组装器更新渲染数据
     protected _checkAndUpdateRenderData (){
