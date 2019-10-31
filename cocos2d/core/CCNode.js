@@ -358,6 +358,19 @@ var _mouseEvents = [
     EventType.MOUSE_WHEEL,
 ];
 
+var _skewNeedWarn = true;
+var _skewWarn = function (value, node) {
+    if (value !== 0) {
+        var nodePath = "";
+        if (CC_EDITOR) {
+            var NodeUtils = Editor.require('scene://utils/node');
+            nodePath = `Node: ${NodeUtils.getNodePath(node)}.`
+        }
+        _skewNeedWarn && cc.warn("`cc.Node.skewX/Y` is deprecated since v2.2.1, please use 3D node instead.", nodePath);
+        !CC_EDITOR && (_skewNeedWarn = false);
+    }
+}
+
 var _currentHovered = null;
 
 var _touchStartHandler = function (touch, event) {
@@ -996,14 +1009,20 @@ let NodeDefines = {
          * @example
          * node.skewX = 0;
          * cc.log("Node SkewX: " + node.skewX);
+         * @deprecated since v2.2.1
          */
         skewX: {
             get () {
                 return this._skewX;
             },
             set (value) {
+                _skewWarn(value, this);
+
                 this._skewX = value;
                 this.setLocalDirty(LocalDirtyFlag.SKEW);
+                if (CC_JSB && CC_NATIVERENDERER) {
+                    this._proxy.updateSkew();
+                }
             }
         },
 
@@ -1015,14 +1034,20 @@ let NodeDefines = {
          * @example
          * node.skewY = 0;
          * cc.log("Node SkewY: " + node.skewY);
+         * @deprecated since v2.2.1
          */
         skewY: {
             get () {
                 return this._skewY;
             },
             set (value) {
+                _skewWarn(value, this);
+
                 this._skewY = value;
                 this.setLocalDirty(LocalDirtyFlag.SKEW);
+                if (CC_JSB && CC_NATIVERENDERER) {
+                    this._proxy.updateSkew();
+                }
             }
         },
 
@@ -1466,6 +1491,13 @@ let NodeDefines = {
         if (this._zIndex !== undefined) {
             this._localZOrder = this._zIndex << 16;
             this._zIndex = undefined;
+        }
+
+        if (CC_EDITOR) {
+            if (this._skewX !== 0 || this._skewY !== 0) {
+                var NodeUtils = Editor.require('scene://utils/node');
+                cc.warn("`cc.Node.skewX/Y` is deprecated since v2.2.1, please use 3D node instead.", `Node: ${NodeUtils.getNodePath(this)}.`);
+            }
         }
 
         this._fromEuler();
