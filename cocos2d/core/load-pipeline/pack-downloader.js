@@ -65,7 +65,7 @@ function error (uuid, packUuid) {
 
 module.exports = {
     // two minutes
-    timeToRelease: 2 * 60 * 1000,
+    msToRelease: 2 * 60 * 1000,
 
     initPacks: function (packs) {
         packIndices = packs;
@@ -137,7 +137,7 @@ module.exports = {
                 var empty = true;
                 for (var packUuid in toBeChecked) {
                     var pack = toBeChecked[packUuid];
-                    if (now - pack.timeStamp > self.timeToRelease) {
+                    if (now - pack.timeStamp > self.msToRelease) {
                         self.remove(packUuid);
                     }
                     else {
