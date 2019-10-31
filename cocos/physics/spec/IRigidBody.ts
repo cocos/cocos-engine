@@ -1,6 +1,7 @@
+import { ILifecycle } from './ILifecycle'
 import { IVec3Like } from "../../core/math/type-define";
 
-interface IRigidBody extends ILifecycle {
+export interface IRigidBody extends ILifecycle {
     mass: number;
     linearDamping: number;
     angularDamping: number;
