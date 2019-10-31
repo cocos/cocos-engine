@@ -39,7 +39,7 @@ var PackState = {
 function UnpackerData () {
     this.unpacker = null;
     this.state = PackState.Invalid;
-    this.timeStamp = 0;
+    this.duration = 0;
 }
 
 // {assetUuid: packUuid|[packUuid]}
@@ -54,7 +54,7 @@ var packIndices = {};
 // We have to cache all packs in global because for now there's no operation context in loader.
 var globalUnpackers = {};
 
-var toBeChecked = {};
+var toBeChecked = [];
 
 var timer = null;
 var checkPeriod = 5000;
@@ -129,22 +129,20 @@ module.exports = {
             }
             unpackerData.unpacker.load(packIndices[packUuid], packedJson);
             unpackerData.state = PackState.Loaded;
-            unpackerData.timeStamp = performance.now();
-            toBeChecked[packUuid] = unpackerData;
+            unpackerData.duration = 0;
+            toBeChecked.push(packUuid);
             var self = this;
             if (!timer) timer = setInterval(function () {
-                var now = performance.now();
-                var empty = true;
-                for (var packUuid in toBeChecked) {
-                    var pack = toBeChecked[packUuid];
-                    if (now - pack.timeStamp > self.msToRelease) {
-                        self.remove(packUuid);
-                    }
-                    else {
-                        empty = false;
+                var maxDuration = self.msToRelease / checkPeriod;
+                for (var i = toBeChecked.length - 1; i >= 0; i--) {
+                    var id = toBeChecked[i];
+                    var pack = globalUnpackers[id];
+                    pack.duration++;
+                    if (pack.duration > maxDuration) {
+                        self.release(id);
                     }
                 }
-                if (empty) { 
+                if (toBeChecked.length === 0) { 
                     clearInterval(timer);
                     timer = null;
                 }
@@ -194,8 +192,8 @@ module.exports = {
 
         var unpackerData = globalUnpackers[packUuid];
         if (unpackerData && unpackerData.state === PackState.Loaded) {
-            // update timestamp
-            unpackerData.timeStamp = performance.now();
+            // update duration
+            unpackerData.duration = 0;
             // ensure async
             var json = unpackerData.unpacker.retrieve(uuid);
             if (json) {
@@ -219,12 +217,13 @@ module.exports = {
         return null;
     },
 
-    remove (packUuid) {
+    release (packUuid) {
         var unpackerData = globalUnpackers[packUuid];
         if (unpackerData) {
             cc.loader.release(unpackerData.url);
             delete globalUnpackers[packUuid];
-            delete toBeChecked[packUuid];
+            var index = toBeChecked.indexOf(packUuid);
+            cc.js.array.fastRemoveAt(toBeChecked, index);
         }
     }
 };
