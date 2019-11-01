@@ -8,7 +8,7 @@
 #include "GLES3Buffer.h"
 #include "GLES3Texture.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GLES3CommandBuffer::GLES3CommandBuffer(GFXDevice* device)
     : GFXCommandBuffer(device),
@@ -321,4 +321,4 @@ void GLES3CommandBuffer::BindStates() {
   is_state_invalid_ = false;
 }
 
-CC_NAMESPACE_END
+NS_CC_END

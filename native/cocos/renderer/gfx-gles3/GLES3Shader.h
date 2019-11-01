@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES3_GLES3_SHADER_H_
 #define CC_GFXGLES3_GLES3_SHADER_H_
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class GLES3GPUShader;
 
@@ -19,6 +19,6 @@ class CC_GLES3_API GLES3Shader : public GFXShader {
   GLES3GPUShader* gpu_shader_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif

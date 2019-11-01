@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class CC_CORE_API GFXFramebuffer : public Object {
  public:
@@ -28,6 +28,6 @@ class CC_CORE_API GFXFramebuffer : public Object {
   bool is_offscreen_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif // CC_CORE_GFX_FRAME_BUFFER_H_

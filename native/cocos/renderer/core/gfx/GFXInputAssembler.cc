@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXInputAssembler.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GFXInputAssembler::GFXInputAssembler(GFXDevice* device)
     : device_(device),
@@ -19,4 +19,4 @@ GFXInputAssembler::GFXInputAssembler(GFXDevice* device)
 GFXInputAssembler::~GFXInputAssembler() {
 }
 
-CC_NAMESPACE_END
+NS_CC_END

@@ -1,7 +1,7 @@
 #include "GLES3Std.h"
 #include "GLES3CommandAllocator.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GLES3CommandAllocator::GLES3CommandAllocator(GFXDevice* device)
     : GFXCommandAllocator(device) {
@@ -37,4 +37,4 @@ void GLES3CommandAllocator::ClearCmds(GLES3CmdPackage* cmd_package) {
   cmd_package->cmd_types.Clear();
 }
 
-CC_NAMESPACE_END
+NS_CC_END

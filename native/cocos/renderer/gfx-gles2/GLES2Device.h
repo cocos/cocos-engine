@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES2_GLES2_DEVICE_H_
 #define CC_GFXGLES2_GLES2_DEVICE_H_
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class GLES2StateCache;
 
@@ -53,6 +53,6 @@ public:
   bool use_discard_framebuffer_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif

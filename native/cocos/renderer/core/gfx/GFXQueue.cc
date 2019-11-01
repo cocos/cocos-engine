@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXQueue.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GFXQueue::GFXQueue(GFXDevice* device)
     : device_(device) {
@@ -10,4 +10,4 @@ GFXQueue::GFXQueue(GFXDevice* device)
 GFXQueue::~GFXQueue() {
 }
 
-CC_NAMESPACE_END
+NS_CC_END

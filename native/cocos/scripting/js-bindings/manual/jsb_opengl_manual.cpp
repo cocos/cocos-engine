@@ -31,6 +31,7 @@
 #include "platform/CCGL.h"
 #include "cocos/base/CCGLUtils.h"
 #include "cocos/base/CCConfiguration.h"
+#include "cocos/renderer/Macro.h"
 
 #include <regex>
 

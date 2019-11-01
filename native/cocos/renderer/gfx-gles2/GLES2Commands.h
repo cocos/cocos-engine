@@ -3,7 +3,7 @@
 
 #include "GLES2GPUObjects.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class GLES2Device;
 
@@ -188,6 +188,6 @@ CC_GLES2_API void GLES2CmdFuncDestroyFramebuffer(GLES2Device* device, GLES2GPUFr
 CC_GLES2_API void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package);
 CC_GLES2_API void GLES2CmdFuncCopyBuffersToTexture(GLES2Device* device, uint8_t** buffers, uint count, GLES2GPUTexture* gpu_texture, const GFXBufferTextureCopyList& regions);
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif

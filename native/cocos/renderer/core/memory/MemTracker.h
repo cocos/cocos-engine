@@ -3,7 +3,7 @@
 
 #ifdef CC_MEMORY_TRACKER
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 /** This class tracks the allocations and deallocations made, and
 is able to report memory statistics and leaks.
@@ -57,7 +57,7 @@ class CC_CORE_API MemTracker {
   void*         allocations_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif
 

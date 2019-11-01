@@ -896,8 +896,8 @@ static bool js_gfx_GFXWindow_title(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::String& result = cobj->title();
-        s.rval().setString(result.buffer());
+        const std::string& result = cobj->title();
+        #pragma warning NO CONVERSION FROM NATIVE FOR basic_string;
         SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_title : Error processing arguments");
         return true;
     }
@@ -2182,8 +2182,8 @@ static bool js_gfx_GFXSampler_name(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::String& result = cobj->name();
-        s.rval().setString(result.buffer());
+        const std::string& result = cobj->name();
+        #pragma warning NO CONVERSION FROM NATIVE FOR basic_string;
         SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_name : Error processing arguments");
         return true;
     }
@@ -2520,8 +2520,8 @@ static bool js_gfx_GFXShader_name(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::String& result = cobj->name();
-        s.rval().setString(result.buffer());
+        const std::string& result = cobj->name();
+        #pragma warning NO CONVERSION FROM NATIVE FOR basic_string;
         SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_name : Error processing arguments");
         return true;
     }

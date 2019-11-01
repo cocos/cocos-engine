@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES3_GLES3_BINDING_LAYOUT_H_
 #define CC_GFXGLES3_GLES3_BINDING_LAYOUT_H_
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class GLES3GPUBindingLayout;
 
@@ -21,6 +21,6 @@ class CC_GLES3_API GLES3BindingLayout : public GFXBindingLayout {
   GLES3GPUBindingLayout* gpu_binding_layout_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif

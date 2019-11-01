@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES2_GLES2_INPUT_ASSEMBLER_H_
 #define CC_GFXGLES2_GLES2_INPUT_ASSEMBLER_H_
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class GLES2GPUInputAssembler;
 class GLES2CmdDraw;
@@ -23,6 +23,6 @@ class CC_GLES2_API GLES2InputAssembler : public GFXInputAssembler {
   GLES2GPUInputAssembler* gpu_input_assembler_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif

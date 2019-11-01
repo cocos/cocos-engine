@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES3_GLES3_DEVICE_H_
 #define CC_GFXGLES3_GLES3_DEVICE_H_
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class GLES3StateCache;
 
@@ -47,6 +47,6 @@ public:
   bool use_vao_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif

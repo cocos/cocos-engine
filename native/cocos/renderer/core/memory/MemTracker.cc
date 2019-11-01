@@ -30,7 +30,7 @@ extern "C"
 
 #define LEAK_FILENAME "MemoryLeaks.log"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 struct AllocHashNode {
 	tommy_hashdyn_node node;
@@ -103,7 +103,7 @@ void MemTracker::RecordAlloc(void *ptr, size_t sz, const char *file, size_t ln, 
 
 	AllocHashNode* node = (AllocHashNode*)tommy_hashdyn_search((tommy_hashdyn*)allocations_, HashNodeCompare, ptr, hash);
 	if (node) {
-		CC_ASSERTS(0, "Double allocation with same address - this probably means you have a mismatched allocation / deallocation style.");
+		CCASSERT(0, "Double allocation with same address - this probably means you have a mismatched allocation / deallocation style.");
 	} else {
 		node = (AllocHashNode*)malloc(sizeof(AllocHashNode));
 		node->key = ptr;
@@ -143,7 +143,7 @@ void MemTracker::RecordReAlloc(void* oldptr, void* ptr, size_t sz, const char* f
 		node->line = (unsigned int)ln;
 		total_memory_allocated_ += ((int)sz - oldsize);
 	} else {
-		CC_ASSERTS(0, "Reallocation address not found.");
+		CCASSERT(0, "Reallocation address not found.");
 	}
 
 	mutex_.unlock();
@@ -167,7 +167,7 @@ void MemTracker::RecordFree(void* ptr)
 	}
 	else
 	{
-		CC_ASSERTS(0, "Unable to locate allocation unit - this probably means you have a mismatched allocation / deallocation style.");
+		CCASSERT(0, "Unable to locate allocation unit - this probably means you have a mismatched allocation / deallocation style.");
 	}
 
 	mutex_.unlock();
@@ -264,5 +264,5 @@ void MemTracker::DumpMemoryAllocation() {
 #endif
 }
 
-CC_NAMESPACE_END
+NS_CC_END
 #endif

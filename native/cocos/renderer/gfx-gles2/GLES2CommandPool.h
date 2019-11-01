@@ -3,7 +3,7 @@
 
 #include "GLES2Commands.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 template <typename T, typename = std::enable_if<std::is_base_of<GLES2Cmd, T>::value>>
 class GLES2CommandPool {
@@ -84,6 +84,6 @@ class GLES2CommandPool {
   int free_idx_ = 0;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif

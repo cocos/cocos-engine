@@ -16,7 +16,7 @@
 #include "GLES3Framebuffer.h"
 #include "GLES3BindingLayout.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GLES3Device::GLES3Device()
     : state_cache(nullptr),
@@ -259,4 +259,4 @@ GFXBindingLayout* GLES3Device::CreateGFXBindingLayout(const GFXBindingLayoutInfo
   }
 }
 
-CC_NAMESPACE_END
+NS_CC_END

@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXTexture.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GFXTexture::GFXTexture(GFXDevice* device)
     : device_(device),
@@ -22,4 +22,4 @@ GFXTexture::GFXTexture(GFXDevice* device)
 GFXTexture::~GFXTexture() {
 }
 
-CC_NAMESPACE_END
+NS_CC_END

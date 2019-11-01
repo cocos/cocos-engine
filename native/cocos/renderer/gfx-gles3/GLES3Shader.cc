@@ -2,7 +2,7 @@
 #include "GLES3Shader.h"
 #include "GLES3Commands.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GLES3Shader::GLES3Shader(GFXDevice* device)
     : GFXShader(device),
@@ -32,4 +32,4 @@ void GLES3Shader::Destroy() {
   }
 }
 
-CC_NAMESPACE_END
+NS_CC_END

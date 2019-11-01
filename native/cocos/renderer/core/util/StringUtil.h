@@ -1,7 +1,7 @@
 #ifndef CC_CORE_KERNEL_UTIL_STRING_UTIL_H_
 #define CC_CORE_KERNEL_UTIL_STRING_UTIL_H_
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class CC_CORE_API StringUtil {
  public:
@@ -11,6 +11,6 @@ class CC_CORE_API StringUtil {
   static StringArray Split(const String &str, const String &delims, uint max_splits = 0);
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif // CC_CORE_KERNEL_UTIL_STRING_UTIL_H_

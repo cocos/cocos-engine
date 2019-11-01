@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class CC_CORE_API GFXInputAssembler : public Object {
  public:
@@ -50,6 +50,6 @@ class CC_CORE_API GFXInputAssembler : public Object {
   uint first_instance_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif // CC_CORE_GFX_INPUT_ASSEMBLER_H_

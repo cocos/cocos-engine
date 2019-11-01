@@ -1,3 +1,5 @@
+#include "base/ccMacros.h"
+
 #ifndef CC_CORE_CORE_DEF_H_
 #define CC_CORE_CORE_DEF_H_
 
@@ -324,11 +326,8 @@ Note:
 #endif
 
 // Namespace define
-#define CC_NAMESPACE_BEGIN	namespace cc {
-#define CC_NAMESPACE_END		}
-#define CC_USING_NAMESPACE	using namespace cc;
+#define CC_USING_NAMESPACE	using namespace cocos2d;
 
-#define CC_UNUSED(a) (void)a
 #define CC_TOSTR(s) #s
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)

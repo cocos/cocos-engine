@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES3_GLES3_QUEUE_H_
 #define CC_GFXGLES3_GLES3_QUEUE_H_
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class CC_GLES3_API GLES3Queue : public GFXQueue {
  public:
@@ -23,6 +23,6 @@ class CC_GLES3_API GLES3Queue : public GFXQueue {
   uint num_tris_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif

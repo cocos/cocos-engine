@@ -3,7 +3,7 @@
 #include "GLES3Texture.h"
 #include "GLES3Commands.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GLES3TextureView::GLES3TextureView(GFXDevice* device)
     : GFXTextureView(device),
@@ -41,4 +41,4 @@ void GLES3TextureView::Destroy() {
   texture_ = nullptr;
 }
 
-CC_NAMESPACE_END
+NS_CC_END

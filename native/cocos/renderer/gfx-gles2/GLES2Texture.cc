@@ -2,7 +2,7 @@
 #include "GLES2Texture.h"
 #include "GLES2Commands.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GLES2Texture::GLES2Texture(GFXDevice* device)
     : GFXTexture(device),
@@ -76,7 +76,7 @@ bool GLES2Texture::Initialize(const GFXTextureInfo &info) {
   gpu_texture_->mip_level = mip_level_;
   gpu_texture_->samples = samples_;
   gpu_texture_->flags = flags_;
-  gpu_texture_->is_pot = math::IsPowerOfTwo(width_) && math::IsPowerOfTwo(height_);
+    gpu_texture_->is_pot = math::IsPowerOfTwo(width_) && math::IsPowerOfTwo(height_);
   
   GLES2CmdFuncCreateTexture((GLES2Device*)device_, gpu_texture_);
   device_->mem_status().texture_size += size_;
@@ -126,4 +126,4 @@ void GLES2Texture::Resize(uint width, uint height) {
   }
 }
 
-CC_NAMESPACE_END
+NS_CC_END

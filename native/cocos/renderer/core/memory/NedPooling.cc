@@ -13,7 +13,7 @@
 #define INSECURE 1
 #include <nedmalloc.c>
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 namespace nedPoolingIntern {
 	
@@ -146,7 +146,7 @@ CC_DECL_MALLOC void* NedPoolingImpl::ReallocBytes(void* ptr, size_t count, const
 		} else {
 			int oldsz = MemTracker::Instance()->GetAllocSize(ptr);
 			if (oldsz < 0) {
-				CC_ASSERTS(false, "ned realloc: get old size of ptr fail!");
+				CCASSERT(false, "ned realloc: get old size of ptr fail!");
 				return realloc(ptr, count);
 			} else {
 				if (oldsz >(int)count) oldsz = (int)count;
@@ -198,6 +198,6 @@ void NedPoolingImpl::DeallocBytes(void* ptr) {
 	nedPoolingIntern::InternalFree(ptr);
 }
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif // end - #ifdef CC_MEMORY_ALLOCATOR_NEDPOOLING

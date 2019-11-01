@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES2_GLES2_RENDER_PASS_H_
 #define CC_GFXGLES2_GLES2_RENDER_PASS_H_
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class GLES2GPURenderPass;
 
@@ -20,6 +20,6 @@ class CC_GLES2_API GLES2RenderPass : public GFXRenderPass {
   GLES2GPURenderPass* gpu_render_pass_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif

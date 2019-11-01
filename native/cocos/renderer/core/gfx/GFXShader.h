@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class CC_CORE_API GFXShader : public Object {
  public:
@@ -30,6 +30,6 @@ class CC_CORE_API GFXShader : public Object {
   GFXUniformSamplerList samplers_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif // CC_CORE_GFX_TEXTURE_VIEW_H_

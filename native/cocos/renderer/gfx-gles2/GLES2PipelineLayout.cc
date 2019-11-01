@@ -2,7 +2,7 @@
 #include "GLES2PipelineLayout.h"
 #include "GLES2Commands.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GLES2PipelineLayout::GLES2PipelineLayout(GFXDevice* device)
     : GFXPipelineLayout(device),
@@ -28,4 +28,4 @@ void GLES2PipelineLayout::Destroy() {
   }
 }
 
-CC_NAMESPACE_END
+NS_CC_END

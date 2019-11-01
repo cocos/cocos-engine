@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES2_GLES2_PIPELINE_STATE_H_
 #define CC_GFXGLES2_GLES2_PIPELINE_STATE_H_
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class GLES2GPUPipelineState;
 
@@ -20,6 +20,6 @@ class CC_GLES2_API GLES2PipelineState : public GFXPipelineState {
   GLES2GPUPipelineState* gpu_pso_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif

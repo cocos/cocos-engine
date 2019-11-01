@@ -2,7 +2,7 @@
 #include "GLES3Sampler.h"
 #include "GLES3Commands.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GLES3Sampler::GLES3Sampler(GFXDevice* device)
     : GFXSampler(device),
@@ -50,4 +50,4 @@ void GLES3Sampler::Destroy() {
   }
 }
 
-CC_NAMESPACE_END
+NS_CC_END

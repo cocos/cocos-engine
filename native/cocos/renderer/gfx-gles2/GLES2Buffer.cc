@@ -2,7 +2,7 @@
 #include "GLES2Buffer.h"
 #include "GLES2Commands.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GLES2Buffer::GLES2Buffer(GFXDevice* device)
     : GFXBuffer(device),
@@ -89,4 +89,4 @@ void GLES2Buffer::Update(void* buffer, uint offset, uint size) {
   GLES2CmdFuncUpdateBuffer((GLES2Device*)device_, gpu_buffer_, buffer, offset, size);
 }
 
-CC_NAMESPACE_END
+NS_CC_END

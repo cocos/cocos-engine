@@ -16,7 +16,7 @@
 #include "GLES2Framebuffer.h"
 #include "GLES2BindingLayout.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GLES2Device::GLES2Device()
     : state_cache(nullptr),
@@ -267,4 +267,4 @@ GFXBindingLayout* GLES2Device::CreateGFXBindingLayout(const GFXBindingLayoutInfo
   }
 }
 
-CC_NAMESPACE_END
+NS_CC_END

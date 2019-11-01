@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES2_GLES2_BINDING_LAYOUT_H_
 #define CC_GFXGLES2_GLES2_BINDING_LAYOUT_H_
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class GLES2GPUBindingLayout;
 
@@ -21,6 +21,6 @@ class CC_GLES2_API GLES2BindingLayout : public GFXBindingLayout {
   GLES2GPUBindingLayout* gpu_binding_layout_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif

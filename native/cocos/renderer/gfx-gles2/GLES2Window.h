@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES2_GLES2_WINDOW_H_
 #define CC_GFXGLES2_GLES2_WINDOW_H_
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class CC_GLES2_API GLES2Window : public GFXWindow {
 public:
@@ -14,6 +14,6 @@ public:
   void Resize(uint width, uint height);
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif

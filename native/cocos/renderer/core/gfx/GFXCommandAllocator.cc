@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXCommandAllocator.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GFXCommandAllocator::GFXCommandAllocator(GFXDevice* device)
     : device_(device) {
@@ -10,4 +10,4 @@ GFXCommandAllocator::GFXCommandAllocator(GFXDevice* device)
 GFXCommandAllocator::~GFXCommandAllocator() {
 }
 
-CC_NAMESPACE_END
+NS_CC_END

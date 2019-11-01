@@ -29,7 +29,6 @@
 #include "base/CCAutoreleasePool.h"
 #include "base/CCGLUtils.h"
 #include "base/CCConfiguration.h"
-#include "renderer/gfx/DeviceGraphics.h"
 #include "scripting/js-bindings/event/EventDispatcher.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "CCEAGLView-ios.h"

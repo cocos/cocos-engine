@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXRenderPass.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GFXRenderPass::GFXRenderPass(GFXDevice* device)
     : device_(device) {
@@ -10,4 +10,4 @@ GFXRenderPass::GFXRenderPass(GFXDevice* device)
 GFXRenderPass::~GFXRenderPass() {
 }
 
-CC_NAMESPACE_END
+NS_CC_END

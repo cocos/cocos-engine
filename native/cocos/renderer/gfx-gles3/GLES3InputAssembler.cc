@@ -3,7 +3,7 @@
 #include "GLES3Commands.h"
 #include "GLES3Buffer.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GLES3InputAssembler::GLES3InputAssembler(GFXDevice* device)
     : GFXInputAssembler(device),
@@ -57,4 +57,4 @@ void GLES3InputAssembler::ExtractCmdDraw(GLES3CmdDraw* cmd) {
   cmd->draw_info.first_instance = first_instance_;
 }
 
-CC_NAMESPACE_END
+NS_CC_END

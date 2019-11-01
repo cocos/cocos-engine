@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class CC_CORE_API GFXBindingLayout : public Object {
  public:
@@ -28,6 +28,6 @@ class CC_CORE_API GFXBindingLayout : public Object {
   bool is_dirty_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif // CC_CORE_GFX_BINDING_LAYOUT_H_

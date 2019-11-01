@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES3_GLES3_TEXTURE_H_
 #define CC_GFXGLES3_GLES3_TEXTURE_H_
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class GLES3GPUTexture;
 
@@ -21,6 +21,6 @@ class CC_GLES3_API GLES3Texture : public GFXTexture {
   GLES3GPUTexture* gpu_texture_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif

@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class CC_CORE_API GFXPipelineState : public Object {
  public:
@@ -38,6 +38,6 @@ protected:
   GFXRenderPass* render_pass_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif // CC_CORE_GFX_PIPELINE_STATE_H_

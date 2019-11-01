@@ -29,14 +29,8 @@
 #include "scripting/js-bindings/manual/jsb_classtype.hpp"
 
 #include "cocos2d.h"
-#include "renderer/gfx/GFX.h"
-#include "renderer/renderer/Renderer.h"
 #include "network/CCDownloader.h"
 #include "extensions/cocos-ext.h"
-
-#if USE_SPINE
-#include "cocos/editor-support/spine/spine.h"
-#endif
 
 //#include "Box2D/Box2D.h"
 
@@ -138,23 +132,6 @@ bool seval_to_DownloaderHints(const se::Value& v, cocos2d::network::DownloaderHi
 //bool seval_to_b2AABB(const se::Value& v, b2AABB* ret);
 
 #if USE_GFX_RENDERER
-bool seval_to_Rect(const se::Value& v, cocos2d::renderer::Rect* rect);
-bool seval_to_std_vector_Pass(const se::Value& v, cocos2d::Vector<cocos2d::renderer::Pass*>* ret);
-bool seval_to_std_vector_Texture(const se::Value& v, std::vector<cocos2d::renderer::Texture*>* ret);
-bool seval_to_std_vector_RenderTarget(const se::Value& v, std::vector<cocos2d::renderer::RenderTarget*>* ret);
-bool seval_to_TextureOptions(const se::Value& v, cocos2d::renderer::Texture::Options* ret);
-bool seval_to_TextureSubImageOption(const se::Value& v, cocos2d::renderer::Texture::SubImageOption* ret);
-bool seval_to_TextureImageOption(const se::Value& v, cocos2d::renderer::Texture::ImageOption* ret);
-bool seval_to_EffectProperty(const se::Value& v, std::unordered_map<std::string, cocos2d::renderer::Effect::Property>* ret);
-bool seval_to_EffectTechnique(const se::Value& v, cocos2d::renderer::Technique** ret);
-bool seval_to_EffectDefineTemplate(const se::Value& v, std::vector<cocos2d::ValueMap>* ret);
-bool seval_to_TechniqueParameter_not_constructor(const se::Value& v, cocos2d::renderer::Technique::Parameter* ret, bool directly);
-bool seval_to_TechniqueParameter(const se::Value& v, cocos2d::renderer::Technique::Parameter* ret);
-bool seval_to_std_vector_TechniqueParameter(const se::Value& v, std::vector<cocos2d::renderer::Technique::Parameter>* ret);
-bool seval_to_std_vector_ProgramLib_Template(const se::Value& v, std::vector<cocos2d::renderer::ProgramLib::Template>* ret);
-bool std_vector_RenderTarget_to_seval(const std::vector<cocos2d::renderer::RenderTarget*>& v, se::Value* ret);
-bool seval_to_EffectAsset(const std::string& s, cocos2d::Vector<cocos2d::renderer::Technique*>* ret);
-bool ccvaluevector_to_EffectPass(const cocos2d::ValueVector& v, cocos2d::Vector<cocos2d::renderer::Pass*>* passes);
 #endif
 
 template<typename T>
@@ -306,12 +283,6 @@ bool DownloadTask_to_seval(const cocos2d::network::DownloadTask& v, se::Value* r
 bool std_vector_EffectDefine_to_seval(const std::vector<cocos2d::ValueMap>& v, se::Value* ret);
 
 #if USE_GFX_RENDERER
-bool Rect_to_seval(const cocos2d::renderer::Rect& v, se::Value* ret);
-bool std_unorderedmap_string_EffectProperty_to_seval(const std::unordered_map<std::string, cocos2d::renderer::Effect::Property>& v, se::Value* ret);
-bool EffectProperty_to_seval(const cocos2d::renderer::Effect::Property& v, se::Value* ret);
-bool VertexFormat_to_seval(const cocos2d::renderer::VertexFormat& v, se::Value* ret);
-bool TechniqueParameter_to_seval(const cocos2d::renderer::Technique::Parameter& v, se::Value* ret);
-bool std_vector_TechniqueParameter_to_seval(const std::vector<cocos2d::renderer::Technique::Parameter>& v, se::Value* ret);
 #endif
 
 template<typename T>
@@ -587,99 +558,3 @@ bool Vector_to_seval(const cocos2d::Vector<T*>& v, se::Value* ret)
 //    ret->setObject(obj, true);
 //    return false;
 //}
-
-// Spine conversions
-#if USE_SPINE
-
-template<typename T>
-bool spine_Vector_T_to_seval(const spine::Vector<T>& v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    se::HandleObject obj(se::Object::createArrayObject(v.size()));
-    bool ok = true;
-    
-    spine::Vector<T> tmpv = v;
-    for (uint32_t i = 0, count = (uint32_t)tmpv.size(); i < count; i++)
-    {
-        if (!obj->setArrayElement(i, se::Value(tmpv[i])))
-        {
-            ok = false;
-            ret->setUndefined();
-            break;
-        }
-    }
-    
-    if (ok)
-    ret->setObject(obj);
-    
-    return ok;
-}
-
-template<typename T>
-bool spine_Vector_T_ptr_to_seval(const spine::Vector<T*>& v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    se::HandleObject obj(se::Object::createArrayObject(v.size()));
-    bool ok = true;
-    
-    spine::Vector<T*> tmpv = v;
-    for (uint32_t i = 0, count = (uint32_t)tmpv.size(); i < count; i++)
-    {
-        se::Value tmp;
-        ok = native_ptr_to_rooted_seval<T>(tmpv[i], &tmp);
-        if (!ok || !obj->setArrayElement(i, tmp))
-        {
-            ok = false;
-            ret->setUndefined();
-            break;
-        }
-    }
-    
-    if (ok) ret->setObject(obj);
-    return ok;
-}
-
-template<typename T>
-bool seval_to_spine_Vector_T_ptr(const se::Value& v, spine::Vector<T*>* ret)
-{
-    assert(ret != nullptr);
-    assert(v.isObject());
-    se::Object* obj = v.toObject();
-    assert(obj->isArray());
-    
-    bool ok = true;
-    uint32_t len = 0;
-    ok = obj->getArrayLength(&len);
-    if (!ok)
-    {
-        ret->clear();
-        return false;
-    }
-    
-    se::Value tmp;
-    for (uint32_t i = 0; i < len; ++i)
-    {
-        ok = obj->getArrayElement(i, &tmp);
-        if (!ok || !tmp.isObject())
-        {
-            ret->clear();
-            return false;
-        }
-        
-        T* nativeObj = (T*)tmp.toObject()->getPrivateData();
-        ret->add(nativeObj);
-    }
-    
-    return true;
-}
-
-bool seval_to_spine_Vector_String(const se::Value& v, spine::Vector<spine::String>* ret);
-bool spine_Vector_String_to_seval(const spine::Vector<spine::String>& v, se::Value* ret);
-#endif
-
-//
-//// Box2d
-//bool b2Vec2_to_seval(const b2Vec2& v, se::Value* ret);
-//bool b2Manifold_to_seval(const b2Manifold* v, se::Value* ret);
-//bool b2AABB_to_seval(const b2AABB& v, se::Value* ret);
-

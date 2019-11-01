@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXSampler.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GFXSampler::GFXSampler(GFXDevice* device)
     : device_(device),
@@ -25,4 +25,4 @@ GFXSampler::GFXSampler(GFXDevice* device)
 GFXSampler::~GFXSampler() {
 }
 
-CC_NAMESPACE_END
+NS_CC_END

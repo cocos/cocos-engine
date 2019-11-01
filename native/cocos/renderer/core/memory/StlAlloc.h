@@ -2,8 +2,10 @@
 #define CC_CORE_STL_ALLOC_H_
 
 #include "MemDef.h"
+#include <queue>
+#include <set>
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 // Base STL allocator class.
 template<typename T>
@@ -340,6 +342,6 @@ typedef std::wstring WString;
 
 typedef vector<String>::type		StringArray;
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif // CC_CORE_STL_ALLOC_H_

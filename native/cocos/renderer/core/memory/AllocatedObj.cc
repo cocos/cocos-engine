@@ -2,7 +2,7 @@
 #include "MemDef.h"
 #include "AllocatedObj.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 /*
  The problem is that operator new/delete are *implicitly* static. We have to
@@ -12,4 +12,4 @@ CC_NAMESPACE_BEGIN
 
 template class AllocatedObject<GAP>;
 
-CC_NAMESPACE_END
+NS_CC_END

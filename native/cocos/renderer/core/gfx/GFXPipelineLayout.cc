@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXPipelineLayout.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GFXPipelineLayout::GFXPipelineLayout(GFXDevice* device)
     : device_(device) {
@@ -10,4 +10,4 @@ GFXPipelineLayout::GFXPipelineLayout(GFXDevice* device)
 GFXPipelineLayout::~GFXPipelineLayout() {
 }
 
-CC_NAMESPACE_END
+NS_CC_END

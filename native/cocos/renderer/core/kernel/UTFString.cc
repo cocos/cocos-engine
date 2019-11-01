@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "UTFString.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 UTFString::unicode_char UTFString::_base_iterator::_getCharacter() const {
   return string_->getChar(_get_index());
@@ -325,7 +325,7 @@ size_t UTFString::_utf8_char_length( unsigned char cp )
   if (( cp & ~_lead4_mask ) == _lead4 ) return 5;
   if (( cp & ~_lead5_mask ) == _lead5 ) return 6;
   
-  CC_ASSERTS(0, "invalid UTF-8 sequence header value");
+  CCASSERT(0, "invalid UTF-8 sequence header value");
   return 1;
 }
 
@@ -345,7 +345,7 @@ size_t UTFString::_utf8_char_length( unicode_char uc ) {
   if ( !( uc & ~0x03FFFFFF ) ) return 5;
   if ( !( uc & ~0x7FFFFFFF ) ) return 6;
   
-  CC_ASSERTS(0, "invalid UTF-32 value");
+  CCASSERT(0, "invalid UTF-32 value");
   return 1;
 }
 
@@ -379,7 +379,7 @@ size_t UTFString::_utf8_to_utf32( const unsigned char in_cp[6], unicode_char& ou
   
   for ( ++i; i < len; i++ ) { // load each continuation byte
     if ((in_cp[i] & ~_cont_mask) != _cont) {
-      CC_ASSERTS(0, "bad UTF-8 continuation byte");
+      CCASSERT(0, "bad UTF-8 continuation byte");
       break;
     }
     c <<= 6;
@@ -442,7 +442,7 @@ UTFString::size_type UTFString::_verifyUTF8(const String& str) {
       if (( c & ~_lead1_mask ) == _lead1 ) { // 1 additional byte
         if (c == _lead1)
         {
-          CC_ASSERTS(0, "overlong UTF-8 sequence");
+          CCASSERT(0, "overlong UTF-8 sequence");
           return 0;
         }
         contBytes = 1;
@@ -453,7 +453,7 @@ UTFString::size_type UTFString::_verifyUTF8(const String& str) {
           c = ( *( i + 1 ) ); // look ahead to next byte in sequence
           if (( c & _lead2 ) == _cont )
           {
-            CC_ASSERTS(0, "overlong UTF-8 sequence");
+            CCASSERT(0, "overlong UTF-8 sequence");
             return 0;
           }
         }
@@ -464,7 +464,7 @@ UTFString::size_type UTFString::_verifyUTF8(const String& str) {
           c = ( *( i + 1 ) ); // look ahead to next byte in sequence
           if (( c & _lead3 ) == _cont )
           {
-            CC_ASSERTS(0, "overlong UTF-8 sequence");
+            CCASSERT(0, "overlong UTF-8 sequence");
             return 0;
           }
         }
@@ -475,7 +475,7 @@ UTFString::size_type UTFString::_verifyUTF8(const String& str) {
           c = ( *( i + 1 ) ); // look ahead to next byte in sequence
           if (( c & _lead4 ) == _cont )
           {
-            CC_ASSERTS(0, "overlong UTF-8 sequence");
+            CCASSERT(0, "overlong UTF-8 sequence");
             return 0;
           }
         }
@@ -486,7 +486,7 @@ UTFString::size_type UTFString::_verifyUTF8(const String& str) {
           c = ( *( i + 1 ) ); // look ahead to next byte in sequence
           if (( c & _lead5 ) == _cont )
           {
-            CC_ASSERTS(0, "overlong UTF-8 sequence");
+            CCASSERT(0, "overlong UTF-8 sequence");
             return 0;
           }
         }
@@ -496,7 +496,7 @@ UTFString::size_type UTFString::_verifyUTF8(const String& str) {
       while ( contBytes-- ) {
         c = ( *( ++i ) ); // get next byte in sequence
         if (( c & ~_cont_mask ) != _cont ) {
-          CC_ASSERTS(0, "bad UTF-8 continuation byte");
+          CCASSERT(0, "bad UTF-8 continuation byte");
           return 0;
         }
       }
@@ -520,7 +520,7 @@ void UTFString::_cleanBuffer() const {
       default:
         //delete mBuffer.mVoidBuffer;
         // delete void* is undefined, don't do that
-        CC_ASSERTS(0, "This should never happen - mVoidBuffer should never contain something if we "
+        CCASSERT(0, "This should never happen - mVoidBuffer should never contain something if we "
                      "don't know the type");
         break;
     }
@@ -588,4 +588,4 @@ void UTFString::_load_buffer_WStr() const {
 #endif
 }
 
-CC_NAMESPACE_END
+NS_CC_END

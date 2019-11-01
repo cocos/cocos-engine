@@ -2,7 +2,7 @@
 #include "GLES3RenderPass.h"
 #include "GLES3Commands.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GLES3RenderPass::GLES3RenderPass(GFXDevice* device)
     : GFXRenderPass(device),
@@ -31,4 +31,4 @@ void GLES3RenderPass::Destroy() {
   }
 }
 
-CC_NAMESPACE_END
+NS_CC_END

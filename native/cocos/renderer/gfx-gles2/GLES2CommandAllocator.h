@@ -3,7 +3,7 @@
 
 #include "GLES2CommandPool.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class CC_GLES2_API GLES2CommandAllocator : public GFXCommandAllocator {
 public:
@@ -31,6 +31,6 @@ public:
   }
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif

@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class CC_CORE_API GFXCommandAllocator : public Object {
  public:
@@ -21,6 +21,6 @@ protected:
   
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif // CC_CORE_GFX_COMMAND_ALLOCATOR_H_

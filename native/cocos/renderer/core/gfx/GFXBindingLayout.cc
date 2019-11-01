@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXBindingLayout.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GFXBindingLayout::GFXBindingLayout(GFXDevice* device)
     : device_(device) {
@@ -20,7 +20,7 @@ void GFXBindingLayout::BindBuffer(uint binding, GFXBuffer* buffer) {
           is_dirty_ = true;
         }
       } else {
-        CC_ASSERTS(false, "Setting binding is not GFXBindingType.UNIFORM_BUFFER.")
+          CCASSERT(false, "Setting binding is not GFXBindingType.UNIFORM_BUFFER.");
       }
       return;
     }
@@ -37,7 +37,7 @@ void GFXBindingLayout::BindTextureView(uint binding, GFXTextureView* tex_view) {
           is_dirty_ = true;
         }
       } else {
-        CC_ASSERTS(false, "Setting binding is not GFXBindingType.SAMPLER.")
+          CCASSERT(false, "Setting binding is not GFXBindingType.SAMPLER.");
       }
       return;
     }
@@ -54,11 +54,11 @@ void GFXBindingLayout::BindSampler(uint binding, GFXSampler* sampler) {
           is_dirty_ = true;
         }
       } else {
-        CC_ASSERTS(false, "Setting binding is not GFXBindingType.SAMPLER.")
+          CCASSERT(false, "Setting binding is not GFXBindingType.SAMPLER.");
       }
       return;
     }
   }
 }
 
-CC_NAMESPACE_END
+NS_CC_END

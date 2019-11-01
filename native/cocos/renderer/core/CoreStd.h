@@ -31,6 +31,7 @@
 #include <mutex>
 
 #include "TypeDef.h"
+#include "base/ccMacros.h"
 #include "kernel/Assertion.h"
 #include "memory/Memory.h"
 #include "math/CCMath.h"

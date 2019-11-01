@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXPipelineState.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GFXPipelineState::GFXPipelineState(GFXDevice* device)
     : device_(device),
@@ -14,4 +14,4 @@ GFXPipelineState::GFXPipelineState(GFXDevice* device)
 GFXPipelineState::~GFXPipelineState() {
 }
 
-CC_NAMESPACE_END
+NS_CC_END

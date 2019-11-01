@@ -5,7 +5,7 @@
 #include "GLES3RenderPass.h"
 #include "GLES3PipelineLayout.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 const GLenum GLES3Primitives []  = {
   GL_POINTS,
@@ -64,4 +64,4 @@ void GLES3PipelineState::Destroy() {
   }
 }
 
-CC_NAMESPACE_END
+NS_CC_END

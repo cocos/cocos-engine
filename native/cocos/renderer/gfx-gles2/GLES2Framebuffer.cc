@@ -4,7 +4,7 @@
 #include "GLES2Commands.h"
 #include "GLES2TextureView.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GLES2Framebuffer::GLES2Framebuffer(GFXDevice* device)
     : GFXFramebuffer(device),
@@ -51,4 +51,4 @@ void GLES2Framebuffer::Destroy() {
   }
 }
 
-CC_NAMESPACE_END
+NS_CC_END

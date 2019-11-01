@@ -3,7 +3,7 @@
 
 #if (CC_MEMORY_ALLOCATOR == CC_MEMORY_ALLOCATOR_JEMALLOC)
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 //Non-templated utility class just to hide jemalloc.
 class CC_CORE_API JeAllocImpl {
@@ -53,7 +53,7 @@ class CC_CORE_API JeAllocPolicy {
 	JeAllocPolicy() {}
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif // end - #ifdef COCOS_MEMORY_ALLOCATOR_JEMALLOC
 

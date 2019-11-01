@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXDef.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 const GFXFormatInfo GFX_FORMAT_INFOS[] = {
   { "UNKNOWN", 0, 0, GFXFormatType::NONE, false, false, false, false},
@@ -207,4 +207,4 @@ uint GFXFormatSurfaceSize(GFXFormat format, uint width, uint height, uint depth,
   return size;
 }
 
-CC_NAMESPACE_END
+NS_CC_END

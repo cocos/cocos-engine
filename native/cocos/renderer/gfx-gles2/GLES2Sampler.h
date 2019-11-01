@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES2_GLES2_SAMPLER_H_
 #define CC_GFXGLES2_GLES2_SAMPLER_H_
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class GLES2GPUSampler;
 
@@ -33,6 +33,6 @@ private:
   float mip_lod_bias_ = 0.0f;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES2_GLES2_TEXTURE_VIEW_H_
 #define CC_GFXGLES2_GLES2_TEXTURE_VIEW_H_
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class GLES2GPUTextureView;
 
@@ -20,6 +20,6 @@ private:
   GLES2GPUTextureView* gpu_tex_view_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif

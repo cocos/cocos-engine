@@ -2,6 +2,6 @@
 #import "MTLBuffer.h"
 #import <Metal/Metal.h>
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
-CC_NAMESPACE_END
+NS_CC_END

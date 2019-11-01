@@ -5,7 +5,7 @@
 #include "GLES2TextureView.h"
 #include "GLES2Sampler.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GLES2BindingLayout::GLES2BindingLayout(GFXDevice* device)
     : GFXBindingLayout(device),
@@ -75,4 +75,4 @@ void GLES2BindingLayout::Update() {
   }
 }
 
-CC_NAMESPACE_END
+NS_CC_END

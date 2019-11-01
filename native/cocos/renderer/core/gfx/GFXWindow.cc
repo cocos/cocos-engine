@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXWindow.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GFXWindow::GFXWindow(GFXDevice* device)
     : device_(device),
@@ -26,4 +26,4 @@ GFXWindow::GFXWindow(GFXDevice* device)
 GFXWindow::~GFXWindow() {
 }
 
-CC_NAMESPACE_END
+NS_CC_END

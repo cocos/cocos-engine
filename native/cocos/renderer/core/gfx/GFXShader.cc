@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXShader.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GFXShader::GFXShader(GFXDevice* device)
     : device_(device),
@@ -11,4 +11,4 @@ GFXShader::GFXShader(GFXDevice* device)
 GFXShader::~GFXShader() {
 }
 
-CC_NAMESPACE_END
+NS_CC_END

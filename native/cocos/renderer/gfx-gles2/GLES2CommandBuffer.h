@@ -3,7 +3,7 @@
 
 #include "GLES2Commands.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class GLES2CommandAllocator;
 
@@ -59,6 +59,6 @@ class CC_GLES2_API GLES2CommandBuffer : public GFXCommandBuffer {
   bool is_state_invalid_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif

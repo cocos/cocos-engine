@@ -5,7 +5,7 @@
 
 #define BUFFER_OFFSET(idx) (static_cast<char*>(0) + (idx))
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GLenum MapGLInternalFormat(GFXFormat format) {
   switch (format) {
@@ -82,7 +82,7 @@ GLenum MapGLInternalFormat(GFXFormat format) {
     case GFXFormat::PVRTC_RGBA4: return GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
       
     default: {
-      CC_ASSERTS(false, "Unsupported GFXFormat, convert to GL internal format failed.");
+      CCASSERT(false, "Unsupported GFXFormat, convert to GL internal format failed.");
       return GL_RGBA;
     }
   }
@@ -162,7 +162,7 @@ GLenum MapGLFormat(GFXFormat format) {
     case GFXFormat::PVRTC_RGBA4: return GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
       
     default: {
-      CC_ASSERTS(false, "Unsupported GFXFormat, convert to WebGL format failed.");
+      CCASSERT(false, "Unsupported GFXFormat, convert to WebGL format failed.");
       return GL_RGBA;
     }
   }
@@ -190,7 +190,7 @@ GLenum MapGLType(GFXType type) {
     case GFXType::SAMPLER3D: return GL_SAMPLER_3D_OES;
     case GFXType::SAMPLER_CUBE: return GL_SAMPLER_CUBE;
     default: {
-      CC_ASSERTS(false, "Unsupported GLType, convert to GL type failed.");
+      CCASSERT(false, "Unsupported GLType, convert to GL type failed.");
       return GL_NONE;
     }
   }
@@ -218,7 +218,7 @@ GFXType MapGFXType(GLenum gl_type) {
     case GL_SAMPLER_3D_OES: return GFXType::SAMPLER3D;
     case GL_SAMPLER_CUBE: return GFXType::SAMPLER_CUBE;
     default: {
-      CC_ASSERTS(false, "Unsupported GLType, convert to GFXType failed.");
+      CCASSERT(false, "Unsupported GLType, convert to GFXType failed.");
       return GFXType::UNKNOWN;
     }
   }
@@ -348,7 +348,7 @@ uint GLTypeSize(GLenum gl_type) {
     case GL_INT_SAMPLER_CUBE_MAP_ARRAY_OES: return 4;
     case GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY_OES: return 4;
     default: {
-      CC_ASSERTS(false, "Unsupported GLType, get type failed.");
+      CCASSERT(false, "Unsupported GLType, get type failed.");
       return 0;
     }
   }
@@ -471,7 +471,7 @@ void GLES2CmdFuncCreateBuffer(GLES2Device* device, GLES2GPUBuffer* gpu_buffer) {
              (gpu_buffer->usage & GFXBufferUsageBit::TRANSFER_SRC)) {
     gpu_buffer->gl_target = GL_NONE;
   } else {
-    CC_ASSERTS(false, "Unsupported GFXBufferType, create buffer failed.")
+      CCASSERT(false, "Unsupported GFXBufferType, create buffer failed.");
     gpu_buffer->gl_target = GL_NONE;
   }
 }
@@ -537,7 +537,7 @@ void GLES2CmdFuncResizeBuffer(GLES2Device* device, GLES2GPUBuffer* gpu_buffer) {
              (gpu_buffer->usage & GFXBufferUsageBit::TRANSFER_SRC)) {
     gpu_buffer->gl_target = GL_NONE;
   } else {
-    CC_ASSERTS(false, "Unsupported GFXBufferType, resize buffer failed.")
+      CCASSERT(false, "Unsupported GFXBufferType, resize buffer failed.");
     gpu_buffer->gl_target = GL_NONE;
   }
 }
@@ -574,7 +574,7 @@ void GLES2CmdFuncUpdateBuffer(GLES2Device* device, GLES2GPUBuffer* gpu_buffer, v
         break;
       }
       default:
-        CC_ASSERTS(false, "Unsupported GFXBufferType, update buffer failed.")
+            CCASSERT(false, "Unsupported GFXBufferType, update buffer failed.");
         break;
     }
   }
@@ -651,7 +651,7 @@ void GLES2CmdFuncCreateTexture(GLES2Device* device, GLES2GPUTexture* gpu_texture
       break;
     }
     default:
-      CC_ASSERTS(false, "Unsupported GFXTextureType, create texture failed.");
+      CCASSERT(false, "Unsupported GFXTextureType, create texture failed.");
       break;
   }
 }
@@ -732,7 +732,7 @@ void GLES2CmdFuncResizeTexture(GLES2Device* device, GLES2GPUTexture* gpu_texture
       break;
     }
     default:
-      CC_ASSERTS(false, "Unsupported GFXTextureType, resize texture failed.");
+      CCASSERT(false, "Unsupported GFXTextureType, resize texture failed.");
       break;
   }
 }
@@ -790,7 +790,7 @@ void GLES2CmdFuncCreateShader(GLES2Device* device, GLES2GPUShader* gpu_shader) {
         break;
       }
       default: {
-        CC_ASSERTS(false, "Unsupported GFXShaderType");
+        CCASSERT(false, "Unsupported GFXShaderType");
         return;
       }
     }
@@ -2030,10 +2030,10 @@ void GLES2CmdFuncCopyBuffersToTexture(GLES2Device* device, uint8_t** buffers, ui
     break;
   }
   default:
-    CC_ASSERTS(false, "Unsupported GFXTextureType, copy buffers to texture failed.");
+    CCASSERT(false, "Unsupported GFXTextureType, copy buffers to texture failed.");
     break;
   }
 }
 
 
-CC_NAMESPACE_END
+NS_CC_END

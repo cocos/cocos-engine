@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class CC_CORE_API GFXBuffer : public Object {
  public:
@@ -36,6 +36,6 @@ class CC_CORE_API GFXBuffer : public Object {
   uint8_t* buffer_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif // CC_CORE_GFX_BUFFER_H_

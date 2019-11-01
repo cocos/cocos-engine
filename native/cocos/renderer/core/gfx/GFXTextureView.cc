@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXTextureView.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GFXTextureView::GFXTextureView(GFXDevice* device)
     : device_(device),
@@ -17,4 +17,4 @@ GFXTextureView::GFXTextureView(GFXDevice* device)
 GFXTextureView::~GFXTextureView() {
 }
 
-CC_NAMESPACE_END
+NS_CC_END

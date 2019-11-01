@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "cocos/renderer/gfx/GFXUtils.h"
+#include "util/GFXUtils.h"
 
 #define _JSB_GL_CHECK(_call) \
                 do { \

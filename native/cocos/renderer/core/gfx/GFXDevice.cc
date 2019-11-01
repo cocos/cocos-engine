@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXDevice.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GFXDevice::GFXDevice()
     : api_(GFXAPI::UNKNOWN),
@@ -22,4 +22,4 @@ GFXDevice::GFXDevice()
 GFXDevice::~GFXDevice() {
 }
 
-CC_NAMESPACE_END
+NS_CC_END

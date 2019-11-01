@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class CC_CORE_API GFXContext : public Object {
  public:
@@ -30,6 +30,6 @@ class CC_CORE_API GFXContext : public Object {
   GFXFormat depth_stencil_fmt_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif // CC_CORE_GFX_CONTEXT_H_

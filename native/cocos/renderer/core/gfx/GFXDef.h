@@ -1,7 +1,7 @@
 #ifndef CC_CORE_GFX_DEF_H_
 #define CC_CORE_GFX_DEF_H_
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class GFXDevice;
 class GFXBuffer;
@@ -947,6 +947,6 @@ extern CC_CORE_API uint GFXFormatSize(GFXFormat format, uint width, uint height,
 
 extern CC_CORE_API uint GFXFormatSurfaceSize(GFXFormat format, uint width, uint height, uint depth, uint mips);
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif // CC_CORE_GFX_DEF_H_

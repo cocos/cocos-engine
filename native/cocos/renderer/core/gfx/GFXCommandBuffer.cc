@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 #include "GFXCommandBuffer.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GFXCommandBuffer::GFXCommandBuffer(GFXDevice* device)
     : device_(device),
@@ -14,4 +14,4 @@ GFXCommandBuffer::GFXCommandBuffer(GFXDevice* device)
 GFXCommandBuffer::~GFXCommandBuffer() {
 }
 
-CC_NAMESPACE_END
+NS_CC_END

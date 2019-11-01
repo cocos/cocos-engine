@@ -3,7 +3,7 @@
 
 #include "GFXDef.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class CC_CORE_API GFXCommandBuffer : public Object {
  public:
@@ -47,6 +47,6 @@ protected:
   uint num_tris_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif // CC_CORE_GFX_COMMAND_ALLOCATOR_H_

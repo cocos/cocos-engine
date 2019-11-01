@@ -10,7 +10,10 @@
 #  undef delete
 #endif
 
-CC_NAMESPACE_BEGIN
+#include "base/ccMacros.h"
+#include "core/CoreDef.h"
+
+NS_CC_BEGIN
 
 /** Superclass for all objects that wish to use custom memory allocators
  when their new / delete operators are called.
@@ -74,6 +77,6 @@ class CC_CORE_API AllocatedObject
 	}
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif // CC_CORE_ALLOCATED_OBJ_H_

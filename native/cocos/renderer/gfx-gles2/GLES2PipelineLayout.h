@@ -1,7 +1,7 @@
 #ifndef CC_GFXGLES2_GLES2_PIPELINE_LAYOUT_H_
 #define CC_GFXGLES2_GLES2_PIPELINE_LAYOUT_H_
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class GLES2GPUPipelineLayout;
 
@@ -19,6 +19,6 @@ class CC_GLES2_API GLES2PipelineLayout : public GFXPipelineLayout {
   GLES2GPUPipelineLayout* gpu_pipeline_layout_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif

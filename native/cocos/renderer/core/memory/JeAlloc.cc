@@ -7,7 +7,7 @@
 #include "jemalloc/jemalloc.h"
 extern const char* je_malloc_conf = "narenas:4";
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 #ifdef CC_MEMORY_TRACKER
 #define MEM_CHECKTAG_SIZE  4
@@ -25,7 +25,7 @@ CC_INLINE static void CheckOverflowFree(void* ptr) {
 	char* p = (char*)ptr + size - MEM_CHECKTAG_SIZE;
 	uint tag;
 	memcpy(&tag, p, MEM_CHECKTAG_SIZE);
-	CC_ASSERT(tag == MEM_CHECKTAG);
+	CCASSERT(tag == MEM_CHECKTAG);
 }
 
 #else
@@ -148,6 +148,6 @@ void JeAllocImpl::TrimAlloc() {
 	je_mallctl(buf, NULL, NULL, NULL, 0);
 }
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif // end - #ifdef CC_MEMORY_ALLOCATOR_JEMALLOC

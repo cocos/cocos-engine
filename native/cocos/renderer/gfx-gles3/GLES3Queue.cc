@@ -3,7 +3,7 @@
 #include "GLES3Commands.h"
 #include "GLES3CommandBuffer.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GLES3Queue::GLES3Queue(GFXDevice* device)
     : GFXQueue(device),
@@ -33,4 +33,4 @@ void GLES3Queue::submit(GFXCommandBuffer** cmd_buffs, uint count) {
   }
 }
 
-CC_NAMESPACE_END
+NS_CC_END

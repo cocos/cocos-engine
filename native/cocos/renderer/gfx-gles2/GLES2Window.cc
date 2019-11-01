@@ -1,7 +1,7 @@
 #include "GLES2Std.h"
 #include "GLES2Window.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 GLES2Window::GLES2Window(GFXDevice* device)
     : GFXWindow(device) {
@@ -152,4 +152,4 @@ void GLES2Window::Resize(uint width, uint height) {
   }
 }
 
-CC_NAMESPACE_END
+NS_CC_END

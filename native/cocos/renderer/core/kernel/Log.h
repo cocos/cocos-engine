@@ -1,7 +1,7 @@
 #ifndef CC_CORE_KERNEL_LOG_H_
 #define CC_CORE_KERNEL_LOG_H_
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 enum class LogType: uint8_t {
   KERNEL,
@@ -24,7 +24,7 @@ class CC_CORE_API Log {
   
   static CC_INLINE void set_log_level(LogLevel level) { log_level = level; }
   static CC_INLINE FILE* log_file() { return log_file_; }
-  static void set_log_file(const String& filename);
+  static void set_log_file(const std::string& filename);
   static void Close();
   static void LogMessage(LogType type, LogLevel level, const char* formats, ...);
   
@@ -32,12 +32,12 @@ class CC_CORE_API Log {
   static FILE* log_file_;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
-#define CC_LOG_DEBUG(formats, ...)   if(cc::Log::log_level >= cc::LogLevel::DEBUG) cc::Log::LogMessage(cc::LogType::KERNEL, cc::LogLevel::DEBUG, formats, ##__VA_ARGS__)
-#define CC_LOG_INFO(formats, ...)    if(cc::Log::log_level >= cc::LogLevel::INFO) cc::Log::LogMessage(cc::LogType::KERNEL, cc::LogLevel::INFO, formats, ##__VA_ARGS__)
-#define CC_LOG_WARNING(formats, ...) if(cc::Log::log_level >= cc::LogLevel::WARN) cc::Log::LogMessage(cc::LogType::KERNEL, cc::LogLevel::WARN, formats, ##__VA_ARGS__)
-#define CC_LOG_ERROR(formats, ...)   if(cc::Log::log_level >= cc::LogLevel::ERR) cc::Log::LogMessage(cc::LogType::KERNEL, cc::LogLevel::ERR, formats, ##__VA_ARGS__)
-#define CC_LOG_FATAL(formats, ...)   if(cc::Log::m_logLevel >= cc::LogLevel::FATAL) cc::Log::LogMessage(cc::LogType::KERNEL, cc::LogLevel::FATAL, formats, ##__VA_ARGS__)
+#define CC_LOG_DEBUG(formats, ...)   if(cocos2d::Log::log_level >= cocos2d::LogLevel::DEBUG) cocos2d::Log::LogMessage(cocos2d::LogType::KERNEL, cocos2d::LogLevel::DEBUG, formats, ##__VA_ARGS__)
+#define CC_LOG_INFO(formats, ...)    if(cocos2d::Log::log_level >= cocos2d::LogLevel::INFO) cocos2d::Log::LogMessage(cocos2d::LogType::KERNEL, cocos2d::LogLevel::INFO, formats, ##__VA_ARGS__)
+#define CC_LOG_WARNING(formats, ...) if(cocos2d::Log::log_level >= cocos2d::LogLevel::WARN) cocos2d::Log::LogMessage(cocos2d::LogType::KERNEL, cocos2d::LogLevel::WARN, formats, ##__VA_ARGS__)
+#define CC_LOG_ERROR(formats, ...)   if(cocos2d::Log::log_level >= cocos2d::LogLevel::ERR) cocos2d::Log::LogMessage(cocos2d::LogType::KERNEL, cocos2d::LogLevel::ERR, formats, ##__VA_ARGS__)
+#define CC_LOG_FATAL(formats, ...)   if(cocos2d::Log::m_logLevel >= cocos2d::LogLevel::FATAL) cocos2d::Log::LogMessage(cocos2d::LogType::KERNEL, cocos2d::LogLevel::FATAL, formats, ##__VA_ARGS__)
 
 #endif // CC_CORE_KERNEL_LOG_H_

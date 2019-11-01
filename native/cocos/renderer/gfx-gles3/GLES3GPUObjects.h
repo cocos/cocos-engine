@@ -3,7 +3,7 @@
 
 #include "gles3w.h"
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 class GLES3GPUBuffer : public Object {
  public:
@@ -211,6 +211,6 @@ class GLES3GPUBindingLayout : public Object {
   GLES3GPUBindingList gpu_bindings;
 };
 
-CC_NAMESPACE_END
+NS_CC_END
 
 #endif
