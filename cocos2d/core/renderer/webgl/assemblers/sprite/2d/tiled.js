@@ -37,9 +37,12 @@ export default class TiledAssembler extends Assembler2D {
         this.row = 0;
         this.col = 0;
 
-        this._local = { x: [], y: []};
         this._renderData.createFlexData(0, 4, 6, this.getVfmt());
         this._updateIndices();
+    }
+
+    initLocal () {
+        this._local = { x: [], y: []};
     }
 
     _updateIndices () {

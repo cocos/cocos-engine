@@ -31,6 +31,7 @@ const textureUtil = require('../../utils/texture-util');
 
 import murmurhash2 from '../../../renderer/murmurhash2_gc';
 import utils from './utils';
+import materialPool from './material-pool';
 
 /**
  * !#en Material Asset.
@@ -122,12 +123,7 @@ let Material = cc.Class({
                 return mat;
             }
             else {
-                let instance = new Material();
-                instance.copy(mat);
-                instance._name = mat._name + ' (Instance)';
-                instance._uuid = mat._uuid;
-                instance._owner = renderComponent;
-                return instance;
+                return materialPool.get(mat, renderComponent);
             }
         }
     },
