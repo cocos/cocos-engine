@@ -72,31 +72,18 @@ module.exports = function createBundler(entryFiles, options) {
     };
 
     var presets = [
-        // [ 'es2015', { loose: true } ],
         [
             '@babel/preset-env',
             {
                 "loose": true,
-                // "exclude": ['transform-es2015-typeof-symbol']
             }
         ],
         '@babel/preset-typescript',
     ];
 
     var plugins = [
-    //     // https://babeljs.io/docs/plugins/transform-es2015-shorthand-properties/
-    //     'babel-plugin-transform-es2015-shorthand-properties',
-    //     // https://babeljs.io/docs/plugins/transform-es2015-template-literals/
-    //     'babel-plugin-transform-es2015-template-literals',
-    //     // http://babeljs.io/docs/plugins/transform-es2015-block-scoping/
-    //     'babel-plugin-transform-es2015-block-scoping',
-
     //     // < 6.16.0
     //     [ 'babel-plugin-parser-opts', { allowReturnOutsideFunction: true } ]
-        // 'transform-decorators-legacy',
-        // 'transform-class-properties',
-
-        // 'add-module-exports',
         // make sure that transform-decorators-legacy comes before transform-class-properties.
         [
             '@babel/plugin-proposal-decorators',
