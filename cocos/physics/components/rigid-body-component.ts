@@ -14,7 +14,7 @@ import {
 import { Vec3 } from '../../core/math';
 import { PhysicsBasedComponent } from './detail/physics-based-component';
 import { Component, error } from '../../core';
-import { IRigidBody } from '../spec/IRigidBody';
+import { IRigidBody } from '../spec/I-rigid-body';
 import { createRigidBody } from '../instance';
 
 
@@ -29,17 +29,7 @@ import { createRigidBody } from '../instance';
 @disallowMultiple
 export class RigidBodyComponent extends Component {
 
-    protected get _assertPreload (): boolean {
-        const r = this._isOnLoadCalled == 0;
-        if (r) { error('Physic Error: Please make sure that the node has been added to the scene'); }
-        return r;
-    }
-
     /// PUBLIC PROPERTY GETTER\SETTER ///
-
-    public get impl () {
-        return this.body;
-    }
 
     /**
      * @zh
@@ -55,7 +45,7 @@ export class RigidBodyComponent extends Component {
     public set allowSleep (v: boolean) {
         this._allowSleep = v;
         if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
-            this.body.allowSleep = v;
+            this._body.allowSleep = v;
         }
     }
 
@@ -74,7 +64,7 @@ export class RigidBodyComponent extends Component {
     public set mass (value) {
         this._mass = value;
         if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
-            this.body.mass = value;
+            this._body.mass = value;
         }
     }
 
@@ -93,7 +83,7 @@ export class RigidBodyComponent extends Component {
     public set linearDamping (value) {
         this._linearDamping = value;
         if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
-            this.body.linearDamping = value;
+            this._body.linearDamping = value;
         }
     }
 
@@ -112,7 +102,7 @@ export class RigidBodyComponent extends Component {
     public set angularDamping (value) {
         this._angularDamping = value;
         if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
-            this.body.angularDamping = value;
+            this._body.angularDamping = value;
         }
     }
 
@@ -131,7 +121,7 @@ export class RigidBodyComponent extends Component {
     public set isKinematic (value) {
         this._isKinematic = value;
         if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
-            this.body.isKinematic = value;
+            this._body.isKinematic = value;
         }
     }
 
@@ -150,7 +140,7 @@ export class RigidBodyComponent extends Component {
     public set useGravity (value) {
         this._useGravity = value;
         if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
-            this.body.useGravity = value;
+            this._body.useGravity = value;
         }
     }
 
@@ -169,7 +159,7 @@ export class RigidBodyComponent extends Component {
     public set fixedRotation (value) {
         this._fixedRotation = value;
         if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
-            this.body.fixedRotation = value;
+            this._body.fixedRotation = value;
         }
     }
 
@@ -188,7 +178,7 @@ export class RigidBodyComponent extends Component {
     public set linearFactor (value: Vec3) {
         Vec3.copy(this._linearFactor, value);
         if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
-            this.body.linearFactor = this._linearFactor;
+            this._body.linearFactor = this._linearFactor;
         }
     }
 
@@ -207,7 +197,7 @@ export class RigidBodyComponent extends Component {
     public set angularFactor (value: Vec3) {
         Vec3.copy(this._angularFactor, value);
         if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
-            this.body.angularFactor = this._angularFactor;
+            this._body.angularFactor = this._angularFactor;
         }
     }
 
@@ -217,7 +207,7 @@ export class RigidBodyComponent extends Component {
      */
     public get isAwake (): boolean {
         if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
-            return this.body.isAwake;
+            return this._body.isAwake;
         }
         return false;
     }
@@ -228,7 +218,7 @@ export class RigidBodyComponent extends Component {
      */
     public get isSleepy (): boolean {
         if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
-            return this.body.isSleepy;
+            return this._body.isSleepy;
         }
         return false;
     }
@@ -239,7 +229,7 @@ export class RigidBodyComponent extends Component {
      */
     public get isSleeping (): boolean {
         if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
-            return this.body.isSleeping;
+            return this._body.isSleeping;
         }
         return false;
     }
@@ -273,12 +263,48 @@ export class RigidBodyComponent extends Component {
     @property
     private _angularFactor: Vec3 = new Vec3(1, 1, 1);
 
-    private body!: IRigidBody;
+    private _body!: IRigidBody;
+
+    public get rigidBody () {
+        return this._body;
+    }
+
+    protected get _assertPreload (): boolean {
+        const r = this._isOnLoadCalled == 0;
+        if (r) { error('Physic Error: Please make sure that the node has been added to the scene'); }
+        return !r;
+    }
 
     constructor () {
         super();
         if (!CC_EDITOR) {
-            this.body = createRigidBody();
+            this._body = createRigidBody();
+        }
+    }
+
+    /// COMPONENT LIFECYCLE ///
+
+    protected __preload () {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
+            this._body.__preload!(this);
+        }
+    }
+
+    protected onEnable () {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
+            this._body.onEnable!();
+        }
+    }
+
+    protected onDisable () {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
+            this._body.onDisable!();
+        }
+    }
+
+    protected onDestroy () {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
+            this._body.onDestroy!();
         }
     }
 
@@ -292,7 +318,7 @@ export class RigidBodyComponent extends Component {
      */
     public applyForce (force: Vec3, relativePoint?: Vec3) {
         if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
-            this.body!.applyForce(force, relativePoint);
+            this._body.applyForce(force, relativePoint);
         }
     }
 
@@ -304,7 +330,7 @@ export class RigidBodyComponent extends Component {
      */
     public applyLocalForce (force: Vec3, localPoint?: Vec3) {
         if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
-            this.body!.applyLocalForce(force, localPoint);
+            this._body.applyLocalForce(force, localPoint);
         }
     }
 
@@ -316,7 +342,7 @@ export class RigidBodyComponent extends Component {
      */
     public applyImpulse (impulse: Vec3, relativePoint?: Vec3) {
         if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
-            this.body!.applyImpulse(impulse, relativePoint);
+            this._body.applyImpulse(impulse, relativePoint);
         }
     }
 
@@ -328,19 +354,19 @@ export class RigidBodyComponent extends Component {
      */
     public applyLocalImpulse (impulse: Vec3, localPoint?: Vec3) {
         if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
-            this.body!.applyLocalImpulse(impulse, localPoint);
+            this._body.applyLocalImpulse(impulse, localPoint);
         }
     }
 
     public applyTorque (torque: Vec3) {
         if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
-            this.body!.applyTorque(torque);
+            this._body.applyTorque(torque);
         }
     }
 
     public applyLocalTorque (torque: Vec3) {
         if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
-            this.body!.applyLocalTorque(torque);
+            this._body.applyLocalTorque(torque);
         }
     }
 
@@ -350,7 +376,7 @@ export class RigidBodyComponent extends Component {
      */
     public wakeUp () {
         if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
-            this.body!.wakeUp();
+            this._body.wakeUp();
         }
     }
 
@@ -360,7 +386,7 @@ export class RigidBodyComponent extends Component {
      */
     public sleep () {
         if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
-            this.body!.sleep();
+            this._body.sleep();
         }
     }
 
@@ -371,7 +397,7 @@ export class RigidBodyComponent extends Component {
      */
     public getLinearVelocity (out: Vec3) {
         if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
-            this.body.getLinearVelocity(out);
+            this._body.getLinearVelocity(out);
         }
     }
 
@@ -382,7 +408,7 @@ export class RigidBodyComponent extends Component {
      */
     public setLinearVelocity (value: Vec3): void {
         if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
-            this.body.setLinearVelocity(value);
+            this._body.setLinearVelocity(value);
         }
     }
 
@@ -393,7 +419,7 @@ export class RigidBodyComponent extends Component {
      */
     public getAngularVelocity (out: Vec3) {
         if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
-            this.body.getAngularVelocity(out);
+            this._body.getAngularVelocity(out);
         }
     }
 
@@ -404,41 +430,7 @@ export class RigidBodyComponent extends Component {
      */
     public setAngularVelocity (value: Vec3): void {
         if (!CC_PHYSICS_BUILTIN && this._assertPreload) {
-            this.body.setAngularVelocity(value);
-        }
-    }
-
-    /// COMPONENT LIFECYCLE ///
-
-    protected onEnable () {
-        // super.onEnable();
-        // if (!CC_PHYSICS_BUILTIN) {
-        //     /**
-        //      * 此处设置刚体属性是因为__preload不受executionOrder的顺序影响，
-        //      * 从而导致ColliderComponent后添加会导致刚体的某些属性被重写
-        //      */
-        //     if (this.sharedBody) {
-        //         this.allowSleep = this._allowSleep;
-        //         this.mass = this._mass;
-        //         this.linearDamping = this._linearDamping;
-        //         this.angularDamping = this._angularDamping;
-        //         this.useGravity = this._useGravity;
-        //         this.isKinematic = this._isKinematic;
-        //         this.fixedRotation = this._fixedRotation;
-        //         this.linearFactor = this._linearFactor;
-        //         this.angularFactor = this._angularFactor;
-        //         this.sharedBody.isShapeOnly = false;
-        //     }
-        // }
-
-        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
-            this.body.onEnable!();
-        }
-    }
-
-    protected onDisable () {
-        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
-            this.body.onDisable!();
+            this._body.setAngularVelocity(value);
         }
     }
 }

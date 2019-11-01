@@ -3,7 +3,7 @@
  */
 
 // Cannon
-import { CannonRigidBody } from './cannon/cannon-body';
+import { CannonRigidBody } from './cannon/cannon-rigid-body';
 import { CannonWorld } from './cannon/cannon-world';
 import { CannonBoxShape } from './cannon/shapes/cannon-box-shape';
 import { CannonSphereShape } from './cannon/shapes/cannon-sphere-shape';

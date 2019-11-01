@@ -16,7 +16,7 @@ import { RigidBodyComponent } from '../rigid-body-component';
 import { PhysicMaterial } from '../../assets/physic-material';
 import { PhysicsSystem } from '../physics-system';
 import { Component } from '../../../core';
-import { IBaseShape } from '../../spec/IPhysicsSpahe';
+import { IBaseShape } from '../../spec/i-physics-spahe';
 
 /**
  * @zh
@@ -104,7 +104,7 @@ export class ColliderComponent extends Component implements IEventTarget {
     public set isTrigger (value) {
         this._isTrigger = value;
         if (!CC_EDITOR) {
-            this._shapeBase.isTrigger = this._isTrigger;
+            this._shape.isTrigger = this._isTrigger;
         }
         // if (!CC_EDITOR) {
         //     if (!CC_PHYSICS_BUILTIN) {
@@ -135,7 +135,7 @@ export class ColliderComponent extends Component implements IEventTarget {
     public set center (value: Vec3) {
         Vec3.copy(this._center, value);
         if (!CC_EDITOR) {
-            this._shapeBase.center = this._center;
+            this._shape.center = this._center;
         }
 
         // if (!CC_EDITOR) {
@@ -157,33 +157,29 @@ export class ColliderComponent extends Component implements IEventTarget {
      * 获取碰撞器所绑定的刚体组件，可能为 null
      */
     public get attachedRigidbody (): RigidBodyComponent | null {
-        return null;
+        return this.shape.attachedRigidBody;
     }
 
     public get shape () {
-        return this._shapeBase;
+        return this._shape;
     }
 
-    protected _shapeBase!: IBaseShape;
+    protected _shape!: IBaseShape;
 
-    private _isSharedMaterial: boolean = true;
+    protected _isSharedMaterial: boolean = true;
 
     /// PRIVATE PROPERTY ///
 
     @property({ type: PhysicMaterial })
-    private _material: PhysicMaterial | null = null;
+    protected _material: PhysicMaterial | null = null;
 
     @property
-    private _isTrigger: boolean = false;
+    protected _isTrigger: boolean = false;
 
     @property
-    private readonly _center: Vec3 = new Vec3(0, 0, 0);
+    protected readonly _center: Vec3 = new Vec3();
 
-    constructor () {
-        super();
-    }
-
-    /// PRIVATE METHOD ///
+    /// EVENT INTERFACE ///
 
     /**
      * @zh
@@ -237,7 +233,87 @@ export class ColliderComponent extends Component implements IEventTarget {
     public emit (key: TriggerEventType | CollisionEventType, ...args: any[]): void {
     }
 
+    /// GROUP MASK ///
+
+    /**
+     * @zh
+     * 设置分组值。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public setGroup (v: number): void {
+        return this._shape!.setGroup(v);
+    }
+
+    /**
+     * @zh
+     * 获取分组值。
+     * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public getGroup (): number {
+        return this._shape.getGroup();
+    }
+
+    /**
+     * @zh
+     * 添加分组值，可填要加入的 group。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public addGroup (v: number) {
+        return this._shape.addGroup(v);
+    }
+
+    /**
+     * @zh
+     * 减去分组值，可填要移除的 group。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public removeGroup (v: number) {
+        return this._shape.removeGroup(v);
+    }
+
+    /**
+     * @zh
+     * 获取掩码值。
+     * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public getMask (): number {
+        return this._shape.getMask();
+    }
+
+    /**
+     * @zh
+     * 设置掩码值。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public setMask (v: number) {
+        return this._shape.setMask(v);
+    }
+
+    /**
+     * @zh
+     * 添加掩码值，可填入需要检查的 group。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public addMask (v: number) {
+        return this._shape.addMask(v);
+    }
+
+    /**
+     * @zh
+     * 减去掩码值，可填入不需要检查的 group。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public removeMask (v: number) {
+        return this._shape.removeMask(v);
+    }
+
     /// COMPONENT LIFECYCLE ///
+
+    protected __preload () {
+        if (!CC_EDITOR) {
+            this._shape.__preload!(this);
+        }
+    }
 
     protected onLoad () {
         // if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
@@ -248,7 +324,10 @@ export class ColliderComponent extends Component implements IEventTarget {
 
         // this.center = this._center;
         if (!CC_EDITOR) {
-            this._shapeBase.onLoad!();
+            if (!CC_PHYSICS_BUILTIN) {
+                this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
+            }
+            this._shape.onLoad!();
         }
 
     }
@@ -276,7 +355,7 @@ export class ColliderComponent extends Component implements IEventTarget {
         //     this.sharedBody.syncPhysWithScene();
         // }
         if (!CC_EDITOR) {
-            this._shapeBase.onEnable!();
+            this._shape.onEnable!();
         }
     }
 
@@ -294,7 +373,7 @@ export class ColliderComponent extends Component implements IEventTarget {
         //     }
         // }
         if (!CC_EDITOR) {
-            this._shapeBase.onDisable!();
+            this._shape.onDisable!();
         }
     }
 
@@ -311,13 +390,13 @@ export class ColliderComponent extends Component implements IEventTarget {
         //     }
         // }
         if (!CC_EDITOR) {
-            this._shapeBase.onDestroy!();
+            this._shape.onDestroy!();
         }
     }
 
     private _updateMaterial () {
         if (!CC_EDITOR) {
-            this._shapeBase.material = this._material;
+            this._shape.material = this._material;
         }
     }
 

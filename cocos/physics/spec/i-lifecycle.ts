@@ -30,7 +30,7 @@ export interface ILifecycle {
      * 如果支持脚本优先级，则应删除此方法。
      * @private
      */
-    __preload?(): void;
+    __preload?(component: any): void;
 
     /**
      * @en

@@ -3,7 +3,6 @@
  */
 
 import { Vec3 } from '../core/math';
-import { ShapeBase } from './api';
 import { ColliderComponent } from '../../exports/physics-framework';
 
 /**
@@ -19,7 +18,7 @@ export class PhysicsRayResult {
     get hitPoint (): Vec3 {
         return this._hitPoint;
     }
-    
+
     /**
      * @zh
      * 距离
@@ -27,7 +26,7 @@ export class PhysicsRayResult {
     get distance (): number {
         return this._distance;
     }
-    
+
     /**
      * @zh
      * 击中的碰撞盒
@@ -44,10 +43,10 @@ export class PhysicsRayResult {
      * @zh
      * 设置射线，此方法由引擎内部使用，请勿在外部脚本调用
      */
-    public _assign (hitPoint: Vec3, distance: number, shape: ShapeBase) {
+    public _assign (hitPoint: Vec3, distance: number, collider: ColliderComponent) {
         Vec3.copy(this._hitPoint, hitPoint);
         this._distance = distance;
-        this._collidier = shape.getUserData() as ColliderComponent;
+        this._collidier = collider;
     }
 
     /**

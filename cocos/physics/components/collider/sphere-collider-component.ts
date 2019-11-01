@@ -9,10 +9,9 @@ import {
     menu,
     property,
 } from '../../../core/data/class-decorator';
-import { SphereShapeBase } from '../../api';
 import { createSphereShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
-import { ISphereShape } from '../../spec/IPhysicsSpahe';
+import { ISphereShape } from '../../spec/i-physics-spahe';
 
 /**
  * @zh
@@ -24,20 +23,20 @@ import { ISphereShape } from '../../spec/IPhysicsSpahe';
 @executeInEditMode
 export class SphereColliderComponent extends ColliderComponent {
 
-    private get _shape (): ISphereShape {
-        return this._shapeBase as ISphereShape;
+    public get sphereShape (): ISphereShape {
+        return this._shape as ISphereShape;
     }
 
     /// PRIVATE PROPERTY ///
 
     @property
-    private _radius: number = 0;
+    private _radius: number = 1;
 
     constructor () {
         super();
-        // this._shape = createSphereShape(this._radius);
-        // this._shape.setUserData(this);
-        // this._shapeBase = this._shape;
+        if (!CC_EDITOR) {
+            this._shape = createSphereShape(this._radius);
+        }
     }
 
     /// COMPONENT LIFECYCLE ///
@@ -68,6 +67,10 @@ export class SphereColliderComponent extends ColliderComponent {
 
     public set radius (value) {
         this._radius = value;
+
+        if (!CC_EDITOR) {
+            this.sphereShape.radius = this._radius;
+        }
 
         // if (!CC_EDITOR) {
         //     this._shape.setRadius(this._radius);

@@ -3,17 +3,17 @@
  */
 
 import { Vec3 } from '../core/math';
-import { BoxShapeBase, ICreateBodyOptions, PhysicsWorldBase, RigidBodyBase, SphereShapeBase } from './api';
 import { BoxShape, PhysicsWorld, RigidBody, SphereShape } from './impl-selector';
 import { PhysicsRayResult } from './physics-ray-result';
-import { IRigidBody } from './spec/IRigidBody';
-import { IBoxShape, ISphereShape } from './spec/IPhysicsSpahe';
+import { IRigidBody } from './spec/I-rigid-body';
+import { IBoxShape, ISphereShape } from './spec/i-physics-spahe';
+import { IPhysicsWorld } from './spec/i-physics-world';
 
-export function createPhysicsWorld (): PhysicsWorldBase {
-    return new PhysicsWorld() as PhysicsWorldBase;
+export function createPhysicsWorld (): IPhysicsWorld {
+    return new PhysicsWorld() as IPhysicsWorld;
 }
 
-export function createRigidBody (options?: ICreateBodyOptions): IRigidBody {
+export function createRigidBody (options?: any): IRigidBody {
     return new RigidBody(options) as IRigidBody;
 }
 

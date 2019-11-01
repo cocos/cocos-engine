@@ -1,15 +1,30 @@
 import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../../core/math';
-import { ShapeBase, SphereShapeBase } from '../../api';
-import { maxComponent, setWrap } from '../../util';
+import { maxComponent } from '../../util';
 import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
-import { ISphereShape } from '../../spec/IPhysicsSpahe';
+import { ISphereShape } from '../../spec/i-physics-spahe';
+import { SphereColliderComponent } from '../../../../exports/physics-framework';
 
 export class CannonSphereShape extends CannonShape implements ISphereShape {
 
-    private get _sphere (): CANNON.Sphere {
+    get sphereCollider () {
+        return this.collider as SphereColliderComponent;
+    }
+
+    get sphere () {
         return this._shape as CANNON.Sphere;
+    }
+
+    get radius () {
+        return this._radius;
+    }
+
+    set radius (v: number) {
+        const max = maxComponent(this.collider.node.worldScale);
+        this.sphere.radius = v * Math.abs(max);
+        this.sphere.updateBoundingSphereRadius();
+        commitShapeUpdates(this._body);
     }
 
     private _radius: number;
@@ -20,33 +35,14 @@ export class CannonSphereShape extends CannonShape implements ISphereShape {
         this._shape = new CANNON.Sphere(this._radius);
     }
 
-    set radius (v: number) {
-        this._sphere.radius = this._radius * maxComponent(this.collider.node.worldScale);
-
-        if (this._body != null) {
-            commitShapeUpdates(this._body);
-        }
+    onLoad () {
+        super.onLoad();
+        this.radius = this.sphereCollider.radius;
     }
 
-    // public setScale (scale: Vec3): void {
-    //     super.setScale(scale);
-    //     this._recalcRadius();
-    // }
+    setScale (scale: Vec3): void {
+        super.setScale(scale);
+        this.radius = this.sphereCollider.radius;
+    }
 
-    // public setRadius (radius: number) {
-    //     this._radius = radius;
-    //     this._recalcRadius();
-    // }
-
-    // public _devStrinfy () {
-    //     return `Sphere(${super._devStrinfy()}, radius: ${this._sphere.radius})`;
-    // }
-
-    // private _recalcRadius () {
-    //     this._sphere.radius = this._radius * maxComponent(this._scale);
-
-    //     if (this._body != null) {
-    //         commitShapeUpdates(this._body);
-    //     }
-    // }
 }

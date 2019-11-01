@@ -1,31 +1,27 @@
 import CANNON from '@cocos/cannon';
-import { Quat, Vec3 } from '../../../core/math';
-import { ITriggerCallback, ITriggerEventType, ShapeBase } from '../../api';
-import { getWrap, stringfyVec3 } from '../../util';
+import { Vec3 } from '../../../core/math';
+import { getWrap, setWrap } from '../../util';
 import { commitShapeUpdates } from '../cannon-util';
 import { PhysicMaterial } from '../../assets/physic-material';
-import { IBaseShape } from '../../spec/IPhysicsSpahe';
+import { IBaseShape } from '../../spec/i-physics-spahe';
 import { IVec3Like } from '../../../core/math/type-define';
-import { ColliderComponent, RigidBodyComponent } from '../../../../exports/physics-framework';
-import { CannonRigidBody } from '../cannon-body';
+import { ColliderComponent, PhysicsSystem } from '../../../../exports/physics-framework';
+import { CannonSharedBody } from '../cannon-shared-body';
+import { CannonWorld } from '../cannon-world';
+import { Node } from '../../../core';
+import { TriggerEventType } from '../../export-api';
+
+const TriggerEventObject = {
+    type: 'onTriggerEnter' as TriggerEventType,
+    selfCollider: null as unknown as ColliderComponent,
+    otherCollider: null as unknown as ColliderComponent,
+};
 
 export class CannonShape implements IBaseShape {
 
     static readonly idToMaterial = {};
-    get impl () {
+    get shape () {
         return this._shape!;
-    }
-
-    protected _shape!: CANNON.Shape;
-
-    protected _body!: CANNON.Body;
-
-    private _index: number = -1;
-
-    private _onTriggerListener: (event: CANNON.ITriggeredEvent) => any;
-
-    get index () {
-        return this._index;
     }
 
     set material (mat: PhysicMaterial) {
@@ -43,67 +39,117 @@ export class CannonShape implements IBaseShape {
     }
 
     set isTrigger (v: boolean) {
-        this._shape.collisionResponse = v;
+        this._shape.collisionResponse = !v;
     }
 
     set center (v: IVec3Like) {
-        const lpos = this._body.shapeOffsets[this._index] as IVec3Like;
+        const lpos = this.offset as IVec3Like;
         Vec3.copy(lpos, v);
-        Vec3.multiply(lpos, lpos, this.collider.node.worldScale);
+        Vec3.multiply(lpos, lpos, this._collider.node.worldScale);
         commitShapeUpdates(this._body);
     }
 
-    collider!: ColliderComponent;
-    wrapBody!: CannonRigidBody | null;
-    constructor () {
-        this._onTriggerListener = this.onTrigger.bind(this);
+    get collider () { return this._collider; }
+
+    get attachedRigidBody () {
+        if (this._sharedBody.wrappedBody) { return this._sharedBody.wrappedBody.rigidBody; }
+        return null;
     }
 
-    setBody (body: CANNON.Body, index: number) {
-        this._body = body;
-        this._index = index;
-    }
+    get sharedBody (): CannonSharedBody { return this._sharedBody; }
 
-    onTrigger (event: CANNON.ITriggeredEvent) {
-        TriggerEventObject.type = event.event;
-        TriggerEventObject.selfCollider = getWrap<ShapeBase>(event.selfShape).getUserData();
-        TriggerEventObject.otherCollider = getWrap<ShapeBase>(event.otherShape).getUserData();
-        // TriggerEventObject.selfRigidBody = getWrap<RigidBodyBase>(event.selfBody).getUserData();
-        // TriggerEventObject.otherRigidBody = getWrap<RigidBodyBase>(event.otherBody).getUserData();
-        this.collider.emit(TriggerEventObject.type, TriggerEventObject);
-    }
+    _collider!: ColliderComponent;
+    readonly offset = new CANNON.Vec3();
+    readonly quaterion = new CANNON.Quaternion();
 
-    __preload () {
-        this._shape.addEventListener('triggered', this._onTriggerListener);
+    protected _shape!: CANNON.Shape;
+    protected _sharedBody!: CannonSharedBody;
+    protected get _body (): CANNON.Body { return this._sharedBody.body; }
+    protected onTriggerListener = this.onTrigger.bind(this);
+
+    __preload (comp: ColliderComponent) {
+        this._collider = comp;
+        setWrap(this._shape, this);
+        this._shape.addEventListener('triggered', this.onTriggerListener);
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._collider.node as Node);
     }
 
     onLoad () {
-
+        this.center = this._collider.center;
+        this.isTrigger = this._collider.isTrigger;
     }
 
     onEnable () {
-        if (this._index < 0) {
-            if (this.wrapBody) {
-                this.wrapBody.addShape(this);
-            }
-        }
+        this._sharedBody.addShape(this);
+        this._sharedBody.enabled = true;
     }
 
     onDisable () {
-        if (this.wrapBody) {
-            this.wrapBody.removeShape(this);
-        }
+        this._sharedBody.removeShape(this);
+        this._sharedBody.enabled = false;
     }
 
     onDestroy () {
 
     }
-}
 
-const TriggerEventObject = {
-    type: '' as unknown as ITriggerEventType,
-    selfCollider: null,
-    otherCollider: null,
-    // selfRigidBody: null,
-    // otherRigidBody: null,
-};
+    onTrigger (event: CANNON.ITriggeredEvent) {
+        TriggerEventObject.type = event.event;
+        const self = getWrap<CannonShape>(event.selfShape);
+        const other = getWrap<CannonShape>(event.otherShape);
+        TriggerEventObject.selfCollider = self.collider;
+        TriggerEventObject.otherCollider = other.collider;
+        this._collider.emit(TriggerEventObject.type, TriggerEventObject);
+
+        // if (self.collider.node.hasChangedFlags) {
+        //     self.sharedBody.syncSceneToPhysics();
+        // }
+
+        // if (other.collider.node.hasChangedFlags) {
+        //     other.sharedBody.syncSceneToPhysics();
+        // }
+    }
+
+    /** group */
+    public getGroup (): number {
+        return this._body.collisionFilterGroup;
+    }
+
+    public setGroup (v: number): void {
+        this._body.collisionFilterGroup = v;
+    }
+
+    public addGroup (v: number): void {
+        this._body.collisionFilterGroup |= v;
+    }
+
+    public removeGroup (v: number): void {
+        this._body.collisionFilterGroup &= ~v;
+    }
+
+    /** mask */
+    public getMask (): number {
+        return this._body.collisionFilterMask;
+    }
+
+    public setMask (v: number): void {
+        this._body.collisionFilterMask = v;
+    }
+
+    public addMask (v: number): void {
+        this._body.collisionFilterMask |= v;
+    }
+
+    public removeMask (v: number): void {
+        this._body.collisionFilterMask &= ~v;
+    }
+
+    /**
+     * change scale will recalculate center & size \
+     * size handle by child class
+     * @param scale 
+     */
+    setScale (scale: IVec3Like) {
+        this.center = this._collider.center;
+    }
+}

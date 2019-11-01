@@ -10,10 +10,9 @@ import {
     property,
 } from '../../../core/data/class-decorator';
 import { Vec3 } from '../../../core/math';
-import { BoxShapeBase } from '../../api';
 import { createBoxShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
-import { IBoxShape } from '../../spec/IPhysicsSpahe';
+import { IBoxShape } from '../../spec/i-physics-spahe';
 
 /**
  * @zh
@@ -25,22 +24,20 @@ import { IBoxShape } from '../../spec/IPhysicsSpahe';
 @executeInEditMode
 export class BoxColliderComponent extends ColliderComponent {
 
-    private get _shape (): IBoxShape {
-        return this._shapeBase as IBoxShape;
+    public get boxShape (): IBoxShape {
+        return this._shape as IBoxShape;
     }
 
     /// PRIVATE PROPERTY ///
 
     @property
-    private _size: Vec3 = new Vec3(0, 0, 0);
+    private _size: Vec3 = new Vec3(1, 1, 1);
 
     constructor () {
         super();
-        // if (!CC_EDITOR) {
-        //     this._shape = createBoxShape(this._size);
-        //     this._shape.setUserData(this);
-        //     this._shapeBase = this._shape;
-        // }
+        if (!CC_EDITOR) {
+            this._shape = createBoxShape(this._size);
+        }
     }
 
     /// COMPONENT LIFECYCLE ///
@@ -72,6 +69,9 @@ export class BoxColliderComponent extends ColliderComponent {
 
     public set size (value) {
         Vec3.copy(this._size, value);
+        if (!CC_EDITOR) {
+            this.boxShape.size = this._size;
+        }
 
         // if (!CC_EDITOR) {
         //     this._shape.setSize(this._size);
