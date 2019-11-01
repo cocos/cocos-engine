@@ -747,8 +747,8 @@
 		BA06A6E723583DBD007740C5 /* CachedArray.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A66B23583DBD007740C5 /* CachedArray.h */; };
 		BA06A6E823583DBD007740C5 /* UTFString.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A66C23583DBD007740C5 /* UTFString.cc */; };
 		BA06A6E923583DBD007740C5 /* UTFString.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A66C23583DBD007740C5 /* UTFString.cc */; };
-		BA06A6EA23583DBD007740C5 /* assertion.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A66D23583DBD007740C5 /* assertion.h */; };
-		BA06A6EB23583DBD007740C5 /* assertion.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A66D23583DBD007740C5 /* assertion.h */; };
+		BA06A6EA23583DBD007740C5 /* Assertion.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A66D23583DBD007740C5 /* Assertion.h */; };
+		BA06A6EB23583DBD007740C5 /* Assertion.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A66D23583DBD007740C5 /* Assertion.h */; };
 		BA06A6EC23583DBD007740C5 /* UTFString.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A66E23583DBD007740C5 /* UTFString.h */; };
 		BA06A6ED23583DBD007740C5 /* UTFString.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A66E23583DBD007740C5 /* UTFString.h */; };
 		BA06A6EE23583DBD007740C5 /* Log.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A66F23583DBD007740C5 /* Log.h */; };
@@ -1457,7 +1457,7 @@
 		BA06A66923583DBD007740C5 /* GFXPipelineState.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GFXPipelineState.cc; sourceTree = "<group>"; };
 		BA06A66B23583DBD007740C5 /* CachedArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CachedArray.h; sourceTree = "<group>"; };
 		BA06A66C23583DBD007740C5 /* UTFString.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UTFString.cc; sourceTree = "<group>"; };
-		BA06A66D23583DBD007740C5 /* assertion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = assertion.h; sourceTree = "<group>"; };
+		BA06A66D23583DBD007740C5 /* Assertion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Assertion.h; sourceTree = "<group>"; };
 		BA06A66E23583DBD007740C5 /* UTFString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UTFString.h; sourceTree = "<group>"; };
 		BA06A66F23583DBD007740C5 /* Log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Log.h; sourceTree = "<group>"; };
 		BA06A67023583DBD007740C5 /* Assertion.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Assertion.cc; sourceTree = "<group>"; };
@@ -2519,7 +2519,7 @@
 			children = (
 				BA06A66B23583DBD007740C5 /* CachedArray.h */,
 				BA06A66C23583DBD007740C5 /* UTFString.cc */,
-				BA06A66D23583DBD007740C5 /* assertion.h */,
+				BA06A66D23583DBD007740C5 /* Assertion.h */,
 				BA06A66E23583DBD007740C5 /* UTFString.h */,
 				BA06A66F23583DBD007740C5 /* Log.h */,
 				BA06A67023583DBD007740C5 /* Assertion.cc */,
@@ -2940,7 +2940,7 @@
 				1A28FF851F20AFAB007A1D9D /* SRSIMDHelpers.h in Headers */,
 				50ABBD401925AB0000A911A9 /* CCMath.h in Headers */,
 				ED3057831BEC76C90083C3ED /* unzip.h in Headers */,
-				BA06A6EA23583DBD007740C5 /* assertion.h in Headers */,
+				BA06A6EA23583DBD007740C5 /* Assertion.h in Headers */,
 				BA06A6B823583DBD007740C5 /* GFXWindow.h in Headers */,
 				1A28FF511F20AFAB007A1D9D /* SRIOConsumer.h in Headers */,
 				BA06A69C23583DBD007740C5 /* CoreDef.h in Headers */,
@@ -3221,7 +3221,7 @@
 				4037F5CD2108751E001C205C /* CCAsyncTaskPool.h in Headers */,
 				BA06A6B723583DBD007740C5 /* GFXPipelineLayout.h in Headers */,
 				1A52DB76205BCDD000350EE3 /* Class.hpp in Headers */,
-				BA06A6EB23583DBD007740C5 /* assertion.h in Headers */,
+				BA06A6EB23583DBD007740C5 /* Assertion.h in Headers */,
 				BA06A7CA23583DFE007740C5 /* GLES3Window.h in Headers */,
 				BA06A84923584B92007740C5 /* gl2.h in Headers */,
 				BA06A84D23584B92007740C5 /* egl.h in Headers */,
