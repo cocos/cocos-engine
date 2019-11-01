@@ -26,7 +26,6 @@ let GraySpriteState = cc.Class({
             },
             type: Material,
             tooltip: CC_DEV && 'i18n:COMPONENT.button.normal_material',
-            visible: true,
             animatable: false
         },
 
@@ -49,7 +48,6 @@ let GraySpriteState = cc.Class({
             },
             type: Material,
             tooltip: CC_DEV && 'i18n:COMPONENT.button.gray_material',
-            visible: true,
             animatable: false
         }
     },
