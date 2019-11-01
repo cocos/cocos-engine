@@ -78,7 +78,10 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     @property({ type: [Socket] })
     public _sockets: Socket[] = [];
 
-    @property({ type: [Socket] })
+    @property({
+        type: [Socket],
+        tooltip:'骨骼',
+    })
     get sockets () {
         return this._sockets;
     }

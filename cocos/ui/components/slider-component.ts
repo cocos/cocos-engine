@@ -72,6 +72,7 @@ export class SliderComponent extends Component {
      */
     @property({
         type: SpriteComponent,
+        tooltip:'滑块按钮部件',
     })
     get handle () {
         return this._handle;
@@ -94,6 +95,7 @@ export class SliderComponent extends Component {
      */
     @property({
         type: Direction,
+        tooltip:'滑动方向',
     })
     get direction () {
         return this._direction;
@@ -115,6 +117,7 @@ export class SliderComponent extends Component {
     @property({
         slide: true,
         range: [0, 1, 0.01],
+        tooltip:'当前进度值，该数值的区间是 0-1 之间。',
     })
     get progress () {
         return this._progress;
@@ -137,6 +140,7 @@ export class SliderComponent extends Component {
      */
     @property({
         type: EventHandler,
+        tooltip:'滑动器组件事件回调函数',
     })
     public slideEvents: EventHandler[] = [];
     @property

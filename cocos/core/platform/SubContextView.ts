@@ -34,7 +34,9 @@ import { Rect } from '../math';
 @executionOrder(110)
 @menu('Components/SubContextView')
 export class SubContextView extends Component {
-    @property
+    @property({
+        tooltip:'帧数',
+    })
     get fps (){
         return this._fps;
     }

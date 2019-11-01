@@ -61,7 +61,9 @@ export class LightComponent extends Component {
      * @zh
      * 光源颜色。
      */
-    @property
+    @property({
+        tooltip:'光源颜色',
+    })
     // @constget
     get color (): Readonly<Color> {
         return this._color;
@@ -81,7 +83,9 @@ export class LightComponent extends Component {
      * @zh
      * 是否启用光源色温。
      */
-    @property
+    @property({
+        tooltip:'是否启用光源色温'
+    })
     get useColorTemperature () {
         return this._useColorTemperature;
     }
@@ -99,6 +103,7 @@ export class LightComponent extends Component {
     @property({
         slide: true,
         range: [1000, 15000, 1],
+        tooltip:'光源色温'
     })
     get colorTemperature () {
         return this._colorTemperature;

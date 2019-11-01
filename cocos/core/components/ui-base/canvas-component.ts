@@ -74,6 +74,7 @@ const RenderMode = Enum({
 export class CanvasComponent extends Component {
     @property({
         type: CanvasClearFlag,
+        tooltip:'Canvas 清理屏幕缓冲区的标记，none 不清理，depth_stencil 清理深度缓冲，solid_color 清理颜色深度缓冲',
     })
     get clearFlag () {
         return this._clearFlag;
@@ -86,7 +87,9 @@ export class CanvasComponent extends Component {
         }
     }
 
-    @property
+    @property({
+        tooltip:'清理颜色缓冲区后的颜色',
+    })
     get color () {
         return this._color;
     }
@@ -103,6 +106,7 @@ export class CanvasComponent extends Component {
 
     @property({
         type: RenderMode,
+        tooltip:'Canvas 渲染模式，intersperse 下可以指定 Canvas 与场景中的相机的渲染顺序，overlay 下 Canvas 会在所有场景相机渲染完成后渲染。\n注意：启用 intersperse 模式，如果 3D 场景的相机内容显示上要在 Canvas 前面，相机的 clearFlags 也要为 none',
     })
     get renderMode () {
         return this._renderMode;
@@ -121,7 +125,9 @@ export class CanvasComponent extends Component {
      *
      * @param value - 渲染优先级。
      */
-    @property()
+    @property({
+        tooltip:'当 RenderMode 为 intersperse 时，指定与其它相机的渲染顺序，当 RenderMode 为 overlay 时，指定跟其余 Canvas 做排序使用',
+    })
     get priority () {
         return this._priority;
     }
@@ -138,6 +144,7 @@ export class CanvasComponent extends Component {
      */
     @property({
         type: RenderTexture,
+        tooltip:'目标渲染纹理',
     })
     get targetTexture (){
         return this._targetTexture;

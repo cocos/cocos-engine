@@ -48,7 +48,9 @@ export class ToggleComponent extends ButtonComponent {
      * @zh
      * 如果这个设置为 true，则 check mark 组件会处于 enabled 状态，否则处于 disabled 状态。
      */
-    @property
+    @property({
+        tooltip:'如果这个设置为 true，则 check mark 组件会处于 enabled 状态，否则处于 disabled 状态。',
+    })
     get isChecked () {
         return this._isChecked;
     }
@@ -68,6 +70,7 @@ export class ToggleComponent extends ButtonComponent {
      */
     @property({
         type: ToggleContainerComponent,
+        tooltip:'Toggle 所属的 ToggleGroup，这个属性是可选的。如果这个属性为 null，则 Toggle 是一个 CheckBox，否则，Toggle 是一个 RadioButton。'
     })
     get toggleGroup () {
         return this._toggleGroup;
@@ -93,6 +96,7 @@ export class ToggleComponent extends ButtonComponent {
      */
     @property({
         type: SpriteComponent,
+        tooltip:'Toggle 处于选中状态时显示的精灵图片',
     })
     get checkMark () {
         return this._checkMark;
@@ -126,6 +130,7 @@ export class ToggleComponent extends ButtonComponent {
      */
     @property({
         type: [ComponentEventHandler],
+        tooltip:'列表类型，默认为空，用户添加的每一个事件由节点引用，组件名称和一个响应函数组成',
     })
     public checkEvents: ComponentEventHandler[] = [];
     @property

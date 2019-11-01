@@ -99,6 +99,7 @@ export class MaskComponent extends UIRenderComponent {
     @property({
         type: MaskType,
         displayOrder: 4,
+        tooltip:'遮罩类型',
     })
     get type () {
         return this._type;

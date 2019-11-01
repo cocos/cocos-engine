@@ -93,6 +93,7 @@ export class ProgressBarComponent extends Component {
      */
     @property({
         type: SpriteComponent,
+        tooltip:'进度条显示用的 Sprite 节点，可以动态改变尺寸',
     })
     get barSprite () {
         return this._barSprite;
@@ -113,6 +114,7 @@ export class ProgressBarComponent extends Component {
      */
     @property({
         type: Mode,
+        tooltip:'进度条显示模式，目前支持水平和垂直两种',
     })
     get mode () {
         return this._mode;
@@ -143,7 +145,9 @@ export class ProgressBarComponent extends Component {
      * @zh
      * 进度条实际的总长度。
      */
-    @property
+    @property({
+        tooltip:'进度条在 progress 为 1 时的最大长度',
+    })
     get totalLength () {
         return this._totalLength;
     }
@@ -163,6 +167,7 @@ export class ProgressBarComponent extends Component {
     @property({
         range: [0, 1, 0.1],
         slide: true,
+        tooltip:'当前进度指示，范围从0到1',
     })
     get progress () {
         return this._progress;
@@ -181,7 +186,9 @@ export class ProgressBarComponent extends Component {
      * @zh
      * 进度条是否进行反方向变化。
      */
-    @property
+    @property({
+        tooltip:'是否反向驱动进度条',
+    })
     get reverse () {
         return this._reverse;
     }

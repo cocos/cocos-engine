@@ -35,6 +35,7 @@ export default class VelocityOvertimeModule {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 2,
+        tooltip:'X 轴方向上的速度分量',
     })
     public x = new CurveRange();
 
@@ -45,6 +46,7 @@ export default class VelocityOvertimeModule {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 3,
+        tooltip:'Y 轴方向上的速度分量',
     })
     public y = new CurveRange();
 
@@ -55,6 +57,7 @@ export default class VelocityOvertimeModule {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 4,
+        tooltip:'Z 轴方向上的速度分量',
     })
     public z = new CurveRange();
 
@@ -65,6 +68,7 @@ export default class VelocityOvertimeModule {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 5,
+        tooltip:'速度修正系数（只支持 CPU 粒子）',
     })
     public speedModifier = new CurveRange();
 
@@ -74,6 +78,7 @@ export default class VelocityOvertimeModule {
     @property({
         type: Space,
         displayOrder: 1,
+        tooltip:'速度计算时采用的坐标系',
     })
     public space = Space.Local;
 

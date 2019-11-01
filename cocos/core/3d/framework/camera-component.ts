@@ -117,6 +117,7 @@ export class CameraComponent extends Component {
      */
     @property({
         type: ProjectionType,
+        tooltip:'相机的投影类型',
     })
     get projection () {
         return this._projection;
@@ -131,7 +132,9 @@ export class CameraComponent extends Component {
      * @en The priority of the camera, it cannot be modified at runtime, instead, it should be set in editor.
      * @zh 相机的优先级顺序，只能在编辑器中设置，动态设置无效。
      */
-    @property
+    @property({
+        tooltip:'相机的优先级顺序，只能在编辑器中设置，动态设置无效',
+    })
     get priority () {
         return this._priority;
     }
@@ -147,7 +150,9 @@ export class CameraComponent extends Component {
      * @en The camera field of view
      * @zh 相机的视角大小。
      */
-    @property
+    @property({
+        tooltip:'相机的视角大小',
+    })
     get fov () {
         return this._fov;
     }
@@ -161,7 +166,9 @@ export class CameraComponent extends Component {
      * @en The camera height when in orthogonal mode
      * @zh 正交模式下的相机视角大小。
      */
-    @property
+    @property({
+        tooltip:'正交模式下的相机视角大小',
+    })
     get orthoHeight () {
         return this._orthoHeight;
     }
@@ -175,7 +182,9 @@ export class CameraComponent extends Component {
      * @en The near clipping distance of the camera
      * @zh 相机的近平面。
      */
-    @property
+    @property({
+        tooltip:'相机的近平面',
+    })
     get near () {
         return this._near;
     }
@@ -189,7 +198,9 @@ export class CameraComponent extends Component {
      * @en The far clipping distance of the camera
      * @zh 相机的远平面。
      */
-    @property
+    @property({
+        tooltip:'相机的远平面',
+    })
     get far () {
         return this._far;
     }
@@ -203,7 +214,9 @@ export class CameraComponent extends Component {
      * @en The color clearing value of the camera
      * @zh 相机的颜色缓冲默认值。
      */
-    @property
+    @property({
+        tooltip:'相机的颜色缓冲默认值',
+    })
     // @constget
     get color (): Readonly<Color>  {
         return this._color;
@@ -223,7 +236,9 @@ export class CameraComponent extends Component {
      * @en The depth clearing value of the camera
      * @zh 相机的深度缓冲默认值。
      */
-    @property
+    @property({
+        tooltip:'相机的深度缓冲默认值',
+    })
     get depth () {
         return this._depth;
     }
@@ -237,7 +252,9 @@ export class CameraComponent extends Component {
      * @en The stencil clearing value of the camera
      * @zh 相机的模板缓冲默认值。
      */
-    @property
+    @property({
+        tooltip:'相机的模板缓冲默认值',
+    })
     get stencil () {
         return this._stencil;
     }
@@ -253,6 +270,7 @@ export class CameraComponent extends Component {
      */
     @property({
         type: CameraClearFlag,
+        tooltip:'相机的缓冲清除标志位',
     })
     get clearFlags () {
         return this._clearFlags;
@@ -267,7 +285,9 @@ export class CameraComponent extends Component {
      * @en The screen viewport of the camera wrt. sceen size
      * @zh 相机相对屏幕的 viewport。
      */
-    @property
+    @property({
+        tooltip:'相机相对屏幕的 viewport',
+    })
     get rect () {
         return this._rect;
     }
@@ -297,6 +317,7 @@ export class CameraComponent extends Component {
      */
     @property({
         type: Layers.BitMask,
+        tooltip:'设置摄像机可见掩码，与Component中的visibility同时使用，用于过滤摄像机不需要渲染的物体',
     })
     get visibility () {
         return this._visibility;
@@ -314,6 +335,7 @@ export class CameraComponent extends Component {
      */
     @property({
         type: RenderTexture,
+        tooltip:'设置摄像机 RenderTexture',
     })
     get targetTexture () {
         return this._targetTexture;

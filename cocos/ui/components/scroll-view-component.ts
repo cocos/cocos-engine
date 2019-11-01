@@ -167,6 +167,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         type: Node,
+        tooltip:'可滚动展示内容的节点',
     })
     get content () {
         return this._content;
@@ -186,6 +187,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         type: ScrollBarComponent,
+        tooltip:'水平滚动的 ScrollBar',
     })
     get horizontalScrollBar () {
         return this._horizontalScrollBar;
@@ -211,6 +213,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         type: ScrollBarComponent,
+        tooltip:'垂直滚动的 ScrollBar',
     })
     get verticalScrollBar () {
         return this._verticalScrollBar;
@@ -242,21 +245,27 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @zh
      * 是否开启水平滚动。
      */
-    @property
+    @property({
+        tooltip:'是否开启水平滚动',
+    })
     public horizontal = true;
 
     /**
      * @zh
      * 是否开启垂直滚动。
      */
-    @property
+    @property({
+        tooltip:'是否开启垂直滚动',
+    })
     public vertical = true;
 
     /**
      * @zh
      * 是否开启滚动惯性。
      */
-    @property
+    @property({
+        tooltip:'是否开启滚动惯性',
+    })
     public inertia = true;
 
     /**
@@ -265,6 +274,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         range: [0, 1, 0.1],
+        tooltip:'开启惯性后，在用户停止触摸后滚动多快停止，0表示永不停止，1表示立刻停止',
     })
     public brake = 0.5;
 
@@ -272,7 +282,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @zh
      * 是否允许滚动内容超过边界，并在停止触摸后回弹。
      */
-    @property
+    @property({
+        tooltip:'是否允许滚动内容超过边界，并在停止触摸后回弹',
+    })
     public elastic = true;
 
     /**
@@ -281,6 +293,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         range: [0, 10],
+        tooltip:'回弹持续的时间，0 表示将立即反弹',
     })
     public bounceDuration = 1;
 
@@ -290,6 +303,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         type: [ComponentEventHandler],
+        tooltip:'滚动视图的事件回调函数',
     })
     public scrollEvents: ComponentEventHandler[] = [];
 
@@ -298,7 +312,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * 如果这个属性被设置为 true，那么滚动行为会取消子节点上注册的触摸事件，默认被设置为 true。<br/>
      * 注意，子节点上的 touchstart 事件仍然会触发，触点移动距离非常短的情况下 touchmove 和 touchend 也不会受影响。
      */
-    @property
+    @property({
+        tooltip:'滚动行为是否会取消子节点上注册的触摸事件',
+    })
     public cancelInnerEvents = true;
 
     protected _autoScrolling = false;

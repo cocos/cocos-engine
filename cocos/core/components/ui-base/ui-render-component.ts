@@ -98,6 +98,7 @@ export class UIRenderComponent extends UIComponent {
     @property({
         type: GFXBlendFactor,
         displayOrder: 0,
+        tooltip:'原图混合模式',
     })
     get srcBlendFactor () {
         return this._srcBlendFactor;
@@ -125,6 +126,7 @@ export class UIRenderComponent extends UIComponent {
     @property({
         type: GFXBlendFactor,
         displayOrder: 1,
+        tooltip:'目标混合模式',
     })
     get dstBlendFactor () {
         return this._dstBlendFactor;
@@ -147,6 +149,7 @@ export class UIRenderComponent extends UIComponent {
      */
     @property({
         displayOrder: 2,
+        tooltip:'渲染颜色',
     })
     // @constget
     get color (): Readonly<Color> {
@@ -172,6 +175,7 @@ export class UIRenderComponent extends UIComponent {
     @property({
         type: Material,
         displayOrder: 3,
+        tooltip:'源材质',
     })
     get sharedMaterial () {
         return this._sharedMaterial;

@@ -37,16 +37,24 @@ export const TERRAIN_EAST_INDEX = 3;
  */
 @ccclass('cc.TerrainInfo')
 export class TerrainInfo {
-    @property
+    @property({
+        tooltip:'地形Tile的大小',
+    })
     public tileSize: number = 1;
 
-    @property
+    @property({
+        tooltip:'地形块在两个维度上的数量',
+    })
     public blockCount: number[] = [1, 1];
 
-    @property
+    @property({
+        tooltip:'权重图大小',
+    })
     public weightMapSize: number = 128;
 
-    @property
+    @property({
+        tooltip:'光照贴图大小',
+    })
     public lightMapSize: number = 128;
 
     //
@@ -78,9 +86,13 @@ export class TerrainInfo {
 
 @ccclass('cc.TerrainLayer')
 export class TerrainLayer {
-    @property
+    @property({
+        tooltip:'当前Layer的纹理',
+    })
     public detailMap: Texture2D|null = null;
-    @property
+    @property({
+        tooltip:'纹理的平铺大小，值越小会在同样大小的区域内进行更多次的平铺',
+    })
     public tileSize: number = 1;
 }
 

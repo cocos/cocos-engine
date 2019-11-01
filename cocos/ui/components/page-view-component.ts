@@ -112,6 +112,7 @@ export class PageViewComponent extends ScrollViewComponent {
    */
   @property({
     type: SizeMode,
+    tooltip:'页面视图中每个页面大小类型',
   })
   get sizeMode () {
     return this._sizeMode;
@@ -132,6 +133,7 @@ export class PageViewComponent extends ScrollViewComponent {
    */
   @property({
     type: Direction,
+    tooltip:'页面视图滚动类型',
   })
   get direction () {
     return this._direction;
@@ -155,6 +157,7 @@ export class PageViewComponent extends ScrollViewComponent {
   @property({
     slide: true,
     range: [0, 1, 0.01],
+    tooltip:'滚动临界值，默认单位百分比，当拖拽超出该数值时，松开会自动滚动下一页，小于时则还原',
   })
   get scrollThreshold () {
     return this._scrollThreshold;
@@ -175,6 +178,7 @@ export class PageViewComponent extends ScrollViewComponent {
   @property({
     slide: true,
     range: [0, 1, 0.01],
+    tooltip:'设置 PageView PageTurning 事件的发送时机',
   })
   get pageTurningEventTiming () {
     return this._pageTurningEventTiming;
@@ -194,6 +198,7 @@ export class PageViewComponent extends ScrollViewComponent {
    */
   @property({
     type: PageViewIndicatorComponent,
+    tooltip:'页面视图指示器组件',
   })
   get indicator () {
     return this._indicator;
@@ -228,7 +233,9 @@ export class PageViewComponent extends ScrollViewComponent {
    * 当用户快速滑动时，会根据滑动开始和结束的距离与时间计算出一个速度值，
    * 该值与此临界值相比较，如果大于临界值，则进行自动翻页。
    */
-  @property
+  @property({
+    tooltip:'快速滑动翻页临界值\n当用户快速滑动时，会根据滑动开始和结束的距离与时间计算出一个速度值\n该值与此临界值相比较，如果大于临界值，则进行自动翻页'
+  })
   public autoPageTurningThreshold = 100;
 
   // override visible false
@@ -289,6 +296,7 @@ export class PageViewComponent extends ScrollViewComponent {
    */
   @property({
     type: [ComponentEventHandler],
+    tooltip:'滚动视图的事件回调函数',
   })
   public pageEvents: ComponentEventHandler[] = [];
 

@@ -27,6 +27,7 @@ export default class SizeOvertimeModule {
      */
     @property({
         displayOrder: 1,
+        tooltip:'决定是否在每个轴上独立控制粒子大小',
     })
     public separateAxes = false;
 
@@ -36,6 +37,7 @@ export default class SizeOvertimeModule {
     @property({
         type: CurveRange,
         displayOrder: 2,
+        tooltip:'定义一条曲线来决定粒子在其生命周期中的大小变化',
     })
     public size = new CurveRange();
 
@@ -45,6 +47,7 @@ export default class SizeOvertimeModule {
     @property({
         type: CurveRange,
         displayOrder: 3,
+        tooltip:'定义一条曲线来决定粒子在其生命周期中 X 轴方向上的大小变化',
     })
     public x = new CurveRange();
 
@@ -54,6 +57,7 @@ export default class SizeOvertimeModule {
     @property({
         type: CurveRange,
         displayOrder: 4,
+        tooltip:'定义一条曲线来决定粒子在其生命周期中 Y 轴方向上的大小变化',
     })
     public y = new CurveRange();
 
@@ -63,6 +67,7 @@ export default class SizeOvertimeModule {
     @property({
         type: CurveRange,
         displayOrder: 5,
+        tooltip:'定义一条曲线来决定粒子在其生命周期中 Z 轴方向上的大小变化',
     })
     public z = new CurveRange();
 

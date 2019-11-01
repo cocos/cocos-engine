@@ -41,6 +41,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     @property({
         displayOrder: 1,
+        tooltip:'粒子系统能生成的最大粒子数量',
     })
     public get capacity () {
         return this._capacity;
@@ -61,17 +62,20 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: GradientRange,
         displayOrder: 8,
+        tooltip:'粒子初始颜色',
     })
     public startColor = new GradientRange();
 
     @property({
         type: Space,
         displayOrder: 9,
+        tooltip:'选择缩放坐标系',
     })
     public scaleSpace = Space.Local;
 
     @property({
         displayOrder: 10,
+        tooltip:'粒子初始大小',
     })
     public startSize3D = false;
 
@@ -82,6 +86,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         type: CurveRange,
         displayOrder: 10,
         formerlySerializedAs: 'startSize',
+        tooltip:'粒子初始大小',
     })
     public startSizeX = new CurveRange();
 
@@ -91,6 +96,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: CurveRange,
         displayOrder: 10,
+        tooltip:'粒子初始大小',
     })
     public startSizeY = new CurveRange();
 
@@ -100,6 +106,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: CurveRange,
         displayOrder: 10,
+        tooltip:'粒子初始大小',
     })
     public startSizeZ = new CurveRange();
 
@@ -110,11 +117,13 @@ export class ParticleSystemComponent extends RenderableComponent {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 11,
+        tooltip:'粒子初始速度',
     })
     public startSpeed = new CurveRange();
 
     @property({
         displayOrder: 12,
+        tooltip:'粒子初始旋转角度',
     })
     public startRotation3D = false;
 
@@ -126,6 +135,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         range: [-1, 1],
         radian: true,
         displayOrder: 12,
+        tooltip:'粒子初始旋转角度'
     })
     public startRotationX = new CurveRange();
 
@@ -137,6 +147,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         range: [-1, 1],
         radian: true,
         displayOrder: 12,
+        tooltip:'粒子初始旋转角度'
     })
     public startRotationY = new CurveRange();
 
@@ -149,6 +160,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         radian: true,
         displayOrder: 12,
         formerlySerializedAs: 'startRotation',
+        tooltip:'粒子初始旋转角度'
     })
     public startRotationZ = new CurveRange();
 
@@ -158,6 +170,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: CurveRange,
         displayOrder: 6,
+        tooltip:'粒子系统开始运行后，延迟粒子发射的时间',
     })
     public startDelay = new CurveRange();
 
@@ -167,6 +180,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: CurveRange,
         displayOrder: 7,
+        tooltip:'粒子生命周期',
     })
     public startLifetime = new CurveRange();
 
@@ -175,6 +189,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     @property({
         displayOrder: 0,
+        tooltip:'粒子系统运行时间',
     })
     public duration = 5.0;
 
@@ -183,6 +198,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     @property({
         displayOrder: 2,
+        tooltip:'粒子系统是否循环播放',
     })
     public loop = true;
 
@@ -191,6 +207,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     @property({
         displayOrder: 3,
+        tooltip:'选中之后，粒子系统会以已播放完一轮之后的状态开始播放（仅当循环播放启用时有效）',
     })
     get prewarm () {
         return this._prewarm;
@@ -209,6 +226,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: Space,
         displayOrder: 4,
+        tooltip:'控制粒子坐标计算所在的坐标系',
     })
     get simulationSpace () {
         return this._simulationSpace;
@@ -227,6 +245,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     @property({
         displayOrder: 5,
+        tooltip:'控制整个粒子系统的更新速度',
     })
     public simulationSpeed = 1.0;
 
@@ -235,6 +254,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     @property({
         displayOrder: 2,
+        tooltip:'粒子系统加载后是否自动开始播放',
     })
     public playOnAwake = true;
 
@@ -245,6 +265,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 13,
+        tooltip:'粒子受重力影响的重力系数',
     })
     public gravityModifier = new CurveRange();
 
@@ -255,6 +276,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: CurveRange,
         displayOrder: 14,
+        tooltip:'每秒发射的粒子数',
     })
     public rateOverTime = new CurveRange();
 
@@ -264,6 +286,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: CurveRange,
         displayOrder: 15,
+        tooltip:'每移动单位距离发射的粒子数',
     })
     public rateOverDistance = new CurveRange();
 
@@ -273,6 +296,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: [Burst],
         displayOrder: 16,
+        tooltip:'在某个时间点发射给定数量的粒子'
     })
     public bursts = new Array();
 
@@ -300,6 +324,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: ColorOverLifetimeModule,
         displayOrder: 23,
+        tooltip:'颜色模块',
     })
     public colorOverLifetimeModule = new ColorOverLifetimeModule();
 
@@ -310,6 +335,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: ShapeModule,
         displayOrder: 17,
+        tooltip:'发射器模块',
     })
     public shapeModule = new ShapeModule();
 
@@ -320,6 +346,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: SizeOvertimeModule,
         displayOrder: 21,
+        tooltip:'大小模块',
     })
     public sizeOvertimeModule = new SizeOvertimeModule();
 
@@ -329,6 +356,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: VelocityOvertimeModule,
         displayOrder: 18,
+        tooltip:'速度模块',
     })
     public velocityOvertimeModule = new VelocityOvertimeModule();
 
@@ -338,6 +366,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: ForceOvertimeModule,
         displayOrder: 19,
+        tooltip:'加速度模块',
     })
     public forceOvertimeModule = new ForceOvertimeModule();
 
@@ -347,6 +376,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: LimitVelocityOvertimeModule,
         displayOrder: 20,
+        tooltip:'限速模块',
     })
     public limitVelocityOvertimeModule = new LimitVelocityOvertimeModule();
 
@@ -356,6 +386,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: RotationOvertimeModule,
         displayOrder: 22,
+        tooltip:'旋转模块',
     })
     public rotationOvertimeModule = new RotationOvertimeModule();
 
@@ -365,6 +396,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: TextureAnimationModule,
         displayOrder: 24,
+        tooltip:'贴图动画模块',
     })
     public textureAnimationModule = new TextureAnimationModule();
 
@@ -374,6 +406,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: TrailModule,
         displayOrder: 25,
+        tooltip:'拖尾模块',
     })
     public trailModule = new TrailModule();
 
@@ -381,6 +414,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     @property({
         type: ParticleSystemRenderer,
         displayOrder: 26,
+        tooltip:'渲染模块',
     })
     public renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
 
