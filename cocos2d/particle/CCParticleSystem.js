@@ -347,6 +347,13 @@ var properties = {
     },
 
     /**
+     * !#en Aspect ratio of particle.
+     * !#zh 粒子宽高比。
+     * @property {Number} aspectRatio
+     * @default 1
+     */
+    aspectRatio: 1,
+    /**
      * !#en Maximum particles of the system.
      * !#zh 粒子最大数量。
      * @property {Number} totalParticles
@@ -1216,6 +1223,11 @@ var ParticleSystem = cc.Class({
         this._simulator.updateUVs(true);
         // Reactivate material
         this._activateMaterial();
+        
+        // set aspect ratio
+        var spriteFrameWidth = this._renderSpriteFrame._rect.width;
+        var spriteFrameHeight = this._renderSpriteFrame._rect.height;
+        this.aspectRatio = spriteFrameWidth / spriteFrameHeight;
     },
 
     _applySpriteFrame: function (oldFrame) {
