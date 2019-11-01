@@ -823,7 +823,7 @@ let NodeDefines = {
         /**
          * !#en The position (x, y) of the node in its parent's coordinates.
          * !#zh 节点在父节点坐标系中的位置（x, y）。
-         * @property {Vec2} position
+         * @property {Vec3} position
          * @example
          * cc.log("Node Position: " + node.position);
          */

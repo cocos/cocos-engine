@@ -167,12 +167,7 @@ export default class Base {
     // setup clear
     let clearOpts = {};
     if (view._clearFlags & enums.CLEAR_COLOR) {
-      clearOpts.color = [
-        view._color.r,
-        view._color.g,
-        view._color.b,
-        view._color.a
-      ];
+      clearOpts.color = Vec4.toArray([], view._color);
     }
     if (view._clearFlags & enums.CLEAR_DEPTH) {
       clearOpts.depth = view._depth;

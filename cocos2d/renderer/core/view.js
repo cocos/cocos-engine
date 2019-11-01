@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { Vec3, Color, Mat4 } from '../../core/value-types';
+import { Vec3, Mat4, Vec4 } from '../../core/value-types';
 import enums from '../enums';
 
 let _m4_tmp = new Mat4();
@@ -30,7 +30,7 @@ export default class View {
     // };
 
     // clear options
-    this._color = new Color(0.3, 0.3, 0.3, 1);
+    this._color = new Vec4(0.3, 0.3, 0.3, 1);
     this._depth = 1;
     this._stencil = 0;
     this._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;

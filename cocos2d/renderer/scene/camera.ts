@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { Color, Vec3, Mat4, lerp } from '../../core/value-types';
+import { Vec3, Mat4, lerp, Vec4 } from '../../core/value-types';
 import { Ray } from '../../core/geom-utils';
 import enums from '../enums';
 
@@ -25,7 +25,7 @@ export default class Camera {
   _priority = 0;
 
   // clear options
-  _color = new Color(0.2, 0.3, 0.47, 1);
+  _color = new Vec4(0.2, 0.3, 0.47, 1);
   _depth = 1;
   _stencil = 0;
   _clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
@@ -176,10 +176,10 @@ export default class Camera {
 
   /**
    * Get the clear color of the camera
-   * @returns {color4} out the receiving color vector
+   * @returns {Vec4} out the receiving color vector
    */
-  getColor (out) {
-    return Color.copy(out, this._color);
+  getColor (out: Vec4) {
+    return Vec4.copy(out, this._color);
   }
 
   /**
@@ -190,7 +190,7 @@ export default class Camera {
    * @param {number} a alpha channel of camera clear color
    */
   setColor (r, g, b, a) {
-    Color.set(this._color, r, g, b, a);
+    Vec4.set(this._color, r, g, b, a);
   }
 
   /**

@@ -47,6 +47,7 @@ export default class Vec4 extends ValueType {
     static scale = Vec4.multiplyScalar;
     static mag   = Vec4.len;
     static squaredMagnitude = Vec4.lengthSqr;
+    static div = Vec4.divide;
 
     public static get ZERO () { return new Vec4(0, 0, 0, 0); }
     public static readonly ZERO_R = Vec4.ZERO;

@@ -179,7 +179,7 @@ export default class Color extends ValueType {
      * @param {number} a - Value assigned to a component.
      * @returns {Color} out.
      */
-    static set (out, r, g, b, a) {
+    static set (out, r = 255, g = 255, b = 255, a = 255) {
         out.r = r;
         out.g = g;
         out.b = b;

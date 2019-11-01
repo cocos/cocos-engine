@@ -49,6 +49,9 @@ export default class Vec3 extends ValueType {
     static scale = Vec3.multiplyScalar;
     static mag   = Vec3.len;
     static squaredMagnitude = Vec3.lengthSqr;
+    static inverseSafe = Vec3.invertSafe;
+    static inverse = Vec3.invert;
+    static div = Vec3.divide;
 
     /**
      * !#en return a Vec3 object with x = 1, y = 1, z = 1.

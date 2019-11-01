@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { Color, Mat4, Mat3, Vec3, toRadian } from '../../core/value-types';
+import { Mat4, Mat3, Vec3, toRadian } from '../../core/value-types';
 import gfx from '../gfx';
 
 import enums from '../enums';
@@ -57,7 +57,7 @@ export default class Light {
 
     this._type = enums.LIGHT_DIRECTIONAL;
 
-    this._color = cc.color(1, 1, 1);
+    this._color = new Vec3(1, 1, 1);
     this._intensity = 1;
 
     // used for spot and point light
@@ -68,7 +68,7 @@ export default class Light {
     // cached for uniform
     this._directionUniform = new Float32Array(3);
     this._positionUniform = new Float32Array(3);
-    this._colorUniform = new Float32Array([this._color.r * this._intensity, this._color.g * this._intensity, this._color.b * this._intensity]);
+    this._colorUniform = new Float32Array([this._color.x * this._intensity, this._color.y * this._intensity, this._color.z * this._intensity]);
     this._spotUniform = new Float32Array([Math.cos(this._spotAngle * 0.5), this._spotExp]);
 
     // shadow params
@@ -112,7 +112,7 @@ export default class Light {
    * @param {number} b blue channel of the light color
    */
   setColor(r, g, b) {
-    Color.set(this._color, r, g, b);
+    Vec3.set(this._color, r, g, b);
     this._colorUniform[0] = r * this._intensity;
     this._colorUniform[1] = g * this._intensity;
     this._colorUniform[2] = b * this._intensity;
@@ -120,7 +120,7 @@ export default class Light {
 
   /**
    * get the color of the light source
-   * @returns {color3} the light color
+   * @returns {Vec3} the light color
    */
   get color() {
     return this._color;
@@ -132,9 +132,9 @@ export default class Light {
    */
   setIntensity(val) {
     this._intensity = val;
-    this._colorUniform[0] = val * this._color.r;
-    this._colorUniform[1] = val * this._color.g;
-    this._colorUniform[2] = val * this._color.b;
+    this._colorUniform[0] = val * this._color.x;
+    this._colorUniform[1] = val * this._color.y;
+    this._colorUniform[2] = val * this._color.z;
   }
 
   /**
@@ -402,7 +402,7 @@ export default class Light {
     out._rect.h = this._shadowResolution;
 
     // clear opts
-    Color.set(out._color, 1, 1, 1, 1);
+    Vec3.set(out._color, 1, 1, 1, 1);
     out._depth = 1;
     out._stencil = 1;
     out._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;

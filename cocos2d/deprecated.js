@@ -179,28 +179,28 @@ if (CC_DEBUG) {
         return cc.math;
     });
     js.get(cc.math, 'vec2', function () {
-        cc.warnID(1400, 'cc.vmath.vec2', 'cc.math.Vec2');
-        return cc.math;
+        cc.warnID(1400, 'cc.vmath.vec2', 'cc.Vec2');
+        return cc.Vec2;
     })
     js.get(cc.math, 'vec3', function () {
         cc.warnID(1400, 'cc.vmath.vec3', 'cc.Vec3');
-        return cc.math;
+        return cc.Vec3;
     })
     js.get(cc.math, 'vec4', function () {
         cc.warnID(1400, 'cc.vmath.vec4', 'cc.Vec4');
-        return cc.math;
+        return cc.Vec4;
     })
     js.get(cc.math, 'mat4', function () {
         cc.warnID(1400, 'cc.vmath.mat4', 'cc.Mat4');
-        return cc.math;
+        return cc.Mat4;
     })
     js.get(cc.math, 'mat3', function () {
         cc.warnID(1400, 'cc.vmath.mat3', 'cc.Mat3');
-        return cc.math;
+        return cc.Mat3;
     })
     js.get(cc.math, 'quat', function () {
         cc.warnID(1400, 'cc.vmath.quat', 'cc.Quat');
-        return cc.math;
+        return cc.Quat;
     })
 
     // SpriteFrame

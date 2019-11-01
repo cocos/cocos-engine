@@ -47,6 +47,7 @@ export default class Vec2 extends ValueType {
     static scale = Vec2.multiplyScalar;
     static mag   = Vec2.len;
     static squaredMagnitude = Vec2.lengthSqr;
+    static div = Vec2.divide;
 
     /**
      * !#en return a Vec2 object with x = 1 and y = 1.
