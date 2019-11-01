@@ -82,6 +82,8 @@ module.exports = {
             'pressed_sprite': '按下状态的按钮背景图资源',
             'hover_sprite': '悬停状态的按钮背景图资源',
             'disabled_sprite': '禁用状态的按钮背景图资源',
+            'normal_material': '正常状态下按钮指定的背景图片所使用的材质',
+            'gray_material': '禁用状态下按钮指定的背景图片所使用的材质',
             'target': '指定 Button 背景节点，Button 状态改变时会修改此节点的 Color 或 Sprite 属性',
             'click_events': '按钮点击事件的列表。先将数量改为1或更多，就可以为每个点击事件设置接受者和处理方法'
         },

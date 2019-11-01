@@ -4,34 +4,77 @@ const Material = require('../assets/material/CCMaterial');
 /**
  * HelpClass for switching render component's material between normal sprite material and gray sprite material.
  */
-function GraySpriteState () {
-    this._graySpriteMaterial = null;
-    this._spriteMaterial = null;
-}
 
-GraySpriteState.prototype._switchGrayMaterial = function (useGrayMaterial, renderComp) {
+let GraySpriteState = cc.Class({
+    properties: {
+        _normalMaterial: null,
 
-    if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-        return;
-    }
+        /**
+         * !#en The normal material.
+         * !#zh 正常状态的材质。
+         * @property normalMaterial
+         * @type {Material}
+         * @default null
+         */
+        normalMaterial: {
+            get () {
+                return this._normalMaterial;
+            },
+            set (val) {
+                this._normalMaterial = val;
+                this._updateDisabledState && this._updateDisabledState();
+            },
+            type: Material,
+            tooltip: CC_DEV && 'i18n:COMPONENT.button.normal_material',
+            animatable: false
+        },
 
-    let material;
-    if (useGrayMaterial) {
-        material = this._graySpriteMaterial;
-        if (!material) {
-            material = Material.getBuiltinMaterial('2d-gray-sprite');
+        _grayMaterial: null,
+
+        /**
+         * !#en The gray material.
+         * !#zh 置灰状态的材质。
+         * @property grayMaterial
+         * @type {Material}
+         * @default null
+         */
+        grayMaterial: {
+            get () {
+                return this._grayMaterial;
+            },
+            set (val) {
+                this._grayMaterial = val;
+                this._updateDisabledState && this._updateDisabledState();
+            },
+            type: Material,
+            tooltip: CC_DEV && 'i18n:COMPONENT.button.gray_material',
+            animatable: false
         }
-        material = this._graySpriteMaterial = Material.getInstantiatedMaterial(material, renderComp);
-    }
-    else {
-        material = this._spriteMaterial;
-        if (!material) {
-            material = renderComp.sharedMaterials[0] || Material.getBuiltinMaterial('2d-sprite', renderComp);
+    },
+  
+    _switchGrayMaterial (useGrayMaterial, renderComp) {
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            return;
         }
-        material = this._spriteMaterial = Material.getInstantiatedMaterial(material, renderComp);
+    
+        let material;
+        if (useGrayMaterial) {
+            material = this._grayMaterial;
+            if (!material) {
+                material = Material.getBuiltinMaterial('2d-gray-sprite');
+            }
+            material = this._grayMaterial = Material.getInstantiatedMaterial(material, renderComp);
+        }
+        else {
+            material = this._normalMaterial;
+            if (!material) {
+                material = Material.getBuiltinMaterial('2d-sprite', renderComp);
+            }
+            material = this._normalMaterial = Material.getInstantiatedMaterial(material, renderComp);
+        }
+    
+        renderComp.setMaterial(0, material);
     }
-
-    renderComp.setMaterial(0, material);
-};
+})
 
 module.exports = GraySpriteState;
