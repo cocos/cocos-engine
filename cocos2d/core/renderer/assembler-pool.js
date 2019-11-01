@@ -6,6 +6,8 @@ import Pool from '../utils/pool';
  * }
  */
 class AssemblerPool extends Pool {
+    _pool = {};
+
     put (assembler) {
         if (!this.enabled) {
             if (CC_JSB && CC_NATIVERENDERER) {
@@ -19,9 +21,9 @@ class AssemblerPool extends Pool {
         if (!pool[ctorName]) {
             pool[ctorName] = [];
         }
-        if (this.size > this.maxSize) return;
+        if (this.count > this.maxSize) return;
         pool[ctorName].push(assembler);
-        this.size++;
+        this.count++;
     }
 
     get (assemblerCtor) {
@@ -37,7 +39,7 @@ class AssemblerPool extends Pool {
             assembler = new assemblerCtor();
         }
         else {
-            this.size--;
+            this.count--;
         }
         return assembler;
     }
@@ -56,7 +58,7 @@ class AssemblerPool extends Pool {
         }
         
         this._pool = {};
-        this.size = 0;
+        this.count = 0;
     }
 }
 

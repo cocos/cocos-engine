@@ -1,15 +1,13 @@
 
 export default class Pool {
-    _pool = {};
-
     enabled = true;
-    size = 0;
-    maxSize = 4096;
+    count = 0;
+    maxSize = 1024;
 
     get () {
 
     }
-    set () {
+    put () {
 
     }
     clear () {

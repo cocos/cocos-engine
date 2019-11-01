@@ -9,6 +9,8 @@ import Pool from '../../utils/pool';
  * }
  */
 class MaterialPool extends Pool {
+    _pool = {};
+
     get (exampleMat, renderComponent) {
         let pool = this._pool;
 
@@ -28,7 +30,7 @@ class MaterialPool extends Pool {
             instance._uuid = exampleMat._uuid;
         }
         else {
-            this.size--;
+            this.count--;
         }
     
         instance._owner = renderComponent;
@@ -50,14 +52,14 @@ class MaterialPool extends Pool {
         if (!pool[uuid][key]) {
             pool[uuid][key] = [];
         }
-        if (this.size > this.maxSize) return;
+        if (this.count > this.maxSize) return;
         pool[uuid][key].push(mat);
-        this.size++;
+        this.count++;
     }
     
     clear () {
         this._pool = {};
-        this.size = 0;
+        this.count = 0;
     }
 }
 
