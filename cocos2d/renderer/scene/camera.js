@@ -178,7 +178,7 @@ export default class Camera {
    * Get the clear color of the camera
    * @returns {Vec4} out the receiving color vector
    */
-  getColor (out: Vec4) {
+  getColor (out) {
     return Vec4.copy(out, this._color);
   }
 

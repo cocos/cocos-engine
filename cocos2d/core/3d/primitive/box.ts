@@ -64,10 +64,10 @@ export default function (width = 1, height = 1, length = 1, opts = {widthSegment
     [ -1,  0,  0 ]  // LEFT
   ];
 
-  let positions = [];
-  let normals = [];
-  let uvs = [];
-  let indices = [];
+  let positions: number[] = [];
+  let normals: number[] = [];
+  let uvs: number[] = [];
+  let indices: number[] = [];
   let minPos = new Vec3(-hw, -hh, -hl);
   let maxPos = new Vec3(hw, hh, hl);
   let boundingRadius = Math.sqrt(hw * hw + hh * hh + hl * hl);

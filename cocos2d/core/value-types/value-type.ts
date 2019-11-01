@@ -39,8 +39,9 @@ export default class ValueType {
      * @method clone
      * @return {ValueType}
      */
-    clone () {
+    clone () : ValueType {
         cc.errorID('0100', js.getClassName(this) + '.clone');
+        // @ts-ignore
         return null;
     }
 

@@ -548,7 +548,7 @@ export default class Vec2 extends ValueType {
     y: number;
 
     // compatible with vec3
-    z: number;
+    z: number = 0;
 
     /**
      * !#en

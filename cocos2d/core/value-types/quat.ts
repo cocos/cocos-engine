@@ -810,10 +810,10 @@ export default class Quat extends ValueType {
         super();
 
         if (x && typeof x === 'object') {
-            z = x.z;
-            y = x.y;
-            w = x.w;
-            x = x.x;
+            this.z = x.z;
+            this.y = x.y;
+            this.w = x.w;
+            this.x = x.x;
         }
         else {
             this.x = x as number;
@@ -957,4 +957,4 @@ cc.quat = function quat (x, y, z, w) {
     return new Quat(x, y, z, w);
 };
 
-module.exports = cc.Quat = Quat;
+cc.Quat = Quat;

@@ -178,7 +178,7 @@ export default class Mat3 {
         let det = a00 * b01 + a01 * b11 + a02 * b21;
 
         if (!det) {
-            return null;
+            return out;
         }
         det = 1.0 / det;
 
@@ -510,7 +510,7 @@ export default class Mat3 {
      *
      * @returns {mat3} out
      */
-    static fromViewUp (out: Mat3, view: Vec3, up: Vec3): Mat3 {
+    static fromViewUp (out: Mat3, view: Vec3, up?: Vec3): Mat3 {
         let _fromViewUpIIFE = (function () {
             let default_up = new Vec3(0, 1, 0);
             let x = new Vec3(0, 0, 0);
@@ -576,7 +576,7 @@ export default class Mat3 {
         let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
         if (!det) {
-            return null;
+            return out;
         }
         det = 1.0 / det;
 

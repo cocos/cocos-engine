@@ -32,17 +32,17 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
   let arc = opts.arc;
 
   // calculate vertex count
-  let positions = [];
-  let normals = [];
-  let uvs = [];
-  let indices = [];
+  let positions: number[] = [];
+  let normals: number[] = [];
+  let uvs: number[] = [];
+  let indices: number[] = [];
   let maxRadius = Math.max(radiusTop, radiusBottom);
   let minPos = cc.v3(-maxRadius, -height / 2, -maxRadius);
   let maxPos = cc.v3(maxRadius, height / 2, maxRadius);
   let boundingRadius = height / 2;
 
   let index = 0;
-  let indexArray = [];
+  let indexArray: number[][] = [];
 
   generateBottom();
 
@@ -71,7 +71,7 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
     // generate positions, normals and uvs
     for (let y = 0; y <= torSegments; y++) {
 
-      let indexRow = [];
+      let indexRow: number[] = [];
       let lat = y / torSegments;
       let radius = lat * (radiusTop - radiusBottom) + radiusBottom;
 

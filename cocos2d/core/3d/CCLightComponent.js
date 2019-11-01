@@ -29,15 +29,17 @@ import { toRadian } from '../value-types';
 
 let RendererLight = null;
 if (CC_JSB && CC_NATIVERENDERER) {
+    // @ts-ignore
     RendererLight = window.renderer.Light;
 } else {
+    // @ts-ignore
     RendererLight = require('../../renderer/scene/light');
 }
 
-const renderer = require('../renderer/index');
-const Enum = require('../platform/CCEnum');
-const CCComponent = require('../components/CCComponent');
-const { ccclass, menu, inspector, property, executeInEditMode } = require('../platform/CCClassDecorator');
+import renderer from '../renderer/index';
+import Enum from '../platform/CCEnum';
+import CCComponent from '../components/CCComponent';
+import { ccclass, menu, inspector, property, executeInEditMode } from '../platform/CCClassDecorator';
 
 /**
  * !#en The light source type

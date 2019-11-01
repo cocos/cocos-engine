@@ -14,10 +14,10 @@ export default function (radius = 0.5, opts = {segments: 32}) {
   // lat === latitude
   // lon === longitude
 
-  let positions = [];
-  let normals = [];
-  let uvs = [];
-  let indices = [];
+  let positions: number[] = [];
+  let normals: number[] = [];
+  let uvs: number[] = [];
+  let indices: number[] = [];
   let minPos = new Vec3(-radius, -radius, -radius);
   let maxPos = new Vec3(radius, radius, radius);
   let boundingRadius = radius;

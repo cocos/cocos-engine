@@ -2,7 +2,7 @@ import Vec3 from '../../value-types/vec3';
 
 export function wireframe(indices) {
   const offsets = [[0, 1], [1, 2], [2, 0]];
-  let lines = [];
+  let lines: number[] = [];
   let lineIDs = {};
 
   for (let i = 0; i < indices.length; i += 3) {
@@ -23,7 +23,7 @@ export function wireframe(indices) {
 }
 
 export function invWinding(indices) {
-  let newIB = [];
+  let newIB : number[] = [];
   for (let i = 0; i < indices.length; i += 3)
     newIB.push(indices[i], indices[i + 2], indices[i + 1]);
   return newIB;

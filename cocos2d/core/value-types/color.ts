@@ -26,6 +26,8 @@
 
 import ValueType from './value-type';
 import CCClass from '../platform/CCClass';
+import misc from '../utils/misc';
+
 
 /**
  * !#en
@@ -372,7 +374,7 @@ export default class Color extends ValueType {
      * var color = new cc.Color();
      * var newColor = color.clone();// Color {r: 0, g: 0, b: 0, a: 255}
      */
-    clone (): Color {
+    clone () : Color {
         var ret = new Color();
         ret._val = this._val;
         return ret;
@@ -483,7 +485,7 @@ export default class Color extends ValueType {
      * color.setR(255); // Color {r: 255, g: 0, b: 0, a: 255}
      */
     setR (red) {
-        red = ~~cc.misc.clampf(red, 0, 255);
+        red = ~~misc.clampf(red, 0, 255);
         this._val = ((this._val & 0xffffff00) | red) >>> 0;
         return this;
     }
@@ -507,7 +509,7 @@ export default class Color extends ValueType {
      * color.setG(255); // Color {r: 0, g: 255, b: 0, a: 255}
      */
     setG (green) {
-        green = ~~cc.misc.clampf(green, 0, 255);
+        green = ~~misc.clampf(green, 0, 255);
         this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
         return this;
     }
@@ -531,7 +533,7 @@ export default class Color extends ValueType {
      * color.setB(255); // Color {r: 0, g: 0, b: 255, a: 255}
      */
     setB (blue) {
-        blue = ~~cc.misc.clampf(blue, 0, 255);
+        blue = ~~misc.clampf(blue, 0, 255);
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
         return this;
     }
@@ -555,7 +557,7 @@ export default class Color extends ValueType {
      * color.setA(0); // Color {r: 0, g: 0, b: 0, a: 0}
      */
     setA (alpha) {
-        alpha = ~~cc.misc.clampf(alpha, 0, 255);
+        alpha = ~~misc.clampf(alpha, 0, 255);
         this._val = ((this._val & 0x00ffffff) | (alpha << 24)) >>> 0;
         return this;
     }

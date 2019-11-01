@@ -1281,9 +1281,7 @@ export default class Vec3 extends ValueType {
      * @param {Vec3} vector
      * @return {number} from 0 to Math.PI
      */
-    angle (vector: Vec3): number {
-        return Vec2.prototype.angle.call(this, vector);
-    }
+    angle = Vec2.prototype.angle
     /**
      * !#en Calculates the projection of the current vector over the given vector.
      * !#zh 返回当前向量在指定 vector 向量上的投影向量。
@@ -1295,9 +1293,7 @@ export default class Vec3 extends ValueType {
      * var v2 = cc.v3(5, 5, 5);
      * v1.project(v2); // Vec3 {x: 20, y: 20, z: 20};
      */
-    project (vector: Vec3): number {
-        return Vec2.prototype.project.call(this, vector);
-    }
+    project = Vec2.prototype.project
     // Compatible with the vec2 API
 
     /**

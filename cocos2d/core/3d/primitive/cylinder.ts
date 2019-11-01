@@ -3,8 +3,8 @@
 import Vec3 from '../../value-types/vec3';
 import VertexData from './vertex-data';
 
-let temp1 = cc.v3(0, 0, 0);
-let temp2 = cc.v3(0, 0, 0);
+let temp1 = new Vec3(0, 0, 0);
+let temp2 = new Vec3(0, 0, 0);
 
 /**
  * @param {Number} radiusTop
@@ -51,8 +51,8 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
   let normals = new Array(vertCount * 3);
   let uvs = new Array(vertCount * 2);
   let maxRadius = Math.max(radiusTop, radiusBottom);
-  let minPos = cc.v3(-maxRadius, -halfHeight, -maxRadius);
-  let maxPos = cc.v3(maxRadius, halfHeight, maxRadius);
+  let minPos = new Vec3(-maxRadius, -halfHeight, -maxRadius);
+  let maxPos = new Vec3(maxRadius, halfHeight, maxRadius);
   let boundingRadius = Math.sqrt(maxRadius * maxRadius + halfHeight * halfHeight);
 
   let index = 0;
@@ -85,7 +85,7 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
   // =======================
 
   function generateTorso() {
-    let indexArray = [];
+    let indexArray: number[][] = [];
 
     // this will be used to calculate the normal
     let r = radiusTop - radiusBottom;
@@ -93,7 +93,7 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
 
     // generate positions, normals and uvs
     for (let y = 0; y <= heightSegments; y++) {
-      let indexRow = [];
+      let indexRow: number[] = [];
       let v = y / heightSegments;
 
       // calculate the radius of the current row

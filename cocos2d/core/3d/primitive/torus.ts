@@ -16,10 +16,10 @@ export default function (radius = 0.4, tube = 0.1, opts = {radialSegments: 32, t
   let tubularSegments = opts.tubularSegments;
   let arc = opts.arc;
 
-  let positions = [];
-  let normals = [];
-  let uvs = [];
-  let indices = [];
+  let positions: number[] = [];
+  let normals: number[] = [];
+  let uvs: number[] = [];
+  let indices: number[] = [];
   let minPos = new Vec3(-radius - tube, -tube, -radius - tube);
   let maxPos = new Vec3(radius + tube, tube, radius + tube);
   let boundingRadius = radius + tube;
