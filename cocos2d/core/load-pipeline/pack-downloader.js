@@ -111,6 +111,7 @@ module.exports = {
             unpackerData.unpacker.load(packIndices[packUuid], packJson);
             unpackerData.state = PackState.Loaded;
         }
+        // can not release subdomain packed json because it would not be reloaded. 
     },
 
     _doLoadNewPack: function (uuid, packUuid, packedJson) {
@@ -137,8 +138,7 @@ module.exports = {
                 for (var i = toBeChecked.length - 1; i >= 0; i--) {
                     var id = toBeChecked[i];
                     var pack = globalUnpackers[id];
-                    pack.duration++;
-                    if (pack.duration > maxDuration) {
+                    if (++pack.duration > maxDuration) {
                         self.release(id);
                     }
                 }
@@ -222,8 +222,7 @@ module.exports = {
         if (unpackerData) {
             cc.loader.release(unpackerData.url);
             delete globalUnpackers[packUuid];
-            var index = toBeChecked.indexOf(packUuid);
-            cc.js.array.fastRemoveAt(toBeChecked, index);
+            cc.js.array.fastRemove(toBeChecked, packUuid);
         }
     }
 };
