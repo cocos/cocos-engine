@@ -74,14 +74,10 @@ export class Node extends BaseNode implements INode {
      */
     public static TransformDirtyBit = TransformDirtyBit;
 
-    /**
-     * @zh
-     * 指定对象是否是普通的场景节点？
-     * @param obj 待测试的节点
-     */
-    public static isNode (obj: object | null): obj is Node {
-        return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
-    }
+    // UI 部分的脏数据
+    public _uiTransfromComp: UITransformComponent | null = null;
+    public _uiComp: UIComponent | null = null;
+    public _static = false;
 
     // world transform, don't access this directly
     protected _pos = new Vec3();
@@ -106,9 +102,14 @@ export class Node extends BaseNode implements INode {
     protected _dirtyFlags = TransformDirtyBit.NONE; // does the world transform need to update?
     protected _eulerDirty = false;
 
-    private _uiTransfromComp: UITransformComponent | null = null;
-    // tslint:disable-next-line: member-ordering
-    public _uiComp: UIComponent | null = null;
+    /**
+     * @zh
+     * 指定对象是否是普通的场景节点？
+     * @param obj 待测试的节点
+     */
+    public static isNode (obj: object | null): obj is Node {
+        return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
+    }
 
     /**
      * @zh

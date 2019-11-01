@@ -28,12 +28,10 @@
 
 import { Material } from '../../assets/material';
 import { CanvasComponent, UIComponent, UIRenderComponent } from '../../components/ui-base';
-import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType  } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
-import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { Pool, RecyclePool } from '../../memop';
 import { CachedArray } from '../../memop/cached-array';
@@ -49,44 +47,8 @@ import { StencilManager } from './stencil-manager';
 import { UIBatchModel } from './ui-batch-model';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
-
-export class UIDrawBatch {
-    public camera: Camera | null = null;
-    public bufferBatch: MeshBuffer | null = null;
-    public model: Model | null = null;
-    public material: Material | null = null;
-    public texView: GFXTextureView | null = null;
-    public firstIdx: number = 0;
-    public idxCount: number = 0;
-    public pipelineState: GFXPipelineState | null = null;
-    public bindingLayout: GFXBindingLayout | null = null;
-    public useLocalData: INode | null = null;
-
-    public destroy (ui: UI) {
-        if (this.pipelineState) {
-            ui._getUIMaterial(this.material!).revertPipelineState(this.pipelineState);
-            this.pipelineState = null;
-        }
-
-        if (this.bindingLayout) {
-            this.bindingLayout = null;
-        }
-    }
-
-    public clear (ui: UI) {
-        if (this.pipelineState) {
-            ui._getUIMaterial(this.material!).revertPipelineState(this.pipelineState);
-            this.pipelineState = null;
-        }
-        this.camera = null;
-        this.bufferBatch = null;
-        this.material = null;
-        this.texView = null;
-        this.firstIdx = 0;
-        this.idxCount = 0;
-        this.model = null;
-    }
-}
+import { UIStaticBatchComponent } from '../../../ui';
+import { UIDrawBatch } from './ui-draw-batch';
 
 /**
  * @zh
@@ -100,6 +62,18 @@ export class UI {
 
     get currBufferBatch () {
         return this._currMeshBuffer;
+    }
+
+    set currBufferBatch (value) {
+        if(!value){
+            return;
+        }
+
+        this._currMeshBuffer = value;
+    }
+
+    set currStaticRoot (value: UIStaticBatchComponent | null) {
+        this._currStaticRoot = value;
     }
 
     public device: GFXDevice;
@@ -122,10 +96,11 @@ export class UI {
     private _modelInUse: CachedArray<UIBatchModel>;
     // batcher
     private _emptyMaterial = new Material();
-    private _currMeshBuffer: MeshBuffer | null = null;
     private _currMaterial: Material = this._emptyMaterial;
     private _currTexView: GFXTextureView | null = null;
     private _currCanvas = -1;
+    private _currMeshBuffer: MeshBuffer | null = null;
+    private _currStaticRoot: UIStaticBatchComponent | null = null;
 
     constructor (private _root: Root) {
         this.device = _root.device;
@@ -352,7 +327,7 @@ export class UI {
      * @param frame - 当前执行组件贴图。
      * @param assembler - 当前组件渲染数据组装器。
      */
-    public commitComp (comp: UIRenderComponent, frame: GFXTextureView | null = null, assembler?: any) {
+    public commitComp (comp: UIRenderComponent, frame: GFXTextureView | null = null, assembler: any) {
         const renderComp = comp;
         const texView = frame;
         if (this._currMaterial.hash !== renderComp.material!.hash ||
@@ -414,6 +389,11 @@ export class UI {
         this._batches.push(curDrawBatch);
     }
 
+    public commitStaticBatch (comp: UIStaticBatchComponent) {
+        this._batches.append(comp.drawBatchList);
+        this.finishMergeBatches();
+    }
+
     /**
      * @zh
      * UI 渲染数据合批
@@ -431,9 +411,9 @@ export class UI {
 
         StencilManager.sharedManager!.handleMaterial(mat);
 
-        const curDrawBatch = this._drawBatchPool.alloc();
+        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot.requireDrawBatch(): this._drawBatchPool.alloc();
         curDrawBatch.camera = uiCanvas && uiCanvas.camera;
-        curDrawBatch.bufferBatch = this._currMeshBuffer;
+        curDrawBatch.bufferBatch = buffer;
         curDrawBatch.material = mat;
         curDrawBatch.texView = this._currTexView!;
         curDrawBatch.firstIdx = indicsStart;
@@ -462,6 +442,12 @@ export class UI {
         this.autoMergeBatches();
     }
 
+    public finishMergeBatches (){
+        this.autoMergeBatches();
+        this._currMaterial = this._emptyMaterial;
+        this._currTexView = null;
+    }
+
     private _deleteUIMaterial (mat: Material) {
         if (this._uiMaterials.has(mat.hash)) {
             this._uiMaterials.get(mat.hash)!.destroy();
@@ -484,7 +470,7 @@ export class UI {
         const len = node.children.length;
 
         this._preprocess(node);
-        if (len > 0) {
+        if (len > 0 && !node._static) {
             const children = node.children;
             for (let i = 0; i < children.length; ++i) {
                 const child = children[i];
@@ -531,6 +517,10 @@ export class UI {
     private _reset () {
         for (let i = 0; i < this._batches.length; ++i) {
             const batch = this._batches.array[i];
+            if (batch.isStatic) {
+                continue;
+            }
+
             batch.clear(this);
             this._drawBatchPool.free(batch);
         }
