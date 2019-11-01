@@ -117,7 +117,7 @@ export class SliderComponent extends Component {
     @property({
         slide: true,
         range: [0, 1, 0.01],
-        tooltip:'当前进度值，该数值的区间是 0-1 之间。',
+        tooltip:'当前进度值，该数值的区间是 0 - 1 之间。',
     })
     get progress () {
         return this._progress;

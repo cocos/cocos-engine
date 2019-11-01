@@ -104,7 +104,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     public atlasSize: number = 1024;
     @property({
         type: [CCString],
-        tooltip:'材质中真正参与合图的贴图属性，不参与的属性统一使用第一个unit的贴图'
+        tooltip:'材质中真正参与合图的贴图属性，不参与的属性统一使用第一个 unit 的贴图'
     })
     public batchableTextureNames: string[] = [];
     @property({

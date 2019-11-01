@@ -446,7 +446,7 @@ export class LabelComponent extends UIRenderComponent {
     @property({
         type: CacheMode,
         displayOrder: 13,
-        tooltip:'文本缓存模式，包括以下三种：\n 1. NONE : 不做任何缓存，文本内容进行一次绘制 \n 2. BITMAP: 将文本作为静态图像加入动态图集进行批次合并，但是不能频繁动态修改文本内容 \n 3. CHAR: 将文本拆分为字符并且把字符纹理缓存到一张字符图集中进行复用，适用于字符内容重复并且频繁更新的文本内容',
+        tooltip:'文本缓存模式，包括以下三种：\n 1. NONE: 不做任何缓存，文本内容进行一次绘制 \n 2. BITMAP: 将文本作为静态图像加入动态图集进行批次合并，但是不能频繁动态修改文本内容 \n 3. CHAR: 将文本拆分为字符并且把字符纹理缓存到一张字符图集中进行复用，适用于字符内容重复并且频繁更新的文本内容',
     })
     get cacheMode () {
         return this._cacheMode;

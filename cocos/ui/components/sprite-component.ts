@@ -209,7 +209,7 @@ export class SpriteComponent extends UIRenderComponent {
     @property({
         type: SpriteType,
         displayOrder: 6,
-        tooltip:'渲染模式：\n - 普通(Simple)：修改尺寸会整体拉伸图像，适用于序列帧动画和普通图像 \n' +
+        tooltip:'渲染模式：\n - 普通（Simple）：修改尺寸会整体拉伸图像，适用于序列帧动画和普通图像 \n' +
         '- 九宫格（Sliced）：修改尺寸时四个角的区域不会拉伸，适用于 UI 按钮和面板背景 \n' +
         '- 填充（Filled）：设置一定的填充起始位置和方向，能够以一定比率剪裁显示图片',
     })

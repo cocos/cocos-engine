@@ -174,7 +174,7 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: InputMode,
-        tooltip:'指定输入模式: ANY表示多行输入，其它都是单行输入，移动平台上还可以指定键盘样式'
+        tooltip:'指定输入模式: ANY 表示多行输入，其它都是单行输入，移动平台上还可以指定键盘样式'
     })
     get inputMode () {
         return this._inputMode;

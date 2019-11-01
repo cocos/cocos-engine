@@ -274,7 +274,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         range: [0, 1, 0.1],
-        tooltip:'开启惯性后，在用户停止触摸后滚动多快停止，0表示永不停止，1表示立刻停止',
+        tooltip:'开启惯性后，在用户停止触摸后滚动多快停止，0 表示永不停止，1 表示立刻停止',
     })
     public brake = 0.5;
 

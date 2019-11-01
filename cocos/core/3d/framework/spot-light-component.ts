@@ -121,7 +121,7 @@ export class SpotLightComponent extends LightComponent {
      * 针对聚光灯和点光源设置光源范围。
      */
     @property({
-        tooltip:' 针对聚光灯和点光源设置光源范围',
+        tooltip:'针对聚光灯和点光源设置光源范围',
     })
     get range () {
         return this._range;

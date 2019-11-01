@@ -317,7 +317,7 @@ export class CameraComponent extends Component {
      */
     @property({
         type: Layers.BitMask,
-        tooltip:'设置摄像机可见掩码，与Component中的visibility同时使用，用于过滤摄像机不需要渲染的物体',
+        tooltip:'设置摄像机可见掩码，与 Component 中的 visibility 同时使用，用于过滤摄像机不需要渲染的物体',
     })
     get visibility () {
         return this._visibility;

@@ -119,6 +119,7 @@ export class AudioSourceComponent extends Component {
      * 请注意,在某些平台上，音量控制可能不起效。<br>
      */
     @property({
+        range:[0.0,1.0],
         tooltip:'音频的音量（大小范围为 0.0 到 1.0 ）\n请注意,在某些平台上，音量控制可能不起效'
     })
     set volume (val) {

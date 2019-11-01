@@ -167,7 +167,7 @@ export class ProgressBarComponent extends Component {
     @property({
         range: [0, 1, 0.1],
         slide: true,
-        tooltip:'当前进度指示，范围从0到1',
+        tooltip:'当前进度指示，范围从 0 到 1',
     })
     get progress () {
         return this._progress;
