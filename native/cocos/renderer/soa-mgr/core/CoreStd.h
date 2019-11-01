@@ -47,11 +47,11 @@
 
 // Data Type define
 #include "TypeDef.h"
-/*#include "Memory/KartMemory.h"
-#include "Kernel/MemObject.h"
-#include "Kernel/Log.h"
-#include "Util/Assertion.h"
-#include "Util/Singleton.h"
-#include "Util/SpinMutex.h"*/
+/*#include "memory/KartMemory.h"
+#include "kernel/MemObject.h"
+#include "kernel/Log.h"
+#include "util/Assertion.h"
+#include "util/Singleton.h"
+#include "util/SpinMutex.h"*/
 
 #endif

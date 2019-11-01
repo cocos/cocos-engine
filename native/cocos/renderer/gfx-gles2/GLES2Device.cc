@@ -1,7 +1,7 @@
 #include "GLES2Std.h"
 #include "GLES2Device.h"
 #include "GLES2StateCache.h"
-#include "GLES2EGLContext.h"
+#include "GLES2Context.h"
 #include "GLES2Window.h"
 #include "GLES2Queue.h"
 #include "GLES2CommandAllocator.h"
@@ -44,7 +44,7 @@ bool GLES2Device::Initialize(const GFXDeviceInfo& info) {
   ctx_info.window_handle = window_handle_;
   ctx_info.shared_ctx = info.shared_ctx;
 
-  context_ = CC_NEW(GLES2EGLContext(this));
+  context_ = CC_NEW(GLES2Context(this));
   if (!context_->Initialize(ctx_info)) {
     Destroy();
     return false;

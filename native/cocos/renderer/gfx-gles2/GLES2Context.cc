@@ -1,5 +1,5 @@
 #include "GLES2Std.h"
-#include "GLES2EGLContext.h"
+#include "GLES2Context.h"
 #include "gles2w.h"
 
 // #define CC_GFX_DEBUG
@@ -61,24 +61,31 @@ void APIENTRY GLES2EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum se
 
 #endif
 
-GLES2EGLContext::GLES2EGLContext(GFXDevice* device)
+GLES2Context::GLES2Context(GFXDevice* device)
     : GFXContext(device),
       is_primary_ctx_(false),
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+      eagl_context_(0),
+      eagl_shared_ctx_(0),
+#else
       native_display_(0),
       egl_display_(EGL_NO_DISPLAY),
       egl_config_(EGL_NO_CONFIG_KHR),
       egl_surface_(EGL_NO_SURFACE),
       egl_context_(EGL_NO_CONTEXT),
       egl_shared_ctx_(EGL_NO_CONTEXT),
+#endif
       major_ver_(0),
       minor_ver_(0),
       is_initialized(false) {
 }
 
-GLES2EGLContext::~GLES2EGLContext() {
+GLES2Context::~GLES2Context() {
 }
 
-bool GLES2EGLContext::Initialize(const GFXContextInfo &info) {
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_ANDROID)
+
+bool GLES2Context::Initialize(const GFXContextInfo &info) {
   
   vsync_mode_ = info.vsync_mode;
   window_handle_ = info.window_handle;
@@ -244,7 +251,7 @@ bool GLES2EGLContext::Initialize(const GFXContextInfo &info) {
 
     egl_shared_ctx_ = egl_context_;
   } else {
-    GLES2EGLContext* shared_ctx = (GLES2EGLContext*)info.shared_ctx;
+    GLES2Context* shared_ctx = (GLES2Context*)info.shared_ctx;
 
     major_ver_ = shared_ctx->major_ver();
     minor_ver_ = shared_ctx->minor_ver();
@@ -315,7 +322,7 @@ bool GLES2EGLContext::Initialize(const GFXContextInfo &info) {
   return true;
 }
 
-void GLES2EGLContext::Destroy() {
+void GLES2Context::Destroy() {
   if (egl_context_ != EGL_NO_CONTEXT) {
     eglDestroyContext(egl_display_, egl_context_);
     egl_context_ = EGL_NO_CONTEXT;
@@ -342,13 +349,22 @@ void GLES2EGLContext::Destroy() {
   is_initialized = false;
 }
 
-bool GLES2EGLContext::CheckExtension(const String& extension) const {
-  return (std::find(extensions_.begin(), extensions_.end(), extension) != extensions_.end());
+bool GLES2Context::MakeCurrentImpl() {
+  return eglMakeCurrent(egl_display_, egl_surface_, egl_surface_, egl_context_);
 }
 
-bool GLES2EGLContext::MakeCurrent() {
-  if (eglMakeCurrent(egl_display_, egl_surface_, egl_surface_, egl_context_)) {
+void GLES2Context::Present()
+{
+  eglSwapBuffers(egl_display_, egl_surface_);
+}
+
+#endif
+
+bool GLES2Context::MakeCurrent() {
+  if (MakeCurrentImpl()) {
     if (!is_initialized) {
+      
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_ANDROID)
       // Turn on or off the vertical sync depending on the input bool value.
       int interval = 1;
       switch (vsync_mode_) {
@@ -364,7 +380,8 @@ bool GLES2EGLContext::MakeCurrent() {
         CC_LOG_ERROR("wglSwapInterval() - FAILED.");
         return false;
       }
-
+#endif
+      
 #if defined(CC_GFX_DEBUG)
       glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR);
       glDebugMessageControlKHR(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
@@ -414,17 +431,16 @@ bool GLES2EGLContext::MakeCurrent() {
       is_initialized = true;
     }
 
-    CC_LOG_DEBUG("eglMakeCurrent() - SUCCESSED, NativeDisplayType: 0x%p, EGLContext: 0x%p", native_display_, egl_context_);
+    CC_LOG_DEBUG("eglMakeCurrent() - SUCCESSED, Context: 0x%p", this);
     return true;
   } else {
-    CC_LOG_ERROR("eglMakeCurrent() - FAILED, Error: %d, NativeDisplayType: 0x%p, EGLContext: 0x%p", GetLastError(), native_display_, egl_context_);
+    CC_LOG_ERROR("MakeCurrent() - FAILED, Context: 0x%p", this);
     return false;
   }
 }
 
-void GLES2EGLContext::Present()
-{
-  eglSwapBuffers(egl_display_, egl_surface_);
+bool GLES2Context::CheckExtension(const String& extension) const {
+  return (std::find(extensions_.begin(), extensions_.end(), extension) != extensions_.end());
 }
 
 CC_NAMESPACE_END

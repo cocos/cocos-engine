@@ -1,5 +1,5 @@
 #include "CoreStd.h"
-#include "Assertion.h"
+#include "assertion.h"
 
 // Platform head file including
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)

@@ -3,7 +3,7 @@
 
 #include "SoA/SoADef.h"
 #include "SoAMathLib.h"
-#include "Math/Quat.h"
+#include "math/Quat.h"
 #include "SoAVec3.h"
 
 CC_NAMESPACE_BEGIN

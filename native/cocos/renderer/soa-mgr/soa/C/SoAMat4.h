@@ -5,7 +5,7 @@
 #include "SoAMathLib.h"
 #include "SoAVec3.h"
 #include "SoAQuat.h"
-#include "Math/Mat4.h"
+#include "math/Mat4.h"
 
 CC_NAMESPACE_BEGIN
 

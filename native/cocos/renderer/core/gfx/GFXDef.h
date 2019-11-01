@@ -549,18 +549,18 @@ struct GFXTextureSubres {
 
 struct GFXTextureCopy {
   GFXTextureSubres src_subres;
-  GFXOffset src_offset = { 0 };
+  GFXOffset src_offset = { 0, 0, 0 };
   GFXTextureSubres dst_subres;
-  GFXOffset dst_offset = { 0 };
-  GFXExtent extent = { 0 };
+  GFXOffset dst_offset = { 0, 0, 0 };
+  GFXExtent extent = { 0, 0, 0 };
 };
 
 struct GFXBufferTextureCopy {
   uint buff_offset = 0;
   uint buff_stride = 0;
   uint buff_tex_height = 0;
-  GFXOffset tex_offset = { 0 };
-  GFXExtent tex_extent = { 0 };
+  GFXOffset tex_offset = { 0, 0, 0 };
+  GFXExtent tex_extent = { 0, 0, 0 };
   GFXTextureSubres tex_subres;
 };
 typedef vector<GFXBufferTextureCopy>::type GFXBufferTextureCopyList;

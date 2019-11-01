@@ -6,12 +6,12 @@
     // Prevent Apple's non-standard extension header from being included
 #   define __gl_es20ext_h_
 #else
-#   include <khronos/GLES2/gl2.h>
+#   include <GLES2/gl2.h>
 #endif
 
-#include <khronos/KHR/khrplatform.h>
-#include <khronos/GLES2/gl2platform.h>
-#include <khronos/GLES2/gl2ext.h>
+#include <KHR/khrplatform.h>
+#include <GLES2/gl2platform.h>
+#include <GLES2/gl2ext.h>
 
 typedef khronos_int64_t  GLint64EXT;
 typedef khronos_uint64_t GLuint64EXT;

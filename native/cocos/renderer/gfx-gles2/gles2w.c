@@ -3,7 +3,7 @@
 #if defined(_WIN32) && !defined(ANDROID)
 #define WIN32_LEAN_AND_MEAN 1
 #include <windows.h>
-#include <khronos/EGL/egl.h>
+#include <EGL/egl.h>
 
 static HMODULE libgl;
 

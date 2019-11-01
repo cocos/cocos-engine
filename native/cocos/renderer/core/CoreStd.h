@@ -31,7 +31,7 @@
 #include <mutex>
 
 #include "TypeDef.h"
-#include "kernel/Assertion.h"
+#include "kernel/assertion.h"
 #include "memory/Memory.h"
 #include "math/CCMath.h"
 #include "kernel/Log.h"

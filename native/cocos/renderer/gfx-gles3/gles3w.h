@@ -6,13 +6,13 @@
     // Prevent Apple's non-standard extension header from being included
 #   define __gl_es30ext_h_
 #else
-#   include <khronos/GLES3/gl3.h>
+#   include <GLES3/gl3.h>
 #endif
 
-#include <khronos/KHR/khrplatform.h>
-#include <khronos/GLES3/gl3platform.h>
-#include <khronos/GLES2/gl2ext.h>
-#include <khronos/GLES3/gl3ext.h>
+#include <KHR/khrplatform.h>
+#include <GLES3/gl3platform.h>
+#include <GLES2/gl2ext.h>
+#include <GLES3/gl3ext.h>
 
 #ifndef __gl3_h_
 #define __gl3_h_

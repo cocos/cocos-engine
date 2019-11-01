@@ -2,8 +2,8 @@
 #define __SOAMATHLIB_H__
 
 #include "../SoADef.h"
-#include "Math/MathLib.h"
-//#include "Util/Assertion.h"
+#include "math/MathLib.h"
+//#include "util/Assertion.h"
 using namespace std;
 
 CC_NAMESPACE_BEGIN

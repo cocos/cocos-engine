@@ -15,7 +15,7 @@ namespace std {
 
 #endif
 
-#include "Memory/StlAlloc.h"
+#include "memory/StlAlloc.h"
 
 CC_NAMESPACE_BEGIN
 

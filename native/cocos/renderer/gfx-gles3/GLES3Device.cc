@@ -1,7 +1,7 @@
 #include "GLES3Std.h"
 #include "GLES3Device.h"
 #include "GLES3StateCache.h"
-#include "GLES3EGLContext.h"
+#include "GLES3Context.h"
 #include "GLES3Window.h"
 #include "GLES3Queue.h"
 #include "GLES3CommandAllocator.h"
@@ -41,7 +41,7 @@ bool GLES3Device::Initialize(const GFXDeviceInfo& info) {
   ctx_info.window_handle = window_handle_;
   ctx_info.shared_ctx = info.shared_ctx;
 
-  context_ = CC_NEW(GLES3EGLContext(this));
+  context_ = CC_NEW(GLES3Context(this));
   if (!context_->Initialize(ctx_info)) {
     Destroy();
     return false;
