@@ -101,7 +101,6 @@ export class PhysicsSystem extends System {
     get gravity (): Vec3 {
         return this._gravity;
     }
-
     set gravity (gravity: Vec3) {
         this._gravity.set(gravity);
         if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {

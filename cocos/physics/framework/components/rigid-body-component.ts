@@ -30,10 +30,6 @@ export class RigidBodyComponent extends Component {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
-    public get impl () {
-        return this.body;
-    }
-
     /**
      * @zh
      * 获取或设置是否允许休眠
