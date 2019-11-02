@@ -26,6 +26,7 @@ export interface ICollisionDetect {
      */
     raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, resultes: PhysicsRayResult[]): boolean
 }
+
 export interface IPhysicsWorld extends ICollisionDetect {
     gravity: IVec3Like;
     allowSleep: boolean;

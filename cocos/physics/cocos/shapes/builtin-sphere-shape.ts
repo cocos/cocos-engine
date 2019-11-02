@@ -1,25 +1,38 @@
 import { sphere } from '../../../core/geom-utils';
 import { BuiltinShape } from './builtin-shape';
+import { ISphereShape } from '../../spec/i-physics-spahe';
+import { maxComponent } from '../../util';
+import { SphereColliderComponent } from '../../../../exports/physics-framework';
 
-export class BuiltinSphereShape extends BuiltinShape {
+export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
 
-    private _localSphere: sphere;
+    set radius (radius: number) {
+        this.localSphere.radius = radius;
+        const s = maxComponent(this.collider.node.worldScale);
+        this.worldSphere.radius = this.localSphere.radius * s;
+    }
 
-    private _worldSphere: sphere;
+    get localSphere () {
+        return this._localShape as sphere;
+    }
 
-    public get radius () {
-        return this._localSphere.radius;
+    get worldSphere () {
+        return this._worldShape as sphere;
+    }
+
+    get sphereCollider () {
+        return this.collider as SphereColliderComponent;
     }
 
     constructor (radius: number) {
         super();
-        this._localSphere = new sphere(0, 0, 0, radius);
-        this._worldSphere = new sphere(0, 0, 0, radius);
-        this._localShape = this._localSphere;
-        this._worldShape = this._worldSphere;
+        this._localShape = new sphere(0, 0, 0, radius);
+        this._worldShape = new sphere(0, 0, 0, radius);
     }
 
-    public setRadius (radius: number) {
-        this._localSphere.radius = radius;
+    onLoad () {
+        super.onLoad();
+        this.radius = this.sphereCollider.radius;
     }
+
 }
