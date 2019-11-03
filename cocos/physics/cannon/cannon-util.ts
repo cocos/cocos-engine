@@ -1,9 +1,9 @@
 import CANNON from '@cocos/cannon';
 import { IRaycastOptions } from '../api';
-import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { getWrap } from '../framework/util';
 import { Vec3 } from '../../core';
 import { IBaseShape } from '../spec/i-physics-spahe';
+import { PhysicsRayResult } from '../framework';
 
 export function toCannonRaycastOptions (out: CANNON.IRaycastOptions, options: IRaycastOptions) {
     out.checkCollisionResponse = !options.queryTrigger;

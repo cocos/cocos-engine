@@ -1,6 +1,5 @@
 import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../core/math';
-import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
 import { CannonConstraint } from './constraint/cannon-constraint';
 import { CannonShape } from './shapes/cannon-shape';
@@ -8,7 +7,7 @@ import { ray } from '../../core/geom-utils';
 import { RecyclePool, Node } from '../../core';
 import { CannonSharedBody } from './cannon-shared-body';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
-import { PhysicMaterial } from '../framework/assets/physic-material';
+import { PhysicMaterial, PhysicsRayResult } from '../framework';
 export class CannonWorld implements IPhysicsWorld {
 
     get world () {

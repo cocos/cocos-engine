@@ -10,8 +10,8 @@ import { CannonWorld } from '../cannon-world';
 import { Node } from '../../../core';
 import { TriggerEventType } from '../../framework/physics-interface';
 import { ERigidBodyType } from '../../framework/physics-enum';
-import { ColliderComponent } from '../../framework/components/collider/collider-component';
 import { PhysicsSystem } from '../../framework/physics-system';
+import { ColliderComponent } from '../../framework';
 
 const TriggerEventObject = {
     type: 'onTriggerEnter' as TriggerEventType,

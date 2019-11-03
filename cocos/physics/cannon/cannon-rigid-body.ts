@@ -1,11 +1,11 @@
 import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../core/math';
 import { IRigidBody } from '../spec/I-rigid-body';
-import { RigidBodyComponent } from '../framework/components/rigid-body-component';
 import { CannonSharedBody } from './cannon-shared-body';
 import { Node } from '../../core';
 import { CannonWorld } from './cannon-world';
 import { PhysicsSystem } from '../framework/physics-system';
+import { RigidBodyComponent } from '../framework';
 
 const v3_cannon0 = new CANNON.Vec3();
 const v3_cannon1 = new CANNON.Vec3();
