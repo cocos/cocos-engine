@@ -103,15 +103,6 @@ export class ColliderComponent extends Component implements IEventTarget {
         if (!CC_EDITOR) {
             this._shape.isTrigger = this._isTrigger;
         }
-        // if (!CC_EDITOR) {
-        //     if (!CC_PHYSICS_BUILTIN) {
-        //         if (this.sharedBody) {
-        //             const type = this._isTrigger ? ERigidBodyType.DYNAMIC : ERigidBodyType.STATIC;
-        //             this.sharedBody.body.setType(type);
-        //             this._shapeBase.setCollisionResponse!(!this._isTrigger);
-        //         }
-        //     }
-        // }
     }
 
     /**
@@ -134,17 +125,6 @@ export class ColliderComponent extends Component implements IEventTarget {
         if (!CC_EDITOR) {
             this._shape.center = this._center;
         }
-
-        // if (!CC_EDITOR) {
-        //     const rigidBody = this.sharedBody.rigidBody as RigidBodyComponent | null;
-        //     if (rigidBody != null) {
-        //         Vec3.subtract(offset, this.node.worldPosition, rigidBody.node.worldPosition);
-        //         Vec3.add(offset, offset, this._center);
-        //         this._shapeBase.setCenter(offset);
-        //     } else {
-        //         this._shapeBase.setCenter(this._center);
-        //     }
-        // }
     }
 
     /**
@@ -161,11 +141,11 @@ export class ColliderComponent extends Component implements IEventTarget {
         return this._shape;
     }
 
+    /// PRIVATE PROPERTY ///
+
     protected _shape!: IBaseShape;
 
     protected _isSharedMaterial: boolean = true;
-
-    /// PRIVATE PROPERTY ///
 
     @property({ type: PhysicMaterial })
     protected _material: PhysicMaterial | null = null;
@@ -313,13 +293,6 @@ export class ColliderComponent extends Component implements IEventTarget {
     }
 
     protected onLoad () {
-        // if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
-        //     // init collider
-        //     this.isTrigger = this._isTrigger;
-        //     this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
-        // }
-
-        // this.center = this._center;
         if (!CC_EDITOR) {
             if (!CC_PHYSICS_BUILTIN) {
                 this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
@@ -330,62 +303,18 @@ export class ColliderComponent extends Component implements IEventTarget {
     }
 
     protected onEnable () {
-
-        // if (!CC_EDITOR) {
-        //     super.onEnable();
-
-        //     const rigidBody = this.sharedBody.rigidBody as RigidBodyComponent | null;
-        //     if (rigidBody != null) {
-        //         Vec3.subtract(offset, this.node.worldPosition, rigidBody.node.worldPosition);
-        //         Vec3.add(offset, offset, this._center);
-        //         this.sharedBody.body.addShape(this._shapeBase!, offset);
-        //     } else {
-        //         this.sharedBody.body.addShape(this._shapeBase!, this._center);
-        //     }
-        //     this.center = this._center;
-
-        //     this._shapeBase.addTriggerCallback(this._trrigerCallback);
-        //     if (!CC_PHYSICS_BUILTIN) {
-        //         this.sharedBody.body.addCollisionCallback(this._collisionCallBack);
-        //     }
-        //     // sync after add shape
-        //     this.sharedBody.syncPhysWithScene();
-        // }
         if (!CC_EDITOR) {
             this._shape.onEnable!();
         }
     }
 
     protected onDisable () {
-        // if (!CC_EDITOR) {
-        //     this._shapeBase.removeTriggerCallback(this._trrigerCallback);
-        //     if (!CC_PHYSICS_BUILTIN) {
-        //         this.sharedBody.body.removeCollisionCllback(this._collisionCallBack);
-        //     }
-        //     this.sharedBody.body.removeShape(this._shapeBase!);
-
-        //     // TODO : Change to determine the reference count
-        //     if (this.sharedBody.isShapeOnly) {
-        //         super.onDisable();
-        //     }
-        // }
         if (!CC_EDITOR) {
             this._shape.onDisable!();
         }
     }
 
     protected onDestroy () {
-        // if (!CC_EDITOR) {
-        //     this.sharedBody.body.removeShape(this._shapeBase!);
-        //     if (!CC_PHYSICS_BUILTIN) {
-        //         if (this._material != null) {
-        //             if (this._material._uuid != PhysicsSystem.instance.defaultMaterial!._uuid) {
-        //                 this._material.destroy();
-        //                 this._material = null;
-        //             }
-        //         }
-        //     }
-        // }
         if (!CC_EDITOR) {
             this._shape.onDestroy!();
         }
@@ -400,5 +329,3 @@ export class ColliderComponent extends Component implements IEventTarget {
 }
 
 applyMixins(ColliderComponent, [CallbacksInvoker, EventTarget]);
-
-const offset = new Vec3();

@@ -24,33 +24,6 @@ import { IBoxShape } from '../../../spec/i-physics-spahe';
 @executeInEditMode
 export class BoxColliderComponent extends ColliderComponent {
 
-    public get boxShape (): IBoxShape {
-        return this._shape as IBoxShape;
-    }
-
-    /// PRIVATE PROPERTY ///
-
-    @property
-    private _size: Vec3 = new Vec3(1, 1, 1);
-
-    constructor () {
-        super();
-        if (!CC_EDITOR) {
-            this._shape = createBoxShape(this._size);
-        }
-    }
-
-    /// COMPONENT LIFECYCLE ///
-
-    // protected onLoad () {
-    //     super.onLoad();
-
-    //     // if (!CC_EDITOR) {
-    //     //     this.size = this._size;
-    //     //     this._shape.setScale(this.node.worldScale);
-    //     // }
-    // }
-
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
     /**
@@ -72,12 +45,22 @@ export class BoxColliderComponent extends ColliderComponent {
         if (!CC_EDITOR) {
             this.boxShape.size = this._size;
         }
-
-        // if (!CC_EDITOR) {
-        //     this._shape.setSize(this._size);
-        //     if (CC_PHYSICS_BUILTIN) {
-        //         this._shape.setScale(this.node.worldScale);
-        //     }
-        // }
     }
+
+    public get boxShape (): IBoxShape {
+        return this._shape as IBoxShape;
+    }
+
+    /// PRIVATE PROPERTY ///
+
+    @property
+    private _size: Vec3 = new Vec3(1, 1, 1);
+
+    constructor () {
+        super();
+        if (!CC_EDITOR) {
+            this._shape = createBoxShape(this._size);
+        }
+    }
+
 }

@@ -134,6 +134,8 @@ export class PhysicsSystem extends System {
     static readonly ID: 'physics';
 
     readonly physicsWorld: IPhysicsWorld;
+    readonly raycastClosestResult = new PhysicsRayResult();
+    readonly raycastResults: PhysicsRayResult[] = [];
 
     @property
     private _enable = true;
@@ -157,9 +159,6 @@ export class PhysicsSystem extends System {
     // private _singleStep = false;
 
     private readonly _material: PhysicMaterial | null = null;
-
-    readonly raycastClosestResult = new PhysicsRayResult();
-    readonly raycastResults: PhysicsRayResult[] = [];
 
     private readonly raycastOptions: IRaycastOptions = {
         'group': -1,

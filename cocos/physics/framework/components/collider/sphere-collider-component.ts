@@ -23,33 +23,6 @@ import { ISphereShape } from '../../../spec/i-physics-spahe';
 @executeInEditMode
 export class SphereColliderComponent extends ColliderComponent {
 
-    public get sphereShape (): ISphereShape {
-        return this._shape as ISphereShape;
-    }
-
-    /// PRIVATE PROPERTY ///
-
-    @property
-    private _radius: number = 1;
-
-    constructor () {
-        super();
-        if (!CC_EDITOR) {
-            this._shape = createSphereShape(this._radius);
-        }
-    }
-
-    /// COMPONENT LIFECYCLE ///
-
-    // protected onLoad () {
-    //     super.onLoad();
-
-    //     // if (!CC_EDITOR) {
-    //     //     this.radius = this._radius;
-    //     //     this._shape.setScale(this.node.worldScale);
-    //     // }
-    // }
-
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
     /**
@@ -67,16 +40,24 @@ export class SphereColliderComponent extends ColliderComponent {
 
     public set radius (value) {
         this._radius = value;
-
         if (!CC_EDITOR) {
             this.sphereShape.radius = this._radius;
         }
+    }
 
-        // if (!CC_EDITOR) {
-        //     this._shape.setRadius(this._radius);
-        //     if (CC_PHYSICS_BUILTIN) {
-        //         this._shape.setScale(this.node.worldScale);
-        //     }
-        // }
+    public get sphereShape (): ISphereShape {
+        return this._shape as ISphereShape;
+    }
+
+    /// PRIVATE PROPERTY ///
+
+    @property
+    private _radius: number = 1;
+
+    constructor () {
+        super();
+        if (!CC_EDITOR) {
+            this._shape = createSphereShape(this._radius);
+        }
     }
 }
