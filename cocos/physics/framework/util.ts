@@ -2,15 +2,23 @@
  * @hidden
  */
 
-import { Vec3 } from '../../core/math';
-import { IVec3Like, IQuatLike } from '../../core/math/type-define';
+import { Quat, Vec3 } from '../../core/math';
 
-export function stringfyVec3 (value: IVec3Like): string {
-        return `(x: ${value.x}, y: ${value.y}, z: ${value.z})`;    
+export function stringfyVec3 (value: {x: number; y: number; z: number}): string {
+    if (Vec3.strictEquals(value, new Vec3())) {
+        return `<origin>`;
+    } else {
+        return `(x: ${value.x}, y: ${value.y}, z: ${value.z})`;
+    }
 }
 
-export function stringfyQuat (value: IQuatLike): string {
+export function stringfyQuat (value: {x: number; y: number; z: number; w: number}): string {
+    value = new Quat(value.x, value.y, value.z, value.w);
+    if (Quat.strictEquals(value, new Quat())) {
+        return `<Identity>`;
+    } else {
         return `(x: ${value.x}, y: ${value.y}, z: ${value.z}, w: ${value.w})`;
+    }
 }
 
 interface IWrapped<T> {
