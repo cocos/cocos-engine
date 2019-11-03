@@ -432,4 +432,96 @@ export class RigidBodyComponent extends Component {
             this._body.setAngularVelocity(value);
         }
     }
+
+    /// GROUP MASK ///
+
+    /**
+     * @zh
+     * 设置分组值。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public setGroup (v: number): void {
+        if (!CC_PHYSICS_BUILTIN && this._assertOnload) {
+            this._body!.setGroup(v);
+        }
+    }
+
+    /**
+     * @zh
+     * 获取分组值。
+     * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public getGroup (): number {
+        if (!CC_PHYSICS_BUILTIN && this._assertOnload) {
+            return this._body.getGroup();
+        }
+        return 0;
+    }
+
+    /**
+     * @zh
+     * 添加分组值，可填要加入的 group。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public addGroup (v: number) {
+        if (!CC_PHYSICS_BUILTIN && this._assertOnload) {
+            this._body.addGroup(v);
+        }
+    }
+
+    /**
+     * @zh
+     * 减去分组值，可填要移除的 group。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public removeGroup (v: number) {
+        if (!CC_PHYSICS_BUILTIN && this._assertOnload) {
+            this._body.removeGroup(v);
+        }
+    }
+
+    /**
+     * @zh
+     * 获取掩码值。
+     * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public getMask (): number {
+        if (!CC_PHYSICS_BUILTIN && this._assertOnload) {
+            return this._body.getMask();
+        }
+        return 0;
+    }
+
+    /**
+     * @zh
+     * 设置掩码值。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public setMask (v: number) {
+        if (!CC_PHYSICS_BUILTIN && this._assertOnload) {
+            this._body.setMask(v);
+        }
+    }
+
+    /**
+     * @zh
+     * 添加掩码值，可填入需要检查的 group。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public addMask (v: number) {
+        if (!CC_PHYSICS_BUILTIN && this._assertOnload) {
+            this._body.addMask(v);
+        }
+    }
+
+    /**
+     * @zh
+     * 减去掩码值，可填入不需要检查的 group。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public removeMask (v: number) {
+        if (!CC_PHYSICS_BUILTIN && this._assertOnload) {
+            this._body.removeMask(v);
+        }
+    }
 }

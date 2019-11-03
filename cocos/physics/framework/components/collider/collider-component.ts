@@ -12,7 +12,7 @@ import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventTyp
 import { RigidBodyComponent } from '../rigid-body-component';
 import { PhysicMaterial } from '../../assets/physic-material';
 import { PhysicsSystem } from '../../physics-system';
-import { Component } from '../../../../core';
+import { Component, error } from '../../../../core';
 import { IBaseShape } from '../../../spec/i-physics-spahe';
 
 /**
@@ -156,6 +156,14 @@ export class ColliderComponent extends Component implements IEventTarget {
     @property
     protected readonly _center: Vec3 = new Vec3();
 
+    protected get _assertOnload (): boolean {
+        const r = this._isOnLoadCalled == 0;
+        if (r) { error('Physics Error: Please make sure that the node has been added to the scene'); }
+        return !r;
+    }
+
+    protected constructor () { super() }
+
     /// EVENT INTERFACE ///
 
     /**
@@ -218,7 +226,7 @@ export class ColliderComponent extends Component implements IEventTarget {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setGroup (v: number): void {
-        return this._shape!.setGroup(v);
+        this._shape!.setGroup(v);
     }
 
     /**
@@ -236,7 +244,7 @@ export class ColliderComponent extends Component implements IEventTarget {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addGroup (v: number) {
-        return this._shape.addGroup(v);
+        this._shape.addGroup(v);
     }
 
     /**
@@ -245,7 +253,7 @@ export class ColliderComponent extends Component implements IEventTarget {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeGroup (v: number) {
-        return this._shape.removeGroup(v);
+        this._shape.removeGroup(v);
     }
 
     /**
@@ -263,7 +271,7 @@ export class ColliderComponent extends Component implements IEventTarget {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setMask (v: number) {
-        return this._shape.setMask(v);
+        this._shape.setMask(v);
     }
 
     /**
@@ -272,7 +280,7 @@ export class ColliderComponent extends Component implements IEventTarget {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addMask (v: number) {
-        return this._shape.addMask(v);
+        this._shape.addMask(v);
     }
 
     /**
@@ -281,7 +289,7 @@ export class ColliderComponent extends Component implements IEventTarget {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeMask (v: number) {
-        return this._shape.removeMask(v);
+        this._shape.removeMask(v);
     }
 
     /// COMPONENT LIFECYCLE ///
