@@ -4,13 +4,13 @@
 
 import { Vec3 } from '../../core/math';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
-import { createPhysicsWorld } from '../instance';
+import { createPhysicsWorld } from './instance';
 import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
-import { PhysicMaterial } from '../assets/physic-material';
+import { PhysicMaterial } from './assets/physic-material';
 import { Layers, RecyclePool } from '../../core';
 import { ray } from '../../core/geom-utils';
-import { PhysicsRayResult } from '../physics-ray-result';
+import { PhysicsRayResult } from './physics-ray-result';
 import { property, ccclass } from '../../core/data/class-decorator';
 
 /**
@@ -135,16 +135,17 @@ export class PhysicsSystem extends System {
 
     readonly physicsWorld: IPhysicsWorld;
 
+    @property
     private _enable = true;
 
     @property
-    private _allowSleep = false;
+    private _allowSleep = true;
 
     @property
     private readonly _gravity = new Vec3(0, -10, 0);
 
     @property
-    private _maxSubStep = 2;
+    private _maxSubStep = 1;
 
     @property
     private _deltaTime = 1.0 / 60.0;
@@ -254,7 +255,6 @@ export class PhysicsSystem extends System {
         }
     }
 }
-cc.PhysicsSystem = PhysicsSystem;
 
 director.on(Director.EVENT_INIT, function () {
     const sys = new cc.PhysicsSystem();

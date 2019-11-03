@@ -1,11 +1,11 @@
 import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../core/math';
 import { IRigidBody } from '../spec/I-rigid-body';
-import { RigidBodyComponent } from '../components/rigid-body-component';
-import { PhysicsSystem } from '../../../exports/physics-framework';
+import { RigidBodyComponent } from '../framework/components/rigid-body-component';
 import { CannonSharedBody } from './cannon-shared-body';
 import { Node } from '../../core';
 import { CannonWorld } from './cannon-world';
+import { PhysicsSystem } from '../framework/physics-system';
 
 const v3_cannon0 = new CANNON.Vec3();
 const v3_cannon1 = new CANNON.Vec3();
@@ -17,74 +17,26 @@ const v3_cannon1 = new CANNON.Vec3();
  */
 export class CannonRigidBody implements IRigidBody {
 
-    rigidBody!: RigidBodyComponent;
-    private sharedBody!: CannonSharedBody;
-    private get _body () { return this.sharedBody.body; }
-
-    /** LIFECYCLE */
-
-    __preload (com: RigidBodyComponent) {
-        this.rigidBody = com;
-        this.sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this.rigidBody.node as Node);
-        this.sharedBody.wrappedBody = this;
+    get isAwake (): boolean {
+        return this._body.isAwake();
     }
 
-    onLoad () {
+    get isSleepy (): boolean {
+        return this._body.isSleepy();
     }
 
-    onEnable () {
-        this.mass = this.rigidBody.mass;
-        this.allowSleep = this.rigidBody.allowSleep;
-        this.linearDamping = this.rigidBody.linearDamping;
-        this.angularDamping = this.rigidBody.angularDamping;
-        this.useGravity = this.rigidBody.useGravity;
-        this.isKinematic = this.rigidBody.isKinematic;
-        this.fixedRotation = this.rigidBody.fixedRotation;
-        this.linearFactor = this.rigidBody.linearFactor;
-        this.angularFactor = this.rigidBody.angularFactor;
-        this.sharedBody.enabled = true;
+    get isSleeping (): boolean {
+        return this._body.isSleeping();
     }
 
-    onDisable () {
-        this.sharedBody.enabled = false;
-    }
-
-    onDestroy () {
-
-    }
-
-    /** allow sleep */
-    public get allowSleep (): boolean {
-        return this._body.allowSleep;
-    }
-
-    public set allowSleep (v: boolean) {
+    set allowSleep (v: boolean) {
         if (this._body.isSleeping()) {
             this._body.wakeUp();
         }
         this._body.allowSleep = v;
     }
 
-    public wakeUp (): void {
-        return this._body.wakeUp();
-    }
-    public sleep (): void {
-        return this._body.sleep();
-    }
-
-    public get isAwake (): boolean {
-        return this._body.isAwake();
-    }
-
-    public get isSleepy (): boolean {
-        return this._body.isSleepy();
-    }
-
-    public get isSleeping (): boolean {
-        return this._body.isSleeping();
-    }
-
-    public set mass (value: number) {
+    set mass (value: number) {
         this._body.mass = value;
         if (this._body.mass == 0) {
             this._body.type = CANNON.Body.STATIC;
@@ -97,7 +49,7 @@ export class CannonRigidBody implements IRigidBody {
         }
     }
 
-    public set isKinematic (value: boolean) {
+    set isKinematic (value: boolean) {
         if (this._body.mass == 0) {
             this._body.type = CANNON.Body.STATIC;
         } else {
@@ -109,7 +61,7 @@ export class CannonRigidBody implements IRigidBody {
         }
     }
 
-    public set fixedRotation (value: boolean) {
+    set fixedRotation (value: boolean) {
 
         if (this._body.isSleeping()) {
             this._body.wakeUp();
@@ -119,15 +71,15 @@ export class CannonRigidBody implements IRigidBody {
         this._body.updateMassProperties();
     }
 
-    public set linearDamping (value: number) {
+    set linearDamping (value: number) {
         this._body.linearDamping = value;
     }
 
-    public set angularDamping (value: number) {
+    set angularDamping (value: number) {
         this._body.angularDamping = value;
     }
 
-    public set useGravity (value: boolean) {
+    set useGravity (value: boolean) {
 
         if (this._body.isSleeping()) {
             this._body.wakeUp();
@@ -136,7 +88,7 @@ export class CannonRigidBody implements IRigidBody {
         this._body.useGravity = value;
     }
 
-    public set linearFactor (value: Vec3) {
+    set linearFactor (value: Vec3) {
 
         if (this._body.isSleeping()) {
             this._body.wakeUp();
@@ -145,7 +97,7 @@ export class CannonRigidBody implements IRigidBody {
         Vec3.copy(this._body.linearFactor, value);
     }
 
-    public set angularFactor (value: Vec3) {
+    set angularFactor (value: Vec3) {
 
         if (this._body.isSleeping()) {
             this._body.wakeUp();
@@ -154,12 +106,69 @@ export class CannonRigidBody implements IRigidBody {
         Vec3.copy(this._body.angularFactor, value);
     }
 
-    public getLinearVelocity (out: Vec3): Vec3 {
+    get rigidBody () {
+        return this._rigidBody;
+    }
+
+    get sharedBody () {
+        return this._sharedBody;
+    }
+
+    private _rigidBody!: RigidBodyComponent;
+    private _sharedBody!: CannonSharedBody;
+    private get _body () { return this._sharedBody.body; }
+
+    /** LIFECYCLE */
+
+    __preload (com: RigidBodyComponent) {
+        this._rigidBody = com;
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._rigidBody.node as Node);
+        this._sharedBody.reference = true;
+        this._sharedBody.wrappedBody = this;
+    }
+
+    onLoad () {
+    }
+
+    onEnable () {
+        this.mass = this._rigidBody.mass;
+        this.allowSleep = this._rigidBody.allowSleep;
+        this.linearDamping = this._rigidBody.linearDamping;
+        this.angularDamping = this._rigidBody.angularDamping;
+        this.useGravity = this._rigidBody.useGravity;
+        this.isKinematic = this._rigidBody.isKinematic;
+        this.fixedRotation = this._rigidBody.fixedRotation;
+        this.linearFactor = this._rigidBody.linearFactor;
+        this.angularFactor = this._rigidBody.angularFactor;
+        this._sharedBody.enabled = true;
+    }
+
+    onDisable () {
+        this._sharedBody.enabled = false;
+    }
+
+    onDestroy () {
+        this._sharedBody.reference = false;
+        (this._rigidBody as any) = null;
+        (this._sharedBody as any) = null;
+    }
+
+    /** INTERFACE */
+
+    wakeUp (): void {
+        return this._body.wakeUp();
+    }
+
+    sleep (): void {
+        return this._body.sleep();
+    }
+
+    getLinearVelocity (out: Vec3): Vec3 {
         Vec3.copy(out, this._body.velocity);
         return out;
     }
 
-    public setLinearVelocity (value: Vec3): void {
+    setLinearVelocity (value: Vec3): void {
 
         if (this._body.isSleeping()) {
             this._body.wakeUp();
@@ -168,12 +177,12 @@ export class CannonRigidBody implements IRigidBody {
         Vec3.copy(this._body.velocity, value);
     }
 
-    public getAngularVelocity (out: Vec3): Vec3 {
+    getAngularVelocity (out: Vec3): Vec3 {
         Vec3.copy(out, this._body.angularVelocity);
         return out;
     }
 
-    public setAngularVelocity (value: Vec3): void {
+    setAngularVelocity (value: Vec3): void {
 
         if (this._body.isSleeping()) {
             this._body.wakeUp();
@@ -182,7 +191,7 @@ export class CannonRigidBody implements IRigidBody {
         Vec3.copy(this._body.angularVelocity, value);
     }
 
-    public applyForce (force: Vec3, worldPoint?: Vec3) {
+    applyForce (force: Vec3, worldPoint?: Vec3) {
         if (worldPoint == null) {
             worldPoint = Vec3.ZERO;
         }
@@ -194,7 +203,7 @@ export class CannonRigidBody implements IRigidBody {
         this._body.applyForce(Vec3.copy(v3_cannon0, force), Vec3.copy(v3_cannon1, worldPoint));
     }
 
-    public applyImpulse (impulse: Vec3, worldPoint?: Vec3) {
+    applyImpulse (impulse: Vec3, worldPoint?: Vec3) {
         if (worldPoint == null) {
             worldPoint = Vec3.ZERO;
         }
@@ -206,7 +215,7 @@ export class CannonRigidBody implements IRigidBody {
         this._body.applyImpulse(Vec3.copy(v3_cannon0, impulse), Vec3.copy(v3_cannon1, worldPoint));
     }
 
-    public applyLocalForce (force: Vec3, localPoint?: Vec3): void {
+    applyLocalForce (force: Vec3, localPoint?: Vec3): void {
         if (localPoint == null) {
             localPoint = Vec3.ZERO;
         }
@@ -218,7 +227,7 @@ export class CannonRigidBody implements IRigidBody {
         this._body.applyLocalForce(Vec3.copy(v3_cannon0, force), Vec3.copy(v3_cannon1, localPoint));
     }
 
-    public applyLocalImpulse (impulse: Vec3, localPoint?: Vec3): void {
+    applyLocalImpulse (impulse: Vec3, localPoint?: Vec3): void {
         if (localPoint == null) {
             localPoint = Vec3.ZERO;
         }
@@ -230,7 +239,7 @@ export class CannonRigidBody implements IRigidBody {
         this._body.applyLocalImpulse(Vec3.copy(v3_cannon0, impulse), Vec3.copy(v3_cannon1, localPoint));
     }
 
-    public applyTorque (torque: Vec3): void {
+    applyTorque (torque: Vec3): void {
         if (this._body.isSleeping()) {
             this._body.wakeUp();
         }
@@ -239,7 +248,7 @@ export class CannonRigidBody implements IRigidBody {
         this._body.torque.z += torque.z;
     }
 
-    public applyLocalTorque (torque: Vec3): void {
+    applyLocalTorque (torque: Vec3): void {
         if (this._body.isSleeping()) {
             this._body.wakeUp();
         }
@@ -251,36 +260,36 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     /** group */
-    public getGroup (): number {
+    getGroup (): number {
         return this._body.collisionFilterGroup;
     }
 
-    public setGroup (v: number): void {
+    setGroup (v: number): void {
         this._body.collisionFilterGroup = v;
     }
 
-    public addGroup (v: number): void {
+    addGroup (v: number): void {
         this._body.collisionFilterGroup |= v;
     }
 
-    public removeGroup (v: number): void {
+    removeGroup (v: number): void {
         this._body.collisionFilterGroup &= ~v;
     }
 
     /** mask */
-    public getMask (): number {
+    getMask (): number {
         return this._body.collisionFilterMask;
     }
 
-    public setMask (v: number): void {
+    setMask (v: number): void {
         this._body.collisionFilterMask = v;
     }
 
-    public addMask (v: number): void {
+    addMask (v: number): void {
         this._body.collisionFilterMask |= v;
     }
 
-    public removeMask (v: number): void {
+    removeMask (v: number): void {
         this._body.collisionFilterMask &= ~v;
     }
 

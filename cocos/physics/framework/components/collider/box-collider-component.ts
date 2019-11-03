@@ -8,11 +8,11 @@ import {
     executionOrder,
     menu,
     property,
-} from '../../../core/data/class-decorator';
-import { Vec3 } from '../../../core/math';
+} from '../../../../core/data/class-decorator';
+import { Vec3 } from '../../../../core/math';
 import { createBoxShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
-import { IBoxShape } from '../../spec/i-physics-spahe';
+import { IBoxShape } from '../../../spec/i-physics-spahe';
 
 /**
  * @zh

@@ -8,10 +8,10 @@ export enum ERigidBodyType {
     KINEMATIC = 4,
 }
 
-export enum ETransformSource {
-    SCENE = 0,
-    PHYSIC = 1,
-}
+// export enum ETransformSource {
+//     SCENE = 0,
+//     PHYSIC = 1,
+// }
 
 // export enum EShapeType {
 //     SHAPE_RAY = (1 << 0),

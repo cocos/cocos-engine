@@ -3,8 +3,8 @@
  */
 
 import { Mat4, Quat, Vec3 } from '../core/math';
-import { ERigidBodyType } from './physic-enum';
-import { PhysicsRayResult } from './physics-ray-result';
+import { ERigidBodyType } from './framework/physics-enum';
+import { PhysicsRayResult } from './framework/physics-ray-result';
 import { ray } from '../core/geom-utils';
 import { RecyclePool } from '../core';
 

@@ -1,14 +1,13 @@
 import CANNON from '@cocos/cannon';
 import { Quat, Vec3 } from '../../core/math';
-import { ERigidBodyType } from '../physic-enum';
-import { getWrap } from '../util';
+import { ERigidBodyType } from '../framework/physics-enum';
+import { getWrap } from '../framework/util';
 import { CannonWorld } from './cannon-world';
 import { CannonShape } from './shapes/cannon-shape';
 import { ColliderComponent } from '../../../exports/physics-framework';
 import { TransformDirtyBit } from '../../core/scene-graph/node-enum';
-import { IBaseShape } from '../spec/i-physics-spahe';
 import { Node } from '../../core';
-import { CollisionEventType } from '../export-api';
+import { CollisionEventType } from '../framework/physics-interface';
 import { CannonRigidBody } from './cannon-rigid-body';
 
 const v3_0 = new Vec3();
@@ -16,8 +15,8 @@ const quat_0 = new Quat();
 const contactsPool = [] as any;
 const CollisionEventObject = {
     type: 'onCollisionEnter' as CollisionEventType,
-    selfCollider: null as unknown as ColliderComponent,
-    otherCollider: null as unknown as ColliderComponent,
+    selfCollider: null as ColliderComponent | null,
+    otherCollider: null as ColliderComponent | null,
     contacts: [] as any,
 };
 
@@ -26,13 +25,29 @@ const CollisionEventObject = {
  * static
  */
 export class CannonSharedBody {
+
+    private static readonly sharedBodesMap = new Map<string, CannonSharedBody>();
+
+    static getSharedBody (node: Node, wrappedWorld: CannonWorld) {
+        const key = node.uuid;
+        if (CannonSharedBody.sharedBodesMap.has(key)) {
+            return CannonSharedBody.sharedBodesMap.get(key)!;
+        } else {
+            const newSB = new CannonSharedBody(node, wrappedWorld);
+            CannonSharedBody.sharedBodesMap.set(node.uuid, newSB);
+            return newSB;
+        }
+    }
+
     readonly node: Node;
     readonly wrappedWorld: CannonWorld;
     readonly body: CANNON.Body = new CANNON.Body();
     readonly shapes: CannonShape[] = [];
     wrappedBody: CannonRigidBody | null = null;
+
     private index: number = -1;
-    private onCollidedListener = this._onCollided.bind(this);
+    private ref: number = 0;
+    private onCollidedListener = this.onCollided.bind(this);
 
     /**
      * add or remove from world \
@@ -42,8 +57,9 @@ export class CannonSharedBody {
     set enabled (v: boolean) {
         if (v) {
             if (this.index < 0) {
-                this.index = this.wrappedWorld.world.bodies.length;
-                this.wrappedWorld.world.addBody(this.body);
+                this.index = this.wrappedWorld.bodies.length;
+                this.wrappedWorld.addSharedBody(this);
+                this.syncInitial();
             }
         } else {
             if (this.index >= 0) {
@@ -53,14 +69,19 @@ export class CannonSharedBody {
                 if (isRemove) {
                     this.body.sleep(); // clear velocity etc.
                     this.index = -1;
-                    this.wrappedWorld.world.remove(this.body);
+                    this.wrappedWorld.removeSharedBody(this);
                 }
             }
         }
     }
 
-    constructor (node: Node, world: CannonWorld) {
-        this.wrappedWorld = world;
+    set reference (v: boolean) {
+        v ? this.ref++ : this.ref--;
+        if (this.ref == 0) { this.destroy(); }
+    }
+
+    private constructor (node: Node, wrappedWorld: CannonWorld) {
+        this.wrappedWorld = wrappedWorld;
         this.node = node;
         this.body.material = this.wrappedWorld.world.defaultMaterial;
         this.body.addEventListener('collide', this.onCollidedListener);
@@ -69,8 +90,14 @@ export class CannonSharedBody {
     addShape (v: CannonShape) {
         const index = this.shapes.indexOf(v);
         if (index < 0) {
-            this.body.addShape(v.shape, v.offset, v.quaterion);
+            const index = this.body.shapes.length;
+            this.body.addShape(v.shape);
             this.shapes.push(v);
+
+            v.setIndex(index);
+            const offset = this.body.shapeOffsets[index];
+            const orient = this.body.shapeOrientations[index];
+            v.setOffsetAndOrient(offset, orient);
         }
     }
 
@@ -79,6 +106,8 @@ export class CannonSharedBody {
         if (index >= 0) {
             this.shapes.splice(index, 1);
             this.body.removeShape(v.shape);
+
+            v.setIndex(-1);
         }
     }
 
@@ -109,47 +138,71 @@ export class CannonSharedBody {
         }
     }
 
-    private _onCollided (event: CANNON.ICollisionEvent) {
+    syncInitial () {
+        Vec3.copy(this.body.position, this.node.worldPosition);
+        Quat.copy(this.body.quaternion, this.node.worldRotation);
+
+        for (let i = 0; i < this.shapes.length; i++) {
+            this.shapes[i].setScale(this.node.worldScale);
+        }
+
+        if (this.body.isSleeping()) {
+            this.body.wakeUp();
+        }
+    }
+
+    private destroy () {
+        CannonSharedBody.sharedBodesMap.delete(this.node.uuid);
+        (this.node as any) = null;
+        (this.wrappedWorld as any) = null;
+        (this.body as any) = null;
+        (this.shapes as any) = null;
+        (this.onCollidedListener as any) = null;
+    }
+
+    private onCollided (event: CANNON.ICollisionEvent) {
         CollisionEventObject.type = event.event;
         const self = getWrap<CannonShape>(event.selfShape);
         const other = getWrap<CannonShape>(event.otherShape);
-        CollisionEventObject.selfCollider = self.collider;
-        CollisionEventObject.otherCollider = other.collider;
 
-        let i = 0;
-        for (i = CollisionEventObject.contacts.length; i--;) {
-            contactsPool.push(CollisionEventObject.contacts.pop());
-        }
-
-        for (i = 0; i < event.contacts.length; i++) {
-            const cq = event.contacts[i];
-            if (contactsPool.length > 0) {
-                const c = contactsPool.pop();
-                Vec3.copy(c.contactA, cq.ri);
-                Vec3.copy(c.contactB, cq.rj);
-                Vec3.copy(c.normal, cq.ni);
-                CollisionEventObject.contacts.push(c);
-            } else {
-                const c = {
-                    contactA: Vec3.copy(new Vec3(), cq.ri),
-                    contactB: Vec3.copy(new Vec3(), cq.rj),
-                    normal: Vec3.copy(new Vec3(), cq.ni),
-                };
-                CollisionEventObject.contacts.push(c);
+        if (self) {
+            CollisionEventObject.selfCollider = self.collider;
+            CollisionEventObject.otherCollider = other ? other.collider : null;
+            let i = 0;
+            for (i = CollisionEventObject.contacts.length; i--;) {
+                contactsPool.push(CollisionEventObject.contacts.pop());
             }
-        }
 
-        for (i = 0; i < this.shapes.length; i++) {
-            const shape = this.shapes[i];
-            shape.collider.emit(CollisionEventObject.type, CollisionEventObject);
+            for (i = 0; i < event.contacts.length; i++) {
+                const cq = event.contacts[i];
+                if (contactsPool.length > 0) {
+                    const c = contactsPool.pop();
+                    Vec3.copy(c.contactA, cq.ri);
+                    Vec3.copy(c.contactB, cq.rj);
+                    Vec3.copy(c.normal, cq.ni);
+                    CollisionEventObject.contacts.push(c);
+                } else {
+                    const c = {
+                        contactA: Vec3.copy(new Vec3(), cq.ri),
+                        contactB: Vec3.copy(new Vec3(), cq.rj),
+                        normal: Vec3.copy(new Vec3(), cq.ni),
+                    };
+                    CollisionEventObject.contacts.push(c);
+                }
+            }
 
-            // if (self.collider.node.hasChangedFlags) {
-            //     self.sharedBody.syncSceneToPhysics();
-            // }
+            for (i = 0; i < this.shapes.length; i++) {
+                const shape = this.shapes[i];
+                shape.collider.emit(CollisionEventObject.type, CollisionEventObject);
 
-            // if (other.collider.node.hasChangedFlags) {
-            //     other.sharedBody.syncSceneToPhysics();
-            // }
+                // if (self.collider.node.hasChangedFlags) {
+                //     self.sharedBody.syncSceneToPhysics();
+                // }
+
+                // if (other.collider.node.hasChangedFlags) {
+                //     other.sharedBody.syncSceneToPhysics();
+                // }
+            }
         }
     }
 

@@ -3,7 +3,7 @@
  */
 
 import { Vec3 } from '../../core/math';
-import { PhysicsRayResult } from '../physics-ray-result';
+import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltinShape } from './shapes/builtin-shape';
 import { ArrayCollisionMatrix } from './utils/array-collision-matrix';
@@ -11,8 +11,8 @@ import { ray, intersect } from '../../core/geom-utils';
 import { RecyclePool, Node } from '../../core';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { IVec3Like } from '../../core/math/type-define';
-import { PhysicMaterial } from '../assets/physic-material';
-import { TriggerEventType } from '../export-api';
+import { PhysicMaterial } from './../framework/assets/physic-material';
+import { TriggerEventType } from '../framework/physics-interface';
 import { ColliderComponent } from '../../../exports/physics-framework';
 
 const hitPoint = new Vec3();

@@ -1,4 +1,4 @@
-import { instantiate } from '../impl-selector';
+import { instantiate } from '../framework/Physics-selector';
 import { CannonRigidBody } from './cannon-rigid-body';
 import { CannonWorld } from './cannon-world';
 import { CannonBoxShape } from './shapes/cannon-box-shape';

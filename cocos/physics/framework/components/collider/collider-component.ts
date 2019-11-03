@@ -2,21 +2,18 @@
  * @category physics
  */
 
-import { ccclass, property } from '../../../core/data/class-decorator';
-import { EventTarget } from '../../../core/event';
-import { CallbacksInvoker, ICallbackTable } from '../../../core/event/callbacks-invoker';
-import { applyMixins, IEventTarget } from '../../../core/event/event-target-factory';
-import { createMap } from '../../../core/utils/js';
-import { Vec3 } from '../../../core/math';
-import { ICollisionCallback, ICollisionEvent, ITriggerCallback, ITriggerEvent, ShapeBase } from '../../api';
-import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../export-api';
-import { ERigidBodyType } from '../../physic-enum';
-import { PhysicsBasedComponent } from '../detail/physics-based-component';
+import { ccclass, property } from '../../../../core/data/class-decorator';
+import { EventTarget } from '../../../../core/event';
+import { CallbacksInvoker, ICallbackTable } from '../../../../core/event/callbacks-invoker';
+import { applyMixins, IEventTarget } from '../../../../core/event/event-target-factory';
+import { createMap } from '../../../../core/utils/js';
+import { Vec3 } from '../../../../core/math';
+import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../physics-interface';
 import { RigidBodyComponent } from '../rigid-body-component';
 import { PhysicMaterial } from '../../assets/physic-material';
-import { PhysicsSystem } from '../physics-system';
-import { Component } from '../../../core';
-import { IBaseShape } from '../../spec/i-physics-spahe';
+import { PhysicsSystem } from '../../physics-system';
+import { Component } from '../../../../core';
+import { IBaseShape } from '../../../spec/i-physics-spahe';
 
 /**
  * @zh

@@ -1,6 +1,6 @@
 import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../../core/math';
-import { maxComponent } from '../../util';
+import { maxComponent } from '../../framework/util';
 import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { ISphereShape } from '../../spec/i-physics-spahe';
@@ -24,7 +24,9 @@ export class CannonSphereShape extends CannonShape implements ISphereShape {
         const max = maxComponent(this.collider.node.worldScale);
         this.sphere.radius = v * Math.abs(max);
         this.sphere.updateBoundingSphereRadius();
-        commitShapeUpdates(this._body);
+        if (this._index != -1) {
+            commitShapeUpdates(this._body);
+        }
     }
 
     private _radius: number;

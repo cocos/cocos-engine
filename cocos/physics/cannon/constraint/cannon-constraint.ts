@@ -1,9 +1,8 @@
 import CANNON from '@cocos/cannon';
-import { ConstraintBase } from '../../api';
-import { getWrap, setWrap } from '../../util';
+import { getWrap, setWrap } from '../../framework/util';
 import { CannonRigidBody } from '../cannon-rigid-body';
 
-export class CannonConstraint implements ConstraintBase {
+export class CannonConstraint {
     protected _constraint: CANNON.Constraint;
 
     /**

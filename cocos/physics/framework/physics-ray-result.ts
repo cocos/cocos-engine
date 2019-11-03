@@ -2,8 +2,8 @@
  * @category physics
  */
 
-import { Vec3 } from '../core/math';
-import { ColliderComponent } from '../../exports/physics-framework';
+import { Vec3 } from '../../core/math';
+import { ColliderComponent } from '../../../exports/physics-framework';
 
 /**
  * @zh

@@ -1,5 +1,5 @@
 import { IVec3Like } from "../../core/math/type-define";
-import { PhysicsRayResult } from '../physics-ray-result';
+import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { ray } from '../../core/geom-utils';
 import { RecyclePool } from '../../core';
 

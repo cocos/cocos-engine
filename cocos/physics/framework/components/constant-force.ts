@@ -10,10 +10,10 @@ import {
     property,
     requireComponent,
     disallowMultiple,
-} from '../../core/data/class-decorator';
-import { Component } from '../../core/components/component';
+} from '../../../core/data/class-decorator';
+import { Component } from '../../../core/components/component';
 import { RigidBodyComponent } from './rigid-body-component';
-import { Vec3 } from '../../core/math/vec3';
+import { Vec3 } from '../../../core/math/vec3';
 
 /**
  * @zh
@@ -161,4 +161,3 @@ export class ConstantForce extends Component {
         }
     }
 }
-cc.ConstantForce = ConstantForce;

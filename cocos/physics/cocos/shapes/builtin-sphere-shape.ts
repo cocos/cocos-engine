@@ -1,7 +1,7 @@
 import { sphere } from '../../../core/geom-utils';
 import { BuiltinShape } from './builtin-shape';
 import { ISphereShape } from '../../spec/i-physics-spahe';
-import { maxComponent } from '../../util';
+import { maxComponent } from '../../framework/util';
 import { SphereColliderComponent } from '../../../../exports/physics-framework';
 
 export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
