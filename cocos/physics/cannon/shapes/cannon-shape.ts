@@ -52,9 +52,9 @@ export class CannonShape implements IBaseShape {
         this._shape.collisionResponse = !v;
         const type = v ? ERigidBodyType.DYNAMIC : ERigidBodyType.STATIC;
         this._body.type = type;
-        if (this._body["updateHastrigger"]) {
-            this._body["updateHastrigger"]();
-        }
+        // if (this._index >= 0) {
+        //     this._body.updateHasTrigger();
+        // }
     }
 
     set center (v: IVec3Like) {
