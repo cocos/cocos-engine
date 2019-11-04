@@ -1,19 +1,41 @@
 import Ammo from 'ammo.js';
 import { Quat, Vec3, quat, math } from "../../core";
-import { RigidBodyBase, ShapeBase, PhysicsWorldBase } from "../api";
 import { AmmoWorld } from "./ammo-world";
 import { AmmoShape } from "./shapes/ammo-shape";
-import { RigidBodyComponent } from "../components/rigid-body-component";
 import { Cocos2AmmoVec3, Cocos2AmmoQuat, Ammo2CocosQuat, Ammo2CocosVec3 } from "./ammo-util";
-import { defaultRigidBodyInfo } from './ammo-const';
-import { ColliderComponent } from '../../../exports/physics-framework';
+import { ColliderComponent, RigidBodyComponent } from '../../../exports/physics-framework';
 import { AmmoCollisionFlags, AmmoRigidBodyFlags, AmmoBroadphaseNativeTypes, AmmoCollisionObjectStates } from './ammo-enum';
 import { TransformDirtyBit } from '../../core/scene-graph/node-enum';
 import { max, abs } from '../../core/math/bits';
 import { AmmoSphereShape } from './shapes/ammo-sphere-shape';
-import { ERigidBodyType } from '../physic-enum';
+import { IRigidBody } from '../spec/I-rigid-body';
+import { ERigidBodyType } from '../framework/physics-enum';
 
-export class AmmoRigidBody implements RigidBodyBase {
+export class AmmoRigidBody implements IRigidBody {
+    setGroup (v: number): void {
+        throw new Error("Method not implemented.");
+    }
+    getGroup (): number {
+        throw new Error("Method not implemented.");
+    }
+    addGroup (v: number): void {
+        throw new Error("Method not implemented.");
+    }
+    removeGroup (v: number): void {
+        throw new Error("Method not implemented.");
+    }
+    setMask (v: number): void {
+        throw new Error("Method not implemented.");
+    }
+    getMask (): number {
+        throw new Error("Method not implemented.");
+    }
+    addMask (v: number): void {
+        throw new Error("Method not implemented.");
+    }
+    removeMask (v: number): void {
+        throw new Error("Method not implemented.");
+    }
 
     private static idCounter = 0;
     public readonly id: number;
@@ -31,14 +53,20 @@ export class AmmoRigidBody implements RigidBodyBase {
     public readonly localInertia: Ammo.btVector3;
     public motionState!: Ammo.btMotionState;
 
+    get isEnabled () {
+        return this._isEnabled;
+    }
+
+    private _isEnabled = false;
+
     constructor () {
         this.id = AmmoRigidBody.idCounter++;
         this.wroldQuaternion = new Ammo.btQuaternion();
         this.localInertia = new Ammo.btVector3(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
     }
 
-    public __preload () {
-
+    public __preload (com: RigidBodyComponent) {
+        this.rigidBody = com;
     }
 
     public onLoad () {
@@ -46,7 +74,7 @@ export class AmmoRigidBody implements RigidBodyBase {
         this._btCompoundShape = new Ammo.btCompoundShape(true);
 
         /** 添加子形状 */
-        let allColliders = this.rigidBody.getComponents(ColliderComponent);
+        const allColliders = this.rigidBody.getComponents(ColliderComponent);
         for (let i = 0; i < allColliders.length; i++) {
             if (!allColliders[i].isTrigger) {
                 const ammoShape = (allColliders[i] as any)._shapeBase as AmmoShape;
@@ -154,16 +182,18 @@ export class AmmoRigidBody implements RigidBodyBase {
     }
 
     public onEnable () {
+        this._isEnabled = true;
         this._world = AmmoWorld.instance;
         AmmoWorld.instance.impl.addRigidBody(this._btBody);
-        AmmoWorld.instance.bodys.push(this);
-        this.index = AmmoWorld.instance.bodys.length - 1;
+        AmmoWorld.instance.bodies.push(this);
+        this.index = AmmoWorld.instance.bodies.length - 1;
         this._btBody.setUserIndex(this.index);
     }
 
     public onDisable () {
+        this._isEnabled = false;
         AmmoWorld.instance.impl.removeRigidBody(this.impl);
-        AmmoWorld.instance.bodys.splice(this.index, 1);
+        AmmoWorld.instance.bodies.splice(this.index, 1);
         this.index = -1;
         this._btBody.setUserIndex(this.index);
     }
@@ -191,7 +221,7 @@ export class AmmoRigidBody implements RigidBodyBase {
 
     /** property */
 
-    public setMass (value: number) {
+    public set mass (value: number) {
         // See https://studiofreya.com/game-maker/bullet-physics/bullet-physics-how-to-change-body-mass/
         if (this._world) {
             this._world.impl.removeRigidBody(this.impl);
@@ -206,15 +236,15 @@ export class AmmoRigidBody implements RigidBodyBase {
         }
     }
 
-    public setLinearDamping (value: number) {
+    public set linearDamping (value: number) {
         this._btBody.setDamping(value, this.rigidBody.angularDamping);
     }
 
-    public setAngularDamping (value: number) {
+    public set angularDamping (value: number) {
         this._btBody.setDamping(value, this.rigidBody.angularDamping);
     }
 
-    public setIsKinematic (value: boolean) {
+    public set isKinematic (value: boolean) {
         let m_collisionFlags = this._btBody.getCollisionFlags();
         if (value) {
             m_collisionFlags |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
@@ -224,7 +254,7 @@ export class AmmoRigidBody implements RigidBodyBase {
         this._btBody.setCollisionFlags(m_collisionFlags);
     }
 
-    public setUseGravity (value: boolean) {
+    public set useGravity (value: boolean) {
         if (this._world) {
             this._world.impl.removeRigidBody(this.impl);
         }
@@ -243,7 +273,7 @@ export class AmmoRigidBody implements RigidBodyBase {
         }
     }
 
-    public setFreezeRotation (value: boolean) {
+    public set fixedRotation (value: boolean) {
         if (value) {
             /** TODO : should i reset angular velocity & torque ? */
 
@@ -253,38 +283,38 @@ export class AmmoRigidBody implements RigidBodyBase {
         }
     }
 
-    public setLinearFactor (value: Vec3): void {
+    public set linearFactor (value: Vec3) {
         this._btBody.setLinearFactor(Cocos2AmmoVec3(new Ammo.btVector3(), value));
     }
 
-    public setAngularFactor (value: Vec3): void {
+    public set angularFactor (value: Vec3) {
         this._btBody.setAngularFactor(Cocos2AmmoVec3(new Ammo.btVector3(), value));
     }
 
     /** state */
 
-    isAwake (): boolean {
+    get isAwake (): boolean {
         const state = this._btBody.getActivationState();
         return state == AmmoCollisionObjectStates.ACTIVE_TAG ||
             state == AmmoCollisionObjectStates.DISABLE_DEACTIVATION;
     }
 
-    isSleepy (): boolean {
+    get isSleepy (): boolean {
         const state = this._btBody.getActivationState();
         return state == AmmoCollisionObjectStates.WANTS_DEACTIVATION;
     }
 
-    isSleeping (): boolean {
+    get isSleeping (): boolean {
         const state = this._btBody.getActivationState();
         return state == AmmoCollisionObjectStates.ISLAND_SLEEPING;
     }
 
-    getAllowSleep (): boolean {
+    get allowSleep (): boolean {
         const state = this._btBody.getActivationState();
         return state == AmmoCollisionObjectStates.DISABLE_DEACTIVATION;
     }
 
-    setAllowSleep (v: boolean): void {
+    set allowSleep (v: boolean) {
         if (v) {
             this._btBody.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
         } else {

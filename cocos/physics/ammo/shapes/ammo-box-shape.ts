@@ -1,26 +1,62 @@
 import Ammo from 'ammo.js';
-import { BoxShapeBase } from "../../api";
 import { AmmoShape } from "./ammo-shape";
 import { Vec3, Node } from "../../../core";
 import { BoxColliderComponent, RigidBodyComponent } from '../../../../exports/physics-framework';
-import { AmmoRigidBody } from '../ammo-body';
+import { AmmoRigidBody } from '../ammo-rigid-body';
 import { AmmoWorld } from '../ammo-world';
 import { TransformDirtyBit } from '../../../core/scene-graph/node-enum';
 import { Cocos2AmmoVec3, Cocos2AmmoQuat } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
+import { IBoxShape } from '../../spec/i-physics-spahe';
 
 
-export class AmmoBoxShape extends AmmoShape implements BoxShapeBase {
+export class AmmoBoxShape extends AmmoShape implements IBoxShape {
 
-    public get btBox (): Ammo.btBoxShape {
+    set center (center: Vec3) {
+        if (this.attachRigidBody == null || this.collider.isTrigger) {
+            const pos = center.clone();
+            pos.multiply(this.collider.node.worldScale);
+            Vec3.transformQuat(pos, pos, this.collider.node.worldRotation);
+            pos.add(this.collider.node.worldPosition);
+            Cocos2AmmoVec3(this.transform.getOrigin(), pos);
+            if (this.collider.isTrigger) {
+                AmmoWorld.instance.sharedTriggerCompoundShape.updateChildTransform(this.index, this.transform, true);
+            } else {
+                AmmoWorld.instance.sharedStaticCompoundShape.updateChildTransform(this.index, this.transform, true);
+            }
+        } else {
+            Cocos2AmmoVec3(this.transform.getOrigin(), center);
+            const impl = this.attachRigidBody.rigidBody as AmmoRigidBody;
+            impl._btCompoundShape.updateChildTransform(this.index, this.transform, true);
+        }
+    }
+
+    set size (size: Vec3) {
+        Vec3.multiplyScalar(tmpv3, this.boxCollider.size, 1);
+        tmpv3.multiply(this.collider.node.worldScale)
+        Cocos2AmmoVec3(this.scale, tmpv3);
+        this._btShape.setLocalScaling(this.scale);
+        if (this.attachRigidBody) {
+            const impl = this.attachRigidBody.rigidBody as AmmoRigidBody;
+            impl._btCompoundShape.updateChildTransform(this.index, this.transform, true);
+        } else {
+            if (this.collider.isTrigger) {
+                AmmoWorld.instance.sharedTriggerCompoundShape.updateChildTransform(this.index, this.transform, true);
+            } else {
+                AmmoWorld.instance.sharedStaticCompoundShape.updateChildTransform(this.index, this.transform, true);
+            }
+        }
+    }
+
+    get boxShape () {
         return this._btShape as Ammo.btBoxShape;
     }
 
-    public get boxCollider (): BoxColliderComponent {
+    get boxCollider () {
         return this.collider as BoxColliderComponent;
     }
 
-    halfExt: Ammo.btVector3;
+    readonly halfExt: Ammo.btVector3;
 
     constructor (size: Vec3) {
         super(AmmoBroadphaseNativeTypes.BOX_SHAPE_PROXYTYPE);
@@ -28,7 +64,7 @@ export class AmmoBoxShape extends AmmoShape implements BoxShapeBase {
         this._btShape = new Ammo.btBoxShape(this.halfExt);
     }
 
-    public onEnable () {
+    onEnable () {
         super.onEnable();
         this.attachRigidBody = this.collider.getComponent(RigidBodyComponent);
         if (this.attachRigidBody == null || this.collider.isTrigger) {
@@ -60,47 +96,7 @@ export class AmmoBoxShape extends AmmoShape implements BoxShapeBase {
         }
     }
 
-    public onDisable () {
-        super.onDisable();
-    }
-
-    public setCenter (center: Vec3): void {
-        if (this.attachRigidBody == null || this.collider.isTrigger) {
-            const pos = center.clone();
-            pos.multiply(this.collider.node.worldScale);
-            Vec3.transformQuat(pos, pos, this.collider.node.worldRotation);
-            pos.add(this.collider.node.worldPosition);
-            Cocos2AmmoVec3(this.transform.getOrigin(), pos);
-            if (this.collider.isTrigger) {
-                AmmoWorld.instance.sharedTriggerCompoundShape.updateChildTransform(this.index, this.transform, true);
-            } else {
-                AmmoWorld.instance.sharedStaticCompoundShape.updateChildTransform(this.index, this.transform, true);
-            }
-        } else {
-            Cocos2AmmoVec3(this.transform.getOrigin(), center);
-            const impl = this.attachRigidBody._impl as AmmoRigidBody;
-            impl._btCompoundShape.updateChildTransform(this.index, this.transform, true);
-        }
-    }
-
-    public setSize (size: Vec3) {
-        Vec3.multiplyScalar(tmpv3, this.boxCollider.size, 1);
-        tmpv3.multiply(this.collider.node.worldScale)
-        Cocos2AmmoVec3(this.scale, tmpv3);
-        this._btShape.setLocalScaling(this.scale);
-        if (this.attachRigidBody) {
-            const impl = this.attachRigidBody._impl as AmmoRigidBody;
-            impl._btCompoundShape.updateChildTransform(this.index, this.transform, true);
-        } else {
-            if (this.collider.isTrigger) {
-                AmmoWorld.instance.sharedTriggerCompoundShape.updateChildTransform(this.index, this.transform, true);
-            } else {
-                AmmoWorld.instance.sharedStaticCompoundShape.updateChildTransform(this.index, this.transform, true);
-            }
-        }
-    }
-
-    public beforeStep () {
+    beforeStep () {
         super.beforeStep();
         if (this.collider.node.hasChangedFlags) {
             Vec3.multiplyScalar(tmpv3, this.boxCollider.size, 1);

@@ -1,38 +1,44 @@
 import Ammo from 'ammo.js';
-import { ShapeBase } from "../../api";
 import { Vec3, Quat } from "../../../core/math";
-import { AmmoRigidBody } from "../ammo-body";
-import { ColliderComponent, RigidBodyComponent } from "../../../../exports/physics-framework";
+import { AmmoRigidBody } from "../ammo-rigid-body";
+import { ColliderComponent, RigidBodyComponent, PhysicMaterial } from "../../../../exports/physics-framework";
 import { AmmoWorld } from '../ammo-world';
 import { AmmoCollisionFlags, AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { defaultRigidBodyInfo } from '../ammo-const';
 import { Cocos2AmmoVec3, Cocos2AmmoQuat } from '../ammo-util';
 import { TransformDirtyBit } from '../../../core/scene-graph/node-enum';
 import { Node } from '../../../core';
+import { IBaseShape } from '../../spec/i-physics-spahe';
+import { IVec3Like } from '../../../core/math/type-define';
 
-export class AmmoShape implements ShapeBase {
+export class AmmoShape implements IBaseShape {
+    set material (v: PhysicMaterial) { };
+    set isTrigger (v: boolean) { };
+    set center (v: IVec3Like) { };
 
-    public readonly type: AmmoBroadphaseNativeTypes;
-    public readonly id: number;
+    get attachedRigidBody (): RigidBodyComponent | null { return null; }
+
+    readonly type: AmmoBroadphaseNativeTypes;
+    readonly id: number;
     private static idCounter = 0;
 
-    public get impl () {
+    get impl () {
         return this._btShape!;
     }
 
-    public index: number = -1;
+    index: number = -1;
     protected _btShape!: Ammo.btCollisionShape;
 
-    public readonly transform: Ammo.btTransform;
+    readonly transform: Ammo.btTransform;
 
-    public readonly pos: Ammo.btVector3;
-    public readonly quat: Ammo.btQuaternion;
-    public readonly scale: Ammo.btVector3;
+    readonly pos: Ammo.btVector3;
+    readonly quat: Ammo.btQuaternion;
+    readonly scale: Ammo.btVector3;
 
-    public collider!: ColliderComponent;
-    public attachRigidBody: RigidBodyComponent | null = null;
+    collider!: ColliderComponent;
+    attachRigidBody: RigidBodyComponent | null = null;
 
-    public constructor (type: AmmoBroadphaseNativeTypes) {
+    constructor (type: AmmoBroadphaseNativeTypes) {
         this.type = type;
         this.id = AmmoShape.idCounter++;
 
@@ -44,28 +50,29 @@ export class AmmoShape implements ShapeBase {
         this.scale = new Ammo.btVector3(1, 1, 1);
     }
 
-    public __preload () {
+    __preload (com: ColliderComponent) {
+        this.collider = com;
         this.attachRigidBody = this.collider.getComponent(RigidBodyComponent);
     }
 
-    public onLoad () { }
+    onLoad () { }
 
-    public start () { }
+    start () { }
 
-    public onEnable () { }
+    onEnable () { }
 
-    public onDisable () { }
+    onDisable () { }
 
-    public setCenter (center: Vec3): void { }
+    setCenter (center: Vec3): void { }
 
     /**
      * 针对 static 或 trigger
      */
-    public beforeStep () { }
+    beforeStep () { }
 
-    public UP (n: Node) {
+    UP (n: Node) {
         if (this.attachRigidBody && !this.collider.isTrigger) {
-            const body = this.attachRigidBody._impl as AmmoRigidBody;
+            const body = this.attachRigidBody.rigidBody as AmmoRigidBody;
             const wt = body.impl.getWorldTransform();
             const lt = this.transform;
             _trans.setIdentity();
@@ -90,6 +97,30 @@ export class AmmoShape implements ShapeBase {
         }
     }
 
+    setGroup (v: number): void {
+        throw new Error("Method not implemented.");
+    }
+    getGroup (): number {
+        throw new Error("Method not implemented.");
+    }
+    addGroup (v: number): void {
+        throw new Error("Method not implemented.");
+    }
+    removeGroup (v: number): void {
+        throw new Error("Method not implemented.");
+    }
+    setMask (v: number): void {
+        throw new Error("Method not implemented.");
+    }
+    getMask (): number {
+        throw new Error("Method not implemented.");
+    }
+    addMask (v: number): void {
+        throw new Error("Method not implemented.");
+    }
+    removeMask (v: number): void {
+        throw new Error("Method not implemented.");
+    }
 }
 const _trans = new Ammo.btTransform();
 _trans.setIdentity();

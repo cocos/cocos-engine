@@ -1,9 +1,8 @@
 import Ammo from 'ammo.js';
 import { AmmoWorld } from './ammo-world';
-import { AmmoRigidBody } from './ammo-body';
+import { AmmoRigidBody } from './ammo-rigid-body';
 import { AmmoShape } from './shapes/ammo-shape';
-import { TriggerEventType, CollisionEventType, IContactEquation } from '../export-api';
-import { ColliderComponent } from '../../../exports/physics-framework';
+import { ColliderComponent, TriggerEventType, CollisionEventType, IContactEquation } from '../../../exports/physics-framework';
 
 export const defaultShape = new Ammo.btBoxShape(new Ammo.btVector3(0.5, 0.5, 0.5));
 export const defaultInertia = new Ammo.btVector3();
