@@ -29,7 +29,7 @@ var Event;
 // Widget depends on WidgetManager
 // The main process needs the require widget
 // for cocos-creator/2d-tasks/issues/1894
-if (!Editor.isMainProcess) {
+if (!CC_EDITOR || !Editor.isMainProcess) {
   Event = require('../CCNode').EventType;
 }
 
