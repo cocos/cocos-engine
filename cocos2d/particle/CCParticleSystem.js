@@ -1210,8 +1210,6 @@ var ParticleSystem = cc.Class({
 
     _onTextureLoaded () {
         this._simulator.updateUVs(true);
-        // Reactivate material
-        this._activateMaterial();
         
         // set aspect ratio
         var spriteFrameWidth = this._renderSpriteFrame._rect.width;
