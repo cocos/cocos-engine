@@ -29,11 +29,12 @@
 
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { UI } from '../../core/renderer/ui/ui';
+import { MeshBuffer } from '../../core/renderer/ui/mesh-buffer';
 import { ccclass, menu, executionOrder, property } from '../../core/data/class-decorator';
-import { MeshBuffer, UIVertexFormat } from '..';
 import { UIDrawBatch } from '../../core/renderer/ui/ui-draw-batch';
-import { director, Color, GFXBlendFactor } from '../../core';
-import { Material } from '@cocos/cannon';
+import { director, Color, GFXBlendFactor, Material } from '../../core';
+import { vfmt } from '../../core/renderer/ui/ui-vertex-format';
+
 
 /**
  * @zh UI 静态合批组件。
@@ -140,7 +141,7 @@ export class UIStaticBatchComponent extends UIRenderComponent {
         this._init = false;
 
         if (!this._meshBuffer) {
-            const attr = UIVertexFormat.vfmt;
+            const attr = vfmt;
             const buffer = new MeshBuffer(ui);
             buffer.initialize(attr, this._arrivalMaxBuffer);
             this._meshBuffer = buffer;
