@@ -58,6 +58,7 @@ export interface IProgramInfo extends IShaderInfo {
 export interface IMacroInfo {
     name: string;
     value: string;
+    isDefault: boolean;
 }
 
 function getBitCount (cnt: number) {
@@ -78,14 +79,16 @@ function prepareDefines (defs: IDefineMap, tDefs: IDefineInfo[]) {
     const macros: IMacroInfo[] = [];
     for (const tmpl of tDefs) {
         const name = tmpl.name;
-        const value = mapDefine(tmpl, defs[name]);
-        macros.push({ name, value });
+        const v = defs[name];
+        const value = mapDefine(tmpl, v);
+        const isDefault = !v || v === '0';
+        macros.push({ name, value, isDefault });
     }
     return macros;
 }
 
 function getShaderInstanceName (name: string, macros: IMacroInfo[]) {
-    return name + macros.reduce((acc, cur) => cur.value !== '0' ? `${acc}|${cur.name}${cur.value}` : acc, '');
+    return name + macros.reduce((acc, cur) => cur.isDefault ? acc : `${acc}|${cur.name}${cur.value}`, '');
 }
 
 function insertBuiltinBindings (tmpl: IProgramInfo, source: Map<string, IInternalBindingDesc>, type: string) {

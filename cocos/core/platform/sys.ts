@@ -920,7 +920,6 @@ else {
     else if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
         _supportWebGL = true;
     }
-    // @ts-ignore
     else if (win.WebGLRenderingContext) {
         // @ts-ignore
         if (create3DContext(document.createElement('CANVAS'))) {
