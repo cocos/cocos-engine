@@ -9,7 +9,6 @@ import { CannonSharedBody } from '../cannon-shared-body';
 import { CannonWorld } from '../cannon-world';
 import { Node } from '../../../core';
 import { TriggerEventType } from '../../framework/physics-interface';
-import { ERigidBodyType } from '../../framework/physics-enum';
 import { PhysicsSystem } from '../../framework/physics-system';
 import { ColliderComponent } from '../../framework';
 

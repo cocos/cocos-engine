@@ -63,8 +63,10 @@ export class CannonSharedBody {
             }
         } else {
             if (this.index >= 0) {
+                // TODO: 待查，组件的 enabledInHierarchy 为什么还是 true
                 const isRemove = (this.shapes.length == 0 && this.wrappedBody == null) ||
-                    (this.shapes.length == 0 && this.wrappedBody != null && !this.wrappedBody.rigidBody.enabledInHierarchy)
+                    (this.shapes.length == 0 && this.wrappedBody != null && !this.wrappedBody.rigidBody.enabledInHierarchy) ||
+                    (this.shapes.length == 0 && this.wrappedBody != null && !this.wrappedBody.isEnabled)
 
                 if (isRemove) {
                     this.body.sleep(); // clear velocity etc.

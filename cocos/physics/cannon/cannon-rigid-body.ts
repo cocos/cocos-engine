@@ -114,9 +114,15 @@ export class CannonRigidBody implements IRigidBody {
         return this._sharedBody;
     }
 
+    get isEnabled () {
+        return this._isEnabled;
+    }
+
     private _rigidBody!: RigidBodyComponent;
     private _sharedBody!: CannonSharedBody;
     private get _body () { return this._sharedBody.body; }
+
+    private _isEnabled = false;
 
     /** LIFECYCLE */
 
@@ -131,6 +137,7 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     onEnable () {
+        this._isEnabled = true;
         this.mass = this._rigidBody.mass;
         this.allowSleep = this._rigidBody.allowSleep;
         this.linearDamping = this._rigidBody.linearDamping;
@@ -144,6 +151,7 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     onDisable () {
+        this._isEnabled = false;
         this._sharedBody.enabled = false;
     }
 
