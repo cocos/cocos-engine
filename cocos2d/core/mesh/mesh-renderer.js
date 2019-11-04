@@ -36,22 +36,11 @@ let _tmp_mat4 = cc.mat4();
 export default class MeshRendererAssembler extends Assembler {
     constructor (comp) {
         super(comp);
-        this._ias = [];
         this._renderNode = null;
     }
 
     setRenderNode (node) {
         this._renderNode = node;
-    }
-
-    updateRenderData (comp) {
-        let ias = this._ias;
-        ias.length = 0;
-        if (!comp.mesh) return;
-        let submeshes = comp.mesh._subMeshes;
-        for (let i = 0; i < submeshes.length; i++) {
-            ias.push(submeshes[i]);
-        }
     }
 
     fillBuffers (comp, renderer) {
@@ -69,10 +58,10 @@ export default class MeshRendererAssembler extends Assembler {
         let enableAutoBatch = comp.enableAutoBatch;
 
         let materials = comp.sharedMaterials;
-        let ias = this._ias;
+        let submeshes = comp.mesh._subMeshes;
         let subDatas = comp.mesh.subDatas;
-        for (let i = 0; i < ias.length; i++) {
-            let ia = ias[i];
+        for (let i = 0; i < submeshes.length; i++) {
+            let ia = submeshes[i];
             let meshData = subDatas[i];
 
             let material = materials[i] || materials[0];

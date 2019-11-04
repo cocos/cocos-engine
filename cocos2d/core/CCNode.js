@@ -3007,66 +3007,7 @@ let NodeDefines = {
         this.setWorldRotation(_laQuat);
     },
 
-    _updateLocalMatrix () {
-        let dirtyFlag = this._localMatDirty;
-        if (!dirtyFlag) return;
-
-        // Update transform
-        let t = this._matrix;
-        let tm = t.m;
-        let trs = this._trs;
-
-        if (dirtyFlag & (LocalDirtyFlag.RS | LocalDirtyFlag.SKEW)) {
-            let rotation = -this._eulerAngles.z;
-            let hasSkew = this._skewX || this._skewY;
-            let sx = trs[7], sy = trs[8];
-
-            if (rotation || hasSkew) {
-                let a = 1, b = 0, c = 0, d = 1;
-                // rotation
-                if (rotation) {
-                    let rotationRadians = rotation * ONE_DEGREE;
-                    c = Math.sin(rotationRadians);
-                    d = Math.cos(rotationRadians);
-                    a = d;
-                    b = -c;
-                }
-                // scale
-                tm[0] = a *= sx;
-                tm[1] = b *= sx;
-                tm[4] = c *= sy;
-                tm[5] = d *= sy;
-                // skew
-                if (hasSkew) {
-                    let a = tm[0], b = tm[1], c = tm[4], d = tm[5];
-                    let skx = Math.tan(this._skewX * ONE_DEGREE);
-                    let sky = Math.tan(this._skewY * ONE_DEGREE);
-                    if (skx === Infinity)
-                        skx = 99999999;
-                    if (sky === Infinity)
-                        sky = 99999999;
-                    tm[0] = a + c * sky;
-                    tm[1] = b + d * sky;
-                    tm[4] = c + a * skx;
-                    tm[5] = d + b * skx;
-                }
-            }
-            else {
-                tm[0] = sx;
-                tm[1] = 0;
-                tm[4] = 0;
-                tm[5] = sy;
-            }
-        }
-
-        // position
-        tm[12] = trs[0];
-        tm[13] = trs[1];
-        
-        this._localMatDirty = 0;
-        // Register dirty status of world matrix so that it can be recalculated
-        this._worldMatDirty = true;
-    },
+    _updateLocalMatrix: updateLocalMatrix2D,
 
     _calculWorldMatrix () {
         // Avoid as much function call as possible
@@ -3639,12 +3580,7 @@ let NodeDefines = {
 
         this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
         if (this._renderComponent) {
-            if (this._renderComponent.enabled) {
-                this._renderComponent.markForUpdateRenderData(true);
-            }
-            else {
-                this._renderComponent.disableRender();
-            }
+            this._renderComponent.markForRender(true);
         }
 
         if (this._children.length > 0) {

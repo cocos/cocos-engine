@@ -41,6 +41,7 @@ const BlendFunc = require('../../core/utils/blend-func');
  * !#zh 运动轨迹，用于游戏对象的运动轨迹上实现拖尾渐隐效果。
  * @class MotionStreak
  * @extends Component
+ * @uses BlendFunc
  */
 var MotionStreak = cc.Class({
     name: 'cc.MotionStreak',
@@ -161,14 +162,7 @@ var MotionStreak = cc.Class({
                 if (this._texture === value) return;
 
                 this._texture = value;
-
-                if (!value || !value.loaded) {
-                    this.disableRender();
-                    this._ensureLoadTexture();
-                }
-                else {
-                    this._activateMaterial();
-                }
+                this._updateMaterial();
             },
             type: cc.Texture2D,
             animatable: false,
@@ -220,45 +214,12 @@ var MotionStreak = cc.Class({
 
     onEnable () {
         this._super();
-
-        if (!this._texture || !this._texture.loaded) {
-            this.disableRender();
-            this._ensureLoadTexture();
-        }
-        else {
-            this._activateMaterial();
-        }
         this.reset();
     },
 
-    _ensureLoadTexture: function () {
-        if (this._texture && !this._texture.loaded) {
-            // load exists texture
-            let self = this;
-            textureUtil.postLoadTexture(this._texture, function () {
-                self._activateMaterial();
-            });
-        }
-    },
-
-    _activateMaterial () {
-        if (!this._texture || !this._texture.loaded) {
-            this.disableRender();
-            return;
-        }
-
+    _updateMaterial () {
         let material = this.sharedMaterials[0];
-        if (!material) {
-            material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
-        }
-        else {
-            material = Material.getInstantiatedMaterial(material, this);
-        }
-
-        material.setProperty('texture', this._texture);
-
-        this.setMaterial(0, material);
-        this.markForRender(true);
+        material && material.setProperty('texture', this._texture);
     },
 
     onFocusInEditor: CC_EDITOR && function () {
@@ -283,14 +244,14 @@ var MotionStreak = cc.Class({
      */
     reset () {
         this._points.length = 0;
-        this._assembler._renderData.clear();
+        this._assembler && this._assembler._renderData.clear();
         if (CC_EDITOR) {
             cc.engine.repaintInEditMode();
         }
     },
 
     update (dt) {
-        this._assembler.update(this, dt);
+        this._assembler && this._assembler.update(this, dt);
     }
 });
 

@@ -52,7 +52,6 @@ export default class SlicedAssembler extends Assembler2D {
 
     updateRenderData (sprite) {
         let frame = sprite._spriteFrame;
-        if (!frame) return;
         this.packToDynamicAtlas(sprite, frame);
 
         if (sprite._vertsDirty) {

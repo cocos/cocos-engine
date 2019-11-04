@@ -89,6 +89,7 @@ let Simulator = function (system) {
     this.sys = system;
     this.particles = [];
     this.active = false;
+    this.readyToPlay = true;
     this.finished = false;
     this.elapsed = 0;
     this.emitCounter = 0;
@@ -97,12 +98,14 @@ let Simulator = function (system) {
 
 Simulator.prototype.stop = function () {
     this.active = false;
+    this.readyToPlay = false;
     this.elapsed = this.sys.duration;
     this.emitCounter = 0;
 }
 
 Simulator.prototype.reset = function () {
     this.active = true;
+    this.readyToPlay = true;
     this.elapsed = 0;
     this.emitCounter = 0;
     this.finished = false;
@@ -239,7 +242,7 @@ Simulator.prototype.updateUVs = function (force) {
 Simulator.prototype.updateParticleBuffer = function (particle, pos, buffer, offset) {
     let vbuf = buffer._vData;
     let uintbuf = buffer._uintVData;
-    
+
     let x = pos.x, y = pos.y;
     let width = height = particle.size;
     let aspectRatio = particle.aspectRatio;
@@ -287,6 +290,7 @@ Simulator.prototype.updateParticleBuffer = function (particle, pos, buffer, offs
 };
 
 Simulator.prototype.step = function (dt) {
+    dt = dt > cc.director._maxParticleDeltaTime ? cc.director._maxParticleDeltaTime : dt;
     let psys = this.sys;
     let node = psys.node;
     let particles = this.particles;
@@ -449,7 +453,7 @@ Simulator.prototype.step = function (dt) {
         buffer.uploadData();
         psys._assembler._ia._count = particles.length * 6;
     }
-    else if (!this.active) {
+    else if (!this.active && !this.readyToPlay) {
         this.finished = true;
         psys._finishedSimulation();
     }

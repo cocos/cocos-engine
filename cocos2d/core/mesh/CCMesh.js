@@ -71,6 +71,7 @@ const littleEndian = (function () {
  * !#zh 网格资源。
  * @class Mesh
  * @extends Asset
+ * @uses EventTarget
  */
 let Mesh = cc.Class({
     name: 'cc.Mesh',

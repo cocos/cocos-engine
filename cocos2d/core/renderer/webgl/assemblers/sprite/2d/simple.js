@@ -27,10 +27,7 @@ import Assembler2D from '../../../../assembler-2d';
 
 export default class SimpleSpriteAssembler extends Assembler2D {
     updateRenderData (sprite) {
-        let frame = sprite._spriteFrame;
-        if (!frame) return;
-
-        this.packToDynamicAtlas(sprite, frame);
+        this.packToDynamicAtlas(sprite, sprite._spriteFrame);
 
         if (sprite._vertsDirty) {
             this.updateUVs(sprite);

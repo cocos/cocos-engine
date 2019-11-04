@@ -190,7 +190,32 @@ function init (node) {
 RenderFlow.flows = flows;
 RenderFlow.createFlow = createFlow;
 
+// validate whether render component is ready to be rendered.
+let _validateList = [];
+RenderFlow.registerValidate = function (renderComp) {
+    if (renderComp._inValidateList) return;
+    _validateList.push(renderComp);
+    renderComp._inValidateList =  true;
+};
+RenderFlow.validateRenderers = function () {
+    for (let i = 0, l = _validateList.length; i < l; i++) {
+        let renderComp = _validateList[i];
+        if (!renderComp.isValid) continue;
+        if (!renderComp.enabledInHierarchy) {
+            renderComp.disableRender();
+        }
+        else {
+            renderComp._validateRender();
+        }
+        renderComp._inValidateList = false;
+    }
+    _validateList.length = 0;
+};
+
+
 RenderFlow.visitRootNode = function (rootNode) {
+    RenderFlow.validateRenderers();    
+
     _cullingMask = 1 << rootNode.groupIndex;
 
     if (rootNode._renderFlag & WORLD_TRANSFORM) {
