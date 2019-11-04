@@ -24,7 +24,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Event = require('../CCNode').EventType;
+var Event;
+
+// Widget depends on WidgetManager
+// The main process needs the require widget
+// for cocos-creator/2d-tasks/issues/1894
+if (!Editor.isMainProcess) {
+  Event = require('../CCNode').EventType;
+}
 
 var TOP     = 1 << 0;
 var MID     = 1 << 1;   // vertical center
