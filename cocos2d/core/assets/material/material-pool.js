@@ -53,13 +53,19 @@ class MaterialPool extends Pool {
             pool[uuid][key] = [];
         }
         if (this.count > this.maxSize) return;
+
+        this._clean(mat);
         pool[uuid][key].push(mat);
         this.count++;
     }
-    
+
     clear () {
         this._pool = {};
         this.count = 0;
+    }
+
+    _clean (mat) {
+        mat._owner = null;
     }
 }
 

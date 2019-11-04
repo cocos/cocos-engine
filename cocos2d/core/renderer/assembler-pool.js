@@ -1,8 +1,17 @@
 import Pool from '../utils/pool';
 
+let _assemblerId = 0;
+
+function getAssemblerId (assemblerCtor) {
+    if (!Object.getOwnPropertyDescriptor(assemblerCtor, '__assemblerId__')) {
+        assemblerCtor.__assemblerId__ = ++_assemblerId;
+    }
+    return assemblerCtor.__assemblerId__;
+}
+
 /**
  * {
- *   assemblerCtorName: []
+ *   assembler_ctor_id: []
  * }
  */
 class AssemblerPool extends Pool {
@@ -16,13 +25,15 @@ class AssemblerPool extends Pool {
             return;
         }
 
+        let id = getAssemblerId(assembler.constructor);
         let pool = this._pool;
-        let ctorName = assembler.constructor.name;
-        if (!pool[ctorName]) {
-            pool[ctorName] = [];
+        if (!pool[id]) {
+            pool[id] = [];
         }
         if (this.count > this.maxSize) return;
-        pool[ctorName].push(assembler);
+
+        this._clean(assembler);
+        pool[id].push(assembler);
         this.count++;
     }
 
@@ -31,8 +42,8 @@ class AssemblerPool extends Pool {
         
         if (this.enabled) {
             let pool = this._pool;
-            let ctorName = assemblerCtor.name;
-            assembler = pool[ctorName] && pool[ctorName].pop();
+            let id = getAssemblerId(assemblerCtor);
+            assembler = pool[id] && pool[id].pop();
         }
 
         if (!assembler) {
@@ -59,6 +70,10 @@ class AssemblerPool extends Pool {
         
         this._pool = {};
         this.count = 0;
+    }
+
+    _clean (assembler) {
+        assembler._renderComp = null;
     }
 }
 
