@@ -32,7 +32,6 @@ export class BuiltInWorld implements IPhysicsWorld {
     set allowSleep (v: boolean) { }
     set defaultMaterial (v: PhysicMaterial) { }
 
-    readonly sharedBodesMap = new Map<string, BuiltinSharedBody>();
     readonly shapeArr: BuiltinShape[] = [];
     readonly bodies: BuiltinSharedBody[] = [];
 
@@ -78,8 +77,8 @@ export class BuiltInWorld implements IPhysicsWorld {
             const body = this.bodies[i] as BuiltinSharedBody;
             for (let i = 0; i < body.shapes.length; i++) {
                 const shape = body.shapes[i];
-                // const collider = shape.getUserData();
-                // if (!(collider!.node.layer & mask)) {
+                // const collider = shape.collider;
+                // if (!(collider.node.layer & mask)) {
                 //     continue;
                 // }
                 const distance = intersect.resolve(worldRay, shape.worldShape);
@@ -105,8 +104,8 @@ export class BuiltInWorld implements IPhysicsWorld {
             const body = this.bodies[i] as BuiltinSharedBody;
             for (let i = 0; i < body.shapes.length; i++) {
                 const shape = body.shapes[i];
-                // const collider = shape.getUserData();
-                // if (!(collider!.node.layer & mask)) {
+                // const collider = shape.collider;
+                // if (!(collider.node.layer & mask)) {
                 //     continue;
                 // }
                 const distance = intersect.resolve(worldRay, shape.worldShape);
@@ -124,28 +123,17 @@ export class BuiltInWorld implements IPhysicsWorld {
     }
 
     getSharedBody (node: Node): BuiltinSharedBody {
-        const key = node.uuid;
-        if (this.sharedBodesMap.has(key)) {
-            return this.sharedBodesMap.get(key)!;
-        } else {
-            const newSB = new BuiltinSharedBody(node, this);
-            return newSB;
-        }
+        return BuiltinSharedBody.getSharedBody(node, this);
     }
 
-    delSharedBody (node: Node): boolean {
-        const key = node.uuid;
-        return this.sharedBodesMap.delete(key);
-    }
-
-    addBody (body: BuiltinSharedBody) {
+    addSharedBody (body: BuiltinSharedBody) {
         const index = this.bodies.indexOf(body);
         if (index < 0) {
             this.bodies.push(body);
         }
     }
 
-    removeBody (body: BuiltinSharedBody) {
+    removeSharedBody (body: BuiltinSharedBody) {
         const index = this.bodies.indexOf(body);
         if (index >= 0) {
             this.bodies.splice(index, 1);

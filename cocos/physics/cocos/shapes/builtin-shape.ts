@@ -50,7 +50,6 @@ export class BuiltinShape extends BuiltinObject implements IBaseShape {
 
     onLoad () {
         this.center = this._collider.center;
-        this.isTrigger = this._collider.isTrigger;
     }
 
     onEnable () {
