@@ -288,7 +288,7 @@ export default class ProgramLib {
         highpSupported = highp && highp.precision !== 0;
     }
     if (!highpSupported) {
-      cc.warn('Program not support highp precision, will change to mediump.');
+      cc.warnID(9102);
     }
     this._highpSupported = highpSupported;
   }
