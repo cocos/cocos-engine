@@ -64,7 +64,7 @@ function _unrollLoops(string) {
 }
 
 function _replaceHighp(string) {
-  return string.replace(/\bhighp\b/, 'mediump');
+  return string.replace(/\bhighp\b/g, 'mediump');
 }
 
 export default class ProgramLib {
