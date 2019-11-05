@@ -1,5 +1,5 @@
 /**
- * @category gemotry-utils
+ * @category geometry
  */
 
 import CCClass from '../../core/data/class';

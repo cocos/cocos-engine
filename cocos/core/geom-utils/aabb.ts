@@ -1,5 +1,5 @@
 /**
- * @category gemotry-utils
+ * @category geometry
  */
 
 import { Mat3, Mat4, Quat, Vec3 } from '../../core/math';
