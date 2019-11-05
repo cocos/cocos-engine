@@ -601,7 +601,7 @@ export class SpriteComponent extends UIRenderComponent {
             // this.markForRender(true);
         }
     }
-
+/*
     private _applyAtlas (spriteFrame: SpriteFrame | null) {
         if (!CC_EDITOR) {
             return;
@@ -620,7 +620,7 @@ export class SpriteComponent extends UIRenderComponent {
             }
         }
     }
-
+*/
     private _onTextureLoaded () {
         if (!this.isValid) {
             return;
@@ -670,12 +670,12 @@ export class SpriteComponent extends UIRenderComponent {
                 }
             }
         }
-
+/*
         if (CC_EDITOR&&this._atlas==null) {
             // Set atlas
             this._applyAtlas(spriteFrame);
         }
-
+*/
     }
 
     /**
@@ -687,6 +687,24 @@ export class SpriteComponent extends UIRenderComponent {
             this._renderDataFlag = true;
         }
     }
+
+    /**
+     * @zh
+     * 精灵图集内的精灵替换
+     *
+     * @returns
+     */
+    public changeSpriteFrameFromAtlas (name:string) {
+        if(this._atlas){
+            const sprite = this._atlas!.getSpriteFrame(name);
+            this._markForUpdateUvDirty();
+            this._spriteFrame=sprite;  
+            this.markForUpdateRenderData(true);
+        }else{
+            return;
+        }
+    }
+
 }
 
 cc.SpriteComponent = SpriteComponent;

@@ -107,22 +107,6 @@ export class SpriteAtlas extends Asset {
         return frames;
     }
 
-    /**
-     * @zh
-     * 精灵图集内的精灵替换
-     *
-     * @returns - 返回要使用的精灵。
-     */
-    public replaceSpriteFrame (name:string) {
-        const frames = this.getSpriteFrames();
-
-        for(const sprite of frames){
-            if(name==sprite!.name){
-                return sprite;
-            }
-        }
-    }
-
     public _serialize (exporting?: any) {
         const frames: string[] = [];
         for (const key of Object.keys(this.spriteFrames)) {
