@@ -1,4 +1,4 @@
-import { EPSILON } from './utils';
+import { EPSILON, FLOAT_ARRAY_TYPE } from './utils';
 
 /**
  * Mathematical 2x2 matrix.
@@ -7,13 +7,13 @@ class mat2 {
   /**
    * Creates a matrix, with elements specified separately.
    *
-   * @param {Number} m00 - Value assigned to element at column 0 row 0.
-   * @param {Number} m01 - Value assigned to element at column 0 row 1.
+   * @param {Number|Float32Array|Float64Array} m00 - Value assigned to element at column 0 row 0 or array of matrix elements.
+   * @param {Number|Boolean} m01 - Value assigned to element at column 0 row 1 or whether you need a deep copy of the parameter passed in parameter 1.
    * @param {Number} m02 - Value assigned to element at column 1 row 0.
    * @param {Number} m03 - Value assigned to element at column 1 row 1.
    */
   constructor(m00 = 1, m01 = 0, m02 = 0, m03 = 1) {
-    if (ArrayBuffer.isView(m00)) {
+    if (typeof m00 === 'object') {
         // deep copy
         if (m01) {
             this.m = new m00.constructor(4);
@@ -22,11 +22,7 @@ class mat2 {
             this.m = m00;
         }
     } else {
-        if (CC_JSB && CC_NATIVERENDERER) {
-            this.m = new Float32Array(4);
-        } else {
-            this.m = new Float64Array(4);
-        }
+        this.m = new FLOAT_ARRAY_TYPE(4);
         let m = this.m;
         /**
          * The element at column 0 row 0.
