@@ -28,16 +28,20 @@ class mat23 {
    * @param {Number} m05 -  Value assigned to element ty.
    */
   constructor(m00 = 1, m01 = 0, m02 = 0, m03 = 1, m04 = 0, m05 = 0) {
-    if (m00 instanceof Float32Array) {
+    if (ArrayBuffer.isView(m00)) {
         // deep copy
         if (m01) {
-            this.m = new Float32Array(6);
+            this.m = new m00.constructor(6);
             this.m.set(m00);
         } else {
             this.m = m00;
         }
     } else {
-        this.m = new Float32Array(6);
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this.m = new Float32Array(6);
+        } else {
+            this.m = new Float64Array(6);
+        }
         let m = this.m;
         /**
          * The element a.

@@ -46,16 +46,20 @@ class mat3 {
     m03 = 0, m04 = 1, m05 = 0,
     m06 = 0, m07 = 0, m08 = 1
   ) {
-    if (m00 instanceof Float32Array) {
+    if (ArrayBuffer.isView(m00)) {
         // deep copy
         if (m01) {
-            this.m = new Float32Array(9);
+            this.m = new m00.constructor(9);
             this.m.set(m00);
         } else {
             this.m = m00;
         }
     } else {
-        this.m = new Float32Array(9);
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this.m = new Float32Array(9);
+        } else {
+            this.m = new Float64Array(9);
+        }
         let m = this.m;
         /**
          * The element at column 0 row 0.

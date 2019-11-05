@@ -55,6 +55,7 @@ const DEFAULT_MODULE_CACHE = {
     'cc.PrefabInfo': false
 };
 
+!Float64Array.name && (Float64Array.name = 'Float64Array');
 !Float32Array.name && (Float32Array.name = 'Float32Array');
 !Uint32Array.name && (Uint32Array.name = 'Uint32Array');
 !Int32Array.name && (Int32Array.name = 'Int32Array');

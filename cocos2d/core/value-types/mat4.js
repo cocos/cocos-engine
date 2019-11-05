@@ -62,7 +62,11 @@ import { mat4 } from '../vmath';
  * @param {Number} m33 Component in column 3, row 3 position (index 15)
  */
 function Mat4 (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
-    this.m = new Float32Array(16);
+    if (CC_JSB && CC_NATIVERENDERER) {
+        this.m = new Float32Array(16);
+    } else {
+        this.m = new Float64Array(16);
+    }
     let tm = this.m;
     tm[0] = m00;
     tm[1] = m01;

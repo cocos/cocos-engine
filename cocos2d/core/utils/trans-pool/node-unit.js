@@ -23,6 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const Float64_Bytes = 8;
 const Float32_Bytes = 4;
 const Uint32_Bytes = 4;
 const Uint8_Bytes = 1;
@@ -33,19 +34,19 @@ const Dirty_Members = 1;
 const Dirty_Stride = Dirty_Members * Uint32_Bytes;
 
 // Space : [TRS]                                    [Size:4 * 10 Float32]
-const TRS_Type = Float32Array;
+let TRS_Type = Float64Array;
 const TRS_Members = 10;
-const TRS_Stride = TRS_Members * Float32_Bytes;
+let TRS_Stride = TRS_Members * Float64_Bytes;
 
 // Space : [LocalMatrix]                            [Size:4 * 16 Float32]
-const LocalMatrix_Type = Float32Array;
+let LocalMatrix_Type = Float64Array;
 const LocalMatrix_Members = 16;
-const LocalMatrix_Stride = LocalMatrix_Members * Float32_Bytes;
+let LocalMatrix_Stride = LocalMatrix_Members * Float64_Bytes;
 
 // Space : [WorldMatrix]                            [Size:4 * 16 Float32]
-const WorldMatrix_Type = Float32Array;
+let WorldMatrix_Type = Float64Array;
 const WorldMatrix_Members = 16;
-const WorldMatrix_Stride = WorldMatrix_Members * Float32_Bytes;
+let WorldMatrix_Stride = WorldMatrix_Members * Float64_Bytes;
 
 // Space : [Parent Unit]                            [Size:4 Uint32]
 // Space : [Parent Index]                           [Size:4 Uint32]
@@ -81,6 +82,17 @@ const Node_Members = 2;
 const Skew_Type = Float32Array;
 const Skew_Members = 2;
 const Skew_Stride = Skew_Members * Float32_Bytes;
+
+if (CC_JSB && CC_NATIVERENDERER) {
+    TRS_Type = Float32Array;
+    TRS_Stride = TRS_Members * Float32_Bytes;
+
+    LocalMatrix_Type = Float32Array;
+    LocalMatrix_Stride = LocalMatrix_Members * Float32_Bytes;
+
+    WorldMatrix_Type = Float32Array;
+    WorldMatrix_Stride = WorldMatrix_Members * Float32_Bytes;
+}
 
 let UnitBase = require('./unit-base');
 let NodeUnit = function (unitID, memPool) {

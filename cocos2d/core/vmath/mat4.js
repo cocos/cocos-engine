@@ -53,16 +53,20 @@ class mat4 {
     m08 = 0, m09 = 0, m10 = 1, m11 = 0,
     m12 = 0, m13 = 0, m14 = 0, m15 = 1
   ) {
-    if (m00 instanceof Float32Array) {
+    if (ArrayBuffer.isView(m00)) {
         // deep copy
         if (m01) {
-            this.m = new Float32Array(16);
+            this.m = new m00.constructor(16);
             this.m.set(m00);
         } else {
             this.m = m00;
         }
     } else {
-        this.m = new Float32Array(16);
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this.m = new Float32Array(16);
+        } else {
+            this.m = new Float64Array(16);
+        }
 
         let m = this.m;
         /**

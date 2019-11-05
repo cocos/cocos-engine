@@ -13,16 +13,20 @@ class mat2 {
    * @param {Number} m03 - Value assigned to element at column 1 row 1.
    */
   constructor(m00 = 1, m01 = 0, m02 = 0, m03 = 1) {
-    if (m00 instanceof Float32Array) {
+    if (ArrayBuffer.isView(m00)) {
         // deep copy
         if (m01) {
-            this.m = new Float32Array(4);
+            this.m = new m00.constructor(4);
             this.m.set(m00);
         } else {
             this.m = m00;
         }
     } else {
-        this.m = new Float32Array(4);
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this.m = new Float32Array(4);
+        } else {
+            this.m = new Float64Array(4);
+        }
         let m = this.m;
         /**
          * The element at column 0 row 0.
