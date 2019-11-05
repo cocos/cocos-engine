@@ -48,6 +48,10 @@ export class AudioPlayerWX extends AudioPlayer {
     constructor (info: IAudioInfo) {
         super(info);
         this._audio = info.clip;
+        // [HACK] volume property doesn't work on some devices during the first playthrough
+        this._audio.play();
+        this._audio.stop();
+
         this._audio.onPlay(() => {
             if (this._state === PlayingState.PLAYING) { return; }
             this._state = PlayingState.PLAYING;
