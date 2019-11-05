@@ -21,7 +21,8 @@ const CollisionEventObject = {
 
 /**
  * sharedbody, node : sharedbody = 1 : 1
- * static
+ * static \ dynamic \ kinematic (collider)
+ * trigger
  */
 export class AmmoSharedBody {
 
@@ -42,13 +43,22 @@ export class AmmoSharedBody {
 
     readonly node: Node;
     readonly wrappedWorld: AmmoWorld;
-    readonly body!: Ammo.btRigidBody;//= new Ammo.btRigidBody();
-    readonly shapes: AmmoShape[] = [];
+
+    /** for collider */
+    readonly body!: Ammo.btRigidBody;
+    readonly bodyShape!: Ammo.btCollisionShape;
+    readonly wrappedBodyShapes: AmmoShape[] = [];
+
+    /** for trigger */
+    readonly ghost!: Ammo.btRigidBody;
+    readonly ghostShape!: Ammo.btCollisionShape;
+    readonly wrappedGhostShapes: AmmoShape[] = [];
+
     wrappedBody: AmmoRigidBody | null = null;
 
-    private index: number = -1;
+    private bodyIndex: number = -1;
+    private ghostIndex: number = -1;
     private ref: number = 0;
-    private onCollidedListener = this.onCollided.bind(this);
 
     /**
      * add or remove from world \
@@ -57,22 +67,42 @@ export class AmmoSharedBody {
      */
     set enabled (v: boolean) {
         if (v) {
-            if (this.index < 0) {
-                this.index = this.wrappedWorld.bodies.length;
-                // this.wrappedWorld.addSharedBody(this);
+            if (this.bodyIndex < 0) {
+                this.bodyIndex = this.wrappedWorld.bodies.length;
+                this.wrappedWorld.addSharedBody(this);
                 this.syncInitial();
             }
         } else {
-            if (this.index >= 0) {
+            if (this.bodyIndex >= 0) {
                 // TODO: 待查，组件的 enabledInHierarchy 为什么还是 true
-                const isRemove = (this.shapes.length == 0 && this.wrappedBody == null) ||
-                    (this.shapes.length == 0 && this.wrappedBody != null && !this.wrappedBody.rigidBody.enabledInHierarchy) ||
-                    (this.shapes.length == 0 && this.wrappedBody != null && !this.wrappedBody.isEnabled)
+                const isRemoveBody = (this.wrappedBodyShapes.length == 0 && this.wrappedBody == null) ||
+                    (this.wrappedBodyShapes.length == 0 && this.wrappedBody != null && !this.wrappedBody.isEnabled) ||
+                    (this.wrappedBodyShapes.length == 0 && this.wrappedBody != null && !this.wrappedBody.rigidBody.enabledInHierarchy)
 
-                if (isRemove) {
-                    // this.body.sleep(); // clear velocity etc.
-                    this.index = -1;
-                    // this.wrappedWorld.removeSharedBody(this);
+                if (isRemoveBody) {
+                    this.bodyIndex = -1;
+                    this.wrappedWorld.removeSharedBody(this);
+                }
+
+            }
+        }
+    }
+
+    set ghostEnabled (v: boolean) {
+        if (v) {
+            if (this.ghostIndex < 0) {
+                this.ghostIndex = 1;
+                this.wrappedWorld.addGhostObject(this);
+                this.syncInitial();
+            }
+        } else {
+            if (this.ghostIndex >= 0) {
+                /** remove trigger */
+                const isRemoveGhost = (this.wrappedGhostShapes.length == 0 && this.ghost);
+
+                if (isRemoveGhost) {
+                    this.ghostIndex = -1;
+                    this.wrappedWorld.removeGhostObject(this);
                 }
             }
         }
@@ -86,38 +116,43 @@ export class AmmoSharedBody {
     private constructor (node: Node, wrappedWorld: AmmoWorld) {
         this.wrappedWorld = wrappedWorld;
         this.node = node;
-        // this.body.material = this.wrappedWorld.world.defaultMaterial;
     }
 
     addShape (v: AmmoShape) {
-        const index = this.shapes.indexOf(v);
-        if (index < 0) {
+        if (v.isTrigger) {
 
-            this.shapes.push(v);
-
-            // v.setIndex(index);
+        } else {
+            const index = this.wrappedBodyShapes.indexOf(v);
+            if (index < 0) {
+                this.wrappedBodyShapes.push(v);
+                // v.setIndex(index);
+            }
         }
     }
 
     removeShape (v: AmmoShape) {
-        const index = this.shapes.indexOf(v);
-        if (index >= 0) {
-            this.shapes.splice(index, 1);
-            // this.body.removeShape(v.shape);
 
-            // v.setIndex(-1);
+        if (v.isTrigger) {
+
+        } else {
+            const index = this.wrappedBodyShapes.indexOf(v);
+            if (index >= 0) {
+                this.wrappedBodyShapes.splice(index, 1);
+                // v.setIndex(-1);
+            }
         }
     }
 
     syncSceneToPhysics () {
         if (this.node.hasChangedFlags) {
 
-
             if (this.node.hasChangedFlags & TransformDirtyBit.SCALE) {
-                for (let i = 0; i < this.shapes.length; i++) {
+                for (let i = 0; i < this.wrappedBodyShapes.length; i++) {
                     // this.shapes[i].setScale(this.node.worldScale);
                 }
             }
+
+            
 
         }
     }
@@ -127,7 +162,7 @@ export class AmmoSharedBody {
 
     syncInitial () {
 
-        for (let i = 0; i < this.shapes.length; i++) {
+        for (let i = 0; i < this.wrappedShapes.length; i++) {
             // this.shapes[i].setScale(this.node.worldScale);
         }
 
@@ -141,13 +176,12 @@ export class AmmoSharedBody {
         (this.node as any) = null;
         (this.wrappedWorld as any) = null;
         (this.body as any) = null;
-        (this.shapes as any) = null;
-        (this.onCollidedListener as any) = null;
+        (this.wrappedShapes as any) = null;
     }
 
     private onCollided (event: ICollisionEvent) {
-        for (let i = 0; i < this.shapes.length; i++) {
-            const shape = this.shapes[i];
+        for (let i = 0; i < this.wrappedShapes.length; i++) {
+            const shape = this.wrappedShapes[i];
             shape.collider.emit(event.type, event);
 
             // if (self.collider.node.hasChangedFlags) {

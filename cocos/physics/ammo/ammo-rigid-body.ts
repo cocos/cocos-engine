@@ -74,7 +74,7 @@ export class AmmoRigidBody implements IRigidBody {
         this._btCompoundShape = new Ammo.btCompoundShape(true);
 
         /** 添加子形状 */
-        const allColliders = this.rigidBody.getComponents(ColliderComponent);
+        const allColliders = this.rigidBody.getComponents(ColliderComponent as any) as ColliderComponent[];
         for (let i = 0; i < allColliders.length; i++) {
             if (!allColliders[i].isTrigger) {
                 const ammoShape = (allColliders[i] as any)._shapeBase as AmmoShape;
@@ -89,7 +89,7 @@ export class AmmoRigidBody implements IRigidBody {
                     const scale = new Vec3(rs, rs, rs);
                     scale.multiplyScalar(max_sp * 2);
                     Cocos2AmmoVec3(ammoShape.scale, scale);
-                    ammoShape.impl.setLocalScaling(ammoShape.scale);
+                    ammoShape.shape.setLocalScaling(ammoShape.scale);
 
                     const lt = ammoShape.transform;
                     scale.set(max_sp, max_sp, max_sp);
@@ -102,7 +102,7 @@ export class AmmoRigidBody implements IRigidBody {
                     Cocos2AmmoVec3(lt.getOrigin(), allColliders[i].center);
 
                     Cocos2AmmoVec3(ammoShape.scale, allColliders[i].node.worldScale);
-                    ammoShape.impl.setLocalScaling(ammoShape.scale);
+                    ammoShape.shape.setLocalScaling(ammoShape.scale);
 
                     this._btCompoundShape.addChildShape(lt, (allColliders[i] as any)._shapeBase.impl);
                 }

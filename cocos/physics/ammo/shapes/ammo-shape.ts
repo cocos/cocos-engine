@@ -1,7 +1,7 @@
 import Ammo from 'ammo.js';
 import { Vec3, Quat } from "../../../core/math";
 import { AmmoRigidBody } from "../ammo-rigid-body";
-import { ColliderComponent, RigidBodyComponent, PhysicMaterial } from "../../../../exports/physics-framework";
+import { ColliderComponent, RigidBodyComponent, PhysicMaterial, PhysicsSystem } from "../../../../exports/physics-framework";
 import { AmmoWorld } from '../ammo-world';
 import { AmmoCollisionFlags, AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { defaultRigidBodyInfo } from '../ammo-const';
@@ -10,24 +10,27 @@ import { TransformDirtyBit } from '../../../core/scene-graph/node-enum';
 import { Node } from '../../../core';
 import { IBaseShape } from '../../spec/i-physics-spahe';
 import { IVec3Like } from '../../../core/math/type-define';
+import { AmmoSharedBody } from '../ammo-shared-body';
 
 export class AmmoShape implements IBaseShape {
     set material (v: PhysicMaterial) { };
     set isTrigger (v: boolean) { };
     set center (v: IVec3Like) { };
-
     get attachedRigidBody (): RigidBodyComponent | null { return null; }
 
-    readonly type: AmmoBroadphaseNativeTypes;
-    readonly id: number;
+    get shape () { return this._btShape!; }
+    get collider (): ColliderComponent { return this._collider; }
+    get sharedBody (): AmmoSharedBody { return this._sharedBody; }
+
+
     private static idCounter = 0;
+    readonly id: number;
 
-    get impl () {
-        return this._btShape!;
-    }
-
+    readonly type: AmmoBroadphaseNativeTypes;
     index: number = -1;
+
     protected _btShape!: Ammo.btCollisionShape;
+    protected _sharedBody!: AmmoSharedBody;
 
     readonly transform: Ammo.btTransform;
 
@@ -35,8 +38,7 @@ export class AmmoShape implements IBaseShape {
     readonly quat: Ammo.btQuaternion;
     readonly scale: Ammo.btVector3;
 
-    collider!: ColliderComponent;
-    attachRigidBody: RigidBodyComponent | null = null;
+    _collider!: ColliderComponent;
 
     constructor (type: AmmoBroadphaseNativeTypes) {
         this.type = type;
@@ -51,50 +53,28 @@ export class AmmoShape implements IBaseShape {
     }
 
     __preload (com: ColliderComponent) {
-        this.collider = com;
-        this.attachRigidBody = this.collider.getComponent(RigidBodyComponent);
+        this._collider = com;
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as AmmoWorld).getSharedBody(this._collider.node as Node);
+        this._sharedBody.reference = true;
     }
 
-    onLoad () { }
+    onLoad () {
+        this.center = this._collider.center;
+        this.isTrigger = this._collider.isTrigger;
+    }
 
-    start () { }
+    onEnable () {
+        this._sharedBody.addShape(this);
+        this._sharedBody.enabled = true;
+    }
 
-    onEnable () { }
+    onDisable () {
+        this._sharedBody.removeShape(this);
+        this._sharedBody.enabled = false;
+    }
 
-    onDisable () { }
-
-    setCenter (center: Vec3): void { }
-
-    /**
-     * 针对 static 或 trigger
-     */
-    beforeStep () { }
-
-    UP (n: Node) {
-        if (this.attachRigidBody && !this.collider.isTrigger) {
-            const body = this.attachRigidBody.rigidBody as AmmoRigidBody;
-            const wt = body.impl.getWorldTransform();
-            const lt = this.transform;
-            _trans.setIdentity();
-            _trans.op_mul(wt).op_mul(lt);
-            let origin = _trans.getOrigin();
-            n.worldPosition = new Vec3(origin.x(), origin.y(), origin.z());
-            let rotation = _trans.getRotation();
-            n.worldRotation = new Quat(rotation.x(), rotation.y(), rotation.z(), rotation.w());
-        } else {
-            let origin = this.transform.getOrigin();
-            n.worldPosition = new Vec3(origin.x(), origin.y(), origin.z());
-            let rotation = this.transform.getRotation();
-            n.worldRotation = new Quat(rotation.x(), rotation.y(), rotation.z(), rotation.w());
-        }
-
-        if (this.type == AmmoBroadphaseNativeTypes.SPHERE_SHAPE_PROXYTYPE) {
-            let scale = this.impl.getLocalScaling();
-            n.scale = new Vec3(scale.x(), scale.y(), scale.z());
-        } else {
-            let scale = this.impl.getLocalScaling();
-            n.scale = new Vec3(scale.x(), scale.y(), scale.z());
-        }
+    onDestroy () {
+        this._sharedBody.reference = false;
     }
 
     setGroup (v: number): void {
@@ -120,6 +100,33 @@ export class AmmoShape implements IBaseShape {
     }
     removeMask (v: number): void {
         throw new Error("Method not implemented.");
+    }
+
+    UP (n: Node) {
+        if (this.attachRigidBody && !this.collider.isTrigger) {
+            const body = this.attachRigidBody.rigidBody as AmmoRigidBody;
+            const wt = body.impl.getWorldTransform();
+            const lt = this.transform;
+            _trans.setIdentity();
+            _trans.op_mul(wt).op_mul(lt);
+            let origin = _trans.getOrigin();
+            n.worldPosition = new Vec3(origin.x(), origin.y(), origin.z());
+            let rotation = _trans.getRotation();
+            n.worldRotation = new Quat(rotation.x(), rotation.y(), rotation.z(), rotation.w());
+        } else {
+            let origin = this.transform.getOrigin();
+            n.worldPosition = new Vec3(origin.x(), origin.y(), origin.z());
+            let rotation = this.transform.getRotation();
+            n.worldRotation = new Quat(rotation.x(), rotation.y(), rotation.z(), rotation.w());
+        }
+
+        if (this.type == AmmoBroadphaseNativeTypes.SPHERE_SHAPE_PROXYTYPE) {
+            let scale = this.shape.getLocalScaling();
+            n.scale = new Vec3(scale.x(), scale.y(), scale.z());
+        } else {
+            let scale = this.shape.getLocalScaling();
+            n.scale = new Vec3(scale.x(), scale.y(), scale.z());
+        }
     }
 }
 const _trans = new Ammo.btTransform();

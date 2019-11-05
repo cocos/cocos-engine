@@ -22,7 +22,7 @@ export class AmmoWorld implements IPhysicsWorld {
 
     set gravity (gravity: Vec3) {
         Cocos2AmmoVec3(this._btGravity, gravity);
-        this._btWorld.setGravity(this._btGravity);
+        this._world.setGravity(this._btGravity);
     }
 
     raycast (worldRay: ray, options: IRaycastOptions, pool: import("../../core").RecyclePool<PhysicsRayResult>, resultes: PhysicsRayResult[]): boolean {
@@ -30,27 +30,29 @@ export class AmmoWorld implements IPhysicsWorld {
     }
 
     get impl () {
-        return this._btWorld;
+        return this._world;
     }
 
     static get instance (): AmmoWorld {
         return PhysicsSystem.instance.physicsWorld as any as AmmoWorld;
     }
 
-    private readonly _btWorld: Ammo.btDiscreteDynamicsWorld;
+    private readonly _world: Ammo.btDiscreteDynamicsWorld;
     private readonly _btBroadphase: Ammo.btDbvtBroadphase;
     private readonly _btSolver: Ammo.btSequentialImpulseConstraintSolver;
     private readonly _btDispatcher: Ammo.btCollisionDispatcher;
 
     private readonly _btGravity: Ammo.btVector3;
 
-    readonly bodies: AmmoRigidBody[] = [];
-    readonly staticShapes: AmmoShape[] = [];
-    readonly triggerShapes: AmmoShape[] = [];
-    readonly sharedStaticCompoundShape: Ammo.btCompoundShape;
-    readonly sharedStaticBody: Ammo.btCollisionObject;
-    readonly sharedTriggerCompoundShape: Ammo.btCompoundShape;
-    readonly sharedTriggerBody: Ammo.btCollisionObject;
+    readonly bodies: AmmoSharedBody[] = [];
+
+    // readonly bodies: AmmoRigidBody[] = [];
+    // readonly staticShapes: AmmoShape[] = [];
+    // readonly triggerShapes: AmmoShape[] = [];
+    // readonly sharedStaticCompoundShape: Ammo.btCompoundShape;
+    // readonly sharedStaticBody: Ammo.btCollisionObject;
+    // readonly sharedTriggerCompoundShape: Ammo.btCompoundShape;
+    // readonly sharedTriggerBody: Ammo.btCollisionObject;
 
     readonly triggerArrayMat = new ArrayCollisionMatrix();
     readonly collisionArrayMat = new ArrayCollisionMatrix();
@@ -63,44 +65,44 @@ export class AmmoWorld implements IPhysicsWorld {
         this._btBroadphase = new Ammo.btDbvtBroadphase();
         // this._btBroadphase.getOverlappingPairCache().setInternalGhostPairCallback(new Ammo.btGhostPairCallback());
         this._btSolver = new Ammo.btSequentialImpulseConstraintSolver();
-        this._btWorld = new Ammo.btDiscreteDynamicsWorld(this._btDispatcher, this._btBroadphase, this._btSolver, collisionConfiguration);
+        this._world = new Ammo.btDiscreteDynamicsWorld(this._btDispatcher, this._btBroadphase, this._btSolver, collisionConfiguration);
         this._btGravity = new Ammo.btVector3(0, -10, 0);
-        this._btWorld.setGravity(this._btGravity);
+        this._world.setGravity(this._btGravity);
 
         // btGImpactCollisionAlgorithm::registerAlgorithm((btCollisionDispatcher *)dispatcher);
 
-        /** shared static body */
-        {
-            this.sharedStaticCompoundShape = new Ammo.btCompoundShape(true);
-            let localInertia = new Ammo.btVector3(0, 0, 0);
-            this.sharedStaticCompoundShape.calculateLocalInertia(0, localInertia);
-            let myMotionState = new Ammo.btDefaultMotionState();
-            let rbInfo = new Ammo.btRigidBodyConstructionInfo(0, myMotionState, this.sharedStaticCompoundShape, localInertia);
-            this.sharedStaticBody = new Ammo.btRigidBody(rbInfo);
+        // /** shared static body */
+        // {
+        //     this.sharedStaticCompoundShape = new Ammo.btCompoundShape(true);
+        //     let localInertia = new Ammo.btVector3(0, 0, 0);
+        //     this.sharedStaticCompoundShape.calculateLocalInertia(0, localInertia);
+        //     let myMotionState = new Ammo.btDefaultMotionState();
+        //     let rbInfo = new Ammo.btRigidBodyConstructionInfo(0, myMotionState, this.sharedStaticCompoundShape, localInertia);
+        //     this.sharedStaticBody = new Ammo.btRigidBody(rbInfo);
 
-            /** TODO: change to btCollisionObject */
-            // this.sharedStaticBody = new Ammo.btCollisionObject();
+        //     /** TODO: change to btCollisionObject */
+        //     // this.sharedStaticBody = new Ammo.btCollisionObject();
 
-            this._btWorld.addCollisionObject(this.sharedStaticBody);
-            this.sharedStaticBody.setUserIndex(-2);
-        }
+        //     this._btWorld.addCollisionObject(this.sharedStaticBody);
+        //     this.sharedStaticBody.setUserIndex(-2);
+        // }
 
-        /** shared trigger body */
-        {
-            this.sharedTriggerCompoundShape = new Ammo.btCompoundShape(true);
-            let localInertia = new Ammo.btVector3(0, 0, 0);
-            this.sharedTriggerCompoundShape.calculateLocalInertia(0, localInertia);
-            let myMotionState = new Ammo.btDefaultMotionState();
-            let rbInfo = new Ammo.btRigidBodyConstructionInfo(0, myMotionState, this.sharedTriggerCompoundShape, localInertia);
-            this.sharedTriggerBody = new Ammo.btRigidBody(rbInfo);
+        // /** shared trigger body */
+        // {
+        //     this.sharedTriggerCompoundShape = new Ammo.btCompoundShape(true);
+        //     let localInertia = new Ammo.btVector3(0, 0, 0);
+        //     this.sharedTriggerCompoundShape.calculateLocalInertia(0, localInertia);
+        //     let myMotionState = new Ammo.btDefaultMotionState();
+        //     let rbInfo = new Ammo.btRigidBodyConstructionInfo(0, myMotionState, this.sharedTriggerCompoundShape, localInertia);
+        //     this.sharedTriggerBody = new Ammo.btRigidBody(rbInfo);
 
-            /** TODO: change to btCollisionObject */
-            // this.sharedTriggerBody = new Ammo.btCollisionObject();
+        //     /** TODO: change to btCollisionObject */
+        //     // this.sharedTriggerBody = new Ammo.btCollisionObject();
 
-            this.sharedTriggerBody.setCollisionFlags(AmmoCollisionFlags.CF_NO_CONTACT_RESPONSE);
-            this._btWorld.addCollisionObject(this.sharedTriggerBody);
-            this.sharedTriggerBody.setUserIndex(-3);
-        }
+        //     this.sharedTriggerBody.setCollisionFlags(AmmoCollisionFlags.CF_NO_CONTACT_RESPONSE);
+        //     this._btWorld.addCollisionObject(this.sharedTriggerBody);
+        //     this.sharedTriggerBody.setUserIndex(-3);
+        // }
 
     }
 
@@ -111,29 +113,13 @@ export class AmmoWorld implements IPhysicsWorld {
     step (timeStep: number, fixTimeStep?: number, maxSubStep?: number) {
 
         for (let i = 0; i < this.bodies.length; i++) {
-            this.bodies[i].beforeStep();
+            this.bodies[i].syncSceneToPhysics();
         }
 
-        for (let i = 0; i < this.staticShapes.length; i++) {
-            this.staticShapes[i].beforeStep();
-        }
-
-        for (let i = 0; i < this.triggerShapes.length; i++) {
-            this.triggerShapes[i].beforeStep();
-        }
-
-        this._btWorld.stepSimulation(timeStep, maxSubStep, fixTimeStep);
+        this._world.stepSimulation(timeStep, maxSubStep, fixTimeStep);
 
         for (let i = 0; i < this.bodies.length; i++) {
-            this.bodies[i].afterStep();
-        }
-
-        for (let i = 0; i < this.staticShapes.length; i++) {
-            this.staticShapes[i].beforeStep();
-        }
-
-        for (let i = 0; i < this.triggerShapes.length; i++) {
-            this.triggerShapes[i].beforeStep();
+            this.bodies[i].syncPhysicsToScene();
         }
 
         const numManifolds = this._btDispatcher.getNumManifolds();
@@ -148,22 +134,22 @@ export class AmmoWorld implements IPhysicsWorld {
                 const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
                 const d = manifoldPoint.getDistance();
                 if (d <= 0.0001) {
-                    let shape0: AmmoShape;
+                    let shape0!: AmmoShape;
                     if (index0 == -2) {
-                        shape0 = this.staticShapes[manifoldPoint.m_index0];
+                        // shape0 = this.staticShapes[manifoldPoint.m_index0];
                     } else if (index0 == -3) {
-                        shape0 = this.triggerShapes[manifoldPoint.m_index0];
+                        // shape0 = this.triggerShapes[manifoldPoint.m_index0];
                     } else {
-                        shape0 = this.bodies[index0].shapes[manifoldPoint.m_index0];
+                        shape0 = this.bodies[index0].wrappedShapes[manifoldPoint.m_index0];
                     }
 
-                    let shape1: AmmoShape;
+                    let shape1!: AmmoShape;
                     if (index1 == -2) {
-                        shape1 = this.staticShapes[manifoldPoint.m_index1];
+                        // shape1 = this.staticShapes[manifoldPoint.m_index1];
                     } else if (index1 == -3) {
-                        shape1 = this.triggerShapes[manifoldPoint.m_index1];
+                        // shape1 = this.triggerShapes[manifoldPoint.m_index1];
                     } else {
-                        shape1 = this.bodies[index1].shapes[manifoldPoint.m_index1];
+                        shape1 = this.bodies[index1].wrappedShapes[manifoldPoint.m_index1];
                     }
                     /** TODO */
                     // if shape0 & shape1 not care events, just continue
@@ -364,6 +350,7 @@ export class AmmoWorld implements IPhysicsWorld {
 
         this.contactsDic.reset();
     }
+
     /**
      * Ray cast, and return information of the closest hit.
      * @return True if any body was hit.
@@ -381,7 +368,7 @@ export class AmmoWorld implements IPhysicsWorld {
         // closestRayResultCallback.get_m_rayFromWorld().setValue(from.x, from.y, from.z);
         // closestRayResultCallback.get_m_rayToWorld().setValue(to.x, to.y, to.z);
 
-        this._btWorld.rayTest(ammoFrom, ammoTo, closestRayResultCallback);
+        this._world.rayTest(ammoFrom, ammoTo, closestRayResultCallback);
         if (!closestRayResultCallback.hasHit()) {
             return false;
         }
@@ -406,11 +393,27 @@ export class AmmoWorld implements IPhysicsWorld {
     }
 
     addSharedBody (sharedBody: AmmoSharedBody) {
-
+        const i = this.bodies.indexOf(sharedBody);
+        if (i < 0) {
+            this.bodies.push(sharedBody);
+            this._world.addRigidBody(sharedBody.body);
+        }
     }
 
     removeSharedBody (sharedBody: AmmoSharedBody) {
+        const i = this.bodies.indexOf(sharedBody);
+        if (i >= 0) {
+            this.bodies.splice(i, 1);
+            this._world.removeRigidBody(sharedBody.body);
+        }
+    }
 
+    addGhostObject (sharedBody: AmmoSharedBody) {
+        this._world.addCollisionObject(sharedBody.ghost);
+    }
+
+    removeGhostObject (sharedBody: AmmoSharedBody) {
+        this._world.removeCollisionObject(sharedBody.ghost);
     }
 }
 
