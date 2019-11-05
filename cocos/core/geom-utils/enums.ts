@@ -1,6 +1,6 @@
 /**
  * 几何工具模块
- * @category gemotry-utils
+ * @category geometry
  */
 
 /**
