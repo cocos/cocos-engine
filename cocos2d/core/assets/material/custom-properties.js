@@ -1,27 +1,52 @@
 import murmurhash2 from '../../../renderer/murmurhash2_gc';
 import utils from './utils';
+import Effect from '../../../renderer/core/effect';
 
 export default class CustomProperties {
-    constructor () {
+    constructor (effect) {
+        this._effect = effect;
         this._properties = {};
         this._defines = {};
         this._dirty = false;
     }
 
-    setProperty (name, value, type, directly) {
+    get effect () {
+        return this._effect;
+    }
+    set effect (v) {
+        this._effect = v;
+    }
+
+    _createProp (name) {
+        let prop = this._effect._properties[name];
+        if (!prop) {
+            cc.warn(`${this._effect._name} : Failed to set property ${name}, property not found.`);
+            return;
+        }
+
+        let uniform = Object.create(null);
+        uniform.name = name;
+        uniform.type = prop.type;
+        if (prop.value instanceof Float32Array) {
+            uniform.value = new Float32Array(prop.value);
+        }
+        else {
+            uniform.value = prop.value;
+        }
+        this._properties[name] = uniform;
+        
+        return uniform;
+    }
+
+    setProperty (name, value) {
         let uniform = this._properties[name];
         if (!uniform) {
-            uniform = Object.create(null);
-            uniform.name = name;
-            uniform.type = type
-            uniform.directly = directly;
-            this._properties[name] = uniform;
+            uniform = this._createProp(name);
         }
         else if (uniform.value === value) return;
         
         this._dirty = true;
-        uniform.directly = directly;
-        uniform.value = value;
+        Effect.prototype.setProperty.call(this, name, value);
     }
 
     getProperty(name) {
@@ -40,13 +65,19 @@ export default class CustomProperties {
         return this._defines[name];
     }
 
-    extractProperties(out = {}) {
-        Object.assign(out, this._properties);
+    extractProperties(out = []) {
+        if (this._effect) {
+            out.push(this._effect._properties);
+        }
+        out.push(this._properties);
         return out;
     }
 
-    extractDefines(out = {}) {
-        Object.assign(out, this._defines);
+    extractDefines(out = []) {
+        if (this._effect) {
+            out.push(this._effect._defines);
+        }
+        out.push(this._defines);
         return out;
     }
 
@@ -58,7 +89,34 @@ export default class CustomProperties {
         hash += utils.serializeDefines(this._defines);
         hash += utils.serializeUniforms(this._properties);
 
+        let effect = this._effect;
+        if (effect) {
+            hash += utils.serializeDefines(effect._defines);
+            hash += utils.serializeTechniques(effect._techniques);
+            hash += utils.serializeUniforms(effect._properties);
+        }
+
         return this._hash = murmurhash2(hash, 666);
+    }
+
+    setCullMode (cullMode) {
+    }
+
+    setDepth (depthTest, depthWrite, depthFunc) {
+    }
+
+    setBlend (enabled, blendEq, blendSrc, blendDst, blendAlphaEq, blendSrcAlpha, blendDstAlpha, blendColor) { 
+        
+    }
+
+    setStencilEnabled (enabled) {
+    }
+
+    setStencil (enabled, stencilFunc, stencilRef, stencilMask, stencilFailOp, stencilZFailOp, stencilZPassOp, stencilWriteMask) {
+    }
+
+    getTechnique(stage) {
+        return this._effect.getTechnique(stage);
     }
 }
 

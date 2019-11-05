@@ -56,13 +56,13 @@ export default class Model {
     uniforms.length = 0;
     
     if (effect) {
-      defines.push(effect._defines);
-      uniforms.push(effect._properties);
+      effect.extractProperties(uniforms);
+      effect.extractDefines(defines);
     }
 
     if (customProperties) {
-      defines.push(customProperties._defines);
-      uniforms.push(customProperties._properties);
+      customProperties.extractProperties(uniforms);
+      customProperties.extractDefines(defines);
     }
   }
 

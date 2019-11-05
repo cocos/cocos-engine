@@ -220,29 +220,29 @@ function createInvokeImpl (indiePath, useDt, ensureFlag, fastPath) {
         indiePath = Function('c', 'dt', indiePath);
     }
     return function (iterator, dt) {
-        try {
+        // try {
             fastPath(iterator, dt);
-        }
-        catch (e) {
-            // slow path
-            cc._throw(e);
-            var array = iterator.array;
-            if (ensureFlag) {
-                array[iterator.i]._objFlags |= ensureFlag;
-            }
-            ++iterator.i;   // invoke next callback
-            for (; iterator.i < array.length; ++iterator.i) {
-                try {
-                    indiePath(array[iterator.i], dt);
-                }
-                catch (e) {
-                    cc._throw(e);
-                    if (ensureFlag) {
-                        array[iterator.i]._objFlags |= ensureFlag;
-                    }
-                }
-            }
-        }
+        // }
+        // catch (e) {
+        //     // slow path
+        //     cc._throw(e);
+        //     var array = iterator.array;
+        //     if (ensureFlag) {
+        //         array[iterator.i]._objFlags |= ensureFlag;
+        //     }
+        //     ++iterator.i;   // invoke next callback
+        //     for (; iterator.i < array.length; ++iterator.i) {
+        //         try {
+        //             indiePath(array[iterator.i], dt);
+        //         }
+        //         catch (e) {
+        //             cc._throw(e);
+        //             if (ensureFlag) {
+        //                 array[iterator.i]._objFlags |= ensureFlag;
+        //             }
+        //         }
+        //     }
+        // }
     };
 }
 
