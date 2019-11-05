@@ -821,7 +821,8 @@ function initSys () {
             osVersion = uaResult[2] || '';
             osMainVersion = parseInt(osVersion) || 0;
         }
-        else if (/(iPhone|iPad|iPod)/.exec(nav.platform)) {
+        // refer to https://github.com/cocos-creator/engine/pull/5542 , thanks for contribition from @krapnikkk
+        else if (/(iPhone|iPad|iPod|MacIntel)/.exec(nav.platform)) { 
             iOS = true;
             osVersion = '';
             osMainVersion = 0;

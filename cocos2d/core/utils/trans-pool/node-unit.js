@@ -77,6 +77,11 @@ const Is3D_Stride = Is3D_Members * Uint8_Bytes;
 const Node_Type = Uint32Array;
 const Node_Members = 2;
 
+// Space : [Skew]                                   [Size:4 * 2 Float32]
+const Skew_Type = Float32Array;
+const Skew_Members = 2;
+const Skew_Stride = Skew_Members * Float32_Bytes;
+
 let UnitBase = require('./unit-base');
 let NodeUnit = function (unitID, memPool) {
     UnitBase.call(this, unitID, memPool);
@@ -94,6 +99,7 @@ let NodeUnit = function (unitID, memPool) {
         this.opacityList = new Opacity_Type(contentNum * Opacity_Members);
         this.is3DList = new Is3D_Type(contentNum * Is3D_Members);
         this.nodeList = new Node_Type(contentNum * Node_Members);
+        this.skewList = new Skew_Type(contentNum * Skew_Members);
 
         this._memPool._nativeMemPool.updateNodeData(
             unitID,
@@ -106,7 +112,8 @@ let NodeUnit = function (unitID, memPool) {
             this.cullingMaskList,
             this.opacityList,
             this.is3DList,
-            this.nodeList
+            this.nodeList,
+            this.skewList
         );
     }
 
@@ -124,6 +131,7 @@ let NodeUnit = function (unitID, memPool) {
             space.cullingMask = new CullingMask_Type(this.cullingMaskList.buffer, i * CullingMask_Stride, CullingMask_Members);
             space.opacity = new Opacity_Type(this.opacityList.buffer, i * Opacity_Stride, Opacity_Members);
             space.is3D = new Is3D_Type(this.is3DList.buffer, i * Is3D_Stride, Is3D_Members);
+            space.skew = new Skew_Type(this.skewList.buffer, i * Skew_Stride, Skew_Members);
         }
     }
 };
