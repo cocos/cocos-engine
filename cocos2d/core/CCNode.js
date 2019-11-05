@@ -671,6 +671,7 @@ let NodeDefines = {
          * !#zh
          * 节点的分组。<br/>
          * 节点的分组将关系到节点的碰撞组件可以与哪些碰撞组件相碰撞。<br/>
+         * 子节点在被加入到父节点时 group 会与父节点同步。
          * @property group
          * @type {String}
          */
