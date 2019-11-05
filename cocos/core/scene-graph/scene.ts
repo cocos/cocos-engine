@@ -131,6 +131,14 @@ export class Scene extends BaseNode {
         return this.getScale(out);
     }
 
+    public getWorldMatrix (out?: Mat4) {
+        if (!out) {
+            out = new Mat4();
+        }
+        out.set(Mat4.IDENTITY);
+        return out;
+    }
+
     public updateWorldTransform () { }
 
     public addComponent (typeOrClassName: string | Function) {
