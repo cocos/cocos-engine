@@ -63,6 +63,10 @@ function _unrollLoops(string) {
   return string.replace(pattern, replace);
 }
 
+function _replaceHighp(string) {
+  return string.replace(/\bhighp\b/g, 'mediump');
+}
+
 export default class ProgramLib {
   /**
    * @param {gfx.Device} device
@@ -73,6 +77,8 @@ export default class ProgramLib {
     // register templates
     this._templates = {};
     this._cache = {};
+
+    this._checkPrecision();
   }
 
   clear () {
@@ -228,8 +234,15 @@ export default class ProgramLib {
     let customDef = _generateDefines(defineList);
     let vert = _replaceMacroNums(tmpl.vert, defineList);
     vert = customDef + _unrollLoops(vert);
+    if (!this._highpSupported) {
+      vert = _replaceHighp(vert);
+    }
+
     let frag = _replaceMacroNums(tmpl.frag, defineList);
     frag = customDef + _unrollLoops(frag);
+    if (!this._highpSupported) {
+      frag = _replaceHighp(frag);
+    }
 
     program = new gfx.Program(this._device, {
       vert,
@@ -265,5 +278,20 @@ export default class ProgramLib {
         return value;
       }
     }
+  }
+
+  _checkPrecision () {
+    let gl = this._device._gl;
+    let highpSupported = false;
+    if (gl.getShaderPrecisionFormat) {
+        let vertHighp = gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.HIGH_FLOAT);
+        let fragHighp = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
+        highpSupported = (vertHighp && vertHighp.precision > 0) &&
+          (fragHighp && fragHighp.precision > 0);
+    }
+    if (!highpSupported) {
+      cc.warnID(9102);
+    }
+    this._highpSupported = highpSupported;
   }
 }
