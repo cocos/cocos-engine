@@ -152,7 +152,7 @@ let TiledLayer = cc.Class({
     addUserNode (node) {
         let dataComp = node.getComponent(TiledUserNodeData);
         if (dataComp) {
-            cc.warn("CCTiledLayer:insertUserNode node has insert");
+            cc.warn("CCTiledLayer:addUserNode node has been added");
             return false;
         }
 
@@ -191,7 +191,8 @@ let TiledLayer = cc.Class({
         node.off(cc.Node.EventType.SIZE_CHANGED, this._userNodeSizeChange, dataComp);
         this._removeUserNodeFromGrid(dataComp);
         delete this._userNodeMap[node._id];
-        node.removeComponent(dataComp);
+        node._removeComponent(dataComp);
+        dataComp.destroy();
         node.removeFromParent(true);
         node._renderFlag &= ~RenderFlow.FLAG_BREAK_FLOW;
         return true;

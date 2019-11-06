@@ -757,13 +757,14 @@ let Button = cc.Class({
     _updateColorTransitionImmediately (state) {
         let color = this._getStateColor(state);
         this._setTargetColor(color);
+        this._fromColor = color.clone();
+        this._toColor = color;
     },
 
     _updateColorTransition (state) {
         if (CC_EDITOR || state === State.DISABLED) {
             this._updateColorTransitionImmediately(state);
-        }
-        else {
+        } else {
             let target = this._getTarget();
             let color = this._getStateColor(state);
             this._fromColor = target.color.clone();
