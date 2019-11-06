@@ -27,11 +27,11 @@ const Asset = require('../CCAsset');
 const Texture = require('../CCTexture2D');
 const PixelFormat = Texture.PixelFormat;
 const EffectAsset = require('../CCEffectAsset');
-const EventTarget = require("../../event/event-target");
+const textureUtil = require('../../utils/texture-util');
 
-import Effect from '../../../renderer/core/effect';
 import murmurhash2 from '../../../renderer/murmurhash2_gc';
 import utils from './utils';
+import materialPool from './material-pool';
 
 /**
  * !#en Material Asset.
@@ -42,7 +42,6 @@ import utils from './utils';
 let Material = cc.Class({
     name: 'cc.Material',
     extends: Asset,
-    mixins: [EventTarget],
 
     ctor () {
         this.loaded = false;
@@ -125,12 +124,7 @@ let Material = cc.Class({
                 return mat;
             }
             else {
-                let instance = new Material();
-                instance.copy(mat);
-                instance._name = mat._name + ' (Instance)';
-                instance._uuid = mat._uuid;
-                instance._owner = renderComponent;
-                return instance;
+                return materialPool.get(mat, renderComponent);
             }
         }
     },
@@ -163,13 +157,26 @@ let Material = cc.Class({
 
         if (this._effect) {
             if (val instanceof Texture) {
-                this._effect.setProperty(name, val);
+
                 let format = val.getPixelFormat();
                 if (format === PixelFormat.RGBA_ETC1 ||
                     format === PixelFormat.RGB_A_PVRTC_4BPPV1 ||
                     format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
                     this.define('CC_USE_ALPHA_ATLAS_' + name.toUpperCase(), true);
                 }
+
+                function loaded () {
+                    this._effect.setProperty(name, val);
+                }
+
+                if (!val.loaded) {
+                    val.once('load', loaded, this);
+                    textureUtil.postLoadTexture(val);
+                }
+                else {
+                    this._effect.setProperty(name, val);
+                }
+
             }
             else {
                 this._effect.setProperty(name, val);
@@ -249,8 +256,6 @@ let Material = cc.Class({
         for (let prop in this._props) {
             this.setProperty(prop, this._props[prop], true);
         }
-        this.loaded = true;
-        this.emit("load");
     },
 });
 

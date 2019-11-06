@@ -152,7 +152,7 @@ let TiledLayer = cc.Class({
     addUserNode (node) {
         let dataComp = node.getComponent(TiledUserNodeData);
         if (dataComp) {
-            cc.warn("CCTiledLayer:insertUserNode node has insert");
+            cc.warn("CCTiledLayer:addUserNode node has been added");
             return false;
         }
 
@@ -191,7 +191,8 @@ let TiledLayer = cc.Class({
         node.off(cc.Node.EventType.SIZE_CHANGED, this._userNodeSizeChange, dataComp);
         this._removeUserNodeFromGrid(dataComp);
         delete this._userNodeMap[node._id];
-        node.removeComponent(dataComp);
+        node._removeComponent(dataComp);
+        dataComp.destroy();
         node.removeFromParent(true);
         node._renderFlag &= ~RenderFlow.FLAG_BREAK_FLOW;
         return true;
@@ -755,9 +756,10 @@ let TiledLayer = cc.Class({
             if (camera) {
                 _vec2_temp.x = 0;
                 _vec2_temp.y = 0;
-                camera.getCameraToWorldPoint(_vec2_temp, _vec2_temp);
                 _vec2_temp2.x = _vec2_temp.x + rect.width;
                 _vec2_temp2.y = _vec2_temp.y + rect.height;
+                camera.getScreenToWorldPoint(_vec2_temp, _vec2_temp);
+                camera.getScreenToWorldPoint(_vec2_temp2, _vec2_temp2);
                 vec2.transformMat4(_vec2_temp, _vec2_temp, _mat4_temp);
                 vec2.transformMat4(_vec2_temp2, _vec2_temp2, _mat4_temp);
                 this._updateViewPort(_vec2_temp.x, _vec2_temp.y, _vec2_temp2.x - _vec2_temp.x, _vec2_temp2.y - _vec2_temp.y);
@@ -1291,14 +1293,12 @@ let TiledLayer = cc.Class({
                 material = Material.getInstantiatedMaterial(material, this);
             }
 
-            material.define('USE_TEXTURE', true);
             material.define('CC_USE_MODEL', true);
             material.setProperty('texture', texture);
             this.setMaterial(i, material);
             texIdMatIdx[tilesetIdx] = i;
         }
 
-        this.markForUpdateRenderData(true);
         this.markForRender(true);
     },
 });

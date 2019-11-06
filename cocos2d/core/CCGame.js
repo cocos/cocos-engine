@@ -375,12 +375,16 @@ var game = {
         this.emit(this.EVENT_ENGINE_INITED);
     },
 
-    _prepareFinished (cb) {
-
-        if (CC_PREVIEW && window.__modular) {
-            window.__modular.run();
+    _loadPreviewScript (cb) {
+        if (CC_PREVIEW && window.__quick_compile_project__) {
+            window.__quick_compile_project__.load(cb);
         }
+        else {
+            cb();
+        }
+    },
 
+    _prepareFinished (cb) {
         // Init engine
         this._initEngine();
         this._setAnimFrame();
@@ -481,12 +485,18 @@ var game = {
                 cc.assetManager.loadScript(jsList[i], function (err) {
                     if (err) throw new Error(JSON.stringify(err));
                     count++;
-                    if (count === l) self._prepareFinished(cb);
+                    if (count === l) {
+                        self._loadPreviewScript(() => {
+                            self._prepareFinished(cb);
+                        });
+                    }
                 });
             }
         }
         else {
-            this._prepareFinished(cb);
+            this._loadPreviewScript(() => {
+                this._prepareFinished(cb);
+            })
         }
     },
 
@@ -574,7 +584,7 @@ var game = {
         this._lastTime = performance.now();
         var frameRate = game.config.frameRate;
         this._frameTime = 1000 / frameRate;
-
+        cc.director._maxParticleDeltaTime = this._frameTime / 1000 * 2;
         if (CC_JSB || CC_RUNTIME) {
             jsb.setPreferredFramesPerSecond(frameRate);
             window.requestAnimFrame = window.requestAnimationFrame;

@@ -81,6 +81,10 @@ let SkeletonAnimationClip = cc.Class({
         }
     },
 
+    statics: {
+        preventDeferredLoadDependents: true,
+    },
+
     _init () {
         if (this._curveData) {
             return this._curveData;

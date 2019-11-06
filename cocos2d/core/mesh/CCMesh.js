@@ -45,6 +45,24 @@ function applyVec3 (data, offset, value) {
     data[offset + 2] = value.z;
 }
 
+const _compType2fn = {
+    5120: 'getInt8',
+    5121: 'getUint8',
+    5122: 'getInt16',
+    5123: 'getUint16',
+    5124: 'getInt32',
+    5125: 'getUint32',
+    5126: 'getFloat32',
+};
+
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView#Endianness
+const littleEndian = (function () {
+    let buffer = new ArrayBuffer(2);
+    new DataView(buffer).setInt16(0, 256, true);
+    // Int16Array uses the platform's endianness.
+    return new Int16Array(buffer)[0] === 256;
+})();
+
 /**
 * @module cc
 */
@@ -53,6 +71,7 @@ function applyVec3 (data, offset, value) {
  * !#zh 网格资源。
  * @class Mesh
  * @extends Asset
+ * @uses EventTarget
  */
 let Mesh = cc.Class({
     name: 'cc.Mesh',
@@ -401,6 +420,47 @@ let Mesh = cc.Class({
                 subData.iDirty = false;
             }
         }
+    },
+
+    _getAttrMeshData (subDataIndex, name) {
+        let subData = this._subDatas[subDataIndex];
+        if (!subData) return [];
+
+        let format = subData.vfm;
+        let fmt = format.element(name);
+        if (!fmt) return [];
+
+        if (!subData.attrDatas) {
+            subData.attrDatas = {};
+        }
+        let attrDatas = subData.attrDatas;
+        let data = attrDatas[name];
+        if (data) {
+            return data;
+        }
+        else {
+            data = attrDatas[name] = [];
+        }
+
+        let vbData = subData.vData;
+        let dv = new DataView(vbData.buffer, vbData.byteOffset, vbData.byteLength);
+
+        let stride = fmt.stride;
+        let eleOffset = fmt.offset;
+        let eleNum = fmt.num;
+        let eleByte = fmt.bytes / eleNum;
+        let fn = _compType2fn[fmt.type];
+        let vertexCount = vbData.byteLength / format._bytes;
+        
+        for (let i = 0; i < vertexCount; i++) {
+            let offset = i * stride + eleOffset;
+            for (let j = 0; j < eleNum; j++) {
+                let v = dv[fn](offset + j * eleByte, littleEndian);
+                data.push(v);
+            }
+        }
+
+        return data;
     }
 });
 

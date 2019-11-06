@@ -32,6 +32,7 @@ const GraySpriteState = require('../utils/gray-sprite-state');
  * !#zh Toggle 是一个 CheckBox，当它和 ToggleGroup 一起使用的时候，可以变成 RadioButton。
  * @class Toggle
  * @extends Button
+ * @uses GraySpriteState
  */
 let Toggle = cc.Class({
     name: 'cc.Toggle',

@@ -50,3 +50,17 @@ test('call "once" twice', function () {
     .disable('should only invoke once');
     target.emit('fire');
 });
+
+test('call "off" without handler twice during invoking', function () {
+    var target = new cc.EventTarget();
+    var ctx = {};
+
+    function handler () {
+        target.off('fire');
+        target.off('fire', handler, ctx);
+    }
+    target.on('fire', handler, ctx, true);
+    target.emit('fire');
+
+    expect(0);
+});

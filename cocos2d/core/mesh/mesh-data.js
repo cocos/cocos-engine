@@ -159,7 +159,7 @@ MeshData.prototype.getVData = function (format) {
 MeshData.prototype.getIData = function (format) {
     if (format === Uint16Array) {
         if (!this.uint16IData) {
-            this.uint16IData = new Uint16Array(this.vData.buffer, this.vData.byteOffset, this.vData.byteLength / 4);
+            this.uint16IData = new Uint16Array(this.iData.buffer, this.iData.byteOffset, this.iData.byteLength / 2);
         }
         return this.uint16IData;
     }

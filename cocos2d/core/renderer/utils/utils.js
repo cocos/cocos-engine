@@ -33,18 +33,27 @@ module.exports = {
     getFontFamily (comp) {
         if (!comp.useSystemFont) {
             if (comp.font) {
+<<<<<<< HEAD
                 if (comp.font._nativeAsset) {
                     return comp.font._nativeAsset;
                 }
                 else {
                     console.error("Font " + comp.font.nativeUrl + " for label is not loaded!");
                 }
+=======
+                if (comp.font._nativeAsset) return comp.font._nativeAsset;
+                cc.loader.load(comp.font.nativeUrl, (err, asset) => {
+                    comp.font._nativeAsset = asset;
+                    comp.setVertsDirty();
+                });
+                return 'Arial';
+>>>>>>> 1eee4da16e8d05d91fcfb7ed4d19246a374a872a
             }
     
             return 'Arial';
         }
         else {
-            return comp.fontFamily;
+            return comp.fontFamily || 'Arial';
         }
     },
 

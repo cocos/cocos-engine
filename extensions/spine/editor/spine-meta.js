@@ -110,8 +110,6 @@ class TextureParser {
     }
 }
 
-const RAW_SKELETON_FILE = 'raw-skeleton.json';
-
 class SpineMeta extends CustomAssetMeta {
     constructor (assetdb) {
         super(assetdb);
@@ -119,14 +117,22 @@ class SpineMeta extends CustomAssetMeta {
         this.scale = 1;
     }
 
+    dests () {
+        let rawPath = this._assetdb.uuidToFspath(this.uuid);
+        let importPathNoExt = this._assetdb._uuidToImportPathNoExt(this.uuid);
+    
+        let jsonPath = importPathNoExt + '.json';
+        let extname = Path.extname(rawPath);
+        let nativePath = importPathNoExt + extname;
+        return [jsonPath, nativePath];
+    }
+
     // HACK - for inspector
     get texture () {
-        //return this.textures[0];
         return Editor.assetdb.uuidToUrl(this.textures[0]);
     }
     set texture (value) {
         this.textures[0] = Editor.assetdb.urlToUuid(value);
-        //this.textures[0] = value;
     }
 
     static version () { return '1.2.2'; }
@@ -135,6 +141,10 @@ class SpineMeta extends CustomAssetMeta {
     }
 
     static validate (assetpath) {
+        // handle binary file
+        if (assetpath.endsWith(".skel")) {
+            return true;
+        }
         // TODO - import as a folder named '***.spine'
         var json;
         var text = Fs.readFileSync(assetpath, 'utf8');
@@ -159,7 +169,34 @@ class SpineMeta extends CustomAssetMeta {
         return false;
     }
     
-    postImport (fspath, cb) {
+    _initTexture (asset, fspath, cb) {
+        loadAtlasText(fspath, (err, res) => {
+            if (err) {
+                return cb(err);
+            }
+
+            var db = this._assetdb;
+
+            // parse atlas textures
+            var textureParser = new TextureParser(res.atlasPath);
+
+            try {
+                new Spine.TextureAtlas(res.data, textureParser.load.bind(textureParser));
+            }
+            catch (err) {
+                return cb(new Error(`Failed to load atlas file: "${res.atlasPath}". ${err.stack || err}`));
+            }
+
+            this.textures = textureParser.textures;
+            asset.textures = textureParser.textures.map(Editor.serialize.asAsset);
+            asset.textureNames = textureParser.textureNames;
+            asset.atlasText = res.data;
+            db.saveAssetToLibrary(this.uuid, asset);
+            cb();
+        });
+    }
+
+    _importJson (fspath, cb) {
         Fs.readFile(fspath, SPINE_ENCODING, (err, data) => {
             if (err) {
                 return cb(err);
@@ -178,31 +215,43 @@ class SpineMeta extends CustomAssetMeta {
             asset.skeletonJson = json;
             asset.scale = this.scale;
 
-            loadAtlasText(fspath, (err, res) => {
-                if (err) {
-                    return cb(err);
-                }
-
-                var db = this._assetdb;
-
-                // parse atlas textures
-                var textureParser = new TextureParser(res.atlasPath);
-
-                try {
-                    new Spine.TextureAtlas(res.data, textureParser.load.bind(textureParser));
-                }
-                catch (err) {
-                    return cb(new Error(`Failed to load atlas file: "${res.atlasPath}". ${err.stack || err}`));
-                }
-
-                this.textures = textureParser.textures;
-                asset.textures = textureParser.textures.map(Editor.serialize.asAsset);
-                asset.textureNames = textureParser.textureNames;
-                asset.atlasText = res.data;
-                db.saveAssetToLibrary(this.uuid, asset);
-                cb();
-            });
+            this._initTexture(asset, fspath, cb);
         });
+    }
+
+    _importBinary (fspath, cb) {
+        // import native asset
+        let extname = Path.extname(fspath).toLowerCase();
+        let dest = this._assetdb._uuidToImportPathNoExt(this.uuid) + extname;
+        Fs.copy(fspath, dest, err => {
+            if (err) {
+                return cb(err);
+            }
+
+            // import asset
+            let asset = new sp.SkeletonData();
+            asset.name = Path.basenameNoExt(fspath);
+            asset._setRawAsset(extname);
+            asset.scale = this.scale;
+
+            this._initTexture(asset, fspath, cb);
+        });
+    }
+
+    import (fspath, cb) {
+        if (fspath.endsWith(".skel")) {
+            this._importBinary(fspath, cb);
+        } else {
+            super.import(fspath, cb);
+        }
+    }
+
+    postImport (fspath, cb) {
+        if (!fspath.endsWith(".skel")) {
+            this._importJson(fspath, cb);
+        } else {
+            cb();
+        }
     }
 }
 

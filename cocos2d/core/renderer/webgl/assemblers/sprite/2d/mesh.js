@@ -27,7 +27,6 @@ import Assembler2D from '../../../../assembler-2d';
 
 export default class MeshSpriteAssembler extends Assembler2D {
     initData (sprite) {
-        this._local = [];
         this._renderData.createFlexData(0, 4, 6, this.getVfmt());
     }
     
@@ -44,11 +43,12 @@ export default class MeshSpriteAssembler extends Assembler2D {
                 let renderData = this._renderData;
                 let flexBuffer = renderData._flexBuffer;
                 if (flexBuffer.reserve(this.verticesCount, this.indicesCount)) {
-                    this.updateIndices(vertices.triangles);
                     this.updateColor(sprite);
                     sprite._vertsDirty = true;
                 }
                 flexBuffer.used(this.verticesCount, this.indicesCount);
+
+                this.updateIndices(vertices.triangles);
 
                 if (sprite._vertsDirty) {
                     this.updateUVs(sprite);
@@ -61,10 +61,7 @@ export default class MeshSpriteAssembler extends Assembler2D {
     }
 
     updateIndices (triangles) {
-        let iData = this._renderData.iDatas[0];
-        for (let i = 0; i < triangles.length; i++) {
-            iData[i] = triangles[i];
-        }
+        this._renderData.iDatas[0].set(triangles);
     }
 
     updateUVs (sprite) {
