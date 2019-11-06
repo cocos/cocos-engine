@@ -23,17 +23,21 @@ const CollisionEventObject = {
 const quat_ammo = new Ammo.btQuaternion();
 
 interface IBodyStruct {
-    body: Ammo.btRigidBody;
-    shape: Ammo.btCollisionShape;
-    wrappedShapes: AmmoShape[];
-    quat: Ammo.btQuaternion;
+    readonly body: Ammo.btRigidBody;
+    readonly shape: Ammo.btCollisionShape;
+    readonly worldQuat: Ammo.btQuaternion;
+    readonly localInertia: Ammo.btVector3;
+    readonly rbInfo: Ammo.btRigidBodyConstructionInfo;
+    readonly startTransform: Ammo.btTransform;
+    readonly motionState: Ammo.btDefaultMotionState;
+    readonly wrappedShapes: AmmoShape[];
 }
 
 interface IGhostStruct {
-    ghost: Ammo.btCollisionObject;
-    shape: Ammo.btCollisionShape;
-    wrappedShapes: AmmoShape[];
-    quat: Ammo.btQuaternion;
+    readonly ghost: Ammo.btCollisionObject;
+    readonly shape: Ammo.btCollisionShape;
+    readonly worldQuat: Ammo.btQuaternion;
+    readonly wrappedShapes: AmmoShape[];
 }
 
 /**
@@ -62,39 +66,27 @@ export class AmmoSharedBody {
         return this._wrappedBody;
     }
 
-    get shape () {
-        return this._bodyShape;
-    }
-
     get bodyCompoundShape () {
-        return this._bodyShape as Ammo.btCompoundShape;
+        return this.bodyStruct.shape as Ammo.btCompoundShape;
     }
 
     get ghostCompoundShape () {
-        return this._ghostShape as Ammo.btCompoundShape;
+        return this.ghostStruct.shape as Ammo.btCompoundShape;
     }
 
     readonly node: Node;
     readonly wrappedWorld: AmmoWorld;
 
     get body () {
-        return this._body;
+        return this.bodyStruct.body;
     }
 
     get ghost () {
-        return this._ghost;
+        return this.ghostStruct.ghost;
     }
 
-    /** for collider */
-    _body!: Ammo.btRigidBody;
-    _bodyShape!: Ammo.btCollisionShape;
-    _wrappedBodyShapes: AmmoShape[] = [];
-    _bodyQuat: Ammo.btQuaternion;
-
-    /** for trigger */
-    _ghost!: Ammo.btCollisionObject;
-    _ghostShape!: Ammo.btCollisionShape;
-    _wrappedGhostShapes: AmmoShape[] = [];
+    readonly bodyStruct: IBodyStruct;
+    readonly ghostStruct: IGhostStruct;
 
     private ref: number = 0;
     private bodyIndex: number = -1;
@@ -111,15 +103,14 @@ export class AmmoSharedBody {
             if (this.bodyIndex < 0) {
                 this.bodyIndex = this.wrappedWorld.bodies.length;
                 this.wrappedWorld.addSharedBody(this);
-                this._body.setUserIndex(this.bodyIndex);
+                this.bodyStruct.body.setUserIndex(this.bodyIndex);
                 this.syncInitialBody();
             }
         } else {
             if (this.bodyIndex >= 0) {
-                // TODO: 待查，组件的 enabledInHierarchy 为什么还是 true
-                const isRemoveBody = (this._wrappedBodyShapes.length == 0 && this.wrappedBody == null) ||
-                    (this._wrappedBodyShapes.length == 0 && this.wrappedBody != null && !this.wrappedBody.isEnabled) ||
-                    (this._wrappedBodyShapes.length == 0 && this.wrappedBody != null && !this.wrappedBody.rigidBody.enabledInHierarchy)
+                const isRemoveBody = (this.bodyStruct.wrappedShapes.length == 0 && this.wrappedBody == null) ||
+                    (this.bodyStruct.wrappedShapes.length == 0 && this.wrappedBody != null && !this.wrappedBody.isEnabled) ||
+                    (this.bodyStruct.wrappedShapes.length == 0 && this.wrappedBody != null && !this.wrappedBody.rigidBody.enabledInHierarchy)
 
                 if (isRemoveBody) {
                     this.bodyIndex = -1;
@@ -132,15 +123,15 @@ export class AmmoSharedBody {
 
     set ghostEnabled (v: boolean) {
         if (v) {
-            if (this.ghostIndex < 0 && this._wrappedGhostShapes.length > 0) {
+            if (this.ghostIndex < 0 && this.ghostStruct.wrappedShapes.length > 0) {
                 this.ghostIndex = 1;
                 this.wrappedWorld.addGhostObject(this);
-                this.syncInitialBody();
+                this.syncInitialGhost();
             }
         } else {
             if (this.ghostIndex >= 0) {
                 /** remove trigger */
-                const isRemoveGhost = (this._wrappedGhostShapes.length == 0 && this._ghost);
+                const isRemoveGhost = (this.ghostStruct.wrappedShapes.length == 0 && this.ghost);
 
                 if (isRemoveGhost) {
                     this.ghostIndex = -1;
@@ -160,36 +151,52 @@ export class AmmoSharedBody {
         this.node = node;
 
         /** rigid body */
-        var st = new Ammo.btTransform();
+        let st = new Ammo.btTransform();
         st.setIdentity();
         Cocos2AmmoVec3(st.getOrigin(), this.node.worldPosition)
-        this._bodyQuat = new Ammo.btQuaternion();
-        Cocos2AmmoQuat(this._bodyQuat, this.node.worldRotation);
-        st.setRotation(this._bodyQuat);
-        var motionState = new Ammo.btDefaultMotionState(st);
-        var localInertia = new Ammo.btVector3(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
-        this._bodyShape = new Ammo.btCompoundShape(true);
-        var rbInfo = new Ammo.btRigidBodyConstructionInfo(0, motionState, this._bodyShape, localInertia);
-        this._body = new Ammo.btRigidBody(rbInfo);
+        let bodyQuat = new Ammo.btQuaternion();
+        Cocos2AmmoQuat(bodyQuat, this.node.worldRotation);
+        st.setRotation(bodyQuat);
+        let motionState = new Ammo.btDefaultMotionState(st);
+        let localInertia = new Ammo.btVector3(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
+        let bodyShape = new Ammo.btCompoundShape(true);
+        let rbInfo = new Ammo.btRigidBodyConstructionInfo(0, motionState, bodyShape, localInertia);
+        const body = new Ammo.btRigidBody(rbInfo);
+        this.bodyStruct = {
+            'body': body,
+            'localInertia': localInertia,
+            'motionState': motionState,
+            'startTransform': st,
+            'shape': bodyShape,
+            'rbInfo': rbInfo,
+            'worldQuat': bodyQuat,
+            'wrappedShapes': []
+        }
 
         /** ghost object */
-        this._ghost = new Ammo.btCollisionObject();
-        this._ghostShape = new Ammo.btCompoundShape(true);
-        this._ghost.setCollisionShape(this._ghostShape);
+        let ghost = new Ammo.btCollisionObject();
+        let ghostShape = new Ammo.btCompoundShape(true);
+        ghost.setCollisionShape(ghostShape);
+        this.ghostStruct = {
+            'ghost': ghost,
+            'shape': ghostShape,
+            'worldQuat': new Ammo.btQuaternion(),
+            'wrappedShapes': []
+        }
     }
 
     addShape (v: AmmoShape) {
         if (v.collider.isTrigger) {
-            const index = this._wrappedGhostShapes.indexOf(v);
+            const index = this.ghostStruct.wrappedShapes.indexOf(v);
             if (index < 0) {
-                this._wrappedGhostShapes.push(v);
+                this.ghostStruct.wrappedShapes.push(v);
                 v.setIndex(this.ghostCompoundShape.getNumChildShapes() - 1);
                 v.setCompound(this.ghostCompoundShape);
             }
         } else {
-            const index = this._wrappedBodyShapes.indexOf(v);
+            const index = this.bodyStruct.wrappedShapes.indexOf(v);
             if (index < 0) {
-                this._wrappedBodyShapes.push(v);
+                this.bodyStruct.wrappedShapes.push(v);
                 this.bodyCompoundShape.addChildShape(v.transform, v.shape);
                 v.setIndex(this.bodyCompoundShape.getNumChildShapes() - 1);
                 v.setCompound(this.bodyCompoundShape);
@@ -199,16 +206,16 @@ export class AmmoSharedBody {
 
     removeShape (v: AmmoShape) {
         if (v.collider.isTrigger) {
-            const index = this._wrappedGhostShapes.indexOf(v);
+            const index = this.ghostStruct.wrappedShapes.indexOf(v);
             if (index >= 0) {
-                this._wrappedGhostShapes.splice(index, 1);
+                this.ghostStruct.wrappedShapes.splice(index, 1);
                 v.setIndex(-1);
                 v.setCompound(null);
             }
         } else {
-            const index = this._wrappedBodyShapes.indexOf(v);
+            const index = this.bodyStruct.wrappedShapes.indexOf(v);
             if (index >= 0) {
-                this._wrappedBodyShapes.splice(index, 1);
+                this.bodyStruct.wrappedShapes.splice(index, 1);
                 v.setIndex(-1);
                 v.setCompound(null);
             }
@@ -217,24 +224,24 @@ export class AmmoSharedBody {
 
     syncSceneToPhysics () {
         if (this.node.hasChangedFlags) {
-            const wt = this._body.getWorldTransform();
+            const wt = this.body.getWorldTransform();
             Cocos2AmmoVec3(wt.getOrigin(), this.node.worldPosition)
-            Cocos2AmmoQuat(this._bodyQuat, this.node.worldRotation);
-            wt.setRotation(this._bodyQuat);
-            this._body.activate();
+            Cocos2AmmoQuat(this.bodyStruct.worldQuat, this.node.worldRotation);
+            wt.setRotation(this.bodyStruct.worldQuat);
+            this.body.activate();
 
-            const wt1 = this._ghost.getWorldTransform();
+            const wt1 = this.ghost.getWorldTransform();
             Cocos2AmmoVec3(wt1.getOrigin(), this.node.worldPosition)
-            Cocos2AmmoQuat(this._bodyQuat, this.node.worldRotation);
-            wt1.setRotation(this._bodyQuat);
-            this._ghost.activate();
+            Cocos2AmmoQuat(this.ghostStruct.worldQuat, this.node.worldRotation);
+            wt1.setRotation(this.ghostStruct.worldQuat);
+            this.ghost.activate();
 
             if (this.node.hasChangedFlags & TransformDirtyBit.SCALE) {
-                for (let i = 0; i < this._wrappedBodyShapes.length; i++) {
-                    this._wrappedBodyShapes[i].updateScale();
+                for (let i = 0; i < this.bodyStruct.wrappedShapes.length; i++) {
+                    this.bodyStruct.wrappedShapes[i].updateScale();
                 }
-                for (let i = 0; i < this._wrappedGhostShapes.length; i++) {
-                    this._wrappedGhostShapes[i].updateScale();
+                for (let i = 0; i < this.ghostStruct.wrappedShapes.length; i++) {
+                    this.ghostStruct.wrappedShapes[i].updateScale();
                 }
             }
         }
@@ -244,54 +251,54 @@ export class AmmoSharedBody {
      * TODO: use motionstate
      */
     syncPhysicsToScene () {
-        if (!this._body.isStaticObject()) {
+        if (!this.body.isStaticObject()) {
             // let transform = new Ammo.btTransform();
-            // this._body.getMotionState().getWorldTransform(transform);
-            const wt0 = this._body.getWorldTransform();
+            // this.body.getMotionState().getWorldTransform(transform);
+            const wt0 = this.body.getWorldTransform();
             this.node.worldPosition = Ammo2CocosVec3(v3_0, wt0.getOrigin());
             wt0.getBasis().getRotation(quat_ammo);
             this.node.worldRotation = Ammo2CocosQuat(quat_0, quat_ammo);
 
-            const wt1 = this._ghost.getWorldTransform();
+            const wt1 = this.ghost.getWorldTransform();
             Cocos2AmmoVec3(wt1.getOrigin(), this.node.worldPosition)
-            Cocos2AmmoQuat(this._bodyQuat, this.node.worldRotation);
-            wt1.setRotation(this._bodyQuat);
+            Cocos2AmmoQuat(this.bodyStruct.worldQuat, this.node.worldRotation);
+            wt1.setRotation(this.bodyStruct.worldQuat);
         }
     }
 
     syncInitialBody () {
-        const wt = this._body.getWorldTransform();
+        const wt = this.body.getWorldTransform();
         Cocos2AmmoVec3(wt.getOrigin(), this.node.worldPosition)
-        Cocos2AmmoQuat(this._bodyQuat, this.node.worldRotation);
-        wt.setRotation(this._bodyQuat);
-        for (let i = 0; i < this._wrappedBodyShapes.length; i++) {
-            this._wrappedBodyShapes[i].updateScale();
+        Cocos2AmmoQuat(this.bodyStruct.worldQuat, this.node.worldRotation);
+        wt.setRotation(this.bodyStruct.worldQuat);
+        for (let i = 0; i < this.bodyStruct.wrappedShapes.length; i++) {
+            this.bodyStruct.wrappedShapes[i].updateScale();
         }
-        this._body.activate();
+        this.body.activate();
     }
 
     syncInitialGhost () {
-        const wt1 = this._ghost.getWorldTransform();
+        const wt1 = this.ghost.getWorldTransform();
         Cocos2AmmoVec3(wt1.getOrigin(), this.node.worldPosition)
-        Cocos2AmmoQuat(this._bodyQuat, this.node.worldRotation);
-        wt1.setRotation(this._bodyQuat);
-        for (let i = 0; i < this._wrappedGhostShapes.length; i++) {
-            this._wrappedGhostShapes[i].updateScale();
+        Cocos2AmmoQuat(this.ghostStruct.worldQuat, this.node.worldRotation);
+        wt1.setRotation(this.ghostStruct.worldQuat);
+        for (let i = 0; i < this.ghostStruct.wrappedShapes.length; i++) {
+            this.ghostStruct.wrappedShapes[i].updateScale();
         }
-        this._ghost.activate();
+        this.ghost.activate();
     }
 
     private destroy () {
         AmmoSharedBody.sharedBodesMap.delete(this.node.uuid);
         (this.node as any) = null;
         (this.wrappedWorld as any) = null;
-        (this._body as any) = null;
-        (this._wrappedBodyShapes as any) = null;
+        (this.body as any) = null;
+        (this.bodyStruct.wrappedShapes as any) = null;
     }
 
     private onCollided (event: ICollisionEvent) {
-        for (let i = 0; i < this._wrappedBodyShapes.length; i++) {
-            const shape = this._wrappedBodyShapes[i];
+        for (let i = 0; i < this.bodyStruct.wrappedShapes.length; i++) {
+            const shape = this.bodyStruct.wrappedShapes[i];
             shape.collider.emit(event.type, event);
 
             // if (self.collider.node.hasChangedFlags) {

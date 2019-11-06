@@ -39,19 +39,21 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     private static idCounter = 0;
-    public readonly id: number;
+    readonly id: number;
 
-    public index: number = -1;
+    // index: number = -1;
 
-    // public get impl (): Ammo.btRigidBody { return this._btBody; }
+    // get impl (): Ammo.btRigidBody { return this._btBody; }
     // private _btBody!: Ammo.btRigidBody;
-    // public _btCompoundShape!: Ammo.btCompoundShape;
+    // _btCompoundShape!: Ammo.btCompoundShape;
 
-    private _world!: AmmoWorld;
-    public readonly shapes: AmmoShape[] = [];
-    public readonly wroldQuaternion: Ammo.btQuaternion;
-    public readonly localInertia: Ammo.btVector3;
-    public motionState!: Ammo.btMotionState;
+    // private _world!: AmmoWorld;
+    // readonly shapes: AmmoShape[] = [];
+
+    readonly wroldQuaternion: Ammo.btQuaternion;
+    readonly localInertia: Ammo.btVector3;
+
+    // motionState!: Ammo.btMotionState;
 
     get isEnabled () {
         return this._isEnabled;
@@ -71,13 +73,13 @@ export class AmmoRigidBody implements IRigidBody {
         this.localInertia = new Ammo.btVector3(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
     }
 
-    public __preload (com: RigidBodyComponent) {
+    __preload (com: RigidBodyComponent) {
         this._rigidBody = com;
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as AmmoWorld).getSharedBody(this._rigidBody.node as Node, this);
         this._sharedBody.reference = true;
     }
 
-    public onLoad () {
+    onLoad () {
         // /** 构造复合形状 */
         // this._btCompoundShape = new Ammo.btCompoundShape(true);
 
@@ -185,7 +187,7 @@ export class AmmoRigidBody implements IRigidBody {
 
     }
 
-    public onEnable () {
+    onEnable () {
         this._isEnabled = true;
         this.mass = this._rigidBody.mass;
         this.allowSleep = this._rigidBody.allowSleep;
@@ -204,7 +206,7 @@ export class AmmoRigidBody implements IRigidBody {
         // this._btBody.setUserIndex(this.index);
     }
 
-    public onDisable () {
+    onDisable () {
         this._isEnabled = false;
         this._sharedBody.enabled = false;
         // AmmoWorld.instance.impl.removeRigidBody(this.impl);
@@ -213,7 +215,7 @@ export class AmmoRigidBody implements IRigidBody {
         // this._btBody.setUserIndex(this.index);
     }
 
-    // public beforeStep () {
+    // beforeStep () {
     //     if (this._rigidBody.node.hasChangedFlags) {
     //         const wt = this._btBody.getWorldTransform();
     //         Cocos2AmmoVec3(wt.getOrigin(), this._rigidBody.node.worldPosition)
@@ -224,7 +226,7 @@ export class AmmoRigidBody implements IRigidBody {
     //     }
     // }
 
-    // public afterStep () {
+    // afterStep () {
     //     // let transform = new Ammo.btTransform();
     //     // this._btBody.getMotionState().getWorldTransform(transform);
     //     let transform = this._btBody.getWorldTransform();
@@ -236,7 +238,7 @@ export class AmmoRigidBody implements IRigidBody {
 
     /** property */
 
-    public set mass (value: number) {
+    set mass (value: number) {
         // See https://studiofreya.com/game-maker/bullet-physics/bullet-physics-how-to-change-body-mass/
         const wrappedWorld = this._sharedBody.wrappedWorld;
         if (wrappedWorld) {
@@ -252,15 +254,15 @@ export class AmmoRigidBody implements IRigidBody {
         }
     }
 
-    public set linearDamping (value: number) {
+    set linearDamping (value: number) {
         this._btBody.setDamping(value, this._rigidBody.angularDamping);
     }
 
-    public set angularDamping (value: number) {
+    set angularDamping (value: number) {
         this._btBody.setDamping(value, this._rigidBody.angularDamping);
     }
 
-    public set isKinematic (value: boolean) {
+    set isKinematic (value: boolean) {
         let m_collisionFlags = this._btBody.getCollisionFlags();
         if (value) {
             m_collisionFlags |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
@@ -270,7 +272,7 @@ export class AmmoRigidBody implements IRigidBody {
         this._btBody.setCollisionFlags(m_collisionFlags);
     }
 
-    public set useGravity (value: boolean) {
+    set useGravity (value: boolean) {
         const wrappedWorld = this._sharedBody.wrappedWorld;
         if (wrappedWorld) {
             wrappedWorld.removeSharedBody(this._sharedBody);
@@ -290,7 +292,7 @@ export class AmmoRigidBody implements IRigidBody {
         }
     }
 
-    public set fixedRotation (value: boolean) {
+    set fixedRotation (value: boolean) {
         if (value) {
             /** TODO : should i reset angular velocity & torque ? */
 
@@ -300,11 +302,11 @@ export class AmmoRigidBody implements IRigidBody {
         }
     }
 
-    public set linearFactor (value: Vec3) {
+    set linearFactor (value: Vec3) {
         this._btBody.setLinearFactor(Cocos2AmmoVec3(new Ammo.btVector3(), value));
     }
 
-    public set angularFactor (value: Vec3) {
+    set angularFactor (value: Vec3) {
         this._btBody.setAngularFactor(Cocos2AmmoVec3(new Ammo.btVector3(), value));
     }
 

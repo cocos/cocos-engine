@@ -30,7 +30,10 @@ export class AmmoShape implements IBaseShape {
         }
     }
 
-    get attachedRigidBody (): RigidBodyComponent | null { return null; }
+    get attachedRigidBody (): RigidBodyComponent | null {
+        if (this._sharedBody.wrappedBody) { return this._sharedBody.wrappedBody.rigidBody; }
+        return null;
+    }
 
     get shape () { return this._btShape!; }
     get collider (): ColliderComponent { return this._collider; }
@@ -134,9 +137,8 @@ export class AmmoShape implements IBaseShape {
     }
 
     UP (n: Node) {
-        if (this.attachRigidBody && !this.collider.isTrigger) {
-            const body = this.attachRigidBody.rigidBody as AmmoRigidBody;
-            const wt = body.impl.getWorldTransform();
+        if (this.attachedRigidBody && !this.collider.isTrigger) {
+            const wt = this._sharedBody.body.getWorldTransform();
             const lt = this.transform;
             _trans.setIdentity();
             _trans.op_mul(wt).op_mul(lt);

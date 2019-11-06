@@ -130,26 +130,9 @@ export class AmmoWorld implements IPhysicsWorld {
                 const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
                 const d = manifoldPoint.getDistance();
                 if (d <= 0.0001) {
-                    let shape0!: AmmoShape;
-                    if (index0 == -2) {
-                        // shape0 = this.staticShapes[manifoldPoint.m_index0];
-                    } else if (index0 == -3) {
-                        // shape0 = this.triggerShapes[manifoldPoint.m_index0];
-                    } else {
-                        shape0 = this.bodies[index0]._wrappedBodyShapes[manifoldPoint.m_index0];
-                    }
-
-                    let shape1!: AmmoShape;
-                    if (index1 == -2) {
-                        // shape1 = this.staticShapes[manifoldPoint.m_index1];
-                    } else if (index1 == -3) {
-                        // shape1 = this.triggerShapes[manifoldPoint.m_index1];
-                    } else {
-                        shape1 = this.bodies[index1]._wrappedBodyShapes[manifoldPoint.m_index1];
-                    }
-                    /** TODO */
-                    // if shape0 & shape1 not care events, just continue
-
+                    let shape0 = this.bodies[index0].bodyStruct.wrappedShapes[manifoldPoint.m_index0];
+                    let shape1 = this.bodies[index1].bodyStruct.wrappedShapes[manifoldPoint.m_index1];
+                    
                     // Current contact
                     var item = this.contactsDic.get(shape0.id, shape1.id) as any;
                     if (item == null) {
