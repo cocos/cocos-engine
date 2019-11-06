@@ -1,15 +1,16 @@
 import Ammo from 'ammo.js';
-import { Quat, Vec3, quat, math } from "../../core";
+import { Quat, Vec3, quat, math, Node } from "../../core";
 import { AmmoWorld } from "./ammo-world";
 import { AmmoShape } from "./shapes/ammo-shape";
 import { Cocos2AmmoVec3, Cocos2AmmoQuat, Ammo2CocosQuat, Ammo2CocosVec3 } from "./ammo-util";
-import { ColliderComponent, RigidBodyComponent } from '../../../exports/physics-framework';
+import { ColliderComponent, RigidBodyComponent, PhysicsSystem } from '../../../exports/physics-framework';
 import { AmmoCollisionFlags, AmmoRigidBodyFlags, AmmoBroadphaseNativeTypes, AmmoCollisionObjectStates } from './ammo-enum';
 import { TransformDirtyBit } from '../../core/scene-graph/node-enum';
 import { max, abs } from '../../core/math/bits';
 import { AmmoSphereShape } from './shapes/ammo-sphere-shape';
 import { IRigidBody } from '../spec/I-rigid-body';
 import { ERigidBodyType } from '../framework/physics-enum';
+import { AmmoSharedBody } from './ammo-shared-body';
 
 export class AmmoRigidBody implements IRigidBody {
     setGroup (v: number): void {
@@ -41,7 +42,6 @@ export class AmmoRigidBody implements IRigidBody {
     public readonly id: number;
 
     public index: number = -1;
-    public rigidBody!: RigidBodyComponent;
 
     public get impl (): Ammo.btRigidBody { return this._btBody; }
     private _btBody!: Ammo.btRigidBody;
@@ -59,6 +59,12 @@ export class AmmoRigidBody implements IRigidBody {
 
     private _isEnabled = false;
 
+    _sharedBody!: AmmoSharedBody;
+
+    get rigidBody () {
+        return this._rigidBody;
+    }
+    private _rigidBody!: RigidBodyComponent;
     constructor () {
         this.id = AmmoRigidBody.idCounter++;
         this.wroldQuaternion = new Ammo.btQuaternion();
@@ -66,158 +72,167 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     public __preload (com: RigidBodyComponent) {
-        this.rigidBody = com;
+        this._rigidBody = com;
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as AmmoWorld).getSharedBody(this._rigidBody.node as Node, this);
+        this._sharedBody.reference = true;
     }
 
     public onLoad () {
-        /** 构造复合形状 */
-        this._btCompoundShape = new Ammo.btCompoundShape(true);
+        // /** 构造复合形状 */
+        // this._btCompoundShape = new Ammo.btCompoundShape(true);
 
-        /** 添加子形状 */
-        const allColliders = this.rigidBody.getComponents(ColliderComponent as any) as ColliderComponent[];
-        for (let i = 0; i < allColliders.length; i++) {
-            if (!allColliders[i].isTrigger) {
-                const ammoShape = (allColliders[i] as any)._shapeBase as AmmoShape;
-                ammoShape.index = i;
-                this.shapes.push(ammoShape);
+        // /** 添加子形状 */
+        // const allColliders = this.rigidBody.getComponents(ColliderComponent as any) as ColliderComponent[];
+        // for (let i = 0; i < allColliders.length; i++) {
+        //     if (!allColliders[i].isTrigger) {
+        //         const ammoShape = (allColliders[i] as any)._shapeBase as AmmoShape;
+        //         ammoShape.index = i;
+        //         this.shapes.push(ammoShape);
 
-                if (ammoShape.type == AmmoBroadphaseNativeTypes.SPHERE_SHAPE_PROXYTYPE) {
-                    const ws = allColliders[i].node.worldScale;
-                    const max_sp = abs(max(max(ws.x, ws.y), ws.z));
-                    const sphere = ammoShape as AmmoSphereShape;
-                    const rs = sphere.sphereCollider.radius;
-                    const scale = new Vec3(rs, rs, rs);
-                    scale.multiplyScalar(max_sp * 2);
-                    Cocos2AmmoVec3(ammoShape.scale, scale);
-                    ammoShape.shape.setLocalScaling(ammoShape.scale);
+        //         if (ammoShape.type == AmmoBroadphaseNativeTypes.SPHERE_SHAPE_PROXYTYPE) {
+        //             const ws = allColliders[i].node.worldScale;
+        //             const max_sp = abs(max(max(ws.x, ws.y), ws.z));
+        //             const sphere = ammoShape as AmmoSphereShape;
+        //             const rs = sphere.sphereCollider.radius;
+        //             const scale = new Vec3(rs, rs, rs);
+        //             scale.multiplyScalar(max_sp * 2);
+        //             Cocos2AmmoVec3(ammoShape.scale, scale);
+        //             ammoShape.shape.setLocalScaling(ammoShape.scale);
 
-                    const lt = ammoShape.transform;
-                    scale.set(max_sp, max_sp, max_sp);
-                    Vec3.multiply(scale, allColliders[i].center, scale);
-                    Cocos2AmmoVec3(lt.getOrigin(), scale);
+        //             const lt = ammoShape.transform;
+        //             scale.set(max_sp, max_sp, max_sp);
+        //             Vec3.multiply(scale, allColliders[i].center, scale);
+        //             Cocos2AmmoVec3(lt.getOrigin(), scale);
 
-                    this._btCompoundShape.addChildShape(lt, (allColliders[i] as any)._shapeBase.impl);
-                } else {
-                    const lt = ammoShape.transform;
-                    Cocos2AmmoVec3(lt.getOrigin(), allColliders[i].center);
+        //             this._btCompoundShape.addChildShape(lt, (allColliders[i] as any)._shapeBase.impl);
+        //         } else {
+        //             const lt = ammoShape.transform;
+        //             Cocos2AmmoVec3(lt.getOrigin(), allColliders[i].center);
 
-                    Cocos2AmmoVec3(ammoShape.scale, allColliders[i].node.worldScale);
-                    ammoShape.shape.setLocalScaling(ammoShape.scale);
+        //             Cocos2AmmoVec3(ammoShape.scale, allColliders[i].node.worldScale);
+        //             ammoShape.shape.setLocalScaling(ammoShape.scale);
 
-                    this._btCompoundShape.addChildShape(lt, (allColliders[i] as any)._shapeBase.impl);
-                }
-            }
-        }
+        //             this._btCompoundShape.addChildShape(lt, (allColliders[i] as any)._shapeBase.impl);
+        //         }
+        //     }
+        // }
 
-        /** 构造和初始化刚体*/
-        var st = new Ammo.btTransform();
-        st.setIdentity();
-        Cocos2AmmoVec3(st.getOrigin(), this.rigidBody.node.worldPosition)
+        // /** 构造和初始化刚体*/
+        // var st = new Ammo.btTransform();
+        // st.setIdentity();
+        // Cocos2AmmoVec3(st.getOrigin(), this.rigidBody.node.worldPosition)
 
-        Cocos2AmmoQuat(this.wroldQuaternion, this.rigidBody.node.worldRotation);
-        st.setRotation(this.wroldQuaternion);
+        // Cocos2AmmoQuat(this.wroldQuaternion, this.rigidBody.node.worldRotation);
+        // st.setRotation(this.wroldQuaternion);
 
-        if (this._btCompoundShape.getNumChildShapes() > 0) {
-            this._btCompoundShape.calculateLocalInertia(this.rigidBody.mass, this.localInertia);
-        }
-        this.motionState = new Ammo.btDefaultMotionState(st);
-        var rbInfo = new Ammo.btRigidBodyConstructionInfo(this.rigidBody.mass, this.motionState, this._btCompoundShape, this.localInertia);
-        rbInfo.m_linearDamping = this.rigidBody.linearDamping;
-        rbInfo.m_angularDamping = this.rigidBody.angularDamping;
-        this._btBody = new Ammo.btRigidBody(rbInfo);
+        // if (this._btCompoundShape.getNumChildShapes() > 0) {
+        //     this._btCompoundShape.calculateLocalInertia(this.rigidBody.mass, this.localInertia);
+        // }
+        // this.motionState = new Ammo.btDefaultMotionState(st);
+        // var rbInfo = new Ammo.btRigidBodyConstructionInfo(this.rigidBody.mass, this.motionState, this._btCompoundShape, this.localInertia);
+        // rbInfo.m_linearDamping = this.rigidBody.linearDamping;
+        // rbInfo.m_angularDamping = this.rigidBody.angularDamping;
+        // this._btBody = new Ammo.btRigidBody(rbInfo);
 
-        this.motionState.setWorldTransform = (transform: Ammo.btTransform) => {
-            // if (this.rigidBody.node.hasChangedFlags) {
-            //     const wt = this._btBody.getWorldTransform();
-            //     Cocos2AmmoVec3(wt.getOrigin(), this.rigidBody.node.worldPosition)
+        // this.motionState.setWorldTransform = (transform: Ammo.btTransform) => {
+        //     // if (this.rigidBody.node.hasChangedFlags) {
+        //     //     const wt = this._btBody.getWorldTransform();
+        //     //     Cocos2AmmoVec3(wt.getOrigin(), this.rigidBody.node.worldPosition)
 
-            //     Cocos2AmmoQuat(this.wroldQuaternion, this.rigidBody.node.worldRotation);
-            //     wt.setRotation(this.wroldQuaternion);
-            //     this._btBody.activate();
-            // }
-            console.log("setWorldTransform///");
-        }
+        //     //     Cocos2AmmoQuat(this.wroldQuaternion, this.rigidBody.node.worldRotation);
+        //     //     wt.setRotation(this.wroldQuaternion);
+        //     //     this._btBody.activate();
+        //     // }
+        //     console.log("setWorldTransform///");
+        // }
 
-        this.motionState.getWorldTransform = (transform: Ammo.btTransform) => {
-            console.log("getWorldTransform----------------");
-        }
+        // this.motionState.getWorldTransform = (transform: Ammo.btTransform) => {
+        //     console.log("getWorldTransform----------------");
+        // }
 
-        /** 初始化其它的属性 */
+        // /** 初始化其它的属性 */
 
-        let wr = this.rigidBody.node.worldRotation;
-        var rotation = this.impl.getWorldTransform().getRotation();
-        rotation.setX(wr.x);
-        rotation.setY(wr.y);
-        rotation.setZ(wr.z);
-        rotation.setW(wr.w);
+        // let wr = this.rigidBody.node.worldRotation;
+        // var rotation = this.impl.getWorldTransform().getRotation();
+        // rotation.setX(wr.x);
+        // rotation.setY(wr.y);
+        // rotation.setZ(wr.z);
+        // rotation.setW(wr.w);
 
-        this._btBody.setLinearFactor(Cocos2AmmoVec3(new Ammo.btVector3(), this.rigidBody.linearFactor));
-        this._btBody.setAngularFactor(Cocos2AmmoVec3(new Ammo.btVector3(), this.rigidBody.angularFactor));
-        if (this.rigidBody.fixedRotation) {
-            this._btBody.setAngularFactor(Cocos2AmmoVec3(new Ammo.btVector3(), Vec3.ZERO));
-        }
-        if (this.rigidBody.isKinematic) {
-            this._btBody.setCollisionFlags(AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
-        }
-        if (!this.rigidBody.useGravity) {
-            this._btBody.setGravity(Cocos2AmmoVec3(new Ammo.btVector3(), Vec3.ZERO));
-            this._btBody.setFlags(AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
-        }
+        // this._btBody.setLinearFactor(Cocos2AmmoVec3(new Ammo.btVector3(), this.rigidBody.linearFactor));
+        // this._btBody.setAngularFactor(Cocos2AmmoVec3(new Ammo.btVector3(), this.rigidBody.angularFactor));
+        // if (this.rigidBody.fixedRotation) {
+        //     this._btBody.setAngularFactor(Cocos2AmmoVec3(new Ammo.btVector3(), Vec3.ZERO));
+        // }
+        // if (this.rigidBody.isKinematic) {
+        //     this._btBody.setCollisionFlags(AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
+        // }
+        // if (!this.rigidBody.useGravity) {
+        //     this._btBody.setGravity(Cocos2AmmoVec3(new Ammo.btVector3(), Vec3.ZERO));
+        //     this._btBody.setFlags(AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
+        // }
 
-        /** disable sleep */
-        this._btBody.setActivationState(4);
+        // /** disable sleep */
+        // this._btBody.setActivationState(4);
 
-        /** hack */
-        (this.rigidBody as any)._isPreLoaded = true;
-        (this.rigidBody as any)._sharedBody = {
-            body: this,
-            rigidBody: this.rigidBody,
-            _node: this.rigidBody.node
-        };
-
-    }
-
-    public start () {
+        // /** hack */
+        // (this.rigidBody as any)._isPreLoaded = true;
+        // (this.rigidBody as any)._sharedBody = {
+        //     body: this,
+        //     rigidBody: this.rigidBody,
+        //     _node: this.rigidBody.node
+        // };
 
     }
 
     public onEnable () {
         this._isEnabled = true;
-        this._world = AmmoWorld.instance;
-        AmmoWorld.instance.impl.addRigidBody(this._btBody);
-        AmmoWorld.instance.bodies.push(this);
-        this.index = AmmoWorld.instance.bodies.length - 1;
-        this._btBody.setUserIndex(this.index);
+        this.mass = this._rigidBody.mass;
+        this.allowSleep = this._rigidBody.allowSleep;
+        this.linearDamping = this._rigidBody.linearDamping;
+        this.angularDamping = this._rigidBody.angularDamping;
+        this.useGravity = this._rigidBody.useGravity;
+        this.isKinematic = this._rigidBody.isKinematic;
+        this.fixedRotation = this._rigidBody.fixedRotation;
+        this.linearFactor = this._rigidBody.linearFactor;
+        this.angularFactor = this._rigidBody.angularFactor;
+        this._sharedBody.enabled = true;
+        // this._world = AmmoWorld.instance;
+        // AmmoWorld.instance.impl.addRigidBody(this._btBody);
+        // AmmoWorld.instance.bodies.push(this);
+        // this.index = AmmoWorld.instance.bodies.length - 1;
+        // this._btBody.setUserIndex(this.index);
     }
 
     public onDisable () {
         this._isEnabled = false;
-        AmmoWorld.instance.impl.removeRigidBody(this.impl);
-        AmmoWorld.instance.bodies.splice(this.index, 1);
-        this.index = -1;
-        this._btBody.setUserIndex(this.index);
+        this._sharedBody.enabled = false;
+        // AmmoWorld.instance.impl.removeRigidBody(this.impl);
+        // AmmoWorld.instance.bodies.splice(this.index, 1);
+        // this.index = -1;
+        // this._btBody.setUserIndex(this.index);
     }
 
-    public beforeStep () {
-        if (this.rigidBody.node.hasChangedFlags) {
-            const wt = this._btBody.getWorldTransform();
-            Cocos2AmmoVec3(wt.getOrigin(), this.rigidBody.node.worldPosition)
+    // public beforeStep () {
+    //     if (this._rigidBody.node.hasChangedFlags) {
+    //         const wt = this._btBody.getWorldTransform();
+    //         Cocos2AmmoVec3(wt.getOrigin(), this._rigidBody.node.worldPosition)
 
-            Cocos2AmmoQuat(this.wroldQuaternion, this.rigidBody.node.worldRotation);
-            wt.setRotation(this.wroldQuaternion);
-            this._btBody.activate();
-        }
-    }
+    //         Cocos2AmmoQuat(this.wroldQuaternion, this._rigidBody.node.worldRotation);
+    //         wt.setRotation(this.wroldQuaternion);
+    //         this._btBody.activate();
+    //     }
+    // }
 
-    public afterStep () {
-        // let transform = new Ammo.btTransform();
-        // this._btBody.getMotionState().getWorldTransform(transform);
-        let transform = this._btBody.getWorldTransform();
-        let origin = transform.getOrigin();
-        this.rigidBody.node.worldPosition = new Vec3(origin.x(), origin.y(), origin.z());
-        let rotation = transform.getRotation();
-        this.rigidBody.node.worldRotation = new Quat(rotation.x(), rotation.y(), rotation.z(), rotation.w());
-    }
+    // public afterStep () {
+    //     // let transform = new Ammo.btTransform();
+    //     // this._btBody.getMotionState().getWorldTransform(transform);
+    //     let transform = this._btBody.getWorldTransform();
+    //     let origin = transform.getOrigin();
+    //     this._rigidBody.node.worldPosition = new Vec3(origin.x(), origin.y(), origin.z());
+    //     let rotation = transform.getRotation();
+    //     this._rigidBody.node.worldRotation = new Quat(rotation.x(), rotation.y(), rotation.z(), rotation.w());
+    // }
 
     /** property */
 
@@ -228,7 +243,7 @@ export class AmmoRigidBody implements IRigidBody {
         }
         this.localInertia.setValue(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
         if (this._btCompoundShape.getNumChildShapes() > 0) {
-            this._btCompoundShape.calculateLocalInertia(this.rigidBody.mass, this.localInertia);
+            this._btCompoundShape.calculateLocalInertia(this._rigidBody.mass, this.localInertia);
         }
         this._btBody.setMassProps(value, this.localInertia);
         if (this._world) {
@@ -237,11 +252,11 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     public set linearDamping (value: number) {
-        this._btBody.setDamping(value, this.rigidBody.angularDamping);
+        this._btBody.setDamping(value, this._rigidBody.angularDamping);
     }
 
     public set angularDamping (value: number) {
-        this._btBody.setDamping(value, this.rigidBody.angularDamping);
+        this._btBody.setDamping(value, this._rigidBody.angularDamping);
     }
 
     public set isKinematic (value: boolean) {
@@ -279,7 +294,7 @@ export class AmmoRigidBody implements IRigidBody {
 
             this._btBody.setAngularFactor(Cocos2AmmoVec3(new Ammo.btVector3(), Vec3.ZERO));
         } else {
-            this._btBody.setAngularFactor(Cocos2AmmoVec3(new Ammo.btVector3(), this.rigidBody.angularFactor));
+            this._btBody.setAngularFactor(Cocos2AmmoVec3(new Ammo.btVector3(), this._rigidBody.angularFactor));
         }
     }
 
@@ -368,7 +383,7 @@ export class AmmoRigidBody implements IRigidBody {
     /** dynamic */
 
     applyLocalForce (force: Vec3, rel_pos?: Vec3): void {
-        rel_pos = rel_pos ? Vec3.transformQuat(rel_pos, rel_pos, this.rigidBody.node.worldRotation) : Vec3.ZERO;
+        rel_pos = rel_pos ? Vec3.transformQuat(rel_pos, rel_pos, this._rigidBody.node.worldRotation) : Vec3.ZERO;
         this._btBody.applyForce(
             Cocos2AmmoVec3(_btVec3_0, force),
             Cocos2AmmoVec3(_btVec3_1, rel_pos)
@@ -380,7 +395,7 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     applyLocalImpulse (impulse: Vec3, rel_pos?: Vec3): void {
-        rel_pos = rel_pos ? Vec3.transformQuat(rel_pos, rel_pos, this.rigidBody.node.worldRotation) : Vec3.ZERO;
+        rel_pos = rel_pos ? Vec3.transformQuat(rel_pos, rel_pos, this._rigidBody.node.worldRotation) : Vec3.ZERO;
         this._btBody.applyImpulse(
             Cocos2AmmoVec3(_btVec3_0, impulse),
             Cocos2AmmoVec3(_btVec3_1, rel_pos)

@@ -13,9 +13,17 @@ import { IVec3Like } from '../../../core/math/type-define';
 import { AmmoSharedBody } from '../ammo-shared-body';
 
 export class AmmoShape implements IBaseShape {
+
+    set center (v: IVec3Like) {
+        Cocos2AmmoVec3(this.transform.getOrigin(), v);
+        if (this._btCompound) {
+            this._btCompound.updateChildTransform(this.index, this.transform);
+        }
+    };
+
     set material (v: PhysicMaterial) { };
     set isTrigger (v: boolean) { };
-    set center (v: IVec3Like) { };
+
     get attachedRigidBody (): RigidBodyComponent | null { return null; }
 
     get shape () { return this._btShape!; }
@@ -29,8 +37,9 @@ export class AmmoShape implements IBaseShape {
     readonly type: AmmoBroadphaseNativeTypes;
     index: number = -1;
 
-    protected _btShape!: Ammo.btCollisionShape;
     protected _sharedBody!: AmmoSharedBody;
+    protected _btShape!: Ammo.btCollisionShape;
+    protected _btCompound: Ammo.btCompoundShape | null = null;
 
     readonly transform: Ammo.btTransform;
 
@@ -100,6 +109,18 @@ export class AmmoShape implements IBaseShape {
     }
     removeMask (v: number): void {
         throw new Error("Method not implemented.");
+    }
+
+    setIndex (i: number) {
+        this.index = i;
+    }
+
+    setCompound (compound: Ammo.btCompoundShape | null) {
+        this._btCompound = compound;
+    }
+
+    updateScale () {
+        // this.center = this._collider.center;
     }
 
     UP (n: Node) {

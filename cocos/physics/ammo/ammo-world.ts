@@ -106,10 +106,6 @@ export class AmmoWorld implements IPhysicsWorld {
 
     }
 
-    destroy () {
-
-    }
-
     step (timeStep: number, fixTimeStep?: number, maxSubStep?: number) {
 
         for (let i = 0; i < this.bodies.length; i++) {
@@ -140,7 +136,7 @@ export class AmmoWorld implements IPhysicsWorld {
                     } else if (index0 == -3) {
                         // shape0 = this.triggerShapes[manifoldPoint.m_index0];
                     } else {
-                        shape0 = this.bodies[index0].wrappedShapes[manifoldPoint.m_index0];
+                        shape0 = this.bodies[index0]._wrappedBodyShapes[manifoldPoint.m_index0];
                     }
 
                     let shape1!: AmmoShape;
@@ -149,7 +145,7 @@ export class AmmoWorld implements IPhysicsWorld {
                     } else if (index1 == -3) {
                         // shape1 = this.triggerShapes[manifoldPoint.m_index1];
                     } else {
-                        shape1 = this.bodies[index1].wrappedShapes[manifoldPoint.m_index1];
+                        shape1 = this.bodies[index1]._wrappedBodyShapes[manifoldPoint.m_index1];
                     }
                     /** TODO */
                     // if shape0 & shape1 not care events, just continue
