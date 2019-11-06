@@ -822,7 +822,11 @@ function initSys () {
             osMainVersion = parseInt(osVersion) || 0;
         }
         // refer to https://github.com/cocos-creator/engine/pull/5542 , thanks for contribition from @krapnikkk
-        else if (/(iPhone|iPad|iPod|MacIntel)/.exec(nav.platform)) { 
+        // ipad OS 13 safari identifies itself as "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15) AppleWebKit/605.1.15 (KHTML, like Gecko)" 
+        // so use maxTouchPoints to check whether it's desktop safari or not. 
+        // reference: https://stackoverflow.com/questions/58019463/how-to-detect-device-name-in-safari-on-ios-13-while-it-doesnt-show-the-correct
+        // FIXME: should remove it when touch-enabled macs are available
+        else if (/(iPhone|iPad|iPod)/.exec(nav.platform) || (nav.platform === 'MacIntel' && nav.maxTouchPoints && nav.maxTouchPoints > 1)) { 
             iOS = true;
             osVersion = '';
             osMainVersion = 0;
