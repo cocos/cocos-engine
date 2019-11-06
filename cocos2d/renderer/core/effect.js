@@ -148,60 +148,6 @@ class Effect {
 
         this._defines[name] = value;
     }
-
-    extractProperties(out = {}) {
-        Object.assign(out, this._properties);
-        return out;
-    }
-
-    extractDefines(out = {}) {
-        Object.assign(out, this._defines);
-        return out;
-    }
-
-    extractDependencies(out = {}) {
-        for (let i = 0; i < this._dependencies.length; ++i) {
-            let dep = this._dependencies[i];
-            out[dep.define] = dep.extension;
-        }
-
-        return out;
-    }
-
-    clone () {
-        let defines = this.extractDefines({});
-        let dependencies = this.extractDependencies({});
-
-        let newProperties = {};
-        let properties = this._properties;
-        for (let name in properties) {
-            let prop = properties[name];
-            let newProp = newProperties[name] = {};
-
-            let value = prop.value;
-            if (Array.isArray(value)) {
-                newProp.value = value.concat();
-            }
-            else if (ArrayBuffer.isView(value)) {
-                newProp.value = new value.__proto__.constructor(value);
-            }
-            else {
-                newProp.value = value;
-            }
-
-            for (let name in prop) {
-                if (name === 'value') continue;
-                newProp[name] = prop[name];
-            }
-        }
-
-        let techniques = [];
-        for (let i = 0; i < this._techniques.length; i++) {
-            techniques.push(this._techniques[i].clone());
-        }
-
-        return new cc.Effect(this._name, techniques, newProperties, defines, dependencies);
-    }
 }
 
 
