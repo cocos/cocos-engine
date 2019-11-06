@@ -74,7 +74,6 @@ let SkinnedMeshRenderer = cc.Class({
             set (val) {
                 this._skeleton = val;
                 this._init();
-                this._activateMaterial(true);
             },
             type: Skeleton
         },
@@ -105,15 +104,6 @@ let SkinnedMeshRenderer = cc.Class({
             visible: false,
             override: true
         }
-    },
-
-    _activateMaterial (force) {
-        if (!this._jointsData) {
-            this.disableRender();
-            return;
-        }
-
-        this._super(force);
     },
 
     __preload () {
@@ -148,6 +138,14 @@ let SkinnedMeshRenderer = cc.Class({
             }
             mat4.mul(worldMatrixToRoot, parent._worldMatrixToRoot, worldMatrixToRoot);
         }
+    },
+
+    _validateRender () {
+        if (!this._jointsData) {
+            this.disableRender();
+            return;
+        }
+        this._super();
     },
 
     _initJoints () {
@@ -201,7 +199,7 @@ let SkinnedMeshRenderer = cc.Class({
             inited = true;
 
             this._jointsData = this._jointsFloat32Data = new Float32Array(jointCount * 16);
-            customProperties.setProperty('cc_jointMatrices', this._jointsFloat32Data, enums.PARAM_FLOAT4);
+            customProperties.setProperty('cc_jointMatrices', this._jointsFloat32Data, enums.PARAM_FLOAT4, true);
             customProperties.define('CC_USE_JOINTS_TEXTRUE', false);
         }
 

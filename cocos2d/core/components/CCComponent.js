@@ -550,9 +550,10 @@ var Component = cc.Class({
      */
     schedule (callback, interval, repeat, delay) {
         cc.assertID(callback, 1619);
-        cc.assertID(interval >= 0, 1620);
 
         interval = interval || 0;
+        cc.assertID(interval >= 0, 1620);
+
         repeat = isNaN(repeat) ? cc.macro.REPEAT_FOREVER : repeat;
         delay = delay || 0;
 

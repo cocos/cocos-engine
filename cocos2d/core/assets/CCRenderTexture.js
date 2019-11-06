@@ -120,7 +120,7 @@ let RenderTexture = cc.Class({
 
         let gl = cc.game._renderContext;
         let oldFBO = gl.getParameter(gl.FRAMEBUFFER_BINDING);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this._framebuffer._glID);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this._framebuffer.getHandle());
         gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
         gl.bindFramebuffer(gl.FRAMEBUFFER, oldFBO);
 

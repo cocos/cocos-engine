@@ -175,10 +175,10 @@ let Label = cc.Class({
         this._letterTexture = null;
 
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            this._activateMaterial = this._activateMaterialCanvas;
+            this._updateMaterial = this._updateMaterialCanvas;
         }
         else {
-            this._activateMaterial = this._activateMaterialWebgl;
+            this._updateMaterial = this._updateMaterialWebgl;
         }
     },
 
@@ -209,7 +209,7 @@ let Label = cc.Class({
                 this._string = '' + value;
 
                 if (this.string !== oldValue) {
-                    this._lazyUpdateRenderData();
+                    this.setVertsDirty();
                 }
 
                 this._checkStringEmpty();
@@ -229,7 +229,7 @@ let Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.horizontal_align',
             notify  (oldValue) {
                 if (this.horizontalAlign === oldValue) return;
-                this._lazyUpdateRenderData();
+                this.setVertsDirty();
             },
             animatable: false
         },
@@ -245,7 +245,7 @@ let Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.vertical_align',
             notify (oldValue) {
                 if (this.verticalAlign === oldValue) return;
-                this._lazyUpdateRenderData();
+                this.setVertsDirty();
             },
             animatable: false
         },
@@ -280,7 +280,7 @@ let Label = cc.Class({
                 if (this._fontSize === value) return;
 
                 this._fontSize = value;
-                this._lazyUpdateRenderData();
+                this.setVertsDirty();
             },
             range: [0, 512],
             tooltip: CC_DEV && 'i18n:COMPONENT.label.font_size',
@@ -296,7 +296,7 @@ let Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.font_family',
             notify (oldValue) {
                 if (this.fontFamily === oldValue) return;
-                this._lazyUpdateRenderData();
+                this.setVertsDirty();
             },
             animatable: false
         },
@@ -314,7 +314,7 @@ let Label = cc.Class({
             set (value) {
                 if (this._lineHeight === value) return;
                 this._lineHeight = value;
-                this._lazyUpdateRenderData();
+                this.setVertsDirty();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.label.line_height',
         },
@@ -329,7 +329,7 @@ let Label = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.label.overflow',
             notify (oldValue) {
                 if (this.overflow === oldValue) return;
-                this._lazyUpdateRenderData();
+                this.setVertsDirty();
             },
             animatable: false
         },
@@ -348,7 +348,7 @@ let Label = cc.Class({
                 if (this._enableWrapText === value) return;
 
                 this._enableWrapText = value;
-                this._lazyUpdateRenderData();
+                this.setVertsDirty();
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.wrap',
@@ -385,10 +385,9 @@ let Label = cc.Class({
                     cc.warnID(4000);
                 }
 
-                this._fontAtlas = null;
                 this._resetAssembler();
-                this._applyFontTexture(true);
-                this._lazyUpdateRenderData();
+                this._applyFontTexture();
+                this.setVertsDirty();
             },
             type: cc.Font,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.font',
@@ -408,26 +407,23 @@ let Label = cc.Class({
             },
             set (value) {
                 if (this._isSystemFontUsed === value) return;
-               
+                this._isSystemFontUsed = !!value;
                 if (CC_EDITOR) {
-                    if (!value && this._isSystemFontUsed && this._userDefinedFont) {
+                    if (!value && this._userDefinedFont) {
                         this.font = this._userDefinedFont;
                         this.spacingX = this._spacingX;
                         return;
                     }
                 }
 
-                this._isSystemFontUsed = !!value;
                 if (value) {
                     this.font = null;
-                    this._resetAssembler();
-                    this._lazyUpdateRenderData();
-                    this._checkStringEmpty();
-                }
-                else if (!this._userDefinedFont) {
-                    this.disableRender();
-                }
 
+                    this._resetAssembler();
+                    this.setVertsDirty();
+                    this._applyFontTexture();
+                }
+                this.markForValidate();
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.system_font',
@@ -460,7 +456,7 @@ let Label = cc.Class({
             },
             set (value) {
                 this._spacingX = value;
-                this._lazyUpdateRenderData();
+                this.setVertsDirty();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.label.spacingX',
         },
@@ -488,7 +484,9 @@ let Label = cc.Class({
                     this._ttfTexture = null;
                 }
 
-                this._lazyUpdateRenderData();
+                this.setVertsDirty();
+                this._resetAssembler();
+                this._applyFontTexture();
             },
             animatable: false
         },
@@ -512,6 +510,19 @@ let Label = cc.Class({
         VerticalAlign: VerticalAlign,
         Overflow: Overflow,
         CacheMode: CacheMode,
+
+        _shareAtlas: null,
+        /**
+         * !#zh 需要保证当前场景中没有使用CHAR缓存的Label才可以清除，否则已渲染的文字没有重新绘制会不显示
+         * !#en It can be cleared that need to ensure there is not use the CHAR cache in the current scene. Otherwise, the rendered text will not be displayed without repainting.
+         * @method clearCharCache
+         * @static
+         */
+        clearCharCache () {
+            if (Label._shareAtlas) {
+                Label._shareAtlas.clearAllCache();
+            }
+        }
     },
 
     onLoad () {
@@ -525,27 +536,17 @@ let Label = cc.Class({
     onEnable () {
         this._super();
 
-        // TODO: Hack for barbarians
-        if (!this.font && !this._isSystemFontUsed) {
-            this.useSystemFont = true;
-        }
-        // Reapply default font family if necessary
-        if (this.useSystemFont && !this.fontFamily) {
-            this.fontFamily = 'Arial';
-        }
-
         // Keep track of Node size
-        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._lazyUpdateRenderData, this);
-        this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._lazyUpdateRenderData, this);
+        this.node.on(cc.Node.EventType.SIZE_CHANGED, this.setVertsDirty, this);
+        this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this.setVertsDirty, this);
 
         this._forceUpdateRenderData();
-        this._checkStringEmpty();
     },
 
     onDisable () {
         this._super();
-        this.node.off(cc.Node.EventType.SIZE_CHANGED, this._lazyUpdateRenderData, this);
-        this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._lazyUpdateRenderData, this);
+        this.node.off(cc.Node.EventType.SIZE_CHANGED, this.setVertsDirty, this);
+        this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this.setVertsDirty, this);
     },
 
     onDestroy () {
@@ -561,22 +562,38 @@ let Label = cc.Class({
 
     _updateColor () {
         if (!(this.font instanceof cc.BitmapFont)) {
-            this._lazyUpdateRenderData();
+            this.setVertsDirty();
         }
        RenderComponent.prototype._updateColor.call(this);
     },
 
-    _canRender () {
-        let result = this._super();
-        let font = this.font;
-        if (font instanceof cc.BitmapFont) {
-            let spriteFrame = font.spriteFrame;
-            // cannot be activated if texture not loaded yet
-            if (!spriteFrame || !spriteFrame.textureLoaded()) {
-                result = false;
+    _validateRender () {
+        if (!this.string) {
+            this.disableRender();
+            return;
+        }
+
+        if (this.sharedMaterials[0]) {
+            let font = this.font;
+            if (font instanceof cc.BitmapFont) {
+                let spriteFrame = font.spriteFrame;
+                if (spriteFrame && 
+                    spriteFrame.textureLoaded() &&
+                    font._fntConfig) {
+                    return;
+                }
+            }
+            else {
+                return;
             }
         }
-        return result;
+
+        this.disableRender();
+    },
+
+    _resetAssembler () {
+        this._frame = null;
+        RenderComponent.prototype._resetAssembler.call(this);
     },
 
     _checkStringEmpty () {
@@ -585,34 +602,23 @@ let Label = cc.Class({
 
     _on3DNodeChanged () {
         this._resetAssembler();
-        this._applyFontTexture(true);
+        this._applyFontTexture();
     },
 
-    _applyFontTexture (force) {
+    _onBMFontTextureLoaded () {
+        this._frame._texture = this.font.spriteFrame._texture;
+        this.markForRender(true);
+        this._updateMaterial();
+        this._assembler && this._assembler.updateRenderData(this);
+    },
+
+    _applyFontTexture () {
         let font = this.font;
         if (font instanceof cc.BitmapFont) {
             let spriteFrame = font.spriteFrame;
             this._frame = spriteFrame;
-            let self = this;
-            let onBMFontTextureLoaded = function () {
-                // TODO: old texture in material have been released by loader
-                self._frame._texture = spriteFrame._texture;
-                self._activateMaterial(force);
-                if (force) {
-                    self._assembler && self._assembler.updateRenderData(self);
-                }
-            };
-            // cannot be activated if texture not loaded yet
-            if (spriteFrame && spriteFrame.textureLoaded()) {
-                onBMFontTextureLoaded();
-            }
-            else {
-                this.disableRender();
-
-                if (spriteFrame) {
-                    spriteFrame.once('load', onBMFontTextureLoaded, this);
-                    spriteFrame.ensureLoadTexture();
-                }
+            if (spriteFrame) {
+                spriteFrame.onTextureLoaded(this._onBMFontTextureLoaded, this);
             }
         }
         else {
@@ -634,61 +640,27 @@ let Label = cc.Class({
                 this._frame._refreshTexture(this._ttfTexture);
             }
             
-            this._activateMaterial(force);
-
-            if (force) {
-                this._assembler && this._assembler.updateRenderData(this);
-            }
+            this._updateMaterial();
+            this._assembler && this._assembler.updateRenderData(this);
         }
+        this.markForValidate();
     },
 
-    _activateMaterialCanvas (force) {
-        if (!force) return;
-
+    _updateMaterialCanvas () {
+        if (!this._frame) return;
         this._frame._texture._nativeUrl = this.uuid + '_texture';
-
-        this.markForUpdateRenderData(true);
-        this.markForRender(true);
     },
 
-    _activateMaterialWebgl (force) {
-        if (!force) return;
-
-
-        // If frame not create, disable render and return.
-        if (!this._frame) {
-            this.disableRender();
-            return;
-        }
-
-        // Label's texture is generated dynamically,
-        // we should always get a material instance for this label.
+    _updateMaterialWebgl () {
+        if (!this._frame) return;
         let material = this.sharedMaterials[0];
-
-        if (!material) {
-            material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
-        }
-        else {
-            material = Material.getInstantiatedMaterial(material, this);
-        }
-
-        material.setProperty('texture', this._frame._texture);
-        this.setMaterial(0, material);
-
-        this.markForUpdateRenderData(true);
-        this.markForRender(true);
-    },
-
-    _lazyUpdateRenderData () {
-        this.setVertsDirty();
-        this.markForUpdateRenderData(true);
+        material && material.setProperty('texture', this._frame._texture);
     },
 
     _forceUpdateRenderData () {
         this.setVertsDirty();
         this._resetAssembler();
-        this._applyFontTexture(true);
-        this.markForUpdateRenderData(true);
+        this._applyFontTexture();
     },
 
     _enableBold (enabled) {

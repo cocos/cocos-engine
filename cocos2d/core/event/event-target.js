@@ -54,6 +54,7 @@ var fastRemove = js.array.fastRemove;
  * 但是其他对象也可以是事件目标。<br/>
  *
  * @class EventTarget
+ * @extends CallbacksInvoker
  */
 function EventTarget () {
     CallbacksInvoker.call(this);
@@ -140,7 +141,7 @@ proto.off = function (type, callback, target) {
         if (!list) return;
         let infos = list.callbackInfos;
         for (let i = 0; i < infos.length; ++i) {
-            let target = infos[i].target;
+            let target = infos[i] && infos[i].target;
             if (target && target.__eventTargets) {
                 fastRemove(target.__eventTargets, this);
             }

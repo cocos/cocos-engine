@@ -116,9 +116,12 @@ class Effect {
                 prop.value = value ? value.getImpl() : null;
             }
             else if (value.array) {
-                value.array(prop.value)
+                value.array(prop.value);
             }
             else {
+                if (value && typeof value === 'object') {
+                    cc.warn(`Set effect property ${this._name} warning : should transform object to ArrayBuffer`);
+                }
                 prop.value = value;
             }
         }
