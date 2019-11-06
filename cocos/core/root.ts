@@ -11,6 +11,12 @@ import { IRenderViewInfo, RenderView } from './pipeline/render-view';
 import { DataPoolManager } from './renderer/data-pool-manager';
 import { IRenderSceneInfo, RenderScene } from './renderer/scene/render-scene';
 import { UI } from './renderer/ui/ui';
+import { Model, Camera, Light } from './renderer';
+import { Pool } from './memop';
+import { DirectionalLight } from './renderer/scene/directional-light';
+import { SphereLight } from './renderer/scene/sphere-light';
+import { SpotLight } from './renderer/scene/spot-light';
+import { LightType } from './renderer/scene/light';
 
 export let _createSceneFun;
 export let _createViewFun;
@@ -183,6 +189,12 @@ export class Root {
     private _dataPoolMgr: DataPoolManager;
     private _scenes: RenderScene[] = [];
     private _views: RenderView[] = [];
+    private _modelPools: Map<Function, Pool<any>> = new Map<Function,Pool<any>>();
+    private _cameraPool: Pool<Camera> | null = null;
+    private _lightPools: Map<Function, Pool<any>> = new Map<Function,Pool<any>>();
+    private _directLightPool: Pool<DirectionalLight> | null = null;
+    private _sphereLightPool: Pool<SphereLight> | null = null;
+    private _spotLightPool: Pool<SpotLight> | null = null;
     private _time: number = 0;
     private _frameTime: number = 0;
     private _fpsTime: number = 0;
@@ -201,6 +213,8 @@ export class Root {
 
         RenderScene.registerCreateFunc(this);
         RenderView.registerCreateFunc(this);
+
+        this._cameraPool = new Pool(() => new Camera, 4);
     }
 
     /**
@@ -470,5 +484,64 @@ export class Root {
             view.destroy();
         }
         this._views = [];
+    }
+
+    public createModel<T extends Model>(mClass: new () => T): T {
+        let p = this._modelPools.get(mClass);
+        if (!p) {
+            this._modelPools.set(mClass, new Pool(() => new mClass(), 10));
+            p = this._modelPools.get(mClass)!;
+        }
+        return p.alloc();
+    }
+
+    public destroyModel(m: Model) {
+        const p = this._modelPools.get(m.constructor);
+        if (p) {
+            p.free(m);
+            m.destroy();
+            if (m.scene) {
+                m.scene.removeModel(m);
+            }
+        }
+    }
+
+    public createCamera(): Camera {
+        return this._cameraPool!.alloc();
+    }
+
+    public destroyCamera(c: Camera) {
+        this._cameraPool!.free(c);
+        c.destroy();
+        if (c.scene) {
+            c.scene.removeCamera(c);
+        }
+    }
+
+    public createLight<T extends Light>(lClass: new () => T): T {
+        let l = this._lightPools.get(lClass);
+        if (!l) {
+            this._lightPools.set(lClass, new Pool(() => new lClass(), 4));
+            l = this._lightPools.get(lClass)!;
+        }
+        return l.alloc();
+    }
+
+    public destroyLight(l: Light) {
+        const p = this._lightPools.get(l.constructor);
+        l.destroy();
+        if (p) {
+            p.free(l);
+            if (l.scene) {
+                switch (l.type) {
+                    case LightType.SPHERE:
+                        l.scene.removeSphereLight(l as SphereLight);
+                        break;
+                    case LightType.SPOT:
+                        l.scene.removeSpotLight(l as SpotLight);
+                        break;
+                }
+            }
+        }
     }
 }

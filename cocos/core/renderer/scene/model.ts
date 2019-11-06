@@ -39,7 +39,6 @@ export class Model {
 
     set scene (scene: RenderScene) {
         this._scene = scene;
-        this._id = this._scene.generateModelId();
     }
 
     get scene () {
@@ -143,11 +142,11 @@ export class Model {
 
     protected _type: string = 'default';
     protected _device: GFXDevice;
-    protected _scene: RenderScene;
-    protected _node: INode;
-    protected _transform: INode;
-    protected _id: number;
-    protected _enabled = false;
+    protected _scene: RenderScene | null = null;
+    protected _node: INode | null = null;
+    protected _transform: INode | null = null;
+    protected _id: number = -1;
+    protected _enabled: boolean = false;
     protected _visFlags = Layers.Enum.NONE;
     protected _cameraID = -1;
     protected _userKey = -1;
@@ -169,11 +168,12 @@ export class Model {
     /**
      * Setup a default empty model
      */
-    constructor (scene: RenderScene, node: INode) {
+    constructor () {
         this._device = cc.director.root!.device;
-        this._scene = scene;
-        this._node = this._transform = node;
-        this._id = this._scene.generateModelId();
+    }
+
+    public initialize(node: INode) {
+        this._transform = this._node = node;
     }
 
     public destroy () {
@@ -200,6 +200,16 @@ export class Model {
         this._matPSORecord.clear();
         this._matRefCount.clear();
         this._inited = false;
+    }
+
+    public attachToScene(scene: RenderScene) {
+        this._scene = scene;
+        this._id = this._scene.generateModelId();
+    }
+
+    public detachFromScene() {
+        this._scene = null;
+        this._id = -1;
     }
 
     public getSubModel (idx: number) {

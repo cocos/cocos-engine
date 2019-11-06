@@ -236,7 +236,6 @@ export default class ParticleSystemRenderer {
             return new Particle(this);
         }, 16);
         this._setVertexAttrib();
-        this.onEnable();
         this._updateModel();
         this._updateMaterialParams();
         this._updateTrailMaterial();
@@ -246,27 +245,34 @@ export default class ParticleSystemRenderer {
         if (!this._particleSystem) {
             return;
         }
-        if (this._model == null) {
-            this._model = this._particleSystem._getRenderScene().createModel(ParticleBatchModel, this._particleSystem.node) as ParticleBatchModel;
-            this._model.visFlags = this._particleSystem.visibility;
-        }
-        if (!this._model.inited) {
-            this._model.setCapacity(this._particleSystem.capacity);
-            this._model.node = this._particleSystem.node;
-        }
-        this._model.enabled = this._particleSystem.enabledInHierarchy;
+        this._attachToScene();
+        this._model!.initialize(this._particleSystem.node);
+        this._model!.enabled = this._particleSystem.enabledInHierarchy;
     }
 
     public onDisable () {
-        if (this._model) {
-            this._model.enabled = this._particleSystem.enabledInHierarchy;
-        }
+        this._detachFromScene();
     }
 
     public onDestroy () {
         if (this._model) {
-            this._model.scene.destroyModel(this._model);
+            cc.director.root.destroyModel(this._model);
             this._model = null;
+        }
+    }
+
+    public _attachToScene() {
+        if (this._model) {
+            if (this._model.scene) {
+                this._detachFromScene();
+            }
+            this._particleSystem._getRenderScene().addModel(this._model);
+        }
+    }
+
+    public _detachFromScene() {
+        if (this._model && this._model.scene) {
+            this._model.scene.removeModel(this._model);
         }
     }
 
@@ -531,9 +537,11 @@ export default class ParticleSystemRenderer {
 
     private _updateModel () {
         if (!this._model) {
-            return;
+            this._model = cc.director.root.createModel(ParticleBatchModel);
+            this._model!.setCapacity(this._particleSystem.capacity);
+            this._model!.visFlags = this._particleSystem.visibility;
         }
-        this._model.setVertexAttributes(this._renderMode === RenderMode.Mesh ? this._mesh : null, this._vertAttrs);
+        this._model!.setVertexAttributes(this._renderMode === RenderMode.Mesh ? this._mesh : null, this._vertAttrs);
         // if (Object.getPrototypeOf(this).constructor.name === 'ParticleSystemGpuRenderer') {
         //     return;
         // }

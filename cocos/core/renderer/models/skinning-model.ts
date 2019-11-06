@@ -59,12 +59,11 @@ export class SkinningModel extends Model {
     private _staticModelBounds: aabb | null = null;
     private _mesh: Mesh | null = null;
 
-    constructor (scene: RenderScene, node: INode) {
-        super(scene, node);
+    constructor () {
+        super();
         this._type = 'skinning';
         const jointsTextureInfo = new Float32Array(4);
-        const texture = this._scene.root.dataPoolManager.jointsTexturePool.getDefaultJointsTexture();
-        this._jointsMedium = { buffer: null, jointsTextureInfo, texture, animInfo: null, boundsInfo: null };
+        this._jointsMedium = { buffer: null, jointsTextureInfo, texture: null, animInfo: null, boundsInfo: null };
     }
 
     public destroy () {
@@ -75,12 +74,18 @@ export class SkinningModel extends Model {
         }
     }
 
+    public attachToScene(scene: RenderScene) {
+        super.attachToScene(scene);
+        const texture = scene.root.dataPoolManager.jointsTexturePool.getDefaultJointsTexture();
+        this._jointsMedium.texture = texture;
+    }
+
     public bindSkeleton (skeleton: Skeleton | null, skinningRoot: INode | null, mesh: Mesh | null) {
         this._skeleton = skeleton;
         this._mesh = mesh;
         if (!skeleton || !skinningRoot || !mesh) { return; }
         this._transform = skinningRoot;
-        this._jointsMedium.animInfo = this._scene.root.dataPoolManager.jointsAnimationInfo.get(skinningRoot.uuid);
+        this._jointsMedium.animInfo = this._scene!.root.dataPoolManager.jointsAnimationInfo.get(skinningRoot.uuid);
         if (!this._jointsMedium.buffer) {
             this._jointsMedium.buffer = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
@@ -119,7 +124,7 @@ export class SkinningModel extends Model {
     public uploadAnimation (anim: AnimationClip | null) {
         if (!this._skeleton || !this._mesh) { return; }
         this.uploadedAnim = anim;
-        const resMgr = this._scene.root.dataPoolManager;
+        const resMgr = this._scene!.root.dataPoolManager;
         const texture = anim ? resMgr.jointsTexturePool.getJointsTextureWithAnimation(this._skeleton, anim) :
             resMgr.jointsTexturePool.getDefaultJointsTexture(this._skeleton);
         resMgr.jointsAnimationInfo.switchClip(this._jointsMedium.animInfo!, anim);
@@ -131,7 +136,7 @@ export class SkinningModel extends Model {
     protected _applyJointsTexture (texture: IJointsTextureHandle | null) {
         if (!texture) { return; }
         const oldTex = this._jointsMedium.texture;
-        if (oldTex && oldTex !== texture) { this._scene.root.dataPoolManager.jointsTexturePool.releaseHandle(oldTex); }
+        if (oldTex && oldTex !== texture) { this._scene!.root.dataPoolManager.jointsTexturePool.releaseHandle(oldTex); }
         this._jointsMedium.texture = texture;
         const { buffer, jointsTextureInfo } = this._jointsMedium;
         jointsTextureInfo[0] = texture.handle.texture.width;

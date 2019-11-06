@@ -44,8 +44,8 @@ export class SphereLight extends Light {
     protected _pos: Vec3;
     protected _aabb: aabb;
 
-    constructor (scene: RenderScene, name: string, node: INode) {
-        super(scene, name, node);
+    constructor () {
+        super();
         this._type = LightType.SPHERE;
         this._aabb = aabb.create();
         this._pos = new Vec3();

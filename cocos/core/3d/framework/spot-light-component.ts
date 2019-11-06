@@ -150,12 +150,14 @@ export class SpotLightComponent extends LightComponent {
         this._spotAngle = val;
         if (this._light) { this._light.spotAngle = toRadian(val); }
     }
+    
+    constructor() {
+        super();
+        this._lightType = SpotLight;
+    }
 
     protected _createLight (scene?: RenderScene) {
-        if (!this.node.scene) { return; }
-        if (!scene) { scene = this._getRenderScene(); }
-        if (this._light && scene.spotLights.find((c) => c === this._light)) { return; }
-        this._light = scene.createSpotLight(this.name, this.node);
+        super._createLight();
         if (!this._light) {
             console.warn('we don\'t support this many lights in forward pipeline.');
             return;
@@ -164,13 +166,5 @@ export class SpotLightComponent extends LightComponent {
         this.size = this._size;
         this.range = this._range;
         this.spotAngle = this._spotAngle;
-        super._createLight(scene);
-    }
-
-    protected _destroyLight (scene?: RenderScene) {
-        if (!this.node.scene || !this._light) { return; }
-        if (!scene) { scene = this._getRenderScene(); }
-        scene.destroySpotLight(this._light);
-        super._destroyLight(scene);
     }
 }

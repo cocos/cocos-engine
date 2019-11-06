@@ -108,7 +108,8 @@ export class UI {
             name: 'GUIScene',
         });
         this._uiModelPool = new Pool(() => {
-            const model = this._scene.createModel<UIBatchModel>(UIBatchModel, null!);
+            const model = cc.director.root.createModel(UIBatchModel);
+            model.enabled = true;
             model.visFlags |= Layers.Enum.UI_3D;
             return model;
         }, 2);
@@ -272,7 +273,7 @@ export class UI {
         let batchPriority = 0;
 
         for (let i = 0; i < this._modelInUse.length; i++) {
-            this._modelInUse.get(i).enabled = false;
+            this._scene.removeModel(this._modelInUse.get(i));
             this._uiModelPool!.free(this._modelInUse.get(i));
         }
         this._modelInUse.clear();
@@ -302,8 +303,8 @@ export class UI {
                     ia.indexCount = batch.idxCount;
 
                     const uiModel = this._uiModelPool!.alloc();
-                    uiModel.initialize(ia, batch);
-                    uiModel.enabled = true;
+                    uiModel.directInitialize(ia, batch);
+                    this._scene.addModel(uiModel);
                     uiModel.getSubModel(0).priority = batchPriority++;
                     if (batch.camera) {
                         uiModel.visFlags = batch.camera.view.visibility;

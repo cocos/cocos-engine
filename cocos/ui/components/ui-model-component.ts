@@ -63,11 +63,25 @@ export class UIModelComponent extends UIComponent {
         }
 
         this._modelComponent._sceneGetter = director.root!.ui.getRenderSceneGetter();
-        this._modelComponent._changeSceneInModel();
         this._models = this._modelComponent._collectModels();
     }
 
+    public onEnable() {
+        super.onEnable();
+        if (this._modelComponent) {
+            this._modelComponent._attachToScene();
+        }
+    }
+
+    public onDisable() {
+        super.onDisable();
+        if (this._modelComponent) {
+            this._modelComponent._detachFromScene();
+        }
+    }
+
     public onDestroy () {
+        super.onDestroy();
         this._modelComponent = this.getComponent('cc.RenderableComponent') as RenderableComponent;
         if (!this._modelComponent) {
             return;
@@ -75,7 +89,7 @@ export class UIModelComponent extends UIComponent {
 
         this._modelComponent._sceneGetter = null;
         if (cc.isValid(this.node, true)) {
-            this._modelComponent._changeSceneInModel();
+            this._modelComponent._attachToScene();
         }
         this._models = null;
     }

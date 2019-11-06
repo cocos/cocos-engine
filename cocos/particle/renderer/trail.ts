@@ -359,20 +359,31 @@ export default class TrailModule {
     }
 
     public onEnable () {
-        if (this._enable && this._trailModel) {
-            this._trailModel.enabled = true;
-        }
+        this._attachToScene();
     }
 
     public onDisable () {
-        if (this._enable && this._trailModel) {
-            this._trailModel.enabled = false;
+        this._detachFromScene();
+    }
+
+    public _attachToScene() {
+        if (this._trailModel) {
+            if (this._trailModel.scene) {
+                this._detachFromScene();
+            }
+            this._particleSystem._getRenderScene().addModel(this._trailModel);
+        }
+    }
+
+    public _detachFromScene() {
+        if (this._trailModel && this._trailModel.scene) {
+            this._trailModel.scene.removeModel(this._trailModel);
         }
     }
 
     public destroy () {
         if (this._trailModel) {
-            this._trailModel.scene.destroyModel(this._trailModel);
+            cc.director.root.destroyModel(this._trailModel);
             this._trailModel = null;
         }
         if (this._trailSegments) {
@@ -606,7 +617,8 @@ export default class TrailModule {
             flatBuffers: [],
         };
 
-        this._trailModel = this._particleSystem._getRenderScene().createModel(Model, this._particleSystem.node);
+        this._trailModel = cc.director.root.createModel(Model);
+        this._trailModel!.initialize(this._particleSystem.node);
         this._trailModel!.visFlags = this._particleSystem.visibility;
         this._trailModel!.setSubModelMesh(0, this._subMeshData);
         this._trailModel!.enabled = true;
