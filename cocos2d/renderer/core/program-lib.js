@@ -284,8 +284,10 @@ export default class ProgramLib {
     let gl = this._device._gl;
     let highpSupported = false;
     if (gl.getShaderPrecisionFormat) {
-        var highp = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
-        highpSupported = highp && highp.precision !== 0;
+        let vertHighp = gl.getShaderPrecisionFormat(gl.VERTEX_SHADER, gl.HIGH_FLOAT);
+        let fragHighp = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
+        highpSupported = (vertHighp && vertHighp.precision > 0) &&
+          (fragHighp && fragHighp.precision > 0);
     }
     if (!highpSupported) {
       cc.warnID(9102);
