@@ -22,7 +22,13 @@ export class AmmoShape implements IBaseShape {
     };
 
     set material (v: PhysicMaterial) { };
-    set isTrigger (v: boolean) { };
+
+    set isTrigger (v: boolean) {
+        if (this._isEnabled) {
+            this._sharedBody.removeShape(this);
+            this._sharedBody.addShape(this);
+        }
+    }
 
     get attachedRigidBody (): RigidBodyComponent | null { return null; }
 
@@ -49,6 +55,8 @@ export class AmmoShape implements IBaseShape {
 
     _collider!: ColliderComponent;
 
+    private _isEnabled = false;
+
     constructor (type: AmmoBroadphaseNativeTypes) {
         this.type = type;
         this.id = AmmoShape.idCounter++;
@@ -73,11 +81,13 @@ export class AmmoShape implements IBaseShape {
     }
 
     onEnable () {
+        this._isEnabled = true;
         this._sharedBody.addShape(this);
         this._sharedBody.enabled = true;
     }
 
     onDisable () {
+        this._isEnabled = false;
         this._sharedBody.removeShape(this);
         this._sharedBody.enabled = false;
     }

@@ -29,7 +29,7 @@ export class AmmoWorld implements IPhysicsWorld {
         throw new Error("Method not implemented.");
     }
 
-    get impl () {
+    get world () {
         return this._world;
     }
 
@@ -235,25 +235,8 @@ export class AmmoWorld implements IPhysicsWorld {
                 this.oldContactsDic.set(shape0.id, shape1.id, data);
             }
 
-            // if (collider0.node.hasChangedFlags) {
-            //     const impl = (collider0 as any)._shape as AmmoShape;
-            //     if (impl.attachRigidBody) {
-            //         const body = impl.attachRigidBody._impl as AmmoRigidBody;
-            //         body.beforeStep();
-            //     } else {
-            //         impl.beforeStep();
-            //     }
-            // }
-
-            // if (collider1.node.hasChangedFlags) {
-            //     const impl = (collider1 as any)._shape as AmmoShape;
-            //     if (impl.attachRigidBody) {
-            //         const body = impl.attachRigidBody._impl as AmmoRigidBody;
-            //         body.beforeStep();
-            //     } else {
-            //         impl.beforeStep();
-            //     }
-            // }
+            shape0.sharedBody.syncSceneToPhysics();
+            shape1.sharedBody.syncSceneToPhysics();
         }
 
         // is exit
@@ -322,25 +305,8 @@ export class AmmoWorld implements IPhysicsWorld {
                     }
                 }
 
-                // if (collider0.node.hasChangedFlags) {
-                //     const impl = (collider0 as any)._shape as AmmoShape;
-                //     if (impl.attachRigidBody) {
-                //         const body = impl.attachRigidBody._impl as AmmoRigidBody;
-                //         body.beforeStep();
-                //     } else {
-                //         impl.beforeStep();
-                //     }
-                // }
-
-                // if (collider1.node.hasChangedFlags) {
-                //     const impl = (collider1 as any)._shape as AmmoShape;
-                //     if (impl.attachRigidBody) {
-                //         const body = impl.attachRigidBody._impl as AmmoRigidBody;
-                //         body.beforeStep();
-                //     } else {
-                //         impl.beforeStep();
-                //     }
-                // }
+                shape0.sharedBody.syncSceneToPhysics();
+                shape1.sharedBody.syncSceneToPhysics();
             }
         }
 

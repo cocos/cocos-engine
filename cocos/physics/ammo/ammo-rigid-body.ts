@@ -43,9 +43,9 @@ export class AmmoRigidBody implements IRigidBody {
 
     public index: number = -1;
 
-    public get impl (): Ammo.btRigidBody { return this._btBody; }
-    private _btBody!: Ammo.btRigidBody;
-    public _btCompoundShape!: Ammo.btCompoundShape;
+    // public get impl (): Ammo.btRigidBody { return this._btBody; }
+    // private _btBody!: Ammo.btRigidBody;
+    // public _btCompoundShape!: Ammo.btCompoundShape;
 
     private _world!: AmmoWorld;
     public readonly shapes: AmmoShape[] = [];
@@ -58,9 +58,9 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     private _isEnabled = false;
-
-    _sharedBody!: AmmoSharedBody;
-
+    private _sharedBody!: AmmoSharedBody;
+    private get _btBody () { return this._sharedBody.body };
+    private get _btCompoundShape () { return this._sharedBody.bodyCompoundShape };
     get rigidBody () {
         return this._rigidBody;
     }
@@ -238,16 +238,17 @@ export class AmmoRigidBody implements IRigidBody {
 
     public set mass (value: number) {
         // See https://studiofreya.com/game-maker/bullet-physics/bullet-physics-how-to-change-body-mass/
-        if (this._world) {
-            this._world.impl.removeRigidBody(this.impl);
+        const wrappedWorld = this._sharedBody.wrappedWorld;
+        if (wrappedWorld) {
+            wrappedWorld.removeSharedBody(this._sharedBody);
         }
         this.localInertia.setValue(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
         if (this._btCompoundShape.getNumChildShapes() > 0) {
             this._btCompoundShape.calculateLocalInertia(this._rigidBody.mass, this.localInertia);
         }
         this._btBody.setMassProps(value, this.localInertia);
-        if (this._world) {
-            this._world.impl.addRigidBody(this.impl);
+        if (wrappedWorld) {
+            wrappedWorld.addSharedBody(this._sharedBody);
         }
     }
 
@@ -270,8 +271,9 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     public set useGravity (value: boolean) {
-        if (this._world) {
-            this._world.impl.removeRigidBody(this.impl);
+        const wrappedWorld = this._sharedBody.wrappedWorld;
+        if (wrappedWorld) {
+            wrappedWorld.removeSharedBody(this._sharedBody);
         }
 
         let m_rigidBodyFlag = this._btBody.getFlags()
@@ -283,8 +285,8 @@ export class AmmoRigidBody implements IRigidBody {
         }
         this._btBody.setFlags(m_rigidBodyFlag);
 
-        if (this._world) {
-            this._world.impl.addRigidBody(this.impl);
+        if (wrappedWorld) {
+            wrappedWorld.addSharedBody(this._sharedBody);
         }
     }
 
