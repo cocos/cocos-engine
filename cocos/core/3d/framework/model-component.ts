@@ -66,6 +66,7 @@ export class ModelComponent extends RenderableComponent {
      */
     @property({
         type: Mesh,
+        tooltip:'模型网格',
     })
     get mesh () {
         return this._mesh;
@@ -84,6 +85,7 @@ export class ModelComponent extends RenderableComponent {
      */
     @property({
         type: ModelShadowCastingMode,
+        tooltip:'投射阴影方式',
     })
     get shadowCastingMode () {
         return this._shadowCastingMode;
@@ -115,7 +117,9 @@ export class ModelComponent extends RenderableComponent {
     /**
      * @zh 是否启用动态合批？
      */
-    @property
+    @property({
+        tooltip:'是否启用动态合批',
+    })
     set enableDynamicBatching (enable: boolean) {
         if (this._enableDynamicBatching === enable) { return; }
         this._enableDynamicBatching = enable;

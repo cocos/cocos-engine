@@ -60,7 +60,10 @@ export class AudioSourceComponent extends Component {
      * @zh
      * 设定要播放的音频。
      */
-    @property({ type: AudioClip })
+    @property({
+        type: AudioClip,
+        tooltip:'设定要播放的音频',
+    })
     set clip (val) {
         this._clip = val;
         this._syncStates();
@@ -75,7 +78,9 @@ export class AudioSourceComponent extends Component {
      * @zh
      * 是否循环播放音频？
      */
-    @property
+    @property({
+        tooltip:'是否循环播放音频',
+    })
     set loop (val) {
         this._loop = val;
         if (this._clip) { this._clip.setLoop(val); }
@@ -95,7 +100,9 @@ export class AudioSourceComponent extends Component {
      * 请注意，根据最新的自动播放策略，现在大部分时候，自动播放只会在第一次收到用户输入后生效。 <br>
      * 参考：https://www.chromium.org/audio-video/autoplay
      */
-    @property
+    @property({
+        tooltip:'是否启用自动播放',
+    })
     set playOnAwake (val) {
         this._playOnAwake = val;
     }
@@ -111,7 +118,10 @@ export class AudioSourceComponent extends Component {
      *
      * 请注意,在某些平台上，音量控制可能不起效。<br>
      */
-    @property
+    @property({
+        range:[0.0,1.0],
+        tooltip:'音频的音量（大小范围为 0.0 到 1.0 ）\n请注意,在某些平台上，音量控制可能不起效'
+    })
     set volume (val) {
         if (isNaN(val)) { console.warn('illegal audio volume!'); return; }
         val = clamp(val, 0, 1);

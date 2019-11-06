@@ -76,6 +76,7 @@ export class PageViewIndicatorComponent extends Component {
    */
   @property({
     type: SpriteFrame,
+    tooltip:'每个页面标记显示的图片',
   })
   get spriteFrame () {
     return this._spriteFrame;
@@ -96,6 +97,7 @@ export class PageViewIndicatorComponent extends Component {
    */
   @property({
     type: Direction,
+    tooltip:'页面标记摆放方向',
   })
   get direction () {
     return this._direction;
@@ -115,6 +117,7 @@ export class PageViewIndicatorComponent extends Component {
    */
   @property({
     type: Size,
+    tooltip:'每个页面标记的大小',
   })
   get cellSize () {
     return this._cellSize;
@@ -134,7 +137,9 @@ export class PageViewIndicatorComponent extends Component {
    * @en The distance between each element.
    * @zh 每个页面标记之间的边距
    */
-  @property
+  @property({
+    tooltip:'每个页面标记之间的边距',
+  })
   public spacing = 0;
   @property
   public _spriteFrame: SpriteFrame | null = null;

@@ -60,6 +60,7 @@ export class UITransformComponent extends Component {
      */
     @property({
         displayOrder: 0,
+        tooltip:'内容尺寸',
     })
     // @constget
     get contentSize (): Readonly<Size> {
@@ -138,6 +139,7 @@ export class UITransformComponent extends Component {
      */
     @property({
         displayOrder: 1,
+        tooltip:'锚点位置',
     })
     // @constget
     get anchorPoint (): Readonly<Vec2> {

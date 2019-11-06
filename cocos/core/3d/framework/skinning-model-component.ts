@@ -57,7 +57,10 @@ export class SkinningModelComponent extends ModelComponent {
      * @en The bone nodes
      * @zh 骨骼节点。
      */
-    @property({ type: Skeleton })
+    @property({
+        type: Skeleton,
+        tooltip:'骨骼节点',
+    })
     get skeleton () {
         return this._skeleton;
     }
@@ -70,7 +73,10 @@ export class SkinningModelComponent extends ModelComponent {
     /**
      * 骨骼根节点的引用。
      */
-    @property({ type: Node })
+    @property({
+        type: Node,
+        tooltip:'骨骼蒙皮根节点',
+    })
     get skinningRoot (): INode | null {
         return this._skinningRoot;
     }

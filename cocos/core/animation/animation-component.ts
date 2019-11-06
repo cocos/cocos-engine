@@ -97,7 +97,10 @@ export class AnimationComponent extends Component implements IEventTarget {
      * 获取此动画组件的自有动画剪辑。
      * 动画组件开始运行时会为每个自有动画剪辑创建动画状态。
      */
-    @property({ type: [AnimationClip] })
+    @property({
+        type: [AnimationClip],
+        tooltip:'此动画组件的自有动画剪辑',
+    })
     get clips () {
         return this._clips;
     }
@@ -137,7 +140,10 @@ export class AnimationComponent extends Component implements IEventTarget {
      * 获取默认动画剪辑。
      * @see [[playOnLoad]]
      */
-    @property({ type: AnimationClip })
+    @property({
+        type: AnimationClip,
+        tooltip:'默认动画剪辑',
+    })
     get defaultClip () {
         return this._defaultClip;
     }
@@ -162,7 +168,9 @@ export class AnimationComponent extends Component implements IEventTarget {
     /**
      * 是否在动画组件开始运行时自动播放默认动画剪辑。
      */
-    @property
+    @property({
+        tooltip:'是否在动画组件开始运行时自动播放默认动画剪辑',
+    })
     public playOnLoad = false;
 
     public _callbackTable: ICallbackTable = createMap(true);

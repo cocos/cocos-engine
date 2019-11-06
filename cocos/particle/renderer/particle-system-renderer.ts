@@ -66,6 +66,7 @@ export default class ParticleSystemRenderer {
     @property({
         type: RenderMode,
         displayOrder: 0,
+        tooltip:'设定粒子生成模式',
     })
     public get renderMode () {
         return this._renderMode;
@@ -86,6 +87,7 @@ export default class ParticleSystemRenderer {
      */
     @property({
         displayOrder: 1,
+        tooltip:'在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按速度大小进行拉伸',
     })
     public get velocityScale () {
         return this._velocityScale;
@@ -102,6 +104,7 @@ export default class ParticleSystemRenderer {
      */
     @property({
         displayOrder: 2,
+        tooltip:'在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸',
     })
     public get lengthScale () {
         return this._lengthScale;
@@ -146,6 +149,7 @@ export default class ParticleSystemRenderer {
     @property({
         type: Mesh,
         displayOrder: 7,
+        tooltip:'粒子发射的模型',
     })
     public get mesh () {
         return this._mesh;
@@ -164,6 +168,7 @@ export default class ParticleSystemRenderer {
     @property({
         type: Material,
         displayOrder: 8,
+        tooltip:'粒子使用的材质',
     })
     public get particleMaterial () {
         if (!this._particleSystem) {
@@ -182,6 +187,7 @@ export default class ParticleSystemRenderer {
     @property({
         type: Material,
         displayOrder: 9,
+        tooltip:'拖尾使用的材质',
     })
     public get trailMaterial () {
         if (!this._particleSystem) {

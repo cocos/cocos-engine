@@ -171,6 +171,7 @@ export class LayoutComponent extends Component {
      */
     @property({
         type: Type,
+        tooltip:'自动布局模式，包括：\n 1. NONE，不会对子节点进行自动布局 \n 2. HORIZONTAL，横向自动排布子物体 \n 3. VERTICAL，垂直自动排布子物体\n 4. GRID, 采用网格方式对子物体自动进行布局',
     })
     get type () {
         return this._N$layoutType;
@@ -193,6 +194,7 @@ export class LayoutComponent extends Component {
      */
     @property({
         type: ResizeMode,
+        tooltip:'缩放模式，包括：\n 1. NONE，不会对子节点和容器进行大小缩放 \n 2. CONTAINER, 对容器的大小进行缩放 \n 3. CHILDREN, 对子节点的大小进行缩放',
     })
     get resizeMode () {
         return this._resizeMode;

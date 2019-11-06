@@ -48,7 +48,9 @@ export class UIComponent extends Component {
      * @zh
      * 渲染先后顺序，按照广度渲染排列，按同级节点下进行一次排列。
      */
-    @property
+    @property({
+        tooltip:'渲染排序优先级'
+    })
     get priority () {
         return this._priority;
     }

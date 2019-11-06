@@ -76,7 +76,9 @@ export class EditBoxComponent extends Component {
      * @zh
      * 输入框的初始输入内容，如果为空则会显示占位符的文本。
      */
-    @property
+    @property({
+        tooltip:'输入框的初始输入内容，如果为空则会显示占位符的文本',
+    })
     get string () {
         return this._string;
     }
@@ -101,6 +103,7 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: SpriteFrame,
+        tooltip:'输入框的背景图片',
     })
     get backgroundImage () {
         return this._backgroundImage;
@@ -126,6 +129,7 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: KeyboardReturnType,
+        tooltip:'指定移动设备上面回车按钮的样式',
     })
     get returnType () {
         return this._returnType;
@@ -147,6 +151,7 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: InputFlag,
+        tooltip:'指定输入标志位，可以指定输入方式为密码或者单词首字母大写'
     })
     get inputFlag () {
         return this._inputFlag;
@@ -169,6 +174,7 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: InputMode,
+        tooltip:'指定输入模式: ANY 表示多行输入，其它都是单行输入，移动平台上还可以指定键盘样式'
     })
     get inputMode () {
         return this._inputMode;
@@ -188,7 +194,9 @@ export class EditBoxComponent extends Component {
      * @zh
      * 输入框文本的字体大小。
      */
-    @property
+    @property({
+        tooltip:'输入框文本的字体大小',
+    })
     get fontSize () {
         return this._fontSize;
     }
@@ -214,7 +222,9 @@ export class EditBoxComponent extends Component {
      * @zh
      * 输入框文本的行高。
      */
-    @property
+    @property({
+        tooltip:'输入框文本的行高'
+    })
     get lineHeight () {
         return this._lineHeight;
     }
@@ -239,6 +249,7 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: Color,
+        tooltip:'输入框文本的颜色',
     })
     get fontColor () {
         return this._fontColor;
@@ -269,7 +280,9 @@ export class EditBoxComponent extends Component {
      * @zh
      * 输入框占位符的文本内容。
      */
-    @property
+    @property({
+        tooltip:'输入框占位符的文本内容',
+    })
     get placeholder () {
         return this._placeholder;
     }
@@ -295,7 +308,9 @@ export class EditBoxComponent extends Component {
      * @zh
      * 输入框占位符的字体大小。
      */
-    @property
+    @property({
+        tooltip:'输入框占位符的字体大小'
+    })
     get placeholderFontSize () {
         return this._placeholderFontSize;
     }
@@ -318,7 +333,9 @@ export class EditBoxComponent extends Component {
      * @zh
      * 输入框占位符的字体颜色。
      */
-    @property
+    @property({
+        tooltip:'输入框占位符的字体颜色',
+    })
     get placeholderFontColor () {
         return this._placeholderFontColor;
     }
@@ -347,7 +364,9 @@ export class EditBoxComponent extends Component {
      * - 如果值为小于 0 的值，则不会限制输入字符个数。
      * - 如果值为 0，则不允许用户进行任何输入。
      */
-    @property
+    @property({
+        tooltip:'输入框最大允许输入的字符个数',
+    })
     get maxLength () {
         return this._maxLength;
     }
@@ -370,7 +389,9 @@ export class EditBoxComponent extends Component {
      * 输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义）
      * Note: only available on Web at the moment.
      */
-    @property
+    @property({
+        tooltip:'输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义）'
+    })
     get stayOnTop () {
         return this._stayOnTop;
     }
@@ -389,7 +410,9 @@ export class EditBoxComponent extends Component {
      * @zh
      * 修改 DOM 输入元素的 tabIndex（这个属性只有在 Web 上面修改有意义）。
      */
-    @property
+    @property({
+        tooltip:'修改 DOM 输入元素的 tabIndex（这个属性只有在 Web 上面修改有意义）',
+    })
     get tabIndex () {
         return this._tabIndex;
     }
@@ -414,6 +437,7 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: [ComponentEventHandler],
+        tooltip:'该事件在用户点击输入框获取焦点的时候被触发',
     })
     public editingDidBegan: ComponentEventHandler[] = [];
 
@@ -426,6 +450,7 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: [ComponentEventHandler],
+        tooltip:'编辑文本输入框时触发的事件回调'
     })
     public textChanged: ComponentEventHandler[] = [];
 
@@ -438,6 +463,7 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: [ComponentEventHandler],
+        tooltip:'在单行模式下面，一般是在用户按下回车或者点击屏幕输入框以外的地方调用该函数。 如果是多行输入，一般是在用户点击屏幕输入框以外的地方调用该函数',
     })
     public editingDidEnded: ComponentEventHandler[] = [];
 
@@ -450,6 +476,7 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: [ComponentEventHandler],
+        tooltip:'该事件在用户按下回车键的时候被触发, 如果是单行输入框，按回车键还会使输入框失去焦点',
     })
     public editingReturn: ComponentEventHandler[] = [];
 

@@ -29,6 +29,7 @@ export class BillboardComponent extends Component {
      */
     @property({
         type: Texture2D,
+        tooltip:'billboard显示的贴图',
     })
     get texture () {
         return this._texture;
@@ -47,7 +48,9 @@ export class BillboardComponent extends Component {
     /**
      * @zh 高度。
      */
-    @property
+    @property({
+        tooltip:'billboard的高度',
+    })
     get height () {
         return this._height;
     }
@@ -66,7 +69,9 @@ export class BillboardComponent extends Component {
     /**
      * @zh 宽度。
      */
-    @property
+    @property({
+        tooltip:'billboard的宽度',
+    })
     public get width () {
         return this._width;
     }
@@ -85,7 +90,9 @@ export class BillboardComponent extends Component {
     /**
      * @zh 角度。
      */
-    @property
+    @property({
+        tooltip:'billboard绕中心点旋转的角度',
+    })
     public get rotation () {
         return Math.round(toDegree(this._rotation) * 100) / 100;
     }

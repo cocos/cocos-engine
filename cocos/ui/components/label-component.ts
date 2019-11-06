@@ -175,6 +175,7 @@ export class LabelComponent extends UIRenderComponent {
     @property({
         displayOrder: 4,
         multiline: true,
+        tooltip:'Label 显示的文本内容字符串',
     })
     get string () {
         return this._string;
@@ -196,6 +197,7 @@ export class LabelComponent extends UIRenderComponent {
     @property({
         type: HorizontalTextAlignment,
         displayOrder: 5,
+        tooltip:'文字水平对齐模式',
     })
     get horizontalAlign () {
         return this._horizontalAlign;
@@ -217,6 +219,7 @@ export class LabelComponent extends UIRenderComponent {
     @property({
         type: VerticalTextAlignment,
         displayOrder: 6,
+        tooltip:'文字垂直对齐模式',
     })
     get verticalAlign () {
         return this._verticalAlign;
@@ -254,6 +257,7 @@ export class LabelComponent extends UIRenderComponent {
      */
     @property({
         displayOrder: 7,
+        tooltip:'文字尺寸，以 point 为单位',
     })
     get fontSize () {
         return this._fontSize;
@@ -274,6 +278,7 @@ export class LabelComponent extends UIRenderComponent {
      */
     @property({
         displayOrder: 8,
+        tooltip:'文字字体名字',
     })
     get fontFamily () {
         return this._fontFamily;
@@ -294,6 +299,7 @@ export class LabelComponent extends UIRenderComponent {
      */
     @property({
         displayOrder: 8,
+        tooltip:'文字行高，以 point 为单位',
     })
     get lineHeight () {
         return this._lineHeight;
@@ -314,6 +320,7 @@ export class LabelComponent extends UIRenderComponent {
     @property({
         type: Overflow,
         displayOrder: 9,
+        tooltip:'文字排版模式，包括以下三种：\n 1. CLAMP: 节点约束框之外的文字会被截断 \n 2. SHRINK: 自动根据节点约束框缩小文字\n 3. RESIZE_HEIGHT: 根据文本内容自动更新节点的 height 属性.',
     })
     get overflow () {
         return this._overflow;
@@ -334,6 +341,7 @@ export class LabelComponent extends UIRenderComponent {
      */
     @property({
         displayOrder: 10,
+        tooltip:'自动换行',
     })
     get enableWrapText () {
         return this._enableWrapText;
@@ -354,6 +362,7 @@ export class LabelComponent extends UIRenderComponent {
     @property({
         type: Font,
         displayOrder: 11,
+        tooltip:'Label 使用的字体资源',
     })
     get font () {
         // return this._N$file;
@@ -396,6 +405,7 @@ export class LabelComponent extends UIRenderComponent {
      */
     @property({
         displayOrder: 12,
+        tooltip:'是否使用系统默认字体',
     })
     get useSystemFont () {
         return this._isSystemFontUsed;
@@ -436,6 +446,7 @@ export class LabelComponent extends UIRenderComponent {
     @property({
         type: CacheMode,
         displayOrder: 13,
+        tooltip:'文本缓存模式，包括以下三种：\n 1. NONE: 不做任何缓存，文本内容进行一次绘制 \n 2. BITMAP: 将文本作为静态图像加入动态图集进行批次合并，但是不能频繁动态修改文本内容 \n 3. CHAR: 将文本拆分为字符并且把字符纹理缓存到一张字符图集中进行复用，适用于字符内容重复并且频繁更新的文本内容',
     })
     get cacheMode () {
         return this._cacheMode;
@@ -469,6 +480,7 @@ export class LabelComponent extends UIRenderComponent {
     @property({
         // visible: false,
         displayOrder: 15,
+        tooltip:'字体加粗',
     })
     get isBold () {
         return this._isBold;
@@ -490,6 +502,7 @@ export class LabelComponent extends UIRenderComponent {
     @property({
         // visible: false,
         displayOrder: 16,
+        tooltip:'字体倾斜',
     })
     get isItalic () {
         return this._isItalic;
@@ -511,6 +524,7 @@ export class LabelComponent extends UIRenderComponent {
     @property({
         // visible: false,
         displayOrder: 17,
+        tooltip:'字体加下划线',
     })
     get isUnderline () {
         return this._isUnderline;

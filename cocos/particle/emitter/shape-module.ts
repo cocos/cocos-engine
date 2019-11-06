@@ -24,6 +24,7 @@ export default class ShapeModule {
      */
     @property({
         displayOrder: 13,
+        tooltip:'粒子发射器位置',
     })
     get position () {
         return this._position;
@@ -38,6 +39,7 @@ export default class ShapeModule {
      */
     @property({
         displayOrder: 14,
+        tooltip:'粒子发射器旋转角度',
     })
     get rotation () {
         return this._rotation;
@@ -52,6 +54,7 @@ export default class ShapeModule {
      */
     @property({
         displayOrder: 15,
+        tooltip:'粒子发射器缩放比例',
     })
     get scale () {
         return this._scale;
@@ -66,6 +69,7 @@ export default class ShapeModule {
      */
     @property({
         displayOrder: 6,
+        tooltip:'粒子发射器在一个扇形范围内发射',
     })
     get arc () {
         return toDegree(this._arc);
@@ -81,6 +85,7 @@ export default class ShapeModule {
      */
     @property({
         displayOrder: 5,
+        tooltip:'圆锥的轴与母线的夹角\n决定圆锥发射器的开合程度',
     })
     get angle () {
         return Math.round(toDegree(this._angle) * 100) / 100;
@@ -110,6 +115,7 @@ export default class ShapeModule {
 
     @property({
         type: ShapeType,
+        tooltip:'粒子发射器类型',
     })
     public get shapeType () {
         return this._shapeType;
@@ -143,6 +149,7 @@ export default class ShapeModule {
     @property({
         type: EmitLocation,
         displayOrder: 2,
+        tooltip:'粒子从发射器哪个部位发射',
     })
     public emitFrom = EmitLocation.Volume;
 
@@ -151,6 +158,7 @@ export default class ShapeModule {
      */
     @property({
         displayOrder: 16,
+        tooltip:'根据粒子的初始方向决定粒子的移动方向',
     })
     public alignToDirection = false;
 
@@ -159,6 +167,7 @@ export default class ShapeModule {
      */
     @property({
         displayOrder: 17,
+        tooltip:'粒子生成方向随机设定',
     })
     public randomDirectionAmount = 0;
 
@@ -167,6 +176,7 @@ export default class ShapeModule {
      */
     @property({
         displayOrder: 18,
+        tooltip:'表示当前发射方向与当前位置到结点中心连线方向的插值',
     })
     public sphericalDirectionAmount = 0;
 
@@ -175,6 +185,7 @@ export default class ShapeModule {
      */
     @property({
         displayOrder: 19,
+        tooltip:'粒子生成位置随机设定（设定此值为非 0 会使粒子生成位置超出生成器大小范围）',
     })
     public randomPositionAmount = 0;
 
@@ -183,6 +194,7 @@ export default class ShapeModule {
      */
     @property({
         displayOrder: 3,
+        tooltip:'粒子发射器半径',
     })
     public radius = 1;
 
@@ -194,6 +206,7 @@ export default class ShapeModule {
      */
     @property({
         displayOrder: 4,
+        tooltip:'粒子发射器发射位置（对 Box 类型的发射器无效）:\n - 0 表示从表面发射；\n - 1 表示从中心发射；\n - 0 ~ 1 之间表示在中心到表面之间发射。',
     })
     public radiusThickness = 1;
 
@@ -203,6 +216,7 @@ export default class ShapeModule {
     @property({
         type: ArcMode,
         displayOrder: 7,
+        tooltip:'粒子在扇形范围内的发射方式',
     })
     public arcMode = ArcMode.Random;
 
@@ -211,6 +225,7 @@ export default class ShapeModule {
      */
     @property({
         displayOrder: 9,
+        tooltip:'控制可能产生粒子的弧周围的离散间隔',
     })
     public arcSpread = 0;
 
@@ -220,6 +235,7 @@ export default class ShapeModule {
     @property({
         type: CurveRange,
         displayOrder: 10,
+        tooltip:'粒子沿圆周发射的速度',
     })
     public arcSpeed = new CurveRange();
 
@@ -229,6 +245,7 @@ export default class ShapeModule {
      */
     @property({
         displayOrder: 11,
+        tooltip:'圆锥顶部截面距离底部的轴长\n决定圆锥发射器的高度',
     })
     public length = 5;
 
@@ -237,6 +254,7 @@ export default class ShapeModule {
      */
     @property({
         displayOrder: 12,
+        tooltip:'粒子发射器发射位置（针对 Box 类型的粒子发射器）',
     })
     public boxThickness = new Vec3(0, 0, 0);
 

@@ -56,7 +56,9 @@ export class SphereColliderComponent extends ColliderComponent {
      * @zh
      * 获取或设置球的半径。
      */
-    @property
+    @property({
+        tooltip:'球的半径',
+    })
     public get radius () {
         return this._radius;
     }

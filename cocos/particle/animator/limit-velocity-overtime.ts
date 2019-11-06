@@ -32,6 +32,7 @@ export default class LimitVelocityOvertimeModule {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 4,
+        tooltip:'X 轴方向上的速度下限',
     })
     public limitX = new CurveRange();
 
@@ -42,6 +43,7 @@ export default class LimitVelocityOvertimeModule {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 5,
+        tooltip:'Y 轴方向上的速度下限',
     })
     public limitY = new CurveRange();
 
@@ -52,6 +54,7 @@ export default class LimitVelocityOvertimeModule {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 6,
+        tooltip:'Z 轴方向上的速度下限',
     })
     public limitZ = new CurveRange();
 
@@ -62,6 +65,7 @@ export default class LimitVelocityOvertimeModule {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 3,
+        tooltip:'速度下限',
     })
     public limit = new CurveRange();
 
@@ -70,6 +74,7 @@ export default class LimitVelocityOvertimeModule {
      */
     @property({
         displayOrder: 7,
+        tooltip:'当前速度与速度下限的插值',
     })
     public dampen = 3;
 
@@ -78,6 +83,7 @@ export default class LimitVelocityOvertimeModule {
      */
     @property({
         displayOrder: 2,
+        tooltip:'是否三个轴分开限制',
     })
     public separateAxes = false;
 
@@ -87,6 +93,7 @@ export default class LimitVelocityOvertimeModule {
     @property({
         type: Space,
         displayOrder: 1,
+        tooltip:'计算速度下限时采用的坐标系',
     })
     public space = Space.Local;
 
