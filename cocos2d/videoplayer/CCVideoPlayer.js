@@ -263,7 +263,9 @@ let VideoPlayer = cc.Class({
             },
             set (enable) {
                 this._isFullscreen = enable;
-                this._impl && this._impl.setFullScreenEnabled(enable);
+                if (!CC_EDITOR) {
+                    this._impl && this._impl.setFullScreenEnabled(enable);
+                }
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.isFullscreen'
