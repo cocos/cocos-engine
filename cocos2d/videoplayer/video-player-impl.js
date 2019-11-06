@@ -58,7 +58,6 @@ let VideoPlayerImpl = cc.Class({
         this._ignorePause = false;
 
         // update matrix cache
-        this._forceUpdate = true;
         this._m00 = 0;
         this._m01 = 0;
         this._m04 = 0;
@@ -139,13 +138,11 @@ let VideoPlayerImpl = cc.Class({
 
         if (this._visible) {
             video.style.visibility = 'visible';
-            this._forceUpdate = true;
         }
         else {
             video.style.visibility = 'hidden';
             video.pause();
             this._playing = false;
-            this._forceUpdate = false;
         }
     },
 
@@ -440,7 +437,7 @@ let VideoPlayerImpl = cc.Class({
     },
 
     updateMatrix (node) {
-        if (!this._video || !this._visible || this._fullScreenEnabled || !this._forceUpdate) return;
+        if (!this._video || !this._visible || this._fullScreenEnabled) return;
 
         node.getWorldMatrix(_mat4_temp);
 

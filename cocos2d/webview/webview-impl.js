@@ -44,7 +44,6 @@ let WebViewImpl = cc.Class({
         this._listener = null;
 
         // update matrix cache
-        this._forceUpdate = true;
         this._m00 = 0;
         this._m01 = 0;
         this._m04 = 0;
@@ -66,7 +65,6 @@ let WebViewImpl = cc.Class({
         else {
             div.style.visibility = 'hidden';
         }
-        this._forceUpdate = true;
     },
 
     _updateSize (w, h) {
@@ -341,7 +339,7 @@ let WebViewImpl = cc.Class({
     },
 
     updateMatrix (node) {
-        if (!this._div || !this._visible || !this._forceUpdate) return;
+        if (!this._div || !this._visible) return;
 
         node.getWorldMatrix(_mat4_temp);
 
