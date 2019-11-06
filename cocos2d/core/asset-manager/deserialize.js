@@ -25,28 +25,24 @@
 
 const js = require('../platform/js');
 const helper = require('./helper');
+const MissingClass = CC_EDITOR && Editor.require('app://editor/page/scene-utils/missing-class-reporter').MissingClass;
 require('../platform/deserialize');
-
-var MissingClass;
 
 function deserialize (json, options) {
     if (!json) return new Error('empty json');
-    if (CC_EDITOR) {
-        MissingClass = MissingClass || Editor.require('app://editor/page/scene-utils/missing-class-reporter').MissingClass;
-    }
-    var classFinder;
+    var classFinder, missingClass;
     var isScene = helper.isSceneObj(json);
     if (isScene) {
         if (CC_EDITOR) {
-            MissingClass.hasMissingClass = false;
+            missingClass = MissingClass;
             classFinder = function (type, data, owner, propName) {
-                var res = MissingClass.classFinder(type, data, owner, propName);
+                var res = missingClass.classFinder(type, data, owner, propName);
                 if (res) {
                     return res;
                 }
                 return cc._MissingScript.getMissingWrapper(type, data);
             };
-            classFinder.onDereferenced = MissingClass.classFinder.onDereferenced;
+            classFinder.onDereferenced = missingClass.classFinder.onDereferenced;
         }
         else {
             classFinder = cc._MissingScript.safeFindClass;
@@ -77,8 +73,9 @@ function deserialize (json, options) {
         return e;
     }
 
-    if (CC_EDITOR && isScene && MissingClass.hasMissingClass) {
-        MissingClass.reportMissingClass(asset);
+    if (CC_EDITOR && missingClass) {
+        missingClass.reportMissingClass(asset);
+        missingClass.reset();
     }
 
     var uuidList = tdInfo.uuidList;
