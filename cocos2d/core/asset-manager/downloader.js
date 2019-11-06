@@ -524,6 +524,7 @@ var downloaders = {
     '.binary' : downloadArrayBuffer,
     '.bin': downloadArrayBuffer,
     '.dbbin': downloadArrayBuffer,
+    '.skel': downloadArrayBuffer,
 
     '.js': downloadScript,
 
