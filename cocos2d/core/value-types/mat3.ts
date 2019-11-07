@@ -53,7 +53,7 @@ export default class Mat3 {
      * @param {Number} m06 - Value assigned to element at column 2 row 0.
      * @param {Number} m07 - Value assigned to element at column 2 row 1.
      * @param {Number} m08 - Value assigned to element at column 2 row 2.
-     * @returns {mat3} The newly created matrix.
+     * @returns {Mat3} The newly created matrix.
      * @static
      */
     static create (m00: number = 1, m01: number = 0, m02: number = 0, m03: number = 0, m04: number = 1, m05: number = 0, m06: number = 0, m07: number = 0, m08: number = 1): Mat3 {
@@ -63,8 +63,8 @@ export default class Mat3 {
     /**
      * Clone a matrix.
      *
-     * @param {mat3} a - Matrix to clone.
-     * @returns {mat3} The newly created matrix.
+     * @param {Mat3} a - Matrix to clone.
+     * @returns {Mat3} The newly created matrix.
      * @static
      */
     static clone (a: Mat3): Mat3 {
@@ -79,9 +79,9 @@ export default class Mat3 {
     /**
      * Copy content of a matrix into another.
      *
-     * @param {mat3} out - Matrix to modified.
-     * @param {mat3} a - The specified matrix.
-     * @returns {mat3} out.
+     * @param {Mat3} out - Matrix to modified.
+     * @param {Mat3} a - The specified matrix.
+     * @returns {Mat3} out.
      * @static
      */
     static copy (out: Mat3, a: Mat3): Mat3 {
@@ -92,7 +92,7 @@ export default class Mat3 {
     /**
      * Sets the elements of a matrix to the given values.
      *
-     * @param {mat3} out - The matrix to modified.
+     * @param {Mat3} out - The matrix to modified.
      * @param {Number} m00 - Value assigned to element at column 0 row 0.
      * @param {Number} m01 - Value assigned to element at column 0 row 1.
      * @param {Number} m02 - Value assigned to element at column 0 row 2.
@@ -102,7 +102,7 @@ export default class Mat3 {
      * @param {Number} m20 - Value assigned to element at column 2 row 0.
      * @param {Number} m21 - Value assigned to element at column 2 row 1.
      * @param {Number} m22 - Value assigned to element at column 2 row 2.
-     * @returns {mat3} out.
+     * @returns {Mat3} out.
      * @static
      */
     static set (out: Mat3, m00: number, m01: number, m02: number, m10: number, m11: number, m12: number, m20: number, m21: number, m22: number): Mat3 {
@@ -122,7 +122,7 @@ export default class Mat3 {
     /**
      * return an identity matrix.
      *
-     * @returns {mat3} out.
+     * @returns {Mat3} out.
      * @static
      */
     static identity (out: Mat3): Mat3 {
@@ -142,9 +142,9 @@ export default class Mat3 {
     /**
      * Transposes a matrix.
      *
-     * @param {mat3} out - Matrix to store result.
-     * @param {mat3} a - Matrix to transpose.
-     * @returns {mat3} out.
+     * @param {Mat3} out - Matrix to store result.
+     * @param {Mat3} a - Matrix to transpose.
+     * @returns {Mat3} out.
      * @static
      */
     static transpose (out: Mat3, a: Mat3): Mat3 {
@@ -176,9 +176,9 @@ export default class Mat3 {
     /**
      * Inverts a matrix.
      *
-     * @param {mat3} out - Matrix to store result.
-     * @param {mat3} a - Matrix to invert.
-     * @returns {mat3} out.
+     * @param {Mat3} out - Matrix to store result.
+     * @param {Mat3} a - Matrix to invert.
+     * @returns {Mat3} out.
      * @static
      */
     static invert (out: Mat3, a: Mat3): Mat3 {
@@ -214,9 +214,9 @@ export default class Mat3 {
     /**
      * Calculates the adjugate of a matrix.
      *
-     * @param {mat3} out - Matrix to store result.
-     * @param {mat3} a - Matrix to calculate.
-     * @returns {mat3} out.
+     * @param {Mat3} out - Matrix to store result.
+     * @param {Mat3} a - Matrix to calculate.
+     * @returns {Mat3} out.
      * @static
      */
     static adjoint (out: Mat3, a: Mat3): Mat3 {
@@ -240,7 +240,7 @@ export default class Mat3 {
     /**
      * Calculates the determinant of a matrix.
      *
-     * @param {mat3} a - Matrix to calculate.
+     * @param {Mat3} a - Matrix to calculate.
      * @returns {Number} Determinant of a.
      * @static
      */
@@ -256,10 +256,10 @@ export default class Mat3 {
     /**
      * Multiply two matrices explicitly.
      *
-     * @param {mat3} out - Matrix to store result.
-     * @param {mat3} a - The first operand.
-     * @param {mat3} b - The second operand.
-     * @returns {mat3} out.
+     * @param {Mat3} out - Matrix to store result.
+     * @param {Mat3} a - The first operand.
+     * @param {Mat3} b - The second operand.
+     * @returns {Mat3} out.
      * @static
      */
     static multiply (out: Mat3, a: Mat3, b: Mat3): Mat3 {
@@ -289,10 +289,10 @@ export default class Mat3 {
     /**
      * Multiply a matrix with a translation matrix given by a translation offset.
      *
-     * @param {mat3} out - Matrix to store result.
-     * @param {mat3} a - Matrix to multiply.
+     * @param {Mat3} out - Matrix to store result.
+     * @param {Mat3} a - Matrix to multiply.
      * @param {vec2} v - The translation offset.
-     * @returns {mat3} out.
+     * @returns {Mat3} out.
      * @static
      */
     static translate (out: Mat3, a: Mat3, v: Vec2): Mat3 {
@@ -319,10 +319,10 @@ export default class Mat3 {
     /**
      * Rotates a matrix by the given angle.
      *
-     * @param {mat3} out - Matrix to store result.
-     * @param {mat3} a - Matrix to rotate.
+     * @param {Mat3} out - Matrix to store result.
+     * @param {Mat3} a - Matrix to rotate.
      * @param {Number} rad - The rotation angle.
-     * @returns {mat3} out
+     * @returns {Mat3} out
      * @static
      */
     static rotate (out: Mat3, a: Mat3, rad: number): Mat3 {
@@ -351,10 +351,10 @@ export default class Mat3 {
     /**
      * Multiply a matrix with a scale matrix given by a scale vector.
      *
-     * @param {mat3} out - Matrix to store result.
-     * @param {mat3} a - Matrix to multiply.
+     * @param {Mat3} out - Matrix to store result.
+     * @param {Mat3} a - Matrix to multiply.
      * @param {vec2} v - The scale vector.
-     * @returns {mat3} out
+     * @returns {Mat3} out
      **/
     static scale (out: Mat3, a: Mat3, v: Vec2): Mat3 {
         let x = v.x, y = v.y;
@@ -377,9 +377,9 @@ export default class Mat3 {
     /**
      * Copies the upper-left 3x3 values of a 4x4 matrix into a 3x3 matrix.
      *
-     * @param {mat3} out - Matrix to store result.
+     * @param {Mat3} out - Matrix to store result.
      * @param {mat4} a - The 4x4 matrix.
-     * @returns {mat3} out.
+     * @returns {Mat3} out.
      * @static
      */
     static fromMat4 (out: Mat3, a: Mat4): Mat3 {
@@ -403,9 +403,9 @@ export default class Mat3 {
      *     mat3.identity(dest);
      *     mat3.translate(dest, dest, vec);
      *
-     * @param {mat3} out - Matrix to store result.
+     * @param {Mat3} out - Matrix to store result.
      * @param {vec2} v - The translation offset.
-     * @returns {mat3} out.
+     * @returns {Mat3} out.
      * @static
      */
     static fromTranslation (out: Mat3, v: Vec2): Mat3 {
@@ -429,9 +429,9 @@ export default class Mat3 {
      *     mat3.identity(dest);
      *     mat3.rotate(dest, dest, rad);
      *
-     * @param {mat3} out - Matrix to store result.
+     * @param {Mat3} out - Matrix to store result.
      * @param {Number} rad - The rotation angle.
-     * @returns {mat3} out.
+     * @returns {Mat3} out.
      * @static
      */
     static fromRotation (out: Mat3, rad: number): Mat3 {
@@ -459,9 +459,9 @@ export default class Mat3 {
      *     mat3.identity(dest);
      *     mat3.scale(dest, dest, vec);
      *
-     * @param {mat3} out - Matrix to store result.
+     * @param {Mat3} out - Matrix to store result.
      * @param {vec2} v - Scale vector.
-     * @returns {mat3} out.
+     * @returns {Mat3} out.
      * @static
      */
     static fromScaling (out: Mat3, v: Vec2): Mat3 {
@@ -483,10 +483,10 @@ export default class Mat3 {
     /**
      * Calculates a 3x3 matrix from the given quaternion.
      *
-     * @param {mat3} out - Matrix to store result.
+     * @param {Mat3} out - Matrix to store result.
      * @param {quat} q - The quaternion.
      *
-     * @returns {mat3} out.
+     * @returns {Mat3} out.
      * @static
      */
     static fromQuat (out: Mat3, q: Quat): Mat3 {
@@ -524,11 +524,11 @@ export default class Mat3 {
     /**
      * Calculates a 3x3 matrix from view direction and up direction.
      *
-     * @param {mat3} out - Matrix to store result.
+     * @param {Mat3} out - Matrix to store result.
      * @param {vec3} view - View direction (must be normalized).
      * @param {vec3} [up] - Up direction, default is (0,1,0) (must be normalized).
      *
-     * @returns {mat3} out
+     * @returns {Mat3} out
      * @static
      */
     static fromViewUp (out: Mat3, view: Vec3, up?: Vec3): Mat3 {
@@ -568,10 +568,10 @@ export default class Mat3 {
     /**
      * Calculates a 3x3 normal matrix (transpose inverse) from the 4x4 matrix.
      *
-     * @param {mat3} out - Matrix to store result.
+     * @param {Mat3} out - Matrix to store result.
      * @param {mat4} a - A 4x4 matrix to derive the normal matrix from.
      *
-     * @returns {mat3} out.
+     * @returns {Mat3} out.
      * @static
      */
     static normalFromMat4 (out: Mat3, a: Mat4): Mat3 {
@@ -620,7 +620,7 @@ export default class Mat3 {
     /**
      * Returns Frobenius norm of a matrix.
      *
-     * @param {mat3} a - Matrix to calculate Frobenius norm of.
+     * @param {Mat3} a - Matrix to calculate Frobenius norm of.
      * @returns {Number} - The frobenius norm.
      * @static
      */
@@ -632,10 +632,10 @@ export default class Mat3 {
     /**
      * Adds two matrices.
      *
-     * @param {mat3} out - Matrix to store result.
-     * @param {mat3} a - The first operand.
-     * @param {mat3} b - The second operand.
-     * @returns {mat3} out.
+     * @param {Mat3} out - Matrix to store result.
+     * @param {Mat3} a - The first operand.
+     * @param {Mat3} b - The second operand.
+     * @returns {Mat3} out.
      * @static
      */
     static add (out: Mat3, a: Mat3, b: Mat3): Mat3 {
@@ -655,10 +655,10 @@ export default class Mat3 {
     /**
      * Subtracts matrix b from matrix a.
      *
-     * @param {mat3} out - Matrix to store result.
-     * @param {mat3} a - The first operand.
-     * @param {mat3} b - The second operand.
-     * @returns {mat3} out.
+     * @param {Mat3} out - Matrix to store result.
+     * @param {Mat3} a - The first operand.
+     * @param {Mat3} b - The second operand.
+     * @returns {Mat3} out.
      * @static
      */
     static subtract (out: Mat3, a: Mat3, b: Mat3): Mat3 {
@@ -678,10 +678,10 @@ export default class Mat3 {
     /**
      * Multiply each element of a matrix by a scalar number.
      *
-     * @param {mat3} out - Matrix to store result.
-     * @param {mat3} a - Matrix to scale
+     * @param {Mat3} out - Matrix to store result.
+     * @param {Mat3} a - Matrix to scale
      * @param {Number} b - The scale number.
-     * @returns {mat3} out.
+     * @returns {Mat3} out.
      * @static
      */
     static multiplyScalar (out: Mat3, a: Mat3, b: number): Mat3 {
@@ -701,11 +701,11 @@ export default class Mat3 {
     /**
      * Adds two matrices after multiplying each element of the second operand by a scalar number.
      *
-     * @param {mat3} out - Matrix to store result.
-     * @param {mat3} a - The first operand.
-     * @param {mat3} b - The second operand.
+     * @param {Mat3} out - Matrix to store result.
+     * @param {Mat3} a - The first operand.
+     * @param {Mat3} b - The second operand.
      * @param {Number} scale - The scale number.
-     * @returns {mat3} out.
+     * @returns {Mat3} out.
      * @static
      */
     static multiplyScalarAndAdd (out: Mat3, a: Mat3, b: Mat3, scale: number): Mat3 {
@@ -725,8 +725,8 @@ export default class Mat3 {
     /**
      * Returns whether the specified matrices are equal. (Compared using ===)
      *
-     * @param {mat3} a - The first matrix.
-     * @param {mat3} b - The second matrix.
+     * @param {Mat3} a - The first matrix.
+     * @param {Mat3} b - The second matrix.
      * @returns {Boolean} True if the matrices are equal, false otherwise.
      * @static
      */
@@ -740,8 +740,8 @@ export default class Mat3 {
     /**
      * Returns whether the specified matrices are approximately equal.
      *
-     * @param {mat3} a - The first matrix.
-     * @param {mat3} b - The second matrix.
+     * @param {Mat3} a - The first matrix.
+     * @param {Mat3} b - The second matrix.
      * @returns {Boolean} True if the matrices are equal, false otherwise.
      * @static
      */
@@ -889,7 +889,7 @@ export default class Mat3 {
     /**
      * Returns a string representation of a matrix.
      *
-     * @param {mat3} a - The matrix.
+     * @param {Mat3} a - The matrix.
      * @returns {String} String representation of this matrix.
      */
     toString () {

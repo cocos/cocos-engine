@@ -1536,9 +1536,9 @@ export default class Mat4 extends ValueType {
     /**
      * Calculates the adjugate of a matrix.
      *
-     * @param {mat4} out - Matrix to store result.
-     * @param {mat4} a - Matrix to calculate.
-     * @returns {mat4} out.
+     * @param {Mat4} out - Matrix to store result.
+     * @param {Mat4} a - Matrix to calculate.
+     * @returns {Mat4} out.
      */
     static adjoint (out, a) {
         let am = a.m, outm = out.m;
