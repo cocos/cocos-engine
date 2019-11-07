@@ -17,7 +17,6 @@ class Effect {
         this._properties = properties;
         this._defines = defines;
         this._dependencies = dependencies;
-        // TODO: check if params is valid for current technique???
     }
 
     clear() {
