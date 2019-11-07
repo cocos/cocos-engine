@@ -89,13 +89,13 @@ export interface IBaseNode {
      * @zh
      * 父节点
      */
-    parent: this | null;
+    parent: IBaseNode | null;
 
     /**
      * @zh
      * 孩子节点数组
      */
-    children: Readonly<this[]>;
+    children: Readonly<IBaseNode[]>;
 
     /**
      * @en
@@ -157,7 +157,7 @@ export interface IBaseNode {
      * var parent = this.node.getParent();
      * ```
      */
-    getParent (): this | null;
+    getParent (): IBaseNode | null;
 
     /**
      * @en Set parent of the node.
@@ -167,7 +167,7 @@ export interface IBaseNode {
      * node.setParent(newNode);
      * ```
      */
-    setParent (value: this | null, keepWorldTransform?: boolean): void;
+    setParent (value: IBaseNode | null, keepWorldTransform?: boolean): void;
 
     /**
      * @en Is this node a child of the given node?
@@ -178,25 +178,25 @@ export interface IBaseNode {
      * node.isChildOf(newNode);
      * ```
      */
-    isChildOf (parent: this | null): boolean;
+    isChildOf (parent: IBaseNode | null): boolean;
 
     /**
      * @zh 增加一个孩子节点
      * @param child 孩子节点
      */
-    addChild (child: this): void;
+    addChild (child: IBaseNode): void;
 
     /**
      * @zh 移除节点中指定的子节点
      * @param child 孩子节点
      */
-    removeChild (child: this, cleanup?: boolean): void;
+    removeChild (child: IBaseNode, cleanup?: boolean): void;
 
     /**
     * @zh 插入子节点到指定位置
     * @param siblingIndex 指定位置
     */
-    insertChild (child: this, siblingIndex: number): void;
+    insertChild (child: IBaseNode, siblingIndex: number): void;
 
     /**
      * @en Returns a child from the container given its uuid.
@@ -208,7 +208,7 @@ export interface IBaseNode {
      * var child = node.getChildByUuid(uuid);
      * ```
      */
-    getChildByUuid (uuid: string): this | null;
+    getChildByUuid (uuid: string): IBaseNode | null;
 
     /**
      * @en Returns a child from the container given its name.
@@ -220,7 +220,7 @@ export interface IBaseNode {
      * var child = node.getChildByName("Test Node");
      * ```
      */
-    getChildByName (name: string): this | null;
+    getChildByName (name: string): IBaseNode | null;
 
     /**
      * @en Returns a child from the container given its path.
@@ -232,7 +232,7 @@ export interface IBaseNode {
      * var child = node.getChildByPath("Test Node");
      * ```
      */
-    getChildByPath (path: string): this | null;
+    getChildByPath (path: string): IBaseNode | null;
 
     /**
      * @en
@@ -246,7 +246,7 @@ export interface IBaseNode {
      * node.insertChild(child, 2);
      * ```
      */
-    insertChild (child: this, siblingIndex: number): void;
+    insertChild (child: IBaseNode, siblingIndex: number): void;
 
     /**
      * @en Get the sibling index.
@@ -294,7 +294,7 @@ export interface IBaseNode {
      * node.removeChild(newNode);
      * ```
      */
-    removeChild (child: this): void;
+    removeChild (child: IBaseNode): void;
 
     /**
      * @en
@@ -424,6 +424,12 @@ export interface IBaseNode {
     dispatchEvent (event: Event): void;
     hasEventListener (type: string): boolean;
     targetOff (target: string | Object): void;
+
+    _onPostActivated (active: boolean);
+
+    _onBatchRestored ();
+
+    _onBatchCreated ();
 
     /**
      * @zh

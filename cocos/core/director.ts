@@ -612,6 +612,8 @@ export class Director extends EventTarget {
         if (onLaunched) {
             onLaunched(null, scene);
         }
+        let node = new Node();
+        node.parent = scene as Scene;
         this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
     }
 

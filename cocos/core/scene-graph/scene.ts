@@ -146,7 +146,7 @@ export class Scene extends BaseNode {
         return null;
     }
 
-    public _onHierarchyChanged () { }
+    protected _onHierarchyChanged () { }
 
     public _onBatchCreated () {
         super._onBatchCreated();

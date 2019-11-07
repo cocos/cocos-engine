@@ -210,7 +210,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             this._active = isActive;
             const parent = this._parent;
             if (parent) {
-                const couldActiveInScene = parent._activeInHierarchy;
+                const couldActiveInScene = (parent as BaseNode)._activeInHierarchy;
                 if (couldActiveInScene) {
                     cc.director._nodeActivator.activateNode(this, isActive);
                 }
@@ -237,7 +237,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
     get parent () {
         return this._parent;
     }
-    set parent (value) {
+    set parent (value: IBaseNode | null) {
         this.setParent(value);
     }
 
@@ -261,7 +261,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             if (node._parent == null) {
                 cc.error('Node %s(%s) has not attached to a scene.', node.name, node.uuid);
             } else {
-                node._scene = node._parent._scene;
+                node._scene = (node._parent as BaseNode)._scene;
             }
         }
     }
@@ -320,7 +320,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             if (comp) {
                 return comp;
             } else if (node._children.length > 0) {
-                comp = BaseNode._findChildComponent(node._children, constructor);
+                comp = BaseNode._findChildComponent(node._children as BaseNode[], constructor);
                 if (comp) {
                     return comp;
                 }
@@ -334,16 +334,16 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             const node = children[i];
             BaseNode._findComponents(node, constructor, components);
             if (node._children.length > 0) {
-                BaseNode._findChildComponents(node._children, constructor, components);
+                BaseNode._findChildComponents(node._children as BaseNode[], constructor, components);
             }
         }
     }
 
     @property
-    protected _parent: this | null = null;
+    protected _parent: IBaseNode | null = null;
 
     @property
-    protected _children: this[] = [];
+    protected _children: IBaseNode[] = [];
 
     @property
     protected _active = true;
@@ -443,11 +443,11 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
      * node.setParent(newNode);
      * ```
      */
-    public setParent (value: this | null, keepWorldTransform: boolean = false) {
+    public setParent (value: IBaseNode | null, keepWorldTransform: boolean = false) {
         if (this._parent === value) {
             return;
         }
-        const oldParent = this._parent;
+        const oldParent = this._parent as BaseNode;
         if (CC_DEBUG && oldParent &&
             // Change parent when old parent desactivating or activating
             (oldParent._objFlags & ChangingState)) {
@@ -464,14 +464,15 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             this.emit(SystemEventType.PARENT_CHANGED, oldParent);
         }
 
-        if (value) {
-            if (CC_DEBUG && (value._objFlags & Deactivating)) {
+        const parent = value as BaseNode;
+        if (parent) {
+            if (CC_DEBUG && (parent._objFlags & Deactivating)) {
                 errorID(3821);
             }
-            value._children.push(this);
-            this._siblingIndex = value._children.length - 1;
-            if (value.emit) {
-                value.emit(SystemEventType.CHILD_ADDED, this);
+            parent._children.push(this);
+            this._siblingIndex = parent._children.length - 1;
+            if (parent.emit) {
+                parent.emit(SystemEventType.CHILD_ADDED, this);
             }
         }
         if (oldParent) {
@@ -507,7 +508,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             return null;
         }
 
-        const locChildren = this._children;
+        const locChildren = this._children as BaseNode[];
         for (let i = 0, len = locChildren.length; i < len; i++) {
             if (locChildren[i]._id === uuid) {
                 return locChildren[i];
@@ -532,7 +533,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             return null;
         }
 
-        const locChildren = this._children;
+        const locChildren = this._children as BaseNode[];
         for (let i = 0, len = locChildren.length; i < len; i++) {
             if (locChildren[i]._name === name) {
                 return locChildren[i];
@@ -553,7 +554,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
      */
     public getChildByPath (path: string) {
         const segments = path.split('/');
-        let lastNode: this = this;
+        let lastNode: IBaseNode = this;
         for (let i = 0; i < segments.length; ++i) {
             const segment = segments[i];
             if (segment.length === 0) {
@@ -568,13 +569,13 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         return lastNode;
     }
 
-    public addChild (child: this): void {
+    public addChild (child: IBaseNode): void {
 
         if (CC_DEV && !(child instanceof cc._BaseNode)) {
             return errorID(1634, cc.js.getClassName(child));
         }
         cc.assertID(child, 1606);
-        cc.assertID(child._parent === null, 1605);
+        cc.assertID((child as BaseNode)._parent === null, 1605);
 
         // invokes the parent setter
         child.setParent(this);
@@ -595,7 +596,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
      * node.insertChild(child, 2);
      * ```
      */
-    public insertChild (child: this, siblingIndex: number) {
+    public insertChild (child: IBaseNode, siblingIndex: number) {
         child.parent = this;
         child.setSiblingIndex(siblingIndex);
     }
@@ -621,14 +622,15 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
      * ```
      */
     public setSiblingIndex (index: number) {
-        if (!this._parent) {
+        let parent = this._parent as BaseNode;
+        if (!parent) {
             return;
         }
-        if (this._parent._objFlags & Deactivating) {
+        if (parent._objFlags & Deactivating) {
             errorID(3821);
             return;
         }
-        const siblings = this._parent._children;
+        const siblings = parent._children;
         index = index !== -1 ? index : siblings.length - 1;
         const oldIndex = siblings.indexOf(this);
         if (index !== oldIndex) {
@@ -638,7 +640,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             } else {
                 siblings.push(this);
             }
-            this._parent._updateSiblingIndex();
+            parent._updateSiblingIndex();
             if (this._onSiblingIndexChanged) {
                 this._onSiblingIndexChanged(index);
             }
@@ -666,11 +668,11 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
      * });
      * ```
      */
-    public walk (prefunc: (target: this) => void, postfunc?: (target: this) => void) {
+    public walk (prefunc: (target: IBaseNode) => void, postfunc?: (target: IBaseNode) => void) {
         // const BaseNode = cc._BaseNode;
         let index = 1;
-        let children: this[] | null = null;
-        let curr: this | null = null;
+        let children: BaseNode[] | null = null;
+        let curr: BaseNode | null = null;
         let i = 0;
         let stack = BaseNode._stacks[BaseNode._stackId];
         if (!stack) {
@@ -681,11 +683,11 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
 
         stack.length = 0;
         stack[0] = this;
-        let parent: this | null = null;
+        let parent: BaseNode | null = null;
         let afterChildren = false;
         while (index) {
             index--;
-            curr = stack[index] as (this | null);
+            curr = stack[index] as (BaseNode | null);
             if (!curr) {
                 continue;
             }
@@ -706,7 +708,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
                 // Children not proceeded and has children, proceed to child tree
                 if (curr._children.length > 0) {
                     parent = curr;
-                    children = curr._children;
+                    children = curr._children as BaseNode[];
                     i = 0;
                     stack[index] = children[i];
                     index++;
@@ -730,9 +732,9 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
                     // Setup parent walk env
                     afterChildren = true;
                     if (parent._parent) {
-                        children = parent._parent._children;
+                        children = (parent._parent as BaseNode)._children as BaseNode[];
                         i = children.indexOf(parent);
-                        parent = parent._parent;
+                        parent = parent._parent as BaseNode;
                     } else {
                         // At root
                         parent = null;
@@ -781,7 +783,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
      * node.removeChild(newNode);
      * ```
      */
-    public removeChild (child: this) {
+    public removeChild (child: IBaseNode) {
         if (this._children.indexOf(child) > -1) {
             // invoke the parent setter
             child.parent = null;
@@ -820,13 +822,13 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
      * node.isChildOf(newNode);
      * ```
      */
-    public isChildOf (parent: this | null): boolean {
+    public isChildOf (parent: IBaseNode | null): boolean {
         let child: BaseNode | null = this;
         do {
             if (child === parent) {
                 return true;
             }
-            child = child._parent;
+            child = child._parent as BaseNode;
         }
         while (child);
         return false;
@@ -924,7 +926,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
     public getComponentInChildren (typeOrClassName: string | Function) {
         const constructor = getConstructor(typeOrClassName);
         if (constructor) {
-            return BaseNode._findChildComponent(this._children, constructor);
+            return BaseNode._findChildComponent(this._children as BaseNode[], constructor);
         }
         return null;
     }
@@ -954,7 +956,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         const components: Component[] = [];
         if (constructor) {
             BaseNode._findComponents(this, constructor, components);
-            BaseNode._findChildComponents(this._children, constructor, components);
+            BaseNode._findChildComponents(this._children as BaseNode[], constructor, components);
         }
         return components;
     }
@@ -1211,15 +1213,16 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
 
     public _updateSiblingIndex () {
         for (let i = 0; i < this._children.length; ++i) {
-            this._children[i]._siblingIndex = i;
+            (this._children[i] as BaseNode)._siblingIndex = i;
         }
     }
 
-    protected _onSetParent (oldParent: this | null, keepWorldTransform: boolean = false) {
-        if (this._parent) {
-            if ((oldParent == null || oldParent._scene !== this._parent._scene) && this._parent._scene != null) {
+    protected _onSetParent (oldParent: BaseNode | null, keepWorldTransform: boolean = false) {
+        let parent = this._parent as BaseNode;
+        if (parent) {
+            if ((oldParent == null || oldParent._scene !== parent._scene) && parent._scene != null) {
                 this.walk((node) => {
-                    BaseNode._setScene(node);
+                    BaseNode._setScene(node as BaseNode);
                 });
             }
         }
@@ -1227,15 +1230,15 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
 
     // PRIVATE
 
-    protected _onPostActivated (active: boolean) {
+    public _onPostActivated (active: boolean) {
         return;
     }
 
-    protected _onBatchRestored () {
+    public _onBatchRestored () {
         return;
     }
 
-    protected _onBatchCreated () {
+    public _onBatchCreated () {
         if (this._parent) {
             this._siblingIndex = this._parent.children.indexOf(this);
         }
@@ -1246,7 +1249,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         this._onPreDestroyBase();
     }
 
-    protected _onHierarchyChanged (oldParent: this | null) {
+    protected _onHierarchyChanged (oldParent: IBaseNode | null) {
         return this._onHierarchyChangedBase(oldParent);
     }
 
@@ -1275,8 +1278,8 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         return cloned;
     }
 
-    protected _onHierarchyChangedBase (oldParent: this | null) {
-        const newParent = this._parent;
+    protected _onHierarchyChangedBase (oldParent: IBaseNode | null) {
+        const newParent = this._parent as BaseNode;
         if (this._persistNode && !(newParent instanceof cc.Scene)) {
             cc.game.removePersistRootNode(this);
             if (CC_EDITOR) {
@@ -1333,7 +1336,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         this._objFlags |= Destroying;
 
         // detach self and children from editor
-        const parent = this._parent;
+        const parent = this._parent as BaseNode;
         const destroyByParent: boolean = (parent !== null) && ((parent._objFlags & Destroying) !== 0);
         if (!destroyByParent && (CC_EDITOR || CC_TEST)) {
             this._registerIfAttached!(false);
@@ -1343,7 +1346,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         const children = this._children;
         for (let i = 0; i < children.length; ++i) {
             // destroy immediate so its _onPreDestroy can be called
-            children[i]._destroyImmediate();
+            (children[i] as BaseNode)._destroyImmediate();
         }
 
         // destroy self components
@@ -1396,7 +1399,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         // deactivate recursively
         const children = this._children;
         for (let i = 0; i < children.length; ++i) {
-            const node = children[i];
+            const node = children[i] as BaseNode;
             if (node._active) {
                 node._disableChildComps();
             }

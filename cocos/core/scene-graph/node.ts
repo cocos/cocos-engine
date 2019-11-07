@@ -326,7 +326,7 @@ export class Node extends BaseNode implements INode {
     public _onSetParent (oldParent: this | null, keepWorldTransform: boolean) {
         super._onSetParent(oldParent, keepWorldTransform);
         if (keepWorldTransform) {
-            const parent = this._parent;
+            const parent = this._parent as Node;
             if (parent) {
                 parent.updateWorldTransform();
                 Mat4.multiply(m4_1, Mat4.invert(m4_1, parent._mat), this._mat);
@@ -458,7 +458,7 @@ export class Node extends BaseNode implements INode {
         dirtyBit |= TransformDirtyBit.POSITION;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
-            this._children[i].invalidateChildren(dirtyBit);
+            (this._children[i] as Node).invalidateChildren(dirtyBit);
         }
     }
 
@@ -470,12 +470,12 @@ export class Node extends BaseNode implements INode {
      */
     public updateWorldTransform () {
         if (!this._dirtyFlags) { return; }
-        let cur: this | null = this;
+        let cur: Node | null = this;
         let i = 0;
         while (cur && cur._dirtyFlags) {
             // top level node
             array_a[i++] = cur;
-            cur = cur._parent;
+            cur = cur._parent as Node;
         }
         let child: this; let dirtyBits = 0;
         while (i) {
@@ -674,10 +674,10 @@ export class Node extends BaseNode implements INode {
 
     public inverseTransformPoint (out: Vec3, p: Vec3) {
         Vec3.copy(out, p);
-        let cur = this; let i = 0;
+        let cur = this as Node; let i = 0;
         while (cur._parent) {
             array_a[i++] = cur;
-            cur = cur._parent;
+            cur = cur._parent as Node;
         }
         while (i >= 0) {
             Vec3.transformInverseRTS(out, out, cur._lrot, cur._lpos, cur._lscale);
@@ -709,7 +709,7 @@ export class Node extends BaseNode implements INode {
         } else {
             Vec3.set(this._pos, val as number, y, z);
         }
-        const parent = this._parent;
+        const parent = this._parent as Node;
         const local = this._lpos;
         if (parent) {
             // TODO: benchmark these approaches
@@ -766,9 +766,10 @@ export class Node extends BaseNode implements INode {
         } else {
             Quat.set(this._rot, val as number, y, z, w);
         }
-        if (this._parent) {
-            this._parent.updateWorldTransform();
-            Quat.multiply(this._lrot, Quat.conjugate(this._lrot, this._parent._rot), this._rot);
+        let parent = this._parent as Node;
+        if (parent) {
+            parent.updateWorldTransform();
+            Quat.multiply(this._lrot, Quat.conjugate(this._lrot, parent._rot), this._rot);
         } else {
             Quat.copy(this._lrot, this._rot);
         }
@@ -789,9 +790,10 @@ export class Node extends BaseNode implements INode {
      */
     public setWorldRotationFromEuler (x: number, y: number, z: number): void {
         Quat.fromEuler(this._rot, x, y, z);
-        if (this._parent) {
-            this._parent.updateWorldTransform();
-            Quat.multiply(this._lrot, Quat.conjugate(this._lrot, this._parent._rot), this._rot);
+        let parent = this._parent as Node;
+        if (parent) {
+            parent.updateWorldTransform();
+            Quat.multiply(this._lrot, Quat.conjugate(this._lrot, parent._rot), this._rot);
         } else {
             Quat.copy(this._lrot, this._rot);
         }
@@ -839,7 +841,7 @@ export class Node extends BaseNode implements INode {
         } else {
             Vec3.set(this._scale, val as number, y, z);
         }
-        const parent = this._parent;
+        const parent = this._parent as Node;
         if (parent) {
             parent.updateWorldTransform();
             Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, parent._rot));
