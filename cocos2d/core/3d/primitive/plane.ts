@@ -3,13 +3,13 @@
 import Vec3 from '../../value-types/vec3';
 import VertexData from './vertex-data';
 
-let temp1 = new Vec3(0, 0, 0);
-let temp2 = new Vec3(0, 0, 0);
-let temp3 = new Vec3(0, 0, 0);
-let r = new Vec3(0, 0, 0);
-let c00 = new Vec3(0, 0, 0);
-let c10 = new Vec3(0, 0, 0);
-let c01 = new Vec3(0, 0, 0);
+let temp1 = new Vec3();
+let temp2 = new Vec3();
+let temp3 = new Vec3();
+let r = new Vec3();
+let c00 = new Vec3();
+let c10 = new Vec3();
+let c01 = new Vec3();
 
 /**
  * @param {Number} width
@@ -19,8 +19,8 @@ let c01 = new Vec3(0, 0, 0);
  * @param {Number} opts.lengthSegments
  */
 export default function (width = 10, length = 10, opts = {widthSegments: 10, lengthSegments: 10}) {
-  let uSegments = opts.widthSegments !== undefined ? opts.widthSegments : 10;
-  let vSegments = opts.lengthSegments !== undefined ? opts.lengthSegments : 10;
+  let uSegments = opts.widthSegments;
+  let vSegments = opts.lengthSegments;
 
   let hw = width * 0.5;
   let hl = length * 0.5;

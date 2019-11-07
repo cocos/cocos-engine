@@ -42,31 +42,6 @@ let _a30: number = 0; let _a31: number = 0; let _a32: number = 0; let _a33: numb
  * @class Mat4
  * @extends ValueType
  */
-
-/**
- * !#en
- * Constructor
- * see {{#crossLink "cc/mat4:method"}}cc.mat4{{/crossLink}}
- * !#zh
- * 构造函数，可查看 {{#crossLink "cc/mat4:method"}}cc.mat4{{/crossLink}}
- * @method constructor
- * @param {Number} m00 Component in column 0, row 0 position (index 0)
- * @param {Number} m01 Component in column 0, row 1 position (index 1)
- * @param {Number} m02 Component in column 0, row 2 position (index 2)
- * @param {Number} m03 Component in column 0, row 3 position (index 3)
- * @param {Number} m10 Component in column 1, row 0 position (index 4)
- * @param {Number} m11 Component in column 1, row 1 position (index 5)
- * @param {Number} m12 Component in column 1, row 2 position (index 6)
- * @param {Number} m13 Component in column 1, row 3 position (index 7)
- * @param {Number} m20 Component in column 2, row 0 position (index 8)
- * @param {Number} m21 Component in column 2, row 1 position (index 9)
- * @param {Number} m22 Component in column 2, row 2 position (index 10)
- * @param {Number} m23 Component in column 2, row 3 position (index 11)
- * @param {Number} m30 Component in column 3, row 0 position (index 12)
- * @param {Number} m31 Component in column 3, row 1 position (index 13)
- * @param {Number} m32 Component in column 3, row 2 position (index 14)
- * @param {Number} m33 Component in column 3, row 3 position (index 15)
- */
 export default class Mat4 extends ValueType {
     public static mul = Mat4.multiply;
     public static sub = Mat4.subtract;
@@ -1578,8 +1553,29 @@ export default class Mat4 extends ValueType {
         return out;
     }
 
+    /**
+     * !#en Matrix Data
+     * !#zh 矩阵数据
+     * @property {Float32Array} m
+     */
     m: Float32Array;
 
+
+    /**
+     * !#en
+     * Constructor
+     * see {{#crossLink "cc/mat4:method"}}cc.mat4{{/crossLink}}
+     * !#zh
+     * 构造函数，可查看 {{#crossLink "cc/mat4:method"}}cc.mat4{{/crossLink}}
+     * @method constructor
+     * @typescript
+     * constructor (
+            m00: number = 1, m01: number = 0, m02: number = 0, m03: number = 0,
+            m10: number = 0, m11: number = 1, m12: number = 0, m13: number = 0,
+            m20: number = 0, m21: number = 0, m22: number = 1, m23: number = 0,
+            m30: number = 0, m31: number = 0, m32: number = 0, m33: number = 1
+        )
+     */
     constructor (
         m00: number = 1, m01: number = 0, m02: number = 0, m03: number = 0,
         m10: number = 0, m11: number = 1, m12: number = 0, m13: number = 0,

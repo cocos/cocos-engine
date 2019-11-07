@@ -3,18 +3,18 @@
 import Vec3 from '../../value-types/vec3';
 import VertexData from './vertex-data';
 
-let temp1 = new Vec3(0, 0, 0);
-let temp2 = new Vec3(0, 0, 0);
-let temp3 = new Vec3(0, 0, 0);
-let r = new Vec3(0, 0, 0);
-let c0 = new Vec3(0, 0, 0);
-let c1 = new Vec3(0, 0, 0);
-let c2 = new Vec3(0, 0, 0);
-let c3 = new Vec3(0, 0, 0);
-let c4 = new Vec3(0, 0, 0);
-let c5 = new Vec3(0, 0, 0);
-let c6 = new Vec3(0, 0, 0);
-let c7 = new Vec3(0, 0, 0);
+let temp1 = new Vec3();
+let temp2 = new Vec3();
+let temp3 = new Vec3();
+let r = new Vec3();
+let c0 = new Vec3();
+let c1 = new Vec3();
+let c2 = new Vec3();
+let c3 = new Vec3();
+let c4 = new Vec3();
+let c5 = new Vec3();
+let c6 = new Vec3();
+let c7 = new Vec3();
 
 /**
  * @param {Number} width

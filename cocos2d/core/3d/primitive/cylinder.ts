@@ -3,8 +3,8 @@
 import Vec3 from '../../value-types/vec3';
 import VertexData from './vertex-data';
 
-let temp1 = new Vec3(0, 0, 0);
-let temp2 = new Vec3(0, 0, 0);
+let temp1 = new Vec3();
+let temp2 = new Vec3();
 
 /**
  * @param {Number} radiusTop
@@ -20,7 +20,7 @@ export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts =
   let halfHeight = height * 0.5;
   let radialSegments = opts.radialSegments;
   let heightSegments = opts.heightSegments;
-  let capped = opts.capped !== undefined ? opts.capped : true;
+  let capped = opts.capped;
   let arc = opts.arc;
 
   let cntCap = 0;

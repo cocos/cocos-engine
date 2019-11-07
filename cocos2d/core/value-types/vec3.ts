@@ -70,7 +70,7 @@ export default class Vec3 extends ValueType {
      * @type Vec3
      * @static
      */
-    public static get ZERO () { return new Vec3(0, 0, 0); }
+    public static get ZERO () { return new Vec3(); }
     public static readonly ZERO_R = Vec3.ZERO;
 
     /**

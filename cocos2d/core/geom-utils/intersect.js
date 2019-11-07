@@ -58,11 +58,11 @@ intersect.rayAabb = (function () {
  * @param {geomUtils.Triangle} triangle
 */
 intersect.rayTriangle = (function () {
-    let ab = new Vec3(0, 0, 0);
-    let ac = new Vec3(0, 0, 0);
-    let pvec = new Vec3(0, 0, 0);
-    let tvec = new Vec3(0, 0, 0);
-    let qvec = new Vec3(0, 0, 0);
+    let ab = new Vec3();
+    let ac = new Vec3();
+    let pvec = new Vec3();
+    let tvec = new Vec3();
+    let qvec = new Vec3();
 
     return function (ray, triangle) {
         Vec3.sub(ab, triangle.b, triangle.a);

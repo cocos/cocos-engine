@@ -402,7 +402,7 @@ export default class Light {
     out._rect.h = this._shadowResolution;
 
     // clear opts
-    Vec3.set(out._color, 1, 1, 1, 1);
+    Vec3.set(out._color, 1, 1, 1);
     out._depth = 1;
     out._stencil = 1;
     out._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;

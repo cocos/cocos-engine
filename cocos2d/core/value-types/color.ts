@@ -157,13 +157,12 @@ export default class Color extends ValueType {
     static readonly MAGENTA_R: Color = Color.MAGENTA;
 
     /**
-   * Copy content of a color into another.
-   *
-   * @param {Color} out - The color to modified.
-   * @param {Color} a - The specified color.
-   * @returns {Color} out.
-   */
-    static copy (out, a) {
+     * Copy content of a color into another.
+     * @method copy
+     * @typescript
+     * static copy (out: Color, a: Color): Color
+     */
+    static copy (out: Color, a: Color): Color {
         out.r = a.r;
         out.g = a.g;
         out.b = a.b;
@@ -173,15 +172,11 @@ export default class Color extends ValueType {
 
     /**
      * Set the components of a color to the given values.
-     *
-     * @param {Color} out - The color to modified.
-     * @param {number} r - Value assigned to r component.
-     * @param {number} g - Value assigned to g component.
-     * @param {number} b - Value assigned to b component.
-     * @param {number} a - Value assigned to a component.
-     * @returns {Color} out.
+     * @method set
+     * @typescript
+     * static set (out: Color, r = 255, g = 255, b = 255, a = 255): Color
      */
-    static set (out, r = 255, g = 255, b = 255, a = 255) {
+    static set (out: Color, r = 255, g = 255, b = 255, a = 255): Color {
         out.r = r;
         out.g = g;
         out.b = b;
@@ -191,13 +186,11 @@ export default class Color extends ValueType {
 
     /**
      * Converts the hexadecimal formal color into rgb formal.
-     *
-     * @param {Color} out - Color to store result.
-     * @param {Number} hex - The color's hexadecimal formal.
-     * @returns {Color} out.
-     * @function
+     * @method fromHex
+     * @typescript
+     * static fromHex (out: Color, hex: number): Color
      */
-    static fromHex (out, hex) {
+    static fromHex (out: Color, hex: number): Color {
         let r = ((hex >> 24)) / 255.0;
         let g = ((hex >> 16) & 0xff) / 255.0;
         let b = ((hex >> 8) & 0xff) / 255.0;
@@ -212,13 +205,11 @@ export default class Color extends ValueType {
 
     /**
      * Add components of two colors, respectively.
-     *
-     * @param {Color} out - Color to store result.
-     * @param {Color} a - The first operand.
-     * @param {Color} b - The second operand.
-     * @returns {Color} out.
+     * @method add
+     * @typescript
+     * static add (out: Color, a: Color, b: Color): Color
      */
-    static add (out, a, b) {
+    static add (out: Color, a: Color, b: Color): Color {
         out.r = a.r + b.r;
         out.g = a.g + b.g;
         out.b = a.b + b.b;
@@ -228,13 +219,11 @@ export default class Color extends ValueType {
 
     /**
      * Subtract components of color b from components of color a, respectively.
-     *
-     * @param {Color} out - Color to store result.
-     * @param {Color} a - The a.
-     * @param {Color} b - The b.
-     * @returns {Color} out.
+     * @method subtract
+     * @typescript
+     * static subtract (out: Color, a: Color, b: Color): Color
      */
-    static subtract (out, a, b) {
+    static subtract (out: Color, a: Color, b: Color): Color {
         out.r = a.r - b.r;
         out.g = a.g - b.g;
         out.b = a.b - b.b;
@@ -244,13 +233,11 @@ export default class Color extends ValueType {
 
     /**
      * Multiply components of two colors, respectively.
-     *
-     * @param {Color} out - Color to store result.
-     * @param {Color} a - The first operand.
-     * @param {Color} b - The second operand.
-     * @returns {Color} out.
+     * @method multiply
+     * @typescript
+     * static multiply (out: Color, a: Color, b: Color): Color
      */
-    static multiply (out, a, b) {
+    static multiply (out: Color, a: Color, b: Color): Color {
         out.r = a.r * b.r;
         out.g = a.g * b.g;
         out.b = a.b * b.b;
@@ -260,13 +247,11 @@ export default class Color extends ValueType {
 
     /**
      * Divide components of color a by components of color b, respectively.
-     *
-     * @param {Color} out - Color to store result.
-     * @param {Color} a - The first operand.
-     * @param {Color} b - The second operand.
-     * @returns {Color} out.
+     * @method divide
+     * @typescript
+     * static divide (out: Color, a: Color, b: Color): Color
      */
-    static divide (out, a, b) {
+    static divide (out: Color, a: Color, b: Color): Color {
         out.r = a.r / b.r;
         out.g = a.g / b.g;
         out.b = a.b / b.b;
@@ -276,13 +261,11 @@ export default class Color extends ValueType {
 
     /**
      * Scales a color by a number.
-     *
-     * @param {Color} out - Color to store result.
-     * @param {Color} a - Color to scale.
-     * @param {number} b - The scale number.
-     * @returns {Color} out.
+     * @method scale
+     * @typescript
+     * static scale (out: Color, a: Color, b: number): Color
      */
-    static scale (out, a, b) {
+    static scale (out: Color, a: Color, b: number): Color {
         out.r = a.r * b;
         out.g = a.g * b;
         out.b = a.b * b;
@@ -292,14 +275,11 @@ export default class Color extends ValueType {
 
     /**
      * Performs a linear interpolation between two colors.
-     *
-     * @param {Color} out - Color to store result.
-     * @param {Color} a - The first operand.
-     * @param {Color} b - The second operand.
-     * @param {Number} t - The interpolation coefficient.
-     * @returns {Color} out.
+     * @method lerp
+     * @typescript
+     * static lerp (out: Color, a: Color, b: Color, t: number): Color
      */
-    static lerp (out, a, b, t) {
+    static lerp (out: Color, a: Color, b: Color, t: number): Color {
         let ar = a.r,
             ag = a.g,
             ab = a.b,
@@ -319,7 +299,7 @@ export default class Color extends ValueType {
      * public static toArray <Out extends IWritableArrayLike<number>> (out: Out, a: IColorLike, ofs = 0)
      * @param ofs 数组起始偏移量
      */
-    public static toArray <Out extends IWritableArrayLike<number>> (out: Out, a: IColorLike, ofs = 0) {
+    public static toArray<Out extends IWritableArrayLike<number>> (out: Out, a: IColorLike, ofs = 0) {
         const scale = (a instanceof Color || a.a > 1) ? 1 / 255 : 1;
         out[ofs + 0] = a.r * scale;
         out[ofs + 1] = a.g * scale;
@@ -336,7 +316,7 @@ export default class Color extends ValueType {
      * public static fromArray <Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs = 0)
      * @param ofs 数组起始偏移量
      */
-    public static fromArray <Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs = 0) {
+    public static fromArray<Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs = 0) {
         out.r = arr[ofs + 0] * 255;
         out.g = arr[ofs + 1] * 255;
         out.b = arr[ofs + 2] * 255;
@@ -374,7 +354,7 @@ export default class Color extends ValueType {
      * var color = new cc.Color();
      * var newColor = color.clone();// Color {r: 0, g: 0, b: 0, a: 255}
      */
-    clone () : Color {
+    clone (): Color {
         var ret = new Color();
         ret._val = this._val;
         return ret;
@@ -437,31 +417,51 @@ export default class Color extends ValueType {
             this.a.toFixed() + ")";
     };
 
-    get r () {
+    /**
+     * !#en Get or set red channel value
+     * !#zh 获取或者设置红色通道
+     * @property {number} r
+     */
+    get r (): number {
         return this.getR();
     }
-    set r (v) {
+    set r (v: number) {
         this.setR(v);
     }
 
-    get g () {
+    /**
+     * !#en Get or set green channel value
+     * !#zh 获取或者设置绿色通道
+     * @property {number} r
+     */
+    get g (): number {
         return this.getG();
     }
-    set g (v) {
+    set g (v: number) {
         this.setG(v);
     }
 
-    get b () {
+    /**
+     * !#en Get or set blue channel value
+     * !#zh 获取或者设置蓝色通道
+     * @property {number} r
+     */
+    get b (): number {
         return this.getB();
     }
-    set b (v) {
+    set b (v: number) {
         this.setB(v);
     }
 
-    get a () {
+    /**
+     * !#en Get or set alpha channel value
+     * !#zh 获取或者设置透明通道
+     * @property {number} r
+     */
+    get a (): number {
         return this.getA();
     }
-    set a (v) {
+    set a (v: number) {
         this.setA(v);
     }
 
@@ -471,7 +471,7 @@ export default class Color extends ValueType {
      * @method getR
      * @return {Number} red value.
      */
-    getR () {
+    getR (): number {
         return this._val & 0x000000ff;
     }
     /**
@@ -484,7 +484,7 @@ export default class Color extends ValueType {
      * var color = new cc.Color();
      * color.setR(255); // Color {r: 255, g: 0, b: 0, a: 255}
      */
-    setR (red) {
+    setR (red): this {
         red = ~~misc.clampf(red, 0, 255);
         this._val = ((this._val & 0xffffff00) | red) >>> 0;
         return this;
@@ -495,7 +495,7 @@ export default class Color extends ValueType {
      * @method getG
      * @return {Number} green value.
      */
-    getG () {
+    getG (): number {
         return (this._val & 0x0000ff00) >> 8;
     }
     /**
@@ -508,7 +508,7 @@ export default class Color extends ValueType {
      * var color = new cc.Color();
      * color.setG(255); // Color {r: 0, g: 255, b: 0, a: 255}
      */
-    setG (green) {
+    setG (green): this {
         green = ~~misc.clampf(green, 0, 255);
         this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
         return this;
@@ -519,7 +519,7 @@ export default class Color extends ValueType {
      * @method getB
      * @return {Number} blue value.
      */
-    getB () {
+    getB (): number {
         return (this._val & 0x00ff0000) >> 16;
     }
     /**
@@ -532,7 +532,7 @@ export default class Color extends ValueType {
      * var color = new cc.Color();
      * color.setB(255); // Color {r: 0, g: 0, b: 255, a: 255}
      */
-    setB (blue) {
+    setB (blue): this {
         blue = ~~misc.clampf(blue, 0, 255);
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
         return this;
@@ -543,7 +543,7 @@ export default class Color extends ValueType {
      * @method getA
      * @return {Number} alpha value.
      */
-    getA () {
+    getA (): number {
         return (this._val & 0xff000000) >>> 24;
     }
     /**
@@ -556,20 +556,20 @@ export default class Color extends ValueType {
      * var color = new cc.Color();
      * color.setA(0); // Color {r: 0, g: 0, b: 0, a: 0}
      */
-    setA (alpha) {
+    setA (alpha): this {
         alpha = ~~misc.clampf(alpha, 0, 255);
         this._val = ((this._val & 0x00ffffff) | (alpha << 24)) >>> 0;
         return this;
     }
 
     /**
-    * !#en Convert color to css format.
-    * !#zh 转换为 CSS 格式。
-    * @method toCSS
-    * @param {String} opt - "rgba", "rgb", "#rgb" or "#rrggbb".
-    * @return {String}
-    * @example {@link cocos2d/core/value-types/CCColor/toCSS.js}
-    */
+     * !#en Convert color to css format.
+     * !#zh 转换为 CSS 格式。
+     * @method toCSS
+     * @param {String} opt - "rgba", "rgb", "#rgb" or "#rrggbb".
+     * @return {String}
+     * @example {@link cocos2d/core/value-types/CCColor/toCSS.js}
+     */
     toCSS (opt: string): string {
         if (opt === 'rgba') {
             return "rgba(" +
@@ -774,6 +774,14 @@ export default class Color extends ValueType {
         return hsv;
     }
 
+    /**
+     * !#en Set the color
+     * !#zh 设置颜色
+     * @method set
+     * @typescript
+     * set (color: Color): Color
+     * @param {Color} color 
+     */
     set (color: Color): Color {
         if (color._val) {
             this._val = color._val;

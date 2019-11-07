@@ -513,8 +513,8 @@ export default class Mat3 {
     static fromViewUp (out: Mat3, view: Vec3, up?: Vec3): Mat3 {
         let _fromViewUpIIFE = (function () {
             let default_up = new Vec3(0, 1, 0);
-            let x = new Vec3(0, 0, 0);
-            let y = new Vec3(0, 0, 0);
+            let x = new Vec3();
+            let y = new Vec3();
 
             return function (out, view, up) {
                 if (Vec3.lengthSqr(view) < EPSILON * EPSILON) {
@@ -772,19 +772,24 @@ export default class Mat3 {
         return out;
     }
 
+    /**
+     * !#en Matrix Data
+     * !#zh 矩阵数据
+     * @property {Float32Array} m
+     */
     m: Float32Array;
+
+    
     /**
      * Creates a matrix, with elements specified separately.
      *
-     * @param {Number} m00 - Value assigned to element at column 0 row 0.
-     * @param {Number} m01 - Value assigned to element at column 0 row 1.
-     * @param {Number} m02 - Value assigned to element at column 0 row 2.
-     * @param {Number} m03 - Value assigned to element at column 1 row 0.
-     * @param {Number} m04 - Value assigned to element at column 1 row 1.
-     * @param {Number} m05 - Value assigned to element at column 1 row 2.
-     * @param {Number} m06 - Value assigned to element at column 2 row 0.
-     * @param {Number} m07 - Value assigned to element at column 2 row 1.
-     * @param {Number} m08 - Value assigned to element at column 2 row 2.
+     * @method constructor
+     * @typescript
+     * constructor (
+            m00: number | Float32Array = 1, m01 = 0, m02 = 0,
+            m03 = 0, m04 = 1, m05 = 0,
+            m06 = 0, m07 = 0, m08 = 1
+        )
      */
     constructor (
         m00: number | Float32Array = 1, m01 = 0, m02 = 0,
