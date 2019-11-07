@@ -246,7 +246,7 @@ const line_triangle = (function () {
     const n = new Vec3(0, 0, 0);
     const e = new Vec3(0, 0, 0);
 
-    return function (line: line, triangle: triangle, outPt: Vec3): number {
+    return function (line: line, triangle: triangle, outPt?: Vec3): number {
         Vec3.subtract(ab, triangle.b, triangle.a);
         Vec3.subtract(ac, triangle.c, triangle.a);
         Vec3.subtract(qp, line.s, line.e);
