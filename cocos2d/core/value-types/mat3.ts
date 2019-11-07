@@ -31,20 +31,26 @@ import Quat from './quat';
  * apparent lack of consistency between the memory layout and the documentation.
  */
 export default class Mat3 {
+    public static sub = Mat3.subtract;
+    public static mul = Mat3.multiply;
+    
+    public static IDENTITY = Object.freeze(new Mat4());
+
     /**
-    * Creates a matrix, with elements specified separately.
-    *
-    * @param {Number} m00 - Value assigned to element at column 0 row 0.
-    * @param {Number} m01 - Value assigned to element at column 0 row 1.
-    * @param {Number} m02 - Value assigned to element at column 0 row 2.
-    * @param {Number} m03 - Value assigned to element at column 1 row 0.
-    * @param {Number} m04 - Value assigned to element at column 1 row 1.
-    * @param {Number} m05 - Value assigned to element at column 1 row 2.
-    * @param {Number} m06 - Value assigned to element at column 2 row 0.
-    * @param {Number} m07 - Value assigned to element at column 2 row 1.
-    * @param {Number} m08 - Value assigned to element at column 2 row 2.
-    * @returns {mat3} The newly created matrix.
-    */
+     * Creates a matrix, with elements specified separately.
+     *
+     * @param {Number} m00 - Value assigned to element at column 0 row 0.
+     * @param {Number} m01 - Value assigned to element at column 0 row 1.
+     * @param {Number} m02 - Value assigned to element at column 0 row 2.
+     * @param {Number} m03 - Value assigned to element at column 1 row 0.
+     * @param {Number} m04 - Value assigned to element at column 1 row 1.
+     * @param {Number} m05 - Value assigned to element at column 1 row 2.
+     * @param {Number} m06 - Value assigned to element at column 2 row 0.
+     * @param {Number} m07 - Value assigned to element at column 2 row 1.
+     * @param {Number} m08 - Value assigned to element at column 2 row 2.
+     * @returns {mat3} The newly created matrix.
+     * @static
+     */
     static create (m00: number = 1, m01: number = 0, m02: number = 0, m03: number = 0, m04: number = 1, m05: number = 0, m06: number = 0, m07: number = 0, m08: number = 1): Mat3 {
         return new Mat3(m00, m01, m02, m03, m04, m05, m06, m07, m08);
     }
@@ -54,8 +60,9 @@ export default class Mat3 {
      *
      * @param {mat3} a - Matrix to clone.
      * @returns {mat3} The newly created matrix.
+     * @static
      */
-    static clone (a: Mat3): Mat3 {
+    public static clone (a: Mat3): Mat3 {
         let am = a.m;
         return new Mat3(
             am[0], am[1], am[2],
@@ -70,8 +77,9 @@ export default class Mat3 {
      * @param {mat3} out - Matrix to modified.
      * @param {mat3} a - The specified matrix.
      * @returns {mat3} out.
+     * @static
      */
-    static copy (out: Mat3, a: Mat3): Mat3 {
+    public static copy (out: Mat3, a: Mat3): Mat3 {
         out.m.set(a.m);
         return out;
     }
@@ -90,8 +98,9 @@ export default class Mat3 {
      * @param {Number} m21 - Value assigned to element at column 2 row 1.
      * @param {Number} m22 - Value assigned to element at column 2 row 2.
      * @returns {mat3} out.
+     * @static
      */
-    static set (out: Mat3, m00: number, m01: number, m02: number, m10: number, m11: number, m12: number, m20: number, m21: number, m22: number): Mat3 {
+    public static set (out: Mat3, m00: number, m01: number, m02: number, m10: number, m11: number, m12: number, m20: number, m21: number, m22: number): Mat3 {
         let outm = out.m;
         outm[0] = m00;
         outm[1] = m01;
@@ -109,8 +118,9 @@ export default class Mat3 {
      * return an identity matrix.
      *
      * @returns {mat3} out.
+     * @static
      */
-    static identity (out: Mat3): Mat3 {
+    public static identity (out: Mat3): Mat3 {
         let outm = out.m;
         outm[0] = 1;
         outm[1] = 0;
@@ -130,8 +140,9 @@ export default class Mat3 {
      * @param {mat3} out - Matrix to store result.
      * @param {mat3} a - Matrix to transpose.
      * @returns {mat3} out.
+     * @static
      */
-    static transpose (out: Mat3, a: Mat3): Mat3 {
+    public static transpose (out: Mat3, a: Mat3): Mat3 {
         let am = a.m, outm = out.m;
         // If we are transposing ourselves we can skip a few steps but have to cache some values
         if (out === a) {
@@ -163,8 +174,9 @@ export default class Mat3 {
      * @param {mat3} out - Matrix to store result.
      * @param {mat3} a - Matrix to invert.
      * @returns {mat3} out.
+     * @static
      */
-    static invert (out: Mat3, a: Mat3): Mat3 {
+    public static invert (out: Mat3, a: Mat3): Mat3 {
         let am = a.m, outm = out.m;
         let a00 = am[0], a01 = am[1], a02 = am[2],
             a10 = am[3], a11 = am[4], a12 = am[5],
@@ -200,8 +212,9 @@ export default class Mat3 {
      * @param {mat3} out - Matrix to store result.
      * @param {mat3} a - Matrix to calculate.
      * @returns {mat3} out.
+     * @static
      */
-    static adjoint (out: Mat3, a: Mat3): Mat3 {
+    public static adjoint (out: Mat3, a: Mat3): Mat3 {
         let am = a.m, outm = out.m;
         let a00 = am[0], a01 = am[1], a02 = am[2],
             a10 = am[3], a11 = am[4], a12 = am[5],
@@ -224,8 +237,9 @@ export default class Mat3 {
      *
      * @param {mat3} a - Matrix to calculate.
      * @returns {Number} Determinant of a.
+     * @static
      */
-    static determinant (a: Mat3): number {
+    public static determinant (a: Mat3): number {
         let am = a.m;
         let a00 = am[0], a01 = am[1], a02 = am[2],
             a10 = am[3], a11 = am[4], a12 = am[5],
@@ -241,8 +255,9 @@ export default class Mat3 {
      * @param {mat3} a - The first operand.
      * @param {mat3} b - The second operand.
      * @returns {mat3} out.
+     * @static
      */
-    static multiply (out: Mat3, a: Mat3, b: Mat3): Mat3 {
+    public static multiply (out: Mat3, a: Mat3, b: Mat3): Mat3 {
         let am = a.m, bm = b.m, outm = out.m;
         let a00 = am[0], a01 = am[1], a02 = am[2],
             a10 = am[3], a11 = am[4], a12 = am[5],
@@ -267,21 +282,15 @@ export default class Mat3 {
     }
 
     /**
-     * Alias of {@link mat3.multiply}.
-     */
-    static mul (out, a, b) {
-        return Mat3.multiply(out, a, b);
-    }
-
-    /**
      * Multiply a matrix with a translation matrix given by a translation offset.
      *
      * @param {mat3} out - Matrix to store result.
      * @param {mat3} a - Matrix to multiply.
      * @param {vec2} v - The translation offset.
      * @returns {mat3} out.
+     * @static
      */
-    static translate (out: Mat3, a: Mat3, v: Vec2): Mat3 {
+    public static translate (out: Mat3, a: Mat3, v: Vec2): Mat3 {
         let am = a.m, outm = out.m;
         let a00 = am[0], a01 = am[1], a02 = am[2],
             a10 = am[3], a11 = am[4], a12 = am[5],
@@ -309,8 +318,9 @@ export default class Mat3 {
      * @param {mat3} a - Matrix to rotate.
      * @param {Number} rad - The rotation angle.
      * @returns {mat3} out
+     * @static
      */
-    static rotate (out: Mat3, a: Mat3, rad: number): Mat3 {
+    public static rotate (out: Mat3, a: Mat3, rad: number): Mat3 {
         let am = a.m, outm = out.m;
         let a00 = am[0], a01 = am[1], a02 = am[2],
             a10 = am[3], a11 = am[4], a12 = am[5],
@@ -365,8 +375,9 @@ export default class Mat3 {
      * @param {mat3} out - Matrix to store result.
      * @param {mat4} a - The 4x4 matrix.
      * @returns {mat3} out.
+     * @static
      */
-    static fromMat4 (out: Mat3, a: Mat4): Mat3 {
+    public static fromMat4 (out: Mat3, a: Mat4): Mat3 {
         let am = a.m, outm = out.m;
         outm[0] = am[0];
         outm[1] = am[1];
@@ -390,8 +401,9 @@ export default class Mat3 {
      * @param {mat3} out - Matrix to store result.
      * @param {vec2} v - The translation offset.
      * @returns {mat3} out.
+     * @static
      */
-    static fromTranslation (out: Mat3, v: Vec2): Mat3 {
+    public static fromTranslation (out: Mat3, v: Vec2): Mat3 {
         let outm = out.m;
         outm[0] = 1;
         outm[1] = 0;
@@ -415,8 +427,9 @@ export default class Mat3 {
      * @param {mat3} out - Matrix to store result.
      * @param {Number} rad - The rotation angle.
      * @returns {mat3} out.
+     * @static
      */
-    static fromRotation (out: Mat3, rad: number): Mat3 {
+    public static fromRotation (out: Mat3, rad: number): Mat3 {
         let s = Math.sin(rad), c = Math.cos(rad);
         let outm = out.m;
 
@@ -444,8 +457,9 @@ export default class Mat3 {
      * @param {mat3} out - Matrix to store result.
      * @param {vec2} v - Scale vector.
      * @returns {mat3} out.
+     * @static
      */
-    static fromScaling (out: Mat3, v: Vec2): Mat3 {
+    public static fromScaling (out: Mat3, v: Vec2): Mat3 {
         let outm = out.m;
         outm[0] = v.x;
         outm[1] = 0;
@@ -468,8 +482,9 @@ export default class Mat3 {
      * @param {quat} q - The quaternion.
      *
      * @returns {mat3} out.
+     * @static
      */
-    static fromQuat (out: Mat3, q: Quat): Mat3 {
+    public static fromQuat (out: Mat3, q: Quat): Mat3 {
         let outm = out.m;
         let x = q.x, y = q.y, z = q.z, w = q.w;
         let x2 = x + x;
@@ -509,8 +524,9 @@ export default class Mat3 {
      * @param {vec3} [up] - Up direction, default is (0,1,0) (must be normalized).
      *
      * @returns {mat3} out
+     * @static
      */
-    static fromViewUp (out: Mat3, view: Vec3, up?: Vec3): Mat3 {
+    public static fromViewUp (out: Mat3, view: Vec3, up?: Vec3): Mat3 {
         let _fromViewUpIIFE = (function () {
             let default_up = new Vec3(0, 1, 0);
             let x = new Vec3();
@@ -551,8 +567,9 @@ export default class Mat3 {
      * @param {mat4} a - A 4x4 matrix to derive the normal matrix from.
      *
      * @returns {mat3} out.
+     * @static
      */
-    static normalFromMat4 (out: Mat3, a: Mat4): Mat3 {
+    public static normalFromMat4 (out: Mat3, a: Mat4): Mat3 {
         let am = a.m, outm = out.m;
         let a00 = am[0], a01 = am[1], a02 = am[2], a03 = am[3],
             a10 = am[4], a11 = am[5], a12 = am[6], a13 = am[7],
@@ -600,8 +617,9 @@ export default class Mat3 {
      *
      * @param {mat3} a - Matrix to calculate Frobenius norm of.
      * @returns {Number} - The frobenius norm.
+     * @static
      */
-    static frob (a: Mat3): number {
+    public static frob (a: Mat3): number {
         let am = a.m;
         return (Math.sqrt(Math.pow(am[0], 2) + Math.pow(am[1], 2) + Math.pow(am[2], 2) + Math.pow(am[3], 2) + Math.pow(am[4], 2) + Math.pow(am[5], 2) + Math.pow(am[6], 2) + Math.pow(am[7], 2) + Math.pow(am[8], 2)));
     }
@@ -613,8 +631,9 @@ export default class Mat3 {
      * @param {mat3} a - The first operand.
      * @param {mat3} b - The second operand.
      * @returns {mat3} out.
+     * @static
      */
-    static add (out: Mat3, a: Mat3, b: Mat3): Mat3 {
+    public static add (out: Mat3, a: Mat3, b: Mat3): Mat3 {
         let am = a.m, bm = b.m, outm = out.m;
         outm[0] = am[0] + bm[0];
         outm[1] = am[1] + bm[1];
@@ -635,8 +654,9 @@ export default class Mat3 {
      * @param {mat3} a - The first operand.
      * @param {mat3} b - The second operand.
      * @returns {mat3} out.
+     * @static
      */
-    static subtract (out: Mat3, a: Mat3, b: Mat3): Mat3 {
+    public static subtract (out: Mat3, a: Mat3, b: Mat3): Mat3 {
         let am = a.m, bm = b.m, outm = out.m;
         outm[0] = am[0] - bm[0];
         outm[1] = am[1] - bm[1];
@@ -651,21 +671,15 @@ export default class Mat3 {
     }
 
     /**
-     * Alias of {@link mat3.subtract}.
-     */
-    static sub (out: Mat3, a: Mat3, b: Mat3) {
-        return Mat3.subtract(out, a, b);
-    }
-
-    /**
      * Multiply each element of a matrix by a scalar number.
      *
      * @param {mat3} out - Matrix to store result.
      * @param {mat3} a - Matrix to scale
      * @param {Number} b - The scale number.
      * @returns {mat3} out.
+     * @static
      */
-    static multiplyScalar (out: Mat3, a: Mat3, b: number): Mat3 {
+    public static multiplyScalar (out: Mat3, a: Mat3, b: number): Mat3 {
         let am = a.m, outm = out.m;
         outm[0] = am[0] * b;
         outm[1] = am[1] * b;
@@ -687,8 +701,9 @@ export default class Mat3 {
      * @param {mat3} b - The second operand.
      * @param {Number} scale - The scale number.
      * @returns {mat3} out.
+     * @static
      */
-    static multiplyScalarAndAdd (out: Mat3, a: Mat3, b: Mat3, scale: number): Mat3 {
+    public static multiplyScalarAndAdd (out: Mat3, a: Mat3, b: Mat3, scale: number): Mat3 {
         let am = a.m, bm = b.m, outm = out.m;
         outm[0] = am[0] + (bm[0] * scale);
         outm[1] = am[1] + (bm[1] * scale);
@@ -708,8 +723,9 @@ export default class Mat3 {
      * @param {mat3} a - The first matrix.
      * @param {mat3} b - The second matrix.
      * @returns {Boolean} True if the matrices are equal, false otherwise.
+     * @static
      */
-    static exactEquals (a: Mat3, b: Mat3): boolean {
+    public static exactEquals (a: Mat3, b: Mat3): boolean {
         let am = a.m, bm = b.m;
         return am[0] === bm[0] && am[1] === bm[1] && am[2] === bm[2] &&
             am[3] === bm[3] && am[4] === bm[4] && am[5] === bm[5] &&
@@ -722,8 +738,9 @@ export default class Mat3 {
      * @param {mat3} a - The first matrix.
      * @param {mat3} b - The second matrix.
      * @returns {Boolean} True if the matrices are equal, false otherwise.
+     * @static
      */
-    static equals (a: Mat3, b: Mat3): boolean {
+    public static equals (a: Mat3, b: Mat3): boolean {
         let am = a.m, bm = b.m;
         let a0 = am[0], a1 = am[1], a2 = am[2], a3 = am[3], a4 = am[4], a5 = am[5], a6 = am[6], a7 = am[7], a8 = am[8];
         let b0 = bm[0], b1 = bm[1], b2 = bm[2], b3 = bm[3], b4 = bm[4], b5 = bm[5], b6 = bm[6], b7 = bm[7], b8 = bm[8];
@@ -779,7 +796,7 @@ export default class Mat3 {
      */
     m: Float32Array;
 
-    
+
     /**
      * Creates a matrix, with elements specified separately.
      *

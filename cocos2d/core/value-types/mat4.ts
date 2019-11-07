@@ -54,6 +54,7 @@ export default class Mat4 extends ValueType {
      * @method clone
      * @typescript
      * public static clone<Out extends IMat4Like> (a: Out)
+     * @static
      */
     public static clone<Out extends IMat4Like> (a: Out) {
         let m = a.m;
@@ -71,6 +72,7 @@ export default class Mat4 extends ValueType {
      * @method copy
      * @typescript
      * public static copy<Out extends IMat4Like> (out: Out, a: Out)
+     * @static
      */
     public static copy<Out extends IMat4Like> (out: Out, a: Out) {
         let m = out.m, am = a.m;
@@ -96,6 +98,7 @@ export default class Mat4 extends ValueType {
     /**
      * !#zh 设置矩阵值
      * !#en Setting matrix values
+     * @static
      */
     public static set<Out extends IMat4Like> (
         out: Out,
@@ -118,6 +121,7 @@ export default class Mat4 extends ValueType {
      * @method identity
      * @typescript
      * public static identity<Out extends IMat4Like> (out: Out)
+     * @static
      */
     public static identity<Out extends IMat4Like> (out: Out) {
         let m = out.m;
@@ -146,6 +150,7 @@ export default class Mat4 extends ValueType {
      * @method transpose
      * @typescript
      * public static transpose<Out extends IMat4Like> (out: Out, a: Out)
+     * @static
      */
     public static transpose<Out extends IMat4Like> (out: Out, a: Out) {
         let m = out.m, am = a.m;
@@ -191,6 +196,7 @@ export default class Mat4 extends ValueType {
      * @method invert
      * @typescript
      * public static invert<Out extends IMat4Like> (out: Out, a: Out)
+     * @static
      */
     public static invert<Out extends IMat4Like> (out: Out, a: Out) {
         let am = a.m;
@@ -245,6 +251,7 @@ export default class Mat4 extends ValueType {
      * @method determinant
      * @typescript
      * public static determinant<Out extends IMat4Like> (a: Out): number
+     * @static
      */
     public static determinant<Out extends IMat4Like> (a: Out): number {
         let m = a.m;
@@ -276,6 +283,7 @@ export default class Mat4 extends ValueType {
      * @method multiply
      * @typescript
      * public static multiply<Out extends IMat4Like> (out: Out, a: Out, b: Out)
+     * @static
      */
     public static multiply<Out extends IMat4Like> (out: Out, a: Out, b: Out) {
         let m = out.m, am = a.m, bm = b.m;
@@ -317,6 +325,7 @@ export default class Mat4 extends ValueType {
      * @method transform
      * @typescript
      * public static transform<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike)
+     * @static
      */
     public static transform<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
         const x = v.x, y = v.y, z = v.z;
@@ -350,6 +359,7 @@ export default class Mat4 extends ValueType {
      * @method translate
      * @typescript
      * public static translate<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike)
+     * @static
      */
     public static translate<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
         let m = out.m, am = a.m;
@@ -375,6 +385,7 @@ export default class Mat4 extends ValueType {
      * @method scale
      * @typescript
      * public static scale<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike)
+     * @static
      */
     public static scale<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
         const x = v.x, y = v.y, z = v.z;
@@ -406,6 +417,7 @@ export default class Mat4 extends ValueType {
      * public static rotate<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, rad: number, axis: VecLike)
      * @param rad 旋转角度
      * @param axis 旋转轴
+     * @static
      */
     public static rotate<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, rad: number, axis: VecLike) {
         let x = axis.x, y = axis.y, z = axis.z;
@@ -468,6 +480,7 @@ export default class Mat4 extends ValueType {
      * @typescript
      * public static rotateX<Out extends IMat4Like> (out: Out, a: Out, rad: number)
      * @param rad 旋转角度
+     * @static
      */
     public static rotateX<Out extends IMat4Like> (out: Out, a: Out, rad: number) {
         let m = out.m, am = a.m;
@@ -513,6 +526,7 @@ export default class Mat4 extends ValueType {
      * @typescript
      * public static rotateY<Out extends IMat4Like> (out: Out, a: Out, rad: number)
      * @param rad 旋转角度
+     * @static
      */
     public static rotateY<Out extends IMat4Like> (out: Out, a: Out, rad: number) {
         let m = out.m, am = a.m;
@@ -558,6 +572,7 @@ export default class Mat4 extends ValueType {
      * @typescript
      * public static rotateZ<Out extends IMat4Like> (out: Out, a: Out, rad: number)
      * @param rad 旋转角度
+     * @static
      */
     public static rotateZ<Out extends IMat4Like> (out: Out, a: Out, rad: number) {
         const am = a.m;
@@ -604,6 +619,7 @@ export default class Mat4 extends ValueType {
      * @method fromTranslation
      * @typescript
      * public static fromTranslation<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike)
+     * @static
      */
     public static fromTranslation<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike) {
         let m = out.m;
@@ -632,6 +648,7 @@ export default class Mat4 extends ValueType {
      * @method fromScaling
      * @typescript
      * public static fromScaling<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike)
+     * @static
      */
     public static fromScaling<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike) {
         let m = out.m;
@@ -660,6 +677,7 @@ export default class Mat4 extends ValueType {
      * @method fromRotation
      * @typescript
      * public static fromRotation<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, rad: number, axis: VecLike)
+     * @static
      */
     public static fromRotation<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, rad: number, axis: VecLike) {
         let x = axis.x, y = axis.y, z = axis.z;
@@ -705,6 +723,7 @@ export default class Mat4 extends ValueType {
      * @method fromXRotation
      * @typescript
      * public static fromXRotation<Out extends IMat4Like> (out: Out, rad: number)
+     * @static
      */
     public static fromXRotation<Out extends IMat4Like> (out: Out, rad: number) {
         const s = Math.sin(rad), c = Math.cos(rad);
@@ -736,6 +755,7 @@ export default class Mat4 extends ValueType {
      * @method fromYRotation
      * @typescript
      * public static fromYRotation<Out extends IMat4Like> (out: Out, rad: number)
+     * @static
      */
     public static fromYRotation<Out extends IMat4Like> (out: Out, rad: number) {
         const s = Math.sin(rad), c = Math.cos(rad);
@@ -767,6 +787,7 @@ export default class Mat4 extends ValueType {
      * @method fromZRotation
      * @typescript
      * public static fromZRotation<Out extends IMat4Like> (out: Out, rad: number)
+     * @static
      */
     public static fromZRotation<Out extends IMat4Like> (out: Out, rad: number) {
         const s = Math.sin(rad), c = Math.cos(rad);
@@ -798,6 +819,7 @@ export default class Mat4 extends ValueType {
      * @method fromRT
      * @typescript
      * public static fromRT<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike)
+     * @static
      */
     public static fromRT<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
@@ -842,6 +864,7 @@ export default class Mat4 extends ValueType {
      * @method getTranslation
      * @typescript
      * public static getTranslation<Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out)
+     * @static
      */
     public static getTranslation<Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out) {
         let m = mat.m;
@@ -858,6 +881,7 @@ export default class Mat4 extends ValueType {
      * @method getScaling
      * @typescript
      * public static getScaling<Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out)
+     * @static
      */
     public static getScaling<Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out) {
         let m = mat.m;
@@ -885,6 +909,7 @@ export default class Mat4 extends ValueType {
      * @method getRotation
      * @typescript
      * public static getRotation<Out extends IMat4Like> (out: Quat, mat: Out)
+     * @static
      */
     public static getRotation<Out extends IMat4Like> (out: Quat, mat: Out) {
         let m = mat.m;
@@ -926,6 +951,7 @@ export default class Mat4 extends ValueType {
      * @method toRTS
      * @typescript
      * public static toRTS<Out extends IMat4Like, VecLike extends IVec3Like> (mat: Out, q: Quat, v: VecLike, s: VecLike)
+     * @static
      */
     public static toRTS<Out extends IMat4Like, VecLike extends IVec3Like> (mat: Out, q: Quat, v: VecLike, s: VecLike) {
         let m = mat.m;
@@ -954,6 +980,7 @@ export default class Mat4 extends ValueType {
      * @method fromRTS
      * @typescript
      * public static fromRTS<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike, s: VecLike)
+     * @static
      */
     public static fromRTS<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike, s: VecLike) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
@@ -1005,6 +1032,7 @@ export default class Mat4 extends ValueType {
      * @param v 位移值
      * @param s 缩放值
      * @param o 指定变换中心
+     * @static
      */
     public static fromRTSOrigin<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike, s: VecLike, o: VecLike) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
@@ -1057,6 +1085,7 @@ export default class Mat4 extends ValueType {
      * @method fromQuat
      * @typescript
      * public static fromQuat<Out extends IMat4Like> (out: Out, q: Quat)
+     * @static
      */
     public static fromQuat<Out extends IMat4Like> (out: Out, q: Quat) {
         const x = q.x, y = q.y, z = q.z, w = q.w;
@@ -1110,6 +1139,7 @@ export default class Mat4 extends ValueType {
      * @param top 上平面距离
      * @param near 近平面距离
      * @param far 远平面距离
+     * @static
      */
     public static frustum<Out extends IMat4Like> (out: Out, left: number, right: number, bottom: number, top: number, near: number, far: number) {
         const rl = 1 / (right - left);
@@ -1146,6 +1176,7 @@ export default class Mat4 extends ValueType {
      * @param aspect 长宽比
      * @param near 近平面距离
      * @param far 远平面距离
+     * @static
      */
     public static perspective<Out extends IMat4Like> (out: Out, fovy: number, aspect: number, near: number, far: number) {
         const f = 1.0 / Math.tan(fovy / 2);
@@ -1183,6 +1214,7 @@ export default class Mat4 extends ValueType {
      * @param top 上平面距离
      * @param near 近平面距离
      * @param far 远平面距离
+     * @static
      */
     public static ortho<Out extends IMat4Like> (out: Out, left: number, right: number, bottom: number, top: number, near: number, far: number) {
         const lr = 1 / (left - right);
@@ -1217,6 +1249,7 @@ export default class Mat4 extends ValueType {
      * @param eye 当前位置
      * @param center 目标视点
      * @param up 视口上方向
+     * @static
      */
     public static lookAt<Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, eye: VecLike, center: VecLike, up: VecLike) {
         const eyex = eye.x;
@@ -1277,6 +1310,7 @@ export default class Mat4 extends ValueType {
      * @method inverseTranspose
      * @typescript
      * public static inverseTranspose<Out extends IMat4Like> (out: Out, a: Out)
+     * @static
      */
     public static inverseTranspose<Out extends IMat4Like> (out: Out, a: Out) {
 
@@ -1337,6 +1371,7 @@ export default class Mat4 extends ValueType {
      * @method add
      * @typescript
      * public static add<Out extends IMat4Like> (out: Out, a: Out, b: Out)
+     * @static
      */
     public static add<Out extends IMat4Like> (out: Out, a: Out, b: Out) {
         let m = out.m, am = a.m, bm = b.m;
@@ -1365,6 +1400,7 @@ export default class Mat4 extends ValueType {
      * @method subtract
      * @typescript
      * public static subtract<Out extends IMat4Like> (out: Out, a: Out, b: Out)
+     * @static
      */
     public static subtract<Out extends IMat4Like> (out: Out, a: Out, b: Out) {
         let m = out.m, am = a.m, bm = b.m;
@@ -1393,6 +1429,7 @@ export default class Mat4 extends ValueType {
      * @method multiplyScalar
      * @typescript
      * public static multiplyScalar<Out extends IMat4Like> (out: Out, a: Out, b: number)
+     * @static
      */
     public static multiplyScalar<Out extends IMat4Like> (out: Out, a: Out, b: number) {
         let m = out.m, am = a.m;
@@ -1421,6 +1458,7 @@ export default class Mat4 extends ValueType {
      * @method multiplyScalarAndAdd
      * @typescript
      * public static multiplyScalarAndAdd<Out extends IMat4Like> (out: Out, a: Out, b: Out, scale: number)
+     * @static
      */
     public static multiplyScalarAndAdd<Out extends IMat4Like> (out: Out, a: Out, b: Out, scale: number) {
         let m = out.m, am = a.m, bm = b.m;
@@ -1449,6 +1487,7 @@ export default class Mat4 extends ValueType {
      * @method strictEquals
      * @typescript
      * public static strictEquals<Out extends IMat4Like> (a: Out, b: Out)
+     * @static
      */
     public static strictEquals<Out extends IMat4Like> (a: Out, b: Out) {
         let am = a.m, bm = b.m;
@@ -1464,6 +1503,7 @@ export default class Mat4 extends ValueType {
      * @method equals
      * @typescript
      * public static equals<Out extends IMat4Like> (a: Out, b: Out, epsilon = EPSILON)
+     * @static
      */
     public static equals<Out extends IMat4Like> (a: Out, b: Out, epsilon = EPSILON) {
 
@@ -1528,6 +1568,7 @@ export default class Mat4 extends ValueType {
      * @typescript
      * public static toArray <Out extends IWritableArrayLike<number>> (out: Out, mat: IMat4Like, ofs = 0)
      * @param ofs 数组内的起始偏移量
+     * @static
      */
     public static toArray <Out extends IWritableArrayLike<number>> (out: Out, mat: IMat4Like, ofs = 0) {
         let m = mat.m;
@@ -1544,6 +1585,7 @@ export default class Mat4 extends ValueType {
      * @typescript
      * public static fromArray <Out extends IMat4Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0)
      * @param ofs 数组起始偏移量
+     * @static
      */
     public static fromArray <Out extends IMat4Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {
         let m = out.m;
