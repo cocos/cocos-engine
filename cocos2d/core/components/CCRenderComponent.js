@@ -191,7 +191,7 @@ let RenderComponent = cc.Class({
     setMaterial (index, material) {
         let temp = material;
         this._materials.forEach((item)=>{
-          if (item.effect._name == material.effect._name) {
+          if (item.effect._name === material.effect._name) {
             let mIndex = this._materials.indexOf(item);
             this._materials.splice(mIndex, 1, this._materials[index]);
           }
