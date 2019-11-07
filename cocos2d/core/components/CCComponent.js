@@ -541,7 +541,7 @@ var Component = cc.Class({
      * @param {function} callback The callback function
      * @param {Number} [interval=0]  Tick interval in seconds. 0 means tick every frame.
      * @param {Number} [repeat=cc.macro.REPEAT_FOREVER]    The selector will be executed (repeat + 1) times, you can use cc.macro.REPEAT_FOREVER for tick infinitely.
-     * @param {Number} [delay=0]     The amount of time that the first tick will wait before execution.
+     * @param {Number} [delay=0]     The amount of time that the first tick will wait before execution. Unit: s
      * @example
      * var timeCallback = function (dt) {
      *   cc.log("time: " + dt);
@@ -573,7 +573,7 @@ var Component = cc.Class({
      * @method scheduleOnce
      * @see cc.Node#schedule
      * @param {function} callback  A function wrapped as a selector
-     * @param {Number} [delay=0]  The amount of time that the first tick will wait before execution.
+     * @param {Number} [delay=0]  The amount of time that the first tick will wait before execution. Unit: s
      * @example
      * var timeCallback = function (dt) {
      *   cc.log("time: " + dt);
