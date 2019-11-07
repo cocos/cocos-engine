@@ -304,8 +304,6 @@ export class TerrainAsset extends Asset
     }
 
     public _exportNativeData() : Uint8Array {
-        return this._exportDefaultNativeData();
-
         let stream = new TerrainBuffer();
 
         // version
