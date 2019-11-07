@@ -46,6 +46,11 @@ export default class Mat4 extends ValueType {
     static mul = Mat4.multiply;
     static sub = Mat4.subtract;
 
+    /**
+     * Identity  of Mat4
+     * @property {Mat4} IDENTITY
+     * @static
+     */
     static IDENTITY = Object.freeze(new Mat4());
 
     /**

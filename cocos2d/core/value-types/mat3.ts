@@ -34,6 +34,11 @@ export default class Mat3 {
     static sub = Mat3.subtract;
     static mul = Mat3.multiply;
     
+    /**
+     * Identity  of Mat3
+     * @property {Mat3} IDENTITY
+     * @static
+     */
     static IDENTITY = Object.freeze(new Mat3());
 
     /**
