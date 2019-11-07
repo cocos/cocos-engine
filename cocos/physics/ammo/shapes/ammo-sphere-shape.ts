@@ -1,13 +1,12 @@
 import Ammo from 'ammo.js';
 import { Vec3 } from "../../../core";
 import { AmmoShape } from "./ammo-shape";
-import { SphereColliderComponent, RigidBodyComponent } from '../../../../exports/physics-framework';
-import { AmmoRigidBody } from '../ammo-rigid-body';
-import { AmmoWorld } from '../ammo-world';
-import { Cocos2AmmoVec3, Cocos2AmmoQuat } from '../ammo-util';
+import { SphereColliderComponent } from '../../../../exports/physics-framework';
+import { Cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ISphereShape } from '../../spec/i-physics-spahe';
-import { IVec3Like } from '../../../core/math/type-define';
+
+const v3_0 = new Vec3();
 
 export class AmmoSphereShape extends AmmoShape implements ISphereShape {
 
@@ -36,9 +35,9 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
     public set radius (radius: number) {
         const ws = this.collider.node.worldScale;
         const max_sp = Math.abs(Math.max(Math.max(ws.x, ws.y), ws.z));
-        tmpv3.set(radius, radius, radius);
-        tmpv3.multiplyScalar(max_sp * 2);
-        Cocos2AmmoVec3(this.scale, tmpv3);
+        v3_0.set(radius, radius, radius);
+        v3_0.multiplyScalar(max_sp * 2);
+        Cocos2AmmoVec3(this.scale, v3_0);
         this._btShape.setLocalScaling(this.scale);
         if (this._btCompound) {
             this._btCompound.updateChildTransform(this.index, this.transform, true);
@@ -142,5 +141,3 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
         this.radius = this.sphereCollider.radius;
     }
 }
-
-const tmpv3 = new Vec3();

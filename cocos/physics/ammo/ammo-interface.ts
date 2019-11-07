@@ -2,7 +2,7 @@ import Ammo from 'ammo.js';
 import { AmmoShape } from './shapes/ammo-shape';
 
 export interface IAmmoBodyStruct {
-    readonly index: number;
+    readonly id: number;
     readonly body: Ammo.btRigidBody;
     readonly shape: Ammo.btCollisionShape;
     readonly worldQuat: Ammo.btQuaternion;
@@ -14,7 +14,7 @@ export interface IAmmoBodyStruct {
 }
 
 export interface IAmmoGhostStruct {
-    readonly index: number;
+    readonly id: number;
     readonly ghost: Ammo.btCollisionObject;
     readonly shape: Ammo.btCollisionShape;
     readonly worldQuat: Ammo.btQuaternion;

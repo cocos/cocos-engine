@@ -1,10 +1,7 @@
 import Ammo from 'ammo.js';
 import { Quat, Vec3 } from '../../core/math';
-import { ERigidBodyType } from '../framework/physics-enum';
-import { ColliderComponent } from '../../../exports/physics-framework';
 import { TransformDirtyBit } from '../../core/scene-graph/node-enum';
 import { Node } from '../../core';
-import { CollisionEventType, ICollisionEvent } from '../framework/physics-interface';
 import { AmmoWorld } from './ammo-world';
 import { AmmoRigidBody } from './ammo-rigid-body';
 import { AmmoShape } from './shapes/ammo-shape';
@@ -15,7 +12,7 @@ import { IAmmoBodyStruct, IAmmoGhostStruct } from './ammo-interface';
 
 const v3_0 = new Vec3();
 const quat_0 = new Quat();
-
+let sharedIDCounter = 0;
 /**
  * shared object, node : shared = 1 : 1
  * body for static \ dynamic \ kinematic (collider)
@@ -140,7 +137,7 @@ export class AmmoSharedBody {
         const rbInfo = new Ammo.btRigidBodyConstructionInfo(0, motionState, bodyShape, localInertia);
         const body = new Ammo.btRigidBody(rbInfo);
         this.bodyStruct = {
-            'index': AmmoInstance.bodyAndGhosts.length,
+            'id': sharedIDCounter++,
             'body': body,
             'localInertia': localInertia,
             'motionState': motionState,
@@ -150,8 +147,8 @@ export class AmmoSharedBody {
             'worldQuat': bodyQuat,
             'wrappedShapes': []
         }
-        AmmoInstance.bodyStructs.push(this.bodyStruct);
-        this.body.setUserIndex(this.bodyStruct.index);
+        AmmoInstance.bodyStructs['KEY' + this.bodyStruct.id] = this.bodyStruct;
+        this.body.setUserIndex(this.bodyStruct.id);
 
         /** ghost struct */
         const ghost = new Ammo.btCollisionObject();
@@ -159,14 +156,14 @@ export class AmmoSharedBody {
         ghost.setCollisionShape(ghostShape);
         ghost.setCollisionFlags(AmmoCollisionFlags.CF_NO_CONTACT_RESPONSE);
         this.ghostStruct = {
-            'index': AmmoInstance.bodyAndGhosts.length,
+            'id': sharedIDCounter++,
             'ghost': ghost,
             'shape': ghostShape,
             'worldQuat': new Ammo.btQuaternion(),
             'wrappedShapes': []
         }
-        AmmoInstance.ghostStructs.push(this.ghostStruct);
-        this.ghost.setUserIndex(this.ghostStruct.index);
+        AmmoInstance.ghostStructs['KEY' + this.ghostStruct.id] = this.ghostStruct;
+        this.ghost.setUserIndex(this.ghostStruct.id);
 
         this.body.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
         this.ghost.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
@@ -281,22 +278,27 @@ export class AmmoSharedBody {
         AmmoSharedBody.sharedBodesMap.delete(this.node.uuid);
         (this.node as any) = null;
         (this.wrappedWorld as any) = null;
-        (this.body as any) = null;
-        (this.bodyStruct.wrappedShapes as any) = null;
+
+        const bodyStruct = this.bodyStruct;
+        Ammo.destroy(bodyStruct.body);
+        Ammo.destroy(bodyStruct.localInertia);
+        Ammo.destroy(bodyStruct.motionState);
+        Ammo.destroy(bodyStruct.rbInfo);
+        Ammo.destroy(bodyStruct.shape);
+        Ammo.destroy(bodyStruct.startTransform);
+        Ammo.destroy(bodyStruct.worldQuat);
+        const key0 = 'KEY' + bodyStruct.id;
+        delete AmmoInstance.bodyStructs[key0];
+
+        const ghostStruct = this.ghostStruct;
+        Ammo.destroy(ghostStruct.ghost);
+        Ammo.destroy(ghostStruct.shape);
+        Ammo.destroy(ghostStruct.worldQuat);
+        const key1 = 'KEY' + ghostStruct.id;
+        delete AmmoInstance.bodyStructs[key1];
+
+        (this.bodyStruct as any) = null;
+        (this.ghostStruct as any) = null;
     }
 
-    private onCollided (event: ICollisionEvent) {
-        for (let i = 0; i < this.bodyStruct.wrappedShapes.length; i++) {
-            const shape = this.bodyStruct.wrappedShapes[i];
-            shape.collider.emit(event.type, event);
-
-            // if (self.collider.node.hasChangedFlags) {
-            //     self.sharedBody.syncSceneToPhysics();
-            // }
-
-            // if (other.collider.node.hasChangedFlags) {
-            //     other.sharedBody.syncSceneToPhysics();
-            // }
-        }
-    }
 }

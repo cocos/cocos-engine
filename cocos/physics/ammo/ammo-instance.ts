@@ -1,13 +1,15 @@
-import { AmmoShape } from './shapes/ammo-shape';
 import { IAmmoBodyStruct, IAmmoGhostStruct } from './ammo-interface';
 
 export class AmmoInstance {
-    static readonly shapes: AmmoShape[] = [];
-    static readonly bodyAndGhosts: IAmmoBodyStruct[] | IAmmoGhostStruct[] = [];
+    static readonly bodyAndGhosts: {
+        [x: string]: IAmmoBodyStruct | IAmmoGhostStruct
+    } = {};
+
     static get bodyStructs () {
-        return this.bodyAndGhosts as IAmmoBodyStruct[];
+        return this.bodyAndGhosts as { [x: string]: IAmmoBodyStruct };
     }
+
     static get ghostStructs () {
-        return this.bodyAndGhosts as IAmmoGhostStruct[];
+        return this.bodyAndGhosts as { [x: string]: IAmmoGhostStruct };
     }
 }

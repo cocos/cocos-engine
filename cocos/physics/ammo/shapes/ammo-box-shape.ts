@@ -1,14 +1,12 @@
 import Ammo from 'ammo.js';
 import { AmmoShape } from "./ammo-shape";
-import { Vec3, Node } from "../../../core";
-import { BoxColliderComponent, RigidBodyComponent } from '../../../../exports/physics-framework';
-import { AmmoRigidBody } from '../ammo-rigid-body';
-import { AmmoWorld } from '../ammo-world';
-import { TransformDirtyBit } from '../../../core/scene-graph/node-enum';
-import { Cocos2AmmoVec3, Cocos2AmmoQuat } from '../ammo-util';
+import { Vec3 } from "../../../core";
+import { BoxColliderComponent } from '../../../../exports/physics-framework';
+import { Cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { IBoxShape } from '../../spec/i-physics-spahe';
 
+const v3_0 = new Vec3();
 
 export class AmmoBoxShape extends AmmoShape implements IBoxShape {
 
@@ -46,9 +44,9 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
         //         AmmoWorld.instance.sharedStaticCompoundShape.updateChildTransform(this.index, this.transform, true);
         //     }
         // }
-        Vec3.copy(tmpv3, size);
-        Vec3.multiply(tmpv3, tmpv3, this._collider.node.worldScale);
-        Cocos2AmmoVec3(this.scale, tmpv3);
+        Vec3.copy(v3_0, size);
+        Vec3.multiply(v3_0, v3_0, this._collider.node.worldScale);
+        Cocos2AmmoVec3(this.scale, v3_0);
         this._btShape.setLocalScaling(this.scale);
         if (this._btCompound) {
             this._btCompound.updateChildTransform(this.index, this.transform, true);
@@ -132,21 +130,15 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
     //     }
     // }
 
+    onDestroy () {
+        super.onDestroy();
+        Ammo.destroy(this.halfExt);
+        (this.halfExt as any) = null;
+    }
+
     updateScale () {
         super.updateScale();
         this.size = this.boxCollider.size;
     }
 
 }
-
-const tmpv3 = new Vec3();
-
-// const pool = {};
-// function getAmmoBox (hE: Vec3): Ammo.btBoxShape {
-//     const key = hE.x + '-' + hE.y + '-' + hE.z;
-//     if (pool[key] == null) {
-//         return pool[key];
-//     }
-//     pool[key] = new Ammo.btBoxShape(new Ammo.btVector3(hE.x, hE.y, hE.z));
-//     return pool[key];
-// }

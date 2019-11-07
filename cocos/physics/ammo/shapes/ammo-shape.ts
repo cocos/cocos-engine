@@ -1,17 +1,13 @@
 import Ammo from 'ammo.js';
 import { Vec3, Quat } from "../../../core/math";
-import { AmmoRigidBody } from "../ammo-rigid-body";
 import { ColliderComponent, RigidBodyComponent, PhysicMaterial, PhysicsSystem } from "../../../../exports/physics-framework";
 import { AmmoWorld } from '../ammo-world';
-import { AmmoCollisionFlags, AmmoBroadphaseNativeTypes } from '../ammo-enum';
-import { defaultRigidBodyInfo } from '../ammo-const';
-import { Cocos2AmmoVec3, Cocos2AmmoQuat } from '../ammo-util';
-import { TransformDirtyBit } from '../../../core/scene-graph/node-enum';
+import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
+import { Cocos2AmmoVec3 } from '../ammo-util';
 import { Node } from '../../../core';
 import { IBaseShape } from '../../spec/i-physics-spahe';
 import { IVec3Like } from '../../../core/math/type-define';
 import { AmmoSharedBody } from '../ammo-shared-body';
-import { AmmoInstance } from '../ammo-instance';
 
 const v3_0 = new Vec3();
 
@@ -53,7 +49,6 @@ export class AmmoShape implements IBaseShape {
     private static idCounter = 0;
     readonly id: number;
     readonly type: AmmoBroadphaseNativeTypes;
-    readonly instanceIndex: number;
 
     protected _index: number = -1;
     protected _isEnabled = false;
@@ -78,9 +73,6 @@ export class AmmoShape implements IBaseShape {
         this.transform.setIdentity();
 
         this.scale = new Ammo.btVector3(1, 1, 1);
-
-        this.instanceIndex = AmmoInstance.shapes.length;
-        AmmoInstance.shapes.push(this);
     }
 
     __preload (com: ColliderComponent) {
@@ -116,6 +108,19 @@ export class AmmoShape implements IBaseShape {
 
     onDestroy () {
         this._sharedBody.reference = false;
+        this._btCompound = null;
+        (this._collider as any) = null;
+
+        Ammo.destroy(this._btShape);
+        Ammo.destroy(this.transform);
+        Ammo.destroy(this.pos);
+        Ammo.destroy(this.quat);
+        Ammo.destroy(this.scale);
+        (this._btShape as any) = null;
+        (this.transform as any) = null;
+        (this.pos as any) = null;
+        (this.quat as any) = null;
+        (this.scale as any) = null;
     }
 
     setGroup (v: number): void {

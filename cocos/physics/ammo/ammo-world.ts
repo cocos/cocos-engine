@@ -40,20 +40,10 @@ export class AmmoWorld implements IPhysicsWorld {
     private readonly _btBroadphase: Ammo.btDbvtBroadphase;
     private readonly _btSolver: Ammo.btSequentialImpulseConstraintSolver;
     private readonly _btDispatcher: Ammo.btCollisionDispatcher;
-
     private readonly _btGravity: Ammo.btVector3;
 
     readonly bodies: AmmoSharedBody[] = [];
     readonly ghosts: AmmoSharedBody[] = [];
-
-    // readonly bodies: AmmoRigidBody[] = [];
-    // readonly staticShapes: AmmoShape[] = [];
-    // readonly triggerShapes: AmmoShape[] = [];
-    // readonly sharedStaticCompoundShape: Ammo.btCompoundShape;
-    // readonly sharedStaticBody: Ammo.btCollisionObject;
-    // readonly sharedTriggerCompoundShape: Ammo.btCompoundShape;
-    // readonly sharedTriggerBody: Ammo.btCollisionObject;
-
     readonly triggerArrayMat = new ArrayCollisionMatrix();
     readonly collisionArrayMat = new ArrayCollisionMatrix();
     readonly contactsDic = new TupleDictionary();
@@ -134,10 +124,12 @@ export class AmmoWorld implements IPhysicsWorld {
                 const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
                 const d = manifoldPoint.getDistance();
                 if (d <= 0.0001) {
-                    const shared0 = AmmoInstance.bodyAndGhosts[index0];
-                    const shared1 = AmmoInstance.bodyAndGhosts[index1];
-                    let shape0 = shared0.wrappedShapes[manifoldPoint.m_index0];
-                    let shape1 = shared1.wrappedShapes[manifoldPoint.m_index1];
+                    const key0 = 'KEY' + index0;
+                    const key1 = 'KEY' + index1;
+                    const shared0 = AmmoInstance.bodyAndGhosts[key0];
+                    const shared1 = AmmoInstance.bodyAndGhosts[key1];
+                    const shape0 = shared0.wrappedShapes[manifoldPoint.m_index0];
+                    const shape1 = shared1.wrappedShapes[manifoldPoint.m_index1];
 
                     // current contact
                     var item = this.contactsDic.get(shape0.id, shape1.id) as any;

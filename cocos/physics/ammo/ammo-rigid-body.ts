@@ -1,16 +1,15 @@
 import Ammo from 'ammo.js';
-import { Quat, Vec3, quat, math, Node } from "../../core";
+import { Vec3, Node } from "../../core";
 import { AmmoWorld } from "./ammo-world";
-import { AmmoShape } from "./shapes/ammo-shape";
-import { Cocos2AmmoVec3, Cocos2AmmoQuat, Ammo2CocosQuat, Ammo2CocosVec3 } from "./ammo-util";
-import { ColliderComponent, RigidBodyComponent, PhysicsSystem } from '../../../exports/physics-framework';
-import { AmmoCollisionFlags, AmmoRigidBodyFlags, AmmoBroadphaseNativeTypes, AmmoCollisionObjectStates } from './ammo-enum';
-import { TransformDirtyBit } from '../../core/scene-graph/node-enum';
-import { max, abs } from '../../core/math/bits';
-import { AmmoSphereShape } from './shapes/ammo-sphere-shape';
+import { Cocos2AmmoVec3, Ammo2CocosVec3 } from "./ammo-util";
+import { RigidBodyComponent, PhysicsSystem } from '../../../exports/physics-framework';
+import { AmmoCollisionFlags, AmmoRigidBodyFlags, AmmoCollisionObjectStates } from './ammo-enum';
 import { IRigidBody } from '../spec/I-rigid-body';
 import { ERigidBodyType } from '../framework/physics-enum';
 import { AmmoSharedBody } from './ammo-shared-body';
+
+const _btVec3_0 = new Ammo.btVector3();
+const _btVec3_1 = new Ammo.btVector3();
 
 export class AmmoRigidBody implements IRigidBody {
     setGroup (v: number): void {
@@ -408,6 +407,3 @@ export class AmmoRigidBody implements IRigidBody {
         )
     }
 }
-
-const _btVec3_0 = new Ammo.btVector3();
-const _btVec3_1 = new Ammo.btVector3();
