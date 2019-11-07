@@ -252,7 +252,9 @@ export class Camera {
 
     set enabled (val) {
         this._enabled = val;
-        this._view.enable(val);
+        if (this._view) {
+            this._view.enable(val);
+        }
     }
 
     get enabled () {
@@ -260,7 +262,7 @@ export class Camera {
     }
 
     get view (): RenderView {
-        return this._view;
+        return this._view!;
     }
 
     set node (val: INode) {
@@ -421,19 +423,21 @@ export class Camera {
 
     set visibility (vis) {
         this._visibility = vis;
-        this._view.visibility = vis;
+        if (this._view)
+            this._view.visibility = vis;
     }
     get visibility () {
         return this._visibility;
     }
 
-    get priority (): number {
-        return this._view.priority;
+    get priority(): number {
+        return this._view ? this._view.priority : -1;
     }
 
     set priority (val: number) {
         this._priority = val;
-        this._view.priority = this._priority;
+        if (this._view)
+            this._view.priority = this._priority;
     }
 
     set aperture (val: CameraAperture) {
@@ -498,7 +502,7 @@ export class Camera {
 
     public changeTargetWindow (window: GFXWindow | null = null) {
         const win = window || cc.director.root.mainWindow;
-        if (win) {
+        if (win && this._view) {
             this._view.window = win;
             this.resize(win.width, win.height);
         }

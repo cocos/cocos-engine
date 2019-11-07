@@ -42,7 +42,7 @@ export class Model {
     }
 
     get scene () {
-        return this._scene;
+        return this._scene!;
     }
 
     get id () {
@@ -70,7 +70,7 @@ export class Model {
     }
 
     get node () {
-        return this._node;
+        return this._node!;
     }
 
     set node (node: INode) {
@@ -78,7 +78,7 @@ export class Model {
     }
 
     get transform () {
-        return this._transform;
+        return this._transform!;
     }
 
     set transform (transform: INode) {
@@ -220,7 +220,7 @@ export class Model {
         const node = this._transform;
         // @ts-ignore
         if (node.hasChangedFlags || node._dirtyFlags) {
-            node.updateWorldTransform();
+            node!.updateWorldTransform();
             this._transformUpdated = true;
             if (this._modelBounds && this._worldBounds) {
                 // @ts-ignore TS2339
@@ -266,7 +266,7 @@ export class Model {
         if (!minPos || !maxPos) { return; }
         this._modelBounds = aabb.fromPoints(aabb.create(), minPos, maxPos);
         this._worldBounds = aabb.clone(this._modelBounds);
-        this._transform.updateWorldTransform();
+        this._transform!.updateWorldTransform();
         // @ts-ignore
         this._modelBounds.transform(this._transform._mat, this._transform._pos, this._transform._rot, this._transform._scale, this._worldBounds);
     }

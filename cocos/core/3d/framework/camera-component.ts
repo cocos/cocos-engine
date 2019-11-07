@@ -39,6 +39,7 @@ import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Layers, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
 import { CameraDefaultMask } from '../../pipeline/define';
+import { director } from '../../director';
 
 /**
  * The projection type<br/>
@@ -422,7 +423,7 @@ export class CameraComponent extends Component {
     }
 
     protected _createCamera () {
-        this._camera = cc.director.root!.createCamera();
+        this._camera = director.root!.createCamera();
         this._camera.initialize({
             name: this.node.name,
             node: this.node,

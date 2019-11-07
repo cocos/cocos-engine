@@ -1119,7 +1119,7 @@ export abstract class RenderPipeline {
     protected updateUBOs (view: RenderView) {
 
         const camera = view.camera;
-        const scene = camera.scene;
+        const scene = camera.scene!;
         const device = this._root.device;
 
         const mainLight = scene.mainLight;
@@ -1203,7 +1203,7 @@ export abstract class RenderPipeline {
     protected sceneCulling (view: RenderView) {
 
         const camera = view.camera;
-        const scene = camera.scene;
+        const scene = camera.scene!;
 
         this._renderObjects.splice(0);
 
@@ -1213,7 +1213,7 @@ export abstract class RenderPipeline {
         }
 
         const planarShadows = scene.planarShadows;
-        if (planarShadows.enabled && mainLight.node.hasChangedFlags) {
+        if (planarShadows.enabled && mainLight.node!.hasChangedFlags) {
             planarShadows.updateDirLight(mainLight);
         }
 
