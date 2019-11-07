@@ -69,6 +69,7 @@ export class AudioPlayerDOM extends AudioPlayer {
             const promise = this._audio.play();
             if (!promise) { // Chrome50/Firefox53 below
                 // delay eval here to yield uniform behavior with other platforms
+                this._state = PlayingState.PLAYING;
                 cc.director.once(cc.Director.EVENT_AFTER_UPDATE, this._post_gesture);
                 return;
             }
@@ -98,6 +99,7 @@ export class AudioPlayerDOM extends AudioPlayer {
         const promise = this._audio.play();
         if (!promise) {
             // delay eval here to yield uniform behavior with other platforms
+            this._state = PlayingState.PLAYING;
             cc.director.once(cc.Director.EVENT_AFTER_UPDATE, this._post_play);
             return;
         }
