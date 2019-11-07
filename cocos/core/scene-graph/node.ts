@@ -231,8 +231,7 @@ export class Node extends BaseNode implements INode {
      * 当前节点面向的前方方向
      */
     get forward (): Vec3 {
-        this.getWorldRotation(q_a);
-        return Vec3.transformQuat(new Vec3(), Vec3.UNIT_Z, q_a);
+        return Vec3.transformQuat(new Vec3(), Vec3.UNIT_Z, this.worldRotation);
     }
     set forward (dir: Vec3) {
         const len = dir.length();
@@ -380,7 +379,7 @@ export class Node extends BaseNode implements INode {
             this._lpos.z += v3_a.z;
         } else if (space === NodeSpace.WORLD) {
             if (this._parent) {
-                Quat.invert(q_a, this.worldRotation);
+                Quat.invert(q_a, this._parent.worldRotation);
                 Vec3.transformQuat(v3_a, trans, q_a);
                 const scale = this.worldScale;
                 this._lpos.x += v3_a.x / scale.x;
