@@ -34,7 +34,7 @@ export default class Mat3 {
     static sub = Mat3.subtract;
     static mul = Mat3.multiply;
     
-    static IDENTITY = Object.freeze(new Mat4());
+    static IDENTITY = Object.freeze(new Mat3());
 
     /**
      * Creates a matrix, with elements specified separately.
