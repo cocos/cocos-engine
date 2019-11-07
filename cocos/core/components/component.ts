@@ -585,16 +585,16 @@ class Component extends CCObject {
      */
     protected onDestroy? (): void;
 
-    protected onFocusInEditor? (): void;
+    public onFocusInEditor? (): void;
 
-    protected onLostFocusInEditor? (): void;
+    public onLostFocusInEditor? (): void;
 
     /**
      * @en Called to initialize the component or node’s properties when adding the component the first time or when the Reset command is used.
      * This function is only called in editor.<br/>
      * @zh 用来初始化组件或节点的一些属性，当该组件被第一次添加到节点上或用户点击了它的 Reset 菜单时调用。这个回调只会在编辑器下调用。
      */
-    protected resetInEditor? (): void;
+    public resetInEditor? (): void;
 
     // VIRTUAL
 
