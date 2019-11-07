@@ -105,3 +105,14 @@ export enum AmmoBroadphaseNativeTypes {
     MAX_BROADPHASE_COLLISION_TYPES
 };
 (Ammo as any).AmmoBroadphaseNativeTypes = AmmoBroadphaseNativeTypes;
+
+export enum AmmoCollisionFilterGroups {
+    DefaultFilter = 1,
+    StaticFilter = 2,
+    KinematicFilter = 4,
+    DebrisFilter = 8,
+    SensorTrigger = 16,
+    CharacterFilter = 32,
+    AllFilter = -1 //all bits sets: DefaultFilter | StaticFilter | KinematicFilter | DebrisFilter | SensorTrigger
+};
+(Ammo as any).AmmoCollisionFilterGroups = AmmoCollisionFilterGroups;

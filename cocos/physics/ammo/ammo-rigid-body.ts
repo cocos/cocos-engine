@@ -38,39 +38,20 @@ export class AmmoRigidBody implements IRigidBody {
         throw new Error("Method not implemented.");
     }
 
+    get isEnabled () { return this._isEnabled; }
+    get rigidBody () { return this._rigidBody; }
+
     private static idCounter = 0;
     readonly id: number;
-
-    // index: number = -1;
-
-    // get impl (): Ammo.btRigidBody { return this._btBody; }
-    // private _btBody!: Ammo.btRigidBody;
-    // _btCompoundShape!: Ammo.btCompoundShape;
-
-    // private _world!: AmmoWorld;
-    // readonly shapes: AmmoShape[] = [];
-
-    readonly wroldQuaternion: Ammo.btQuaternion;
-    readonly localInertia: Ammo.btVector3;
-
-    // motionState!: Ammo.btMotionState;
-
-    get isEnabled () {
-        return this._isEnabled;
-    }
 
     private _isEnabled = false;
     private _sharedBody!: AmmoSharedBody;
     private get _btBody () { return this._sharedBody.body };
     private get _btCompoundShape () { return this._sharedBody.bodyCompoundShape };
-    get rigidBody () {
-        return this._rigidBody;
-    }
     private _rigidBody!: RigidBodyComponent;
+
     constructor () {
         this.id = AmmoRigidBody.idCounter++;
-        this.wroldQuaternion = new Ammo.btQuaternion();
-        this.localInertia = new Ammo.btVector3(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
     }
 
     __preload (com: RigidBodyComponent) {
@@ -198,7 +179,7 @@ export class AmmoRigidBody implements IRigidBody {
         this.fixedRotation = this._rigidBody.fixedRotation;
         this.linearFactor = this._rigidBody.linearFactor;
         this.angularFactor = this._rigidBody.angularFactor;
-        this._sharedBody.enabled = true;
+        this._sharedBody.bodyEnabled = true;
         // this._world = AmmoWorld.instance;
         // AmmoWorld.instance.impl.addRigidBody(this._btBody);
         // AmmoWorld.instance.bodies.push(this);
@@ -208,7 +189,7 @@ export class AmmoRigidBody implements IRigidBody {
 
     onDisable () {
         this._isEnabled = false;
-        this._sharedBody.enabled = false;
+        this._sharedBody.bodyEnabled = false;
         // AmmoWorld.instance.impl.removeRigidBody(this.impl);
         // AmmoWorld.instance.bodies.splice(this.index, 1);
         // this.index = -1;
@@ -241,14 +222,15 @@ export class AmmoRigidBody implements IRigidBody {
     set mass (value: number) {
         // See https://studiofreya.com/game-maker/bullet-physics/bullet-physics-how-to-change-body-mass/
         const wrappedWorld = this._sharedBody.wrappedWorld;
+        const localInertia = this._sharedBody.bodyStruct.localInertia;
         if (wrappedWorld) {
             wrappedWorld.removeSharedBody(this._sharedBody);
         }
-        this.localInertia.setValue(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
+        localInertia.setValue(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
         if (this._btCompoundShape.getNumChildShapes() > 0) {
-            this._btCompoundShape.calculateLocalInertia(this._rigidBody.mass, this.localInertia);
+            this._btCompoundShape.calculateLocalInertia(this._rigidBody.mass, localInertia);
         }
-        this._btBody.setMassProps(value, this.localInertia);
+        this._btBody.setMassProps(value, localInertia);
         if (wrappedWorld) {
             wrappedWorld.addSharedBody(this._sharedBody);
         }

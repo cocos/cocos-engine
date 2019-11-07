@@ -46,8 +46,8 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
         //         AmmoWorld.instance.sharedStaticCompoundShape.updateChildTransform(this.index, this.transform, true);
         //     }
         // }
-        Vec3.multiplyScalar(tmpv3, this.boxCollider.size, 1);
-        tmpv3.multiply(this.collider.node.worldScale)
+        Vec3.copy(tmpv3, size);
+        Vec3.multiply(tmpv3, tmpv3, this._collider.node.worldScale);
         Cocos2AmmoVec3(this.scale, tmpv3);
         this._btShape.setLocalScaling(this.scale);
         if (this._btCompound) {
@@ -71,6 +71,10 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
         this._btShape = new Ammo.btBoxShape(this.halfExt);
     }
 
+    onLoad () {
+        super.onLoad();
+        this.size = this.boxCollider.size;
+    }
     // onEnable () {
     //     super.onEnable();
     //     this.attachRigidBody = this.collider.getComponent(RigidBodyComponent);

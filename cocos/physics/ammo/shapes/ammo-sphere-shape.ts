@@ -68,6 +68,11 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
         this._btShape = new Ammo.btSphereShape(0.5);
     }
 
+    onLoad () {
+        super.onLoad();
+        this.radius = this.sphereCollider.radius;
+    }
+
     // public onEnable () {
     //     super.onEnable();
 
