@@ -808,7 +808,7 @@ export class Terrain extends Component {
         asset.weightMapSize = this.weightMapSize;
         asset.heights = this.heights;
         asset.weights = this.weights;
-        asset.layerBuffer = new Array<number>(this._blocks.length);
+        asset.layerBuffer = new Array<number>(this._blocks.length * 4);
         for (let i = 0; i < this._blocks.length; ++i) {
             asset.layerBuffer[i * 4 + 0] + this._blocks[i].layers[0];
             asset.layerBuffer[i * 4 + 1] + this._blocks[i].layers[1];

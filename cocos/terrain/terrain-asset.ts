@@ -6,6 +6,8 @@ import { ccclass } from "../core/data/class-decorator";
 
 export const TERRAIN_DATA_VERSION = 0x01010001;
 export const TERRAIN_DATA_VERSION2 = 0x01010002;
+export const TERRAIN_DATA_VERSION_DEFAULT = 0x01010111;
+
 
 export class TerrainBuffer {
     public Length: number = 0;
@@ -157,7 +159,7 @@ export class TerrainAsset extends Asset
     protected _lightMapSize: number = 128;
     protected _heights: Uint16Array = new Uint16Array;
     protected _weights: Uint8Array = new Uint8Array;
-    protected _layerBuffer: number[] = [];
+    protected _layerBuffer: number[] = [-1, -1, -1, -1];
     
     constructor () {
         super();
@@ -233,7 +235,7 @@ export class TerrainAsset extends Asset
     }
 
     set layerBuffer(value: number[]) {
-        this.layerBuffer = value;
+        this._layerBuffer = value;
     }
 
     get layerBuffer() {
@@ -244,7 +246,7 @@ export class TerrainAsset extends Asset
         let blockId = yblock * this.blockCount[0] + xblock;
         let index = blockId * 4 + layerId;
 
-        if (xblock < this.blockCount[0] && yblock < this.blockCount[1]) {
+        if (xblock < this.blockCount[0] && yblock < this.blockCount[1] && index < this._layerBuffer.length) {
             return this._layerBuffer[index];
         }
         
@@ -261,6 +263,9 @@ export class TerrainAsset extends Asset
 
         // version
         let version = stream.ReadInt();
+        if (version == TERRAIN_DATA_VERSION_DEFAULT) {
+            return true;
+        }
         if (version != TERRAIN_DATA_VERSION &&
             version != TERRAIN_DATA_VERSION2) {
             return false;
@@ -299,6 +304,8 @@ export class TerrainAsset extends Asset
     }
 
     public _exportNativeData() : Uint8Array {
+        return this._exportDefaultNativeData();
+
         let stream = new TerrainBuffer();
 
         // version
@@ -329,5 +336,14 @@ export class TerrainAsset extends Asset
         }
 
         return stream.Buffer;
+    }
+
+    public _exportDefaultNativeData() : Uint8Array {
+        let stream = new TerrainBuffer();
+
+        stream.WriteInt32(TERRAIN_DATA_VERSION_DEFAULT);
+
+        return stream.Buffer;
+
     }
  }
