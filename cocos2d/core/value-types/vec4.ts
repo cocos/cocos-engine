@@ -52,34 +52,24 @@ export default class Vec4 extends ValueType {
     mag  = Vec4.prototype.len;
     magSqr = Vec4.prototype.lengthSqr;
     subSelf  = Vec4.prototype.subtract;
-    sub (vector: Vec4, out: Vec4) {
-        out = out || new Vec4();
-        Vec4.subtract(out, this, vector);
-        return out;
+    sub (vector: Vec4, out?: Vec4) {
+        return Vec4.subtract(out || new Vec4(), this, vector);
     }
     mulSelf  = Vec4.prototype.multiplyScalar;
-    mul (num: number, out: Vec4) {
-        out = out || new Vec4();
-        Vec4.multiplyScalar(out, this, num);
-        return out;
+    mul (num: number, out?: Vec4) {
+        return Vec4.multiplyScalar(out || new Vec4(), this, num);
     }
     divSelf  = Vec4.prototype.divide;
-    div (vector: Vec4, out: Vec4) {
-        out = out || new Vec4();
-        Vec4.divide(out, vector, this);
-        return out;
+    div (vector: Vec4, out?: Vec4) {
+        return Vec4.divide(out || new Vec4(), this, vector);
     }
     scaleSelf = Vec4.prototype.multiply;
-    scale (vector: Vec4, out: Vec4) {
-        out = out || new Vec4();
-        Vec4.multiply(out, this, vector);
-        return out;
+    scale (vector: Vec4, out?: Vec4) {
+        return Vec4.multiply(out || new Vec4(), this, vector);
     }
     negSelf = Vec4.prototype.negate;
-    neg (out: Vec4) {
-        out = out || new Vec4();
-        Vec4.negate(out, this);
-        return out;
+    neg (out?: Vec4) {
+        return Vec4.negate(out || new Vec4(), this);
     }
 
     public static get ZERO () { return new Vec4(0, 0, 0, 0); }

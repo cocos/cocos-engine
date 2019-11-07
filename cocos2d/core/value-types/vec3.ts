@@ -54,34 +54,24 @@ export default class Vec3 extends ValueType {
     mag  = Vec3.prototype.len;
     magSqr = Vec3.prototype.lengthSqr;
     subSelf  = Vec3.prototype.subtract;
-    sub (vector: Vec3, out: Vec3) {
-        out = out || new Vec3();
-        Vec3.subtract(out, this, vector);
-        return out;
+    sub (vector: Vec3, out?: Vec3) {
+        return Vec3.subtract(out || new Vec3(), this, vector);
     }
     mulSelf  = Vec3.prototype.multiplyScalar;
-    mul (num: number, out: Vec3) {
-        out = out || new Vec3();
-        Vec3.multiplyScalar(out, this, num);
-        return out;
+    mul (num: number, out?: Vec3) {
+        return Vec3.multiplyScalar(out || new Vec3(), this, num);
     }
     divSelf  = Vec3.prototype.divide;
-    div (vector: Vec3, out: Vec3) {
-        out = out || new Vec3();
-        Vec3.divide(out, vector, this);
-        return out;
+    div (vector: Vec3, out?: Vec3) {
+        return Vec3.divide(out || new Vec3(), this, vector);
     }
     scaleSelf = Vec3.prototype.multiply;
-    scale (vector: Vec3, out: Vec3) {
-        out = out || new Vec3();
-        Vec3.multiply(out, this, vector);
-        return out;
+    scale (vector: Vec3, out?: Vec3) {
+        return Vec3.multiply(out || new Vec3(), this, vector);
     }
     negSelf = Vec3.prototype.negate;
-    neg (out: Vec3) {
-        out = out || new Vec3();
-        Vec3.negate(out, this);
-        return out;
+    neg (out?: Vec3) {
+        return Vec3.negate(out || new Vec3(), this);
     }
 
     /**

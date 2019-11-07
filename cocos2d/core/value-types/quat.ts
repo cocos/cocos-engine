@@ -59,6 +59,10 @@ export default class Quat extends ValueType {
     static scale = Quat.multiplyScalar;
     static mag = Quat.len;
 
+    mul (other: Quat, out?: Quat): Quat {
+        return Quat.multiply(out || new Quat(), this, other);
+    }
+
     static IDENTITY = Object.freeze(new Quat());
 
     /**
@@ -878,7 +882,7 @@ export default class Quat extends ValueType {
      * @return {Quat} returns this
      * @chainable
      */
-    set (newValue: Quat): Quat {
+    set (newValue: Quat): this {
         this.x = newValue.x;
         this.y = newValue.y;
         this.z = newValue.z;
@@ -905,8 +909,7 @@ export default class Quat extends ValueType {
      * @return {Vec3}
      */
     toEuler (out: Vec3): Vec3 {
-        Quat.toEuler(out, this);
-        return out;
+        return Quat.toEuler(out, this);
     }
 
     /**
@@ -916,9 +919,8 @@ export default class Quat extends ValueType {
      * @param {Vec3} euler
      * @return {Quat}
      */
-    fromEuler (euler: Vec3): Quat {
-        Quat.fromEuler(this, euler.x, euler.y, euler.z);
-        return this;
+    fromEuler (euler: Vec3): this {
+        return Quat.fromEuler(this, euler.x, euler.y, euler.z);
     }
 
     /**
@@ -939,16 +941,12 @@ export default class Quat extends ValueType {
     /**
      * !#en Calculate the multiply result between this quaternion and another one
      * !#zh 计算四元数乘积的结果
-     * @member lerp
-     * @param {Quat} to
-     * @param {Number} ratio
-     * @param {Quat} [out]
-     * @returns {Quat} out
+     * @member multiply
+     * @param {Quat} other
+     * @returns {Quat} this
      */
-    mul (other: Quat, out: Quat): Quat {
-        out = out || new Quat();
-        Quat.multiply(out, this, other);
-        return out;
+    multiply (other: Quat): this {
+        return Quat.multiply(this, this, other);
     }
 
     /**

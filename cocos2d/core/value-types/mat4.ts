@@ -45,9 +45,15 @@ let _a30: number = 0; let _a31: number = 0; let _a32: number = 0; let _a33: numb
 export default class Mat4 extends ValueType {
     static mul = Mat4.multiply;
     static sub = Mat4.subtract;
-    mul = Mat4.prototype.multiply;
-    mulScalar = Mat4.prototype.multiplyScalar;
-    sub = Mat4.prototype.subtract;
+    mul (m: Mat4, out: Mat4): Mat4 {
+        return Mat4.multiply(out || new Mat4(), this, m);
+    }
+    mulScalar (num: number, out: Mat4) {
+        Mat4.multiplyScalar(out || new Mat4(), this, num);
+    }
+    sub (m: Mat4, out: Mat4) {
+        Mat4.subtract(out || new Mat4(), this, m);
+    }
 
     /**
      * Identity  of Mat4
@@ -1815,36 +1821,30 @@ export default class Mat4 extends ValueType {
      * Subtracts the current matrix with another one
      * @method subtract
      * @param {Mat4} other the second operand
-     * @param {Mat4} [out] the receiving matrix, you can pass the same matrix to save result to itself, if not provided, a new matrix will be created
-     * @returns {Mat4} out
+     * @returns {Mat4} this
      */
-    subtract (other, out) {
-        out = out || new Mat4();
-        return Mat4.subtract(out, this, other);
+    subtract (other): this {
+        return Mat4.subtract(this, this, other);
     }
 
     /**
      * Subtracts the current matrix with another one
      * @method multiply
      * @param {Mat4} other the second operand
-     * @param {Mat4} [out] the receiving matrix, you can pass the same matrix to save result to itself, if not provided, a new matrix will be created
-     * @returns {Mat4} out
+     * @returns {Mat4} this
      */
-    multiply (other, out) {
-        out = out || new Mat4();
-        return Mat4.multiply(out, this, other)
+    multiply (other): this {
+        return Mat4.multiply(this, this, other);
     }
 
     /**
      * Multiply each element of the matrix by a scalar.
      * @method multiplyScalar
      * @param {Number} number amount to scale the matrix's elements by
-     * @param {Mat4} [out] the receiving matrix, you can pass the same matrix to save result to itself, if not provided, a new matrix will be created
-     * @returns {Mat4} out
+     * @returns {Mat4} this
      */
-    multiplyScalar (number, out) {
-        out = out || new Mat4();
-        return Mat4.multiplyScalar(out, this, number);
+    multiplyScalar (number): this {
+        return Mat4.multiplyScalar(this, this, number);
     }
 
     /**
@@ -1926,7 +1926,7 @@ export default class Mat4 extends ValueType {
      * @returns {Mat4} the current mat4 object
      * @chainable
      */
-    fromRTS (q, v, s) {
+    fromRTS (q, v, s): this {
         return Mat4.fromRTS(this, q, v, s);
     }
 
@@ -1937,7 +1937,7 @@ export default class Mat4 extends ValueType {
      * @returns {Mat4} the current mat4 object
      * @chainable
      */
-    fromQuat (quat) {
+    fromQuat (quat): this {
         return Mat4.fromQuat(this, quat);
     }
 }

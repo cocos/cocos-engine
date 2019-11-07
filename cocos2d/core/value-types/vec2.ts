@@ -52,34 +52,24 @@ export default class Vec2 extends ValueType {
     mag  = Vec2.prototype.len;
     magSqr = Vec2.prototype.lengthSqr;
     subSelf  = Vec2.prototype.subtract;
-    sub (vector: Vec2, out: Vec2) {
-        out = out || new Vec2();
-        Vec2.subtract(out, this, vector);
-        return out;
+    sub (vector: Vec2, out?: Vec2): Vec2 {
+        return Vec2.subtract(out || new Vec2(), this, vector);
     }
     mulSelf  = Vec2.prototype.multiplyScalar;
-    mul (num: number, out: Vec2) {
-        out = out || new Vec2();
-        Vec2.multiplyScalar(out, this, num);
-        return out;
+    mul (num: number, out?: Vec2): Vec2 {
+        return Vec2.multiplyScalar(out || new Vec2(), this, num);
     }
     divSelf  = Vec2.prototype.divide;
-    div (vector: Vec2, out: Vec2) {
-        out = out || new Vec2();
-        Vec2.divide(out, vector, this);
-        return out;
+    div (vector: Vec2, out?: Vec2): Vec2 {
+        return Vec2.divide(out || new Vec2(), this, vector);
     }
     scaleSelf = Vec2.prototype.multiply;
-    scale (vector: Vec2, out: Vec2) {
-        out = out || new Vec2();
-        Vec2.multiply(out, this, vector);
-        return out;
+    scale (vector: Vec2, out?: Vec2): Vec2 {
+        return Vec2.multiply(out || new Vec2(), this, vector);
     }
     negSelf = Vec2.prototype.negate;
-    neg (out: Vec2) {
-        out = out || new Vec2();
-        Vec2.negate(out, this);
-        return out;
+    neg (out?: Vec2): Vec2 {
+        return Vec2.negate(out || new Vec2(), this);
     }
 
     /**
