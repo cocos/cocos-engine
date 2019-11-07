@@ -98,26 +98,8 @@ intersect.rayMesh = (function () {
     let tri = Triangle.create();
     let minDist = Infinity;
 
-    const _compType2fn = {
-        5120: 'getInt8',
-        5121: 'getUint8',
-        5122: 'getInt16',
-        5123: 'getUint16',
-        5124: 'getInt32',
-        5125: 'getUint32',
-        5126: 'getFloat32',
-    };
-
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView#Endianness
-    const littleEndian = (function () {
-        let buffer = new ArrayBuffer(2);
-        new DataView(buffer).setInt16(0, 256, true);
-        // Int16Array uses the platform's endianness.
-        return new Int16Array(buffer)[0] === 256;
-    })();
-
-    function getVec3 (out, dv, fn, step, idx) {
-        vec3.set(out, dv[fn](idx, littleEndian), dv[fn](idx += step, littleEndian), dv[fn](idx += step, littleEndian));
+    function getVec3 (out, data, idx, stride) {
+        vec3.set(out, data[idx*stride], data[idx*stride + 1], data[idx*stride + 2]);
     }
     
     return function (ray, mesh) {
@@ -128,18 +110,16 @@ intersect.rayMesh = (function () {
             if (subMeshes[i]._primitiveType !== gfx.PT_TRIANGLES) continue;
 
             let subData = (mesh._subDatas[i] || mesh._subDatas[0]);
-            let vbData = subData.vData;
-            let dv = new DataView(vbData.buffer, vbData.byteOffset, vbData.byteLength);
-            let iData = subData.iData;
+            let posData = mesh._getAttrMeshData(i, gfx.ATTR_POSITION);
+            let iData = subData.getIData(Uint16Array);
 
             let format = subData.vfm;
             let fmt = format.element(gfx.ATTR_POSITION);
-            let offset = fmt.offset, stride = fmt.stride;
-            let fn = _compType2fn[fmt.type];
+            let num = fmt.num;
             for (let i = 0; i < iData.length; i += 3) {
-                getVec3(tri.a, dv, fn, 4, iData[i]   * stride + offset);
-                getVec3(tri.b, dv, fn, 4, iData[i+1] * stride + offset);
-                getVec3(tri.c, dv, fn, 4, iData[i+2] * stride + offset);
+                getVec3(tri.a, posData, iData[ i ], num);
+                getVec3(tri.b, posData, iData[i+1], num);
+                getVec3(tri.c, posData, iData[i+2], num);
 
                 let dist = intersect.rayTriangle(ray, tri);
                 if (dist > 0 && dist < minDist) {
@@ -230,7 +210,7 @@ intersect.raycast = (function () {
             // raycast with bounding box
             let distance = Infinity;
             let component = node._renderComponent;
-            if (component && component._boundingBox) {
+            if (component instanceof cc.MeshRenderer ) {
                 distance = intersect.rayAabb(modelRay, component._boundingBox);
             }
             else if (node.width && node.height) {

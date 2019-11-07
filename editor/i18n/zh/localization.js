@@ -82,6 +82,8 @@ module.exports = {
             'pressed_sprite': '按下状态的按钮背景图资源',
             'hover_sprite': '悬停状态的按钮背景图资源',
             'disabled_sprite': '禁用状态的按钮背景图资源',
+            'normal_material': '正常状态下按钮指定的背景图片所使用的材质',
+            'gray_material': '禁用状态下按钮指定的背景图片所使用的材质',
             'target': '指定 Button 背景节点，Button 状态改变时会修改此节点的 Color 或 Sprite 属性',
             'click_events': '按钮点击事件的列表。先将数量改为1或更多，就可以为每个点击事件设置接受者和处理方法'
         },
@@ -260,6 +262,7 @@ module.exports = {
             "currentTime": "从哪个时间点开始播放视频",
             "keepAspectRatio": "是否保持视频原有的宽高比",
             "isFullscreen": "是否全屏播放视频",
+            "stayOnBottom": "永远在游戏视图最底层（这个属性只有在 Web 平台上有效果。注意：具体效果无法保证一致，跟各个浏览器是否支持与限制有关）"
         },
         "webview": {
             "url": "指定一个 URL 地址，这个地址以 http 或者 https 开头，请填写一个有效的 URL 地址。"

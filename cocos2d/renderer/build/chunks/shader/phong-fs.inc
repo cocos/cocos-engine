@@ -16,16 +16,10 @@ precision highp float;
 
 in vec3 v_worldNormal;
 in vec3 v_worldPos;
+in mediump vec2 v_uv0;
+in lowp vec4 v_color;
 
-#if CC_USE_TEXTURE
-  in mediump vec2 v_uv0;
-#endif
-
-#if CC_USE_ATTRIBUTE_COLOR
-  in lowp vec4 v_color;
-#endif
-
-#include <phong>
+#include <shading-phong>
 
 void main () {
   vec4 diffuse = vec4(1, 1, 1, 1);

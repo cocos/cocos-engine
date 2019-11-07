@@ -43,7 +43,7 @@ export default class WebglTTFAssembler extends TTFAssembler {
     }
 
     updateColor (comp) {
-        WHITE._fastSetA(comp.node.color.a);
+        WHITE._fastSetA(comp.node._color.a);
         let color = WHITE._val;
 
         super.updateColor(comp, color);

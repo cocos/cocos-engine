@@ -31,8 +31,6 @@ const FillType = Sprite.FillType;
 export default class BarFilledAssembler extends Assembler2D {
     updateRenderData (sprite) {
         let frame = sprite._spriteFrame;
-        if (!frame) return;
-
         this.packToDynamicAtlas(sprite, frame);
 
         if (!sprite._vertsDirty) {

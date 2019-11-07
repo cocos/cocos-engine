@@ -122,6 +122,10 @@ cc.Director = function () {
     this._totalFrames = 0;
     this._lastUpdate = 0;
     this._deltaTime = 0.0;
+    this._startTime = 0.0;
+
+    // ParticleSystem max step delta time
+    this._maxParticleDeltaTime = 0.0;
 
     // Scheduler for user registration update
     this._scheduler = null;
@@ -145,6 +149,7 @@ cc.Director.prototype = {
     init: function () {
         this._totalFrames = 0;
         this._lastUpdate = performance.now();
+        this._startTime = this._lastUpdate;
         this._paused = false;
         this._purgeDirectorInNextLoop = false;
         this._winSizeInPoints = cc.size(0, 0);
@@ -215,6 +220,13 @@ cc.Director.prototype = {
         this._deltaTime = (now - this._lastUpdate) / 1000;
         if (CC_DEBUG && (this._deltaTime > 1))
             this._deltaTime = 1 / 60.0;
+
+        // avoid delta time from being negative
+        // negative deltaTime would be caused by the precision of now's value, for details please see: https://developer.mozilla.org/zh-CN/docs/Web/API/window/requestAnimationFrame
+        if (this._deltaTime < 0) {
+            this.calculateDeltaTime();
+            return;
+        }
 
         this._lastUpdate = now;
     },
@@ -506,7 +518,7 @@ cc.Director.prototype = {
      */
     loadScene: function (sceneName, onLaunched, _onUnloaded) {
         if (this._loadingScene) {
-            cc.errorID(1208, sceneName, this._loadingScene);
+            cc.warnID(1208, sceneName, this._loadingScene);
             return false;
         }
         var bundle = cc.assetManager._bundles.find(function (bundle) {
@@ -647,6 +659,16 @@ cc.Director.prototype = {
      */
     getDeltaTime: function () {
         return this._deltaTime;
+    },
+
+    /**
+     * !#en Returns the total passed time since game start, unit: ms
+     * !#zh 获取从游戏开始到现在总共经过的时间，单位为 ms
+     * @method getTotalTime
+     * @return {Number}
+     */
+    getTotalTime: function () {
+        return performance.now() - this._startTime;
     },
 
     /**
@@ -810,17 +832,26 @@ cc.Director.prototype = {
 
             // Update
             if (!this._paused) {
+                // before update
                 this.emit(cc.Director.EVENT_BEFORE_UPDATE);
+
                 // Call start for new added components
                 this._compScheduler.startPhase();
+
                 // Update for components
                 this._compScheduler.updatePhase(this._deltaTime);
                 // Engine update with scheduler
                 this._scheduler.update(this._deltaTime);
+
                 // Late update for components
                 this._compScheduler.lateUpdatePhase(this._deltaTime);
+
+                // After life-cycle executed
+                this._compScheduler.clearup();
+
                 // User can use this event to do things after update
                 this.emit(cc.Director.EVENT_AFTER_UPDATE);
+                
                 // Destroy entities that have been removed recently
                 Obj._deferredDestroy();
             }

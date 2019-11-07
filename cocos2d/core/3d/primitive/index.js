@@ -12,8 +12,8 @@ import VertexData from './vertex-data';
 
 /**
  * 一个创建 3D 物体顶点数据的基础模块，你可以通过 "cc.primitive" 来访问这个模块。
- * @module primitive
- * @submodule primitive
+ * @module cc.primitive
+ * @submodule cc.primitive
  * @main
  */
 
@@ -30,7 +30,7 @@ cc.primitive = Object.assign({
      * @param {Number} opts.widthSegments
      * @param {Number} opts.heightSegments
      * @param {Number} opts.lengthSegments
-     * @return {primitive.VertextData}
+     * @return {primitive.VertexData}
      */
     box,
     /**
@@ -45,7 +45,7 @@ cc.primitive = Object.assign({
      * @param {Number} opts.heightSegments
      * @param {Boolean} opts.capped
      * @param {Number} opts.arc
-     * @return {primitive.VertextData}
+     * @return {primitive.VertexData}
      */
     cone,
     /**
@@ -61,7 +61,7 @@ cc.primitive = Object.assign({
      * @param {Number} opts.heightSegments
      * @param {Boolean} opts.capped
      * @param {Number} opts.arc
-     * @return {primitive.VertextData}
+     * @return {primitive.VertexData}
      */
     cylinder,
     /**
@@ -74,7 +74,7 @@ cc.primitive = Object.assign({
      * @param {Object} opts
      * @param {Number} opts.widthSegments
      * @param {Number} opts.lengthSegments
-     * @return {primitive.VertextData}
+     * @return {primitive.VertexData}
      */
     plane,
     /**
@@ -82,7 +82,7 @@ cc.primitive = Object.assign({
      * !#zh 创建面片顶点数据
      * @method quad
      * @static
-     * @return {primitive.VertextData}
+     * @return {primitive.VertexData}
      */
     quad,
     /**
@@ -93,7 +93,7 @@ cc.primitive = Object.assign({
      * @param {Number} radius
      * @param {Object} opts
      * @param {Number} opts.segments
-     * @return {primitive.VertextData}
+     * @return {primitive.VertexData}
      */
     sphere,
     /**
@@ -107,7 +107,7 @@ cc.primitive = Object.assign({
      * @param {Number} opts.radialSegments
      * @param {Number} opts.tubularSegments
      * @param {Number} opts.arc
-     * @return {primitive.VertextData}
+     * @return {primitive.VertexData}
      */
     torus,
     /**
@@ -123,7 +123,7 @@ cc.primitive = Object.assign({
      * @param {Number} opts.heightSegments
      * @param {Boolean} opts.capped
      * @param {Number} opts.arc
-     * @return {primitive.VertextData}
+     * @return {primitive.VertexData}
      */
     capsule,
     /**
@@ -137,7 +137,7 @@ cc.primitive = Object.assign({
      * @param {Number} opts.sizeX
      * @param {Number} opts.sizeY
      * @param {Number} opts.sizeZ
-     * @return {primitive.VertextData}
+     * @return {primitive.VertexData}
      */
     polyhedron,
 

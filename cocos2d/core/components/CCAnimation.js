@@ -29,13 +29,11 @@ const AnimationClip = require('../../animation/animation-clip');
 const EventTarget = require('../event/event-target');
 const js = require('../platform/js');
 
-function equalClips (clip1, clip2) {
-    if (clip1 === clip2) {
-        return true;
-    }
-
-    return clip1 && clip2 && (clip1.name === clip2.name || clip1._uuid === clip2._uuid);
-}
+let equalClips = CC_EDITOR ? function (clip1, clip2) {
+    return clip1 === clip2 || (clip1 && clip2 && (clip1.name === clip2.name || clip1._uuid === clip2._uuid));
+} : function (clip1, clip2) {
+    return clip1 === clip2;
+};
 
 /**
  * !#en The event type supported by Animation
@@ -164,21 +162,13 @@ let Animation = cc.Class({
                     return;
                 }
 
+                if (this._defaultClip) {
+                    this.removeClip(this._defaultClip, true);
+                }
+                if (value) {
+                    this.addClip(value);
+                }
                 this._defaultClip = value;
-
-                if (!value) {
-                    return;
-                }
-
-                let clips = this._clips;
-
-                for (let i = 0, l = clips.length; i < l; i++) {
-                    if (equalClips(value, clips[i])) {
-                        return;
-                    }
-                }
-
-                this.addClip(value);
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.animation.default_clip'
         },
@@ -524,8 +514,7 @@ let Animation = cc.Class({
         let state;
         for (let name in this._nameToState) {
             state = this._nameToState[name];
-            let stateClip = state.clip;
-            if (stateClip === clip) {
+            if (equalClips(state.clip, clip)) {
                 break;
             }
         }
@@ -547,7 +536,7 @@ let Animation = cc.Class({
         }
 
         this._clips = this._clips.filter(function (item) {
-            return item !== clip;
+            return !equalClips(item, clip);
         });
 
         if (state) {

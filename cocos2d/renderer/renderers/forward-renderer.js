@@ -18,6 +18,8 @@ let _camPos = cc.v4(0, 0, 0, 0);
 let _camFwd = cc.v3(0, 0, 0);
 let _v3_tmp1 = cc.v3(0, 0, 0);
 
+const CC_MAX_LIGHTS = 4;
+
 let _float16_pool = new RecyclePool(() => {
   return new Float32Array(16);
 }, 8);
@@ -132,12 +134,12 @@ export default class ForwardRenderer extends BaseRenderer {
 
   _updateDefines () {
     let defines = this._defines;
-    defines.CC_NUM_DIR_LIGHTS = Math.min(4, this._directionalLights.length);
-    defines.CC_NUM_POINT_LIGHTS = Math.min(4, this._pointLights.length);
-    defines.CC_NUM_SPOT_LIGHTS = Math.min(4, this._spotLights.length);
-    defines.CC_NUM_AMBIENT_LIGHTS = Math.min(4, this._ambientLights.length);
+    defines.CC_NUM_DIR_LIGHTS = Math.min(CC_MAX_LIGHTS, this._directionalLights.length);
+    defines.CC_NUM_POINT_LIGHTS = Math.min(CC_MAX_LIGHTS, this._pointLights.length);
+    defines.CC_NUM_SPOT_LIGHTS = Math.min(CC_MAX_LIGHTS, this._spotLights.length);
+    defines.CC_NUM_AMBIENT_LIGHTS = Math.min(CC_MAX_LIGHTS, this._ambientLights.length);
 
-    defines.CC_NUM_SHADOW_LIGHTS = Math.min(4, this._shadowLights.length);
+    defines.CC_NUM_SHADOW_LIGHTS = Math.min(CC_MAX_LIGHTS, this._shadowLights.length);
   }
 
   _submitLightsUniforms () {
@@ -146,8 +148,8 @@ export default class ForwardRenderer extends BaseRenderer {
     if (this._directionalLights.length > 0) {
       let directions = _float16_pool.add();
       let colors = _float16_pool.add();
-
-      for (let i = 0; i < this._directionalLights.length; ++i) {
+      let lightNum = Math.min(CC_MAX_LIGHTS, this._directionalLights.length);
+      for (let i = 0; i < lightNum; ++i) {
         let light = this._directionalLights[i];
         let index = i * 4;
         directions.set(light._directionUniform, index);
@@ -161,7 +163,8 @@ export default class ForwardRenderer extends BaseRenderer {
     if (this._pointLights.length > 0) {
       let positionAndRanges = _float16_pool.add();
       let colors = _float16_pool.add();
-      for (let i = 0; i < this._pointLights.length; ++i) {
+      let lightNum = Math.min(CC_MAX_LIGHTS, this._pointLights.length);
+      for (let i = 0; i < lightNum; ++i) {
         let light = this._pointLights[i];
         let index = i * 4;
         positionAndRanges.set(light._positionUniform, index);
@@ -177,7 +180,8 @@ export default class ForwardRenderer extends BaseRenderer {
       let positionAndRanges = _float16_pool.add();
       let directions = _float16_pool.add();
       let colors = _float16_pool.add();
-      for (let i = 0; i < this._spotLights.length; ++i) {
+      let lightNum = Math.min(CC_MAX_LIGHTS, this._spotLights.length);
+      for (let i = 0; i < lightNum; ++i) {
         let light = this._spotLights[i];
         let index = i * 4;
         
@@ -198,8 +202,8 @@ export default class ForwardRenderer extends BaseRenderer {
 
     if (this._ambientLights.length > 0) {
       let colors = _float16_pool.add();
-
-      for (let i = 0; i < this._ambientLights.length; ++i) {
+      let lightNum = Math.min(CC_MAX_LIGHTS, this._ambientLights.length);
+      for (let i = 0; i < lightNum; ++i) {
         let light = this._ambientLights[i];
         let index = i * 4;
         colors.set(light._colorUniform, index);

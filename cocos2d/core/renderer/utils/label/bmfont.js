@@ -518,10 +518,8 @@ export default class BmfontAssembler extends Assembler2D {
         let texture = shareLabelInfo.fontAtlas.getTexture();
 
         let node = _comp.node;
-        let renderData = _comp._renderData;
-        if (renderData) {
-            renderData.dataLength = renderData.vertexCount = renderData.indiceCount = 0;
-        }
+
+        this.verticesCount = this.indicesCount = 0;
 
         let contentSize = _contentSize,
             appx = node._anchorPoint.x * contentSize.width,
@@ -630,9 +628,9 @@ export default class BmfontAssembler extends Assembler2D {
         }
 
         // TOP
-        _letterOffsetY = (_contentSize.height + _textDesiredHeight) / 2;
+        _letterOffsetY = _contentSize.height;
         if (_vAlign !== macro.VerticalTextAlignment.TOP) {
-            let blank = (_lineHeight - _originFontSize) * _bmfontScale;
+            let blank = _contentSize.height - _textDesiredHeight + (_lineHeight - _originFontSize) * _bmfontScale;
             if (_vAlign === macro.VerticalTextAlignment.BOTTOM) {
                 // BOTTOM
                 _letterOffsetY -= blank;

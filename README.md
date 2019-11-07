@@ -26,7 +26,7 @@
 
 # Cocos Creator
 
-![image](https://user-images.githubusercontent.com/1503156/50451713-97d7cc00-0970-11e9-89f8-ccdd8b2cc5cb.png)
+![2.2.0 Main Window](https://user-images.githubusercontent.com/1503156/67261891-3cfdfb00-f4d5-11e9-9b2d-15ff2cb015f4.png)
 
 Cocos Creator is a complete package of game development tools and workflow, including a game engine, resource management, scene editing, game preview, debug and publish one project to multiple platforms. Cocos Creator focused on content creation, which has realized features like thorough scriptability, componentization and data driven, etc. on the basis of Cocos2d-x. With JavaScript, you can scripting your component in no time. The editor and engine extension is also made with JavaScript so you can make games and refine your tool in a single programming language. Cocos Creator is an provides an innovative, easy to use toolset such as the UI system and Animation editor. The toolset will be expanding continuously and quickly, thanks to the open editor extension system.
 
@@ -59,6 +59,12 @@ This is all you have to do to set engine development environment.
 
 ```bash
 gulp build
+```
+
+If the compilation process encounters a "JavaScript heap out memory" warning, you can use the following command line
+
+```bash
+gulp build --max-old-space-size=8192
 ```
 
 ### Test

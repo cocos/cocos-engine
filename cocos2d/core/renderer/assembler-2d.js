@@ -3,13 +3,14 @@ import dynamicAtlasManager from './utils/dynamic-atlas/manager';
 import RenderData from './webgl/render-data';
 
 export default class Assembler2D extends Assembler {
-    init (comp) {
-        super.init(comp);
+    constructor () {
+        super();
+
         this._renderData = new RenderData();
         this._renderData.init(this);
-
-        this.initLocal();
+        
         this.initData();
+        this.initLocal();
     }
 
     get verticesFloats () {
@@ -20,7 +21,6 @@ export default class Assembler2D extends Assembler {
         let data = this._renderData;
         data.createQuadData(0, this.verticesFloats, this.indicesCount);
     }
-
     initLocal () {
         this._local = [];
         this._local.length = 4;
@@ -108,9 +108,8 @@ export default class Assembler2D extends Assembler {
             vbuf = buffer._vData;
 
         if (vData.length + vertexOffset > vbuf.length) {
-            vbuf.set(vData.subarray(0, this.verticesFloats), vertexOffset);
-        }
-        else {
+            vbuf.set(vData.subarray(0, vbuf.length - vertexOffset), vertexOffset);
+        } else {
             vbuf.set(vData, vertexOffset);
         }
 
@@ -124,24 +123,21 @@ export default class Assembler2D extends Assembler {
     }
 
     packToDynamicAtlas (comp, frame) {
-        // TODO: Material API design and export from editor could affect the material activation process
-        // need to update the logic here
-        if (frame && !CC_TEST) {
-            if (!frame._original && dynamicAtlasManager && frame._texture.packable) {
-                let packedFrame = dynamicAtlasManager.insertSpriteFrame(frame);
-                if (packedFrame) {
-                    frame._setDynamicAtlasFrame(packedFrame);
-                }
+        if (CC_TEST) return;
+        
+        if (!frame._original && dynamicAtlasManager && frame._texture.packable) {
+            let packedFrame = dynamicAtlasManager.insertSpriteFrame(frame);
+            if (packedFrame) {
+                frame._setDynamicAtlasFrame(packedFrame);
             }
-            let material = comp.sharedMaterials[0];
-            if (!material) return;
-            
-            if (material.getProperty('texture') !== frame._texture) {
-                // texture was packed to dynamic atlas, should update uvs
-                comp._vertsDirty = true;
-
-                comp._activateMaterial(true);
-            }
+        }
+        let material = comp.sharedMaterials[0];
+        if (!material) return;
+        
+        if (material.getProperty('texture') !== frame._texture) {
+            // texture was packed to dynamic atlas, should update uvs
+            comp._vertsDirty = true;
+            comp._updateMaterial();
         }
     }
 }

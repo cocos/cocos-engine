@@ -823,7 +823,8 @@ function initSys () {
             osVersion = uaResult[2] || '';
             osMainVersion = parseInt(osVersion) || 0;
         }
-        else if (/(iPhone|iPad|iPod)/.exec(nav.platform)) {
+        // refer to https://github.com/cocos-creator/engine/pull/5542 , thanks for contribition from @krapnikkk
+        else if (/(iPhone|iPad|iPod|MacIntel)/.exec(nav.platform)) { 
             iOS = true;
             osVersion = '';
             osMainVersion = 0;
@@ -860,8 +861,8 @@ function initSys () {
         sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
         /* Determine the browser type */
         (function(){
-            var typeReg1 = /mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
-            var typeReg2 = /qqbrowser|ucbrowser|ubrowser|edge/i;
+            var typeReg1 = /mqqbrowser|micromessenger|qqbrowser|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
+            var typeReg2 = /qq|ucbrowser|ubrowser|edge/i;
             var typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
             var browserTypes = typeReg1.exec(ua) || typeReg2.exec(ua) || typeReg3.exec(ua);
 
@@ -891,8 +892,8 @@ function initSys () {
         sys.browserVersion = "";
         /* Determine the browser version number */
         (function(){
-            var versionReg1 = /(mqqbrowser|micromessenger|qq|sogou|qzone|liebao|maxthon|uc|ucbs|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui(?:.hybrid)?)(mobile)?(browser)?\/?([\d.]+)/i;
-            var versionReg2 = /(qqbrowser|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
+            var versionReg1 = /(mqqbrowser|micromessenger|qqbrowser|sogou|qzone|liebao|maxthon|uc|ucbs|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui(?:.hybrid)?)(mobile)?(browser)?\/?([\d.]+)/i;
+            var versionReg2 = /(qq|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
             var tmp = ua.match(versionReg1);
             if(!tmp) tmp = ua.match(versionReg2);
             sys.browserVersion = tmp ? tmp[4] : "";
