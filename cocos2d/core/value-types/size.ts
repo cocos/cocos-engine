@@ -57,8 +57,8 @@ export default class Size extends ValueType {
      * @default new Size(0, 0)
      * @static
      */
-    public static get ZERO () { return new Size(); }
-    public static readonly ZERO_R = Size.ZERO;
+    static get ZERO () { return new Size(); }
+    static readonly ZERO_R = Size.ZERO;
 
     /**
      * @property {Number} width

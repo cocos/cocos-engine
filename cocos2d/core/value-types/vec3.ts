@@ -60,8 +60,8 @@ export default class Vec3 extends ValueType {
      * @type Vec3
      * @static
      */
-    public static get ONE () { return new Vec3(1, 1, 1); }
-    public static readonly ONE_R = Vec3.ONE;
+    static get ONE () { return new Vec3(1, 1, 1); }
+    static readonly ONE_R = Vec3.ONE;
 
     /**
      * !#en return a Vec3 object with x = 0, y = 0, z = 0.
@@ -70,8 +70,8 @@ export default class Vec3 extends ValueType {
      * @type Vec3
      * @static
      */
-    public static get ZERO () { return new Vec3(); }
-    public static readonly ZERO_R = Vec3.ZERO;
+    static get ZERO () { return new Vec3(); }
+    static readonly ZERO_R = Vec3.ZERO;
 
     /**
      * !#en return a Vec3 object with x = 0, y = 1, z = 0.
@@ -80,8 +80,8 @@ export default class Vec3 extends ValueType {
      * @type Vec3
      * @static
      */
-    public static get UP () { return new Vec3(0, 1, 0); }
-    public static readonly UP_R = Vec3.UP;
+    static get UP () { return new Vec3(0, 1, 0); }
+    static readonly UP_R = Vec3.UP;
 
     /**
      * !#en return a Vec3 object with x = 1, y = 0, z = 0.
@@ -90,8 +90,8 @@ export default class Vec3 extends ValueType {
      * @type Vec3
      * @static
      */
-    public static get RIGHT () { return new Vec3(1, 0, 0); }
-    public static readonly RIGHT_R = Vec3.RIGHT;
+    static get RIGHT () { return new Vec3(1, 0, 0); }
+    static readonly RIGHT_R = Vec3.RIGHT;
     
     /**
      * !#en return a Vec3 object with x = 0, y = 0, z = 1.
@@ -100,8 +100,8 @@ export default class Vec3 extends ValueType {
      * @type Vec3
      * @static
      */
-    public static get FRONT () { return new Vec3(0, 0, 1); }
-    public static readonly FRONT_R = Vec3.FRONT;
+    static get FRONT () { return new Vec3(0, 0, 1); }
+    static readonly FRONT_R = Vec3.FRONT;
 
 
     /**
@@ -109,10 +109,10 @@ export default class Vec3 extends ValueType {
      * !#en The target of an assignment zero vector
      * @method zero
      * @typescript
-     * public static zero<Out extends IVec3Like> (out: Out)
+     * static zero<Out extends IVec3Like> (out: Out)
      * @static
      */
-    public static zero<Out extends IVec3Like> (out: Out) {
+    static zero<Out extends IVec3Like> (out: Out) {
         out.x = 0;
         out.y = 0;
         out.z = 0;
@@ -124,10 +124,10 @@ export default class Vec3 extends ValueType {
      * !#en Obtaining copy vectors designated
      * @method clone
      * @typescript
-     * public static clone<Out extends IVec3Like> (a: Out)
+     * static clone<Out extends IVec3Like> (a: Out)
      * @static
      */
-    public static clone<Out extends IVec3Like> (a: Out) {
+    static clone<Out extends IVec3Like> (a: Out) {
         return new Vec3(a.x, a.y, a.z);
     }
 
@@ -136,10 +136,10 @@ export default class Vec3 extends ValueType {
      * !#en Copy the target vector
      * @method copy
      * @typescript
-     * public static copy<Out extends IVec3Like, Vec3Like extends IVec3Like> (out: Out, a: Vec3Like)
+     * static copy<Out extends IVec3Like, Vec3Like extends IVec3Like> (out: Out, a: Vec3Like)
      * @static
      */
-    public static copy<Out extends IVec3Like, Vec3Like extends IVec3Like> (out: Out, a: Vec3Like) {
+    static copy<Out extends IVec3Like, Vec3Like extends IVec3Like> (out: Out, a: Vec3Like) {
         out.x = a.x;
         out.y = a.y;
         out.z = a.z;
@@ -151,10 +151,10 @@ export default class Vec3 extends ValueType {
      * !#en Set to value
      * @method set
      * @typescript
-     * public static set<Out extends IVec3Like> (out: Out, x: number, y: number, z: number)
+     * static set<Out extends IVec3Like> (out: Out, x: number, y: number, z: number)
      * @static
      */
-    public static set<Out extends IVec3Like> (out: Out, x: number, y: number, z: number) {
+    static set<Out extends IVec3Like> (out: Out, x: number, y: number, z: number) {
         out.x = x;
         out.y = y;
         out.z = z;
@@ -166,10 +166,10 @@ export default class Vec3 extends ValueType {
      * !#en Element-wise vector addition
      * @method add
      * @typescript
-     * public static add<Out extends IVec3Like> (out: Out, a: Out, b: Out)
+     * static add<Out extends IVec3Like> (out: Out, a: Out, b: Out)
      * @static
      */
-    public static add<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
+    static add<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
         out.x = a.x + b.x;
         out.y = a.y + b.y;
         out.z = a.z + b.z;
@@ -181,10 +181,10 @@ export default class Vec3 extends ValueType {
      * !#en Element-wise vector subtraction
      * @method subtract
      * @typescript
-     * public static subtract<Out extends IVec3Like> (out: Out, a: Out, b: Out)
+     * static subtract<Out extends IVec3Like> (out: Out, a: Out, b: Out)
      * @static
      */
-    public static subtract<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
+    static subtract<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
         out.x = a.x - b.x;
         out.y = a.y - b.y;
         out.z = a.z - b.z;
@@ -196,10 +196,10 @@ export default class Vec3 extends ValueType {
      * !#en Element-wise vector multiplication (product component)
      * @method multiply
      * @typescript
-     * public static multiply<Out extends IVec3Like, Vec3Like_1 extends IVec3Like, Vec3Like_2 extends IVec3Like> (out: Out, a: Vec3Like_1, b: Vec3Like_2)
+     * static multiply<Out extends IVec3Like, Vec3Like_1 extends IVec3Like, Vec3Like_2 extends IVec3Like> (out: Out, a: Vec3Like_1, b: Vec3Like_2)
      * @static
      */
-    public static multiply<Out extends IVec3Like, Vec3Like_1 extends IVec3Like, Vec3Like_2 extends IVec3Like> (out: Out, a: Vec3Like_1, b: Vec3Like_2) {
+    static multiply<Out extends IVec3Like, Vec3Like_1 extends IVec3Like, Vec3Like_2 extends IVec3Like> (out: Out, a: Vec3Like_1, b: Vec3Like_2) {
         out.x = a.x * b.x;
         out.y = a.y * b.y;
         out.z = a.z * b.z;
@@ -211,10 +211,10 @@ export default class Vec3 extends ValueType {
      * !#en Element-wise vector division
      * @method divide
      * @typescript
-     * public static divide<Out extends IVec3Like> (out: Out, a: Out, b: Out)
+     * static divide<Out extends IVec3Like> (out: Out, a: Out, b: Out)
      * @static
      */
-    public static divide<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
+    static divide<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
         out.x = a.x / b.x;
         out.y = a.y / b.y;
         out.z = a.z / b.z;
@@ -226,10 +226,10 @@ export default class Vec3 extends ValueType {
      * !#en Rounding up by elements of the vector
      * @method ceil
      * @typescript
-     * public static ceil<Out extends IVec3Like> (out: Out, a: Out)
+     * static ceil<Out extends IVec3Like> (out: Out, a: Out)
      * @static
      */
-    public static ceil<Out extends IVec3Like> (out: Out, a: Out) {
+    static ceil<Out extends IVec3Like> (out: Out, a: Out) {
         out.x = Math.ceil(a.x);
         out.y = Math.ceil(a.y);
         out.z = Math.ceil(a.z);
@@ -241,10 +241,10 @@ export default class Vec3 extends ValueType {
      * !#en Element vector by rounding down
      * @method floor
      * @typescript
-     * public static floor<Out extends IVec3Like> (out: Out, a: Out)
+     * static floor<Out extends IVec3Like> (out: Out, a: Out)
      * @static
      */
-    public static floor<Out extends IVec3Like> (out: Out, a: Out) {
+    static floor<Out extends IVec3Like> (out: Out, a: Out) {
         out.x = Math.floor(a.x);
         out.y = Math.floor(a.y);
         out.z = Math.floor(a.z);
@@ -256,10 +256,10 @@ export default class Vec3 extends ValueType {
      * !#en The minimum by-element vector
      * @method min
      * @typescript
-     * public static min<Out extends IVec3Like> (out: Out, a: Out, b: Out)
+     * static min<Out extends IVec3Like> (out: Out, a: Out, b: Out)
      * @static
      */
-    public static min<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
+    static min<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
         out.x = Math.min(a.x, b.x);
         out.y = Math.min(a.y, b.y);
         out.z = Math.min(a.z, b.z);
@@ -271,10 +271,10 @@ export default class Vec3 extends ValueType {
      * !#en The maximum value of the element-wise vector
      * @method max
      * @typescript
-     * public static max<Out extends IVec3Like> (out: Out, a: Out, b: Out)
+     * static max<Out extends IVec3Like> (out: Out, a: Out, b: Out)
      * @static
      */
-    public static max<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
+    static max<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
         out.x = Math.max(a.x, b.x);
         out.y = Math.max(a.y, b.y);
         out.z = Math.max(a.z, b.z);
@@ -286,10 +286,10 @@ export default class Vec3 extends ValueType {
      * !#en Element-wise vector of rounding to whole
      * @method round
      * @typescript
-     * public static round<Out extends IVec3Like> (out: Out, a: Out)
+     * static round<Out extends IVec3Like> (out: Out, a: Out)
      * @static
      */
-    public static round<Out extends IVec3Like> (out: Out, a: Out) {
+    static round<Out extends IVec3Like> (out: Out, a: Out) {
         out.x = Math.round(a.x);
         out.y = Math.round(a.y);
         out.z = Math.round(a.z);
@@ -301,10 +301,10 @@ export default class Vec3 extends ValueType {
      * !#en Vector scalar multiplication
      * @method multiplyScalar
      * @typescript
-     * public static multiplyScalar<Out extends IVec3Like, Vec3Like extends IVec3Like> (out: Out, a: Vec3Like, b: number)
+     * static multiplyScalar<Out extends IVec3Like, Vec3Like extends IVec3Like> (out: Out, a: Vec3Like, b: number)
      * @static
      */
-    public static multiplyScalar<Out extends IVec3Like, Vec3Like extends IVec3Like> (out: Out, a: Vec3Like, b: number) {
+    static multiplyScalar<Out extends IVec3Like, Vec3Like extends IVec3Like> (out: Out, a: Vec3Like, b: number) {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -316,10 +316,10 @@ export default class Vec3 extends ValueType {
      * !#en Element-wise vector multiply add: A + B * scale
      * @method scaleAndAdd
      * @typescript
-     * public static scaleAndAdd<Out extends IVec3Like> (out: Out, a: Out, b: Out, scale: number)
+     * static scaleAndAdd<Out extends IVec3Like> (out: Out, a: Out, b: Out, scale: number)
      * @static
      */
-    public static scaleAndAdd<Out extends IVec3Like> (out: Out, a: Out, b: Out, scale: number) {
+    static scaleAndAdd<Out extends IVec3Like> (out: Out, a: Out, b: Out, scale: number) {
         out.x = a.x + b.x * scale;
         out.y = a.y + b.y * scale;
         out.z = a.z + b.z * scale;
@@ -331,10 +331,10 @@ export default class Vec3 extends ValueType {
      * !#en Seeking two vectors Euclidean distance
      * @method distance
      * @typescript
-     * public static distance<Out extends IVec3Like> (a: Out, b: Out)
+     * static distance<Out extends IVec3Like> (a: Out, b: Out)
      * @static
      */
-    public static distance<Out extends IVec3Like> (a: Out, b: Out) {
+    static distance<Out extends IVec3Like> (a: Out, b: Out) {
         _x = b.x - a.x;
         _y = b.y - a.y;
         _z = b.z - a.z;
@@ -346,10 +346,10 @@ export default class Vec3 extends ValueType {
      * !#en Euclidean distance squared seeking two vectors
      * @method squaredDistance
      * @typescript
-     * public static squaredDistance<Out extends IVec3Like> (a: Out, b: Out)
+     * static squaredDistance<Out extends IVec3Like> (a: Out, b: Out)
      * @static
      */
-    public static squaredDistance<Out extends IVec3Like> (a: Out, b: Out) {
+    static squaredDistance<Out extends IVec3Like> (a: Out, b: Out) {
         _x = b.x - a.x;
         _y = b.y - a.y;
         _z = b.z - a.z;
@@ -361,10 +361,10 @@ export default class Vec3 extends ValueType {
      * !#en Seeking vector length
      * @method len
      * @typescript
-     * public static len<Out extends IVec3Like> (a: Out)
+     * static len<Out extends IVec3Like> (a: Out)
      * @static
      */
-    public static len<Out extends IVec3Like> (a: Out) {
+    static len<Out extends IVec3Like> (a: Out) {
         _x = a.x;
         _y = a.y;
         _z = a.z;
@@ -376,10 +376,10 @@ export default class Vec3 extends ValueType {
      * !#en Seeking squared vector length
      * @method lengthSqr
      * @typescript
-     * public static lengthSqr<Out extends IVec3Like> (a: Out)
+     * static lengthSqr<Out extends IVec3Like> (a: Out)
      * @static
      */
-    public static lengthSqr<Out extends IVec3Like> (a: Out) {
+    static lengthSqr<Out extends IVec3Like> (a: Out) {
         _x = a.x;
         _y = a.y;
         _z = a.z;
@@ -391,10 +391,10 @@ export default class Vec3 extends ValueType {
      * !#en By taking the negative elements of the vector
      * @method negate
      * @typescript
-     * public static negate<Out extends IVec3Like> (out: Out, a: Out)
+     * static negate<Out extends IVec3Like> (out: Out, a: Out)
      * @static
      */
-    public static negate<Out extends IVec3Like> (out: Out, a: Out) {
+    static negate<Out extends IVec3Like> (out: Out, a: Out) {
         out.x = -a.x;
         out.y = -a.y;
         out.z = -a.z;
@@ -406,10 +406,10 @@ export default class Vec3 extends ValueType {
      * !#en Element vector by taking the inverse, return near 0 Infinity
      * @method invert
      * @typescript
-     * public static invert<Out extends IVec3Like> (out: Out, a: Out)
+     * static invert<Out extends IVec3Like> (out: Out, a: Out)
      * @static
      */
-    public static invert<Out extends IVec3Like> (out: Out, a: Out) {
+    static invert<Out extends IVec3Like> (out: Out, a: Out) {
         out.x = 1.0 / a.x;
         out.y = 1.0 / a.y;
         out.z = 1.0 / a.z;
@@ -421,10 +421,10 @@ export default class Vec3 extends ValueType {
      * !#en Element vector by taking the inverse, return near 0 0
      * @method invertSafe
      * @typescript
-     * public static invertSafe<Out extends IVec3Like> (out: Out, a: Out)
+     * static invertSafe<Out extends IVec3Like> (out: Out, a: Out)
      * @static
      */
-    public static invertSafe<Out extends IVec3Like> (out: Out, a: Out) {
+    static invertSafe<Out extends IVec3Like> (out: Out, a: Out) {
         _x = a.x;
         _y = a.y;
         _z = a.z;
@@ -455,10 +455,10 @@ export default class Vec3 extends ValueType {
      * !#en Normalized vector
      * @method normalize
      * @typescript
-     * public static normalize<Out extends IVec3Like, Vec3Like extends IVec3Like> (out: Out, a: Vec3Like)
+     * static normalize<Out extends IVec3Like, Vec3Like extends IVec3Like> (out: Out, a: Vec3Like)
      * @static
      */
-    public static normalize<Out extends IVec3Like, Vec3Like extends IVec3Like> (out: Out, a: Vec3Like) {
+    static normalize<Out extends IVec3Like, Vec3Like extends IVec3Like> (out: Out, a: Vec3Like) {
         _x = a.x;
         _y = a.y;
         _z = a.z;
@@ -478,10 +478,10 @@ export default class Vec3 extends ValueType {
      * !#en Vector dot product (scalar product)
      * @method dot
      * @typescript
-     * public static dot<Out extends IVec3Like> (a: Out, b: Out)
+     * static dot<Out extends IVec3Like> (a: Out, b: Out)
      * @static
      */
-    public static dot<Out extends IVec3Like> (a: Out, b: Out) {
+    static dot<Out extends IVec3Like> (a: Out, b: Out) {
         return a.x * b.x + a.y * b.y + a.z * b.z;
     }
 
@@ -490,10 +490,10 @@ export default class Vec3 extends ValueType {
      * !#en Vector cross product (vector product)
      * @method cross
      * @typescript
-     * public static cross<Out extends IVec3Like, Vec3Like_1 extends IVec3Like, Vec3Like_2 extends IVec3Like> (out: Out, a: Vec3Like_1, b: Vec3Like_2)
+     * static cross<Out extends IVec3Like, Vec3Like_1 extends IVec3Like, Vec3Like_2 extends IVec3Like> (out: Out, a: Vec3Like_1, b: Vec3Like_2)
      * @static
      */
-    public static cross<Out extends IVec3Like, Vec3Like_1 extends IVec3Like, Vec3Like_2 extends IVec3Like> (out: Out, a: Vec3Like_1, b: Vec3Like_2) {
+    static cross<Out extends IVec3Like, Vec3Like_1 extends IVec3Like, Vec3Like_2 extends IVec3Like> (out: Out, a: Vec3Like_1, b: Vec3Like_2) {
         const { x: ax, y: ay, z: az } = a;
         const { x: bx, y: by, z: bz } = b;
         out.x = ay * bz - az * by;
@@ -507,10 +507,10 @@ export default class Vec3 extends ValueType {
      * !#en Vector element by element linear interpolation: A + t * (B - A)
      * @method lerp
      * @typescript
-     * public static lerp<Out extends IVec3Like> (out: Out, a: Out, b: Out, t: number)
+     * static lerp<Out extends IVec3Like> (out: Out, a: Out, b: Out, t: number)
      * @static
      */
-    public static lerp<Out extends IVec3Like> (out: Out, a: Out, b: Out, t: number) {
+    static lerp<Out extends IVec3Like> (out: Out, a: Out, b: Out, t: number) {
         out.x = a.x + t * (b.x - a.x);
         out.y = a.y + t * (b.y - a.y);
         out.z = a.z + t * (b.z - a.z);
@@ -522,11 +522,11 @@ export default class Vec3 extends ValueType {
      * !#en Generates a uniformly distributed random vectors on the unit sphere
      * @method random
      * @typescript
-     * public static random<Out extends IVec3Like> (out: Out, scale?: number)
+     * static random<Out extends IVec3Like> (out: Out, scale?: number)
      * @param scale 生成的向量长度
      * @static
      */
-    public static random<Out extends IVec3Like> (out: Out, scale?: number) {
+    static random<Out extends IVec3Like> (out: Out, scale?: number) {
         scale = scale || 1.0;
 
         const phi = random() * 2.0 * Math.PI;
@@ -544,10 +544,10 @@ export default class Vec3 extends ValueType {
      * !#en Four-dimensional vector and matrix multiplication, the default vectors fourth one.
      * @method transformMat4
      * @typescript
-     * public static transformMat4<Out extends IVec3Like, Vec3Like extends IVec3Like, MatLike extends IMat4Like> (out: Out, a: Vec3Like, mat: MatLike)
+     * static transformMat4<Out extends IVec3Like, Vec3Like extends IVec3Like, MatLike extends IMat4Like> (out: Out, a: Vec3Like, mat: MatLike)
      * @static
      */
-    public static transformMat4<Out extends IVec3Like, Vec3Like extends IVec3Like, MatLike extends IMat4Like> (out: Out, a: Vec3Like, mat: MatLike) {
+    static transformMat4<Out extends IVec3Like, Vec3Like extends IVec3Like, MatLike extends IMat4Like> (out: Out, a: Vec3Like, mat: MatLike) {
         _x = a.x;
         _y = a.y;
         _z = a.z;
@@ -565,10 +565,10 @@ export default class Vec3 extends ValueType {
      * !#en Four-dimensional vector and matrix multiplication, vector fourth default is 0.
      * @method transformMat4Normal
      * @typescript
-     * public static transformMat4Normal<Out extends IVec3Like, MatLike extends IMat4Like> (out: Out, a: Out, mat: MatLike)
+     * static transformMat4Normal<Out extends IVec3Like, MatLike extends IMat4Like> (out: Out, a: Out, mat: MatLike)
      * @static
      */
-    public static transformMat4Normal<Out extends IVec3Like, MatLike extends IMat4Like> (out: Out, a: Out, mat: MatLike) {
+    static transformMat4Normal<Out extends IVec3Like, MatLike extends IMat4Like> (out: Out, a: Out, mat: MatLike) {
         _x = a.x;
         _y = a.y;
         _z = a.z;
@@ -586,10 +586,10 @@ export default class Vec3 extends ValueType {
      * !#en Dimensional vector matrix multiplication
      * @method transformMat3
      * @typescript
-     * public static transformMat3<Out extends IVec3Like, MatLike extends IMat3Like> (out: Out, a: Out, mat: MatLike)
+     * static transformMat3<Out extends IVec3Like, MatLike extends IMat3Like> (out: Out, a: Out, mat: MatLike)
      * @static
      */
-    public static transformMat3<Out extends IVec3Like, MatLike extends IMat3Like> (out: Out, a: Out, mat: MatLike) {
+    static transformMat3<Out extends IVec3Like, MatLike extends IMat3Like> (out: Out, a: Out, mat: MatLike) {
         _x = a.x;
         _y = a.y;
         _z = a.z;
@@ -605,7 +605,7 @@ export default class Vec3 extends ValueType {
      * !#en Affine transformation vector
      * @static
      */
-    public static transformAffine<Out extends IVec3Like, VecLike extends IVec3Like, MatLike extends IMat4Like>
+    static transformAffine<Out extends IVec3Like, VecLike extends IVec3Like, MatLike extends IMat4Like>
         (out: Out, v: VecLike, mat: MatLike) {
         _x = v.x;
         _y = v.y;
@@ -622,10 +622,10 @@ export default class Vec3 extends ValueType {
      * !#en Vector quaternion multiplication
      * @method transformQuat
      * @typescript
-     * public static transformQuat<Out extends IVec3Like, VecLike extends IVec3Like, QuatLike extends IQuatLike> (out: Out, a: VecLike, q: QuatLike)
+     * static transformQuat<Out extends IVec3Like, VecLike extends IVec3Like, QuatLike extends IQuatLike> (out: Out, a: VecLike, q: QuatLike)
      * @static
      */
-    public static transformQuat<Out extends IVec3Like, VecLike extends IVec3Like, QuatLike extends IQuatLike> (out: Out, a: VecLike, q: QuatLike) {
+    static transformQuat<Out extends IVec3Like, VecLike extends IVec3Like, QuatLike extends IQuatLike> (out: Out, a: VecLike, q: QuatLike) {
         // benchmarks: http://jsperf.com/quaternion-transform-Vec3-implementations
 
         // calculate quat * vec
@@ -646,7 +646,7 @@ export default class Vec3 extends ValueType {
      * !#en To scale -> rotation -> transformation vector sequence translation
      * @static
      */
-    public static transformRTS<Out extends IVec3Like, VecLike extends IVec3Like, QuatLike extends IQuatLike> (
+    static transformRTS<Out extends IVec3Like, VecLike extends IVec3Like, QuatLike extends IQuatLike> (
         out: Out, a: VecLike, r: QuatLike, t: VecLike, s: VecLike) {
         const x = a.x * s.x;
         const y = a.y * s.y;
@@ -666,7 +666,7 @@ export default class Vec3 extends ValueType {
      * !#en Translational -> rotation -> Zoom inverse transformation vector sequence
      * @static
      */
-    public static transformInverseRTS<Out extends IVec3Like, VecLike extends IVec3Like, QuatLike extends IQuatLike> (
+    static transformInverseRTS<Out extends IVec3Like, VecLike extends IVec3Like, QuatLike extends IQuatLike> (
         out: Out, a: VecLike, r: QuatLike, t: VecLike, s: VecLike) {
         const x = a.x - t.x;
         const y = a.y - t.y;
@@ -686,13 +686,13 @@ export default class Vec3 extends ValueType {
      * !#en Rotation vector specified angle about the X axis
      * @method rotateX
      * @typescript
-     * public static rotateX<Out extends IVec3Like> (out: Out, v: Out, o: Out, a: number)
+     * static rotateX<Out extends IVec3Like> (out: Out, v: Out, o: Out, a: number)
      * @param v 待旋转向量
      * @param o 旋转中心
      * @param a 旋转弧度
      * @static
      */
-    public static rotateX<Out extends IVec3Like> (out: Out, v: Out, o: Out, a: number) {
+    static rotateX<Out extends IVec3Like> (out: Out, v: Out, o: Out, a: number) {
         // Translate point to the origin
         _x = v.x - o.x;
         _y = v.y - o.y;
@@ -718,13 +718,13 @@ export default class Vec3 extends ValueType {
      * !#en Rotation vector specified angle around the Y axis
      * @method rotateY
      * @typescript
-     * public static rotateY<Out extends IVec3Like> (out: Out, v: Out, o: Out, a: number)
+     * static rotateY<Out extends IVec3Like> (out: Out, v: Out, o: Out, a: number)
      * @param v 待旋转向量
      * @param o 旋转中心
      * @param a 旋转弧度
      * @static
      */
-    public static rotateY<Out extends IVec3Like> (out: Out, v: Out, o: Out, a: number) {
+    static rotateY<Out extends IVec3Like> (out: Out, v: Out, o: Out, a: number) {
         // Translate point to the origin
         _x = v.x - o.x;
         _y = v.y - o.y;
@@ -750,13 +750,13 @@ export default class Vec3 extends ValueType {
      * !#en Around the Z axis specified angle vector
      * @method rotateZ
      * @typescript
-     * public static rotateZ<Out extends IVec3Like> (out: Out, v: Out, o: Out, a: number)
+     * static rotateZ<Out extends IVec3Like> (out: Out, v: Out, o: Out, a: number)
      * @param v 待旋转向量
      * @param o 旋转中心
      * @param a 旋转弧度
      * @static
      */
-    public static rotateZ<Out extends IVec3Like> (out: Out, v: Out, o: Out, a: number) {
+    static rotateZ<Out extends IVec3Like> (out: Out, v: Out, o: Out, a: number) {
         // Translate point to the origin
         _x = v.x - o.x;
         _y = v.y - o.y;
@@ -782,10 +782,10 @@ export default class Vec3 extends ValueType {
      * !#en Equivalent vectors Analyzing
      * @method strictEquals
      * @typescript
-     * public static strictEquals<Out extends IVec3Like> (a: Out, b: Out)
+     * static strictEquals<Out extends IVec3Like> (a: Out, b: Out)
      * @static
      */
-    public static strictEquals<Out extends IVec3Like> (a: Out, b: Out) {
+    static strictEquals<Out extends IVec3Like> (a: Out, b: Out) {
         return a.x === b.x && a.y === b.y && a.z === b.z;
     }
 
@@ -794,10 +794,10 @@ export default class Vec3 extends ValueType {
      * !#en Negative error vector floating point approximately equivalent Analyzing
      * @method equals
      * @typescript
-     * public static equals<Out extends IVec3Like> (a: Out, b: Out, epsilon = EPSILON)
+     * static equals<Out extends IVec3Like> (a: Out, b: Out, epsilon = EPSILON)
      * @static
      */
-    public static equals<Out extends IVec3Like> (a: Out, b: Out, epsilon = EPSILON) {
+    static equals<Out extends IVec3Like> (a: Out, b: Out, epsilon = EPSILON) {
         const { x: a0, y: a1, z: a2 } = a;
         const { x: b0, y: b1, z: b2 } = b;
         return (
@@ -815,10 +815,10 @@ export default class Vec3 extends ValueType {
      * !#en Radian angle between two vectors seek
      * @method angle
      * @typescript
-     * public static angle<Out extends IVec3Like> (a: Out, b: Out)
+     * static angle<Out extends IVec3Like> (a: Out, b: Out)
      * @static
      */
-    public static angle<Out extends IVec3Like> (a: Out, b: Out) {
+    static angle<Out extends IVec3Like> (a: Out, b: Out) {
         Vec3.normalize(v3_1, a);
         Vec3.normalize(v3_2, b);
         const cosine = Vec3.dot(v3_1, v3_2);
@@ -836,12 +836,12 @@ export default class Vec3 extends ValueType {
      * !#en Calculating a projection vector in the specified plane
      * @method projectOnPlane
      * @typescript
-     * public static projectOnPlane<Out extends IVec3Like> (out: Out, a: Out, n: Out)
+     * static projectOnPlane<Out extends IVec3Like> (out: Out, a: Out, n: Out)
      * @param a 待投影向量
      * @param n 指定平面的法线
      * @static
      */
-    public static projectOnPlane<Out extends IVec3Like> (out: Out, a: Out, n: Out) {
+    static projectOnPlane<Out extends IVec3Like> (out: Out, a: Out, n: Out) {
         return Vec3.subtract(out, a, Vec3.project(out, a, n));
     }
 
@@ -850,12 +850,12 @@ export default class Vec3 extends ValueType {
      * !#en Projection vector calculated in the vector designated
      * @method project
      * @typescript
-     * public static project<Out extends IVec3Like> (out: Out, a: Out, b: Out)
+     * static project<Out extends IVec3Like> (out: Out, a: Out, b: Out)
      * @param a 待投影向量
      * @param n 目标向量
      * @static
      */
-    public static project<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
+    static project<Out extends IVec3Like> (out: Out, a: Out, b: Out) {
         const sqrLen = Vec3.lengthSqr(b);
         if (sqrLen < 0.000001) {
             return Vec3.set(out, 0, 0, 0);
@@ -869,11 +869,11 @@ export default class Vec3 extends ValueType {
      * !#en Vector transfer array
      * @method toArray
      * @typescript
-     * public static toArray <Out extends IWritableArrayLike<number>> (out: Out, v: IVec3Like, ofs = 0)
+     * static toArray <Out extends IWritableArrayLike<number>> (out: Out, v: IVec3Like, ofs = 0)
      * @param ofs 数组起始偏移量
      * @static
      */
-    public static toArray <Out extends IWritableArrayLike<number>> (out: Out, v: IVec3Like, ofs = 0) {
+    static toArray <Out extends IWritableArrayLike<number>> (out: Out, v: IVec3Like, ofs = 0) {
         out[ofs + 0] = v.x;
         out[ofs + 1] = v.y;
         out[ofs + 2] = v.z;
@@ -886,11 +886,11 @@ export default class Vec3 extends ValueType {
      * !#en Array steering amount
      * @method fromArray
      * @typescript
-     * public static fromArray <Out extends IVec3Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0)
+     * static fromArray <Out extends IVec3Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0)
      * @param ofs 数组起始偏移量
      * @static
      */
-    public static fromArray <Out extends IVec3Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {
+    static fromArray <Out extends IVec3Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {
         out.x = arr[ofs + 0];
         out.y = arr[ofs + 1];
         out.z = arr[ofs + 2];

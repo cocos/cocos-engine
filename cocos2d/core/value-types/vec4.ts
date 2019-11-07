@@ -42,12 +42,12 @@ let _w: number = 0.0;
  * @extends ValueType
  */
 export default class Vec4 extends ValueType {
-    static sub   = Vec4.subtract;
-    static mul   = Vec4.multiply;
-    static scale = Vec4.multiplyScalar;
-    static mag   = Vec4.len;
-    static squaredMagnitude = Vec4.lengthSqr;
-    static div = Vec4.divide;
+    public static sub   = Vec4.subtract;
+    public static mul   = Vec4.multiply;
+    public static scale = Vec4.multiplyScalar;
+    public static mag   = Vec4.len;
+    public static squaredMagnitude = Vec4.lengthSqr;
+    public static div = Vec4.divide;
 
     public static get ZERO () { return new Vec4(0, 0, 0, 0); }
     public static readonly ZERO_R = Vec4.ZERO;

@@ -59,7 +59,7 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    public static get WHITE () { return new Color(255, 255, 255, 255); }
+    static get WHITE () { return new Color(255, 255, 255, 255); }
     static readonly WHITE_R: Color = Color.WHITE;
 
     /**
@@ -69,7 +69,7 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    public static get BLACK () { return new Color(0, 0, 0, 255); }
+    static get BLACK () { return new Color(0, 0, 0, 255); }
     static readonly BLACK_R: Color = Color.BLACK;
 
     /**
@@ -79,7 +79,7 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    public static get TRANSPARENT () { return new Color(0, 0, 0, 0); }
+    static get TRANSPARENT () { return new Color(0, 0, 0, 0); }
     static readonly TRANSPARENT_R: Color = Color.TRANSPARENT;
 
     /**
@@ -89,7 +89,7 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    public static get GRAY () { return new Color(127.5, 127.5, 127.5); }
+    static get GRAY () { return new Color(127.5, 127.5, 127.5); }
     static readonly GRAY_R: Color = Color.GRAY;
 
     /**
@@ -99,7 +99,7 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    public static get RED () { return new Color(255, 0, 0); }
+    static get RED () { return new Color(255, 0, 0); }
     static readonly RED_R: Color = Color.RED;
     /**
      * !#en Solid green, RGBA is [0, 255, 0].
@@ -108,7 +108,7 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    public static get GREEN () { return new Color(0, 255, 0); }
+    static get GREEN () { return new Color(0, 255, 0); }
     static readonly GREEN_R: Color = Color.GREEN;
     /**
      * !#en Solid blue, RGBA is [0, 0, 255].
@@ -117,7 +117,7 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    public static get BLUE () { return new Color(0, 0, 255); }
+    static get BLUE () { return new Color(0, 0, 255); }
     static readonly BLUE_R: Color = Color.BLUE;
     /**
      * !#en Yellow, RGBA is [255, 235, 4].
@@ -126,7 +126,7 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    public static get YELLOW () { return new Color(255, 235, 4); }
+    static get YELLOW () { return new Color(255, 235, 4); }
     static readonly YELLOW_R: Color = Color.YELLOW;
     /**
      * !#en Orange, RGBA is [255, 127, 0].
@@ -135,7 +135,7 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    public static get ORANGE () { return new Color(255, 127, 0); }
+    static get ORANGE () { return new Color(255, 127, 0); }
     static readonly ORANGE_R: Color = Color.ORANGE;
     /**
      * !#en Cyan, RGBA is [0, 255, 255].
@@ -144,7 +144,7 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    public static get CYAN () { return new Color(0, 255, 255); }
+    static get CYAN () { return new Color(0, 255, 255); }
     static readonly CYAN_R: Color = Color.CYAN;
     /**
      * !#en Magenta, RGBA is [255, 0, 255].
@@ -153,7 +153,7 @@ export default class Color extends ValueType {
      * @type {Color}
      * @static
      */
-    public static get MAGENTA () { return new Color(255, 0, 255); }
+    static get MAGENTA () { return new Color(255, 0, 255); }
     static readonly MAGENTA_R: Color = Color.MAGENTA;
 
     /**
@@ -163,7 +163,7 @@ export default class Color extends ValueType {
      * static copy (out: Color, a: Color): Color
      * @static
      */
-    public static copy (out: Color, a: Color): Color {
+    static copy (out: Color, a: Color): Color {
         out.r = a.r;
         out.g = a.g;
         out.b = a.b;
@@ -178,7 +178,7 @@ export default class Color extends ValueType {
      * static set (out: Color, r = 255, g = 255, b = 255, a = 255): Color
      * @static
      */
-    public static set (out: Color, r = 255, g = 255, b = 255, a = 255): Color {
+    static set (out: Color, r = 255, g = 255, b = 255, a = 255): Color {
         out.r = r;
         out.g = g;
         out.b = b;
@@ -193,7 +193,7 @@ export default class Color extends ValueType {
      * static fromHex (out: Color, hex: number): Color
      * @static
      */
-    public static fromHex (out: Color, hex: number): Color {
+    static fromHex (out: Color, hex: number): Color {
         let r = ((hex >> 24)) / 255.0;
         let g = ((hex >> 16) & 0xff) / 255.0;
         let b = ((hex >> 8) & 0xff) / 255.0;
@@ -213,7 +213,7 @@ export default class Color extends ValueType {
      * static add (out: Color, a: Color, b: Color): Color
      * @static
      */
-    public static add (out: Color, a: Color, b: Color): Color {
+    static add (out: Color, a: Color, b: Color): Color {
         out.r = a.r + b.r;
         out.g = a.g + b.g;
         out.b = a.b + b.b;
@@ -228,7 +228,7 @@ export default class Color extends ValueType {
      * static subtract (out: Color, a: Color, b: Color): Color
      * @static
      */
-    public static subtract (out: Color, a: Color, b: Color): Color {
+    static subtract (out: Color, a: Color, b: Color): Color {
         out.r = a.r - b.r;
         out.g = a.g - b.g;
         out.b = a.b - b.b;
@@ -243,7 +243,7 @@ export default class Color extends ValueType {
      * static multiply (out: Color, a: Color, b: Color): Color
      * @static
      */
-    public static multiply (out: Color, a: Color, b: Color): Color {
+    static multiply (out: Color, a: Color, b: Color): Color {
         out.r = a.r * b.r;
         out.g = a.g * b.g;
         out.b = a.b * b.b;
@@ -258,7 +258,7 @@ export default class Color extends ValueType {
      * static divide (out: Color, a: Color, b: Color): Color
      * @static
      */
-    public static divide (out: Color, a: Color, b: Color): Color {
+    static divide (out: Color, a: Color, b: Color): Color {
         out.r = a.r / b.r;
         out.g = a.g / b.g;
         out.b = a.b / b.b;
@@ -273,7 +273,7 @@ export default class Color extends ValueType {
      * static scale (out: Color, a: Color, b: number): Color
      * @static
      */
-    public static scale (out: Color, a: Color, b: number): Color {
+    static scale (out: Color, a: Color, b: number): Color {
         out.r = a.r * b;
         out.g = a.g * b;
         out.b = a.b * b;
@@ -288,7 +288,7 @@ export default class Color extends ValueType {
      * static lerp (out: Color, a: Color, b: Color, t: number): Color
      * @static
      */
-    public static lerp (out: Color, a: Color, b: Color, t: number): Color {
+    static lerp (out: Color, a: Color, b: Color, t: number): Color {
         let ar = a.r,
             ag = a.g,
             ab = a.b,
@@ -305,11 +305,11 @@ export default class Color extends ValueType {
      * !#en Turn an array of colors
      * @method toArray
      * @typescript
-     * public static toArray <Out extends IWritableArrayLike<number>> (out: Out, a: IColorLike, ofs = 0)
+     * static toArray <Out extends IWritableArrayLike<number>> (out: Out, a: IColorLike, ofs = 0)
      * @param ofs 数组起始偏移量
      * @static
      */
-    public static toArray<Out extends IWritableArrayLike<number>> (out: Out, a: IColorLike, ofs = 0) {
+    static toArray<Out extends IWritableArrayLike<number>> (out: Out, a: IColorLike, ofs = 0) {
         const scale = (a instanceof Color || a.a > 1) ? 1 / 255 : 1;
         out[ofs + 0] = a.r * scale;
         out[ofs + 1] = a.g * scale;
@@ -323,11 +323,11 @@ export default class Color extends ValueType {
      * !#en An array of colors turn
      * @method fromArray
      * @typescript
-     * public static fromArray <Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs = 0)
+     * static fromArray <Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs = 0)
      * @param ofs 数组起始偏移量
      * @static
      */
-    public static fromArray<Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs = 0) {
+    static fromArray<Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs = 0) {
         out.r = arr[ofs + 0] * 255;
         out.g = arr[ofs + 1] * 255;
         out.b = arr[ofs + 2] * 255;
