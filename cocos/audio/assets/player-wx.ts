@@ -108,11 +108,10 @@ export class AudioPlayerWX extends AudioPlayer {
            same time so here we fall back to re-start style approach */
         if (!this._audio) { return; }
         this._offset = 0;
-        this._audio.seek(0);
-        this._audio.volume = volume;
-        if (this._oneShoting) { return; }
-        this._audio.loop = false;
         this._oneShoting = true;
+        this._audio.stop();
+        this._audio.loop = false;
+        this._audio.volume = volume;
         this._audio.play();
     }
 
