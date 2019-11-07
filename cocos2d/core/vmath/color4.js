@@ -235,6 +235,7 @@ class color4 {
     out.g = ag + t * (b.g - ag);
     out.b = ab + t * (b.b - ab);
     out.a = aa + t * (b.a - aa);
+    out._val = Math.floor(((out.a << 24) >>> 0) + (out.b << 16) + (out.g << 8) + out.r);
     return out;
   }
 

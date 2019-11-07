@@ -119,7 +119,7 @@ class Effect {
                 value.array(prop.value);
             }
             else {
-                if (value && typeof value === 'object') {
+                if (value && typeof value === 'object' && !ArrayBuffer.isView(value)) {
                     cc.warn(`Set effect property ${this._name} warning : should transform object to ArrayBuffer`);
                 }
                 prop.value = value;

@@ -169,6 +169,16 @@ export const enums = {
   ATTR_UV5: 'a_uv5',
   ATTR_UV6: 'a_uv6',
   ATTR_UV7: 'a_uv7',
+  ATTR_TEX_COORD: 'a_texCoord',
+  ATTR_TEX_COORD1: 'a_texCoord1',
+  ATTR_TEX_COORD2: 'a_texCoord2',
+  ATTR_TEX_COORD3: 'a_texCoord3',
+  ATTR_TEX_COORD4: 'a_texCoord4',
+  ATTR_TEX_COORD5: 'a_texCoord5',
+  ATTR_TEX_COORD6: 'a_texCoord6',
+  ATTR_TEX_COORD7: 'a_texCoord7',
+  ATTR_TEX_COORD8: 'a_texCoord8',
+
 
   // vertex attribute type
   ATTR_TYPE_INT8: 5120,    // gl.BYTE

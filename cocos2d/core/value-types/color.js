@@ -29,6 +29,10 @@ import { color4 } from '../vmath';
  var ValueType = require('./value-type');
 var js = require('../platform/js');
 
+let _r = 0;
+let _g = 0;
+let _b = 0;
+let _a = 0;
 
 var Color = (function () {
 
@@ -226,6 +230,7 @@ var Color = (function () {
         out.g = g + (to.g - g) * ratio;
         out.b = b + (to.b - b) * ratio;
         out.a = a + (to.a - a) * ratio;
+        out._val = Math.floor(((out.a << 24) >>> 0) + (out.b << 16) + (out.g << 8) + out.r);
         return out;
     };
 
@@ -574,6 +579,15 @@ var Color = (function () {
             this.b = color.b;
             this.a = color.a;
         }
+    };
+
+    proto.multiply = function (color) {
+        _r = ((this._val & 0x000000ff) * color.r) >> 8;
+        _g = ((this._val & 0x0000ff00) * color.g) >> 8;
+        _b = ((this._val & 0x00ff0000) * color.b) >> 8;
+        _a = ((this._val & 0xff000000) >>> 8) * color.a;
+        this._val = (_a & 0xff000000) | (_b & 0x00ff0000) | (_g & 0x0000ff00) | (_r & 0x000000ff);
+        return this;
     };
 
     proto.array = function (out) {
