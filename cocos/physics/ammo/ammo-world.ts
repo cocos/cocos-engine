@@ -9,10 +9,12 @@ import { TriggerEventObject, CollisionEventObject } from './ammo-const';
 import { Ammo2CocosVec3, Cocos2AmmoVec3 } from './ammo-util';
 import { ray } from '../../core/geom-utils';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
-import { PhysicsRayResult, PhysicsSystem, PhysicMaterial } from '../framework';
-import { Node } from '../../core';
+import { PhysicsRayResult, PhysicMaterial } from '../framework';
+import { Node, RecyclePool } from '../../core';
 import { AmmoInstance } from './ammo-instance';
 import { AmmoCollisionFilterGroups } from './ammo-enum';
+
+const contactsPool = [] as any;
 
 export class AmmoWorld implements IPhysicsWorld {
 
@@ -24,16 +26,8 @@ export class AmmoWorld implements IPhysicsWorld {
         this._world.setGravity(this._btGravity);
     }
 
-    raycast (worldRay: ray, options: IRaycastOptions, pool: import("../../core").RecyclePool<PhysicsRayResult>, resultes: PhysicsRayResult[]): boolean {
-        throw new Error("Method not implemented.");
-    }
-
     get world () {
         return this._world;
-    }
-
-    static get instance (): AmmoWorld {
-        return PhysicsSystem.instance.physicsWorld as any as AmmoWorld;
     }
 
     private readonly _world: Ammo.btDiscreteDynamicsWorld;
@@ -154,6 +148,10 @@ export class AmmoWorld implements IPhysicsWorld {
         }
 
         this.emitEvents();
+    }
+
+    raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, resultes: PhysicsRayResult[]): boolean {
+        throw new Error("Method not implemented.");
     }
 
     /**
@@ -380,5 +378,3 @@ export class AmmoWorld implements IPhysicsWorld {
         this.contactsDic.reset();
     }
 }
-
-const contactsPool = [] as any;

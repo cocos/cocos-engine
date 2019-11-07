@@ -13,6 +13,7 @@ import { IAmmoBodyStruct, IAmmoGhostStruct } from './ammo-interface';
 const v3_0 = new Vec3();
 const quat_0 = new Quat();
 let sharedIDCounter = 0;
+
 /**
  * shared object, node : shared = 1 : 1
  * body for static \ dynamic \ kinematic (collider)
