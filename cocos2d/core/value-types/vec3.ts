@@ -44,14 +44,45 @@ let _z: number = 0.0;
  */
 
 export default class Vec3 extends ValueType {
+    // deprecated
     static sub   = Vec3.subtract;
     static mul   = Vec3.multiply;
     static scale = Vec3.multiplyScalar;
     static mag   = Vec3.len;
     static squaredMagnitude = Vec3.lengthSqr;
-    static inverseSafe = Vec3.invertSafe;
-    static inverse = Vec3.invert;
     static div = Vec3.divide;
+    mag  = Vec3.prototype.len;
+    magSqr = Vec3.prototype.lengthSqr;
+    subSelf  = Vec3.prototype.subtract;
+    sub (vector: Vec3, out: Vec3) {
+        out = out || new Vec3();
+        Vec3.subtract(out, this, vector);
+        return out;
+    }
+    mulSelf  = Vec3.prototype.multiplyScalar;
+    mul (num: number, out: Vec3) {
+        out = out || new Vec3();
+        Vec3.multiplyScalar(out, this, num);
+        return out;
+    }
+    divSelf  = Vec3.prototype.divide;
+    div (vector: Vec3, out: Vec3) {
+        out = out || new Vec3();
+        Vec3.divide(out, vector, this);
+        return out;
+    }
+    scaleSelf = Vec3.prototype.multiply;
+    scale (vector: Vec3, out: Vec3) {
+        out = out || new Vec3();
+        Vec3.multiply(out, this, vector);
+        return out;
+    }
+    negSelf = Vec3.prototype.negate;
+    neg (out: Vec3) {
+        out = out || new Vec3();
+        Vec3.negate(out, this);
+        return out;
+    }
 
     /**
      * !#en return a Vec3 object with x = 1, y = 1, z = 1.
@@ -404,12 +435,12 @@ export default class Vec3 extends ValueType {
     /**
      * !#zh 逐元素向量取倒数，接近 0 时返回 Infinity
      * !#en Element vector by taking the inverse, return near 0 Infinity
-     * @method invert
+     * @method inverse
      * @typescript
-     * static invert<Out extends IVec3Like> (out: Out, a: Out)
+     * static inverse<Out extends IVec3Like> (out: Out, a: Out)
      * @static
      */
-    static invert<Out extends IVec3Like> (out: Out, a: Out) {
+    static inverse<Out extends IVec3Like> (out: Out, a: Out) {
         out.x = 1.0 / a.x;
         out.y = 1.0 / a.y;
         out.z = 1.0 / a.z;
@@ -419,12 +450,12 @@ export default class Vec3 extends ValueType {
     /**
      * !#zh 逐元素向量取倒数，接近 0 时返回 0
      * !#en Element vector by taking the inverse, return near 0 0
-     * @method invertSafe
+     * @method inverseSafe
      * @typescript
-     * static invertSafe<Out extends IVec3Like> (out: Out, a: Out)
+     * static inverseSafe<Out extends IVec3Like> (out: Out, a: Out)
      * @static
      */
-    static invertSafe<Out extends IVec3Like> (out: Out, a: Out) {
+    static inverseSafe<Out extends IVec3Like> (out: Out, a: Out) {
         _x = a.x;
         _y = a.y;
         _z = a.z;
@@ -1074,14 +1105,14 @@ export default class Vec3 extends ValueType {
     }
 
     /**
-     * !#en Subtracts one vector from this. If you want to save result to another vector, use sub() instead.
-     * !#zh 向量减法。如果你想保存结果到另一个向量，可使用 sub() 代替。
-     * @method subSelf
+     * !#en Subtracts one vector from this.
+     * !#zh 向量减法。
+     * @method subtract
      * @param {Vec3} vector
      * @return {Vec3} returns this
      * @chainable
      */
-    subSelf (vector: Vec3): Vec3 {
+    subtract (vector: Vec3): Vec3 {
         this.x -= vector.x;
         this.y -= vector.y;
         this.z -= vector.z;
@@ -1089,30 +1120,14 @@ export default class Vec3 extends ValueType {
     }
 
     /**
-     * !#en Subtracts one vector from this, and returns the new result.
-     * !#zh 向量减法，并返回新结果。
-     * @method sub
-     * @param {Vec3} vector
-     * @param {Vec3} [out] - optional, the receiving vector, you can pass the same vec3 to save result to itself, if not provided, a new vec3 will be created
-     * @return {Vec3} the result
-     */
-    sub (vector: Vec3, out?: Vec3): Vec3 {
-        out = out || new Vec3();
-        out.x = this.x - vector.x;
-        out.y = this.y - vector.y;
-        out.z = this.z - vector.z;
-        return out;
-    }
-
-    /**
-     * !#en Multiplies this by a number. If you want to save result to another vector, use mul() instead.
-     * !#zh 缩放当前向量。如果你想结果保存到另一个向量，可使用 mul() 代替。
-     * @method mulSelf
+     * !#en Multiplies this by a number.
+     * !#zh 缩放当前向量。
+     * @method multiplyScalar
      * @param {number} num
      * @return {Vec3} returns this
      * @chainable
      */
-    mulSelf (num: number): Vec3 {
+    multiplyScalar (num: number): Vec3 {
         this.x *= num;
         this.y *= num;
         this.z *= num;
@@ -1120,30 +1135,14 @@ export default class Vec3 extends ValueType {
     }
 
     /**
-     * !#en Multiplies by a number, and returns the new result.
-     * !#zh 缩放向量，并返回新结果。
-     * @method mul
-     * @param {number} num
-     * @param {Vec3} [out] - optional, the receiving vector, you can pass the same vec3 to save result to itself, if not provided, a new vec3 will be created
-     * @return {Vec3} the result
-     */
-    mul (num: number, out?: Vec3): Vec3 {
-        out = out || new Vec3();
-        out.x = this.x * num;
-        out.y = this.y * num;
-        out.z = this.z * num;
-        return out;
-    }
-
-    /**
      * !#en Multiplies two vectors.
      * !#zh 分量相乘。
-     * @method scaleSelf
+     * @method multiply
      * @param {Vec3} vector
      * @return {Vec3} returns this
      * @chainable
      */
-    scaleSelf (vector: Vec3): Vec3 {
+    multiply (vector: Vec3): Vec3 {
         this.x *= vector.x;
         this.y *= vector.y;
         this.z *= vector.z;
@@ -1151,30 +1150,14 @@ export default class Vec3 extends ValueType {
     }
 
     /**
-     * !#en Multiplies two vectors, and returns the new result.
-     * !#zh 分量相乘，并返回新的结果。
-     * @method scale
-     * @param {Vec3} vector
-     * @param {Vec3} [out] - optional, the receiving vector, you can pass the same vec3 to save result to itself, if not provided, a new vec3 will be created
-     * @return {Vec3} the result
-     */
-    scale (vector: Vec3, out?: Vec3): Vec3 {
-        out = out || new Vec3();
-        out.x = this.x * vector.x;
-        out.y = this.y * vector.y;
-        out.z = this.z * vector.z;
-        return out;
-    }
-
-    /**
-     * !#en Divides by a number. If you want to save result to another vector, use div() instead.
-     * !#zh 向量除法。如果你想结果保存到另一个向量，可使用 div() 代替。
-     * @method divSelf
+     * !#en Divides by a number.
+     * !#zh 向量除法。
+     * @method divide
      * @param {number} num
      * @return {Vec3} returns this
      * @chainable
      */
-    divSelf (num: number): Vec3 {
+    divide (num: number): Vec3 {
         this.x /= num;
         this.y /= num;
         this.z /= num;
@@ -1182,48 +1165,17 @@ export default class Vec3 extends ValueType {
     }
 
     /**
-     * !#en Divides by a number, and returns the new result.
-     * !#zh 向量除法，并返回新的结果。
-     * @method div
-     * @param {number} num
-     * @param {Vec3} [out] - optional, the receiving vector, you can pass the same vec3 to save result to itself, if not provided, a new vec3 will be created
-     * @return {Vec3} the result
-     */
-    div (num: number, out?: Vec3): Vec3 {
-        out = out || new Vec3();
-        out.x = this.x / num;
-        out.y = this.y / num;
-        out.z = this.z / num;
-        return out;
-    }
-
-    /**
-     * !#en Negates the components. If you want to save result to another vector, use neg() instead.
-     * !#zh 向量取反。如果你想结果保存到另一个向量，可使用 neg() 代替。
-     * @method negSelf
+     * !#en Negates the components.
+     * !#zh 向量取反。
+     * @method negate
      * @return {Vec3} returns this
      * @chainable
      */
-    negSelf (): Vec3 {
+    negate (): this {
         this.x = -this.x;
         this.y = -this.y;
         this.z = -this.z;
         return this;
-    }
-
-    /**
-     * !#en Negates the components, and returns the new result.
-     * !#zh 返回取反后的新向量。
-     * @method neg
-     * @param {Vec3} [out] - optional, the receiving vector, you can pass the same vec3 to save result to itself, if not provided, a new vec3 will be created
-     * @return {Vec3} the result
-     */
-    neg (out?: Vec3): Vec3 {
-        out = out || new Vec3();
-        out.x = -this.x;
-        out.y = -this.y;
-        out.z = -this.z;
-        return out;
     }
 
     /**
@@ -1254,23 +1206,23 @@ export default class Vec3 extends ValueType {
     /**
      * !#en Returns the length of this vector.
      * !#zh 返回该向量的长度。
-     * @method mag
+     * @method len
      * @return {number} the result
      * @example
      * var v = cc.v2(10, 10);
-     * v.mag(); // return 14.142135623730951;
+     * v.len(); // return 14.142135623730951;
      */
-    mag (): number {
+    len (): number {
         return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
     }
 
     /**
      * !#en Returns the squared length of this vector.
      * !#zh 返回该向量的长度平方。
-     * @method magSqr
+     * @method lengthSqr
      * @return {number} the result
      */
-    magSqr (): number {
+    lengthSqr (): number {
         return this.x * this.x + this.y * this.y + this.z * this.z;
     }
 

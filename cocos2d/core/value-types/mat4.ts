@@ -45,6 +45,9 @@ let _a30: number = 0; let _a31: number = 0; let _a32: number = 0; let _a33: numb
 export default class Mat4 extends ValueType {
     static mul = Mat4.multiply;
     static sub = Mat4.subtract;
+    mul = Mat4.prototype.multiply;
+    mulScalar = Mat4.prototype.multiplyScalar;
+    sub = Mat4.prototype.subtract;
 
     /**
      * Identity  of Mat4
@@ -1575,7 +1578,7 @@ export default class Mat4 extends ValueType {
      * @param ofs 数组内的起始偏移量
      * @static
      */
-    static toArray <Out extends IWritableArrayLike<number>> (out: Out, mat: IMat4Like, ofs = 0) {
+    static toArray<Out extends IWritableArrayLike<number>> (out: Out, mat: IMat4Like, ofs = 0) {
         let m = mat.m;
         for (let i = 0; i < 16; i++) {
             out[ofs + i] = m[i];
@@ -1592,7 +1595,7 @@ export default class Mat4 extends ValueType {
      * @param ofs 数组起始偏移量
      * @static
      */
-    static fromArray <Out extends IMat4Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {
+    static fromArray<Out extends IMat4Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {
         let m = out.m;
         for (let i = 0; i < 16; i++) {
             m[i] = arr[ofs + i];
@@ -1750,7 +1753,7 @@ export default class Mat4 extends ValueType {
      * @returns {Mat4} self
      * @chainable
      */
-    identity () {
+    identity (): this {
         return Mat4.identity(this);
     }
 
@@ -1810,36 +1813,36 @@ export default class Mat4 extends ValueType {
 
     /**
      * Subtracts the current matrix with another one
-     * @method sub
+     * @method subtract
      * @param {Mat4} other the second operand
      * @param {Mat4} [out] the receiving matrix, you can pass the same matrix to save result to itself, if not provided, a new matrix will be created
      * @returns {Mat4} out
      */
-    sub (other, out) {
+    subtract (other, out) {
         out = out || new Mat4();
         return Mat4.subtract(out, this, other);
     }
 
     /**
      * Subtracts the current matrix with another one
-     * @method mul
+     * @method multiply
      * @param {Mat4} other the second operand
      * @param {Mat4} [out] the receiving matrix, you can pass the same matrix to save result to itself, if not provided, a new matrix will be created
      * @returns {Mat4} out
      */
-    mul (other, out) {
+    multiply (other, out) {
         out = out || new Mat4();
         return Mat4.multiply(out, this, other)
     }
 
     /**
      * Multiply each element of the matrix by a scalar.
-     * @method mulScalar
+     * @method multiplyScalar
      * @param {Number} number amount to scale the matrix's elements by
      * @param {Mat4} [out] the receiving matrix, you can pass the same matrix to save result to itself, if not provided, a new matrix will be created
      * @returns {Mat4} out
      */
-    mulScalar (number, out) {
+    multiplyScalar (number, out) {
         out = out || new Mat4();
         return Mat4.multiplyScalar(out, this, number);
     }
