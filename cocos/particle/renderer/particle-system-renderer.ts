@@ -295,6 +295,9 @@ export default class ParticleSystemRenderer {
         if (this._particleSystem.velocityOvertimeModule.enable) {
             this._particleSystem.velocityOvertimeModule.update(this._particleSystem._simulationSpace, _tempWorldTrans);
         }
+        if (this._particleSystem.limitVelocityOvertimeModule.enable) {
+            this._particleSystem.limitVelocityOvertimeModule.update(this._particleSystem._simulationSpace, _tempWorldTrans);
+        }
         if (this._particleSystem.forceOvertimeModule.enable) {
             this._particleSystem.forceOvertimeModule.update(this._particleSystem._simulationSpace, _tempWorldTrans);
         }
