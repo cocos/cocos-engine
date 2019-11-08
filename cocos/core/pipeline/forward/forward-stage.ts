@@ -13,7 +13,7 @@ import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-qu
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 
-const colors: IGFXColor[] = [];
+const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
 
 /**
@@ -181,15 +181,17 @@ export class ForwardStage extends RenderStage {
         this._renderArea.height = vp.height * camera.height * this.pipeline.shadingScale;
 
         if (camera.clearFlag & GFXClearFlag.COLOR) {
-            colors[0] = camera.clearColor;
             if (this._pipeline.isHDR) {
-                colors[0] = SRGBToLinear(colors[0]);
+                SRGBToLinear(colors[0], camera.clearColor);
                 const scale = this._pipeline.fpScale / camera.exposure;
                 colors[0].r *= scale;
                 colors[0].g *= scale;
                 colors[0].b *= scale;
+            } else {
+                colors[0].r = camera.clearColor.r;
+                colors[0].g = camera.clearColor.g;
+                colors[0].b = camera.clearColor.b;
             }
-            colors.length = 1;
         }
 
         if (this._pipeline.usePostProcess) {
