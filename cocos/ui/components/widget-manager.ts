@@ -199,7 +199,8 @@ function align (node: INode, widget: WidgetComponent) {
     Vec3.set(widget._lastPos, x, y, _tempPos.z);
 }
 
-function visitNode (node: Node) {
+// TODO: type is hack, Change to the type actually used (Node or BaseNode) when BaseNode complete
+function visitNode (node: any) {
     const widget = node.getComponent(WidgetComponent);
     if (widget) {
         // @ts-ignore
