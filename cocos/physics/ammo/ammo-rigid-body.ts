@@ -196,11 +196,11 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     getAngularVelocity (out: Vec3): Vec3 {
-        return Ammo2CocosVec3(out, this._btBody.getAngularFactor());
+        return Ammo2CocosVec3(out, this._btBody.getAngularVelocity());
     }
 
     setAngularVelocity (value: Vec3): void {
-        Cocos2AmmoVec3(this._btBody.getAngularFactor(), value);
+        Cocos2AmmoVec3(this._btBody.getAngularVelocity(), value);
     }
 
     /** dynamic */
