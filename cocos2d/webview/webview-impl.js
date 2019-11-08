@@ -23,12 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { mat4 } from '../core/vmath';
-
 const utils = require('../core/platform/utils');
 const sys = require('../core/platform/CCSys');
 
-let _mat4_temp = mat4.create();
+let _mat4_temp = cc.mat4();
 
 let WebViewImpl = cc.Class({
     name: "WebViewImpl",

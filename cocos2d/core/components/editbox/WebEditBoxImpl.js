@@ -24,6 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Mat4 from '../../value-types/mat4';
+
 const utils = require('../../platform/utils');
 const macro = require('../../platform/CCMacro');
 const Types = require('./types');
@@ -35,7 +37,6 @@ const js = cc.js;
 const InputMode = Types.InputMode;
 const InputFlag = Types.InputFlag;
 const KeyboardReturnType = Types.KeyboardReturnType;
-const math = cc.vmath;
 
 // polyfill
 let polyfill = {
@@ -72,8 +73,8 @@ function WebEditBoxImpl () {
     this._editing = false;
 
     // matrix
-    this._worldMat = math.mat4.create();
-    this._cameraMat = math.mat4.create();
+    this._worldMat = new Mat4();
+    this._cameraMat = new Mat4();
     // matrix cache
     this._m00 = 0;
     this._m01 = 0;
@@ -348,7 +349,7 @@ Object.assign(WebEditBoxImpl.prototype, {
         _vec3.x = -node._anchorPoint.x * this._w;
         _vec3.y = -node._anchorPoint.y * this._h;
     
-        math.mat4.translate(worldMat, worldMat, _vec3);
+        Mat4.translate(worldMat, worldMat, _vec3);
 
         // can't find camera in editor
         let cameraMat;
@@ -359,7 +360,7 @@ Object.assign(WebEditBoxImpl.prototype, {
             let camera = cc.Camera.findCamera(node);
             camera.getWorldToScreenMatrix2D(this._cameraMat);
             cameraMat = this._cameraMat;
-            math.mat4.mul(cameraMat, cameraMat, worldMat);
+            Mat4.mul(cameraMat, cameraMat, worldMat);
         }
         
     

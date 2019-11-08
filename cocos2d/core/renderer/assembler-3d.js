@@ -1,10 +1,9 @@
 import { vfmt3D } from './webgl/vertex-format';
-
-const vec3 = cc.vmath.vec3;
+import Vec3 from '../value-types/vec3';
 
 let vec3_temps = [];
 for (let i = 0; i < 4; i++) {
-    vec3_temps.push(vec3.create());
+    vec3_temps.push(cc.v3());
 }
 
 let Assembler3D = {
@@ -26,15 +25,15 @@ let Assembler3D = {
         let local = this._local;
         let world = this._renderData.vDatas[0];
         
-        vec3.set(vec3_temps[0], local[0], local[1], 0);
-        vec3.set(vec3_temps[1], local[2], local[1], 0);
-        vec3.set(vec3_temps[2], local[0], local[3], 0);
-        vec3.set(vec3_temps[3], local[2], local[3], 0);
+        Vec3.set(vec3_temps[0], local[0], local[1], 0);
+        Vec3.set(vec3_temps[1], local[2], local[1], 0);
+        Vec3.set(vec3_temps[2], local[0], local[3], 0);
+        Vec3.set(vec3_temps[3], local[2], local[3], 0);
 
         let floatsPerVert = this.floatsPerVert;
         for (let i = 0; i < 4; i++) {
             let vertex = vec3_temps[i];
-            vec3.transformMat4(vertex, vertex, matrix);
+            Vec3.transformMat4(vertex, vertex, matrix);
 
             let dstOffset = floatsPerVert * i;
             world[dstOffset] = vertex.x;

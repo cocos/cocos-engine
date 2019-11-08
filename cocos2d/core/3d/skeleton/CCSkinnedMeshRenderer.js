@@ -23,14 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Mat4 from '../../value-types/mat4';
 const Skeleton = require('./CCSkeleton');
 const MeshRenderer = require('../../mesh/CCMeshRenderer');
 const RenderFlow = require('../../renderer/render-flow');
 const enums = require('../../../renderer/enums');
-const mat4 = cc.vmath.mat4;
 
-let _m4_tmp = mat4.create();
-let _m4_tmp2 = mat4.create();
+let _m4_tmp = cc.mat4();
+let _m4_tmp2 = cc.mat4();
 
 /**
  * !#en
@@ -136,7 +136,7 @@ let SkinnedMeshRenderer = cc.Class({
             if (!parent._worldMatrixToRoot) {
                 this._calcWorldMatrixToRoot(parent);
             }
-            mat4.mul(worldMatrixToRoot, parent._worldMatrixToRoot, worldMatrixToRoot);
+            Mat4.mul(worldMatrixToRoot, parent._worldMatrixToRoot, worldMatrixToRoot);
         }
     },
 
@@ -177,8 +177,8 @@ let SkinnedMeshRenderer = cc.Class({
             for (let i = 0; i < jointPaths.length; i++) {
                 let joint = joints[i];
                 if (uniqueBindPoses[i]) {
-                    mat4.mul(_m4_tmp, joint._worldMatrixToRoot, uniqueBindPoses[i]);
-                    joint._jointMatrix = mat4.array([], _m4_tmp);
+                    Mat4.mul(_m4_tmp, joint._worldMatrixToRoot, uniqueBindPoses[i]);
+                    joint._jointMatrix = Mat4.toArray([], _m4_tmp);
                 }
                 else {
                     joint._jointMatrix = joint._worldMatrixToRoot;
@@ -306,7 +306,7 @@ let SkinnedMeshRenderer = cc.Class({
                 this._setJointsDataWithArray(i, jointMatrix);
             }
             else {
-                mat4.multiply(_m4_tmp, jointMatrix, bindposes[i]);
+                Mat4.multiply(_m4_tmp, jointMatrix, bindposes[i]);
                 this._setJointsDataWithMatrix(i, _m4_tmp);
             }
         }
@@ -320,14 +320,14 @@ let SkinnedMeshRenderer = cc.Class({
 
         this.rootBone._updateWorldMatrix();
         let rootMatrix = this.rootBone._worldMatrix;
-        let invRootMat = mat4.invert(_m4_tmp2, rootMatrix);
+        let invRootMat = Mat4.invert(_m4_tmp2, rootMatrix);
 
         for (let i = 0; i < joints.length; ++i) {
             let joint = joints[i];
             joint._updateWorldMatrix();
 
-            mat4.multiply(_m4_tmp, invRootMat, joint._worldMatrix);
-            mat4.multiply(_m4_tmp, _m4_tmp, bindposes[i]);
+            Mat4.multiply(_m4_tmp, invRootMat, joint._worldMatrix);
+            Mat4.multiply(_m4_tmp, _m4_tmp, bindposes[i]);
             this._setJointsDataWithMatrix(i, _m4_tmp);
         }
     },
@@ -339,7 +339,7 @@ let SkinnedMeshRenderer = cc.Class({
             let joint = joints[i];
 
             joint._updateWorldMatrix();
-            mat4.multiply(_m4_tmp, joint._worldMatrix, bindposes[i]);
+            Mat4.multiply(_m4_tmp, joint._worldMatrix, bindposes[i]);
             this._setJointsDataWithMatrix(i, _m4_tmp);
         }
     },

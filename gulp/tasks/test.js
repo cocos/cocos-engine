@@ -78,7 +78,7 @@ exports.build = function (sourceFile, outputFile, sourceFileForExtends, outputFi
             {
                 sourcemaps: sourcemaps,
                 babelifyOpt: {
-                    presets: ['env'],
+                    presets: ['@babel/preset-env'],
                     ast: false,
                     babelrc: false,
                     highlightCode: false,
@@ -129,16 +129,25 @@ exports.test = function (callback) {
 exports.buildTestCase = function (outDir, callback) {
     return Gulp.src('test/qunit/unit/**/*.js')
         .pipe(Babel({
-            presets: ['env'],
+            presets: ['@babel/preset-env'],
             plugins: [
                 // make sure that transform-decorators-legacy comes before transform-class-properties.
-                'transform-decorators-legacy',
-                'transform-class-properties',
+                [
+                    '@babel/plugin-proposal-decorators',
+                    { legacy: true },
+                ],
+                [
+                    '@babel/plugin-proposal-class-properties',
+                    { loose: true },
+                ],
+                [
+                    'babel-plugin-add-module-exports',
+                ],
             ],
             ast: false,
             babelrc: false,
             highlightCode: false,
-            sourceMaps: true,
+            sourceMap: true,
             compact: false
         }))
         .pipe(Gulp.dest(outDir))

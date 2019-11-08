@@ -23,8 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { mat4 } from '../core/vmath';
-
 const utils = require('../core/platform/utils');
 const sys = require('../core/platform/CCSys');
 const macro = require('../core/platform/CCMacro');
@@ -37,7 +35,7 @@ const READY_STATE = {
     HAVE_ENOUGH_DATA: 4
 };
 
-let _mat4_temp = mat4.create();
+let _mat4_temp = cc.mat4();
 
 let VideoPlayerImpl = cc.Class({
     name: 'VideoPlayerImpl',
